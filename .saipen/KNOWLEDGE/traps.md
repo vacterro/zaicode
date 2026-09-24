@@ -53,3 +53,28 @@ or the read/edit tools for protocol memory).
 is also Electron). Redirect smoke output to `.zaicode/smoke/` and never pipe the
 launcher directly into the agent shell (long-lived pipe hang, same class as the
 playwright trap).
+
+## SAIPEN status was 175 s on a no-git root (fixed 2026-09-24, T-22)
+
+Without a git repo at the workspace root, SAIPEN computes the source identity
+by walking and hashing every file under the root (node_modules is excluded,
+but `zcode/**/dist`, `packages/desktop/dist/win-unpacked` and `.zaicode/`
+smoke homes are not): ~70k files, 4 walks per `saipen status` = 175 s, and
+`validate` reported STALE_FAIL. The root is now a small git repo whose
+`.gitignore` excludes `/zcode/` (own repo), `/.zaicode/`, `/.tools/`,
+`/.devhome/`, logs and the launcher exe. Result: `status` 4.5 s, `validate`
+VALID / CURRENT_PASS. Never remove the root repo or un-ignore those trees.
+
+## Packaged bundle is blocked while ZAICODE runs
+
+`pnpm bundle:zaicode` rewrites `packages/desktop/dist/win-unpacked/`; with the
+operator's ZAICODE.exe running, the files are locked. Check for a running
+`*\dist\win-unpacked\ZAICODE.exe` first and never kill the operator's app.
+
+## ZAICODE shares the production CLI data root (open decision)
+
+The packaged ZAICODE agent writes `~/.zcode/cli/db/db.sqlite` and
+`~/.zcode/cli/artifacts` - the same data root as the installed production
+ZCode (UI.md "Standalone Identity" says they must not share mutable state).
+Moving it would hide existing ZAICODE sessions/projects, so it waits for an
+explicit operator decision.

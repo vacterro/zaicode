@@ -48,6 +48,33 @@ implementation, bootstrap, queue lifecycle, and upstream-update strategy.
   it does not remove provider login, which stays reachable through Models &
   Routing.
 
+### Packaged app (daily use)
+
+- Start: double-click `ZAICODE.exe` in the workspace root (or `ZAICODE.lnk`).
+  The launcher (`tools/launcher/ZaicodeLauncher.cs`, build with
+  `tools\launcheruild.cmd`) sets ZAICODE mode + identity + `SAIPEN_HOME`,
+  runs `zcode/packages/desktop/dist/win-unpacked/ZAICODE.exe` without a console
+  and restarts it after a crash (Settings toggle, `%APPDATA%\ZAICODE\zaicode-launcher.json`).
+- Rebuild while the app is open: `pnpm bundle:zaicode` detects the locked live
+  build and stages into `packages/desktop/dist-next/`; the launcher swaps it in on
+  the next start and keeps the old build as `win-unpacked.previous`.
+- Known gap: the packaged agent currently uses the default CLI data root
+  (`~/.zcode/cli`), the same one as an installed production ZCode. Only the
+  dev lane (`tools/start-zaicode-dev.ps1`) is fully isolated. Moving it is an
+  operator decision because existing ZAICODE sessions live there.
+
+### SAIPEN inside ZAICODE
+
+- Agent prompt (`apps/zcode-cli/packages/core/src/context/sections/identity.ts`):
+  resolved launcher path + a FAST PATH for `cc` (first tool call is
+  `saipen continue --json`, no skill hunting).
+- Composer strip: START (sends `cc`), phase/ticket, NEXT, LAST, THEN, board score;
+  one shared poller per project re-reads BOARD/LOG only when STATE.md changes.
+- Project row Play button: new chat + `cc`. Composer SAIPEN menu: shortcut table.
+- Agent template "SAIPEN Operator": each queued task runs as a SAIPEN ticket.
+- The workspace root is a small git repo so SAIPEN's source identity is cheap
+  (`saipen status` 175 s -> ~4.5 s).
+
 ## 3. Architecture relationship to upstream
 
 ZAICODE is an additive product layer; upstream behavior is unchanged unless
@@ -109,8 +136,11 @@ completed/failed/cancelled`, with an explicit transition table in
 `packages/shared/src/zaicode-jobs.ts`; terminal states never transition out.
 
 - **Admission**: `create` inserts a `queued` row with a workspace-scoped
-  `sort_order`; dispatch is explicit (`dispatch`, `pump`) — creation does not
-  auto-run.
+  `sort_order`. With **Autopilot** (`zaicode_settings.auto_run`, default on) the
+  service pumps right after `create`, `resume` and every `reportRunOutcome`, so
+  queued work starts by itself up to the concurrency limit. With Autopilot off,
+  dispatch is explicit (`dispatch`, `pump`). The auto pump is fire-and-forget:
+  failures are logged, and the stored queue stays the only truth.
 - **Single-flight claim**: `dispatch` performs one atomic
   `UPDATE ... WHERE status IN ('queued','ready','blocked')`; a second dispatch
   returns the existing running row and never starts a second execution.

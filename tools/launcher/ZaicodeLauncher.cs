@@ -2,6 +2,8 @@
 // Starts the packaged app in ZAICODE mode (no console window), points it at
 // the SAIPEN install, and restarts it after a crash unless disabled in
 // %APPDATA%\ZAICODE\zaicode-launcher.json ({"autoRestartOnCrash": false}).
+// Staged updates: `pnpm bundle:zaicode` builds into dist-next while the app
+// runs; the launcher swaps dist-next into dist before starting the app.
 // Build: tools\launcher\build.cmd
 using System;
 using System.Diagnostics;
@@ -12,6 +14,8 @@ using System.Windows.Forms;
 internal static class ZaicodeLauncher
 {
     private const string AppRelativePath = @"zcode\packages\desktop\dist\win-unpacked\ZAICODE.exe";
+    private const string LiveDir = @"zcode\packages\desktop\dist\win-unpacked";
+    private const string StagedDir = @"zcode\packages\desktop\dist-next\win-unpacked";
     private const int RapidCrashSeconds = 30;
     private const int RapidCrashLimit = 5;
 
@@ -28,6 +32,7 @@ internal static class ZaicodeLauncher
         string preferencesPath = Path.Combine(settingsDirectory, "zaicode-launcher.json");
 
         string executable = Path.Combine(workspace, AppRelativePath);
+        ApplyStagedBuild(workspace);
         if (!File.Exists(executable))
         {
             Log("ZAICODE.exe missing: " + executable);
@@ -91,6 +96,43 @@ internal static class ZaicodeLauncher
                 return exitCode;
             }
             Thread.Sleep(2000);
+            ApplyStagedBuild(workspace);
+        }
+    }
+
+    /// <summary>
+    /// Swaps a newer staged build (dist-next) into place. Runs only before the
+    /// app starts, so no file is locked; the previous build is kept as
+    /// win-unpacked.previous until the next swap for a manual rollback.
+    /// </summary>
+    private static void ApplyStagedBuild(string workspace)
+    {
+        string staged = Path.Combine(workspace, StagedDir);
+        string live = Path.Combine(workspace, LiveDir);
+        string stagedExe = Path.Combine(staged, "ZAICODE.exe");
+        if (!File.Exists(stagedExe)) return;
+        string liveExe = Path.Combine(live, "ZAICODE.exe");
+        if (File.Exists(liveExe) && File.GetLastWriteTimeUtc(liveExe) >= File.GetLastWriteTimeUtc(stagedExe))
+        {
+            Log("Staged build is not newer than live build; leaving it in place");
+            return;
+        }
+        string previous = live + ".previous";
+        try
+        {
+            if (Directory.Exists(previous)) Directory.Delete(previous, true);
+            if (Directory.Exists(live)) Directory.Move(live, previous);
+            Directory.CreateDirectory(Path.GetDirectoryName(live));
+            Directory.Move(staged, live);
+            Log("Applied staged build from dist-next");
+        }
+        catch (Exception error)
+        {
+            Log("Staged build swap failed: " + error.Message);
+            if (!Directory.Exists(live) && Directory.Exists(previous))
+            {
+                try { Directory.Move(previous, live); } catch { /* keep logging only */ }
+            }
         }
     }
 
