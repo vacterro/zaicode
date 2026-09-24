@@ -27,11 +27,11 @@
      write that field name next to a concrete id anywhere in this file. -->
 
 ## DOING
-- [/] T-22 [P1] ZAICODE whole-project review: everything works as intended, SAIPEN engine efficient in ZAICODE, add substantive improvements | verify: the requested change is present and demonstrated against the user own description of it | user_explicit: true | source_receipts: SRC-016 | owner: opencode | claim_time: 2026-09-24T06:38:28Z
 
 ## TODO
 
 ## DONE
+- [x] T-22 [P1] ZAICODE whole-project review: everything works as intended, SAIPEN engine efficient in ZAICODE, add substantive improvements | verify: the requested change is present and demonstrated against the user own description of it | user_explicit: true | source_receipts: SRC-016 | owner: opencode | claim_time: 2026-09-24T06:57:57Z | closure_mode: own_patch
 - [x] T-21 [P1] ZAICODE: remove Disconnect (account-free), fix provider Rename menu item, disable onboarding profession wizard, disable upstream auto-update badge, add proje... | verify: the requested change is present and demonstrated against the user own description of it | user_explicit: true | source_receipts: SRC-015 | owner: opencode | claim_time: 2026-09-24T06:38:27Z | closure_mode: own_patch
 - [x] T-20 [P1] ZAICODE agent system (sidebar ZAICODE workspace: roster, queue, inspector, editor) redesign: make purpose, flow and activation obvious at first glance, fewer... | verify: the requested change is present and demonstrated against the user own description of it | user_explicit: true | source_receipts: SRC-014 | owner: opencode | claim_time: 2026-09-24T06:15:59Z | closure_mode: own_patch
 - [x] T-19 [P1] ZAICODE: task rename via right-click/Enter/F2 must edit inline in the sidebar row (like F2 in explorer), no separate dialog | verify: the requested change is present and demonstrated against the user own description of it | user_explicit: true | source_receipts: SRC-013 | owner: opencode | claim_time: 2026-09-24T05:37:07Z | closure_mode: own_patch

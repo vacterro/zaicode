@@ -1,4 +1,14 @@
 {
-  "requirements": {},
+  "requirements": {
+    "SRC-016:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "T-22 closed with verification evidence in LOG: verify -> PASS [target: T-22] conf: high -- pnpm typecheck 0; pnpm lint 0 errors (70 baseline); architecture:check --changed OK 0 violations; services zaicode 16/16; ui 11/11; bundle:zaicode exit 0 staged dist-next 09:56 (asar has SAIPEN Operator + START); launcher sandbox swap PASS (live=new, previous=old, log Applied staged build); saipen status 4518ms, checkpoint 468ms",
+      "text": "ZAICODE whole-project review: everything works as intended, SAIPEN engine efficient in ZAICODE, add substantive improvements",
+      "verification": "the Work this request created reached its own verification gate; see the T-22 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-22"
+    }
+  },
   "schema_version": 1
 }
