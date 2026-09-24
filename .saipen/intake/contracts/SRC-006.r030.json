@@ -1,0 +1,159 @@
+{
+  "clauses": {
+    "SRC-006:R001": {
+      "actionable": true,
+      "class": "invariant",
+      "text": "Do not ask the operator to continue between normal milestones."
+    },
+    "SRC-006:R002": {
+      "actionable": true,
+      "class": "invariant",
+      "text": "Do not reopen already-proven implementation merely because SAIPEN STATE currently says BUILD."
+    },
+    "SRC-006:R003": {
+      "actionable": true,
+      "class": "invariant",
+      "text": "Do not stop after reporting findings if an eligible corrective action can be completed safely."
+    },
+    "SRC-006:R004": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Always inspect the live project before classifying a missing file as deleted."
+    },
+    "SRC-006:R005": {
+      "actionable": true,
+      "class": "invariant",
+      "text": "Do not interpret STATE=BUILD as meaning the T-12 implementation is unfinished."
+    },
+    "SRC-006:R006": {
+      "actionable": true,
+      "class": "invariant",
+      "text": "Do not blindly re-edit these lines."
+    },
+    "SRC-006:R007": {
+      "actionable": true,
+      "class": "invariant",
+      "text": "do not rewrite them just to create activity"
+    },
+    "SRC-006:R008": {
+      "actionable": true,
+      "class": "invariant",
+      "text": "do not broaden the patch"
+    },
+    "SRC-006:R009": {
+      "actionable": true,
+      "class": "invariant",
+      "text": "Do not create a new ticket merely to record these two fixes unless the SAIPEN protocol itself requires a distinct ticket."
+    },
+    "SRC-006:R010": {
+      "actionable": true,
+      "class": "invariant",
+      "text": "do not reconstruct them"
+    },
+    "SRC-006:R011": {
+      "actionable": true,
+      "class": "invariant",
+      "text": "do not rewrite them merely because the audit snapshot omitted them"
+    },
+    "SRC-006:R012": {
+      "actionable": true,
+      "class": "invariant",
+      "text": "Do not repair AUDAPACK from inside ZAICODE unless the currently active project protocol explicitly owns such cross-project work."
+    },
+    "SRC-006:R013": {
+      "actionable": true,
+      "class": "invariant",
+      "text": "Do not close T-12."
+    },
+    "SRC-006:R014": {
+      "actionable": true,
+      "class": "invariant",
+      "text": "Do not invent historical evidence."
+    },
+    "SRC-006:R015": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "`UI.md` must remain the ZAICODE product/workflow contract."
+    },
+    "SRC-006:R016": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "`docs/ZAICODE_ARCHITECTURE.md` must describe the actual current architecture."
+    },
+    "SRC-006:R017": {
+      "actionable": true,
+      "class": "invariant",
+      "text": "Do not treat the unsupported `createTask` property as enforcement proof."
+    },
+    "SRC-006:R018": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "The authoritative proof must be the actual runtime prompt/session path."
+    },
+    "SRC-006:R019": {
+      "actionable": true,
+      "class": "invariant",
+      "text": "Do not turn this into a second permission engine."
+    },
+    "SRC-006:R020": {
+      "actionable": true,
+      "class": "invariant",
+      "text": "Do not replace the upstream build system."
+    },
+    "SRC-006:R021": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Historical receipts must remain historical."
+    },
+    "SRC-006:R022": {
+      "actionable": true,
+      "class": "acceptance-criterion",
+      "text": "zero errors"
+    },
+    "SRC-006:R023": {
+      "actionable": true,
+      "class": "acceptance-criterion",
+      "text": "no new warnings above the inherited 70-warning baseline."
+    },
+    "SRC-006:R024": {
+      "actionable": true,
+      "class": "invariant",
+      "text": "Do not weaken tests or validators to obtain green gates."
+    },
+    "SRC-006:R025": {
+      "actionable": true,
+      "class": "invariant",
+      "text": "Do not leave T-12 in BUILD after a clean second review."
+    },
+    "SRC-006:R026": {
+      "actionable": true,
+      "class": "invariant",
+      "text": "Do not mark T-12 DONE if mandatory live-tree artifacts are actually absent."
+    },
+    "SRC-006:R027": {
+      "actionable": true,
+      "class": "invariant",
+      "text": "Do NOT close T-9 using:"
+    },
+    "SRC-006:R028": {
+      "actionable": true,
+      "class": "invariant",
+      "text": "Do not implement T-10 in this continuation."
+    },
+    "SRC-006:R029": {
+      "actionable": true,
+      "class": "invariant",
+      "text": "Do not bypass this decision by exposing an equivalent unrestricted queue-creation tool under another name."
+    },
+    "SRC-006:R030": {
+      "actionable": true,
+      "class": "invariant",
+      "text": "DO NOT INVENT EXTRA WORK JUST TO KEEP THE AGENT BUSY."
+    }
+  },
+  "derived_at": "2026-09-23T16:40:27Z",
+  "derived_from": "SRC-006",
+  "interpretation_revision": 30,
+  "schema_version": 1,
+  "source_sha256": "9d8cf925ef1680be1c7962d8cabad9533bf0a4db040ce4e2b360ab1f8ff9fce0"
+}

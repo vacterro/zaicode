@@ -1,0 +1,14 @@
+{
+  "clauses": {
+    "SRC-010:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Audit ZAICODE UI feedback: check which items done vs not done"
+    }
+  },
+  "derived_at": "2026-09-24T05:18:23Z",
+  "derived_from": "SRC-010",
+  "interpretation_revision": 1,
+  "schema_version": 1,
+  "source_sha256": "3464fda7acf76aa1759ae6834b8c9e4c9bcb77289ee2f8905615e643ec1885cc"
+}

@@ -1,0 +1,14 @@
+{
+  "requirements": {
+    "SRC-015:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "T-21 closed with verification evidence in LOG: verify -> PASS [target: T-21] conf: high -- pnpm typecheck exit 0; pnpm lint 0 errors 70 warnings (baseline); oxfmt clean",
+      "text": "ZAICODE: remove Disconnect (account-free), fix provider Rename menu item, disable onboarding profession wizard, disable upstream auto-update badge, add project-row START button (new chat + cc)",
+      "verification": "the Work this request created reached its own verification gate; see the T-21 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-21"
+    }
+  },
+  "schema_version": 1
+}

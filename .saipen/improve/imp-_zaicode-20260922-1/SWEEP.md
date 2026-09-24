@@ -1,0 +1,11 @@
+# SWEEP
+- RUN-1/IMP-001 [NEEDS_EXTERNAL_EVIDENCE] - report=opencode-01/saipen_improve_SAIPEN.md reproduced=n
+- RUN-1/IMP-002 [NEEDS_EXTERNAL_EVIDENCE] - report=opencode-01/saipen_improve_SAIPEN.md reproduced=n
+- RUN-1/IMP-003 [NEEDS_EXTERNAL_EVIDENCE] - report=opencode-01/saipen_improve_SAIPEN.md reproduced=n
+- RUN-1/IMP-004 [NEEDS_EXTERNAL_EVIDENCE] - report=opencode-01/saipen_improve_SAIPEN.md reproduced=n
+- RUN-1/IMP-005 [LATER_RULE] - report=opencode-01/saipen_improve_SAIPEN.md reproduced=n
+- RUN-1/IMP-001 [NEEDS_EXTERNAL_EVIDENCE] - report=opencode-02/saipen_improve_SAIPEN.md reproduced=n
+- RUN-1/IMP-002 [NEEDS_EXTERNAL_EVIDENCE] - report=opencode-02/saipen_improve_SAIPEN.md reproduced=n
+- RUN-1/IMP-003 [NEEDS_EXTERNAL_EVIDENCE] - report=opencode-02/saipen_improve_SAIPEN.md reproduced=n
+- RUN-1/IMP-004 [NEEDS_EXTERNAL_EVIDENCE] - report=opencode-02/saipen_improve_SAIPEN.md reproduced=n
+- RUN-1/IMP-005 [LATER_RULE] - report=opencode-02/saipen_improve_SAIPEN.md reproduced=n

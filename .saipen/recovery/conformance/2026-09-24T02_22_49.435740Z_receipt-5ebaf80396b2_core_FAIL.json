@@ -1,0 +1,41 @@
+{
+  "blocking_findings": {
+    "problem_count": 1,
+    "problems": [
+      {
+        "category": null,
+        "credential": false,
+        "detail": "source freshness computation BLOCKED -- cannot stat/read fingerprint input V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\.zaicode\\userdata\\lockfile: [Errno 13] Permission denied: 'V:\\\\___VAC\\\\__K\\\\_",
+        "detail_hash": "57de8eae9522a077",
+        "finding_key": "76b48f23558dce11",
+        "rule_id": "unclassified",
+        "severity": "problem",
+        "subject_id": null,
+        "subject_kind": "global",
+        "subject_ref": null
+      }
+    ],
+    "ruleset_fingerprint": "82e5e183ae8f0fd909be3fa3627f00489cacaab813d942186c832db02a05a1c1",
+    "ruleset_version": 1,
+    "status": "complete",
+    "warning_count": 16
+  },
+  "board_hash": "615c96fa7d135d9e",
+  "canonical_next_command": null,
+  "content_hash": "e57457dd2a5286d0",
+  "exit_code": 1,
+  "external_actions": [],
+  "gate": "core",
+  "kind": "conformance_receipt",
+  "log_hash": "7ac5a9b5d664846a",
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "receipt_id": "receipt-5ebaf80396b2",
+  "remediation_commands": [],
+  "schema_version": 2,
+  "source_head": "",
+  "source_tree_fingerprint": "",
+  "state_hash": "e95543fc85f41260",
+  "timestamp_utc": "2026-09-24T02:22:49.435740Z",
+  "validator_protocol_version": "1",
+  "verdict": "FAIL"
+}

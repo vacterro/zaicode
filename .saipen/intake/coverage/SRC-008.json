@@ -1,0 +1,14 @@
+{
+  "requirements": {
+    "SRC-008:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "T-14 closed with verification evidence in LOG: verify -> PASS [target: T-14] conf: high -- node --import tsx --test packages/ui/test/zaicodeAgentEditorPolicy.test.ts 10/10 pass; scoped tsc -p packages/ui/tsconfig.json --noEmit --composite false exit 0; pnpm lint 70 warnings 0 errors baseline; validate.py --gate core -> conformant 16 warnings 0 FAIL; stale improve cycle imp-_zaicode-20260922-2 aborted canonically; BOARD/LOG/audit reconciliation",
+      "text": "narrow post-T-13 reconciliation pass",
+      "verification": "the Work this request created reached its own verification gate; see the T-14 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-14"
+    }
+  },
+  "schema_version": 1
+}

@@ -1,0 +1,64 @@
+{
+  "appends": [
+    {
+      "class": "SUPERSEDE",
+      "created_work": null,
+      "delta": "review",
+      "derived_clauses": [
+        "SRC-006:R001",
+        "SRC-006:R002",
+        "SRC-006:R003",
+        "SRC-006:R004",
+        "SRC-006:R005",
+        "SRC-006:R006",
+        "SRC-006:R007",
+        "SRC-006:R008",
+        "SRC-006:R009",
+        "SRC-006:R010",
+        "SRC-006:R011",
+        "SRC-006:R012",
+        "SRC-006:R013",
+        "SRC-006:R014",
+        "SRC-006:R015",
+        "SRC-006:R016",
+        "SRC-006:R017",
+        "SRC-006:R018",
+        "SRC-006:R019",
+        "SRC-006:R020",
+        "SRC-006:R021",
+        "SRC-006:R022",
+        "SRC-006:R023",
+        "SRC-006:R024",
+        "SRC-006:R025",
+        "SRC-006:R026",
+        "SRC-006:R027",
+        "SRC-006:R028",
+        "SRC-006:R029",
+        "SRC-006:R030",
+        "SRC-006:R031",
+        "SRC-006:R032",
+        "SRC-006:R033"
+      ],
+      "label": "T-12 closure handoff: E-152 fixes present, REVIEW pass 2, close",
+      "projected_at": "2026-09-23T16:40:28Z",
+      "receipt": "SRC-006",
+      "received_at": "2026-09-23T16:40:13Z",
+      "rewind": null,
+      "seq": 1,
+      "source_sha256": "9d8cf925ef1680be1c7962d8cabad9533bf0a4db040ce4e2b360ab1f8ff9fce0",
+      "state": "PROJECTED",
+      "steps": [
+        "linked",
+        "derived",
+        "superseded"
+      ],
+      "superseded": [],
+      "supersedes": [],
+      "work": [
+        "T-12"
+      ]
+    }
+  ],
+  "schema_version": 1,
+  "source": "SRC-005"
+}

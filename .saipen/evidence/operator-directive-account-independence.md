@@ -1,0 +1,162 @@
+ZAICODE — ACCOUNT INDEPENDENCE / PRODUCT SEPARATION DELTA
+
+CURRENT STATE
+
+The current Desktop smoke test correctly proves the upstream ZCode baseline.
+The visible Z.ai account, Connect, Upgrade, Coding Plan, Start Plan, and subscription surfaces are upstream product UX and are not the intended final ZAICODE product model.
+
+TARGET
+
+ZAICODE must be a standalone local application.
+A Z.ai account must NOT be required to:
+- launch ZAICODE;
+- open a workspace;
+- create or configure agents;
+- use the ZAICODE queue;
+- configure SAIFREN;
+- configure SAIRoute;
+- configure 9router;
+- use local models;
+- use custom providers;
+- execute work through externally configured routes.
+
+Z.ai may remain available only as an optional external model provider.
+Do not make Z.ai identity the ZAICODE application identity.
+
+IMPLEMENTATION STRATEGY
+
+Do not broadly delete upstream authentication code.
+Prefer a centralized ZAICODE product capability/configuration layer that disables upstream commercial/account UX while preserving optional provider-level Z.ai integration.
+Keep the upstream delta narrow enough for future rebases.
+
+REMOVE OR DISABLE FROM PRIMARY ZAICODE UX
+
+- mandatory account connection;
+- bottom-level Connect account CTA;
+- Upgrade CTA;
+- Z.ai Coding Plan promotion;
+- Start Plan promotion;
+- subscription pricing cards;
+- account-required onboarding gates;
+- Z.ai-specific product onboarding;
+- commercial upgrade prompts;
+- any assumption that Z.ai authentication is required before workspace use.
+Do not merely hide these elements if backend startup or workspace admission still depends on authentication.
+VERIFY THE FULL STARTUP PATH.
+
+OPTIONAL Z.AI PROVIDER
+
+If the upstream provider implementation can be isolated cleanly, preserve Z.ai as an optional provider under the general provider system.
+It must behave like an optional provider, not like the owner of ZAICODE.
+No Z.ai account should exist:
+- no error;
+- no blocked workspace;
+- no disabled ZAICODE agents;
+- no disabled queue;
+- no disabled SAIFREN/SAIRoute/9router configuration.
+
+PRODUCT SEPARATION
+
+Create a standalone ZAICODE application identity.
+Verify and separate, where applicable:
+- product display name;
+- package/build identity;
+- Electron application ID;
+- Electron userData directory;
+- local application data;
+- databases;
+- settings;
+- cookies;
+- account/auth sessions;
+- cached provider data;
+- logs;
+- temporary runtime state;
+- single-instance ownership;
+- deep-link protocol;
+- update channel;
+- crash/reporting identity.
+ZAICODE and an installed production ZCode must be able to run simultaneously without sharing mutable application state.
+Do not read or migrate the existing production ZCode profile automatically.
+Any future import from ZCode must be an explicit user action.
+
+ROUTING PRODUCT MODEL
+
+ZAICODE execution ownership should conceptually become:
+ZAICODE UI
+→ ZAICODE Agent / Queue
+→ SAIFREN
+→ SAIRoute
+→ 9router
+→ selected provider/model
+→ execution runtime
+→ ZAICODE result/state
+Provider authentication belongs to the selected provider integration.
+ZAICODE itself must not require a cloud account.
+
+SETTINGS INFORMATION ARCHITECTURE
+
+Move toward a product-oriented settings structure such as:
+- General
+- Appearance
+- Models & Routing
+- Agents
+- SAIFREN
+- SAIRoute
+- 9router
+- Browser
+- Plugins
+- MCP Servers
+- Skills
+- Commands
+- Hooks
+- Usage
+Do not duplicate settings pages merely to achieve these labels.
+Prefer adapting the existing settings architecture.
+
+MODELS & ROUTING
+
+The primary model configuration surface should eventually prioritize:
+- SAIRoute
+- 9router
+- custom providers
+- local models
+- external providers
+Z.ai should appear only as an optional external provider if retained.
+
+NO-PROVIDER STATE
+
+ZAICODE must successfully start with zero authenticated cloud providers.
+The UI should show a truthful configuration state such as:
+"No execution routes configured."
+From there the operator must still be able to:
+- inspect projects;
+- configure agents;
+- configure routing;
+- configure local/custom providers;
+- edit queue items that do not require execution.
+Do not redirect the operator into Z.ai account creation.
+
+UI.md
+
+Update root UI.md with the explicit invariant:
+"ZAICODE has no mandatory application account. Cloud authentication is provider-specific. The application, workspace, agent management, queue, and routing configuration remain available without a Z.ai account."
+Also document:
+"Z.ai is an optional external provider and has no privileged product-level status inside ZAICODE."
+
+VALIDATION
+
+Prove all of the following:
+1. Fresh isolated ZAICODE profile.
+2. No Z.ai login.
+3. ZAICODE Desktop starts.
+4. Workspace opens.
+5. Settings open.
+6. Agent management opens.
+7. Queue opens.
+8. SAIFREN configuration opens.
+9. SAIRoute/9router configuration can be reached.
+10. No Upgrade/Connect/Coding Plan product CTA remains in normal ZAICODE navigation.
+11. Optional Z.ai provider can remain unconfigured without errors.
+12. Installed production ZCode remains untouched.
+13. ZCode and ZAICODE can run concurrently without mutable-state collision.
+Do not delete upstream provider/authentication code unless there is a demonstrated architectural reason to do so.

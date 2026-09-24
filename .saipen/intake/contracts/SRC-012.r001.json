@@ -1,0 +1,14 @@
+{
+  "clauses": {
+    "SRC-012:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "ZAICODE UI batch: titlebar project click creates session, todo gauge above chat, START button + agent status (next/last action, next ticket), colored tooltips, cc/SAIPEN awareness for agents, replace plugins option, select+Enter/right-click rename, proper root launcher; then polish"
+    }
+  },
+  "derived_at": "2026-09-24T05:14:47Z",
+  "derived_from": "SRC-012",
+  "interpretation_revision": 1,
+  "schema_version": 1,
+  "source_sha256": "bf53bdbbf0218f816a26f3d3c087dcf7981f944bf6c4576dd5cfcaf39ada6822"
+}

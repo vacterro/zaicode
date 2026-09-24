@@ -1,0 +1,46 @@
+{
+  "op_id": "claim-4fd5bf2bba294e48b1e9184be081bb1c",
+  "operation": "claim",
+  "created_at": "2026-09-21T23:44:58Z",
+  "agent": "opencode",
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "project_lineage": "lineage-b0732ed2f98947b9a3c97bfe71427eca",
+  "semantic_payload_hash": "7550a56268662498",
+  "preconditions": {
+    ".saipen/STATE.md": "6b5ea44fb1c40243",
+    ".saipen/BOARD.md": "bf7b38ce2ae36abf",
+    ".saipen/LOG.md": "cb9ecf31f7d5d2a2"
+  },
+  "read_preconditions": {
+    ".saipen/logs": "tree-missing-v1"
+  },
+  "verification_policy": "core_fast",
+  "status": "COMMITTED",
+  "progress_index": 3,
+  "targets": [
+    {
+      "path": ".saipen/LOG.md",
+      "role": "log",
+      "action": "write",
+      "before_hash": "cb9ecf31f7d5d2a2",
+      "after_hash": "31737b8fa70d7c85",
+      "applied": true
+    },
+    {
+      "path": ".saipen/BOARD.md",
+      "role": "board",
+      "action": "write",
+      "before_hash": "bf7b38ce2ae36abf",
+      "after_hash": "c2d1de858042e6e1",
+      "applied": true
+    },
+    {
+      "path": ".saipen/STATE.md",
+      "role": "state",
+      "action": "write",
+      "before_hash": "6b5ea44fb1c40243",
+      "after_hash": "fad2bb1d0df8675a",
+      "applied": true
+    }
+  ]
+}

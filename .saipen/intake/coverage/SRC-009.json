@@ -1,0 +1,14 @@
+{
+  "requirements": {
+    "SRC-009:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "T-15 closed with verification evidence in LOG: verify -> PASS [target: T-15] conf: high -- node --test ui 8/8 + services routing/jobs 15/15; tsc --noEmit shared/services/ui/cli-adapters exit 0; pnpm lint 70 warnings 0 errors; oxfmt --check clean; pnpm build:zaicode exit 0; cli zcode.cjs rebuilt with skill truncation",
+      "text": "ZAICODE UI feedback batch: remove Connect button; add profiles with generic icons; make all icon/element placeholders hot-swappable for editing; add all Vintage themes as selectable, default OLED Vintage (not pure white 255,255,255 font); clarify what the ZAICODE section does (currently unclear); rework ZAICODE provider section as SAIRoute pools (SAIFREN = free/all internet-available APIs, SAIOPP = paid deep-thinking) since SAIFREN/SAIOPP are 9router router names; allow picking a pool in the model selector; fix app failing to read SAIPEN.",
+      "verification": "the Work this request created reached its own verification gate; see the T-15 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-15"
+    }
+  },
+  "schema_version": 1
+}

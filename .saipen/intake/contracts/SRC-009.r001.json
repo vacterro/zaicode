@@ -1,0 +1,14 @@
+{
+  "clauses": {
+    "SRC-009:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "ZAICODE UI feedback batch: remove Connect button; add profiles with generic icons; make all icon/element placeholders hot-swappable for editing; add all Vintage themes as selectable, default OLED Vintage (not pure white 255,255,255 font); clarify what the ZAICODE section does (currently unclear); rework ZAICODE provider section as SAIRoute pools (SAIFREN = free/all internet-available APIs, SAIOPP = paid deep-thinking) since SAIFREN/SAIOPP are 9router router names; allow picking a pool in the model selector; fix app failing to read SAIPEN."
+    }
+  },
+  "derived_at": "2026-09-24T02:26:02Z",
+  "derived_from": "SRC-009",
+  "interpretation_revision": 1,
+  "schema_version": 1,
+  "source_sha256": "06ce78f6b764ecaae25258784c9f54722bbbaf4f8e663f940847ce24b69cfba1"
+}

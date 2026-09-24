@@ -1,0 +1,14 @@
+{
+  "requirements": {
+    "SRC-007:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "T-13 closed with verification evidence in LOG: verify -> PASS [target: T-13] conf: high -- node --import tsx --test ui+services+desktop zaicode suites 37/37 pass; pnpm typecheck exit 0; pnpm architecture:check --changed 0 violations 0 new; pnpm lint 70 warnings 0 errors baseline; pnpm --filter @zcode/web build ok; pnpm build:zaicode ok flavor=zaicode identity=dev.zaicode.app. Round-trip instrument: zaicodeRoutingModel backend<->view identity a",
+      "text": "ZAICODE UX and routing-model clarification wave",
+      "verification": "the Work this request created reached its own verification gate; see the T-13 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-13"
+    }
+  },
+  "schema_version": 1
+}

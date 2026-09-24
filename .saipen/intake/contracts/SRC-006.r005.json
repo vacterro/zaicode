@@ -1,0 +1,34 @@
+{
+  "clauses": {
+    "SRC-006:R001": {
+      "actionable": true,
+      "class": "invariant",
+      "text": "Do not ask the operator to continue between normal milestones."
+    },
+    "SRC-006:R002": {
+      "actionable": true,
+      "class": "invariant",
+      "text": "Do not reopen already-proven implementation merely because SAIPEN STATE currently says BUILD."
+    },
+    "SRC-006:R003": {
+      "actionable": true,
+      "class": "invariant",
+      "text": "Do not stop after reporting findings if an eligible corrective action can be completed safely."
+    },
+    "SRC-006:R004": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Always inspect the live project before classifying a missing file as deleted."
+    },
+    "SRC-006:R005": {
+      "actionable": true,
+      "class": "invariant",
+      "text": "Do not interpret STATE=BUILD as meaning the T-12 implementation is unfinished."
+    }
+  },
+  "derived_at": "2026-09-23T16:40:24Z",
+  "derived_from": "SRC-006",
+  "interpretation_revision": 5,
+  "schema_version": 1,
+  "source_sha256": "9d8cf925ef1680be1c7962d8cabad9533bf0a4db040ce4e2b360ab1f8ff9fce0"
+}

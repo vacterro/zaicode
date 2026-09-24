@@ -1,0 +1,24 @@
+{
+  "blocking_findings": {
+    "reason": "validator did not provide complete classified blocking findings",
+    "status": "unavailable"
+  },
+  "board_hash": "7c6522f7bea18b57",
+  "canonical_next_command": null,
+  "content_hash": "ccd4f9c697f828b7",
+  "exit_code": 1,
+  "external_actions": [],
+  "gate": "core",
+  "kind": "conformance_receipt",
+  "log_hash": "1dca2b32a8e527f5",
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "receipt_id": "receipt-86f8682e9ae5",
+  "remediation_commands": [],
+  "schema_version": 2,
+  "source_head": "no-git",
+  "source_tree_fingerprint": "no-git-tree-v1:46a3a3c5bb3a1a68aeaa4c5324fe3e68e1149fa6b4060c7c7cfbc51317164bcb",
+  "state_hash": "c0a89779b97bcab7",
+  "timestamp_utc": "2026-09-21T23:46:19.187354Z",
+  "validator_protocol_version": "1",
+  "verdict": "FAIL"
+}

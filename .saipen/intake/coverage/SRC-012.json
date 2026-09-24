@@ -1,0 +1,14 @@
+{
+  "requirements": {
+    "SRC-012:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "T-18 closed with verification evidence in LOG: verify -> PASS [target: T-18] conf: high -- node --test ui 11/11; pnpm typecheck 0; pnpm lint 0 errors; pnpm bundle:zaicode 0; root launcher smoke up",
+      "text": "ZAICODE UI batch: titlebar project click creates session, todo gauge above chat, START button + agent status (next/last action, next ticket), colored tooltips, cc/SAIPEN awareness for agents, replace plugins option, select+Enter/right-click rename, proper root launcher; then polish",
+      "verification": "the Work this request created reached its own verification gate; see the T-18 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-18"
+    }
+  },
+  "schema_version": 1
+}

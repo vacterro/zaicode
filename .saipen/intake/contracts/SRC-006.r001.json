@@ -1,0 +1,14 @@
+{
+  "clauses": {
+    "SRC-006:R001": {
+      "actionable": true,
+      "class": "invariant",
+      "text": "Do not ask the operator to continue between normal milestones."
+    }
+  },
+  "derived_at": "2026-09-23T16:40:23Z",
+  "derived_from": "SRC-006",
+  "interpretation_revision": 1,
+  "schema_version": 1,
+  "source_sha256": "9d8cf925ef1680be1c7962d8cabad9533bf0a4db040ce4e2b360ab1f8ff9fce0"
+}

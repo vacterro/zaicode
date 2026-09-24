@@ -1,0 +1,14 @@
+{
+  "requirements": {
+    "SRC-013:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "T-19 closed with verification evidence in LOG: verify -> PASS [target: T-19] conf: high -- ui tsc 0; pnpm lint 0 errors; oxfmt clean; pnpm bundle:zaicode 0 (08:34)",
+      "text": "ZAICODE: task rename via right-click/Enter/F2 must edit inline in the sidebar row (like F2 in explorer), no separate dialog",
+      "verification": "the Work this request created reached its own verification gate; see the T-19 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-19"
+    }
+  },
+  "schema_version": 1
+}

@@ -1,0 +1,10 @@
+# ZAICODE workspace root. The app source lives in zcode/ (its own git repo).
+# This repo tracks only the workspace layer: launcher, docs, product contract.
+# It also gives SAIPEN a git source identity, so `saipen status` hashes a few
+# tracked files instead of walking ~70k build/smoke files on every call.
+/zcode/
+/.zaicode/
+/.tools/
+/.devhome/
+*.log
+/ZAICODE.exe

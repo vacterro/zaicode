@@ -1,0 +1,71 @@
+{
+  "active": {
+    "SRC-001": {
+      "linked_work": "T-1",
+      "source_sha256": "51e8504d853c69db770000df8e4f97e829ff1cc7fae4d1f752916ad48411594f"
+    },
+    "SRC-002": {
+      "linked_work": "T-2",
+      "source_sha256": "91521fac61db3b64ae97c0a260f450687d0ec0c10f28dc99ae9a094b914246c9"
+    },
+    "SRC-003": {
+      "linked_work": "T-7",
+      "source_sha256": "b81d42f22c650738d0adeb88ecbadc8e61525ba3991f2239e40e9890c4658478"
+    },
+    "SRC-004": {
+      "linked_work": "T-11",
+      "source_sha256": "1ccc7c773d8d2482a837e6a82f28a71e16291759efe755d03206d4e7557c6301"
+    },
+    "SRC-005": {
+      "linked_work": "T-12",
+      "source_sha256": "b633eff1c62c20d107070ff4c187934ea34c929c65d4f662084abd7a671ac9e3"
+    },
+    "SRC-006": {
+      "linked_work": "T-12",
+      "source_sha256": "9d8cf925ef1680be1c7962d8cabad9533bf0a4db040ce4e2b360ab1f8ff9fce0"
+    },
+    "SRC-007": {
+      "linked_work": "T-13",
+      "source_sha256": "5c3b10bf158f5a51fe8f1fc0f89feefec410672e5a6c3901b8cef0db56999ab7"
+    },
+    "SRC-008": {
+      "linked_work": "T-14",
+      "source_sha256": "0f6e1363b71307b633aecaef475b7d51e50ba1004c0c90c9970e2847bf29a686"
+    },
+    "SRC-009": {
+      "linked_work": "T-15",
+      "source_sha256": "06ce78f6b764ecaae25258784c9f54722bbbaf4f8e663f940847ce24b69cfba1"
+    },
+    "SRC-010": {
+      "linked_work": "T-16",
+      "source_sha256": "3464fda7acf76aa1759ae6834b8c9e4c9bcb77289ee2f8905615e643ec1885cc"
+    },
+    "SRC-011": {
+      "linked_work": "T-17",
+      "source_sha256": "94a18f6c1661e113140d7f5bb5cbd6ea0e3b06d2b067b471cbc09552fe43d0e1"
+    },
+    "SRC-012": {
+      "linked_work": "T-18",
+      "source_sha256": "bf53bdbbf0218f816a26f3d3c087dcf7981f944bf6c4576dd5cfcaf39ada6822"
+    },
+    "SRC-013": {
+      "linked_work": "T-19",
+      "source_sha256": "646c7fa5e285dbeab077e7d18792178422b97ecb83f3987bae9d92d38e579bd8"
+    },
+    "SRC-014": {
+      "linked_work": "T-20",
+      "source_sha256": "8a15a22ebcbb622f66409cb3107a1db5ad7b007b9246e0972b325e55652c5961"
+    },
+    "SRC-015": {
+      "linked_work": "T-21",
+      "source_sha256": "b5616c411e41a7c29534801593f160f080e130375d97ae6a63767d6aab41fdee"
+    },
+    "SRC-016": {
+      "linked_work": "T-22",
+      "source_sha256": "222e7070b2e14e466f5d610cd1b71d5638ebbaeb1bc538deebd22093d8ea8772"
+    }
+  },
+  "next_id": 17,
+  "schema_version": 1,
+  "tombstones": {}
+}

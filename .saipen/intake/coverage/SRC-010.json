@@ -1,0 +1,14 @@
+{
+  "requirements": {
+    "SRC-010:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "T-16 closed with verification evidence in LOG: verify -> PASS [target: T-16] conf: high -- each item mapped to file evidence in T-18 BUILD checkpoint; pnpm typecheck 0; lint 0 errors",
+      "text": "Audit ZAICODE UI feedback: check which items done vs not done",
+      "verification": "the Work this request created reached its own verification gate; see the T-16 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-16"
+    }
+  },
+  "schema_version": 1
+}

@@ -1,0 +1,20 @@
+{
+  "board_hash": "cf314959f483fa0c",
+  "canonical_next_command": "saipen validate",
+  "content_hash": "a66c37f675137c59",
+  "exit_code": 1,
+  "external_actions": [],
+  "gate": "core",
+  "kind": "conformance_receipt",
+  "log_hash": "331f3c5388fcedd5",
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "receipt_id": "receipt-e351ac96ab19",
+  "remediation_commands": [],
+  "schema_version": 2,
+  "source_head": "no-git",
+  "source_tree_fingerprint": "no-git-tree-v1:1bad7c4bb8902d56305eb7b9d8ebd77f24ad293fa2a5de7deab5e7f0a67fdfd4",
+  "state_hash": "bd494f399ca52cbd",
+  "timestamp_utc": "2026-09-21T22:50:13.406771Z",
+  "validator_protocol_version": "1",
+  "verdict": "FAIL"
+}

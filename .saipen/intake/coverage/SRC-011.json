@@ -1,0 +1,14 @@
+{
+  "requirements": {
+    "SRC-011:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "T-17 closed with verification evidence in LOG: verify -> PASS [target: T-17] conf: high -- pnpm typecheck 0; pnpm lint 0 errors; pnpm bundle:zaicode 0; root launcher smoke launcher->app up; asar has SAIPEN strip",
+      "text": "Implement ZAICODE persistence, launcher, restart, branding, readable code blocks, todo, themes, profiles, router pools and SAIPEN access",
+      "verification": "the Work this request created reached its own verification gate; see the T-17 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-17"
+    }
+  },
+  "schema_version": 1
+}

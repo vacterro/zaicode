@@ -1,0 +1,14 @@
+{
+  "clauses": {
+    "SRC-013:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "ZAICODE: task rename via right-click/Enter/F2 must edit inline in the sidebar row (like F2 in explorer), no separate dialog"
+    }
+  },
+  "derived_at": "2026-09-24T05:37:07Z",
+  "derived_from": "SRC-013",
+  "interpretation_revision": 1,
+  "schema_version": 1,
+  "source_sha256": "646c7fa5e285dbeab077e7d18792178422b97ecb83f3987bae9d92d38e579bd8"
+}

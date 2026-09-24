@@ -1,0 +1,14 @@
+{
+  "clauses": {
+    "SRC-015:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "ZAICODE: remove Disconnect (account-free), fix provider Rename menu item, disable onboarding profession wizard, disable upstream auto-update badge, add project-row START button (new chat + cc)"
+    }
+  },
+  "derived_at": "2026-09-24T06:38:10Z",
+  "derived_from": "SRC-015",
+  "interpretation_revision": 1,
+  "schema_version": 1,
+  "source_sha256": "b5616c411e41a7c29534801593f160f080e130375d97ae6a63767d6aab41fdee"
+}

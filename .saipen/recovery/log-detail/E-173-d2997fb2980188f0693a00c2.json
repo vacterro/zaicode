@@ -1,0 +1,19 @@
+{
+  "event_id": "E-173",
+  "externalization_event": {
+    "operation_id": "checkpoint-0903ff70bb584a438ef08ac3523a01f1",
+    "reason": "new LOG event exceeds the live cap; canonical detail externalization"
+  },
+  "lossless": true,
+  "metadata_path": ".saipen/recovery/log-detail/E-173-d2997fb2980188f0693a00c2.json",
+  "operation": "log_event_externalization",
+  "original_event_bytes": 1229,
+  "original_event_path": ".saipen/recovery/log-detail/E-173-d2997fb2980188f0693a00c2.LOG.md",
+  "original_event_sha256": "d2997fb2980188f0693a00c24e044f68f4d61490e6378b1cede7d5de2034df40",
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "project_lineage": "lineage-b0732ed2f98947b9a3c97bfe71427eca",
+  "schema_version": 1,
+  "source": ".saipen/LOG.md",
+  "status": "COMMITTED",
+  "ticket_id": "T-13"
+}

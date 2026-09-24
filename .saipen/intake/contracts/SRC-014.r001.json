@@ -1,0 +1,14 @@
+{
+  "clauses": {
+    "SRC-014:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "ZAICODE agent system (sidebar ZAICODE workspace: roster, queue, inspector, editor) redesign: make purpose, flow and activation obvious at first glance, fewer visible settings/states"
+    }
+  },
+  "derived_at": "2026-09-24T06:15:59Z",
+  "derived_from": "SRC-014",
+  "interpretation_revision": 1,
+  "schema_version": 1,
+  "source_sha256": "8a15a22ebcbb622f66409cb3107a1db5ad7b007b9246e0972b325e55652c5961"
+}

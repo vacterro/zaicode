@@ -1,0 +1,38 @@
+{
+  "op_id": "goal-7e9613510be2422297100edc3833181d",
+  "operation": "goal",
+  "created_at": "2026-09-24T02:54:00Z",
+  "agent": "opencode",
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "project_lineage": "lineage-b0732ed2f98947b9a3c97bfe71427eca",
+  "semantic_payload_hash": "45ff31403a6c0830",
+  "preconditions": {
+    ".saipen/STATE.md": "f7066aa7c7bb6651",
+    ".saipen/LOG.md": "2f931ae594da5b3e"
+  },
+  "read_preconditions": {
+    ".saipen/BOARD.md": "6dd172a8bf4c3c6c",
+    ".saipen/logs": "tree-missing-v1"
+  },
+  "verification_policy": "core_fast",
+  "status": "COMMITTED",
+  "progress_index": 2,
+  "targets": [
+    {
+      "path": ".saipen/LOG.md",
+      "role": "log",
+      "action": "write",
+      "before_hash": "2f931ae594da5b3e",
+      "after_hash": "f5beb2da2c1a8c09",
+      "applied": true
+    },
+    {
+      "path": ".saipen/STATE.md",
+      "role": "state",
+      "action": "write",
+      "before_hash": "f7066aa7c7bb6651",
+      "after_hash": "3aaf62afa215d9dc",
+      "applied": true
+    }
+  ]
+}

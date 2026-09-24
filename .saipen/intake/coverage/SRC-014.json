@@ -1,0 +1,14 @@
+{
+  "requirements": {
+    "SRC-014:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "T-20 closed with verification evidence in LOG: verify -> PASS [target: T-20] conf: high -- services zaicodeJobs 12/12 incl autopilot test; ui tests 11/11; pnpm typecheck 0; bootstrap tsc 0; pnpm lint 0 errors; pnpm bundle:zaicode 0 (09:12), bundled cjs has todos schema",
+      "text": "ZAICODE agent system (sidebar ZAICODE workspace: roster, queue, inspector, editor) redesign: make purpose, flow and activation obvious at first glance, fewer visible settings/states",
+      "verification": "the Work this request created reached its own verification gate; see the T-20 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-20"
+    }
+  },
+  "schema_version": 1
+}

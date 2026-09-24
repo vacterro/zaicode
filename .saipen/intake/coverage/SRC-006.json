@@ -1,0 +1,302 @@
+{
+  "requirements": {
+    "SRC-006:R001": {
+      "actionable": true,
+      "class": "invariant",
+      "disposition": "VERIFIED",
+      "evidence": "E-166",
+      "text": "Do not ask the operator to continue between normal milestones.",
+      "verification": "E-162",
+      "work": "T-12"
+    },
+    "SRC-006:R002": {
+      "actionable": true,
+      "class": "invariant",
+      "disposition": "VERIFIED",
+      "evidence": "E-164",
+      "text": "Do not reopen already-proven implementation merely because SAIPEN STATE currently says BUILD.",
+      "verification": "E-162",
+      "work": "T-12"
+    },
+    "SRC-006:R003": {
+      "actionable": true,
+      "class": "invariant",
+      "disposition": "VERIFIED",
+      "evidence": "E-164",
+      "text": "Do not stop after reporting findings if an eligible corrective action can be completed safely.",
+      "verification": "E-162",
+      "work": "T-12"
+    },
+    "SRC-006:R004": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "E-164",
+      "text": "Always inspect the live project before classifying a missing file as deleted.",
+      "verification": "E-162",
+      "work": "T-12"
+    },
+    "SRC-006:R005": {
+      "actionable": true,
+      "class": "invariant",
+      "disposition": "VERIFIED",
+      "evidence": "E-164",
+      "text": "Do not interpret STATE=BUILD as meaning the T-12 implementation is unfinished.",
+      "verification": "E-162",
+      "work": "T-12"
+    },
+    "SRC-006:R006": {
+      "actionable": true,
+      "class": "invariant",
+      "disposition": "VERIFIED",
+      "evidence": "E-164",
+      "text": "Do not blindly re-edit these lines.",
+      "verification": "E-162",
+      "work": "T-12"
+    },
+    "SRC-006:R007": {
+      "actionable": true,
+      "class": "invariant",
+      "disposition": "VERIFIED",
+      "evidence": "E-164",
+      "text": "do not rewrite them just to create activity",
+      "verification": "E-162",
+      "work": "T-12"
+    },
+    "SRC-006:R008": {
+      "actionable": true,
+      "class": "invariant",
+      "disposition": "VERIFIED",
+      "evidence": "E-164",
+      "text": "do not broaden the patch",
+      "verification": "E-162",
+      "work": "T-12"
+    },
+    "SRC-006:R009": {
+      "actionable": true,
+      "class": "invariant",
+      "disposition": "VERIFIED",
+      "evidence": "E-164",
+      "text": "Do not create a new ticket merely to record these two fixes unless the SAIPEN protocol itself requires a distinct ticket.",
+      "verification": "E-162",
+      "work": "T-12"
+    },
+    "SRC-006:R010": {
+      "actionable": true,
+      "class": "invariant",
+      "disposition": "VERIFIED",
+      "evidence": "E-164",
+      "text": "do not reconstruct them",
+      "verification": "E-162",
+      "work": "T-12"
+    },
+    "SRC-006:R011": {
+      "actionable": true,
+      "class": "invariant",
+      "disposition": "VERIFIED",
+      "evidence": "E-164",
+      "text": "do not rewrite them merely because the audit snapshot omitted them",
+      "verification": "E-162",
+      "work": "T-12"
+    },
+    "SRC-006:R012": {
+      "actionable": true,
+      "class": "invariant",
+      "disposition": "VERIFIED",
+      "evidence": "E-164",
+      "text": "Do not repair AUDAPACK from inside ZAICODE unless the currently active project protocol explicitly owns such cross-project work.",
+      "verification": "E-162",
+      "work": "T-12"
+    },
+    "SRC-006:R013": {
+      "actionable": true,
+      "class": "invariant",
+      "disposition": "VERIFIED",
+      "evidence": "E-164",
+      "text": "Do not close T-12.",
+      "verification": "E-162",
+      "work": "T-12"
+    },
+    "SRC-006:R014": {
+      "actionable": true,
+      "class": "invariant",
+      "disposition": "VERIFIED",
+      "evidence": "E-164",
+      "text": "Do not invent historical evidence.",
+      "verification": "E-162",
+      "work": "T-12"
+    },
+    "SRC-006:R015": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "E-164",
+      "text": "`UI.md` must remain the ZAICODE product/workflow contract.",
+      "verification": "E-162",
+      "work": "T-12"
+    },
+    "SRC-006:R016": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "E-164",
+      "text": "`docs/ZAICODE_ARCHITECTURE.md` must describe the actual current architecture.",
+      "verification": "E-162",
+      "work": "T-12"
+    },
+    "SRC-006:R017": {
+      "actionable": true,
+      "class": "invariant",
+      "disposition": "VERIFIED",
+      "evidence": "E-164",
+      "text": "Do not treat the unsupported `createTask` property as enforcement proof.",
+      "verification": "E-162",
+      "work": "T-12"
+    },
+    "SRC-006:R018": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "E-164",
+      "text": "The authoritative proof must be the actual runtime prompt/session path.",
+      "verification": "E-162",
+      "work": "T-12"
+    },
+    "SRC-006:R019": {
+      "actionable": true,
+      "class": "invariant",
+      "disposition": "VERIFIED",
+      "evidence": "E-164",
+      "text": "Do not turn this into a second permission engine.",
+      "verification": "E-162",
+      "work": "T-12"
+    },
+    "SRC-006:R020": {
+      "actionable": true,
+      "class": "invariant",
+      "disposition": "VERIFIED",
+      "evidence": "E-164",
+      "text": "Do not replace the upstream build system.",
+      "verification": "E-162",
+      "work": "T-12"
+    },
+    "SRC-006:R021": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "E-164",
+      "text": "Historical receipts must remain historical.",
+      "verification": "E-162",
+      "work": "T-12"
+    },
+    "SRC-006:R022": {
+      "actionable": true,
+      "class": "acceptance-criterion",
+      "disposition": "VERIFIED",
+      "evidence": "E-164",
+      "text": "zero errors",
+      "verification": "E-162",
+      "work": "T-12"
+    },
+    "SRC-006:R023": {
+      "actionable": true,
+      "class": "acceptance-criterion",
+      "disposition": "VERIFIED",
+      "evidence": "E-164",
+      "text": "no new warnings above the inherited 70-warning baseline.",
+      "verification": "E-162",
+      "work": "T-12"
+    },
+    "SRC-006:R024": {
+      "actionable": true,
+      "class": "invariant",
+      "disposition": "VERIFIED",
+      "evidence": "E-164",
+      "text": "Do not weaken tests or validators to obtain green gates.",
+      "verification": "E-162",
+      "work": "T-12"
+    },
+    "SRC-006:R025": {
+      "actionable": true,
+      "class": "invariant",
+      "disposition": "VERIFIED",
+      "evidence": "E-164",
+      "text": "Do not leave T-12 in BUILD after a clean second review.",
+      "verification": "E-162",
+      "work": "T-12"
+    },
+    "SRC-006:R026": {
+      "actionable": true,
+      "class": "invariant",
+      "disposition": "VERIFIED",
+      "evidence": "E-164",
+      "text": "Do not mark T-12 DONE if mandatory live-tree artifacts are actually absent.",
+      "verification": "E-162",
+      "work": "T-12"
+    },
+    "SRC-006:R027": {
+      "actionable": true,
+      "class": "invariant",
+      "disposition": "VERIFIED",
+      "evidence": "E-164",
+      "text": "Do NOT close T-9 using:",
+      "verification": "E-162",
+      "work": "T-12"
+    },
+    "SRC-006:R028": {
+      "actionable": true,
+      "class": "invariant",
+      "disposition": "VERIFIED",
+      "evidence": "E-164",
+      "text": "Do not implement T-10 in this continuation.",
+      "verification": "E-162",
+      "work": "T-12"
+    },
+    "SRC-006:R029": {
+      "actionable": true,
+      "class": "invariant",
+      "disposition": "VERIFIED",
+      "evidence": "E-164",
+      "text": "Do not bypass this decision by exposing an equivalent unrestricted queue-creation tool under another name.",
+      "verification": "E-162",
+      "work": "T-12"
+    },
+    "SRC-006:R030": {
+      "actionable": true,
+      "class": "invariant",
+      "disposition": "VERIFIED",
+      "evidence": "E-164",
+      "text": "DO NOT INVENT EXTRA WORK JUST TO KEEP THE AGENT BUSY.",
+      "verification": "E-162",
+      "work": "T-12"
+    },
+    "SRC-006:R031": {
+      "actionable": true,
+      "class": "invariant",
+      "disposition": "VERIFIED",
+      "evidence": "E-164",
+      "text": "configured provider/model/backend must not be displayed as resolved runtime identity unless resolution actually occurred",
+      "verification": "E-162",
+      "work": "T-12"
+    },
+    "SRC-006:R032": {
+      "actionable": true,
+      "class": "invariant",
+      "disposition": "VERIFIED",
+      "evidence": "E-164",
+      "text": "Do not:",
+      "verification": "E-162",
+      "work": "T-12"
+    },
+    "SRC-006:R033": {
+      "actionable": true,
+      "class": "invariant",
+      "disposition": "VERIFIED",
+      "evidence": "E-164",
+      "text": "Do not ask \"continue?\" when another eligible autonomous action exists.",
+      "verification": "E-162",
+      "work": "T-12"
+    }
+  },
+  "schema_version": 1
+}

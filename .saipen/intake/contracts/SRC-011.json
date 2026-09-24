@@ -1,0 +1,14 @@
+{
+  "clauses": {
+    "SRC-011:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Implement ZAICODE persistence, launcher, restart, branding, readable code blocks, todo, themes, profiles, router pools and SAIPEN access"
+    }
+  },
+  "derived_at": "2026-09-24T05:16:52Z",
+  "derived_from": "SRC-011",
+  "interpretation_revision": 1,
+  "schema_version": 1,
+  "source_sha256": "94a18f6c1661e113140d7f5bb5cbd6ea0e3b06d2b067b471cbc09552fe43d0e1"
+}

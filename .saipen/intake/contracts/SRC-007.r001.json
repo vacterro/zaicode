@@ -1,0 +1,14 @@
+{
+  "clauses": {
+    "SRC-007:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "ZAICODE UX and routing-model clarification wave"
+    }
+  },
+  "derived_at": "2026-09-23T17:59:49Z",
+  "derived_from": "SRC-007",
+  "interpretation_revision": 1,
+  "schema_version": 1,
+  "source_sha256": "5c3b10bf158f5a51fe8f1fc0f89feefec410672e5a6c3901b8cef0db56999ab7"
+}
