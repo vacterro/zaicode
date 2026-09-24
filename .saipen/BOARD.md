@@ -31,6 +31,7 @@
 ## TODO
 
 ## DONE
+- [x] T-23 [P1] ZAICODE: integrate SAIMAIL elegantly, unobtrusive but beautiful | verify: the requested change is present and demonstrated against the user own description of it | user_explicit: true | source_receipts: SRC-017 | owner: opencode | claim_time: 2026-09-24T07:19:07Z | closure_mode: own_patch
 - [x] T-22 [P1] ZAICODE whole-project review: everything works as intended, SAIPEN engine efficient in ZAICODE, add substantive improvements | verify: the requested change is present and demonstrated against the user own description of it | user_explicit: true | source_receipts: SRC-016 | owner: opencode | claim_time: 2026-09-24T06:57:57Z | closure_mode: own_patch
 - [x] T-21 [P1] ZAICODE: remove Disconnect (account-free), fix provider Rename menu item, disable onboarding profession wizard, disable upstream auto-update badge, add proje... | verify: the requested change is present and demonstrated against the user own description of it | user_explicit: true | source_receipts: SRC-015 | owner: opencode | claim_time: 2026-09-24T06:38:27Z | closure_mode: own_patch
 - [x] T-20 [P1] ZAICODE agent system (sidebar ZAICODE workspace: roster, queue, inspector, editor) redesign: make purpose, flow and activation obvious at first glance, fewer... | verify: the requested change is present and demonstrated against the user own description of it | user_explicit: true | source_receipts: SRC-014 | owner: opencode | claim_time: 2026-09-24T06:15:59Z | closure_mode: own_patch

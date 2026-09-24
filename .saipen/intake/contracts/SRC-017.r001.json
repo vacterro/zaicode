@@ -1,0 +1,14 @@
+{
+  "clauses": {
+    "SRC-017:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "ZAICODE: integrate SAIMAIL elegantly, unobtrusive but beautiful"
+    }
+  },
+  "derived_at": "2026-09-24T07:19:07Z",
+  "derived_from": "SRC-017",
+  "interpretation_revision": 1,
+  "schema_version": 1,
+  "source_sha256": "8151ae3b058478062ff860cd40983d3e71be355170330e9a826fd9aa0e733bfe"
+}

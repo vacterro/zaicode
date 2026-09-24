@@ -1,0 +1,14 @@
+{
+  "requirements": {
+    "SRC-017:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "T-23 closed with verification evidence in LOG: verify -> PASS [target: T-23] conf: high -- ui tests 17/17 (saimail model 5, readiness); pnpm typecheck 0; pnpm lint 0 errors; architecture:check 0 violations; saipen continue with sandbox SAIMAIL_WORKSPACE -> telegrams OK unread 1; bundle:zaicode 0 staged dist-next 10:17 (asar has badge + IPC, cjs has SAIMAIL prompt)",
+      "text": "ZAICODE: integrate SAIMAIL elegantly, unobtrusive but beautiful",
+      "verification": "the Work this request created reached its own verification gate; see the T-23 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-23"
+    }
+  },
+  "schema_version": 1
+}
