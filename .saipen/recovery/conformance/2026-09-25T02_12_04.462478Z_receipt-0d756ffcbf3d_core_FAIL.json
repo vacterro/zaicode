@@ -1,0 +1,55 @@
+{
+  "blocking_findings": {
+    "problem_count": 2,
+    "problems": [
+      {
+        "category": null,
+        "credential": false,
+        "detail": "no current-cycle VERIFY boundary; reverify: no current-tree PASS re-verification receipt",
+        "detail_hash": "186e51123c0cc004",
+        "finding_key": "a765baa0ba8b6322",
+        "rule_id": "work_closure_evidence",
+        "severity": "problem",
+        "subject_id": "T-30",
+        "subject_kind": "work",
+        "subject_ref": null
+      },
+      {
+        "category": null,
+        "credential": false,
+        "detail": "improve report [improve-report] -- .saipen\\improve\\imp-_zaicode-20260924-2\\claude-code-01\\saipen_improve_SAIPEN.md: report protocol_fingerprint 'sha256:c5a02a7513abdcaedbdbf62ab8bcbd80a623b9f405830965",
+        "detail_hash": "91fc014f2f5f237b",
+        "finding_key": "76b48f23558dce11",
+        "rule_id": "unclassified",
+        "severity": "problem",
+        "subject_id": null,
+        "subject_kind": "global",
+        "subject_ref": null
+      }
+    ],
+    "ruleset_fingerprint": "82e5e183ae8f0fd909be3fa3627f00489cacaab813d942186c832db02a05a1c1",
+    "ruleset_version": 1,
+    "status": "complete",
+    "warning_count": 21
+  },
+  "board_hash": "20934c8b523b8489",
+  "canonical_next_command": "saipen work reverify T-30",
+  "content_hash": "066aba53b4ed7e29",
+  "exit_code": 1,
+  "external_actions": [],
+  "gate": "core",
+  "kind": "conformance_receipt",
+  "log_hash": "47735175474eec06",
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "receipt_id": "receipt-0d756ffcbf3d",
+  "remediation_commands": [
+    "saipen work reverify T-30"
+  ],
+  "schema_version": 2,
+  "source_head": "58d8b047de983a3819bf366cd016f1f6486805c8",
+  "source_tree_fingerprint": "git-delta-v1:769b154bd8113e6d4a72bd69b2f0049e1913a36bd6e9d338dcbe28a18469df18",
+  "state_hash": "177d1b1dab1e83c1",
+  "timestamp_utc": "2026-09-25T02:12:04.462478Z",
+  "validator_protocol_version": "1",
+  "verdict": "FAIL"
+}

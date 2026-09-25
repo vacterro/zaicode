@@ -1,0 +1,14 @@
+{
+  "requirements": {
+    "SRC-024:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "T-30 closed with verification evidence in LOG: SHIP: ZAICODE UI overhaul - START=/goal cc all, battlezone readiness meter, SAIMAIL unread ring, 640x540 min, saifren-not-glm retry fix; typecheck+lint PASS; evidence in .saipen/evidence/T-30-ui-overhaul.md",
+      "text": "ZAICODE launcher UI+behavior overhaul: START->/goal cc all default, Archive-all btn, +/- concurrency buttons, custom working indicator, live worker readiness bars (battlezone black-red-green), 640x540 min + sidebar autohide, remove duplicate tasks panel, SAIMAIL unread outline (move from Open explorer), reconstruct user menu, collapsible toolbar default-hidden, sidebar priority slots MAIN0/SIDE0 AUDAPACK-style compact, draggable+toggle todo, readable icons, clear/new button, saifren-not-glm limit retry, remove suggested prompts, tinted Empty state, /goal until-done semantics, subsaipen modes Hunter/Tester/Cleaner/Wikier/Translator",
+      "verification": "the Work this request created reached its own verification gate; see the T-30 SHIP cycle in .saipen/LOG.md",
+      "work": "T-30"
+    }
+  },
+  "schema_version": 1
+}

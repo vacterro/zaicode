@@ -1,0 +1,38 @@
+{
+  "op_id": "reconcile-20260924134714150700",
+  "operation": "reconcile",
+  "created_at": "2026-09-24T13:47:14Z",
+  "agent": "claude-code",
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "project_lineage": "lineage-b0732ed2f98947b9a3c97bfe71427eca",
+  "semantic_payload_hash": "bd5edcd5506b5bf7",
+  "preconditions": {
+    ".saipen/STATE.md": "c68bb1e2244a5528",
+    ".saipen/LOG.md": "5344cae8196c2699"
+  },
+  "read_preconditions": {
+    ".saipen/BOARD.md": "7a8d44e1453a80a4",
+    ".saipen/logs": "tree-missing-v1"
+  },
+  "verification_policy": "core_fast",
+  "status": "COMMITTED",
+  "progress_index": 2,
+  "targets": [
+    {
+      "path": ".saipen/LOG.md",
+      "role": "log",
+      "action": "write",
+      "before_hash": "5344cae8196c2699",
+      "after_hash": "f7c89805d8e138ef",
+      "applied": true
+    },
+    {
+      "path": ".saipen/STATE.md",
+      "role": "state",
+      "action": "write",
+      "before_hash": "c68bb1e2244a5528",
+      "after_hash": "72a239b25020affc",
+      "applied": true
+    }
+  ]
+}

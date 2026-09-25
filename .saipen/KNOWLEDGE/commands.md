@@ -47,3 +47,30 @@ ZAICODE build/launch (added 2026-09-24, T-18):
   point at it; `ZAICODE.ps1` is the fallback. Build logs live in `.zaicode/logs/`.
 - UI SAIPEN parsers test: `node --import tsx --test test/zaicodeSaipenModel.test.ts`
   from `packages/ui`.
+
+ZAICODE tests added 2026-09-24 (T-31):
+
+- Goal verdict (CLI core, no test runner in core): `node --import tsx --test
+  ../../apps/zcode-cli/packages/core/test/saipenGoalVerdict.test.ts` from
+  `packages/services` (tsx resolution works from there).
+- UI wave: `node --import tsx --test test/zaicode*.test.ts` from `packages/ui`.
+- Real UI typecheck: `tsc --noEmit -p packages/ui/tsconfig.json` (the `-b`
+  build mode is incremental and returns fast when nothing it tracks changed).
+
+ZAICODE system E2E (added 2026-09-25, T-44): from `packages/ui`,
+`node --import tsx test/e2e/zaicodeSystem.e2e.ts [--out DIR] [--keep]`. Needs
+the SAIPEN launcher (SAIPEN_HOME or the workspace STATE's `saipen_home`), git
+and `saimail-local` on PATH; the router step also checks the live 9router.
+Exit 1 on any FAIL; the report lands in `--out` (default a temp folder).
+
+ZAICODE tests added 2026-09-25 (T-49): UI `test/zaicodeWave49.test.ts` (runs
+with the `zaicode*` glob); agent CLI plan-mode policy
+`../../apps/zcode-cli/packages/core/test/zaicodePlanMode.test.ts` from
+`packages/services`.
+
+ZAICODE tests added 2026-09-25 (T-56, SAIHOME): UI `test/zaicodeSaihome.test.ts`
+and `test/zaicodeWave56.test.ts` (both in the `zaicode*` glob); services
+`test/zaicodeStats.test.ts` (in its `zaicode*` glob); desktop
+`test/zaicodeTrayMenu.test.ts`. Desktop ZAICODE tests run with
+`node --import tsx --test test/zaicode*.test.ts` from `packages/desktop`
+(pure modules only: a test importing `electron` fails to load).

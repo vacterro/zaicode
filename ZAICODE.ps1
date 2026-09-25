@@ -32,6 +32,33 @@ function Test-AutoRestartEnabled {
   }
 }
 
+function Apply-StagedBuild {
+  $staged = Join-Path $workspace 'zcode\packages\desktop\dist-next\win-unpacked'
+  $live = Join-Path $workspace 'zcode\packages\desktop\dist\win-unpacked'
+  $stagedExe = Join-Path $staged 'ZAICODE.exe'
+  if (-not (Test-Path -LiteralPath $stagedExe -PathType Leaf)) { return }
+  $liveExe = Join-Path $live 'ZAICODE.exe'
+  if ((Test-Path -LiteralPath $liveExe) -and (Get-Item -LiteralPath $liveExe).LastWriteTimeUtc -ge (Get-Item -LiteralPath $stagedExe).LastWriteTimeUtc) {
+    Write-LauncherLog "Staged build is not newer than live build; leaving it in place"
+    return
+  }
+  $previous = "${live}.previous"
+  try {
+    if (Test-Path -LiteralPath $previous) { Remove-Item -LiteralPath $previous -Recurse -Force }
+    if (Test-Path -LiteralPath $live) { Move-Item -LiteralPath $live -Destination $previous -Force }
+    New-Item -ItemType Directory -Force -Path (Split-Path -Parent $live) | Out-Null
+    Move-Item -LiteralPath $staged -Destination $live -Force
+    Write-LauncherLog "Applied staged build from dist-next"
+  } catch {
+    Write-LauncherLog "Staged build swap failed: $($_.Exception.Message)"
+    if (-not (Test-Path -LiteralPath $live) -and (Test-Path -LiteralPath $previous)) {
+      try { Move-Item -LiteralPath $previous -Destination $live -Force } catch {}
+    }
+  }
+}
+
+Apply-StagedBuild
+
 if (-not (Test-Path -LiteralPath $executable -PathType Leaf)) {
   Write-LauncherLog "ZAICODE.exe missing: $executable"
   Add-Type -AssemblyName System.Windows.Forms
@@ -43,6 +70,8 @@ if (-not (Test-Path -LiteralPath $executable -PathType Leaf)) {
 }
 
 $env:ZCODE_ZAICODE_MODE = '1'
+# An inherited TZ (agent shells set TZ=UTC) would move every ZAICODE clock by the zone offset.
+Remove-Item Env:TZ -ErrorAction SilentlyContinue
 $env:ZCODE_ZAICODE_IDENTITY = '1'
 $saipenHome = Join-Path $env:LOCALAPPDATA 'saipen\scheduled-source'
 if (-not $env:SAIPEN_HOME -and (Test-Path -LiteralPath (Join-Path $saipenHome 'bin\saipen.cmd'))) {
@@ -79,4 +108,5 @@ while ($true) {
     exit $exitCode
   }
   Start-Sleep -Seconds 2
+  Apply-StagedBuild
 }

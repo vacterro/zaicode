@@ -1,0 +1,14 @@
+{
+  "clauses": {
+    "SRC-024:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "ZAICODE launcher UI+behavior overhaul: START->/goal cc all default, Archive-all btn, +/- concurrency buttons, custom working indicator, live worker readiness bars (battlezone black-red-green), 640x540 min + sidebar autohide, remove duplicate tasks panel, SAIMAIL unread outline (move from Open explorer), reconstruct user menu, collapsible toolbar default-hidden, sidebar priority slots MAIN0/SIDE0 AUDAPACK-style compact, draggable+toggle todo, readable icons, clear/new button, saifren-not-glm limit retry, remove suggested prompts, tinted Empty state, /goal until-done semantics, subsaipen modes Hunter/Tester/Cleaner/Wikier/Translator"
+    }
+  },
+  "derived_at": "2026-09-24T14:45:58Z",
+  "derived_from": "SRC-024",
+  "interpretation_revision": 1,
+  "schema_version": 1,
+  "source_sha256": "a296d4d36fd1ebc3a6644463dd1f32e939a2d2c702b1e926a62f724d274a8e43"
+}

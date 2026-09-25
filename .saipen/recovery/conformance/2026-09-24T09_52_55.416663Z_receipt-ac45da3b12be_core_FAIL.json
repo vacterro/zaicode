@@ -1,0 +1,41 @@
+{
+  "blocking_findings": {
+    "problem_count": 1,
+    "problems": [
+      {
+        "category": null,
+        "credential": false,
+        "detail": "phase: DONE, empty ## TODO, but next_action='WAIT: blocked -- all eligible tasks complete, remaining P3 tickets require operator intervention.' -- RFC \u00a7 2.1 says bare command + empty board MUST auto-t",
+        "detail_hash": "446b5251ab9dd47f",
+        "finding_key": "76b48f23558dce11",
+        "rule_id": "unclassified",
+        "severity": "problem",
+        "subject_id": null,
+        "subject_kind": "global",
+        "subject_ref": null
+      }
+    ],
+    "ruleset_fingerprint": "82e5e183ae8f0fd909be3fa3627f00489cacaab813d942186c832db02a05a1c1",
+    "ruleset_version": 1,
+    "status": "complete",
+    "warning_count": 18
+  },
+  "board_hash": "d53903a5d89dd7f6",
+  "canonical_next_command": null,
+  "content_hash": "2d6ddcb3a9285372",
+  "exit_code": 1,
+  "external_actions": [],
+  "gate": "core",
+  "kind": "conformance_receipt",
+  "log_hash": "b48f11f4c325c44e",
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "receipt_id": "receipt-ac45da3b12be",
+  "remediation_commands": [],
+  "schema_version": 2,
+  "source_head": "58d8b047de983a3819bf366cd016f1f6486805c8",
+  "source_tree_fingerprint": "git-delta-v1:619f300af46a3a7d06f5373c97c1a5c35133b33592636700a34a27368829c99b",
+  "state_hash": "e2ba603f8aca9cdc",
+  "timestamp_utc": "2026-09-24T09:52:55.416663Z",
+  "validator_protocol_version": "1",
+  "verdict": "FAIL"
+}

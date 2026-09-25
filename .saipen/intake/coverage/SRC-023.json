@@ -1,0 +1,14 @@
+{
+  "requirements": {
+    "SRC-023:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "T-29 closed with verification evidence in LOG: verify -> PASS [target: T-29] conf: high -- source branch unread===0 renders tinted :( Empty and Empty status; pnpm exec tsc -b packages/ui packages/services passed; targeted oxlint 0 errors.",
+      "text": "\u041f\u0443\u0441\u0442\u044c \u0435\u0441\u043b\u0438 \u043f\u0443\u0441\u0442\u043e \u0442\u043e \u0431\u0443\u0434\u0435\u0442 \u0433\u0440\u0443\u0441\u0442\u043d\u043e\u0435 Empty \u0442\u0430\u043a\u043e\u0435 \u0432\u043e\u0442 \u0437\u0430\u0442\u0438\u043d\u0442\u0435\u043d\u0443\u0442\u0442\u043e\u0435, tinted. Screenshot: V:\\___VAC\\_PIC\\_Clipboard_stuff\\clipboard_20260924_090211_9a05ca2c.png",
+      "verification": "the Work this request created reached its own verification gate; see the T-29 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-29"
+    }
+  },
+  "schema_version": 1
+}

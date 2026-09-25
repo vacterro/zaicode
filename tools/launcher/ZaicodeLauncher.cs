@@ -43,8 +43,17 @@ internal static class ZaicodeLauncher
             return 2;
         }
 
+        EnsureCrispFonts(new[]
+        {
+            Path.Combine(Path.GetDirectoryName(executable), @"resources\zaicode-fonts"),
+            Path.Combine(workspace, @"zcode\packages\desktop\build\zaicode-fonts"),
+        });
+
         Environment.SetEnvironmentVariable("ZCODE_ZAICODE_MODE", "1");
         Environment.SetEnvironmentVariable("ZCODE_ZAICODE_IDENTITY", "1");
+        // A TZ inherited from an agent shell (TZ=UTC) moves every ZAICODE clock by the zone
+        // offset: Chromium fixes its zone at start, so the variable must never reach the app.
+        Environment.SetEnvironmentVariable("TZ", null);
         if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("SAIPEN_HOME")))
         {
             string saipenHome = Path.Combine(
@@ -136,6 +145,71 @@ internal static class ZaicodeLauncher
         }
     }
 
+    [System.Runtime.InteropServices.DllImport("gdi32.dll", CharSet = System.Runtime.InteropServices.CharSet.Unicode)]
+    private static extern int AddFontResource(string fileName);
+
+    [System.Runtime.InteropServices.DllImport("user32.dll")]
+    private static extern bool PostMessage(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
+
+    private const string FontsKey = @"Software\Microsoft\Windows NT\CurrentVersion\Fonts";
+
+    /// <summary>
+    /// Installs the pixel-exact ZAICODE fonts (Verdana_m1, Terminus TTF) for
+    /// the current user when they are missing, before the app starts, so a
+    /// fresh machine renders crisp aliased text from the first launch. The
+    /// fonts carry embedded bitmap strikes that DirectWrite draws without
+    /// anti-aliasing; as web fonts those strikes would be stripped.
+    /// Per-user install: no admin rights, %LOCALAPPDATA%\Microsoft\Windows\Fonts.
+    /// </summary>
+    private static void EnsureCrispFonts(string[] sourceDirs)
+    {
+        try
+        {
+            string sourceDir = Array.Find(sourceDirs, dir => File.Exists(Path.Combine(dir, "zaicode-fonts.json")));
+            if (sourceDir == null)
+            {
+                Log("Crisp fonts: no zaicode-fonts.json next to the app; skipped");
+                return;
+            }
+            string manifest = File.ReadAllText(Path.Combine(sourceDir, "zaicode-fonts.json"));
+            var entries = System.Text.RegularExpressions.Regex.Matches(
+                manifest, "\"file\"\\s*:\\s*\"([^\"]+)\"\\s*,\\s*\"registryName\"\\s*:\\s*\"([^\"]+)\"");
+            string userFonts = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                @"Microsoft\Windows\Fonts");
+            int installed = 0;
+            using (var userKey = Microsoft.Win32.Registry.CurrentUser.CreateSubKey(FontsKey))
+            using (var machineKey = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(FontsKey))
+            {
+                foreach (System.Text.RegularExpressions.Match entry in entries)
+                {
+                    string file = entry.Groups[1].Value;
+                    string registryName = entry.Groups[2].Value;
+                    if (userKey.GetValue(registryName) != null) continue;
+                    if (machineKey != null && machineKey.GetValue(registryName) != null) continue;
+                    string source = Path.Combine(sourceDir, file);
+                    if (!File.Exists(source)) continue;
+                    Directory.CreateDirectory(userFonts);
+                    string target = Path.Combine(userFonts, file);
+                    if (!File.Exists(target)) File.Copy(source, target);
+                    userKey.SetValue(registryName, target);
+                    AddFontResource(target);
+                    installed++;
+                    Log("Crisp fonts: installed " + registryName);
+                }
+            }
+            if (installed > 0)
+            {
+                // WM_FONTCHANGE to every top-level window; PostMessage never blocks on a hung window.
+                PostMessage(new IntPtr(0xffff), 0x001D, IntPtr.Zero, IntPtr.Zero);
+            }
+        }
+        catch (Exception error)
+        {
+            Log("Crisp fonts: install failed: " + error.Message);
+        }
+    }
+
     private static bool AutoRestartEnabled(string preferencesPath)
     {
         try
@@ -150,9 +224,44 @@ internal static class ZaicodeLauncher
         }
     }
 
-    private static string Quote(string value)
+    private static string Quote(string argument)
     {
-        return value.IndexOfAny(new[] { ' ', '"' }) < 0 ? value : "\"" + value.Replace("\"", "\\\"") + "\"";
+        if (string.IsNullOrEmpty(argument))
+            return "\"\"";
+
+        if (argument.IndexOfAny(new[] { ' ', '\t', '\n', '\v', '\"' }) < 0)
+            return argument;
+
+        var sb = new System.Text.StringBuilder();
+        sb.Append('"');
+        for (int i = 0; i < argument.Length; i++)
+        {
+            int backslashCount = 0;
+            while (i < argument.Length && argument[i] == '\\')
+            {
+                backslashCount++;
+                i++;
+            }
+
+            if (i == argument.Length)
+            {
+                sb.Append('\\', backslashCount * 2);
+                break;
+            }
+
+            if (argument[i] == '"')
+            {
+                sb.Append('\\', backslashCount * 2 + 1);
+                sb.Append('"');
+            }
+            else
+            {
+                sb.Append('\\', backslashCount);
+                sb.Append(argument[i]);
+            }
+        }
+        sb.Append('"');
+        return sb.ToString();
     }
 
     private static void Log(string message)

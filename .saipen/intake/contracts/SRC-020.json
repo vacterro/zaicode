@@ -1,0 +1,14 @@
+{
+  "clauses": {
+    "SRC-020:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Unify project and session list color bar lengths with user settings; convert all icons to sharp pixel variants; keep dynamic todometer visible above queue; make /goal run to completion including SAIPEN tickets; clarify and add Hunter Tester Cleaner Wikier Translator agent modes."
+    }
+  },
+  "derived_at": "2026-09-24T09:50:05Z",
+  "derived_from": "SRC-020",
+  "interpretation_revision": 1,
+  "schema_version": 1,
+  "source_sha256": "294b1c92947ef4b499c671840db96020822c46415fb71e5cc56f359aea031b29"
+}

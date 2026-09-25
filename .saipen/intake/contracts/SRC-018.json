@@ -1,0 +1,14 @@
+{
+  "clauses": {
+    "SRC-018:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "ZAICODE: SAIMAIL discoverability when unconfigured, GLM off by default with fallback to SAIRoute/SAIFREN, replace remaining ZCode names (tray) with ZAICODE"
+    }
+  },
+  "derived_at": "2026-09-24T09:52:48Z",
+  "derived_from": "SRC-018",
+  "interpretation_revision": 1,
+  "schema_version": 1,
+  "source_sha256": "edd5558c6473852365d02d750c960575a6af8b8be301691437dfee9cd5f085cf"
+}

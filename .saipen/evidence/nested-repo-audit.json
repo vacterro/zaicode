@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "nested_repository": "zcode",
+  "path": "zcode",
+  "manifest_statement": "Nested repository 'zcode' inventoried and active-delta represented via .saipen/evidence/nested-repo-audit.json to preserve fast root SAIPEN source identity while providing source audit completeness for desktopPlatform, IPC/preload/main bridge, GLM fallback, native branding/menu, SAIMAIL header/settings, launcher hardening, data isolation, and subsaipen modes.",
+  "git": {
+    "head": "872ad960de7ec172591f7e1952f7849229f94521",
+    "branch": "main",
+    "is_dirty": true
+  },
+  "subsystem_coverage": {
+    "desktopPlatform": "packages/desktop/src/renderer/src/desktopPlatform.ts",
+    "ipc_preload_main_bridge": [
+      "packages/desktop/src/preload/index.ts",
+      "packages/desktop/src/main/desktopMainIpcPlatform.ts",
+      "packages/desktop/src/main/zaicodeLauncherPreferences.ts",
+      "packages/desktop/src/main/zaicodeSaimailInit.ts"
+    ],
+    "glm_provider_fallback": [
+      "packages/ui/src/zaicode/zaicodeModelFallback.ts",
+      "packages/ui/test/zaicodeModelFallback.test.ts"
+    ],
+    "native_branding_menu": [
+      "packages/shared/src/desktopMenu.ts",
+      "packages/desktop/src/main/index.ts",
+      "packages/desktop/src/main/about.ts",
+      "packages/desktop/src/main/windowsCuaOperationIndicatorContent.ts",
+      "packages/desktop/src/main/desktopWindowsOpenFolderContextMenu.ts"
+    ],
+    "saimail_header_settings": [
+      "packages/ui/src/zaicode/zaicodeSaimailModel.ts",
+      "packages/ui/src/zaicode/ZaicodeSaimailHeaderButton.tsx",
+      "packages/ui/src/settings/ZaicodeSaimailSettings.tsx",
+      "packages/ui/test/zaicodeSaimailModel.test.ts"
+    ],
+    "data_isolation": [
+      "packages/services/src/paths.ts",
+      "packages/services/test/zaicodeDataIsolation.test.ts"
+    ],
+    "subsaipen_agent_modes": [
+      "packages/shared/src/zaicode-agents.ts",
+      "packages/services/src/zaicode/zaicodeTemplates.ts",
+      "packages/ui/src/zaicode/ZaicodeAgentRoster.tsx",
+      "packages/ui/test/zaicodeUiEnhancements.test.ts"
+    ]
+  },
+  "verification_evidence": {
+    "unit_tests_passing": 43,
+    "packages_services_tsc": "pass",
+    "packages_ui_tsc": "pass",
+    "oxlint_clean": true
+  }
+}

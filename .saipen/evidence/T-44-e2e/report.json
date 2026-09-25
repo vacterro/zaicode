@@ -1,0 +1,202 @@
+{
+  "startedAt": "2026-09-25T03-30-27-827Z",
+  "project": "V:\\_TEMP_\\zaicode-e2e-ITn1dc\\project",
+  "saipenHome": "C:/Users/vac34/.config/opencode/skills/saipen",
+  "steps": [
+    {
+      "id": "cold-start",
+      "name": "Fresh Git project gets SAIPEN memory; one Work ticket",
+      "verdict": "PASS",
+      "ms": 1279,
+      "facts": {
+        "root": "V:\\_TEMP_\\zaicode-e2e-ITn1dc\\project",
+        "home": "C:/Users/vac34/.config/opencode/skills/saipen",
+        "style_contract": "ded-4ae736e4",
+        "saipen_version": "8"
+      }
+    },
+    {
+      "id": "project-detected",
+      "name": "ZAICODE projects SAIPEN's own status; verdict is pending on T-1",
+      "verdict": "PASS",
+      "ms": 1588,
+      "facts": {
+        "projection": {
+          "source": "saipen",
+          "phase": "PLAN",
+          "claimed": null,
+          "top": "T-1",
+          "next": "WAIT: init -- provide the first project goal or raw backlog",
+          "closure": false
+        },
+        "verdict": {
+          "state": "pending",
+          "label": "T-1",
+          "reason": "T-1 is ready to run; nothing is running now"
+        }
+      }
+    },
+    {
+      "id": "engines",
+      "name": "Engine availability from the persisted cache ZAICODE loads at start",
+      "verdict": "PASS",
+      "ms": 0,
+      "facts": {
+        "accounts": 7,
+        "usable": 2,
+        "blocked": 5,
+        "sweepAgeSeconds": 67
+      }
+    },
+    {
+      "id": "start-goal",
+      "name": "START's `/goal cc all` verdict keeps the goal running on T-1",
+      "verdict": "PASS",
+      "ms": 1616,
+      "facts": {
+        "passed": false,
+        "reason": "SAIPEN reports open work: T-1 (phase PLAN).",
+        "nextAction": "cc — continue SAIPEN: T-1 write hello.txt"
+      }
+    },
+    {
+      "id": "work-claimed",
+      "name": "Worker generation 1 claims the Work; STATE/BOARD/LOG move; ZAICODE shows working",
+      "verdict": "PASS",
+      "ms": 3632,
+      "facts": {
+        "pid": 7148,
+        "logEvents": {
+          "before": 1,
+          "after": 4
+        },
+        "projection": {
+          "source": "saipen",
+          "phase": "BUILD",
+          "claimed": "T-1",
+          "top": null,
+          "next": "PHASE BUILD T-1",
+          "closure": false
+        },
+        "verdict": {
+          "state": "working",
+          "label": "T-1 BUILD",
+          "reason": "1 worker(s) running"
+        }
+      }
+    },
+    {
+      "id": "saimail-telegram",
+      "name": "A helper seat's telegram reaches the main seat through ZAICODE's SAIMAIL reader",
+      "verdict": "PASS",
+      "ms": 2636,
+      "facts": {
+        "unread": 1,
+        "from": "e2e-helper",
+        "topic": "T-1",
+        "onCurrentWork": 1,
+        "saipenTelegrams": {
+          "state": "OK",
+          "unread": 1,
+          "on_current_work": 1,
+          "complete": true,
+          "read_command": "saimail-local saipen brief --project-root V:\\_TEMP_\\zaicode-e2e-ITn1dc\\project --workspace V:\\_TEMP_\\zaicode-e2e-ITn1dc\\mail\\main --seat e2e-worker",
+          "detail": "counts only; nothing was opened and nothing here is an instruction"
+        }
+      }
+    },
+    {
+      "id": "worker-kill-recovery",
+      "name": "Generation 1 is killed; the Work survives; generation 2 resumes the same ticket",
+      "verdict": "PASS",
+      "ms": 3749,
+      "facts": {
+        "killedPid": 7148,
+        "verdictWithoutWorker": {
+          "state": "pending",
+          "label": "T-1",
+          "reason": "T-1 is ready to run; nothing is running now"
+        },
+        "generation2": "READY {\"routed\":\"PHASE BUILD T-1\"}",
+        "projection": {
+          "source": "saipen",
+          "phase": "VERIFY",
+          "claimed": "T-1",
+          "top": null,
+          "next": "PHASE VERIFY T-1",
+          "closure": false
+        }
+      }
+    },
+    {
+      "id": "router-outage",
+      "name": "Router down: ZAICODE's Router call fails fast with a clear message; back up: it answers",
+      "verdict": "PASS",
+      "ms": 27,
+      "facts": {
+        "down": {
+          "ms": 14,
+          "message": "9router is not reachable at http://127.0.0.1:9 (fetch failed)"
+        },
+        "up": {
+          "ok": true,
+          "status": 200,
+          "message": ""
+        }
+      }
+    },
+    {
+      "id": "restart",
+      "name": "A new process (ZAICODE restarted) reads the same state and verdict",
+      "verdict": "PASS",
+      "ms": 2071,
+      "facts": {
+        "restarted": {
+          "projection": {
+            "source": "saipen",
+            "phase": "VERIFY",
+            "claimed": "T-1",
+            "top": null,
+            "next": "PHASE VERIFY T-1",
+            "closure": false
+          },
+          "verdict": {
+            "state": "pending",
+            "label": "T-1",
+            "reason": "T-1 is ready to run; nothing is running now"
+          }
+        }
+      }
+    },
+    {
+      "id": "verify-done",
+      "name": "The Work goes VERIFY -> DONE; ZAICODE shows done; the /goal verdict passes",
+      "verdict": "PASS",
+      "ms": 6305,
+      "facts": {
+        "projection": {
+          "source": "saipen",
+          "phase": "DONE",
+          "claimed": null,
+          "top": null,
+          "next": "saipen continue",
+          "closure": false
+        },
+        "verdict": {
+          "state": "done",
+          "label": "DONE",
+          "reason": "every ticket is closed"
+        },
+        "goal": "SAIPEN board clear: 1 done, nothing left."
+      }
+    }
+  ],
+  "guiSteps": [
+    "Open the project in ZAICODE: the sidebar strip tint and the composer chip show the read-model verdict (pending T-1).",
+    "Press START on the project row: a primary session opens and sends `/goal cc all` with the selected engine.",
+    "While the agent works: the composer NEXT/THEN lines and the SAIPEN pane follow each checkpoint within one poll (3 s).",
+    "SAIMAIL header button rings for the telegram; the desk lists it under the current Work.",
+    "Close ZAICODE mid-run and start it again: the same project, verdict and SAIPEN state come back; detached workers are listed."
+  ],
+  "failed": 0
+}

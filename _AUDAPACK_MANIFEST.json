@@ -1,0 +1,289 @@
+{
+  "schema_version": 3,
+  "product": "AUDAPACK",
+  "created_at": "2026-09-24T11:04:12.063805",
+  "project": "_ZAICODE",
+  "source_path": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE",
+  "source_kind": "folder",
+  "fidelity_profile": "standard",
+  "archive_semantics": "audit_representation",
+  "files_discovered": 666,
+  "files_included": 182,
+  "files_excluded": 484,
+  "files_failed": 0,
+  "source_bytes": 3494033,
+  "included_bytes": 2696647,
+  "excluded_bytes": 797386,
+  "archive_bytes": 2696647,
+  "accounting_reconciled": true,
+  "budget_bytes": 31457280,
+  "budget_met": true,
+  "budget_floor_bytes": 0,
+  "budget_feasible": true,
+  "mandatory_bytes": 0,
+  "discretionary_bytes": 0,
+  "included_bytes_by_priority": {
+    "1": 2696386,
+    "3": 261
+  },
+  "largest_included": [
+    {
+      "rel": ".saipen/evidence/bootstrap-M1-retry1.log",
+      "size": 1491318,
+      "priority": 1
+    },
+    {
+      "rel": ".saipen/evidence/desktop-smoke.out.log",
+      "size": 161613,
+      "priority": 1
+    },
+    {
+      "rel": ".saipen/LOG.md",
+      "size": 95418,
+      "priority": 1
+    },
+    {
+      "rel": ".saipen/evidence/zaicode-smoke1.out.log",
+      "size": 71198,
+      "priority": 1
+    },
+    {
+      "rel": ".saipen/evidence/baseline-lint.log",
+      "size": 63846,
+      "priority": 1
+    },
+    {
+      "rel": ".saipen/evidence/t2-lint.log",
+      "size": 63846,
+      "priority": 1
+    },
+    {
+      "rel": ".saipen/evidence/bootstrap-M1.log",
+      "size": 61736,
+      "priority": 1
+    },
+    {
+      "rel": ".saipen/intake/coverage/SRC-003.json",
+      "size": 21311,
+      "priority": 1
+    },
+    {
+      "rel": ".saipen/intake/coverage/SRC-001.json",
+      "size": 21303,
+      "priority": 1
+    },
+    {
+      "rel": ".saipen/intake/contracts/SRC-003.json",
+      "size": 20839,
+      "priority": 1
+    }
+  ],
+  "largest_included_directories": [
+    {
+      "rel": ".saipen/evidence",
+      "bytes": 1933870
+    },
+    {
+      "rel": ".saipen/intake/contracts",
+      "bytes": 290373
+    },
+    {
+      "rel": ".saipen/intake/active",
+      "bytes": 126047
+    },
+    {
+      "rel": ".saipen",
+      "bytes": 110328
+    },
+    {
+      "rel": ".saipen/intake/coverage",
+      "bytes": 107696
+    },
+    {
+      "rel": "docs",
+      "bytes": 58026
+    },
+    {
+      "rel": ".",
+      "bytes": 19324
+    },
+    {
+      "rel": ".saipen/recovery/log-detail",
+      "bytes": 17053
+    },
+    {
+      "rel": ".saipen/KNOWLEDGE",
+      "bytes": 10159
+    },
+    {
+      "rel": "tools/launcher",
+      "bytes": 7421
+    }
+  ],
+  "policy_fingerprint": "f3bf6bf8bd184294fa5b148fe7ffadf9",
+  "exclusions": {
+    "saipen_non_exportable": {
+      "count": 484,
+      "bytes": 797386
+    }
+  },
+  "largest_omitted": [
+    [
+      ".saipen/recovery/conformance/debt/DEBT-000010.json",
+      10660
+    ],
+    [
+      ".saipen/recovery/conformance/debt/DEBT-000014.json",
+      10547
+    ],
+    [
+      ".saipen/recovery/conformance/debt/DEBT-000015.json",
+      10547
+    ],
+    [
+      ".saipen/recovery/conformance/debt/DEBT-000016.json",
+      10547
+    ],
+    [
+      ".saipen/recovery/conformance/debt/DEBT-000017.json",
+      10547
+    ],
+    [
+      ".saipen/recovery/conformance/debt/DEBT-000018.json",
+      10545
+    ],
+    [
+      ".saipen/recovery/conformance/debt/DEBT-000019.json",
+      10545
+    ],
+    [
+      ".saipen/recovery/conformance/debt/DEBT-000009.json",
+      10144
+    ],
+    [
+      ".saipen/recovery/conformance/debt/DEBT-000001.json",
+      10142
+    ],
+    [
+      ".saipen/recovery/conformance/debt/DEBT-000002.json",
+      10142
+    ]
+  ],
+  "saipen_detected": true,
+  "git": {
+    "branch": "master",
+    "head": "58d8b04",
+    "dirty": true,
+    "changed_files": 6
+  },
+  "inventory_mode": "git",
+  "git_head": "58d8b047de983a3819bf366cd016f1f6486805c8",
+  "git_dirty": true,
+  "git_summary": "Git: 641 tracked + 25 untracked, 0 deleted",
+  "tracked_deleted": [],
+  "saipen_snapshot": {
+    "detected": true,
+    "status": "COMPATIBLE_DEGRADED",
+    "authoritative_state": true,
+    "contract_version": 3,
+    "protocol_version": "8.0.1",
+    "manifest_generated_at": "2026-09-23T21:41:48Z",
+    "generator": "saipen-audit-manifest/3",
+    "verdict_basis": "final_archive_content",
+    "admission": "COMPATIBLE_DEGRADED",
+    "admission_missing": [],
+    "evidence_files_collected": 163,
+    "evidence_files_in_archive": 163,
+    "mandatory_declared": [
+      ".saipen/STATE.md",
+      ".saipen/BOARD.md",
+      ".saipen/LOG.md",
+      ".saipen/IDENTITY.md"
+    ],
+    "required_declared": [
+      ".saipen/STATE.md",
+      ".saipen/BOARD.md",
+      ".saipen/LOG.md",
+      ".saipen/IDENTITY.md"
+    ],
+    "compatibility": "refuse",
+    "mandatory_included": [
+      ".saipen/STATE.md",
+      ".saipen/BOARD.md",
+      ".saipen/LOG.md",
+      ".saipen/IDENTITY.md"
+    ],
+    "mandatory_missing": [],
+    "truncated_dirs": [],
+    "truncated_required_dirs": [],
+    "truncated_optional_dirs": [],
+    "unreadable": [],
+    "required_evidence_omitted": false,
+    "omitted_required": [],
+    "omitted_optional": [],
+    "evidence_citations": {
+      "rules_source": "contract",
+      "surfaces": [
+        "evidence",
+        "recovery/log-detail",
+        "recovery/board-compaction"
+      ],
+      "carriers_scanned": 21,
+      "carrier_bytes_scanned": 214292,
+      "cited_files": [
+        ".saipen/evidence/baseline-lint.log",
+        ".saipen/recovery/log-detail/E-147-52f3ea98d170f35ded939449.json",
+        ".saipen/recovery/log-detail/E-164-1460642132a2a63720b9b42c.json",
+        ".saipen/recovery/log-detail/E-173-d2997fb2980188f0693a00c2.json",
+        ".saipen/recovery/log-detail/E-175-dd996b2b34083b9386cec3e8.json",
+        ".saipen/recovery/log-detail/E-179-b6a2a5eab19f153febe98bc5.json",
+        ".saipen/recovery/log-detail/E-188-da293c96f155383f19b73eeb.json",
+        ".saipen/recovery/log-detail/E-189-0828c5f011d59ac4dc7d2c2f.json",
+        ".saipen/recovery/log-detail/E-194-2cc5a02e40fe76b580be5ac6.json"
+      ],
+      "cited_dirs": [],
+      "cited_missing_on_disk": [],
+      "cited_ignored": [],
+      "cited_required": 9,
+      "cited_in_archive": 9,
+      "cited_by": {
+        ".saipen/evidence/baseline-lint.log": [
+          ".saipen/LOG.md"
+        ],
+        ".saipen/recovery/log-detail/E-147-52f3ea98d170f35ded939449.json": [
+          ".saipen/LOG.md"
+        ],
+        ".saipen/recovery/log-detail/E-164-1460642132a2a63720b9b42c.json": [
+          ".saipen/LOG.md"
+        ],
+        ".saipen/recovery/log-detail/E-173-d2997fb2980188f0693a00c2.json": [
+          ".saipen/LOG.md"
+        ],
+        ".saipen/recovery/log-detail/E-175-dd996b2b34083b9386cec3e8.json": [
+          ".saipen/LOG.md"
+        ],
+        ".saipen/recovery/log-detail/E-179-b6a2a5eab19f153febe98bc5.json": [
+          ".saipen/LOG.md"
+        ],
+        ".saipen/recovery/log-detail/E-188-da293c96f155383f19b73eeb.json": [
+          ".saipen/LOG.md"
+        ],
+        ".saipen/recovery/log-detail/E-189-0828c5f011d59ac4dc7d2c2f.json": [
+          ".saipen/LOG.md"
+        ],
+        ".saipen/recovery/log-detail/E-194-2cc5a02e40fe76b580be5ac6.json": [
+          ".saipen/LOG.md"
+        ]
+      },
+      "truncated": false,
+      "unreadable_carriers": []
+    },
+    "non_exportable": [
+      ".saipen/locks",
+      ".saipen/recovery",
+      ".saipen/quarantine",
+      ".saipen/LOCAL_STATE.json"
+    ],
+    "detail": "SAIPEN manifest contract v3 is newer than this AUDAPACK collector (implements v1, v2), but all required inventory and security capabilities are structurally present; PACK proceeds in compatible-degraded mode. Unknown additive metadata is preserved."
+  }
+}

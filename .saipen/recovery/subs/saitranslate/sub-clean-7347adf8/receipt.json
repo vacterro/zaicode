@@ -1,0 +1,15 @@
+{
+  "archive_instance": ".saipen/recovery/subs/saitranslate/sub-clean-7347adf8/instance",
+  "files": {
+    "BOARD.md": "2f404b252fd85214",
+    "LOG.md": "85d22917455761cf",
+    "STATE.md": "c1315125bfbc40a8",
+    "kitchen/OUTBOX.md": "be9105f2649dbbb1"
+  },
+  "instance_tree_hash": "delete-tree-sha256:c7b202abe9a70891fde5710e4957ccb2644c9245eecf6266ddf92516c6897e60",
+  "manifest_before_hash": "96239003c5d61b0f",
+  "name": "saitranslate",
+  "op_id": "sub-clean-7347adf8",
+  "operation": "sub_clean",
+  "source_instance": ".saipen/extensions/subs/saitranslate"
+}

@@ -1,0 +1,14 @@
+{
+  "requirements": {
+    "SRC-021:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "T-27 closed with verification evidence in LOG: verify -> PASS [target: T-27] conf: high -- FastPrompter and ZAICODE audio trees each contain 1294 wav/mp3/ogg files and 38387426 bytes; sound settings expose search, selection, custom import and preview; playback reads persisted choice; pnpm exec tsc -b packages/ui and targeted oxlint pass.",
+      "text": "Port the full orchestral sound collection from FastPrompter src into ZAICODE and let the user select a custom sound.",
+      "verification": "the Work this request created reached its own verification gate; see the T-27 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-27"
+    }
+  },
+  "schema_version": 1
+}

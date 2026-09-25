@@ -1,0 +1,61 @@
+{
+  "agent": "claude-code",
+  "created_at": "2026-09-24T21:22:06Z",
+  "evidence_class": "executed",
+  "findings_digest": "933e146d00b3a620401b768d01ba8f8813833e25aea8a9445d5ff1967ca7a43b",
+  "gate": "core",
+  "integrity_digest": "37276741f899b0e7",
+  "journal_op_id": "reverify.9ee31d492264",
+  "original_closure": {
+    "claim_time": "2026-09-24T10:35:18Z",
+    "closure_mode": "own_patch",
+    "last_ticket_event": "E-446",
+    "owner": "claude-code",
+    "source_receipts": "SRC-024"
+  },
+  "own_problem_keys": [
+    "a765baa0ba8b6322"
+  ],
+  "problem_count": 1,
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "project_lineage": "lineage-b0732ed2f98947b9a3c97bfe71427eca",
+  "receipt_id": "RV-000004",
+  "ruleset_fingerprint": "82e5e183ae8f0fd909be3fa3627f00489cacaab813d942186c832db02a05a1c1",
+  "ruleset_version": 1,
+  "schema_version": 1,
+  "source_head": "58d8b047de983a3819bf366cd016f1f6486805c8",
+  "source_tree_fingerprint": "git-delta-v1:5e9707550917819391fe5ff5cec8c367233ac4b2ca6b71a4a949ac7695132927",
+  "verdict": "PASS_WITH_CARRIED_DEBT",
+  "verification": [
+    {
+      "command": "node zcode/node_modules/typescript/bin/tsc -b zcode/packages/ui",
+      "duration_ms": 307,
+      "executed": true,
+      "exit_code": 0,
+      "output_bytes": 0,
+      "output_digest": "e3b0c44298fc1c14",
+      "result": "PASS"
+    },
+    {
+      "command": "npm --prefix zcode run lint",
+      "duration_ms": 426,
+      "executed": true,
+      "exit_code": 0,
+      "output_bytes": 31321,
+      "output_digest": "9738c7ea55f68aca",
+      "result": "PASS"
+    }
+  ],
+  "verification_contract": {
+    "commands": [
+      "node zcode/node_modules/typescript/bin/tsc -b zcode/packages/ui",
+      "npm --prefix zcode run lint"
+    ],
+    "findings_digest": "933e146d00b3a620401b768d01ba8f8813833e25aea8a9445d5ff1967ca7a43b",
+    "gate": "core"
+  },
+  "verification_contract_digest": "37b43f125b4f3854",
+  "verifier": "claude-code",
+  "warning_count": 20,
+  "work": "T-30"
+}

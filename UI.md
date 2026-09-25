@@ -329,3 +329,178 @@ does not configure 9router itself.
 - With zero configured providers: show "No execution routes configured." and
   keep workspace, agent management, queue editing, and routing configuration
   available. Do not redirect to account creation.
+
+## Engines, Workers, Limits and Autostart (SRC-029)
+
+The operator's own subscriptions are execution engines next to the in-app
+model pools. They are discovered, never configured by hand:
+
+- Claude Code: every `~/.claude` and `~/.claude-*` home with its own
+  credentials (A1, A2, ...); Codex: every `~/.codex` / `~/.codex-*` home
+  (C1, C2, C3, ...); Antigravity: the `agy` CLI and its saved login (AG);
+  ZCode: the Coding Plan entry of `~/.zcode/v2/config.json` (ZC). Freebuff is
+  not an engine.
+- Quota is read with each vendor's own read-only call — `claude -p /usage`,
+  `codex app-server account/rateLimits/read`, `agy -p /usage`, the Z.ai
+  monitor endpoint — so reading never spends quota. A failed read keeps the
+  last good numbers (stale), an elapsed reset reads full, and a spent window
+  only blocks the shorter windows of its own pool.
+- The sidebar top is the engine picker (no combobox): model pools on one row,
+  subscription tiles on the next, each tile filled by the quota it has left.
+  Click selects the engine START uses; double-click starts a worker in the
+  current project; right-click starts, reads, fixes or hides.
+- A worker is the subscription's CLI running in the project folder inside
+  ZAICODE (see "Workers" below). "Separate PowerShell window" starts it outside
+  ZAICODE instead.
+- The title bar AI limit meter shows every visible engine (Stacked / Bars /
+  Dots); hover for the full breakdown, click for Settings -> Engines & limits,
+  right-click for what it shows (see "Limit meters" below).
+- Refill and low-quota alerts fire once per window per reset cycle.
+- Troubleshooting is one click and never implicit: "Connect everything" lists
+  the exact login / install commands before running them in WORKERS tabs.
+- Autostart jobs start an engine (or ZAICODE's own START) in a project once,
+  daily, every N minutes, or when a quota window refills. Each occurrence
+  fires exactly once, a moment older than the catch-up window is MISSED
+  rather than launched late, and a job whose engine has no quota waits.
+
+## Sounds (SRC-029)
+
+Every ZAICODE action has its own row in Settings -> Sounds: on/off, sound
+(the whole bundled library, filterable, or the operator's own file), mix or
+cut, gain in dB relative to the master volume, preview. Call sites only name
+the event; nothing about which sound plays is hard-coded where it plays.
+
+## Keyboard layouts
+
+ZAICODE hotkeys match the physical key (`KeyboardEvent.code`), so Ctrl+Q,
+Ctrl+Z and the zone picker keys work on every keyboard layout.
+
+## Workers (SRC-031)
+
+Workers are docked by default, never floating over the chat: the bottom
+WORKERS panel behaves like a normal terminal panel under the whole workspace
+body (toggle from the sidebar list, the header button or Alt+W; drag its top
+edge to resize, double-click to maximize).
+
+- Split shows every docked worker side by side, stacked or as a grid; dividers
+  drag, double-click = even. Tabs shows one at a time. A pane can fill the
+  panel (solo) and go back.
+- Any worker moves to its own window and back. A window snaps: side edge =
+  half, corner = quarter, top = maximize, bottom edge = dock into the panel;
+  its edges stick to the work area and other worker windows.
+- Minimized workers (and, optionally, the hidden panel's workers) stack as
+  chips labelled "engine · project" at the chosen anchor: bottom left / centre
+  / right, or the middle of the left / right edge.
+- The sidebar lists every worker under the engine tiles with the same buttons.
+- Stopping a running worker asks first (setting). Hiding, minimizing or moving
+  never stops one. Workers use the bundled Terminus face by default.
+
+## Limit meters (SRC-031)
+
+The same panel in Settings -> Engines & limits and on a right-click of the
+title bar meter: hide engines with 0% used, show only engines whose 5h window
+can work now (a spent weekly gates it; one Antigravity pool is enough), apply
+those rules to the meter and/or the sidebar tiles, hide single engines from the
+meter only, bars show quota left or used, vendor tint, names over Bars / Dots,
+and the availability tint strength of the sidebar tiles (0 = off). Tiles that
+need sign-in always stay visible.
+
+## Settings, New task screen, help (SRC-030 / SRC-031, T-56)
+
+- All ZAICODE pages form one Settings group: ZAICODE, Layout & home, Engines &
+  limits, Workers & terminal, Sounds, Notifications, Timers, Hotkeys, Help.
+- The New task screen (the empty composer) is quiet by default: no "Empty"
+  marker, no empty SAIMAIL line; a faint "New task screen" link appears on
+  hover. It is not the home; SAIHOME is.
+- Memory explains itself in plain words (what, where, cost, who uses it).
+- Help lists every control in one line; the ZAICODE page offers ready-made
+  teams and a guided tour.
+
+## SAIHOME (T-56)
+
+SAIHOME != NEW TASK. SAIHOME answers "what is happening?"; NEW TASK (the
+composer) answers "what do I want to start?". The ZAICODE workspace answers
+"what work, agents and tasks exist?", the SCHEDULER "what starts later and
+why?", WORKERS "what runs in terminals?", Settings "how should it behave?".
+
+- SAIHOME is its own main view. The SAIHOME menu line (first), Alt+H, the
+  tray menu and the optional header button open it. Opening it creates no
+  session, task or job; switching projects from it only selects the project.
+- Startup (Layout & home): SAIHOME (default for a fresh profile), Last active,
+  New task.
+- Modules and their authoritative sources:
+
+| Module | Source |
+|--------|--------|
+| Clock | the machine clock (local zone; an inherited `TZ` never reaches the app) |
+| Now | running sessions (sidebar), workers, queue rows, statistics, engine resets, SCHEDULER |
+| Needs you | router state, engines, T-41 project verdicts, waiting sessions, SCHEDULER, statistics sources |
+| Tokens & work, Activity, Numbers | local statistics service (`zaicode_stats_events`) |
+| AI limits | engine quota snapshots (Engines & limits); prepared-meter highlight from the SCHEDULER |
+| Scheduler | SCHEDULER jobs and their decisions |
+| Projects, SAIPEN | T-41 ProjectRuntimeSnapshot per project (SAIPEN projection, sessions, workers) |
+| Agents | running / waiting sessions, workers, queue rows |
+| Routing | router host (mode, restarts, last error), router API (pools, providers), free-model scan |
+| SAIMAIL | the SAIMAIL desk (hidden when nothing is unread) |
+| Recent | queue runs and worker sessions (statistics) + the app event journal (`notifyZaicode`) |
+
+- Truth: every value is authoritative, derived, estimated, stale or
+  unavailable, and says which on its tooltip. Unknown is shown as "—", never 0.
+  A ratio without data reads "not enough data".
+- Statistics are local only. Tokens are measured for in-app model requests
+  (the agent usage store, shared with ZCode on the same machine); CLI worker
+  sessions have no token counts and are shown as unmeasured runtime, never as
+  zero-token work. Coverage = model time ÷ (model time + worker time).
+- Periods: today, yesterday, last 7 days, this week (Monday or Sunday start),
+  last 30 days, this month, all time, in the operator's time zone (DST safe).
+- Layout: presets EVERYTHING (default), MINIMAL, OPERATOR, STATS, FACTORY, and
+  CUSTOM (Edit layout: order, visibility, compact / normal / large). Columns
+  follow the window width in whole pixels; empty modules take no space;
+  healthy states stay one line.
+- Clock settings: size, second hand, smooth sweep (only when motion is
+  allowed), numerals, date, zone, 24 / 12-hour digital line, second zone.
+
+## Sidebar controls (T-56)
+
+- Project row: the name keeps one width; a fixed zone on the right shows
+  working / waiting / OFF while idle and ◆ MAIN, ▶ START, … on hover (new
+  session and files are in …). Controls that appear on hover never change a
+  row's height.
+- Shift+Click a project: switched off (dimmed, OFF). The queue does not
+  auto-dispatch its jobs and the SCHEDULER skips it; opening it by hand still
+  works. Shift+Click again switches it on.
+- Shift + drag a project and hold 2 s: the SLOTS panel opens; every slot, also
+  an empty or folded one, takes the drop.
+- Tray: ZAICODE's own menu (Open, SAIHOME, New task, WORKERS, Timers, Settings,
+  Quit). No Clear all data, update check or vendor links.
+- A turn the operator stops raises no "Task completed" card.
+- Times are typed in ZAICODE's own fields (24-hour, 00:00 = midnight, arrows
+  step); no native time picker.
+
+## Sidebar and session controls (T-58)
+
+- The project list is the root of the sidebar: no "Projects" title, nothing
+  to fold or drag above it. SLOTS, LIVE and + (add project) sit in the
+  toolbar row. A project row shows no grab hand; dragging still works.
+- The sidebar answers instantly: no hover / selection fades, no scroll mask;
+  rows re-render only when their own facts change (counts, not lists).
+- CONTINUE ALL (big button under the menu) runs a plan it shows before the
+  click (hover or right-click): stopped goals are taken up again with the
+  same objective, failed turns continue (`cc`, or `continue` without
+  SAIPEN), a SAIPEN project with open tickets and nothing running continues
+  its MAIN session with `/goal cc all` (or starts a MAIN). Finished sessions,
+  running ones, switched-off projects and questions that wait for a human
+  are left alone. Hotkey: none by default (Settings -> Hotkeys).
+- DONE n: the oldest finished session you have not opened yet; opening it
+  marks it seen, so the next press lands on the next one. Right-click lists
+  them all. Hotkey Alt+Right.
+- A session row's ▶ (on hover) and Alt+Click continue that session without
+  opening it; a session that waits for your answer opens instead.
+- Mixing (Shift+Click) in Highlights & motion: effects, shapes, working-icon
+  motions and pictures (up to three stacked). Plain click picks one; the
+  neutral choice (Steady, Still) clears the mix. The Opacity slider applies
+  under every motion; Reach sets how dark Blink goes.
+- Title-bar clock: every countdown is bold in FastPrompter's colours; the
+  nearest limit reset in the vendor's colour.
+- Freebuff is shown for its limits only (meter, clock, SAIHOME); it never
+  appears as an engine, in Dispatch or in the SCHEDULER.

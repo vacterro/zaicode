@@ -219,6 +219,23 @@ agent fields or plan mode. The executor projects permission mode and both lists
 to runtime enforcement; denylist conflicts win. Service updates retain explicit
 replace and clear semantics.
 
+## 10. SAIHOME and local statistics (T-56)
+
+| Topic | Location | Owns |
+|---|---|---|
+| View | `packages/ui/src/app-shell/types.ts` (`saihome`), `App.tsx`, `WorkspaceShellLayout.tsx` | SAIHOME is a main view distinct from the composer (`chat`); opening it has no side effect |
+| Page + snapshot | `packages/ui/src/zaicode/home/ZaicodeHomePage.tsx`, `zaicodeHomeModel.ts` | assembles one read projection per render from the owners' stores; widgets render slices |
+| Feed | `packages/ui/src/zaicode/home/zaicodeHomeFeed.ts` | the only SAIHOME caller of services (stats, activity, all queue rows, router refresh), only while visible |
+| Project facts | `packages/ui/src/zaicode/home/ZaicodeHomeFleet.tsx` | per-project probes on T-41 `useZaicodeProjectRuntime` over the shared SAIPEN pollers |
+| Statistics service | `packages/services/src/zaicode/zaicodeStats{,Service,Repo,Sources}.ts`, channel `zaicode-stats` | ingestion (agent usage store read-only, `zaicode_jobs`, recorded worker sessions), dedupe, cursors, clear floor, export |
+| Statistics schema | `packages/services/src/session/tasksDatabase/zaicode-stats-v6.ts`, migration `0006_zaicode_stats` | `zaicode_stats_events`, `zaicode_stats_cursor` in tasks-index.sqlite |
+| Aggregation | `packages/shared/src/zaicode-stats.ts` | quarter-hour buckets -> local days (Intl, IANA zone), periods, streaks, derived metrics |
+| Event journal | `packages/ui/src/zaicode/home/zaicodeHomeJournal.ts` | work-relevant `notifyZaicode` scenarios, local ring of 80 |
+
+The agent usage store (`~/.zcode/cli/db/db.sqlite`, tables `model_usage`,
+`turn_usage`, `session`) belongs to the agent CLI; ZAICODE opens it read-only,
+checks the columns it needs and reports the source unavailable otherwise.
+
 ## Uncertainties
 
 Codebase-memory index was built during the 2026-09-23 continuation; graph

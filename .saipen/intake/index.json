@@ -67,9 +67,116 @@
     "SRC-017": {
       "linked_work": "T-23",
       "source_sha256": "8151ae3b058478062ff860cd40983d3e71be355170330e9a826fd9aa0e733bfe"
+    },
+    "SRC-018": {
+      "linked_work": "T-24",
+      "source_sha256": "edd5558c6473852365d02d750c960575a6af8b8be301691437dfee9cd5f085cf"
+    },
+    "SRC-019": {
+      "linked_work": "T-25",
+      "source_sha256": "37fab320039d541d20100380748890bb59fdc0ece58f92d143c5aa1e02fed3c5"
+    },
+    "SRC-020": {
+      "linked_work": "T-26",
+      "source_sha256": "294b1c92947ef4b499c671840db96020822c46415fb71e5cc56f359aea031b29"
+    },
+    "SRC-021": {
+      "linked_work": "T-27",
+      "source_sha256": "f85551945e43cd9c65f823bc0acf2ebbbf83002ece976e3ee6d777164fc1ab95"
+    },
+    "SRC-022": {
+      "linked_work": "T-28",
+      "source_sha256": "38205aa2f0c850ea57c2c8551598292fc2c46005ba3e828005cbd1e22db5b862"
+    },
+    "SRC-023": {
+      "linked_work": "T-29",
+      "source_sha256": "c1641c6569a668f6740c538e8da1c080743b1be1e322443568681041401cbdf8"
+    },
+    "SRC-024": {
+      "linked_work": "T-30",
+      "source_sha256": "a296d4d36fd1ebc3a6644463dd1f32e939a2d2c702b1e926a62f724d274a8e43"
+    },
+    "SRC-025": {
+      "linked_work": "T-31",
+      "source_sha256": "a01eb3abd77c19bff328eb84ed89d5536056e7d58548e32e5485ba522ad9b28c"
+    },
+    "SRC-026": {
+      "linked_work": "T-32",
+      "source_sha256": "2aabd0c42516a1dee0e7261f27cd8dfd898efe2f7a025803ca7f1571d1efdf9b"
+    },
+    "SRC-027": {
+      "linked_work": null,
+      "source_sha256": "128bc8daa9f84d9147b4b943204acb11506b7dcf980226237acbfb49873c891d"
+    },
+    "SRC-028": {
+      "linked_work": "T-33",
+      "source_sha256": "d988a70cf9ab384ff78c6d4252de63dfe44a779a5e1907e04a4b85d12d1a4edc"
+    },
+    "SRC-029": {
+      "linked_work": "T-34",
+      "source_sha256": "d053438b6aae9276e6f462b7d88d19a6a3101953bba6bf8c7665910c9f3639fa"
+    },
+    "SRC-030": {
+      "linked_work": "T-35",
+      "source_sha256": "9cfe94d44ddd6988dbe498da25be4287697fcd9298fb30fe3db0715826026fbb"
+    },
+    "SRC-031": {
+      "linked_work": "T-36",
+      "source_sha256": "70fe3364347d59c0b4d468453fc2f1f319ba5930ebbf7ae612f4bf957f6c5734"
+    },
+    "SRC-032": {
+      "linked_work": "T-37",
+      "linked_works": [
+        "T-38"
+      ],
+      "source_sha256": "8913b25c5b37091695bb95e26eb7c42bd6b64172bdc149ea114f9a471ff26aeb"
+    },
+    "SRC-033": {
+      "linked_work": "T-39",
+      "source_sha256": "73831ebdfa13931a5ccc359b8ef5c03eb065d01cf0a192ab5cc93e00254bbdfd"
+    },
+    "SRC-034": {
+      "linked_work": "T-40",
+      "source_sha256": "cb5c4134aa129dafdee0be658e88f828931bc7cebcb2bf2247db85de59cc3b47"
+    },
+    "SRC-035": {
+      "linked_work": "T-45",
+      "source_sha256": "d9eaf1f95967ba360a76faae6fcda739f0ebb4e32ed1e96b2505c6ebb0e0b427"
+    },
+    "SRC-036": {
+      "linked_work": "T-47",
+      "source_sha256": "12649864e673fc30a998e83a494d58d79fb337051098ae5a48e645df527bf63c"
+    },
+    "SRC-037": {
+      "linked_work": "T-48",
+      "source_sha256": "1252fac05a18675b56bc6e6bf1ccd937fce1494f5baed06a39cf21ec41b35e5c"
+    },
+    "SRC-038": {
+      "linked_work": "T-49",
+      "source_sha256": "83784ca5585c1476256b0372e504a84907f36d259219e9d0698a7f4cbb032ce8"
+    },
+    "SRC-039": {
+      "linked_work": "T-54",
+      "source_sha256": "fbed15c183ff01aceca0f6da250380d551623ea031a1015bf7d7764adf32204d"
+    },
+    "SRC-040": {
+      "linked_work": "T-55",
+      "source_sha256": "da97e47197b8afab2d9019de59b7bffad81126c538039403c3a3d5801a498f9f"
+    },
+    "SRC-041": {
+      "linked_work": "T-56",
+      "source_sha256": "b76a1b9996a98783510ae62d2ef965b218060d62f44b1f989aa7bba02490ed00"
+    },
+    "SRC-042": {
+      "linked_work": "T-57",
+      "source_sha256": "8e974c6bf3eaa7b21d71f77b55f3366dc95ece27ab74ef70c8d483a6c2941a63"
+    },
+    "SRC-043": {
+      "linked_work": "T-58",
+      "source_sha256": "a7aaf00bbe9a5cfc81e52101b9a8cbc4fdf0160046109bef18572c5c6d25a77b"
     }
   },
-  "next_id": 18,
+  "next_id": 44,
   "schema_version": 1,
   "tombstones": {}
 }

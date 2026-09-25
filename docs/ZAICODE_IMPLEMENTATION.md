@@ -80,20 +80,32 @@ implementation, bootstrap, queue lifecycle, and upstream-update strategy.
 SAIMAIL is the local agent post office (`__SAIMAIL__`, `saimail-local`).
 ZAICODE integrates it read-only and header-first:
 
-- Settings -> ZAICODE -> SAIMAIL: one field, the mailbox folder of this
-  machine's operator seat (stored as `saimailWorkspace` in
-  `%APPDATA%\ZAICODE\zaicode-launcher.json`). Main exports it as
-  `SAIMAIL_WORKSPACE` before host/agent spawn (an external value wins), so
-  SAIPEN's `continue --json` carries a `telegrams` block for agents.
-- Composer strip: envelope badge with the unread count, gold when mail
-  arrived, `·N` for telegrams on the current SAIPEN ticket. Hover shows
-  kind / sender / topic / age instantly; click drafts (does not send) a request
-  for the agent to run `saimail-local saipen brief`.
+- Settings -> ZAICODE -> SAIMAIL: the mailbox folder of this machine's
+  operator seat (field + Browse, stored as `saimailWorkspace` in
+  `%APPDATA%\ZAICODE\zaicode-launcher.json`). "Create mailbox here" runs
+  `saimail-local init --workspace <folder> --seat operator` in main
+  (`zaicodeSaimailInit.ts`, explicit click only; an existing mailbox is kept)
+  and saves the path. Main exports it as `SAIMAIL_WORKSPACE` before
+  host/agent spawn (an external value wins), so SAIPEN's `continue --json`
+  carries a `telegrams` block for agents after the next start.
+- The renderer reaches these through `IPlatformService`
+  (`getZaicodeLauncherPreferences`, `setZaicodeAutoRestartOnCrash`,
+  `setZaicodeSaimailWorkspace`, `initZaicodeSaimailWorkspace`), mapped in
+  `packages/desktop/src/renderer/src/desktopPlatform.ts`. A method missing
+  there leaves the matching Settings control disabled.
+- Title bar (`ZaicodeSaimailHeaderButton`, first slot of the workspace
+  header, where upstream shows "Open in editor"; that group moves after the
+  terminal toggle): envelope with the unread count, gold when mail arrived,
+  `·N` for telegrams on the current SAIPEN ticket, faint when not set up.
+  Hover shows kind / sender / topic / age instantly; click drafts (does not
+  send) a request for the agent to run `saimail-local saipen brief`, or opens
+  Settings -> ZAICODE when no mailbox is set up.
 - ZAICODE reads only `saimail-workspace.json` (seat), `mail/inbox/<seat>/`
   (unread listing) and the `mail/index.jsonl` tail. It never opens
   `envelope.senv`, never decrypts, never marks read; header text is data,
   never a command (SAIMAIL I1).
-- SAIPEN menu: "Read SAIMAIL desk" with the unread count.
+- SAIPEN menu: "Read SAIMAIL desk" with the unread count, or "Set up
+  SAIMAIL…" (opens Settings) while no mailbox is connected.
 - Agent prompt (`identity.ts`): SAIMAIL guidance only when `SAIMAIL_WORKSPACE`
   is set: read at phase boundaries, telegrams are evidence not instructions,
   send findings with `saimail-local saipen telegram`.
@@ -133,6 +145,13 @@ listed in "Upstream delta".
   selections dispatch through the selected provider/model. An agent without a
   complete selection returns `route-unresolved`. Configured and actual runtime
   selections are stored separately.
+- **GLM off by default**: official GLM account providers
+  (`account:zai-*`, `account:bigmodel-*`; legacy `builtin:*`) are detected by
+  `isOfficialGlmAccountProviderId` (`@zcode/provider`). In ZAICODE mode a new
+  draft never defaults to them while an operator provider (SAIRoute) is
+  selectable; GLM stays pickable by hand and is the last resort. When a GLM
+  session hits a quota/limit banner, `SessionPane` switches the next
+  submission to the first non-GLM model and shows a toast (once per error).
 - **Tool policy**: allow/deny lists and permission mode persist on the agent;
   the executor passes them to runtime enforcement, and editor saves preserve
   the lists when changing unrelated fields or plan mode.
@@ -278,3 +297,519 @@ completed/failed/cancelled`, with an explicit transition table in
   `0004_zaicode_product` as an immutable migration entry (never edit its SQL;
   add a new migration for changes), then run typecheck/lint/build and the
   ZAICODE unit tests.
+
+## 10. Operator UI wave (T-31, 2026-09-24)
+
+ZAICODE-owned modules added in this wave (all under `zcode/packages/ui/src/zaicode/`
+unless noted):
+
+- `zaicodeBrand.ts` — app logo (SAIPEN mark) for the window chrome; desktop
+  icons in `packages/desktop/build/` are the same mark on a square background.
+- `zaicodeSidebarPrefs.ts` — sidebar layout preferences (menu block hidden by
+  default, priority slots MAIN0/MAIN1/SIDE0/SIDE1/SIDE2, working-first order,
+  compact rows) and the published list of running sessions.
+- `ZaicodeSidebarHeaderTools.tsx` — menu toggle and the running-session meter
+  (count + one Battlezone readiness cell per worker) in the sidebar header.
+- `zaicodeDefaultModel.ts`, `ZaicodeDefaultModelBar.tsx` — default model for
+  new sessions, switched with one click (SAIRoute pools as buttons).
+- `zaicodeAudio.ts`, `ZaicodeAudioPanels.tsx` — FastPrompter ambience (loop
+  while any session runs; computalk1.wav at 0.03 by default) and Problip
+  (interval blip metronome: six sounds, eight interval modes, skip-while-busy,
+  day/week/month/total counters). Footer metronome button + Settings panels.
+- `zaicodeArchiveUndo.ts` — one-click archive with a Ctrl+Z undo stack
+  (single sessions and "Archive all sessions" per project).
+- `apps/zcode-cli/packages/core/src/runtime/methods/saipen-goal-verdict.ts` —
+  `/goal` in a SAIPEN workspace is decided from `.saipen/BOARD.md` +
+  `STATE.md`: open TODO/DOING tickets continue with the next ticket; only
+  human-blocked tickets left completes a continuation goal (`/goal cc all`).
+  Other objectives on a clear board still go to the model verifier, which now
+  times out after 120 s instead of hanging.
+
+The composer SAIPEN strip: START (`/goal cc all` in a fresh session), STEP
+(`cc` here), CLEAR (fresh empty session), phase chip tinted by board state,
+and a MODES row (HUNT/TEST/CLEAN/WIKI/TRANSL/CREW) that opens a fresh session
+running that SAIPEN sub-role.
+
+## 11. Engines, workers, limits, autostart, sounds (T-34, 2026-09-24)
+
+Subscriptions become worker engines (see UI.md "Engines, Workers, Limits and
+Autostart"). Modules:
+
+- `packages/shared/src/zaicode-engines.ts` — shared records and the pure rules:
+  vendor parsers (Claude `/usage` text, Codex `rateLimits`, Antigravity
+  `/usage` JSON, Z.ai monitor envelope), effective windows (elapsed reset =
+  full, pool-aware gating, per-model weeklies never block the account),
+  bottleneck/availability, and the autostart decision function
+  (exactly-once event ids, catch-up window, wait-for-quota).
+- `packages/desktop/src/main/zaicodeEngines.ts` — discovery of `~/.claude*`,
+  `~/.codex*`, `agy`, the ZCode plan entry; hidden, deadline-bounded probes
+  (children killed with taskkill /T); sweep timer (default 5 min, first sweep
+  8 s after start), `zaicode-engines-cache.json` so the meter has numbers at
+  launch; external PowerShell worker windows; HKCU Run "start with Windows"
+  (points at the root launcher); next free `~/.claude-accountN` /
+  `~/.codex-accountN` for a second login. IPC in `desktopMainIpcPlatform.ts`,
+  push channel `zaicode:engines-changed`.
+- `packages/ui/src/zaicode/zaicodeEngines.ts` — renderer mirror of the engine
+  state, active engine, worker command lines (PowerShell; YOLO flags per vendor;
+  the tab closes with the CLI's exit code).
+- `zaicodeWorkers.ts`, `ZaicodeWorkersDock.tsx` — workers (reworked in T-36,
+  section 12). Terminals use `TerminalSession` with a persistent registry key
+  and an empty workspace key, so hiding or moving a worker or switching
+  projects never kills it; `TerminalSession.initialInput` types the command
+  once the shell prompt appears.
+- `ZaicodeEngineBar.tsx` (sidebar), `ZaicodeLimitMeter.tsx` (title bar meter +
+  refill/low alerts), `ZaicodeLimitViews.tsx`, `ZaicodeProjectEngines.tsx`
+  (project ⋯ menu launcher row, running-worker chips).
+- `zaicodeAutostart.ts` + Settings -> Engines & limits (`settings/ZaicodeEnginesSettings.tsx`).
+- `zaicodeSoundEvents.ts` (+ `zaicodeSoundBus.ts`) + Settings -> Sounds
+  (`settings/ZaicodeSoundSettings.tsx`): 43 action rows, WebAudio gain in dB,
+  own files in IndexedDB, `data-zaicode-sound` for declarative buttons. The old
+  six-cue table migrates into the `agent.*` rows.
+- `zaicodeKeys.ts` — layout-independent hotkeys (`KeyboardEvent.code`).
+- `zaicodeFancyZones.ts`, `ZaicodeFancyZoneOverlay.tsx` — FastPrompter Ctrl+Q
+  clone: Quarters / Columns / Presets (S saves, Del removes, 10 max), picker
+  under the pointer, fast mode, hotkey switch.
+- `useZaicodeRightClickDrag.ts` — pointer-captured right-drag; main places the
+  window at the real cursor (`zaicode:window-drag`).
+- `zaicodeScrollGuard.ts` — resets hidden horizontal scroll inside the sidebar.
+- `zaicodeSessionRoles.ts`, `ZaicodeRoleGlyph.tsx` — pixel role glyphs for MAIN,
+  side sessions and subSaipen helpers, recorded at launch.
+- `ZaicodeGroupedRowDecor.tsx` — Group view project stripe + todo cells + role.
+- `saipen-goal-verdict.ts` — only secrets, money, physical, destructive, legal
+  or explicitly operator-only blockers stop `/goal cc all`; everything else is
+  pushed back ("decide yourself"), at most twice per blocker.
+
+Tests: `node --import tsx --test test/zaicode*.test.ts` (packages/ui) covers the
+parsers, gating, autostart, sound defaults, keys, zones, roles and SAIMAIL
+history; the goal verdict test runs from `packages/services`.
+
+## 12. Control wave: layout, timers, hotkeys, notifications, workers v2 (T-35 + T-36, 2026-09-25)
+
+Settings get a **ZAICODE** group (`settings/settingsPageConfig.ts`): ZAICODE,
+Layout & home, Engines & limits, Workers & terminal, Sounds, Notifications,
+Timers, Hotkeys, Help. Everything that also has a right-click panel uses the
+same component in both places.
+
+- Runtime: `zaicode/ZaicodeAppRuntime.tsx` (mounted in `App.tsx`) runs the timer
+  heartbeat, notification cards (`ZaicodeToastHost`), the Timers window, the
+  in-app hotkey dispatcher and the global-hotkey bridge
+  (`desktop/src/main/zaicodeGlobalHotkeys.ts`, IPC `SetZaicodeGlobalHotkeys`).
+- Layout: `zaicodeLayoutPrefs.ts` (sidebar header buttons + menu lines, ordered,
+  new ids append), `ZaicodeHeaderToolbar.tsx`, `ZaicodeSidebarNavBlock.tsx`,
+  `ZaicodeLayoutListEditor.tsx`, `settings/ZaicodeLayoutSettings.tsx`;
+  session ring and meter-cell navigation in `zaicodeSessionNav.ts`.
+- Timers (FastPrompter port): `zaicodeTimers.ts`, `zaicodeDuration.ts`,
+  `zaicodeProductivity.ts`, `zaicodeIntervalRules.ts`, `zaicodeTimerStore.ts`,
+  `useZaicodeTimerEngine.ts`, the Timers window/tabs and the title-bar clock
+  `ZaicodeTopbarClock.tsx` (mounted before the limit meter in
+  `WorkspaceHeaderActionSection.tsx`).
+- Notifications: `zaicodeNotifications.ts` scenarios (cards, Windows
+  notification, length, quiet hours) and fresh marks (glow). Wired: agent turns
+  (`hooks/useTaskNotifications.ts`), refills per named window
+  (`zaicodeLimitRefills.ts` in `useZaicodeLimitAlerts`), low quota, worker
+  exit/crash, autostart fire/missed, SAIMAIL arrivals, Problip goals.
+- Limit meters (T-36): `zaicodeMeterPrefs.ts` — FastPrompter's gauge filters
+  (hide 0% used, only engines whose 5h window can work now, per-surface scope,
+  per-engine meter hide), fill direction, vendor tint, names, and the sidebar
+  tile availability tint. `ZaicodeMeterSettings.tsx` is shown in Settings ->
+  Engines & limits and on a right-click of the meter. Percent text uses
+  `zaicodeRemainingTextColor` (readable at 0%).
+- Workers v2 (T-36): a worker lives in the bottom **WORKERS panel**
+  (`ZaicodeWorkersPanel.tsx`, rendered under the workspace body in
+  `WorkspaceShellLayout.tsx`; split row/column/grid with draggable dividers, or
+  tabs; height drag; solo) or in its own window (`ZaicodeWorkersDock.tsx`:
+  snapping to halves/quarters/maximize, bottom edge docks back, magnetic edges,
+  8 resize handles) or as a chip in the tray (anchor: bottom left/centre/right,
+  left/right middle; label "engine · project"). Geometry rules are pure in
+  `zaicodeWorkerLayout.ts`; preferences in `zaicodeWorkerPrefs.ts`; shared
+  pieces in `ZaicodeWorkerParts.tsx`; the sidebar list in
+  `ZaicodeSidebarWorkers.tsx`. Workers use Terminus by default:
+  `TerminalSession` accepts `fontFamilyOverride` / `fontSizeOverride`, applies
+  them after the face loads and repaints rows after a re-attach; the terminal
+  registry's `detachDom(key, fromHost)` only detaches from the container that
+  still owns the element, so moving a worker between panel and window never
+  blanks it; the initial command survives a remount.
+- Sounds: `ZaicodeSoundPicker.tsx` (kinds by length, audition on hover / wheel /
+  arrows) in every Sounds row; Problip and a compact Ambience sit together in
+  Settings -> Sounds -> Background.
+- Home screen: the "Empty" marker and the empty SAIMAIL line are off by default
+  (`zaicodeUiPrefs.ts` `homeRev` moves old stored values once); a hover link on
+  the home block opens Layout & home.
+- Memory: `ZaicodeMemoryExplainer.tsx` explains what is remembered, where
+  (`~/.zcode/cli/memories/projects/<project>/memory/`), cost and scope.
+- ZAICODE page: ready-made teams (`ZaicodeTeamPresets.tsx`) and a guided tour
+  (`ZaicodeTour.tsx`); Help is `settings/ZaicodeHelpSection.tsx` (F1).
+
+Tests: `test/zaicodeWave35.test.ts` (timers, durations, productivity, interval
+rules, hotkeys, layout lists, session ring, sound kinds, quiet hours, refills,
+text colours) and `test/zaicodeWave36.test.ts` (meter rules, split / snap /
+magnet / clamp geometry, worker store, worker prefs, home migration, team
+presets, worker hotkeys).
+
+## 13. Composer, CLEAR, model binding, Dispatch (T-37, 2026-09-25)
+
+Status: verified by unit tests and a staged build (evidence
+`.saipen/evidence/T-37-composer-dispatch.md`); the GUI click-through is an
+operator step (T-9).
+
+- CLEAR empties the current session in place. New v4 command
+  `clearConversation` (`shared/src/zcode-protocol-v4/command.ts`), native
+  handler in `bootstrap/.../handlers/fork-edit-retry.ts`: stop the running turn
+  (pauses an active goal), clear the goal, drop queued inputs, then
+  `runtime.rewindConversationToStart` (core `rewind-message.ts`), the same
+  same-session branch cut edit/retry use, anchored before the first user
+  prompt. Nothing is deleted from the store. Refused in selection side chats.
+  Settings -> Layout & home -> Composer buttons switches CLEAR to "open a new
+  session" (`zaicodeUiPrefs.clearMode`).
+- The model picked in a composer is what START runs next:
+  `adoptZaicodeComposerModel` (`zaicodeDefaultModel.ts`) makes it the default
+  for fresh sessions and releases a subscription engine selected on the
+  sidebar (toast). The GLM quota fallback does not go through it.
+- Drafts: switching sessions inside the 350 ms persistence debounce wrote
+  nothing for the scope being left; `persistV4ComposerDraftContent` now saves
+  that snapshot (mode and model of the scope kept).
+- Dispatch (header button, Alt+D): project x engine / launcher, opened as its
+  own PowerShell console (`launchZaicodeExternalWorker`, AUDAPACK style) or as
+  an in-app worker. Launchers (Terminal, OpenCode, your own command lines) are
+  edited in Settings -> Workers & terminal. Files: `zaicodeDispatch.ts`,
+  `ZaicodeDispatchPanel.tsx`, `settings/ZaicodeDispatchSettings.tsx`.
+- START / STEP / CLEAR hotkeys are registered by the composer strip; the
+  composer that last took focus handles them.
+
+Tests: `packages/ui/test/zaicodeWave37.test.ts`,
+`apps/zcode-cli/packages/bootstrap/test/clearConversation.test.ts` (run from
+`packages/services` with `node --import tsx --test`).
+
+## 14. Router: 9router providers, keys and pools from ZAICODE (T-38, 2026-09-25)
+
+Status: verified by unit tests, a transport test against a fake 9router and a
+live read of the real one (evidence `.saipen/evidence/T-38-router.md`); GUI
+click-through is an operator step.
+
+Settings -> ZAICODE -> Router (9router), also opened from the SAIRoute label of
+the sidebar pool row. 9router stays the owner of providers, keys, models and
+pools; ZAICODE calls its dashboard API with 9router's own CLI credential
+(computed in main, never sent to the renderer) and re-reads after every change,
+so the dashboard and ZAICODE agree (decision D-8).
+
+- Overview: running / not reachable, version (warns when the 9router_extra
+  patches are missing), today's requests and tokens, Start (`9router -t
+  --skip-update`), Open dashboard, and 9router_extra's `apply-update.ps1` run
+  in a visible console after a confirm.
+- Providers & keys: every connection with on/off, Test and remove; add an
+  OpenAI- or Anthropic-compatible provider with its key in one step; add
+  another key to a custom provider (9router rotates them as a key pool).
+  OAuth subscriptions are connected in the 9router dashboard.
+- Pools: strategy (Fallback / Round robin / Fusion), ordered model list with
+  move / remove, add a model with search over 9router's models, create and
+  delete pools.
+- Files: `shared/src/zaicode-router.ts` (allow-list, records),
+  `desktop/src/main/zaicodeRouterTransport.ts`, `desktop/src/main/zaicodeRouter.ts`,
+  `ui/src/zaicode/zaicodeRouter.ts`, `ui/src/settings/ZaicodeRouter*.tsx`.
+
+## 15. Vendor subscriptions as in-app models (T-40, 2026-09-25)
+
+Status: unit-tested; not yet exercised against a live 9router list (evidence
+`.saipen/evidence/T-40-vendors-as-models.md`).
+
+A vendor CLI runs its own agent loop, so it cannot be a ZAICODE model. A
+subscription connected in 9router (Codex, Antigravity, Claude Code, …) can:
+9router serves it as `<alias>/<model>` over the same `/v1` endpoint the
+SAIRoute provider uses. Router -> "Subscriptions as models" lists those models
+per connection and adds one to the SAIRoute provider (Add), optionally making
+it the default for new sessions (Use). The sidebar engine tile's menu has
+"Use <short> inside ZAICODE as a model…". The quota is the CLI's own; vendor
+terms on proxying consumer subscriptions apply.
+
+## 16. Calm interface, local time, reset readings, sound picker (T-39, 2026-09-25)
+
+Status: unit-tested (including a regression pair for the reset reading) and
+bundled; GUI behaviour is an operator check (evidence
+`.saipen/evidence/T-39-calm-clock-resets-sounds.md`).
+
+- Calm interface (Settings -> Layout & home, hotkey `ui.calm`): no animations
+  or transitions, no dimming or blur, no hover pop-ups; `<html>` classes
+  `zaicode-no-motion`, `zaicode-no-dim`, `zaicode-no-popups`.
+- Local time: ZAICODE main removes an inherited `TZ` before anything is
+  spawned (`zaicodeTimeZone.ts`), so clocks, timers and agents use the Windows
+  zone. The clock has a 12-hour switch that every time display follows
+  (`formatZaicodeTimeOfDay`), plus weekday, year, ISO week and zone name.
+- Claude quota resets are read in the zone the CLI prints; a reset further
+  away than its window is dropped as a misread.
+- Sound picker: click listens, wheel / arrows listen while "listen" is on,
+  double-click / Enter / "use" picks; hovering is silent and never scrolls;
+  a closed picker changes only on Shift+wheel.
+
+## 17. Agent-initiated delegation (T-10, 2026-09-25)
+
+Status: service-level tests with the real queue and a real folder; not yet
+exercised with a live coordinator model (evidence `.saipen/evidence/T-10-delegation.md`).
+
+Within the operator's rules (SRC-033): only a running top-level coordinator
+job delegates, depth exactly 1, at most N helpers per job (default 3, 0 = off),
+allowed helper roles, parent link on every child, the run id as the token. The
+coordinator's prompt names a request folder; the agent writes `<name>.json`
+(`role` or `agentId`, `title`, `instructions`), ZAICODE answers in
+`<name>.result.json` and reports each helper's final state as
+`<childJobId>.done.json`. Settings -> ZAICODE -> Delegation holds the limits.
+
+## 18. System Read Model (T-41, 2026-09-25)
+
+Status: unit-tested, live-checked against this workspace's SAIPEN 8.0.1
+(evidence `.saipen/evidence/T-41-read-model.md`).
+
+One answer to "is this project working": `ZaicodeProjectRuntimeSnapshot`
+(`shared/src/zaicode-runtime-snapshot.ts`) is assembled per project from the
+owners' facts -- SAIPEN's own projection (`saipen status --json`, run and cached
+by the desktop main process until STATE/BOARD/LOG change), running and waiting
+sessions, and workers. `zaicodeProjectRuntimeState` is the one verdict
+(blocked / waiting / working / pending / done / idle) and
+`ZAICODE_RUNTIME_STATE_COLOR` its one colour; the sidebar strip, the composer
+chip and the SAIPEN pane all read it.
+
+- ZAICODE does not re-interpret the protocol: phase, next action, blocker and
+  the next ticket printed on the composer and the SAIPEN pane come from the
+  projection (`zaicodeSaipenHeadline`); BOARD/LOG parses are display only
+  (progress bars, titles, the log list). Without a projection (no launcher,
+  remote workspace, error) the file parse is used and marked `source: "files"`.
+- The /goal verdict in the agent CLI asks the same projection first
+  (`readSaipenGoalProjection`: SAIPEN_HOME, else STATE's `saipen_home`); the
+  board parse only names BLOCKED tickets for the autonomy push and is the
+  fallback when SAIPEN cannot answer.
+
+## 19. Full-system headless E2E (T-44, 2026-09-25)
+
+Status: 10/10 PASS on this machine (evidence `.saipen/evidence/T-44-e2e/`).
+
+`packages/ui/test/e2e/zaicodeSystem.e2e.ts` drives cold start -> SAIPEN
+projection -> engines -> START's `/goal cc all` verdict -> Work claimed by a
+worker process -> SAIMAIL telegram between two real seats -> worker killed and
+the next generation resuming the same ticket -> router outage and recovery ->
+a restarted read path -> VERIFY -> DONE, asserting ZAICODE's own read paths at
+each step. GUI-only steps are printed in the report for the operator (T-9).
+
+## 20. Overflow, Color Studio, notification delivery, reset glow, LOG order, photo list (T-45, 2026-09-25)
+
+Status: unit-tested (`ui/test/zaicodeWave45.test.ts`), GUI behaviour is an
+operator check (evidence `.saipen/evidence/T-45-ui-wave.md`).
+
+- Icon rows never clip: the header toolbar moves what does not fit into a
+  "⋯" panel (`ZaicodeOverflowRow`), other rows wrap.
+- Color Studio (Settings -> Colors): theme -> own themes (all 21 colours,
+  copy / rename / delete / from one colour / export / import) -> whole-palette
+  shifts -> single overrides of any app colour variable; contrast report,
+  live preview, undo.
+- Notifications: Deliver to Per moment / In-app / Windows / Both; native
+  Windows toasts from the main process (`zaicode:show-notification`).
+- Reset glow: every reset whose time passed glows at once; it ends by the
+  operator's rules (time, seen, clicked, quota in use) and can fade.
+- SAIPEN pane LOG: oldest-first / newest-first. Profile photos: kept in a
+  list, right-click delete with confirmation.
+
+## 21. Zero-setup SAIFREN / SAIOPP router (T-46, 2026-09-25)
+
+Status: main-process chain proven against a real, fresh 9router (8/8,
+including the first token through SAIFREN from the real free providers, a
+crash that heals itself, and the Autotroubleshoot repairs); app side unit
+tested; evidence `.saipen/evidence/T-46-zero-setup-router.md`.
+
+- Router host (`desktop/src/main/zaicodeRouterHost.ts`, `zaicodeRouterProcess.ts`):
+  Auto / My 9router / ZAICODE's own. ZAICODE's own 9router runs from the
+  shipped package under ZAICODE's executable as Node: nothing to install.
+- Setup (`zaicodeRouterSetup.ts`, `zaicodeRouterBootstrap.ts`, catalog
+  `shared/src/zaicode-free-catalog.ts`): keyless free providers wired into
+  9router, SAIFREN created or topped up, SAIOPP present, ZAICODE's own 9router
+  key, first-token probe. The app side (`ui/src/zaicode/useZaicodeRouterAutoSetup.ts`)
+  adds the SAIRoute provider with SAIFREN + SAIOPP and makes SAIFREN the
+  default for new tasks when no working default exists.
+- Free-model scan: daily; new free models from the providers' own lists are
+  appended and announced ("Today free model X added to SAIFREN").
+- Router -> Overview: Autotroubleshoot (router, credential, pools, key, first
+  token, per-model probes), Scan now, one-paste free keys (OpenRouter, Gemini,
+  Groq, NVIDIA NIM, Cerebras, Mistral, OpenCode Zen), SAIOPP via the router's
+  OAuth provider page.
+
+## 22. Highlights & motion, message box, crisp resize, sound fixes (T-49, 2026-09-25)
+
+Status: unit-tested (`ui/test/zaicodeWave49.test.ts`, core `test/zaicodePlanMode.test.ts`);
+GUI behaviour is an operator check (evidence `.saipen/evidence/T-49-ui-wave.md`).
+
+- Highlights & motion (Settings -> ZAICODE): the Working icon (picture, motion,
+  speed, reach, size, direction, ticks, colour, glow, keep moving in the calm
+  interface) and seven highlight targets, each with effect, shape, colour,
+  strength and speed. `zaicode/zaicodeHighlights.ts` returns `data-zh*`
+  attributes and custom properties; `zaicode/zaicodeMotionCss.ts` animates one
+  registered number (`--zh-k`) per effect and draws every shape from it, so
+  any effect works with any shape and nothing runs in JavaScript per frame.
+- Message box: compact mode (one row of square icon buttons) and a switch for
+  every part of the SAIPEN strip (`zaicodeComposerPrefs.ts`,
+  `prompt-editor/ZaicodeSaipenCompact.tsx`).
+- Crisp after resize: `zaicode/zaicodePixelSnap.ts` moves centred columns and
+  worker terminals by their sub-pixel remainder; chat rows and worker windows
+  use whole pixels.
+- Sounds: navigation sounds are echoes of the action that caused them and stay
+  silent right after it (`zaicodeSoundBus.ts`); the sound picker takes several
+  kinds at once and keeps the search box focused.
+- Agents in ZAICODE never switch themselves into plan mode (SAIPEN plans);
+  `ZAICODE_AGENT_PLAN_MODE=allow` restores the tool.
+- SAIFREN / SAIOPP: 1 000 000 context, 131 072 output.
+
+## 23. Hit and go, SCHEDULER, responsive agent workshop (T-50, 2026-09-25)
+
+Status: unit-tested (`ui/test/zaicodeWave50.test.ts`, `desktop/test/zaicodeHitAndGo.test.ts`);
+GUI behaviour is an operator check (evidence `.saipen/evidence/T-50-agents-scheduler.md`).
+
+- Hit and go: an empty job text is `/goal cc all`; a slash command or a bare
+  SAIPEN shortcut reaches the agent alone and first (`isZaicodeRawCommand`,
+  executor `buildZaicodeJobPrompt`). An agent without a pool runs on SAIFREN
+  (`pickZaicodeFallbackPool`). Built-in template "Autopilot" carries
+  `hitAndGo: true`; the ZAICODE header's Hit & go button and pool schedules
+  in sections use it (made on first use, never by name).
+- SCHEDULER = the T-34 autostart engine with sections, agents, a watched
+  subscription and a stop time (`shared/src/zaicode-engines.ts`,
+  `ui/src/zaicode/zaicodeAutostart.ts`, `zaicodeScheduler.ts`). Surfaces: the
+  sidebar menu line, the ZAICODE workspace Scheduler tab
+  (`ZaicodeSchedulerPanel.tsx`), the home-screen card and the "prompt ready"
+  glow on limit meters (`ZaicodeSchedulerBits.tsx`, highlight `meterPrepared`).
+  `ZaicodeAppRuntime` publishes the open projects and the local agent queue
+  for the runner; `WorkspaceShellLayout` registers the ZAICODE view opener
+  (`openZaicodeWorkspaceView`).
+- The upstream Automations line is no longer offered in the ZAICODE menu.
+- The agent workshop's inspector overlays the queue below 1100 px.
+
+## 24. SAIHOME, local statistics and the T-56 batch (T-56, 2026-09-25)
+
+Status: unit-tested (`ui/test/zaicodeSaihome.test.ts`, `ui/test/zaicodeWave56.test.ts`,
+`services/test/zaicodeStats.test.ts`, `desktop/test/zaicodeTrayMenu.test.ts`,
+`desktop/test/zaicodeTimeZone.test.ts`); GUI behaviour is an operator check
+(evidence `.saipen/evidence/T-56-saihome.md`).
+
+SAIHOME is the operator home ("what is happening?"); NEW TASK stays the
+composer ("what do I want to start?"). They are different views and opening
+SAIHOME has no execution side effect.
+
+- View: `WorkspaceMainView` gains `saihome` (`app-shell/types.ts`). App.tsx
+  picks the first view from Settings -> Layout & home -> Startup (SAIHOME by
+  default, Last active, New task). `WorkspaceShellLayout` renders
+  `zaicode/home/ZaicodeHomePage.tsx`, registers `openZaicodeHomeView()`
+  (`zaicodeActions.ts`) and mirrors the current view (`mainView`) for the
+  sidebar highlight and the "Last active" memory. Entries: the SAIHOME menu
+  line (first, `zaicodeLayoutPrefs.ts`), header tool `home` (off by default),
+  hotkey `ui.home` (Alt+H), tray menu.
+- One snapshot: `ZaicodeHomePage` assembles every module's slice from the
+  owners' stores (engines, meter prefs, SCHEDULER, router + router host,
+  running / waiting sessions, workers, SAIPEN via T-41's
+  `useZaicodeProjectRuntime`) plus one feed (`home/zaicodeHomeFeed.ts`: stats,
+  recent activity, all queue rows, router refresh), refreshed on open and every
+  N seconds only while visible. Pure read model `home/zaicodeHomeModel.ts`
+  (limits wall rows with truth state, queue counts, routing health, NEEDS YOU
+  items with what / why / impact / one action). Project probes
+  (`home/ZaicodeHomeFleet.tsx`) reuse the sidebar's shared SAIPEN pollers.
+- Local statistics: migration `0006_zaicode_stats`
+  (`services/src/session/tasksDatabase/zaicode-stats-v6.ts`) adds
+  `zaicode_stats_events` (stable source-scoped ids, token columns NULL when
+  unmeasured) and `zaicode_stats_cursor`. `services/src/zaicode/zaicodeStatsService.ts`
+  (channel `zaicode-stats`) reads the agent usage store read-only
+  (`model_usage`, `turn_usage`, joined to `session.directory`;
+  `zaicodeStatsSources.ts`), finished queue runs (`zaicode_jobs`) and worker
+  sessions the renderer records (`useZaicodeWorkerStatsRecorder`). Replays and
+  restarts insert nothing twice (INSERT OR IGNORE, cursor + 5 min overlap);
+  Clear sets a floor so nothing older is read back. Aggregation
+  (`shared/src/zaicode-stats.ts`): quarter-hour SQL buckets turned into local
+  days with Intl in the operator's IANA zone (DST / zone change / rollover
+  safe), periods today / yesterday / last 7 / week / last 30 / month / all,
+  streaks, grid intensity, documented derived metrics with "not enough data".
+- Clock: `home/ZaicodeAnalogClock.tsx`, SVG, own 1 Hz state (smooth sweep only
+  while motion is allowed); nothing else re-renders per second.
+- Event journal: `home/zaicodeHomeJournal.ts`; `notifyZaicode()` records the
+  work-relevant scenarios before card / quiet-hour filters; the Recent card
+  merges it with queue runs and worker sessions.
+- Settings: `home/ZaicodeHomeSettings.tsx` in Layout & home (startup, preset,
+  density, reset layout, clock, statistics measure / week start / grid days,
+  refresh, privacy: explanation, JSON export, clear). The old "Home screen"
+  block is now "New task screen"; the SCHEDULER card left the composer.
+
+Other T-56 items:
+
+- Clock time: an inherited `TZ` (agent shells export `TZ=UTC`) is removed by
+  the launcher (`ZaicodeLauncher.cs`, `ZAICODE.ps1`) and, for a packaged app
+  that still got one, `shouldRelaunchForLocalTimeZone` relaunches once
+  without it (Chromium fixes its zone before main runs).
+- A turn the operator stopped (`completedInterrupted`) raises no "Task
+  completed" card (`taskNotificationOrchestrator.ts`, `skipInterrupted`).
+- Tray: ZAICODE draws its own right-click menu (`main/zaicodeTrayMenu*.ts`,
+  Golden Default tokens) without Clear all data / update check / About; the
+  zaicode flavor's application menu drops What's new, Feedback, Export logs and
+  Clear all data; the footer Help menu offers ZAICODE Help instead of the
+  vendor's docs / issue form.
+- Project row: a fixed 60 px zone (idle: working / waiting / OFF; hover: MAIN,
+  START, more) so the name never moves; new session and files moved into the
+  more menu. Worker rows keep their buttons laid out (no height jump).
+- Shift+Click switches a project off / on (`zaicodeProjectSwitch.ts`; service
+  `setWorkspaceDisabled`, setting `disabled_workspaces`): dimmed, OFF badge,
+  queue `pump` skips it, the SCHEDULER skips it.
+- Shift + drag and hold 2 s opens the SLOTS drop panel (`ZaicodeSlotDrop.tsx`):
+  every slot, also empty or folded, is a target.
+- Timers, SCHEDULER and quiet hours use `ZaicodeTimeField` /
+  `ZaicodeMomentField` (`ZaicodeTimeFields.tsx`, parser `zaicodeClockText.ts`):
+  typed 24-hour times, 00:00 is midnight, explicit All-day box on sound rows,
+  no native picker.
+
+## 25. Sidebar speed, CONTINUE ALL / DONE, mixes, Freebuff metrics (T-58, 2026-09-25)
+
+Source: SRC-043 (nine operator items).
+
+- Sidebar lag: every project row used to subscribe to whole lists (running
+  sessions, waiting sessions, every worker); any streaming update or a worker
+  window drag re-rendered all rows. Rows now read counts through selectors
+  (`zaicodeProjectRuntime.ts`, `useZaicodeWorkersSelector` in
+  `zaicodeWorkers.ts`, the worker chips' signature string), the session-nav
+  store keeps unchanged `waiting` / `recent` / `projectList` arrays
+  (`zaicodeSessionNav.ts`), the scroll container has no CSS mask in ZAICODE
+  mode, `[data-zaicode-instant]` removes every transition inside the sidebar,
+  and a compact project row mounts its actions once and swaps status /
+  actions with CSS `group-hover` (no React render per hover).
+- Projects root: in ZAICODE mode the project list renders without the
+  `WorkspacePurposeSection` (no title, no fold, no section drag); an old
+  folded preference is ignored (`projectsSectionOpen`). SLOTS / LIVE / + moved
+  into the toolbar row. The row's `cursor-grab` is gone (drag unchanged).
+- Continue (`zaicode/zaicodeContinue.ts`, host half `zaicodeContinueHost.ts`):
+  the sidebar publishes one `ZaicodeSessionBrief` per loaded session; each
+  project row registers how to reach its own host. Sending uses the off-peak
+  resume path: `resumeTask` (hydrates a cold session), then one v4 command --
+  `sendGoalCommand` for a goal (never "/goal ..." as prose), `sendText`
+  otherwise, `heldQueueDisposition: keepQueueAndSend`. A project without MAIN
+  gets `createTask` + the command, and the new session becomes MAIN.
+  `planZaicodeContinueAll` is pure and tested; the button shows the plan
+  before the click. `zaicodeDoneUnseen` orders unseen finished sessions
+  oldest first; opening clears `unreadAt` (upstream navigation), so DONE walks
+  them like an inbox. Hotkeys `session.nextDone` (Alt+Right) and
+  `session.continueAll` (unbound).
+- SAIHOME probes are ref-counted (`ZaicodeHomeFleet.tsx`): the sidebar strip
+  and SAIHOME both mount them; a project's row leaves the store only when its
+  last probe unmounts.
+- Mixes (`zaicodeCombo.ts`, `ZaicodePrefCombo`): highlight rules hold
+  `effects[]` / `shapes[]`, the Working icon `images[]` (up to three stacked)
+  and `motions[]`; old single values are read as one-item lists. CSS: each
+  effect animates its own registered channel `--zh-e-*`, `--zh-k` is their
+  product; shapes match with `~=`; underline + bar share one box-shadow;
+  mixed icon motions animate `--zw-r1..r3/ry/s/ty/o1/o2` read by one
+  transform / opacity; a single motion keeps the plain keyframes.
+- Opacity bug: blink / breathe animate `opacity`, which overwrote the slider;
+  the resting opacity is now `filter: opacity()`. Reach sets Blink's dark
+  phase (`--zw-blink-low`).
+- Black on black: `body` had no colour, so portaled surfaces (Timers) that
+  forgot a text class drew browser-default black; ZAICODE sets
+  `html.zaicode-fonts body { color: var(--color-foreground) }`.
+- Clock: countdowns bold in FastPrompter's colours; the reset label in the
+  vendor colour (`zaicodeProductivityColor`, `ZAICODE_CLOCK_INTERVAL_COLOR`).
+- Freebuff (metrics only): vendor `freebuff` (`ZAICODE_METRICS_ONLY_VENDORS`,
+  `isZaicodeMetricsOnlyAccount`), parser `parseFreebuffSession` (Freebucks
+  day pool = remaining of limit, wallet in the plan line; legacy plan / free
+  pools kept apart), desktop discovery from Freebuff Desktop's
+  `~/.config/freebuff-desktop/state.json` (proven codebuff host entries
+  only) and one read-only GET to `www.codebuff.com/api/v1/freebuff/session`
+  (no redirects, 512 KB cap, token only in the header). Config
+  `readFreebuff` (default on). Launch surfaces use
+  `launchableZaicodeAccounts`; `launchZaicodeWorker` refuses metrics-only
+  accounts.

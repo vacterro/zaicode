@@ -1,0 +1,52 @@
+{
+  "agent": "saipen-cli",
+  "created_at": "2026-09-24T12:32:40Z",
+  "evidence_class": "executed",
+  "findings_digest": "03b017c3eb941cd1134a0a047743d19322091744640dbc378004c565f45b4457",
+  "gate": "core",
+  "integrity_digest": "0e340ead478c6c25",
+  "journal_op_id": "reverify.e86b1fb99b10",
+  "original_closure": {
+    "claim_time": "2026-09-24T10:35:18Z",
+    "closure_mode": "own_patch",
+    "last_ticket_event": "E-446",
+    "owner": "claude-code",
+    "source_receipts": "SRC-024"
+  },
+  "own_problem_keys": [
+    "9bc2995da24478dd",
+    "a765baa0ba8b6322"
+  ],
+  "problem_count": 4,
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "project_lineage": "lineage-b0732ed2f98947b9a3c97bfe71427eca",
+  "receipt_id": "RV-000001",
+  "ruleset_fingerprint": "82e5e183ae8f0fd909be3fa3627f00489cacaab813d942186c832db02a05a1c1",
+  "ruleset_version": 1,
+  "schema_version": 1,
+  "source_head": "58d8b047de983a3819bf366cd016f1f6486805c8",
+  "source_tree_fingerprint": "git-delta-v1:1225521bd94fcaabd5f3535a2858058b35a7d9e85d55321a98b7d3f7c14b773e",
+  "verdict": "FAIL",
+  "verification": [
+    {
+      "command": "C:\\nodejs\\node.exe V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\node_modules\\typescript\\bin\\tsc --noEmit -p V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\ui\\tsconfig.json",
+      "duration_ms": 5735,
+      "executed": true,
+      "exit_code": 0,
+      "output_bytes": 0,
+      "output_digest": "e3b0c44298fc1c14",
+      "result": "PASS"
+    }
+  ],
+  "verification_contract": {
+    "commands": [
+      "C:\\nodejs\\node.exe V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\node_modules\\typescript\\bin\\tsc --noEmit -p V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\ui\\tsconfig.json"
+    ],
+    "findings_digest": "03b017c3eb941cd1134a0a047743d19322091744640dbc378004c565f45b4457",
+    "gate": "core"
+  },
+  "verification_contract_digest": "f6b55fe147b5cd94",
+  "verifier": "saipen-cli",
+  "warning_count": 20,
+  "work": "T-30"
+}

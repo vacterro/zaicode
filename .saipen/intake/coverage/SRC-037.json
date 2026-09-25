@@ -1,0 +1,14 @@
+{
+  "requirements": {
+    "SRC-037:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "T-48 closed with verification evidence in LOG: verify -> PASS [target: T-48] conf: high -- desktop zaicodeHitAndGo 3/3: '/goal cc all' and 'cc' reach the agent alone, empty task = /goal cc all, no-pool agent runs on SAIFREN",
+      "text": "zaicode-job:3b1c093d-f8d2-4d00-819f-8da41acf54b7: fix all",
+      "verification": "the Work this request created reached its own verification gate; see the T-48 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-48"
+    }
+  },
+  "schema_version": 1
+}

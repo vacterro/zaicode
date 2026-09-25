@@ -68,4 +68,54 @@ dispatch blocks with `dispatch_unavailable` rather than pretending to run.
 A top-level Coordinator job may carry `delegation` (target agent +
 instructions). On successful completion the service creates exactly one child
 job (`parent_job_id`) and pumps it; child jobs cannot carry delegation, so
-recursion is impossible by construction. No runtime tool yet (T-10).
+recursion is impossible by construction. Runtime delegation (T-10, 2026-09-25):
+a running top-level coordinator asks for helpers through a per-run request
+folder answered by the queue service (`delegateFromRun`, policy in
+`shared/src/zaicode-delegation.ts`, operator decision SRC-033); the run id is
+the token, depth stays exactly 1.
+
+## D-8 9router is managed through its own API, never cloned
+
+Providers, keys, models and pools live in 9router (`%APPDATA%\9router`, the
+0.5.65-extra build carries the 9router_extra patches). ZAICODE's Router page
+drives 9router's dashboard API from the desktop main process with 9router's
+CLI credential: header `x-9r-cli-token` = first 16 hex chars of
+sha256(`machine-id` + `9r-cli-auth` + `auth/cli-secret`), both files in the
+9router data folder. Only the routes in `shared/src/zaicode-router.ts` are
+reachable; `/api/settings` is reduced to `comboStrategies` before it reaches
+the renderer. Pool strategy lives in settings `comboStrategies[<name>]
+.fallbackStrategy` (absent = fallback), not on the combo record.
+
+## D-9 Zero-setup router: ZAICODE ships and can run its own 9router (T-46, 2026-09-25)
+
+Amends D-8 (which stays true for the operator's own router). ZAICODE ships the
+patched 9router server (`resources/router/9router`, MIT) and chooses per
+machine: `shared` = the operator's 9router (%APPDATA%\9router, :20128, never
+stopped by ZAICODE; started if down), `isolated` = ZAICODE's private instance
+(data in ZAICODE's userData `router/`, :20138), run by ZAICODE's own
+executable with ELECTRON_RUN_AS_NODE (no Node/npm on the machine), supervised
+by `ZaicodeRouterProcess` (restart with backoff, stop on will-quit); `auto` =
+shared when `%APPDATA%\9router\db\data.sqlite` exists, else isolated. The
+isolated router's CLI credential (machine-id + auth/cli-secret) is written by
+ZAICODE before the first start. SAIFREN is filled from keyless legitimate free
+tiers only (Kilo Gateway `kilo-auto/free`, Pollinations `openai-fast`, LLM7
+checked models; placeholder bearer `anonymous`); OVHcloud's anonymous tier
+was dropped because 9router always sends an Authorization header and OVH
+answers 403 to any bearer. Operator removals from SAIFREN are remembered and
+never undone (scan memory in userData `zaicode-free-scan.json`).
+
+## D-10 SAIHOME is a view; its statistics are ingested, not scraped (T-56, 2026-09-25)
+
+SAIHOME is `WorkspaceMainView = "saihome"`, never the composer's empty state;
+opening it has no execution side effect. Its token history comes from the
+agent CLI's own usage store (`~/.zcode/cli/db/db.sqlite`: `model_usage`,
+`turn_usage`, `session.directory`), opened read-only by the services host and
+copied into ZAICODE-owned `zaicode_stats_events` (migration
+`0006_zaicode_stats`) with source-scoped stable ids, so deleting a session
+does not rewrite history and replays count once. Chosen over a new CLI RPC
+(no agent CLI delta) and over the upstream `v4/usage/stats` query (it needs an
+active workspace client and buckets days with one fixed UTC offset). Day
+bucketing happens in JS from quarter-hour SQL sums with Intl in the caller's
+IANA zone. The store is shared with production ZCode on the same machine, so
+SAIHOME labels it as such. CLI worker sessions carry no token counts and are
+shown as unmeasured runtime.

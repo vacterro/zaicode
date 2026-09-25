@@ -1,0 +1,14 @@
+{
+  "requirements": {
+    "SRC-020:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "verify -> PASS [target: T-26] conf: high -- 43/43 tests pass; pnpm exec tsc -b packages/ui packages/services pass with 0 errors; oxlint passes with 0 errors; zaicode-env pass.",
+      "text": "Unify project and session list color bar lengths with user settings; convert all icons to sharp pixel variants; keep dynamic todometer visible above queue; make /goal run to completion including SAIPEN tickets; clarify and add Hunter Tester Cleaner Wikier Translator agent modes.",
+      "verification": "see T-26 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-26"
+    }
+  },
+  "schema_version": 1
+}

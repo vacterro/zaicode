@@ -78,3 +78,61 @@ The packaged ZAICODE agent writes `~/.zcode/cli/db/db.sqlite` and
 ZCode (UI.md "Standalone Identity" says they must not share mutable state).
 Moving it would hide existing ZAICODE sessions/projects, so it waits for an
 explicit operator decision.
+
+## Bundle EBUSY while the operator's ZAICODE agents scan the repo (2026-09-24, T-31)
+
+`REBUILD.cmd` rebuilds the agent CLI (`apps/zcode-cli/packages/*/dist`) with tsc.
+While the running packaged ZAICODE has agents grepping the same checkout
+(`resources\tools\ugrep\ugrep.exe`) or Defender scans fresh output, tsc can fail
+with `error TS5033: Could not write file ... EBUSY: resource busy or locked` on
+a random `dist` file. It is contention, not a code error: rerun (a retry loop
+passed on the next attempt). Never kill the operator's ugrep/ZAICODE processes.
+
+`REBUILD.cmd --fast` used to forward `--fast` to the bundler (`shift` does not
+change `%*`; bundle.mjs rejects unknown flags). Fixed: arguments are rebuilt
+without `--fast` before `bundle-zaicode.mjs`.
+
+## Targeted oxlint is not the lint gate (2026-09-24, T-34)
+
+Several tickets reported "oxlint 0 errors" from a targeted run over the files
+they touched, while the canonical `pnpm lint` (upstream AGENTS.md makes it
+mandatory) failed with 7 `eslint(max-lines)` errors (limit 400 non-blank,
+non-comment lines, `.oxlintrc.json`) in ZAICODE files. A ZAICODE diff had also
+deleted upstream's own `/* eslint-disable max-lines -- ... */` header from
+`desktopMainIpcPlatform.ts`. Run the full `pnpm lint` at VERIFY; a file that
+legitimately stays long gets the upstream idiom
+`/* eslint-disable max-lines -- <why one owner module> */` as its first line.
+
+## Desktop main/preload/renderer tsconfigs are not in the typecheck gate
+
+`pnpm typecheck` builds only `packages/desktop/tsconfig.host.json` from the
+desktop package; `tsconfig.main.json` / `preload` / `renderer` carry many
+upstream type errors (esbuild bundles them without a type pass). Checking a
+ZAICODE change there means filtering that output to the touched files.
+
+## Pixel font blurs on half pixels (2026-09-25, T-49)
+
+ZAICODE draws its UI with a pixel font and no antialiasing, so any text box
+that starts on a fractional x/y renders soft. Browser centring (`mx-auto`,
+`justify-center`) of a fixed-width column in a container of odd width lands on
+x.5; measured virtual-row heights and pointer coordinates on a scaled display
+are fractional too. `zaicode/zaicodePixelSnap.ts` moves every element matching
+`ZAICODE_PIXEL_SNAP_SELECTOR` by its sub-pixel remainder; a new centred or
+percentage-placed text container should carry `data-zaicode-pixel-snap`, and
+drag-resize code should round to whole pixels.
+
+## Agent shells export TZ=UTC (2026-09-25, T-56)
+
+The agent shells on this machine run with `TZ=UTC`. A ZAICODE started from
+one shows every clock three hours off, because Chromium fixes its time zone
+before main-process code can delete the variable. The launcher and
+`ZAICODE.ps1` drop TZ; a packaged app that still inherited it relaunches once
+without it. Node tests that depend on the local zone run with `TZ=` (empty)
+or pass an explicit IANA zone.
+
+## Sidebar-width top overlay must not reserve caption space (2026-09-25, T-49)
+
+`DesktopTopOverlay` reserves 136 px on the right for the Windows caption
+buttons. That is right for a window-wide overlay, wrong for the ZAICODE
+toolbar overlay that is only as wide as the sidebar: the reservation squeezed
+the toolbar to ~30 px and pushed every icon into the overflow menu.

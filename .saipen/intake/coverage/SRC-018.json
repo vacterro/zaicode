@@ -1,0 +1,14 @@
+{
+  "requirements": {
+    "SRC-018:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "verify -> PASS [target: T-24] conf: high -- 43/43 tests pass; bundle:zaicode staged successfully; architecture check passes with 0 violations; oxlint 0 errors; zaicode:env:check passes.",
+      "text": "ZAICODE: SAIMAIL discoverability when unconfigured, GLM off by default with fallback to SAIRoute/SAIFREN, replace remaining ZCode names (tray) with ZAICODE",
+      "verification": "see T-24 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-24"
+    }
+  },
+  "schema_version": 1
+}

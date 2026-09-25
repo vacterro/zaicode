@@ -1,0 +1,14 @@
+{
+  "clauses": {
+    "SRC-022:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Replace empty project No tasks yet with a hover START action that sends cc; rename current session live to latest NEXT EXACT ACTION by default; make todo sum clickable to open the mini task board."
+    }
+  },
+  "derived_at": "2026-09-24T09:17:15Z",
+  "derived_from": "SRC-022",
+  "interpretation_revision": 1,
+  "schema_version": 1,
+  "source_sha256": "38205aa2f0c850ea57c2c8551598292fc2c46005ba3e828005cbd1e22db5b862"
+}

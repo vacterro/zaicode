@@ -1,0 +1,14 @@
+{
+  "clauses": {
+    "SRC-037:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "zaicode-job:3b1c093d-f8d2-4d00-819f-8da41acf54b7: fix all"
+    }
+  },
+  "derived_at": "2026-09-25T07:48:34Z",
+  "derived_from": "SRC-037",
+  "interpretation_revision": 1,
+  "schema_version": 1,
+  "source_sha256": "1252fac05a18675b56bc6e6bf1ccd937fce1494f5baed06a39cf21ec41b35e5c"
+}

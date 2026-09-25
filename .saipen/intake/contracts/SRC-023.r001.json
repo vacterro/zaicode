@@ -1,0 +1,14 @@
+{
+  "clauses": {
+    "SRC-023:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "\u041f\u0443\u0441\u0442\u044c \u0435\u0441\u043b\u0438 \u043f\u0443\u0441\u0442\u043e \u0442\u043e \u0431\u0443\u0434\u0435\u0442 \u0433\u0440\u0443\u0441\u0442\u043d\u043e\u0435 Empty \u0442\u0430\u043a\u043e\u0435 \u0432\u043e\u0442 \u0437\u0430\u0442\u0438\u043d\u0442\u0435\u043d\u0443\u0442\u0442\u043e\u0435, tinted. Screenshot: V:\\___VAC\\_PIC\\_Clipboard_stuff\\clipboard_20260924_090211_9a05ca2c.png"
+    }
+  },
+  "derived_at": "2026-09-24T09:13:13Z",
+  "derived_from": "SRC-023",
+  "interpretation_revision": 1,
+  "schema_version": 1,
+  "source_sha256": "c1641c6569a668f6740c538e8da1c080743b1be1e322443568681041401cbdf8"
+}

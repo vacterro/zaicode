@@ -1,0 +1,91 @@
+{
+  "blocking_findings": {
+    "problem_count": 5,
+    "problems": [
+      {
+        "category": null,
+        "credential": false,
+        "detail": "SRC-024,T-30",
+        "detail_hash": "b7881039894ab01e",
+        "finding_key": "9bc2995da24478dd",
+        "rule_id": "source_receipt_unresolved_work",
+        "severity": "problem",
+        "subject_id": "T-30",
+        "subject_kind": "work",
+        "subject_ref": null
+      },
+      {
+        "category": null,
+        "credential": false,
+        "detail": "no current-cycle VERIFY boundary; reverify: no current-tree PASS re-verification receipt",
+        "detail_hash": "186e51123c0cc004",
+        "finding_key": "a765baa0ba8b6322",
+        "rule_id": "work_closure_evidence",
+        "severity": "problem",
+        "subject_id": "T-30",
+        "subject_kind": "work",
+        "subject_ref": null
+      },
+      {
+        "category": null,
+        "credential": false,
+        "detail": ".saipen/LOG.md:446 timestamp for E-446 is 149m ahead of real UTC (slack is 5m) -- LOG timestamps MUST be real UTC time, and an event stamped at a minute that has not happened yet reorders everything a",
+        "detail_hash": "59f0ab126cac4a50",
+        "finding_key": "76b48f23558dce11",
+        "rule_id": "unclassified",
+        "severity": "problem",
+        "subject_id": null,
+        "subject_kind": "global",
+        "subject_ref": ".saipen/LOG.md:446"
+      },
+      {
+        "category": null,
+        "credential": false,
+        "detail": ".saipen/LOG.md:448 timestamp for E-448 is 173m ahead of real UTC (slack is 5m) -- LOG timestamps MUST be real UTC time, and an event stamped at a minute that has not happened yet reorders everything a",
+        "detail_hash": "3577ec9d14b2a7df",
+        "finding_key": "76b48f23558dce11",
+        "rule_id": "unclassified",
+        "severity": "problem",
+        "subject_id": null,
+        "subject_kind": "global",
+        "subject_ref": ".saipen/LOG.md:448"
+      },
+      {
+        "category": null,
+        "credential": false,
+        "detail": "cross-doc drift [root-file-set] -- file(s) at the repository root that the closed set does not name: ['2', 'PASS)']. Both orphans removed alongside this check arrived that way, on a `git add -A` in a commit about something else, and neither was referenced by any document or tool -- so no other check here could ever see them. A deliberate new root file is a one-line addition to ROOT_ALLOWED in tools/validate.py; a scratch file belongs in .gitignore, which this check honours",
+        "detail_hash": "2e1b625b7fb9957a",
+        "finding_key": "4141c15153e33942",
+        "rule_id": "cross_doc_drift",
+        "severity": "problem",
+        "subject_id": null,
+        "subject_kind": "global",
+        "subject_ref": null
+      }
+    ],
+    "ruleset_fingerprint": "82e5e183ae8f0fd909be3fa3627f00489cacaab813d942186c832db02a05a1c1",
+    "ruleset_version": 1,
+    "status": "complete",
+    "warning_count": 20
+  },
+  "board_hash": "d14205cfdc333023",
+  "canonical_next_command": "saipen work reverify T-30",
+  "content_hash": "7a21ffd9813668fc",
+  "exit_code": 1,
+  "external_actions": [],
+  "gate": "core",
+  "kind": "conformance_receipt",
+  "log_hash": "bf90a19f941811b1",
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "receipt_id": "receipt-24d3d3542186",
+  "remediation_commands": [
+    "saipen work reverify T-30"
+  ],
+  "schema_version": 2,
+  "source_head": "58d8b047de983a3819bf366cd016f1f6486805c8",
+  "source_tree_fingerprint": "git-delta-v1:5114c52e62c3406e544b8a3f3103e670668b0fb108daf251f9d4d7b97a8cc019",
+  "state_hash": "5bd73839d6deeab2",
+  "timestamp_utc": "2026-09-24T11:43:28.553323Z",
+  "validator_protocol_version": "1",
+  "verdict": "FAIL"
+}

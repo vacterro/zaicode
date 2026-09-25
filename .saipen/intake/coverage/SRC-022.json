@@ -1,0 +1,14 @@
+{
+  "requirements": {
+    "SRC-022:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "T-28 closed with verification evidence in LOG: verify -> PASS [target: T-28] conf: high -- source guard checks active writable session and snapshot title; empty START and TodoDock paths unchanged; pnpm exec tsc -b packages/ui and oxlint SessionPane pass.",
+      "text": "Replace empty project No tasks yet with a hover START action that sends cc; rename current session live to latest NEXT EXACT ACTION by default; make todo sum clickable to open the mini task board.",
+      "verification": "the Work this request created reached its own verification gate; see the T-28 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-28"
+    }
+  },
+  "schema_version": 1
+}

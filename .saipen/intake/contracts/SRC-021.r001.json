@@ -1,0 +1,14 @@
+{
+  "clauses": {
+    "SRC-021:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Port the full orchestral sound collection from FastPrompter src into ZAICODE and let the user select a custom sound."
+    }
+  },
+  "derived_at": "2026-09-24T09:18:30Z",
+  "derived_from": "SRC-021",
+  "interpretation_revision": 1,
+  "schema_version": 1,
+  "source_sha256": "f85551945e43cd9c65f823bc0acf2ebbbf83002ece976e3ee6d777164fc1ab95"
+}

@@ -1,0 +1,79 @@
+{
+  "blocking_findings": {
+    "problem_count": 4,
+    "problems": [
+      {
+        "category": null,
+        "credential": false,
+        "detail": "SRC-024,T-30",
+        "detail_hash": "b7881039894ab01e",
+        "finding_key": "9bc2995da24478dd",
+        "rule_id": "source_receipt_unresolved_work",
+        "severity": "problem",
+        "subject_id": "T-30",
+        "subject_kind": "work",
+        "subject_ref": null
+      },
+      {
+        "category": null,
+        "credential": false,
+        "detail": "no current-cycle VERIFY boundary; reverify: no current-tree PASS re-verification receipt",
+        "detail_hash": "186e51123c0cc004",
+        "finding_key": "a765baa0ba8b6322",
+        "rule_id": "work_closure_evidence",
+        "severity": "problem",
+        "subject_id": "T-30",
+        "subject_kind": "work",
+        "subject_ref": null
+      },
+      {
+        "category": null,
+        "credential": false,
+        "detail": ".saipen/LOG.md:446 timestamp for E-446 is 21m ahead of real UTC (slack is 5m) -- LOG timestamps MUST be real UTC time, and an event stamped at a minute that has not happened yet reorders everything a ",
+        "detail_hash": "69803016b757d055",
+        "finding_key": "76b48f23558dce11",
+        "rule_id": "unclassified",
+        "severity": "problem",
+        "subject_id": null,
+        "subject_kind": "global",
+        "subject_ref": ".saipen/LOG.md:446"
+      },
+      {
+        "category": null,
+        "credential": false,
+        "detail": ".saipen/LOG.md:448 timestamp for E-448 is 45m ahead of real UTC (slack is 5m) -- LOG timestamps MUST be real UTC time, and an event stamped at a minute that has not happened yet reorders everything a ",
+        "detail_hash": "1a279a85374e691a",
+        "finding_key": "76b48f23558dce11",
+        "rule_id": "unclassified",
+        "severity": "problem",
+        "subject_id": null,
+        "subject_kind": "global",
+        "subject_ref": ".saipen/LOG.md:448"
+      }
+    ],
+    "ruleset_fingerprint": "82e5e183ae8f0fd909be3fa3627f00489cacaab813d942186c832db02a05a1c1",
+    "ruleset_version": 1,
+    "status": "complete",
+    "warning_count": 20
+  },
+  "board_hash": "9108c8cb8319f884",
+  "canonical_next_command": "saipen work reverify T-30",
+  "content_hash": "e623593c09a47ca1",
+  "exit_code": 1,
+  "external_actions": [],
+  "gate": "core",
+  "kind": "conformance_receipt",
+  "log_hash": "1026c0f0b7a049ef",
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "receipt_id": "receipt-b0a86a8646a0",
+  "remediation_commands": [
+    "saipen work reverify T-30"
+  ],
+  "schema_version": 2,
+  "source_head": "58d8b047de983a3819bf366cd016f1f6486805c8",
+  "source_tree_fingerprint": "git-delta-v1:e8bfbf69cac7a739c0c41901c8c74c377dad6478bdaf77151dae1531af85c5b9",
+  "state_hash": "49a7b92f1d293412",
+  "timestamp_utc": "2026-09-24T13:50:35.595135Z",
+  "validator_protocol_version": "1",
+  "verdict": "FAIL"
+}
