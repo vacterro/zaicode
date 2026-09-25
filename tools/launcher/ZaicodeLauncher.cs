@@ -56,12 +56,22 @@ internal static class ZaicodeLauncher
         Environment.SetEnvironmentVariable("TZ", null);
         if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("SAIPEN_HOME")))
         {
-            string saipenHome = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                @"saipen\scheduled-source");
-            if (File.Exists(Path.Combine(saipenHome, @"bin\saipen.cmd")))
+            // The installer's own SAIPEN clone first (install\Install-ZAICODE.ps1), then the scheduled source.
+            string[] saipenHomes =
+            {
+                Path.Combine(workspace, "saipen"),
+                Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                    @"saipen\scheduled-source"),
+            };
+            foreach (string saipenHome in saipenHomes)
+            {
+                if (!File.Exists(Path.Combine(saipenHome, @"bin\saipen.cmd"))) continue;
                 Environment.SetEnvironmentVariable("SAIPEN_HOME", saipenHome);
+                break;
+            }
         }
+        PrependInstallTools(workspace);
 
         int rapidCrashes = 0;
         while (true)
@@ -107,6 +117,28 @@ internal static class ZaicodeLauncher
             Thread.Sleep(2000);
             ApplyStagedBuild(workspace);
         }
+    }
+
+    /// <summary>
+    /// An installed ZAICODE brings private copies of what the machine lacked
+    /// (Git, Node.js, SAIMAIL's venv) under the workspace; the app, its agents
+    /// and its workers find them first. A developer workspace has none of
+    /// these folders, so nothing changes there.
+    /// </summary>
+    private static void PrependInstallTools(string workspace)
+    {
+        string[] dirs =
+        {
+            Path.Combine(workspace, @".venv\Scripts"),
+            Path.Combine(workspace, @".tools\git\cmd"),
+            Path.Combine(workspace, @".tools\node"),
+        };
+        string path = Environment.GetEnvironmentVariable("PATH") ?? "";
+        for (int index = dirs.Length - 1; index >= 0; index--)
+        {
+            if (Directory.Exists(dirs[index])) path = dirs[index] + ";" + path;
+        }
+        Environment.SetEnvironmentVariable("PATH", path);
     }
 
     /// <summary>

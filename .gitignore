@@ -9,3 +9,10 @@
 *.log
 /ZAICODE.exe
 /ZAICODE.exe.old
+# An installed ZAICODE (install/Install-ZAICODE.ps1) keeps its clones, private
+# tools and venv next to the launcher; none of them belong to this repo.
+/saipen/
+/saimail/
+/.venv/
+/install/logs/
+/install/install-report.json
