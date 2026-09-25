@@ -92,3 +92,7 @@ Needs SAIPEN (SAIPEN_HOME in either layout, `<home>/saipen/BOOT.md` or
 `<home>/BOOT.md`) and git; uses a stub 9router, never the live one. Exit 1 on
 any FAIL; report `faults.json` / `faults.md` with the manual scenarios. Desktop
 regression: `test/zaicodeSaipenProjection.test.ts` (Windows, ~5 s).
+
+ZAICODE tests added 2026-09-25 (T-42): UI `test/zaicodeTopology.test.ts` (in the
+`zaicode*` glob): worker identity through every placement action, placement
+guard, exit transition, generations, registry and slot / MAIN pointers.

@@ -961,3 +961,23 @@ Found and fixed: `desktop/src/main/zaicodeSaipenProjection.ts` cached a failed
 hiccup left ZAICODE on "projection unavailable" until the next checkpoint. A
 failure is now retried after 5 s (`FAILURE_RETRY_MS`); a good answer is still
 kept until the files change. Regression: `desktop/test/zaicodeSaipenProjection.test.ts`.
+
+## 30. Execution topology separated from layout (T-42, 2026-09-25)
+
+Source: SRC-033 analysis 3. See `docs/ZAICODE_ARCHITECTURE.md` section 11.
+
+- Worker store split (`zaicodeWorkerRecords.ts`): frozen `ZaicodeWorkerIdentity`
+  (id, kind, account, engine, project, command, prompt, start, exit, new
+  `generation`) and `ZaicodeWorkerPlace` (placement, minimized, window, z).
+  Every layout action (float, resize, raise, minimize, restore, dock, reorder,
+  solo, panel show / hide / maximize, cycle) goes through
+  `placeZaicodeWorkerRecord`, which throws on an identity key; only
+  `exitZaicodeWorkerRecord` (the PTY's exit) replaces an identity. Readers keep
+  the merged `ZaicodeWorker`, so no component changed.
+- Generations: 1 for the first run of an engine in a project, +1 for each
+  duplicate; the crash-recovery list now stores the generation, and a worker
+  started again after a crash is the next one (`launchZaicodeWorker({ generation })`).
+- Runtime registry (`zaicodeRuntimeRegistry.ts`) and project topology
+  (`zaicodeProjectTopology`) read identities only; moving a project between
+  sidebar slots or re-pointing MAIN leaves them unchanged (tested).
+- Tests: `ui/test/zaicodeTopology.test.ts` (7).

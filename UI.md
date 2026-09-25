@@ -572,3 +572,12 @@ ZAICODE: no worker, no terminal, fewer middlemen.
   shows once, as an error, with the vendor's reset time. Delete removes the
   chat from ZAICODE only. Chats survive a restart; a turn cut off by a restart
   says so and the next prompt continues the session.
+
+## Execution topology and layout (T-42)
+
+Where something is shown never decides who runs it. A worker keeps its
+identity (engine, project, command, generation) through every move: panel,
+own window, chip, split, solo, reorder. A sidebar slot (MAIN0, SIDE1, …) only
+says where a project row sits, and MAIN only points at a session; neither
+gives or takes execution. A worker started again after a crash is the next
+generation of the same work.

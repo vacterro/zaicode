@@ -236,6 +236,35 @@ The agent usage store (`~/.zcode/cli/db/db.sqlite`, tables `model_usage`,
 `turn_usage`, `session`) belongs to the agent CLI; ZAICODE opens it read-only,
 checks the columns it needs and reports the source unavailable otherwise.
 
+## 11. Execution topology vs UI layout (T-42)
+
+SRC-033 analysis 3: location != ownership, window != worker identity, slot !=
+execution authority.
+
+```
+Project
+  primary session      agent runtime (task id, host owner / lease); MAIN is a pointer to it
+  auxiliary sessions   agent runtime
+  workers              ZaicodeWorkerIdentity   <- only the PTY exit writes it
+  subscription chats   one identity per running turn (main process holds the CLI)
+
+Layout (never an input to the above)
+  worker place         ZaicodeWorkerPlace: panel / window, minimized, geometry, z, panel order
+  sidebar slots        MAIN0 / SIDE1 ... groups: which section a project row sits in
+  MAIN marker          project -> session id pointer
+```
+
+- `shared/src/zaicode-topology.ts`: `ZaicodeRuntimeIdentity` (runtime_id,
+  work_id, owner, role, generation, engine, lease, health), frozen; changed only
+  by `transitionZaicodeRuntime` (exit, restart as the next generation);
+  `applyZaicodePlacementPatch` refuses any key outside the placement keys;
+  `zaicodeProjectTopology` groups identities per project.
+- `ui/src/zaicode/zaicodeWorkerRecords.ts`: a worker is an identity record and
+  a place record with separate write paths (`placeZaicodeWorkerRecord`,
+  `exitZaicodeWorkerRecord`); `zaicodeWorkers.ts` publishes the merged view.
+- `ui/src/zaicode/zaicodeRuntimeRegistry.ts`: workers and running chat turns as
+  runtime identities; reads identity records only.
+
 ## Uncertainties
 
 Codebase-memory index was built during the 2026-09-23 continuation; graph

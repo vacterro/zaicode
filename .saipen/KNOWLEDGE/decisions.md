@@ -142,3 +142,15 @@ ZAICODE (a consumer subscription in a third-party harness is the vendor's
 terms question, see T-40) and a text-only "CLI as a model" adapter (it cannot
 carry ZAICODE's tool calls). The 9router "Subscriptions as models" path (T-40)
 remains the way to put a subscription into model lists and pools.
+
+## D-13 Execution identity and layout have separate write paths (T-42, 2026-09-25)
+
+SRC-033 analysis 3. Runtime identities (`shared/src/zaicode-topology.ts`) are
+frozen and change only through a runtime transition (exit, restart as the next
+generation). Layout state (worker place, panel order, sidebar slot, MAIN
+pointer) is written through placement code that refuses identity keys
+(`applyZaicodePlacementPatch`). Workers are the first owner split this way
+(`ui/src/zaicode/zaicodeWorkerRecords.ts`); agent sessions keep their identity
+in the agent runtime and MAIN stays a pointer. New execution kinds register
+identities with the runtime registry (`zaicodeRuntimeRegistry.ts`), never
+through a layout store.
