@@ -169,3 +169,12 @@ build swap failed"). `RemoveBuildDirectory` now falls back to
 `rd /s /q "\?\<path>"` and, last, moves the folder aside. A launcher that is
 already running keeps its old code until it restarts; clearing
 `win-unpacked.previous` by hand (PowerShell 7 or `rd` with `\?\`) unblocks it.
+
+## SAIPEN home has two layouts (2026-09-25, T-43)
+
+`SAIPEN_HOME` from the ZAICODE launcher is `%LOCALAPPDATA%\saipen\scheduled-source`,
+a source checkout: BOOT.md / STYLE.md live in `<home>/saipen/`, the templates in
+`<home>/extensions/templates`, the launcher in `<home>/bin`. The skill install
+(`~/.config/opencode/skills/saipen`) is flat. A check for `<home>/BOOT.md`
+alone wrongly reports "no SAIPEN home"; resolve the protocol folder the way
+BOOT.md says (`<home>/saipen`, else `<home>`), e.g. `saipenProtocolDir`.

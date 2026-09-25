@@ -85,3 +85,10 @@ from `packages/services`. Agent CLI build without turbo, from `apps/zcode-cli`:
 ZAICODE tests added 2026-09-25 (T-51, SUBCHAT): UI `test/zaicodeSubchat.test.ts`
 (in the `zaicode*` glob); desktop `test/zaicodeSubchatProcess.test.ts` (in its
 `zaicode*` glob; a stand-in CLI script drives the real process transport).
+
+ZAICODE fault matrix (added 2026-09-25, T-43): from `packages/ui`,
+`node --import tsx test/e2e/zaicodeFaults.e2e.ts [--out DIR] [--outage-ms 30000] [--keep]`.
+Needs SAIPEN (SAIPEN_HOME in either layout, `<home>/saipen/BOOT.md` or
+`<home>/BOOT.md`) and git; uses a stub 9router, never the live one. Exit 1 on
+any FAIL; report `faults.json` / `faults.md` with the manual scenarios. Desktop
+regression: `test/zaicodeSaipenProjection.test.ts` (Windows, ~5 s).

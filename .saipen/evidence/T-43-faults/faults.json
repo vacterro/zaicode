@@ -1,0 +1,214 @@
+{
+  "startedAt": "2026-09-25T17-22-23-730Z",
+  "rows": [
+    {
+      "id": "router-crash-restart",
+      "scenario": "9router dies on its own: the supervisor brings it back, a clean stop stays stopped",
+      "verdict": "PASS",
+      "ms": 3946,
+      "facts": {
+        "firstPid": 27656,
+        "backMs": 1110,
+        "restarts": 1,
+        "lastError": null,
+        "cleanStopStaysDown": true
+      }
+    },
+    {
+      "id": "router-outage",
+      "scenario": "Router down 30 s and back: calls fail fast during the outage, succeed after",
+      "verdict": "PASS",
+      "ms": 30631,
+      "facts": {
+        "outageMs": 30000,
+        "failedCalls": 6,
+        "slowestFailureMs": 2,
+        "after": 200
+      }
+    },
+    {
+      "id": "quota-zero-reset",
+      "scenario": "Quota hits zero, then the window resets: blocked -> refill time -> available",
+      "verdict": "PASS",
+      "ms": 1,
+      "facts": {
+        "blocked": "blocked",
+        "refillInMin": 60,
+        "afterReset": "available",
+        "weeklyGate": "blocked"
+      }
+    },
+    {
+      "id": "saimail-malformed-tail",
+      "scenario": "SAIMAIL index with a torn last line and junk: the reader keeps every whole row",
+      "verdict": "PASS",
+      "ms": 10,
+      "facts": {
+        "rowsRead": 3,
+        "unread": 4,
+        "torn": "skipped, its telegram still listed as unread"
+      }
+    },
+    {
+      "id": "crash-plans",
+      "scenario": "App killed: cut-off sessions resume oldest first; leftover workers start again",
+      "verdict": "PASS",
+      "ms": 0,
+      "facts": {
+        "resume": [
+          "old:goal",
+          "new:text"
+        ],
+        "relaunchCap": 16
+      }
+    },
+    {
+      "id": "twelve-finish-at-once",
+      "scenario": "12 subscription turns finish in the same instant: 12 results, each once, none crossed",
+      "verdict": "PASS",
+      "ms": 185,
+      "facts": {
+        "workers": 12,
+        "resultsEach": 1
+      }
+    },
+    {
+      "id": "project-setup",
+      "scenario": "Fresh SAIPEN project for the protocol faults",
+      "verdict": "PASS",
+      "ms": 1735,
+      "facts": {
+        "root": "V:\\_TEMP_\\zaicode-faults-kDpq6d\\project",
+        "home": "C:\\Users\\vac34\\AppData\\Local\\saipen\\scheduled-source",
+        "style_contract": "ded-4ae736e4",
+        "saipen_version": "8"
+      }
+    },
+    {
+      "id": "worker-kill-mid-write",
+      "scenario": "Worker killed mid-write: the next generation resumes the same Work",
+      "verdict": "PASS",
+      "ms": 6803,
+      "facts": {
+        "gen2": "READY {\"routed\":\"PHASE BUILD T-1\"}",
+        "projection": {
+          "source": "saipen",
+          "phase": "VERIFY",
+          "claimed": "T-1",
+          "top": null,
+          "next": "PHASE VERIFY T-1",
+          "closure": false
+        }
+      }
+    },
+    {
+      "id": "foreign-ownership",
+      "scenario": "Another seat tries to move a claimed Work: SAIPEN refuses, ZAICODE still shows the owner's state",
+      "verdict": "PASS",
+      "ms": 253,
+      "facts": {
+        "refusal": "REFUSE [TICKET_NOT_WORKABLE]"
+      }
+    },
+    {
+      "id": "stale-snapshot",
+      "scenario": "SAIPEN launcher unreachable, then back: ZAICODE falls back to the files and recovers without a file change",
+      "verdict": "PASS",
+      "ms": 6830,
+      "facts": {
+        "fallbackVerdict": {
+          "state": "pending",
+          "label": "T-1 VERIFY",
+          "reason": "1 open ticket(s); nothing is running now"
+        },
+        "recoveredMs": 6797
+      }
+    },
+    {
+      "id": "project-relocate",
+      "scenario": "Project renamed / moved while known: the new path reads the same Work; the old path reads nothing",
+      "verdict": "PASS",
+      "ms": 1996,
+      "facts": {
+        "movedProjection": {
+          "source": "saipen",
+          "phase": "VERIFY",
+          "claimed": "T-1",
+          "top": null,
+          "next": "PHASE VERIFY T-1",
+          "closure": false
+        },
+        "oldPath": "ENOENT"
+      }
+    },
+    {
+      "id": "project-switch",
+      "scenario": "Switching projects mid-run: each project keeps its own answer",
+      "verdict": "PASS",
+      "ms": 3732,
+      "facts": {
+        "a": {
+          "source": "saipen",
+          "phase": "VERIFY",
+          "claimed": "T-1",
+          "top": null,
+          "next": "PHASE VERIFY T-1",
+          "closure": false
+        },
+        "b": {
+          "source": "saipen",
+          "phase": "PLAN",
+          "claimed": null,
+          "top": "T-1",
+          "next": "WAIT: init -- provide the first project goal or raw backlog",
+          "closure": false
+        }
+      }
+    }
+  ],
+  "manual": [
+    {
+      "id": "renderer-kill",
+      "scenario": "Kill the ZAICODE renderer",
+      "why": "the renderer is a Chromium process inside the running app",
+      "steps": "Task Manager -> Details -> end the ZAICODE process with --type=renderer while a session works.",
+      "expected": "The window reloads; sessions cut off show INTERRUPTED, never DONE; a window reload never auto-continues (crash resume skips reloads)."
+    },
+    {
+      "id": "app-kill",
+      "scenario": "Kill the whole ZAICODE",
+      "why": "needs the packaged app and its root launcher (agents inside ZAICODE are refused this on purpose)",
+      "steps": "Task Manager -> end the ZAICODE process tree under the launcher while two sessions and one worker run.",
+      "expected": "The launcher restarts it; cut-off sessions show INTERRUPTED; with After a crash on they continue ~30 s after start, oldest first; the worker starts again with the same engine, project and prompt."
+    },
+    {
+      "id": "sleep-resume",
+      "scenario": "Windows sleep / resume",
+      "why": "needs the OS power state",
+      "steps": "Put Windows to sleep for 10 min with a SCHEDULER entry due during the sleep, then wake it.",
+      "expected": "Clocks and reset timers show the right time at once; quota is re-read within one sweep; the due entry fires once, or is MISSED when older than the catch-up window."
+    },
+    {
+      "id": "network-loss",
+      "scenario": "Network disappears during a turn",
+      "why": "needs the machine's network adapter",
+      "steps": "Disable the network adapter for 60 s while a SAIFREN session answers, then enable it.",
+      "expected": "The turn fails with the provider's error or retries; the session is not DONE; SAIHOME Routing shows degraded, then healthy."
+    },
+    {
+      "id": "worker-detach",
+      "scenario": "Worker terminal detached / reattached",
+      "why": "window placement is a GUI action",
+      "steps": "Start a worker, move it to its own window, minimize it, dock it back.",
+      "expected": "Same worker, same PTY (the CLI keeps its screen and PID); nothing restarts."
+    },
+    {
+      "id": "saimail-kill-delivery",
+      "scenario": "Kill a worker during SAIMAIL delivery",
+      "why": "needs a real seat mid-send; SAIMAIL's own soak suite owns delivery atomicity",
+      "steps": "In a worker, start `saimail-local send` of a large telegram and kill the worker at once.",
+      "expected": "The telegram arrives once or not at all (never torn); the index tail is either complete or skipped by the reader."
+    }
+  ],
+  "failed": 0
+}

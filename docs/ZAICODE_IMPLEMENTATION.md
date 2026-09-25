@@ -935,3 +935,29 @@ puts today / yesterday / week / month / all-time tokens in the SAIHOME title
 row for every preset, with the same truth marks as the Tokens & work card;
 pref `tokenRibbon` (default on) in `zaicodeHomePrefs.ts`, switch under Layout &
 home -> STATISTICS. Tests: `ui/test/zaicodeWave52.test.ts`.
+
+## 29. Fault-injection matrix (T-43, 2026-09-25)
+
+Source: SRC-033 analysis 4. Runner `ui/test/e2e/zaicodeFaults.e2e.ts` (stand-ins
+in `zaicodeFaultKit.ts`, shared project setup `createZaicodeE2eProject` in
+`zaicodeSystemKit.ts`); report in `.saipen/evidence/T-43-faults/`.
+
+Automated (12): router crash -> supervised restart, clean stop stays down;
+router down 30 s -> every call fails in milliseconds, then succeeds; quota at
+zero -> blocked -> refill time -> available, a spent weekly window gates a
+refilled 5 h one; SAIMAIL index with a torn tail and junk; crash planners
+(oldest first, goals as goals, disabled / old / stopped skipped, relaunch cap
+16); 12 subscription turns finishing in one instant (12 results, none crossed);
+worker killed mid-write -> next generation resumes the Work; a foreign seat is
+refused; SAIPEN launcher unreachable -> file fallback, then recovery without a
+file change; project moved / renamed; project switch mid-run.
+
+Manual (6, listed with steps and expected results in the report): renderer
+kill, whole-app kill, Windows sleep / resume, network loss, worker window
+detach / reattach, worker killed during SAIMAIL delivery.
+
+Found and fixed: `desktop/src/main/zaicodeSaipenProjection.ts` cached a failed
+`saipen status` (null) until STATE / BOARD / LOG changed, so one launcher
+hiccup left ZAICODE on "projection unavailable" until the next checkpoint. A
+failure is now retried after 5 s (`FAILURE_RETRY_MS`); a good answer is still
+kept until the files change. Regression: `desktop/test/zaicodeSaipenProjection.test.ts`.
