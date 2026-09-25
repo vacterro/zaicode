@@ -8,6 +8,17 @@ import {
   resolveZaicodeWorkerLinePrompt,
 } from "./zaicodeEngines.js";
 import { cascadeZaicodeWindowRect, type ZaicodeRect } from "./zaicodeWorkerLayout.js";
+import {
+  commitZaicodeWorkerRecords,
+  exitZaicodeWorkerRecord,
+  newZaicodeWorkerIdentity,
+  placeZaicodeWorkerRecord,
+  readZaicodeWorkerRecords,
+  zaicodeWorkerRecord,
+  type ZaicodeNewWorker,
+  type ZaicodeWorker,
+  type ZaicodeWorkerWindowState,
+} from "./zaicodeWorkerRecords.js";
 import { readZaicodeWorkerPrefs, type ZaicodeWorkerPlacement } from "./zaicodeWorkerPrefs.js";
 import { notifyZaicode } from "./zaicodeNotifications.js";
 import { playZaicodeSound } from "./zaicodeSoundBus.js";
@@ -20,37 +31,23 @@ import { playZaicodeSound } from "./zaicodeSoundBus.js";
  * chip named after its engine and project. Each worker's xterm + PTY lives in
  * the persistent terminal registry, so moving, hiding or minimizing a worker
  * never stops it.
+ *
+ * Topology vs layout (T-42): a worker is two records. Its identity (who and
+ * what runs: engine, project, command, generation, exit) is frozen and changes
+ * only when its process reports an exit. Its place (panel or window,
+ * minimized, geometry, stacking, panel order) is written only through
+ * `placeZaicodeWorkerRecord`, which refuses any identity key. Readers get both merged
+ * (records: `zaicodeWorkerRecords.ts`).
  */
 
-export interface ZaicodeWorkerWindowState extends ZaicodeRect {
-  maximized: boolean;
-}
-
-export interface ZaicodeWorker {
-  /** Also the terminal registry key. */
-  id: string;
-  kind: "worker" | "fix" | "shell";
-  accountId: string | null;
-  short: string;
-  label: string;
-  vendor: string | null;
-  projectPath: string;
-  projectName: string;
-  /** Typed into the shell once it is ready. */
-  command: string;
-  /** The prompt a subscription worker was started with (kept to start it again after a crash). */
-  prompt?: string;
-  startedAt: number;
-  /** null while running. */
-  exitCode: number | null;
-  endedAt: number | null;
-  placement: ZaicodeWorkerPlacement;
-  minimized: boolean;
-  /** Own-window geometry (kept while docked, so floating again returns it there). */
-  window: ZaicodeWorkerWindowState | null;
-  /** Stacking order of own windows; higher = in front. */
-  z: number;
-}
+export {
+  ZAICODE_WORKER_PLACE_KEYS,
+  readZaicodeWorkerIdentities,
+  type ZaicodeWorker,
+  type ZaicodeWorkerIdentity,
+  type ZaicodeWorkerPlace,
+  type ZaicodeWorkerWindowState,
+} from "./zaicodeWorkerRecords.js";
 
 export interface ZaicodeWorkersState {
   workers: ZaicodeWorker[];
@@ -79,10 +76,6 @@ let topZ = 1;
 function set(next: Partial<ZaicodeWorkersState>): void {
   workersState = { ...workersState, ...next };
   for (const listener of listeners) listener();
-}
-
-function patchWorker(id: string, patch: Partial<ZaicodeWorker>): ZaicodeWorker[] {
-  return workersState.workers.map((worker) => (worker.id === id ? { ...worker, ...patch } : worker));
 }
 
 function findWorker(id: string): ZaicodeWorker | undefined {
@@ -177,12 +170,13 @@ export function soloZaicodeWorker(id: string | null): void {
 
 /** Moves worker `id` to position `to` among all workers (the panel follows this order). */
 export function moveZaicodeWorker(id: string, to: number): void {
-  const index = workersState.workers.findIndex((worker) => worker.id === id);
+  const records = readZaicodeWorkerRecords();
+  const index = records.findIndex((entry) => entry.identity.id === id);
   if (index < 0) return;
-  const next = [...workersState.workers];
-  const [worker] = next.splice(index, 1);
-  next.splice(Math.max(0, Math.min(next.length, to)), 0, worker!);
-  set({ workers: next });
+  const next = [...records];
+  const [entry] = next.splice(index, 1);
+  next.splice(Math.max(0, Math.min(next.length, to)), 0, entry!);
+  set({ workers: commitZaicodeWorkerRecords(next) });
 }
 
 // Compatibility names used by the header, the menu and hotkeys since T-34.
@@ -208,7 +202,7 @@ export function focusZaicodeWorker(id: string): void {
   if (!worker) return;
   if (worker.placement === "panel") {
     set({
-      workers: patchWorker(id, { minimized: false }),
+      workers: placeZaicodeWorkerRecord(id, { minimized: false }),
       open: true,
       activeId: id,
       focusedId: id,
@@ -217,7 +211,7 @@ export function focusZaicodeWorker(id: string): void {
     return;
   }
   topZ += 1;
-  set({ workers: patchWorker(id, { minimized: false, z: topZ }), focusedId: id });
+  set({ workers: placeZaicodeWorkerRecord(id, { minimized: false, z: topZ }), focusedId: id });
 }
 export const activateZaicodeWorker = focusZaicodeWorker;
 
@@ -227,7 +221,7 @@ export function raiseZaicodeWorker(id: string): void {
   if (workersState.focusedId === id && (worker.placement === "window" ? worker.z === topZ : workersState.activeId === id)) return;
   topZ += 1;
   set({
-    workers: worker.placement === "window" ? patchWorker(id, { z: topZ }) : workersState.workers,
+    workers: worker.placement === "window" ? placeZaicodeWorkerRecord(id, { z: topZ }) : workersState.workers,
     focusedId: id,
     ...(worker.placement === "panel" ? { activeId: id } : {}),
   });
@@ -238,7 +232,7 @@ export function minimizeZaicodeWorker(id: string): void {
   if (!worker) return;
   const panel = zaicodePanelWorkers().filter((item) => item.id !== id);
   set({
-    workers: patchWorker(id, { minimized: true }),
+    workers: placeZaicodeWorkerRecord(id, { minimized: true }),
     ...(workersState.activeId === id ? { activeId: panel[0]?.id ?? null } : {}),
     ...(workersState.soloId === id ? { soloId: null } : {}),
   });
@@ -249,7 +243,7 @@ export function dockZaicodeWorker(id: string): void {
   const worker = findWorker(id);
   if (!worker) return;
   set({
-    workers: patchWorker(id, { placement: "panel", minimized: false }),
+    workers: placeZaicodeWorkerRecord(id, { placement: "panel", minimized: false }),
     open: true,
     activeId: id,
     focusedId: id,
@@ -266,7 +260,7 @@ export function floatZaicodeWorker(id: string, rect?: ZaicodeRect): void {
     : (worker.window ?? { ...cascadeZaicodeWindowRect(windowBounds(), zaicodeWindowWorkers().length), maximized: false });
   const panel = zaicodePanelWorkers().filter((item) => item.id !== id);
   set({
-    workers: patchWorker(id, { placement: "window", minimized: false, window: windowState, z: topZ }),
+    workers: placeZaicodeWorkerRecord(id, { placement: "window", minimized: false, window: windowState, z: topZ }),
     focusedId: id,
     ...(workersState.activeId === id ? { activeId: panel[0]?.id ?? null } : {}),
     ...(workersState.soloId === id ? { soloId: null } : {}),
@@ -274,7 +268,7 @@ export function floatZaicodeWorker(id: string, rect?: ZaicodeRect): void {
 }
 
 export function setZaicodeWorkerWindow(id: string, windowState: ZaicodeWorkerWindowState): void {
-  set({ workers: patchWorker(id, { window: windowState }) });
+  set({ workers: placeZaicodeWorkerRecord(id, { window: windowState }) });
 }
 
 /** Next / previous worker overall (panel order, then windows); restores it. */
@@ -288,7 +282,7 @@ export function cycleZaicodeWorker(direction: 1 | -1): void {
 
 export function markZaicodeWorkerExited(id: string, exitCode: number): void {
   const worker = findWorker(id);
-  set({ workers: patchWorker(id, { exitCode, endedAt: Date.now() }) });
+  set({ workers: exitZaicodeWorkerRecord(id, exitCode, Date.now()) });
   playZaicodeSound(exitCode === 0 ? "worker.exit" : "worker.fail");
   if (!worker) return;
   notifyZaicode(exitCode === 0 ? "worker.exit" : "worker.fail", {
@@ -303,8 +297,9 @@ export function markZaicodeWorkerExited(id: string, exitCode: number): void {
 
 /** Removes the worker; its PTY is killed through the registry (onZaicodeWorkerRemoved). */
 export function removeZaicodeWorker(id: string): void {
-  const index = workersState.workers.findIndex((worker) => worker.id === id);
-  const workers = workersState.workers.filter((worker) => worker.id !== id);
+  const records = readZaicodeWorkerRecords();
+  const index = records.findIndex((entry) => entry.identity.id === id);
+  const workers = commitZaicodeWorkerRecords(records.filter((entry) => entry.identity.id !== id));
   const panel = workers.filter((worker) => worker.placement === "panel" && !worker.minimized);
   const fallback = panel[Math.max(0, Math.min(panel.length - 1, index - 1))] ?? panel[0] ?? null;
   set({
@@ -323,14 +318,12 @@ export function onZaicodeWorkerRemoved(listener: (id: string) => void): () => vo
   return () => removalListeners.delete(listener);
 }
 
-type NewWorker = Omit<ZaicodeWorker, "placement" | "minimized" | "window" | "z">;
 
-function addWorker(fields: NewWorker, placement?: ZaicodeWorkerPlacement): ZaicodeWorker {
+function addWorker(fields: ZaicodeNewWorker, placement?: ZaicodeWorkerPlacement, generation?: number): ZaicodeWorker {
   const prefs = readZaicodeWorkerPrefs();
   const where = placement ?? prefs.defaultPlacement;
   topZ += 1;
-  const worker: ZaicodeWorker = {
-    ...fields,
+  const entry = zaicodeWorkerRecord(newZaicodeWorkerIdentity(fields, generation), {
     placement: where,
     minimized: false,
     window:
@@ -338,9 +331,10 @@ function addWorker(fields: NewWorker, placement?: ZaicodeWorkerPlacement): Zaico
         ? { ...cascadeZaicodeWindowRect(windowBounds(), zaicodeWindowWorkers().length), maximized: false }
         : null,
     z: topZ,
-  };
+  });
+  const worker = entry.view;
   set({
-    workers: [...workersState.workers, worker],
+    workers: commitZaicodeWorkerRecords([...readZaicodeWorkerRecords(), entry]),
     focusedId: worker.id,
     ...(where === "panel"
       ? { activeId: worker.id, open: workersState.open || prefs.openPanelOnLaunch, soloId: null }
@@ -374,6 +368,8 @@ export async function launchZaicodeWorker(params: {
   projectPath: string;
   prompt?: string;
   where?: "dock" | "window" | "external";
+  /** Restart of a worker a crash cut off: its generation (default: counted in this run). */
+  generation?: number;
 }): Promise<ZaicodeWorkerLaunchResult> {
   const { account, projectPath } = params;
   if (isZaicodeMetricsOnlyAccount(account)) {
@@ -414,6 +410,7 @@ export async function launchZaicodeWorker(params: {
       endedAt: null,
     },
     params.where === "window" ? "window" : undefined,
+    params.generation,
   );
   playZaicodeSound("worker.launch");
   return { ok: true, message: `${account.short} started in ${projectName}`, worker };

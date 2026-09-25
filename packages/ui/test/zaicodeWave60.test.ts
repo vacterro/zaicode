@@ -137,7 +137,8 @@ test("crash auto-continue: only crash-cut, recent, switched-on projects; oldest 
 test("worker recovery list: bad entries dropped, placement kept", () => {
   assert.deepEqual(
     normalizeZaicodeAliveWorkers([{ accountId: "a", projectPath: "C:/p", prompt: "cc", placement: "window" }, { accountId: 1 }, null]),
-    [{ accountId: "a", projectPath: "C:/p", prompt: "cc", placement: "window" }],
+    // T-42: an entry from before generations were recorded restarts as generation 1 + 1.
+    [{ accountId: "a", projectPath: "C:/p", prompt: "cc", placement: "window", generation: 1 }],
   );
 });
 

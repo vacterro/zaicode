@@ -21,6 +21,8 @@ export interface ZaicodeAliveWorker {
   projectPath: string;
   prompt: string | null;
   placement: "panel" | "window";
+  /** Generation of the run the crash cut off; the restart is the next one. */
+  generation: number;
 }
 
 export function normalizeZaicodeAliveWorkers(raw: unknown): ZaicodeAliveWorker[] {
@@ -38,6 +40,7 @@ export function normalizeZaicodeAliveWorkers(raw: unknown): ZaicodeAliveWorker[]
         projectPath: item.projectPath,
         prompt: typeof item.prompt === "string" ? item.prompt : null,
         placement: item.placement === "window" ? "window" : "panel",
+        generation: Number.isInteger(item.generation) && item.generation > 0 ? item.generation : 1,
       }),
     )
     .slice(0, 16);
@@ -62,6 +65,7 @@ function writeAlive(): void {
       projectPath: worker.projectPath,
       prompt: worker.prompt ?? null,
       placement: worker.placement,
+      generation: worker.generation,
     }));
   try {
     if (alive.length === 0) localStorage.removeItem(STORAGE_KEY);
@@ -119,6 +123,7 @@ export function relaunchZaicodeWorkersAfterCrash(): void {
         projectPath: entry.projectPath,
         ...(entry.prompt ? { prompt: entry.prompt } : {}),
         ...(entry.placement === "window" ? { where: "window" as const } : {}),
+        generation: entry.generation + 1,
       });
       if (result.ok) started.push(result.message);
       else logger.warn("[zaicode] worker relaunch after a crash failed", { message: result.message });
