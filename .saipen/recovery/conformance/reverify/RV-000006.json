@@ -1,0 +1,48 @@
+{
+  "agent": "claude-code",
+  "created_at": "2026-09-25T15:18:02Z",
+  "evidence_class": "executed",
+  "findings_digest": "604f4da20bdb26928c69375ef91f45de8bd865e59a887de88652196cd96dd4b0",
+  "gate": "core",
+  "integrity_digest": "8c2831f14ba77679",
+  "journal_op_id": "reverify.52db550d5722",
+  "original_closure": {
+    "claim_time": "2026-09-24T10:35:18Z",
+    "closure_mode": "own_patch",
+    "last_ticket_event": "E-446",
+    "owner": "claude-code",
+    "source_receipts": "SRC-024"
+  },
+  "own_problem_keys": [
+    "a765baa0ba8b6322"
+  ],
+  "problem_count": 1,
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "project_lineage": "lineage-b0732ed2f98947b9a3c97bfe71427eca",
+  "receipt_id": "RV-000006",
+  "ruleset_fingerprint": "82e5e183ae8f0fd909be3fa3627f00489cacaab813d942186c832db02a05a1c1",
+  "ruleset_version": 1,
+  "schema_version": 1,
+  "source_head": "192178374d82dc0e65f639fa97ad0c952f380cce",
+  "source_tree_fingerprint": "git-delta-v1:23b138b074083241f279548bfecfeb5f0d61cba2fe86cfd79b72400e8bc6505e",
+  "verdict": "PASS_WITH_CARRIED_DEBT",
+  "verification": [
+    {
+      "command": "strict_gate:core",
+      "default_contract": true,
+      "executed": true,
+      "result": "PASS_WITH_CARRIED_DEBT"
+    }
+  ],
+  "verification_contract": {
+    "commands": [
+      "strict_gate:core"
+    ],
+    "findings_digest": "604f4da20bdb26928c69375ef91f45de8bd865e59a887de88652196cd96dd4b0",
+    "gate": "core"
+  },
+  "verification_contract_digest": "c8fe5ad87ab553f3",
+  "verifier": "claude-code",
+  "warning_count": 21,
+  "work": "T-30"
+}

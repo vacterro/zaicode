@@ -1,0 +1,32 @@
+{
+  "appends": [
+    {
+      "class": "APPEND",
+      "created_work": null,
+      "delta": "implementation",
+      "derived_clauses": [
+        "SRC-046:R001"
+      ],
+      "label": "full consolidated wishlist (SRC-044 + SRC-045 + 3 new items)",
+      "projected_at": "2026-09-25T14:04:35Z",
+      "receipt": "SRC-046",
+      "received_at": "2026-09-25T14:04:31Z",
+      "rewind": null,
+      "seq": 1,
+      "source_sha256": "26dca01729588b0d2d775e89cbd7e295d33954f2ae0f3e6d3a2c1a8269503680",
+      "state": "PROJECTED",
+      "steps": [
+        "linked",
+        "derived",
+        "superseded"
+      ],
+      "superseded": [],
+      "supersedes": [],
+      "work": [
+        "T-60"
+      ]
+    }
+  ],
+  "schema_version": 1,
+  "source": "SRC-045"
+}

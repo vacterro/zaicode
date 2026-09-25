@@ -823,3 +823,61 @@ Source: SRC-043 (nine operator items).
   the first remaining. Live facts stay shared: MAIN sessions, todo progress,
   running timers and alarms, schedules, journals, session roles,
   switched-off projects, own sound files.
+
+## 26. Crash safety, INTERRUPTED, docked workers, SCHEDULER conditions (T-60, 2026-09-25)
+
+Source: SRC-044 / SRC-045 / SRC-046 (one consolidated wishlist). Status:
+unit-tested (`ui/test/zaicodeWave60.test.ts`, core
+`test/zaicodeSelfProtection.test.ts`, bootstrap `test/zaicodeQueueDrain.test.ts`);
+GUI behaviour is an operator check (evidence `.saipen/evidence/T-60-wave.md`).
+
+- The "8 tasks, it crashed" report: the in-app session `PHASE SCOUT T-55`
+  ran `taskkill //F //IM ZAICODE.exe //T`, which also killed the root launcher
+  (same image name). The agent CLI refuses such commands before any mode
+  decision (`core/src/permission/zaicode-self-protection.ts`, rule
+  `zaicode.selfProtect.kill`); the ZAICODE identity prompt says why.
+- Queue that never ran: the goal continuation loop yields to pending commands
+  while auto-drain only promoted the queue head once the goal was complete.
+  In ZAICODE mode an idle session drains past an unfinished goal
+  (`bootstrap/src/zcode-protocol-v4/queue-auto-drain.ts`, `drainPastGoal`).
+- Session state (`ui/src/zaicode/zaicodeSessionState.ts`): running / waiting /
+  failed / interrupted / done / idle. Interrupted = live phase
+  `completedInterrupted`, or no live phase while tasks-index still says
+  `running` (the process died), or a goal still active / paused. Briefs carry
+  `interrupted`, `crashCut` (process death only), `updatedAt` and `model`.
+  DONE skips interrupted; CONTINUE ALL, row ▶, CLEAR ALL DONE continue them.
+- Crash safety: `zaicodeCrashResume.ts` (sessions: 25 s after start, confirmed
+  10 s later, oldest first, 4 s apart; never after a window reload) and
+  `zaicodeWorkerRecovery.ts` (running workers written on every change,
+  erased by `beforeunload`; a leftover list after a crash is started again).
+  Settings -> Workers & terminal -> After a crash.
+- START / Hit & go / SCHEDULER START: `decideZaicodeProjectStart`
+  (`zaicodeContinue.ts`) -- MAIN in place, else the newest cut-off session
+  becomes MAIN, else a fresh MAIN. Continue handles gained `stop`.
+- SCHEDULER (`zaicodeScheduleRun.ts`, `ZaicodeScheduleConditions.tsx`): job
+  fields `beforeRun` (none / stopWeaker / stopAll), `onlyWhenIdle`, `order`
+  (problems / list; score = 3 x blocked + open tickets from the SAIHOME rows),
+  `onlyMarked` (marks in `zaicodeSchedulerMarks.ts`). Session runs are
+  recorded as `session:<id>` and stopped by the stop time. Prompt cap raised
+  from 2 000 to 1 000 000 characters (`ZAICODE_PROMPT_MAX_CHARS`); a long or
+  multi-line worker prompt is written by main (`desktop/src/main/zaicodePromptFiles.ts`,
+  IPC `zaicode:write-prompt-file`, userData `zaicode-prompts/`, a week kept)
+  and the CLI is told to read the file.
+- Worker watch (`zaicodeWorkerWatch.ts` over `terminal/terminalOutputTap.ts`,
+  fed by the persistent terminal path of `TerminalSession`): trust questions
+  answered with Enter, limit lines (only at the start of a line, so prose
+  about limits does not count) -> notice, limits re-read, keep / close /
+  close + one-shot SCHEDULER entry on the window's reset. The same tap gives
+  every worker a Redraw (PTY one column narrower and back).
+- WORKERS dock: `panelDock` / `panelWidth` prefs, `ZaicodeWorkersDockFrame.tsx`
+  wraps the workspace body (no-op upstream), `zaicodePanelDock.tsx` holds the
+  edges, the title drag and Redraw; `zaicodeDockForPoint` picks the edge.
+- Title bar: `ZaicodeHeaderProjectTitle.tsx` (prefs `zaicode-header-title-v1`).
+  Reset timer: `ZaicodeResetTimer.tsx` (`zaicodeResetRows`), taken out of the
+  clock.
+- Sidebar MAIN view: `projectIsMain` (default on) in the sidebar prefs, the
+  third tab in `WorkspaceSidebar.tsx`, `WorkspaceSidebarItem.tsx` (row click
+  opens MAIN, MAIN filtered from the child list, `ZaicodeProjectMainGlyph`),
+  `ZaicodeClearAllDone.tsx` over `registerZaicodeArchiveSome`.
+- Grouped rows use the operator's Working icon; menu lines carry optional
+  custom labels (`ZaicodeLayoutEntry.label`, `useZaicodeNavLabel`).

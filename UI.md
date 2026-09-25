@@ -504,3 +504,48 @@ why?", WORKERS "what runs in terminals?", Settings "how should it behave?".
   nearest limit reset in the vendor's colour.
 - Freebuff is shown for its limits only (meter, clock, SAIHOME); it never
   appears as an engine, in Dispatch or in the SCHEDULER.
+
+## Workers, sessions and SCHEDULER (T-60)
+
+- The WORKERS panel docks to the bottom (default), the right, the left or the
+  top of the workspace body: the dock button in its header cycles, a
+  right-click on WORKERS picks, dragging the WORKERS title snaps it to the
+  edge nearest the pointer (a preview shows where). Docked left / right it is
+  a vertical column and its split stacks the panes. Redraw repaints a worker
+  whose screen got garbled (the header button and every worker's menu).
+- A worker answers its CLI's first-run "Trust this folder?" with yes (only in
+  its first 15 minutes; Settings -> Workers & terminal switches it off). A
+  worker that prints its session / usage limit is reported, and by the
+  setting kept, closed, or closed and started again after the window resets.
+- Title bar: the project's name in big letters before the session title or in
+  the centre (font, size, weight, capitals, spacing, colour; right-click it or
+  Settings -> Layout & home -> Title bar). The nearest subscription reset is its
+  own timer next to the clock; hovering it lists every coming reset (account,
+  pool, window, left, at, in), a click pins the list.
+- A session cut off mid-turn (crash, restart, Stop) shows INTERRUPTED (two amber
+  bars), never DONE. DONE counts only finished sessions and lists the
+  interrupted ones apart. CONTINUE ALL and ▶ continue them.
+- A project's ▶ START continues its MAIN session (its unfinished goal, else
+  `/goal cc all`); without a MAIN it continues the newest cut-off session and
+  makes it MAIN; a fresh MAIN only when nothing can continue. A working MAIN is
+  opened, not disturbed. Hit & go does the same when the project has a MAIN.
+- The sidebar's third view, MAIN (◆, the default): a project row is its MAIN
+  session -- clicking an inactive project opens MAIN, MAIN is not listed again
+  under it, the row's mark shows MAIN's state (working / interrupted / waiting
+  / ◆). CLEAR ALL DONE (brush) archives every finished helper session (one
+  Ctrl+Z restores them) and continues the cut-off ones.
+- Auto-continue after a crash (Settings -> Workers & terminal -> After a crash):
+  sessions the dead process cut off and goals still active continue by
+  themselves about half a minute after start, one at a time; workers that ran
+  start again. A Stop is never undone; a window reload is not a crash.
+- SCHEDULER: the prompt is a growing text box with no practical length cap (a
+  long prompt reaches a CLI worker as a file it reads). Conditions per
+  schedule: before it starts, stop the stopgap (free-pool sessions, weaker
+  workers) or everything in its projects; only when idle; a section's projects
+  with the most blocked / open tickets first; only the sessions marked for the
+  SCHEDULER (right-click a session -> Mark, ⚑ on the row). START runs in each
+  project's MAIN instead of a new session next to it.
+- Menu lines can be renamed (double-click or ✎ in the Menu lines editor; empty
+  = the built-in name).
+- Agents inside ZAICODE cannot stop ZAICODE processes by name, image or path
+  (the agent CLI refuses the command, also in full-access mode).

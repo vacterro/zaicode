@@ -137,6 +137,27 @@ buttons. That is right for a window-wide overlay, wrong for the ZAICODE
 toolbar overlay that is only as wide as the sidebar: the reservation squeezed
 the toolbar to ~30 px and pushed every icon into the overflow menu.
 
+## An agent inside ZAICODE killed ZAICODE by image name (2026-09-25, T-60)
+
+The "8 tasks at once, it crashed" report (SRC-044) was not load: at 16:19:03
+the in-app session `PHASE SCOUT T-55` (`_ZAICODE`, a free-tier model) got
+`/goal cc all`, decided to "clean up the process tree" and ran
+`taskkill //F //IM ZAICODE.exe //T`. The root launcher is also `ZAICODE.exe`,
+so launcher, app and all eight agents died without a log line (launcher.log
+has nothing after 12:32Z; the app log just stops). The agent CLI now refuses a
+Bash command that stops processes by the ZAICODE image name, pipeline or path
+(`permission/zaicode-self-protection.ts`, rule `zaicode.selfProtect.kill`,
+even in yolo), and the ZAICODE identity prompt says why. Claude/Codex workers
+are other CLIs and are not covered by that guard: stop only PIDs you started.
+
+## File names differ only in case: Windows overwrites (2026-09-25, T-60)
+
+`packages/ui/src/zaicode/` holds `ZaicodeX.tsx` components next to `zaicodeX.ts`
+modules. On NTFS `zaicodeWorkersDock.tsx` IS `ZaicodeWorkersDock.tsx`: writing
+the new module silently replaced the worker-window component (restored from
+git, module renamed `zaicodePanelDock.tsx`). Before creating a file there,
+check that no name equal up to case exists (`ls | grep -i`).
+
 ## Launcher swap fails on long paths (2026-09-25, T-58)
 
 The bundled 9router ships a Next.js output whose deepest files

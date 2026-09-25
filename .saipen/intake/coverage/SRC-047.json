@@ -1,0 +1,14 @@
+{
+  "requirements": {
+    "SRC-047:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "T-61 closed with verification evidence in LOG: verify -> PASS [target: T-61] conf: high -- README links resolve (0 missing), VERSION 0.0.1 = badges (1+1) = CHANGELOG head; code unchanged since T-60 gates",
+      "text": "\u0428\u0438\u043f\u043d\u0438\u0440\u0430\u0443\u044e \u0432\u0435\u0440\u0441\u0438\u044e \u0442\u0443\u0434\u0430 \u043f\u043e\u0436\u0430\u043b\u0443\u0441\u0442\u0430 \u043f\u043e\u0434 0.0.1 \u0440\u0438\u0434\u043c\u0438 \u043f\u043e\u0434 \u043a\u043e\u0440\u0440\u0435\u043a\u0442\u0438\u0440\u0443\u0439.\nhttps://github.com/vacterro/zaicode",
+      "verification": "the Work this request created reached its own verification gate; see the T-61 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-61"
+    }
+  },
+  "schema_version": 1
+}

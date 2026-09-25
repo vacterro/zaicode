@@ -74,3 +74,10 @@ and `test/zaicodeWave56.test.ts` (both in the `zaicode*` glob); services
 `test/zaicodeTrayMenu.test.ts`. Desktop ZAICODE tests run with
 `node --import tsx --test test/zaicode*.test.ts` from `packages/desktop`
 (pure modules only: a test importing `electron` fails to load).
+
+ZAICODE tests added 2026-09-25 (T-60): UI `test/zaicodeWave60.test.ts` (in the
+`zaicode*` glob); agent CLI `../../apps/zcode-cli/packages/core/test/zaicodeSelfProtection.test.ts`
+and `../../apps/zcode-cli/packages/bootstrap/test/zaicodeQueueDrain.test.ts`, both
+from `packages/services`. Agent CLI build without turbo, from `apps/zcode-cli`:
+`pnpm --filter @zcode/core build`, `pnpm --filter @zcode/bootstrap build`,
+`pnpm --filter @zcode/cli build` (typecheck the same way with `typecheck`).

@@ -1,0 +1,14 @@
+{
+  "clauses": {
+    "SRC-046:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Satisfy the captured request SRC-046 in full; the authoritative text is the receipt body (sha256 26dca0172958): \u2022 ![](file:///V:/___VAC/_PIC/_Clipboard_stuff/clipboard_20260925_140056_62a40fc3.png) \u043e\u0442\u043e\u0431\u0440\u0430\u0436\u0435\u043d\u0438\u0435 \u043f\u043e\u043a\u0430 \u0441\u0442\u0440\u0430\u043d\u043d\u043e\u0435. \u2022 \u0417\u0434\u0435\u0441\u044c \u043d\u0443\u0436\u043d\u043e \u0443\u0431\u0440\u0430\u0442\u044c \u0432\u043e\u043e\u0431\u0449\u0435 \u043e\u0433\u0440\u0430\u043d\u0438\u0447\u0435\u043d\u0438\u0435 \u043d\u0430 \u043b\u0438\u043c\u0438\u0442\u043e\u0432 \u0436\u0435\u043b\u0430\u0442\u0435\u043b\u044c\u043d\u043e, \u044f \u043c\u043e\u0433\u0443 \u0446\u0435\u043b\u044b\u0435 \u0430\u0443\u0434\u0438\u0442\u044b \u0434\u0430\u0432\u0430\u0442\u044c. \u2022 \u0422\u0430\u043c \u0435\u0449\u0435 \u043c\u043e\u0436\u0435\u0442 \u0431\u044b\u0442\u044c \u043f\u0440\u0438\u043a\u043e\u043b, \u043a\u043e\u0433\u0434\u0430 \u0441\u2026"
+    }
+  },
+  "derived_at": "2026-09-25T14:04:35Z",
+  "derived_from": "SRC-046",
+  "interpretation_revision": 1,
+  "schema_version": 1,
+  "source_sha256": "26dca01729588b0d2d775e89cbd7e295d33954f2ae0f3e6d3a2c1a8269503680"
+}

@@ -72,6 +72,16 @@ schemas, environment variables or RPC contracts.
 | `packages/ui/src/WorkspaceSidebar.tsx` (T-58) | ZAICODE: project list rendered without the purpose section (no title / fold / drag), SLOTS / LIVE / + in the toolbar, no scroll mask, `data-zaicode-instant`, session briefs + CONTINUE / DONE strip mount | the section list and toolbar are inline JSX | medium (large file) |
 | `packages/ui/src/WorkspaceSidebarItem.tsx` (T-58) | no grab cursor in ZAICODE, CSS hover action zone, continue handle registration, per-session continue | row JSX inline | medium |
 | `packages/ui/src/TaskList.tsx`, `TaskListItem.tsx` (T-58) | optional `onContinueTask`: ▶ row action and Alt+Click | the row owns its click / actions | low |
+| `apps/zcode-cli/packages/core/src/permission/service.ts`, `context/sections/identity.ts` (T-60) | self-protection check first (refuses stopping ZAICODE by name / image / path, also in yolo); identity line about it | every tool call's permission is decided here | trivial |
+| `apps/zcode-cli/packages/bootstrap/src/zcode-protocol-v4/queue-auto-drain.ts`, `zcode-protocol/v4-bridge.ts` (T-60) | ZAICODE mode: an idle session's queue head drains past an unfinished goal | the one auto-drain gate | trivial |
+| `packages/ui/src/terminal/TerminalSession.tsx` (T-60) | persistent path: output tap + control (write / redraw) per registry key | PTY data enters xterm only here | low |
+| `packages/ui/src/app-shell/WorkspaceShellLayout.tsx` (T-60) | workspace body wrapped in `ZaicodeWorkersDockFrame` (no-op upstream) | the body / panel layout is inline | trivial |
+| `packages/ui/src/WorkspaceHeader.tsx`, `WorkspaceHeaderSections.tsx`, `WorkspaceHeaderSections/WorkspaceHeaderActionSection.tsx` (T-60) | project name in the title bar, session title size, reset timer next to the clock | header JSX inline | low |
+| `packages/ui/src/TaskListItem.tsx`, `workspace-grouped-tasks/task-row.tsx` (T-60) | INTERRUPTED mark, SCHEDULER flag; grouped rows use the Working icon | row indicators are inline | low |
+| `packages/ui/src/WorkspaceSidebar.tsx`, `WorkspaceSidebarItem.tsx` (T-60) | third view MAIN (tab, row = MAIN, children without MAIN, MAIN glyph), CLEAR ALL DONE, START continues MAIN, archive-some registration | view switch and rows are inline | medium |
+| `packages/ui/src/NewTaskButtonGroup.tsx` (T-60) | the menu line's custom name | label is inline | trivial |
+| `packages/shared/src/channels.ts`, `platform.ts`, `desktop/src/preload/index.ts`, `desktop/src/main/desktopMainIpcPlatform.ts` (T-60) | IPC `zaicode:write-prompt-file` | closed channel / bridge registries | trivial |
+| `README.md` -> `README.zcode.md`, `README.en.md` (0.0.1) | upstream README kept as `README.zcode.md` (+ link to ZAICODE); `README.md` is ZAICODE's; the English README links the moved file | GitHub shows `README.md` on `main` | trivial |
 
 The ledger lists upstream-owned touched files; new ZAICODE-owned source files
 remain tracked in the implementation notes and are not duplicated here.
