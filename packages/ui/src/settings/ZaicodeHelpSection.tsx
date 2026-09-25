@@ -106,6 +106,17 @@ const TOPICS: readonly HelpTopic[] = [
     open: { label: "Layout & home", section: "zaicodeLayout" },
   },
   {
+    id: "continue",
+    title: "CONTINUE ALL, DONE and continue in place",
+    what: "Keep every project moving and see what finished, without opening one session after another.",
+    lines: [
+      "CONTINUE ALL (under the menu) — hover or right-click shows the plan first: stopped goals start again with the same objective, failed turns continue (cc, or continue without SAIPEN), a SAIPEN project with open tickets and nothing running continues its MAIN with /goal cc all. Finished, running, switched-off and waiting-for-you sessions are left alone.",
+      "DONE n — the oldest finished session you have not opened yet; opening marks it seen, so the next press opens the next one. Right-click lists them. Hotkey Alt+Right.",
+      "▶ on a session row, or Alt+Click the row — continue that session without opening it. A session that waits for your answer opens instead.",
+    ],
+    open: { label: "Hotkeys", section: "zaicodeHotkeys" },
+  },
+  {
     id: "zaicode",
     title: "ZAICODE page (agents, tasks, results)",
     what: "Run several agents on queued tasks in parallel.",
