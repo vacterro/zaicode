@@ -981,3 +981,22 @@ Source: SRC-033 analysis 3. See `docs/ZAICODE_ARCHITECTURE.md` section 11.
   (`zaicodeProjectTopology`) read identities only; moving a project between
   sidebar slots or re-pointing MAIN leaves them unchanged (tested).
 - Tests: `ui/test/zaicodeTopology.test.ts` (7).
+
+## 31. One-click installer and Autotroubleshoot (T-53, 2026-09-25)
+
+Source: SRC-038 ("run the installer, wait, done, a shortcut waits"; ZAICODE,
+SAIPEN and SAIMAIL fresh from GitHub with all dependencies; an iron
+Autotroubleshoot; several Claude / Codex subscriptions). Guide:
+`docs/ZAICODE_INSTALL.md`; decision D-14.
+
+- `install/ZaicodeInstallLib.ps1` (layout, logging, native commands, downloads,
+  portable Git / Node.js / Python / pnpm, shallow clones, SAIPEN launcher,
+  SAIMAIL venv, pnpm install, bundle, launcher build, shortcuts, login homes),
+  `install/ZaicodeChecks.ps1` (16 checks: test + repair each),
+  `install/Install-ZAICODE.ps1`, `install/ZAICODE-Doctor.ps1`, `Setup-ZAICODE.cmd`,
+  `Doctor.cmd`, `install/setup/ZaicodeSetup.cs` (+ `build.cmd`: the scripts as
+  resources in `ZAICODE-Setup.exe`), `install/tests/Test-ZaicodeInstall.ps1`.
+- Root launcher: `SAIPEN_HOME` falls back to `<root>\saipen` before the
+  scheduled source; `<root>\.venv\Scripts`, `.tools\git\cmd` and `.tools\node`
+  go first on the app's PATH when they exist (a developer workspace has none).
+- Root `.gitignore`: the install's clones, tools, venv, logs and report.

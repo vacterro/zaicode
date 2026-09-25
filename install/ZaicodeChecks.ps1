@@ -15,7 +15,8 @@ $script:ZaicodeCheckList = @(
   @{ Id = 'app-source';      Title = 'ZAICODE app source';                   Level = 'FAIL' },
   @{ Id = 'saipen';          Title = 'SAIPEN';                               Level = 'FAIL' },
   @{ Id = 'saipen-launcher'; Title = 'SAIPEN launcher';                      Level = 'FAIL' },
-  @{ Id = 'saimail';         Title = 'SAIMAIL (saimail-local)';              Level = 'FAIL' },
+  @{ Id = 'saimail';         Title = 'SAIMAIL';                              Level = 'FAIL' },
+  @{ Id = 'saimail-cli';     Title = 'saimail-local (SAIMAIL panels)';       Level = 'WARN' },
   @{ Id = 'router';          Title = '9router package (zero-setup SAIFREN)'; Level = 'WARN' },
   @{ Id = 'modules';         Title = 'App dependencies (pnpm install)';      Level = 'FAIL' },
   @{ Id = 'app';             Title = 'ZAICODE app build';                    Level = 'FAIL' },
@@ -104,6 +105,14 @@ function Test-ZaicodeCheck([string]$Id, $Ctx) {
     }
     'saimail' {
       if (-not (Test-ZaicodeRepo (Resolve-ZaicodeGit $Ctx) $layout.Saimail)) { return 'saimail\ is not a clone of SAIMAIL' }
+      if (-not (Test-Path -LiteralPath $layout.VenvPython)) { return 'the .venv is missing' }
+      $probe = Invoke-ZaicodeCommand -File $layout.VenvPython -Arguments @('-c', 'import saimail') -AllowFailure
+      if ($probe.Code -ne 0) { return 'SAIMAIL is not installed in .venv' }
+    }
+    'saimail-cli' {
+      if (-not (Test-ZaicodeSaimailShipsCli $layout)) {
+        return ("the published SAIMAIL ({0}) has no saimail-local yet; ZAICODE's SAIMAIL panels stay off until a release ships it" -f (Get-ZaicodeSaimailVersion $layout))
+      }
       if (-not (Test-Path -LiteralPath $layout.SaimailExe)) { return 'saimail-local is not installed in .venv' }
       $probe = Invoke-ZaicodeCommand -File $layout.SaimailExe -Arguments @('--help') -AllowFailure
       if ($probe.Code -ne 0) { return 'saimail-local does not start' }
@@ -168,6 +177,11 @@ function Repair-ZaicodeCheck([string]$Id, $Ctx) {
     'saipen-launcher' { Set-ZaicodeSaipenLauncher $layout (Resolve-ZaicodePython $Ctx) }
     'saimail' {
       Sync-ZaicodeRepo -Git (Resolve-ZaicodeGit $Ctx) -Url $options.SaimailRepo -Branch 'main' -Dir $layout.Saimail
+      Install-ZaicodeSaimail $layout (Resolve-ZaicodePython $Ctx)
+    }
+    'saimail-cli' {
+      Sync-ZaicodeRepo -Git (Resolve-ZaicodeGit $Ctx) -Url $options.SaimailRepo -Branch 'main' -Dir $layout.Saimail
+      if (-not (Test-ZaicodeSaimailShipsCli $layout)) { throw 'the published SAIMAIL has no saimail-local to install' }
       Install-ZaicodeSaimail $layout (Resolve-ZaicodePython $Ctx)
     }
     'router' { if (-not (Install-ZaicodeRouterPackage $layout (Resolve-ZaicodeNode $Ctx))) { throw 'npm could not install 9router' } }

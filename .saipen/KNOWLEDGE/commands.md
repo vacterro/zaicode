@@ -96,3 +96,13 @@ regression: `test/zaicodeSaipenProjection.test.ts` (Windows, ~5 s).
 ZAICODE tests added 2026-09-25 (T-42): UI `test/zaicodeTopology.test.ts` (in the
 `zaicode*` glob): worker identity through every placement action, placement
 guard, exit transition, generations, registry and slot / MAIN pointers.
+
+ZAICODE installer (added 2026-09-25, T-53): `install\Install-ZAICODE.ps1`
+(`-InstallDir`, `-ShortcutDir`, `-NoStartMenu`, `-PortableTools`,
+`-AddClaudeAccounts N`, `-AddCodexAccounts N`, repo overrides); Autotroubleshoot
+`install\ZAICODE-Doctor.ps1 [-Repair] [-Json] [-Only id,...]`; proof
+`install\tests\Test-ZaicodeInstall.ps1 -InstallDir D -ShortcutDir S -Smoke`;
+one-click exe `install\setup\build.cmd` -> `install\ZAICODE-Setup.exe`. Run the
+installer with Windows PowerShell 5.1 (`powershell.exe`), the one a fresh
+Windows has. A test install belongs on a short path (`V:\_TEMP_\zi`): the
+bundled router's Next output is deep.

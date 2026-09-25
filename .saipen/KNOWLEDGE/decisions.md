@@ -154,3 +154,17 @@ pointer) is written through placement code that refuses identity keys
 in the agent runtime and MAIN stays a pointer. New execution kinds register
 identities with the runtime registry (`zaicodeRuntimeRegistry.ts`), never
 through a layout store.
+
+## D-14 The installer is Autotroubleshoot on an empty folder (T-53, 2026-09-25)
+
+One ordered list of checks, each with a test and an idempotent repair
+(`install\ZaicodeChecks.ps1`); `Install-ZAICODE.ps1` runs them all with repair,
+`ZAICODE-Doctor.ps1` runs them to report or repair. A fix for an install fault
+is therefore also a fix for the installer. Prerequisites the machine lacks come
+as private copies under `<install>\.tools` (no administrator rights, no
+winget: it is missing on some Windows 10). Sources are the public GitHub repos
+(`vacterro/zaicode` main + workspace, `vacterro/saipen`, `vacterro/saimail`),
+cloned shallow; the workspace clone leaves out the developer's `.saipen/`.
+What the public repos do not ship yet is reported (WARN), never faked:
+SAIMAIL's `saimail-local` and SAIPEN's launcher renderer were local-only on
+2026-09-25.

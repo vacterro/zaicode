@@ -275,11 +275,27 @@ function Sync-ZaicodeRepo {
 # SAIPEN and SAIMAIL
 # ---------------------------------------------------------------------------
 
-# The clone's own bin/saipen.cmd names its maintainer's machine; SAIPEN's renderer writes one for this clone.
+# The clone's own bin/saipen.cmd (when it has one) names its maintainer's machine;
+# SAIPEN's renderer writes one for this clone. A SAIPEN release without the
+# renderer gets the same bytes the renderer writes: python + tools\saipen.py.
 function Set-ZaicodeSaipenLauncher($Layout, [string]$Python) {
   $renderer = Join-Path $Layout.Saipen 'bootstrap\cli_launcher.py'
   $cli = Join-Path $Layout.Saipen 'tools\saipen.py'
-  Invoke-ZaicodeCommand -File $Python -Arguments @($renderer, '--python', $Python, '--cli', $cli, '--out-dir', (Join-Path $Layout.Saipen 'bin')) | Out-Null
+  $bin = Join-Path $Layout.Saipen 'bin'
+  if (-not (Test-Path -LiteralPath $cli)) { throw "this SAIPEN has no tools\saipen.py" }
+  if (Test-Path -LiteralPath $renderer) {
+    Invoke-ZaicodeCommand -File $Python -Arguments @($renderer, '--python', $Python, '--cli', $cli, '--out-dir', $bin) | Out-Null
+    return
+  }
+  New-Item -ItemType Directory -Force -Path $bin | Out-Null
+  $text = "@echo off`r`n`"$Python`" `"$cli`" %*`r`n"
+  [IO.File]::WriteAllText((Join-Path $bin 'saipen.cmd'), $text, (New-Object Text.UTF8Encoding($false)))
+}
+
+function Get-ZaicodeSaipenVersion($Layout) {
+  $file = Join-Path $Layout.Saipen 'VERSION'
+  if (Test-Path -LiteralPath $file) { return (Get-Content -LiteralPath $file -Raw).Trim() }
+  return 'unknown'
 }
 
 function Test-ZaicodeSaipenLauncher($Layout) {
@@ -291,6 +307,21 @@ function Test-ZaicodeSaipenLauncher($Layout) {
   $match = [regex]::Match($text, '"([^"]+python[^"]*\.exe)"', 'IgnoreCase')
   if (-not $match.Success -or -not (Test-Path -LiteralPath $match.Groups[1].Value)) { return 'the Python bin\saipen.cmd names is gone' }
   return $null
+}
+
+# ZAICODE's SAIMAIL surfaces call `saimail-local`; a SAIMAIL release declares it in pyproject.toml.
+function Test-ZaicodeSaimailShipsCli($Layout) {
+  $project = Join-Path $Layout.Saimail 'pyproject.toml'
+  if (-not (Test-Path -LiteralPath $project)) { return $false }
+  return ((Get-Content -LiteralPath $project -Raw) -match '(?m)^\s*saimail-local\s*=')
+}
+
+function Get-ZaicodeSaimailVersion($Layout) {
+  $project = Join-Path $Layout.Saimail 'pyproject.toml'
+  if (-not (Test-Path -LiteralPath $project)) { return 'unknown' }
+  $match = [regex]::Match((Get-Content -LiteralPath $project -Raw), '(?m)^version\s*=\s*"([^"]+)"')
+  if ($match.Success) { return $match.Groups[1].Value }
+  return 'unknown'
 }
 
 function Install-ZaicodeSaimail($Layout, [string]$Python) {

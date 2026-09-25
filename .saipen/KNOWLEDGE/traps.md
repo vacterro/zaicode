@@ -178,3 +178,23 @@ a source checkout: BOOT.md / STYLE.md live in `<home>/saipen/`, the templates in
 (`~/.config/opencode/skills/saipen`) is flat. A check for `<home>/BOOT.md`
 alone wrongly reports "no SAIPEN home"; resolve the protocol folder the way
 BOOT.md says (`<home>/saipen`, else `<home>`), e.g. `saipenProtocolDir`.
+
+## Windows PowerShell 5.1 turns native stderr into errors (2026-09-25, T-53)
+
+With `$ErrorActionPreference = 'Stop'`, `& git.exe ... 2>&1` in Windows
+PowerShell 5.1 throws NativeCommandError on the first line git writes to stderr
+(progress, warnings), although git succeeds. Set the preference to `Continue`
+around native calls and judge by `$LASTEXITCODE` (`Invoke-ZaicodeCommand`).
+Also: a script block does not close over its creator's locals, and
+`GetNewClosure()` loses script-scope functions; the installer's checks are
+switch arms over a context object for that reason.
+
+## Public SAIPEN / SAIMAIL lag the local checkouts (2026-09-25, T-53)
+
+On 2026-09-25 local `_SAIPEN` was 132 commits ahead of `vacterro/saipen` main
+(v8.0.1 there: no `bin/`, no `bootstrap/cli_launcher.py`), and SAIMAIL's
+`saimail-local` (`saimail_local.py`, the `[project.scripts]` entry) existed only
+as uncommitted work in `__SAIMAIL__`. An install from GitHub therefore gets the
+older SAIPEN and no `saimail-local`; the installer writes the SAIPEN launcher
+itself and reports saimail-local as WARN. Publishing those repos is the
+operator's call.
