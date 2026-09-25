@@ -100,6 +100,8 @@ export interface ZaicodeHomePrefs {
   gridDays: number;
   /** Seconds between SAIHOME refreshes while it is on screen. */
   refreshSeconds: number;
+  /** Token totals (today, yesterday, week, month, all) in the SAIHOME title row, top left, in every preset (T-52). */
+  tokenRibbon: boolean;
 }
 
 export const ZAICODE_HOME_CLOCK_DEFAULTS: ZaicodeHomeClockPrefs = {
@@ -130,6 +132,7 @@ export const ZAICODE_HOME_DEFAULTS: ZaicodeHomePrefs = {
   weekStartsOn: 1,
   gridDays: 182,
   refreshSeconds: 60,
+  tokenRibbon: true,
 };
 
 function pick<T extends string>(value: unknown, allowed: readonly T[], fallback: T): T {
@@ -193,6 +196,7 @@ export function normalizeZaicodeHomePrefs(raw: unknown): ZaicodeHomePrefs {
     weekStartsOn: r.weekStartsOn === 0 ? 0 : 1,
     gridDays: Number.isFinite(gridDays) ? Math.max(28, Math.min(371, Math.trunc(gridDays))) : d.gridDays,
     refreshSeconds: Number.isFinite(refresh) ? Math.max(15, Math.min(600, Math.trunc(refresh))) : d.refreshSeconds,
+    tokenRibbon: flag(r.tokenRibbon, d.tokenRibbon),
   };
 }
 

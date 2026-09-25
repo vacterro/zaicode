@@ -136,6 +136,12 @@ export function ZaicodeHomeSettingsPanel() {
         />
       </label>
       <ZaicodePrefHeading>STATISTICS</ZaicodePrefHeading>
+      <ZaicodePrefCheck
+        checked={prefs.tokenRibbon}
+        onChange={(tokenRibbon) => prefs.update({ tokenRibbon })}
+        label="Token totals in the SAIHOME title row"
+        hint="Today, yesterday, week, month and all time, top left, whatever preset is on"
+      />
       <ZaicodePrefSegment<ZaicodeStreakMeasure>
         label="Activity squares and streak count"
         value={prefs.streakMeasure}

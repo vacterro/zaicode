@@ -33,7 +33,14 @@ import {
   useZaicodeHomeProjects,
   type ZaicodeHomeProjectRow,
 } from "./ZaicodeHomeFleet.js";
-import { ZaicodeHomeActivity, ZaicodeHomeNerdStats, ZaicodeHomeStats, ZaicodeHomeStreak, zaicodeHomeTimeline } from "./ZaicodeHomeStatsCards.js";
+import {
+  ZaicodeHomeActivity,
+  ZaicodeHomeNerdStats,
+  ZaicodeHomeStats,
+  ZaicodeHomeStreak,
+  ZaicodeHomeTokenRibbon,
+  zaicodeHomeTimeline,
+} from "./ZaicodeHomeStatsCards.js";
 import { useZaicodeHomeJournal } from "./zaicodeHomeJournal.js";
 import { refreshZaicodeHome, useZaicodeHomeFeed, useZaicodeHomeFeedRefresh } from "./zaicodeHomeFeed.js";
 import {
@@ -287,7 +294,11 @@ export function ZaicodeHomePage({
       <ZaicodeHomeProjectProbes projects={projects} />
       <div className="flex shrink-0 flex-wrap items-center gap-2 border-b border-border px-3 py-1.5 text-ui-xs">
         <h1 className="text-ui-sm tracking-wide text-foreground">SAIHOME</h1>
-        <span className="text-foreground-subtlest">what is happening</span>
+        {prefs.tokenRibbon && stats ? (
+          <ZaicodeHomeTokenRibbon stats={stats} error={feed.stats.error} />
+        ) : (
+          <span className="text-foreground-subtlest">what is happening</span>
+        )}
         <span className="flex-1" />
         <span role="group" aria-label="Layout preset" className="flex gap-px">
           {presets.map((preset) => (

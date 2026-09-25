@@ -62,6 +62,38 @@ function TokenTile({ label, totals, truth }: { label: string; totals: ZaicodeSta
   );
 }
 
+const RIBBON_PERIODS = [
+  ["today", "Today"],
+  ["yesterday", "Yday"],
+  ["week", "Week"],
+  ["month", "Month"],
+  ["all", "All"],
+] as const;
+
+/**
+ * T-52 (SRC-038): token totals in the SAIHOME title row, top left, whatever
+ * preset is on. Same numbers and truth marks as the Tokens & work card.
+ */
+export function ZaicodeHomeTokenRibbon({ stats, error }: { stats: ZaicodeHomeStats | null; error: string | null }) {
+  if (!stats) return null;
+  const truth = statsTruth(stats, error);
+  return (
+    <span className="flex min-w-0 flex-wrap items-baseline gap-x-2 tabular-nums" data-zaicode-token-ribbon aria-label="Tokens">
+      {RIBBON_PERIODS.map(([key, label]) => {
+        const totals = stats.periods[key];
+        return (
+          <span key={key} className="flex items-baseline gap-1" title={`${label}: ${exact(totals.tokens)} tokens · ${exact(totals.requests)} model requests`}>
+            <span className="text-[10px] tracking-wide text-foreground-subtlest">{label.toUpperCase()}</span>
+            <ZaicodeTruthValue truth={truth} className="text-foreground">
+              {formatZaicodeCompactCount(totals.tokens)}
+            </ZaicodeTruthValue>
+          </span>
+        );
+      })}
+    </span>
+  );
+}
+
 export function ZaicodeHomeStats({ stats, error }: { stats: ZaicodeHomeStats | null; error: string | null }) {
   const range = useZaicodeHomePrefs((state) => state.statsRange);
   const update = useZaicodeHomePrefs((state) => state.update);
