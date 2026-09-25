@@ -214,3 +214,24 @@ export function cascadeZaicodeWindowRect(bounds: ZaicodeRect, openCount: number)
     bounds,
   );
 }
+
+/** Edge the WORKERS panel docks to (mirrors ZaicodeWorkersPanelDock). */
+export type ZaicodeDockEdge = "bottom" | "left" | "right" | "top";
+
+/** SRC-046: dragging the WORKERS title snaps the panel to the edge nearest the pointer. */
+export function zaicodeDockForPoint(bounds: ZaicodeRect, x: number, y: number): ZaicodeDockEdge {
+  const width = Math.max(1, bounds.width);
+  const height = Math.max(1, bounds.height);
+  const distances: [ZaicodeDockEdge, number][] = [
+    ["left", (x - bounds.x) / width],
+    ["right", (bounds.x + bounds.width - x) / width],
+    ["top", (y - bounds.y) / height],
+    ["bottom", (bounds.y + bounds.height - y) / height],
+  ];
+  return distances.reduce((best, entry) => (entry[1] < best[1] ? entry : best))[0];
+}
+
+/** In a narrow side column a side-by-side split is useless: panes stack instead. */
+export function zaicodeEffectiveSplit(direction: ZaicodeSplitDirection, dock: ZaicodeDockEdge): ZaicodeSplitDirection {
+  return (dock === "left" || dock === "right") && direction === "row" ? "column" : direction;
+}

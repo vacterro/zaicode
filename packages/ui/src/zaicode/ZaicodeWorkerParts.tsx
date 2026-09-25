@@ -6,6 +6,7 @@ import {
   Minimize2,
   Minus,
   PanelBottom,
+  RefreshCw,
   RotateCcw,
   Scan,
   Settings2,
@@ -32,6 +33,7 @@ import {
 } from "./zaicodeWorkers.js";
 import { useZaicodeWorkerPrefs, zaicodeWorkerFontFamily } from "./zaicodeWorkerPrefs.js";
 import { zaicodeVendorColor } from "./ZaicodeLimitViews.js";
+import { terminalControl } from "@/terminal/terminalOutputTap.js";
 
 /** Shared pieces of the WORKERS panel, worker windows, the tray and the sidebar list. */
 
@@ -204,6 +206,10 @@ export function ZaicodeWorkerMenuItems({ worker }: { worker: ZaicodeWorker }) {
           Minimize to a chip
         </ContextMenuItem>
       ) : null}
+      <ContextMenuItem onSelect={() => terminalControl(worker.id)?.redraw()} disabled={worker.exitCode !== null}>
+        <RefreshCw className="size-4" />
+        Redraw its screen (a garbled picture)
+      </ContextMenuItem>
       <ContextMenuItem onSelect={() => runZaicodeWorkerAgain(worker)}>
         <RotateCcw className="size-4" />
         Start the same again (new worker)

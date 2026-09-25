@@ -31,6 +31,7 @@ import { ZAICODE_SCHEDULE_PRESETS, describeZaicodeSchedule, zaicodeUpcomingSched
 import { ZAICODE_SLOT_GROUPS } from "./zaicodeSidebarPrefs.js";
 import { ZaicodeMomentField, ZaicodeTimeField } from "./ZaicodeTimeFields.js";
 import { formatZaicodeClockMinute, parseZaicodeClockText } from "./zaicodeClockText.js";
+import { ZaicodeScheduleConditions, ZaicodeSchedulePrompt } from "./ZaicodeScheduleConditions.js";
 
 const TRIGGERS: readonly { value: ZaicodeAutostartTrigger; label: string; title: string }[] = [
   { value: "everyReset", label: "Every reset", title: "After every refill of the watched subscription's window" },
@@ -116,7 +117,7 @@ function useRunnerOptions(agents: readonly ZaicodeAgentDefinition[]) {
   const engines = useZaicodeEngines();
   const accounts = engines.accounts.filter((account) => account.status !== "cli-missing" && !isZaicodeMetricsOnlyAccount(account));
   const runners: RunnerOption[] = [
-    { id: ZAICODE_AUTOSTART_INAPP_ENGINE, label: "START in ZAICODE (in-app, fresh MAIN session)" },
+    { id: ZAICODE_AUTOSTART_INAPP_ENGINE, label: "START in ZAICODE (in-app, in each project's MAIN)" },
     ...agents.filter((agent) => agent.enabled).map((agent) => ({ id: `${ZAICODE_AUTOSTART_AGENT_PREFIX}${agent.id}`, label: `Agent: ${agent.name} (queue)` })),
     ...accounts.map((account) => ({ id: account.id, label: `${account.short} ${account.label} (CLI worker)` })),
   ];
@@ -400,13 +401,9 @@ export function ZaicodeScheduleRow({
           ) : null}
         </label>
       </div>
+      <ZaicodeSchedulePrompt value={job.prompt} onChange={(prompt) => update({ prompt })} />
+      <ZaicodeScheduleConditions job={job} inApp={!watchesOwnEngine} onChange={update} />
       <div className="flex flex-wrap items-center gap-2 text-foreground-subtle">
-        <input
-          className="min-w-[220px] flex-1 border border-border bg-background px-1 py-0.5 text-foreground"
-          placeholder={`Prompt — empty = ${ZAICODE_HIT_AND_GO_PROMPT}`}
-          defaultValue={job.prompt}
-          onBlur={(event) => update({ prompt: event.target.value })}
-        />
         <label className="flex items-center gap-1" title="Wait after a refill before starting (the vendor's clock is not ours)">
           delay
           <input

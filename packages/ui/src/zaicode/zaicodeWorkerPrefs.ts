@@ -13,6 +13,10 @@ export type ZaicodeWorkersPanelLayout = "split" | "tabs";
 export type ZaicodeWorkersSplit = "row" | "column" | "grid";
 export type ZaicodeWorkersTrayAnchor = "bottom-left" | "bottom-center" | "bottom-right" | "left" | "right";
 export type ZaicodeWorkerFont = "terminus" | "profile" | "custom";
+/** Which edge of the workspace body the WORKERS panel docks to (SRC-046). */
+export type ZaicodeWorkersPanelDock = "bottom" | "left" | "right" | "top";
+/** What happens when a worker hits its subscription limit (SRC-046). */
+export type ZaicodeWorkerLimitAction = "keep" | "close" | "closeAndResume";
 
 export interface ZaicodeWorkerPrefs {
   /** Where a newly started worker opens. */
@@ -40,6 +44,17 @@ export interface ZaicodeWorkerPrefs {
   confirmClose: boolean;
   /** Running workers listed in the sidebar under the engine tiles. */
   sidebarList: boolean;
+  /** Edge the panel docks to; left / right make it a vertical column. */
+  panelDock: ZaicodeWorkersPanelDock;
+  /** Panel width in CSS pixels when docked left or right. */
+  panelWidth: number;
+  /**
+   * A CLI that stops at its first-run "Trust this folder?" question is answered
+   * "yes" (Enter) so a scheduled worker never waits for hours on it.
+   */
+  autoTrust: boolean;
+  /** "You've hit your session limit": keep the worker, close it, or close it and start it again after the reset. */
+  onLimit: ZaicodeWorkerLimitAction;
 }
 
 export const ZAICODE_WORKER_DEFAULT_PREFS: ZaicodeWorkerPrefs = {
@@ -58,10 +73,15 @@ export const ZAICODE_WORKER_DEFAULT_PREFS: ZaicodeWorkerPrefs = {
   fontSize: 14,
   confirmClose: true,
   sidebarList: true,
+  panelDock: "bottom",
+  panelWidth: 520,
+  autoTrust: true,
+  onLimit: "keep",
 };
 
 export const ZAICODE_TERMINUS_SIZES = [12, 14, 16, 18, 20, 22, 24, 28, 32] as const;
 export const ZAICODE_WORKERS_PANEL_MIN = 120;
+export const ZAICODE_WORKERS_PANEL_MIN_WIDTH = 240;
 const TERMINUS_FAMILY = '"Terminus (TTF) for Windows", "ZAICODE Terminus", Consolas, monospace';
 
 const STORAGE_KEY = "zaicode-workers-prefs-v1";
@@ -98,6 +118,10 @@ export function normalizeZaicodeWorkerPrefs(raw: unknown): ZaicodeWorkerPrefs {
     fontSize: int(r.fontSize, 8, 40, d.fontSize),
     confirmClose: flag(r.confirmClose, d.confirmClose),
     sidebarList: flag(r.sidebarList, d.sidebarList),
+    panelDock: oneOf(r.panelDock, ["bottom", "left", "right", "top"] as const, d.panelDock),
+    panelWidth: int(r.panelWidth, ZAICODE_WORKERS_PANEL_MIN_WIDTH, 4000, d.panelWidth),
+    autoTrust: flag(r.autoTrust, d.autoTrust),
+    onLimit: oneOf(r.onLimit, ["keep", "close", "closeAndResume"] as const, d.onLimit),
   };
 }
 

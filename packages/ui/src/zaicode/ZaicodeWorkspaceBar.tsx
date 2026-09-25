@@ -8,6 +8,10 @@ import { ensureZaicodeHitAndGoAgent } from "./zaicodeAutostart.js";
 import { useZaicodeWorkspaceTab } from "./zaicodeScheduler.js";
 import type { ZaicodeServices, ZaicodeWorkspaceContext } from "./zaicodeServices.js";
 import { useZaicodeStore } from "./zaicodeStore.js";
+import { buildTaskWorkspaceKey } from "@/lib/taskQueryCache.js";
+import { projectNameOf } from "./zaicodeEngines.js";
+import { useZaicodeMainSessions, zaicodeMainSessionKey } from "./zaicodeMainSession.js";
+import { startZaicodeInMain } from "./zaicodeScheduleRun.js";
 
 /** The two pages of the ZAICODE workspace: agents + queue, and the SCHEDULER (SRC-038). */
 export function ZaicodeWorkspaceTabs() {
@@ -45,8 +49,10 @@ export function ZaicodeWorkspaceTabs() {
 }
 
 /**
- * SRC-038 hit and go: one click, the hit-and-go agent (made on first use)
- * runs `/goal cc all` in this project. SAIPEN guards the work.
+ * SRC-038 hit and go: one click, `/goal cc all` in this project. SAIPEN guards
+ * the work. A project that already has a MAIN session continues there
+ * (SRC-044: never a second session next to MAIN); only a project without MAIN
+ * gets the hit-and-go agent (made on first use) through the queue.
  */
 export function ZaicodeHitAndGoButton({
   services,
@@ -62,6 +68,19 @@ export function ZaicodeHitAndGoButton({
   const go = async () => {
     setRunning(true);
     try {
+      const mainKey = zaicodeMainSessionKey(workspace.workspacePath, workspace.workspaceIdentity);
+      if (useZaicodeMainSessions.getState().byWorkspace[mainKey]) {
+        const outcome = await startZaicodeInMain({ prompt: "" }, [
+          {
+            path: workspace.workspacePath,
+            ...(workspace.workspaceIdentity ? { identity: workspace.workspaceIdentity } : {}),
+            key: buildTaskWorkspaceKey(workspace.workspacePath, workspace.workspaceIdentity),
+            name: projectNameOf(workspace.workspacePath),
+          },
+        ], Date.now());
+        toast(`Hit & go: ${outcome.lines.join("; ") || "nothing to do"}`);
+        return;
+      }
       const agent = await ensureZaicodeHitAndGoAgent(services);
       await store.refresh(services, workspace);
       const created = await store.createJob(services, workspace, {
@@ -83,7 +102,7 @@ export function ZaicodeHitAndGoButton({
       size="sm"
       variant="secondary"
       disabled={disabled || running}
-      title={`Hit & go: an Autopilot agent runs ${ZAICODE_HIT_AND_GO_PROMPT} in this project now (made on first use). SAIPEN keeps it safe and calls you when needed.`}
+      title={`Hit & go: ${ZAICODE_HIT_AND_GO_PROMPT} in this project now -- in its MAIN session when it has one, else an Autopilot agent through the queue (made on first use). SAIPEN keeps it safe and calls you when needed.`}
       onClick={() => void go()}
       data-zaicode-hit-and-go
     >

@@ -11,6 +11,7 @@ import {
   type ZaicodeAgentDefinition,
   type ZaicodeAutostartDecision,
   type ZaicodeAutostartJob,
+  type ZaicodeScheduledRun,
 } from "@zcode/shared";
 import { readZaicodeSetting } from "./zaicodeSettingsSnapshot.js";
 import { projectNameOf, readZaicodeEnginesState } from "./zaicodeEngines.js";
@@ -22,6 +23,17 @@ import { useZaicodeSidebarPrefs } from "./zaicodeSidebarPrefs.js";
 import { readZaicodeDefaultModel } from "./zaicodeDefaultModel.js";
 import type { ZaicodeServices } from "./zaicodeServices.js";
 import { isZaicodeProjectDisabled, syncZaicodeDisabledProjects } from "./zaicodeProjectSwitch.js";
+import {
+  ZAICODE_INAPP_RUNNER_RANK,
+  clearZaicodeBeforeRun,
+  continueZaicodeMarked,
+  orderZaicodeScheduleTargets,
+  startZaicodeInMain,
+  stopZaicodeSessionRun,
+  zaicodeEngineRank,
+  zaicodeHomeRows,
+  zaicodeTargetIdle,
+} from "./zaicodeScheduleRun.js";
 
 /**
  * ZAICODE autostart = the SCHEDULER engine (AUDAPACK "prepared launches"): a
@@ -95,7 +107,7 @@ export function decideZaicodeAutostartJob(job: ZaicodeAutostartJob, now: number 
   return evaluateZaicodeAutostartJob(job, engine ? readZaicodeEnginesState().limits[engine] : undefined, now);
 }
 
-/** Engine id of the in-app agent: START (`/goal cc all`) in a fresh MAIN session. */
+/** Engine id of the in-app agent: START (`/goal cc all`) in the project's MAIN session (a fresh one only without MAIN). */
 export const ZAICODE_AUTOSTART_INAPP_ENGINE = "pool:start";
 /** Runner prefix of a ZAICODE agent (work goes through the queue). */
 export const ZAICODE_AUTOSTART_AGENT_PREFIX = "agent:";
@@ -153,7 +165,7 @@ async function queueRun(
 
 async function fire(job: ZaicodeAutostartJob, decision: ZaicodeAutostartDecision, manual: boolean): Promise<void> {
   const now = Date.now();
-  // Record the occurrence BEFORE launching: a crash mid-launch must not double-fire.
+  // Record the occurrence BEFORE anything runs: a crash mid-launch must not double-fire.
   const firedEvents = decision.eventId && !manual ? [...job.firedEvents, decision.eventId].slice(-40) : job.firedEvents;
   const onceDone = job.trigger === "at" && !manual ? { enabled: false } : {};
   const prefs = useZaicodeSidebarPrefs.getState();
@@ -168,62 +180,87 @@ async function fire(job: ZaicodeAutostartJob, decision: ZaicodeAutostartDecision
     updateZaicodeAutostartJob(job.id, { firedEvents, lastRunAt: now, lastResult: reason, ...onceDone });
     return;
   }
+  updateZaicodeAutostartJob(job.id, { firedEvents, lastRunAt: now, lastResult: "starting…", ...onceDone });
   const announce = (title: string, body: string) => {
     playZaicodeSound("autostart.fire");
     notifyZaicode("autostart.fire", { header: "Scheduler", title, body, key: `autostart:${job.id}` });
   };
+  const finish = (lastResult: string, runs: ZaicodeScheduledRun[] = []) => {
+    const current = readZaicodeAutostartJobs().find((candidate) => candidate.id === job.id);
+    updateZaicodeAutostartJob(job.id, {
+      lastResult: `${new Date(now).toLocaleString()} · ${lastResult}`,
+      ...(runs.length > 0 ? { runs: [...(current?.runs ?? []), ...runs].slice(-20) } : {}),
+    });
+  };
 
   const isAgent = job.engineId.startsWith(ZAICODE_AUTOSTART_AGENT_PREFIX);
   const isPool = job.engineId.startsWith("pool:");
-  // START in one project opens its fresh MAIN session; a section (or an agent) goes through the queue.
-  if (isPool && targets.length === 1 && !isAgent) {
-    updateZaicodeAutostartJob(job.id, { firedEvents, lastRunAt: now, lastResult: `${new Date(now).toLocaleString()} · START in ZAICODE`, ...onceDone });
-    useZaicodeFreshSession.getState().open(targets[0]!.path, targets[0]!.identity, job.prompt.trim() || ZAICODE_SAIPEN_START_COMMAND);
-    announce(`START in ${where}`, targets[0]!.path);
+  const account = isAgent || isPool ? undefined : readZaicodeEnginesState().accounts.find((candidate) => candidate.id === job.engineId);
+  if (!isAgent && !isPool && !account) {
+    finish("engine not found");
+    return;
+  }
+
+  // Conditions (SRC-046): the worst projects first, stopgap work out of the way, busy ones skipped.
+  const ordered = orderZaicodeScheduleTargets(targets, zaicodeHomeRows(), job.targetKind === "section" ? job.order : "list");
+  const runnerRank = account ? zaicodeEngineRank(account.vendor) : ZAICODE_INAPP_RUNNER_RANK;
+  const cleared = job.beforeRun !== "none" ? await clearZaicodeBeforeRun(job, ordered, runnerRank) : [];
+  const ready = job.onlyWhenIdle ? ordered.filter(zaicodeTargetIdle) : ordered;
+  const clearedText = cleared.length > 0 ? ` · before: ${cleared.join(", ")}` : "";
+  if (ready.length === 0) {
+    finish(`nothing idle to start in${clearedText}`);
+    return;
+  }
+
+  if ((isPool || isAgent) && job.onlyMarked) {
+    const outcome = await continueZaicodeMarked(job, ready, now);
+    finish(`${outcome.runs.length} marked session(s) continued${clearedText}`, outcome.runs);
+    if (outcome.runs.length > 0) announce(`Marked sessions continued in ${where}`, outcome.lines.join("\n"));
+    return;
+  }
+  // START goes into MAIN (SRC-044): never a new session next to an existing MAIN.
+  if (job.engineId === ZAICODE_AUTOSTART_INAPP_ENGINE) {
+    const outcome = await startZaicodeInMain(job, ready, now);
+    finish(`${outcome.runs.length}/${ready.length} START in MAIN${clearedText}`, outcome.runs);
+    if (outcome.runs.length > 0) announce(`START in ${where}`, outcome.lines.join("\n"));
+    return;
+  }
+  // An in-app model in one project opens a fresh session with it; a section (or an agent) goes through the queue.
+  if (isPool && ready.length === 1) {
+    finish(`START in ZAICODE${clearedText}`);
+    useZaicodeFreshSession.getState().open(ready[0]!.path, ready[0]!.identity, job.prompt.trim() || ZAICODE_SAIPEN_START_COMMAND);
+    announce(`START in ${where}`, ready[0]!.path);
     return;
   }
   if (isPool || isAgent) {
     const services = queueServices;
     if (!services) {
-      updateZaicodeAutostartJob(job.id, { firedEvents, lastRunAt: now, lastResult: "the agent queue is not available here", ...onceDone });
+      finish("the agent queue is not available here");
       return;
     }
-    updateZaicodeAutostartJob(job.id, { firedEvents, lastRunAt: now, lastResult: "queueing…", ...onceDone });
     try {
       const agentId = isAgent
         ? job.engineId.slice(ZAICODE_AUTOSTART_AGENT_PREFIX.length)
         : (await ensureZaicodeHitAndGoAgent(services)).id;
-      const runs = [];
-      for (const target of targets) runs.push({ ...(await queueRun(services, agentId, target, job)), at: now });
-      const current = readZaicodeAutostartJobs().find((candidate) => candidate.id === job.id);
-      updateZaicodeAutostartJob(job.id, {
-        runs: [...(current?.runs ?? []), ...runs].slice(-20),
-        lastResult: `${new Date(now).toLocaleString()} · queued in ${runs.length} project(s)`,
-      });
+      const runs: ZaicodeScheduledRun[] = [];
+      for (const target of ready) runs.push({ ...(await queueRun(services, agentId, target, job)), at: now });
+      finish(`queued in ${runs.length} project(s)${clearedText}`, runs);
       announce(`Queued in ${where}`, zaicodeJobTaskText(job.prompt));
     } catch (error) {
-      updateZaicodeAutostartJob(job.id, { lastResult: `queue failed: ${error instanceof Error ? error.message : String(error)}` });
+      finish(`queue failed: ${error instanceof Error ? error.message : String(error)}`);
     }
     return;
   }
 
-  const account = readZaicodeEnginesState().accounts.find((candidate) => candidate.id === job.engineId);
-  if (!account) {
-    updateZaicodeAutostartJob(job.id, { firedEvents, lastRunAt: now, lastResult: "engine not found", ...onceDone });
-    return;
-  }
-  updateZaicodeAutostartJob(job.id, { firedEvents, lastRunAt: now, lastResult: "launching…", ...onceDone });
   const results = [];
-  for (const target of targets) {
+  for (const target of ready) {
     results.push(
-      await launchZaicodeWorker({ account, projectPath: target.path, ...(job.prompt.trim() ? { prompt: job.prompt } : {}) }),
+      await launchZaicodeWorker({ account: account!, projectPath: target.path, ...(job.prompt.trim() ? { prompt: job.prompt } : {}) }),
     );
   }
   const ok = results.filter((result) => result.ok).length;
-  updateZaicodeAutostartJob(job.id, {
-    lastResult: `${new Date(now).toLocaleString()} · ${results.length === 1 ? results[0]!.message : `${ok}/${results.length} workers started`}`,
-  });
-  if (ok > 0) announce(`${account.short} started in ${where}`, `${account.label} · ${targets.map((target) => target.name).join(", ")}`);
+  finish(`${results.length === 1 ? results[0]!.message : `${ok}/${results.length} workers started`}${clearedText}`);
+  if (ok > 0) announce(`${account!.short} started in ${where}`, `${account!.label} · ${ready.map((target) => target.name).join(", ")}`);
 }
 
 export function runZaicodeAutostartNow(id: string): void {
@@ -231,18 +268,19 @@ export function runZaicodeAutostartNow(id: string): void {
   if (job) void fire(job, decideZaicodeAutostartJob(job), true);
 }
 
-/** Stop rules: queue runs a schedule started are cancelled once its stop time has come. */
+/** Stop rules: runs a schedule started (queue jobs, MAIN / marked sessions) end once its stop time has come. */
 async function applyStopRules(now: number): Promise<void> {
   const services = queueServices;
-  if (!services) return;
   for (const job of readZaicodeAutostartJobs()) {
     const due = zaicodeRunsToStop(job, now, zaicodeScheduleStopAt);
     if (due.length === 0) continue;
     // Forget first: one stop per run, even if a cancel below fails.
     updateZaicodeAutostartJob(job.id, { runs: job.runs.filter((run) => !due.includes(run.jobId)) });
     for (const jobId of due) {
+      const run = job.runs.find((candidate) => candidate.jobId === jobId);
+      if (run && (await stopZaicodeSessionRun(run))) continue;
       // Cancel is idempotent; a run that already finished stays finished.
-      await services.jobs.cancel(jobId).catch(() => undefined);
+      await services?.jobs.cancel(jobId).catch(() => undefined);
     }
     notifyZaicode("autostart.fire", {
       header: "Scheduler",

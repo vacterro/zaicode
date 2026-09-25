@@ -789,6 +789,7 @@ contextBridge.exposeInMainWorld("zcode", {
   },
   launchZaicodeExternalWorker: (params: { cwd: string; command: string; title: string }) =>
     ipcRenderer.invoke(PlatformChannels.LaunchZaicodeExternalWorker, params),
+  writeZaicodePromptFile: (text: string) => ipcRenderer.invoke(PlatformChannels.WriteZaicodePromptFile, text),
   prepareZaicodeEngineAccountHome: (vendor: string) =>
     ipcRenderer.invoke(PlatformChannels.PrepareZaicodeEngineAccountHome, vendor),
   setZaicodeGlobalHotkeys: (bindings: { id: string; accelerator: string }[]) =>

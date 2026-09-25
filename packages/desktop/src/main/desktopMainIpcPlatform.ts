@@ -89,6 +89,7 @@ import {
   setZaicodeEnginesConfig,
   setZaicodeStartWithWindows,
 } from "./zaicodeEngines.js";
+import { writeZaicodePromptFile } from "./zaicodePromptFiles.js";
 import { saveZaicodeSettingsSnapshot } from "./zaicodeSettingsSnapshot.js";
 import { setZaicodeGlobalHotkeys } from "./zaicodeGlobalHotkeys.js";
 
@@ -525,6 +526,10 @@ export function registerPlatformIpcHandlers(options: {
       command: p.command,
       title: typeof p.title === "string" ? p.title : "ZAICODE worker",
     });
+  });
+  ipcMain.handle(PlatformChannels.WriteZaicodePromptFile, (_event, text: unknown) => {
+    if (typeof text !== "string") throw new TypeError("Expected prompt text");
+    return writeZaicodePromptFile(text);
   });
   ipcMain.handle(PlatformChannels.CallZaicodeRouter, (_event, call: unknown) =>
     callZaicodeRouter(call as ZaicodeRouterCall),

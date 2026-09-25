@@ -17,6 +17,8 @@ import {
   WorkspaceHeaderTitleSection,
 } from "@/WorkspaceHeaderSections.js";
 import type { WorkspaceHeaderVariant } from "@/WorkspaceHeaderSections/shared.js";
+import { isZaicodeProductMode } from "@zcode/shared";
+import { ZaicodeHeaderProjectTitle } from "@/zaicode/ZaicodeHeaderProjectTitle.js";
 
 export function WorkspaceHeader({
   variant = "task",
@@ -141,6 +143,9 @@ export function WorkspaceHeader({
         variant === "draft" ? "border-transparent" : "border-border/50",
       )}
     >
+      {isZaicodeProductMode() && variant === "task" ? (
+        <ZaicodeHeaderProjectTitle projectName={projectName} workspacePath={workspaceAbsPath} placement="center" />
+      ) : null}
       {variant === "draft" && draftDropTargetController?.active ? (
         <div
           className="absolute inset-0 z-40 bg-accent/55 backdrop-blur-sm pointer-events-auto [app-region:no-drag]"

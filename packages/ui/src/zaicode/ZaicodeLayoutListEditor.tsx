@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { ChevronDown, ChevronUp, GripVertical } from "lucide-react";
+import { ChevronDown, ChevronUp, GripVertical, Pencil } from "lucide-react";
 import { cn } from "@/components/lib/utils.js";
 import {
+  ZAICODE_LAYOUT_LABEL_MAX,
   moveZaicodeLayoutEntry,
   placeZaicodeLayoutEntry,
   useZaicodeLayout,
@@ -20,13 +21,28 @@ export function ZaicodeLayoutListEditor<T extends string>({
   defs,
   onChange,
   onReset,
+  renamable = false,
 }: {
   list: readonly ZaicodeLayoutEntry<T>[];
   defs: readonly ZaicodeLayoutItemDef<T>[];
   onChange: (next: ZaicodeLayoutEntry<T>[]) => void;
   onReset: () => void;
+  /** SRC-044: lines can carry the operator's own names (double-click or ✎). */
+  renamable?: boolean;
 }) {
   const [dragging, setDragging] = useState<T | null>(null);
+  const [renaming, setRenaming] = useState<T | null>(null);
+  const rename = (id: T, text: string) => {
+    const label = text.trim().slice(0, ZAICODE_LAYOUT_LABEL_MAX);
+    onChange(
+      list.map((item) => {
+        if (item.id !== id) return item;
+        const { label: _old, ...rest } = item;
+        return label && label !== defOf(id)?.label ? { ...rest, label } : rest;
+      }),
+    );
+    setRenaming(null);
+  };
   const [over, setOver] = useState<number | null>(null);
   const defOf = (id: T) => defs.find((def) => def.id === id);
   return (
@@ -73,9 +89,39 @@ export function ZaicodeLayoutListEditor<T extends string>({
                 onChange(list.map((item) => (item.id === entry.id ? { ...item, visible: event.target.checked } : item)))
               }
             />
-            <span className={cn("min-w-0 flex-1 truncate", entry.visible ? "text-foreground" : "text-foreground-subtlest")}>
-              {def.label}
-            </span>
+            {renaming === entry.id ? (
+              <input
+                autoFocus
+                className="min-w-0 flex-1 border border-border bg-background px-0.5 text-foreground"
+                defaultValue={entry.label ?? def.label}
+                maxLength={ZAICODE_LAYOUT_LABEL_MAX}
+                aria-label={`Name of ${def.label}`}
+                onBlur={(event) => rename(entry.id, event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") rename(entry.id, event.currentTarget.value);
+                  if (event.key === "Escape") setRenaming(null);
+                }}
+              />
+            ) : (
+              <span
+                className={cn("min-w-0 flex-1 truncate", entry.visible ? "text-foreground" : "text-foreground-subtlest")}
+                title={entry.label ? `${entry.label} (built-in name: ${def.label})` : def.hint}
+                onDoubleClick={renamable ? () => setRenaming(entry.id) : undefined}
+              >
+                {entry.label ?? def.label}
+              </span>
+            )}
+            {renamable && renaming !== entry.id ? (
+              <button
+                type="button"
+                aria-label={`Rename ${def.label}`}
+                title="Rename (empty = the built-in name)"
+                className="flex size-4 items-center justify-center text-foreground-subtle hover:bg-hover"
+                onClick={() => setRenaming(entry.id)}
+              >
+                <Pencil className="size-3" />
+              </button>
+            ) : null}
             <button
               type="button"
               aria-label="Move up"
@@ -98,7 +144,7 @@ export function ZaicodeLayoutListEditor<T extends string>({
         );
       })}
       <div className="mt-1 flex justify-between gap-2 text-foreground-subtlest">
-        <span>Tick = shown · drag or ▲▼ = order</span>
+        <span>Tick = shown · drag or ▲▼ = order{renamable ? " · double-click = rename" : ""}</span>
         <button type="button" className="border border-border px-1 text-foreground-subtle hover:bg-hover" onClick={onReset}>
           Defaults
         </button>
@@ -127,6 +173,7 @@ export function ZaicodeNavItemsEditor() {
       defs={ZAICODE_NAV_ITEMS}
       onChange={layout.setNavItems}
       onReset={layout.resetNavItems}
+      renamable
     />
   );
 }

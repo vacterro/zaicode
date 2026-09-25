@@ -29,6 +29,7 @@ interface ZaicodeEnginesBridge {
     message: string;
   }>;
   prepareZaicodeEngineAccountHome?(vendor: string): Promise<{ ok: boolean; home: string; message: string }>;
+  writeZaicodePromptFile?(text: string): Promise<{ ok: boolean; path: string; message: string }>;
   getZaicodeStartWithWindows?(): Promise<{ enabled: boolean; command: string }>;
   setZaicodeStartWithWindows?(enabled: boolean): Promise<{ enabled: boolean; command: string }>;
 }
@@ -304,6 +305,28 @@ export function buildZaicodeWorkerCommand(
   // The tab closes with the CLI's own exit code, so the dock shows finished vs crashed.
   parts.push("exit $LASTEXITCODE");
   return parts.join("; ");
+}
+
+/**
+ * A prompt that fits a worker's command line as it is: short and on one line.
+ * Longer ones (whole audits, SRC-046) go into a file the worker is told to read.
+ */
+export const ZAICODE_WORKER_INLINE_PROMPT_MAX = 1500;
+
+export function zaicodeWorkerPromptNeedsFile(prompt: string): boolean {
+  return prompt.length > ZAICODE_WORKER_INLINE_PROMPT_MAX || /[\r\n]/.test(prompt.trim());
+}
+
+/** What a worker is told when its real prompt is in a file. */
+export function zaicodeWorkerFilePrompt(path: string): string {
+  return `Read the file "${path}" and carry out the operator's instruction in it: it is the whole task, word for word.`;
+}
+
+/** SRC-046: the prompt as it goes on a worker's command line (a long one via a file; ~32 000 characters fit a line). */
+export async function resolveZaicodeWorkerLinePrompt(prompt: string): Promise<string> {
+  if (!zaicodeWorkerPromptNeedsFile(prompt)) return prompt;
+  const written = await getZaicodeEnginesBridge()?.writeZaicodePromptFile?.(prompt);
+  return written?.ok ? zaicodeWorkerFilePrompt(written.path) : prompt;
 }
 
 /** One-click fix: the exact command shown to the operator before it runs. */

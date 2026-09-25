@@ -5,6 +5,7 @@ import {
   TID_WORKSPACE_MORE_BUTTON,
   TID_WORKSPACE_PATH,
   TID_WORKSPACE_TITLE,
+  isZaicodeProductMode,
   type RemoteTarget,
   type ZCodeTaskMeta,
 } from "@zcode/shared";
@@ -63,6 +64,7 @@ export {
 import { playZaicodeSound } from "@/zaicode/zaicodeSoundBus.js";
 import { useZaicodeHighlight, withZaicodeHighlight } from "@/zaicode/zaicodeHighlights.js";
 import { useZaicodeRunningSessions } from "@/zaicode/zaicodeSidebarPrefs.js";
+import { ZaicodeHeaderProjectTitle, useZaicodeHeaderTitle } from "@/zaicode/ZaicodeHeaderProjectTitle.js";
 
 function shouldShowRemoteSkillSyncAction(params: {
   remoteSessionId?: string | null;
@@ -112,6 +114,9 @@ export function WorkspaceHeaderTitleSection({
     Boolean(activeTaskId) && state.sessions.some((session) => session.sessionId === activeTaskId),
   );
   const zaicodeHeaderLight = useZaicodeHighlight("headerWorking", zaicodeHeaderWorking);
+  // SRC-044: the project name in big letters; the session title follows the same settings.
+  const zaicodeHeaderShowSession = useZaicodeHeaderTitle((state) => state.showSession);
+  const zaicodeHeaderSessionSize = useZaicodeHeaderTitle((state) => state.sessionSize);
   const openFeedbackSubmit = useFeedbackStore((state) => state.openSubmit);
   const confirmDialog = useConfirmDialog();
   const services = useWorkspaceServices(workspaceAbsPath, remoteSessionId, workspaceIdentity);
@@ -473,8 +478,13 @@ export function WorkspaceHeaderTitleSection({
           </Button>
         </ControlHintTooltip>
       ) : null}
+      {isZaicodeProductMode() ? (
+        <ZaicodeHeaderProjectTitle projectName={projectName} workspacePath={workspaceAbsPath} placement="start" />
+      ) : null}
       <h1
         data-testid={TID_WORKSPACE_TITLE}
+        {...(isZaicodeProductMode() ? { style: { fontSize: zaicodeHeaderSessionSize } } : {})}
+        hidden={isZaicodeProductMode() && !zaicodeHeaderShowSession}
         className={cn(
           "flex min-w-12 max-w-100 shrink items-center gap-2 truncate font-semibold text-foreground @max-[560px]/workspace-header:max-w-[30vw] @max-[420px]/workspace-header:max-w-[22vw]",
           simplifyForNarrowRemote && "max-md:max-w-[42vw]",

@@ -6,12 +6,14 @@ import { ZaicodePrefCheck, ZaicodePrefSegment, ZaicodePrefStepper } from "@/zaic
 import {
   ZAICODE_TERMINUS_SIZES,
   ZAICODE_WORKERS_PANEL_MIN,
+  ZAICODE_WORKERS_PANEL_MIN_WIDTH,
   useZaicodeWorkerPrefs,
   zaicodeWorkerFontFamily,
   type ZaicodeWorkersTrayAnchor,
 } from "@/zaicode/zaicodeWorkerPrefs.js";
 import { openZaicodeWorkersPanel, useZaicodeWorkers } from "@/zaicode/zaicodeWorkers.js";
 import { ZaicodeDispatchSettings } from "./ZaicodeDispatchSettings.js";
+import { useZaicodeUiPrefs } from "@/zaicode/zaicodeUiPrefs.js";
 
 /**
  * Settings -> Workers: where subscription CLI workers open and how their
@@ -110,6 +112,71 @@ function TerminalFontSetting() {
   );
 }
 
+/** SRC-044: what happens after ZAICODE died (crash, kill, power) and starts again. */
+function CrashSettings() {
+  const resumeAfterCrash = useZaicodeUiPrefs((state) => state.resumeAfterCrash);
+  const resumeAfterCrashHours = useZaicodeUiPrefs((state) => state.resumeAfterCrashHours);
+  const relaunchWorkersAfterCrash = useZaicodeUiPrefs((state) => state.relaunchWorkersAfterCrash);
+  const update = useZaicodeUiPrefs((state) => state.update);
+  return (
+    <section className="flex flex-col gap-2 border border-border bg-card p-4" data-zaicode-crash-settings>
+      <h2 className="text-ui-lg text-foreground">After a crash</h2>
+      <p className="max-w-[580px] text-foreground-subtle">
+        The work itself survives: sessions, their goals and SAIPEN&apos;s board are on disk. A session the dead process cut
+        off mid-turn shows INTERRUPTED (never DONE) and ▶ continues it. With the switches below ZAICODE continues them by
+        itself about half a minute after it is back, one at a time. A session you stopped yourself is never restarted.
+      </p>
+      <ZaicodePrefCheck
+        checked={resumeAfterCrash}
+        onChange={(value) => update({ resumeAfterCrash: value })}
+        label="Auto-continue sessions a crash cut off"
+        hint="Its goal again, else SAIPEN's cc (continue outside SAIPEN)"
+      />
+      <ZaicodePrefStepper
+        label="Only sessions cut off within"
+        value={resumeAfterCrashHours}
+        min={1}
+        max={168}
+        suffix=" h"
+        disabled={!resumeAfterCrash}
+        onChange={(value) => update({ resumeAfterCrashHours: value })}
+      />
+      <ZaicodePrefCheck
+        checked={relaunchWorkersAfterCrash}
+        onChange={(value) => update({ relaunchWorkersAfterCrash: value })}
+        label="Start the workers that were running again"
+        hint="Same engine, project and prompt; a clean close forgets them"
+      />
+    </section>
+  );
+}
+
+/** SRC-046: what the watcher does with the CLI's own questions and limit messages. */
+function WatchSettings() {
+  const prefs = useZaicodeWorkerPrefs();
+  return (
+    <section className="flex flex-col gap-2 border border-border bg-card p-4" data-zaicode-worker-watch-settings>
+      <h2 className="text-ui-lg text-foreground">Watching the CLI</h2>
+      <ZaicodePrefCheck
+        checked={prefs.autoTrust}
+        onChange={(autoTrust) => prefs.update({ autoTrust })}
+        label="Answer “Trust this folder?” with yes"
+        hint="Claude Code and Codex ask it once per new folder; a scheduled worker would wait for hours. Only in a worker's first 15 minutes."
+      />
+      <ZaicodePrefSegment
+        label="When a worker hits its limit"
+        value={prefs.onLimit}
+        options={[
+          { value: "keep", label: "Keep it", hint: "You are told; the CLI waits for its reset itself" },
+          { value: "close", label: "Close it", hint: "Frees the place for another engine" },
+          { value: "closeAndResume", label: "Close, start again after the reset", hint: "A one-shot SCHEDULER entry on the same engine and project" },
+        ]}
+        onChange={(onLimit) => prefs.update({ onLimit })}
+      />
+    </section>
+  );
+}
+
 export function ZaicodeWorkersSettings() {
   const prefs = useZaicodeWorkerPrefs();
   const workers = useZaicodeWorkers();
@@ -187,8 +254,29 @@ export function ZaicodeWorkersSettings() {
           ]}
           onChange={(splitDirection) => prefs.update({ splitDirection })}
         />
+        <ZaicodePrefSegment
+          label="Docked at"
+          value={prefs.panelDock}
+          options={[
+            { value: "bottom", label: "Bottom" },
+            { value: "right", label: "Right (vertical)" },
+            { value: "left", label: "Left (vertical)" },
+            { value: "top", label: "Top" },
+          ]}
+          onChange={(panelDock) => prefs.update({ panelDock })}
+        />
         <ZaicodePrefStepper
-          label="Panel height"
+          label="Panel width (left / right)"
+          value={prefs.panelWidth}
+          min={ZAICODE_WORKERS_PANEL_MIN_WIDTH}
+          max={2000}
+          step={20}
+          suffix=" px"
+          disabled={prefs.panelDock !== "left" && prefs.panelDock !== "right"}
+          onChange={(panelWidth) => prefs.update({ panelWidth })}
+        />
+        <ZaicodePrefStepper
+          label="Panel height (bottom / top)"
           value={prefs.panelHeight}
           min={ZAICODE_WORKERS_PANEL_MIN}
           max={1200}
@@ -197,8 +285,8 @@ export function ZaicodeWorkersSettings() {
           onChange={(panelHeight) => prefs.update({ panelHeight })}
         />
         <span className="text-foreground-subtlest">
-          Drag the panel&apos;s top edge to resize, double-click it to maximize. Double-click a pane title to let it fill
-          the panel.
+          Drag the panel&apos;s inner edge to resize, double-click it to maximize. Drag the WORKERS title to an edge to
+          dock it there (or right-click it). Double-click a pane title to let it fill the panel.
         </span>
       </section>
 
@@ -274,6 +362,8 @@ export function ZaicodeWorkersSettings() {
         </div>
         <TerminalFontSetting />
       </section>
+      <WatchSettings />
+      <CrashSettings />
       <ZaicodeDispatchSettings />
     </div>
   );

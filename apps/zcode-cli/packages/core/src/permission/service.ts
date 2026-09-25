@@ -16,6 +16,7 @@ import {
 } from "@zcode/contracts";
 import { OFFICIAL_CUA_PERMISSION_RULE_TOOL_NAME } from "@zcode/shared";
 import { resolvePlanModeTransitionPermission } from "./plan-mode-policy.js";
+import { resolveZaicodeSelfProtection } from "./zaicode-self-protection.js";
 import { webFetchRuleSubjects, wildcardToRegExp } from "./rule-matching.js";
 import { isPreapprovedWorkflowDraftWrite } from "./workflow-draft-path.js";
 import { applyPermissionUpdates } from "../tool/executor/permission-rules.js";
@@ -101,6 +102,11 @@ export class PermissionService {
     rulePolicy?: ToolPermissionRulePolicy,
   ): PermissionDecisionResult {
     const capability = this.resolveCapability(context, toolCapability);
+    // ZAICODE：按名称结束 ZAICODE 进程会连同 launcher 与所有会话一起杀掉（2026-09-25 事故），yolo 也不放行。
+    const selfProtection = resolveZaicodeSelfProtection(context);
+    if (selfProtection) {
+      return this.deny(context, capability, selfProtection.ruleId, selfProtection.reason);
+    }
     const planModeTransition = resolvePlanModeTransitionPermission(context);
 
     if (planModeTransition) {

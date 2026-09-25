@@ -5,6 +5,7 @@ import {
   getZaicodeEnginesBridge,
   projectNameOf,
   readZaicodeEnginesState,
+  resolveZaicodeWorkerLinePrompt,
 } from "./zaicodeEngines.js";
 import { cascadeZaicodeWindowRect, type ZaicodeRect } from "./zaicodeWorkerLayout.js";
 import { readZaicodeWorkerPrefs, type ZaicodeWorkerPlacement } from "./zaicodeWorkerPrefs.js";
@@ -37,6 +38,8 @@ export interface ZaicodeWorker {
   projectName: string;
   /** Typed into the shell once it is ready. */
   command: string;
+  /** The prompt a subscription worker was started with (kept to start it again after a crash). */
+  prompt?: string;
   startedAt: number;
   /** null while running. */
   exitCode: number | null;
@@ -94,6 +97,9 @@ function subscribeWorkers(listener: () => void): () => void {
   listeners.add(listener);
   return () => listeners.delete(listener);
 }
+
+/** Every change of the workers store (crash recovery records the running ones). */
+export const subscribeZaicodeWorkers = subscribeWorkers;
 
 export function useZaicodeWorkers(): ZaicodeWorkersState {
   return useSyncExternalStore(subscribeWorkers, readZaicodeWorkers, readZaicodeWorkers);
@@ -376,7 +382,8 @@ export async function launchZaicodeWorker(params: {
   if (account.status === "cli-missing") return { ok: false, message: account.statusDetail };
   const config = readZaicodeEnginesState().config;
   const prompt = params.prompt ?? config.workerPrompt;
-  const command = buildZaicodeWorkerCommand(account, projectPath, { prompt, yolo: config.workerYolo });
+  const linePrompt = await resolveZaicodeWorkerLinePrompt(prompt);
+  const command = buildZaicodeWorkerCommand(account, projectPath, { prompt: linePrompt, yolo: config.workerYolo });
   if (!command) return { ok: false, message: `${account.label} has no launchable CLI.` };
   const projectName = projectNameOf(projectPath);
   if (params.where === "external") {
@@ -401,6 +408,7 @@ export async function launchZaicodeWorker(params: {
       projectPath,
       projectName,
       command,
+      ...(prompt ? { prompt } : {}),
       startedAt: Date.now(),
       exitCode: null,
       endedAt: null,

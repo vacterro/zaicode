@@ -53,6 +53,7 @@ export function ZaicodeSidebarNavBlock({
   // Only the dock flag: the menu must not re-render when a worker window moves (SRC-043).
   const workersOpen = useZaicodeWorkersSelector((state) => state.open);
   const homeActive = useZaicodeActions((state) => state.mainView === "saihome");
+  const label = useZaicodeNavLabels();
   const line = (active: boolean) =>
     cn("w-full justify-start gap-2 text-foreground hover:bg-surface-hover hover:text-foreground", active && "bg-selected text-foreground");
 
@@ -72,7 +73,7 @@ export function ZaicodeSidebarNavBlock({
             onClick={() => void openZaicodeHomeView()}
           >
             <House className="size-4" />
-            SAIHOME
+            {label("saihome", "SAIHOME")}
           </Button>
         );
       case "newTask":
@@ -81,14 +82,14 @@ export function ZaicodeSidebarNavBlock({
         return (
           <Button key={id} variant="ghost" size="lg" data-icon="inline-start" data-testid="zaicode-sidebar-open" aria-pressed={zaicodeActive} className={line(zaicodeActive)} onClick={() => { useZaicodeWorkspaceTab.getState().setTab("agents"); onOpenZaicode?.(); }}>
             <ZaicodeIcon slot="nav.zaicode" />
-            {zaicodeLabel}
+            {label("zaicode", zaicodeLabel)}
           </Button>
         );
       case "search":
         return (
           <Button key={id} variant="ghost" size="lg" data-icon="inline-start" className={line(false)} onClick={onOpenCommandCenter}>
             <Search className="size-4" />
-            <span className="min-w-0 flex-1 truncate text-left">{searchLabel}</span>
+            <span className="min-w-0 flex-1 truncate text-left">{label("search", searchLabel)}</span>
             <span className="ml-auto shrink-0 text-ui-xs font-normal text-foreground-subtlest">{searchShortcut}</span>
           </Button>
         );
@@ -98,35 +99,35 @@ export function ZaicodeSidebarNavBlock({
         return (
           <Button key={id} variant="ghost" size="lg" data-icon="inline-start" data-testid="plugin-store-sidebar-open" aria-pressed={pluginStoreActive} className={line(pluginStoreActive)} onClick={onOpenPluginStore}>
             <Blocks className="size-4" />
-            {pluginsLabel}
+            {label("plugins", pluginsLabel)}
           </Button>
         );
       case "timers":
         return (
           <Button key={id} variant="ghost" size="lg" data-icon="inline-start" className={line(false)} onClick={() => openTimers("alarms")}>
             <AlarmClock className="size-4" />
-            Timers
+            {label("timers", "Timers")}
           </Button>
         );
       case "help":
         return (
           <Button key={id} variant="ghost" size="lg" data-icon="inline-start" className={line(false)} onClick={() => void openZaicodeHelp()}>
             <CircleHelp className="size-4" />
-            Help
+            {label("help", "Help")}
           </Button>
         );
       case "workers":
         return (
           <Button key={id} variant="ghost" size="lg" data-icon="inline-start" aria-pressed={workersOpen} className={line(workersOpen)} onClick={toggleZaicodeWorkersDock}>
             <SquareTerminal className="size-4" />
-            WORKERS
+            {label("workers", "WORKERS")}
           </Button>
         );
       case "settings":
         return (
           <Button key={id} variant="ghost" size="lg" data-icon="inline-start" className={line(false)} onClick={() => void openZaicodeSettings()}>
             <Settings className="size-4" />
-            Settings
+            {label("settings", "Settings")}
           </Button>
         );
       default:
@@ -149,4 +150,10 @@ export function ZaicodeSidebarNavBlock({
       </div>
     </ZaicodeRightClickSettings>
   );
+}
+
+/** The operator's names for the menu lines (SRC-044), read once per render. */
+function useZaicodeNavLabels(): (id: ZaicodeNavItemId, fallback: string) => string {
+  const items = useZaicodeLayout((state) => state.navItems);
+  return (id, fallback) => items.find((item) => item.id === id)?.label || fallback;
 }

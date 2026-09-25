@@ -6,6 +6,7 @@ import {
   Maximize2,
   Minimize2,
   Plus,
+  RefreshCw,
   Rows3,
   Settings2,
   SquareTerminal,
@@ -21,7 +22,20 @@ import {
   layoutZaicodeSplit,
   normalizeZaicodeSplitSizes,
   resizeZaicodeSplit,
+  zaicodeEffectiveSplit,
 } from "./zaicodeWorkerLayout.js";
+import {
+  ZAICODE_DOCK_BORDER,
+  ZAICODE_DOCK_GROWTH,
+  ZAICODE_DOCK_HANDLE,
+  ZAICODE_DOCK_ICON,
+  ZAICODE_DOCK_LABEL,
+  ZAICODE_DOCK_NEXT,
+  ZaicodeWorkersDockMenuItems,
+  redrawZaicodeWorkers,
+  setZaicodeWorkersDock,
+  startZaicodeDockDrag,
+} from "./zaicodePanelDock.js";
 import {
   hideZaicodeWorkersPanel,
   moveZaicodeWorker,
@@ -33,7 +47,7 @@ import {
   zaicodePanelWorkers,
   zaicodeWorkerTitle,
 } from "./zaicodeWorkers.js";
-import { ZAICODE_WORKERS_PANEL_MIN, useZaicodeWorkerPrefs } from "./zaicodeWorkerPrefs.js";
+import { ZAICODE_WORKERS_PANEL_MIN, ZAICODE_WORKERS_PANEL_MIN_WIDTH, useZaicodeWorkerPrefs } from "./zaicodeWorkerPrefs.js";
 import {
   ZaicodeWorkerHeaderButtons,
   ZaicodeWorkerIconButton,
@@ -45,72 +59,83 @@ import {
 } from "./ZaicodeWorkerParts.js";
 
 /**
- * The bottom WORKERS panel: subscription CLIs docked like a normal terminal
- * under the chat, never floating over it. Shown / hidden from the header,
- * the sidebar or its hotkey; resized from its top edge (double-click:
- * maximize). Split = every docked worker side by side (or stacked, or a
- * grid), dividers drag, "Even" re-shares; Tabs = one at a time. Any worker
- * pops out into its own window and back. Workers keep running while hidden.
+ * The WORKERS panel: subscription CLIs docked like a normal terminal next to
+ * the chat, never floating over it. It docks to the bottom (default), the
+ * right, the left or the top of the workspace body (SRC-046): the dock button
+ * cycles, a right-click on WORKERS picks, and dragging the WORKERS title snaps
+ * it to the edge nearest the pointer. Resized from its inner edge (double-
+ * click: maximize). Split = every docked worker side by side (a side column
+ * stacks them), dividers drag, "Even" re-shares; Tabs = one at a time. Any
+ * worker pops out into its own window and back. Workers keep running hidden.
  */
+
 export function ZaicodeWorkersPanel({ services }: { services: IServiceAccessor }) {
   const state = useZaicodeWorkers();
   const prefs = useZaicodeWorkerPrefs();
   const now = useZaicodeNow(30_000);
   const bodyRef = useRef<HTMLDivElement>(null);
-  const [height, setHeight] = useState(prefs.panelHeight);
+  const dock = prefs.panelDock;
+  const vertical = dock === "left" || dock === "right";
+  const storedSize = vertical ? prefs.panelWidth : prefs.panelHeight;
+  const minSize = vertical ? ZAICODE_WORKERS_PANEL_MIN_WIDTH : ZAICODE_WORKERS_PANEL_MIN;
+  const [size, setSize] = useState(storedSize);
   const [liveSizes, setLiveSizes] = useState<number[] | null>(null);
   const [resizing, setResizing] = useState(false);
   const [dragId, setDragId] = useState<string | null>(null);
   const panelWorkers = zaicodePanelWorkers(state);
   const layout = prefs.panelLayout;
+  const direction = zaicodeEffectiveSplit(prefs.splitDirection, dock);
   const solo = layout === "split" && state.soloId ? panelWorkers.find((worker) => worker.id === state.soloId) ?? null : null;
   const active = panelWorkers.find((worker) => worker.id === state.activeId) ?? panelWorkers[0] ?? null;
 
-  useEffect(() => setHeight(prefs.panelHeight), [prefs.panelHeight]);
+  useEffect(() => setSize(storedSize), [storedSize]);
 
   const sizes = useMemo(
     () => normalizeZaicodeSplitSizes(liveSizes ?? prefs.splitSizes, panelWorkers.length),
     [liveSizes, prefs.splitSizes, panelWorkers.length],
   );
-  const rects = useMemo(
-    () => layoutZaicodeSplit(panelWorkers.length, prefs.splitDirection, sizes),
-    [panelWorkers.length, prefs.splitDirection, sizes],
-  );
+  const rects = useMemo(() => layoutZaicodeSplit(panelWorkers.length, direction, sizes), [panelWorkers.length, direction, sizes]);
 
-  const beginHeightDrag = useCallback(
+  const beginSizeDrag = useCallback(
     (event: React.PointerEvent) => {
       if (event.button !== 0) return;
       event.preventDefault();
-      const startY = event.clientY;
-      // Measured, not the stored value: a maximized panel is taller than its setting.
-      const startHeight = (event.currentTarget as HTMLElement).parentElement?.clientHeight ?? height;
-      const max = Math.max(ZAICODE_WORKERS_PANEL_MIN, (bodyRef.current?.closest("#content")?.clientHeight ?? window.innerHeight) - 90);
+      const growth = ZAICODE_DOCK_GROWTH[dock];
+      const start = growth.axis === "x" ? event.clientX : event.clientY;
+      const panel = (event.currentTarget as HTMLElement).parentElement;
+      // Measured, not the stored value: a maximized panel is bigger than its setting.
+      const startSize = (vertical ? panel?.clientWidth : panel?.clientHeight) ?? size;
+      const frame = bodyRef.current?.closest("#content");
+      const max = Math.max(minSize, (vertical ? frame?.clientWidth ?? window.innerWidth : frame?.clientHeight ?? window.innerHeight) - 90);
       setResizing(true);
-      let latest = startHeight;
+      let latest = startSize;
       const onMove = (moveEvent: PointerEvent) => {
+        const travel = (growth.axis === "x" ? moveEvent.clientX : moveEvent.clientY) - start;
         // Whole pixels (SRC-038): pointer coordinates are fractional on a scaled display.
-        latest = Math.round(Math.min(max, Math.max(ZAICODE_WORKERS_PANEL_MIN, startHeight + (startY - moveEvent.clientY))));
-        setHeight(latest);
+        latest = Math.round(Math.min(max, Math.max(minSize, startSize + growth.sign * travel)));
+        setSize(latest);
       };
       const onUp = () => {
         window.removeEventListener("pointermove", onMove);
         window.removeEventListener("pointerup", onUp);
         setResizing(false);
-        useZaicodeWorkerPrefs.getState().update({ panelHeight: latest });
+        useZaicodeWorkerPrefs.getState().update(vertical ? { panelWidth: latest } : { panelHeight: latest });
         if (state.panelMaximized) setZaicodeWorkersPanelMaximized(false);
       };
       window.addEventListener("pointermove", onMove);
       window.addEventListener("pointerup", onUp);
     },
-    [height, state.panelMaximized],
+    [dock, minSize, size, state.panelMaximized, vertical],
   );
+
+  const beginDockDrag = (event: React.PointerEvent) => startZaicodeDockDrag(event, bodyRef.current, dock);
 
   const beginDividerDrag = (index: number) => (event: React.PointerEvent) => {
     if (event.button !== 0) return;
     event.preventDefault();
     const body = bodyRef.current;
     if (!body) return;
-    const horizontal = prefs.splitDirection === "row";
+    const horizontal = direction === "row";
     const extent = horizontal ? body.clientWidth : body.clientHeight;
     const start = horizontal ? event.clientX : event.clientY;
     const origin = sizes;
@@ -145,29 +170,53 @@ export function ZaicodeWorkersPanel({ services }: { services: IServiceAccessor }
   };
   const running = state.workers.filter((worker) => worker.exitCode === null).length;
   const elsewhere = state.workers.length - panelWorkers.length;
+  const DockIcon = ZAICODE_DOCK_ICON[dock];
+  const visibleIds = panelWorkers
+    .filter((worker) => (layout === "tabs" ? worker.id === active?.id : solo ? worker.id === solo.id : true))
+    .map((worker) => worker.id);
+  const frameStyle = vertical
+    ? state.panelMaximized
+      ? { width: "calc(100% - 160px)" }
+      : { width: size, maxWidth: "calc(100% - 160px)", minWidth: minSize }
+    : state.panelMaximized
+      ? { height: "calc(100% - 72px)" }
+      : { height: size, maxHeight: "calc(100% - 72px)", minHeight: minSize };
 
   return (
     <div
-      className="relative flex shrink-0 flex-col border-t border-[var(--zaicode-highlight,var(--color-border-hover))] bg-background"
-      style={
-        state.panelMaximized
-          ? { height: "calc(100% - 72px)" }
-          : { height, maxHeight: "calc(100% - 72px)", minHeight: ZAICODE_WORKERS_PANEL_MIN }
-      }
+      className={cn(
+        "relative flex shrink-0 flex-col border-[var(--zaicode-highlight,var(--color-border-hover))] bg-background",
+        ZAICODE_DOCK_BORDER[dock],
+      )}
+      style={frameStyle}
       data-zaicode-workers-panel={layout}
+      data-zaicode-workers-panel-dock={dock}
     >
       <div
         role="separator"
-        aria-orientation="horizontal"
+        aria-orientation={vertical ? "vertical" : "horizontal"}
         aria-label="Resize the WORKERS panel (double-click: maximize)"
         title="Drag to resize · double-click: maximize / restore"
-        className="absolute inset-x-0 -top-1 z-10 h-2 cursor-ns-resize hover:bg-[var(--zaicode-highlight,var(--color-border-hover))]/40"
-        onPointerDown={beginHeightDrag}
+        className={cn("absolute z-10 hover:bg-[var(--zaicode-highlight,var(--color-border-hover))]/40", ZAICODE_DOCK_HANDLE[dock])}
+        onPointerDown={beginSizeDrag}
         onDoubleClick={() => setZaicodeWorkersPanelMaximized(!state.panelMaximized)}
       />
       <div className="flex h-6 shrink-0 items-center gap-1 border-b border-border bg-card px-1.5 text-ui-xs">
-        <SquareTerminal className="size-3.5 shrink-0 text-foreground-subtle" />
-        <span className="shrink-0 font-semibold tracking-wide text-foreground">WORKERS</span>
+        <ContextMenu>
+          <ContextMenuTrigger asChild>
+            <span
+              className="flex shrink-0 cursor-move items-center gap-1"
+              title="Drag to dock the panel to another edge · right-click: dock"
+              onPointerDown={beginDockDrag}
+            >
+              <SquareTerminal className="size-3.5 shrink-0 text-foreground-subtle" />
+              <span className="font-semibold tracking-wide text-foreground">WORKERS</span>
+            </span>
+          </ContextMenuTrigger>
+          <ContextMenuContent className="w-56">
+            <ZaicodeWorkersDockMenuItems />
+          </ContextMenuContent>
+        </ContextMenu>
         <span className="shrink-0 text-foreground-subtlest" title={elsewhere > 0 ? `${elsewhere} in own windows or minimized` : undefined}>
           {running} running{elsewhere > 0 ? ` · ${elsewhere} elsewhere` : ""}
         </span>
@@ -236,17 +285,17 @@ export function ZaicodeWorkersPanel({ services }: { services: IServiceAccessor }
           {layout === "split" ? (
             <>
               <ZaicodeWorkerIconButton
-                title={`Split direction: ${prefs.splitDirection === "row" ? "side by side" : prefs.splitDirection === "column" ? "stacked" : "grid"} (click to change)`}
+                title={`Split direction: ${direction === "row" ? "side by side" : direction === "column" ? "stacked" : "grid"} (click to change)`}
                 onClick={() =>
                   useZaicodeWorkerPrefs.getState().update({
-                    splitDirection: prefs.splitDirection === "row" ? "column" : prefs.splitDirection === "column" ? "grid" : "row",
+                    splitDirection: direction === "row" ? "column" : direction === "column" ? "grid" : "row",
                   })
                 }
               >
-                {prefs.splitDirection === "grid" ? (
+                {direction === "grid" ? (
                   <Grid2x2 className="size-3.5" />
                 ) : (
-                  <Rows3 className={cn("size-3.5", prefs.splitDirection === "row" && "rotate-90")} />
+                  <Rows3 className={cn("size-3.5", direction === "row" && "rotate-90")} />
                 )}
               </ZaicodeWorkerIconButton>
               <ZaicodeWorkerIconButton title="Even: share the panel equally" onClick={even}>
@@ -254,6 +303,15 @@ export function ZaicodeWorkersPanel({ services }: { services: IServiceAccessor }
               </ZaicodeWorkerIconButton>
             </>
           ) : null}
+          <ZaicodeWorkerIconButton
+            title={`Docked: ${ZAICODE_DOCK_LABEL[dock]} · click: ${ZAICODE_DOCK_LABEL[ZAICODE_DOCK_NEXT[dock]]} · or drag the WORKERS title to an edge`}
+            onClick={() => setZaicodeWorkersDock(ZAICODE_DOCK_NEXT[dock])}
+          >
+            <DockIcon className="size-3.5" />
+          </ZaicodeWorkerIconButton>
+          <ZaicodeWorkerIconButton title="Redraw: repaint the workers' screens (fixes a garbled picture)" onClick={() => redrawZaicodeWorkers(visibleIds)}>
+            <RefreshCw className="size-3.5" />
+          </ZaicodeWorkerIconButton>
           <ZaicodeWorkerIconButton title="New shell in this project" onClick={newShell}>
             <Plus className="size-3.5" />
           </ZaicodeWorkerIconButton>
@@ -261,7 +319,7 @@ export function ZaicodeWorkersPanel({ services }: { services: IServiceAccessor }
             <Settings2 className="size-3.5" />
           </ZaicodeWorkerIconButton>
           <ZaicodeWorkerIconButton
-            title={state.panelMaximized ? "Restore the panel height" : "Maximize the panel"}
+            title={state.panelMaximized ? "Restore the panel size" : "Maximize the panel"}
             onClick={() => setZaicodeWorkersPanelMaximized(!state.panelMaximized)}
           >
             {state.panelMaximized ? <Minimize2 className="size-3.5" /> : <Maximize2 className="size-3.5" />}
@@ -285,8 +343,7 @@ export function ZaicodeWorkersPanel({ services }: { services: IServiceAccessor }
         ) : null}
         {panelWorkers.map((worker, index) => {
           const rect = rects[index]!;
-          const visible =
-            layout === "tabs" ? worker.id === active?.id : solo ? worker.id === solo.id : true;
+          const visible = visibleIds.includes(worker.id);
           const frame = layout === "tabs" || solo ? { left: "0%", top: "0%", width: "100%", height: "100%" } : {
             left: `${rect.x}%`,
             top: `${rect.y}%`,
@@ -332,9 +389,9 @@ export function ZaicodeWorkersPanel({ services }: { services: IServiceAccessor }
             </div>
           );
         })}
-        {layout === "split" && !solo && prefs.splitDirection !== "grid"
+        {layout === "split" && !solo && direction !== "grid"
           ? rects.slice(0, -1).map((rect, index) => {
-              const horizontal = prefs.splitDirection === "row";
+              const horizontal = direction === "row";
               const at = horizontal ? rect.x + rect.width : rect.y + rect.height;
               return (
                 <div

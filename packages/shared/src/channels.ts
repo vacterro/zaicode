@@ -417,6 +417,7 @@ export const PlatformChannels = {
   ZaicodeEnginesChanged: "zaicode:engines-changed",
   /** Renderer → Main：open a worker CLI in its own PowerShell window */
   LaunchZaicodeExternalWorker: "zaicode:launch-external-worker",
+  WriteZaicodePromptFile: "zaicode:write-prompt-file",
   /** Renderer → Main：create the next free account home for a second Claude/Codex login */
   PrepareZaicodeEngineAccountHome: "zaicode:prepare-engine-account-home",
   /** Renderer → Main：register ZAICODE global hotkeys (Electron globalShortcut) */

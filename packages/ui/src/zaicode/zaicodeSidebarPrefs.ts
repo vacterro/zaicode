@@ -19,6 +19,9 @@ import { todoReadinessRatio, type ZaicodeTodoItem } from "./zaicodeTodoProgress.
  * - liveFirst: projects with a running session float up (LIVE). Right-click
  *              LIVE for its order, scope and indicators.
  * - compact:   tight rows, no empty vertical padding.
+ * - projectIsMain: the third list view (default, SRC-044): a project row IS
+ *              its MAIN session -- clicking it opens MAIN, MAIN is not listed
+ *              again under it, and the sessions below are its helpers.
  */
 export const ZAICODE_SLOT_GROUPS = ["MAIN0", "MAIN1", "SIDE0", "SIDE1", "SIDE2", "SIDE3"] as const;
 export type ZaicodeSlotGroup = (typeof ZAICODE_SLOT_GROUPS)[number];
@@ -32,6 +35,8 @@ export type ZaicodeLiveScope = "slot" | "global";
 
 export interface ZaicodeSidebarPrefs {
   navOpen: boolean;
+  /** Project view where the project row stands for its MAIN session (SRC-044). */
+  projectIsMain: boolean;
   slots: boolean;
   liveFirst: boolean;
   compact: boolean;
@@ -66,6 +71,7 @@ export interface ZaicodeSidebarPrefs {
 const STORAGE_KEY = "zaicode-sidebar-prefs-v1";
 export const ZAICODE_SIDEBAR_DEFAULT_PREFS: ZaicodeSidebarPrefs = {
   navOpen: true,
+  projectIsMain: true,
   slots: true,
   liveFirst: false,
   compact: true,
@@ -110,6 +116,7 @@ export function normalizeZaicodeSidebarPrefs(raw: unknown): ZaicodeSidebarPrefs 
   const flag = (value: unknown, fallback: boolean) => (typeof value === "boolean" ? value : fallback);
   return {
     navOpen: flag(r.navOpen, d.navOpen),
+    projectIsMain: flag(r.projectIsMain, d.projectIsMain),
     slots: flag(r.slots, d.slots),
     liveFirst: flag(r.liveFirst, d.liveFirst),
     compact: flag(r.compact, d.compact),

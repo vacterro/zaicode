@@ -55,6 +55,10 @@ export interface ZaicodeHomeProjectRow extends ZaicodeHomeProjectInput {
   /** Last SAIPEN LOG line and its time (HH:MM), the project's last meaningful activity. */
   lastAction: string | null;
   lastActionTime: string | null;
+  /** SAIPEN board: TODO + DOING tickets, null without SAIPEN (SCHEDULER "most open work first"). */
+  openTickets: number | null;
+  /** SAIPEN board: BLOCKED tickets, null without SAIPEN. */
+  blockedTickets: number | null;
 }
 
 export const useZaicodeHomeProjects = create<{ rows: Record<string, ZaicodeHomeProjectRow> }>(() => ({ rows: {} }));
@@ -108,6 +112,7 @@ function ProjectProbe({ project }: { project: ZaicodeHomeProjectInput }) {
     saipen?.owner,
     saipen?.lastAction,
     saipen?.lastActionTime,
+    saipen?.counts,
   ]);
   useEffect(() => {
     if (!runtime) return;
@@ -133,6 +138,8 @@ function ProjectProbe({ project }: { project: ZaicodeHomeProjectInput }) {
         projectedAt: saipen?.projection?.readAt ?? null,
         lastAction: saipen?.lastAction ?? null,
         lastActionTime: saipen?.lastActionTime ?? null,
+        openTickets: saipen ? saipen.counts.todo + saipen.counts.doing : null,
+        blockedTickets: saipen ? saipen.counts.blocked : null,
       },
       project.key,
     );

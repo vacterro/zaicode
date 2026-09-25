@@ -3,6 +3,9 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { TaskInlineRenameInput } from "@/TaskInlineRenameInput.js";
 import { ZaicodeTodoMiniGauge } from "@/v4/ZaicodeTodoGauge.js";
 import { ZaicodeWorkingIcon } from "@/zaicode/ZaicodeWorkingIcon.js";
+import { ZaicodeInterruptedGlyph } from "@/zaicode/ZaicodeInterruptedGlyph.js";
+import { zaicodeWasCutOff } from "@/zaicode/zaicodeSessionState.js";
+import { useZaicodeSchedulerMarked } from "@/zaicode/zaicodeSchedulerMarks.js";
 import { useZaicodeHighlight, withZaicodeHighlight } from "@/zaicode/zaicodeHighlights.js";
 import { ZaicodeRoleGlyph } from "@/zaicode/ZaicodeRoleGlyph.js";
 import { ZAICODE_ROLE_META, useZaicodeSessionRole } from "@/zaicode/zaicodeSessionRoles.js";
@@ -441,6 +444,14 @@ export const MemoTaskItem = memo(function TaskListItem({
   const zaicodeWorkingLight = useZaicodeHighlight("sessionWorking", zaicodeMode && leadingIndicator === "loading");
   const zaicodeOpenLight = useZaicodeHighlight("sessionOpen", zaicodeMode && isActive);
   const zaicodeTitleLight = zaicodeWaitingLight ?? zaicodeWorkingLight ?? zaicodeOpenLight;
+  // SRC-044: marked for the SCHEDULER (only-marked schedules continue exactly these).
+  const zaicodeSchedulerMarked = useZaicodeSchedulerMarked(task.taskId);
+  // SRC-044: cut off mid-turn (crash / restart / Stop) shows INTERRUPTED, never the finished dot.
+  const zaicodeInterrupted =
+    zaicodeMode &&
+    (leadingIndicator === "unread" || leadingIndicator === "none") &&
+    !task.pendingInteraction &&
+    zaicodeWasCutOff(task);
   const isTaskCron = isCronTask(task);
   // 月亮身份改为持久 meta 标记判断；off-peak store 反查在任务被删除后会丢失
   // 会话溯源，且让每一行多背一个全局 store 订阅。
@@ -449,7 +460,7 @@ export const MemoTaskItem = memo(function TaskListItem({
     variant === "timeline" && leadingIndicator === "none" && !isPinned;
   // 手机远控标记和置顶状态共用左侧 leading 槽。
   // 已置顶任务如果继续常显 Pin，会和绝对定位的手机图标重叠；手机激活态默认让手机图标优先，hover 时再显示 Pin 操作。
-  const showPinnedState = isPinned && leadingIndicator === "none" && !isMobileActive;
+  const showPinnedState = isPinned && leadingIndicator === "none" && !isMobileActive && !zaicodeInterrupted;
   const shouldMountWorkspaceTaskActions = hoverActionsVisible || focusActionsVisible || isHoverNone;
   // hover:none 只代表触屏端需要常驻 action，不代表应永久隐藏时间、状态和变更摘要。
   // 元信息仅在真实 hover / focus 交互时让位，保持旧触屏布局的“元信息 + action”语义。
@@ -747,6 +758,8 @@ export const MemoTaskItem = memo(function TaskListItem({
         >
           {leadingIndicator === "error" ? (
             <span data-error-indicator="true" className="h-1.5 w-1.5 rounded-full bg-destructive" />
+          ) : zaicodeInterrupted ? (
+            <ZaicodeInterruptedGlyph />
           ) : leadingIndicator === "unread" ? (
             <span
               data-unread-indicator="true"
@@ -912,6 +925,15 @@ export const MemoTaskItem = memo(function TaskListItem({
                     role={sessionRole ?? "SIDE"}
                     title={sessionRole ? `${ZAICODE_ROLE_META[sessionRole].title} — sub-worker` : "Side session / sub-worker"}
                   />
+                </span>
+              ) : null}
+              {zaicodeMode && zaicodeSchedulerMarked ? (
+                <span
+                  className="shrink-0 text-[10px] leading-none text-[var(--zaicode-highlight,var(--color-warning))]"
+                  title="Marked for the SCHEDULER: only-marked schedules continue this session"
+                  data-zaicode-scheduler-marked=""
+                >
+                  ⚑
                 </span>
               ) : null}
               {inlineRenameNode ?? (

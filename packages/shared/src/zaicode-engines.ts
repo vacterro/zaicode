@@ -136,7 +136,7 @@ export function normalizeZaicodeEnginesConfig(raw: unknown): ZaicodeEnginesConfi
   const hidden = Array.isArray(record.hiddenAccounts)
     ? record.hiddenAccounts.filter((value): value is string => typeof value === "string").slice(0, 64)
     : [];
-  const prompt = typeof record.workerPrompt === "string" ? record.workerPrompt.slice(0, 2000) : null;
+  const prompt = typeof record.workerPrompt === "string" ? record.workerPrompt.slice(0, ZAICODE_PROMPT_MAX_CHARS) : null;
   return {
     intervalMinutes: (ZAICODE_ENGINE_INTERVAL_CHOICES as readonly number[]).includes(interval)
       ? interval
@@ -807,10 +807,22 @@ export type ZaicodeAutostartTrigger = "at" | "daily" | "interval" | "reset" | "e
 
 /** One run the scheduler started through the queue (so a stop rule can end it). */
 export interface ZaicodeScheduledRun {
+  /** Queue job id, or `session:<sessionId>` for a MAIN / marked session the schedule continued. */
   jobId: string;
   workspaceKey: string;
   at: number;
 }
+
+/**
+ * Prompts carry whole audits (SRC-046): no practical cap, only a guard that
+ * keeps one schedule inside the renderer's settings storage.
+ */
+export const ZAICODE_PROMPT_MAX_CHARS = 1_000_000;
+
+/** What a schedule clears out of its target projects before it starts (SRC-046 worker conditions). */
+export type ZaicodeScheduleBeforeRun = "none" | "stopWeaker" | "stopAll";
+/** Order a section schedule works through its projects in. */
+export type ZaicodeScheduleOrder = "problems" | "list";
 
 export interface ZaicodeAutostartJob {
   id: string;
@@ -847,6 +859,18 @@ export interface ZaicodeAutostartJob {
   window: string;
   /** Prompt the worker starts with. Empty = the engines default kick prompt. */
   prompt: string;
+  /**
+   * Conditions (SRC-046): before starting, stop the stopgap work in the target
+   * projects (sessions on a free pool, workers of a weaker engine) or everything
+   * that runs there.
+   */
+  beforeRun: ZaicodeScheduleBeforeRun;
+  /** Skip a target project where something still runs (checked after `beforeRun`). */
+  onlyWhenIdle: boolean;
+  /** Section schedules: the projects with the most blocked / open tickets go first. */
+  order: ZaicodeScheduleOrder;
+  /** In-app runners: continue only the sessions the operator marked for the SCHEDULER. */
+  onlyMarked: boolean;
   /** Seconds to wait after a reset before firing (the vendor's clock is not ours). */
   safetyDelaySeconds: number;
   /** A due moment later than this many seconds ago is MISSED, never fired late. */
@@ -897,6 +921,10 @@ export function createZaicodeAutostartJob(
     intervalMinutes: 60,
     window: "five_hour",
     prompt: "",
+    beforeRun: "none",
+    onlyWhenIdle: false,
+    order: "problems",
+    onlyMarked: false,
     safetyDelaySeconds: 60,
     catchUpSeconds: 900,
     requireQuota: true,
@@ -1063,7 +1091,11 @@ export function normalizeZaicodeAutostartJobs(raw: unknown): ZaicodeAutostartJob
         intervalMinutes:
           typeof job.intervalMinutes === "number" && job.intervalMinutes >= 5 ? Math.round(job.intervalMinutes) : 60,
         window: typeof job.window === "string" && job.window ? job.window : "five_hour",
-        prompt: typeof job.prompt === "string" ? job.prompt.slice(0, 2000) : "",
+        prompt: typeof job.prompt === "string" ? job.prompt.slice(0, ZAICODE_PROMPT_MAX_CHARS) : "",
+        beforeRun: job.beforeRun === "stopWeaker" || job.beforeRun === "stopAll" ? job.beforeRun : "none",
+        onlyWhenIdle: job.onlyWhenIdle === true,
+        order: job.order === "list" ? "list" : "problems",
+        onlyMarked: job.onlyMarked === true,
         safetyDelaySeconds:
           typeof job.safetyDelaySeconds === "number" ? Math.min(3600, Math.max(0, job.safetyDelaySeconds)) : 60,
         catchUpSeconds:

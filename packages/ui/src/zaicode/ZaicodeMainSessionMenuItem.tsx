@@ -4,6 +4,7 @@ import {
   useZaicodeMainSessions,
   zaicodeMainSessionKey,
 } from "./zaicodeMainSession.js";
+import { useZaicodeSchedulerMarked, useZaicodeSchedulerMarks } from "./zaicodeSchedulerMarks.js";
 
 /** Session context menu entry: make this the project's MAIN session, or unset it. */
 export function ZaicodeMainSessionMenuItem({
@@ -20,6 +21,8 @@ export function ZaicodeMainSessionMenuItem({
   const setMain = useZaicodeMainSessions((state) => state.setMain);
   const clearMain = useZaicodeMainSessions((state) => state.clearMain);
   const isMain = mainId === sessionId;
+  const marked = useZaicodeSchedulerMarked(sessionId);
+  const toggleMark = useZaicodeSchedulerMarks((state) => state.toggle);
   return (
     <>
       <ContextMenuItem
@@ -30,6 +33,13 @@ export function ZaicodeMainSessionMenuItem({
           {isMain ? "◇" : "◆"}
         </span>
         {isMain ? "Unset MAIN session" : "Make this the MAIN session"}
+      </ContextMenuItem>
+      <ContextMenuItem
+        onSelect={() => toggleMark({ sessionId, workspacePath, ...(workspaceIdentity ? { workspaceIdentity } : {}) })}
+        data-zaicode-scheduler-mark-item={marked ? "unmark" : "mark"}
+      >
+        <span className="w-4 text-center text-[var(--zaicode-highlight,var(--color-warning))]">⚑</span>
+        {marked ? "Unmark for the SCHEDULER" : "Mark for the SCHEDULER (only-marked schedules continue it)"}
       </ContextMenuItem>
       <ContextMenuSeparator />
     </>

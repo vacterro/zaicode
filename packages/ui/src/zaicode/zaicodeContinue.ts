@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import type { ZCodeTaskGoalStatus, ZCodeTaskMeta, ZaicodeProjectRuntimeState } from "@zcode/shared";
 import { getTaskListAttention, getTaskListRowActivity, isTaskListRowActive } from "@/v4/taskListRowActivity.js";
+import { zaicodeWasCutOff } from "./zaicodeSessionState.js";
 
 /**
  * Continue without opening (SRC-043): one decision for a single session
@@ -26,6 +27,18 @@ export interface ZaicodeSessionBrief {
   waiting: boolean;
   /** The last turn ended on an error (limit, network, provider). */
   failed: boolean;
+  /** Cut off mid-turn: crash, restart or Stop (SRC-044) -- never counted as DONE. */
+  interrupted: boolean;
+  /**
+   * Cut off by the process dying, not by the operator: tasks-index still says
+   * "running" with nothing live, or a goal is still active with nothing running.
+   * Only these continue by themselves after a crash (a Stop is deliberate).
+   */
+  crashCut: boolean;
+  /** Last activity (tasks-index `updatedAt`). */
+  updatedAt: number;
+  /** The session's model (tasks-index), to tell stopgap work from the real thing. */
+  model: string | null;
   /** When it finished while the operator looked elsewhere; null = seen. */
   unreadAt: number | null;
   goalStatus: ZCodeTaskGoalStatus | null;
@@ -39,16 +52,24 @@ export function zaicodeSessionBriefOf(
 ): ZaicodeSessionBrief {
   const activity = getTaskListRowActivity(task);
   const goal = task.target ?? null;
+  const running = isTaskListRowActive(task);
+  const waiting = getTaskListAttention(task) !== null || Boolean(task.pendingInteraction);
+  // Same authority order as the row's leading dot: live phase first, persisted status without one.
+  const failed = activity ? activity.phase === "error" : task.status === "error";
   return {
     sessionId: task.taskId,
     title: task.title || task.taskId,
     projectKey,
     workspacePath: location.workspacePath,
     ...(location.workspaceIdentity ? { workspaceIdentity: location.workspaceIdentity } : {}),
-    running: isTaskListRowActive(task),
-    waiting: getTaskListAttention(task) !== null || Boolean(task.pendingInteraction),
-    // Same authority order as the row's leading dot: live phase first, persisted status without one.
-    failed: activity ? activity.phase === "error" : task.status === "error",
+    running,
+    waiting,
+    failed,
+    interrupted: !running && !waiting && !failed && zaicodeWasCutOff(task),
+    // The process died: tasks-index never got the turn's end (a Stop ends as "completed"), or a goal was still active.
+    crashCut: !running && !waiting && (task.status === "running" || goal?.status === "active"),
+    updatedAt: typeof task.updatedAt === "number" ? task.updatedAt : 0,
+    model: task.model?.trim() || null,
     unreadAt: typeof task.unreadAt === "number" ? task.unreadAt : null,
     goalStatus: goal?.status ?? null,
     goalObjective: goal?.objective?.trim() || null,
@@ -63,6 +84,9 @@ function briefSignature(brief: ZaicodeSessionBrief): string {
     brief.running ? 1 : 0,
     brief.waiting ? 1 : 0,
     brief.failed ? 1 : 0,
+    brief.interrupted ? 1 : 0,
+    brief.crashCut ? 1 : 0,
+    brief.model ?? "",
     brief.unreadAt ?? "",
     brief.goalStatus ?? "",
     brief.goalObjective ?? "",
@@ -94,7 +118,10 @@ export const useZaicodeSessionBriefs = create<ZaicodeSessionBriefState>((set, ge
  */
 export function zaicodeDoneUnseen(sessions: readonly ZaicodeSessionBrief[]): ZaicodeSessionBrief[] {
   return sessions
-    .filter((session) => session.unreadAt !== null && !session.running && !session.waiting && !session.failed)
+    .filter(
+      (session) =>
+        session.unreadAt !== null && !session.running && !session.waiting && !session.failed && !session.interrupted,
+    )
     .sort((left, right) => left.unreadAt! - right.unreadAt! || left.title.localeCompare(right.title));
 }
 
@@ -153,6 +180,57 @@ export function decideZaicodeSessionContinue(
   };
 }
 
+// ---------------------------------------------------------------- project START (▶)
+
+export type ZaicodeProjectStartDecision =
+  /** MAIN already works or waits for an answer: show it, send nothing. */
+  | { action: "open"; sessionId: string; why: string }
+  /** Continue an existing session in place; `makeMain` when it becomes the project's MAIN. */
+  | { action: "send"; sessionId: string; command: ZaicodeContinueCommand; why: string; makeMain: boolean }
+  /** Nothing to continue: a fresh MAIN session gets START. */
+  | { action: "fresh"; why: string };
+
+function startCommandFor(session: Pick<ZaicodeSessionBrief, "goalStatus" | "goalObjective">): ZaicodeContinueCommand {
+  const unfinished = session.goalObjective && (session.goalStatus === "active" || session.goalStatus === "paused");
+  return { kind: "goal", objective: unfinished ? session.goalObjective! : ZAICODE_CONTINUE_START_OBJECTIVE };
+}
+
+/**
+ * The project row's ▶ START (SRC-044): continue, never pile up sessions.
+ * MAIN is taken up again in place (its unfinished goal, else `/goal cc all`);
+ * without a MAIN, the newest session that was cut off or failed is continued
+ * and becomes MAIN; only a project with nothing to continue gets a fresh one.
+ * `sessions` is the project's list, newest first.
+ */
+export function decideZaicodeProjectStart(
+  mainSessionId: string | null,
+  sessions: readonly ZaicodeSessionBrief[],
+): ZaicodeProjectStartDecision {
+  if (mainSessionId) {
+    const main = sessions.find((session) => session.sessionId === mainSessionId);
+    if (main?.running) return { action: "open", sessionId: main.sessionId, why: "MAIN is already working" };
+    if (main?.waiting) return { action: "open", sessionId: main.sessionId, why: "MAIN waits for your answer" };
+    return {
+      action: "send",
+      sessionId: mainSessionId,
+      command: main ? startCommandFor(main) : { kind: "goal", objective: ZAICODE_CONTINUE_START_OBJECTIVE },
+      why: main?.interrupted ? "MAIN was cut off: continuing it" : "START in MAIN",
+      makeMain: false,
+    };
+  }
+  const stopped = sessions.find((session) => !session.running && !session.waiting && (session.interrupted || session.failed));
+  if (stopped) {
+    return {
+      action: "send",
+      sessionId: stopped.sessionId,
+      command: startCommandFor(stopped),
+      why: `continuing "${stopped.title}" (${stopped.failed ? "stopped on an error" : "cut off mid-turn"}); it becomes MAIN`,
+      makeMain: true,
+    };
+  }
+  return { action: "fresh", why: "no MAIN and nothing to continue: a fresh MAIN session" };
+}
+
 // ---------------------------------------------------------------- continue all
 
 export interface ZaicodeContinueProject {
@@ -181,7 +259,8 @@ export interface ZaicodeContinuePlan {
  * The smart CONTINUE ALL: only work that was interrupted or is still open.
  *
  * - a session whose goal stopped or never finished takes that goal up again;
- * - a session whose last turn failed (limit, network) continues;
+ * - a session whose last turn failed (limit, network) or was cut off mid-turn
+ *   (crash, restart, Stop) continues;
  * - a SAIPEN project with open tickets and nothing running continues its MAIN
  *   session (`/goal cc all`), or starts one when it has none;
  * - finished sessions, running ones, switched-off projects and anything that
@@ -219,7 +298,7 @@ export function planZaicodeContinueAll(
           why: session.goalStatus === "paused" ? "goal was stopped" : "goal not finished",
         });
         continued = true;
-      } else if (session.failed) {
+      } else if (session.failed || session.interrupted) {
         steps.push({
           kind: "session",
           projectKey: project.key,
@@ -227,7 +306,7 @@ export function planZaicodeContinueAll(
           sessionId: session.sessionId,
           title: session.title,
           command: { kind: "text", text: project.hasSaipen ? ZAICODE_CONTINUE_SAIPEN_TEXT : ZAICODE_CONTINUE_PLAIN_TEXT },
-          why: "stopped on an error",
+          why: session.failed ? "stopped on an error" : "cut off mid-turn",
         });
         continued = true;
       }
@@ -266,6 +345,8 @@ export interface ZaicodeProjectContinueHandle {
   send: (sessionId: string, command: ZaicodeContinueCommand) => Promise<void>;
   /** Creates a fresh session, sends the command, returns its id. */
   start: (command: ZaicodeContinueCommand) => Promise<string>;
+  /** Stops the running turn of a session (SCHEDULER conditions and stop times, SRC-046). */
+  stop: (sessionId: string) => Promise<void>;
 }
 
 const handles = new Map<string, ZaicodeProjectContinueHandle>();

@@ -54,7 +54,7 @@ import { ZaicodeWorkspace } from "@/zaicode/ZaicodeWorkspace.js";
 import { useZaicodeActions } from "@/zaicode/zaicodeActions.js";
 import { ZaicodeHomePage } from "@/zaicode/home/ZaicodeHomePage.js";
 import { useZaicodeHomePrefs } from "@/zaicode/home/zaicodeHomePrefs.js";
-import { ZaicodeWorkersPanel } from "@/zaicode/ZaicodeWorkersPanel.js";
+import { ZaicodeWorkersDockFrame } from "@/zaicode/ZaicodeWorkersDockFrame.js";
 import { TaskFindDialog } from "@/quickpick/TaskFindDialog.js";
 import { WorkspaceHeader } from "@/WorkspaceHeader.js";
 import { WorkspaceSidebar, type SidebarFileTreeOpenRequest } from "@/WorkspaceSidebar.js";
@@ -1761,10 +1761,12 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
               <div className="h-1 w-full [app-region:drag]" />
             ) /* 修复 macOS 顶部窗口控制按钮被 header 遮挡无法点击的问题 */
           }
+          {/* ZAICODE (SRC-046): the WORKERS panel docks to any edge of the body; the frame is a no-op upstream. */}
+          <ZaicodeWorkersDockFrame services={services}>
           <ResizablePanelGroup
             layoutId="workspace-body-layout"
             panelIds={WORKSPACE_BODY_PANEL_IDS}
-            className="min-h-0 flex-1"
+            className="min-h-0 min-w-0 flex-1"
           >
             <ResizablePanel
               id="conversation-column"
@@ -2075,8 +2077,7 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
                     切换时卸载 Guest；截图请求期间由上层临时展开真实面板承载可合成的 WebContents。 */}
             {sidePanePanel}
           </ResizablePanelGroup>
-          {/* ZAICODE: subscription CLI workers dock under the whole body like a terminal panel. */}
-          {isZaicodeProductMode() ? <ZaicodeWorkersPanel services={services} /> : null}
+          </ZaicodeWorkersDockFrame>
         </div>
         <ScopedErrorBoundary
           scope="desktop-top-overlay"

@@ -3,7 +3,8 @@ import type { CommandAck, CommandEnvelope } from "@zcode/shared/zcode-protocol-v
 import { ensureAgentV4ConnectionHandshake } from "@/v4/agentV4ConnectionHandshake.js";
 import { createCommandEnvelope } from "@/v4/commandFactory.js";
 import { pendingCommandRegistry } from "@/v4/pendingCommandRegistry.js";
-import type { ZaicodeContinueCommand, ZaicodeProjectContinueHandle } from "./zaicodeContinue.js";
+import { zaicodeProjectContinueHandle, type ZaicodeContinueCommand, type ZaicodeProjectContinueHandle } from "./zaicodeContinue.js";
+import { readZaicodeLocalServices } from "./home/zaicodeHomeFeed.js";
 
 /**
  * How a project row reaches its own host to continue a session it does not
@@ -67,6 +68,26 @@ export function createZaicodeContinueHandle(target: {
       await target.taskService.resumeTask({ ...scope, taskId: sessionId });
       await sendCommand(sessionId, command);
     },
+    stop: async (sessionId) => {
+      const envelope = createCommandEnvelope({ type: "stop", sessionId, payload: {} });
+      pendingCommandRegistry.record(envelope);
+      await ensureAgentV4ConnectionHandshake(target.agentService);
+      let ack: CommandAck;
+      try {
+        ack = await target.agentService.sendConversationCommandV4({
+          ...scope,
+          ...(target.remoteSessionId ? { remoteSessionId: target.remoteSessionId } : {}),
+          envelope,
+        });
+      } catch (error) {
+        pendingCommandRegistry.settle(envelope.sessionId, envelope.commandId);
+        throw error;
+      }
+      pendingCommandRegistry.applyAck(envelope, ack);
+      if (ack.status !== "accepted" && ack.status !== "duplicate" && ack.status !== "noop") {
+        throw new Error(ack.reasonCode ?? `host answered ${ack.status}`);
+      }
+    },
     start: async (command) => {
       const task = await target.taskService.createTask({
         ...scope,
@@ -77,4 +98,23 @@ export function createZaicodeContinueHandle(target: {
       return task.taskId;
     },
   };
+}
+
+/**
+ * The handle for a project from anywhere (SRC-046): its sidebar row's own when
+ * the row is mounted; for a local project otherwise one built on the local host
+ * services, so the SCHEDULER and the crash auto-continue also work in the Group
+ * view or with folded slots. A remote project needs its row (its own host).
+ */
+export function zaicodeContinueHandleFor(target: { key: string; path: string; identity?: string }): ZaicodeProjectContinueHandle | null {
+  const registered = zaicodeProjectContinueHandle(target.key);
+  if (registered) return registered;
+  if (target.identity?.trim()) return null;
+  const services = readZaicodeLocalServices();
+  if (!services) return null;
+  return createZaicodeContinueHandle({
+    workspacePath: target.path,
+    taskService: services.zcodeTaskService,
+    agentService: services.zcodeAgentService,
+  });
 }

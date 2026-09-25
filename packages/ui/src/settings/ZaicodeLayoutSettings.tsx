@@ -8,6 +8,7 @@ import { ZaicodeHomeSettingsPanel } from "@/zaicode/home/ZaicodeHomeSettings.js"
 import { useZaicodeSidebarPrefs, type ZaicodeSlotLabelAlign } from "@/zaicode/zaicodeSidebarPrefs.js";
 import { ZaicodeFancyZonesSettings } from "./ZaicodeFancyZonesSettings.js";
 import { ZaicodeComposerPartsPanel } from "@/zaicode/ZaicodeComposerPartsPanel.js";
+import { ZaicodeHeaderTitleSettingsPanel } from "@/zaicode/ZaicodeHeaderProjectTitle.js";
 import { ZaicodePrefCheck, ZaicodePrefSegment } from "@/zaicode/ZaicodePrefControls.js";
 import { isZaicodeCalm, useZaicodeUiPrefs, type ZaicodeClearMode } from "@/zaicode/zaicodeUiPrefs.js";
 
@@ -112,6 +113,13 @@ export function ZaicodeLayoutSettings() {
         testId="menu"
       >
         <ZaicodeNavItemsEditor />
+      </Block>
+      <Block
+        title="Title bar"
+        hint="The project's name in big letters in the title bar, so every session says whose it is. Right-click the name itself for the same panel."
+        testId="title-bar"
+      >
+        <ZaicodeHeaderTitleSettingsPanel />
       </Block>
       <Block title="Project list" hint="How projects and sessions are arranged in the sidebar." testId="list">
         <div className="flex flex-col gap-1.5 text-foreground">

@@ -35,6 +35,16 @@ export interface ZaicodeUiPrefs {
   autoRetry: boolean;
   autoRetryIntervalSec: number;
   autoRetryMaxAttempts: number;
+  /**
+   * Auto-continue after a crash (SRC-044): sessions the dead process left
+   * "running" in tasks-index, and goals that were still active, continue by
+   * themselves once ZAICODE is back.
+   */
+  resumeAfterCrash: boolean;
+  /** Only sessions cut off within this many hours are continued automatically. */
+  resumeAfterCrashHours: number;
+  /** Workers (subscription CLIs) that ran when ZAICODE died start again in the same project. */
+  relaunchWorkersAfterCrash: boolean;
   clearMode: ZaicodeClearMode;
   // Calm interface: less visual noise, nothing moves
   /** No animations or transitions anywhere (fades, slides, spinners). */
@@ -70,6 +80,9 @@ export const ZAICODE_UI_DEFAULT_PREFS: ZaicodeUiPrefs = {
   autoRetry: true,
   autoRetryIntervalSec: 60,
   autoRetryMaxAttempts: 100,
+  resumeAfterCrash: true,
+  resumeAfterCrashHours: 12,
+  relaunchWorkersAfterCrash: true,
   clearMode: "session",
   noMotion: false,
   noDim: false,
@@ -110,6 +123,9 @@ export function normalizeZaicodeUiPrefs(raw: unknown): ZaicodeUiPrefs {
     autoRetry: flag(r.autoRetry, d.autoRetry),
     autoRetryIntervalSec: int(r.autoRetryIntervalSec, 10, 3600, d.autoRetryIntervalSec),
     autoRetryMaxAttempts: int(r.autoRetryMaxAttempts, 1, 1000, d.autoRetryMaxAttempts),
+    resumeAfterCrash: flag(r.resumeAfterCrash, d.resumeAfterCrash),
+    resumeAfterCrashHours: int(r.resumeAfterCrashHours, 1, 168, d.resumeAfterCrashHours),
+    relaunchWorkersAfterCrash: flag(r.relaunchWorkersAfterCrash, d.relaunchWorkersAfterCrash),
     clearMode: r.clearMode === "new" ? "new" : "session",
     noMotion: flag(r.noMotion, d.noMotion),
     noDim: flag(r.noDim, d.noDim),

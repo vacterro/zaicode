@@ -72,6 +72,8 @@ export function ZaicodeSessionActionStrip() {
     [projects, rows, sessions],
   );
   const done = useMemo(() => zaicodeDoneUnseen(sessions), [sessions]);
+  // SRC-044: cut off mid-turn is never DONE; listed apart so it is not lost either.
+  const interrupted = useMemo(() => sessions.filter((session) => session.interrupted), [sessions]);
 
   const continueAll = async () => {
     if (running || plan.steps.length === 0) return;
@@ -154,7 +156,7 @@ export function ZaicodeSessionActionStrip() {
           title="Finished, not seen yet"
           align="end"
           panel={
-            done.length === 0 ? (
+            done.length === 0 && interrupted.length === 0 ? (
               <span className="text-foreground-subtle">Nothing new: every finished session has been seen.</span>
             ) : (
               <div className="flex flex-col">
@@ -175,6 +177,30 @@ export function ZaicodeSessionActionStrip() {
                     {sessionLine(session)}
                   </button>
                 ))}
+                {interrupted.length > 0 ? (
+                  <>
+                    <span className="mt-1 border-t border-border px-1 pt-1 text-[#e0a03c]">
+                      INTERRUPTED — cut off mid-turn, not DONE (CONTINUE ALL / ▶ continues them)
+                    </span>
+                    {interrupted.map((session) => (
+                      <button
+                        key={session.sessionId}
+                        type="button"
+                        className="truncate px-1 py-0.5 text-left text-foreground hover:bg-hover"
+                        onClick={() =>
+                          openZaicodeSession({
+                            sessionId: session.sessionId,
+                            title: session.title,
+                            workspacePath: session.workspacePath,
+                            ...(session.workspaceIdentity ? { workspaceIdentity: session.workspaceIdentity } : {}),
+                          })
+                        }
+                      >
+                        ‖ {sessionLine(session)}
+                      </button>
+                    ))}
+                  </>
+                ) : null}
               </div>
             )
           }
@@ -199,6 +225,11 @@ export function ZaicodeSessionActionStrip() {
             <CheckCheck className="size-4 shrink-0" />
             DONE
             {count(done.length)}
+            {interrupted.length > 0 ? (
+              <span className="text-ui-xs font-normal text-[#e0a03c]" title={`${interrupted.length} interrupted (not DONE)`}>
+                ‖{interrupted.length}
+              </span>
+            ) : null}
           </button>
         </ZaicodeRightClickSettings>
       </div>

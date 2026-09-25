@@ -30,6 +30,7 @@ import {
 import { normalizePowerShellReadlineRedraw } from "@/terminal/terminalDataTransform.js";
 import { getHttpLinksForTerminalBufferLine } from "@/terminal/terminalLinks.js";
 import { mergeTerminalTheme } from "@/terminal/terminalTheme.js";
+import { emitTerminalOutput, registerTerminalControl } from "@/terminal/terminalOutputTap.js";
 import {
   sidePaneTerminalSessionRegistry,
   type SidePaneTerminalSessionEntry,
@@ -634,8 +635,26 @@ export function TerminalSession({
           registryDisposers.push(
             services.terminalService.onDynamicData(id)((data) => {
               term.write(normalizePowerShellReadlineRedraw(data, shell));
+              // ZAICODE（SRC-046）：worker 输出旁听（信任提问 / 限额提示），不改变写入内容。
+              emitTerminalOutput(persistentKey, data);
             }),
           );
+          // ZAICODE：worker 控制入口（自动回答信任提问、重绘），随 entry 注销。
+          const unregisterControl = registerTerminalControl(persistentKey, {
+            write: (input) => void services.terminalService.write({ id, data: input }),
+            redraw: () => {
+              // 部分 TUI（如 Claude Code 的侧栏布局）在 reflow 后残留旧帧；改一列再改回，逼它整屏重绘。
+              const cols = term.cols;
+              const rows = term.rows;
+              if (cols < 3) return;
+              void services.terminalService
+                .resize({ id, cols: cols - 1, rows })
+                .then(() => new Promise((resolve) => window.setTimeout(resolve, 80)))
+                .then(() => services.terminalService.resize({ id, cols, rows }))
+                .catch((error: unknown) => logger.warn("[Terminal] redraw failed:", error));
+            },
+          });
+          registryDisposers.push({ dispose: unregisterControl } as IDisposable);
           if (initialInput) {
             // Typed once the shell has drawn its prompt; the fallback covers a silent shell.
             let initialInputSent = false;

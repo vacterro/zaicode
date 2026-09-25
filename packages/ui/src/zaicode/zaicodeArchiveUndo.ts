@@ -97,6 +97,43 @@ export function registerZaicodeArchiveAll(key: string, handler: ArchiveAllHandle
   };
 }
 
+/** Archives the given sessions of one project (CLEAR ALL DONE, SRC-044); registered by project rows. */
+type ArchiveSomeHandler = (taskIds: readonly string[]) => Promise<ZaicodeArchiveBatch | null>;
+const archiveSomeHandlers = new Map<string, ArchiveSomeHandler>();
+
+export function registerZaicodeArchiveSome(key: string, handler: ArchiveSomeHandler): () => void {
+  archiveSomeHandlers.set(key, handler);
+  return () => {
+    if (archiveSomeHandlers.get(key) === handler) archiveSomeHandlers.delete(key);
+  };
+}
+
+/** Archives `taskIds` per project key; one Ctrl+Z restores all of them. Returns how many went. */
+export async function archiveZaicodeSessions(byProject: ReadonlyMap<string, readonly string[]>): Promise<number> {
+  const batches: ZaicodeArchiveBatch[] = [];
+  for (const [key, ids] of byProject) {
+    const handler = archiveSomeHandlers.get(key);
+    if (!handler || ids.length === 0) continue;
+    try {
+      const batch = await handler(ids);
+      if (batch && batch.count > 0) batches.push(batch);
+    } catch (error) {
+      logger.error("[zaicode-archive-undo] archive some: project failed", { error });
+    }
+  }
+  const total = batches.reduce((sum, batch) => sum + batch.count, 0);
+  if (total > 0) {
+    pushZaicodeArchiveBatch({
+      count: total,
+      label: `${total} finished session${total === 1 ? "" : "s"}`,
+      restore: async () => {
+        for (const batch of batches) await batch.restore();
+      },
+    });
+  }
+  return total;
+}
+
 /** Pushes one undo entry for a finished batch (no-op when nothing was archived). */
 export function pushZaicodeArchiveBatch(batch: ZaicodeArchiveBatch | null): void {
   if (!batch || batch.count === 0) return;

@@ -41,7 +41,12 @@ export type ZaicodeNavItemId =
 export interface ZaicodeLayoutEntry<T extends string> {
   id: T;
   visible: boolean;
+  /** The operator's own name for the line (SRC-044); absent = the built-in label. */
+  label?: string;
 }
+
+/** Longest custom menu-line name. */
+export const ZAICODE_LAYOUT_LABEL_MAX = 40;
 
 export interface ZaicodeLayoutItemDef<T extends string> {
   id: T;
@@ -103,7 +108,13 @@ export function normalizeZaicodeLayoutList<T extends string>(
       if (typeof id !== "string" || !known.has(id) || seen.has(id)) continue;
       seen.add(id);
       const visible = (entry as { visible?: unknown }).visible;
-      out.push({ id: id as T, visible: typeof visible === "boolean" ? visible : known.get(id)!.visible });
+      const label = (entry as { label?: unknown }).label;
+      const custom = typeof label === "string" ? label.trim().slice(0, ZAICODE_LAYOUT_LABEL_MAX) : "";
+      out.push({
+        id: id as T,
+        visible: typeof visible === "boolean" ? visible : known.get(id)!.visible,
+        ...(custom ? { label: custom } : {}),
+      });
     }
   }
   defs.forEach((def, index) => {
@@ -189,3 +200,8 @@ export const useZaicodeLayout = create<ZaicodeLayoutState>((set, get) => {
     resetNavItems: () => persist({ navItems: normalizeZaicodeLayoutList(null, ZAICODE_NAV_ITEMS) }),
   };
 });
+
+/** A menu line's name: the operator's own, else `fallback` (the built-in / translated one). */
+export function useZaicodeNavLabel(id: ZaicodeNavItemId, fallback: string): string {
+  return useZaicodeLayout((state) => state.navItems.find((item) => item.id === id)?.label) || fallback;
+}

@@ -67,6 +67,7 @@ function buildSaipenPrompt(): string {
     "- Keep deliberation short: decide, act, verify. Do not re-plan the protocol in thinking or re-derive facts the launcher already returned. Prefer doing the scout yourself over spawning sub-agents for small scopes.",
     "- Missing protocol reads are work to perform, never a reason to stop with 'state pending' or to ask what cc means.",
     "- After each ticket, keep `.saipen/STATE.md` `next_action` current: the ZAICODE UI shows it live as NEXT EXACT ACTION.",
+    "- Never stop ZAICODE processes (by name, image, path or a process-list pipeline): ZAICODE runs you and every other session, and its launcher has the same image name. Stop only processes you started yourself, by PID. A running app never blocks a rebuild: the bundler stages into dist-next.",
     "- Other shortcuts (gg, hh, ff, xx, vv, zz, ccc, st, dd, aa, qq, ee, pp, tt, sc) resolve through the launcher's command table, never as greetings.",
     ...buildSaimailLines(),
   ].join("\n");

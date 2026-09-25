@@ -12,7 +12,6 @@ import { zaicodeIntervalRemaining } from "./zaicodeIntervalRules.js";
 import { describeZaicodeProductivity, formatZaicodeClock, toggleZaicodeProductivity } from "./zaicodeProductivity.js";
 import { readZaicodeTempTimer, useZaicodeTimers, type ZaicodeClockPrefs } from "./zaicodeTimerStore.js";
 import { useZaicodeEngines, visibleZaicodeAccounts } from "./zaicodeEngines.js";
-import { zaicodeVendorColor } from "./ZaicodeLimitViews.js";
 import { ZaicodePrefCheck, ZaicodePrefHeading, ZaicodeRightClickSettings } from "./ZaicodePrefControls.js";
 import { playZaicodeSound } from "./zaicodeSoundBus.js";
 
@@ -96,7 +95,7 @@ export function ZaicodeClockSettingsPanel() {
       {row("showTempTimer", "Temp Timer")}
       {row("showProductivity", "Productivity (work / break)")}
       {row("showInterval", "Interval reminder", "Rules with “Show in top bar”")}
-      {row("showNextReset", "Nearest subscription reset", "Which limit comes back next")}
+      {row("showNextReset", "Nearest subscription reset (own timer)", "Its own title-bar timer; hover lists every coming reset (FastPrompter's Nearest resets)")}
       {row("longMinutes", "Keep minutes on long waits (4d 11h 05m)")}
     </>
   );
@@ -201,17 +200,6 @@ export function ZaicodeTopbarClock({ useWindowsCaptionSpacing = false }: { useWi
         {clock.showInterval && intervalRule ? (
           <span className="font-semibold" style={{ color: ZAICODE_CLOCK_INTERVAL_COLOR }}>
             ↻ {format(intervalRule.remaining ?? 0)}
-          </span>
-        ) : null}
-        {clock.showNextReset && nextReset ? (
-          // FastPrompter's reset countdown: bold, the whole label in the vendor's colour (SRC-043).
-          <span
-            className="font-semibold"
-            style={{ color: zaicodeVendorColor(nextReset.vendor) }}
-            title={`${nextReset.accountLabel} ${nextReset.windowLabel}`}
-            data-zaicode-clock-reset={nextReset.vendor}
-          >
-            {nextReset.accountShort} ↺ {format((nextReset.at - now) / 1000)}
           </span>
         ) : null}
       </button>

@@ -43,6 +43,11 @@ export function publishZaicodeHomeServices(next: IServiceAccessor | null): void 
   accessor = next;
 }
 
+/** The same base (local host) services, for work that must not depend on a mounted sidebar row. */
+export function readZaicodeLocalServices(): IServiceAccessor | null {
+  return accessor;
+}
+
 function message(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }

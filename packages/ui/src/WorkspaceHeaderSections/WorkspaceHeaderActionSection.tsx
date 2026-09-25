@@ -10,6 +10,7 @@ import { isZaicodeProductMode } from "@zcode/shared";
 import { ZaicodeSaimailHeaderButton } from "@/zaicode/ZaicodeSaimailHeaderButton.js";
 import { ZaicodeLimitMeter } from "@/zaicode/ZaicodeLimitMeter.js";
 import { ZaicodeTopbarClock } from "@/zaicode/ZaicodeTopbarClock.js";
+import { ZaicodeResetTimer } from "@/zaicode/ZaicodeResetTimer.js";
 
 export type { WorkspaceHeaderActionSectionProps } from "@/WorkspaceHeaderSections/shared.js";
 
@@ -56,6 +57,7 @@ export function WorkspaceHeaderActionSection({
       )}
     >
       {zaicode ? <ZaicodeTopbarClock useWindowsCaptionSpacing={useWindowsCaptionSpacing} /> : null}
+      {zaicode ? <ZaicodeResetTimer useWindowsCaptionSpacing={useWindowsCaptionSpacing} /> : null}
       {zaicode ? <ZaicodeLimitMeter useWindowsCaptionSpacing={useWindowsCaptionSpacing} /> : null}
       {zaicode && workspaceAbsPath ? (
         <ZaicodeSaimailHeaderButton

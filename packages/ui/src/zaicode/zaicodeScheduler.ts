@@ -147,14 +147,14 @@ export const ZAICODE_SCHEDULE_PRESETS: readonly ZaicodeSchedulePreset[] = [
   {
     id: "main0-reset",
     label: "Every 5h reset → /goal cc all in MAIN0",
-    hint: "Each refill starts work in every project of the MAIN0 section (through the queue, so a stop time works).",
+    hint: "Each refill continues every MAIN0 project's MAIN session (a new MAIN only where there is none), the most blocked / open projects first.",
     patch: { name: "MAIN0 after each reset", trigger: "everyReset", window: "five_hour", prompt: "", targetKind: "section", section: "MAIN0" },
     needsEngine: true,
   },
   {
     id: "night",
     label: "Every night 02:00 → /goal cc all in MAIN0, stop 07:00",
-    hint: "Night shift: the MAIN0 projects are worked on while you sleep and stopped before morning.",
+    hint: "Night shift: the MAIN0 projects' MAIN sessions work while you sleep and are stopped before morning.",
     patch: { name: "Night shift", trigger: "daily", dailyTime: "02:00", prompt: "", targetKind: "section", section: "MAIN0", stopAt: "07:00" },
   },
   {

@@ -10,6 +10,7 @@ import {
   useZaicodeAutostartJobs,
 } from "./zaicodeAutostart.js";
 import { readZaicodeCurrentWorkspace } from "./zaicodeEngines.js";
+import { useZaicodeNavLabel } from "./zaicodeLayoutPrefs.js";
 import {
   describeZaicodeSchedule,
   useZaicodeWorkspaceTab,
@@ -59,6 +60,7 @@ export function openZaicodeScheduler(openZaicode?: () => void): void {
 export function ZaicodeSchedulerNavButton({ className, onOpenZaicode }: { className: string; onOpenZaicode?: () => void }) {
   const { now, upcoming } = useUpcoming(30_000);
   const next = upcoming[0];
+  const navLabel = useZaicodeNavLabel("scheduler", "SCHEDULER");
   return (
     <Button
       variant="ghost"
@@ -74,7 +76,7 @@ export function ZaicodeSchedulerNavButton({ className, onOpenZaicode }: { classN
       data-zaicode-scheduler-nav
     >
       <CalendarClock className="size-4" />
-      <span className="min-w-0 flex-1 truncate text-left">SCHEDULER</span>
+      <span className="min-w-0 flex-1 truncate text-left">{navLabel}</span>
       {next ? (
         <span className="ml-auto shrink-0 border border-[var(--zaicode-highlight,var(--color-border-hover))] px-1 text-ui-xs font-normal tabular-nums text-foreground">
           {upcoming.length} · {nextText(next, now)}

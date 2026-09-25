@@ -4,6 +4,7 @@ import { cn } from "@/components/lib/utils.js";
 import { useZCodeIntl } from "@/i18n/IntlProvider.js";
 import { useShortcutCommandLabel } from "@/shortcuts/useShortcutBindings.js";
 import { runUserAction } from "@/lib/userActionTelemetry.js";
+import { useZaicodeNavLabel } from "@/zaicode/zaicodeLayoutPrefs.js";
 
 export function NewTaskButtonGroup({
   onCreateTask,
@@ -14,6 +15,8 @@ export function NewTaskButtonGroup({
 }) {
   const { intl } = useZCodeIntl();
   const newTaskShortcutLabel = useShortcutCommandLabel("newTask");
+  // ZAICODE (SRC-044): the menu line may carry the operator's own name.
+  const label = useZaicodeNavLabel("newTask", intl.formatMessage({ id: "taskList.newThread" }));
   return (
     <div
       role="group"
@@ -37,7 +40,7 @@ export function NewTaskButtonGroup({
     >
       <div className="flex min-w-0 flex-1 items-center gap-2 text-ui-base">
         <MessageCirclePlus className="h-4 w-4 shrink-0" />
-        <span className="truncate">{intl.formatMessage({ id: "taskList.newThread" })}</span>
+        <span className="truncate">{label}</span>
         <span className="ml-auto shrink-0 text-ui-xs font-normal text-foreground-subtlest">
           {newTaskShortcutLabel}
         </span>

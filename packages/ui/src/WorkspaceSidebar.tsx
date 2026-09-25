@@ -108,6 +108,7 @@ import {
   ZaicodeSlotGroupHeader,
   ZaicodeSlotsToggle,
 } from "@/zaicode/ZaicodeSidebarSectionSettings.js";
+import { ZaicodeClearAllDoneButton } from "@/zaicode/ZaicodeClearAllDone.js";
 import { useZaicodeTodoProgress } from "@/zaicode/zaicodeTodoProgress.js";
 import { logger } from "@/logger.js";
 import { NewTaskButtonGroup } from "@/NewTaskButtonGroup.js";
@@ -196,7 +197,7 @@ export { WorkspaceSidebarCollapsedRail } from "@/WorkspaceSidebar/WorkspaceSideb
 
 type TaskOrganizeBy = SidebarTaskOrganizeBy;
 type TaskSortBy = SidebarTaskSortBy;
-type PrimaryTaskMode = "workspace" | "grouped";
+type PrimaryTaskMode = "workspace" | "grouped" | "main";
 type SidebarTaskViewMode = "grouped" | "workspace" | "timeline" | "archived";
 
 interface SidebarFileTreeTarget {
@@ -512,6 +513,7 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
   const primaryTaskTabTriggerRefs = useRef<Record<PrimaryTaskMode, HTMLButtonElement | null>>({
     workspace: null,
     grouped: null,
+    main: null,
   });
   const [primaryTaskIndicatorStyle, setPrimaryTaskIndicatorStyle] = useState<CSSProperties>({
     opacity: 0,
@@ -1084,12 +1086,14 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
     },
     previous: lastStableTaskGroupTogglePresentationRef.current,
   });
+  // ZAICODE (SRC-044): the third view, "project = MAIN", is the project view with its own switch.
+  const zaicodeProjectIsMain = useZaicodeSidebarPrefs((state) => state.projectIsMain);
   const activePrimaryTaskMode: PrimaryTaskMode =
-    taskOrganizeBy === "grouped" ? "grouped" : "workspace";
+    taskOrganizeBy === "grouped" ? "grouped" : zaicodeMode && zaicodeProjectIsMain ? "main" : "workspace";
   const workspaceTaskViewValue = taskOrganizeBy === "chronological" ? "chronological" : "project";
-  const showTaskViewFilter = activePrimaryTaskMode === "workspace" || showArchivedTasks;
-  const showWorkspaceViewOptions = activePrimaryTaskMode === "workspace" && !showArchivedTasks;
-  const showTaskSortOptions = activePrimaryTaskMode === "workspace" || showArchivedTasks;
+  const showTaskViewFilter = activePrimaryTaskMode !== "grouped" || showArchivedTasks;
+  const showWorkspaceViewOptions = activePrimaryTaskMode !== "grouped" && !showArchivedTasks;
+  const showTaskSortOptions = activePrimaryTaskMode !== "grouped" || showArchivedTasks;
   const handlePrimaryTaskModeChange = useCallback(
     (value: string) => {
       if (zaicodeMode) playZaicodeSound("sidebar.mode");
@@ -1105,7 +1109,8 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
         setTaskOrganizeBy("grouped");
         return;
       }
-      if (value === "workspace") {
+      if (value === "workspace" || value === "main") {
+        if (zaicodeMode) useZaicodeSidebarPrefs.getState().update({ projectIsMain: value === "main" });
         setTaskOrganizeBy(workspaceTaskOrganizeBy);
       }
     },
@@ -1115,6 +1120,7 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
       lastNonEmptyGroupedTaskGroupIds.length,
       taskOrganizeBy,
       workspaceTaskOrganizeBy,
+      zaicodeMode,
     ],
   );
   const handleWorkspaceTaskViewChange = useCallback((value: string) => {
@@ -1332,6 +1338,20 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
                     })}
                   </span>
                 </TabsTrigger>
+                {isZaicodeProductMode() ? (
+                  <TabsTrigger
+                    ref={(node) => {
+                      primaryTaskTabTriggerRefs.current.main = node;
+                    }}
+                    value="main"
+                    title="Project = MAIN: the project row is its MAIN session, the sessions under it are helpers"
+                    className="relative z-10 h-6 flex-none gap-1 rounded-full border-transparent bg-transparent py-0 pl-1.5 pr-2 text-ui-sm font-medium text-foreground-subtle transition-colors data-active:border-transparent data-active:bg-transparent data-active:text-foreground data-active:shadow-none dark:data-active:border-transparent dark:data-active:bg-transparent"
+                    data-zaicode-view-main=""
+                  >
+                    <span aria-hidden="true" className="text-[10px] leading-none text-[var(--zaicode-highlight,var(--color-warning))]">◆</span>
+                    <span className="hidden @min-[248px]/zsbtools:inline">MAIN</span>
+                  </TabsTrigger>
+                ) : null}
               </TabsList>
             </Tabs>
             {toggleAllTaskGroupsPresentation ? (
@@ -1366,6 +1386,7 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
               <span className="flex shrink-0 items-center gap-px text-ui-xs" data-zaicode-project-actions="">
                 <ZaicodeSlotsToggle />
                 <ZaicodeLiveToggle />
+                {activePrimaryTaskMode === "main" ? <ZaicodeClearAllDoneButton /> : null}
                 {projectAddMenu}
               </span>
             ) : null}

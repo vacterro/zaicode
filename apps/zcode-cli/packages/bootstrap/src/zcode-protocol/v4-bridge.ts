@@ -46,7 +46,7 @@ import type {
 import { PersistentCommandIndex } from "../zcode-protocol-v4/persistent-command-index.js";
 import { queueItemIdForCommand } from "../zcode-protocol-v4/command-inbox.js";
 import { resolveStableForkTargetFromTranscript } from "../zcode-protocol-v4/stable-fork-target.js";
-import { shouldAutoDrainV4QueueHead } from "../zcode-protocol-v4/queue-auto-drain.js";
+import { shouldAutoDrainV4QueueHead, zaicodeQueueDrainsPastGoal } from "../zcode-protocol-v4/queue-auto-drain.js";
 import { persistAssistantFeedback } from "../zcode-protocol-v4/assistant-feedback-persistence.js";
 import {
   TASK_LIST_SESSION_TYPES,
@@ -635,6 +635,7 @@ export function createConversationV4Gateway(
         dispatchState: head.dispatchState,
         sessionBusy: Boolean(record.activeAbortController) || coreForegroundBusy,
         targetStatus,
+        drainPastGoal: zaicodeQueueDrainsPastGoal(),
       })
     ) {
       return;

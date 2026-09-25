@@ -46,6 +46,9 @@ import { resolveZaicodeServices } from "./zaicodeServices.js";
 import { publishZaicodeHomeServices, useZaicodeWorkerStatsRecorder } from "./home/zaicodeHomeFeed.js";
 import { projectNameOf } from "./zaicodeEngines.js";
 import { ensureZaicodeMotionStyles } from "./zaicodeMotionCss.js";
+import { useZaicodeCrashResume } from "./zaicodeCrashResume.js";
+import { startZaicodeWorkerRecording } from "./zaicodeWorkerRecovery.js";
+import { useZaicodeWorkerWatch } from "./zaicodeWorkerWatch.js";
 
 /**
  * Everything ZAICODE runs once per window: the timer heartbeat, notification
@@ -288,8 +291,16 @@ function useZaicodeSchedulerPublishers(): void {
   }, [accessor]);
 }
 
+/** SRC-044: running workers are written down (a crash leaves the list), cut-off work continues. */
+function useZaicodeCrashSafety(): void {
+  useEffect(() => startZaicodeWorkerRecording(), []);
+  useZaicodeCrashResume();
+}
+
 export function ZaicodeAppRuntime() {
   useZaicodeWorkerStatsRecorder();
+  useZaicodeCrashSafety();
+  useZaicodeWorkerWatch();
   useZaicodeCalmInterface();
   useZaicodePixelSnap();
   useZaicodeSchedulerPublishers();

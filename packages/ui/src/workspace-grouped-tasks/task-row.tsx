@@ -5,6 +5,9 @@ import { useDraggable, useDroppable } from "@dnd-kit/core";
 import type { UniqueIdentifier } from "@dnd-kit/core";
 import { isCronTask, isOffPeakTask, isZaicodeProductMode, type ZCodeTaskMeta } from "@zcode/shared";
 import { ZaicodeGroupedRowDecor, ZaicodeGroupedRowRole } from "@/zaicode/ZaicodeGroupedRowDecor.js";
+import { ZaicodeWorkingIcon } from "@/zaicode/ZaicodeWorkingIcon.js";
+import { ZaicodeInterruptedGlyph } from "@/zaicode/ZaicodeInterruptedGlyph.js";
+import { zaicodeWasCutOff } from "@/zaicode/zaicodeSessionState.js";
 import { ArrowUpToLine, Clock, Cloud, Folder, ListTree, LoaderIcon, Moon, X } from "lucide-react";
 import { cn } from "@/components/lib/utils.js";
 import { Badge } from "@/components/ui/badge.js";
@@ -41,6 +44,15 @@ import { useTaskInteractionAutoResolutionSnooze } from "@/hooks/useTaskInteracti
 import { useOptionalTabStore } from "@/store/TabStoreProvider.js";
 import { isWorkspaceReadOnly } from "@/store/tabStore.js";
 import { TaskTitleOverflowText } from "@/components/TaskTitleOverflowText.js";
+
+/** ZAICODE (SRC-044): the operator's Working icon here too, not the vendor spinner. */
+function GroupedRowWorkingIcon() {
+  return isZaicodeProductMode() ? (
+    <ZaicodeWorkingIcon className="size-3.5" />
+  ) : (
+    <LoaderIcon className="size-3.5 animate-spin text-foreground-subtle" />
+  );
+}
 
 function GroupedTaskRowComponent({
   task,
@@ -137,6 +149,12 @@ function GroupedTaskRowComponent({
     buildTaskWorkspaceKey(activeWorkspacePath, activeWorkspaceIdentity) === workspaceKey &&
     activeTaskId === task.taskId;
   const isMobileActive = false;
+  // SRC-044: a session cut off mid-turn says INTERRUPTED instead of the finished (unread) dot.
+  const zaicodeInterrupted =
+    isZaicodeProductMode() &&
+    (leadingIndicator === "unread" || leadingIndicator === "none") &&
+    !task.pendingInteraction &&
+    zaicodeWasCutOff(task);
   const statusDotClassName =
     leadingIndicator === "error"
       ? "bg-destructive"
@@ -209,7 +227,9 @@ function GroupedTaskRowComponent({
             )}
           >
             {leadingIndicator === "loading" ? (
-              <LoaderIcon className="size-3.5 animate-spin text-foreground-subtle" />
+              <GroupedRowWorkingIcon />
+            ) : zaicodeInterrupted ? (
+              <ZaicodeInterruptedGlyph />
             ) : statusDotClassName ? (
               <span aria-hidden="true" className="flex size-4 shrink-0 items-center justify-center">
                 <span className={cn("size-1.5 rounded-full", statusDotClassName)} />
@@ -411,7 +431,9 @@ function GroupedTaskRowComponent({
           {!shouldSuppressTaskMetadata ? (
             <span className="flex shrink-0 items-center gap-1">
               {leadingIndicator === "loading" ? (
-                <LoaderIcon className="size-3.5 animate-spin text-foreground-subtle" />
+                <GroupedRowWorkingIcon />
+              ) : zaicodeInterrupted ? (
+                <ZaicodeInterruptedGlyph />
               ) : statusDotClassName ? (
                 <span
                   aria-hidden="true"
