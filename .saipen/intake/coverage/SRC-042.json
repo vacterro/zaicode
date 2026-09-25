@@ -1,4 +1,14 @@
 {
-  "requirements": {},
+  "requirements": {
+    "SRC-042:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "T-57 closed with verification evidence in LOG: verify -> PASS [target: T-57] conf: high -- every batch ticket DONE with evidence or BLOCKED with an operator blocker; backup/main and backup/workspace current; staged build present",
+      "text": "Resume T-56 finish/ship, GitHub backup, then reconcile batch T-55/T-54/T-48/T-51/T-52/T-42/T-43/T-53",
+      "verification": "the Work this request created reached its own verification gate; see the T-57 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-57"
+    }
+  },
   "schema_version": 1
 }
