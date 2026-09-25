@@ -118,7 +118,8 @@ export interface GitChangeSummary {
 }
 
 // ZAICODE: "saihome" is SAIHOME, the operator home (T-56); it is never the composer ("chat").
-export type WorkspaceMainView = "chat" | "automations" | "plugin-store" | "zaicode" | "saihome";
+// ZAICODE: "subchat" is the subscription chat (T-51): Claude Code / Codex logins answering in-app, no worker.
+export type WorkspaceMainView = "chat" | "automations" | "plugin-store" | "zaicode" | "saihome" | "subchat";
 
 export interface WorkspaceShellLayoutProps extends Omit<AppProps, "baseFeedbackService"> {
   workspaceReadOnlyReason?: string;

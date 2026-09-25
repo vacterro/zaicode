@@ -945,6 +945,16 @@ export interface IPlatformService {
   launchZaicodeExternalWorker?(params: { cwd: string; command: string; title: string }): Promise<{ ok: boolean; message: string }>;
   /** ZAICODE (SRC-046): a prompt too long for a CLI command line, written to a file the worker reads. */
   writeZaicodePromptFile?(text: string): Promise<{ ok: boolean; path: string; message: string }>;
+  /** ZAICODE (T-51): one subscription chat turn, the account's CLI headless; events come on onZaicodeSubchatEvent. */
+  runZaicodeSubchatTurn?(request: {
+    turnId: string;
+    accountId: string;
+    projectPath: string;
+    prompt: string;
+    sessionId: string | null;
+  }): Promise<{ ok: boolean; message: string }>;
+  cancelZaicodeSubchatTurn?(turnId: string): Promise<boolean>;
+  onZaicodeSubchatEvent?(callback: (payload: unknown) => void): () => void;
   prepareZaicodeEngineAccountHome?(vendor: string): Promise<{ ok: boolean; home: string; message: string }>;
   getZaicodeStartWithWindows?(): Promise<{ enabled: boolean; command: string }>;
   setZaicodeStartWithWindows?(enabled: boolean): Promise<{ enabled: boolean; command: string }>;

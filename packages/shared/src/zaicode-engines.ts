@@ -106,7 +106,15 @@ export interface ZaicodeEnginesConfig {
   workerPrompt: string;
   /** Launch workers in YOLO mode (skip per-tool permission prompts), like AUDAPACK consoles. */
   workerYolo: boolean;
+  /**
+   * Where a prompt typed with a subscription tile picked goes (T-51): "chat" = an
+   * in-app subscription chat (the CLI runs headless, no terminal), "worker" = a
+   * worker terminal. Vendors without a headless mode always start a worker.
+   */
+  subscriptionPrompts: ZaicodeSubscriptionPromptTarget;
 }
+
+export type ZaicodeSubscriptionPromptTarget = "chat" | "worker";
 
 export const ZAICODE_ENGINES_DEFAULT_CONFIG: ZaicodeEnginesConfig = {
   intervalMinutes: 5,
@@ -115,6 +123,7 @@ export const ZAICODE_ENGINES_DEFAULT_CONFIG: ZaicodeEnginesConfig = {
   hiddenAccounts: [],
   workerPrompt: "saipen continue",
   workerYolo: true,
+  subscriptionPrompts: "chat",
 };
 
 export const ZAICODE_ENGINE_INTERVAL_CHOICES = [0, 2, 5, 10, 15, 30, 60] as const;
@@ -151,6 +160,10 @@ export function normalizeZaicodeEnginesConfig(raw: unknown): ZaicodeEnginesConfi
       typeof record.workerYolo === "boolean" ? record.workerYolo : ZAICODE_ENGINES_DEFAULT_CONFIG.workerYolo,
     readFreebuff:
       typeof record.readFreebuff === "boolean" ? record.readFreebuff : ZAICODE_ENGINES_DEFAULT_CONFIG.readFreebuff,
+    subscriptionPrompts:
+      record.subscriptionPrompts === "worker" || record.subscriptionPrompts === "chat"
+        ? record.subscriptionPrompts
+        : ZAICODE_ENGINES_DEFAULT_CONFIG.subscriptionPrompts,
   };
 }
 

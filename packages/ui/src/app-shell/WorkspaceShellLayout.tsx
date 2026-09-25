@@ -53,6 +53,7 @@ import { PluginStorePage } from "@/settings/PluginStorePage.js";
 import { ZaicodeWorkspace } from "@/zaicode/ZaicodeWorkspace.js";
 import { useZaicodeActions } from "@/zaicode/zaicodeActions.js";
 import { ZaicodeHomePage } from "@/zaicode/home/ZaicodeHomePage.js";
+import { ZaicodeSubchatView } from "@/zaicode/subchat/ZaicodeSubchatView.js";
 import { useZaicodeHomePrefs } from "@/zaicode/home/zaicodeHomePrefs.js";
 import { ZaicodeWorkersDockFrame } from "@/zaicode/ZaicodeWorkersDockFrame.js";
 import { TaskFindDialog } from "@/quickpick/TaskFindDialog.js";
@@ -862,9 +863,13 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
     // T-56: SAIHOME opens as a view of its own; opening it creates nothing.
     const setOpenHome = useZaicodeActions.getState().setOpenZaicodeHome;
     setOpenHome(() => onWorkspaceMainViewChange("saihome"));
+    // T-51: a prompt for a picked subscription opens the in-app subscription chat.
+    const setOpenSubchat = useZaicodeActions.getState().setOpenZaicodeSubchat;
+    setOpenSubchat(() => onWorkspaceMainViewChange("subchat"));
     return () => {
       setOpen(null);
       setOpenHome(null);
+      setOpenSubchat(null);
     };
   }, [onWorkspaceMainViewChange]);
   useEffect(() => {
@@ -1953,6 +1958,17 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
                               }
                               onNewTask={() => handleCreateTaskInChat({ createSource: "project" })}
                             />
+                          </ScopedErrorBoundary>
+                        </main>
+                      ) : workspaceMainView === "subchat" ? (
+                        <main className="flex h-full min-h-0 flex-1 flex-col bg-background" data-zaicode-subchat-main>
+                          <ScopedErrorBoundary
+                            scope="zaicode-subchat"
+                            resetKeys={workspaceOnlyResetKeys}
+                            variant="panel"
+                            className="h-full"
+                          >
+                            <ZaicodeSubchatView />
                           </ScopedErrorBoundary>
                         </main>
                       ) : workspaceMainView === "zaicode" ? (

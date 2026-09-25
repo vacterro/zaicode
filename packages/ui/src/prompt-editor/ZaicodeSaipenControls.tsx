@@ -18,9 +18,9 @@ import {
 } from "@/zaicode/zaicodeMainSession.js";
 import { useZaicodeRunningSessions } from "@/zaicode/zaicodeSidebarPrefs.js";
 import { useZaicodeActiveEngine, useZaicodeEngines } from "@/zaicode/zaicodeEngines.js";
+import { zaicodeSubscriptionPromptGoesToChat } from "@/zaicode/subchat/zaicodeSubchatStore.js";
+import { routeZaicodeSubscriptionPrompt } from "@/zaicode/subchat/zaicodeSubscriptionRoute.js";
 import { useZaicodeSessionRoles, zaicodeRoleForCommand } from "@/zaicode/zaicodeSessionRoles.js";
-import { launchZaicodeWorker } from "@/zaicode/zaicodeWorkers.js";
-import { toast } from "@/components/ui/toast.js";
 import { useZaicodeUiPrefs } from "@/zaicode/zaicodeUiPrefs.js";
 import { registerZaicodeHotkeyHandler } from "@/zaicode/zaicodeHotkeys.js";
 import { useZaicodeComposerPrefs } from "@/zaicode/zaicodeComposerPrefs.js";
@@ -90,6 +90,7 @@ export function ZaicodeSaipenControls({
 
   const activeEngineId = useZaicodeActiveEngine();
   const engineAccount = useZaicodeEngines().accounts.find((account) => account.id === activeEngineId) ?? null;
+  const engineToChat = engineAccount ? zaicodeSubscriptionPromptGoesToChat(engineAccount) : false;
   const isMain = Boolean(sessionId) && sessionId === mainId;
   const isSideSlot = Boolean(mainId) && !isMain;
   const parallelHint = mainWorking && isSideSlot;
@@ -103,11 +104,10 @@ export function ZaicodeSaipenControls({
     onCommand(command);
   };
   const start = () => {
-    // A subscription engine picked on the sidebar: START runs that CLI as a worker here.
+    // A subscription engine picked on the sidebar: START opens a SUBCHAT with it (T-51),
+    // or runs its CLI as a worker when the setting says Worker / it has no headless mode.
     if (engineAccount) {
-      void launchZaicodeWorker({ account: engineAccount, projectPath: workspacePath }).then((result) =>
-        toast(result.message),
-      );
+      routeZaicodeSubscriptionPrompt(engineAccount, workspacePath);
       return;
     }
     // START 永远在新会话里跑目标，并把那个会话设为 MAIN。
@@ -342,12 +342,16 @@ export function ZaicodeSaipenControls({
             data-zaicode-sound="saipen.start"
             aria-label={
               engineAccount
-                ? `Start ${engineAccount.label} as a worker in this project`
+                ? engineToChat
+                  ? `Start ${engineAccount.label} in a subscription chat in this project`
+                  : `Start ${engineAccount.label} as a worker in this project`
                 : "Start SAIPEN goal in a fresh MAIN session: continue and finish all tickets"
             }
             title={
               engineAccount
-                ? `START with ${engineAccount.short} ${engineAccount.label}: its CLI starts as a worker in this project (WORKERS panel). Pick the engine on the sidebar.`
+                ? engineToChat
+                  ? `START with ${engineAccount.short} ${engineAccount.label}: opens a SUBCHAT in this project (the CLI runs in the background, no terminal). Pick the engine on the sidebar.`
+                  : `START with ${engineAccount.short} ${engineAccount.label}: its CLI starts as a worker in this project (WORKERS panel). Pick the engine on the sidebar.`
                 : `${ZAICODE_SAIPEN_START_COMMAND} — fresh session that becomes MAIN; continue and close every ticket possible without a human`
             }
             className={buttonClass}
@@ -400,8 +404,8 @@ export function ZaicodeSaipenControls({
 
       {composer.showEngineRoute && engineAccount && !sessionId ? (
         <span className="min-w-0 truncate text-[var(--zaicode-highlight,var(--color-warning))]" data-zaicode-engine-route>
-          New prompts and START go to {engineAccount.short} {engineAccount.label} as a worker · pick a pool on the sidebar
-          for the in-app agent
+          New prompts and START go to {engineAccount.short} {engineAccount.label}
+          {engineToChat ? " in a SUBCHAT (no worker)" : " as a worker"} · pick a pool on the sidebar for the in-app agent
         </span>
       ) : null}
       {composer.showBlocker && headline.blocker ? (

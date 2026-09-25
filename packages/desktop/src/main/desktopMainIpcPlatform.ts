@@ -90,6 +90,7 @@ import {
   setZaicodeStartWithWindows,
 } from "./zaicodeEngines.js";
 import { writeZaicodePromptFile } from "./zaicodePromptFiles.js";
+import { cancelZaicodeSubchatTurn, readZaicodeSubchatTurnRequest, runZaicodeSubchatTurn } from "./zaicodeSubchat.js";
 import { saveZaicodeSettingsSnapshot } from "./zaicodeSettingsSnapshot.js";
 import { setZaicodeGlobalHotkeys } from "./zaicodeGlobalHotkeys.js";
 
@@ -527,6 +528,10 @@ export function registerPlatformIpcHandlers(options: {
       title: typeof p.title === "string" ? p.title : "ZAICODE worker",
     });
   });
+  ipcMain.handle(PlatformChannels.RunZaicodeSubchatTurn, (event, request: unknown) =>
+    runZaicodeSubchatTurn(readZaicodeSubchatTurnRequest(request), event.sender),
+  );
+  ipcMain.handle(PlatformChannels.CancelZaicodeSubchatTurn, (_event, turnId: unknown) => cancelZaicodeSubchatTurn(turnId));
   ipcMain.handle(PlatformChannels.WriteZaicodePromptFile, (_event, text: unknown) => {
     if (typeof text !== "string") throw new TypeError("Expected prompt text");
     return writeZaicodePromptFile(text);

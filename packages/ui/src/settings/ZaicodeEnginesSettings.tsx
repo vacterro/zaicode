@@ -381,6 +381,16 @@ export function ZaicodeEnginesSettings() {
               onBlur={(event) => void updateZaicodeEnginesConfig({ workerPrompt: event.target.value })}
             />
           </label>
+          <label className="flex items-center justify-between gap-3" data-zaicode-subscription-prompts>
+            <span className="text-foreground-subtle">
+              Prompts for a picked subscription open a SUBCHAT: an in-app chat, the CLI runs in the background with no
+              terminal (Claude Code, Codex). Off = a worker terminal. Antigravity and ZCode always start a worker.
+            </span>
+            <Switch
+              checked={engines.config.subscriptionPrompts === "chat"}
+              onCheckedChange={(chat) => void updateZaicodeEnginesConfig({ subscriptionPrompts: chat ? "chat" : "worker" })}
+            />
+          </label>
           <label className="flex items-center justify-between gap-3">
             <span className="text-foreground-subtle">
               YOLO mode (skip per-tool permission prompts: --dangerously-skip-permissions / bypass sandbox)

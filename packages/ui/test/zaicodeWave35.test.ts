@@ -284,10 +284,10 @@ test("layout lists keep the stored order, drop unknown ids, place new ones after
   const nav = normalizeZaicodeLayoutList(null, ZAICODE_NAV_ITEMS);
   assert.deepEqual(
     nav.filter((entry) => entry.visible).map((entry) => entry.id),
-    ["saihome", "newTask", "zaicode", "scheduler"],
-    "SAIHOME (T-56) + New task + ZAICODE + SCHEDULER (SRC-038) by default",
+    ["saihome", "newTask", "subchat", "zaicode", "scheduler"],
+    "SAIHOME (T-56) + New task + SUBCHAT (T-51) + ZAICODE + SCHEDULER (SRC-038) by default",
   );
-  assert.deepEqual(moveZaicodeLayoutEntry(nav, "zaicode", -1).slice(1, 3).map((entry) => entry.id), ["zaicode", "newTask"]);
+  assert.deepEqual(moveZaicodeLayoutEntry(nav, "zaicode", -1).slice(2, 4).map((entry) => entry.id), ["zaicode", "subchat"]);
   assert.equal(placeZaicodeLayoutEntry(nav, "settings", 0)[0]!.id, "settings");
 });
 

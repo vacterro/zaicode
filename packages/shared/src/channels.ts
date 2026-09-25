@@ -418,6 +418,12 @@ export const PlatformChannels = {
   /** Renderer → Main：open a worker CLI in its own PowerShell window */
   LaunchZaicodeExternalWorker: "zaicode:launch-external-worker",
   WriteZaicodePromptFile: "zaicode:write-prompt-file",
+  /** Renderer → Main：one subscription chat turn (T-51): the account's CLI headless, no worker terminal */
+  RunZaicodeSubchatTurn: "zaicode:subchat-run",
+  /** Renderer → Main：stop a running subscription chat turn */
+  CancelZaicodeSubchatTurn: "zaicode:subchat-cancel",
+  /** Main → Renderer：one parsed event of a subscription chat turn ({ turnId, event }) */
+  ZaicodeSubchatEvent: "zaicode:subchat-event",
   /** Renderer → Main：create the next free account home for a second Claude/Codex login */
   PrepareZaicodeEngineAccountHome: "zaicode:prepare-engine-account-home",
   /** Renderer → Main：register ZAICODE global hotkeys (Electron globalShortcut) */

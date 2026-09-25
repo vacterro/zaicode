@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { AlarmClock, Blocks, CircleHelp, House, Search, Settings, SquareTerminal } from "lucide-react";
+import { AlarmClock, Blocks, CircleHelp, House, MessagesSquare, Search, Settings, SquareTerminal } from "lucide-react";
 import { cn } from "@/components/lib/utils.js";
 import { Button } from "@/components/ui/button.js";
 import { ZaicodeIcon } from "./zaicodeIconSlots.js";
@@ -7,7 +7,7 @@ import { ZaicodeNavItemsEditor } from "./ZaicodeLayoutListEditor.js";
 import { ZaicodeRightClickSettings } from "./ZaicodePrefControls.js";
 import { useZaicodeLayout, type ZaicodeNavItemId } from "./zaicodeLayoutPrefs.js";
 import { useZaicodeTimers } from "./zaicodeTimerStore.js";
-import { openZaicodeHelp, openZaicodeHomeView, openZaicodeSettings, useZaicodeActions } from "./zaicodeActions.js";
+import { openZaicodeHelp, openZaicodeHomeView, openZaicodeSettings, openZaicodeSubchatView, useZaicodeActions } from "./zaicodeActions.js";
 import { toggleZaicodeWorkersDock, useZaicodeWorkersSelector } from "./zaicodeWorkers.js";
 import { ZaicodeSchedulerNavButton } from "./ZaicodeSchedulerBits.js";
 import { useZaicodeWorkspaceTab } from "./zaicodeScheduler.js";
@@ -53,6 +53,7 @@ export function ZaicodeSidebarNavBlock({
   // Only the dock flag: the menu must not re-render when a worker window moves (SRC-043).
   const workersOpen = useZaicodeWorkersSelector((state) => state.open);
   const homeActive = useZaicodeActions((state) => state.mainView === "saihome");
+  const subchatActive = useZaicodeActions((state) => state.mainView === "subchat");
   const label = useZaicodeNavLabels();
   const line = (active: boolean) =>
     cn("w-full justify-start gap-2 text-foreground hover:bg-surface-hover hover:text-foreground", active && "bg-selected text-foreground");
@@ -78,6 +79,23 @@ export function ZaicodeSidebarNavBlock({
         );
       case "newTask":
         return <div key={id}>{newTask}</div>;
+      case "subchat":
+        return (
+          <Button
+            key={id}
+            variant="ghost"
+            size="lg"
+            data-icon="inline-start"
+            data-testid="zaicode-sidebar-subchat"
+            aria-pressed={subchatActive}
+            className={line(subchatActive)}
+            title="SUBCHAT: your Claude Code / Codex subscriptions as a plain chat. No worker, no terminal."
+            onClick={() => void openZaicodeSubchatView()}
+          >
+            <MessagesSquare className="size-4" />
+            {label("subchat", "SUBCHAT")}
+          </Button>
+        );
       case "zaicode":
         return (
           <Button key={id} variant="ghost" size="lg" data-icon="inline-start" data-testid="zaicode-sidebar-open" aria-pressed={zaicodeActive} className={line(zaicodeActive)} onClick={() => { useZaicodeWorkspaceTab.getState().setTab("agents"); onOpenZaicode?.(); }}>

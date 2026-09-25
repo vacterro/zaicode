@@ -31,9 +31,8 @@ import { ChatPromptActionMenu } from "@/prompt-editor/ChatPromptActionMenu.js";
 import { useComposerToolbarFit } from "@/prompt-editor/useComposerToolbarFit.js";
 import { ZaicodeSaipenControls } from "@/prompt-editor/ZaicodeSaipenControls.js";
 import { readZaicodeActiveEngine, readZaicodeEnginesState } from "@/zaicode/zaicodeEngines.js";
-import { launchZaicodeWorker } from "@/zaicode/zaicodeWorkers.js";
+import { routeZaicodeSubscriptionPrompt } from "@/zaicode/subchat/zaicodeSubscriptionRoute.js";
 import { useZaicodeComposerPrefs } from "@/zaicode/zaicodeComposerPrefs.js";
-import { toast } from "@/components/ui/toast.js";
 
 function runAfterFrame(callback: () => void) {
   if (typeof requestAnimationFrame === "function") {
@@ -219,9 +218,10 @@ export function ChatPromptEditor({
 
   /**
    * ZAICODE: with a subscription engine picked on the sidebar, a NEW prompt
-   * (draft, not a slash command) starts that subscription's CLI as a worker in
-   * this project instead of an in-app session. Existing sessions keep talking
-   * to their own model.
+   * (draft, not a slash command) goes to that subscription instead of an
+   * in-app session: a SUBCHAT (the CLI headless, no terminal; T-51) or, with
+   * the setting on Worker / a vendor without a headless mode, a worker.
+   * Existing sessions keep talking to their own model.
    */
   const zaicodeCompact = useZaicodeComposerPrefs((state) => state.compact && state.compactShell);
   const zaicodeTightShell = showSaipenControls && zaicodeCompact;
@@ -233,7 +233,7 @@ export function ChatPromptEditor({
       const activeId = readZaicodeActiveEngine();
       const account = activeId ? readZaicodeEnginesState().accounts.find((item) => item.id === activeId) : null;
       if (!account) return false;
-      void launchZaicodeWorker({ account, projectPath: workspacePath, prompt }).then((result) => toast(result.message));
+      routeZaicodeSubscriptionPrompt(account, workspacePath, prompt);
       resolvedInputApiRef.current?.setText("");
       return true;
     },

@@ -82,6 +82,8 @@ export const ZAICODE_SOUND_EVENTS: readonly ZaicodeSoundEventDef[] = [
   { id: "worker.launch", group: "Engines", label: "Worker started", hint: "A subscription CLI started as a worker", glyph: "play", sound: fp("rocket_pack_boosters_ready.wav"), enabled: true, gainDb: -6 },
   { id: "worker.exit", group: "Engines", label: "Worker finished", hint: "A worker CLI exited normally", glyph: "check", sound: fp("sentry_finish.wav"), enabled: true, gainDb: -6 },
   { id: "worker.fail", group: "Engines", label: "Worker crashed", hint: "A worker CLI exited with an error", glyph: "cross", sound: fp("denied.wav"), enabled: true, gainDb: -4 },
+  { id: "subchat.done", group: "Engines", label: "Subscription chat answered", hint: "A subscription chat turn (no worker) finished", glyph: "check", sound: fp("sentry_finish.wav"), enabled: true, gainDb: -6 },
+  { id: "subchat.fail", group: "Engines", label: "Subscription chat failed", hint: "A subscription chat turn ended with an error", glyph: "cross", sound: fp("denied.wav"), enabled: true, gainDb: -4 },
   { id: "worker.fix", group: "Engines", label: "Troubleshoot", hint: "A one-click fix (login / install) started", glyph: "wrench", sound: fp("anvil_use.wav"), enabled: true, gainDb: -8 },
   { id: "limits.refill", group: "Engines", label: "Quota refilled", hint: "A subscription window reset and has quota again", glyph: "battery", sound: fp("success_powerup.wav"), enabled: true, gainDb: -4 },
   { id: "limits.low", group: "Engines", label: "Quota low", hint: "A subscription window dropped under 20%", glyph: "warn", sound: fp("pop_cartoon_pop.wav"), enabled: true, gainDb: -4 },

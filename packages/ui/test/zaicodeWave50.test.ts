@@ -173,8 +173,8 @@ test("presets are valid schedules; SCHEDULER sits right after ZAICODE even for a
     { id: "automations", visible: true },
   ];
   const menu = normalizeZaicodeLayoutList(stored, ZAICODE_NAV_ITEMS);
-  // T-56: SAIHOME tops an older stored menu; SCHEDULER still follows ZAICODE.
-  assert.deepEqual(menu.slice(0, 4).map((entry) => entry.id), ["saihome", "newTask", "zaicode", "scheduler"]);
+  // T-56: SAIHOME tops an older stored menu; T-51: SUBCHAT follows New task; SCHEDULER still follows ZAICODE.
+  assert.deepEqual(menu.slice(0, 5).map((entry) => entry.id), ["saihome", "newTask", "subchat", "zaicode", "scheduler"]);
   assert.equal(menu.find((entry) => entry.id === "scheduler")!.visible, true);
   assert.equal(menu.some((entry) => (entry.id as string) === "automations"), false, "the upstream Automations line is gone");
 });

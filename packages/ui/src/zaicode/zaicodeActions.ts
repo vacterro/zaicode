@@ -17,6 +17,9 @@ interface ZaicodeActionsState {
   /** Opens SAIHOME (registered by the shell layout). */
   openZaicodeHome: (() => void) | null;
   setOpenZaicodeHome: (open: (() => void) | null) => void;
+  /** Opens the subscription chat view (T-51, registered by the shell layout). */
+  openZaicodeSubchat: (() => void) | null;
+  setOpenZaicodeSubchat: (open: (() => void) | null) => void;
   /** The main view on screen now, mirrored by the shell (sidebar highlights read it). */
   mainView: string;
   setMainView: (view: string) => void;
@@ -29,6 +32,8 @@ export const useZaicodeActions = create<ZaicodeActionsState>((set) => ({
   setOpenZaicodeView: (openZaicodeView) => set({ openZaicodeView }),
   openZaicodeHome: null,
   setOpenZaicodeHome: (openZaicodeHome) => set({ openZaicodeHome }),
+  openZaicodeSubchat: null,
+  setOpenZaicodeSubchat: (openZaicodeSubchat) => set({ openZaicodeSubchat }),
   mainView: "chat",
   setMainView: (mainView) => set({ mainView }),
 }));
@@ -36,6 +41,14 @@ export const useZaicodeActions = create<ZaicodeActionsState>((set) => ({
 /** Opens SAIHOME from anywhere (menu line, hotkey, tray). No side effects beyond the view change. */
 export function openZaicodeHomeView(): boolean {
   const open = useZaicodeActions.getState().openZaicodeHome;
+  if (!open) return false;
+  open();
+  return true;
+}
+
+/** Opens the subscription chat view (SUBCHAT). No side effects beyond the view change. */
+export function openZaicodeSubchatView(): boolean {
+  const open = useZaicodeActions.getState().openZaicodeSubchat;
   if (!open) return false;
   open();
   return true;

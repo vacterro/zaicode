@@ -226,6 +226,9 @@ function killTree(child: ChildProcess): void {
   child.kill();
 }
 
+/** Subscription chat turns (zaicodeSubchat.ts) spawn the same CLIs the same way. */
+export { commandFor as zaicodeCliCommand, killTree as killZaicodeProcessTree };
+
 interface RunResult {
   ok: boolean;
   stdout: string;

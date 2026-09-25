@@ -29,6 +29,7 @@ export type ZaicodeHeaderToolId =
 export type ZaicodeNavItemId =
   | "saihome"
   | "newTask"
+  | "subchat"
   | "zaicode"
   | "scheduler"
   | "search"
@@ -77,6 +78,8 @@ export const ZAICODE_NAV_ITEMS: readonly ZaicodeLayoutItemDef<ZaicodeNavItemId>[
   // T-56: SAIHOME ("what is happening?") is its own line, first; New task ("what do I start?") stays the composer.
   { id: "saihome", label: "SAIHOME", hint: "The operator home: clock, limits, projects, agents, statistics", visible: true },
   { id: "newTask", label: "New task", hint: "Starts a new session in this project", visible: true },
+  // T-51: the operator's Claude Code / Codex logins as a plain in-app chat (no worker, no terminal).
+  { id: "subchat", label: "SUBCHAT", hint: "Your Claude Code / Codex subscriptions as a chat: no worker, no terminal", visible: true },
   { id: "zaicode", label: "ZAICODE", hint: "Agents, queue and ready-made team presets", visible: true },
   // SRC-038: SCHEDULER replaces upstream's Automations page (same job -- prompts on a timer --
   // plus quota resets, sidebar sections, agents and presets, in plain words).
