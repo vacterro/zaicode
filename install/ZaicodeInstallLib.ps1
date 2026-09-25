@@ -272,6 +272,31 @@ function Sync-ZaicodeRepo {
   Invoke-ZaicodeCommand -File $Git -Arguments @('-C', $Dir, 'branch', '--quiet', "--set-upstream-to=origin/$Branch", $Branch) -AllowFailure | Out-Null
 }
 
+function Get-ZaicodeHead([string]$Git, [string]$Dir) {
+  if (-not (Test-ZaicodeRepo $Git $Dir)) { return $null }
+  return (Invoke-ZaicodeCommand -File $Git -Arguments @('-C', $Dir, 'rev-parse', 'HEAD')).Output.Trim()
+}
+
+# Re-run = update: fast-forwards every existing clone; says which ones moved.
+function Update-ZaicodeClones($Layout, $Options, [string]$Git) {
+  $changed = @{}
+  $clones = @(
+    @{ Id = 'workspace'; Dir = $Layout.Root; Url = $Options.ZaicodeRepo; Branch = $script:ZaicodeDefaults.RootBranch },
+    @{ Id = 'app'; Dir = $Layout.Zcode; Url = $Options.ZaicodeRepo; Branch = $script:ZaicodeDefaults.AppBranch },
+    @{ Id = 'saipen'; Dir = $Layout.Saipen; Url = $Options.SaipenRepo; Branch = 'main' },
+    @{ Id = 'saimail'; Dir = $Layout.Saimail; Url = $Options.SaimailRepo; Branch = 'main' }
+  )
+  foreach ($clone in $clones) {
+    $before = Get-ZaicodeHead $Git $clone.Dir
+    if (-not $before) { continue }
+    Sync-ZaicodeRepo -Git $Git -Url $clone.Url -Branch $clone.Branch -Dir $clone.Dir
+    $after = Get-ZaicodeHead $Git $clone.Dir
+    $changed[$clone.Id] = ($before -ne $after)
+    if ($changed[$clone.Id]) { Write-ZaicodeLog ("updated {0}: {1} -> {2}" -f $clone.Id, $before.Substring(0, 8), $after.Substring(0, 8)) 'Cyan' }
+  }
+  return $changed
+}
+
 # ---------------------------------------------------------------------------
 # SAIPEN and SAIMAIL
 # ---------------------------------------------------------------------------

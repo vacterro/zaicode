@@ -1,0 +1,132 @@
+﻿{
+    "installDir":  "V:\\_TEMP_\\zi2\\ZAICODE",
+    "steps":  [
+                  {
+                      "step":  "fresh install: doctor passes",
+                      "pass":  true,
+                      "facts":  {
+                                    "statuses":  [
+                                                     "git=OK",
+                                                     "node=OK",
+                                                     "python=OK",
+                                                     "pnpm=OK",
+                                                     "workspace=OK",
+                                                     "app-source=OK",
+                                                     "saipen=OK",
+                                                     "saipen-launcher=OK",
+                                                     "saimail=OK",
+                                                     "saimail-cli=WARN",
+                                                     "router=OK",
+                                                     "modules=OK",
+                                                     "app=OK",
+                                                     "staged-build=OK",
+                                                     "launcher=OK",
+                                                     "shortcut=OK",
+                                                     "accounts=OK"
+                                                 ]
+                                }
+                  },
+                  {
+                      "step":  "doctor reports every seeded fault",
+                      "pass":  true,
+                      "facts":  {
+                                    "found":  [
+                                                  "shortcut",
+                                                  "launcher",
+                                                  "saipen-launcher",
+                                                  "saimail",
+                                                  "modules",
+                                                  "staged-build"
+                                              ],
+                                    "statuses":  [
+                                                     "git=OK",
+                                                     "node=OK",
+                                                     "python=OK",
+                                                     "pnpm=OK",
+                                                     "workspace=OK",
+                                                     "app-source=OK",
+                                                     "saipen=OK",
+                                                     "saipen-launcher=FAIL",
+                                                     "saimail=FAIL",
+                                                     "saimail-cli=WARN",
+                                                     "router=OK",
+                                                     "modules=FAIL",
+                                                     "app=OK",
+                                                     "staged-build=WARN",
+                                                     "launcher=FAIL",
+                                                     "shortcut=FAIL",
+                                                     "accounts=OK"
+                                                 ]
+                                }
+                  },
+                  {
+                      "step":  "doctor -Repair fixes every seeded fault",
+                      "pass":  true,
+                      "facts":  {
+                                    "fixed":  [
+                                                  "shortcut",
+                                                  "launcher",
+                                                  "saipen-launcher",
+                                                  "saimail",
+                                                  "modules",
+                                                  "staged-build"
+                                              ],
+                                    "statuses":  [
+                                                     "git=OK",
+                                                     "node=OK",
+                                                     "python=OK",
+                                                     "pnpm=OK",
+                                                     "workspace=OK",
+                                                     "app-source=OK",
+                                                     "saipen=OK",
+                                                     "saipen-launcher=FIXED",
+                                                     "saimail=FIXED",
+                                                     "saimail-cli=WARN",
+                                                     "router=OK",
+                                                     "modules=FIXED",
+                                                     "app=OK",
+                                                     "staged-build=FIXED",
+                                                     "launcher=FIXED",
+                                                     "shortcut=FIXED",
+                                                     "accounts=OK"
+                                                 ]
+                                }
+                  },
+                  {
+                      "step":  "after repair: doctor passes",
+                      "pass":  true,
+                      "facts":  {
+                                    "statuses":  [
+                                                     "git=OK",
+                                                     "node=OK",
+                                                     "python=OK",
+                                                     "pnpm=OK",
+                                                     "workspace=OK",
+                                                     "app-source=OK",
+                                                     "saipen=OK",
+                                                     "saipen-launcher=OK",
+                                                     "saimail=OK",
+                                                     "saimail-cli=WARN",
+                                                     "router=OK",
+                                                     "modules=OK",
+                                                     "app=OK",
+                                                     "staged-build=OK",
+                                                     "launcher=OK",
+                                                     "shortcut=OK",
+                                                     "accounts=OK"
+                                                 ]
+                                }
+                  },
+                  {
+                      "step":  "shortcut starts ZAICODE (isolated profile)",
+                      "pass":  true,
+                      "facts":  {
+                                    "shortcutTarget":  "V:\\_TEMP_\\zi2\\ZAICODE\\ZAICODE.exe",
+                                    "launcherPid":  48088,
+                                    "appPid":  41396,
+                                    "profileWritten":  true
+                                }
+                  }
+              ],
+    "ok":  true
+}

@@ -1,0 +1,49 @@
+20:59:58  ============================================================
+20:59:58   ZAICODE install: ZAICODE + SAIPEN + SAIMAIL
+20:59:58   into V:\_TEMP_\zi2\ZAICODE
+20:59:58   This takes a while the first time (the app is built here). Nothing to click.
+20:59:58  ============================================================
+20:59:58  repair Git: portable Git requested
+20:59:58  download https://github.com/git-for-windows/git/releases/download/v2.55.0.windows.5/MinGit-2.55.0.5-64-bit.zip
+21:00:00  FIXED  Git                                    
+21:00:00  repair Node.js 24: portable Node.js requested
+21:00:00  download https://nodejs.org/dist/v24.14.0/node-v24.14.0-win-x64.zip
+21:00:02  FIXED  Node.js 24                             
+21:00:02  repair Python 3.11+: portable Python requested
+21:00:03  download https://api.nuget.org/v3-flatcontainer/python/3.13.15/python.3.13.15.nupkg
+21:00:04  FIXED  Python 3.11+                           
+21:00:04  repair pnpm (pinned): the pinned pnpm is not in .tools
+21:00:06  FIXED  pnpm (pinned)                          
+21:00:06  repair ZAICODE workspace (launcher, docs): not a clone of the ZAICODE workspace
+21:00:07  FIXED  ZAICODE workspace (launcher, docs)     
+21:00:07  repair ZAICODE app source: zcode\ is not a clone of the ZAICODE app
+21:00:16  FIXED  ZAICODE app source                     
+21:00:16  repair SAIPEN: saipen\ is not a clone of SAIPEN
+21:00:19  FIXED  SAIPEN                                 
+21:00:19  repair SAIPEN launcher: bin\saipen.cmd is missing
+21:00:19  FIXED  SAIPEN launcher                        
+21:00:19  repair SAIMAIL: saimail\ is not a clone of SAIMAIL
+21:00:28  FIXED  SAIMAIL                                
+21:00:28  repair saimail-local (SAIMAIL panels): the published SAIMAIL (0.0.1) has no saimail-local yet; ZAICODE's SAIMAIL panels stay off until a release ships it
+21:00:28  WARN   saimail-local (SAIMAIL panels)         the published SAIMAIL has no saimail-local to install
+21:00:28  repair 9router package (zero-setup SAIFREN): not in .tools (the app works; SAIFREN then needs an existing 9router)
+21:00:34  FIXED  9router package (zero-setup SAIFREN)   
+21:00:34  repair App dependencies (pnpm install): node_modules is missing
+21:00:43  FIXED  App dependencies (pnpm install)        
+21:00:43  repair ZAICODE app build: no built ZAICODE.exe
+21:09:47  FIXED  ZAICODE app build                      
+21:09:47  OK     Staged build swap                      
+21:09:47  repair Root launcher ZAICODE.exe: ZAICODE.exe (the launcher) is missing
+21:09:47  FIXED  Root launcher ZAICODE.exe              
+21:09:47  repair Shortcuts: ZAICODE.lnk in V:\_TEMP_\zi2\shortcuts: missing
+21:09:48  FIXED  Shortcuts                              
+21:09:48  OK     Claude / Codex logins                  
+21:09:48  
+21:09:48  Subscriptions found (each is its own engine in ZAICODE):
+21:09:48    claude C:\Users\vac34\.claude  (signed in)
+21:09:48    claude C:\Users\vac34\.claude-account2  (signed in)
+21:09:48    codex  C:\Users\vac34\.codex  (signed in)
+21:09:48    codex  C:\Users\vac34\.codex-account2  (signed in)
+21:09:48    codex  C:\Users\vac34\.codex-account3free  (signed in)
+21:09:48  
+21:09:48  Done in 9,8 min. Start ZAICODE from the shortcut (or V:\_TEMP_\zi2\ZAICODE\ZAICODE.exe).

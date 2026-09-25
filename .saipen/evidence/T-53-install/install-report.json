@@ -1,0 +1,175 @@
+﻿{
+    "installDir":  "V:\\_TEMP_\\zi2\\ZAICODE",
+    "startedAt":  "2026-09-25T20:59:58.0414497+03:00",
+    "minutes":  9.8,
+    "log":  "V:\\_TEMP_\\zi2\\ZAICODE\\install\\logs\\install-20260925-205958.log",
+    "checks":  [
+                   {
+                       "Id":  "git",
+                       "Title":  "Git",
+                       "Status":  "FIXED",
+                       "Problem":  "portable Git requested",
+                       "Error":  null,
+                       "Seconds":  2.8
+                   },
+                   {
+                       "Id":  "node",
+                       "Title":  "Node.js 24",
+                       "Status":  "FIXED",
+                       "Problem":  "portable Node.js requested",
+                       "Error":  null,
+                       "Seconds":  2.1
+                   },
+                   {
+                       "Id":  "python",
+                       "Title":  "Python 3.11+",
+                       "Status":  "FIXED",
+                       "Problem":  "portable Python requested",
+                       "Error":  null,
+                       "Seconds":  1.1
+                   },
+                   {
+                       "Id":  "pnpm",
+                       "Title":  "pnpm (pinned)",
+                       "Status":  "FIXED",
+                       "Problem":  "the pinned pnpm is not in .tools",
+                       "Error":  null,
+                       "Seconds":  2.2
+                   },
+                   {
+                       "Id":  "workspace",
+                       "Title":  "ZAICODE workspace (launcher, docs)",
+                       "Status":  "FIXED",
+                       "Problem":  "not a clone of the ZAICODE workspace",
+                       "Error":  null,
+                       "Seconds":  1.3
+                   },
+                   {
+                       "Id":  "app-source",
+                       "Title":  "ZAICODE app source",
+                       "Status":  "FIXED",
+                       "Problem":  "zcode\\ is not a clone of the ZAICODE app",
+                       "Error":  null,
+                       "Seconds":  9.2
+                   },
+                   {
+                       "Id":  "saipen",
+                       "Title":  "SAIPEN",
+                       "Status":  "FIXED",
+                       "Problem":  "saipen\\ is not a clone of SAIPEN",
+                       "Error":  null,
+                       "Seconds":  2.4
+                   },
+                   {
+                       "Id":  "saipen-launcher",
+                       "Title":  "SAIPEN launcher",
+                       "Status":  "FIXED",
+                       "Problem":  "bin\\saipen.cmd is missing",
+                       "Error":  null,
+                       "Seconds":  0
+                   },
+                   {
+                       "Id":  "saimail",
+                       "Title":  "SAIMAIL",
+                       "Status":  "FIXED",
+                       "Problem":  "saimail\\ is not a clone of SAIMAIL",
+                       "Error":  null,
+                       "Seconds":  8.8
+                   },
+                   {
+                       "Id":  "saimail-cli",
+                       "Title":  "saimail-local (SAIMAIL panels)",
+                       "Status":  "WARN",
+                       "Problem":  "the published SAIMAIL (0.0.1) has no saimail-local yet; ZAICODE\u0027s SAIMAIL panels stay off until a release ships it",
+                       "Error":  "the published SAIMAIL has no saimail-local to install",
+                       "Seconds":  0.6
+                   },
+                   {
+                       "Id":  "router",
+                       "Title":  "9router package (zero-setup SAIFREN)",
+                       "Status":  "FIXED",
+                       "Problem":  "not in .tools (the app works; SAIFREN then needs an existing 9router)",
+                       "Error":  null,
+                       "Seconds":  5.6
+                   },
+                   {
+                       "Id":  "modules",
+                       "Title":  "App dependencies (pnpm install)",
+                       "Status":  "FIXED",
+                       "Problem":  "node_modules is missing",
+                       "Error":  null,
+                       "Seconds":  9.3
+                   },
+                   {
+                       "Id":  "app",
+                       "Title":  "ZAICODE app build",
+                       "Status":  "FIXED",
+                       "Problem":  "no built ZAICODE.exe",
+                       "Error":  null,
+                       "Seconds":  544.3
+                   },
+                   {
+                       "Id":  "staged-build",
+                       "Title":  "Staged build swap",
+                       "Status":  "OK",
+                       "Problem":  null,
+                       "Error":  null,
+                       "Seconds":  0
+                   },
+                   {
+                       "Id":  "launcher",
+                       "Title":  "Root launcher ZAICODE.exe",
+                       "Status":  "FIXED",
+                       "Problem":  "ZAICODE.exe (the launcher) is missing",
+                       "Error":  null,
+                       "Seconds":  0.1
+                   },
+                   {
+                       "Id":  "shortcut",
+                       "Title":  "Shortcuts",
+                       "Status":  "FIXED",
+                       "Problem":  "ZAICODE.lnk in V:\\_TEMP_\\zi2\\shortcuts: missing",
+                       "Error":  null,
+                       "Seconds":  0.1
+                   },
+                   {
+                       "Id":  "accounts",
+                       "Title":  "Claude / Codex logins",
+                       "Status":  "OK",
+                       "Problem":  null,
+                       "Error":  null,
+                       "Seconds":  0
+                   }
+               ],
+    "accounts":  [
+                     {
+                         "Vendor":  "claude",
+                         "Home":  "C:\\Users\\vac34\\.claude",
+                         "SignedIn":  true
+                     },
+                     {
+                         "Vendor":  "claude",
+                         "Home":  "C:\\Users\\vac34\\.claude-account2",
+                         "SignedIn":  true
+                     },
+                     {
+                         "Vendor":  "codex",
+                         "Home":  "C:\\Users\\vac34\\.codex",
+                         "SignedIn":  true
+                     },
+                     {
+                         "Vendor":  "codex",
+                         "Home":  "C:\\Users\\vac34\\.codex-account2",
+                         "SignedIn":  true
+                     },
+                     {
+                         "Vendor":  "codex",
+                         "Home":  "C:\\Users\\vac34\\.codex-account3free",
+                         "SignedIn":  true
+                     }
+                 ],
+    "addedAccountHomes":  [
+
+                          ],
+    "ok":  true
+}

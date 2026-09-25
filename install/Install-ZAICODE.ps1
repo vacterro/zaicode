@@ -68,7 +68,26 @@ Write-ZaicodeLog " into $($layout.Root)" 'White'
 Write-ZaicodeLog ' This takes a while the first time (the app is built here). Nothing to click.' 'White'
 Write-ZaicodeLog '============================================================' 'White'
 
-$results = Invoke-ZaicodeChecks $layout $options -Repair
+# An existing install is updated first: every clone fast-forwards (local edits are kept).
+$changed = @{}
+$git = Find-ZaicodeGit $layout
+if ($git -and (Test-ZaicodeRepo $git $layout.Root)) {
+  Write-ZaicodeLog 'Updating the existing install from GitHub' 'White'
+  try { $changed = Update-ZaicodeClones $layout $options $git } catch { Write-ZaicodeLog "update skipped: $($_.Exception.Message)" 'Yellow' }
+}
+
+$results = @(Invoke-ZaicodeChecks $layout $options -Repair)
+
+# New app or launcher source: rebuild after the checks (which reinstall dependencies when the lockfile moved).
+# A running ZAICODE gets the app build staged and swapped in on its next start.
+if ($changed['app'] -and -not @($results | Where-Object { $_.Id -eq 'app' -and $_.Status -eq 'FIXED' }).Count) {
+  try { Build-ZaicodeApp $layout (Find-ZaicodeNode $layout); Write-ZaicodeLog 'App rebuilt from the new source' 'Cyan' }
+  catch { $results += [pscustomobject]@{ Id = 'app-update'; Title = 'App rebuild after update'; Status = 'FAIL'; Problem = 'rebuild failed'; Error = $_.Exception.Message; Seconds = 0 } }
+}
+if ($changed['workspace']) {
+  try { Build-ZaicodeLauncher $layout; Write-ZaicodeLog 'Launcher rebuilt from the new source' 'Cyan' }
+  catch { $results += [pscustomobject]@{ Id = 'launcher-update'; Title = 'Launcher rebuild after update'; Status = 'FAIL'; Problem = 'rebuild failed'; Error = $_.Exception.Message; Seconds = 0 } }
+}
 
 # Several subscriptions: one home per extra login, listed by ZAICODE as its own engine.
 $added = @()
