@@ -136,3 +136,15 @@ or pass an explicit IANA zone.
 buttons. That is right for a window-wide overlay, wrong for the ZAICODE
 toolbar overlay that is only as wide as the sidebar: the reservation squeezed
 the toolbar to ~30 px and pushed every icon into the overflow menu.
+
+## Launcher swap fails on long paths (2026-09-25, T-58)
+
+The bundled 9router ships a Next.js output whose deepest files
+(`...\.next\...\__PAGE__.segment.rsc`) pass MAX_PATH under
+`dist\win-unpacked.previous`. The csc-built launcher is not long-path aware,
+so `Directory.Delete(previous)` threw "Could not find a part of the path",
+the swap was skipped and the OLD build started again (launcher.log: "Staged
+build swap failed"). `RemoveBuildDirectory` now falls back to
+`rd /s /q "\?\<path>"` and, last, moves the folder aside. A launcher that is
+already running keeps its old code until it restarts; clearing
+`win-unpacked.previous` by hand (PowerShell 7 or `rd` with `\?\`) unblocks it.

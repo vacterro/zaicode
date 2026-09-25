@@ -813,3 +813,13 @@ Source: SRC-043 (nine operator items).
   `readFreebuff` (default on). Launch surfaces use
   `launchableZaicodeAccounts`; `launchZaicodeWorker` refuses metrics-only
   accounts.
+- Profiles (`zaicodeProfileBundles.ts`, `zaicodeProfiles.ts`): a profile keeps
+  every preference in `ZAICODE_PROFILE_KEYS` (ZAICODE settings plus upstream
+  theme, language, UI size, sidebar width, notification switches). Switching
+  saves the current values into `zaicode-profile-bundle:<id>`, puts the other
+  profile's bundle in place (unset = removed, the release default applies)
+  and reloads the window, because every settings store reads localStorage
+  once. A new profile starts as a copy; removing the active one hands over to
+  the first remaining. Live facts stay shared: MAIN sessions, todo progress,
+  running timers and alarms, schedules, journals, session roles,
+  switched-off projects, own sound files.

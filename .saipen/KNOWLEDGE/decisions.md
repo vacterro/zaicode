@@ -119,3 +119,14 @@ bucketing happens in JS from quarter-hour SQL sums with Intl in the caller's
 IANA zone. The store is shared with production ZCode on the same machine, so
 SAIHOME labels it as such. CLI worker sessions carry no token counts and are
 shown as unmeasured runtime.
+
+## D-11 GitHub backup layout (T-58, 2026-09-25)
+
+Operator's backup repository: `https://github.com/vacterro/zaicode` (PUBLIC).
+Branch `main` = the `zcode/` checkout on its local branch `zaicode` (upstream
+history + the ZAICODE layer, remote name `backup`); branch `workspace` = the
+root `_ZAICODE` repo (`master`: launcher, docs, `.saipen/` memory). `zcode`'s
+`origin` stays upstream `zai-org/ZCode` and is never pushed. The modified
+Microsoft Verdana files (`packages/desktop/build/zaicode-fonts/Verdana_m1*.ttf`)
+are excluded through `zcode/.git/info/exclude` because the repo is public;
+they stay local (source: `_FREEBUFF_PATCH/fonts`).

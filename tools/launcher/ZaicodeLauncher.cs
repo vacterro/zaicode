@@ -129,7 +129,7 @@ internal static class ZaicodeLauncher
         string previous = live + ".previous";
         try
         {
-            if (Directory.Exists(previous)) Directory.Delete(previous, true);
+            if (Directory.Exists(previous)) RemoveBuildDirectory(previous);
             if (Directory.Exists(live)) Directory.Move(live, previous);
             Directory.CreateDirectory(Path.GetDirectoryName(live));
             Directory.Move(staged, live);
@@ -143,6 +143,48 @@ internal static class ZaicodeLauncher
                 try { Directory.Move(previous, live); } catch { /* keep logging only */ }
             }
         }
+    }
+
+    /// <summary>
+    /// Removes an old build. The bundled router ships a Next.js output whose
+    /// deepest files pass MAX_PATH, which Directory.Delete (legacy .NET path
+    /// handling) cannot reach: the swap failed and the old build kept running
+    /// (T-58). Fallback: rd with the \\?\ prefix (long-path aware); last resort:
+    /// move it aside under a unique name so the swap still happens.
+    /// </summary>
+    private static void RemoveBuildDirectory(string path)
+    {
+        try
+        {
+            Directory.Delete(path, true);
+            return;
+        }
+        catch (Exception error)
+        {
+            Log("Delete " + Path.GetFileName(path) + " failed (" + error.Message + "); retrying long-path aware");
+        }
+        try
+        {
+            var info = new ProcessStartInfo(
+                Path.Combine(Environment.SystemDirectory, "cmd.exe"),
+                "/d /c rd /s /q \"\\\\?\\" + path + "\"")
+            {
+                UseShellExecute = false,
+                CreateNoWindow = true,
+            };
+            using (Process process = Process.Start(info))
+            {
+                process.WaitForExit(120000);
+            }
+        }
+        catch (Exception error)
+        {
+            Log("rd failed: " + error.Message);
+        }
+        if (!Directory.Exists(path)) return;
+        string aside = path + "-" + DateTime.UtcNow.ToString("yyyyMMddHHmmss");
+        Directory.Move(path, aside);
+        Log("Old build moved aside to " + Path.GetFileName(aside) + " (delete it by hand)");
     }
 
     [System.Runtime.InteropServices.DllImport("gdi32.dll", CharSet = System.Runtime.InteropServices.CharSet.Unicode)]

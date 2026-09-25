@@ -69,6 +69,9 @@ schemas, environment variables or RPC contracts.
 | `packages/ui/src/WorkspaceSidebarItem.tsx` (T-56) | fixed status/action zone, New session / Files / on-off in the row menu, Shift+Click on/off, OFF dimming | row actions are inline JSX | medium (large file) |
 | `packages/ui/src/WorkspaceSidebar.tsx` (T-56) | Shift + hold 2 s slot drop: collision function, drop branch, SLOTS panel mount | the project DnD context is inline | low |
 | `packages/ui/src/v4/ConversationDraftEmptyState.tsx` (T-56) | SCHEDULER card removed (moved to SAIHOME); settings title "New task screen" | composer empty-state JSX | trivial |
+| `packages/ui/src/WorkspaceSidebar.tsx` (T-58) | ZAICODE: project list rendered without the purpose section (no title / fold / drag), SLOTS / LIVE / + in the toolbar, no scroll mask, `data-zaicode-instant`, session briefs + CONTINUE / DONE strip mount | the section list and toolbar are inline JSX | medium (large file) |
+| `packages/ui/src/WorkspaceSidebarItem.tsx` (T-58) | no grab cursor in ZAICODE, CSS hover action zone, continue handle registration, per-session continue | row JSX inline | medium |
+| `packages/ui/src/TaskList.tsx`, `TaskListItem.tsx` (T-58) | optional `onContinueTask`: ▶ row action and Alt+Click | the row owns its click / actions | low |
 
 The ledger lists upstream-owned touched files; new ZAICODE-owned source files
 remain tracked in the implementation notes and are not duplicated here.
