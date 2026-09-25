@@ -1,4 +1,14 @@
 {
-  "requirements": {},
+  "requirements": {
+    "SRC-040:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "T-55 closed with verification evidence in LOG: verify -> PASS [target: T-55] conf: high -- UI zaicode* 198/198 incl. zaicodeSaihome+Wave56, services zaicode* 30/30 incl. zaicodeStats",
+      "text": "SAIHOME operator home/dashboard as ZAICODE first-class surface, extends T-52 (stats+home)",
+      "verification": "the Work this request created reached its own verification gate; see the T-55 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-55"
+    }
+  },
   "schema_version": 1
 }

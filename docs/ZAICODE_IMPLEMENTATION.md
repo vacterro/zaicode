@@ -881,3 +881,47 @@ GUI behaviour is an operator check (evidence `.saipen/evidence/T-60-wave.md`).
   `ZaicodeClearAllDone.tsx` over `registerZaicodeArchiveSome`.
 - Grouped rows use the operator's Working icon; menu lines carry optional
   custom labels (`ZaicodeLayoutEntry.label`, `useZaicodeNavLabel`).
+
+## 27. SUBCHAT: subscriptions as a chat, no worker (T-51, 2026-09-25)
+
+Source: SRC-038 ("use these subscriptions as in an ordinary chat, without any
+WORKERS"; several Claude / Codex accounts side by side). Status: unit- and
+transport-tested (`ui/test/zaicodeSubchat.test.ts`,
+`desktop/test/zaicodeSubchatProcess.test.ts`), real turns recorded in
+`.saipen/evidence/T-51-subchat.md`.
+
+- Path: a Claude Code or Codex login answers in the SUBCHAT view. Each turn
+  runs that login's own CLI headless in the project folder -- `claude -p
+  --output-format stream-json --verbose [--resume <id>]` under its
+  `CLAUDE_CONFIG_DIR`, `codex exec [resume <id>] --json --skip-git-repo-check -`
+  under its `CODEX_HOME` -- with the prompt on stdin. The next prompt resumes
+  the same vendor session. Antigravity and ZCode have no headless chat mode
+  and keep starting workers.
+- Pure half (`shared/src/zaicode-subchat.ts`): who can chat
+  (`zaicodeSubchatUnavailableReason`), the invocation
+  (`buildZaicodeSubchatInvocation`; a malformed session id never becomes an
+  argument), both stream parsers (session / text / tool / usage / error /
+  result), the transcript reducer (a failed turn that says it twice shows one
+  error, a Stop is a note) and the stored-chat normalizer (a turn that died with
+  the app becomes idle with a note; its session still resumes).
+- Main (`desktop/src/main/zaicodeSubchat.ts`, `zaicodeSubchatProcess.ts`): the
+  renderer names an account id, a folder, the prompt and the session; the
+  executable, home and flags come from main's engines state. The process core
+  splits stdout into lines, parses them and always ends with exactly one
+  `result` (the CLI's own, or one from the exit: "Stopped.", or the last stderr
+  line). Stop, a closed window and quit kill only that turn's process tree.
+  IPC: `zaicode:subchat-run`, `zaicode:subchat-cancel`, event
+  `zaicode:subchat-event`.
+- Renderer: `ui/src/zaicode/subchat/` -- store (chats in localStorage under
+  `zaicode-subchats`, bounded to 60 chats x 400 messages and ~2.5 MB, never
+  persisted as running), `ZaicodeSubchatView.tsx` (login tiles for a new chat,
+  chat list, transcript with markdown answers and tool lines, Stop / Delete,
+  Enter sends), `zaicodeSubscriptionRoute.ts` (composer and START for a picked
+  tile: SUBCHAT or worker). Main view `subchat`, menu line SUBCHAT after New
+  task, Help topic, sounds `subchat.done` / `subchat.fail`.
+- Setting: engines config `subscriptionPrompts` (`chat` default, `worker`),
+  Settings -> Engines & limits -> Workers.
+- Why not an OAuth proxy: routing a consumer subscription's OAuth token into a
+  third-party harness is the vendor's terms question (T-40); the headless CLI
+  is the vendor's own client, run by the operator on their machine. The
+  9router "Subscriptions as models" path (T-40) stays for model lists and pools.

@@ -1,4 +1,14 @@
 {
-  "requirements": {},
+  "requirements": {
+    "SRC-039:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "T-54 closed with verification evidence in LOG: verify -> PASS [target: T-54] conf: high -- UI zaicode* 198/198 (zaicodeSaihome 12: layout presets, empty modules, truth states, routing, fleet order), services zaicode* 30/30 (zaicodeStats 6)",
+      "text": "Expand T-52 into SAIHOME operator home: distinct Home/New Task navigation, single snapshot, durable local stats, clock, limits, Scheduler, project fleet, agents, routing health, action center, activity, customizable responsive layout, tests, docs; obey T-51 dependency and current SAIPEN truth",
+      "verification": "the Work this request created reached its own verification gate; see the T-54 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-54"
+    }
+  },
   "schema_version": 1
 }

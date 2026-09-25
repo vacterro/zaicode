@@ -81,6 +81,9 @@ schemas, environment variables or RPC contracts.
 | `packages/ui/src/WorkspaceSidebar.tsx`, `WorkspaceSidebarItem.tsx` (T-60) | third view MAIN (tab, row = MAIN, children without MAIN, MAIN glyph), CLEAR ALL DONE, START continues MAIN, archive-some registration | view switch and rows are inline | medium |
 | `packages/ui/src/NewTaskButtonGroup.tsx` (T-60) | the menu line's custom name | label is inline | trivial |
 | `packages/shared/src/channels.ts`, `platform.ts`, `desktop/src/preload/index.ts`, `desktop/src/main/desktopMainIpcPlatform.ts` (T-60) | IPC `zaicode:write-prompt-file` | closed channel / bridge registries | trivial |
+| `packages/ui/src/app-shell/types.ts`, `app-shell/WorkspaceShellLayout.tsx` (T-51) | `subchat` main view: opener registration and render branch | the view union and switch are closed | trivial |
+| `packages/ui/src/prompt-editor/ChatPromptEditor.tsx`, `ZaicodeSaipenControls.tsx` (T-51) | a prompt / START for a picked subscription goes through `routeZaicodeSubscriptionPrompt` (SUBCHAT or worker) | submit routing is inline | trivial |
+| `packages/shared/src/channels.ts`, `platform.ts`, `desktop/src/preload/index.ts`, `desktop/src/main/desktopMainIpcPlatform.ts` (T-51) | IPC `zaicode:subchat-run`, `zaicode:subchat-cancel`, event `zaicode:subchat-event` | closed channel / bridge registries | trivial |
 | `README.md` -> `README.zcode.md`, `README.en.md` (0.0.1) | upstream README kept as `README.zcode.md` (+ link to ZAICODE); `README.md` is ZAICODE's; the English README links the moved file | GitHub shows `README.md` on `main` | trivial |
 
 The ledger lists upstream-owned touched files; new ZAICODE-owned source files

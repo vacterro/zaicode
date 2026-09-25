@@ -549,3 +549,23 @@ why?", WORKERS "what runs in terminals?", Settings "how should it behave?".
   = the built-in name).
 - Agents inside ZAICODE cannot stop ZAICODE processes by name, image or path
   (the agent CLI refuses the command, also in full-access mode).
+
+## SUBCHAT (T-51)
+
+The operator's Claude Code and Codex logins answer in a plain chat inside
+ZAICODE: no worker, no terminal, fewer middlemen.
+
+- Open it from the SUBCHAT menu line. The tiles at its top (A1, A2, C1, …)
+  start a new chat with that login in the current project; every login is its
+  own tile and its own chat, and chats can answer at the same time.
+- Picking a Claude / Codex tile on the sidebar and typing in the composer (or
+  pressing START) opens a SUBCHAT with that login. Settings -> Engines & limits
+  -> Workers switches this back to worker terminals. Antigravity and ZCode
+  always start a worker. Double-click on a tile still starts a worker.
+- A turn runs that login's own CLI in the background in the project folder,
+  with its own tools and its own quota; the next prompt continues the same
+  session. The answer shows as markdown, tool use as one dim line each.
+- Stop ends the running turn (shown as a note, not an error). A spent limit
+  shows once, as an error, with the vendor's reset time. Delete removes the
+  chat from ZAICODE only. Chats survive a restart; a turn cut off by a restart
+  says so and the next prompt continues the session.

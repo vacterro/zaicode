@@ -81,3 +81,7 @@ and `../../apps/zcode-cli/packages/bootstrap/test/zaicodeQueueDrain.test.ts`, bo
 from `packages/services`. Agent CLI build without turbo, from `apps/zcode-cli`:
 `pnpm --filter @zcode/core build`, `pnpm --filter @zcode/bootstrap build`,
 `pnpm --filter @zcode/cli build` (typecheck the same way with `typecheck`).
+
+ZAICODE tests added 2026-09-25 (T-51, SUBCHAT): UI `test/zaicodeSubchat.test.ts`
+(in the `zaicode*` glob); desktop `test/zaicodeSubchatProcess.test.ts` (in its
+`zaicode*` glob; a stand-in CLI script drives the real process transport).

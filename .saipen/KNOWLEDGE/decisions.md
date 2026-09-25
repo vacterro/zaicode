@@ -130,3 +130,15 @@ root `_ZAICODE` repo (`master`: launcher, docs, `.saipen/` memory). `zcode`'s
 Microsoft Verdana files (`packages/desktop/build/zaicode-fonts/Verdana_m1*.ttf`)
 are excluded through `zcode/.git/info/exclude` because the repo is public;
 they stay local (source: `_FREEBUFF_PATCH/fonts`).
+
+## D-12 Subscription chat runs the vendor CLI headless (T-51, 2026-09-25)
+
+SUBCHAT (SRC-038: subscriptions "as in an ordinary chat, without WORKERS")
+runs each turn as the account's own CLI in headless mode (`claude -p
+--output-format stream-json`, `codex exec --json`) under that account's home,
+with the prompt on stdin and `--resume` / `exec resume <id>` for the next turn.
+Rejected: reading the CLIs' OAuth tokens and calling the vendor APIs from
+ZAICODE (a consumer subscription in a third-party harness is the vendor's
+terms question, see T-40) and a text-only "CLI as a model" adapter (it cannot
+carry ZAICODE's tool calls). The 9router "Subscriptions as models" path (T-40)
+remains the way to put a subscription into model lists and pools.
