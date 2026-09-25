@@ -12,6 +12,9 @@
   ZAICODE · <a href="README.zcode.md">ZCode (简体中文)</a> · <a href="README.en.md">ZCode (English)</a>
 </p>
 
+<img width="1440" height="860" alt="2026-09-25_184446" src="https://github.com/user-attachments/assets/981106cd-8671-4c39-9329-c66d6621bb73" />
+
+
 ZAICODE is an operator workbench for running many AI coding agents at once over
 many projects, without babysitting them. It is a modified build of
 [ZCode](https://github.com/zai-org/ZCode) (desktop app, browser UI and agent
@@ -52,6 +55,9 @@ used daily. There is no installer; build it from source.
   FastPrompter-style timers and alarms, per-action sounds and a Win95 dark
   golden, pixel-crisp interface.
 
+<img width="1440" height="860" alt="2026-09-25_182339" src="https://github.com/user-attachments/assets/7c9b723e-9610-4f5e-9463-7cc412621348" />
+
+
 ## Build
 
 Requirements: Windows 10/11, Git, Node.js **24.14.0**, pnpm **10.33.2**
@@ -70,6 +76,9 @@ without it the interface falls back to the system Verdana.
 
 Checks: `pnpm typecheck`, `pnpm lint`, and the ZAICODE tests, for example
 `node --import tsx --test test/zaicode*.test.ts` from `packages/ui`.
+
+<img width="1920" height="1080" alt="2026-09-25_182355" src="https://github.com/user-attachments/assets/12b19b5a-9ba5-4546-8f87-2012f22458ca" />
+
 
 ## Repository layout
 
@@ -91,3 +100,6 @@ ZAICODE is derived from ZCode by Z.ai and is distributed under the same
 Files were modified by the ZAICODE author. ZAICODE is an independent project,
 not affiliated with or endorsed by Z.ai. The original ZCode README is kept as
 [README.zcode.md](README.zcode.md) and [README.en.md](README.en.md).
+
+<img width="1440" height="860" alt="2026-09-25_182240" src="https://github.com/user-attachments/assets/9eed5305-6168-4b3c-a875-ffec2598b71f" />
+
