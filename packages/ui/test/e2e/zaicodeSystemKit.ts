@@ -4,7 +4,8 @@
  * worker processes that do what an agent seat does.
  */
 import { execFile, spawn, type ChildProcess } from "node:child_process";
-import { readFile, writeFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import { copyFile, mkdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { zaicodeProjectRuntimeState, type ZaicodeProjectRuntimeVerdict, type ZaicodeSaipenProjection } from "@zcode/shared";
 import { getZaicodeSaipenProjection, resolveZaicodeSaipenHome } from "../../../desktop/src/main/zaicodeSaipenProjection.js";
@@ -70,6 +71,46 @@ export function json(output: string): Record<string, unknown> {
   const end = output.lastIndexOf("}");
   if (start < 0 || end <= start) throw new Error(`no JSON in output: ${output.slice(0, 200)}`);
   return JSON.parse(output.slice(start, end + 1)) as Record<string, unknown>;
+}
+
+/** BOOT.md's two layouts: `<home>/saipen` (a source checkout) or `<home>` itself (the skill install). */
+export function saipenProtocolDir(home: string): string | null {
+  for (const dir of [join(home, "saipen"), home]) if (existsSync(join(dir, "BOOT.md"))) return dir;
+  return null;
+}
+
+/**
+ * A fresh Git project with real SAIPEN memory and one Work ticket (T-1), the
+ * way an operator bootstraps one: the protocol's own templates, this home's
+ * style contract, `saipen ticket add`, a commit, `saipen validate`.
+ */
+export async function createZaicodeE2eProject(input: { home: string; root: string; zaicodeRoot: string }): Promise<Record<string, unknown>> {
+  const { home, root } = input;
+  await mkdir(join(root, ".saipen"), { recursive: true });
+  await writeFile(join(root, "README.md"), "# ZAICODE E2E project\n");
+  if ((await git(root, ["init", "-q"])).code !== 0) throw new Error("git init failed");
+  const templates = join(home, "extensions", "templates");
+  await copyFile(join(templates, "BOARD.md"), join(root, ".saipen", "BOARD.md"));
+  await copyFile(join(templates, "LOG.md"), join(root, ".saipen", "LOG.md"));
+  const protocol = saipenProtocolDir(home);
+  if (!protocol) throw new Error(`no BOOT.md under ${home}`);
+  const style = /style_contract:\s*(ded-[0-9a-f]+)/.exec(await readFile(join(protocol, "STYLE.md"), "utf8"))?.[1];
+  if (!style) throw new Error("STYLE.md carries no style_contract marker");
+  const version = /saipen_version:\s*(\d+)/.exec(await readFile(join(input.zaicodeRoot, ".saipen", "STATE.md"), "utf8"))?.[1] ?? "8";
+  const state = (await readFile(join(templates, "STATE.md"), "utf8"))
+    .replace("agent: <name>", `agent: ${SEAT}`)
+    .replace(/saipen_version: \d+/, `saipen_version: ${version}`)
+    .replace('style_contract: ""', `style_contract: ${style}`)
+    .replace('saipen_home: ""', `saipen_home: "${home.replace(/\\/g, "/")}"`)
+    .replace(/updated: .*/, `updated: "${new Date().toISOString().replace(/\.\d+Z$/, "Z")}"`);
+  await writeFile(join(root, ".saipen", "STATE.md"), state);
+  await saipenOk(home, root, ["ticket", "add", "P1", "write hello.txt", "--verify", "hello.txt exists"]);
+  // SAIPEN writes its lineage carrier (IDENTITY.md) on first use and wants it tracked, like a real project.
+  await git(root, ["add", "-A"]);
+  if ((await git(root, ["commit", "-qm", "SAIPEN memory"])).code !== 0) throw new Error("initial commit failed");
+  const validate = await saipen(home, root, ["validate"]);
+  if (!/code: VALID/.test(validate.stdout)) throw new Error(`saipen validate: ${validate.stdout.trim().slice(-300)}`);
+  return { root, home, style_contract: style, saipen_version: version };
 }
 
 // ---------------------------------------------------------------------------

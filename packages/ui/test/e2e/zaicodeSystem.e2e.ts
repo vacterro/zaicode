@@ -23,7 +23,7 @@
  * git and saimail-local on PATH. Exit code 1 when any step FAILs.
  */
 import { existsSync } from "node:fs";
-import { copyFile, mkdir, mkdtemp, readdir, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -37,14 +37,14 @@ import {
   SEAT,
   TICKET,
   countLogEvents,
-  git,
+  createZaicodeE2eProject,
   json,
   probeMain,
   projectionFacts,
   readZaicodeSaipen,
   run,
   saipen,
-  saipenOk,
+  saipenProtocolDir,
   startWorker as startWorkerOf,
   verdictOf,
   waitExit,
@@ -114,30 +114,8 @@ async function harness(argv: string[]): Promise<number> {
 
   await step("cold-start", "Fresh Git project gets SAIPEN memory; one Work ticket", async () => {
     home = (await resolveZaicodeSaipenHome(ZAICODE_ROOT)) ?? "";
-    check(home && existsSync(join(home, "BOOT.md")), `no SAIPEN home (SAIPEN_HOME or ${ZAICODE_ROOT}/.saipen/STATE.md saipen_home)`);
-    await mkdir(join(root, ".saipen"), { recursive: true });
-    await writeFile(join(root, "README.md"), "# ZAICODE E2E project\n");
-    check((await git(root, ["init", "-q"])).code === 0, "git init failed");
-    const templates = join(home, "extensions", "templates");
-    await copyFile(join(templates, "BOARD.md"), join(root, ".saipen", "BOARD.md"));
-    await copyFile(join(templates, "LOG.md"), join(root, ".saipen", "LOG.md"));
-    const style = /style_contract:\s*(ded-[0-9a-f]+)/.exec(await readFile(join(home, "STYLE.md"), "utf8"))?.[1];
-    check(style, "STYLE.md carries no style_contract marker");
-    const version = /saipen_version:\s*(\d+)/.exec(await readFile(join(ZAICODE_ROOT, ".saipen", "STATE.md"), "utf8"))?.[1] ?? "8";
-    const state = (await readFile(join(templates, "STATE.md"), "utf8"))
-      .replace("agent: <name>", `agent: ${SEAT}`)
-      .replace(/saipen_version: \d+/, `saipen_version: ${version}`)
-      .replace('style_contract: ""', `style_contract: ${style}`)
-      .replace('saipen_home: ""', `saipen_home: "${home.replace(/\\/g, "/")}"`)
-      .replace(/updated: .*/, `updated: "${new Date().toISOString().replace(/\.\d+Z$/, "Z")}"`);
-    await writeFile(join(root, ".saipen", "STATE.md"), state);
-    await saipenOk(home, root, ["ticket", "add", "P1", "write hello.txt", "--verify", "hello.txt exists"]);
-    // SAIPEN writes its lineage carrier (IDENTITY.md) on first use and wants it tracked, like a real project.
-    await git(root, ["add", "-A"]);
-    check((await git(root, ["commit", "-qm", "SAIPEN memory"])).code === 0, "initial commit failed");
-    const validate = await saipen(home, root, ["validate"]);
-    check(/code: VALID/.test(validate.stdout), `saipen validate: ${validate.stdout.trim().slice(-300)}`);
-    return { root, home, style_contract: style, saipen_version: version };
+    check(home && saipenProtocolDir(home), `no SAIPEN home (SAIPEN_HOME or ${ZAICODE_ROOT}/.saipen/STATE.md saipen_home)`);
+    return createZaicodeE2eProject({ home, root, zaicodeRoot: ZAICODE_ROOT });
   });
 
   let lastProjection: ZaicodeSaipenSnapshot | null = null;

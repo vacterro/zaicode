@@ -8,15 +8,24 @@ import { normalizeZaicodeSaipenStatus, type ZaicodeSaipenProjection } from "@zco
  * --json` through the SAIPEN launcher (the protocol's DIRECT_LAUNCHER
  * transport, never a hand-built interpreter path). The answer is cached per
  * project until STATE, BOARD or LOG change, so polling ZAICODE surfaces do not
- * re-run SAIPEN. One run per project at a time.
+ * re-run SAIPEN; a failed read only for a few seconds. One run per project at
+ * a time.
  */
 
 const RUN_TIMEOUT_MS = 30_000;
 const MAX_OUTPUT_BYTES = 2 * 1024 * 1024;
+/**
+ * A failed read (launcher missing or busy, timeout, no JSON) is asked again
+ * after this even when the files did not change: caching the failure until
+ * the next checkpoint left ZAICODE on "projection unavailable" long after
+ * SAIPEN answered again (T-43 fault matrix, stale-snapshot).
+ */
+const FAILURE_RETRY_MS = 5000;
 
 interface CacheEntry {
   key: string;
   projection: ZaicodeSaipenProjection | null;
+  at: number;
 }
 
 const cache = new Map<string, CacheEntry>();
@@ -95,7 +104,7 @@ export async function getZaicodeSaipenProjection(projectPath: string): Promise<Z
   ).join("|");
   if (key.startsWith("missing")) return null;
   const cached = cache.get(projectPath);
-  if (cached?.key === key) return cached.projection;
+  if (cached?.key === key && (cached.projection !== null || Date.now() - cached.at < FAILURE_RETRY_MS)) return cached.projection;
   const running = inFlight.get(projectPath);
   if (running) return running;
   const task = (async () => {
@@ -111,7 +120,7 @@ export async function getZaicodeSaipenProjection(projectPath: string): Promise<Z
         projection = null;
       }
     }
-    cache.set(projectPath, { key, projection });
+    cache.set(projectPath, { key, projection, at: Date.now() });
     return projection;
   })().finally(() => inFlight.delete(projectPath));
   inFlight.set(projectPath, task);
