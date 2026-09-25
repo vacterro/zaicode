@@ -1,0 +1,28 @@
+{
+  "blocking_findings": {
+    "problem_count": 0,
+    "problems": [],
+    "ruleset_fingerprint": "82e5e183ae8f0fd909be3fa3627f00489cacaab813d942186c832db02a05a1c1",
+    "ruleset_version": 1,
+    "status": "complete",
+    "warning_count": 21
+  },
+  "board_hash": "b6e9990b463b6794",
+  "canonical_next_command": null,
+  "content_hash": "46295749152b1993",
+  "exit_code": 0,
+  "external_actions": [],
+  "gate": "core",
+  "kind": "conformance_receipt",
+  "log_hash": "85807a276a8f7553",
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "receipt_id": "receipt-70fdd44ba1f7",
+  "remediation_commands": [],
+  "schema_version": 2,
+  "source_head": "a3eff31751b3fb86a914c2574f54f61abb2535bb",
+  "source_tree_fingerprint": "git-delta-v1:c66baf69a8306f3b95dfc7badb5f72b088f8de8408e933efadc4d149721a1195",
+  "state_hash": "1677499eaeef77b1",
+  "timestamp_utc": "2026-09-25T12:35:48.584780Z",
+  "validator_protocol_version": "1",
+  "verdict": "PASS"
+}

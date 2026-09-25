@@ -1,0 +1,61 @@
+{
+  "agent": "claude-code",
+  "created_at": "2026-09-25T12:35:42Z",
+  "evidence_class": "executed",
+  "findings_digest": "3ea419497e8e23d72ba2a27f19cb5fac31544b9cd94ab0529b6fe646657f3431",
+  "gate": "core",
+  "integrity_digest": "67fcdc07b042d116",
+  "journal_op_id": "reverify.32b7aa6d7b55",
+  "original_closure": {
+    "claim_time": "2026-09-24T10:35:18Z",
+    "closure_mode": "own_patch",
+    "last_ticket_event": "E-446",
+    "owner": "claude-code",
+    "source_receipts": "SRC-024"
+  },
+  "own_problem_keys": [
+    "a765baa0ba8b6322"
+  ],
+  "problem_count": 2,
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "project_lineage": "lineage-b0732ed2f98947b9a3c97bfe71427eca",
+  "receipt_id": "RV-000005",
+  "ruleset_fingerprint": "82e5e183ae8f0fd909be3fa3627f00489cacaab813d942186c832db02a05a1c1",
+  "ruleset_version": 1,
+  "schema_version": 1,
+  "source_head": "a3eff31751b3fb86a914c2574f54f61abb2535bb",
+  "source_tree_fingerprint": "git-delta-v1:c66baf69a8306f3b95dfc7badb5f72b088f8de8408e933efadc4d149721a1195",
+  "verdict": "PASS_WITH_CARRIED_DEBT",
+  "verification": [
+    {
+      "command": "pnpm --dir zcode typecheck",
+      "duration_ms": 9560,
+      "executed": true,
+      "exit_code": 0,
+      "output_bytes": 297,
+      "output_digest": "0a79fbbbb805a036",
+      "result": "PASS"
+    },
+    {
+      "command": "pnpm --dir zcode lint",
+      "duration_ms": 412,
+      "executed": true,
+      "exit_code": 0,
+      "output_bytes": 31944,
+      "output_digest": "8cac8febde8a44d3",
+      "result": "PASS"
+    }
+  ],
+  "verification_contract": {
+    "commands": [
+      "pnpm --dir zcode typecheck",
+      "pnpm --dir zcode lint"
+    ],
+    "findings_digest": "3ea419497e8e23d72ba2a27f19cb5fac31544b9cd94ab0529b6fe646657f3431",
+    "gate": "core"
+  },
+  "verification_contract_digest": "aec48f4b97c62a42",
+  "verifier": "claude-code",
+  "warning_count": 21,
+  "work": "T-30"
+}
