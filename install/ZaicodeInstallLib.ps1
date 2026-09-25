@@ -249,14 +249,15 @@ function Test-ZaicodeRepo([string]$Git, [string]$Dir) {
 
 # Clones `$Url` at `$Branch` into `$Dir`, or fast-forwards an existing clone. Local edits are kept (warned).
 function Sync-ZaicodeRepo {
-  param([string]$Git, [string]$Url, [string]$Branch, [string]$Dir, [string[]]$Exclude = @())
+  param([string]$Git, [string]$Url, [string]$Branch, [string]$Dir, [string[]]$Exclude = @(), [string[]]$Owned = @('install'))
   if (Test-ZaicodeRepo $Git $Dir) {
     Invoke-ZaicodeCommand -File $Git -Arguments @('-C', $Dir, 'fetch', '--quiet', 'origin', $Branch) | Out-Null
     $pull = Invoke-ZaicodeCommand -File $Git -Arguments @('-C', $Dir, 'merge', '--ff-only', '--quiet', "origin/$Branch") -AllowFailure
     if ($pull.Code -ne 0) { Write-ZaicodeLog "$Dir has local changes; kept them (not updated)" 'Yellow' }
     return
   }
-  if ((Test-Path -LiteralPath $Dir) -and (Get-ChildItem -LiteralPath $Dir -Force | Where-Object { $_.Name -ne 'install' } | Select-Object -First 1)) {
+  # The installer's own folders may already be there (tools come first); anything else is someone's data.
+  if ((Test-Path -LiteralPath $Dir) -and (Get-ChildItem -LiteralPath $Dir -Force | Where-Object { $Owned -notcontains $_.Name } | Select-Object -First 1)) {
     throw "$Dir exists and is not a clone of $Url. Move it away or choose another -InstallDir."
   }
   New-Item -ItemType Directory -Force -Path $Dir | Out-Null
@@ -340,8 +341,20 @@ function Test-ZaicodeModules($Layout) {
   return (Test-Path -LiteralPath (Join-Path $Layout.Zcode 'node_modules\.modules.yaml'))
 }
 
+# Which pnpm-lock.yaml node_modules was installed from (content, not mtime: a no-op install touches nothing).
+function Get-ZaicodeLockMarker($Layout) { return (Join-Path $Layout.Zcode 'node_modules\.zaicode-lock.sha256') }
+
+# .NET directly: Get-FileHash lives in a script module that a PowerShell 7 PSModulePath can hide from 5.1.
+function Get-ZaicodeLockHash($Layout) {
+  $sha = [Security.Cryptography.SHA256]::Create()
+  $stream = [IO.File]::OpenRead((Join-Path $Layout.Zcode 'pnpm-lock.yaml'))
+  try { return ([BitConverter]::ToString($sha.ComputeHash($stream))).Replace('-', '') }
+  finally { $stream.Dispose(); $sha.Dispose() }
+}
+
 function Install-ZaicodeModules($Layout, [string]$Node) {
   Invoke-ZaicodeCommand -File (Get-ZaicodePnpm $Layout) -Arguments @('install', '--frozen-lockfile') -WorkingDirectory $Layout.Zcode -Environment @{ PATH = (Get-ZaicodePath $Layout $Node); CI = '1' } | Out-Null
+  Set-Content -LiteralPath (Get-ZaicodeLockMarker $Layout) -Value (Get-ZaicodeLockHash $Layout) -Encoding ASCII
 }
 
 function Install-ZaicodeRouterPackage($Layout, [string]$Node) {

@@ -121,10 +121,10 @@ function Test-ZaicodeCheck([string]$Id, $Ctx) {
       if (-not (Test-Path -LiteralPath (Join-Path $layout.RouterDir 'node_modules\9router\app'))) { return 'not in .tools (the app works; SAIFREN then needs an existing 9router)' }
     }
     'modules' {
-      $marker = Join-Path $layout.Zcode 'node_modules\.modules.yaml'
-      if (-not (Test-Path -LiteralPath $marker)) { return 'node_modules is missing' }
-      $lock = Join-Path $layout.Zcode 'pnpm-lock.yaml'
-      if ((Test-Path -LiteralPath $lock) -and (Get-Item -LiteralPath $lock).LastWriteTimeUtc -gt (Get-Item -LiteralPath $marker).LastWriteTimeUtc) { return 'pnpm-lock.yaml changed since the last install' }
+      if (-not (Test-Path -LiteralPath (Join-Path $layout.Zcode 'node_modules\.modules.yaml'))) { return 'node_modules is missing' }
+      $marker = Get-ZaicodeLockMarker $layout
+      if (-not (Test-Path -LiteralPath $marker)) { return 'no record of which pnpm-lock.yaml node_modules came from' }
+      if ((Get-Content -LiteralPath $marker -Raw).Trim() -ne (Get-ZaicodeLockHash $layout)) { return 'pnpm-lock.yaml changed since the last install' }
     }
     'app' {
       if (-not (Test-Path -LiteralPath $layout.AppExe) -and -not (Test-Path -LiteralPath $layout.StagedExe)) { return 'no built ZAICODE.exe' }
@@ -168,7 +168,8 @@ function Repair-ZaicodeCheck([string]$Id, $Ctx) {
     'python' { $Ctx.Python = Install-ZaicodePython $layout }
     'pnpm' { Install-ZaicodePnpm $layout (Resolve-ZaicodeNode $Ctx) | Out-Null }
     'workspace' {
-      Sync-ZaicodeRepo -Git (Resolve-ZaicodeGit $Ctx) -Url $options.ZaicodeRepo -Branch $script:ZaicodeDefaults.RootBranch -Dir $layout.Root -Exclude $script:ZaicodeWorkspaceExclude
+      Sync-ZaicodeRepo -Git (Resolve-ZaicodeGit $Ctx) -Url $options.ZaicodeRepo -Branch $script:ZaicodeDefaults.RootBranch -Dir $layout.Root -Exclude $script:ZaicodeWorkspaceExclude `
+        -Owned @('install', '.tools', '.venv', 'zcode', 'saipen', 'saimail')
     }
     'app-source' {
       Sync-ZaicodeRepo -Git (Resolve-ZaicodeGit $Ctx) -Url $options.ZaicodeRepo -Branch $script:ZaicodeDefaults.AppBranch -Dir $layout.Zcode

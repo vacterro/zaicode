@@ -6,8 +6,8 @@
 .DESCRIPTION
   1. Doctor (check only) passes on the fresh install.
   2. Seeds faults: shortcut deleted, launcher deleted, SAIPEN launcher pointed
-     at a missing Python, SAIMAIL venv deleted, pnpm-lock.yaml newer than
-     node_modules, a leftover dist\win-unpacked.previous deeper than MAX_PATH.
+     at a missing Python, SAIMAIL venv deleted, node_modules recorded for another
+     pnpm-lock.yaml, a leftover dist\win-unpacked.previous deeper than MAX_PATH.
   3. Doctor (check only) reports every seeded fault; doctor -Repair fixes them;
      doctor (check only) passes again.
   4. -Smoke: starts the shortcut's target with an isolated app name, profile
@@ -30,7 +30,8 @@ $installer = Split-Path -Parent $PSScriptRoot
 
 $layout = Get-ZaicodeLayout $InstallDir
 $doctor = Join-Path $installer 'ZAICODE-Doctor.ps1'
-$common = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $doctor, '-InstallDir', $layout.Root, '-ShortcutDir', $ShortcutDir, '-NoStartMenu', '-Json')
+$resultFile = Join-Path $env:TEMP ('zaicode-doctor-' + [guid]::NewGuid().ToString('N').Substring(0, 8) + '.json')
+$common = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $doctor, '-InstallDir', $layout.Root, '-ShortcutDir', $ShortcutDir, '-NoStartMenu', '-JsonOut', $resultFile)
 $verdict = [ordered]@{ installDir = $layout.Root; steps = @(); ok = $true }
 
 function Step([string]$Name, [bool]$Pass, $Facts) {
@@ -45,13 +46,12 @@ function Step([string]$Name, [bool]$Pass, $Facts) {
 function Invoke-Doctor([switch]$Repair) {
   $arguments = $common
   if ($Repair) { $arguments = $common + @('-Repair') }
-  $output = & powershell.exe @arguments 2>&1 | ForEach-Object { "$_" }
+  Remove-Item -LiteralPath $resultFile -Force -ErrorAction SilentlyContinue
+  & powershell.exe @arguments 2>&1 | Out-Null
   $code = $LASTEXITCODE
-  $text = $output -join "`n"
-  $start = $text.IndexOf('[')
-  $end = $text.LastIndexOf(']')
   $rows = @()
-  if ($start -ge 0 -and $end -gt $start) { $rows = @($text.Substring($start, $end - $start + 1) | ConvertFrom-Json) }
+  # Windows PowerShell 5.1 emits a JSON array as one object; ForEach-Object unrolls it.
+  if (Test-Path -LiteralPath $resultFile) { $rows = @(Get-Content -LiteralPath $resultFile -Raw | ConvertFrom-Json | ForEach-Object { $_ }) }
   return [pscustomobject]@{ Code = $code; Rows = $rows }
 }
 
@@ -72,7 +72,7 @@ Remove-Item -LiteralPath $layout.Launcher -Force -ErrorAction SilentlyContinue
 $saipenCmd = Join-Path $layout.Saipen 'bin\saipen.cmd'
 Set-Content -LiteralPath $saipenCmd -Encoding ASCII -Value ('@echo off' + "`r`n" + '"C:\no\such\python.exe" "' + (Join-Path $layout.Saipen 'tools\saipen.py') + '" %*')
 Remove-Item -LiteralPath $layout.Venv -Recurse -Force -ErrorAction SilentlyContinue
-(Get-Item -LiteralPath (Join-Path $layout.Zcode 'pnpm-lock.yaml')).LastWriteTimeUtc = (Get-Date).ToUniversalTime().AddMinutes(1)
+Set-Content -LiteralPath (Get-ZaicodeLockMarker $layout) -Value ('0' * 64) -Encoding ASCII
 $previous = Join-Path $layout.Zcode 'packages\desktop\dist\win-unpacked.previous'
 $deep = $previous
 while ($deep.Length -lt 300) { $deep = Join-Path $deep 'deep-segment-for-max-path' }

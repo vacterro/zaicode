@@ -14,6 +14,7 @@ param(
   [string]$InstallDir = (Split-Path -Parent $PSScriptRoot),
   [switch]$Repair,
   [switch]$Json,
+  [string]$JsonOut = '',
   [string[]]$Only = @(),
   [string]$ShortcutDir = [Environment]::GetFolderPath('Desktop'),
   [switch]$NoStartMenu,
@@ -41,6 +42,7 @@ Write-ZaicodeLog "ZAICODE Autotroubleshoot ($mode): $($layout.Root)" 'White'
 $results = @(Invoke-ZaicodeChecks $layout $options -Repair:$Repair -Only $Only)
 $failed = @($results | Where-Object { $_.Status -eq 'FAIL' })
 if ($Json) { $results | ConvertTo-Json -Depth 4 }
+if ($JsonOut) { ConvertTo-Json -InputObject $results -Depth 4 | Set-Content -LiteralPath $JsonOut -Encoding UTF8 }
 if ($failed.Count -gt 0) {
   $hint = ''
   if (-not $Repair) { $hint = ' (run again with -Repair)' }

@@ -89,7 +89,7 @@ In the app, Router -> Autotroubleshoot repairs the running router and pools.
 
 `install\tests\Test-ZaicodeInstall.ps1 -InstallDir <dir> -ShortcutDir <dir> -Smoke`
 checks a fresh install, seeds faults (shortcut and launcher deleted, SAIPEN
-launcher pointed at a missing Python, SAIMAIL's venv deleted, a changed
-lockfile, a leftover build folder deeper than MAX_PATH), asserts the doctor
-reports and repairs every one, then starts the shortcut's target with an
-isolated profile and stops exactly the process tree it started.
+launcher pointed at a missing Python, SAIMAIL's venv deleted, node_modules
+recorded for another lockfile, a leftover build folder deeper than MAX_PATH),
+asserts the doctor reports and repairs every one, then starts the shortcut's
+target with an isolated profile and stops exactly the process tree it started.
