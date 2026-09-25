@@ -277,6 +277,25 @@ declare global {
       }>;
       /** 写入“自动下载并安装更新”偏好 */
       setAutoDownloadAndInstallUpdates?(enabled: boolean): Promise<void>;
+      getZaicodeLauncherPreferences?(): Promise<{
+        autoRestartOnCrash: boolean;
+        saimailWorkspace: string | null;
+      }>;
+      setZaicodeAutoRestartOnCrash?(
+        enabled: boolean,
+      ): Promise<{ autoRestartOnCrash: boolean; saimailWorkspace: string | null }>;
+      /** ZAICODE：本机操作员的 SAIMAIL 邮箱根目录（null 清除）；下次启动时注入 SAIMAIL_WORKSPACE。 */
+      setZaicodeSaimailWorkspace?(
+        workspace: string | null,
+      ): Promise<{ autoRestartOnCrash: boolean; saimailWorkspace: string | null }>;
+      initZaicodeSaimailWorkspace?(workspace: string): Promise<{ ok: boolean; message: string }>;
+      getZaicodePixelExact?(): Promise<{ pixelExact: boolean }>;
+      setZaicodePixelExact?(enabled: boolean): Promise<{ pixelExact: boolean }>;
+      saveZaicodeSettingsSnapshot?(json: string): Promise<{ ok: boolean; message: string; sourcePath: string | null; backupPath: string | null }>;
+      /** ZAICODE：相对位移移动窗口 (用于右键拖拽) */
+      moveWindowBy?(delta: { dx: number; dy: number }): Promise<{ success: boolean }>;
+      /** ZAICODE：停靠窗口至分屏区域 (FancyZones) */
+      snapWindowZone?(zone: { fx: number; fy: number; fw: number; fh: number; state?: "normal" | "maximized" }): Promise<{ success: boolean }>;
       /** 跳过当前已发现的更新版本 */
       skipUpdateVersion?(version: string): Promise<void>;
       /** 注册应用语言变化，返回 disposer */

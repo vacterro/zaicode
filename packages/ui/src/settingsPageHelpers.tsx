@@ -31,6 +31,8 @@ import { DataBaseDirControl } from "@/settings/DataBaseDirControl.js";
 import { useZCodeIntl } from "@/i18n/IntlProvider.js";
 import { useOptionalServices } from "@/hooks/useServices.js";
 import { ProactiveSuggestionsSetting } from "@/settings/ProactiveSuggestionsSetting.js";
+import { ZaicodeSoundsShortcut } from "@/zaicode/ZaicodeAudioPanels.js";
+import { isZaicodeProductMode } from "@zcode/shared";
 import { normalizeInterfaceMode, type InterfaceMode } from "@/lib/interfaceMode.js";
 import {
   createSettingsPageConfig,
@@ -363,6 +365,8 @@ export function GeneralSectionContent({
             />
           }
         />
+        {/* ZAICODE: the terminal font lives in Settings -> Workers & terminal, next to the worker face. */}
+        {isZaicodeProductMode() ? null : (
         <SettingsRow
           label={intl.formatMessage({ id: "settings.terminalFontFamily" })}
           description={intl.formatMessage({ id: "settings.terminalFontFamilyDescription" })}
@@ -395,6 +399,7 @@ export function GeneralSectionContent({
             />
           }
         />
+        )}
         {showIntegratedTerminalShell ? (
           <SettingsRow
             label={intl.formatMessage({ id: "settings.integratedTerminalShell" })}
@@ -632,6 +637,7 @@ export function GeneralSectionContent({
             />
           }
         />
+        {isZaicodeProductMode() ? <ZaicodeSoundsShortcut /> : null}
         {isWindowsDesktop ? (
           <SettingsRow
             label={intl.formatMessage({ id: "settings.closeToTrayOnWindows" })}

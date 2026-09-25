@@ -23,6 +23,7 @@ import {
   getRemoteWorkspaceServicesForIdentity,
   useRemoteWorkspaceSessionStore,
 } from "@/store/remoteWorkspaceSessionStore.js";
+import { playZaicodeSound } from "@/zaicode/zaicodeSoundBus.js";
 
 function buildPinnedItemKey(workspacePath: string, taskId: string, workspaceIdentity?: string) {
   return `${buildTaskWorkspaceKey(workspacePath, workspaceIdentity)}:${taskId}`;
@@ -292,6 +293,7 @@ export function WorkspacePinnedTasksSection({
           pinned,
         })
         .then((meta) => {
+          playZaicodeSound("session.pin");
           removeOptimisticTaskListItemRef.current(
             item.workspacePath,
             item.taskId,
@@ -616,6 +618,7 @@ export function WorkspacePinnedTasksSection({
                   pinned,
                 })
                 .then((meta) => {
+                  playZaicodeSound("session.pin");
                   removeOptimisticTaskListItem(
                     contextMenuItem.workspacePath,
                     contextMenuItem.taskId,

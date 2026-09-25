@@ -1,5 +1,16 @@
 /* eslint-disable max-lines -- task item 同时承载默认列表和 timeline 两行布局的共享交互，先保持动作链路集中避免归档/置顶回归。 */
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { TaskInlineRenameInput } from "@/TaskInlineRenameInput.js";
+import { ZaicodeTodoMiniGauge } from "@/v4/ZaicodeTodoGauge.js";
+import { ZaicodeWorkingIcon } from "@/zaicode/ZaicodeWorkingIcon.js";
+import { useZaicodeHighlight, withZaicodeHighlight } from "@/zaicode/zaicodeHighlights.js";
+import { ZaicodeRoleGlyph } from "@/zaicode/ZaicodeRoleGlyph.js";
+import { ZAICODE_ROLE_META, useZaicodeSessionRole } from "@/zaicode/zaicodeSessionRoles.js";
+import type { ZaicodeTodoItem } from "@/zaicode/zaicodeTodoProgress.js";
+
+// sessions-index 已到达但没有 TodoWrite：稳定空数组，避免镜像 effect 反复触发。
+const EMPTY_TODO_ITEMS: readonly ZaicodeTodoItem[] = [];
+import { isZaicodeProductMode } from "@zcode/shared";
 import {
   Archive,
   Clock,
@@ -8,6 +19,7 @@ import {
   LoaderIcon,
   Moon,
   Pin,
+  Play,
   Smartphone,
 } from "lucide-react";
 import { isCronTask, isOffPeakTask, type ZCodeTaskMeta } from "@zcode/shared";
@@ -68,7 +80,19 @@ interface TaskListItemProps {
   onArchiveTask: (taskId: string) => void;
   onMarkTaskAsUnread: (taskId: string) => void;
   onOpenTaskContextMenu?: (taskId: string) => void;
+  /** ZAICODE：右键归档按钮打开“全部归档”菜单（本项目 / 所有项目）。 */
+  onOpenArchiveContextMenu?: (taskId: string) => void;
+  /** ZAICODE：该会话是本项目的 MAIN（铁槽位），标题前显示 ◆。 */
+  isMainSession?: boolean;
+  /** ZAICODE：Cinema 4D 树形参考线末项判定。 */
+  isLastChild?: boolean;
+  /** ZAICODE：标题原位编辑（F2 式），由 TaskList 持有唯一 renamingTaskId。 */
+  isRenamingInline?: boolean;
+  onCommitInlineRename?: (taskId: string, title: string) => void;
+  onCancelInlineRename?: () => void;
   onOpenFileTree?: (task: ZCodeTaskMeta) => void;
+  /** ZAICODE (SRC-043): continue without opening -- the ▶ button and Alt+Click. */
+  onContinueTask?: (taskId: string) => void;
   variant?: "default" | "timeline";
   showPinAction?: boolean;
   intl: TaskListItemIntl;
@@ -128,7 +152,14 @@ function areTaskListItemPropsEqual(left: TaskListItemProps, right: TaskListItemP
     left.onArchiveTask === right.onArchiveTask &&
     left.onMarkTaskAsUnread === right.onMarkTaskAsUnread &&
     left.onOpenTaskContextMenu === right.onOpenTaskContextMenu &&
-    left.onOpenFileTree === right.onOpenFileTree
+    left.onOpenArchiveContextMenu === right.onOpenArchiveContextMenu &&
+    left.isMainSession === right.isMainSession &&
+    left.isLastChild === right.isLastChild &&
+    left.isRenamingInline === right.isRenamingInline &&
+    left.onCommitInlineRename === right.onCommitInlineRename &&
+    left.onCancelInlineRename === right.onCancelInlineRename &&
+    left.onOpenFileTree === right.onOpenFileTree &&
+    left.onContinueTask === right.onContinueTask
   );
 }
 
@@ -144,14 +175,23 @@ export const MemoTaskItem = memo(function TaskListItem({
   onCancelArchiveConfirm,
   isArchiveConfirming,
   onTogglePinTask,
+  onStartRenameTask,
   onOpenTaskContextMenu,
+  onOpenArchiveContextMenu,
+  isMainSession = false,
+  isLastChild = false,
+  isRenamingInline = false,
+  onCommitInlineRename,
+  onCancelInlineRename,
   onOpenFileTree,
+  onContinueTask,
   variant = "default",
   showPinAction = true,
   intl,
   actionsDisabled = false,
   actionsDisabledReason,
 }: TaskListItemProps) {
+  const sessionRole = useZaicodeSessionRole(task.taskId, task.title || "");
   const [hoverActionsVisible, setHoverActionsVisible] = useState(false);
   const [focusActionsVisible, setFocusActionsVisible] = useState(false);
   const [isHoverNone] = useState(
@@ -302,9 +342,42 @@ export const MemoTaskItem = memo(function TaskListItem({
   const handleDragEnd = useCallback(() => {
     clearActiveWorkbenchSessionDragPayload();
   }, []);
-  const handleContextMenu = useCallback(() => {
-    onOpenTaskContextMenu?.(task.taskId);
-  }, [onOpenTaskContextMenu, task.taskId]);
+  // ZAICODE: on the selected task, first right-click renames, the next one opens the menu.
+  const renameArmedRef = useRef(false);
+  useEffect(() => {
+    if (!isActive) renameArmedRef.current = false;
+  }, [isActive]);
+  const handleContextMenu = useCallback(
+    (event: React.MouseEvent) => {
+      // ZAICODE：右键归档按钮 = “全部归档”菜单，不走“先重命名”的右键逻辑。
+      if (
+        onOpenArchiveContextMenu &&
+        event.target instanceof Element &&
+        event.target.closest("[data-zaicode-archive-button]")
+      ) {
+        renameArmedRef.current = false;
+        onOpenArchiveContextMenu(task.taskId);
+        return;
+      }
+      if (isActive && !workspaceActionsDisabled && !renameArmedRef.current) {
+        renameArmedRef.current = true;
+        event.preventDefault();
+        onStartRenameTask(task.taskId, taskTitle);
+        return;
+      }
+      renameArmedRef.current = false;
+      onOpenTaskContextMenu?.(task.taskId);
+    },
+    [
+      isActive,
+      onOpenArchiveContextMenu,
+      onOpenTaskContextMenu,
+      onStartRenameTask,
+      task.taskId,
+      taskTitle,
+      workspaceActionsDisabled,
+    ],
+  );
   const handleOpenFileTree = useCallback(
     (event: React.MouseEvent) => {
       event.preventDefault();
@@ -362,6 +435,12 @@ export const MemoTaskItem = memo(function TaskListItem({
     () => deriveTaskLeadingIndicator(task, taskActivity),
     [task, taskActivity],
   );
+  // ZAICODE (SRC-038): the operator's highlight for a working / waiting / open session title.
+  const zaicodeMode = isZaicodeProductMode();
+  const zaicodeWaitingLight = useZaicodeHighlight("sessionWaiting", zaicodeMode && Boolean(task.pendingInteraction));
+  const zaicodeWorkingLight = useZaicodeHighlight("sessionWorking", zaicodeMode && leadingIndicator === "loading");
+  const zaicodeOpenLight = useZaicodeHighlight("sessionOpen", zaicodeMode && isActive);
+  const zaicodeTitleLight = zaicodeWaitingLight ?? zaicodeWorkingLight ?? zaicodeOpenLight;
   const isTaskCron = isCronTask(task);
   // 月亮身份改为持久 meta 标记判断；off-peak store 反查在任务被删除后会丢失
   // 会话溯源，且让每一行多背一个全局 store 订阅。
@@ -382,6 +461,15 @@ export const MemoTaskItem = memo(function TaskListItem({
     id: isArchiveConfirming ? "common.confirm" : "taskList.archive",
   });
   const taskTitleWithChanges = formatTaskTitleWithChanges(taskTitle, taskChangeSummary, intl);
+  const inlineRenameNode =
+    isRenamingInline && onCommitInlineRename && onCancelInlineRename ? (
+      <TaskInlineRenameInput
+        initialValue={taskTitle}
+        ariaLabel={intl.formatMessage({ id: "taskList.rename" })}
+        onCommit={(title) => onCommitInlineRename(task.taskId, title)}
+        onCancel={onCancelInlineRename}
+      />
+    ) : null;
   const workspaceLabel = getPathLeaf(task.workspacePath);
   const taskItemKey = `${buildTaskWorkspaceKey(task.workspacePath, task.workspaceIdentity)}:${task.taskId}`;
   // 工作流运行行：标题下的第二条通道，
@@ -441,20 +529,26 @@ export const MemoTaskItem = memo(function TaskListItem({
       ) : (
         // Project / Pinned 的普通归档按钮曾覆盖 hover:bg-background/90，
         // 与同一行文件树 action 不一致；普通态统一复用共享 bg-hover action。
-        <TaskRowActionButton
-          label={archiveLabel}
-          onClick={handleArchive}
-          showTooltip
-          testId={testId(TID_TASK_ARCHIVE, task.taskId)}
-        >
-          {isRemoteTask ? (
-            // 本地和远端 task 混排时，统一 archive 图标无法提示操作会落在哪个 sqlite。
-            // 远端任务使用 cloud 语义图标，避免用户误把远端归档当成本地归档。
-            <CloudUpload className="h-3.5 w-3.5" />
-          ) : (
-            <Archive className="h-3.5 w-3.5" />
-          )}
-        </TaskRowActionButton>
+        <span className="inline-flex" data-zaicode-archive-button={onOpenArchiveContextMenu ? "" : undefined}>
+          <TaskRowActionButton
+            label={
+              onOpenArchiveContextMenu
+                ? `${archiveLabel} (Ctrl+Z restores · right-click: archive all)`
+                : archiveLabel
+            }
+            onClick={handleArchive}
+            showTooltip
+            testId={testId(TID_TASK_ARCHIVE, task.taskId)}
+          >
+            {isRemoteTask ? (
+              // 本地和远端 task 混排时，统一 archive 图标无法提示操作会落在哪个 sqlite。
+              // 远端任务使用 cloud 语义图标，避免用户误把远端归档当成本地归档。
+              <CloudUpload className="h-3.5 w-3.5" />
+            ) : (
+              <Archive className="h-3.5 w-3.5" />
+            )}
+          </TaskRowActionButton>
+        </span>
       )}
     </div>
   ) : null;
@@ -479,9 +573,28 @@ export const MemoTaskItem = memo(function TaskListItem({
         </TaskRowActionButton>
       </span>
     ) : null;
+  const canContinue =
+    Boolean(onContinueTask) && !workspaceActionsDisabled && leadingIndicator !== "loading" && !isArchiveConfirming;
+  const continueActionNode =
+    canContinue && shouldMountWorkspaceTaskActions ? (
+      <span className="inline-flex shrink-0" data-zaicode-continue-button="">
+        <TaskRowActionButton
+          label={hasPendingInteraction ? "Open: it waits for your answer" : "Continue here without opening (Alt+Click the row)"}
+          onClick={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            onContinueTask?.(task.taskId);
+          }}
+          showTooltip
+        >
+          <Play className="size-3.5" />
+        </TaskRowActionButton>
+      </span>
+    ) : null;
   const taskActionGroupNode =
-    fileTreeActionNode || archiveActionNode ? (
+    continueActionNode || fileTreeActionNode || archiveActionNode ? (
       <span data-task-row-actions="true" className="flex shrink-0 items-center gap-0.5">
+        {continueActionNode}
         {fileTreeActionNode}
         {archiveActionNode}
       </span>
@@ -516,12 +629,36 @@ export const MemoTaskItem = memo(function TaskListItem({
       data-task-item-key={taskItemKey}
       data-mobile-active-task={isMobileActive ? "true" : undefined}
       data-archive-confirming-task-id={isArchiveConfirming ? task.taskId : undefined}
-      onClick={handleSelect}
+      onClick={(event) => {
+        // ZAICODE (SRC-043): Alt+Click continues the session right here, without opening it.
+        if (onContinueTask && event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey) {
+          event.preventDefault();
+          event.stopPropagation();
+          onContinueTask(task.taskId);
+          return;
+        }
+        handleSelect();
+      }}
+      onMouseDown={(event) => {
+        // ZAICODE：中键按下时阻止浏览器自动滚动图标，松开（auxclick）时归档。
+        if (event.button === 1 && isZaicodeProductMode()) event.preventDefault();
+      }}
+      onAuxClick={(event) => {
+        if (event.button !== 1 || !isZaicodeProductMode()) return;
+        event.preventDefault();
+        event.stopPropagation();
+        if (workspaceActionsDisabled || hasPendingInteraction || isRenamingInline) return;
+        // ZAICODE：中键点会话 = 归档（Ctrl+Z / 通知里的 Undo 可恢复）。
+        handleArchive(event);
+      }}
       onContextMenu={handleContextMenu}
-      draggable={canDragToWorkbench}
+      draggable={canDragToWorkbench && !isRenamingInline}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
       onMouseEnter={handleMouseEnter}
+      // 列表轮询刷新会让行重挂载，指针还在行内时不会再来 mouseenter，
+      // 归档按钮于是要“再悬停一次”才出现；鼠标一动就补上 hover 状态。
+      onMouseMove={hoverActionsVisible ? undefined : handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onFocusCapture={() => setFocusActionsVisible(true)}
       onBlurCapture={(event) => {
@@ -534,13 +671,24 @@ export const MemoTaskItem = memo(function TaskListItem({
         if (event.target !== event.currentTarget) {
           return;
         }
+        if (event.key === "F2" && !workspaceActionsDisabled) {
+          event.preventDefault();
+          onStartRenameTask(task.taskId, taskTitle);
+          return;
+        }
+        if (event.key === "Enter" && isActive && !workspaceActionsDisabled) {
+          event.preventDefault();
+          onStartRenameTask(task.taskId, taskTitle);
+          return;
+        }
         if (event.key === "Enter" || event.key === " ") {
           event.preventDefault();
           handleSelect();
         }
       }}
       className={cn(
-        "group/task-item flex cursor-pointer gap-2 rounded-lg pl-2.5 pr-1 py-1 transition-[background-color,border-color,box-shadow]",
+        "group/task-item relative flex cursor-pointer gap-2 rounded-lg pl-2.5 pr-1 py-1 transition-[background-color,border-color,box-shadow]",
+        isZaicodeProductMode() && "pl-3.5",
         // 默认行 32px 时前置槽整行居中；长出工作流运行行后行体是两行的纵向列，槽改为对齐首行。
         variant === "timeline"
           ? "items-start py-1.5"
@@ -550,6 +698,34 @@ export const MemoTaskItem = memo(function TaskListItem({
         isActive ? "bg-selected" : "hover:bg-surface-hover",
       )}
     >
+      {isZaicodeProductMode() ? (
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute left-0 top-0 bottom-0 w-3 flex items-center"
+        >
+          <span
+            className={cn(
+              "absolute left-1.5 w-px bg-border/40",
+              isLastChild ? "top-0 h-1/2" : "top-0 h-full",
+            )}
+          />
+          <span className="absolute left-1.5 top-1/2 w-1.5 h-px bg-border/40" />
+        </span>
+      ) : null}
+      {isZaicodeProductMode() ? (
+        <span
+          className="pointer-events-none absolute bottom-0 left-2.5"
+          style={{
+            width: "var(--zaicode-list-label-width, 112px)",
+            maxWidth: "calc(100% - 20px)",
+          }}
+        >
+          <ZaicodeTodoMiniGauge
+            sessionId={task.taskId}
+            {...(taskActivity ? { liveItems: taskActivity.todos ?? EMPTY_TODO_ITEMS } : {})}
+          />
+        </span>
+      ) : null}
       {/* 之前任务列表依赖 divide-y 画分隔线，深色侧栏里每个 item 上下都会出现明显黑线，
               视觉上像被两条边框夹住。这里改成“列表留白 + item 自己带圆角态”，
               让 hover/active 的层级由卡片背景承担，不再依赖分隔线。 */}
@@ -577,7 +753,11 @@ export const MemoTaskItem = memo(function TaskListItem({
               className="h-1.5 w-1.5 rounded-full bg-sky-500 dark:bg-sky-400"
             />
           ) : leadingIndicator === "loading" ? (
-            <LoaderIcon className="size-4 animate-spin text-foreground-subtle" />
+            isZaicodeProductMode() ? (
+              <ZaicodeWorkingIcon />
+            ) : (
+              <LoaderIcon className="size-4 animate-spin text-foreground-subtle" />
+            )
           ) : showTimelineIdleIndicator ? (
             <span data-idle-indicator="true" className="h-1.5 w-1.5 rounded-full bg-border" />
           ) : null}
@@ -619,14 +799,21 @@ export const MemoTaskItem = memo(function TaskListItem({
                 </span>
               </ControlHintTooltip>
             ) : null}
-            <TaskTitleOverflowText
-              className="text-ui-base text-foreground"
-              title={taskTitleWithChanges}
-            >
-              {/* workspace/timeline task 标题之前使用 truncate，会在长标题末尾显示省略号；
+            {inlineRenameNode ?? (
+              <TaskTitleOverflowText
+                {...withZaicodeHighlight(
+                  {
+                    className: cn("text-ui-base text-foreground", zaicodeMode && "zaicode-list-label zaicode-session-label"),
+                    title: taskTitleWithChanges,
+                  },
+                  zaicodeTitleLight,
+                )}
+              >
+                {/* workspace/timeline task 标题之前使用 truncate，会在长标题末尾显示省略号；
                       grouped task 已改为右侧渐隐。这里统一 task 列表标题溢出策略，避免同一侧栏里出现两种截断语义。 */}
-              {taskTitle}
-            </TaskTitleOverflowText>
+                {taskTitle}
+              </TaskTitleOverflowText>
+            )}
             {task.pendingInteraction ? (
               <TaskInteractionBadge
                 interaction={task.pendingInteraction}
@@ -688,7 +875,7 @@ export const MemoTaskItem = memo(function TaskListItem({
       ) : (
         <div className="flex min-w-0 flex-1 flex-col">
           <div className="flex min-w-0 items-center gap-2">
-            <div className="relative min-w-0 flex h-6 flex-1 flex-wrap items-center gap-1.5">
+            <div className="relative min-w-0 flex h-6 flex-1 items-center gap-1.5 overflow-hidden">
               {isMobileActive && !shouldSuppressWorkspaceTaskMetadata ? (
                 <ControlHintTooltip
                   title={intl.formatMessage({ id: "taskList.mobileActive" })}
@@ -703,22 +890,46 @@ export const MemoTaskItem = memo(function TaskListItem({
                       id: "taskList.mobileActive",
                     })}
                   >
-                    {/* mobileViewState 已经能告诉桌面端手机正在看的 task，
-                        但列表未消费这个状态，用户会误以为只有桌面端在操作。上一版把图标作为标题前的 flex 子项，
-                        会把当前行标题往右挤，造成上下 task 标题不对齐；这里改成绝对定位到原有 leading 槽，
-                        标题文本仍从既有位置开始；同时 hover 时隐藏手机标记，把置顶按钮还给用户。 */}
                     <Smartphone className="size-3.5" />
                   </span>
                 </ControlHintTooltip>
               ) : null}
-              <TaskTitleOverflowText
-                className="text-ui-base text-foreground"
-                title={taskTitleWithChanges}
-              >
-                {/* 默认 workspace task item 和 timeline item 共享标题溢出规则；
-                        使用 mask 渐隐而不是省略号，和 grouped task row 保持一致。 */}
-                {taskTitle}
-              </TaskTitleOverflowText>
+              {isMainSession ? (
+                <span
+                  className="flex shrink-0 items-center"
+                  title="MAIN session of this project (the iron slot)"
+                  data-zaicode-main-session=""
+                >
+                  <ZaicodeRoleGlyph role="MAIN" title="MAIN session of this project (the iron slot)" />
+                </span>
+              ) : isZaicodeProductMode() ? (
+                <span
+                  className="flex shrink-0 items-center"
+                  data-zaicode-subsaipen={sessionRole ?? undefined}
+                  data-zaicode-subsession={sessionRole ? undefined : ""}
+                >
+                  <ZaicodeRoleGlyph
+                    role={sessionRole ?? "SIDE"}
+                    title={sessionRole ? `${ZAICODE_ROLE_META[sessionRole].title} — sub-worker` : "Side session / sub-worker"}
+                  />
+                </span>
+              ) : null}
+              {inlineRenameNode ?? (
+                <TaskTitleOverflowText
+                  {...withZaicodeHighlight(
+                    {
+                      className: cn(
+                        "min-w-0 flex-1 truncate text-ui-base text-foreground",
+                        zaicodeMode && "zaicode-list-label zaicode-session-label",
+                      ),
+                      title: taskTitleWithChanges,
+                    },
+                    zaicodeTitleLight,
+                  )}
+                >
+                  {taskTitle}
+                </TaskTitleOverflowText>
+              )}
               {changeSummaryNode ? (
                 <span
                   className={cn(
@@ -795,6 +1006,7 @@ export function TaskListItemContextMenuContent({
   onMarkTaskAsUnread,
   disableTaskActions = false,
   disabledReason,
+  leadingItems,
 }: {
   workspacePath: string;
   remoteSessionId?: string;
@@ -807,6 +1019,8 @@ export function TaskListItemContextMenuContent({
   onMarkTaskAsUnread: (taskId: string) => void;
   disableTaskActions?: boolean;
   disabledReason?: string;
+  /** ZAICODE：菜单顶部附加项（例如 Make MAIN）。 */
+  leadingItems?: React.ReactNode;
 }) {
   const workspaceActionsDisabled = useOptionalTabStore(
     (state) =>
@@ -892,6 +1106,7 @@ export function TaskListItemContextMenuContent({
 
   return (
     <TaskListItemContextMenu
+      {...(leadingItems ? { leadingItems } : {})}
       intl={intl}
       isPinned={isPinned}
       fileManagerLabel={fileManagerLabel}

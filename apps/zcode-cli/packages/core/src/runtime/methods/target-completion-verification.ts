@@ -26,6 +26,7 @@ import { createRuntimeModel } from "./runtime-model.js";
 import { isStartPlanBusyStreamRecoveryFailure } from "./streaming-recovery.js";
 import { recordModelUsageFact } from "./usage-observability.js";
 import { runTargetCompletionVerificationWithTelemetry } from "./target-completion-verification-telemetry.js";
+import { saipenGoalVerdict } from "./saipen-goal-verdict.js";
 
 export interface TargetCompletionVerificationResult {
   target: SessionGoal;
@@ -33,6 +34,8 @@ export interface TargetCompletionVerificationResult {
 }
 
 const TARGET_VERIFIER_START_PLAN_BUSY_RETRY_DELAYS_MS = [1_000, 2_000] as const;
+/** A verifier that has not answered in this long is treated as a failed check, never an endless hang. */
+const TARGET_VERIFIER_TIMEOUT_MS = 120_000;
 const START_PLAN_TARGET_VERIFIER_RETRY_PROVIDER_IDS = new Set([
   "account:bigmodel-start-plan",
   "account:zai-start-plan",
@@ -130,6 +133,30 @@ async function verifyTargetCompletion(
     ),
     modelTraceContext,
   );
+  // ZAICODE: in a SAIPEN workspace the board decides (fast, deterministic) — see saipen-goal-verdict.ts.
+  const saipenVerification = await saipenGoalVerdict({
+    workspaceRoot: this.workspaceRoot,
+    objective: input.target.objective,
+  });
+  if (saipenVerification) {
+    await this.appendEvent(
+      this.createEvent(
+        SessionEventType.TargetCompletionVerification,
+        {
+          ...anchor,
+          ...(foregroundExecutionId ? { foregroundExecutionId } : {}),
+          goalIteration,
+          status: "completed",
+          targetId: input.target.targetID,
+          verification: saipenVerification,
+          verificationId,
+        },
+        modelTraceContext,
+      ),
+      modelTraceContext,
+    );
+    return saipenVerification;
+  }
   const providerMessages = buildRuntimeProviderRequestMessages(this, {
     entries: [
       ...withoutTrailingPendingAssistantToolCallEntries(
@@ -263,10 +290,10 @@ async function verifyTargetCompletion(
       await this.pauseActiveTargetForCancellation(modelTraceContext);
       throw error;
     }
-    this.logger?.warn("Goal completion verification failed open", {
+    this.logger?.warn("Goal completion verification failed", {
       ...traceContextToLogContext(modelTraceContext),
       errorMessage: error instanceof Error ? error.message : String(error),
-      event: "target.completion_verification.failed_open",
+      event: "target.completion_verification.failed_closed",
       module: "core.runtime",
       status: "failed",
       targetId: input.target.targetID,
@@ -319,6 +346,10 @@ async function generateTargetCompletionVerificationText(
   },
 ) {
   const maxAttempts = TARGET_VERIFIER_START_PLAN_BUSY_RETRY_DELAYS_MS.length + 1;
+  const timeoutSignal = AbortSignal.timeout(TARGET_VERIFIER_TIMEOUT_MS);
+  const requestSignal = input.abortSignal
+    ? AbortSignal.any([input.abortSignal, timeoutSignal])
+    : timeoutSignal;
   for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
     try {
       const invocationContext = {
@@ -337,7 +368,7 @@ async function generateTargetCompletionVerificationText(
       };
       return await runWithModelInvocationContext(invocationContext, () =>
         input.model.generateText({
-          abortSignal: input.abortSignal,
+          abortSignal: requestSignal,
           messages: input.messages,
           // Verifier 继承已绑定的思考配置，不能套用低成本辅助调用的降档和封顶策略。
           options: { maxOutputTokens: input.model.optionSpecs.maxOutputTokens.max },

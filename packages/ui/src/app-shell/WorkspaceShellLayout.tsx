@@ -34,6 +34,10 @@ import { ChatEmptyWorkspacePreviewMenu } from "@/ChatEmptyState.js";
 import { DesktopTopOverlay } from "@/DesktopTopOverlay.js";
 import { DesktopWindowFrame } from "@/DesktopWindowFrame.js";
 import { WorkspacePluginPreview } from "@/WorkspacePluginPreview.js";
+import { isZaicodeProductMode } from "@zcode/shared";
+import { ZaicodeSaipenMenu } from "@/zaicode/ZaicodeSaipenMenu.js";
+import { useZaicodeFreshSession, useZaicodeOpenSession } from "@/zaicode/zaicodeSaipen.js";
+import { playZaicodeSound } from "@/zaicode/zaicodeSoundBus.js";
 import { useIsOfficeMode } from "@/hooks/useInterfaceMode.js";
 import { GitBranchSwitcher } from "@/GitBranchSwitcher.js";
 import { ScopedErrorBoundary } from "@/ErrorBoundary.js";
@@ -46,6 +50,11 @@ import type {
 } from "@/settings/saved-workflows/SavedWorkflowsSection.js";
 import { AutomationsMainBreadcrumbFrame } from "@/settings/AutomationsMainBreadcrumbFrame.js";
 import { PluginStorePage } from "@/settings/PluginStorePage.js";
+import { ZaicodeWorkspace } from "@/zaicode/ZaicodeWorkspace.js";
+import { useZaicodeActions } from "@/zaicode/zaicodeActions.js";
+import { ZaicodeHomePage } from "@/zaicode/home/ZaicodeHomePage.js";
+import { useZaicodeHomePrefs } from "@/zaicode/home/zaicodeHomePrefs.js";
+import { ZaicodeWorkersPanel } from "@/zaicode/ZaicodeWorkersPanel.js";
 import { TaskFindDialog } from "@/quickpick/TaskFindDialog.js";
 import { WorkspaceHeader } from "@/WorkspaceHeader.js";
 import { WorkspaceSidebar, type SidebarFileTreeOpenRequest } from "@/WorkspaceSidebar.js";
@@ -115,6 +124,9 @@ const EMPTY_REMOTE_WORKSPACE_SESSIONS: NonNullable<
   WorkspaceShellLayoutProps["remoteWorkspaceSessions"]
 > = [];
 const CONVERSATION_AUTO_COLLAPSE_SIDEBAR_WIDTH_PX = 360;
+// ZAICODE: small windows (down to 640x540) hide the sidebar earlier and bring it back when widened.
+const ZAICODE_AUTO_COLLAPSE_SIDEBAR_WIDTH_PX = 440;
+const ZAICODE_AUTO_SHOW_SIDEBAR_WINDOW_WIDTH_PX = 900;
 const CONVERSATION_AUTO_COLLAPSE_RESIZE_IDLE_MS = 300;
 // 性能修复：ResizablePanelGroup 收到深相等的新 panelIds 数组，
 // 会跟随 chat streaming render 重算布局上下文；固定数组语义上不会随消息变化。
@@ -302,6 +314,7 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
   handleOpenTreemapping,
   handleOpenWhiteboard,
   handleOpenDeveloperTools,
+  handleOpenSaipenTab,
   handleOpenTerminalTab,
   handleToggleGit,
   handleOpenGitReview,
@@ -383,6 +396,11 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
     workspaceKey,
   });
   const conversationAutoCollapseResizeTimerRef = useRef<number | null>(null);
+  const zaicodeSidebarAutoHiddenRef = useRef(false);
+  useEffect(() => {
+    // A visible sidebar (shown by the operator or restored) is no longer "auto-hidden".
+    if (isSidebarVisible) zaicodeSidebarAutoHiddenRef.current = false;
+  }, [isSidebarVisible]);
   const workspaceSidebarResizeSessionRef = useRef<WorkspaceSidebarResizeSession | null>(null);
   const [workspaceSidebarPanelWidthPx, setWorkspaceSidebarPanelWidthPx] = useState(
     () => readStoredWorkspaceSidebarWidthPx() ?? WORKSPACE_SIDEBAR_DEFAULT_WIDTH_PX,
@@ -468,12 +486,27 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
         workspaceKey: latestWorkspaceKey,
       } = conversationAutoCollapseStateRef.current;
 
-      if (latestIsSidebarVisible && widthPx < CONVERSATION_AUTO_COLLAPSE_SIDEBAR_WIDTH_PX) {
+      const thresholdPx = isZaicodeProductMode()
+        ? ZAICODE_AUTO_COLLAPSE_SIDEBAR_WIDTH_PX
+        : CONVERSATION_AUTO_COLLAPSE_SIDEBAR_WIDTH_PX;
+      if (latestIsSidebarVisible && widthPx < thresholdPx) {
         logger.info("[WorkspaceShellLayout] conversation 过窄，自动收起左侧栏", {
           widthPx: Math.round(widthPx),
-          thresholdPx: CONVERSATION_AUTO_COLLAPSE_SIDEBAR_WIDTH_PX,
+          thresholdPx,
           workspaceKey: latestWorkspaceKey,
         });
+        if (isZaicodeProductMode()) zaicodeSidebarAutoHiddenRef.current = true;
+        collapseSidebar();
+        return;
+      }
+      // ZAICODE：只有被自动收起的侧栏，在窗口重新变宽后自动恢复；用户手动收起的保持不动。
+      if (
+        isZaicodeProductMode() &&
+        !latestIsSidebarVisible &&
+        zaicodeSidebarAutoHiddenRef.current &&
+        window.innerWidth >= ZAICODE_AUTO_SHOW_SIDEBAR_WINDOW_WIDTH_PX
+      ) {
+        zaicodeSidebarAutoHiddenRef.current = false;
         collapseSidebar();
       }
     };
@@ -522,6 +555,8 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
     };
 
     window.addEventListener("resize", handleWindowResize);
+    // ZAICODE：启动时窗口已经很小（640x540）也要立即收起侧栏，而不是等第一次 resize。
+    if (isZaicodeProductMode()) handleWindowResize();
 
     return () => {
       if (conversationAutoCollapseResizeTimerRef.current !== null) {
@@ -819,6 +854,29 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
   const showChatMainView = useCallback(() => {
     onWorkspaceMainViewChange("chat");
   }, [onWorkspaceMainViewChange]);
+  // ZAICODE (SRC-038): the home-screen SCHEDULER card and other surfaces open the ZAICODE view.
+  useEffect(() => {
+    if (!isZaicodeProductMode()) return;
+    const setOpen = useZaicodeActions.getState().setOpenZaicodeView;
+    setOpen(() => onWorkspaceMainViewChange("zaicode"));
+    // T-56: SAIHOME opens as a view of its own; opening it creates nothing.
+    const setOpenHome = useZaicodeActions.getState().setOpenZaicodeHome;
+    setOpenHome(() => onWorkspaceMainViewChange("saihome"));
+    return () => {
+      setOpen(null);
+      setOpenHome(null);
+    };
+  }, [onWorkspaceMainViewChange]);
+  useEffect(() => {
+    if (!isZaicodeProductMode()) return;
+    useZaicodeActions.getState().setMainView(workspaceMainView);
+    // "Last active" startup remembers the view the operator was on.
+    const remembered =
+      workspaceMainView === "saihome" ? "home" : workspaceMainView === "zaicode" ? "zaicode" : workspaceMainView === "chat" ? "chat" : null;
+    if (remembered && useZaicodeHomePrefs.getState().lastView !== remembered) {
+      useZaicodeHomePrefs.getState().update({ lastView: remembered });
+    }
+  }, [workspaceMainView]);
   const primaryNavigationBack =
     workspaceMainView === "plugin-store" ? handleManageInstalledPlugins : handleTaskNavBack;
   const canPrimaryNavigationBack = workspaceMainView === "plugin-store" || canTaskNavBack;
@@ -1106,6 +1164,37 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
       handleStartDraftInWorkspaceInChat(path, identity, undefined, "project"),
     [handleStartDraftInWorkspaceInChat],
   );
+  // The sidebar's "new session" is an operator action with its own sound; START / CLEAR
+  // below reuse the same draft creation but already play theirs.
+  const handleSidebarNewProjectDraft = useCallback(
+    (path: string, identity?: string) => {
+      playZaicodeSound("session.new");
+      handleCreateProjectDraft(path, identity);
+    },
+    [handleCreateProjectDraft],
+  );
+  // ZAICODE: START / CLEAR ask for a brand-new session in a project; draft creation lives here.
+  const zaicodeFreshSession = useZaicodeFreshSession((state) => state.request);
+  const consumeZaicodeFreshSession = useZaicodeFreshSession((state) => state.consume);
+  useEffect(() => {
+    if (!zaicodeFreshSession) return;
+    consumeZaicodeFreshSession(zaicodeFreshSession.id);
+    handleCreateProjectDraft(
+      zaicodeFreshSession.workspacePath,
+      zaicodeFreshSession.workspaceIdentity,
+    );
+  }, [consumeZaicodeFreshSession, handleCreateProjectDraft, zaicodeFreshSession]);
+  const zaicodeOpenSession = useZaicodeOpenSession((state) => state.request);
+  const consumeZaicodeOpenSession = useZaicodeOpenSession((state) => state.consume);
+  useEffect(() => {
+    if (!zaicodeOpenSession) return;
+    consumeZaicodeOpenSession(zaicodeOpenSession.id);
+    handleSelectTaskInChat(
+      zaicodeOpenSession.workspacePath,
+      zaicodeOpenSession.sessionId,
+      zaicodeOpenSession.workspaceIdentity,
+    );
+  }, [consumeZaicodeOpenSession, handleSelectTaskInChat, zaicodeOpenSession]);
   const activeWorkspacePurpose =
     workspaceTabs.find(
       (tab) =>
@@ -1139,6 +1228,21 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
     workspaceAbsPath,
     workspaceIdentity,
   ]);
+  // ZAICODE：SAIPEN 快捷命令整条替换草稿，由用户回车发送（whole-message shortcut 才会被协议识别）。
+  const handleInsertSaipenCommand = useCallback(
+    (command: string) => {
+      useZCodeSessionStore
+        .getState()
+        .requestComposerTextInsert(
+          workspaceAbsPath,
+          command,
+          workspaceIdentity,
+          undefined,
+          "replace",
+        );
+    },
+    [workspaceAbsPath, workspaceIdentity],
+  );
   const handleSelectComposerPlugin = useCallback(
     (mention: ComposerMentionPrefill) => {
       useZCodeSessionStore
@@ -1189,7 +1293,14 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
           onSelectRemoteProject={onSelectRemoteProject}
           onCancelRemoteProject={onCancelRemoteProject}
         />
-        {isOfficeMode ? (
+        {isZaicodeProductMode() ? (
+          <ZaicodeSaipenMenu
+            workspacePath={workspaceAbsPath}
+            workspaceIdentity={workspaceIdentity}
+            onInsertCommand={handleInsertSaipenCommand}
+          />
+        ) : null}
+        {isOfficeMode && !isZaicodeProductMode() ? (
           <WorkspacePluginPreview
             onOpen={handleOpenPluginStore}
             onSelectPlugin={handleSelectComposerPlugin}
@@ -1197,7 +1308,8 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
             workspaceIdentity={workspaceIdentity}
             remoteSessionId={workspaceRemoteSessionId ?? undefined}
           />
-        ) : !isOfficeMode && activeWorkspacePurpose === "project" ? (
+        ) : (isZaicodeProductMode() ? Boolean(gitState.summary) : !isOfficeMode) &&
+          activeWorkspacePurpose === "project" ? (
           <GitBranchSwitcher
             workspacePath={workspaceAbsPath}
             gitSummary={gitState.summary}
@@ -1218,6 +1330,7 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
       workspaceRemoteSessionId,
       handleOpenPluginStore,
       handleSelectComposerPlugin,
+      handleInsertSaipenCommand,
       allowOpenWorkspace,
       allowRemoteWorkspace,
       activeWorkspacePurpose,
@@ -1462,6 +1575,7 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
       onOpenBrowserTab={handleOpenBrowserTab}
       onOpenWhiteboard={handleOpenWhiteboard}
       onOpenDeveloperTools={handleOpenDeveloperTools}
+      {...(handleOpenSaipenTab ? { onOpenSaipenTab: handleOpenSaipenTab } : {})}
       onOpenTerminalTab={handleOpenTerminalTab}
       onOpenReviewTab={handleToggleGit}
       onOpenSelectionSideConversation={handleOpenSelectionSideConversationLauncher}
@@ -1509,7 +1623,7 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
 
   return (
     <DesktopWindowFrame
-      title={`ZCode / ${getPathLeaf(workspaceAbsPath)}`}
+      title={`ZAICODE / ${getPathLeaf(workspaceAbsPath)}`}
       showHeader
       isDesktop={isDesktop}
       isMacDesktop={isMacDesktop}
@@ -1562,7 +1676,7 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
                     workspaceRemoteSessionId={workspaceRemoteSessionId}
                     activePreviewPath={activePreviewPath}
                     onSelectTask={handleSelectTaskInChat}
-                    onStartDraftInWorkspace={handleCreateProjectDraft}
+                    onStartDraftInWorkspace={handleSidebarNewProjectDraft}
                     onOpenCodeViewer={handleOpenCodeViewer}
                     onOpenBrowserUrl={handleOpenBrowserUrl}
                     fileTreeOpenRequest={fileTreeOpenRequest}
@@ -1600,6 +1714,8 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
                     automationsActive={workspaceMainView === "automations"}
                     onOpenPluginStore={handleOpenPluginStore}
                     pluginStoreActive={workspaceMainView === "plugin-store"}
+                    onOpenZaicode={() => onWorkspaceMainViewChange("zaicode")}
+                    zaicodeActive={workspaceMainView === "zaicode"}
                     onFileTreeOpenChange={setIsSidebarFileTreeOpen}
                   />
                 </WorkflowRunOpenProvider>
@@ -1821,6 +1937,32 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
                             </div>
                           </AutomationsMainBreadcrumbFrame>
                         </main>
+                      ) : workspaceMainView === "saihome" ? (
+                        <main className="flex h-full min-h-0 flex-1 flex-col bg-background" data-zaicode-saihome-main>
+                          <ScopedErrorBoundary
+                            scope="zaicode-saihome"
+                            resetKeys={workspaceOnlyResetKeys}
+                            variant="panel"
+                            className="h-full"
+                          >
+                            <ZaicodeHomePage
+                              onOpenSession={(sessionWorkspacePath, sessionId, sessionWorkspaceIdentity) =>
+                                handleSelectTaskInChat(sessionWorkspacePath, sessionId, sessionWorkspaceIdentity)
+                              }
+                              onNewTask={() => handleCreateTaskInChat({ createSource: "project" })}
+                            />
+                          </ScopedErrorBoundary>
+                        </main>
+                      ) : workspaceMainView === "zaicode" ? (
+                        <main className="flex h-full min-h-0 flex-1 flex-col bg-background">
+                          <ZaicodeWorkspace
+                            workspacePath={workspaceAbsPath}
+                            {...(workspaceIdentity ? { workspaceIdentity } : {})}
+                            onOpenSession={(sessionId) =>
+                              handleSelectTaskInChat(workspaceAbsPath, sessionId, workspaceIdentity)
+                            }
+                          />
+                        </main>
                       ) : (
                         <main className="relative flex h-full min-h-0 flex-1 flex-col overflow-hidden">
                           {renderChatFindDialog()}
@@ -1933,6 +2075,8 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
                     切换时卸载 Guest；截图请求期间由上层临时展开真实面板承载可合成的 WebContents。 */}
             {sidePanePanel}
           </ResizablePanelGroup>
+          {/* ZAICODE: subscription CLI workers dock under the whole body like a terminal panel. */}
+          {isZaicodeProductMode() ? <ZaicodeWorkersPanel services={services} /> : null}
         </div>
         <ScopedErrorBoundary
           scope="desktop-top-overlay"
@@ -1966,6 +2110,7 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
             onCreateTask={handleCreateTaskInChat}
             onGoBack={primaryNavigationBack}
             onGoForward={handleTaskNavForward}
+            onOpenCommandCenter={handleOpenCommandCenter}
           />
         </ScopedErrorBoundary>
       </div>

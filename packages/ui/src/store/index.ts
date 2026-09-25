@@ -7,6 +7,7 @@
 import { create } from "zustand";
 import type { IBroadcastService, BroadcastMessage } from "@zcode/services";
 import type { OAuthProviderId, UserInfo } from "@zcode/shared";
+import { isZaicodeProductMode } from "@zcode/shared";
 import type { CodingPlanResetType } from "@zcode/shared";
 import type { CodePreviewSettings } from "@/lib/codePreviewSettings.js";
 import type {
@@ -71,23 +72,26 @@ const CODE_PREVIEW_SETTINGS_KEY = "zcode-code-preview-settings";
 const PERFORMANCE_MODE_STORAGE_KEY = "zcode-performance-mode";
 
 function loadCodePreviewSettings(): CodePreviewSettings {
+  const defaults = isZaicodeProductMode()
+    ? { ...DEFAULT_CODE_PREVIEW_SETTINGS, fontSizePx: 16, wrapLongLines: true }
+    : DEFAULT_CODE_PREVIEW_SETTINGS;
   try {
     const raw = readSafeLocalStorage(CODE_PREVIEW_SETTINGS_KEY);
     if (!raw) {
-      return DEFAULT_CODE_PREVIEW_SETTINGS;
+      return defaults;
     }
 
     const parsed = JSON.parse(raw) as Partial<CodePreviewSettings>;
     return {
-      ...DEFAULT_CODE_PREVIEW_SETTINGS,
+      ...defaults,
       ...parsed,
       fontSizePx:
         typeof parsed.fontSizePx === "number"
-          ? Math.min(20, Math.max(12, Math.round(parsed.fontSizePx)))
-          : DEFAULT_CODE_PREVIEW_SETTINGS.fontSizePx,
+          ? Math.min(24, Math.max(12, Math.round(parsed.fontSizePx)))
+          : defaults.fontSizePx,
     };
   } catch {
-    return DEFAULT_CODE_PREVIEW_SETTINGS;
+    return defaults;
   }
 }
 
@@ -278,7 +282,7 @@ export function createZCodeStore(
           ...patch,
           fontSizePx:
             typeof patch.fontSizePx === "number"
-              ? Math.min(20, Math.max(12, Math.round(patch.fontSizePx)))
+              ? Math.min(24, Math.max(12, Math.round(patch.fontSizePx)))
               : state.codePreviewSettings.fontSizePx,
         };
         writeSafeLocalStorage(CODE_PREVIEW_SETTINGS_KEY, JSON.stringify(next));

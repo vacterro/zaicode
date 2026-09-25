@@ -17,7 +17,8 @@ import type {
 import { resolveDefaultSkillRoots, type SkillRootResolutionOptions } from "./roots.js";
 import { scanSkillFilesUnderRoot } from "./scan.js";
 
-const MAX_DESCRIPTION_LENGTH = 1024;
+// Must match services skillsService: real skills (SAIPEN 1655 chars) load untruncated.
+const MAX_DESCRIPTION_LENGTH = 4096;
 const SAFE_FRONTMATTER_KEYS = new Set([
   "name",
   "description",
@@ -202,16 +203,21 @@ export class NodeSkillAdapter implements SkillPort {
       });
       return null;
     }
-    const description = rawDescription ?? "";
-    if (description.length > MAX_DESCRIPTION_LENGTH) {
+    const fullDescription = rawDescription ?? "";
+    // ZAICODE: 超长 description 以前让 skill 整体加载失败（SAIPEN >1024）。
+    // 改为截断 + warning，skill 仍可被发现和调用。
+    const description =
+      fullDescription.length > MAX_DESCRIPTION_LENGTH
+        ? `${fullDescription.slice(0, MAX_DESCRIPTION_LENGTH - 1)}…`
+        : fullDescription;
+    if (fullDescription.length > MAX_DESCRIPTION_LENGTH) {
       diagnostics.push({
         code: "skill_description_too_long",
-        severity: "error",
-        message: `Skill description is too long: ${name}`,
+        severity: "warning",
+        message: `Skill description is too long, truncated: ${name}`,
         path,
         skillName: name,
       });
-      return null;
     }
 
     // 第三方/旧版 skill 常带 version、homepage 等扩展字段。

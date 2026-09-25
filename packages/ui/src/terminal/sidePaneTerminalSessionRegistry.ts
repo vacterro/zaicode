@@ -124,12 +124,15 @@ export const sidePaneTerminalSessionRegistry = {
    * 把 entry.hostEl 移回 stashDiv（detach）。
    * 组件卸载时调——不 dispose term/PTY/订阅，资源留在 registry 供下次重挂复用。
    */
-  detachDom(key: string): void {
+  detachDom(key: string, fromHost?: HTMLElement): void {
     const entry = sessions.get(key);
     if (!entry) return;
     const stash = getStashDiv();
     if (!stash) return;
     if (entry.hostEl.parentElement === stash) return;
+    // ZAICODE workers move between the panel and their own window: the new
+    // container may already hold the element when the old one unmounts.
+    if (fromHost && entry.hostEl.parentElement !== fromHost) return;
     stash.appendChild(entry.hostEl);
   },
 

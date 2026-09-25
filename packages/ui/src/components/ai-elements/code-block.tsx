@@ -152,7 +152,7 @@ export const CodeBlockContainer = ({
 }: HTMLAttributes<HTMLDivElement> & { language: string }) => (
   <div
     className={cn(
-      "group relative w-full overflow-hidden rounded-xl bg-background text-foreground",
+      "group relative w-full min-w-0 max-w-full overflow-hidden rounded-xl bg-background text-foreground",
       className,
     )}
     data-language={language}
@@ -323,7 +323,7 @@ export const CodeBlock = ({
     <CodeBlockContext.Provider value={contextValue}>
       <CodeBlockContainer className={className} language={language} {...props}>
         {children}
-        <div className={cn("p-2 pt-0 pb-3", contentClassName)}>
+        <div className={cn("min-w-0 max-w-full overflow-x-auto p-2 pt-0 pb-3", contentClassName)}>
           {shouldRenderMermaid ? (
             <MermaidBlock
               code={code}
@@ -343,7 +343,7 @@ export const CodeBlock = ({
               focusedRange={focusedRange}
               focusRequestId={focusRequestId}
               markedLines={markedLines}
-              className="bg-transparent"
+              className="min-w-0 max-w-full bg-transparent"
               fontSizePx={fontSizePx}
               // markdown 代码块外层是 bg-card，但 CodeViewer 默认把 @pierre/diffs 背景设成 background。
               // 这里仅覆盖 markdown CodeBlock 入口，避免侧边栏文件预览的背景层级被一起改掉。

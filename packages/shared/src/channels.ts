@@ -146,6 +146,12 @@ export const ServiceChannels = {
   OffPeakTask: "off-peak-task",
   /** Onboarding 完成记录服务（本地持久化，后续上传服务器） */
   OnboardingRecord: "onboarding-record",
+  /** ZAICODE agent 定义管理服务（产品层，操作员可见） */
+  ZaicodeAgents: "zaicode-agents",
+  /** ZAICODE 任务队列服务（持久、操作员可见） */
+  ZaicodeJobs: "zaicode-jobs",
+  /** ZAICODE SAIHOME local statistics (local only, never sent anywhere) */
+  ZaicodeStats: "zaicode-stats",
 } as const;
 
 export type ServiceChannelName = (typeof ServiceChannels)[keyof typeof ServiceChannels];
@@ -383,6 +389,61 @@ export const PlatformChannels = {
   GetAutoUpdatePreferences: "zcode:get-auto-update-preferences",
   /** Renderer → Main：写入“自动下载并安装更新”偏好 */
   SetAutoDownloadAndInstallUpdates: "zcode:set-auto-download-and-install-updates",
+  GetZaicodeLauncherPreferences: "zaicode:get-launcher-preferences",
+  SetZaicodeAutoRestartOnCrash: "zaicode:set-auto-restart-on-crash",
+  SetZaicodeSaimailWorkspace: "zaicode:set-saimail-workspace",
+  /** Renderer → Main：运营者显式点击后，用 saimail-local init 在该目录创建 operator 邮箱 */
+  InitZaicodeSaimailWorkspace: "zaicode:init-saimail-workspace",
+  /** Renderer → Main：像素级清晰渲染（100% 缩放 + 位图字体），下次启动生效 */
+  GetZaicodePixelExact: "zaicode:get-pixel-exact",
+  SetZaicodePixelExact: "zaicode:set-pixel-exact",
+  /** Renderer → Main：dev 按钮，把当前界面设置快照写成随包默认值（源码树）+ userData 备份 */
+  SaveZaicodeSettingsSnapshot: "zaicode:save-settings-snapshot",
+  /** Renderer → Main：相对位移移动窗口 (用于右键拖拽) */
+  MoveWindowBy: "zaicode:move-window-by",
+  /** Renderer → Main：根据屏幕比例分片停靠窗口 (FancyZones) */
+  SnapWindowZone: "zaicode:snap-window-zone",
+  /** Renderer → Main：current window rectangle as fractions of its display work area (FancyZones presets) */
+  GetWindowZone: "zaicode:get-window-zone",
+  /** Renderer → Main (send)：right-button window drag phases; main follows the cursor itself */
+  ZaicodeWindowDrag: "zaicode:window-drag",
+  /** Renderer → Main：ZAICODE engines (subscriptions + quota) state */
+  GetZaicodeEngines: "zaicode:get-engines",
+  /** Renderer → Main：rediscover engines and read quota (all, or one account id) */
+  RefreshZaicodeEngines: "zaicode:refresh-engines",
+  /** Renderer → Main：engines settings (interval, hidden accounts, kick prompt, ...) */
+  SetZaicodeEnginesConfig: "zaicode:set-engines-config",
+  /** Main → Renderer：engines state changed (sweep progress / results) */
+  ZaicodeEnginesChanged: "zaicode:engines-changed",
+  /** Renderer → Main：open a worker CLI in its own PowerShell window */
+  LaunchZaicodeExternalWorker: "zaicode:launch-external-worker",
+  /** Renderer → Main：create the next free account home for a second Claude/Codex login */
+  PrepareZaicodeEngineAccountHome: "zaicode:prepare-engine-account-home",
+  /** Renderer → Main：register ZAICODE global hotkeys (Electron globalShortcut) */
+  SetZaicodeGlobalHotkeys: "zaicode:set-global-hotkeys",
+  /** Main → Renderer：a ZAICODE global hotkey was pressed (action id) */
+  ZaicodeGlobalHotkey: "zaicode:global-hotkey",
+  /** Renderer → Main：start ZAICODE with Windows (HKCU Run) */
+  GetZaicodeStartWithWindows: "zaicode:get-start-with-windows",
+  /** ZAICODE Router: one allow-listed call to the local 9router (CLI credential stays in main). */
+  CallZaicodeRouter: "zaicode:call-router",
+  GetZaicodeRouterInfo: "zaicode:get-router-info",
+  StartZaicodeRouter: "zaicode:start-router",
+  OpenZaicodeRouterDashboard: "zaicode:open-router-dashboard",
+  RunZaicodeRouterExtraUpdate: "zaicode:run-router-extra-update",
+  /** ZAICODE read model: SAIPEN's own projection (`saipen status --json`) for one project. */
+  GetZaicodeSaipenProjection: "zaicode:get-saipen-projection",
+  /** ZAICODE: a native Windows notification (title + body); a click focuses the window. */
+  ShowZaicodeNotification: "zaicode:show-notification",
+  /** ZAICODE zero-setup router (T-46): host status/mode, bootstrap, Autotroubleshoot, free-model scan, free keys. */
+  GetZaicodeRouterHost: "zaicode:router-host",
+  SetZaicodeRouterMode: "zaicode:router-set-mode",
+  BootstrapZaicodeRouter: "zaicode:router-bootstrap",
+  TroubleshootZaicodeRouter: "zaicode:router-troubleshoot",
+  ScanZaicodeFreeModels: "zaicode:router-scan-free",
+  GetZaicodeFreeScanInfo: "zaicode:router-scan-info",
+  AddZaicodeFreeKey: "zaicode:router-add-free-key",
+  SetZaicodeStartWithWindows: "zaicode:set-start-with-windows",
   /** Renderer → Main：查询桌面端正在运行的会话数量 */
   GetDesktopSessionActivity: "zcode:get-desktop-session-activity",
   /** Renderer → Main：读取当前窗口页面缩放档位 */
@@ -1073,6 +1134,42 @@ export interface PlatformChannelMap {
   [PlatformChannels.SetAutoDownloadAndInstallUpdates]: {
     request: boolean;
     response: void;
+  };
+  [PlatformChannels.GetZaicodeLauncherPreferences]: {
+    request: void;
+    response: { autoRestartOnCrash: boolean; saimailWorkspace: string | null };
+  };
+  [PlatformChannels.SetZaicodeAutoRestartOnCrash]: {
+    request: boolean;
+    response: { autoRestartOnCrash: boolean; saimailWorkspace: string | null };
+  };
+  [PlatformChannels.SetZaicodeSaimailWorkspace]: {
+    request: string | null;
+    response: { autoRestartOnCrash: boolean; saimailWorkspace: string | null };
+  };
+  [PlatformChannels.InitZaicodeSaimailWorkspace]: {
+    request: string;
+    response: { ok: boolean; message: string };
+  };
+  [PlatformChannels.GetZaicodePixelExact]: {
+    request: void;
+    response: { pixelExact: boolean };
+  };
+  [PlatformChannels.SetZaicodePixelExact]: {
+    request: boolean;
+    response: { pixelExact: boolean };
+  };
+  [PlatformChannels.SaveZaicodeSettingsSnapshot]: {
+    request: string;
+    response: { ok: boolean; message: string; sourcePath: string | null; backupPath: string | null };
+  };
+  [PlatformChannels.MoveWindowBy]: {
+    request: { dx: number; dy: number };
+    response: { success: boolean };
+  };
+  [PlatformChannels.SnapWindowZone]: {
+    request: { fx: number; fy: number; fw: number; fh: number; state?: "normal" | "maximized" };
+    response: { success: boolean };
   };
   [PlatformChannels.SettingsChanged]: {
     request: void;

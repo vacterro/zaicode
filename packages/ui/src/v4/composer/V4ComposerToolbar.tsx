@@ -23,6 +23,7 @@ import {
   TID_V4_MODEL_CONFIG,
   TID_V4_COMPOSER_INPUT,
   ZCODE_AGENT_PROVIDER,
+  isZaicodeProductMode,
   type ProviderFamilyConnectionSelection,
   type ProviderFamilyConnectionSelectionSettings,
   type ProviderFamilyDomain,
@@ -39,6 +40,7 @@ import type {
 } from "@zcode/shared/zcode-protocol-v4";
 import { ModelConfigSelect, type ModelSelectGroup } from "@/ModelConfigSelect.js";
 import { Button } from "@/components/ui/button.js";
+import { cn } from "@/components/lib/utils.js";
 import { ChatContextUsage } from "@/chat-input-toolbar/display.js";
 import {
   hasChatCodingPlanUsageRemaining,
@@ -1046,6 +1048,7 @@ function V4ComposerModelControlsImpl({
           triggerLabel={modelTriggerDisplay.fullLabel}
           triggerLabelPrefix={modelTriggerDisplay.providerPrefix}
           triggerLabelValue={modelTriggerDisplay.modelLabel}
+          staticTriggerLabel={isZaicodeProductMode()}
           triggerLabelPrefixClassName="composer-provider-prefix hidden @2xl/composer:inline group-data-[composer-provider-compact=true]/toolbar:hidden"
           showManageModelsAction={showManageModelsAction}
           manageModelsLabel={manageModelsLabel}
@@ -1064,8 +1067,15 @@ function V4ComposerModelControlsImpl({
           openRequestKey={modelMenuOpenRequestKey}
           labelVisibilityClassName="hidden @sm/composer:inline-flex"
           indicatorClassName="hidden @sm/composer:block group-data-[composer-model-icon=true]/toolbar:hidden"
-          triggerLabelClassName="hidden min-w-0 text-left @sm/composer:block group-data-[composer-model-icon=true]/toolbar:hidden [&>span]:max-w-full [&>span>span]:block [&>span>span]:truncate"
-          triggerClassName="composer-model-trigger max-w-[var(--composer-model-max-width,16rem)] group-data-[composer-model-icon=true]/toolbar:size-7 group-data-[composer-model-icon=true]/toolbar:p-0 group-data-[composer-model-icon=true]/toolbar:gap-0 group-data-[composer-model-icon=true]/toolbar:justify-center @max-sm/composer:size-7 @max-sm/composer:justify-center @max-sm/composer:gap-0 @max-sm/composer:p-0"
+          triggerLabelClassName={
+            isZaicodeProductMode()
+              ? "hidden min-w-0 whitespace-normal break-all text-left leading-tight @sm/composer:block group-data-[composer-model-icon=true]/toolbar:hidden"
+              : "hidden min-w-0 text-left @sm/composer:block group-data-[composer-model-icon=true]/toolbar:hidden [&>span]:max-w-full [&>span>span]:block [&>span>span]:truncate"
+          }
+          triggerClassName={cn(
+            "composer-model-trigger max-w-[var(--composer-model-max-width,16rem)] group-data-[composer-model-icon=true]/toolbar:size-7 group-data-[composer-model-icon=true]/toolbar:p-0 group-data-[composer-model-icon=true]/toolbar:gap-0 group-data-[composer-model-icon=true]/toolbar:justify-center @max-sm/composer:size-7 @max-sm/composer:justify-center @max-sm/composer:gap-0 @max-sm/composer:p-0",
+            isZaicodeProductMode() && "h-auto min-h-7 whitespace-normal py-1",
+          )}
           triggerIconClassName="inline-flex @sm/composer:hidden group-data-[composer-model-icon=true]/toolbar:inline-flex"
           focusSelectorOnClose={V4_COMPOSER_INPUT_SELECTOR}
           providerSubmenuClassName={providerSubmenuClassName}

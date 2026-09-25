@@ -713,6 +713,8 @@ export function CodeViewer({
       // @pierre/diffs 的 token 颜色依赖 color-scheme/light-dark()，必须跟随代码主题显式指定，
       // 否则 text 代码块会在深色卡片上渲染成浅色主题的深色文字，看起来像正文丢失。
       colorScheme: resolveCodeViewerColorScheme(theme),
+      fontVariantLigatures: "var(--zaicode-code-ligatures, none)",
+      lineHeight: "var(--zaicode-code-line-height, 1.5)",
       "--diffs-bg": "var(--color-background)",
       "--diffs-light-bg": "var(--color-background)",
       "--diffs-dark-bg": "var(--color-background)",

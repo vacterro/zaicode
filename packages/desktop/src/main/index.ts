@@ -80,6 +80,7 @@ import {
   type UpdateStatePayload,
   type TelemetryEventPayload,
   HostMessageTypes,
+  isZaicodeProductMode,
 } from "@zcode/shared";
 import { logger } from "./logger.js";
 import { markMainLaunchAppReady } from "./desktopLaunchMarks.js";
@@ -247,6 +248,14 @@ import {
   WINDOWS_UPDATE_LOCK_RELEASE_GRACE_MS,
 } from "./windowsInstallResourceLocks.js";
 import { mainMemoryDiagnosticsRegistry } from "./mainMemoryDiagnostics.js";
+import {
+  applyZaicodeSaimailEnvironment,
+  readZaicodeLauncherPreferences,
+} from "./zaicodeLauncherPreferences.js";
+import { applyZaicodePixelExactSwitches, ensureZaicodeCrispFonts } from "./zaicodeCrispFonts.js";
+import { startZaicodeEngines } from "./zaicodeEngines.js";
+import { startZaicodeRouterHost, stopZaicodeRouterHost } from "./zaicodeRouterHost.js";
+import { applyZaicodeLocalTimeZone, shouldRelaunchForLocalTimeZone } from "./zaicodeTimeZone.js";
 
 registerLocalMediaPreviewScheme(protocol);
 const localMediaPreviewPathRegistry = createLocalMediaPreviewPathRegistry();
@@ -256,6 +265,17 @@ const localMediaPreviewPathRegistry = createLocalMediaPreviewPathRegistry();
 // 仅本地开发运行默认开启远程调试端口，并允许 e2e 通过环境变量交给 Chromedriver 接管。
 if (!app.isPackaged && process.env.ZCODE_DISABLE_FIXED_REMOTE_DEBUGGING_PORT !== "1") {
   app.commandLine.appendSwitch("remote-debugging-port", "9229");
+}
+
+// ZAICODE：像素级清晰文本——100% 设备缩放 + 已安装的位图字体（Verdana_m1 / Terminus），
+// 必须在 app ready 之前设置；字体缺失时按用户级安装（启动器通常已先装好）。
+if (isZaicodeProductMode() && readZaicodeLauncherPreferences().pixelExact) {
+  applyZaicodePixelExactSwitches();
+  try {
+    ensureZaicodeCrispFonts();
+  } catch {
+    // 字体安装失败只影响清晰度，不能阻止启动。
+  }
 }
 
 app.setName(runtimeApplicationName);
@@ -270,6 +290,16 @@ if (!shouldUseElectronDefaultUserDataPath) {
   }
   app.setPath("userData", runtimeUserDataPath);
   app.setPath("sessionData", runtimeSessionDataPath);
+}
+// ZAICODE：userData 就绪后、host/agent 进程 spawn 前注入 SAIMAIL_WORKSPACE（进程继承 env）。
+if (ZCODE_PRODUCT_FLAVOR === "zaicode" || process.env.ZCODE_ZAICODE_MODE === "1") {
+  applyZaicodeSaimailEnvironment();
+  const inheritedTimeZone = applyZaicodeLocalTimeZone();
+  if (shouldRelaunchForLocalTimeZone(inheritedTimeZone, { packaged: app.isPackaged })) {
+    // 修复：Chromium 启动时已按继承的 TZ 固定时区；以不含 TZ 的环境重启一次才会显示本地时间。
+    app.relaunch();
+    app.exit(0);
+  }
 }
 process.title = runtimeApplicationName;
 
@@ -1855,6 +1885,14 @@ app.on("second-instance", (_event, argv, _workingDirectory, additionalData) => {
 
 app.whenReady().then(async () => {
   markMainLaunchAppReady();
+  // ZAICODE engines: discovery is instant, the first quota sweep waits a few seconds.
+  if (ZCODE_PRODUCT_FLAVOR === "zaicode" || process.env.ZCODE_ZAICODE_MODE === "1") {
+    startZaicodeEngines();
+    // Zero-setup router (T-46): the operator's 9router, or ZAICODE's own isolated one, up before the first task.
+    void startZaicodeRouterHost();
+    // will-quit: quitting is final here (a cancelled quit dialog never reaches it); the shared 9router is never touched.
+    app.on("will-quit", () => stopZaicodeRouterHost());
+  }
   installLocalMediaPreviewProtocol(session.defaultSession.protocol, {
     isPathAuthorized: localMediaPreviewPathRegistry.isAuthorized,
   });
@@ -2235,6 +2273,8 @@ app.whenReady().then(async () => {
 
 app.on("browser-window-created", (_, win) => {
   const windowWebContentsId = win.webContents.id;
+  let recentRendererCrashes = 0;
+  let lastRendererCrashAt = 0;
   win.on("closed", () => {
     browserScreenshotSurfaceCoordinator.handleWindowDestroyed(win.id);
     browserGuestManager.closeWindow(win.id);
@@ -2253,8 +2293,24 @@ app.on("browser-window-created", (_, win) => {
   });
   // 渲染进程崩溃但窗口存活时 closed 不会触发，崩溃路径同样按 owner 复位
   // （owner 不匹配时天然幂等）。
-  win.webContents.on("render-process-gone", () => {
+  win.webContents.on("render-process-gone", (_event, details) => {
     resetShortcutRecordingForWebContents(windowWebContentsId);
+    if (
+      ZCODE_PRODUCT_FLAVOR === "zaicode" &&
+      details.reason !== "clean-exit" &&
+      readZaicodeLauncherPreferences().autoRestartOnCrash
+    ) {
+      const now = Date.now();
+      recentRendererCrashes = now - lastRendererCrashAt > 60_000 ? 1 : recentRendererCrashes + 1;
+      lastRendererCrashAt = now;
+      if (recentRendererCrashes > 5) {
+        logger.error("[zaicode] renderer crashed repeatedly; automatic reload paused");
+        return;
+      }
+      setTimeout(() => {
+        if (!win.isDestroyed() && !win.webContents.isDestroyed()) win.reload();
+      }, 750);
+    }
   });
 });
 app.on("window-all-closed", () => {

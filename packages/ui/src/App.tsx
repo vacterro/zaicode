@@ -1,4 +1,17 @@
 /* eslint-disable max-lines -- App 当前集中编排 workspace 级状态、导航、Git 派生数据和 shell wiring；已将新增 side pane memory 桥接抽出，剩余拆分需要按 shell 边界单独重构。 */
+import { isZaicodeProductMode } from "@zcode/shared";
+import { useZaicodeSoundSettings } from "@/zaicode/zaicodeSoundEvents.js";
+import { useZaicodeRightClickDrag } from "@/zaicode/useZaicodeRightClickDrag.js";
+import { useZaicodeFancyZonesHotkey } from "@/zaicode/useZaicodeFancyZonesHotkey.js";
+import { ZaicodeFancyZoneOverlay } from "@/zaicode/ZaicodeFancyZoneOverlay.js";
+import { ZaicodeWorkersDock } from "@/zaicode/ZaicodeWorkersDock.js";
+import { ZaicodeAppRuntime } from "@/zaicode/ZaicodeAppRuntime.js";
+import { useZaicodeAutostartRunner } from "@/zaicode/zaicodeAutostart.js";
+import { useZaicodeLimitAlerts } from "@/zaicode/ZaicodeLimitMeter.js";
+import { readZaicodeHomePrefs, zaicodeStartupMainView } from "@/zaicode/home/zaicodeHomePrefs.js";
+import { installZaicodeDeclarativeSounds, playZaicodeSound } from "@/zaicode/zaicodeSoundEvents.js";
+import { setZaicodeCurrentWorkspace } from "@/zaicode/zaicodeEngines.js";
+import { installZaicodeHorizontalScrollGuard } from "@/zaicode/zaicodeScrollGuard.js";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
 import type { GitChangeSourceId, WorkspacePurpose } from "@zcode/shared";
@@ -47,7 +60,7 @@ import {
 } from "@/lib/settingsNavigation.js";
 import { runWorkspaceVisibleCommand } from "@/lib/workspaceVisibleCommand.js";
 import { ZCODE_PRODUCT_DOCS_URL } from "@/lib/productDocs.js";
-import appLogoUrl from "@/assets/provider-icons/logo-zai.svg";
+import { appLogoUrl } from "@/zaicode/zaicodeBrand.js";
 import { resolveTheme } from "@/useTheme.js";
 import { WorkspaceShellLayout } from "@/app-shell/WorkspaceShellLayout.js";
 import { useAppChromeState } from "@/app-shell/useAppChromeState.js";
@@ -231,6 +244,7 @@ export function App({
     handleOpenTreemapping,
     handleOpenWhiteboard,
     handleOpenDeveloperTools,
+    handleOpenSaipenTab,
     handleOpenTerminalTab,
     handleOpenSubagentSession,
     handleOpenBackgroundBash,
@@ -272,11 +286,35 @@ export function App({
   });
   const workspaceKey = workspaceIdentity?.trim() || workspaceAbsPath;
   const notificationEnabled = useZCodeStore((s) => s.notificationEnabled);
+  const zaicodeCuesEnabled = !useZaicodeSoundSettings().muted && isZaicodeProductMode();
+  useZaicodeRightClickDrag();
+  useZaicodeAutostartRunner();
+  useZaicodeLimitAlerts();
+  useEffect(() => {
+    installZaicodeDeclarativeSounds();
+    installZaicodeHorizontalScrollGuard();
+  }, []);
+  useEffect(() => {
+    setZaicodeCurrentWorkspace(workspaceAbsPath || undefined, workspaceIdentity || undefined);
+  }, [workspaceAbsPath, workspaceIdentity]);
+  const previousNavigationRef = useRef<{ task: string | null; workspace: string } | null>(null);
+  useEffect(() => {
+    const previous = previousNavigationRef.current;
+    previousNavigationRef.current = { task: activeTaskId ?? null, workspace: workspaceAbsPath };
+    if (!previous) return;
+    // Echoes: silent when the action that caused the change (New task, open session, archive, ...) already played.
+    if (previous.workspace !== workspaceAbsPath) playZaicodeSound("sidebar.project", { echo: true });
+    else if (activeTaskId && previous.task !== activeTaskId) playZaicodeSound("session.open", { echo: true });
+  }, [activeTaskId, workspaceAbsPath]);
+  const { isOverlayOpen: isFancyZonesOpen, closeOverlay: closeFancyZones } =
+    useZaicodeFancyZonesHotkey();
   useWorkspaceTerminalTaskNotifications({
     workspacePath: workspaceAbsPath,
     ...(workspaceIdentity ? { workspaceIdentity } : {}),
     ...(workspaceRemoteSessionId ? { endpointKey: workspaceRemoteSessionId } : {}),
-    enabled: notificationEnabled,
+    // ZAICODE：提示音独立于系统通知开关；通知关闭时仍观察状态边沿播放提示音。
+    enabled: notificationEnabled || zaicodeCuesEnabled,
+    notify: notificationEnabled,
     rpcReady: workspaceRpcReady,
     platform,
     formatMessage: intl.formatMessage,
@@ -823,7 +861,10 @@ export function App({
     [locale, services.zcodeAgentService, setLocale, theme, setTheme, testMessages],
   );
   useTestActions(testActions);
-  const [workspaceMainView, setWorkspaceMainView] = useState<WorkspaceMainView>("chat");
+  // ZAICODE (T-56): the first view follows Settings -> Layout & home -> Startup (SAIHOME by default).
+  const [workspaceMainView, setWorkspaceMainView] = useState<WorkspaceMainView>(() =>
+    isZaicodeProductMode() ? zaicodeStartupMainView(readZaicodeHomePrefs()) : "chat",
+  );
   const [openAutomationId, setOpenAutomationId] = useState<string | null>(null);
   const [openAutomationTab, setOpenAutomationTab] = useState<NonNullable<
     AutomationsNavigationTarget["automationTab"]
@@ -1223,7 +1264,7 @@ export function App({
         fileChangeFindNavigationRequestId={fileChangeFindState.navigationRequestId}
         fileChangeFindQuery={fileChangeFindState.query}
         onFileChangeFindMatchCountChange={setFileChangeFindMatchCount}
-        appLogoUrl={appLogoUrl}
+        appLogoUrl={appLogoUrl()}
         platform={platform}
         reloadSessionDisabled={reloadSessionDisabled}
         reloadSessionPending={reloadSessionPending}
@@ -1244,6 +1285,7 @@ export function App({
         handleOpenTreemapping={handleOpenTreemappingIfWritable}
         handleOpenWhiteboard={handleOpenWhiteboard}
         handleOpenDeveloperTools={handleOpenDeveloperTools}
+        handleOpenSaipenTab={handleOpenSaipenTab}
         handleOpenTerminalTab={handleOpenTerminalTabIfWritable}
         handleToggleGit={handleToggleGitIfWritable}
         handleToggleSidePane={handleToggleSidePane}
@@ -1275,6 +1317,9 @@ export function App({
         // taskFindDialogProps 是对象 prop，内联创建会让 shell 在流式刷新中每轮都看到新引用。
         taskFindDialogProps={taskFindDialogProps}
       />
+      <ZaicodeFancyZoneOverlay open={isFancyZonesOpen} onClose={closeFancyZones} />
+      {isZaicodeProductMode() ? <ZaicodeWorkersDock services={services} /> : null}
+      {isZaicodeProductMode() ? <ZaicodeAppRuntime /> : null}
     </>
   );
 }

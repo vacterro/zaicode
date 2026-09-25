@@ -13,6 +13,7 @@
  * 2. main 进程只发送一次 init-local 初始化窗口 Host
  * 3. 后续远端 connect / scoped attachment 都由同一 Host 处理
  */
+import { join } from "node:path";
 import { createHostDatabaseStartup } from "./hostDatabaseStartup.js";
 import { randomUUID } from "node:crypto";
 import {
@@ -50,6 +51,9 @@ import {
 import {
   createLocalServices,
   getOffPeakRequestAuthBuilder,
+  setZaicodeJobExecutor,
+  setZaicodeChildFinishedListener,
+  getZCodeDataRootDir,
   disposeServiceResources,
   disposeServiceResourcesAndWait,
   AutomationRepo,
@@ -65,6 +69,8 @@ import {
   type OffPeakRequestAuthBuilder,
 } from "@zcode/services/node";
 import { createHostResourceUsageResponder } from "./hostResourceUsage.js";
+import { createZaicodeJobExecutor } from "./zaicodeRunDispatch.js";
+import { ZaicodeDelegationSpool } from "./zaicodeDelegationSpool.js";
 import {
   assertBoundSessionDispatchable,
   resolveOffPeakDispatchKind,
@@ -1564,6 +1570,8 @@ console.error = (...args: unknown[]) => {
 let databaseStartup: ReturnType<typeof createHostDatabaseStartup> | undefined;
 const pendingStartupAttachments = new Map<string, () => void>();
 let activeServices: ServiceCollection | null = null;
+/** T-10 runtime delegation channel; recreated with the services, disposed with them. */
+let zaicodeDelegationSpool: ZaicodeDelegationSpool | null = null;
 let activeHostApiNetworkTransport: HostApiNetworkTransport | null = null;
 /** 本地 host services 的资源遥测订阅；远端连接的订阅由各自的 connection handle 持有。 */
 let activeLocalResourceTelemetry: IDisposable | null = null;
@@ -2141,6 +2149,9 @@ async function disposeHostResources(reason: string): Promise<HostShutdownResult>
 
     const servicesToDispose = activeServices;
     activeServices = null;
+    setZaicodeJobExecutor(null);
+  setZaicodeChildFinishedListener(null);
+  zaicodeDelegationSpool?.dispose();
     // Registry 是全部远端 connection 的唯一 owner；释放失败不能阻塞本地服务继续收口。
     const shutdownResult = await runHostShutdownPhases(
       [
@@ -2204,6 +2215,9 @@ function disposeHostResourcesBestEffort(reason: string): void {
   offPeakTaskRepo.close();
   void windowRemoteConnectionRegistry.dispose();
 
+  setZaicodeJobExecutor(null);
+  setZaicodeChildFinishedListener(null);
+  zaicodeDelegationSpool?.dispose();
   if (activeServices) {
     try {
       disposeServiceResources(activeServices);
@@ -2849,6 +2863,28 @@ parentPort.on("message", async (e: Electron.MessageEvent) => {
             });
             activeServices = initializedServices;
             activeHostApiNetworkTransport = hostApiNetworkTransport;
+            // ZAICODE 队列执行器只能在服务就绪后装配；目标解析复用 automation 的远端/本地裁决。
+            // T-10: one delegation channel per host; helpers' outcomes land in their parent's folder.
+            zaicodeDelegationSpool?.dispose();
+            zaicodeDelegationSpool = new ZaicodeDelegationSpool(
+              join(getZCodeDataRootDir(), "delegation"),
+              (message, error) => logger.warn(message, error),
+            );
+            const delegationSpool = zaicodeDelegationSpool;
+            setZaicodeChildFinishedListener((child) => void delegationSpool.reportChild(child));
+            setZaicodeJobExecutor(
+              createZaicodeJobExecutor({
+                delegationSpool,
+                resolveServices: (request) =>
+                  resolveAutomationTargetServices({
+                    workspacePath: request.workspacePath,
+                    ...(request.workspaceIdentity
+                      ? { workspaceIdentity: request.workspaceIdentity }
+                      : {}),
+                  }),
+                logWarn: (message, error) => logger.warn(message, error),
+              }),
+            );
             return initializedServices;
           },
         });

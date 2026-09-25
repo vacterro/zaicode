@@ -39,6 +39,9 @@ import {
   IFeedbackService,
   IPromptAttachmentTransferService,
   IWindowControllerService,
+  IZaicodeAgentService,
+  IZaicodeJobService,
+  IZaicodeStatsService,
   type IServiceAccessor,
 } from "@zcode/services";
 
@@ -90,6 +93,10 @@ export class RemoteServiceAccess implements IServiceAccessor {
   readonly settingsSyncService: ISettingsSyncService;
   readonly feedbackService: IFeedbackService;
   readonly promptAttachmentTransferService: IPromptAttachmentTransferService;
+  /** ZAICODE 产品层服务；远端 host 可能未注册，消费方必须处理 undefined。 */
+  readonly zaicodeAgentService?: IZaicodeAgentService;
+  readonly zaicodeJobService?: IZaicodeJobService;
+  readonly zaicodeStatsService?: IZaicodeStatsService;
 
   constructor(channelClient: IChannelClient) {
     this.fileService = ProxyChannel.toService<IFileService>(
@@ -213,6 +220,15 @@ export class RemoteServiceAccess implements IServiceAccessor {
     );
     this.promptAttachmentTransferService = ProxyChannel.toService<IPromptAttachmentTransferService>(
       channelClient.getChannel(IPromptAttachmentTransferService.channelName),
+    );
+    this.zaicodeAgentService = ProxyChannel.toService<IZaicodeAgentService>(
+      channelClient.getChannel(IZaicodeAgentService.channelName),
+    );
+    this.zaicodeJobService = ProxyChannel.toService<IZaicodeJobService>(
+      channelClient.getChannel(IZaicodeJobService.channelName),
+    );
+    this.zaicodeStatsService = ProxyChannel.toService<IZaicodeStatsService>(
+      channelClient.getChannel(IZaicodeStatsService.channelName),
     );
   }
 }

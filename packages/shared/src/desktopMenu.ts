@@ -1,4 +1,5 @@
 import { DEFAULT_LOCALE, type Locale } from "./protocol.js";
+import { isZaicodeProductMode } from "./zaicode.js";
 
 export const desktopMenuMessageIds = {
   file: "titleBar.menu.file",
@@ -167,7 +168,8 @@ export const desktopMenuMessages: Record<Locale, DesktopMenuLocaleMessages> = {
 
 export function getDesktopMenuMessage(locale: Locale, id: DesktopMenuMessageId): string {
   const messages = desktopMenuMessages[locale] ?? desktopMenuMessages[DEFAULT_LOCALE];
-  return messages[id];
+  // ZAICODE 派生产品：原生菜单/托盘文案统一换成产品名，不再出现上游 ZCode。
+  return isZaicodeProductMode() ? messages[id].replaceAll("ZCode", "ZAICODE") : messages[id];
 }
 
 export function formatDesktopMenuMessage(

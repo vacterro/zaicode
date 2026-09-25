@@ -4,6 +4,8 @@
 // 事件订阅与 flush 调度归 gateway（v4-gateway）。
 import {
   deriveSessionWorkflowActivity,
+  SESSION_TODO_SUMMARY_MAX_CHARS,
+  SESSION_TODO_SUMMARY_MAX_ITEMS,
   type ConversationSnapshot,
   type SessionSummary,
   type SessionsIndexDelta,
@@ -41,6 +43,11 @@ function deriveSessionSummary(
     if (lastAssistantPreview) break;
   }
   const hasBackgroundWork = snapshot.backgroundWorks.some((work) => work.status === "running");
+  // 侧栏 Todo 镜像：与会话内 Todo 条同源（snapshot.plan），不另立事实。
+  const todos = (snapshot.plan?.items ?? []).slice(0, SESSION_TODO_SUMMARY_MAX_ITEMS).map((item) => ({
+    status: item.status,
+    content: item.content.slice(0, SESSION_TODO_SUMMARY_MAX_CHARS),
+  }));
   // 侧栏工作流运行行的数据：
   // 同一 snapshot 的 workflowRuns + backgroundWorks 派生，侧栏不必订阅 run 进度。
   const workflowActivity = deriveSessionWorkflowActivity({
@@ -94,6 +101,7 @@ function deriveSessionSummary(
         }
       : {}),
     ...(snapshot.goal ? { goalStatus: snapshot.goal.status } : {}),
+    ...(todos.length > 0 ? { todos } : {}),
     lastActivityAt: extra.lastActivityAt,
     ...(lastAssistantPreview ? { lastAssistantPreview } : {}),
     createdAt: extra.createdAt,
@@ -118,6 +126,7 @@ function summariesEqual(a: SessionSummary, b: SessionSummary): boolean {
     a.pendingInteractionSummary?.permissionCount === b.pendingInteractionSummary?.permissionCount &&
     a.pendingInteractionSummary?.userInputCount === b.pendingInteractionSummary?.userInputCount &&
     a.goalStatus === b.goalStatus &&
+    JSON.stringify(a.todos ?? null) === JSON.stringify(b.todos ?? null) &&
     a.lastActivityAt === b.lastActivityAt &&
     a.lastAssistantPreview === b.lastAssistantPreview &&
     a.createdAt === b.createdAt

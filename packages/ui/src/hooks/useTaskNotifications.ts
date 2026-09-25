@@ -4,6 +4,10 @@ import type { ConversationSnapshot, SessionSummary } from "@zcode/shared/zcode-p
 import { useServices } from "@/hooks/useServices.js";
 import type { IntlInstance } from "@/i18n/index.js";
 import { logger } from "@/logger.js";
+import { isZaicodeProductMode } from "@zcode/shared";
+import { playZaicodeCue, zaicodeCueForNotificationStatus } from "@/zaicode/zaicodeCues.js";
+import { notifyZaicode } from "@/zaicode/zaicodeNotifications.js";
+import { openZaicodeSession, useZaicodeSessionNav } from "@/zaicode/zaicodeSessionNav.js";
 import {
   collectPendingInteractionNotificationPayloads,
   collectTerminalTaskNotificationPayloads,
@@ -23,6 +27,8 @@ interface WorkspaceTerminalTaskNotificationsParams {
   workspaceIdentity?: string;
   endpointKey?: string | null;
   enabled: boolean;
+  /** false: observe transitions (ZAICODE cues) but show no system notification. */
+  notify?: boolean;
   rpcReady: boolean;
   platform: TaskNotificationPlatform | null | undefined;
   formatMessage: FormatMessage;
@@ -31,6 +37,8 @@ interface WorkspaceTerminalTaskNotificationsParams {
 interface PendingInteractionTaskNotificationsParams {
   snapshot: ConversationSnapshot | null;
   enabled: boolean;
+  /** false: observe new interactions (ZAICODE cues) but show no system notification. */
+  notify?: boolean;
   platform: TaskNotificationPlatform | null | undefined;
   formatMessage: FormatMessage;
 }
@@ -65,7 +73,31 @@ function toSessionMap(sessions: readonly SessionSummary[]): Map<string, SessionS
 function showTaskNotification(
   platform: TaskNotificationPlatform,
   payload: TaskNotificationPayload,
+  notify = true,
 ): void {
+  if (isZaicodeProductMode()) {
+    // ZAICODE：按事件类型播放各自的提示音（完成 / 失败 / 提问 / 需要人 / 更新），与系统通知弹窗无关。
+    const cue = zaicodeCueForNotificationStatus(payload.status);
+    if (cue) void playZaicodeCue(cue);
+    // ZAICODE card per scenario (Settings -> Notifications decides whether it shows and for how long).
+    if (cue && cue !== "update") {
+      const nav = useZaicodeSessionNav.getState();
+      const known = [...nav.waiting, ...nav.recent].find((session) => session.sessionId === payload.taskId);
+      notifyZaicode(`agent.${cue}`, {
+        header: "Agents",
+        title: payload.title,
+        body: payload.body,
+        key: `agent:${payload.taskId}:${cue}`,
+        actions: [
+          {
+            label: "Open",
+            run: () => void openZaicodeSession(known ?? { sessionId: payload.taskId, title: payload.title }),
+          },
+        ],
+      });
+    }
+  }
+  if (!notify) return;
   try {
     platform.showTaskNotification(payload);
   } catch (error) {
@@ -90,6 +122,7 @@ export function useWorkspaceTerminalTaskNotifications({
   workspaceIdentity: rawWorkspaceIdentity,
   endpointKey: rawEndpointKey,
   enabled,
+  notify = true,
   rpcReady,
   platform,
   formatMessage,
@@ -183,12 +216,13 @@ export function useWorkspaceTerminalTaskNotifications({
       previousBySessionId,
       sessions: indexState.sessions,
       formatMessage,
+      skipInterrupted: isZaicodeProductMode(),
     });
     for (const payload of payloads) {
-      showTaskNotification(platform, payload);
+      showTaskNotification(platform, payload, notify);
     }
     previousBySessionIdRef.current = nextBySessionId;
-  }, [enabled, formatMessage, indexState, platform, signature]);
+  }, [enabled, formatMessage, indexState, notify, platform, signature]);
 }
 
 /**
@@ -200,6 +234,7 @@ export function useWorkspaceTerminalTaskNotifications({
 export function usePendingInteractionTaskNotifications({
   snapshot,
   enabled,
+  notify = true,
   platform,
   formatMessage,
 }: PendingInteractionTaskNotificationsParams): void {
@@ -230,12 +265,12 @@ export function usePendingInteractionTaskNotifications({
         formatMessage,
       });
       for (const payload of payloads) {
-        showTaskNotification(platform, payload);
+        showTaskNotification(platform, payload, notify);
       }
     }
 
     for (const requestId of currentRequestIds) {
       currentSeen.seenRequestIds.add(requestId);
     }
-  }, [enabled, formatMessage, platform, snapshot]);
+  }, [enabled, formatMessage, notify, platform, snapshot]);
 }

@@ -1,5 +1,4 @@
-// 工具条只展示 Composer 的下一次提交选择；Session 不是存活编辑器的补值来源。
-import type { ZCodeConfigOption } from "@zcode/shared";
+import { type ZCodeConfigOption, isZaicodeProductMode } from "@zcode/shared";
 import type { ModelSelectionView } from "@zcode/services";
 import type { SessionConfigState } from "@zcode/shared/zcode-protocol-v4";
 import { resolveModelThoughtOption } from "@/lib/modelThoughtOption.js";
@@ -16,7 +15,7 @@ export function resolveDraftDisplayedConfig(
     thought: selection.options?.reasoningLevel ?? "",
     thoughtLevels: [],
     followupMode: composer.followupMode ?? "queue",
-    mode: composer.mode ?? "build",
+    mode: composer.mode ?? (isZaicodeProductMode() ? "yolo" : "build"),
   };
 }
 

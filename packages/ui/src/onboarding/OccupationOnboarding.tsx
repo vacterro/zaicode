@@ -5,7 +5,15 @@ import { occupations, type OccupationValue } from "@/onboarding/occupationOption
 import { OnboardingModeSelector } from "@/onboarding/OnboardingModeSelector.js";
 import { OnboardingOccupationGrid } from "@/onboarding/OnboardingOccupationGrid.js";
 import { useOnboardingTrigger } from "@/onboarding/useOnboardingTrigger.js";
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type ComponentProps,
+  type ReactNode,
+} from "react";
+import { isZaicodeProductMode } from "@zcode/shared";
 import { useSettings } from "@/hooks/useSettingService.js";
 import { useOnboardingRecordService } from "@/hooks/useOnboardingRecordService.js";
 import { usePlatform } from "@/hooks/usePlatform.js";
@@ -32,7 +40,7 @@ async function appendOnboardingRecord(
   ]);
 }
 
-export function OccupationOnboarding({
+function OccupationOnboardingImpl({
   children,
   showWindowControls = false,
   showChildrenWhileLoading = false,
@@ -411,4 +419,13 @@ export function OccupationOnboarding({
       </div>
     </main>
   );
+}
+
+/**
+ * ZAICODE 是本机工具，不需要「你做什么工作」的画像采集：直接进入主界面。
+ * 产品模式在进程内恒定，所以按模式二选一不会违反 hooks 顺序。
+ */
+export function OccupationOnboarding(props: ComponentProps<typeof OccupationOnboardingImpl>) {
+  if (isZaicodeProductMode()) return <>{props.children}</>;
+  return <OccupationOnboardingImpl {...props} />;
 }

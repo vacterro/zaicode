@@ -1,3 +1,5 @@
+import { isZaicodeProductMode } from "@zcode/shared";
+
 export type QuickPickCommandIcon =
   | "book"
   | "browser"
@@ -268,7 +270,7 @@ export function createQuickPickCommands({
     run: handlers.openProductDocs,
   });
 
-  if (isLoggedIn && handlers.logout) {
+  if (!isZaicodeProductMode() && isLoggedIn && handlers.logout) {
     commands.push({
       id: "logout",
       sectionId: "app",
@@ -277,7 +279,7 @@ export function createQuickPickCommands({
       keywords: ["disconnect", "logout", "sign out", "断开连接", "登出"],
       run: handlers.logout,
     });
-  } else if (!isLoggedIn && handlers.login) {
+  } else if (!isZaicodeProductMode() && !isLoggedIn && handlers.login) {
     commands.push({
       id: "login",
       sectionId: "app",

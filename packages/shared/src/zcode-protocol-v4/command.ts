@@ -105,6 +105,7 @@ export const commandPayloadSchemas = {
       offPeakRunType: z.enum(["init", "resume"]).optional(),
       // 定时任务会话的后续用户输入也必须保持 turn-scoped 工具面隔离；不能借用
       // automationId，否则会把普通用户输入误标成一次 automation 派发。
+      toolAllowlist: z.array(z.string().min(1)).optional(),
       toolDisallowlist: z.array(z.string().min(1)).optional(),
     })
     .superRefine((payload, context) => {
@@ -156,6 +157,8 @@ export const commandPayloadSchemas = {
     workspaceMode: z.enum(["preserve", "rewind"]).optional(),
   }),
   retryTurn: z.object({ target: conversationRowTargetSchema }),
+  // ZAICODE CLEAR：同一会话内清空（停止当前轮、清 goal 与队列、分支截断到首条用户输入之前）。
+  clearConversation: z.object({}),
   setAssistantFeedback: z.object({
     target: conversationRowTargetSchema,
     feedback: z.enum(["like", "dislike"]).nullable(),

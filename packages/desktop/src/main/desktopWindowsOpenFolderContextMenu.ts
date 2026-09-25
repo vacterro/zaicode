@@ -1,13 +1,22 @@
 import { spawn } from "node:child_process";
 import { resolve } from "node:path";
-import type { Locale } from "@zcode/shared";
+import { isZaicodeProductMode, type Locale } from "@zcode/shared";
 
-const MENU_KEY_NAME = "ZCode.OpenInZCode";
-const DIRECTORY_MENU_KEY = `HKCU\\Software\\Classes\\Directory\\shell\\${MENU_KEY_NAME}`;
-const DRIVE_MENU_KEY = `HKCU\\Software\\Classes\\Drive\\shell\\${MENU_KEY_NAME}`;
+// ZAICODE 与本机正式版 ZCode 并排安装：此前共用 "ZCode.OpenInZCode" 键，
+// ZAICODE 启动时把正式版的「Open in ZCode」改指向 ZAICODE.exe。ZAICODE 使用独立键与文案。
+const UPSTREAM_MENU_KEY_NAME = "ZCode.OpenInZCode";
+const ZAICODE_MENU_KEY_NAME = "ZAICODE.OpenInZAICODE";
+const menuKeys = (name: string) => [
+  `HKCU\\Software\\Classes\\Directory\\shell\\${name}`,
+  `HKCU\\Software\\Classes\\Drive\\shell\\${name}`,
+];
 const MENU_LABELS: Record<Locale, string> = {
   "zh-CN": "在ZCode中打开",
   "en-US": "Open in ZCode",
+};
+const ZAICODE_MENU_LABELS: Record<Locale, string> = {
+  "zh-CN": "在ZAICODE中打开",
+  "en-US": "Open in ZAICODE",
 };
 
 type Logger = {
@@ -20,7 +29,8 @@ interface WindowsOpenFolderRegistryOperation {
 }
 
 function getWindowsOpenFolderMenuName(locale: Locale): string {
-  return MENU_LABELS[locale] ?? MENU_LABELS["en-US"];
+  const labels = isZaicodeProductMode() ? ZAICODE_MENU_LABELS : MENU_LABELS;
+  return labels[locale] ?? labels["en-US"];
 }
 
 function quoteWindowsCommandArg(value: string): string {
@@ -46,9 +56,9 @@ function buildWindowsOpenFolderRegistryOperations(options: {
 }): WindowsOpenFolderRegistryOperation[] {
   const command = buildWindowsOpenFolderCommand(options.executablePath, options.appArgs ?? []);
   const menuName = getWindowsOpenFolderMenuName(options.locale);
-  const menuKeys = [DIRECTORY_MENU_KEY, DRIVE_MENU_KEY];
+  const keys = menuKeys(isZaicodeProductMode() ? ZAICODE_MENU_KEY_NAME : UPSTREAM_MENU_KEY_NAME);
 
-  return menuKeys.flatMap((menuKey) => [
+  return keys.flatMap((menuKey) => [
     { args: ["add", menuKey, "/ve", "/d", menuName, "/f"] },
     { args: ["add", menuKey, "/v", "MUIVerb", "/t", "REG_SZ", "/d", menuName, "/f"] },
     { args: ["add", menuKey, "/v", "Icon", "/t", "REG_SZ", "/d", options.executablePath, "/f"] },
@@ -75,6 +85,37 @@ function runRegAdd(args: readonly string[]): Promise<void> {
   });
 }
 
+function readRegDefault(key: string): Promise<string | null> {
+  return new Promise((resolvePromise) => {
+    const child = spawn("reg.exe", ["query", key, "/ve"], {
+      stdio: ["ignore", "pipe", "ignore"],
+      windowsHide: true,
+    });
+    let output = "";
+    child.stdout.on("data", (chunk: Buffer) => {
+      output += chunk.toString("utf8");
+    });
+    child.on("error", () => resolvePromise(null));
+    child.on("exit", (code) => resolvePromise(code === 0 ? output : null));
+  });
+}
+
+/**
+ * 只移除指向本 ZAICODE 可执行文件的旧「Open in ZCode」项（历史上被 ZAICODE 覆盖的那一条）；
+ * 指向正式版 ZCode 的条目保持不动。
+ */
+async function releaseUpstreamMenuTakenByZaicode(executablePath: string): Promise<boolean> {
+  const needle = executablePath.toLowerCase();
+  let released = false;
+  for (const key of menuKeys(UPSTREAM_MENU_KEY_NAME)) {
+    const command = await readRegDefault(`${key}\\command`);
+    if (!command?.toLowerCase().includes(needle)) continue;
+    await runRegAdd(["delete", key, "/f"]).catch(() => undefined);
+    released = true;
+  }
+  return released;
+}
+
 export async function installWindowsOpenFolderContextMenu(options: {
   platform: NodeJS.Platform;
   executablePath: string;
@@ -99,11 +140,15 @@ export async function installWindowsOpenFolderContextMenu(options: {
 
   try {
     await Promise.all(operations.map((operation) => runRegAdd(operation.args)));
+    const releasedUpstreamMenu = isZaicodeProductMode()
+      ? await releaseUpstreamMenuTakenByZaicode(options.executablePath)
+      : false;
 
     options.logger.info("[open-folder] Windows Explorer 右键菜单已安装或更新", {
       executablePath: options.executablePath,
       hasDefaultAppEntry: appArgs.length > 0,
       locale: options.locale,
+      releasedUpstreamMenu,
     });
   } catch (error) {
     options.logger.warn("[open-folder] Windows Explorer 右键菜单安装失败", {

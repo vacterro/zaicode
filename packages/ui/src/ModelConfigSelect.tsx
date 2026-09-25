@@ -162,6 +162,7 @@ interface ModelConfigSelectProps {
   triggerClassName?: string;
   triggerIconClassName?: string;
   triggerLabelClassName?: string;
+  staticTriggerLabel?: boolean;
   triggerTestId?: string;
   formatTriggerLabel?: (label: string) => string;
   /** false 时把第一个 group 作为无 provider 层的扁平模型列表展示。 */
@@ -212,6 +213,7 @@ export const ModelConfigSelect = memo(function ModelConfigSelectComponent({
   triggerClassName,
   triggerIconClassName = "hidden",
   triggerLabelClassName: customTriggerLabelClassName,
+  staticTriggerLabel = false,
   triggerTestId = TID_CHAT_MODEL_SELECT_TRIGGER,
   formatTriggerLabel,
   showProviderLevel,
@@ -506,6 +508,7 @@ export const ModelConfigSelect = memo(function ModelConfigSelectComponent({
             prefix={pending ? undefined : triggerLabelPrefix}
             prefixClassName={triggerLabelPrefixClassName}
             value={pending ? undefined : triggerLabelValue}
+            staticLabel={staticTriggerLabel}
           />
         </span>
         {triggerBadge}

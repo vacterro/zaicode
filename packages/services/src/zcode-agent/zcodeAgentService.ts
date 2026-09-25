@@ -364,6 +364,7 @@ type SessionSendCompatField =
   | "automationId"
   | "offPeakTaskId"
   | "offPeakRunType"
+  | "toolAllowlist"
   | "toolDenylist";
 
 const SESSION_CREATE_OPTIONAL_COMPAT_FIELDS = new Set<SessionCreateCompatField>([
@@ -394,6 +395,7 @@ const SESSION_SEND_OPTIONAL_COMPAT_FIELDS = new Set<SessionSendCompatField>([
   "automationId",
   "offPeakTaskId",
   "offPeakRunType",
+  "toolAllowlist",
   "toolDenylist",
 ]);
 // onDynamicSessionEvent 建立上游订阅时若 getClient / sessionSubscribe 瞬时失败
@@ -719,6 +721,9 @@ function buildSessionSendParams(
       : {}),
     ...(params.offPeakRunType !== undefined && !omittedFields.has("offPeakRunType")
       ? { offPeakRunType: params.offPeakRunType }
+      : {}),
+    ...(params.toolAllowlist !== undefined && !omittedFields.has("toolAllowlist")
+      ? { toolAllowlist: params.toolAllowlist }
       : {}),
     ...(params.toolDenylist !== undefined && !omittedFields.has("toolDenylist")
       ? { toolDenylist: params.toolDenylist }

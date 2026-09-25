@@ -272,11 +272,17 @@ function buildApplicationMenuTemplate(options: {
               { type: "separator" as const },
             ]
           : []),
-        {
-          label: getLabel(desktopMenuMessageIds.helpWhatsNew),
-          click: () => void options.executeDesktopCommand(DesktopCommandIds.OpenChangelog),
-        },
-        { type: "separator" as const },
+        // ZAICODE: upstream's changelog, feedback form, log export and "Clear all data" are
+        // vendor housekeeping, not ZAICODE's; the zaicode flavor leaves them out.
+        ...(ZCODE_PRODUCT_FLAVOR === "zaicode"
+          ? []
+          : [
+              {
+                label: getLabel(desktopMenuMessageIds.helpWhatsNew),
+                click: () => void options.executeDesktopCommand(DesktopCommandIds.OpenChangelog),
+              },
+              { type: "separator" as const },
+            ]),
         ...(isLocalDevelopmentRuntime && stdioTapState.visible
           ? [
               {
@@ -332,20 +338,24 @@ function buildApplicationMenuTemplate(options: {
           label: getLabel(desktopMenuMessageIds.helpResourceManager),
           click: () => void options.executeDesktopCommand(DesktopCommandIds.OpenResourceManager),
         },
-        { type: "separator" as const },
-        {
-          label: getLabel(desktopMenuMessageIds.helpFeedback),
-          click: () => void options.executeDesktopCommand(DesktopCommandIds.OpenFeedback),
-        },
-        {
-          label: getLabel(desktopMenuMessageIds.helpExportLogs),
-          click: () => void options.executeDesktopCommand(DesktopCommandIds.ExportLogs),
-        },
-        { type: "separator" as const },
-        {
-          label: getLabel(desktopMenuMessageIds.helpClearAllData),
-          click: () => void options.executeDesktopCommand(DesktopCommandIds.ClearAllData),
-        },
+        ...(ZCODE_PRODUCT_FLAVOR === "zaicode"
+          ? []
+          : [
+              { type: "separator" as const },
+              {
+                label: getLabel(desktopMenuMessageIds.helpFeedback),
+                click: () => void options.executeDesktopCommand(DesktopCommandIds.OpenFeedback),
+              },
+              {
+                label: getLabel(desktopMenuMessageIds.helpExportLogs),
+                click: () => void options.executeDesktopCommand(DesktopCommandIds.ExportLogs),
+              },
+              { type: "separator" as const },
+              {
+                label: getLabel(desktopMenuMessageIds.helpClearAllData),
+                click: () => void options.executeDesktopCommand(DesktopCommandIds.ClearAllData),
+              },
+            ]),
       ],
     },
   ];

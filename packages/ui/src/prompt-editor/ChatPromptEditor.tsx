@@ -29,6 +29,11 @@ import { appendWorkspaceFileMentionToComposer } from "@/lib/workspaceFileCompose
 import { usePromptEditorDragState } from "@/prompt-editor/usePromptEditorDragState.js";
 import { ChatPromptActionMenu } from "@/prompt-editor/ChatPromptActionMenu.js";
 import { useComposerToolbarFit } from "@/prompt-editor/useComposerToolbarFit.js";
+import { ZaicodeSaipenControls } from "@/prompt-editor/ZaicodeSaipenControls.js";
+import { readZaicodeActiveEngine, readZaicodeEnginesState } from "@/zaicode/zaicodeEngines.js";
+import { launchZaicodeWorker } from "@/zaicode/zaicodeWorkers.js";
+import { useZaicodeComposerPrefs } from "@/zaicode/zaicodeComposerPrefs.js";
+import { toast } from "@/components/ui/toast.js";
 
 function runAfterFrame(callback: () => void) {
   if (typeof requestAnimationFrame === "function") {
@@ -88,6 +93,7 @@ export function ChatPromptEditor({
   excludedSlashCommandNames,
   appSlashCommands,
   enableMentionPanel,
+  showSaipenControls = false,
 }: {
   workspacePath: string;
   workspaceIdentity?: string;
@@ -148,6 +154,7 @@ export function ChatPromptEditor({
   appSlashCommands?: readonly AppSlashCommand[];
   /** mention 面板开关（透传 LexicalChatInput）。 */
   enableMentionPanel?: boolean;
+  showSaipenControls?: boolean;
 }) {
   const { intl } = useZCodeIntl();
   const toolbarRef = useComposerToolbarFit();
@@ -157,6 +164,7 @@ export function ChatPromptEditor({
     useState<HTMLDivElement | null>(null);
   const resolvedTriggerPanelContainer = triggerPanelContainer ?? internalTriggerPanelContainer;
   const latestTextRef = useRef(initialValue ?? "");
+  const [hasEditorText, setHasEditorText] = useState(Boolean(initialValue?.trim()));
   const hasSyncedInitialValueRef = useRef(false);
   const {
     externalFileDragging,
@@ -203,17 +211,43 @@ export function ChatPromptEditor({
   const handleTextChange = useCallback(
     (value: string) => {
       latestTextRef.current = value;
+      setHasEditorText(Boolean(value.trim()));
       onChange?.(value);
     },
     [onChange],
   );
 
+  /**
+   * ZAICODE: with a subscription engine picked on the sidebar, a NEW prompt
+   * (draft, not a slash command) starts that subscription's CLI as a worker in
+   * this project instead of an in-app session. Existing sessions keep talking
+   * to their own model.
+   */
+  const zaicodeCompact = useZaicodeComposerPrefs((state) => state.compact && state.compactShell);
+  const zaicodeTightShell = showSaipenControls && zaicodeCompact;
+  const routeToSubscriptionEngine = useCallback(
+    (value: string): boolean => {
+      if (!showSaipenControls || taskId || !workspacePath) return false;
+      const prompt = value.trim();
+      if (!prompt || prompt.startsWith("/")) return false;
+      const activeId = readZaicodeActiveEngine();
+      const account = activeId ? readZaicodeEnginesState().accounts.find((item) => item.id === activeId) : null;
+      if (!account) return false;
+      void launchZaicodeWorker({ account, projectPath: workspacePath, prompt }).then((result) => toast(result.message));
+      resolvedInputApiRef.current?.setText("");
+      return true;
+    },
+    [resolvedInputApiRef, showSaipenControls, taskId, workspacePath],
+  );
+
   const handleSubmit: FormEventHandler<HTMLFormElement> = useCallback(
     (event) => {
       event.preventDefault();
-      onSubmit(resolvedInputApiRef.current?.getMarkdown() ?? latestTextRef.current);
+      const value = resolvedInputApiRef.current?.getMarkdown() ?? latestTextRef.current;
+      if (routeToSubscriptionEngine(value)) return;
+      onSubmit(value);
     },
-    [onSubmit, resolvedInputApiRef],
+    [onSubmit, resolvedInputApiRef, routeToSubscriptionEngine],
   );
 
   const handleKeyDown: KeyboardEventHandler<HTMLFormElement> = useCallback(
@@ -241,8 +275,8 @@ export function ChatPromptEditor({
   const handleEditorSubmit = useCallback(
     // 适配：透传业务层返回值（false = 不 reset 编辑器，草稿保留），
     // 吞掉返回值会让 Enter 路径总是清空。
-    (value: string) => onSubmit(value),
-    [onSubmit],
+    (value: string) => (routeToSubscriptionEngine(value) ? undefined : onSubmit(value)),
+    [onSubmit, routeToSubscriptionEngine],
   );
 
   const handleDragOver: DragEventHandler<HTMLDivElement> = useCallback(
@@ -348,6 +382,8 @@ export function ChatPromptEditor({
           (isWorkspaceFileDropActive || isExternalFileDropActive) &&
             "border-brand bg-input-focused ring-1 ring-brand/30",
           shellClassName,
+          // ZAICODE (SRC-038): the compact message box also takes less padding.
+          zaicodeTightShell && "gap-1.5 p-2",
         )}
       >
         {draggingOverlayHint ? (
@@ -385,7 +421,20 @@ export function ChatPromptEditor({
           appSlashCommands={appSlashCommands}
           enableMentionPanel={enableMentionPanel}
         />
-        <div ref={toolbarRef} className="group/toolbar flex items-end gap-3">
+        {showSaipenControls ? (
+          <ZaicodeSaipenControls
+            workspacePath={workspacePath}
+            workspaceIdentity={workspaceIdentity}
+            sessionId={taskId}
+            disabled={disabled || submitDisabled || submitting || hasEditorText}
+            onCommand={(command) => {
+              if (resolvedInputApiRef.current?.getMarkdown().trim()) return;
+              resolvedInputApiRef.current?.setText(command);
+              runAfterFrame(() => onSubmit(command));
+            }}
+          />
+        ) : null}
+        <div ref={toolbarRef} className={cn("group/toolbar flex items-end gap-3", zaicodeTightShell && "gap-2")}>
           <div className="flex min-w-0 flex-1 items-center" data-composer-leading-actions>
             <div className="flex shrink-0 items-center gap-1" data-composer-leading-content>
               {hasActionMenu ? (

@@ -1,0 +1,63 @@
+{
+  "changelog_only": {
+    "7.84.0": {
+      "commit": "fbf9099",
+      "reason": "release commit exists with matching VERSION; no tag was published"
+    },
+    "7.85.0": {
+      "commit": "1f685f0",
+      "reason": "release commit exists with matching VERSION; no tag was published"
+    },
+    "7.85.1": {
+      "commit": "b52a26b",
+      "reason": "release commit exists with matching VERSION; no tag was published"
+    },
+    "7.86.0": {
+      "commit": "7ae41f6",
+      "reason": "release commit exists with matching VERSION; no tag was published"
+    },
+    "7.87.0": {
+      "commit": "30b1be4",
+      "reason": "release commit exists with matching VERSION; no tag was published"
+    },
+    "7.88.0": {
+      "commit": "1b95524",
+      "reason": "release commit exists with matching VERSION; no tag was published"
+    },
+    "7.89.0": {
+      "commit": "27ea5b1",
+      "reason": "release commit exists with matching VERSION; no tag was published"
+    },
+    "7.90.0": {
+      "commit": "5439be0",
+      "reason": "release commit exists with matching VERSION; no tag was published"
+    },
+    "7.91.0": {
+      "commit": "e65309e",
+      "reason": "release commit exists with matching VERSION; no tag was published"
+    }
+  },
+  "tag_only": {},
+  "warn_slugs": {
+    "board-soft-cap": {
+      "first_seen": "7.72.0",
+      "last_seen": "7.216.0",
+      "rationale": "BOARD.md outgrew the ~16 KB soft cap; CLEAN pruned it at v7.157.0 and the warning stopped emitting. The v7.215-v7.216 wave regrew the board and the warning returned; T-464 owns it with the measured remainder (25.1 KB: improve-wave ticket bodies are the irreducible bulk)"
+    },
+    "log-soft-cap": {
+      "first_seen": "7.69.0",
+      "last_seen": "7.156.0",
+      "rationale": "active LOG.md outgrew a cheap read; CLEAN sealed it at v7.157.0 so the warning stopped emitting -- kept as history, re-owns only if it returns"
+    },
+    "subsaipen-never-ran": {
+      "first_seen": "7.99.0",
+      "last_seen": "7.160.0",
+      "rationale": "saipython sub spawned on migration but never run; MANIFEST advertises it live until its board opens -- owned by T-406"
+    },
+    "goal-reauth-untripped": {
+      "first_seen": "7.146.0",
+      "last_seen": "7.160.0",
+      "rationale": "E-1659 wrote a DEC: goal reauthorized while the valve had not tripped; LOG is immutable so it warns forever -- owned by T-407"
+    }
+  }
+}

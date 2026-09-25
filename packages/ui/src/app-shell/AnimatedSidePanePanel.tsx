@@ -29,6 +29,8 @@ import { TreemappingPane } from "@/TreemappingPane.js";
 import { WhiteboardPane } from "@/WhiteboardPane.js";
 import { ModelTrajectoryPane } from "@/ModelTrajectoryPane.js";
 import { DeveloperToolsPane } from "@/DeveloperToolsPane.js";
+import { ZaicodeSaipenSidePane } from "@/zaicode/ZaicodeSaipenSidePane.js";
+import { isZaicodeProductMode } from "@zcode/shared";
 import { cn } from "@/components/lib/utils.js";
 import { Button } from "@/components/ui/button.js";
 import {
@@ -93,6 +95,7 @@ import {
   BugIcon,
   FileDiffIcon,
   GlobeIcon,
+  ListChecksIcon,
   MessageSquareTextIcon,
   PlusIcon,
   SquareTerminalIcon,
@@ -313,6 +316,7 @@ export function AnimatedSidePanePanel({
   onOpenBrowserTab,
   onOpenWhiteboard: _onOpenWhiteboard,
   onOpenDeveloperTools,
+  onOpenSaipenTab,
   onOpenTerminalTab,
   onOpenReviewTab,
   onOpenSelectionSideConversation,
@@ -378,6 +382,8 @@ export function AnimatedSidePanePanel({
   onOpenBrowserTab: () => void;
   onOpenWhiteboard: () => void;
   onOpenDeveloperTools: () => void;
+  /** ZAICODE：打开 SAIPEN 协议实时面板（STATE / BOARD / LOG）。 */
+  onOpenSaipenTab?: () => void;
   onOpenTerminalTab: () => void;
   onOpenReviewTab: () => void;
   onOpenSelectionSideConversation: () => void;
@@ -696,6 +702,12 @@ export function AnimatedSidePanePanel({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-48">
+        {isZaicodeProductMode() && onOpenSaipenTab ? (
+          <DropdownMenuItem data-side-pane-add-item="saipen" onSelect={onOpenSaipenTab}>
+            <ListChecksIcon className="size-4" />
+            <span>SAIPEN · board / log / state</span>
+          </DropdownMenuItem>
+        ) : null}
         {canOpenSelectionSideConversation ? (
           <DropdownMenuItem
             data-side-pane-add-item="selection-side-conversation"
@@ -791,6 +803,12 @@ export function AnimatedSidePanePanel({
       icon: BugIcon,
       onOpen: onOpenDeveloperTools,
     },
+    saipen: {
+      id: "saipen",
+      label: "SAIPEN",
+      icon: ListChecksIcon,
+      onOpen: onOpenSaipenTab ?? (() => undefined),
+    },
   };
   const openTabLauncherItems: OpenTabLauncherItem[] = resolveOpenTabLauncherItemIds({
     canOpenSelectionSideConversation,
@@ -800,6 +818,8 @@ export function AnimatedSidePanePanel({
   })
     .filter((itemId) => !isOfficeMode || (itemId !== "terminal" && itemId !== "review"))
     .map((itemId) => openTabLauncherItemById[itemId]);
+  // ZAICODE：空侧栏的首页就是 SAIPEN 协议实时面板，其余入口收成一排小按钮。
+  const zaicodeSaipenHome = isZaicodeProductMode() && Boolean(onOpenSaipenTab);
   const closeSidePaneButton =
     isVisible && onCloseSidePane ? (
       <div className="flex shrink-0 items-center gap-0.5 [app-region:no-drag]">
@@ -824,6 +844,41 @@ export function AnimatedSidePanePanel({
           {closeSidePaneButton}
         </div>
       }
+      {zaicodeSaipenHome ? (
+        <div className="flex min-h-0 flex-1 flex-col" data-zaicode-saipen-home>
+          <div className="flex shrink-0 flex-wrap items-center gap-1 border-b border-border px-2 py-1 text-ui-xs">
+            <button
+              type="button"
+              className="border border-[var(--zaicode-highlight,var(--color-border-hover))] px-1.5 text-foreground hover:bg-hover"
+              title="Pin SAIPEN as a tab so it stays next to Terminal / Browser / Review"
+              onClick={onOpenSaipenTab}
+            >
+              Pin as tab
+            </button>
+            <span className="text-foreground-subtlest">Open:</span>
+            {openTabLauncherItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  data-side-pane-open-tab-item={item.id}
+                  className="flex items-center gap-1 border border-border px-1.5 text-foreground-subtle hover:bg-hover hover:text-foreground"
+                  onClick={item.onOpen}
+                >
+                  <Icon className="size-3.5" />
+                  {item.label}
+                </button>
+              );
+            })}
+          </div>
+          <ZaicodeSaipenSidePane
+            className="min-h-0 flex-1"
+            workspacePath={workspaceAbsPath}
+            {...(workspaceIdentity ? { workspaceIdentity } : {})}
+          />
+        </div>
+      ) : (
       <div className="flex min-h-0 flex-1 items-center justify-center overflow-y-auto px-5 py-10">
         <div className="side-pane-open-tab-content flex w-full max-w-[20rem] flex-col gap-5">
           <div className="flex flex-col gap-2 text-center">
@@ -855,6 +910,7 @@ export function AnimatedSidePanePanel({
           </div>
         </div>
       </div>
+      )}
     </div>
   );
   const sidePaneTabOverview = (
@@ -1243,6 +1299,11 @@ export function AnimatedSidePanePanel({
                             workspacePath={workspaceAbsPath}
                             workspaceIdentity={workspaceIdentity}
                             onClose={() => onCloseTab(tab.id)}
+                          />
+                        ) : tab.type === "saipen" ? (
+                          <ZaicodeSaipenSidePane
+                            workspacePath={workspaceAbsPath}
+                            {...(workspaceIdentity ? { workspaceIdentity } : {})}
                           />
                         ) : tab.type === "developer-tools" ? (
                           <ServiceProvider services={services}>

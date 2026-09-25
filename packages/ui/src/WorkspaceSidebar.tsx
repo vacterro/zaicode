@@ -1,5 +1,6 @@
 /* eslint-disable max-lines -- 归档视图开关沿用现有 sidebar 结构，先保持同文件收口。 */
 import {
+  Fragment,
   memo,
   useCallback,
   useEffect,
@@ -47,7 +48,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import type { Locale, RemoteTarget, UserInfo, ZCodeTaskMeta } from "@zcode/shared";
-import { BUILTIN_MODEL_PROVIDER_IDS } from "@zcode/shared";
+import { BUILTIN_MODEL_PROVIDER_IDS, isZaicodeProductMode } from "@zcode/shared";
 import {
   TID_CONVERSATION_NEW_TASK,
   TID_CONVERSATION_SECTION,
@@ -71,6 +72,43 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu.js";
 import { useZCodeIntl } from "@/i18n/IntlProvider.js";
+import { ZaicodeIcon } from "@/zaicode/zaicodeIconSlots.js";
+import { ZaicodeEngineBar } from "@/zaicode/ZaicodeEngineBar.js";
+import { ZaicodeAudioDirector } from "@/zaicode/ZaicodeAudioPanels.js";
+import { useZaicodeArchiveUndo, useZaicodeArchiveUndoShortcut } from "@/zaicode/zaicodeArchiveUndo.js";
+import {
+  orderZaicodeProjectSections,
+  projectLiveOf,
+  runningSessionsOf,
+  waitingSessionsOf,
+  slotGroupOf,
+  useZaicodeRunningSessions,
+  useZaicodeSidebarPrefs,
+  type ZaicodeProjectLive,
+  type ZaicodeProjectSectionGroup,
+  type ZaicodeRunningSession,
+} from "@/zaicode/zaicodeSidebarPrefs.js";
+import { useZaicodeSessionNav, type ZaicodeSessionRef } from "@/zaicode/zaicodeSessionNav.js";
+import { ZaicodeSidebarNavBlock } from "@/zaicode/ZaicodeSidebarNavBlock.js";
+import { ZaicodeSidebarWorkers } from "@/zaicode/ZaicodeSidebarWorkers.js";
+import { ZaicodeSessionActionStrip } from "@/zaicode/ZaicodeSessionActionStrip.js";
+import {
+  useZaicodeSessionBriefs,
+  zaicodeSessionBriefOf,
+  type ZaicodeSessionBrief,
+} from "@/zaicode/zaicodeContinue.js";
+import {
+  ZaicodeSlotDropPanel,
+  createZaicodeSlotDropCollision,
+  readZaicodeSlotDropTarget,
+  useZaicodeSlotDropArming,
+} from "@/zaicode/ZaicodeSlotDrop.js";
+import {
+  ZaicodeLiveToggle,
+  ZaicodeSlotGroupHeader,
+  ZaicodeSlotsToggle,
+} from "@/zaicode/ZaicodeSidebarSectionSettings.js";
+import { useZaicodeTodoProgress } from "@/zaicode/zaicodeTodoProgress.js";
 import { logger } from "@/logger.js";
 import { NewTaskButtonGroup } from "@/NewTaskButtonGroup.js";
 import { selectWorkspaceZCodeState, useZCodeSessionStore } from "@/store/zcodeSessionStore.js";
@@ -136,6 +174,7 @@ import {
   workspaceVerticalListSortingStrategy,
 } from "@/lib/workspaceSidebarDrag.js";
 import { createPortal } from "react-dom";
+import { playZaicodeSound } from "@/zaicode/zaicodeSoundBus.js";
 
 function WorkspaceNewTaskTooltip({
   children,
@@ -259,8 +298,10 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
   onOpenCommandCenter,
   onOpenAutomations,
   onOpenPluginStore,
+  onOpenZaicode,
   automationsActive = false,
   pluginStoreActive = false,
+  zaicodeActive = false,
   onFileTreeOpenChange,
 }: {
   workspacePath: string;
@@ -311,8 +352,10 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
   onOpenCommandCenter: () => void;
   onOpenAutomations?: () => void;
   onOpenPluginStore?: () => void;
+  onOpenZaicode?: () => void;
   automationsActive?: boolean;
   pluginStoreActive?: boolean;
+  zaicodeActive?: boolean;
   onFileTreeOpenChange?: (open: boolean) => void;
 }) {
   const { intl, localePreference, setLocalePreference } = useZCodeIntl();
@@ -399,6 +442,9 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
   const [purposeSectionPreferences, setPurposeSectionPreferences] = useState(
     readSidebarPurposeSectionPreferences,
   );
+  // ZAICODE has no foldable "Projects" section (SRC-043): an old folded preference must
+  // not hide the whole project list behind a header that no longer exists.
+  const projectsSectionOpen = isZaicodeProductMode() || purposeSectionPreferences.projectsExpanded;
   const [workspaceTaskOrganizeBy, setWorkspaceTaskOrganizeBy] = useState<
     Extract<TaskOrganizeBy, "project" | "chronological">
   >(() => {
@@ -408,6 +454,8 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
   const [workspaceTaskVisibleLimitByKey, setWorkspaceTaskVisibleLimitByKey] =
     useState<WorkspaceTaskVisibleLimitByKey>({});
   const [activeWorkspaceDragId, setActiveWorkspaceDragId] = useState<string | null>(null);
+  // ZAICODE: Shift held when a project drag starts (and still held 2 s later) arms slot drop.
+  const [zaicodeDragShift, setZaicodeDragShift] = useState(false);
   const [activeWorkspaceDragWidth, setActiveWorkspaceDragWidth] = useState<number | null>(null);
   const [groupedTaskGroupIds, setGroupedTaskGroupIds] = useState<string[]>([]);
   const [groupedTaskGroupIdsHydrated, setGroupedTaskGroupIdsHydrated] = useState(false);
@@ -571,7 +619,7 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
     () =>
       resolveVisibleWorkspaceTaskKeys({
         enabled:
-          effectiveTaskViewMode === "workspace" && purposeSectionPreferences.projectsExpanded,
+          effectiveTaskViewMode === "workspace" && projectsSectionOpen,
         expandedWorkspacePaths,
         workspaces: projectWorkspaceTabs,
       }),
@@ -579,7 +627,7 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
       effectiveTaskViewMode,
       expandedWorkspacePaths,
       projectWorkspaceTabs,
-      purposeSectionPreferences.projectsExpanded,
+      projectsSectionOpen,
     ],
   );
   useEffect(() => {
@@ -645,6 +693,81 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
       ),
     [workspaceTaskLists.groups],
   );
+  // ZAICODE：运行中会话（全局计数 + 就绪度）、优先级分组（MAIN0..SIDE2）与“运行中置顶”排序。
+  const zaicodeMode = isZaicodeProductMode();
+  const zaicodePrefs = useZaicodeSidebarPrefs();
+  const zaicodeStoredTodos = useZaicodeTodoProgress((state) => state.bySession);
+  const publishZaicodeRunningSessions = useZaicodeRunningSessions((state) => state.publish);
+  useZaicodeArchiveUndoShortcut(zaicodeMode);
+  const zaicodeArchiveNotice = useZaicodeArchiveUndo((state) => state.notice);
+  const zaicodeArchiveNoticeUndoable = useZaicodeArchiveUndo((state) => state.noticeUndoable);
+  const undoZaicodeArchive = useZaicodeArchiveUndo((state) => state.undo);
+  const clearZaicodeArchiveNotice = useZaicodeArchiveUndo((state) => state.clearNotice);
+  useEffect(() => {
+    if (!zaicodeArchiveNotice) return;
+    const timer = window.setTimeout(clearZaicodeArchiveNotice, 8000);
+    return () => window.clearTimeout(timer);
+  }, [clearZaicodeArchiveNotice, zaicodeArchiveNotice]);
+  const zaicodeProjectLive = useMemo(() => {
+    const byKey = new Map<string, ZaicodeProjectLive>();
+    const all: ZaicodeRunningSession[] = [];
+    if (!zaicodeMode) return { byKey, all };
+    for (const group of workspaceTaskLists.groups) {
+      const key = buildTaskWorkspaceKey(group.workspacePath, group.workspaceIdentity);
+      const running = runningSessionsOf(key, group.items, zaicodeStoredTodos, {
+        workspacePath: group.workspacePath,
+        ...(group.workspaceIdentity ? { workspaceIdentity: group.workspaceIdentity } : {}),
+      });
+      all.push(...running);
+      byKey.set(
+        key,
+        projectLiveOf(
+          group.items,
+          running.map((session) => session.ratio),
+        ),
+      );
+    }
+    return { byKey, all };
+  }, [workspaceTaskLists.groups, zaicodeMode, zaicodeStoredTodos]);
+  useEffect(() => {
+    if (zaicodeMode) publishZaicodeRunningSessions(zaicodeProjectLive.all);
+  }, [publishZaicodeRunningSessions, zaicodeMode, zaicodeProjectLive.all]);
+  const liveZaicodeProjectSections = useMemo(() => {
+    const keyOf = (tab: (typeof projectWorkspaceTabs)[number]) =>
+      buildTaskWorkspaceKey(tab.workspacePath, tab.workspaceIdentity);
+    if (!zaicodeMode) {
+      return [{ group: null as ZaicodeProjectSectionGroup | null, tabs: [...projectWorkspaceTabs], folded: false }];
+    }
+    const tabByKey = new Map(projectWorkspaceTabs.map((tab) => [keyOf(tab), tab] as const));
+    return orderZaicodeProjectSections(
+      projectWorkspaceTabs.map(keyOf),
+      { prefs: zaicodePrefs, liveOf: (key) => zaicodeProjectLive.byKey.get(key) },
+    ).map((section) => ({
+      group: section.group,
+      tabs: section.keys.flatMap((key) => {
+        const tab = tabByKey.get(key);
+        return tab ? [tab] : [];
+      }),
+      folded:
+        section.group !== null &&
+        section.group !== "LIVE" &&
+        zaicodePrefs.collapsedSlots.includes(section.group),
+    }));
+  }, [projectWorkspaceTabs, zaicodeMode, zaicodePrefs, zaicodeProjectLive.byKey]);
+  // While a project is being dragged the section layout is frozen: a session
+  // starting/finishing (LIVE-first order) or a slot change mid-drag used to
+  // reorder the sortable items under dnd-kit and leave rows translated off
+  // the bottom of the list.
+  const [frozenZaicodeProjectSections, setFrozenZaicodeProjectSections] = useState<
+    typeof liveZaicodeProjectSections | null
+  >(null);
+  const liveZaicodeProjectSectionsRef = useRef(liveZaicodeProjectSections);
+  liveZaicodeProjectSectionsRef.current = liveZaicodeProjectSections;
+  const zaicodeProjectSections = frozenZaicodeProjectSections ?? liveZaicodeProjectSections;
+  const zaicodeOrderedProjectTabs = useMemo(
+    () => zaicodeProjectSections.flatMap((section) => (section.folded ? [] : section.tabs)),
+    [zaicodeProjectSections],
+  );
   const handleShowMoreWorkspaceTasks = useCallback((workspaceKey: string) => {
     setWorkspaceTaskVisibleLimitByKey((current) =>
       increaseWorkspaceTaskVisibleLimit(current, workspaceKey),
@@ -656,7 +779,9 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
   }, []);
   const workspaceScrollMaskStyle = useMemo<CSSProperties>(() => {
     const baseStyle: CSSProperties = { overflowAnchor: "none" };
-    if (!showWorkspaceTopMask && !showWorkspaceBottomMask) {
+    // ZAICODE (SRC-043): no CSS mask on the scroller. A mask over the whole scrolling list
+    // is recomposited on every scroll frame; the pixel UI has hard edges anyway.
+    if (isZaicodeProductMode() || (!showWorkspaceTopMask && !showWorkspaceBottomMask)) {
       return baseStyle;
     }
     const topStop = showWorkspaceTopMask ? "transparent 0px, black 32px" : "black 0px, black 32px";
@@ -680,8 +805,11 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
   const resetWorkspaceDrag = useCallback(() => {
     setActiveWorkspaceDragId(null);
     setActiveWorkspaceDragWidth(null);
+    setFrozenZaicodeProjectSections(null);
   }, []);
   const handleWorkspaceDragStart = useCallback((event: DragStartEvent) => {
+    setZaicodeDragShift(Boolean((event.activatorEvent as PointerEvent | null)?.shiftKey));
+    setFrozenZaicodeProjectSections(liveZaicodeProjectSectionsRef.current);
     setActiveWorkspaceDragId(String(event.active.id));
     setActiveWorkspaceDragWidth(event.active.rect.current.initial?.width ?? null);
   }, []);
@@ -698,7 +826,33 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
       if (!over || active.id === over.id) {
         return;
       }
+      if (zaicodeMode) playZaicodeSound("sidebar.drop");
+      // ZAICODE slot drop (Shift + hold): the target is a slot, not a position.
+      const droppedSlot = zaicodeMode ? readZaicodeSlotDropTarget(over.id) : null;
+      if (droppedSlot) {
+        const droppedTab = projectWorkspaceTabs.find((tab) => tab.id === String(active.id));
+        if (droppedTab) {
+          zaicodePrefs.setGroup(buildTaskWorkspaceKey(droppedTab.workspacePath, droppedTab.workspaceIdentity), droppedSlot);
+        }
+        return;
+      }
 
+      // ZAICODE 分组：拖到另一组的项目上，即把该项目移入那一组。
+      if (zaicodeMode && zaicodePrefs.slots) {
+        const activeTab = projectWorkspaceTabs.find((tab) => tab.id === String(active.id));
+        const overTab = projectWorkspaceTabs.find((tab) => tab.id === String(over.id));
+        if (activeTab && overTab) {
+          const activeKey = buildTaskWorkspaceKey(activeTab.workspacePath, activeTab.workspaceIdentity);
+          const overGroup = slotGroupOf(
+            zaicodePrefs.groups,
+            buildTaskWorkspaceKey(overTab.workspacePath, overTab.workspaceIdentity),
+            zaicodePrefs.defaultSlot,
+          );
+          if (slotGroupOf(zaicodePrefs.groups, activeKey, zaicodePrefs.defaultSlot) !== overGroup) {
+            zaicodePrefs.setGroup(activeKey, overGroup);
+          }
+        }
+      }
       // 项目拖拽只展示 project 子序列，但 tabStore 保存的是全量 workspace 顺序。
       // 直接混用两个索引会在 conversation workspace 存在时把项目落到错误位置。
       const indices = resolveWorkspaceDragGlobalIndices({
@@ -711,7 +865,16 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
         reorderWorkspaceTabs(indices.fromIndex, indices.toIndex);
       }
     },
-    [projectWorkspaceTabs, reorderWorkspaceTabs, resetWorkspaceDrag, workspaceTabs],
+    [projectWorkspaceTabs, reorderWorkspaceTabs, resetWorkspaceDrag, workspaceTabs, zaicodeMode, zaicodePrefs],
+  );
+  const zaicodeSlotDrop = useZaicodeSlotDropArming(
+    Boolean(activeWorkspaceDragId) && zaicodeMode && zaicodePrefs.slots,
+    zaicodeDragShift,
+  );
+  const zaicodeSlotDropArmedRef = zaicodeSlotDrop.armedRef;
+  const zaicodeSlotCollision = useMemo(
+    () => createZaicodeSlotDropCollision(() => zaicodeSlotDropArmedRef.current),
+    [zaicodeSlotDropArmedRef],
   );
   const activeWorkspaceDragTab = useMemo(
     () =>
@@ -774,6 +937,58 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
       // 当前任务高亮会丢失，也会把后续选择误判成未激活。
       selectWorkspaceZCodeState(state, workspacePath, workspaceIdentity).activeTaskId,
   );
+  // ZAICODE：发布会话导航（头部计量条点击、循环切换会话、F 键切换项目）。
+  const publishZaicodeSessionNav = useZaicodeSessionNav((state) => state.publish);
+  const publishZaicodeSessionBriefs = useZaicodeSessionBriefs((state) => state.publish);
+  useEffect(() => {
+    if (!zaicodeMode) return;
+    const waiting: ZaicodeSessionRef[] = [];
+    const briefs: ZaicodeSessionBrief[] = [];
+    let recent: ZaicodeSessionRef[] = [];
+    for (const group of workspaceTaskLists.groups) {
+      const location = {
+        workspacePath: group.workspacePath,
+        ...(group.workspaceIdentity ? { workspaceIdentity: group.workspaceIdentity } : {}),
+      };
+      const key = buildTaskWorkspaceKey(group.workspacePath, group.workspaceIdentity);
+      waiting.push(...waitingSessionsOf(key, group.items, location));
+      for (const task of group.items) briefs.push(zaicodeSessionBriefOf(task, key, location));
+      if (group.workspacePath === workspacePath) {
+        recent = [...group.items]
+          .sort((left, right) => (right.updatedAt ?? 0) - (left.updatedAt ?? 0))
+          .slice(0, 30)
+          .map((task) => ({ sessionId: task.taskId, title: task.title || task.taskId, ...location }));
+      }
+    }
+    // SRC-043: CONTINUE ALL and DONE read these facts; unchanged ones keep their identity.
+    publishZaicodeSessionBriefs(briefs);
+    publishZaicodeSessionNav({
+      open: (path, taskId, identity) => handleTaskRowSelect(path, taskId, identity),
+      activeTaskId: activeTaskId ?? null,
+      activeWorkspacePath: workspacePath,
+      waiting,
+      recent,
+      projects: zaicodeOrderedProjectTabs.map((tab) => () => activateTab(tab.id)),
+      projectList: zaicodeProjectSections.flatMap((section) =>
+        section.tabs.map((tab) => ({
+          path: tab.workspacePath,
+          ...(tab.workspaceIdentity ? { identity: tab.workspaceIdentity } : {}),
+          name: tab.label || tab.workspacePath,
+        })),
+      ),
+    });
+  }, [
+    activateTab,
+    activeTaskId,
+    handleTaskRowSelect,
+    publishZaicodeSessionBriefs,
+    publishZaicodeSessionNav,
+    workspacePath,
+    workspaceTaskLists.groups,
+    zaicodeMode,
+    zaicodeOrderedProjectTabs,
+    zaicodeProjectSections,
+  ]);
 
   useEffect(() => {
     const scrollNode = workspaceScrollRef.current;
@@ -858,7 +1073,7 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
   const areAllTaskGroupsExpanded =
     taskOrganizeBy === "grouped"
       ? areAllToggleableGroupedTaskGroupsOpen
-      : purposeSectionPreferences.projectsExpanded && areAllWorkspaceGroupsExpanded;
+      : projectsSectionOpen && areAllWorkspaceGroupsExpanded;
   const toggleAllTaskGroupsTransitionPending = showOptimisticGroupedTaskGroupToggle;
   const toggleAllTaskGroupsPresentation = resolveSidebarTaskGroupTogglePresentation({
     current: {
@@ -877,6 +1092,7 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
   const showTaskSortOptions = activePrimaryTaskMode === "workspace" || showArchivedTasks;
   const handlePrimaryTaskModeChange = useCallback(
     (value: string) => {
+      if (zaicodeMode) playZaicodeSound("sidebar.mode");
       logger.debug("[WorkspaceSidebar] 切换任务一级视图", {
         from: taskOrganizeBy,
         to: value,
@@ -921,7 +1137,7 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
       );
       return;
     }
-    if (purposeSectionPreferences.projectsExpanded && areAllWorkspaceGroupsExpanded) {
+    if (projectsSectionOpen && areAllWorkspaceGroupsExpanded) {
       handleProjectSectionOpenChange(false);
       collapseAllWorkspaceTabs(workspacePaths);
       return;
@@ -937,7 +1153,7 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
     expandAllWorkspaceTabs,
     handleCollapsedGroupedTaskGroupIdsChange,
     handleProjectSectionOpenChange,
-    purposeSectionPreferences.projectsExpanded,
+    projectsSectionOpen,
     taskOrganizeBy,
     toggleableGroupedTaskGroupIds,
     workspacePaths,
@@ -1013,12 +1229,62 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
     // 图标语义与文案不一致。打开态统一改成 Close，同时同步 aria-label。
     id: showArchivedTasks ? "common.close" : "workspaceSidebar.toggleArchivedTasks",
   });
+  const projectAddMenu = useMemo(
+    () => (
+      <DropdownMenu>
+        <ControlHintTooltip
+          title={intl.formatMessage({
+            id: "workspaceSidebar.addProject",
+          })}
+        >
+          <DropdownMenuTrigger asChild>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              className="text-foreground-subtle hover:text-foreground data-[state=open]:text-foreground"
+              aria-label={intl.formatMessage({
+                id: "workspaceSidebar.addProject",
+              })}
+              data-testid={TID_PROJECT_ADD}
+            >
+              <Plus className="size-3.5" />
+            </Button>
+          </DropdownMenuTrigger>
+        </ControlHintTooltip>
+        <DropdownMenuContent align="end" className="min-w-44">
+          <DropdownMenuItem onSelect={onOpenFolderFromWorkspaceMenu}>
+            <FolderOpen className="size-4" />
+            {intl.formatMessage({
+              id: "workspace.openFolder",
+            })}
+          </DropdownMenuItem>
+          {onOpenRemoteWorkspace ? (
+            <DropdownMenuItem onSelect={onOpenRemoteWorkspace}>
+              <Cloud className="size-4" />
+              {intl.formatMessage({
+                id: "remote.trigger",
+              })}
+            </DropdownMenuItem>
+          ) : null}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    ),
+    [intl, onOpenFolderFromWorkspaceMenu, onOpenRemoteWorkspace],
+  );
   // 性能修复：workspaceTaskToolbar 会随 chat streaming 被重复创建并传给远控任务索引。
   // 这里把 render prop 稳定在真正影响工具栏展示的状态上，避免消息流更新污染侧栏任务区。
   const workspaceTaskToolbar = useCallback(
     () => (
-      <div className="pl-2.5 pr-3">
-        <div className="flex min-w-0 items-center justify-between gap-2">
+      <div className={cn("pl-2.5 pr-3", isZaicodeProductMode() && "@container/zsbtools")}>
+        {/* ZAICODE (SRC-035 → SRC-038): one row, never a half-empty second line; a narrow
+            sidebar drops the Group / Project words and keeps their icons instead. */}
+        <div
+          className={cn(
+            "flex min-w-0 items-center justify-between gap-x-2 gap-y-1",
+            isZaicodeProductMode() ? "flex-nowrap" : "flex-wrap",
+          )}
+        >
           <div className="flex min-w-0 shrink-0 items-center gap-1">
             <Tabs
               value={activePrimaryTaskMode}
@@ -1046,7 +1312,7 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
                   className="relative z-10 h-6 flex-none gap-1 rounded-full border-transparent bg-transparent py-0 pl-1.5 pr-2 text-ui-sm font-medium text-foreground-subtle transition-colors data-active:border-transparent data-active:bg-transparent data-active:text-foreground data-active:shadow-none dark:data-active:border-transparent dark:data-active:bg-transparent"
                 >
                   <Hash aria-hidden="true" className="size-3 shrink-0" />
-                  <span>
+                  <span className={cn(isZaicodeProductMode() && "hidden @min-[248px]/zsbtools:inline")}>
                     {intl.formatMessage({
                       id: "workspaceSidebar.organizeGrouped",
                     })}
@@ -1060,7 +1326,7 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
                   className="relative z-10 h-6 flex-none gap-1 rounded-full border-transparent bg-transparent py-0 pl-1.5 pr-2 text-ui-sm font-medium text-foreground-subtle transition-colors data-active:border-transparent data-active:bg-transparent data-active:text-foreground data-active:shadow-none dark:data-active:border-transparent dark:data-active:bg-transparent"
                 >
                   <Folder aria-hidden="true" className="size-3 shrink-0" />
-                  <span>
+                  <span className={cn(isZaicodeProductMode() && "hidden @min-[248px]/zsbtools:inline")}>
                     {intl.formatMessage({
                       id: "workspaceSidebar.organizeByProject",
                     })}
@@ -1094,7 +1360,15 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
               </ControlHintTooltip>
             ) : null}
           </div>
-          <div className="flex shrink-0 items-center gap-1">
+          <div className="ml-auto flex shrink-0 items-center gap-1">
+            {isZaicodeProductMode() && taskViewMode === "workspace" ? (
+              // Former "Projects" header actions (SRC-043): slots, live-first, add project.
+              <span className="flex shrink-0 items-center gap-px text-ui-xs" data-zaicode-project-actions="">
+                <ZaicodeSlotsToggle />
+                <ZaicodeLiveToggle />
+                {projectAddMenu}
+              </span>
+            ) : null}
             {taskViewMode === "grouped" ? (
               <ControlHintTooltip
                 title={workspaceReadOnlyReason ?? intl.formatMessage({ id: "taskGroup.newGroup" })}
@@ -1237,6 +1511,7 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
       handleWorkspaceTaskViewChange,
       intl,
       primaryTaskIndicatorStyle,
+      projectAddMenu,
       showArchivedTasks,
       showTaskSortOptions,
       showTaskViewFilter,
@@ -1248,13 +1523,150 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
     ],
   );
 
+  // ZAICODE (SRC-043): the project list is the sidebar root, not a movable "Projects"
+  // section; the same list and add-project menu also serve the upstream section.
+  const projectListContent =
+    projectWorkspaceTabs.length === 0 ? (
+      <div className="px-3 py-2 text-ui-base text-foreground-subtle">
+        {intl.formatMessage({
+          id: "workspaceSidebar.noProjects",
+        })}
+      </div>
+    ) : (
+      <DndContext
+        sensors={workspaceSensors}
+        collisionDetection={zaicodeMode ? zaicodeSlotCollision : closestCenter}
+        modifiers={[restrictVerticalDragWithinContainer]}
+        onDragStart={handleWorkspaceDragStart}
+        onDragEnd={handleWorkspaceDragEnd}
+        onDragCancel={handleWorkspaceDragCancel}
+      >
+        {zaicodeSlotDrop.armed && activeWorkspaceDragTab ? (
+          <ZaicodeSlotDropPanel
+            currentGroup={slotGroupOf(
+              zaicodePrefs.groups,
+              buildTaskWorkspaceKey(
+                activeWorkspaceDragTab.workspacePath,
+                activeWorkspaceDragTab.workspaceIdentity,
+              ),
+              zaicodePrefs.defaultSlot,
+            )}
+          />
+        ) : null}
+        <SortableContext
+          items={zaicodeOrderedProjectTabs.map((tab) => tab.id)}
+          strategy={workspaceVerticalListSortingStrategy}
+        >
+          {zaicodeProjectSections.map((section) => (
+            <Fragment key={section.group ?? "all"}>
+              {section.group ? (
+                <ZaicodeSlotGroupHeader group={section.group} count={section.tabs.length} />
+              ) : null}
+              <ul
+                data-testid={TID_WORKSPACE_LIST}
+                className={zaicodeMode && zaicodePrefs.compact ? "pb-0.5" : "space-y-2 pb-4"}
+              >
+            {(section.folded ? [] : section.tabs).map((tab) => {
+              const workspaceKey = buildTaskWorkspaceKey(
+                tab.workspacePath,
+                tab.workspaceIdentity,
+              );
+              const taskGroup = workspaceTaskGroupByKey.get(workspaceKey);
+              const taskLoading =
+                workspaceTaskLists.loadingByWorkspaceKey[workspaceKey] ??
+                false;
+
+              return (
+                <SortableWorkspaceSidebarItem
+                  key={tab.id}
+                  tab={tab}
+                  isActiveWorkspace={tab.workspacePath === workspacePath}
+                  isExpanded={resolveWorkspaceDragExpanded({
+                    activeDragId: activeWorkspaceDragId,
+                    expanded: expandedWorkspacePaths.has(
+                      tab.workspacePath,
+                    ),
+                    tabId: tab.id,
+                  })}
+                  activateTab={activateTab}
+                  closeTab={closeTab}
+                  toggleWorkspaceExpanded={toggleWorkspaceExpanded}
+                  onSelectTask={onSelectTask}
+                  onStartDraftInWorkspace={onStartDraftInWorkspace}
+                  taskItems={
+                    taskGroup?.items ?? EMPTY_WORKSPACE_TASK_ITEMS
+                  }
+                  taskListLoading={taskLoading}
+                  taskListHasMore={taskGroup?.hasMore ?? false}
+                  taskListHasUnread={taskGroup?.hasUnread ?? false}
+                  taskListLiveWorkflowCount={
+                    taskGroup?.liveWorkflowCount ?? 0
+                  }
+                  workspaceKey={workspaceKey}
+                  onShowMoreWorkspaceTasks={handleShowMoreWorkspaceTasks}
+                  reconnectingRemoteWorkspaceKeys={
+                    reconnectingRemoteWorkspaceKeys
+                  }
+                  remoteWorkspaceErrorByWorkspaceKey={
+                    remoteWorkspaceErrorByWorkspaceKey
+                  }
+                  reconnectingRemoteWorkspaceLogsByWorkspaceKey={
+                    reconnectingRemoteWorkspaceLogsByWorkspaceKey
+                  }
+                  onReconnectRemoteWorkspace={onReconnectRemoteWorkspace}
+                  onOpenFileTree={handleOpenWorkspaceFileTree}
+                />
+              );
+            })}
+              </ul>
+            </Fragment>
+          ))}
+        </SortableContext>
+        {typeof document === "undefined"
+          ? null
+          : createPortal(
+              <DragOverlay>
+                {activeWorkspaceDragTab ? (
+                  <WorkspaceDragOverlay
+                    tab={activeWorkspaceDragTab}
+                    width={activeWorkspaceDragWidth}
+                  />
+                ) : null}
+              </DragOverlay>,
+              document.body,
+            )}
+      </DndContext>
+    );
+  const newTaskButton = (
+    <WorkspaceNewTaskTooltip disabledReason={workspaceReadOnlyReason}>
+      <NewTaskButtonGroup
+        disabled={workspaceReadOnly}
+        onCreateTask={() => {
+          if (workspaceReadOnly) {
+            return;
+          }
+          if (taskViewMode === "grouped") {
+            if (createGroupedTaskDraftAction) {
+              createGroupedTaskDraftAction();
+              return;
+            }
+            onCreateTask({ groupedDraftPlacement: { type: "top" } });
+            return;
+          }
+          onCreateTask({ createSource: "project" });
+        }}
+      />
+    </WorkspaceNewTaskTooltip>
+  );
   return (
     <aside
       data-testid={TID_SIDEBAR}
+      data-zaicode-instant={isZaicodeProductMode() ? "" : undefined}
       // 这里用设计系统的结构面 token 固定侧栏层级，避免不同合成器把左侧容器混成异常灰块。
       className="flex h-full flex-col overflow-hidden"
     >
       <div className="h-12 [app-region:drag]"></div>
+      {zaicodeMode ? <ZaicodeAudioDirector /> : null}
       <div className="relative flex-1 min-h-0 overflow-hidden">
         <div
           className={cn(
@@ -1263,26 +1675,29 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
           )}
           aria-hidden={isFileTreeOpen}
         >
-          <div className={cn("flex flex-col gap-1 px-2", isWindowsDesktop ? "py-2" : "py-3")}>
-            <WorkspaceNewTaskTooltip disabledReason={workspaceReadOnlyReason}>
-              <NewTaskButtonGroup
-                disabled={workspaceReadOnly}
-                onCreateTask={() => {
-                  if (workspaceReadOnly) {
-                    return;
-                  }
-                  if (taskViewMode === "grouped") {
-                    if (createGroupedTaskDraftAction) {
-                      createGroupedTaskDraftAction();
-                      return;
-                    }
-                    onCreateTask({ groupedDraftPlacement: { type: "top" } });
-                    return;
-                  }
-                  onCreateTask({ createSource: "project" });
-                }}
+          {/* ZAICODE：导航块只显示操作员选中的行（默认 New task + ZAICODE），右键编辑；标题栏开关可整体收起。 */}
+          {zaicodeMode ? (
+            zaicodePrefs.navOpen ? (
+              <ZaicodeSidebarNavBlock
+                className={cn("px-2", isWindowsDesktop ? "py-2" : "py-3")}
+                newTask={newTaskButton}
+                onOpenCommandCenter={onOpenCommandCenter}
+                searchLabel={intl.formatMessage({ id: "commandCenter.open" })}
+                searchShortcut={commandCenterShortcutLabel}
+                onOpenAutomations={handleOpenAutomationsMain}
+                automationsActive={Boolean(automationsActive)}
+                automationsLabel={intl.formatMessage({ id: "workspace.openScheduledSettings" })}
+                onOpenPluginStore={handleOpenPluginStoreMain}
+                pluginStoreActive={Boolean(pluginStoreActive)}
+                pluginsLabel={intl.formatMessage({ id: "workspace.openPluginsSettings" })}
+                {...(onOpenZaicode ? { onOpenZaicode } : {})}
+                zaicodeActive={Boolean(zaicodeActive)}
+                zaicodeLabel={intl.formatMessage({ id: "zaicode.nav.open" })}
               />
-            </WorkspaceNewTaskTooltip>
+            ) : null
+          ) : (
+          <div className={cn("flex flex-col gap-1 px-2", isWindowsDesktop ? "py-2" : "py-3")}>
+            {newTaskButton}
             <Button
               variant="ghost"
               onClick={onOpenCommandCenter}
@@ -1346,7 +1761,26 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
               <Blocks className="size-4" />
               {intl.formatMessage({ id: "workspace.openPluginsSettings" })}
             </Button>
+            <Button
+              variant="ghost"
+              onClick={onOpenZaicode}
+              data-icon="inline-start"
+              data-testid="zaicode-sidebar-open"
+              size="lg"
+              aria-pressed={zaicodeActive}
+              className={cn(
+                "w-full justify-start gap-2 text-foreground hover:bg-surface-hover hover:text-foreground",
+                zaicodeActive && "bg-selected text-foreground",
+              )}
+            >
+              <ZaicodeIcon slot="nav.zaicode" />
+              {intl.formatMessage({ id: "zaicode.nav.open" })}
+            </Button>
           </div>
+          )}
+          {zaicodeMode ? <ZaicodeSessionActionStrip /> : null}
+          {zaicodeMode ? <ZaicodeEngineBar /> : null}
+          {zaicodeMode ? <ZaicodeSidebarWorkers /> : null}
 
           <div className="relative flex min-h-0 flex-1 flex-col">
             <StickyGroupHeaderSlot header={groupedStickyHeader} />
@@ -1354,7 +1788,7 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
               ref={workspaceScrollRef}
               className={
                 // grouped task 拖拽预览会改变列表高度，禁用 scroll anchoring 避免浏览器自动锚定把 dnd-kit 测量放大成抖动。
-                "flex flex-1 min-h-0 flex-col gap-3 overflow-y-auto"
+                "flex flex-1 min-h-0 flex-col gap-3 overflow-y-auto overflow-x-hidden"
               }
               style={workspaceScrollMaskStyle}
             >
@@ -1415,6 +1849,12 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
                     taskSortBy={taskSortBy}
                     onSelectTask={handleTaskRowSelect}
                   />
+                ) : zaicodeMode ? (
+                  // ZAICODE: the projects ARE the root of the sidebar -- no "Projects" title,
+                  // nothing to fold or drag; SLOTS / LIVE / + live in the toolbar row above.
+                  <div data-testid={TID_PROJECT_SECTION} data-zaicode-project-root="">
+                    {projectListContent}
+                  </div>
                 ) : (
                   <DndContext
                     sensors={purposeSectionSensors}
@@ -1446,136 +1886,9 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
                               open={purposeSectionPreferences.projectsExpanded}
                               onOpenChange={handleProjectSectionOpenChange}
                               testId={TID_PROJECT_SECTION}
-                              action={
-                                <DropdownMenu>
-                                  <ControlHintTooltip
-                                    title={intl.formatMessage({
-                                      id: "workspaceSidebar.addProject",
-                                    })}
-                                  >
-                                    <DropdownMenuTrigger asChild>
-                                      <Button
-                                        type="button"
-                                        variant="ghost"
-                                        size="icon-sm"
-                                        className="text-foreground-subtle hover:text-foreground data-[state=open]:text-foreground"
-                                        aria-label={intl.formatMessage({
-                                          id: "workspaceSidebar.addProject",
-                                        })}
-                                        data-testid={TID_PROJECT_ADD}
-                                      >
-                                        <Plus className="size-3.5" />
-                                      </Button>
-                                    </DropdownMenuTrigger>
-                                  </ControlHintTooltip>
-                                  <DropdownMenuContent align="end" className="min-w-44">
-                                    <DropdownMenuItem onSelect={onOpenFolderFromWorkspaceMenu}>
-                                      <FolderOpen className="size-4" />
-                                      {intl.formatMessage({
-                                        id: "workspace.openFolder",
-                                      })}
-                                    </DropdownMenuItem>
-                                    {onOpenRemoteWorkspace ? (
-                                      <DropdownMenuItem onSelect={onOpenRemoteWorkspace}>
-                                        <Cloud className="size-4" />
-                                        {intl.formatMessage({
-                                          id: "remote.trigger",
-                                        })}
-                                      </DropdownMenuItem>
-                                    ) : null}
-                                  </DropdownMenuContent>
-                                </DropdownMenu>
-                              }
+                              action={projectAddMenu}
                             >
-                              {projectWorkspaceTabs.length === 0 ? (
-                                <div className="px-3 py-2 text-ui-base text-foreground-subtle">
-                                  {intl.formatMessage({
-                                    id: "workspaceSidebar.noProjects",
-                                  })}
-                                </div>
-                              ) : (
-                                <DndContext
-                                  sensors={workspaceSensors}
-                                  collisionDetection={closestCenter}
-                                  modifiers={[restrictVerticalDragWithinContainer]}
-                                  onDragStart={handleWorkspaceDragStart}
-                                  onDragEnd={handleWorkspaceDragEnd}
-                                  onDragCancel={handleWorkspaceDragCancel}
-                                >
-                                  <SortableContext
-                                    items={projectWorkspaceTabs.map((tab) => tab.id)}
-                                    strategy={workspaceVerticalListSortingStrategy}
-                                  >
-                                    <ul data-testid={TID_WORKSPACE_LIST} className="space-y-2 pb-4">
-                                      {projectWorkspaceTabs.map((tab) => {
-                                        const workspaceKey = buildTaskWorkspaceKey(
-                                          tab.workspacePath,
-                                          tab.workspaceIdentity,
-                                        );
-                                        const taskGroup = workspaceTaskGroupByKey.get(workspaceKey);
-                                        const taskLoading =
-                                          workspaceTaskLists.loadingByWorkspaceKey[workspaceKey] ??
-                                          false;
-
-                                        return (
-                                          <SortableWorkspaceSidebarItem
-                                            key={tab.id}
-                                            tab={tab}
-                                            isActiveWorkspace={tab.workspacePath === workspacePath}
-                                            isExpanded={resolveWorkspaceDragExpanded({
-                                              activeDragId: activeWorkspaceDragId,
-                                              expanded: expandedWorkspacePaths.has(
-                                                tab.workspacePath,
-                                              ),
-                                              tabId: tab.id,
-                                            })}
-                                            activateTab={activateTab}
-                                            closeTab={closeTab}
-                                            toggleWorkspaceExpanded={toggleWorkspaceExpanded}
-                                            onSelectTask={onSelectTask}
-                                            onStartDraftInWorkspace={onStartDraftInWorkspace}
-                                            taskItems={
-                                              taskGroup?.items ?? EMPTY_WORKSPACE_TASK_ITEMS
-                                            }
-                                            taskListLoading={taskLoading}
-                                            taskListHasMore={taskGroup?.hasMore ?? false}
-                                            taskListHasUnread={taskGroup?.hasUnread ?? false}
-                                            taskListLiveWorkflowCount={
-                                              taskGroup?.liveWorkflowCount ?? 0
-                                            }
-                                            workspaceKey={workspaceKey}
-                                            onShowMoreWorkspaceTasks={handleShowMoreWorkspaceTasks}
-                                            reconnectingRemoteWorkspaceKeys={
-                                              reconnectingRemoteWorkspaceKeys
-                                            }
-                                            remoteWorkspaceErrorByWorkspaceKey={
-                                              remoteWorkspaceErrorByWorkspaceKey
-                                            }
-                                            reconnectingRemoteWorkspaceLogsByWorkspaceKey={
-                                              reconnectingRemoteWorkspaceLogsByWorkspaceKey
-                                            }
-                                            onReconnectRemoteWorkspace={onReconnectRemoteWorkspace}
-                                            onOpenFileTree={handleOpenWorkspaceFileTree}
-                                          />
-                                        );
-                                      })}
-                                    </ul>
-                                  </SortableContext>
-                                  {typeof document === "undefined"
-                                    ? null
-                                    : createPortal(
-                                        <DragOverlay>
-                                          {activeWorkspaceDragTab ? (
-                                            <WorkspaceDragOverlay
-                                              tab={activeWorkspaceDragTab}
-                                              width={activeWorkspaceDragWidth}
-                                            />
-                                          ) : null}
-                                        </DragOverlay>,
-                                        document.body,
-                                      )}
-                                </DndContext>
-                              )}
+                              {projectListContent}
                             </WorkspacePurposeSection>
                           ) : (
                             <WorkspacePurposeSection
@@ -1626,9 +1939,11 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
                                 groupByDate={false}
                                 // conversation backing workspace 只是内部执行路径；用户文案改成“任务”不改变 purpose 语义。
                                 taskRowVariant="default"
-                                emptyMessage={intl.formatMessage({
-                                  id: "workspaceSidebar.noConversations",
-                                })}
+                                emptyMessage={
+                                  isZaicodeProductMode()
+                                    ? "—"
+                                    : intl.formatMessage({ id: "workspaceSidebar.noConversations" })
+                                }
                                 onSelectTask={handleTaskRowSelect}
                               />
                             </WorkspacePurposeSection>
@@ -1642,6 +1957,24 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
             </div>
           </div>
 
+          {zaicodeMode && zaicodeArchiveNotice ? (
+            <div
+              role="status"
+              className="mx-2 flex items-center gap-2 border border-border bg-card px-2 py-1 text-ui-xs text-foreground-subtle"
+              data-zaicode-archive-notice
+            >
+              <span className="min-w-0 flex-1">{zaicodeArchiveNotice}</span>
+              {zaicodeArchiveNoticeUndoable ? (
+                <button
+                  type="button"
+                  className="shrink-0 border border-[var(--zaicode-highlight,var(--color-border-hover))] px-1.5 text-foreground hover:bg-hover"
+                  onClick={() => void undoZaicodeArchive()}
+                >
+                  Undo
+                </button>
+              ) : null}
+            </div>
+          ) : null}
           <WorkspaceSidebarFooter
             className="pr-3"
             theme={theme}

@@ -1742,6 +1742,7 @@ export const zcodeSessionSendParamsSchema = z
     automationId: nonEmptyString.optional(),
     offPeakTaskId: nonEmptyString.optional(),
     offPeakRunType: z.enum(["init", "resume"]).optional(),
+    toolAllowlist: z.array(nonEmptyString).optional(),
     toolDenylist: z.array(nonEmptyString).optional(),
   })
   .strict()

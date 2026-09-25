@@ -25,33 +25,76 @@ interface ModelSelectionCompletionView {
   }[];
 }
 
+/**
+ * 与 @zcode/shared 的 isZaicodeProductMode 同义；provider 包不能引入 shared 根入口
+ * （会把依赖 node 类型的模块带进本包的类型检查），因此只复刻这段纯判断。
+ */
+function isZaicodeProductMode(): boolean {
+  const globals = globalThis as {
+    __ZAICODE_PRODUCT_MODE__?: boolean;
+    process?: { env?: Record<string, string | undefined> };
+  };
+  if (typeof globals.__ZAICODE_PRODUCT_MODE__ === "boolean")
+    return globals.__ZAICODE_PRODUCT_MODE__;
+  const value = globals.process?.env?.ZCODE_ZAICODE_MODE?.trim().toLowerCase() ?? "";
+  return value === "1" || value === "true" || value === "on" || value === "yes";
+}
+
+/**
+ * 官方 GLM 账号/套餐供应商。注册表里的真实 id 是 `account:zai-*` / `account:bigmodel-*`
+ * （BUILTIN_MODEL_PROVIDER_IDS 及 offpeak-idle-plan）；`builtin:*` 只是迁移前的旧 id。
+ * 修复依据：此前只认 `builtin:`，真实注册表里一个都匹配不上，默认关闭与额度兜底都不生效。
+ */
+export function isOfficialGlmAccountProviderId(providerId: string | null | undefined): boolean {
+  if (!providerId) return false;
+  return providerId.startsWith("account:") || providerId.startsWith("builtin:");
+}
+
+/**
+ * ZAICODE：官方 GLM 供应商默认关闭——不作为新草稿的隐式默认，
+ * 优先使用操作员自己的供应商（SAIRoute/SAIFREN 等）；GLM 仍可手动选择，且在别无可用时兜底。
+ */
+function isDeferredDefaultProvider(providerId: string): boolean {
+  return isZaicodeProductMode() && isOfficialGlmAccountProviderId(providerId);
+}
+
 export function resolveInitialModelSelection(input: {
   readonly configuredDefault?: ModelSelection;
   readonly registry: ProviderRegistryView;
 }): InitialModelSelectionResolution {
   // 这里只构造 Host 的初始推荐，不解析已有会话意图。失效默认是可丢弃偏好，
   // 应继续按 Registry 顺序推荐；不能把历史选择留空的规则误用于新草稿初始化。
-  if (input.configuredDefault) {
-    if (isSelectable(input.registry, input.configuredDefault)) {
-      return {
-        source: "configured-default",
-        selection: freezeSelection(input.configuredDefault),
-      };
-    }
+  const configured =
+    input.configuredDefault && isSelectable(input.registry, input.configuredDefault)
+      ? input.configuredDefault
+      : undefined;
+  if (configured && !isDeferredDefaultProvider(configured.providerId)) {
+    return { source: "configured-default", selection: freezeSelection(configured) };
   }
 
   // 仅用于全新草稿的 Host 初始推荐；历史未绑定状态不能进入这个初始化分支。
-  for (const provider of input.registry.providers) {
+  const preferred = registryFallback(input.registry, (id) => !isDeferredDefaultProvider(id));
+  if (preferred) return preferred;
+  if (configured) return { source: "configured-default", selection: freezeSelection(configured) };
+  return registryFallback(input.registry, () => true) ?? { source: "none" };
+}
+
+function registryFallback(
+  registry: ProviderRegistryView,
+  accept: (providerId: string) => boolean,
+): InitialModelSelectionResolution | undefined {
+  for (const provider of registry.providers) {
+    if (!accept(provider.providerId)) continue;
     if (provider.config.visibility === "hidden") continue;
     for (const model of provider.models) {
-      const selection = completeNewModelSelection(input.registry, {
+      const selection = completeNewModelSelection(registry, {
         providerId: provider.providerId,
         modelId: model.modelId,
       });
       if (selection) return { source: "registry-fallback", selection: freezeSelection(selection) };
     }
   }
-  return { source: "none" };
+  return undefined;
 }
 
 /** 仅在用户主动选模型或全新初始化时构造最高档；不能用于恢复/重解析已有选择。 */

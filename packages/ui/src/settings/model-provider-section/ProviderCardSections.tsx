@@ -144,9 +144,13 @@ export function ProviderCardHeader({
               align="end"
               onCloseAutoFocus={(event) => {
                 // 重命名后的焦点交给输入框，不能被菜单关闭时重新抢回触发按钮。
+                // Bug 原因：以前在 onSelect 里就进入编辑，输入框在菜单 FocusScope 仍生效时挂载，
+                // 焦点被菜单抢回 -> 输入框立刻 blur -> 编辑态结束，看起来像 Rename 点不动。
+                // 现在等菜单彻底关闭（此回调）后再进入编辑。
                 if (renameRequestedRef.current) {
                   event.preventDefault();
                   renameRequestedRef.current = false;
+                  onStartEditName();
                 }
               }}
             >
@@ -155,7 +159,6 @@ export function ProviderCardHeader({
                   data-testid={TID_MODEL_PROVIDER_NAME_EDIT_BUTTON}
                   onSelect={() => {
                     renameRequestedRef.current = true;
-                    onStartEditName();
                   }}
                 >
                   <Pencil className="size-3.5" />

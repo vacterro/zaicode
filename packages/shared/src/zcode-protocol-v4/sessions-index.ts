@@ -26,6 +26,15 @@ export const pendingInteractionSummarySchema = z.object({
 });
 export type PendingInteractionSummary = z.infer<typeof pendingInteractionSummarySchema>;
 
+/** 侧栏 Todo 镜像：TodoWrite 条目的状态 + 截断文本，数量有界。 */
+export const SESSION_TODO_SUMMARY_MAX_ITEMS = 40;
+export const SESSION_TODO_SUMMARY_MAX_CHARS = 120;
+export const sessionTodoSummaryItemSchema = z.object({
+  status: z.enum(["pending", "inProgress", "completed"]),
+  content: z.string(),
+});
+export type SessionTodoSummaryItem = z.infer<typeof sessionTodoSummaryItemSchema>;
+
 export const sessionSummarySchema = z.object({
   sessionId: z.string(),
   workspaceId: z.string(),
@@ -47,6 +56,8 @@ export const sessionSummarySchema = z.object({
   // optional 兼容旧 sessions-index frame / stored summary。
   pendingInteractionSummary: pendingInteractionSummarySchema.optional(),
   goalStatus: goalStateSchema.shape.status.optional(),
+  // 侧栏 Todo 镜像（ZAICODE）；无 TodoWrite 时缺席。optional 兼容旧 frame / 旧 CLI。
+  todos: z.array(sessionTodoSummaryItemSchema).max(SESSION_TODO_SUMMARY_MAX_ITEMS).optional(),
   // 未读推导：客户端本地记 lastSeenActivityAt 比较（不用 seq，epoch 会重置）。
   lastActivityAt: timestampSchema,
   // ≤120 字符。

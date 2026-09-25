@@ -4,13 +4,29 @@ import {
   DesktopCommandIds,
   desktopMenuMessageIds,
   getDesktopMenuMessage,
+  isZaicodeProductMode,
   ZCODE_PRODUCT_FLAVOR,
   type DesktopCommandId,
   type Locale,
 } from "@zcode/shared";
+import { runZaicodeWindowAction } from "./zaicodeGlobalHotkeys.js";
+import { showZaicodeTrayMenu } from "./zaicodeTrayMenu.js";
+import { ZAICODE_TRAY_MENU } from "./zaicodeTrayMenuModel.js";
 
 let desktopTray: Tray | null = null;
 let rebuildDesktopTrayContextMenu: (() => void) | null = null;
+/** ZAICODE: one line of engine quota appended to the tray tooltip (LIMISAW's "every limit in your tray"). */
+let desktopTrayLimitsLine = "";
+let desktopTrayBaseLabel = "";
+
+export function setWindowsDesktopTrayLimits(line: string): void {
+  const next = line.trim();
+  if (next === desktopTrayLimitsLine) return;
+  desktopTrayLimitsLine = next;
+  if (!desktopTray) return;
+  // The shell truncates tray tooltips at 127 characters.
+  desktopTray.setToolTip(next ? `${desktopTrayBaseLabel}\n${next}`.slice(0, 127) : desktopTrayBaseLabel);
+}
 
 function resolveDesktopTrayIconPath() {
   return app.isPackaged
@@ -55,7 +71,11 @@ export function createWindowsDesktopTray(options: {
       });
   };
   const rebuildContextMenu = () => {
-    desktopTray?.setToolTip(getLabel(desktopMenuMessageIds.trayTooltip));
+    const trayLabel = getLabel(desktopMenuMessageIds.trayTooltip);
+    desktopTrayBaseLabel = trayLabel;
+    desktopTray?.setToolTip(
+      desktopTrayLimitsLine ? `${trayLabel}\n${desktopTrayLimitsLine}`.slice(0, 127) : trayLabel,
+    );
     desktopTray?.setContextMenu(
       Menu.buildFromTemplate([
         {
@@ -97,6 +117,30 @@ export function createWindowsDesktopTray(options: {
       ]),
     );
   };
+
+  if (isZaicodeProductMode()) {
+    const runTrayPick = (id: string) => {
+      if (id === "open") showTrayWindow();
+      else if (id === "quit") options.quitApp();
+      else if (id === "newTask") executeTrayCommand(DesktopCommandIds.NewTask);
+      else {
+        void Promise.resolve(options.showCurrentWindow())
+          .then(() => runZaicodeWindowAction(`tray.${id}`))
+          .catch((error) => options.logger.warn(`[desktop-tray] failed to run tray pick ${id}`, error));
+      }
+    };
+    rebuildDesktopTrayContextMenu = () => {
+      desktopTrayBaseLabel = "ZAICODE";
+      desktopTray?.setToolTip(
+        desktopTrayLimitsLine ? `ZAICODE\n${desktopTrayLimitsLine}`.slice(0, 127) : "ZAICODE",
+      );
+    };
+    desktopTray.on("right-click", () => showZaicodeTrayMenu(ZAICODE_TRAY_MENU, runTrayPick));
+    desktopTray.on("click", showTrayWindow);
+    desktopTray.on("double-click", showTrayWindow);
+    rebuildDesktopTrayContextMenu();
+    return desktopTray;
+  }
 
   rebuildDesktopTrayContextMenu = rebuildContextMenu;
   desktopTray.on("click", showTrayWindow);

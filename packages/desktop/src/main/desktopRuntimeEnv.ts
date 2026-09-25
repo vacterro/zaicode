@@ -45,6 +45,14 @@ export const desktopRuntimeEnv: ZCodeRuntimeEnv = isLocalDevelopmentRuntime
 // 身份看编译期 flavor 而不是 ZCODE_ENV：ZCODE_PREVIEW_IDENTITY=1 的生产后端构建同样是 Preview，
 // 需要独立的应用名、Electron 数据目录和 Helper 安装子目录才能与正式版并排运行。
 const isPreviewPackagedRuntime = !isLocalDevelopmentRuntime && ZCODE_PRODUCT_FLAVOR === "preview";
+// ZAICODE 身份同样是编译期 flavor：与正式版 / Preview 并排运行需要独立应用名与 userData 目录。
+const isZaicodPackagedRuntime = !isLocalDevelopmentRuntime && ZCODE_PRODUCT_FLAVOR === "zaicode";
+
+// ZAICODE 打包产物即使不经 ZAICODE.cmd 启动（快捷方式直接指向 exe），也必须处于 ZAICODE 模式：
+// 否则 renderer 不加载调色板，Agent 身份提示缺少 SAIPEN 段落，`cc` 会被当作普通文本。
+if (isZaicodPackagedRuntime && !process.env.ZCODE_ZAICODE_MODE?.trim()) {
+  process.env.ZCODE_ZAICODE_MODE = "1";
+}
 
 function readRuntimeEnvOverride(name: string): string | undefined {
   return process.env[name]?.trim() || undefined;
@@ -60,7 +68,13 @@ function isTruthyRuntimeEnvOverride(name: string): boolean {
 // 这里允许测试显式隔离运行时身份，正常桌面/远控路径保持原来的默认值。
 export const runtimeApplicationName =
   readRuntimeEnvOverride("ZCODE_DESKTOP_APPLICATION_NAME") ??
-  (isLocalDevelopmentRuntime ? "ZCode Dev" : isPreviewPackagedRuntime ? "ZCode Preview" : "ZCode");
+  (isLocalDevelopmentRuntime
+    ? "ZCode Dev"
+    : isZaicodPackagedRuntime
+      ? "ZAICODE"
+      : isPreviewPackagedRuntime
+        ? "ZCode Preview"
+        : "ZCode");
 // Electron 的 app.getPath("home") 不一定跟随测试进程里的 HOME 覆盖。
 // e2e 默认工作区依赖 home 路径，因此提供显式覆盖，避免测试写到开发者真实 ~/ZCodeProject。
 export const runtimeHomePath = readRuntimeEnvOverride("ZCODE_DESKTOP_HOME_DIR");

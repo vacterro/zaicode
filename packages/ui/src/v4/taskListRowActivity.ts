@@ -2,6 +2,7 @@ import type { ZCodeTaskMeta } from "@zcode/shared";
 import type {
   PendingInteractionSummary,
   SessionSummary,
+  SessionTodoSummaryItem,
   SessionWorkflowActivity,
 } from "@zcode/shared/zcode-protocol-v4";
 
@@ -16,6 +17,8 @@ export interface TaskListRowActivity {
   pendingInteractions?: PendingInteractionSummary;
   /** 侧栏工作流运行行的数据；无 run 时缺席。 */
   workflowActivity?: SessionWorkflowActivity;
+  /** ZAICODE 侧栏 Todo 镜像（来自 sessions-index，实时）。 */
+  todos?: SessionTodoSummaryItem[];
 }
 
 export type TaskListMetaWithActivity = ZCodeTaskMeta & {

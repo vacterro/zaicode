@@ -1,0 +1,86 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SubSaipen OUTBOX Schema",
+  "description": "Descriptive reference only, same footing as board.schema.json/log.schema.json -- not read by any agent today. extensions/subs/PROTOCOL.md § 2 is the living spec for this shape.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "id": {
+        "type": "string",
+        "description": "e.g. WIKI-001 -- prefix per PROTOCOL.md § 3, never a T-### (that ID is assigned only once folded onto the main BOARD.md)"
+      },
+      "status": {
+        "type": "string",
+        "enum": ["ready", "draft", "blocked", "reviewed", "stale"]
+      },
+      "summary": {
+        "type": "string"
+      },
+      "main_project_refs": {
+        "type": "array",
+        "items": { "type": "string" }
+      },
+      "critical": {
+        "type": "boolean"
+      },
+      "severity": {
+        "type": "string",
+        "enum": ["P0", "P1", "P2"],
+        "description": "Optional, matches phases/review.md's own taxonomy"
+      },
+      "producer": {
+        "type": "string",
+        "description": "Required for a complete package consumed by Core saipen collect <producer>"
+      },
+      "source_head": {
+        "type": "string",
+        "description": "Full source Git HEAD or no-git; required for a complete package"
+      },
+      "source_tree_fingerprint": {
+        "type": "string",
+        "description": "Deterministic fingerprint over the producer's relevant source surface including uncommitted tracked/untracked changes, excluding its own kitchen/OUTBOX noise (PROTOCOL.md freshness section, T-543)"
+      },
+      "role_revision": {
+        "type": "string",
+        "description": "The effective charter revision the producer spawned/adopted against (PROTOCOL.md § 3.1 metadata block, T-541/T-542)"
+      },
+      "coverage": {
+        "description": "Exact source surfaces and locale/page scope completed; required for a complete package"
+      },
+      "payload": {
+        "description": "Exact files or artifacts to integrate; required for a complete package"
+      },
+      "verified": {
+        "description": "Producer-side checks and results; required for a complete package"
+      },
+      "instructions": {
+        "description": "Ordered integration instructions; required for a complete package"
+      },
+      "details": {
+        "type": "string"
+      }
+    },
+    "allOf": [
+      {
+        "if": {
+          "properties": { "status": { "const": "ready" } },
+          "required": ["status"]
+        },
+        "then": {
+          "required": [
+            "producer",
+            "source_head",
+            "source_tree_fingerprint",
+            "role_revision",
+            "coverage",
+            "payload",
+            "verified",
+            "instructions"
+          ]
+        }
+      }
+    ],
+    "required": ["id", "status", "summary", "critical"]
+  }
+}

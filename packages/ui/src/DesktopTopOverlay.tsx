@@ -1,4 +1,6 @@
-import type { IPlatformService, UpdateStatePayload } from "@zcode/shared";
+import { isZaicodeProductMode, type IPlatformService, type UpdateStatePayload } from "@zcode/shared";
+import { ZaicodeRunningMeter } from "@/zaicode/ZaicodeSidebarHeaderTools.js";
+import { ZaicodeHeaderToolbar } from "@/zaicode/ZaicodeHeaderToolbar.js";
 import { cn } from "@/components/lib/utils.js";
 import {
   ArrowLeftIcon,
@@ -43,6 +45,8 @@ interface DesktopTopOverlayProps {
   onGoForward: () => void;
   hideTaskNavigationButtons?: boolean;
   newTaskDisabledReason?: string;
+  /** ZAICODE header toolbar: the Search button opens the command center. */
+  onOpenCommandCenter?: () => void;
 }
 
 export function DesktopTopOverlay({
@@ -73,7 +77,9 @@ export function DesktopTopOverlay({
   onGoForward,
   hideTaskNavigationButtons = false,
   newTaskDisabledReason,
+  onOpenCommandCenter,
 }: DesktopTopOverlayProps) {
+  const zaicodeToolbar = isZaicodeProductMode() && isSidebarVisible && !hideTaskNavigationButtons;
   const { intl } = useZCodeIntl();
   const SidebarToggleIcon = isSidebarVisible ? PanelLeftClose : PanelLeftOpen;
   const isLinuxDesktop = Boolean(isDesktop && !isMacDesktop && !isWindowsDesktop);
@@ -89,10 +95,12 @@ export function DesktopTopOverlay({
     isMacDesktop && !isMacFullscreen && Number.isFinite(macWindowControlsLeftPaddingPx)
       ? { paddingLeft: `${Math.round(macWindowControlsLeftPaddingPx ?? 96)}px` }
       : undefined;
+  // ZAICODE（SRC-038「按按钮才能按按钮」）：工具栏浮层只有侧栏宽，窗口控制按钮在窗口最右侧，
+  // 不在侧栏上方；继续预留 136px 右内边距会把工具栏挤到只剩「⋯」。仅侧栏宽浮层去掉该预留。
   const windowsTopOverlayPaddingStyle = isWindowsDesktop
     ? {
         ...createWindowsCaptionControlsStyle(windowsWindowControlsRightPaddingPx),
-        paddingRight: WINDOWS_CAPTION_CONTROLS_RIGHT_INSET_VAR,
+        paddingRight: zaicodeToolbar ? "0px" : WINDOWS_CAPTION_CONTROLS_RIGHT_INSET_VAR,
       }
     : undefined;
   const topOverlayWidthStyle = isSidebarVisible
@@ -115,6 +123,8 @@ export function DesktopTopOverlay({
         }}
         className={cn(
           "flex items-center",
+          // ZAICODE: the header row takes the sidebar width so its buttons can overflow into ⋯ instead of being clipped.
+          zaicodeToolbar && "min-w-0 flex-1",
           isMacDesktop && "h-14",
           usesCustomCaptionArea && "h-12",
           // Windows/Linux 工具组计入 4px 外沿留白和 1px 边框，较 8px 左边距右移 5px。
@@ -128,7 +138,8 @@ export function DesktopTopOverlay({
             // 顶部浮层按钮虽然单个按钮打了 no-drag，但外层容器本身仍悬在窗口标题区上方。
             // Electron 在这类覆盖层上会优先按父级命中拖拽区域，导致点击被窗口拖动吞掉。
             // 这里把整块交互容器一起标成 no-drag，确保展开/收起和新建 task 都能稳定点击。
-            "pointer-events-auto flex items-center gap-1 shrink-0 [app-region:no-drag]",
+            "pointer-events-auto flex items-center gap-1 [app-region:no-drag]",
+            zaicodeToolbar ? "min-w-0 flex-1" : "shrink-0",
           )}
         >
           {usesCustomCaptionArea && (
@@ -141,7 +152,7 @@ export function DesktopTopOverlay({
             >
               <img
                 src={appLogoUrl}
-                alt="ZCode"
+                alt="ZAICODE"
                 className="size-5 transition-opacity duration-150 group-hover:opacity-0"
                 draggable={false}
               />
@@ -161,7 +172,22 @@ export function DesktopTopOverlay({
           )}
 
           {/* 远程控制移动端左上角空间有限，任务前进/后退在这里会与主操作拥挤重叠。*/}
-          {hideTaskNavigationButtons ? null : (
+          {zaicodeToolbar ? (
+            <ZaicodeHeaderToolbar
+              canBack={canTaskNavBack}
+              canForward={canTaskNavForward}
+              onBack={onGoBack}
+              onForward={onGoForward}
+              backTitle={taskBackTitle}
+              forwardTitle={taskForwardTitle}
+              backShortcut={goBackShortcutLabel}
+              forwardShortcut={goForwardShortcutLabel}
+              {...(onOpenCommandCenter ? { onOpenCommandCenter } : {})}
+              onCreateTask={onCreateTask}
+              {...(newTaskDisabledReason ? { newTaskDisabledReason } : {})}
+              newTaskShortcut={newTaskShortcutLabel}
+            />
+          ) : hideTaskNavigationButtons ? null : (
             <>
               <DesktopTopOverlayActionButton
                 title={taskBackTitle}
@@ -217,7 +243,22 @@ export function DesktopTopOverlay({
           />
           {/* </div> */}
         </div>
+        {zaicodeToolbar ? (
+          <div className="pointer-events-auto ml-1 mr-2 flex shrink-0 items-center [app-region:no-drag]">
+            <ZaicodeRunningMeter />
+          </div>
+        ) : null}
       </div>
+      {isZaicodeProductMode() && isSidebarVisible && !zaicodeToolbar ? (
+        <div
+          className={cn(
+            "pointer-events-auto absolute right-2 top-0 flex items-center [app-region:no-drag]",
+            usesCustomCaptionArea ? "h-12" : "h-14",
+          )}
+        >
+          <ZaicodeRunningMeter />
+        </div>
+      ) : null}
     </div>
   );
 }

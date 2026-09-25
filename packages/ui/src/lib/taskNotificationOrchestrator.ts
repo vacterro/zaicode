@@ -12,7 +12,10 @@ type FormatMessage = IntlInstance["formatMessage"];
 
 function terminalStatusForPhase(
   phase: SessionPhase,
+  skipInterrupted = false,
 ): Extract<TaskNotificationPayload["status"], "completed" | "failed"> | null {
+  // ZAICODE: completedInterrupted is a cancelled turn (the operator pressed Stop); it did not complete.
+  if (phase === "completedInterrupted" && skipInterrupted) return null;
   if (phase === "completedSuccess" || phase === "completedInterrupted") {
     return "completed";
   }
@@ -60,16 +63,19 @@ export function collectTerminalTaskNotificationPayloads(params: {
   previousBySessionId: ReadonlyMap<string, SessionSummary>;
   sessions: readonly SessionSummary[];
   formatMessage: FormatMessage;
+  /** ZAICODE: a turn stopped by the operator raises no "Task completed" notice. */
+  skipInterrupted?: boolean;
 }): TaskNotificationPayload[] {
   const payloads: TaskNotificationPayload[] = [];
+  const skipInterrupted = params.skipInterrupted === true;
   for (const session of params.sessions) {
-    const status = terminalStatusForPhase(session.phase);
+    const status = terminalStatusForPhase(session.phase, skipInterrupted);
     if (!status) continue;
 
     const previous = params.previousBySessionId.get(session.sessionId);
     if (!previous) continue;
 
-    const previousStatus = terminalStatusForPhase(previous.phase);
+    const previousStatus = terminalStatusForPhase(previous.phase, skipInterrupted);
     if (previousStatus === status) continue;
 
     payloads.push(terminalPayloadForSession(session, status, params.formatMessage));

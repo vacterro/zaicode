@@ -1,4 +1,5 @@
 import type { PromptInputTrigger } from "@/lib/promptInputTriggers.js";
+import { isZaicodeProductMode } from "@zcode/shared";
 
 export type MentionPanelGroupId = "plugins" | "files" | "sessions" | "whiteboards" | "skills";
 export type SessionMentionWorkspaceScope = "current-workspace" | "same-authority-workspaces";
@@ -20,7 +21,9 @@ export function getMentionPanelGroupOrder(
   trigger: PromptInputTrigger | null | undefined,
 ): readonly MentionPanelGroupId[] {
   if (trigger === "@") {
-    return CONTEXT_GROUP_ORDER;
+    return isZaicodeProductMode()
+      ? ["skills", "files", "sessions", "whiteboards"]
+      : CONTEXT_GROUP_ORDER;
   }
   if (trigger === "#") {
     return SESSION_GROUP_ORDER;

@@ -7,6 +7,7 @@ import {
   matchesShortcutBinding,
 } from "@/shortcuts/bindings.js";
 import { useEffectiveShortcutBindings } from "@/shortcuts/useShortcutBindings.js";
+import { playZaicodeSound } from "@/zaicode/zaicodeSoundBus.js";
 
 /** window 通道快捷键的处理器表：命令 ID → 回调；null/缺失表示该命令当前不可用。 */
 type AppKeyboardHandlers = Partial<Record<ShortcutCommandId, (() => void) | null>>;
@@ -61,6 +62,7 @@ export function useAppKeyboard(handlers: AppKeyboardHandlers) {
           }
           if (matchesShortcutBinding(event, binding)) {
             event.preventDefault();
+            playZaicodeSound("ui.hotkey");
             handler();
             return;
           }

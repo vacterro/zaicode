@@ -12,7 +12,7 @@ const enUS: Record<string, string> = {
   "startPlan.recommendation.dismiss": "Don’t show again",
   "occupationOnboarding.stepMode": "UI mode",
   "occupationOnboarding.modeTitle": "Choose your UI mode",
-  "occupationOnboarding.modeDescription": "How would you like ZCode to show its work?",
+  "occupationOnboarding.modeDescription": "How would you like ZAICODE to show its work?",
   "occupationOnboarding.coding": "Coding mode",
   "occupationOnboarding.codingDescription":
     "I want to see code, command output, and change details throughout the development process.",
@@ -61,27 +61,28 @@ const enUS: Record<string, string> = {
   "occupationOnboarding.migration": "Migrate conversations",
   "occupationOnboarding.migrationDescription": "Migrate conversation history from Claude Code",
   "occupationOnboarding.memory": "Enable Workspace Memory",
-  "occupationOnboarding.memoryDescription": "Let ZCode remember your preferences and work context.",
+  "occupationOnboarding.memoryDescription":
+    "Let ZAICODE remember your preferences and work context.",
   "occupationOnboarding.suggestions": "Enable proactive task suggestions",
   "occupationOnboarding.suggestionsDescription":
     "Show suggestions in new conversations. Click to fill the composer.",
   "occupationOnboarding.close": "Exit onboarding",
-  "startup.global.silent": "Starting ZCode",
+  "startup.global.silent": "Starting ZAICODE",
   "startup.global.upgrading": "Upgrading local data",
   "startup.global.initializing": "Initializing local data",
   "startup.global.waiting": "Waiting for database preparation",
   "startup.global.saving": "Saving updates",
   "startup.global.finishing": "Finishing startup",
   "startup.global.servicesFailed":
-    "Local data is ready, but app services failed to start. Copy the diagnostics, then exit and reopen ZCode.",
+    "Local data is ready, but app services failed to start. Copy the diagnostics, then exit and reopen ZAICODE.",
   "startup.global.starting": "Preparing local data",
   "startup.global.preparing_host_storage": "Preparing task index",
   "startup.global.preparing_session_storage": "Preparing chat history",
-  "startup.global.starting_services": "Starting ZCode",
+  "startup.global.starting_services": "Starting ZAICODE",
   "startup.global.ready": "Local data is ready",
   "startup.global.failed": "Startup preparation failed",
   "startup.global.help":
-    "ZCode will open when preparation finishes. Large histories may take longer. Please keep the app running.",
+    "ZAICODE will open when preparation finishes. Large histories may take longer. Please keep the app running.",
   "startup.global.diagnostic": "Diagnostic ID",
   "startup.global.copy": "Copy diagnostics",
   "startup.global.exit": "Exit",
@@ -102,15 +103,15 @@ const enUS: Record<string, string> = {
   "startup.global.error.open_failed":
     "The database could not be opened. Check that the data directory exists and is accessible, then retry.",
   "startup.global.error.lock_timeout":
-    "Waiting for the database write lock timed out. Another ZCode or CLI process may be updating data. Retry after it finishes.",
+    "Waiting for the database write lock timed out. Another ZAICODE or CLI process may be updating data. Retry after it finishes.",
   "startup.global.error.sql_failed":
     "Preparation did not finish. Copy the diagnostics and check the logs. Resolve the issue, then retry manually. The app will not retry automatically.",
   "startup.global.error.startup_status_timeout":
-    "No startup status was received. Exit and reopen ZCode. If it fails again, provide the diagnostics to support.",
+    "No startup status was received. Exit and reopen ZAICODE. If it fails again, provide the diagnostics to support.",
   "startup.global.error.transport_closed":
-    "The preparation process exited or disconnected. Exit and reopen ZCode to check the migration records again.",
+    "The preparation process exited or disconnected. Exit and reopen ZAICODE to check the migration records again.",
   "startup.global.error.unsupported_runtime":
-    "The configured Agent does not support storage preparation. Restore the bundled Agent, then reopen ZCode.",
+    "The configured Agent does not support storage preparation. Restore the bundled Agent, then reopen ZAICODE.",
 
   "startup.database.checking": "Checking history",
   "startup.database.waiting_for_lock": "Waiting for another window to prepare data",
@@ -158,7 +159,7 @@ const enUS: Record<string, string> = {
   "offPeak.chatCreated.queuedAt": "#{position} in queue",
   "offPeak.chatCreated.open": "Go to idle-time tasks",
   "settings.computerUse.disabledToast":
-    "Computer Use is disabled. Existing conversations require a ZCode restart to take effect.",
+    "Computer Use is disabled. Existing conversations require a ZAICODE restart to take effect.",
   "settings.modelProvider.connectionUnavailableNotice": "The current plan is unavailable.",
   "settings.modelProvider.switchConnection": "Switch to “{connection}”",
   "settings.modelProvider.connectionSuggestionStale":
@@ -195,7 +196,7 @@ const enUS: Record<string, string> = {
   "conversationShare.permission.linkViewerHint": "Cannot import and continue",
   "conversationShare.permission.linkViewerSummary": "Link holders can view",
   "conversationShare.permission.linkEditor": "Anyone with the link can import and continue",
-  "conversationShare.permission.linkEditorHint": "Import into ZCode",
+  "conversationShare.permission.linkEditorHint": "Import into ZAICODE",
   "conversationShare.permission.linkEditorSummary": "Link holders can import and continue",
   "conversationShare.permission.privateSummary": "Only me",
   "conversationShare.openLink": "Open share page",
@@ -422,7 +423,7 @@ const enUS: Record<string, string> = {
   "conversationShare.import.committing": "Creating the shared conversation",
   "conversationShare.import.complete": "Share import complete",
   "conversationShare.import.loginRequired":
-    "This share cannot be imported anonymously. Sign in to ZCode and try again",
+    "This share cannot be imported anonymously. Sign in to ZAICODE and try again",
   "conversationShare.import.notFound": "The share is unavailable for this account",
   "conversationShare.import.expired": "The share expired. Ask the author to create a new one",
   "conversationShare.import.integrityFailed": "Share file verification failed; import stopped",
@@ -547,14 +548,14 @@ const enUS: Record<string, string> = {
     "Project “{projectName}” will be removed from the sidebar, but files on disk will remain untouched.",
 
   // Welcome / Login
-  "welcome.title": "Welcome to ZCode",
+  "welcome.title": "Welcome to ZAICODE",
   "welcome.username": "Username",
   "welcome.password": "Password",
   "welcome.login": "Login",
   "welcome.loggingIn": "Logging in...",
   "welcome.loginFailed": "Login failed",
-  "login.title": "Welcome to ZCode",
-  "login.description": "Connect your account to start using ZCode",
+  "login.title": "Welcome to ZAICODE",
+  "login.description": "Connect your account to start using ZAICODE",
   "login.oauth.activeProviderHint":
     "Current active provider: {provider}. Signing in again replaces the current identity.",
   "login.oauth.loadingProviders": "Loading account providers...",
@@ -597,7 +598,7 @@ const enUS: Record<string, string> = {
   "app.currentTheme": "Current: {theme}",
   "app.login": "Connect",
   "app.logout": "Disconnect",
-  "logout.confirm.title": "Disconnect and restart ZCode?",
+  "logout.confirm.title": "Disconnect and restart ZAICODE?",
   "logout.confirm.descriptionWithRunningSessions":
     "{count} session(s) are currently running. Disconnecting will interrupt them and restart the app.",
   "logout.confirm.descriptionDefault":
@@ -715,6 +716,7 @@ const enUS: Record<string, string> = {
   "sidePane.openFile.category": "Files",
   "sidePane.openFile.emptyQuery": "Type to search files",
   "sidePane.review": "Review",
+  "sidePane.saipen": "SAIPEN",
   "whiteboard.title": "Whiteboard",
   "whiteboard.defaultName": "Whiteboard",
   "whiteboard.nameLabel": "Whiteboard name",
@@ -743,7 +745,7 @@ const enUS: Record<string, string> = {
   "modelTrajectory.refresh": "Refresh",
   "modelTrajectory.close": "Close",
   "modelTrajectory.loading": "Loading trajectory…",
-  "modelTrajectory.empty": "No model calls recorded (only ZCode Agent writes model-io)",
+  "modelTrajectory.empty": "No model calls recorded (only ZAICODE Agent writes model-io)",
   "modelTrajectory.error": "Failed to load trajectory",
   "modelTrajectory.truncatedNotice": "Too many records, showing the most recent calls",
   "modelTrajectory.summaryCalls": "{count} calls",
@@ -1205,14 +1207,14 @@ const enUS: Record<string, string> = {
   "titleBar.menu.view.actualSize": "Actual size",
   "titleBar.menu.view.zoomIn": "Zoom in",
   "titleBar.menu.view.zoomOut": "Zoom out",
-  "titleBar.menu.help.about": "About ZCode",
+  "titleBar.menu.help.about": "About ZAICODE",
   "titleBar.menu.help.checkForUpdates": "Check for updates",
   "titleBar.menu.help.feedback": "Feedback",
   "sidebar.menu.community": "Community",
   "titleBar.menu.help.exportLogs": "Export logs",
   "titleBar.menu.help.toggleDevTools": "Toggle developer tools",
   "titleBar.menu.help.resourceManager": "Resource manager",
-  "titleBar.menu.help.toggleZCodeStdioTap": "Capture agent stdio traffic",
+  "titleBar.menu.help.toggleZAICODEStdioTap": "Capture agent stdio traffic",
   "titleBar.menu.help.clearAllData": "Clear all data",
 
   // Directory browser
@@ -1258,7 +1260,7 @@ const enUS: Record<string, string> = {
   "update.toast.ready": "v{version} downloaded, restart to install",
   "update.toast.devSkipped": "Updates are disabled in dev builds",
   "update.toast.error": "Update check failed: {error}",
-  "forceUpdate.title": "Update ZCode to continue",
+  "forceUpdate.title": "Update ZAICODE to continue",
   "forceUpdate.description":
     "Your current version v{currentVersion} is below the minimum supported version v{minimalVersion}. Update first before continuing with this client.",
   "forceUpdate.currentVersion": "Current version",
@@ -1340,7 +1342,7 @@ const enUS: Record<string, string> = {
   "workspaceSidebar.notConnected": "Not connected",
   "workspaceSidebar.empty": "No workspaces yet. Open a workspace to get started.",
   "workspaceSidebar.unavailableLocalDirectory":
-    "The workspace directory does not exist or cannot be accessed. You can only view history for now. Restore the directory and restart ZCode to continue.",
+    "The workspace directory does not exist or cannot be accessed. You can only view history for now. Restore the directory and restart ZAICODE to continue.",
   "workspaceSidebar.showSidebar": "Toggle sidebar",
   "workspaceSidebar.hideSidebar": "Toggle sidebar",
   "workspaceSidebar.toggleSidebar": "Toggle sidebar",
@@ -1383,7 +1385,7 @@ const enUS: Record<string, string> = {
   "ssh.assetInstallMode.local-download-upload": "Download locally, then upload",
   "ssh.assetInstallMode.remote-download": "Download on remote server",
   "ssh.assetInstallModeDescription":
-    "Remote server download reduces upload waiting, but the server must reach the ZCode CDN and have download, extract, and checksum tools.",
+    "Remote server download reduces upload waiting, but the server must reach the ZAICODE CDN and have download, extract, and checksum tools.",
   "ssh.password": "Password",
   "ssh.passwordPlaceholder": "Enter your SSH password",
   "ssh.privateKey": "Private key",
@@ -1635,7 +1637,7 @@ const enUS: Record<string, string> = {
   "chat.changeSummary.reverted": "Undone",
   "chat.changeSummary.rewindDialog.title": "Undo file changes",
   "chat.changeSummary.rewindDialog.description":
-    "ZCode checks current file content again before writing. If another process changed a file, no files will be written.",
+    "ZAICODE checks current file content again before writing. If another process changed a file, no files will be written.",
   "chat.changeSummary.rewindDialog.loading": "Checking reversible files…",
   "chat.changeSummary.rewindDialog.safeTitle": "Safe to undo {count}",
   "chat.changeSummary.rewindDialog.unsafeTitle": "Unsafe to undo {count}",
@@ -1807,7 +1809,7 @@ const enUS: Record<string, string> = {
     "When launching the built-in terminal, inherit login shell environment, proxy, Kubernetes variables, and local terminal font when possible.",
   "settings.terminalFontFamily": "Terminal font",
   "settings.terminalFontFamilyDescription":
-    "Leave blank to auto-detect system terminal settings; set a value to override the ZCode terminal font.",
+    "Leave blank to auto-detect system terminal settings; set a value to override the ZAICODE terminal font.",
   "settings.terminalFontFamilyPlaceholder": "Leave blank to inherit, e.g. MesloLGS NF, monospace",
   "settings.integratedTerminalShell": "Integrated terminal shell",
   "settings.integratedTerminalShellDescription":
@@ -1819,7 +1821,7 @@ const enUS: Record<string, string> = {
   "settings.memory": "Memory",
   "settings.memory.workspaceMemory": "Workspace Memory",
   "settings.memoryDescription":
-    "Save and reuse long-term context in workspaces. Applies to new sessions and may increase model requests and token costs.",
+    "The in-app agent keeps short notes about each project (commands, conventions, what to avoid) and reads them when a new session starts. Adds a few model requests.",
   "settings.memory.viewer.disabled": "Enable Workspace Memory to view saved memories.",
   "settings.memory.viewer.localOnly":
     "Memory details are available only in the local desktop app. Open Memory settings there to view them.",
@@ -1829,7 +1831,8 @@ const enUS: Record<string, string> = {
     "Select a project to view all of its saved memories.",
   "settings.memory.viewer.refresh": "Refresh",
   "settings.memory.viewer.loading": "Loading memories…",
-  "settings.memory.viewer.empty": "No saved workspace memories",
+  "settings.memory.viewer.empty":
+    "No notes yet. They appear after the agent learns something lasting about a project, or when you say “remember that …” in a chat.",
   "settings.memory.viewer.workspaces": "Workspaces",
   "settings.memory.viewer.files": "Files",
   "settings.memory.viewer.searchPlaceholder": "Search memory files…",
@@ -1891,6 +1894,18 @@ const enUS: Record<string, string> = {
   "settings.notificationSound": "Notification sound",
   "settings.notificationSoundDescription":
     "When notifications are enabled, you can mute the task notification sound separately.",
+  "settings.zaicodeSound.search": "FastPrompter sounds ({count}) — search by name",
+  "settings.zaicodeSound.choose": "Selected notification sound",
+  "settings.zaicodeSound.default": "ZAICODE default",
+  "settings.zaicodeSound.custom": "My sound",
+  "settings.zaicodeSound.import": "Import my sound…",
+  "settings.zaicodeSound.preview": "Play preview",
+  "settings.zaicodeSound.imported": "Sound imported and selected.",
+  "settings.zaicodeSound.playing": "Playing preview.",
+  "settings.zaicodeSound.failed": "This sound could not be played.",
+  "zaicode.settings.autoSessionTitle": "Live SAIPEN session title",
+  "zaicode.settings.autoSessionTitleHint": "Name the active session after the latest NEXT EXACT ACTION. On by default.",
+  "zaicode.settings.listLabelWidth": "Project and session colour strip: {width}px",
   "notification.taskWithTitle": "Task: {title}",
   "notification.taskWaiting": "Task waiting for your confirmation",
   "notification.completed": "Task completed",
@@ -1924,7 +1939,7 @@ const enUS: Record<string, string> = {
     "Group consecutive Write, Edit, and ApplyPatch calls into a Changes section.",
   "settings.zcodeInteractionBehavior": "Interaction behavior",
   "settings.zcodeInteractionBehaviorDescription":
-    "While ZCode is running, add follow-up actions to the queue or guide them to run after the next tool call.",
+    "While ZAICODE is running, add follow-up actions to the queue or guide them to run after the next tool call.",
   "settings.zcodeInteractionBehavior.option.queue": "Queue",
   "settings.zcodeInteractionBehavior.option.guide": "Guide",
   "settings.askUserQuestionAutoResolution": "Automatically continue questions",
@@ -1954,7 +1969,7 @@ const enUS: Record<string, string> = {
   "settings.dataBaseDirCopying": "Copying data, please do not close the app...",
   "settings.dataBaseDirCopyFailed": "Data copy failed. Path was not changed.",
   "settings.dataBaseDirForbiddenInstallDir":
-    "The data directory cannot be the ZCode installation folder on Windows. Choose a folder outside the app install location.",
+    "The data directory cannot be the ZAICODE installation folder on Windows. Choose a folder outside the app install location.",
   "settings.dataBaseDirRestartRequired": "Data saved. Please restart the app to take effect.",
   "settings.locale.system": "System default",
   "settings.locale.zh-CN": "中文简体",
@@ -1970,7 +1985,7 @@ const enUS: Record<string, string> = {
   "settings.migration.title": "Migration",
   "settings.migration.sectionTitle": "Claude History Migration",
   "settings.migration.sectionDescription":
-    "Scan native Claude Code history on this machine, optionally filter by workspace and activity window, then import the selected sessions into their matching ZCode task lists.",
+    "Scan native Claude Code history on this machine, optionally filter by workspace and activity window, then import the selected sessions into their matching ZAICODE task lists.",
   "settings.migration.badge.localOnly": "Local Claude records",
   "settings.migration.badge.manualOnly": "Manual only",
   "settings.migration.currentWorkspace": "Current workspace",
@@ -2024,14 +2039,14 @@ const enUS: Record<string, string> = {
   "settings.usageTitle": "Usage stats",
   "settings.usageDescription":
     "Review rough activity and model usage aggregated from local sessions.",
-  "resourceManager.storage.summaryTotal": "Total used by ZCode",
+  "resourceManager.storage.summaryTotal": "Total used by ZAICODE",
   "resourceManager.storage.scanning": "Calculating…",
   "resourceManager.storage.lastScanned": "Last calculated {time}",
   "resourceManager.storage.idle": "Not calculated yet",
   "resourceManager.storage.failed": "Calculation failed",
   "resourceManager.storage.rescan": "Recalculate",
   "resourceManager.storage.disk": "Disk",
-  "resourceManager.storage.diskUsage": "ZCode uses {used}",
+  "resourceManager.storage.diskUsage": "ZAICODE uses {used}",
   "resourceManager.storage.diskFree": "{free} free of {total}",
   "resourceManager.storage.diskUnknown": "Disk capacity unavailable",
   "resourceManager.storage.roots": "Data directories",
@@ -2099,7 +2114,7 @@ const enUS: Record<string, string> = {
   "settings.embeddedBrowserAllowInsecureCertificatesSavedHint":
     "Certificate setting saved. Restart the app to take effect.",
   "settings.browser.data.section": "Browser data",
-  "settings.browser.desktopOnly": "Browser data can only be managed in the ZCode desktop app.",
+  "settings.browser.desktopOnly": "Browser data can only be managed in the ZAICODE desktop app.",
   "settings.browser.import.title": "Import Chrome sign-in state",
   "settings.browser.import.description":
     "Bring your Chrome sign-in state into the built-in browser once, so the AI can open sites you are already signed in to and work more smoothly.",
@@ -2117,13 +2132,13 @@ const enUS: Record<string, string> = {
   "settings.browser.import.elevationCancelled":
     "Windows administrator access was canceled. No cookies were imported.",
   "settings.browser.import.helperVerificationFailed":
-    "ZCode could not verify its Windows secure import component. Reinstall or update ZCode before importing cookies.",
+    "ZAICODE could not verify its Windows secure import component. Reinstall or update ZAICODE before importing cookies.",
   "settings.browser.import.appBoundFailed":
     "Windows could not unlock Chrome's App-Bound cookies. No cookies were imported.",
   "settings.browser.import.adminConfirmTitle":
     "Allow administrator access to import Chrome cookies?",
   "settings.browser.import.adminConfirmDescription":
-    "Chrome protects cookies with App-Bound encryption on Windows. For this import only, ZCode will request administrator access, start a temporary system service, and delete it immediately afterward. Chrome passwords are never read or imported.",
+    "Chrome protects cookies with App-Bound encryption on Windows. For this import only, ZAICODE will request administrator access, start a temporary system service, and delete it immediately afterward. Chrome passwords are never read or imported.",
   "settings.browser.import.adminConsent":
     "I confirm administrator access for this cookie import only",
   "settings.browser.import.adminConfirmAction": "Continue and request access",
@@ -2182,7 +2197,7 @@ const enUS: Record<string, string> = {
   "settings.previewBadge.dark": "Dark",
   "settings.modelProviderTitle": "Model settings",
   "settings.mcpTitle": "MCP Servers",
-  "settings.mcp.description": "Manage MCP server configurations used by ZCode Agent.",
+  "settings.mcp.description": "Manage MCP server configurations used by ZAICODE Agent.",
   "settings.mcp.create.open": "Add MCP server",
   "settings.mcp.import.open": "Import MCP servers from external agents",
   "settings.mcp.import.action": "Import",
@@ -2259,7 +2274,7 @@ const enUS: Record<string, string> = {
     "This plugin MCP server is loaded but not currently connected.",
   "settings.mcp.host.active": "Host built-in",
   "settings.mcp.host.activeDescription":
-    "ZCode provides this MCP server for the {pluginName} plugin. Its runtime identity is managed by the host.",
+    "ZAICODE provides this MCP server for the {pluginName} plugin. Its runtime identity is managed by the host.",
   "settings.mcp.plugin.disabled": "Plugin disabled",
   "settings.mcp.plugin.disabledDescription":
     "This MCP server is built into a plugin. Enable the plugin to load it.",
@@ -2271,7 +2286,7 @@ const enUS: Record<string, string> = {
     "Open authorization to finish connecting this plugin MCP server.",
   "settings.mcp.oauth.openAuthorization": "Open authorization",
   "settings.mcp.statusOnlyUnsupported":
-    "This ZCode Agent cannot refresh OAuth status. Upgrade or restart ZCode, then reopen MCP settings to run a full refresh.",
+    "This ZAICODE Agent cannot refresh OAuth status. Upgrade or restart ZAICODE, then reopen MCP settings to run a full refresh.",
   "settings.mcp.refreshFailed": "Failed to refresh MCP status: {error}",
   "settings.mcp.status.toolCount": "{count} tools",
   "settings.mcp.status.connectedReason": "Connected and available.",
@@ -2298,7 +2313,7 @@ const enUS: Record<string, string> = {
   "settings.mcp.failure.official_origin_untrusted":
     "The MCP server URL failed the security check. The connection was blocked.",
   "settings.mcp.failure.not_authenticated":
-    "You are not signed in. Sign in to ZCode to use this MCP server.",
+    "You are not signed in. Sign in to ZAICODE to use this MCP server.",
   "settings.mcp.failure.coding_plan_required":
     "This account has no Coding Plan. Purchase or configure a Coding Plan to use this MCP server.",
   "settings.mcp.failure.server_not_found":
@@ -2368,7 +2383,7 @@ const enUS: Record<string, string> = {
   "settings.mcpServers.import.targetLabel": "Import target",
   "settings.mcpServers.import.target.global": "Import to Global",
   "settings.mcpServers.import.target.project": "Import to Project",
-  "settings.mcpServers.import.importing": "Importing MCP servers into ZCode",
+  "settings.mcpServers.import.importing": "Importing MCP servers into ZAICODE",
   "settings.mcpServers.import.imported": "Imported",
   "settings.mcpServers.import.skipped": "Skipped",
   "settings.mcpServers.import.failed": "Failed",
@@ -2496,7 +2511,7 @@ const enUS: Record<string, string> = {
   "settings.modelProvider.startPlan.highlight.trial.label": "Trial period",
   "settings.modelProvider.startPlan.highlight.trial.value": "5 calendar days",
   "settings.modelProvider.startPlan.highlight.trial.description":
-    "Timing starts after signing in to ZCode 3.x.",
+    "Timing starts after signing in to ZAICODE 3.x.",
   "settings.modelProvider.startPlan.highlight.quota.label": "Daily quota",
   "settings.modelProvider.startPlan.highlight.quota.value": "3M tokens daily",
   "settings.modelProvider.startPlan.highlight.quota.description":
@@ -2506,7 +2521,7 @@ const enUS: Record<string, string> = {
   "settings.modelProvider.startPlan.highlight.metering.description":
     "Metered only after using platform GLM flagship models.",
   "settings.modelProvider.startPlan.compatibility":
-    "Supports BYOK and BYOA. Base URL, API format, and API Key are maintained by ZCode automatically.",
+    "Supports BYOK and BYOA. Base URL, API format, and API Key are maintained by ZAICODE automatically.",
   "settings.modelProvider.codingPlan.title": "{provider} - Coding Plan",
   "settings.modelProvider.codingPlan.webview.title": "Upgrade Plan",
   "settings.modelProvider.codingPlan.webview.authInjectFailed":
@@ -2643,7 +2658,7 @@ const enUS: Record<string, string> = {
   "settings.modelProvider.codingPlan.purchase.teamMemberNoticeTitle":
     "Assign members to your team plan",
   "settings.modelProvider.codingPlan.purchase.teamMemberNoticeDescription":
-    "Add yourself or other members on the BigModel team plan management page. Once assigned, the team quota will be available in ZCode.",
+    "Add yourself or other members on the BigModel team plan management page. Once assigned, the team quota will be available in ZAICODE.",
   "settings.modelProvider.codingPlan.purchase.manageTeamPlan": "Manage team plan",
   "settings.modelProvider.codingPlan.manage": "Manage",
   "settings.modelProvider.planCard.codingPlan": "Coding Plan",
@@ -3025,7 +3040,7 @@ const enUS: Record<string, string> = {
   "settings.modelProvider.resetForm": "Reset form",
   "settings.modelProvider.fieldHelp": "About {field}",
   "settings.modelProvider.help.contextWindow":
-    "The context capacity the model can process at once, in tokens. ZCode uses this to manage context.\nDo not exceed the model's actual limit.",
+    "The context capacity the model can process at once, in tokens. ZAICODE uses this to manage context.\nDo not exceed the model's actual limit.",
   "settings.modelProvider.help.maxOutputTokens":
     "The maximum number of tokens a single model request may generate.\nDo not exceed the model's actual limit.",
   "settings.modelProvider.help.inputModalities":
@@ -3041,7 +3056,7 @@ const enUS: Record<string, string> = {
   "settings.modelProvider.help.advanced":
     "**MFJS tool schema**: Enables Moonshot Flavored JSON Schema compatibility, commonly used by Moonshot's Kimi model API. Enable only when the model API requires this format.",
   "settings.modelProvider.help.followRecommendedConfig":
-    "Matches recommended configuration using the model ID, Base URL, and API format. ZCode continually updates recommendations and automatically syncs them to you.\nWhen you manually change a setting, that setting becomes manually managed and stops following recommendation updates; other settings remain managed by smart configuration.",
+    "Matches recommended configuration using the model ID, Base URL, and API format. ZAICODE continually updates recommendations and automatically syncs them to you.\nWhen you manually change a setting, that setting becomes manually managed and stops following recommendation updates; other settings remain managed by smart configuration.",
   "settings.modelProvider.modelDefaultsLoaded": "Smart configuration matched for this model",
   "settings.modelProvider.modelConfigIncomplete": "Model configuration is incomplete",
   "settings.modelProvider.models": "Model list",
@@ -3111,7 +3126,7 @@ const enUS: Record<string, string> = {
   "settings.usage.sourceProvider": "Source: {provider}",
   "settings.usage.billingBanner.title": "{provider} Coding Plan",
   "settings.usage.billingBanner.description":
-    "Connect your {provider} account to query Coding Plan entitlement, then keep coding in ZCode after purchase or setup.",
+    "Connect your {provider} account to query Coding Plan entitlement, then keep coding in ZAICODE after purchase or setup.",
   "settings.usage.billingBanner.compactDescription":
     "Connect your {provider} account to sync usage.",
   "settings.usage.billingBanner.buy": "Buy Coding Plan",
@@ -3170,7 +3185,7 @@ const enUS: Record<string, string> = {
   "settings.usage.entitlementFiveHourUsage": "5-hour remaining",
   "settings.usage.entitlementWeeklyUsage": "Weekly remaining",
   "settings.usage.entitlementMonthlyMcpUsage": "Tool calls",
-  "settings.usage.entitlementServerMcpUsage": "ZCode MCP",
+  "settings.usage.entitlementServerMcpUsage": "ZAICODE MCP",
   "settings.usage.entitlementResetAt": "Resets {time}",
   "settings.usage.entitlementUsageDetails": "Tool usage detail",
   "settings.usage.entitlementPromptCap": "5-hour prompt pool",
@@ -3228,9 +3243,10 @@ const enUS: Record<string, string> = {
   "sidebar.usage.plan.fiveHour": "5 hours",
   "sidebar.usage.plan.weekly": "Weekly",
   "sidebar.usage.plan.toolCalls": "Tool calls",
-  "sidebar.usage.plan.mcp": "ZCode MCP",
-  "sidebar.usage.plan.zcodeMcp": "ZCode MCP",
-  "sidebar.usage.plan.zcodeMcpDescription": "Daily aggregate quota for ZCode built-in plugin MCPs",
+  "sidebar.usage.plan.mcp": "ZAICODE MCP",
+  "sidebar.usage.plan.zcodeMcp": "ZAICODE MCP",
+  "sidebar.usage.plan.zcodeMcpDescription":
+    "Daily aggregate quota for ZAICODE built-in plugin MCPs",
   "chat.planUsage.title": "Plan usage",
   "chat.planUsage.titleWithPlan": "{plan} Plan usage",
   "chat.planUsage.providerFallback": "Current provider",
@@ -3453,10 +3469,10 @@ const enUS: Record<string, string> = {
   "settings.skills.import.mode.copy": "Copy",
   "settings.skills.import.mode.symlink": "Symlink",
   "settings.skills.import.mode.copy.description":
-    "Copy the full skill directory into ZCode. Later changes in the external agent directory will not sync automatically.",
+    "Copy the full skill directory into ZAICODE. Later changes in the external agent directory will not sync automatically.",
   "settings.skills.import.mode.symlink.description":
-    "Create a directory link to the external agent skill. ZCode follows later source changes, but the skill depends on that source path remaining available.",
-  "settings.skills.import.importing": "Importing skills into ZCode",
+    "Create a directory link to the external agent skill. ZAICODE follows later source changes, but the skill depends on that source path remaining available.",
+  "settings.skills.import.importing": "Importing skills into ZAICODE",
   "settings.skills.import.imported": "Imported",
   "settings.skills.import.skipped": "Skipped",
   "settings.skills.import.failed": "Failed",
@@ -3525,14 +3541,271 @@ const enUS: Record<string, string> = {
     "`name` must be lowercase / digits / hyphens",
   "settings.skills.diagnostics.code.skill_missing_description":
     "Frontmatter missing `description` field",
-  "settings.skills.diagnostics.code.skill_description_too_long": "`description` exceeds 1024 chars",
+  "settings.skills.diagnostics.code.skill_description_too_long":
+    "`description` exceeds 1024 chars (truncated)",
   "settings.skills.diagnostics.code.skill_unknown_frontmatter": "Unrecognized frontmatter key",
   "settings.skills.diagnostics.code.skill_duplicate_name": "Duplicate skill name ignored",
   "settings.skills.diagnostics.code.skill_too_large": "SKILL.md too large; content truncated",
   "settings.skills.diagnostics.code.skill_not_found": "Skill not found",
   "settings.subagents.title": "Subagents",
+  "settings.zaicode.title": "ZAICODE",
+  "settings.zaicodeEngines.title": "Engines & limits",
+  "settings.zaicodeSounds.title": "Sounds",
+  "settings.zaicodeLayout.title": "Layout & home",
+  "settings.zaicodeRouter.title": "Router (9router)",
+  "settings.zaicodeWorkers.title": "Workers & terminal",
+  "settings.zaicodeNotifications.title": "Notifications",
+  "settings.zaicodeTimers.title": "Timers",
+  "settings.zaicodeColors.title": "Colors",
+  "settings.zaicodeLights.title": "Highlights & motion",
+  "settings.zaicodeHotkeys.title": "Hotkeys",
+  "settings.zaicodeHelp.title": "Help",
+  "settings.sidebar.group.zaicode": "ZAICODE",
+  "zaicode.settings.autoRestart": "Restart after a crash",
+  "zaicode.fallback.switched":
+    "{fromModel} hit its limit. The next message goes to {toModel}; switch back any time in the model menu.",
+  "zaicode.settings.autoRestartHint":
+    "On by default. The launcher restarts a crashed app; the desktop host reloads a crashed window.",
+  "zaicode.todo.title": "Todo",
+  "zaicode.todo.detach": "Detach todo window",
+  "zaicode.todo.dock": "Dock todo window",
+  "zaicode.todo.close": "Close todo window",
+  "zaicode.font.title": "Typography",
+  "zaicode.font.description":
+    "Choose the face and spacing. Changes appear immediately and survive restarts.",
+  "zaicode.font.reset": "Reset fonts",
+  "zaicode.font.codeFamily": "Code font",
+  "zaicode.font.uiFamily": "Interface font",
+  "zaicode.font.customCode": "Installed code font name",
+  "zaicode.font.customUi": "Installed interface font name",
+  "zaicode.font.codeSize": "Code size",
+  "zaicode.font.inlineSize": "Inline code size",
+  "zaicode.font.lineHeight": "Code line spacing",
+  "zaicode.font.uiSize": "Interface size",
+  "zaicode.font.wrap": "Wrap long code lines",
+  "zaicode.font.numbers": "Line numbers",
+  "zaicode.font.ligatures": "Font ligatures",
+  "zaicode.font.preview": "Live preview",
+  "zaicode.font.installedHint":
+    "Terminus is included. Other fonts must be installed on this computer.",
+  "zaicode.nav.open": "ZAICODE",
+  "zaicode.title": "ZAICODE",
+  "zaicode.inspector.openSession": "Open session",
+  "zaicode.queue.title": "Tasks",
+  "zaicode.queue.filter.all": "All",
+  "zaicode.queue.filter.active": "In progress",
+  "zaicode.queue.filter.attention": "Needs you",
+  "zaicode.queue.filter.done": "Finished",
+  "zaicode.queue.filterHelp.all": "Every task in this project",
+  "zaicode.queue.filterHelp.active": "Waiting in line or running right now",
+  "zaicode.queue.filterHelp.attention": "Failed or blocked: retry or fix and resume",
+  "zaicode.queue.filterHelp.done": "Completed or cancelled",
+  "zaicode.queue.needAgent": "Create or enable an agent first",
+  "zaicode.queue.instructionsPlaceholder": "What should be done? Leave it empty for hit & go: /goal cc all — finish the SAIPEN board. (Ctrl+Enter adds the task)",
+  "zaicode.queue.delegateHelp":
+    "When this coordinator finishes, its result is handed to the chosen agent as a follow-up task.",
+  "zaicode.queue.more": "Title and priority (optional)",
+  "zaicode.queue.titlePlaceholder": "Short title (default: first line of the text)",
+  "zaicode.queue.priorityHelp": "Higher runs first. 0 is normal.",
+  "zaicode.queue.willAutoStart":
+    "Autopilot is on: the task starts as soon as a parallel slot is free.",
+  "zaicode.queue.willWait": "Autopilot is off: the task waits until you press Run.",
+  "zaicode.queue.emptyNoAgents":
+    "Start here: create an agent (who does the work), then add tasks for it.",
+  "zaicode.queue.emptyAll": "No tasks yet. Add one: describe the work and pick an agent.",
+  "zaicode.queue.emptyFiltered": "Nothing in this group.",
+  "zaicode.action.newTask": "New task",
+  "zaicode.action.addTask": "Add task",
+  "zaicode.action.createFirstAgent": "Create agent",
+  "zaicode.action.duplicate": "Duplicate",
+  "zaicode.action.startWaiting": "Run {count} waiting",
+  "zaicode.primary.run": "Run",
+  "zaicode.primary.stop": "Stop",
+  "zaicode.primary.retry": "Retry",
+  "zaicode.primary.resume": "Resume",
+  "zaicode.primaryHelp.run": "Start this task now (ignores its place in line)",
+  "zaicode.primaryHelp.stop": "Stop the running session and cancel the task",
+  "zaicode.primaryHelp.retry": "Queue a fresh copy of this task",
+  "zaicode.primaryHelp.resume": "Put the blocked task back in line",
+  "zaicode.statusHelp.draft": "Draft: saved but not in line yet.",
+  "zaicode.statusHelp.queued": "Queued: waiting in line for a free slot.",
+  "zaicode.statusHelp.ready": "Ready: next in line, starts when a slot frees.",
+  "zaicode.statusHelp.running": "Running: an agent chat session is working on it now.",
+  "zaicode.statusHelp.waiting": "Waiting: the agent session waits for your answer or permission.",
+  "zaicode.statusHelp.blocked":
+    "Blocked: agent disabled/missing or the app restarted mid-run. Fix it, then Resume.",
+  "zaicode.statusHelp.completed": "Completed: finished; see the result in details.",
+  "zaicode.statusHelp.failed": "Failed: the run ended with an error; see details, then Retry.",
+  "zaicode.statusHelp.cancelled": "Cancelled: stopped by you.",
+  "zaicode.flow.agents": "Agents",
+  "zaicode.flow.agentsHelp":
+    "Who does the work: reusable workers with instructions and a model pool",
+  "zaicode.flow.agentsCount": "{total} ({enabled} on)",
+  "zaicode.flow.queue": "Tasks",
+  "zaicode.flow.queueHelp": "What to do: tasks wait in line and run up to the parallel limit",
+  "zaicode.flow.queueCount": "{waiting} waiting · {running} running",
+  "zaicode.flow.results": "Results",
+  "zaicode.flow.resultsHelp": "What came out: click a task for its result and session",
+  "zaicode.flow.resultsCount": "{done} done",
+  "zaicode.flow.attention": " · {attention} need you",
+  "zaicode.flow.autoOn": "Autopilot: new tasks start automatically",
+  "zaicode.flow.autoOff": "Autopilot off: you start tasks by hand",
+  "zaicode.flow.autoOffWaiting": "Autopilot off: tasks wait for Run",
+  "zaicode.autopilot.on": "Autopilot: on",
+  "zaicode.autopilot.off": "Autopilot: off",
+  "zaicode.autopilot.help":
+    "On: a task starts as soon as it is added or a slot frees. Off: tasks wait until you press Run.",
+  "zaicode.unavailable": "ZAICODE services are unavailable on this host.",
+  "zaicode.roster.title": "Agents",
+  "zaicode.roster.modes": "Create agent from mode — choose a pool, then Save",
+  "zaicode.roster.empty":
+    "No agents yet. An agent is a reusable worker: name + instructions + model pool.",
+  "zaicode.roster.diagnostics": "{count} stored agent definition(s) need repair.",
+  "zaicode.roster.queueDepth": "queue {count}",
+  "zaicode.queue.filterAll": "All",
+  "zaicode.queue.empty": "No tasks yet.",
+  "zaicode.queue.diagnostics": "{count} stored job(s) need repair.",
+  "zaicode.queue.attempt": "attempt {count}",
+  "zaicode.queue.concurrency": "Parallel {running}/{limit}",
+  "zaicode.editor.title": "Agent",
+  "zaicode.editor.createTitle": "New agent",
+  "zaicode.editor.editTitle": "Edit agent",
+  "zaicode.field.name": "Name",
+  "zaicode.field.role": "Role",
+  "zaicode.field.template": "Start from template",
+  "zaicode.field.templateHint":
+    "Prefills role, instructions and permissions. Edit freely, then Save to create a persistent agent.",
+  "zaicode.field.instructions": "Instructions",
+  "zaicode.field.reasoning": "Reasoning level",
+  "zaicode.field.backend": "Routing backend",
+  "zaicode.backend.direct": "Direct",
+  "zaicode.backend.saifren": "SAIFREN",
+  "zaicode.backend.sairoute": "SAIRoute",
+  "zaicode.backend.9router": "9router",
+  "zaicode.route.unresolved": "route-unresolved — no execution route",
+  "zaicode.field.planOnly": "Read-only (plan) permissions (default: yolo, full access)",
+  "zaicode.field.enabled": "Enabled",
+  "zaicode.field.assignAgent": "Agent",
+  "zaicode.field.title": "Task title",
+  "zaicode.field.priority": "Priority",
+  "zaicode.field.delegateTo": "Delegate to",
+  "zaicode.field.permissionMode": "Permission mode",
+  "zaicode.action.create": "Create",
+  "zaicode.action.save": "Save",
+  "zaicode.action.cancel": "Cancel",
+  "zaicode.action.edit": "Edit",
+  "zaicode.action.enable": "Enable",
+  "zaicode.action.disable": "Disable",
+  "zaicode.action.queue": "Queue task",
+  "zaicode.action.dispatch": "Dispatch",
+  "zaicode.action.dispatchQueue": "Dispatch queue",
+  "zaicode.action.dispatchQueue.help": "Start eligible Ready jobs up to the concurrency limit.",
+  "zaicode.queue.concurrencyHelp":
+    "Running jobs / concurrency limit. At the limit, no new job starts until a slot frees.",
+  "zaicode.action.cancelJob": "Cancel task",
+  "zaicode.action.retry": "Retry",
+  "zaicode.action.resume": "Resume",
+  "zaicode.action.remove": "Remove",
+  "zaicode.action.moveUp": "Move up",
+  "zaicode.action.moveDown": "Move down",
+  "zaicode.action.refresh": "Refresh",
+  "zaicode.action.concurrencyUp": "Increase concurrency",
+  "zaicode.action.concurrencyDown": "Decrease concurrency",
+  "zaicode.inspector.title": "Inspector",
+  "zaicode.inspector.empty":
+    "Pick something: an agent on the left shows its setup; a task in the middle shows its status, result and session.",
+  "zaicode.inspector.started": "Started",
+  "zaicode.inspector.finished": "Finished",
+  "zaicode.inspector.session": "Session",
+  "zaicode.inspector.configuredBackend": "Configured backend",
+  "zaicode.inspector.routeStatus": "Route status",
+  "zaicode.inspector.resolvedSelection": "Resolved runtime provider/model",
+  "zaicode.inspector.configuredSection": "Configured",
+  "zaicode.inspector.resolvedSection": "Resolved",
+  "zaicode.inspector.resolvedPending": "Not resolved yet",
+  "zaicode.inspector.retryOf": "Retry of",
+  "zaicode.inspector.delegation": "Delegates to",
+  "zaicode.inspector.error": "Error",
+  "zaicode.inspector.result": "Result",
+  "zaicode.inspector.children": "Child tasks",
+  "zaicode.inspector.queueDepth": "Queue depth",
+  "zaicode.settings.productTitle": "Product",
+  "zaicode.settings.productDescription":
+    "ZAICODE is an operator-oriented multi-agent workspace built on the upstream ZAICODE runtime.",
+  "zaicode.settings.productName": "Product name",
+  "zaicode.settings.upstream": "Upstream",
+  "zaicode.settings.capability.accountFreeWorkspace": "{enabled} account-free workspace",
+  "zaicode.settings.capability.agentDefinitions": "{enabled} persistent agent definitions",
+  "zaicode.settings.capability.jobQueue": "{enabled} durable operator job queue",
+  "zaicode.settings.capability.boundedOrchestration": "{enabled} bounded coordinator delegation",
+  "zaicode.settings.concurrencyTitle": "Queue concurrency",
+  "zaicode.settings.concurrencyDescription":
+    "Maximum jobs running per workspace. The limit is enforced by storage state, not UI state.",
+  "zaicode.settings.templatesTitle": "Agent templates",
+  "zaicode.settings.templatesDescription":
+    "{count} agents defined. Templates are starting points; edit freely afterwards.",
+  "zaicode.settings.manageHint":
+    "Manage agents, tasks, and the queue in the ZAICODE workspace (sidebar -> ZAICODE).",
+  "zaicode.status.draft": "Draft",
+  "zaicode.status.queued": "Queued",
+  "zaicode.status.ready": "Ready",
+  "zaicode.status.running": "Running",
+  "zaicode.status.waiting": "Waiting",
+  "zaicode.status.blocked": "Blocked",
+  "zaicode.status.completed": "Completed",
+  "zaicode.status.failed": "Failed",
+  "zaicode.status.cancelled": "Cancelled",
+  "zaicode.agentStatus.offline": "Offline",
+  "zaicode.agentStatus.idle": "Idle",
+  "zaicode.agentStatus.running": "Running",
+  "zaicode.agentStatus.blocked": "Blocked",
+  "zaicode.role.coordinator": "Coordinator",
+  "zaicode.role.implementer": "Implementer",
+  "zaicode.role.auditor": "Auditor",
+  "zaicode.role.researcher": "Researcher",
+  "zaicode.role.custom": "Custom",
+  "zaicode.subtitle":
+    "Agent team: agents take tasks from the queue and each task runs as its own chat session",
+  "zaicode.field.pool": "Model pool",
+  "zaicode.field.poolHint":
+    "Pools are 9router combos exposed by the SAIRoute provider (Settings → Models). Any other provider model works too.",
+  "zaicode.pool.hint.saifren": "Free — every pool model reachable from the internet",
+  "zaicode.pool.hint.saiopp": "Paid — deep thinking models",
+  "zaicode.pool.none": "No providers configured. Add the SAIRoute provider in Settings → Models.",
+  "zaicode.pool.noRouter":
+    "No SAIRoute/9router provider found. Add one in Settings → Models to get the SAIFREN / SAIOPP pools.",
+  "zaicode.pool.otherModels": "Other models",
+  "zaicode.route.directReady":
+    "Pool selected. Dispatch runs the task in a new session on this pool.",
+  "zaicode.route.directNeedsSelection": "Pick a model pool before dispatching tasks to this agent.",
+  "zaicode.icons.title": "Icons",
+  "zaicode.icons.reset": "Reset all",
+  "zaicode.icons.hint":
+    "Every icon placeholder is a slot. Paste an image URL, a data: URI, or a short text/emoji to swap it live; empty restores the default.",
+  "zaicode.icons.placeholder": "default",
+  "zaicode.action.close": "Close",
+  "zaicode.help.toggle": "Guide",
+  "zaicode.help.hide": "Hide",
+  "zaicode.help.what":
+    "ZAICODE is your agent team and sub-agent platoon. Agents do work -> task queue dispatches them -> results stream to sessions.",
+  "zaicode.help.step1":
+    "1. Agents & Modes (left): Hunter, Tester, Cleaner, Wikier, Translator and custom roles. Click a mode to activate it, then assign tasks in the queue to release the agent.",
+  "zaicode.help.step2":
+    "2. Queue (middle): New task -> describe the work -> pick an agent -> Add. With Autopilot on it starts by itself.",
+  "zaicode.help.step3":
+    "3. Details (right): click a task to see its status, error, result and open its chat session. Parallel N limits how many run at once.",
+  "zaicode.help.pools":
+    "Pools: SAIRoute is your 9router provider. SAIFREN = free internet models, SAIOPP = paid deep-thinking models.",
+  "zaicode.profiles.title": "Profiles",
+  "zaicode.profiles.add": "New profile",
+  "zaicode.profiles.name": "Name",
+  "zaicode.profiles.icon": "Icon",
+  "zaicode.profiles.remove": "Delete this profile",
+  "zaicode.palette.title": "Wintage palette",
+  "zaicode.palette.crisp": "Pixel mode (no antialiasing)",
+  "zaicode.palette.none": "Upstream colours (no palette)",
   "settings.subagents.description":
-    "Manage user-level subagent Markdown files consumed by ZCode Agent.",
+    "Manage user-level subagent Markdown files consumed by ZAICODE Agent.",
   "settings.subagents.workspaceScopeUnsupported":
     "Workspace-level creation or editing is unsupported",
   "settings.subagents.searchPlaceholder": "Search subagents...",
@@ -3674,7 +3947,7 @@ const enUS: Record<string, string> = {
   "settings.plugins.description":
     "Enable or disable installed plugins. Plugins bundle skills, commands, hooks, and MCP servers.",
   "settings.plugins.store.subtitle":
-    "Extend ZCode with skills, commands, and MCP servers from plugins",
+    "Extend ZAICODE with skills, commands, and MCP servers from plugins",
   "settings.plugins.store.searchPlaceholder": "Search plugins",
   "settings.plugins.store.searchResults": "Search results ({count})",
   "settings.plugins.store.searchEmpty": "No plugins match your search",
@@ -3881,10 +4154,10 @@ const enUS: Record<string, string> = {
   "settings.plugins.import.mode.copy": "Copy",
   "settings.plugins.import.mode.symlink": "Symlink",
   "settings.plugins.import.mode.copy.description":
-    "Copy the full plugin directory into ZCode and register it in plugins.dirs. Later changes in the external agent directory will not sync automatically.",
+    "Copy the full plugin directory into ZAICODE and register it in plugins.dirs. Later changes in the external agent directory will not sync automatically.",
   "settings.plugins.import.mode.symlink.description":
-    "Create a directory link to the external agent plugin and register it in plugins.dirs. ZCode follows later source changes, but the plugin depends on that source path remaining available.",
-  "settings.plugins.import.importing": "Importing plugins into ZCode",
+    "Create a directory link to the external agent plugin and register it in plugins.dirs. ZAICODE follows later source changes, but the plugin depends on that source path remaining available.",
+  "settings.plugins.import.importing": "Importing plugins into ZAICODE",
   "settings.plugins.import.imported": "Imported",
   "settings.plugins.import.skipped": "Skipped",
   "settings.plugins.import.failed": "Failed",
@@ -3893,9 +4166,9 @@ const enUS: Record<string, string> = {
   "settings.plugins.import.finish": "Done",
   "settings.commands.title": "Commands",
   "settings.commands.description":
-    "Manage ZCode Agent .md command files. Commands can be invoked with /command-name in chat.",
+    "Manage ZAICODE Agent .md command files. Commands can be invoked with /command-name in chat.",
   "settings.commands.sourceFilterLabel": "Source filter",
-  "settings.commands.source.zcodeAgent": "ZCode Agent",
+  "settings.commands.source.zcodeAgent": "ZAICODE Agent",
   "settings.commands.add": "New",
   "settings.commands.addNew": "New command",
   "settings.commands.addDescription":
@@ -3955,10 +4228,10 @@ const enUS: Record<string, string> = {
   "settings.commands.import.mode.copy": "Copy",
   "settings.commands.import.mode.symlink": "Symlink",
   "settings.commands.import.mode.copy.description":
-    "Copy the command file into ZCode. Later changes in the external agent file will not sync automatically.",
+    "Copy the command file into ZAICODE. Later changes in the external agent file will not sync automatically.",
   "settings.commands.import.mode.symlink.description":
-    "Create a file link to the external agent command. ZCode follows later source changes, but the command depends on that source path remaining available.",
-  "settings.commands.import.importing": "Importing commands into ZCode",
+    "Create a file link to the external agent command. ZAICODE follows later source changes, but the command depends on that source path remaining available.",
+  "settings.commands.import.importing": "Importing commands into ZAICODE",
   "settings.commands.import.imported": "Imported",
   "settings.commands.import.skipped": "Skipped",
   "settings.commands.import.failed": "Failed",
@@ -4054,8 +4327,8 @@ const enUS: Record<string, string> = {
   "settingsSync.action.rescanning": "Scanning...",
   "settingsSync.action.importSelected": "Import selected",
   "settingsSync.action.importing": "Importing...",
-  "settingsSync.action.finish": "Start using ZCode",
-  "settingsSync.agent.zcode": "ZCode Agent",
+  "settingsSync.action.finish": "Start using ZAICODE",
+  "settingsSync.agent.zcode": "ZAICODE Agent",
   "settingsSync.agent.claudeCode": "Claude Code",
   "settingsSync.agent.codexCli": "Codex CLI",
   "settingsSync.agent.openCode": "OpenCode",
@@ -4104,17 +4377,17 @@ const enUS: Record<string, string> = {
   "settingsSync.discovery.description":
     "Importable agent settings are no longer scanned automatically.",
   "settingsSync.discovery.helper":
-    "Only missing items will be imported and your current ZCode settings will not be overwritten.",
+    "Only missing items will be imported and your current ZAICODE settings will not be overwritten.",
   "settingsSync.discovery.agentCount": "Agents found: {count}",
   "settingsSync.discovery.categoryCount": "Categories found: {count}",
   "settingsSync.discovery.error": "Scan failed: {error}",
   "settingsSync.discovery.continue": "Continue",
-  "onboarding.dialog.title": "Welcome to ZCode",
+  "onboarding.dialog.title": "Welcome to ZAICODE",
   "onboarding.dialog.description": "Choose how to start your first session.",
   "onboarding.wizard.label": "Migration guide",
   "onboarding.welcome.eyebrow": "First run setup",
-  "onboarding.welcome.title": "Welcome to ZCode",
-  "onboarding.welcome.start": "Start ZCode",
+  "onboarding.welcome.title": "Welcome to ZAICODE",
+  "onboarding.welcome.start": "Start ZAICODE",
   "onboarding.welcome.migrate": "Migration Guide",
   "onboarding.welcome.helper":
     "Import existing tool settings now, or skip and continue later from Settings.",
@@ -4136,7 +4409,7 @@ const enUS: Record<string, string> = {
   "onboarding.stepDescription.commandsImport":
     "Import selected commands from external agents before the final migration.",
   "onboarding.stepDescription.migration":
-    "Start migration and wait while ZCode imports your selections.",
+    "Start migration and wait while ZAICODE imports your selections.",
   "onboarding.sessions.empty":
     "No workspaces yet. Scan local history, then pick workspaces to migrate.",
   "onboarding.sessions.count": "{count} sessions",
@@ -4154,7 +4427,7 @@ const enUS: Record<string, string> = {
   "onboarding.agentsFile.error": "Could not check AGENTS.md migration status: {error}",
   "onboarding.agentsFile.confirmTitle": "Overwrite default AGENTS.md?",
   "onboarding.agentsFile.confirmDescription":
-    "ZCode will copy {source} to {target}.\nIf the target file already exists, the ZCode default AGENTS configuration will be overwritten.",
+    "ZAICODE will copy {source} to {target}.\nIf the target file already exists, the ZAICODE default AGENTS configuration will be overwritten.",
   "onboarding.agentsFile.confirmAction": "Overwrite and migrate",
   "onboarding.finish.summary.label.imported": "Imported",
   "onboarding.finish.summary.label.skipped": "Skipped",
@@ -4235,8 +4508,8 @@ const enUS: Record<string, string> = {
   "chat.emptyResult.description":
     "This task finished without any chat content. It may have been stopped before the model produced a response.",
   "chat.placeholder.newTask":
-    "Ask ZCode anything, @ to add context, / for commands or capabilities",
-  "chat.placeholder.newTaskMobile": "Ask ZCode anything…",
+    "Ask ZAICODE anything, @ to add context, / for commands or capabilities",
+  "chat.placeholder.newTaskMobile": "Ask ZAICODE anything…",
   "chat.placeholder.followUpAsk": "Ask for follow-up changes",
   "chat.placeholder.followUpQueue": "Keep typing to queue follow-up changes",
   "chat.placeholder.loading": "Initializing task...",
@@ -4498,7 +4771,7 @@ const enUS: Record<string, string> = {
   "chat.compact.duplicateBlocked": "A compaction is already running or queued.",
   "chat.modelSwitch.contextWindowGuard.title": "Compress context before switching models",
   "chat.modelSwitch.contextWindowGuard.description":
-    "This conversation has used {used} tokens, which exceeds {modelName}'s available context of {target} tokens after reserving maximum output.\nCompress the current conversation with the current model first. If the compressed context fits, ZCode will continue switching models.",
+    "This conversation has used {used} tokens, which exceeds {modelName}'s available context of {target} tokens after reserving maximum output.\nCompress the current conversation with the current model first. If the compressed context fits, ZAICODE will continue switching models.",
   "chat.modelSwitch.contextWindowGuard.compress": "Compress",
   "chat.modelSwitch.contextWindowGuard.runningBlocked":
     "This conversation has used more context than the target model's available context after reserving maximum output. The conversation must be compressed before switching models, but the current task is still running and context compression cannot run now. Wait for the task to finish, then switch models again.",
@@ -4511,11 +4784,11 @@ const enUS: Record<string, string> = {
     "Computer Use is idle — it will start automatically on first use",
   "chat.toolbar.computerUse.tooltip.starting": "Enabling Computer Use plugin…",
   "chat.toolbar.computerUse.tooltip.ready":
-    "Computer Use ready — just describe what you want ZCode to do",
+    "Computer Use ready — just describe what you want ZAICODE to do",
   "chat.toolbar.computerUse.tooltip.permissionRequired":
     "Missing macOS permissions — click to grant",
   "chat.toolbar.computerUse.tooltip.error":
-    "Computer Use enablement failed. Please restart ZCode app and retry, or ask ZCode to investigate the logs",
+    "Computer Use enablement failed. Please restart ZAICODE app and retry, or ask ZAICODE to investigate the logs",
   "chat.toolbar.computerUse.tooltip.sessionBusy":
     "A conversation is running. Computer Use can't be toggled right now — try again after it finishes.",
   "chat.toolbar.mode.description":
@@ -4816,7 +5089,7 @@ const enUS: Record<string, string> = {
     "Could not reach the local agent; global workflows are unavailable.",
   "workflows.hub.empty.title": "No saved workflows in your open projects yet",
   "workflows.hub.empty.hint":
-    "Design a workflow with ZCode in chat, then have it save the workflow to a project once it works. Projects that aren't open don't appear here.",
+    "Design a workflow with ZAICODE in chat, then have it save the workflow to a project once it works. Projects that aren't open don't appear here.",
   "workflows.hub.noWorkspace": "Open a workspace to see its workflows.",
   "workflows.hub.loadError": "Could not read workflows: {error}",
   "workflows.hub.invalid": "{count} files could not be read",
@@ -4879,7 +5152,7 @@ const enUS: Record<string, string> = {
   "workflows.hub.detail.description": "Description",
   "workflows.hub.detail.whenToUse": "When to use",
   "workflows.hub.detail.whenToUse.help":
-    "A routing hint for ZCode: when this workflow is the right pick.",
+    "A routing hint for ZAICODE: when this workflow is the right pick.",
   "workflows.hub.detail.args": "Arguments",
   "workflows.hub.detail.args.name": "Name",
   "workflows.hub.detail.args.type": "Type",
@@ -4900,7 +5173,7 @@ const enUS: Record<string, string> = {
   "workflows.hub.detail.meta.descriptionRequired": "Description is required",
   "workflows.hub.detail.script": "Script",
   "workflows.hub.detail.script.note":
-    "The script is read-only. To change it, revise it with ZCode in chat and save a new version.",
+    "The script is read-only. To change it, revise it with ZAICODE in chat and save a new version.",
   "workflows.hub.detail.script.copy": "Copy script",
   "workflows.hub.detail.loadError": "Could not read this workflow: {reason}",
   "workflows.hub.detail.notFound": "This workflow is no longer in the project.",
@@ -5397,7 +5670,7 @@ const enUS: Record<string, string> = {
   "chat.slash.subagents.title": "Agents",
   "chat.slash.subagents.empty": "No matching agents",
   "chat.slash.emptyUnavailable":
-    "No slash commands have been broadcast for the current ZCode Agent session",
+    "No slash commands have been broadcast for the current ZAICODE Agent session",
   "chat.slash.emptyResults": "No matching slash commands",
   // Errors
   "chat.error.connectionLost": "Connection to agent lost",
@@ -5418,6 +5691,7 @@ const enUS: Record<string, string> = {
   "chat.error.feedback": "Report issue",
   "chat.error.feedbackOpened": "Feedback opened with the error context attached",
   "chat.error.noAvailableModel": "No model available. Upgrade or set a custom model.",
+  "chat.error.zaicodeNoExecutionRoutes": "No execution routes configured.",
   "chat.error.sendFailed": "Failed to send. Try again later.",
   "chat.error.modelSettings": "Model settings",
   "chat.error.setModels": "Set",
@@ -5440,9 +5714,9 @@ const enUS: Record<string, string> = {
   "chat.quota.startPlan.concurrentLimit.switchModel":
     "The current model request concurrency limit has been reached. Switch models to continue your current task.",
   "chat.quota.mcp.quotaExhausted":
-    'ZCode MCP "{server}" has used up today\'s quota. It resets tomorrow.',
+    'ZAICODE MCP "{server}" has used up today\'s quota. It resets tomorrow.',
   "chat.quota.mcp.codingPlanRequired":
-    'No ZCode MCP "{server}" quota. Sign in or get a Coding Plan to use it.',
+    'No ZAICODE MCP "{server}" quota. Sign in or get a Coding Plan to use it.',
   "chat.quota.providerLimited":
     "The current account quota or plan limit has been reached. Upgrade or adjust the plan to continue.",
   "chat.quota.action.upgrade": "Upgrade",
@@ -5585,7 +5859,7 @@ const enUS: Record<string, string> = {
   "planTool.guidance.enterMode": "Entered plan mode",
   "chat.permission.switchMode.placeholder": "Implementation plan",
 
-  // ZCode Agent
+  // ZAICODE Agent
   "zcode.unavailable": "AI agent not available",
   "zcode.initFailed": "Failed to start AI agent",
   "zcode.error.TASK_OWNED_BY_OTHER_HOST": "This task is already running in another connected view.",
@@ -5643,7 +5917,7 @@ const enUS: Record<string, string> = {
   "resourceManager.cpu": "CPU",
   "resourceManager.memory": "Memory",
   "resourceManager.storage": "Storage",
-  "resourceManager.appUsage": "ZCode",
+  "resourceManager.appUsage": "ZAICODE",
   "resourceManager.systemUsage": "System",
   "resourceManager.category.base": "Base services",
   "resourceManager.category.builtinPlugin": "Built-in plugins",
@@ -5887,7 +6161,7 @@ const enUS: Record<string, string> = {
   "feedback.submit.template.section.errorSummaryLine": "Error Summary: {message}",
   "feedback.submit.template.section.errorDetail": "Error Details",
   "feedback.submit.template.section.errorTraceId": "TraceID: {traceId}",
-  "feedback.submit.template.section.copyErrorHeading": "ZCode Error Info",
+  "feedback.submit.template.section.copyErrorHeading": "ZAICODE Error Info",
   "feedback.submit.template.section.notProvided": "Not provided",
   "feedback.submit.template.section.remoteLogEmpty": "No connection logs captured",
   "feedback.submit.template.section.taskFeedbackTitle": "Feedback about task: {title}",
@@ -6047,7 +6321,7 @@ const enUS: Record<string, string> = {
   "automations.statusFilter.completed": "Completed",
   "automations.statusFilter.failed": "Failed",
   "automations.statusFilter.empty": "No tasks match this filter",
-  "offPeak.keepAwakeBanner": "Keep your computer awake while ZCode is running a chat.",
+  "offPeak.keepAwakeBanner": "Keep your computer awake while ZAICODE is running a chat.",
   "offPeak.sectionTitle": "Idle-time tasks",
   "offPeak.createButton": "Create idle-time task",
   "offPeak.templates.sectionTitle": "Idle-time task template",
@@ -6104,7 +6378,7 @@ const enUS: Record<string, string> = {
   "offPeak.form.titlePlaceholder": "e.g. Nightly refactor",
   "offPeak.form.instructionsLabel": "Instructions",
   "offPeak.form.instructionsPlaceholder":
-    "Describe a task ZCode can work on in the background, including the expected result and any constraints…",
+    "Describe a task ZAICODE can work on in the background, including the expected result and any constraints…",
   "offPeak.form.permissionWarning":
     "Idle-time runs are unattended. Actions that need confirmation will pause the task until you respond.",
   "offPeak.form.modelLabel": "Model",
@@ -6299,9 +6573,9 @@ const enUS: Record<string, string> = {
   "automations.runs.nextPage": "Next",
   // CUA (Computer Use)
   "chat.cuaReadiness.toolsNotLoaded":
-    "ZCode Computer Use is still preparing — its tools aren't loaded yet ({count} loaded). Grant the permissions below; tools appear once the helper is ready.",
+    "ZAICODE Computer Use is still preparing — its tools aren't loaded yet ({count} loaded). Grant the permissions below; tools appear once the helper is ready.",
   "chat.cuaReadiness.toolsPreparing":
-    "ZCode Computer Use is still preparing — its tools aren't loaded yet. Grant the permissions below; tools appear once the helper is ready.",
+    "ZAICODE Computer Use is still preparing — its tools aren't loaded yet. Grant the permissions below; tools appear once the helper is ready.",
   "chat.toolCall.cua.requestAccess": "Check Computer Use access",
   "chat.toolCall.cua.appName": "Computer Use",
   "chat.toolCall.cua.group.completedLabel": "Computer Use",
@@ -6429,9 +6703,9 @@ const enUS: Record<string, string> = {
   "cuaPermission.modal.restartButton": "Restart Helper",
   "cuaPermission.modal.restarting": "Restarting Helper…",
   "cuaPermission.modal.restartFailed": "Couldn't restart Helper: {error}",
-  "cuaPermission.modal.relaunchAppButton": "Restart ZCode",
+  "cuaPermission.modal.relaunchAppButton": "Restart ZAICODE",
   "cuaPermission.modal.relaunchAppHint":
-    "Still not working after restarting Helper? Restart ZCode to fully reload the Helper process.",
+    "Still not working after restarting Helper? Restart ZAICODE to fully reload the Helper process.",
   "cuaPermission.status.granted": "Granted",
   "cuaPermission.status.missing": "Missing",
   "cuaPermission.status.unknown": "Unknown",
@@ -6445,7 +6719,7 @@ const enUS: Record<string, string> = {
   "cuaPermission.tools.agentUpdateRequired":
     "The connected Agent is too old for a safe readiness check. Update or restart it, then check again.",
   "cuaPermission.tools.untrustedRuntime":
-    "Computer Use tools were found, but they did not come from the verified ZCode plugin. Review the plugin installation, then check again.",
+    "Computer Use tools were found, but they did not come from the verified ZAICODE plugin. Review the plugin installation, then check again.",
   "cuaPermission.perm.accessibility": "Accessibility",
   "cuaPermission.perm.accessibility.purpose": "Read/drive UI elements + synthesize input",
   "cuaPermission.perm.screenRecording": "Screen Recording",
@@ -6456,7 +6730,7 @@ const enUS: Record<string, string> = {
     "Please upgrade macOS before using it. Permission setup cannot be completed on older versions.",
   "cuaPermission.ready": "Permissions ready",
   "cuaPermission.ready.sessionValidationHint":
-    "ZCode will verify the Computer Use tools against the exact session when your first session starts.",
+    "ZAICODE will verify the Computer Use tools against the exact session when your first session starts.",
   "settings.computerUse.title": "Computer Use",
   "settings.computerUse.toggleLabel": "Enable Computer Use",
   "settings.computerUse.toggleDescription":

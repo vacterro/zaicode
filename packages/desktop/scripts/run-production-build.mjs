@@ -41,6 +41,7 @@ export function createDesktopProductionBuildPlan({ cwd, baseEnv = process.env })
   const env = {
     ...baseEnv,
     NODE_ENV: "production",
+    NODE_OPTIONS: `${baseEnv.NODE_OPTIONS || ""} --max-old-space-size=8192`.trim(),
   };
 
   return [

@@ -1,4 +1,4 @@
-import type { Locale } from "@zcode/shared";
+import { isZaicodeProductMode, type Locale } from "@zcode/shared";
 
 /**
  * Windows CUA 操作提示条的呈现层：文案、尺寸与 HTML。
@@ -12,6 +12,11 @@ export const INDICATOR_CARD_TOP_OFFSET = 12;
 export const INDICATOR_SHADOW_INSET = { top: 6, right: 8, bottom: 12, left: 8 } as const;
 
 function indicatorCopy(locale: Locale): { text: string; width: number } {
+  if (isZaicodeProductMode()) {
+    return locale === "zh-CN"
+      ? { text: "ZAICODE 正在操作电脑", width: 250 }
+      : { text: "ZAICODE is controlling your computer", width: 324 };
+  }
   return locale === "zh-CN"
     ? { text: "ZCode 正在操作电脑", width: 234 }
     : { text: "ZCode is controlling your computer", width: 308 };

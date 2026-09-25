@@ -1,6 +1,6 @@
 /* eslint-disable max-lines */
 import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
-import type { ZCodeProvider } from "@zcode/shared";
+import { isZaicodeProductMode, type ZCodeProvider } from "@zcode/shared";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { createPortal } from "react-dom";
 import { PaletteIcon, WandSparkles } from "lucide-react";
@@ -172,7 +172,7 @@ export function MentionPlugin({
     sessionId ?? null,
     provider,
     deferredActiveQuery,
-    isOpen && isSkillTrigger,
+    isOpen && (isSkillTrigger || (isZaicodeProductMode() && isContextTrigger)),
     false,
     intl.formatMessage({ id: "chat.mention.skills.empty" }),
     intl.formatMessage({ id: "chat.mention.skills.title" }),
@@ -184,7 +184,7 @@ export function MentionPlugin({
     workspacePath,
     workspaceIdentity,
     deferredActiveQuery,
-    isOpen && isContextTrigger,
+    isOpen && isContextTrigger && !isZaicodeProductMode(),
     intl.formatMessage({ id: "chat.mention.files.empty" }),
     intl.formatMessage({ id: "chat.mention.files.title" }),
     fileDefaultPreviewLimit,

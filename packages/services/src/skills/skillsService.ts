@@ -59,7 +59,9 @@ const CLAUDE_PLUGIN_MANIFEST_PATH = join(".claude-plugin", "plugin.json");
 const CODEX_PLUGIN_MANIFEST_PATH = join(".codex-plugin", "plugin.json");
 
 /** 对齐 apps/zcode-cli/packages/adapters/src/skills/index.ts:19 */
-const MAX_DESCRIPTION_LENGTH = 1024;
+// 4096: real skills (SAIPEN 1655 chars) must load untruncated by default;
+// 1024 was an arbitrary cut that surfaced as an error for every valid skill.
+const MAX_DESCRIPTION_LENGTH = 4096;
 function resolveUserHomeDir() {
   const envHome = process.env.HOME?.trim() || process.env.USERPROFILE?.trim();
   return envHome && envHome.length > 0 ? envHome : homedir();
@@ -930,16 +932,21 @@ async function discoverSkills(params: {
         continue;
       }
 
-      const description = parsed.hasFrontmatter ? parsed.description.trim() : "";
-      if (description.length > MAX_DESCRIPTION_LENGTH) {
+      const rawDescription = parsed.hasFrontmatter ? parsed.description.trim() : "";
+      // ZAICODE: 超长 description 以前直接丢弃整个 skill（例如 SAIPEN 的描述 >1024），
+      // 导致 skill 完全不可用。改为截断并给出 warning，skill 本体仍可加载。
+      const description =
+        rawDescription.length > MAX_DESCRIPTION_LENGTH
+          ? `${rawDescription.slice(0, MAX_DESCRIPTION_LENGTH - 1)}…`
+          : rawDescription;
+      if (rawDescription.length > MAX_DESCRIPTION_LENGTH) {
         diagnostics.push({
           code: "skill_description_too_long",
-          severity: "error",
-          message: `Skill description is too long (>${MAX_DESCRIPTION_LENGTH}): ${resolvedName}`,
+          severity: "warning",
+          message: `Skill description is too long (>${MAX_DESCRIPTION_LENGTH}), truncated: ${resolvedName}`,
           path: skillPath,
           skillName: resolvedName,
         });
-        continue;
       }
 
       // frontmatter 扩展字段通常来自不同 skill 生态的元信息。

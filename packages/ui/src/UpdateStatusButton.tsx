@@ -1,3 +1,4 @@
+import { isZaicodeProductMode } from "@zcode/shared";
 import type { IPlatformService, UpdateStatePayload } from "@zcode/shared";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "@/components/lib/utils.js";
@@ -11,7 +12,7 @@ import { formatUpdateReleaseDate, getLocalizedUpdateReleaseNotes } from "@/updat
 import { resolveUpdateButtonResponsiveClasses } from "@/updateStatusButtonLayout.js";
 import { deriveUpdateStatusViewModel } from "@/updateStatusModel.js";
 
-export function UpdateStatusButton({
+function UpdateStatusButtonImpl({
   platform,
   version,
   updateState,
@@ -187,4 +188,13 @@ export function UpdateStatusButton({
       />
     </>
   );
+}
+
+/**
+ * ZAICODE 是本地构建的派生产品：上游更新通道发布的是官方 ZCode 安装包，
+ * 安装它会用上游版本覆盖 ZAICODE（丢失全部本地改动），所以产品模式下不显示更新入口。
+ */
+export function UpdateStatusButton(props: Parameters<typeof UpdateStatusButtonImpl>[0]) {
+  if (isZaicodeProductMode()) return null;
+  return <UpdateStatusButtonImpl {...props} />;
 }

@@ -43,12 +43,14 @@ export function RollingToolbarLabel({
   prefix,
   prefixClassName,
   value,
+  staticLabel = false,
 }: {
   label: string;
   className?: string;
   prefix?: string;
   prefixClassName?: string;
   value?: string;
+  staticLabel?: boolean;
 }) {
   const reducedMotion = usePrefersReducedMotion();
   const content =
@@ -61,7 +63,7 @@ export function RollingToolbarLabel({
       label
     );
 
-  if (reducedMotion) {
+  if (reducedMotion || staticLabel) {
     return (
       <span className={className} title={label}>
         {content}

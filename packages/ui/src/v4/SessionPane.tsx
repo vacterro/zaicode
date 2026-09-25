@@ -49,7 +49,13 @@ import {
   resolveConversationSharePublishErrorMessageId,
   sanitizeConversationShareWarnings,
 } from "@/lib/conversationShareError.js";
-import { localizeConversationShareUrl } from "@zcode/shared";
+import { isZaicodeProductMode, localizeConversationShareUrl } from "@zcode/shared";
+import { ZaicodeTodoGauge } from "@/v4/ZaicodeTodoGauge.js";
+import {
+  ZAICODE_FALLBACK_QUOTA_KINDS,
+  isOfficialGlmProvider,
+  pickZaicodeFallbackModel,
+} from "@/zaicode/zaicodeModelFallback.js";
 import type {
   ConversationShareAllowedArtifact,
   ConversationShareTurnPreflightResult,
@@ -125,6 +131,10 @@ import { ConversationDraftEmptyState } from "@/v4/ConversationDraftEmptyState.js
 import { ConversationDraftSuggestedPromptsContainer } from "@/v4/ConversationDraftSuggestedPromptsContainer.js";
 import { ConversationHeader, type PaneWorkspaceBadge } from "@/v4/ConversationHeader.js";
 import { ConversationQueuePanel } from "@/v4/ConversationQueuePanel.js";
+import { useZaicodeClearSession, useZaicodeSaipen } from "@/zaicode/zaicodeSaipen.js";
+import { adoptZaicodeComposerModel } from "@/zaicode/zaicodeDefaultModel.js";
+import { useZaicodeAutoSessionTitle } from "@/zaicode/zaicodeAutoTitle.js";
+import { useZaicodeAutoRetry } from "@/zaicode/zaicodeAutoRetry.js";
 import { projectPendingGuideQueue } from "@/v4/pendingGuideProjection.js";
 import { ConversationQuotaBanner } from "@/v4/ConversationQuotaBanner.js";
 import { PendingCommandRecoveryBanner } from "@/v4/PendingCommandRecoveryBanner.js";
@@ -382,6 +392,7 @@ function createSessionErrorKey(
   ].join(":");
 }
 
+const EMPTY_ZAICODE_RETRY_ROWS: ConversationSnapshot["rows"]["window"] = [];
 const EMPTY_SUBAGENT_PROJECTION: NonNullable<ConversationSnapshot["subagents"]> = {
   revision: 0,
   childSessionIds: [],
@@ -555,6 +566,11 @@ export function SessionPane({
   const platform = useOptionalPlatform();
   const { conversationShareService, modelSelectionService, zcodeSessionService, zcodeTaskService } =
     useServices();
+  const saipen = useZaicodeSaipen(isZaicodeProductMode() ? workspacePath : "", workspaceIdentity);
+  const autoSessionTitle = useZaicodeAutoSessionTitle();
+  const activeAutoTitleSessionRef = useRef<string | null>(null);
+  const autoTitleQueueRef = useRef<Promise<void>>(Promise.resolve());
+  activeAutoTitleSessionRef.current = focused && autoSessionTitle && !readOnly ? sessionId : null;
   const { intl, locale } = useZCodeIntl();
   const slashCommands = useSlashCommands(workspacePath, workspaceIdentity);
   const baseWorkspaceServices = useBaseWorkspaceServices();
@@ -593,6 +609,30 @@ export function SessionPane({
   const [lease, setLease] = useState<SessionLease | null>(null);
   const state = useConversationProjection(lease);
   const snapshot = state.snapshot;
+  useEffect(() => {
+    const title = saipen?.nextAction?.trim();
+    if (!isZaicodeProductMode() || !autoSessionTitle || !focused || readOnly || !sessionId || !title) {
+      return;
+    }
+    autoTitleQueueRef.current = autoTitleQueueRef.current.then(async () => {
+      if (activeAutoTitleSessionRef.current !== sessionId) return;
+      const current = title;
+      if (snapshot?.meta.title?.trim() === current) return;
+      try {
+        const meta = await zcodeTaskService.renameTask({
+          taskId: sessionId,
+          workspacePath,
+          ...(workspaceIdentity ? { workspaceIdentity } : {}),
+          title: current,
+        });
+        useZCodeSessionStore
+          .getState()
+          .upsertOptimisticTaskListItem(workspacePath, meta, workspaceIdentity);
+      } catch (error) {
+        logger.warn("[v4-pane] SAIPEN title update failed", error);
+      }
+    });
+  }, [autoSessionTitle, focused, readOnly, saipen?.nextAction, sessionId, snapshot?.meta.title, workspaceIdentity, workspacePath, zcodeTaskService]);
   const newlyCreatedSessionIdRef = useRef<string | null>(null);
   const shareDraft = useConversationShareSelectionStore((storeState) =>
     sessionId ? storeState.drafts[sessionId] : undefined,
@@ -3045,6 +3085,10 @@ export function SessionPane({
     [dispatchCommand, onSessionCreated, sessionId],
   );
 
+  // ZAICODE：编辑重发 / 重试沿用 Session 已持久化的模型。撞 GLM 额度后用户在 Composer
+  // 换成 SAIFREN，再撤销并重发时仍会打到 GLM（回归）。重放前先把 Session 模型对齐到
+  // Composer 当前选择；该函数在 dispatchConfigCas 定义后赋值。
+  const zaicodeAlignSessionModelRef = useRef<() => Promise<void>>(async () => {});
   const handleEdit = useCallback(
     async (
       target: ConversationRowTarget,
@@ -3052,26 +3096,39 @@ export function SessionPane({
       attachments?: readonly AttachmentRef[],
       workspaceMode: "preserve" | "rewind" = "preserve",
     ) => {
-      const current = snapshotRef.current;
-      if (!sessionId || current === null) return false;
+      if (!sessionId || snapshotRef.current === null) return false;
       if (!newText.trim() && (!attachments || attachments.length === 0)) {
         logger.warn("[v4-pane] edit 跳过：行内编辑内容为空且无附件");
         return false;
       }
-      const ack = await dispatchCommand(
+      await zaicodeAlignSessionModelRef.current();
+      const current = snapshotRef.current;
+      if (current === null) return false;
+      const editPayload = {
+        target,
+        newText,
+        workspaceMode,
+        // editUserQuery 的 attachments 缺省表示保留 canonical 原附件；
+        // 只有显式透传 []，CLI 才能区分“用户删除全部”与“调用方未修改附件”。
+        ...(attachments ? { attachments: [...attachments] } : {}),
+      };
+      let ack = await dispatchCommand(
         "editUserQuery",
-        {
-          target,
-          newText,
-          workspaceMode,
-          // editUserQuery 的 attachments 缺省表示保留 canonical 原附件；
-          // 只有显式透传 []，CLI 才能区分“用户删除全部”与“调用方未修改附件”。
-          ...(attachments ? { attachments: [...attachments] } : {}),
-        },
+        editPayload,
         sessionId,
         current.revision,
         current.logEpoch,
       );
+      if (ack.status === "stale" && isZaicodeProductMode()) {
+        // 模型对齐会推进 revision；投影尚未追上时按决策 revision 重放一次。
+        ack = await dispatchCommand(
+          "editUserQuery",
+          editPayload,
+          sessionId,
+          ack.revisionAtDecision,
+          current.logEpoch,
+        );
+      }
       if (ack.status !== "accepted" && ack.status !== "duplicate") {
         logger.warn(`[v4-pane] edit 被拒绝: ${ack.status} ${ack.reasonCode ?? ""}`);
         return false;
@@ -3084,18 +3141,30 @@ export function SessionPane({
 
   const dispatchRetryTurn = useCallback(
     async (target: ConversationRowTarget): Promise<CommandAck> => {
-      const current = snapshotRef.current;
-      if (!sessionId || current === null) {
+      if (!sessionId || snapshotRef.current === null) {
         throw new Error("retryTurn 缺少当前 session 投影");
       }
+      await zaicodeAlignSessionModelRef.current();
+      const current = snapshotRef.current;
+      if (current === null) throw new Error("retryTurn 缺少当前 session 投影");
       // retryTurn 是 CAS 命令：baseRevision 取当前投影 revision。
-      return dispatchCommand(
+      const ack = await dispatchCommand(
         "retryTurn",
         { target },
         sessionId,
         current.revision,
         current.logEpoch,
       );
+      if (ack.status === "stale" && isZaicodeProductMode()) {
+        return dispatchCommand(
+          "retryTurn",
+          { target },
+          sessionId,
+          ack.revisionAtDecision,
+          current.logEpoch,
+        );
+      }
+      return ack;
     },
     [dispatchCommand, sessionId],
   );
@@ -3339,6 +3408,23 @@ export function SessionPane({
     },
     [dispatchCommand, sessionId],
   );
+  zaicodeAlignSessionModelRef.current = async () => {
+    if (!isZaicodeProductMode() || !sessionId) return;
+    const selection = draftConfigRef.current.modelSelection;
+    const config = snapshotRef.current?.config;
+    if (!selection || !config) return;
+    if (config.provider === selection.providerId && config.model === selection.modelId) return;
+    const ack = await dispatchConfigCas("switchModelConfig", {
+      provider: selection.providerId,
+      model: selection.modelId,
+      thought: selection.options?.reasoningLevel ?? config.thought ?? "",
+    });
+    logger.info("[zaicode] replay aligned session model to composer selection", {
+      from: `${config.provider}/${config.model}`,
+      to: `${selection.providerId}/${selection.modelId}`,
+      status: ack?.status ?? "none",
+    });
+  };
   const telemetryDraftConfig = draftConfig;
   const ensureDraftPrewarmConfigBeforeSend = useCallback(
     async (targetSessionId: string) => {
@@ -3421,6 +3507,10 @@ export function SessionPane({
         branch: "composer-submission-intent",
       });
       handleDraftSelectModel(resolvedProvider, model);
+      // ZAICODE: the model picked here is what START runs next (no hidden engine binding).
+      if (isZaicodeProductMode() && adoptZaicodeComposerModel(resolvedProvider, model)) {
+        toast(`START now runs ${model} in the app (the sidebar subscription engine was released).`);
+      }
     },
     [draftConfigRef, handleDraftSelectModel],
   );
@@ -3584,6 +3674,27 @@ export function SessionPane({
       }
     });
   }, [dispatchCommand, sessionId]);
+
+  // ZAICODE CLEAR (in place): the composer strip asks this pane to empty its session.
+  const zaicodeClearRequest = useZaicodeClearSession((state) => state.request);
+  const consumeZaicodeClear = useZaicodeClearSession((state) => state.consume);
+  useEffect(() => {
+    if (!zaicodeClearRequest || readOnly || !sessionId) return;
+    if (zaicodeClearRequest.sessionId !== sessionId) return;
+    consumeZaicodeClear(zaicodeClearRequest.id);
+    logger.info("[zaicode] CLEAR: emptying the session in place", { sessionId });
+    void dispatchCommand("clearConversation", {}, sessionId)
+      .then((ack) => {
+        if (ack.status !== "accepted" && ack.status !== "noop") {
+          logger.warn(`[zaicode] clearConversation rejected: ${ack.status} ${ack.reasonCode ?? ""}`);
+          toast(`CLEAR failed: ${ack.message ?? ack.reasonCode ?? ack.status}`);
+        }
+      })
+      .catch((error) => {
+        logger.warn(`[zaicode] clearConversation failed: ${String(error)}`);
+        toast(`CLEAR failed: ${String(error)}`);
+      });
+  }, [consumeZaicodeClear, dispatchCommand, readOnly, sessionId, zaicodeClearRequest]);
 
   const handleResumeGoal = useCallback(() => {
     const current = snapshotRef.current;
@@ -3954,10 +4065,67 @@ export function SessionPane({
     usageStatsService: baseWorkspaceServices.usageStatsService,
     mcpUnavailableNotice,
   });
+  // ZAICODE：官方 GLM 触达配额/限流时，自动把下一次提交切到下一个可用模型（SAIRoute/SAIFREN），
+  // 不停在 Upgrade 上。切换的判据是「当前 provider 仍是 GLM」。去重 ref 只避免同一次撞墙内
+  // 重复弹 toast，一旦 provider 不再是 GLM（切换成功）就复位——这样 undo/重发把草稿恢复成
+  // GLM 再撞墙时会重新切到 SAIFREN，而不是被一次性键钉死在 GLM 上（回归修复）。
+  const zaicodeFallbackKeyRef = useRef<string | null>(null);
+  useEffect(() => {
+    const currentProvider = draftConfig.modelSelection?.providerId ?? snapshot?.config.provider;
+    if (!isOfficialGlmProvider(currentProvider)) {
+      // provider 已经不是 GLM：清掉去重键，下一次真正撞墙才会再切一次。
+      zaicodeFallbackKeyRef.current = null;
+      return;
+    }
+    if (!isZaicodeProductMode() || !quotaBanner.state.visible) return;
+    const kind = quotaBanner.state.kind;
+    if (!kind || !ZAICODE_FALLBACK_QUOTA_KINDS.has(kind)) return;
+    const fallback = pickZaicodeFallbackModel(modelSelectionView);
+    if (!fallback) return;
+    const key = `${sessionId ?? "draft"}:${kind}:${controlLastErrorKey ?? ""}`;
+    if (zaicodeFallbackKeyRef.current === key) return;
+    zaicodeFallbackKeyRef.current = key;
+    logger.info("[zaicode] GLM quota wall -> fallback model", { kind, fallback });
+    handleDraftSelectModel(fallback.providerId, fallback.modelId);
+    // 自动切换必须可见：否则用户只看到模型名悄悄变了。
+    toast(
+      intl.formatMessage(
+        { id: "zaicode.fallback.switched" },
+        {
+          fromModel: draftConfig.modelSelection?.modelId ?? snapshot?.config.model ?? "GLM",
+          toModel: fallback.modelId,
+        },
+      ),
+    );
+  }, [
+    controlLastErrorKey,
+    draftConfig.modelSelection?.modelId,
+    draftConfig.modelSelection?.providerId,
+    handleDraftSelectModel,
+    intl,
+    modelSelectionView,
+    quotaBanner.state.kind,
+    quotaBanner.state.visible,
+    sessionId,
+    snapshot?.config.model,
+    snapshot?.config.provider,
+  ]);
   const composerError =
     draftModelReadinessError ??
     sendSubmissionError ??
     (quotaBanner.takesOverError ? null : projectedComposerError);
+  // ZAICODE：回合报错（模型无内容、额度、断线……）后默认每 60 秒自动重试，最多 100 次，
+  // 不让工作停住；关闭错误横幅即停止本次错误的自动重试。
+  const zaicodeAutoRetry = useZaicodeAutoRetry({
+    enabled: isZaicodeProductMode() && !readOnly && !selectionSideChat,
+    sessionId,
+    error: projectedComposerError ? controlLastError : null,
+    errorKey: controlLastErrorKey,
+    phase: snapshot?.control.phase ?? null,
+    rows: snapshot?.rows.window ?? EMPTY_ZAICODE_RETRY_ROWS,
+    retry: dispatchRetryTurn,
+    edit: (target, text) => handleEdit(target, text),
+  });
   useEffect(() => {
     setSendSubmissionError(null);
   }, [sessionId]);
@@ -4425,6 +4593,9 @@ export function SessionPane({
       onRecoverCustomModelSelection={handleRecoverCustomModelSelection}
       onSendCompressionCommand={handleSendCompressionCommand}
       error={composerError}
+      {...(isZaicodeProductMode() && composerError && composerError === projectedComposerError
+        ? { zaicodeAutoRetry }
+        : {})}
       onDismissError={handleDismissComposerError}
       onOpenModelSettings={handleOpenModelSettings}
       onOpenModelUpgrade={handleOpenModelUpgrade}
@@ -4500,7 +4671,7 @@ export function SessionPane({
           onShown={quotaBanner.markShown}
           upgradeActionLabelId={quotaBanner.upgradeActionLabelId}
           onUpgrade={
-            quotaBanner.upgradeProviderId && codingPlanUpgradeDialog
+            !isZaicodeProductMode() && quotaBanner.upgradeProviderId && codingPlanUpgradeDialog
               ? handleOpenQuotaUpgrade
               : undefined
           }
@@ -4551,9 +4722,14 @@ export function SessionPane({
           snapshot={snapshot}
         />
       ) : null}
+      {isZaicodeProductMode() && composerNode && snapshot?.plan?.items.length ? (
+        <ZaicodeTodoGauge items={snapshot.plan.items} sessionId={sessionId} />
+      ) : null}
       {composerNode}
-      {/* 办公模式显示主动任务推荐；编程模式保留原有小型场景入口。 */}
-      {isDraft && (!isOfficeMode || sharedSettings?.proactiveSuggestionsEnabled === true) ? (
+      {/* 办公模式显示主动任务推荐；编程模式保留原有小型场景入口。ZAICODE 主屏不展示推荐 prompt。 */}
+      {!isZaicodeProductMode() &&
+      isDraft &&
+      (!isOfficeMode || sharedSettings?.proactiveSuggestionsEnabled === true) ? (
         <ConversationDraftSuggestedPromptsContainer
           className={isOfficeMode ? "mt-4" : "mt-6"}
           proactive={isOfficeMode}

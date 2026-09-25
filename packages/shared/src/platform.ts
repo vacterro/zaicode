@@ -907,6 +907,46 @@ export interface IPlatformService {
   /** 写入“以后自动下载并安装更新”偏好；非桌面端可 no-op */
   setAutoDownloadAndInstallUpdates?(enabled: boolean): Promise<void>;
 
+  getZaicodeLauncherPreferences?(): Promise<{
+    autoRestartOnCrash: boolean;
+    saimailWorkspace: string | null;
+  }>;
+  setZaicodeAutoRestartOnCrash?(
+    enabled: boolean,
+  ): Promise<{ autoRestartOnCrash: boolean; saimailWorkspace: string | null }>;
+  /** ZAICODE：本机操作员的 SAIMAIL 邮箱根目录（null 清除）；下次启动时注入 SAIMAIL_WORKSPACE。 */
+  setZaicodeSaimailWorkspace?(
+    workspace: string | null,
+  ): Promise<{ autoRestartOnCrash: boolean; saimailWorkspace: string | null }>;
+  /** ZAICODE：在该目录创建本机 operator 的 SAIMAIL 邮箱（saimail-local init）；只由显式点击触发。 */
+  initZaicodeSaimailWorkspace?(workspace: string): Promise<{ ok: boolean; message: string }>;
+  /** ZAICODE：像素级清晰渲染（100% 缩放、位图字体、无亚像素定位）；下次启动生效。 */
+  getZaicodePixelExact?(): Promise<{ pixelExact: boolean }>;
+  setZaicodePixelExact?(enabled: boolean): Promise<{ pixelExact: boolean }>;
+  /** ZAICODE dev：把界面设置快照写成随包默认值（源码树 zaicodeSettingsDefaults.json）并在 userData 备份。 */
+  saveZaicodeSettingsSnapshot?(json: string): Promise<{ ok: boolean; message: string; sourcePath: string | null; backupPath: string | null }>;
+  /** ZAICODE：相对位移移动窗口 (用于右键拖拽) */
+  moveWindowBy?(delta: { dx: number; dy: number }): Promise<{ success: boolean }>;
+  /** ZAICODE：停靠窗口至分屏区域 (FancyZones) */
+  snapWindowZone?(zone: { fx: number; fy: number; fw: number; fh: number; state?: "normal" | "maximized" }): Promise<{ success: boolean }>;
+  /** ZAICODE：当前窗口在其显示器工作区内的比例矩形 (FancyZones 预设) */
+  getWindowZone?(): Promise<{ fx: number; fy: number; fw: number; fh: number; state: "normal" | "maximized" } | null>;
+  /** ZAICODE：右键拖动窗口（start/move/end），主进程按光标位置移动窗口 */
+  zaicodeWindowDrag?(phase: "start" | "move" | "end"): void;
+  /** ZAICODE：engines (subscriptions as workers) + live quota. */
+  getZaicodeEngines?(): Promise<import("./zaicode-engines.js").ZaicodeEnginesState>;
+  refreshZaicodeEngines?(accountId?: string): Promise<import("./zaicode-engines.js").ZaicodeEnginesState>;
+  setZaicodeEnginesConfig?(
+    patch: Partial<import("./zaicode-engines.js").ZaicodeEnginesConfig>,
+  ): Promise<import("./zaicode-engines.js").ZaicodeEnginesState>;
+  onZaicodeEnginesChanged?(
+    callback: (state: import("./zaicode-engines.js").ZaicodeEnginesState) => void,
+  ): () => void;
+  launchZaicodeExternalWorker?(params: { cwd: string; command: string; title: string }): Promise<{ ok: boolean; message: string }>;
+  prepareZaicodeEngineAccountHome?(vendor: string): Promise<{ ok: boolean; home: string; message: string }>;
+  getZaicodeStartWithWindows?(): Promise<{ enabled: boolean; command: string }>;
+  setZaicodeStartWithWindows?(enabled: boolean): Promise<{ enabled: boolean; command: string }>;
+
   /** 用户跳过当前已发现版本；main 进程负责按当前通道持久化 */
   skipUpdateVersion(version: string): Promise<void>;
 

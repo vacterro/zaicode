@@ -5,7 +5,8 @@ export type OpenTabLauncherItemId =
   | "review"
   | "terminal"
   | "browser"
-  | "developer-tools";
+  | "developer-tools"
+  | "saipen";
 
 export function resolveOpenTabLauncherItemIds({
   developerToolsEnabled,

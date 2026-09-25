@@ -273,6 +273,51 @@ async function retryTurn(
 }
 
 /**
+ * clearConversation (ZAICODE CLEAR): empty THIS session in place instead of
+ * opening a new one. Order matters: stop the running turn first (it pauses an
+ * active goal), drop the goal and every queued input, then cut the active
+ * branch back to before the first user prompt. The cut is the same
+ * same-session branch cut edit/retry use, so history stays in the store and
+ * the projection closes through the RewindTriggered event. An already empty
+ * session is a noop, not a failure.
+ */
+async function clearConversation(
+  host: V4CommandCoreHost,
+  envelope: CommandEnvelope,
+): Promise<CommandResult | undefined> {
+  const record = requireRecord(host, envelope.sessionId);
+  // Safe when idle: the runtime reports nothing stopped and the idle wait returns at once.
+  await preemptActiveTurnAndWait(host, record, {
+    abortMessage: "v4 clearConversation preempts active turn",
+    goalPausedMutationReason: "clear_conversation_goal_paused",
+  });
+  const goalCleared = await record.app.clearTarget();
+  const droppedQueueItems = await record.app.clearQueueItems({ traceContext: record.traceContext });
+  const result = await record.app.runtime.rewindConversationToStart({
+    events: [],
+    traceContext: record.traceContext,
+  });
+  if (result && result.strategy !== RewindStrategy.ActiveChain) {
+    throw new Error(`conversation clear unavailable: ${result.strategy}`);
+  }
+  if (result || goalCleared || droppedQueueItems > 0) {
+    await host.afterLegacyStateMutation?.(record, "session_rewound");
+  }
+  host.logger?.info?.("v4 clearConversation completed", {
+    ...traceContextToLogContext(record.traceContext),
+    clientId: envelope.clientId,
+    commandId: envelope.commandId,
+    droppedQueueItems,
+    event: "conversation.command.clear_conversation.completed",
+    goalCleared,
+    module: CONVERSATION_COMMAND_LOG_MODULE,
+    rewound: Boolean(result),
+    sessionId: record.app.sessionId,
+  });
+  return undefined;
+}
+
+/**
  * forkAssistant：唯一 stable resolver 固定 logical-turn/message boundary，再走
  * conversation-only fork。此路径不读取 activeAbortController、不 stop parent，也不进入
  * legacy forkSession（后者含 ensureNoActiveTurn + workspace rewind）。
@@ -379,6 +424,7 @@ async function startCanonicalIntent(
 }
 
 export const forkEditRetryHandlers = {
+  clearConversation,
   forkAssistant,
   editUserQuery,
   retryTurn,

@@ -255,6 +255,15 @@ export { OffPeakTaskRepo, OFF_PEAK_CLAIM_STALE_MS } from "./session/offPeakTaskR
 export { buildTaskChangeSummary } from "./session/taskChangeSummary.js";
 export { OffPeakTaskService } from "./session/offPeakTaskService.js";
 export { IOffPeakTaskService } from "./session/offPeakTask.js";
+// ZAICODE 产品层：agent 定义与任务队列的公共服务面（renderer 经 ProxyChannel 直连）。
+export { IZaicodeAgentService } from "./zaicode/zaicodeAgents.js";
+export { IZaicodeJobService } from "./zaicode/zaicodeJobs.js";
+export { ZaicodeAgentRepo } from "./zaicode/zaicodeAgentRepo.js";
+export { ZaicodeJobRepo } from "./zaicode/zaicodeJobRepo.js";
+export { ZaicodeAgentService } from "./zaicode/zaicodeAgentService.js";
+export { ZaicodeJobService } from "./zaicode/zaicodeJobService.js";
+export { IZaicodeStatsService } from "./zaicode/zaicodeStats.js";
+export { ZaicodeStatsService } from "./zaicode/zaicodeStatsService.js";
 export { createOffPeakServerClient, OffPeakServerError } from "./session/offPeakServerClient.js";
 export { isOffPeakMockEnabled, startOffPeakMockGateway } from "./session/offPeakMockGateway.js";
 export {
@@ -435,6 +444,16 @@ import { IOffPeakTaskService } from "./session/offPeakTask.js";
 import { OffPeakTaskService } from "./session/offPeakTaskService.js";
 import { OffPeakTaskRepo } from "./session/offPeakTaskRepo.js";
 import { createOffPeakServerClient } from "./session/offPeakServerClient.js";
+import { IZaicodeAgentService } from "./zaicode/zaicodeAgents.js";
+import { IZaicodeJobService, type ZaicodeJobExecutor } from "./zaicode/zaicodeJobs.js";
+import type { ZaicodeJob } from "@zcode/shared";
+import { ZaicodeAgentRepo } from "./zaicode/zaicodeAgentRepo.js";
+import { ZaicodeJobRepo } from "./zaicode/zaicodeJobRepo.js";
+import { ZaicodeAgentService } from "./zaicode/zaicodeAgentService.js";
+import { ZaicodeJobService } from "./zaicode/zaicodeJobService.js";
+import { IZaicodeStatsService } from "./zaicode/zaicodeStats.js";
+import { ZaicodeStatsRepo } from "./zaicode/zaicodeStatsRepo.js";
+import { ZaicodeStatsService } from "./zaicode/zaicodeStatsService.js";
 import {
   buildOffPeakRequestAuth,
   createOffPeakOriginResolver,
@@ -652,6 +671,29 @@ export type OffPeakRequestAuthBuilder = (
   ticketId: string,
 ) => Promise<{ apiKey: string; headers: Record<string, string> }>;
 const offPeakRequestAuthBuilders = new WeakMap<ServiceCollection, OffPeakRequestAuthBuilder>();
+
+// ZAICODE 任务执行器只能在 host 进程装配（创建会话、提交 prompt、订阅终态都在 host）。
+// services 层不认识 runtime 实现，只经此钩子取执行器；未装配时派发落入 blocked，不假装开始。
+let zaicodeJobExecutor: ZaicodeJobExecutor | null = null;
+
+export function setZaicodeJobExecutor(executor: ZaicodeJobExecutor | null): void {
+  zaicodeJobExecutor = executor;
+}
+
+export function getZaicodeJobExecutor(): ZaicodeJobExecutor | null {
+  return zaicodeJobExecutor;
+}
+
+// ZAICODE 运行时委托（T-10）：子任务终态时，由 host 把结果写回发起委托那次运行的 spool。
+let zaicodeChildFinishedListener: ((child: ZaicodeJob) => void) | null = null;
+
+export function setZaicodeChildFinishedListener(listener: ((child: ZaicodeJob) => void) | null): void {
+  zaicodeChildFinishedListener = listener;
+}
+
+export function getZaicodeChildFinishedListener(): ((child: ZaicodeJob) => void) | null {
+  return zaicodeChildFinishedListener;
+}
 
 /** Local Host 进程内能力；不会随 ServiceCollection 暴露到通用 RPC Channel。 */
 export function getAccountRequestAuthService(
@@ -2419,6 +2461,31 @@ export function createLocalServices(options: {
   // 注册链上的懒工厂（如 OffPeak）会各自创建 tasks-index sqlite repo；先收集到本数组，
   // services 集合建好后在 return 前统一登记进 sharedSqliteRepos 侧表
   const sqliteReposToClose: Array<{ close(): void }> = [];
+  // ZAICODE 产品层装配：agent 定义与任务队列共用 tasks-index.sqlite（同一属主与迁移账本）。
+  const zaicodeLogger = createServiceLogger("zaicode");
+  const zaicodeAgentRepo = new ZaicodeAgentRepo();
+  const zaicodeJobRepo = new ZaicodeJobRepo();
+  sqliteReposToClose.push(zaicodeAgentRepo, zaicodeJobRepo);
+  const zaicodeAgentService = new ZaicodeAgentService({ repo: zaicodeAgentRepo });
+  const zaicodeJobService = new ZaicodeJobService({
+    repo: zaicodeJobRepo,
+    getAgent: (agentId) => zaicodeAgentService.get(agentId),
+    listAgents: async () => (await zaicodeAgentService.list()).agents,
+    getExecutor: () => getZaicodeJobExecutor(),
+    onChildFinished: (child) => getZaicodeChildFinishedListener()?.(child),
+    logger: { warn: (message, error) => zaicodeLogger.warn(message, error) },
+  });
+  // 队列初始化（迁移就绪 + 陈旧 running 回收 + 执行心跳）不阻塞服务装配。
+  void zaicodeJobService.ensureReady().catch((error: unknown) => {
+    zaicodeLogger.warn("ZAICODE 队列初始化失败", error);
+  });
+  // SAIHOME local statistics (T-56): own tables in the same database, read lazily on request.
+  const zaicodeStatsRepo = new ZaicodeStatsRepo();
+  sqliteReposToClose.push(zaicodeStatsRepo);
+  const zaicodeStatsService = new ZaicodeStatsService({
+    repo: zaicodeStatsRepo,
+    logger: { warn: (message, error) => zaicodeLogger.warn(message, error) },
+  });
   const services = new ServiceCollection()
     .register(IFileService, fileService)
     .register(IMediaPreviewService, mediaPreviewService)
@@ -2552,6 +2619,9 @@ export function createLocalServices(options: {
     // 设置页插件管理薄服务——plugins/* 旧协议词的 host 侧唯一消费点。
     .register(IPluginManagementService, createPluginManagementService({ zcodeAgentService }))
     .register(ISubagentsService, subagentsService)
+    .register(IZaicodeAgentService, zaicodeAgentService)
+    .register(IZaicodeJobService, zaicodeJobService)
+    .register(IZaicodeStatsService, zaicodeStatsService)
     .register(ICommandsService, createCommandsService({ isDesktopRuntime: true }))
     .register(
       IHooksService,
@@ -2733,6 +2803,7 @@ export function disposeServiceResources(services: ServiceCollection): void {
     void managedCuaHelperHost.stop().catch(() => {});
   }
   // 关闭共享 tasks-index sqlite 句柄（Windows 上悬着句柄会让后续目录清理撞 EBUSY）
+  (services.getOptional(IZaicodeJobService) as ZaicodeJobService | undefined)?.dispose();
   for (const repo of sharedSqliteRepos.get(services) ?? []) repo.close();
   sharedSqliteRepos.delete(services);
   providerRuntimes.get(services)?.dispose();
@@ -2769,6 +2840,7 @@ export async function disposeServiceResourcesAndWait(services: ServiceCollection
     await managedCuaHelperHost.stop().catch(() => {});
   }
   // 关闭共享 tasks-index sqlite 句柄（同 disposeServiceResources，异步收口路径也要释放）
+  (services.getOptional(IZaicodeJobService) as ZaicodeJobService | undefined)?.dispose();
   for (const repo of sharedSqliteRepos.get(services) ?? []) repo.close();
   sharedSqliteRepos.delete(services);
   providerRuntimes.get(services)?.dispose();

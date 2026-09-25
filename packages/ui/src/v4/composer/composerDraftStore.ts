@@ -197,6 +197,28 @@ export function persistV4ComposerDraft(
   return writeDraftFile(key, file);
 }
 
+/**
+ * ZAICODE: write the editor content of a scope that is no longer on screen.
+ * The composer debounces persistence; switching sessions inside that window
+ * used to drop the last keystrokes of the scope being left. Mode, model and
+ * the other scope fields already stored stay as they are.
+ */
+export function persistV4ComposerDraftContent(
+  workspacePath: string,
+  workspaceIdentity: string | undefined,
+  scopeId: string,
+  content: Pick<V4ComposerDraft, "text" | "editorStateJson">,
+) {
+  const current = readV4ComposerDraft(workspacePath, workspaceIdentity, scopeId);
+  const { updatedAt: _updatedAt, ...rest } = current ?? { text: "", updatedAt: 0 };
+  return persistV4ComposerDraft(workspacePath, workspaceIdentity, scopeId, {
+    ...rest,
+    editorStateJson: undefined,
+    mention: undefined,
+    ...content,
+  });
+}
+
 export function clearV4ComposerDraft(
   workspacePath: string,
   workspaceIdentity: string | undefined,

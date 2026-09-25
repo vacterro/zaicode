@@ -91,6 +91,7 @@ export function mapSessionSummaryToTaskMeta(
         ? { pendingInteractions: summary.pendingInteractionSummary }
         : {}),
       ...(summary.workflowActivity ? { workflowActivity: summary.workflowActivity } : {}),
+      ...(summary.todos ? { todos: summary.todos } : {}),
     },
   );
 }

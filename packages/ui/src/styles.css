@@ -134,6 +134,22 @@ body {
 
 /* === 主题变量 === */
 
+@font-face {
+  font-family: "ZAICODE Terminus";
+  src: url("./assets/terminus/TerminusTTFWindows-4.49.3.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "ZAICODE Terminus";
+  src: url("./assets/terminus/TerminusTTFWindows-Bold-4.49.3.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+
 @theme {
   /* Windows 的 Consolas 不含中文字形，Tailwind 默认栈最终会让中文落到宋体。
    * 保留各平台西文等宽字体，并在通用 monospace 前显式加入各平台 CJK 无衬线字体。 */

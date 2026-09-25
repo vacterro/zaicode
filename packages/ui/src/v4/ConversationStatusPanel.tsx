@@ -1,5 +1,7 @@
 /* oxlint-disable eslint(max-lines) -- 状态面板同时维护收起态摘要、展开态分区、菜单策略和宽度自适应，同文件能保证两种形态共享同一内容优先级。 */
 import { useIsOfficeMode } from "@/hooks/useInterfaceMode.js";
+import { isZaicodeProductMode } from "@zcode/shared";
+import { ZaicodeTodoDock } from "./ZaicodeTodoDock.js";
 import {
   forwardRef,
   memo,
@@ -1571,8 +1573,8 @@ function StatusSummaryRow({
 }) {
   const { intl } = useZCodeIntl();
   const expandLabel = intl.formatMessage({ id: "chat.summaryPanel.showPanel" });
-  const currentPlanItem = getCurrentPlanItem(model.plan);
-  const completedPlanItem = getCompletedPlanItem(model.plan);
+  const currentPlanItem = isZaicodeProductMode() ? null : getCurrentPlanItem(model.plan);
+  const completedPlanItem = isZaicodeProductMode() ? null : getCompletedPlanItem(model.plan);
   const latestSessionPlan = model.sessionPlans?.items[0] ?? null;
   const goal = model.goal;
   const goalTitle = goal ? goal.summaryTitle?.trim() || goal.objective.trim() || null : null;
@@ -1636,7 +1638,7 @@ function StatusSummaryRow({
     <StatusSummaryMetric icon={<CheckCircle2Icon className="size-4 text-[var(--color-success)]" />}>
       <span className="min-w-0 truncate">{completedPlanItem.content}</span>
     </StatusSummaryMetric>
-  ) : model.plan ? (
+  ) : model.plan && !isZaicodeProductMode() ? (
     <StatusSummaryMetric
       icon={<ListChecksIcon className="size-4 text-[var(--color-foreground-subtle)]" />}
     >
@@ -1796,7 +1798,7 @@ function ConversationStatusPanelImpl({
   const canRenderGit = Boolean(model.git && gitSummary && onRefreshGit);
   const canRenderGoal = Boolean(model.goal);
   const canRenderSessionPlans = Boolean(model.sessionPlans);
-  const canRenderPlan = Boolean(model.plan);
+  const canRenderPlan = Boolean(model.plan) && !isZaicodeProductMode();
   const canRenderTerminals = model.runningBashWorks.length > 0;
   // 已结束的 run 也开门（与 canRenderAgents 同判断）：重启后活动数为零，若只按它开门，
   // 通往 run 目录的唯一入口会连带消失。
@@ -1859,6 +1861,23 @@ function ConversationStatusPanelImpl({
     return null;
   }
 
+  if (
+    isZaicodeProductMode() &&
+    model.plan &&
+    !canRenderGit &&
+    !canRenderGoal &&
+    !canRenderSessionPlans &&
+    !canRenderTerminals &&
+    !canRenderWorkflows &&
+    !canRenderAgents
+  ) {
+    return (
+      <div className="pointer-events-none absolute right-4 top-0 z-20 pt-4">
+        <ZaicodeTodoDock plan={model.plan} />
+      </div>
+    );
+  }
+
   return (
     <div
       className={cn(
@@ -1866,15 +1885,16 @@ function ConversationStatusPanelImpl({
         // 旧 ChatView 的 inline 面板直接钉在右侧，正文列通过独立 translate 让位。
         // v4 若继续用 inset-x-0 + justify-end，会让面板容器宽铺满并改变宽屏下的横向对齐。
         layoutMode === "inline"
-          ? "right-4"
+          ? "right-4 flex max-w-[calc(100vw-2rem)] flex-wrap items-start gap-2"
           : layoutMode === "auto"
-            ? "inset-x-0 flex justify-end px-4 @min-[1280px]/conversation:left-auto @min-[1280px]/conversation:right-4 @min-[1280px]/conversation:px-0"
-            : "inset-x-0 flex justify-end px-4",
+            ? "inset-x-0 flex flex-wrap items-start justify-end gap-2 px-4 @min-[1280px]/conversation:left-auto @min-[1280px]/conversation:right-4 @min-[1280px]/conversation:px-0"
+            : "inset-x-0 flex flex-wrap items-start justify-end gap-2 px-4",
         className,
       )}
     >
       {/* 状态面板恢复旧 ChatView 的同 shell 收起/展开模型。
           之前 v4 用固定展开卡片替代 summary panel，窄屏会遮挡聊天正文，也丢失用户 override。 */}
+      {isZaicodeProductMode() && model.plan ? <ZaicodeTodoDock plan={model.plan} /> : null}
       <aside
         aria-label={intl.formatMessage({ id: "chat.summaryPanel.title" })}
         data-testid={TID_CHAT_SUMMARY_PANEL}

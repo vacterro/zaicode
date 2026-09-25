@@ -38,6 +38,9 @@ import type { IPromptAttachmentTransferService } from "./prompt-attachment-trans
 import type { IWindowControllerService } from "./window-controller/windowController.js";
 import type { IOnboardingRecordService } from "./onboarding/onboardingRecord.js";
 import type { IConversationShareService } from "./conversation-share/conversationShare.js";
+import type { IZaicodeAgentService } from "./zaicode/zaicodeAgents.js";
+import type { IZaicodeJobService } from "./zaicode/zaicodeJobs.js";
+import type { IZaicodeStatsService } from "./zaicode/zaicodeStats.js";
 
 /** UI 层消费的统一服务接口 */
 export interface IServiceAccessor {
@@ -86,4 +89,10 @@ export interface IServiceAccessor {
   readonly settingsSyncService: ISettingsSyncService;
   readonly feedbackService: IFeedbackService;
   readonly promptAttachmentTransferService: IPromptAttachmentTransferService;
+  /** ZAICODE agent 定义（本地 host 提供）。 */
+  readonly zaicodeAgentService?: IZaicodeAgentService;
+  /** ZAICODE 任务队列（本地 host 提供）。 */
+  readonly zaicodeJobService?: IZaicodeJobService;
+  /** ZAICODE SAIHOME local statistics (local host only). */
+  readonly zaicodeStatsService?: IZaicodeStatsService;
 }

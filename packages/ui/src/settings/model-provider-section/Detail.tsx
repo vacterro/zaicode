@@ -9,6 +9,7 @@ import {
   type StartPlanPreviewConfig,
   isStartPlanModelProviderId,
   isIndividualCodingPlanModelProviderId,
+  isZaicodeProductMode,
   resolveModelProviderFamilySpecByProviderId,
   type ModelConnectivityResult,
   type OAuthProviderId,
@@ -519,11 +520,13 @@ export function ModelProviderSectionDetail({
       setUpgradePlansVisibleProviderId(visible ? selectedNavItem.presetId : null);
     };
     const purchaseChoiceBannersVisible =
+      !isZaicodeProductMode() &&
       statusPanelViewState.displayStatus === "notPurchased" &&
       (selectedNavItem.oauthProviderId === ZAI_PROVIDER_ID ||
         (selectedNavItem.oauthProviderId === BIGMODEL_PROVIDER_ID &&
           codingPlanPurchaseTokenAuthenticated));
     const anonymousPurchaseChoiceBannersVisible =
+      !isZaicodeProductMode() &&
       (selectedNavItem.oauthProviderId === BIGMODEL_PROVIDER_ID ||
         selectedNavItem.oauthProviderId === ZAI_PROVIDER_ID) &&
       statusPanelViewState.displayStatus === "disconnected";

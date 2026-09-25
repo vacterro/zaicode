@@ -14,6 +14,7 @@ import { code } from "@streamdown/code";
 import { createMathPlugin } from "@streamdown/math";
 import { mermaid } from "@streamdown/mermaid";
 import type { EditorInfo, FileStat, OpenInEditorOptions } from "@zcode/shared";
+import { isZaicodeProductMode } from "@zcode/shared";
 import type { UIMessage } from "ai";
 import { ChevronLeftIcon, ChevronRightIcon, CopyIcon, ExternalLinkIcon } from "lucide-react";
 import remarkCjkFriendlyGfmStrikethrough from "remark-cjk-friendly-gfm-strikethrough";
@@ -1545,7 +1546,8 @@ export const MessageResponse = memo(
             return (
               <code
                 className={cn(
-                  "rounded-md bg-markdown-inline-code/50 mx-0.5 px-1.5 py-0.5 font-mono text-ui-sm",
+                  "mx-0.5 rounded-md bg-markdown-inline-code/50 px-1.5 py-0.5 font-mono text-ui-sm break-words [overflow-wrap:anywhere]",
+                  isZaicodeProductMode() && "zaicode-inline-code",
                   codeClassName,
                 )}
                 {...codeProps}
@@ -1560,12 +1562,13 @@ export const MessageResponse = memo(
 
           return (
             <CodeBlock
-              className="my-4 border border-border bg-card"
+              className="my-4 min-w-0 max-w-full border border-border bg-card"
               code={codeText}
               // 流式消息里的代码围栏会被 Streamdown 反复拆分/重挂载。
               // 高亮等消息完成后再启动，避免 async highlighter 和消息流更新叠加触发 React #185。
               enableSyntaxHighlighting={!renderStreaming}
               fontSizePx={codePreviewSettings.fontSizePx}
+              showLineNumbers={codePreviewSettings.showLineNumbers}
               language={language}
               renderMermaid={!renderStreaming}
               theme={codeBlockTheme}

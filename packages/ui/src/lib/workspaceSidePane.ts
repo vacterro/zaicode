@@ -85,6 +85,15 @@ export interface DeveloperToolsSidePaneTab {
   openedAt?: number;
 }
 
+/** ZAICODE: live SAIPEN protocol view (STATE / BOARD / LOG) of the active project. */
+export interface SaipenSidePaneTab {
+  id: "saipen";
+  type: "saipen";
+  ownerTaskId?: string | null;
+  workspaceKey?: string | null;
+  openedAt?: number;
+}
+
 export interface TerminalSidePaneTab {
   id: string;
   type: "terminal";
@@ -522,6 +531,7 @@ export type WorkspaceSidePaneTab =
   | WhiteboardSidePaneTab
   | ModelTrajectorySidePaneTab
   | DeveloperToolsSidePaneTab
+  | SaipenSidePaneTab
   | TerminalSidePaneTab
   | BrowserUseSidePaneTab
   | SubagentSessionSidePaneTab
@@ -668,6 +678,14 @@ function createDeveloperToolsSidePaneTab(): DeveloperToolsSidePaneTab {
   return {
     id: "developer-tools",
     type: "developer-tools",
+    openedAt: Date.now(),
+  };
+}
+
+function createSaipenSidePaneTab(): SaipenSidePaneTab {
+  return {
+    id: "saipen",
+    type: "saipen",
     openedAt: Date.now(),
   };
 }
@@ -1054,6 +1072,7 @@ export function sidePaneOwnerKey(taskId: string | null | undefined): string {
 const WORKSPACE_GLOBAL_SIDE_PANE_TAB_TYPES = new Set<WorkspaceSidePaneTab["type"]>([
   "git",
   "developer-tools",
+  "saipen",
   "treemapping",
 ]);
 
@@ -1584,6 +1603,12 @@ export function activateDeveloperToolsSidePane(
   current: WorkspaceSidePaneState | null,
 ): WorkspaceSidePaneState {
   return activateSidePaneTab(current, createDeveloperToolsSidePaneTab());
+}
+
+export function activateSaipenSidePane(
+  current: WorkspaceSidePaneState | null,
+): WorkspaceSidePaneState {
+  return activateSidePaneTab(current, createSaipenSidePaneTab());
 }
 
 export function openTerminalSidePane(

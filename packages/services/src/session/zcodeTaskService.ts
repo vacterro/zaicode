@@ -249,6 +249,8 @@ export interface IZCodeTaskService {
       clientId?: string;
       clientLabel?: string;
       clientMode?: ZCodeTaskClientMode;
+      /** 当前 turn 允许的工具集合；与 session/automation 自带的工具隔离规则合并。 */
+      toolAllowlist?: string[];
       /** 当前 turn 额外隐藏的工具；与 session/automation 自带的工具隔离规则合并。 */
       toolDenylist?: string[];
       /** 标准模型选择；闲时任务同样经 Registry / ModelFactory 创建 Model。 */

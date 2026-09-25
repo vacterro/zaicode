@@ -21,6 +21,8 @@ import { useZCodeIntl } from "@/i18n/IntlProvider.js";
 import { MentionPanel, type MentionPanelSection } from "@/mentions/components/MentionPanel.js";
 import { PluginMentionOptionContent } from "@/mentions/components/PluginMentionOptionContent.js";
 import { usePluginsMentionProvider } from "@/mentions/providers/pluginsMentionProvider.js";
+import { useSkillsMentionProvider } from "@/mentions/providers/skillsMentionProvider.js";
+import { isZaicodeProductMode } from "@zcode/shared";
 
 /**
  * 「添加」分区里紧随附件之后的命令快捷项，选中即插入与 `/` 面板相同的命令标签。
@@ -87,6 +89,18 @@ export function ChatPromptActionMenu({
     intl.formatMessage({ id: "chat.mention.plugins.title" }),
   );
   const provider = useChatViewActiveTaskProvider(sessionId, workspacePath, workspaceIdentity);
+  const zaicode = isZaicodeProductMode();
+  const skills = useSkillsMentionProvider(
+    workspacePath,
+    workspaceIdentity,
+    sessionId,
+    provider,
+    "",
+    open && !disabled && showPlugins && zaicode,
+    false,
+    intl.formatMessage({ id: "chat.mention.skills.empty" }),
+    intl.formatMessage({ id: "chat.mention.skills.title" }),
+  );
   const slashCommands = useSlashCommands(workspacePath, workspaceIdentity);
   const files = useFileMentionProvider(
     workspacePath,
@@ -116,7 +130,10 @@ export function ChatPromptActionMenu({
       errorText: group.error?.message ?? null,
     })),
   );
-  const mentionItems = [...plugins.items, ...contextGroups.flatMap((group) => group.items)];
+  const mentionItems = [
+    ...(zaicode ? skills.items : plugins.items),
+    ...contextGroups.flatMap((group) => group.items),
+  ];
   const attachmentCount = attachmentAction ? 1 : 0;
   const options = [
     ...(attachmentAction ? [{ disabled: false }] : []),
@@ -167,16 +184,20 @@ export function ChatPromptActionMenu({
       ],
     },
     {
-      id: "plugins",
-      title: plugins.title,
-      emptyText: plugins.emptyText,
-      loading: plugins.loading,
+      id: zaicode ? "skills" : "plugins",
+      title: zaicode ? skills.title : plugins.title,
+      emptyText: zaicode ? skills.emptyText : plugins.emptyText,
+      loading: zaicode ? skills.loading : plugins.loading,
       loadingText: intl.formatMessage({ id: "chat.mention.category.loading" }),
-      errorText: plugins.error?.message,
-      options: plugins.items.map((item) => ({
+      errorText: zaicode ? skills.error?.message : plugins.error?.message,
+      options: (zaicode ? skills.items : plugins.items).map((item) => ({
         ...item,
         label: item.displayLabel ?? item.label,
-        content: <PluginMentionOptionContent item={item} />,
+        content: zaicode ? (
+          <span className="min-w-0 truncate text-ui-base text-foreground">{item.label}</span>
+        ) : (
+          <PluginMentionOptionContent item={item} />
+        ),
       })),
     },
     ...contextGroups.map((group) => ({

@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import {
   ContextMenuContent,
   ContextMenuItem,
@@ -27,6 +28,7 @@ export function TaskListItemContextMenu({
   onViewModelTrajectory,
   disableTaskActions = false,
   disabledReason,
+  leadingItems,
 }: {
   intl: {
     formatMessage: (desc: { id: string }, values?: Record<string, string>) => string;
@@ -57,9 +59,12 @@ export function TaskListItemContextMenu({
   onViewModelTrajectory?: () => void;
   disableTaskActions?: boolean;
   disabledReason?: string;
+  /** Extra items at the top of the menu (ZAICODE: Make MAIN). */
+  leadingItems?: ReactNode;
 }) {
   return (
     <ContextMenuContent className="w-52">
+      {leadingItems}
       <TaskActionMenuContent
         intl={intl}
         isPinned={isPinned}

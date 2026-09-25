@@ -23,6 +23,7 @@ import { useRemoteTimelineTaskStore } from "@/store/remoteTimelineTaskStore.js";
 import { useRemoteWorkspaceSessionStore } from "@/store/remoteWorkspaceSessionStore.js";
 import type { WorkspaceTabState } from "@/store/tabStore.js";
 import { applyTaskQueryCacheMutation } from "@/store/taskQueryCacheStore.js";
+import { playZaicodeSound } from "@/zaicode/zaicodeSoundBus.js";
 
 function buildTimelineItemKey(workspacePath: string, taskId: string, workspaceIdentity?: string) {
   return `${buildTaskWorkspaceKey(workspacePath, workspaceIdentity)}:${taskId}`;
@@ -407,6 +408,7 @@ export function WorkspaceTimelineTasksSection({
           pinned,
         })
         .then((meta) => {
+          playZaicodeSound("session.pin");
           removeOptimisticTaskListItemRef.current(
             item.workspacePath,
             item.taskId,
@@ -763,6 +765,7 @@ export function WorkspaceTimelineTasksSection({
                   pinned,
                 })
                 .then((meta) => {
+                  playZaicodeSound("session.pin");
                   removeOptimisticTaskListItem(
                     contextMenuItem.workspacePath,
                     contextMenuItem.taskId,

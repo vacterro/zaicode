@@ -12,6 +12,7 @@ import {
   TID_CHAT_ERROR_DETAILS_BUTTON,
   TID_CHAT_ERROR_BANNER,
   TID_CHAT_ERROR_HOOK_ICON,
+  isZaicodeProductMode,
 } from "@zcode/shared";
 import { AnchorIcon, CopyIcon, InfoIcon, RocketIcon, SettingsIcon, X } from "lucide-react";
 import { useZCodeIntl } from "./i18n/IntlProvider.js";
@@ -73,7 +74,13 @@ export function resolveChatErrorBannerDisplayMessage(
   intl: IntlInstance,
 ): string {
   if (isModelConfigMissingError(error)) {
-    return intl.formatMessage({ id: "chat.error.noAvailableModel" });
+    // ZAICODE 无强制账户：零 Provider 是正常配置态，必须是可行动的诚实文案，
+    // 而不是上游「没有可用模型」的故障口气（SRC-002 NO-PROVIDER STATE）。
+    return intl.formatMessage({
+      id: isZaicodeProductMode()
+        ? "chat.error.zaicodeNoExecutionRoutes"
+        : "chat.error.noAvailableModel",
+    });
   }
 
   const providerBusinessCode =
@@ -208,22 +215,24 @@ export function ChatErrorBanner({
 
         {modelConfigMissing ? (
           <>
-            <CodingPlanEntryButton
-              type="button"
-              variant="default"
-              size="sm"
-              onClick={onOpenUpgrade}
-              className={cn(
-                actionButtonClassName,
-                "button-gradient gap-1.5 text-white hover:bg-transparent hover:opacity-90 dark:bg-[#484A58] dark:hover:bg-[#484A58]",
-              )}
-              aria-label={intl.formatMessage({
-                id: "chat.quota.action.upgrade",
-              })}
-            >
-              <RocketIcon className="size-3.5" />
-              {intl.formatMessage({ id: "chat.quota.action.upgrade" })}
-            </CodingPlanEntryButton>
+            {isZaicodeProductMode() ? null : (
+              <CodingPlanEntryButton
+                type="button"
+                variant="default"
+                size="sm"
+                onClick={onOpenUpgrade}
+                className={cn(
+                  actionButtonClassName,
+                  "button-gradient gap-1.5 text-white hover:bg-transparent hover:opacity-90 dark:bg-[#484A58] dark:hover:bg-[#484A58]",
+                )}
+                aria-label={intl.formatMessage({
+                  id: "chat.quota.action.upgrade",
+                })}
+              >
+                <RocketIcon className="size-3.5" />
+                {intl.formatMessage({ id: "chat.quota.action.upgrade" })}
+              </CodingPlanEntryButton>
+            )}
             <Button
               type="button"
               variant="outline"

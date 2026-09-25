@@ -8,6 +8,7 @@ import {
   BugIcon,
   FileCode2Icon,
   FileDiffIcon,
+  ListChecksIcon,
   MapIcon,
   MessageSquareTextIcon,
   ListTreeIcon,
@@ -328,6 +329,10 @@ export function SidePaneTabIcon({ tab }: { tab: WorkspaceSidePaneTab }) {
     return <BugIcon className="size-3.5" />;
   }
 
+  if (tab.type === "saipen") {
+    return <ListChecksIcon className="size-3.5" />;
+  }
+
   if (tab.type === "terminal" || tab.type === "bash-output") {
     return <SquareTerminalIcon className="size-3.5" />;
   }
@@ -534,6 +539,10 @@ export function getSidePaneTabTitle(
 
   if (tab.type === "developer-tools") {
     return formatMessage({ id: "developerTools.title" });
+  }
+
+  if (tab.type === "saipen") {
+    return formatMessage({ id: "sidePane.saipen" });
   }
 
   if (tab.type === "terminal" || tab.type === "bash-output") {

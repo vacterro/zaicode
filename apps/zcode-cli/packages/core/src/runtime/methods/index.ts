@@ -136,7 +136,7 @@ import { executeRewindCommand } from "./rewind.js";
 import { formatRewindStatus } from "./rewind.js";
 import { rewindWorkspaceToCheckpoint } from "./rewind.js";
 import { finishUnavailableRewind } from "./rewind.js";
-import { rewindConversationToMessage } from "./rewind-message.js";
+import { rewindConversationToMessage, rewindConversationToStart } from "./rewind-message.js";
 import { rewindCascadeToMessage } from "./rewind-message.js";
 import { rewindToMessage } from "./rewind-message.js";
 import { rewindWorkspaceToMessage } from "./rewind-message.js";
@@ -340,6 +340,7 @@ export function installAgentRuntimeMethods(ctor: AgentRuntimeConstructor): void 
   proto.rewindToMessage = rewindToMessage;
   proto.rewindCascadeToMessage = rewindCascadeToMessage;
   proto.rewindConversationToMessage = rewindConversationToMessage;
+  proto.rewindConversationToStart = rewindConversationToStart;
   proto.rewindWorkspaceToMessage = rewindWorkspaceToMessage;
   proto.finishUnavailableRewind = finishUnavailableRewind;
   proto.restoreWorkspaceCheckpointArtifact = restoreWorkspaceCheckpointArtifact;

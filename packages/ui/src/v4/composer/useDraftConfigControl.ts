@@ -6,7 +6,7 @@ import { applyComposerPermissionGrant } from "@/v4/composer/composerPermissionGr
 // Workspace presentation 水合只提供 mode 与 slash commands；模型候选、能力和首选值
 // 统一来自目标 Host ModelSelectionView。
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ZCODE_AGENT_PROVIDER, resolveExecutionState } from "@zcode/shared";
+import { ZCODE_AGENT_PROVIDER, isZaicodeProductMode, resolveExecutionState } from "@zcode/shared";
 import { applyComposerPlanTransition } from "@/v4/composer/composerPlanTransition.js";
 import type {
   ZCodeConfigOption,
@@ -161,7 +161,12 @@ export function useDraftConfigControl(params: {
         ? initializeNewTaskDraft(draft, workspacePath, workspaceIdentity, modelSelectionView)
         : {
             ...draft,
-            mode: mode.success && mode.data !== "plan" ? mode.data : "build",
+            mode:
+              mode.success && mode.data !== "plan"
+                ? mode.data
+                : isZaicodeProductMode()
+                  ? "yolo"
+                  : "build",
             planEnabled: resolveExecutionState(sessionConfig ?? {}).planEnabled,
             modelSelection: sessionConfig?.modelSelection,
           };
@@ -240,7 +245,10 @@ export function useDraftConfigControl(params: {
         modelSelection: next.modelSelection,
         // 用户已经显式改选，不能再由导入时等待的默认初始化覆盖。
         ...(current.initializeFromNewTask
-          ? { mode: mode.success ? mode.data : "build", initializeFromNewTask: undefined }
+          ? {
+              mode: mode.success ? mode.data : isZaicodeProductMode() ? "yolo" : "build",
+              initializeFromNewTask: undefined,
+            }
           : {}),
       }));
     },
@@ -460,9 +468,10 @@ export function useDraftConfigControl(params: {
   const handleDraftSwitchMode = useCallback(
     (mode: string) => {
       if (mode === "plan" || mode === "plan-off") {
+        const exitPlanMode = isZaicodeProductMode() ? "yolo" : "build";
         updateComposerDraft((current) => ({
           ...current,
-          mode: current.mode === "plan" ? "build" : (current.mode ?? "build"),
+          mode: current.mode === "plan" ? exitPlanMode : (current.mode ?? exitPlanMode),
           planEnabled: mode === "plan",
           initializeFromNewTask: undefined,
         }));

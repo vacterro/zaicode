@@ -2,8 +2,10 @@
 
 import type { ComponentPropsWithoutRef } from "react";
 import { LoaderIcon } from "lucide-react";
+import { isZaicodeProductMode } from "@zcode/shared";
 import { cn } from "@/components/lib/utils.js";
 import { useZCodeIntl } from "@/i18n/IntlProvider.js";
+import { ZaicodeWorkingIcon } from "@/zaicode/ZaicodeWorkingIcon.js";
 
 export interface ChatLoadingProps extends ComponentPropsWithoutRef<"div"> {
   loading: boolean;
@@ -28,11 +30,16 @@ export function ChatLoading({ loading, size = "default", className, ...props }: 
       role="status"
       className={cn("flex items-center", className)}
     >
-      <div className="flex size-4 items-center justify-center">
-        <LoaderIcon
-          aria-hidden="true"
-          className={cn("animate-spin text-foreground-subtle", sizeClasses)}
-        />
+      <div className={cn("flex items-center justify-center", size === "sm" ? "size-4" : "size-6")}>
+        {isZaicodeProductMode() ? (
+          // ZAICODE：转圈 spinner 换成操作员自带的 SAIPEN 头像，并且慢慢转动表示“在干活”（操作员要求转而不是呼吸）。
+          <ZaicodeWorkingIcon className={sizeClasses} />
+        ) : (
+          <LoaderIcon
+            aria-hidden="true"
+            className={cn("animate-spin text-foreground-subtle", sizeClasses)}
+          />
+        )}
       </div>
     </div>
   );

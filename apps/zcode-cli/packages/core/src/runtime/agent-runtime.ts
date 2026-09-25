@@ -631,6 +631,12 @@ export interface AgentRuntime {
     targetMessageId: MessageId;
     traceContext: TraceContext;
   }): Promise<ConversationRewindResult>;
+  /** ZAICODE CLEAR: the same branch cut, anchored at the first user prompt (null = nothing to clear). */
+  rewindConversationToStart(options: {
+    abortSignal?: AbortSignal;
+    events: SessionEvent[];
+    traceContext: TraceContext;
+  }): Promise<ConversationRewindResult | null>;
   previewWorkspaceFileRewind(options?: {
     abortSignal?: AbortSignal;
     targetCheckpointId?: string;

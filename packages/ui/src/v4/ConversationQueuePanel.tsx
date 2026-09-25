@@ -21,6 +21,7 @@ import {
   testId,
 } from "@zcode/shared";
 import type { QueueState } from "@zcode/shared/zcode-protocol-v4";
+import { isZaicodeProductMode } from "@zcode/shared";
 import { ArrowUpFromLine, GripVertical, PencilIcon, Trash2Icon } from "lucide-react";
 import { ControlHintTooltip } from "@/ControlHintTooltip.js";
 import { Button } from "@/components/ui/button.js";
@@ -326,8 +327,10 @@ function ConversationQueuePanelImpl({
       data-queue-count={queue.items.length}
       data-queue-auto-drain={queue.autoDrain ? "true" : "false"}
       className={cn(
-        "relative z-0 w-full overflow-hidden rounded-t-2xl border border-border bg-surface p-1 backdrop-blur-md",
-        "-mb-7 pb-7",
+        "relative z-0 w-full border border-border bg-surface p-1",
+        isZaicodeProductMode()
+          ? "mb-1 max-h-[min(30vh,12rem)] overflow-y-auto"
+          : "-mb-7 overflow-hidden rounded-t-2xl pb-7 backdrop-blur-md",
       )}
     >
       {!queue.autoDrain ? (

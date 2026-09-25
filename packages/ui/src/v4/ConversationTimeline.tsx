@@ -16,7 +16,7 @@ import {
 } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { ArrowDownIcon } from "lucide-react";
-import { TID_V4_TIMELINE, TID_V4_TIMELINE_BOTTOM } from "@zcode/shared";
+import { TID_V4_TIMELINE, TID_V4_TIMELINE_BOTTOM, isZaicodeProductMode } from "@zcode/shared";
 import type {
   ApiRetryState,
   AttachmentRef,
@@ -521,6 +521,7 @@ function ConversationTimelineImpl({
   // 否则面板会覆盖正文，而不是并排布局。
   const summaryPanelInlineOffsetClassName =
     getConversationStatusPanelOffsetClassName(summaryPanelLayout);
+  const zaicodeWholePixelRows = isZaicodeProductMode();
   const contentWidthClassName = getConversationContentWidthClassName({
     centeredEmptyLayout,
     statusPanelLayout: summaryPanelLayout,
@@ -1836,7 +1837,15 @@ function ConversationTimelineImpl({
                       // virtual history 的子项通过 absolute 定位，父级 padding 不会缩小
                       // 它们的 containing block；正文响应式内边距必须落在 turn wrapper 自身。
                       className="absolute left-0 top-0 w-full"
-                      style={{ transform: `translateY(${virtualRow.start - headerSlotHeight}px)` }}
+                      // ZAICODE (SRC-038): measured row heights are fractional; a pixel font on a
+                      // half-pixel row is blurred, so rows start on whole pixels there.
+                      style={{
+                        transform: `translateY(${
+                          zaicodeWholePixelRows
+                            ? Math.round(virtualRow.start - headerSlotHeight)
+                            : virtualRow.start - headerSlotHeight
+                        }px)`,
+                      }}
                     >
                       <ConversationTurnGroup
                         unit={unit}

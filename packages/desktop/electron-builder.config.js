@@ -85,6 +85,24 @@ const macSigningIdentity =
 const shouldEnableMacSigning =
   process.env.ZCODE_ENABLE_MAC_SIGN === "1" && Boolean(macSigningIdentity);
 const workspaceRoot = resolve(import.meta.dirname, "../..");
+
+/**
+ * ZAICODE ships the patched 9router (MIT) so a fresh machine needs no Node, npm
+ * or router install (T-46): its server (`app/`) goes to resources/router/9router.
+ * Source: ZAICODE_ROUTER_PACKAGE_SRC, else the machine's global npm install.
+ */
+function resolveZaicodeRouterPackageSource() {
+  const candidates = [
+    process.env.ZAICODE_ROUTER_PACKAGE_SRC,
+    process.env.APPDATA ? join(process.env.APPDATA, "npm", "node_modules", "9router") : undefined,
+    ...(process.env.PATH ?? "")
+      .split(process.platform === "win32" ? ";" : ":")
+      .filter((dir) => dir && existsSync(join(dir, process.platform === "win32" ? "9router.cmd" : "9router")))
+      .map((dir) => join(dir, "node_modules", "9router")),
+  ];
+  return candidates.find((dir) => dir && existsSync(join(dir, "app", "server.js"))) ?? null;
+}
+const zaicodeRouterPackageSource = resolveZaicodeRouterPackageSource();
 const desktopPackageRoot = import.meta.dirname;
 const runtimeModuleLookupRoots = [
   desktopPackageRoot,
@@ -547,6 +565,16 @@ export default {
             configuredTargetPlatform: targetPlatform,
           })
         : null;
+    if (zaicodeRouterPackageSource) {
+      // extraResources never copies node_modules (not even through a filter); the router server needs its own.
+      runTimedSync("afterPack:zaicodeRouterModules", () =>
+        cpSync(
+          join(zaicodeRouterPackageSource, "app", "node_modules"),
+          join(resolvePackagedResourcesDir(context), "router", "9router", "app", "node_modules"),
+          { recursive: true },
+        ),
+      );
+    }
     await runTimedAsync("afterPack:injectHoistedRuntimeModulesIntoAsar", () =>
       injectHoistedRuntimeModulesIntoAsar(context),
     );
@@ -594,6 +622,25 @@ export default {
       // 应用图标：打包后放入 resources 目录，主进程通过 process.resourcesPath 加载
       from: "build/icon.png",
       to: "icon.png",
+    },
+    ...(zaicodeRouterPackageSource
+      ? [
+          {
+            // ZAICODE zero-setup router: the 9router server incl. its Next build (a dot folder) and bundled modules.
+            from: join(zaicodeRouterPackageSource, "app"),
+            to: "router/9router/app",
+            // The Next build is a dot folder and must be named; node_modules is copied in afterPack.
+            filter: ["**/*", ".next-cli-build/**/*"],
+          },
+          { from: join(zaicodeRouterPackageSource, "LICENSE"), to: "router/9router/LICENSE" },
+          { from: join(zaicodeRouterPackageSource, "package.json"), to: "router/9router/package.json" },
+        ]
+      : []),
+    {
+      // ZAICODE 像素级清晰字体（Verdana_m1 / Terminus TTF，带内嵌位图）：启动器与主进程
+      // 从 resources/zaicode-fonts 按用户级安装；作为 @font-face 会被 Chromium 剥掉位图表。
+      from: "build/zaicode-fonts",
+      to: "zaicode-fonts",
     },
     ...(targetPlatform.os === "linux"
       ? [

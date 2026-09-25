@@ -40,6 +40,7 @@ import {
   TID_V4_ATTACHMENT_UPLOAD_PROGRESS,
   TID_V4_ATTACHMENT_UPLOAD_RETRY,
   TID_V4_STOP,
+  isZaicodeProductMode,
   testId,
   type PlanIdentitySnapshot,
   type ZCodeProvider,
@@ -63,6 +64,9 @@ import {
   resolveChatErrorBannerDisplayMessage,
   shouldSuppressChatErrorBanner,
 } from "@/ChatErrorBanner.js";
+import { ZaicodeAutoRetryNotice } from "@/zaicode/ZaicodeAutoRetryNotice.js";
+import type { ZaicodeAutoRetryState } from "@/zaicode/zaicodeAutoRetry.js";
+import { playZaicodeSound } from "@/zaicode/zaicodeSoundBus.js";
 import {
   Attachment,
   Attachments,
@@ -125,7 +129,11 @@ import {
   resolveComposerAutoFocus,
   type ComposerAutoFocusOptions,
 } from "@/v4/composer/composerAutoFocus.js";
-import { V4_DRAFT_SCOPE_ROOT, type V4ComposerDraft } from "@/v4/composer/composerDraftStore.js";
+import {
+  persistV4ComposerDraftContent,
+  V4_DRAFT_SCOPE_ROOT,
+  type V4ComposerDraft,
+} from "@/v4/composer/composerDraftStore.js";
 import {
   resolveOppositeFollowupDelivery,
   resolveFollowupModifierTooltip,
@@ -446,6 +454,8 @@ interface ConversationComposerProps {
   onSendCompressionCommand?: (command: string) => void;
   /** v4 会话级错误（snapshot.control.lastError），展示在输入框上方。 */
   error?: ZCodeUiError | null;
+  /** ZAICODE：错误后的自动重试状态（倒计时 / 立即重试 / 停止）。 */
+  zaicodeAutoRetry?: ZaicodeAutoRetryState;
   onDismissError?: () => void;
   /** 无可用模型横幅的恢复动作；由 SessionPane 注入壳层导航，组件不直接操作 tab。 */
   onOpenModelSettings?: () => void;
@@ -525,6 +535,7 @@ function ConversationComposerImpl({
   onSendCompressionCommand,
   error,
   onDismissError,
+  zaicodeAutoRetry,
   onOpenModelSettings,
   onOpenModelUpgrade,
   onOpenCodeViewer,
@@ -939,6 +950,7 @@ function ConversationComposerImpl({
       previousTarget.workspaceIdentity !== workspaceIdentity;
     let transferredDraft: ReturnType<typeof snapshotDraftOfEditor> | null = null;
     if (targetChanged && !suppressDraftPersistRef.current) {
+      const hadPendingPersist = draftPersistTimerRef.current !== null;
       if (draftPersistTimerRef.current !== null) {
         window.clearTimeout(draftPersistTimerRef.current);
         draftPersistTimerRef.current = null;
@@ -957,6 +969,14 @@ function ConversationComposerImpl({
         // 项目解绑只改变草稿的 cwd；输入正文、mention editor state 和组件内附件继续保留。
         replaceComposerDraft({ ...ownerDraftRef.current.draft, ...previousDraft });
         transferredDraft = previousDraft;
+      } else if (hadPendingPersist) {
+        // ZAICODE: keystrokes typed right before the switch belong to the scope being left.
+        persistV4ComposerDraftContent(
+          previousTarget.workspacePath,
+          previousTarget.workspaceIdentity,
+          previousTarget.scopeId,
+          previousDraft,
+        );
       }
     }
     draftScopeRef.current = draftScopeId;
@@ -1189,6 +1209,8 @@ function ConversationComposerImpl({
       });
       pendingRef.current = true;
       setPending(true);
+      // ZAICODE: one "Send prompt" sound per send; a queue re-confirmation reuses the first click.
+      if (!existingTelemetrySeed) playZaicodeSound("composer.send");
       // Bug 根因：草稿 intent 只保存用户显式改动，正常继承模型位于冻结初始化 config。
       // prewarm snapshot 尚未到达时若只读 draftConfig，send_btn 会错误落成空模型/glm。
       const telemetryConfig = telemetryDraftConfig ?? snapshotRef.current?.config ?? draftConfig;
@@ -2220,10 +2242,14 @@ function ConversationComposerImpl({
         <div className="mb-6 w-full shrink-0">
           <ChatErrorBanner
             error={visibleError}
+            {...(zaicodeAutoRetry?.available
+              ? { onRetry: zaicodeAutoRetry.retryNow, retryLabel: "Retry now" }
+              : {})}
             onDismiss={onDismissError}
             onOpenModelSettings={onOpenModelSettings}
             onOpenUpgrade={onOpenModelUpgrade}
           />
+          {zaicodeAutoRetry ? <ZaicodeAutoRetryNotice state={zaicodeAutoRetry} /> : null}
         </div>
       ) : null}
       <div
@@ -2281,6 +2307,7 @@ function ConversationComposerImpl({
           excludedSlashCommandNames={suppressGoalCommands ? ["goal"] : undefined}
           appSlashCommands={appSlashCommands}
           enableMentionPanel
+          showSaipenControls={isZaicodeProductMode()}
           leadingActions={leadingActionsNode}
           submitControl={submitControlNode}
           className="p-0"

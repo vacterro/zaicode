@@ -117,7 +117,8 @@ export interface GitChangeSummary {
   removed: number;
 }
 
-export type WorkspaceMainView = "chat" | "automations" | "plugin-store";
+// ZAICODE: "saihome" is SAIHOME, the operator home (T-56); it is never the composer ("chat").
+export type WorkspaceMainView = "chat" | "automations" | "plugin-store" | "zaicode" | "saihome";
 
 export interface WorkspaceShellLayoutProps extends Omit<AppProps, "baseFeedbackService"> {
   workspaceReadOnlyReason?: string;
@@ -237,6 +238,8 @@ export interface WorkspaceShellLayoutProps extends Omit<AppProps, "baseFeedbackS
   handleOpenTreemapping: (source?: TreemappingSidePaneTab["source"]) => void;
   handleOpenWhiteboard: () => void;
   handleOpenDeveloperTools: () => void;
+  /** ZAICODE：SAIPEN 协议实时面板。 */
+  handleOpenSaipenTab?: () => void;
   handleOpenTerminalTab: () => void;
   handleToggleGit: () => void;
   handleOpenGitReview: (sourceId?: GitChangeSourceId) => void;

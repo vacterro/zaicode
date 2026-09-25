@@ -4,7 +4,7 @@ import type { AppSettings } from "@zcode/shared";
 export const DEFAULT_DESKTOP_WINDOW_WIDTH = 1200;
 export const DEFAULT_DESKTOP_WINDOW_HEIGHT = 800;
 export const MIN_DESKTOP_WINDOW_WIDTH = 480;
-export const MIN_DESKTOP_WINDOW_HEIGHT = 640;
+export const MIN_DESKTOP_WINDOW_HEIGHT = 540;
 const WINDOW_SIZE_PERSIST_DEBOUNCE_MS = 250;
 
 export type DesktopWindowSize = NonNullable<AppSettings["desktopWindowSize"]>;

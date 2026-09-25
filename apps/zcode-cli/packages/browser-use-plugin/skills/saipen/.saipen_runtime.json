@@ -1,0 +1,9 @@
+{
+    "schema_version":  1,
+    "adapter_id":  "freebuff",
+    "canonical_source_root":  "C:\\Users\\vac34\\AppData\\Local\\saipen\\scheduled-source",
+    "source_version":  "8.0.1",
+    "source_build":  "",
+    "runtime_fingerprint":  "gen-sha256:aebe2c9d324cac60cd089e106d612b1d7bd7ed766b42c95e98b9e32b4c7f78f0",
+    "installer_generation":  "T-1342-runtime-surface-identity-20260915.1"
+}

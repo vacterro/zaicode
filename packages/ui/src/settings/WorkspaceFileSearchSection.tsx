@@ -8,6 +8,7 @@ import { useWorkspaceServicesResolution } from "@/hooks/useWorkspaceServices.js"
 import { useZCodeIntl } from "@/i18n/IntlProvider.js";
 import { SettingsGroupCard } from "@/settings/SettingsPageParts.js";
 import { logger } from "@/logger.js";
+import { zaicodeKeyIs } from "@/zaicode/zaicodeKeys.js";
 
 interface WorkspaceFileSearchSectionProps {
   workspacePath?: string | null;
@@ -207,7 +208,7 @@ function ActiveWorkspaceFileSearchEditor({
             onKeyDown={(event) => {
               // 保存快捷键：编辑器内 Ctrl/Cmd+S 与点保存按钮等价（preventDefault
               // 阻止浏览器默认行为）；门控与按钮一致（canSave）。
-              if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "s") {
+              if ((event.metaKey || event.ctrlKey) && zaicodeKeyIs(event, "s")) {
                 event.preventDefault();
                 if (canSave && !saving && !loading) {
                   void handleSave();

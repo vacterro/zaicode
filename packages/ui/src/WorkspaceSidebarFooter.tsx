@@ -7,6 +7,7 @@ import {
   TID_LOGIN_TRIGGER,
   TID_LOGOUT_BUTTON,
   TID_TASK_SETTINGS_BUTTON,
+  isZaicodeProductMode,
 } from "@zcode/shared";
 import { ControlHintTooltip } from "@/ControlHintTooltip.js";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar.js";
@@ -43,6 +44,14 @@ import { useZCodeIntl } from "@/i18n/IntlProvider.js";
 import { useShortcutCommandLabel } from "@/shortcuts/useShortcutBindings.js";
 import { useZCodeStore } from "@/store/StoreProvider.js";
 import { normalizeInterfaceMode } from "@/lib/interfaceMode.js";
+import {
+  ZaicodeHelpMenuSub,
+  ZaicodePaletteMenuSub,
+  ZaicodeProfileBadge,
+  ZaicodeProfileMenuSub,
+} from "@/zaicode/ZaicodeFooterMenus.js";
+import { ZaicodeProblipButton } from "@/zaicode/ZaicodeAudioPanels.js";
+import { ZaicodeIcon } from "@/zaicode/zaicodeIconSlots.js";
 import type { Theme } from "@/useTheme.js";
 import {
   WorkspaceSidebarFooterPlanBadge,
@@ -64,7 +73,7 @@ function getSidebarProfileName(user?: UserInfo | null): string {
     return username;
   }
 
-  return "ZCode";
+  return "ZAICODE";
 }
 
 function getSidebarProfileBadge(
@@ -139,7 +148,11 @@ export const WorkspaceSidebarFooter = memo(function WorkspaceSidebarFooterCompon
     workspaceIdentity,
     workspacePath,
   });
-  const profileContent = (
+  // ZAICODE 没有应用账户：footer 显示本地 profile（通用图标 + 名称），不再显示 "Connect"。
+  const zaicodeMode = isZaicodeProductMode();
+  const profileContent = zaicodeMode ? (
+    <ZaicodeProfileBadge />
+  ) : (
     <>
       <Avatar key={avatarKey} size="default">
         {user?.avatarUrl ? <AvatarImage src={user.avatarUrl} alt={profileBadge} /> : null}
@@ -235,6 +248,80 @@ export const WorkspaceSidebarFooter = memo(function WorkspaceSidebarFooterCompon
           </DropdownMenuTrigger>
           {/* 菜单内容保持挂载，避免每次点击头像菜单都重建 footer 内部状态。*/}
           <DropdownMenuContent align="start" className="w-max min-w-50" forceMount>
+            {zaicodeMode ? <ZaicodeProfileMenuSub /> : null}
+            {zaicodeMode ? <ZaicodePaletteMenuSub /> : null}
+            {zaicodeMode ? (
+              <>
+                <DropdownMenuSeparator />
+                {/* ZAICODE：缩放与语言直接平铺成一行按钮，不再藏在子菜单里。 */}
+                {isDesktop ? (
+                  <div className="flex items-center gap-1 px-2 py-1 text-ui-sm" data-zaicode-inline-zoom>
+                    <ZoomIn className="size-4 text-foreground-subtle" />
+                    <span className="min-w-0 flex-1">
+                      {intl.formatMessage({ id: "sidebar.settings.interfaceZoom" })}
+                    </span>
+                    <button
+                      type="button"
+                      className="flex size-6 items-center justify-center border border-border hover:bg-hover disabled:opacity-40"
+                      disabled={!canZoomOut}
+                      title={zoomOutShortcutLabel}
+                      aria-label={intl.formatMessage({ id: "titleBar.menu.view.zoomOut" })}
+                      onClick={() => runDesktopZoomCommand(DesktopCommandIds.ZoomOut)}
+                    >
+                      −
+                    </button>
+                    <button
+                      type="button"
+                      className="h-6 min-w-12 border border-border px-1 tabular-nums hover:bg-hover disabled:opacity-60"
+                      disabled={!canResetDesktopZoom}
+                      title={resetZoomShortcutLabel}
+                      aria-label={intl.formatMessage({ id: "titleBar.menu.view.actualSize" })}
+                      onClick={() => runDesktopZoomCommand(DesktopCommandIds.ResetZoom)}
+                    >
+                      {Math.round(100 * 1.2 ** desktopZoomLevel)}%
+                    </button>
+                    <button
+                      type="button"
+                      className="flex size-6 items-center justify-center border border-border hover:bg-hover disabled:opacity-40"
+                      disabled={!canZoomIn}
+                      title={zoomInShortcutLabel}
+                      aria-label={intl.formatMessage({ id: "titleBar.menu.view.zoomIn" })}
+                      onClick={() => runDesktopZoomCommand(DesktopCommandIds.ZoomIn)}
+                    >
+                      +
+                    </button>
+                  </div>
+                ) : null}
+                <div className="flex items-center gap-1 px-2 py-1 text-ui-sm" data-zaicode-inline-locale>
+                  <Globe className="size-4 text-foreground-subtle" />
+                  <span className="min-w-0 flex-1">{intl.formatMessage({ id: "settings.locale" })}</span>
+                  {(
+                    [
+                      ["system", "Auto"],
+                      ["en-US", "EN"],
+                      ["zh-CN", "中文"],
+                    ] as const
+                  ).map(([value, label]) => (
+                    <button
+                      key={value}
+                      type="button"
+                      aria-pressed={localeMenuValue === value}
+                      className={cn(
+                        "h-6 border px-1.5",
+                        localeMenuValue === value
+                          ? "border-border bg-selected text-foreground"
+                          : "border-transparent text-foreground-subtle hover:bg-hover",
+                      )}
+                      onClick={() => onLocaleChange(value)}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+                <DropdownMenuSeparator />
+              </>
+            ) : null}
+            {zaicodeMode ? null : (
             <DropdownMenuSub>
               <DropdownMenuSubTrigger>
                 <Globe className="size-4" />
@@ -260,31 +347,37 @@ export const WorkspaceSidebarFooter = memo(function WorkspaceSidebarFooterCompon
                 </DropdownMenuRadioGroup>
               </DropdownMenuSubContent>
             </DropdownMenuSub>
-            <DropdownMenuSub>
-              <DropdownMenuSubTrigger>
-                <Palette className="size-4" />
-                {intl.formatMessage({ id: "settings.themeMode" })}
-              </DropdownMenuSubTrigger>
-              <DropdownMenuSubContent className="w-48">
-                <DropdownMenuRadioGroup value={theme} onValueChange={onThemeChange}>
-                  <DropdownMenuRadioItem value="system">
-                    {intl.formatMessage({
-                      id: "sidebar.settings.systemDefault",
-                    })}
-                  </DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="zai-dark">
-                    {intl.formatMessage({
-                      id: "sidebar.settings.theme.zai-dark",
-                    })}
-                  </DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="zai-light">
-                    {intl.formatMessage({
-                      id: "sidebar.settings.theme.zai-light",
-                    })}
-                  </DropdownMenuRadioItem>
-                </DropdownMenuRadioGroup>
-              </DropdownMenuSubContent>
-            </DropdownMenuSub>
+            )}
+            {/* ZAICODE：Wintage 调色板已经统管外观，这里的通用亮/暗主题子菜单是重复入口，隐藏它。 */}
+            {zaicodeMode ? null : (
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger>
+                  <Palette className="size-4" />
+                  {intl.formatMessage({ id: "settings.themeMode" })}
+                </DropdownMenuSubTrigger>
+                <DropdownMenuSubContent className="w-48">
+                  <DropdownMenuRadioGroup value={theme} onValueChange={onThemeChange}>
+                    <DropdownMenuRadioItem value="system">
+                      {intl.formatMessage({
+                        id: "sidebar.settings.systemDefault",
+                      })}
+                    </DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="zai-dark">
+                      {intl.formatMessage({
+                        id: "sidebar.settings.theme.zai-dark",
+                      })}
+                    </DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="zai-light">
+                      {intl.formatMessage({
+                        id: "sidebar.settings.theme.zai-light",
+                      })}
+                    </DropdownMenuRadioItem>
+                  </DropdownMenuRadioGroup>
+                </DropdownMenuSubContent>
+              </DropdownMenuSub>
+            )}
+            {/* ZAICODE 只有编程界面，办公/编程模式切换是多余开关。 */}
+            {zaicodeMode ? null : (
             <DropdownMenuSub>
               <DropdownMenuSubTrigger>
                 <PencilRuler className="size-4" />
@@ -304,11 +397,12 @@ export const WorkspaceSidebarFooter = memo(function WorkspaceSidebarFooterCompon
                 </DropdownMenuRadioGroup>
               </DropdownMenuSubContent>
             </DropdownMenuSub>
+            )}
             {/* 快捷键设置：缩放子菜单 label 读生效表，设置页改绑后即时跟随 */}
             {/* 收口重复缩放子菜单时误留了语言之后的那份，导致菜单顺序变成
                 语言→缩放→主题；账户菜单分组顺序固定为 语言→主题→界面模式→缩放→用量→登录/登出，
                 这里把唯一一份（读生效表）挪回用量摘要之前，不要再补第二份缩放子菜单。 */}
-            {isDesktop ? (
+            {isDesktop && !zaicodeMode ? (
               <DropdownMenuSub>
                 <DropdownMenuSubTrigger>
                   <ZoomIn className="size-4" />
@@ -348,6 +442,7 @@ export const WorkspaceSidebarFooter = memo(function WorkspaceSidebarFooterCompon
               onUsageClick={usageButtonClick}
               onUpgradeClick={onUpgradeClick}
             />
+            {zaicodeMode ? <ZaicodeHelpMenuSub isDesktop={isDesktop} /> : null}
             {onLogin && !user ? (
               <>
                 <DropdownMenuSeparator />
@@ -357,7 +452,8 @@ export const WorkspaceSidebarFooter = memo(function WorkspaceSidebarFooterCompon
                 </DropdownMenuItem>
               </>
             ) : null}
-            {onLogout ? (
+            {/* ZAICODE 无账号：Disconnect 只会重启并要求重新连接一个不存在的账号。 */}
+            {onLogout && !zaicodeMode ? (
               <>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onSelect={onLogout} data-testid={TID_LOGOUT_BUTTON}>
@@ -369,6 +465,7 @@ export const WorkspaceSidebarFooter = memo(function WorkspaceSidebarFooterCompon
           </DropdownMenuContent>
         </DropdownMenu>
         <div className="flex shrink-0 items-center gap-1.5">
+          {zaicodeMode ? <ZaicodeProblipButton /> : null}
           <ControlHintTooltip title={settingsButtonLabel}>
             <Button
               type="button"
@@ -379,7 +476,11 @@ export const WorkspaceSidebarFooter = memo(function WorkspaceSidebarFooterCompon
               disabled={!onSettingsButtonClick}
               onClick={onSettingsButtonClick}
             >
-              <Settings className="size-4" />
+              {zaicodeMode ? (
+                <ZaicodeIcon slot="footer.settings" />
+              ) : (
+                <Settings className="size-4" />
+              )}
             </Button>
           </ControlHintTooltip>
         </div>

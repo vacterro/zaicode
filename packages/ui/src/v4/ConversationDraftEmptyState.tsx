@@ -10,6 +10,15 @@ import { cn } from "@/components/lib/utils.js";
 import { useZCodeIntl } from "@/i18n/IntlProvider.js";
 import { useIsOfficeMode } from "@/hooks/useInterfaceMode.js";
 import { logger } from "@/logger.js";
+import { isZaicodeProductMode } from "@zcode/shared";
+import { ZaicodeRightClickSettings } from "@/zaicode/ZaicodePrefControls.js";
+import {
+  ZaicodeEmptyMarker,
+  ZaicodeGreetingSettingsPanel,
+  ZaicodeHomeSaimailLine,
+  ZaicodeHomeSettingsLink,
+  useZaicodeHomeGreeting,
+} from "@/zaicode/ZaicodeHomeScreen.js";
 
 const GREETING_BOUNDARY_HOURS = [5, 9, 12, 14, 18, 23] as const;
 const GREETING_MIN_FONT_SIZE_PX = 20;
@@ -84,9 +93,11 @@ export function ConversationDraftEmptyState({ className }: { className?: string 
   const [greetingFontSizePx, setGreetingFontSizePx] = useState(GREETING_MAX_FONT_SIZE_PX);
   const greetingContainerRef = useRef<HTMLParagraphElement | null>(null);
   const greetingMeasurementRef = useRef<HTMLSpanElement | null>(null);
-  const greeting = intl.formatMessage({
+  const timeGreeting = intl.formatMessage({
     id: isOfficeMode ? "chat.empty.greeting.office" : getChatEmptyGreetingMessageId(greetingDate),
   });
+  const zaicodeGreeting = useZaicodeHomeGreeting(timeGreeting, greetingDate);
+  const greeting = isZaicodeProductMode() ? zaicodeGreeting : timeGreeting;
 
   useEffect(() => {
     const timeout = window.setTimeout(() => {
@@ -167,6 +178,24 @@ export function ConversationDraftEmptyState({ className }: { className?: string 
     };
   }, [greeting]);
 
+  const greetingElement = greeting ? (
+    <p
+      ref={greetingContainerRef}
+      data-v4-draft-greeting="true"
+      style={{ "--v4-draft-greeting-font-size": `${greetingFontSizePx}px` } as CSSProperties}
+      className={cn(
+        "relative z-10 w-full px-4 text-center text-foreground",
+        isZaicodeProductMode() ? "font-normal" : "font-medium",
+        "text-[length:var(--v4-draft-greeting-font-size)]/[1.2]",
+      )}
+    >
+      <span ref={greetingMeasurementRef} aria-hidden="true" className="pointer-events-none invisible absolute whitespace-nowrap text-3xl/[1.2]">
+        {greeting}
+      </span>
+      <span>{greeting}</span>
+    </p>
+  ) : null;
+
   return (
     <div
       className={cn(
@@ -174,37 +203,33 @@ export function ConversationDraftEmptyState({ className }: { className?: string 
         className,
       )}
     >
-      <div
-        aria-hidden="true"
-        className={cn(
-          "pointer-events-none absolute left-1/2 top-1/2 aspect-[5/4] w-[min(72vw,25rem)] -mt-10",
-          "-translate-x-1/2 -translate-y-1/2 text-foreground-subtlest",
-        )}
-      >
-        <ZCodeEmptyStateLogo className="h-full w-full" />
-      </div>
-      <p
-        ref={greetingContainerRef}
-        data-v4-draft-greeting="true"
-        style={
-          {
-            "--v4-draft-greeting-font-size": `${greetingFontSizePx}px`,
-          } as CSSProperties
-        }
-        className={cn(
-          "relative z-10 w-full px-4 text-center font-medium text-foreground",
-          "text-[length:var(--v4-draft-greeting-font-size)]/[1.2]",
-        )}
-      >
-        <span
-          ref={greetingMeasurementRef}
+      {!isZaicodeProductMode() ? (
+        <>
+        <div
           aria-hidden="true"
-          className="pointer-events-none invisible absolute whitespace-nowrap text-3xl/[1.2]"
+          className={cn(
+            "pointer-events-none absolute left-1/2 top-1/2 aspect-[5/4] w-[min(72vw,25rem)] -mt-10",
+            "-translate-x-1/2 -translate-y-1/2 text-foreground-subtlest",
+          )}
         >
-          {greeting}
-        </span>
-        <span>{greeting}</span>
-      </p>
+          <ZCodeEmptyStateLogo className="h-full w-full" />
+        </div>
+        {greetingElement}
+        </>
+      ) : (
+        <ZaicodeRightClickSettings
+          title="New task screen"
+          hint="Greeting, hours, empty marker and SAIMAIL line"
+          panel={<ZaicodeGreetingSettingsPanel />}
+          className="group/home min-h-6 w-full flex-col items-center gap-6"
+        >
+          <ZaicodeEmptyMarker />
+          {greetingElement}
+          <ZaicodeHomeSaimailLine />
+          {/* T-56: the SCHEDULER's readiness moved to SAIHOME; this is the composer (NEW TASK). */}
+          <ZaicodeHomeSettingsLink />
+        </ZaicodeRightClickSettings>
+      )}
     </div>
   );
 }

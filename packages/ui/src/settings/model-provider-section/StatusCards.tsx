@@ -3,6 +3,7 @@ import { CodingPlanEntryButton } from "@/settings/CodingPlanEntryButton.js";
 import {
   BIGMODEL_PROVIDER_ID,
   isStartPlanModelProviderId,
+  isZaicodeProductMode,
   resolveModelProviderFamilySpecByProviderId,
   type UsageEntitlementSubscriptionDetail,
   type UsageQuotaLimit,
@@ -635,6 +636,10 @@ export function CodingPlanStatusPanel({
             }
           />,
         ];
+
+  if (isZaicodeProductMode()) {
+    return null;
+  }
 
   return (
     <div className="space-y-3">

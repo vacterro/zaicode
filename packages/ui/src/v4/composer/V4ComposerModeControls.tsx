@@ -6,6 +6,7 @@ import {
   TID_V4_COMPOSER_INPUT,
   ZCODE_AGENT_PROVIDER,
   getZCodeAgentAvailableModes,
+  isZaicodeProductMode,
   testId,
   type ZCodeConfigOption,
 } from "@zcode/shared";
@@ -61,7 +62,8 @@ function V4ComposerModeSwitchImpl({
   const modeShortcutLabel = useShortcutCommandLabel("cycleSessionMode");
   const modes = getZCodeAgentAvailableModes();
   const permissions = modes.filter((mode) => mode.id !== "plan");
-  const selected = permissions.find((mode) => mode.id === draftConfig?.mode);
+  const effectiveMode = draftConfig?.mode ?? (isZaicodeProductMode() ? "yolo" : "build");
+  const selected = permissions.find((mode) => mode.id === effectiveMode);
   const label = (mode: (typeof modes)[number]) =>
     getModeOptionDisplayLabel(intl, displayProvider, { value: mode.id, name: mode.name });
   const plan = modes.find((mode) => mode.id === "plan")!;
@@ -74,12 +76,12 @@ function V4ComposerModeSwitchImpl({
       name: "Mode",
       category: "mode",
       type: "select",
-      currentValue: draftConfig?.mode ?? "build",
+      currentValue: effectiveMode,
       options: getZCodeAgentAvailableModes()
         .filter((mode) => mode.id !== "plan")
         .map((mode) => ({ value: mode.id, name: mode.name })),
     }),
-    [draftConfig?.mode],
+    [effectiveMode],
   );
   const cycle = useCallback(() => {
     const next = getNextConfigSelectValue(modeOption);

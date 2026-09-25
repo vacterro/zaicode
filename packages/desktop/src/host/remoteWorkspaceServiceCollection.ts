@@ -29,6 +29,8 @@ import {
   IPluginsService,
   IPluginManagementService,
   ISubagentsService,
+  IZaicodeAgentService,
+  IZaicodeJobService,
   ICommandsService,
   IHooksService,
   IMemoryService,
@@ -73,6 +75,7 @@ import {
   ZAI_PROVIDER_ID,
 } from "@zcode/shared";
 import { assertLegacyRemoteWorkspaceRpcContract } from "./legacyRemoteWorkspaceRpcContract.js";
+import { resolveZaicodeRemoteWorkspaceServices } from "./zaicodeRemoteWorkspaceServices.js";
 import {
   createRemoteProviderProvisioningExecutorFromWorkspace,
   registerRemoteProviderProvisioningExecutor,
@@ -95,6 +98,7 @@ export function createRemoteWorkspaceServiceCollection(params: {
   };
 }): ServiceCollection {
   assertLegacyRemoteWorkspaceRpcContract(params.connectionServices);
+  const zaicodeServices = resolveZaicodeRemoteWorkspaceServices(params.connectionServices);
   const localSettingService = createSettingService();
   const localCredentialService = createCredentialService();
   const localAccountProviderCredentialStore = createAccountProviderCredentialStore({
@@ -357,6 +361,13 @@ export function createRemoteWorkspaceServiceCollection(params: {
     .register(IPluginManagementService, params.connectionServices.pluginManagementService)
     .register(ICommandsService, params.connectionServices.commandsService)
     .register(ISubagentsService, createSubagentsService({ isDesktopRuntime: true }))
+    // ZAICODE 队列与 agent 定义属于目标 Environment：优先透传远端 host 的同一组服务，
+    // 远端不具备时注册明确的不可用桩，绝不在本机数据库上跑远端 workspace 的队列。
+    .register(
+      IZaicodeAgentService,
+      zaicodeServices.zaicodeAgentService,
+    )
+    .register(IZaicodeJobService, zaicodeServices.zaicodeJobService)
     .register(IHooksService, params.connectionServices.hooksService)
     .register(IMemoryService, createMemoryService())
     .register(

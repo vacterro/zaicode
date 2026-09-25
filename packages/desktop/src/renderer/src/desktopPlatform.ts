@@ -133,6 +133,35 @@ export function createDesktopPlatform(options: {
       Promise.resolve({ autoDownloadAndInstallUpdates: false }),
     setAutoDownloadAndInstallUpdates: (enabled) =>
       window.zcode.setAutoDownloadAndInstallUpdates?.(enabled) ?? Promise.resolve(),
+    // ZAICODE 启动器偏好：preload 已暴露，但此前没有映射进 IPlatformService，
+    // 导致 设置 -> ZAICODE 的 SAIMAIL 输入框与「崩溃后重启」开关一直是禁用态。
+    getZaicodeLauncherPreferences: window.zcode.getZaicodeLauncherPreferences
+      ? () => window.zcode.getZaicodeLauncherPreferences!()
+      : undefined,
+    setZaicodeAutoRestartOnCrash: window.zcode.setZaicodeAutoRestartOnCrash
+      ? (enabled) => window.zcode.setZaicodeAutoRestartOnCrash!(enabled)
+      : undefined,
+    setZaicodeSaimailWorkspace: window.zcode.setZaicodeSaimailWorkspace
+      ? (workspace) => window.zcode.setZaicodeSaimailWorkspace!(workspace)
+      : undefined,
+    initZaicodeSaimailWorkspace: window.zcode.initZaicodeSaimailWorkspace
+      ? (workspace) => window.zcode.initZaicodeSaimailWorkspace!(workspace)
+      : undefined,
+    getZaicodePixelExact: window.zcode.getZaicodePixelExact
+      ? () => window.zcode.getZaicodePixelExact!()
+      : undefined,
+    setZaicodePixelExact: window.zcode.setZaicodePixelExact
+      ? (enabled) => window.zcode.setZaicodePixelExact!(enabled)
+      : undefined,
+    saveZaicodeSettingsSnapshot: window.zcode.saveZaicodeSettingsSnapshot
+      ? (json) => window.zcode.saveZaicodeSettingsSnapshot!(json)
+      : undefined,
+    moveWindowBy: window.zcode.moveWindowBy
+      ? (delta) => window.zcode.moveWindowBy!(delta)
+      : undefined,
+    snapWindowZone: window.zcode.snapWindowZone
+      ? (zone) => window.zcode.snapWindowZone!(zone)
+      : undefined,
     getDesktopSessionActivity: () =>
       window.zcode.getDesktopSessionActivity?.() ??
       Promise.resolve({ runningAgentSessionCount: 0 }),

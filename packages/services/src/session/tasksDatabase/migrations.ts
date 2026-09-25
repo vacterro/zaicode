@@ -8,6 +8,9 @@ import {
 } from "#src/session/tasksDatabase/schema-v1.js";
 import { importLegacyAutomationSelections } from "#src/session/tasksDatabase/provider-selection-v2.js";
 import { OFFICIAL_GLM_SELECTION_MIGRATION_SQL } from "#src/session/tasksDatabase/official-glm-selection-v3.js";
+import { ZAICODE_SCHEMA } from "#src/session/tasksDatabase/zaicode-v4.js";
+import { ZAICODE_ROUTING_BACKEND_MIGRATION_SQL } from "#src/session/tasksDatabase/zaicode-backend-v5.js";
+import { ZAICODE_STATS_MIGRATION_SQL } from "#src/session/tasksDatabase/zaicode-stats-v6.js";
 
 // 冻结历史列声明，不能以实时 Repo/schema 代替，否则新版构建会改变已应用 checksum。
 const columns = [
@@ -64,6 +67,18 @@ const definitions = [
     id: "0003_official_glm_selection",
     checksumInput: [OFFICIAL_GLM_SELECTION_MIGRATION_SQL],
   },
+  {
+    id: "0004_zaicode_product",
+    checksumInput: [ZAICODE_SCHEMA],
+  },
+  {
+    id: "0005_zaicode_routing_backend",
+    checksumInput: [ZAICODE_ROUTING_BACKEND_MIGRATION_SQL],
+  },
+  {
+    id: "0006_zaicode_stats",
+    checksumInput: [ZAICODE_STATS_MIGRATION_SQL],
+  },
 ] as const;
 
 export function runTasksDatabaseMigrations(
@@ -113,7 +128,12 @@ export function runTasksDatabaseMigrations(
       options.onProgress?.("migrating", { ...migrationFacts });
       if (migration.id === "0001_adopt_task_schema") adoptSchema(db);
       else if (migration.id === "0002_provider_selection") importLegacyAutomationSelections(db);
-      else db.exec(OFFICIAL_GLM_SELECTION_MIGRATION_SQL);
+      else if (migration.id === "0003_official_glm_selection")
+        db.exec(OFFICIAL_GLM_SELECTION_MIGRATION_SQL);
+      else if (migration.id === "0004_zaicode_product") db.exec(ZAICODE_SCHEMA);
+      else if (migration.id === "0005_zaicode_routing_backend")
+        db.exec(ZAICODE_ROUTING_BACKEND_MIGRATION_SQL);
+      else db.exec(ZAICODE_STATS_MIGRATION_SQL);
       migrationFacts.executedCount++;
       db.prepare("INSERT INTO tasks_schema_migration VALUES(?,?,?)").run(
         migration.id,

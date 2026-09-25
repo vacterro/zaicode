@@ -1,3 +1,5 @@
+import { isZaicodeProductMode } from "@zcode/shared";
+import { useZaicodeSoundSettings } from "@/zaicode/zaicodeSoundEvents.js";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { ZCodeElicitationRequest, ZCodePermissionOption, ZCodeProvider } from "@zcode/shared";
 import type { ConversationSnapshot } from "@zcode/shared/zcode-protocol-v4";
@@ -115,9 +117,11 @@ export function V4InteractionDialogs({
     return getTaskUiState(getWorkspaceState(state, workspacePath, workspaceIdentity), sessionId)
       .elicitationFormDraftsByRequestId[pending.interactionId];
   });
+  const zaicodeCuesEnabled = !useZaicodeSoundSettings().muted && isZaicodeProductMode();
   usePendingInteractionTaskNotifications({
     snapshot: currentSnapshot,
-    enabled: notificationEnabled,
+    enabled: notificationEnabled || zaicodeCuesEnabled,
+    notify: notificationEnabled,
     platform,
     formatMessage: intl.formatMessage,
   });

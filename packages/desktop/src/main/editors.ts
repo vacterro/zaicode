@@ -265,7 +265,7 @@ const WINDOWS_EDITOR_DEFS: EditorDef[] = [
   // Workspace 顶部“Open in Editor”以前只把真正的 IDE 暴露给 UI，
   // Windows 用户缺少最基础的“在资源管理器里打开”入口，只能回到其它菜单操作。
   // 这里把系统文件管理器也作为 editor 列表的一员，让 macOS Finder / Windows 资源管理器体验对齐。
-  { id: "explorer", name: "资源管理器", appPath: WINDOWS_EXPLORER_PATH, command: null },
+  { id: "explorer", name: "File Explorer", appPath: WINDOWS_EXPLORER_PATH, command: null },
 ];
 
 const WINDOWS_ADDITIONAL_EDITOR_DEFS: EditorDef[] = [

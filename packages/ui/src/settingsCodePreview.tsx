@@ -1,4 +1,5 @@
 import type { Theme } from "@/useTheme.js";
+import { isZaicodeProductMode } from "@zcode/shared";
 import { useState } from "react";
 import { resolveTheme } from "@/useTheme.js";
 import { Card, CardContent } from "@/components/ui/card.js";
@@ -48,6 +49,40 @@ function FontSizeInput({
       onChange(nextValue);
     }
   };
+
+  if (isZaicodeProductMode()) {
+    // ZAICODE: step buttons instead of making the operator type numbers.
+    const step = (delta: number) => {
+      const nextValue = Math.min(max, Math.max(min, value + delta));
+      setDraft(String(nextValue));
+      if (nextValue !== value) onChange(nextValue);
+    };
+    const stepButtonClass =
+      "flex h-7 w-7 items-center justify-center border border-border bg-card text-ui-lg text-foreground hover:bg-hover disabled:opacity-40";
+    return (
+      <div className="flex items-center gap-1" role="group" aria-label={ariaLabel}>
+        <button
+          type="button"
+          className={stepButtonClass}
+          disabled={value <= min}
+          aria-label={`${ariaLabel} -1`}
+          onClick={() => step(-1)}
+        >
+          −
+        </button>
+        <span className="w-14 text-center tabular-nums text-foreground">{value} px</span>
+        <button
+          type="button"
+          className={stepButtonClass}
+          disabled={value >= max}
+          aria-label={`${ariaLabel} +1`}
+          onClick={() => step(1)}
+        >
+          +
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="relative w-28">
@@ -111,6 +146,7 @@ export function AppearanceSectionContent({
         </div>
         <Card className="border border-border bg-card py-0 shadow-none">
           <CardContent className="space-y-0 px-0">
+            {isZaicodeProductMode() ? null : (
             <SettingsRow
               label={intl.formatMessage({ id: "settings.themeMode" })}
               description={intl.formatMessage({
@@ -136,6 +172,7 @@ export function AppearanceSectionContent({
                 </Select>
               }
             />
+            )}
             <SettingsRow
               label={intl.formatMessage({ id: "settings.uiFontSize" })}
               description={intl.formatMessage({

@@ -10,6 +10,7 @@ import {
   getModelProviderFamilySpec,
   isIndividualCodingPlanModelProviderId,
   isStartPlanModelProviderId,
+  isZaicodeProductMode,
   MODEL_PROVIDER_FAMILY_SPECS,
   resolveModelProviderFamilySpecByProviderId,
 } from "@zcode/shared";
@@ -297,6 +298,9 @@ function filterStartPlanItemsByEntitlement({
   return items.filter((item) => {
     if (!isStartPlanModelProviderId(item.presetId)) {
       return true;
+    }
+    if (isZaicodeProductMode()) {
+      return false;
     }
     const familySpec = resolveModelProviderFamilySpecByProviderId(item.presetId);
     if (!familySpec) {

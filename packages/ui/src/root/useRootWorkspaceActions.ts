@@ -30,6 +30,7 @@ import { resolveWorkbenchNewTaskTarget } from "@/v4/workbenchNewTaskTarget.js";
 import type { WorkbenchNewTaskTarget } from "@/v4/workbenchNewTaskTarget.js";
 import { useWorkbenchGroupStore } from "@/v4/workbenchGroupStore.js";
 import { persistV4ComposerDraft, V4_DRAFT_SCOPE_ROOT } from "@/v4/composer/composerDraftStore.js";
+import { playZaicodeSound } from "@/zaicode/zaicodeSoundBus.js";
 
 interface OpenRemoteConnectionPreference {
   preferredKind?: RemoteTarget["kind"];
@@ -245,6 +246,7 @@ export function useRootWorkspaceActions({
       // group / paneLayout 中继续拆一个 draft；目标 workspace 取 focused pane。
       useWorkbenchGroupStore.getState().deactivateActiveGroup();
       usePaneLayoutStore.getState().resetToPrimaryPane();
+      playZaicodeSound("session.new");
       useZCodeSessionStore
         .getState()
         .startDraft(

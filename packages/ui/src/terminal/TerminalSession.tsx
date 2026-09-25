@@ -96,6 +96,9 @@ export function TerminalSession({
   onOpenBrowserUrl,
   persistentKey,
   workspaceKey,
+  initialInput,
+  fontFamilyOverride,
+  fontSizeOverride,
 }: {
   sessionId: string;
   services: IServiceAccessor;
@@ -120,6 +123,14 @@ export function TerminalSession({
    * 不传时 fallback 到 cwd。下侧 terminal 不传 persistentKey，此值不生效。
    */
   workspaceKey?: string;
+  /**
+   * ZAICODE workers: a command typed into the shell once, right after the PTY
+   * prints its first prompt (persistentKey path only; a remount never repeats it).
+   */
+  initialInput?: string;
+  /** ZAICODE workers: their own font (Terminus by default) instead of the terminal profile font. */
+  fontFamilyOverride?: string;
+  fontSizeOverride?: number;
 }) {
   const { intl } = useZCodeIntl();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -144,6 +155,9 @@ export function TerminalSession({
     null,
   );
   const recentInputFallbackHandledDataRef = useRef<TerminalInputFallbackHandledData[]>([]);
+
+  const fontOverrideRef = useRef({ family: fontFamilyOverride, size: fontSizeOverride });
+  fontOverrideRef.current = { family: fontFamilyOverride, size: fontSizeOverride };
 
   exitedMessageRef.current = intl.formatMessage({ id: "terminal.exited" });
   exitHandlerRef.current = onExit;
@@ -261,6 +275,11 @@ export function TerminalSession({
           terminalTabId: sessionId,
         });
         queueTerminalServiceResize({ cols: term.cols, rows: term.rows });
+        if (reason === "visible" || reason === "init") {
+          // A terminal moved between containers (or shown after display:none)
+          // can keep rows painted for the old size until the next write.
+          term.refresh(0, Math.max(0, term.rows - 1));
+        }
       });
     },
     [queueTerminalServiceResize, sessionId],
@@ -318,6 +337,28 @@ export function TerminalSession({
     }
   }, [isVisible, requestFocus, scheduleFitAndResize]);
 
+  // ZAICODE workers: a font change applies at once, after the face has loaded
+  // (xterm measures the cell from the face; a fallback face mis-sizes every row).
+  useEffect(() => {
+    const term = termRef.current;
+    if (!term || (!fontFamilyOverride && fontSizeOverride === undefined)) return;
+    let cancelled = false;
+    const size = normalizeTerminalFontSize(fontSizeOverride) ?? term.options.fontSize ?? 13;
+    const loading =
+      fontFamilyOverride && typeof document !== "undefined" && document.fonts
+        ? document.fonts.load(`${size}px ${fontFamilyOverride}`).catch(() => undefined)
+        : Promise.resolve();
+    void loading.then(() => {
+      if (cancelled || termRef.current !== term) return;
+      if (fontFamilyOverride) term.options.fontFamily = fontFamilyOverride;
+      term.options.fontSize = size;
+      scheduleFitAndResize("visible");
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [fontFamilyOverride, fontSizeOverride, scheduleFitAndResize]);
+
   useEffect(() => {
     const wasResizing = isPanelResizingRef.current;
     isPanelResizingRef.current = isPanelResizing;
@@ -342,6 +383,10 @@ export function TerminalSession({
       if (existingEntry) {
         termRef.current = existingEntry.term;
         fitAddonRef.current = existingEntry.fitAddon;
+        // A font chosen while this terminal was detached applies on re-attach.
+        if (fontOverrideRef.current.family) existingEntry.term.options.fontFamily = fontOverrideRef.current.family;
+        const overrideSize = normalizeTerminalFontSize(fontOverrideRef.current.size);
+        if (overrideSize) existingEntry.term.options.fontSize = overrideSize;
         terminalIdRef.current = existingEntry.terminalId || undefined;
         el.appendChild(existingEntry.hostEl);
         const reuseThemeObserver = new MutationObserver(() => {
@@ -363,6 +408,7 @@ export function TerminalSession({
         try {
           resizeRequestStatsRef.current.fit += 1;
           existingEntry.fitAddon.fit();
+          existingEntry.term.refresh(0, Math.max(0, existingEntry.term.rows - 1));
         } catch (error) {
           logger.warn("[Terminal] persistent reuse fit failed:", error);
         }
@@ -377,7 +423,7 @@ export function TerminalSession({
           reuseThemeObserver.disconnect();
           reuseResizeObserver.disconnect();
           if (reuseResizeRAF) cancelAnimationFrame(reuseResizeRAF);
-          sidePaneTerminalSessionRegistry.detachDom(persistentKey);
+          sidePaneTerminalSessionRegistry.detachDom(persistentKey, el);
           // 不 dispose：term/PTY/订阅都留在 registry 供下次复用
           termRef.current = null;
           fitAddonRef.current = null;
@@ -558,8 +604,9 @@ export function TerminalSession({
           // 否则 scheduleFitAndResize("init") 会因 pendingSize 去重跳过，PTY 停在错误 cols/rows。
           flushTerminalServiceResize();
           term.options.windowsPty = normalizeWindowsPtyOption(windowsPty);
-          term.options.fontFamily = fontFamily || DEFAULT_TERMINAL_FONT_FAMILY;
-          const nextFontSize = normalizeTerminalFontSize(fontSize);
+          term.options.fontFamily =
+            fontOverrideRef.current.family || fontFamily || DEFAULT_TERMINAL_FONT_FAMILY;
+          const nextFontSize = normalizeTerminalFontSize(fontOverrideRef.current.size ?? fontSize);
           if (nextFontSize) {
             term.options.fontSize = nextFontSize;
           }
@@ -589,6 +636,23 @@ export function TerminalSession({
               term.write(normalizePowerShellReadlineRedraw(data, shell));
             }),
           );
+          if (initialInput) {
+            // Typed once the shell has drawn its prompt; the fallback covers a silent shell.
+            let initialInputSent = false;
+            const sendInitialInput = () => {
+              // The worker may move between containers (remount) before its first
+              // prompt: the PTY lives as long as its registry entry, not this effect.
+              if (initialInputSent || sidePaneTerminalSessionRegistry.get(persistentKey) !== entry) return;
+              initialInputSent = true;
+              void services.terminalService.write({ id, data: `${initialInput}\r` });
+            };
+            const firstOutput = services.terminalService.onDynamicData(id)(() => {
+              firstOutput.dispose();
+              window.setTimeout(sendInitialInput, 400);
+            });
+            registryDisposers.push(firstOutput);
+            window.setTimeout(sendInitialInput, 4000);
+          }
           // exit 订阅（进 registry，与原路径对称：有 onExit 则回调，否则写退出提示）
           registryDisposers.push(
             services.terminalService.onDynamicExit(id)((exitCode) => {
@@ -746,7 +810,7 @@ export function TerminalSession({
         if (!entry.terminalId) {
           sidePaneTerminalSessionRegistry.release(persistentKey);
         } else {
-          sidePaneTerminalSessionRegistry.detachDom(persistentKey);
+          sidePaneTerminalSessionRegistry.detachDom(persistentKey, el);
         }
         termRef.current = null;
         fitAddonRef.current = null;
@@ -897,8 +961,9 @@ export function TerminalSession({
         // Windows ConPTY 在 resize 增高时不会像传统 Unix PTY 一样把 scrollback 拉回 viewport，
         // 不开启 xterm 的 windowsPty 兼容会让 PSReadLine 后续按旧坐标重绘输入，覆盖到上一条命令输出行。
         term.options.windowsPty = normalizeWindowsPtyOption(windowsPty);
-        term.options.fontFamily = fontFamily || DEFAULT_TERMINAL_FONT_FAMILY;
-        const nextFontSize = normalizeTerminalFontSize(fontSize);
+        term.options.fontFamily =
+          fontOverrideRef.current.family || fontFamily || DEFAULT_TERMINAL_FONT_FAMILY;
+        const nextFontSize = normalizeTerminalFontSize(fontOverrideRef.current.size ?? fontSize);
         if (nextFontSize) {
           term.options.fontSize = nextFontSize;
         }

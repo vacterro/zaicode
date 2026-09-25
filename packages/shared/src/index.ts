@@ -108,6 +108,18 @@ export * from "./dynamic-workflow-feature.js";
 export * from "./markdown-artifact-images.js";
 export * from "./serviceAuthority.js";
 export * from "./server-remote.js";
+export * from "./zaicode.js";
+export * from "./zaicode-product.js";
+export * from "./zaicode-agents.js";
+export * from "./zaicode-jobs.js";
+export * from "./zaicode-delegation.js";
+export * from "./zaicode-routing.js";
+export * from "./zaicode-engines.js";
+export * from "./zaicode-router.js";
+export * from "./zaicode-free-catalog.js";
+export * from "./zaicode-runtime-snapshot.js";
+export * from "./zaicode-projects.js";
+export * from "./zaicode-stats.js";
 
 export interface ICredentialStore {
   get(key: string): Promise<string | null>;

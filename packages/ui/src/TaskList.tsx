@@ -2,10 +2,12 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Settings2 } from "lucide-react";
 import type { ZCodeTaskMeta } from "@zcode/shared";
+import { isZaicodeProductMode } from "@zcode/shared";
 import { TID_TASK_LIST, TID_TASK_EMPTY, TID_TASK_SETTINGS_BUTTON } from "@zcode/shared";
 import { Button } from "@/components/ui/button.js";
 import { ContextMenu, ContextMenuTrigger } from "@/components/ui/context-menu.js";
 import { toast } from "@/components/ui/toast.js";
+import { cn } from "@/components/lib/utils.js";
 import { useZCodeIntl } from "@/i18n/IntlProvider.js";
 import { useZCodeSessionStore } from "@/store/zcodeSessionStore.js";
 import { NewTaskButtonGroup } from "@/NewTaskButtonGroup.js";
@@ -13,10 +15,13 @@ import { useTabStore } from "@/store/TabStoreProvider.js";
 import { MemoTaskItem, TaskListItemContextMenuContent } from "@/TaskListItem.js";
 import { TaskListLoadingHint } from "@/TaskListLoadingHint.js";
 import { TaskRenameDialog } from "@/TaskRenameDialog.js";
-import { buildTaskWorkspaceKey } from "@/lib/taskQueryCache.js";
 import { compareZCodeTaskListItems } from "@/lib/taskListOrdering.js";
 import { logger } from "@/logger.js";
 import { ControlHintTooltip } from "@/ControlHintTooltip.js";
+import { getPathLeaf } from "@/lib/path.js";
+import { ZaicodeArchiveContextMenuContent } from "@/zaicode/ZaicodeArchiveContextMenu.js";
+import { ZaicodeMainSessionMenuItem } from "@/zaicode/ZaicodeMainSessionMenuItem.js";
+import { pinZaicodeMainFirst } from "@/zaicode/zaicodeMainSession.js";
 
 export { deriveTaskLeadingIndicator } from "@/lib/taskListItemPresentation.js";
 
@@ -46,6 +51,9 @@ export const TaskList = memo(function TaskList({
   onSetTaskPinned,
   onArchiveTask,
   onSetTaskUnread,
+  onArchiveAllTasks,
+  mainSessionId = null,
+  onContinueTask,
   readOnlyReason,
 }: {
   workspacePath: string;
@@ -67,6 +75,12 @@ export const TaskList = memo(function TaskList({
   onSetTaskPinned: (taskId: string, pinned: boolean) => Promise<ZCodeTaskMeta | null>;
   onArchiveTask: (taskId: string) => Promise<ZCodeTaskMeta | null>;
   onSetTaskUnread: (taskId: string, unread: boolean) => Promise<ZCodeTaskMeta | null>;
+  /** ZAICODE：归档本项目所有空闲会话（Ctrl+Z 可恢复）。 */
+  onArchiveAllTasks?: () => void;
+  /** ZAICODE：本项目的 MAIN 会话，固定在列表第一行并带 ◆ 标记。 */
+  mainSessionId?: string | null;
+  /** ZAICODE (SRC-043): continue a session without opening it (▶ on the row, Alt+Click). */
+  onContinueTask?: (taskId: string) => void;
   readOnlyReason?: string;
 }) {
   const { intl } = useZCodeIntl();
@@ -80,6 +94,7 @@ export const TaskList = memo(function TaskList({
   const [pendingArchiveTaskId, setPendingArchiveTaskId] = useState<string | null>(null);
   const [renamingTaskId, setRenamingTaskId] = useState<string | null>(null);
   const [contextMenuTaskId, setContextMenuTaskId] = useState<string | null>(null);
+  const [contextMenuKind, setContextMenuKind] = useState<"task" | "archive">("task");
   const [renameDraft, setRenameDraft] = useState("");
   const renameInputRef = useRef<HTMLInputElement | null>(null);
   const pendingArchiveTaskIdRef = useRef<string | null>(pendingArchiveTaskId);
@@ -112,6 +127,11 @@ export const TaskList = memo(function TaskList({
     if (pendingArchiveTaskIdRef.current === taskId) {
       setPendingArchiveTaskId(null);
     }
+    setContextMenuKind("task");
+    setContextMenuTaskId(taskId);
+  }, []);
+  const handleOpenArchiveContextMenu = useCallback((taskId: string) => {
+    setContextMenuKind("archive");
     setContextMenuTaskId(taskId);
   }, []);
 
@@ -135,7 +155,8 @@ export const TaskList = memo(function TaskList({
         handleCancelRenameTask();
       }
 
-      if (pendingArchiveTaskIdRef.current !== taskId) {
+      // ZAICODE: one click archives; Ctrl+Z restores (no confirm-by-second-click that silently "does nothing").
+      if (!isZaicodeProductMode() && pendingArchiveTaskIdRef.current !== taskId) {
         // 侧边栏 hover 操作现在改成“归档任务”，但它依旧会让任务从当前列表立刻消失，
         // 如果首击就直接执行，用户很容易把“临时收起”误触成“怎么整条任务没了”。
         // 这里改成“首次点击进入待确认态，二次点击原位确认”，既保留保护，也不离开当前上下文。
@@ -167,6 +188,7 @@ export const TaskList = memo(function TaskList({
     [readOnlyReason, workspaceIdentity, workspacePath],
   );
 
+  const inlineRename = isZaicodeProductMode();
   const handleTogglePinTask = useCallback(
     async (taskId: string, pinned: boolean) => {
       if (readOnlyReason) {
@@ -193,16 +215,18 @@ export const TaskList = memo(function TaskList({
   );
 
   const handleSubmitRenameTask = useCallback(
-    async (taskId: string) => {
+    // ZAICODE 行内重命名直接传入输入框的值，不经过 renameDraft 状态（避免逐字重渲染整列）。
+    async (taskId: string, draftOverride?: string) => {
       if (readOnlyReason) {
         return;
       }
+      const draft = draftOverride ?? renameDraft;
       logger.info("[TaskList] rename submit entered", {
         taskId,
         workspacePath,
         workspaceIdentity,
-        draftLength: renameDraft.length,
-        trimmedLength: renameDraft.trim().length,
+        draftLength: draft.length,
+        trimmedLength: draft.trim().length,
         taskCount: taskLookup.length,
       });
       const task = taskLookup.find((candidate) => candidate.taskId === taskId);
@@ -216,7 +240,7 @@ export const TaskList = memo(function TaskList({
         return;
       }
 
-      const normalizedTitle = renameDraft.trim();
+      const normalizedTitle = draft.trim();
       if (normalizedTitle === task.title.trim()) {
         logger.info("[TaskList] rename submit unchanged", {
           taskId,
@@ -285,6 +309,14 @@ export const TaskList = memo(function TaskList({
     ],
   );
 
+  const handleCommitInlineRename = useCallback(
+    (taskId: string, title: string) => {
+      // 行内输入框提交后即卸载；失败时也退出编辑态（toast 已提示），避免残留无法再提交的输入框。
+      void handleSubmitRenameTask(taskId, title).finally(handleCancelRenameTask);
+    },
+    [handleCancelRenameTask, handleSubmitRenameTask],
+  );
+
   const handleMarkTaskAsUnread = useCallback(
     (taskId: string) => {
       if (readOnlyReason) {
@@ -309,8 +341,8 @@ export const TaskList = memo(function TaskList({
       sortBy === "manual"
         ? tasks
         : [...tasks].sort((left, right) => compareZCodeTaskListItems(left, right, sortBy));
-    return orderedTasks;
-  }, [sortBy, tasks]);
+    return mainSessionId ? pinZaicodeMainFirst(orderedTasks, mainSessionId) : orderedTasks;
+  }, [mainSessionId, sortBy, tasks]);
   useEffect(() => {
     if (!pendingArchiveTaskId) {
       return;
@@ -352,7 +384,7 @@ export const TaskList = memo(function TaskList({
     [contextMenuTaskId, taskLookup],
   );
 
-  function renderTaskItem(task: (typeof visibleSourceTasks)[number]) {
+  function renderTaskItem(task: (typeof visibleSourceTasks)[number], index: number) {
     const isPinned = pinnedTaskIdSet.has(task.taskId);
     return (
       <MemoTaskItem
@@ -372,6 +404,15 @@ export const TaskList = memo(function TaskList({
         onArchiveTask={handleArchiveTask}
         onMarkTaskAsUnread={handleMarkTaskAsUnread}
         onOpenTaskContextMenu={handleOpenTaskContextMenu}
+        isMainSession={Boolean(mainSessionId) && task.taskId === mainSessionId}
+        isLastChild={index === visibleSourceTasks.length - 1}
+        {...(isZaicodeProductMode() && !readOnlyReason
+          ? { onOpenArchiveContextMenu: handleOpenArchiveContextMenu }
+          : {})}
+        {...(onContinueTask && !readOnlyReason ? { onContinueTask } : {})}
+        isRenamingInline={inlineRename && renamingTaskId === task.taskId}
+        onCommitInlineRename={handleCommitInlineRename}
+        onCancelInlineRename={handleCancelRenameTask}
         actionsDisabled={Boolean(readOnlyReason)}
         actionsDisabledReason={readOnlyReason}
         intl={intl}
@@ -381,7 +422,7 @@ export const TaskList = memo(function TaskList({
 
   return (
     <div data-testid={TID_TASK_LIST} className={"flex flex-col gap-2"}>
-      {renamingTaskId !== null ? (
+      {renamingTaskId !== null && !inlineRename ? (
         <TaskRenameDialog
           open
           value={renameDraft}
@@ -430,7 +471,8 @@ export const TaskList = memo(function TaskList({
           {Boolean(inputLoading) && visibleSourceTasks.length === 0 ? (
             <TaskListLoadingHint />
           ) : visibleSourceTasks.length === 0 ? (
-            showEmptyState ? (
+            // ZAICODE: empty projects show nothing (the project title row already has START).
+            showEmptyState && !isZaicodeProductMode() ? (
               <div
                 data-testid={TID_TASK_EMPTY}
                 className="px-8.5 py-2 text-ui-base text-foreground-subtlest"
@@ -447,10 +489,30 @@ export const TaskList = memo(function TaskList({
               }}
             >
               <ContextMenuTrigger asChild>
-                <ul className="space-y-0.5">{visibleSourceTasks.map(renderTaskItem)}</ul>
+                <ul className={cn("space-y-0.5", isZaicodeProductMode() && "pl-2 relative")}>
+                  {visibleSourceTasks.map((task, index) => renderTaskItem(task, index))}
+                </ul>
               </ContextMenuTrigger>
-              {contextMenuTask ? (
+              {contextMenuTask && contextMenuKind === "archive" ? (
+                <ZaicodeArchiveContextMenuContent
+                  taskTitle={contextMenuTask.title || contextMenuTask.taskId}
+                  projectLabel={getPathLeaf(workspacePath)}
+                  onArchiveOne={() => void handleArchiveTask(contextMenuTask.taskId)}
+                  onArchiveProject={onArchiveAllTasks}
+                />
+              ) : contextMenuTask ? (
                 <TaskListItemContextMenuContent
+                  {...(isZaicodeProductMode()
+                    ? {
+                        leadingItems: (
+                          <ZaicodeMainSessionMenuItem
+                            workspacePath={workspacePath}
+                            {...(workspaceIdentity ? { workspaceIdentity } : {})}
+                            sessionId={contextMenuTask.taskId}
+                          />
+                        ),
+                      }
+                    : {})}
                   workspacePath={workspacePath}
                   remoteSessionId={remoteSessionId}
                   task={contextMenuTask}

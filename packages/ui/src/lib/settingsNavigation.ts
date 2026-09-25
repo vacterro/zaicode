@@ -14,6 +14,18 @@ export type SettingsSectionId =
   | "plugins"
   | "usage"
   | "subagents"
+  | "zaicode"
+  | "zaicodeEngines"
+  | "zaicodeRouter"
+  | "zaicodeSounds"
+  | "zaicodeLayout"
+  | "zaicodeWorkers"
+  | "zaicodeNotifications"
+  | "zaicodeColors"
+  | "zaicodeLights"
+  | "zaicodeTimers"
+  | "zaicodeHotkeys"
+  | "zaicodeHelp"
   | "commands"
   | "hooks"
   | "workspaceFileSearch"
@@ -72,6 +84,18 @@ function isSettingsSectionId(value: string): value is SettingsSectionId {
     value === "plugins" ||
     value === "usage" ||
     value === "subagents" ||
+    value === "zaicode" ||
+    value === "zaicodeEngines" ||
+    value === "zaicodeRouter" ||
+    value === "zaicodeSounds" ||
+    value === "zaicodeLayout" ||
+    value === "zaicodeWorkers" ||
+    value === "zaicodeNotifications" ||
+    value === "zaicodeColors" ||
+    value === "zaicodeLights" ||
+    value === "zaicodeTimers" ||
+    value === "zaicodeHotkeys" ||
+    value === "zaicodeHelp" ||
     value === "commands" ||
     value === "hooks" ||
     value === "workspaceFileSearch" ||

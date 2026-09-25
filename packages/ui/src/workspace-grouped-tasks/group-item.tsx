@@ -6,6 +6,7 @@ import type { ZCodeGroupedTaskViewNode, ZCodeTaskGroupColor } from "@zcode/servi
 import {
   CRON_DEFAULT_GROUP_ID,
   OFF_PEAK_DEFAULT_GROUP_ID,
+  isZaicodeProductMode,
   type ZCodeTaskMeta,
 } from "@zcode/shared";
 import { ChevronDownIcon, ChevronRightIcon, MessageCirclePlus } from "lucide-react";
@@ -126,6 +127,7 @@ export function GroupItem({
   const newGroupInitialFocusGuardRef = useRef(false);
   const newGroupInitialFocusGuardTimeoutRef = useRef<number | null>(null);
   const renameCompositionActiveRef = useRef(false);
+  const firstContextRenameRef = useRef(false);
   const [colorMenuOpen, setColorMenuOpen] = useState(false);
   const [titleEditorWidth, setTitleEditorWidth] = useState<number | null>(null);
   const groupContentId = useId();
@@ -420,13 +422,19 @@ export function GroupItem({
       if (event.currentTarget !== event.target) {
         return;
       }
+      if (isZaicodeProductMode() && event.key === "Enter") {
+        event.preventDefault();
+        startRename();
+        focusRenameInput({ select: true });
+        return;
+      }
       if (event.key !== "Enter" && event.key !== " ") {
         return;
       }
       event.preventDefault();
       onToggleCollapsed(node.group.id);
     },
-    [node.group.id, onToggleCollapsed],
+    [focusRenameInput, node.group.id, onToggleCollapsed, startRename],
   );
 
   useEffect(() => {
@@ -512,6 +520,14 @@ export function GroupItem({
             )}
             onClick={handleHeaderClick}
             onKeyDown={handleHeaderKeyDown}
+            onContextMenuCapture={(event) => {
+              if (!isZaicodeProductMode() || firstContextRenameRef.current) return;
+              event.preventDefault();
+              event.stopPropagation();
+              firstContextRenameRef.current = true;
+              startRename();
+              focusRenameInput({ select: true });
+            }}
           >
             <DropdownMenu
               open={colorMenuOpen}

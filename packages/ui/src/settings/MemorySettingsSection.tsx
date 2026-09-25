@@ -9,6 +9,8 @@ import {
   type MemoryViewerLoadingState,
 } from "@/settings/MemorySettingsViewer.js";
 import { SettingsGroupCard, SettingsRow } from "@/settings/SettingsPageParts.js";
+import { isZaicodeProductMode } from "@zcode/shared";
+import { ZaicodeMemoryExplainer } from "@/zaicode/ZaicodeMemoryExplainer.js";
 
 type MemoryCatalogService = Pick<IMemoryService, "listProjectMemories">;
 
@@ -175,6 +177,8 @@ export function MemorySettingsSection({
           }
         />
       </SettingsGroupCard>
+
+      {isZaicodeProductMode() ? <ZaicodeMemoryExplainer enabled={memoryEnabled} /> : null}
 
       {!projectMemoryViewerAvailable ? (
         <div className="rounded-xl border border-dashed border-border bg-transparent px-4 py-8 text-center text-ui-base text-foreground-subtle">

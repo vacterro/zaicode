@@ -265,6 +265,7 @@ export interface ZCodeAgentSendPromptParamsBase extends ZCodeAgentSessionTarget 
   expectedRevision?: number;
   expectedProviderRevision?: string;
   runtimeProviderHeaders?: Record<string, string>;
+  toolAllowlist?: string[];
   toolDenylist?: string[];
 }
 

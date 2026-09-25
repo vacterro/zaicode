@@ -1,7 +1,9 @@
 import { createOpenInEditorRemoteTarget, type EditorInfo, type RemoteTarget } from "@zcode/shared";
+import { isZaicodeProductMode } from "@zcode/shared";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button.js";
 import { ChevronDown } from "lucide-react";
+import { cn } from "@/components/lib/utils.js";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -129,7 +131,15 @@ export function WorkspaceEditorButtonGroup({
   }
 
   return (
-    <div className="flex items-center h-7 rounded-lg border border-border bg-input overflow-hidden p-0 hover:border-border-hover">
+    <div
+      className={cn(
+        "flex items-center h-7 overflow-hidden p-0",
+        // ZAICODE：外框从「打开编辑器/资源管理器」移到 SAIMAIL 未读信封，这里去掉边框只留图标。
+        isZaicodeProductMode()
+          ? "rounded-none border-0 bg-transparent"
+          : "rounded-lg border border-border bg-input hover:border-border-hover",
+      )}
+    >
       <Button
         type="button"
         variant="ghost"

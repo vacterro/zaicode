@@ -1,4 +1,8 @@
 import { useEffect, useState, useCallback } from "react";
+import {
+  applyZaicodeAppearance,
+  zaicodePaletteResolvedTheme,
+} from "@/zaicode/zaicodeAppearance.js";
 
 export type Theme = "light" | "dark" | "zai-light" | "zai-dark" | "system";
 export type ResolvedTheme = "light" | "dark";
@@ -66,7 +70,9 @@ export function applyTheme(theme: Theme) {
   document.documentElement.classList.toggle("dark", resolved === "dark");
   document.documentElement.classList.toggle("theme-zai-light", appliedTheme === "zai-light");
   document.documentElement.classList.toggle("theme-zai-dark", appliedTheme === "zai-dark");
-  syncBrowserThemeSurface(resolved);
+  // ZAICODE: Wintage 调色板决定明暗极性，并在上游主题类之后覆盖颜色 token。
+  applyZaicodeAppearance();
+  syncBrowserThemeSurface(zaicodePaletteResolvedTheme() ?? resolved);
 }
 
 function isTheme(value: string | null): value is Theme {

@@ -1,0 +1,1152 @@
+{
+ "schema_version": 1,
+ "kind": "saipen-machine-registry",
+ "purpose": "Sole machine authority for closed executable protocol facts. Prose explains or references these facts; it is never parsed as data (SRC-010:R0004/R0005).",
+ "semantic_baseline": {
+  "frozen_at": "2026-08-30",
+  "golden": "tests/protocol_semantic_golden.json",
+  "evidence": [
+   "tools/test_protocol_registry.py",
+   "tools/test_command_routing.py",
+   "tools/test_continue_improve_fallthrough.py",
+   "tools/validate.py --gate core"
+  ],
+  "facts": {
+   "VERIFY-ORACLE-01": {
+    "owner": "saipen/phases/verify.md",
+    "test": "tools/test_verify_oracle.py",
+    "subject": "regression evidence binds to the verifier that produced it"
+   },
+   "STATE-SHAPE-01": {
+    "owner": "saipen/CORE.md",
+    "test": "tools/test_protocol_registry.py",
+    "subject": "STATE fields, enums and conditional shape"
+   },
+   "STATE-DFA-01": {
+    "owner": "saipen/CORE.md",
+    "test": "tools/test_protocol_registry.py",
+    "subject": "phase enum, transition graph and ticket-bearing phases"
+   },
+   "STATE-NEXT-01": {
+    "owner": "saipen/CORE.md",
+    "test": "tools/test_protocol_registry.py",
+    "subject": "next_action forms and WAIT categories"
+   },
+   "CHECKPOINT-01": {
+    "owner": "saipen/CORE.md",
+    "test": "tests/scenarios/checkpoint-self-confirmation",
+    "subject": "LOG then BOARD then STATE checkpoint order"
+   },
+   "RECOVERY-01": {
+    "owner": "saipen/CORE.md",
+    "test": "tools/test_audit_2026_08_30_all3_impl.py",
+    "subject": "recovery and routing precedence"
+   },
+   "PICK-01": {
+    "owner": "saipen/CORE.md",
+    "test": "tools/test_command_routing.py",
+    "subject": "topmost workable ticket selection"
+   },
+   "CMD-ROUTING-01": {
+    "owner": "saipen/COMMANDS.md",
+    "test": "tools/test_command_routing.py",
+    "subject": "canonical commands, shortcuts and Unicode normalization"
+   },
+   "CMD-COMPOUND-01": {
+    "owner": "saipen/COMMANDS.md",
+    "test": "tools/test_command_routing.py",
+    "subject": "compound parsing and chain disposition"
+   },
+   "CMD-CONTINUE-01": {
+    "owner": "saipen/COMMANDS.md",
+    "test": "tools/test_continue_improve_fallthrough.py",
+    "subject": "bounded continue to improve fallthrough"
+   },
+   "SOURCE-AUTHORITY-01": {
+    "owner": "saipen/SOURCES.md",
+    "test": "tools/test_source_receipts.py",
+    "subject": "exact receipt authority and coverage"
+   },
+   "INGRESS-AUTHORITY-01": {
+    "owner": "saipen/SOURCES.md",
+    "test": "tools/test_pending_ingress.py",
+    "subject": "a refused ingress owes its bytes"
+   },
+   "REQUEST-CLAUSE-01": {
+    "owner": "saipen/SOURCES.md",
+    "test": "tools/test_request_clause_closure.py",
+    "subject": "a request is one requirement"
+   },
+   "REQUEST-PROVENANCE-01": {
+    "owner": "saipen/SOURCES.md",
+    "test": "tools/test_operator_task_witness.py",
+    "subject": "a receipt records its witness"
+   },
+   "OPS-EFFECT-01": {
+    "owner": "saipen/OPS.md",
+    "test": "tools/test_intent_audit_fixes.py",
+    "subject": "effect-based authorization"
+   },
+   "GOAL-01": {
+    "owner": "saipen/MAINTENANCE.md",
+    "test": "tools/test_goal_driven.py",
+    "subject": "goal execution and safety valve"
+   },
+   "EXEC-HUSH-01": {
+    "owner": "saipen/EXECUTION.md",
+    "test": "tools/test_continue_improve_fallthrough.py",
+    "subject": "HUSH precedence, silence and mandatory output"
+   },
+   "EXEC-RESPONSE-01": {
+    "owner": "saipen/EXECUTION.md",
+    "test": "tools/test_response_surface_contract.py",
+    "subject": "default response surface: control block first, DETAILS last"
+   },
+   "PHASE-DELTA-01": {
+    "owner": "saipen/CORE.md",
+    "test": "tools/test_protocol_registry.py",
+    "subject": "16 lazy phase documents and delta-only phase contracts"
+   },
+   "CONFORMANCE-CORPUS-01": {
+    "owner": "tests/conformance_cases.jsonl",
+    "test": "tools/test_conformance_corpus.py",
+    "subject": "machine corpus completeness and generated human view"
+   },
+   "CONTEXT-BUDGET-01": {
+    "owner": "saipen/CORE.md",
+    "test": "tools/protocol_budget.py",
+    "subject": "routine protocol load budgets"
+   },
+   "SOURCE-AUDIT-INBOX-01": {
+    "owner": "saipen/SOURCES.md",
+    "test": "tools/test_audit_inbox.py",
+    "subject": "audit inbox transport identity, routing position and delete gate"
+   },
+   "SOURCE-AUDIT-ENQUEUE-01": {
+    "owner": "saipen/SOURCES.md",
+    "test": "tools/test_audit_enqueue.py",
+    "subject": "shared producer enqueue: monotonic never-reused ids, atomic placement, idempotent retry, optional untrusted envelope"
+   },
+   "EVIDENCE-RETENTION-01": {
+    "owner": "saipen/CORE.md",
+    "test": "tools/test_evidence_hygiene.py",
+    "subject": "bounded durable proof, run-owned ephemeral cleanup, conservative historical classification and retention manifests"
+   },
+   "QUALITY-TIME-01": {
+    "owner": "saipen/CORE.md",
+    "test": "tools/test_t1446_supervise.py",
+    "subject": "model-independent acceptance; durable progress, not elapsed time, decides liveness"
+   },
+   "SOURCE-APPEND-01": {
+    "owner": "saipen/SOURCES.md",
+    "test": "tools/test_t1461_source_append.py",
+    "subject": "operational handoff appends are durable mission state: verbatim amending receipt, ordered ledger, deterministic clause derivation, supersession without deletion, minimum truthful rewind, unprojected append routed before continuation"
+   },
+   "SOURCE-DISTRIBUTION-01": {
+    "owner": "saipen/SOURCES.md",
+    "test": "tools/test_source_receipts.py",
+    "subject": "local authority and publication permission are separate states: DISTRIBUTABLE default, monotonic QUARANTINED, protected body never exported"
+   }
+  }
+ },
+ "rule_owners": {
+  "VERIFY-ORACLE-01": "saipen/phases/verify.md",
+  "STATE-SHAPE-01": "saipen/CORE.md",
+  "STATE-DFA-01": "saipen/CORE.md",
+  "STATE-NEXT-01": "saipen/CORE.md",
+  "CHECKPOINT-01": "saipen/CORE.md",
+  "RECOVERY-01": "saipen/CORE.md",
+  "PICK-01": "saipen/CORE.md",
+  "CMD-ROUTING-01": "saipen/COMMANDS.md",
+  "CMD-COMPOUND-01": "saipen/COMMANDS.md",
+  "CMD-CONTINUE-01": "saipen/COMMANDS.md",
+  "SOURCE-AUTHORITY-01": "saipen/SOURCES.md",
+  "INGRESS-AUTHORITY-01": "saipen/SOURCES.md",
+  "REQUEST-CLAUSE-01": "saipen/SOURCES.md",
+  "REQUEST-PROVENANCE-01": "saipen/SOURCES.md",
+  "OPS-EFFECT-01": "saipen/OPS.md",
+  "GOAL-01": "saipen/MAINTENANCE.md",
+  "EXEC-HUSH-01": "saipen/EXECUTION.md",
+  "EXEC-RESPONSE-01": "saipen/EXECUTION.md",
+  "PHASE-DELTA-01": "saipen/CORE.md",
+  "CONFORMANCE-CORPUS-01": "tests/conformance_cases.jsonl",
+  "CONTEXT-BUDGET-01": "saipen/CORE.md",
+  "SOURCE-AUDIT-INBOX-01": "saipen/SOURCES.md",
+  "SOURCE-AUDIT-ENQUEUE-01": "saipen/SOURCES.md",
+  "EVIDENCE-RETENTION-01": "saipen/CORE.md",
+  "SOURCE-DISTRIBUTION-01": "saipen/SOURCES.md",
+  "SOURCE-APPEND-01": "saipen/SOURCES.md",
+  "QUALITY-TIME-01": "saipen/CORE.md"
+ },
+ "evidence_retention": {
+  "max_artifact_bytes": 26214400,
+  "warn_bytes_per_ticket": 104857600,
+  "review_bytes_per_ticket": 262144000,
+  "classifications": [
+   "DURABLE_REQUIRED",
+   "EPHEMERAL_REPRODUCIBLE",
+   "SUPERSEDED",
+   "UNKNOWN"
+  ]
+ },
+ "cold_agent_truth": {
+  "orientation_read_budget_bytes": 65536,
+  "state_read_cap_bytes": 8192,
+  "board_prefix_cap_bytes": 24576,
+  "log_tail_cap_bytes": 24576,
+  "handoff_read_cap_bytes": 8192,
+  "new_log_event_cap_bytes": 1024,
+  "new_live_board_record_cap_chars": 1200,
+  "handoff_statuses": [
+   "NOT_PROVIDED",
+   "CURRENT",
+   "STALE",
+   "FOREIGN",
+   "CONFLICT"
+  ],
+  "workspace_statuses": [
+   "SAME",
+   "DIFFERENT",
+   "UNKNOWN"
+  ],
+  "witness_levels": [
+   "UNIT",
+   "INTEGRATION",
+   "EFFECT_PATH",
+   "LIVE",
+   "MANUAL"
+  ],
+  "owner": "tools/saipen_engine/cold_truth.py",
+  "test": "tools/test_cold_agent_truth.py"
+ },
+ "shortcuts": {
+  "gg": "saipen goal",
+  "hh": "saipen hunt",
+  "ff": "saipen focus",
+  "xx": "saipen cut",
+  "vv": "saipen build",
+  "zz": "saipen undo",
+  "cc": "saipen continue",
+  "ccc": "saipen continue",
+  "st": "saipen stop",
+  "sss": "saipen status",
+  "dd": "saipen plan",
+  "aa": "saipen markhunt",
+  "qq": "saipen prepare saiwiki",
+  "qqq": "saipen collect saiwiki",
+  "ee": "saipen prepare saitranslate",
+  "eee": "saipen collect saitranslate",
+  "pp": "saipen sub spawn saipython",
+  "tt": "saipen test",
+  "sc": "saipen crew"
+ },
+ "cyrillic_confusables": {
+  "а": "a",
+  "е": "e",
+  "о": "o",
+  "р": "p",
+  "с": "c",
+  "у": "y",
+  "х": "x"
+ },
+ "phases": {
+  "all": [
+   "INIT",
+   "PLAN",
+   "SCOUT",
+   "BUILD",
+   "VERIFY",
+   "REVIEW",
+   "SHIP",
+   "DONE",
+   "BLOCKED",
+   "VALIDATE",
+   "HUNT",
+   "MARKHUNT",
+   "ADD",
+   "CLEAN",
+   "TRANSLATE",
+   "PREPARE"
+  ],
+  "valid_transitions": {
+   "INIT": [
+    "PLAN",
+    "BLOCKED"
+   ],
+   "PLAN": [
+    "SCOUT",
+    "BUILD",
+    "DONE",
+    "BLOCKED"
+   ],
+   "SCOUT": [
+    "BUILD",
+    "BLOCKED"
+   ],
+   "BUILD": [
+    "VERIFY",
+    "BLOCKED"
+   ],
+   "VERIFY": [
+    "REVIEW",
+    "SCOUT",
+    "BUILD",
+    "BLOCKED"
+   ],
+   "REVIEW": [
+    "SHIP",
+    "BUILD",
+    "SCOUT",
+    "BLOCKED"
+   ],
+   "SHIP": [
+    "DONE",
+    "BUILD",
+    "BLOCKED"
+   ],
+   "DONE": [
+    "SCOUT",
+    "PLAN",
+    "HUNT",
+    "BLOCKED"
+   ],
+   "VALIDATE": [
+    "SCOUT",
+    "PLAN",
+    "DONE",
+    "BLOCKED"
+   ],
+   "HUNT": [
+    "ADD",
+    "PLAN",
+    "SCOUT",
+    "BLOCKED"
+   ],
+   "MARKHUNT": [
+    "DONE",
+    "BLOCKED"
+   ],
+   "ADD": [
+    "BUILD",
+    "PLAN",
+    "SCOUT",
+    "DONE",
+    "BLOCKED"
+   ],
+   "CLEAN": [
+    "DONE",
+    "BLOCKED"
+   ],
+   "TRANSLATE": [
+    "DONE",
+    "BLOCKED"
+   ],
+   "PREPARE": [
+    "DONE",
+    "BLOCKED"
+   ],
+   "BLOCKED": [
+    "PLAN",
+    "SCOUT",
+    "DONE"
+   ]
+  },
+  "any_from": [
+   "VALIDATE",
+   "MARKHUNT",
+   "CLEAN",
+   "TRANSLATE",
+   "PREPARE",
+   "PLAN",
+   "HUNT"
+  ],
+  "ticket_bearing": [
+   "SCOUT",
+   "BUILD",
+   "VERIFY",
+   "REVIEW",
+   "SHIP"
+  ]
+ },
+ "commands": {
+  "saipen": [
+   "set",
+   "init",
+   "continue",
+   "goal",
+   "plan",
+   "focus",
+   "build",
+   "cut",
+   "undo",
+   "clean",
+   "translate",
+   "markhunt",
+   "prepare",
+   "collect",
+   "ship",
+   "push",
+   "validate",
+   "test",
+   "status",
+   "next",
+   "permissions",
+   "explain-next",
+   "runtime",
+   "host",
+   "launch",
+   "knowledge",
+   "recover",
+   "search",
+   "validate",
+   "claim",
+   "transition",
+   "checkpoint",
+   "source",
+   "authority",
+   "audit",
+   "stop",
+   "ticket",
+   "work",
+   "scope",
+   "first-publish-confirm",
+   "sub",
+   "hunt",
+   "crew",
+   "userperson",
+   "rebind-home",
+   "context",
+   "acceptance",
+   "attempt",
+   "brief",
+   "hush",
+   "improve",
+   "user-request",
+   "start",
+   "cohort",
+   "autonomy",
+   "gpu"
+  ],
+  "improve_actions": [
+   "bare",
+   "status",
+   "submit",
+   "complete",
+   "sweep",
+   "sweep-queue",
+   "verify",
+   "cycle-complete",
+   "reconcile",
+   "abort",
+   "retire",
+   "clean",
+   "hold",
+   "unhold"
+  ]
+ },
+ "command_effects": {
+  "rule_id": "CMD-EFFECT-01",
+  "owner": "tools/saipen_engine/command_effects.py",
+  "table": "COMMAND_EFFECTS.json"
+ },
+ "state": {
+  "required_fields": [
+   "phase",
+   "task",
+   "next_action",
+   "blocker",
+   "agent",
+   "saipen_version",
+   "mode",
+   "updated"
+  ],
+  "known_fields": [
+   "phase",
+   "task",
+   "attempt",
+   "next_action",
+   "blocker",
+   "agent",
+   "saipen_version",
+   "schema_version",
+   "saipen_home",
+   "requires",
+   "mode",
+   "execution_intent",
+   "converge_target",
+   "goal_mode",
+   "goal_waves",
+   "goal_tickets",
+   "last_event",
+   "style_contract",
+   "updated",
+   "human_note",
+   "first_publish_confirmation",
+   "role_revision",
+   "paused_from_phase",
+   "paused_from_na",
+   "transition_from",
+   "stop_reason",
+   "improve_gate",
+   "goal_ingress"
+  ],
+  "string_fields": [
+   "task",
+   "attempt",
+   "next_action",
+   "blocker",
+   "agent",
+   "saipen_home",
+   "style_contract",
+   "updated",
+   "human_note",
+   "first_publish_confirmation",
+   "role_revision",
+   "paused_from_phase",
+   "paused_from_na",
+   "stop_reason",
+   "improve_gate"
+  ],
+  "integer_fields": {
+   "saipen_version": null,
+   "schema_version": 1,
+   "goal_waves": 0,
+   "goal_tickets": 0,
+   "last_event": 1
+  },
+  "mode_enum": [
+   "full",
+   "read-only",
+   "no-publish",
+   "manual-verify"
+  ],
+  "intent_enum": [
+   "normal",
+   "goal",
+   "converge"
+  ],
+  "converge_targets": [
+   "done",
+   "ship",
+   "crew"
+  ]
+ },
+ "capabilities": {
+  "read_only_banned_phases": [
+   "INIT",
+   "PLAN",
+   "SCOUT",
+   "BUILD",
+   "SHIP",
+   "ADD",
+   "CLEAN",
+   "TRANSLATE",
+   "PREPARE"
+  ]
+ },
+ "ticket_states": {
+  "sections": [
+   "TODO",
+   "DOING",
+   "DONE",
+   "BLOCKED"
+  ],
+  "checkboxes": {
+   "TODO": "[ ]",
+   "DOING": "[/]",
+   "DONE": "[x]",
+   "BLOCKED": "[ ]"
+  },
+  "required_fields": [
+   "priority",
+   "title",
+   "verify"
+  ]
+ },
+ "next_action_forms": {
+  "executable_prefixes": [
+   "WAIT:",
+   "saipen ",
+   "PHASE ",
+   "RUN:",
+   "RESUME:"
+  ],
+  "prefixes": [
+   "WAIT:",
+   "RUN:",
+   "RESUME: T-"
+  ],
+  "full": [
+   "PHASE <phase> [T-###]"
+  ],
+  "grammar": "^PHASE\\s+([A-Za-z_-]+)(?:\\s+(T-\\d+))?(?:\\s+\\[[^\\]]*\\])?\\s*$",
+  "categories": [
+   "WAIT:",
+   "saipen <command>",
+   "PHASE <phase> [T-###]",
+   "RUN:",
+   "RESUME: T-### <phase>"
+  ]
+ },
+ "wait_categories": [
+  "manual-verify",
+  "destructive-op",
+  "first-publish",
+  "user brake",
+  "blocked",
+  "safety valve",
+  "init"
+ ],
+ "checkpoint_order": [
+  "LOG.md",
+  "BOARD.md",
+  "STATE.md"
+ ],
+ "routing_precedence": [
+  "RECOVER",
+  "OBEY",
+  "UNBLOCK",
+  "FINISH",
+  "START",
+  "MAINTAIN"
+ ],
+ "source_authority": [
+  "original immutable receipt",
+  "explicit later amendment",
+  "derived Work Contract",
+  "BOARD/STATE projection",
+  "agent memory"
+ ],
+ "dispositions": {
+  "closed_set": [
+   "EXECUTED",
+   "REFUSED",
+   "BLOCKED",
+   "SKIPPED_BY_PROTOCOL",
+   "ALREADY_SATISFIED",
+   "NOT_RUN",
+   "FAILED"
+  ],
+  "failure": [
+   "REFUSED",
+   "BLOCKED",
+   "FAILED"
+  ]
+ },
+ "chain_policies": {
+  "default": "STOP_ON_FAILURE",
+  "closed_set": [
+   "STOP_ON_FAILURE",
+   "CONTINUE_WHEN_INDEPENDENT"
+  ]
+ },
+ "load_profiles": {
+  "schema_version": 1,
+  "basis": "Each budget measures the non-cumulative routed surface named by one route. Conditional documents are reported separately and become mandatory only after routing into their owning profile.",
+  "phase_preferences": {
+   "enforced": false,
+   "unit": "bytes",
+   "bands": {
+    "VERIFY": {
+     "min": 6144,
+     "max": 7168
+    },
+    "ADD": {
+     "min": 5120,
+     "max": 5632
+    },
+    "HUNT": {
+     "min": 4608,
+     "max": 5632
+    },
+    "PREPARE": {
+     "min": 3584,
+     "max": 4608
+    },
+    "SHIP": {
+     "min": 8192,
+     "max": 9216
+    },
+    "TRANSLATE": {
+     "min": 7168,
+     "max": 8192
+    },
+    "MARKHUNT": {
+     "min": 8192,
+     "max": 9216
+    },
+    "CLEAN": {
+     "min": 7680,
+     "max": 8704
+    }
+   }
+  },
+  "budgets": {
+   "cold": 25600,
+   "ordinary_continue": 35840,
+   "command_resolution": 43008,
+   "ordinary_phase": 40960,
+   "ship_improve": 56320,
+   "single_doc": 51200
+  },
+  "surfaces": {
+   "active_phase_max": {
+    "glob": "phases/*.md",
+    "selection": "max_one"
+   },
+   "routine_doc_max": {
+    "files": [
+     "BOOT.md",
+     "STYLE.md",
+     "INDEX.md",
+     "CORE.md",
+     "MAINTENANCE.md",
+     "OPS.md",
+     "IMPROVE.md",
+     "COMMANDS.md",
+     "EXECUTION.md",
+     "SOURCES.md",
+     "RUNTIME.md"
+    ],
+    "selection": "max_one"
+   }
+  },
+  "profiles": {
+   "cold": {
+    "routes": [
+     {
+      "name": "cold",
+      "must": [
+       "BOOT.md",
+       "STYLE.md",
+       "EXECUTION.md",
+       "INDEX.md"
+      ],
+      "conditional": [],
+      "exclude": [
+       "CONFORMANCE.md",
+       "CHANGELOG.md",
+       "phases/*.md"
+      ]
+     }
+    ]
+   },
+   "ordinary_continue": {
+    "routes": [
+     {
+      "name": "done-to-next",
+      "must": [
+       "CORE.md",
+       "phases/done.md"
+      ],
+      "conditional": [
+       "SOURCES.md",
+       "RUNTIME.md",
+       "@active_phase_max"
+      ],
+      "exclude": [
+       "CONFORMANCE.md",
+       "CHANGELOG.md"
+      ]
+     }
+    ]
+   },
+   "command_resolution": {
+    "routes": [
+     {
+      "name": "command-router",
+      "must": [
+       "REGISTRY.json",
+       "COMMANDS.md"
+      ],
+      "conditional": [
+       "CONTROLS.md",
+       "EXECUTION.md",
+       "IMPROVE.md"
+      ],
+      "exclude": [
+       "CORE.md",
+       "CONFORMANCE.md",
+       "phases/*.md"
+      ]
+     }
+    ]
+   },
+   "ordinary_phase": {
+    "routes": [
+     {
+      "name": "largest-active-phase",
+      "must": [
+       "CORE.md",
+       "@active_phase_max"
+      ],
+      "conditional": [
+       "SOURCES.md",
+       "RUNTIME.md"
+      ],
+      "exclude": [
+       "CONFORMANCE.md",
+       "CHANGELOG.md",
+       "inactive phases"
+      ]
+     }
+    ]
+   },
+   "ship_improve": {
+    "routes": [
+     {
+      "name": "ship-delta",
+      "must": [
+       "phases/ship.md",
+       "OPS.md"
+      ],
+      "conditional": [
+       "SOURCES.md",
+       "RUNTIME.md"
+      ],
+      "exclude": [
+       "CONFORMANCE.md",
+       "inactive phases"
+      ]
+     },
+     {
+      "name": "improve-delta",
+      "must": [
+       "IMPROVE.md",
+       "SAICRITIC.md"
+      ],
+      "conditional": [
+       "RUNTIME.md"
+      ],
+      "exclude": [
+       "CONFORMANCE.md",
+       "phases/*.md"
+      ]
+     }
+    ]
+   },
+   "single_doc": {
+    "routes": [
+     {
+      "name": "largest-routine-document",
+      "must": [
+       "@routine_doc_max"
+      ],
+      "conditional": [],
+      "exclude": [
+       "CONFORMANCE.md",
+       "CHANGELOG.md"
+      ]
+     }
+    ]
+   }
+  }
+ },
+ "error_codes": [
+  "STALE_STATE",
+  "TICKET_NOT_FOUND",
+  "TICKET_NOT_WORKABLE",
+  "TICKET_ALREADY_DONE",
+  "ILLEGAL_TICKET_LIFECYCLE",
+  "NOT_TOP_WORKABLE",
+  "ACTIVE_TICKET_MISMATCH",
+  "ACTIVE_CLAIM_FOREIGN",
+  "ALREADY_CLAIMED",
+  "CONTINUATION_RESERVED",
+  "ILLEGAL_TRANSITION",
+  "ILLEGAL_PHASE",
+  "WRITER_BUSY",
+  "VALIDATION_FAILED",
+  "RECOVERY_REQUIRED",
+  "RECOVERY_CONFLICT",
+  "CORRUPT_JOURNAL",
+  "HISTORY_LEDGER_CORRUPT",
+  "NEEDS_REPAIR",
+  "DESTRUCTIVE_CONFIRMATION_REQUIRED",
+  "CONFLICT",
+  "PATH_ESCAPE",
+  "INVALID_ID",
+  "ACTIVE_IMPROVE_CYCLE",
+  "INVALID_DISPOSITION",
+  "PACKAGE_INCOMPLETE",
+  "MALFORMED_PACKAGE",
+  "INCOMPLETE_TICKET",
+  "INVALID_MANIFEST",
+  "INVALID_GOAL",
+  "HOME_REQUIRED",
+  "CREW_BLOCKED",
+  "COHORT_NOT_READY",
+  "CREW_NOT_READY",
+  "INVALID_SOURCE_HOME",
+  "STALE_PLAN",
+  "RELEASE_CLOSURE_PENDING",
+  "TAG_CONFLICT",
+  "FIRST_PUBLISH_WAIT",
+  "NO_PUBLISH_MODE",
+  "SOURCE_UNRESOLVED",
+  "SOURCE_SCOPE_MISSING",
+  "RELEASE_FAILED",
+  "ACTOR_UNBOUND",
+  "HOST_LAUNCH_REFUSED",
+  "LOG_EVENT_OVERSIZE",
+  "BOARD_RECORD_OVERSIZE",
+  "RETIREMENT_AUTHORITY_REQUIRED",
+  "RETIREMENT_REASON_UNKNOWN",
+  "ALREADY_RETIRED",
+  "RETIRED",
+  "RETIREMENT_EVIDENCE_BOUND",
+  "SUPERSESSION_SELF_CYCLE",
+  "SUPERSESSION_EVIDENCE_REQUIRED",
+  "SUPERSESSION_AUTHORITY_REQUIRED",
+  "SUPERSESSION_OLD_NOT_SETTLEABLE",
+  "SUPERSESSION_SUCCESSOR_NOT_FOUND",
+  "SUPERSESSION_SUCCESSOR_NOT_DONE",
+  "SUPERSESSION_CYCLE",
+  "SUPERSESSION_SOURCE_MIGRATION_REQUIRED",
+  "SUPERSESSION_EVIDENCE_INVALID",
+  "EXTERNAL_AUTHORITY_REQUIRED",
+  "EXTERNAL_IMPLEMENTATION_REQUIRED",
+  "EXTERNAL_REASON_INVALID",
+  "EXTERNAL_VERIFICATION_REQUIRED",
+  "EXTERNAL_VERIFICATION_REFUSED",
+  "EXTERNAL_VERIFICATION_FAILED",
+  "EXTERNAL_CONTRACT_MISMATCH",
+  "EXTERNAL_RESOLUTION_REQUIRES_BLOCKED",
+  "EXTERNAL_RECEIPT_MISSING",
+  "EXTERNAL_RECEIPT_CORRUPT",
+  "FALLBACK_NEEDS_MODEL_PLACEHOLDER",
+  "GPU_LANE_UNAVAILABLE",
+  "GPU_RECALL",
+  "SOURCE_RETIREMENT_NOT_ELIGIBLE",
+  "INVALID_AUTHORITY_CAPTURE",
+  "INGRESS_PARAPHRASE_REFUSED",
+  "INGRESS_PENDING_UNREADABLE",
+  "INGRESS_SHELL_CONTROL",
+  "INGRESS_TASK_MISMATCH",
+  "INGRESS_TASK_CARRIER_INVALID",
+  "CONFORMANCE_UNHEALTHY",
+  "CONFORMANCE_UNKNOWN",
+  "CONFORMANCE_UNAVAILABLE",
+  "CYCLE_RECONCILED",
+  "CYCLE_TERMINALIZED",
+  "ALREADY_TERMINAL",
+  "RECONCILE_PLAN",
+  "TICKET_REASONING_WRITTEN",
+  "TICKET_REASONING_NOT_LINKED",
+  "ALREADY_LINKED",
+  "ACTION_REQUIRES_CORE",
+  "ACTION_REQUIRES_REVIEW",
+  "ALLOCATOR_CORRUPT",
+  "ARCHIVE_COMMIT_PENDING",
+  "AUDIT_BINDING_CORRUPT",
+  "AUDIT_GENERATION_CHANGED",
+  "AUDIT_LAYER_ABSENT",
+  "AUDIT_LAYER_INVALID",
+  "AUDIT_MANIFEST_REFUSED",
+  "AUDIT_NOT_BOUND",
+  "BASELINE_RULESET_CHANGED",
+  "CANONICAL_RUNTIME_SOURCE_UNPROVEN",
+  "CAPABILITY_DENIED",
+  "CAPABILITY_INVALID",
+  "CAPABILITY_READ_ONLY",
+  "CLOSURE_NOT_READY",
+  "CLOSURE_UNKNOWN",
+  "CONFIRMATION_REQUIRED",
+  "CONTRACT_DRIFT",
+  "CONVERGENCE_EVIDENCE_MISSING",
+  "DRY_RUN_UNSUPPORTED",
+  "ENVIRONMENT_PRESENT",
+  "ENVIRONMENT_PROOF_UNAVAILABLE",
+  "ENVIRONMENT_WAIVER_REFUSED",
+  "EPOCH_CORRUPT",
+  "FATAL_CORRUPTION",
+  "FINDINGS_CAPTURE_FAILED",
+  "FINDINGS_CAPTURE_MALFORMED",
+  "FLEET_INTERNAL_ERROR",
+  "GUARD_EVENT_INVALID",
+  "HOST_UNIDENTIFIED",
+  "INCOMPLETE",
+  "INVALID",
+  "INVALID_READY",
+  "INVALID_ROLE",
+  "INVALID_SOURCE",
+  "LOOP_STALLED",
+  "NOT_A_USER_REQUEST",
+  "NOT_SAIPEN_PROJECT",
+  "NO_PACKAGE",
+  "NO_READY_PACKAGE",
+  "OPERATOR_DECISION_REQUIRED",
+  "ORPHAN_RECEIPT",
+  "OWNERSHIP_CONFLICT",
+  "OWNERSHIP_REFUSED",
+  "PRODUCER_BUSY",
+  "PRODUCER_SPAWN_FAILED",
+  "PRODUCER_SYNC_FAILED",
+  "PROJECT_MISMATCH",
+  "PROJECT_ROOT_UNKNOWN",
+  "PROTOCOL_MODE_READONLY",
+  "PROTOCOL_STATE_INVALID",
+  "READY_CONFLICT",
+  "READY_CORRUPT",
+  "READY_TOO_LARGE",
+  "READ_ONLY_DIAGNOSIS_ONLY",
+  "RECEIPT_DIR_UNREADABLE",
+  "RECONCILE_REAUTH_REQUIRED",
+  "RECOVERY_EXHAUSTED",
+  "RECOVERY_FAILED",
+  "RECOVERY_NOT_AUTOMATABLE",
+  "RELEASE_STAGE_INCOMPLETE",
+  "REMEDIATION_UNREGISTERED",
+  "RESIDUAL_DEFECTS",
+  "REVERIFY_REFUSED",
+  "ROLE_NOT_RUN",
+  "RUNTIME_DRIFT",
+  "SETTLED_CORRUPT",
+  "SETTLED_DIR_UNREADABLE",
+  "SHORTCUT_NOT_EXECUTABLE",
+  "SHORTCUT_RETIRED",
+  "SOURCE_CORRUPTION",
+  "SOURCE_IDENTITY_UNKNOWN",
+  "SOURCE_LINKAGE_DRIFT",
+  "SOURCE_LINKAGE_MISSING",
+  "SOURCE_ORIGINAL_LOST",
+  "SOURCE_PURGED",
+  "SOURCE_RECEIPT_MISSING",
+  "SOURCE_WORK_ACTIVE",
+  "SOURCE_WORK_CONFLICT",
+  "STAGE_UNREPAIRABLE",
+  "STAGING_CORRUPT",
+  "STALE_APPROVED_REPAIR",
+  "STALE_DUPLICATE_ID_DECISION",
+  "STALE_PACKAGE",
+  "STALE_WORKER",
+  "TEST_REPORT",
+  "UNHANDLED_ACTION",
+  "UNKNOWN_ACTION",
+  "UNSEATED_MUTATION",
+  "VALIDATION_UNAVAILABLE",
+  "WAIT_BLOCKED",
+  "METADATA_REPAIR_REQUIRES_DONE",
+  "METADATA_REPAIR_FIELD_UNSUPPORTED",
+  "METADATA_REPAIR_TARGET_UNPROVEN",
+  "METADATA_REPAIR_TARGET_MISSING",
+  "METADATA_REPAIR_TARGET_MISMATCH",
+  "METADATA_REPAIR_AUTHORITY_REQUIRED",
+  "METADATA_REPAIR_AUTHORITY_INVALID",
+  "METADATA_REPAIR_CONFLICT",
+  "METADATA_REPAIR_NOT_NEEDED",
+  "METADATA_REPAIR_RECEIPT_CORRUPT",
+  "SUB_RECONCILE_AUTHORITY_REQUIRED",
+  "SUB_RECONCILE_AUTHORITY_INVALID",
+  "SUB_RECONCILE_OWNERSHIP_CONFLICT",
+  "SUB_RECONCILE_NOT_TERMINAL",
+  "GIT_UNAVAILABLE",
+  "IGNORE_POLICY_UNAVAILABLE",
+  "RUNTIME_NAMESPACE_TRACKED",
+  "AMBIGUOUS_AUTHORITY",
+  "LIVE_LEASE_PRESENT",
+  "FENCED_LEASE_GENERATION",
+  "APPEND_CLASS_INVALID",
+  "APPEND_CONFLICT_UNNAMED",
+  "APPEND_DELTA_INVALID",
+  "APPEND_NEW_MISSION",
+  "APPEND_NOT_FOUND",
+  "APPEND_SUPERSEDES_UNKNOWN",
+  "APPEND_TARGET_UNKNOWN",
+  "GPU_TRIAGE",
+  "ACCEPTED_DEBT_EXISTS"
+ ],
+ "continue_fallback": {
+  "invariant": "continue may fall through to improve ONLY after recovery, blocked/retryable, queued and required-follow-up routing are exhausted; it resumes an existing active Improve cycle and never creates an unbounded improve carousel",
+  "marker": ".saipen/extensions/continue_fallback.json",
+  "owner": "tools/saipen_engine/continue_fallback.py",
+  "test": "tools/test_continue_improve_fallthrough.py"
+ },
+ "audit_inbox": {
+  "rule_id": "SOURCE-AUDIT-INBOX-01",
+  "directory": "audit",
+  "filename_regex": "^[1-9][0-9]*\\.md$",
+  "recursive": false,
+  "source_kind": "external_audit",
+  "generation_identity": "relative_path+sha256",
+  "ordering": "LOWEST_WORKABLE_LAYER",
+  "continue_position": "AFTER_ACTIVE_BEFORE_BOARD_PICK",
+  "delete_gate": "SOURCE_CLOSED_AND_CURRENT_HASH_MATCHES",
+  "delete_operation": "audit_inbox.consume",
+  "renumber_after_delete": false,
+  "residue_policy": "REPORT_NEVER_DELETE",
+  "residue_exempt_prefix": ".",
+  "clean_verdict": "NO_LAYER_AND_NO_RESIDUE",
+  "binding": ".saipen/intake/audit_inbox.json",
+  "migration_binding": "legacy_transport_equivalent",
+  "generation_states": [
+   "NEW",
+   "ACTIVE",
+   "BLOCKED",
+   "CLOSED_PENDING_DELETE",
+   "DELETED",
+   "INVALID",
+   "MISSING_AFTER_CAPTURE"
+  ],
+  "owner": "tools/saipen_engine/audit_inbox.py",
+  "test": "tools/test_audit_inbox.py"
+ },
+ "hush_precedence": {
+  "order": [
+   "user",
+   "safety",
+   "core",
+   "execution_policy",
+   "style"
+  ],
+  "owner": "saipen/EXECUTION.md",
+  "status": "active",
+  "runtime": "tools/saipen_engine/hush.py",
+  "test": "tools/test_hush_runtime.py",
+  "modifier": "hush",
+  "scope": "TASK_LOCAL_NEVER_PERSISTED",
+  "suppressible": [
+   "preamble",
+   "progress",
+   "plan",
+   "tool_narration",
+   "success_chatter",
+   "details"
+  ],
+  "mandatory": [
+   "safety_refusal",
+   "destructive_confirmation",
+   "missing_authority",
+   "terminal_failure",
+   "protocol_corruption",
+   "side_effect_acknowledgement",
+   "final_report",
+   "evidence"
+  ],
+  "final_report_max_lines": 20
+ },
+ "audit_enqueue": {
+  "rule_id": "SOURCE-AUDIT-ENQUEUE-01",
+  "allocator": ".saipen/intake/audit_allocator.json",
+  "lock": ".saipen/locks/audit-allocator.lock",
+  "allocation": "MONOTONIC_NEVER_REUSED",
+  "placement": "TEMP_THEN_ATOMIC_RENAME",
+  "idempotency_key": "producer+producer_operation_id",
+  "operation_states": [
+   "RESERVED",
+   "COMMITTED"
+  ],
+  "producer_writes": [
+   "audit/<N>.md",
+   ".saipen/intake/audit_allocator.json"
+  ],
+  "producer_claims": "UNTRUSTED",
+  "envelope_open": "<!-- saipen-audit-envelope",
+  "envelope_optional": true,
+  "maintainer_verdict_on_intake": "PENDING",
+  "owner": "tools/saipen_engine/audit_enqueue.py",
+  "envelope_owner": "tools/saipen_engine/audit_envelope.py",
+  "test": "tools/test_audit_enqueue.py",
+  "envelope_test": "tools/test_audit_envelope.py"
+ }
+}

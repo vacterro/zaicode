@@ -26,6 +26,11 @@ function parseDeviceIdFromArgs(): string {
 
 // 在 contextBridge 建立之前就暴露同步值，让 renderer 在 React 渲染前就能读到
 contextBridge.exposeInMainWorld("__ZCODE_DEVICE_ID__", parseDeviceIdFromArgs());
+// ZAICODE 产品模式由启动环境决定；renderer 无 process，必须在 preload 里同步暴露。
+contextBridge.exposeInMainWorld(
+  "__ZAICODE_PRODUCT_MODE__",
+  ["1", "true", "on", "yes"].includes((process.env.ZCODE_ZAICODE_MODE ?? "").trim().toLowerCase()),
+);
 
 import type {
   AppSettings,
@@ -742,6 +747,82 @@ contextBridge.exposeInMainWorld("zcode", {
   /** 写入“自动下载并安装更新”偏好 */
   setAutoDownloadAndInstallUpdates: (enabled: boolean) =>
     ipcRenderer.invoke(PlatformChannels.SetAutoDownloadAndInstallUpdates, enabled),
+  getZaicodeLauncherPreferences: (): Promise<{
+    autoRestartOnCrash: boolean;
+    saimailWorkspace: string | null;
+  }> => ipcRenderer.invoke(PlatformChannels.GetZaicodeLauncherPreferences),
+  setZaicodeAutoRestartOnCrash: (
+    enabled: boolean,
+  ): Promise<{ autoRestartOnCrash: boolean; saimailWorkspace: string | null }> =>
+    ipcRenderer.invoke(PlatformChannels.SetZaicodeAutoRestartOnCrash, enabled),
+  setZaicodeSaimailWorkspace: (
+    workspace: string | null,
+  ): Promise<{ autoRestartOnCrash: boolean; saimailWorkspace: string | null }> =>
+    ipcRenderer.invoke(PlatformChannels.SetZaicodeSaimailWorkspace, workspace),
+  initZaicodeSaimailWorkspace: (workspace: string): Promise<{ ok: boolean; message: string }> =>
+    ipcRenderer.invoke(PlatformChannels.InitZaicodeSaimailWorkspace, workspace),
+  getZaicodePixelExact: (): Promise<{ pixelExact: boolean }> =>
+    ipcRenderer.invoke(PlatformChannels.GetZaicodePixelExact),
+  setZaicodePixelExact: (enabled: boolean): Promise<{ pixelExact: boolean }> =>
+    ipcRenderer.invoke(PlatformChannels.SetZaicodePixelExact, enabled),
+  saveZaicodeSettingsSnapshot: (json: string): Promise<{ ok: boolean; message: string; sourcePath: string | null; backupPath: string | null }> =>
+    ipcRenderer.invoke(PlatformChannels.SaveZaicodeSettingsSnapshot, json),
+  moveWindowBy: (delta: { dx: number; dy: number }): Promise<{ success: boolean }> =>
+    ipcRenderer.invoke(PlatformChannels.MoveWindowBy, delta),
+  snapWindowZone: (zone: { fx: number; fy: number; fw: number; fh: number; state?: "normal" | "maximized" }): Promise<{ success: boolean }> =>
+    ipcRenderer.invoke(PlatformChannels.SnapWindowZone, zone),
+  getWindowZone: () => ipcRenderer.invoke(PlatformChannels.GetWindowZone),
+  zaicodeWindowDrag: (phase: "start" | "move" | "end") => {
+    ipcRenderer.send(PlatformChannels.ZaicodeWindowDrag, phase);
+  },
+  getZaicodeEngines: () => ipcRenderer.invoke(PlatformChannels.GetZaicodeEngines),
+  refreshZaicodeEngines: (accountId?: string) =>
+    ipcRenderer.invoke(PlatformChannels.RefreshZaicodeEngines, accountId ?? null),
+  setZaicodeEnginesConfig: (patch: Record<string, unknown>) =>
+    ipcRenderer.invoke(PlatformChannels.SetZaicodeEnginesConfig, patch),
+  onZaicodeEnginesChanged: (callback: (state: unknown) => void): (() => void) => {
+    const listener = (_event: unknown, state: unknown) => callback(state);
+    ipcRenderer.on(PlatformChannels.ZaicodeEnginesChanged, listener);
+    return () => {
+      ipcRenderer.removeListener(PlatformChannels.ZaicodeEnginesChanged, listener);
+    };
+  },
+  launchZaicodeExternalWorker: (params: { cwd: string; command: string; title: string }) =>
+    ipcRenderer.invoke(PlatformChannels.LaunchZaicodeExternalWorker, params),
+  prepareZaicodeEngineAccountHome: (vendor: string) =>
+    ipcRenderer.invoke(PlatformChannels.PrepareZaicodeEngineAccountHome, vendor),
+  setZaicodeGlobalHotkeys: (bindings: { id: string; accelerator: string }[]) =>
+    ipcRenderer.invoke(PlatformChannels.SetZaicodeGlobalHotkeys, bindings),
+  onZaicodeGlobalHotkey: (callback: (id: string) => void): (() => void) => {
+    const listener = (_event: unknown, id: unknown) => {
+      if (typeof id === "string") callback(id);
+    };
+    ipcRenderer.on(PlatformChannels.ZaicodeGlobalHotkey, listener);
+    return () => {
+      ipcRenderer.removeListener(PlatformChannels.ZaicodeGlobalHotkey, listener);
+    };
+  },
+  getZaicodeStartWithWindows: () => ipcRenderer.invoke(PlatformChannels.GetZaicodeStartWithWindows),
+  callZaicodeRouter: (call: { method: string; path: string; body?: unknown }) =>
+    ipcRenderer.invoke(PlatformChannels.CallZaicodeRouter, call),
+  getZaicodeRouterInfo: () => ipcRenderer.invoke(PlatformChannels.GetZaicodeRouterInfo),
+  startZaicodeRouter: () => ipcRenderer.invoke(PlatformChannels.StartZaicodeRouter),
+  openZaicodeRouterDashboard: (page: string) =>
+    ipcRenderer.invoke(PlatformChannels.OpenZaicodeRouterDashboard, page),
+  runZaicodeRouterExtraUpdate: () => ipcRenderer.invoke(PlatformChannels.RunZaicodeRouterExtraUpdate),
+  getZaicodeSaipenProjection: (projectPath: string) =>
+    ipcRenderer.invoke(PlatformChannels.GetZaicodeSaipenProjection, projectPath),
+  showZaicodeNotification: (input: { title: string; body?: string }): Promise<{ ok: boolean; message: string }> =>
+    ipcRenderer.invoke(PlatformChannels.ShowZaicodeNotification, input),
+  getZaicodeRouterHost: () => ipcRenderer.invoke(PlatformChannels.GetZaicodeRouterHost),
+  setZaicodeRouterMode: (mode: "auto" | "shared" | "isolated") => ipcRenderer.invoke(PlatformChannels.SetZaicodeRouterMode, mode),
+  bootstrapZaicodeRouter: (options: { needKey: boolean }) => ipcRenderer.invoke(PlatformChannels.BootstrapZaicodeRouter, options),
+  troubleshootZaicodeRouter: () => ipcRenderer.invoke(PlatformChannels.TroubleshootZaicodeRouter),
+  scanZaicodeFreeModels: () => ipcRenderer.invoke(PlatformChannels.ScanZaicodeFreeModels),
+  getZaicodeFreeScanInfo: () => ipcRenderer.invoke(PlatformChannels.GetZaicodeFreeScanInfo),
+  addZaicodeFreeKey: (input: { providerId: string; apiKey: string }) => ipcRenderer.invoke(PlatformChannels.AddZaicodeFreeKey, input),
+  setZaicodeStartWithWindows: (enabled: boolean) =>
+    ipcRenderer.invoke(PlatformChannels.SetZaicodeStartWithWindows, enabled),
   getDesktopSessionActivity: () => ipcRenderer.invoke(PlatformChannels.GetDesktopSessionActivity),
   /** 注册自动更新持续状态变化，返回 disposer */
   onUpdateStateChanged: (callback: (payload: UpdateStatePayload) => void): (() => void) => {

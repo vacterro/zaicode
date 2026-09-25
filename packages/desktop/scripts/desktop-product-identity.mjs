@@ -5,6 +5,14 @@
  */
 export const ZCODE_PREVIEW_IDENTITY_ENV = "ZCODE_PREVIEW_IDENTITY";
 
+/**
+ * 构建期开关：为真时安装包使用 ZAICODE 身份（独立 appId / 产品名 / 可执行名）。
+ * ZAICODE 是 ZCode 源码树上的派生产品，身份必须与 ZCode / ZCode Preview 完全不相交，
+ * 以便与已安装的正式版 ZCode 并排运行且互不共享单实例锁与用户数据。
+ * 语义与 `ZCODE_PREVIEW_IDENTITY` 完全一致：只接受 `1` 开启、`0`/空关闭，其它拼写构建期报错。
+ */
+export const ZCODE_ZAICODE_IDENTITY_ENV = "ZCODE_ZAICODE_IDENTITY";
+
 const PRODUCTION_IDENTITY = Object.freeze({
   flavor: "production",
   appId: "dev.zcode.app",
@@ -23,9 +31,19 @@ const PREVIEW_IDENTITY = Object.freeze({
   cuaHelperInstallVariant: "preview",
 });
 
+const ZAICODE_IDENTITY = Object.freeze({
+  flavor: "zaicode",
+  appId: "dev.zaicode.app",
+  productName: "ZAICODE",
+  linuxExecutableName: "zaicode",
+  linuxPackageName: "zaicode",
+  cuaHelperInstallVariant: "zaicode",
+});
+
 export const desktopProductIdentities = Object.freeze({
   production: PRODUCTION_IDENTITY,
   preview: PREVIEW_IDENTITY,
+  zaicode: ZAICODE_IDENTITY,
 });
 
 function normalizeDesktopZCodeEnv(env) {
@@ -50,13 +68,32 @@ export function isPreviewIdentityRequested(env = process.env) {
   );
 }
 
+export function isZaicodeIdentityRequested(env = process.env) {
+  return readIdentitySwitch(env, ZCODE_ZAICODE_IDENTITY_ENV);
+}
+
+function readIdentitySwitch(env, name) {
+  const value = env[name]?.trim() ?? "";
+  if (value === "1") {
+    return true;
+  }
+  if (value === "" || value === "0") {
+    return false;
+  }
+  throw new Error(`invalid ${name}=${env[name]}; expected 1 or 0`);
+}
+
 /**
  * 产品身份（flavor）与后端环境（`ZCODE_ENV`）是两个轴：
+ * - ZAICODE 身份开关优先：派生产品身份不与 ZCode/Preview 共享 appId 与单实例锁；
  * - `ZCODE_ENV=test` 一律是 Preview，测试后端不能顶着正式 `ZCode` 身份覆盖用户的正式安装；
  * - `ZCODE_ENV=production` 默认是正式身份，显式 `ZCODE_PREVIEW_IDENTITY=1` 时改用 Preview 身份。
  * 未知 `ZCODE_ENV` 继续按 test 处理，和共享层 normalizeZCodeEnv 的 fail-safe 默认值一致。
  */
 export function resolveDesktopProductFlavor(env = process.env) {
+  if (isZaicodeIdentityRequested(env)) {
+    return "zaicode";
+  }
   if (isPreviewIdentityRequested(env)) {
     return "preview";
   }
@@ -86,7 +123,7 @@ export function resolveWindowsAppUserModelIdForFlavor(flavor, runtime = { isPack
   if (runtime.isPackaged === false) {
     return "cn.aminer.zcode";
   }
-  return desktopProductIdentities[flavor === "preview" ? "preview" : "production"].appId;
+  return (desktopProductIdentities[flavor] ?? desktopProductIdentities.production).appId;
 }
 
 export function resolveWindowsAppUserModelId(env = process.env, runtime = { isPackaged: true }) {

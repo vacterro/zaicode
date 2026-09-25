@@ -1,5 +1,5 @@
 /* eslint-disable max-lines -- 桌面平台 IPC 集中装配，拆散会让权限边界更难审计；行数随平台能力增长。 */
-import { BrowserWindow, dialog, ipcMain, nativeTheme } from "electron";
+import { BrowserWindow, dialog, ipcMain, nativeTheme, screen } from "electron";
 import { readZCodeStdioTapDevState } from "@zcode/services/node";
 import {
   DesktopCommandIds,
@@ -22,6 +22,24 @@ import {
   type WindowControlsOverlayReadyPayload,
 } from "@zcode/shared";
 import { getInstalledEditors } from "./editors.js";
+import type { ZaicodeRouterCall } from "@zcode/shared";
+import {
+  callZaicodeRouter,
+  getZaicodeRouterInfo,
+  openZaicodeRouterDashboard,
+  runZaicodeRouterExtraUpdate,
+  startZaicodeRouter,
+} from "./zaicodeRouter.js";
+import { getZaicodeSaipenProjection } from "./zaicodeSaipenProjection.js";
+import { showZaicodeNotification } from "./zaicodeNotify.js";
+import { getZaicodeRouterHostStatus, setZaicodeRouterMode } from "./zaicodeRouterHost.js";
+import {
+  addZaicodeFreeKey,
+  bootstrapZaicodeRouter,
+  readZaicodeFreeScanInfo,
+  scanZaicodeFreeModelsNow,
+  troubleshootZaicodeRouter,
+} from "./zaicodeRouterBootstrap.js";
 import { getApplicationIcon } from "./applicationIcons.js";
 import { exportLogs } from "./exportLogs.js";
 import { resolveCommunityUrl } from "./desktopCommandHandlers.js";
@@ -55,6 +73,24 @@ import { createTempTextAttachment } from "./tempTextAttachment.js";
 import { registerDesktopSaveFileIpcHandler } from "./desktopSaveFile.js";
 import { registerDesktopPrintToPdfIpcHandler } from "./desktopPrintToPdf.js";
 import { registerCuaPipActiveSessionIpc } from "./desktopCuaPipIpc.js";
+import {
+  readZaicodeLauncherPreferences,
+  setZaicodeAutoRestartOnCrash,
+  setZaicodePixelExact,
+  setZaicodeSaimailWorkspace,
+} from "./zaicodeLauncherPreferences.js";
+import { initZaicodeSaimailWorkspace } from "./zaicodeSaimailInit.js";
+import {
+  getZaicodeEnginesState,
+  getZaicodeStartWithWindows,
+  launchZaicodeExternalWorker,
+  prepareZaicodeEngineAccountHome,
+  refreshZaicodeEngines,
+  setZaicodeEnginesConfig,
+  setZaicodeStartWithWindows,
+} from "./zaicodeEngines.js";
+import { saveZaicodeSettingsSnapshot } from "./zaicodeSettingsSnapshot.js";
+import { setZaicodeGlobalHotkeys } from "./zaicodeGlobalHotkeys.js";
 
 export function registerPlatformIpcHandlers(options: {
   fetchHelpConfig?: () => Promise<unknown>;
@@ -353,6 +389,183 @@ export function registerPlatformIpcHandlers(options: {
   ipcMain.handle(PlatformChannels.GetAutoUpdatePreferences, () =>
     options.getAutoUpdatePreferences(),
   );
+  ipcMain.handle(PlatformChannels.GetZaicodeLauncherPreferences, () =>
+    readZaicodeLauncherPreferences(),
+  );
+  ipcMain.handle(PlatformChannels.SetZaicodeAutoRestartOnCrash, (_event, enabled: unknown) => {
+    if (typeof enabled !== "boolean")
+      throw new TypeError("Expected boolean crash recovery preference");
+    return setZaicodeAutoRestartOnCrash(enabled);
+  });
+  ipcMain.handle(PlatformChannels.SetZaicodeSaimailWorkspace, (_event, workspace: unknown) => {
+    if (workspace !== null && typeof workspace !== "string")
+      throw new TypeError("Expected SAIMAIL workspace path or null");
+    return setZaicodeSaimailWorkspace(workspace);
+  });
+  ipcMain.handle(PlatformChannels.GetZaicodePixelExact, () => ({
+    pixelExact: readZaicodeLauncherPreferences().pixelExact,
+  }));
+  ipcMain.handle(PlatformChannels.SetZaicodePixelExact, (_event, enabled: unknown) => {
+    if (typeof enabled !== "boolean") throw new TypeError("Expected boolean pixel-exact preference");
+    return { pixelExact: setZaicodePixelExact(enabled).pixelExact };
+  });
+  ipcMain.handle(PlatformChannels.SaveZaicodeSettingsSnapshot, (_event, json: unknown) => {
+    if (typeof json !== "string") throw new TypeError("Expected settings snapshot JSON");
+    return saveZaicodeSettingsSnapshot(json);
+  });
+  ipcMain.handle(PlatformChannels.InitZaicodeSaimailWorkspace, (_event, workspace: unknown) => {
+    if (typeof workspace !== "string" || !workspace.trim())
+      throw new TypeError("Expected SAIMAIL workspace path");
+    return initZaicodeSaimailWorkspace(workspace.trim());
+  });
+  ipcMain.handle(PlatformChannels.MoveWindowBy, (event, delta: unknown) => {
+    const senderWindow = BrowserWindow.fromWebContents(event.sender);
+    if (!senderWindow || senderWindow.isDestroyed()) return { success: false };
+    const d = delta as { dx?: number; dy?: number };
+    const dx = Number(d?.dx) || 0;
+    const dy = Number(d?.dy) || 0;
+    if (!dx && !dy) return { success: true };
+    if (senderWindow.isMaximized()) {
+      senderWindow.unmaximize();
+    }
+    const [x = 0, y = 0] = senderWindow.getPosition();
+    senderWindow.setPosition(Math.round(x + dx), Math.round(y + dy));
+    return { success: true };
+  });
+  ipcMain.handle(PlatformChannels.SnapWindowZone, (event, rawZone: unknown) => {
+    const senderWindow = BrowserWindow.fromWebContents(event.sender);
+    if (!senderWindow || senderWindow.isDestroyed()) return { success: false };
+    const zone = rawZone as {
+      fx: number;
+      fy: number;
+      fw: number;
+      fh: number;
+      state?: "normal" | "maximized";
+    };
+    if (senderWindow.isMinimized()) {
+      senderWindow.restore();
+    }
+    if (zone?.state === "maximized") {
+      if (!senderWindow.isMaximized()) {
+        senderWindow.maximize();
+      }
+      return { success: true };
+    }
+    if (senderWindow.isMaximized()) {
+      senderWindow.unmaximize();
+    }
+    const cursorPoint = screen.getCursorScreenPoint();
+    const display = screen.getDisplayNearestPoint(cursorPoint) || screen.getPrimaryDisplay();
+    const workArea = display.workArea;
+    const x = Math.round(workArea.x + Math.max(0, Math.min(1, zone.fx)) * workArea.width);
+    const y = Math.round(workArea.y + Math.max(0, Math.min(1, zone.fy)) * workArea.height);
+    const width = Math.max(300, Math.round(Math.max(0.05, Math.min(1, zone.fw)) * workArea.width));
+    const height = Math.max(200, Math.round(Math.max(0.05, Math.min(1, zone.fh)) * workArea.height));
+    senderWindow.setBounds({ x, y, width, height });
+    return { success: true };
+  });
+  // Right-button window drag: the window follows the real cursor (read here, not
+  // summed from renderer deltas), so fast drags never drift or stall at the edge.
+  const windowDrags = new WeakMap<BrowserWindow, { dx: number; dy: number }>();
+  ipcMain.on(PlatformChannels.ZaicodeWindowDrag, (event, phase: unknown) => {
+    const senderWindow = BrowserWindow.fromWebContents(event.sender);
+    if (!senderWindow || senderWindow.isDestroyed()) return;
+    const cursor = screen.getCursorScreenPoint();
+    if (phase === "start") {
+      let bounds = senderWindow.getBounds();
+      if (senderWindow.isMaximized()) {
+        const ratio = (cursor.x - bounds.x) / Math.max(1, bounds.width);
+        const grabY = cursor.y - bounds.y;
+        senderWindow.unmaximize();
+        bounds = senderWindow.getBounds();
+        windowDrags.set(senderWindow, { dx: Math.round(ratio * bounds.width), dy: Math.min(grabY, bounds.height - 8) });
+        senderWindow.setPosition(Math.round(cursor.x - ratio * bounds.width), Math.round(cursor.y - Math.min(grabY, bounds.height - 8)));
+        return;
+      }
+      windowDrags.set(senderWindow, { dx: cursor.x - bounds.x, dy: cursor.y - bounds.y });
+      return;
+    }
+    const drag = windowDrags.get(senderWindow);
+    if (!drag) return;
+    if (phase === "end") {
+      windowDrags.delete(senderWindow);
+      return;
+    }
+    senderWindow.setPosition(Math.round(cursor.x - drag.dx), Math.round(cursor.y - drag.dy));
+  });
+  ipcMain.handle(PlatformChannels.GetWindowZone, (event) => {
+    const senderWindow = BrowserWindow.fromWebContents(event.sender);
+    if (!senderWindow || senderWindow.isDestroyed()) return null;
+    const bounds = senderWindow.isMaximized() ? senderWindow.getNormalBounds() : senderWindow.getBounds();
+    const center = { x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height / 2 };
+    const workArea = (screen.getDisplayNearestPoint(center) || screen.getPrimaryDisplay()).workArea;
+    const clamp = (value: number) => Math.max(0, Math.min(1, value));
+    return {
+      fx: clamp((bounds.x - workArea.x) / workArea.width),
+      fy: clamp((bounds.y - workArea.y) / workArea.height),
+      fw: clamp(bounds.width / workArea.width),
+      fh: clamp(bounds.height / workArea.height),
+      state: senderWindow.isMaximized() ? "maximized" : "normal",
+    };
+  });
+  ipcMain.handle(PlatformChannels.GetZaicodeEngines, () => getZaicodeEnginesState());
+  ipcMain.handle(PlatformChannels.RefreshZaicodeEngines, async (_event, accountId: unknown) => {
+    await refreshZaicodeEngines(typeof accountId === "string" && accountId ? accountId : undefined);
+    return getZaicodeEnginesState();
+  });
+  ipcMain.handle(PlatformChannels.SetZaicodeEnginesConfig, (_event, patch: unknown) =>
+    setZaicodeEnginesConfig(patch),
+  );
+  ipcMain.handle(PlatformChannels.LaunchZaicodeExternalWorker, (_event, params: unknown) => {
+    const p = params as { cwd?: unknown; command?: unknown; title?: unknown } | null;
+    if (typeof p?.cwd !== "string" || typeof p.command !== "string")
+      throw new TypeError("Expected worker cwd and command");
+    return launchZaicodeExternalWorker({
+      cwd: p.cwd,
+      command: p.command,
+      title: typeof p.title === "string" ? p.title : "ZAICODE worker",
+    });
+  });
+  ipcMain.handle(PlatformChannels.CallZaicodeRouter, (_event, call: unknown) =>
+    callZaicodeRouter(call as ZaicodeRouterCall),
+  );
+  ipcMain.handle(PlatformChannels.GetZaicodeRouterInfo, () => getZaicodeRouterInfo());
+  ipcMain.handle(PlatformChannels.StartZaicodeRouter, () => startZaicodeRouter());
+  ipcMain.handle(PlatformChannels.OpenZaicodeRouterDashboard, (_event, page: unknown) =>
+    openZaicodeRouterDashboard(typeof page === "string" ? page : ""),
+  );
+  ipcMain.handle(PlatformChannels.RunZaicodeRouterExtraUpdate, () => runZaicodeRouterExtraUpdate());
+  ipcMain.handle(PlatformChannels.GetZaicodeSaipenProjection, (_event, projectPath: unknown) =>
+    typeof projectPath === "string" && projectPath ? getZaicodeSaipenProjection(projectPath) : null,
+  );
+  ipcMain.handle(PlatformChannels.ShowZaicodeNotification, (event, input: unknown) => showZaicodeNotification(event, input));
+  ipcMain.handle(PlatformChannels.GetZaicodeRouterHost, () => getZaicodeRouterHostStatus());
+  ipcMain.handle(PlatformChannels.SetZaicodeRouterMode, (_event, mode: unknown) => {
+    if (mode !== "auto" && mode !== "shared" && mode !== "isolated") throw new TypeError("Expected auto, shared or isolated");
+    return setZaicodeRouterMode(mode);
+  });
+  ipcMain.handle(PlatformChannels.BootstrapZaicodeRouter, (_event, options: unknown) =>
+    bootstrapZaicodeRouter({ needKey: (options as { needKey?: unknown } | null)?.needKey === true }),
+  );
+  ipcMain.handle(PlatformChannels.TroubleshootZaicodeRouter, () => troubleshootZaicodeRouter());
+  ipcMain.handle(PlatformChannels.ScanZaicodeFreeModels, () => scanZaicodeFreeModelsNow());
+  ipcMain.handle(PlatformChannels.GetZaicodeFreeScanInfo, () => readZaicodeFreeScanInfo());
+  ipcMain.handle(PlatformChannels.AddZaicodeFreeKey, (_event, input: unknown) => {
+    const value = (input ?? {}) as { providerId?: unknown; apiKey?: unknown };
+    if (typeof value.providerId !== "string" || typeof value.apiKey !== "string") throw new TypeError("Expected providerId and apiKey");
+    return addZaicodeFreeKey(value.providerId, value.apiKey);
+  });
+  ipcMain.handle(PlatformChannels.PrepareZaicodeEngineAccountHome, (_event, vendor: unknown) =>
+    prepareZaicodeEngineAccountHome(typeof vendor === "string" ? vendor : ""),
+  );
+  ipcMain.handle(PlatformChannels.SetZaicodeGlobalHotkeys, (_event, bindings: unknown) =>
+    setZaicodeGlobalHotkeys(bindings),
+  );
+  ipcMain.handle(PlatformChannels.GetZaicodeStartWithWindows, () => getZaicodeStartWithWindows());
+  ipcMain.handle(PlatformChannels.SetZaicodeStartWithWindows, (_event, enabled: unknown) => {
+    if (typeof enabled !== "boolean") throw new TypeError("Expected boolean");
+    return setZaicodeStartWithWindows(enabled);
+  });
   ipcMain.handle(
     PlatformChannels.SetAutoDownloadAndInstallUpdates,
     async (_event, enabled: unknown) => {

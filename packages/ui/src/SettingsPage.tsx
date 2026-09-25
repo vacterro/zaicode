@@ -64,6 +64,18 @@ import {
 } from "@/settings/usage-stats/CodingPlanUsagePanel.js";
 import { buildPersonalCodingPlanUsageSource } from "@/lib/codingPlanUsageSources.js";
 import { SubagentsSection } from "@/settings/SubagentsSection.js";
+import { ZaicodeSettingsSection } from "@/settings/ZaicodeSettingsSection.js";
+import { ZaicodeEnginesSettings } from "@/settings/ZaicodeEnginesSettings.js";
+import { ZaicodeSoundSettings } from "@/settings/ZaicodeSoundSettings.js";
+import { ZaicodeLayoutSettings } from "@/settings/ZaicodeLayoutSettings.js";
+import { ZaicodeWorkersSettings } from "@/settings/ZaicodeWorkersSettings.js";
+import { ZaicodeRouterSettings } from "@/settings/ZaicodeRouterSettings.js";
+import { ZaicodeNotificationsSettings } from "@/settings/ZaicodeNotificationsSettings.js";
+import { ZaicodeColorSettings } from "@/settings/ZaicodeColorSettings.js";
+import { ZaicodeLightsSettings } from "@/settings/ZaicodeLightsSettings.js";
+import { ZaicodeTimersSettings } from "@/settings/ZaicodeTimersSettings.js";
+import { ZaicodeHotkeysSettings } from "@/settings/ZaicodeHotkeysSettings.js";
+import { ZaicodeHelpSection } from "@/settings/ZaicodeHelpSection.js";
 import { AutomationsSection } from "@/settings/AutomationsSection.js";
 import { SegmentPill } from "@/settings/PluginStoreListView.js";
 import { PluginsSection } from "@/settings/PluginsSection.js";
@@ -113,6 +125,7 @@ import {
   type UserActionTrigger,
 } from "@/lib/userActionTelemetry.js";
 import type { SettingsUserActionFeatureId } from "@/lib/userActionTraceCatalog.js";
+import { playZaicodeSound } from "@/zaicode/zaicodeSoundBus.js";
 
 function runSettingsActionAsync<T>(options: {
   featureId: SettingsUserActionFeatureId;
@@ -294,6 +307,9 @@ export function SettingsPage({
   onLogout?: () => void;
   user?: UserInfo | null;
 }) {
+  useEffect(() => {
+    playZaicodeSound("ui.settings");
+  }, []);
   const { intl, localePreference, setLocalePreference } = useZCodeIntl();
   const { settingsSectionGroups, settingsSections } = useMemo(
     () =>
@@ -1896,6 +1912,30 @@ export function SettingsPage({
                             workspacePath={activeWorkspacePath}
                             workspaceIdentity={activeWorkspaceIdentity}
                           />
+                        ) : activeSection === "zaicode" ? (
+                          <ZaicodeSettingsSection />
+                        ) : activeSection === "zaicodeEngines" ? (
+                          <ZaicodeEnginesSettings />
+                        ) : activeSection === "zaicodeSounds" ? (
+                          <ZaicodeSoundSettings />
+                        ) : activeSection === "zaicodeLayout" ? (
+                          <ZaicodeLayoutSettings />
+                        ) : activeSection === "zaicodeRouter" ? (
+                          <ZaicodeRouterSettings />
+                        ) : activeSection === "zaicodeWorkers" ? (
+                          <ZaicodeWorkersSettings />
+                        ) : activeSection === "zaicodeNotifications" ? (
+                          <ZaicodeNotificationsSettings />
+                        ) : activeSection === "zaicodeColors" ? (
+                          <ZaicodeColorSettings />
+                        ) : activeSection === "zaicodeLights" ? (
+                          <ZaicodeLightsSettings />
+                        ) : activeSection === "zaicodeTimers" ? (
+                          <ZaicodeTimersSettings />
+                        ) : activeSection === "zaicodeHotkeys" ? (
+                          <ZaicodeHotkeysSettings />
+                        ) : activeSection === "zaicodeHelp" ? (
+                          <ZaicodeHelpSection />
                         ) : activeSection === "automations" ? (
                           <AutomationsSection
                             workspacePath={activeWorkspacePath}

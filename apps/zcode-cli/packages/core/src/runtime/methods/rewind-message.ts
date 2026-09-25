@@ -437,6 +437,35 @@ export async function rewindConversationToMessage(
   });
 }
 
+/**
+ * ZAICODE CLEAR: cut the active conversation back to empty, in the same
+ * session (same id, same place in the sidebar). It is the edit/retry branch
+ * cut anchored at the first user prompt of the active branch, so persisted
+ * history and runtime history agree and nothing is deleted from the store.
+ * Returns null when there is nothing to clear.
+ */
+export async function rewindConversationToStart(
+  this: AgentRuntimeInternal,
+  options: {
+    abortSignal?: AbortSignal;
+    events: SessionEvent[];
+    traceContext: TraceContext;
+  },
+): Promise<ConversationRewindResult | null> {
+  if (!this.sessionStore) return null;
+  const session = await this.sessionStore.getSession(this.sessionId);
+  const persistedMessages = await this.sessionStore.messages({ sessionID: this.sessionId });
+  const activeMessages = selectActiveConversationBranch(persistedMessages, {
+    branchCutAfterMessageId: session?.revert?.branchCutAfterMessageID,
+    rewindCreatedMessageId: session?.revert?.createdMessageID,
+    rewindKeptMessageIds: session?.revert?.keptMessageIDs,
+    rewindTargetMessageId: session?.revert?.targetMessageID,
+  });
+  const first = activeMessages.find(isRewindableUserPrompt);
+  if (!first) return null;
+  return this.rewindConversationToMessage({ ...options, targetMessageId: first.info.id });
+}
+
 async function buildConversationRewindPlan(
   this: AgentRuntimeInternal,
   options: {

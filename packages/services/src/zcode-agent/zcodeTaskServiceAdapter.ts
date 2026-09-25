@@ -380,6 +380,7 @@ export function createZCodeTaskServiceAdapter(
       messageId?: string;
       content: string;
       attachments?: ZCodePromptAttachment[];
+      toolAllowlist?: string[];
       toolDenylist?: string[];
       clientId?: string;
       clientMode?: ZCodeTaskClientMode;
@@ -430,6 +431,7 @@ export function createZCodeTaskServiceAdapter(
           modelSelection: params.modelSelection,
           modelExecution: params.modelExecution,
           ...turnAttributionOf(params),
+          ...(params.toolAllowlist ? { toolAllowlist: params.toolAllowlist } : {}),
           toolDenylist: promptToolDenylist,
           ...(params.clientMode ? { clientMode: params.clientMode } : {}),
         });
@@ -452,6 +454,7 @@ export function createZCodeTaskServiceAdapter(
               ...(params.modelSelection ? { modelSelection: params.modelSelection } : {}),
               ...(params.modelExecution ? { modelExecution: params.modelExecution } : {}),
               ...turnAttributionOf(params),
+              ...(params.toolAllowlist ? { toolAllowlist: params.toolAllowlist } : {}),
               ...(promptToolDenylist ? { toolDisallowlist: promptToolDenylist } : {}),
             },
             sessionId: target.taskId,

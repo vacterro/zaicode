@@ -177,6 +177,8 @@ export function formatGoalContinuationPrompt(
     `- Tokens remaining: ${remainingTokens}`,
     "",
     "Avoid repeating work that is already done. Choose the next concrete action toward the objective.",
+    "If this workspace uses SAIPEN, read its current BOARD and STATE, then finish every actionable ticket within the goal that can be completed without a human. Continue through each ticket's required phases and record real evidence before moving on.",
+    "When only genuine human decisions or unavailable external resources remain, report the exact blocker and human action. Leave the goal active rather than claiming completion.",
     "",
     "Before deciding that the goal is achieved, perform a completion audit against the actual current state:",
     "- Restate the objective as concrete deliverables or success criteria.",
@@ -238,6 +240,8 @@ export function formatGoalCompletionVerificationPrompt(
     "Use the conversation context before this verification request as the evidence source.",
     "Pass only if the conversation and current known state show that every explicit requirement, named file, command, test, gate, and deliverable in the objective is complete.",
     "Before passing, inspect any todo list, TodoRead result, or TodoWrite result in the conversation context. If any todo is still pending or in_progress, return passed false and make nextAction the smallest useful action to complete the unfinished todo before other work.",
+    "If the workspace uses SAIPEN, also inspect BOARD/STATE evidence in the conversation. Any actionable ticket within this goal that can be completed without a human means passed false; nextAction names the next ticket action.",
+    "If all remaining work truly requires a human or unavailable external resource, return passed false with the exact blocker in reason and an empty nextAction. The goal stays active and automatic continuation pauses.",
     "Fail if any requirement is missing, incomplete, weakly verified, or only represented by a plan, todo/checklist update, planning phase completion, elapsed effort, or plausible final answer.",
     "When failing, put the next smallest useful action in nextAction. This nextAction will become the next iteration title in the app UI.",
     "When passing, nextAction may be an empty string.",
@@ -291,9 +295,8 @@ export function parseGoalCompletionVerificationText(
 ): GoalCompletionVerificationOutput {
   const parsed = parseJsonObject(text);
   if (!parsed) {
-    // verifier 是 goal 完成闸门，但 provider 偶发坏 JSON 属于裁判链路故障；
-    // 按产品语义 fail-open，避免已经交付的 goal 被格式错误卡在继续迭代。
-    return failOpenGoalCompletionVerification(
+    // An invalid verdict cannot establish that the goal was completed.
+    return failedGoalCompletionVerification(
       "The completion verifier did not return valid JSON.",
     );
   }
@@ -324,12 +327,8 @@ export function failedGoalCompletionVerification(
 export function failOpenGoalCompletionVerification(
   reason: string,
 ): GoalCompletionVerificationOutput {
-  // 这里表示 verifier 基础设施/格式失败，不是 verifier 明确判定目标未完成。
-  // 默认通过能避免 goal 因裁判链路偶发失败被无限卡住，同时保留 reason 供日志和 UI 排查。
-  return {
-    passed: true,
-    reason,
-  };
+  // Keep the exported legacy name for callers; infrastructure failure is indeterminate.
+  return failedGoalCompletionVerification(reason);
 }
 
 function parseJsonObject(text: string): Record<string, unknown> | undefined {

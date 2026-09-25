@@ -3,7 +3,8 @@ import { memo, useState } from "react";
 import type { KeyboardEvent, MouseEvent } from "react";
 import { useDraggable, useDroppable } from "@dnd-kit/core";
 import type { UniqueIdentifier } from "@dnd-kit/core";
-import { isCronTask, isOffPeakTask, type ZCodeTaskMeta } from "@zcode/shared";
+import { isCronTask, isOffPeakTask, isZaicodeProductMode, type ZCodeTaskMeta } from "@zcode/shared";
+import { ZaicodeGroupedRowDecor, ZaicodeGroupedRowRole } from "@/zaicode/ZaicodeGroupedRowDecor.js";
 import { ArrowUpToLine, Clock, Cloud, Folder, ListTree, LoaderIcon, Moon, X } from "lucide-react";
 import { cn } from "@/components/lib/utils.js";
 import { Badge } from "@/components/ui/badge.js";
@@ -120,6 +121,7 @@ function GroupedTaskRowComponent({
         )
       : taskAttentionLabel;
   const leadingIndicator = deriveTaskLeadingIndicator(task, taskActivity);
+  const zaicode = isZaicodeProductMode();
   const taskTitle =
     task.title ||
     intl.formatMessage({
@@ -376,10 +378,21 @@ function GroupedTaskRowComponent({
         "cursor-pointer",
         isActive ? "bg-selected" : "hover:bg-surface-hover",
         dragging && "opacity-0",
+        zaicode && "relative pl-3.5",
       )}
     >
+      {zaicode ? <ZaicodeGroupedRowDecor task={task} todos={taskActivity?.todos} /> : null}
       <span className={TASK_GROUP_ROW_LINE_CLASS}>
-        <TaskTitleOverflowText as="span" className="text-foreground" title={taskTitle}>
+        {zaicode ? <ZaicodeGroupedRowRole task={task} /> : null}
+        <TaskTitleOverflowText
+          as="span"
+          className={cn(
+            "text-foreground",
+            zaicode && leadingIndicator === "error" && "text-[#e07a55]",
+            zaicode && hasPendingInteraction && "text-[#7fc3ea]",
+          )}
+          title={taskTitle}
+        >
           {/* grouped task 标题超出时不要显示省略号，右侧渐隐能保留标题连续性，避免和右侧状态元信息挤在一起。*/}
           {taskTitle}
         </TaskTitleOverflowText>

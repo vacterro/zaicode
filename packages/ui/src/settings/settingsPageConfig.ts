@@ -5,6 +5,10 @@ import {
   Settings2,
   Package,
   Bot,
+  Cpu,
+  Gauge,
+  Network,
+  Volume2,
   Palette,
   Sun,
   BarChart3,
@@ -18,6 +22,13 @@ import {
   WandSparkles,
   Keyboard,
   FileSearch,
+  LayoutPanelTop,
+  SquareTerminal,
+  Bell,
+  Timer,
+  Command,
+  LifeBuoy,
+  Sparkle,
 } from "lucide-react";
 import { isSettingsSectionEnabled, type SettingsSectionId } from "@/lib/settingsNavigation.js";
 import type { Theme } from "@/useTheme.js";
@@ -31,7 +42,7 @@ export const THEME_MODES: Array<{
   { mode: "zai-light", icon: Sun },
 ];
 
-type SettingsSectionGroupId = "basics" | "agentCapabilities" | "dataAndStats";
+type SettingsSectionGroupId = "basics" | "zaicode" | "agentCapabilities" | "dataAndStats";
 
 interface SettingsSectionDefinition {
   id: SettingsSectionId;
@@ -47,6 +58,8 @@ const BASE_SETTINGS_SECTION_GROUPS: Array<{
   titleId: string;
 }> = [
   { id: "basics", titleId: "settings.sidebar.group.basics" },
+  // ZAICODE: every ZAICODE page in one group, in the order people look for them.
+  { id: "zaicode", titleId: "settings.sidebar.group.zaicode" },
   {
     id: "agentCapabilities",
     titleId: "settings.sidebar.group.agentCapabilities",
@@ -84,6 +97,78 @@ const BASE_SETTINGS_SECTIONS: SettingsSectionDefinition[] = [
     icon: Bot,
     titleId: "settings.subagents.title",
     groupId: "agentCapabilities",
+  },
+  {
+    id: "zaicode",
+    icon: Cpu,
+    titleId: "settings.zaicode.title",
+    groupId: "zaicode",
+  },
+  {
+    id: "zaicodeLayout",
+    icon: LayoutPanelTop,
+    titleId: "settings.zaicodeLayout.title",
+    groupId: "zaicode",
+  },
+  {
+    id: "zaicodeEngines",
+    icon: Gauge,
+    titleId: "settings.zaicodeEngines.title",
+    groupId: "zaicode",
+  },
+  {
+    id: "zaicodeRouter",
+    icon: Network,
+    titleId: "settings.zaicodeRouter.title",
+    groupId: "zaicode",
+  },
+  {
+    id: "zaicodeWorkers",
+    icon: SquareTerminal,
+    titleId: "settings.zaicodeWorkers.title",
+    groupId: "zaicode",
+  },
+  {
+    id: "zaicodeSounds",
+    icon: Volume2,
+    titleId: "settings.zaicodeSounds.title",
+    groupId: "zaicode",
+  },
+  {
+    id: "zaicodeNotifications",
+    icon: Bell,
+    titleId: "settings.zaicodeNotifications.title",
+    groupId: "zaicode",
+  },
+  {
+    id: "zaicodeColors",
+    icon: Palette,
+    titleId: "settings.zaicodeColors.title",
+    groupId: "zaicode",
+  },
+  {
+    id: "zaicodeLights",
+    icon: Sparkle,
+    titleId: "settings.zaicodeLights.title",
+    groupId: "zaicode",
+  },
+  {
+    id: "zaicodeTimers",
+    icon: Timer,
+    titleId: "settings.zaicodeTimers.title",
+    groupId: "zaicode",
+  },
+  {
+    id: "zaicodeHotkeys",
+    icon: Command,
+    titleId: "settings.zaicodeHotkeys.title",
+    groupId: "zaicode",
+  },
+  {
+    id: "zaicodeHelp",
+    icon: LifeBuoy,
+    titleId: "settings.zaicodeHelp.title",
+    groupId: "zaicode",
   },
   {
     id: "plugin",

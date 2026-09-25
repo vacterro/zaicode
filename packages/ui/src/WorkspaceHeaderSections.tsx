@@ -60,6 +60,9 @@ export {
   WorkspaceHeaderActionSection,
   type WorkspaceHeaderActionSectionProps,
 } from "@/WorkspaceHeaderSections/WorkspaceHeaderActionSection.js";
+import { playZaicodeSound } from "@/zaicode/zaicodeSoundBus.js";
+import { useZaicodeHighlight, withZaicodeHighlight } from "@/zaicode/zaicodeHighlights.js";
+import { useZaicodeRunningSessions } from "@/zaicode/zaicodeSidebarPrefs.js";
 
 function shouldShowRemoteSkillSyncAction(params: {
   remoteSessionId?: string | null;
@@ -104,6 +107,11 @@ export function WorkspaceHeaderTitleSection({
   compact = false,
 }: WorkspaceHeaderTitleSectionProps) {
   const { intl } = useZCodeIntl();
+  // ZAICODE (SRC-038): the title bar lights up while the open session works (off by default).
+  const zaicodeHeaderWorking = useZaicodeRunningSessions((state) =>
+    Boolean(activeTaskId) && state.sessions.some((session) => session.sessionId === activeTaskId),
+  );
+  const zaicodeHeaderLight = useZaicodeHighlight("headerWorking", zaicodeHeaderWorking);
   const openFeedbackSubmit = useFeedbackStore((state) => state.openSubmit);
   const confirmDialog = useConfirmDialog();
   const services = useWorkspaceServices(workspaceAbsPath, remoteSessionId, workspaceIdentity);
@@ -474,7 +482,7 @@ export function WorkspaceHeaderTitleSection({
         )}
         title={activeTaskTitle}
       >
-        <span className="min-w-0 truncate">{activeTaskTitle}</span>
+        <span {...withZaicodeHighlight({ className: "min-w-0 truncate" }, zaicodeHeaderLight)}>{activeTaskTitle}</span>
         {/* {activeTaskChangeSummary ? (
           <>
             {activeTaskChangeSummary.added > 0 ? (
@@ -567,6 +575,7 @@ export function WorkspaceHeaderTitleSection({
                       ...(workspaceIdentity ? { workspaceIdentity } : {}),
                     })
                     .then((meta) => {
+                      playZaicodeSound("session.pin");
                       removeOptimisticTaskListItem(
                         workspaceAbsPath,
                         resolvedTaskActionTaskId,
