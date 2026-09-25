@@ -925,3 +925,13 @@ transport-tested (`ui/test/zaicodeSubchat.test.ts`,
   third-party harness is the vendor's terms question (T-40); the headless CLI
   is the vendor's own client, run by the operator on their machine. The
   9router "Subscriptions as models" path (T-40) stays for model lists and pools.
+
+## 28. SAIHOME token ribbon (T-52, 2026-09-25)
+
+Source: SRC-038 (statistics "here", marked top left of the home screen); the
+store, periods, streak grid and measures shipped with SAIHOME (section 24).
+`ZaicodeHomeTokenRibbon` (`ui/src/zaicode/home/ZaicodeHomeStatsCards.tsx`)
+puts today / yesterday / week / month / all-time tokens in the SAIHOME title
+row for every preset, with the same truth marks as the Tokens & work card;
+pref `tokenRibbon` (default on) in `zaicodeHomePrefs.ts`, switch under Layout &
+home -> STATISTICS. Tests: `ui/test/zaicodeWave52.test.ts`.

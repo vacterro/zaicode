@@ -428,6 +428,9 @@ why?", WORKERS "what runs in terminals?", Settings "how should it behave?".
   session, task or job; switching projects from it only selects the project.
 - Startup (Layout & home): SAIHOME (default for a fresh profile), Last active,
   New task.
+- Token totals (T-52): the title row shows today, yesterday, week, month and
+  all-time tokens top left, whatever preset is on (Layout & home ->
+  STATISTICS switches it off); the exact counts are on hover.
 - Modules and their authoritative sources:
 
 | Module | Source |
