@@ -1,0 +1,20 @@
+{
+  "externalization_event": {
+    "event_id": "E-1121",
+    "operation_id": "ticket-reasoning-9725abf63d2d4604ac6fb8a3a4ad961c",
+    "reason": "existing/proposed oversized BOARD record requires canonical reasoning update"
+  },
+  "lossless": true,
+  "metadata_path": ".saipen/recovery/board-compaction/T-69/T-69-b2004883c880e13edcfae596.json",
+  "operation": "board_legacy_compaction",
+  "original_record_bytes": 1680,
+  "original_record_path": ".saipen/recovery/board-compaction/T-69/T-69-b2004883c880e13edcfae596.BOARD.md",
+  "original_record_sha256": "b2004883c880e13edcfae596dfbe8a5fc8b4544ce555a56c0f9c95ee2f9ea9e3",
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "project_lineage": "lineage-b0732ed2f98947b9a3c97bfe71427eca",
+  "schema_version": 1,
+  "source": ".saipen/BOARD.md",
+  "status": "COMMITTED",
+  "supersedes_detail_ref": "",
+  "ticket_id": "T-69"
+}

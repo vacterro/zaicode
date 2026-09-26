@@ -1,0 +1,14 @@
+{
+  "requirements": {
+    "SRC-051:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "T-71 closed with verification evidence in LOG: verify -> PASS [target: T-71] conf: high -- ui 260/260 (wave71 8/8 uus: LIVE hold/recent, freshness buckets, background retry pick, subchat effort+persistence, badge builder); services 39/39; desktop 49/49; core 24/24 (streamingRecoveryBudget 2/2 uus); tsc shared/ui/desktop/services/core 0 viga; oxlint 0 err/61 warn; launcher build.cmd OK -> ZAICODE.exe 74240B; bundle staged dist-next 14:51 (insta",
+      "text": "ZAICODE user feedback wave 2026-09-26: turn-failed auto-continue only fires on project visit; dev preview launcher (temp 1-time session pulling saved settings); Live sorted by recently; retry creates vanishing chat; theme button move; retry/reconnect settings (100 attempts warm); icon workshop for all icons; project-switch sound lag; Working-for mini indicators on project + chatbox; todolist adaptive position; duplicate worker badge; worker icon mini-editor (colors/gradients); title bar center; SUBCHAT model/effort selection + SAIPEN default; project freshness indicator; sidebar 3 display modes logic/visual audit; tooltip flicker on hover",
+      "verification": "the Work this request created reached its own verification gate; see the T-71 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-71"
+    }
+  },
+  "schema_version": 1
+}

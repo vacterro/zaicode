@@ -1,0 +1,46 @@
+{
+  "op_id": "transition-5d6fb5d0f6074601926a34217cdd6afb",
+  "operation": "transition",
+  "created_at": "2026-09-26T10:38:29Z",
+  "agent": "claude-code",
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "project_lineage": "lineage-b0732ed2f98947b9a3c97bfe71427eca",
+  "semantic_payload_hash": "30cec3ca8c415d17",
+  "preconditions": {
+    ".saipen/STATE.md": "71eae032ac10f3db",
+    ".saipen/BOARD.md": "3ac4461da7df7c3a",
+    ".saipen/LOG.md": "00855a7f8c30f821"
+  },
+  "read_preconditions": {
+    ".saipen/logs": "delete-tree-sha256:1dd7844f3da08d824b23504c45dae0b54aa3ded846744ef9496f436df9540d1d"
+  },
+  "verification_policy": "core_fast",
+  "status": "COMMITTED",
+  "progress_index": 3,
+  "targets": [
+    {
+      "path": ".saipen/LOG.md",
+      "role": "log",
+      "action": "write",
+      "before_hash": "00855a7f8c30f821",
+      "after_hash": "66e9ed45ccbfe9c4",
+      "applied": true
+    },
+    {
+      "path": ".saipen/BOARD.md",
+      "role": "board",
+      "action": "write",
+      "before_hash": "3ac4461da7df7c3a",
+      "after_hash": "c72f7c90930dc843",
+      "applied": true
+    },
+    {
+      "path": ".saipen/STATE.md",
+      "role": "state",
+      "action": "write",
+      "before_hash": "71eae032ac10f3db",
+      "after_hash": "1db26a1806f93316",
+      "applied": true
+    }
+  ]
+}

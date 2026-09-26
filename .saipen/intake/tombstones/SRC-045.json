@@ -1,0 +1,16 @@
+{
+  "actionable": 1,
+  "archive_ref": ".saipen/archive/source/SRC-045.md",
+  "closed_at": "2026-09-26T10:32:13Z",
+  "closure_event": null,
+  "linked_work": "T-60",
+  "linked_works": [
+    "T-60"
+  ],
+  "receipt_id": "SRC-045",
+  "requirements": 1,
+  "schema_version": 1,
+  "source_sha256": "d4b8aa5fba1dec7bdd0c02e6928854eea79408415cb2ef81007ed11c6c6f0de2",
+  "status": "CLOSED",
+  "unresolved": 0
+}

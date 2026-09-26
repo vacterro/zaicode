@@ -1,0 +1,14 @@
+{
+  "clauses": {
+    "SRC-051:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "ZAICODE user feedback wave 2026-09-26: turn-failed auto-continue only fires on project visit; dev preview launcher (temp 1-time session pulling saved settings); Live sorted by recently; retry creates vanishing chat; theme button move; retry/reconnect settings (100 attempts warm); icon workshop for all icons; project-switch sound lag; Working-for mini indicators on project + chatbox; todolist adaptive position; duplicate worker badge; worker icon mini-editor (colors/gradients); title bar center; SUBCHAT model/effort selection + SAIPEN default; project freshness indicator; sidebar 3 display modes logic/visual audit; tooltip flicker on hover"
+    }
+  },
+  "derived_at": "2026-09-26T12:21:22Z",
+  "derived_from": "SRC-051",
+  "interpretation_revision": 1,
+  "schema_version": 1,
+  "source_sha256": "dbc1c5cb0bf481757c5bf9261722fad76dc20fd881a982d16631a024101b5dfc"
+}
