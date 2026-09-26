@@ -5,8 +5,10 @@ import {
   buildZaicodeSubchatInvocation,
   normalizeZaicodeEnginesConfig,
   normalizeZaicodeSubchatConversations,
+  parseAntigravityUsage,
   parseZaicodeClaudeStreamLine,
   parseZaicodeCodexJsonLine,
+  zaicodeSubchatAutoModel,
   zaicodeSubchatTitle,
   zaicodeSubchatUnavailableReason,
   ZAICODE_SUBCHAT_MAX_MESSAGES,
@@ -55,11 +57,12 @@ function conversation(patch: Partial<ZaicodeSubchatConversation> = {}): ZaicodeS
   };
 }
 
-test("only a ready Claude / Codex login can chat in-app; the rest say why", () => {
+test("every ready subscription login can chat in-app (SRC-048); the rest say why", () => {
   assert.equal(zaicodeSubchatUnavailableReason(account({})), null);
   assert.equal(zaicodeSubchatUnavailableReason(account({ vendor: "codex", short: "C1" })), null);
-  assert.match(zaicodeSubchatUnavailableReason(account({ vendor: "antigravity", label: "Antigravity" })) ?? "", /worker/);
-  assert.match(zaicodeSubchatUnavailableReason(account({ vendor: "zcode", label: "ZCode" })) ?? "", /worker/);
+  assert.equal(zaicodeSubchatUnavailableReason(account({ vendor: "antigravity", label: "Antigravity" })), null);
+  assert.equal(zaicodeSubchatUnavailableReason(account({ vendor: "zcode", label: "ZCode" })), null);
+  assert.match(zaicodeSubchatUnavailableReason(account({ vendor: "freebuff", label: "Freebuff" })) ?? "", /limits only/);
   assert.equal(
     zaicodeSubchatUnavailableReason(account({ status: "login-required", statusDetail: "Sign in: claude /login" })),
     "Sign in: claude /login",
@@ -101,7 +104,7 @@ test("Codex turn: exec --json, resume <id>, CODEX_HOME per account, sandbox unle
     "0199a213-81c0-7800-8aa1-bbab2a035a53",
     "-",
   ]);
-  assert.equal(buildZaicodeSubchatInvocation(account({ vendor: "antigravity" }), { prompt: "x", sessionId: null, yolo: true }), null);
+  assert.equal(buildZaicodeSubchatInvocation(account({ vendor: "freebuff" }), { prompt: "x", sessionId: null, yolo: true }), null);
 });
 
 test("Claude stream-json: session, text and tool lines, usage, success and failure", () => {
@@ -218,7 +221,7 @@ test("stored chats: junk dropped, newest first, a turn that died with the app is
   const stored = [
     conversation({ id: "old", status: "idle", updatedAt: 10 }),
     conversation({ id: "died", status: "running", updatedAt: 20, sessionId: "s-9" }),
-    { id: "x", vendor: "antigravity", accountId: "a", projectPath: "p" },
+    { id: "x", vendor: "freebuff", accountId: "a", projectPath: "p" },
     null,
     "junk",
   ];
@@ -284,4 +287,33 @@ test("a failed turn that says it twice shows one error, with the vendor's reset 
   assert.equal(codex.messages.length, 1);
   assert.equal(codex.messages[0]?.role, "error");
   assert.match(codex.messages[0]?.text ?? "", /try again at Sep 30th, 2026 2:21 AM\.$/);
+});
+
+test("Antigravity asks for the pool that still has quota (SRC-048): Gemini spent -> Claude & GPT", () => {
+  const now = Date.UTC(2026, 8, 26, 3, 0);
+  const pools = (gemini: number, claude: number) =>
+    parseAntigravityUsage({
+      command: {
+        data: {
+          groups: [
+            { name: "Gemini Models", buckets: [{ window: "weekly", remaining_fraction: gemini, reset_time: "2026-09-30T09:41:00Z" }] },
+            {
+              name: "Claude and GPT models",
+              buckets: [
+                { window: "5h", remaining_fraction: claude, reset_time: "2026-09-26T08:00:00Z" },
+                { window: "weekly", remaining_fraction: 1, reset_time: "2026-10-02T19:16:00Z" },
+              ],
+            },
+          ],
+        },
+      },
+    });
+  assert.equal(zaicodeSubchatAutoModel("antigravity", pools(0, 1), now), "claude-sonnet-4-6", "the screenshot: Gemini 0 %, Claude & GPT 100 %");
+  assert.equal(zaicodeSubchatAutoModel("antigravity", pools(0.4, 1), now), null, "the CLI's default pool while it has quota");
+  assert.equal(zaicodeSubchatAutoModel("antigravity", pools(0, 0), now), null, "everything spent: the CLI's default and its own error");
+  assert.equal(zaicodeSubchatAutoModel("antigravity", [], now), null, "no limits read yet");
+  assert.equal(zaicodeSubchatAutoModel("claude", pools(0, 1), now), null, "one pool per login elsewhere");
+  const agy = account({ vendor: "antigravity", short: "AG", home: null });
+  const args = buildZaicodeSubchatInvocation(agy, { prompt: "hi", sessionId: null, yolo: false, model: "claude-sonnet-4-6" })?.args ?? [];
+  assert.deepEqual(args.slice(-2), ["--model", "claude-sonnet-4-6"]);
 });

@@ -12,6 +12,7 @@ import {
   type ZaicodeTodoItem,
 } from "@/zaicode/zaicodeTodoProgress.js";
 import { playZaicodeSound } from "@/zaicode/zaicodeSoundBus.js";
+import { zaicodeDevicePx } from "@/zaicode/zaicodePixelSnap.js";
 
 type PlanItem = PlanState["items"][number];
 
@@ -61,12 +62,13 @@ export function ZaicodeTodoCells({
             <div
               role="tooltip"
               className="pointer-events-none fixed z-[200] max-w-80 border border-[var(--zaicode-highlight,var(--color-border))] bg-tooltip px-2 py-1.5 text-ui-xs text-tooltip-foreground shadow-md"
+              // 像素字体无抗锯齿：单元格宽度是小数，居中点落在半像素上，整个提示框文字发虚（SRC-048）。
+              // 所以位置对齐到整设备像素。
               style={{
-                left: Math.max(
-                  8,
-                  Math.min(hover.rect.left + hover.rect.width / 2 - 160, window.innerWidth - 328),
+                left: zaicodeDevicePx(
+                  Math.max(8, Math.min(hover.rect.left + hover.rect.width / 2 - 160, window.innerWidth - 328)),
                 ),
-                bottom: window.innerHeight - hover.rect.top + 6,
+                bottom: zaicodeDevicePx(window.innerHeight - hover.rect.top + 6),
               }}
             >
               <div className="mb-0.5 flex items-center gap-2 tabular-nums">

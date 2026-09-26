@@ -67,6 +67,7 @@ import {
 import { ZaicodeAutoRetryNotice } from "@/zaicode/ZaicodeAutoRetryNotice.js";
 import type { ZaicodeAutoRetryState } from "@/zaicode/zaicodeAutoRetry.js";
 import { playZaicodeSound } from "@/zaicode/zaicodeSoundBus.js";
+import { useZaicodePublishLiveRun } from "@/zaicode/zaicodeLiveRuns.js";
 import {
   Attachment,
   Attachments,
@@ -1116,6 +1117,8 @@ function ConversationComposerImpl({
     inputRoutingMode: mode,
   });
   const canStop = Boolean(snapshot?.control.canStop);
+  // ZAICODE (SRC-048): tell the sidebar this session runs; its list projection can lag behind.
+  useZaicodePublishLiveRun(isZaicodeProductMode() ? sessionId : null, workspacePath, canStop);
   const modifiedEnterReversesDelivery = modifiedEnterSubmits && canStop;
   const hasText = text.trim().length > 0;
   const hasDraftToSubmit =

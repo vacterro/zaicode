@@ -10,6 +10,8 @@ const SETTING_KEYS = [
   "zaicode-audio-v1",
   "zaicode-palette",
   "zaicode-crisp",
+  "zaicode-bevels",
+  "zaicode-bevel-rows",
   "zaicode-font-settings",
   "zaicode-list-label-width",
   "zaicode-default-model",
@@ -30,6 +32,7 @@ const SETTING_KEYS = [
   "zaicode-avatar-uploads",
   "zaicode-saipen-log-order-v1",
   "zaicode-lights-v1",
+  "zaicode-lights-presets-v1",
   "zaicode-composer-prefs-v1",
 ] as const;
 

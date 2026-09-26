@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; img-src 'self'; style-src 'unsafe-inline'; script-src 'unsafe-inline'"
+    />
+    <title>ZAICODE</title>
+    <!--
+      ZAICODE start-up splash (SRC-048): one picture the moment the app is
+      launched, like an old game or After Effects, instead of a grey window
+      while the interface loads. The main window stays hidden until it is ready.
+      Same size and place as the root launcher's splash, so the hand-over is seamless.
+    -->
+    <style>
+      html,
+      body {
+        margin: 0;
+        width: 560px;
+        height: 300px;
+        overflow: hidden;
+        background: #1a1810;
+        cursor: default;
+        user-select: none;
+        -webkit-app-region: drag;
+      }
+      img {
+        display: block;
+        width: 560px;
+        height: 300px;
+      }
+      #status {
+        position: fixed;
+        left: 14px;
+        right: 14px;
+        top: 274px;
+        height: 14px;
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        overflow: hidden;
+        white-space: nowrap;
+        font: 11px/14px "Verdana_m1", Verdana, sans-serif;
+        color: #d4c89a;
+        -webkit-font-smoothing: none;
+      }
+      #version {
+        color: #9c9371;
+      }
+    </style>
+  </head>
+  <body>
+    <img src="splash.png" alt="" />
+    <div id="status"><span id="text">Starting ZAICODE…</span><span id="version">ZAICODE</span></div>
+    <script>
+      const version = new URLSearchParams(location.search).get("v");
+      if (version) document.getElementById("version").textContent = "ZAICODE " + version;
+      window.zaicodeSplashStatus = (text) => {
+        document.getElementById("text").textContent = String(text);
+      };
+    </script>
+  </body>
+</html>

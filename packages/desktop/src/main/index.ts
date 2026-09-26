@@ -254,6 +254,7 @@ import {
 } from "./zaicodeLauncherPreferences.js";
 import { applyZaicodePixelExactSwitches, ensureZaicodeCrispFonts } from "./zaicodeCrispFonts.js";
 import { startZaicodeEngines } from "./zaicodeEngines.js";
+import { showZaicodeSplash } from "./zaicodeSplash.js";
 import { startZaicodeRouterHost, stopZaicodeRouterHost } from "./zaicodeRouterHost.js";
 import { applyZaicodeLocalTimeZone, shouldRelaunchForLocalTimeZone } from "./zaicodeTimeZone.js";
 
@@ -1887,6 +1888,8 @@ app.whenReady().then(async () => {
   markMainLaunchAppReady();
   // ZAICODE engines: discovery is instant, the first quota sweep waits a few seconds.
   if (ZCODE_PRODUCT_FLAVOR === "zaicode" || process.env.ZCODE_ZAICODE_MODE === "1") {
+    // SRC-048: the picture first; the main window stays hidden until it is ready.
+    showZaicodeSplash();
     startZaicodeEngines();
     // Zero-setup router (T-46): the operator's 9router, or ZAICODE's own isolated one, up before the first task.
     void startZaicodeRouterHost();

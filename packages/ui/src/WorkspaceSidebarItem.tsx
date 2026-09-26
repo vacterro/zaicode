@@ -16,6 +16,7 @@ import {
 } from "@/zaicode/zaicodeArchiveUndo.js";
 import { ZaicodeWorkingIcon } from "@/zaicode/ZaicodeWorkingIcon.js";
 import { ZaicodeProjectMainGlyph } from "@/zaicode/ZaicodeProjectMainGlyph.js";
+import { useZaicodeLiveRunIds } from "@/zaicode/zaicodeLiveRuns.js";
 import { useZaicodeHighlight, withZaicodeHighlight } from "@/zaicode/zaicodeHighlights.js";
 import { useZaicodeMainSessionId, useZaicodeMainSessions } from "@/zaicode/zaicodeMainSession.js";
 import { buildTaskWorkspaceKey } from "@/lib/taskQueryCache.js";
@@ -835,8 +836,10 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
       ? "hidden"
       : "group-hover:hidden group-focus-within:hidden"
     : undefined;
+  // SRC-048: a session the open chat reports as running counts even when the list has not caught up.
+  const zaicodeLiveRunIds = useZaicodeLiveRunIds(tab.workspacePath);
   const zaicodeRunningCount = isZaicodeProductMode()
-    ? taskItems.filter(isTaskListRowActive).length
+    ? new Set([...taskItems.filter(isTaskListRowActive).map((task) => task.taskId), ...zaicodeLiveRunIds]).size
     : 0;
   const zaicodeWaitingCount = isZaicodeProductMode()
     ? taskItems.filter(
@@ -1230,7 +1233,11 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
   const workspaceLabelContent = (
     <div className="flex min-w-0 flex-1 items-center gap-2">
       <span className="relative flex size-4 shrink-0 items-center justify-center">
-        {zaicodeProjectIsMain && zaicodeMainTask ? <ZaicodeProjectMainGlyph task={zaicodeMainTask} /> : renderWorkspaceIcon()}
+        {zaicodeProjectIsMain && zaicodeMainTask ? (
+          <ZaicodeProjectMainGlyph task={zaicodeMainTask} live={zaicodeLiveRunIds.includes(zaicodeMainTask.taskId)} />
+        ) : (
+          renderWorkspaceIcon()
+        )}
       </span>
       <div
         {...withZaicodeHighlight(

@@ -31,6 +31,7 @@ import {
   resolveDesktopZoomLevelFromFactor,
 } from "./desktopZoom.js";
 import { resolveDesktopWindowChromeState } from "./desktopWindowChromeState.js";
+import { holdZaicodeMainWindow, zaicodeSplashHolds } from "./zaicodeSplash.js";
 import {
   MIN_DESKTOP_WINDOW_HEIGHT,
   MIN_DESKTOP_WINDOW_WIDTH,
@@ -568,7 +569,10 @@ export function createBrowserWindow(options: {
     options.initialWindowSize,
     screen.getPrimaryDisplay().workAreaSize,
   );
+  // ZAICODE (SRC-048): while the start-up splash is up, the window waits hidden until its renderer is ready.
+  const zaicodeHeld = zaicodeSplashHolds();
   const win = new BrowserWindow({
+    ...(zaicodeHeld ? { show: false } : {}),
     width: initialWindowSize.width,
     height: initialWindowSize.height,
     minWidth: MIN_DESKTOP_WINDOW_WIDTH,
@@ -599,7 +603,10 @@ export function createBrowserWindow(options: {
   if (process.platform === "win32") registerCustomWindowsControls(win);
   syncWindowControlsOverlayForZoomLevel(win, initialDesktopZoomLevel);
 
-  if (initialWindowSize.maximized) {
+  if (zaicodeHeld) {
+    // maximize() would show the hidden window at once; the splash hand-over maximizes it when it is ready.
+    holdZaicodeMainWindow(win, initialWindowSize.maximized);
+  } else if (initialWindowSize.maximized) {
     win.maximize();
   }
 

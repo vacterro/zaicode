@@ -21,6 +21,8 @@ export const ZAICODE_PROFILE_KEYS: readonly string[] = [
   "zaicode-audio-v1",
   "zaicode-palette",
   "zaicode-crisp",
+  "zaicode-bevels",
+  "zaicode-bevel-rows",
   "zaicode-font-settings",
   "zaicode-list-label-width",
   "zaicode-default-model",

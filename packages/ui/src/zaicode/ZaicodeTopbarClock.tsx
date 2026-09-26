@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { effectiveZaicodeWindows, formatZaicodeTimeOfDay, zaicodeIsoWeek, zaicodeTimeZoneName } from "@zcode/shared";
+import { effectiveZaicodeWindows, formatZaicodeTimeOfDay, isZaicodeRealReset, zaicodeIsoWeek, zaicodeTimeZoneName } from "@zcode/shared";
 import { cn } from "@/components/lib/utils.js";
 import { WINDOWS_CAPTION_CONTROL_CLASS } from "@/windowCaptionControls.js";
 import {
@@ -60,7 +60,8 @@ export function useZaicodeNextReset(now: number): ZaicodeNextReset | null {
     const snapshot = engines.limits[account.id];
     if (!snapshot) continue;
     for (const window of effectiveZaicodeWindows(snapshot.windows, now)) {
-      if (window.resetsAt === null || window.resetsAt <= now) continue;
+      // Idle (starts on first use) and gated windows have no coming refill (SRC-048).
+      if (window.resetsAt === null || !isZaicodeRealReset(window, now)) continue;
       if (window.remainingPercent === null || window.remainingPercent >= 100) continue;
       if (!best || window.resetsAt < best.at) {
         best = { accountShort: account.short, accountLabel: account.label, vendor: account.vendor, windowLabel: window.label, at: window.resetsAt };

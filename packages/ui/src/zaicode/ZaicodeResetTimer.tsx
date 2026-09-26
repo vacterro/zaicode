@@ -1,5 +1,11 @@
 import { useEffect, useState } from "react";
-import { effectiveZaicodeWindows, formatZaicodeTimeOfDay, type ZaicodeEngineAccount, type ZaicodeLimitSnapshot } from "@zcode/shared";
+import {
+  effectiveZaicodeWindows,
+  formatZaicodeTimeOfDay,
+  zaicodeWindowLabel,
+  type ZaicodeEngineAccount,
+  type ZaicodeLimitSnapshot,
+} from "@zcode/shared";
 import { cn } from "@/components/lib/utils.js";
 import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover.js";
 import { WINDOWS_CAPTION_CONTROL_CLASS } from "@/windowCaptionControls.js";
@@ -17,6 +23,12 @@ import { useZaicodeUiPrefs } from "./zaicodeUiPrefs.js";
  * be the last part of the clock; now the clock and this timer each have their
  * own hover and click. Click pins the list open; right-click opens Engines &
  * limits.
+ *
+ * SRC-048: a window nobody has used yet reports "read time + 5 h" on every
+ * read, so its countdown jumped back to 5 h every few minutes and the title
+ * showed it as the next reset. Such rows are "starts on first use"; a window
+ * blocked by a spent longer one waits for that one. Neither is a refill: both
+ * sit below the real resets and never drive the title timer.
  */
 
 export interface ZaicodeResetRow {
@@ -29,7 +41,15 @@ export interface ZaicodeResetRow {
   window: string;
   remainingPercent: number | null;
   at: number;
+  /** reset = a real coming refill; idle = starts on first use; gated = waits for a longer window. */
+  kind: "reset" | "idle" | "gated";
+  /** Label of the spent longer window (gated rows). */
+  gatedBy: string | null;
+  /** The window length label ("5h") for idle rows. */
+  length: string;
 }
+
+const KIND_ORDER: Record<ZaicodeResetRow["kind"], number> = { reset: 0, gated: 1, idle: 2 };
 
 const WINDOW_NAMES: Record<string, string> = { five_hour: "Session", weekly: "Weekly", monthly: "Monthly", daily: "1d" };
 const MAX_ROWS = 16;
@@ -55,15 +75,18 @@ export function zaicodeResetRows(
         window: WINDOW_NAMES[window.key] ?? window.label,
         remainingPercent: window.remainingPercent,
         at: window.resetsAt,
+        kind: window.gatedBy ? "gated" : window.startsOnUse ? "idle" : "reset",
+        gatedBy: window.gatedBy,
+        length: zaicodeWindowLabel(window.key),
       });
     }
   }
-  return rows.sort((left, right) => left.at - right.at).slice(0, MAX_ROWS);
+  return rows.sort((left, right) => KIND_ORDER[left.kind] - KIND_ORDER[right.kind] || left.at - right.at).slice(0, MAX_ROWS);
 }
 
-/** The one the timer shows: the soonest reset of a window that is not full. */
+/** The one the timer shows: the soonest real refill of a window that is not full. */
 export function zaicodeNextUsefulReset(rows: readonly ZaicodeResetRow[]): ZaicodeResetRow | null {
-  return rows.find((row) => row.remainingPercent === null || row.remainingPercent < 100) ?? null;
+  return rows.find((row) => row.kind === "reset" && (row.remainingPercent === null || row.remainingPercent < 100)) ?? null;
 }
 
 function ResetTable({ rows, now, format, hour12 }: { rows: ZaicodeResetRow[]; now: number; format: (seconds: number) => string; hour12: boolean }) {
@@ -88,8 +111,13 @@ function ResetTable({ rows, now, format, hour12 }: { rows: ZaicodeResetRow[]; no
           <tbody>
             {rows.map((row, index) => {
               const full = row.remainingPercent !== null && row.remainingPercent >= 100;
+              const waiting = row.kind !== "reset";
               return (
-                <tr key={`${row.accountId}:${row.pool}:${row.window}:${row.at}`} className={cn(full && "opacity-50")}>
+                <tr
+                  key={`${row.accountId}:${row.pool}:${row.window}:${row.at}`}
+                  className={cn((full || waiting) && "opacity-50")}
+                  data-zaicode-reset-kind={row.kind}
+                >
                   <td className="pr-2 text-foreground-subtlest">{index + 1}.</td>
                   <td className="pr-2" style={{ color: zaicodeVendorColor(row.vendor) }} title={row.accountLabel}>
                     {row.accountLabel}
@@ -97,8 +125,21 @@ function ResetTable({ rows, now, format, hour12 }: { rows: ZaicodeResetRow[]; no
                   <td className="max-w-[160px] truncate pr-2 text-foreground-subtle">{row.pool}</td>
                   <td className="pr-2">{row.window}</td>
                   <td className="pr-2 text-right">{row.remainingPercent === null ? "?" : `${Math.round(row.remainingPercent)}%`}</td>
-                  <td className="pr-2 text-right text-foreground-subtle">{formatZaicodeTimeOfDay(new Date(row.at), { seconds: false, hour12 })}</td>
-                  <td className="text-right font-semibold">{format((row.at - now) / 1000)}</td>
+                  <td className="pr-2 text-right text-foreground-subtle">
+                    {waiting ? "—" : formatZaicodeTimeOfDay(new Date(row.at), { seconds: false, hour12 })}
+                  </td>
+                  <td
+                    className={cn("text-right", waiting ? "text-foreground-subtle" : "font-semibold")}
+                    title={
+                      row.kind === "idle"
+                        ? `Nobody used this window yet: its ${row.length} start with the first request (the vendor's reset time moves with every read).`
+                        : row.kind === "gated"
+                          ? `Spent ${row.gatedBy} blocks this window: nothing refills before ${row.gatedBy} does.`
+                          : undefined
+                    }
+                  >
+                    {row.kind === "idle" ? `${row.length} on use` : row.kind === "gated" ? `after ${row.gatedBy}` : format((row.at - now) / 1000)}
+                  </td>
                 </tr>
               );
             })}

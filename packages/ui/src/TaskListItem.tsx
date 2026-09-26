@@ -5,6 +5,7 @@ import { ZaicodeTodoMiniGauge } from "@/v4/ZaicodeTodoGauge.js";
 import { ZaicodeWorkingIcon } from "@/zaicode/ZaicodeWorkingIcon.js";
 import { ZaicodeInterruptedGlyph } from "@/zaicode/ZaicodeInterruptedGlyph.js";
 import { zaicodeWasCutOff } from "@/zaicode/zaicodeSessionState.js";
+import { useZaicodeLiveRun } from "@/zaicode/zaicodeLiveRuns.js";
 import { useZaicodeSchedulerMarked } from "@/zaicode/zaicodeSchedulerMarks.js";
 import { useZaicodeHighlight, withZaicodeHighlight } from "@/zaicode/zaicodeHighlights.js";
 import { ZaicodeRoleGlyph } from "@/zaicode/ZaicodeRoleGlyph.js";
@@ -434,10 +435,12 @@ export const MemoTaskItem = memo(function TaskListItem({
     // 如果同步取消确认，用户移动鼠标稍微离开任务行后确认按钮会消失，导致二次确认无法稳定完成。
   }, []);
 
-  const leadingIndicator = useMemo(
-    () => deriveTaskLeadingIndicator(task, taskActivity),
-    [task, taskActivity],
-  );
+  // ZAICODE (SRC-048): the open chat's own "running" counts too; the list projection can lag behind it.
+  const zaicodeLiveRun = useZaicodeLiveRun(isZaicodeProductMode() ? task.taskId : null);
+  const leadingIndicator = useMemo(() => {
+    const derived = deriveTaskLeadingIndicator(task, taskActivity);
+    return zaicodeLiveRun && derived !== "error" ? "loading" : derived;
+  }, [task, taskActivity, zaicodeLiveRun]);
   // ZAICODE (SRC-038): the operator's highlight for a working / waiting / open session title.
   const zaicodeMode = isZaicodeProductMode();
   const zaicodeWaitingLight = useZaicodeHighlight("sessionWaiting", zaicodeMode && Boolean(task.pendingInteraction));

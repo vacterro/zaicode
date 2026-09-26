@@ -14,6 +14,7 @@ import {
   syncAppUnreadBadge,
 } from "./unreadBadge.js";
 import { attachDesktopWindowSizePersistence, type DesktopWindowSize } from "./desktopWindowSize.js";
+import { isZaicodeWindowHeld } from "./zaicodeSplash.js";
 import {
   registerMainApplicationWindow,
   unregisterMainApplicationWindow,
@@ -128,7 +129,8 @@ export function createWindow(options: {
     const currentDomReadyGeneration = ++domReadyGeneration;
     options.logger.info(`[createWindow] dom-ready fired (${label})`);
 
-    if (process.platform === "win32" && !win.isDestroyed()) {
+    // ZAICODE (SRC-048): a window held behind the start-up splash is shown by the splash hand-over.
+    if (process.platform === "win32" && !win.isDestroyed() && !isZaicodeWindowHeld(win)) {
       win.show();
       win.focus();
     }

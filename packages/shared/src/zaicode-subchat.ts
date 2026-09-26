@@ -1,25 +1,41 @@
-/* eslint-disable max-lines -- one owner module: the invocation, both vendor stream parsers and the transcript reducer change together when a vendor changes its stream. */
+/* eslint-disable max-lines -- one owner module: the invocation, every vendor stream parser and the transcript reducer change together when a vendor changes its stream. */
 /**
- * ZAICODE subscription chat (T-51, SRC-038): a Claude Code or Codex
- * subscription answers inside ZAICODE's own chat view, with no worker
- * terminal. Each turn runs the vendor's official CLI headless in the project
- * folder (`claude -p --output-format stream-json`, `codex exec --json`) under
- * the account's own home (CLAUDE_CONFIG_DIR / CODEX_HOME), so A1 and A2 (or
- * C1..C3) stay separate accounts; the next turn resumes the same vendor
- * session. The prompt travels on stdin: no argument quoting, no command-line
- * length limit.
+ * ZAICODE subscription chat (T-51, SRC-038; every subscription SRC-048): a
+ * Claude Code, Codex, Antigravity or ZCode subscription answers inside
+ * ZAICODE's own chat view, with no worker terminal. Each turn runs the
+ * vendor's official CLI headless in the project folder (`claude -p
+ * --output-format stream-json`, `codex exec --json`, `agy -p --output-format
+ * stream-json`, `zcode -p --json`) under the account's own home
+ * (CLAUDE_CONFIG_DIR / CODEX_HOME), so A1 and A2 (or C1..C3) stay separate
+ * accounts; the next turn resumes the same vendor session. Claude and Codex
+ * take the prompt on stdin; Antigravity and ZCode only as an argument, so a
+ * prompt too long for a command line goes into a file the CLI is told to read.
  *
  * This module is the pure half: who can chat, the exact invocation, the two
  * stream parsers and the transcript reducer. The desktop main process runs
  * the CLI; the renderer only renders the transcript.
  */
 
-import type { ZaicodeEngineAccount, ZaicodeEngineVendor } from "./zaicode-engines.js";
+import { effectiveZaicodeWindows, type ZaicodeEngineAccount, type ZaicodeEngineVendor, type ZaicodeLimitWindow } from "./zaicode-engines.js";
 
-export type ZaicodeSubchatVendor = "claude" | "codex";
+export type ZaicodeSubchatVendor = "claude" | "codex" | "antigravity" | "zcode";
+
+export const ZAICODE_SUBCHAT_VENDORS: readonly ZaicodeSubchatVendor[] = ["claude", "codex", "antigravity", "zcode"];
 
 export function isZaicodeSubchatVendor(vendor: ZaicodeEngineVendor): vendor is ZaicodeSubchatVendor {
-  return vendor === "claude" || vendor === "codex";
+  return (ZAICODE_SUBCHAT_VENDORS as readonly string[]).includes(vendor);
+}
+
+/** Vendors whose CLI takes the prompt only as an argument (no stdin). */
+export const ZAICODE_SUBCHAT_ARG_PROMPT_VENDORS: readonly ZaicodeSubchatVendor[] = ["antigravity", "zcode"];
+/** Longest prompt passed as an argument; Windows command lines end at 32 767 characters. */
+export const ZAICODE_SUBCHAT_ARG_PROMPT_MAX = 24_000;
+/** Vendors that print one JSON document at the end instead of a line stream. */
+export const ZAICODE_SUBCHAT_DOCUMENT_VENDORS: readonly ZaicodeSubchatVendor[] = ["zcode"];
+
+/** What a turn says when the prompt went into a file (too long for a command line). */
+export function zaicodeSubchatPromptFilePointer(path: string): string {
+  return `The full prompt is in the file ${path} (too long for a command line). Read that file first and follow it exactly as if it had been typed here.`;
 }
 
 type AccountFacts = Pick<ZaicodeEngineAccount, "vendor" | "label" | "status" | "statusDetail" | "cli">;
@@ -27,7 +43,7 @@ type AccountFacts = Pick<ZaicodeEngineAccount, "vendor" | "label" | "status" | "
 /** Why this account cannot chat inside ZAICODE right now, or null when it can. */
 export function zaicodeSubchatUnavailableReason(account: AccountFacts): string | null {
   if (!isZaicodeSubchatVendor(account.vendor)) {
-    return `${account.label} has no headless chat mode; it runs as a worker.`;
+    return `${account.label} is read for its limits only; it has no chat.`;
   }
   if (!account.cli || account.status === "cli-missing") {
     return account.statusDetail || `${account.label}: the CLI is not installed.`;
@@ -55,6 +71,8 @@ export interface ZaicodeSubchatTurnOptions {
   /** Skip the CLI's permission prompts (the Workers YOLO setting). A headless turn cannot ask. */
   yolo: boolean;
   model?: string | null;
+  /** Argument-prompt vendors: the prompt was written to this file (it was too long for a command line). */
+  promptFile?: string | null;
 }
 
 const SESSION_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/;
@@ -107,6 +125,65 @@ export function buildZaicodeSubchatInvocation(
       stdin: options.prompt,
     };
   }
+  const argPrompt = options.promptFile ? zaicodeSubchatPromptFilePointer(options.promptFile) : options.prompt;
+  if (account.vendor === "antigravity") {
+    return {
+      args: [
+        "-p",
+        argPrompt,
+        "--output-format",
+        "stream-json",
+        ...(sessionId ? ["--conversation", sessionId] : []),
+        ...(options.yolo ? ["--dangerously-skip-permissions"] : ["--mode", "accept-edits"]),
+        ...(model ? ["--model", model] : []),
+      ],
+      env: {},
+      stdin: "",
+    };
+  }
+  if (account.vendor === "zcode") {
+    return {
+      args: ["-p", argPrompt, "--json", "--mode", options.yolo ? "yolo" : "edit", ...(sessionId ? ["--resume", sessionId] : [])],
+      env: {},
+      stdin: "",
+    };
+  }
+  return null;
+}
+
+/**
+ * Antigravity's quota pools and the model a turn asks for in each, the CLI's
+ * default pool first (`agy models` ids; null = the CLI's own default, a
+ * Gemini model).
+ */
+const ANTIGRAVITY_POOL_MODELS: readonly { pool: RegExp; model: string | null }[] = [
+  { pool: /gemini/i, model: null },
+  { pool: /claude|gpt/i, model: "claude-sonnet-4-6" },
+];
+
+/**
+ * The model a subscription turn asks for (SRC-048). Antigravity keeps one
+ * quota per model pool, and its CLI defaults to Gemini: with the Gemini pool
+ * spent every chat failed ("Individual quota reached") while the Claude & GPT
+ * pool sat full. A pool is spent when one of its windows is at 0 % or blocked;
+ * the first pool that is not spent wins. Null = the CLI's default (no limits
+ * read yet, nothing spent, every pool spent, or a vendor with one pool).
+ */
+export function zaicodeSubchatAutoModel(
+  vendor: ZaicodeEngineVendor,
+  windows: readonly ZaicodeLimitWindow[] | null | undefined,
+  now: number = Date.now(),
+): string | null {
+  if (vendor !== "antigravity" || !windows || windows.length === 0) return null;
+  const effective = effectiveZaicodeWindows(windows, now);
+  const spent = (pool: RegExp): boolean | null => {
+    const own = effective.filter((window) => pool.test(window.groupLabel || window.group || window.label));
+    if (own.length === 0) return null;
+    return own.some((window) => window.gatedBy !== null || (window.remainingPercent !== null && window.remainingPercent <= 0));
+  };
+  for (const entry of ANTIGRAVITY_POOL_MODELS) {
+    if (spent(entry.pool) === false) return entry.model;
+  }
   return null;
 }
 
@@ -116,7 +193,8 @@ export function buildZaicodeSubchatInvocation(
 
 export type ZaicodeSubchatEvent =
   | { type: "session"; sessionId: string; model: string | null }
-  | { type: "text"; text: string }
+  /** `append`: a piece of the answer being streamed; it joins the answer shown last. */
+  | { type: "text"; text: string; append?: boolean }
   | { type: "tool"; name: string; detail: string }
   | { type: "usage"; input: number; output: number; cached: number }
   | { type: "error"; message: string }
@@ -256,8 +334,103 @@ export function parseZaicodeCodexJsonLine(line: string): ZaicodeSubchatEvent[] {
   return [];
 }
 
+/** The one parameter that says what an Antigravity tool call does. */
+function antigravityToolDetail(parameters: Record<string, unknown> | null): string {
+  if (!parameters) return "";
+  const pick = ["CommandLine", "command", "AbsolutePath", "TargetFile", "path", "Url", "url", "Query", "query", "SearchPath", "Pattern"];
+  for (const key of pick) {
+    const value = text(parameters[key]);
+    if (value) return oneLine(value);
+  }
+  const first = Object.values(parameters).find((value) => typeof value === "string");
+  return typeof first === "string" ? oneLine(first) : "";
+}
+
+/**
+ * Antigravity CLI `agy -p --output-format stream-json` (SRC-048): `init`
+ * carries the conversation id, `step_update` the steps (the answer arrives as
+ * `text_delta` pieces, a tool as an ACTIVE `tool` step), `result` the end with
+ * status, error and usage.
+ */
+export function parseZaicodeAntigravityStreamLine(line: string): ZaicodeSubchatEvent[] {
+  const event = parseJsonLine(line);
+  if (!event) return [];
+  const kind = text(event.event);
+  if (kind === "init") {
+    const sessionId = normalizeZaicodeSubchatSessionId(event.conversation_id);
+    return sessionId ? [{ type: "session", sessionId, model: text(record(event.init)?.model) || null }] : [];
+  }
+  if (kind === "step_update") {
+    const step = record(event.step_update);
+    if (!step) return [];
+    const stepType = text(step.step_type);
+    if (stepType === "agent_response" && text(step.text_delta)) return [{ type: "text", text: text(step.text_delta), append: true }];
+    if (stepType === "tool" && text(step.state) === "ACTIVE") {
+      const info = record(step.tool_info);
+      const name = text(step.tool_name) || text(info?.name) || "tool";
+      return [{ type: "tool", name, detail: antigravityToolDetail(record(info?.parameters)) }];
+    }
+    return [];
+  }
+  if (kind === "result") {
+    const result = record(event.result);
+    if (!result) return [];
+    const usage = record(result.usage);
+    const cached = count(usage?.cache_read_tokens);
+    const ok = text(result.status) === "SUCCESS";
+    return [
+      { type: "usage", input: count(usage?.input_tokens) + cached, output: count(usage?.output_tokens), cached },
+      { type: "result", ok, message: ok ? null : messageLine(text(result.error) || text(result.status) || "the turn failed") },
+    ];
+  }
+  return [];
+}
+
+/**
+ * ZCode CLI `zcode -p --json` (SRC-048): one JSON document when the turn ends
+ * -- session id, the answer, provider usage -- instead of a line stream.
+ */
+export function parseZaicodeZcodeDocument(output: string): ZaicodeSubchatEvent[] {
+  const start = output.indexOf("{");
+  const end = output.lastIndexOf("}");
+  if (start < 0 || end <= start) return [];
+  let document: Record<string, unknown> | null = null;
+  try {
+    document = record(JSON.parse(output.slice(start, end + 1)));
+  } catch {
+    return [];
+  }
+  if (!document) return [];
+  const out: ZaicodeSubchatEvent[] = [];
+  const sessionId = normalizeZaicodeSubchatSessionId(document.sessionId);
+  if (sessionId) out.push({ type: "session", sessionId, model: text(document.model) || null });
+  const error = text(document.error) || text(record(document.error)?.message);
+  if (text(document.response).trim()) out.push({ type: "text", text: text(document.response) });
+  const usage = record(document.usage);
+  if (usage) {
+    const cached = count(usage.cacheReadTokens);
+    out.push({ type: "usage", input: count(usage.inputTokens), output: count(usage.outputTokens), cached });
+  }
+  out.push({ type: "result", ok: !error, message: error ? messageLine(error) : null });
+  return out;
+}
+
 export function parseZaicodeSubchatLine(vendor: ZaicodeSubchatVendor, line: string): ZaicodeSubchatEvent[] {
-  return vendor === "claude" ? parseZaicodeClaudeStreamLine(line) : parseZaicodeCodexJsonLine(line);
+  switch (vendor) {
+    case "claude":
+      return parseZaicodeClaudeStreamLine(line);
+    case "codex":
+      return parseZaicodeCodexJsonLine(line);
+    case "antigravity":
+      return parseZaicodeAntigravityStreamLine(line);
+    case "zcode":
+      return [];
+  }
+}
+
+/** Parses the whole output of a document vendor (see ZAICODE_SUBCHAT_DOCUMENT_VENDORS). */
+export function parseZaicodeSubchatDocument(vendor: ZaicodeSubchatVendor, output: string): ZaicodeSubchatEvent[] {
+  return vendor === "zcode" ? parseZaicodeZcodeDocument(output) : [];
 }
 
 // ---------------------------------------------------------------------------
@@ -332,8 +505,18 @@ export function applyZaicodeSubchatEvent(
   switch (event.type) {
     case "session":
       return { ...conversation, sessionId: event.sessionId, model: event.model ?? conversation.model };
-    case "text":
+    case "text": {
+      // A streamed piece joins the answer on screen; anything in between (a tool) starts a new one.
+      const last = conversation.messages.at(-1);
+      if (event.append && last?.role === "assistant") {
+        return {
+          ...conversation,
+          messages: [...conversation.messages.slice(0, -1), { ...last, text: clip(last.text + event.text) }],
+          updatedAt: Math.max(conversation.updatedAt, at),
+        };
+      }
       return appendZaicodeSubchatMessage(conversation, { id, role: "assistant", text: event.text, at });
+    }
     case "tool":
       return appendZaicodeSubchatMessage(conversation, {
         id,
@@ -392,12 +575,12 @@ export function normalizeZaicodeSubchatConversations(raw: unknown, now: number =
   for (const entry of raw) {
     const value = record(entry);
     if (!value || typeof value.id !== "string" || typeof value.accountId !== "string" || typeof value.projectPath !== "string") continue;
-    if (value.vendor !== "claude" && value.vendor !== "codex") continue;
+    if (typeof value.vendor !== "string" || !(ZAICODE_SUBCHAT_VENDORS as readonly string[]).includes(value.vendor)) continue;
     const usage = record(value.usage);
     let conversation: ZaicodeSubchatConversation = {
       id: value.id,
       accountId: value.accountId,
-      vendor: value.vendor,
+      vendor: value.vendor as ZaicodeSubchatVendor,
       short: text(value.short) || "?",
       label: text(value.label) || text(value.short) || "Subscription",
       projectPath: value.projectPath,

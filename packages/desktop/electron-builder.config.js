@@ -637,6 +637,11 @@ export default {
         ]
       : []),
     {
+      // ZAICODE start-up splash (SRC-048): the SAIPEN picture the main process and the root launcher show first.
+      from: "build/zaicode-splash",
+      to: "zaicode-splash",
+    },
+    {
       // ZAICODE 像素级清晰字体（Verdana_m1 / Terminus TTF，带内嵌位图）：启动器与主进程
       // 从 resources/zaicode-fonts 按用户级安装；作为 @font-face 会被 Chromium 剥掉位图表。
       from: "build/zaicode-fonts",

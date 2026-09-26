@@ -153,3 +153,48 @@ test("a missing executable fails the turn with a message instead of throwing", a
   assert.equal(events[0]?.type, "result");
   assert.equal((events[0] as { ok: boolean }).ok, false);
 });
+
+// SRC-048: ZCode prints one pretty-printed JSON document when the turn ends, not a line stream.
+const FAKE_ZCODE = String.raw`
+const argv = process.argv.slice(2);
+process.stdout.write("ZCode Built-in missing\n");
+const document = {
+  sessionId: argv.includes("--resume") ? argv[argv.indexOf("--resume") + 1] : "sess_new-1",
+  response: "prompt=" + argv[argv.indexOf("-p") + 1] + " mode=" + argv[argv.indexOf("--mode") + 1],
+  usage: { inputTokens: 11, outputTokens: 4, cacheReadTokens: 2 },
+};
+const text = JSON.stringify(document, null, 2);
+process.stdout.write(text.slice(0, 15));
+setTimeout(() => process.stdout.write(text.slice(15) + "\n"), 30);
+`;
+
+test("a document vendor (ZCode) is read whole and parsed when the process ends", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "zaicode-subchat-zc-"));
+  const script = join(dir, "fake-zcode.js");
+  writeFileSync(script, FAKE_ZCODE);
+  try {
+    const zcode: ZaicodeEngineAccount = { ...codex, id: "zcode:plan", vendor: "zcode", short: "ZC", label: "ZCode", home: null, cli: script };
+    const invocation = buildZaicodeSubchatInvocation(zcode, { prompt: "multi word prompt", sessionId: "sess_old-9", yolo: true });
+    assert.ok(invocation);
+    const events: ZaicodeSubchatEvent[] = [];
+    const run = startZaicodeSubchatProcess({
+      file: process.execPath,
+      args: [script, ...invocation.args],
+      cwd: dir,
+      env: process.env,
+      stdin: invocation.stdin,
+      vendor: "zcode",
+      short: "ZC",
+      onEvent: (event) => events.push(event),
+    });
+    await run.done;
+    assert.deepEqual(events, [
+      { type: "session", sessionId: "sess_old-9", model: null },
+      { type: "text", text: "prompt=multi word prompt mode=yolo" },
+      { type: "usage", input: 11, output: 4, cached: 2 },
+      { type: "result", ok: true, message: null },
+    ]);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});

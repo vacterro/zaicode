@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { openZaicodeHelp } from "./zaicodeActions.js";
+import { zaicodeDevicePx } from "./zaicodePixelSnap.js";
 
 /**
  * "Play": a guided walk over the real screen. Each step outlines the actual
@@ -102,8 +103,8 @@ export function ZaicodeTour({ onClose }: { onClose: () => void }) {
   const cardWidth = 340;
   const cardStyle: React.CSSProperties = rect
     ? {
-        left: Math.max(8, Math.min(window.innerWidth - cardWidth - 8, rect.left)),
-        top: rect.bottom + 180 < window.innerHeight ? rect.bottom + 8 : Math.max(8, rect.top - 172),
+        left: zaicodeDevicePx(Math.max(8, Math.min(window.innerWidth - cardWidth - 8, rect.left))),
+        top: zaicodeDevicePx(rect.bottom + 180 < window.innerHeight ? rect.bottom + 8 : Math.max(8, rect.top - 172)),
         width: cardWidth,
       }
     : { left: "50%", top: "40%", width: cardWidth, transform: "translateX(-50%)" };

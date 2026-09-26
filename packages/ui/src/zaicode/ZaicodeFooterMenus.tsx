@@ -10,6 +10,7 @@ import {
   Plus,
   Trash2,
 } from "lucide-react";
+import { ZaicodeProfileFileItems } from "./ZaicodeProfileFileItems.js";
 import { cn } from "@/components/lib/utils.js";
 import { DesktopCommandIds } from "@zcode/shared";
 import { usePlatform } from "@/hooks/usePlatform.js";
@@ -30,7 +31,13 @@ import { ZAICODE_PROFILE_ICON_SLOTS, ZaicodeIcon } from "./zaicodeIconSlots.js";
 import { ZAICODE_PALETTES, ZAICODE_PALETTE_NONE } from "./zaicodePalettes.js";
 import { useZaicodeColorStudio } from "./zaicodeColorStudio.js";
 import { openZaicodeHelp, openZaicodeSettings } from "./zaicodeActions.js";
-import { setZaicodeCrisp, setZaicodePalette, useZaicodeAppearance } from "./zaicodeAppearance.js";
+import {
+  setZaicodeBevelRows,
+  setZaicodeBevels,
+  setZaicodeCrisp,
+  setZaicodePalette,
+  useZaicodeAppearance,
+} from "./zaicodeAppearance.js";
 import {
   ZAICODE_DEFAULT_AVATARS,
   addZaicodeAvatarUpload,
@@ -138,6 +145,7 @@ export function ZaicodeProfileMenuSub() {
           <Plus className="size-4" />
           {intl.formatMessage({ id: "zaicode.profiles.add" })}
         </DropdownMenuItem>
+        <ZaicodeProfileFileItems onError={setUploadError} />
         <DropdownMenuSeparator />
         <DropdownMenuLabel>{intl.formatMessage({ id: "zaicode.profiles.name" })}</DropdownMenuLabel>
         <div className="px-2 pb-1">
@@ -279,7 +287,7 @@ export function ZaicodeProfileMenuSub() {
 
 export function ZaicodePaletteMenuSub() {
   const { intl } = useZCodeIntl();
-  const { palette, crisp } = useZaicodeAppearance();
+  const { palette, crisp, bevels, bevelRows } = useZaicodeAppearance();
   const { customs } = useZaicodeColorStudio();
   return (
     <DropdownMenuSub>
@@ -294,6 +302,23 @@ export function ZaicodePaletteMenuSub() {
           onSelect={(event) => event.preventDefault()}
         >
           {intl.formatMessage({ id: "zaicode.palette.crisp" })}
+        </DropdownMenuCheckboxItem>
+        <DropdownMenuCheckboxItem
+          checked={bevels}
+          onCheckedChange={(checked) => setZaicodeBevels(checked === true)}
+          onSelect={(event) => event.preventDefault()}
+          title="Wintage FastPrompter look: 2 px raised / sunken edges on buttons, fields, menus and pop-ups"
+        >
+          Hard bevels (Wintage)
+        </DropdownMenuCheckboxItem>
+        <DropdownMenuCheckboxItem
+          checked={bevelRows}
+          disabled={!bevels}
+          onCheckedChange={(checked) => setZaicodeBevelRows(checked === true)}
+          onSelect={(event) => event.preventDefault()}
+          title="Raised sidebar rows like FastPrompter's list; the open one sunken"
+        >
+          Bevels on list rows
         </DropdownMenuCheckboxItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onSelect={() => void openZaicodeSettings("zaicodeColors")}>

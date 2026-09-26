@@ -11,6 +11,8 @@ import { openZaicodeHelp, openZaicodeHomeView, openZaicodeSettings, openZaicodeS
 import { toggleZaicodeWorkersDock, useZaicodeWorkersSelector } from "./zaicodeWorkers.js";
 import { ZaicodeSchedulerNavButton } from "./ZaicodeSchedulerBits.js";
 import { useZaicodeWorkspaceTab } from "./zaicodeScheduler.js";
+import { ZaicodeWorkingIcon } from "./ZaicodeWorkingIcon.js";
+import { useZaicodeSubchat } from "./subchat/zaicodeSubchatStore.js";
 
 /**
  * The sidebar menu block in ZAICODE: only the lines the operator picked
@@ -54,6 +56,8 @@ export function ZaicodeSidebarNavBlock({
   const workersOpen = useZaicodeWorkersSelector((state) => state.open);
   const homeActive = useZaicodeActions((state) => state.mainView === "saihome");
   const subchatActive = useZaicodeActions((state) => state.mainView === "subchat");
+  // SRC-048: chats that are answering right now, so the menu line shows the work like a project does.
+  const subchatRunning = useZaicodeSubchat((state) => Object.keys(state.turns).length);
   const label = useZaicodeNavLabels();
   const line = (active: boolean) =>
     cn("w-full justify-start gap-2 text-foreground hover:bg-surface-hover hover:text-foreground", active && "bg-selected text-foreground");
@@ -89,11 +93,17 @@ export function ZaicodeSidebarNavBlock({
             data-testid="zaicode-sidebar-subchat"
             aria-pressed={subchatActive}
             className={line(subchatActive)}
-            title="SUBCHAT: your Claude Code / Codex subscriptions as a plain chat. No worker, no terminal."
+            title="SUBCHAT: every subscription (Claude Code, Codex, Antigravity, ZCode) as a plain chat. No worker, no terminal."
             onClick={() => void openZaicodeSubchatView()}
           >
             <MessagesSquare className="size-4" />
             {label("subchat", "SUBCHAT")}
+            {subchatRunning > 0 ? (
+              <span className="ml-auto flex items-center gap-0.5 text-ui-xs tabular-nums text-foreground-subtle" title={`${subchatRunning} chat(s) answering`}>
+                <ZaicodeWorkingIcon className="size-3.5" />
+                {subchatRunning > 1 ? subchatRunning : null}
+              </span>
+            ) : null}
           </Button>
         );
       case "zaicode":

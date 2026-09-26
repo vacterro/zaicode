@@ -232,6 +232,65 @@ export function updateZaicodeProfile(id: string, patch: Partial<Omit<ZaicodeProf
   });
 }
 
+/** The file kind an exported profile carries, so an import can tell it from other JSON. */
+export const ZAICODE_PROFILE_FILE_KIND = "zaicode-profile";
+
+/**
+ * The profile in use as a file (SRC-048): its name, icon, picture and every
+ * setting it keeps (ZAICODE_PROFILE_KEYS). No credentials: profiles hold none.
+ */
+export function exportZaicodeProfile(): { fileStem: string; json: string } {
+  const state = read();
+  const active = state.profiles.find((profile) => profile.id === state.activeId) ?? state.profiles[0]!;
+  const bundle = captureZaicodeProfileBundle(localStorage);
+  return {
+    fileStem: active.name,
+    json: JSON.stringify(
+      { kind: ZAICODE_PROFILE_FILE_KIND, version: 1, name: active.name, icon: active.icon, avatar: active.avatar ?? null, bundle },
+      null,
+      2,
+    ),
+  };
+}
+
+/**
+ * Adds the profile of an exported file and switches to it (the window
+ * reloads). Only the known preference keys are ever written; anything else in
+ * the file is ignored.
+ */
+export function importZaicodeProfile(json: string): { ok: boolean; message: string } {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(json);
+  } catch {
+    return { ok: false, message: "This file is not JSON." };
+  }
+  const value = (parsed ?? {}) as { kind?: unknown; name?: unknown; icon?: unknown; avatar?: unknown; bundle?: unknown };
+  const bundle = value.kind === ZAICODE_PROFILE_FILE_KIND ? parseZaicodeProfileBundle(JSON.stringify(value.bundle ?? null)) : null;
+  if (!bundle) return { ok: false, message: "No ZAICODE profile in this file (expected an export from Profiles → Export)." };
+  const state = read();
+  saveActiveBundle(state);
+  const id = `profile-${Date.now().toString(36)}`;
+  try {
+    localStorage.setItem(zaicodeProfileBundleKey(id), JSON.stringify(bundle));
+  } catch {
+    return { ok: false, message: "Storage is full: the profile could not be saved." };
+  }
+  const taken = new Set(state.profiles.map((profile) => profile.name));
+  const base = typeof value.name === "string" && value.name.trim() ? value.name.trim().slice(0, 40) : "Imported";
+  let name = base;
+  for (let n = 2; taken.has(name); n += 1) name = `${base} ${n}`;
+  write({
+    ...state,
+    profiles: [
+      ...state.profiles,
+      { id, name, icon: isProfileIcon(value.icon) ? value.icon : "profile.user", avatar: isAvatar(value.avatar) ? value.avatar : null },
+    ],
+  });
+  selectZaicodeProfile(id);
+  return { ok: true, message: `Imported profile “${name}”.` };
+}
+
 export function removeZaicodeProfile(id: string): void {
   const state = read();
   if (state.profiles.length <= 1) return;

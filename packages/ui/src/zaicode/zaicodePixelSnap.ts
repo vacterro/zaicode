@@ -28,16 +28,30 @@ export function zaicodeSnapOffset(left: number, applied: number, devicePixelRati
   return Math.abs(offset) < 1 / 64 ? 0 : Math.round(offset * 1000) / 1000;
 }
 
-const APPLIED = new WeakMap<HTMLElement, number>();
+/**
+ * A position (CSS px) on a whole device pixel. Pop-ups placed from a measured
+ * rect (a todo cell is a fraction of the bar wide, its centre lands on x.5)
+ * go through this, or their text renders soft (SRC-048: the todo tooltip).
+ */
+export function zaicodeDevicePx(value: number, devicePixelRatio = typeof window === "undefined" ? 1 : window.devicePixelRatio): number {
+  const ratio = devicePixelRatio > 0 && Number.isFinite(devicePixelRatio) ? devicePixelRatio : 1;
+  return Math.round(value * ratio) / ratio;
+}
+
+const APPLIED = new WeakMap<HTMLElement, { x: number; y: number }>();
 
 function snapAll(): void {
   const ratio = window.devicePixelRatio || 1;
   for (const element of Array.from(document.querySelectorAll<HTMLElement>(ZAICODE_PIXEL_SNAP_SELECTOR))) {
-    const applied = APPLIED.get(element) ?? 0;
-    const offset = zaicodeSnapOffset(element.getBoundingClientRect().left, applied, ratio);
-    if (offset === applied) continue;
-    APPLIED.set(element, offset);
-    element.style.translate = offset === 0 ? "" : `${offset}px 0`;
+    const applied = APPLIED.get(element) ?? { x: 0, y: 0 };
+    const rect = element.getBoundingClientRect();
+    // `data-zaicode-pixel-snap="xy"` also snaps the vertical edge (SRC-048); scrolled columns keep x only,
+    // their top moves with every scroll step and a stale vertical nudge would shake them.
+    const x = zaicodeSnapOffset(rect.left, applied.x, ratio);
+    const y = element.dataset.zaicodePixelSnap === "xy" ? zaicodeSnapOffset(rect.top, applied.y, ratio) : 0;
+    if (x === applied.x && y === applied.y) continue;
+    APPLIED.set(element, { x, y });
+    element.style.translate = x === 0 && y === 0 ? "" : `${x}px ${y}px`;
   }
 }
 

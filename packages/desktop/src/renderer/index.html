@@ -37,6 +37,16 @@
         opacity: 0;
       }
 
+      #loading {
+        background: #1a1810;
+      }
+
+      .zaicode-startup-splash {
+        display: block;
+        width: 560px;
+        height: 300px;
+      }
+
       .startup-logo-shell {
         position: relative;
         display: flex;
@@ -114,27 +124,8 @@
       aria-busy="true"
       aria-label="Loading..."
     >
-      <div class="startup-logo-shell">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="118"
-          height="100"
-          fill="none"
-          viewBox="0 0 256 218"
-          class="startup-logo"
-          aria-hidden="true"
-        >
-          <path
-            fill="currentColor"
-            d="M134.4 0.130152L116.48 25.6022C113.665 29.5699 109.054 32.0019 104.064 32.0019H6.3999V0C6.3999 0.130149 134.4 0.130152 134.4 0.130152Z"
-          />
-          <path fill="currentColor" d="M256 0.130127L102.401 217.732H0L153.599 0.130127H256Z" />
-          <path
-            fill="currentColor"
-            d="M121.601 217.732L139.65 192.134C142.465 188.166 147.076 185.734 152.067 185.734H249.604V217.736H121.601V217.732Z"
-          />
-        </svg>
-      </div>
+      <!-- ZAICODE (SRC-048): the SAIPEN splash picture, still; no pop animation. -->
+      <img class="zaicode-startup-splash" src="./zaicode-splash.png" width="560" height="300" alt="" />
     </div>
     <script type="module">
       const startupLogoShell = document.querySelector(".startup-logo-shell");

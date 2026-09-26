@@ -7,6 +7,7 @@ import { request as httpsRequest } from "node:https";
 import { homedir } from "node:os";
 import { basename, delimiter, dirname, join, resolve } from "node:path";
 import {
+  markZaicodeWindowsStartingOnUse,
   normalizeZaicodeEnginesConfig,
   parseAntigravityUsage,
   parseClaudeUsageText,
@@ -194,6 +195,8 @@ function resolveNodeExe(): string | null {
  * `node <package script>` instead, so no argument ever passes through cmd.exe.
  */
 function commandFor(cli: string, args: string[]): { file: string; args: string[] } {
+  // A Node script (ZCode's zcode.cjs) runs under node; Windows cannot start it by itself (SRC-048 SUBCHAT).
+  if (/\.(cjs|mjs|js)$/i.test(cli)) return { file: resolveNodeExe() ?? "node", args: [cli, ...args] };
   if (!/\.(cmd|bat)$/i.test(cli)) return { file: cli, args };
   const shimDir = dirname(cli);
   const codexScript = join(shimDir, "node_modules", "@openai", "codex", "bin", "codex.js");
@@ -989,7 +992,15 @@ async function probeAccount(account: ZaicodeEngineAccount): Promise<void> {
   limits = {
     ...limits,
     [account.id]: success
-      ? { accountId: account.id, windows: outcome.windows, plan: outcome.plan, fetchedAt: now, checkedAt: now, error: null, source: outcome.source }
+      ? {
+          accountId: account.id,
+          windows: markZaicodeWindowsStartingOnUse(outcome.windows, now),
+          plan: outcome.plan,
+          fetchedAt: now,
+          checkedAt: now,
+          error: null,
+          source: outcome.source,
+        }
       : {
           accountId: account.id,
           // A vendor CLI that fails once is not a vendor without quota: keep the last good numbers.

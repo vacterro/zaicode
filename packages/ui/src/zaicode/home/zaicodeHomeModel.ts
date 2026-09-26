@@ -1,5 +1,6 @@
 import {
   effectiveZaicodeWindows,
+  isZaicodeRealReset,
   zaicodeNextRefillAt,
   type ZaicodeEngineAccount,
   type ZaicodeJob,
@@ -77,7 +78,8 @@ export function zaicodeNextResetOf(snapshot: ZaicodeLimitSnapshot | undefined, n
   if (!snapshot) return null;
   let best: number | null = null;
   for (const window of effectiveZaicodeWindows(snapshot.windows, now)) {
-    if (window.resetsAt === null || window.resetsAt <= now) continue;
+    // Idle (starts on first use) and gated windows have no coming refill (SRC-048).
+    if (window.resetsAt === null || !isZaicodeRealReset(window, now)) continue;
     if (window.remainingPercent !== null && window.remainingPercent >= 100) continue;
     if (best === null || window.resetsAt < best) best = window.resetsAt;
   }

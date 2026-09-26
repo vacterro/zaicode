@@ -39,6 +39,7 @@ import { endZaicodeGlowsInUse, zaicodeGlowHandlers, zaicodeGlowStyle } from "./z
 import { playZaicodeSound } from "./zaicodeSoundBus.js";
 import { useZaicodePreparedMeters } from "./ZaicodeSchedulerBits.js";
 import { withZaicodeHighlight } from "./zaicodeHighlights.js";
+import { zaicodeDevicePx } from "./zaicodePixelSnap.js";
 
 /**
  * AI Limit meter in the title bar (FastPrompter's header meter): one reading
@@ -225,7 +226,10 @@ export function ZaicodeLimitMeter({ useWindowsCaptionSpacing = false }: { useWin
         ? createPortal(
             <div
               className="pointer-events-none fixed z-[200] border border-[var(--zaicode-highlight,var(--color-border))] bg-tooltip p-2 text-tooltip-foreground shadow-md"
-              style={{ top: rect.bottom + 4, left: Math.max(8, Math.min(rect.right - 436, window.innerWidth - 444)) }}
+              style={{
+                top: zaicodeDevicePx(rect.bottom + 4),
+                left: zaicodeDevicePx(Math.max(8, Math.min(rect.right - 436, window.innerWidth - 444))),
+              }}
             >
               <ZaicodeLimitsPanel
                 accounts={all}

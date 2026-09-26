@@ -1,11 +1,15 @@
 import { app, type WebContents } from "electron";
 import { statSync } from "node:fs";
 import {
+  ZAICODE_SUBCHAT_ARG_PROMPT_MAX,
+  ZAICODE_SUBCHAT_ARG_PROMPT_VENDORS,
   buildZaicodeSubchatInvocation,
   isZaicodeSubchatVendor,
+  zaicodeSubchatAutoModel,
   zaicodeSubchatUnavailableReason,
   type ZaicodeSubchatEvent,
 } from "@zcode/shared";
+import { writeZaicodePromptFile } from "./zaicodePromptFiles.js";
 import { getZaicodeEnginesState, killZaicodeProcessTree, zaicodeCliCommand } from "./zaicodeEngines.js";
 import { startZaicodeSubchatProcess, type ZaicodeSubchatProcess } from "./zaicodeSubchatProcess.js";
 
@@ -79,7 +83,10 @@ function installQuitHook(): void {
 }
 
 /** Starts one turn; events arrive on ZAICODE_SUBCHAT_EVENT_CHANNEL, the last one is always `result`. */
-export function runZaicodeSubchatTurn(request: ZaicodeSubchatTurnRequest, sender: WebContents): { ok: boolean; message: string } {
+export async function runZaicodeSubchatTurn(
+  request: ZaicodeSubchatTurnRequest,
+  sender: WebContents,
+): Promise<{ ok: boolean; message: string }> {
   if (turns.has(request.turnId)) return { ok: false, message: "This turn is already running." };
   const engines = getZaicodeEnginesState();
   const account = engines.accounts.find((item) => item.id === request.accountId);
@@ -89,15 +96,34 @@ export function runZaicodeSubchatTurn(request: ZaicodeSubchatTurnRequest, sender
     return { ok: false, message: unavailable ?? `${account.label} cannot chat inside ZAICODE.` };
   }
   if (!isDirectory(request.projectPath)) return { ok: false, message: `Project folder not found: ${request.projectPath}` };
+  // Antigravity / ZCode read the prompt only from the command line (SRC-048): a long one goes via a file.
+  let promptFile: string | null = null;
+  if (ZAICODE_SUBCHAT_ARG_PROMPT_VENDORS.includes(account.vendor) && request.prompt.length > ZAICODE_SUBCHAT_ARG_PROMPT_MAX) {
+    const written = await writeZaicodePromptFile(request.prompt);
+    if (!written.ok) {
+      return {
+        ok: false,
+        message: `The prompt is too long for ${account.label}'s command line and could not be written to a file: ${written.message}`,
+      };
+    }
+    promptFile = written.path;
+  }
+  if (turns.has(request.turnId)) return { ok: false, message: "This turn is already running." };
+  // Antigravity: the pool that still has quota (SRC-048), not the CLI's default Gemini one when that is spent.
+  const model = zaicodeSubchatAutoModel(account.vendor, engines.limits[account.id]?.windows);
   const invocation = buildZaicodeSubchatInvocation(account, {
     prompt: request.prompt,
     sessionId: request.sessionId,
     yolo: engines.config.workerYolo,
+    model,
+    promptFile,
   });
   if (!invocation) return { ok: false, message: `${account.label} cannot chat inside ZAICODE.` };
 
   const command = zaicodeCliCommand(account.cli, invocation.args);
-  const send = (event: ZaicodeSubchatEvent) => {
+  const send = (raw: ZaicodeSubchatEvent) => {
+    // A CLI that does not name its model (Antigravity) still shows the one ZAICODE asked for.
+    const event = raw.type === "session" && !raw.model && model ? { ...raw, model } : raw;
     if (!sender.isDestroyed()) sender.send(ZAICODE_SUBCHAT_EVENT_CHANNEL, { turnId: request.turnId, event });
   };
   const turn = startZaicodeSubchatProcess({
@@ -119,7 +145,7 @@ export function runZaicodeSubchatTurn(request: ZaicodeSubchatTurnRequest, sender
     turns.delete(request.turnId);
     if (!sender.isDestroyed()) sender.removeListener("destroyed", stopOnClose);
   });
-  return { ok: true, message: `${account.short} is answering` };
+  return { ok: true, message: model ? `${account.short} is answering (${model})` : `${account.short} is answering` };
 }
 
 /** Stops a running turn (its whole process tree). False when no such turn runs. */

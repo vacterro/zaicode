@@ -18,6 +18,7 @@ import {
   type ZaicodeWorkingIconPrefs,
   type ZaicodeWorkingImage,
 } from "./zaicodeHighlights.js";
+import { zaicodeWorkingLayerStyle } from "./zaicodeWorkingIconStyle.js";
 
 const GLYPHS: Partial<Record<ZaicodeWorkingImage, LucideIcon>> = {
   loader: LoaderCircle,
@@ -57,18 +58,36 @@ export function ZaicodeWorkingIcon({
     "aria-hidden": title ? undefined : true,
     title,
     "data-zaicode-working-icon": "",
-    "data-zw-keep": prefs.keepMoving && prefs.motions.some((motion) => motion !== "none") ? "" : undefined,
+    "data-zw-keep":
+      prefs.keepMoving &&
+      (prefs.motions.some((motion) => motion !== "none") ||
+        (prefs.images.length > 1 && prefs.images.some((image) => (prefs.layers[image]?.motion ?? "none") !== "none")))
+        ? ""
+        : undefined,
     style,
   } as const;
   const [single] = prefs.images;
   if (prefs.images.length === 1 && single) {
     return <WorkingPicture image={single} customImage={prefs.customImage} {...common} className={cn("size-4 shrink-0", className)} />;
   }
-  // Stacked pictures (Shift+Click in Settings) move as one: the wrapper carries the motion.
+  // Stacked pictures (Shift+Click in Settings) move as one: the wrapper carries the motion,
+  // each layer adds its own look and motion (SRC-048); isolation keeps blends inside the stack.
   return (
-    <span {...common} className={cn("relative inline-flex size-4 shrink-0", className)} data-zaicode-working-stack={prefs.images.length}>
+    <span
+      {...common}
+      style={{ ...style, isolation: "isolate" }}
+      className={cn("relative inline-flex size-4 shrink-0", className)}
+      data-zaicode-working-stack={prefs.images.length}
+    >
       {prefs.images.map((image) => (
-        <WorkingPicture key={image} image={image} customImage={prefs.customImage} className="absolute inset-0 size-full" />
+        <WorkingPicture
+          key={image}
+          image={image}
+          customImage={prefs.customImage}
+          className="absolute inset-0 size-full"
+          style={zaicodeWorkingLayerStyle(prefs.layers[image], prefs)}
+          data-zaicode-working-layer={image}
+        />
       ))}
     </span>
   );

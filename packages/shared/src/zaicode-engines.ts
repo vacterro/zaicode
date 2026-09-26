@@ -77,6 +77,13 @@ export interface ZaicodeLimitWindow {
   gatedBy: string | null;
   /** The window's own reset time passed after the read: refill assumed until the next read. */
   assumedFull: boolean;
+  /**
+   * Not running (SRC-048): the vendor put the reset a full window after the
+   * read, i.e. the window starts with the first request. Such a reset slides
+   * forward with every read ("5 h" again every 5 minutes) and is no refill.
+   * Absent in snapshots read before this field existed.
+   */
+  startsOnUse?: boolean;
 }
 
 export interface ZaicodeLimitSnapshot {
@@ -215,7 +222,37 @@ function makeWindow(partial: Partial<ZaicodeLimitWindow> & { key: string }): Zai
     durationMinutes: partial.durationMinutes ?? WINDOW_MINUTES[partial.key] ?? null,
     gatedBy: partial.gatedBy ?? null,
     assumedFull: partial.assumedFull ?? false,
+    startsOnUse: partial.startsOnUse ?? false,
   };
+}
+
+/** How close to "read time + one full window" a reset must be to count as not started. */
+export const ZAICODE_IDLE_WINDOW_TOLERANCE_MS = 3 * 60_000;
+
+/**
+ * Marks windows that have not started (SRC-048). A vendor that has seen no
+ * request in the current window reports its reset as read time + the window's
+ * length; read again five minutes later, it says the same "5 h" again. That is
+ * not a coming refill, it is a window that starts with the first request.
+ */
+export function markZaicodeWindowsStartingOnUse(
+  windows: readonly ZaicodeLimitWindow[],
+  readAt: number,
+): ZaicodeLimitWindow[] {
+  return windows.map((window) => {
+    const minutes = window.durationMinutes;
+    const idle =
+      window.resetsAt !== null &&
+      minutes !== null &&
+      minutes > 0 &&
+      Math.abs(window.resetsAt - (readAt + minutes * 60_000)) <= ZAICODE_IDLE_WINDOW_TOLERANCE_MS;
+    return window.startsOnUse === idle ? window : { ...window, startsOnUse: idle };
+  });
+}
+
+/** A reset that is a real coming refill: known, ahead, not a window waiting for first use, not gated. */
+export function isZaicodeRealReset(window: ZaicodeLimitWindow, now: number): boolean {
+  return window.resetsAt !== null && window.resetsAt > now && window.startsOnUse !== true && window.gatedBy === null;
 }
 
 // ---------------------------------------------------------------------------
@@ -736,7 +773,8 @@ export function zaicodeNextRefillAt(
   let latest: number | null = null;
   for (const window of spent) {
     const gate = window.gatedBy ? effective.find((other) => other.label === window.gatedBy) : window;
-    const at = gate?.resetsAt ?? null;
+    // A window that starts on first use has no refill time: its "reset" slides with every read.
+    const at = gate && gate.startsOnUse !== true ? gate.resetsAt : null;
     if (at !== null && at > now && (latest === null || at > latest)) latest = at;
   }
   return latest;
@@ -750,6 +788,19 @@ export function formatZaicodeDuration(ms: number): string {
   const hours = Math.floor(minutes / 60);
   if (hours < 48) return `${hours}h ${String(minutes % 60).padStart(2, "0")}m`;
   return `${Math.floor(hours / 24)}d ${hours % 24}h`;
+}
+
+/**
+ * The reset text of one window: blocked by a longer one, waiting for first
+ * use, refilled, or the vendor's reset time.
+ */
+export function formatZaicodeWindowReset(window: ZaicodeLimitWindow, now: number = Date.now()): string {
+  if (window.gatedBy) return `blocked by ${window.gatedBy}`;
+  if (window.assumedFull) return "refilled";
+  if (window.startsOnUse) {
+    return window.durationMinutes ? `starts on first use (${zaicodeWindowLabel(window.key)} window)` : "starts on first use";
+  }
+  return formatZaicodeReset(window.resetsAt, now);
 }
 
 /** "resets in 2h 13m" within two days, otherwise "resets Wed 09:41". */
@@ -1027,6 +1078,10 @@ export function evaluateZaicodeAutostartJob(
         ?? snapshot?.windows.find((candidate) => candidate.key.startsWith(`${job.window}@`));
       if (!window || window.resetsAt === null) {
         return { state: "waiting-reset", dueAt: null, eventId: "", reason: "reset time not known yet" };
+      }
+      // SRC-048: an untouched window reports "read time + 5 h" on every read; waiting for it never ends.
+      if (window.startsOnUse) {
+        return { state: "waiting-reset", dueAt: null, eventId: "", reason: "window not started: it starts on first use" };
       }
       const dueAt = window.resetsAt + Math.max(0, job.safetyDelaySeconds) * 1000;
       const eventId = `reset:${job.window}:${window.resetsAt}`;

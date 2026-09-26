@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { createPortal } from "react-dom";
+import { zaicodeDevicePx } from "./zaicodePixelSnap.js";
 import { Mail } from "lucide-react";
 import { cn } from "@/components/lib/utils.js";
 import { Button } from "@/components/ui/button.js";
@@ -116,11 +117,10 @@ export function ZaicodeSaimailHeaderButton({
               className="pointer-events-none fixed z-[200] border border-[var(--zaicode-highlight,var(--color-border))] bg-tooltip text-ui-xs text-tooltip-foreground shadow-md"
               style={{
                 width: PANEL_WIDTH,
-                left: Math.max(
-                  8,
-                  Math.min(rect.right - PANEL_WIDTH, window.innerWidth - PANEL_WIDTH - 8),
+                left: zaicodeDevicePx(
+                  Math.max(8, Math.min(rect.right - PANEL_WIDTH, window.innerWidth - PANEL_WIDTH - 8)),
                 ),
-                top: rect.bottom + 6,
+                top: zaicodeDevicePx(rect.bottom + 6),
               }}
             >
               <div className="flex items-center gap-2 border-b border-[var(--zaicode-bevel-dark,var(--color-border))] px-2 py-1">

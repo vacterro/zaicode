@@ -1,5 +1,11 @@
 import { spawn, type ChildProcess } from "node:child_process";
-import { parseZaicodeSubchatLine, type ZaicodeSubchatEvent, type ZaicodeSubchatVendor } from "@zcode/shared";
+import {
+  ZAICODE_SUBCHAT_DOCUMENT_VENDORS,
+  parseZaicodeSubchatDocument,
+  parseZaicodeSubchatLine,
+  type ZaicodeSubchatEvent,
+  type ZaicodeSubchatVendor,
+} from "@zcode/shared";
 
 /**
  * One subscription chat turn as a child process (T-51), free of Electron so
@@ -7,6 +13,8 @@ import { parseZaicodeSubchatLine, type ZaicodeSubchatEvent, type ZaicodeSubchatV
  * stdout is split into lines and parsed with the vendor's parser, and the
  * last event is always exactly one `result` -- the CLI's own, or one derived
  * from the exit (a Stop is "Stopped.", a crash carries the last stderr line).
+ * A document vendor (ZCode prints one JSON object at the end, SRC-048) is read
+ * whole and parsed when the process exits.
  */
 
 const STDERR_TAIL_BYTES = 4096;
@@ -39,6 +47,8 @@ export function startZaicodeSubchatProcess(options: ZaicodeSubchatProcessOptions
   let stopping = false;
   let buffer = "";
   let stderrTail = "";
+  const whole = ZAICODE_SUBCHAT_DOCUMENT_VENDORS.includes(options.vendor);
+  let document = "";
   let resolveDone: () => void = () => undefined;
   const done = new Promise<void>((resolve) => {
     resolveDone = resolve;
@@ -59,6 +69,10 @@ export function startZaicodeSubchatProcess(options: ZaicodeSubchatProcessOptions
     if (finished) return;
     if (buffer) consume(buffer);
     buffer = "";
+    if (whole && document) {
+      for (const event of parseZaicodeSubchatDocument(options.vendor, document)) send(event);
+      document = "";
+    }
     if (!sawResult) send(fallback);
     finished = true;
     resolveDone();
@@ -80,6 +94,11 @@ export function startZaicodeSubchatProcess(options: ZaicodeSubchatProcessOptions
   child.stdout?.setEncoding("utf8");
   child.stderr?.setEncoding("utf8");
   child.stdout?.on("data", (chunk: string) => {
+    if (whole) {
+      // One document at the end; a runaway output is cut rather than kept without bound.
+      if (document.length < LINE_MAX_BYTES) document += chunk;
+      return;
+    }
     buffer += chunk;
     let newline = buffer.indexOf("\n");
     while (newline >= 0) {

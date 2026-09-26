@@ -1,17 +1,20 @@
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
+import { ChevronDown, ChevronRight } from "lucide-react";
 import { MessageResponse } from "@/components/ai-elements/message.js";
 import { Button } from "@/components/ui/button.js";
 import { toast } from "@/components/ui/toast.js";
 import { useZCodeStoreWithDefault } from "@/store/StoreProvider.js";
 import type { Theme } from "@/useTheme.js";
 import {
-  isZaicodeSubchatVendor,
+  isZaicodeMetricsOnlyAccount,
   zaicodeSubchatUnavailableReason,
   type ZaicodeEngineAccount,
   type ZaicodeSubchatConversation,
   type ZaicodeSubchatMessage,
 } from "@zcode/shared";
 import { projectNameOf, useZaicodeCurrentWorkspace, useZaicodeEngines, visibleZaicodeAccounts } from "../zaicodeEngines.js";
+import { ZaicodeWorkingIcon } from "../ZaicodeWorkingIcon.js";
+import { groupZaicodeSubchats, type ZaicodeSubchatGroup as ChatGroup } from "./zaicodeSubchatGroups.js";
 import {
   createZaicodeSubchat,
   isZaicodeSubchatAvailable,
@@ -24,10 +27,15 @@ import {
 } from "./zaicodeSubchatStore.js";
 
 /**
- * SUBCHAT (T-51): the operator's Claude Code / Codex subscriptions as a plain
- * chat inside ZAICODE. Each account (A1, A2, C1, ...) is its own login; a chat
- * keeps its vendor session, so the next prompt continues it. The CLI runs
- * headless in the project folder: no worker, no terminal window.
+ * SUBCHAT (T-51, every subscription SRC-048): the operator's subscriptions --
+ * Claude Code, Codex, Antigravity, ZCode -- as a plain chat inside ZAICODE.
+ * Each account (A1, A2, C1, AG, ZC, ...) is its own login; a chat keeps its
+ * vendor session, so the next prompt continues it. The CLI runs headless in
+ * the project folder: no worker, no terminal window.
+ *
+ * Chats are listed like projects (SRC-048: "subchats are projects too"): one
+ * group per project folder, busy ones marked with the Working icon, each group
+ * with its own "new chat" tiles for that folder.
  */
 
 function formatTokens(value: number): string {
@@ -42,7 +50,8 @@ function AccountTiles(props: { accounts: ZaicodeEngineAccount[]; projectPath: st
   if (accounts.length === 0) {
     return (
       <p className="text-foreground-subtlest">
-        No Claude Code or Codex login found. Settings → Engines &amp; limits adds one (several accounts each are fine).
+        No subscription found (Claude Code, Codex, Antigravity, ZCode). Settings → Engines &amp; limits adds one (several
+        accounts each are fine).
       </p>
     );
   }
@@ -75,20 +84,78 @@ function ChatListRow(props: { conversation: ZaicodeSubchatConversation; active: 
   return (
     <button
       type="button"
-      className={`flex w-full min-w-0 items-center gap-1.5 border-b border-border/40 px-2 py-1 text-left ${
+      className={`flex w-full min-w-0 items-center gap-1.5 border-b border-border/40 py-1 pl-4 pr-2 text-left ${
         active ? "bg-card text-foreground" : "text-foreground-subtle hover:bg-card/60"
       }`}
       onClick={() => selectZaicodeSubchat(conversation.id)}
       data-zaicode-subchat-row={conversation.id}
+      data-active={active ? "true" : undefined}
     >
-      <span className="w-7 shrink-0 text-center text-foreground">{conversation.short}</span>
-      <span className="min-w-0 flex-1">
-        <span className="block truncate">{conversation.title}</span>
-        <span className="block truncate text-foreground-subtlest">{projectNameOf(conversation.projectPath)}</span>
+      <span className="flex size-4 shrink-0 items-center justify-center">
+        {running ? <ZaicodeWorkingIcon className="size-3.5" title={`${conversation.short} is answering`} /> : null}
+        {!running && conversation.status === "failed" ? <span className="text-[#e05050]">!</span> : null}
       </span>
-      {running ? <span className="shrink-0 text-[#e0a040]">…</span> : null}
-      {!running && conversation.status === "failed" ? <span className="shrink-0 text-[#e05050]">!</span> : null}
+      <span className="w-7 shrink-0 text-center text-foreground">{conversation.short}</span>
+      <span className="min-w-0 flex-1 truncate">{conversation.title}</span>
     </button>
+  );
+}
+
+function ChatGroupBlock(props: {
+  group: ChatGroup;
+  accounts: ZaicodeEngineAccount[];
+  activeId: string | null;
+  isRunning: (id: string) => boolean;
+}) {
+  const { group, accounts, activeId, isRunning } = props;
+  const [open, setOpen] = useState(true);
+  const [adding, setAdding] = useState(false);
+  return (
+    <div data-zaicode-subchat-group={group.projectPath}>
+      <div className="flex items-center gap-1 border-b border-border px-1 py-1 text-foreground">
+        <button
+          type="button"
+          className="flex min-w-0 flex-1 items-center gap-1 text-left"
+          aria-expanded={open}
+          onClick={() => setOpen((value) => !value)}
+          title={group.projectPath}
+        >
+          {open ? <ChevronDown className="size-3.5 shrink-0" /> : <ChevronRight className="size-3.5 shrink-0" />}
+          <span className="min-w-0 flex-1 truncate">{projectNameOf(group.projectPath)}</span>
+        </button>
+        {group.running > 0 ? (
+          <span className="flex shrink-0 items-center gap-0.5 tabular-nums text-foreground-subtle" title={`${group.running} answering`}>
+            <ZaicodeWorkingIcon className="size-3.5" />
+            {group.running > 1 ? group.running : null}
+          </span>
+        ) : null}
+        <span className="shrink-0 tabular-nums text-foreground-subtlest">{group.conversations.length}</span>
+        <button
+          type="button"
+          className="shrink-0 border border-border px-1 leading-4 text-foreground-subtle hover:bg-hover"
+          aria-expanded={adding}
+          title={`New chat in ${projectNameOf(group.projectPath)}`}
+          onClick={() => setAdding((value) => !value)}
+        >
+          +
+        </button>
+      </div>
+      {adding ? (
+        <div className="border-b border-border/40 px-2 py-1">
+          <AccountTiles accounts={accounts} projectPath={group.projectPath} />
+        </div>
+      ) : null}
+      {open
+        ? group.conversations.map((conversation) => (
+            <ChatListRow
+              key={conversation.id}
+              conversation={conversation}
+              active={conversation.id === activeId}
+              running={isRunning(conversation.id)}
+            />
+          ))
+        : null}
+    </div>
   );
 }
 
@@ -235,33 +302,36 @@ export function ZaicodeSubchatView() {
   const turns = useZaicodeSubchat((state) => state.turns);
   const engines = useZaicodeEngines();
   const workspace = useZaicodeCurrentWorkspace();
+  // Every subscription is offered (SRC-048); one that cannot chat (Freebuff: limits only) shows why.
   const accounts = useMemo(
-    () => visibleZaicodeAccounts(engines).filter((account) => isZaicodeSubchatVendor(account.vendor)),
+    () =>
+      [...visibleZaicodeAccounts(engines)].sort(
+        (a, b) => Number(isZaicodeMetricsOnlyAccount(a)) - Number(isZaicodeMetricsOnlyAccount(b)),
+      ),
     [engines],
   );
+  const isRunning = (id: string) => Boolean(zaicodeSubchatRunningTurn(id, turns));
+  const groups = groupZaicodeSubchats(conversations, isRunning);
   const active = conversations.find((conversation) => conversation.id === activeId) ?? null;
   const available = isZaicodeSubchatAvailable();
 
   return (
     <div className="flex h-full min-h-0 flex-1 text-ui-xs" data-zaicode-subchat>
-      <aside className="flex w-56 shrink-0 flex-col border-r border-border">
+      <aside className="flex w-64 shrink-0 flex-col border-r border-border">
         <div className="flex flex-col gap-1 border-b border-border px-2 py-1.5">
           <div className="text-ui-lg text-foreground">SUBCHAT</div>
-          <p className="text-foreground-subtlest">Your subscriptions as a chat. No worker, no terminal. New chat with:</p>
+          <p className="text-foreground-subtlest">
+            Every subscription as a chat. No worker, no terminal. New chat in {workspace?.path ? projectNameOf(workspace.path) : "the open project"} with:
+          </p>
           {available ? (
             <AccountTiles accounts={accounts} projectPath={workspace?.path ?? null} />
           ) : (
             <p className="text-[#e0a040]">Subscription chat needs the ZAICODE desktop app.</p>
           )}
         </div>
-        <div className="min-h-0 flex-1 overflow-y-auto">
-          {conversations.map((conversation) => (
-            <ChatListRow
-              key={conversation.id}
-              conversation={conversation}
-              active={conversation.id === activeId}
-              running={Boolean(zaicodeSubchatRunningTurn(conversation.id, turns))}
-            />
+        <div className="min-h-0 flex-1 overflow-y-auto" data-zaicode-subchat-groups={groups.length}>
+          {groups.map((group) => (
+            <ChatGroupBlock key={group.key} group={group} accounts={accounts} activeId={activeId} isRunning={isRunning} />
           ))}
         </div>
       </aside>

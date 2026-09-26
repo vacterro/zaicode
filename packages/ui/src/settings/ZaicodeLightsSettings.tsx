@@ -6,6 +6,9 @@ import { toast } from "@/components/ui/toast.js";
 import { ZaicodeWorkingIcon } from "@/zaicode/ZaicodeWorkingIcon.js";
 import { ZaicodePrefCheck, ZaicodePrefCombo, ZaicodePrefSegment } from "@/zaicode/ZaicodePrefControls.js";
 import { isZaicodeComboClick, nextZaicodeCombo } from "@/zaicode/zaicodeCombo.js";
+import { ZaicodeLightsPresetsBlock } from "./ZaicodeLightsPresets.js";
+import { ZaicodeHighlightMixTuning, ZaicodeLayerTuningPanel, ZaicodeMotionMixTuning } from "./ZaicodeLightsTuning.js";
+import { ZaicodeEasingPicker, ZaicodeLightsSlider as Slider } from "./ZaicodeCurveEditor.js";
 import {
   ZAICODE_HIGHLIGHT_COLORS,
   ZAICODE_HIGHLIGHT_EFFECTS,
@@ -42,32 +45,6 @@ function Block({ title, hint, children, actions }: { title: string; hint: string
       </div>
       {children}
     </section>
-  );
-}
-
-function Slider({
-  label,
-  value,
-  min,
-  max,
-  step = 1,
-  format,
-  onChange,
-}: {
-  label: string;
-  value: number;
-  min: number;
-  max: number;
-  step?: number;
-  format: (value: number) => string;
-  onChange: (value: number) => void;
-}) {
-  return (
-    <label className="grid grid-cols-[88px_1fr_64px] items-center gap-2">
-      <span className="text-foreground-subtle">{label}</span>
-      <input type="range" min={min} max={max} step={step} value={value} onChange={(event) => onChange(Number(event.target.value))} />
-      <span className="text-right tabular-nums text-foreground">{format(value)}</span>
-    </label>
   );
 }
 
@@ -207,15 +184,12 @@ function WorkingIconBlock() {
             { value: "alternate", label: "⇄ Back and forth" },
           ]}
         />
-        <ZaicodePrefSegment
+        <ZaicodeEasingPicker
           label="Movement"
           value={working.easing}
-          onChange={(easing) => set({ easing })}
-          options={[
-            { value: "linear", label: "Even", hint: "The same speed all the way round" },
-            { value: "smooth", label: "Smooth", hint: "Speeds up and slows down" },
-            { value: "steps", label: "Ticks", hint: "Jumps like a clock hand" },
-          ]}
+          curve={working.curve}
+          onChange={(easing) => set({ easing: easing ?? "linear" })}
+          onCurve={(curve) => set({ curve })}
         />
         {working.easing === "steps" ? (
           <label className="flex flex-col gap-0.5">
@@ -255,6 +229,26 @@ function WorkingIconBlock() {
           hint="Ignores “No animations” and the Windows reduced-motion setting for this icon only, so you always see that work is running"
         />
       </div>
+      {working.motions.filter((motion) => motion !== "none").length > 1 ? (
+        <ZaicodeMotionMixTuning
+          working={working}
+          onTuning={(motion, tuning) => {
+            const next = { ...working.tuning };
+            if (tuning) next[motion] = tuning;
+            else delete next[motion];
+            set({ tuning: next });
+          }}
+        />
+      ) : null}
+      <ZaicodeLayerTuningPanel
+        working={working}
+        onLayer={(image, layer) => {
+          const next = { ...working.layers };
+          if (layer) next[image] = layer;
+          else delete next[image];
+          set({ layers: next });
+        }}
+      />
     </Block>
   );
 }
@@ -265,6 +259,8 @@ function HighlightRow({ target }: { target: (typeof ZAICODE_HIGHLIGHT_TARGETS)[n
   const resetHighlight = useZaicodeLights((state) => state.resetHighlight);
   const set = (patch: Partial<ZaicodeHighlightRule>) => setHighlight(target.id as ZaicodeHighlightTarget, patch);
   const preview = zaicodeHighlightAttrs(target.id, { ...rule, enabled: true });
+  // A mix opens its fine controls by itself: that is where the parts get their own settings.
+  const mixed = rule.effects.filter((effect) => effect !== "steady").length > 1 || rule.shapes.length > 1;
   return (
     <div className="flex flex-col gap-2 border border-border p-3" data-zaicode-highlight-row={target.id}>
       <div className="flex items-center justify-between gap-3">
@@ -330,6 +326,26 @@ function HighlightRow({ target }: { target: (typeof ZAICODE_HIGHLIGHT_TARGETS)[n
           label="Keep moving in the calm interface"
           hint="This highlight still pulses while “No animations” is on"
         />
+        <details open={mixed} className="text-foreground-subtle">
+          <summary className="cursor-pointer select-none">Fine controls: every effect and shape on its own</summary>
+          <div className="mt-2">
+            <ZaicodeHighlightMixTuning
+              rule={rule}
+              onEffect={(effect, tuning) => {
+                const next = { ...rule.tuning };
+                if (tuning) next[effect] = tuning;
+                else delete next[effect];
+                set({ tuning: next });
+              }}
+              onShape={(shape, tuning) => {
+                const next = { ...rule.shapeTuning };
+                if (tuning) next[shape] = tuning;
+                else delete next[shape];
+                set({ shapeTuning: next });
+              }}
+            />
+          </div>
+        </details>
       </div>
     </div>
   );
@@ -338,6 +354,7 @@ function HighlightRow({ target }: { target: (typeof ZAICODE_HIGHLIGHT_TARGETS)[n
 export function ZaicodeLightsSettings() {
   return (
     <div className="flex flex-col gap-4" data-zaicode-lights-settings>
+      <ZaicodeLightsPresetsBlock />
       <WorkingIconBlock />
       <Block
         title="Highlights"

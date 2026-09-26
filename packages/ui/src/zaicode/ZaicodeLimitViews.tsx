@@ -3,7 +3,7 @@ import {
   ZAICODE_ENGINE_VENDOR_LABELS,
   effectiveZaicodeWindows,
   formatZaicodeDuration,
-  formatZaicodeReset,
+  formatZaicodeWindowReset,
   zaicodeNextRefillAt,
   type ZaicodeEngineAccount,
   type ZaicodeLimitSnapshot,
@@ -122,11 +122,7 @@ export function ZaicodeAccountLimits({
         const fresh = readZaicodeFresh(`window:${account.id}|${window.key}`);
         const reset = fresh
           ? fresh.label
-          : window.gatedBy
-          ? `blocked by ${window.gatedBy}`
-          : window.assumedFull
-            ? "refilled"
-            : formatZaicodeReset(window.resetsAt, now);
+          : formatZaicodeWindowReset(window, now);
         return (
           <div
             key={window.key}
@@ -209,7 +205,7 @@ export function zaicodeReadingTitle(
   for (const window of snapshot ? effectiveZaicodeWindows(snapshot.windows, now) : []) {
     lines.push(
       `  ${window.label}: ${window.remainingPercent === null ? "--" : `${Math.round(window.remainingPercent)}%`} ${
-        window.gatedBy ? `(blocked by ${window.gatedBy})` : formatZaicodeReset(window.resetsAt, now)
+        window.gatedBy ? `(blocked by ${window.gatedBy})` : formatZaicodeWindowReset(window, now)
       }`,
     );
   }
