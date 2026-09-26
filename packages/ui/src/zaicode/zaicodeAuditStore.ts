@@ -3,6 +3,7 @@ import type { IZaicodeAuditService } from "@zcode/services";
 import type { ZaicodeAuditCampaign } from "@zcode/shared";
 import { zaicodeAuditCampaignIsActive } from "@zcode/shared";
 import { logger } from "@/logger.js";
+import { uiMemoryDiagnosticsRegistry } from "@/lib/memoryDiagnostics.js";
 
 /**
  * ZAICODE A3 audits, renderer side (T-66, SRC-049). The truth lives in the
@@ -79,5 +80,14 @@ export const useZaicodeAuditStore = create<ZaicodeAuditStoreState>((set, get) =>
       get().campaigns.filter(
         (campaign) => campaign.workspacePath === workspacePath && zaicodeAuditCampaignIsActive(campaign),
       ).length,
+  };
+});
+
+// 内存诊断计数器 (T-67): the campaign mirror's size rides the 60s memory sample.
+uiMemoryDiagnosticsRegistry.register("zaicodeAudits", () => {
+  const state = useZaicodeAuditStore.getState();
+  return {
+    campaigns: state.campaigns.length,
+    activeCampaigns: state.campaigns.filter(zaicodeAuditCampaignIsActive).length,
   };
 });

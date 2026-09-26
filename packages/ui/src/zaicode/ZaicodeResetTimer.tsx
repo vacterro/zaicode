@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   effectiveZaicodeWindows,
   formatZaicodeTimeOfDay,
@@ -10,7 +10,8 @@ import { cn } from "@/components/lib/utils.js";
 import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover.js";
 import { WINDOWS_CAPTION_CONTROL_CLASS } from "@/windowCaptionControls.js";
 import { openZaicodeSettings } from "./zaicodeActions.js";
-import { useZaicodeEngines, visibleZaicodeAccounts } from "./zaicodeEngines.js";
+import { useZaicodeEngines, readZaicodeEnginesState, visibleZaicodeAccounts } from "./zaicodeEngines.js";
+import { useZaicodeGatedNow, zaicodeNowStepMs } from "./zaicodeNowGate.js";
 import { zaicodeVendorColor } from "./ZaicodeLimitViews.js";
 import { formatZaicodeRemaining } from "./zaicodeTimers.js";
 import { useZaicodeTimers } from "./zaicodeTimerStore.js";
@@ -154,13 +155,16 @@ export function ZaicodeResetTimer({ useWindowsCaptionSpacing = false }: { useWin
   const engines = useZaicodeEngines();
   const clock = useZaicodeTimers((state) => state.clock);
   const noHoverPopups = useZaicodeUiPrefs((state) => state.noHoverPopups);
-  const [now, setNow] = useState(() => Date.now());
   const [hover, setHover] = useState(false);
   const [pinned, setPinned] = useState(false);
-  useEffect(() => {
-    const timer = window.setInterval(() => setNow(Date.now()), 1000);
-    return () => window.clearInterval(timer);
-  }, []);
+  // Gated tick (T-67): the countdown shows seconds only inside the last hour,
+  // so `now` advances once a minute until a reset comes that close.
+  const now = useZaicodeGatedNow((at) => {
+    const live = readZaicodeEnginesState();
+    const rows = zaicodeResetRows(visibleZaicodeAccounts(live), live.limits, at);
+    const next = zaicodeNextUsefulReset(rows);
+    return zaicodeNowStepMs({ showSeconds: false, secondTargets: next ? [next.at] : [] }, at);
+  });
   if (!clock.enabled || !clock.showNextReset) return null;
   const rows = zaicodeResetRows(visibleZaicodeAccounts(engines), engines.limits, now);
   const next = zaicodeNextUsefulReset(rows);

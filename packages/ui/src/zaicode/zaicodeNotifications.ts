@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from "react";
 import { create } from "zustand";
+import { uiMemoryDiagnosticsRegistry } from "@/lib/memoryDiagnostics.js";
 import { readZaicodeSetting } from "./zaicodeSettingsSnapshot.js";
 import { recordZaicodeHomeEvent } from "./home/zaicodeHomeJournal.js";
 
@@ -490,3 +491,9 @@ export function describeZaicodeFreshAge(mark: ZaicodeFreshMark, now: number = Da
   const minutes = Math.max(0, Math.round((now - mark.since) / 60_000));
   return `${mark.label} ${minutes <= 0 ? "just now" : `${minutes} min ago`}`;
 }
+
+// 内存诊断计数器 (T-67): toast 与 fresh-mark 面随 60s 采样入桌面主日志。
+uiMemoryDiagnosticsRegistry.register("zaicodeNotifications", () => ({
+  toasts: useZaicodeToasts.getState().toasts.length,
+  freshMarks: fresh.size,
+}));

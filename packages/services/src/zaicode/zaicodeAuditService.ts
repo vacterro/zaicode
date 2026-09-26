@@ -102,6 +102,13 @@ export class ZaicodeAuditService implements IZaicodeAuditService {
     return next;
   }
 
+  /**
+   * Newest first. Every active campaign always reconciles; finished ones are
+   * capped to the newest HISTORY_CAP so the list (and the renderer mirror)
+   * cannot grow without bound — old campaign dirs and reports stay on disk.
+   */
+  private static readonly HISTORY_CAP = 30;
+
   private loadCampaigns(): ZaicodeAuditCampaign[] {
     const root = this.root();
     if (!existsSync(root)) return [];
@@ -111,7 +118,10 @@ export class ZaicodeAuditService implements IZaicodeAuditService {
       const campaign = ZaicodeAuditService.readJson<ZaicodeAuditCampaign>(join(root, entry.name, "campaign.json"));
       if (campaign && campaign.schemaVersion === 1) campaigns.push(campaign);
     }
-    return campaigns.sort((left, right) => (left.createdAt < right.createdAt ? 1 : -1));
+    campaigns.sort((left, right) => (left.createdAt < right.createdAt ? 1 : -1));
+    const active = campaigns.filter(zaicodeAuditCampaignIsActive);
+    const finished = campaigns.filter((campaign) => !zaicodeAuditCampaignIsActive(campaign)).slice(0, ZaicodeAuditService.HISTORY_CAP);
+    return [...active, ...finished].sort((left, right) => (left.createdAt < right.createdAt ? 1 : -1));
   }
 
   private findCampaign(campaignId: string): ZaicodeAuditCampaign | null {

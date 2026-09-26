@@ -300,3 +300,22 @@ test("state persists to campaign.json under the audit root", async () => {
     await h.dispose();
   }
 });
+
+test("T-67: the campaign history is capped; every active campaign always reconciles", async () => {
+  const h = await createHarness(new Map());
+  try {
+    for (let i = 0; i < 40; i += 1) {
+      const campaign = await h.audits.generate(WS);
+      await h.audits.cancel(campaign!.campaignId);
+    }
+    let state = await h.audits.getState();
+    assert.equal(state.campaigns.length, 30, "finished history caps at 30");
+    // Active campaigns are never dropped by the cap, however many finished ones exist.
+    const active = await h.audits.generate(WS);
+    state = await h.audits.getState();
+    assert.equal(state.campaigns.length, 31);
+    assert.ok(state.campaigns.some((c) => c.campaignId === active!.campaignId));
+  } finally {
+    await h.dispose();
+  }
+});

@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { effectiveZaicodeWindows, formatZaicodeTimeOfDay, isZaicodeRealReset, zaicodeIsoWeek, zaicodeTimeZoneName } from "@zcode/shared";
 import { cn } from "@/components/lib/utils.js";
 import { WINDOWS_CAPTION_CONTROL_CLASS } from "@/windowCaptionControls.js";
@@ -11,7 +10,9 @@ import {
 import { zaicodeIntervalRemaining } from "./zaicodeIntervalRules.js";
 import { describeZaicodeProductivity, formatZaicodeClock, toggleZaicodeProductivity } from "./zaicodeProductivity.js";
 import { readZaicodeTempTimer, useZaicodeTimers, type ZaicodeClockPrefs } from "./zaicodeTimerStore.js";
-import { useZaicodeEngines, visibleZaicodeAccounts } from "./zaicodeEngines.js";
+import { useZaicodeEngines, readZaicodeEnginesState, visibleZaicodeAccounts } from "./zaicodeEngines.js";
+import { zaicodeResetRows, zaicodeNextUsefulReset } from "./ZaicodeResetTimer.js";
+import { useZaicodeGatedNow, zaicodeNowStepMs } from "./zaicodeNowGate.js";
 import { ZaicodePrefCheck, ZaicodePrefHeading, ZaicodeRightClickSettings } from "./ZaicodePrefControls.js";
 import { playZaicodeSound } from "./zaicodeSoundBus.js";
 
@@ -105,11 +106,29 @@ export function ZaicodeClockSettingsPanel() {
 export function ZaicodeTopbarClock({ useWindowsCaptionSpacing = false }: { useWindowsCaptionSpacing?: boolean }) {
   const store = useZaicodeTimers();
   const clock = store.clock;
-  const [now, setNow] = useState(() => Date.now());
-  useEffect(() => {
-    const timer = window.setInterval(() => setNow(Date.now()), 1000);
-    return () => window.clearInterval(timer);
-  }, []);
+  // Gated tick (T-67): `now` only advances when something displayed changes —
+  // seconds while any countdown shows them, otherwise once a minute. Store-
+  // driven chips (productivity countdown) still re-render through their own
+  // subscriptions, so nothing freezes.
+  const now = useZaicodeGatedNow((at) => {
+    const live = useZaicodeTimers.getState();
+    const targets: number[] = [];
+    const temp = readZaicodeTempTimer(live.timers);
+    if (clock.showTempTimer && temp && !temp.fired) targets.push(temp.target);
+    const nextTimer = nextDueZaicodeTimer(live.timers.filter((timer) => !timer.temporary), { topBarOnly: true });
+    if (clock.showNextTimer && nextTimer) targets.push(nextTimer.target);
+    if (clock.showInterval) {
+      for (const rule of live.intervalRules) {
+        const remaining = zaicodeIntervalRemaining(rule, new Date(at));
+        if (remaining !== null) targets.push(at + remaining * 1000);
+      }
+    }
+    const engines = readZaicodeEnginesState();
+    const rows = zaicodeResetRows(visibleZaicodeAccounts(engines), engines.limits, at);
+    const nextReset = zaicodeNextUsefulReset(rows);
+    if (nextReset) targets.push(nextReset.at);
+    return zaicodeNowStepMs({ showSeconds: clock.showSeconds, secondTargets: targets }, at);
+  });
   const nextReset = useZaicodeNextReset(now);
   if (!clock.enabled) return null;
 

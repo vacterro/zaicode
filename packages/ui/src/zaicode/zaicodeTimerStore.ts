@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { setZaicodeHour12 } from "@zcode/shared";
+import { uiMemoryDiagnosticsRegistry } from "@/lib/memoryDiagnostics.js";
 import { readZaicodeSetting } from "./zaicodeSettingsSnapshot.js";
 import {
   createZaicodeTimer,
@@ -292,3 +293,14 @@ export const useZaicodeTimers = create<ZaicodeTimerState>((set, get) => {
 export function readZaicodeTempTimer(timers: readonly ZaicodeTimer[]): ZaicodeTimer | null {
   return timers.find((timer) => timer.temporary) ?? null;
 }
+
+// 内存诊断计数器 (T-67): 60s 采样把 ZAICODE 计时器面写进桌面主日志。
+uiMemoryDiagnosticsRegistry.register("zaicodeTimers", () => {
+  const state = useZaicodeTimers.getState();
+  return {
+    timers: state.timers.length,
+    tempTimers: state.timers.filter((timer) => timer.temporary).length,
+    intervalRules: state.intervalRules.length,
+    missedAlarms: state.missed.length,
+  };
+});
