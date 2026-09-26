@@ -21,6 +21,7 @@ import {
   shouldBareEnterFallThroughToNewline,
 } from "@/shortcuts/composerShortcuts.js";
 import { useEffectiveShortcutBindings } from "@/shortcuts/useShortcutBindings.js";
+import { isZaicodeProductMode } from "@zcode/shared";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
 import { PlainTextPlugin } from "@lexical/react/LexicalPlainTextPlugin";
@@ -1441,7 +1442,8 @@ export function LexicalChatInput({
         "aria-placeholder": placeholder,
         placeholder: (
           <div
-            className={`pointer-events-none absolute left-0 top-0 ${compactPlaceholder ? "line-clamp-2" : ""} text-ui-base leading-5 text-foreground-subtlest`}
+            // ZAICODE (SRC-049): the muted token read as a blurred box (~1.7:1 on the Golden Default field); one step brighter.
+            className={`pointer-events-none absolute left-0 top-0 ${compactPlaceholder ? "line-clamp-2" : ""} text-ui-base leading-5 ${isZaicodeProductMode() ? "text-foreground-subtle" : "text-foreground-subtlest"}`}
           >
             {placeholder}
           </div>

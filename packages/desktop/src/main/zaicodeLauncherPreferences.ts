@@ -11,12 +11,18 @@ export interface ZaicodeLauncherPreferences {
   saimailWorkspace: string | null;
   /** Pixel-exact rendering: 100% device scale + bitmap fonts, no subpixel glyph positions. */
   pixelExact: boolean;
+  /** Start-up splash picture (SRC-049): off = nothing shows until the interface is ready. */
+  splashEnabled: boolean;
+  /** A custom splash picture is installed in userData (`zaicode-splash/`). */
+  splashCustom: boolean;
 }
 
 const DEFAULT_PREFERENCES: ZaicodeLauncherPreferences = {
   autoRestartOnCrash: true,
   saimailWorkspace: null,
   pixelExact: true,
+  splashEnabled: true,
+  splashCustom: false,
 };
 
 /** SAIMAIL_WORKSPACE that came from outside ZAICODE (shell, launcher); it wins over the file. */
@@ -45,6 +51,10 @@ export function readZaicodeLauncherPreferences(): ZaicodeLauncherPreferences {
         saimailWorkspace: normalizeWorkspace(record.saimailWorkspace),
         pixelExact:
           typeof record.pixelExact === "boolean" ? record.pixelExact : DEFAULT_PREFERENCES.pixelExact,
+        splashEnabled:
+          typeof record.splashEnabled === "boolean" ? record.splashEnabled : DEFAULT_PREFERENCES.splashEnabled,
+        splashCustom:
+          typeof record.splashCustom === "boolean" ? record.splashCustom : DEFAULT_PREFERENCES.splashCustom,
       };
     }
   } catch {
@@ -53,7 +63,7 @@ export function readZaicodeLauncherPreferences(): ZaicodeLauncherPreferences {
   return { ...DEFAULT_PREFERENCES };
 }
 
-function writeZaicodeLauncherPreferences(
+export function writeZaicodeLauncherPreferences(
   patch: Partial<ZaicodeLauncherPreferences>,
 ): ZaicodeLauncherPreferences {
   const next = { ...readZaicodeLauncherPreferences(), ...patch };
@@ -71,6 +81,10 @@ export function setZaicodeAutoRestartOnCrash(enabled: boolean): ZaicodeLauncherP
 
 export function setZaicodePixelExact(enabled: boolean): ZaicodeLauncherPreferences {
   return writeZaicodeLauncherPreferences({ pixelExact: enabled });
+}
+
+export function setZaicodeSplashEnabled(enabled: boolean): ZaicodeLauncherPreferences {
+  return writeZaicodeLauncherPreferences({ splashEnabled: enabled });
 }
 
 export function setZaicodeSaimailWorkspace(workspace: string | null): ZaicodeLauncherPreferences {

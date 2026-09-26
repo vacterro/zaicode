@@ -1,5 +1,5 @@
 /* oxlint-disable eslint(max-lines) */
-import { ArrowLeft, Rocket, type LucideIcon } from "lucide-react";
+import { ArrowLeft, HeartHandshake, Rocket, Star, type LucideIcon } from "lucide-react";
 import {
   useCallback,
   useEffect,
@@ -19,6 +19,7 @@ import type {
 } from "@zcode/shared";
 import {
   BUILTIN_MODEL_PROVIDER_IDS,
+  isZaicodeProductMode,
   TID_SETTINGS_BACK_BUTTON,
   TID_SETTINGS_PAGE,
   TID_SETTINGS_SECTION_NAV,
@@ -126,6 +127,7 @@ import {
 } from "@/lib/userActionTelemetry.js";
 import type { SettingsUserActionFeatureId } from "@/lib/userActionTraceCatalog.js";
 import { playZaicodeSound } from "@/zaicode/zaicodeSoundBus.js";
+import { ZAICODE_REPO_URL, ZAICODE_SUPPORT_URL } from "@/zaicode/zaicodeBrand.js";
 
 function runSettingsActionAsync<T>(options: {
   featureId: SettingsUserActionFeatureId;
@@ -1522,27 +1524,49 @@ export function SettingsPage({
                   })}
                 </div>
 
-                <SettingsSidebarButton
-                  icon={Rocket}
-                  label={intl.formatMessage({ id: "settings.onboarding" })}
-                  className="mt-4 border border-dashed border-border hover:border-border-hover"
-                  onClick={() => {
-                    runUserAction({
-                      input: {
-                        featureId: "settings.navigation",
-                        action: "open_onboarding",
-                        trigger: "button",
-                      },
-                      operation: requestOnboardingDialog,
-                      completed: { resultSource: "local_commit" },
-                      failureStage: "dialog_open",
-                    });
-                  }}
-                >
-                  <span className="text-ui-base text-foreground">
-                    {intl.formatMessage({ id: "settings.onboarding" })}
-                  </span>
-                </SettingsSidebarButton>
+                {isZaicodeProductMode() ? (
+                  // ZAICODE (SRC-049): the upstream profession wizard is off; the repository and support links take its place.
+                  <>
+                    <SettingsSidebarButton
+                      icon={Star}
+                      label="ZAICODE on GitHub"
+                      title={ZAICODE_REPO_URL}
+                      className="mt-4 border border-dashed border-border hover:border-border-hover"
+                      onClick={() => platform.openExternal(ZAICODE_REPO_URL)}
+                      data-zaicode-repo-link=""
+                    />
+                    <SettingsSidebarButton
+                      icon={HeartHandshake}
+                      label="Support Developer"
+                      title={ZAICODE_SUPPORT_URL}
+                      className="mt-1 border border-dashed border-border hover:border-border-hover"
+                      onClick={() => platform.openExternal(ZAICODE_SUPPORT_URL)}
+                      data-zaicode-support-link=""
+                    />
+                  </>
+                ) : (
+                  <SettingsSidebarButton
+                    icon={Rocket}
+                    label={intl.formatMessage({ id: "settings.onboarding" })}
+                    className="mt-4 border border-dashed border-border hover:border-border-hover"
+                    onClick={() => {
+                      runUserAction({
+                        input: {
+                          featureId: "settings.navigation",
+                          action: "open_onboarding",
+                          trigger: "button",
+                        },
+                        operation: requestOnboardingDialog,
+                        completed: { resultSource: "local_commit" },
+                        failureStage: "dialog_open",
+                      });
+                    }}
+                  >
+                    <span className="text-ui-base text-foreground">
+                      {intl.formatMessage({ id: "settings.onboarding" })}
+                    </span>
+                  </SettingsSidebarButton>
+                )}
               </nav>
 
               <div className="max-lg:hidden">

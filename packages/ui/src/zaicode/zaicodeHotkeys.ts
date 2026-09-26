@@ -21,7 +21,8 @@ export type ZaicodeHotkeyGroup =
   | "Workers"
   | "Window"
   | "Sounds"
-  | "Interface";
+  | "Interface"
+  | "App";
 
 export interface ZaicodeHotkeyAction {
   id: string;
@@ -39,6 +40,7 @@ export const ZAICODE_HOTKEY_ACTIONS: readonly ZaicodeHotkeyAction[] = [
   { id: "global.tempTimer", group: "Global", scope: "global", label: "Temp Timer: add time", hint: "Adds the Temp Timer increment (15 min by default) without leaving your app", defaults: ["", ""] },
   { id: "global.productivity", group: "Global", scope: "global", label: "Productivity timer: start / pause", hint: "Work / break timer, from anywhere", defaults: ["", ""] },
   { id: "global.stopSounds", group: "Global", scope: "global", label: "Stop all ZAICODE sounds", hint: "Silences whatever ZAICODE is playing", defaults: ["", ""] },
+  { id: "global.exit", group: "Global", scope: "global", label: "Exit ZAICODE (full quit)", hint: "Really quits the app from anywhere; the X button only hides it to the tray", defaults: ["", ""] },
   // Sessions
   { id: "session.next", group: "Sessions", scope: "app", label: "Next session (cycle)", hint: "Working / waiting sessions first, then this project's recent ones", defaults: ["Alt+Down", ""] },
   { id: "session.prev", group: "Sessions", scope: "app", label: "Previous session (cycle)", hint: "The same ring, backwards", defaults: ["Alt+Up", ""] },
@@ -74,6 +76,8 @@ export const ZAICODE_HOTKEY_ACTIONS: readonly ZaicodeHotkeyAction[] = [
   { id: "ui.calm", group: "Interface", scope: "app", label: "Calm interface on / off", hint: "No animations, no dimming or blur, no hover pop-ups — all three at once", defaults: ["", ""] },
   { id: "ui.dispatch", group: "Interface", scope: "app", label: "Dispatch", hint: "Open a terminal or a vendor CLI in any project", defaults: ["Alt+D", ""] },
   { id: "ui.dismissToasts", group: "Interface", scope: "app", label: "Dismiss all notification cards", hint: "Clears every ZAICODE card on screen", defaults: ["Alt+N", ""] },
+  // App (SRC-049: a full Exit; closing the window only hides to the tray)
+  { id: "app.exit", group: "App", scope: "app", label: "Exit ZAICODE (full quit)", hint: "Really quits the app: agents stop, everything open is saved. Alt+F4 without this only hides to the tray", defaults: ["Alt+F4", ""] },
 ];
 
 const ACTION_BY_ID = new Map(ZAICODE_HOTKEY_ACTIONS.map((action) => [action.id, action]));

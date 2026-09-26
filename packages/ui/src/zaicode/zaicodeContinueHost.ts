@@ -62,31 +62,38 @@ export function createZaicodeContinueHandle(target: {
     }
   };
 
+  /** A control command (stop, clear): "noop" is fine, the session was already in that state. */
+  const sendControl = async (envelope: CommandEnvelope): Promise<void> => {
+    pendingCommandRegistry.record(envelope);
+    await ensureAgentV4ConnectionHandshake(target.agentService);
+    let ack: CommandAck;
+    try {
+      ack = await target.agentService.sendConversationCommandV4({
+        ...scope,
+        ...(target.remoteSessionId ? { remoteSessionId: target.remoteSessionId } : {}),
+        envelope,
+      });
+    } catch (error) {
+      pendingCommandRegistry.settle(envelope.sessionId, envelope.commandId);
+      throw error;
+    }
+    pendingCommandRegistry.applyAck(envelope, ack);
+    if (ack.status !== "accepted" && ack.status !== "duplicate" && ack.status !== "noop") {
+      throw new Error(ack.reasonCode ?? `host answered ${ack.status}`);
+    }
+  };
+
   return {
     send: async (sessionId, command) => {
       // A session nobody has open is cold in the agent: hydrate it first (idempotent when warm).
       await target.taskService.resumeTask({ ...scope, taskId: sessionId });
       await sendCommand(sessionId, command);
     },
-    stop: async (sessionId) => {
-      const envelope = createCommandEnvelope({ type: "stop", sessionId, payload: {} });
-      pendingCommandRegistry.record(envelope);
-      await ensureAgentV4ConnectionHandshake(target.agentService);
-      let ack: CommandAck;
-      try {
-        ack = await target.agentService.sendConversationCommandV4({
-          ...scope,
-          ...(target.remoteSessionId ? { remoteSessionId: target.remoteSessionId } : {}),
-          envelope,
-        });
-      } catch (error) {
-        pendingCommandRegistry.settle(envelope.sessionId, envelope.commandId);
-        throw error;
-      }
-      pendingCommandRegistry.applyAck(envelope, ack);
-      if (ack.status !== "accepted" && ack.status !== "duplicate" && ack.status !== "noop") {
-        throw new Error(ack.reasonCode ?? `host answered ${ack.status}`);
-      }
+    stop: (sessionId) => sendControl(createCommandEnvelope({ type: "stop", sessionId, payload: {} })),
+    clear: async (sessionId) => {
+      // Same as the composer's CLEAR in place, for a session no pane shows: hydrate, then clearConversation.
+      await target.taskService.resumeTask({ ...scope, taskId: sessionId });
+      await sendControl(createCommandEnvelope({ type: "clearConversation", sessionId, payload: {} }));
     },
     start: async (command) => {
       const task = await target.taskService.createTask({

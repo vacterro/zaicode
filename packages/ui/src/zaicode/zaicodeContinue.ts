@@ -347,6 +347,8 @@ export interface ZaicodeProjectContinueHandle {
   start: (command: ZaicodeContinueCommand) => Promise<string>;
   /** Stops the running turn of a session (SCHEDULER conditions and stop times, SRC-046). */
   stop: (sessionId: string) => Promise<void>;
+  /** Empties a session in place without opening it (CLEAR from the project row, SRC-049). */
+  clear: (sessionId: string) => Promise<void>;
 }
 
 const handles = new Map<string, ZaicodeProjectContinueHandle>();

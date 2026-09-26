@@ -381,6 +381,18 @@ function GroupedTaskRowComponent({
       role="button"
       tabIndex={0}
       onClick={handleSelect}
+      onMouseDown={(event) => {
+        // ZAICODE (SRC-049): no browser autoscroll on the middle button; the release archives (see onAuxClick).
+        if (zaicode && event.button === 1) event.preventDefault();
+      }}
+      onAuxClick={(event) => {
+        if (!zaicode || event.button !== 1) return;
+        event.preventDefault();
+        event.stopPropagation();
+        // Middle click = archive, as in the project view (Ctrl+Z restores).
+        if (workspaceActionsDisabled || task.pendingInteraction || dragOverlay) return;
+        onArchiveTask(task);
+      }}
       onKeyDown={handleKeyDown}
       onMouseEnter={() => setTaskRowHovered(true)}
       onMouseLeave={() => setTaskRowHovered(false)}

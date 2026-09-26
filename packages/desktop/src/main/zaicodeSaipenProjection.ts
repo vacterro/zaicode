@@ -1,5 +1,5 @@
 import { spawn } from "node:child_process";
-import { readFile, stat } from "node:fs/promises";
+import { readdir, readFile, stat } from "node:fs/promises";
 import { join } from "node:path";
 import { normalizeZaicodeSaipenStatus, type ZaicodeSaipenProjection } from "@zcode/shared";
 
@@ -21,6 +21,14 @@ const MAX_OUTPUT_BYTES = 2 * 1024 * 1024;
  * SAIPEN answered again (T-43 fault matrix, stale-snapshot).
  */
 const FAILURE_RETRY_MS = 5000;
+/**
+ * An answer that says "an operation is pending" is asked again after this even
+ * with the same files: a status read that lands while another SAIPEN command
+ * still holds its journal sees `recovery_pending`, and when that command ends
+ * STATE / BOARD / LOG may not change again -- the project stayed on RECOVERY
+ * forever (SRC-049, a project with no chats left).
+ */
+const PENDING_RETRY_MS = 10_000;
 
 interface CacheEntry {
   key: string;
@@ -38,6 +46,27 @@ async function fileKey(path: string): Promise<string> {
   } catch {
     return "missing";
   }
+}
+
+/** The operation journals SAIPEN keeps while a command runs (`.saipen/recovery/ops`); empty when settled. */
+async function journalKey(memory: string): Promise<string> {
+  try {
+    return (await readdir(join(memory, "recovery", "ops"))).sort().join(",");
+  } catch {
+    return "";
+  }
+}
+
+/** Whether a cached answer can be reused for these files. */
+export function zaicodeSaipenCacheFresh(
+  cached: { key: string; projection: ZaicodeSaipenProjection | null; at: number } | undefined,
+  key: string,
+  now: number,
+): boolean {
+  if (!cached || cached.key !== key) return false;
+  if (cached.projection === null) return now - cached.at < FAILURE_RETRY_MS;
+  if (cached.projection.recoveryPending) return now - cached.at < PENDING_RETRY_MS;
+  return true;
 }
 
 /** SAIPEN_HOME from the ZAICODE launcher, else the home STATE.md names. */
@@ -99,12 +128,14 @@ export function extractZaicodeSaipenJson(output: string): unknown {
 
 export async function getZaicodeSaipenProjection(projectPath: string): Promise<ZaicodeSaipenProjection | null> {
   const memory = join(projectPath, ".saipen");
-  const key = (
-    await Promise.all(["STATE.md", "BOARD.md", "LOG.md"].map((name) => fileKey(join(memory, name))))
-  ).join("|");
+  const parts = await Promise.all([
+    ...["STATE.md", "BOARD.md", "LOG.md"].map((name) => fileKey(join(memory, name))),
+    journalKey(memory),
+  ]);
+  const key = parts.join("|");
   if (key.startsWith("missing")) return null;
   const cached = cache.get(projectPath);
-  if (cached?.key === key && (cached.projection !== null || Date.now() - cached.at < FAILURE_RETRY_MS)) return cached.projection;
+  if (cached && zaicodeSaipenCacheFresh(cached, key, Date.now())) return cached.projection;
   const running = inFlight.get(projectPath);
   if (running) return running;
   const task = (async () => {

@@ -1,6 +1,8 @@
 import { app, BrowserWindow, screen, type Rectangle } from "electron";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
+import { readZaicodeLauncherPreferences } from "./zaicodeLauncherPreferences.js";
+import { hasZaicodeCustomSplash, zaicodeSplashCustomDir } from "./zaicodeSplashPrefs.js";
 
 /**
  * ZAICODE start-up splash (SRC-048). The operator used to get a grey window
@@ -29,14 +31,22 @@ let holdTimer: ReturnType<typeof setTimeout> | null = null;
 const held = new Map<BrowserWindow, boolean>();
 let holding = false;
 
-function splashDir(): string | null {
+/** Full path of the splash page: the operator's own picture first, else the bundled one. */
+function splashPagePath(): string | null {
+  // SRC-049, Settings -> ZAICODE -> Start-up: a custom picture lives in
+  // userData/zaicode-splash/ with its own generated page.
+  if (hasZaicodeCustomSplash()) return join(zaicodeSplashCustomDir(), "zaicode-splash.html");
   const candidates = [
     join(process.resourcesPath ?? "", "zaicode-splash"),
     join(app.getAppPath(), "build", "zaicode-splash"),
     join(app.getAppPath(), "..", "build", "zaicode-splash"),
     join(app.getAppPath(), "..", "..", "build", "zaicode-splash"),
   ];
-  return candidates.find((dir) => existsSync(join(dir, "splash.html"))) ?? null;
+  for (const dir of candidates) {
+    const page = join(dir, "splash.html");
+    if (existsSync(page)) return page;
+  }
+  return null;
 }
 
 /** Centre of the primary work area, whole pixels (the launcher uses the same rule). */
@@ -52,9 +62,15 @@ export function zaicodeSplashBounds(area: Rectangle = screen.getPrimaryDisplay()
 /** Shows the splash at once; main windows created while it is up wait hidden. */
 export function showZaicodeSplash(): void {
   if (splash || process.env.ZAICODE_NO_SPLASH === "1") return;
-  const dir = splashDir();
-  if (!dir) return;
   holding = true;
+  // The main window waits hidden until it is ready whatever the picture does:
+  // splash off (SRC-049) means nothing shows at all, then the app appears loaded.
+  holdTimer = setTimeout(() => {
+    for (const win of held.keys()) revealZaicodeWindow(win);
+    finishZaicodeSplash();
+  }, MAX_HOLD_MS);
+  const splashPage = readZaicodeLauncherPreferences().splashEnabled ? splashPagePath() : null;
+  if (!splashPage) return;
   splash = new BrowserWindow({
     ...zaicodeSplashBounds(),
     useContentSize: true,
@@ -73,11 +89,7 @@ export function showZaicodeSplash(): void {
   });
   // The product version comes from the root launcher (workspace VERSION); the app's own number is upstream's.
   const version = process.env.ZAICODE_VERSION?.trim() ?? "";
-  void splash.loadFile(join(dir, "splash.html"), { query: version ? { v: version } : {} }).catch(() => undefined);
-  holdTimer = setTimeout(() => {
-    for (const win of held.keys()) revealZaicodeWindow(win);
-    finishZaicodeSplash();
-  }, MAX_HOLD_MS);
+  void splash.loadFile(splashPage, { query: version ? { v: version } : {} }).catch(() => undefined);
 }
 
 export function setZaicodeSplashStatus(text: string): void {
@@ -95,6 +107,16 @@ export function zaicodeSplashHolds(): boolean {
 /** True while this main window waits hidden for its renderer. */
 export function isZaicodeWindowHeld(win: BrowserWindow): boolean {
   return held.has(win);
+}
+
+/**
+ * True for the splash window itself. It must never count as an application
+ * window: the primary-window coordinator "reuses" the first window it sees, so
+ * an unfiltered splash made app-ready skip main-window creation entirely and
+ * the app stayed a picture forever (SRC-050).
+ */
+export function isZaicodeSplashWindow(win: BrowserWindow): boolean {
+  return win === splash;
 }
 
 function finishZaicodeSplash(): void {

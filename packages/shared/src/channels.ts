@@ -397,6 +397,11 @@ export const PlatformChannels = {
   /** Renderer → Main：像素级清晰渲染（100% 缩放 + 位图字体），下次启动生效 */
   GetZaicodePixelExact: "zaicode:get-pixel-exact",
   SetZaicodePixelExact: "zaicode:set-pixel-exact",
+  /** Renderer → Main：ZAICODE start-up splash preferences (SRC-049): show the picture, use a custom one */
+  GetZaicodeSplashPrefs: "zaicode:get-splash-prefs",
+  SetZaicodeSplashPrefs: "zaicode:set-splash-prefs",
+  /** Renderer → Main：ZAICODE full exit (SRC-049 hotkey): graceful quit, not hide-to-tray */
+  ZaicodeQuitApp: "zaicode:quit-app",
   /** Renderer → Main：dev 按钮，把当前界面设置快照写成随包默认值（源码树）+ userData 备份 */
   SaveZaicodeSettingsSnapshot: "zaicode:save-settings-snapshot",
   /** Renderer → Main：相对位移移动窗口 (用于右键拖拽) */
@@ -1165,6 +1170,19 @@ export interface PlatformChannelMap {
   [PlatformChannels.SetZaicodePixelExact]: {
     request: boolean;
     response: { pixelExact: boolean };
+  };
+  [PlatformChannels.GetZaicodeSplashPrefs]: {
+    request: void;
+    response: { enabled: boolean; hasCustom: boolean; customDataUrl: string | null };
+  };
+  [PlatformChannels.SetZaicodeSplashPrefs]: {
+    /** `imagePath` = a picked picture file copied into ZAICODE's data; null clears the custom picture. */
+    request: { enabled: boolean; imagePath?: string | null };
+    response: { enabled: boolean; hasCustom: boolean; customDataUrl: string | null };
+  };
+  [PlatformChannels.ZaicodeQuitApp]: {
+    request: void;
+    response: { ok: boolean };
   };
   [PlatformChannels.SaveZaicodeSettingsSnapshot]: {
     request: string;

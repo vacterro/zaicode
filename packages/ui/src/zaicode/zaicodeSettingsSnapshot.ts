@@ -4,6 +4,7 @@ import bundled from "./zaicodeSettingsDefaults.json" with { type: "json" };
 const SETTING_KEYS = [
   "zaicode-ui-prefs-v1",
   "zaicode-sidebar-prefs-v1",
+  "zaicode-diamonds-v1",
   "zaicode-profiles",
   "zaicode-cues-v1",
   "zaicode-icon-overrides",
@@ -31,6 +32,7 @@ const SETTING_KEYS = [
   "zaicode-color-studio-v1",
   "zaicode-avatar-uploads",
   "zaicode-saipen-log-order-v1",
+  "zaicode-saipen-ticket-order-v1",
   "zaicode-lights-v1",
   "zaicode-lights-presets-v1",
   "zaicode-composer-prefs-v1",

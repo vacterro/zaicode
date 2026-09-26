@@ -25,6 +25,7 @@ import {
 } from "@/zaicode/zaicodeColorStudio.js";
 import { ZAICODE_PALETTES, ZAICODE_PALETTE_NONE, findZaicodePalette, type ZaicodePaletteTokens } from "@/zaicode/zaicodePalettes.js";
 import { ColorField, ContrastReport, StudioPreview, StudioSection, studioButton } from "./ZaicodeColorParts.js";
+import { ZaicodeDiamondSettings } from "./ZaicodeDiamondSettings.js";
 
 /**
  * Settings -> ZAICODE -> Colors: the Color Studio (SRC-035). Pick a theme,
@@ -352,6 +353,8 @@ export function ZaicodeColorSettings() {
           })}
         </div>
       </StudioSection>
+
+      <ZaicodeDiamondSettings />
 
       <StudioSection title="Preview" hint="Drawn with the live colours; the whole app changes the same way.">
         <StudioPreview />

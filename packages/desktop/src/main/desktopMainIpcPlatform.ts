@@ -80,6 +80,7 @@ import {
   setZaicodeSaimailWorkspace,
 } from "./zaicodeLauncherPreferences.js";
 import { initZaicodeSaimailWorkspace } from "./zaicodeSaimailInit.js";
+import { readZaicodeSplashPrefs, setZaicodeSplashPrefs } from "./zaicodeSplashPrefs.js";
 import {
   getZaicodeEnginesState,
   getZaicodeStartWithWindows,
@@ -128,6 +129,8 @@ export function registerPlatformIpcHandlers(options: {
   syncAppSettings: (patch: unknown) => void;
   /** 快捷键设置页录制态开关：true 时 main 重建菜单摘除可配置 accelerator */
   setShortcutRecordingActive?: (active: boolean, ownerWebContentsId?: number | null) => void;
+  /** ZAICODE full-exit hotkey (SRC-049): graceful app quit, never hide-to-tray. */
+  quitAppForZaicode?: (reason: string) => void;
   /** 桌面端设备标识符（基于 userData 路径的 SHA-256） */
   deviceMid: string;
   /** CDP-on-guest pivot：renderer `<webview>` 上报 guest webContentsId → main attach。 */
@@ -410,6 +413,19 @@ export function registerPlatformIpcHandlers(options: {
   ipcMain.handle(PlatformChannels.SetZaicodePixelExact, (_event, enabled: unknown) => {
     if (typeof enabled !== "boolean") throw new TypeError("Expected boolean pixel-exact preference");
     return { pixelExact: setZaicodePixelExact(enabled).pixelExact };
+  });
+  ipcMain.handle(PlatformChannels.GetZaicodeSplashPrefs, () => readZaicodeSplashPrefs());
+  ipcMain.handle(PlatformChannels.ZaicodeQuitApp, () => {
+    options.quitAppForZaicode?.("hotkey-quit");
+    return { ok: true };
+  });
+  ipcMain.handle(PlatformChannels.SetZaicodeSplashPrefs, (_event, input: unknown) => {
+    if (!input || typeof input !== "object" || typeof (input as { enabled?: unknown }).enabled !== "boolean")
+      throw new TypeError("Expected splash preferences { enabled, imagePath? }");
+    const { enabled, imagePath } = input as { enabled: boolean; imagePath?: unknown };
+    if (imagePath !== undefined && imagePath !== null && typeof imagePath !== "string")
+      throw new TypeError("Expected splash picture path or null");
+    return setZaicodeSplashPrefs({ enabled, imagePath: imagePath ?? null });
   });
   ipcMain.handle(PlatformChannels.SaveZaicodeSettingsSnapshot, (_event, json: unknown) => {
     if (typeof json !== "string") throw new TypeError("Expected settings snapshot JSON");

@@ -1956,6 +1956,15 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
                               onOpenSession={(sessionWorkspacePath, sessionId, sessionWorkspaceIdentity) =>
                                 handleSelectTaskInChat(sessionWorkspacePath, sessionId, sessionWorkspaceIdentity)
                               }
+                              onOpenProject={(projectPath, projectIdentity) => {
+                                const tabs = tabStoreApi.getState();
+                                const activated = tabs.activateTabByPath(
+                                  projectPath,
+                                  projectIdentity ? { workspaceIdentity: projectIdentity } : undefined,
+                                );
+                                if (!activated && !projectIdentity) tabs.addTab(projectPath);
+                                showChatMainView();
+                              }}
                               onNewTask={() => handleCreateTaskInChat({ createSource: "project" })}
                             />
                           </ScopedErrorBoundary>

@@ -23,6 +23,21 @@ const MISSING_POLL_MS = 15000;
 const LOG_TAIL_BYTES = 24576;
 const BOARD_BYTES = 65536;
 const STATE_BYTES = 8192;
+/**
+ * A projection that says "an operation is pending" is asked again this often
+ * even when STATE did not move: the pending journal can clear without another
+ * checkpoint, and RECOVERY then hung on a project with no chats (SRC-049).
+ */
+export const ZAICODE_SAIPEN_PENDING_RECHECK_MS = 10_000;
+
+/** Whether a snapshot's projection must be asked again although STATE did not change. */
+export function zaicodeSaipenNeedsRecheck(
+  projection: ZaicodeSaipenProjection | null | undefined,
+  askedAt: number,
+  now: number,
+): boolean {
+  return Boolean(projection?.recoveryPending) && now - askedAt >= ZAICODE_SAIPEN_PENDING_RECHECK_MS;
+}
 
 type FileService = ReturnType<typeof useWorkspaceServices>["fileService"];
 
@@ -44,6 +59,7 @@ class SaipenPoller {
   private logSize = 0;
   private timer: number | null = null;
   private running = false;
+  private askedAt = 0;
 
   constructor(
     private readonly root: string,
@@ -99,6 +115,7 @@ class SaipenPoller {
   private async askProjection(snapshot: ZaicodeSaipenSnapshot) {
     const bridge = (typeof window === "undefined" ? undefined : (window as unknown as { zcode?: ProjectionBridge }).zcode);
     if (!bridge?.getZaicodeSaipenProjection) return;
+    this.askedAt = Date.now();
     const projectPath = this.root.replace(/[\\/]\.saipen$/, "");
     try {
       const projection = await bridge.getZaicodeSaipenProjection(projectPath);
@@ -146,6 +163,8 @@ class SaipenPoller {
           },
         });
         if (this.snapshot) void this.askProjection(this.snapshot);
+      } else if (this.snapshot && zaicodeSaipenNeedsRecheck(this.snapshot.projection, this.askedAt, Date.now())) {
+        void this.askProjection(this.snapshot);
       }
     } catch {
       this.lastState = null;

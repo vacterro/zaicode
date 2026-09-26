@@ -254,7 +254,7 @@ import {
 } from "./zaicodeLauncherPreferences.js";
 import { applyZaicodePixelExactSwitches, ensureZaicodeCrispFonts } from "./zaicodeCrispFonts.js";
 import { startZaicodeEngines } from "./zaicodeEngines.js";
-import { showZaicodeSplash } from "./zaicodeSplash.js";
+import { isZaicodeSplashWindow, showZaicodeSplash } from "./zaicodeSplash.js";
 import { startZaicodeRouterHost, stopZaicodeRouterHost } from "./zaicodeRouterHost.js";
 import { applyZaicodeLocalTimeZone, shouldRelaunchForLocalTimeZone } from "./zaicodeTimeZone.js";
 
@@ -1482,7 +1482,9 @@ function resolveFocusedDesktopZoomLevel(): number {
 
 function getApplicationWindowsExcludingCuaIndicator(): BrowserWindow[] {
   return BrowserWindow.getAllWindows().filter(
-    (win) => !win.isDestroyed() && !windowsCuaOperationIndicator.ownsWindow(win),
+    // ZAICODE (SRC-050): the start-up splash is not an application window; left in,
+    // app-ready "reused" the splash and the real main window was never created.
+    (win) => !win.isDestroyed() && !windowsCuaOperationIndicator.ownsWindow(win) && !isZaicodeSplashWindow(win),
   );
 }
 
@@ -2030,6 +2032,11 @@ app.whenReady().then(async () => {
   registerPlatformIpcHandlers({
     fetchHelpConfig: readHelpConfig,
     logger,
+    // ZAICODE full-exit hotkey (SRC-049): the same graceful quit the tray uses.
+    quitAppForZaicode: (reason) => {
+      markExplicitQuit(reason);
+      app.quit();
+    },
     // CDP-on-guest pivot：renderer `<webview>` dom-ready 上报 guest webContentsId → attach。
     attachBrowserGuest: (key, webContentsId, options) => {
       const result = browserGuestManager.attachGuest(key, webContentsId, options);

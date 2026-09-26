@@ -132,6 +132,7 @@ import { ConversationDraftSuggestedPromptsContainer } from "@/v4/ConversationDra
 import { ConversationHeader, type PaneWorkspaceBadge } from "@/v4/ConversationHeader.js";
 import { ConversationQueuePanel } from "@/v4/ConversationQueuePanel.js";
 import { useZaicodeClearSession, useZaicodeSaipen } from "@/zaicode/zaicodeSaipen.js";
+import { ZaicodeWhereAmI } from "@/zaicode/ZaicodeWhereAmI.js";
 import { adoptZaicodeComposerModel } from "@/zaicode/zaicodeDefaultModel.js";
 import { useZaicodeAutoSessionTitle } from "@/zaicode/zaicodeAutoTitle.js";
 import { useZaicodeAutoRetry } from "@/zaicode/zaicodeAutoRetry.js";
@@ -4786,6 +4787,9 @@ export function SessionPane({
             </span>
           </div>
         </div>
+      ) : null}
+      {isZaicodeProductMode() ? (
+        <ZaicodeWhereAmI workspacePath={workspacePath} sessionTitle={snapshot?.meta.title ?? null} />
       ) : null}
       <ConversationHeader
         title={snapshot?.meta.title ?? ""}

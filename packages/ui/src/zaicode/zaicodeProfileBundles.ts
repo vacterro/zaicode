@@ -16,6 +16,7 @@
 export const ZAICODE_PROFILE_KEYS: readonly string[] = [
   "zaicode-ui-prefs-v1",
   "zaicode-sidebar-prefs-v1",
+  "zaicode-diamonds-v1",
   "zaicode-cues-v1",
   "zaicode-icon-overrides",
   "zaicode-audio-v1",

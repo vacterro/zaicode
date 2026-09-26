@@ -98,6 +98,55 @@ export function parseSaipenLogLines(logTail: string, limit = 200): ZaicodeSaipen
 
 export type ZaicodeLogOrder = "oldest-first" | "newest-first";
 
+export type ZaicodeTicketOrder = "board" | "number";
+
+/** `T-64` -> 64; tickets without a numeric id keep the file's relative order behind the numbered ones. */
+function ticketNumber(id: string): number {
+  const match = /^T-(\d+)$/.exec(id);
+  return match ? Number(match[1]) : Number.MAX_SAFE_INTEGER;
+}
+
+/**
+ * BOARD tickets ordered for the side pane (SRC-049): `number` sorts T-2 before
+ * T-10 inside every section (the operator asked to orient by the ticket
+ * number), `board` keeps the file's order. Stable in both modes.
+ */
+export function sortZaicodeSaipenTickets(
+  tickets: readonly ZaicodeSaipenBoardTicket[],
+  order: ZaicodeTicketOrder,
+): ZaicodeSaipenBoardTicket[] {
+  if (order === "board") return [...tickets];
+  return tickets
+    .map((ticket, index) => ({ ticket, index }))
+    .sort(
+      (left, right) =>
+        ticketNumber(left.ticket.id) - ticketNumber(right.ticket.id) || left.index - right.index,
+    )
+    .map((entry) => entry.ticket);
+}
+
+/**
+ * Tickets whose id, title, priority or field values contain the query
+ * (case-insensitive). An empty query returns everything unchanged.
+ */
+export function filterZaicodeSaipenTickets(
+  tickets: readonly ZaicodeSaipenBoardTicket[],
+  query: string,
+): ZaicodeSaipenBoardTicket[] {
+  const needle = query.trim().toLowerCase();
+  if (!needle) return [...tickets];
+  return tickets.filter((ticket) => {
+    if (ticket.id.toLowerCase().includes(needle)) return true;
+    if (ticket.title.toLowerCase().includes(needle)) return true;
+    if (ticket.priority?.toLowerCase().includes(needle)) return true;
+    for (const [key, value] of Object.entries(ticket.fields)) {
+      if (key.toLowerCase().includes(needle)) return true;
+      if (value.toLowerCase().includes(needle)) return true;
+    }
+    return false;
+  });
+}
+
 /** `dd.mm.yy hh:mm` -> a string that sorts by time; lines without a stamp inherit the previous line's. */
 function logSortKey(line: ZaicodeSaipenLogLine, previous: string): string {
   const date = /^(\d\d)\.(\d\d)\.(\d\d)$/.exec(line.date ?? "");

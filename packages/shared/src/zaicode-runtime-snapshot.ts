@@ -113,8 +113,15 @@ export function zaicodeProjectRuntimeState(snapshot: ZaicodeProjectRuntimeSnapsh
   const protocol = snapshot.protocol;
   const board = snapshot.board;
   const where = protocol ? [protocol.task, protocol.phase].filter(Boolean).join(" ") : "";
-  if (protocol?.recoveryPending) {
-    return { state: "blocked", label: "RECOVERY", reason: "SAIPEN has an interrupted operation to recover" };
+  // A journal that exists while this project's own session or worker runs is that command in flight,
+  // not an interrupted one (SRC-049: RECOVERY showed up mid-run and then stuck).
+  const running = snapshot.sessions.running > 0 || snapshot.workers.running > 0;
+  if (protocol?.recoveryPending && !running) {
+    return {
+      state: "blocked",
+      label: "RECOVERY",
+      reason: "SAIPEN has an unfinished operation; the next START (saipen continue) or `saipen recover` finishes it",
+    };
   }
   if (protocol && protocol.boardErrors > 0) {
     return { state: "blocked", label: "BOARD ERROR", reason: `SAIPEN reports ${protocol.boardErrors} board error(s)` };
@@ -125,7 +132,7 @@ export function zaicodeProjectRuntimeState(snapshot: ZaicodeProjectRuntimeSnapsh
   if (snapshot.sessions.waiting > 0) {
     return { state: "waiting", label: "WAITING FOR YOU", reason: `${snapshot.sessions.waiting} session(s) wait for an answer` };
   }
-  if (snapshot.sessions.running > 0 || snapshot.workers.running > 0) {
+  if (running) {
     const parts = [
       snapshot.sessions.running > 0 ? `${snapshot.sessions.running} session(s)` : "",
       snapshot.workers.running > 0 ? `${snapshot.workers.running} worker(s)` : "",

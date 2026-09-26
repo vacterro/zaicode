@@ -9,6 +9,7 @@ import { resolveZaicodeServices } from "@/zaicode/zaicodeServices.js";
 import { Switch } from "@/components/ui/switch.js";
 import { ZaicodeTypographySettings } from "./ZaicodeTypographySettings.js";
 import { ZaicodeSaimailSettings } from "./ZaicodeSaimailSettings.js";
+import { ZaicodeSplashSettings } from "./ZaicodeSplashSettings.js";
 import { setZaicodeAutoSessionTitle, useZaicodeAutoSessionTitle } from "@/zaicode/zaicodeAutoTitle.js";
 import { setZaicodeListLabelWidth, useZaicodeAppearance } from "@/zaicode/zaicodeAppearance.js";
 import { captureZaicodeSettingsSnapshot } from "@/zaicode/zaicodeSettingsSnapshot.js";
@@ -109,6 +110,7 @@ export function ZaicodeSettingsSection() {
       </section>
       <ZaicodeTypographySettings />
       <ZaicodeSaimailSettings />
+      <ZaicodeSplashSettings />
       <section className="border border-border bg-card p-4 text-ui-xs text-foreground-subtle" data-zaicode-moved-settings>
         Sidebar layout, the home screen and window zones are in <strong className="font-normal text-foreground">Layout &amp; home</strong>;
         Ambience and Problip in <strong className="font-normal text-foreground">Sounds</strong>; the terminal font in{" "}

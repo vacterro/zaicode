@@ -11,7 +11,13 @@ import {
   type ZaicodeSaipenSection,
 } from "./zaicodeSaipenModel.js";
 import { ZaicodeWorkingIcon } from "./ZaicodeWorkingIcon.js";
-import { sortZaicodeLogLines, type ZaicodeLogOrder } from "./zaicodeSaipenDetail.js";
+import {
+  filterZaicodeSaipenTickets,
+  sortZaicodeLogLines,
+  sortZaicodeSaipenTickets,
+  type ZaicodeLogOrder,
+  type ZaicodeTicketOrder,
+} from "./zaicodeSaipenDetail.js";
 import { useZaicodeRunningSessions } from "./zaicodeSidebarPrefs.js";
 
 /**
@@ -40,6 +46,16 @@ function readLogOrder(): ZaicodeLogOrder {
     return localStorage.getItem(LOG_ORDER_KEY) === "newest-first" ? "newest-first" : "oldest-first";
   } catch {
     return "oldest-first";
+  }
+}
+
+const TICKET_ORDER_KEY = "zaicode-saipen-ticket-order-v1";
+
+function readTicketOrder(): ZaicodeTicketOrder {
+  try {
+    return localStorage.getItem(TICKET_ORDER_KEY) === "board" ? "board" : "number";
+  } catch {
+    return "number";
   }
 }
 
@@ -209,6 +225,8 @@ export function ZaicodeSaipenSidePane({
   const [open, setOpen] = useState(readOpen);
   const [follow, setFollow] = useState(true);
   const [logOrder, setLogOrder] = useState<ZaicodeLogOrder>(readLogOrder);
+  const [ticketOrder, setTicketOrder] = useState<ZaicodeTicketOrder>(readTicketOrder);
+  const [findQuery, setFindQuery] = useState("");
   const [now, setNow] = useState(() => Date.now());
   const [changedAt, setChangedAt] = useState<number | null>(null);
   const seenEventsRef = useRef<Set<string> | null>(null);
@@ -270,6 +288,16 @@ export function ZaicodeSaipenSidePane({
       }
       return next;
     });
+  const flipTicketOrder = () =>
+    setTicketOrder((current) => {
+      const next: ZaicodeTicketOrder = current === "number" ? "board" : "number";
+      try {
+        localStorage.setItem(TICKET_ORDER_KEY, next);
+      } catch {
+        // View preference only.
+      }
+      return next;
+    });
 
   if (!saipen) {
     return (
@@ -283,7 +311,9 @@ export function ZaicodeSaipenSidePane({
 
   const shares = saipenBoardShares(saipen);
   const chipColor = runtime?.color ?? null;
-  const tickets = detail?.tickets ?? [];
+  // SRC-049: find a ticket by id/text, sections sorted by the ticket number by default.
+  const allTickets = detail?.tickets ?? [];
+  const tickets = sortZaicodeSaipenTickets(filterZaicodeSaipenTickets(allTickets, findQuery), ticketOrder);
   const bySection = (section: ZaicodeSaipenSection) => tickets.filter((ticket) => ticket.section === section);
   const done = bySection("DONE");
   const log = sortZaicodeLogLines(detail?.log ?? [], logOrder);
@@ -361,6 +391,44 @@ export function ZaicodeSaipenSidePane({
             </span>
           </div>
         ) : null}
+      </div>
+
+      {/* Find: tickets by id or text (SRC-049), plus the section sort order */}
+      <div className="flex shrink-0 items-center gap-1 border-b border-border px-2 py-1">
+        <input
+          value={findQuery}
+          onChange={(event) => setFindQuery(event.target.value)}
+          placeholder="find T-## / text"
+          aria-label="Find a ticket by id or text"
+          data-zaicode-saipen-find
+          className="min-w-0 flex-1 border border-border bg-background px-1 py-px text-ui-xs text-foreground placeholder:text-foreground-subtlest focus:outline-none focus-visible:border-foreground"
+        />
+        {findQuery ? (
+          <>
+            <span className="shrink-0 tabular-nums text-foreground-subtlest" title="Matching tickets">
+              {tickets.length}/{allTickets.length}
+            </span>
+            <button
+              type="button"
+              className="shrink-0 border border-border px-1 text-foreground-subtle hover:text-foreground"
+              title="Clear the find field"
+              aria-label="Clear the find field"
+              onClick={() => setFindQuery("")}
+            >
+              ×
+            </button>
+          </>
+        ) : null}
+        <button
+          type="button"
+          className="shrink-0 border border-border px-1 text-foreground-subtle hover:text-foreground"
+          title="Ticket order inside every section: click to flip (by number / BOARD.md file order)"
+          aria-label={ticketOrder === "number" ? "Sorted by ticket number: click for BOARD order" : "BOARD.md order: click to sort by ticket number"}
+          data-zaicode-ticket-order={ticketOrder}
+          onClick={flipTicketOrder}
+        >
+          {ticketOrder === "number" ? "T-1…9" : "board"}
+        </button>
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto">

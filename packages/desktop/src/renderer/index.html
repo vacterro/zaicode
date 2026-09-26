@@ -127,6 +127,18 @@
       <!-- ZAICODE (SRC-048): the SAIPEN splash picture, still; no pop animation. -->
       <img class="zaicode-startup-splash" src="./zaicode-splash.png" width="560" height="300" alt="" />
     </div>
+    <script>
+      // ZAICODE (SRC-049): the operator's own splash picture, mirrored by the
+      // settings page, replaces the bundled one before anything paints.
+      try {
+        var customSplash = localStorage.getItem("zaicode-splash-image");
+        if (customSplash) {
+          document.querySelector("#loading .zaicode-startup-splash").src = customSplash;
+        }
+      } catch (error) {
+        /* bundled picture stays */
+      }
+    </script>
     <script type="module">
       const startupLogoShell = document.querySelector(".startup-logo-shell");
       const startupLoading = document.getElementById("loading");

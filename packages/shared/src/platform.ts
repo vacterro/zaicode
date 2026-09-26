@@ -923,6 +923,14 @@ export interface IPlatformService {
   /** ZAICODE：像素级清晰渲染（100% 缩放、位图字体、无亚像素定位）；下次启动生效。 */
   getZaicodePixelExact?(): Promise<{ pixelExact: boolean }>;
   setZaicodePixelExact?(enabled: boolean): Promise<{ pixelExact: boolean }>;
+  /** ZAICODE：启动画面偏好（SRC-049）：是否显示画面，是否用自选图片（imagePath 为选择器返回的路径，null 还原默认）。 */
+  getZaicodeSplashPrefs?(): Promise<{ enabled: boolean; hasCustom: boolean; customDataUrl: string | null }>;
+  setZaicodeSplashPrefs?(input: {
+    enabled: boolean;
+    imagePath?: string | null;
+  }): Promise<{ enabled: boolean; hasCustom: boolean; customDataUrl: string | null }>;
+  /** ZAICODE：完整退出（SRC-049 快捷键）：走主进程优雅退出，不进托盘。 */
+  zaicodeQuitApp?(): Promise<{ ok: boolean }>;
   /** ZAICODE dev：把界面设置快照写成随包默认值（源码树 zaicodeSettingsDefaults.json）并在 userData 备份。 */
   saveZaicodeSettingsSnapshot?(json: string): Promise<{ ok: boolean; message: string; sourcePath: string | null; backupPath: string | null }>;
   /** ZAICODE：相对位移移动窗口 (用于右键拖拽) */

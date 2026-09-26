@@ -61,6 +61,7 @@ export type ZaicodeGlobalHotkeyStatus = "ok" | "taken" | "invalid";
 interface GlobalHotkeyBridge {
   setZaicodeGlobalHotkeys?(bindings: { id: string; accelerator: string }[]): Promise<Record<string, ZaicodeGlobalHotkeyStatus>>;
   onZaicodeGlobalHotkey?(callback: (id: string) => void): () => void;
+  zaicodeQuitApp?(): Promise<{ ok: boolean }>;
 }
 
 function bridge(): GlobalHotkeyBridge | undefined {
@@ -88,6 +89,7 @@ const GLOBAL_TO_APP: Record<string, string> = {
   "global.tempTimer": "timers.temp",
   "global.productivity": "timers.productivity",
   "global.stopSounds": "sounds.stop",
+  "global.exit": "app.exit",
   // Tray menu picks (main process, zaicodeTrayMenuModel.ts).
   "tray.home": "ui.home",
   "tray.workers": "ui.workers",
@@ -225,6 +227,10 @@ function useZaicodeRuntimeHandlers(): void {
       registerZaicodeHotkeyHandler("workers.even", () =>
         useZaicodeWorkerPrefs.getState().update({ splitSizes: evenZaicodeSplitSizes(zaicodePanelWorkers().length) }),
       ),
+      // SRC-049: a full Exit - the graceful quit the tray menu uses, not hide-to-tray.
+      registerZaicodeHotkeyHandler("app.exit", () => {
+        void bridge()?.zaicodeQuitApp?.().catch(() => undefined);
+      }),
     ];
     return () => unregister.forEach((dispose) => dispose());
   }, []);

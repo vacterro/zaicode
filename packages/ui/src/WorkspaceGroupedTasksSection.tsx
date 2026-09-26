@@ -19,7 +19,7 @@ import type {
   DropAnimation,
 } from "@dnd-kit/core";
 import type { ZCodeGroupedTaskView, ZCodeTaskGroupColor } from "@zcode/services";
-import { OFF_PEAK_DEFAULT_GROUP_ID, type ZCodeTaskMeta } from "@zcode/shared";
+import { isZaicodeProductMode, OFF_PEAK_DEFAULT_GROUP_ID, type ZCodeTaskMeta } from "@zcode/shared";
 import { createPortal } from "react-dom";
 import { cn } from "@/components/lib/utils.js";
 import { useZCodeIntl } from "@/i18n/IntlProvider.js";
@@ -35,6 +35,7 @@ import { selectWorkspaceZCodeState, useZCodeSessionStore } from "@/store/zcodeSe
 import { useRemoteWorkspaceSessionStore } from "@/store/remoteWorkspaceSessionStore.js";
 import { buildWorkspaceServiceLookup } from "@/lib/workspaceServiceResolver.js";
 import { applyTaskQueryCacheMutation } from "@/store/taskQueryCacheStore.js";
+import { useZaicodeArchiveUndo } from "@/zaicode/zaicodeArchiveUndo.js";
 import { useRemotePinnedTaskStore } from "@/store/remotePinnedTaskStore.js";
 import { useRemoteTimelineTaskStore } from "@/store/remoteTimelineTaskStore.js";
 import { bumpTaskListMembershipVersion } from "@/v4/taskListMembershipVersion.js";
@@ -1112,6 +1113,33 @@ export function WorkspaceGroupedTasksSection({
             previousState: { pinned: false, archived: false },
             nextState: { pinned: false, archived: true },
           });
+          // ZAICODE (SRC-049): one-click archive (middle button, menu) in the grouped view is undone by Ctrl+Z
+          // like in the project view.
+          if (isZaicodeProductMode()) {
+            useZaicodeArchiveUndo.getState().push({
+              label: `"${task.title || "session"}"`,
+              restore: async () => {
+                const restored = await workspaceServices.services.zcodeTaskService.unarchiveTask({
+                  taskId: task.taskId,
+                  workspacePath: task.workspacePath,
+                  ...(task.workspaceIdentity ? { workspaceIdentity: task.workspaceIdentity } : {}),
+                });
+                applyTaskQueryCacheMutation({
+                  previousTask: meta,
+                  nextTask: restored,
+                  previousState: { pinned: false, archived: true },
+                  nextState: { pinned: false, archived: false },
+                });
+                bumpTaskListMembershipVersion();
+                setArchivingTaskKeys((current) => {
+                  if (!current.has(closingTaskKey)) return current;
+                  const next = new Set(current);
+                  next.delete(closingTaskKey);
+                  return next;
+                });
+              },
+            });
+          }
         })
         .catch(() => {
           setArchivingTaskKeys((current) => {

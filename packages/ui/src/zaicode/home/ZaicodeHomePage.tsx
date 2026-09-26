@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { MessageCirclePlus, RefreshCw, Settings2 } from "lucide-react";
 import { cn } from "@/components/lib/utils.js";
-import { useTabStore } from "@/store/TabStoreProvider.js";
 import { openZaicodeSettings } from "../zaicodeActions.js";
 import { decideZaicodeAutostartJob, useZaicodeAutostartJobs } from "../zaicodeAutostart.js";
 import { useZaicodeEngines } from "../zaicodeEngines.js";
@@ -88,11 +87,6 @@ function useGridColumns(minColumn: number): { ref: (element: HTMLDivElement | nu
   return { ref, columns };
 }
 
-function span(entry: ZaicodeHomeWidgetEntry, columns: number, id: ZaicodeHomeWidgetId): number {
-  if (id === "now" || id === "actions") return columns;
-  return entry.size === "large" ? Math.min(2, columns) : 1;
-}
-
 function LayoutEditor({ entries, onChange, onDone }: { entries: ZaicodeHomeWidgetEntry[]; onChange: (entries: ZaicodeHomeWidgetEntry[]) => void; onDone: () => void }) {
   const move = (index: number, delta: number) => {
     const next = [...entries];
@@ -146,9 +140,12 @@ function LayoutEditor({ entries, onChange, onDone }: { entries: ZaicodeHomeWidge
 
 export function ZaicodeHomePage({
   onOpenSession,
+  onOpenProject,
   onNewTask,
 }: {
   onOpenSession: (workspacePath: string, sessionId: string, workspaceIdentity?: string) => void;
+  /** Leaves SAIHOME for the project's chat view (activating the tab alone kept SAIHOME on screen, SRC-049). */
+  onOpenProject: (workspacePath: string, workspaceIdentity?: string) => void;
   onNewTask: () => void;
 }) {
   useZaicodeHomeFeedRefresh();
@@ -167,7 +164,6 @@ export function ZaicodeHomePage({
   const waiting = useZaicodeSessionNav((state) => state.waiting);
   const workers = useZaicodeWorkers().workers;
   const feed = useZaicodeHomeFeed();
-  const activateTabByPath = useTabStore((state) => state.activateTabByPath);
   const saimail = useZaicodeSaimailDesk(null);
   const journal = useZaicodeHomeJournal((state) => state.events);
 
@@ -211,12 +207,15 @@ export function ZaicodeHomePage({
   const nextSchedule = upcoming[0];
   const statsTruth: ZaicodeHomeTruth = !stats ? "unavailable" : feed.stats.error ? "stale" : "authoritative";
 
+  // The project's MAIN session when it has one, else its chat view (composer / last session).
   const goToProject = (row: ZaicodeHomeProjectRow) => {
-    activateTabByPath(row.path, row.identity ? { workspaceIdentity: row.identity } : undefined);
+    if (row.mainSessionId) onOpenSession(row.path, row.mainSessionId, row.identity);
+    else onOpenProject(row.path, row.identity);
   };
   const openProjectByPath = (path: string) => {
     const row = projectRows.find((candidate) => candidate.path === path);
     if (row) goToProject(row);
+    else onOpenProject(path);
   };
 
   const render = (id: ZaicodeHomeWidgetId): ReactNode => {
@@ -347,13 +346,16 @@ export function ZaicodeHomePage({
         </button>
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto [scrollbar-gutter:stable]">
+        {/* SRC-049: a masonry (CSS columns) flow, not a grid: every card keeps
+            its own height and columns fill tightly, so no empty holes appear
+            whatever mix of widgets and window widths is on screen. */}
         <div
           ref={grid.ref}
-          className={cn("grid items-start gap-2", prefs.density === "compact" ? "p-2" : "p-3")}
-          style={{ gridTemplateColumns: `repeat(${grid.columns}, minmax(0, 1fr))`, gridAutoFlow: "row dense" }}
+          className={cn("clear-both", prefs.density === "compact" ? "p-2" : "p-3")}
+          style={{ columnCount: grid.columns, columnGap: prefs.density === "compact" ? "0.5rem" : "0.75rem" }}
         >
           {editing ? (
-            <div style={{ gridColumn: `span ${grid.columns}` }}>
+            <div style={{ columnSpan: "all" }} className="mb-2">
               <LayoutEditor entries={prefs.custom} onChange={prefs.editLayout} onDone={() => setEditing(false)} />
             </div>
           ) : null}
@@ -361,7 +363,7 @@ export function ZaicodeHomePage({
             const node = render(entry.id);
             if (!node) return null;
             return (
-              <div key={entry.id} className="min-w-0" style={{ gridColumn: `span ${span(entry, grid.columns, entry.id)}` }}>
+              <div key={entry.id} className="mb-2 break-inside-avoid min-w-0">
                 {node}
               </div>
             );

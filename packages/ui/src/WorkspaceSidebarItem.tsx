@@ -811,6 +811,27 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
     onSelectTask(tab.workspacePath, zaicodeMainSessionId, tab.workspaceIdentity);
     return true;
   };
+  /** SRC-049: middle click on a "project = MAIN" row empties MAIN in place (CLEAR) without opening it. */
+  const clearZaicodeMainSession = () => {
+    if (!zaicodeProjectIsMain || !zaicodeMainSessionId || readOnlyReason) return;
+    const sessionId = zaicodeMainSessionId;
+    playZaicodeSound("saipen.clear");
+    void createZaicodeContinueHandle({
+      workspacePath: tab.workspacePath,
+      ...(tab.workspaceIdentity ? { workspaceIdentity: tab.workspaceIdentity } : {}),
+      ...(tab.remoteSessionId ? { remoteSessionId: tab.remoteSessionId } : {}),
+      taskService: services.zcodeTaskService,
+      agentService: services.zcodeAgentService,
+    })
+      .clear(sessionId)
+      .then(() => toast(`CLEAR: MAIN of ${workspaceSidebarLabel} is empty`))
+      .catch((error: unknown) => {
+        logger.error("[WorkspaceSidebarItem] MAIN clear failed", { sessionId, error });
+        toast(`Could not clear MAIN of ${workspaceSidebarLabel}: ${error instanceof Error ? error.message : String(error)}`, {
+          variant: "warning",
+        });
+      });
+  };
   const zaicodeSlotGroups = useZaicodeSidebarPrefs((state) => state.groups);
   const zaicodeDefaultSlot = useZaicodeSidebarPrefs((state) => state.defaultSlot);
   const zaicodeCtrlClickSlot = useZaicodeSidebarPrefs((state) => state.ctrlClickSlot);
@@ -1371,6 +1392,16 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
                 // 行在轮询刷新时可能重挂载，指针已在行内时不会再触发 mouseenter；移动即补上 hover。
                 onMouseMove={zaicodeHoverZone ? undefined : () => setWorkspaceRowHovered(true)}
                 onMouseLeave={zaicodeHoverZone ? undefined : () => setWorkspaceRowHovered(false)}
+                onMouseDown={(event) => {
+                  // ZAICODE: no autoscroll icon on the middle button; the release clears MAIN (onAuxClick).
+                  if (event.button === 1 && zaicodeProjectIsMain) event.preventDefault();
+                }}
+                onAuxClick={(event) => {
+                  if (event.button !== 1 || !zaicodeProjectIsMain) return;
+                  event.preventDefault();
+                  event.stopPropagation();
+                  clearZaicodeMainSession();
+                }}
                 onClickCapture={(event) => {
                   if (isZaicodeProductMode() && event.shiftKey && !event.ctrlKey && !event.metaKey) {
                     // ZAICODE：Shift+点击开关项目；关闭的项目变暗，自动 agent / Scheduler 不再处理它。

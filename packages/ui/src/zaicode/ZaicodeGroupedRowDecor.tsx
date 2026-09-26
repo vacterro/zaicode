@@ -4,6 +4,7 @@ import type { ZaicodeTodoItem } from "./zaicodeTodoProgress.js";
 import { ZaicodeRoleGlyph } from "./ZaicodeRoleGlyph.js";
 import { ZAICODE_ROLE_META, useZaicodeSessionRole } from "./zaicodeSessionRoles.js";
 import { useZaicodeMainSessionId, zaicodeMainSessionKey } from "./zaicodeMainSession.js";
+import { useZaicodeDiamondColor, zaicodeDiamondLabel } from "./zaicodeDiamondColors.js";
 
 const EMPTY_TODO_ITEMS: readonly ZaicodeTodoItem[] = [];
 
@@ -59,14 +60,18 @@ export function ZaicodeGroupedRowDecor({
 export function ZaicodeGroupedRowRole({ task }: { task: ZCodeTaskMeta }) {
   const mainId = useZaicodeMainSessionId(zaicodeMainSessionKey(task.workspacePath, task.workspaceIdentity));
   const role = useZaicodeSessionRole(task.taskId, task.title || "");
+  // SRC-049: yellow = SAIFREN, orange = SAIOPP, other models their own colour (Settings → Colors).
+  const diamond = useZaicodeDiamondColor(task.model);
+  const model = diamond ? ` · ${zaicodeDiamondLabel(task.model)}` : "";
   const project = projectName(task.workspacePath);
   if (mainId === task.taskId) {
-    return <ZaicodeRoleGlyph role="MAIN" title={`MAIN session of ${project}`} />;
+    return <ZaicodeRoleGlyph role="MAIN" {...(diamond ? { color: diamond } : {})} title={`MAIN session of ${project}${model}`} />;
   }
   return (
     <ZaicodeRoleGlyph
       role={role ?? "SIDE"}
-      title={role ? `${ZAICODE_ROLE_META[role].title} in ${project}` : `Side session in ${project}`}
+      {...(!role && diamond ? { color: diamond } : {})}
+      title={role ? `${ZAICODE_ROLE_META[role].title} in ${project}` : `Side session in ${project}${model}`}
     />
   );
 }

@@ -765,6 +765,20 @@ contextBridge.exposeInMainWorld("zcode", {
     ipcRenderer.invoke(PlatformChannels.GetZaicodePixelExact),
   setZaicodePixelExact: (enabled: boolean): Promise<{ pixelExact: boolean }> =>
     ipcRenderer.invoke(PlatformChannels.SetZaicodePixelExact, enabled),
+  getZaicodeSplashPrefs: (): Promise<{
+    enabled: boolean;
+    hasCustom: boolean;
+    customDataUrl: string | null;
+  }> => ipcRenderer.invoke(PlatformChannels.GetZaicodeSplashPrefs),
+  setZaicodeSplashPrefs: (input: {
+    enabled: boolean;
+    imagePath?: string | null;
+  }): Promise<{
+    enabled: boolean;
+    hasCustom: boolean;
+    customDataUrl: string | null;
+  }> => ipcRenderer.invoke(PlatformChannels.SetZaicodeSplashPrefs, input),
+  zaicodeQuitApp: (): Promise<{ ok: boolean }> => ipcRenderer.invoke(PlatformChannels.ZaicodeQuitApp),
   saveZaicodeSettingsSnapshot: (json: string): Promise<{ ok: boolean; message: string; sourcePath: string | null; backupPath: string | null }> =>
     ipcRenderer.invoke(PlatformChannels.SaveZaicodeSettingsSnapshot, json),
   moveWindowBy: (delta: { dx: number; dy: number }): Promise<{ success: boolean }> =>

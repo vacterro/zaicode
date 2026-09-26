@@ -9,6 +9,7 @@ import { useZaicodeLiveRun } from "@/zaicode/zaicodeLiveRuns.js";
 import { useZaicodeSchedulerMarked } from "@/zaicode/zaicodeSchedulerMarks.js";
 import { useZaicodeHighlight, withZaicodeHighlight } from "@/zaicode/zaicodeHighlights.js";
 import { ZaicodeRoleGlyph } from "@/zaicode/ZaicodeRoleGlyph.js";
+import { useZaicodeDiamondColor, zaicodeDiamondLabel } from "@/zaicode/zaicodeDiamondColors.js";
 import { ZAICODE_ROLE_META, useZaicodeSessionRole } from "@/zaicode/zaicodeSessionRoles.js";
 import type { ZaicodeTodoItem } from "@/zaicode/zaicodeTodoProgress.js";
 
@@ -122,6 +123,8 @@ function areTaskListItemTaskFieldsEqual(left: ZCodeTaskMeta, right: ZCodeTaskMet
     left.workspacePath === right.workspacePath &&
     left.workspaceIdentity === right.workspaceIdentity &&
     left.provider === right.provider &&
+    // ZAICODE (SRC-049): the diamond colour follows the chat's model.
+    left.model === right.model &&
     left.title === right.title &&
     left.forkedFromTaskId === right.forkedFromTaskId &&
     left.updatedAt === right.updatedAt &&
@@ -196,6 +199,8 @@ export const MemoTaskItem = memo(function TaskListItem({
   actionsDisabledReason,
 }: TaskListItemProps) {
   const sessionRole = useZaicodeSessionRole(task.taskId, task.title || "");
+  const zaicodeDiamondColor = useZaicodeDiamondColor(isZaicodeProductMode() ? task.model : null);
+  const zaicodeDiamondModel = zaicodeDiamondColor ? ` · ${zaicodeDiamondLabel(task.model)}` : "";
   const [hoverActionsVisible, setHoverActionsVisible] = useState(false);
   const [focusActionsVisible, setFocusActionsVisible] = useState(false);
   const [isHoverNone] = useState(
@@ -916,7 +921,11 @@ export const MemoTaskItem = memo(function TaskListItem({
                   title="MAIN session of this project (the iron slot)"
                   data-zaicode-main-session=""
                 >
-                  <ZaicodeRoleGlyph role="MAIN" title="MAIN session of this project (the iron slot)" />
+                  <ZaicodeRoleGlyph
+                    role="MAIN"
+                    {...(zaicodeDiamondColor ? { color: zaicodeDiamondColor } : {})}
+                    title={`MAIN session of this project (the iron slot)${zaicodeDiamondModel}`}
+                  />
                 </span>
               ) : isZaicodeProductMode() ? (
                 <span
@@ -926,7 +935,12 @@ export const MemoTaskItem = memo(function TaskListItem({
                 >
                   <ZaicodeRoleGlyph
                     role={sessionRole ?? "SIDE"}
-                    title={sessionRole ? `${ZAICODE_ROLE_META[sessionRole].title} — sub-worker` : "Side session / sub-worker"}
+                    {...(!sessionRole && zaicodeDiamondColor ? { color: zaicodeDiamondColor } : {})}
+                    title={
+                      sessionRole
+                        ? `${ZAICODE_ROLE_META[sessionRole].title} — sub-worker`
+                        : `Side session / sub-worker${zaicodeDiamondModel}`
+                    }
                   />
                 </span>
               ) : null}

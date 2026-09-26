@@ -159,6 +159,27 @@ export function App({
     });
     return () => memoryDiagnosticsLogger.stop();
   }, [reportRendererHeapSample]);
+  // ZAICODE (SRC-049): mirror the custom splash picture into localStorage once
+  // per boot, so the next start's in-window loading shell shows it immediately.
+  useEffect(() => {
+    const syncSplashImage = platform.getZaicodeSplashPrefs;
+    if (!syncSplashImage) return;
+    let disposed = false;
+    void syncSplashImage()
+      .then((prefs) => {
+        if (disposed) return;
+        try {
+          if (prefs.customDataUrl) localStorage.setItem("zaicode-splash-image", prefs.customDataUrl);
+          else localStorage.removeItem("zaicode-splash-image");
+        } catch {
+          // The main-process copy still applies; only the pre-boot mirror fails.
+        }
+      })
+      .catch(() => undefined);
+    return () => {
+      disposed = true;
+    };
+  }, [platform.getZaicodeSplashPrefs]);
   const activeWorkspaceRpcTarget = useTabStore(
     useShallow((state) => {
       if (!state.activeTabId) {
