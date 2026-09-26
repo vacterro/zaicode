@@ -1,0 +1,26 @@
+{
+  "op_id": "reverify.77d0f9847222",
+  "operation": "reverify.work",
+  "created_at": "2026-09-25T18:23:21Z",
+  "agent": "claude-code",
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "project_lineage": "lineage-b0732ed2f98947b9a3c97bfe71427eca",
+  "semantic_payload_hash": "0a3b99bbf0092a99",
+  "preconditions": {
+    ".saipen/recovery/conformance/reverify/RV-000008.json": ""
+  },
+  "read_preconditions": {},
+  "verification_policy": "none",
+  "status": "COMMITTED",
+  "progress_index": 1,
+  "targets": [
+    {
+      "path": ".saipen/recovery/conformance/reverify/RV-000008.json",
+      "role": "report",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "b04553d2c5d2151c",
+      "applied": true
+    }
+  ]
+}

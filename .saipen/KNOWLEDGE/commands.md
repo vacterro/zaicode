@@ -97,6 +97,14 @@ ZAICODE tests added 2026-09-25 (T-42): UI `test/zaicodeTopology.test.ts` (in the
 `zaicode*` glob): worker identity through every placement action, placement
 guard, exit transition, generations, registry and slot / MAIN pointers.
 
+ZAICODE tests added 2026-09-26 (T-63): UI `test/zaicodeWave63.test.ts` (in the
+`zaicode*` glob; shared must be rebuilt first, `tsc -b packages/shared`, because
+UI tests read `@zcode/shared` from its build); desktop
+`test/zaicodeSubchatProcess.test.ts` gained the ZCode document case. Root
+launcher test build without touching the live exe: `csc.exe -target:winexe
+-reference:System.Windows.Forms.dll -reference:System.Drawing.dll
+-out:<scratch>\ZAICODE-test.exe tools\launcher\ZaicodeLauncher.cs`.
+
 ZAICODE installer (added 2026-09-25, T-53): `install\Install-ZAICODE.ps1`
 (`-InstallDir`, `-ShortcutDir`, `-NoStartMenu`, `-PortableTools`,
 `-AddClaudeAccounts N`, `-AddCodexAccounts N`, repo overrides); Autotroubleshoot

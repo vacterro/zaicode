@@ -143,6 +143,39 @@ terms question, see T-40) and a text-only "CLI as a model" adapter (it cannot
 carry ZAICODE's tool calls). The 9router "Subscriptions as models" path (T-40)
 remains the way to put a subscription into model lists and pools.
 
+Amended T-63 (SRC-048, every subscription): Antigravity's CLI now has a print
+mode (`agy -p <prompt> --output-format stream-json`, `--conversation <id>`
+resumes) and ZCode's CLI one too (`zcode -p <prompt> --json`, `--resume
+<sess>`; one JSON document at the end). Both take the prompt only as an
+argument, so a prompt over 24 000 characters goes into a prompt file the CLI
+is told to read. Freebuff stays metrics only (no chat).
+An Antigravity turn asks for the model of the first quota pool with no spent
+or blocked window (`zaicodeSubchatAutoModel`; Claude & GPT -> `claude-sonnet-4-6`),
+because the CLI's default Gemini pool failed every chat once spent. No model
+picker: the pool that has quota is the only choice that answers.
+
+## D-15 Start-up splash holds the main window hidden (T-63, 2026-09-26)
+
+SRC-048: no grey full-screen window while the interface loads. The root
+launcher shows the SAIPEN splash picture at once (before the staged build
+swap) and closes it when the app process shows any sizeable top-level window;
+the app shows the identical splash first in `whenReady` and creates its main
+window hidden, revealing it (maximized when it was) when the renderer marks
+`zcode-startup-ready`, at most after 90 s. Both splashes use the same size
+(560x300) and place (centre of the primary work area), so the hand-over is
+invisible. Chosen over only restyling the in-window loading shell (the grey
+window itself was the complaint) and over a renderer IPC "ready" signal (the
+main process polls the existing body class: no preload / channel delta).
+
+## D-16 A reset one full window after the read is no refill (T-63, 2026-09-26)
+
+Vendors report an untouched window's reset as read time + window length, so
+it slides forward at every read ("5 h" again every 5 minutes). Main marks such
+windows `startsOnUse` at read time (3 min tolerance); they, and windows gated
+by a spent longer window, never count as the next reset (title timer, clock,
+SAIHOME, SCHEDULER "after the refill"). The raw vendor time stays in the
+snapshot; only its meaning changes.
+
 ## D-13 Execution identity and layout have separate write paths (T-42, 2026-09-25)
 
 SRC-033 analysis 3. Runtime identities (`shared/src/zaicode-topology.ts`) are

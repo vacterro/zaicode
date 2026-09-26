@@ -84,6 +84,11 @@ schemas, environment variables or RPC contracts.
 | `packages/ui/src/app-shell/types.ts`, `app-shell/WorkspaceShellLayout.tsx` (T-51) | `subchat` main view: opener registration and render branch | the view union and switch are closed | trivial |
 | `packages/ui/src/prompt-editor/ChatPromptEditor.tsx`, `ZaicodeSaipenControls.tsx` (T-51) | a prompt / START for a picked subscription goes through `routeZaicodeSubscriptionPrompt` (SUBCHAT or worker) | submit routing is inline | trivial |
 | `packages/shared/src/channels.ts`, `platform.ts`, `desktop/src/preload/index.ts`, `desktop/src/main/desktopMainIpcPlatform.ts` (T-51) | IPC `zaicode:subchat-run`, `zaicode:subchat-cancel`, event `zaicode:subchat-event` | closed channel / bridge registries | trivial |
+| `packages/ui/src/v4/ConversationComposer.tsx` (T-63) | ZAICODE: the open chat publishes whether its turn runs (`useZaicodePublishLiveRun`) | the composer owns `canStop` | trivial |
+| `packages/ui/src/TaskListItem.tsx`, `WorkspaceSidebarItem.tsx` (T-63) | a session the open chat reports as running shows as running (row, project count, MAIN glyph) | row indicators are inline | trivial |
+| `packages/desktop/src/main/desktopWindowChrome.ts`, `desktopWindowLifecycle.ts`, `index.ts` (T-63) | ZAICODE start-up splash: main window created hidden while the splash holds, shown by the hand-over; splash shown first in `whenReady` | window options and dom-ready show are inline | low |
+| `packages/desktop/src/renderer/index.html` (T-63) | the in-window loading shell shows the SAIPEN picture, no pop animation | the loading shell is static HTML | trivial |
+| `packages/desktop/electron-builder.config.js` (T-63) | extraResource `zaicode-splash` | resources are listed here | trivial |
 | `README.md` -> `README.zcode.md`, `README.en.md` (0.0.1) | upstream README kept as `README.zcode.md` (+ link to ZAICODE); `README.md` is ZAICODE's; the English README links the moved file | GitHub shows `README.md` on `main` | trivial |
 
 The ledger lists upstream-owned touched files; new ZAICODE-owned source files

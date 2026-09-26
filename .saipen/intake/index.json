@@ -190,9 +190,13 @@
     "SRC-047": {
       "linked_work": "T-61",
       "source_sha256": "c5fe764a05552ce27c2acf06c04d63e0cb4c579f9397660eb255519bfb033d6f"
+    },
+    "SRC-048": {
+      "linked_work": "T-63",
+      "source_sha256": "f8c6225c783398feafbce60d7f54d388ad6075ba2669cfc4176fe7b683bbbc13"
     }
   },
-  "next_id": 48,
+  "next_id": 49,
   "schema_version": 1,
   "tombstones": {}
 }

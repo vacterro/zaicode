@@ -1000,3 +1000,78 @@ Autotroubleshoot; several Claude / Codex subscriptions). Guide:
   scheduled source; `<root>\.venv\Scripts`, `.tools\git\cmd` and `.tools\node`
   go first on the app's PATH when they exist (a developer workspace has none).
 - Root `.gitignore`: the install's clones, tools, venv, logs and report.
+
+## 32. Wishlist SRC-048: live sidebar, all subscriptions, hard bevels, resets, presets, splash, mix control (T-63, 2026-09-26)
+
+Source: SRC-048 (nine items). Status: unit- and transport-tested
+(`ui/test/zaicodeWave63.test.ts`, updated `ui/test/zaicodeSubchat.test.ts`,
+`desktop/test/zaicodeSubchatProcess.test.ts`); GUI behaviour is an operator
+check (evidence `.saipen/evidence/T-63-wave.md`).
+
+- Sidebar shows running work (item 1): the sessions-index list projection can
+  lag behind a session that plainly runs. The open chat publishes its own
+  "can stop" state (`zaicode/zaicodeLiveRuns.ts`, `useZaicodePublishLiveRun` in
+  `ConversationComposer`); a task row, the project row's running count and the
+  MAIN glyph light when either source says running. Only the open chat
+  publishes, only while mounted and running.
+- SUBCHAT with every subscription (item 2): Antigravity runs `agy -p <prompt>
+  --output-format stream-json [--conversation <id>]`, ZCode `zcode -p <prompt>
+  --json [--resume <id>]` (both probed on this machine). They take the prompt
+  only as an argument: above 24 000 characters it goes into a prompt file the
+  CLI is told to read. ZCode prints one JSON document at the end
+  (`ZAICODE_SUBCHAT_DOCUMENT_VENDORS`: the process reads it whole). Streamed
+  text pieces join one answer (`text` event `append`). Freebuff is offered
+  but disabled with its reason (limits only). The chat list is grouped per
+  project folder like projects (`subchat/zaicodeSubchatGroups.ts`), with a
+  Working icon on busy chats, per-group new-chat tiles and a running count on
+  the SUBCHAT menu line. `commandFor` runs a Node script CLI under node.
+  Antigravity's CLI defaults to a Gemini model; with the Gemini pool spent
+  every chat failed ("Individual quota reached") while Claude & GPT sat at
+  100 %. `zaicodeSubchatAutoModel` (shared) picks the first pool with no
+  spent / blocked window from the account's limits and main passes its model
+  (`claude-sonnet-4-6` for Claude & GPT); the session event carries it to the
+  chat header. Real run on this machine: PONG, resume remembered it.
+- Hard bevels (item 3, `zaicode/zaicodeBevels.ts`, default on): 2 px Win95
+  edges as inset box-shadows (no layout change) on buttons, tabs, fields,
+  menus, pop-ups and (sub-option, default on) sidebar rows; pressed / on /
+  open states sunken; colours from the palette's bevel tokens. Keys
+  `zaicode-bevels`, `zaicode-bevel-rows` (profile + release snapshot);
+  toggles in the palette menu.
+- Resets (item 4): a vendor reports an untouched window's reset as read time +
+  window length on every read. `markZaicodeWindowsStartingOnUse` marks such
+  windows (`startsOnUse`, 3 min tolerance) at read time in main. They and
+  windows gated by a spent longer window never drive the title timer, the
+  clock or SAIHOME's next reset; the Nearest resets table lists them last as
+  "5h on use" / "after weekly"; a SCHEDULER "after the refill" job waits.
+- Presets (item 5, `zaicode/zaicodeLightsPresets.ts`,
+  `settings/ZaicodeLightsPresets.tsx`): six built-in presets, own presets
+  (save / apply / overwrite / rename / delete, 60 max, shared by profiles),
+  export to a JSON file and import (fresh ids, free names). Profiles gained
+  Export this profile / Import profile (`exportZaicodeProfile`,
+  `importZaicodeProfile`: only the known preference keys are written).
+- Blur (item 6): pop-ups placed from measured rects (todo tooltip, limit
+  panel, SAIMAIL panel, tour card) round to whole device pixels
+  (`zaicodeDevicePx`); `data-zaicode-pixel-snap="xy"` also snaps the vertical
+  edge.
+- Splash (item 7): the SAIPEN picture (`desktop/build/zaicode-splash`,
+  extraResource `zaicode-splash`) appears first -- from the root launcher at
+  once (before the build swap), then the app's identical splash window
+  (`main/zaicodeSplash.ts`); the main window is created hidden and shown
+  (maximized when it was) once the renderer marks `zcode-startup-ready`, at
+  most after 90 s. The in-window loading shell shows the same picture, still.
+  `ZAICODE_NO_SPLASH=1` turns both off.
+- Mix control (item 8, `zaicode/zaicodeMotionTuning.ts`,
+  `zaicodeHighlightStyle.ts`, `settings/ZaicodeLightsTuning.tsx`,
+  `settings/ZaicodeCurveEditor.tsx`): easings Even / Smooth / Ease in / Ease
+  out / Overshoot / Elastic / Bounce / Ticks / Own curve (cubic-bezier editor
+  with draggable handles; elastic and bounce as sampled `linear()`). Every
+  combined motion has its own speed, easing, direction, reach and phase;
+  every combined effect its own speed, easing, depth and phase (keyframes read
+  `--zh-d-*`); every shape its own colour and strength (`--zh-c-*`,
+  `--zh-s-*`); stacked pictures are layers with opacity, size, blend, offset
+  and an own extra motion (a layer's opacity is a filter, so its own breathe
+  / blink does not wipe it, the SRC-043 rule).
+- Symmetric motion (item 9): no `perspective()` (a flip under
+  perspective(40px) drew a slanted sliver); flip is a flat squash, wobble
+  shakes equally left and right, bounce goes equally up and down, transform
+  origin is the centre everywhere.

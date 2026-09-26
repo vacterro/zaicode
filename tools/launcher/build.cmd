@@ -11,7 +11,7 @@ set OLD=%ROOT%\ZAICODE.exe.old
 if exist "%STAGED%" del /q "%STAGED%" 2>nul
 "%WINDIR%\Microsoft.NET\Framework64\v4.0.30319\csc.exe" /nologo /target:winexe /optimize+ ^
   /win32icon:"%ROOT%\zcode\packages\desktop\build\icon.ico" ^
-  /reference:System.Windows.Forms.dll ^
+  /reference:System.Windows.Forms.dll /reference:System.Drawing.dll ^
   /out:"%STAGED%" "%~dp0ZaicodeLauncher.cs"
 
 if errorlevel 1 (

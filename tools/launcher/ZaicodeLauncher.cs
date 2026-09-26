@@ -4,10 +4,16 @@
 // %APPDATA%\ZAICODE\zaicode-launcher.json ({"autoRestartOnCrash": false}).
 // Staged updates: `pnpm bundle:zaicode` builds into dist-next while the app
 // runs; the launcher swaps dist-next into dist before starting the app.
+// Start-up splash (SRC-048): the SAIPEN picture appears the moment ZAICODE.exe
+// is double-clicked, before the build swap and the app start, and hands over
+// to the app's own identical splash as soon as the app shows a window.
 // Build: tools\launcher\build.cmd
 using System;
 using System.Diagnostics;
+using System.Drawing;
+using System.Drawing.Text;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -32,9 +38,14 @@ internal static class ZaicodeLauncher
         string preferencesPath = Path.Combine(settingsDirectory, "zaicode-launcher.json");
 
         string executable = Path.Combine(workspace, AppRelativePath);
+        string version = ReadVersion(workspace);
+        if (!string.IsNullOrEmpty(version)) Environment.SetEnvironmentVariable("ZAICODE_VERSION", version);
+        ZaicodeSplash.Show(workspace, version);
+        ZaicodeSplash.SetStatus("Checking for a new build...");
         ApplyStagedBuild(workspace);
         if (!File.Exists(executable))
         {
+            ZaicodeSplash.Close();
             Log("ZAICODE.exe missing: " + executable);
             MessageBox.Show(
                 "ZAICODE app build is missing:\n" + executable +
@@ -72,6 +83,7 @@ internal static class ZaicodeLauncher
             }
         }
         PrependInstallTools(workspace);
+        ZaicodeSplash.SetStatus("Starting ZAICODE...");
 
         int rapidCrashes = 0;
         while (true)
@@ -88,12 +100,15 @@ internal static class ZaicodeLauncher
                 };
                 using (Process process = Process.Start(info))
                 {
+                    ZaicodeSplash.CloseWhenWindowShows(process.Id);
                     process.WaitForExit();
                     exitCode = process.ExitCode;
                 }
+                ZaicodeSplash.Close();
             }
             catch (Exception error)
             {
+                ZaicodeSplash.Close();
                 Log("Launch failed: " + error.Message);
                 MessageBox.Show("ZAICODE failed to start:\n" + error.Message, "ZAICODE launcher",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -116,6 +131,19 @@ internal static class ZaicodeLauncher
             }
             Thread.Sleep(2000);
             ApplyStagedBuild(workspace);
+        }
+    }
+
+    private static string ReadVersion(string workspace)
+    {
+        try
+        {
+            string path = Path.Combine(workspace, "VERSION");
+            return File.Exists(path) ? File.ReadAllText(path).Trim() : "";
+        }
+        catch
+        {
+            return "";
         }
     }
 
@@ -338,7 +366,7 @@ internal static class ZaicodeLauncher
         return sb.ToString();
     }
 
-    private static void Log(string message)
+    internal static void Log(string message)
     {
         try
         {
@@ -347,6 +375,225 @@ internal static class ZaicodeLauncher
         catch
         {
             // Logging is best effort.
+        }
+    }
+}
+
+/// <summary>
+/// The launcher's start-up splash (SRC-048): a borderless 560x300 picture in the
+/// centre of the primary work area -- the same size and place as the app's own
+/// splash (packages/desktop/src/main/zaicodeSplash.ts), so the hand-over is
+/// invisible. It runs on its own UI thread, never locks the picture file (the
+/// build swap moves that folder), and closes when the app shows any window, when
+/// the app exits, or after two minutes.
+/// </summary>
+internal static class ZaicodeSplash
+{
+    private const int Width = 560;
+    private const int Height = 300;
+    private const int MaxMilliseconds = 120000;
+    private static volatile SplashForm form;
+
+    private static readonly string[] ImageCandidates =
+    {
+        @"zcode\packages\desktop\dist\win-unpacked\resources\zaicode-splash\splash.png",
+        @"zcode\packages\desktop\dist-next\win-unpacked\resources\zaicode-splash\splash.png",
+        @"zcode\packages\desktop\build\zaicode-splash\splash.png",
+    };
+
+    public static void Show(string workspace, string version)
+    {
+        if (Environment.GetEnvironmentVariable("ZAICODE_NO_SPLASH") == "1") return;
+        byte[] bytes = null;
+        foreach (string candidate in ImageCandidates)
+        {
+            string path = Path.Combine(workspace, candidate);
+            try
+            {
+                if (File.Exists(path))
+                {
+                    bytes = File.ReadAllBytes(path);
+                    break;
+                }
+            }
+            catch
+            {
+                // try the next one
+            }
+        }
+        if (bytes == null) return;
+        var shown = new ManualResetEvent(false);
+        var thread = new Thread(() =>
+        {
+            try
+            {
+                var splash = new SplashForm(bytes, version);
+                splash.Shown += (sender, args) => shown.Set();
+                form = splash;
+                Application.Run(splash);
+            }
+            catch (Exception error)
+            {
+                ZaicodeLauncher.Log("Splash failed: " + error.Message);
+                shown.Set();
+            }
+        });
+        thread.SetApartmentState(ApartmentState.STA);
+        thread.IsBackground = true;
+        thread.Start();
+        shown.WaitOne(3000);
+    }
+
+    public static void SetStatus(string text)
+    {
+        SplashForm splash = form;
+        if (splash == null || !splash.IsHandleCreated) return;
+        try { splash.BeginInvoke((Action)(() => splash.SetStatus(text))); } catch { /* closing */ }
+    }
+
+    public static void Close()
+    {
+        SplashForm splash = form;
+        form = null;
+        if (splash == null || !splash.IsHandleCreated) return;
+        try { splash.BeginInvoke((Action)(() => splash.Close())); } catch { /* already closed */ }
+    }
+
+    /// <summary>Closes the splash once the app process shows a top-level window (its own splash or the main window).</summary>
+    public static void CloseWhenWindowShows(int processId)
+    {
+        if (form == null) return;
+        var thread = new Thread(() =>
+        {
+            var watch = Stopwatch.StartNew();
+            while (form != null && watch.ElapsedMilliseconds < MaxMilliseconds)
+            {
+                if (HasVisibleWindow(processId))
+                {
+                    // One frame for the app's window to paint before this one goes.
+                    Thread.Sleep(120);
+                    break;
+                }
+                try
+                {
+                    if (Process.GetProcessById(processId).HasExited) break;
+                }
+                catch
+                {
+                    break;
+                }
+                Thread.Sleep(100);
+            }
+            Close();
+        });
+        thread.IsBackground = true;
+        thread.Start();
+    }
+
+    private delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
+
+    [DllImport("user32.dll")]
+    private static extern bool EnumWindows(EnumWindowsProc callback, IntPtr lParam);
+
+    [DllImport("user32.dll")]
+    private static extern bool IsWindowVisible(IntPtr hWnd);
+
+    [DllImport("user32.dll")]
+    private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
+
+    [DllImport("user32.dll")]
+    private static extern bool GetWindowRect(IntPtr hWnd, out Rect rect);
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct Rect
+    {
+        public int Left, Top, Right, Bottom;
+    }
+
+    private static bool HasVisibleWindow(int processId)
+    {
+        bool found = false;
+        EnumWindows((hWnd, lParam) =>
+        {
+            uint owner;
+            GetWindowThreadProcessId(hWnd, out owner);
+            if (owner != (uint)processId || !IsWindowVisible(hWnd)) return true;
+            Rect rect;
+            // Tiny helper windows (tray, message sinks) do not count.
+            if (GetWindowRect(hWnd, out rect) && rect.Right - rect.Left >= 200 && rect.Bottom - rect.Top >= 100)
+            {
+                found = true;
+                return false;
+            }
+            return true;
+        }, IntPtr.Zero);
+        return found;
+    }
+
+    private sealed class SplashForm : Form
+    {
+        private readonly Image picture;
+        private readonly string version;
+        private readonly Font font = new Font("Verdana", 11f, FontStyle.Regular, GraphicsUnit.Pixel);
+        private string status = "Starting ZAICODE...";
+
+        [DllImport("user32.dll")]
+        private static extern bool ReleaseCapture();
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr SendMessage(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam);
+
+        public SplashForm(byte[] png, string version)
+        {
+            this.version = string.IsNullOrEmpty(version) ? "ZAICODE" : "ZAICODE " + version;
+            // A copy in memory: the stream stays with the image, the file on disk stays free.
+            picture = Image.FromStream(new MemoryStream(png));
+            FormBorderStyle = FormBorderStyle.None;
+            StartPosition = FormStartPosition.Manual;
+            ShowInTaskbar = true;
+            Text = "ZAICODE";
+            BackColor = Color.FromArgb(0x1A, 0x18, 0x10);
+            DoubleBuffered = true;
+            ClientSize = new Size(Width, Height);
+            Rectangle area = Screen.PrimaryScreen.WorkingArea;
+            Location = new Point(area.X + (area.Width - Width) / 2, area.Y + (area.Height - Height) / 2);
+            try { Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath); } catch { /* default icon */ }
+            MouseDown += (sender, args) =>
+            {
+                if (args.Button != MouseButtons.Left) return;
+                ReleaseCapture();
+                SendMessage(Handle, 0xA1, new IntPtr(2), IntPtr.Zero); // drag by the picture
+            };
+        }
+
+        public void SetStatus(string text)
+        {
+            status = text;
+            Invalidate(new Rectangle(8, Height - 30, Width - 16, 22));
+        }
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            e.Graphics.DrawImageUnscaled(picture, 0, 0);
+            // Pixel text, no smoothing (saipen UI iron law 1).
+            e.Graphics.TextRenderingHint = TextRenderingHint.SingleBitPerPixelGridFit;
+            using (var text = new SolidBrush(Color.FromArgb(0xD4, 0xC8, 0x9A)))
+            using (var dim = new SolidBrush(Color.FromArgb(0x9C, 0x93, 0x71)))
+            {
+                e.Graphics.DrawString(status, font, text, 14, Height - 27);
+                SizeF size = e.Graphics.MeasureString(version, font);
+                e.Graphics.DrawString(version, font, dim, Width - 14 - size.Width, Height - 27);
+            }
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                picture.Dispose();
+                font.Dispose();
+            }
+            base.Dispose(disposing);
         }
     }
 }

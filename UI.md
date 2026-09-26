@@ -503,8 +503,25 @@ why?", WORKERS "what runs in terminals?", Settings "how should it behave?".
   motions and pictures (up to three stacked). Plain click picks one; the
   neutral choice (Steady, Still) clears the mix. The Opacity slider applies
   under every motion; Reach sets how dark Blink goes.
+- Separate settings per part of a mix (T-63): every combined motion keeps its
+  own speed, easing, direction, reach and starting point; every combined effect
+  its own speed, easing, depth and starting point; every shape its own colour
+  and strength; stacked pictures are layers (opacity, size, blend, offset, own
+  extra motion). Easings include Overshoot, Elastic, Bounce and an own curve
+  with draggable handles. Presets (built-in and own) apply the whole look in
+  one click and export / import as files; profiles export / import too.
+- The Working icon moves symmetrically: it turns, flips, shakes and bounces
+  about its centre, never slanted.
+- Hard bevels (palette menu, default on): the Wintage FastPrompter look, 2 px
+  raised / sunken edges on buttons, fields, menus, pop-ups and, as a separate
+  switch, sidebar rows.
+- Start-up: the SAIPEN splash picture appears at once; the main window shows
+  when it is ready (no grey window while it loads).
 - Title-bar clock: every countdown is bold in FastPrompter's colours; the
-  nearest limit reset in the vendor's colour.
+  nearest limit reset in the vendor's colour. A window nobody used yet (its
+  reset moves with every read) and one blocked by a spent longer window are
+  never "the nearest reset"; the Nearest resets list shows them last as
+  "5h on use" / "after weekly".
 - Freebuff is shown for its limits only (meter, clock, SAIHOME); it never
   appears as an engine, in Dispatch or in the SCHEDULER.
 
@@ -553,21 +570,29 @@ why?", WORKERS "what runs in terminals?", Settings "how should it behave?".
 - Agents inside ZAICODE cannot stop ZAICODE processes by name, image or path
   (the agent CLI refuses the command, also in full-access mode).
 
-## SUBCHAT (T-51)
+## SUBCHAT (T-51, every subscription T-63)
 
-The operator's Claude Code and Codex logins answer in a plain chat inside
-ZAICODE: no worker, no terminal, fewer middlemen.
+Every subscription login (Claude Code, Codex, Antigravity, ZCode) answers in a
+plain chat inside ZAICODE: no worker, no terminal, fewer middlemen. Freebuff
+has a tile too, disabled with its reason (limits only).
 
-- Open it from the SUBCHAT menu line. The tiles at its top (A1, A2, C1, …)
-  start a new chat with that login in the current project; every login is its
-  own tile and its own chat, and chats can answer at the same time.
-- Picking a Claude / Codex tile on the sidebar and typing in the composer (or
+- Open it from the SUBCHAT menu line (it shows the Working icon while chats
+  answer). The tiles at its top (A1, A2, C1, AG, ZC, …) start a new chat with
+  that login in the current project; every login is its own tile and its own
+  chat, and chats can answer at the same time.
+- Chats are listed like projects: one group per project folder, newest first,
+  the Working icon on a busy chat and on its group; a group's + starts a new
+  chat in that folder.
+- Picking a subscription tile on the sidebar and typing in the composer (or
   pressing START) opens a SUBCHAT with that login. Settings -> Engines & limits
-  -> Workers switches this back to worker terminals. Antigravity and ZCode
-  always start a worker. Double-click on a tile still starts a worker.
+  -> Workers switches this back to worker terminals. Double-click on a tile
+  still starts a worker.
 - A turn runs that login's own CLI in the background in the project folder,
   with its own tools and its own quota; the next prompt continues the same
   session. The answer shows as markdown, tool use as one dim line each.
+- Antigravity keeps a quota per model pool. A chat uses the pool that still
+  has quota: with Gemini spent and Claude & GPT left it asks for Claude
+  Sonnet (the chat header names the model).
 - Stop ends the running turn (shown as a note, not an error). A spent limit
   shows once, as an error, with the vendor's reset time. Delete removes the
   chat from ZAICODE only. Chats survive a restart; a turn cut off by a restart
