@@ -1076,3 +1076,13 @@
 - 26.09.26 05:15 [E-1076] [parent: E-1075] [agent: claude-code] [op: transition-b0e2e6b309914539a7b902d5c6dc1bd6] DEC: goal_tickets 1->2
 - 26.09.26 05:15 [E-1077] [parent: E-1076] [T-64] [agent: claude-code] [op: transition-9a028695c5564d3dabecefd85c5e1e3b] RUN: transition to SHIP -- staged build dist-next ootab operaatori jargmist kaimistust; uus launcher exe juba paigas
 - 26.09.26 05:15 [E-1078] [parent: E-1077] [T-64] [agent: claude-code] [op: finish-b93d19a6042140719633df00031179d9] DEC: ticket finished via SAIOPS -- completion (from SHIP)
+- 26.09.26 05:23 [E-1079] [parent: E-1078] [T-65] [agent: claude-code] [op: checkpoint-5d0f766376f949b1846129565b08d1f4] RUN: SCOUT: sidebar seadid laiali Layout&home + paremkliki paneelides; prefs mudel zaicodeSidebarPrefs; profiilid juba kaasas; uued vajalikud: textSize/iconSize/slotColors/sessionsCondition + UUS sektsioon 'Sidebar'
+- 26.09.26 05:23 [E-1080] [parent: E-1079] [T-65] [agent: claude-code] [op: claim-2792c64594bc4ff8b544ae396a03daa5] DEC: claimed via SAIOPS -- owner claude-code
+- 26.09.26 05:23 [E-1081] [parent: E-1080] [T-65] [agent: claude-code] [op: transition-1875198e029044f19c2bdca0dae04a14] RUN: transition to BUILD
+- 26.09.26 05:35 [E-1082] [parent: E-1081] [T-65] [agent: claude-code] [op: checkpoint-dcbb1c000b0c4747a6cbde773799394b] RUN: BUILD: uus Settings>Sidebar sektsioon (koik blokid: header, menu, projektide nimekiri, slotid+varvid, LIVE, sessioonide tingimus, teksti/ikooni suurus); Layout&home sidebar plokid valja; CSS varsidega live rakendus; profiilides juba olemas
+- 26.09.26 05:35 [E-1083] [parent: E-1082] [T-65] [agent: claude-code] [op: transition-7b8cf3a1e091429dbabfb9e140a53abf] RUN: transition to VERIFY -- smoke OK
+- 26.09.26 05:35 [E-1084] [parent: E-1083] [T-65] [agent: claude-code] [op: checkpoint-b2f384484a8346649b6291ac317da0a7] RUN: verify -> PASS [target: T-65] conf: high -- UI 246/246 (wave65 4/4 uus); tsc ui 0 viga; lint 0 err/75 warn; bundle staged 08:34; smoke isoleeritud: aken 2s
+- 26.09.26 05:35 [E-1085] [parent: E-1084] [T-65] [agent: claude-code] [op: transition-dcb53f69593845fd8741fd4dc21d22b7] RUN: transition to REVIEW -- zcode commit; deltas ahtad
+- 26.09.26 05:35 [E-1086] [parent: E-1085] [agent: claude-code] [op: transition-dcb53f69593845fd8741fd4dc21d22b7] DEC: goal_tickets 2->3
+- 26.09.26 05:35 [E-1087] [parent: E-1086] [T-65] [agent: claude-code] [op: transition-46949b3d292940a1b14405809be9739c] RUN: transition to SHIP -- staged build dist-next 08:34
+- 26.09.26 05:35 [E-1088] [parent: E-1087] [T-65] [agent: claude-code] [op: finish-f849c9753fc449979145909b68e3dcbf] DEC: ticket finished via SAIOPS -- completion (from SHIP)
