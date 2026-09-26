@@ -48,6 +48,7 @@ import { publishZaicodeHomeServices, useZaicodeWorkerStatsRecorder } from "./hom
 import { projectNameOf } from "./zaicodeEngines.js";
 import { ensureZaicodeMotionStyles } from "./zaicodeMotionCss.js";
 import { useZaicodeCrashResume } from "./zaicodeCrashResume.js";
+import { useZaicodeTurnRetryWatch } from "./zaicodeTurnRetryWatch.js";
 import { startZaicodeWorkerRecording } from "./zaicodeWorkerRecovery.js";
 import { useZaicodeWorkerWatch } from "./zaicodeWorkerWatch.js";
 
@@ -301,6 +302,8 @@ function useZaicodeSchedulerPublishers(): void {  const tabs = useTabStore((stat
 function useZaicodeCrashSafety(): void {
   useEffect(() => startZaicodeWorkerRecording(), []);
   useZaicodeCrashResume();
+  // SRC-051: failed turns retry in the background too — no walk into the project needed.
+  useZaicodeTurnRetryWatch();
 }
 
 /**

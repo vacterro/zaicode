@@ -11,7 +11,14 @@ import { recordModelHistoryRound, type RegularTurnLoopState } from "./turn-loop-
 
 // 越过 adapter 重试边界后，SSE stall 只能靠 core recovery 从安全锚点重开流；
 // 只恢复 1 次会让连续短暂抖动直接失败，和模型默认 10 次 retry 的用户预期差距过大。
-const STREAM_RECOVERY_MAX_RETRIES = 10;
+// SRC-051: the budget is env-driven — ZAICODE holds the stream warm far longer
+// (100) before a turn gives up, others keep the historical 10.
+export function resolveStreamRecoveryMaxRetries(env: NodeJS.ProcessEnv = process.env): number {
+  const fromEnv = Number.parseInt(env.ZCODE_STREAM_RECOVERY_MAX_RETRIES ?? "", 10);
+  if (Number.isFinite(fromEnv) && fromEnv > 0) return Math.min(fromEnv, 1000);
+  return env.ZCODE_ZAICODE_MODE === "1" ? 100 : 10;
+}
+const STREAM_RECOVERY_MAX_RETRIES = resolveStreamRecoveryMaxRetries();
 const PREVIOUS_MESSAGE_ANCHOR_SUFFIX = "previous-message-anchor";
 const START_PLAN_BUSY_PROVIDER_CODES = new Set(["3008", "3009", "3010"]);
 const START_PLAN_BUSY_RETRY_PROVIDER_IDS = new Set([

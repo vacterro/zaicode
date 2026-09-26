@@ -8,8 +8,10 @@ import type { Theme } from "@/useTheme.js";
 import {
   isZaicodeMetricsOnlyAccount,
   zaicodeSubchatUnavailableReason,
+  ZAICODE_SUBCHAT_EFFORTS,
   type ZaicodeEngineAccount,
   type ZaicodeSubchatConversation,
+  type ZaicodeSubchatEffort,
   type ZaicodeSubchatMessage,
 } from "@zcode/shared";
 import { projectNameOf, useZaicodeCurrentWorkspace, useZaicodeEngines, visibleZaicodeAccounts } from "../zaicodeEngines.js";
@@ -22,6 +24,7 @@ import {
   selectZaicodeSubchat,
   sendZaicodeSubchat,
   stopZaicodeSubchat,
+  updateZaicodeSubchatChatSettings,
   useZaicodeSubchat,
   zaicodeSubchatRunningTurn,
 } from "./zaicodeSubchatStore.js";
@@ -236,7 +239,41 @@ function ChatPane(props: { conversation: ZaicodeSubchatConversation; running: bo
         <span className="truncate text-foreground-subtlest" title={conversation.projectPath}>
           {projectNameOf(conversation.projectPath)}
         </span>
-        {conversation.model ? <span className="text-foreground-subtlest">{conversation.model}</span> : null}
+        {/* SRC-051: model + effort for this chat, from the next turn on. Empty model = ZAICODE's own pick. */}
+        <input
+          type="text"
+          value={conversation.modelChoice ?? ""}
+          placeholder="Auto model"
+          title="Model id this CLI is asked for (e.g. gpt-5.2-codex, claude-sonnet-4-6). Empty = ZAICODE picks (the Antigravity pool logic), else the CLI's own default."
+          aria-label="Model for this chat"
+          className="w-36 shrink-0 border border-border bg-card px-1 text-foreground-subtle focus:border-foreground-subtle focus:outline-none"
+          data-zaicode-subchat-model={conversation.modelChoice ?? ""}
+          onChange={(event) => updateZaicodeSubchatChatSettings(conversation.id, { modelChoice: event.target.value })}
+        />
+        <select
+          value={conversation.effort}
+          title="Thinking effort: low / medium / high map to the CLI's own knob (Claude: thinking tokens, Codex: reasoning effort); auto leaves it alone. Ignored where the CLI has none."
+          aria-label="Thinking effort for this chat"
+          className="shrink-0 border border-border bg-card px-1 text-foreground-subtle"
+          data-zaicode-subchat-effort={conversation.effort}
+          onChange={(event) =>
+            updateZaicodeSubchatChatSettings(conversation.id, { effort: event.target.value as ZaicodeSubchatEffort })
+          }
+        >
+          {ZAICODE_SUBCHAT_EFFORTS.map((effort) => (
+            <option key={effort} value={effort}>
+              {effort === "auto" ? "effort: auto" : effort}
+            </option>
+          ))}
+        </select>
+        {conversation.model ? (
+          <span
+            className="max-w-40 shrink-0 truncate text-foreground-subtlest"
+            title={`The vendor reported this model for the session: ${conversation.model}`}
+          >
+            {conversation.model}
+          </span>
+        ) : null}
         <span className="ml-auto tabular-nums text-foreground-subtlest" title="Tokens the vendor reported for this chat">
           {usage.input + usage.output > 0 ? `${formatTokens(usage.input)} in · ${formatTokens(usage.output)} out` : ""}
         </span>

@@ -4,6 +4,7 @@ import {
   ZAICODE_SUBCHAT_ARG_PROMPT_MAX,
   ZAICODE_SUBCHAT_ARG_PROMPT_VENDORS,
   buildZaicodeSubchatInvocation,
+  isZaicodeSubchatEffort,
   isZaicodeSubchatVendor,
   zaicodeSubchatAutoModel,
   zaicodeSubchatUnavailableReason,
@@ -39,7 +40,13 @@ export interface ZaicodeSubchatTurnRequest {
   projectPath: string;
   prompt: string;
   sessionId: string | null;
+  /** Model the operator picked for this chat (SRC-051); null = ZAICODE's auto pick. */
+  model: string | null;
+  /** Thinking effort the operator picked (SRC-051); "auto" = the vendor CLI's default. */
+  effort: "auto" | "low" | "medium" | "high";
 }
+
+const MODEL_MAX_CHARS = 80;
 
 export function readZaicodeSubchatTurnRequest(raw: unknown): ZaicodeSubchatTurnRequest {
   const value = (raw ?? {}) as Record<string, unknown>;
@@ -53,6 +60,8 @@ export function readZaicodeSubchatTurnRequest(raw: unknown): ZaicodeSubchatTurnR
     projectPath: value.projectPath,
     prompt: value.prompt.slice(0, PROMPT_MAX_CHARS),
     sessionId: typeof value.sessionId === "string" ? value.sessionId : null,
+    model: typeof value.model === "string" ? value.model.trim().slice(0, MODEL_MAX_CHARS) || null : null,
+    effort: isZaicodeSubchatEffort(value.effort) ? value.effort : "auto",
   };
 }
 
@@ -110,12 +119,14 @@ export async function runZaicodeSubchatTurn(
   }
   if (turns.has(request.turnId)) return { ok: false, message: "This turn is already running." };
   // Antigravity: the pool that still has quota (SRC-048), not the CLI's default Gemini one when that is spent.
-  const model = zaicodeSubchatAutoModel(account.vendor, engines.limits[account.id]?.windows);
+  // The operator's explicit pick (SRC-051) wins over the auto logic.
+  const model = request.model || zaicodeSubchatAutoModel(account.vendor, engines.limits[account.id]?.windows);
   const invocation = buildZaicodeSubchatInvocation(account, {
     prompt: request.prompt,
     sessionId: request.sessionId,
     yolo: engines.config.workerYolo,
     model,
+    effort: request.effort,
     promptFile,
   });
   if (!invocation) return { ok: false, message: `${account.label} cannot chat inside ZAICODE.` };

@@ -9,6 +9,7 @@ import {
   Crosshair,
   House,
   MessageCirclePlus,
+  Palette,
   Search,
   Settings,
   SquareTerminal,
@@ -17,8 +18,14 @@ import {
 } from "lucide-react";
 import { cn } from "@/components/lib/utils.js";
 import { Button } from "@/components/ui/button.js";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu.js";
 import { ControlHintTooltip } from "@/ControlHintTooltip.js";
 import { ZaicodeSidebarNavToggle } from "./ZaicodeSidebarHeaderTools.js";
+import { ZaicodePaletteMenuContent } from "./ZaicodeFooterMenus.js";
 import { ZaicodeHeaderToolsEditor } from "./ZaicodeLayoutListEditor.js";
 import { ZaicodeRightClickSettings } from "./ZaicodePrefControls.js";
 import { useZaicodeLayout, type ZaicodeHeaderToolId } from "./zaicodeLayoutPrefs.js";
@@ -183,6 +190,29 @@ export function ZaicodeHeaderToolbar(props: ZaicodeHeaderToolbarProps) {
           <ZaicodeTopButton key={id} title={sound.muted ? "Sounds are muted: click to unmute" : "Mute every ZAICODE sound"} shortcut={hint("sounds.mute")} pressed={sound.muted} onClick={() => setZaicodeSoundSettings({ muted: !sound.muted })}>
             {sound.muted ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}
           </ZaicodeTopButton>
+        );
+      case "palette":
+        // SRC-051: the theme menu one click away in the header, not two menus deep in the footer.
+        return (
+          <DropdownMenu key={id}>
+            <ControlHintTooltip title="Theme: switch the ZAICODE palette" side="bottom">
+              <DropdownMenuTrigger asChild>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-md"
+                  className="[app-region:no-drag] transition-colors"
+                  aria-label="Theme"
+                  data-testid="zaicode-header-palette"
+                >
+                  <Palette className="size-4" />
+                </Button>
+              </DropdownMenuTrigger>
+            </ControlHintTooltip>
+            <DropdownMenuContent align="start" className="max-h-[70vh] w-56 overflow-y-auto">
+              <ZaicodePaletteMenuContent />
+            </DropdownMenuContent>
+          </DropdownMenu>
         );
       case "workers":
         return (

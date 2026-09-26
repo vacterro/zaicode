@@ -71,9 +71,29 @@ export interface ZaicodeSubchatTurnOptions {
   /** Skip the CLI's permission prompts (the Workers YOLO setting). A headless turn cannot ask. */
   yolo: boolean;
   model?: string | null;
+  /**
+   * Thinking effort (SRC-051): "auto" = whatever the vendor CLI defaults to
+   * (ZAICODE's own pick for the model), low / medium / high map to each
+   * vendor's own knob and are simply ignored where the CLI has none.
+   */
+  effort?: ZaicodeSubchatEffort;
   /** Argument-prompt vendors: the prompt was written to this file (it was too long for a command line). */
   promptFile?: string | null;
 }
+
+export const ZAICODE_SUBCHAT_EFFORTS = ["auto", "low", "medium", "high"] as const;
+export type ZaicodeSubchatEffort = (typeof ZAICODE_SUBCHAT_EFFORTS)[number];
+
+export function isZaicodeSubchatEffort(value: unknown): value is ZaicodeSubchatEffort {
+  return typeof value === "string" && (ZAICODE_SUBCHAT_EFFORTS as readonly string[]).includes(value);
+}
+
+/** Claude Code has no effort flag; its thinking budget env is the honest knob. */
+const CLAUDE_EFFORT_TOKENS: Readonly<Record<Exclude<ZaicodeSubchatEffort, "auto">, string>> = {
+  low: "4096",
+  medium: "16384",
+  high: "31999",
+};
 
 const SESSION_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/;
 
@@ -88,6 +108,7 @@ export function buildZaicodeSubchatInvocation(
 ): ZaicodeSubchatInvocation | null {
   const sessionId = normalizeZaicodeSubchatSessionId(options.sessionId);
   const model = options.model?.trim() || null;
+  const effort = isZaicodeSubchatEffort(options.effort) ? options.effort : "auto";
   if (account.vendor === "claude") {
     return {
       args: [
@@ -104,6 +125,7 @@ export function buildZaicodeSubchatInvocation(
         // A turn started from inside a Claude Code shell must not look nested.
         CLAUDECODE: null,
         CLAUDE_CODE_ENTRYPOINT: null,
+        ...(effort !== "auto" ? { MAX_THINKING_TOKENS: CLAUDE_EFFORT_TOKENS[effort] } : {}),
       },
       stdin: options.prompt,
     };
@@ -118,6 +140,7 @@ export function buildZaicodeSubchatInvocation(
         "--skip-git-repo-check",
         ...policy,
         ...(model ? ["-m", model] : []),
+        ...(effort !== "auto" ? ["-c", `model_reasoning_effort="${effort}"`] : []),
         ...(sessionId ? [sessionId] : []),
         "-",
       ],
@@ -459,6 +482,13 @@ export interface ZaicodeSubchatConversation {
   /** The vendor session the next turn resumes; null until the first turn reports one. */
   sessionId: string | null;
   model: string | null;
+  /**
+   * The model the operator asked for (SRC-051): null = auto — ZAICODE's own
+   * pick (zaicodeSubchatAutoModel), else the vendor CLI's own default.
+   */
+  modelChoice: string | null;
+  /** Thinking effort for this chat (SRC-051); "auto" = the vendor CLI's default. */
+  effort: ZaicodeSubchatEffort;
   title: string;
   createdAt: number;
   updatedAt: number;
@@ -586,6 +616,8 @@ export function normalizeZaicodeSubchatConversations(raw: unknown, now: number =
       projectPath: value.projectPath,
       sessionId: normalizeZaicodeSubchatSessionId(value.sessionId),
       model: text(value.model) || null,
+      modelChoice: text(value.modelChoice).slice(0, 80) || null,
+      effort: isZaicodeSubchatEffort(value.effort) ? value.effort : "auto",
       title: text(value.title) || "New chat",
       createdAt: count(value.createdAt),
       updatedAt: count(value.updatedAt),

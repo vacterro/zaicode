@@ -103,12 +103,20 @@ export function ControlHintTooltip({
   // 大会话会为每条消息动作渲染大量 ControlHintTooltip，逐个创建 Provider
   // 会把 Radix 上下文树放大到消息数量级；共享 Provider 统一放在 Root。
   const tooltip = (
-    <Tooltip open={open} onOpenChange={onOpenChange}>
+    <Tooltip
+      open={open}
+      onOpenChange={onOpenChange}
+      // SRC-051: with instant-open tooltips, hoverable content let pointer jitter
+      // between the trigger and the popped card close/reopen it in a loop (the
+      // flicker); a hint is read where it appears, not hovered onto.
+      disableHoverableContent
+    >
       <TooltipTrigger asChild>{trigger}</TooltipTrigger>
       <TooltipContent
         align={align}
         side={side}
         sideOffset={sideOffset}
+        collisionPadding={8}
         className={cn(
           description
             ? "max-w-72 flex-col items-start gap-1.5 px-3 py-2 text-left"

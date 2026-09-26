@@ -810,6 +810,8 @@ contextBridge.exposeInMainWorld("zcode", {
     projectPath: string;
     prompt: string;
     sessionId: string | null;
+    model?: string | null;
+    effort?: string;
   }): Promise<{ ok: boolean; message: string }> => ipcRenderer.invoke(PlatformChannels.RunZaicodeSubchatTurn, request),
   cancelZaicodeSubchatTurn: (turnId: string): Promise<boolean> =>
     ipcRenderer.invoke(PlatformChannels.CancelZaicodeSubchatTurn, turnId),

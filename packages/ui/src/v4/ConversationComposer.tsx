@@ -65,6 +65,7 @@ import {
   shouldSuppressChatErrorBanner,
 } from "@/ChatErrorBanner.js";
 import { ZaicodeAutoRetryNotice } from "@/zaicode/ZaicodeAutoRetryNotice.js";
+import { ZaicodeComposerWorkingFor } from "@/zaicode/ZaicodeComposerWorkingFor.js";
 import type { ZaicodeAutoRetryState } from "@/zaicode/zaicodeAutoRetry.js";
 import { playZaicodeSound } from "@/zaicode/zaicodeSoundBus.js";
 import { useZaicodePublishLiveRun } from "@/zaicode/zaicodeLiveRuns.js";
@@ -2086,6 +2087,8 @@ function ConversationComposerImpl({
             onSendCompressionCommand={onSendCompressionCommand}
           />
         </span>
+        {/* SRC-051: "working for" mini on the chatbox, same read-out as the project row. */}
+        {isZaicodeProductMode() && showStopControl ? <ZaicodeComposerWorkingFor running /> : null}
         {showStopControl ? (
           <ControlHintTooltip title={stopTooltipTitle} shortcut="Esc">
             <Button
@@ -2243,11 +2246,11 @@ function ConversationComposerImpl({
         // 这里复用旧 ChatErrorBanner 壳，只接收 SessionPane 已归一化后的当前错误。
         // 错误横幅独立于输入 surface，并先于桌面和手机共用的 contextHeader。
         <div className="mb-6 w-full shrink-0">
+          {/* SRC-051: exactly one Retry — the auto-retry notice under the banner owns
+              it (countdown + "Retry now"). A second button on the banner itself read
+              as a duplicate offer. */}
           <ChatErrorBanner
             error={visibleError}
-            {...(zaicodeAutoRetry?.available
-              ? { onRetry: zaicodeAutoRetry.retryNow, retryLabel: "Retry now" }
-              : {})}
             onDismiss={onDismissError}
             onOpenModelSettings={onOpenModelSettings}
             onOpenUpgrade={onOpenModelUpgrade}

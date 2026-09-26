@@ -287,8 +287,6 @@ export function ZaicodeProfileMenuSub() {
 
 export function ZaicodePaletteMenuSub() {
   const { intl } = useZCodeIntl();
-  const { palette, crisp, bevels, bevelRows } = useZaicodeAppearance();
-  const { customs } = useZaicodeColorStudio();
   return (
     <DropdownMenuSub>
       <DropdownMenuSubTrigger>
@@ -296,58 +294,70 @@ export function ZaicodePaletteMenuSub() {
         {intl.formatMessage({ id: "zaicode.palette.title" })}
       </DropdownMenuSubTrigger>
       <DropdownMenuSubContent className="max-h-[70vh] w-56 overflow-y-auto">
-        <DropdownMenuCheckboxItem
-          checked={crisp}
-          onCheckedChange={(checked) => setZaicodeCrisp(checked === true)}
-          onSelect={(event) => event.preventDefault()}
-        >
-          {intl.formatMessage({ id: "zaicode.palette.crisp" })}
-        </DropdownMenuCheckboxItem>
-        <DropdownMenuCheckboxItem
-          checked={bevels}
-          onCheckedChange={(checked) => setZaicodeBevels(checked === true)}
-          onSelect={(event) => event.preventDefault()}
-          title="Wintage FastPrompter look: 2 px raised / sunken edges on buttons, fields, menus and pop-ups"
-        >
-          Hard bevels (Wintage)
-        </DropdownMenuCheckboxItem>
-        <DropdownMenuCheckboxItem
-          checked={bevelRows}
-          disabled={!bevels}
-          onCheckedChange={(checked) => setZaicodeBevelRows(checked === true)}
-          onSelect={(event) => event.preventDefault()}
-          title="Raised sidebar rows like FastPrompter's list; the open one sunken"
-        >
-          Bevels on list rows
-        </DropdownMenuCheckboxItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onSelect={() => void openZaicodeSettings("zaicodeColors")}>
-          <Palette className="size-4" />
-          Color Studio…
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuRadioGroup value={palette} onValueChange={setZaicodePalette}>
-          {[...customs, ...ZAICODE_PALETTES].map((candidate) => (
-            <DropdownMenuRadioItem key={candidate.slug} value={candidate.slug}>
-              <span
-                aria-hidden
-                className="size-3 shrink-0 border border-border"
-                style={{ background: candidate.tokens.background }}
-              />
-              <span
-                aria-hidden
-                className="size-3 shrink-0 border border-border"
-                style={{ background: candidate.tokens.textPrimary }}
-              />
-              {candidate.label}
-            </DropdownMenuRadioItem>
-          ))}
-          <DropdownMenuRadioItem value={ZAICODE_PALETTE_NONE}>
-            {intl.formatMessage({ id: "zaicode.palette.none" })}
-          </DropdownMenuRadioItem>
-        </DropdownMenuRadioGroup>
+        <ZaicodePaletteMenuContent />
       </DropdownMenuSubContent>
     </DropdownMenuSub>
+  );
+}
+
+/** The palette lines themselves, shared by the footer sub-menu and the header Theme button (SRC-051). */
+export function ZaicodePaletteMenuContent() {
+  const { intl } = useZCodeIntl();
+  const { palette, crisp, bevels, bevelRows } = useZaicodeAppearance();
+  const { customs } = useZaicodeColorStudio();
+  return (
+    <>
+      <DropdownMenuCheckboxItem
+        checked={crisp}
+        onCheckedChange={(checked) => setZaicodeCrisp(checked === true)}
+        onSelect={(event) => event.preventDefault()}
+      >
+        {intl.formatMessage({ id: "zaicode.palette.crisp" })}
+      </DropdownMenuCheckboxItem>
+      <DropdownMenuCheckboxItem
+        checked={bevels}
+        onCheckedChange={(checked) => setZaicodeBevels(checked === true)}
+        onSelect={(event) => event.preventDefault()}
+        title="Wintage FastPrompter look: 2 px raised / sunken edges on buttons, fields, menus and pop-ups"
+      >
+        Hard bevels (Wintage)
+      </DropdownMenuCheckboxItem>
+      <DropdownMenuCheckboxItem
+        checked={bevelRows}
+        disabled={!bevels}
+        onCheckedChange={(checked) => setZaicodeBevelRows(checked === true)}
+        onSelect={(event) => event.preventDefault()}
+        title="Raised sidebar rows like FastPrompter's list; the open one sunken"
+      >
+        Bevels on list rows
+      </DropdownMenuCheckboxItem>
+      <DropdownMenuSeparator />
+      <DropdownMenuItem onSelect={() => void openZaicodeSettings("zaicodeColors")}>
+        <Palette className="size-4" />
+        Color Studio…
+      </DropdownMenuItem>
+      <DropdownMenuSeparator />
+      <DropdownMenuRadioGroup value={palette} onValueChange={setZaicodePalette}>
+        {[...customs, ...ZAICODE_PALETTES].map((candidate) => (
+          <DropdownMenuRadioItem key={candidate.slug} value={candidate.slug}>
+            <span
+              aria-hidden
+              className="size-3 shrink-0 border border-border"
+              style={{ background: candidate.tokens.background }}
+            />
+            <span
+              aria-hidden
+              className="size-3 shrink-0 border border-border"
+              style={{ background: candidate.tokens.textPrimary }}
+            />
+            {candidate.label}
+          </DropdownMenuRadioItem>
+        ))}
+        <DropdownMenuRadioItem value={ZAICODE_PALETTE_NONE}>
+          {intl.formatMessage({ id: "zaicode.palette.none" })}
+        </DropdownMenuRadioItem>
+      </DropdownMenuRadioGroup>
+    </>
   );
 }
 

@@ -10,6 +10,7 @@ import {
   ZAICODE_SUBCHAT_MAX_CONVERSATIONS,
   type ZaicodeEngineAccount,
   type ZaicodeSubchatConversation,
+  type ZaicodeSubchatEffort,
   type ZaicodeSubchatEvent,
 } from "@zcode/shared";
 import { openZaicodeSubchatView } from "../zaicodeActions.js";
@@ -30,6 +31,8 @@ interface ZaicodeSubchatBridge {
     projectPath: string;
     prompt: string;
     sessionId: string | null;
+    model?: string | null;
+    effort?: string;
   }): Promise<{ ok: boolean; message: string }>;
   cancelZaicodeSubchatTurn?(turnId: string): Promise<boolean>;
   onZaicodeSubchatEvent?(callback: (payload: unknown) => void): () => void;
@@ -157,6 +160,8 @@ export async function sendZaicodeSubchat(chatId: string, prompt: string): Promis
       projectPath: conversation.projectPath,
       prompt: text,
       sessionId: conversation.sessionId,
+      model: conversation.modelChoice,
+      effort: conversation.effort,
     });
   } catch (error) {
     started = { ok: false, message: error instanceof Error ? error.message : String(error) };
@@ -183,6 +188,19 @@ export function selectZaicodeSubchat(chatId: string | null): void {
   useZaicodeSubchat.setState({ activeId: chatId });
 }
 
+/** Sets the chat's model / effort pick (SRC-051); applied from the next turn on. */
+export function updateZaicodeSubchatChatSettings(
+  chatId: string,
+  change: { modelChoice?: string | null; effort?: ZaicodeSubchatEffort },
+): void {
+  update(chatId, (current) => ({
+    ...current,
+    modelChoice:
+      typeof change.modelChoice === "string" ? change.modelChoice.trim().slice(0, 80) || null : (change.modelChoice ?? current.modelChoice),
+    effort: change.effort ?? current.effort,
+  }));
+}
+
 export function removeZaicodeSubchat(chatId: string): void {
   if (zaicodeSubchatRunningTurn(chatId, useZaicodeSubchat.getState().turns)) return;
   useZaicodeSubchat.setState((state) => {
@@ -205,6 +223,8 @@ export function createZaicodeSubchat(account: ZaicodeEngineAccount, projectPath:
     projectPath,
     sessionId: null,
     model: null,
+    modelChoice: null,
+    effort: "auto",
     title: "New chat",
     createdAt: now,
     updatedAt: now,

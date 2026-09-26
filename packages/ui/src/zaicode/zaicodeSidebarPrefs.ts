@@ -1,3 +1,4 @@
+/* eslint-disable max-lines -- one owner module: every sidebar block's prefs, their normalize and the section ordering change together when the sidebar changes. */
 import { create } from "zustand";
 import { readZaicodeSetting } from "./zaicodeSettingsSnapshot.js";
 import { playZaicodeSound } from "./zaicodeSoundBus.js";
@@ -28,10 +29,46 @@ export type ZaicodeSlotGroup = (typeof ZAICODE_SLOT_GROUPS)[number];
 export const ZAICODE_DEFAULT_SLOT_GROUP: ZaicodeSlotGroup = "MAIN0";
 
 export type ZaicodeSlotLabelAlign = "left" | "center" | "right";
-/** Order of LIVE projects: closest to done, least done, or most recently active first. */
-export type ZaicodeLiveOrder = "closest" | "furthest" | "recent";
+/** Order of LIVE projects: most recently active first, closest to done, or least done. */
+export type ZaicodeLiveOrder = "recent" | "closest" | "furthest";
 /** LIVE projects float to the top of their own slot, or into one LIVE group above every slot. */
 export type ZaicodeLiveScope = "slot" | "global";
+/**
+ * How long a project stays LIVE-ranked after its last live moment (SRC-051):
+ * a task that just finished or failed must not teleport back down mid-glance.
+ */
+export const ZAICODE_LIVE_HOLD_MS: readonly number[] = [0, 30_000, 120_000, 600_000, 3_600_000];
+
+/** Project freshness read-out (SRC-051): nothing, a leading dot, or a tint of the label. */
+export type ZaicodeProjectFreshness = "off" | "dot" | "tint";
+export const ZAICODE_PROJECT_FRESHNESS: readonly ZaicodeProjectFreshness[] = ["off", "dot", "tint"];
+
+export type ZaicodeFreshnessBucket = "fresh" | "today" | "week" | "stale" | "none";
+
+const ZAICODE_FRESHNESS_MS: Readonly<Record<"fresh" | "today" | "week", number>> = {
+  fresh: 15 * 60_000,
+  today: 24 * 60 * 60_000,
+  week: 7 * 24 * 60 * 60_000,
+};
+
+/** Age bucket of a project's last activity; "none" when nothing was ever seen. */
+export function zaicodeFreshnessBucket(lastActivityAt: number, now: number): ZaicodeFreshnessBucket {
+  if (!lastActivityAt) return "none";
+  const age = now - lastActivityAt;
+  if (age <= ZAICODE_FRESHNESS_MS.fresh) return "fresh";
+  if (age <= ZAICODE_FRESHNESS_MS.today) return "today";
+  if (age <= ZAICODE_FRESHNESS_MS.week) return "week";
+  return "stale";
+}
+
+/** Win95-dark palette ties (UI.md): brighter = fresher; stale fades into the border colour. */
+export const ZAICODE_FRESHNESS_COLORS: Readonly<Record<ZaicodeFreshnessBucket, string>> = {
+  fresh: "var(--color-success)",
+  today: "var(--color-primary)",
+  week: "var(--color-warning)",
+  stale: "var(--color-border)",
+  none: "var(--color-border)",
+};
 
 export interface ZaicodeSidebarPrefs {
   navOpen: boolean;
@@ -62,6 +99,10 @@ export interface ZaicodeSidebarPrefs {
   liveProjectIndicator: boolean;
   /** Dim projects with nothing running while LIVE is on. */
   liveDimIdle: boolean;
+  /** A project stays LIVE-ranked this long after its last live moment (0 = drop at once). */
+  liveHoldMs: number;
+  /** Freshness read-out on the project row from its last activity (SRC-051). */
+  projectFreshness: ZaicodeProjectFreshness;
   /** Where project names sit in their row (SRC-038). */
   projectTitleAlign: ZaicodeSlotLabelAlign;
   /** Where session titles sit in their row. */
@@ -109,11 +150,13 @@ export const ZAICODE_SIDEBAR_DEFAULT_PREFS: ZaicodeSidebarPrefs = {
   ctrlClickSlot: "SIDE2",
   defaultSlot: ZAICODE_DEFAULT_SLOT_GROUP,
   collapsedSlots: [],
-  liveOrder: "closest",
+  liveOrder: "recent",
   liveScope: "slot",
   liveIncludeWaiting: true,
   liveProjectIndicator: true,
   liveDimIdle: false,
+  liveHoldMs: 120_000,
+  projectFreshness: "dot",
   projectTitleAlign: "left",
   sessionTitleAlign: "left",
   textSize: 12,
@@ -160,11 +203,15 @@ export function normalizeZaicodeSidebarPrefs(raw: unknown): ZaicodeSidebarPrefs 
     collapsedSlots: Array.isArray(r.collapsedSlots)
       ? [...new Set(r.collapsedSlots.filter(isZaicodeSlotGroup))]
       : [],
-    liveOrder: pick(r.liveOrder, ["closest", "furthest", "recent"] as const, d.liveOrder),
+    liveOrder: pick(r.liveOrder, ["recent", "closest", "furthest"] as const, d.liveOrder),
     liveScope: pick(r.liveScope, ["slot", "global"] as const, d.liveScope),
     liveIncludeWaiting: flag(r.liveIncludeWaiting, d.liveIncludeWaiting),
     liveProjectIndicator: flag(r.liveProjectIndicator, d.liveProjectIndicator),
     liveDimIdle: flag(r.liveDimIdle, d.liveDimIdle),
+    liveHoldMs: ZAICODE_LIVE_HOLD_MS.includes(r.liveHoldMs as number)
+      ? (r.liveHoldMs as number)
+      : d.liveHoldMs,
+    projectFreshness: pick(r.projectFreshness, ZAICODE_PROJECT_FRESHNESS, d.projectFreshness),
     projectTitleAlign: pick(r.projectTitleAlign, ["left", "center", "right"] as const, d.projectTitleAlign),
     sessionTitleAlign: pick(r.sessionTitleAlign, ["left", "center", "right"] as const, d.sessionTitleAlign),
     textSize: ZAICODE_SIDEBAR_TEXT_SIZES.includes(r.textSize as ZaicodeSidebarTextSize)
@@ -193,10 +240,27 @@ function applyTitleAlign(prefs: Pick<ZaicodeSidebarPrefs, "projectTitleAlign" | 
 
 function load(): ZaicodeSidebarPrefs {
   try {
-    return normalizeZaicodeSidebarPrefs(JSON.parse(readZaicodeSetting(STORAGE_KEY) ?? "null"));
+    const raw = JSON.parse(readZaicodeSetting(STORAGE_KEY) ?? "null");
+    return migrateLiveOrderDefault(normalizeZaicodeSidebarPrefs(raw));
   } catch {
     return normalizeZaicodeSidebarPrefs(null);
   }
+}
+
+// SRC-051: "Live sorted by recently" — the order shipped as "closest" by
+// default, so every stored profile carries it whether or not it was chosen.
+// One-time migration to the new default ("recent"); an explicit later choice
+// is never touched again.
+const LIVE_ORDER_MIGRATION_KEY = "zaicode-sidebar-live-order-recent";
+function migrateLiveOrderDefault(prefs: ZaicodeSidebarPrefs): ZaicodeSidebarPrefs {
+  if (typeof localStorage === "undefined" || prefs.liveOrder !== "closest") return prefs;
+  if (localStorage.getItem(LIVE_ORDER_MIGRATION_KEY) === "1") return prefs;
+  try {
+    localStorage.setItem(LIVE_ORDER_MIGRATION_KEY, "1");
+  } catch {
+    return prefs;
+  }
+  return { ...prefs, liveOrder: "recent" };
 }
 
 function save(prefs: ZaicodeSidebarPrefs): void {
@@ -264,14 +328,22 @@ export interface ZaicodeProjectLive {
   waiting: number;
   /** Best todo readiness among running sessions, 0..1. */
   ratio: number;
-  /** Latest activity timestamp among running/waiting sessions (ms). */
+  /**
+   * Latest activity timestamp among ALL sessions (ms) — running, waiting and
+   * finished alike (SRC-051): a task that just finished or failed is still the
+   * most recent thing that happened, so LIVE-by-recency and the freshness dot
+   * must not go blind the moment the phase leaves "running".
+   */
   lastActivityAt: number;
+  /** When the oldest still-working session of this project began (ms; 0 = none). */
+  since: number;
 }
 
 export function projectLiveOf(tasks: readonly ZCodeTaskMeta[], ratios: readonly number[]): ZaicodeProjectLive {
   let running = 0;
   let waiting = 0;
   let lastActivityAt = 0;
+  let since = 0;
   for (const task of tasks) {
     const active = isTaskListRowActive(task);
     const asking = getTaskListAttention(task) !== null || Boolean(task.pendingInteraction);
@@ -283,6 +355,12 @@ export function projectLiveOf(tasks: readonly ZCodeTaskMeta[], ratios: readonly 
         getTaskListRowActivity(task)?.lastActivityAt ?? 0,
         task.updatedAt ?? 0,
       );
+      const startedAt = task.createdAt ?? 0;
+      if (startedAt > 0) since = since === 0 ? startedAt : Math.min(since, startedAt);
+    } else {
+      // Finished sessions keep the recency story alive: their final updatedAt is
+      // the project's last seen moment.
+      lastActivityAt = Math.max(lastActivityAt, task.updatedAt ?? 0);
     }
   }
   return {
@@ -290,6 +368,7 @@ export function projectLiveOf(tasks: readonly ZCodeTaskMeta[], ratios: readonly 
     waiting,
     ratio: ratios.reduce((best, ratio) => Math.max(best, ratio), 0),
     lastActivityAt,
+    since,
   };
 }
 
@@ -298,6 +377,10 @@ export type ZaicodeProjectSectionGroup = ZaicodeSlotGroup | "LIVE";
 /**
  * Orders project keys into sidebar sections. Pure: the sidebar passes keys in
  * their manual order plus each key's slot and live state.
+ *
+ * SRC-051: `now` + `liveHoldMs` keep a project LIVE-ranked for a grace period
+ * after its last live moment, so a row does not dive back down the instant a
+ * task completes or fails while the operator watches the list.
  */
 export function orderZaicodeProjectSections<K extends string>(
   keys: readonly K[],
@@ -312,15 +395,20 @@ export function orderZaicodeProjectSections<K extends string>(
       | "liveOrder"
       | "liveScope"
       | "liveIncludeWaiting"
+      | "liveHoldMs"
     >;
     liveOf: (key: K) => ZaicodeProjectLive | undefined;
+    now?: number;
   },
 ): { group: ZaicodeProjectSectionGroup | null; keys: K[] }[] {
   const { prefs, liveOf } = options;
+  const now = options.now ?? Date.now();
   const isLive = (key: K) => {
     const live = liveOf(key);
     if (!live) return false;
-    return live.running > 0 || (prefs.liveIncludeWaiting && live.waiting > 0);
+    if (live.running > 0 || (prefs.liveIncludeWaiting && live.waiting > 0)) return true;
+    // Grace hold: recently live stays live (0 disables).
+    return prefs.liveHoldMs > 0 && live.lastActivityAt > 0 && now - live.lastActivityAt < prefs.liveHoldMs;
   };
   const liveRank = (key: K): number => {
     const live = liveOf(key);
@@ -328,10 +416,10 @@ export function orderZaicodeProjectSections<K extends string>(
     switch (prefs.liveOrder) {
       case "furthest":
         return 1 - live.ratio;
-      case "recent":
-        return live.lastActivityAt;
-      default:
+      case "closest":
         return live.ratio;
+      default:
+        return live.lastActivityAt;
     }
   };
   let ordered = [...keys];

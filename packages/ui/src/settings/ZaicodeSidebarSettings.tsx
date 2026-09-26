@@ -5,6 +5,7 @@ import { ColorField } from "./ZaicodeColorParts.js";
 import { ZaicodeTitleAlignPicker } from "./ZaicodeLayoutSettings.js";
 import {
   useZaicodeSidebarPrefs,
+  ZAICODE_LIVE_HOLD_MS,
   ZAICODE_SESSIONS_CONDITIONS,
   ZAICODE_SIDEBAR_ICON_SIZES,
   ZAICODE_SIDEBAR_TEXT_SIZES,
@@ -204,11 +205,21 @@ export function ZaicodeSidebarSettings() {
           label="LIVE order"
           value={prefs.liveOrder}
           options={[
+            { value: "recent", label: "Most recently active", hint: "What just moved stays on top (SRC-051 default)" },
             { value: "closest", label: "Closest to done", hint: "Fewest open tickets first" },
             { value: "furthest", label: "Furthest from done" },
-            { value: "recent", label: "Most recently active" },
           ]}
           onChange={(liveOrder) => prefs.update({ liveOrder })}
+        />
+        <SegmentRow
+          label="Stay LIVE for"
+          value={prefs.liveHoldMs}
+          options={ZAICODE_LIVE_HOLD_MS.map((ms) => ({
+            value: ms,
+            label: ms === 0 ? "No hold" : ms < 60_000 ? `${ms / 1000}s` : ms < 3_600_000 ? `${ms / 60_000}m` : `${ms / 3_600_000}h`,
+            hint: "How long a project keeps its LIVE rank after its last live moment, so a just-finished row does not teleport away mid-glance",
+          }))}
+          onChange={(liveHoldMs) => prefs.update({ liveHoldMs })}
         />
         <SegmentRow
           label="LIVE placement"
@@ -218,6 +229,23 @@ export function ZaicodeSidebarSettings() {
             { value: "global", label: "One LIVE group above every slot" },
           ]}
           onChange={(liveScope) => prefs.update({ liveScope })}
+        />
+      </Block>
+
+      <Block
+        title="Project freshness"
+        hint="How long since anything last happened in a project: nothing, a small dot before the name, or the name itself tinted (green fresh, yellow this week, grey stale)."
+        testId="freshness"
+      >
+        <SegmentRow
+          label="Show freshness"
+          value={prefs.projectFreshness}
+          options={[
+            { value: "off", label: "Off" },
+            { value: "dot", label: "Dot", hint: "A coloured dot before the project name" },
+            { value: "tint", label: "Tint", hint: "The project name itself carries the colour" },
+          ]}
+          onChange={(projectFreshness) => prefs.update({ projectFreshness })}
         />
       </Block>
 

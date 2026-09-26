@@ -177,6 +177,49 @@ function WatchSettings() {
   );
 }
 
+/** SRC-051: what ZAICODE does when a turn fails (limit, network, provider). */
+function RetrySettings() {
+  const autoRetry = useZaicodeUiPrefs((state) => state.autoRetry);
+  const intervalSec = useZaicodeUiPrefs((state) => state.autoRetryIntervalSec);
+  const maxAttempts = useZaicodeUiPrefs((state) => state.autoRetryMaxAttempts);
+  const update = useZaicodeUiPrefs((state) => state.update);
+  return (
+    <section className="flex flex-col gap-2 border border-border bg-card p-4" data-zaicode-retry-settings>
+      <h2 className="text-ui-lg text-foreground">Failed turns</h2>
+      <p className="max-w-[580px] text-foreground-subtle">
+        A turn that dies on a limit, a dropped connection or an empty provider answer retries on its own — in the
+        chat you have open (countdown under the error banner) and in the background for every project the sidebar
+        sees, without walking into it. The first clean finish resets the budget.
+      </p>
+      <ZaicodePrefCheck
+        checked={autoRetry}
+        onChange={(value) => update({ autoRetry: value })}
+        label="Retry failed turns automatically"
+        hint="Its unfinished goal again, else SAIPEN's cc (continue outside SAIPEN)"
+      />
+      <ZaicodePrefStepper
+        label="Retry every"
+        value={intervalSec}
+        min={10}
+        max={3600}
+        step={10}
+        suffix=" s"
+        disabled={!autoRetry}
+        onChange={(value) => update({ autoRetryIntervalSec: value })}
+      />
+      <ZaicodePrefStepper
+        label="Give up after"
+        value={maxAttempts}
+        min={1}
+        max={1000}
+        suffix=" attempts"
+        disabled={!autoRetry}
+        onChange={(value) => update({ autoRetryMaxAttempts: value })}
+      />
+    </section>
+  );
+}
+
 export function ZaicodeWorkersSettings() {
   const prefs = useZaicodeWorkerPrefs();
   const workers = useZaicodeWorkers();
@@ -364,6 +407,7 @@ export function ZaicodeWorkersSettings() {
       </section>
       <WatchSettings />
       <CrashSettings />
+      <RetrySettings />
       <ZaicodeDispatchSettings />
     </div>
   );

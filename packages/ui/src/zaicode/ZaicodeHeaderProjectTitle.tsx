@@ -213,7 +213,18 @@ export function ZaicodeHeaderProjectTitle({
   );
   if (placement === "start") return title;
   return (
-    <div className="pointer-events-none absolute inset-x-0 top-0 z-[1] flex h-12 items-center justify-center" data-zaicode-header-project-center="">
+    // SRC-051: center on the optically free band, not the header's measured
+    // midpoint — the toolbar owns the sidebar-wide band on the left and the
+    // caption buttons own the right inset, so inset-x-0 put the title off to
+    // one side on every asymmetric window.
+    <div
+      className="pointer-events-none absolute top-0 z-[1] flex h-12 items-center justify-center"
+      style={{
+        left: "var(--workspace-sidebar-panel-width, 0px)",
+        right: "var(--windows-caption-controls-right-inset, 136px)",
+      }}
+      data-zaicode-header-project-center=""
+    >
       {title}
     </div>
   );

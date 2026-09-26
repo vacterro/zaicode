@@ -37,6 +37,15 @@ function readWindowState(): TodoWindowState {
   }
 }
 
+/** SRC-051: a free position saved on a big window must stay reachable after the window shrinks. */
+function clampToWindow(state: TodoWindowState): TodoWindowState {
+  return {
+    ...state,
+    x: Math.max(0, Math.min(state.x, window.innerWidth - 100)),
+    y: Math.max(0, Math.min(state.y, window.innerHeight - 60)),
+  };
+}
+
 export function ZaicodeTodoDock({ plan }: { plan: ConversationStatusPanelPlanModel }) {
   const { intl } = useZCodeIntl();
   const [state, setState] = useState(readWindowState);
@@ -60,6 +69,14 @@ export function ZaicodeTodoDock({ plan }: { plan: ConversationStatusPanelPlanMod
     const toggle = () => setState((current) => ({ ...current, open: !current.open }));
     window.addEventListener(TOGGLE_EVENT, toggle);
     return () => window.removeEventListener(TOGGLE_EVENT, toggle);
+  }, []);
+
+  // SRC-051: the docked window also adapts to the main window's size — clamp
+  // the free position on every resize, and cap the panel width on narrow ones.
+  useEffect(() => {
+    const onResize = () => setState((current) => clampToWindow(current));
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
   }, []);
 
   // The window is always movable: grabbing a docked window detaches it where it stands.
@@ -104,8 +121,12 @@ export function ZaicodeTodoDock({ plan }: { plan: ConversationStatusPanelPlanMod
         createPortal(
           <aside
             aria-label={label("title")}
-            className="fixed z-[90] flex max-h-[min(70vh,34rem)] w-80 max-w-[calc(100vw-1rem)] flex-col border border-border bg-card text-foreground shadow-md"
-            style={state.docked ? { right: 16, top: 64 } : { left: state.x, top: state.y }}
+            className="fixed z-[90] flex max-h-[min(70vh,34rem)] w-80 max-w-[min(calc(100vw-2rem),20rem)] flex-col border border-border bg-card text-foreground shadow-md"
+            style={
+              state.docked
+                ? { right: 16, top: 64, width: "min(20rem, calc(100vw - 2rem))" }
+                : { left: state.x, top: state.y, width: "min(20rem, calc(100vw - 2rem))" }
+            }
           >
             <header
               className="flex cursor-move items-center gap-2 border-b border-border px-2 py-1.5"

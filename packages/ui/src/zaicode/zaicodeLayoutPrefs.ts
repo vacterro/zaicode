@@ -21,6 +21,7 @@ export type ZaicodeHeaderToolId =
   | "timers"
   | "help"
   | "mute"
+  | "palette"
   | "workers"
   | "dispatch"
   | "settings"
@@ -68,6 +69,8 @@ export const ZAICODE_HEADER_TOOLS: readonly ZaicodeLayoutItemDef<ZaicodeHeaderTo
   { id: "timers", label: "Timers", hint: "Alarms, interval reminders, Temp Timer, productivity, calendar", visible: false },
   { id: "help", label: "Help", hint: "What every ZAICODE control does (F1)", visible: false },
   { id: "mute", label: "Mute sounds", hint: "Master mute of every ZAICODE sound", visible: false },
+  // SRC-051: the palette (theme) menu one click away, not buried in the footer account dropdown.
+  { id: "palette", label: "Theme", hint: "Switch the ZAICODE palette right here", visible: true },
   { id: "workers", label: "WORKERS", hint: "Shows / hides the WORKERS panel (subscription CLIs docked under the chat)", visible: false },
   { id: "dispatch", label: "Dispatch", hint: "Opens a terminal or a vendor CLI in any project, each as its own instance", visible: true },
   { id: "settings", label: "Settings", hint: "Opens Settings", visible: false },

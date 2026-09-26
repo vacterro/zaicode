@@ -86,9 +86,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu.js";
 import {
+  ZAICODE_FRESHNESS_COLORS,
   ZAICODE_SLOT_GROUPS,
   slotGroupOf,
   useZaicodeSidebarPrefs,
+  zaicodeFreshnessBucket,
   type ZaicodeSlotGroup,
 } from "@/zaicode/zaicodeSidebarPrefs.js";
 import {
@@ -116,6 +118,7 @@ import {
   testId,
 } from "@zcode/shared";
 import type { ZCodeTaskMeta } from "@zcode/shared";
+import { formatZaicodeDuration } from "@zcode/shared";
 import { useBaseWorkspaceServices, useWorkspaceServices } from "@/hooks/useWorkspaceServices.js";
 import {
   applyTaskQueryCacheMutation,
@@ -878,6 +881,35 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
         (task) => getTaskListAttention(task) !== null || Boolean(task.pendingInteraction),
       ).length
     : 0;
+  // SRC-051: in the "project = MAIN" view the leading glyph already spins while
+  // MAIN works; the trailing badge must not repeat the same glyph in one row.
+  const zaicodeMainGlyphWorking =
+    zaicodeProjectIsMain &&
+    Boolean(
+      zaicodeMainTask &&
+        (zaicodeLiveRunIds.includes(zaicodeMainTask.taskId) || isTaskListRowActive(zaicodeMainTask)),
+    );
+  // SRC-051: "working for" mini — when the oldest still-running session began.
+  const zaicodeWorkingSince = useMemo(() => {
+    if (!isZaicodeProductMode() || zaicodeRunningCount === 0) return 0;
+    let since = 0;
+    for (const task of taskItems) {
+      if (!isTaskListRowActive(task)) continue;
+      const startedAt = task.createdAt ?? 0;
+      if (startedAt > 0) since = since === 0 ? startedAt : Math.min(since, startedAt);
+    }
+    return since;
+  }, [taskItems, zaicodeRunningCount]);
+  // SRC-051: project freshness from the last thing that happened in any session.
+  const zaicodeProjectFreshness = useZaicodeSidebarPrefs((state) => state.projectFreshness);
+  const zaicodeProjectLastActivity = useMemo(
+    () => taskItems.reduce((latest, task) => Math.max(latest, task.updatedAt ?? 0), 0),
+    [taskItems],
+  );
+  const zaicodeFreshnessColor =
+    zaicodeProjectFreshness === "off"
+      ? null
+      : ZAICODE_FRESHNESS_COLORS[zaicodeFreshnessBucket(zaicodeProjectLastActivity, Date.now())];
   /** Restores archived sessions (Ctrl+Z after a one-click archive in ZAICODE). */
   const restoreArchivedTasks = useCallback(
     async (tasks: readonly ZCodeTaskMeta[]) => {
@@ -1245,11 +1277,12 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
       {zaicodeLiveIndicator && zaicodeRunningCount > 0 ? (
         <span
           className="flex items-center gap-0.5"
-          title={`${zaicodeRunningCount} session(s) working`}
+          title={`${zaicodeRunningCount} session(s) working${zaicodeWorkingSince > 0 ? ` for ${formatZaicodeDuration(Date.now() - zaicodeWorkingSince)}` : ""}`}
           data-zaicode-project-working={zaicodeRunningCount}
         >
-          <ZaicodeWorkingIcon className="size-3.5" />
+          {!zaicodeMainGlyphWorking ? <ZaicodeWorkingIcon className="size-3.5" /> : null}
           {zaicodeRunningCount > 1 ? zaicodeRunningCount : null}
+          {zaicodeWorkingSince > 0 ? formatZaicodeDuration(Date.now() - zaicodeWorkingSince) : null}
         </span>
       ) : null}
       {zaicodeLiveIndicator && zaicodeWaitingCount > 0 ? (
@@ -1271,11 +1304,21 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
           renderWorkspaceIcon()
         )}
       </span>
+      {zaicodeFreshnessColor && zaicodeProjectFreshness === "dot" ? (
+        <span
+          className="size-1.5 shrink-0"
+          style={{ background: zaicodeFreshnessColor }}
+          title={`Last activity ${zaicodeFreshnessBucket(zaicodeProjectLastActivity, Date.now())} (freshness dot: Settings > Sidebar)`}
+          data-zaicode-freshness={zaicodeFreshnessBucket(zaicodeProjectLastActivity, Date.now())}
+        />
+      ) : null}
       <div
         {...withZaicodeHighlight(
           {
             className: "zaicode-list-label zaicode-project-label min-w-0 flex-1 truncate px-1 text-ui-base text-foreground-subtle",
-            style: readinessTint?.style,
+            style:
+              readinessTint?.style ??
+              (zaicodeFreshnessColor && zaicodeProjectFreshness === "tint" ? { color: zaicodeFreshnessColor } : undefined),
             title: readinessTint?.title,
           },
           zaicodeProjectLight,
@@ -1288,11 +1331,12 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
       {!zaicodeCompactRow && isZaicodeProductMode() && zaicodeLiveIndicator && zaicodeRunningCount > 0 ? (
         <span
           className="flex shrink-0 items-center gap-0.5 text-ui-xs tabular-nums text-foreground-subtle"
-          title={`${zaicodeRunningCount} session(s) working`}
+          title={`${zaicodeRunningCount} session(s) working${zaicodeWorkingSince > 0 ? ` for ${formatZaicodeDuration(Date.now() - zaicodeWorkingSince)}` : ""}`}
           data-zaicode-project-working={zaicodeRunningCount}
         >
-          <ZaicodeWorkingIcon className="size-3.5" />
+          {!zaicodeMainGlyphWorking ? <ZaicodeWorkingIcon className="size-3.5" /> : null}
           {zaicodeRunningCount > 1 ? zaicodeRunningCount : null}
+          {zaicodeWorkingSince > 0 ? formatZaicodeDuration(Date.now() - zaicodeWorkingSince) : null}
         </span>
       ) : null}
       {!zaicodeCompactRow && isZaicodeProductMode() && zaicodeLiveIndicator && zaicodeWaitingCount > 0 ? (

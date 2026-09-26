@@ -60,6 +60,26 @@ export function pickZaicodeAutoRetryAction(rows: readonly RowLike[]): ZaicodeAut
 /** Attempts per session survive pane remounts; reset when a turn completes cleanly. */
 const attemptsBySession = new Map<string, number>();
 
+/** Sessions whose pane is open: their own countdown owns retry; the background host stands down. */
+const localPanes = new Set<string>();
+
+export function zaicodeAutoRetryAttempts(sessionId: string): number {
+  return attemptsBySession.get(sessionId) ?? 0;
+}
+
+export function bumpZaicodeAutoRetryAttempt(sessionId: string): void {
+  attemptsBySession.set(sessionId, (attemptsBySession.get(sessionId) ?? 0) + 1);
+}
+
+export function resetZaicodeAutoRetryAttempt(sessionId: string): void {
+  attemptsBySession.delete(sessionId);
+}
+
+/** True while the session's chat pane is mounted and runs its own auto-retry countdown. */
+export function isZaicodeAutoRetryLocal(sessionId: string | null | undefined): boolean {
+  return Boolean(sessionId) && localPanes.has(sessionId!);
+}
+
 export interface ZaicodeAutoRetryState {
   /** Epoch ms of the next automatic attempt, null when none is scheduled. */
   nextAt: number | null;
@@ -101,11 +121,20 @@ export function useZaicodeAutoRetry(params: {
   actionRef.current = action;
   const actionKey = action ? `${action.kind}:${action.target.rowId}:${action.target.entityId}` : null;
   const busy = phase === "running" || phase === "prewarming";
-  const attempts = sessionId ? (attemptsBySession.get(sessionId) ?? 0) : 0;
+  const attempts = sessionId ? zaicodeAutoRetryAttempts(sessionId) : 0;
+
+  // The open pane claims the session: the background retry host (SRC-051) skips it.
+  useEffect(() => {
+    if (!sessionId) return undefined;
+    localPanes.add(sessionId);
+    return () => {
+      localPanes.delete(sessionId);
+    };
+  }, [sessionId]);
 
   // A clean finish resets the budget.
   useEffect(() => {
-    if (sessionId && !error && phase === "completedSuccess") attemptsBySession.delete(sessionId);
+    if (sessionId && !error && phase === "completedSuccess") resetZaicodeAutoRetryAttempt(sessionId);
   }, [error, phase, sessionId]);
 
   const run = useCallback(
@@ -113,13 +142,13 @@ export function useZaicodeAutoRetry(params: {
       const current = actionRef.current;
       const id = runRef.current.sessionId;
       if (!current || !id) return;
-      if (counted) attemptsBySession.set(id, (attemptsBySession.get(id) ?? 0) + 1);
+      if (counted) bumpZaicodeAutoRetryAttempt(id);
       setNextAt(null);
       forceRender((value) => value + 1);
       logger.info("[zaicode] auto-retry", {
         sessionId: id,
         kind: current.kind,
-        attempt: attemptsBySession.get(id) ?? 0,
+        attempt: zaicodeAutoRetryAttempts(id),
       });
       const promise =
         current.kind === "retry"

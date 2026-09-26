@@ -68,7 +68,7 @@ export const ZAICODE_SOUND_EVENTS: readonly ZaicodeSoundEventDef[] = [
   { id: "saipen.clear", group: "Composer", label: "CLEAR", hint: "CLEAR was pressed", glyph: "cross", sound: fp("ui_clear.wav"), enabled: true, gainDb: -4 },
   { id: "saipen.mode", group: "Composer", label: "Mode button", hint: "A SAIPEN mode (WIKI, HUNT, ...) was launched", glyph: "grid", sound: fp("menu_launch_select1.wav"), enabled: true, gainDb: -4 },
   // Sidebar
-  { id: "sidebar.project", group: "Sidebar", label: "Switch project", hint: "You opened another project", glyph: "folder", sound: fp("Click.wav"), enabled: false, gainDb: -6 },
+  { id: "sidebar.project", group: "Sidebar", label: "Switch project", hint: "You opened another project", glyph: "folder", sound: fp("HORSE00.wav"), enabled: true, gainDb: -21.5 },
   { id: "sidebar.drop", group: "Sidebar", label: "Drag & drop", hint: "A project or session was dropped into a new place", glyph: "move", sound: fp("pop_up_08.wav"), enabled: true, gainDb: -6 },
   { id: "sidebar.mode", group: "Sidebar", label: "Group / Project view", hint: "The sidebar switched between Group and Project view", glyph: "list", sound: fp("menu_mnu_click.wav"), enabled: true, gainDb: -8 },
   { id: "sidebar.collapse", group: "Sidebar", label: "Fold / unfold", hint: "A project group was folded or unfolded", glyph: "fold", sound: fp("click_mouse_click2.wav"), enabled: false, gainDb: -10 },
@@ -198,7 +198,7 @@ export function readZaicodeSoundSettings(): ZaicodeSoundSettings {
   const stored = readZaicodeSetting(STORAGE_KEY);
   if (stored) {
     try {
-      cached = normalizeZaicodeSoundSettings(JSON.parse(stored));
+      cached = migrateProjectSwitchCue(normalizeZaicodeSoundSettings(JSON.parse(stored)));
       return cached;
     } catch {
       // fall through to defaults
@@ -244,6 +244,24 @@ export function setAllZaicodeSoundEvents(enabled: boolean): void {
 
 export function resetZaicodeSoundSettings(): void {
   write(defaultZaicodeSoundSettings());
+}
+
+// SRC-051: the project-switch cue shipped disabled by default, so "switch
+// project" stayed silent unless the operator had found the sound table first.
+// One-time migration: a stored table from before this change gets the cue on;
+// anything the operator explicitly set afterwards is never touched again.
+const PROJECT_SWITCH_MIGRATION_KEY = "zaicode-sound-project-switch-on";
+function migrateProjectSwitchCue(into: ZaicodeSoundSettings): ZaicodeSoundSettings {
+  if (typeof localStorage === "undefined") return into;
+  if (localStorage.getItem(PROJECT_SWITCH_MIGRATION_KEY) === "1") return into;
+  try {
+    localStorage.setItem(PROJECT_SWITCH_MIGRATION_KEY, "1");
+  } catch {
+    return into;
+  }
+  const row = into.events["sidebar.project"];
+  if (!row || row.enabled) return into;
+  return { ...into, events: { ...into.events, "sidebar.project": { ...row, enabled: true } } };
 }
 
 export function useZaicodeSoundSettings(): ZaicodeSoundSettings {
@@ -363,6 +381,21 @@ function audioContext(): AudioContext | null {
   return context;
 }
 
+/**
+ * SRC-051: decode every enabled cue up front. The first play used to eat a
+ * fetch + decodeAudioData round trip (hundreds of ms on a cold start), which
+ * read as "the switch sound lags or does not play at all".
+ */
+export function preheatZaicodeSounds(): void {
+  const settings = readZaicodeSoundSettings();
+  for (const [id, row] of Object.entries(settings.events)) {
+    if (!row.enabled) continue;
+    void resolveSoundUrl(row.sound)
+      .then((url) => (url ? loadBuffer(url) : null))
+      .catch(() => undefined);
+  }
+}
+
 function loadBuffer(url: string): Promise<AudioBuffer | null> {
   const known = buffers.get(url);
   if (known) return known;
@@ -400,6 +433,10 @@ export async function playZaicodeSoundAsync(
   if (!url || !ctx) return false;
   const buffer = await loadBuffer(url);
   if (!buffer) return false;
+  // SRC-051: a suspended context (autoplay policy, machine wake) must be
+  // running before start(), or the cue is silently swallowed.
+  if (ctx.state === "suspended") await ctx.resume().catch(() => undefined);
+  if (ctx.state !== "running") return false;
   if (row.mode === "replace") stopZaicodeSound(id);
   const source = ctx.createBufferSource();
   source.buffer = buffer;
@@ -467,6 +504,13 @@ export function stopZaicodeSoundChannel(channel: string): void {
 registerZaicodeSoundPlayer((id, options) => {
   void playZaicodeSoundAsync(id, options).catch(() => undefined);
 });
+
+// SRC-051: warm decode of every enabled cue now, and again whenever the table
+// changes (a cue the operator just enabled must not lag on its first play).
+if (typeof window !== "undefined") {
+  preheatZaicodeSounds();
+  window.addEventListener(CHANGE_EVENT, preheatZaicodeSounds);
+}
 
 export { playZaicodeSound };
 
