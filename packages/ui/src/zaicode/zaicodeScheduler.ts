@@ -16,7 +16,7 @@ import { create } from "zustand";
  * "what fires next", and which limit meter has a prompt waiting for its reset.
  */
 
-export type ZaicodeWorkspaceTab = "agents" | "scheduler";
+export type ZaicodeWorkspaceTab = "agents" | "scheduler" | "audits";
 
 /** Which page of the ZAICODE workspace is open (the sidebar SCHEDULER line opens the second). */
 export const useZaicodeWorkspaceTab = create<{ tab: ZaicodeWorkspaceTab; setTab: (tab: ZaicodeWorkspaceTab) => void }>(

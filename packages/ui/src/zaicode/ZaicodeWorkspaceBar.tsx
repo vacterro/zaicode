@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CalendarClock, Users, Zap } from "lucide-react";
+import { CalendarClock, Microscope, Users, Zap } from "lucide-react";
 import { ZAICODE_HIT_AND_GO_PROMPT } from "@zcode/shared";
 import { cn } from "@/components/lib/utils.js";
 import { Button } from "@/components/ui/button.js";
@@ -12,17 +12,22 @@ import { buildTaskWorkspaceKey } from "@/lib/taskQueryCache.js";
 import { projectNameOf } from "./zaicodeEngines.js";
 import { useZaicodeMainSessions, zaicodeMainSessionKey } from "./zaicodeMainSession.js";
 import { startZaicodeInMain } from "./zaicodeScheduleRun.js";
+import { useZaicodeAuditStore } from "./zaicodeAuditStore.js";
 
-/** The two pages of the ZAICODE workspace: agents + queue, and the SCHEDULER (SRC-038). */
-export function ZaicodeWorkspaceTabs() {
+/** The three pages of the ZAICODE workspace: agents + queue, the SCHEDULER, and AUDITS. */
+export function ZaicodeWorkspaceTabs({ workspacePath }: { workspacePath?: string }) {
   const tab = useZaicodeWorkspaceTab((state) => state.tab);
   const setTab = useZaicodeWorkspaceTab((state) => state.setTab);
+  const activeCount = useZaicodeAuditStore((s) =>
+    workspacePath ? s.activeCountFor(workspacePath) : 0,
+  );
   return (
     <div className="flex shrink-0 gap-px" role="tablist" aria-label="ZAICODE pages">
       {(
         [
           ["agents", "Agents & tasks", "Agents, their queue and results"],
           ["scheduler", "Scheduler", "Prompts that start by themselves: times, intervals, quota resets"],
+          ["audits", "Audits", "A3 audit wave queue: generate, review, and dispatch audit campaigns"],
         ] as const
       ).map(([id, label, hint]) => (
         <button
@@ -32,7 +37,7 @@ export function ZaicodeWorkspaceTabs() {
           aria-selected={tab === id}
           title={hint}
           className={cn(
-            "flex items-center gap-1 border px-1.5 py-0.5 text-ui-xs",
+            "relative flex items-center gap-1 border px-1.5 py-0.5 text-ui-xs",
             tab === id
               ? "border-[var(--zaicode-highlight,var(--color-border-hover))] bg-selected text-foreground"
               : "border-border text-foreground-subtle hover:bg-hover hover:text-foreground",
@@ -40,8 +45,19 @@ export function ZaicodeWorkspaceTabs() {
           onClick={() => setTab(id)}
           data-zaicode-workspace-tab={id}
         >
-          {id === "scheduler" ? <CalendarClock className="size-3" /> : <Users className="size-3" />}
+          {id === "scheduler" ? (
+            <CalendarClock className="size-3" />
+          ) : id === "audits" ? (
+            <Microscope className="size-3" />
+          ) : (
+            <Users className="size-3" />
+          )}
           {label}
+          {id === "audits" && activeCount > 0 && (
+            <span className="ml-0.5 flex size-3.5 items-center justify-center rounded-full bg-amber-700 text-[9px] text-amber-100">
+              {activeCount}
+            </span>
+          )}
         </button>
       ))}
     </div>

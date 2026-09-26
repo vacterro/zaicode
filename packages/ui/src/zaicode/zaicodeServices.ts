@@ -1,9 +1,16 @@
-import type { IServiceAccessor, IZaicodeAgentService, IZaicodeJobService } from "@zcode/services";
+import type {
+  IServiceAccessor,
+  IZaicodeAgentService,
+  IZaicodeAuditService,
+  IZaicodeJobService,
+} from "@zcode/services";
 
 /** ZAICODE 产品层服务包；远端 host 未注册时解析为 null，调用方必须显示不可用状态。 */
 export interface ZaicodeServices {
   agents: IZaicodeAgentService;
   jobs: IZaicodeJobService;
+  /** A3 audit campaigns (T-66); absent when the host predates the audit service. */
+  audits: IZaicodeAuditService | null;
 }
 
 export interface ZaicodeWorkspaceContext {
@@ -14,5 +21,9 @@ export interface ZaicodeWorkspaceContext {
 
 export function resolveZaicodeServices(accessor: IServiceAccessor): ZaicodeServices | null {
   if (!accessor.zaicodeAgentService || !accessor.zaicodeJobService) return null;
-  return { agents: accessor.zaicodeAgentService, jobs: accessor.zaicodeJobService };
+  return {
+    agents: accessor.zaicodeAgentService,
+    jobs: accessor.zaicodeJobService,
+    audits: accessor.zaicodeAuditService ?? null,
+  };
 }

@@ -264,6 +264,8 @@ export { ZaicodeAgentService } from "./zaicode/zaicodeAgentService.js";
 export { ZaicodeJobService } from "./zaicode/zaicodeJobService.js";
 export { IZaicodeStatsService } from "./zaicode/zaicodeStats.js";
 export { ZaicodeStatsService } from "./zaicode/zaicodeStatsService.js";
+export { IZaicodeAuditService } from "./zaicode/zaicodeAudits.js";
+export { ZaicodeAuditService } from "./zaicode/zaicodeAuditService.js";
 export { createOffPeakServerClient, OffPeakServerError } from "./session/offPeakServerClient.js";
 export { isOffPeakMockEnabled, startOffPeakMockGateway } from "./session/offPeakMockGateway.js";
 export {
@@ -454,6 +456,8 @@ import { ZaicodeJobService } from "./zaicode/zaicodeJobService.js";
 import { IZaicodeStatsService } from "./zaicode/zaicodeStats.js";
 import { ZaicodeStatsRepo } from "./zaicode/zaicodeStatsRepo.js";
 import { ZaicodeStatsService } from "./zaicode/zaicodeStatsService.js";
+import { IZaicodeAuditService } from "./zaicode/zaicodeAudits.js";
+import { ZaicodeAuditService } from "./zaicode/zaicodeAuditService.js";
 import {
   buildOffPeakRequestAuth,
   createOffPeakOriginResolver,
@@ -2486,6 +2490,15 @@ export function createLocalServices(options: {
     repo: zaicodeStatsRepo,
     logger: { warn: (message, error) => zaicodeLogger.warn(message, error) },
   });
+  // A3 audit campaigns (T-66): AUDAPACK's machine on the ZAICODE queue.
+  const zaicodeAuditService = new ZaicodeAuditService({
+    jobService: zaicodeJobService,
+    agentService: zaicodeAgentService,
+    logger: {
+      warn: (message, error) => zaicodeLogger.warn(message, error),
+      info: (message) => zaicodeLogger.info(message),
+    },
+  });
   const services = new ServiceCollection()
     .register(IFileService, fileService)
     .register(IMediaPreviewService, mediaPreviewService)
@@ -2622,6 +2635,7 @@ export function createLocalServices(options: {
     .register(IZaicodeAgentService, zaicodeAgentService)
     .register(IZaicodeJobService, zaicodeJobService)
     .register(IZaicodeStatsService, zaicodeStatsService)
+    .register(IZaicodeAuditService, zaicodeAuditService)
     .register(ICommandsService, createCommandsService({ isDesktopRuntime: true }))
     .register(
       IHooksService,

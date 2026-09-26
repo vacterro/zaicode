@@ -40,9 +40,10 @@ import { isWorkspaceTab } from "@/store/tabStore.js";
 import { partitionWorkspaceTabsByPurpose } from "@/lib/workspacePurpose.js";
 import { buildTaskWorkspaceKey } from "@/lib/taskQueryCache.js";
 import { useOptionalBaseWorkspaceServices } from "@/hooks/useWorkspaceServices.js";
-import { publishZaicodeKnownProjects, type ZaicodeKnownProject } from "./zaicodeScheduler.js";
+import { publishZaicodeKnownProjects, readZaicodeKnownProjects, type ZaicodeKnownProject } from "./zaicodeScheduler.js";
 import { publishZaicodeQueueServices } from "./zaicodeAutostart.js";
 import { resolveZaicodeServices } from "./zaicodeServices.js";
+import { useZaicodeAuditStore } from "./zaicodeAuditStore.js";
 import { publishZaicodeHomeServices, useZaicodeWorkerStatsRecorder } from "./home/zaicodeHomeFeed.js";
 import { projectNameOf } from "./zaicodeEngines.js";
 import { ensureZaicodeMotionStyles } from "./zaicodeMotionCss.js";
@@ -271,8 +272,7 @@ function useZaicodePixelSnap(): void {
  * SCHEDULER (SRC-038): the runner lives outside React; it needs the open
  * projects (with their sidebar slot keys) and the local agent queue.
  */
-function useZaicodeSchedulerPublishers(): void {
-  const tabs = useTabStore((state) => state.tabs);
+function useZaicodeSchedulerPublishers(): void {  const tabs = useTabStore((state) => state.tabs);
   useEffect(() => {
     const { projectWorkspaceTabs } = partitionWorkspaceTabsByPurpose(tabs.filter(isWorkspaceTab));
     const seen = new Set<string>();
@@ -303,6 +303,36 @@ function useZaicodeCrashSafety(): void {
   useZaicodeCrashResume();
 }
 
+/**
+ * A3 audit smart mode (T-66, SRC-049): the renderer owns the clock. Every tick
+ * pushes the open projects to the audit service and runs one smart sweep — an
+ * empty SAIPEN board with nothing running makes that project audit itself.
+ */
+const ZAICODE_AUDIT_SWEEP_MS = 60_000;
+function useZaicodeAuditSmartPoller(): void {
+  const accessor = useOptionalBaseWorkspaceServices();
+  const audits = accessor ? (resolveZaicodeServices(accessor)?.audits ?? null) : null;
+  const refresh = useZaicodeAuditStore((state) => state.refresh);
+  useEffect(() => {
+    if (!audits) return;
+    const tick = () => {
+      const projects = readZaicodeKnownProjects().map((project) => ({
+        workspaceKey: project.key,
+        workspacePath: project.path,
+        projectName: project.name,
+      }));
+      void audits
+        .publishProjects(projects)
+        .then(() => audits.smartSweep())
+        .then(() => refresh(audits))
+        .catch(() => undefined);
+    };
+    tick();
+    const timer = window.setInterval(tick, ZAICODE_AUDIT_SWEEP_MS);
+    return () => window.clearInterval(timer);
+  }, [audits, refresh]);
+}
+
 export function ZaicodeAppRuntime() {
   useZaicodeWorkerStatsRecorder();
   useZaicodeCrashSafety();
@@ -310,6 +340,7 @@ export function ZaicodeAppRuntime() {
   useZaicodeCalmInterface();
   useZaicodePixelSnap();
   useZaicodeSchedulerPublishers();
+  useZaicodeAuditSmartPoller();
   useZaicodeTimerEngine();
   useZaicodeRouterAutoSetup();
   useZaicodeHotkeyDispatcher();

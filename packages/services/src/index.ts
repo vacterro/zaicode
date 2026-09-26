@@ -248,6 +248,7 @@ export {
   type ZaicodeJobRunOutcomeInput,
 } from "./zaicode/zaicodeJobs.js";
 export { IZaicodeStatsService } from "./zaicode/zaicodeStats.js";
+export { IZaicodeAuditService } from "./zaicode/zaicodeAudits.js";
 
 // Skills service — ISkillsService is both a type (interface) and value (descriptor)
 export { ISkillsService } from "./skills/skills.js";

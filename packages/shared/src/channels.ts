@@ -152,6 +152,8 @@ export const ServiceChannels = {
   ZaicodeJobs: "zaicode-jobs",
   /** ZAICODE SAIHOME local statistics (local only, never sent anywhere) */
   ZaicodeStats: "zaicode-stats",
+  /** ZAICODE A3 audit campaigns (T-66): generate ahead, work on demand. */
+  ZaicodeAudits: "zaicode-audits",
 } as const;
 
 export type ServiceChannelName = (typeof ServiceChannels)[keyof typeof ServiceChannels];

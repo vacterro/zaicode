@@ -21,6 +21,7 @@ import { cn } from "@/components/lib/utils.js";
 import { ZaicodeSchedulerPanel } from "@/zaicode/ZaicodeSchedulerPanel.js";
 import { useZaicodeWorkspaceTab } from "@/zaicode/zaicodeScheduler.js";
 import { ZaicodeHitAndGoButton, ZaicodeWorkspaceTabs } from "@/zaicode/ZaicodeWorkspaceBar.js";
+import { ZaicodeAuditPanel } from "@/zaicode/ZaicodeAuditPanel.js";
 
 const HELP_STORAGE_KEY = "zaicode-help-hidden";
 /** 队列事实由 host 持有；有活跃任务时轮询，让运行状态无需手动刷新。 */
@@ -137,7 +138,7 @@ export function ZaicodeWorkspace({
           <span className="text-ui-base font-medium text-foreground">
             {intl.formatMessage({ id: "zaicode.title" })}
           </span>
-          <ZaicodeWorkspaceTabs />
+          <ZaicodeWorkspaceTabs workspacePath={workspace.workspacePath} />
           <span className="hidden min-w-0 truncate text-ui-xs text-foreground-subtle @min-[1100px]/zws:inline">
             {intl.formatMessage({ id: "zaicode.subtitle" })}
           </span>
@@ -266,6 +267,8 @@ export function ZaicodeWorkspace({
       ) : null}
       {tab === "scheduler" ? (
         <ZaicodeSchedulerPanel agents={store.agents} />
+      ) : tab === "audits" ? (
+        <ZaicodeAuditPanel services={ctx} workspace={workspace} />
       ) : (
       <div className="relative flex min-h-0 flex-1">
         <aside className="flex w-56 min-h-0 shrink-0 flex-col border-r border-border @min-[1100px]/zws:w-64" data-zaicode-tour="agents">
