@@ -1,8 +1,6 @@
 import type { ReactNode } from "react";
 import { FolderOpen, MessageSquare, TextAlignCenter, TextAlignEnd, TextAlignStart } from "lucide-react";
 import { cn } from "@/components/lib/utils.js";
-import { Switch } from "@/components/ui/switch.js";
-import { ZaicodeHeaderToolsEditor, ZaicodeNavItemsEditor } from "@/zaicode/ZaicodeLayoutListEditor.js";
 import { ZaicodeGreetingSettingsPanel } from "@/zaicode/ZaicodeHomeScreen.js";
 import { ZaicodeHomeSettingsPanel } from "@/zaicode/home/ZaicodeHomeSettings.js";
 import { useZaicodeSidebarPrefs, type ZaicodeSlotLabelAlign } from "@/zaicode/zaicodeSidebarPrefs.js";
@@ -84,7 +82,6 @@ export function ZaicodeTitleAlignPicker() {
 }
 
 export function ZaicodeLayoutSettings() {
-  const sidebarPrefs = useZaicodeSidebarPrefs();
   const clearMode = useZaicodeUiPrefs((state) => state.clearMode);
   const noMotion = useZaicodeUiPrefs((state) => state.noMotion);
   const noDim = useZaicodeUiPrefs((state) => state.noDim);
@@ -100,47 +97,16 @@ export function ZaicodeLayoutSettings() {
       >
         <ZaicodeHomeSettingsPanel />
       </Block>
-      <Block
-        title="Sidebar header buttons"
-        hint="The row at the top of the sidebar. Tick what shows, drag to order. Right-click the row itself for the same list."
-        testId="header"
-      >
-        <ZaicodeHeaderToolsEditor />
-      </Block>
-      <Block
-        title="Sidebar menu"
-        hint="The lines under the header (New task, ZAICODE, …). Right-click the menu for the same list; the header's menu button hides the whole block."
-        testId="menu"
-      >
-        <ZaicodeNavItemsEditor />
-      </Block>
+      <section className="border border-border bg-card p-4 text-ui-xs text-foreground-subtle" data-zaicode-moved-sidebar>
+        Everything sidebar - header buttons, the menu, the project list, slots, LIVE, text and
+        icon size - is in <strong className="font-normal text-foreground">Sidebar</strong>.
+      </section>
       <Block
         title="Title bar"
         hint="The project's name in big letters in the title bar, so every session says whose it is. Right-click the name itself for the same panel."
         testId="title-bar"
       >
         <ZaicodeHeaderTitleSettingsPanel />
-      </Block>
-      <Block title="Project list" hint="How projects and sessions are arranged in the sidebar." testId="list">
-        <div className="flex flex-col gap-1.5 text-foreground">
-          {(
-            [
-              ["compact", "Compact: tight rows, no empty vertical space"],
-              ["slots", "Priority slots: group projects as MAIN0 / MAIN1 / SIDE0 / SIDE1 / SIDE2"],
-              ["liveFirst", "Working first: projects with a running session move to the top, closest to done first"],
-              ["navOpen", "Show the sidebar menu block"],
-            ] as const
-          ).map(([key, label]) => (
-            <label key={key} className="flex items-center justify-between gap-3">
-              <span>{label}</span>
-              <Switch checked={sidebarPrefs[key]} onCheckedChange={(checked) => sidebarPrefs.update({ [key]: checked })} />
-            </label>
-          ))}
-        </div>
-        <div className="mt-1 border-t border-border pt-2">
-          <span className="mb-1 block text-foreground-subtle">Title position</span>
-          <ZaicodeTitleAlignPicker />
-        </div>
       </Block>
       <Block
         title="New task screen"

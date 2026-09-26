@@ -3549,6 +3549,7 @@ const enUS: Record<string, string> = {
   "settings.skills.diagnostics.code.skill_not_found": "Skill not found",
   "settings.subagents.title": "Subagents",
   "settings.zaicode.title": "ZAICODE",
+  "settings.zaicodeSidebar.title": "Sidebar",
   "settings.zaicodeEngines.title": "Engines & limits",
   "settings.zaicodeSounds.title": "Sounds",
   "settings.zaicodeLayout.title": "Layout & home",

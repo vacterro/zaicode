@@ -4,11 +4,11 @@ import {
   memo,
   useCallback,
   useEffect,
+  type CSSProperties,
   useLayoutEffect,
   useMemo,
   useRef,
   useState,
-  type CSSProperties,
   type ReactNode,
   type SetStateAction,
 } from "react";
@@ -1683,6 +1683,9 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
     <aside
       data-testid={TID_SIDEBAR}
       data-zaicode-instant={isZaicodeProductMode() ? "" : undefined}
+      // Settings -> Sidebar (SRC-049): text and icon size, applied live.
+      data-zaicode-sidebar-scale={zaicodeMode ? zaicodePrefs.iconSize : undefined}
+      style={zaicodeMode ? ({ "--zaicode-sb-text": `${zaicodePrefs.textSize}px` } as CSSProperties) : undefined}
       // 这里用设计系统的结构面 token 固定侧栏层级，避免不同合成器把左侧容器混成异常灰块。
       className="flex h-full flex-col overflow-hidden"
     >

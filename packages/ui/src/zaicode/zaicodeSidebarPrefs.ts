@@ -66,6 +66,32 @@ export interface ZaicodeSidebarPrefs {
   projectTitleAlign: ZaicodeSlotLabelAlign;
   /** Where session titles sit in their row. */
   sessionTitleAlign: ZaicodeSlotLabelAlign;
+  // T-65 (SRC-049): one Settings > Sidebar section owns everything below.
+  /** Sidebar text size in whole pixels (bitmap-font strikes stay crisp). */
+  textSize: ZaicodeSidebarTextSize;
+  /** Icon scale for every icon in the sidebar (relative to the row text). */
+  iconSize: ZaicodeSidebarIconSize;
+  /** Accent colour per slot header ("LIVE" included); missing = theme colour. */
+  slotColors: Partial<Record<ZaicodeSlotGroup | "LIVE", string>>;
+  /** When session rows are listed under a project. */
+  sessionsCondition: ZaicodeSessionsCondition;
+}
+
+export type ZaicodeSidebarTextSize = 11 | 12 | 13 | 14;
+export type ZaicodeSidebarIconSize = "small" | "normal" | "large";
+export type ZaicodeSessionsCondition = "always" | "working" | "working-or-waiting";
+
+export const ZAICODE_SIDEBAR_TEXT_SIZES: readonly ZaicodeSidebarTextSize[] = [11, 12, 13, 14];
+export const ZAICODE_SIDEBAR_ICON_SIZES: readonly ZaicodeSidebarIconSize[] = ["small", "normal", "large"];
+export const ZAICODE_SESSIONS_CONDITIONS: readonly ZaicodeSessionsCondition[] = [
+  "always",
+  "working",
+  "working-or-waiting",
+];
+
+/** A slot/side colour must be a hex colour; anything else falls back to the theme. */
+export function normalizeZaicodeSidebarColor(value: unknown): string | undefined {
+  return typeof value === "string" && /^#[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/.test(value) ? value : undefined;
 }
 
 const STORAGE_KEY = "zaicode-sidebar-prefs-v1";
@@ -90,6 +116,10 @@ export const ZAICODE_SIDEBAR_DEFAULT_PREFS: ZaicodeSidebarPrefs = {
   liveDimIdle: false,
   projectTitleAlign: "left",
   sessionTitleAlign: "left",
+  textSize: 12,
+  iconSize: "normal",
+  slotColors: {},
+  sessionsCondition: "always",
 };
 
 export function isZaicodeSlotGroup(value: unknown): value is ZaicodeSlotGroup {
@@ -105,7 +135,7 @@ function pick<T extends string>(value: unknown, allowed: readonly T[], fallback:
 /** Normalizes a stored (possibly older or hand-edited) preference object. */
 export function normalizeZaicodeSidebarPrefs(raw: unknown): ZaicodeSidebarPrefs {
   const d = ZAICODE_SIDEBAR_DEFAULT_PREFS;
-  if (!raw || typeof raw !== "object") return { ...d, groups: {}, collapsedSlots: [] };
+  if (!raw || typeof raw !== "object") return { ...d, groups: {}, collapsedSlots: [], slotColors: {} };
   const r = raw as Partial<Record<keyof ZaicodeSidebarPrefs, unknown>>;
   const groups: Record<string, ZaicodeSlotGroup> = {};
   if (r.groups && typeof r.groups === "object") {
@@ -137,6 +167,19 @@ export function normalizeZaicodeSidebarPrefs(raw: unknown): ZaicodeSidebarPrefs 
     liveDimIdle: flag(r.liveDimIdle, d.liveDimIdle),
     projectTitleAlign: pick(r.projectTitleAlign, ["left", "center", "right"] as const, d.projectTitleAlign),
     sessionTitleAlign: pick(r.sessionTitleAlign, ["left", "center", "right"] as const, d.sessionTitleAlign),
+    textSize: ZAICODE_SIDEBAR_TEXT_SIZES.includes(r.textSize as ZaicodeSidebarTextSize)
+      ? (r.textSize as ZaicodeSidebarTextSize)
+      : d.textSize,
+    iconSize: pick(r.iconSize, ZAICODE_SIDEBAR_ICON_SIZES, d.iconSize),
+    slotColors: r.slotColors && typeof r.slotColors === "object"
+      ? Object.fromEntries(
+          Object.entries(r.slotColors as Record<string, unknown>)
+            .filter(([key, value]) => (ZAICODE_SLOT_GROUPS as readonly string[]).includes(key) || key === "LIVE")
+            .map(([key, value]) => [key, normalizeZaicodeSidebarColor(value)])
+            .filter((entry): entry is [string, string] => Boolean(entry[1])),
+        )
+      : {},
+    sessionsCondition: pick(r.sessionsCondition, ZAICODE_SESSIONS_CONDITIONS, d.sessionsCondition),
   };
 }
 

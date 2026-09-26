@@ -15,6 +15,7 @@ export type SettingsSectionId =
   | "usage"
   | "subagents"
   | "zaicode"
+  | "zaicodeSidebar"
   | "zaicodeEngines"
   | "zaicodeRouter"
   | "zaicodeSounds"
@@ -85,6 +86,7 @@ function isSettingsSectionId(value: string): value is SettingsSectionId {
     value === "usage" ||
     value === "subagents" ||
     value === "zaicode" ||
+    value === "zaicodeSidebar" ||
     value === "zaicodeEngines" ||
     value === "zaicodeRouter" ||
     value === "zaicodeSounds" ||

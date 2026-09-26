@@ -10,6 +10,7 @@ import {
   Network,
   Volume2,
   Palette,
+  PanelLeft,
   Sun,
   BarChart3,
   Terminal,
@@ -102,6 +103,12 @@ const BASE_SETTINGS_SECTIONS: SettingsSectionDefinition[] = [
     id: "zaicode",
     icon: Cpu,
     titleId: "settings.zaicode.title",
+    groupId: "zaicode",
+  },
+  {
+    id: "zaicodeSidebar",
+    icon: PanelLeft,
+    titleId: "settings.zaicodeSidebar.title",
     groupId: "zaicode",
   },
   {

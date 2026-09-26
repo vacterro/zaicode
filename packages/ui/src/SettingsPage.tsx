@@ -73,6 +73,7 @@ import { ZaicodeWorkersSettings } from "@/settings/ZaicodeWorkersSettings.js";
 import { ZaicodeRouterSettings } from "@/settings/ZaicodeRouterSettings.js";
 import { ZaicodeNotificationsSettings } from "@/settings/ZaicodeNotificationsSettings.js";
 import { ZaicodeColorSettings } from "@/settings/ZaicodeColorSettings.js";
+import { ZaicodeSidebarSettings } from "@/settings/ZaicodeSidebarSettings.js";
 import { ZaicodeLightsSettings } from "@/settings/ZaicodeLightsSettings.js";
 import { ZaicodeTimersSettings } from "@/settings/ZaicodeTimersSettings.js";
 import { ZaicodeHotkeysSettings } from "@/settings/ZaicodeHotkeysSettings.js";
@@ -1938,6 +1939,8 @@ export function SettingsPage({
                           />
                         ) : activeSection === "zaicode" ? (
                           <ZaicodeSettingsSection />
+                        ) : activeSection === "zaicodeSidebar" ? (
+                          <ZaicodeSidebarSettings />
                         ) : activeSection === "zaicodeEngines" ? (
                           <ZaicodeEnginesSettings />
                         ) : activeSection === "zaicodeSounds" ? (

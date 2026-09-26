@@ -226,13 +226,16 @@ export function ZaicodeSlotGroupHeader({
   const folded = slot ? prefs.collapsedSlots.includes(slot) : false;
   const align = prefs.slotLabelAlign;
   const highlighted = group === "LIVE" || (prefs.tintMainSlots && group.startsWith("MAIN"));
+  // Settings -> Sidebar (SRC-049): the operator's own accent for this header wins over the tint.
+  const ownColor = prefs.slotColors[group];
   const Chevron = folded ? ChevronRight : ChevronDown;
   const label = (
     <span
       className={cn(
         "flex shrink-0 items-center gap-0.5",
-        highlighted && count > 0 && "text-[var(--zaicode-highlight,var(--color-foreground))]",
+        highlighted && !ownColor && count > 0 && "text-[var(--zaicode-highlight,var(--color-foreground))]",
       )}
+      style={ownColor ? { color: ownColor } : undefined}
     >
       {slot && (folded || count > 0) ? <Chevron className="size-3" /> : null}
       {group}

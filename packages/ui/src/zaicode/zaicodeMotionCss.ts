@@ -155,6 +155,14 @@ html.zaicode-fonts [data-slot="context-menu-content"] {
 /* Title alignment (Settings -> Layout & home -> Project list). */
 html .zaicode-project-label { text-align: var(--zaicode-project-title-align, left); }
 html .zaicode-session-label { text-align: var(--zaicode-session-title-align, left); }
+
+/* Sidebar text and icon size (Settings -> Sidebar, SRC-049): whole-pixel text on the
+   bitmap strikes, icons scaled relative to the row text so rows stay aligned. */
+[data-zaicode-sidebar-scale] { font-size: var(--zaicode-sb-text, 12px); }
+[data-zaicode-sidebar-scale] .text-ui-xs,
+[data-zaicode-sidebar-scale] .text-ui-base { font-size: var(--zaicode-sb-text, 12px); }
+[data-zaicode-sidebar-scale="small"] svg[class*="size-"] { width: 0.85em; height: 0.85em; }
+[data-zaicode-sidebar-scale="large"] svg[class*="size-"] { width: 1.15em; height: 1.15em; }
 `;
 
 let injected = false;

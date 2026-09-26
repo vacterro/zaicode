@@ -3327,6 +3327,7 @@ const zhCN: Record<string, string> = {
   "settings.skills.diagnostics.code.skill_not_found": "技能未找到",
   "settings.subagents.title": "子智能体",
   "settings.zaicode.title": "ZAICODE",
+  "settings.zaicodeSidebar.title": "侧栏",
   "settings.zaicodeEngines.title": "引擎与额度",
   "settings.zaicodeSounds.title": "声音",
   "settings.zaicodeLayout.title": "布局与首页",

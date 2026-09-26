@@ -804,6 +804,17 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
     () => (zaicodeProjectIsMain && zaicodeMainSessionId ? taskItems.filter((task) => task.taskId !== zaicodeMainSessionId) : taskItems),
     [taskItems, zaicodeMainSessionId, zaicodeProjectIsMain],
   );
+  // Settings -> Sidebar (SRC-049): when session rows are listed at all - every
+  // helper, only the ones working, or working + waiting for the operator.
+  const zaicodeSessionsCondition = useZaicodeSidebarPrefs((state) => state.sessionsCondition);
+  const zaicodeListedTasks = useMemo(() => {
+    if (!isZaicodeProductMode() || zaicodeSessionsCondition === "always") return zaicodeChildTasks;
+    return zaicodeChildTasks.filter((task) => {
+      const active = isTaskListRowActive(task);
+      if (zaicodeSessionsCondition === "working") return active;
+      return active || getTaskListAttention(task) !== null;
+    });
+  }, [zaicodeChildTasks, zaicodeSessionsCondition]);
   const zaicodeMainOpen = Boolean(zaicodeMainTask && isActiveWorkspace && activeTaskId === zaicodeMainTask.taskId);
   zaicodeOpenMainRef.current = () => {
     // Clicking the row while MAIN is already open toggles the helpers as before.
@@ -1875,7 +1886,7 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
             workspacePath={tab.workspacePath}
             remoteSessionId={tab.remoteSessionId}
             workspaceIdentity={tab.workspaceIdentity}
-            tasks={zaicodeChildTasks}
+            tasks={zaicodeListedTasks}
             pinnedTasks={EMPTY_PINNED_TASKS}
             activeTaskId={isActiveWorkspace ? activeTaskId : null}
             onSelectTask={handleSelectTask}
