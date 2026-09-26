@@ -1,0 +1,38 @@
+{
+  "op_id": "goal-3d071dc587864d7f9e1948d1d8dce6e3",
+  "operation": "goal",
+  "created_at": "2026-09-26T03:56:35Z",
+  "agent": "claude-code",
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "project_lineage": "lineage-b0732ed2f98947b9a3c97bfe71427eca",
+  "semantic_payload_hash": "327418e2eda18081",
+  "preconditions": {
+    ".saipen/STATE.md": "b7f128217988fb95",
+    ".saipen/LOG.md": "e1179ad4b8aaba2e"
+  },
+  "read_preconditions": {
+    ".saipen/BOARD.md": "a4a21d8ce99cba43",
+    ".saipen/logs": "tree-missing-v1"
+  },
+  "verification_policy": "core_fast",
+  "status": "COMMITTED",
+  "progress_index": 2,
+  "targets": [
+    {
+      "path": ".saipen/LOG.md",
+      "role": "log",
+      "action": "write",
+      "before_hash": "e1179ad4b8aaba2e",
+      "after_hash": "9bd694a732c63b78",
+      "applied": true
+    },
+    {
+      "path": ".saipen/STATE.md",
+      "role": "state",
+      "action": "write",
+      "before_hash": "b7f128217988fb95",
+      "after_hash": "ec29e0a28fab60b2",
+      "applied": true
+    }
+  ]
+}

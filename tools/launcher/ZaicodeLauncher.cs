@@ -40,7 +40,7 @@ internal static class ZaicodeLauncher
         string executable = Path.Combine(workspace, AppRelativePath);
         string version = ReadVersion(workspace);
         if (!string.IsNullOrEmpty(version)) Environment.SetEnvironmentVariable("ZAICODE_VERSION", version);
-        ZaicodeSplash.Show(workspace, version);
+        ZaicodeSplash.Show(workspace, version, settingsDirectory);
         ZaicodeSplash.SetStatus("Checking for a new build...");
         ApplyStagedBuild(workspace);
         if (!File.Exists(executable))
@@ -401,13 +401,42 @@ internal static class ZaicodeSplash
         @"zcode\packages\desktop\build\zaicode-splash\splash.png",
     };
 
-    public static void Show(string workspace, string version)
+    public static void Show(string workspace, string version, string settingsDirectory)
     {
         if (Environment.GetEnvironmentVariable("ZAICODE_NO_SPLASH") == "1") return;
-        byte[] bytes = null;
-        foreach (string candidate in ImageCandidates)
+        // SRC-049: the operator owns the splash from Settings -> ZAICODE -> Start-up:
+        // off entirely, or a custom picture stored beside zaicode-launcher.json.
+        try
         {
-            string path = Path.Combine(workspace, candidate);
+            string preferencesPath = Path.Combine(settingsDirectory, "zaicode-launcher.json");
+            if (File.Exists(preferencesPath) &&
+                System.Text.RegularExpressions.Regex.IsMatch(
+                    File.ReadAllText(preferencesPath), "\"splashEnabled\"\\s*:\\s*false"))
+            {
+                return;
+            }
+        }
+        catch
+        {
+            // An unreadable preference never blocks the start-up.
+        }
+        string customSplash = Path.Combine(settingsDirectory, "zaicode-splash");
+        string[] customCandidates =
+        {
+            Path.Combine(customSplash, "custom.png"),
+            Path.Combine(customSplash, "custom.jpg"),
+            Path.Combine(customSplash, "custom.jpeg"),
+            Path.Combine(customSplash, "custom.gif"),
+            Path.Combine(customSplash, "custom.webp"),
+            Path.Combine(customSplash, "custom.bmp"),
+        };
+        string[] bundledCandidates = Array.ConvertAll(ImageCandidates, candidate => Path.Combine(workspace, candidate));
+        string[] splashCandidates = new string[customCandidates.Length + bundledCandidates.Length];
+        customCandidates.CopyTo(splashCandidates, 0);
+        bundledCandidates.CopyTo(splashCandidates, customCandidates.Length);
+        byte[] bytes = null;
+        foreach (string path in splashCandidates)
+        {
             try
             {
                 if (File.Exists(path))

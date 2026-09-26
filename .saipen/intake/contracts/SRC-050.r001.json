@@ -1,0 +1,14 @@
+{
+  "clauses": {
+    "SRC-050:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "ZAICODE hangs on splash screen at launch after T-63 staged build applied; fix startup so the app runs"
+    }
+  },
+  "derived_at": "2026-09-26T04:43:35Z",
+  "derived_from": "SRC-050",
+  "interpretation_revision": 1,
+  "schema_version": 1,
+  "source_sha256": "1f11ddbc0a1101636828542e2233ed223a772e55beb0a613a80f02497ee51169"
+}

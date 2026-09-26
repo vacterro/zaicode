@@ -1,0 +1,14 @@
+{
+  "requirements": {
+    "SRC-050:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "T-68 closed with verification evidence in LOG: verify -> PASS [target: T-68] conf: high -- smoke: ZAICODE.exe splashiga, visible window 2s (MainWindowTitle ZAICODE), log 'creating main window (app-ready)'; node --import tsx --test test/zaicode*.test.ts 49/49; pnpm lint 0 errors; tsc main 83=baas83",
+      "text": "ZAICODE hangs on splash screen at launch after T-63 staged build applied; fix startup so the app runs",
+      "verification": "the Work this request created reached its own verification gate; see the T-68 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-68"
+    }
+  },
+  "schema_version": 1
+}
