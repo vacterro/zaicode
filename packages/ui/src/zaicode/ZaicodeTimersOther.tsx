@@ -2,7 +2,10 @@ import { useState } from "react";
 import { cn } from "@/components/lib/utils.js";
 import { formatZaicodeRemaining } from "./zaicodeTimers.js";
 import {
+  formatZaicodeIntervalLength,
   newZaicodeIntervalRule,
+  zaicodeIntervalNotice,
+  zaicodeIntervalWhen,
   ZAICODE_INTERVAL_DEFAULT_RULE,
   ZAICODE_INTERVAL_PRESETS,
   type ZaicodeIntervalRule,
@@ -63,12 +66,12 @@ export function ZaicodeIntervalTab() {
             <button
               key={rule.id}
               type="button"
-              className={cn("grid w-full grid-cols-[30px_1fr_54px] px-1 text-left hover:bg-hover", rule.id === selectedId && "bg-selected")}
+              className={cn("grid w-full grid-cols-[30px_1fr_auto] gap-1 px-1 text-left hover:bg-hover", rule.id === selectedId && "bg-selected")}
               onClick={() => setSelectedId(rule.id)}
             >
               <span className={rule.enabled ? "text-[#8fd46a]" : "text-foreground-subtlest"}>{rule.enabled ? "ON" : "OFF"}</span>
               <span className="truncate text-foreground">{rule.name}</span>
-              <span className="text-right tabular-nums text-foreground-subtle">{rule.minutes}m</span>
+              <span className="text-right tabular-nums text-foreground-subtle">{zaicodeIntervalWhen(rule)}</span>
             </button>
           ))}
         </div>
@@ -126,12 +129,17 @@ export function ZaicodeIntervalTab() {
             </div>
             <div className="flex gap-1">
               <TimerButton active={selected.alignMode === "clock"} onClick={() => update({ alignMode: "clock" })} title="On the clock: :00, :30, …">
-                Clock boundary (:00)
+                On the clock (:00)
               </TimerButton>
               <TimerButton active={selected.alignMode === "elapsed"} onClick={() => update({ alignMode: "elapsed", lastFired: 0 })} title="N minutes after the previous one">
-                Elapsed from start
+                Every N minutes from now
               </TimerButton>
             </div>
+            <span className="text-foreground-subtlest">
+              {selected.alignMode === "clock"
+                ? `Rings ${zaicodeIntervalWhen(selected)}; the notice says the time, e.g. "${zaicodeIntervalNotice(selected, new Date(2026, 0, 1, 14, 0)).title}".`
+                : `Rings ${formatZaicodeIntervalLength(selected.minutes)} after the previous ring; the notice says "${zaicodeIntervalNotice(selected, new Date()).title}".`}
+            </span>
             <div className="flex flex-wrap items-center gap-1">
               <TimerCheck checked={selected.allDay} onChange={(allDay) => update({ allDay })} label="All day (24/7)" />
               <span className={cn("text-foreground-subtle", selected.allDay && "opacity-40")}>From</span>

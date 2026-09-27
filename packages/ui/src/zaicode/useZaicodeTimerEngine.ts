@@ -6,7 +6,7 @@ import {
   snoozeCloneZaicodeTimer,
   type ZaicodeTimer,
 } from "./zaicodeTimers.js";
-import { tickZaicodeIntervalRules } from "./zaicodeIntervalRules.js";
+import { tickZaicodeIntervalRules, zaicodeIntervalNotice } from "./zaicodeIntervalRules.js";
 import { acknowledgeZaicodeProductivity, tickZaicodeProductivity } from "./zaicodeProductivity.js";
 import { useZaicodeTimers } from "./zaicodeTimerStore.js";
 import { notifyZaicode } from "./zaicodeNotifications.js";
@@ -72,7 +72,8 @@ export function useZaicodeTimerEngine(): void {
       if (interval.fire) {
         void playZaicodeSoundFile(interval.fire.sound, { volume: interval.fire.volume, channel: "interval" });
         if (interval.fire.showNotification) {
-          notifyZaicode("interval.fire", { header: "Interval", title: interval.fire.name, status: "Interval reached", key: "interval" });
+          const notice = zaicodeIntervalNotice(interval.fire, new Date(now));
+          notifyZaicode("interval.fire", { header: "Reminder", title: notice.title, status: notice.status, key: "interval" });
         }
       }
 

@@ -22,6 +22,15 @@ export interface ZaicodePlayOptions {
 export const ZAICODE_SOUND_ECHO_MS = 700;
 /** The same event twice this fast is one event (double renders, double listeners). */
 export const ZAICODE_SOUND_DEDUPE_MS = 120;
+/**
+ * SRC-061: an echo waits this long before it may play. React opens a popover
+ * (or calls toast()) inside the click handler, before the document-level
+ * listener plays the click's own sound, so an echo decided at once always
+ * came first and the operator heard two sounds for one click (Problip's
+ * second click, every right-click that opens a panel). Waiting lets the
+ * direct sound of the same action land first and claim the moment.
+ */
+export const ZAICODE_SOUND_ECHO_DEFER_MS = 150;
 
 interface SoundMemory {
   lastDirectAt: number;
@@ -70,10 +79,23 @@ export function playZaicodeSound(id: string, options: ZaicodePlayOptions = {}): 
   try {
     const { echo, ...rest } = options;
     // Previews are the operator testing a sound: never merged or suppressed.
-    if (!rest.preview) {
-      if (audible && !audible(id)) return;
-      if (!admitZaicodeSound(id, Boolean(echo), Date.now(), memory)) return;
+    if (rest.preview) {
+      player?.(id, rest);
+      return;
     }
+    if (audible && !audible(id)) return;
+    if (echo) {
+      const asked = Date.now();
+      // Dropped at once when a direct sound just played; otherwise decided
+      // after the rest of this action has had its say.
+      if (asked - memory.lastDirectAt < ZAICODE_SOUND_ECHO_MS) return;
+      setTimeout(() => {
+        if (memory.lastDirectAt >= asked) return;
+        if (admitZaicodeSound(id, true, Date.now(), memory)) player?.(id, rest);
+      }, ZAICODE_SOUND_ECHO_DEFER_MS);
+      return;
+    }
+    if (!admitZaicodeSound(id, false, Date.now(), memory)) return;
     player?.(id, rest);
   } catch {
     // a sound never breaks an action

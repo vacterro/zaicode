@@ -175,7 +175,44 @@ export function zaicodeIntervalRemaining(rule: ZaicodeIntervalRule, now: Date): 
   return Math.max(0, (day.getTime() - now.getTime()) / 1000);
 }
 
-/** FastPrompter's Presets… menu. */
+/**
+ * SRC-061: what the notice says. A clock reminder rang because a time came,
+ * so it names that time ("It's 14:00"), not the interval that led there; an
+ * elapsed reminder names how long it has been. The rule's own name is the
+ * status line either way.
+ */
+export function zaicodeIntervalNotice(rule: Pick<ZaicodeIntervalRule, "alignMode" | "minutes" | "name">, now: Date): { title: string; status: string } {
+  if (rule.alignMode === "clock") {
+    const time = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+    return { title: `It's ${time}`, status: rule.name };
+  }
+  return { title: `${formatZaicodeIntervalLength(rule.minutes)} passed`, status: rule.name };
+}
+
+/** "25 min", "1 hour", "1 h 30 min", "2 hours". */
+export function formatZaicodeIntervalLength(minutes: number): string {
+  if (minutes < 60) return `${minutes} min`;
+  const hours = Math.floor(minutes / 60);
+  const rest = minutes % 60;
+  if (rest === 0) return hours === 1 ? "1 hour" : `${hours} hours`;
+  return `${hours} h ${rest} min`;
+}
+
+/**
+ * When a rule rings, in the list: a clock rule by its marks on the clock
+ * (":00", ":00 :30", "every 2 h at :00"), an elapsed rule by its length.
+ */
+export function zaicodeIntervalWhen(rule: Pick<ZaicodeIntervalRule, "alignMode" | "minutes">): string {
+  if (rule.alignMode === "elapsed") return `every ${formatZaicodeIntervalLength(rule.minutes)}`;
+  if (rule.minutes === 60) return "every hour :00";
+  if (rule.minutes < 60 && 60 % rule.minutes === 0) {
+    const marks = Array.from({ length: 60 / rule.minutes }, (_, index) => `:${String(index * rule.minutes).padStart(2, "0")}`);
+    return marks.length <= 4 ? marks.join(" ") : `every ${rule.minutes} min`;
+  }
+  return `every ${formatZaicodeIntervalLength(rule.minutes)} on the clock`;
+}
+
+/** FastPrompter's Presets… menu, plus plain everyday ones (SRC-061). */
 export const ZAICODE_INTERVAL_PRESETS: readonly { id: string; label: string; rules: () => ZaicodeIntervalRule[] }[] = [
   {
     id: "chime",
@@ -207,6 +244,41 @@ export const ZAICODE_INTERVAL_PRESETS: readonly { id: string; label: string; rul
     label: "Pomodoro Focus (every 25 m)",
     rules: () => [
       { ...ZAICODE_INTERVAL_DEFAULT_RULE, id: newId(), name: "Pomodoro Focus (25m)", minutes: 25, enabled: true, sound: fp("QUEST.wav"), volume: 0.05, showNotification: true, showInTopBar: true, alignMode: "elapsed" },
+    ],
+  },
+  {
+    id: "speaking",
+    label: "Speaking clock: each hour names the time (08:00 - 22:00)",
+    rules: () => [
+      { ...ZAICODE_INTERVAL_DEFAULT_RULE, id: newId(), name: "Speaking clock", enabled: true, sound: fp("chime_bell_ding1.wav"), volume: 0.1, showNotification: true, allDay: false, startMinute: 480, endMinute: 1320 },
+    ],
+  },
+  {
+    id: "halfhour",
+    label: "Half-hour chime (:00 and :30)",
+    rules: () => [
+      { ...ZAICODE_INTERVAL_DEFAULT_RULE, id: newId(), name: "Half-hour chime", minutes: 30, enabled: true, sound: fp("chime_twinkle1.wav"), volume: 0.08, showNotification: true },
+    ],
+  },
+  {
+    id: "eyes",
+    label: "Eye rest: look away every 20 min",
+    rules: () => [
+      { ...ZAICODE_INTERVAL_DEFAULT_RULE, id: newId(), name: "Look 20 s at something far away", minutes: 20, enabled: true, sound: fp("blip1.wav"), volume: 0.1, showNotification: true, alignMode: "elapsed" },
+    ],
+  },
+  {
+    id: "stretch",
+    label: "Stretch break every 50 min",
+    rules: () => [
+      { ...ZAICODE_INTERVAL_DEFAULT_RULE, id: newId(), name: "Stand up and stretch", minutes: 50, enabled: true, sound: fp("success_powerup.wav"), volume: 0.1, showNotification: true, showInTopBar: true, alignMode: "elapsed" },
+    ],
+  },
+  {
+    id: "water",
+    label: "Drink water every 90 min (09:00 - 21:00)",
+    rules: () => [
+      { ...ZAICODE_INTERVAL_DEFAULT_RULE, id: newId(), name: "Drink some water", minutes: 90, enabled: true, sound: fp("water_splash.wav"), volume: 0.1, showNotification: true, alignMode: "elapsed", allDay: false, startMinute: 540, endMinute: 1260 },
     ],
   },
   {
