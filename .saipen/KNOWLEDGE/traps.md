@@ -261,3 +261,26 @@ for the installed copy under `%APPDATA%\SAIPEN` — it resolved to
 default derived from the script's own location is only valid if exactly one
 location is ever allowed to hold the script. `-Repo` is mandatory here
 instead; the installer and the Startup entry always pass it.
+
+## The tracked conformance receipt makes `saipen status` one commit stale by construction (2026-09-27, T-85)
+
+`.saipen/recovery/conformance/` is tracked (193 files before T-85). A
+`saipen validate` run writes a new receipt into it, so committing that receipt
+changes the source identity the NEXT receipt would have to bind to. The
+sequence never converges:
+
+    saipen validate   -> Conformance: CURRENT_PASS, one untracked new receipt
+    git commit        -> the receipt is now tracked, the identity moved
+    saipen status     -> Conformance: STALE_PASS, "receipt is bound to a
+                         different source identity than the current checkpoint"
+
+Running `validate` again only produces another receipt. This is structural, not
+a broken state, and it is the same treadmill T-73 hit with the LOG seal.
+
+What to do: commit the receipt, so the worktree stays clean and the watcher
+keeps running, and treat `saipen status`'s STALE_PASS as a known one-commit lag
+rather than a regression. The authority for any given moment is
+`saipen validate` run at that moment, which is what `CLAUDE.md` and
+`.claude/skills/saipen/SKILL.md` both instruct an executor to do. Read
+CONFORMANCE.md only when debugging a validator failure, never to argue about
+this lag.
