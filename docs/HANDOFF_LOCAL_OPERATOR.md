@@ -150,3 +150,35 @@ on T-89). A step that was not done is not a PASS.
   green on one side.
 - Product reaches `origin/zaicode` only through SAIPEN SHIP. The watcher
   only ever pulls product.
+
+## Every new local chat: bring the machine to the latest build
+
+Paste into a new chat of the local agent. The last line decides the rest:
+nothing (build and report), `PASS` / `FAIL: <what>` for the ticket in VERIFY,
+or `cc` to continue work (only while no cloud session is writing).
+
+```
+Read CLAUDE.md and .claude/skills/saipen/SKILL.md, then cold-recover from .saipen/
+(STATE.md, BOARD.md, tail of LOG.md). Chat memory is not state.
+
+Task: bring this machine to the latest published build and tell me what to test.
+1. git pull --ff-only origin saipen-live. Then saipen rebind-home --auto; commit
+   and push that .saipen/ change at once (it is expected once per locality switch).
+   If the push is refused because origin moved: pull again, rerun the rebind on
+   top, never reuse an event id from before the pull.
+2. git -C zcode fetch origin zaicode, then git -C zcode merge --ff-only origin/zaicode.
+   Local changes in zcode are mine (packages/ui/src/zaicode/zaicodeSettingsDefaults.json
+   is written by "Save all settings" on purpose): never stash, reset or discard
+   them. If git refuses the fast-forward (diverged, or it would overwrite them),
+   stop and print both commit ids.
+3. After the merge, commit a changed zaicodeSettingsDefaults.json alone as
+   "chore(zaicode): operator settings snapshot" and push it to origin/zaicode.
+4. Run REBUILD.cmd (with typecheck). If it fails, show the first error and stop.
+5. Report: zcode HEAD, build result, and the manual test steps of the ticket in
+   VERIFY from .saipen/evidence/<ticket>*.md, one line per item.
+Do not change other code or .saipen/ unless I say so.
+```
+
+Reply language is `reply_language:` in `.claude/saipen-protocol/saipen/STYLE.md`
+(gitignored, per machine; `et`, `en`, `ru` or `auto`).
+
