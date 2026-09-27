@@ -27,6 +27,7 @@
      write that field name next to a concrete id anywhere in this file. -->
 
 ## DOING
+- [/] T-93 [P1] Да, PASS | verify: each item demonstrated against the operator's words: every subscription account is a selectable model provider in the composer picker (account, then model) with a real reasoning effort that reaches the vendor, model lists refresh by themselves, readiness bars per account in the picker; SUBCHAT removed once the operator confirms this works; the sidebar engine block is simpler, shows only chosen models, and its SAIRoute button opens the right settings; SAIHOME cards reorder by drag and drop; timers get better UI, presets and an on-the-hour reminder that names the hour; no double sounds on Problip clicks or right-clicks anywhere; harmless token savers are on by default -- each with tests or a stated local-only check | user_explicit: true | source_receipts: SRC-061 | owner: claude-code-local-verify | claim_time: 2026-09-27T09:54:58Z
 
 
 ## TODO

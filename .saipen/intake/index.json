@@ -47,9 +47,13 @@
     "SRC-060": {
       "linked_work": "T-91",
       "source_sha256": "5604aa94fc62236eba171bb405f0503251c8f1d28fe037f5ceab12d05f01b0c6"
+    },
+    "SRC-061": {
+      "linked_work": "T-93",
+      "source_sha256": "690b0cc7f098829a442f5e0aa9140efdf96784eb6635d764467115c8fc6bdeea"
     }
   },
-  "next_id": 61,
+  "next_id": 62,
   "schema_version": 1,
   "tombstones": {
     "SRC-001": {
