@@ -335,3 +335,45 @@ guard, though, was dead code.
 `Test-ProductSync.ps1` caught it. Machine-read output (`-z`, porcelain) goes
 through `Invoke-Git -Raw`, which does not trim. Trim only output meant for a
 log line.
+
+## The product checkout's `origin` must be the publish target (2026-09-27, T-89)
+
+The product pass runs `git -C <zcode> fetch origin zaicode`
+(`ZaicodeSaipenLiveWatcher.ps1:446`). It has no product-remote parameter, so the
+nested checkout's `origin` is assumed to be the branch product is published to.
+
+On the operator machine `zcode/origin` was `https://github.com/zai-org/ZCode.git`
+(the upstream fork source) and `vacterro/zaicode` was configured as `backup`, so
+the fetch failed with `fatal: couldn't find remote ref zaicode` (exit 128) and
+the pass logged `Product: degraded: ... Product untouched, retrying` forever.
+The handoff's own repair commands (`git -C zcode push origin zaicode`) assume the
+opposite layout.
+
+Fixed on the machine with the standard fork layout, which is non-destructive and
+what the handoff documents: `git remote rename origin upstream` (this also
+rewrites `branch.main.remote`, so an upstream-tracking branch keeps following
+upstream) then `git remote add origin https://github.com/vacterro/zaicode.git`.
+The pass then fast-forwards. Check `git -C zcode remote -v` first: a watcher
+sitting in `PRODUCT_DEGRADED` is this, not a network fault.
+
+## Windows PowerShell 5.1 leaves `$PSScriptRoot` empty in a `param()` default (2026-09-27, T-89)
+
+`param([string]$W = (Join-Path $PSScriptRoot 'watcher.ps1'))` passes on
+PowerShell 7 and dies on 5.1 with `Cannot bind argument to parameter 'Path'
+because it is an empty string` before a single body line runs. 5.1 populates
+`$PSScriptRoot` in the body, not while param defaults are evaluated. Default to
+empty in `param()` and resolve on the first body line. `$PSScriptRoot` in the
+body (the installer, the round-trip test) is fine on both.
+
+## Git for Windows ships `core.autocrlf=true` (2026-09-27, T-89)
+
+`C:/Program Files/Git/etc/gitconfig` sets `core.autocrlf=true` on this machine and
+that setting is not part of a clone. Cloning and only then running
+`git config core.autocrlf false` leaves a checkout that is CRLF against an LF blob:
+`git status` calls every file modified and any dirty-overlap guard holds the whole
+tree. Linux, where the cloud runs the same test, has no such setting, so the
+ordering bug is invisible there.
+
+Configure the clone itself: `git -c core.autocrlf=false clone ...`. A fixture that
+reads `git clone` followed by `git config core.autocrlf false` passes on the cloud
+and fails on every Windows host.

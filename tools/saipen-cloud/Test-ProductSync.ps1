@@ -27,12 +27,18 @@
 #>
 [CmdletBinding()]
 param(
-    [string]$Watcher = (Join-Path $PSScriptRoot 'ZaicodeSaipenLiveWatcher.ps1'),
+    [string]$Watcher,
     [switch]$Keep
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+
+# Windows PowerShell 5.1 leaves $PSScriptRoot empty while a param() default is
+# being evaluated, so the default resolves here. PowerShell 7 tolerates both.
+if (-not $Watcher) {
+    $Watcher = Join-Path $PSScriptRoot 'ZaicodeSaipenLiveWatcher.ps1'
+}
 
 $script:Failures = 0
 $script:Checks = 0
@@ -124,7 +130,13 @@ try {
     G $publisher remote add origin $productOrigin | Out-Null
     G $publisher push -q -u origin zaicode | Out-Null
 
-    G $root clone -q -b zaicode $productOrigin $product | Out-Null
+    # -c core.autocrlf=false on the clone itself, not on $product afterwards:
+    # Git for Windows ships a system config with core.autocrlf=true, so a clone
+    # made before the local override checks out CRLF against an LF blob and every
+    # case reads as HELD. The cloud ran this on Linux, where the setting is absent.
+    # G $product config core.autocrlf false (the next line) is too late: it changes
+    # what git compares, not the bytes already written into the working tree.
+    G $root -c core.autocrlf=false clone -q -b zaicode $productOrigin $product | Out-Null
     G $product config user.name 'Operator' | Out-Null
     G $product config user.email 'operator@example.invalid' | Out-Null
     G $product config core.autocrlf false | Out-Null

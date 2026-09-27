@@ -64,6 +64,12 @@ do not block the fast-forward.
 | `DIVERGED: local <a> and origin/zaicode <b>` | Both sides have commits | `git -C zcode pull --no-rebase origin zaicode`, resolve, commit, push. Never rebase or force. |
 | `product branch is 'X', expected 'zaicode'` | `zcode/` is on another branch | `git -C zcode switch zaicode` when you are ready |
 | `fast-forward ... failed; git changed nothing` | git itself refused | Read the file list in that line, then treat it like HELD |
+| `degraded: fetch origin/zaicode failed (exit 128)` | `zcode/origin` is not the repository product is published to, so that branch does not exist there | Check `git -C zcode remote -v`. If `origin` is the upstream fork (`zai-org/ZCode`) and your own repository is a second remote, run `git -C zcode remote rename origin upstream` and then `git -C zcode remote add origin https://github.com/vacterro/zaicode.git`. The next pass fast-forwards. |
+
+That last row is not hypothetical. On the operator machine `origin` was
+`zai-org/ZCode` and `vacterro/zaicode` was configured as `backup`, so the product
+pass reported `degraded` indefinitely while the outer sync kept reporting healthy.
+The watcher has no product-remote parameter, so a fork layout is invisible to it.
 
 ## 3. Prove the bridge on Windows PowerShell 5.1
 
