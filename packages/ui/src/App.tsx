@@ -11,6 +11,7 @@ import { useZaicodeLimitAlerts } from "@/zaicode/ZaicodeLimitMeter.js";
 import { readZaicodeHomePrefs, zaicodeStartupMainView } from "@/zaicode/home/zaicodeHomePrefs.js";
 import { installZaicodeDeclarativeSounds, playZaicodeSound } from "@/zaicode/zaicodeSoundEvents.js";
 import { ZAICODE_SOUND_NAV_ECHO_MS, zaicodeNavigationEcho } from "@/zaicode/zaicodeSoundBus.js";
+import { installZaicodeSessionText } from "@/zaicode/zaicodeSessionText.js";
 import { setZaicodeCurrentWorkspace } from "@/zaicode/zaicodeEngines.js";
 import { installZaicodeHorizontalScrollGuard } from "@/zaicode/zaicodeScrollGuard.js";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -308,6 +309,7 @@ export function App({
   useZaicodeAutostartRunner();
   useZaicodeLimitAlerts();
   useEffect(() => {
+    installZaicodeSessionText();
     installZaicodeDeclarativeSounds();
     installZaicodeHorizontalScrollGuard();
   }, []);

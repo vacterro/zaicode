@@ -3559,6 +3559,7 @@ const enUS: Record<string, string> = {
   "settings.zaicodeTimers.title": "Timers",
   "settings.zaicodeColors.title": "Colors",
   "settings.zaicodeLights.title": "Highlights & motion",
+  "settings.zaicodeSessionText.title": "Session text",
   "settings.zaicodeHotkeys.title": "Hotkeys",
   "settings.zaicodeHelp.title": "Help",
   "settings.sidebar.group.zaicode": "ZAICODE",

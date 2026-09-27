@@ -3337,6 +3337,7 @@ const zhCN: Record<string, string> = {
   "settings.zaicodeTimers.title": "计时器",
   "settings.zaicodeColors.title": "配色",
   "settings.zaicodeLights.title": "高亮与动效",
+  "settings.zaicodeSessionText.title": "会话正文",
   "settings.zaicodeHotkeys.title": "快捷键",
   "settings.zaicodeHelp.title": "帮助",
   "settings.sidebar.group.zaicode": "ZAICODE",

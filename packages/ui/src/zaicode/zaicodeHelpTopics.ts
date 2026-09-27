@@ -51,6 +51,8 @@ export const ZAICODE_HELP_TOPIC_IDS = [
   "changes",
   "splash",
   "todo",
+  // SRC-062: Settings -> Session text.
+  "sessiontext",
 ] as const;
 
 export type ZaicodeHelpTopicId = (typeof ZAICODE_HELP_TOPIC_IDS)[number];

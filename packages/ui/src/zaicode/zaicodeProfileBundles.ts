@@ -50,6 +50,12 @@ export const ZAICODE_PROFILE_KEYS: readonly string[] = [
   "zaicode-notification-custom-sound-name",
   "zaicode-saipen-pane-open-v1",
   "zaicode-todo-window",
+  // SRC-062: RPG change numbers, session text, ProTrail and SAIPEGGLE belong to the look of a profile too.
+  "zaicode-change-floaters-v1",
+  "zaicode-session-text-v1",
+  "zaicode-session-text-presets-v1",
+  "zaicode-protrail-v1",
+  "zaicode-saipeggle-v1",
   "zcode-theme",
   "zcode-locale-preference",
   "zcode-ui-font-size-px",

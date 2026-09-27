@@ -137,6 +137,21 @@ export const ZAICODE_HELP_WIKI: Record<ZaicodeHelpTopicId, HelpArticle> = {
       ["Readiness bar", "What the account has left in its tightest window (5 hours, week …), read from the vendor through 9router."],
     ],
   },
+  sessiontext: {
+    why: "You read the agent's answers all day. This makes them read the way you like: a book-like serif, a Word document with blue numbered headings, a typewriter, a terminal, or just a bigger, calmer text.",
+    steps: [
+      "Open Settings → Session text.",
+      "Try a preset first: Word document, Book, Typewriter, Terminal, Pixel, Highlighter, Large print or Compact.",
+      "Then pick a part on the left and fine-tune it; the sample answer on the right changes as you click.",
+      "Happy with it? Save as preset. Export sends your presets to a file you can import on another machine.",
+    ],
+    terms: [
+      ["As app", "Not changed: the part keeps the look ZAICODE gives it."],
+      ["Highlighter", "A colour behind the text, like a marker pen on paper."],
+      ["Line spacing", "The distance between lines of a paragraph; 1.5 is Word's 1.5 lines."],
+      ["Line length", "The widest a paragraph gets, in letters; shorter lines are easier to read."],
+    ],
+  },
   workers: {
     why: "A worker is a subscription CLI (Claude Code, Codex…) running inside a project in its own terminal. WORKERS shows them all, so you can see who is running, who finished and who crashed.",
     steps: [

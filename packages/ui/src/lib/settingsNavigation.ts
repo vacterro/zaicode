@@ -24,6 +24,7 @@ export type SettingsSectionId =
   | "zaicodeNotifications"
   | "zaicodeColors"
   | "zaicodeLights"
+  | "zaicodeSessionText"
   | "zaicodeTimers"
   | "zaicodeHotkeys"
   | "zaicodeHelp"
@@ -95,6 +96,7 @@ function isSettingsSectionId(value: string): value is SettingsSectionId {
     value === "zaicodeNotifications" ||
     value === "zaicodeColors" ||
     value === "zaicodeLights" ||
+    value === "zaicodeSessionText" ||
     value === "zaicodeTimers" ||
     value === "zaicodeHotkeys" ||
     value === "zaicodeHelp" ||

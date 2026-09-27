@@ -12,7 +12,6 @@ import { openZaicodeHelp, openZaicodeHomeView, openZaicodeSettings, useZaicodeAc
 import { toggleZaicodeWorkersDock, useZaicodeWorkersSelector } from "./zaicodeWorkers.js";
 import { ZaicodeSchedulerNavButton } from "./ZaicodeSchedulerBits.js";
 import { useZaicodeWorkspaceTab } from "./zaicodeScheduler.js";
-import { ZaicodeWorkingIcon } from "./ZaicodeWorkingIcon.js";
 
 /**
  * The sidebar menu block in ZAICODE: only the lines the operator picked

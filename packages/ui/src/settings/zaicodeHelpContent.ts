@@ -91,6 +91,20 @@ export const ZAICODE_HELP_TOPICS: readonly HelpTopic[] = [
     open: { label: "Router → Subscriptions", section: "zaicodeRouter" },
   },
   {
+    id: "sessiontext",
+    title: "Session text (how answers read)",
+    what: "Word-like styles for the agent's answers: the text, every heading, bold, italics, underlines, links, code in the text, quotes, lists, tables and the divider line.",
+    lines: [
+      "Settings → Session text. Pick a part on the left (Text, Heading 1 …), change it in the middle, watch the sample answer on the right.",
+      "Every value starts at \"as app\": it keeps the ZAICODE look until you change it.",
+      "Underline: none, a line, dotted, dashed, double or wavy, in its own colour, thickness and distance from the text.",
+      "Headings can have a line under or over them, a frame, a bar on the left or a shaded band, and Word-like numbers 1. / 1.1 / 1.1.1.",
+      "Presets apply a whole look in one click (Word document, Book, Typewriter, Terminal, Pixel, Highlighter, Large print, Compact); save your own, export and import them as a file.",
+      "It applies at once in every open session. Off switch at the top: back to the app's look without losing anything.",
+    ],
+    open: { label: "Session text", section: "zaicodeSessionText" },
+  },
+  {
     id: "workers",
     title: "WORKERS (subscription CLIs)",
     what: "A worker is a subscription CLI (or a shell) running in a terminal inside ZAICODE.",

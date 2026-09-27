@@ -430,12 +430,13 @@ const streamdownPlugins = { cjk: messageCjkPlugin, code, math: messageMathPlugin
 const messageLinkSafety = { enabled: false } as const;
 // `decoration-dashed` 会把原有的细圆点下划线绘制成短线段；这里只改变下划线的
 // 出现时机，继续使用 `dotted` 保留原视觉形态。
+// ZAICODE (SRC-062): `zaicode-md-link` lets Settings -> Session text style every kind of link at once.
 const messageLinkClassName =
-  "wrap-anywhere text-ui-base font-medium text-icon-blue no-underline decoration-dotted underline-offset-4 hover:underline";
+  "zaicode-md-link wrap-anywhere text-ui-base font-medium text-icon-blue no-underline decoration-dotted underline-offset-4 hover:underline";
 // `items-center` 让 inline-flex 使用浏览器合成的基线，固定 top 偏移又会随平台字体产生漂移。
 // 改为由文字子项提供真实 baseline；图标只在链接自身行盒内居中，桌面和移动 Web 共用同一语义。
 const messageFileLinkClassName =
-  "inline-flex max-w-full items-baseline gap-1 align-baseline text-icon-blue text-ui-base no-underline decoration-dotted underline-offset-4 hover:underline";
+  "zaicode-md-link inline-flex max-w-full items-baseline gap-1 align-baseline text-icon-blue text-ui-base no-underline decoration-dotted underline-offset-4 hover:underline";
 // Markdown 之前继承紧凑 UI 字号，正文、标题、链接和表格缺少独立的阅读层级。
 // 这里显式定义字号层级，并让标题跟随 UI 字号 Token 缩放，确保聊天、预览和工具面板复用 MessageResponse 时保持一致。
 const messageMarkdownHeadingClassNames = {
@@ -1367,6 +1368,8 @@ export const MessageResponse = memo(
     );
     const responseClassName = cn(
       "size-full text-ui-base leading-[1.75] tracking-wide [&>*:first-child]:mt-0 [&>*:last-child]:mb-0",
+      // ZAICODE (SRC-062): the markdown root Settings -> Session text styles.
+      isZaicodeProductMode() && "zaicode-md",
       className,
     );
     const fallbackClassName = cn(responseClassName, "whitespace-pre-wrap break-words");
