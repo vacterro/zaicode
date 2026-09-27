@@ -361,6 +361,7 @@ export const ZAICODE_HELP_TOPICS: readonly HelpTopic[] = [
       "LIVE — working (or waiting) projects come first; Stay LIVE for — how long they keep that place after the work ends.",
       "Remain in position — a project that has been live keeps its LIVE rank instead of dropping back.",
       "A3 n/m — audit waves done of planned; OFF — switched off (Shift+Click).",
+      "Footer — right-click it: the profile as avatar and name or the avatar alone, and your buttons next to it (Problip, ProTrail, Timers, Help …) in your order.",
     ],
     open: { label: "Sidebar", section: "zaicodeSidebar" },
   },

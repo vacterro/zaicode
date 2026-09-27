@@ -50,7 +50,8 @@ import {
   ZaicodeProfileBadge,
   ZaicodeProfileMenuSub,
 } from "@/zaicode/ZaicodeFooterMenus.js";
-import { ZaicodeProblipButton } from "@/zaicode/ZaicodeAudioPanels.js";
+import { ZaicodeFooterTools } from "@/zaicode/ZaicodeFooterTools.js";
+import { useZaicodeLayout } from "@/zaicode/zaicodeLayoutPrefs.js";
 import { ZaicodeIcon } from "@/zaicode/zaicodeIconSlots.js";
 import type { Theme } from "@/useTheme.js";
 import {
@@ -150,8 +151,10 @@ export const WorkspaceSidebarFooter = memo(function WorkspaceSidebarFooterCompon
   });
   // ZAICODE 没有应用账户：footer 显示本地 profile（通用图标 + 名称），不再显示 "Connect"。
   const zaicodeMode = isZaicodeProductMode();
+  // SRC-062: the ZAICODE footer is configurable; the profile can shrink to its avatar.
+  const zaicodeAvatarOnly = useZaicodeLayout((state) => state.footerProfile === "avatar") && zaicodeMode;
   const profileContent = zaicodeMode ? (
-    <ZaicodeProfileBadge />
+    <ZaicodeProfileBadge avatarOnly={zaicodeAvatarOnly} />
   ) : (
     <>
       <Avatar key={avatarKey} size="default">
@@ -225,6 +228,26 @@ export const WorkspaceSidebarFooter = memo(function WorkspaceSidebarFooterCompon
   const canZoomIn = desktopZoomLevel < DESKTOP_ZOOM_MAX_LEVEL;
   const canZoomOut = desktopZoomLevel > DESKTOP_ZOOM_MIN_LEVEL;
 
+  const settingsButton = (
+    <ControlHintTooltip title={settingsButtonLabel}>
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon-lg"
+        data-testid={TID_TASK_SETTINGS_BUTTON}
+        aria-label={settingsButtonLabel}
+        disabled={!onSettingsButtonClick}
+        onClick={onSettingsButtonClick}
+      >
+        {zaicodeMode ? (
+          <ZaicodeIcon slot="footer.settings" />
+        ) : (
+          <Settings className="size-4" />
+        )}
+      </Button>
+    </ControlHintTooltip>
+  );
+
   return (
     // footer 被 Settings 复用，页面专属边距由调用方传入，避免修改共享默认样式。
     <footer className={cn("flex shrink-0 flex-col gap-2.5 px-4 pt-2 pb-4", className)}>
@@ -237,7 +260,10 @@ export const WorkspaceSidebarFooter = memo(function WorkspaceSidebarFooterCompon
               type="button"
               variant="ghost"
               size={"lg"}
-              className="min-w-0 flex-1 justify-start gap-2 overflow-hidden rounded-tl-2xl rounded-bl-2xl border-0 pl-0"
+              className={cn(
+                "justify-start gap-2 overflow-hidden rounded-tl-2xl rounded-bl-2xl border-0 pl-0",
+                zaicodeAvatarOnly ? "shrink-0" : "min-w-0 flex-1",
+              )}
               data-testid={TID_LOGIN_TRIGGER}
               aria-label={profileBadge}
             >
@@ -464,26 +490,11 @@ export const WorkspaceSidebarFooter = memo(function WorkspaceSidebarFooterCompon
             ) : null}
           </DropdownMenuContent>
         </DropdownMenu>
-        <div className="flex shrink-0 items-center gap-1.5">
-          {zaicodeMode ? <ZaicodeProblipButton /> : null}
-          <ControlHintTooltip title={settingsButtonLabel}>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-lg"
-              data-testid={TID_TASK_SETTINGS_BUTTON}
-              aria-label={settingsButtonLabel}
-              disabled={!onSettingsButtonClick}
-              onClick={onSettingsButtonClick}
-            >
-              {zaicodeMode ? (
-                <ZaicodeIcon slot="footer.settings" />
-              ) : (
-                <Settings className="size-4" />
-              )}
-            </Button>
-          </ControlHintTooltip>
-        </div>
+        {zaicodeMode ? (
+          <ZaicodeFooterTools settingsButton={settingsButton} />
+        ) : (
+          <div className="flex shrink-0 items-center gap-1.5">{settingsButton}</div>
+        )}
       </div>
     </footer>
   );

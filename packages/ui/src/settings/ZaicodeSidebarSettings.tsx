@@ -1,8 +1,6 @@
 import { cn } from "@/components/lib/utils.js";
-import {
-  ZaicodeHeaderToolsEditor,
-  ZaicodeNavItemsEditor,
-} from "@/zaicode/ZaicodeLayoutListEditor.js";
+import { ZaicodeFooterEditor } from "@/zaicode/ZaicodeFooterTools.js";
+import { ZaicodeHeaderToolsEditor, ZaicodeNavItemsEditor } from "@/zaicode/ZaicodeLayoutListEditor.js";
 import { ZaicodePrefCheck } from "@/zaicode/ZaicodePrefControls.js";
 import { ColorField } from "./ZaicodeColorParts.js";
 import { ZaicodeTitleAlignPicker } from "./ZaicodeLayoutSettings.js";
@@ -195,6 +193,14 @@ export function ZaicodeSidebarSettings() {
         testId="header"
       >
         <ZaicodeHeaderToolsEditor />
+      </Block>
+
+      <Block
+        title="Footer"
+        hint="The row at the bottom of the sidebar: the profile (avatar and name, or the avatar alone) and the buttons next to it. Right-click the row for the same list."
+        testId="footer"
+      >
+        <ZaicodeFooterEditor />
       </Block>
 
       <Block

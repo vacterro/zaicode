@@ -2,9 +2,10 @@ import { create } from "zustand";
 import { readZaicodeSetting } from "./zaicodeSettingsSnapshot.js";
 
 /**
- * Which buttons sit in the sidebar header and which lines the sidebar menu
- * block shows, in the operator's order. Both lists are edited in place
- * (right-click the header / the menu) or in Settings -> Layout. Unknown ids
+ * Which buttons sit in the sidebar header and footer and which lines the
+ * sidebar menu block shows, in the operator's order. Every list is edited in
+ * place (right-click the header / the menu / the footer) or in Settings ->
+ * Sidebar. Unknown ids
  * from an older build are dropped; ids added by a newer build append with
  * their defaults, so an upgrade never loses a button nor hides the order.
  */
@@ -26,6 +27,23 @@ export type ZaicodeHeaderToolId =
   | "dispatch"
   | "settings"
   | "meter";
+
+/** SRC-062: the footer row next to the profile (the profile itself can shrink to its avatar). */
+export type ZaicodeFooterToolId =
+  | "problip"
+  | "protrail"
+  | "home"
+  | "focusCycle"
+  | "timers"
+  | "help"
+  | "mute"
+  | "palette"
+  | "workers"
+  | "dispatch"
+  | "settings";
+
+/** full: avatar and name. avatar: the avatar alone, the freed width goes to the footer buttons. */
+export type ZaicodeFooterProfile = "full" | "avatar";
 
 export type ZaicodeNavItemId =
   | "saihome"
@@ -74,6 +92,20 @@ export const ZAICODE_HEADER_TOOLS: readonly ZaicodeLayoutItemDef<ZaicodeHeaderTo
   { id: "dispatch", label: "Dispatch", hint: "Opens a terminal or a vendor CLI in any project, each as its own instance", visible: true },
   { id: "settings", label: "Settings", hint: "Opens Settings", visible: false },
   { id: "meter", label: "Working meter", hint: "How many sessions work now, one readiness cell each; click a cell to open it", visible: true },
+];
+
+export const ZAICODE_FOOTER_TOOLS: readonly ZaicodeLayoutItemDef<ZaicodeFooterToolId>[] = [
+  { id: "problip", label: "Problip", hint: "Problip on / off and today's count. Right-click: Ambience", visible: true },
+  { id: "protrail", label: "ProTrail", hint: "Cursor trail and click effects on / off. Right-click: ProTrail settings", visible: true },
+  { id: "home", label: "SAIHOME", hint: "The operator home: clock, limits, projects, agents, statistics", visible: false },
+  { id: "focusCycle", label: "Focus next session", hint: "Click: next working / waiting session. Right-click: back", visible: false },
+  { id: "timers", label: "Timers", hint: "Alarms, interval reminders, Temp Timer, productivity, calendar", visible: false },
+  { id: "help", label: "Help", hint: "What every ZAICODE control does (F1)", visible: false },
+  { id: "mute", label: "Mute sounds", hint: "Master mute of every ZAICODE sound", visible: false },
+  { id: "palette", label: "Theme", hint: "Switch the ZAICODE palette", visible: false },
+  { id: "workers", label: "WORKERS", hint: "Shows / hides the WORKERS panel", visible: false },
+  { id: "dispatch", label: "Dispatch", hint: "Opens a terminal or a vendor CLI in any project", visible: false },
+  { id: "settings", label: "Settings", hint: "Opens Settings (inside Settings: back to the workspace)", visible: true },
 ];
 
 export const ZAICODE_NAV_ITEMS: readonly ZaicodeLayoutItemDef<ZaicodeNavItemId>[] = [
@@ -161,6 +193,8 @@ export function placeZaicodeLayoutEntry<T extends string>(
 interface ZaicodeLayoutPrefs {
   headerTools: ZaicodeLayoutEntry<ZaicodeHeaderToolId>[];
   navItems: ZaicodeLayoutEntry<ZaicodeNavItemId>[];
+  footerTools: ZaicodeLayoutEntry<ZaicodeFooterToolId>[];
+  footerProfile: ZaicodeFooterProfile;
 }
 
 const STORAGE_KEY = "zaicode-layout-v1";
@@ -175,6 +209,8 @@ function load(): ZaicodeLayoutPrefs {
   return {
     headerTools: normalizeZaicodeLayoutList(raw.headerTools, ZAICODE_HEADER_TOOLS),
     navItems: normalizeZaicodeLayoutList(raw.navItems, ZAICODE_NAV_ITEMS),
+    footerTools: normalizeZaicodeLayoutList(raw.footerTools, ZAICODE_FOOTER_TOOLS),
+    footerProfile: raw.footerProfile === "avatar" ? "avatar" : "full",
   };
 }
 
@@ -183,14 +219,17 @@ interface ZaicodeLayoutState extends ZaicodeLayoutPrefs {
   setNavItems: (list: ZaicodeLayoutEntry<ZaicodeNavItemId>[]) => void;
   resetHeaderTools: () => void;
   resetNavItems: () => void;
+  setFooterTools: (list: ZaicodeLayoutEntry<ZaicodeFooterToolId>[]) => void;
+  setFooterProfile: (mode: ZaicodeFooterProfile) => void;
+  resetFooter: () => void;
 }
 
 export const useZaicodeLayout = create<ZaicodeLayoutState>((set, get) => {
   const persist = (patch: Partial<ZaicodeLayoutPrefs>) => {
     set(patch);
     try {
-      const { headerTools, navItems } = get();
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ headerTools, navItems }));
+      const { headerTools, navItems, footerTools, footerProfile } = get();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ headerTools, navItems, footerTools, footerProfile }));
     } catch {
       // this session only
     }
@@ -201,6 +240,9 @@ export const useZaicodeLayout = create<ZaicodeLayoutState>((set, get) => {
     setNavItems: (navItems) => persist({ navItems: normalizeZaicodeLayoutList(navItems, ZAICODE_NAV_ITEMS) }),
     resetHeaderTools: () => persist({ headerTools: normalizeZaicodeLayoutList(null, ZAICODE_HEADER_TOOLS) }),
     resetNavItems: () => persist({ navItems: normalizeZaicodeLayoutList(null, ZAICODE_NAV_ITEMS) }),
+    setFooterTools: (footerTools) => persist({ footerTools: normalizeZaicodeLayoutList(footerTools, ZAICODE_FOOTER_TOOLS) }),
+    setFooterProfile: (footerProfile) => persist({ footerProfile }),
+    resetFooter: () => persist({ footerTools: normalizeZaicodeLayoutList(null, ZAICODE_FOOTER_TOOLS), footerProfile: "full" }),
   };
 });
 

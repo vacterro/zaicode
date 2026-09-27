@@ -1,87 +1,20 @@
-import type { MouseEvent, ReactNode } from "react";
-import {
-  AlarmClock,
-  ArrowLeftIcon,
-  ArrowRightIcon,
-  ChevronLeft,
-  ChevronRight,
-  CircleHelp,
-  Crosshair,
-  House,
-  MessageCirclePlus,
-  Palette,
-  Search,
-  Settings,
-  SquareTerminal,
-  Volume2,
-  VolumeX,
-} from "lucide-react";
-import { cn } from "@/components/lib/utils.js";
-import { Button } from "@/components/ui/button.js";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu.js";
-import { ControlHintTooltip } from "@/ControlHintTooltip.js";
+import type { ReactNode } from "react";
+import { ArrowLeftIcon, ArrowRightIcon, MessageCirclePlus, Search, Settings } from "lucide-react";
 import { ZaicodeSidebarNavToggle } from "./ZaicodeSidebarHeaderTools.js";
-import { ZaicodePaletteMenuContent } from "./ZaicodeFooterMenus.js";
 import { ZaicodeHeaderToolsEditor } from "./ZaicodeLayoutListEditor.js";
 import { ZaicodeRightClickSettings } from "./ZaicodePrefControls.js";
 import { useZaicodeLayout, type ZaicodeHeaderToolId } from "./zaicodeLayoutPrefs.js";
-import { cycleZaicodeSession } from "./zaicodeSessionNav.js";
-import { useZaicodeRunningSessions } from "./zaicodeSidebarPrefs.js";
-import { useZaicodeTimers } from "./zaicodeTimerStore.js";
-import { openZaicodeHelp, openZaicodeHomeView, openZaicodeSettings } from "./zaicodeActions.js";
-import { setZaicodeSoundSettings, useZaicodeSoundSettings } from "./zaicodeSoundEvents.js";
-import { toggleZaicodeWorkersDock, useZaicodeWorkers } from "./zaicodeWorkers.js";
-import { useZaicodeHotkeySettings, zaicodeHotkeyLabel } from "./zaicodeHotkeys.js";
-import { ZaicodeDispatchButton } from "./ZaicodeDispatchPanel.js";
+import { openZaicodeSettings } from "./zaicodeActions.js";
+import { isZaicodeCommonTool, useZaicodeCommonTools, ZaicodeTopButton } from "./ZaicodeCommonTools.js";
 import { ZaicodeOverflowRow } from "./ZaicodeOverflowRow.js";
 
 /**
  * The sidebar header row in ZAICODE: the operator decides which buttons sit
- * here and in which order (right-click the row, or Settings -> Layout).
+ * here and in which order (right-click the row, or Settings -> Layout). The
+ * buttons it shares with the footer live in ZaicodeCommonTools.
  */
 
-export function ZaicodeTopButton({
-  title,
-  shortcut,
-  onClick,
-  onContextMenu,
-  disabled,
-  pressed,
-  children,
-  testId,
-}: {
-  title: string;
-  shortcut?: string;
-  onClick: () => void;
-  onContextMenu?: (event: MouseEvent) => void;
-  disabled?: boolean;
-  pressed?: boolean;
-  children: ReactNode;
-  testId?: string;
-}) {
-  return (
-    <ControlHintTooltip title={title} {...(shortcut ? { shortcut } : {})} side="bottom">
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon-md"
-        className={cn("[app-region:no-drag] transition-colors", pressed && "bg-selected text-foreground")}
-        aria-label={title}
-        aria-pressed={pressed}
-        disabled={disabled}
-        data-testid={testId}
-        onClick={() => onClick()}
-        onContextMenu={onContextMenu}
-      >
-        {children}
-      </Button>
-    </ControlHintTooltip>
-  );
-}
+export { ZaicodeTopButton };
 
 export interface ZaicodeHeaderToolbarProps {
   canBack: boolean;
@@ -98,20 +31,12 @@ export interface ZaicodeHeaderToolbarProps {
   newTaskShortcut: string;
 }
 
-function useCycle() {
-  return (direction: 1 | -1) => cycleZaicodeSession(direction, useZaicodeRunningSessions.getState().sessions);
-}
-
 export function ZaicodeHeaderToolbar(props: ZaicodeHeaderToolbarProps) {
   const tools = useZaicodeLayout((state) => state.headerTools);
-  const cycle = useCycle();
-  const hotkeys = useZaicodeHotkeySettings();
-  const sound = useZaicodeSoundSettings();
-  const workers = useZaicodeWorkers();
-  const openTimers = useZaicodeTimers((state) => state.openDialog);
-  const hint = (id: string) => zaicodeHotkeyLabel(id, hotkeys);
+  const common = useZaicodeCommonTools("bottom");
 
   const render = (id: ZaicodeHeaderToolId): ReactNode => {
+    if (isZaicodeCommonTool(id)) return common(id);
     switch (id) {
       case "back":
         return (
@@ -124,34 +49,6 @@ export function ZaicodeHeaderToolbar(props: ZaicodeHeaderToolbarProps) {
           <ZaicodeTopButton key={id} title={props.forwardTitle} shortcut={props.forwardShortcut} disabled={!props.canForward} onClick={props.onForward}>
             <ArrowRightIcon className="size-4" />
           </ZaicodeTopButton>
-        );
-      case "focusCycle":
-        return (
-          <ZaicodeTopButton
-            key={id}
-            title="Focus next session (click) · previous (right-click)"
-            shortcut={hint("session.next")}
-            onClick={() => cycle(1)}
-            onContextMenu={(event) => {
-              event.preventDefault();
-              event.stopPropagation();
-              cycle(-1);
-            }}
-            testId="zaicode-focus-cycle"
-          >
-            <Crosshair className="size-4" />
-          </ZaicodeTopButton>
-        );
-      case "cycleArrows":
-        return (
-          <span key={id} className="flex">
-            <ZaicodeTopButton title="Previous session" shortcut={hint("session.prev")} onClick={() => cycle(-1)}>
-              <ChevronLeft className="size-4" />
-            </ZaicodeTopButton>
-            <ZaicodeTopButton title="Next session" shortcut={hint("session.next")} onClick={() => cycle(1)}>
-              <ChevronRight className="size-4" />
-            </ZaicodeTopButton>
-          </span>
         );
       case "menu":
         return <ZaicodeSidebarNavToggle key={id} />;
@@ -167,61 +64,6 @@ export function ZaicodeHeaderToolbar(props: ZaicodeHeaderToolbarProps) {
             <MessageCirclePlus className="size-4" />
           </ZaicodeTopButton>
         );
-      case "home":
-        return (
-          <ZaicodeTopButton key={id} title="SAIHOME" shortcut={hint("ui.home")} onClick={() => void openZaicodeHomeView()}>
-            <House className="size-4" />
-          </ZaicodeTopButton>
-        );
-      case "timers":
-        return (
-          <ZaicodeTopButton key={id} title="Timers" shortcut={hint("timers.open")} onClick={() => openTimers("alarms")}>
-            <AlarmClock className="size-4" />
-          </ZaicodeTopButton>
-        );
-      case "help":
-        return (
-          <ZaicodeTopButton key={id} title="Help" shortcut={hint("ui.help")} onClick={() => void openZaicodeHelp()}>
-            <CircleHelp className="size-4" />
-          </ZaicodeTopButton>
-        );
-      case "mute":
-        return (
-          <ZaicodeTopButton key={id} title={sound.muted ? "Sounds are muted: click to unmute" : "Mute every ZAICODE sound"} shortcut={hint("sounds.mute")} pressed={sound.muted} onClick={() => setZaicodeSoundSettings({ muted: !sound.muted })}>
-            {sound.muted ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}
-          </ZaicodeTopButton>
-        );
-      case "palette":
-        // SRC-051: the theme menu one click away in the header, not two menus deep in the footer.
-        return (
-          <DropdownMenu key={id}>
-            <ControlHintTooltip title="Theme: switch the ZAICODE palette" side="bottom">
-              <DropdownMenuTrigger asChild>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon-md"
-                  className="[app-region:no-drag] transition-colors"
-                  aria-label="Theme"
-                  data-testid="zaicode-header-palette"
-                >
-                  <Palette className="size-4" />
-                </Button>
-              </DropdownMenuTrigger>
-            </ControlHintTooltip>
-            <DropdownMenuContent align="start" className="max-h-[70vh] w-56 overflow-y-auto">
-              <ZaicodePaletteMenuContent />
-            </DropdownMenuContent>
-          </DropdownMenu>
-        );
-      case "workers":
-        return (
-          <ZaicodeTopButton key={id} title="WORKERS panel (workers keep running while hidden)" shortcut={hint("ui.workers")} pressed={workers.open} onClick={toggleZaicodeWorkersDock}>
-            <SquareTerminal className="size-4" />
-          </ZaicodeTopButton>
-        );
-      case "dispatch":
-        return <ZaicodeDispatchButton key={id} />;
       case "settings":
         return (
           <ZaicodeTopButton key={id} title="Settings" shortcut="Ctrl+," onClick={() => void openZaicodeSettings()}>
