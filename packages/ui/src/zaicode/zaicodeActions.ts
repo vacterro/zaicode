@@ -71,13 +71,37 @@ export function openZaicodeSettings(section?: SettingsSectionId): boolean {
 }
 
 const HELP_TOPIC_KEY = "zaicode-help-topic";
+/** Live channel for "show me this topic now", for when Help is already open. */
+export const ZAICODE_HELP_TOPIC_EVENT = "zcode:zaicode-help-topic";
+
+/** Subscribes to "show this topic now". Returns an unsubscribe function. */
+export function onZaicodeHelpTopicRequest(listener: (topic: string) => void): () => void {
+  const handler = (event: Event) => {
+    const topic = (event as CustomEvent<string>).detail;
+    if (typeof topic === "string" && topic) listener(topic);
+  };
+  window.addEventListener(ZAICODE_HELP_TOPIC_EVENT, handler);
+  return () => window.removeEventListener(ZAICODE_HELP_TOPIC_EVENT, handler);
+}
 
 /** Opens ZAICODE Help, optionally scrolled to one topic id. */
 export function openZaicodeHelp(topic?: string): boolean {
-  try {
-    if (topic) sessionStorage.setItem(HELP_TOPIC_KEY, topic);
-  } catch {
-    // Help still opens at the top
+  // SRC-060: sessionStorage alone was not enough. The help section consumed the
+  // stored topic once on mount, so pressing Shift+F1 while Help was already
+  // open stored the id and nothing read it -- the operator got no movement at
+  // all. Fire the live channel as well, so the jump works whether Help is
+  // opening now or is already on screen.
+  if (topic) {
+    try {
+      sessionStorage.setItem(HELP_TOPIC_KEY, topic);
+    } catch {
+      // The event below still carries it.
+    }
+    try {
+      window.dispatchEvent(new CustomEvent<string>(ZAICODE_HELP_TOPIC_EVENT, { detail: topic }));
+    } catch {
+      // No window (tests): the settings deep link still works.
+    }
   }
   return openZaicodeSettings("zaicodeHelp");
 }

@@ -72,6 +72,10 @@ export const ZAICODE_HOTKEY_ACTIONS: readonly ZaicodeHotkeyAction[] = [
   { id: "ui.home", group: "Interface", scope: "app", label: "SAIHOME", hint: "Opens the operator home (clock, limits, projects, agents, statistics)", defaults: ["Alt+H", ""] },
   { id: "ui.settings", group: "Interface", scope: "app", label: "Settings", hint: "Opens Settings", defaults: ["", ""] },
   { id: "ui.help", group: "Interface", scope: "app", label: "Help", hint: "Opens ZAICODE Help", defaults: ["F1", ""] },
+  // SRC-060: the contextual half. Shift is required, which is also what keeps
+  // it clear of the bare F-keys block: zaicodeFKeyIndex returns null whenever
+  // any modifier is held, so the F1..F10 project/session jumps are untouched.
+  { id: "ui.helpContext", group: "Interface", scope: "app", label: "Help for this element", hint: "Shift+F1 opens Help at the section explaining whatever is under the pointer, or the focused control", defaults: ["Shift+F1", ""] },
   { id: "ui.menu", group: "Interface", scope: "app", label: "Show / hide the sidebar menu", hint: "The New task / ZAICODE / … block", defaults: ["", ""] },
   { id: "ui.calm", group: "Interface", scope: "app", label: "Calm interface on / off", hint: "No animations, no dimming or blur, no hover pop-ups — all three at once", defaults: ["", ""] },
   { id: "ui.dispatch", group: "Interface", scope: "app", label: "Dispatch", hint: "Open a terminal or a vendor CLI in any project", defaults: ["Alt+D", ""] },

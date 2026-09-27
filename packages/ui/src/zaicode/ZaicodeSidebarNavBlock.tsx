@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { cloneElement, isValidElement, type ReactElement, type ReactNode } from "react";
 import { AlarmClock, Blocks, CircleHelp, House, MessagesSquare, Search, Settings, SquareTerminal } from "lucide-react";
 import { cn } from "@/components/lib/utils.js";
 import { Button } from "@/components/ui/button.js";
@@ -6,6 +6,7 @@ import { ZaicodeIcon } from "./zaicodeIconSlots.js";
 import { ZaicodeNavItemsEditor } from "./ZaicodeLayoutListEditor.js";
 import { ZaicodeRightClickSettings } from "./ZaicodePrefControls.js";
 import { useZaicodeLayout, type ZaicodeNavItemId } from "./zaicodeLayoutPrefs.js";
+import { ZAICODE_HELP_ATTRIBUTE, isZaicodeHelpTopicId, ZAICODE_NAV_HELP_TOPICS } from "./zaicodeHelpTopics.js";
 import { useZaicodeTimers } from "./zaicodeTimerStore.js";
 import { openZaicodeHelp, openZaicodeHomeView, openZaicodeSettings, openZaicodeSubchatView, useZaicodeActions } from "./zaicodeActions.js";
 import { toggleZaicodeWorkersDock, useZaicodeWorkersSelector } from "./zaicodeWorkers.js";
@@ -62,7 +63,7 @@ export function ZaicodeSidebarNavBlock({
   const line = (active: boolean) =>
     cn("w-full justify-start gap-2 text-foreground hover:bg-surface-hover hover:text-foreground", active && "bg-selected text-foreground");
 
-  const render = (id: ZaicodeNavItemId): ReactNode => {
+  const renderItem = (id: ZaicodeNavItemId): ReactNode => {
     switch (id) {
       case "saihome":
         return (
@@ -161,6 +162,22 @@ export function ZaicodeSidebarNavBlock({
       default:
         return null;
     }
+  };
+
+  // SRC-060: every menu line carries the help topic that explains it, so
+  // Shift+F1 anywhere on the line lands on the right card. The attribute goes
+  // on the element each case already returns rather than on a wrapper, because
+  // these are laid out as direct flex children and a wrapper div would change
+  // the column.
+  const render = (id: ZaicodeNavItemId): ReactNode => {
+    const element = renderItem(id);
+    const topic = ZAICODE_NAV_HELP_TOPICS[id];
+    if (!isValidElement(element) || !isZaicodeHelpTopicId(topic)) return element;
+    // A data-* attribute, so it goes on props rather than as an attribute name:
+    // the element's own prop type is narrow and does not know the key.
+    return cloneElement(element as ReactElement<Record<string, unknown>>, {
+      [ZAICODE_HELP_ATTRIBUTE]: topic,
+    });
   };
 
   const visible = items.filter((item) => item.visible);
