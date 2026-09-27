@@ -18,6 +18,7 @@ import {
 import { formatPoolLabel } from "@/zaicode/zaicodeRoutingModel.js";
 import { ZaicodeAgentEditor } from "@/zaicode/ZaicodeAgentEditor.js";
 import { ZaicodeAgentSchedules } from "./ZaicodeSchedulerBits.js";
+import { useZaicodePoolGroups } from "./ZaicodePoolPicker.js";
 
 export interface ZaicodeInspectorProps {
   agent: ZaicodeAgentDefinition | null;
@@ -86,6 +87,15 @@ export function ZaicodeInspector({
   onOpenSession,
 }: ZaicodeInspectorProps) {
   const { intl } = useZCodeIntl();
+  const { groups: poolGroups, loading: poolsLoading } = useZaicodePoolGroups();
+  // A pool the agent names but this machine does not have (a fresh machine whose
+  // router is not set up yet) is not "selected": its tasks would fail at dispatch.
+  const poolMissing = (candidate: ZaicodeAgentDefinition): boolean => {
+    const providerId = candidate.modelSelection?.providerId ?? candidate.providerRef;
+    const modelId = candidate.modelSelection?.modelId ?? candidate.modelRef;
+    if (poolsLoading || !providerId || !modelId) return false;
+    return !poolGroups.some((group) => group.options.some((option) => option.providerId === providerId && option.modelId === modelId));
+  };
   const selectedAgent = agent;
   const selectedJob = job;
   const selectedJobAgent = selectedJob
@@ -155,7 +165,9 @@ export function ZaicodeInspector({
           {selectedAgentRoutePlan ? (
             <Field
               label={intl.formatMessage({ id: "zaicode.inspector.routeStatus" })}
-              value={intl.formatMessage({ id: routePlanStatusMessageId(selectedAgentRoutePlan) })}
+              value={intl.formatMessage({
+                id: poolMissing(selectedAgent) ? "zaicode.route.poolMissing" : routePlanStatusMessageId(selectedAgentRoutePlan),
+              })}
             />
           ) : null}
 

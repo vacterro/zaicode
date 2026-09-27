@@ -3781,6 +3781,8 @@ const enUS: Record<string, string> = {
   "zaicode.route.directReady":
     "Pool selected. Dispatch runs the task in a new session on this pool.",
   "zaicode.route.directNeedsSelection": "Pick a model pool before dispatching tasks to this agent.",
+  "zaicode.route.poolMissing":
+    "This pool is not on this machine yet: add SAIRoute in Settings → Models, or pick another pool with Edit.",
   "zaicode.icons.title": "Icons",
   "zaicode.icons.reset": "Reset all",
   "zaicode.icons.hint":

@@ -3543,6 +3543,7 @@ const zhCN: Record<string, string> = {
   "zaicode.pool.otherModels": "其它模型",
   "zaicode.route.directReady": "已选择模型池。派发会在该池上以新会话运行任务。",
   "zaicode.route.directNeedsSelection": "派发前请为该 agent 选择模型池。",
+  "zaicode.route.poolMissing": "本机还没有这个模型池：请在 设置 → 模型 中添加 SAIRoute，或通过编辑选择其他池。",
   "zaicode.icons.title": "图标",
   "zaicode.icons.reset": "全部重置",
   "zaicode.icons.hint":

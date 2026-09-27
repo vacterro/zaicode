@@ -54,3 +54,13 @@ test("the sidebar view row never cuts a button off at the default width", () => 
   assert.equal(sidebar.match(/hidden @min-\[440px\]\/zsbtools:inline/g)?.length, 3);
   assert.doesNotMatch(sidebar, /@min-\[248px\]\/zsbtools/);
 });
+
+test("an agent whose pool is not on this machine is not shown as ready to dispatch", () => {
+  // A fresh machine without the router: "Add team" gives agents the default pool
+  // (new-provider/SAIFREN), and the Inspector said "Pool selected. Dispatch runs ...".
+  const inspector = src("zaicode/ZaicodeInspector.tsx");
+  assert.match(inspector, /const \{ groups: poolGroups, loading: poolsLoading \} = useZaicodePoolGroups\(\);/);
+  assert.match(inspector, /poolMissing\(selectedAgent\) \? "zaicode\.route\.poolMissing" : routePlanStatusMessageId\(selectedAgentRoutePlan\)/);
+  assert.match(inspector, /if \(poolsLoading \|\| !providerId \|\| !modelId\) return false;/, "never while the pools are still loading");
+  for (const locale of ["en-US", "zh-CN"]) assert.match(src(`i18n/locales/${locale}.ts`), /"zaicode\.route\.poolMissing":/, locale);
+});
