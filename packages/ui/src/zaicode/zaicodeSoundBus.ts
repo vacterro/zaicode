@@ -43,7 +43,19 @@ export function createZaicodeSoundMemory(): SoundMemory {
 }
 
 let player: ZaicodeSoundPlayer | null = null;
+/** Whether event `id` can be heard at all (on, not muted); registered by the Sounds engine. */
+let audible: ((id: string) => boolean) | null = null;
 const memory = createZaicodeSoundMemory();
+
+/**
+ * SRC-060: a silent event must not take part in merging. Without this, a
+ * switched-off voice fired on every hover or key press (the Orchestra's hover
+ * and typing rows) counted as "a direct sound just played" and silenced the
+ * notices and windows that followed it.
+ */
+export function registerZaicodeSoundAudible(next: (id: string) => boolean): void {
+  audible = next;
+}
 
 /** Lets the generic UI listener stand down when a control played its own cue. */
 export function zaicodeDirectSoundPlayedSince(at: number): boolean {
@@ -58,7 +70,10 @@ export function playZaicodeSound(id: string, options: ZaicodePlayOptions = {}): 
   try {
     const { echo, ...rest } = options;
     // Previews are the operator testing a sound: never merged or suppressed.
-    if (!rest.preview && !admitZaicodeSound(id, Boolean(echo), Date.now(), memory)) return;
+    if (!rest.preview) {
+      if (audible && !audible(id)) return;
+      if (!admitZaicodeSound(id, Boolean(echo), Date.now(), memory)) return;
+    }
     player?.(id, rest);
   } catch {
     // a sound never breaks an action

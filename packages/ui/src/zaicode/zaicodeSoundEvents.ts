@@ -9,7 +9,12 @@ import {
   readZaicodeSetting,
   ZAICODE_SOUND_CUSTOM_DB,
 } from "./zaicodeSettingsSnapshot.js";
-import { playZaicodeSound, registerZaicodeSoundPlayer, zaicodeDirectSoundPlayedSince } from "./zaicodeSoundBus.js";
+import {
+  playZaicodeSound,
+  registerZaicodeSoundAudible,
+  registerZaicodeSoundPlayer,
+  zaicodeDirectSoundPlayedSince,
+} from "./zaicodeSoundBus.js";
 import { isZaicodeSoundQuietNow } from "./zaicodeNotifications.js";
 import { ZAICODE_CLICKABLE, zaicodeChangeSoundFor, zaicodeClickSoundFor } from "./zaicodeSoundVoices.js";
 
@@ -535,6 +540,10 @@ export function stopZaicodeSoundChannel(channel: string): void {
 
 registerZaicodeSoundPlayer((id, options) => {
   void playZaicodeSoundAsync(id, options).catch(() => undefined);
+});
+registerZaicodeSoundAudible((id) => {
+  const settings = readZaicodeSoundSettings();
+  return !settings.muted && settings.events[id]?.enabled === true;
 });
 
 // SRC-051: warm decode of every enabled cue now, and again whenever the table
