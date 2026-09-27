@@ -174,6 +174,12 @@ as P1-1 in `docs/HANDOFF_SAIPEN_CROSS_PLATFORM.md`. Until it lands:
 - Keep every LOG event you write under 1024 bytes. A longer event becomes a
   sidecar bound to the cloud path, and the operator machine then cannot read
   it either.
+- A ticket that first entered BUILD on the operator machine cannot enter
+  BUILD again here. Its pre-BUILD debt baseline, captured on that first
+  entry, is bound to the Windows path, so the transition is refused with
+  `DEBT_SNAPSHOT_FOREIGN_PROJECT` (T-84: DEBT-000079 from E-1377, refused at
+  E-1446). Leave the ticket to the operator machine and take cloud-available
+  work instead.
 
 ## 7. Before you finish
 

@@ -1,4 +1,5 @@
 {
+  "archive_ref": ".saipen/archive/retired/SRC-027.md",
   "linked_work": null,
   "receipt_id": "SRC-027",
   "received_at": "2026-09-24T15:11:48Z",
@@ -11,6 +12,20 @@
   "request_provenance": {
     "witness": "model_supplied"
   },
+  "retirement": {
+    "digest_mismatch": false,
+    "measured_sha256": "128bc8daa9f84d9147b4b943204acb11506b7dcf980226237acbfb49873c891d",
+    "note": "SRC-027 is byte-identical to the Request section of SRC-028 (3578 bytes, captured 57 s later with the request header); SRC-028 was implemented and VERIFIED by T-33 (E-487)",
+    "reason": "SUPERSEDED_SOURCE",
+    "receipt_only": true,
+    "recorded_sha256": "128bc8daa9f84d9147b4b943204acb11506b7dcf980226237acbfb49873c891d",
+    "retired_at": "2026-09-27T06:16:21Z",
+    "retired_by": "claude-code",
+    "retirement_event": "E-1443",
+    "schema_version": 2,
+    "source_reason": "SUPERSEDED_SOURCE",
+    "successor": "SRC-028"
+  },
   "schema_version": 1,
   "sensitive": false,
   "source_authority": {
@@ -20,7 +35,8 @@
   },
   "source_kind": "user_instruction",
   "source_sha256": "128bc8daa9f84d9147b4b943204acb11506b7dcf980226237acbfb49873c891d",
-  "status": "ACTIVE",
+  "status": "INVALID",
+  "storage_status": "ARCHIVED",
   "transport": {
     "newline_normalization": "none",
     "source_encoding": "utf-8",

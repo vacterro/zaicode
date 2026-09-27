@@ -171,6 +171,14 @@ The defect is in the kernel and is filed as P1-1 in
   copy;
 - keep LOG events under 1024 bytes on both sides.
 
+The same machine-path binding also blocks work. The pre-BUILD debt baseline
+is captured the first time a ticket enters BUILD and re-checked on every later
+entry. A ticket that first entered BUILD on the operator machine therefore
+cannot enter BUILD in the cloud: the transition is refused with
+`DEBT_SNAPSHOT_FOREIGN_PROJECT`. T-84 is the case on record: DEBT-000079 was
+captured at E-1377 and the transition refused at E-1446. Leave such a ticket to
+the machine that captured its baseline.
+
 ## Divergence
 
 If local and remote stop sharing an ancestor, the watcher stops. It does not

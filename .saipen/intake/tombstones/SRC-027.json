@@ -1,0 +1,27 @@
+{
+  "archive_ref": ".saipen/archive/retired/SRC-027.md",
+  "linked_work": null,
+  "measured_sha256": "128bc8daa9f84d9147b4b943204acb11506b7dcf980226237acbfb49873c891d",
+  "receipt_id": "SRC-027",
+  "retired_at": "2026-09-27T06:16:21Z",
+  "retired_by": "claude-code",
+  "retirement": {
+    "digest_mismatch": false,
+    "measured_sha256": "128bc8daa9f84d9147b4b943204acb11506b7dcf980226237acbfb49873c891d",
+    "note": "SRC-027 is byte-identical to the Request section of SRC-028 (3578 bytes, captured 57 s later with the request header); SRC-028 was implemented and VERIFIED by T-33 (E-487)",
+    "reason": "SUPERSEDED_SOURCE",
+    "receipt_only": true,
+    "recorded_sha256": "128bc8daa9f84d9147b4b943204acb11506b7dcf980226237acbfb49873c891d",
+    "retired_at": "2026-09-27T06:16:21Z",
+    "retired_by": "claude-code",
+    "retirement_event": "E-1443",
+    "schema_version": 2,
+    "source_reason": "SUPERSEDED_SOURCE",
+    "successor": "SRC-028"
+  },
+  "retirement_event": "E-1443",
+  "schema_version": 2,
+  "source_reason": "SUPERSEDED_SOURCE",
+  "source_sha256": "128bc8daa9f84d9147b4b943204acb11506b7dcf980226237acbfb49873c891d",
+  "status": "INVALID"
+}

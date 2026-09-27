@@ -55,6 +55,7 @@ on read:
 |---|---|---|---|
 | LOG event sidecars, `recovery/log-detail/` | `log_compaction.py:69` | `log.py:366-381` (`_read_detail_text`, key at `:372`) | The compacted event's text is not restored, so `verification_evidence` sees `detail_ref: ...` instead of `PASS ... conf: high`. Result: `closure-evidence` FAIL |
 | BOARD compaction details, `recovery/board-compaction/` | `board_compaction.py:445`, `:573` | `board_compaction.py:1036`, `:1109` | "BOARD detail project identity mismatch" |
+| Pre-BUILD debt baselines, `recovery/conformance/debt/` | `debt.py:366` | `debt.py:540-545` (`DEBT_SNAPSHOT_FOREIGN_PROJECT`), entered through `ensure_debt_baseline` (`debt.py:445`) | **Blocks work, not just evidence.** The baseline is captured on a ticket's first entry to BUILD and re-checked on every later entry, so a ticket that first entered BUILD on one machine cannot re-enter BUILD on another. Seen live: T-84's baseline DEBT-000079 was captured on Windows (ZAICODE E-1377), and its SCOUT -> BUILD transition was refused in the cloud (E-1446) |
 | Re-verification receipts, `recovery/conformance/reverify/` | `debt.py:1521` | `debt.py:1165` (`REVERIFY_RECEIPT_FOREIGN_PROJECT`), `debt.py:1633` (skipped without a message) | Evidence from `saipen work reverify` is lost when the project is opened from another path |
 | Accepted debt | `accepted_debt.py:436` | `accepted_debt.py:169` (`ACCEPTED_DEBT_FOREIGN_PROJECT`) | Refused |
 | External-implementation receipts | `external.py:246` | `external.py:299` | Closure-provenance problem |
@@ -196,7 +197,9 @@ back.
       - a DONE ticket whose only VERIFY PASS event is longer than
         `MAX_NEW_EVENT_BYTES`;
       - a compacted BOARD row;
-      - a re-verification receipt and an accepted-debt record;
+      - a re-verification receipt, an accepted-debt record, and an open
+        ticket with a pre-BUILD debt baseline (the gate transitions it to
+        BUILD after the copy);
       - a STATE whose `saipen_home` is a foreign-OS absolute path
         (`C:/Users/x/saipen` on POSIX, `/home/x/saipen` on Windows).
    2. Validate it at root A.
@@ -229,7 +232,9 @@ back.
    T-76 or T-78, and nothing in ZAICODE's `.saipen/` was edited to get there.
 2. The same project on the Windows operator machine is still `CURRENT_PASS`.
 3. A fresh clone at a third path gives the same verdict.
-4. Switching executor locality does not require a STATE write.
+4. Switching executor locality does not require a STATE write, and a ticket
+   whose pre-BUILD debt baseline was captured on one machine can enter BUILD
+   on another.
 5. A consumer can pin the exact kernel by tag, and no two different kernels
    share one `VERSION`.
 6. The portability gate runs in CI, and its red control is recorded.
