@@ -1,0 +1,35 @@
+{
+  "op_id": "improve-admit-000d963483af45dcb5179ea06b5d2e88",
+  "operation": "improve_admit",
+  "created_at": "2026-09-27T02:18:04Z",
+  "agent": "claude-code-01",
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "project_lineage": "lineage-b0732ed2f98947b9a3c97bfe71427eca",
+  "semantic_payload_hash": "18221a97da41b20b",
+  "preconditions": {
+    ".saipen/improve/imp-_zaicode-20260927-6/MANIFEST.md": "",
+    ".saipen/improve/imp-_zaicode-20260927-6/claude-code-01/saipen_improve_SAIPEN.md": ""
+  },
+  "read_preconditions": {},
+  "verification_policy": "improve_atomic_file",
+  "status": "COMMITTED",
+  "progress_index": 2,
+  "targets": [
+    {
+      "path": ".saipen/improve/imp-_zaicode-20260927-6/MANIFEST.md",
+      "role": "manifest",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "989860c18f9f2793",
+      "applied": true
+    },
+    {
+      "path": ".saipen/improve/imp-_zaicode-20260927-6/claude-code-01/saipen_improve_SAIPEN.md",
+      "role": "report",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "de3996ca72d712bc",
+      "applied": true
+    }
+  ]
+}
