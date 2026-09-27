@@ -89,8 +89,18 @@ An idle checkout therefore makes no network calls at all.
 
 `CLAUDE.md` at the root is the entry rule and
 `.claude/skills/saipen/SKILL.md` is the execution procedure. The skill fetches
-the SAIPEN kernel from `github.com/vacterro/saipen` (pinned in the skill) and
-runs it through the declared engine surface `tools/saipen.py`.
+the SAIPEN kernel from `github.com/vacterro/saipen` and runs it through the
+declared engine surface `tools/saipen.py`. The kernel is pinned by commit
+(`3088eff`), never by tag. Tag `v8.0.1` is an older kernel with the same
+`VERSION`; its `validate` mutates state, and its validator rejects this board.
+
+`STATE.saipen_home` records the kernel path of whichever executor checkpointed
+last. In the cloud, the first `saipen continue` on kernel `3088eff` converges
+it to the running kernel as one journaled `DEC` (E-1410). On the operator
+machine the pointer arrives dead in the same way. A kernel with automatic
+convergence repairs it on `continue`; otherwise run
+`saipen rebind-home --auto`. That return trip has not been observed yet.
+Expect one such `DEC` per locality switch. Never hand-edit the pointer.
 
 One trap worth naming: the published `bin/saipen` is a machine-bound shim that
 hardcodes one operator's absolute interpreter and checkout paths. It runs on
@@ -122,15 +132,44 @@ These are recorded as local-only acceptance boundaries. They are never
 reported as passed because the diff looked right.
 
 **SAFE_TO_DEFER** — the product layer. A cloud session can clone
-`vacterro/zaicode` branch `zaicode` and work there, but nothing in the
-workspace layer forces it to. `pnpm` gates need the pinned pnpm 10.33.2 and a
-prepared workspace; `pnpm bootstrap` on a fresh cloud image is the documented
-way in, and the product's `package.json` already declares it.
+`vacterro/zaicode` branch `zaicode` and work there. Workspace-layer work does
+not require product work, but it does require the clone:
+`.saipen/source-nested-repos.json` declares `zcode/`, and without it the
+validator fails with `source freshness computation BLOCKED -- declared nested
+repository is missing: 'zcode'`. `pnpm` gates need the pinned pnpm 10.33.2
+and a prepared workspace. `pnpm bootstrap` on a fresh cloud image is the
+documented way in, and the product's `package.json` already declares it.
+
+The cloud can verify only product bytes that are on `origin/zaicode`. A
+product delta that exists only in the operator's `zcode/` checkout is
+invisible here, so every product gate for it is NOT RUN in the cloud, whatever
+the gate. T-84 is the first case (E-1411): its fix was local-only while
+`origin/zaicode` still carried the pre-fix code.
 
 **UNSAFE_TO_EMULATE** — anything that would make a local-only gate look green.
 Do not stub the launcher build, fake a packaged-app run, replay a recorded
 `pnpm verify:pre-push` result as if it had just run, or convert "the code
 looks correct" into a PASS line in `.saipen/LOG.md`.
+
+**KNOWN_CLOUD_DIVERGENCE** — conformance that depends on where the checkout
+lives. On kernel `3088eff` the cloud validator reports `closure-evidence`
+FAILs (T-47, T-62, T-76, T-78 at the time of writing) that the operator
+machine does not.
+
+The kernel moves any LOG event over 1024 bytes into a
+`.saipen/recovery/log-detail/` sidecar. On read it restores the sidecar only
+when the checkout's absolute path equals the path it was written from. A long
+VERIFY verdict written on Windows is therefore unreadable in the cloud, and the
+reverse holds too.
+
+The defect is in the kernel and is filed as P1-1 in
+`docs/HANDOFF_SAIPEN_CROSS_PLATFORM.md`. Until it lands:
+
+- quote the cloud verdict and classify it as this boundary, ticket by ticket
+  (`SKILL.md` § 6 has the check);
+- never rewrite sidecars, re-verify only to get green, or patch the kernel
+  copy;
+- keep LOG events under 1024 bytes on both sides.
 
 ## Divergence
 

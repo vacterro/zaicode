@@ -284,3 +284,40 @@ rather than a regression. The authority for any given moment is
 `.claude/skills/saipen/SKILL.md` both instruct an executor to do. Read
 CONFORMANCE.md only when debugging a validator failure, never to argue about
 this lag.
+
+## A SAIPEN tag is not the kernel the project runs (2026-09-27, T-87)
+
+`git clone --branch v8.0.1 https://github.com/vacterro/saipen` checks out
+`7145548`. `main` is `3088eff`, and both print `VERSION` 8.0.1, but they
+differ in 967 files. At `7145548` the verb `saipen validate` is a phase
+trigger that transitions to VALIDATE, which mutates state. Its validator also
+rejects this board's fields (`closure_mode`, `user_explicit`, `detail_ref`,
+`blocker_scope`) and reports 40 false FAILs.
+
+Pin the kernel by commit, never by tag or version string. The adapter
+(`.claude/skills/saipen/SKILL.md` § 2) fetches `3088eff` by SHA and asserts
+`rev-parse HEAD`.
+
+## Long LOG events do not survive a change of checkout path (2026-09-27, T-87)
+
+The kernel moves any LOG event over `MAX_NEW_EVENT_BYTES` (1024) into
+`.saipen/recovery/log-detail/<E-###>-<hash>.{json,LOG.md}`. The line left in
+LOG says only `detail_ref: <path>`. On read, `_read_detail_text` restores the
+full text only if the sidecar's `project_identity` equals
+`realpath(checkout)`. That is `v:\___vac\...\_zaicode` on the operator
+machine and `/home/user/zaicode` in the cloud.
+
+Where the path differs, the verdict text is gone. `closure-evidence` then reads
+`detail_ref: ...` instead of `PASS ... conf: high` and FAILs the ticket. The
+byte-identical sidecar makes no difference, because its sha256 is never
+reached. Measured on E-1289 (T-78): `detail_integrity: invalid`, sha256
+matches.
+
+What to do:
+
+- keep every event under 1024 bytes;
+- classify the cloud FAILs as the known boundary (`SKILL.md` § 6);
+- wait for the upstream fix, P1-1 in `docs/HANDOFF_SAIPEN_CROSS_PLATFORM.md`.
+
+Do not rewrite sidecar metadata to the other path: that turns the same FAIL
+around onto the operator machine.
