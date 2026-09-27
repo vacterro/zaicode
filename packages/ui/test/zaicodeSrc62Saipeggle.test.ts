@@ -100,6 +100,18 @@ test("physics: a ball bounces off a peg, loses energy, and never tunnels at top 
   assert.ok(touched && fast.y < 140, "no tunnelling through a brick");
 });
 
+test("physics: a ball resting on a peg slides off instead of sticking (friction only on impacts)", () => {
+  const target = peg(160, 120);
+  // Just off the top of the peg, at rest.
+  const ball = saipeggleNewBall(160.6, 112.9, 0, 0);
+  const events: SpgStepEvent[] = [];
+  for (let i = 0; i < 240; i += 1) {
+    events.length = 0;
+    saipeggleStep(ball, [target], null, { gravity: 1, bounce: 0.78 }, 1 / 240, events);
+  }
+  assert.ok(ball.y > 128, `after one second the ball is below the peg, not glued to it: y=${ball.y.toFixed(1)}`);
+});
+
 test("a whole level: shots, pops, free balls and Extreme Fever to the end", () => {
   const game = createSaipeggleGame(campaign[0]!, settings, 0);
   saipeggleShoot(game);

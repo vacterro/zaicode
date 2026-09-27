@@ -66,8 +66,11 @@ export type SpgStepEvent =
 
 export const SPG_STUCK_SECONDS = 1.6;
 export const SPG_RATTLE_SECONDS = 3;
+const STUCK_RADIUS = 14;
 const WALL_BOUNCE = 0.82;
 const TANGENT_KEEP = 0.985;
+/** Below this approach speed a contact is resting, not an impact. */
+const IMPACT_SPEED = 25;
 
 export function saipeggleMuzzle(aim: number): { x: number; y: number; vx: number; vy: number } {
   const sx = Math.sin(aim);
@@ -107,11 +110,18 @@ function bounceOff(ball: SpgBall, cx: number, cy: number, r: number, restitution
   ball.x = cx + nx * reach;
   ball.y = cy + ny * reach;
   const vn = ball.vx * nx + ball.vy * ny;
-  if (vn < 0) {
+  if (vn < -IMPACT_SPEED) {
+    // A real impact: bounce, and lose a little of the sideways speed once.
     const tx = ball.vx - vn * nx;
     const ty = ball.vy - vn * ny;
     ball.vx = tx * TANGENT_KEEP - vn * restitution * nx;
     ball.vy = ty * TANGENT_KEEP - vn * restitution * ny;
+  } else if (vn < 0) {
+    // Resting contact (the ball lies on the peg): no bounce and no friction, it slides
+    // off. Friction applied on every 1/240 s substep of a contact was glue
+    // (0.985^240 ~ 0.03 per second): balls crawled over pegs for half a minute.
+    ball.vx -= vn * nx;
+    ball.vy -= vn * ny;
   }
   return true;
 }
@@ -214,7 +224,9 @@ export function saipeggleStep(
   } else {
     ball.idle += dt;
   }
-  if (Math.hypot(ball.x - ball.anchorX, ball.y - ball.anchorY) > 5) {
+  // Stuck = not 14 px away from where it was 1.6 s ago. A smaller radius let a ball
+  // crawling down a shallow brick at a few px/s count as moving for half a minute.
+  if (Math.hypot(ball.x - ball.anchorX, ball.y - ball.anchorY) > STUCK_RADIUS) {
     ball.anchorX = ball.x;
     ball.anchorY = ball.y;
     ball.still = 0;
