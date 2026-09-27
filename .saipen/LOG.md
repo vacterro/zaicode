@@ -365,3 +365,4 @@
 - 27.09.26 08:00 [E-1521] [parent: E-1520] [T-91] [agent: claude-code] [op: claim-7247343242f14baebaadabedc58bddfb] DEC: claimed via SAIOPS -- owner claude-code
 - 27.09.26 08:13 [E-1522] [parent: E-1521] [T-91] [agent: claude-code] [op: rebind_home-3447c1d448724bee9da12fd7d74f37f3] DEC: saipen_home automatically converged to the proven canonical runtime V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_SAIPEN (source: executing-engine); previous pointer: /home/user/zaicode/.claude/saipen-protocol
 - 27.09.26 08:13 [E-1523] [parent: E-1522] [T-89] [agent: claude-code] [op: checkpoint-cc90d417f33442698b17eb219c391476] RUN: detail_ref: .saipen/recovery/log-detail/E-1523-0774785698adc03aef44cee9.json
+- 27.09.26 08:23 [E-1524] [parent: E-1523] [T-91] [agent: claude-code] [op: checkpoint-8d076082020c49b3a713e833092eb344] RUN: detail_ref: .saipen/recovery/log-detail/E-1524-f6a9ebb87f49f794b4007b2d.json
