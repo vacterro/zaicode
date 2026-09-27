@@ -1,0 +1,67 @@
+{
+  "blocking_findings": {
+    "problem_count": 3,
+    "problems": [
+      {
+        "category": null,
+        "credential": false,
+        "detail": "STYLE.md declares style_contract ded-4ae736e4 but its text hashes to ded-8b7ceebd -- the contract changed and its marker did not, so every state carrying the old value would validate against a voice n",
+        "detail_hash": "e60ea97c5a5353e5",
+        "finding_key": "76b48f23558dce11",
+        "rule_id": "unclassified",
+        "severity": "problem",
+        "subject_id": null,
+        "subject_kind": "global",
+        "subject_ref": null
+      },
+      {
+        "category": null,
+        "credential": false,
+        "detail": "cloud session close: saipen validate -> REFUSE [CONFORMANCE_UNHEALTHY] conformance: CURRENT_FAIL; validate.py 3088eff -> Validation FAILED: 4 problem(s",
+        "detail_hash": "ad0b031784a1283a",
+        "finding_key": "99a3c49984c97829",
+        "rule_id": "work_closure_evidence",
+        "severity": "problem",
+        "subject_id": "T-84",
+        "subject_kind": "work",
+        "subject_ref": null
+      },
+      {
+        "category": null,
+        "credential": false,
+        "detail": "improve report [improve-report] -- .saipen\\improve\\imp-vacterro-zaicode-20260927-2\\claude-code-01\\saipen_improve_SAIPEN.md: report protocol_fingerprint 'sha256:63ba940f408711410413d3ff33e8c5eabb806387",
+        "detail_hash": "193544053802b89e",
+        "finding_key": "76b48f23558dce11",
+        "rule_id": "unclassified",
+        "severity": "problem",
+        "subject_id": null,
+        "subject_kind": "global",
+        "subject_ref": null
+      }
+    ],
+    "ruleset_fingerprint": "82e5e183ae8f0fd909be3fa3627f00489cacaab813d942186c832db02a05a1c1",
+    "ruleset_version": 1,
+    "status": "complete",
+    "warning_count": 4
+  },
+  "board_hash": "74d3e258eb99487c",
+  "canonical_next_command": "saipen work reverify T-84",
+  "content_hash": "d44e27c104844960",
+  "exit_code": 1,
+  "external_actions": [],
+  "gate": "core",
+  "kind": "conformance_receipt",
+  "log_hash": "d0dca09e966bac3a",
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "receipt_id": "receipt-a7ac83fce274",
+  "remediation_commands": [
+    "saipen work reverify T-84"
+  ],
+  "schema_version": 2,
+  "source_head": "1b2e1106fabd42a2286404ba6a3d07d136badc88",
+  "source_tree_fingerprint": "git-delta-v1:c66baf69a8306f3b95dfc7badb5f72b088f8de8408e933efadc4d149721a1195",
+  "state_hash": "b205c8c952539048",
+  "timestamp_utc": "2026-09-27T14:01:31.982524Z",
+  "validator_protocol_version": "1",
+  "verdict": "FAIL"
+}

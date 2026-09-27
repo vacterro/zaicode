@@ -1,0 +1,55 @@
+{
+  "blocking_findings": {
+    "problem_count": 2,
+    "problems": [
+      {
+        "category": null,
+        "credential": false,
+        "detail": "cloud session close: saipen validate -> REFUSE [CONFORMANCE_UNHEALTHY] conformance: CURRENT_FAIL; validate.py 3088eff -> Validation FAILED: 4 problem(s",
+        "detail_hash": "ad0b031784a1283a",
+        "finding_key": "99a3c49984c97829",
+        "rule_id": "work_closure_evidence",
+        "severity": "problem",
+        "subject_id": "T-84",
+        "subject_kind": "work",
+        "subject_ref": null
+      },
+      {
+        "category": null,
+        "credential": false,
+        "detail": "improve report [improve-report] -- .saipen\\improve\\imp-vacterro-zaicode-20260927-2\\claude-code-01\\saipen_improve_SAIPEN.md: report protocol_fingerprint 'sha256:63ba940f408711410413d3ff33e8c5eabb806387",
+        "detail_hash": "193544053802b89e",
+        "finding_key": "76b48f23558dce11",
+        "rule_id": "unclassified",
+        "severity": "problem",
+        "subject_id": null,
+        "subject_kind": "global",
+        "subject_ref": null
+      }
+    ],
+    "ruleset_fingerprint": "82e5e183ae8f0fd909be3fa3627f00489cacaab813d942186c832db02a05a1c1",
+    "ruleset_version": 1,
+    "status": "complete",
+    "warning_count": 19
+  },
+  "board_hash": "4381cc3339e5b4e4",
+  "canonical_next_command": "saipen work reverify T-84",
+  "content_hash": "c70be984b9579111",
+  "exit_code": 1,
+  "external_actions": [],
+  "gate": "core",
+  "kind": "conformance_receipt",
+  "log_hash": "63115f8750ef8eda",
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "receipt_id": "receipt-09ec3e99e20d",
+  "remediation_commands": [
+    "saipen work reverify T-84"
+  ],
+  "schema_version": 2,
+  "source_head": "1b2e1106fabd42a2286404ba6a3d07d136badc88",
+  "source_tree_fingerprint": "git-delta-v1:1cd57c75d670770631068df328dcd5219ea8c13ff87a508172b357a12cc4d968",
+  "state_hash": "b432e208ac314dfb",
+  "timestamp_utc": "2026-09-27T13:56:25.186655Z",
+  "validator_protocol_version": "1",
+  "verdict": "FAIL"
+}
