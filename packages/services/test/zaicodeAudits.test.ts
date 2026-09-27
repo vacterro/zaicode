@@ -219,6 +219,25 @@ test("cancel stops a running campaign and its wave job", async () => {
   }
 });
 
+test("SRC-058: a reconcile queued behind cancel does not turn the cancelled campaign into blocked", async () => {
+  const h = await createHarness(new Map());
+  try {
+    const campaign = await h.audits.start(WS);
+    // The poller's getState() snapshots every campaign before it takes the
+    // campaign's lock. Issued right after cancel(), it waits for that lock
+    // while holding the pre-cancel "running" copy.
+    const cancelling = h.audits.cancel(campaign!.campaignId);
+    const polling = h.audits.getState();
+    await Promise.all([cancelling, polling]);
+    const stored = JSON.parse(
+      await readFile(join(h.auditRoot, campaign!.campaignId, "campaign.json"), "utf8"),
+    ) as { status: string };
+    assert.equal(stored.status, "cancelled");
+  } finally {
+    await h.dispose();
+  }
+});
+
 test("smart mode: empty board + nothing running starts a campaign; a full board does not", async () => {
   const h = await createHarness(allGood());
   try {

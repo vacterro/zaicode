@@ -362,8 +362,13 @@ export class ZaicodeAuditService implements IZaicodeAuditService {
   }
 
   private async reconcileAll(): Promise<void> {
-    for (const campaign of this.loadCampaigns()) {
-      await this.withCampaign(campaign.campaignId, () => this.reconcileCampaign(campaign)).catch(() => undefined);
+    for (const { campaignId } of this.loadCampaigns()) {
+      // Re-read under the lock: the list was read before it, and a cancel() or
+      // work() that held the lock meanwhile has written a newer state.
+      await this.withCampaign(campaignId, async () => {
+        const campaign = this.findCampaign(campaignId);
+        if (campaign) await this.reconcileCampaign(campaign);
+      }).catch(() => undefined);
     }
   }
 
