@@ -46,8 +46,9 @@ instead of from memory:
 | File | Role |
 |------|------|
 | `tools/saipen-cloud/Install-SaipenLiveSync.ps1` | validates, reconciles the branch, installs and starts the watcher, writes the autostart entry, proves local == remote |
-| `tools/saipen-cloud/ZaicodeSaipenLiveWatcher.ps1` | the loop: fetch, compare, fast-forward or push, log, pause |
+| `tools/saipen-cloud/ZaicodeSaipenLiveWatcher.ps1` | the loop: fetch, compare, fast-forward or push, log, pause; then the product pass and self-update |
 | `tools/saipen-cloud/Test-SaipenLiveSync.ps1` | round-trip from an independent executor plus cold-recovery proof |
+| `tools/saipen-cloud/Test-ProductSync.ps1` | product pass and self-update against throwaway Git repositories (no network, no real remote) |
 
 Install and repair:
 
@@ -84,6 +85,46 @@ pid it recorded in its own pid file.
 
 A dirty tree costs nothing, because the watcher checks dirt before it fetches.
 An idle checkout therefore makes no network calls at all.
+
+### Product pass (T-90)
+
+`zcode/` is its own repository, so the table above never moves product
+code. After it, the same tick handles the product checkout (`-ProductRepo`,
+default `<repo>\zcode`; branch `-ProductBranch`, default `zaicode`). The
+product pass runs whether or not the outer tree is dirty. It only ever pulls.
+
+| Situation | Move |
+|-----------|------|
+| remote ahead, no incoming file is dirty here | `git merge --ff-only`; uncommitted product work stays as it is |
+| remote ahead, an incoming file is dirty here | HELD: log the files, merge nothing |
+| local ahead | log; **never pushed** (product is published by SAIPEN SHIP) |
+| diverged | pause, log both ids, merge nothing |
+| other branch, a git op in flight, fetch failed | pause |
+| no `zcode/` checkout, or `-NoProduct` | skipped |
+
+git refuses on its own a fast-forward that would overwrite a local change, so
+the HELD check is an earlier, clearer guard, not the only one. A product
+fast-forward does not rebuild anything: to test, run `pnpm bundle:zaicode` (or
+the dev preview).
+
+### Self-update (T-90)
+
+The watcher runs as a copy under `%APPDATA%\SAIPEN`, so a newer watcher in
+the repository never ran without a reinstall. In loop mode it now compares
+its own file with the repository's committed copy on every pass. It installs
+that copy over itself and restarts exactly once, with the same arguments,
+only when all of these hold:
+
+- the two files differ;
+- the repository copy has no uncommitted edits;
+- the repository copy parses without errors.
+
+A copy that does not parse is refused and logged, and the running watcher
+carries on.
+
+Watchers installed before T-90 lack both the product pass and self-update.
+Re-run `Install-SaipenLiveSync.ps1` once on such a machine; after that, the
+watcher updates itself.
 
 ## Cloud half
 

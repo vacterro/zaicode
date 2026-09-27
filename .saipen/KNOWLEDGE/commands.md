@@ -131,6 +131,7 @@ history and `origin/workspace` is its published mirror.
 | Watcher (foreground, for debugging) | `powershell.exe -File tools\saipen-cloud\ZaicodeSaipenLiveWatcher.ps1 -Repo <root> -LogFile <f> -LockFile <f>` |
 | Watcher log | `%APPDATA%\SAIPEN\ZAICODE_cloud-sync.log` |
 | Round-trip proof | `powershell.exe -File tools\saipen-cloud\Test-SaipenLiveSync.ps1` |
+| Product pass + self-update proof (no network) | `powershell.exe -NoProfile -ExecutionPolicy Bypass -File tools\saipen-cloud\Test-ProductSync.ps1` (also runs under `pwsh`) |
 
 Product layer (`zcode/`) is a SEPARATE repository and a separate gate; see
 `git -C zcode status`. Workspace-layer gate for the launcher is

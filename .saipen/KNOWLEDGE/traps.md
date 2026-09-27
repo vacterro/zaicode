@@ -321,3 +321,17 @@ What to do:
 
 Do not rewrite sidecar metadata to the other path: that turns the same FAIL
 around onto the operator machine.
+
+## Trimming git's machine output shifts the first porcelain path (2026-09-27, T-90)
+
+`git status --porcelain -z` starts each entry with two status columns and a
+space, and the first column is often a space (` M file`). The watcher's
+`Invoke-Git` trimmed its output. That removed the leading space of the first
+entry, so `Substring(3)` read `.txt` instead of `a.txt`, and the product
+pass's "incoming file is dirty here" guard never matched. git's own refusal
+to overwrite local changes still held, so nothing was lost; the earlier
+guard, though, was dead code.
+
+`Test-ProductSync.ps1` caught it. Machine-read output (`-z`, porcelain) goes
+through `Invoke-Git -Raw`, which does not trim. Trim only output meant for a
+log line.

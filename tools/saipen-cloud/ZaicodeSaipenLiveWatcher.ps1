@@ -27,6 +27,28 @@
     Single instance: an exclusive lock file is held for the whole run, so a
     second copy exits 0 immediately instead of racing the first.
 
+    Product pass (T-90). zcode/ is a separate repository, gitignored here, so
+    the pass above never moves product code. After it, the same tick brings
+    the product checkout (-ProductRepo, branch -ProductBranch) up to its
+    remote, and ONLY by fast-forward:
+
+        P-A  remote ahead, incoming files touch no dirty path -> PRODUCT_SYNCED
+             (git merge --ff-only; uncommitted product work is left as it is)
+        P-H  remote ahead, an incoming file is dirty here      -> PRODUCT_HELD
+        P-L  local ahead                                       -> PRODUCT_LOCAL_AHEAD
+             (never pushed: product is published by SAIPEN SHIP, not a watcher)
+        P-E  diverged                                          -> PRODUCT_DIVERGED
+        P-B  other branch / git op in flight / no repo / fetch failed -> paused
+
+    git itself refuses a fast-forward that would overwrite a local change, so
+    the overlap check is a second, earlier guard, not the only one.
+
+    Self-update (T-90). This script runs as a copy under %APPDATA%\SAIPEN, so
+    a newer watcher in the repository would otherwise never run. On each pass
+    in loop mode, when the repository's committed copy differs from the
+    running one, parses cleanly and is not being edited, the watcher copies it
+    over itself, releases the lock and restarts once with the same arguments.
+
 .PARAMETER Repo
     Path to the ZAICODE checkout. Mandatory, and deliberately not defaulted:
     the machine-local copy under %APPDATA%\SAIPEN sits two levels below the
@@ -59,7 +81,21 @@
     Rotate the log to <LogFile>.1 past this size. Default: 2 MB.
 
 .PARAMETER Once
-    Run a single pass and exit 0. Used by the acceptance test.
+    Run a single pass and exit 0. Used by the acceptance test. Never
+    self-updates.
+
+.PARAMETER ProductRepo
+    The nested product checkout. Default: <Repo>\zcode. A missing folder is
+    not an error: the product pass is skipped and says so once.
+
+.PARAMETER ProductBranch
+    Product branch. Default: zaicode
+
+.PARAMETER NoProduct
+    Skip the product pass entirely.
+
+.PARAMETER NoSelfUpdate
+    Never replace the running copy with the repository's copy.
 
 .EXAMPLE
     powershell.exe -File ZaicodeSaipenLiveWatcher.ps1 `
@@ -78,7 +114,11 @@ param(
     [string]$LockFile = '',
     [string]$PidFile = '',
     [int]$MaxLogBytes = 2MB,
-    [switch]$Once
+    [switch]$Once,
+    [string]$ProductRepo = '',
+    [string]$ProductBranch = 'zaicode',
+    [switch]$NoProduct,
+    [switch]$NoSelfUpdate
 )
 
 Set-StrictMode -Version Latest
@@ -94,7 +134,14 @@ if ([string]::IsNullOrEmpty($PidFile)) {
     $PidFile = Join-Path $env:APPDATA 'SAIPEN\ZAICODE_cloud-sync.pid'
 }
 
+if ([string]::IsNullOrEmpty($ProductRepo)) {
+    $ProductRepo = Join-Path $Repo 'zcode'
+}
+
 $script:LastState = ''
+$script:LastProductState = ''
+$script:LastSelfUpdateState = ''
+$script:Relaunch = $false
 
 function Write-SyncLog {
     param([string]$Message)
@@ -135,14 +182,19 @@ function Write-StateChange {
 function Invoke-Git {
     param(
         [Parameter(Mandatory = $true)]
-        [string[]]$Arguments
+        [string[]]$Arguments,
+        [string]$Path = $Repo,
+        # Machine-read output (-z, porcelain) must not be trimmed: the first
+        # porcelain entry starts with a space (" M file"), and trimming it
+        # shifts the path by one character.
+        [switch]$Raw
     )
 
     $previous = $ErrorActionPreference
     $ErrorActionPreference = 'Continue'
     try {
         $global:LASTEXITCODE = 0
-        $output = & git -C $Repo @Arguments 2>&1
+        $output = & git -C $Path @Arguments 2>&1
         $code = $LASTEXITCODE
     }
     finally {
@@ -154,16 +206,19 @@ function Invoke-Git {
         $text = (@($output) | ForEach-Object { $_.ToString() }) -join [Environment]::NewLine
     }
 
+    if (-not $Raw) {
+        $text = $text.Trim()
+    }
     return [pscustomobject]@{
         ExitCode = $code
-        Output   = $text.Trim()
+        Output   = $text
     }
 }
 
 function Get-GitHead {
-    param([string]$Revision)
+    param([string]$Revision, [string]$Path = $Repo)
 
-    $result = Invoke-Git -Arguments @('rev-parse', '--verify', '--quiet', $Revision)
+    $result = Invoke-Git -Path $Path -Arguments @('rev-parse', '--verify', '--quiet', $Revision)
     if ($result.ExitCode -ne 0 -or [string]::IsNullOrEmpty($result.Output)) {
         return $null
     }
@@ -173,15 +228,18 @@ function Get-GitHead {
 function Test-GitAncestor {
     param(
         [Parameter(Mandatory = $true)][string]$Ancestor,
-        [Parameter(Mandatory = $true)][string]$Descendant
+        [Parameter(Mandatory = $true)][string]$Descendant,
+        [string]$Path = $Repo
     )
 
-    $result = Invoke-Git -Arguments @('merge-base', '--is-ancestor', $Ancestor, $Descendant)
+    $result = Invoke-Git -Path $Path -Arguments @('merge-base', '--is-ancestor', $Ancestor, $Descendant)
     return ($result.ExitCode -eq 0)
 }
 
 function Test-GitOperationInFlight {
-    $gitDir = (Invoke-Git -Arguments @('rev-parse', '--absolute-git-dir'))
+    param([string]$Path = $Repo)
+
+    $gitDir = (Invoke-Git -Path $Path -Arguments @('rev-parse', '--absolute-git-dir'))
     if ($gitDir.ExitCode -ne 0 -or [string]::IsNullOrEmpty($gitDir.Output)) {
         return $false
     }
@@ -308,6 +366,232 @@ function Invoke-SyncPass {
         "DIVERGED: local HEAD $localHead and $Remote/$Branch $remoteHead share no ancestor. Both histories are preserved. No merge, no rebase, no force push. Reconcile by hand."
 }
 
+# --- product pass (T-90) ---------------------------------------------------
+
+function Write-ProductStateChange {
+    param([string]$State, [string]$Message)
+
+    if ($State -eq $script:LastProductState) {
+        return
+    }
+    $script:LastProductState = $State
+    Write-SyncLog "Product: $Message"
+}
+
+# NUL-separated git output (-z) split into paths. Robust against quoting,
+# spaces and non-ASCII names, which the line form escapes.
+function Split-NulPaths {
+    param([string]$Text)
+
+    if ([string]::IsNullOrEmpty($Text)) {
+        return [pscustomobject]@{ Paths = @() }
+    }
+    return [pscustomobject]@{ Paths = @($Text -split "`0" | Where-Object { $_ -ne '' }) }
+}
+
+# Every path git status -z reports as changed or untracked, including both
+# sides of a rename. Returns a record (never a bare array; see Get-DirtyPaths).
+function Get-ProductDirtyPaths {
+    $status = Invoke-Git -Raw -Path $ProductRepo -Arguments @('status', '--porcelain=v1', '-z', '--untracked-files=all')
+    if ($status.ExitCode -ne 0) {
+        return [pscustomobject]@{ Ok = $false; Paths = @() }
+    }
+    $entries = (Split-NulPaths -Text $status.Output).Paths
+    $paths = @()
+    $index = 0
+    while ($index -lt $entries.Count) {
+        $entry = $entries[$index]
+        if ($entry.Length -gt 3) {
+            $paths += $entry.Substring(3)
+            $code = $entry.Substring(0, 2)
+            if ($code.Contains('R') -or $code.Contains('C')) {
+                $index += 1
+                if ($index -lt $entries.Count) {
+                    $paths += $entries[$index]
+                }
+            }
+        }
+        $index += 1
+    }
+    return [pscustomobject]@{ Ok = $true; Paths = $paths }
+}
+
+function Invoke-ProductSyncPass {
+    if ($NoProduct) {
+        return
+    }
+    if (-not (Test-Path -LiteralPath (Join-Path $ProductRepo '.git'))) {
+        Write-ProductStateChange 'PRODUCT_ABSENT' "no product checkout at $ProductRepo; product pass skipped."
+        return
+    }
+
+    $branchResult = Invoke-Git -Path $ProductRepo -Arguments @('branch', '--show-current')
+    if ($branchResult.ExitCode -ne 0) {
+        Write-ProductStateChange 'PRODUCT_NO_BRANCH' 'paused: unable to read the product branch.'
+        return
+    }
+    $currentBranch = $branchResult.Output.Trim()
+    if ($currentBranch -ne $ProductBranch) {
+        Write-ProductStateChange "PRODUCT_WAIT_BRANCH:$currentBranch" `
+            "paused: product branch is '$currentBranch', expected '$ProductBranch'. Nothing fetched or merged."
+        return
+    }
+
+    if (Test-GitOperationInFlight -Path $ProductRepo) {
+        Write-ProductStateChange 'PRODUCT_BUSY' 'paused: a git merge/rebase/cherry-pick is in flight in the product checkout.'
+        return
+    }
+
+    $fetch = Invoke-Git -Path $ProductRepo -Arguments @('fetch', $Remote, $ProductBranch, '--quiet')
+    if ($fetch.ExitCode -ne 0) {
+        Write-ProductStateChange 'PRODUCT_DEGRADED' `
+            "degraded: fetch $Remote/$ProductBranch failed (exit $($fetch.ExitCode)). Product untouched, retrying."
+        return
+    }
+
+    $localHead = Get-GitHead -Path $ProductRepo -Revision 'HEAD'
+    $remoteHead = Get-GitHead -Path $ProductRepo -Revision "$Remote/$ProductBranch"
+    if (-not $localHead -or -not $remoteHead) {
+        Write-ProductStateChange 'PRODUCT_HEAD_UNRESOLVED' 'paused: unable to resolve the local or remote product HEAD.'
+        return
+    }
+    if ($localHead -eq $remoteHead) {
+        Write-ProductStateChange "PRODUCT_SYNCED:$localHead" "synchronized at $localHead."
+        return
+    }
+
+    if (Test-GitAncestor -Path $ProductRepo -Ancestor $localHead -Descendant $remoteHead) {
+        $tree = Get-ProductDirtyPaths
+        if (-not $tree.Ok) {
+            Write-ProductStateChange 'PRODUCT_STATUS_FAILED' 'paused: git status failed in the product checkout.'
+            return
+        }
+        $incoming = Invoke-Git -Raw -Path $ProductRepo -Arguments @('diff', '--name-only', '-z', $localHead, $remoteHead)
+        if ($incoming.ExitCode -ne 0) {
+            Write-ProductStateChange 'PRODUCT_DIFF_FAILED' 'paused: unable to list the incoming product files.'
+            return
+        }
+        $dirty = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::OrdinalIgnoreCase)
+        foreach ($path in $tree.Paths) {
+            [void]$dirty.Add($path)
+        }
+        $overlap = @((Split-NulPaths -Text $incoming.Output).Paths | Where-Object { $dirty.Contains($_) })
+        if ($overlap.Count -gt 0) {
+            $shown = ($overlap | Select-Object -First 5) -join ', '
+            Write-ProductStateChange "PRODUCT_HELD:${localHead}:${remoteHead}" `
+                "HELD: $Remote/$ProductBranch $remoteHead changes $($overlap.Count) file(s) that are uncommitted here ($shown). Nothing merged; commit or finish that work, then the next pass fast-forwards."
+            return
+        }
+        $merge = Invoke-Git -Path $ProductRepo -Arguments @('merge', '--ff-only', "$Remote/$ProductBranch")
+        if ($merge.ExitCode -eq 0) {
+            $newHead = Get-GitHead -Path $ProductRepo -Revision 'HEAD'
+            Write-ProductStateChange "PRODUCT_SYNCED:$newHead" `
+                "fast-forwarded $localHead -> $newHead from $Remote/$ProductBranch; $($tree.Paths.Count) uncommitted path(s) left as they were. Rebuild to test (pnpm bundle:zaicode)."
+        }
+        else {
+            Write-ProductStateChange "PRODUCT_FF_FAILED:$remoteHead" `
+                "fast-forward from $Remote/$ProductBranch failed (exit $($merge.ExitCode)); git changed nothing: $($merge.Output)"
+        }
+        return
+    }
+
+    if (Test-GitAncestor -Path $ProductRepo -Ancestor $remoteHead -Descendant $localHead) {
+        Write-ProductStateChange "PRODUCT_LOCAL_AHEAD:$localHead" `
+            "local product $localHead is ahead of $Remote/$ProductBranch. Not pushed: product is published by SAIPEN SHIP, never by the watcher."
+        return
+    }
+
+    Write-ProductStateChange "PRODUCT_DIVERGED:${localHead}:${remoteHead}" `
+        "DIVERGED: local $localHead and $Remote/$ProductBranch $remoteHead share no ancestor. Both preserved; nothing merged, rebased or pushed. Reconcile by hand."
+}
+
+# --- self-update (T-90) ----------------------------------------------------
+
+function Write-SelfUpdateStateChange {
+    param([string]$State, [string]$Message)
+
+    if ($State -eq $script:LastSelfUpdateState) {
+        return
+    }
+    $script:LastSelfUpdateState = $State
+    Write-SyncLog $Message
+}
+
+# Returns $true when a newer watcher was installed over this copy and the
+# caller must restart. Only a committed, parse-clean repository copy is taken.
+function Test-SelfUpdateReady {
+    if ($Once -or $NoSelfUpdate) {
+        return $false
+    }
+    $running = $PSCommandPath
+    # Segment by segment: a backslash inside one Join-Path argument is part of
+    # the file name on non-Windows hosts, and GetFullPath would keep it.
+    $source = Join-Path (Join-Path (Join-Path $Repo 'tools') 'saipen-cloud') 'ZaicodeSaipenLiveWatcher.ps1'
+    if (-not $running -or -not (Test-Path -LiteralPath $source -PathType Leaf)) {
+        return $false
+    }
+    $runningFull = [System.IO.Path]::GetFullPath($running)
+    $sourceFull = [System.IO.Path]::GetFullPath($source)
+    if ([string]::Equals($runningFull, $sourceFull, [System.StringComparison]::OrdinalIgnoreCase)) {
+        return $false
+    }
+    if ((Get-FileHash -LiteralPath $runningFull -Algorithm SHA256).Hash -eq
+        (Get-FileHash -LiteralPath $sourceFull -Algorithm SHA256).Hash) {
+        return $false
+    }
+    # Never install a copy someone is still editing.
+    $edits = Invoke-Git -Arguments @('status', '--porcelain=v1', '--', 'tools/saipen-cloud/ZaicodeSaipenLiveWatcher.ps1')
+    if ($edits.ExitCode -ne 0 -or -not [string]::IsNullOrEmpty($edits.Output)) {
+        return $false
+    }
+    $tokens = $null
+    $errors = $null
+    [void][System.Management.Automation.Language.Parser]::ParseFile($sourceFull, [ref]$tokens, [ref]$errors)
+    if ($null -ne $errors -and @($errors).Count -gt 0) {
+        Write-SelfUpdateStateChange "SELF_UPDATE_REFUSED:$(@($errors).Count)" `
+            "Self-update refused: the repository watcher has $(@($errors).Count) parse error(s); this copy keeps running."
+        return $false
+    }
+    Copy-Item -LiteralPath $sourceFull -Destination $runningFull -Force
+    Write-SyncLog "Self-update: installed the repository watcher over $runningFull; restarting with the same arguments."
+    return $true
+}
+
+function Test-WindowsHost {
+    # $IsWindows does not exist in Windows PowerShell 5.1 and StrictMode rejects it.
+    return ([System.Environment]::OSVersion.Platform -eq [System.PlatformID]::Win32NT)
+}
+
+function Start-WatcherAgain {
+    $shell = (Get-Process -Id $PID).Path
+    $arguments = @('-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass')
+    if (Test-WindowsHost) {
+        $arguments += @('-WindowStyle', 'Hidden')
+    }
+    $arguments += @(
+        '-File', ('"{0}"' -f $PSCommandPath),
+        '-Repo', ('"{0}"' -f $Repo),
+        '-Remote', ('"{0}"' -f $Remote),
+        '-Branch', ('"{0}"' -f $Branch),
+        '-IntervalSeconds', ('{0}' -f $IntervalSeconds),
+        '-LogFile', ('"{0}"' -f $LogFile),
+        '-LockFile', ('"{0}"' -f $LockFile),
+        '-PidFile', ('"{0}"' -f $PidFile),
+        '-MaxLogBytes', ('{0}' -f $MaxLogBytes),
+        '-ProductRepo', ('"{0}"' -f $ProductRepo),
+        '-ProductBranch', ('"{0}"' -f $ProductBranch)
+    )
+    if ($NoProduct) {
+        $arguments += '-NoProduct'
+    }
+    if (Test-WindowsHost) {
+        Start-Process -FilePath $shell -ArgumentList $arguments -WindowStyle Hidden
+    }
+    else {
+        Start-Process -FilePath $shell -ArgumentList $arguments
+    }
+}
+
 # --- single instance -------------------------------------------------------
 
 $lockStream = $null
@@ -345,10 +629,11 @@ try {
     catch {
     }
 
-    Write-SyncLog "Watcher up: repo $Repo, branch $Branch, remote $Remote, interval ${IntervalSeconds}s, pid $PID, once $Once."
+    Write-SyncLog "Watcher up: repo $Repo, branch $Branch, remote $Remote, interval ${IntervalSeconds}s, pid $PID, once $Once, product $ProductRepo@$ProductBranch (off: $NoProduct)."
 
     if ($Once) {
         Invoke-SyncPass
+        Invoke-ProductSyncPass
         exit 0
     }
 
@@ -358,6 +643,21 @@ try {
         }
         catch {
             Write-StateChange "ERROR:$($_.Exception.Message)" "Watcher error: $($_.Exception.Message)"
+        }
+        try {
+            Invoke-ProductSyncPass
+        }
+        catch {
+            Write-ProductStateChange "PRODUCT_ERROR:$($_.Exception.Message)" "error: $($_.Exception.Message)"
+        }
+        try {
+            if (Test-SelfUpdateReady) {
+                $script:Relaunch = $true
+                break
+            }
+        }
+        catch {
+            Write-SelfUpdateStateChange "SELF_UPDATE_ERROR:$($_.Exception.Message)" "Self-update error (this copy keeps running): $($_.Exception.Message)"
         }
         Start-Sleep -Seconds $IntervalSeconds
     }
@@ -374,4 +674,10 @@ finally {
     }
     catch {
     }
+}
+
+# Self-update restart, after the lock and pid file are released so the new
+# copy can take them. Exactly one successor, started once.
+if ($script:Relaunch) {
+    Start-WatcherAgain
 }
