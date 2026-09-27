@@ -1,0 +1,43 @@
+{
+  "blocking_findings": {
+    "problem_count": 1,
+    "problems": [
+      {
+        "category": null,
+        "credential": false,
+        "detail": "cloud session close: saipen validate -> REFUSE [CONFORMANCE_UNHEALTHY] conformance: CURRENT_FAIL; validate.py 3088eff -> Validation FAILED: 4 problem(s",
+        "detail_hash": "ad0b031784a1283a",
+        "finding_key": "99a3c49984c97829",
+        "rule_id": "work_closure_evidence",
+        "severity": "problem",
+        "subject_id": "T-84",
+        "subject_kind": "work",
+        "subject_ref": null
+      }
+    ],
+    "ruleset_fingerprint": "82e5e183ae8f0fd909be3fa3627f00489cacaab813d942186c832db02a05a1c1",
+    "ruleset_version": 1,
+    "status": "complete",
+    "warning_count": 4
+  },
+  "board_hash": "3f5f06583f7f80f9",
+  "canonical_next_command": "saipen work reverify T-84",
+  "content_hash": "19b23c00c1db5586",
+  "exit_code": 1,
+  "external_actions": [],
+  "gate": "core",
+  "kind": "conformance_receipt",
+  "log_hash": "f12dd43075a16431",
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "receipt_id": "receipt-97e371294527",
+  "remediation_commands": [
+    "saipen work reverify T-84"
+  ],
+  "schema_version": 2,
+  "source_head": "ffb7b4c49cc9752489e58365b621ad7f184a029d",
+  "source_tree_fingerprint": "git-delta-v1:453924da6701db63bc4fa692b6a841ca7f7ec77f7042a81df0cfa2ba18fbdb98",
+  "state_hash": "f2e9e29937134429",
+  "timestamp_utc": "2026-09-27T14:19:50.131477Z",
+  "validator_protocol_version": "1",
+  "verdict": "FAIL"
+}

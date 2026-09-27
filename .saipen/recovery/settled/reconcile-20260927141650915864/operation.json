@@ -1,0 +1,43 @@
+{
+  "op_id": "reconcile-20260927141650915864",
+  "operation": "reconcile",
+  "created_at": "2026-09-27T14:16:51Z",
+  "agent": "claude-code-local-verify",
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "project_lineage": "lineage-b0732ed2f98947b9a3c97bfe71427eca",
+  "semantic_payload_hash": "9b3c53734fe31feb",
+  "preconditions": {
+    ".saipen/STATE.md": "b205c8c952539048",
+    ".saipen/LOG.md": "ed36aa151101af7b"
+  },
+  "read_preconditions": {
+    ".saipen/BOARD.md": "74d3e258eb99487c",
+    ".saipen/logs": "delete-tree-sha256:428c36d3f9008ab946025133cd6ec9aed48d027f0a7ab5693cc7b876649c1bd9"
+  },
+  "verification_policy": "core_fast",
+  "status": "COMMITTED",
+  "progress_index": 2,
+  "targets": [
+    {
+      "path": ".saipen/LOG.md",
+      "role": "log",
+      "action": "write",
+      "before_hash": "ed36aa151101af7b",
+      "after_hash": "03c579ed06f0071b",
+      "applied": true
+    },
+    {
+      "path": ".saipen/STATE.md",
+      "role": "state",
+      "action": "write",
+      "before_hash": "b205c8c952539048",
+      "after_hash": "01ace9052c978b24",
+      "applied": true
+    }
+  ],
+  "receipt_metadata": {
+    "inherited_findings": [
+      "STATE proposed malformed: style_contract 'ded-8b7ceebd' does not match the installed STYLE.md marker 'ded-4ae736e4' -- the agent that wrote this checkpoint did not read the current voice contract (RFC \u00a7 1.2)"
+    ]
+  }
+}

@@ -67,6 +67,62 @@ and continue. Record which route worked.
 
 `.claude/saipen-protocol/` is gitignored. Never commit it.
 
+### Preflight: the voice contract, before any CLI write
+
+`style_contract` in `.saipen/STATE.md` is a hash of the kernel's
+`saipen/STYLE.md` text — `tools/validate.py`, `style_contract_token`: CRLF
+normalized, the `style_contract:` line itself excluded. Every ordinary CLI
+mutation is refused while the two disagree:
+
+```
+REFUSE [VALIDATION_FAILED]
+STATE proposed malformed: style_contract '<STATE>' does not match the
+installed STYLE.md marker '<installed>'
+```
+
+So the first thing to do after the kernel fetch above, and before any CLI call
+that writes, is to compare the kernel's token with the project's:
+
+```bash
+# the installed copy the CLI will actually read
+python -c "import re,sys;t=open(r'<kernel>/saipen/STYLE.md',encoding='utf-8',newline='').read();b='\n'.join(l for l in t.replace('\r\n','\n').split('\n') if 'style_contract:' not in l).strip();print('ded-'+__import__('hashlib').sha256(b.encode()).hexdigest()[:8])"
+grep '^style_contract:' <project-root>/.saipen/STATE.md
+```
+
+On a mismatch, **stop before any CLI write** and report both values. Do not
+"fix" it by editing STATE by hand; `saipen recover` re-stamps the field, and
+only after the installed `STYLE.md` is itself correct.
+
+**A cloud session in that state writes evidence only, under a provisional
+ticket id, and says so in the file.** It cannot create a ticket, claim one, or
+move a phase, because every one of those is a refused CLI write. It states in
+the evidence header which ticket id is provisional and that STATE/BOARD/LOG
+were not touched, so the operator's machine can record the receipt properly.
+T-94 (`.saipen/evidence/T-94-src062.md`) is the worked example: the cloud
+wrote the whole SRC-062 evidence map under a provisional id and could not
+record the ticket itself.
+
+### STYLE.md is not a local setting
+
+`saipen/STYLE.md` must be byte-identical to the pinned kernel's file on every
+machine and in every copy. An operator machine has at least two: the kernel
+checkout at `STATE.saipen_home`, and
+`%LOCALAPPDATA%\saipen\scheduled-source\saipen\STYLE.md`, which the
+`saipen-inject` scheduled task populates from `bootstrap/schedule-run.ps1` and
+which is **not a Git repository** — `git checkout` cannot repair that copy, only
+the injector or a direct write of the published content can.
+
+Editing `reply_language` in one copy moves that copy's token and leaves every
+other machine — and the cloud, which fetches the published kernel — on the
+published token. The result is a state the cloud cannot write and a local CLI
+that refuses. This is a real incident, not a hypothetical: it happened on
+2026-09-27, and fixing it took restoring the pinned file in both copies and
+re-stamping STATE with `saipen recover` (E-1580).
+
+**To change the reply language, commit it in the kernel repository, publish,
+re-pin the commit here, and re-stamp `STATE.style_contract` with
+`saipen recover`. Never edit `STYLE.md` locally.** The default is `et`.
+
 ## 3. Run the protocol, or follow it by hand
 
 Preferred, when the environment allows it:
@@ -100,14 +156,28 @@ last. On a Windows checkpoint that path is dead here. The first
 `saipen continue` converges the pointer to the running kernel on its own, as
 a journaled operation. The event reads `DEC: saipen_home automatically
 converged to the proven canonical runtime ...` (E-1410), and it is expected
-on every switch between the operator machine and the cloud. On the way back,
-the operator's kernel converges it on `continue` if it has automatic
-convergence; otherwise the operator runs `saipen rebind-home --auto`. That
-return trip has not been observed yet.
+on every switch between the operator machine and the cloud.
+
+**The return trip has been observed.** E-1562 (cloud) converged the pointer to
+`/home/user/zaicode/.claude/saipen-protocol`; E-1571 (operator machine)
+converged it back to `V:/.../_SAIPEN` on its own, with no manual
+`rebind-home`. Both directions are the same automatic convergence. Expect one
+`saipen_home` `DEC` per locality switch and read it as expected noise, not as
+a defect or a regression.
+
+The local kernel at `STATE.saipen_home` may be a **development checkout ahead
+of the pin** rather than a clean `3088eff` clone — on the operator machine it
+is the `accepted-debt-rebind` branch with uncommitted work in it. That is not
+by itself a problem, and it is not yours to fix: never commit, stash, reset,
+check out or clean anything in it. The single permitted exception is a targeted
+restore of `saipen/STYLE.md` to the pinned file, and only when the operator
+asked for it, because the voice contract must match the pin everywhere (see
+the preflight above).
 
 Never hand-edit the pointer in STATE, and never try to undo the rebind. The
 kernel owns it. The upstream fix, which moves the pointer out of versioned
-state, is P1-2 in `docs/HANDOFF_SAIPEN_CROSS_PLATFORM.md`.
+state, is P1-2 in `docs/HANDOFF_SAIPEN_CROSS_PLATFORM.md`; it is not
+implemented here, and the per-switch `DEC` stays noise until it lands.
 
 ## 4. Shortcut semantics
 

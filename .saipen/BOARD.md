@@ -27,7 +27,7 @@
      write that field name next to a concrete id anywhere in this file. -->
 
 ## DOING
-- [/] T-94 [P1] SRC-062 (operator, 2026-09-27, after the T-93 PASS): nine items and three appends. (1) SAIPEGGLE, a Peggle Deluxe style game replacing PEBBLE DROP. (2) ProTr... | verify: manual test steps 1-10 in .saipen/evidence/T-94-src062.md, on a Windows build carrying zaicode 50e0cf6 and workspace launcher 811bfb5; product published on origin/zaicode ac55e13 0bf65b6 5994892 1dda054 037b980 b504d11 d0568fb 59ec8df a112be4 50e0cf6 | user_explicit: true | source_receipts: SRC-062 | owner: claude-code-local-verify | claim_time: 2026-09-27T13:56:23Z
+- [/] T-94 [P1] SRC-062 (operator, 2026-09-27, after the T-93 PASS): nine items and three appends. (1) SAIPEGGLE, a Peggle Deluxe style game replacing PEBBLE DROP. (2) ProTr... | verify: manual test steps 1-10 in .saipen/evidence/T-94-src062.md, on a Windows build carrying zaicode 50e0cf6 and workspace launcher 811bfb5; product published on origin/zaicode ac55e13 0bf65b6 5994892 1dda054 037b980 b504d11 d0568fb 59ec8df a112be4 50e0cf6 | user_explicit: true | source_receipts: SRC-062 | owner: claude-code-local-verify | claim_time: 2026-09-27T14:35:39Z
 
 
 ## TODO

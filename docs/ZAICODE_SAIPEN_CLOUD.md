@@ -140,8 +140,52 @@ last. In the cloud, the first `saipen continue` on kernel `3088eff` converges
 it to the running kernel as one journaled `DEC` (E-1410). On the operator
 machine the pointer arrives dead in the same way. A kernel with automatic
 convergence repairs it on `continue`; otherwise run
-`saipen rebind-home --auto`. That return trip has not been observed yet.
-Expect one such `DEC` per locality switch. Never hand-edit the pointer.
+`saipen rebind-home --auto`.
+
+**The return trip is observed.** E-1562 (cloud) converged the pointer to
+`/home/user/zaicode/.claude/saipen-protocol`; E-1571 (operator machine)
+converged it straight back to `V:/.../_SAIPEN`, automatically, with no manual
+`rebind-home`. Both directions are the same automatic convergence, so expect
+one `saipen_home` `DEC` per locality switch and treat it as expected noise
+rather than a defect. It stays noise until P1-2
+(`docs/HANDOFF_SAIPEN_CROSS_PLATFORM.md`) moves the pointer out of versioned
+state; do not implement P1-2 as a side effect of noticing it. Never hand-edit
+the pointer.
+
+`STATE.saipen_home` may point at a kernel **development checkout** that is ahead
+of the pin, not at a clean `3088eff` clone — on the operator machine it is the
+`accepted-debt-rebind` branch with uncommitted work. A kernel that is not at the
+pinned commit is not automatically wrong, but it is not a clean-room source
+either, so the rule below about the voice contract applies to it with full
+force. Never commit, stash, reset, check out or clean anything in such a
+checkout; a targeted single-file restore of `saipen/STYLE.md` is the only
+permitted exception, and only when the operator asked for it.
+
+### STYLE.md is not a local setting
+
+`saipen/STYLE.md` must be **byte-identical to the pinned kernel's file** on
+every machine, in every copy, with no exceptions and no local edits. There is
+more than one copy on an operator machine:
+
+- the kernel checkout at `STATE.saipen_home` (a Git clone, on the operator
+  machine a development checkout);
+- `%LOCALAPPDATA%\saipen\scheduled-source\saipen\STYLE.md`, populated by the
+  `saipen-inject` scheduled task (`bootstrap/schedule-run.ps1`). It is **not a
+  Git repository**, so `git checkout` can never repair it — a re-sync through
+  the injector, or a direct write of the published content, is the only path.
+
+The `style_contract` token in `.saipen/STATE.md` is a hash of that file's text
+(`tools/validate.py`, `style_contract_token`: CRLF normalized, the
+`style_contract:` line excluded). Edit `reply_language` in one copy and the
+token moves; the other copy and the cloud, which fetch the published kernel,
+keep the published token, and every CLI write on the mismatching side is
+refused with `style_contract ... does not match the installed STYLE.md marker`.
+That is the whole failure: the local side writes state the cloud cannot write.
+
+**Changing the reply language is a kernel commit plus a repin**, never a local
+edit. Change it in the kernel repository, publish it, re-pin the commit in
+SKILL.md, and update `STATE.style_contract` through `saipen recover`. A local
+edit to `STYLE.md` desynchronizes every machine that is not the one making it.
 
 One trap worth naming: the published `bin/saipen` is a machine-bound shim that
 hardcodes one operator's absolute interpreter and checkout paths. It runs on
