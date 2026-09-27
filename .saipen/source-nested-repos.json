@@ -1,0 +1,5 @@
+{
+  "schema_version": 1,
+  "nested_repos": ["zcode"],
+  "why": "zcode/ is its own Git repository and this repo gitignores it (/zcode/), so `git diff` at the outer root never saw a product byte. Measured 27.09.26: editing zcode/packages/ui/src/i18n/index.ts left the outer identity byte-identical at git-delta-v1:8100e16. compute_source_identity is what require_fresh, the improve strict-cycle bar and the T-76 discovery gate all read, so every freshness decision here was blind to the code that ships. Declaring the repository binds its HEAD and its own dirty delta into the outer identity; a declared repository that goes missing or stops being its own work-tree root fails the capture instead of silently dropping out."
+}

@@ -1,4 +1,14 @@
 {
-  "requirements": {},
+  "requirements": {
+    "SRC-036:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "T-47 closed with verification evidence in LOG: verify -> PASS conf: high for the part delivered, with the remainder measured rather than asserted. DELIVERED: the nested binding, proven above on this project and by 13 cases in the engine, and proven not to change any other project -- a project with no declaration produces a byte-identical identity, which is what the no-declaration test pins. REGRESSION: every suite that reads compute_source_ide",
+      "text": "saitranslate",
+      "verification": "the Work this request created reached its own verification gate; see the T-47 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-47"
+    }
+  },
   "schema_version": 1
 }
