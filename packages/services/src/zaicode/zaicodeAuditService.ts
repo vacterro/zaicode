@@ -365,9 +365,12 @@ export class ZaicodeAuditService implements IZaicodeAuditService {
     for (const { campaignId } of this.loadCampaigns()) {
       // Re-read under the lock: the list was read before it, and a cancel() or
       // work() that held the lock meanwhile has written a newer state.
+      // One file, not findCampaign(): that rescans every campaign directory.
       await this.withCampaign(campaignId, async () => {
-        const campaign = this.findCampaign(campaignId);
-        if (campaign) await this.reconcileCampaign(campaign);
+        const campaign = ZaicodeAuditService.readJson<ZaicodeAuditCampaign>(
+          join(this.campaignDir(campaignId), "campaign.json"),
+        );
+        if (campaign?.schemaVersion === 1) await this.reconcileCampaign(campaign);
       }).catch(() => undefined);
     }
   }
