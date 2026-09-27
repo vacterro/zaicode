@@ -28,8 +28,11 @@
     second copy exits 0 immediately instead of racing the first.
 
 .PARAMETER Repo
-    Path to the ZAICODE checkout. Defaults to the repository two levels above
-    this script, so the watcher never depends on the caller's directory.
+    Path to the ZAICODE checkout. Mandatory, and deliberately not defaulted:
+    the machine-local copy under %APPDATA%\SAIPEN sits two levels below the
+    user's profile, so "two levels above this script" would resolve to
+    C:\Users\<name>\AppData and fail. The installer and the Startup entry
+    always pass it, and the script never depends on the caller's directory.
 
 .PARAMETER Remote
     Git remote name. Default: origin
@@ -66,7 +69,8 @@
 #>
 [CmdletBinding()]
 param(
-    [string]$Repo = '',
+    [Parameter(Mandatory = $true)]
+    [string]$Repo,
     [string]$Remote = 'origin',
     [string]$Branch = 'saipen-live',
     [int]$IntervalSeconds = 30,
@@ -80,9 +84,6 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
-if ([string]::IsNullOrEmpty($Repo)) {
-    $Repo = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
-}
 if ([string]::IsNullOrEmpty($LogFile)) {
     $LogFile = Join-Path $env:APPDATA 'SAIPEN\ZAICODE_cloud-sync.log'
 }
@@ -198,15 +199,21 @@ function Test-GitOperationInFlight {
     return $false
 }
 
+# Returns a record, never a bare array. PowerShell unrolls an array on
+# `return`, so an empty one arrives as $null and a one-element one arrives as
+# a bare string; both then break the caller's .Count under StrictMode. An empty
+# tree used to read as "git status failed" for exactly that reason.
 function Get-DirtyPaths {
     $status = Invoke-Git -Arguments @('status', '--porcelain=v1', '--untracked-files=all')
     if ($status.ExitCode -ne 0) {
-        return $null
+        Write-SyncLog "git status failed: exit $($status.ExitCode); output=[$($status.Output)]"
+        return [pscustomobject]@{ Ok = $false; Paths = @() }
     }
-    if ([string]::IsNullOrEmpty($status.Output)) {
-        return @()
+    $paths = @()
+    if (-not [string]::IsNullOrEmpty($status.Output)) {
+        $paths = @($status.Output -split "`r?`n" | Where-Object { $_.Trim() })
     }
-    return @($status.Output -split "`r?`n" | Where-Object { $_.Trim() })
+    return [pscustomobject]@{ Ok = $true; Paths = $paths }
 }
 
 function Invoke-SyncPass {
@@ -225,14 +232,14 @@ function Invoke-SyncPass {
 
     # Case C: a dirty tree is uncheckpointed work. Touching nothing is the
     # correct answer, and not even a fetch is worth the network round-trip.
-    $dirty = Get-DirtyPaths
-    if ($null -eq $dirty) {
+    $tree = Get-DirtyPaths
+    if (-not $tree.Ok) {
         Write-StateChange 'STATUS_FAILED' 'Paused: git status failed.'
         return
     }
-    if ($dirty.Count -gt 0) {
-        Write-StateChange "DIRTY:$($dirty.Count)" `
-            "Paused: working tree has $($dirty.Count) uncommitted path(s). No fetch, no merge, no push."
+    if ($tree.Paths.Count -gt 0) {
+        Write-StateChange "DIRTY:$($tree.Paths.Count)" `
+            "Paused: working tree has $($tree.Paths.Count) uncommitted path(s). No fetch, no merge, no push."
         return
     }
 
