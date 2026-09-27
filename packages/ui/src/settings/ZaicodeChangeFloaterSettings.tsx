@@ -4,6 +4,7 @@ import { ZaicodePrefCheck, ZaicodePrefSegment, ZaicodePrefStepper } from "@/zaic
 import { ZaicodeChangeCounter } from "@/zaicode/ZaicodeChangeCounter.js";
 import {
   ZAICODE_FLOATER_LIMITS,
+  ZAICODE_FLOATER_ORDERS,
   ZAICODE_FLOATER_STYLES,
   useZaicodeChangeFloaters,
   type ZaicodeFloaterSuffix,
@@ -72,6 +73,8 @@ export function ZaicodeChangeFloaterSettings() {
           <p className="mt-1 max-w-[620px] text-foreground-subtle">
             When an agent adds lines, a green +N floats up from the Changes counter like healing in
             a game; removed lines fly off as a red -N like damage. A big change is a critical hit.
+            Numbers that start close together stack one above the other instead of printing over
+            each other.
           </p>
         </div>
         <button
@@ -90,6 +93,7 @@ export function ZaicodeChangeFloaterSettings() {
           added={test.added}
           removed={test.removed}
           scopeKey="settings-preview"
+          demo
           className="flex items-center gap-1.5 font-mono text-ui-base tabular-nums"
         >
           <span className="text-[var(--color-diff-added)]">+{test.added}</span>
@@ -166,6 +170,30 @@ export function ZaicodeChangeFloaterSettings() {
             disabled={off}
             onChange={(sound) => prefs.update({ sound })}
             label="Sound (Sounds -> Agent: Lines added / Lines removed)"
+          />
+          <ZaicodePrefCheck
+            checked={prefs.ignoreReducedMotion}
+            disabled={off}
+            onChange={(ignoreReducedMotion) => prefs.update({ ignoreReducedMotion })}
+            label="Keep moving when animations are off"
+            hint="The calm interface (Layout & home) and the system's 'reduce motion' stop every animation. On: these numbers still fly. Off: they follow the rest and only fade in place."
+          />
+          <ZaicodePrefSegment
+            label="Both at once"
+            value={prefs.order}
+            options={ZAICODE_FLOATER_ORDERS}
+            disabled={off}
+            onChange={(order) => prefs.update({ order })}
+          />
+          <ZaicodePrefStepper
+            label="Gap between - and +"
+            value={prefs.sequenceGapMs}
+            min={ZAICODE_FLOATER_LIMITS.sequenceGapMs[0]}
+            max={ZAICODE_FLOATER_LIMITS.sequenceGapMs[1]}
+            step={50}
+            format={(ms) => (ms === 0 ? "none" : `${(ms / 1000).toFixed(2)} s`)}
+            disabled={off || prefs.order === "together"}
+            onChange={(sequenceGapMs) => prefs.update({ sequenceGapMs })}
           />
         </div>
         <div className="flex flex-col gap-1.5">
