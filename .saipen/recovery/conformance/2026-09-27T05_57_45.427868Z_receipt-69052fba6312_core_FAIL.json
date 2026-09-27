@@ -1,0 +1,17 @@
+{
+  "board_hash": "e2c6cc63bbb5047b",
+  "content_hash": "7138d5971e6ac17c",
+  "exit_code": 1,
+  "gate": "core",
+  "kind": "conformance_receipt",
+  "log_hash": "5dc8a54bb3a7b149",
+  "project_identity": "/home/user/zaicode",
+  "receipt_id": "receipt-69052fba6312",
+  "schema_version": 2,
+  "source_head": "35054b3d9dd956c3b2e19d7703d731fa9051d7a1",
+  "source_tree_fingerprint": "git-delta-v1:c66baf69a8306f3b95dfc7badb5f72b088f8de8408e933efadc4d149721a1195",
+  "state_hash": "30b07bda66a116ce",
+  "timestamp_utc": "2026-09-27T05:57:45.427868Z",
+  "validator_protocol_version": "1",
+  "verdict": "FAIL"
+}
