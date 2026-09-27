@@ -27,7 +27,7 @@
      write that field name next to a concrete id anywhere in this file. -->
 
 ## DOING
-- [/] T-89 [P1] Проверь вот это всё тоже, возможно повтор. | verify: every item is classified as a repeat (prior receipt + implementation evidence) or new; each repeat's implementation is audited in the zcode source and every confirmed defect is fixed with a regression test, or recorded with the exact reason it cannot be fixed or verified from the cloud | user_explicit: true | source_receipts: SRC-058 | needs: T-90 | owner: claude-code | claim_time: 2026-09-27T07:40:39Z
+- [/] T-89 [P1] Проверь вот это всё тоже, возможно повтор. | verify: every item is classified as a repeat (prior receipt + implementation evidence) or new; each repeat's implementation is audited in the zcode source and every confirmed defect is fixed with a regression test, or recorded with the exact reason it cannot be fixed or verified from the cloud | user_explicit: true | source_receipts: SRC-058 | needs: T-90 | owner: claude-code | claim_time: 2026-09-27T07:41:38Z
 
 ## TODO
 
