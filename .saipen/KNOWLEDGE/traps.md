@@ -377,3 +377,19 @@ ordering bug is invisible there.
 Configure the clone itself: `git -c core.autocrlf=false clone ...`. A fixture that
 reads `git clone` followed by `git config core.autocrlf false` passes on the cloud
 and fails on every Windows host.
+
+## The tracked STATE.md carries a machine-specific saipen_home (2026-09-27, T-89)
+
+`.saipen/STATE.md` is committed, and it holds an absolute `saipen_home`. A
+Claude Code Cloud session converged it to its own
+`/home/user/zaicode/.claude/saipen-protocol`; the watcher then fast-forwarded
+that state into this checkout, where the path does not exist. The first
+`saipen checkpoint` after a cloud push therefore fails:
+
+    REFUSE [HOME_REQUIRED]  home-dead: STATE.saipen_home '...' does not resolve
+
+`saipen rebind-home --auto` converges it, and it is idempotent, so the cost is
+one refused command per executor change. This is the transport working as
+designed -- repository continuity over conversation continuity -- colliding with
+a field that is genuinely machine-local. Do not "fix" it by removing the field
+or by gitignoring STATE.md; the board depends on it.

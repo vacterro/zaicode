@@ -128,3 +128,70 @@ new `/usage` output, and it is a new feature, not polish.
   launcher, the app splash and the settings preview.
 - Hover the composer's Stop button and other hint icons near their edges.
   Expect a steady tooltip.
+
+## Third pass: re-audit of the second pass's "no defect found" rows (operator machine, 2026-09-27)
+
+The second pass read each repeat once and filed 23 of them as "no defect
+found". This pass read them again, deeper, on the operator machine at
+`290136a`, and **14 of those 23 verdicts do not survive**. Reading a symbol
+once and seeing the right name is the failure mode the operator's follow-up
+names, and it produced these. The corrected verdicts follow, each with the
+evidence that overturns the earlier row.
+
+| Item | Second pass | Corrected | What overturned it |
+|---|---|---|---|
+| SRC-055 #5 PLAY in MAIN view | no defect | **DEFECT** | `startSaipen` races `listTasks` against a 5 s timeout and, on a cold project, returns without opening anything (`WorkspaceSidebarItem.tsx:471-489`). Every manual-open path has no timeout, which is exactly the operator's "manual open loads it, PLAY does not". It then fires a headless `resumeTask`+`send` with no barrier against the pane's own load, and never calls `showChatMainView()`. |
+| SRC-055 #9 Continue All width | "no code change since" | **DEFECT** (fixed `393590a`) | `@min-[360px]/workspace-sidebar` queries a container nothing ever declared, so the wide three-column layout was dead at every width. |
+| R014 project-switch sound | "cue on by migration" | **DEFECT** (fixed `393590a`) | The row is a `role=button`, so the global `ui.button` listener played a *direct* sound; the `sidebar.project` echo followed inside the 700 ms suppression window and was dropped. Clicking the row never played the project cue. |
+| R019 title centring | "centres on the free band" | **DEFECT** | `--windows-caption-controls-right-inset` is written only by `createWindowsCaptionControlsStyle`, applied to `DesktopTopOverlay`, which is not an ancestor of `<header>`. The header always falls back to 136 px on every platform, so on macOS the title sits off-centre. |
+| SRC-055 #2 A3 counter | "drives the badge" | PARTIAL | Shows complete/total, not remaining. A `partial` wave sets the campaign `blocked`, which still counts as active, so a blocked campaign reads as reserve it will never spend. The project match is an exact case-sensitive compare while the product uses `sameZaicodeProjectPath` everywhere else. |
+| SRC-055 #6 Pebble game | "test passes" | PARTIAL | A real game, but the six levels are one minigame with numeric scaling only; `drawPixelText` uses antialiased `ctx.fillText`, which the CSS `-webkit-font-smoothing` rule cannot reach, against the operator's "pixeled without blurriness"; scaling is non-integer below `max-w-[960px]`. |
+| SRC-055 #7 ON/OFF styling | "editable in settings" | PASS | Confirmed: per-state colour and opacity plus font, size, bold and underline (`ZaicodeSidebarSettings.tsx:132-190`), with an `OFF` text badge so the state is not colour-only. No test covers the keys. |
+| R003 AUTO toggle + A3 loop | fixed in `290136a` | PARTIAL | The fall-through fires only when `blockedTickets === 0` (`ZaicodeAppRuntime.tsx:378`), and that value is `null` without a SAIPEN board, so for a project with no board A3 never starts even with Auto ON. The loop *conditions* are hard-coded in `shouldStartZaicodeAuditCampaign`, so the "configurable conditions" half of the request is not met. |
+| R002 account visibility | "has-capacity keeps it visible" | PARTIAL | The reported symptom is **not reproducible from source**: discovery, the probe pool and every display are set-correct. The one real gap found is that `discoverCodex` has no `CODEX_HOME` equivalent, so a Codex account configured only by environment is never discovered. |
+| R006 GLM resets | "maps nextResetTime" | PARTIAL | Detection is plan-agnostic and correct. *Discovery* is not: `ZCODE_PLAN_PROVIDER_IDS` is a fixed four-entry list with no Lite entry and no registry, and `readZcodePlanEntries()[0]` makes a second concurrent plan invisible. |
+| R011 theme button | "header toolbar opens the menu" | PARTIAL | Placement and adjacency are delivered and visible by default. The "marked yellow" reading cannot be confirmed: the referenced screenshot is not in the repo and `SRC-053:R011` normalises the request to "move the trigger to the quick-access row". It also degrades to two clicks when the overflow row swallows it. |
+| R012 retry settings | "reads the prefs" | PARTIAL | The preferences are real and the default budget is 100. But the "reconnecting" state the operator asked for does not exist: `RECONNECT_DELAYS` is a hard-coded nine attempts in `packages/rpc/src/remote.ts`, `RemoteAgentConnection` is never instantiated, and `connectionState: "reconnecting"` is never emitted. |
+| R013 icon workshop | "slots, overrides, reset" | PARTIAL | Export and import are real. Coverage is not "all icons": 31 fixed slots, only 11 files consume `ZaicodeIcon`, 42 files under `src/zaicode/` import `lucide-react` directly, and there is no `worker.*` slot. |
+| R016 todo dock | "clampToWindow on resize" | PARTIAL | A clamp, not a reposition: the docked panel is pinned at `right:16 top:64` at every size, with no breakpoints and no re-docking. |
+| R017 duplicate worker glyph | "skips when MAIN spins" | PARTIAL | The fixed case was the *spinner*, not the worker glyph. `zaicodeProjectWorkers` still dedups nothing, so two workers of one engine in one project render two identical chips, and one worker shows in three places at once. |
+| R018 icon gradients | "badge builder" | PARTIAL | One two-stop 45° linear gradient behind one checkbox: no angle, extra stops, radial or blur, and `ZaicodeWorkerPrefs` has no colour or gradient fields at all. This is the generic slot designer, not a worker icon editor. |
+| R001 Shift+close | "needs a live check" | PASS (verified in source) | `before-input-event` records Shift, `shiftCloseRequested` calls `requestQuit()` then `app.quit()`, the same path as a confirmed quit. Caveat: the shipped feature is Shift plus a *click* on the X; a Shift+X chord works only if the operator binds `app.exit`, whose default is `Alt+F4`. |
+| R008 dev preview | not restated | PASS | Real isolation: a temp profile with HOME, USERPROFILE, APPDATA and all `ZCODE_*` roots redirected, so the single-instance lock is taken independently. Real settings seeding: `session/Local Storage` plus `zaicode-settings-snapshot.json`, and the renderer reads `localStorage` first. |
+| R010 retry chat | "same session" | PASS | `fork-edit-retry` is a rewind-and-resend inside the current session, and auto-retry re-sends into the same `sessionId`, so no session is created and none can vanish. The separate **queue** retry does create a row (`zaicodeJobService.ts:294`) and `zaicodeStore.ts:223` does not select it, so the panel shows the old row. |
+| R004 SAIFREN sanitation | not restated | PASS | A real reaper: two absences or two 404s retire a model, a 24 h `retryAfter` re-probes and restores it, ranking is capability plus health, and `ranked = [...manual, ...automatic]` means the scanner can only evict what it added. `zaicodeRouterSetup.test.ts` passes 8/8 on this machine. |
+| R005 sound triggers | "more triggers is new work" | PASS | Already 48 events with 41 enabled, five global document listeners (any button, toggle, select, copy, context menu) and a declarative `data-zaicode-sound` opt-in. This is also the mechanism that caused the R014 defect above. |
+
+The two fixed defects, each with a red control:
+
+| Commit | Item | Fix | Test | Red control |
+|---|---|---|---|---|
+| `393590a` | SRC-055 #9 | `@container/workspace-sidebar` declared on the sidebar panel (`WorkspaceShellLayout.tsx:1654`), so the action strip's wide layout can match | `zaicodeSrc58Polish.test.ts` (2 tests) | 2 of 2 RED on the pre-fix code |
+| `393590a` | R014 | `data-zaicode-sound="sidebar.project"` on the project row, which plays the cue directly and opts the row out of the generic `ui.button` listener | same file, second test | 2 of 2 RED on the pre-fix code |
+
+The packaged smoke missed both by construction: it asserts that the narrow
+640x540 strip does not overflow, which the stacked fallback already satisfies,
+and it never clicks a project row. That is a gap in the smoke, not a false
+claim in `docs/ZAICODE_FEEDBACK_COVERAGE.md` — the script and the claims there
+check out and were re-read.
+
+Gates at `393590a` on this machine (node 24.15.0, pnpm 10.33.2):
+`pnpm run verify:pre-push` exit 0 — lint 0 errors and 76 warnings (the
+baseline), ui 286/286, services 50/50, desktop 54/54. Published to
+`origin/zaicode` as a fast-forward, 290136a..393590a.
+
+## Not fixed here, and why
+
+- **R019 title centring** needs the real caption inset. The renderer never
+  receives the caption-button position, and the 136 px fallback is only correct
+  on Windows with the buttons on the right, so changing it blind would move the
+  title somewhere else wrong. Recorded instead.
+- **SRC-055 #5 PLAY** is a product decision, not a typo. The 5 s timeout was
+  added deliberately to avoid a second MAIN on a hydrating project, as the
+  comment at `WorkspaceSidebarItem.tsx:463` records. Removing it restores the
+  operator's behaviour and reinstates the race it guards. That tradeoff is the
+  operator's to make.
+- **R003 loop conditions** configurable in settings is new build surface for the
+  feature the operator called the core one; it is tracked as T-91.
+- **R013 and R018 icon coverage** is new build surface, not polish: 42 files
+  would have to move onto the slot system.
