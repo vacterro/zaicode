@@ -10,7 +10,7 @@ import * as shared from "@zcode/shared";
 
 // Execute the real main module with isolated Electron/input ports, without
 // opening windows or starting a system-wide input reader in the unit suite.
-function harness() {
+function harness(platform = "linux") {
   const windows: Overlay[] = [];
   const handlers = new Map<string, (event: unknown, config: unknown) => unknown>();
   const displays = [-1920, 0, 1920].map((x, id) => ({ id, bounds: { x, y: 0, width: 1920, height: 1080 } }));
@@ -28,7 +28,7 @@ function harness() {
   class Overlay extends EventEmitter {
     webContents = new Contents();
     destroyed = false;
-    constructor(_options: unknown) { super(); windows.push(this); }
+    constructor(readonly options: { type?: string }) { super(); windows.push(this); }
     isDestroyed() { return this.destroyed; }
     destroy() { this.destroyed = true; this.emit("closed"); }
     setIgnoreMouseEvents() {}
@@ -45,7 +45,10 @@ function harness() {
     "node:path": { join },
     electron: { app, screen, BrowserWindow: Overlay, ipcMain: { handle: (key: string, fn: any) => handlers.set(key, fn) } },
     "@zcode/shared": shared,
-    "./zaicodeProtrailInput.js": { startZaicodeProtrailCursorPoll: () => ({ kind: "cursor-poll", stop() {} }) },
+    "./zaicodeProtrailInput.js": {
+      startZaicodeProtrailCursorPoll: () => ({ kind: "cursor-poll", stop() {} }),
+      ensureZaicodeProtrailInputHelper: () => new Promise(() => {}),
+    },
   };
   const source = readFileSync(join(import.meta.dirname, "../src/main/zaicodeProtrailGlobal.ts"), "utf8");
   const compiled = ts.transpileModule(source.replaceAll("import.meta.dirname", JSON.stringify(import.meta.dirname)), {
@@ -54,7 +57,7 @@ function harness() {
   const exports = { registerZaicodeProtrailGlobalIpc() {} };
   runInNewContext(compiled, {
     exports, require: (id: string) => { assert.ok(id in ports, id); return ports[id]; },
-    process: { platform: "linux", env: {} }, setTimeout, clearTimeout,
+    process: { platform, env: {} }, setTimeout, clearTimeout,
   });
   exports.registerZaicodeProtrailGlobalIpc();
   const sender = new Contents();
@@ -75,6 +78,18 @@ test("every monitor receives current initial state before did-stop-loading", () 
     assert.deepEqual(win.webContents.feeds, [{ config: { color: "blue" }, origin: { x: h.displays[index]!.bounds.x, y: 0 } }]);
   }
   h.configure(null);
+});
+
+test("Windows overlays are native tool windows so desktop managers do not relocate them", () => {
+  for (const platform of ["win32", "linux", "darwin"]) {
+    const h = harness(platform);
+    h.configure({ color: "red" });
+    assert.equal(h.windows.length, 3);
+    for (const win of h.windows) {
+      assert.equal(win.options.type, platform === "win32" ? "toolbar" : undefined);
+    }
+    h.configure(null);
+  }
 });
 
 test("reload withholds feeds then resends current state; destroyed targets receive nothing", () => {

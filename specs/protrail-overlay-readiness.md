@@ -29,3 +29,11 @@ destroyed windows are skipped. Physical-pixel conversion remains owned by
 and visual pointer alignment require Windows operator acceptance. Web/mobile
 do not use these desktop overlays. Existing config and IPC payloads need no
 migration.
+
+On Windows the overlay is a native tool window (`type: toolbar`), not a normal
+application window. Desktop window managers must not relocate it to the active
+monitor after it is shown. `skipTaskbar` alone does not establish this native
+classification. Other platforms retain their existing window type. Bounds
+remain owned by the display map; user window-manager settings are untouched.
+Acceptance includes comparing actual native rectangles after show against all
+display bounds, with FancyZones active-monitor placement enabled.

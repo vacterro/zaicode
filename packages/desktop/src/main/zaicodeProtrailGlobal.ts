@@ -252,6 +252,8 @@ function createOverlay(display: Display): BrowserWindow {
   const win = new BrowserWindow({
     ...bounds,
     title: "ZAICODE ProTrail",
+    // Windows 工具窗口不会被 FancyZones 当作普通新窗口移到当前显示器；skipTaskbar 不够。
+    ...(process.platform === "win32" ? { type: "toolbar" } : {}),
     show: false,
     frame: false,
     transparent: true,
