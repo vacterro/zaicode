@@ -27,6 +27,7 @@
      write that field name next to a concrete id anywhere in this file. -->
 
 ## DOING
+- [/] T-86 [P1] Хм, вот оно как. А можешь тогда еще параллельно написать SAIHANDOFF SAIPEN протоколисту чтобы потом не было подобных заморочек и чтобы SAIPEN PROTOCOL был кр... | verify: a handoff document for the SAIPEN protocol maintainer exists in this repository, names every cross-platform defect observed in this cloud session with file:line evidence, and proposes a portability release gate | user_explicit: true | source_receipts: SRC-057 | owner: claude-code | claim_time: 2026-09-27T06:09:25Z
 
 ## TODO
 
