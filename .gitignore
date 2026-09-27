@@ -9,6 +9,10 @@
 *.log
 /ZAICODE.exe
 /ZAICODE.exe.old
+# The other two root artifacts tools/launcher/build.cmd writes: STAGED before the
+# swap, and the preview twin T-72 added on the success path.
+/ZAICODE.exe.new
+/ZAICODE-Preview.exe
 # An installed ZAICODE (install/Install-ZAICODE.ps1) keeps its clones, private
 # tools and venv next to the launcher; none of them belong to this repo.
 /saipen/
