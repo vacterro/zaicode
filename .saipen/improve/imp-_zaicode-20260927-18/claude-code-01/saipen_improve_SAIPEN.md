@@ -1,0 +1,18 @@
+agent: claude-code-01
+role: core
+model_or_runtime: unknown
+project: _zaicode
+saipen_version: 8.0.1
+protocol_fingerprint: sha256:63ba940f408711410413d3ff33e8c5eabb8063879f10d4b69096de9f02f0ea78
+source_head: f41c4dedd35940d353147f19d1178ddf2d833552
+source_tree_fingerprint: git-delta-v1:09f80fc0c325191d1d1f7b5fbdee534dcec10ce4adb4e26fc4908b5b6660ecd5
+discovery_model: git-delta-v1
+context_scope: SAIPEN audit, phase DONE
+context_available: partial
+report_status: complete
+
+## RUN 1
+
+SAIPEN self-audit at phase DONE, scope: this project's installer surface at source_head f41c4de, git-delta-v1:3f6d60fd. Cycle 15 found the gitignore gap; this cycle closes the verification gap T-62 left thin. When T-62 was closed, SAIPEN had been proven only by a byte comparison of tools/saipen.py between a fresh clone and the local commit, and the installer's own SAIPEN checks were never run. They are now.
+
+NO_FINDINGS -- SAIPEN self-audit at phase DONE, scope: this project's installer surface at source_head f41c4de, git-delta-v1:3f6d60fd. Cycle 15 found the gitignore gap and fixed it; this cycle closes the verification gap T-62 left thin. When T-62 was closed, SAIPEN had been proven only by a byte comparison of tools/saipen.py between a fresh clone and the local commit, and the installer's own SAIPEN checks had never been run. They have now. WHAT WAS RUN: a fresh --depth 1 clone of https://github.com/vacterro/saipen.git and of https://github.com/vacterro/saimail.git, a clean venv with the SAIMAIL clone installed editable under the [crypto] extra, and then the installer's own code against a layout assembled from those clones -- Set-ZaicodeSaipenLauncher, Test-ZaicodeRepo, Test-ZaicodeSaipenLauncher, Get-ZaicodeSaipenVersion, and finally ZAICODE-Doctor.ps1 in check-only mode. RESULTS: the doctor reports saipen OK, saipen-launcher OK, saimail OK and saimail-cli OK -- all four dependency checks green, from a layout built entirely out of the published remotes. Get-ZaicodeSaipenVersion returns 8.0.1, matching the project protocol version. The generated bin/saipen.cmd was then EXECUTED rather than read back: it ran and emitted valid JSON, which also settles the second half of the original T-62 blocker text. That text named 'SAIPEN launcher written without the renderer' as a gap, so bootstrap/cli_launcher.py was checked in the published clone specifically: it is present, 2712 bytes, and tracked at origin/main, so Set-ZaicodeSaipenLauncher takes the renderer branch and the hand-written fallback at ZaicodeInstallLib.ps1:317 is not what a fresh install gets. HONEST LIMIT OF THIS EVIDENCE: the layout was assembled by hand from the two dependency clones, not produced by running Install-ZAICODE.ps1 end to end, because that clones and builds the whole app and runs the pinned pnpm. So this proves the dependency half of a fresh install, not the app half. The doctor's remaining FAILs are exactly that unbuilt half and say so: pnpm 'the pinned pnpm is not in .tools', workspace, app-source, modules, app, launcher 'ZAICODE.exe is missing' and shortcut; the single WARN is router 'not in .tools (the app works; SAIFREN then needs an existing 9router)', a documented degradation rather than a defect. Everything else came back clean. Validator VALID, structural gate pass, exit 0, 0 blocking findings, the 17 warnings unchanged from cycle 3. Board: DOING and TODO empty; T-9 is the only open ticket and needs a human-run desktop session with a configured provider. The T-76 gate resumed cycle 18 correctly and cycles 15 through 18 all carry a byte-identical fingerprint because only .saipen changed between them. The T-77 gitignore fix is in and the working tree is clean. No project-scoped defect.
