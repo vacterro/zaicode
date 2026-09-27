@@ -1,1 +1,1 @@
-{"agent": "claude-code", "cycle_id": "imp-_zaicode-20260927-24", "prepared_at": "2026-09-27T03:21:38Z", "schema_version": 1}
+{"agent": "claude-code", "cycle_id": "imp-vacterro-zaicode-20260927-1", "discovery_model": "git-delta-v1", "prepared_at": "2026-09-27T09:00:12Z", "schema_version": 1, "source_head": "e56467fbbb9b10a4d6143dfe0aff04d1c2427dff", "source_tree_fingerprint": "git-delta-v1:61709b0253cd2207fd7cf9bc29a7d809bcd731f1f07ab7640df746e88421b70c"}
