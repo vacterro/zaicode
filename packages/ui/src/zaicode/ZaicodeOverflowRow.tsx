@@ -3,20 +3,23 @@ import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { cn } from "@/components/lib/utils.js";
 import { Button } from "@/components/ui/button.js";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover.js";
-import { ZAICODE_OVERFLOW_UNKNOWN_WIDTH, zaicodeOverflowFit } from "./zaicodeOverflow.js";
+import { ZAICODE_OVERFLOW_UNKNOWN_WIDTH, zaicodeOverflowHidden } from "./zaicodeOverflow.js";
 
 export interface ZaicodeOverflowItem {
   key: string;
   node: ReactNode;
+  /** Higher stays in the row longer. Default: the trailing items leave first. */
+  keep?: number;
 }
 
 const MORE_BUTTON_WIDTH = 28;
 
 /**
  * A row of icon buttons that never clips one (SRC-035): whatever does not
- * fit the width it gets moves, in order, into a "⋯" panel at the end of the
- * row, and comes back as soon as there is room again. Items are rendered once
- * (in the row or in the open panel), so their own state and menus keep working.
+ * fit the width it gets moves into a "⋯" panel at the end of the row (the
+ * trailing items first, or the lowest `keep`), and comes back as soon as there
+ * is room again. Items are rendered once (in the row or in the open panel), so
+ * their own state and menus keep working.
  * Place it in a slot that can shrink (`min-w-0`, `flex-1` or a fixed width).
  */
 export function ZaicodeOverflowRow({
@@ -34,7 +37,7 @@ export function ZaicodeOverflowRow({
   const outerRef = useRef<HTMLDivElement | null>(null);
   const rowRef = useRef<HTMLDivElement | null>(null);
   const widths = useRef(new Map<string, number>());
-  const [fit, setFit] = useState(items.length);
+  const [hiddenKeys, setHiddenKeys] = useState("");
   const [width, setWidth] = useState(0);
   const [open, setOpen] = useState(false);
 
@@ -57,12 +60,15 @@ export function ZaicodeOverflowRow({
     }
     if (width <= 0) return;
     const measured = items.map((item) => widths.current.get(item.key) ?? ZAICODE_OVERFLOW_UNKNOWN_WIDTH);
-    const next = zaicodeOverflowFit(measured, width, gap, MORE_BUTTON_WIDTH);
-    if (next !== fit) setFit(next);
+    const keep = items.map((item, index) => item.keep ?? -index);
+    const flags = zaicodeOverflowHidden(measured, keep, width, gap, MORE_BUTTON_WIDTH);
+    const next = items.filter((_, index) => flags[index]).map((item) => item.key).join("\n");
+    if (next !== hiddenKeys) setHiddenKeys(next);
   });
 
-  const shown = items.slice(0, fit);
-  const hidden = items.slice(fit);
+  const hiddenSet = new Set(hiddenKeys ? hiddenKeys.split("\n") : []);
+  const shown = items.filter((item) => !hiddenSet.has(item.key));
+  const hidden = items.filter((item) => hiddenSet.has(item.key));
   return (
     <div ref={outerRef} className={cn("flex min-w-0 items-center overflow-hidden", className)} data-zaicode-overflow-row>
       <div ref={rowRef} className="flex min-w-0 items-center" style={{ gap }}>

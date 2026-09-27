@@ -109,6 +109,7 @@ import {
   ZaicodeSlotsToggle,
 } from "@/zaicode/ZaicodeSidebarSectionSettings.js";
 import { ZaicodeClearAllDoneButton } from "@/zaicode/ZaicodeClearAllDone.js";
+import { ZaicodeOverflowRow, type ZaicodeOverflowItem } from "@/zaicode/ZaicodeOverflowRow.js";
 import { useZaicodeTodoProgress } from "@/zaicode/zaicodeTodoProgress.js";
 import { logger } from "@/logger.js";
 import { NewTaskButtonGroup } from "@/NewTaskButtonGroup.js";
@@ -1280,11 +1281,161 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
   );
   // 性能修复：workspaceTaskToolbar 会随 chat streaming 被重复创建并传给远控任务索引。
   // 这里把 render prop 稳定在真正影响工具栏展示的状态上，避免消息流更新污染侧栏任务区。
-  const workspaceTaskToolbar = useCallback(
-    () => (
+  const workspaceTaskToolbar = useCallback(() => {
+    const newGroupButton =
+      taskViewMode === "grouped" ? (
+        <ControlHintTooltip
+          title={workspaceReadOnlyReason ?? intl.formatMessage({ id: "taskGroup.newGroup" })}
+        >
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            className="shrink-0 text-foreground-subtle hover:text-foreground"
+            aria-label={intl.formatMessage({
+              id: "taskGroup.newGroup",
+            })}
+            disabled={workspaceReadOnly || !createGroupedTaskGroupAction}
+            onClick={() => {
+              if (!workspaceReadOnly) {
+                createGroupedTaskGroupAction?.();
+              }
+            }}
+          >
+            <Hash className="size-3.5" />
+          </Button>
+        </ControlHintTooltip>
+      ) : null;
+    const filterMenu = showTaskViewFilter ? (
+      <DropdownMenu>
+        <ControlHintTooltip
+          title={intl.formatMessage({
+            id: "workspaceSidebar.taskViewOptions",
+          })}
+        >
+          <DropdownMenuTrigger asChild>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              className="shrink-0 text-foreground-subtle hover:text-foreground"
+              aria-label={intl.formatMessage({
+                id: "workspaceSidebar.taskViewOptions",
+              })}
+            >
+              <ListFilter className="size-3.5" />
+            </Button>
+          </DropdownMenuTrigger>
+        </ControlHintTooltip>
+        <DropdownMenuContent align="end" className="w-48 min-w-48">
+          {showWorkspaceViewOptions ? (
+            <>
+              <DropdownMenuLabel>
+                {intl.formatMessage({
+                  id: "workspaceSidebar.organize",
+                })}
+              </DropdownMenuLabel>
+              <DropdownMenuRadioGroup
+                value={workspaceTaskViewValue}
+                onValueChange={handleWorkspaceTaskViewChange}
+              >
+                <DropdownMenuRadioItem value="project">
+                  <Folder className="size-4" />
+                  {intl.formatMessage({
+                    id: "workspaceSidebar.viewByWorkspace",
+                  })}
+                </DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="chronological">
+                  <Clock3 className="size-4" />
+                  {intl.formatMessage({
+                    id: "workspaceSidebar.organizeChronologicalList",
+                  })}
+                </DropdownMenuRadioItem>
+              </DropdownMenuRadioGroup>
+            </>
+          ) : null}
+          {showWorkspaceViewOptions && showTaskSortOptions ? (
+            <DropdownMenuSeparator />
+          ) : null}
+          {showTaskSortOptions ? (
+            <>
+              <DropdownMenuLabel>
+                {intl.formatMessage({
+                  id: "workspaceSidebar.sortBy",
+                })}
+              </DropdownMenuLabel>
+              <DropdownMenuRadioGroup
+                value={taskSortBy}
+                onValueChange={(value) => {
+                  if (value === "created" || value === "updated") {
+                    setTaskSortBy(value);
+                  }
+                }}
+              >
+                <DropdownMenuRadioItem value="updated">
+                  <MessageCircleCheck className="size-4" />
+                  {intl.formatMessage({
+                    id: "workspaceSidebar.sortByUpdated",
+                  })}
+                </DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="created">
+                  <MessageCirclePlus className="size-4" />
+                  {intl.formatMessage({
+                    id: "workspaceSidebar.sortByCreated",
+                  })}
+                </DropdownMenuRadioItem>
+              </DropdownMenuRadioGroup>
+            </>
+          ) : null}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    ) : null;
+    const archivedToggle = (
+      <>
+        {showArchivedTasks ? (
+          <div
+            ref={setArchivedActionsContainer}
+            data-testid="archived-tasks-toolbar-actions"
+            className="flex shrink-0 items-center"
+          />
+        ) : null}
+        <ControlHintTooltip title={archivedTasksActionLabel}>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            className="shrink-0 text-foreground-subtle hover:text-foreground data-[state=on]:bg-hover data-[state=on]:text-foreground"
+            data-state={showArchivedTasks ? "on" : "off"}
+            aria-label={archivedTasksActionLabel}
+            onClick={() => {
+              setShowArchivedTasks((current) => !current);
+            }}
+          >
+            {showArchivedTasks ? <X className="size-3.5" /> : <Archive className="size-3.5" />}
+          </Button>
+        </ControlHintTooltip>
+      </>
+    );
+    // ZAICODE: at the default 264 px the row needs about 290 px, and the last
+    // buttons were cut off (Archived out of sight, SRC-035 again). What does not
+    // fit now moves into ⋯: sorting first, the add button last.
+    const zaicodeItems: ZaicodeOverflowItem[] = [];
+    if (taskViewMode === "workspace") {
+      zaicodeItems.push(
+        { key: "slots", keep: 3, node: <span className="flex text-ui-xs"><ZaicodeSlotsToggle /></span> },
+        { key: "live", keep: 2, node: <span className="flex text-ui-xs"><ZaicodeLiveToggle /></span> },
+      );
+      if (activePrimaryTaskMode === "main") zaicodeItems.push({ key: "clear-done", keep: 1, node: <ZaicodeClearAllDoneButton /> });
+      zaicodeItems.push({ key: "add-project", keep: 9, node: projectAddMenu });
+    }
+    if (newGroupButton) zaicodeItems.push({ key: "new-group", keep: 9, node: newGroupButton });
+    if (filterMenu) zaicodeItems.push({ key: "filter", keep: 0, node: filterMenu });
+    return (
       <div className={cn("pl-2.5 pr-3", isZaicodeProductMode() && "@container/zsbtools")}>
         {/* ZAICODE (SRC-035 → SRC-038): one row, never a half-empty second line; a narrow
-            sidebar drops the Group / Project words and keeps their icons instead. */}
+            sidebar drops the Group / Project / MAIN words and keeps their icons instead.
+            The words need about 440 px of row next to the buttons (248 px let them
+            push SLOTS, LIVE and + out of the row up to a 420 px sidebar). */}
         <div
           className={cn(
             "flex min-w-0 items-center justify-between gap-x-2 gap-y-1",
@@ -1318,7 +1469,7 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
                   className="relative z-10 h-6 flex-none gap-1 rounded-full border-transparent bg-transparent py-0 pl-1.5 pr-2 text-ui-sm font-medium text-foreground-subtle transition-colors data-active:border-transparent data-active:bg-transparent data-active:text-foreground data-active:shadow-none dark:data-active:border-transparent dark:data-active:bg-transparent"
                 >
                   <Hash aria-hidden="true" className="size-3 shrink-0" />
-                  <span className={cn(isZaicodeProductMode() && "hidden @min-[248px]/zsbtools:inline")}>
+                  <span className={cn(isZaicodeProductMode() && "hidden @min-[440px]/zsbtools:inline")}>
                     {intl.formatMessage({
                       id: "workspaceSidebar.organizeGrouped",
                     })}
@@ -1332,7 +1483,7 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
                   className="relative z-10 h-6 flex-none gap-1 rounded-full border-transparent bg-transparent py-0 pl-1.5 pr-2 text-ui-sm font-medium text-foreground-subtle transition-colors data-active:border-transparent data-active:bg-transparent data-active:text-foreground data-active:shadow-none dark:data-active:border-transparent dark:data-active:bg-transparent"
                 >
                   <Folder aria-hidden="true" className="size-3 shrink-0" />
-                  <span className={cn(isZaicodeProductMode() && "hidden @min-[248px]/zsbtools:inline")}>
+                  <span className={cn(isZaicodeProductMode() && "hidden @min-[440px]/zsbtools:inline")}>
                     {intl.formatMessage({
                       id: "workspaceSidebar.organizeByProject",
                     })}
@@ -1349,7 +1500,7 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
                     data-zaicode-view-main=""
                   >
                     <span aria-hidden="true" className="text-[10px] leading-none text-[var(--zaicode-highlight,var(--color-warning))]">◆</span>
-                    <span className="hidden @min-[248px]/zsbtools:inline">MAIN</span>
+                    <span className="hidden @min-[440px]/zsbtools:inline">MAIN</span>
                   </TabsTrigger>
                 ) : null}
               </TabsList>
@@ -1380,169 +1531,42 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
               </ControlHintTooltip>
             ) : null}
           </div>
-          <div className="ml-auto flex shrink-0 items-center gap-1">
-            {isZaicodeProductMode() && taskViewMode === "workspace" ? (
-              // Former "Projects" header actions (SRC-043): slots, live-first, add project.
-              <span className="flex shrink-0 items-center gap-px text-ui-xs" data-zaicode-project-actions="">
-                <ZaicodeSlotsToggle />
-                <ZaicodeLiveToggle />
-                {activePrimaryTaskMode === "main" ? <ZaicodeClearAllDoneButton /> : null}
-                {projectAddMenu}
-              </span>
-            ) : null}
-            {taskViewMode === "grouped" ? (
-              <ControlHintTooltip
-                title={workspaceReadOnlyReason ?? intl.formatMessage({ id: "taskGroup.newGroup" })}
-              >
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon-sm"
-                  className="shrink-0 text-foreground-subtle hover:text-foreground"
-                  aria-label={intl.formatMessage({
-                    id: "taskGroup.newGroup",
-                  })}
-                  disabled={workspaceReadOnly || !createGroupedTaskGroupAction}
-                  onClick={() => {
-                    if (!workspaceReadOnly) {
-                      createGroupedTaskGroupAction?.();
-                    }
-                  }}
-                >
-                  <Hash className="size-3.5" />
-                </Button>
-              </ControlHintTooltip>
-            ) : null}
-            {showTaskViewFilter ? (
-              <DropdownMenu>
-                <ControlHintTooltip
-                  title={intl.formatMessage({
-                    id: "workspaceSidebar.taskViewOptions",
-                  })}
-                >
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon-sm"
-                      className="shrink-0 text-foreground-subtle hover:text-foreground"
-                      aria-label={intl.formatMessage({
-                        id: "workspaceSidebar.taskViewOptions",
-                      })}
-                    >
-                      <ListFilter className="size-3.5" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                </ControlHintTooltip>
-                <DropdownMenuContent align="end" className="w-48 min-w-48">
-                  {showWorkspaceViewOptions ? (
-                    <>
-                      <DropdownMenuLabel>
-                        {intl.formatMessage({
-                          id: "workspaceSidebar.organize",
-                        })}
-                      </DropdownMenuLabel>
-                      <DropdownMenuRadioGroup
-                        value={workspaceTaskViewValue}
-                        onValueChange={handleWorkspaceTaskViewChange}
-                      >
-                        <DropdownMenuRadioItem value="project">
-                          <Folder className="size-4" />
-                          {intl.formatMessage({
-                            id: "workspaceSidebar.viewByWorkspace",
-                          })}
-                        </DropdownMenuRadioItem>
-                        <DropdownMenuRadioItem value="chronological">
-                          <Clock3 className="size-4" />
-                          {intl.formatMessage({
-                            id: "workspaceSidebar.organizeChronologicalList",
-                          })}
-                        </DropdownMenuRadioItem>
-                      </DropdownMenuRadioGroup>
-                    </>
-                  ) : null}
-                  {showWorkspaceViewOptions && showTaskSortOptions ? (
-                    <DropdownMenuSeparator />
-                  ) : null}
-                  {showTaskSortOptions ? (
-                    <>
-                      <DropdownMenuLabel>
-                        {intl.formatMessage({
-                          id: "workspaceSidebar.sortBy",
-                        })}
-                      </DropdownMenuLabel>
-                      <DropdownMenuRadioGroup
-                        value={taskSortBy}
-                        onValueChange={(value) => {
-                          if (value === "created" || value === "updated") {
-                            setTaskSortBy(value);
-                          }
-                        }}
-                      >
-                        <DropdownMenuRadioItem value="updated">
-                          <MessageCircleCheck className="size-4" />
-                          {intl.formatMessage({
-                            id: "workspaceSidebar.sortByUpdated",
-                          })}
-                        </DropdownMenuRadioItem>
-                        <DropdownMenuRadioItem value="created">
-                          <MessageCirclePlus className="size-4" />
-                          {intl.formatMessage({
-                            id: "workspaceSidebar.sortByCreated",
-                          })}
-                        </DropdownMenuRadioItem>
-                      </DropdownMenuRadioGroup>
-                    </>
-                  ) : null}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : null}
-            {showArchivedTasks ? (
-              <div
-                ref={setArchivedActionsContainer}
-                data-testid="archived-tasks-toolbar-actions"
-                className="flex shrink-0 items-center"
-              />
-            ) : null}
-            <ControlHintTooltip title={archivedTasksActionLabel}>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon-sm"
-                className="shrink-0 text-foreground-subtle hover:text-foreground data-[state=on]:bg-hover data-[state=on]:text-foreground"
-                data-state={showArchivedTasks ? "on" : "off"}
-                aria-label={archivedTasksActionLabel}
-                onClick={() => {
-                  setShowArchivedTasks((current) => !current);
-                }}
-              >
-                {showArchivedTasks ? <X className="size-3.5" /> : <Archive className="size-3.5" />}
-              </Button>
-            </ControlHintTooltip>
-          </div>
+          {isZaicodeProductMode() ? (
+            <div className="ml-auto flex min-w-0 flex-1 items-center justify-end gap-1">
+              <ZaicodeOverflowRow className="min-w-0 flex-1 justify-end" items={zaicodeItems} />
+              {archivedToggle}
+            </div>
+          ) : (
+            <div className="ml-auto flex shrink-0 items-center gap-1">
+              {newGroupButton}
+              {filterMenu}
+              {archivedToggle}
+            </div>
+          )}
         </div>
       </div>
-    ),
-    [
-      activePrimaryTaskMode,
-      archivedTasksActionLabel,
-      createGroupedTaskGroupAction,
-      handlePrimaryTaskModeChange,
-      handleToggleAllTaskGroups,
-      handleWorkspaceTaskViewChange,
-      intl,
-      primaryTaskIndicatorStyle,
-      projectAddMenu,
-      showArchivedTasks,
-      showTaskSortOptions,
-      showTaskViewFilter,
-      showWorkspaceViewOptions,
-      taskSortBy,
-      taskViewMode,
-      toggleAllTaskGroupsPresentation,
-      workspaceTaskViewValue,
-    ],
-  );
+    );
+  }, [
+    activePrimaryTaskMode,
+    archivedTasksActionLabel,
+    createGroupedTaskGroupAction,
+    handlePrimaryTaskModeChange,
+    handleToggleAllTaskGroups,
+    handleWorkspaceTaskViewChange,
+    intl,
+    primaryTaskIndicatorStyle,
+    projectAddMenu,
+    showArchivedTasks,
+    showTaskSortOptions,
+    showTaskViewFilter,
+    showWorkspaceViewOptions,
+    taskSortBy,
+    taskViewMode,
+    toggleAllTaskGroupsPresentation,
+    workspaceReadOnly,
+    workspaceReadOnlyReason,
+    workspaceTaskViewValue,
+  ]);
 
   // ZAICODE (SRC-043): the project list is the sidebar root, not a movable "Projects"
   // section; the same list and add-project menu also serve the upstream section.
