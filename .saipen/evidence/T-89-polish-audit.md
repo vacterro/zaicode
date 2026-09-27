@@ -61,15 +61,49 @@ None of the changed files overlap the operator's local, unpublished T-84 delta
 | SRC-049 shortcuts incl. Exit `[ ]` | All 35 catalog actions have a handler (`global.toggleWindow` is handled in `zaicodeGlobalHotkeys.ts:45`). The defaults have 0 conflicts (`findZaicodeHotkeyConflicts`). Exit is `app.exit` on Alt+F4 plus a bindable `global.exit`, which goes through IPC to `quitAppForZaicode`. The ZAICODE page links to the upstream Shortcuts page. |
 | SRC-049 grey block while loading | The renderer boot shell (`packages/desktop/src/renderer/index.html`) shows the ZAICODE picture on `#1a1810`, with no grey logo tile. The custom picture is mirrored into `localStorage` before first paint. |
 
-## Not re-audited in this pass
+## Second pass: the 25 repeats (cloud, 2026-09-27)
 
-These items were implemented and verified under their earlier tickets. Their
-evidence is in `T-71-feedback-wave.md`, `T-72-feedback-followup.md` and
-`docs/ZAICODE_FEEDBACK_COVERAGE.md`. This pass did not reread their code:
+The first pass left 25 repeats unread. This pass read the code of each one on
+`zaicode` at `5260c2f`. One defect was found and fixed:
 
-- SRC-055: #2 A3 counter, #3 analogue clock, #5 PLAY in the MAIN view, #6 Pebble game, #7 ON/OFF styling, #9 Continue All at narrow width.
-- SRC-053: R001 Shift+X, R002 account visibility, R003 Auto toggle and A3 loop, R004 SAIFREN sanitation, R005 sound triggers, R006 GLM Coding Lite resets, R008 dev preview, R009 LIVE order, R010 retry chat, R011 theme button, R012 retry settings, R013 icon workshop, R014 project-switch sound, R016 todo dock, R017 duplicate worker glyph, R018 icon gradients, R019 title centring.
-- SRC-053 R020, R021 and R022 are marked `[x]` (done) by the operator in the list itself.
+| Commit | Item | Defect | Test | Red control |
+|---|---|---|---|---|
+| `24931f2`, `290136a` | SRC-053 R003 (A3 loop) | `ZaicodeAuditService.reconcileAll` read every campaign before taking that campaign's lock. A `getState()` issued while `cancel()` held the lock reconciled the stale `running` copy, saw the cancelled wave job and wrote `blocked` over `cancelled`. It now re-reads that one `campaign.json` inside the lock (`290136a`: not `findCampaign()`, which rescans every campaign directory). | `zaicodeAudits.test.ts` "a reconcile queued behind cancel" | old code: actual `blocked`, expected `cancelled` |
+
+Audited with no defect found:
+
+| Item | What was read |
+|---|---|
+| SRC-055 #2 A3 counter | `zaicodeAuditProgressFor` (active campaigns only) drives the `A3 n/m` badge on every project row (`WorkspaceSidebarItem.tsx:1397`). The operator's screenshot shows it. |
+| SRC-055 #3 analogue clock | `ZaicodeMiniAnalogClock` in `ZaicodeTopbarClock.tsx:74`, drawn with the digital time when `showTime` is on. |
+| SRC-055 #5 PLAY in the MAIN view | `startSaipen` activates the tab, then awaits the durable `listTasks` (5 s timeout, no command on timeout) before deciding fresh/open/continue, so a cold project is not read as empty. |
+| SRC-055 #6 Pebble game | `ZaicodePebbleGame.tsx`; `zaicodePebbleGame.test.ts` passes in the suite. |
+| SRC-055 #7 ON/OFF styling | `projectOn*/projectOff*` colour, opacity, font, size, bold, underline in `zaicodeSidebarPrefs.ts`, applied in `WorkspaceSidebarItem.tsx:1008-1011`, edited in `ZaicodeSidebarSettings.tsx`. |
+| SRC-055 #9 Continue All width | covered by the T-83 packaged smoke at 640x540 (`verify-zaicode-t83.cjs`); no code change since. |
+| R001 Shift+close | `handleDesktopWindowCloseRequest` quits on `shiftCloseRequested`; `index.ts:1825` tracks Shift via `before-input-event` and clears it on blur. Needs a live Windows check (caption button). |
+| R002 account visibility | `zaicodeEngineHasCapacity` keeps a fresh 100% account visible; unknown readings stay visible; label "Hide spent engines". |
+| R004 SAIFREN sanitation | `scanZaicodeFreeModels` (desktop `zaicodeRouterSetup.ts:237-362`): two absent listings retire, two explicit not-found probes quarantine 24 h, transient failures only lower rank, manual order kept. |
+| R005 sound triggers | generic `ui.button` / `ui.toggle` / `ui.select` / `ui.contextMenu` listeners stand down when a control played its own cue within 80 ms. More triggers are new work (T-91). |
+| R006 GLM resets | `zaicode-engines.ts:570` maps `nextResetTime`; `zaicodeEngines.test.ts:161` covers it. |
+| R008 dev preview | `ZaicodeLauncher.cs` preview mode (isolated profile, abort on failure, cleanup). Launcher build is Windows-only. |
+| R009 LIVE order | `orderZaicodeProjectSections` ranks LIVE by `lastActivityAt` by default with a grace hold. Remain-in-position is new work (T-91). |
+| R010 retry chat | `zaicodeAutoRetry.ts` retries the retryable row in the same session. |
+| R011 theme button | header toolbar `palette` action opens `ZaicodePaletteMenuContent`. |
+| R012 retry settings | `autoRetryIntervalSec` / `autoRetryMaxAttempts` read by `zaicodeTurnRetryWatch.ts:84,132,140`. |
+| R013 icon workshop | `zaicodeIconSlots.tsx` slots, overrides, reset; editor in `ZaicodeIconEditor.tsx`. |
+| R014 project-switch sound | cue on by migration, all enabled cues pre-decoded (`preheatZaicodeSounds`), context resumed before `start()`. |
+| R016 todo dock | `clampToWindow` on every resize (`v4/ZaicodeTodoDock.tsx:41,77`). |
+| R017 duplicate worker glyph | `WorkspaceSidebarItem.tsx:973` skips the worker glyph when MAIN already spins. |
+| R018 icon gradients | `buildZaicodeIconBadgeDataUri({from,to,gradient,glyph})`. |
+| R019 title centring | `ZaicodeHeaderProjectTitle.tsx:216` centres on the free band. |
+
+SRC-053 R020, R021 and R022 are marked `[x]` (done) by the operator in the
+list itself.
+
+Gates at `290136a` (cloud, node 24.14.0, pnpm 10.33.2): `pnpm typecheck` 0
+errors; `pnpm lint` 0 errors, 76 warnings; `pnpm run architecture:check --
+--changed` 0 new; `pnpm test` ui 284/284, services 50/50, desktop 44 pass / 9
+skip (win32 only).
 
 ## New, not implemented
 
