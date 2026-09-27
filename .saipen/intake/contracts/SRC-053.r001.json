@@ -1,0 +1,14 @@
+{
+  "clauses": {
+    "SRC-053:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Shift-clicking the window close button fully quits ZAICODE."
+    }
+  },
+  "derived_at": "2026-09-26T22:18:58Z",
+  "derived_from": "SRC-053",
+  "interpretation_revision": 1,
+  "schema_version": 1,
+  "source_sha256": "c7919a10c454338c8f4802910702ccd0a601adb4c400f19a1033059e424cf71a"
+}

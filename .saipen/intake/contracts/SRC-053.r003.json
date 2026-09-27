@@ -1,0 +1,24 @@
+{
+  "clauses": {
+    "SRC-053:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Shift-clicking the window close button fully quits ZAICODE."
+    },
+    "SRC-053:R002": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Correct Codex plan availability display in ZAICODE and investigate the same issue in FastPrompter and LIMISAW."
+    },
+    "SRC-053:R003": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Add a prominent Auto toggle beside Continue that works through project todos to verified completion, then runs configurable A3 audits in a loop up to 10 times."
+    }
+  },
+  "derived_at": "2026-09-26T22:19:15Z",
+  "derived_from": "SRC-053",
+  "interpretation_revision": 3,
+  "schema_version": 1,
+  "source_sha256": "c7919a10c454338c8f4802910702ccd0a601adb4c400f19a1033059e424cf71a"
+}

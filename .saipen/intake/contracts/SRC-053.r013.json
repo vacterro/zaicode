@@ -1,0 +1,74 @@
+{
+  "clauses": {
+    "SRC-053:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Shift-clicking the window close button fully quits ZAICODE."
+    },
+    "SRC-053:R002": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Correct Codex plan availability display in ZAICODE and investigate the same issue in FastPrompter and LIMISAW."
+    },
+    "SRC-053:R003": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Add a prominent Auto toggle beside Continue that works through project todos to verified completion, then runs configurable A3 audits in a loop up to 10 times."
+    },
+    "SRC-053:R004": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Keep SAIFREN free model availability healthy with live diagnostics, cleanup, discovery, and ranking by current reliability and external quality signals."
+    },
+    "SRC-053:R005": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Add configurable global sound triggers for ordinary buttons, toggles, context menus, and other UI interactions."
+    },
+    "SRC-053:R006": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Investigate and implement GLM Coding Lite quota reset detection if a dependable signal exists."
+    },
+    "SRC-053:R007": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Auto continuation after a failed turn must run without visiting its project."
+    },
+    "SRC-053:R008": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Provide an isolated one-time dev preview launcher seeded from saved user settings."
+    },
+    "SRC-053:R009": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Sort LIVE projects by recent activity from top to bottom and keep completed or failed projects stable."
+    },
+    "SRC-053:R010": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Fix retry session behavior so a retried chat remains visible and no redundant chat is created."
+    },
+    "SRC-053:R011": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Move the theme menu trigger to the highlighted quick access position."
+    },
+    "SRC-053:R012": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Expose retry timing, conditions, attempt counts, and warm reconnect/fallback behavior as settings."
+    },
+    "SRC-053:R013": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Provide an icon workshop covering ZAICODE icons with profiles, presets, import, and export."
+    }
+  },
+  "derived_at": "2026-09-26T22:19:23Z",
+  "derived_from": "SRC-053",
+  "interpretation_revision": 13,
+  "schema_version": 1,
+  "source_sha256": "c7919a10c454338c8f4802910702ccd0a601adb4c400f19a1033059e424cf71a"
+}

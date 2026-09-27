@@ -1,0 +1,41 @@
+{
+  "blocking_findings": {
+    "problem_count": 1,
+    "problems": [
+      {
+        "category": null,
+        "credential": false,
+        "detail": "improve report [improve-report] -- .saipen\\improve\\imp-_zaicode-20260926-2\\claude-code-01\\saipen_improve_SAIPEN.md: report protocol_fingerprint 'sha256:63ba940f408711410413d3ff33e8c5eabb8063879f10d4b6",
+        "detail_hash": "73ee8a2bebf96204",
+        "finding_key": "76b48f23558dce11",
+        "rule_id": "unclassified",
+        "severity": "problem",
+        "subject_id": null,
+        "subject_kind": "global",
+        "subject_ref": null
+      }
+    ],
+    "ruleset_fingerprint": "82e5e183ae8f0fd909be3fa3627f00489cacaab813d942186c832db02a05a1c1",
+    "ruleset_version": 1,
+    "status": "complete",
+    "warning_count": 3
+  },
+  "board_hash": "8586cdf47910735e",
+  "canonical_next_command": null,
+  "content_hash": "fe75736c20827d86",
+  "exit_code": 1,
+  "external_actions": [],
+  "gate": "core",
+  "kind": "conformance_receipt",
+  "log_hash": "6b9112b7c74ef9d9",
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "receipt_id": "receipt-bd9a15fd92ad",
+  "remediation_commands": [],
+  "schema_version": 2,
+  "source_head": "d2cacebe9eb747e6db531fc5c1454246993338ae",
+  "source_tree_fingerprint": "git-delta-v1:ad7d2f9cc4679d8f479296af37871a01f6cdab3297493ea6a21444a7191c002d",
+  "state_hash": "3cea7134d4b8500f",
+  "timestamp_utc": "2026-09-27T01:36:57.235522Z",
+  "validator_protocol_version": "1",
+  "verdict": "FAIL"
+}

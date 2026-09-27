@@ -19,9 +19,11 @@ test or a concrete build artifact. Suites at the bottom.
 
 2. **Dev preview launcher (temp 1-time session pulling saved settings)** —
    `tools/launcher/ZaicodeLauncher.cs` `--preview`: the flag stays in the
-   launcher, a fresh `%TEMP%\ZAICODE-preview-<timestamp>` dir is seeded with
-   the operator's `Local Storage` + `Preferences` (the saved settings) minus
-   the leveldb LOCK, and `ZCODE_DESKTOP_USER_DATA_DIR` /
+   launcher, a fresh `%TEMP%\ZAICODE-preview-<timestamp>` dir was intended to
+   be seeded with saved settings. T-72 review found that this first version
+   read `Local Storage` from the user-data root, while Electron stores it under
+   `session/Local Storage/leveldb`; its directory copy was also shallow.
+   T-72 corrected both defects. `ZCODE_DESKTOP_USER_DATA_DIR` /
    `ZCODE_DESKTOP_SESSION_DATA_DIR` point there (honored at
    `packages/desktop/src/main/desktopRuntimeEnv.ts:86-92`). Nothing the
    preview writes reaches the real profile; preview dirs older than 7 days are

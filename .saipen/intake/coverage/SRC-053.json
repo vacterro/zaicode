@@ -1,0 +1,212 @@
+{
+  "requirements": {
+    "SRC-053:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "IMPLEMENTED",
+      "evidence": ".saipen/evidence/T-72-feedback-followup.md#R001",
+      "text": "Shift-clicking the window close button fully quits ZAICODE.",
+      "verification": "tsc-shared-services-ui:PASS;desktop-changed-files:0-errors",
+      "work": "T-72"
+    },
+    "SRC-053:R002": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "IMPLEMENTED",
+      "evidence": ".saipen/evidence/T-72-feedback-followup.md#R002",
+      "text": "Correct Codex plan availability display in ZAICODE and investigate the same issue in FastPrompter and LIMISAW.",
+      "verification": "T-72-static-typecheck-and-source-read",
+      "work": "T-72"
+    },
+    "SRC-053:R003": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "IMPLEMENTED",
+      "evidence": ".saipen/evidence/T-72-feedback-followup.md#R003",
+      "text": "Add a prominent Auto toggle beside Continue that works through project todos to verified completion, then runs configurable A3 audits in a loop up to 10 times.",
+      "verification": "T-72-static-typecheck-and-source-read",
+      "work": "T-72"
+    },
+    "SRC-053:R004": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "IMPLEMENTED",
+      "evidence": ".saipen/evidence/T-72-feedback-followup.md#R004",
+      "text": "Keep SAIFREN free model availability healthy with live diagnostics, cleanup, discovery, and ranking by current reliability and external quality signals.",
+      "verification": "T-72-static-typecheck-and-source-read",
+      "work": "T-72"
+    },
+    "SRC-053:R005": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "IMPLEMENTED",
+      "evidence": ".saipen/evidence/T-72-feedback-followup.md#R005",
+      "text": "Add configurable global sound triggers for ordinary buttons, toggles, context menus, and other UI interactions.",
+      "verification": "T-72-static-typecheck-and-source-read",
+      "work": "T-72"
+    },
+    "SRC-053:R006": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": ".saipen/evidence/T-72-feedback-followup.md#R006",
+      "text": "Investigate and implement GLM Coding Lite quota reset detection if a dependable signal exists.",
+      "verification": "T-71-feedback-wave.md;T-72-static-recheck",
+      "work": "T-72"
+    },
+    "SRC-053:R007": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "IMPLEMENTED",
+      "evidence": ".saipen/evidence/T-72-feedback-followup.md#R007",
+      "text": "Auto continuation after a failed turn must run without visiting its project.",
+      "verification": "T-72-static-typecheck-and-source-read",
+      "work": "T-72"
+    },
+    "SRC-053:R008": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": ".saipen/evidence/T-72-feedback-followup.md#R008",
+      "text": "Provide an isolated one-time dev preview launcher seeded from saved user settings.",
+      "verification": "T-71-feedback-wave.md;T-72-static-recheck",
+      "work": "T-72"
+    },
+    "SRC-053:R009": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": ".saipen/evidence/T-72-feedback-followup.md#R009",
+      "text": "Sort LIVE projects by recent activity from top to bottom and keep completed or failed projects stable.",
+      "verification": "T-71-feedback-wave.md;T-72-static-recheck",
+      "work": "T-72"
+    },
+    "SRC-053:R010": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": ".saipen/evidence/T-72-feedback-followup.md#R010",
+      "text": "Fix retry session behavior so a retried chat remains visible and no redundant chat is created.",
+      "verification": "T-71-feedback-wave.md;T-72-static-recheck",
+      "work": "T-72"
+    },
+    "SRC-053:R011": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": ".saipen/evidence/T-72-feedback-followup.md#R011",
+      "text": "Move the theme menu trigger to the highlighted quick access position.",
+      "verification": "T-71-feedback-wave.md;T-72-static-recheck",
+      "work": "T-72"
+    },
+    "SRC-053:R012": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": ".saipen/evidence/T-72-feedback-followup.md#R012",
+      "text": "Expose retry timing, conditions, attempt counts, and warm reconnect/fallback behavior as settings.",
+      "verification": "T-71-feedback-wave.md;T-72-static-recheck",
+      "work": "T-72"
+    },
+    "SRC-053:R013": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": ".saipen/evidence/T-72-feedback-followup.md#R013",
+      "text": "Provide an icon workshop covering ZAICODE icons with profiles, presets, import, and export.",
+      "verification": "T-71-feedback-wave.md;T-72-static-recheck",
+      "work": "T-72"
+    },
+    "SRC-053:R014": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": ".saipen/evidence/T-72-feedback-followup.md#R014",
+      "text": "Make project-switch sounds play reliably and optimize cue playback.",
+      "verification": "T-71-feedback-wave.md;T-72-static-recheck",
+      "work": "T-72"
+    },
+    "SRC-053:R015": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": ".saipen/evidence/T-72-feedback-followup.md#R015",
+      "text": "Show compact Working for elapsed time at the project and chat composer.",
+      "verification": "T-71-feedback-wave.md;T-72-static-recheck",
+      "work": "T-72"
+    },
+    "SRC-053:R016": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": ".saipen/evidence/T-72-feedback-followup.md#R016",
+      "text": "Keep the todo list within the main window as its size changes.",
+      "verification": "T-71-feedback-wave.md;T-72-static-recheck",
+      "work": "T-72"
+    },
+    "SRC-053:R017": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": ".saipen/evidence/T-72-feedback-followup.md#R017",
+      "text": "Remove duplicate worker glyphs on one project while preserving worker state visibility.",
+      "verification": "T-71-feedback-wave.md;T-72-static-recheck",
+      "work": "T-72"
+    },
+    "SRC-053:R018": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": ".saipen/evidence/T-72-feedback-followup.md#R018",
+      "text": "Expand worker icon customization to colors and gradients.",
+      "verification": "T-71-feedback-wave.md;T-72-static-recheck",
+      "work": "T-72"
+    },
+    "SRC-053:R019": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": ".saipen/evidence/T-72-feedback-followup.md#R019",
+      "text": "Correct the centered title bar alignment.",
+      "verification": "T-71-feedback-wave.md;T-72-static-recheck",
+      "work": "T-72"
+    },
+    "SRC-053:R020": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "IMPLEMENTED",
+      "evidence": ".saipen/evidence/T-72-feedback-followup.md#R020",
+      "text": "Give SUBCHAT model and effort selection, show the responding model, and enable SAIPEN everywhere by default.",
+      "verification": "T-72-static-typecheck-and-source-read",
+      "work": "T-72"
+    },
+    "SRC-053:R021": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "IMPLEMENTED",
+      "evidence": ".saipen/evidence/T-72-feedback-followup.md#R021",
+      "text": "Provide configurable project freshness indication based on modified files or board state.",
+      "verification": "T-72-static-typecheck-and-source-read",
+      "work": "T-72"
+    },
+    "SRC-053:R022": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": ".saipen/evidence/T-72-feedback-followup.md#R022",
+      "text": "Audit and fix logical and visual behavior in all three sidebar project display modes.",
+      "verification": "T-71-feedback-wave.md;T-72-static-recheck",
+      "work": "T-72"
+    },
+    "SRC-053:R023": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": ".saipen/evidence/T-72-feedback-followup.md#R023",
+      "text": "Keep hover tooltips stable instead of flickering.",
+      "verification": "T-71-feedback-wave.md;T-72-static-recheck",
+      "work": "T-72"
+    }
+  },
+  "schema_version": 1
+}

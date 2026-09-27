@@ -1,3 +1,3 @@
-done: stopped via SAIOPS checkpoint
-remaining: T-64
-awaiting: nothing
+done: T-74 -- recorded a conformance run in RFC 1.2 fixed form (E-1191 'RUN: validate.py -> PASS'), clearing [no-conformance-record] (warnings 18->17); saipen status now has a machine-readable Conformance record. Prior: T-73 sealed LOG into logs/LOG-002.md; T-72 SRC-052/053 feedback wave shipped (commit 8914bf6 -> backup fork). Two improve cycles closed (imp-_zaicode-20260926-2, -20260927-1).
+remaining: nothing in-goal. T-62/T-48/T-47/T-9 stay BLOCKED (operator-only).
+awaiting: (1) operator manual-verify of 5 GUI scenarios in .saipen/evidence/T-72-feedback-followup.md; (2) IMP-002 dual-install fingerprint mismatch -- launcher runs V:\_SAIPEN engine, its CORE.md/BOOT.md lag their validator (15 cross-doc-drift), and STATE.saipen_home names the .config skill; operator-owned, outside audit writer boundary.
