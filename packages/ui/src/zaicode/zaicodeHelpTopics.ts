@@ -19,7 +19,7 @@ export const ZAICODE_HELP_ATTRIBUTE = "data-zaicode-help";
  *  and the topic list can be asserted against each other. */
 export const ZAICODE_HELP_TOPIC_IDS = [
   "start",
-  "pebble",
+  "saipeggle",
   "engines",
   "meter",
   // SRC-061: subscription accounts as models in the model menu.

@@ -1,7 +1,7 @@
 import type { SettingsSectionId } from "@/lib/settingsNavigation.js";
 import { openZaicodeWorkersPanel } from "@/zaicode/zaicodeWorkers.js";
 import { useZaicodeTimers } from "@/zaicode/zaicodeTimerStore.js";
-import { openZaicodePebbleGame } from "@/zaicode/ZaicodePebbleGame.js";
+import { openZaicodeSaipeggle } from "@/zaicode/saipeggle/ZaicodeSaipeggleView.js";
 
 // The Help content, kept apart from the component on purpose. SRC-060 asked for
 // ZAICODE Help to be a real explanatory base, and it grows every time a surface
@@ -40,15 +40,16 @@ export const ZAICODE_HELP_TOPICS: readonly HelpTopic[] = [
     ],
   },
   {
-    id: "pebble",
-    title: "PEBBLE DROP (easter egg)",
-    what: "A complete six-level pixel game for a break between agent runs.",
+    id: "saipeggle",
+    title: "SAIPEGGLE (the pixel game)",
+    what: "A complete Peggle-style game for the minutes an agent works: a cannon, pegs, a bucket, an adventure of 55 levels with 8 masters, Extreme Fever.",
     lines: [
-      "Catch gold pebbles, dodge red hazards, collect rare hearts; every level gets faster and needs more catches.",
-      "Left / Right or A / D moves; Space starts and advances; P pauses; R restarts; Esc closes.",
-      "The title bar buttons make it fullscreen or detach it into its own window. Typing PEBBLE outside a text field is the secret entrance.",
+      "Aim with the mouse, click or Space to fire; hit every orange peg before the balls run out. Green pegs give the stage master's power.",
+      "Levels: the adventure (a level opens when the one before is cleared), Quick Play from any seed, and board codes you can copy and paste.",
+      "Settings: balls, orange and green pegs, gravity, bounce, bucket speed, peg density, colours from your palette, fever, effects. Sounds: Settings → Sounds → SAIPEGGLE.",
+      "Settings (left column) → SAIPEGGLE above Support Developer opens it; the gear next to it opens its settings. Typing PEGGLE outside a text field works too. Esc pauses, Esc again opens the menu; Exit returns to ZAICODE.",
     ],
-    open: { label: "game", run: () => openZaicodePebbleGame() },
+    open: { label: "game", run: () => openZaicodeSaipeggle() },
   },
   {
     id: "engines",

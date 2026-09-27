@@ -1,5 +1,5 @@
 /* oxlint-disable eslint(max-lines) */
-import { ArrowLeft, HeartHandshake, Rocket, Star, type LucideIcon } from "lucide-react";
+import { ArrowLeft, Gamepad2, HeartHandshake, Rocket, Settings2, Star, type LucideIcon } from "lucide-react";
 import {
   useCallback,
   useEffect,
@@ -80,6 +80,7 @@ import { ZaicodeHotkeysSettings } from "@/settings/ZaicodeHotkeysSettings.js";
 import { ZaicodeHelpSection } from "@/settings/ZaicodeHelpSection.js";
 import { ZaicodeSessionTextSettings } from "@/settings/ZaicodeSessionTextSettings.js";
 import { ZaicodeProtrailSettings } from "@/settings/protrail/ZaicodeProtrailSettings.js";
+import { openZaicodeSaipeggle } from "@/zaicode/saipeggle/ZaicodeSaipeggleView.js";
 import { AutomationsSection } from "@/settings/AutomationsSection.js";
 import { SegmentPill } from "@/settings/PluginStoreListView.js";
 import { PluginsSection } from "@/settings/PluginsSection.js";
@@ -1538,6 +1539,27 @@ export function SettingsPage({
                       onClick={() => platform.openExternal(ZAICODE_REPO_URL)}
                       data-zaicode-repo-link=""
                     />
+                    {/* SRC-062: the game sits right above Support Developer; its gear opens the game's own settings. */}
+                    <div className="mt-1 flex items-center gap-1" data-zaicode-saipeggle-row="">
+                      <SettingsSidebarButton
+                        icon={Gamepad2}
+                        label="SAIPEGGLE"
+                        title="SAIPEGGLE: the pixel game (Peggle-style)"
+                        className="min-w-0 flex-1 border border-dashed border-border hover:border-border-hover"
+                        onClick={() => openZaicodeSaipeggle("play")}
+                        data-zaicode-saipeggle-link=""
+                      />
+                      <button
+                        type="button"
+                        className="flex size-8 shrink-0 items-center justify-center rounded-xl border border-dashed border-border text-foreground-subtle hover:border-border-hover hover:text-foreground max-lg:hidden"
+                        title="SAIPEGGLE settings"
+                        aria-label="SAIPEGGLE settings"
+                        onClick={() => openZaicodeSaipeggle("settings")}
+                        data-zaicode-saipeggle-settings-link=""
+                      >
+                        <Settings2 className="size-4" />
+                      </button>
+                    </div>
                     <SettingsSidebarButton
                       icon={HeartHandshake}
                       label="Support Developer"

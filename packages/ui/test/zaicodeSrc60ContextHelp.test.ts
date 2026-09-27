@@ -77,7 +77,7 @@ test("an unknown or absent tag resolves to null instead of a wrong card", () => 
 });
 
 test("a deep chain cannot spin the walk", () => {
-  let deep: FakeElement | null = node("pebble");
+  let deep: FakeElement | null = node("saipeggle");
   for (let i = 0; i < 5000; i += 1) deep = node(null, deep);
   // The cap means a tagged element far above the walk is not found, and the
   // call still returns rather than hanging.

@@ -37,7 +37,8 @@ export type ZaicodeSoundGroup =
   | "Engines"
   | "SAIMAIL"
   | "Interface"
-  | "Orchestra";
+  | "Orchestra"
+  | "SAIPEGGLE";
 
 export interface ZaicodeSoundEventDef {
   id: string;
@@ -135,6 +136,20 @@ export const ZAICODE_SOUND_EVENTS: readonly ZaicodeSoundEventDef[] = [
   { id: "ui.escape", group: "Orchestra", label: "Esc", hint: "Esc was pressed (close, cancel)", glyph: "undo", sound: fp("whoosh_short_whoosh2.wav"), enabled: false, gainDb: -14 },
   { id: "ui.hover", group: "Orchestra", label: "Hover", hint: "The pointer moved onto a button", glyph: "dot", sound: fp("cs_style/buttonrollover.wav"), enabled: false, gainDb: -22 },
   { id: "ui.typing", group: "Orchestra", label: "Typing", hint: "A key was typed into a text field (typewriter)", glyph: "key", sound: fp("type_key_1.wav"), enabled: false, gainDb: -20 },
+  // SAIPEGGLE (SRC-062): the game's own voices; the peg hits climb a scale within a shot.
+  { id: "saipeggle.shoot", group: "SAIPEGGLE", label: "Cannon fires", hint: "SAIPEGGLE: a ball leaves the cannon", glyph: "play", sound: fp("pop_lavapop.wav"), enabled: true, gainDb: -8 },
+  { id: "saipeggle.peg", group: "SAIPEGGLE", label: "Peg hit", hint: "SAIPEGGLE: a peg lights up (each hit of a shot one note higher)", glyph: "dot", sound: fp("chime_bell_ding1.wav"), enabled: true, gainDb: -10 },
+  { id: "saipeggle.clear", group: "SAIPEGGLE", label: "Lit pegs pop", hint: "SAIPEGGLE: the lit pegs of a shot disappear", glyph: "dot", sound: fp("pop1.wav"), enabled: true, gainDb: -16 },
+  { id: "saipeggle.power", group: "SAIPEGGLE", label: "Green peg power", hint: "SAIPEGGLE: a green peg gives the master's power", glyph: "star", sound: fp("menu_launch_glow1.wav"), enabled: true, gainDb: -6 },
+  { id: "saipeggle.bucket", group: "SAIPEGGLE", label: "Free ball (bucket)", hint: "SAIPEGGLE: the ball lands in the moving bucket", glyph: "check", sound: fp("coin_kaching.wav"), enabled: true, gainDb: -6 },
+  { id: "saipeggle.freeBall", group: "SAIPEGGLE", label: "Free ball (score)", hint: "SAIPEGGLE: one shot scored 25,000 / 75,000 / 125,000", glyph: "plus", sound: fp("success_powerup.wav"), enabled: true, gainDb: -6 },
+  { id: "saipeggle.style", group: "SAIPEGGLE", label: "Style shot", hint: "SAIPEGGLE: a Long Shot", glyph: "star", sound: fp("success_scored.wav"), enabled: true, gainDb: -6 },
+  { id: "saipeggle.lost", group: "SAIPEGGLE", label: "Ball lost", hint: "SAIPEGGLE: the ball fell past the bucket", glyph: "cross", sound: fp("blip_cbar_miss1.wav"), enabled: true, gainDb: -12 },
+  { id: "saipeggle.fever", group: "SAIPEGGLE", label: "Extreme Fever", hint: "SAIPEGGLE: the last orange peg is hit", glyph: "star", sound: fp("chime_twinkle1.wav"), enabled: true, gainDb: -4 },
+  { id: "saipeggle.feverBucket", group: "SAIPEGGLE", label: "Fever bucket", hint: "SAIPEGGLE: the ball lands in a 10K / 50K / 100K bucket", glyph: "check", sound: fp("coin_mvm_money_pickup.wav"), enabled: true, gainDb: -4 },
+  { id: "saipeggle.win", group: "SAIPEGGLE", label: "Level clear", hint: "SAIPEGGLE: every orange peg is gone", glyph: "check", sound: fp("success_levelup.wav"), enabled: true, gainDb: -4 },
+  { id: "saipeggle.fail", group: "SAIPEGGLE", label: "Out of balls", hint: "SAIPEGGLE: no balls left, orange pegs remain", glyph: "warn", sound: fp("record_scratch_stop.wav"), enabled: true, gainDb: -8 },
+  { id: "saipeggle.wall", group: "SAIPEGGLE", label: "Wall bounce", hint: "SAIPEGGLE: the ball bounces off a side wall", glyph: "dot", sound: fp("he_bounce-1.wav"), enabled: false, gainDb: -18 },
 ];
 
 const EVENT_BY_ID = new Map(ZAICODE_SOUND_EVENTS.map((event) => [event.id, event]));
@@ -533,7 +548,7 @@ const channels = new Map<string, AudioBufferSourceNode>();
  */
 export async function playZaicodeSoundFile(
   sound: string,
-  options: { volume?: number; gainDb?: number; preview?: boolean; channel?: string } = {},
+  options: { volume?: number; gainDb?: number; preview?: boolean; channel?: string; rate?: number } = {},
 ): Promise<boolean> {
   const settings = readZaicodeSoundSettings();
   if (!options.preview && (!isZaicodeProductMode() || settings.muted || isZaicodeSoundQuietNow())) return false;
@@ -545,6 +560,8 @@ export async function playZaicodeSoundFile(
   if (options.channel) stopZaicodeSoundChannel(options.channel);
   const source = ctx.createBufferSource();
   source.buffer = buffer;
+  // SAIPEGGLE's rising peg notes (SRC-062): the same clip, played faster = higher.
+  if (options.rate && options.rate > 0) source.playbackRate.value = Math.min(4, Math.max(0.25, options.rate));
   const gain = ctx.createGain();
   const level = options.volume === undefined ? 1 : Math.max(0, Math.min(1, options.volume));
   gain.gain.value = zaicodeGainFactor(settings.masterVolume, options.gainDb ?? 0) * level;

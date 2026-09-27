@@ -75,16 +75,19 @@ export const ZAICODE_HELP_WIKI: Record<ZaicodeHelpTopicId, HelpArticle> = {
       ["Commit", "A saved checkpoint of your project in Git. After a commit the Changes counter starts from zero."],
     ],
   },
-  pebble: {
-    why: "Agents often work for minutes at a time. PEBBLE DROP is a small complete game for those minutes, so waiting is not staring.",
+  saipeggle: {
+    why: "Agents often work for minutes at a time. SAIPEGGLE is a whole game for those minutes (the genre of Peggle Deluxe, drawn in ZAICODE's pixels and colours), so waiting is not staring.",
     steps: [
-      "Open it from this card (Open game), or type PEBBLE anywhere outside a text field.",
-      "Space starts. Move with Left / Right or A / D; catch gold pebbles, dodge red hazards, grab hearts.",
-      "Clear the catch goal to reach the next of six levels; each is faster.",
+      "Open it: Settings → SAIPEGGLE (above Support Developer), this card (Open game), or type PEGGLE outside a text field.",
+      "Aim with the mouse and click to fire. Clear every orange peg; the bucket at the bottom gives free balls.",
+      "Green pegs give the stage master's power: Super Guide, Multiball, Pyramid, Space Blast, Spooky Ball, Fireball, Zen Ball or Lucky Spin.",
+      "Hit the last orange peg for Extreme Fever and drop the ball into a 100K bucket.",
     ],
     terms: [
-      ["Fullscreen / detach", "Title-bar buttons: play over the whole screen, or in its own window beside your work."],
-      ["P / R / Esc", "Pause, restart, close."],
+      ["Multiplier", "x2 / x3 / x5 / x10 as more orange pegs are hit; every peg is worth that much more."],
+      ["Seed", "The text a random board is built from: the same seed, the same board."],
+      ["Board code", "A SPG1.… text holding a whole board, to share it with anyone."],
+      ["P / R / Esc", "Pause, retry the level, pause and then the menu."],
     ],
   },
   engines: {
