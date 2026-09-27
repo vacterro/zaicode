@@ -21,6 +21,7 @@ import type {
 } from "./rendererActionTrace.js";
 import type { RendererHeapSample } from "./validation.js";
 import type { ZaicodeSplashPrefsInput, ZaicodeSplashPrefsState } from "./zaicode-splash.js";
+import type { ZaicodeScreenMode } from "./zaicode-screen.js";
 import type {
   CuaAccessibilitySettingsResult,
   OpenCuaPermissionOnboardingOptions,
@@ -922,8 +923,8 @@ export interface IPlatformService {
   /** ZAICODE：在该目录创建本机 operator 的 SAIMAIL 邮箱（saimail-local init）；只由显式点击触发。 */
   initZaicodeSaimailWorkspace?(workspace: string): Promise<{ ok: boolean; message: string }>;
   /** ZAICODE：像素级清晰渲染（100% 缩放、位图字体、无亚像素定位）；下次启动生效。 */
-  getZaicodePixelExact?(): Promise<{ pixelExact: boolean }>;
-  setZaicodePixelExact?(enabled: boolean): Promise<{ pixelExact: boolean }>;
+  getZaicodePixelExact?(): Promise<{ pixelExact: boolean; screen: ZaicodeScreenMode }>;
+  setZaicodePixelExact?(mode: boolean | ZaicodeScreenMode): Promise<{ pixelExact: boolean; screen: ZaicodeScreenMode }>;
   /** ZAICODE：启动画面偏好（SRC-049）：是否显示画面，是否用自选图片（imagePath 为选择器返回的路径，null 还原默认）。 */
   getZaicodeSplashPrefs?(): Promise<ZaicodeSplashPrefsState>;
   setZaicodeSplashPrefs?(input: ZaicodeSplashPrefsInput): Promise<ZaicodeSplashPrefsState>;

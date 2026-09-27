@@ -84,6 +84,7 @@ import type {
   ZaicodeSplashPrefsInput,
   ZaicodeSplashPrefsState,
   ZaicodeProtrailGlobalStatus,
+  ZaicodeScreenMode,
 } from "@zcode/shared";
 import {
   InternalChannels,
@@ -764,10 +765,10 @@ contextBridge.exposeInMainWorld("zcode", {
     ipcRenderer.invoke(PlatformChannels.SetZaicodeSaimailWorkspace, workspace),
   initZaicodeSaimailWorkspace: (workspace: string): Promise<{ ok: boolean; message: string }> =>
     ipcRenderer.invoke(PlatformChannels.InitZaicodeSaimailWorkspace, workspace),
-  getZaicodePixelExact: (): Promise<{ pixelExact: boolean }> =>
+  getZaicodePixelExact: (): Promise<{ pixelExact: boolean; screen: ZaicodeScreenMode }> =>
     ipcRenderer.invoke(PlatformChannels.GetZaicodePixelExact),
-  setZaicodePixelExact: (enabled: boolean): Promise<{ pixelExact: boolean }> =>
-    ipcRenderer.invoke(PlatformChannels.SetZaicodePixelExact, enabled),
+  setZaicodePixelExact: (mode: boolean | ZaicodeScreenMode): Promise<{ pixelExact: boolean; screen: ZaicodeScreenMode }> =>
+    ipcRenderer.invoke(PlatformChannels.SetZaicodePixelExact, mode),
   getZaicodeSplashPrefs: (): Promise<ZaicodeSplashPrefsState> =>
     ipcRenderer.invoke(PlatformChannels.GetZaicodeSplashPrefs),
   setZaicodeSplashPrefs: (input: ZaicodeSplashPrefsInput): Promise<ZaicodeSplashPrefsState> =>

@@ -156,7 +156,7 @@ export function createDesktopPlatform(options: {
       ? () => window.zcode.getZaicodePixelExact!()
       : undefined,
     setZaicodePixelExact: window.zcode.setZaicodePixelExact
-      ? (enabled) => window.zcode.setZaicodePixelExact!(enabled)
+      ? (mode) => window.zcode.setZaicodePixelExact!(mode)
       : undefined,
     // SRC-060: the splash pair was exposed by preload but never mapped here, so
     // Settings -> Start-up splash stayed disabled and the preferences never

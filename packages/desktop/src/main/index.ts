@@ -252,7 +252,7 @@ import {
   applyZaicodeSaimailEnvironment,
   readZaicodeLauncherPreferences,
 } from "./zaicodeLauncherPreferences.js";
-import { applyZaicodePixelExactSwitches, ensureZaicodeCrispFonts } from "./zaicodeCrispFonts.js";
+import { applyZaicodePixelExactSwitches, ensureZaicodeCrispFonts, zaicodePixelExactAtStart } from "./zaicodeCrispFonts.js";
 import { startZaicodeEngines } from "./zaicodeEngines.js";
 import { isZaicodeSplashWindow, isZaicodeWindowHeld, showZaicodeSplash } from "./zaicodeSplash.js";
 import { isZaicodeProtrailWindow } from "./zaicodeProtrailGlobal.js";
@@ -271,7 +271,7 @@ if (!app.isPackaged && process.env.ZCODE_DISABLE_FIXED_REMOTE_DEBUGGING_PORT !==
 
 // ZAICODE：像素级清晰文本——100% 设备缩放 + 已安装的位图字体（Verdana_m1 / Terminus），
 // 必须在 app ready 之前设置；字体缺失时按用户级安装（启动器通常已先装好）。
-if (isZaicodeProductMode() && readZaicodeLauncherPreferences().pixelExact) {
+if (isZaicodeProductMode() && zaicodePixelExactAtStart(readZaicodeLauncherPreferences())) {
   applyZaicodePixelExactSwitches();
   try {
     ensureZaicodeCrispFonts();

@@ -24,6 +24,7 @@ import type {
 import type { RendererHeapSample } from "./validation.js";
 import type { ZaicodeSplashPrefsInput, ZaicodeSplashPrefsState } from "./zaicode-splash.js";
 import type { ZaicodeProtrailGlobalStatus } from "./zaicode-protrail.js";
+import type { ZaicodeScreenMode } from "./zaicode-screen.js";
 import type {
   CancelPendingRemoteConnectionRequest,
   BindRemoteWorkspaceSessionContextRequest,
@@ -1170,11 +1171,13 @@ export interface PlatformChannelMap {
   };
   [PlatformChannels.GetZaicodePixelExact]: {
     request: void;
-    response: { pixelExact: boolean };
+    /** `screen` (SRC-062): auto / pixel / smooth; `pixelExact` = what this start applied. */
+    response: { pixelExact: boolean; screen: ZaicodeScreenMode };
   };
   [PlatformChannels.SetZaicodePixelExact]: {
-    request: boolean;
-    response: { pixelExact: boolean };
+    /** A screen mode, or the older on/off (true = pixel, false = smooth). Applies on the next start. */
+    request: boolean | ZaicodeScreenMode;
+    response: { pixelExact: boolean; screen: ZaicodeScreenMode };
   };
   [PlatformChannels.GetZaicodeSplashPrefs]: {
     request: void;
