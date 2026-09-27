@@ -171,11 +171,11 @@ function Stop-RecordedWatcher {
 # --- 1. preconditions ------------------------------------------------------
 
 Write-Step 'SAIPEN CLOUD TRANSPORT'
-Write-Detail "Repository:      $Repo"
-Write-Detail "Remote:          $Remote"
-Write-Detail "Transport branch:$Branch"
-Write-Detail "Interval:        ${IntervalSeconds}s"
-Write-Detail "Infra root:      $InfraRoot"
+Write-Detail "Repository:       $Repo"
+Write-Detail "Remote:           $Remote"
+Write-Detail "Transport branch: $Branch"
+Write-Detail "Interval:         ${IntervalSeconds}s"
+Write-Detail "Infra root:       $InfraRoot"
 
 if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
     throw 'git is not on PATH. Install Git for Windows and reopen the shell.'
@@ -281,9 +281,10 @@ Write-Detail "Local  $Branch exists: $localSyncExists"
 Write-Detail "Remote $Branch exists: $remoteSyncExists"
 
 if (-not $localSyncExists -and -not $remoteSyncExists) {
-    Write-Detail "Creating $Branch at $head and publishing it."
+    Write-Detail "Creating $Branch at $head, publishing it and checking it out."
     $null = Invoke-Git -Arguments @('branch', $Branch, $head)
     $null = Invoke-Git -Arguments @('push', '--set-upstream', $Remote, "HEAD:refs/heads/$Branch")
+    $null = Invoke-Git -Arguments @('switch', $Branch)
 }
 elseif (-not $localSyncExists) {
     if ($head -eq $remoteHead) {
