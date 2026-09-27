@@ -50,6 +50,27 @@ function setRef<T>(ref: Ref<T> | undefined, value: T | null) {
   ref.current = value;
 }
 
+/**
+ * Classes for a hint's content card.
+ *
+ * SRC-058 (the tooltip that blinks on hover): hints open instantly and slide in
+ * toward their trigger, 2 px away. With the pointer near the trigger's edge the
+ * card lands under the pointer, the trigger gets pointerleave, the hint closes,
+ * the pointer is over the trigger again and the hint reopens -- a blink loop.
+ * A hint is text, never a hover target, so its card takes no pointer events and
+ * cannot steal the hover from the control it describes. Kept last so a caller's
+ * className cannot turn it back on.
+ */
+export function controlHintContentClassName(hasDescription: boolean, className?: string): string {
+  return cn(
+    hasDescription
+      ? "max-w-72 flex-col items-start gap-1.5 px-3 py-2 text-left"
+      : "max-w-[min(28rem,calc(100vw-1rem))] items-center gap-2 px-2.5 py-1 text-left has-data-[slot=kbd]:pr-1",
+    className,
+    "pointer-events-none select-none",
+  );
+}
+
 export function ControlHintTooltip({
   children,
   title,
@@ -117,12 +138,7 @@ export function ControlHintTooltip({
         side={side}
         sideOffset={sideOffset}
         collisionPadding={8}
-        className={cn(
-          description
-            ? "max-w-72 flex-col items-start gap-1.5 px-3 py-2 text-left"
-            : "max-w-[min(28rem,calc(100vw-1rem))] items-center gap-2 px-2.5 py-1 text-left has-data-[slot=kbd]:pr-1",
-          className,
-        )}
+        className={controlHintContentClassName(Boolean(description), className)}
       >
         {description ? (
           <div className="flex w-full items-start justify-between gap-3">
