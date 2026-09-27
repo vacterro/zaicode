@@ -25,6 +25,7 @@ import { WelcomeScreen, type LoginCompleteReason } from "@/WelcomeScreen.js";
 import { setDefaultFileDisplayBasePath } from "@/lib/fileDisplay.js";
 import { readRendererLaunchTimings, shouldReportLaunchToInput } from "@/lib/launchToInputReport.js";
 import { reportUiLaunchToInput } from "@/lib/uiPerfArmsTelemetry.js";
+import { announceZaicodeAppInteractive } from "@/zaicode/zaicodeStartupReady.js";
 import { countAllUnreadTasks } from "@/lib/unreadTaskCount.js";
 import {
   isProviderStartupSyncPending,
@@ -596,6 +597,11 @@ function RootInner({
     isRestoring,
     isBootstrappingInitialWorkspace: isBootstrappingInitialWorkspace || isCreatingFallbackWorkspace,
   });
+
+  // ZAICODE (SRC-060): the start-up picture gives way here, not at React's first frame.
+  useEffect(() => {
+    if (!isStartupRenderBlocked) announceZaicodeAppInteractive();
+  }, [isStartupRenderBlocked]);
 
   const launchReportedRef = useRef(false);
   useEffect(() => {

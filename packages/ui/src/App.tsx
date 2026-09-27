@@ -94,6 +94,7 @@ import { usePaneLayoutStore } from "@/v4/paneLayoutStore.js";
 import { useWorkbenchGroupStore } from "@/v4/workbenchGroupStore.js";
 import type { AssistantPreviewCardsAutoOpenRequest } from "@/lib/assistantPreviewCards.js";
 import { startMemoryDiagnosticsLogger } from "@/lib/memoryDiagnostics.js";
+import { mirrorZaicodeSplashBoot } from "@/zaicode/zaicodeSplashMirror.js";
 
 const EMPTY_RECONNECTING_REMOTE_WORKSPACE_LOGS_BY_WORKSPACE_KEY: NonNullable<
   AppProps["reconnectingRemoteWorkspaceLogsByWorkspaceKey"]
@@ -159,21 +160,15 @@ export function App({
     });
     return () => memoryDiagnosticsLogger.stop();
   }, [reportRendererHeapSample]);
-  // ZAICODE (SRC-049): mirror the custom splash picture into localStorage once
-  // per boot, so the next start's in-window loading shell shows it immediately.
+  // ZAICODE (SRC-049, SRC-060): mirror the custom splash picture and the splash
+  // options into localStorage once per boot, for the next start's boot shell.
   useEffect(() => {
     const syncSplashImage = platform.getZaicodeSplashPrefs;
     if (!syncSplashImage) return;
     let disposed = false;
     void syncSplashImage()
       .then((prefs) => {
-        if (disposed) return;
-        try {
-          if (prefs.customDataUrl) localStorage.setItem("zaicode-splash-image", prefs.customDataUrl);
-          else localStorage.removeItem("zaicode-splash-image");
-        } catch {
-          // The main-process copy still applies; only the pre-boot mirror fails.
-        }
+        if (!disposed) mirrorZaicodeSplashBoot(prefs);
       })
       .catch(() => undefined);
     return () => {

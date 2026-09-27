@@ -1,6 +1,13 @@
 import { app } from "electron";
 import { mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
+import {
+  DEFAULT_ZAICODE_SPLASH_OPTIONS,
+  normalizeZaicodeSplashOptions,
+  type ZaicodeSplashFit,
+  type ZaicodeSplashOptions,
+  type ZaicodeSplashScale,
+} from "@zcode/shared";
 
 const FILE_NAME = "zaicode-launcher.json";
 const SAIMAIL_WORKSPACE_ENV = "SAIMAIL_WORKSPACE";
@@ -15,6 +22,15 @@ export interface ZaicodeLauncherPreferences {
   splashEnabled: boolean;
   /** A custom splash picture is installed in userData (`zaicode-splash/`). */
   splashCustom: boolean;
+  /**
+   * SRC-060 splash options. Flat keys, because the root launcher reads this
+   * file with a regex (tools/launcher/ZaicodeLauncher.cs).
+   */
+  splashFit: ZaicodeSplashFit;
+  splashScale: ZaicodeSplashScale;
+  splashStatus: boolean;
+  splashHoldUntilReady: boolean;
+  splashMaxWaitSec: number;
 }
 
 const DEFAULT_PREFERENCES: ZaicodeLauncherPreferences = {
@@ -23,7 +39,36 @@ const DEFAULT_PREFERENCES: ZaicodeLauncherPreferences = {
   pixelExact: true,
   splashEnabled: true,
   splashCustom: false,
+  splashFit: DEFAULT_ZAICODE_SPLASH_OPTIONS.fit,
+  splashScale: DEFAULT_ZAICODE_SPLASH_OPTIONS.scale,
+  splashStatus: DEFAULT_ZAICODE_SPLASH_OPTIONS.status,
+  splashHoldUntilReady: DEFAULT_ZAICODE_SPLASH_OPTIONS.holdUntilReady,
+  splashMaxWaitSec: DEFAULT_ZAICODE_SPLASH_OPTIONS.maxWaitSec,
 };
+
+/** The splash options inside the flat preference record. */
+export function zaicodeSplashOptionsOf(preferences: ZaicodeLauncherPreferences): ZaicodeSplashOptions {
+  return {
+    fit: preferences.splashFit,
+    scale: preferences.splashScale,
+    status: preferences.splashStatus,
+    holdUntilReady: preferences.splashHoldUntilReady,
+    maxWaitSec: preferences.splashMaxWaitSec,
+  };
+}
+
+function splashPreferencesOf(options: ZaicodeSplashOptions): Pick<
+  ZaicodeLauncherPreferences,
+  "splashFit" | "splashScale" | "splashStatus" | "splashHoldUntilReady" | "splashMaxWaitSec"
+> {
+  return {
+    splashFit: options.fit,
+    splashScale: options.scale,
+    splashStatus: options.status,
+    splashHoldUntilReady: options.holdUntilReady,
+    splashMaxWaitSec: options.maxWaitSec,
+  };
+}
 
 /** SAIMAIL_WORKSPACE that came from outside ZAICODE (shell, launcher); it wins over the file. */
 const externalSaimailWorkspace = process.env[SAIMAIL_WORKSPACE_ENV]?.trim() || null;
@@ -55,6 +100,15 @@ export function readZaicodeLauncherPreferences(): ZaicodeLauncherPreferences {
           typeof record.splashEnabled === "boolean" ? record.splashEnabled : DEFAULT_PREFERENCES.splashEnabled,
         splashCustom:
           typeof record.splashCustom === "boolean" ? record.splashCustom : DEFAULT_PREFERENCES.splashCustom,
+        ...splashPreferencesOf(
+          normalizeZaicodeSplashOptions({
+            fit: record.splashFit,
+            scale: record.splashScale,
+            status: record.splashStatus,
+            holdUntilReady: record.splashHoldUntilReady,
+            maxWaitSec: record.splashMaxWaitSec,
+          }),
+        ),
       };
     }
   } catch {
@@ -85,6 +139,12 @@ export function setZaicodePixelExact(enabled: boolean): ZaicodeLauncherPreferenc
 
 export function setZaicodeSplashEnabled(enabled: boolean): ZaicodeLauncherPreferences {
   return writeZaicodeLauncherPreferences({ splashEnabled: enabled });
+}
+
+/** Merges `patch` into the stored splash options; bad values fall back, never throw. */
+export function setZaicodeSplashOptions(patch: Partial<ZaicodeSplashOptions>): ZaicodeLauncherPreferences {
+  const current = zaicodeSplashOptionsOf(readZaicodeLauncherPreferences());
+  return writeZaicodeLauncherPreferences(splashPreferencesOf(normalizeZaicodeSplashOptions({ ...current, ...patch })));
 }
 
 export function setZaicodeSaimailWorkspace(workspace: string | null): ZaicodeLauncherPreferences {

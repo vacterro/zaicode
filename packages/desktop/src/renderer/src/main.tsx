@@ -14,6 +14,8 @@ import {
   playTaskNotificationSound,
   setStreamClientId,
   setReactErrorArmsReporter,
+  ZaicodeAnnounceInteractive,
+  zaicodeStartupNeedsOperator,
 } from "@zcode/ui";
 import "@zcode/ui/styles.css";
 import { connectViaMessagePort, createMessagePortServiceConnection } from "@zcode/client";
@@ -170,6 +172,9 @@ function renderDatabaseStartup(): void {
         resolveSystemLocale={desktopPlatform.getSystemLocale}
       >
         <StartupReadyNotifier />
+        {zaicodeStartupNeedsOperator(databaseStartupAdmission.state) ? (
+          <ZaicodeAnnounceInteractive />
+        ) : null}
         <GlobalDatabaseStartupLoading
           state={databaseStartupAdmission.state}
           onRetry={() => {

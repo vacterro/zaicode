@@ -43,6 +43,11 @@ export function createDesktopPlatform(options: {
           window.zcode.openCuaPermissionOnboarding?.(permissionOptions) ??
           Promise.resolve({ success: false, error: "not_supported" })
       : undefined,
+    // Found by the SRC-060 adapter guard test: preload exposed it, nothing mapped it,
+    // so closing the permission guide never cancelled its onboarding participant.
+    cancelCuaPermissionOnboarding: window.zcode.cancelCuaPermissionOnboarding
+      ? (operationId) => window.zcode.cancelCuaPermissionOnboarding!(operationId)
+      : undefined,
     prepareCuaHelperPermissionDrag: window.zcode.prepareCuaHelperPermissionDrag
       ? () =>
           window.zcode.prepareCuaHelperPermissionDrag?.() ??
@@ -153,13 +158,14 @@ export function createDesktopPlatform(options: {
     setZaicodePixelExact: window.zcode.setZaicodePixelExact
       ? (enabled) => window.zcode.setZaicodePixelExact!(enabled)
       : undefined,
-    // SRC-060: the start-up picture was "blocked from changes" because these two
-    // were never mapped into IPlatformService. The preload bridge, the channels
-    // and the main-process handlers all existed, so every control in
-    // ZaicodeSplashSettings that guards on platform.setZaicodeSplashPrefs was
-    // permanently disabled and apply() was a silent no-op -- the whole SRC-049
-    // feature was inert on desktop. Same omission shape as the launcher
-    // preferences above, so the fix is the same three lines each.
+    // SRC-060: the splash pair was exposed by preload but never mapped here, so
+    // Settings -> Start-up splash stayed disabled and the preferences never
+    // loaded. Found independently on this machine and in the cloud, from the
+    // same evidence: the bridge, the channels and the main-process handlers all
+    // existed, and every control in ZaicodeSplashSettings that guards on
+    // platform.setZaicodeSplashPrefs was permanently disabled while apply() was
+    // a silent no-op. Both fixes are the same three lines, so the merge kept
+    // one implementation and this comment carries both explanations.
     getZaicodeSplashPrefs: window.zcode.getZaicodeSplashPrefs
       ? () => window.zcode.getZaicodeSplashPrefs!()
       : undefined,

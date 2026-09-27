@@ -20,6 +20,7 @@ import type {
   RendererActionTraceConfigV1,
 } from "./rendererActionTrace.js";
 import type { RendererHeapSample } from "./validation.js";
+import type { ZaicodeSplashPrefsInput, ZaicodeSplashPrefsState } from "./zaicode-splash.js";
 import type {
   CuaAccessibilitySettingsResult,
   OpenCuaPermissionOnboardingOptions,
@@ -924,11 +925,8 @@ export interface IPlatformService {
   getZaicodePixelExact?(): Promise<{ pixelExact: boolean }>;
   setZaicodePixelExact?(enabled: boolean): Promise<{ pixelExact: boolean }>;
   /** ZAICODE：启动画面偏好（SRC-049）：是否显示画面，是否用自选图片（imagePath 为选择器返回的路径，null 还原默认）。 */
-  getZaicodeSplashPrefs?(): Promise<{ enabled: boolean; hasCustom: boolean; customDataUrl: string | null }>;
-  setZaicodeSplashPrefs?(input: {
-    enabled: boolean;
-    imagePath?: string | null;
-  }): Promise<{ enabled: boolean; hasCustom: boolean; customDataUrl: string | null }>;
+  getZaicodeSplashPrefs?(): Promise<ZaicodeSplashPrefsState>;
+  setZaicodeSplashPrefs?(input: ZaicodeSplashPrefsInput): Promise<ZaicodeSplashPrefsState>;
   /** ZAICODE：完整退出（SRC-049 快捷键）：走主进程优雅退出，不进托盘。 */
   zaicodeQuitApp?(): Promise<{ ok: boolean }>;
   /** ZAICODE dev：把界面设置快照写成随包默认值（源码树 zaicodeSettingsDefaults.json）并在 userData 备份。 */

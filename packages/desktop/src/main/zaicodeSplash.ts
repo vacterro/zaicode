@@ -1,8 +1,10 @@
 import { app, BrowserWindow, screen, type Rectangle } from "electron";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
-import { readZaicodeLauncherPreferences } from "./zaicodeLauncherPreferences.js";
-import { hasZaicodeCustomSplash, zaicodeSplashCustomDir } from "./zaicodeSplashPrefs.js";
+import { zaicodeSplashSize, type ZaicodeSplashScale } from "@zcode/shared";
+import { readZaicodeLauncherPreferences, zaicodeSplashOptionsOf } from "./zaicodeLauncherPreferences.js";
+import { refreshZaicodeCustomSplashPage } from "./zaicodeSplashFiles.js";
+import { zaicodeSplashCustomDir } from "./zaicodeSplashPrefs.js";
 
 /**
  * ZAICODE start-up splash (SRC-048). The operator used to get a grey window
@@ -14,13 +16,12 @@ import { hasZaicodeCustomSplash, zaicodeSplashCustomDir } from "./zaicodeSplashP
  *
  * Same size and place (centre of the primary work area) as the root
  * launcher's splash (tools/launcher), so the hand-over between the two is
- * invisible. A main window that never gets ready is shown after MAX_HOLD_MS
- * anyway; the splash never outlives it.
+ * invisible. A main window that never gets ready is shown after the operator's
+ * longest wait (Settings, SRC-060) anyway; the splash never outlives it.
  */
 
-export const ZAICODE_SPLASH_WIDTH = 560;
-export const ZAICODE_SPLASH_HEIGHT = 300;
-const MAX_HOLD_MS = 90_000;
+/** A little longer than the renderer's own fallback, so the renderer decides first. */
+const HOLD_MARGIN_MS = 5_000;
 const READY_POLL_MS = 200;
 /** The main window paints before the splash goes, so nothing flashes in between. */
 const CLOSE_DELAY_MS = 120;
@@ -35,7 +36,10 @@ let holding = false;
 function splashPagePath(): string | null {
   // SRC-049, Settings -> ZAICODE -> Start-up: a custom picture lives in
   // userData/zaicode-splash/ with its own generated page.
-  if (hasZaicodeCustomSplash()) return join(zaicodeSplashCustomDir(), "zaicode-splash.html");
+  // SRC-060: a page written by an older template is rewritten first.
+  if (refreshZaicodeCustomSplashPage(zaicodeSplashCustomDir())) {
+    return join(zaicodeSplashCustomDir(), "zaicode-splash.html");
+  }
   const candidates = [
     join(process.resourcesPath ?? "", "zaicode-splash"),
     join(app.getAppPath(), "build", "zaicode-splash"),
@@ -50,12 +54,16 @@ function splashPagePath(): string | null {
 }
 
 /** Centre of the primary work area, whole pixels (the launcher uses the same rule). */
-export function zaicodeSplashBounds(area: Rectangle = screen.getPrimaryDisplay().workArea): Rectangle {
+export function zaicodeSplashBounds(
+  scale: ZaicodeSplashScale = 1,
+  area: Rectangle = screen.getPrimaryDisplay().workArea,
+): Rectangle {
+  const { width, height } = zaicodeSplashSize(scale);
   return {
-    x: Math.round(area.x + (area.width - ZAICODE_SPLASH_WIDTH) / 2),
-    y: Math.round(area.y + (area.height - ZAICODE_SPLASH_HEIGHT) / 2),
-    width: ZAICODE_SPLASH_WIDTH,
-    height: ZAICODE_SPLASH_HEIGHT,
+    x: Math.round(area.x + (area.width - width) / 2),
+    y: Math.round(area.y + (area.height - height) / 2),
+    width,
+    height,
   };
 }
 
@@ -63,16 +71,18 @@ export function zaicodeSplashBounds(area: Rectangle = screen.getPrimaryDisplay()
 export function showZaicodeSplash(): void {
   if (splash || process.env.ZAICODE_NO_SPLASH === "1") return;
   holding = true;
+  const preferences = readZaicodeLauncherPreferences();
+  const options = zaicodeSplashOptionsOf(preferences);
   // The main window waits hidden until it is ready whatever the picture does:
   // splash off (SRC-049) means nothing shows at all, then the app appears loaded.
   holdTimer = setTimeout(() => {
     for (const win of held.keys()) revealZaicodeWindow(win);
     finishZaicodeSplash();
-  }, MAX_HOLD_MS);
-  const splashPage = readZaicodeLauncherPreferences().splashEnabled ? splashPagePath() : null;
+  }, options.maxWaitSec * 1000 + HOLD_MARGIN_MS);
+  const splashPage = preferences.splashEnabled ? splashPagePath() : null;
   if (!splashPage) return;
   splash = new BrowserWindow({
-    ...zaicodeSplashBounds(),
+    ...zaicodeSplashBounds(options.scale),
     useContentSize: true,
     frame: false,
     resizable: false,
@@ -89,7 +99,9 @@ export function showZaicodeSplash(): void {
   });
   // The product version comes from the root launcher (workspace VERSION); the app's own number is upstream's.
   const version = process.env.ZAICODE_VERSION?.trim() ?? "";
-  void splash.loadFile(splashPage, { query: version ? { v: version } : {} }).catch(() => undefined);
+  const query: Record<string, string> = { fit: options.fit, status: options.status ? "1" : "0" };
+  if (version) query.v = version;
+  void splash.loadFile(splashPage, { query }).catch(() => undefined);
 }
 
 export function setZaicodeSplashStatus(text: string): void {
