@@ -6,6 +6,7 @@ import { useModelProviders } from "@/hooks/useModelProviders.js";
 import { setZaicodeDefaultModel } from "@/zaicode/zaicodeDefaultModel.js";
 import { readZaicodeCurrentWorkspace } from "@/zaicode/zaicodeEngines.js";
 import { getZaicodeRouterBridge, useZaicodeRouter } from "@/zaicode/zaicodeRouter.js";
+import { ZaicodeReadinessBar, type ZaicodeReadinessView } from "@/zaicode/ZaicodeReadinessBar.js";
 import {
   decorateZaicodeAccountGroups,
   refreshZaicodeSubscriptionReadiness,
@@ -40,7 +41,7 @@ export function ZaicodeRouterSubscriptions() {
     () =>
       decorateZaicodeAccountGroups(
         subscriptions.accounts.map(
-          (account): { key: string; readiness?: { percent: number | null; color: string; text: string; title: string } } => ({
+          (account): { key: string; readiness?: ZaicodeReadinessView } => ({
             key: `registry-provider:${providerOf[account.connectionId] ?? ""}`,
           }),
         ),
@@ -118,12 +119,7 @@ export function ZaicodeRouterSubscriptions() {
               {!account.active ? <span className="text-[#e0a040]">off in 9router</span> : null}
               <span className="ml-auto flex items-center gap-2">
                 {readiness ? (
-                  <span className="inline-flex items-center gap-1 tabular-nums text-foreground-subtle" title={readiness.title}>
-                    <span className="relative h-1.5 w-12 overflow-hidden bg-surface">
-                      <span className="absolute inset-y-0 left-0" style={{ width: `${readiness.percent ?? 0}%`, background: readiness.color }} />
-                    </span>
-                    {readiness.text}
-                  </span>
+                  <ZaicodeReadinessBar view={readiness} width={48} />
                 ) : null}
                 <span className="text-foreground-subtlest">{providerId ? `${models.length} models in the menu` : "not in the menu yet"}</span>
               </span>

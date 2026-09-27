@@ -169,7 +169,13 @@ test("the model menu: a bar on subscription accounts, nothing on other providers
   assert.deepEqual(groups[0], {
     key: "registry-provider:p1",
     label: "Codex 1",
-    readiness: { percent: 64, color: "#4f9a2f", text: "64%", title: "Codex 1 (home@x.io): 5h 64%" },
+    readiness: {
+      percent: 64,
+      tone: "good",
+      color: "var(--color-success, #5b9630)",
+      text: "64%",
+      title: "Codex 1 (home@x.io): 5h 64%",
+    },
   });
   assert.equal("readiness" in groups[1]!, false);
 });
