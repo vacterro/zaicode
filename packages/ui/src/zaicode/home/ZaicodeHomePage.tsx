@@ -58,7 +58,10 @@ import {
   type ZaicodeHomePreset,
   type ZaicodeHomeWidgetEntry,
   type ZaicodeHomeWidgetId,
+  moveZaicodeHomeWidget,
+  zaicodeHomeCustomFromScreen,
 } from "./zaicodeHomePrefs.js";
+import { playZaicodeSound } from "../zaicodeSoundBus.js";
 
 /**
  * SAIHOME (T-56): "what is happening?". NEW TASK stays the composer
@@ -151,6 +154,10 @@ export function ZaicodeHomePage({
   useZaicodeHomeFeedRefresh();
   const prefs = useZaicodeHomePrefs();
   const [editing, setEditing] = useState(false);
+  // SRC-061: drag a card by its title onto another card to move it.
+  const [armed, setArmed] = useState<string | null>(null);
+  const [dragging, setDragging] = useState<string | null>(null);
+  const [drop, setDrop] = useState<{ id: string; where: "before" | "after" } | null>(null);
   const [showAllLimits, setShowAllLimits] = useState(false);
   const now = useZaicodeClock(30_000);
   const projects = useZaicodeHomeProjectInputs();
@@ -317,12 +324,8 @@ export function ZaicodeHomePage({
           aria-pressed={editing}
           className={cn("border px-1.5", editing ? "border-[var(--zaicode-highlight,var(--color-border-hover))] text-foreground" : "border-border text-foreground-subtle hover:text-foreground")}
           onClick={() => {
-            if (!editing && prefs.preset !== "custom") {
-              // Editing starts from what is on screen, so nothing jumps.
-              const visible = new Set(layout.map((entry) => entry.id));
-              const order = [...layout.map((entry) => entry.id), ...prefs.custom.map((entry) => entry.id).filter((id) => !visible.has(id))];
-              prefs.editLayout(order.map((id) => ({ ...(prefs.custom.find((entry) => entry.id === id)!), visible: visible.has(id) })));
-            }
+            // Editing starts from what is on screen, so nothing jumps.
+            if (!editing && prefs.preset !== "custom") prefs.editLayout(zaicodeHomeCustomFromScreen(prefs));
             setEditing(!editing);
           }}
         >
@@ -362,8 +365,50 @@ export function ZaicodeHomePage({
           {layout.map((entry) => {
             const node = render(entry.id);
             if (!node) return null;
+            const target = drop?.id === entry.id ? drop.where : null;
             return (
-              <div key={entry.id} className="mb-2 break-inside-avoid min-w-0">
+              <div
+                key={entry.id}
+                className={cn(
+                  "mb-2 break-inside-avoid min-w-0",
+                  dragging === entry.id && "opacity-40",
+                  target === "before" && "shadow-[0_-3px_0_0_var(--zaicode-highlight,var(--color-border-hover))]",
+                  target === "after" && "shadow-[0_3px_0_0_var(--zaicode-highlight,var(--color-border-hover))]",
+                )}
+                draggable={armed === entry.id}
+                data-zaicode-home-slot={entry.id}
+                onPointerDown={(event) => {
+                  const handle = (event.target as Element).closest?.("[data-zaicode-home-drag]");
+                  setArmed(handle ? entry.id : null);
+                }}
+                onDragStart={(event) => {
+                  event.dataTransfer.effectAllowed = "move";
+                  event.dataTransfer.setData("text/zaicode-home-widget", entry.id);
+                  setDragging(entry.id);
+                }}
+                onDragOver={(event) => {
+                  if (!dragging || dragging === entry.id) return;
+                  event.preventDefault();
+                  const rect = event.currentTarget.getBoundingClientRect();
+                  const where = event.clientY < rect.top + rect.height / 2 ? "before" : "after";
+                  if (drop?.id !== entry.id || drop.where !== where) setDrop({ id: entry.id, where });
+                }}
+                onDrop={(event) => {
+                  event.preventDefault();
+                  if (dragging && drop) {
+                    prefs.editLayout(moveZaicodeHomeWidget(zaicodeHomeCustomFromScreen(prefs), dragging, drop.id, drop.where));
+                    playZaicodeSound("sidebar.drop");
+                  }
+                  setDragging(null);
+                  setDrop(null);
+                  setArmed(null);
+                }}
+                onDragEnd={() => {
+                  setDragging(null);
+                  setDrop(null);
+                  setArmed(null);
+                }}
+              >
                 {node}
               </div>
             );

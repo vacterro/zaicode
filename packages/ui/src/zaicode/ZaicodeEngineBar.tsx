@@ -1,4 +1,4 @@
-import { AppWindow, Boxes, ExternalLink, EyeOff, Play, RefreshCw, Settings2, Terminal, Wrench } from "lucide-react";
+import { AppWindow, Boxes, ExternalLink, EyeOff, KeyRound, Play, RefreshCw, Route, Settings2, Terminal, Wrench } from "lucide-react";
 import { cn } from "@/components/lib/utils.js";
 import {
   ContextMenu,
@@ -32,6 +32,13 @@ import { zaicodeGlowHandlers, zaicodeGlowStyle } from "./zaicodeGlow.js";
 import { playZaicodeSound } from "./zaicodeSoundBus.js";
 import { useZaicodeRouter } from "./zaicodeRouter.js";
 import { useZaicodePreparedMeters } from "./ZaicodeSchedulerBits.js";
+import { ZaicodePrefCheck, ZaicodeRightClickSettings } from "./ZaicodePrefControls.js";
+import {
+  ZAICODE_ENGINE_BAR_MAX_POOLS,
+  useZaicodeEngineBarPrefs,
+  zaicodeEngineBarLabel,
+  zaicodeEngineBarPools,
+} from "./zaicodeEngineBarPrefs.js";
 
 /**
  * Sidebar top: every engine ZAICODE can work with, picked directly — no
@@ -57,6 +64,8 @@ export function ZaicodeEngineBar() {
   useZaicodeFreshVersion();
   const glowRules = useZaicodeNotifySettings().glow;
   const group = groups[0];
+  const barPrefs = useZaicodeEngineBarPrefs();
+  const pools = group ? zaicodeEngineBarPools(group.options, barPrefs) : [];
   const accounts = launchableZaicodeAccounts(engines).filter(
     (account) =>
       // A tile that needs sign-in stays: it is where the fix lives.
@@ -96,64 +105,108 @@ export function ZaicodeEngineBar() {
   return (
     <div className="flex min-w-0 flex-col gap-px px-2 py-1 text-ui-xs" data-zaicode-engine-bar data-zaicode-help="engines">
       {group ? (
-        <div className="flex min-w-0 items-center gap-1" title={`In-app model pools (${group.providerLabel})`}>
-          {group.isRouter ? (
+        <ZaicodeRightClickSettings
+          title="Which models show here"
+          hint="Tick up to four models of the router; the rest stay in the model picker. Right-click this row any time."
+          className="w-full"
+          panel={
+            <div className="flex flex-col gap-1" data-zaicode-engine-bar-pools>
+              {group.options.map((option) => {
+                const shown = pools.some((pool) => pool.modelId === option.modelId);
+                return (
+                  <ZaicodePrefCheck
+                    key={option.modelId}
+                    checked={shown}
+                    disabled={!shown && pools.length >= ZAICODE_ENGINE_BAR_MAX_POOLS}
+                    onChange={(checked) =>
+                      barPrefs.update({
+                        pools: checked
+                          ? [...pools.map((pool) => pool.modelId), option.modelId]
+                          : pools.map((pool) => pool.modelId).filter((id) => id !== option.modelId),
+                      })
+                    }
+                    label={option.modelId}
+                  />
+                );
+              })}
+              <ZaicodePrefCheck
+                checked={barPrefs.showSubs}
+                onChange={(showSubs) => barPrefs.update({ showSubs })}
+                label="Subscription tiles (C1, C2, …) below"
+              />
+              <button
+                type="button"
+                className="self-start border border-border px-1.5 text-foreground-subtle hover:bg-hover hover:text-foreground"
+                onClick={() => barPrefs.update({ pools: null })}
+              >
+                Back to SAIFREN + SAIOPP
+              </button>
+            </div>
+          }
+        >
+          <div className="flex w-full min-w-0 items-center gap-1" title={`In-app model pools (${group.providerLabel}). Right-click: which models show here.`}>
+            {/* SRC-061: the provider is a small button that opens its settings, not a truncated label. */}
             <button
               type="button"
-              className="w-[58px] shrink-0 truncate text-left text-foreground-subtlest hover:text-foreground"
-              title="Pools come from 9router. Click: Router settings (providers, keys, pools)."
+              className="flex size-5 shrink-0 items-center justify-center border border-border text-foreground-subtle hover:bg-hover hover:text-foreground"
+              title={
+                group.isRouter
+                  ? `${group.providerLabel}: providers, keys, pools and subscriptions — opens Settings → Router`
+                  : `${group.providerLabel}: opens Settings → Engines`
+              }
+              aria-label={`${group.providerLabel} settings`}
+              data-zaicode-sound="ui.settings"
               onClick={() => {
-                setPendingSettingsSection("zaicodeRouter");
+                setPendingSettingsSection(group.isRouter ? "zaicodeRouter" : "zaicodeEngines");
                 openSettingsTab();
               }}
             >
-              {group.providerLabel}
+              <Route className="size-3" />
             </button>
-          ) : (
-            <span className="w-[58px] shrink-0 truncate text-foreground-subtlest">{group.providerLabel}</span>
-          )}
-          {/* SRC-035: pools wrap onto a second line instead of shrinking to unreadable stubs. */}
-          <div className="flex min-w-0 flex-1 flex-wrap gap-px" role="radiogroup">
-            {group.options.slice(0, 4).map((option) => {
-              const active =
-                activeEngine === null &&
-                selectedModel?.providerId === option.providerId &&
-                selectedModel.modelId === option.modelId;
-              return (
-                <button
-                  key={`${option.providerId}/${option.modelId}`}
-                  type="button"
-                  role="radio"
-                  aria-checked={active}
-                  className={cn(
-                    "min-w-[64px] flex-1 truncate border px-1.5 py-0.5 text-center",
-                    active
-                      ? "border-[var(--zaicode-highlight,var(--color-border-hover))] bg-selected text-foreground"
-                      : "border-border bg-transparent text-foreground-subtle hover:bg-hover hover:text-foreground",
-                  )}
-                  title={`Use ${option.modelId} for new sessions (in-app agent)`}
-                  onClick={() => {
-                    setZaicodeActiveEngine(null);
-                    setZaicodeDefaultModel({ providerId: option.providerId, modelId: option.modelId });
-                    playZaicodeSound("engine.select");
-                  }}
-                >
-                  {option.modelId}
-                </button>
-              );
-            })}
+            <div className="flex min-w-0 flex-1 gap-px" role="radiogroup" aria-label="In-app model pools">
+              {pools.map((option) => {
+                const active =
+                  activeEngine === null &&
+                  selectedModel?.providerId === option.providerId &&
+                  selectedModel.modelId === option.modelId;
+                return (
+                  <button
+                    key={`${option.providerId}/${option.modelId}`}
+                    type="button"
+                    role="radio"
+                    aria-checked={active}
+                    className={cn(
+                      "min-w-0 flex-1 truncate border px-1.5 py-0.5 text-center",
+                      active
+                        ? "border-[var(--zaicode-highlight,var(--color-border-hover))] bg-selected text-foreground"
+                        : "border-border bg-transparent text-foreground-subtle hover:bg-hover hover:text-foreground",
+                    )}
+                    title={`Use ${option.modelId} for new sessions (in-app agent)`}
+                    onClick={() => {
+                      setZaicodeActiveEngine(null);
+                      setZaicodeDefaultModel({ providerId: option.providerId, modelId: option.modelId });
+                      playZaicodeSound("engine.select");
+                    }}
+                  >
+                    {zaicodeEngineBarLabel(option.modelId)}
+                  </button>
+                );
+              })}
+            </div>
           </div>
-        </div>
+        </ZaicodeRightClickSettings>
       ) : null}
-      {accounts.length > 0 ? (
+      {accounts.length > 0 && barPrefs.showSubs ? (
         <div className="flex min-w-0 items-center gap-1">
           <button
             type="button"
-            className="w-[58px] shrink-0 truncate text-left text-foreground-subtlest hover:text-foreground"
-            title="Subscriptions as worker engines. Click for Engines settings."
+            className="flex size-5 shrink-0 items-center justify-center border border-border text-foreground-subtle hover:bg-hover hover:text-foreground"
+            title="Subscriptions (your Claude, Codex, Antigravity, ZCode logins) — opens Settings → Engines & limits"
+            aria-label="Subscriptions settings"
+            data-zaicode-sound="ui.settings"
             onClick={openEngineSettings}
           >
-            Subs
+            <KeyRound className="size-3" />
           </button>
           <div className="flex min-w-0 flex-1 flex-wrap gap-px" role="radiogroup" aria-label="Subscription engines">
             {accounts.map((account) => {

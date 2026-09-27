@@ -211,6 +211,34 @@ export function zaicodeHomeLayout(prefs: Pick<ZaicodeHomePrefs, "preset" | "cust
   }));
 }
 
+/**
+ * The CUSTOM list that matches what is on screen now: the visible widgets in
+ * their screen order, then the hidden ones. Editing or dragging starts here,
+ * so switching a preset to CUSTOM never moves a card.
+ */
+export function zaicodeHomeCustomFromScreen(prefs: Pick<ZaicodeHomePrefs, "preset" | "custom">): ZaicodeHomeWidgetEntry[] {
+  if (prefs.preset === "custom") return prefs.custom;
+  const layout = zaicodeHomeLayout(prefs);
+  const visible = new Set(layout.map((entry) => entry.id));
+  const order = [...layout.map((entry) => entry.id), ...prefs.custom.map((entry) => entry.id).filter((id) => !visible.has(id))];
+  return order.map((id) => ({ ...prefs.custom.find((entry) => entry.id === id)!, visible: visible.has(id) }));
+}
+
+/** SRC-061 drag and drop: `from` lands right before or after `to`; anything else is unchanged. */
+export function moveZaicodeHomeWidget(
+  entries: readonly ZaicodeHomeWidgetEntry[],
+  from: string,
+  to: string,
+  where: "before" | "after",
+): ZaicodeHomeWidgetEntry[] {
+  if (from === to) return [...entries];
+  const moving = entries.find((entry) => entry.id === from);
+  if (!moving || !entries.some((entry) => entry.id === to)) return [...entries];
+  const rest = entries.filter((entry) => entry.id !== from);
+  const index = rest.findIndex((entry) => entry.id === to) + (where === "after" ? 1 : 0);
+  return [...rest.slice(0, index), moving, ...rest.slice(index)];
+}
+
 /** The first view after a start: SAIHOME, the remembered one, or the composer. */
 export function zaicodeStartupMainView(prefs: Pick<ZaicodeHomePrefs, "startup" | "lastView">): "saihome" | "chat" | "zaicode" {
   if (prefs.startup === "newTask") return "chat";

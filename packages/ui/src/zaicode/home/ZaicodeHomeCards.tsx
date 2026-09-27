@@ -52,7 +52,14 @@ export function ZaicodeHomeCard({
       data-zaicode-home-widget={widget}
     >
       <header className="flex min-w-0 items-center gap-2">
-        <h2 className="shrink-0 text-ui-xs tracking-wide text-foreground-subtle">{title.toUpperCase()}</h2>
+        {/* SRC-061: the title is the drag handle (SAIHOME reorders cards by drag and drop). */}
+        <h2
+          className="shrink-0 cursor-grab text-ui-xs tracking-wide text-foreground-subtle active:cursor-grabbing"
+          title="Drag to move this card"
+          data-zaicode-home-drag
+        >
+          {title.toUpperCase()}
+        </h2>
         <span className="min-w-0 flex-1 truncate text-right text-foreground-subtlest">{right}</span>
         {onOpen ? (
           <button
