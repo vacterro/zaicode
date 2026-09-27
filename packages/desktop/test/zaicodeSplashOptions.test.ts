@@ -89,7 +89,12 @@ test("flipping the splash switch leaves the custom picture alone (imagePath stay
 
 test("the bundled splash page is the template's output (one page for both pictures)", () => {
   const bundled = readFileSync(join(packages, "desktop", "build", "zaicode-splash", "splash.html"), "utf8");
-  assert.equal(bundled, zaicodeSplashPage("splash.png"));
+  // Newlines are normalized on both sides: the generator emits LF, but
+  // core.autocrlf=true turns the committed file into CRLF on checkout, so a
+  // byte comparison fails on every Windows clone while the content is correct.
+  // The assertion is about the page's content, not about Git's line endings.
+  const lf = (text: string) => text.replace(/\r\n/g, "\n");
+  assert.equal(lf(bundled), lf(zaicodeSplashPage("splash.png")));
   const page = zaicodeSplashPage("custom.jpg");
   // It fills its window and never draws the picture at a fixed 560x300.
   assert.match(page, /width: 100vw;/);
