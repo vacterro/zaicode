@@ -9,12 +9,14 @@
 // to the app's own identical splash as soon as the app shows a window.
 // Build: tools\launcher\build.cmd
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Text;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Web.Script.Serialization;
 using System.Windows.Forms;
 
 internal static class ZaicodeLauncher
@@ -26,10 +28,28 @@ internal static class ZaicodeLauncher
     private const int RapidCrashLimit = 5;
 
     private static string logPath;
+    private static string previewDataPath;
+    private static string previewTempRoot;
 
     [STAThread]
     private static int Main(string[] args)
     {
+        // --preview (SRC-051): a one-time dev session — fresh user data that
+        // starts from the saved settings and is never reused. The flag stays
+        // here; the app never sees it.
+        bool preview = string.Equals(
+            Path.GetFileName(Process.GetCurrentProcess().MainModule.FileName),
+            "ZAICODE-Preview.exe", StringComparison.OrdinalIgnoreCase);
+        var forwarded = new System.Collections.Generic.List<string>();
+        foreach (string arg in args)
+        {
+            if (string.Equals(arg, "--preview", StringComparison.OrdinalIgnoreCase))
+            {
+                preview = true;
+                continue;
+            }
+            forwarded.Add(arg);
+        }
         string workspace = AppDomain.CurrentDomain.BaseDirectory.TrimEnd('\\');
         string settingsDirectory = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ZAICODE");
@@ -37,12 +57,17 @@ internal static class ZaicodeLauncher
         logPath = Path.Combine(settingsDirectory, "launcher.log");
         string preferencesPath = Path.Combine(settingsDirectory, "zaicode-launcher.json");
 
-        string executable = Path.Combine(workspace, AppRelativePath);
+        string stagedExecutable = Path.Combine(workspace, StagedDir, "ZAICODE.exe");
+        // Preview may inspect the latest staged build while the ordinary app
+        // keeps the live package locked. It never swaps the running package.
+        string executable = preview && StagedBuildReady(workspace)
+            ? stagedExecutable
+            : Path.Combine(workspace, AppRelativePath);
         string version = ReadVersion(workspace);
         if (!string.IsNullOrEmpty(version)) Environment.SetEnvironmentVariable("ZAICODE_VERSION", version);
         ZaicodeSplash.Show(workspace, version, settingsDirectory);
         ZaicodeSplash.SetStatus("Checking for a new build...");
-        ApplyStagedBuild(workspace);
+        if (!preview) ApplyStagedBuild(workspace);
         if (!File.Exists(executable))
         {
             ZaicodeSplash.Close();
@@ -62,6 +87,13 @@ internal static class ZaicodeLauncher
 
         Environment.SetEnvironmentVariable("ZCODE_ZAICODE_MODE", "1");
         Environment.SetEnvironmentVariable("ZCODE_ZAICODE_IDENTITY", "1");
+        if (preview && !StartPreviewSession(settingsDirectory))
+        {
+            ZaicodeSplash.Close();
+            MessageBox.Show("Could not prepare an isolated preview profile. See launcher.log for details.",
+                "ZAICODE launcher", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            return 4;
+        }
         // A TZ inherited from an agent shell (TZ=UTC) moves every ZAICODE clock by the zone
         // offset: Chromium fixes its zone at start, so the variable must never reach the app.
         Environment.SetEnvironmentVariable("TZ", null);
@@ -85,52 +117,59 @@ internal static class ZaicodeLauncher
         PrependInstallTools(workspace);
         ZaicodeSplash.SetStatus("Starting ZAICODE...");
 
-        int rapidCrashes = 0;
-        while (true)
+        try
         {
-            DateTime started = DateTime.Now;
-            int exitCode;
-            try
+            int rapidCrashes = 0;
+            while (true)
             {
-                var info = new ProcessStartInfo(executable)
+                DateTime started = DateTime.Now;
+                int exitCode;
+                try
                 {
-                    WorkingDirectory = Path.GetDirectoryName(executable),
-                    UseShellExecute = false,
-                    Arguments = string.Join(" ", Array.ConvertAll(args, Quote)),
-                };
-                using (Process process = Process.Start(info))
-                {
-                    ZaicodeSplash.CloseWhenWindowShows(process.Id);
-                    process.WaitForExit();
-                    exitCode = process.ExitCode;
+                    var info = new ProcessStartInfo(executable)
+                    {
+                        WorkingDirectory = Path.GetDirectoryName(executable),
+                        UseShellExecute = false,
+                        Arguments = string.Join(" ", Array.ConvertAll(forwarded.ToArray(), Quote)),
+                    };
+                    using (Process process = Process.Start(info))
+                    {
+                        ZaicodeSplash.CloseWhenWindowShows(process.Id);
+                        process.WaitForExit();
+                        exitCode = process.ExitCode;
+                    }
+                    ZaicodeSplash.Close();
                 }
-                ZaicodeSplash.Close();
-            }
-            catch (Exception error)
-            {
-                ZaicodeSplash.Close();
-                Log("Launch failed: " + error.Message);
-                MessageBox.Show("ZAICODE failed to start:\n" + error.Message, "ZAICODE launcher",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return 3;
-            }
+                catch (Exception error)
+                {
+                    ZaicodeSplash.Close();
+                    Log("Launch failed: " + error.Message);
+                    MessageBox.Show("ZAICODE failed to start:\n" + error.Message, "ZAICODE launcher",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return 3;
+                }
 
-            if (exitCode == 0)
-            {
-                Log("Normal exit");
-                return 0;
-            }
-            Log("Process exited with code " + exitCode);
-            if (!AutoRestartEnabled(preferencesPath)) return exitCode;
+                if (exitCode == 0)
+                {
+                    Log("Normal exit");
+                    return 0;
+                }
+                Log("Process exited with code " + exitCode);
+                if (!AutoRestartEnabled(preferencesPath)) return exitCode;
 
-            rapidCrashes = (DateTime.Now - started).TotalSeconds < RapidCrashSeconds ? rapidCrashes + 1 : 0;
-            if (rapidCrashes >= RapidCrashLimit)
-            {
-                Log("Stopped after five rapid crashes");
-                return exitCode;
+                rapidCrashes = (DateTime.Now - started).TotalSeconds < RapidCrashSeconds ? rapidCrashes + 1 : 0;
+                if (rapidCrashes >= RapidCrashLimit)
+                {
+                    Log("Stopped after five rapid crashes");
+                    return exitCode;
+                }
+                Thread.Sleep(2000);
+                if (!preview) ApplyStagedBuild(workspace);
             }
-            Thread.Sleep(2000);
-            ApplyStagedBuild(workspace);
+        }
+        finally
+        {
+            if (preview) CleanupPreviewSession();
         }
     }
 
@@ -144,6 +183,151 @@ internal static class ZaicodeLauncher
         catch
         {
             return "";
+        }
+    }
+
+    /// <summary>
+    /// --preview (SRC-051): a one-time dev session. A fresh temp user-data dir
+    /// is seeded with the operator's saved settings (the settings live in the
+    /// session's Local Storage), so the preview starts looking like the real
+    /// ZAICODE while app settings writes stay in temp. Preview temp dirs from
+    /// earlier runs (older than a week) are swept best-effort.
+    /// </summary>
+    private static bool StartPreviewSession(string realDataDirectory)
+    {
+        try
+        {
+            previewTempRoot = Path.GetFullPath(Path.GetTempPath());
+            string previewData = Path.Combine(
+                previewTempRoot, "ZAICODE-preview-" + DateTime.UtcNow.ToString("yyyyMMdd-HHmmss") + "-" + Guid.NewGuid().ToString("N").Substring(0, 8));
+            Directory.CreateDirectory(previewData);
+            previewDataPath = previewData;
+            string realSession = Path.Combine(realDataDirectory, "session");
+            string previewSession = Path.Combine(previewData, "session");
+            string realBase = Environment.GetEnvironmentVariable("ZCODE_DATA_BASE_DIR");
+            if (string.IsNullOrWhiteSpace(realBase))
+                realBase = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            CopyIfExists(Path.Combine(realSession, "Local Storage"), Path.Combine(previewSession, "Local Storage"));
+            CopyIfExists(Path.Combine(realSession, "IndexedDB"), Path.Combine(previewSession, "IndexedDB"));
+            CopyIfExists(Path.Combine(realSession, "Preferences"), Path.Combine(previewSession, "Preferences"));
+            CopyIfExists(Path.Combine(realDataDirectory, "zaicode-settings-snapshot.json"), Path.Combine(previewData, "zaicode-settings-snapshot.json"));
+            // Main bootstraps from ~/.zcode/v2/setting.json even in ZAICODE mode.
+            // Force its data root to the temp profile before any service starts.
+            CopyPreviewSettings(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+                ".zcode", "v2", "setting.json"),
+                Path.Combine(previewData, ".zcode", "v2", "setting.json"), previewData);
+            CopyIfExists(Path.Combine(realBase, ".zaicode", "v2", "provider_config.json"),
+                Path.Combine(previewData, ".zaicode", "v2", "provider_config.json"));
+            string productSettings = Path.Combine(realBase, ".zaicode", "v2", "setting.json");
+            if (File.Exists(productSettings))
+                CopyPreviewSettings(productSettings,
+                    Path.Combine(previewData, ".zaicode", "v2", "setting.json"), previewData);
+            string roaming = Path.Combine(previewData, "AppData", "Roaming");
+            string local = Path.Combine(previewData, "AppData", "Local");
+            Directory.CreateDirectory(roaming);
+            Directory.CreateDirectory(local);
+            Environment.SetEnvironmentVariable("HOME", previewData);
+            Environment.SetEnvironmentVariable("USERPROFILE", previewData);
+            Environment.SetEnvironmentVariable("APPDATA", roaming);
+            Environment.SetEnvironmentVariable("LOCALAPPDATA", local);
+            Environment.SetEnvironmentVariable("ZCODE_DATA_BASE_DIR", previewData);
+            Environment.SetEnvironmentVariable("ZCODE_HOME", Path.Combine(previewData, ".zcode"));
+            Environment.SetEnvironmentVariable("ZCODE_DESKTOP_HOME_DIR", previewData);
+            Environment.SetEnvironmentVariable("ZCODE_DESKTOP_USER_DATA_DIR", previewData);
+            Environment.SetEnvironmentVariable("ZCODE_DESKTOP_SESSION_DATA_DIR", previewSession);
+            Environment.SetEnvironmentVariable("ZCODE_ZAICODE_PREVIEW", "1");
+            ZaicodeSplash.SetStatus("Preview session (starts from your settings, changes stay temporary)...");
+            Log("Preview session: " + previewData);
+            SweepOldPreviewDirs(previewTempRoot);
+            return true;
+        }
+        catch (Exception error)
+        {
+            Log("Preview session setup failed: " + error.Message);
+            CleanupPreviewSession();
+            return false;
+        }
+    }
+
+    private static void CopyPreviewSettings(string source, string target, string previewData)
+    {
+        var serializer = new JavaScriptSerializer { MaxJsonLength = int.MaxValue };
+        var settings = File.Exists(source)
+            ? serializer.DeserializeObject(File.ReadAllText(source)) as Dictionary<string, object>
+            : new Dictionary<string, object>();
+        if (settings == null) throw new InvalidDataException("Invalid settings: " + source);
+        settings["dataBaseDir"] = previewData;
+        Directory.CreateDirectory(Path.GetDirectoryName(target));
+        File.WriteAllText(target, serializer.Serialize(settings));
+    }
+
+    private static void CopyIfExists(string source, string target)
+    {
+        if (File.Exists(source))
+        {
+            if (string.Equals(Path.GetFileName(source), "LOCK", StringComparison.OrdinalIgnoreCase)) return;
+            try
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(target));
+                File.Copy(source, target, true);
+            }
+            catch (Exception error) { Log("Preview seed skipped " + source + ": " + error.Message); }
+            return;
+        }
+        if (!Directory.Exists(source)) return;
+        Directory.CreateDirectory(target);
+        foreach (string file in Directory.GetFiles(source))
+        {
+            CopyIfExists(file, Path.Combine(target, Path.GetFileName(file)));
+        }
+        foreach (string dir in Directory.GetDirectories(source))
+        {
+            CopyIfExists(dir, Path.Combine(target, Path.GetFileName(dir)));
+        }
+    }
+
+    private static bool IsSafePreviewDirectory(string directory, string tempRoot)
+    {
+        if (string.IsNullOrEmpty(directory) || string.IsNullOrEmpty(tempRoot)) return false;
+        string target = Path.GetFullPath(directory);
+        string root = Path.GetFullPath(tempRoot).TrimEnd(Path.DirectorySeparatorChar);
+        return string.Equals(Path.GetDirectoryName(target), root, StringComparison.OrdinalIgnoreCase) &&
+            Path.GetFileName(target).StartsWith("ZAICODE-preview-", StringComparison.OrdinalIgnoreCase) &&
+            Directory.Exists(target) &&
+            (File.GetAttributes(target) & FileAttributes.ReparsePoint) == 0;
+    }
+
+    private static void CleanupPreviewSession()
+    {
+        string target = previewDataPath;
+        previewDataPath = null;
+        try
+        {
+            if (!IsSafePreviewDirectory(target, previewTempRoot)) return;
+            Directory.Delete(Path.GetFullPath(target), true);
+            Log("Preview session removed: " + target);
+        }
+        catch (Exception error)
+        {
+            Log("Preview cleanup deferred for " + target + ": " + error.Message);
+        }
+    }
+
+    private static void SweepOldPreviewDirs(string temp)
+    {
+        try
+        {
+            DateTime cutoff = DateTime.Now.AddDays(-7);
+            foreach (string dir in Directory.GetDirectories(temp, "ZAICODE-preview-*"))
+            {
+                if (!IsSafePreviewDirectory(dir, temp)) continue;
+                if (Directory.GetLastWriteTime(dir) >= cutoff) continue;
+                try { Directory.Delete(Path.GetFullPath(dir), true); } catch { /* in use or stubborn */ }
+            }
+        }
+        catch
+        {
+            // Never block a launch on temp hygiene.
         }
     }
 
@@ -179,17 +363,22 @@ internal static class ZaicodeLauncher
         string staged = Path.Combine(workspace, StagedDir);
         string live = Path.Combine(workspace, LiveDir);
         string stagedExe = Path.Combine(staged, "ZAICODE.exe");
-        if (!File.Exists(stagedExe)) return;
+        if (!StagedBuildReady(workspace)) return;
         string liveExe = Path.Combine(live, "ZAICODE.exe");
         if (File.Exists(liveExe) && File.GetLastWriteTimeUtc(liveExe) >= File.GetLastWriteTimeUtc(stagedExe))
         {
             Log("Staged build is not newer than live build; leaving it in place");
             return;
         }
+        if (BuildExecutableInUse(liveExe) || BuildExecutableInUse(stagedExe))
+        {
+            Log("Live or staged build is in use; keeping staged build for the next launch");
+            return;
+        }
         string previous = live + ".previous";
         try
         {
-            if (Directory.Exists(previous)) RemoveBuildDirectory(previous);
+            if (Directory.Exists(previous)) RemoveBuildDirectory(previous, workspace);
             if (Directory.Exists(live)) Directory.Move(live, previous);
             Directory.CreateDirectory(Path.GetDirectoryName(live));
             Directory.Move(staged, live);
@@ -205,18 +394,55 @@ internal static class ZaicodeLauncher
         }
     }
 
+    private static bool BuildExecutableInUse(string path)
+    {
+        if (!File.Exists(path)) return false;
+        try
+        {
+            using (new FileStream(path, FileMode.Open, FileAccess.ReadWrite, FileShare.None)) { }
+            return false;
+        }
+        catch (IOException) { return true; }
+        catch (UnauthorizedAccessException) { return true; }
+    }
+
+    private static bool StagedBuildReady(string workspace)
+    {
+        string staged = Path.Combine(workspace, StagedDir);
+        string executable = Path.Combine(staged, "ZAICODE.exe");
+        string asar = Path.Combine(staged, "resources", "app.asar");
+        if (!File.Exists(executable) || !File.Exists(asar)) return false;
+        string distNext = Path.GetDirectoryName(staged);
+        DateTime latestPackageWrite = File.GetLastWriteTimeUtc(executable);
+        DateTime asarWrite = File.GetLastWriteTimeUtc(asar);
+        if (asarWrite > latestPackageWrite) latestPackageWrite = asarWrite;
+        foreach (string installer in Directory.GetFiles(distNext, "ZAICODE-*-win-x64*.exe"))
+        {
+            if (Path.GetFileName(installer).Contains("__uninstaller")) continue;
+            string blockmap = installer + ".blockmap";
+            if (File.Exists(blockmap) && File.GetLastWriteTimeUtc(blockmap) >= latestPackageWrite &&
+                File.GetLastWriteTimeUtc(blockmap) >= File.GetLastWriteTimeUtc(installer)) return true;
+        }
+        return false;
+    }
+
     /// <summary>
     /// Removes an old build. The bundled router ships a Next.js output whose
     /// deepest files pass MAX_PATH, which Directory.Delete (legacy .NET path
     /// handling) cannot reach: the swap failed and the old build kept running
-    /// (T-58). Fallback: rd with the \\?\ prefix (long-path aware); last resort:
+    /// (T-58). Fallback: Directory.Delete with the \\?\ prefix; last resort:
     /// move it aside under a unique name so the swap still happens.
     /// </summary>
-    private static void RemoveBuildDirectory(string path)
+    private static void RemoveBuildDirectory(string path, string workspace)
     {
+        string expected = Path.GetFullPath(Path.Combine(workspace, LiveDir) + ".previous");
+        string target = Path.GetFullPath(path);
+        if (!string.Equals(target, expected, StringComparison.OrdinalIgnoreCase) ||
+            (File.GetAttributes(target) & FileAttributes.ReparsePoint) != 0)
+            throw new IOException("Unexpected previous-build path: " + target);
         try
         {
-            Directory.Delete(path, true);
+            Directory.Delete(target, true);
             return;
         }
         catch (Exception error)
@@ -225,25 +451,15 @@ internal static class ZaicodeLauncher
         }
         try
         {
-            var info = new ProcessStartInfo(
-                Path.Combine(Environment.SystemDirectory, "cmd.exe"),
-                "/d /c rd /s /q \"\\\\?\\" + path + "\"")
-            {
-                UseShellExecute = false,
-                CreateNoWindow = true,
-            };
-            using (Process process = Process.Start(info))
-            {
-                process.WaitForExit(120000);
-            }
+            Directory.Delete(@"\\?\" + target, true);
         }
         catch (Exception error)
         {
             Log("rd failed: " + error.Message);
         }
-        if (!Directory.Exists(path)) return;
-        string aside = path + "-" + DateTime.UtcNow.ToString("yyyyMMddHHmmss");
-        Directory.Move(path, aside);
+        if (!Directory.Exists(target)) return;
+        string aside = target + "-" + DateTime.UtcNow.ToString("yyyyMMddHHmmss");
+        Directory.Move(target, aside);
         Log("Old build moved aside to " + Path.GetFileName(aside) + " (delete it by hand)");
     }
 

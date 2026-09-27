@@ -58,6 +58,11 @@ implementation, bootstrap, queue lifecycle, and upstream-update strategy.
 - Rebuild while the app is open: `pnpm bundle:zaicode` detects the locked live
   build and stages into `packages/desktop/dist-next/`; the launcher swaps it in on
   the next start and keeps the old build as `win-unpacked.previous`.
+- One-time visual preview: double-click `ZAICODE-Preview.exe`. It starts the
+  finished staged build when available, copies current saved settings into a
+  fresh temporary profile, and keeps Preview's app data separate from daily use.
+  Preview settings snapshots stay in that temporary profile; the launcher
+  removes it when Preview exits (or sweeps a locked leftover after a week).
 - Known gap: the packaged agent currently uses the default CLI data root
   (`~/.zcode/cli`), the same one as an installed production ZCode. Only the
   dev lane (`tools/start-zaicode-dev.ps1`) is fully isolated. Moving it is an

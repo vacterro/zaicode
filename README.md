@@ -10,7 +10,7 @@ application source is the `main` branch (cloned into `zcode/`).
 
 | Path | What |
 | ---- | ---- |
-| `ZAICODE.exe`, `tools/launcher/` | root launcher: ZAICODE mode, crash restart, staged build swap (`tools\launcher\build.cmd`) |
+| `ZAICODE.exe`, `ZAICODE-Preview.exe`, `tools/launcher/` | daily launcher and isolated one-time preview; ZAICODE mode, crash restart, staged build swap (`tools\launcher\build.cmd`) |
 | `REBUILD.cmd` | typecheck + bundle; a running app gets the new build on its next start |
 | `install/` | one-click installer and Autotroubleshoot (see Install) |
 | `UI.md` | what the interface does and why |

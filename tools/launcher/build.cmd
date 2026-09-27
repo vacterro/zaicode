@@ -11,11 +11,18 @@ set OLD=%ROOT%\ZAICODE.exe.old
 if exist "%STAGED%" del /q "%STAGED%" 2>nul
 "%WINDIR%\Microsoft.NET\Framework64\v4.0.30319\csc.exe" /nologo /target:winexe /optimize+ ^
   /win32icon:"%ROOT%\zcode\packages\desktop\build\icon.ico" ^
-  /reference:System.Windows.Forms.dll /reference:System.Drawing.dll ^
+  /reference:System.Windows.Forms.dll /reference:System.Drawing.dll /reference:System.Web.Extensions.dll ^
   /out:"%STAGED%" "%~dp0ZaicodeLauncher.cs"
 
 if errorlevel 1 (
   echo Launcher compilation failed. Preserving existing executable.
+  exit /b 1
+)
+
+rem The same launcher detects its preview filename and starts an isolated session.
+copy /y "%STAGED%" "%ROOT%\ZAICODE-Preview.exe" >nul
+if errorlevel 1 (
+  echo Preview launcher update failed. The staged root launcher is still available.
   exit /b 1
 )
 
