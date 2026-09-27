@@ -5,7 +5,7 @@ import { Maximize2, PictureInPicture2, RotateCcw, X } from "lucide-react";
 const OPEN_EVENT = "zaicode-pebble-open";
 const WIDTH = 320;
 const HEIGHT = 200;
-const LEVELS = 6;
+export const LEVELS = 6;
 
 type GameStatus = "title" | "running" | "paused" | "levelComplete" | "gameOver" | "won";
 type DropKind = "pebble" | "hazard" | "heart";
@@ -27,7 +27,7 @@ interface World {
   drops: Drop[];
 }
 
-const newWorld = (): World => ({
+export const newWorld = (): World => ({
   playerX: WIDTH / 2,
   score: 0,
   lives: 3,
@@ -133,7 +133,7 @@ function drawWorld(ctx: CanvasRenderingContext2D, world: World, status: GameStat
   if (status === "title" || status === "levelComplete") drawPixelText(ctx, "PRESS SPACE", WIDTH / 2, 129, 8, "#F0D060", "center");
 }
 
-function updateWorld(world: World, keys: ReadonlySet<string>, elapsedMs: number): GameStatus | null {
+export function updateWorld(world: World, keys: ReadonlySet<string>, elapsedMs: number): GameStatus | null {
   const seconds = Math.min(0.04, elapsedMs / 1000);
   const direction = Number(keys.has("ArrowRight") || keys.has("KeyD")) - Number(keys.has("ArrowLeft") || keys.has("KeyA"));
   world.playerX = Math.max(17, Math.min(WIDTH - 17, world.playerX + direction * (115 + world.level * 8) * seconds));
