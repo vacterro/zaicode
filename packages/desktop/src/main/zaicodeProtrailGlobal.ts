@@ -41,6 +41,8 @@ const wanted = new Map<WebContents, unknown>();
 const watched = new WeakSet<WebContents>();
 let config: unknown = null;
 let input: ZaicodeProtrailInput | null = null;
+/** The Raw Input reader between its start and its "ready" (the cursor poll runs meanwhile). */
+let pending: ZaicodeProtrailInput | null = null;
 /** Bumps on every start and stop, so a late compile or restart of an older run is ignored. */
 let generation = 0;
 let restarts = 0;
@@ -103,6 +105,8 @@ function start(): void {
 
 function stop(): void {
   generation += 1;
+  pending?.stop();
+  pending = null;
   input?.stop();
   input = null;
   if (flushTimer) clearTimeout(flushTimer);
@@ -120,42 +124,55 @@ function startInput(run: number): void {
     useCursorPoll("Clicks are read only on Windows (Raw Input); here the trail follows the cursor.");
     return;
   }
+  // The trail follows the cursor at once; clicks join when the Raw Input reader
+  // reports ready (its first start compiles it, which takes a moment).
+  if (!input) useCursorPoll("Starting the click reader…", "starting");
   ensureZaicodeProtrailInputHelper().then(
     (exe) => {
-      if (run !== generation || input) return;
+      if (run !== generation || pending || input?.kind === "raw-input") return;
       const helper = startZaicodeProtrailRawInput(exe, {
-        onEvent: (event) => push(event, true),
+        onEvent: (event) => {
+          if (input === helper) push(event, true);
+        },
         onReady: () => {
-          if (run === generation && input === helper) setStatus({ state: "running", input: "raw-input", note: null });
+          if (run !== generation || pending !== helper) return;
+          pending = null;
+          input?.stop();
+          input = helper;
+          setStatus({ state: "running", input: "raw-input", note: null });
         },
         onFailure: (reason) => {
-          if (run !== generation || input !== helper) return;
+          if (run !== generation) return;
+          if (pending === helper) pending = null;
+          if (input === helper) input = null;
           helper.stop();
-          input = null;
           restarts += 1;
           if (restarts > MAX_HELPER_RESTARTS) {
             useCursorPoll(`Clicks are not seen: ${reason}. The trail follows the cursor.`);
             return;
           }
-          setStatus({ state: "starting", note: `Restarting the input helper: ${reason}` });
+          if (!input) useCursorPoll("Restarting the click reader…", "starting");
+          setStatus({ state: "starting", note: `Restarting the click reader: ${reason}` });
           setTimeout(() => {
-            if (run === generation && !input) startInput(run);
+            if (run === generation && !pending && input?.kind !== "raw-input") startInput(run);
           }, 1000 * restarts);
         },
       });
-      input = helper;
+      pending = helper;
     },
     (error: unknown) => {
-      if (run !== generation || input) return;
+      if (run !== generation) return;
       useCursorPoll(`Clicks are not seen: ${error instanceof Error ? error.message : String(error)}. The trail follows the cursor.`);
     },
   );
 }
 
-function useCursorPoll(note: string): void {
-  input?.stop();
-  input = startZaicodeProtrailCursorPoll({ onEvent: (event) => push(event, false) });
-  setStatus({ state: "running", input: "cursor-poll", note });
+function useCursorPoll(note: string, state: ZaicodeProtrailGlobalStatus["state"] = "running"): void {
+  if (input?.kind !== "cursor-poll") {
+    input?.stop();
+    input = startZaicodeProtrailCursorPoll({ onEvent: (event) => push(event, false) });
+  }
+  setStatus({ state, input: "cursor-poll", note });
 }
 
 function push(event: ZaicodeProtrailInputEvent, physical: boolean): void {

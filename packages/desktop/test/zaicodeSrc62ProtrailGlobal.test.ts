@@ -31,6 +31,12 @@ test("the helper is compiled once per source version and falls back to cursor po
   assert.match(input, /createHash\("sha256"\)\.update\(ZAICODE_PROTRAIL_INPUT_CS\)/);
   assert.match(input, /windowsHide: true/);
   assert.match(input, /getCursorScreenPoint/);
+  // A reader that never says "ready" is a failed start, not a trail that waits forever.
+  assert.match(input, /const readyTimer = setTimeout\(\(\) => fail\(/);
+  // The trail follows the cursor while the reader starts; clicks join on "ready".
+  const global = main("zaicodeProtrailGlobal.ts");
+  assert.match(global, /if \(!input\) useCursorPoll\("Starting the click reader…", "starting"\);/);
+  assert.match(global, /onReady: \(\) => \{[\s\S]*?input\?\.stop\(\);\s+input = helper;/);
 });
 
 test("one click-through, never-focused, always-on-top overlay per monitor", () => {

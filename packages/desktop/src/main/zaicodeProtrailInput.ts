@@ -38,6 +38,7 @@ export interface ZaicodeProtrailInputCallbacks {
 
 const HELPER_PREFIX = "zaicode-protrail-input-";
 const CURSOR_POLL_MS = 8;
+const READY_TIMEOUT_MS = 6000;
 
 function cscPath(): string | null {
   const root = process.env.SystemRoot || process.env.windir || "C:\\Windows";
@@ -103,9 +104,13 @@ export function startZaicodeProtrailRawInput(exe: string, callbacks: ZaicodeProt
     failed = true;
     callbacks.onFailure?.(reason);
   };
+  // A reader that never says "ready" (held by an antivirus, say) must not leave
+  // the trail waiting forever: it counts as a failed start.
+  const readyTimer = setTimeout(() => fail(`the input helper did not start within ${READY_TIMEOUT_MS / 1000} s`), READY_TIMEOUT_MS);
   const lines = createInterface({ input: child.stdout });
   lines.on("line", (line) => {
     if (line === "ready") {
+      clearTimeout(readyTimer);
       callbacks.onReady?.();
       return;
     }
@@ -123,6 +128,7 @@ export function startZaicodeProtrailRawInput(exe: string, callbacks: ZaicodeProt
     kind: "raw-input",
     stop() {
       stopped = true;
+      clearTimeout(readyTimer);
       lines.close();
       // Closing stdin is the helper's exit signal; kill covers a stuck one.
       child.stdin.end();
