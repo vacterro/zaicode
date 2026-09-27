@@ -61,18 +61,17 @@ export function buildZaicodeJobPrompt(input: {
 type ZaicodeModelSelection = NonNullable<ReturnType<typeof resolveZaicodRoutePlan>["resolvedSelection"]>;
 
 /**
- * An agent may carry a reasoning level from another model (e.g. "high" saved
- * while a SAIOPP pool was picked); a pool like SAIFREN then refuses the whole
- * run with `Reasoning effort "high" is not supported`. Clamp it to a level the
- * target model actually offers ("medium" when available, else its first one).
+ * An agent may omit reasoning (the Solo preset) or carry a level from another
+ * model. Models such as SAIFREN require one even when the agent did not choose
+ * it. Use a supported default before task creation; keep a valid choice.
  */
 export function clampZaicodeReasoningLevel(
   selection: ZaicodeModelSelection,
   supportedLevels: readonly string[] | undefined,
 ): ZaicodeModelSelection {
   const requested = selection.options?.reasoningLevel;
-  if (!requested || !supportedLevels || supportedLevels.length === 0) return selection;
-  if (supportedLevels.includes(requested)) return selection;
+  if (!supportedLevels || supportedLevels.length === 0) return selection;
+  if (requested && supportedLevels.includes(requested)) return selection;
   const fallback = supportedLevels.includes("medium") ? "medium" : supportedLevels[0]!;
   return { ...selection, options: { ...selection.options, reasoningLevel: fallback } };
 }

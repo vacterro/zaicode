@@ -90,6 +90,37 @@ test("an agent without a pool runs on SAIFREN instead of failing with route-unre
   assert.equal(captured.sendPromptArgs?.content, "/goal cc all");
 });
 
+test("Solo SAIFREN agent receives the model's required reasoning default", async () => {
+  const captured: Captured = {};
+  const run = createZaicodeJobExecutor({
+    resolveServices: () =>
+      services(captured, [
+        {
+          providerId: "new-provider",
+          providerName: "SAIRoute",
+          config: {},
+          models: [
+            {
+              modelId: "SAIFREN",
+              config: { optionSpecs: { reasoningLevel: { values: ["disabled", "enabled"] } } },
+            },
+          ],
+        },
+      ]),
+    logWarn: () => {},
+  });
+  const solo = {
+    ...agentWithoutPool,
+    modelSelection: { providerId: "new-provider", modelId: "SAIFREN" },
+  } as ZaicodeAgentDefinition;
+  await run({ job, agent: solo });
+  assert.deepEqual(captured.createTaskArgs?.modelSelection, {
+    providerId: "new-provider",
+    modelId: "SAIFREN",
+    options: { reasoningLevel: "disabled" },
+  });
+});
+
 test("with no pool anywhere the old explanation still stops the run", async () => {
   const run = createZaicodeJobExecutor({ resolveServices: () => services({}, []), logWarn: () => {} });
   await assert.rejects(run({ job, agent: agentWithoutPool }), /route-unresolved/);
