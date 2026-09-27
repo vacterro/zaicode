@@ -1652,7 +1652,12 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
           data-workspace-sidebar-panel="true"
           id="sidebar"
           className={cn(
-            "w-[var(--workspace-sidebar-panel-width)] max-w-[50%] flex-none overflow-hidden duration-200 ease-out transition-[width,opacity] data-[workspace-sidebar-resizing=true]:transition-opacity",
+            // SRC-058: the action strip lays itself out with
+            // `@min-[360px]/workspace-sidebar`. A named container query only ever
+            // matches an ancestor that declares that name, and nothing declared
+            // it, so the wide three-column layout was dead and the strip stayed
+            // on the stacked fallback at every sidebar width.
+            "@container/workspace-sidebar w-[var(--workspace-sidebar-panel-width)] max-w-[50%] flex-none overflow-hidden duration-200 ease-out transition-[width,opacity] data-[workspace-sidebar-resizing=true]:transition-opacity",
             // 拖动侧栏宽度时如果继续过渡 width，会让指针移动和实际宽度之间产生滞后。
             // 拖拽 active 通过 DOM 标记切 transition，避免 pointerdown/up 为了切 class 重渲染整棵 workspace。
             isSidebarPanelVisible ? "opacity-100" : "pointer-events-none opacity-0",

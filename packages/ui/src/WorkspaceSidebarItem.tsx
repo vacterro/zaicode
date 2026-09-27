@@ -1582,6 +1582,14 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
               <div
                 role="button"
                 tabIndex={0}
+                // SRC-058: the row plays the project cue itself. Without this the
+                // generic button listener fires ui.button as a *direct* sound, and
+                // the sidebar.project cue App.tsx sends right afterwards arrives as
+                // an echo inside the 700 ms suppression window and is dropped, so
+                // switching projects by clicking the row played a faint generic
+                // click instead of the project sound. Declaring the cue also makes
+                // the generic listener stand down through its existing opt-out.
+                data-zaicode-sound="sidebar.project"
                 data-testid={testId(TID_WORKSPACE_ITEM, tab.workspacePath)}
                 className={cn(
                   buttonVariants({ variant: "ghost", size: "default" }),
