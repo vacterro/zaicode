@@ -1,6 +1,7 @@
 import { app } from "electron";
-import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
+import { findZaicodeCustomSplashImage, installZaicodeCustomSplashImage } from "./zaicodeSplashFiles.js";
 import { readZaicodeLauncherPreferences, setZaicodeSplashEnabled, writeZaicodeLauncherPreferences } from "./zaicodeLauncherPreferences.js";
 
 /**
@@ -12,14 +13,6 @@ import { readZaicodeLauncherPreferences, setZaicodeSplashEnabled, writeZaicodeLa
  * the start-up. The generated page is the twin of build/zaicode-splash/splash.html.
  */
 
-const IMAGE_MAGIC: readonly [string, string][] = [
-  ["image/png", "png"],
-  ["image/jpeg", "jpg"],
-  ["image/gif", "gif"],
-  ["image/webp", "webp"],
-  ["image/bmp", "bmp"],
-];
-
 export function zaicodeSplashCustomDir(): string {
   return join(app.getPath("userData"), "zaicode-splash");
 }
@@ -30,21 +23,7 @@ export function hasZaicodeCustomSplash(): boolean {
 }
 
 function customImageFile(): string | null {
-  for (const entry of readdirSync(zaicodeSplashCustomDir())) {
-    if (/^custom\.(png|jpg|jpeg|gif|webp|bmp)$/i.test(entry)) return join(zaicodeSplashCustomDir(), entry);
-  }
-  return null;
-}
-
-function sniffImage(bytes: Buffer): string | null {
-  for (const [mime, ext] of IMAGE_MAGIC) {
-    if (mime === "image/png" && bytes.length > 8 && bytes[0] === 0x89 && bytes[1] === 0x50) return ext;
-    if (mime === "image/jpeg" && bytes.length > 3 && bytes[0] === 0xff && bytes[1] === 0xd8) return ext;
-    if (mime === "image/gif" && bytes.subarray(0, 3).toString("latin1") === "GIF") return ext;
-    if (mime === "image/webp" && bytes.subarray(0, 4).toString("latin1") === "RIFF" && bytes.subarray(8, 12).toString("latin1") === "WEBP") return ext;
-    if (mime === "image/bmp" && bytes.subarray(0, 2).toString("latin1") === "BM") return ext;
-  }
-  return null;
+  return findZaicodeCustomSplashImage(zaicodeSplashCustomDir());
 }
 
 const SPLASH_PAGE = (imageFile: string) => `<!doctype html>
@@ -152,14 +131,9 @@ export function setZaicodeSplashPrefs(input: { enabled: boolean; imagePath?: str
     return readState();
   }
   if (typeof input.imagePath !== "string" || !input.imagePath.trim()) return readState();
-  const bytes = readFileSync(input.imagePath);
-  const ext = sniffImage(bytes);
-  if (!ext) return readState();
-  const dir = zaicodeSplashCustomDir();
-  mkdirSync(dir, { recursive: true });
-  const target = `custom.${ext}`;
-  copyFileSync(input.imagePath, join(dir, target));
-  writeFileSync(join(dir, "zaicode-splash.html"), SPLASH_PAGE(target), "utf8");
+  // SRC-058: replaces any earlier custom.* whatever its format, so the launcher,
+  // the app splash and the settings preview all show the same picture.
+  if (!installZaicodeCustomSplashImage(zaicodeSplashCustomDir(), input.imagePath, SPLASH_PAGE)) return readState();
   writeZaicodeLauncherPreferences({ splashCustom: true });
   return readState();
 }
