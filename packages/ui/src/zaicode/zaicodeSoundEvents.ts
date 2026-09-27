@@ -16,7 +16,7 @@ import {
   zaicodeDirectSoundPlayedSince,
 } from "./zaicodeSoundBus.js";
 import { isZaicodeSoundQuietNow } from "./zaicodeNotifications.js";
-import { ZAICODE_CLICKABLE, zaicodeChangeSoundFor, zaicodeClickSoundFor } from "./zaicodeSoundVoices.js";
+import { ZAICODE_CLICKABLE, isZaicodeChokeGroup, zaicodeChangeSoundFor, zaicodeClickSoundFor } from "./zaicodeSoundVoices.js";
 
 /**
  * ZAICODE sound events, FastPrompter-style: every action has its own row —
@@ -158,7 +158,18 @@ export interface ZaicodeSoundSettings {
   muted: boolean;
   /** Also play while the ZAICODE window is focused. */
   whenFocused: boolean;
+  /**
+   * SRC-062: interface sounds (buttons, menus, sidebar, sessions, window) cut
+   * each other instead of piling up: a new one fades the one still ringing.
+   * Agent, engine and mail sounds always mix.
+   */
+  interfaceOneAtATime: boolean;
   events: Record<string, ZaicodeSoundEventSetting>;
+}
+
+export function isZaicodeInterfaceSound(id: string): boolean {
+  const group = EVENT_BY_ID.get(id)?.group;
+  return group !== undefined && isZaicodeChokeGroup(group);
 }
 
 const STORAGE_KEY = "zaicode-sound-events-v1";
@@ -174,7 +185,7 @@ export function defaultZaicodeSoundSettings(): ZaicodeSoundSettings {
   for (const event of ZAICODE_SOUND_EVENTS) {
     events[event.id] = { enabled: event.enabled, sound: event.sound, gainDb: event.gainDb, mode: "overlay" };
   }
-  return { masterVolume: 60, muted: false, whenFocused: true, events };
+  return { masterVolume: 60, muted: false, whenFocused: true, interfaceOneAtATime: true, events };
 }
 
 /** Old per-event cue table (0..100 volume) -> rows of the new table. */
@@ -224,6 +235,7 @@ export function normalizeZaicodeSoundSettings(raw: unknown): ZaicodeSoundSetting
     masterVolume: Math.round(clamp(record.masterVolume, 0, 100, base.masterVolume)),
     muted: record.muted === true,
     whenFocused: record.whenFocused !== false,
+    interfaceOneAtATime: record.interfaceOneAtATime !== false,
     events,
   };
 }
@@ -408,6 +420,29 @@ export async function importZaicodeSoundFile(id: string, file: File): Promise<vo
 let context: AudioContext | null = null;
 const buffers = new Map<string, Promise<AudioBuffer | null>>();
 const playing = new Map<string, Set<AudioBufferSourceNode>>();
+/** The gain behind each playing source, so a choked sound fades instead of clicking off. */
+const gains = new WeakMap<AudioBufferSourceNode, GainNode>();
+const CHOKE_FADE_S = 0.015;
+
+/** Fades out every interface sound still ringing (the one-at-a-time rule). */
+function chokeInterfaceSounds(ctx: AudioContext): void {
+  for (const [id, sources] of playing) {
+    if (!isZaicodeInterfaceSound(id)) continue;
+    for (const source of sources) {
+      const gain = gains.get(source);
+      try {
+        if (gain) {
+          gain.gain.setValueAtTime(gain.gain.value, ctx.currentTime);
+          gain.gain.linearRampToValueAtTime(0, ctx.currentTime + CHOKE_FADE_S);
+        }
+        source.stop(ctx.currentTime + CHOKE_FADE_S);
+      } catch {
+        // already stopped
+      }
+    }
+    sources.clear();
+  }
+}
 const lastPlayedAt = new Map<string, number>();
 const DEBOUNCE_MS = 120;
 
@@ -475,10 +510,12 @@ export async function playZaicodeSoundAsync(
   if (ctx.state === "suspended") await ctx.resume().catch(() => undefined);
   if (ctx.state !== "running") return false;
   if (row.mode === "replace") stopZaicodeSound(id);
+  if (!options.preview && settings.interfaceOneAtATime && isZaicodeInterfaceSound(id)) chokeInterfaceSounds(ctx);
   const source = ctx.createBufferSource();
   source.buffer = buffer;
   const gain = ctx.createGain();
   gain.gain.value = zaicodeGainFactor(settings.masterVolume, row.gainDb);
+  gains.set(source, gain);
   source.connect(gain).connect(ctx.destination);
   const set = playing.get(id) ?? new Set<AudioBufferSourceNode>();
   set.add(source);
@@ -668,7 +705,7 @@ export function installZaicodeDeclarativeSounds(): void {
 export function zaicodeSoundDiagnostics(): string {
   const settings = readZaicodeSoundSettings();
   const lines = [
-    `master=${settings.masterVolume}% muted=${settings.muted} whenFocused=${settings.whenFocused}`,
+    `master=${settings.masterVolume}% muted=${settings.muted} whenFocused=${settings.whenFocused} interfaceOneAtATime=${settings.interfaceOneAtATime}`,
     ...ZAICODE_SOUND_EVENTS.map((event) => {
       const row = settings.events[event.id]!;
       const ok = zaicodeSoundUrl(row.sound) ? "ok" : "MISSING";

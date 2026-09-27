@@ -150,6 +150,17 @@ export function ZaicodeSoundSettings() {
             onCheckedChange={(whenFocused) => setZaicodeSoundSettings({ whenFocused })}
           />
           <span />
+          <span
+            className="text-foreground-subtle"
+            title="Buttons, menus, the sidebar, sessions and window sounds cut each other: a new one fades the one still ringing, so fast clicking through projects never piles sounds up. Agent, engine and mail sounds always mix."
+          >
+            Interface sounds one at a time
+          </span>
+          <Switch
+            checked={settings.interfaceOneAtATime}
+            onCheckedChange={(interfaceOneAtATime) => setZaicodeSoundSettings({ interfaceOneAtATime })}
+          />
+          <span />
         </div>
         <div className="mt-3 flex flex-wrap gap-2">
           <Button size="sm" variant="outline" onClick={stopAllZaicodeSounds}>

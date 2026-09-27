@@ -16,10 +16,34 @@ export interface ZaicodePlayOptions {
    * a direct action sound played just before it.
    */
   echo?: boolean;
+  /**
+   * How long after the operator's own sound an echo still belongs to it
+   * (default ZAICODE_SOUND_ECHO_MS). Navigation echoes use a longer one
+   * (SRC-062): a cold session can take over a second to open, and its
+   * "session opened" used to land as a second, late sound.
+   */
+  echoWindowMs?: number;
 }
 
 /** An echo this soon after a direct sound belongs to that action. */
 export const ZAICODE_SOUND_ECHO_MS = 700;
+/** Navigation echoes (project switched, session opened) belong to the click for this long (SRC-062). */
+export const ZAICODE_SOUND_NAV_ECHO_MS = 1600;
+
+/**
+ * One navigation, one sound (SRC-062): switching project and then landing on a
+ * session of it are two state changes of one move. The second is silent when
+ * the first was announced (or asked for) this recently.
+ */
+export function zaicodeNavigationEcho(
+  change: { workspaceChanged: boolean; taskChanged: boolean },
+  now: number,
+  lastNavigationAt: number,
+): "sidebar.project" | "session.open" | null {
+  if (change.workspaceChanged) return "sidebar.project";
+  if (!change.taskChanged) return null;
+  return now - lastNavigationAt < ZAICODE_SOUND_NAV_ECHO_MS ? null : "session.open";
+}
 /** The same event twice this fast is one event (double renders, double listeners). */
 export const ZAICODE_SOUND_DEDUPE_MS = 120;
 /**
@@ -38,10 +62,16 @@ interface SoundMemory {
 }
 
 /** Whether `id` should play now; updates `memory` when it does. Pure apart from `memory`. */
-export function admitZaicodeSound(id: string, echo: boolean, now: number, memory: SoundMemory): boolean {
+export function admitZaicodeSound(
+  id: string,
+  echo: boolean,
+  now: number,
+  memory: SoundMemory,
+  echoWindowMs: number = ZAICODE_SOUND_ECHO_MS,
+): boolean {
   const last = memory.lastById.get(id);
   if (last !== undefined && now - last < ZAICODE_SOUND_DEDUPE_MS) return false;
-  if (echo && now - memory.lastDirectAt < ZAICODE_SOUND_ECHO_MS) return false;
+  if (echo && now - memory.lastDirectAt < echoWindowMs) return false;
   memory.lastById.set(id, now);
   if (!echo) memory.lastDirectAt = now;
   return true;
@@ -77,7 +107,7 @@ export function registerZaicodeSoundPlayer(next: ZaicodeSoundPlayer): void {
 
 export function playZaicodeSound(id: string, options: ZaicodePlayOptions = {}): void {
   try {
-    const { echo, ...rest } = options;
+    const { echo, echoWindowMs = ZAICODE_SOUND_ECHO_MS, ...rest } = options;
     // Previews are the operator testing a sound: never merged or suppressed.
     if (rest.preview) {
       player?.(id, rest);
@@ -88,10 +118,10 @@ export function playZaicodeSound(id: string, options: ZaicodePlayOptions = {}): 
       const asked = Date.now();
       // Dropped at once when a direct sound just played; otherwise decided
       // after the rest of this action has had its say.
-      if (asked - memory.lastDirectAt < ZAICODE_SOUND_ECHO_MS) return;
+      if (asked - memory.lastDirectAt < echoWindowMs) return;
       setTimeout(() => {
         if (memory.lastDirectAt >= asked) return;
-        if (admitZaicodeSound(id, true, Date.now(), memory)) player?.(id, rest);
+        if (admitZaicodeSound(id, true, Date.now(), memory, echoWindowMs)) player?.(id, rest);
       }, ZAICODE_SOUND_ECHO_DEFER_MS);
       return;
     }

@@ -145,7 +145,7 @@ export const ZAICODE_HELP_TOPICS: readonly HelpTopic[] = [
       "← → — previous / next place in your session history.",
       "Focus next session — click = next working or waiting session, round the ring; right-click = back.",
       "Menu toggle — shows / hides the menu block (SAIHOME, New task, ZAICODE, …).",
-      "Project row — hover shows ◆ MAIN, ▶ START and … (new session, files, slots); the name never moves. Shift+Click switches a project off (dimmed, OFF: no automatic agent or schedule works there) and on again; Ctrl+Click sends it down a slot.",
+      "Project row — a click goes to the project (its MAIN session when the row is a session, else the new-task screen); clicking again only folds or unfolds its sessions. Hover shows ◆ / ◇, ▶ START and … (new session, files, slots); the name never moves. ◆ is a switch: on, the row IS a session and the others are its children; off (◇), the row is a folder. Shift+Click switches a project off (dimmed, OFF: no automatic agent or schedule works there) and on again; Ctrl+Click sends it down a slot.",
       "Shift + drag a project and keep holding 2 s — the SLOTS panel opens: drop it on any slot, also an empty or folded one.",
       "Tray icon — right-click for ZAICODE's own menu (Open, SAIHOME, New task, WORKERS, Timers, Settings, Quit).",
       "Working meter — one cell per working session, black (just started) → green (almost done); click a cell = open it; the number = next working one.",
