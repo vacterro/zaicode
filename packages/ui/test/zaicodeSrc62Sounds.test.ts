@@ -51,10 +51,12 @@ test("interface sounds choke each other; agent, engine and mail sounds always mi
     assert.equal(chokes(id), false, id);
   }
   assert.match(engine, /interfaceOneAtATime: record\.interfaceOneAtATime !== false/, "on unless switched off");
-  assert.match(engine, /whenFocused: true, interfaceOneAtATime: true/, "on by default");
+  assert.match(engine, /whenFocused: true,\s+interfaceOneAtATime: true/, "on by default");
   // The choked sound fades over a few ms instead of clicking off.
   assert.match(engine, /linearRampToValueAtTime\(0, ctx\.currentTime \+ CHOKE_FADE_S\)/);
-  assert.match(engine, /settings\.interfaceOneAtATime && isZaicodeInterfaceSound\(id\)\) chokeInterfaceSounds\(ctx\)/);
+  // The overlap rule (zaicodeSoundOverlap.test.ts) applies it: in "mix" an interface sound cuts the other interface sounds.
+  assert.match(engine, /const request = \{ key: id, interface: isZaicodeInterfaceSound\(id\), replaceOwn: row\.mode === "replace" \};/);
+  assert.match(engine, /interfaceOneAtATime: settings\.interfaceOneAtATime \}/);
 });
 
 test("the project row that opens MAIN speaks with its own voice, not the orchestra's 'expand'", () => {

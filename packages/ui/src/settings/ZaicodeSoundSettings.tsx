@@ -42,6 +42,7 @@ import { Switch } from "@/components/ui/switch.js";
 import { toast } from "@/components/ui/toast.js";
 import { ZaicodeSoundPicker } from "@/zaicode/ZaicodeSoundPicker.js";
 import { ZaicodeAmbienceCompact, ZaicodeProblipPanel } from "@/zaicode/ZaicodeAudioPanels.js";
+import { ZaicodeSoundOverlapSettings } from "@/settings/ZaicodeSoundOverlapSettings.js";
 import {
   ZAICODE_SOUND_EVENTS,
   ZAICODE_SOUND_GAIN_MAX,
@@ -150,17 +151,7 @@ export function ZaicodeSoundSettings() {
             onCheckedChange={(whenFocused) => setZaicodeSoundSettings({ whenFocused })}
           />
           <span />
-          <span
-            className="text-foreground-subtle"
-            title="Buttons, menus, the sidebar, sessions and window sounds cut each other: a new one fades the one still ringing, so fast clicking through projects never piles sounds up. Agent, engine and mail sounds always mix."
-          >
-            Interface sounds one at a time
-          </span>
-          <Switch
-            checked={settings.interfaceOneAtATime}
-            onCheckedChange={(interfaceOneAtATime) => setZaicodeSoundSettings({ interfaceOneAtATime })}
-          />
-          <span />
+          <ZaicodeSoundOverlapSettings />
         </div>
         <div className="mt-3 flex flex-wrap gap-2">
           <Button size="sm" variant="outline" onClick={stopAllZaicodeSounds}>

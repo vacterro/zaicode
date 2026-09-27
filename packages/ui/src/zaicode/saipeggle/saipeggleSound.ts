@@ -26,7 +26,7 @@ export function playSaipeggleCues(cues: readonly SpgCue[]): void {
     const count = (counts.get(cue.id) ?? 0) + 1;
     counts.set(cue.id, count);
     if (count > (PER_FRAME[cue.id] ?? 1)) continue;
-    void playZaicodeSoundFile(row.sound, { gainDb: row.gainDb, ...(cue.rate ? { rate: cue.rate } : {}) }).catch(() => undefined);
+    void playZaicodeSoundFile(row.sound, { gainDb: row.gainDb, ownMix: true, ...(cue.rate ? { rate: cue.rate } : {}) }).catch(() => undefined);
   }
 }
 

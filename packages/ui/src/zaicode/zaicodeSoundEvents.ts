@@ -17,6 +17,14 @@ import {
 } from "./zaicodeSoundBus.js";
 import { isZaicodeSoundQuietNow } from "./zaicodeNotifications.js";
 import { ZAICODE_CLICKABLE, isZaicodeChokeGroup, zaicodeChangeSoundFor, zaicodeClickSoundFor } from "./zaicodeSoundVoices.js";
+import {
+  decideZaicodeSound,
+  normalizeZaicodeSoundLimit,
+  normalizeZaicodeSoundOverlap,
+  ZAICODE_SOUND_LIMIT_MAX,
+  type ZaicodeSoundOverlap,
+  type ZaicodeSoundRequest,
+} from "./zaicodeSoundPolicy.js";
 
 /**
  * ZAICODE sound events, FastPrompter-style: every action has its own row —
@@ -177,6 +185,14 @@ export interface ZaicodeSoundSettings {
    * Agent, engine and mail sounds always mix.
    */
   interfaceOneAtATime: boolean;
+  /**
+   * How a sound meets the ones still ringing: mix (at most `overlapLimit` at
+   * once), queue (one after another, at most `overlapLimit` waiting) or cut
+   * (the new one fades the rest). Previews, SAIPEGGLE and the background
+   * (Problip, Ambience) keep their own rules.
+   */
+  overlap: ZaicodeSoundOverlap;
+  overlapLimit: number;
   events: Record<string, ZaicodeSoundEventSetting>;
 }
 
@@ -198,7 +214,15 @@ export function defaultZaicodeSoundSettings(): ZaicodeSoundSettings {
   for (const event of ZAICODE_SOUND_EVENTS) {
     events[event.id] = { enabled: event.enabled, sound: event.sound, gainDb: event.gainDb, mode: "overlay" };
   }
-  return { masterVolume: 60, muted: false, whenFocused: true, interfaceOneAtATime: true, events };
+  return {
+    masterVolume: 60,
+    muted: false,
+    whenFocused: true,
+    interfaceOneAtATime: true,
+    overlap: "mix",
+    overlapLimit: ZAICODE_SOUND_LIMIT_MAX,
+    events,
+  };
 }
 
 /** Old per-event cue table (0..100 volume) -> rows of the new table. */
@@ -249,6 +273,8 @@ export function normalizeZaicodeSoundSettings(raw: unknown): ZaicodeSoundSetting
     muted: record.muted === true,
     whenFocused: record.whenFocused !== false,
     interfaceOneAtATime: record.interfaceOneAtATime !== false,
+    overlap: normalizeZaicodeSoundOverlap(record.overlap),
+    overlapLimit: normalizeZaicodeSoundLimit(record.overlapLimit),
     events,
   };
 }
@@ -432,29 +458,118 @@ export async function importZaicodeSoundFile(id: string, file: File): Promise<vo
 
 let context: AudioContext | null = null;
 const buffers = new Map<string, Promise<AudioBuffer | null>>();
-const playing = new Map<string, Set<AudioBufferSourceNode>>();
-/** The gain behind each playing source, so a choked sound fades instead of clicking off. */
-const gains = new WeakMap<AudioBufferSourceNode, GainNode>();
 const CHOKE_FADE_S = 0.015;
 
-/** Fades out every interface sound still ringing (the one-at-a-time rule). */
-function chokeInterfaceSounds(ctx: AudioContext): void {
-  for (const [id, sources] of playing) {
-    if (!isZaicodeInterfaceSound(id)) continue;
-    for (const source of sources) {
-      const gain = gains.get(source);
-      try {
-        if (gain) {
-          gain.gain.setValueAtTime(gain.gain.value, ctx.currentTime);
-          gain.gain.linearRampToValueAtTime(0, ctx.currentTime + CHOKE_FADE_S);
-        }
-        source.stop(ctx.currentTime + CHOKE_FADE_S);
-      } catch {
-        // already stopped
-      }
-    }
-    sources.clear();
+interface Voice {
+  /** Event id, or a file sound's channel: the same key is "the same sound". */
+  key: string;
+  source: AudioBufferSourceNode;
+  /** The gain behind the source, so a cut sound fades instead of clicking off. */
+  gain: GainNode;
+  interface: boolean;
+  /** Follows the overlap rule (previews and the game do not). */
+  pooled: boolean;
+  done: boolean;
+}
+
+/** Every sound ringing now, oldest first. */
+const voices: Voice[] = [];
+/** Sounds waiting for their turn (overlap "queue"), the next one first. */
+const waiting: { key: string; start: () => void }[] = [];
+/** While a new sound cuts others, the line must not move into the gap. */
+let holdLine = 0;
+
+function finishVoice(voice: Voice): void {
+  if (voice.done) return;
+  voice.done = true;
+  const index = voices.indexOf(voice);
+  if (index >= 0) voices.splice(index, 1);
+  if (voice.pooled) advanceLine();
+}
+
+function advanceLine(): void {
+  while (holdLine === 0 && waiting.length > 0 && !voices.some((voice) => voice.pooled)) waiting.shift()!.start();
+}
+
+/** Fades a voice out over a few ms (a cut, a steal, the one-at-a-time rule). */
+function fadeVoice(voice: Voice, ctx: AudioContext): void {
+  try {
+    voice.gain.gain.setValueAtTime(voice.gain.gain.value, ctx.currentTime);
+    voice.gain.gain.linearRampToValueAtTime(0, ctx.currentTime + CHOKE_FADE_S);
+    voice.source.stop(ctx.currentTime + CHOKE_FADE_S);
+  } catch {
+    // already stopped
   }
+  finishVoice(voice);
+}
+
+function stopVoices(match: (voice: Voice) => boolean): void {
+  for (const voice of voices.filter(match)) {
+    try {
+      voice.source.stop();
+    } catch {
+      // already stopped
+    }
+    finishVoice(voice);
+  }
+}
+
+function startVoice(
+  ctx: AudioContext,
+  key: string,
+  buffer: AudioBuffer,
+  level: number,
+  flags: { interface: boolean; pooled: boolean; rate?: number },
+): void {
+  const source = ctx.createBufferSource();
+  source.buffer = buffer;
+  // SAIPEGGLE's rising peg notes (SRC-062): the same clip, played faster = higher.
+  const rate = flags.rate && flags.rate > 0 ? Math.min(4, Math.max(0.25, flags.rate)) : 1;
+  source.playbackRate.value = rate;
+  const gain = ctx.createGain();
+  gain.gain.value = level;
+  source.connect(gain).connect(ctx.destination);
+  const voice: Voice = { key, source, gain, interface: flags.interface, pooled: flags.pooled, done: false };
+  voices.push(voice);
+  source.onended = () => finishVoice(voice);
+  // A sound whose "ended" never arrives (a sleeping audio device) must not hold the line forever.
+  setTimeout(() => finishVoice(voice), (buffer.duration / rate) * 1000 + 300);
+  source.start();
+}
+
+/**
+ * Starts a sound through the overlap rule. `start` plays it (it is called now,
+ * or later from the line); false = dropped (the line is full, or the same
+ * sound already waits).
+ */
+function admitSound(ctx: AudioContext, request: ZaicodeSoundRequest, pooled: boolean, start: () => void): boolean {
+  if (!pooled) {
+    // Outside the rule "replace" (or a channel) still means one at a time for this sound.
+    if (request.replaceOwn) stopVoices((voice) => voice.key === request.key);
+    start();
+    return true;
+  }
+  const settings = readZaicodeSoundSettings();
+  const pool = voices.filter((voice) => voice.pooled);
+  const decision = decideZaicodeSound(
+    { overlap: settings.overlap, limit: settings.overlapLimit, interfaceOneAtATime: settings.interfaceOneAtATime },
+    pool,
+    waiting.map((entry) => entry.key),
+    request,
+  );
+  if (!decision.play) {
+    if (decision.wait) waiting.push({ key: request.key, start });
+    return decision.wait;
+  }
+  holdLine += 1;
+  try {
+    for (const index of decision.stop) fadeVoice(pool[index]!, ctx);
+    start();
+  } finally {
+    holdLine -= 1;
+  }
+  advanceLine();
+  return true;
 }
 const lastPlayedAt = new Map<string, number>();
 const DEBOUNCE_MS = 120;
@@ -522,33 +637,29 @@ export async function playZaicodeSoundAsync(
   // running before start(), or the cue is silently swallowed.
   if (ctx.state === "suspended") await ctx.resume().catch(() => undefined);
   if (ctx.state !== "running") return false;
-  if (row.mode === "replace") stopZaicodeSound(id);
-  if (!options.preview && settings.interfaceOneAtATime && isZaicodeInterfaceSound(id)) chokeInterfaceSounds(ctx);
-  const source = ctx.createBufferSource();
-  source.buffer = buffer;
-  const gain = ctx.createGain();
-  gain.gain.value = zaicodeGainFactor(settings.masterVolume, row.gainDb);
-  gains.set(source, gain);
-  source.connect(gain).connect(ctx.destination);
-  const set = playing.get(id) ?? new Set<AudioBufferSourceNode>();
-  set.add(source);
-  playing.set(id, set);
-  source.onended = () => set.delete(source);
-  source.start();
-  return true;
+  const request = { key: id, interface: isZaicodeInterfaceSound(id), replaceOwn: row.mode === "replace" };
+  return admitSound(ctx, request, !options.preview, () => {
+    // A sound that waited in line checks the switches again when its turn comes.
+    const now = readZaicodeSoundSettings();
+    if (!options.preview && (now.muted || isZaicodeSoundQuietNow())) return;
+    startVoice(ctx, id, buffer, zaicodeGainFactor(now.masterVolume, now.events[id]?.gainDb ?? row.gainDb), {
+      interface: request.interface,
+      pooled: !options.preview,
+    });
+  });
 }
-
-const channels = new Map<string, AudioBufferSourceNode>();
 
 /**
  * Plays a library sound (or an own file) outside the event table: timers,
- * interval reminders, the picker's audition. `volume` 0..1 is scaled by the
- * master volume; `channel` stops the previous sound on the same channel, so
- * scrolling through the picker never piles clips on top of each other.
+ * interval reminders, the picker's audition, SAIPEGGLE. `volume` 0..1 is
+ * scaled by the master volume; `channel` stops the previous sound on the same
+ * channel, so scrolling through the picker never piles clips on top of each
+ * other. Timers and reminders follow the overlap rule; previews and `ownMix`
+ * (a game mixing its own sounds) do not.
  */
 export async function playZaicodeSoundFile(
   sound: string,
-  options: { volume?: number; gainDb?: number; preview?: boolean; channel?: string; rate?: number } = {},
+  options: { volume?: number; gainDb?: number; preview?: boolean; channel?: string; rate?: number; ownMix?: boolean } = {},
 ): Promise<boolean> {
   const settings = readZaicodeSoundSettings();
   if (!options.preview && (!isZaicodeProductMode() || settings.muted || isZaicodeSoundQuietNow())) return false;
@@ -557,37 +668,22 @@ export async function playZaicodeSoundFile(
   if (!url || !ctx) return false;
   const buffer = await loadBuffer(url);
   if (!buffer) return false;
-  if (options.channel) stopZaicodeSoundChannel(options.channel);
-  const source = ctx.createBufferSource();
-  source.buffer = buffer;
-  // SAIPEGGLE's rising peg notes (SRC-062): the same clip, played faster = higher.
-  if (options.rate && options.rate > 0) source.playbackRate.value = Math.min(4, Math.max(0.25, options.rate));
-  const gain = ctx.createGain();
+  const pooled = !options.preview && !options.ownMix;
   const level = options.volume === undefined ? 1 : Math.max(0, Math.min(1, options.volume));
-  gain.gain.value = zaicodeGainFactor(settings.masterVolume, options.gainDb ?? 0) * level;
-  source.connect(gain).connect(ctx.destination);
-  const key = options.channel ?? "file";
-  const set = playing.get(key) ?? new Set<AudioBufferSourceNode>();
-  set.add(source);
-  playing.set(key, set);
-  if (options.channel) channels.set(options.channel, source);
-  source.onended = () => {
-    set.delete(source);
-    if (options.channel && channels.get(options.channel) === source) channels.delete(options.channel);
-  };
-  source.start();
-  return true;
+  const request = { key: options.channel ?? `file:${sound}`, interface: false, replaceOwn: Boolean(options.channel) };
+  return admitSound(ctx, request, pooled, () => {
+    const now = readZaicodeSoundSettings();
+    if (pooled && (now.muted || isZaicodeSoundQuietNow())) return;
+    startVoice(ctx, request.key, buffer, zaicodeGainFactor(now.masterVolume, options.gainDb ?? 0) * level, {
+      interface: false,
+      pooled,
+      ...(options.rate ? { rate: options.rate } : {}),
+    });
+  });
 }
 
 export function stopZaicodeSoundChannel(channel: string): void {
-  const source = channels.get(channel);
-  if (!source) return;
-  try {
-    source.stop();
-  } catch {
-    // already stopped
-  }
-  channels.delete(channel);
+  stopVoices((voice) => voice.key === channel);
 }
 
 registerZaicodeSoundPlayer((id, options) => {
@@ -608,18 +704,14 @@ if (typeof window !== "undefined") {
 export { playZaicodeSound };
 
 export function stopZaicodeSound(id: string): void {
-  for (const source of playing.get(id) ?? []) {
-    try {
-      source.stop();
-    } catch {
-      // already stopped
-    }
-  }
-  playing.get(id)?.clear();
+  for (let index = waiting.length - 1; index >= 0; index -= 1) if (waiting[index]!.key === id) waiting.splice(index, 1);
+  stopVoices((voice) => voice.key === id);
 }
 
+/** STOP ALL SOUNDS: the line is emptied first, so nothing waiting starts in the silence. */
 export function stopAllZaicodeSounds(): void {
-  for (const id of playing.keys()) stopZaicodeSound(id);
+  waiting.length = 0;
+  stopVoices(() => true);
 }
 
 const DIALOG = "[role='dialog'], [role='alertdialog']";
@@ -720,7 +812,7 @@ export function installZaicodeDeclarativeSounds(): void {
 export function zaicodeSoundDiagnostics(): string {
   const settings = readZaicodeSoundSettings();
   const lines = [
-    `master=${settings.masterVolume}% muted=${settings.muted} whenFocused=${settings.whenFocused} interfaceOneAtATime=${settings.interfaceOneAtATime}`,
+    `master=${settings.masterVolume}% muted=${settings.muted} whenFocused=${settings.whenFocused} interfaceOneAtATime=${settings.interfaceOneAtATime} overlap=${settings.overlap}/${settings.overlapLimit} ringing=${voices.length} waiting=${waiting.length}`,
     ...ZAICODE_SOUND_EVENTS.map((event) => {
       const row = settings.events[event.id]!;
       const ok = zaicodeSoundUrl(row.sound) ? "ok" : "MISSING";
