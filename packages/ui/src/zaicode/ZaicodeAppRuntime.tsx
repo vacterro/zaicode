@@ -155,6 +155,9 @@ function useZaicodeHotkeyDispatcher(): void {
       if (!settings.enabled) return;
       // Settings -> Hotkeys is recording a key: never run actions under it.
       if (document.querySelector("[data-zaicode-hotkey-recording]")) return;
+      // SAIPEGGLE covers the window and owns the keyboard: F-keys and app hotkeys
+      // would otherwise switch sessions or open panels unseen under the game.
+      if (document.querySelector("[data-zaicode-saipeggle]")) return;
       const bare = !event.ctrlKey && !event.altKey && !event.metaKey;
       const fIndex = zaicodeFKeyIndex(event);
       if (settings.fKeys !== "off" && fIndex !== null) {

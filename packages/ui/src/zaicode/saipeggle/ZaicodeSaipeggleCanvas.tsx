@@ -90,6 +90,7 @@ export function ZaicodeSaipeggleCanvas({ spec, settings, best, onWin, onNext, on
   }, [spec, settings, attempt]);
 
   useEffect(() => () => stopSaipeggleMusic(), []);
+  useEffect(() => canvas.current?.focus({ preventScroll: true }), []);
 
   useEffect(() => {
     const keys = new Set<string>();
@@ -177,7 +178,8 @@ export function ZaicodeSaipeggleCanvas({ spec, settings, best, onWin, onNext, on
         ref={canvas}
         width={SPG_W}
         height={SPG_H}
-        style={{ ...cssSize, imageRendering: "pixelated", cursor: "crosshair" }}
+        tabIndex={0}
+        style={{ ...cssSize, imageRendering: "pixelated", cursor: "crosshair", outline: "none" }}
         aria-label="SAIPEGGLE: aim with the mouse, click or Space to fire, P to pause, R to retry, Esc for the menu"
         onPointerMove={(event) => {
           const g = game.current;
