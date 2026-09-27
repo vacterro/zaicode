@@ -44,7 +44,8 @@ test("one click-through, never-focused, always-on-top overlay per monitor", () =
   assert.match(global, /screen\.getAllDisplays\(\)/);
   assert.match(global, /"display-added"[\s\S]*"display-removed"[\s\S]*"display-metrics-changed"/);
   assert.match(global, /screenToDipPoint/, "Raw Input pixels become the overlays' DIP coordinates");
-  assert.match(global, /sender\.once\("destroyed"/, "the overlays die with the ZAICODE window");
+  assert.match(global, /sender\.once\("destroyed", \(\) => \{\s+wanted\.delete\(sender\);\s+apply\(\);/, "a closing window only withdraws its own wish");
+  assert.match(global, /if \(next === null\) \{\s+stop\(\);/, "the overlays go when no ZAICODE window wants them");
   assert.match(global, /app\.on\("will-quit", stop\)/);
 });
 

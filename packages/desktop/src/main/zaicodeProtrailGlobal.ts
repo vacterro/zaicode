@@ -19,9 +19,9 @@ import {
  * ProTrail over the whole desktop (SRC-062), the way ProTrail itself works:
  * one click-through overlay per monitor, always on top, never focused, never
  * in the taskbar or Alt+Tab, and a system-wide mouse source. The ZAICODE
- * window owns the mode: it sends the config (or null) and the overlays live
- * as long as that window does, so closing ZAICODE never leaves a trail
- * behind and "all windows closed" still quits the app.
+ * windows own the mode: each sends its config (or null), and the overlays
+ * live while any window still wants them, so closing ZAICODE never leaves a
+ * trail behind and "all windows closed" still quits the app.
  */
 
 const FLUSH_MS = 4;
@@ -31,7 +31,14 @@ const MAX_BATCH = ZAICODE_PROTRAIL_EVENT_STRIDE * 4096;
 const overlays = new Map<number, BrowserWindow>();
 const overlayWindows = new WeakSet<BrowserWindow>();
 const overlayBounds = new WeakMap<BrowserWindow, Rectangle>();
-let owner: WebContents | null = null;
+/**
+ * Every ZAICODE window that wants the desktop-wide mode, with its config, most
+ * recent last. Several main windows each run the ZAICODE runtime; the overlays
+ * stay while any of them wants them and follow the latest config. (A single
+ * "owner" let the closing of one window switch ProTrail off for all.)
+ */
+const wanted = new Map<WebContents, unknown>();
+const watched = new WeakSet<WebContents>();
 let config: unknown = null;
 let input: ZaicodeProtrailInput | null = null;
 /** Bumps on every start and stop, so a late compile or restart of an older run is ignored. */
@@ -53,21 +60,32 @@ export function registerZaicodeProtrailGlobalIpc(): void {
   app.on("will-quit", stop);
 }
 
-function setGlobal(sender: WebContents, next: unknown): ZaicodeProtrailGlobalStatus {
-  if (!next || typeof next !== "object") {
-    if (!owner || owner === sender) stop();
+function apply(): ZaicodeProtrailGlobalStatus {
+  let next: unknown = null;
+  for (const value of wanted.values()) next = value;
+  if (next === null) {
+    stop();
     return { ...status };
-  }
-  if (owner !== sender) {
-    owner = sender;
-    sender.once("destroyed", () => {
-      if (owner === sender) stop();
-    });
   }
   config = next;
   if (status.state === "off") start();
   else broadcast({ config });
   return { ...status };
+}
+
+function setGlobal(sender: WebContents, next: unknown): ZaicodeProtrailGlobalStatus {
+  wanted.delete(sender);
+  if (next && typeof next === "object") {
+    wanted.set(sender, next);
+    if (!watched.has(sender)) {
+      watched.add(sender);
+      sender.once("destroyed", () => {
+        wanted.delete(sender);
+        apply();
+      });
+    }
+  }
+  return apply();
 }
 
 function setStatus(patch: Partial<ZaicodeProtrailGlobalStatus>): void {
@@ -93,7 +111,6 @@ function stop(): void {
   hookScreen(false);
   for (const win of overlays.values()) if (!win.isDestroyed()) win.destroy();
   overlays.clear();
-  owner = null;
   config = null;
   status = { ...ZAICODE_PROTRAIL_GLOBAL_OFF };
 }
