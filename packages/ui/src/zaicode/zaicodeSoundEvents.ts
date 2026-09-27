@@ -56,6 +56,8 @@ export const ZAICODE_SOUND_EVENTS: readonly ZaicodeSoundEventDef[] = [
   { id: "agent.human", group: "Agent", label: "Human needed", hint: "An agent needs your permission to continue", glyph: "hand", sound: fp("alert_system_msg.wav"), enabled: true, gainDb: 0 },
   { id: "agent.update", group: "Agent", label: "Progress update", hint: "A progress or feedback update arrived", glyph: "dot", sound: fp("blip1.wav"), enabled: false, gainDb: -6 },
   { id: "agent.started", group: "Agent", label: "Work started", hint: "A session started working after everything was idle", glyph: "play", sound: fp("activated.wav"), enabled: false, gainDb: -6 },
+  { id: "changes.heal", group: "Agent", label: "Lines added (heal)", hint: "The Changes counter went up: a green +N floats like healing (Highlights -> Change numbers)", glyph: "plus", sound: fp("Pickup_Health_Generic_1.wav"), enabled: true, gainDb: -10 },
+  { id: "changes.damage", group: "Agent", label: "Lines removed (damage)", hint: "The Changes counter lost lines: a red -N flies off like damage", glyph: "cross", sound: fp("hit_crit_hit_mini2.wav"), enabled: true, gainDb: -10 },
   // Sessions
   { id: "session.new", group: "Sessions", label: "New session", hint: "A new session or draft was created", glyph: "plus", sound: fp("ui_new.wav"), enabled: true, gainDb: -3 },
   { id: "session.open", group: "Sessions", label: "Open session", hint: "You switched to another session", glyph: "swap", sound: fp("button1.wav"), enabled: false, gainDb: -6 },

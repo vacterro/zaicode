@@ -1,4 +1,5 @@
 import { useRef, type ReactNode } from "react";
+import { ZaicodeChangeFloaterSettings } from "@/settings/ZaicodeChangeFloaterSettings.js";
 import { RotateCcw, Upload } from "lucide-react";
 import { cn } from "@/components/lib/utils.js";
 import { Switch } from "@/components/ui/switch.js";
@@ -362,6 +363,7 @@ export function ZaicodeLightsSettings() {
           ))}
         </div>
       </Block>
+      <ZaicodeChangeFloaterSettings />
     </div>
   );
 }

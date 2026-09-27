@@ -1,6 +1,7 @@
 /* oxlint-disable eslint(max-lines) -- 状态面板同时维护收起态摘要、展开态分区、菜单策略和宽度自适应，同文件能保证两种形态共享同一内容优先级。 */
 import { useIsOfficeMode } from "@/hooks/useInterfaceMode.js";
 import { isZaicodeProductMode } from "@zcode/shared";
+import { ZaicodeChangeCounter } from "@/zaicode/ZaicodeChangeCounter.js";
 import { ZaicodeTodoDock } from "./ZaicodeTodoDock.js";
 import {
   forwardRef,
@@ -425,10 +426,15 @@ function GitStatusSection({
           <span className="min-w-0 flex-1 truncate">
             {intl.formatMessage({ id: "chat.statusPanel.changes" })}
           </span>
-          <span className="shrink-0 font-mono tabular-nums">
+          <ZaicodeChangeCounter
+            added={git.added}
+            removed={git.removed}
+            scopeKey={workspacePath}
+            className="shrink-0 font-mono tabular-nums"
+          >
             <span className="text-[var(--color-diff-added)]">+{git.added}</span>{" "}
             <span className="text-[var(--color-diff-removed)]">-{git.removed}</span>
-          </span>
+          </ZaicodeChangeCounter>
         </button>
         <GitBranchSwitcher
           workspacePath={workspacePath}
@@ -1560,11 +1566,14 @@ function getCompletedPlanItem(plan: ConversationStatusPanelModel["plan"]) {
 }
 
 function StatusSummaryRow({
+  changeScopeKey,
   endedWorkflowRunCount,
   gitWorktreeChangeSummary,
   model,
   onVariantChange,
 }: {
+  /** ZAICODE (SRC-060): what the Changes counts belong to; a new scope starts without RPG numbers. */
+  changeScopeKey?: string;
   /** 已结束 run 的目录计数；宿主给 0 表示目录入口不可渲染（缺会话或缺回调）。 */
   endedWorkflowRunCount: number;
   gitWorktreeChangeSummary?: { added: number; removed: number } | null;
@@ -1627,8 +1636,15 @@ function StatusSummaryRow({
       <span className="min-w-0 truncate">
         {intl.formatMessage({ id: "chat.statusPanel.changes" })}
       </span>
-      <span className="shrink-0 text-[var(--color-diff-added)]">+{added}</span>
-      <span className="shrink-0 text-[var(--color-diff-removed)]">-{removed}</span>
+      <ZaicodeChangeCounter
+        added={added}
+        removed={removed}
+        scopeKey={changeScopeKey ?? ""}
+        className="flex shrink-0 items-center gap-1.5"
+      >
+        <span className="shrink-0 text-[var(--color-diff-added)]">+{added}</span>
+        <span className="shrink-0 text-[var(--color-diff-removed)]">-{removed}</span>
+      </ZaicodeChangeCounter>
     </StatusSummaryMetric>
   ) : goalTitle && isDoneGoal ? (
     <StatusSummaryMetric icon={<GoalIcon className="size-4 text-[var(--color-foreground)]" />}>
@@ -2089,6 +2105,7 @@ function ConversationStatusPanelImpl({
           )}
         >
           <StatusSummaryRow
+            changeScopeKey={workspacePath}
             model={model}
             // 与页脚同一道门（canRenderEndedWorkflows）：缺会话或缺回调时目录打不开，
             // 胶囊也就不该报一个点了没反应的数。
