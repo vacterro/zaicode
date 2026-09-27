@@ -13,6 +13,7 @@ import {
 import { startZaicodeRouter } from "./zaicodeRouter.js";
 import {
   addZaicodeFreeKeyProvider,
+  applyZaicodeTokenSaverDefaults,
   ensureZaicodeFreePool,
   ensureZaicodeRouterKey,
   probeZaicodeRouterModel,
@@ -40,6 +41,7 @@ export interface ZaicodeRouterBootstrapResult {
 
 const KEY_FILE = "zaicode-router-key.json";
 const SCAN_FILE = "zaicode-free-scan.json";
+const TOKEN_SAVER_FILE = "zaicode-token-saver.json";
 const FETCH_TIMEOUT_MS = 20_000;
 const SHARED_START_WAIT_MS = 20_000;
 
@@ -141,6 +143,15 @@ async function runBootstrap(options: { needKey: boolean }): Promise<ZaicodeRoute
     if (pool.added.length > 0) writeJson(SCAN_FILE, { ...memory, added: [...new Set([...memory.added, ...pool.added])] });
   } catch (error) {
     steps.push({ id: "pool:free", label: ZAICODE_FREE_POOL, status: "failed", detail: error instanceof Error ? error.message : String(error) });
+  }
+  try {
+    // SRC-061: RTK and Caveman lite on once; the operator's later choices stay theirs.
+    const marker = readJson<{ appliedVersion?: number }>(TOKEN_SAVER_FILE, {});
+    const saver = await applyZaicodeTokenSaverDefaults(callZaicodeRouterInternal, marker.appliedVersion ?? 0);
+    steps.push(saver.step);
+    if (saver.appliedVersion !== (marker.appliedVersion ?? 0)) writeJson(TOKEN_SAVER_FILE, { appliedVersion: saver.appliedVersion });
+  } catch (error) {
+    steps.push({ id: "token-saver", label: "Token saver", status: "skipped", detail: error instanceof Error ? error.message : String(error) });
   }
   let apiKey: string | null = null;
   let firstToken: ZaicodeRouterBootstrapResult["firstToken"] = null;

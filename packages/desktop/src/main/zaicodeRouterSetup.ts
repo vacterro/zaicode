@@ -392,3 +392,65 @@ export async function addZaicodeFreeKeyProvider(
   if (pool && fresh.length > 0) await setPoolModels(call, pool, [...pool.models, ...fresh]);
   return { ok: true, message: `${provider.name}: key saved, ${fresh.length} free model(s) added to ${ZAICODE_FREE_POOL}`, added: fresh.length };
 }
+
+/**
+ * SRC-061: 9router's Token Saver, on by default where it cannot hurt the work.
+ *
+ * - RTK compresses tool output (git, grep, ls, logs) before the model reads it;
+ *   9router itself ships it on from 0.5.91.
+ * - Caveman "lite" asks for terse answers that keep grammar and full sentences
+ *   and only drop filler; its own rules keep security warnings, irreversible
+ *   actions, code and error strings exact.
+ * - Ponytail ("lazy senior dev") is left alone: it changes WHAT gets built
+ *   (minimal code, YAGNI), which is a product decision, not compression.
+ * - Headroom needs a separate service; it stays as the operator set it.
+ *
+ * Applied once per ZAICODE_TOKEN_SAVER_VERSION: afterwards whatever the
+ * operator sets in 9router's Token Saver page is theirs. Nothing is switched
+ * off here, and a Caveman level the operator already chose is kept.
+ */
+export const ZAICODE_TOKEN_SAVER_VERSION = 1;
+
+export function zaicodeTokenSaverPatch(current: Record<string, unknown> | null): Record<string, unknown> {
+  const patch: Record<string, unknown> = {};
+  if (current?.rtkEnabled !== true) patch.rtkEnabled = true;
+  if (current?.cavemanEnabled !== true) {
+    patch.cavemanEnabled = true;
+    patch.cavemanLevel = "lite";
+  }
+  return patch;
+}
+
+export async function applyZaicodeTokenSaverDefaults(
+  call: ZaicodeRouterCaller,
+  appliedVersion: number,
+): Promise<{ step: ZaicodeSetupStep; appliedVersion: number }> {
+  if (appliedVersion >= ZAICODE_TOKEN_SAVER_VERSION) {
+    return {
+      step: { id: "token-saver", label: "Token saver", status: "ok", detail: "set up before; your own choices in 9router are kept" },
+      appliedVersion,
+    };
+  }
+  const read = await call({ method: "GET", path: "/api/settings" });
+  const current = read.ok && read.data && typeof read.data === "object" ? (read.data as Record<string, unknown>) : null;
+  const patch = zaicodeTokenSaverPatch(current);
+  if (Object.keys(patch).length === 0) {
+    return {
+      step: { id: "token-saver", label: "Token saver", status: "ok", detail: "RTK and Caveman already on" },
+      appliedVersion: ZAICODE_TOKEN_SAVER_VERSION,
+    };
+  }
+  const saved = await call({ method: "PATCH", path: "/api/settings", body: patch });
+  if (!saved.ok) {
+    return {
+      // Optional: an older 9router without Token Saver must not fail the whole setup.
+      step: { id: "token-saver", label: "Token saver", status: "skipped", detail: `this 9router did not take the settings (${saved.status}); set them in its Token Saver page` },
+      appliedVersion,
+    };
+  }
+  const turned = [patch.rtkEnabled ? "RTK (tool output)" : null, patch.cavemanEnabled ? "Caveman lite (terse answers)" : null].filter(Boolean);
+  return {
+    step: { id: "token-saver", label: "Token saver", status: "fixed", detail: `switched on: ${turned.join(", ")}` },
+    appliedVersion: ZAICODE_TOKEN_SAVER_VERSION,
+  };
+}
