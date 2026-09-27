@@ -20,11 +20,7 @@ import {
   type ZaicodeShapeTuning,
 } from "./zaicodeMotionTuning.js";
 
-export type {
-  ZaicodeBezier,
-  ZaicodeMotionDirection,
-  ZaicodeMotionEasing,
-} from "./zaicodeMotionTuning.js";
+export type { ZaicodeBezier, ZaicodeMotionDirection, ZaicodeMotionEasing } from "./zaicodeMotionTuning.js";
 
 /**
  * Light and motion (SRC-038): every highlight the operator can see -- the
@@ -306,21 +302,13 @@ function num(value: unknown, min: number, max: number, fallback: number, decimal
   return Math.min(max, Math.max(min, Math.round(value * factor) / factor));
 }
 
-function pick<T extends string>(
-  value: unknown,
-  allowed: readonly { id: T }[] | readonly T[],
-  fallback: T,
-): T {
-  const ids = (allowed as readonly (T | { id: T })[]).map((entry) =>
-    typeof entry === "string" ? entry : entry.id,
-  );
+function pick<T extends string>(value: unknown, allowed: readonly { id: T }[] | readonly T[], fallback: T): T {
+  const ids = (allowed as readonly (T | { id: T })[]).map((entry) => (typeof entry === "string" ? entry : entry.id));
   return typeof value === "string" && (ids as string[]).includes(value) ? (value as T) : fallback;
 }
 
 function hex(value: unknown, fallback: string): string {
-  return typeof value === "string" && /^#[0-9a-f]{6}$/i.test(value)
-    ? value.toLowerCase()
-    : fallback;
+  return typeof value === "string" && /^#[0-9a-f]{6}$/i.test(value) ? value.toLowerCase() : fallback;
 }
 
 function flag(value: unknown, fallback: boolean): boolean {
@@ -332,51 +320,22 @@ function flag(value: unknown, fallback: boolean): boolean {
  * pre-SRC-043 single value, else the fallback. The neutral value never shares
  * the list; `max` keeps the newest.
  */
-function pickList<T extends string>(
-  list: unknown,
-  single: unknown,
-  allowed: readonly { id: T }[],
-  fallback: readonly T[],
-  combo: { neutral?: T; max?: number } = {},
-): T[] {
+function pickList<T extends string>(list: unknown, single: unknown, allowed: readonly { id: T }[], fallback: readonly T[], combo: { neutral?: T; max?: number } = {}): T[] {
   const ids = allowed.map((entry) => entry.id as string);
   const source = Array.isArray(list) ? list : typeof single === "string" ? [single] : [];
-  let values = [
-    ...new Set(
-      source.filter((value): value is T => typeof value === "string" && ids.includes(value)),
-    ),
-  ];
-  if (combo.neutral !== undefined && values.length > 1)
-    values = values.filter((value) => value !== combo.neutral);
-  if (combo.max !== undefined && values.length > combo.max)
-    values = values.slice(values.length - combo.max);
+  let values = [...new Set(source.filter((value): value is T => typeof value === "string" && ids.includes(value)))];
+  if (combo.neutral !== undefined && values.length > 1) values = values.filter((value) => value !== combo.neutral);
+  if (combo.max !== undefined && values.length > combo.max) values = values.slice(values.length - combo.max);
   return values.length > 0 ? values : [...fallback];
 }
 
-export function normalizeZaicodeHighlightRule(
-  raw: unknown,
-  fallback: ZaicodeHighlightRule,
-): ZaicodeHighlightRule {
-  const r = (raw && typeof raw === "object" ? raw : {}) as Partial<
-    Record<keyof ZaicodeHighlightRule | "effect" | "shape", unknown>
-  >;
+export function normalizeZaicodeHighlightRule(raw: unknown, fallback: ZaicodeHighlightRule): ZaicodeHighlightRule {
+  const r = (raw && typeof raw === "object" ? raw : {}) as Partial<Record<keyof ZaicodeHighlightRule | "effect" | "shape", unknown>>;
 
   return {
     enabled: flag(r.enabled, fallback.enabled),
-    effects: pickList(
-      r.effects,
-      r.effect,
-      ZAICODE_HIGHLIGHT_EFFECTS,
-      fallback.effects,
-      ZAICODE_EFFECT_COMBO,
-    ),
-    shapes: pickList(
-      r.shapes,
-      r.shape,
-      ZAICODE_HIGHLIGHT_SHAPES,
-      fallback.shapes,
-      ZAICODE_SHAPE_COMBO,
-    ),
+    effects: pickList(r.effects, r.effect, ZAICODE_HIGHLIGHT_EFFECTS, fallback.effects, ZAICODE_EFFECT_COMBO),
+    shapes: pickList(r.shapes, r.shape, ZAICODE_HIGHLIGHT_SHAPES, fallback.shapes, ZAICODE_SHAPE_COMBO),
     color: pick(r.color, ZAICODE_HIGHLIGHT_COLORS, fallback.color),
     custom: hex(r.custom, fallback.custom),
     strength: num(r.strength, 10, 100, fallback.strength),
@@ -389,33 +348,17 @@ export function normalizeZaicodeHighlightRule(
 
 export function normalizeZaicodeWorkingIcon(raw: unknown): ZaicodeWorkingIconPrefs {
   const d = ZAICODE_WORKING_ICON_DEFAULTS;
-  const r = (raw && typeof raw === "object" ? raw : {}) as Partial<
-    Record<keyof ZaicodeWorkingIconPrefs | "image" | "motion", unknown>
-  >;
+  const r = (raw && typeof raw === "object" ? raw : {}) as Partial<Record<keyof ZaicodeWorkingIconPrefs | "image" | "motion", unknown>>;
   const customImage =
-    typeof r.customImage === "string" &&
-    /^(data:image\/|data:video\/)/.test(r.customImage) &&
-    r.customImage.length <= ZAICODE_WORKING_CUSTOM_IMAGE_MAX * 1.4
+    typeof r.customImage === "string" && /^(data:image\/|data:video\/)/.test(r.customImage) && r.customImage.length <= ZAICODE_WORKING_CUSTOM_IMAGE_MAX * 1.4
       ? r.customImage
       : null;
   // An own picture that is gone drops out of the stack; an empty stack is the mark again.
-  const images = pickList(
-    r.images,
-    r.image,
-    ZAICODE_WORKING_IMAGES,
-    d.images,
-    ZAICODE_IMAGE_COMBO,
-  ).filter((image) => image !== "custom" || customImage);
+  const images = pickList(r.images, r.image, ZAICODE_WORKING_IMAGES, d.images, ZAICODE_IMAGE_COMBO).filter((image) => image !== "custom" || customImage);
   return {
     images: images.length > 0 ? images : [...d.images],
     customImage,
-    motions: pickList(
-      r.motions,
-      r.motion,
-      ZAICODE_WORKING_MOTIONS,
-      d.motions,
-      ZAICODE_MOTION_COMBO,
-    ),
+    motions: pickList(r.motions, r.motion, ZAICODE_WORKING_MOTIONS, d.motions, ZAICODE_MOTION_COMBO),
     seconds: num(r.seconds, 0.2, 20, d.seconds, 1),
     direction: pick(r.direction, ["cw", "ccw", "alternate"] as const, d.direction),
     easing: pick(r.easing, ZAICODE_EASING_IDS, d.easing),
@@ -460,10 +403,7 @@ export function normalizeZaicodeLights(raw: unknown): ZaicodeLightsPrefs {
   };
   const highlights = {} as Record<ZaicodeHighlightTarget, ZaicodeHighlightRule>;
   for (const target of ZAICODE_HIGHLIGHT_TARGETS) {
-    highlights[target.id] = normalizeZaicodeHighlightRule(
-      r.highlights?.[target.id],
-      ZAICODE_HIGHLIGHT_DEFAULTS[target.id],
-    );
+    highlights[target.id] = normalizeZaicodeHighlightRule(r.highlights?.[target.id], ZAICODE_HIGHLIGHT_DEFAULTS[target.id]);
   }
   return { highlights, working: normalizeZaicodeWorkingIcon(r.working) };
 }
@@ -471,20 +411,10 @@ export function normalizeZaicodeLights(raw: unknown): ZaicodeLightsPrefs {
 // ---------------------------------------------------------------- pure styling
 
 // Highlight attributes: zaicodeHighlightStyle.ts (kept apart for the 400-line limit).
-export {
-  ZAICODE_EFFECT_DEPTH,
-  ZAICODE_HIGHLIGHT_STATE_COLORS,
-  zaicodeEffectAnimation,
-  zaicodeHighlightAttrs,
-  type ZaicodeLightAttrs,
-} from "./zaicodeHighlightStyle.js";
+export { ZAICODE_EFFECT_DEPTH, ZAICODE_HIGHLIGHT_STATE_COLORS, zaicodeEffectAnimation, zaicodeHighlightAttrs, type ZaicodeLightAttrs } from "./zaicodeHighlightStyle.js";
 
 // Working icon style: zaicodeWorkingIconStyle.ts (kept apart for the 400-line limit).
-export {
-  ZAICODE_WORKING_COMBO_TRANSFORM,
-  zaicodeWorkingIconStyle,
-  zaicodeWorkingMotionsReach,
-} from "./zaicodeWorkingIconStyle.js";
+export { ZAICODE_WORKING_COMBO_TRANSFORM, zaicodeWorkingIconStyle, zaicodeWorkingMotionsReach } from "./zaicodeWorkingIconStyle.js";
 
 // ---------------------------------------------------------------- store
 
@@ -538,8 +468,7 @@ export const useZaicodeLights = create<ZaicodeLightsState>((set, get) => {
       const { highlights, working } = get();
       persist({ highlights, working: { ...working, ...patch } });
     },
-    resetWorking: () =>
-      persist({ highlights: get().highlights, working: ZAICODE_WORKING_ICON_DEFAULTS }),
+    resetWorking: () => persist({ highlights: get().highlights, working: ZAICODE_WORKING_ICON_DEFAULTS }),
     replaceLights: (next) => persist(normalizeZaicodeLights(next)),
   };
 });
@@ -551,11 +480,7 @@ export function readZaicodeLights(): ZaicodeLightsPrefs {
 }
 
 /** Attributes for `target` while `active`, from the live preferences; spread onto the element. */
-export function useZaicodeHighlight(
-  target: ZaicodeHighlightTarget,
-  active: boolean,
-  stateColor?: string | null,
-): ZaicodeLightAttrs | null {
+export function useZaicodeHighlight(target: ZaicodeHighlightTarget, active: boolean, stateColor?: string | null): ZaicodeLightAttrs | null {
   const prefs = useZaicodeLights((state) => state.highlights[target]);
   return active ? zaicodeHighlightAttrs(target, prefs, stateColor) : null;
 }
@@ -568,10 +493,7 @@ export interface ZaicodeLightTarget {
 }
 
 /** Merges highlight attributes into an element's own class / title / style. */
-export function withZaicodeHighlight(
-  props: ZaicodeLightTarget,
-  lights: ZaicodeLightAttrs | null,
-): ZaicodeLightTarget & { [attribute: `data-${string}`]: string | undefined } {
+export function withZaicodeHighlight(props: ZaicodeLightTarget, lights: ZaicodeLightAttrs | null): ZaicodeLightTarget & { [attribute: `data-${string}`]: string | undefined } {
   if (!lights) return { ...props };
   const { style, ...attributes } = lights;
   return { ...props, ...attributes, style: { ...props.style, ...style } };

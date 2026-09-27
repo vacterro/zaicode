@@ -53,15 +53,7 @@ function statusLabel(status: GameStatus): string {
   return status.toUpperCase();
 }
 
-function drawPixelText(
-  ctx: CanvasRenderingContext2D,
-  text: string,
-  x: number,
-  y: number,
-  size = 10,
-  color = "#D4C89A",
-  align: CanvasTextAlign = "left",
-) {
+function drawPixelText(ctx: CanvasRenderingContext2D, text: string, x: number, y: number, size = 10, color = "#D4C89A", align: CanvasTextAlign = "left") {
   ctx.font = `bold ${size}px Verdana, sans-serif`;
   ctx.textAlign = align;
   ctx.textBaseline = "top";
@@ -81,25 +73,12 @@ function drawWorld(ctx: CanvasRenderingContext2D, world: World, status: GameStat
   ctx.fillStyle = "#100E08";
   ctx.fillRect(0, 22, WIDTH, 1);
   drawPixelText(ctx, `LEVEL ${world.level}/${LEVELS}`, 6, 6, 8, "#F0D060");
-  drawPixelText(
-    ctx,
-    `SCORE ${String(world.score).padStart(6, "0")}`,
-    WIDTH / 2,
-    6,
-    8,
-    "#D4C89A",
-    "center",
-  );
+  drawPixelText(ctx, `SCORE ${String(world.score).padStart(6, "0")}`, WIDTH / 2, 6, 8, "#D4C89A", "center");
   drawPixelText(ctx, `LIVES ${"■".repeat(world.lives)}`, WIDTH - 6, 6, 8, "#D66464", "right");
   ctx.fillStyle = "#332E22";
   ctx.fillRect(6, 25, WIDTH - 12, 4);
   ctx.fillStyle = "#7A7A20";
-  ctx.fillRect(
-    6,
-    25,
-    Math.floor((WIDTH - 12) * Math.min(1, world.caught / targetFor(world.level))),
-    4,
-  );
+  ctx.fillRect(6, 25, Math.floor((WIDTH - 12) * Math.min(1, world.caught / targetFor(world.level))), 4);
 
   for (const drop of world.drops) {
     const x = Math.round(drop.x);
@@ -139,15 +118,7 @@ function drawWorld(ctx: CanvasRenderingContext2D, world: World, status: GameStat
   ctx.strokeStyle = "#F0D060";
   ctx.strokeRect(34.5, 52.5, WIDTH - 69, 93);
   drawPixelText(ctx, "PEBBLE DROP", WIDTH / 2, 63, 18, "#F0D060", "center");
-  drawPixelText(
-    ctx,
-    statusLabel(status),
-    WIDTH / 2,
-    89,
-    10,
-    status === "gameOver" ? "#D66464" : "#D4C89A",
-    "center",
-  );
+  drawPixelText(ctx, statusLabel(status), WIDTH / 2, 89, 10, status === "gameOver" ? "#D66464" : "#D4C89A", "center");
   const instruction =
     status === "title"
       ? "← → / A D MOVE · CATCH GOLD · DODGE RED"
@@ -159,34 +130,19 @@ function drawWorld(ctx: CanvasRenderingContext2D, world: World, status: GameStat
             ? "PRESS R TO TRY AGAIN"
             : "PRESS P TO RESUME";
   drawPixelText(ctx, instruction, WIDTH / 2, 112, 7, "#D4C89A", "center");
-  if (status === "title" || status === "levelComplete")
-    drawPixelText(ctx, "PRESS SPACE", WIDTH / 2, 129, 8, "#F0D060", "center");
+  if (status === "title" || status === "levelComplete") drawPixelText(ctx, "PRESS SPACE", WIDTH / 2, 129, 8, "#F0D060", "center");
 }
 
-function updateWorld(
-  world: World,
-  keys: ReadonlySet<string>,
-  elapsedMs: number,
-): GameStatus | null {
+function updateWorld(world: World, keys: ReadonlySet<string>, elapsedMs: number): GameStatus | null {
   const seconds = Math.min(0.04, elapsedMs / 1000);
-  const direction =
-    Number(keys.has("ArrowRight") || keys.has("KeyD")) -
-    Number(keys.has("ArrowLeft") || keys.has("KeyA"));
-  world.playerX = Math.max(
-    17,
-    Math.min(WIDTH - 17, world.playerX + direction * (115 + world.level * 8) * seconds),
-  );
+  const direction = Number(keys.has("ArrowRight") || keys.has("KeyD")) - Number(keys.has("ArrowLeft") || keys.has("KeyA"));
+  world.playerX = Math.max(17, Math.min(WIDTH - 17, world.playerX + direction * (115 + world.level * 8) * seconds));
   world.spawnMs += elapsedMs;
   const interval = Math.max(270, 850 - world.level * 88);
   while (world.spawnMs >= interval) {
     world.spawnMs -= interval;
     const roll = Math.random();
-    const kind: DropKind =
-      roll < Math.min(0.48, 0.2 + world.level * 0.045)
-        ? "hazard"
-        : roll > 0.985
-          ? "heart"
-          : "pebble";
+    const kind: DropKind = roll < Math.min(0.48, 0.2 + world.level * 0.045) ? "hazard" : roll > 0.985 ? "heart" : "pebble";
     world.drops.push({
       x: 10 + Math.random() * (WIDTH - 20),
       y: 34,
@@ -214,8 +170,7 @@ function updateWorld(
   }
   world.drops = next;
   if (world.lives <= 0) return "gameOver";
-  if (world.caught >= targetFor(world.level))
-    return world.level >= LEVELS ? "won" : "levelComplete";
+  if (world.caught >= targetFor(world.level)) return world.level >= LEVELS ? "won" : "levelComplete";
   return null;
 }
 
@@ -250,19 +205,11 @@ function GameSurface({ onClose, onDetach }: { onClose: () => void; onDetach: () 
   useEffect(() => {
     const owner = canvas.current?.ownerDocument.defaultView ?? window;
     const down = (event: KeyboardEvent) => {
-      if (
-        ["ArrowLeft", "ArrowRight", "Space", "KeyA", "KeyD", "KeyP", "KeyR", "Escape"].includes(
-          event.code,
-        )
-      )
-        event.preventDefault();
+      if (["ArrowLeft", "ArrowRight", "Space", "KeyA", "KeyD", "KeyP", "KeyR", "Escape"].includes(event.code)) event.preventDefault();
       if (event.code === "Escape") onClose();
       else if (event.code === "KeyR") startAgain();
       else if (event.code === "Space") advance();
-      else if (
-        event.code === "KeyP" &&
-        (statusRef.current === "running" || statusRef.current === "paused")
-      ) {
+      else if (event.code === "KeyP" && (statusRef.current === "running" || statusRef.current === "paused")) {
         setStatus(statusRef.current === "running" ? "paused" : "running");
       }
       keys.current.add(event.code);
@@ -295,45 +242,21 @@ function GameSurface({ onClose, onDetach }: { onClose: () => void; onDetach: () 
   }, []);
 
   return (
-    <div
-      ref={shell}
-      className="flex h-full min-h-[360px] w-full flex-col bg-[#1A1810] font-[Verdana] text-[#D4C89A]"
-      data-zaicode-pebble-game
-    >
+    <div ref={shell} className="flex h-full min-h-[360px] w-full flex-col bg-[#1A1810] font-[Verdana] text-[#D4C89A]" data-zaicode-pebble-game>
       <div className="flex h-9 shrink-0 items-center gap-1 border-b border-[#75663D] bg-[#232018] px-2 [app-region:drag]">
         <span className="font-bold text-[#F0D060]">PEBBLE DROP</span>
         <span className="text-[10px] text-[#9C9371]">ZAICODE BONUS · 6 LEVELS</span>
         <span className="ml-auto flex gap-1 [app-region:no-drag]">
-          <button
-            type="button"
-            className="border border-[#75663D] p-1 hover:bg-[#453D30]"
-            title="Restart"
-            onClick={startAgain}
-          >
+          <button type="button" className="border border-[#75663D] p-1 hover:bg-[#453D30]" title="Restart" onClick={startAgain}>
             <RotateCcw className="size-3.5" />
           </button>
-          <button
-            type="button"
-            className="border border-[#75663D] p-1 hover:bg-[#453D30]"
-            title="Fullscreen"
-            onClick={() => void shell.current?.requestFullscreen()}
-          >
+          <button type="button" className="border border-[#75663D] p-1 hover:bg-[#453D30]" title="Fullscreen" onClick={() => void shell.current?.requestFullscreen()}>
             <Maximize2 className="size-3.5" />
           </button>
-          <button
-            type="button"
-            className="border border-[#75663D] p-1 hover:bg-[#453D30]"
-            title="Detach into its own window"
-            onClick={onDetach}
-          >
+          <button type="button" className="border border-[#75663D] p-1 hover:bg-[#453D30]" title="Detach into its own window" onClick={onDetach}>
             <PictureInPicture2 className="size-3.5" />
           </button>
-          <button
-            type="button"
-            className="border border-[#75663D] p-1 hover:bg-[#7A2020]"
-            title="Close"
-            onClick={onClose}
-          >
+          <button type="button" className="border border-[#75663D] p-1 hover:bg-[#7A2020]" title="Close" onClick={onClose}>
             <X className="size-3.5" />
           </button>
         </span>
@@ -366,14 +289,7 @@ export function ZaicodePebbleGameHost() {
     const show = () => setOpen(true);
     let typed = "";
     const secret = (event: KeyboardEvent) => {
-      if (
-        event.ctrlKey ||
-        event.altKey ||
-        event.metaKey ||
-        event.target instanceof HTMLInputElement ||
-        event.target instanceof HTMLTextAreaElement
-      )
-        return;
+      if (event.ctrlKey || event.altKey || event.metaKey || event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) return;
       if (event.key.length !== 1) return;
       typed = `${typed}${event.key.toLowerCase()}`.slice(-6);
       if (typed === "pebble") show();
@@ -411,12 +327,7 @@ export function ZaicodePebbleGameHost() {
   const game = <GameSurface onClose={close} onDetach={detach} />;
   if (detached && !detached.closed) return createPortal(game, detached.document.body);
   return createPortal(
-    <div
-      className="fixed inset-0 z-[10000] flex bg-[#1A1810] p-3"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Pebble Drop game"
-    >
+    <div className="fixed inset-0 z-[10000] flex bg-[#1A1810] p-3" role="dialog" aria-modal="true" aria-label="Pebble Drop game">
       {game}
     </div>,
     document.body,
