@@ -221,6 +221,8 @@ export function zaicodeHomeActionItems(input: {
   schedules: readonly { id: string; name: string; problem: string | null }[];
   statsSources: readonly ZaicodeStatsSourceState[];
   statsError: string | null;
+  /** Events recorded so far (null = not read yet). */
+  statsEventCount?: number | null;
 }): ZaicodeHomeActionItem[] {
   const items: ZaicodeHomeActionItem[] = [];
   if (input.routing.state === "down") {
@@ -295,7 +297,12 @@ export function zaicodeHomeActionItems(input: {
       action: { label: "Open Scheduler", kind: "open-scheduler" },
     });
   }
-  const statsDown = input.statsError ?? input.statsSources.find((source) => source.source === "agent-db" && source.state === "unavailable")?.detail;
+  const agentDb = input.statsSources.find((source) => source.source === "agent-db" && source.state === "unavailable");
+  // A new profile has no agent usage store until the agent's first run: nothing
+  // is missing yet (like a pool without a subscription), so no red HEALTH on the
+  // first launch. A store that goes missing after statistics exist is a fault.
+  const notCreatedYet = input.statsEventCount === 0 && /usage store not found/.test(agentDb?.detail ?? "");
+  const statsDown = input.statsError ?? (notCreatedYet ? undefined : agentDb?.detail);
   if (statsDown && !/not read yet/.test(statsDown)) {
     items.push({
       id: "stats-source",

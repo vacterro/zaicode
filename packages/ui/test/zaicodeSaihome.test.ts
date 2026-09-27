@@ -185,6 +185,17 @@ test("NEEDS YOU: problems only, blocking first, disabled projects ignored", () =
     statsError: null,
   });
   assert.equal(healthy.length, 0);
+  // The first launch: no agent run yet, so no usage store. That is not a fault
+  // (red HEALTH on a brand-new profile), but a store that vanished later is.
+  const missing = { source: "agent-db" as const, label: "agent", state: "unavailable" as const, readAt: null, detail: "agent usage store not found" };
+  const fresh = { routing: zaicodeHomeRouting({ status: "up", message: "", host: null, combos: [{ id: "1", name: "SAIFREN", models: ["m"], kind: null, strategy: "fallback" }], connections: [], lastScanAt: null }), limitRows: [], projects: [], waitingSessions: 0, schedules: [], statsSources: [missing], statsError: null };
+  assert.deepEqual(zaicodeHomeActionItems({ ...fresh, statsEventCount: 0 }), []);
+  assert.deepEqual(zaicodeHomeActionItems({ ...fresh, statsEventCount: 12 }).map((item) => item.id), ["stats-source"]);
+  assert.deepEqual(
+    zaicodeHomeActionItems({ ...fresh, statsEventCount: 0, statsSources: [{ ...missing, detail: "agent usage store has no model_usage table this build understands" }] }).map((item) => item.id),
+    ["stats-source"],
+    "a store this build cannot read is still reported",
+  );
 });
 
 test("queue counts and honest formatting", () => {

@@ -206,6 +206,7 @@ export function ZaicodeHomePage({
       }),
     statsSources: stats?.sources ?? [],
     statsError: feed.stats.error,
+    statsEventCount: stats?.eventCount ?? null,
   });
   const queue = zaicodeHomeQueueCounts(feed.jobs.value, zaicodeStartOfToday(now));
   const nextResetRow = limits.rows
