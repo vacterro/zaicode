@@ -11,6 +11,10 @@ import {
   openZaicodeSettings,
 } from "./zaicodeActions.js";
 import {
+  rememberZaicodeHelpPointer,
+  zaicodeHelpTopicUnderPointer,
+} from "./zaicodeHelpTopics.js";
+import {
   matchZaicodeHotkey,
   readZaicodeHotkeySettings,
   registerZaicodeHotkeyHandler,
@@ -140,6 +144,10 @@ const SELF_HANDLED = new Set(["window.zones", "session.archiveUndo"]);
 
 function useZaicodeHotkeyDispatcher(): void {
   useEffect(() => {
+    // The pointer position has to be remembered: a keydown carries no
+    // coordinates, and elementFromPoint needs some.
+    const onPointerMove = (event: PointerEvent) => rememberZaicodeHelpPointer(event);
+    window.addEventListener("pointermove", onPointerMove, true);
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.defaultPrevented || event.repeat) return;
       const settings = readZaicodeHotkeySettings();
@@ -172,7 +180,10 @@ function useZaicodeHotkeyDispatcher(): void {
       }
     };
     window.addEventListener("keydown", onKeyDown, true);
-    return () => window.removeEventListener("keydown", onKeyDown, true);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown, true);
+      window.removeEventListener("pointermove", onPointerMove, true);
+    };
   }, []);
 }
 
@@ -237,6 +248,12 @@ function useZaicodeRuntimeHandlers(): void {
       ),
       registerZaicodeHotkeyHandler("sounds.stop", stopAllZaicodeSounds),
       registerZaicodeHotkeyHandler("ui.help", () => void openZaicodeHelp()),
+      // SRC-060: Shift+F1 jumps to the topic for whatever is under the
+      // pointer. Null means the operator asked for Help with nothing
+      // pointed at, which is the same as plain F1.
+      registerZaicodeHotkeyHandler("ui.helpContext", () =>
+        void openZaicodeHelp(zaicodeHelpTopicUnderPointer() ?? undefined),
+      ),
       registerZaicodeHotkeyHandler("ui.home", () => void openZaicodeHomeView()),
       registerZaicodeHotkeyHandler("ui.settings", () => void openZaicodeSettings()),
       registerZaicodeHotkeyHandler("ui.menu", () => {

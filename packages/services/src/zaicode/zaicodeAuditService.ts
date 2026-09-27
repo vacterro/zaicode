@@ -292,6 +292,10 @@ export class ZaicodeAuditService implements IZaicodeAuditService {
     });
     const now = new Date().toISOString();
     state.jobId = job.id;
+    // SRC-060: the read model answers "which model", and the campaign is the
+    // only durable place a panel can read it from. The job knows its agent; the
+    // campaign now writes it down too.
+    state.agentId = job.agentId ?? agentId;
     state.status = "running";
     state.reportFile = ZaicodeAuditService.reportFileName(campaign, wave);
     // SRC-060: the Audits view shows how long each wave and the whole campaign run.

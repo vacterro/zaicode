@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ListChecks, Play, Plus, Zap } from "lucide-react";
 import {
   ZAICODE_AUDIT_PROFILE_A3,
+  describeZaicodeAuditCampaign,
   formatZaicodeAuditElapsed,
   zaicodeAuditCampaignIsActive,
   zaicodeAuditProjectState,
@@ -192,7 +193,12 @@ export function ZaicodeAuditPanel({ services, workspace }: ZaicodeAuditPanelProp
                     <span className="truncate text-foreground-subtle">{zaicodeAuditStage(campaign).label}</span>
                   ) : null}
                   {total !== null ? <span className="font-mono tabular-nums text-foreground-subtlest">{formatZaicodeAuditElapsed(total)}</span> : null}
-                  <span className={cn("shrink-0 border px-1 text-[10px] uppercase", STATE_CLASS[state])}>{STATE_LABEL[state]}</span>
+                  <span
+                    className={cn("shrink-0 border px-1 text-[10px] uppercase", STATE_CLASS[state])}
+                    title={campaign ? `${describeZaicodeAuditCampaign(campaign, now).stage} (${describeZaicodeAuditCampaign(campaign, now).where})` : "No audit yet"}
+                  >
+                    {STATE_LABEL[state]}
+                  </span>
                 </label>
               );
             })}

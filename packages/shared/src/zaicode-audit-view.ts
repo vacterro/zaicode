@@ -151,13 +151,3 @@ export function zaicodeAuditProjectState(
   return { state: "idle", campaign };
 }
 
-/** Elapsed time with seconds while it is short: "12s", "4m 05s", "1h 02m", "2d 4h". */
-export function formatZaicodeAuditElapsed(ms: number): string {
-  const seconds = Math.max(0, Math.floor(ms / 1000));
-  if (seconds < 60) return `${seconds}s`;
-  const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return `${minutes}m ${String(seconds % 60).padStart(2, "0")}s`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 48) return `${hours}h ${String(minutes % 60).padStart(2, "0")}m`;
-  return `${Math.floor(hours / 24)}d ${hours % 24}h`;
-}
