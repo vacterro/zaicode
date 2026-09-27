@@ -22,6 +22,7 @@ import type {
   RendererActionTraceConfigV1,
 } from "./rendererActionTrace.js";
 import type { RendererHeapSample } from "./validation.js";
+import type { ZaicodeSplashPrefsInput, ZaicodeSplashPrefsState } from "./zaicode-splash.js";
 import type {
   CancelPendingRemoteConnectionRequest,
   BindRemoteWorkspaceSessionContextRequest,
@@ -1175,12 +1176,12 @@ export interface PlatformChannelMap {
   };
   [PlatformChannels.GetZaicodeSplashPrefs]: {
     request: void;
-    response: { enabled: boolean; hasCustom: boolean; customDataUrl: string | null };
+    response: ZaicodeSplashPrefsState;
   };
   [PlatformChannels.SetZaicodeSplashPrefs]: {
     /** `imagePath` = a picked picture file copied into ZAICODE's data; null clears the custom picture. */
-    request: { enabled: boolean; imagePath?: string | null };
-    response: { enabled: boolean; hasCustom: boolean; customDataUrl: string | null };
+    request: ZaicodeSplashPrefsInput;
+    response: ZaicodeSplashPrefsState;
   };
   [PlatformChannels.ZaicodeQuitApp]: {
     request: void;

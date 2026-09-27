@@ -80,6 +80,7 @@ import {
   setZaicodeSaimailWorkspace,
 } from "./zaicodeLauncherPreferences.js";
 import { initZaicodeSaimailWorkspace } from "./zaicodeSaimailInit.js";
+import { parseZaicodeSplashPrefsInput } from "./zaicodeSplashFiles.js";
 import { readZaicodeSplashPrefs, setZaicodeSplashPrefs } from "./zaicodeSplashPrefs.js";
 import {
   getZaicodeEnginesState,
@@ -419,14 +420,9 @@ export function registerPlatformIpcHandlers(options: {
     options.quitAppForZaicode?.("hotkey-quit");
     return { ok: true };
   });
-  ipcMain.handle(PlatformChannels.SetZaicodeSplashPrefs, (_event, input: unknown) => {
-    if (!input || typeof input !== "object" || typeof (input as { enabled?: unknown }).enabled !== "boolean")
-      throw new TypeError("Expected splash preferences { enabled, imagePath? }");
-    const { enabled, imagePath } = input as { enabled: boolean; imagePath?: unknown };
-    if (imagePath !== undefined && imagePath !== null && typeof imagePath !== "string")
-      throw new TypeError("Expected splash picture path or null");
-    return setZaicodeSplashPrefs({ enabled, imagePath: imagePath ?? null });
-  });
+  ipcMain.handle(PlatformChannels.SetZaicodeSplashPrefs, (_event, input: unknown) =>
+    setZaicodeSplashPrefs(parseZaicodeSplashPrefsInput(input)),
+  );
   ipcMain.handle(PlatformChannels.SaveZaicodeSettingsSnapshot, (_event, json: unknown) => {
     if (typeof json !== "string") throw new TypeError("Expected settings snapshot JSON");
     return saveZaicodeSettingsSnapshot(json);

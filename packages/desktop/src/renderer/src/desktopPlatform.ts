@@ -43,6 +43,11 @@ export function createDesktopPlatform(options: {
           window.zcode.openCuaPermissionOnboarding?.(permissionOptions) ??
           Promise.resolve({ success: false, error: "not_supported" })
       : undefined,
+    // Found by the SRC-060 adapter guard test: preload exposed it, nothing mapped it,
+    // so closing the permission guide never cancelled its onboarding participant.
+    cancelCuaPermissionOnboarding: window.zcode.cancelCuaPermissionOnboarding
+      ? (operationId) => window.zcode.cancelCuaPermissionOnboarding!(operationId)
+      : undefined,
     prepareCuaHelperPermissionDrag: window.zcode.prepareCuaHelperPermissionDrag
       ? () =>
           window.zcode.prepareCuaHelperPermissionDrag?.() ??
@@ -152,6 +157,14 @@ export function createDesktopPlatform(options: {
       : undefined,
     setZaicodePixelExact: window.zcode.setZaicodePixelExact
       ? (enabled) => window.zcode.setZaicodePixelExact!(enabled)
+      : undefined,
+    // SRC-060: the splash pair was exposed by preload but never mapped here, so
+    // Settings -> Start-up splash stayed disabled (prefs never loaded).
+    getZaicodeSplashPrefs: window.zcode.getZaicodeSplashPrefs
+      ? () => window.zcode.getZaicodeSplashPrefs!()
+      : undefined,
+    setZaicodeSplashPrefs: window.zcode.setZaicodeSplashPrefs
+      ? (input) => window.zcode.setZaicodeSplashPrefs!(input)
       : undefined,
     saveZaicodeSettingsSnapshot: window.zcode.saveZaicodeSettingsSnapshot
       ? (json) => window.zcode.saveZaicodeSettingsSnapshot!(json)

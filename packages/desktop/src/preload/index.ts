@@ -81,6 +81,8 @@ import type {
   OpenCuaPermissionOnboardingOptions,
   ConfigureFinalArmsCustomEventE2ERequest,
   FinalArmsCustomEventE2EEntry,
+  ZaicodeSplashPrefsInput,
+  ZaicodeSplashPrefsState,
 } from "@zcode/shared";
 import {
   InternalChannels,
@@ -765,19 +767,10 @@ contextBridge.exposeInMainWorld("zcode", {
     ipcRenderer.invoke(PlatformChannels.GetZaicodePixelExact),
   setZaicodePixelExact: (enabled: boolean): Promise<{ pixelExact: boolean }> =>
     ipcRenderer.invoke(PlatformChannels.SetZaicodePixelExact, enabled),
-  getZaicodeSplashPrefs: (): Promise<{
-    enabled: boolean;
-    hasCustom: boolean;
-    customDataUrl: string | null;
-  }> => ipcRenderer.invoke(PlatformChannels.GetZaicodeSplashPrefs),
-  setZaicodeSplashPrefs: (input: {
-    enabled: boolean;
-    imagePath?: string | null;
-  }): Promise<{
-    enabled: boolean;
-    hasCustom: boolean;
-    customDataUrl: string | null;
-  }> => ipcRenderer.invoke(PlatformChannels.SetZaicodeSplashPrefs, input),
+  getZaicodeSplashPrefs: (): Promise<ZaicodeSplashPrefsState> =>
+    ipcRenderer.invoke(PlatformChannels.GetZaicodeSplashPrefs),
+  setZaicodeSplashPrefs: (input: ZaicodeSplashPrefsInput): Promise<ZaicodeSplashPrefsState> =>
+    ipcRenderer.invoke(PlatformChannels.SetZaicodeSplashPrefs, input),
   zaicodeQuitApp: (): Promise<{ ok: boolean }> => ipcRenderer.invoke(PlatformChannels.ZaicodeQuitApp),
   saveZaicodeSettingsSnapshot: (json: string): Promise<{ ok: boolean; message: string; sourcePath: string | null; backupPath: string | null }> =>
     ipcRenderer.invoke(PlatformChannels.SaveZaicodeSettingsSnapshot, json),

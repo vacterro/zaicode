@@ -123,6 +123,7 @@ export * from "./zaicode-projects.js";
 export * from "./zaicode-stats.js";
 export * from "./zaicode-subchat.js";
 export * from "./zaicode-topology.js";
+export * from "./zaicode-splash.js";
 
 export interface ICredentialStore {
   get(key: string): Promise<string | null>;
