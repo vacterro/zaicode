@@ -1,0 +1,41 @@
+{
+  "blocking_findings": {
+    "problem_count": 1,
+    "problems": [
+      {
+        "category": null,
+        "credential": false,
+        "detail": "1 protocol append target(s) end mid-line, so the next append extends the last line instead of adding one: .saipen/LOG.md ends b'ome/user/zaicode/.claude/saipen-protocol'",
+        "detail_hash": "42508dfeb17dab49",
+        "finding_key": "76b48f23558dce11",
+        "rule_id": "unclassified",
+        "severity": "problem",
+        "subject_id": null,
+        "subject_kind": "global",
+        "subject_ref": null
+      }
+    ],
+    "ruleset_fingerprint": "82e5e183ae8f0fd909be3fa3627f00489cacaab813d942186c832db02a05a1c1",
+    "ruleset_version": 1,
+    "status": "complete",
+    "warning_count": 19
+  },
+  "board_hash": "99055075abf71034",
+  "canonical_next_command": null,
+  "content_hash": "f478ed54f38ff997",
+  "exit_code": 1,
+  "external_actions": [],
+  "gate": "core",
+  "kind": "conformance_receipt",
+  "log_hash": "a2c3167ef1a32e32",
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "receipt_id": "receipt-94833f7f4e04",
+  "remediation_commands": [],
+  "schema_version": 2,
+  "source_head": "0ea03bdb658d987961fa5e0152aa95fe3a64753f",
+  "source_tree_fingerprint": "git-delta-v1:65606ad40b162ae2940418b792438590f788b6b8d6a788af9212b326e8dd02f6",
+  "state_hash": "78893aa8d34eec9d",
+  "timestamp_utc": "2026-09-27T08:28:37.336515Z",
+  "validator_protocol_version": "1",
+  "verdict": "FAIL"
+}
