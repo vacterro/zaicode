@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import test from "node:test";
 import {
   ZAICODE_SIDEBAR_DEFAULT_PREFS,
@@ -97,4 +99,20 @@ test("on: a project that is still running outranks one that merely stayed", () =
         : live({ lastActivityAt: NOW - 2 * HOUR }),
   }).at(0)!.keys;
   assert.deepEqual(order, ["running", "stayed"]);
+});
+
+test("the preference has exactly one control, next to the hold it overrides", () => {
+  // Two executors shipped this toggle independently, in two settings surfaces.
+  // One meaning, one switch: a second copy is a defect however it is worded.
+  const surfaces = [
+    "settings/ZaicodeSidebarSettings.tsx",
+    "zaicode/ZaicodeSidebarSectionSettings.tsx",
+  ];
+  const holders = surfaces.filter((file) =>
+    readFileSync(join(import.meta.dirname, "..", "src", file), "utf8").includes("liveRemainInPosition"),
+  );
+  assert.deepEqual(holders, [surfaces[0]], "only the sidebar settings may draw the toggle");
+  // The grace hold is what the toggle replaces, so the two belong together.
+  const sidebar = readFileSync(join(import.meta.dirname, "..", "src", surfaces[0]), "utf8");
+  assert.ok(sidebar.includes("liveHoldMs"), "the hold it overrides is in the same surface");
 });
