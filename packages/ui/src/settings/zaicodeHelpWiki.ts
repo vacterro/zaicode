@@ -170,6 +170,7 @@ export const ZAICODE_HELP_WIKI: Record<ZaicodeHelpTopicId, HelpArticle> = {
       ["Focus next session", "Click = next working or waiting session; right-click = previous."],
       ["Project row buttons", "Hover a project: ◆ / ◇ switches 'this row is a session' (on: the row opens that session and the others are its children; off: a folder), ▶ START (continue it), … (more, new session)."],
       ["Clicking a project", "First click: go to the project (the row's session, or the new-task screen). Every next click only folds or unfolds its sessions -- it never jumps to another session."],
+      ["✔ / ✔A3 after a name", "SAIPEN says the project is done and its board is clean (nothing open, blocked or parked). ✔A3: it changed since its last audit -- click to open the audit centre on it and plan an A3 wave. A3 x/y: an audit is planned (quiet) or running (bright)."],
       ["Shift+Click a project", "Switch it off: dimmed, marked OFF, no automatic agent or schedule touches it."],
       ["Ctrl+Click a project", "Send it down to another slot."],
       ["Working meter", "One cell per working session, from black (just started) to green (almost done)."],

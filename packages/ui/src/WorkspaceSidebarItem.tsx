@@ -18,6 +18,10 @@ import { useZaicodeLiveRunIds } from "@/zaicode/zaicodeLiveRuns.js";
 import { useZaicodeHighlight, withZaicodeHighlight } from "@/zaicode/zaicodeHighlights.js";
 import { useZaicodeMainSessionId, useZaicodeMainSessions } from "@/zaicode/zaicodeMainSession.js";
 import { decideZaicodeMainToggle, decideZaicodeProjectClick } from "@/zaicode/zaicodeProjectClick.js";
+import { zaicodeProjectDoneMark } from "@/zaicode/zaicodeProjectDone.js";
+import { ZaicodeProjectDoneBadge } from "@/zaicode/ZaicodeProjectDoneBadge.js";
+import { openZaicodeWorkspaceView } from "@/zaicode/zaicodeActions.js";
+import { useZaicodeWorkspaceTab } from "@/zaicode/zaicodeScheduler.js";
 import { buildTaskWorkspaceKey } from "@/lib/taskQueryCache.js";
 import {
   useZaicodeProjectRuntime,
@@ -64,6 +68,7 @@ import {
   FolderOpen,
   House,
   InfoIcon,
+  ListChecks,
   ListTree,
   LoaderCircle,
   RefreshCwIcon,
@@ -960,6 +965,9 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
     isZaicodeProductMode() ? zaicodeSlotKey : null,
   );
   const zaicodeAuditCampaigns = useZaicodeAuditStore((state) => state.campaigns);
+  const zaicodeAuditRunning = zaicodeAuditCampaigns.some(
+    (campaign) => campaign.workspacePath === tab.workspacePath && campaign.status === "running",
+  );
   const zaicodeAuditProgress = useMemo(
     () =>
       isZaicodeProductMode()
@@ -1330,6 +1338,26 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
     zaicodeSaipen,
   );
   const boardShares = saipenBoardShares(zaicodeSaipen);
+  // SRC-062: the special DONE mark -- SAIPEN done, a clean board, and an A3 offer when it would see something new.
+  const zaicodeDoneMark = useMemo(
+    () =>
+      isZaicodeProductMode() && zaicodeSaipen
+        ? zaicodeProjectDoneMark({
+            verdict: zaicodeRuntime?.verdict ?? null,
+            board: zaicodeSaipen.counts,
+            parked: zaicodeRuntime?.snapshot.protocol?.parkedWork.length ?? 0,
+            campaigns: zaicodeAuditCampaigns.filter((campaign) => campaign.workspacePath === tab.workspacePath),
+            stateUpdatedAt: Number.isFinite(boardUpdatedAt) ? boardUpdatedAt : 0,
+          })
+        : null,
+    [boardUpdatedAt, tab.workspacePath, zaicodeAuditCampaigns, zaicodeRuntime, zaicodeSaipen],
+  );
+  const openZaicodeAuditsHere = () => {
+    // The audit centre preselects the active project; make this one active first (no new session).
+    activateTab(tab.id);
+    useZaicodeWorkspaceTab.getState().setTab("audits");
+    openZaicodeWorkspaceView();
+  };
   // SRC-043: this row is how CONTINUE ALL and the session ▶ reach this project's own host.
   const zaicodeHasSaipenRef = useRef(false);
   zaicodeHasSaipenRef.current = Boolean(zaicodeSaipen);
@@ -1422,11 +1450,18 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
           OFF
         </span>
       ) : null}
-      {zaicodeAuditProgress ? (
+      {zaicodeAuditProgress && (zaicodeAuditRunning || !zaicodeProjectOff) ? (
+        // SRC-062: a running audit is bright; a merely planned one is quiet (nothing runs until
+        // Start), and on a switched-off project it is not shown at all.
         <span
-          className="border border-[#a06a20] bg-[#2b2111] px-0.5 text-[10px] leading-3 text-[#f0c040]"
-          title={`${zaicodeAuditProgress.campaigns} A3 campaign(s): ${zaicodeAuditProgress.complete}/${zaicodeAuditProgress.total} audit waves complete or reviewed`}
+          className={
+            zaicodeAuditRunning
+              ? "border border-[#a06a20] bg-[#2b2111] px-0.5 text-[10px] leading-3 text-[#f0c040]"
+              : "border border-border px-0.5 text-[10px] leading-3 text-foreground-subtlest"
+          }
+          title={`${zaicodeAuditProgress.campaigns} A3 campaign(s): ${zaicodeAuditProgress.complete}/${zaicodeAuditProgress.total} audit waves complete or reviewed${zaicodeAuditRunning ? " · running now" : " · planned: nothing runs until you press Start in the audit centre"}`}
           data-zaicode-a3-progress={`${zaicodeAuditProgress.complete}/${zaicodeAuditProgress.total}`}
+          data-zaicode-a3-running={zaicodeAuditRunning ? "1" : "0"}
         >
           A3 {zaicodeAuditProgress.complete}/{zaicodeAuditProgress.total}
         </span>
@@ -1506,6 +1541,9 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
       >
         {workspaceSidebarLabel}
       </div>
+      {zaicodeDoneMark && !zaicodeProjectOff ? (
+        <ZaicodeProjectDoneBadge mark={zaicodeDoneMark} onOfferA3={openZaicodeAuditsHere} />
+      ) : null}
       {isZaicodeProductMode() ? (
         <ZaicodeProjectWorkerChips projectPath={tab.workspacePath} />
       ) : null}
@@ -1827,6 +1865,13 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
                               >
                                 <Power className="h-3.5 w-3.5" />
                                 {zaicodeProjectOff ? "Switch project on" : "Switch project off"}
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onSelect={openZaicodeAuditsHere}
+                                title="Opens the audit centre on this project: plan or start an A3 audit wave (nothing runs by itself)"
+                              >
+                                <ListChecks className="h-3.5 w-3.5" />
+                                A3 audit…
                               </DropdownMenuItem>
                               <DropdownMenuSeparator />
                             </>
