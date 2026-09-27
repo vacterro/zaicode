@@ -676,7 +676,7 @@ internal static class ZaicodeSplash
                 // try the next one
             }
         }
-        if (bytes == null) return;
+        // SRC-062: no readable picture is no reason to show nothing: the placeholder emblem stands in.
         var shown = new ManualResetEvent(false);
         var thread = new Thread(() =>
         {
@@ -787,13 +787,25 @@ internal static class ZaicodeSplash
 
     private sealed class SplashForm : Form
     {
+        /// <summary>
+        /// SRC-062: the SAIPEN emblem, 128 x 128, two colours, hard pixel edges. Shown
+        /// centred until the picture is decoded and the window has kept its final size for
+        /// a moment, and for good when the picture is missing or unreadable -- the first
+        /// frame is never a cut-off picture. The same bytes are
+        /// ZAICODE_SPLASH_PLACEHOLDER_PNG_BASE64 in packages/shared/src/zaicode-splash.ts.
+        /// </summary>
+        private const string PlaceholderPng = "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";
+        private const int SettleMilliseconds = 90;
+
         private readonly Image picture;
+        private readonly Image placeholder;
         private readonly string version;
         private readonly string fit;
         private readonly bool statusLine;
-        private readonly int boxWidth;
-        private readonly int boxHeight;
         private readonly Font font = new Font("Verdana", 11f, FontStyle.Regular, GraphicsUnit.Pixel);
+        private readonly System.Windows.Forms.Timer settle = new System.Windows.Forms.Timer();
+        private Size lastSize;
+        private bool revealed;
         private string status = "Starting ZAICODE...";
 
         [DllImport("user32.dll")]
@@ -807,10 +819,11 @@ internal static class ZaicodeSplash
             this.version = string.IsNullOrEmpty(version) ? "ZAICODE" : "ZAICODE " + version;
             this.fit = fit;
             this.statusLine = statusLine;
-            boxWidth = (int)Math.Round(BaseWidth * scale);
-            boxHeight = (int)Math.Round(BaseHeight * scale);
-            // A copy in memory: the stream stays with the image, the file on disk stays free.
-            picture = Image.FromStream(new MemoryStream(png));
+            int boxWidth = (int)Math.Round(BaseWidth * scale);
+            int boxHeight = (int)Math.Round(BaseHeight * scale);
+            // Copies in memory: the stream stays with the image, the file on disk stays free.
+            picture = DecodeOrNull(png);
+            placeholder = DecodeOrNull(Convert.FromBase64String(PlaceholderPng));
             FormBorderStyle = FormBorderStyle.None;
             StartPosition = FormStartPosition.Manual;
             ShowInTaskbar = true;
@@ -827,51 +840,113 @@ internal static class ZaicodeSplash
                 ReleaseCapture();
                 SendMessage(Handle, 0xA1, new IntPtr(2), IntPtr.Zero); // drag by the picture
             };
+            // The picture takes over only after the window kept one size for a moment: a
+            // monitor with another DPI (or the shell) may still resize it right after it shows.
+            settle.Interval = SettleMilliseconds;
+            settle.Tick += (sender, args) =>
+            {
+                if (ClientSize != lastSize)
+                {
+                    lastSize = ClientSize;
+                    return;
+                }
+                settle.Stop();
+                revealed = true;
+                Invalidate();
+            };
+            Shown += (sender, args) =>
+            {
+                lastSize = ClientSize;
+                settle.Start();
+            };
+        }
+
+        private static Image DecodeOrNull(byte[] bytes)
+        {
+            if (bytes == null || bytes.Length == 0) return null;
+            try
+            {
+                return Image.FromStream(new MemoryStream(bytes));
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public void SetStatus(string text)
         {
             status = text;
-            Invalidate(new Rectangle(8, boxHeight - 30, boxWidth - 16, 22));
+            Invalidate(new Rectangle(8, ClientSize.Height - 30, ClientSize.Width - 16, 22));
+        }
+
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+            Invalidate();
         }
 
         /// <summary>
-        /// Where the picture lands in the box; the same rule as zaicodeSplashPictureRect
-        /// in packages/shared/src/zaicode-splash.ts. SRC-060: DrawImageUnscaled drew the
-        /// picture at its own size (and its own DPI), so a larger or 72-dpi picture was
-        /// cut off at the right and bottom.
+        /// Where an image lands in the window; the same rule as zaicodeSplashPictureRect
+        /// in packages/shared/src/zaicode-splash.ts. It measures the window as it is now
+        /// (SRC-062): the box it was asked for can differ once Windows scales the window
+        /// for a monitor, and a picture laid out for the old box was cut off at the right.
+        /// SRC-060: DrawImageUnscaled drew the picture at its own size and DPI.
         /// </summary>
-        private Rectangle PictureRect()
+        private Rectangle PictureRect(Image image, string mode)
         {
-            if (fit == "stretch" || picture.Width <= 0 || picture.Height <= 0)
+            Size box = ClientSize;
+            if (mode == "stretch" || image.Width <= 0 || image.Height <= 0)
             {
-                return new Rectangle(0, 0, boxWidth, boxHeight);
+                return new Rectangle(0, 0, box.Width, box.Height);
             }
-            double scaleX = (double)boxWidth / picture.Width;
-            double scaleY = (double)boxHeight / picture.Height;
-            double factor = fit == "cover" ? Math.Max(scaleX, scaleY) : Math.Min(scaleX, scaleY);
-            int width = (int)Math.Round(picture.Width * factor);
-            int height = (int)Math.Round(picture.Height * factor);
-            return new Rectangle((int)Math.Round((boxWidth - width) / 2.0), (int)Math.Round((boxHeight - height) / 2.0), width, height);
+            double scaleX = (double)box.Width / image.Width;
+            double scaleY = (double)box.Height / image.Height;
+            double factor = mode == "cover" ? Math.Max(scaleX, scaleY) : Math.Min(scaleX, scaleY);
+            int width = (int)Math.Round(image.Width * factor);
+            int height = (int)Math.Round(image.Height * factor);
+            return new Rectangle((int)Math.Round((box.Width - width) / 2.0), (int)Math.Round((box.Height - height) / 2.0), width, height);
+        }
+
+        /// <summary>The emblem at its own size (or a whole multiple), centred a little above the status line.</summary>
+        private Rectangle PlaceholderRect()
+        {
+            Size box = ClientSize;
+            int room = Math.Max(1, Math.Min(box.Width, box.Height - 40));
+            int factor = Math.Max(1, Math.Min(room / placeholder.Width, 3));
+            int size = placeholder.Width * factor;
+            if (size > room) size = room;
+            return new Rectangle((box.Width - size) / 2, Math.Max(0, (box.Height - 16 - size) / 2), size, size);
         }
 
         protected override void OnPaint(PaintEventArgs e)
         {
-            Rectangle target = PictureRect();
-            // Whole-number scaling keeps pixel art crisp; any other factor is smoothed.
-            bool whole = target.Width % picture.Width == 0 && target.Height % picture.Height == 0;
-            e.Graphics.InterpolationMode = whole ? InterpolationMode.NearestNeighbor : InterpolationMode.HighQualityBicubic;
-            e.Graphics.PixelOffsetMode = PixelOffsetMode.Half;
-            e.Graphics.DrawImage(picture, target);
+            Size box = ClientSize;
+            bool showPicture = revealed && picture != null;
+            if (showPicture)
+            {
+                Rectangle target = PictureRect(picture, fit);
+                // Whole-number scaling keeps pixel art crisp; any other factor is smoothed.
+                bool whole = target.Width % picture.Width == 0 && target.Height % picture.Height == 0;
+                e.Graphics.InterpolationMode = whole ? InterpolationMode.NearestNeighbor : InterpolationMode.HighQualityBicubic;
+                e.Graphics.PixelOffsetMode = PixelOffsetMode.Half;
+                e.Graphics.DrawImage(picture, target);
+            }
+            else if (placeholder != null)
+            {
+                e.Graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
+                e.Graphics.PixelOffsetMode = PixelOffsetMode.Half;
+                e.Graphics.DrawImage(placeholder, PlaceholderRect());
+            }
             if (!statusLine) return;
             // Pixel text, no smoothing (saipen UI iron law 1).
             e.Graphics.TextRenderingHint = TextRenderingHint.SingleBitPerPixelGridFit;
             using (var text = new SolidBrush(Color.FromArgb(0xD4, 0xC8, 0x9A)))
             using (var dim = new SolidBrush(Color.FromArgb(0x9C, 0x93, 0x71)))
             {
-                e.Graphics.DrawString(status, font, text, 14, boxHeight - 27);
+                e.Graphics.DrawString(status, font, text, 14, box.Height - 27);
                 SizeF size = e.Graphics.MeasureString(version, font);
-                e.Graphics.DrawString(version, font, dim, boxWidth - 14 - size.Width, boxHeight - 27);
+                e.Graphics.DrawString(version, font, dim, box.Width - 14 - size.Width, box.Height - 27);
             }
         }
 
@@ -879,7 +954,9 @@ internal static class ZaicodeSplash
         {
             if (disposing)
             {
-                picture.Dispose();
+                if (picture != null) picture.Dispose();
+                if (placeholder != null) placeholder.Dispose();
+                settle.Dispose();
                 font.Dispose();
             }
             base.Dispose(disposing);
