@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -605,8 +606,8 @@ internal static class ZaicodeLauncher
 /// </summary>
 internal static class ZaicodeSplash
 {
-    private const int Width = 560;
-    private const int Height = 300;
+    private const int BaseWidth = 560;
+    private const int BaseHeight = 300;
     private const int MaxMilliseconds = 120000;
     private static volatile SplashForm form;
 
@@ -622,15 +623,24 @@ internal static class ZaicodeSplash
         if (Environment.GetEnvironmentVariable("ZAICODE_NO_SPLASH") == "1") return;
         // SRC-049: the operator owns the splash from Settings -> ZAICODE -> Start-up:
         // off entirely, or a custom picture stored beside zaicode-launcher.json.
+        // SRC-060: also how the picture fills the box, the box size and the status line
+        // (the same flat keys packages/desktop/src/main/zaicodeLauncherPreferences.ts writes).
+        string fit = "contain";
+        double scale = 1;
+        bool statusLine = true;
         try
         {
             string preferencesPath = Path.Combine(settingsDirectory, "zaicode-launcher.json");
-            if (File.Exists(preferencesPath) &&
-                System.Text.RegularExpressions.Regex.IsMatch(
-                    File.ReadAllText(preferencesPath), "\"splashEnabled\"\\s*:\\s*false"))
+            string json = File.Exists(preferencesPath) ? File.ReadAllText(preferencesPath) : "";
+            if (System.Text.RegularExpressions.Regex.IsMatch(json, "\"splashEnabled\"\\s*:\\s*false"))
             {
                 return;
             }
+            var fitMatch = System.Text.RegularExpressions.Regex.Match(json, "\"splashFit\"\\s*:\\s*\"(contain|cover|stretch)\"");
+            if (fitMatch.Success) fit = fitMatch.Groups[1].Value;
+            var scaleMatch = System.Text.RegularExpressions.Regex.Match(json, "\"splashScale\"\\s*:\\s*(1\\.5|2|1)\\b");
+            if (scaleMatch.Success) scale = scaleMatch.Groups[1].Value == "2" ? 2 : scaleMatch.Groups[1].Value == "1.5" ? 1.5 : 1;
+            statusLine = !System.Text.RegularExpressions.Regex.IsMatch(json, "\"splashStatus\"\\s*:\\s*false");
         }
         catch
         {
@@ -672,7 +682,7 @@ internal static class ZaicodeSplash
         {
             try
             {
-                var splash = new SplashForm(bytes, version);
+                var splash = new SplashForm(bytes, version, fit, scale, statusLine);
                 splash.Shown += (sender, args) => shown.Set();
                 form = splash;
                 Application.Run(splash);
@@ -779,6 +789,10 @@ internal static class ZaicodeSplash
     {
         private readonly Image picture;
         private readonly string version;
+        private readonly string fit;
+        private readonly bool statusLine;
+        private readonly int boxWidth;
+        private readonly int boxHeight;
         private readonly Font font = new Font("Verdana", 11f, FontStyle.Regular, GraphicsUnit.Pixel);
         private string status = "Starting ZAICODE...";
 
@@ -788,9 +802,13 @@ internal static class ZaicodeSplash
         [DllImport("user32.dll")]
         private static extern IntPtr SendMessage(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam);
 
-        public SplashForm(byte[] png, string version)
+        public SplashForm(byte[] png, string version, string fit, double scale, bool statusLine)
         {
             this.version = string.IsNullOrEmpty(version) ? "ZAICODE" : "ZAICODE " + version;
+            this.fit = fit;
+            this.statusLine = statusLine;
+            boxWidth = (int)Math.Round(BaseWidth * scale);
+            boxHeight = (int)Math.Round(BaseHeight * scale);
             // A copy in memory: the stream stays with the image, the file on disk stays free.
             picture = Image.FromStream(new MemoryStream(png));
             FormBorderStyle = FormBorderStyle.None;
@@ -799,9 +817,9 @@ internal static class ZaicodeSplash
             Text = "ZAICODE";
             BackColor = Color.FromArgb(0x1A, 0x18, 0x10);
             DoubleBuffered = true;
-            ClientSize = new Size(Width, Height);
+            ClientSize = new Size(boxWidth, boxHeight);
             Rectangle area = Screen.PrimaryScreen.WorkingArea;
-            Location = new Point(area.X + (area.Width - Width) / 2, area.Y + (area.Height - Height) / 2);
+            Location = new Point(area.X + (area.Width - boxWidth) / 2, area.Y + (area.Height - boxHeight) / 2);
             try { Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath); } catch { /* default icon */ }
             MouseDown += (sender, args) =>
             {
@@ -814,20 +832,46 @@ internal static class ZaicodeSplash
         public void SetStatus(string text)
         {
             status = text;
-            Invalidate(new Rectangle(8, Height - 30, Width - 16, 22));
+            Invalidate(new Rectangle(8, boxHeight - 30, boxWidth - 16, 22));
+        }
+
+        /// <summary>
+        /// Where the picture lands in the box; the same rule as zaicodeSplashPictureRect
+        /// in packages/shared/src/zaicode-splash.ts. SRC-060: DrawImageUnscaled drew the
+        /// picture at its own size (and its own DPI), so a larger or 72-dpi picture was
+        /// cut off at the right and bottom.
+        /// </summary>
+        private Rectangle PictureRect()
+        {
+            if (fit == "stretch" || picture.Width <= 0 || picture.Height <= 0)
+            {
+                return new Rectangle(0, 0, boxWidth, boxHeight);
+            }
+            double scaleX = (double)boxWidth / picture.Width;
+            double scaleY = (double)boxHeight / picture.Height;
+            double factor = fit == "cover" ? Math.Max(scaleX, scaleY) : Math.Min(scaleX, scaleY);
+            int width = (int)Math.Round(picture.Width * factor);
+            int height = (int)Math.Round(picture.Height * factor);
+            return new Rectangle((int)Math.Round((boxWidth - width) / 2.0), (int)Math.Round((boxHeight - height) / 2.0), width, height);
         }
 
         protected override void OnPaint(PaintEventArgs e)
         {
-            e.Graphics.DrawImageUnscaled(picture, 0, 0);
+            Rectangle target = PictureRect();
+            // Whole-number scaling keeps pixel art crisp; any other factor is smoothed.
+            bool whole = target.Width % picture.Width == 0 && target.Height % picture.Height == 0;
+            e.Graphics.InterpolationMode = whole ? InterpolationMode.NearestNeighbor : InterpolationMode.HighQualityBicubic;
+            e.Graphics.PixelOffsetMode = PixelOffsetMode.Half;
+            e.Graphics.DrawImage(picture, target);
+            if (!statusLine) return;
             // Pixel text, no smoothing (saipen UI iron law 1).
             e.Graphics.TextRenderingHint = TextRenderingHint.SingleBitPerPixelGridFit;
             using (var text = new SolidBrush(Color.FromArgb(0xD4, 0xC8, 0x9A)))
             using (var dim = new SolidBrush(Color.FromArgb(0x9C, 0x93, 0x71)))
             {
-                e.Graphics.DrawString(status, font, text, 14, Height - 27);
+                e.Graphics.DrawString(status, font, text, 14, boxHeight - 27);
                 SizeF size = e.Graphics.MeasureString(version, font);
-                e.Graphics.DrawString(version, font, dim, Width - 14 - size.Width, Height - 27);
+                e.Graphics.DrawString(version, font, dim, boxWidth - 14 - size.Width, boxHeight - 27);
             }
         }
 

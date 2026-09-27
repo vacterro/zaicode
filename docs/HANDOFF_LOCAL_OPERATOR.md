@@ -136,6 +136,7 @@ on T-89). A step that was not done is not a PASS.
 |---|---|---|
 | **T-84** Solo reasoning default | this machine | The fix exists only in your `zcode` working tree. Its debt baseline (DEBT-000079) is bound to this machine's path, so the cloud cannot re-enter BUILD for it. Next: publish the T-84 delta, run `pnpm run verify:pre-push`, then drive packaged Solo -> queue -> manual Run and read the terminal job's `actualModelSelection`. |
 | **T-89** remaining polish audit (25 repeats) | a cloud session | Its debt baseline was captured in the cloud, so this machine would get `DEBT_SNAPSHOT_FOREIGN_PROJECT` on BUILD entry. The coverage map is `.saipen/evidence/T-89-polish-audit.md`. |
+| **T-91** HELP wiki, splash, LIVE, sounds, RPG changes, audits | a cloud session | Operator choice, 2026-09-27: the cloud owns T-91. This machine does not write `.saipen/` or `zcode/` while it runs; it tests what the watcher brings and answers PASS or FAIL. Two writers on one SAIPEN workspace collide on event ids (the divergence of 2026-09-27, cloud side kept on `saipen-live-cloud-f4027ee`). |
 | **New item #1**, the Claude Code reset system | needs you first | Send the text of the new Claude Code `/usage` output. The screenshot `clipboard_20260927_075217` is on `V:` and the cloud cannot see it. LIMISAW and FastPrompter live only on this machine. |
 
 ## 7. Rules that keep the bridge from breaking
