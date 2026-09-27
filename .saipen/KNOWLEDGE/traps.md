@@ -229,3 +229,35 @@ outer repo therefore carries **no product byte**: T-84's
 concludes "tree clean, safe to sync" while the product delta is still local
 only. Treat `git -C zcode status` as a separate, explicit check; it is a
 local-only gate the cloud cannot see.
+
+## PowerShell unrolls a returned array, and StrictMode then eats it (2026-09-27, T-85)
+
+A function that does `return @()` hands the caller `$null`, and
+`return @('one')` hands it a bare `String`. Both break the caller:
+`if ($null -eq $result)` reports a clean result as a failure, and
+`$result.Count` throws `PropertyNotFoundStrict` on the string because a
+`String` has `.Length`, not `.Count`.
+
+This is what made the first transport watcher inert: `Get-DirtyPaths`
+returned `@()` for a clean tree, the caller read `$null` as "git status
+failed", paused on every tick, and never fetched anything at all. With one
+dirty file it returned a single string instead and the pass threw.
+
+Return a record with an explicit flag (`[pscustomobject]@{ Ok = $true;
+Paths = @(...) }`), or wrap the call site in `@()`. Never return a bare
+collection and read `.Count` off it.
+
+Related, same script family: `"-File", "`"$path`""` parses on PowerShell 7
+and fails the Windows PowerShell 5.1 parser in an array element. Build those
+argument lists with `('"{0}"' -f $path)` instead — it is the same output and
+it does not depend on backtick counting.
+
+## A script's default parameter cannot assume where its copy will live (2026-09-27, T-85)
+
+`ZaicodeSaipenLiveWatcher.ps1` defaulted `-Repo` to two levels above
+`$PSScriptRoot`, which is correct for the repo copy under `tools/` and wrong
+for the installed copy under `%APPDATA%\SAIPEN` — it resolved to
+`C:\Users\<name>\AppData` and reported "not inside a Git work tree". A
+default derived from the script's own location is only valid if exactly one
+location is ever allowed to hold the script. `-Repo` is mandatory here
+instead; the installer and the Startup entry always pass it.

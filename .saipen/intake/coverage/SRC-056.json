@@ -1,4 +1,14 @@
 {
-  "requirements": {},
+  "requirements": {
+    "SRC-056:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "T-85 closed with verification evidence in LOG: verify -> PASS [target: T-85] conf: high -- tools\\saipen-cloud\\Test-SaipenLiveSync.ps1 reports 22 checks, 0 failures: an independent clone of origin/saipen-live pushed probe 5e0b492 with no force and the installed watcher (pid 23800) fast-forwarded the live checkout e04b94a -> 5e0b492 unaided with the tree still clean, and a second fresh clone at that tip carries CLAUDE.md, .claude/skills/saipen/S",
+      "text": "Complete LOCAL->GITHUB->CLAUDE CLOUD->LOCAL SAIPEN transport end-to-end",
+      "verification": "the Work this request created reached its own verification gate; see the T-85 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-85"
+    }
+  },
   "schema_version": 1
 }

@@ -27,7 +27,7 @@
      write that field name next to a concrete id anywhere in this file. -->
 
 ## DOING
-- [/] T-85 [P1] Complete LOCAL->GITHUB->CLAUDE CLOUD->LOCAL SAIPEN transport end-to-end | verify: the requested change is present and demonstrated against the user own description of it | user_explicit: true | source_receipts: SRC-056 | owner: claude-code | claim_time: 2026-09-27T05:29:47Z
+- [/] T-85 [P1] Complete LOCAL->GITHUB->CLAUDE CLOUD->LOCAL SAIPEN transport end-to-end | verify: the requested change is present and demonstrated against the user own description of it | user_explicit: true | source_receipts: SRC-056 | owner: claude-code | claim_time: 2026-09-27T05:36:55Z
 
 ## TODO
 
@@ -54,5 +54,5 @@
 - [x] T-49 [P1] • Ну и про 33 языков тоже не забывать. Это задача для пула SAIFREN тогда под конец. | verify: the requested change is present and demonstrated against the user own description of it | user_explicit: true | source_receipts: SRC-038 | owner: claude-code | claim_time: 2026-09-25T07:22:50Z | closure_mode: own_patch
 
 ## BLOCKED
-- [ ] T-84 [P1] Solo preset SAIFREN dispatch fails because a required reasoning level is absent; choose a supported default in the job executor and prove the queued task reaches the real runtime | verify: isolated packaged Electron flow creates Solo agent, queues and manually dispatches a task through SAIFREN, then observes a terminal job with resolved model; focused executor regression passes | owner: claude-code | claim_time: 2026-09-27T05:00:23Z | blocker: ACTIVE_DEPENDENCY:T-85 -- PAUSED by user request SRC-056: explicit new task T-85 takes the seat; resumes at VERIFY when T-85 closes | blocker_scope: ticket | needs: T-85 | blocked_on: T-85 | resume_phase: VERIFY | resume_transition_from: BUILD
+- [ ] T-84 [P1] Solo preset SAIFREN dispatch fails because a required reasoning level is absent; choose a supported default in the job executor and prove the queued task reaches the real runtime | verify: isolated packaged Electron flow creates Solo agent, queues and manually dispatches a task through SAIFREN, then observes a terminal job with resolved model; focused executor regression passes | owner: claude-code | claim_time: 2026-09-27T05:36:27Z | blocker: SEAT_YIELD: T-85 is verified and only needs its finish record; releasing the DOING seat for one command, then resuming T-84 at VERIFY | blocker_scope: ticket
 - [ ] T-9 [P3] ZAICODE interactive desktop E2E: click-through of workspace roster/queue/inspector and queue execution through the real runtime | verify: an automated or operator-run E2E scenario creates an agent, queues a task, dispatches it, and observes a terminal job state | blocker: OPERATOR_REQUIRED: interactive desktop E2E (agent create -> queue -> dispatch -> terminal state via real runtime) needs a configured provider and human-run desktop session; agent environment has no headless UI automation (playwright/browser automation banned by tooling hygiene, Electron runs leave long-lived processes); manual-verify steps are documented in docs/ZAICODE_ACCOUNT_INDEPENDENCE_VALIDATION.md; service-level path already covered by 10/10 unit tests | blocker_scope: ticket
