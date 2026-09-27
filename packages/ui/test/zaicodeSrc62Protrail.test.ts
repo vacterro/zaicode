@@ -7,6 +7,7 @@ import { protrailDefaults } from "../src/zaicode/protrail/protrailModel.js";
 import { normalizeProtrailConfig } from "../src/zaicode/protrail/protrailNormalize.js";
 import { buildTrailFrame } from "../src/zaicode/protrail/protrailTrailGeometry.js";
 import { alphaFor, applyFadeCurve, widthAt } from "../src/zaicode/protrail/protrailTrailMath.js";
+import { ProtrailRuntime } from "../src/zaicode/protrail/protrailRuntime.js";
 
 // SRC-062: "copy the ProTrail mechanism fully (vacterro/protrail) into ZAICODE,
 // with its settings as a separate section ... it must work fully, not only
@@ -128,4 +129,39 @@ test("the overlay clock keeps the source's spacing and never lands in the future
   // The helper restarted: its clock begins again near 0.
   clock.observe(3, 9000);
   assert.equal(clock.map(3, 9000), 9000);
+});
+
+test("one failing frame does not silence ProTrail until a reload; non-finite input is ignored", () => {
+  const frames: (() => void)[] = [];
+  const g = globalThis as unknown as { requestAnimationFrame: unknown; cancelAnimationFrame: unknown };
+  const saved = [g.requestAnimationFrame, g.cancelAnimationFrame];
+  g.requestAnimationFrame = (cb: () => void) => frames.push(cb);
+  g.cancelAnimationFrame = () => undefined;
+  let failNext = true;
+  const noop = () => undefined;
+  const ctx = new Proxy({} as Record<string, unknown>, {
+    get: (_t, key) => (key === "stroke" ? () => { if (failNext) { failNext = false; throw new Error("boom"); } } : noop),
+    set: () => true,
+  });
+  const canvas = { width: 0, height: 0, style: {}, getContext: () => ctx } as unknown as HTMLCanvasElement;
+  const runtime = new ProtrailRuntime(canvas, () => ({ width: 100, height: 100, dpr: 1 }));
+  const original = console.error;
+  console.error = noop;
+  try {
+    runtime.setConfig(protrailDefaults());
+    const t = performance.now();
+    runtime.move(10, 10, t - 30);
+    runtime.move(40, 20, t - 15);
+    runtime.move(70, 40, t);
+    assert.equal(frames.length, 1, "the loop started");
+    frames.shift()!(); // the frame throws inside a stroke
+    runtime.move(80, 50, performance.now());
+    assert.equal(frames.length, 1, "the next move starts the loop again");
+    runtime.move(Number.NaN, 5, performance.now());
+    runtime.down(0, Number.POSITIVE_INFINITY, 5, performance.now());
+    frames.shift()!();
+  } finally {
+    console.error = original;
+    [g.requestAnimationFrame, g.cancelAnimationFrame] = saved;
+  }
 });

@@ -38,6 +38,13 @@ function ZaicodeSaipeggleView({ initial, onExit }: { initial: SaipeggleScreen; o
   const adventureIndex = "index" in selection ? selection.index : null;
 
   useEffect(() => setScreen(initial), [initial]);
+  // The game takes the keyboard: a text field under it must not receive A / D or letters.
+  useEffect(() => {
+    const active = document.activeElement;
+    if (active instanceof HTMLElement && !root.current?.contains(active)) active.blur();
+    // The play field focuses itself first (child effects run first); keep that.
+    if (!root.current?.contains(document.activeElement)) root.current?.focus({ preventScroll: true });
+  }, []);
 
   const play = useCallback(
     (choice: Selection) => {
@@ -82,7 +89,8 @@ function ZaicodeSaipeggleView({ initial, onExit }: { initial: SaipeggleScreen; o
   return (
     <div
       ref={root}
-      className="fixed inset-0 z-[10000] flex flex-col bg-background text-foreground"
+      tabIndex={-1}
+      className="fixed inset-0 z-[10000] flex flex-col bg-background text-foreground outline-none"
       role="dialog"
       aria-modal="true"
       aria-label="SAIPEGGLE"

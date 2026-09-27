@@ -7,6 +7,8 @@ import {
   type ZaicodeSplashFit,
   type ZaicodeSplashOptions,
   type ZaicodeSplashScale,
+  normalizeZaicodeScreenMode,
+  type ZaicodeScreenMode,
 } from "@zcode/shared";
 
 const FILE_NAME = "zaicode-launcher.json";
@@ -16,8 +18,13 @@ export interface ZaicodeLauncherPreferences {
   autoRestartOnCrash: boolean;
   /** SAIMAIL mailbox root for this machine's operator seat; null = not configured. */
   saimailWorkspace: string | null;
-  /** Pixel-exact rendering: 100% device scale + bitmap fonts, no subpixel glyph positions. */
+  /** Legacy on/off of pixel-exact rendering; kept in step with `screen` for older readers. */
   pixelExact: boolean;
+  /**
+   * SRC-062: auto (pixel-exact below 150 % Windows scaling, smooth from 150 % up),
+   * pixel, or smooth. Pixel-exact = 100% device scale + bitmap fonts.
+   */
+  screen: ZaicodeScreenMode;
   /** Start-up splash picture (SRC-049): off = nothing shows until the interface is ready. */
   splashEnabled: boolean;
   /** A custom splash picture is installed in userData (`zaicode-splash/`). */
@@ -37,6 +44,7 @@ const DEFAULT_PREFERENCES: ZaicodeLauncherPreferences = {
   autoRestartOnCrash: true,
   saimailWorkspace: null,
   pixelExact: true,
+  screen: "auto",
   splashEnabled: true,
   splashCustom: false,
   splashFit: DEFAULT_ZAICODE_SPLASH_OPTIONS.fit,
@@ -96,6 +104,7 @@ export function readZaicodeLauncherPreferences(): ZaicodeLauncherPreferences {
         saimailWorkspace: normalizeWorkspace(record.saimailWorkspace),
         pixelExact:
           typeof record.pixelExact === "boolean" ? record.pixelExact : DEFAULT_PREFERENCES.pixelExact,
+        screen: normalizeZaicodeScreenMode(record.screen, record.pixelExact),
         splashEnabled:
           typeof record.splashEnabled === "boolean" ? record.splashEnabled : DEFAULT_PREFERENCES.splashEnabled,
         splashCustom:
@@ -133,8 +142,10 @@ export function setZaicodeAutoRestartOnCrash(enabled: boolean): ZaicodeLauncherP
   return writeZaicodeLauncherPreferences({ autoRestartOnCrash: enabled });
 }
 
-export function setZaicodePixelExact(enabled: boolean): ZaicodeLauncherPreferences {
-  return writeZaicodeLauncherPreferences({ pixelExact: enabled });
+/** A screen mode, or the older on/off (true = pixel, false = smooth). Applies on the next start. */
+export function setZaicodePixelExact(mode: boolean | ZaicodeScreenMode): ZaicodeLauncherPreferences {
+  const screen: ZaicodeScreenMode = typeof mode === "boolean" ? (mode ? "pixel" : "smooth") : mode;
+  return writeZaicodeLauncherPreferences({ screen, pixelExact: screen !== "smooth" });
 }
 
 export function setZaicodeSplashEnabled(enabled: boolean): ZaicodeLauncherPreferences {

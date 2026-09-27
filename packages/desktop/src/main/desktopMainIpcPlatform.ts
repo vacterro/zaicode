@@ -20,6 +20,8 @@ import {
   type CreateTempTextAttachmentRequest,
   type UpdateStatePayload,
   type WindowControlsOverlayReadyPayload,
+  ZAICODE_SCREEN_MODES,
+  type ZaicodeScreenMode,
 } from "@zcode/shared";
 import { getInstalledEditors } from "./editors.js";
 import type { ZaicodeRouterCall } from "@zcode/shared";
@@ -96,6 +98,7 @@ import { writeZaicodePromptFile } from "./zaicodePromptFiles.js";
 import { saveZaicodeSettingsSnapshot } from "./zaicodeSettingsSnapshot.js";
 import { setZaicodeGlobalHotkeys } from "./zaicodeGlobalHotkeys.js";
 import { registerZaicodeProtrailGlobalIpc } from "./zaicodeProtrailGlobal.js";
+import { zaicodePixelExactApplied } from "./zaicodeCrispFonts.js";
 
 export function registerPlatformIpcHandlers(options: {
   fetchHelpConfig?: () => Promise<unknown>;
@@ -410,11 +413,15 @@ export function registerPlatformIpcHandlers(options: {
     return setZaicodeSaimailWorkspace(workspace);
   });
   ipcMain.handle(PlatformChannels.GetZaicodePixelExact, () => ({
-    pixelExact: readZaicodeLauncherPreferences().pixelExact,
+    pixelExact: zaicodePixelExactApplied(),
+    screen: readZaicodeLauncherPreferences().screen,
   }));
-  ipcMain.handle(PlatformChannels.SetZaicodePixelExact, (_event, enabled: unknown) => {
-    if (typeof enabled !== "boolean") throw new TypeError("Expected boolean pixel-exact preference");
-    return { pixelExact: setZaicodePixelExact(enabled).pixelExact };
+  ipcMain.handle(PlatformChannels.SetZaicodePixelExact, (_event, mode: unknown) => {
+    if (typeof mode !== "boolean" && !ZAICODE_SCREEN_MODES.includes(mode as ZaicodeScreenMode)) {
+      throw new TypeError("Expected a screen mode (auto / pixel / smooth) or a boolean");
+    }
+    const next = setZaicodePixelExact(mode as boolean | ZaicodeScreenMode);
+    return { pixelExact: zaicodePixelExactApplied(), screen: next.screen };
   });
   ipcMain.handle(PlatformChannels.GetZaicodeSplashPrefs, () => readZaicodeSplashPrefs());
   ipcMain.handle(PlatformChannels.ZaicodeQuitApp, () => {

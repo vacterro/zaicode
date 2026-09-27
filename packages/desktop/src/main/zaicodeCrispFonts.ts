@@ -2,6 +2,7 @@ import { app } from "electron";
 import { spawnSync } from "node:child_process";
 import { copyFileSync, existsSync, mkdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { zaicodePixelLook, type ZaicodeScreenMode } from "@zcode/shared";
 
 /**
  * ZAICODE pixel-exact text.
@@ -115,6 +116,42 @@ export function ensureZaicodeCrispFonts(): ZaicodeCrispFontsResult {
  * - force-device-scale-factor=1: 100% everywhere, glyphs hit their bitmap strikes.
  * - disable-font-subpixel-positioning: glyphs on whole pixels, no fractional smear.
  */
+let appliedPixelExact = false;
+
+/** The scale factor of the primary monitor as Windows applies it (AppliedDPI / 96); 1 when unknown. */
+export function windowsPrimaryScale(): number {
+  if (process.platform !== "win32") return 1;
+  for (const [key, value] of [
+    ["HKCU\\Control Panel\\Desktop\\WindowMetrics", "AppliedDPI"],
+    ["HKCU\\Control Panel\\Desktop", "LogPixels"],
+  ] as const) {
+    const result = spawnSync(regExe(), ["query", key, "/v", value], { encoding: "utf8", windowsHide: true });
+    const match = typeof result.stdout === "string" ? /REG_DWORD\s+0x([0-9a-f]+)/i.exec(result.stdout) : null;
+    const dpi = match ? parseInt(match[1]!, 16) : Number.NaN;
+    if (dpi >= 72 && dpi <= 480) return dpi / 96;
+  }
+  return 1;
+}
+
+/**
+ * SRC-062: whether this start runs pixel-exact. Decided before the app is
+ * ready (the device scale switch must be set then), so auto reads the
+ * primary monitor's Windows scaling from the registry: a 2K-4K monitor at
+ * 150 % and up keeps its scaling (pixel-exact would halve the interface).
+ */
+export function zaicodePixelExactAtStart(preferences: { screen: ZaicodeScreenMode }): boolean {
+  appliedPixelExact =
+    process.platform === "win32"
+      ? zaicodePixelLook(preferences.screen, windowsPrimaryScale())
+      : preferences.screen !== "smooth";
+  return appliedPixelExact;
+}
+
+/** What this start applied (Settings shows it; a change applies on the next start). */
+export function zaicodePixelExactApplied(): boolean {
+  return appliedPixelExact;
+}
+
 export function applyZaicodePixelExactSwitches(): void {
   app.commandLine.appendSwitch("force-device-scale-factor", "1");
   app.commandLine.appendSwitch("disable-font-subpixel-positioning");

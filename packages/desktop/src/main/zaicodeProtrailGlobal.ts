@@ -19,9 +19,9 @@ import {
  * ProTrail over the whole desktop (SRC-062), the way ProTrail itself works:
  * one click-through overlay per monitor, always on top, never focused, never
  * in the taskbar or Alt+Tab, and a system-wide mouse source. The ZAICODE
- * window owns the mode: it sends the config (or null) and the overlays live
- * as long as that window does, so closing ZAICODE never leaves a trail
- * behind and "all windows closed" still quits the app.
+ * windows own the mode: each sends its config (or null), and the overlays
+ * live while any window still wants them, so closing ZAICODE never leaves a
+ * trail behind and "all windows closed" still quits the app.
  */
 
 const FLUSH_MS = 4;
@@ -31,9 +31,18 @@ const MAX_BATCH = ZAICODE_PROTRAIL_EVENT_STRIDE * 4096;
 const overlays = new Map<number, BrowserWindow>();
 const overlayWindows = new WeakSet<BrowserWindow>();
 const overlayBounds = new WeakMap<BrowserWindow, Rectangle>();
-let owner: WebContents | null = null;
+/**
+ * Every ZAICODE window that wants the desktop-wide mode, with its config, most
+ * recent last. Several main windows each run the ZAICODE runtime; the overlays
+ * stay while any of them wants them and follow the latest config. (A single
+ * "owner" let the closing of one window switch ProTrail off for all.)
+ */
+const wanted = new Map<WebContents, unknown>();
+const watched = new WeakSet<WebContents>();
 let config: unknown = null;
 let input: ZaicodeProtrailInput | null = null;
+/** The Raw Input reader between its start and its "ready" (the cursor poll runs meanwhile). */
+let pending: ZaicodeProtrailInput | null = null;
 /** Bumps on every start and stop, so a late compile or restart of an older run is ignored. */
 let generation = 0;
 let restarts = 0;
@@ -53,21 +62,32 @@ export function registerZaicodeProtrailGlobalIpc(): void {
   app.on("will-quit", stop);
 }
 
-function setGlobal(sender: WebContents, next: unknown): ZaicodeProtrailGlobalStatus {
-  if (!next || typeof next !== "object") {
-    if (!owner || owner === sender) stop();
+function apply(): ZaicodeProtrailGlobalStatus {
+  let next: unknown = null;
+  for (const value of wanted.values()) next = value;
+  if (next === null) {
+    stop();
     return { ...status };
-  }
-  if (owner !== sender) {
-    owner = sender;
-    sender.once("destroyed", () => {
-      if (owner === sender) stop();
-    });
   }
   config = next;
   if (status.state === "off") start();
   else broadcast({ config });
   return { ...status };
+}
+
+function setGlobal(sender: WebContents, next: unknown): ZaicodeProtrailGlobalStatus {
+  wanted.delete(sender);
+  if (next && typeof next === "object") {
+    wanted.set(sender, next);
+    if (!watched.has(sender)) {
+      watched.add(sender);
+      sender.once("destroyed", () => {
+        wanted.delete(sender);
+        apply();
+      });
+    }
+  }
+  return apply();
 }
 
 function setStatus(patch: Partial<ZaicodeProtrailGlobalStatus>): void {
@@ -85,6 +105,8 @@ function start(): void {
 
 function stop(): void {
   generation += 1;
+  pending?.stop();
+  pending = null;
   input?.stop();
   input = null;
   if (flushTimer) clearTimeout(flushTimer);
@@ -93,7 +115,6 @@ function stop(): void {
   hookScreen(false);
   for (const win of overlays.values()) if (!win.isDestroyed()) win.destroy();
   overlays.clear();
-  owner = null;
   config = null;
   status = { ...ZAICODE_PROTRAIL_GLOBAL_OFF };
 }
@@ -103,42 +124,55 @@ function startInput(run: number): void {
     useCursorPoll("Clicks are read only on Windows (Raw Input); here the trail follows the cursor.");
     return;
   }
+  // The trail follows the cursor at once; clicks join when the Raw Input reader
+  // reports ready (its first start compiles it, which takes a moment).
+  if (!input) useCursorPoll("Starting the click reader…", "starting");
   ensureZaicodeProtrailInputHelper().then(
     (exe) => {
-      if (run !== generation || input) return;
+      if (run !== generation || pending || input?.kind === "raw-input") return;
       const helper = startZaicodeProtrailRawInput(exe, {
-        onEvent: (event) => push(event, true),
+        onEvent: (event) => {
+          if (input === helper) push(event, true);
+        },
         onReady: () => {
-          if (run === generation && input === helper) setStatus({ state: "running", input: "raw-input", note: null });
+          if (run !== generation || pending !== helper) return;
+          pending = null;
+          input?.stop();
+          input = helper;
+          setStatus({ state: "running", input: "raw-input", note: null });
         },
         onFailure: (reason) => {
-          if (run !== generation || input !== helper) return;
+          if (run !== generation) return;
+          if (pending === helper) pending = null;
+          if (input === helper) input = null;
           helper.stop();
-          input = null;
           restarts += 1;
           if (restarts > MAX_HELPER_RESTARTS) {
             useCursorPoll(`Clicks are not seen: ${reason}. The trail follows the cursor.`);
             return;
           }
-          setStatus({ state: "starting", note: `Restarting the input helper: ${reason}` });
+          if (!input) useCursorPoll("Restarting the click reader…", "starting");
+          setStatus({ state: "starting", note: `Restarting the click reader: ${reason}` });
           setTimeout(() => {
-            if (run === generation && !input) startInput(run);
+            if (run === generation && !pending && input?.kind !== "raw-input") startInput(run);
           }, 1000 * restarts);
         },
       });
-      input = helper;
+      pending = helper;
     },
     (error: unknown) => {
-      if (run !== generation || input) return;
+      if (run !== generation) return;
       useCursorPoll(`Clicks are not seen: ${error instanceof Error ? error.message : String(error)}. The trail follows the cursor.`);
     },
   );
 }
 
-function useCursorPoll(note: string): void {
-  input?.stop();
-  input = startZaicodeProtrailCursorPoll({ onEvent: (event) => push(event, false) });
-  setStatus({ state: "running", input: "cursor-poll", note });
+function useCursorPoll(note: string, state: ZaicodeProtrailGlobalStatus["state"] = "running"): void {
+  if (input?.kind !== "cursor-poll") {
+    input?.stop();
+    input = startZaicodeProtrailCursorPoll({ onEvent: (event) => push(event, false) });
+  }
+  setStatus({ state, input: "cursor-poll", note });
 }
 
 function push(event: ZaicodeProtrailInputEvent, physical: boolean): void {

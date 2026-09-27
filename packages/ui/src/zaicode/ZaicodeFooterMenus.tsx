@@ -34,10 +34,10 @@ import { openZaicodeHelp, openZaicodeSettings } from "./zaicodeActions.js";
 import {
   setZaicodeBevelRows,
   setZaicodeBevels,
-  setZaicodeCrisp,
   setZaicodePalette,
   useZaicodeAppearance,
 } from "./zaicodeAppearance.js";
+import { ZaicodeScreenMenuItems } from "./ZaicodeScreenMenuItems.js";
 import {
   ZAICODE_DEFAULT_AVATARS,
   addZaicodeAvatarUpload,
@@ -307,17 +307,12 @@ export function ZaicodePaletteMenuSub() {
 /** The palette lines themselves, shared by the footer sub-menu and the header Theme button (SRC-051). */
 export function ZaicodePaletteMenuContent() {
   const { intl } = useZCodeIntl();
-  const { palette, crisp, bevels, bevelRows } = useZaicodeAppearance();
+  const { palette, bevels, bevelRows } = useZaicodeAppearance();
   const { customs } = useZaicodeColorStudio();
   return (
     <>
-      <DropdownMenuCheckboxItem
-        checked={crisp}
-        onCheckedChange={(checked) => setZaicodeCrisp(checked === true)}
-        onSelect={(event) => event.preventDefault()}
-      >
-        {intl.formatMessage({ id: "zaicode.palette.crisp" })}
-      </DropdownMenuCheckboxItem>
+      <ZaicodeScreenMenuItems />
+      <DropdownMenuSeparator />
       <DropdownMenuCheckboxItem
         checked={bevels}
         onCheckedChange={(checked) => setZaicodeBevels(checked === true)}

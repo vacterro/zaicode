@@ -58,7 +58,7 @@ export class ProtrailRuntime {
   }
 
   move(x: number, y: number, ts: number): void {
-    if (!this.active()) return;
+    if (!this.active() || !finite(x, y, ts)) return;
     this.samples.push({ x, y, ts });
     if (this.samples.length > MAX_SAMPLES) this.samples.shift();
     this.engine.move(x, y, ts);
@@ -67,13 +67,14 @@ export class ProtrailRuntime {
   }
 
   down(button: number, x: number, y: number, ts: number): void {
-    if (!this.active()) return;
+    if (!this.active() || !finite(x, y, ts)) return;
     this.head = { x, y };
     this.engine.down(button, x, y, ts);
     this.kick();
   }
 
   up(button: number, x: number, y: number, ts: number): void {
+    if (!finite(x, y, ts)) return;
     this.engine.up(button, x, y, ts);
     this.kick();
   }
@@ -128,6 +129,18 @@ export class ProtrailRuntime {
 
   private readonly draw = (): void => {
     this.frame = 0;
+    try {
+      this.drawFrame();
+    } catch (error) {
+      // One bad frame must not leave `running` stuck on: that would silence
+      // ProTrail until the page reloads. Drop what is alive and start clean.
+      console.error("[protrail] frame failed", error);
+      this.running = false;
+      this.clear();
+    }
+  };
+
+  private drawFrame(): void {
     const ctx = this.ctx;
     const config = this.config;
     if (!ctx) return;
@@ -149,5 +162,9 @@ export class ProtrailRuntime {
     const trailAlive = trail.enabled && this.samples.some((sample) => sample.ts >= now - trail.lifetimeMs);
     if (trailAlive || this.engine.hasLive(now)) this.frame = requestAnimationFrame(this.draw);
     else this.running = false;
-  };
+  }
+}
+
+function finite(x: number, y: number, ts: number): boolean {
+  return Number.isFinite(x) && Number.isFinite(y) && Number.isFinite(ts);
 }

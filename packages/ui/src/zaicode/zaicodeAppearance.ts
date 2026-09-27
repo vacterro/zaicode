@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from "react";
 import { readZaicodeSetting } from "./zaicodeSettingsSnapshot.js";
-import { isZaicodeProductMode } from "@zcode/shared";
+import { isZaicodeProductMode, normalizeZaicodeScreenMode, zaicodePixelLook, type ZaicodeScreenMode } from "@zcode/shared";
 import {
   ZAICODE_CRISP_CSS,
   ZAICODE_DEFAULT_PALETTE,
@@ -19,13 +19,16 @@ import { ZAICODE_BEVEL_CSS } from "./zaicodeBevels.js";
 /**
  * ZAICODE appearance preferences (per machine, renderer-local):
  *   palette: a Wintage palette slug, or "none" for upstream colours;
- *   crisp:   pixel mode without antialiasing (default on);
+ *   screen:  auto / pixel / smooth (SRC-062): pixel mode without antialiasing on
+ *            a Full HD screen, smooth from 150 % scaling up (auto, the default);
+ *   crisp:   whether pixel mode applies right now (screen mode x this screen);
  *   bevels:  hard Win95 bevels on controls, pop-ups and fields (default on, SRC-048);
  *   bevelRows: the same raised edge on sidebar list rows (default on).
  * Applied as a <style> element + classes on <html>; changes apply live.
  */
 const PALETTE_KEY = "zaicode-palette";
 const CRISP_KEY = "zaicode-crisp";
+const SIZE_KEY = "zaicode-size";
 const BEVELS_KEY = "zaicode-bevels";
 const BEVEL_ROWS_KEY = "zaicode-bevel-rows";
 const FONT_KEY = "zaicode-font-settings";
@@ -66,7 +69,13 @@ function ensurePixelIconFilter(): void {
 
 export interface ZaicodeAppearance {
   palette: string;
+  screen: ZaicodeScreenMode;
+  /** Pixel mode in effect on the screen the window is on now. */
   crisp: boolean;
+  /** auto: compact on a small screen (a 1366x768 laptop); normal; compact. */
+  size: ZaicodeSizeMode;
+  /** Compact in effect on the screen the window is on now. */
+  compact: boolean;
   bevels: boolean;
   bevelRows: boolean;
   typography: ZaicodeTypography;
@@ -195,9 +204,13 @@ export function readZaicodeAppearance(): ZaicodeAppearance {
       ? (storedPalette as string)
       : ZAICODE_DEFAULT_PALETTE;
   const storedWidth = Number(safeGet(LIST_LABEL_WIDTH_KEY));
+  const screen = normalizeZaicodeScreenMode(safeGet(CRISP_KEY), safeGet(CRISP_KEY));
   cached = {
     palette,
-    crisp: safeGet(CRISP_KEY) !== "0",
+    screen,
+    crisp: zaicodePixelLook(screen, currentScale()),
+    size: normalizeSize(safeGet(SIZE_KEY)),
+    compact: zaicodeCompactLook(normalizeSize(safeGet(SIZE_KEY)), screenArea()),
     bevels: safeGet(BEVELS_KEY) !== "0",
     bevelRows: safeGet(BEVEL_ROWS_KEY) !== "0",
     typography: readTypography(),
@@ -210,7 +223,7 @@ export function readZaicodeAppearance(): ZaicodeAppearance {
 
 function subscribe(listener: () => void): () => void {
   const onStorage = (event: StorageEvent) => {
-    if (![PALETTE_KEY, CRISP_KEY, BEVELS_KEY, BEVEL_ROWS_KEY, FONT_KEY, LIST_LABEL_WIDTH_KEY].includes(event.key ?? "")) return;
+    if (![PALETTE_KEY, CRISP_KEY, SIZE_KEY, BEVELS_KEY, BEVEL_ROWS_KEY, FONT_KEY, LIST_LABEL_WIDTH_KEY].includes(event.key ?? "")) return;
     cached = null;
     applyZaicodeAppearance();
     listener();
@@ -230,7 +243,8 @@ export function useZaicodeAppearance(): ZaicodeAppearance {
 function update(next: ZaicodeAppearance): void {
   cached = next;
   safeSet(PALETTE_KEY, next.palette);
-  safeSet(CRISP_KEY, next.crisp ? "1" : "0");
+  safeSet(CRISP_KEY, next.screen);
+  safeSet(SIZE_KEY, next.size);
   safeSet(BEVELS_KEY, next.bevels ? "1" : "0");
   safeSet(BEVEL_ROWS_KEY, next.bevelRows ? "1" : "0");
   safeSet(FONT_KEY, JSON.stringify(next.typography));
@@ -243,8 +257,68 @@ export function setZaicodePalette(palette: string): void {
   update({ ...readZaicodeAppearance(), palette });
 }
 
+/** The screen mode (auto / pixel / smooth); the window's pixel look follows at once. */
+export function setZaicodeScreen(screen: ZaicodeScreenMode): void {
+  update({ ...readZaicodeAppearance(), screen, crisp: zaicodePixelLook(screen, currentScale()) });
+}
+
 export function setZaicodeCrisp(crisp: boolean): void {
-  update({ ...readZaicodeAppearance(), crisp });
+  setZaicodeScreen(crisp ? "pixel" : "smooth");
+}
+
+export type ZaicodeSizeMode = "auto" | "normal" | "compact";
+
+function normalizeSize(value: string | null): ZaicodeSizeMode {
+  return value === "normal" || value === "compact" ? value : "auto";
+}
+
+/** A screen this small (CSS px of its work area) gets the compact size in auto. */
+export const ZAICODE_COMPACT_BELOW = { width: 1400, height: 820 } as const;
+
+export function zaicodeCompactLook(size: ZaicodeSizeMode, area: { width: number; height: number }): boolean {
+  if (size !== "auto") return size === "compact";
+  return area.width < ZAICODE_COMPACT_BELOW.width || area.height < ZAICODE_COMPACT_BELOW.height;
+}
+
+function screenArea(): { width: number; height: number } {
+  if (typeof window === "undefined" || !window.screen) return { width: 1920, height: 1080 };
+  return { width: window.screen.availWidth || 1920, height: window.screen.availHeight || 1080 };
+}
+
+/** Normal or compact size (auto follows the screen the window is on). */
+export function setZaicodeSize(size: ZaicodeSizeMode): void {
+  update({ ...readZaicodeAppearance(), size, compact: zaicodeCompactLook(size, screenArea()) });
+}
+
+function currentScale(): number {
+  return typeof window === "undefined" ? 1 : window.devicePixelRatio || 1;
+}
+
+// The window moved to a monitor with another scaling: auto re-decides at once.
+let watchedScale = 0;
+let scaleQuery: MediaQueryList | null = null;
+let watchingArea = false;
+function watchScale(): void {
+  if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
+  if (!watchingArea) {
+    // Moving the window to another monitor changes window.screen: auto size re-decides.
+    watchingArea = true;
+    window.addEventListener("resize", () => {
+      const current = readZaicodeAppearance();
+      if (current.size === "auto" && zaicodeCompactLook("auto", screenArea()) !== current.compact) onScaleChange();
+    });
+  }
+  const scale = currentScale();
+  if (scale === watchedScale) return;
+  watchedScale = scale;
+  scaleQuery?.removeEventListener("change", onScaleChange);
+  scaleQuery = window.matchMedia(`(resolution: ${scale}dppx)`);
+  scaleQuery.addEventListener("change", onScaleChange);
+}
+function onScaleChange(): void {
+  cached = null;
+  applyZaicodeAppearance();
+  window.dispatchEvent(new Event(CHANGE_EVENT));
 }
 
 export function setZaicodeBevels(bevels: boolean): void {
@@ -293,12 +367,28 @@ export function zaicodePaletteResolvedTheme(): "dark" | "light" | null {
   return isDarkPalette(zaicodeAdjustedPalette(palette)) ? "dark" : "light";
 }
 
+/**
+ * SRC-062 compact size: every UI text one whole pixel smaller (whole pixels keep
+ * the bitmap font crisp); the two smallest steps stay, they are the floor of
+ * readability. The operator's own font size (Settings) still sets the base.
+ */
+const ZAICODE_COMPACT_CSS = `
+html.zaicode-compact {
+  --text-ui-xl: calc(var(--ui-font-size) + 3px);
+  --text-ui-lg: calc(var(--ui-font-size) + 1px);
+  --text-ui-base: calc(var(--ui-font-size) - 1px);
+  --text-ui-caption: calc(var(--ui-font-size) - 2px);
+  --text-ui-sm: calc(var(--ui-font-size) - 3px);
+}
+`;
+
 /** Writes the palette/crisp style element and <html> classes. Idempotent. */
 export function applyZaicodeAppearance(): void {
   if (typeof document === "undefined") return;
   const root = document.documentElement;
   const enabled = isZaicodeProductMode();
   if (enabled) ensurePixelIconFilter();
+  if (enabled) watchScale();
   const { palette: slug, crisp, bevels, bevelRows, typography } = readZaicodeAppearance();
   // Color Studio cascade: palette (built-in or own) -> adjusters -> single-colour overrides.
   const palette = enabled ? findAnyZaicodePalette(slug) : null;
@@ -313,10 +403,11 @@ export function applyZaicodeAppearance(): void {
   const entries = enabled ? Object.entries(zaicodeEffectiveColorVariables(palette, studio)) : [];
   const variables = entries.map(([name, value]) => `  ${name}: ${value};`).join("\n");
   // html.zaicode-palette (元素+类) 的优先级高于 .theme-zai-dark，覆盖上游 token 不需要 !important。
-  style.textContent = `${entries.length > 0 ? `html.zaicode-palette {\n${variables}\n}\n` : ""}${ZAICODE_CRISP_CSS}${ZAICODE_BEVEL_CSS}`;
+  style.textContent = `${entries.length > 0 ? `html.zaicode-palette {\n${variables}\n}\n` : ""}${ZAICODE_CRISP_CSS}${ZAICODE_BEVEL_CSS}${ZAICODE_COMPACT_CSS}`;
 
   root.classList.toggle("zaicode-palette", entries.length > 0);
   root.classList.toggle("zaicode-crisp", enabled && crisp);
+  root.classList.toggle("zaicode-compact", enabled && readZaicodeAppearance().compact);
   root.classList.toggle("zaicode-bevels", enabled && bevels);
   root.classList.toggle("zaicode-bevel-rows", enabled && bevels && bevelRows);
   root.classList.toggle("zaicode-fonts", enabled);

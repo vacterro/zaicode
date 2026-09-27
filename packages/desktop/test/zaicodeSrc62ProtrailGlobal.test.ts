@@ -31,6 +31,12 @@ test("the helper is compiled once per source version and falls back to cursor po
   assert.match(input, /createHash\("sha256"\)\.update\(ZAICODE_PROTRAIL_INPUT_CS\)/);
   assert.match(input, /windowsHide: true/);
   assert.match(input, /getCursorScreenPoint/);
+  // A reader that never says "ready" is a failed start, not a trail that waits forever.
+  assert.match(input, /const readyTimer = setTimeout\(\(\) => fail\(/);
+  // The trail follows the cursor while the reader starts; clicks join on "ready".
+  const global = main("zaicodeProtrailGlobal.ts");
+  assert.match(global, /if \(!input\) useCursorPoll\("Starting the click reader…", "starting"\);/);
+  assert.match(global, /onReady: \(\) => \{[\s\S]*?input\?\.stop\(\);\s+input = helper;/);
 });
 
 test("one click-through, never-focused, always-on-top overlay per monitor", () => {
@@ -44,7 +50,8 @@ test("one click-through, never-focused, always-on-top overlay per monitor", () =
   assert.match(global, /screen\.getAllDisplays\(\)/);
   assert.match(global, /"display-added"[\s\S]*"display-removed"[\s\S]*"display-metrics-changed"/);
   assert.match(global, /screenToDipPoint/, "Raw Input pixels become the overlays' DIP coordinates");
-  assert.match(global, /sender\.once\("destroyed"/, "the overlays die with the ZAICODE window");
+  assert.match(global, /sender\.once\("destroyed", \(\) => \{\s+wanted\.delete\(sender\);\s+apply\(\);/, "a closing window only withdraws its own wish");
+  assert.match(global, /if \(next === null\) \{\s+stop\(\);/, "the overlays go when no ZAICODE window wants them");
   assert.match(global, /app\.on\("will-quit", stop\)/);
 });
 
