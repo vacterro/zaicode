@@ -29,8 +29,10 @@
 ## DOING
 
 ## TODO
+- [ ] T-79 [P1] installer: AppBranch main is 6 commits behind the product branch -- a fresh install misses T-72 (8914bf6) and T-78 (84a984b); choose the release branch (merge zaicode into main, or point AppBranch at it) | verify: the branch the installer clones carries 8914bf6 and 84a984b, and a fresh install's app-source matches the developer checkout
 
 ## DONE
+- [x] T-80 [P3] docs: ZAICODE_INSTALL.md line 36 still says saimail-local WARNs until the published SAIMAIL ships it; it shipped as d2fa09e and the doctor now reports saimail-cli OK | verify: the install doc's saimail-local row matches what a fresh install reaches, measured by the doctor's saimail-cli check | owner: claude-code | claim_time: 2026-09-27T03:07:06Z | closure_mode: own_patch
 - [x] T-78 [P2] zcode: the 57 test files have no committed way to run -- no package.json defines a test script and verify:pre-push omits them; add a root test script (pnpm --filter <pkg> exec node --import tsx --test) and wire it into the pre-push gate | verify: pnpm test from the zcode root runs ui 266/266, services 49/49 and desktop 49/49 with 0 failures, and pnpm run verify:pre-push includes the test step | owner: claude-code | claim_time: 2026-09-27T03:04:45Z | closure_mode: own_patch
 - [x] T-77 [P2] Ignore the two launcher build artifacts .gitignore misses: /ZAICODE.exe.new (STAGED in build.cmd line 8) and /ZAICODE-Preview.exe (copied on the build success path, lines 22-27) | verify: git check-ignore answers ignored for all four root build artifacts (ZAICODE.exe, ZAICODE.exe.old, ZAICODE.exe.new, ZAICODE-Preview.exe) and a build leaves git status --porcelain empty at the root | owner: claude-code | claim_time: 2026-09-27T02:57:08Z | closure_mode: own_patch
 - [x] T-47 [P1] saitranslate | verify: the requested change is present and demonstrated against the user own description of it | user_explicit: true | source_receipts: SRC-036 | needs: T-48 | owner: claude-code | claim_time: 2026-09-27T02:52:28Z | closure_mode: own_patch

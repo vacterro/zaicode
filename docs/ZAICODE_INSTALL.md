@@ -33,7 +33,7 @@ the install and fixes what broke.
 | ZAICODE app source | clone of branch `main` into `zcode\` |
 | SAIPEN | clone of `vacterro/saipen` into `saipen\`; its `bin\saipen.cmd` is written for this clone and this Python |
 | SAIMAIL | clone of `vacterro/saimail` into `saimail\`, installed into `.venv\` |
-| saimail-local | SAIMAIL's command-line client, which ZAICODE's SAIMAIL panels use (WARN until the published SAIMAIL ships it) |
+| saimail-local | SAIMAIL's command-line client, which ZAICODE's SAIMAIL panels use (shipped since SAIMAIL `0.0.2a3`; the `saimail-cli` check reports OK) |
 | 9router package | `9router` from npm into `.tools\router`, bundled so SAIFREN works with zero setup (WARN if npm cannot reach it) |
 | App dependencies | `pnpm install --frozen-lockfile` (again when `pnpm-lock.yaml` changes) |
 | App build | `pnpm bundle:zaicode`; while ZAICODE runs the new build is staged and swapped in on the next start |
