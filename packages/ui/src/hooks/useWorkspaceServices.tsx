@@ -227,3 +227,19 @@ export function useWorkspaceServices(
     remoteTarget,
   ).services;
 }
+
+/**
+ * The workspace's services when a path is given, else the context's. Both
+ * hooks run on every render: a path that arrives after the first render (the
+ * first launch, the first opened folder) must not change the hook order, which
+ * React answers by crashing the component.
+ */
+export function useWorkspaceOrContextServices(
+  workspacePath: string | null | undefined,
+  preferredRemoteSessionId?: string | null,
+  workspaceIdentity?: string | null,
+): IServiceAccessor {
+  const contextServices = useServices();
+  const workspaceServices = useWorkspaceServices(workspacePath, preferredRemoteSessionId, workspaceIdentity);
+  return workspacePath ? workspaceServices : contextServices;
+}

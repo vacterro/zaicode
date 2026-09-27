@@ -1,14 +1,11 @@
 import type { IZCodeSessionService } from "@zcode/services";
-import { useServices } from "@/hooks/useServices.js";
-import { useWorkspaceServices } from "@/hooks/useWorkspaceServices.js";
+import { useWorkspaceOrContextServices } from "@/hooks/useWorkspaceServices.js";
 
 export function useZCodeSessionService(
   workspacePath?: string,
   preferredRemoteSessionId?: string | null,
   workspaceIdentity?: string | null,
 ): IZCodeSessionService {
-  const services = workspacePath
-    ? useWorkspaceServices(workspacePath, preferredRemoteSessionId, workspaceIdentity)
-    : useServices();
+  const services = useWorkspaceOrContextServices(workspacePath, preferredRemoteSessionId, workspaceIdentity);
   return services.zcodeSessionService;
 }
