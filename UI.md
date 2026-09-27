@@ -570,33 +570,52 @@ why?", WORKERS "what runs in terminals?", Settings "how should it behave?".
 - Agents inside ZAICODE cannot stop ZAICODE processes by name, image or path
   (the agent CLI refuses the command, also in full-access mode).
 
-## SUBCHAT (T-51, every subscription T-63)
+## Subscriptions as models (SRC-061, SUBCHAT removed in SRC-062)
 
-Every subscription login (Claude Code, Codex, Antigravity, ZCode) answers in a
-plain chat inside ZAICODE: no worker, no terminal, fewer middlemen. Freebuff
-has a tile too, disabled with its reason (limits only).
+A subscription login (Claude Code, Codex, Antigravity, ZCode) is a model in
+the composer's model menu: account -> model -> effort, with each account's
+readiness bar (what its tightest window has left, framed so it shows on any
+palette). The separate SUBCHAT view, its menu line and its IPC are gone. A
+subscription tile on the sidebar still means that login's CLI in a worker
+(double-click, or a prompt / START while the tile is picked).
 
-- Open it from the SUBCHAT menu line (it shows the Working icon while chats
-  answer). The tiles at its top (A1, A2, C1, AG, ZC, …) start a new chat with
-  that login in the current project; every login is its own tile and its own
-  chat, and chats can answer at the same time.
-- Chats are listed like projects: one group per project folder, newest first,
-  the Working icon on a busy chat and on its group; a group's + starts a new
-  chat in that folder.
-- Picking a subscription tile on the sidebar and typing in the composer (or
-  pressing START) opens a SUBCHAT with that login. Settings -> Engines & limits
-  -> Workers switches this back to worker terminals. Double-click on a tile
-  still starts a worker.
-- A turn runs that login's own CLI in the background in the project folder,
-  with its own tools and its own quota; the next prompt continues the same
-  session. The answer shows as markdown, tool use as one dim line each.
-- Antigravity keeps a quota per model pool. A chat uses the pool that still
-  has quota: with Gemini spent and Claude & GPT left it asks for Claude
-  Sonnet (the chat header names the model).
-- Stop ends the running turn (shown as a note, not an error). A spent limit
-  shows once, as an error, with the vendor's reset time. Delete removes the
-  chat from ZAICODE only. Chats survive a restart; a turn cut off by a restart
-  says so and the next prompt continues the session.
+## SRC-062: ProTrail, SAIPEGGLE, footer, session text and polish
+
+- ProTrail (Settings -> ProTrail): the cursor trail and click effects of
+  vacterro/protrail v0.1.9 with every setting (8 trail styles, 4 colour
+  modes, fade curves, 5 sparkle modes, 11 click styles, press-and-hold with a
+  charged release, the motion wake). "Everywhere in Windows" (default) draws
+  over every monitor and every app: one click-through, never-focused,
+  always-on-top overlay per monitor, mouse read like ProTrail (Raw Input
+  helper compiled once with Windows' csc.exe; without it the trail follows
+  the cursor and clicks are not seen, which the status line says). "Only
+  inside ZAICODE" keeps one canvas in the window. The overlays live and die
+  with the ZAICODE window.
+- Sidebar footer: a list like the header's (right-click the row, or
+  Settings -> Sidebar -> Footer). Default: Problip, ProTrail, gear. The
+  ProTrail button: left click on / off, right click its settings. The
+  profile can be the avatar alone; the freed width goes to the buttons
+  (overflow into ⋯).
+- SAIPEGGLE (Settings, left column: the row above Support Developer; its gear
+  opens the game's settings; or type PEGGLE outside a text field): a Peggle
+  Deluxe style game in whole pixels and the palette in use. Adventure of 11
+  stages x 5 levels with a master's power per stage, Quick Play from a seed,
+  board codes, Extreme Fever. The game takes over the window until Exit; Esc
+  pauses, Esc again opens the menu. Its sounds are the SAIPEGGLE group of
+  Settings -> Sounds. It replaces PEBBLE DROP.
+- Session text (Settings -> Session text): Word-like styles for the agent's
+  answers (text, headings, emphasis, underlines, links, code, quotes, lists,
+  tables, rule) with presets, save / export / import.
+- A clean SAIPEN board shows a DONE mark on the project with an offer to run
+  an A3 audit wave.
+- Change numbers (RPG +N / -N) also play on the chat's Edit rows: minus
+  first, then plus; every timing and condition is in Settings -> Highlights &
+  motion; a switch lets them play under the calm interface too.
+- A project click is predictable (MAIN opens, then the row folds); the ◆ on a
+  row switches "this project IS the session, the rest are its children".
+  One navigation, one sound.
+- The splash shows the SAIPEN emblem until its picture is decoded, never a
+  cut-off fragment.
 
 ## Execution topology and layout (T-42)
 

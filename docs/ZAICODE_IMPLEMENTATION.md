@@ -889,6 +889,10 @@ GUI behaviour is an operator check (evidence `.saipen/evidence/T-60-wave.md`).
 
 ## 27. SUBCHAT: subscriptions as a chat, no worker (T-51, 2026-09-25)
 
+Removed in SRC-062 (zaicode 037b980, authorized by the operator's PASS of
+SRC-061 item 1b): subscription accounts are models in the model menu. The
+record below is history.
+
 Source: SRC-038 ("use these subscriptions as in an ordinary chat, without any
 WORKERS"; several Claude / Codex accounts side by side). Status: unit- and
 transport-tested (`ui/test/zaicodeSubchat.test.ts`,
@@ -1080,3 +1084,29 @@ check (evidence `.saipen/evidence/T-63-wave.md`).
   perspective(40px) drew a slanted sliver); flip is a flat squash, wobble
   shakes equally left and right, bounce goes equally up and down, transform
   origin is the centre everywhere.
+
+## 33. SRC-062: ProTrail everywhere, SAIPEGGLE, configurable footer (2026-09-27)
+
+- ProTrail (`ui/src/zaicode/protrail/*`, `settings/protrail/*`): the model,
+  bounds, validators and release defaults of ProTrail v0.1.9; trail geometry
+  (centripetal Catmull-Rom, cap policy), click family, hold / release, wake.
+  `protrailRuntime.ts` is the framework-free surface both targets use;
+  `@zcode/ui/zaicode-protrail` exports it. Desktop-wide: `desktop/src/main/
+  zaicodeProtrailGlobal.ts` (per-display overlays, display events, feed
+  batching every 4 ms, DIP conversion) and `zaicodeProtrailInput.ts` (the
+  Raw Input helper's C# 5 source in `zaicodeProtrailInputSource.ts`, compiled
+  with the .NET Framework csc.exe into userData once per source hash;
+  cursor polling fallback). The overlay page is `renderer/zaicode-protrail.html`
+  with preload `zaicodeProtrailOverlay`. Canvas: glow as runs, FLAT-ROUND head.
+- Footer (`ZaicodeFooterTools.tsx`, `ZaicodeCommonTools.tsx`,
+  `zaicodeLayoutPrefs.ts` footerTools / footerProfile): the header and the
+  footer render the same shared buttons.
+- SAIPEGGLE (`ui/src/zaicode/saipeggle/*`): model and settings, seeded RNG,
+  patterns and 20 board templates, adventure / random / code levels,
+  240 Hz physics with stuck and rattle rules, rules (scoring, multiplier,
+  free balls, style shots, powers, purple, Zen search), game loop, 5x7
+  bitmap font, whole-pixel drawing with a sprite cache, palette colours,
+  sounds (Settings -> Sounds group SAIPEGGLE, `playZaicodeSoundFile` gained
+  `rate`), Ode to Joy synth, store `zaicode-saipeggle-v1`, React view / host.
+  Replaces `ZaicodePebbleGame.tsx`.
+
