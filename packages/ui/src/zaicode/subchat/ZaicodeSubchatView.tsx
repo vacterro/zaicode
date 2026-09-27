@@ -341,7 +341,7 @@ export function ZaicodeSubchatView() {
   const available = isZaicodeSubchatAvailable();
 
   return (
-    <div className="flex h-full min-h-0 flex-1 text-ui-xs" data-zaicode-subchat>
+    <div className="flex h-full min-h-0 flex-1 text-ui-xs" data-zaicode-subchat data-zaicode-help="subchat">
       <aside className="flex w-64 shrink-0 flex-col border-r border-border">
         <div className="flex flex-col gap-1 border-b border-border px-2 py-1.5">
           <div className="text-ui-lg text-foreground">SUBCHAT</div>

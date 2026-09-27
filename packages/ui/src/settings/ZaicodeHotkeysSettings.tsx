@@ -130,7 +130,7 @@ export function ZaicodeHotkeysSettings() {
   const name = (id: string) =>
     id.startsWith("fkeys.") ? `F-keys (${id.slice(6)})` : (zaicodeHotkeyAction(id)?.label ?? id);
   return (
-    <div className="flex flex-col gap-3 text-ui-xs" data-zaicode-hotkeys-settings>
+    <div className="flex flex-col gap-3 text-ui-xs" data-zaicode-hotkeys-settings data-zaicode-help="hotkeys">
       <section className="border border-border bg-card p-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div>

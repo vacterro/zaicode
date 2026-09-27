@@ -108,6 +108,7 @@ export function ZaicodeTodoDock({ plan }: { plan: ConversationStatusPanelPlanMod
       <button
         type="button"
         className="pointer-events-auto flex shrink-0 items-center gap-1 border border-border bg-card px-2 py-1 text-ui-xs text-foreground"
+        data-zaicode-help="todo"
         aria-label={`${label("title")} ${plan.completedCount}/${plan.totalCount}`}
         aria-expanded={state.open}
         onClick={() => setState((current) => ({ ...current, open: !current.open }))}

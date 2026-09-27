@@ -57,6 +57,7 @@ export function ZaicodeRunningMeter() {
       title={title}
       aria-label={`${count} sessions working`}
       data-zaicode-running-meter={count}
+      data-zaicode-help="header"
     >
       <div className={cn("flex items-center shrink min-w-0", cellGap)}>
         {shown.map((session) => (

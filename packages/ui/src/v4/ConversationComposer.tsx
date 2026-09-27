@@ -2227,6 +2227,7 @@ function ConversationComposerImpl({
     // Web 仍共享同一 DOM 顺序，同时恢复错误提示与输入卡之间的独立层级。
     <div
       data-testid={TID_V4_COMPOSER}
+      data-zaicode-help="composer"
       data-input-routing={mode}
       aria-hidden={isBlockedByInteraction ? true : undefined}
       style={isBlockedByInteraction ? { display: "none" } : undefined}

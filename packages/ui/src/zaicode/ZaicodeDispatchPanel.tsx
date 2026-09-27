@@ -91,7 +91,7 @@ export function ZaicodeDispatchPanel({ onDone }: { onDone?: () => void }) {
   };
 
   return (
-    <div className="flex flex-col gap-2 text-ui-xs" data-zaicode-dispatch>
+    <div className="flex flex-col gap-2 text-ui-xs" data-zaicode-dispatch data-zaicode-help="dispatch">
       <label className="flex flex-col gap-0.5">
         <span className="text-foreground-subtle">Project</span>
         <select

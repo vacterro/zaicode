@@ -102,7 +102,7 @@ export function ZaicodeSplashSettings() {
   const pictureSrc = prefs?.customDataUrl ?? (bundledBroken ? null : "./zaicode-splash.png");
 
   return (
-    <section className="rounded-xl border border-border bg-card p-4" data-zaicode-splash-settings>
+    <section className="rounded-xl border border-border bg-card p-4" data-zaicode-splash-settings data-zaicode-help="splash">
       <label className="flex items-center justify-between gap-3">
         <span className="flex flex-col gap-1">
           <span className="text-ui-base text-foreground">Start-up splash</span>

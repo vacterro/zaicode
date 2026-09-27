@@ -289,7 +289,7 @@ export function ZaicodeHomePage({
   const grid = useGridColumns(prefs.density === "compact" ? 250 : 300);
   const presets = [...(Object.keys(ZAICODE_HOME_PRESETS) as Exclude<ZaicodeHomePreset, "custom">[]), "custom" as const];
   return (
-    <div className="flex h-full min-h-0 flex-col" data-zaicode-saihome>
+    <div className="flex h-full min-h-0 flex-col" data-zaicode-saihome data-zaicode-help="saihome">
       <ZaicodeHomeProjectProbes projects={projects} />
       <div className="flex shrink-0 flex-wrap items-center gap-2 border-b border-border px-3 py-1.5 text-ui-xs">
         <h1 className="text-ui-sm tracking-wide text-foreground">SAIHOME</h1>

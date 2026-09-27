@@ -94,7 +94,7 @@ export function ZaicodeEngineBar() {
   };
 
   return (
-    <div className="flex min-w-0 flex-col gap-px px-2 py-1 text-ui-xs" data-zaicode-engine-bar>
+    <div className="flex min-w-0 flex-col gap-px px-2 py-1 text-ui-xs" data-zaicode-engine-bar data-zaicode-help="engines">
       {group ? (
         <div className="flex min-w-0 items-center gap-1" title={`In-app model pools (${group.providerLabel})`}>
           {group.isRouter ? (

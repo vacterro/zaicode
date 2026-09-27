@@ -137,6 +137,7 @@ export function ZaicodeChangeCounter({
       key={flash}
       className={className}
       data-zaicode-change-counter
+      data-zaicode-help="changes"
       data-zaicode-change-flash={flash > 0 ? "1" : undefined}
     >
       {children}

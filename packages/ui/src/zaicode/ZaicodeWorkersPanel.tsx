@@ -190,6 +190,7 @@ export function ZaicodeWorkersPanel({ services }: { services: IServiceAccessor }
       )}
       style={frameStyle}
       data-zaicode-workers-panel={layout}
+      data-zaicode-help="workers"
       data-zaicode-workers-panel-dock={dock}
     >
       <div

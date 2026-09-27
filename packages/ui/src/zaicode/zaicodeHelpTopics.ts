@@ -44,6 +44,12 @@ export const ZAICODE_HELP_TOPIC_IDS = [
   "settings",
   "composer",
   "audit",
+  // SRC-060: the encyclopedia's own entries and surfaces that had no card.
+  "glossary",
+  "sidebar",
+  "changes",
+  "splash",
+  "todo",
 ] as const;
 
 export type ZaicodeHelpTopicId = (typeof ZAICODE_HELP_TOPIC_IDS)[number];

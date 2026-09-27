@@ -247,6 +247,7 @@ export function ZaicodeSessionActionStrip() {
       <div
         className="grid grid-cols-2 gap-1 px-2 pb-1.5 @min-[360px]/workspace-sidebar:grid-cols-[minmax(0,1fr)_auto_auto]"
         data-zaicode-session-actions=""
+        data-zaicode-help="continue"
       >
         <ZaicodeRightClickSettings
           title="CONTINUE ALL — what it will do"

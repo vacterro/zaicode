@@ -31,6 +31,15 @@ export const ZAICODE_HELP_TOPICS: readonly HelpTopic[] = [
     ],
   },
   {
+    id: "glossary",
+    title: "Words for beginners",
+    what: "Agent, model, session, quota, reset, worker, SAIPEN, LIVE… — every word ZAICODE uses, in plain terms.",
+    lines: [
+      "Open the full explanation below for the whole list.",
+      "Pointing at something and pressing Shift+F1 opens the card that explains it.",
+    ],
+  },
+  {
     id: "pebble",
     title: "PEBBLE DROP (easter egg)",
     what: "A complete six-level pixel game for a break between agent runs.",
@@ -317,12 +326,51 @@ export const ZAICODE_HELP_TOPICS: readonly HelpTopic[] = [
     ],
   },
   {
+    id: "sidebar",
+    title: "Project list, slots and LIVE",
+    what: "Every project, grouped in slots, with what runs in each; LIVE pulls the busy ones up.",
+    lines: [
+      "Drag to order; Shift+drag and hold 2 s opens the SLOTS panel; click a slot header to fold it.",
+      "LIVE — working (or waiting) projects come first; Stay LIVE for — how long they keep that place after the work ends.",
+      "Remain in position — a project that has been live keeps its LIVE rank instead of dropping back.",
+      "A3 n/m — audit waves done of planned; OFF — switched off (Shift+Click).",
+    ],
+    open: { label: "Sidebar", section: "zaicodeSidebar" },
+  },
+  {
+    id: "changes",
+    title: "Changes counter and RPG numbers",
+    what: "+lines added / -lines removed since the last commit; each change can float up like healing or damage in a game.",
+    lines: [
+      "Green +N rises when lines are added, red -N flies off when lines are removed; a big burst is a critical hit.",
+      "Click the counter to review the changed files.",
+      "Style, size, time, colours, sound and the critical threshold are in Highlights & motion → Change numbers.",
+    ],
+    open: { label: "Highlights & motion", section: "zaicodeLights" },
+  },
+  {
+    id: "splash",
+    title: "Start-up splash",
+    what: "The picture shown from the first moment until ZAICODE is fully loaded — no grey window in between.",
+    lines: [
+      "Your own picture of any size; whole picture, fill and crop, or stretch; 1x, 1.5x or 2x.",
+      "Keep until fully loaded (with a longest wait), loading line on or off. Applies on the next start.",
+    ],
+    open: { label: "ZAICODE settings", section: "zaicode" },
+  },
+  {
+    id: "todo",
+    title: "Todo dock",
+    what: "The open session's plan: what the agent will do and what is done.",
+    lines: ["Dock it to an edge or drag it anywhere; it stays inside the window when you resize."],
+  },
+  {
     id: "audit",
     title: "Audits (A3 waves)",
     what: "Repeated review waves over a project, run on a model of your choice, to find what a single pass misses.",
     lines: [
       "An A3 campaign is waves. Each wave reads the project fresh and reports findings; the next wave starts from the last one.",
-      "Auto runs campaigns back to back while a project has nothing else to do, up to the cycle limit you set, and stops as soon as a wave finds something to act on.",
+      "Automatic audits run while a project has nothing else to do: audit, an implementer fixes the findings, audit again — up to the limit you set, and they stop as soon as an audit finds nothing to act on.",
       "The panel shows which project, which model, the current stage and how long it has been running; finished waves can be copied out.",
       "LIVE rows show how many waves are done of how many, and a blocked campaign is reported as blocked rather than counting as spare reserve.",
     ],

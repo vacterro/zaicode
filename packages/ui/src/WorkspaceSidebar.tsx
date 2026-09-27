@@ -1876,7 +1876,7 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
                 ) : zaicodeMode ? (
                   // ZAICODE: the projects ARE the root of the sidebar -- no "Projects" title,
                   // nothing to fold or drag; SLOTS / LIVE / + live in the toolbar row above.
-                  <div data-testid={TID_PROJECT_SECTION} data-zaicode-project-root="">
+                  <div data-testid={TID_PROJECT_SECTION} data-zaicode-project-root="" data-zaicode-help="sidebar">
                     {projectListContent}
                   </div>
                 ) : (

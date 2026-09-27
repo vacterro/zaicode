@@ -160,7 +160,7 @@ export function ZaicodeSchedulerPanel({ agents }: { agents: readonly ZaicodeAgen
   };
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col overflow-y-auto p-3 text-ui-xs" data-zaicode-scheduler>
+    <div className="flex min-h-0 flex-1 flex-col overflow-y-auto p-3 text-ui-xs" data-zaicode-scheduler data-zaicode-help="scheduler">
       <section className="flex flex-col gap-2 border border-border bg-card p-3">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="max-w-[640px]">

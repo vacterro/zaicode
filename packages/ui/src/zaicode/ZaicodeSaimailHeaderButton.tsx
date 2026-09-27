@@ -79,6 +79,7 @@ export function ZaicodeSaimailHeaderButton({
         variant="ghost"
         size={ready && unread > 0 && prefs.saimailShowCount ? "default" : "icon-md"}
         data-zaicode-saimail-button={ready ? (unread > 0 ? "unread" : "idle") : "off"}
+        data-zaicode-help="saimail"
         aria-label={label}
         className={cn(
           "gap-1 tabular-nums [app-region:no-drag] hover:bg-hover",

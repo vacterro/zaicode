@@ -253,6 +253,7 @@ function WorkerTray({ workers, now }: { workers: readonly ZaicodeWorker[]; now: 
     <div
       className={cn("fixed z-40 flex max-w-[70vw] gap-1", TRAY_POSITION[anchor], vertical && "max-h-[70vh] overflow-y-auto")}
       data-zaicode-workers-tray={anchor}
+      data-zaicode-help="workers"
     >
       {workers.map((worker) => {
         const inHiddenPanel = worker.placement === "panel" && !worker.minimized && !panelOpen;

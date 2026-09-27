@@ -295,6 +295,7 @@ export function ZaicodeTopbarClock({
       <button
         type="button"
         data-zaicode-clock
+        data-zaicode-help="timers"
         title={tip.join("\n")}
         className={cn(
           "flex h-8 shrink-0 items-center gap-2 px-1.5 text-ui-xs tabular-nums text-foreground-subtle hover:bg-hover",

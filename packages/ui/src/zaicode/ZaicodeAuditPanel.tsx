@@ -132,7 +132,7 @@ export function ZaicodeAuditPanel({ services, workspace }: ZaicodeAuditPanelProp
   const waves = ZAICODE_AUDIT_PROFILE_A3.waves;
 
   return (
-    <div className="flex h-full min-h-0 flex-col text-ui-xs" data-zaicode-audit-center>
+    <div className="flex h-full min-h-0 flex-col text-ui-xs" data-zaicode-audit-center data-zaicode-help="audit">
       <div className="flex shrink-0 flex-col gap-1 border-b border-border px-3 py-2">
         <div className="flex items-center gap-2">
           <ListChecks className="size-4 text-foreground-subtle" />

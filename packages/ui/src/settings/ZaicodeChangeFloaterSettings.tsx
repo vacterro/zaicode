@@ -64,6 +64,7 @@ export function ZaicodeChangeFloaterSettings() {
     <section
       className="flex flex-col gap-2 border border-border bg-card p-4 text-ui-xs"
       data-zaicode-change-floater-settings
+      data-zaicode-help="changes"
     >
       <div className="flex items-start justify-between gap-3">
         <div>

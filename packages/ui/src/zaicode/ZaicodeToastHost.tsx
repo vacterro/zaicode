@@ -113,6 +113,7 @@ export function ZaicodeToastHost() {
         hoveredRef.current = false;
       }}
       data-zaicode-toast-host
+      data-zaicode-help="notifications"
     >
       {shown.map((toast) => (
         <ToastCard key={toast.id} toast={toast} now={now} />

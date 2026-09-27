@@ -242,7 +242,7 @@ function GameSurface({ onClose, onDetach }: { onClose: () => void; onDetach: () 
   }, []);
 
   return (
-    <div ref={shell} className="flex h-full min-h-[360px] w-full flex-col bg-[#1A1810] font-[Verdana] text-[#D4C89A]" data-zaicode-pebble-game>
+    <div ref={shell} className="flex h-full min-h-[360px] w-full flex-col bg-[#1A1810] font-[Verdana] text-[#D4C89A]" data-zaicode-pebble-game data-zaicode-help="pebble">
       <div className="flex h-9 shrink-0 items-center gap-1 border-b border-[#75663D] bg-[#232018] px-2 [app-region:drag]">
         <span className="font-bold text-[#F0D060]">PEBBLE DROP</span>
         <span className="text-[10px] text-[#9C9371]">ZAICODE BONUS · 6 LEVELS</span>

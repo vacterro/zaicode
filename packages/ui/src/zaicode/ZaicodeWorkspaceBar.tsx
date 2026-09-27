@@ -44,6 +44,7 @@ export function ZaicodeWorkspaceTabs({ workspacePath }: { workspacePath?: string
           )}
           onClick={() => setTab(id)}
           data-zaicode-workspace-tab={id}
+          data-zaicode-help={id === "agents" ? "zaicode" : id === "audits" ? "audit" : "scheduler"}
         >
           {id === "scheduler" ? (
             <CalendarClock className="size-3" />

@@ -123,7 +123,7 @@ export function ZaicodeSoundSettings() {
   const groups = [...new Set(rows.map((row) => row.group))];
 
   return (
-    <div className="flex flex-col gap-3" data-zaicode-sound-settings>
+    <div className="flex flex-col gap-3" data-zaicode-sound-settings data-zaicode-help="sounds">
       <section className="border border-border bg-card p-3">
         <div className="flex flex-wrap items-center gap-3 text-ui-xs">
           <span className="text-ui-lg text-foreground">Sounds</span>

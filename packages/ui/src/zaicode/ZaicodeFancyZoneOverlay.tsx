@@ -140,6 +140,7 @@ export function ZaicodeFancyZoneOverlay({ open, onClose }: ZaicodeFancyZoneOverl
       className="fixed z-[210] select-none border border-[var(--zaicode-highlight,var(--color-border-hover))] bg-card font-mono text-ui-xs shadow-2xl"
       style={{ left: position.left, top: position.top, width: WIDTH, height: HEIGHT }}
       data-zaicode-fancyzones-picker={page.id}
+      data-zaicode-help="zones"
     >
       <div className="flex h-5 items-center gap-px border-b border-border px-1">
         {layouts.map((layout) => (
