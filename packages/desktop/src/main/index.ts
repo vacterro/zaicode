@@ -254,7 +254,7 @@ import {
 } from "./zaicodeLauncherPreferences.js";
 import { applyZaicodePixelExactSwitches, ensureZaicodeCrispFonts } from "./zaicodeCrispFonts.js";
 import { startZaicodeEngines } from "./zaicodeEngines.js";
-import { isZaicodeSplashWindow, showZaicodeSplash } from "./zaicodeSplash.js";
+import { isZaicodeSplashWindow, isZaicodeWindowHeld, showZaicodeSplash } from "./zaicodeSplash.js";
 import { startZaicodeRouterHost, stopZaicodeRouterHost } from "./zaicodeRouterHost.js";
 import { applyZaicodeLocalTimeZone, shouldRelaunchForLocalTimeZone } from "./zaicodeTimeZone.js";
 
@@ -915,6 +915,9 @@ function focusForceUpdateGateWindow() {
 
 const primaryWindowCoordinator = createPrimaryWindowCoordinator({
   listWindows: getApplicationWindowsExcludingCuaIndicator,
+  // SRC-060: tray, dock and app-activate all land here; a window the splash
+  // is holding must stay hidden until the splash itself reveals it.
+  isHeldWindow: (window) => isZaicodeWindowHeld(window as BrowserWindow),
   resolveStartupWindowBootstrap: () => {
     if (startupOpenWorkspaceRequest) {
       const request = startupOpenWorkspaceRequest;

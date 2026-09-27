@@ -34,7 +34,7 @@ const CSS = `
 @keyframes zf-arcade{0%{opacity:0;transform:translate(-50%,0) scale(2)}10%{opacity:1;transform:translate(-50%,0) scale(1)}14%{transform:translate(calc(-50% - 3px),0)}18%{transform:translate(calc(-50% + 3px),0)}22%{transform:translate(-50%,0)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,calc(-1*var(--zf-d)))}}
 @keyframes zf-fade{0%{opacity:0}15%{opacity:1}80%{opacity:1}100%{opacity:0}}
 @keyframes zf-flash{0%{filter:brightness(2.2) drop-shadow(0 0 3px currentColor)}100%{filter:none}}
-[data-zaicode-change-flash="1"]{animation:zf-flash .6s ease-out;}
+.zaicode-change-flash{animation:zf-flash .6s ease-out;}
 @media (prefers-reduced-motion: reduce){.zaicode-floater{animation-name:zf-fade!important}}
 `;
 
@@ -71,7 +71,24 @@ export function ZaicodeChangeCounter({
   const prefsRef = useRef(prefs);
   prefsRef.current = prefs;
   const [floaters, setFloaters] = useState<LiveFloater[]>([]);
+  // SRC-060 audit: the counter flash used a `key` on the span that also hosts
+  // the portalled floaters, so every burst remounted that subtree and restarted
+  // the `zf-rise` animation of the floaters still in flight -- they blinked and
+  // jumped back to opacity 0 mid-flight. The key was only there to re-run the
+  // flash animation, so the flash is retriggered imperatively instead and the
+  // floaters are left alone.
   const [flash, setFlash] = useState(0);
+  const flashRef = useRef<HTMLSpanElement | null>(null);
+  useEffect(() => {
+    if (flash === 0) return;
+    const element = flashRef.current;
+    if (!element) return;
+    // The standard retrigger idiom: cancel, commit the cancellation, then put
+    // the animation back. Nothing unmounts, so the floaters keep flying.
+    element.classList.remove("zaicode-change-flash");
+    void element.offsetWidth;
+    element.classList.add("zaicode-change-flash");
+  }, [flash]);
 
   useEffect(() => {
     const live = timers.current;
@@ -133,12 +150,13 @@ export function ZaicodeChangeCounter({
 
   return (
     <span
-      ref={anchor}
-      key={flash}
+      ref={(node) => {
+        anchor.current = node;
+        flashRef.current = node;
+      }}
       className={className}
       data-zaicode-change-counter
       data-zaicode-help="changes"
-      data-zaicode-change-flash={flash > 0 ? "1" : undefined}
     >
       {children}
       {floaters.length > 0 && typeof document !== "undefined"

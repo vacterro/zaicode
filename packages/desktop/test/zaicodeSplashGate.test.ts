@@ -48,7 +48,10 @@ function fakeWindow(overrides: { visible?: boolean; minimized?: boolean; rendere
 
 type FakeWindow = ReturnType<typeof fakeWindow>;
 
-function coordinator(listWindows: () => FakeWindow[]) {
+function coordinator(
+  listWindows: () => FakeWindow[],
+  deps: { isHeldWindow?: (window: FakeWindow) => boolean } = {},
+) {
   const infos: string[] = [];
   let created = 0;
   return {
@@ -58,6 +61,7 @@ function coordinator(listWindows: () => FakeWindow[]) {
     },
     coordinator: createPrimaryWindowCoordinator({
       listWindows,
+      ...(deps.isHeldWindow ? { isHeldWindow: deps.isHeldWindow as never } : {}),
       resolveStartupWindowBootstrap: async () => ({}),
       createWindow: () => {
         created += 1;
@@ -150,4 +154,26 @@ test("the splash settings component is not wired to a method that does not exist
   assert.ok(settings.includes("setZaicodeSplashPrefs"), "the section writes the preferences");
   assert.ok(platform.includes("getZaicodeSplashPrefs?"), "the service still declares the reader");
   assert.ok(platform.includes("setZaicodeSplashPrefs?"), "the service still declares the writer");
+});
+// SRC-060: "the splash stays until the app is ready". Tray, dock and
+// app-activate all route through the primary window coordinator, and every one
+// of them used to call show() on a window the splash was still holding -- so
+// clicking the tray icon during start-up revealed a half-loaded window with the
+// splash still floating on top of it.
+test("a window held by the start-up splash is not revealed from the coordinator", async () => {
+  const held = fakeWindow({ visible: false });
+  const crashed = fakeWindow({ visible: false, rendererCrashed: true });
+  const harness = coordinator(() => [held, crashed], { isHeldWindow: () => true });
+  await harness.coordinator.ensurePrimaryWindow("tray-show-current-window");
+  assert.equal(held.shown, 0, "the held window stays hidden");
+  assert.equal(held.focused, 0, "and is not focused either");
+  assert.equal(crashed.destroyedCount, 0, "a held window is not destroyed as a crash");
+  assert.equal(harness.created, 0, "and no replacement window is created");
+});
+
+test("an ordinary hidden window is still shown by the coordinator", async () => {
+  const plain = fakeWindow({ visible: false });
+  const harness = coordinator(() => [plain], { isHeldWindow: () => false });
+  await harness.coordinator.ensurePrimaryWindow("tray-show-current-window");
+  assert.equal(plain.shown, 1, "without the hold, the coordinator still shows it");
 });

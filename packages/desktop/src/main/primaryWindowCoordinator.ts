@@ -19,6 +19,14 @@ interface PrimaryWindowCoordinatorDeps {
   resolveStartupWindowBootstrap(): Promise<StartupWindowBootstrap>;
   createWindow(startupBootstrap: StartupWindowBootstrap): void;
   canCreateWindow?: (reason: string) => boolean;
+  /**
+   * SRC-060: a window the start-up splash is holding must not be shown from
+   * here. Tray, dock and app-activate all route through this coordinator, so
+   * clicking the tray icon during start-up revealed a half-loaded window with
+   * the splash still floating over it -- exactly what "the splash stays until
+   * the app is ready" forbids. The splash hand-over owns the reveal.
+   */
+  isHeldWindow?: (window: WindowLike) => boolean;
   logger: {
     info(message: string): void;
   };
@@ -46,6 +54,10 @@ export function createPrimaryWindowCoordinator(deps: PrimaryWindowCoordinatorDep
 
       if (existingWindow.isMinimized?.()) {
         existingWindow.restore?.();
+      }
+      if (deps.isHeldWindow?.(existingWindow)) {
+        deps.logger.info("primary window is held by the start-up splash; leaving the reveal to it");
+        return true;
       }
       if (!existingWindow.isVisible()) {
         existingWindow.show();
