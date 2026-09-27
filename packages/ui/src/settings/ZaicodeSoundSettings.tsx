@@ -268,8 +268,23 @@ function SoundGroup({
 }) {
   return (
     <>
-      <span className="col-span-9 mt-1 border-b border-border/60 pb-0.5 font-semibold text-foreground-subtle">
-        {group}
+      <span className="col-span-9 mt-1 flex items-center gap-2 border-b border-border/60 pb-0.5 font-semibold text-foreground-subtle">
+        <span className="min-w-0 flex-1">{group}</span>
+        {/* SRC-060: a whole section (the 17-voice Orchestra) on or off in one click. */}
+        {(["on", "off"] as const).map((state) => (
+          <button
+            key={state}
+            type="button"
+            className="border border-border px-1 font-normal leading-4 text-foreground-subtlest hover:bg-hover hover:text-foreground"
+            title={`Turn every ${group} sound ${state}`}
+            data-zaicode-sound={state === "on" ? "ui.checkOn" : "ui.checkOff"}
+            onClick={() => {
+              for (const event of rows) setZaicodeSoundEvent(event.id, { enabled: state === "on" });
+            }}
+          >
+            all {state}
+          </button>
+        ))}
       </span>
       {rows.map((event) => {
         const row = settings.events[event.id]!;

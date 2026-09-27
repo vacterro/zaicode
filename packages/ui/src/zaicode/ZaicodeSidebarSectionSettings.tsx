@@ -185,6 +185,13 @@ export function ZaicodeLiveToggle() {
             label="Waiting for me counts as live (and comes first)"
             hint="A session asking a question or a permission."
           />
+          <ZaicodePrefCheck
+            checked={prefs.liveRemain}
+            onChange={(liveRemain) => prefs.update({ liveRemain })}
+            label="Remain in position after finishing"
+            hint="A finished project stays up instead of dropping back to its manual place."
+            disabled={!prefs.liveFirst}
+          />
           <ZaicodePrefHeading>INDICATORS</ZaicodePrefHeading>
           <ZaicodePrefCheck
             checked={prefs.liveProjectIndicator}

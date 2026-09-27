@@ -40,6 +40,46 @@ export type ZaicodeLiveScope = "slot" | "global";
  */
 export const ZAICODE_LIVE_HOLD_MS: readonly number[] = [0, 30_000, 120_000, 600_000, 3_600_000];
 
+/** How many projects liveRemain remembers; the oldest raise is forgotten first. */
+export const ZAICODE_LIVE_RAISED_CAP = 200;
+/** A live project's raise moment is refreshed at most this often (it is a stored preference). */
+export const ZAICODE_LIVE_RAISE_STEP_MS = 60_000;
+
+function newestRaised(entries: [string, number][]): Record<string, number> {
+  return Object.fromEntries(
+    entries.sort((left, right) => right[1] - left[1]).slice(0, ZAICODE_LIVE_RAISED_CAP),
+  );
+}
+
+function normalizeZaicodeLiveRaised(raw: unknown): Record<string, number> {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return {};
+  return newestRaised(
+    Object.entries(raw as Record<string, unknown>).filter(
+      (entry): entry is [string, number] =>
+        typeof entry[1] === "number" && Number.isFinite(entry[1]) && entry[1] > 0,
+    ),
+  );
+}
+
+/**
+ * SRC-060: records the live moment of every project that is live now, so
+ * "Remain in position" can keep it up after it finishes. Returns the new map,
+ * or null when nothing moved by at least ZAICODE_LIVE_RAISE_STEP_MS (the map
+ * is persisted, so a running project must not write on every activity tick).
+ */
+export function raiseZaicodeLiveProjects(
+  raised: Readonly<Record<string, number>>,
+  live: readonly { key: string; at: number }[],
+): Record<string, number> | null {
+  let next: Record<string, number> | null = null;
+  for (const { key, at } of live) {
+    if (!(at > 0) || at - (raised[key] ?? 0) < ZAICODE_LIVE_RAISE_STEP_MS) continue;
+    next ??= { ...raised };
+    next[key] = at;
+  }
+  return next ? newestRaised(Object.entries(next)) : null;
+}
+
 /** Project freshness read-out (SRC-051): nothing, a leading dot, or a tint of the label. */
 export type ZaicodeProjectFreshness = "off" | "dot" | "tint";
 export const ZAICODE_PROJECT_FRESHNESS: readonly ZaicodeProjectFreshness[] = ["off", "dot", "tint"];
@@ -120,6 +160,14 @@ export interface ZaicodeSidebarPrefs {
   liveDimIdle: boolean;
   /** A project stays LIVE-ranked this long after its last live moment (0 = drop at once). */
   liveHoldMs: number;
+  /**
+   * SRC-060 "Remain in position": a project that finished stays up where LIVE
+   * pulled it instead of dropping back to its manual place. Among the projects
+   * that are not live, the most recently live come first.
+   */
+  liveRemain: boolean;
+  /** Last live moment per project key, for liveRemain (newest ZAICODE_LIVE_RAISED_CAP kept). */
+  liveRaised: Record<string, number>;
   /** Freshness read-out on the project row from its last activity (SRC-051). */
   projectFreshness: ZaicodeProjectFreshness;
   /** Where project names sit in their row (SRC-038). */
@@ -190,6 +238,8 @@ export const ZAICODE_SIDEBAR_DEFAULT_PREFS: ZaicodeSidebarPrefs = {
   liveProjectIndicator: true,
   liveDimIdle: false,
   liveHoldMs: 120_000,
+  liveRemain: false,
+  liveRaised: {},
   projectFreshness: "dot",
   projectTitleAlign: "left",
   projectTitleFont: "ui",
@@ -255,6 +305,8 @@ export function normalizeZaicodeSidebarPrefs(raw: unknown): ZaicodeSidebarPrefs 
     liveHoldMs: ZAICODE_LIVE_HOLD_MS.includes(r.liveHoldMs as number)
       ? (r.liveHoldMs as number)
       : d.liveHoldMs,
+    liveRemain: flag(r.liveRemain, d.liveRemain),
+    liveRaised: normalizeZaicodeLiveRaised(r.liveRaised),
     projectFreshness: pick(r.projectFreshness, ZAICODE_PROJECT_FRESHNESS, d.projectFreshness),
     projectTitleAlign: pick(
       r.projectTitleAlign,
@@ -486,7 +538,8 @@ export function orderZaicodeProjectSections<K extends string>(
       | "liveScope"
       | "liveIncludeWaiting"
       | "liveHoldMs"
-    >;
+    > &
+      Partial<Pick<ZaicodeSidebarPrefs, "liveRemain" | "liveRaised">>;
     liveOf: (key: K) => ZaicodeProjectLive | undefined;
     now?: number;
   },
@@ -522,7 +575,12 @@ export function orderZaicodeProjectSections<K extends string>(
       .map((key, index) => ({ key, index, live: isLive(key) }))
       .sort((left, right) => {
         if (left.live !== right.live) return left.live ? -1 : 1;
-        if (!left.live) return left.index - right.index;
+        if (!left.live) {
+          // Remain in position: the most recently live stay up, the rest keep the manual order.
+          if (!prefs.liveRemain) return left.index - right.index;
+          const raised = prefs.liveRaised ?? {};
+          return (raised[right.key] ?? 0) - (raised[left.key] ?? 0) || left.index - right.index;
+        }
         // 等你回应的项目排在正在跑的前面：人一眼就能看到哪里卡着等他。
         const leftWaiting = prefs.liveIncludeWaiting && (liveOf(left.key)?.waiting ?? 0) > 0;
         const rightWaiting = prefs.liveIncludeWaiting && (liveOf(right.key)?.waiting ?? 0) > 0;

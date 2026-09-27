@@ -8,6 +8,8 @@ import { createRoot } from "react-dom/client";
 import { useEffect, useState } from "react";
 import { Info, TriangleAlert, X } from "lucide-react";
 import { cn } from "@/components/lib/utils.js";
+import { isZaicodeProductMode } from "@zcode/shared";
+import { playZaicodeSound } from "@/zaicode/zaicodeSoundBus.js";
 
 export type ToastPosition = "top-center" | "top-right" | "bottom-left" | "bottom-center";
 type ToastVariant = "default" | "update" | "info" | "warning";
@@ -404,6 +406,9 @@ export function ToastMessageView({
 
 export function toast(message: string, options?: ToastOptions): number {
   ensureHost();
+  // ZAICODE (SRC-060): a notice has a voice too; right after the operator's own
+  // click (an echo) the click's sound is the only one heard.
+  if (isZaicodeProductMode()) playZaicodeSound("ui.toast", { echo: true });
   // ensureHost 是同步的，但 addToast 在下一帧 React 渲染后才可用
   // 用 requestAnimationFrame 保证 container 已挂载
   const id = nextId++;

@@ -11,6 +11,7 @@ import {
 } from "./zaicodeSettingsSnapshot.js";
 import { playZaicodeSound, registerZaicodeSoundPlayer, zaicodeDirectSoundPlayedSince } from "./zaicodeSoundBus.js";
 import { isZaicodeSoundQuietNow } from "./zaicodeNotifications.js";
+import { ZAICODE_CLICKABLE, zaicodeChangeSoundFor, zaicodeClickSoundFor } from "./zaicodeSoundVoices.js";
 
 /**
  * ZAICODE sound events, FastPrompter-style: every action has its own row —
@@ -30,7 +31,8 @@ export type ZaicodeSoundGroup =
   | "Window"
   | "Engines"
   | "SAIMAIL"
-  | "Interface";
+  | "Interface"
+  | "Orchestra";
 
 export interface ZaicodeSoundEventDef {
   id: string;
@@ -103,6 +105,25 @@ export const ZAICODE_SOUND_EVENTS: readonly ZaicodeSoundEventDef[] = [
   { id: "ui.contextMenu", group: "Interface", label: "Context menu", hint: "A context menu was requested", glyph: "grid", sound: fp("menu_launch_upmenu1.wav"), enabled: true, gainDb: -12 },
   { id: "todo.tick", group: "Interface", label: "Todo done", hint: "A todo item completed", glyph: "check", sound: fp("tick_on.wav"), enabled: true, gainDb: -8 },
   { id: "problip.goal", group: "Interface", label: "Problip goal", hint: "The problip counter reached a round number", glyph: "star", sound: fp("success_levelup.wav"), enabled: true, gainDb: -4 },
+  // Orchestra (SRC-060): every kind of control has its own voice. One listener
+  // per kind (installZaicodeDeclarativeSounds); a control with its own cue wins.
+  { id: "ui.tab", group: "Orchestra", label: "Tab", hint: "A tab was picked (Agents & tasks, Scheduler, Audits, ...)", glyph: "list", sound: fp("click_hint.wav"), enabled: true, gainDb: -12 },
+  { id: "ui.menuItem", group: "Orchestra", label: "Menu item", hint: "An entry in a menu or list was picked", glyph: "list", sound: fp("menu_launch_select1.wav"), enabled: true, gainDb: -14 },
+  { id: "ui.menuOpen", group: "Orchestra", label: "Menu opens", hint: "A button that opens a menu, a list or a panel was pressed", glyph: "grid", sound: fp("menu1.wav"), enabled: true, gainDb: -14 },
+  { id: "ui.checkOn", group: "Orchestra", label: "Tick on", hint: "A tick box was ticked", glyph: "check", sound: fp("tick_on.wav"), enabled: true, gainDb: -12 },
+  { id: "ui.checkOff", group: "Orchestra", label: "Tick off", hint: "A tick box was cleared", glyph: "cross", sound: fp("tick_off.wav"), enabled: true, gainDb: -12 },
+  { id: "ui.slider", group: "Orchestra", label: "Slider", hint: "A slider was let go at a new value", glyph: "dot", sound: fp("blip2.wav"), enabled: true, gainDb: -16 },
+  { id: "ui.link", group: "Orchestra", label: "Link", hint: "A link was followed", glyph: "swap", sound: fp("click_soft.wav"), enabled: true, gainDb: -12 },
+  { id: "ui.expand", group: "Orchestra", label: "Unfold", hint: "A section, row or panel was unfolded", glyph: "fold", sound: fp("menu_launch_dnmenu1.wav"), enabled: true, gainDb: -14 },
+  { id: "ui.collapse", group: "Orchestra", label: "Fold", hint: "A section, row or panel was folded", glyph: "fold", sound: fp("click_mouse_click2.wav"), enabled: true, gainDb: -14 },
+  { id: "ui.dialogOpen", group: "Orchestra", label: "Window opens", hint: "A dialog or panel appeared by itself (after your own click the click sound plays instead)", glyph: "box", sound: fp("wpn_hudon.wav"), enabled: true, gainDb: -12 },
+  { id: "ui.dialogClose", group: "Orchestra", label: "Window closes", hint: "A dialog or panel went away by itself", glyph: "box", sound: fp("wpn_hudoff.wav"), enabled: true, gainDb: -12 },
+  { id: "ui.denied", group: "Orchestra", label: "Not available", hint: "You pressed a control that is switched off right now", glyph: "cross", sound: fp("menu_launch_deny1.wav"), enabled: true, gainDb: -12 },
+  { id: "ui.paste", group: "Orchestra", label: "Paste", hint: "Something was pasted", glyph: "copy", sound: fp("pop1.wav"), enabled: true, gainDb: -12 },
+  { id: "ui.toast", group: "Orchestra", label: "Notice", hint: "A notice popped up in the corner (not right after your own click)", glyph: "dot", sound: fp("notify_notification.wav"), enabled: true, gainDb: -14 },
+  { id: "ui.escape", group: "Orchestra", label: "Esc", hint: "Esc was pressed (close, cancel)", glyph: "undo", sound: fp("whoosh_short_whoosh2.wav"), enabled: false, gainDb: -14 },
+  { id: "ui.hover", group: "Orchestra", label: "Hover", hint: "The pointer moved onto a button", glyph: "dot", sound: fp("cs_style/buttonrollover.wav"), enabled: false, gainDb: -22 },
+  { id: "ui.typing", group: "Orchestra", label: "Typing", hint: "A key was typed into a text field (typewriter)", glyph: "key", sound: fp("type_key_1.wav"), enabled: false, gainDb: -20 },
 ];
 
 const EVENT_BY_ID = new Map(ZAICODE_SOUND_EVENTS.map((event) => [event.id, event]));
@@ -532,6 +553,14 @@ export function stopAllZaicodeSounds(): void {
   for (const id of playing.keys()) stopZaicodeSound(id);
 }
 
+const DIALOG = "[role='dialog'], [role='alertdialog']";
+
+/** Whether an element added to or removed from <body> is (or holds) a dialog. */
+function holdsDialog(node: Node): boolean {
+  if (!(node instanceof Element)) return false;
+  return node.matches(DIALOG) || node.querySelector(DIALOG) !== null;
+}
+
 /** One capture listener: any element with data-zaicode-sound plays that event on click. */
 let declarativeInstalled = false;
 
@@ -548,27 +577,75 @@ export function installZaicodeDeclarativeSounds(): void {
     },
     true,
   );
+  // The click flips aria-expanded before the bubbling listener runs, so the
+  // state before the click is read in the capture phase.
+  let expandedBefore: string | null = null;
+  document.addEventListener(
+    "click",
+    (event) => {
+      const target = event.target instanceof Element ? event.target : null;
+      expandedBefore = target?.closest("[aria-expanded]")?.getAttribute("aria-expanded") ?? null;
+    },
+    true,
+  );
   document.addEventListener("click", (event) => {
     const target = event.target instanceof Element ? event.target : null;
-    if (!target || target.closest("[data-zaicode-sound], [aria-disabled='true'], :disabled")) return;
-    if (zaicodeDirectSoundPlayedSince(Date.now() - 80)) return;
-    if (target.closest("[role='switch']")) {
-      playZaicodeSound("ui.toggle");
-      return;
-    }
-    if (target.closest("input[type='checkbox'], input[type='radio'], select")) return;
-    if (target.closest("button, [role='button'], [role='menuitem']")) playZaicodeSound("ui.button");
+    if (!target || zaicodeDirectSoundPlayedSince(Date.now() - 80)) return;
+    const id = zaicodeClickSoundFor(target, expandedBefore);
+    if (id) playZaicodeSound(id);
   });
   document.addEventListener("change", (event) => {
     const target = event.target instanceof Element ? event.target : null;
-    if (!target || target.closest("[data-zaicode-sound], [aria-disabled='true'], :disabled")) return;
-    if (zaicodeDirectSoundPlayedSince(Date.now() - 80)) return;
-    if (target.closest("[role='switch'], input[type='checkbox']")) playZaicodeSound("ui.toggle");
-    else if (target.closest("select, input[type='radio']")) playZaicodeSound("ui.select");
+    if (!target || zaicodeDirectSoundPlayedSince(Date.now() - 80)) return;
+    const id = zaicodeChangeSoundFor(target, target as HTMLInputElement);
+    if (id) playZaicodeSound(id);
   });
   document.addEventListener("contextmenu", () => {
     if (!zaicodeDirectSoundPlayedSince(Date.now() - 80)) playZaicodeSound("ui.contextMenu");
   });
+  document.addEventListener("paste", () => playZaicodeSound("ui.paste"), true);
+  // A disabled control swallows its click; the press itself still arrives.
+  document.addEventListener(
+    "pointerdown",
+    (event) => {
+      const target = event.target instanceof Element ? event.target : null;
+      if (target?.closest("button:disabled, [aria-disabled='true']")) playZaicodeSound("ui.denied");
+    },
+    true,
+  );
+  document.addEventListener(
+    "keydown",
+    (event) => {
+      if (event.key === "Escape") {
+        playZaicodeSound("ui.escape");
+        return;
+      }
+      if (event.ctrlKey || event.metaKey || event.altKey || event.key.length !== 1) return;
+      const target = event.target instanceof Element ? event.target : null;
+      if (target?.closest("input, textarea, [contenteditable='true']")) playZaicodeSound("ui.typing");
+    },
+    true,
+  );
+  document.addEventListener("pointerover", (event) => {
+    const target = event.target instanceof Element ? event.target.closest(ZAICODE_CLICKABLE) : null;
+    const from = event.relatedTarget instanceof Element ? event.relatedTarget.closest(ZAICODE_CLICKABLE) : null;
+    if (target && target !== from && !target.matches(":disabled")) playZaicodeSound("ui.hover");
+  });
+  // Dialogs, popovers and menus are portalled straight into <body>. They
+  // announce themselves as echoes: after the click that opened them, the
+  // click's own sound is the only one heard.
+  if (typeof MutationObserver !== "undefined" && document.body) {
+    new MutationObserver((records) => {
+      let opened = false;
+      let closed = false;
+      for (const record of records) {
+        for (const node of record.addedNodes) opened ||= holdsDialog(node);
+        for (const node of record.removedNodes) closed ||= holdsDialog(node);
+      }
+      if (opened) playZaicodeSound("ui.dialogOpen", { echo: true });
+      else if (closed) playZaicodeSound("ui.dialogClose", { echo: true });
+    }).observe(document.body, { childList: true });
+  }
 }
 
 export function zaicodeSoundDiagnostics(): string {

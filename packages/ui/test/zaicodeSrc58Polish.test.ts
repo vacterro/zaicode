@@ -41,10 +41,14 @@ test("the project row owns its sound cue, so the generic click cannot bury it", 
   assert.match(row, /data-zaicode-sound="sidebar\.project"/);
 
   const events = read("zaicode/zaicodeSoundEvents.ts");
+  // SRC-060 moved the click classifier into zaicodeSoundVoices.ts (asset-free,
+  // tested directly in zaicodeSoundEvents.test.ts); the listener plays its answer.
+  const voices = read("zaicode/zaicodeSoundVoices.ts");
   assert.ok(
-    events.includes('closest("[data-zaicode-sound]'),
+    voices.includes('closest("[data-zaicode-sound]'),
     "the generic listener honours the declarative opt-out",
   );
   assert.ok(events.includes('addEventListener("click"'), "the click listener is still wired");
-  assert.ok(events.includes('playZaicodeSound("ui.button")'), "ui.button is still the generic button cue");
+  assert.ok(events.includes("zaicodeClickSoundFor(target"), "the click listener asks the classifier");
+  assert.ok(voices.includes('return "ui.button"'), "ui.button is still the generic button cue");
 });
