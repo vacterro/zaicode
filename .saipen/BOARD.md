@@ -29,7 +29,6 @@
 ## DOING
 
 ## TODO
-- [ ] T-79 [P1] installer: AppBranch main is 6 commits behind the product branch -- a fresh install misses T-72 (8914bf6) and T-78 (84a984b); choose the release branch (merge zaicode into main, or point AppBranch at it) | verify: the branch the installer clones carries 8914bf6 and 84a984b, and a fresh install's app-source matches the developer checkout
 
 ## DONE
 - [x] T-80 [P3] docs: ZAICODE_INSTALL.md line 36 still says saimail-local WARNs until the published SAIMAIL ships it; it shipped as d2fa09e and the doctor now reports saimail-cli OK | verify: the install doc's saimail-local row matches what a fresh install reaches, measured by the doctor's saimail-cli check | owner: claude-code | claim_time: 2026-09-27T03:07:06Z | closure_mode: own_patch
@@ -50,4 +49,5 @@
 - [x] T-49 [P1] • Ну и про 33 языков тоже не забывать. Это задача для пула SAIFREN тогда под конец. | verify: the requested change is present and demonstrated against the user own description of it | user_explicit: true | source_receipts: SRC-038 | owner: claude-code | claim_time: 2026-09-25T07:22:50Z | closure_mode: own_patch
 
 ## BLOCKED
+- [ ] T-79 [P1] installer: AppBranch main is 6 commits behind the product branch -- a fresh install misses T-72 (8914bf6) and T-78 (84a984b); choose the release branch (merge zaicode into... | verify: the branch the installer clones carries 8914bf6 and 84a984b, and a fresh install's app-source matches the developer checkout [detail_ref: .saipen/recovery/board-compaction/T-79/T-79-c0c3da6f58010b1b11a62434.json] | blocker: OPERATOR_REQUIRED: which branch is the release branch is the operator's decision, not the auditor's. The two routes are (a) merge zaicode forward into main on vacterro/zaicode, which is an... | blocker_scope: ticket | detail_ref: .saipen/recovery/board-compaction/T-79/T-79-c0c3da6f58010b1b11a62434.json
 - [ ] T-9 [P3] ZAICODE interactive desktop E2E: click-through of workspace roster/queue/inspector and queue execution through the real runtime | verify: an automated or operator-run E2E scenario creates an agent, queues a task, dispatches it, and observes a terminal job state | blocker: OPERATOR_REQUIRED: interactive desktop E2E (agent create -> queue -> dispatch -> terminal state via real runtime) needs a configured provider and human-run desktop session; agent environment has no headless UI automation (playwright/browser automation banned by tooling hygiene, Electron runs leave long-lived processes); manual-verify steps are documented in docs/ZAICODE_ACCOUNT_INDEPENDENCE_VALIDATION.md; service-level path already covered by 10/10 unit tests | blocker_scope: ticket

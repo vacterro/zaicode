@@ -150,3 +150,4 @@
 - 27.09.26 03:07 [E-1306] [parent: E-1305] [T-80] [agent: claude-code] [op: transition-b5806e8bbe074ab69b554065ae349205] RUN: transition to SHIP -- review clean
 - 27.09.26 03:07 [E-1307] [parent: E-1306] [T-80] [agent: claude-code] [op: checkpoint-119dc36d6da94c3f99fe62adfeb393c9] RUN: ship vX.Y.Z -> skipped publish (no-publish: policy -- this repository has no origin, so the release engine cannot classify a publication endpoint; the change is one documentation line and no push of this repository is authorized by this ticket)
 - 27.09.26 03:07 [E-1308] [parent: E-1307] [T-80] [agent: claude-code] [op: finish-29f61aa2c08143b5b045c2463a40bb4f] DEC: ticket finished via SAIOPS -- completion (from SHIP)
+- 27.09.26 03:07 [E-1309] [parent: E-1308] [T-79] [agent: claude-code] [op: ticket-58f842c4f6124c8b80189f768b9e7a44] DEC: detail_ref: .saipen/recovery/log-detail/E-1309-ba954e32e482f57e037cc07f.json
