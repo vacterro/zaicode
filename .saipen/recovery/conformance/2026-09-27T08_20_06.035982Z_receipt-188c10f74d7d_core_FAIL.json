@@ -1,0 +1,82 @@
+{
+  "blocking_findings": {
+    "problem_count": 4,
+    "problems": [
+      {
+        "category": null,
+        "credential": false,
+        "detail": "unproven/failed; reverify: no current-tree PASS re-verification receipt",
+        "detail_hash": "22c553d8629caa9a",
+        "finding_key": "9045207907729a71",
+        "rule_id": "work_closure_evidence",
+        "severity": "problem",
+        "subject_id": "T-47",
+        "subject_kind": "work",
+        "subject_ref": null
+      },
+      {
+        "category": null,
+        "credential": false,
+        "detail": "unproven/failed; reverify: no current-tree PASS re-verification receipt",
+        "detail_hash": "22c553d8629caa9a",
+        "finding_key": "fef0ce025ed79ab4",
+        "rule_id": "work_closure_evidence",
+        "severity": "problem",
+        "subject_id": "T-62",
+        "subject_kind": "work",
+        "subject_ref": null
+      },
+      {
+        "category": null,
+        "credential": false,
+        "detail": "unproven/failed; reverify: no current-tree PASS re-verification receipt",
+        "detail_hash": "22c553d8629caa9a",
+        "finding_key": "38e76e5ba8c98ece",
+        "rule_id": "work_closure_evidence",
+        "severity": "problem",
+        "subject_id": "T-76",
+        "subject_kind": "work",
+        "subject_ref": null
+      },
+      {
+        "category": null,
+        "credential": false,
+        "detail": "unproven/failed; reverify: no current-tree PASS re-verification receipt",
+        "detail_hash": "22c553d8629caa9a",
+        "finding_key": "616bca708e8215cf",
+        "rule_id": "work_closure_evidence",
+        "severity": "problem",
+        "subject_id": "T-78",
+        "subject_kind": "work",
+        "subject_ref": null
+      }
+    ],
+    "ruleset_fingerprint": "82e5e183ae8f0fd909be3fa3627f00489cacaab813d942186c832db02a05a1c1",
+    "ruleset_version": 1,
+    "status": "complete",
+    "warning_count": 19
+  },
+  "board_hash": "87714d0544f875ee",
+  "canonical_next_command": "saipen work reverify T-47",
+  "content_hash": "e75b5bf74d33ae18",
+  "exit_code": 1,
+  "external_actions": [],
+  "gate": "core",
+  "kind": "conformance_receipt",
+  "log_hash": "b170232ec034928f",
+  "project_identity": "/home/user/zaicode",
+  "receipt_id": "receipt-188c10f74d7d",
+  "remediation_commands": [
+    "saipen work reverify T-47",
+    "saipen work reverify T-62",
+    "saipen work reverify T-76",
+    "saipen work reverify T-78"
+  ],
+  "schema_version": 2,
+  "source_head": "d5f63dffbecf1b91c6c7ca60f72c2d435968756f",
+  "source_tree_fingerprint": "git-delta-v1:9ea0b47450becd2589df222dc1826dd55881fbdb608215cdd281b033fe0618d5",
+  "state_hash": "2fac0229e057535f",
+  "timestamp_utc": "2026-09-27T08:20:06.035982Z",
+  "validator_protocol_version": "1",
+  "verdict": "FAIL"
+}
