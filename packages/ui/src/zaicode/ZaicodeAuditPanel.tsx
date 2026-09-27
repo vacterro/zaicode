@@ -1,7 +1,12 @@
 /* eslint-disable max-lines -- Audit panel: campaign queue + generate controls (T-66) */
 import { useCallback, useEffect, useState } from "react";
 import { ClipboardCopy, ListChecks, Plus, Play, X, Zap } from "lucide-react";
-import { ZAICODE_AUDIT_PROFILE_A3, type ZaicodeAuditCampaign } from "@zcode/shared";
+import {
+  ZAICODE_AUDIT_PROFILE_A3,
+  describeZaicodeAuditCampaign,
+  formatZaicodeAuditElapsed,
+  type ZaicodeAuditCampaign,
+} from "@zcode/shared";
 import { Button } from "@/components/ui/button.js";
 import { Switch } from "@/components/ui/switch.js";
 import { cn } from "@/components/lib/utils.js";
@@ -65,6 +70,7 @@ function CampaignCard({
   onCancel: (campaignId: string) => void;
 }) {
   const [report, setReport] = useState<string | null>(null);
+  const readout = describeZaicodeAuditCampaign(campaign);
   const currentWave = campaign.waves[campaign.currentWaveIndex];
   const doneCount = campaign.waves.filter((wave) => wave.status === "complete").length;
   const isActive = campaign.status === "planned" || campaign.status === "running" || campaign.status === "blocked";
@@ -83,6 +89,19 @@ function CampaignCard({
         </span>
         <span className="text-[10px] font-mono text-foreground-subtle">
           {doneCount}/{campaign.waves.length} waves
+        </span>
+        {/* SRC-060: the operator asked to know at a glance which project, which
+            model, where it is, at what stage and for how long. All five come
+            from one read model so they cannot disagree with each other. */}
+        <span
+          className="truncate text-[10px] text-foreground-subtle"
+          title={`${readout.projectName} — ${readout.workspacePath}
+stage: ${readout.stage}
+model: ${readout.agentId ?? "not chosen yet"}
+running for: ${formatZaicodeAuditElapsed(readout.elapsedMs)}`}
+        >
+          {readout.where} · {readout.stage} · {readout.agentId ?? "no model yet"} ·{" "}
+          {formatZaicodeAuditElapsed(readout.elapsedMs)}
         </span>
         <span className="ml-auto flex items-center gap-1">
           {currentWave?.reportFile && (

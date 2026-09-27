@@ -76,6 +76,13 @@ export interface ZaicodeAuditCampaignWaveState {
   reportFile: string | null;
   resultSha256: string | null;
   completedAt: string | null;
+  /**
+   * The agent this wave ran on, recorded when the wave is enqueued. SRC-060
+   * asked "which model is chosen"; the job knows its agent but the campaign
+   * never wrote it down, so the panel could only name the project. Optional so
+   * campaigns written by an older build still load.
+   */
+  agentId?: string | null;
 }
 
 export interface ZaicodeAuditCampaign {
@@ -105,6 +112,76 @@ export interface ZaicodeAuditCampaign {
   remediationJobId?: string | null;
   /** Current queue status, filled by getState and never used as persisted truth. */
   remediationStatus?: "draft" | "queued" | "ready" | "running" | "waiting" | "blocked" | "completed" | "failed" | "cancelled" | null;
+}
+
+/**
+ * SRC-060: "какие проекты, какая модель выбрана, где щас идёт аудит, на какой
+ * стадии, сколько идёт процесс" -- one read model so the panel, the sidebar and
+ * anything else answer from the same place instead of each re-deriving it.
+ *
+ * Pure: no clock and no IO beyond the arguments, so it is directly testable.
+ */
+export interface ZaicodeAuditReadout {
+  projectName: string;
+  workspacePath: string;
+  /** The wave being worked right now, as "2/3 Performance and leaks". */
+  where: string;
+  /** The plain-language stage, which is not the same thing as the status enum. */
+  stage: string;
+  /** Agent the current wave runs on, or null for a campaign not yet enqueued. */
+  agentId: string | null;
+  doneWaves: number;
+  totalWaves: number;
+  /** Milliseconds since the campaign was generated. */
+  elapsedMs: number;
+  /** True while a wave is queued, running or waiting. */
+  active: boolean;
+}
+
+const ZAICODE_AUDIT_STAGE_WORDS: Record<ZaicodeAuditCampaign["status"], string> = {
+  planned: "waiting in the queue until you start it",
+  running: "running now",
+  complete: "finished",
+  blocked: "stopped on something it could not finish",
+  cancelled: "cancelled",
+};
+
+export function describeZaicodeAuditCampaign(
+  campaign: ZaicodeAuditCampaign,
+  now: number = Date.now(),
+): ZaicodeAuditReadout {
+  const current = campaign.waves[campaign.currentWaveIndex] ?? null;
+  const wave = current ? zaicodeAuditWaveOf(ZAICODE_AUDIT_PROFILE_A3, current.waveId) : null;
+  const doneWaves = campaign.waves.filter((entry) => entry.status === "complete").length;
+  const where =
+    wave && current
+      ? `${wave.ordinal}/${ZAICODE_AUDIT_PROFILE_A3.waves.length} ${wave.title}`
+      : "no wave left";
+  const stage =
+    campaign.status === "running" && current?.status === "partial"
+      ? `${ZAICODE_AUDIT_STAGE_WORDS[campaign.status]} — this wave came back partial`
+      : ZAICODE_AUDIT_STAGE_WORDS[campaign.status] ?? campaign.status;
+  return {
+    projectName: campaign.projectName,
+    workspacePath: campaign.workspacePath,
+    where,
+    stage,
+    agentId: current?.agentId ?? null,
+    doneWaves,
+    totalWaves: campaign.waves.length,
+    elapsedMs: Math.max(0, now - Date.parse(campaign.createdAt)),
+    active: campaign.status === "running",
+  };
+}
+
+/** Compact "3m 12s" / "2h 04m" for a duration, the way a person reads it. */
+export function formatZaicodeAuditElapsed(ms: number): string {
+  const total = Math.max(0, Math.floor(ms / 1000));
+  const hours = Math.floor(total / 3600);
+  const minutes = Math.floor((total % 3600) / 60);
+  const seconds = total % 60;
+  const pad = (value: number) => String(value).padStart(2, "0");
+  return hours > 0 ? `${hours}h ${pad(minutes)}m` : minutes > 0 ? `${minutes}m ${pad(seconds)}s` : `${seconds}s`;
 }
 
 export function zaicodeAuditWaveOf(profile: typeof ZAICODE_AUDIT_PROFILE_A3, waveId: string): ZaicodeAuditWave | null {
