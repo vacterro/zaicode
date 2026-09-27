@@ -201,3 +201,27 @@ cloned shallow; the workspace clone leaves out the developer's `.saipen/`.
 What the public repos do not ship yet is reported (WARN), never faked:
 SAIMAIL's `saimail-local` and SAIPEN's launcher renderer were local-only on
 2026-09-25.
+
+## D-17 `saipen-live` is the transport branch and the local work branch (T-85, 2026-09-27)
+
+`origin/saipen-live` is the persistent boundary between this checkout and
+Claude Code Cloud, and the local checkout checks `saipen-live` out rather than
+merging into a separate work branch. One branch means the watcher's only two
+moves are `merge --ff-only` and a plain `push` — no merge machinery, no
+rebase, no second local branch to keep in step.
+
+`master` stays as the pre-transport history (its published mirror is
+`origin/workspace`); it is not deleted and not force-updated. `origin/main`
+(product lineage, `origin/HEAD`) and `origin/zaicode` (the nested product repo's
+push target, same GitHub URL) are untouched by the transport.
+
+The product repository `zcode/` is gitignored at the outer root, so a
+`saipen-live` checkpoint carries the SAIPEN protocol state and the workspace
+layer (launcher, docs, installer) but never a product byte. Cloud parity for
+product work therefore needs a second clone of `vacterro/zaicode` branch
+`zaicode`; that boundary is recorded, never faked.
+
+Chosen over: keeping `master` as the work branch and cherry-picking verified
+checkpoints onto `saipen-live` (two histories, silent divergence risk), and
+over a submodule (adds a network dependency to every state read for a
+dependency that is already a plain nested clone).

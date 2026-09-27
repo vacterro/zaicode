@@ -1,0 +1,26 @@
+{
+  "op_id": "seat-88cb2149cffb4ddcac39d5856fea1025",
+  "operation": "seat",
+  "created_at": "2026-09-27T03:21:06Z",
+  "agent": "saipen",
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "project_lineage": "lineage-b0732ed2f98947b9a3c97bfe71427eca",
+  "semantic_payload_hash": "3247d39428305b42",
+  "preconditions": {
+    ".saipen/improve/imp-_zaicode-20260927-23/MANIFEST.md": "9ea2979fe46d155f"
+  },
+  "read_preconditions": {},
+  "verification_policy": "improve_atomic_file",
+  "status": "COMMITTED",
+  "progress_index": 1,
+  "targets": [
+    {
+      "path": ".saipen/improve/imp-_zaicode-20260927-23/MANIFEST.md",
+      "role": "manifest",
+      "action": "write",
+      "before_hash": "9ea2979fe46d155f",
+      "after_hash": "8fcfd2db8e56839c",
+      "applied": true
+    }
+  ]
+}

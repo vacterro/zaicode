@@ -114,3 +114,25 @@ one-click exe `install\setup\build.cmd` -> `install\ZAICODE-Setup.exe`. Run the
 installer with Windows PowerShell 5.1 (`powershell.exe`), the one a fresh
 Windows has. A test install belongs on a short path (`V:\_TEMP_\zi`): the
 bundled router's Next output is deep.
+
+ZAICODE SAIPEN cloud transport (added 2026-09-27, T-85)
+
+Repository `V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE`, remote `origin`
+(`https://github.com/vacterro/zaicode.git`), transport branch `saipen-live`.
+The local checkout works ON `saipen-live`; `master` is the pre-transport
+history and `origin/workspace` is its published mirror.
+
+| Purpose | Command |
+|---------|---------|
+| Protocol validation | `saipen validate` (`code: VALID`, `Conformance: CURRENT_PASS`) |
+| Cold recovery | `saipen continue --json` |
+| Checkpoint (writes .saipen, then commit) | `saipen checkpoint RUN T-85 "<text>"` |
+| Install/repair local sync + autostart | `powershell.exe -File tools\saipen-cloud\Install-SaipenLiveSync.ps1` |
+| Watcher (foreground, for debugging) | `powershell.exe -File tools\saipen-cloud\ZaicodeSaipenLiveWatcher.ps1 -Repo <root> -LogFile <f> -LockFile <f>` |
+| Watcher log | `%APPDATA%\SAIPEN\ZAICODE_cloud-sync.log` |
+| Round-trip proof | `powershell.exe -File tools\saipen-cloud\Test-SaipenLiveSync.ps1` |
+
+Product layer (`zcode/`) is a SEPARATE repository and a separate gate; see
+`git -C zcode status`. Workspace-layer gate for the launcher is
+`tools\launcher\build.cmd`. The `pnpm` gates in the table above run inside
+`zcode/` only.

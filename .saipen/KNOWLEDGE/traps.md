@@ -189,7 +189,7 @@ Also: a script block does not close over its creator's locals, and
 `GetNewClosure()` loses script-scope functions; the installer's checks are
 switch arms over a context object for that reason.
 
-## Public SAIPEN / SAIMAIL lag the local checkouts (2026-09-25, T-53)
+## Public SAIPEN / SAIMAIL lag the local checkouts (2026-09-25, T-53; SAIPEN half corrected 2026-09-27, T-85)
 
 On 2026-09-25 local `_SAIPEN` was 132 commits ahead of `vacterro/saipen` main
 (v8.0.1 there: no `bin/`, no `bootstrap/cli_launcher.py`), and SAIMAIL's
@@ -198,3 +198,34 @@ as uncommitted work in `__SAIMAIL__`. An install from GitHub therefore gets the
 older SAIPEN and no `saimail-local`; the installer writes the SAIPEN launcher
 itself and reports saimail-local as WARN. Publishing those repos is the
 operator's call.
+
+**Corrected 2026-09-27 (T-85):** the SAIPEN half is no longer true. A fresh
+`git clone --depth 1 https://github.com/vacterro/saipen` measured
+`3088efffb61de1c4cea9cde2e15daf641654c4dc` (v8.0.1, tag v8.0.1 =
+`7145548211d2ee3ca9babf5e8b251960ea8f0527`) and it **does** carry `bin/saipen`,
+`bin/saipen.cmd`, `bootstrap/cli_launcher.py`, `saipen/`, `tools/` and `phases/`
+— the full launcher surface. A cloud executor can therefore install the real
+CLI from the public repo instead of following the protocol by hand. The
+SAIMAIL half (`saimail-local`) was not re-measured and stays open.
+
+## A hand-rolled `Invoke-GitChecked` re-breaks the 5.1 stderr trap (2026-09-27, T-85)
+
+`%APPDATA%\SAIPEN\ZAICODE_saipen-live.ps1` set `$ErrorActionPreference = "Stop"`
+and then ran `& git @Arguments 2>&1` inside `Invoke-GitChecked` — the exact
+combination the trap above documents as fatal in Windows PowerShell 5.1. Any
+git that writes one progress line to stderr (fetch, push, pull) raised
+NativeCommandError even on exit 0, so the bootstrap could not finish a fetch.
+Reusable fix, copied into `tools/saipen-cloud/`: capture stderr separately or
+set the preference to `Continue` around native calls and judge by
+`$LASTEXITCODE`.
+
+## The nested product repo is invisible to the transport (2026-09-27, T-85)
+
+`zcode/` is its own Git repository, gitignored at the outer root
+(`.saipen/source-nested-repos.json` declares it). A checkpoint commit of the
+outer repo therefore carries **no product byte**: T-84's
+`packages/desktop/src/host/zaicodeRunDispatch.ts` change sat in the outer repo's
+`git status` as nothing at all. Anything that reads only the outer worktree
+concludes "tree clean, safe to sync" while the product delta is still local
+only. Treat `git -C zcode status` as a separate, explicit check; it is a
+local-only gate the cloud cannot see.

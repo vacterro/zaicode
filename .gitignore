@@ -21,3 +21,7 @@
 /install/logs/
 /install/install-report.json
 /install/ZAICODE-Setup.exe
+# The SAIPEN kernel a cloud executor fetches per .claude/skills/saipen/SKILL.md.
+# It is pinned upstream, not authored here, so a stale local copy must never be
+# committed.
+/.claude/saipen-protocol/
