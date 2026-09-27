@@ -7,7 +7,6 @@ import {
   zaicodeProjectTopology,
   ZAICODE_RUNTIME_IDENTITY_KEYS,
   type ZaicodeRuntimeIdentity,
-  type ZaicodeSubchatConversation,
 } from "@zcode/shared";
 import {
   cycleZaicodeWorker,
@@ -36,7 +35,6 @@ import {
 import { normalizeZaicodeAliveWorkers } from "../src/zaicode/zaicodeWorkerRecovery.js";
 import {
   readZaicodeRuntimeRegistry,
-  zaicodeSubchatRuntimeIdentities,
   zaicodeWorkerRuntimeIdentity,
 } from "../src/zaicode/zaicodeRuntimeRegistry.js";
 import { useZaicodeMainSessions } from "../src/zaicode/zaicodeMainSession.js";
@@ -165,41 +163,26 @@ test("runtime transitions: exit ends the lease; restart is the next generation w
   assert.ok(Object.isFrozen(again) && Object.isFrozen(again.lease));
 });
 
-test("topology per project from identities only: workers and chat turns, path spelling ignored", () => {
-  const chat: ZaicodeSubchatConversation = {
-    id: "chat-1",
-    accountId: "claude:home2",
-    vendor: "claude",
-    short: "A2",
-    label: "Claude 2",
-    projectPath: "V:\\work\\Alpha\\",
-    sessionId: "s",
-    model: null,
-    title: "t",
-    createdAt: 1,
-    updatedAt: 3,
-    status: "running",
-    usage: { input: 0, output: 0, cached: 0 },
-    messages: [
-      { id: "m1", role: "user", text: "a", at: 1 },
-      { id: "m2", role: "assistant", text: "b", at: 2 },
-      { id: "m3", role: "user", text: "c", at: 3 },
-    ],
-  };
-  const turns = zaicodeSubchatRuntimeIdentities([chat], { "turn-9": "chat-1", "turn-x": "gone" });
-  assert.equal(turns.length, 1);
-  assert.deepEqual([turns[0]!.role, turns[0]!.workId, turns[0]!.generation, turns[0]!.lease?.since], ["subchat", "chat-1", 2, 3]);
-  const worker = freezeZaicodeRuntimeIdentity({ ...turns[0]!, runtimeId: "w1", role: "worker", workId: null, projectPath: "v:/work/alpha" });
+test("topology per project from identities only: path spelling ignored", () => {
+  // SRC-062: SUBCHAT turns are gone; the registry holds the CLI workers ZAICODE started.
+  const worker = freezeZaicodeRuntimeIdentity({
+    runtimeId: "w1",
+    workId: null,
+    owner: "claude:home2",
+    role: "worker",
+    generation: 1,
+    engine: "claude",
+    projectPath: "v:/work/alpha",
+    lease: { holder: "zaicode-window", since: 3 },
+    health: "running",
+  });
   const elsewhere = freezeZaicodeRuntimeIdentity({ ...worker, runtimeId: "w2", projectPath: "v:/work/beta" });
-  const topology = zaicodeProjectTopology([...turns, worker, elsewhere], "V:/work/alpha");
+  const topology = zaicodeProjectTopology([worker, elsewhere], "V:\\work\\Alpha\\");
   assert.deepEqual(
     topology.workers.map((identity) => identity.runtimeId),
     ["w1"],
   );
-  assert.deepEqual(
-    topology.subchats.map((identity) => identity.runtimeId),
-    ["turn-9"],
-  );
+  assert.equal("subchats" in topology, false);
   assert.equal(topology.primary, null);
 });
 

@@ -22,7 +22,6 @@ export const ZAICODE_HELP_TOPIC_IDS = [
   "pebble",
   "engines",
   "meter",
-  "subchat",
   // SRC-061: subscription accounts as models in the model menu.
   "accounts",
   "workers",
@@ -113,7 +112,6 @@ export function rememberZaicodeHelpPointer(event: { clientX: number; clientY: nu
 export const ZAICODE_NAV_HELP_TOPICS: Record<ZaicodeNavItemId, ZaicodeHelpTopicId> = {
   saihome: "saihome",
   newTask: "composer",
-  subchat: "subchat",
   zaicode: "zaicode",
   scheduler: "scheduler",
   search: "search",

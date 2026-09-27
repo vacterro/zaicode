@@ -59,9 +59,8 @@ export const ZAICODE_HELP_WIKI: Record<ZaicodeHelpTopicId, HelpArticle> = {
       ["Reset", "The moment a quota window refills. ZAICODE shows when each one resets and can start work right then."],
       ["Token", "The unit models read and write text in (roughly ¾ of a word). Quotas and statistics count tokens."],
       ["Reasoning effort", "How long a model thinks before answering (low … high, xhigh, max). More effort = better on hard problems, slower and pricier."],
-      ["CLI", "Command-line program. Claude Code and Codex are CLIs; ZAICODE starts them for you as workers or talks to them through SUBCHAT."],
+      ["CLI", "Command-line program. Claude Code and Codex are CLIs; ZAICODE starts them for you as workers."],
       ["Worker", "A subscription CLI running inside a project on its own terminal, watched by ZAICODE."],
-      ["SUBCHAT", "Chatting with a subscription without starting a worker: each message is one short run of its CLI."],
       ["SAIFREN / SAIOPP", "ZAICODE's own model pools behind a local router: SAIFREN free models, SAIOPP deeper-thinking ones. The router falls over to the next model when one fails."],
       ["SAIPEN", "A working method for agents: a project keeps a BOARD of tickets, a STATE and a LOG in its .saipen folder, so any agent can pick the work up where the last one left it."],
       ["Ticket", "One piece of work on a SAIPEN board, with how it will be checked."],
@@ -92,7 +91,7 @@ export const ZAICODE_HELP_WIKI: Record<ZaicodeHelpTopicId, HelpArticle> = {
     why: "Every AI you can use sits in one row of tiles, with how much quota each has left, so you pick the one that can work now instead of discovering it is out halfway through a task.",
     steps: [
       "Look at the bar under each tile: the more green, the more quota left.",
-      "Click a tile: new prompts go to it. For Claude / Codex subscriptions, answers come in SUBCHAT.",
+      "Click a tile: new prompts start it as a worker. To chat with a subscription account in ZAICODE itself, pick it in the model menu (account → model → effort).",
       "Double-click a tile: start it as a worker in the open project.",
       "A dashed tile with ! needs a sign-in or its CLI is missing: right-click → Fix shows exactly what it will run.",
     ],
@@ -122,18 +121,6 @@ export const ZAICODE_HELP_WIKI: Record<ZaicodeHelpTopicId, HelpArticle> = {
       ["Glowing meter", "A prepared prompt (Scheduler) waits for this account's reset and will fire right after it."],
     ],
     problems: [["An account shows 'needs sign-in'", "Its CLI login expired; right-click the engine tile → Fix."]],
-  },
-  subchat: {
-    why: "Sometimes you want to ask a subscription model something without starting a whole worker in a project. SUBCHAT is a plain chat with Claude, Codex and friends, using your own login.",
-    steps: [
-      "Open SUBCHAT from the menu, or click a subscription tile.",
-      "Pick the model and its effort above the box; type and send.",
-      "Mention a project to let it read that project; SAIPEN shortcuts (cc…) are passed through exactly.",
-    ],
-    terms: [
-      ["Effort", "The vendor's own reasoning levels (for Codex: low … high, xhigh, max). The list comes from the vendor."],
-      ["Responding model", "Shown on each answer: what actually answered, which can differ from what you picked if the vendor fell back."],
-    ],
   },
   accounts: {
     why: "You pay for Codex, Claude or Antigravity subscriptions; this makes each of those accounts a normal model inside ZAICODE, so a chat uses exactly the account you picked, with its real effort, and you see how much it has left.",

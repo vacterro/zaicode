@@ -1,21 +1,13 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
-  buildZaicodeSubchatInvocation,
   createZaicodeAutostartJob,
   evaluateZaicodeAutostartJob,
   formatZaicodeWindowReset,
   isZaicodeRealReset,
   markZaicodeWindowsStartingOnUse,
-  parseZaicodeAntigravityStreamLine,
-  parseZaicodeSubchatDocument,
-  applyZaicodeSubchatEvent,
-  ZAICODE_SUBCHAT_ARG_PROMPT_MAX,
-  zaicodeSubchatPromptFilePointer,
-  type ZaicodeEngineAccount,
   type ZaicodeLimitSnapshot,
   type ZaicodeLimitWindow,
-  type ZaicodeSubchatConversation,
 } from "@zcode/shared";
 import {
   ZAICODE_HIGHLIGHT_DEFAULTS,
@@ -50,7 +42,6 @@ import {
   zaicodeLiveRunFolderKey,
   zaicodeLiveRunIdsIn,
 } from "../src/zaicode/zaicodeLiveRuns.js";
-import { groupZaicodeSubchats } from "../src/zaicode/subchat/zaicodeSubchatGroups.js";
 
 type Style = Record<string, unknown>;
 
@@ -270,156 +261,6 @@ test("resets: a scheduled 'after the 5 h refill' job does not chase a window tha
   const decision = evaluateZaicodeAutostartJob(job, snapshot, READ + 60_000);
   assert.equal(decision.state, "waiting-reset");
   assert.match(decision.reason, /starts on first use/);
-});
-
-// --- item 2: every subscription in SUBCHAT, chats grouped like projects ------------------------
-
-function account(patch: Partial<ZaicodeEngineAccount>): ZaicodeEngineAccount {
-  return {
-    id: "antigravity:default",
-    vendor: "antigravity",
-    short: "AG",
-    label: "Antigravity",
-    source: "gemini:antigravity",
-    home: null,
-    isDefaultHome: true,
-    cli: "C:/Users/me/AppData/Local/agy/bin/agy.exe",
-    status: "ready",
-    statusDetail: "",
-    fixCommand: null,
-    ...patch,
-  };
-}
-
-test("Antigravity turn: agy -p <prompt> stream-json, --conversation resumes, a long prompt goes via a file", () => {
-  const first = buildZaicodeSubchatInvocation(account({}), { prompt: "hi", sessionId: null, yolo: true });
-  assert.deepEqual(first?.args, ["-p", "hi", "--output-format", "stream-json", "--dangerously-skip-permissions"]);
-  assert.equal(first?.stdin, "");
-  const next = buildZaicodeSubchatInvocation(account({}), {
-    prompt: "more",
-    sessionId: "fb2778b5-f2b6-45a1-986d-895c0d758b13",
-    yolo: false,
-    model: "claude-sonnet-4-6",
-  });
-  assert.deepEqual(next?.args.slice(4), [
-    "--conversation",
-    "fb2778b5-f2b6-45a1-986d-895c0d758b13",
-    "--mode",
-    "accept-edits",
-    "--model",
-    "claude-sonnet-4-6",
-  ]);
-  const long = buildZaicodeSubchatInvocation(account({}), {
-    prompt: "x".repeat(ZAICODE_SUBCHAT_ARG_PROMPT_MAX + 1),
-    sessionId: null,
-    yolo: true,
-    promptFile: "C:/tmp/prompt.md",
-  });
-  assert.equal(long?.args[1], zaicodeSubchatPromptFilePointer("C:/tmp/prompt.md"));
-  assert.ok((long?.args[1]?.length ?? 0) < 400);
-});
-
-test("ZCode turn: zcode -p <prompt> --json, yolo / edit mode, --resume", () => {
-  const zc = account({ id: "zcode:plan", vendor: "zcode", short: "ZC", label: "ZCode", cli: "C:/z/zcode.cjs" });
-  assert.deepEqual(buildZaicodeSubchatInvocation(zc, { prompt: "go", sessionId: null, yolo: true })?.args, ["-p", "go", "--json", "--mode", "yolo"]);
-  assert.deepEqual(buildZaicodeSubchatInvocation(zc, { prompt: "go", sessionId: "sess_595f67cf-ddd1-43a0-86d7-593292018969", yolo: false })?.args, [
-    "-p",
-    "go",
-    "--json",
-    "--mode",
-    "edit",
-    "--resume",
-    "sess_595f67cf-ddd1-43a0-86d7-593292018969",
-  ]);
-});
-
-// Lines captured from a real `agy -p ... --output-format stream-json` turn (2026-09-26), paths shortened.
-const AGY_LINES = [
-  '{"event":"init","conversation_id":"fb2778b5-f2b6-45a1-986d-895c0d758b13","init":{"model":"claude-sonnet-4-6","cwd":"V:\\\\probe","tools":["run_command"],"permission_mode":"request-review"}}',
-  '{"event":"step_update","step_update":{"conversation_id":"fb2778b5-f2b6-45a1-986d-895c0d758b13","step_index":0,"state":"DONE","step_type":"user_input"}}',
-  '{"event":"step_update","step_update":{"conversation_id":"fb2778b5-f2b6-45a1-986d-895c0d758b13","step_index":2,"state":"ACTIVE","step_type":"tool","tool_name":"run_command","tool_info":{"name":"run_command","parameters":{"CommandLine":"Get-ChildItem \\"V:\\\\probe\\""}}}}',
-  '{"event":"step_update","step_update":{"conversation_id":"fb2778b5-f2b6-45a1-986d-895c0d758b13","step_index":2,"state":"DONE","step_type":"tool","tool_name":"run_command","duration_seconds":0.49,"tool_info":{"name":"run_command","parameters":{"CommandLine":"Get-ChildItem"},"output":"..."}}}',
-  '{"event":"step_update","step_update":{"conversation_id":"fb2778b5-f2b6-45a1-986d-895c0d758b13","step_index":3,"state":"ACTIVE","step_type":"agent_response","text_delta":"OK"}}',
-  '{"event":"step_update","step_update":{"conversation_id":"fb2778b5-f2b6-45a1-986d-895c0d758b13","step_index":3,"state":"DONE","step_type":"agent_response","text_delta":"\\n","duration_seconds":1.4,"usage":{"input_tokens":1275,"output_tokens":4}}}',
-  '{"event":"result","result":{"conversation_id":"fb2778b5-f2b6-45a1-986d-895c0d758b13","status":"SUCCESS","response":"OK\\n","duration_seconds":8.7,"num_turns":1,"usage":{"input_tokens":20190,"output_tokens":303,"thinking_tokens":0,"cache_read_tokens":18435,"total_tokens":20493}}}',
-];
-
-test("Antigravity stream: session, tool once, streamed text joins one answer, usage and success", () => {
-  const events = AGY_LINES.flatMap((line) => parseZaicodeAntigravityStreamLine(line));
-  assert.deepEqual(events[0], { type: "session", sessionId: "fb2778b5-f2b6-45a1-986d-895c0d758b13", model: "claude-sonnet-4-6" });
-  assert.deepEqual(events[1], { type: "tool", name: "run_command", detail: 'Get-ChildItem "V:\\probe"' });
-  assert.deepEqual(events.filter((event) => event.type === "tool").length, 1, "a DONE step does not repeat the tool");
-  assert.deepEqual(events.at(-2), { type: "usage", input: 38625, output: 303, cached: 18435 });
-  assert.deepEqual(events.at(-1), { type: "result", ok: true, message: null });
-  let chat: ZaicodeSubchatConversation = {
-    id: "c",
-    accountId: "antigravity:default",
-    vendor: "antigravity",
-    short: "AG",
-    label: "Antigravity",
-    projectPath: "V:/p",
-    sessionId: null,
-    model: null,
-    title: "t",
-    createdAt: 1,
-    updatedAt: 1,
-    status: "running",
-    usage: { input: 0, output: 0, cached: 0 },
-    messages: [],
-  };
-  events.forEach((event, index) => {
-    chat = applyZaicodeSubchatEvent(chat, event, 10 + index, `m${index}`);
-  });
-  assert.deepEqual(
-    chat.messages.map((message) => [message.role, message.text]),
-    [
-      ["tool", 'run_command: Get-ChildItem "V:\\probe"'],
-      ["assistant", "OK\n"],
-    ],
-  );
-  assert.equal(chat.sessionId, "fb2778b5-f2b6-45a1-986d-895c0d758b13");
-  assert.equal(chat.status, "idle");
-});
-
-test("Antigravity stream: a spent quota ends the turn as an error with the vendor's words", () => {
-  const events = parseZaicodeAntigravityStreamLine(
-    '{"event":"result","result":{"conversation_id":"4c88","status":"ERROR","response":"","error":"API error (attempt 6): RESOURCE_EXHAUSTED (code 429): Individual quota reached. Resets in 100h3m51s.","usage":{"input_tokens":0,"output_tokens":0}}}',
-  );
-  assert.equal(events.at(-1)?.type, "result");
-  assert.equal((events.at(-1) as { ok: boolean }).ok, false);
-  assert.match((events.at(-1) as { message: string }).message, /Resets in 100h3m51s/);
-});
-
-test("ZCode document: the one JSON at the end becomes session, answer, usage and result", () => {
-  const output = `ZCode Built-in missing\n${JSON.stringify(
-    {
-      sessionId: "sess_595f67cf-ddd1-43a0-86d7-593292018969",
-      response: "OK",
-      usage: { inputTokens: 40965, outputTokens: 250, cacheReadTokens: 1043 },
-      projection: { status: "idle" },
-    },
-    null,
-    2,
-  )}\n`;
-  assert.deepEqual(parseZaicodeSubchatDocument("zcode", output), [
-    { type: "session", sessionId: "sess_595f67cf-ddd1-43a0-86d7-593292018969", model: null },
-    { type: "text", text: "OK" },
-    { type: "usage", input: 40965, output: 250, cached: 1043 },
-    { type: "result", ok: true, message: null },
-  ]);
-  assert.deepEqual(parseZaicodeSubchatDocument("zcode", "no json here"), []);
-});
-
-test("SUBCHAT list: chats grouped per project folder (case-blind), newest group first, busy ones counted", () => {
-  const chat = (id: string, projectPath: string, updatedAt: number) => ({ id, projectPath, updatedAt }) as ZaicodeSubchatConversation;
-  const groups = groupZaicodeSubchats(
-    [chat("a", "V:\\Proj\\One", 5), chat("b", "v:/proj/one", 9), chat("c", "V:\\Two", 7)],
-    (id) => id === "b",
-  );
-  assert.deepEqual(groups.map((group) => [group.conversations.map((c) => c.id), group.running]), [
-    [["a", "b"], 1],
-    [["c"], 0],
-  ]);
 });
 
 // --- item 1: the sidebar sees what the open chat sees ------------------------------------------

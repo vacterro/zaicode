@@ -195,7 +195,7 @@ function resolveNodeExe(): string | null {
  * `node <package script>` instead, so no argument ever passes through cmd.exe.
  */
 function commandFor(cli: string, args: string[]): { file: string; args: string[] } {
-  // A Node script (ZCode's zcode.cjs) runs under node; Windows cannot start it by itself (SRC-048 SUBCHAT).
+  // A Node script (ZCode's zcode.cjs) runs under node; Windows cannot start it by itself (SRC-048).
   if (/\.(cjs|mjs|js)$/i.test(cli)) return { file: resolveNodeExe() ?? "node", args: [cli, ...args] };
   if (!/\.(cmd|bat)$/i.test(cli)) return { file: cli, args };
   const shimDir = dirname(cli);
@@ -228,9 +228,6 @@ function killTree(child: ChildProcess): void {
   }
   child.kill();
 }
-
-/** Subscription chat turns (zaicodeSubchat.ts) spawn the same CLIs the same way. */
-export { commandFor as zaicodeCliCommand, killTree as killZaicodeProcessTree };
 
 interface RunResult {
   ok: boolean;

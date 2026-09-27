@@ -31,7 +31,7 @@ import { ChatPromptActionMenu } from "@/prompt-editor/ChatPromptActionMenu.js";
 import { useComposerToolbarFit } from "@/prompt-editor/useComposerToolbarFit.js";
 import { ZaicodeSaipenControls } from "@/prompt-editor/ZaicodeSaipenControls.js";
 import { readZaicodeActiveEngine, readZaicodeEnginesState } from "@/zaicode/zaicodeEngines.js";
-import { routeZaicodeSubscriptionPrompt } from "@/zaicode/subchat/zaicodeSubscriptionRoute.js";
+import { routeZaicodeSubscriptionPrompt } from "@/zaicode/zaicodeSubscriptionRoute.js";
 import { useZaicodeComposerPrefs } from "@/zaicode/zaicodeComposerPrefs.js";
 
 function runAfterFrame(callback: () => void) {
@@ -218,10 +218,9 @@ export function ChatPromptEditor({
 
   /**
    * ZAICODE: with a subscription engine picked on the sidebar, a NEW prompt
-   * (draft, not a slash command) goes to that subscription instead of an
-   * in-app session: a SUBCHAT (the CLI headless, no terminal; T-51) or, with
-   * the setting on Worker / a vendor without a headless mode, a worker.
-   * Existing sessions keep talking to their own model.
+   * (draft, not a slash command) goes to that subscription's CLI as a worker
+   * instead of an in-app session. Existing sessions keep talking to their own
+   * model; subscription accounts as in-app models are in the model menu.
    */
   const zaicodeCompact = useZaicodeComposerPrefs((state) => state.compact && state.compactShell);
   const zaicodeTightShell = showSaipenControls && zaicodeCompact;

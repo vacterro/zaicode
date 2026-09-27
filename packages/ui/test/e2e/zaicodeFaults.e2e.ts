@@ -23,17 +23,15 @@ import {
   zaicodeNextRefillAt,
   type ZaicodeLimitSnapshot,
   type ZaicodeLimitWindow,
-  type ZaicodeSubchatEvent,
 } from "@zcode/shared";
 import { callZaicodeRouter, setZaicodeRouterTarget } from "../../../desktop/src/main/zaicodeRouterTransport.js";
 import { ZaicodeRouterProcess, isZaicodeRouterHealthy } from "../../../desktop/src/main/zaicodeRouterProcess.js";
 import { resolveZaicodeSaipenHome } from "../../../desktop/src/main/zaicodeSaipenProjection.js";
-import { startZaicodeSubchatProcess } from "../../../desktop/src/main/zaicodeSubchatProcess.js";
 import { buildSaimailSnapshot, parseSaimailIndex } from "../../src/zaicode/zaicodeSaimailModel.js";
 import { planZaicodeCrashResume } from "../../src/zaicode/zaicodeCrashResume.js";
 import { normalizeZaicodeAliveWorkers } from "../../src/zaicode/zaicodeWorkerRecovery.js";
 import type { ZaicodeSessionBrief } from "../../src/zaicode/zaicodeContinue.js";
-import { freePort, writeStubRouterPackage, writeWaitingCli, ZAICODE_MANUAL_FAULTS } from "./zaicodeFaultKit.js";
+import { freePort, writeStubRouterPackage, ZAICODE_MANUAL_FAULTS } from "./zaicodeFaultKit.js";
 import { SEAT, TICKET, createZaicodeE2eProject, projectionFacts, readZaicodeSaipen, saipen, saipenProtocolDir, startWorker, verdictOf, waitExit } from "./zaicodeSystemKit.js";
 
 const SCRIPT = fileURLToPath(import.meta.url);
@@ -282,35 +280,6 @@ async function matrix(argv: string[]): Promise<number> {
       resume: steps.map((step) => `${step.sessionId}:${step.command.kind}`),
       relaunchCap: alive.length,
     };
-  });
-
-  await scenario("twelve-finish-at-once", "12 subscription turns finish in the same instant: 12 results, each once, none crossed", async () => {
-    const go = join(base, "go.signal");
-    const cli = await writeWaitingCli(join(base, "cli"));
-    const events = new Map<number, ZaicodeSubchatEvent[]>();
-    const turns = Array.from({ length: 12 }, (_, index) => {
-      events.set(index, []);
-      return startZaicodeSubchatProcess({
-        file: process.execPath,
-        args: [cli],
-        cwd: base,
-        env: { ...process.env, ZAICODE_FAULT_GO: go },
-        stdin: `w${index}`,
-        vendor: "codex",
-        short: `C${index}`,
-        onEvent: (event) => events.get(index)!.push(event),
-      });
-    });
-    await until("12 sessions announced", () => [...events.values()].every((list) => list.some((event) => event.type === "session")), 20_000);
-    await writeFile(go, "go");
-    await Promise.all(turns.map((turn) => turn.done));
-    for (const [index, list] of events) {
-      const results = list.filter((event) => event.type === "result");
-      check(results.length === 1 && (results[0] as { ok: boolean }).ok, `worker ${index}: ${JSON.stringify(results)}`);
-      const text = list.find((event) => event.type === "text") as { text: string } | undefined;
-      check(text?.text === `answer w${index}`, `worker ${index} got ${text?.text}`);
-    }
-    return { workers: 12, resultsEach: 1 };
   });
 
   // SAIPEN-backed scenarios share one fresh project.
