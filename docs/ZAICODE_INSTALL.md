@@ -30,7 +30,7 @@ the install and fixes what broke.
 | Git, Node.js 24, Python 3.11+ | uses the machine's copy when it fits; otherwise a private copy in `.tools\` (MinGit from Git for Windows, Node.js 24.14.0 from nodejs.org, Python from its NuGet package). No administrator rights. |
 | pnpm | the pinned pnpm 10.33.2 in `.tools\pnpm10` |
 | ZAICODE workspace | clone of `vacterro/zaicode` branch `workspace` (launcher source, docs; the developer's `.saipen/` memory is left out) |
-| ZAICODE app source | clone of branch `main` into `zcode\` |
+| ZAICODE app source | clone of branch `zaicode` into `zcode\` |
 | SAIPEN | clone of `vacterro/saipen` into `saipen\`; its `bin\saipen.cmd` is written for this clone and this Python |
 | SAIMAIL | clone of `vacterro/saimail` into `saimail\`, installed into `.venv\` |
 | saimail-local | SAIMAIL's command-line client, which ZAICODE's SAIMAIL panels use (shipped since SAIMAIL `0.0.2a3`; the `saimail-cli` check reports OK) |

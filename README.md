@@ -6,7 +6,7 @@
 
 This branch is the root of a ZAICODE checkout: the launcher that starts the
 packaged app, the product documentation and the SAIPEN project memory. The
-application source is the `main` branch (cloned into `zcode/`).
+application source is the `zaicode` branch (cloned into `zcode/`).
 
 | Path | What |
 | ---- | ---- |
@@ -39,5 +39,5 @@ checks every piece and repairs it. Details: [docs/ZAICODE_INSTALL.md](docs/ZAICO
 | `zcode/`, `saipen/`, `saimail/` | the three clones |
 | `.tools/`, `.venv/` | private Git / Node.js / Python / pnpm, SAIMAIL's venv |
 
-Developer setup by hand: clone the `main` branch into `zcode/`, then follow
+Developer setup by hand: clone the `zaicode` branch into `zcode/`, then follow
 its README (`pnpm bootstrap`, `pnpm bundle:zaicode`) and start `ZAICODE.exe` here.
