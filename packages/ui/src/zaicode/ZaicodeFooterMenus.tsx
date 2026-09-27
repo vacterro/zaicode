@@ -76,19 +76,23 @@ export function ZaicodeProfileAvatar({
 }
 
 /** Footer badge content: active local profile picture + name (replaces "Connect"). */
-export function ZaicodeProfileBadge() {
+/** `avatarOnly` (SRC-062): the footer keeps just the avatar; the name moves into its hint. */
+export function ZaicodeProfileBadge({ avatarOnly = false }: { avatarOnly?: boolean }) {
   const { active } = useZaicodeProfiles();
   const hasAvatar = Boolean(resolveZaicodeAvatarUrl(active.avatar));
   return (
     <>
-      <span className="flex size-8 shrink-0 items-center justify-center overflow-hidden border border-border bg-background text-foreground">
+      <span
+        className="flex size-8 shrink-0 items-center justify-center overflow-hidden border border-border bg-background text-foreground"
+        title={avatarOnly ? active.name : undefined}
+      >
         <ZaicodeProfileAvatar profile={active} className={hasAvatar ? "size-8" : undefined} />
       </span>
-      <div className="min-w-0 flex-1 overflow-hidden text-left">
+      {avatarOnly ? null : <div className="min-w-0 flex-1 overflow-hidden text-left">
         <span className="block min-w-0 truncate text-ui-base font-semibold text-foreground">
           {active.name}
         </span>
-      </div>
+      </div>}
     </>
   );
 }

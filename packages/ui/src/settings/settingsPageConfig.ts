@@ -1,4 +1,5 @@
 import {
+  MousePointer2,
   Monitor,
   Moon,
   Settings,
@@ -30,6 +31,7 @@ import {
   Command,
   LifeBuoy,
   Sparkle,
+  Type,
 } from "lucide-react";
 import { isSettingsSectionEnabled, type SettingsSectionId } from "@/lib/settingsNavigation.js";
 import type { Theme } from "@/useTheme.js";
@@ -157,6 +159,18 @@ const BASE_SETTINGS_SECTIONS: SettingsSectionDefinition[] = [
     id: "zaicodeLights",
     icon: Sparkle,
     titleId: "settings.zaicodeLights.title",
+    groupId: "zaicode",
+  },
+  {
+    id: "zaicodeSessionText",
+    icon: Type,
+    titleId: "settings.zaicodeSessionText.title",
+    groupId: "zaicode",
+  },
+  {
+    id: "zaicodeProtrail",
+    icon: MousePointer2,
+    titleId: "settings.zaicodeProtrail.title",
     groupId: "zaicode",
   },
   {

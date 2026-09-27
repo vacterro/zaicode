@@ -19,10 +19,9 @@ export const ZAICODE_HELP_ATTRIBUTE = "data-zaicode-help";
  *  and the topic list can be asserted against each other. */
 export const ZAICODE_HELP_TOPIC_IDS = [
   "start",
-  "pebble",
+  "saipeggle",
   "engines",
   "meter",
-  "subchat",
   // SRC-061: subscription accounts as models in the model menu.
   "accounts",
   "workers",
@@ -52,6 +51,10 @@ export const ZAICODE_HELP_TOPIC_IDS = [
   "changes",
   "splash",
   "todo",
+  // SRC-062: Settings -> Session text.
+  "sessiontext",
+  // SRC-062: Settings -> ProTrail (cursor trail and click effects, the whole desktop).
+  "protrail",
 ] as const;
 
 export type ZaicodeHelpTopicId = (typeof ZAICODE_HELP_TOPIC_IDS)[number];
@@ -113,7 +116,6 @@ export function rememberZaicodeHelpPointer(event: { clientX: number; clientY: nu
 export const ZAICODE_NAV_HELP_TOPICS: Record<ZaicodeNavItemId, ZaicodeHelpTopicId> = {
   saihome: "saihome",
   newTask: "composer",
-  subchat: "subchat",
   zaicode: "zaicode",
   scheduler: "scheduler",
   search: "search",

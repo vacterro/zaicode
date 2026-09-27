@@ -1,7 +1,7 @@
 import type { SettingsSectionId } from "@/lib/settingsNavigation.js";
 import { openZaicodeWorkersPanel } from "@/zaicode/zaicodeWorkers.js";
 import { useZaicodeTimers } from "@/zaicode/zaicodeTimerStore.js";
-import { openZaicodePebbleGame } from "@/zaicode/ZaicodePebbleGame.js";
+import { openZaicodeSaipeggle } from "@/zaicode/saipeggle/ZaicodeSaipeggleView.js";
 
 // The Help content, kept apart from the component on purpose. SRC-060 asked for
 // ZAICODE Help to be a real explanatory base, and it grows every time a surface
@@ -40,15 +40,16 @@ export const ZAICODE_HELP_TOPICS: readonly HelpTopic[] = [
     ],
   },
   {
-    id: "pebble",
-    title: "PEBBLE DROP (easter egg)",
-    what: "A complete six-level pixel game for a break between agent runs.",
+    id: "saipeggle",
+    title: "SAIPEGGLE (the pixel game)",
+    what: "A complete Peggle-style game for the minutes an agent works: a cannon, pegs, a bucket, an adventure of 55 levels with 8 masters, Extreme Fever.",
     lines: [
-      "Catch gold pebbles, dodge red hazards, collect rare hearts; every level gets faster and needs more catches.",
-      "Left / Right or A / D moves; Space starts and advances; P pauses; R restarts; Esc closes.",
-      "The title bar buttons make it fullscreen or detach it into its own window. Typing PEBBLE outside a text field is the secret entrance.",
+      "Aim with the mouse, click or Space to fire; hit every orange peg before the balls run out. Green pegs give the stage master's power.",
+      "Levels: the adventure (a level opens when the one before is cleared), Quick Play from any seed, and board codes you can copy and paste.",
+      "Settings: balls, orange and green pegs, gravity, bounce, bucket speed, peg density, colours from your palette, fever, effects. Sounds: Settings → Sounds → SAIPEGGLE.",
+      "Settings (left column) → SAIPEGGLE above Support Developer opens it; the gear next to it opens its settings. Typing PEGGLE outside a text field works too. Esc pauses, Esc again opens the menu; Exit returns to ZAICODE.",
     ],
-    open: { label: "game", run: () => openZaicodePebbleGame() },
+    open: { label: "game", run: () => openZaicodeSaipeggle() },
   },
   {
     id: "engines",
@@ -58,7 +59,7 @@ export const ZAICODE_HELP_TOPICS: readonly HelpTopic[] = [
       "SAIFREN / SAIOPP — in-app model pools (free / deep thinking). Click = new sessions use it.",
       "A1 A2 · C1 C2 C3 · AG · ZC — your Claude, Codex, Antigravity and ZCode logins, found automatically.",
       "Bar under a tile — quota left: green > 50%, amber, red < 20%, dark = out. Background tint says the same (strength in Engines & limits).",
-      "Click a tile = START and new prompts use it (Claude / Codex answer in SUBCHAT) · double-click = start it as a worker in this project · right-click = start, read quota, fix sign-in, hide.",
+      "Click a tile = START and new prompts start it as a worker in this project · double-click = start a worker at once · right-click = start, read quota, fix sign-in, hide. To chat with a subscription account inside ZAICODE, pick it in the model menu under the prompt box (account → model → effort).",
       "Dashed tile with ! — needs sign-in or the CLI is missing; right-click → Fix shows the exact command first.",
       "A tile glows after its quota window resets; the card says which window.",
     ],
@@ -77,20 +78,6 @@ export const ZAICODE_HELP_TOPICS: readonly HelpTopic[] = [
     open: { label: "Meter settings", section: "zaicodeEngines" },
   },
   {
-    id: "subchat",
-    title: "SUBCHAT (subscriptions as a chat)",
-    what: "Your Claude Code and Codex logins answer in a plain chat inside ZAICODE: no worker, no terminal.",
-    lines: [
-      "Open it — the SUBCHAT menu line. The tiles at its top start a new chat with that login (A1, A2, C1…) in the current project.",
-      "Or pick a Claude / Codex tile on the sidebar and type in the composer (or press START): the prompt opens a SUBCHAT.",
-      "Each turn runs that login's own CLI in the background in the project folder, with its own tools and quota; the next prompt continues the same session.",
-      "Several logins side by side — every login is its own tile and its own chat; chats can answer at the same time.",
-      "Stop ends the running turn; Delete removes the chat from ZAICODE (the vendor keeps its own session files).",
-      "Prefer a terminal? Settings → Engines & limits → Workers: switch “Prompts for a picked subscription open a SUBCHAT” off. Antigravity and ZCode always start a worker.",
-    ],
-    open: { label: "Engines & limits", section: "zaicodeEngines" },
-  },
-  {
     id: "accounts",
     title: "Subscriptions as models (Codex 1, Claude 2 …)",
     what: "Every subscription account connected in 9router is its own entry in the model menu: pick the account, then the model, then the effort.",
@@ -103,6 +90,33 @@ export const ZAICODE_HELP_TOPICS: readonly HelpTopic[] = [
       "Connect accounts once in the 9router dashboard (Settings → Router → Subscriptions as models → Connect one). Sync now there if you are in a hurry.",
     ],
     open: { label: "Router → Subscriptions", section: "zaicodeRouter" },
+  },
+  {
+    id: "sessiontext",
+    title: "Session text (how answers read)",
+    what: "Word-like styles for the agent's answers: the text, every heading, bold, italics, underlines, links, code in the text, quotes, lists, tables and the divider line.",
+    lines: [
+      "Settings → Session text. Pick a part on the left (Text, Heading 1 …), change it in the middle, watch the sample answer on the right.",
+      "Every value starts at \"as app\": it keeps the ZAICODE look until you change it.",
+      "Underline: none, a line, dotted, dashed, double or wavy, in its own colour, thickness and distance from the text.",
+      "Headings can have a line under or over them, a frame, a bar on the left or a shaded band, and Word-like numbers 1. / 1.1 / 1.1.1.",
+      "Presets apply a whole look in one click (Word document, Book, Typewriter, Terminal, Pixel, Highlighter, Large print, Compact); save your own, export and import them as a file.",
+      "It applies at once in every open session. Off switch at the top: back to the app's look without losing anything.",
+    ],
+    open: { label: "Session text", section: "zaicodeSessionText" },
+  },
+  {
+    id: "protrail",
+    title: "ProTrail (cursor trail and clicks)",
+    what: "ProTrail built into ZAICODE: a trail behind the mouse cursor and an effect on every click, over the whole Windows desktop or only inside ZAICODE.",
+    lines: [
+      "Settings → ProTrail. General: on/off, where it draws, colour presets, pixel look. Trail and Click: every ProTrail setting.",
+      "Everywhere in Windows (default): one see-through layer per monitor, over every app. Clicks always go to the app under the cursor.",
+      "The first start compiles a tiny mouse reader with Windows' own C# compiler (a second or two, once). Without it the trail still follows the cursor, but clicks are not seen; the status line says which.",
+      "Press and hold a button: a charging aura; release it for a bigger effect. Drag while holding: the motion wake.",
+      "Quick switch: the ProTrail button in the sidebar footer (left click on/off, right click opens these settings).",
+    ],
+    open: { label: "ProTrail", section: "zaicodeProtrail" },
   },
   {
     id: "workers",
@@ -145,7 +159,7 @@ export const ZAICODE_HELP_TOPICS: readonly HelpTopic[] = [
       "← → — previous / next place in your session history.",
       "Focus next session — click = next working or waiting session, round the ring; right-click = back.",
       "Menu toggle — shows / hides the menu block (SAIHOME, New task, ZAICODE, …).",
-      "Project row — hover shows ◆ MAIN, ▶ START and … (new session, files, slots); the name never moves. Shift+Click switches a project off (dimmed, OFF: no automatic agent or schedule works there) and on again; Ctrl+Click sends it down a slot.",
+      "Project row — a click goes to the project (its MAIN session when the row is a session, else the new-task screen); clicking again only folds or unfolds its sessions. Hover shows ◆ / ◇, ▶ START and … (new session, files, slots); the name never moves. ◆ is a switch: on, the row IS a session and the others are its children; off (◇), the row is a folder. Shift+Click switches a project off (dimmed, OFF: no automatic agent or schedule works there) and on again; Ctrl+Click sends it down a slot.",
       "Shift + drag a project and keep holding 2 s — the SLOTS panel opens: drop it on any slot, also an empty or folded one.",
       "Tray icon — right-click for ZAICODE's own menu (Open, SAIHOME, New task, WORKERS, Timers, Settings, Quit).",
       "Working meter — one cell per working session, black (just started) → green (almost done); click a cell = open it; the number = next working one.",
@@ -348,6 +362,7 @@ export const ZAICODE_HELP_TOPICS: readonly HelpTopic[] = [
       "LIVE — working (or waiting) projects come first; Stay LIVE for — how long they keep that place after the work ends.",
       "Remain in position — a project that has been live keeps its LIVE rank instead of dropping back.",
       "A3 n/m — audit waves done of planned; OFF — switched off (Shift+Click).",
+      "Footer — right-click it: the profile as avatar and name or the avatar alone, and your buttons next to it (Problip, ProTrail, Timers, Help …) in your order.",
     ],
     open: { label: "Sidebar", section: "zaicodeSidebar" },
   },

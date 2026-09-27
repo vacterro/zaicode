@@ -18,6 +18,7 @@ import {
 } from "../shared.js";
 import type { CodeViewerSource } from "@/lib/codeViewer.js";
 import { useZCodeIntl } from "@/i18n/IntlProvider.js";
+import { useZaicodeChatChangeFloater } from "@/zaicode/useZaicodeChatChangeFloater.js";
 
 const EDIT_TOOL_ICON = <PencilIcon className="size-4 shrink-0 text-foreground-subtle" />;
 
@@ -139,13 +140,21 @@ export function EditToolCallBlock(context: ToolCallBlockRenderContext) {
       ),
     [rawFileSummaries],
   );
-  const diffCount = useMemo(
-    () =>
-      renderDiffCount(totalChangeStat, {
-        animateInitial: context.animateDiffCountOnMount,
-      }),
-    [context.animateDiffCountOnMount, totalChangeStat],
-  );
+  // ZAICODE (SRC-062): the row's own RPG +N / -N when the agent changes the file right now.
+  const floaterRef = useZaicodeChatChangeFloater(toolCall.toolId, totalChangeStat, {
+    running: isRunning,
+    startedAt: toolCall.startedAt,
+  });
+  const diffCount = useMemo(() => {
+    const count = renderDiffCount(totalChangeStat, {
+      animateInitial: context.animateDiffCountOnMount,
+    });
+    return count ? (
+      <span ref={floaterRef} className="inline-flex" data-zaicode-chat-change="">
+        {count}
+      </span>
+    ) : null;
+  }, [context.animateDiffCountOnMount, floaterRef, totalChangeStat]);
   const kindLabel = intl.formatMessage({
     id: getEditKindLabelMessageId(
       rawFileSummaries.map((summary) => summary.operationKind),

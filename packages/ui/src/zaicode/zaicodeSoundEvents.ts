@@ -16,7 +16,7 @@ import {
   zaicodeDirectSoundPlayedSince,
 } from "./zaicodeSoundBus.js";
 import { isZaicodeSoundQuietNow } from "./zaicodeNotifications.js";
-import { ZAICODE_CLICKABLE, zaicodeChangeSoundFor, zaicodeClickSoundFor } from "./zaicodeSoundVoices.js";
+import { ZAICODE_CLICKABLE, isZaicodeChokeGroup, zaicodeChangeSoundFor, zaicodeClickSoundFor } from "./zaicodeSoundVoices.js";
 
 /**
  * ZAICODE sound events, FastPrompter-style: every action has its own row —
@@ -37,7 +37,8 @@ export type ZaicodeSoundGroup =
   | "Engines"
   | "SAIMAIL"
   | "Interface"
-  | "Orchestra";
+  | "Orchestra"
+  | "SAIPEGGLE";
 
 export interface ZaicodeSoundEventDef {
   id: string;
@@ -97,8 +98,6 @@ export const ZAICODE_SOUND_EVENTS: readonly ZaicodeSoundEventDef[] = [
   { id: "worker.launch", group: "Engines", label: "Worker started", hint: "A subscription CLI started as a worker", glyph: "play", sound: fp("rocket_pack_boosters_ready.wav"), enabled: true, gainDb: -6 },
   { id: "worker.exit", group: "Engines", label: "Worker finished", hint: "A worker CLI exited normally", glyph: "check", sound: fp("sentry_finish.wav"), enabled: true, gainDb: -6 },
   { id: "worker.fail", group: "Engines", label: "Worker crashed", hint: "A worker CLI exited with an error", glyph: "cross", sound: fp("denied.wav"), enabled: true, gainDb: -4 },
-  { id: "subchat.done", group: "Engines", label: "Subscription chat answered", hint: "A subscription chat turn (no worker) finished", glyph: "check", sound: fp("sentry_finish.wav"), enabled: true, gainDb: -6 },
-  { id: "subchat.fail", group: "Engines", label: "Subscription chat failed", hint: "A subscription chat turn ended with an error", glyph: "cross", sound: fp("denied.wav"), enabled: true, gainDb: -4 },
   { id: "worker.fix", group: "Engines", label: "Troubleshoot", hint: "A one-click fix (login / install) started", glyph: "wrench", sound: fp("anvil_use.wav"), enabled: true, gainDb: -8 },
   { id: "limits.refill", group: "Engines", label: "Quota refilled", hint: "A subscription window reset and has quota again", glyph: "battery", sound: fp("success_powerup.wav"), enabled: true, gainDb: -4 },
   { id: "limits.low", group: "Engines", label: "Quota low", hint: "A subscription window dropped under 20%", glyph: "warn", sound: fp("pop_cartoon_pop.wav"), enabled: true, gainDb: -4 },
@@ -137,6 +136,20 @@ export const ZAICODE_SOUND_EVENTS: readonly ZaicodeSoundEventDef[] = [
   { id: "ui.escape", group: "Orchestra", label: "Esc", hint: "Esc was pressed (close, cancel)", glyph: "undo", sound: fp("whoosh_short_whoosh2.wav"), enabled: false, gainDb: -14 },
   { id: "ui.hover", group: "Orchestra", label: "Hover", hint: "The pointer moved onto a button", glyph: "dot", sound: fp("cs_style/buttonrollover.wav"), enabled: false, gainDb: -22 },
   { id: "ui.typing", group: "Orchestra", label: "Typing", hint: "A key was typed into a text field (typewriter)", glyph: "key", sound: fp("type_key_1.wav"), enabled: false, gainDb: -20 },
+  // SAIPEGGLE (SRC-062): the game's own voices; the peg hits climb a scale within a shot.
+  { id: "saipeggle.shoot", group: "SAIPEGGLE", label: "Cannon fires", hint: "SAIPEGGLE: a ball leaves the cannon", glyph: "play", sound: fp("pop_lavapop.wav"), enabled: true, gainDb: -8 },
+  { id: "saipeggle.peg", group: "SAIPEGGLE", label: "Peg hit", hint: "SAIPEGGLE: a peg lights up (each hit of a shot one note higher)", glyph: "dot", sound: fp("chime_bell_ding1.wav"), enabled: true, gainDb: -10 },
+  { id: "saipeggle.clear", group: "SAIPEGGLE", label: "Lit pegs pop", hint: "SAIPEGGLE: the lit pegs of a shot disappear", glyph: "dot", sound: fp("pop1.wav"), enabled: true, gainDb: -16 },
+  { id: "saipeggle.power", group: "SAIPEGGLE", label: "Green peg power", hint: "SAIPEGGLE: a green peg gives the master's power", glyph: "star", sound: fp("menu_launch_glow1.wav"), enabled: true, gainDb: -6 },
+  { id: "saipeggle.bucket", group: "SAIPEGGLE", label: "Free ball (bucket)", hint: "SAIPEGGLE: the ball lands in the moving bucket", glyph: "check", sound: fp("coin_kaching.wav"), enabled: true, gainDb: -6 },
+  { id: "saipeggle.freeBall", group: "SAIPEGGLE", label: "Free ball (score)", hint: "SAIPEGGLE: one shot scored 25,000 / 75,000 / 125,000", glyph: "plus", sound: fp("success_powerup.wav"), enabled: true, gainDb: -6 },
+  { id: "saipeggle.style", group: "SAIPEGGLE", label: "Style shot", hint: "SAIPEGGLE: a Long Shot", glyph: "star", sound: fp("success_scored.wav"), enabled: true, gainDb: -6 },
+  { id: "saipeggle.lost", group: "SAIPEGGLE", label: "Ball lost", hint: "SAIPEGGLE: the ball fell past the bucket", glyph: "cross", sound: fp("blip_cbar_miss1.wav"), enabled: true, gainDb: -12 },
+  { id: "saipeggle.fever", group: "SAIPEGGLE", label: "Extreme Fever", hint: "SAIPEGGLE: the last orange peg is hit", glyph: "star", sound: fp("chime_twinkle1.wav"), enabled: true, gainDb: -4 },
+  { id: "saipeggle.feverBucket", group: "SAIPEGGLE", label: "Fever bucket", hint: "SAIPEGGLE: the ball lands in a 10K / 50K / 100K bucket", glyph: "check", sound: fp("coin_mvm_money_pickup.wav"), enabled: true, gainDb: -4 },
+  { id: "saipeggle.win", group: "SAIPEGGLE", label: "Level clear", hint: "SAIPEGGLE: every orange peg is gone", glyph: "check", sound: fp("success_levelup.wav"), enabled: true, gainDb: -4 },
+  { id: "saipeggle.fail", group: "SAIPEGGLE", label: "Out of balls", hint: "SAIPEGGLE: no balls left, orange pegs remain", glyph: "warn", sound: fp("record_scratch_stop.wav"), enabled: true, gainDb: -8 },
+  { id: "saipeggle.wall", group: "SAIPEGGLE", label: "Wall bounce", hint: "SAIPEGGLE: the ball bounces off a side wall", glyph: "dot", sound: fp("he_bounce-1.wav"), enabled: false, gainDb: -18 },
 ];
 
 const EVENT_BY_ID = new Map(ZAICODE_SOUND_EVENTS.map((event) => [event.id, event]));
@@ -158,7 +171,18 @@ export interface ZaicodeSoundSettings {
   muted: boolean;
   /** Also play while the ZAICODE window is focused. */
   whenFocused: boolean;
+  /**
+   * SRC-062: interface sounds (buttons, menus, sidebar, sessions, window) cut
+   * each other instead of piling up: a new one fades the one still ringing.
+   * Agent, engine and mail sounds always mix.
+   */
+  interfaceOneAtATime: boolean;
   events: Record<string, ZaicodeSoundEventSetting>;
+}
+
+export function isZaicodeInterfaceSound(id: string): boolean {
+  const group = EVENT_BY_ID.get(id)?.group;
+  return group !== undefined && isZaicodeChokeGroup(group);
 }
 
 const STORAGE_KEY = "zaicode-sound-events-v1";
@@ -174,7 +198,7 @@ export function defaultZaicodeSoundSettings(): ZaicodeSoundSettings {
   for (const event of ZAICODE_SOUND_EVENTS) {
     events[event.id] = { enabled: event.enabled, sound: event.sound, gainDb: event.gainDb, mode: "overlay" };
   }
-  return { masterVolume: 60, muted: false, whenFocused: true, events };
+  return { masterVolume: 60, muted: false, whenFocused: true, interfaceOneAtATime: true, events };
 }
 
 /** Old per-event cue table (0..100 volume) -> rows of the new table. */
@@ -224,6 +248,7 @@ export function normalizeZaicodeSoundSettings(raw: unknown): ZaicodeSoundSetting
     masterVolume: Math.round(clamp(record.masterVolume, 0, 100, base.masterVolume)),
     muted: record.muted === true,
     whenFocused: record.whenFocused !== false,
+    interfaceOneAtATime: record.interfaceOneAtATime !== false,
     events,
   };
 }
@@ -408,6 +433,29 @@ export async function importZaicodeSoundFile(id: string, file: File): Promise<vo
 let context: AudioContext | null = null;
 const buffers = new Map<string, Promise<AudioBuffer | null>>();
 const playing = new Map<string, Set<AudioBufferSourceNode>>();
+/** The gain behind each playing source, so a choked sound fades instead of clicking off. */
+const gains = new WeakMap<AudioBufferSourceNode, GainNode>();
+const CHOKE_FADE_S = 0.015;
+
+/** Fades out every interface sound still ringing (the one-at-a-time rule). */
+function chokeInterfaceSounds(ctx: AudioContext): void {
+  for (const [id, sources] of playing) {
+    if (!isZaicodeInterfaceSound(id)) continue;
+    for (const source of sources) {
+      const gain = gains.get(source);
+      try {
+        if (gain) {
+          gain.gain.setValueAtTime(gain.gain.value, ctx.currentTime);
+          gain.gain.linearRampToValueAtTime(0, ctx.currentTime + CHOKE_FADE_S);
+        }
+        source.stop(ctx.currentTime + CHOKE_FADE_S);
+      } catch {
+        // already stopped
+      }
+    }
+    sources.clear();
+  }
+}
 const lastPlayedAt = new Map<string, number>();
 const DEBOUNCE_MS = 120;
 
@@ -475,10 +523,12 @@ export async function playZaicodeSoundAsync(
   if (ctx.state === "suspended") await ctx.resume().catch(() => undefined);
   if (ctx.state !== "running") return false;
   if (row.mode === "replace") stopZaicodeSound(id);
+  if (!options.preview && settings.interfaceOneAtATime && isZaicodeInterfaceSound(id)) chokeInterfaceSounds(ctx);
   const source = ctx.createBufferSource();
   source.buffer = buffer;
   const gain = ctx.createGain();
   gain.gain.value = zaicodeGainFactor(settings.masterVolume, row.gainDb);
+  gains.set(source, gain);
   source.connect(gain).connect(ctx.destination);
   const set = playing.get(id) ?? new Set<AudioBufferSourceNode>();
   set.add(source);
@@ -498,7 +548,7 @@ const channels = new Map<string, AudioBufferSourceNode>();
  */
 export async function playZaicodeSoundFile(
   sound: string,
-  options: { volume?: number; gainDb?: number; preview?: boolean; channel?: string } = {},
+  options: { volume?: number; gainDb?: number; preview?: boolean; channel?: string; rate?: number } = {},
 ): Promise<boolean> {
   const settings = readZaicodeSoundSettings();
   if (!options.preview && (!isZaicodeProductMode() || settings.muted || isZaicodeSoundQuietNow())) return false;
@@ -510,6 +560,8 @@ export async function playZaicodeSoundFile(
   if (options.channel) stopZaicodeSoundChannel(options.channel);
   const source = ctx.createBufferSource();
   source.buffer = buffer;
+  // SAIPEGGLE's rising peg notes (SRC-062): the same clip, played faster = higher.
+  if (options.rate && options.rate > 0) source.playbackRate.value = Math.min(4, Math.max(0.25, options.rate));
   const gain = ctx.createGain();
   const level = options.volume === undefined ? 1 : Math.max(0, Math.min(1, options.volume));
   gain.gain.value = zaicodeGainFactor(settings.masterVolume, options.gainDb ?? 0) * level;
@@ -668,7 +720,7 @@ export function installZaicodeDeclarativeSounds(): void {
 export function zaicodeSoundDiagnostics(): string {
   const settings = readZaicodeSoundSettings();
   const lines = [
-    `master=${settings.masterVolume}% muted=${settings.muted} whenFocused=${settings.whenFocused}`,
+    `master=${settings.masterVolume}% muted=${settings.muted} whenFocused=${settings.whenFocused} interfaceOneAtATime=${settings.interfaceOneAtATime}`,
     ...ZAICODE_SOUND_EVENTS.map((event) => {
       const row = settings.events[event.id]!;
       const ok = zaicodeSoundUrl(row.sound) ? "ok" : "MISSING";

@@ -83,6 +83,7 @@ import type {
   FinalArmsCustomEventE2EEntry,
   ZaicodeSplashPrefsInput,
   ZaicodeSplashPrefsState,
+  ZaicodeProtrailGlobalStatus,
 } from "@zcode/shared";
 import {
   InternalChannels,
@@ -772,6 +773,10 @@ contextBridge.exposeInMainWorld("zcode", {
   setZaicodeSplashPrefs: (input: ZaicodeSplashPrefsInput): Promise<ZaicodeSplashPrefsState> =>
     ipcRenderer.invoke(PlatformChannels.SetZaicodeSplashPrefs, input),
   zaicodeQuitApp: (): Promise<{ ok: boolean }> => ipcRenderer.invoke(PlatformChannels.ZaicodeQuitApp),
+  setZaicodeProtrailGlobal: (config: unknown): Promise<ZaicodeProtrailGlobalStatus> =>
+    ipcRenderer.invoke(PlatformChannels.SetZaicodeProtrailGlobal, config),
+  getZaicodeProtrailGlobalStatus: (): Promise<ZaicodeProtrailGlobalStatus> =>
+    ipcRenderer.invoke(PlatformChannels.GetZaicodeProtrailGlobalStatus),
   saveZaicodeSettingsSnapshot: (json: string): Promise<{ ok: boolean; message: string; sourcePath: string | null; backupPath: string | null }> =>
     ipcRenderer.invoke(PlatformChannels.SaveZaicodeSettingsSnapshot, json),
   moveWindowBy: (delta: { dx: number; dy: number }): Promise<{ success: boolean }> =>
@@ -797,24 +802,6 @@ contextBridge.exposeInMainWorld("zcode", {
   launchZaicodeExternalWorker: (params: { cwd: string; command: string; title: string }) =>
     ipcRenderer.invoke(PlatformChannels.LaunchZaicodeExternalWorker, params),
   writeZaicodePromptFile: (text: string) => ipcRenderer.invoke(PlatformChannels.WriteZaicodePromptFile, text),
-  runZaicodeSubchatTurn: (request: {
-    turnId: string;
-    accountId: string;
-    projectPath: string;
-    prompt: string;
-    sessionId: string | null;
-    model?: string | null;
-    effort?: string;
-  }): Promise<{ ok: boolean; message: string }> => ipcRenderer.invoke(PlatformChannels.RunZaicodeSubchatTurn, request),
-  cancelZaicodeSubchatTurn: (turnId: string): Promise<boolean> =>
-    ipcRenderer.invoke(PlatformChannels.CancelZaicodeSubchatTurn, turnId),
-  onZaicodeSubchatEvent: (callback: (payload: unknown) => void): (() => void) => {
-    const listener = (_event: unknown, payload: unknown) => callback(payload);
-    ipcRenderer.on(PlatformChannels.ZaicodeSubchatEvent, listener);
-    return () => {
-      ipcRenderer.removeListener(PlatformChannels.ZaicodeSubchatEvent, listener);
-    };
-  },
   prepareZaicodeEngineAccountHome: (vendor: string) =>
     ipcRenderer.invoke(PlatformChannels.PrepareZaicodeEngineAccountHome, vendor),
   setZaicodeGlobalHotkeys: (bindings: { id: string; accelerator: string }[]) =>

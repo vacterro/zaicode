@@ -49,3 +49,22 @@ export function zaicodeChangeSoundFor(
   if (field.type === "radio" || target.closest("select")) return "ui.select";
   return null;
 }
+
+/**
+ * Groups whose sounds answer the operator's own hand (SRC-062): with
+ * "Interface sounds one at a time" a new one fades the one still ringing, so
+ * fast clicking through projects never piles sounds up. Agent, engine and
+ * mail sounds are news, not echoes of a click: they always mix.
+ */
+export const ZAICODE_SOUND_CHOKE_GROUPS: ReadonlySet<string> = new Set([
+  "Interface",
+  "Orchestra",
+  "Sidebar",
+  "Sessions",
+  "Window",
+  "Composer",
+]);
+
+export function isZaicodeChokeGroup(group: string): boolean {
+  return ZAICODE_SOUND_CHOKE_GROUPS.has(group);
+}

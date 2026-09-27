@@ -18,6 +18,7 @@ import { projectProviderSettingsViewToFormProviders } from "@/lib/providerSettin
 import { logger } from "@/logger.js";
 import { notifyZaicode } from "./zaicodeNotifications.js";
 import { zaicodeRouterCall } from "./zaicodeRouter.js";
+import { ZAICODE_READINESS_TONE_COLORS } from "./ZaicodeReadinessBar.js";
 
 /**
  * Renderer half of subscriptions as models (SRC-061). Keeps one provider per
@@ -250,15 +251,6 @@ export function zaicodeProviderReadiness(
   return connectionId ? (state.readiness[connectionId] ?? null) : null;
 }
 
-const TONE_COLORS: Record<ZaicodeSubscriptionReadiness["tone"], string> = {
-  good: "#4f9a2f",
-  warn: "#c9a227",
-  bad: "#c8502a",
-  blocked: "#7a2a22",
-  unknown: "#5a5647",
-  offline: "#3a372e",
-};
-
 /** The model menu's provider groups with a readiness bar on every subscription account. */
 export function decorateZaicodeAccountGroups<T extends { key: string; readiness?: unknown }>(
   groups: readonly T[],
@@ -270,7 +262,14 @@ export function decorateZaicodeAccountGroups<T extends { key: string; readiness?
     if (!readiness) return group;
     return {
       ...group,
-      readiness: { percent: readiness.remaining, color: TONE_COLORS[readiness.tone], text: readiness.text, title: readiness.title },
+      readiness: {
+        percent: readiness.remaining,
+        tone: readiness.tone,
+        color: ZAICODE_READINESS_TONE_COLORS[readiness.tone],
+        // "Unknown" reads as a dash, like every other unknown number in ZAICODE (UI.md, SAIHOME truth rule).
+        text: readiness.tone === "unknown" ? "—" : readiness.text,
+        title: readiness.title,
+      },
     };
   });
 }

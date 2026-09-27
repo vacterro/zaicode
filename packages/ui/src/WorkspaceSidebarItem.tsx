@@ -17,6 +17,11 @@ import { ZaicodeProjectMainGlyph } from "@/zaicode/ZaicodeProjectMainGlyph.js";
 import { useZaicodeLiveRunIds } from "@/zaicode/zaicodeLiveRuns.js";
 import { useZaicodeHighlight, withZaicodeHighlight } from "@/zaicode/zaicodeHighlights.js";
 import { useZaicodeMainSessionId, useZaicodeMainSessions } from "@/zaicode/zaicodeMainSession.js";
+import { decideZaicodeMainToggle, decideZaicodeProjectClick } from "@/zaicode/zaicodeProjectClick.js";
+import { zaicodeProjectDoneMark } from "@/zaicode/zaicodeProjectDone.js";
+import { ZaicodeProjectDoneBadge } from "@/zaicode/ZaicodeProjectDoneBadge.js";
+import { openZaicodeWorkspaceView } from "@/zaicode/zaicodeActions.js";
+import { useZaicodeWorkspaceTab } from "@/zaicode/zaicodeScheduler.js";
 import { buildTaskWorkspaceKey } from "@/lib/taskQueryCache.js";
 import {
   useZaicodeProjectRuntime,
@@ -63,6 +68,7 @@ import {
   FolderOpen,
   House,
   InfoIcon,
+  ListChecks,
   ListTree,
   LoaderCircle,
   RefreshCwIcon,
@@ -547,30 +553,14 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
     zaicodeMainKey,
     zaicodeMainSessionId,
   ]);
-  const handleZaicodeMainClick = useCallback(
-    (event: MouseEvent<HTMLButtonElement>) => {
-      event.preventDefault();
-      event.stopPropagation();
-      if (zaicodeMainSessionId) {
-        onSelectTask(tab.workspacePath, zaicodeMainSessionId, tab.workspaceIdentity);
-        return;
-      }
-      if (readOnlyReason) return;
-      // 还没有 MAIN：开一个新草稿，第一条消息发出后它就成为 MAIN。
-      armZaicodeMain(zaicodeMainKey);
-      onStartDraftInWorkspace(tab.workspacePath, tab.workspaceIdentity);
-    },
-    [
-      armZaicodeMain,
-      onSelectTask,
-      onStartDraftInWorkspace,
-      readOnlyReason,
-      tab.workspaceIdentity,
-      tab.workspacePath,
-      zaicodeMainKey,
-      zaicodeMainSessionId,
-    ],
-  );
+  // SRC-062: the row's diamond is a switch -- on, the project row IS a session (MAIN) and the
+  // others are its children; off, the row is a folder again. It no longer repeats the row click.
+  const zaicodeMainToggleRef = useRef<() => void>(() => undefined);
+  const handleZaicodeMainClick = useCallback((event: MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    zaicodeMainToggleRef.current();
+  }, []);
   const handleStartSaipenClick = useCallback(
     (event: MouseEvent<HTMLButtonElement>) => {
       event.preventDefault();
@@ -864,10 +854,11 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
   const reportArchiveFailure = useZaicodeArchiveUndo((state) => state.fail);
   const zaicodeProjectIsMain =
     useZaicodeSidebarPrefs((state) => state.projectIsMain) && isZaicodeProductMode();
-  const zaicodeMainTask =
-    zaicodeProjectIsMain && zaicodeMainSessionId
-      ? (taskItems.find((task) => task.taskId === zaicodeMainSessionId) ?? null)
-      : null;
+  // The MAIN session when the list still has it (a stale id counts as none, SRC-062).
+  const zaicodeMainListed = zaicodeMainSessionId
+    ? (taskItems.find((task) => task.taskId === zaicodeMainSessionId) ?? null)
+    : null;
+  const zaicodeMainTask = zaicodeProjectIsMain ? zaicodeMainListed : null;
   // The row stands for MAIN, so MAIN is not listed again under it; the rest are its helpers.
   const zaicodeChildTasks = useMemo(
     () =>
@@ -887,14 +878,56 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
       return active || getTaskListAttention(task) !== null;
     });
   }, [zaicodeChildTasks, zaicodeSessionsCondition]);
-  const zaicodeMainOpen = Boolean(
-    zaicodeMainTask && isActiveWorkspace && activeTaskId === zaicodeMainTask.taskId,
-  );
   zaicodeOpenMainRef.current = () => {
-    // Clicking the row while MAIN is already open toggles the helpers as before.
-    if (!zaicodeProjectIsMain || !zaicodeMainSessionId || zaicodeMainOpen) return false;
-    onSelectTask(tab.workspacePath, zaicodeMainSessionId, tab.workspaceIdentity);
+    // SRC-062: one click = go to the project (MAIN when the row is a session, else the new-task
+    // screen); already there = fold / unfold only. A stale MAIN id is never opened.
+    if (!isZaicodeProductMode()) return false;
+    const decision = decideZaicodeProjectClick({
+      projectIsMain: zaicodeProjectIsMain,
+      mainId: zaicodeMainSessionId,
+      sessionIds: taskItems.map((task) => task.taskId),
+      activeWorkspace: isActiveWorkspace,
+      activeTaskId: isActiveWorkspace ? (activeTaskId ?? null) : null,
+    });
+    if (decision.action === "open") {
+      // The row's own voice: the orchestra would call this click "expand" (the trigger's
+      // aria-expanded), though nothing unfolds. A direct sound also claims the navigation echo.
+      playZaicodeSound("sidebar.project");
+      onSelectTask(tab.workspacePath, decision.sessionId, tab.workspaceIdentity);
+    }
+    else if (decision.action === "draft") onStartDraftInWorkspace(tab.workspacePath, tab.workspaceIdentity);
+    else toggleWorkspaceExpanded(tab.workspacePath);
     return true;
+  };
+  zaicodeMainToggleRef.current = () => {
+    const decision = decideZaicodeMainToggle({
+      mainId: zaicodeMainSessionId,
+      sessions: taskItems,
+      activeWorkspace: isActiveWorkspace,
+      activeTaskId: isActiveWorkspace ? (activeTaskId ?? null) : null,
+    });
+    const store = useZaicodeMainSessions.getState();
+    const titleOf = (id: string) => taskItems.find((task) => task.taskId === id)?.title || "the session";
+    playZaicodeSound("ui.toggle");
+    if (decision.action === "unset") {
+      store.clearMain(zaicodeMainKey);
+      toast(`◇ ${workspaceSidebarLabel}: "${titleOf(decision.sessionId)}" is an ordinary session again`);
+      return;
+    }
+    if (decision.action === "set") {
+      store.setMain(zaicodeMainKey, decision.sessionId);
+      toast(
+        zaicodeProjectIsMain
+          ? `◆ ${workspaceSidebarLabel} is now "${titleOf(decision.sessionId)}": the row opens it, the other sessions are its children`
+          : `◆ "${titleOf(decision.sessionId)}" is MAIN of ${workspaceSidebarLabel}`,
+      );
+      return;
+    }
+    if (readOnlyReason) return;
+    // No session at all: the next one started here becomes the row.
+    armZaicodeMain(zaicodeMainKey);
+    onStartDraftInWorkspace(tab.workspacePath, tab.workspaceIdentity);
+    toast(`◆ ${workspaceSidebarLabel}: the session you start now becomes this row`);
   };
   /** SRC-049: middle click on a "project = MAIN" row empties MAIN in place (CLEAR) without opening it. */
   const clearZaicodeMainSession = () => {
@@ -932,6 +965,9 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
     isZaicodeProductMode() ? zaicodeSlotKey : null,
   );
   const zaicodeAuditCampaigns = useZaicodeAuditStore((state) => state.campaigns);
+  const zaicodeAuditRunning = zaicodeAuditCampaigns.some(
+    (campaign) => campaign.workspacePath === tab.workspacePath && campaign.status === "running",
+  );
   const zaicodeAuditProgress = useMemo(
     () =>
       isZaicodeProductMode()
@@ -1302,6 +1338,26 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
     zaicodeSaipen,
   );
   const boardShares = saipenBoardShares(zaicodeSaipen);
+  // SRC-062: the special DONE mark -- SAIPEN done, a clean board, and an A3 offer when it would see something new.
+  const zaicodeDoneMark = useMemo(
+    () =>
+      isZaicodeProductMode() && zaicodeSaipen
+        ? zaicodeProjectDoneMark({
+            verdict: zaicodeRuntime?.verdict ?? null,
+            board: zaicodeSaipen.counts,
+            parked: zaicodeRuntime?.snapshot.protocol?.parkedWork.length ?? 0,
+            campaigns: zaicodeAuditCampaigns.filter((campaign) => campaign.workspacePath === tab.workspacePath),
+            stateUpdatedAt: Number.isFinite(boardUpdatedAt) ? boardUpdatedAt : 0,
+          })
+        : null,
+    [boardUpdatedAt, tab.workspacePath, zaicodeAuditCampaigns, zaicodeRuntime, zaicodeSaipen],
+  );
+  const openZaicodeAuditsHere = () => {
+    // The audit centre preselects the active project; make this one active first (no new session).
+    activateTab(tab.id);
+    useZaicodeWorkspaceTab.getState().setTab("audits");
+    openZaicodeWorkspaceView();
+  };
   // SRC-043: this row is how CONTINUE ALL and the session ▶ reach this project's own host.
   const zaicodeHasSaipenRef = useRef(false);
   zaicodeHasSaipenRef.current = Boolean(zaicodeSaipen);
@@ -1394,11 +1450,18 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
           OFF
         </span>
       ) : null}
-      {zaicodeAuditProgress ? (
+      {zaicodeAuditProgress && (zaicodeAuditRunning || !zaicodeProjectOff) ? (
+        // SRC-062: a running audit is bright; a merely planned one is quiet (nothing runs until
+        // Start), and on a switched-off project it is not shown at all.
         <span
-          className="border border-[#a06a20] bg-[#2b2111] px-0.5 text-[10px] leading-3 text-[#f0c040]"
-          title={`${zaicodeAuditProgress.campaigns} A3 campaign(s): ${zaicodeAuditProgress.complete}/${zaicodeAuditProgress.total} audit waves complete or reviewed`}
+          className={
+            zaicodeAuditRunning
+              ? "border border-[#a06a20] bg-[#2b2111] px-0.5 text-[10px] leading-3 text-[#f0c040]"
+              : "border border-border px-0.5 text-[10px] leading-3 text-foreground-subtlest"
+          }
+          title={`${zaicodeAuditProgress.campaigns} A3 campaign(s): ${zaicodeAuditProgress.complete}/${zaicodeAuditProgress.total} audit waves complete or reviewed${zaicodeAuditRunning ? " · running now" : " · planned: nothing runs until you press Start in the audit centre"}`}
           data-zaicode-a3-progress={`${zaicodeAuditProgress.complete}/${zaicodeAuditProgress.total}`}
+          data-zaicode-a3-running={zaicodeAuditRunning ? "1" : "0"}
         >
           A3 {zaicodeAuditProgress.complete}/{zaicodeAuditProgress.total}
         </span>
@@ -1478,6 +1541,9 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
       >
         {workspaceSidebarLabel}
       </div>
+      {zaicodeDoneMark && !zaicodeProjectOff ? (
+        <ZaicodeProjectDoneBadge mark={zaicodeDoneMark} onOfferA3={openZaicodeAuditsHere} />
+      ) : null}
       {isZaicodeProductMode() ? (
         <ZaicodeProjectWorkerChips projectPath={tab.workspacePath} />
       ) : null}
@@ -1800,6 +1866,13 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
                                 <Power className="h-3.5 w-3.5" />
                                 {zaicodeProjectOff ? "Switch project on" : "Switch project off"}
                               </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onSelect={openZaicodeAuditsHere}
+                                title="Opens the audit centre on this project: plan or start an A3 audit wave (nothing runs by itself)"
+                              >
+                                <ListChecks className="h-3.5 w-3.5" />
+                                A3 audit…
+                              </DropdownMenuItem>
                               <DropdownMenuSeparator />
                             </>
                           ) : null}
@@ -2037,9 +2110,9 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
                     {mountRowActions && isZaicodeProductMode() ? (
                       <ControlHintTooltip
                         title={
-                          zaicodeMainSessionId
-                            ? "MAIN — open this project's MAIN session (the iron slot where the work is started and planned)"
-                            : "MAIN — no MAIN session yet: open a new one (your first message makes it MAIN)"
+                          zaicodeMainListed
+                            ? `◆ on: this row IS the session "${zaicodeMainListed.title || "MAIN"}" (click the row to open it). Click ◆ to turn it off: the row becomes a folder and the session is listed with the others.`
+                            : "◇ off: the row is a folder. Click ◆ to make a session this row -- the open one, else the one worked on last (a new one when there is none); the other sessions become its children."
                         }
                       >
                         <Button
@@ -2048,21 +2121,20 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
                           size={zaicodeCompactRow ? "icon-xs" : "icon-sm"}
                           className={cn(
                             "shrink-0 hover:bg-surface-hover hover:text-foreground",
-                            zaicodeMainSessionId
+                            zaicodeMainListed
                               ? "text-[var(--zaicode-highlight,var(--color-warning))]"
                               : "text-foreground-subtle",
                             zoneActionClass,
                           )}
                           onMouseDown={handleActionMouseDown}
                           onClick={handleZaicodeMainClick}
+                          aria-pressed={Boolean(zaicodeMainListed)}
                           aria-label={
-                            zaicodeMainSessionId ? "Open MAIN session" : "Create MAIN session"
+                            zaicodeMainListed ? "Row is the MAIN session: turn off" : "Make a session this row (MAIN)"
                           }
-                          data-zaicode-main-button={zaicodeMainSessionId ? "open" : "create"}
+                          data-zaicode-main-button={zaicodeMainListed ? "on" : "off"}
                         >
-                          <span className="text-ui-sm leading-none">
-                            {zaicodeMainSessionId ? "◆" : "◇"}
-                          </span>
+                          <span className="text-ui-sm leading-none">{zaicodeMainListed ? "◆" : "◇"}</span>
                         </Button>
                       </ControlHintTooltip>
                     ) : null}

@@ -78,11 +78,9 @@ const FLOATING = [
 const ROWS = [
   '[data-testid^="workspace-item-"]',
   'li[data-testid^="task-item-"]',
-  "[data-zaicode-subchat-row]",
 ].map((selector) => `html.zaicode-bevels.zaicode-bevel-rows ${selector}`);
 const ROWS_OPEN = [
   'li[data-testid^="task-item-"].bg-selected',
-  '[data-zaicode-subchat-row][data-active="true"]',
 ].map((selector) => `html.zaicode-bevels.zaicode-bevel-rows ${selector}`);
 
 export const ZAICODE_BEVEL_CSS = `

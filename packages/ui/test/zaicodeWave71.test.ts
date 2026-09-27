@@ -10,14 +10,10 @@ import {
 } from "../src/zaicode/zaicodeSidebarPrefs.js";
 import { pickZaicodeBackgroundRetrySessions } from "../src/zaicode/zaicodeTurnRetryWatch.js";
 import { buildZaicodeIconBadgeDataUri } from "../src/zaicode/zaicodeIconSlots.js";
-import {
-  buildZaicodeSubchatInvocation,
-  normalizeZaicodeSubchatConversations,
-  type ZaicodeSubchatConversation,
-} from "@zcode/shared";
 
 // T-71 (SRC-051): the 2026-09-26 feedback wave — LIVE recency + hold,
-// freshness buckets, background auto-retry, subchat model/effort, icon badges.
+// freshness buckets, background auto-retry, icon badges (the SUBCHAT model /
+// effort checks left with SUBCHAT, SRC-062).
 
 const live = (over: Partial<ZaicodeProjectLive>): ZaicodeProjectLive => ({
   running: 0,
@@ -156,72 +152,6 @@ test("background auto-retry: only failed, quiet, non-local sessions of enabled p
   assert.equal(pick([failed], { isProjectDisabled: () => true }).length, 0);
   assert.equal(pick([failed], { attemptsOf: () => 3, maxAttempts: 3 }).length, 0, "budget spent");
   assert.equal(pick([failed], { attemptsOf: () => 2, maxAttempts: 3 }).length, 1);
-});
-
-test("subchat effort: Claude maps to thinking tokens env, Codex to its reasoning effort flag, others ignore it", () => {
-  const claude = buildZaicodeSubchatInvocation(
-    { vendor: "claude", home: null, isDefaultHome: true },
-    { prompt: "hi", sessionId: null, yolo: false, effort: "high" },
-  )!;
-  assert.equal(claude.env.MAX_THINKING_TOKENS, "31999");
-  const claudeAuto = buildZaicodeSubchatInvocation(
-    { vendor: "claude", home: null, isDefaultHome: true },
-    { prompt: "hi", sessionId: null, yolo: false, effort: "auto" },
-  )!;
-  assert.equal("MAX_THINKING_TOKENS" in claudeAuto.env, false);
-
-  const codex = buildZaicodeSubchatInvocation(
-    { vendor: "codex", home: null, isDefaultHome: true },
-    { prompt: "hi", sessionId: null, yolo: false, model: "gpt-5.2", effort: "max" },
-  )!;
-  assert.deepEqual(
-    codex.args.includes("-m") && codex.args[codex.args.indexOf("-m") + 1],
-    "gpt-5.2",
-  );
-  assert.ok(
-    codex.args.includes('model_reasoning_effort="max"'),
-    "Codex's full effort range rides its own -c flag",
-  );
-
-  const zcode = buildZaicodeSubchatInvocation(
-    { vendor: "zcode", home: null, isDefaultHome: true },
-    { prompt: "hi", sessionId: null, yolo: false, effort: "high" },
-  )!;
-  assert.deepEqual(
-    zcode.args,
-    ["-p", "hi", "--json", "--mode", "edit"],
-    "zcode CLI has no effort knob: nothing invented",
-  );
-});
-
-test("subchat persistence: the model pick and effort survive storage round-trip", () => {
-  const conversation: ZaicodeSubchatConversation = {
-    id: "c1",
-    accountId: "a1",
-    vendor: "codex",
-    short: "C1",
-    label: "Codex 1",
-    projectPath: "C:/p",
-    sessionId: null,
-    model: "gpt-5.2-codex",
-    modelChoice: "gpt-5.2-codex",
-    effort: "high",
-    title: "t",
-    createdAt: 1,
-    updatedAt: 1,
-    status: "idle",
-    usage: { input: 0, output: 0, cached: 0 },
-    messages: [],
-  };
-  const [round] = normalizeZaicodeSubchatConversations([{ ...conversation, effort: "bogus" }]);
-  assert.equal(round.modelChoice, "gpt-5.2-codex");
-  assert.equal(
-    round.effort,
-    "auto",
-    "an unknown effort falls back to auto, never crashes a stored chat",
-  );
-  const [clean] = normalizeZaicodeSubchatConversations([conversation]);
-  assert.equal(clean.effort, "high");
 });
 
 test("icon badge builder: data URI, escaping, solid vs gradient (worker icon mini-editor output)", () => {

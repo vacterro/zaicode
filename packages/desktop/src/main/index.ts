@@ -255,6 +255,7 @@ import {
 import { applyZaicodePixelExactSwitches, ensureZaicodeCrispFonts } from "./zaicodeCrispFonts.js";
 import { startZaicodeEngines } from "./zaicodeEngines.js";
 import { isZaicodeSplashWindow, isZaicodeWindowHeld, showZaicodeSplash } from "./zaicodeSplash.js";
+import { isZaicodeProtrailWindow } from "./zaicodeProtrailGlobal.js";
 import { startZaicodeRouterHost, stopZaicodeRouterHost } from "./zaicodeRouterHost.js";
 import { applyZaicodeLocalTimeZone, shouldRelaunchForLocalTimeZone } from "./zaicodeTimeZone.js";
 
@@ -1487,7 +1488,12 @@ function getApplicationWindowsExcludingCuaIndicator(): BrowserWindow[] {
   return BrowserWindow.getAllWindows().filter(
     // ZAICODE (SRC-050): the start-up splash is not an application window; left in,
     // app-ready "reused" the splash and the real main window was never created.
-    (win) => !win.isDestroyed() && !windowsCuaOperationIndicator.ownsWindow(win) && !isZaicodeSplashWindow(win),
+    // ZAICODE (SRC-062): ProTrail's per-monitor overlays are not application windows either.
+    (win) =>
+      !win.isDestroyed() &&
+      !windowsCuaOperationIndicator.ownsWindow(win) &&
+      !isZaicodeSplashWindow(win) &&
+      !isZaicodeProtrailWindow(win),
   );
 }
 

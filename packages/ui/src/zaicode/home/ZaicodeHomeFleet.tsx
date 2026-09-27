@@ -9,6 +9,7 @@ import { buildTaskWorkspaceKey } from "@/lib/taskQueryCache.js";
 import { projectNameOf } from "../zaicodeEngines.js";
 import { useZaicodeSaipen } from "../zaicodeSaipen.js";
 import { sameZaicodeProjectPath, useZaicodeProjectRuntime, zaicodeSaipenHeadline } from "../zaicodeProjectRuntime.js";
+import { zaicodeProjectDoneMark } from "../zaicodeProjectDone.js";
 import { useZaicodeMainSessionId } from "../zaicodeMainSession.js";
 import { useZaicodeProjectDisabled } from "../zaicodeProjectSwitch.js";
 import { useZaicodeSidebarPrefs, slotGroupOf, type ZaicodeRunningSession } from "../zaicodeSidebarPrefs.js";
@@ -59,6 +60,8 @@ export interface ZaicodeHomeProjectRow extends ZaicodeHomeProjectInput {
   openTickets: number | null;
   /** SAIPEN board: BLOCKED tickets, null without SAIPEN. */
   blockedTickets: number | null;
+  /** SRC-062: SAIPEN done with a clean board (nothing open, blocked or parked). */
+  clean: boolean;
 }
 
 export const useZaicodeHomeProjects = create<{ rows: Record<string, ZaicodeHomeProjectRow> }>(() => ({ rows: {} }));
@@ -140,6 +143,14 @@ function ProjectProbe({ project }: { project: ZaicodeHomeProjectInput }) {
         lastActionTime: saipen?.lastActionTime ?? null,
         openTickets: saipen ? saipen.counts.todo + saipen.counts.doing : null,
         blockedTickets: saipen ? saipen.counts.blocked : null,
+        clean:
+          zaicodeProjectDoneMark({
+            verdict: runtime.verdict,
+            board: saipen?.counts ?? null,
+            parked: runtime.snapshot.protocol?.parkedWork.length ?? 0,
+            campaigns: [],
+            stateUpdatedAt: 0,
+          }) !== null,
       },
       project.key,
     );
@@ -219,8 +230,14 @@ export function ZaicodeHomeFleet({
                   <span className="h-4" style={{ background: row.color ?? "var(--color-border)" }} aria-hidden />
                   <span className="truncate text-foreground">{row.name}</span>
                   <span className="truncate text-foreground-subtlest">{row.slot}</span>
-                  <span className="truncate text-foreground-subtle">
-                    {row.disabled ? "OFF · switched off" : row.blocker ? `BLOCKED: ${row.blocker}` : [row.task, row.phase].filter(Boolean).join(" ") || row.label}
+                  <span className={cn("truncate", row.clean && !row.disabled ? "text-[var(--color-success)]" : "text-foreground-subtle")}>
+                    {row.disabled
+                      ? "OFF · switched off"
+                      : row.blocker
+                        ? `BLOCKED: ${row.blocker}`
+                        : row.clean
+                          ? "✔ DONE · clean board"
+                          : [row.task, row.phase].filter(Boolean).join(" ") || row.label}
                   </span>
                   <span className="shrink-0 tabular-nums text-foreground-subtle">
                     {row.sessionsRunning + row.workersRunning > 0 ? `${row.sessionsRunning + row.workersRunning}▸` : ""}

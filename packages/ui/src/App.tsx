@@ -10,6 +10,8 @@ import { useZaicodeAutostartRunner } from "@/zaicode/zaicodeAutostart.js";
 import { useZaicodeLimitAlerts } from "@/zaicode/ZaicodeLimitMeter.js";
 import { readZaicodeHomePrefs, zaicodeStartupMainView } from "@/zaicode/home/zaicodeHomePrefs.js";
 import { installZaicodeDeclarativeSounds, playZaicodeSound } from "@/zaicode/zaicodeSoundEvents.js";
+import { ZAICODE_SOUND_NAV_ECHO_MS, zaicodeNavigationEcho } from "@/zaicode/zaicodeSoundBus.js";
+import { installZaicodeSessionText } from "@/zaicode/zaicodeSessionText.js";
 import { setZaicodeCurrentWorkspace } from "@/zaicode/zaicodeEngines.js";
 import { installZaicodeHorizontalScrollGuard } from "@/zaicode/zaicodeScrollGuard.js";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -307,6 +309,7 @@ export function App({
   useZaicodeAutostartRunner();
   useZaicodeLimitAlerts();
   useEffect(() => {
+    installZaicodeSessionText();
     installZaicodeDeclarativeSounds();
     installZaicodeHorizontalScrollGuard();
   }, []);
@@ -314,13 +317,26 @@ export function App({
     setZaicodeCurrentWorkspace(workspaceAbsPath || undefined, workspaceIdentity || undefined);
   }, [workspaceAbsPath, workspaceIdentity]);
   const previousNavigationRef = useRef<{ task: string | null; workspace: string } | null>(null);
+  const lastNavigationSoundRef = useRef(Number.NEGATIVE_INFINITY);
   useEffect(() => {
     const previous = previousNavigationRef.current;
     previousNavigationRef.current = { task: activeTaskId ?? null, workspace: workspaceAbsPath };
     if (!previous) return;
-    // Echoes: silent when the action that caused the change (New task, open session, archive, ...) already played.
-    if (previous.workspace !== workspaceAbsPath) playZaicodeSound("sidebar.project", { echo: true });
-    else if (activeTaskId && previous.task !== activeTaskId) playZaicodeSound("session.open", { echo: true });
+    // Echoes: silent when the action that caused the change (New task, open session, archive, ...)
+    // already played. SRC-062: one move = one sound -- the project switch and the session it lands
+    // on are one navigation, and a slow session load stays inside the navigation echo window.
+    const now = Date.now();
+    const echo = zaicodeNavigationEcho(
+      {
+        workspaceChanged: previous.workspace !== workspaceAbsPath,
+        taskChanged: Boolean(activeTaskId) && previous.task !== activeTaskId,
+      },
+      now,
+      lastNavigationSoundRef.current,
+    );
+    if (!echo) return;
+    lastNavigationSoundRef.current = now;
+    playZaicodeSound(echo, { echo: true, echoWindowMs: ZAICODE_SOUND_NAV_ECHO_MS });
   }, [activeTaskId, workspaceAbsPath]);
   const { isOverlayOpen: isFancyZonesOpen, closeOverlay: closeFancyZones } =
     useZaicodeFancyZonesHotkey();

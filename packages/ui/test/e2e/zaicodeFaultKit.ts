@@ -44,35 +44,6 @@ export async function writeStubRouterPackage(dir: string): Promise<string> {
   return dir;
 }
 
-/**
- * Codex-shaped CLI: announces its thread at once, then answers only when the
- * file named by ZAICODE_FAULT_GO exists, echoing its prompt, and exits.
- */
-const WAITING_CLI = `
-const { existsSync } = require("node:fs");
-let prompt = "";
-process.stdin.setEncoding("utf8");
-process.stdin.on("data", (chunk) => (prompt += chunk));
-process.stdin.on("end", () => {
-  const out = (value) => process.stdout.write(JSON.stringify(value) + "\\n");
-  out({ type: "thread.started", thread_id: "thread-" + prompt.trim() });
-  const timer = setInterval(() => {
-    if (!existsSync(process.env.ZAICODE_FAULT_GO)) return;
-    clearInterval(timer);
-    out({ type: "item.completed", item: { type: "agent_message", text: "answer " + prompt.trim() } });
-    out({ type: "turn.completed", usage: { input_tokens: 1, cached_input_tokens: 0, output_tokens: 1 } });
-    process.exit(0);
-  }, 10);
-});
-`;
-
-export async function writeWaitingCli(dir: string): Promise<string> {
-  await mkdir(dir, { recursive: true });
-  const path = join(dir, "waiting-cli.js");
-  await writeFile(path, WAITING_CLI);
-  return path;
-}
-
 export interface ManualScenario {
   id: string;
   scenario: string;

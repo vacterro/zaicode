@@ -59,9 +59,8 @@ export const ZAICODE_HELP_WIKI: Record<ZaicodeHelpTopicId, HelpArticle> = {
       ["Reset", "The moment a quota window refills. ZAICODE shows when each one resets and can start work right then."],
       ["Token", "The unit models read and write text in (roughly ¾ of a word). Quotas and statistics count tokens."],
       ["Reasoning effort", "How long a model thinks before answering (low … high, xhigh, max). More effort = better on hard problems, slower and pricier."],
-      ["CLI", "Command-line program. Claude Code and Codex are CLIs; ZAICODE starts them for you as workers or talks to them through SUBCHAT."],
+      ["CLI", "Command-line program. Claude Code and Codex are CLIs; ZAICODE starts them for you as workers."],
       ["Worker", "A subscription CLI running inside a project on its own terminal, watched by ZAICODE."],
-      ["SUBCHAT", "Chatting with a subscription without starting a worker: each message is one short run of its CLI."],
       ["SAIFREN / SAIOPP", "ZAICODE's own model pools behind a local router: SAIFREN free models, SAIOPP deeper-thinking ones. The router falls over to the next model when one fails."],
       ["SAIPEN", "A working method for agents: a project keeps a BOARD of tickets, a STATE and a LOG in its .saipen folder, so any agent can pick the work up where the last one left it."],
       ["Ticket", "One piece of work on a SAIPEN board, with how it will be checked."],
@@ -76,23 +75,26 @@ export const ZAICODE_HELP_WIKI: Record<ZaicodeHelpTopicId, HelpArticle> = {
       ["Commit", "A saved checkpoint of your project in Git. After a commit the Changes counter starts from zero."],
     ],
   },
-  pebble: {
-    why: "Agents often work for minutes at a time. PEBBLE DROP is a small complete game for those minutes, so waiting is not staring.",
+  saipeggle: {
+    why: "Agents often work for minutes at a time. SAIPEGGLE is a whole game for those minutes (the genre of Peggle Deluxe, drawn in ZAICODE's pixels and colours), so waiting is not staring.",
     steps: [
-      "Open it from this card (Open game), or type PEBBLE anywhere outside a text field.",
-      "Space starts. Move with Left / Right or A / D; catch gold pebbles, dodge red hazards, grab hearts.",
-      "Clear the catch goal to reach the next of six levels; each is faster.",
+      "Open it: Settings → SAIPEGGLE (above Support Developer), this card (Open game), or type PEGGLE outside a text field.",
+      "Aim with the mouse and click to fire. Clear every orange peg; the bucket at the bottom gives free balls.",
+      "Green pegs give the stage master's power: Super Guide, Multiball, Pyramid, Space Blast, Spooky Ball, Fireball, Zen Ball or Lucky Spin.",
+      "Hit the last orange peg for Extreme Fever and drop the ball into a 100K bucket.",
     ],
     terms: [
-      ["Fullscreen / detach", "Title-bar buttons: play over the whole screen, or in its own window beside your work."],
-      ["P / R / Esc", "Pause, restart, close."],
+      ["Multiplier", "x2 / x3 / x5 / x10 as more orange pegs are hit; every peg is worth that much more."],
+      ["Seed", "The text a random board is built from: the same seed, the same board."],
+      ["Board code", "A SPG1.… text holding a whole board, to share it with anyone."],
+      ["P / R / Esc", "Pause, retry the level, pause and then the menu."],
     ],
   },
   engines: {
     why: "Every AI you can use sits in one row of tiles, with how much quota each has left, so you pick the one that can work now instead of discovering it is out halfway through a task.",
     steps: [
       "Look at the bar under each tile: the more green, the more quota left.",
-      "Click a tile: new prompts go to it. For Claude / Codex subscriptions, answers come in SUBCHAT.",
+      "Click a tile: new prompts start it as a worker. To chat with a subscription account in ZAICODE itself, pick it in the model menu (account → model → effort).",
       "Double-click a tile: start it as a worker in the open project.",
       "A dashed tile with ! needs a sign-in or its CLI is missing: right-click → Fix shows exactly what it will run.",
     ],
@@ -123,18 +125,6 @@ export const ZAICODE_HELP_WIKI: Record<ZaicodeHelpTopicId, HelpArticle> = {
     ],
     problems: [["An account shows 'needs sign-in'", "Its CLI login expired; right-click the engine tile → Fix."]],
   },
-  subchat: {
-    why: "Sometimes you want to ask a subscription model something without starting a whole worker in a project. SUBCHAT is a plain chat with Claude, Codex and friends, using your own login.",
-    steps: [
-      "Open SUBCHAT from the menu, or click a subscription tile.",
-      "Pick the model and its effort above the box; type and send.",
-      "Mention a project to let it read that project; SAIPEN shortcuts (cc…) are passed through exactly.",
-    ],
-    terms: [
-      ["Effort", "The vendor's own reasoning levels (for Codex: low … high, xhigh, max). The list comes from the vendor."],
-      ["Responding model", "Shown on each answer: what actually answered, which can differ from what you picked if the vendor fell back."],
-    ],
-  },
   accounts: {
     why: "You pay for Codex, Claude or Antigravity subscriptions; this makes each of those accounts a normal model inside ZAICODE, so a chat uses exactly the account you picked, with its real effort, and you see how much it has left.",
     steps: [
@@ -148,6 +138,36 @@ export const ZAICODE_HELP_WIKI: Record<ZaicodeHelpTopicId, HelpArticle> = {
       ["Effort", "How hard the model thinks before it answers: low is fast and cheap, high (and xhigh on Codex) is slow and thorough."],
       ["Fuel", "When the account you picked is at its limit, 9router answers with the next account of the same vendor so the work continues."],
       ["Readiness bar", "What the account has left in its tightest window (5 hours, week …), read from the vendor through 9router."],
+    ],
+  },
+  sessiontext: {
+    why: "You read the agent's answers all day. This makes them read the way you like: a book-like serif, a Word document with blue numbered headings, a typewriter, a terminal, or just a bigger, calmer text.",
+    steps: [
+      "Open Settings → Session text.",
+      "Try a preset first: Word document, Book, Typewriter, Terminal, Pixel, Highlighter, Large print or Compact.",
+      "Then pick a part on the left and fine-tune it; the sample answer on the right changes as you click.",
+      "Happy with it? Save as preset. Export sends your presets to a file you can import on another machine.",
+    ],
+    terms: [
+      ["As app", "Not changed: the part keeps the look ZAICODE gives it."],
+      ["Highlighter", "A colour behind the text, like a marker pen on paper."],
+      ["Line spacing", "The distance between lines of a paragraph; 1.5 is Word's 1.5 lines."],
+      ["Line length", "The widest a paragraph gets, in letters; shorter lines are easier to read."],
+    ],
+  },
+  protrail: {
+    why: "A visible cursor is easier to follow on big or several screens, in screen recordings and in demos, and it is simply nice. ProTrail draws it the way the stand-alone ProTrail app does, without a second program running.",
+    steps: [
+      "Open Settings → ProTrail.",
+      "General: keep Everywhere in Windows, or pick Only inside ZAICODE. Try a colour preset.",
+      "Trail: pick a style (Classic, Comet, Neon …), its thickness, lifetime and sparkles.",
+      "Click: pick a click style (Ring, Burst, Fire, Water …), which buttons trigger it, and the hold effect.",
+    ],
+    terms: [
+      ["Trail", "The fading line the cursor leaves behind as it moves."],
+      ["Hold", "Keeping a mouse button down: an aura charges up, and the release plays a stronger effect."],
+      ["Motion wake", "Shapes left behind while you drag with a button held down."],
+      ["Click-through", "The effect layer never catches a click; the app under it gets every click as usual."],
     ],
   },
   workers: {
@@ -181,7 +201,9 @@ export const ZAICODE_HELP_WIKI: Record<ZaicodeHelpTopicId, HelpArticle> = {
     terms: [
       ["← →", "Back / forward through the places you visited, like a browser."],
       ["Focus next session", "Click = next working or waiting session; right-click = previous."],
-      ["Project row buttons", "Hover a project: ◆ MAIN (its SAIPEN session), ▶ START (continue it), … (more)."],
+      ["Project row buttons", "Hover a project: ◆ / ◇ switches 'this row is a session' (on: the row opens that session and the others are its children; off: a folder), ▶ START (continue it), … (more, new session)."],
+      ["Clicking a project", "First click: go to the project (the row's session, or the new-task screen). Every next click only folds or unfolds its sessions -- it never jumps to another session."],
+      ["✔ / ✔A3 after a name", "SAIPEN says the project is done and its board is clean (nothing open, blocked or parked). ✔A3: it changed since its last audit -- click to open the audit centre on it and plan an A3 wave. A3 x/y: an audit is planned (quiet) or running (bright)."],
       ["Shift+Click a project", "Switch it off: dimmed, marked OFF, no automatic agent or schedule touches it."],
       ["Ctrl+Click a project", "Send it down to another slot."],
       ["Working meter", "One cell per working session, from black (just started) to green (almost done)."],

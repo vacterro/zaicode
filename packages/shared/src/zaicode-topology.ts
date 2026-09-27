@@ -16,7 +16,7 @@
  * identity field is refused, not merged.
  */
 
-export type ZaicodeRuntimeRole = "primary" | "auxiliary" | "worker" | "subchat" | "fix" | "shell";
+export type ZaicodeRuntimeRole = "primary" | "auxiliary" | "worker" | "fix" | "shell";
 export type ZaicodeRuntimeHealth = "running" | "exited" | "failed";
 
 export interface ZaicodeRuntimeLease {
@@ -93,7 +93,6 @@ export interface ZaicodeProjectTopology {
   primary: ZaicodeRuntimeIdentity | null;
   auxiliary: ZaicodeRuntimeIdentity[];
   workers: ZaicodeRuntimeIdentity[];
-  subchats: ZaicodeRuntimeIdentity[];
 }
 
 function sameProject(left: string, right: string): boolean {
@@ -108,6 +107,5 @@ export function zaicodeProjectTopology(identities: readonly ZaicodeRuntimeIdenti
     primary: mine.find((identity) => identity.role === "primary") ?? null,
     auxiliary: mine.filter((identity) => identity.role === "auxiliary"),
     workers: mine.filter((identity) => identity.role === "worker" || identity.role === "fix" || identity.role === "shell"),
-    subchats: mine.filter((identity) => identity.role === "subchat"),
   };
 }
