@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import test from "node:test";
 import { createPrimaryWindowCoordinator } from "../src/main/primaryWindowCoordinator.js";
 
@@ -100,4 +102,52 @@ test("a window whose renderer crashed is destroyed and the next one revealed", a
   assert.equal(crashed.destroyedCount, 1);
   assert.equal(next.shown, 1);
   assert.equal(harness.created, 0);
+});
+
+// SRC-060: the whole start-up picture feature was inert on desktop. The preload
+// bridge, the channels and the main-process handlers all existed, but
+// desktopPlatform.ts never mapped get/setZaicodeSplashPrefs into
+// IPlatformService, so every control in ZaicodeSplashSettings guarded on
+// `!platform.setZaicodeSplashPrefs` stayed permanently disabled and apply()
+// returned early. The operator read that as "the splash is blocked from
+// changes".
+//
+// The check is deliberately about the adapter rather than the handlers: the
+// handlers were never the problem, and a test on them would have stayed green
+// through the entire outage.
+test("the desktop platform adapter maps both splash preference methods", () => {
+  const adapter = readFileSync(
+    join(import.meta.dirname, "..", "src", "renderer", "src", "desktopPlatform.ts"),
+    "utf8",
+  );
+  assert.match(adapter, /getZaicodeSplashPrefs:\s*window\.zcode\.getZaicodeSplashPrefs/);
+  assert.match(adapter, /setZaicodeSplashPrefs:\s*window\.zcode\.setZaicodeSplashPrefs/);
+  // Both must be optional-guarded like every sibling, so a preload without them
+  // (the dev renderer) still constructs.
+  assert.match(adapter, /getZaicodeSplashPrefs\s*\n\s*\?\s*\(\)\s*=>\s*window\.zcode\.getZaicodeSplashPrefs!/);
+  assert.match(adapter, /setZaicodeSplashPrefs\s*\n\s*\?\s*\(input\)\s*=>\s*window\.zcode\.setZaicodeSplashPrefs!\(input\)/);
+});
+
+test("the preload still exposes what the adapter now maps", () => {
+  const preload = readFileSync(join(import.meta.dirname, "..", "src", "preload", "index.ts"), "utf8");
+  for (const channel of ["GetZaicodeSplashPrefs", "SetZaicodeSplashPrefs"]) {
+    assert.ok(preload.includes(channel), `${channel} is exposed by the preload bridge`);
+  }
+});
+
+test("the splash settings component is not wired to a method that does not exist", () => {
+  const settings = readFileSync(
+    join(import.meta.dirname, "..", "..", "ui", "src", "settings", "ZaicodeSplashSettings.tsx"),
+    "utf8",
+  );
+  // The component guards on these two; if the platform service stops declaring
+  // them the section is inert again and this catches the drift.
+  const platform = readFileSync(
+    join(import.meta.dirname, "..", "..", "shared", "src", "platform.ts"),
+    "utf8",
+  );
+  assert.ok(settings.includes("getZaicodeSplashPrefs"), "the section reads the preferences");
+  assert.ok(settings.includes("setZaicodeSplashPrefs"), "the section writes the preferences");
+  assert.ok(platform.includes("getZaicodeSplashPrefs?"), "the service still declares the reader");
+  assert.ok(platform.includes("setZaicodeSplashPrefs?"), "the service still declares the writer");
 });

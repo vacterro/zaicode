@@ -79,7 +79,6 @@ import { useZaicodeArchiveUndo, useZaicodeArchiveUndoShortcut } from "@/zaicode/
 import {
   orderZaicodeProjectSections,
   projectLiveOf,
-  raiseZaicodeLiveProjects,
   runningSessionsOf,
   waitingSessionsOf,
   slotGroupOf,
@@ -735,19 +734,6 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
   useEffect(() => {
     if (zaicodeMode) publishZaicodeRunningSessions(zaicodeProjectLive.all);
   }, [publishZaicodeRunningSessions, zaicodeMode, zaicodeProjectLive.all]);
-  // SRC-060 "Remain in position": remember when each project was last live, so it
-  // stays up after it finishes instead of dropping back to its manual place.
-  const zaicodeLiveRemain = zaicodeMode && zaicodePrefs.liveFirst && zaicodePrefs.liveRemain;
-  useEffect(() => {
-    if (!zaicodeLiveRemain) return;
-    const { liveRaised, liveIncludeWaiting, update } = useZaicodeSidebarPrefs.getState();
-    const now = Date.now();
-    const live = [...zaicodeProjectLive.byKey]
-      .filter(([, state]) => state.running > 0 || (liveIncludeWaiting && state.waiting > 0))
-      .map(([key, state]) => ({ key, at: Math.min(now, state.lastActivityAt || now) }));
-    const next = raiseZaicodeLiveProjects(liveRaised, live);
-    if (next) update({ liveRaised: next });
-  }, [zaicodeLiveRemain, zaicodeProjectLive.byKey]);
   const liveZaicodeProjectSections = useMemo(() => {
     const keyOf = (tab: (typeof projectWorkspaceTabs)[number]) =>
       buildTaskWorkspaceKey(tab.workspacePath, tab.workspaceIdentity);

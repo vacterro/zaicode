@@ -320,18 +320,6 @@ export function ZaicodeSidebarSettings() {
             onChange={(liveDimIdle) => prefs.update({ liveDimIdle })}
             label="Dim projects with nothing running"
           />
-          <ZaicodePrefCheck
-            checked={prefs.liveRemain}
-            disabled={!prefs.liveFirst}
-            onChange={(liveRemain) => prefs.update({ liveRemain })}
-            label="Remain in position: a finished project stays up"
-            hint="When a project stops working it does not drop back to its manual place. Among the idle projects, the most recently live come first, so the list builds itself up from what you actually use. Needs LIVE on."
-          />
-          {prefs.liveRemain && Object.keys(prefs.liveRaised).length > 0 ? (
-            <button type="button" className="self-start border border-border px-1.5 py-px text-ui-xs text-foreground-subtle hover:bg-hover hover:text-foreground" title="Forget which projects were pulled up; idle projects go back to their manual order" onClick={() => prefs.update({ liveRaised: {} })}>
-              Back to the manual order ({Object.keys(prefs.liveRaised).length} pulled up)
-            </button>
-          ) : null}
         </div>
         <SegmentRow
           label="LIVE order"
@@ -363,6 +351,13 @@ export function ZaicodeSidebarSettings() {
             hint: "How long a project keeps its LIVE rank after its last live moment, so a just-finished row does not teleport away mid-glance",
           }))}
           onChange={(liveHoldMs) => prefs.update({ liveHoldMs })}
+        />
+        <ZaicodePrefCheck
+          checked={prefs.liveRemainInPosition}
+          onChange={(liveRemainInPosition) => prefs.update({ liveRemainInPosition })}
+          label="Remain in position"
+          hint="SRC-060: a project that has been live keeps its LIVE rank when the work finishes, instead of jumping back down to its old place. Turn the hold above off for a finite grace period."
+          disabled={!prefs.liveFirst}
         />
         <SegmentRow
           label="LIVE placement"

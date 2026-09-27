@@ -9,3 +9,7 @@ third-party/upstream/** -text -whitespace
 third-party/native-search/licenses/** -text -whitespace
 third-party/runtime/*.txt -text -whitespace
 third-party/inventory.json linguist-generated=true
+
+# 生成的启动页由 zaicodeSplashPage() 以 LF 产出，检出后不应被 autocrlf 转换，
+# 否则“与模板输出一致”的校验会在每个 Windows 克隆上失败。
+packages/desktop/build/zaicode-splash/*.html text eol=lf

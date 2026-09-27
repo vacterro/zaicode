@@ -186,10 +186,10 @@ export function ZaicodeLiveToggle() {
             hint="A session asking a question or a permission."
           />
           <ZaicodePrefCheck
-            checked={prefs.liveRemain}
-            onChange={(liveRemain) => prefs.update({ liveRemain })}
+            checked={prefs.liveRemainInPosition}
+            onChange={(liveRemainInPosition) => prefs.update({ liveRemainInPosition })}
             label="Remain in position after finishing"
-            hint="A finished project stays up instead of dropping back to its manual place."
+            hint="A project that has been live keeps its LIVE rank when its work finishes, instead of dropping back to its manual place."
             disabled={!prefs.liveFirst}
           />
           <ZaicodePrefHeading>INDICATORS</ZaicodePrefHeading>
