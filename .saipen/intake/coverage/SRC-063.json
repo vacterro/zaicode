@@ -1,4 +1,14 @@
 {
-  "requirements": {},
+  "requirements": {
+    "SRC-063:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "T-95 closed with verification evidence in LOG: review -> DEC: SHIP [target: T-95] conf: high -- independent rerun PASS: pnpm run lint, architecture:check -- --changed, typecheck, and test all exited successfully; review_passes: 1; no P0/P1 findings; memory promotion: NO",
+      "text": "C:/Program Files/Git/goal cc all",
+      "verification": "the Work this request created reached its own verification gate; see the T-95 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-95"
+    }
+  },
   "schema_version": 1
 }
