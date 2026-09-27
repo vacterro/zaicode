@@ -1,7 +1,7 @@
 # ZAICODE workspace
 
 <p>
-  <img src="https://img.shields.io/badge/version-0.0.1-c9a227" alt="version 0.0.1" />
+  <img src="https://img.shields.io/badge/version-0.0.1-3b02ace" alt="version 0.0.1" />
 </p>
 
 This branch is the root of a ZAICODE checkout: the launcher that starts the
