@@ -31,6 +31,7 @@ const MAX_BATCH = ZAICODE_PROTRAIL_EVENT_STRIDE * 4096;
 const overlays = new Map<number, BrowserWindow>();
 const overlayWindows = new WeakSet<BrowserWindow>();
 const overlayBounds = new WeakMap<BrowserWindow, Rectangle>();
+const readyOverlays = new WeakSet<BrowserWindow>();
 /**
  * Every ZAICODE window that wants the desktop-wide mode, with its config, most
  * recent last. Several main windows each run the ZAICODE runtime; the overlays
@@ -202,7 +203,7 @@ function flush(): void {
 }
 
 function send(win: BrowserWindow, feed: ZaicodeProtrailOverlayFeed): void {
-  if (!win.isDestroyed() && !win.webContents.isDestroyed() && !win.webContents.isLoading()) {
+  if (!win.isDestroyed() && !win.webContents.isDestroyed() && readyOverlays.has(win)) {
     win.webContents.send(PlatformChannels.ZaicodeProtrailOverlayFeed, feed);
   }
 }
@@ -280,7 +281,10 @@ function createOverlay(display: Display): BrowserWindow {
   win.setIgnoreMouseEvents(true);
   win.setAlwaysOnTop(true, "screen-saver");
   win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
+  // did-finish-load 时 isLoading() 仍为 true，会丢失副屏原点；按文档就绪状态发送。
+  win.webContents.on("did-start-loading", () => readyOverlays.delete(win));
   win.webContents.on("did-finish-load", () => {
+    readyOverlays.add(win);
     const current = overlayBounds.get(win) ?? bounds;
     send(win, { config, origin: { x: current.x, y: current.y } });
   });
