@@ -2088,7 +2088,9 @@ function ConversationComposerImpl({
           />
         </span>
         {/* SRC-051: "working for" mini on the chatbox, same read-out as the project row. */}
-        {isZaicodeProductMode() && showStopControl ? <ZaicodeComposerWorkingFor running /> : null}
+        {isZaicodeProductMode() && showStopControl ? (
+          <ZaicodeComposerWorkingFor sessionId={sessionId} running />
+        ) : null}
         {showStopControl ? (
           <ControlHintTooltip title={stopTooltipTitle} shortcut="Esc">
             <Button

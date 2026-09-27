@@ -22,7 +22,11 @@ import {
   useZaicodeProjectRuntime,
   type ZaicodeProjectRuntimeView,
 } from "@/zaicode/zaicodeProjectRuntime.js";
-import { getTaskListAttention, isTaskListRowActive } from "@/v4/taskListRowActivity.js";
+import {
+  getTaskListAttention,
+  getTaskListRowActivity,
+  isTaskListRowActive,
+} from "@/v4/taskListRowActivity.js";
 
 /** Project labels share one adjustable colour strip width. Progress remains in the tooltip. */
 function buildReadinessTint(runtime: ZaicodeProjectRuntimeView) {
@@ -121,6 +125,7 @@ import {
 } from "@zcode/shared";
 import type { ZCodeTaskMeta } from "@zcode/shared";
 import { formatZaicodeDuration } from "@zcode/shared";
+import { zaicodeRunClock } from "@/zaicode/zaicodeRunClock.js";
 import { useBaseWorkspaceServices, useWorkspaceServices } from "@/hooks/useWorkspaceServices.js";
 import {
   applyTaskQueryCacheMutation,
@@ -973,13 +978,21 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
       zaicodeMainTask &&
       (zaicodeLiveRunIds.includes(zaicodeMainTask.taskId) || isTaskListRowActive(zaicodeMainTask)),
     );
-  // SRC-051: "working for" mini — when the oldest still-running session began.
+  // SRC-051: "working for" mini — when the longest current working streak began.
+  // SRC-058: read from the run clock the sidebar feeds (projectLiveOf), never
+  // from the session's createdAt, which counts a days-old MAIN session's age.
   const zaicodeWorkingSince = useMemo(() => {
     if (!isZaicodeProductMode() || zaicodeRunningCount === 0) return 0;
+    const now = Date.now();
     let since = 0;
     for (const task of taskItems) {
       if (!isTaskListRowActive(task)) continue;
-      const startedAt = task.createdAt ?? 0;
+      const startedAt = zaicodeRunClock.observe(
+        task.taskId,
+        true,
+        getTaskListRowActivity(task)?.lastActivityAt ?? task.updatedAt ?? 0,
+        now,
+      );
       if (startedAt > 0) since = since === 0 ? startedAt : Math.min(since, startedAt);
     }
     return since;

@@ -9,6 +9,7 @@ import {
   isTaskListRowActive,
 } from "../v4/taskListRowActivity.js";
 import { todoReadinessRatio, type ZaicodeTodoItem } from "./zaicodeTodoProgress.js";
+import { zaicodeRunClock, type ZaicodeRunClock } from "./zaicodeRunClock.js";
 
 /**
  * ZAICODE sidebar layout preferences (renderer-local, per machine).
@@ -410,13 +411,18 @@ export interface ZaicodeProjectLive {
    * must not go blind the moment the phase leaves "running".
    */
   lastActivityAt: number;
-  /** When the oldest still-working session of this project began (ms; 0 = none). */
+  /**
+   * When the longest-running working streak of this project began (ms; 0 = none).
+   * SRC-058: from the run clock, never the session's createdAt.
+   */
   since: number;
 }
 
 export function projectLiveOf(
   tasks: readonly ZCodeTaskMeta[],
   ratios: readonly number[],
+  clock: ZaicodeRunClock = zaicodeRunClock,
+  now: number = Date.now(),
 ): ZaicodeProjectLive {
   let running = 0;
   let waiting = 0;
@@ -425,6 +431,13 @@ export function projectLiveOf(
   for (const task of tasks) {
     const active = isTaskListRowActive(task);
     const asking = getTaskListAttention(task) !== null || Boolean(task.pendingInteraction);
+    // Every session is observed, working or not, so an idle one closes its streak.
+    const streakSince = clock.observe(
+      task.taskId,
+      active,
+      getTaskListRowActivity(task)?.lastActivityAt ?? task.updatedAt ?? 0,
+      now,
+    );
     if (active) running += 1;
     if (asking) waiting += 1;
     if (active || asking) {
@@ -433,8 +446,7 @@ export function projectLiveOf(
         getTaskListRowActivity(task)?.lastActivityAt ?? 0,
         task.updatedAt ?? 0,
       );
-      const startedAt = task.createdAt ?? 0;
-      if (startedAt > 0) since = since === 0 ? startedAt : Math.min(since, startedAt);
+      if (streakSince > 0) since = since === 0 ? streakSince : Math.min(since, streakSince);
     } else {
       // Finished sessions keep the recency story alive: their final updatedAt is
       // the project's last seen moment.
