@@ -1,134 +1,157 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button.js";
 import { toast } from "@/components/ui/toast.js";
 import { useModelProviders } from "@/hooks/useModelProviders.js";
-import type { ProviderSettingsFormModel } from "@/lib/providerSettingsFormTypes.js";
-import { zaicodeSubscriptionModels, type ZaicodeRouterModel } from "@zcode/shared";
 import { setZaicodeDefaultModel } from "@/zaicode/zaicodeDefaultModel.js";
 import { readZaicodeCurrentWorkspace } from "@/zaicode/zaicodeEngines.js";
 import { getZaicodeRouterBridge, useZaicodeRouter } from "@/zaicode/zaicodeRouter.js";
-import { findZaicodeRouterProvider } from "@/zaicode/zaicodeRoutingModel.js";
+import {
+  decorateZaicodeAccountGroups,
+  refreshZaicodeSubscriptionReadiness,
+  syncZaicodeSubscriptionModels,
+  useZaicodeSubscriptions,
+} from "@/zaicode/zaicodeSubscriptionSync.js";
 
 /**
- * Router -> Subscriptions as models. A subscription connected in 9router
- * (Codex, Antigravity, Claude Code, ...) is served by 9router over the same
- * OpenAI-compatible endpoint ZAICODE's SAIRoute provider already uses, so
- * listing `cx/gpt-...` under SAIRoute makes it an ordinary model in every
- * model menu: no terminal, no worker, ZAICODE's own tools and transcript.
+ * Router -> Subscriptions as models (SRC-061). Every subscription account
+ * connected in 9router is a provider of its own in the model menu: "Codex 1",
+ * "Claude 2", ... with the vendor's models and their real efforts. ZAICODE
+ * keeps that list in step with 9router by itself; this page shows what it
+ * did, how much each account has left, and says how the account is chosen.
  */
-
-/** Model config for a subscription model: 9router's own caps where it knows them, the rest recommended. */
-function modelConfigOf(model: ZaicodeRouterModel): ProviderSettingsFormModel["personalConfig"] {
-  const properties: Record<string, unknown> = {};
-  if (model.contextWindow) properties.contextWindow = model.contextWindow;
-  if (model.vision) properties.inputFormat = { supportsImage: true, supportsVideo: false, supportsPdf: false };
-  return {
-    enabled: true,
-    ...(Object.keys(properties).length > 0 ? { properties } : {}),
-    ...(model.maxOutput ? { optionSpecs: { maxOutputTokens: { max: model.maxOutput } } } : {}),
-  } as ProviderSettingsFormModel["personalConfig"];
-}
 
 export function ZaicodeRouterSubscriptions() {
   const router = useZaicodeRouter();
+  const subscriptions = useZaicodeSubscriptions();
   const workspacePath = readZaicodeCurrentWorkspace()?.path ?? "";
-  const { modelProviders, addPersonalModel } = useModelProviders({ workspacePath });
-  const [adding, setAdding] = useState<string | null>(null);
-  const groups = useMemo(() => zaicodeSubscriptionModels(router.connections, router.models), [router.connections, router.models]);
-  const routerProvider = findZaicodeRouterProvider(modelProviders, router.info?.url ?? null);
-  const listed = new Set(
-    (modelProviders.find((provider) => provider.providerId === routerProvider?.providerId)?.models ?? []).map((model) => model.modelId),
-  );
+  const { modelProviders } = useModelProviders({ workspacePath });
+  const [open, setOpen] = useState<string | null>(null);
 
-  const add = async (model: ZaicodeRouterModel, andUse: boolean) => {
-    if (!routerProvider) return;
-    setAdding(model.id);
-    try {
-      if (!listed.has(model.id)) await addPersonalModel(routerProvider.providerId, model.id, modelConfigOf(model), true);
-      if (andUse) setZaicodeDefaultModel({ providerId: routerProvider.providerId, modelId: model.id });
-      toast(andUse ? `${model.id} is in the model list and is the default for new sessions` : `${model.id} is in the model list`);
-    } catch (error) {
-      toast(`Not added: ${error instanceof Error ? error.message : String(error)}`);
-    } finally {
-      setAdding(null);
-    }
+  useEffect(() => {
+    void refreshZaicodeSubscriptionReadiness();
+  }, []);
+
+  const providerOf = useMemo(
+    () => Object.fromEntries(Object.entries(subscriptions.providerAccount).map(([providerId, connectionId]) => [connectionId, providerId])),
+    [subscriptions.providerAccount],
+  );
+  const bars = useMemo(
+    () =>
+      decorateZaicodeAccountGroups(
+        subscriptions.accounts.map(
+          (account): { key: string; readiness?: { percent: number | null; color: string; text: string; title: string } } => ({
+            key: `registry-provider:${providerOf[account.connectionId] ?? ""}`,
+          }),
+        ),
+        subscriptions,
+      ),
+    [providerOf, subscriptions],
+  );
+  const fillFirst = !router.settings || !("fallbackStrategy" in router.settings) || router.settings.fallbackStrategy !== "round-robin";
+
+  const syncNow = async () => {
+    const result = await syncZaicodeSubscriptionModels({ force: true });
+    await refreshZaicodeSubscriptionReadiness({ force: true });
+    toast(result.detail || "Up to date");
   };
 
   return (
-    <section className="flex flex-col gap-2 border border-border bg-card p-3 text-ui-xs" data-zaicode-router-subscriptions>
-      <div>
-        <h2 className="text-ui-lg text-foreground">Subscriptions as models</h2>
-        <p className="mt-0.5 max-w-[680px] text-foreground-subtle">
-          A subscription connected in 9router becomes an ordinary model in ZAICODE: it runs inside the app (ZAICODE's tools, transcript,
-          queue), not in a terminal. Its quota is the same one the vendor's CLI uses, and whether a vendor allows its subscription to be
-          used through a proxy is that vendor's terms, not a ZAICODE setting.
-        </p>
+    <section className="flex flex-col gap-2 border border-border bg-card p-3 text-ui-xs" data-zaicode-router-subscriptions data-zaicode-help="accounts">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h2 className="text-ui-lg text-foreground">Subscriptions as models</h2>
+          <p className="mt-0.5 max-w-[720px] text-foreground-subtle">
+            Every subscription account you connected in 9router is its own entry in the model menu. Pick the account (Codex 1, Claude 2,
+            ...), then the model, then the effort next to it. It runs inside ZAICODE: its tools, transcript and queue, no terminal. New
+            accounts and models appear by themselves, retired ones leave: at start, every 10 minutes and whenever the model menu opens.
+          </p>
+          <p className="mt-1 max-w-[720px] text-foreground-subtlest">
+            How the account is chosen: just before each request ZAICODE puts that account first for its vendor in 9router. When it is at
+            its limit, 9router answers with the next account of the same vendor instead, so the work does not stop. Two chats on two
+            accounts of one vendor at the same time take turns only for the moment 9router picks the account. Whether a vendor allows its
+            subscription through a proxy is that vendor&apos;s terms, not a ZAICODE setting.
+          </p>
+        </div>
+        <Button size="sm" variant="outline" className="h-6 shrink-0 gap-1 px-2" disabled={subscriptions.busy} onClick={() => void syncNow()}>
+          <RefreshCw className="size-3" />
+          Sync now
+        </Button>
       </div>
-      {!routerProvider ? (
+      {!fillFirst ? (
         <p className="text-[#e0a040]">
-          No ZAICODE provider points at 9router yet. Add one in Settings → Models: OpenAI chat completions, base URL {router.info?.url ?? ""}/v1,
-          a 9router key. Then this list can add models to it.
+          9router rotates accounts (round-robin), so the account you pick is only a hint. For a real choice set 9router&apos;s account
+          strategy to fill-first (its default) in the 9router dashboard.
         </p>
-      ) : (
+      ) : null}
+      {subscriptions.last ? (
         <p className="text-foreground-subtlest">
-          Adds to: <span className="text-foreground">{routerProvider.providerName || routerProvider.providerId}</span>
+          Last sync: {subscriptions.last.status === "failed" ? "failed -- " : ""}
+          {subscriptions.last.detail}
         </p>
-      )}
-      {groups.length === 0 ? (
+      ) : null}
+      {subscriptions.accounts.length === 0 ? (
         <p className="text-foreground-subtle">
-          No subscription is connected in 9router.{" "}
+          No subscription is connected in 9router yet.{" "}
           <button type="button" className="underline" onClick={() => void getZaicodeRouterBridge()?.openZaicodeRouterDashboard?.("providers")}>
             Connect one in the 9router dashboard
           </button>{" "}
-          (Codex, Antigravity, Claude Code, … sign in there), then Refresh.
+          (Codex, Antigravity, Claude Code, ... sign in there), then press Sync now.
         </p>
       ) : null}
-      {groups.map((group) => (
-        <div key={group.provider} className="flex flex-col gap-0.5 border border-border p-2">
-          <div className="flex items-center gap-2">
-            <strong className="font-normal text-foreground">{group.label}</strong>
-            <span className="text-foreground-subtlest">{group.provider}</span>
-            {!group.active ? <span className="text-[#e0a040]">off in 9router</span> : null}
-            <span className="ml-auto text-foreground-subtlest">{group.models.length} models</span>
-          </div>
-          {group.models.length === 0 ? <span className="text-foreground-subtlest">9router lists no models for it.</span> : null}
-          <div className="flex max-h-[240px] flex-col overflow-y-auto">
-            {group.models.map((model) => {
-              const inList = listed.has(model.id);
-              return (
-                <div key={model.id} className="flex items-center gap-2 border-b border-border/40 px-1 last:border-b-0">
-                  <span className="min-w-0 flex-1 truncate font-mono text-foreground" title={model.name}>
-                    {model.id}
+      {subscriptions.accounts.map((account, index) => {
+        const providerId = providerOf[account.connectionId];
+        const provider = modelProviders.find((entry) => entry.providerId === providerId);
+        const readiness = bars[index]?.readiness;
+        const models = provider?.models ?? [];
+        return (
+          <div key={account.connectionId} className="flex flex-col gap-0.5 border border-border p-2" data-zaicode-account={account.label}>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                className="font-normal text-foreground hover:underline"
+                onClick={() => setOpen(open === account.connectionId ? null : account.connectionId)}
+              >
+                {account.label}
+              </button>
+              <span className="min-w-0 truncate text-foreground-subtlest">{account.identity}</span>
+              {!account.active ? <span className="text-[#e0a040]">off in 9router</span> : null}
+              <span className="ml-auto flex items-center gap-2">
+                {readiness ? (
+                  <span className="inline-flex items-center gap-1 tabular-nums text-foreground-subtle" title={readiness.title}>
+                    <span className="relative h-1.5 w-12 overflow-hidden bg-surface">
+                      <span className="absolute inset-y-0 left-0" style={{ width: `${readiness.percent ?? 0}%`, background: readiness.color }} />
+                    </span>
+                    {readiness.text}
                   </span>
-                  {model.contextWindow ? (
-                    <span className="w-14 shrink-0 text-right tabular-nums text-foreground-subtlest">{Math.round(model.contextWindow / 1000)}k</span>
-                  ) : null}
-                  {inList ? <span className="w-16 shrink-0 text-[#7cc45a]">in list ✓</span> : null}
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="h-5 px-1"
-                    disabled={!routerProvider || adding === model.id || inList}
-                    onClick={() => void add(model, false)}
-                  >
-                    Add
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="h-5 px-1"
-                    disabled={!routerProvider || adding === model.id}
-                    onClick={() => void add(model, true)}
-                    title="Add it and make it the default for new sessions (START)"
-                  >
-                    Use
-                  </Button>
-                </div>
-              );
-            })}
+                ) : null}
+                <span className="text-foreground-subtlest">{providerId ? `${models.length} models in the menu` : "not in the menu yet"}</span>
+              </span>
+            </div>
+            {open === account.connectionId && provider ? (
+              <div className="flex max-h-[220px] flex-col overflow-y-auto">
+                {models.map((model) => (
+                  <div key={model.modelId} className="flex items-center gap-2 border-b border-border/40 px-1 last:border-b-0">
+                    <span className="min-w-0 flex-1 truncate font-mono text-foreground">{model.modelId}</span>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-5 px-1"
+                      title="Make it the default for new sessions (START)"
+                      onClick={() => {
+                        setZaicodeDefaultModel({ providerId: provider.providerId, modelId: model.modelId });
+                        toast(`${account.label} / ${model.modelId} is the default for new sessions`);
+                      }}
+                    >
+                      Default
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            ) : null}
           </div>
-        </div>
-      ))}
+        );
+      })}
     </section>
   );
 }

@@ -458,6 +458,7 @@ export const PlatformChannels = {
   ScanZaicodeFreeModels: "zaicode:router-scan-free",
   GetZaicodeFreeScanInfo: "zaicode:router-scan-info",
   AddZaicodeFreeKey: "zaicode:router-add-free-key",
+  GetZaicodeSubscriptionProxy: "zaicode:account-proxy",
   SetZaicodeStartWithWindows: "zaicode:set-start-with-windows",
   /** Renderer → Main：查询桌面端正在运行的会话数量 */
   GetDesktopSessionActivity: "zcode:get-desktop-session-activity",

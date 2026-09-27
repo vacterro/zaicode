@@ -70,6 +70,8 @@ export interface ModelSelectGroup {
   key: string;
   label: string;
   labelBadge?: string;
+  /** ZAICODE: how much is left on the account behind this provider (a small bar after the name). */
+  readiness?: { percent: number | null; color: string; text: string; title: string };
   directItems?: boolean;
   selectedOptionKey?: string;
   connectionOptions?: ModelSelectConnectionOption[];
@@ -398,6 +400,21 @@ export const ModelConfigSelect = memo(function ModelConfigSelectComponent({
         </span>
         {group.labelBadge ? (
           <span className={MODEL_CONFIG_SELECT_BADGE_CLASS_NAME}>{group.labelBadge}</span>
+        ) : null}
+        {group.readiness ? (
+          <span
+            className="ml-auto inline-flex shrink-0 items-center gap-1 text-ui-xs tabular-nums text-foreground-subtle"
+            title={group.readiness.title}
+            data-zaicode-account-readiness
+          >
+            <span className="relative h-1.5 w-8 overflow-hidden bg-surface">
+              <span
+                className="absolute inset-y-0 left-0"
+                style={{ width: `${group.readiness.percent ?? 0}%`, background: group.readiness.color }}
+              />
+            </span>
+            {group.readiness.text}
+          </span>
         ) : null}
       </span>
     ),

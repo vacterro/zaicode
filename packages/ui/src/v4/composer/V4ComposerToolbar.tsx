@@ -60,6 +60,10 @@ import {
 } from "@/chat-input-toolbar/modelSelection.js";
 import { resolveV4ModelTriggerDisplay } from "@/v4/composer/modelTriggerDisplay.js";
 import {
+  requestZaicodeSubscriptionRefresh,
+  useZaicodeAccountReadinessGroups,
+} from "@/zaicode/zaicodeSubscriptionSync.js";
+import {
   setPendingSettingsSectionIntent,
   setPendingSettingsUsageCodingPlanIntent,
 } from "@/lib/settingsNavigation.js";
@@ -420,6 +424,8 @@ function V4ComposerModelControlsImpl({
   const handleModelPickerOpenChange = useCallback(
     (open: boolean) => {
       onConfigPickerOpenChange("model", open);
+      // ZAICODE: new subscription accounts / models and fresh readiness bars when the menu opens.
+      if (open && isZaicodeProductMode()) requestZaicodeSubscriptionRefresh();
     },
     [onConfigPickerOpenChange],
   );
@@ -731,7 +737,7 @@ function V4ComposerModelControlsImpl({
     });
   }, [draftMode, effectiveConfig, modelSelectionView?.revision]);
 
-  const modelSelectGroups = useMemo<ModelSelectGroup[]>(() => {
+  const registryModelSelectGroups = useMemo<ModelSelectGroup[]>(() => {
     if (!modelSelectionView) return [];
     return buildRegistryModelSelectGroups(displayProvider, modelSelectionView, {
       apiKeyLabel: intl.formatMessage({ id: "settings.modelProvider.apiKey" }),
@@ -758,6 +764,7 @@ function V4ComposerModelControlsImpl({
       }),
     });
   }, [displayProvider, intl, modelSelectionView]);
+  const modelSelectGroups = useZaicodeAccountReadinessGroups(registryModelSelectGroups);
 
   // 修复：恢复「管理模型」入口（老版 onManageModels = 打开设置页并定位模型供应商区）。
   const handleOpenModelProviderSettings = useCallback(() => {

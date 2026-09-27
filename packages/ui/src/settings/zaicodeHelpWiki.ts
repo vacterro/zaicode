@@ -135,6 +135,21 @@ export const ZAICODE_HELP_WIKI: Record<ZaicodeHelpTopicId, HelpArticle> = {
       ["Responding model", "Shown on each answer: what actually answered, which can differ from what you picked if the vendor fell back."],
     ],
   },
+  accounts: {
+    why: "You pay for Codex, Claude or Antigravity subscriptions; this makes each of those accounts a normal model inside ZAICODE, so a chat uses exactly the account you picked, with its real effort, and you see how much it has left.",
+    steps: [
+      "Connect each account once in the 9router dashboard (Settings → Router → Subscriptions as models → Connect one).",
+      "Open the model menu under the prompt box and pick the account (Codex 1, Claude 2 …).",
+      "Pick the model under it, then the effort in the button next to the model.",
+      "Watch the bar next to the account: green is plenty, yellow is getting low, red is almost out.",
+    ],
+    terms: [
+      ["Account", "One login of a vendor. Codex 1 and Codex 2 are two different logins, numbered in the order you connected them in 9router."],
+      ["Effort", "How hard the model thinks before it answers: low is fast and cheap, high (and xhigh on Codex) is slow and thorough."],
+      ["Fuel", "When the account you picked is at its limit, 9router answers with the next account of the same vendor so the work continues."],
+      ["Readiness bar", "What the account has left in its tightest window (5 hours, week …), read from the vendor through 9router."],
+    ],
+  },
   workers: {
     why: "A worker is a subscription CLI (Claude Code, Codex…) running inside a project in its own terminal. WORKERS shows them all, so you can see who is running, who finished and who crashed.",
     steps: [

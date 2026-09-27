@@ -23,6 +23,8 @@ export const ZAICODE_HELP_TOPIC_IDS = [
   "engines",
   "meter",
   "subchat",
+  // SRC-061: subscription accounts as models in the model menu.
+  "accounts",
   "workers",
   "saihome",
   "header",

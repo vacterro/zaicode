@@ -91,6 +91,20 @@ export const ZAICODE_HELP_TOPICS: readonly HelpTopic[] = [
     open: { label: "Engines & limits", section: "zaicodeEngines" },
   },
   {
+    id: "accounts",
+    title: "Subscriptions as models (Codex 1, Claude 2 …)",
+    what: "Every subscription account connected in 9router is its own entry in the model menu: pick the account, then the model, then the effort.",
+    lines: [
+      "Open the model menu under the prompt box: next to SAIRoute you see Codex 1, Codex 2, Claude 1, Antigravity … Each has that vendor's models.",
+      "The bar next to an account is what it has left (the tightest window: 5 hours, week …). Hover it for the numbers and the reset time.",
+      "The effort next to the model is real: it goes to the vendor as its own reasoning setting (Codex reasoning effort, Claude thinking budget, Gemini thinking level).",
+      "New accounts and models show up by themselves, retired ones leave: at start, every 10 minutes and whenever you open the model menu.",
+      "When the picked account is at its limit, the next account of the same vendor answers instead, so the work does not stop.",
+      "Connect accounts once in the 9router dashboard (Settings → Router → Subscriptions as models → Connect one). Sync now there if you are in a hurry.",
+    ],
+    open: { label: "Router → Subscriptions", section: "zaicodeRouter" },
+  },
+  {
     id: "workers",
     title: "WORKERS (subscription CLIs)",
     what: "A worker is a subscription CLI (or a shell) running in a terminal inside ZAICODE.",

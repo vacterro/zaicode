@@ -61,6 +61,7 @@ export const ZAICODE_NOTIFY_SCENARIOS: readonly ZaicodeNotifyScenarioDef[] = [
   { id: "productivity.phase", group: "Timers", label: "Work / break phase", hint: "The productivity timer switched between work and break", canHighlight: false, defaults: card(0, { system: true }) },
   { id: "router.free", group: "Other", label: "Free model added", hint: "The daily scan added a new free model to SAIFREN", canHighlight: false, defaults: card(15) },
   { id: "router.ready", group: "Other", label: "SAIFREN ready", hint: "ZAICODE set up its free models on its own (first start)", canHighlight: false, defaults: card(20) },
+  { id: "router.accounts", group: "Other", label: "Subscription in the model menu", hint: "A subscription account connected in 9router became a model provider (Codex 1, Claude 2, ...)", canHighlight: false, defaults: card(15) },
   { id: "saimail.new", group: "Other", label: "New SAIMAIL letter", hint: "A letter arrived in your SAIMAIL inbox", canHighlight: false, defaults: card(8) },
   { id: "problip.goal", group: "Other", label: "Problip goal", hint: "The problip counter reached a round number", canHighlight: false, defaults: card(5) },
 ];

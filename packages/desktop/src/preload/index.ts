@@ -847,6 +847,8 @@ contextBridge.exposeInMainWorld("zcode", {
   scanZaicodeFreeModels: () => ipcRenderer.invoke(PlatformChannels.ScanZaicodeFreeModels),
   getZaicodeFreeScanInfo: () => ipcRenderer.invoke(PlatformChannels.GetZaicodeFreeScanInfo),
   addZaicodeFreeKey: (input: { providerId: string; apiKey: string }) => ipcRenderer.invoke(PlatformChannels.AddZaicodeFreeKey, input),
+  getZaicodeSubscriptionProxy: (): Promise<{ url: string; token: string } | null> =>
+    ipcRenderer.invoke(PlatformChannels.GetZaicodeSubscriptionProxy),
   setZaicodeStartWithWindows: (enabled: boolean) =>
     ipcRenderer.invoke(PlatformChannels.SetZaicodeStartWithWindows, enabled),
   getDesktopSessionActivity: () => ipcRenderer.invoke(PlatformChannels.GetDesktopSessionActivity),

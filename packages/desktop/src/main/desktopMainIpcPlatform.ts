@@ -40,6 +40,7 @@ import {
   scanZaicodeFreeModelsNow,
   troubleshootZaicodeRouter,
 } from "./zaicodeRouterBootstrap.js";
+import { getZaicodeSubscriptionProxy } from "./zaicodeSubscriptionProxyHost.js";
 import { getApplicationIcon } from "./applicationIcons.js";
 import { exportLogs } from "./exportLogs.js";
 import { resolveCommunityUrl } from "./desktopCommandHandlers.js";
@@ -572,6 +573,7 @@ export function registerPlatformIpcHandlers(options: {
   ipcMain.handle(PlatformChannels.TroubleshootZaicodeRouter, () => troubleshootZaicodeRouter());
   ipcMain.handle(PlatformChannels.ScanZaicodeFreeModels, () => scanZaicodeFreeModelsNow());
   ipcMain.handle(PlatformChannels.GetZaicodeFreeScanInfo, () => readZaicodeFreeScanInfo());
+  ipcMain.handle(PlatformChannels.GetZaicodeSubscriptionProxy, () => getZaicodeSubscriptionProxy());
   ipcMain.handle(PlatformChannels.AddZaicodeFreeKey, (_event, input: unknown) => {
     const value = (input ?? {}) as { providerId?: unknown; apiKey?: unknown };
     if (typeof value.providerId !== "string" || typeof value.apiKey !== "string") throw new TypeError("Expected providerId and apiKey");

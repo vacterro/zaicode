@@ -19,6 +19,11 @@ import {
   type ZaicodeRouterBootstrapResult,
   type ZaicodeRouterSetupStep,
 } from "./zaicodeRouterSetup.js";
+import {
+  refreshZaicodeSubscriptionReadiness,
+  setZaicodeSubscriptionService,
+  syncZaicodeSubscriptionModels,
+} from "./zaicodeSubscriptionSync.js";
 
 /**
  * Zero setup, app side (SRC-035, T-46): once per start the main process makes
@@ -181,14 +186,23 @@ export function useZaicodeRouterAutoSetup(): void {
     started = true;
     let timer: number | null = null;
     let disposed = false;
+    setZaicodeSubscriptionService(providerSettingsService);
+    // Subscription accounts as models (SRC-061): after the router is up, then with every health check.
+    const syncAccounts = (force: boolean) =>
+      void syncZaicodeSubscriptionModels({ force }).then(() => refreshZaicodeSubscriptionReadiness({ force }));
     void runZaicodeRouterSetup(providerSettingsService, "setup").then(() => {
       if (disposed) return;
+      syncAccounts(true);
       void scanIfDue();
-      timer = window.setInterval(() => void scanIfDue(), SCAN_CHECK_MS);
+      timer = window.setInterval(() => {
+        void scanIfDue();
+        syncAccounts(false);
+      }, SCAN_CHECK_MS);
     });
     return () => {
       disposed = true;
       if (timer !== null) window.clearInterval(timer);
+      setZaicodeSubscriptionService(null);
       started = false;
     };
   }, [providerSettingsService]);

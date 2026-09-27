@@ -65,6 +65,15 @@ async function ensureKey(url: string): Promise<{ key: string; created: boolean }
   return result;
 }
 
+/** ZAICODE's key for the router in use now (the account proxy hands it on), or null while there is none. */
+export async function readZaicodeRouterApiKey(): Promise<string | null> {
+  try {
+    return (await ensureKey(getZaicodeRouterHostStatus().url)).key;
+  } catch {
+    return null;
+  }
+}
+
 function scanMemory(): ZaicodeFreeScanMemory {
   const raw = readJson<Partial<ZaicodeFreeScanMemory>>(SCAN_FILE, {});
   const missing = Object.fromEntries(Object.entries(raw.missing ?? {}).filter((entry) => Number.isInteger(entry[1]) && entry[1] >= 0));

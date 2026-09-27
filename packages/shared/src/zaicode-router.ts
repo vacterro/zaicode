@@ -56,10 +56,20 @@ const ALLOWED: readonly { method: ZaicodeRouterMethod; pattern: RegExp }[] = [
   { method: "GET", pattern: /^\/api\/settings$/ },
   { method: "PATCH", pattern: /^\/api\/settings$/ },
   { method: "GET", pattern: /^\/api\/usage\/stats\?period=(today|24h|7d|30d|60d|all)$/ },
+  // One account's own quota (5h / weekly ...), read-only: the readiness bars of subscription models.
+  // (Not the log, history or stream routes that sit beside it: those carry request contents.)
+  {
+    method: "GET",
+    pattern: new RegExp(`^/api/usage/(?!(?:stats|history|logs|request-logs|request-details|stream|chart|providers)$)${ID}$`),
+  },
 ];
 
 /** Settings keys ZAICODE may read and change; everything else in 9router's settings stays in 9router. */
-export const ZAICODE_ROUTER_SETTINGS_KEYS: readonly string[] = ["comboStrategies"];
+export const ZAICODE_ROUTER_SETTINGS_KEYS: readonly string[] = [
+  "comboStrategies",
+  // How 9router picks among a vendor's accounts: the account choice of subscription models needs "fill-first".
+  "fallbackStrategy",
+];
 
 export function isZaicodeRouterCallAllowed(call: ZaicodeRouterCall): boolean {
   if (typeof call?.path !== "string" || call.path.length > 400) return false;
@@ -95,6 +105,11 @@ export interface ZaicodeRouterConnection {
   lastError: string | null;
   baseUrl: string | null;
   prefix: string | null;
+  /** The account behind an OAuth connection, when 9router knows it. */
+  email?: string | null;
+  createdAt?: string | null;
+  /** Epoch ms until which 9router rests this connection after a limit hit (its nearest model lock), or null. */
+  lockedUntil?: number | null;
 }
 
 export interface ZaicodeRouterNode {
@@ -124,6 +139,8 @@ export interface ZaicodeRouterModel {
   vision: boolean;
   contextWindow: number | null;
   maxOutput: number | null;
+  /** 9router says the model thinks: it takes a reasoning effort. */
+  reasoning?: boolean;
 }
 
 function str(value: unknown): string | null {
@@ -152,9 +169,23 @@ export function normalizeZaicodeRouterConnections(raw: unknown): ZaicodeRouterCo
         lastError: str(value.lastError),
         baseUrl: str(specific.baseUrl),
         prefix: str(specific.prefix),
+        email: str(value.email) ?? str(specific.email),
+        createdAt: str(value.createdAt),
+        lockedUntil: zaicodeConnectionLockedUntil(value),
       },
     ];
   });
+}
+
+/** 9router's `modelLock_<model>` fields hold ISO times; the nearest one still ahead, as epoch ms. */
+export function zaicodeConnectionLockedUntil(value: Record<string, unknown>, now: number = Date.now()): number | null {
+  let nearest: number | null = null;
+  for (const [key, raw] of Object.entries(value)) {
+    if (!key.startsWith("modelLock_") || typeof raw !== "string") continue;
+    const at = Date.parse(raw);
+    if (Number.isFinite(at) && at > now && (nearest === null || at < nearest)) nearest = at;
+  }
+  return nearest;
 }
 
 export function normalizeZaicodeRouterNodes(raw: unknown): ZaicodeRouterNode[] {
@@ -220,6 +251,7 @@ export function normalizeZaicodeRouterModels(raw: unknown): ZaicodeRouterModel[]
         vision: caps.vision === true,
         contextWindow: typeof caps.contextWindow === "number" && caps.contextWindow > 0 ? caps.contextWindow : null,
         maxOutput: typeof caps.maxOutput === "number" && caps.maxOutput > 0 ? caps.maxOutput : null,
+        reasoning: caps.reasoning === true,
       },
     ];
   });
