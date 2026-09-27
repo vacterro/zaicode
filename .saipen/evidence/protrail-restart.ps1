@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
 public static class ProtrailRestartWindows {
+  [StructLayout(LayoutKind.Sequential)] public struct Rect { public int Left, Top, Right, Bottom; }
+  [DllImport("user32.dll")] public static extern bool GetWindowRect(IntPtr hwnd, out Rect rect);
   public delegate bool EnumProc(IntPtr hwnd, IntPtr arg);
   [DllImport("user32.dll")] public static extern bool EnumWindows(EnumProc callback, IntPtr arg);
   [DllImport("user32.dll")] public static extern uint GetWindowThreadProcessId(IntPtr hwnd, out uint pid);
@@ -43,7 +45,9 @@ if ($Action -eq 'Start') {
 foreach ($appProcess in $appProcesses) {
   $windows = [ProtrailRestartWindows]::List($appProcess.ProcessId)
   foreach ($entry in $windows.GetEnumerator()) {
-    [pscustomobject]@{ ProcessId = $appProcess.ProcessId; Handle = $entry.Key; Title = $entry.Value }
+    $rect = New-Object ProtrailRestartWindows+Rect
+    [void][ProtrailRestartWindows]::GetWindowRect($entry.Key, [ref]$rect)
+    [pscustomobject]@{ ProcessId = $appProcess.ProcessId; Handle = $entry.Key; Title = $entry.Value; Bounds = "$($rect.Left),$($rect.Top),$($rect.Right),$($rect.Bottom)" }
   }
   if ($Action -ne 'Close') { continue }
   $target = @($windows.GetEnumerator() | Where-Object { $_.Value -and $_.Value -ne 'ZAICODE ProTrail' }) | Select-Object -First 1
