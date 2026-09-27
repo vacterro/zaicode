@@ -153,6 +153,19 @@ export function createDesktopPlatform(options: {
     setZaicodePixelExact: window.zcode.setZaicodePixelExact
       ? (enabled) => window.zcode.setZaicodePixelExact!(enabled)
       : undefined,
+    // SRC-060: the start-up picture was "blocked from changes" because these two
+    // were never mapped into IPlatformService. The preload bridge, the channels
+    // and the main-process handlers all existed, so every control in
+    // ZaicodeSplashSettings that guards on platform.setZaicodeSplashPrefs was
+    // permanently disabled and apply() was a silent no-op -- the whole SRC-049
+    // feature was inert on desktop. Same omission shape as the launcher
+    // preferences above, so the fix is the same three lines each.
+    getZaicodeSplashPrefs: window.zcode.getZaicodeSplashPrefs
+      ? () => window.zcode.getZaicodeSplashPrefs!()
+      : undefined,
+    setZaicodeSplashPrefs: window.zcode.setZaicodeSplashPrefs
+      ? (input) => window.zcode.setZaicodeSplashPrefs!(input)
+      : undefined,
     saveZaicodeSettingsSnapshot: window.zcode.saveZaicodeSettingsSnapshot
       ? (json) => window.zcode.saveZaicodeSettingsSnapshot!(json)
       : undefined,

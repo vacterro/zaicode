@@ -352,6 +352,13 @@ export function ZaicodeSidebarSettings() {
           }))}
           onChange={(liveHoldMs) => prefs.update({ liveHoldMs })}
         />
+        <ZaicodePrefCheck
+          checked={prefs.liveRemainInPosition}
+          onChange={(liveRemainInPosition) => prefs.update({ liveRemainInPosition })}
+          label="Remain in position"
+          hint="SRC-060: a project that has been live keeps its LIVE rank when the work finishes, instead of jumping back down to its old place. Turn the hold above off for a finite grace period."
+          disabled={!prefs.liveFirst}
+        />
         <SegmentRow
           label="LIVE placement"
           value={prefs.liveScope}

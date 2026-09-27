@@ -120,6 +120,12 @@ export interface ZaicodeSidebarPrefs {
   liveDimIdle: boolean;
   /** A project stays LIVE-ranked this long after its last live moment (0 = drop at once). */
   liveHoldMs: number;
+  /**
+   * SRC-060: a project that has gone live keeps its LIVE rank instead of
+   * dropping back to its manual place when the work finishes. Bounded by the
+   * project count, so "LIVE" then simply means "leave it where it is".
+   */
+  liveRemainInPosition: boolean;
   /** Freshness read-out on the project row from its last activity (SRC-051). */
   projectFreshness: ZaicodeProjectFreshness;
   /** Where project names sit in their row (SRC-038). */
@@ -190,6 +196,7 @@ export const ZAICODE_SIDEBAR_DEFAULT_PREFS: ZaicodeSidebarPrefs = {
   liveProjectIndicator: true,
   liveDimIdle: false,
   liveHoldMs: 120_000,
+  liveRemainInPosition: false,
   projectFreshness: "dot",
   projectTitleAlign: "left",
   projectTitleFont: "ui",
@@ -255,6 +262,7 @@ export function normalizeZaicodeSidebarPrefs(raw: unknown): ZaicodeSidebarPrefs 
     liveHoldMs: ZAICODE_LIVE_HOLD_MS.includes(r.liveHoldMs as number)
       ? (r.liveHoldMs as number)
       : d.liveHoldMs,
+    liveRemainInPosition: flag(r.liveRemainInPosition, d.liveRemainInPosition),
     projectFreshness: pick(r.projectFreshness, ZAICODE_PROJECT_FRESHNESS, d.projectFreshness),
     projectTitleAlign: pick(
       r.projectTitleAlign,
@@ -486,6 +494,7 @@ export function orderZaicodeProjectSections<K extends string>(
       | "liveScope"
       | "liveIncludeWaiting"
       | "liveHoldMs"
+      | "liveRemainInPosition"
     >;
     liveOf: (key: K) => ZaicodeProjectLive | undefined;
     now?: number;
@@ -497,6 +506,10 @@ export function orderZaicodeProjectSections<K extends string>(
     const live = liveOf(key);
     if (!live) return false;
     if (live.running > 0 || (prefs.liveIncludeWaiting && live.waiting > 0)) return true;
+    // SRC-060 "Remain in position": once a project has been live, the grace hold
+    // never expires for it, so a finished project keeps its LIVE rank instead of
+    // dropping back down the hierarchy. Bounded by the project count.
+    if (prefs.liveRemainInPosition && live.lastActivityAt > 0) return true;
     // Grace hold: recently live stays live (0 disables).
     return (
       prefs.liveHoldMs > 0 &&
