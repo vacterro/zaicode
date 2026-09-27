@@ -27,7 +27,7 @@
      write that field name next to a concrete id anywhere in this file. -->
 
 ## DOING
-- [/] T-84 [P1] Solo preset SAIFREN dispatch fails because a required reasoning level is absent; choose a supported default in the job executor and prove the queued task reaches the real runtime | verify: isolated packaged Electron flow creates Solo agent, queues and manually dispatches a task through SAIFREN, then observes a terminal job with resolved model; focused executor regression passes | owner: claude-code | claim_time: 2026-09-27T05:42:00Z
+- [/] T-84 [P1] Solo preset SAIFREN dispatch fails because a required reasoning level is absent; choose a supported default in the job executor and prove the queued task reaches the real runtime | verify: isolated packaged Electron flow creates Solo agent, queues and manually dispatches a task through SAIFREN, then observes a terminal job with resolved model; focused executor regression passes | owner: claude-code | claim_time: 2026-09-27T05:42:17Z
 
 ## TODO
 
