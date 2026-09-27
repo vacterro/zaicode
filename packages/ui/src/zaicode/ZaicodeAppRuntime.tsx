@@ -78,6 +78,7 @@ import { useZaicodeTurnRetryWatch } from "./zaicodeTurnRetryWatch.js";
 import { startZaicodeWorkerRecording } from "./zaicodeWorkerRecovery.js";
 import { useZaicodeWorkerWatch } from "./zaicodeWorkerWatch.js";
 import { ZaicodePebbleGameHost } from "./ZaicodePebbleGame.js";
+import { ZaicodeProtrailOverlay } from "./protrail/ZaicodeProtrailOverlay.js";
 
 /**
  * Everything ZAICODE runs once per window: the timer heartbeat, notification
@@ -425,6 +426,7 @@ export function ZaicodeAppRuntime() {
       <ZaicodeToastHost />
       <ZaicodeTimersWindow />
       <ZaicodePebbleGameHost />
+      <ZaicodeProtrailOverlay />
     </>
   );
 }

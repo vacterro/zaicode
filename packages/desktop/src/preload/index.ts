@@ -83,6 +83,7 @@ import type {
   FinalArmsCustomEventE2EEntry,
   ZaicodeSplashPrefsInput,
   ZaicodeSplashPrefsState,
+  ZaicodeProtrailGlobalStatus,
 } from "@zcode/shared";
 import {
   InternalChannels,
@@ -772,6 +773,10 @@ contextBridge.exposeInMainWorld("zcode", {
   setZaicodeSplashPrefs: (input: ZaicodeSplashPrefsInput): Promise<ZaicodeSplashPrefsState> =>
     ipcRenderer.invoke(PlatformChannels.SetZaicodeSplashPrefs, input),
   zaicodeQuitApp: (): Promise<{ ok: boolean }> => ipcRenderer.invoke(PlatformChannels.ZaicodeQuitApp),
+  setZaicodeProtrailGlobal: (config: unknown): Promise<ZaicodeProtrailGlobalStatus> =>
+    ipcRenderer.invoke(PlatformChannels.SetZaicodeProtrailGlobal, config),
+  getZaicodeProtrailGlobalStatus: (): Promise<ZaicodeProtrailGlobalStatus> =>
+    ipcRenderer.invoke(PlatformChannels.GetZaicodeProtrailGlobalStatus),
   saveZaicodeSettingsSnapshot: (json: string): Promise<{ ok: boolean; message: string; sourcePath: string | null; backupPath: string | null }> =>
     ipcRenderer.invoke(PlatformChannels.SaveZaicodeSettingsSnapshot, json),
   moveWindowBy: (delta: { dx: number; dy: number }): Promise<{ success: boolean }> =>

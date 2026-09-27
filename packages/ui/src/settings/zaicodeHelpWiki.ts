@@ -152,6 +152,21 @@ export const ZAICODE_HELP_WIKI: Record<ZaicodeHelpTopicId, HelpArticle> = {
       ["Line length", "The widest a paragraph gets, in letters; shorter lines are easier to read."],
     ],
   },
+  protrail: {
+    why: "A visible cursor is easier to follow on big or several screens, in screen recordings and in demos, and it is simply nice. ProTrail draws it the way the stand-alone ProTrail app does, without a second program running.",
+    steps: [
+      "Open Settings → ProTrail.",
+      "General: keep Everywhere in Windows, or pick Only inside ZAICODE. Try a colour preset.",
+      "Trail: pick a style (Classic, Comet, Neon …), its thickness, lifetime and sparkles.",
+      "Click: pick a click style (Ring, Burst, Fire, Water …), which buttons trigger it, and the hold effect.",
+    ],
+    terms: [
+      ["Trail", "The fading line the cursor leaves behind as it moves."],
+      ["Hold", "Keeping a mouse button down: an aura charges up, and the release plays a stronger effect."],
+      ["Motion wake", "Shapes left behind while you drag with a button held down."],
+      ["Click-through", "The effect layer never catches a click; the app under it gets every click as usual."],
+    ],
+  },
   workers: {
     why: "A worker is a subscription CLI (Claude Code, Codex…) running inside a project in its own terminal. WORKERS shows them all, so you can see who is running, who finished and who crashed.",
     steps: [

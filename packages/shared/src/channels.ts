@@ -23,6 +23,7 @@ import type {
 } from "./rendererActionTrace.js";
 import type { RendererHeapSample } from "./validation.js";
 import type { ZaicodeSplashPrefsInput, ZaicodeSplashPrefsState } from "./zaicode-splash.js";
+import type { ZaicodeProtrailGlobalStatus } from "./zaicode-protrail.js";
 import type {
   CancelPendingRemoteConnectionRequest,
   BindRemoteWorkspaceSessionContextRequest,
@@ -405,6 +406,12 @@ export const PlatformChannels = {
   SetZaicodeSplashPrefs: "zaicode:set-splash-prefs",
   /** Renderer → Main：ZAICODE full exit (SRC-049 hotkey): graceful quit, not hide-to-tray */
   ZaicodeQuitApp: "zaicode:quit-app",
+  /** Renderer → Main：ProTrail over the whole desktop (SRC-062): the config to draw with, or null to stop */
+  SetZaicodeProtrailGlobal: "zaicode:set-protrail-global",
+  /** Renderer → Main：where the desktop-wide ProTrail stands (overlays, input source) */
+  GetZaicodeProtrailGlobalStatus: "zaicode:get-protrail-global-status",
+  /** Main → ProTrail overlay page (send)：config, monitor origin and mouse events */
+  ZaicodeProtrailOverlayFeed: "zaicode:protrail-overlay-feed",
   /** Renderer → Main：dev 按钮，把当前界面设置快照写成随包默认值（源码树）+ userData 备份 */
   SaveZaicodeSettingsSnapshot: "zaicode:save-settings-snapshot",
   /** Renderer → Main：相对位移移动窗口 (用于右键拖拽) */
@@ -1181,6 +1188,15 @@ export interface PlatformChannelMap {
   [PlatformChannels.ZaicodeQuitApp]: {
     request: void;
     response: { ok: boolean };
+  };
+  [PlatformChannels.SetZaicodeProtrailGlobal]: {
+    /** A ProTrail config (normalized again in main), or null = no desktop-wide overlays. */
+    request: unknown;
+    response: ZaicodeProtrailGlobalStatus;
+  };
+  [PlatformChannels.GetZaicodeProtrailGlobalStatus]: {
+    request: void;
+    response: ZaicodeProtrailGlobalStatus;
   };
   [PlatformChannels.SaveZaicodeSettingsSnapshot]: {
     request: string;

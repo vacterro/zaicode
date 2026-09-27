@@ -95,6 +95,7 @@ import {
 import { writeZaicodePromptFile } from "./zaicodePromptFiles.js";
 import { saveZaicodeSettingsSnapshot } from "./zaicodeSettingsSnapshot.js";
 import { setZaicodeGlobalHotkeys } from "./zaicodeGlobalHotkeys.js";
+import { registerZaicodeProtrailGlobalIpc } from "./zaicodeProtrailGlobal.js";
 
 export function registerPlatformIpcHandlers(options: {
   fetchHelpConfig?: () => Promise<unknown>;
@@ -420,6 +421,7 @@ export function registerPlatformIpcHandlers(options: {
     options.quitAppForZaicode?.("hotkey-quit");
     return { ok: true };
   });
+  registerZaicodeProtrailGlobalIpc();
   ipcMain.handle(PlatformChannels.SetZaicodeSplashPrefs, (_event, input: unknown) =>
     setZaicodeSplashPrefs(parseZaicodeSplashPrefsInput(input)),
   );

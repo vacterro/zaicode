@@ -79,6 +79,7 @@ import { ZaicodeTimersSettings } from "@/settings/ZaicodeTimersSettings.js";
 import { ZaicodeHotkeysSettings } from "@/settings/ZaicodeHotkeysSettings.js";
 import { ZaicodeHelpSection } from "@/settings/ZaicodeHelpSection.js";
 import { ZaicodeSessionTextSettings } from "@/settings/ZaicodeSessionTextSettings.js";
+import { ZaicodeProtrailSettings } from "@/settings/protrail/ZaicodeProtrailSettings.js";
 import { AutomationsSection } from "@/settings/AutomationsSection.js";
 import { SegmentPill } from "@/settings/PluginStoreListView.js";
 import { PluginsSection } from "@/settings/PluginsSection.js";
@@ -1960,6 +1961,8 @@ export function SettingsPage({
                           <ZaicodeLightsSettings />
                         ) : activeSection === "zaicodeSessionText" ? (
                           <ZaicodeSessionTextSettings />
+                        ) : activeSection === "zaicodeProtrail" ? (
+                          <ZaicodeProtrailSettings />
                         ) : activeSection === "zaicodeTimers" ? (
                           <ZaicodeTimersSettings />
                         ) : activeSection === "zaicodeHotkeys" ? (

@@ -105,6 +105,19 @@ export const ZAICODE_HELP_TOPICS: readonly HelpTopic[] = [
     open: { label: "Session text", section: "zaicodeSessionText" },
   },
   {
+    id: "protrail",
+    title: "ProTrail (cursor trail and clicks)",
+    what: "ProTrail built into ZAICODE: a trail behind the mouse cursor and an effect on every click, over the whole Windows desktop or only inside ZAICODE.",
+    lines: [
+      "Settings → ProTrail. General: on/off, where it draws, colour presets, pixel look. Trail and Click: every ProTrail setting.",
+      "Everywhere in Windows (default): one see-through layer per monitor, over every app. Clicks always go to the app under the cursor.",
+      "The first start compiles a tiny mouse reader with Windows' own C# compiler (a second or two, once). Without it the trail still follows the cursor, but clicks are not seen; the status line says which.",
+      "Press and hold a button: a charging aura; release it for a bigger effect. Drag while holding: the motion wake.",
+      "Quick switch: the ProTrail button in the sidebar footer (left click on/off, right click opens these settings).",
+    ],
+    open: { label: "ProTrail", section: "zaicodeProtrail" },
+  },
+  {
     id: "workers",
     title: "WORKERS (subscription CLIs)",
     what: "A worker is a subscription CLI (or a shell) running in a terminal inside ZAICODE.",

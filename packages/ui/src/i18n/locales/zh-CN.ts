@@ -3334,6 +3334,7 @@ const zhCN: Record<string, string> = {
   "settings.zaicodeRouter.title": "路由 (9router)",
   "settings.zaicodeWorkers.title": "工作者与终端",
   "settings.zaicodeNotifications.title": "通知",
+  "settings.zaicodeProtrail.title": "ProTrail",
   "settings.zaicodeTimers.title": "计时器",
   "settings.zaicodeColors.title": "配色",
   "settings.zaicodeLights.title": "高亮与动效",

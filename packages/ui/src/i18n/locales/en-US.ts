@@ -3556,6 +3556,7 @@ const enUS: Record<string, string> = {
   "settings.zaicodeRouter.title": "Router (9router)",
   "settings.zaicodeWorkers.title": "Workers & terminal",
   "settings.zaicodeNotifications.title": "Notifications",
+  "settings.zaicodeProtrail.title": "ProTrail",
   "settings.zaicodeTimers.title": "Timers",
   "settings.zaicodeColors.title": "Colors",
   "settings.zaicodeLights.title": "Highlights & motion",

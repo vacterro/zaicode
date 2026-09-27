@@ -1,4 +1,5 @@
 import { app, BrowserWindow, globalShortcut } from "electron";
+import { isZaicodeProtrailWindow } from "./zaicodeProtrailGlobal.js";
 
 /**
  * ZAICODE global hotkeys (FastPrompter's RegisterHotKey pair, via Electron
@@ -19,7 +20,8 @@ let registered: string[] = [];
 let quitHooked = false;
 
 function mainWindow(): BrowserWindow | null {
-  const windows = BrowserWindow.getAllWindows().filter((window) => !window.isDestroyed());
+  // ProTrail's desktop overlays are visible but are never "the ZAICODE window".
+  const windows = BrowserWindow.getAllWindows().filter((window) => !window.isDestroyed() && !isZaicodeProtrailWindow(window));
   return BrowserWindow.getFocusedWindow() ?? windows.find((window) => window.isVisible()) ?? windows[0] ?? null;
 }
 

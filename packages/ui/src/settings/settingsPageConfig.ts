@@ -1,4 +1,5 @@
 import {
+  MousePointer2,
   Monitor,
   Moon,
   Settings,
@@ -164,6 +165,12 @@ const BASE_SETTINGS_SECTIONS: SettingsSectionDefinition[] = [
     id: "zaicodeSessionText",
     icon: Type,
     titleId: "settings.zaicodeSessionText.title",
+    groupId: "zaicode",
+  },
+  {
+    id: "zaicodeProtrail",
+    icon: MousePointer2,
+    titleId: "settings.zaicodeProtrail.title",
     groupId: "zaicode",
   },
   {

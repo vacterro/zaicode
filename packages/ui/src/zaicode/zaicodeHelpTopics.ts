@@ -53,6 +53,8 @@ export const ZAICODE_HELP_TOPIC_IDS = [
   "todo",
   // SRC-062: Settings -> Session text.
   "sessiontext",
+  // SRC-062: Settings -> ProTrail (cursor trail and click effects, the whole desktop).
+  "protrail",
 ] as const;
 
 export type ZaicodeHelpTopicId = (typeof ZAICODE_HELP_TOPIC_IDS)[number];
