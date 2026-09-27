@@ -68,11 +68,19 @@ if ([string]::IsNullOrEmpty($ProbeMessage)) {
 
 $script:Failures = New-Object System.Collections.ArrayList
 $script:Checks = 0
+$script:ExitCodes = @{
+    Diverged = 3
+}
 
 function Write-Head {
     param([string]$Text)
     Write-Host ''
     Write-Host "=== $Text ==="
+}
+
+function Write-Detail {
+    param([string]$Text)
+    Write-Host "  $Text"
 }
 
 function Assert-That {
@@ -140,6 +148,13 @@ function Get-Head {
     return $result.Output
 }
 
+function Test-Ancestor {
+    param([string]$WorkingDirectory, [string]$Ancestor, [string]$Descendant)
+    $result = Invoke-Git -WorkingDirectory $WorkingDirectory `
+        -Arguments @('merge-base', '--is-ancestor', $Ancestor, $Descendant) -AllowFailure
+    return ($result.ExitCode -eq 0)
+}
+
 # --- preconditions ---------------------------------------------------------
 
 Write-Head 'PRECONDITIONS'
@@ -163,7 +178,40 @@ Assert-That "local branch is $Branch" ($branchName -eq $Branch) "actual: $branch
 $null = Invoke-Git -WorkingDirectory $Repo -Arguments @('fetch', $Remote, $Branch)
 $localHead = Get-Head -WorkingDirectory $Repo
 $remoteHead = Get-Head -WorkingDirectory $Repo -Revision "$Remote/$Branch"
-Assert-That 'local HEAD equals origin/<branch>' ($localHead -eq $remoteHead) "local $localHead / remote $remoteHead"
+
+# Not "identical": the watcher's whole job is to move one side toward the
+# other, so between two test runs they are legitimately one commit apart.
+# What must hold is that they have NOT diverged, because a diverged pair is
+# the one state the transport refuses to resolve on its own.
+$comparable = ($localHead -eq $remoteHead) -or
+    (Test-Ancestor -WorkingDirectory $Repo -Ancestor $localHead -Descendant $remoteHead) -or
+    (Test-Ancestor -WorkingDirectory $Repo -Ancestor $remoteHead -Descendant $localHead)
+Assert-That 'local and origin/<branch> have not diverged' $comparable `
+    "local $localHead / remote $remoteHead$(if ($localHead -eq $remoteHead) { ' (identical)' } else { ' (one ahead of the other; the watcher closes this)' })"
+
+# If the checkout is ahead, the probe below would diverge it from the remote
+# and no fast-forward could ever happen. Wait for the watcher to push first:
+# that is Case B of the watcher's contract, exercised rather than assumed.
+if (-not $comparable) {
+    exit $script:ExitCodes.Diverged
+}
+if ($localHead -ne $remoteHead) {
+    Write-Detail 'Local is ahead of the remote; waiting for the watcher to push (Case B).'
+    $pushDeadline = (Get-Date).AddSeconds($WatchTimeoutSeconds)
+    $pushed = $false
+    while ((Get-Date) -lt $pushDeadline) {
+        Start-Sleep -Seconds 5
+        $null = Invoke-Git -WorkingDirectory $Repo -Arguments @('fetch', $Remote, $Branch) -AllowFailure
+        if ((Get-Head -WorkingDirectory $Repo) -eq (Get-Head -WorkingDirectory $Repo -Revision "$Remote/$Branch")) {
+            $pushed = $true
+            break
+        }
+    }
+    Assert-That 'watcher pushed the local commit (case B)' $pushed `
+        "local $(Get-Head -WorkingDirectory $Repo) / remote $(Get-Head -WorkingDirectory $Repo -Revision "$Remote/$Branch")"
+    $localHead = Get-Head -WorkingDirectory $Repo
+    $remoteHead = Get-Head -WorkingDirectory $Repo -Revision "$Remote/$Branch"
+}
 
 $infraRoot = Join-Path $env:APPDATA 'SAIPEN'
 $pidFile = Join-Path $infraRoot 'ZAICODE_cloud-sync.pid'
