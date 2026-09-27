@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -819,7 +820,27 @@ internal static class ZaicodeSplash
 
         protected override void OnPaint(PaintEventArgs e)
         {
-            e.Graphics.DrawImageUnscaled(picture, 0, 0);
+            // SRC-060: the first splash was cropped. DrawImageUnscaled anchors the
+            // bitmap at its natural size and the 560x300 client area clips whatever
+            // does not fit, so any custom picture larger than the bundled 560x300
+            // lost most of itself with no warning. Fit the whole picture inside the
+            // client area instead, preserving the aspect ratio and never upscaling
+            // past 1:1 so a small picture stays pixel-exact.
+            int clientWidth = ClientSize.Width;
+            int clientHeight = ClientSize.Height;
+            double scale = Math.Min(
+                (double)clientWidth / picture.Width,
+                (double)clientHeight / picture.Height);
+            if (scale > 1.0) scale = 1.0;
+            int drawWidth = (int)Math.Round(picture.Width * scale);
+            int drawHeight = (int)Math.Round(picture.Height * scale);
+            int drawX = (clientWidth - drawWidth) / 2;
+            int drawY = (clientHeight - drawHeight) / 2;
+            e.Graphics.InterpolationMode = scale < 1.0
+                ? InterpolationMode.HighQualityBicubic
+                : InterpolationMode.NearestNeighbor;
+            e.Graphics.PixelOffsetMode = PixelOffsetMode.Half;
+            e.Graphics.DrawImage(picture, new Rectangle(drawX, drawY, drawWidth, drawHeight));
             // Pixel text, no smoothing (saipen UI iron law 1).
             e.Graphics.TextRenderingHint = TextRenderingHint.SingleBitPerPixelGridFit;
             using (var text = new SolidBrush(Color.FromArgb(0xD4, 0xC8, 0x9A)))
