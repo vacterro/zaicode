@@ -229,11 +229,66 @@ the result is checkpointed like any other change.
 
 ## The exact cloud-side action
 
-One prompt starts a cloud session that continues the current Work:
+### Environment setup script (one time, in the cloud environment's settings)
+
+Cloud environment menu in the session title bar -> Edit -> Setup script. It
+runs before every new session, so each session starts with the product
+toolchain ready:
+
+```bash
+#!/usr/bin/env bash
+# ZAICODE cloud toolchain: Node 24 + pnpm 10.33.2 (product gates),
+# 9router 0.5.91 (real-router tests), mono mcs (launcher compile check).
+set -u
+NODE=v24.14.0
+if ! command -v node >/dev/null || ! node -v | grep -q '^v24\.'; then
+  curl -fsSL "https://nodejs.org/dist/$NODE/node-$NODE-linux-x64.tar.xz" | tar -xJ -C /opt
+  ln -sf /opt/node-$NODE-linux-x64/bin/node /opt/node-$NODE-linux-x64/bin/npm /opt/node-$NODE-linux-x64/bin/npx /usr/local/bin/
+fi
+npm install -g pnpm@10.33.2 && ln -sf "$(npm prefix -g)/bin/pnpm" /usr/local/bin/pnpm
+mkdir -p /opt/9router && cd /opt/9router && npm pack 9router@0.5.91 >/dev/null && tar -xzf 9router-0.5.91.tgz
+(apt-get update -qq && apt-get install -y -qq mono-mcs) || echo "no mono-mcs: the launcher compile check is NOT RUN"
+exit 0
+```
+
+### The prompt for every new session
+
+Start the session on repository `vacterro/zaicode`, branch `saipen-live`, and
+make sure the operator machine's agent is not writing at the same time.
+Replace the last line with `cc all <new list>` to hand over new work.
 
 ```
-Read CLAUDE.md, then .claude/skills/saipen/SKILL.md, and continue the active
-SAIPEN Work on branch saipen-live. Treat .saipen/ as canonical. Commit and
-push your verified checkpoints to origin/saipen-live; never force push.
-Record any gate you cannot run here as NOT RUN with the reason.
+Read CLAUDE.md and .claude/skills/saipen/SKILL.md, then cold-recover SAIPEN
+state from .saipen/ on branch saipen-live (STATE.md, BOARD.md, tail of LOG.md).
+Chat memory is not state; docs/ZAICODE_SAIPEN_CLOUD.md is the transport contract.
+
+Setup (skip what already exists):
+- saipen = python3 .claude/saipen-protocol/tools/saipen.py --project-root <repo root>
+  (fetch the kernel per SKILL.md if it is missing); run `saipen rebind-home --auto`
+  when saipen_home points at another machine.
+- Product clone: git clone -b zaicode https://github.com/vacterro/zaicode zcode
+  (gitignored here), then `pnpm install` inside zcode (Node 24, pnpm 10.33.2).
+- Real-router tests: export ZAICODE_ROUTER_PACKAGE=/opt/9router/package if it exists.
+
+Rules:
+- Fetch origin/saipen-live and origin/zaicode before every commit and every push.
+  If the other side moved, merge; never rebase, reset or force. If .saipen/
+  histories diverged: keep ours on saipen-live-cloud-<sha>, write both ids to
+  .saipen/LOG.md, stop and ask me.
+- Product gates in zcode: pnpm typecheck, pnpm lint (0 errors),
+  pnpm run architecture:check -- --changed, pnpm test. A gate that cannot run
+  here is NOT RUN with the reason; a failure blamed on the environment must be
+  shown to fail the same without the change.
+- I authorize publishing verified product commits to origin/zaicode and SAIPEN
+  checkpoints to origin/saipen-live.
+- Nothing is PASS until I test on Windows and say PASS. A finished ticket waits
+  in VERIFY with .saipen/evidence/T-###-*.md: its commits and the exact manual
+  test steps.
+- One writer at a time: if LOG shows the local agent mid-work, stop and ask.
+
+cc
 ```
+
+On the operator machine the watcher fast-forwards `zcode` from
+`origin/zaicode`; `REBUILD.cmd` (or `REBUILD_fast.lnk`) builds it, and the
+next start of ZAICODE swaps the new build in.
