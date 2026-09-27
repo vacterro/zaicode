@@ -20,7 +20,11 @@ import {
   type ZaicodeShapeTuning,
 } from "./zaicodeMotionTuning.js";
 
-export type { ZaicodeBezier, ZaicodeMotionDirection, ZaicodeMotionEasing } from "./zaicodeMotionTuning.js";
+export type {
+  ZaicodeBezier,
+  ZaicodeMotionDirection,
+  ZaicodeMotionEasing,
+} from "./zaicodeMotionTuning.js";
 
 /**
  * Light and motion (SRC-038): every highlight the operator can see -- the
@@ -39,13 +43,41 @@ export type { ZaicodeBezier, ZaicodeMotionDirection, ZaicodeMotionEasing } from 
 // ---------------------------------------------------------------- highlights
 
 export const ZAICODE_HIGHLIGHT_TARGETS = [
-  { id: "sessionWorking", label: "Session title while it works", hint: "Sidebar row of a session whose agent is working right now" },
-  { id: "sessionWaiting", label: "Session waiting for you", hint: "A question or a permission is waiting in that session" },
-  { id: "sessionOpen", label: "The session you have open", hint: "The selected row in the sidebar" },
-  { id: "projectWorking", label: "Project title while work runs", hint: "A project with at least one working session" },
-  { id: "projectWaiting", label: "Project waiting for you", hint: "A project with a session that waits for your answer" },
-  { id: "headerWorking", label: "Title bar while the open session works", hint: "The session name at the top of the chat" },
-  { id: "meterPrepared", label: "Limit meter with a prompt ready", hint: "An AI limit meter whose scheduled prompt fires right after its reset (Scheduler)" },
+  {
+    id: "sessionWorking",
+    label: "Session title while it works",
+    hint: "Sidebar row of a session whose agent is working right now",
+  },
+  {
+    id: "sessionWaiting",
+    label: "Session waiting for you",
+    hint: "A question or a permission is waiting in that session",
+  },
+  {
+    id: "sessionOpen",
+    label: "The session you have open",
+    hint: "The selected row in the sidebar",
+  },
+  {
+    id: "projectWorking",
+    label: "Project title while work runs",
+    hint: "A project with at least one working session",
+  },
+  {
+    id: "projectWaiting",
+    label: "Project waiting for you",
+    hint: "A project with a session that waits for your answer",
+  },
+  {
+    id: "headerWorking",
+    label: "Title bar while the open session works",
+    hint: "The session name at the top of the chat",
+  },
+  {
+    id: "meterPrepared",
+    label: "Limit meter with a prompt ready",
+    hint: "An AI limit meter whose scheduled prompt fires right after its reset (Scheduler)",
+  },
 ] as const;
 
 export type ZaicodeHighlightTarget = (typeof ZAICODE_HIGHLIGHT_TARGETS)[number]["id"];
@@ -127,13 +159,50 @@ const rule = (
 };
 
 export const ZAICODE_HIGHLIGHT_DEFAULTS: Record<ZaicodeHighlightTarget, ZaicodeHighlightRule> = {
-  sessionWorking: rule({ enabled: true, effect: "breathe", shape: "text", color: "state", seconds: 3 }),
-  sessionWaiting: rule({ enabled: true, effect: "pulse", shape: "box", color: "state", seconds: 1.6 }),
+  sessionWorking: rule({
+    enabled: true,
+    effect: "breathe",
+    shape: "text",
+    color: "state",
+    seconds: 3,
+  }),
+  sessionWaiting: rule({
+    enabled: true,
+    effect: "pulse",
+    shape: "box",
+    color: "state",
+    seconds: 1.6,
+  }),
   sessionOpen: rule({ enabled: false, effect: "steady", shape: "bar" }),
-  projectWorking: rule({ enabled: false, effect: "breathe", shape: "text", color: "state", seconds: 3 }),
-  projectWaiting: rule({ enabled: false, effect: "pulse", shape: "underline", color: "state", seconds: 1.6 }),
-  headerWorking: rule({ enabled: false, effect: "breathe", shape: "glow", color: "state", seconds: 3 }),
-  meterPrepared: rule({ enabled: true, effect: "breathe", shape: "box", color: "state", seconds: 2.2, strength: 90 }),
+  projectWorking: rule({
+    enabled: false,
+    effect: "breathe",
+    shape: "text",
+    color: "state",
+    seconds: 3,
+  }),
+  projectWaiting: rule({
+    enabled: false,
+    effect: "pulse",
+    shape: "underline",
+    color: "state",
+    seconds: 1.6,
+  }),
+  headerWorking: rule({
+    enabled: false,
+    effect: "breathe",
+    shape: "glow",
+    color: "state",
+    seconds: 3,
+  }),
+  meterPrepared: rule({
+    enabled: true,
+    effect: "breathe",
+    shape: "box",
+    color: "state",
+    seconds: 2.2,
+    strength: 90,
+  }),
 };
 
 /** Combining rules per list (zaicodeCombo.ts): steady / still are the neutral values. */
@@ -176,7 +245,7 @@ export type ZaicodeWorkingMotion = (typeof ZAICODE_WORKING_MOTIONS)[number]["id"
 export interface ZaicodeWorkingIconPrefs {
   /** One picture, or up to three stacked on top of each other (Shift+Click, SRC-043). */
   images: ZaicodeWorkingImage[];
-  /** data: URL of the operator's own picture (≤ 256 KB). */
+  /** data: URL of the operator's own picture or short looping video (≤ 1 MiB). */
   customImage: string | null;
   /** One motion or several at once (spin + pulse + blink ...); `["none"]` = still. */
   motions: ZaicodeWorkingMotion[];
@@ -227,7 +296,7 @@ export const ZAICODE_WORKING_ICON_DEFAULTS: ZaicodeWorkingIconPrefs = {
   layers: {},
 };
 
-export const ZAICODE_WORKING_CUSTOM_IMAGE_MAX = 256 * 1024;
+export const ZAICODE_WORKING_CUSTOM_IMAGE_MAX = 1024 * 1024;
 
 // ---------------------------------------------------------------- normalize
 
@@ -237,13 +306,21 @@ function num(value: unknown, min: number, max: number, fallback: number, decimal
   return Math.min(max, Math.max(min, Math.round(value * factor) / factor));
 }
 
-function pick<T extends string>(value: unknown, allowed: readonly { id: T }[] | readonly T[], fallback: T): T {
-  const ids = (allowed as readonly (T | { id: T })[]).map((entry) => (typeof entry === "string" ? entry : entry.id));
+function pick<T extends string>(
+  value: unknown,
+  allowed: readonly { id: T }[] | readonly T[],
+  fallback: T,
+): T {
+  const ids = (allowed as readonly (T | { id: T })[]).map((entry) =>
+    typeof entry === "string" ? entry : entry.id,
+  );
   return typeof value === "string" && (ids as string[]).includes(value) ? (value as T) : fallback;
 }
 
 function hex(value: unknown, fallback: string): string {
-  return typeof value === "string" && /^#[0-9a-f]{6}$/i.test(value) ? value.toLowerCase() : fallback;
+  return typeof value === "string" && /^#[0-9a-f]{6}$/i.test(value)
+    ? value.toLowerCase()
+    : fallback;
 }
 
 function flag(value: unknown, fallback: boolean): boolean {
@@ -264,19 +341,42 @@ function pickList<T extends string>(
 ): T[] {
   const ids = allowed.map((entry) => entry.id as string);
   const source = Array.isArray(list) ? list : typeof single === "string" ? [single] : [];
-  let values = [...new Set(source.filter((value): value is T => typeof value === "string" && ids.includes(value)))];
-  if (combo.neutral !== undefined && values.length > 1) values = values.filter((value) => value !== combo.neutral);
-  if (combo.max !== undefined && values.length > combo.max) values = values.slice(values.length - combo.max);
+  let values = [
+    ...new Set(
+      source.filter((value): value is T => typeof value === "string" && ids.includes(value)),
+    ),
+  ];
+  if (combo.neutral !== undefined && values.length > 1)
+    values = values.filter((value) => value !== combo.neutral);
+  if (combo.max !== undefined && values.length > combo.max)
+    values = values.slice(values.length - combo.max);
   return values.length > 0 ? values : [...fallback];
 }
 
-export function normalizeZaicodeHighlightRule(raw: unknown, fallback: ZaicodeHighlightRule): ZaicodeHighlightRule {
-  const r = (raw && typeof raw === "object" ? raw : {}) as Partial<Record<keyof ZaicodeHighlightRule | "effect" | "shape", unknown>>;
+export function normalizeZaicodeHighlightRule(
+  raw: unknown,
+  fallback: ZaicodeHighlightRule,
+): ZaicodeHighlightRule {
+  const r = (raw && typeof raw === "object" ? raw : {}) as Partial<
+    Record<keyof ZaicodeHighlightRule | "effect" | "shape", unknown>
+  >;
 
   return {
     enabled: flag(r.enabled, fallback.enabled),
-    effects: pickList(r.effects, r.effect, ZAICODE_HIGHLIGHT_EFFECTS, fallback.effects, ZAICODE_EFFECT_COMBO),
-    shapes: pickList(r.shapes, r.shape, ZAICODE_HIGHLIGHT_SHAPES, fallback.shapes, ZAICODE_SHAPE_COMBO),
+    effects: pickList(
+      r.effects,
+      r.effect,
+      ZAICODE_HIGHLIGHT_EFFECTS,
+      fallback.effects,
+      ZAICODE_EFFECT_COMBO,
+    ),
+    shapes: pickList(
+      r.shapes,
+      r.shape,
+      ZAICODE_HIGHLIGHT_SHAPES,
+      fallback.shapes,
+      ZAICODE_SHAPE_COMBO,
+    ),
     color: pick(r.color, ZAICODE_HIGHLIGHT_COLORS, fallback.color),
     custom: hex(r.custom, fallback.custom),
     strength: num(r.strength, 10, 100, fallback.strength),
@@ -289,19 +389,33 @@ export function normalizeZaicodeHighlightRule(raw: unknown, fallback: ZaicodeHig
 
 export function normalizeZaicodeWorkingIcon(raw: unknown): ZaicodeWorkingIconPrefs {
   const d = ZAICODE_WORKING_ICON_DEFAULTS;
-  const r = (raw && typeof raw === "object" ? raw : {}) as Partial<Record<keyof ZaicodeWorkingIconPrefs | "image" | "motion", unknown>>;
+  const r = (raw && typeof raw === "object" ? raw : {}) as Partial<
+    Record<keyof ZaicodeWorkingIconPrefs | "image" | "motion", unknown>
+  >;
   const customImage =
-    typeof r.customImage === "string" && r.customImage.startsWith("data:image/") && r.customImage.length <= ZAICODE_WORKING_CUSTOM_IMAGE_MAX * 1.4
+    typeof r.customImage === "string" &&
+    /^(data:image\/|data:video\/)/.test(r.customImage) &&
+    r.customImage.length <= ZAICODE_WORKING_CUSTOM_IMAGE_MAX * 1.4
       ? r.customImage
       : null;
   // An own picture that is gone drops out of the stack; an empty stack is the mark again.
-  const images = pickList(r.images, r.image, ZAICODE_WORKING_IMAGES, d.images, ZAICODE_IMAGE_COMBO).filter(
-    (image) => image !== "custom" || customImage,
-  );
+  const images = pickList(
+    r.images,
+    r.image,
+    ZAICODE_WORKING_IMAGES,
+    d.images,
+    ZAICODE_IMAGE_COMBO,
+  ).filter((image) => image !== "custom" || customImage);
   return {
     images: images.length > 0 ? images : [...d.images],
     customImage,
-    motions: pickList(r.motions, r.motion, ZAICODE_WORKING_MOTIONS, d.motions, ZAICODE_MOTION_COMBO),
+    motions: pickList(
+      r.motions,
+      r.motion,
+      ZAICODE_WORKING_MOTIONS,
+      d.motions,
+      ZAICODE_MOTION_COMBO,
+    ),
     seconds: num(r.seconds, 0.2, 20, d.seconds, 1),
     direction: pick(r.direction, ["cw", "ccw", "alternate"] as const, d.direction),
     easing: pick(r.easing, ZAICODE_EASING_IDS, d.easing),
@@ -340,10 +454,16 @@ export interface ZaicodeLightsPrefs {
 }
 
 export function normalizeZaicodeLights(raw: unknown): ZaicodeLightsPrefs {
-  const r = (raw && typeof raw === "object" ? raw : {}) as { highlights?: Record<string, unknown>; working?: unknown };
+  const r = (raw && typeof raw === "object" ? raw : {}) as {
+    highlights?: Record<string, unknown>;
+    working?: unknown;
+  };
   const highlights = {} as Record<ZaicodeHighlightTarget, ZaicodeHighlightRule>;
   for (const target of ZAICODE_HIGHLIGHT_TARGETS) {
-    highlights[target.id] = normalizeZaicodeHighlightRule(r.highlights?.[target.id], ZAICODE_HIGHLIGHT_DEFAULTS[target.id]);
+    highlights[target.id] = normalizeZaicodeHighlightRule(
+      r.highlights?.[target.id],
+      ZAICODE_HIGHLIGHT_DEFAULTS[target.id],
+    );
   }
   return { highlights, working: normalizeZaicodeWorkingIcon(r.working) };
 }
@@ -402,17 +522,24 @@ export const useZaicodeLights = create<ZaicodeLightsState>((set, get) => {
     ...load(),
     setHighlight: (target, patch) => {
       const { highlights, working } = get();
-      persist({ working, highlights: { ...highlights, [target]: { ...highlights[target], ...patch } } });
+      persist({
+        working,
+        highlights: { ...highlights, [target]: { ...highlights[target], ...patch } },
+      });
     },
     resetHighlight: (target) => {
       const { highlights, working } = get();
-      persist({ working, highlights: { ...highlights, [target]: ZAICODE_HIGHLIGHT_DEFAULTS[target] } });
+      persist({
+        working,
+        highlights: { ...highlights, [target]: ZAICODE_HIGHLIGHT_DEFAULTS[target] },
+      });
     },
     setWorking: (patch) => {
       const { highlights, working } = get();
       persist({ highlights, working: { ...working, ...patch } });
     },
-    resetWorking: () => persist({ highlights: get().highlights, working: ZAICODE_WORKING_ICON_DEFAULTS }),
+    resetWorking: () =>
+      persist({ highlights: get().highlights, working: ZAICODE_WORKING_ICON_DEFAULTS }),
     replaceLights: (next) => persist(normalizeZaicodeLights(next)),
   };
 });

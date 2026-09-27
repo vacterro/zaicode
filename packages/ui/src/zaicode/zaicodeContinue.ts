@@ -1,6 +1,10 @@
 import { create } from "zustand";
 import type { ZCodeTaskGoalStatus, ZCodeTaskMeta, ZaicodeProjectRuntimeState } from "@zcode/shared";
-import { getTaskListAttention, getTaskListRowActivity, isTaskListRowActive } from "@/v4/taskListRowActivity.js";
+import {
+  getTaskListAttention,
+  getTaskListRowActivity,
+  isTaskListRowActive,
+} from "@/v4/taskListRowActivity.js";
 import { zaicodeWasCutOff } from "./zaicodeSessionState.js";
 
 /**
@@ -29,6 +33,8 @@ export interface ZaicodeSessionBrief {
   failed: boolean;
   /** Cut off mid-turn: crash, restart or Stop (SRC-044) -- never counted as DONE. */
   interrupted: boolean;
+  /** The renderer observed completedInterrupted: the operator deliberately pressed Stop. */
+  manuallyStopped: boolean;
   /**
    * Cut off by the process dying, not by the operator: tasks-index still says
    * "running" with nothing live, or a goal is still active with nothing running.
@@ -56,6 +62,9 @@ export function zaicodeSessionBriefOf(
   const waiting = getTaskListAttention(task) !== null || Boolean(task.pendingInteraction);
   // Same authority order as the row's leading dot: live phase first, persisted status without one.
   const failed = activity ? activity.phase === "error" : task.status === "error";
+  // A real Stop is persisted as completed. After a process crash the CLI can replay the dead
+  // turn as completedInterrupted while tasks-index still says running; that is crash recovery.
+  const manuallyStopped = activity?.phase === "completedInterrupted" && task.status !== "running";
   return {
     sessionId: task.taskId,
     title: task.title || task.taskId,
@@ -66,8 +75,13 @@ export function zaicodeSessionBriefOf(
     waiting,
     failed,
     interrupted: !running && !waiting && !failed && zaicodeWasCutOff(task),
+    manuallyStopped,
     // The process died: tasks-index never got the turn's end (a Stop ends as "completed"), or a goal was still active.
-    crashCut: !running && !waiting && (task.status === "running" || goal?.status === "active"),
+    crashCut:
+      !manuallyStopped &&
+      !running &&
+      !waiting &&
+      (task.status === "running" || goal?.status === "active"),
     updatedAt: typeof task.updatedAt === "number" ? task.updatedAt : 0,
     model: task.model?.trim() || null,
     unreadAt: typeof task.unreadAt === "number" ? task.unreadAt : null,
@@ -85,6 +99,7 @@ function briefSignature(brief: ZaicodeSessionBrief): string {
     brief.waiting ? 1 : 0,
     brief.failed ? 1 : 0,
     brief.interrupted ? 1 : 0,
+    brief.manuallyStopped ? 1 : 0,
     brief.crashCut ? 1 : 0,
     brief.updatedAt,
     brief.model ?? "",
@@ -121,9 +136,15 @@ export function zaicodeDoneUnseen(sessions: readonly ZaicodeSessionBrief[]): Zai
   return sessions
     .filter(
       (session) =>
-        session.unreadAt !== null && !session.running && !session.waiting && !session.failed && !session.interrupted,
+        session.unreadAt !== null &&
+        !session.running &&
+        !session.waiting &&
+        !session.failed &&
+        !session.interrupted,
     )
-    .sort((left, right) => left.unreadAt! - right.unreadAt! || left.title.localeCompare(right.title));
+    .sort(
+      (left, right) => left.unreadAt! - right.unreadAt! || left.title.localeCompare(right.title),
+    );
 }
 
 /** The next unseen finished session, skipping the one already open. */
@@ -178,7 +199,10 @@ export function decideZaicodeSessionContinue(
   }
   return {
     action: "send",
-    command: { kind: "text", text: hasSaipen ? ZAICODE_CONTINUE_SAIPEN_TEXT : ZAICODE_CONTINUE_PLAIN_TEXT },
+    command: {
+      kind: "text",
+      text: hasSaipen ? ZAICODE_CONTINUE_SAIPEN_TEXT : ZAICODE_CONTINUE_PLAIN_TEXT,
+    },
     why: "continue where it stopped",
   };
 }
@@ -189,13 +213,25 @@ export type ZaicodeProjectStartDecision =
   /** MAIN already works or waits for an answer: show it, send nothing. */
   | { action: "open"; sessionId: string; why: string }
   /** Continue an existing session in place; `makeMain` when it becomes the project's MAIN. */
-  | { action: "send"; sessionId: string; command: ZaicodeContinueCommand; why: string; makeMain: boolean }
+  | {
+      action: "send";
+      sessionId: string;
+      command: ZaicodeContinueCommand;
+      why: string;
+      makeMain: boolean;
+    }
   /** Nothing to continue: a fresh MAIN session gets START. */
   | { action: "fresh"; why: string };
 
-function startCommandFor(session: Pick<ZaicodeSessionBrief, "goalStatus" | "goalObjective">): ZaicodeContinueCommand {
-  const unfinished = session.goalObjective && (session.goalStatus === "active" || session.goalStatus === "paused");
-  return { kind: "goal", objective: unfinished ? session.goalObjective! : ZAICODE_CONTINUE_START_OBJECTIVE };
+function startCommandFor(
+  session: Pick<ZaicodeSessionBrief, "goalStatus" | "goalObjective">,
+): ZaicodeContinueCommand {
+  const unfinished =
+    session.goalObjective && (session.goalStatus === "active" || session.goalStatus === "paused");
+  return {
+    kind: "goal",
+    objective: unfinished ? session.goalObjective! : ZAICODE_CONTINUE_START_OBJECTIVE,
+  };
 }
 
 /**
@@ -211,17 +247,23 @@ export function decideZaicodeProjectStart(
 ): ZaicodeProjectStartDecision {
   if (mainSessionId) {
     const main = sessions.find((session) => session.sessionId === mainSessionId);
-    if (main?.running) return { action: "open", sessionId: main.sessionId, why: "MAIN is already working" };
-    if (main?.waiting) return { action: "open", sessionId: main.sessionId, why: "MAIN waits for your answer" };
+    if (main?.running)
+      return { action: "open", sessionId: main.sessionId, why: "MAIN is already working" };
+    if (main?.waiting)
+      return { action: "open", sessionId: main.sessionId, why: "MAIN waits for your answer" };
     return {
       action: "send",
       sessionId: mainSessionId,
-      command: main ? startCommandFor(main) : { kind: "goal", objective: ZAICODE_CONTINUE_START_OBJECTIVE },
+      command: main
+        ? startCommandFor(main)
+        : { kind: "goal", objective: ZAICODE_CONTINUE_START_OBJECTIVE },
       why: main?.interrupted ? "MAIN was cut off: continuing it" : "START in MAIN",
       makeMain: false,
     };
   }
-  const stopped = sessions.find((session) => !session.running && !session.waiting && (session.interrupted || session.failed));
+  const stopped = sessions.find(
+    (session) => !session.running && !session.waiting && (session.interrupted || session.failed),
+  );
   if (stopped) {
     return {
       action: "send",
@@ -248,9 +290,25 @@ export interface ZaicodeContinueProject {
 }
 
 export type ZaicodeContinueStep =
-  | { kind: "session"; projectKey: string; projectName: string; sessionId: string; title: string; command: ZaicodeContinueCommand; why: string }
+  | {
+      kind: "session";
+      projectKey: string;
+      projectName: string;
+      sessionId: string;
+      title: string;
+      command: ZaicodeContinueCommand;
+      why: string;
+      autoEligible: boolean;
+    }
   /** No MAIN session yet: a fresh one becomes MAIN and gets the command. */
-  | { kind: "start"; projectKey: string; projectName: string; command: ZaicodeContinueCommand; why: string };
+  | {
+      kind: "start";
+      projectKey: string;
+      projectName: string;
+      command: ZaicodeContinueCommand;
+      why: string;
+      autoEligible: true;
+    };
 
 export interface ZaicodeContinuePlan {
   steps: ZaicodeContinueStep[];
@@ -283,13 +341,17 @@ export function planZaicodeContinueAll(
     }
     const waiting = own.filter((session) => session.waiting);
     if (waiting.length > 0) {
-      skipped.push({ name: project.name, why: `${waiting.length} session(s) wait for your answer` });
+      skipped.push({
+        name: project.name,
+        why: `${waiting.length} session(s) wait for your answer`,
+      });
     }
     let continued = false;
     for (const session of own) {
       if (session.running || session.waiting) continue;
       const unfinishedGoal =
-        session.goalObjective !== null && (session.goalStatus === "active" || session.goalStatus === "paused");
+        session.goalObjective !== null &&
+        (session.goalStatus === "active" || session.goalStatus === "paused");
       if (unfinishedGoal) {
         steps.push({
           kind: "session",
@@ -301,6 +363,7 @@ export function planZaicodeContinueAll(
             ? { kind: "text", text: ZAICODE_CONTINUE_SAIPEN_TEXT }
             : { kind: "goal", objective: session.goalObjective! },
           why: session.goalStatus === "paused" ? "goal was stopped" : "goal not finished",
+          autoEligible: !session.manuallyStopped && !session.failed,
         });
         continued = true;
       } else if (session.failed || session.interrupted) {
@@ -310,15 +373,24 @@ export function planZaicodeContinueAll(
           projectName: project.name,
           sessionId: session.sessionId,
           title: session.title,
-          command: { kind: "text", text: project.hasSaipen ? ZAICODE_CONTINUE_SAIPEN_TEXT : ZAICODE_CONTINUE_PLAIN_TEXT },
+          command: {
+            kind: "text",
+            text: project.hasSaipen ? ZAICODE_CONTINUE_SAIPEN_TEXT : ZAICODE_CONTINUE_PLAIN_TEXT,
+          },
           why: session.failed ? "stopped on an error" : "cut off mid-turn",
+          autoEligible: !session.manuallyStopped && !session.failed,
         });
         continued = true;
       }
     }
     if (continued || !project.hasSaipen || project.state !== "pending") continue;
-    const start: ZaicodeContinueCommand = { kind: "goal", objective: ZAICODE_CONTINUE_START_OBJECTIVE };
-    const main = project.mainSessionId ? own.find((session) => session.sessionId === project.mainSessionId) : undefined;
+    const start: ZaicodeContinueCommand = {
+      kind: "goal",
+      objective: ZAICODE_CONTINUE_START_OBJECTIVE,
+    };
+    const main = project.mainSessionId
+      ? own.find((session) => session.sessionId === project.mainSessionId)
+      : undefined;
     if (main && (main.running || main.waiting)) continue;
     if (project.mainSessionId) {
       steps.push({
@@ -329,9 +401,17 @@ export function planZaicodeContinueAll(
         title: main?.title ?? "MAIN",
         command: start,
         why: "SAIPEN has open tickets",
+        autoEligible: true,
       });
     } else {
-      steps.push({ kind: "start", projectKey: project.key, projectName: project.name, command: start, why: "SAIPEN has open tickets, no MAIN yet" });
+      steps.push({
+        kind: "start",
+        projectKey: project.key,
+        projectName: project.name,
+        command: start,
+        why: "SAIPEN has open tickets, no MAIN yet",
+        autoEligible: true,
+      });
     }
   }
   return { steps, skipped };
@@ -339,7 +419,10 @@ export function planZaicodeContinueAll(
 
 /** One line per step for the button's tooltip and the result notice. */
 export function describeZaicodeContinueStep(step: ZaicodeContinueStep): string {
-  const where = step.kind === "start" ? `${step.projectName} · new MAIN` : `${step.projectName} · ${step.title}`;
+  const where =
+    step.kind === "start"
+      ? `${step.projectName} · new MAIN`
+      : `${step.projectName} · ${step.title}`;
   return `${where} → ${describeZaicodeContinueCommand(step.command)} (${step.why})`;
 }
 
@@ -358,14 +441,19 @@ export interface ZaicodeProjectContinueHandle {
 
 const handles = new Map<string, ZaicodeProjectContinueHandle>();
 
-export function registerZaicodeProjectContinue(projectKey: string, handle: ZaicodeProjectContinueHandle): () => void {
+export function registerZaicodeProjectContinue(
+  projectKey: string,
+  handle: ZaicodeProjectContinueHandle,
+): () => void {
   handles.set(projectKey, handle);
   return () => {
     if (handles.get(projectKey) === handle) handles.delete(projectKey);
   };
 }
 
-export function zaicodeProjectContinueHandle(projectKey: string): ZaicodeProjectContinueHandle | null {
+export function zaicodeProjectContinueHandle(
+  projectKey: string,
+): ZaicodeProjectContinueHandle | null {
   return handles.get(projectKey) ?? null;
 }
 

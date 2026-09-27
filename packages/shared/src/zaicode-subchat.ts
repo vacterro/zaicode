@@ -16,18 +16,33 @@
  * the CLI; the renderer only renders the transcript.
  */
 
-import { effectiveZaicodeWindows, type ZaicodeEngineAccount, type ZaicodeEngineVendor, type ZaicodeLimitWindow } from "./zaicode-engines.js";
+import {
+  effectiveZaicodeWindows,
+  type ZaicodeEngineAccount,
+  type ZaicodeEngineVendor,
+  type ZaicodeLimitWindow,
+} from "./zaicode-engines.js";
 
 export type ZaicodeSubchatVendor = "claude" | "codex" | "antigravity" | "zcode";
 
-export const ZAICODE_SUBCHAT_VENDORS: readonly ZaicodeSubchatVendor[] = ["claude", "codex", "antigravity", "zcode"];
+export const ZAICODE_SUBCHAT_VENDORS: readonly ZaicodeSubchatVendor[] = [
+  "claude",
+  "codex",
+  "antigravity",
+  "zcode",
+];
 
-export function isZaicodeSubchatVendor(vendor: ZaicodeEngineVendor): vendor is ZaicodeSubchatVendor {
+export function isZaicodeSubchatVendor(
+  vendor: ZaicodeEngineVendor,
+): vendor is ZaicodeSubchatVendor {
   return (ZAICODE_SUBCHAT_VENDORS as readonly string[]).includes(vendor);
 }
 
 /** Vendors whose CLI takes the prompt only as an argument (no stdin). */
-export const ZAICODE_SUBCHAT_ARG_PROMPT_VENDORS: readonly ZaicodeSubchatVendor[] = ["antigravity", "zcode"];
+export const ZAICODE_SUBCHAT_ARG_PROMPT_VENDORS: readonly ZaicodeSubchatVendor[] = [
+  "antigravity",
+  "zcode",
+];
 /** Longest prompt passed as an argument; Windows command lines end at 32 767 characters. */
 export const ZAICODE_SUBCHAT_ARG_PROMPT_MAX = 24_000;
 /** Vendors that print one JSON document at the end instead of a line stream. */
@@ -38,7 +53,10 @@ export function zaicodeSubchatPromptFilePointer(path: string): string {
   return `The full prompt is in the file ${path} (too long for a command line). Read that file first and follow it exactly as if it had been typed here.`;
 }
 
-type AccountFacts = Pick<ZaicodeEngineAccount, "vendor" | "label" | "status" | "statusDetail" | "cli">;
+type AccountFacts = Pick<
+  ZaicodeEngineAccount,
+  "vendor" | "label" | "status" | "statusDetail" | "cli"
+>;
 
 /** Why this account cannot chat inside ZAICODE right now, or null when it can. */
 export function zaicodeSubchatUnavailableReason(account: AccountFacts): string | null {
@@ -48,7 +66,8 @@ export function zaicodeSubchatUnavailableReason(account: AccountFacts): string |
   if (!account.cli || account.status === "cli-missing") {
     return account.statusDetail || `${account.label}: the CLI is not installed.`;
   }
-  if (account.status !== "ready") return account.statusDetail || `${account.label} is not signed in.`;
+  if (account.status !== "ready")
+    return account.statusDetail || `${account.label} is not signed in.`;
   return null;
 }
 
@@ -74,22 +93,34 @@ export interface ZaicodeSubchatTurnOptions {
   /**
    * Thinking effort (SRC-051): "auto" = whatever the vendor CLI defaults to
    * (ZAICODE's own pick for the model), low / medium / high map to each
-   * vendor's own knob and are simply ignored where the CLI has none.
+   * vendor's own knob. Unsupported choices normalize to that vendor's default.
    */
   effort?: ZaicodeSubchatEffort;
   /** Argument-prompt vendors: the prompt was written to this file (it was too long for a command line). */
   promptFile?: string | null;
 }
 
-export const ZAICODE_SUBCHAT_EFFORTS = ["auto", "low", "medium", "high"] as const;
+export const ZAICODE_SUBCHAT_EFFORTS = ["auto", "low", "medium", "high", "xhigh", "max"] as const;
 export type ZaicodeSubchatEffort = (typeof ZAICODE_SUBCHAT_EFFORTS)[number];
 
+const ZAICODE_SUBCHAT_CLAUDE_EFFORTS = ["auto", "low", "medium", "high"] as const;
+
+export function zaicodeSubchatEffortsForVendor(
+  vendor: ZaicodeSubchatVendor,
+): readonly ZaicodeSubchatEffort[] {
+  if (vendor === "codex") return ZAICODE_SUBCHAT_EFFORTS;
+  if (vendor === "claude") return ZAICODE_SUBCHAT_CLAUDE_EFFORTS;
+  return ["auto"];
+}
+
 export function isZaicodeSubchatEffort(value: unknown): value is ZaicodeSubchatEffort {
-  return typeof value === "string" && (ZAICODE_SUBCHAT_EFFORTS as readonly string[]).includes(value);
+  return (
+    typeof value === "string" && (ZAICODE_SUBCHAT_EFFORTS as readonly string[]).includes(value)
+  );
 }
 
 /** Claude Code has no effort flag; its thinking budget env is the honest knob. */
-const CLAUDE_EFFORT_TOKENS: Readonly<Record<Exclude<ZaicodeSubchatEffort, "auto">, string>> = {
+const CLAUDE_EFFORT_TOKENS: Readonly<Record<"low" | "medium" | "high", string>> = {
   low: "4096",
   medium: "16384",
   high: "31999",
@@ -117,7 +148,9 @@ export function buildZaicodeSubchatInvocation(
         "stream-json",
         "--verbose",
         ...(sessionId ? ["--resume", sessionId] : []),
-        ...(options.yolo ? ["--dangerously-skip-permissions"] : ["--permission-mode", "acceptEdits"]),
+        ...(options.yolo
+          ? ["--dangerously-skip-permissions"]
+          : ["--permission-mode", "acceptEdits"]),
         ...(model ? ["--model", model] : []),
       ],
       env: {
@@ -125,13 +158,17 @@ export function buildZaicodeSubchatInvocation(
         // A turn started from inside a Claude Code shell must not look nested.
         CLAUDECODE: null,
         CLAUDE_CODE_ENTRYPOINT: null,
-        ...(effort !== "auto" ? { MAX_THINKING_TOKENS: CLAUDE_EFFORT_TOKENS[effort] } : {}),
+        ...(effort === "low" || effort === "medium" || effort === "high"
+          ? { MAX_THINKING_TOKENS: CLAUDE_EFFORT_TOKENS[effort] }
+          : {}),
       },
       stdin: options.prompt,
     };
   }
   if (account.vendor === "codex") {
-    const policy = options.yolo ? ["--dangerously-bypass-approvals-and-sandbox"] : ["-c", 'sandbox_mode="workspace-write"'];
+    const policy = options.yolo
+      ? ["--dangerously-bypass-approvals-and-sandbox"]
+      : ["-c", 'sandbox_mode="workspace-write"'];
     return {
       args: [
         "exec",
@@ -148,7 +185,9 @@ export function buildZaicodeSubchatInvocation(
       stdin: options.prompt,
     };
   }
-  const argPrompt = options.promptFile ? zaicodeSubchatPromptFilePointer(options.promptFile) : options.prompt;
+  const argPrompt = options.promptFile
+    ? zaicodeSubchatPromptFilePointer(options.promptFile)
+    : options.prompt;
   if (account.vendor === "antigravity") {
     return {
       args: [
@@ -166,7 +205,14 @@ export function buildZaicodeSubchatInvocation(
   }
   if (account.vendor === "zcode") {
     return {
-      args: ["-p", argPrompt, "--json", "--mode", options.yolo ? "yolo" : "edit", ...(sessionId ? ["--resume", sessionId] : [])],
+      args: [
+        "-p",
+        argPrompt,
+        "--json",
+        "--mode",
+        options.yolo ? "yolo" : "edit",
+        ...(sessionId ? ["--resume", sessionId] : []),
+      ],
       env: {},
       stdin: "",
     };
@@ -200,9 +246,15 @@ export function zaicodeSubchatAutoModel(
   if (vendor !== "antigravity" || !windows || windows.length === 0) return null;
   const effective = effectiveZaicodeWindows(windows, now);
   const spent = (pool: RegExp): boolean | null => {
-    const own = effective.filter((window) => pool.test(window.groupLabel || window.group || window.label));
+    const own = effective.filter((window) =>
+      pool.test(window.groupLabel || window.group || window.label),
+    );
     if (own.length === 0) return null;
-    return own.some((window) => window.gatedBy !== null || (window.remainingPercent !== null && window.remainingPercent <= 0));
+    return own.some(
+      (window) =>
+        window.gatedBy !== null ||
+        (window.remainingPercent !== null && window.remainingPercent <= 0),
+    );
   };
   for (const entry of ANTIGRAVITY_POOL_MODELS) {
     if (spent(entry.pool) === false) return entry.model;
@@ -228,7 +280,9 @@ const DETAIL_MAX = 160;
 const MESSAGE_MAX = 600;
 
 function record(value: unknown): Record<string, unknown> | null {
-  return value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : null;
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : null;
 }
 
 function text(value: unknown): string {
@@ -261,7 +315,17 @@ function parseJsonLine(line: string): Record<string, unknown> | null {
 /** The one input field that says what a Claude tool call does. */
 function claudeToolDetail(name: string, input: Record<string, unknown> | null): string {
   if (!input) return "";
-  const pick = ["command", "file_path", "path", "pattern", "url", "query", "description", "prompt", "skill"];
+  const pick = [
+    "command",
+    "file_path",
+    "path",
+    "pattern",
+    "url",
+    "query",
+    "description",
+    "prompt",
+    "skill",
+  ];
   for (const key of pick) {
     const value = text(input[key]);
     if (value) return oneLine(value);
@@ -287,7 +351,8 @@ export function parseZaicodeClaudeStreamLine(line: string): ZaicodeSubchatEvent[
     for (const raw of content) {
       const block = record(raw);
       if (!block) continue;
-      if (block.type === "text" && text(block.text).trim()) out.push({ type: "text", text: text(block.text) });
+      if (block.type === "text" && text(block.text).trim())
+        out.push({ type: "text", text: text(block.text) });
       if (block.type === "tool_use") {
         const name = text(block.name) || "tool";
         out.push({ type: "tool", name, detail: claudeToolDetail(name, record(block.input)) });
@@ -307,8 +372,11 @@ export function parseZaicodeClaudeStreamLine(line: string): ZaicodeSubchatEvent[
         cached,
       });
     }
-    const failed = event.is_error === true || (text(event.subtype) !== "" && text(event.subtype) !== "success");
-    const message = failed ? messageLine(text(event.result) || text(event.subtype) || "the turn failed") : null;
+    const failed =
+      event.is_error === true || (text(event.subtype) !== "" && text(event.subtype) !== "success");
+    const message = failed
+      ? messageLine(text(event.result) || text(event.subtype) || "the turn failed")
+      : null;
     out.push({ type: "result", ok: !failed, message });
     return out;
   }
@@ -326,15 +394,24 @@ export function parseZaicodeCodexJsonLine(line: string): ZaicodeSubchatEvent[] {
   }
   const item = record(event.item);
   if (type === "item.started" && item) {
-    if (item.type === "command_execution") return [{ type: "tool", name: "shell", detail: oneLine(text(item.command)) }];
+    if (item.type === "command_execution")
+      return [{ type: "tool", name: "shell", detail: oneLine(text(item.command)) }];
     if (item.type === "mcp_tool_call") {
-      return [{ type: "tool", name: [text(item.server), text(item.tool)].filter(Boolean).join(".") || "mcp", detail: "" }];
+      return [
+        {
+          type: "tool",
+          name: [text(item.server), text(item.tool)].filter(Boolean).join(".") || "mcp",
+          detail: "",
+        },
+      ];
     }
-    if (item.type === "web_search") return [{ type: "tool", name: "search", detail: oneLine(text(item.query)) }];
+    if (item.type === "web_search")
+      return [{ type: "tool", name: "search", detail: oneLine(text(item.query)) }];
     return [];
   }
   if (type === "item.completed" && item) {
-    if (item.type === "agent_message" && text(item.text).trim()) return [{ type: "text", text: text(item.text) }];
+    if (item.type === "agent_message" && text(item.text).trim())
+      return [{ type: "text", text: text(item.text) }];
     if (item.type === "file_change" && Array.isArray(item.changes)) {
       const paths = item.changes.map((change) => text(record(change)?.path)).filter(Boolean);
       return [{ type: "tool", name: "edit", detail: oneLine(paths.join(", ")) }];
@@ -346,21 +423,45 @@ export function parseZaicodeCodexJsonLine(line: string): ZaicodeSubchatEvent[] {
     const usage = record(event.usage);
     const cached = count(usage?.cached_input_tokens);
     return [
-      { type: "usage", input: count(usage?.input_tokens), output: count(usage?.output_tokens), cached },
+      {
+        type: "usage",
+        input: count(usage?.input_tokens),
+        output: count(usage?.output_tokens),
+        cached,
+      },
       { type: "result", ok: true, message: null },
     ];
   }
   if (type === "turn.failed") {
-    return [{ type: "result", ok: false, message: messageLine(text(record(event.error)?.message) || "the turn failed") }];
+    return [
+      {
+        type: "result",
+        ok: false,
+        message: messageLine(text(record(event.error)?.message) || "the turn failed"),
+      },
+    ];
   }
-  if (type === "error") return [{ type: "error", message: messageLine(text(event.message) || "error") }];
+  if (type === "error")
+    return [{ type: "error", message: messageLine(text(event.message) || "error") }];
   return [];
 }
 
 /** The one parameter that says what an Antigravity tool call does. */
 function antigravityToolDetail(parameters: Record<string, unknown> | null): string {
   if (!parameters) return "";
-  const pick = ["CommandLine", "command", "AbsolutePath", "TargetFile", "path", "Url", "url", "Query", "query", "SearchPath", "Pattern"];
+  const pick = [
+    "CommandLine",
+    "command",
+    "AbsolutePath",
+    "TargetFile",
+    "path",
+    "Url",
+    "url",
+    "Query",
+    "query",
+    "SearchPath",
+    "Pattern",
+  ];
   for (const key of pick) {
     const value = text(parameters[key]);
     if (value) return oneLine(value);
@@ -381,13 +482,16 @@ export function parseZaicodeAntigravityStreamLine(line: string): ZaicodeSubchatE
   const kind = text(event.event);
   if (kind === "init") {
     const sessionId = normalizeZaicodeSubchatSessionId(event.conversation_id);
-    return sessionId ? [{ type: "session", sessionId, model: text(record(event.init)?.model) || null }] : [];
+    return sessionId
+      ? [{ type: "session", sessionId, model: text(record(event.init)?.model) || null }]
+      : [];
   }
   if (kind === "step_update") {
     const step = record(event.step_update);
     if (!step) return [];
     const stepType = text(step.step_type);
-    if (stepType === "agent_response" && text(step.text_delta)) return [{ type: "text", text: text(step.text_delta), append: true }];
+    if (stepType === "agent_response" && text(step.text_delta))
+      return [{ type: "text", text: text(step.text_delta), append: true }];
     if (stepType === "tool" && text(step.state) === "ACTIVE") {
       const info = record(step.tool_info);
       const name = text(step.tool_name) || text(info?.name) || "tool";
@@ -402,8 +506,19 @@ export function parseZaicodeAntigravityStreamLine(line: string): ZaicodeSubchatE
     const cached = count(usage?.cache_read_tokens);
     const ok = text(result.status) === "SUCCESS";
     return [
-      { type: "usage", input: count(usage?.input_tokens) + cached, output: count(usage?.output_tokens), cached },
-      { type: "result", ok, message: ok ? null : messageLine(text(result.error) || text(result.status) || "the turn failed") },
+      {
+        type: "usage",
+        input: count(usage?.input_tokens) + cached,
+        output: count(usage?.output_tokens),
+        cached,
+      },
+      {
+        type: "result",
+        ok,
+        message: ok
+          ? null
+          : messageLine(text(result.error) || text(result.status) || "the turn failed"),
+      },
     ];
   }
   return [];
@@ -432,13 +547,21 @@ export function parseZaicodeZcodeDocument(output: string): ZaicodeSubchatEvent[]
   const usage = record(document.usage);
   if (usage) {
     const cached = count(usage.cacheReadTokens);
-    out.push({ type: "usage", input: count(usage.inputTokens), output: count(usage.outputTokens), cached });
+    out.push({
+      type: "usage",
+      input: count(usage.inputTokens),
+      output: count(usage.outputTokens),
+      cached,
+    });
   }
   out.push({ type: "result", ok: !error, message: error ? messageLine(error) : null });
   return out;
 }
 
-export function parseZaicodeSubchatLine(vendor: ZaicodeSubchatVendor, line: string): ZaicodeSubchatEvent[] {
+export function parseZaicodeSubchatLine(
+  vendor: ZaicodeSubchatVendor,
+  line: string,
+): ZaicodeSubchatEvent[] {
   switch (vendor) {
     case "claude":
       return parseZaicodeClaudeStreamLine(line);
@@ -452,7 +575,10 @@ export function parseZaicodeSubchatLine(vendor: ZaicodeSubchatVendor, line: stri
 }
 
 /** Parses the whole output of a document vendor (see ZAICODE_SUBCHAT_DOCUMENT_VENDORS). */
-export function parseZaicodeSubchatDocument(vendor: ZaicodeSubchatVendor, output: string): ZaicodeSubchatEvent[] {
+export function parseZaicodeSubchatDocument(
+  vendor: ZaicodeSubchatVendor,
+  output: string,
+): ZaicodeSubchatEvent[] {
   return vendor === "zcode" ? parseZaicodeZcodeDocument(output) : [];
 }
 
@@ -504,7 +630,9 @@ export const ZAICODE_SUBCHAT_MAX_CONVERSATIONS = 60;
 const TITLE_MAX = 60;
 
 function clip(value: string): string {
-  return value.length > ZAICODE_SUBCHAT_MAX_TEXT ? `${value.slice(0, ZAICODE_SUBCHAT_MAX_TEXT)}\n…` : value;
+  return value.length > ZAICODE_SUBCHAT_MAX_TEXT
+    ? `${value.slice(0, ZAICODE_SUBCHAT_MAX_TEXT)}\n…`
+    : value;
 }
 
 export function zaicodeSubchatTitle(prompt: string): string {
@@ -520,7 +648,10 @@ export function appendZaicodeSubchatMessage(
   const messages = [...conversation.messages, { ...message, text: clip(message.text) }];
   return {
     ...conversation,
-    messages: messages.length > ZAICODE_SUBCHAT_MAX_MESSAGES ? messages.slice(-ZAICODE_SUBCHAT_MAX_MESSAGES) : messages,
+    messages:
+      messages.length > ZAICODE_SUBCHAT_MAX_MESSAGES
+        ? messages.slice(-ZAICODE_SUBCHAT_MAX_MESSAGES)
+        : messages,
     updatedAt: Math.max(conversation.updatedAt, message.at),
   };
 }
@@ -534,18 +665,30 @@ export function applyZaicodeSubchatEvent(
 ): ZaicodeSubchatConversation {
   switch (event.type) {
     case "session":
-      return { ...conversation, sessionId: event.sessionId, model: event.model ?? conversation.model };
+      return {
+        ...conversation,
+        sessionId: event.sessionId,
+        model: event.model ?? conversation.model,
+      };
     case "text": {
       // A streamed piece joins the answer on screen; anything in between (a tool) starts a new one.
       const last = conversation.messages.at(-1);
       if (event.append && last?.role === "assistant") {
         return {
           ...conversation,
-          messages: [...conversation.messages.slice(0, -1), { ...last, text: clip(last.text + event.text) }],
+          messages: [
+            ...conversation.messages.slice(0, -1),
+            { ...last, text: clip(last.text + event.text) },
+          ],
           updatedAt: Math.max(conversation.updatedAt, at),
         };
       }
-      return appendZaicodeSubchatMessage(conversation, { id, role: "assistant", text: event.text, at });
+      return appendZaicodeSubchatMessage(conversation, {
+        id,
+        role: "assistant",
+        text: event.text,
+        at,
+      });
     }
     case "tool":
       return appendZaicodeSubchatMessage(conversation, {
@@ -564,18 +707,37 @@ export function applyZaicodeSubchatEvent(
         },
       };
     case "error":
-      return appendZaicodeSubchatMessage(conversation, { id, role: "error", text: event.message, at });
+      return appendZaicodeSubchatMessage(conversation, {
+        id,
+        role: "error",
+        text: event.message,
+        at,
+      });
     case "result": {
       // ok + message = ended on purpose (Stop): a note, not an error.
-      const next = { ...conversation, status: event.ok ? ("idle" as const) : ("failed" as const), updatedAt: at };
+      const next = {
+        ...conversation,
+        status: event.ok ? ("idle" as const) : ("failed" as const),
+        updatedAt: at,
+      };
       if (!event.message) return next;
       // A failed turn often says it twice: Codex as an error event then turn.failed, Claude (a spent
       // limit) as its only text block then the result. Show it once, as the error it is.
       const last = next.messages.at(-1);
-      if (!event.ok && last && (last.role === "error" || last.role === "assistant") && last.text.trim() === event.message) {
+      if (
+        !event.ok &&
+        last &&
+        (last.role === "error" || last.role === "assistant") &&
+        last.text.trim() === event.message
+      ) {
         return { ...next, messages: [...next.messages.slice(0, -1), { ...last, role: "error" }] };
       }
-      return appendZaicodeSubchatMessage(next, { id, role: event.ok ? "note" : "error", text: event.message, at });
+      return appendZaicodeSubchatMessage(next, {
+        id,
+        role: event.ok ? "note" : "error",
+        text: event.message,
+        at,
+      });
     }
     default:
       return conversation;
@@ -590,8 +752,14 @@ const ROLES: readonly ZaicodeSubchatRole[] = ["user", "assistant", "tool", "erro
 
 function normalizeMessage(raw: unknown): ZaicodeSubchatMessage | null {
   const value = record(raw);
-  if (!value || typeof value.id !== "string" || !ROLES.includes(value.role as ZaicodeSubchatRole)) return null;
-  return { id: value.id, role: value.role as ZaicodeSubchatRole, text: clip(text(value.text)), at: count(value.at) };
+  if (!value || typeof value.id !== "string" || !ROLES.includes(value.role as ZaicodeSubchatRole))
+    return null;
+  return {
+    id: value.id,
+    role: value.role as ZaicodeSubchatRole,
+    text: clip(text(value.text)),
+    at: count(value.at),
+  };
 }
 
 /**
@@ -599,13 +767,26 @@ function normalizeMessage(raw: unknown): ZaicodeSubchatMessage | null {
  * "running" belonged to a turn that died with the app: it becomes idle with a
  * note, so the operator can simply send again (the session still resumes).
  */
-export function normalizeZaicodeSubchatConversations(raw: unknown, now: number = Date.now()): ZaicodeSubchatConversation[] {
+export function normalizeZaicodeSubchatConversations(
+  raw: unknown,
+  now: number = Date.now(),
+): ZaicodeSubchatConversation[] {
   if (!Array.isArray(raw)) return [];
   const out: ZaicodeSubchatConversation[] = [];
   for (const entry of raw) {
     const value = record(entry);
-    if (!value || typeof value.id !== "string" || typeof value.accountId !== "string" || typeof value.projectPath !== "string") continue;
-    if (typeof value.vendor !== "string" || !(ZAICODE_SUBCHAT_VENDORS as readonly string[]).includes(value.vendor)) continue;
+    if (
+      !value ||
+      typeof value.id !== "string" ||
+      typeof value.accountId !== "string" ||
+      typeof value.projectPath !== "string"
+    )
+      continue;
+    if (
+      typeof value.vendor !== "string" ||
+      !(ZAICODE_SUBCHAT_VENDORS as readonly string[]).includes(value.vendor)
+    )
+      continue;
     const usage = record(value.usage);
     let conversation: ZaicodeSubchatConversation = {
       id: value.id,
@@ -622,7 +803,11 @@ export function normalizeZaicodeSubchatConversations(raw: unknown, now: number =
       createdAt: count(value.createdAt),
       updatedAt: count(value.updatedAt),
       status: value.status === "failed" ? "failed" : "idle",
-      usage: { input: count(usage?.input), output: count(usage?.output), cached: count(usage?.cached) },
+      usage: {
+        input: count(usage?.input),
+        output: count(usage?.output),
+        cached: count(usage?.cached),
+      },
       messages: (Array.isArray(value.messages) ? value.messages : [])
         .map(normalizeMessage)
         .filter((message): message is ZaicodeSubchatMessage => message !== null)

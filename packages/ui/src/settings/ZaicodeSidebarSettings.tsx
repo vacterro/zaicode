@@ -1,20 +1,24 @@
 import { cn } from "@/components/lib/utils.js";
-import { ZaicodeHeaderToolsEditor, ZaicodeNavItemsEditor } from "@/zaicode/ZaicodeLayoutListEditor.js";
-import { ZaicodePrefCheck, ZaicodePrefSegment } from "@/zaicode/ZaicodePrefControls.js";
+import {
+  ZaicodeHeaderToolsEditor,
+  ZaicodeNavItemsEditor,
+} from "@/zaicode/ZaicodeLayoutListEditor.js";
+import { ZaicodePrefCheck } from "@/zaicode/ZaicodePrefControls.js";
 import { ColorField } from "./ZaicodeColorParts.js";
 import { ZaicodeTitleAlignPicker } from "./ZaicodeLayoutSettings.js";
 import {
   useZaicodeSidebarPrefs,
   ZAICODE_LIVE_HOLD_MS,
-  ZAICODE_SESSIONS_CONDITIONS,
   ZAICODE_SIDEBAR_ICON_SIZES,
   ZAICODE_SIDEBAR_TEXT_SIZES,
   ZAICODE_SLOT_GROUPS,
+  ZAICODE_PROJECT_TITLE_FONTS,
   normalizeZaicodeSidebarColor,
   type ZaicodeSessionsCondition,
   type ZaicodeSidebarIconSize,
   type ZaicodeSidebarTextSize,
   type ZaicodeSlotGroup,
+  type ZaicodeProjectTitleFont,
 } from "@/zaicode/zaicodeSidebarPrefs.js";
 
 /**
@@ -24,9 +28,22 @@ import {
  * (the sidebar prefs ride in every profile bundle).
  */
 
-function Block({ title, hint, children, testId }: { title: string; hint: string; children: React.ReactNode; testId: string }) {
+function Block({
+  title,
+  hint,
+  children,
+  testId,
+}: {
+  title: string;
+  hint: string;
+  children: React.ReactNode;
+  testId: string;
+}) {
   return (
-    <section className="flex flex-col gap-2 border border-border bg-card p-4 text-ui-xs" data-zaicode-sidebar-settings={testId}>
+    <section
+      className="flex flex-col gap-2 border border-border bg-card p-4 text-ui-xs"
+      data-zaicode-sidebar-settings={testId}
+    >
       <div>
         <h2 className="text-ui-lg text-foreground">{title}</h2>
         <p className="mt-1 max-w-[580px] text-foreground-subtle">{hint}</p>
@@ -85,6 +102,9 @@ export function ZaicodeSidebarSettings() {
     else delete next[key];
     prefs.update({ slotColors: next });
   };
+  const setProjectColor = (key: "projectOnColor" | "projectOffColor", hex: string | null) => {
+    prefs.update({ [key]: (hex && normalizeZaicodeSidebarColor(hex)) || "" });
+  };
   return (
     <div className="flex flex-col gap-4" data-zaicode-sidebar-settings-root>
       <Block
@@ -107,6 +127,66 @@ export function ZaicodeSidebarSettings() {
           }))}
           onChange={(iconSize) => prefs.update({ iconSize })}
         />
+      </Block>
+
+      <Block
+        title="Project ON / OFF style"
+        hint="A switched-off project must be obvious without colour alone. Choose the project-name face, weight, underline, size, colour and opacity; the OFF badge remains as the textual state marker."
+        testId="project-state-style"
+      >
+        <SegmentRow<ZaicodeProjectTitleFont>
+          label="Project font"
+          value={prefs.projectTitleFont}
+          options={ZAICODE_PROJECT_TITLE_FONTS.map((font) => ({
+            value: font,
+            label: font === "ui" ? "Interface" : font[0]!.toUpperCase() + font.slice(1),
+          }))}
+          onChange={(projectTitleFont) => prefs.update({ projectTitleFont })}
+        />
+        <SegmentRow
+          label="Project size"
+          value={prefs.projectTitleSize}
+          options={[10, 11, 12, 13, 14, 16, 18].map((size) => ({
+            value: size,
+            label: `${size}px`,
+          }))}
+          onChange={(projectTitleSize) => prefs.update({ projectTitleSize })}
+        />
+        <div className="flex flex-wrap gap-4">
+          <ZaicodePrefCheck
+            checked={prefs.projectTitleBold}
+            onChange={(projectTitleBold) => prefs.update({ projectTitleBold })}
+            label="Bold project names"
+          />
+          <ZaicodePrefCheck
+            checked={prefs.projectTitleUnderline}
+            onChange={(projectTitleUnderline) => prefs.update({ projectTitleUnderline })}
+            label="Underline project names"
+          />
+        </div>
+        <div className="grid max-w-[560px] gap-2 sm:grid-cols-2">
+          {(
+            [
+              ["ON", "projectOnColor", "projectOnOpacity"],
+              ["OFF", "projectOffColor", "projectOffOpacity"],
+            ] as const
+          ).map(([label, colorKey, opacityKey]) => (
+            <div key={label} className="flex flex-col gap-1 border border-border p-2">
+              <span className="text-foreground">{label}</span>
+              <ColorField
+                value={prefs[colorKey]}
+                title={`${label} project colour`}
+                onChange={(hex) => setProjectColor(colorKey, hex)}
+              />
+              <SegmentRow
+                label="Opacity"
+                value={prefs[opacityKey]}
+                options={[35, 55, 75, 100].map((value) => ({ value, label: `${value}%` }))}
+                onChange={(value) => prefs.update({ [opacityKey]: value })}
+              />
+            </div>
+          ))}
+        </div>
       </Block>
 
       <Block
@@ -138,10 +218,26 @@ export function ZaicodeSidebarSettings() {
         testId="list"
       >
         <div className="flex max-w-[560px] flex-col gap-1.5">
-          <ZaicodePrefCheck checked={prefs.compact} onChange={(compact) => prefs.update({ compact })} label="Compact rows (tight, no empty vertical space)" />
-          <ZaicodePrefCheck checked={prefs.slots} onChange={(slots) => prefs.update({ slots })} label="Priority slots: group projects as MAIN0 / MAIN1 / SIDE0 … SIDE3" />
-          <ZaicodePrefCheck checked={prefs.projectIsMain} onChange={(projectIsMain) => prefs.update({ projectIsMain })} label="A project row IS its MAIN session (click opens MAIN, helpers list below)" />
-          <ZaicodePrefCheck checked={prefs.liveFirst} onChange={(liveFirst) => prefs.update({ liveFirst })} label="Working projects first" />
+          <ZaicodePrefCheck
+            checked={prefs.compact}
+            onChange={(compact) => prefs.update({ compact })}
+            label="Compact rows (tight, no empty vertical space)"
+          />
+          <ZaicodePrefCheck
+            checked={prefs.slots}
+            onChange={(slots) => prefs.update({ slots })}
+            label="Priority slots: group projects as MAIN0 / MAIN1 / SIDE0 … SIDE3"
+          />
+          <ZaicodePrefCheck
+            checked={prefs.projectIsMain}
+            onChange={(projectIsMain) => prefs.update({ projectIsMain })}
+            label="A project row IS its MAIN session (click opens MAIN, helpers list below)"
+          />
+          <ZaicodePrefCheck
+            checked={prefs.liveFirst}
+            onChange={(liveFirst) => prefs.update({ liveFirst })}
+            label="Working projects first"
+          />
         </div>
         <div className="mt-1 border-t border-border pt-2">
           <span className="mb-1 block text-foreground-subtle">Title position</span>
@@ -175,9 +271,21 @@ export function ZaicodeSidebarSettings() {
           ))}
         </div>
         <div className="mt-2 flex max-w-[560px] flex-col gap-1.5">
-          <ZaicodePrefCheck checked={prefs.tintMainSlots} onChange={(tintMainSlots) => prefs.update({ tintMainSlots })} label="Tint MAIN slot headers" />
-          <ZaicodePrefCheck checked={prefs.showSlotCounts} onChange={(showSlotCounts) => prefs.update({ showSlotCounts })} label="Show project counts" />
-          <ZaicodePrefCheck checked={prefs.hideEmptySlots} onChange={(hideEmptySlots) => prefs.update({ hideEmptySlots })} label="Hide empty slots" />
+          <ZaicodePrefCheck
+            checked={prefs.tintMainSlots}
+            onChange={(tintMainSlots) => prefs.update({ tintMainSlots })}
+            label="Tint MAIN slot headers"
+          />
+          <ZaicodePrefCheck
+            checked={prefs.showSlotCounts}
+            onChange={(showSlotCounts) => prefs.update({ showSlotCounts })}
+            label="Show project counts"
+          />
+          <ZaicodePrefCheck
+            checked={prefs.hideEmptySlots}
+            onChange={(hideEmptySlots) => prefs.update({ hideEmptySlots })}
+            label="Hide empty slots"
+          />
         </div>
         <SegmentRow
           label="Header name position"
@@ -197,15 +305,31 @@ export function ZaicodeSidebarSettings() {
         testId="live"
       >
         <div className="flex max-w-[560px] flex-col gap-1.5">
-          <ZaicodePrefCheck checked={prefs.liveProjectIndicator} onChange={(liveProjectIndicator) => prefs.update({ liveProjectIndicator })} label="Working icon + running count on the project row" />
-          <ZaicodePrefCheck checked={prefs.liveIncludeWaiting} onChange={(liveIncludeWaiting) => prefs.update({ liveIncludeWaiting })} label="A session waiting for you (question / permission) counts as LIVE" />
-          <ZaicodePrefCheck checked={prefs.liveDimIdle} onChange={(liveDimIdle) => prefs.update({ liveDimIdle })} label="Dim projects with nothing running" />
+          <ZaicodePrefCheck
+            checked={prefs.liveProjectIndicator}
+            onChange={(liveProjectIndicator) => prefs.update({ liveProjectIndicator })}
+            label="Working icon + running count on the project row"
+          />
+          <ZaicodePrefCheck
+            checked={prefs.liveIncludeWaiting}
+            onChange={(liveIncludeWaiting) => prefs.update({ liveIncludeWaiting })}
+            label="A session waiting for you (question / permission) counts as LIVE"
+          />
+          <ZaicodePrefCheck
+            checked={prefs.liveDimIdle}
+            onChange={(liveDimIdle) => prefs.update({ liveDimIdle })}
+            label="Dim projects with nothing running"
+          />
         </div>
         <SegmentRow
           label="LIVE order"
           value={prefs.liveOrder}
           options={[
-            { value: "recent", label: "Most recently active", hint: "What just moved stays on top (SRC-051 default)" },
+            {
+              value: "recent",
+              label: "Most recently active",
+              hint: "What just moved stays on top (SRC-051 default)",
+            },
             { value: "closest", label: "Closest to done", hint: "Fewest open tickets first" },
             { value: "furthest", label: "Furthest from done" },
           ]}
@@ -216,7 +340,14 @@ export function ZaicodeSidebarSettings() {
           value={prefs.liveHoldMs}
           options={ZAICODE_LIVE_HOLD_MS.map((ms) => ({
             value: ms,
-            label: ms === 0 ? "No hold" : ms < 60_000 ? `${ms / 1000}s` : ms < 3_600_000 ? `${ms / 60_000}m` : `${ms / 3_600_000}h`,
+            label:
+              ms === 0
+                ? "No hold"
+                : ms < 60_000
+                  ? `${ms / 1000}s`
+                  : ms < 3_600_000
+                    ? `${ms / 60_000}m`
+                    : `${ms / 3_600_000}h`,
             hint: "How long a project keeps its LIVE rank after its last live moment, so a just-finished row does not teleport away mid-glance",
           }))}
           onChange={(liveHoldMs) => prefs.update({ liveHoldMs })}
@@ -260,7 +391,11 @@ export function ZaicodeSidebarSettings() {
           options={[
             { value: "always", label: "Always", hint: "Every helper session" },
             { value: "working", label: "Only working", hint: "Sessions with a running turn" },
-            { value: "working-or-waiting", label: "Working + waiting", hint: "…or waiting for you (question / permission)" },
+            {
+              value: "working-or-waiting",
+              label: "Working + waiting",
+              hint: "…or waiting for you (question / permission)",
+            },
           ]}
           onChange={(sessionsCondition) => prefs.update({ sessionsCondition })}
         />

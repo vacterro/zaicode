@@ -82,7 +82,9 @@ function showTaskNotification(
     // ZAICODE card per scenario (Settings -> Notifications decides whether it shows and for how long).
     if (cue && cue !== "update") {
       const nav = useZaicodeSessionNav.getState();
-      const known = [...nav.waiting, ...nav.recent].find((session) => session.sessionId === payload.taskId);
+      const known = [...nav.waiting, ...nav.recent].find(
+        (session) => session.sessionId === payload.taskId,
+      );
       notifyZaicode(`agent.${cue}`, {
         header: "Agents",
         title: payload.title,
@@ -91,7 +93,8 @@ function showTaskNotification(
         actions: [
           {
             label: "Open",
-            run: () => void openZaicodeSession(known ?? { sessionId: payload.taskId, title: payload.title }),
+            run: () =>
+              void openZaicodeSession(known ?? { sessionId: payload.taskId, title: payload.title }),
           },
         ],
       });
@@ -217,6 +220,7 @@ export function useWorkspaceTerminalTaskNotifications({
       sessions: indexState.sessions,
       formatMessage,
       skipInterrupted: isZaicodeProductMode(),
+      skipUnfinishedGoal: isZaicodeProductMode(),
     });
     for (const payload of payloads) {
       showTaskNotification(platform, payload, notify);

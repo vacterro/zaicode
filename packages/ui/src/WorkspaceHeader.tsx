@@ -144,7 +144,11 @@ export function WorkspaceHeader({
       )}
     >
       {isZaicodeProductMode() && variant === "task" ? (
-        <ZaicodeHeaderProjectTitle projectName={projectName} workspacePath={workspaceAbsPath} placement="center" />
+        <ZaicodeHeaderProjectTitle
+          projectName={projectName}
+          workspacePath={workspaceAbsPath}
+          placement="center"
+        />
       ) : null}
       {variant === "draft" && draftDropTargetController?.active ? (
         <div
@@ -165,40 +169,62 @@ export function WorkspaceHeader({
         )}
       >
         {variant === "task" ? (
-          <WorkspaceHeaderTitleSection
-            variant={variant}
-            readOnlyReason={readOnlyReason}
-            workspaceAbsPath={workspaceAbsPath}
-            remoteSessionId={remoteSessionId}
-            workspaceIdentity={workspaceIdentity}
-            remoteTarget={remoteTarget}
-            localWorkspacePath={localWorkspacePath}
-            projectName={projectName}
-            activeTaskTitle={activeTaskTitle}
-            activeTaskChangeSummary={activeTaskChangeSummary}
-            activeTaskId={activeTaskId}
-            activeTraceId={activeTraceId}
-            activeSessionId={activeSessionId}
-            activeTaskProvider={activeTaskProvider}
-            resolvedActiveTaskMeta={resolvedActiveTaskMeta}
-            gitSummary={gitSummary}
-            gitDirtyFileCount={gitDirtyFileCount}
-            sessionLogPath={sessionLogPath}
-            nativeSessionLogProvider={nativeSessionLogProvider}
-            nativeSessionLogPath={nativeSessionLogPath}
-            nativeSessionLogExists={nativeSessionLogExists}
-            nativeSessionLogLoading={nativeSessionLogLoading}
-            workspaceHeaderState={workspaceHeaderState}
-            isMacDesktop={isMacDesktop}
-            isMacFullscreen={isMacFullscreen}
-            isWindowsDesktop={isWindowsDesktop}
-            simplifyForNarrowRemote={simplifyForNarrowRemote}
-            selectedEditor={selectedEditor}
-            onReloadSession={onReloadSession}
-            reloadSessionDisabled={reloadSessionDisabled}
-            reloadSessionPending={reloadSessionPending}
-            onRefreshGit={onRefreshGit}
-          />
+          <>
+            {isZaicodeProductMode() ? (
+              <div
+                className="hidden min-w-0 flex-1 items-center gap-1 @max-[420px]/workspace-header:flex"
+                title={`${projectName} · ${activeTaskTitle}`}
+                data-zaicode-narrow-context
+              >
+                <span className="max-w-[45%] truncate font-bold text-[var(--zaicode-highlight,var(--color-warning))]">
+                  {projectName}
+                </span>
+                <span className="text-foreground-subtlest">·</span>
+                <span className="min-w-0 flex-1 truncate text-foreground">{activeTaskTitle}</span>
+              </div>
+            ) : null}
+            <div
+              className={cn(
+                "contents",
+                isZaicodeProductMode() && "@max-[420px]/workspace-header:hidden",
+              )}
+            >
+              <WorkspaceHeaderTitleSection
+                variant={variant}
+                readOnlyReason={readOnlyReason}
+                workspaceAbsPath={workspaceAbsPath}
+                remoteSessionId={remoteSessionId}
+                workspaceIdentity={workspaceIdentity}
+                remoteTarget={remoteTarget}
+                localWorkspacePath={localWorkspacePath}
+                projectName={projectName}
+                activeTaskTitle={activeTaskTitle}
+                activeTaskChangeSummary={activeTaskChangeSummary}
+                activeTaskId={activeTaskId}
+                activeTraceId={activeTraceId}
+                activeSessionId={activeSessionId}
+                activeTaskProvider={activeTaskProvider}
+                resolvedActiveTaskMeta={resolvedActiveTaskMeta}
+                gitSummary={gitSummary}
+                gitDirtyFileCount={gitDirtyFileCount}
+                sessionLogPath={sessionLogPath}
+                nativeSessionLogProvider={nativeSessionLogProvider}
+                nativeSessionLogPath={nativeSessionLogPath}
+                nativeSessionLogExists={nativeSessionLogExists}
+                nativeSessionLogLoading={nativeSessionLogLoading}
+                workspaceHeaderState={workspaceHeaderState}
+                isMacDesktop={isMacDesktop}
+                isMacFullscreen={isMacFullscreen}
+                isWindowsDesktop={isWindowsDesktop}
+                simplifyForNarrowRemote={simplifyForNarrowRemote}
+                selectedEditor={selectedEditor}
+                onReloadSession={onReloadSession}
+                reloadSessionDisabled={reloadSessionDisabled}
+                reloadSessionPending={reloadSessionPending}
+                onRefreshGit={onRefreshGit}
+              />
+            </div>
+          </>
         ) : (
           <div className="min-w-0 flex-1" aria-hidden="true" />
         )}

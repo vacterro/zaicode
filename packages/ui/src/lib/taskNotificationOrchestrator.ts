@@ -65,12 +65,22 @@ export function collectTerminalTaskNotificationPayloads(params: {
   formatMessage: FormatMessage;
   /** ZAICODE: a turn stopped by the operator raises no "Task completed" notice. */
   skipInterrupted?: boolean;
+  /** ZAICODE: a completed turn is not a completed task while its goal is unfinished. */
+  skipUnfinishedGoal?: boolean;
 }): TaskNotificationPayload[] {
   const payloads: TaskNotificationPayload[] = [];
   const skipInterrupted = params.skipInterrupted === true;
   for (const session of params.sessions) {
     const status = terminalStatusForPhase(session.phase, skipInterrupted);
     if (!status) continue;
+    if (
+      status === "completed" &&
+      params.skipUnfinishedGoal === true &&
+      session.goalStatus !== undefined &&
+      session.goalStatus !== "verified"
+    ) {
+      continue;
+    }
 
     const previous = params.previousBySessionId.get(session.sessionId);
     if (!previous) continue;

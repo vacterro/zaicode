@@ -43,6 +43,21 @@ export const ZAICODE_LIVE_HOLD_MS: readonly number[] = [0, 30_000, 120_000, 600_
 export type ZaicodeProjectFreshness = "off" | "dot" | "tint";
 export const ZAICODE_PROJECT_FRESHNESS: readonly ZaicodeProjectFreshness[] = ["off", "dot", "tint"];
 
+export type ZaicodeProjectTitleFont = "ui" | "verdana" | "terminus" | "consolas";
+export const ZAICODE_PROJECT_TITLE_FONTS: readonly ZaicodeProjectTitleFont[] = [
+  "ui",
+  "verdana",
+  "terminus",
+  "consolas",
+];
+
+export function zaicodeProjectTitleFontFamily(font: ZaicodeProjectTitleFont): string | undefined {
+  if (font === "verdana") return "Verdana, sans-serif";
+  if (font === "terminus") return '"Terminus (TTF) for Windows", "ZAICODE Terminus", monospace';
+  if (font === "consolas") return "Consolas, monospace";
+  return undefined;
+}
+
 export type ZaicodeFreshnessBucket = "fresh" | "today" | "week" | "stale" | "none";
 
 const ZAICODE_FRESHNESS_MS: Readonly<Record<"fresh" | "today" | "week", number>> = {
@@ -52,7 +67,10 @@ const ZAICODE_FRESHNESS_MS: Readonly<Record<"fresh" | "today" | "week", number>>
 };
 
 /** Age bucket of a project's last activity; "none" when nothing was ever seen. */
-export function zaicodeFreshnessBucket(lastActivityAt: number, now: number): ZaicodeFreshnessBucket {
+export function zaicodeFreshnessBucket(
+  lastActivityAt: number,
+  now: number,
+): ZaicodeFreshnessBucket {
   if (!lastActivityAt) return "none";
   const age = now - lastActivityAt;
   if (age <= ZAICODE_FRESHNESS_MS.fresh) return "fresh";
@@ -105,6 +123,15 @@ export interface ZaicodeSidebarPrefs {
   projectFreshness: ZaicodeProjectFreshness;
   /** Where project names sit in their row (SRC-038). */
   projectTitleAlign: ZaicodeSlotLabelAlign;
+  /** Project row state styling (SRC-055): ON and OFF stay distinguishable and operator-controlled. */
+  projectTitleFont: ZaicodeProjectTitleFont;
+  projectTitleSize: number;
+  projectTitleBold: boolean;
+  projectTitleUnderline: boolean;
+  projectOnColor: string;
+  projectOffColor: string;
+  projectOnOpacity: number;
+  projectOffOpacity: number;
   /** Where session titles sit in their row. */
   sessionTitleAlign: ZaicodeSlotLabelAlign;
   // T-65 (SRC-049): one Settings > Sidebar section owns everything below.
@@ -123,7 +150,11 @@ export type ZaicodeSidebarIconSize = "small" | "normal" | "large";
 export type ZaicodeSessionsCondition = "always" | "working" | "working-or-waiting";
 
 export const ZAICODE_SIDEBAR_TEXT_SIZES: readonly ZaicodeSidebarTextSize[] = [11, 12, 13, 14];
-export const ZAICODE_SIDEBAR_ICON_SIZES: readonly ZaicodeSidebarIconSize[] = ["small", "normal", "large"];
+export const ZAICODE_SIDEBAR_ICON_SIZES: readonly ZaicodeSidebarIconSize[] = [
+  "small",
+  "normal",
+  "large",
+];
 export const ZAICODE_SESSIONS_CONDITIONS: readonly ZaicodeSessionsCondition[] = [
   "always",
   "working",
@@ -132,7 +163,9 @@ export const ZAICODE_SESSIONS_CONDITIONS: readonly ZaicodeSessionsCondition[] = 
 
 /** A slot/side colour must be a hex colour; anything else falls back to the theme. */
 export function normalizeZaicodeSidebarColor(value: unknown): string | undefined {
-  return typeof value === "string" && /^#[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/.test(value) ? value : undefined;
+  return typeof value === "string" && /^#[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/.test(value)
+    ? value
+    : undefined;
 }
 
 const STORAGE_KEY = "zaicode-sidebar-prefs-v1";
@@ -158,6 +191,14 @@ export const ZAICODE_SIDEBAR_DEFAULT_PREFS: ZaicodeSidebarPrefs = {
   liveHoldMs: 120_000,
   projectFreshness: "dot",
   projectTitleAlign: "left",
+  projectTitleFont: "ui",
+  projectTitleSize: 12,
+  projectTitleBold: false,
+  projectTitleUnderline: false,
+  projectOnColor: "",
+  projectOffColor: "#777777",
+  projectOnOpacity: 100,
+  projectOffOpacity: 55,
   sessionTitleAlign: "left",
   textSize: 12,
   iconSize: "normal",
@@ -178,7 +219,8 @@ function pick<T extends string>(value: unknown, allowed: readonly T[], fallback:
 /** Normalizes a stored (possibly older or hand-edited) preference object. */
 export function normalizeZaicodeSidebarPrefs(raw: unknown): ZaicodeSidebarPrefs {
   const d = ZAICODE_SIDEBAR_DEFAULT_PREFS;
-  if (!raw || typeof raw !== "object") return { ...d, groups: {}, collapsedSlots: [], slotColors: {} };
+  if (!raw || typeof raw !== "object")
+    return { ...d, groups: {}, collapsedSlots: [], slotColors: {} };
   const r = raw as Partial<Record<keyof ZaicodeSidebarPrefs, unknown>>;
   const groups: Record<string, ZaicodeSlotGroup> = {};
   if (r.groups && typeof r.groups === "object") {
@@ -186,7 +228,8 @@ export function normalizeZaicodeSidebarPrefs(raw: unknown): ZaicodeSidebarPrefs 
       if (isZaicodeSlotGroup(value)) groups[key] = value;
     }
   }
-  const flag = (value: unknown, fallback: boolean) => (typeof value === "boolean" ? value : fallback);
+  const flag = (value: unknown, fallback: boolean) =>
+    typeof value === "boolean" ? value : fallback;
   return {
     navOpen: flag(r.navOpen, d.navOpen),
     projectIsMain: flag(r.projectIsMain, d.projectIsMain),
@@ -212,26 +255,57 @@ export function normalizeZaicodeSidebarPrefs(raw: unknown): ZaicodeSidebarPrefs 
       ? (r.liveHoldMs as number)
       : d.liveHoldMs,
     projectFreshness: pick(r.projectFreshness, ZAICODE_PROJECT_FRESHNESS, d.projectFreshness),
-    projectTitleAlign: pick(r.projectTitleAlign, ["left", "center", "right"] as const, d.projectTitleAlign),
-    sessionTitleAlign: pick(r.sessionTitleAlign, ["left", "center", "right"] as const, d.sessionTitleAlign),
+    projectTitleAlign: pick(
+      r.projectTitleAlign,
+      ["left", "center", "right"] as const,
+      d.projectTitleAlign,
+    ),
+    projectTitleFont: pick(r.projectTitleFont, ZAICODE_PROJECT_TITLE_FONTS, d.projectTitleFont),
+    projectTitleSize:
+      typeof r.projectTitleSize === "number" && Number.isFinite(r.projectTitleSize)
+        ? Math.min(18, Math.max(10, Math.round(r.projectTitleSize)))
+        : d.projectTitleSize,
+    projectTitleBold: flag(r.projectTitleBold, d.projectTitleBold),
+    projectTitleUnderline: flag(r.projectTitleUnderline, d.projectTitleUnderline),
+    projectOnColor: normalizeZaicodeSidebarColor(r.projectOnColor) ?? d.projectOnColor,
+    projectOffColor: normalizeZaicodeSidebarColor(r.projectOffColor) ?? d.projectOffColor,
+    projectOnOpacity:
+      typeof r.projectOnOpacity === "number" && Number.isFinite(r.projectOnOpacity)
+        ? Math.min(100, Math.max(20, Math.round(r.projectOnOpacity)))
+        : d.projectOnOpacity,
+    projectOffOpacity:
+      typeof r.projectOffOpacity === "number" && Number.isFinite(r.projectOffOpacity)
+        ? Math.min(100, Math.max(20, Math.round(r.projectOffOpacity)))
+        : d.projectOffOpacity,
+    sessionTitleAlign: pick(
+      r.sessionTitleAlign,
+      ["left", "center", "right"] as const,
+      d.sessionTitleAlign,
+    ),
     textSize: ZAICODE_SIDEBAR_TEXT_SIZES.includes(r.textSize as ZaicodeSidebarTextSize)
       ? (r.textSize as ZaicodeSidebarTextSize)
       : d.textSize,
     iconSize: pick(r.iconSize, ZAICODE_SIDEBAR_ICON_SIZES, d.iconSize),
-    slotColors: r.slotColors && typeof r.slotColors === "object"
-      ? Object.fromEntries(
-          Object.entries(r.slotColors as Record<string, unknown>)
-            .filter(([key, value]) => (ZAICODE_SLOT_GROUPS as readonly string[]).includes(key) || key === "LIVE")
-            .map(([key, value]) => [key, normalizeZaicodeSidebarColor(value)])
-            .filter((entry): entry is [string, string] => Boolean(entry[1])),
-        )
-      : {},
+    slotColors:
+      r.slotColors && typeof r.slotColors === "object"
+        ? Object.fromEntries(
+            Object.entries(r.slotColors as Record<string, unknown>)
+              .filter(
+                ([key, value]) =>
+                  (ZAICODE_SLOT_GROUPS as readonly string[]).includes(key) || key === "LIVE",
+              )
+              .map(([key, value]) => [key, normalizeZaicodeSidebarColor(value)])
+              .filter((entry): entry is [string, string] => Boolean(entry[1])),
+          )
+        : {},
     sessionsCondition: pick(r.sessionsCondition, ZAICODE_SESSIONS_CONDITIONS, d.sessionsCondition),
   };
 }
 
 /** Publishes the title alignment as CSS variables (zaicodeMotionCss.ts reads them). */
-function applyTitleAlign(prefs: Pick<ZaicodeSidebarPrefs, "projectTitleAlign" | "sessionTitleAlign">): void {
+function applyTitleAlign(
+  prefs: Pick<ZaicodeSidebarPrefs, "projectTitleAlign" | "sessionTitleAlign">,
+): void {
   if (typeof document === "undefined") return;
   const root = document.documentElement.style;
   root.setProperty("--zaicode-project-title-align", prefs.projectTitleAlign);
@@ -298,7 +372,8 @@ export const useZaicodeSidebarPrefs = create<ZaicodeSidebarPrefsState>((set, get
   return {
     ...initial,
     update: (patch) => persist(patch),
-    setGroup: (workspaceKey, group) => persist({ groups: { ...get().groups, [workspaceKey]: group } }),
+    setGroup: (workspaceKey, group) =>
+      persist({ groups: { ...get().groups, [workspaceKey]: group } }),
     toggleSlotCollapsed: (group) => {
       playZaicodeSound("sidebar.collapse");
       const collapsed = get().collapsedSlots;
@@ -339,7 +414,10 @@ export interface ZaicodeProjectLive {
   since: number;
 }
 
-export function projectLiveOf(tasks: readonly ZCodeTaskMeta[], ratios: readonly number[]): ZaicodeProjectLive {
+export function projectLiveOf(
+  tasks: readonly ZCodeTaskMeta[],
+  ratios: readonly number[],
+): ZaicodeProjectLive {
   let running = 0;
   let waiting = 0;
   let lastActivityAt = 0;
@@ -408,7 +486,11 @@ export function orderZaicodeProjectSections<K extends string>(
     if (!live) return false;
     if (live.running > 0 || (prefs.liveIncludeWaiting && live.waiting > 0)) return true;
     // Grace hold: recently live stays live (0 disables).
-    return prefs.liveHoldMs > 0 && live.lastActivityAt > 0 && now - live.lastActivityAt < prefs.liveHoldMs;
+    return (
+      prefs.liveHoldMs > 0 &&
+      live.lastActivityAt > 0 &&
+      now - live.lastActivityAt < prefs.liveHoldMs
+    );
   };
   const liveRank = (key: K): number => {
     const live = liveOf(key);
@@ -448,7 +530,9 @@ export function orderZaicodeProjectSections<K extends string>(
     if (live.length > 0 || !prefs.hideEmptySlots) sections.push({ group: "LIVE", keys: live });
   }
   for (const group of ZAICODE_SLOT_GROUPS) {
-    const groupKeys = rest.filter((key) => slotGroupOf(prefs.groups, key, prefs.defaultSlot) === group);
+    const groupKeys = rest.filter(
+      (key) => slotGroupOf(prefs.groups, key, prefs.defaultSlot) === group,
+    );
     if (groupKeys.length === 0 && prefs.hideEmptySlots) continue;
     sections.push({ group, keys: groupKeys });
   }
@@ -519,7 +603,10 @@ interface ZaicodeRunningState {
   publish: (sessions: ZaicodeRunningSession[]) => void;
 }
 
-function sameSessions(left: readonly ZaicodeRunningSession[], right: readonly ZaicodeRunningSession[]) {
+function sameSessions(
+  left: readonly ZaicodeRunningSession[],
+  right: readonly ZaicodeRunningSession[],
+) {
   return (
     left.length === right.length &&
     left.every(

@@ -68,24 +68,72 @@ test("slot drop targets are recognised only for real slots", () => {
   assert.equal(readZaicodeSlotDropTarget("tab-123"), null);
 });
 
-function session(sessionId: string, phase: SessionSummary["phase"]): SessionSummary {
-  return { sessionId, phase, title: "PHASE SCOUT T-55" } as unknown as SessionSummary;
+function session(
+  sessionId: string,
+  phase: SessionSummary["phase"],
+  goalStatus?: SessionSummary["goalStatus"],
+): SessionSummary {
+  return {
+    sessionId,
+    phase,
+    title: "PHASE SCOUT T-55",
+    ...(goalStatus ? { goalStatus } : {}),
+  } as unknown as SessionSummary;
 }
 
 test("a turn the operator stopped raises no 'Task completed' in ZAICODE", () => {
   const formatMessage = ((descriptor: { id: string }) => descriptor.id) as never;
-  const previousBySessionId = new Map([["s1", session("s1", "running" as SessionSummary["phase"])]]);
+  const previousBySessionId = new Map([
+    ["s1", session("s1", "running" as SessionSummary["phase"])],
+  ]);
   const stopped = [session("s1", "completedInterrupted")];
   assert.equal(
-    collectTerminalTaskNotificationPayloads({ previousBySessionId, sessions: stopped, formatMessage, skipInterrupted: true }).length,
+    collectTerminalTaskNotificationPayloads({
+      previousBySessionId,
+      sessions: stopped,
+      formatMessage,
+      skipInterrupted: true,
+    }).length,
     0,
   );
   // Upstream keeps its behaviour.
-  assert.equal(collectTerminalTaskNotificationPayloads({ previousBySessionId, sessions: stopped, formatMessage }).length, 1);
+  assert.equal(
+    collectTerminalTaskNotificationPayloads({
+      previousBySessionId,
+      sessions: stopped,
+      formatMessage,
+    }).length,
+    1,
+  );
   // A real completion still notifies.
   const done = [session("s1", "completedSuccess")];
   assert.equal(
-    collectTerminalTaskNotificationPayloads({ previousBySessionId, sessions: done, formatMessage, skipInterrupted: true }).length,
+    collectTerminalTaskNotificationPayloads({
+      previousBySessionId,
+      sessions: done,
+      formatMessage,
+      skipInterrupted: true,
+    }).length,
     1,
+  );
+  assert.equal(
+    collectTerminalTaskNotificationPayloads({
+      previousBySessionId,
+      sessions: [session("s1", "completedSuccess", "active")],
+      formatMessage,
+      skipUnfinishedGoal: true,
+    }).length,
+    0,
+    "an intermediate goal turn is not a completed task",
+  );
+  assert.equal(
+    collectTerminalTaskNotificationPayloads({
+      previousBySessionId,
+      sessions: [session("s1", "completedSuccess", "verified")],
+      formatMessage,
+      skipUnfinishedGoal: true,
+    }).length,
+    1,
+    "a verified goal is terminal",
   );
 });

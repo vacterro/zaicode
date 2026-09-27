@@ -61,14 +61,22 @@ export function ZaicodeWorkingIcon({
     "data-zw-keep":
       prefs.keepMoving &&
       (prefs.motions.some((motion) => motion !== "none") ||
-        (prefs.images.length > 1 && prefs.images.some((image) => (prefs.layers[image]?.motion ?? "none") !== "none")))
+        (prefs.images.length > 1 &&
+          prefs.images.some((image) => (prefs.layers[image]?.motion ?? "none") !== "none")))
         ? ""
         : undefined,
     style,
   } as const;
   const [single] = prefs.images;
   if (prefs.images.length === 1 && single) {
-    return <WorkingPicture image={single} customImage={prefs.customImage} {...common} className={cn("size-4 shrink-0", className)} />;
+    return (
+      <WorkingPicture
+        image={single}
+        customImage={prefs.customImage}
+        {...common}
+        className={cn("size-4 shrink-0", className)}
+      />
+    );
   }
   // Stacked pictures (Shift+Click in Settings) move as one: the wrapper carries the motion,
   // each layer adds its own look and motion (SRC-048); isolation keeps blends inside the stack.
@@ -106,5 +114,25 @@ function WorkingPicture({
   const Glyph = GLYPHS[image];
   if (Glyph) return <Glyph {...rest} className={className} />;
   const src = image === "custom" && customImage ? customImage : zaicodeWorkingUrl;
-  return <img {...rest} src={src} alt="" className={cn("object-contain [image-rendering:auto]", className)} />;
+  if (src.startsWith("data:video/")) {
+    return (
+      <video
+        {...rest}
+        src={src}
+        muted
+        loop
+        autoPlay
+        playsInline
+        className={cn("object-contain [image-rendering:pixelated]", className)}
+      />
+    );
+  }
+  return (
+    <img
+      {...rest}
+      src={src}
+      alt=""
+      className={cn("object-contain [image-rendering:auto]", className)}
+    />
+  );
 }

@@ -4,6 +4,7 @@ import { cn } from "@/components/lib/utils.js";
 import { openZaicodeSettings, takeZaicodeHelpTopic } from "@/zaicode/zaicodeActions.js";
 import { openZaicodeWorkersPanel } from "@/zaicode/zaicodeWorkers.js";
 import { useZaicodeTimers } from "@/zaicode/zaicodeTimerStore.js";
+import { openZaicodePebbleGame } from "@/zaicode/ZaicodePebbleGame.js";
 
 /**
  * ZAICODE Help: every control in plain words. One card per area, each line
@@ -33,6 +34,17 @@ const TOPICS: readonly HelpTopic[] = [
       "New task (Ctrl+N) — type what you want and send. That is all you need.",
       "Several agents in parallel — the ZAICODE page: Teams adds ready-made agents, ▶ Tour shows the screen step by step.",
     ],
+  },
+  {
+    id: "pebble",
+    title: "PEBBLE DROP (easter egg)",
+    what: "A complete six-level pixel game for a break between agent runs.",
+    lines: [
+      "Catch gold pebbles, dodge red hazards, collect rare hearts; every level gets faster and needs more catches.",
+      "Left / Right or A / D moves; Space starts and advances; P pauses; R restarts; Esc closes.",
+      "The title bar buttons make it fullscreen or detach it into its own window. Typing PEBBLE outside a text field is the secret entrance.",
+    ],
+    open: { label: "game", run: () => openZaicodePebbleGame() },
   },
   {
     id: "engines",
@@ -86,7 +98,11 @@ const TOPICS: readonly HelpTopic[] = [
       "× stops the CLI (asks first while it runs). Right-click any worker for: move, minimize, start the same again, copy its command.",
       "Font: Terminus by default (crisp at 12–32 px).",
     ],
-    open: { label: "Workers settings", section: "zaicodeWorkers", run: () => openZaicodeWorkersPanel() },
+    open: {
+      label: "Workers settings",
+      section: "zaicodeWorkers",
+      run: () => openZaicodeWorkersPanel(),
+    },
   },
   {
     id: "saihome",
@@ -154,7 +170,11 @@ const TOPICS: readonly HelpTopic[] = [
       "Times are typed, 24-hour: 7, 0730 or 07:30 (00:00 is midnight); Up / Down move a minute, Shift ten, Page Up / Down an hour. Sound rows have their own All-day box. Enter in the moment field adds the alarm.",
       "The title-bar clock shows the nearest one in its heat colour (blue far away → red close); right-click it for what to show.",
     ],
-    open: { label: "Timers", section: "zaicodeTimers", run: () => useZaicodeTimers.getState().openDialog("alarms") },
+    open: {
+      label: "Timers",
+      section: "zaicodeTimers",
+      run: () => useZaicodeTimers.getState().openDialog("alarms"),
+    },
   },
   {
     id: "notifications",
@@ -267,7 +287,9 @@ export function ZaicodeHelpSection() {
     <div className="flex flex-col gap-3 text-ui-xs" data-zaicode-help>
       <div className="flex flex-wrap items-center gap-2">
         <h2 className="text-ui-lg text-foreground">Help</h2>
-        <span className="text-foreground-subtle">Every control in one line. Almost anything can also be right-clicked for its own settings.</span>
+        <span className="text-foreground-subtle">
+          Every control in one line. Almost anything can also be right-clicked for its own settings.
+        </span>
       </div>
       <input
         className="max-w-[420px] border border-border bg-background px-2 py-1 text-foreground"
@@ -285,14 +307,18 @@ export function ZaicodeHelpSection() {
             onClick={() => {
               setQuery("");
               setFocus(topic.id);
-              requestAnimationFrame(() => refs.current.get(topic.id)?.scrollIntoView({ block: "start" }));
+              requestAnimationFrame(() =>
+                refs.current.get(topic.id)?.scrollIntoView({ block: "start" }),
+              );
             }}
           >
             {topic.title}
           </button>
         ))}
       </div>
-      {shown.length === 0 ? <p className="text-foreground-subtle">Nothing matches “{query}”.</p> : null}
+      {shown.length === 0 ? (
+        <p className="text-foreground-subtle">Nothing matches “{query}”.</p>
+      ) : null}
       {shown.map((topic) => (
         <section
           key={topic.id}
@@ -302,7 +328,9 @@ export function ZaicodeHelpSection() {
           }}
           className={cn(
             "flex flex-col gap-1 border bg-card p-3",
-            focus === topic.id ? "border-[var(--zaicode-highlight,var(--color-border-hover))]" : "border-border",
+            focus === topic.id
+              ? "border-[var(--zaicode-highlight,var(--color-border-hover))]"
+              : "border-border",
           )}
           data-zaicode-help-topic={topic.id}
         >

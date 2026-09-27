@@ -1,4 +1,10 @@
-import { effectiveZaicodeWindows, formatZaicodeTimeOfDay, isZaicodeRealReset, zaicodeIsoWeek, zaicodeTimeZoneName } from "@zcode/shared";
+import {
+  effectiveZaicodeWindows,
+  formatZaicodeTimeOfDay,
+  isZaicodeRealReset,
+  zaicodeIsoWeek,
+  zaicodeTimeZoneName,
+} from "@zcode/shared";
 import { cn } from "@/components/lib/utils.js";
 import { WINDOWS_CAPTION_CONTROL_CLASS } from "@/windowCaptionControls.js";
 import {
@@ -8,12 +14,28 @@ import {
   zaicodeTimerColor,
 } from "./zaicodeTimers.js";
 import { zaicodeIntervalRemaining } from "./zaicodeIntervalRules.js";
-import { describeZaicodeProductivity, formatZaicodeClock, toggleZaicodeProductivity } from "./zaicodeProductivity.js";
-import { readZaicodeTempTimer, useZaicodeTimers, type ZaicodeClockPrefs } from "./zaicodeTimerStore.js";
-import { useZaicodeEngines, readZaicodeEnginesState, visibleZaicodeAccounts } from "./zaicodeEngines.js";
+import {
+  describeZaicodeProductivity,
+  formatZaicodeClock,
+  toggleZaicodeProductivity,
+} from "./zaicodeProductivity.js";
+import {
+  readZaicodeTempTimer,
+  useZaicodeTimers,
+  type ZaicodeClockPrefs,
+} from "./zaicodeTimerStore.js";
+import {
+  useZaicodeEngines,
+  readZaicodeEnginesState,
+  visibleZaicodeAccounts,
+} from "./zaicodeEngines.js";
 import { zaicodeResetRows, zaicodeNextUsefulReset } from "./ZaicodeResetTimer.js";
 import { useZaicodeGatedNow, zaicodeNowStepMs } from "./zaicodeNowGate.js";
-import { ZaicodePrefCheck, ZaicodePrefHeading, ZaicodeRightClickSettings } from "./ZaicodePrefControls.js";
+import {
+  ZaicodePrefCheck,
+  ZaicodePrefHeading,
+  ZaicodeRightClickSettings,
+} from "./ZaicodePrefControls.js";
 import { playZaicodeSound } from "./zaicodeSoundBus.js";
 
 /**
@@ -39,10 +61,52 @@ export function zaicodeDaypart(hour: number): string {
 /** FastPrompter's header colours for the interval reminder and the work / break timer. */
 export const ZAICODE_CLOCK_INTERVAL_COLOR = "#7fae7f";
 
-export function zaicodeProductivityColor(timer: { phase: string; state: string; alarmPending: boolean }): string {
+export function zaicodeProductivityColor(timer: {
+  phase: string;
+  state: string;
+  alarmPending: boolean;
+}): string {
   if (timer.alarmPending) return "#e05555";
   if (timer.state === "paused") return "#888888";
   return timer.phase === "work" ? "#6aa9ff" : "#e0a03c";
+}
+
+function ZaicodeMiniAnalogClock({ date }: { date: Date }) {
+  const point = (turns: number, length: number) => ({
+    x: Math.round(10 + Math.sin(turns * Math.PI * 2) * length),
+    y: Math.round(10 - Math.cos(turns * Math.PI * 2) * length),
+  });
+  const minute = date.getMinutes() / 60;
+  const hour = ((date.getHours() % 12) + minute) / 12;
+  const minuteEnd = point(minute, 7);
+  const hourEnd = point(hour, 4.5);
+  return (
+    <svg
+      viewBox="0 0 20 20"
+      className="size-5 shrink-0 [shape-rendering:crispEdges]"
+      aria-hidden="true"
+      data-zaicode-mini-analog-clock
+    >
+      <rect
+        x="1.5"
+        y="1.5"
+        width="17"
+        height="17"
+        fill="var(--color-card)"
+        stroke="var(--color-border-hover,var(--color-border))"
+      />
+      <path d="M10 2v2M18 10h-2M10 18v-2M2 10h2" stroke="currentColor" strokeWidth="1" />
+      <line x1="10" y1="10" x2={hourEnd.x} y2={hourEnd.y} stroke="currentColor" strokeWidth="2" />
+      <line
+        x1="10"
+        y1="10"
+        x2={minuteEnd.x}
+        y2={minuteEnd.y}
+        stroke="var(--zaicode-highlight,var(--color-warning))"
+      />
+      <rect x="9" y="9" width="2" height="2" fill="var(--zaicode-highlight,var(--color-warning))" />
+    </svg>
+  );
 }
 
 export interface ZaicodeNextReset {
@@ -65,7 +129,13 @@ export function useZaicodeNextReset(now: number): ZaicodeNextReset | null {
       if (window.resetsAt === null || !isZaicodeRealReset(window, now)) continue;
       if (window.remainingPercent === null || window.remainingPercent >= 100) continue;
       if (!best || window.resetsAt < best.at) {
-        best = { accountShort: account.short, accountLabel: account.label, vendor: account.vendor, windowLabel: window.label, at: window.resetsAt };
+        best = {
+          accountShort: account.short,
+          accountLabel: account.label,
+          vendor: account.vendor,
+          windowLabel: window.label,
+          at: window.resetsAt,
+        };
       }
     }
   }
@@ -77,7 +147,13 @@ export function ZaicodeClockSettingsPanel() {
   const clock = useZaicodeTimers((state) => state.clock);
   const setClock = useZaicodeTimers((state) => state.setClock);
   const row = (key: keyof ZaicodeClockPrefs, label: string, hint?: string) => (
-    <ZaicodePrefCheck key={key} checked={clock[key]} onChange={(value) => setClock({ [key]: value })} label={label} {...(hint ? { hint } : {})} />
+    <ZaicodePrefCheck
+      key={key}
+      checked={clock[key]}
+      onChange={(value) => setClock({ [key]: value })}
+      label={label}
+      {...(hint ? { hint } : {})}
+    />
   );
   return (
     <>
@@ -88,22 +164,42 @@ export function ZaicodeClockSettingsPanel() {
       {row("showYear", "Year (25 Sep 2026)")}
       {row("showWeekNumber", "Week number (W39, ISO)")}
       {row("showTime", "Time")}
-      {row("hour12", "12-hour clock (5:05 pm)", "Every time ZAICODE shows: clock, timers, limit resets")}
+      {row(
+        "hour12",
+        "12-hour clock (5:05 pm)",
+        "Every time ZAICODE shows: clock, timers, limit resets",
+      )}
       {row("showSeconds", "Seconds")}
-      {row("showTimeZone", "Time zone (EEST / GMT+3)", "Shows at a glance when the app runs in a zone other than yours")}
+      {row(
+        "showTimeZone",
+        "Time zone (EEST / GMT+3)",
+        "Shows at a glance when the app runs in a zone other than yours",
+      )}
       {row("showDaypart", "Part of day (Morning / Day / Evening / Night)")}
       <ZaicodePrefHeading>COUNTDOWNS</ZaicodePrefHeading>
-      {row("showNextTimer", "Nearest timer / alarm", "In its heat colour: blue far away, red minutes away")}
+      {row(
+        "showNextTimer",
+        "Nearest timer / alarm",
+        "In its heat colour: blue far away, red minutes away",
+      )}
       {row("showTempTimer", "Temp Timer")}
       {row("showProductivity", "Productivity (work / break)")}
       {row("showInterval", "Interval reminder", "Rules with “Show in top bar”")}
-      {row("showNextReset", "Nearest subscription reset (own timer)", "Its own title-bar timer; hover lists every coming reset (FastPrompter's Nearest resets)")}
+      {row(
+        "showNextReset",
+        "Nearest subscription reset (own timer)",
+        "Its own title-bar timer; hover lists every coming reset (FastPrompter's Nearest resets)",
+      )}
       {row("longMinutes", "Keep minutes on long waits (4d 11h 05m)")}
     </>
   );
 }
 
-export function ZaicodeTopbarClock({ useWindowsCaptionSpacing = false }: { useWindowsCaptionSpacing?: boolean }) {
+export function ZaicodeTopbarClock({
+  useWindowsCaptionSpacing = false,
+}: {
+  useWindowsCaptionSpacing?: boolean;
+}) {
   const store = useZaicodeTimers();
   const clock = store.clock;
   // Gated tick (T-67): `now` only advances when something displayed changes —
@@ -115,7 +211,10 @@ export function ZaicodeTopbarClock({ useWindowsCaptionSpacing = false }: { useWi
     const targets: number[] = [];
     const temp = readZaicodeTempTimer(live.timers);
     if (clock.showTempTimer && temp && !temp.fired) targets.push(temp.target);
-    const nextTimer = nextDueZaicodeTimer(live.timers.filter((timer) => !timer.temporary), { topBarOnly: true });
+    const nextTimer = nextDueZaicodeTimer(
+      live.timers.filter((timer) => !timer.temporary),
+      { topBarOnly: true },
+    );
     if (clock.showNextTimer && nextTimer) targets.push(nextTimer.target);
     if (clock.showInterval) {
       for (const rule of live.intervalRules) {
@@ -134,15 +233,21 @@ export function ZaicodeTopbarClock({ useWindowsCaptionSpacing = false }: { useWi
 
   const date = new Date(now);
   const temp = readZaicodeTempTimer(store.timers);
-  const next = nextDueZaicodeTimer(store.timers.filter((timer) => !timer.temporary), { topBarOnly: true });
+  const next = nextDueZaicodeTimer(
+    store.timers.filter((timer) => !timer.temporary),
+    { topBarOnly: true },
+  );
   const productivity = store.productivity;
   const intervalRule = store.intervalRules
     .map((rule) => ({ rule, remaining: zaicodeIntervalRemaining(rule, date) }))
     .find((entry) => entry.remaining !== null);
-  const format = (seconds: number) => formatZaicodeRemaining(seconds, { minutes: clock.longMinutes });
+  const format = (seconds: number) =>
+    formatZaicodeRemaining(seconds, { minutes: clock.longMinutes });
   const missed = store.missed.length > 0;
 
-  const time = clock.showTime ? formatZaicodeTimeOfDay(date, { seconds: clock.showSeconds, hour12: clock.hour12 }) : "";
+  const time = clock.showTime
+    ? formatZaicodeTimeOfDay(date, { seconds: clock.showSeconds, hour12: clock.hour12 })
+    : "";
   const dateText = clock.showDate
     ? date.toLocaleDateString("en-GB", {
         ...(clock.showWeekday ? { weekday: "short" as const } : {}),
@@ -167,15 +272,26 @@ export function ZaicodeTopbarClock({ useWindowsCaptionSpacing = false }: { useWi
     `Time zone: ${Intl.DateTimeFormat().resolvedOptions().timeZone}${zone ? ` (${zone})` : ""}`,
     next ? `Next: ${describeZaicodeTimer(next, now)}` : "No timer set",
     temp ? `Temp Timer: ${temp.fired ? "done" : format((temp.target - now) / 1000)}` : "",
-    productivity.state !== "idle" ? `Productivity: ${describeZaicodeProductivity(productivity)}` : "",
+    productivity.state !== "idle"
+      ? `Productivity: ${describeZaicodeProductivity(productivity)}`
+      : "",
     intervalRule ? `${intervalRule.rule.name}: ${format(intervalRule.remaining ?? 0)}` : "",
-    nextReset ? `Next reset: ${nextReset.accountLabel} ${nextReset.windowLabel} in ${format((nextReset.at - now) / 1000)}` : "",
+    nextReset
+      ? `Next reset: ${nextReset.accountLabel} ${nextReset.windowLabel} in ${format((nextReset.at - now) / 1000)}`
+      : "",
     missed ? `${store.missed.length} alarm(s) went off while you were away` : "",
   ].filter(Boolean);
-  tip.push("", `Click: Timers · Shift+Click: Temp Timer +${store.temp.incrementMinutes}m · Ctrl+Click: work / break start-pause · Right-click: what to show`);
+  tip.push(
+    "",
+    `Click: Timers · Shift+Click: Temp Timer +${store.temp.incrementMinutes}m · Ctrl+Click: work / break start-pause · Right-click: what to show`,
+  );
 
   return (
-    <ZaicodeRightClickSettings title="Title-bar clock" panel={<ZaicodeClockSettingsPanel />} align="end">
+    <ZaicodeRightClickSettings
+      title="Title-bar clock"
+      panel={<ZaicodeClockSettingsPanel />}
+      align="end"
+    >
       <button
         type="button"
         data-zaicode-clock
@@ -200,6 +316,7 @@ export function ZaicodeTopbarClock({ useWindowsCaptionSpacing = false }: { useWi
         }}
       >
         {missed ? <span className="text-[#ff7b6b]">!</span> : null}
+        {clock.showTime ? <ZaicodeMiniAnalogClock date={date} /> : null}
         {head.length > 0 ? <span className="text-foreground">{head.join(" · ")}</span> : null}
         {clock.showNextTimer && next ? (
           <span className="font-semibold" style={{ color: zaicodeTimerColor(next, now) }}>
@@ -207,7 +324,10 @@ export function ZaicodeTopbarClock({ useWindowsCaptionSpacing = false }: { useWi
           </span>
         ) : null}
         {clock.showTempTimer && temp && temp.showInTopBar ? (
-          <span className="font-semibold" style={{ color: temp.fired ? "#ff7b6b" : zaicodeTimerColor(temp, now) }}>
+          <span
+            className="font-semibold"
+            style={{ color: temp.fired ? "#ff7b6b" : zaicodeTimerColor(temp, now) }}
+          >
             ⟲ {temp.fired ? "done" : format((temp.target - now) / 1000)}
           </span>
         ) : null}

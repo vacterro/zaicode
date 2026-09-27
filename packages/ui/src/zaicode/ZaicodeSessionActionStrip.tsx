@@ -41,13 +41,20 @@ import { useZaicodeAuditStore } from "./zaicodeAuditStore.js";
 function planTooltip(plan: ZaicodeContinuePlan): string {
   const lines = plan.steps.length
     ? plan.steps.map(describeZaicodeContinueStep)
-    : ["Nothing to continue: no stopped goal, no failed turn, no SAIPEN project with open tickets."];
-  if (plan.skipped.length > 0) lines.push("", "Left alone:", ...plan.skipped.map((entry) => `${entry.name}: ${entry.why}`));
+    : [
+        "Nothing to continue: no stopped goal, no failed turn, no SAIPEN project with open tickets.",
+      ];
+  if (plan.skipped.length > 0)
+    lines.push("", "Left alone:", ...plan.skipped.map((entry) => `${entry.name}: ${entry.why}`));
   return lines.join("\n");
 }
 
 function sessionLine(session: ZaicodeSessionBrief): string {
-  const project = session.workspacePath.replace(/[\\/]+$/, "").split(/[\\/]/).at(-1) ?? session.workspacePath;
+  const project =
+    session.workspacePath
+      .replace(/[\\/]+$/, "")
+      .split(/[\\/]/)
+      .at(-1) ?? session.workspacePath;
   return `${project} · ${session.title}`;
 }
 
@@ -97,10 +104,13 @@ export function ZaicodeSessionActionStrip() {
   const done = useMemo(() => zaicodeDoneUnseen(sessions), [sessions]);
   // SRC-044: cut off mid-turn is never DONE; listed apart so it is not lost either.
   const interrupted = useMemo(() => sessions.filter((session) => session.interrupted), [sessions]);
-  const resolveHandle = useCallback((projectKey: string) => {
-    const project = projects.find((candidate) => candidate.key === projectKey);
-    return project ? zaicodeContinueHandleFor(project) : null;
-  }, [projects]);
+  const resolveHandle = useCallback(
+    (projectKey: string) => {
+      const project = projects.find((candidate) => candidate.key === projectKey);
+      return project ? zaicodeContinueHandleFor(project) : null;
+    },
+    [projects],
+  );
 
   // Auto advances a changed project once. The next board or session update
   // arms the next pass; an unchanged snapshot cannot flood a cold host.
@@ -113,13 +123,20 @@ export function ZaicodeSessionActionStrip() {
     }
     const tick = async () => {
       if (!autoEnabled.current || autoBusy.current || Date.now() < autoRetryAt.current) return;
-      const steps = plan.steps.filter((step) => step.why !== "stopped on an error");
+      const steps = plan.steps.filter((step) => step.autoEligible);
       if (steps.length === 0) return;
-      const signature = JSON.stringify([auto.runId, steps, steps.map((step) => {
-        const row = rows[step.projectKey];
-        const session = step.kind === "session" ? sessions.find((item) => item.sessionId === step.sessionId) : null;
-        return [row?.lastAction, row?.openTickets, row?.phase, session?.updatedAt];
-      })]);
+      const signature = JSON.stringify([
+        auto.runId,
+        steps,
+        steps.map((step) => {
+          const row = rows[step.projectKey];
+          const session =
+            step.kind === "session"
+              ? sessions.find((item) => item.sessionId === step.sessionId)
+              : null;
+          return [row?.lastAction, row?.openTickets, row?.phase, session?.updatedAt];
+        }),
+      ]);
       if (signature !== autoSignature.current) autoRetryOnly.current = null;
       else if (autoRetryOnly.current === null) return;
       autoSignature.current = signature;
@@ -129,16 +146,24 @@ export function ZaicodeSessionActionStrip() {
           { steps: autoRetryOnly.current ?? steps, skipped: plan.skipped },
           resolveHandle,
           // 关闭 Auto 或停用项目时，已排队的后续步骤也不能继续发送。
-          (step) => autoEnabled.current && !useZaicodeHomeProjects.getState().rows[step.projectKey]?.disabled,
+          (step) =>
+            autoEnabled.current &&
+            !useZaicodeHomeProjects.getState().rows[step.projectKey]?.disabled,
         );
         for (const started of outcome.started) {
           const project = projects.find((candidate) => candidate.key === started.projectKey);
-          if (project) useZaicodeMainSessions.getState().setMain(zaicodeMainSessionKey(project.path, project.identity), started.sessionId);
+          if (project)
+            useZaicodeMainSessions
+              .getState()
+              .setMain(zaicodeMainSessionKey(project.path, project.identity), started.sessionId);
         }
         if (outcome.failed.length > 0) {
           autoRetryOnly.current = outcome.failedSteps;
           autoRetryAt.current = Date.now() + 60_000;
-          toast(`Auto could not continue:\n${outcome.failed.join("\n")}`, { variant: "warning", durationMs: 10_000 });
+          toast(`Auto could not continue:\n${outcome.failed.join("\n")}`, {
+            variant: "warning",
+            durationMs: 10_000,
+          });
         } else {
           autoRetryOnly.current = null;
           autoRetryAt.current = 0;
@@ -146,7 +171,10 @@ export function ZaicodeSessionActionStrip() {
       } catch (error) {
         autoRetryOnly.current = null;
         autoRetryAt.current = Date.now() + 60_000;
-        toast(`Auto failed: ${error instanceof Error ? error.message : String(error)}`, { variant: "warning", durationMs: 10_000 });
+        toast(`Auto failed: ${error instanceof Error ? error.message : String(error)}`, {
+          variant: "warning",
+          durationMs: 10_000,
+        });
       } finally {
         autoBusy.current = false;
       }
@@ -165,7 +193,9 @@ export function ZaicodeSessionActionStrip() {
       for (const started of outcome.started) {
         const project = projects.find((candidate) => candidate.key === started.projectKey);
         if (project) {
-          useZaicodeMainSessions.getState().setMain(zaicodeMainSessionKey(project.path, project.identity), started.sessionId);
+          useZaicodeMainSessions
+            .getState()
+            .setMain(zaicodeMainSessionKey(project.path, project.identity), started.sessionId);
         }
       }
       const head = `CONTINUE ALL: ${outcome.sent.length} continued${outcome.failed.length ? `, ${outcome.failed.length} failed` : ""}`;
@@ -194,8 +224,14 @@ export function ZaicodeSessionActionStrip() {
   actionsRef.current = { continueAll, openNextDone };
   useEffect(() => {
     const offs = [
-      registerZaicodeHotkeyHandler("session.nextDone", () => void actionsRef.current.openNextDone()),
-      registerZaicodeHotkeyHandler("session.continueAll", () => void actionsRef.current.continueAll()),
+      registerZaicodeHotkeyHandler(
+        "session.nextDone",
+        () => void actionsRef.current.openNextDone(),
+      ),
+      registerZaicodeHotkeyHandler(
+        "session.continueAll",
+        () => void actionsRef.current.continueAll(),
+      ),
     ];
     return () => offs.forEach((off) => off());
   }, []);
@@ -208,11 +244,14 @@ export function ZaicodeSessionActionStrip() {
     <>
       {/* The verdicts CONTINUE ALL needs (SAIPEN open tickets, MAIN, switched off), shared with SAIHOME. */}
       <ZaicodeHomeProjectProbes projects={projects} />
-      <div className="grid grid-cols-[1fr_auto_auto] gap-1 px-2 pb-1.5" data-zaicode-session-actions="">
+      <div
+        className="grid grid-cols-2 gap-1 px-2 pb-1.5 @min-[360px]/workspace-sidebar:grid-cols-[minmax(0,1fr)_auto_auto]"
+        data-zaicode-session-actions=""
+      >
         <ZaicodeRightClickSettings
           title="CONTINUE ALL — what it will do"
           panel={<pre className="whitespace-pre-wrap text-foreground">{planTooltip(plan)}</pre>}
-          className="flex w-full min-w-0"
+          className="col-span-2 flex w-full min-w-0 @min-[360px]/workspace-sidebar:col-span-1"
         >
           <button
             type="button"
@@ -235,7 +274,12 @@ export function ZaicodeSessionActionStrip() {
         </ZaicodeRightClickSettings>
         <button
           type="button"
-          className={cn(big, auto.smartMode ? "border-[var(--zaicode-highlight,var(--color-border-hover))] bg-selected text-foreground" : "border-border text-foreground-subtle")}
+          className={cn(
+            big,
+            auto.smartMode
+              ? "border-[var(--zaicode-highlight,var(--color-border-hover))] bg-selected text-foreground"
+              : "border-border text-foreground-subtle",
+          )}
           aria-pressed={auto.smartMode}
           disabled={!audits}
           title={`Auto: continue open project work, wait for SAIPEN to report DONE, then run A3 audits and implement findings. Maximum ${auto.maxCycles} audit cycles per project; change it in Audits.`}
@@ -257,7 +301,9 @@ export function ZaicodeSessionActionStrip() {
           align="end"
           panel={
             done.length === 0 && interrupted.length === 0 ? (
-              <span className="text-foreground-subtle">Nothing new: every finished session has been seen.</span>
+              <span className="text-foreground-subtle">
+                Nothing new: every finished session has been seen.
+              </span>
             ) : (
               <div className="flex flex-col">
                 {done.map((session) => (
@@ -270,7 +316,9 @@ export function ZaicodeSessionActionStrip() {
                         sessionId: session.sessionId,
                         title: session.title,
                         workspacePath: session.workspacePath,
-                        ...(session.workspaceIdentity ? { workspaceIdentity: session.workspaceIdentity } : {}),
+                        ...(session.workspaceIdentity
+                          ? { workspaceIdentity: session.workspaceIdentity }
+                          : {}),
                       })
                     }
                   >
@@ -292,7 +340,9 @@ export function ZaicodeSessionActionStrip() {
                             sessionId: session.sessionId,
                             title: session.title,
                             workspacePath: session.workspacePath,
-                            ...(session.workspaceIdentity ? { workspaceIdentity: session.workspaceIdentity } : {}),
+                            ...(session.workspaceIdentity
+                              ? { workspaceIdentity: session.workspaceIdentity }
+                              : {}),
                           })
                         }
                       >
@@ -326,7 +376,10 @@ export function ZaicodeSessionActionStrip() {
             DONE
             {count(done.length)}
             {interrupted.length > 0 ? (
-              <span className="text-ui-xs font-normal text-[#e0a03c]" title={`${interrupted.length} interrupted (not DONE)`}>
+              <span
+                className="text-ui-xs font-normal text-[#e0a03c]"
+                title={`${interrupted.length} interrupted (not DONE)`}
+              >
                 ‖{interrupted.length}
               </span>
             ) : null}

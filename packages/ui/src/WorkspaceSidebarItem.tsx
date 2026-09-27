@@ -4,9 +4,7 @@ import {
   useZaicodePendingCommand,
   useZaicodeSaipen,
 } from "@/zaicode/zaicodeSaipen.js";
-import {
-  saipenBoardShares,
-} from "@/zaicode/zaicodeSaipenModel.js";
+import { saipenBoardShares } from "@/zaicode/zaicodeSaipenModel.js";
 import {
   pushZaicodeArchiveBatch,
   registerZaicodeArchiveAll,
@@ -20,7 +18,10 @@ import { useZaicodeLiveRunIds } from "@/zaicode/zaicodeLiveRuns.js";
 import { useZaicodeHighlight, withZaicodeHighlight } from "@/zaicode/zaicodeHighlights.js";
 import { useZaicodeMainSessionId, useZaicodeMainSessions } from "@/zaicode/zaicodeMainSession.js";
 import { buildTaskWorkspaceKey } from "@/lib/taskQueryCache.js";
-import { useZaicodeProjectRuntime, type ZaicodeProjectRuntimeView } from "@/zaicode/zaicodeProjectRuntime.js";
+import {
+  useZaicodeProjectRuntime,
+  type ZaicodeProjectRuntimeView,
+} from "@/zaicode/zaicodeProjectRuntime.js";
 import { getTaskListAttention, isTaskListRowActive } from "@/v4/taskListRowActivity.js";
 
 /** Project labels share one adjustable colour strip width. Progress remains in the tooltip. */
@@ -91,6 +92,7 @@ import {
   slotGroupOf,
   useZaicodeSidebarPrefs,
   zaicodeFreshnessBucket,
+  zaicodeProjectTitleFontFamily,
   type ZaicodeSlotGroup,
 } from "@/zaicode/zaicodeSidebarPrefs.js";
 import {
@@ -144,8 +146,14 @@ import {
 } from "@/lib/workspaceRemovalSafety.js";
 import { useConfirmDialog } from "@/hooks/useConfirmDialog.js";
 import { toast } from "@/components/ui/toast.js";
-import { ZaicodeProjectEngineMenuItems, ZaicodeProjectWorkerChips } from "@/zaicode/ZaicodeProjectEngines.js";
-import { toggleZaicodeProjectDisabled, useZaicodeProjectDisabled } from "@/zaicode/zaicodeProjectSwitch.js";
+import {
+  ZaicodeProjectEngineMenuItems,
+  ZaicodeProjectWorkerChips,
+} from "@/zaicode/ZaicodeProjectEngines.js";
+import {
+  toggleZaicodeProjectDisabled,
+  useZaicodeProjectDisabled,
+} from "@/zaicode/zaicodeProjectSwitch.js";
 import { playZaicodeSound } from "@/zaicode/zaicodeSoundBus.js";
 import {
   decideZaicodeProjectStart,
@@ -155,6 +163,7 @@ import {
   zaicodeSessionBriefOf,
 } from "@/zaicode/zaicodeContinue.js";
 import { createZaicodeContinueHandle } from "@/zaicode/zaicodeContinueHost.js";
+import { useZaicodeAuditStore, zaicodeAuditProgressFor } from "@/zaicode/zaicodeAuditStore.js";
 
 export type SortableBindings = Pick<ReturnType<typeof useSortable>, "attributes" | "listeners">;
 
@@ -196,6 +205,7 @@ function getSshWorkspaceTooltipDetails(tab: WorkspaceTabState): SshWorkspaceTool
 
 export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
   tab,
+  activateTab,
   isActiveWorkspace,
   isExpanded,
   closeTab,
@@ -428,29 +438,71 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
   const zaicodeMainKey = tab.workspaceIdentity?.trim() || tab.workspacePath;
   const zaicodeMainSessionId = useZaicodeMainSessionId(zaicodeMainKey);
   const armZaicodeMain = useZaicodeMainSessions((state) => state.arm);
+  const startSaipenPending = useRef(false);
   const startFreshSaipen = useCallback(() => {
     // START 的新会话就是本项目的 MAIN（铁槽位）。
     armZaicodeMain(zaicodeMainKey);
     queueZaicodeCommand(tab.workspacePath, ZAICODE_SAIPEN_START_COMMAND);
     onStartDraftInWorkspace(tab.workspacePath, tab.workspaceIdentity);
-  }, [armZaicodeMain, onStartDraftInWorkspace, queueZaicodeCommand, tab.workspaceIdentity, tab.workspacePath, zaicodeMainKey]);
-  const startSaipen = useCallback(() => {
-    if (readOnlyReason) return;
+  }, [
+    armZaicodeMain,
+    onStartDraftInWorkspace,
+    queueZaicodeCommand,
+    tab.workspaceIdentity,
+    tab.workspacePath,
+    zaicodeMainKey,
+  ]);
+  const startSaipen = useCallback(async () => {
+    if (readOnlyReason || startSaipenPending.current) return;
+    startSaipenPending.current = true;
+    // PLAY activates the shell, then reads the durable task list. The row's taskItems can
+    // still be empty while a cold project is hydrating; treating that as an empty project
+    // creates a second MAIN session.
+    activateTab(tab.id);
+    let tasks: ZCodeTaskMeta[];
+    let timeout: ReturnType<typeof setTimeout> | undefined;
+    try {
+      tasks = await Promise.race([
+        zcodeTaskService.listTasks({
+          workspacePath: tab.workspacePath,
+          ...(tab.workspaceIdentity ? { workspaceIdentity: tab.workspaceIdentity } : {}),
+        }),
+        new Promise<never>((_, reject) => {
+          timeout = setTimeout(
+            () => reject(new Error("Project sessions did not load within 5 seconds.")),
+            5_000,
+          );
+        }),
+      ]);
+    } catch (error) {
+      logger.warn("[WorkspaceSidebarItem] START could not load project sessions", { error });
+      toast(
+        `START: could not load project sessions: ${error instanceof Error ? error.message : String(error)}`,
+        { variant: "warning" },
+      );
+      startSaipenPending.current = false;
+      return;
+    } finally {
+      if (timeout) clearTimeout(timeout);
+    }
     // SRC-044：▶ 不再每次新建会话——先接着 MAIN（或被打断的会话）继续，确实无可继续时才新开 MAIN。
-    const briefs = taskItemsRef.current.map((task) =>
+    const briefs = tasks.map((task) =>
       zaicodeSessionBriefOf(task, zaicodeMainKey, { workspacePath: tab.workspacePath }),
     );
     const decision = decideZaicodeProjectStart(zaicodeMainSessionId, briefs);
     if (decision.action === "fresh") {
       startFreshSaipen();
+      startSaipenPending.current = false;
       return;
     }
     if (decision.action === "open") {
       onSelectTask(tab.workspacePath, decision.sessionId, tab.workspaceIdentity);
       toast(`START: ${decision.why}.`);
+      startSaipenPending.current = false;
       return;
     }
     playZaicodeSound("ui.toggle");
+    onSelectTask(tab.workspacePath, decision.sessionId, tab.workspaceIdentity);
     const handle = createZaicodeContinueHandle({
       workspacePath: tab.workspacePath,
       ...(tab.workspaceIdentity ? { workspaceIdentity: tab.workspaceIdentity } : {}),
@@ -461,22 +513,30 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
     void handle
       .send(decision.sessionId, decision.command)
       .then(() => {
-        if (decision.makeMain) useZaicodeMainSessions.getState().setMain(zaicodeMainKey, decision.sessionId);
+        if (decision.makeMain)
+          useZaicodeMainSessions.getState().setMain(zaicodeMainKey, decision.sessionId);
         toast(`START: ${decision.why} → ${describeZaicodeContinueCommand(decision.command)}`);
       })
       .catch((error: unknown) => {
-        // MAIN 可能已被删除/归档：清掉失效的 MAIN，退回新开。
-        logger.warn("[WorkspaceSidebarItem] START continue failed; starting a fresh MAIN", { error });
-        if (!decision.makeMain) useZaicodeMainSessions.getState().clearMain(zaicodeMainKey);
-        startFreshSaipen();
+        logger.warn("[WorkspaceSidebarItem] START continue failed", { error });
+        toast(
+          `START: could not continue MAIN: ${error instanceof Error ? error.message : String(error)}`,
+          { variant: "warning" },
+        );
+      })
+      .finally(() => {
+        startSaipenPending.current = false;
       });
   }, [
+    activateTab,
     onSelectTask,
     readOnlyReason,
     services.zcodeAgentService,
     services.zcodeTaskService,
+    zcodeTaskService,
     startFreshSaipen,
     tab.remoteSessionId,
+    tab.id,
     tab.workspaceIdentity,
     tab.workspacePath,
     zaicodeMainKey,
@@ -797,14 +857,18 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
 
   const pushArchiveUndo = useZaicodeArchiveUndo((state) => state.push);
   const reportArchiveFailure = useZaicodeArchiveUndo((state) => state.fail);
-  const zaicodeProjectIsMain = useZaicodeSidebarPrefs((state) => state.projectIsMain) && isZaicodeProductMode();
+  const zaicodeProjectIsMain =
+    useZaicodeSidebarPrefs((state) => state.projectIsMain) && isZaicodeProductMode();
   const zaicodeMainTask =
     zaicodeProjectIsMain && zaicodeMainSessionId
       ? (taskItems.find((task) => task.taskId === zaicodeMainSessionId) ?? null)
       : null;
   // The row stands for MAIN, so MAIN is not listed again under it; the rest are its helpers.
   const zaicodeChildTasks = useMemo(
-    () => (zaicodeProjectIsMain && zaicodeMainSessionId ? taskItems.filter((task) => task.taskId !== zaicodeMainSessionId) : taskItems),
+    () =>
+      zaicodeProjectIsMain && zaicodeMainSessionId
+        ? taskItems.filter((task) => task.taskId !== zaicodeMainSessionId)
+        : taskItems,
     [taskItems, zaicodeMainSessionId, zaicodeProjectIsMain],
   );
   // Settings -> Sidebar (SRC-049): when session rows are listed at all - every
@@ -818,7 +882,9 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
       return active || getTaskListAttention(task) !== null;
     });
   }, [zaicodeChildTasks, zaicodeSessionsCondition]);
-  const zaicodeMainOpen = Boolean(zaicodeMainTask && isActiveWorkspace && activeTaskId === zaicodeMainTask.taskId);
+  const zaicodeMainOpen = Boolean(
+    zaicodeMainTask && isActiveWorkspace && activeTaskId === zaicodeMainTask.taskId,
+  );
   zaicodeOpenMainRef.current = () => {
     // Clicking the row while MAIN is already open toggles the helpers as before.
     if (!zaicodeProjectIsMain || !zaicodeMainSessionId || zaicodeMainOpen) return false;
@@ -841,9 +907,12 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
       .then(() => toast(`CLEAR: MAIN of ${workspaceSidebarLabel} is empty`))
       .catch((error: unknown) => {
         logger.error("[WorkspaceSidebarItem] MAIN clear failed", { sessionId, error });
-        toast(`Could not clear MAIN of ${workspaceSidebarLabel}: ${error instanceof Error ? error.message : String(error)}`, {
-          variant: "warning",
-        });
+        toast(
+          `Could not clear MAIN of ${workspaceSidebarLabel}: ${error instanceof Error ? error.message : String(error)}`,
+          {
+            variant: "warning",
+          },
+        );
       });
   };
   const zaicodeSlotGroups = useZaicodeSidebarPrefs((state) => state.groups);
@@ -854,7 +923,17 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
   const setZaicodeSlotGroup = useZaicodeSidebarPrefs((state) => state.setGroup);
   const zaicodeSlotKey = buildTaskWorkspaceKey(tab.workspacePath, tab.workspaceIdentity);
   const zaicodeSlotGroup = slotGroupOf(zaicodeSlotGroups, zaicodeSlotKey, zaicodeDefaultSlot);
-  const zaicodeProjectOff = useZaicodeProjectDisabled(isZaicodeProductMode() ? zaicodeSlotKey : null);
+  const zaicodeProjectOff = useZaicodeProjectDisabled(
+    isZaicodeProductMode() ? zaicodeSlotKey : null,
+  );
+  const zaicodeAuditCampaigns = useZaicodeAuditStore((state) => state.campaigns);
+  const zaicodeAuditProgress = useMemo(
+    () =>
+      isZaicodeProductMode()
+        ? zaicodeAuditProgressFor(zaicodeAuditCampaigns, tab.workspacePath)
+        : null,
+    [zaicodeAuditCampaigns, tab.workspacePath],
+  );
   // ZAICODE rows keep the project name at one width: a fixed zone on the right shows the
   // status while idle and three actions (MAIN, START, more) on hover. Remote rows keep
   // upstream's layout (their reconnect / error controls need the room).
@@ -865,7 +944,9 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
   const zaicodeHoverZone = zaicodeCompactRow && !isHoverNone;
   const mountRowActions = zaicodeHoverZone || shouldMountWorkspaceRowActions;
   const zoneActionClass =
-    zaicodeHoverZone && !workspaceActionMenuOpen ? "hidden group-hover:flex group-focus-within:flex" : undefined;
+    zaicodeHoverZone && !workspaceActionMenuOpen
+      ? "hidden group-hover:flex group-focus-within:flex"
+      : undefined;
   const zoneStatusClass = zaicodeHoverZone
     ? workspaceActionMenuOpen
       ? "hidden"
@@ -874,7 +955,10 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
   // SRC-048: a session the open chat reports as running counts even when the list has not caught up.
   const zaicodeLiveRunIds = useZaicodeLiveRunIds(tab.workspacePath);
   const zaicodeRunningCount = isZaicodeProductMode()
-    ? new Set([...taskItems.filter(isTaskListRowActive).map((task) => task.taskId), ...zaicodeLiveRunIds]).size
+    ? new Set([
+        ...taskItems.filter(isTaskListRowActive).map((task) => task.taskId),
+        ...zaicodeLiveRunIds,
+      ]).size
     : 0;
   const zaicodeWaitingCount = isZaicodeProductMode()
     ? taskItems.filter(
@@ -887,7 +971,7 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
     zaicodeProjectIsMain &&
     Boolean(
       zaicodeMainTask &&
-        (zaicodeLiveRunIds.includes(zaicodeMainTask.taskId) || isTaskListRowActive(zaicodeMainTask)),
+      (zaicodeLiveRunIds.includes(zaicodeMainTask.taskId) || isTaskListRowActive(zaicodeMainTask)),
     );
   // SRC-051: "working for" mini — when the oldest still-running session began.
   const zaicodeWorkingSince = useMemo(() => {
@@ -902,6 +986,16 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
   }, [taskItems, zaicodeRunningCount]);
   // Project freshness includes session activity and SAIPEN's board checkpoint.
   const zaicodeProjectFreshness = useZaicodeSidebarPrefs((state) => state.projectFreshness);
+  const zaicodeProjectTitleFont = useZaicodeSidebarPrefs((state) => state.projectTitleFont);
+  const zaicodeProjectTitleSize = useZaicodeSidebarPrefs((state) => state.projectTitleSize);
+  const zaicodeProjectTitleBold = useZaicodeSidebarPrefs((state) => state.projectTitleBold);
+  const zaicodeProjectTitleUnderline = useZaicodeSidebarPrefs(
+    (state) => state.projectTitleUnderline,
+  );
+  const zaicodeProjectOnColor = useZaicodeSidebarPrefs((state) => state.projectOnColor);
+  const zaicodeProjectOffColor = useZaicodeSidebarPrefs((state) => state.projectOffColor);
+  const zaicodeProjectOnOpacity = useZaicodeSidebarPrefs((state) => state.projectOnOpacity);
+  const zaicodeProjectOffOpacity = useZaicodeSidebarPrefs((state) => state.projectOffOpacity);
   const zaicodeSessionLastActivity = useMemo(
     () => taskItems.reduce((latest, task) => Math.max(latest, task.updatedAt ?? 0), 0),
     [taskItems],
@@ -986,7 +1080,10 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
       try {
         archived.push(await archiveTaskNow(task.taskId));
       } catch (error) {
-        logger.error("[WorkspaceSidebarItem] archive all: task failed", { taskId: task.taskId, error });
+        logger.error("[WorkspaceSidebarItem] archive all: task failed", {
+          taskId: task.taskId,
+          error,
+        });
       }
     }
     if (archived.length === 0) return null;
@@ -1011,7 +1108,9 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
   const archiveSomeTasks = useCallback(
     async (taskIds: readonly string[]): Promise<ZaicodeArchiveBatch | null> => {
       if (readOnlyReason) return null;
-      const running = new Set(taskItemsRef.current.filter(isTaskListRowActive).map((task) => task.taskId));
+      const running = new Set(
+        taskItemsRef.current.filter(isTaskListRowActive).map((task) => task.taskId),
+      );
       const archived: ZCodeTaskMeta[] = [];
       for (const taskId of taskIds) {
         if (running.has(taskId)) continue;
@@ -1175,7 +1274,10 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
     tab.workspaceIdentity,
   );
   const boardUpdatedAt = zaicodeSaipen?.updated ? Date.parse(zaicodeSaipen.updated) : 0;
-  const zaicodeProjectLastActivity = Math.max(zaicodeSessionLastActivity, Number.isFinite(boardUpdatedAt) ? boardUpdatedAt : 0);
+  const zaicodeProjectLastActivity = Math.max(
+    zaicodeSessionLastActivity,
+    Number.isFinite(boardUpdatedAt) ? boardUpdatedAt : 0,
+  );
   const zaicodeFreshnessColor =
     zaicodeProjectFreshness === "off"
       ? null
@@ -1242,9 +1344,12 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
         .then(() => toast(`Continued "${title}" → ${sent}`))
         .catch((error: unknown) => {
           logger.error("[WorkspaceSidebarItem] continue failed", { taskId, error });
-          toast(`Could not continue "${title}": ${error instanceof Error ? error.message : String(error)}`, {
-            variant: "warning",
-          });
+          toast(
+            `Could not continue "${title}": ${error instanceof Error ? error.message : String(error)}`,
+            {
+              variant: "warning",
+            },
+          );
         });
     },
     [
@@ -1276,6 +1381,15 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
           OFF
         </span>
       ) : null}
+      {zaicodeAuditProgress ? (
+        <span
+          className="border border-[#a06a20] bg-[#2b2111] px-0.5 text-[10px] leading-3 text-[#f0c040]"
+          title={`${zaicodeAuditProgress.campaigns} A3 campaign(s): ${zaicodeAuditProgress.complete}/${zaicodeAuditProgress.total} audit waves complete or reviewed`}
+          data-zaicode-a3-progress={`${zaicodeAuditProgress.complete}/${zaicodeAuditProgress.total}`}
+        >
+          A3 {zaicodeAuditProgress.complete}/{zaicodeAuditProgress.total}
+        </span>
+      ) : null}
       {zaicodeLiveIndicator && zaicodeRunningCount > 0 ? (
         <span
           className="flex items-center gap-0.5"
@@ -1301,7 +1415,10 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
     <div className="flex min-w-0 flex-1 items-center gap-2">
       <span className="relative flex size-4 shrink-0 items-center justify-center">
         {zaicodeProjectIsMain && zaicodeMainTask ? (
-          <ZaicodeProjectMainGlyph task={zaicodeMainTask} live={zaicodeLiveRunIds.includes(zaicodeMainTask.taskId)} />
+          <ZaicodeProjectMainGlyph
+            task={zaicodeMainTask}
+            live={zaicodeLiveRunIds.includes(zaicodeMainTask.taskId)}
+          />
         ) : (
           renderWorkspaceIcon()
         )}
@@ -1317,10 +1434,29 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
       <div
         {...withZaicodeHighlight(
           {
-            className: "zaicode-list-label zaicode-project-label min-w-0 flex-1 truncate px-1 text-ui-base text-foreground-subtle",
-            style:
-              readinessTint?.style ??
-              (zaicodeFreshnessColor && zaicodeProjectFreshness === "tint" ? { color: zaicodeFreshnessColor } : undefined),
+            className:
+              "zaicode-list-label zaicode-project-label min-w-0 flex-1 truncate px-1 text-ui-base text-foreground-subtle",
+            style: {
+              ...(readinessTint?.style ??
+                (zaicodeFreshnessColor && zaicodeProjectFreshness === "tint"
+                  ? { color: zaicodeFreshnessColor }
+                  : {
+                      color: undefined,
+                    })),
+              ...(zaicodeProjectOff
+                ? { color: zaicodeProjectOffColor }
+                : zaicodeProjectOnColor
+                  ? { color: zaicodeProjectOnColor }
+                  : {}),
+              fontSize: zaicodeProjectTitleSize,
+              fontWeight: zaicodeProjectTitleBold ? 700 : 400,
+              textDecoration: zaicodeProjectTitleUnderline ? "underline" : "none",
+              opacity:
+                (zaicodeProjectOff ? zaicodeProjectOffOpacity : zaicodeProjectOnOpacity) / 100,
+              ...(zaicodeProjectTitleFontFamily(zaicodeProjectTitleFont)
+                ? { fontFamily: zaicodeProjectTitleFontFamily(zaicodeProjectTitleFont) }
+                : {}),
+            },
             title: readinessTint?.title,
           },
           zaicodeProjectLight,
@@ -1329,8 +1465,13 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
       >
         {workspaceSidebarLabel}
       </div>
-      {isZaicodeProductMode() ? <ZaicodeProjectWorkerChips projectPath={tab.workspacePath} /> : null}
-      {!zaicodeCompactRow && isZaicodeProductMode() && zaicodeLiveIndicator && zaicodeRunningCount > 0 ? (
+      {isZaicodeProductMode() ? (
+        <ZaicodeProjectWorkerChips projectPath={tab.workspacePath} />
+      ) : null}
+      {!zaicodeCompactRow &&
+      isZaicodeProductMode() &&
+      zaicodeLiveIndicator &&
+      zaicodeRunningCount > 0 ? (
         <span
           className="flex shrink-0 items-center gap-0.5 text-ui-xs tabular-nums text-foreground-subtle"
           title={`${zaicodeRunningCount} session(s) working${zaicodeWorkingSince > 0 ? ` for ${formatZaicodeDuration(Date.now() - zaicodeWorkingSince)}` : ""}`}
@@ -1341,7 +1482,10 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
           {zaicodeWorkingSince > 0 ? formatZaicodeDuration(Date.now() - zaicodeWorkingSince) : null}
         </span>
       ) : null}
-      {!zaicodeCompactRow && isZaicodeProductMode() && zaicodeLiveIndicator && zaicodeWaitingCount > 0 ? (
+      {!zaicodeCompactRow &&
+      isZaicodeProductMode() &&
+      zaicodeLiveIndicator &&
+      zaicodeWaitingCount > 0 ? (
         <span
           className="shrink-0 border border-[var(--color-warning)] px-0.5 text-[10px] leading-3 text-[var(--color-warning)]"
           title={`${zaicodeWaitingCount} session(s) waiting for you (question / permission)`}
@@ -1394,7 +1538,6 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
       className={cn(
         "space-y-2",
         zaicodeDimIdle && zaicodeRunningCount === 0 && zaicodeWaitingCount === 0 && "opacity-55",
-        zaicodeProjectOff && "opacity-40",
       )}
       data-zaicode-project-off={zaicodeProjectOff ? "" : undefined}
     >
@@ -1443,7 +1586,9 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
                     "hover:bg-transparent aria-expanded:bg-transparent",
                   // ZAICODE (SRC-043): no grab hand on hover; a row is clicked far more often than
                   // dragged, and the drag still works (8 px threshold) and shows its own overlay.
-                  sortableBindings && !isZaicodeProductMode() && "cursor-grab active:cursor-grabbing",
+                  sortableBindings &&
+                    !isZaicodeProductMode() &&
+                    "cursor-grab active:cursor-grabbing",
                 )}
                 onMouseEnter={zaicodeHoverZone ? undefined : () => setWorkspaceRowHovered(true)}
                 // 行在轮询刷新时可能重挂载，指针已在行内时不会再触发 mouseenter；移动即补上 hover。
@@ -1460,7 +1605,12 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
                   clearZaicodeMainSession();
                 }}
                 onClickCapture={(event) => {
-                  if (isZaicodeProductMode() && event.shiftKey && !event.ctrlKey && !event.metaKey) {
+                  if (
+                    isZaicodeProductMode() &&
+                    event.shiftKey &&
+                    !event.ctrlKey &&
+                    !event.metaKey
+                  ) {
                     // ZAICODE：Shift+点击开关项目；关闭的项目变暗，自动 agent / Scheduler 不再处理它。
                     event.preventDefault();
                     event.stopPropagation();
@@ -1555,7 +1705,13 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
                       zaicodeCompactRow ? "w-[60px] justify-end" : "gap-1",
                     )}
                     data-zaicode-row-zone={
-                      zaicodeHoverZone ? "hover" : zaicodeCompactRow ? (shouldMountWorkspaceRowActions ? "actions" : "status") : undefined
+                      zaicodeHoverZone
+                        ? "hover"
+                        : zaicodeCompactRow
+                          ? shouldMountWorkspaceRowActions
+                            ? "actions"
+                            : "status"
+                          : undefined
                     }
                   >
                     {zaicodeCompactRow && (zaicodeHoverZone || !shouldMountWorkspaceRowActions) ? (
@@ -1590,7 +1746,11 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
                               <DropdownMenuItem
                                 disabled={Boolean(readOnlyReason)}
                                 onSelect={() => {
-                                  if (!readOnlyReason) onStartDraftInWorkspace(tab.workspacePath, tab.workspaceIdentity);
+                                  if (!readOnlyReason)
+                                    onStartDraftInWorkspace(
+                                      tab.workspacePath,
+                                      tab.workspaceIdentity,
+                                    );
                                 }}
                               >
                                 <MessageCirclePlus className="h-3.5 w-3.5" />
@@ -1874,20 +2034,29 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
                           )}
                           onMouseDown={handleActionMouseDown}
                           onClick={handleZaicodeMainClick}
-                          aria-label={zaicodeMainSessionId ? "Open MAIN session" : "Create MAIN session"}
+                          aria-label={
+                            zaicodeMainSessionId ? "Open MAIN session" : "Create MAIN session"
+                          }
                           data-zaicode-main-button={zaicodeMainSessionId ? "open" : "create"}
                         >
-                          <span className="text-ui-sm leading-none">{zaicodeMainSessionId ? "◆" : "◇"}</span>
+                          <span className="text-ui-sm leading-none">
+                            {zaicodeMainSessionId ? "◆" : "◇"}
+                          </span>
                         </Button>
                       </ControlHintTooltip>
                     ) : null}
                     {mountRowActions && isZaicodeProductMode() && !readOnlyReason ? (
-                      <ControlHintTooltip title={`START ${ZAICODE_SAIPEN_START_COMMAND} — continues MAIN (or the session that was cut off); a fresh MAIN only when there is nothing to continue`}>
+                      <ControlHintTooltip
+                        title={`START ${ZAICODE_SAIPEN_START_COMMAND} — continues MAIN (or the session that was cut off); a fresh MAIN only when there is nothing to continue`}
+                      >
                         <Button
                           type="button"
                           variant="ghost"
                           size={zaicodeCompactRow ? "icon-xs" : "icon-sm"}
-                          className={cn("shrink-0 text-foreground-subtle hover:bg-surface-hover hover:text-foreground", zoneActionClass)}
+                          className={cn(
+                            "shrink-0 text-foreground-subtle hover:bg-surface-hover hover:text-foreground",
+                            zoneActionClass,
+                          )}
                           onMouseDown={handleActionMouseDown}
                           onClick={handleStartSaipenClick}
                           aria-label={`START: continue MAIN with ${ZAICODE_SAIPEN_START_COMMAND}`}
@@ -1908,9 +2077,24 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
                     }}
                     data-zaicode-board-strip
                   >
-                    <span style={{ width: `${boardShares.blocked * 100}%`, background: "var(--color-destructive)" }} />
-                    <span style={{ width: `${boardShares.todo * 100}%`, background: "var(--color-warning)" }} />
-                    <span style={{ width: `${boardShares.done * 100}%`, background: "var(--color-success)" }} />
+                    <span
+                      style={{
+                        width: `${boardShares.blocked * 100}%`,
+                        background: "var(--color-destructive)",
+                      }}
+                    />
+                    <span
+                      style={{
+                        width: `${boardShares.todo * 100}%`,
+                        background: "var(--color-warning)",
+                      }}
+                    />
+                    <span
+                      style={{
+                        width: `${boardShares.done * 100}%`,
+                        background: "var(--color-success)",
+                      }}
+                    />
                   </span>
                 ) : isZaicodeProductMode() && zaicodeSaipen && zaicodeRuntime?.color ? (
                   <span
@@ -1947,9 +2131,7 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
             onSetTaskUnread={handleSetTaskUnread}
             mainSessionId={isZaicodeProductMode() ? zaicodeMainSessionId : null}
             {...(isZaicodeProductMode() ? { onContinueTask: handleContinueTask } : {})}
-            {...(isZaicodeProductMode()
-              ? { onArchiveAllTasks: handleArchiveAllTasks }
-              : {})}
+            {...(isZaicodeProductMode() ? { onArchiveAllTasks: handleArchiveAllTasks } : {})}
             readOnlyReason={readOnlyReason}
           />
         </CollapsibleContent>

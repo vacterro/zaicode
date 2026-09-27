@@ -4,7 +4,12 @@ import { useZaicodeTimerEngine } from "./useZaicodeTimerEngine.js";
 import { useZaicodeRouterAutoSetup } from "./useZaicodeRouterAutoSetup.js";
 import { ZaicodeToastHost } from "./ZaicodeToastHost.js";
 import { ZaicodeTimersWindow } from "./ZaicodeTimersDialog.js";
-import { useZaicodeActions, openZaicodeHelp, openZaicodeHomeView, openZaicodeSettings } from "./zaicodeActions.js";
+import {
+  useZaicodeActions,
+  openZaicodeHelp,
+  openZaicodeHomeView,
+  openZaicodeSettings,
+} from "./zaicodeActions.js";
 import {
   matchZaicodeHotkey,
   readZaicodeHotkeySettings,
@@ -17,9 +22,17 @@ import {
 } from "./zaicodeHotkeys.js";
 import { useZaicodeTimers } from "./zaicodeTimerStore.js";
 import { toggleZaicodeProductivity } from "./zaicodeProductivity.js";
-import { cycleZaicodeSession, openZaicodeSession, useZaicodeSessionNav } from "./zaicodeSessionNav.js";
+import {
+  cycleZaicodeSession,
+  openZaicodeSession,
+  useZaicodeSessionNav,
+} from "./zaicodeSessionNav.js";
 import { useZaicodeRunningSessions, useZaicodeSidebarPrefs } from "./zaicodeSidebarPrefs.js";
-import { readZaicodeSoundSettings, setZaicodeSoundSettings, stopAllZaicodeSounds } from "./zaicodeSoundEvents.js";
+import {
+  readZaicodeSoundSettings,
+  setZaicodeSoundSettings,
+  stopAllZaicodeSounds,
+} from "./zaicodeSoundEvents.js";
 import { useZaicodeToasts } from "./zaicodeNotifications.js";
 import {
   cycleZaicodeWorker,
@@ -40,19 +53,27 @@ import { isWorkspaceTab } from "@/store/tabStore.js";
 import { partitionWorkspaceTabsByPurpose } from "@/lib/workspacePurpose.js";
 import { buildTaskWorkspaceKey } from "@/lib/taskQueryCache.js";
 import { useOptionalBaseWorkspaceServices } from "@/hooks/useWorkspaceServices.js";
-import { publishZaicodeKnownProjects, readZaicodeKnownProjects, type ZaicodeKnownProject } from "./zaicodeScheduler.js";
+import {
+  publishZaicodeKnownProjects,
+  readZaicodeKnownProjects,
+  type ZaicodeKnownProject,
+} from "./zaicodeScheduler.js";
 import { publishZaicodeQueueServices } from "./zaicodeAutostart.js";
 import { resolveZaicodeServices } from "./zaicodeServices.js";
 import { useZaicodeAuditStore } from "./zaicodeAuditStore.js";
 import { useZaicodeSessionBriefs } from "./zaicodeContinue.js";
 import { useZaicodeHomeProjects } from "./home/ZaicodeHomeFleet.js";
-import { publishZaicodeHomeServices, useZaicodeWorkerStatsRecorder } from "./home/zaicodeHomeFeed.js";
+import {
+  publishZaicodeHomeServices,
+  useZaicodeWorkerStatsRecorder,
+} from "./home/zaicodeHomeFeed.js";
 import { projectNameOf } from "./zaicodeEngines.js";
 import { ensureZaicodeMotionStyles } from "./zaicodeMotionCss.js";
 import { useZaicodeCrashResume } from "./zaicodeCrashResume.js";
 import { useZaicodeTurnRetryWatch } from "./zaicodeTurnRetryWatch.js";
 import { startZaicodeWorkerRecording } from "./zaicodeWorkerRecovery.js";
 import { useZaicodeWorkerWatch } from "./zaicodeWorkerWatch.js";
+import { ZaicodePebbleGameHost } from "./ZaicodePebbleGame.js";
 
 /**
  * Everything ZAICODE runs once per window: the timer heartbeat, notification
@@ -63,13 +84,17 @@ import { useZaicodeWorkerWatch } from "./zaicodeWorkerWatch.js";
 export type ZaicodeGlobalHotkeyStatus = "ok" | "taken" | "invalid";
 
 interface GlobalHotkeyBridge {
-  setZaicodeGlobalHotkeys?(bindings: { id: string; accelerator: string }[]): Promise<Record<string, ZaicodeGlobalHotkeyStatus>>;
+  setZaicodeGlobalHotkeys?(
+    bindings: { id: string; accelerator: string }[],
+  ): Promise<Record<string, ZaicodeGlobalHotkeyStatus>>;
   onZaicodeGlobalHotkey?(callback: (id: string) => void): () => void;
   zaicodeQuitApp?(): Promise<{ ok: boolean }>;
 }
 
 function bridge(): GlobalHotkeyBridge | undefined {
-  return typeof window === "undefined" ? undefined : (window as unknown as { zcode?: GlobalHotkeyBridge }).zcode;
+  return typeof window === "undefined"
+    ? undefined
+    : (window as unknown as { zcode?: GlobalHotkeyBridge }).zcode;
 }
 
 // Last registration result, for the Hotkeys settings page.
@@ -103,7 +128,11 @@ const GLOBAL_TO_APP: Record<string, string> = {
 
 function isTypingTarget(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) return false;
-  return target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target.isContentEditable;
+  return (
+    target instanceof HTMLInputElement ||
+    target instanceof HTMLTextAreaElement ||
+    target.isContentEditable
+  );
 }
 
 /** Actions whose keys are matched by their own listeners (they need the event context). */
@@ -193,13 +222,19 @@ function useZaicodeRuntimeHandlers(): void {
     const unregister = [
       registerZaicodeHotkeyHandler("session.next", () => void cycleZaicodeSession(1, running())),
       registerZaicodeHotkeyHandler("session.prev", () => void cycleZaicodeSession(-1, running())),
-      registerZaicodeHotkeyHandler("timers.open", () => useZaicodeTimers.getState().openDialog("alarms")),
+      registerZaicodeHotkeyHandler("timers.open", () =>
+        useZaicodeTimers.getState().openDialog("alarms"),
+      ),
       registerZaicodeHotkeyHandler("timers.temp", () => {
         useZaicodeTimers.getState().addTempTimer();
         playZaicodeSound("ui.toggle");
       }),
-      registerZaicodeHotkeyHandler("timers.productivity", () => useZaicodeTimers.getState().setProductivity(toggleZaicodeProductivity)),
-      registerZaicodeHotkeyHandler("sounds.mute", () => setZaicodeSoundSettings({ muted: !readZaicodeSoundSettings().muted })),
+      registerZaicodeHotkeyHandler("timers.productivity", () =>
+        useZaicodeTimers.getState().setProductivity(toggleZaicodeProductivity),
+      ),
+      registerZaicodeHotkeyHandler("sounds.mute", () =>
+        setZaicodeSoundSettings({ muted: !readZaicodeSoundSettings().muted }),
+      ),
       registerZaicodeHotkeyHandler("sounds.stop", stopAllZaicodeSounds),
       registerZaicodeHotkeyHandler("ui.help", () => void openZaicodeHelp()),
       registerZaicodeHotkeyHandler("ui.home", () => void openZaicodeHomeView()),
@@ -208,7 +243,9 @@ function useZaicodeRuntimeHandlers(): void {
         const prefs = useZaicodeSidebarPrefs.getState();
         prefs.update({ navOpen: !prefs.navOpen });
       }),
-      registerZaicodeHotkeyHandler("ui.dismissToasts", () => useZaicodeToasts.getState().dismissAll()),
+      registerZaicodeHotkeyHandler("ui.dismissToasts", () =>
+        useZaicodeToasts.getState().dismissAll(),
+      ),
       registerZaicodeHotkeyHandler("ui.dispatch", toggleZaicodeDispatchPanel),
       registerZaicodeHotkeyHandler("ui.workers", toggleZaicodeWorkersPanel),
       registerZaicodeHotkeyHandler("workers.next", () => cycleZaicodeWorker(1)),
@@ -229,11 +266,15 @@ function useZaicodeRuntimeHandlers(): void {
         prefs.update({ panelLayout: prefs.panelLayout === "split" ? "tabs" : "split" });
       }),
       registerZaicodeHotkeyHandler("workers.even", () =>
-        useZaicodeWorkerPrefs.getState().update({ splitSizes: evenZaicodeSplitSizes(zaicodePanelWorkers().length) }),
+        useZaicodeWorkerPrefs
+          .getState()
+          .update({ splitSizes: evenZaicodeSplitSizes(zaicodePanelWorkers().length) }),
       ),
       // SRC-049: a full Exit - the graceful quit the tray menu uses, not hide-to-tray.
       registerZaicodeHotkeyHandler("app.exit", () => {
-        void bridge()?.zaicodeQuitApp?.().catch(() => undefined);
+        void bridge()
+          ?.zaicodeQuitApp?.()
+          .catch(() => undefined);
       }),
     ];
     return () => unregister.forEach((dispose) => dispose());
@@ -248,7 +289,9 @@ function useZaicodeCalmInterface(): void {
   const noHoverPopups = useZaicodeUiPrefs((state) => state.noHoverPopups);
   useEffect(() => {
     const root = document.documentElement;
-    for (const [name, on] of Object.entries(zaicodeCalmClasses({ noMotion, noDim, noHoverPopups }))) {
+    for (const [name, on] of Object.entries(
+      zaicodeCalmClasses({ noMotion, noDim, noHoverPopups }),
+    )) {
       root.classList.toggle(name, on);
     }
   }, [noDim, noHoverPopups, noMotion]);
@@ -275,7 +318,8 @@ function useZaicodePixelSnap(): void {
  * SCHEDULER (SRC-038): the runner lives outside React; it needs the open
  * projects (with their sidebar slot keys) and the local agent queue.
  */
-function useZaicodeSchedulerPublishers(): void {  const tabs = useTabStore((state) => state.tabs);
+function useZaicodeSchedulerPublishers(): void {
+  const tabs = useTabStore((state) => state.tabs);
   useEffect(() => {
     const { projectWorkspaceTabs } = partitionWorkspaceTabsByPurpose(tabs.filter(isWorkspaceTab));
     const seen = new Set<string>();
@@ -328,8 +372,11 @@ function useZaicodeAuditSmartPoller(): void {
         workspacePath: project.path,
         projectName: project.name,
         disabled: homeRows[project.key]?.disabled ?? false,
-        runningSessions: sessions.filter((session) => session.projectKey === project.key && session.running).length,
-        noWorkConfirmed: homeRows[project.key]?.state === "done" && homeRows[project.key]?.blockedTickets === 0,
+        runningSessions: sessions.filter(
+          (session) => session.projectKey === project.key && session.running,
+        ).length,
+        noWorkConfirmed:
+          homeRows[project.key]?.state === "done" && homeRows[project.key]?.blockedTickets === 0,
       }));
       void audits
         .publishProjects(projects)
@@ -360,6 +407,7 @@ export function ZaicodeAppRuntime() {
     <>
       <ZaicodeToastHost />
       <ZaicodeTimersWindow />
+      <ZaicodePebbleGameHost />
     </>
   );
 }

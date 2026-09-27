@@ -32,26 +32,39 @@ test("LIVE defaults: order is recent and the hold is 2 minutes (SRC-051)", () =>
   assert.equal(ZAICODE_SIDEBAR_DEFAULT_PREFS.liveOrder, "recent");
   assert.equal(ZAICODE_SIDEBAR_DEFAULT_PREFS.liveHoldMs, 120_000);
   // The hold only accepts the offered steps; anything else falls back.
-  const normalized = normalizeZaicodeSidebarPrefs({ ...ZAICODE_SIDEBAR_DEFAULT_PREFS, liveHoldMs: 45_000 });
+  const normalized = normalizeZaicodeSidebarPrefs({
+    ...ZAICODE_SIDEBAR_DEFAULT_PREFS,
+    liveHoldMs: 45_000,
+  });
   assert.equal(normalized.liveHoldMs, 120_000);
   assert.ok(ZAICODE_LIVE_HOLD_MS.includes(0));
 });
 
 test("LIVE hold: a just-finished project keeps its LIVE rank, then drops (no teleport mid-glance)", () => {
   const now = 1_700_000_000_000;
-  const prefs = { ...ZAICODE_SIDEBAR_DEFAULT_PREFS, slots: false, liveFirst: true, liveHoldMs: 120_000 };
+  const prefs = {
+    ...ZAICODE_SIDEBAR_DEFAULT_PREFS,
+    slots: false,
+    liveFirst: true,
+    liveHoldMs: 120_000,
+  };
   const finish = (lastActivityAt: number) =>
     orderZaicodeProjectSections(["idle", "just-done"], {
       prefs,
       now,
       liveOf: (key) =>
-        key === "just-done" ? live({ running: 0, waiting: 0, lastActivityAt }) : live({ lastActivityAt: now - 999_999_999 }),
-    })
-      .at(0)!.keys;
+        key === "just-done"
+          ? live({ running: 0, waiting: 0, lastActivityAt })
+          : live({ lastActivityAt: now - 999_999_999 }),
+    }).at(0)!.keys;
   // 60s ago: still live → first. 180s ago: past the 2-minute hold → not live,
   // so both fall back to the list's own order.
   assert.deepEqual(finish(now - 60_000), ["just-done", "idle"]);
-  assert.deepEqual(finish(now - 180_000), ["idle", "just-done"], "past the hold it is no longer LIVE-ranked");
+  assert.deepEqual(
+    finish(now - 180_000),
+    ["idle", "just-done"],
+    "past the hold it is no longer LIVE-ranked",
+  );
   // hold off: drops at once — but with liveFirst the still-live idle project wins
   const noHold = orderZaicodeProjectSections(["idle", "just-done"], {
     prefs: { ...prefs, liveHoldMs: 0 },
@@ -66,7 +79,12 @@ test("LIVE hold: a just-finished project keeps its LIVE rank, then drops (no tel
 
 test("LIVE recent order: most recently active first, whatever the readiness", () => {
   const now = 1_700_000_000_000;
-  const prefs = { ...ZAICODE_SIDEBAR_DEFAULT_PREFS, liveOrder: "recent" as const, slots: false, liveFirst: true };
+  const prefs = {
+    ...ZAICODE_SIDEBAR_DEFAULT_PREFS,
+    liveOrder: "recent" as const,
+    slots: false,
+    liveFirst: true,
+  };
   const keys = orderZaicodeProjectSections(["old", "new", "mid"], {
     prefs,
     now,
@@ -101,6 +119,7 @@ test("background auto-retry: only failed, quiet, non-local sessions of enabled p
       waiting: false,
       failed: true,
       interrupted: false,
+      manuallyStopped: false,
       crashCut: false,
       updatedAt: 0,
       model: null,
@@ -109,7 +128,10 @@ test("background auto-retry: only failed, quiet, non-local sessions of enabled p
       goalObjective: null,
       ...over,
     }) as never;
-  const pick = (briefs: never[], over: Partial<Parameters<typeof pickZaicodeBackgroundRetrySessions>[1]> = []) =>
+  const pick = (
+    briefs: never[],
+    over: Partial<Parameters<typeof pickZaicodeBackgroundRetrySessions>[1]> = [],
+  ) =>
     pickZaicodeBackgroundRetrySessions(briefs, {
       isLocal: () => false,
       isProjectDisabled: () => false,
@@ -120,9 +142,17 @@ test("background auto-retry: only failed, quiet, non-local sessions of enabled p
   const failed = brief({});
   assert.equal(pick([failed]).length, 1, "a failed quiet session is picked up");
   assert.equal(pick([brief({ running: true })]).length, 0, "a running session manages itself");
-  assert.equal(pick([brief({ waiting: true })]).length, 0, "waiting for the operator is not a failure");
+  assert.equal(
+    pick([brief({ waiting: true })]).length,
+    0,
+    "waiting for the operator is not a failure",
+  );
   assert.equal(pick([brief({ failed: false })]).length, 0);
-  assert.equal(pick([failed], { isLocal: (id) => id === "s" }).length, 0, "the open pane owns its own countdown");
+  assert.equal(
+    pick([failed], { isLocal: (id) => id === "s" }).length,
+    0,
+    "the open pane owns its own countdown",
+  );
   assert.equal(pick([failed], { isProjectDisabled: () => true }).length, 0);
   assert.equal(pick([failed], { attemptsOf: () => 3, maxAttempts: 3 }).length, 0, "budget spent");
   assert.equal(pick([failed], { attemptsOf: () => 2, maxAttempts: 3 }).length, 1);
@@ -142,16 +172,26 @@ test("subchat effort: Claude maps to thinking tokens env, Codex to its reasoning
 
   const codex = buildZaicodeSubchatInvocation(
     { vendor: "codex", home: null, isDefaultHome: true },
-    { prompt: "hi", sessionId: null, yolo: false, model: "gpt-5.2", effort: "low" },
+    { prompt: "hi", sessionId: null, yolo: false, model: "gpt-5.2", effort: "max" },
   )!;
-  assert.deepEqual(codex.args.includes("-m") && codex.args[codex.args.indexOf("-m") + 1], "gpt-5.2");
-  assert.ok(codex.args.includes('model_reasoning_effort="low"'), "the effort rides its own -c flag");
+  assert.deepEqual(
+    codex.args.includes("-m") && codex.args[codex.args.indexOf("-m") + 1],
+    "gpt-5.2",
+  );
+  assert.ok(
+    codex.args.includes('model_reasoning_effort="max"'),
+    "Codex's full effort range rides its own -c flag",
+  );
 
   const zcode = buildZaicodeSubchatInvocation(
     { vendor: "zcode", home: null, isDefaultHome: true },
     { prompt: "hi", sessionId: null, yolo: false, effort: "high" },
   )!;
-  assert.deepEqual(zcode.args, ["-p", "hi", "--json", "--mode", "edit"], "zcode CLI has no effort knob: nothing invented");
+  assert.deepEqual(
+    zcode.args,
+    ["-p", "hi", "--json", "--mode", "edit"],
+    "zcode CLI has no effort knob: nothing invented",
+  );
 });
 
 test("subchat persistence: the model pick and effort survive storage round-trip", () => {
@@ -175,18 +215,37 @@ test("subchat persistence: the model pick and effort survive storage round-trip"
   };
   const [round] = normalizeZaicodeSubchatConversations([{ ...conversation, effort: "bogus" }]);
   assert.equal(round.modelChoice, "gpt-5.2-codex");
-  assert.equal(round.effort, "auto", "an unknown effort falls back to auto, never crashes a stored chat");
+  assert.equal(
+    round.effort,
+    "auto",
+    "an unknown effort falls back to auto, never crashes a stored chat",
+  );
   const [clean] = normalizeZaicodeSubchatConversations([conversation]);
   assert.equal(clean.effort, "high");
 });
 
 test("icon badge builder: data URI, escaping, solid vs gradient (worker icon mini-editor output)", () => {
-  const solid = buildZaicodeIconBadgeDataUri({ from: "#c8a028", to: "#000000", gradient: false, glyph: "M" });
+  const solid = buildZaicodeIconBadgeDataUri({
+    from: "#c8a028",
+    to: "#000000",
+    gradient: false,
+    glyph: "M",
+  });
   assert.ok(solid.startsWith("data:image/svg+xml,"), "it is an SVG data URI the icon slots accept");
   assert.ok(!solid.includes("linearGradient"), "solid fill has no gradient stops");
-  const gradient = buildZaicodeIconBadgeDataUri({ from: "#e8c04a", to: "#8a6a10", gradient: true, glyph: "M" });
+  const gradient = buildZaicodeIconBadgeDataUri({
+    from: "#e8c04a",
+    to: "#8a6a10",
+    gradient: true,
+    glyph: "M",
+  });
   assert.ok(gradient.includes("linearGradient"));
-  const escaped = buildZaicodeIconBadgeDataUri({ from: "#fff", to: "#fff", gradient: false, glyph: '<"&>' });
+  const escaped = buildZaicodeIconBadgeDataUri({
+    from: "#fff",
+    to: "#fff",
+    gradient: false,
+    glyph: '<"&>',
+  });
   assert.ok(!escaped.includes('<"&>'), "glyph text is entity-escaped inside the SVG");
   assert.ok(decodeURIComponent(escaped).includes("&#60;"), "the escaped entities are present");
 });

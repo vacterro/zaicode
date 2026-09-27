@@ -36,12 +36,42 @@ interface ZaicodeAuditStoreState {
   activeCountFor: (workspacePath: string) => number;
 }
 
+export interface ZaicodeAuditProgress {
+  complete: number;
+  total: number;
+  campaigns: number;
+}
+
+/** Visible project-row progress for every non-terminal A3 campaign. */
+export function zaicodeAuditProgressFor(
+  campaigns: readonly ZaicodeAuditCampaign[],
+  workspacePath: string,
+): ZaicodeAuditProgress | null {
+  const active = campaigns.filter(
+    (campaign) =>
+      campaign.workspacePath === workspacePath && zaicodeAuditCampaignIsActive(campaign),
+  );
+  if (active.length === 0) return null;
+  return {
+    complete: active.reduce(
+      (count, campaign) =>
+        count + campaign.waves.filter((wave) => wave.status === "complete").length,
+      0,
+    ),
+    total: active.reduce((count, campaign) => count + campaign.waves.length, 0),
+    campaigns: active.length,
+  };
+}
+
 function describeError(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
 
 export const useZaicodeAuditStore = create<ZaicodeAuditStoreState>((set, get) => {
-  const after = async (audits: IZaicodeAuditService, action: () => Promise<unknown>): Promise<void> => {
+  const after = async (
+    audits: IZaicodeAuditService,
+    action: () => Promise<unknown>,
+  ): Promise<void> => {
     try {
       await action();
       await get().refresh(audits);
@@ -63,7 +93,14 @@ export const useZaicodeAuditStore = create<ZaicodeAuditStoreState>((set, get) =>
       set({ loading: true });
       try {
         const state = await audits.getState();
-        set({ campaigns: state.campaigns, smartMode: state.smartMode, maxCycles: state.maxCycles, runId: state.runId, loading: false, error: null });
+        set({
+          campaigns: state.campaigns,
+          smartMode: state.smartMode,
+          maxCycles: state.maxCycles,
+          runId: state.runId,
+          loading: false,
+          error: null,
+        });
       } catch (error) {
         logger.error("[zaicode-audits] refresh failed", { error: describeError(error) });
         set({ loading: false, error: describeError(error) });
@@ -84,7 +121,8 @@ export const useZaicodeAuditStore = create<ZaicodeAuditStoreState>((set, get) =>
 
     activeCountFor: (workspacePath) =>
       get().campaigns.filter(
-        (campaign) => campaign.workspacePath === workspacePath && zaicodeAuditCampaignIsActive(campaign),
+        (campaign) =>
+          campaign.workspacePath === workspacePath && zaicodeAuditCampaignIsActive(campaign),
       ).length,
   };
 });
