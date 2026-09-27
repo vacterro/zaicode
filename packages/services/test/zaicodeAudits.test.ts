@@ -238,6 +238,33 @@ test("SRC-058: a reconcile queued behind cancel does not turn the cancelled camp
   }
 });
 
+test("SRC-060: getState says who audits, on which model, and where the running wave is", async () => {
+  const h = await createHarness(new Map());
+  try {
+    const before = await h.audits.getState();
+    assert.equal(before.auditor, null, "no auditor agent exists before the first audit");
+    const campaign = await h.audits.start(WS);
+    await settle();
+    const state = await h.audits.getState();
+    assert.ok(state.auditor, "the first audit created the auditor");
+    assert.equal(typeof state.auditor!.name, "string");
+    const running = state.campaigns.find((entry) => entry.campaignId === campaign!.campaignId)!;
+    assert.equal(running.status, "running");
+    assert.ok(running.startedAt, "the campaign records its first dispatch");
+    assert.ok(running.waves[0]!.startedAt, "the wave records when it was queued");
+    assert.ok(running.live, "the running wave's job is read out");
+    assert.equal(running.live!.jobId, running.waves[0]!.jobId);
+    assert.equal(running.live!.agentName, state.auditor!.name);
+    // `live` is a view of the queue, never written into campaign.json.
+    const stored = JSON.parse(
+      await readFile(join(h.auditRoot, campaign!.campaignId, "campaign.json"), "utf8"),
+    ) as Record<string, unknown>;
+    assert.equal("live" in stored, false);
+  } finally {
+    await h.dispose();
+  }
+});
+
 test("smart mode: empty board + nothing running starts a campaign; a full board does not", async () => {
   const h = await createHarness(allGood());
   try {

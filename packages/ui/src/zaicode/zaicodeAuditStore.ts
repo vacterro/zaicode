@@ -1,8 +1,9 @@
 import { create } from "zustand";
 import type { IZaicodeAuditService } from "@zcode/services";
-import type { ZaicodeAuditCampaign } from "@zcode/shared";
+import type { ZaicodeAuditCampaign, ZaicodeAuditorView } from "@zcode/shared";
 import { zaicodeAuditCampaignIsActive } from "@zcode/shared";
 import { logger } from "@/logger.js";
+import { playZaicodeSound } from "./zaicodeSoundBus.js";
 import { uiMemoryDiagnosticsRegistry } from "@/lib/memoryDiagnostics.js";
 
 /**
@@ -20,6 +21,8 @@ export interface ZaicodeAuditProject {
 
 interface ZaicodeAuditStoreState {
   campaigns: ZaicodeAuditCampaign[];
+  /** SRC-060: the agent that runs audit waves (null until the first audit makes one). */
+  auditor: ZaicodeAuditorView | null;
   smartMode: boolean;
   maxCycles: number;
   runId: string | null;
@@ -63,6 +66,32 @@ export function zaicodeAuditProgressFor(
   };
 }
 
+/**
+ * SRC-060: what happened between two readings of the campaigns, as sound
+ * cues: a wave finished, a campaign finished or stopped. The first reading
+ * (no previous list) is silent.
+ */
+export function zaicodeAuditTransitions(
+  previous: readonly ZaicodeAuditCampaign[] | null,
+  next: readonly ZaicodeAuditCampaign[],
+): ("audit.waveDone" | "audit.complete" | "audit.blocked")[] {
+  if (!previous) return [];
+  const before = new Map(previous.map((campaign) => [campaign.campaignId, campaign]));
+  const cues = new Set<"audit.waveDone" | "audit.complete" | "audit.blocked">();
+  for (const campaign of next) {
+    const old = before.get(campaign.campaignId);
+    if (!old) continue;
+    if (campaign.status === "complete" && old.status !== "complete") cues.add("audit.complete");
+    else if (campaign.status === "blocked" && old.status !== "blocked") cues.add("audit.blocked");
+    else {
+      const doneBefore = old.waves.filter((wave) => wave.status === "complete").length;
+      const doneNow = campaign.waves.filter((wave) => wave.status === "complete").length;
+      if (doneNow > doneBefore) cues.add("audit.waveDone");
+    }
+  }
+  return [...cues];
+}
+
 function describeError(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
@@ -81,8 +110,10 @@ export const useZaicodeAuditStore = create<ZaicodeAuditStoreState>((set, get) =>
     }
   };
 
+  let lastSeen: ZaicodeAuditCampaign[] | null = null;
   return {
     campaigns: [],
+    auditor: null,
     smartMode: false,
     maxCycles: 10,
     runId: null,
@@ -93,8 +124,11 @@ export const useZaicodeAuditStore = create<ZaicodeAuditStoreState>((set, get) =>
       set({ loading: true });
       try {
         const state = await audits.getState();
+        for (const cue of zaicodeAuditTransitions(lastSeen, state.campaigns)) playZaicodeSound(cue);
+        lastSeen = state.campaigns;
         set({
           campaigns: state.campaigns,
+          auditor: state.auditor ?? null,
           smartMode: state.smartMode,
           maxCycles: state.maxCycles,
           runId: state.runId,

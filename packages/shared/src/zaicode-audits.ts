@@ -76,6 +76,34 @@ export interface ZaicodeAuditCampaignWaveState {
   reportFile: string | null;
   resultSha256: string | null;
   completedAt: string | null;
+  /** SRC-060: when this wave's job was put on the queue (absent on older campaigns). */
+  startedAt?: string | null;
+}
+
+/**
+ * SRC-060: where a campaign's current wave runs right now, read from its queue
+ * job by getState. Never persisted: it is a view of the queue, not campaign truth.
+ */
+export interface ZaicodeAuditLiveJob {
+  jobId: string;
+  status: string;
+  /** The agent session doing the wave, once dispatch attached one. */
+  sessionId: string | null;
+  /** Epoch ms. */
+  startedAt: number | null;
+  /** Last sign of life from the running job (epoch ms). */
+  heartbeatAt: number | null;
+  attempt: number;
+  agentName: string | null;
+  /** The model actually used, else the one the agent is configured with. */
+  model: string | null;
+}
+
+/** SRC-060: the agent that runs audit waves, as the Audits view names it. */
+export interface ZaicodeAuditorView {
+  agentId: string;
+  name: string;
+  model: string | null;
 }
 
 export interface ZaicodeAuditCampaign {
@@ -103,6 +131,10 @@ export interface ZaicodeAuditCampaign {
   actionableFindings?: number | null;
   /** Automatic implementation job for this handoff, if findings exist. */
   remediationJobId?: string | null;
+  /** SRC-060: first wave dispatch (absent on older campaigns and on planned ones). */
+  startedAt?: string | null;
+  /** SRC-060: the current wave's queue job, filled by getState; never persisted. */
+  live?: ZaicodeAuditLiveJob | null;
   /** Current queue status, filled by getState and never used as persisted truth. */
   remediationStatus?: "draft" | "queued" | "ready" | "running" | "waiting" | "blocked" | "completed" | "failed" | "cancelled" | null;
 }

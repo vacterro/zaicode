@@ -1,5 +1,5 @@
 import { ServiceChannels } from "@zcode/shared";
-import type { ZaicodeAuditCampaign, ZaicodeAuditsReport } from "@zcode/shared";
+import type { ZaicodeAuditCampaign, ZaicodeAuditorView, ZaicodeAuditsReport } from "@zcode/shared";
 import { createServiceDescriptor } from "../descriptors.js";
 
 /**
@@ -10,8 +10,18 @@ import { createServiceDescriptor } from "../descriptors.js";
  * owns the queue.
  */
 export interface IZaicodeAuditService {
-  /** Campaigns plus the smart-mode switch. Reconciles finished waves first. */
-  getState(): Promise<{ campaigns: ZaicodeAuditCampaign[]; smartMode: boolean; maxCycles: number; runId: string | null }>;
+  /**
+   * Campaigns plus the smart-mode switch. Reconciles finished waves first.
+   * SRC-060: each running campaign carries `live` (its wave's job: session,
+   * start, last sign of life, model) and the auditor agent is named.
+   */
+  getState(): Promise<{
+    campaigns: ZaicodeAuditCampaign[];
+    smartMode: boolean;
+    maxCycles: number;
+    runId: string | null;
+    auditor: ZaicodeAuditorView | null;
+  }>;
   /** A project's newest campaign, or null. */
   getCampaign(campaignId: string): Promise<ZaicodeAuditCampaign | null>;
   /** Generate a campaign into the review queue as `planned`; nothing is dispatched. */

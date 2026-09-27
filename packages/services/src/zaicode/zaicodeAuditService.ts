@@ -6,6 +6,7 @@ import {
   ZAICODE_AUDIT_PROFILE_A3,
   buildZaicodeAuditWavePrompt,
   countZaicodeOpenBoardTickets,
+  formatZaicodeModelLabel,
   parseZaicodeAuditActionableFindings,
   parseZaicodeAuditWaveReport,
   shouldStartZaicodeAuditCampaign,
@@ -13,6 +14,7 @@ import {
   zaicodeAuditWaveOf,
   type ZaicodeAuditCampaign,
   type ZaicodeAuditWave,
+  type ZaicodeAuditorView,
   type ZaicodeAuditsReport,
 } from "@zcode/shared";
 import { getAppConfigDir } from "../paths.js";
@@ -288,12 +290,16 @@ export class ZaicodeAuditService implements IZaicodeAuditService {
       title,
       instructions: prompt,
     });
+    const now = new Date().toISOString();
     state.jobId = job.id;
     state.status = "running";
     state.reportFile = ZaicodeAuditService.reportFileName(campaign, wave);
+    // SRC-060: the Audits view shows how long each wave and the whole campaign run.
+    state.startedAt ??= now;
+    campaign.startedAt ??= now;
     campaign.currentWaveIndex = waveIndex;
     campaign.status = "running";
-    campaign.updatedAt = new Date().toISOString();
+    campaign.updatedAt = now;
     ZaicodeAuditService.writeJsonAtomic(join(this.campaignDir(campaign.campaignId), "campaign.json"), campaign);
   }
 
@@ -375,14 +381,53 @@ export class ZaicodeAuditService implements IZaicodeAuditService {
     }
   }
 
-  async getState(): Promise<{ campaigns: ZaicodeAuditCampaign[]; smartMode: boolean; maxCycles: number; runId: string | null }> {
+  async getState(): Promise<{
+    campaigns: ZaicodeAuditCampaign[];
+    smartMode: boolean;
+    maxCycles: number;
+    runId: string | null;
+    auditor: ZaicodeAuditorView | null;
+  }> {
     await this.reconcileAll();
+    const agents = await this.deps.agentService.list().then((result) => result.agents).catch(() => []);
+    const agentById = new Map(agents.map((agent) => [agent.id, agent]));
+    const modelOf = (agent: (typeof agents)[number] | undefined) =>
+      agent ? formatZaicodeModelLabel(agent.modelSelection, agent) : null;
     const campaigns = await Promise.all(this.loadCampaigns().map(async (campaign) => {
-      if (!campaign.remediationJobId) return campaign;
-      const job = await this.deps.jobService.get(campaign.remediationJobId).catch(() => null);
-      return { ...campaign, remediationStatus: job?.status ?? null };
+      let next: ZaicodeAuditCampaign = campaign;
+      if (campaign.remediationJobId) {
+        const job = await this.deps.jobService.get(campaign.remediationJobId).catch(() => null);
+        next = { ...next, remediationStatus: job?.status ?? null };
+      }
+      // SRC-060: where the current wave runs, since when, on which model.
+      const jobId = campaign.status === "running" ? campaign.waves[campaign.currentWaveIndex]?.jobId : null;
+      if (jobId) {
+        const job = await this.deps.jobService.get(jobId).catch(() => null);
+        if (job) {
+          const agent = agentById.get(job.agentId);
+          next = {
+            ...next,
+            live: {
+              jobId: job.id,
+              status: job.status,
+              sessionId: job.sessionId ?? null,
+              startedAt: job.startedAt ?? null,
+              heartbeatAt: job.heartbeatAt ?? null,
+              attempt: job.attempt,
+              agentName: agent?.name ?? null,
+              model: formatZaicodeModelLabel(job.actualModelSelection) ?? modelOf(agent),
+            },
+          };
+        }
+      }
+      return next;
     }));
-    return { campaigns, ...this.readSmartSettings() };
+    const auditor = agents.find((agent) => agent.role === "auditor");
+    return {
+      campaigns,
+      ...this.readSmartSettings(),
+      auditor: auditor ? { agentId: auditor.id, name: auditor.name, model: modelOf(auditor) } : null,
+    };
   }
 
   async getCampaign(campaignId: string): Promise<ZaicodeAuditCampaign | null> {

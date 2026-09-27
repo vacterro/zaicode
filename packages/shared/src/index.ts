@@ -113,6 +113,7 @@ export * from "./zaicode-product.js";
 export * from "./zaicode-agents.js";
 export * from "./zaicode-jobs.js";
 export * from "./zaicode-audits.js";
+export * from "./zaicode-audit-view.js";
 export * from "./zaicode-delegation.js";
 export * from "./zaicode-routing.js";
 export * from "./zaicode-engines.js";

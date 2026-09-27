@@ -56,6 +56,12 @@ export const ZAICODE_SOUND_EVENTS: readonly ZaicodeSoundEventDef[] = [
   { id: "agent.human", group: "Agent", label: "Human needed", hint: "An agent needs your permission to continue", glyph: "hand", sound: fp("alert_system_msg.wav"), enabled: true, gainDb: 0 },
   { id: "agent.update", group: "Agent", label: "Progress update", hint: "A progress or feedback update arrived", glyph: "dot", sound: fp("blip1.wav"), enabled: false, gainDb: -6 },
   { id: "agent.started", group: "Agent", label: "Work started", hint: "A session started working after everything was idle", glyph: "play", sound: fp("activated.wav"), enabled: false, gainDb: -6 },
+  { id: "audit.start", group: "Agent", label: "Audit started", hint: "An A3 audit was started (Audits)", glyph: "play", sound: fp("mm_queue.wav"), enabled: true, gainDb: -6 },
+  { id: "audit.plan", group: "Agent", label: "Audit planned", hint: "An A3 audit was planned without starting it", glyph: "plus", sound: fp("item_store_add_to_cart.wav"), enabled: true, gainDb: -8 },
+  { id: "audit.waveDone", group: "Agent", label: "Audit wave done", hint: "One wave of an audit finished its report", glyph: "step", sound: fp("success_scored.wav"), enabled: true, gainDb: -6 },
+  { id: "audit.complete", group: "Agent", label: "Audit finished", hint: "All three waves are done and the handoff is written", glyph: "check", sound: fp("success_vote_success.wav"), enabled: true, gainDb: -4 },
+  { id: "audit.blocked", group: "Agent", label: "Audit stopped", hint: "An audit wave failed or its report was incomplete", glyph: "warn", sound: fp("warn3.wav"), enabled: true, gainDb: -4 },
+  { id: "audit.cancel", group: "Agent", label: "Audit cancelled", hint: "An audit was cancelled", glyph: "cross", sound: fp("record_scratch_stop.wav"), enabled: true, gainDb: -8 },
   { id: "changes.heal", group: "Agent", label: "Lines added (heal)", hint: "The Changes counter went up: a green +N floats like healing (Highlights -> Change numbers)", glyph: "plus", sound: fp("Pickup_Health_Generic_1.wav"), enabled: true, gainDb: -10 },
   { id: "changes.damage", group: "Agent", label: "Lines removed (damage)", hint: "The Changes counter lost lines: a red -N flies off like damage", glyph: "cross", sound: fp("hit_crit_hit_mini2.wav"), enabled: true, gainDb: -10 },
   // Sessions
