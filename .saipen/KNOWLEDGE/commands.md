@@ -118,9 +118,14 @@ bundled router's Next output is deep.
 ZAICODE SAIPEN cloud transport (added 2026-09-27, T-85)
 
 Repository `V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE`, remote `origin`
-(`https://github.com/vacterro/zaicode.git`), transport branch `saipen-live`.
-The local checkout works ON `saipen-live`; `master` is the pre-transport
-history and `origin/workspace` is its published mirror.
+(`https://github.com/vacterro/zaicode.git`). Canonical local working branch is
+`master` (reconciled 2026-09-27, T-98/T-99: `saipen-live` fast-forwarded into
+`master`, published as `origin/master`). Normal local development, audit work
+and SAIPEN continuation happen on `master`. `saipen-live` remains only as the
+cloud/integration transport branch the watcher and
+`tools\saipen-cloud\Install-SaipenLiveSync.ps1` read; accepted cloud work is
+fetched on `saipen-live` and merged/fast-forwarded into `master`, then work
+continues on `master`.
 
 | Purpose | Command |
 |---------|---------|

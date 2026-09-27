@@ -27,15 +27,15 @@
      write that field name next to a concrete id anywhere in this file. -->
 
 ## DOING
-- [/] T-99 [P1] сделать master рабочей веткой | verify: сделать master рабочей веткой is complete and the repository-declared verification harness passes | owner: claude-code-local-verify | claim_time: 2026-09-27T17:09:47Z
 
 
 ## TODO
-- [ ] T-100 [P1] затем cc all | verify: затем cc all is complete and the repository-declared verification harness passes
-- [ ] T-96 [P1] cc all | verify: cc all is complete and the repository-declared verification harness passes
-- [ ] T-97 [P0] BUILD user directive: run repository verification gates for cc all: pnpm typecheck, lint, architecture:check, verify:pre-push and focused zaicode tests in zcode/ | verify: agent FIT/impact pass recorded; normal SCOUT, BUILD, VERIFY, REVIEW and SHIP/DONE gates pass
 
 ## DONE
+- [x] T-97 [P0] BUILD user directive: run repository verification gates for cc all: pnpm typecheck, lint, architecture:check, verify:pre-push and focused zaicode tests in zcode/ | verify: agent FIT/impact pass recorded; normal SCOUT, BUILD, VERIFY, REVIEW and SHIP/DONE gates pass | owner: claude-code-local-verify | claim_time: 2026-09-27T17:24:36Z | closure_mode: own_patch
+- [x] T-96 [P1] cc all | verify: cc all is complete and the repository-declared verification harness passes | owner: claude-code-local-verify | claim_time: 2026-09-27T17:21:12Z | closure_mode: own_patch
+- [x] T-100 [P1] затем cc all | verify: затем cc all is complete and the repository-declared verification harness passes | owner: claude-code-local-verify | claim_time: 2026-09-27T17:17:19Z | closure_mode: own_patch
+- [x] T-99 [P1] сделать master рабочей веткой | verify: сделать master рабочей веткой is complete and the repository-declared verification harness passes | owner: claude-code-local-verify | claim_time: 2026-09-27T17:11:39Z | closure_mode: own_patch
 - [x] T-95 [P1] C:/Program Files/Git/goal cc all | verify: the requested change is present and demonstrated against the user own description of it | user_explicit: true | source_receipts: SRC-063 | owner: claude-code-local-verify | claim_time: 2026-09-27T16:51:30Z | closure_mode: own_patch
 - [x] T-98 [P1] перенести все изменения из saipen-live в master без потери данных | verify: перенести все изменения из saipen-live в master без потери данных is complete and the repository-declared verification harness passes | owner: claude-code-local-verify | claim_time: 2026-09-27T16:42:26Z | closure_mode: own_patch
 - [x] T-93 [P1] Да, PASS | verify: each item demonstrated against the operator's words: every subscription account is a selectable model provider in the composer picker (account, then model) with a real reasoning effort that reaches the vendor, model lists refresh by themselves, readiness bars per account in the picker; SUBCHAT removed once the operator confirms this works; the sidebar engine block is simpler, shows only chosen models, and its SAIRoute button opens the right settings; SAIHOME cards reorder by drag and drop; timers get better UI, presets and an on-the-hour reminder that names the hour; no double sounds on Problip clicks or right-clicks anywhere; harmless token savers are on by default -- each with tests or a stated local-only check | user_explicit: true | source_receipts: SRC-061 | owner: claude-code-local-verify | claim_time: 2026-09-27T13:55:48Z | closure_mode: own_patch
