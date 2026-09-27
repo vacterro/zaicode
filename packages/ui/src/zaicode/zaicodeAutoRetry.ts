@@ -60,7 +60,7 @@ export function pickZaicodeAutoRetryAction(rows: readonly RowLike[]): ZaicodeAut
 /** Attempts per session survive pane remounts; reset when a turn completes cleanly. */
 const attemptsBySession = new Map<string, number>();
 
-/** Sessions whose pane is open: their own countdown owns retry; the background host stands down. */
+/** Sessions whose open pane is in charge of the retry; the background host stands down for them. */
 const localPanes = new Set<string>();
 
 export function zaicodeAutoRetryAttempts(sessionId: string): number {
@@ -75,9 +75,37 @@ export function resetZaicodeAutoRetryAttempt(sessionId: string): void {
   attemptsBySession.delete(sessionId);
 }
 
-/** True while the session's chat pane is mounted and runs its own auto-retry countdown. */
+/** True while an open pane is in charge of the session's retry (zaicodeAutoRetryPaneClaims). */
 export function isZaicodeAutoRetryLocal(sessionId: string | null | undefined): boolean {
   return Boolean(sessionId) && localPanes.has(sessionId!);
+}
+
+/**
+ * Does an open pane own this session's retry, so the background host stands down?
+ *
+ * SRC-058 (the retry that only started once the operator walked into the
+ * project): the pane used to claim the session just by being mounted. A
+ * mounted pane that could not act kept the background host away, and neither
+ * side retried. Examples: a hidden tab with no projected error, a snapshot
+ * without a retryable row, a disabled surface. The countdown then appeared only
+ * when the operator opened the project.
+ *
+ * The pane owns the retry only while it is really in charge:
+ * - its own countdown is armed; or
+ * - the operator pressed Stop for this very error; or
+ * - the error is one that retrying cannot fix.
+ * In the last two cases nobody should retry at all.
+ */
+export function zaicodeAutoRetryPaneClaims(state: {
+  hasSession: boolean;
+  enabled: boolean;
+  hasError: boolean;
+  retryable: boolean;
+  armed: boolean;
+  stoppedThisError: boolean;
+}): boolean {
+  if (!state.hasSession || !state.enabled || !state.hasError) return false;
+  return state.armed || state.stoppedThisError || !state.retryable;
 }
 
 export interface ZaicodeAutoRetryState {
@@ -123,15 +151,6 @@ export function useZaicodeAutoRetry(params: {
   const busy = phase === "running" || phase === "prewarming";
   const attempts = sessionId ? zaicodeAutoRetryAttempts(sessionId) : 0;
 
-  // The open pane claims the session: the background retry host (SRC-051) skips it.
-  useEffect(() => {
-    if (!sessionId) return undefined;
-    localPanes.add(sessionId);
-    return () => {
-      localPanes.delete(sessionId);
-    };
-  }, [sessionId]);
-
   // A clean finish resets the budget.
   useEffect(() => {
     if (sessionId && !error && phase === "completedSuccess") resetZaicodeAutoRetryAttempt(sessionId);
@@ -171,6 +190,25 @@ export function useZaicodeAutoRetry(params: {
     !busy &&
     !exhausted &&
     stoppedKey !== errorKey;
+
+  // The pane claims the session only while it is really in charge of it
+  // (zaicodeAutoRetryPaneClaims); otherwise the background retry host (SRC-051)
+  // keeps covering it even though a pane is mounted.
+  const claims = zaicodeAutoRetryPaneClaims({
+    hasSession: Boolean(sessionId),
+    enabled,
+    hasError: Boolean(error),
+    retryable: Boolean(error && isZaicodeAutoRetryableError(error)),
+    armed,
+    stoppedThisError: Boolean(errorKey) && stoppedKey === errorKey,
+  });
+  useEffect(() => {
+    if (!sessionId || !claims) return undefined;
+    localPanes.add(sessionId);
+    return () => {
+      localPanes.delete(sessionId);
+    };
+  }, [claims, sessionId]);
 
   useEffect(() => {
     if (!armed) {
