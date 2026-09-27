@@ -52,8 +52,8 @@ export function ZaicodeMeterSettingsPanel() {
       <ZaicodePrefCheck
         checked={prefs.hideZeroUsage}
         onChange={(hideZeroUsage) => prefs.update({ hideZeroUsage })}
-        label="Hide engines with 0% used"
-        hint="An engine appears once any of its windows was actually used. Engines without a reading stay."
+        label="Hide spent engines"
+        hint="Fresh accounts with 100% remaining stay visible. Accounts without a reading stay visible too."
       />
       <ZaicodePrefCheck
         checked={prefs.onlyUsable5h}

@@ -247,7 +247,7 @@ test("smart mode: empty board + nothing running starts a campaign; a full board 
       rootDir: () => join(h.dir, "audits-empty"),
       readBoard: () => "## DOING\n\n## TODO\n\n## DONE\n\n## BLOCKED\n",
     });
-    await empty.publishProjects([WS]);
+    await empty.publishProjects([{ ...WS, noWorkConfirmed: true }]);
     await empty.setSmartMode(true);
     report = await empty.smartSweep();
     assert.deepEqual(report.started, [WS.workspacePath], "an empty board starts exactly one campaign");

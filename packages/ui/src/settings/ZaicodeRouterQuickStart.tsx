@@ -119,7 +119,7 @@ export function ZaicodeRouterQuickStart() {
   const scan = async () => {
     const result = await scanZaicodeFreeModelsFromUi();
     const card = result ? describeZaicodeFreeModelsAdded(result.added) : null;
-    toast(card ? card.title : result ? "No new free models since the last scan" : "Scan unavailable");
+    toast(result ? [card?.title ?? "Free model scan complete", `${result.checked} models checked`, result.removed.length ? `${result.removed.length} unavailable models removed` : "", result.errors.length ? `${result.errors.length} provider errors` : ""].filter(Boolean).join(" · ") : "Scan unavailable");
     void refreshRouter();
   };
   return (
@@ -173,13 +173,19 @@ export function ZaicodeRouterQuickStart() {
         <span className="text-foreground-subtle">Free scan</span>
         <span className="flex flex-wrap items-center gap-2">
           <span className="text-foreground-subtlest">
-            {state.lastScanAt ? `last ${formatZaicodeDuration(now - state.lastScanAt)} ago · daily` : "not yet · runs daily"}
+            {state.lastScanAt ? `last ${formatZaicodeDuration(now - state.lastScanAt)} ago · hourly` : "not yet · runs hourly"}
           </span>
           <Button size="sm" variant="ghost" className="h-5 px-1" disabled={state.busy !== null} onClick={() => void scan()}>
             {state.busy === "scan" ? "Scanning…" : "Scan now"}
           </Button>
           {state.scan && state.scan.added.length > 0 ? (
             <span className="text-foreground">added: {state.scan.added.map((entry) => entry.id).join(", ")}</span>
+          ) : null}
+          {state.scan && state.scan.removed.length > 0 ? (
+            <span className="text-destructive">removed: {state.scan.removed.join(", ")}</span>
+          ) : null}
+          {state.scan && state.scan.errors.length > 0 ? (
+            <span className="text-destructive" title={state.scan.errors.join("\n")}>{state.scan.errors.length} scan errors</span>
           ) : null}
         </span>
       </div>

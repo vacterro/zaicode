@@ -1704,6 +1704,7 @@ function openUpdateStatusWindow() {
 
 function createWindowInstance(startupBootstrap: StartupWindowBootstrap = {}) {
   const runtimeProcessEnvPreparation = takeRuntimeProcessEnvPreparation();
+  let shiftPressed = false;
   const win = createWindow({
     iconPath,
     preloadPath,
@@ -1714,6 +1715,7 @@ function createWindowInstance(startupBootstrap: StartupWindowBootstrap = {}) {
         platform: process.platform,
         forceQuit: forceQuitRef.current,
         explicitQuitRequested: explicitQuitRef.current,
+        shiftCloseRequested: ZCODE_PRODUCT_FLAVOR === "zaicode" && shiftPressed,
         closeToTrayOnWindows,
         isLastWindow: getMainApplicationWindows().length === 1,
         label,
@@ -1819,6 +1821,16 @@ function createWindowInstance(startupBootstrap: StartupWindowBootstrap = {}) {
       await mainSettingService.update({ desktopWindowSize: state });
     },
   });
+  if (ZCODE_PRODUCT_FLAVOR === "zaicode" && process.platform === "win32") {
+    win.webContents.on("before-input-event", (_event, input) => {
+      if (input.key === "Shift") {
+        shiftPressed = input.type === "keyDown";
+      } else if (input.type === "keyDown" || input.type === "keyUp") {
+        shiftPressed = input.shift;
+      }
+    });
+    win.on("blur", () => { shiftPressed = false; });
+  }
   registerStabilityMainWindow(win);
   return win;
 }

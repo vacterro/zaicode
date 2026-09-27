@@ -23,6 +23,7 @@ import { ZaicodeLimitsPanel, useZaicodeClock, zaicodeReadingTitle, zaicodeVendor
 import {
   ZAICODE_LIMIT_METER_STYLES,
   isZaicodeEngineShown,
+  zaicodeEngineUsableNow,
   setZaicodeLimitMeterStyle,
   useZaicodeLimitMeterStyle,
   useZaicodeMeterPrefs,
@@ -45,7 +46,7 @@ import { zaicodeDevicePx } from "./zaicodePixelSnap.js";
  * AI Limit meter in the title bar (FastPrompter's header meter): one reading
  * per engine, hover for the full breakdown, click for Engines settings,
  * Ctrl+Click cycles Bars / Dots / Stacked, Shift+Click re-reads every quota,
- * right-click: which engines show and how (hide 0% used, only engines that
+ * right-click: which engines show and how (hide spent, only engines that
  * can work now, fill direction, vendor tint, names).
  */
 
@@ -165,10 +166,14 @@ export function ZaicodeLimitMeter({ useWindowsCaptionSpacing = false }: { useWin
   const [rect, setRect] = useState<DOMRect | null>(null);
   const all = visibleZaicodeAccounts(engines);
   if (all.length === 0) return null;
+  const hiddenInEngines = engines.accounts.filter((account) => engines.config.hiddenAccounts.includes(account.id));
   const accounts = all.filter((account) => isZaicodeEngineShown(account, engines.limits[account.id], prefs, "meter", now));
   const shown = accounts.slice(0, MAX_SHOWN);
   const overflow = accounts.length - shown.length;
   const filtered = all.length - accounts.length;
+  const hiddenAvailable = all.filter(
+    (account) => !accounts.includes(account) && account.status === "ready" && zaicodeEngineUsableNow(engines.limits[account.id], now),
+  );
   const look: CellLook = { fill: prefs.fill, vendorTint: prefs.vendorTint, showLabels: prefs.showLabels };
 
   return (
@@ -241,6 +246,16 @@ export function ZaicodeLimitMeter({ useWindowsCaptionSpacing = false }: { useWin
                     Click: Engines settings · Ctrl+Click: Bars / Dots / Stacked · Shift+Click: read all now · Right-click:
                     what the meter shows
                     {filtered > 0 ? ` · ${filtered} hidden from the meter` : ""}
+                    {hiddenAvailable.length > 0 ? (
+                      <span className="block text-foreground-subtle">
+                        {hiddenAvailable.map((account) => account.short).join(", ")} can work now; display filters hide {hiddenAvailable.length === 1 ? "it" : "them"}. Right-click the meter to change the filters.
+                      </span>
+                    ) : null}
+                    {hiddenInEngines.length > 0 ? (
+                      <span className="block text-foreground-subtle">
+                        {hiddenInEngines.map((account) => account.short).join(", ")} hidden in Engines settings.
+                      </span>
+                    ) : null}
                     {overflow > 0 ? ` · +${overflow} more than fit in the header` : ""}
                   </>
                 }

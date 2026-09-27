@@ -10,7 +10,7 @@ import { readZaicodeSetting } from "./zaicodeSettingsSnapshot.js";
 
 /**
  * How the AI limit meters look and which engines they show (FastPrompter's
- * "Gauges & accounts"): hide engines nobody touched (0% used), show only
+ * "Gauges & accounts"): hide exhausted engines, show only
  * engines whose 5h window can work right now, per-engine hide for the meter,
  * fill direction, vendor tint, badges, and the availability tint of the
  * sidebar engine tiles. One store for the title bar meter, the sidebar tiles
@@ -20,7 +20,7 @@ import { readZaicodeSetting } from "./zaicodeSettingsSnapshot.js";
 export type ZaicodeMeterFill = "remaining" | "used";
 
 export interface ZaicodeMeterPrefs {
-  /** Hide engines whose every window still reads 0% used. */
+  /** Legacy key: hide engines with no quota left, including exhausted reserves. */
   hideZeroUsage: boolean;
   /** Show only engines that can work now: the 5h window (or the only window) has quota. */
   onlyUsable5h: boolean;
@@ -167,6 +167,17 @@ export function zaicodeEngineHasUsage(
   return windows.some((window) => !window.assumedFull && (window.remainingPercent ?? 100) < 100);
 }
 
+/** Unknown readings remain visible; a fresh 100%-remaining account is usable. */
+export function zaicodeEngineHasCapacity(
+  snapshot: ZaicodeLimitSnapshot | undefined,
+  now: number = Date.now(),
+): boolean | null {
+  if (!snapshot) return null;
+  const windows = effectiveZaicodeWindows(snapshot.windows, now).filter((window) => window.remainingPercent !== null);
+  if (windows.length === 0) return null;
+  return windows.some((window) => (window.remainingPercent ?? 0) > 0);
+}
+
 /**
  * True when the engine can do work right now. The 5h window is the short gate
  * (a spent 5h refuses work while the weekly pool sits full); a pool without a
@@ -207,7 +218,7 @@ export function isZaicodeEngineShown(
   if (surface === "meter" && prefs.meterHidden.includes(account.id)) return false;
   const filtered = surface === "meter" ? prefs.filterMeter : prefs.filterTiles;
   if (!filtered) return true;
-  if (prefs.hideZeroUsage && zaicodeEngineHasUsage(snapshot, now) === false) return false;
+  if (prefs.hideZeroUsage && zaicodeEngineHasCapacity(snapshot, now) === false) return false;
   if (prefs.onlyUsable5h && !zaicodeEngineUsableNow(snapshot, now)) return false;
   return true;
 }

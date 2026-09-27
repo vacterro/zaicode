@@ -172,10 +172,11 @@ export async function probeZaicodeRouterModel(
   url: string,
   key: string,
   model: string,
+  timeoutMs = PROBE_TIMEOUT_MS,
 ): Promise<{ ok: boolean; ms: number; detail: string; servedBy: string | null }> {
   const started = Date.now();
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), PROBE_TIMEOUT_MS);
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
     const response = await fetch(`${url}/v1/chat/completions`, {
       method: "POST",
@@ -197,7 +198,7 @@ export async function probeZaicodeRouterModel(
       servedBy,
     };
   } catch (error) {
-    return { ok: false, ms: Date.now() - started, detail: controller.signal.aborted ? "no answer in 60 s" : String(error), servedBy: null };
+    return { ok: false, ms: Date.now() - started, detail: controller.signal.aborted ? `no answer in ${Math.round(timeoutMs / 1000)} s` : String(error), servedBy: null };
   } finally {
     clearTimeout(timer);
   }
@@ -207,9 +208,26 @@ export interface ZaicodeFreeScanMemory {
   /** Pool model ids the scanner added before (an operator removal is respected). */
   added: string[];
   lastScanAt: number | null;
+  /** Consecutive successful provider listings in which an automatic model was absent. */
+  missing?: Record<string, number>;
+  /** Bounded direct-call evidence; failures lower a model without deleting it on a transient error. */
+  health?: Record<string, { ok: number; failed: number; lastCheckedAt: number; lastMs: number | null; lastError: string | null }>;
+  /** Consecutive direct responses that explicitly say the model does not exist. */
+  notFound?: Record<string, number>;
+  /** A retired model is retried after this time, without re-adding it first. */
+  retryAfter?: Record<string, number>;
+  /** Provider-published context/tool capability, used only as a tie-breaker. */
+  capability?: Record<string, number>;
+  /** Scanner removal; unlike an operator removal, a future valid listing can restore it. */
+  retired?: string[];
 }
 
 export type ZaicodeJsonFetcher = (url: string) => Promise<unknown>;
+
+function isMissingModelResponse(detail: string): boolean {
+  if (!/^(?:400|404|410):/.test(detail)) return false;
+  return /model[_ -]?not[_ -]?found|\bmodel\b.{0,100}\b(?:not found|does not exist|unknown|unsupported)\b|\b(?:not found|unknown)\b.{0,100}\bmodel\b/i.test(detail);
+}
 
 /**
  * The free-model scan: every free provider wired into 9router lists its
@@ -222,12 +240,21 @@ export async function scanZaicodeFreeModels(
   fetchJson: ZaicodeJsonFetcher,
   memory: ZaicodeFreeScanMemory,
   now: number,
-): Promise<{ added: { id: string; provider: string }[]; memory: ZaicodeFreeScanMemory; errors: string[] }> {
+  probe?: (model: string) => Promise<{ ok: boolean; ms: number; detail: string }>,
+): Promise<{ added: { id: string; provider: string }[]; removed: string[]; checked: number; memory: ZaicodeFreeScanMemory; errors: string[] }> {
   const state = await readZaicodeRouterState(call);
   const pool = state.combos.find((combo) => combo.name === ZAICODE_FREE_POOL);
-  if (!pool) return { added: [], memory: { ...memory, lastScanAt: now }, errors: [`${ZAICODE_FREE_POOL} does not exist yet`] };
+  if (!pool) return { added: [], removed: [], checked: 0, memory: { ...memory, lastScanAt: now }, errors: [`${ZAICODE_FREE_POOL} does not exist yet`] };
   const errors: string[] = [];
   const found: { id: string; provider: string }[] = [];
+  const missing = { ...memory.missing };
+  const health = { ...memory.health };
+  const notFound = { ...memory.notFound };
+  const retryAfter = { ...memory.retryAfter };
+  const capability = { ...memory.capability };
+  const retired = new Set(memory.retired ?? []);
+  const managed = new Set(memory.added);
+  const confirmedAbsent = new Set<string>();
   for (const provider of ZAICODE_FREE_PROVIDERS) {
     const node = state.nodes.find((candidate) => candidate.prefix === provider.prefix);
     const connection = node ? state.connections.find((candidate) => candidate.provider === node.id && candidate.isActive !== false) : undefined;
@@ -236,23 +263,100 @@ export async function scanZaicodeFreeModels(
       const listing = provider.keyless
         ? await fetchJson(provider.modelsUrl)
         : ((await call({ method: "GET", path: `/api/providers/${connection.id}/models` })).data as { models?: unknown } | null)?.models;
-      for (const model of zaicodeFreeModelsFromListing(provider.id, listing)) {
+      const rows = Array.isArray(listing) ? listing : (listing as { data?: unknown } | null)?.data;
+      if (!Array.isArray(rows)) throw new Error("model listing has no array");
+      const listed = new Set(rows.map((row) => (row as { id?: unknown; name?: unknown } | null)?.id ?? (row as { name?: unknown } | null)?.name).filter((id): id is string => typeof id === "string"));
+      for (const row of rows) {
+        if (!row || typeof row !== "object") continue;
+        const entry = row as { id?: unknown; name?: unknown; context_length?: unknown; supported_parameters?: unknown };
+        const modelId = typeof entry.id === "string" ? entry.id : typeof entry.name === "string" ? entry.name : null;
+        if (!modelId) continue;
+        const context = Number(entry.context_length);
+        const tools = Array.isArray(entry.supported_parameters) && entry.supported_parameters.includes("tools");
+        capability[zaicodePoolModelId(node, modelId)] =
+          (Number.isFinite(context) ? context >= 128_000 ? 3 : context >= 32_000 ? 1 : context < 8_000 ? -2 : 0 : 0)
+          + (tools ? 2 : 0)
+          - (/\b(?:mini|nano|small|[1378]b)\b/i.test(modelId) ? 2 : 0);
+      }
+      const freeModels = zaicodeFreeModelsFromListing(provider.id, listing);
+      for (const model of freeModels) {
         found.push({ id: zaicodePoolModelId(node, model), provider: provider.name });
+      }
+      const available = ["kilo", "openrouter", "pollinations", "opencode"].includes(provider.id)
+        ? new Set(freeModels)
+        : listed;
+      for (const model of pool.models.filter((id) => managed.has(id) && id.startsWith(`${node.prefix}/`))) {
+        const modelId = model.slice(node.prefix.length + 1);
+        if (available.has(modelId)) missing[model] = 0;
+        else {
+          missing[model] = Math.min(3, (missing[model] ?? 0) + 1);
+          if (missing[model] >= 2) confirmedAbsent.add(model);
+        }
       }
     } catch (error) {
       errors.push(`${provider.name}: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
-  const removed = memory.added.filter((id) => !pool.models.includes(id));
-  const fresh = zaicodeNewFreeModels(
+  const removedByOperator = memory.added.filter((id) => !pool.models.includes(id) && !retired.has(id));
+  const freshCandidates = zaicodeNewFreeModels(
     found.map((entry) => entry.id),
     pool.models,
-    removed,
+    removedByOperator,
   );
-  if (fresh.length > 0) await setPoolModels(call, pool, [...pool.models, ...fresh]);
+  const fresh = freshCandidates.filter((id) => !retryAfter[id]);
+  const recovering = new Set(freshCandidates.filter((id) => retryAfter[id] && retryAfter[id] <= now));
+  const candidates = [...pool.models.filter((id) => managed.has(id) && !confirmedAbsent.has(id)), ...fresh, ...recovering]
+    .sort((left, right) => (health[left]?.lastCheckedAt ?? 0) - (health[right]?.lastCheckedAt ?? 0))
+    .slice(0, 2);
+  if (probe) {
+    for (const model of candidates) {
+      try {
+        const result = await probe(model);
+        const previous = health[model] ?? { ok: 0, failed: 0, lastCheckedAt: 0, lastMs: null, lastError: null };
+        health[model] = {
+          ok: result.ok ? Math.min(10, previous.ok + 1) : Math.max(0, previous.ok - 2),
+          failed: result.ok ? Math.max(0, previous.failed - 1) : Math.min(10, previous.failed + 1),
+          lastCheckedAt: now,
+          lastMs: result.ms,
+          lastError: result.ok ? null : result.detail.slice(0, 200),
+        };
+        if (result.ok) {
+          notFound[model] = 0;
+          delete retryAfter[model];
+          if (recovering.has(model)) fresh.push(model);
+        } else if (isMissingModelResponse(result.detail)) {
+          notFound[model] = (notFound[model] ?? 0) + 1;
+          if (notFound[model] >= 2) {
+            confirmedAbsent.add(model);
+            retryAfter[model] = now + 24 * 60 * 60 * 1000;
+          }
+        } else {
+          notFound[model] = 0;
+        }
+      } catch (error) {
+        errors.push(`${model}: ${error instanceof Error ? error.message : String(error)}`);
+      }
+    }
+  }
+  for (const model of fresh) retired.delete(model);
+  const before = [...pool.models, ...fresh];
+  const manual = before.filter((id) => !managed.has(id) && !fresh.includes(id));
+  const automatic = before.filter((id) => (managed.has(id) || fresh.includes(id)) && !confirmedAbsent.has(id));
+  const score = (id: string): number => {
+    const record = health[id];
+    return (capability[id] ?? 0) + (record ? 10 * record.ok - 15 * record.failed - (record.lastMs ?? 0) / 10_000 : 0);
+  };
+  automatic.sort((left, right) => score(right) - score(left) || before.indexOf(left) - before.indexOf(right));
+  const ranked = [...manual, ...automatic];
+  if (ranked.some((id, index) => id !== pool.models[index]) || ranked.length !== pool.models.length) {
+    await setPoolModels(call, pool, ranked);
+  }
+  for (const model of confirmedAbsent) retired.add(model);
   return {
-    added: found.filter((entry) => fresh.includes(entry.id)),
-    memory: { added: [...new Set([...memory.added, ...fresh])], lastScanAt: now },
+    added: found.filter((entry) => fresh.includes(entry.id) && !confirmedAbsent.has(entry.id)),
+    removed: [...confirmedAbsent],
+    checked: probe ? candidates.length : 0,
+    memory: { added: [...new Set([...memory.added, ...fresh])], missing, health, notFound, retryAfter, capability, retired: [...retired], lastScanAt: now },
     errors,
   };
 }

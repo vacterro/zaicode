@@ -44,6 +44,8 @@ import { publishZaicodeKnownProjects, readZaicodeKnownProjects, type ZaicodeKnow
 import { publishZaicodeQueueServices } from "./zaicodeAutostart.js";
 import { resolveZaicodeServices } from "./zaicodeServices.js";
 import { useZaicodeAuditStore } from "./zaicodeAuditStore.js";
+import { useZaicodeSessionBriefs } from "./zaicodeContinue.js";
+import { useZaicodeHomeProjects } from "./home/ZaicodeHomeFleet.js";
 import { publishZaicodeHomeServices, useZaicodeWorkerStatsRecorder } from "./home/zaicodeHomeFeed.js";
 import { projectNameOf } from "./zaicodeEngines.js";
 import { ensureZaicodeMotionStyles } from "./zaicodeMotionCss.js";
@@ -319,10 +321,15 @@ function useZaicodeAuditSmartPoller(): void {
   useEffect(() => {
     if (!audits) return;
     const tick = () => {
+      const sessions = useZaicodeSessionBriefs.getState().sessions;
+      const homeRows = useZaicodeHomeProjects.getState().rows;
       const projects = readZaicodeKnownProjects().map((project) => ({
         workspaceKey: project.key,
         workspacePath: project.path,
         projectName: project.name,
+        disabled: homeRows[project.key]?.disabled ?? false,
+        runningSessions: sessions.filter((session) => session.projectKey === project.key && session.running).length,
+        noWorkConfirmed: homeRows[project.key]?.state === "done" && homeRows[project.key]?.blockedTickets === 0,
       }));
       void audits
         .publishProjects(projects)

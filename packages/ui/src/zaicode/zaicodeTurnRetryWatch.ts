@@ -1,6 +1,6 @@
 import { useEffect } from "react";
-import { toast } from "@/components/ui/toast.js";
-import { logger } from "@/logger.js";
+import { toast } from "../components/ui/toast.js";
+import { logger } from "../logger.js";
 import { useZaicodeHomeProjects } from "./home/ZaicodeHomeFleet.js";
 import {
   ZAICODE_CONTINUE_PLAIN_TEXT,
@@ -13,6 +13,7 @@ import { zaicodeContinueHandleFor } from "./zaicodeContinueHost.js";
 import {
   bumpZaicodeAutoRetryAttempt,
   isZaicodeAutoRetryLocal,
+  resetZaicodeAutoRetryAttempt,
   zaicodeAutoRetryAttempts,
 } from "./zaicodeAutoRetry.js";
 import { useZaicodeUiPrefs } from "./zaicodeUiPrefs.js";
@@ -62,6 +63,7 @@ export function pickZaicodeBackgroundRetrySessions(
 export function useZaicodeTurnRetryWatch(): void {
   useEffect(() => {
     const watches = new Map<string, Watch>();
+    const inFlight = new Set<string>();
 
     const clearWatch = (sessionId: string) => {
       const watch = watches.get(sessionId);
@@ -75,43 +77,54 @@ export function useZaicodeTurnRetryWatch(): void {
       watches.delete(brief.sessionId);
       const prefs = useZaicodeUiPrefs.getState();
       if (!prefs.autoRetry) return;
-      if (zaicodeAutoRetryAttempts(brief.sessionId) >= prefs.autoRetryMaxAttempts) return;
-      bumpZaicodeAutoRetryAttempt(brief.sessionId);
-      const attempt = zaicodeAutoRetryAttempts(brief.sessionId);
-      const hasSaipen = useZaicodeHomeProjects.getState().rows[brief.projectKey]?.hasSaipen ?? true;
+      const current = useZaicodeSessionBriefs.getState().sessions.find((item) => item.sessionId === brief.sessionId);
+      if (!current?.failed || current.running || current.waiting || isZaicodeAutoRetryLocal(current.sessionId)) return;
+      if (inFlight.has(current.sessionId)) return;
+      const project = useZaicodeHomeProjects.getState().rows[current.projectKey];
+      if (project?.disabled || zaicodeAutoRetryAttempts(current.sessionId) >= prefs.autoRetryMaxAttempts) return;
+      const hasSaipen = project?.hasSaipen ?? false;
       const unfinishedGoal =
-        brief.goalObjective && (brief.goalStatus === "active" || brief.goalStatus === "paused");
-      const command = unfinishedGoal
-        ? { kind: "goal" as const, objective: brief.goalObjective! }
+        current.goalObjective && (current.goalStatus === "active" || current.goalStatus === "paused");
+      const command = unfinishedGoal && !hasSaipen
+        ? { kind: "goal" as const, objective: current.goalObjective! }
         : {
             kind: "text" as const,
             text: hasSaipen ? ZAICODE_CONTINUE_SAIPEN_TEXT : ZAICODE_CONTINUE_PLAIN_TEXT,
           };
-      const line = `${brief.title} → ${describeZaicodeContinueCommand(command)}`;
+      const line = `${current.title} → ${describeZaicodeContinueCommand(command)}`;
       const handle = zaicodeContinueHandleFor({
-        key: brief.projectKey,
-        path: brief.workspacePath,
-        ...(brief.workspaceIdentity ? { identity: brief.workspaceIdentity } : {}),
+        key: current.projectKey,
+        path: current.workspacePath,
+        ...(current.workspaceIdentity ? { identity: current.workspaceIdentity } : {}),
       });
       if (!handle) {
-        logger.warn("[zaicode] background auto-retry: project not connected", { sessionId: brief.sessionId });
+        logger.warn("[zaicode] background auto-retry: project not connected", { sessionId: current.sessionId });
         return;
       }
-      logger.info("[zaicode] background auto-retry", { sessionId: brief.sessionId, attempt });
+      bumpZaicodeAutoRetryAttempt(current.sessionId);
+      const attempt = zaicodeAutoRetryAttempts(current.sessionId);
+      inFlight.add(current.sessionId);
+      logger.info("[zaicode] background auto-retry", { sessionId: current.sessionId, attempt });
       toast(`Auto-retry (attempt ${attempt}): ${line}`, { durationMs: 6000 });
       void handle
-        .send(brief.sessionId, command)
+        .send(current.sessionId, command)
         .catch((error: unknown) => {
           logger.warn("[zaicode] background auto-retry failed to submit", {
-            sessionId: brief.sessionId,
+            sessionId: current.sessionId,
             error: error instanceof Error ? error.message : String(error),
           });
-        });
+        })
+        .finally(() => inFlight.delete(current.sessionId));
     };
 
     const sweep = () => {
       const prefs = useZaicodeUiPrefs.getState();
       const briefs = useZaicodeSessionBriefs.getState().sessions;
+      for (const brief of briefs) {
+        if (!brief.failed && !brief.running && !brief.waiting && !brief.interrupted && !brief.crashCut) {
+          resetZaicodeAutoRetryAttempt(brief.sessionId);
+        }
+      }
       const failedNow = pickZaicodeBackgroundRetrySessions(briefs, {
         isLocal: isZaicodeAutoRetryLocal,
         isProjectDisabled: (projectKey) => Boolean(useZaicodeHomeProjects.getState().rows[projectKey]?.disabled),
@@ -126,7 +139,7 @@ export function useZaicodeTurnRetryWatch(): void {
       if (!prefs.autoRetry) return;
       const delay = Math.max(1, prefs.autoRetryIntervalSec) * 1000;
       for (const brief of failedNow) {
-        if (watches.has(brief.sessionId)) continue;
+        if (watches.has(brief.sessionId) || inFlight.has(brief.sessionId)) continue;
         const timer = window.setTimeout(() => fire(brief), delay);
         watches.set(brief.sessionId, { timer });
       }

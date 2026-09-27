@@ -82,6 +82,8 @@ export interface ZaicodeAuditCampaign {
   schemaVersion: 1;
   campaignId: string;
   profileId: string;
+  /** Identifies an automatic audit run; manual campaigns have no run id. */
+  smartRunId?: string;
   projectName: string;
   workspaceKey: string;
   workspacePath: string;
@@ -97,6 +99,12 @@ export interface ZaicodeAuditCampaign {
   currentWaveIndex: number;
   waves: ZaicodeAuditCampaignWaveState[];
   finalHandoffFile: string | null;
+  /** Finalizer's explicit count; null means its handoff was not machine readable. */
+  actionableFindings?: number | null;
+  /** Automatic implementation job for this handoff, if findings exist. */
+  remediationJobId?: string | null;
+  /** Current queue status, filled by getState and never used as persisted truth. */
+  remediationStatus?: "draft" | "queued" | "ready" | "running" | "waiting" | "blocked" | "completed" | "failed" | "cancelled" | null;
 }
 
 export function zaicodeAuditWaveOf(profile: typeof ZAICODE_AUDIT_PROFILE_A3, waveId: string): ZaicodeAuditWave | null {
@@ -121,6 +129,7 @@ export function buildZaicodeAuditWavePrompt(input: {
   wave: ZaicodeAuditWave;
   reportFile: string;
   previousReport: string | null;
+  previousReports?: string[];
 }): string {
   return [
     `You are running AUDIT WAVE ${input.wave.ordinal}/3 (${input.wave.title}) of the A3 campaign for project ${input.projectName} at ${input.workspacePath}.`,
@@ -132,14 +141,19 @@ export function buildZaicodeAuditWavePrompt(input: {
     "Write the report EXACTLY to this file (create it, markdown):",
     input.reportFile,
     "",
+    ...(input.wave.finalizer
+      ? ["Count distinct actionable findings across all three waves. Add one machine line before the two closing lines:", "ACTIONABLE_FINDINGS: <non-negative integer>", "Write 0 only when the combined handoff has no next actions.", ""]
+      : []),
     "The report MUST end with these two machine lines (own line each, verbatim):",
     `STATUS: ${input.wave.statusKey}: COMPLETE`,
     input.wave.doneMarker,
     "",
     "Rules: read-only towards the code (change nothing); a wave with no findings still writes the report and both machine lines; never invent file:line; keep it dense.",
-    input.previousReport
-      ? `\nThe previous wave's report (${input.previousReport}) is your base: build on it, do not repeat it.`
-      : "",
+    (input.previousReports?.length ?? 0) > 0
+      ? `\nRead every previous wave report before writing this one: ${input.previousReports!.join(", ")}. Build on them without repeating findings.`
+      : input.previousReport
+        ? `\nThe previous wave's report (${input.previousReport}) is your base: build on it, do not repeat it.`
+        : "",
   ].join("\n");
 }
 
@@ -168,6 +182,14 @@ export function parseZaicodeAuditWaveReport(
     return { complete: false, statusKey: status[1] ?? null, reason: "missing-marker" };
   }
   return { complete: true, statusKey: status[1] ?? null, reason: "ok" };
+}
+
+/** A missing count cannot be treated as a clean audit by automatic mode. */
+export function parseZaicodeAuditActionableFindings(text: string): number | null {
+  const matches = [...text.matchAll(/^ACTIONABLE_FINDINGS:\s*(\d+)\s*$/gm)];
+  if (matches.length !== 1) return null;
+  const count = Number(matches[0]?.[1]);
+  return Number.isSafeInteger(count) ? count : null;
 }
 
 /**

@@ -86,6 +86,7 @@ function briefSignature(brief: ZaicodeSessionBrief): string {
     brief.failed ? 1 : 0,
     brief.interrupted ? 1 : 0,
     brief.crashCut ? 1 : 0,
+    brief.updatedAt,
     brief.model ?? "",
     brief.unreadAt ?? "",
     brief.goalStatus ?? "",
@@ -169,7 +170,9 @@ export function decideZaicodeSessionContinue(
   if (session.goalObjective && session.goalStatus && session.goalStatus !== "complete") {
     return {
       action: "send",
-      command: { kind: "goal", objective: session.goalObjective },
+      command: hasSaipen
+        ? { kind: "text", text: ZAICODE_CONTINUE_SAIPEN_TEXT }
+        : { kind: "goal", objective: session.goalObjective },
       why: session.goalStatus === "paused" ? "its goal was stopped" : "its goal is not finished",
     };
   }
@@ -294,7 +297,9 @@ export function planZaicodeContinueAll(
           projectName: project.name,
           sessionId: session.sessionId,
           title: session.title,
-          command: { kind: "goal", objective: session.goalObjective! },
+          command: project.hasSaipen
+            ? { kind: "text", text: ZAICODE_CONTINUE_SAIPEN_TEXT }
+            : { kind: "goal", objective: session.goalObjective! },
           why: session.goalStatus === "paused" ? "goal was stopped" : "goal not finished",
         });
         continued = true;
@@ -367,18 +372,25 @@ export function zaicodeProjectContinueHandle(projectKey: string): ZaicodeProject
 export interface ZaicodeContinueOutcome {
   sent: string[];
   failed: string[];
+  failedSteps: ZaicodeContinueStep[];
   /** Fresh MAIN sessions created, by project key. */
   started: { projectKey: string; sessionId: string }[];
 }
 
 /** Runs a plan step by step (one host round trip at a time, so a slow host never floods). */
-export async function runZaicodeContinuePlan(plan: ZaicodeContinuePlan): Promise<ZaicodeContinueOutcome> {
-  const outcome: ZaicodeContinueOutcome = { sent: [], failed: [], started: [] };
+export async function runZaicodeContinuePlan(
+  plan: ZaicodeContinuePlan,
+  resolveHandle?: (projectKey: string) => ZaicodeProjectContinueHandle | null,
+  maySend?: (step: ZaicodeContinueStep) => boolean,
+): Promise<ZaicodeContinueOutcome> {
+  const outcome: ZaicodeContinueOutcome = { sent: [], failed: [], failedSteps: [], started: [] };
   for (const step of plan.steps) {
-    const handle = handles.get(step.projectKey);
+    if (maySend && !maySend(step)) continue;
+    const handle = handles.get(step.projectKey) ?? resolveHandle?.(step.projectKey);
     const line = describeZaicodeContinueStep(step);
     if (!handle) {
       outcome.failed.push(`${line}: project not connected`);
+      outcome.failedSteps.push(step);
       continue;
     }
     try {
@@ -391,6 +403,7 @@ export async function runZaicodeContinuePlan(plan: ZaicodeContinuePlan): Promise
       outcome.sent.push(line);
     } catch (error) {
       outcome.failed.push(`${line}: ${error instanceof Error ? error.message : String(error)}`);
+      outcome.failedSteps.push(step);
     }
   }
   return outcome;

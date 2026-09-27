@@ -61,7 +61,10 @@ export function saveZaicodeSettingsSnapshot(json: string): {
   } catch {
     backupPath = null;
   }
-  const root = findZaicodeSourceRoot();
+  // A one-time preview may read the developer's defaults, but saving from it
+  // must stay in its temporary userData instead of modifying the source tree.
+  const isOneTimePreview = process.env.ZCODE_ZAICODE_PREVIEW === "1";
+  const root = isOneTimePreview ? null : findZaicodeSourceRoot();
   let sourcePath: string | null = null;
   if (root) {
     sourcePath = join(root, DEFAULTS_RELATIVE);
@@ -82,7 +85,9 @@ export function saveZaicodeSettingsSnapshot(json: string): {
       ? backupPath
         ? "Saved as the built-in defaults (next build ships them) and backed up."
         : "Saved as the built-in defaults (next build ships them); backup could not be written."
-      : "Source tree not found: saved the backup only.",
+      : isOneTimePreview
+        ? "Saved in this temporary preview session only."
+        : "Source tree not found: saved the backup only.",
     sourcePath,
     backupPath,
   };

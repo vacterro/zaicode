@@ -9,7 +9,7 @@ import {
   readZaicodeSetting,
   ZAICODE_SOUND_CUSTOM_DB,
 } from "./zaicodeSettingsSnapshot.js";
-import { playZaicodeSound, registerZaicodeSoundPlayer } from "./zaicodeSoundBus.js";
+import { playZaicodeSound, registerZaicodeSoundPlayer, zaicodeDirectSoundPlayedSince } from "./zaicodeSoundBus.js";
 import { isZaicodeSoundQuietNow } from "./zaicodeNotifications.js";
 
 /**
@@ -98,6 +98,9 @@ export const ZAICODE_SOUND_EVENTS: readonly ZaicodeSoundEventDef[] = [
   { id: "ui.copy", group: "Interface", label: "Copy", hint: "Something was copied to the clipboard", glyph: "copy", sound: fp("pop.wav"), enabled: true, gainDb: -8 },
   { id: "ui.hotkey", group: "Interface", label: "Keyboard shortcut", hint: "A keyboard shortcut ran an app command (Settings -> Keyboard)", glyph: "key", sound: fp("menu_mnu_click.wav"), enabled: false, gainDb: -10 },
   { id: "ui.toggle", group: "Interface", label: "Switch on / off", hint: "A ZAICODE switch was flipped", glyph: "toggle", sound: fp("switch_toggle.wav"), enabled: true, gainDb: -10 },
+  { id: "ui.button", group: "Interface", label: "Button click", hint: "An ordinary button without its own cue was pressed", glyph: "dot", sound: fp("click_tactile_click.wav"), enabled: true, gainDb: -16 },
+  { id: "ui.select", group: "Interface", label: "Selection changed", hint: "A dropdown or radio choice changed", glyph: "list", sound: fp("menu_mnu_click.wav"), enabled: true, gainDb: -14 },
+  { id: "ui.contextMenu", group: "Interface", label: "Context menu", hint: "A context menu was requested", glyph: "grid", sound: fp("menu_launch_upmenu1.wav"), enabled: true, gainDb: -12 },
   { id: "todo.tick", group: "Interface", label: "Todo done", hint: "A todo item completed", glyph: "check", sound: fp("tick_on.wav"), enabled: true, gainDb: -8 },
   { id: "problip.goal", group: "Interface", label: "Problip goal", hint: "The problip counter reached a round number", glyph: "star", sound: fp("success_levelup.wav"), enabled: true, gainDb: -4 },
 ];
@@ -545,6 +548,27 @@ export function installZaicodeDeclarativeSounds(): void {
     },
     true,
   );
+  document.addEventListener("click", (event) => {
+    const target = event.target instanceof Element ? event.target : null;
+    if (!target || target.closest("[data-zaicode-sound], [aria-disabled='true'], :disabled")) return;
+    if (zaicodeDirectSoundPlayedSince(Date.now() - 80)) return;
+    if (target.closest("[role='switch']")) {
+      playZaicodeSound("ui.toggle");
+      return;
+    }
+    if (target.closest("input[type='checkbox'], input[type='radio'], select")) return;
+    if (target.closest("button, [role='button'], [role='menuitem']")) playZaicodeSound("ui.button");
+  });
+  document.addEventListener("change", (event) => {
+    const target = event.target instanceof Element ? event.target : null;
+    if (!target || target.closest("[data-zaicode-sound], [aria-disabled='true'], :disabled")) return;
+    if (zaicodeDirectSoundPlayedSince(Date.now() - 80)) return;
+    if (target.closest("[role='switch'], input[type='checkbox']")) playZaicodeSound("ui.toggle");
+    else if (target.closest("select, input[type='radio']")) playZaicodeSound("ui.select");
+  });
+  document.addEventListener("contextmenu", () => {
+    if (!zaicodeDirectSoundPlayedSince(Date.now() - 80)) playZaicodeSound("ui.contextMenu");
+  });
 }
 
 export function zaicodeSoundDiagnostics(): string {

@@ -11,7 +11,7 @@ import { createServiceDescriptor } from "../descriptors.js";
  */
 export interface IZaicodeAuditService {
   /** Campaigns plus the smart-mode switch. Reconciles finished waves first. */
-  getState(): Promise<{ campaigns: ZaicodeAuditCampaign[]; smartMode: boolean }>;
+  getState(): Promise<{ campaigns: ZaicodeAuditCampaign[]; smartMode: boolean; maxCycles: number; runId: string | null }>;
   /** A project's newest campaign, or null. */
   getCampaign(campaignId: string): Promise<ZaicodeAuditCampaign | null>;
   /** Generate a campaign into the review queue as `planned`; nothing is dispatched. */
@@ -25,8 +25,10 @@ export interface IZaicodeAuditService {
   readReport(campaignId: string, waveId: string): Promise<string | null>;
   /** Smart mode: empty board + nothing running -> the project starts an A3 campaign itself. */
   setSmartMode(enabled: boolean): Promise<{ smartMode: boolean }>;
+  /** Maximum number of automatic campaigns per project in one run (1..10). */
+  setSmartMaxCycles(maxCycles: number): Promise<{ maxCycles: number }>;
   /** The projects smart mode may audit (pushed by the renderer, which owns the fleet). */
-  publishProjects(projects: { workspaceKey: string; workspacePath: string; projectName: string }[]): Promise<void>;
+  publishProjects(projects: { workspaceKey: string; workspacePath: string; projectName: string; disabled?: boolean; runningSessions?: number; noWorkConfirmed?: boolean }[]): Promise<void>;
   /** Run every project's smart self-audit decision once (the caller owns the clock). */
   smartSweep(): Promise<ZaicodeAuditsReport>;
   dispose(): void;

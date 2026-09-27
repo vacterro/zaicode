@@ -900,16 +900,12 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
     }
     return since;
   }, [taskItems, zaicodeRunningCount]);
-  // SRC-051: project freshness from the last thing that happened in any session.
+  // Project freshness includes session activity and SAIPEN's board checkpoint.
   const zaicodeProjectFreshness = useZaicodeSidebarPrefs((state) => state.projectFreshness);
-  const zaicodeProjectLastActivity = useMemo(
+  const zaicodeSessionLastActivity = useMemo(
     () => taskItems.reduce((latest, task) => Math.max(latest, task.updatedAt ?? 0), 0),
     [taskItems],
   );
-  const zaicodeFreshnessColor =
-    zaicodeProjectFreshness === "off"
-      ? null
-      : ZAICODE_FRESHNESS_COLORS[zaicodeFreshnessBucket(zaicodeProjectLastActivity, Date.now())];
   /** Restores archived sessions (Ctrl+Z after a one-click archive in ZAICODE). */
   const restoreArchivedTasks = useCallback(
     async (tasks: readonly ZCodeTaskMeta[]) => {
@@ -1178,6 +1174,12 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
     isZaicodeProductMode() ? tab.workspacePath : "",
     tab.workspaceIdentity,
   );
+  const boardUpdatedAt = zaicodeSaipen?.updated ? Date.parse(zaicodeSaipen.updated) : 0;
+  const zaicodeProjectLastActivity = Math.max(zaicodeSessionLastActivity, Number.isFinite(boardUpdatedAt) ? boardUpdatedAt : 0);
+  const zaicodeFreshnessColor =
+    zaicodeProjectFreshness === "off"
+      ? null
+      : ZAICODE_FRESHNESS_COLORS[zaicodeFreshnessBucket(zaicodeProjectLastActivity, Date.now())];
   // T-41: one verdict from the read model (SAIPEN projection + sessions + workers of this project).
   const zaicodeRuntime = useZaicodeProjectRuntime(
     isZaicodeProductMode() ? tab.workspacePath : "",

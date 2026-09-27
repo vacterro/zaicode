@@ -16,6 +16,7 @@ import {
 } from "@zcode/shared";
 import { projectNameOf, useZaicodeCurrentWorkspace, useZaicodeEngines, visibleZaicodeAccounts } from "../zaicodeEngines.js";
 import { ZaicodeWorkingIcon } from "../ZaicodeWorkingIcon.js";
+import { useZaicodeSaipen } from "../zaicodeSaipen.js";
 import { groupZaicodeSubchats, type ZaicodeSubchatGroup as ChatGroup } from "./zaicodeSubchatGroups.js";
 import {
   createZaicodeSubchat,
@@ -204,6 +205,7 @@ function MessageRow(props: { message: ZaicodeSubchatMessage; conversation: Zaico
 
 function ChatPane(props: { conversation: ZaicodeSubchatConversation; running: boolean }) {
   const { conversation, running } = props;
+  const saipen = useZaicodeSaipen(conversation.projectPath);
   const theme = useZCodeStoreWithDefault((state) => state.theme, "system");
   const [draft, setDraft] = useState("");
   const scroller = useRef<HTMLDivElement | null>(null);
@@ -239,6 +241,11 @@ function ChatPane(props: { conversation: ZaicodeSubchatConversation; running: bo
         <span className="truncate text-foreground-subtlest" title={conversation.projectPath}>
           {projectNameOf(conversation.projectPath)}
         </span>
+        {saipen ? (
+          <span className="shrink-0 border border-[var(--zaicode-highlight,var(--color-border))] px-1 text-[10px] text-foreground-subtle" title={`SAIPEN ${saipen.phase ?? "active"}: project protocol loads for this chat`}>
+            SAIPEN
+          </span>
+        ) : null}
         {/* SRC-051: model + effort for this chat, from the next turn on. Empty model = ZAICODE's own pick. */}
         <input
           type="text"

@@ -7,7 +7,7 @@ import {
   type MemorySample,
   type RendererHeapSample,
 } from "@zcode/shared";
-import { logMemoryDiagnostics } from "@/logger.js";
+import { logMemoryDiagnostics } from "../logger.js";
 
 /**
  * renderer 内存诊断计数器注册表。

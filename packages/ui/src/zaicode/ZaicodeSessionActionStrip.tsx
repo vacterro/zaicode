@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CheckCheck, FastForward } from "lucide-react";
+import { useOptionalBaseWorkspaceServices } from "@/hooks/useWorkspaceServices.js";
 import { cn } from "@/components/lib/utils.js";
 import { toast } from "@/components/ui/toast.js";
 import {
@@ -15,6 +16,7 @@ import {
   useZaicodeSessionBriefs,
   zaicodeDoneUnseen,
   type ZaicodeContinuePlan,
+  type ZaicodeContinueStep,
   type ZaicodeSessionBrief,
 } from "./zaicodeContinue.js";
 import { registerZaicodeHotkeyHandler } from "./zaicodeHotkeys.js";
@@ -22,6 +24,9 @@ import { useZaicodeMainSessions, zaicodeMainSessionKey } from "./zaicodeMainSess
 import { ZaicodeRightClickSettings } from "./ZaicodePrefControls.js";
 import { openZaicodeSession, useZaicodeSessionNav } from "./zaicodeSessionNav.js";
 import { playZaicodeSound } from "./zaicodeSoundBus.js";
+import { zaicodeContinueHandleFor } from "./zaicodeContinueHost.js";
+import { resolveZaicodeServices } from "./zaicodeServices.js";
+import { useZaicodeAuditStore } from "./zaicodeAuditStore.js";
 
 /**
  * Two big sidebar buttons (SRC-043):
@@ -47,11 +52,29 @@ function sessionLine(session: ZaicodeSessionBrief): string {
 }
 
 export function ZaicodeSessionActionStrip() {
+  const accessor = useOptionalBaseWorkspaceServices();
+  const audits = accessor ? (resolveZaicodeServices(accessor)?.audits ?? null) : null;
+  const auto = useZaicodeAuditStore();
   const projects = useZaicodeHomeProjectInputs();
   const rows = useZaicodeHomeProjects((state) => state.rows);
   const sessions = useZaicodeSessionBriefs((state) => state.sessions);
   const activeTaskId = useZaicodeSessionNav((state) => state.activeTaskId);
   const [running, setRunning] = useState(false);
+  const autoBusy = useRef(false);
+  const autoEnabled = useRef(auto.smartMode);
+  const autoSwitchPending = useRef(false);
+  const autoSignature = useRef("");
+  const autoRetryAt = useRef(0);
+  const autoRetryOnly = useRef<ZaicodeContinueStep[] | null>(null);
+
+  useEffect(() => {
+    if (audits) void auto.refresh(audits);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- refresh is a stable store action
+  }, [audits]);
+
+  useEffect(() => {
+    if (!autoSwitchPending.current) autoEnabled.current = auto.smartMode;
+  }, [auto.smartMode]);
 
   const plan = useMemo(
     () =>
@@ -74,13 +97,71 @@ export function ZaicodeSessionActionStrip() {
   const done = useMemo(() => zaicodeDoneUnseen(sessions), [sessions]);
   // SRC-044: cut off mid-turn is never DONE; listed apart so it is not lost either.
   const interrupted = useMemo(() => sessions.filter((session) => session.interrupted), [sessions]);
+  const resolveHandle = useCallback((projectKey: string) => {
+    const project = projects.find((candidate) => candidate.key === projectKey);
+    return project ? zaicodeContinueHandleFor(project) : null;
+  }, [projects]);
+
+  // Auto advances a changed project once. The next board or session update
+  // arms the next pass; an unchanged snapshot cannot flood a cold host.
+  useEffect(() => {
+    if (!auto.smartMode) {
+      autoSignature.current = "";
+      autoRetryAt.current = 0;
+      autoRetryOnly.current = null;
+      return;
+    }
+    const tick = async () => {
+      if (!autoEnabled.current || autoBusy.current || Date.now() < autoRetryAt.current) return;
+      const steps = plan.steps.filter((step) => step.why !== "stopped on an error");
+      if (steps.length === 0) return;
+      const signature = JSON.stringify([auto.runId, steps, steps.map((step) => {
+        const row = rows[step.projectKey];
+        const session = step.kind === "session" ? sessions.find((item) => item.sessionId === step.sessionId) : null;
+        return [row?.lastAction, row?.openTickets, row?.phase, session?.updatedAt];
+      })]);
+      if (signature !== autoSignature.current) autoRetryOnly.current = null;
+      else if (autoRetryOnly.current === null) return;
+      autoSignature.current = signature;
+      autoBusy.current = true;
+      try {
+        const outcome = await runZaicodeContinuePlan(
+          { steps: autoRetryOnly.current ?? steps, skipped: plan.skipped },
+          resolveHandle,
+          // 关闭 Auto 或停用项目时，已排队的后续步骤也不能继续发送。
+          (step) => autoEnabled.current && !useZaicodeHomeProjects.getState().rows[step.projectKey]?.disabled,
+        );
+        for (const started of outcome.started) {
+          const project = projects.find((candidate) => candidate.key === started.projectKey);
+          if (project) useZaicodeMainSessions.getState().setMain(zaicodeMainSessionKey(project.path, project.identity), started.sessionId);
+        }
+        if (outcome.failed.length > 0) {
+          autoRetryOnly.current = outcome.failedSteps;
+          autoRetryAt.current = Date.now() + 60_000;
+          toast(`Auto could not continue:\n${outcome.failed.join("\n")}`, { variant: "warning", durationMs: 10_000 });
+        } else {
+          autoRetryOnly.current = null;
+          autoRetryAt.current = 0;
+        }
+      } catch (error) {
+        autoRetryOnly.current = null;
+        autoRetryAt.current = Date.now() + 60_000;
+        toast(`Auto failed: ${error instanceof Error ? error.message : String(error)}`, { variant: "warning", durationMs: 10_000 });
+      } finally {
+        autoBusy.current = false;
+      }
+    };
+    void tick();
+    const timer = window.setInterval(() => void tick(), 15_000);
+    return () => window.clearInterval(timer);
+  }, [auto.smartMode, auto.runId, plan, projects, rows, sessions, resolveHandle]);
 
   const continueAll = async () => {
     if (running || plan.steps.length === 0) return;
     setRunning(true);
     playZaicodeSound("ui.toggle");
     try {
-      const outcome = await runZaicodeContinuePlan(plan);
+      const outcome = await runZaicodeContinuePlan(plan, resolveHandle);
       for (const started of outcome.started) {
         const project = projects.find((candidate) => candidate.key === started.projectKey);
         if (project) {
@@ -127,7 +208,7 @@ export function ZaicodeSessionActionStrip() {
     <>
       {/* The verdicts CONTINUE ALL needs (SAIPEN open tickets, MAIN, switched off), shared with SAIHOME. */}
       <ZaicodeHomeProjectProbes projects={projects} />
-      <div className="grid grid-cols-[1fr_auto] gap-1 px-2 pb-1.5" data-zaicode-session-actions="">
+      <div className="grid grid-cols-[1fr_auto_auto] gap-1 px-2 pb-1.5" data-zaicode-session-actions="">
         <ZaicodeRightClickSettings
           title="CONTINUE ALL — what it will do"
           panel={<pre className="whitespace-pre-wrap text-foreground">{planTooltip(plan)}</pre>}
@@ -152,6 +233,25 @@ export function ZaicodeSessionActionStrip() {
             {plan.steps.length > 0 ? count(plan.steps.length) : null}
           </button>
         </ZaicodeRightClickSettings>
+        <button
+          type="button"
+          className={cn(big, auto.smartMode ? "border-[var(--zaicode-highlight,var(--color-border-hover))] bg-selected text-foreground" : "border-border text-foreground-subtle")}
+          aria-pressed={auto.smartMode}
+          disabled={!audits}
+          title={`Auto: continue open project work, wait for SAIPEN to report DONE, then run A3 audits and implement findings. Maximum ${auto.maxCycles} audit cycles per project; change it in Audits.`}
+          onClick={() => {
+            if (audits && !autoSwitchPending.current) {
+              autoSwitchPending.current = true;
+              autoEnabled.current = !auto.smartMode;
+              void auto.setSmartMode(audits, !auto.smartMode).finally(() => {
+                autoSwitchPending.current = false;
+                autoEnabled.current = useZaicodeAuditStore.getState().smartMode;
+              });
+            }
+          }}
+        >
+          Auto {auto.smartMode ? "ON" : "OFF"}
+        </button>
         <ZaicodeRightClickSettings
           title="Finished, not seen yet"
           align="end"

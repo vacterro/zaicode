@@ -40,6 +40,8 @@ export interface ZaicodeRouterBootstrapResult {
 
 export interface ZaicodeFreeScanResult {
   added: { id: string; provider: string }[];
+  removed: string[];
+  checked: number;
   errors: string[];
   lastScanAt: number;
 }

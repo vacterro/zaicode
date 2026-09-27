@@ -65,7 +65,25 @@ async function ensureKey(url: string): Promise<{ key: string; created: boolean }
 
 function scanMemory(): ZaicodeFreeScanMemory {
   const raw = readJson<Partial<ZaicodeFreeScanMemory>>(SCAN_FILE, {});
-  return { added: Array.isArray(raw.added) ? raw.added.filter((id) => typeof id === "string") : [], lastScanAt: typeof raw.lastScanAt === "number" ? raw.lastScanAt : null };
+  const missing = Object.fromEntries(Object.entries(raw.missing ?? {}).filter((entry) => Number.isInteger(entry[1]) && entry[1] >= 0));
+  const notFound = Object.fromEntries(Object.entries(raw.notFound ?? {}).filter((entry) => Number.isInteger(entry[1]) && entry[1] >= 0));
+  const retryAfter = Object.fromEntries(Object.entries(raw.retryAfter ?? {}).filter((entry) => typeof entry[1] === "number" && Number.isFinite(entry[1]) && entry[1] >= 0));
+  const capability = Object.fromEntries(Object.entries(raw.capability ?? {}).filter((entry) => typeof entry[1] === "number" && Number.isFinite(entry[1])));
+  const health = Object.fromEntries(Object.entries(raw.health ?? {}).filter(([, value]) =>
+    value && Number.isInteger(value.ok) && value.ok >= 0 && Number.isInteger(value.failed) && value.failed >= 0
+      && Number.isFinite(value.lastCheckedAt) && (value.lastMs === null || Number.isFinite(value.lastMs))
+      && (value.lastError === null || typeof value.lastError === "string"),
+  ));
+  return {
+    added: Array.isArray(raw.added) ? raw.added.filter((id) => typeof id === "string") : [],
+    lastScanAt: typeof raw.lastScanAt === "number" ? raw.lastScanAt : null,
+    missing,
+    notFound,
+    retryAfter,
+    health,
+    capability,
+    retired: Array.isArray(raw.retired) ? raw.retired.filter((id): id is string => typeof id === "string") : [],
+  };
 }
 
 async function waitHealthy(url: string, ms: number): Promise<boolean> {
@@ -82,7 +100,7 @@ async function waitHealthy(url: string, ms: number): Promise<boolean> {
  * operator's own 9router (shared) is only topped up, never rebuilt.
  */
 let inflight: Promise<ZaicodeRouterBootstrapResult> | null = null;
-let inflightScan: Promise<{ added: { id: string; provider: string }[]; errors: string[]; lastScanAt: number }> | null = null;
+let inflightScan: Promise<{ added: { id: string; provider: string }[]; removed: string[]; checked: number; errors: string[]; lastScanAt: number }> | null = null;
 
 /**
  * One setup at a time for the whole app: several windows starting together
@@ -207,13 +225,21 @@ async function fetchJson(url: string): Promise<unknown> {
   }
 }
 
-export function scanZaicodeFreeModelsNow(): Promise<{ added: { id: string; provider: string }[]; errors: string[]; lastScanAt: number }> {
+export function scanZaicodeFreeModelsNow(): Promise<{ added: { id: string; provider: string }[]; removed: string[]; checked: number; errors: string[]; lastScanAt: number }> {
   // One scan at a time (every window schedules its own check); the second caller gets the same answer.
   inflightScan ??= (async () => {
     const now = Date.now();
-    const result = await scanZaicodeFreeModels(callZaicodeRouterInternal, fetchJson, scanMemory(), now);
+    const host = getZaicodeRouterHostStatus();
+    const key = host.running ? await ensureKey(host.url).then((value) => value.key).catch(() => null) : null;
+    const result = await scanZaicodeFreeModels(
+      callZaicodeRouterInternal,
+      fetchJson,
+      scanMemory(),
+      now,
+      key ? (model) => probeZaicodeRouterModel(host.url, key, model, 20_000) : undefined,
+    );
     writeJson(SCAN_FILE, result.memory);
-    return { added: result.added, errors: result.errors, lastScanAt: now };
+    return { added: result.added, removed: result.removed, checked: result.checked, errors: result.errors, lastScanAt: now };
   })().finally(() => {
     inflightScan = null;
   });

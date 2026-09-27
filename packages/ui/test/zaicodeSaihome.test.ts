@@ -125,7 +125,9 @@ test("limits wall: filters, temporary show-all, sign-in always visible, stale ma
   const input = {
     accounts: [account("A1"), account("A2"), account("C1", "login-required"), account("H")],
     hiddenAccounts: ["H"],
-    limits: { A1: snapshot("A1", now - 60_000, 40), A2: snapshot("A2", now - 60_000, 100), C1: snapshot("C1", now, 0) },
+    // A2 is exhausted (0% remaining): hidden by hideZeroUsage. A fresh 100%-remaining
+    // account is NOT hidden anymore (R002) -- capacity, not usage, is the filter.
+    limits: { A1: snapshot("A1", now - 60_000, 40), A2: snapshot("A2", now - 60_000, 0), C1: snapshot("C1", now, 0) },
     meterPrefs: { ...ZAICODE_METER_DEFAULT_PREFS, hideZeroUsage: true, filterMeter: true },
     showAll: false,
     now,

@@ -370,6 +370,7 @@ export function handleDesktopWindowCloseRequest(options: {
   platform: NodeJS.Platform;
   forceQuit: boolean;
   explicitQuitRequested?: boolean;
+  shiftCloseRequested?: boolean;
   closeToTrayOnWindows?: boolean;
   isLastWindow: boolean;
   label: string;
@@ -379,6 +380,12 @@ export function handleDesktopWindowCloseRequest(options: {
   requestQuit: () => void;
   hideWindow?: () => void;
 }) {
+  if (options.platform === "win32" && options.shiftCloseRequested) {
+    options.logger.info(`[createWindow] Shift+close requested app quit (${options.label})`);
+    options.requestQuit();
+    return true;
+  }
+
   if (
     options.platform === "win32" &&
     options.closeToTrayOnWindows &&

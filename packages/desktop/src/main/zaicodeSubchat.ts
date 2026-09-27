@@ -1,11 +1,13 @@
 import { app, type WebContents } from "electron";
-import { statSync } from "node:fs";
+import { existsSync, statSync } from "node:fs";
+import { join } from "node:path";
 import {
   ZAICODE_SUBCHAT_ARG_PROMPT_MAX,
   ZAICODE_SUBCHAT_ARG_PROMPT_VENDORS,
   buildZaicodeSubchatInvocation,
   isZaicodeSubchatEffort,
   isZaicodeSubchatVendor,
+  isZaicodeRawCommand,
   zaicodeSubchatAutoModel,
   zaicodeSubchatUnavailableReason,
   type ZaicodeSubchatEvent,
@@ -105,10 +107,22 @@ export async function runZaicodeSubchatTurn(
     return { ok: false, message: unavailable ?? `${account.label} cannot chat inside ZAICODE.` };
   }
   if (!isDirectory(request.projectPath)) return { ok: false, message: `Project folder not found: ${request.projectPath}` };
+  const hasSaipen = existsSync(join(request.projectPath, ".saipen", "STATE.md"));
+  // Exact SAIPEN shortcuts and slash commands must remain the whole prompt.
+  const rawCommand = isZaicodeRawCommand(request.prompt) || /^saipen(?:\s|$)/i.test(request.prompt.trim());
+  const prompt = hasSaipen && !rawCommand
+    ? [
+        "This project uses SAIPEN. Before answering, read its AGENTS.md when present and .saipen/STATE.md; load the installed SAIPEN BOOT.md, STYLE.md and EXECUTION.md, then follow its project protocol.",
+        "Keep the user's task and the reply language required by SAIPEN STYLE.md.",
+        "",
+        "USER REQUEST:",
+        request.prompt,
+      ].join("\n")
+    : request.prompt;
   // Antigravity / ZCode read the prompt only from the command line (SRC-048): a long one goes via a file.
   let promptFile: string | null = null;
-  if (ZAICODE_SUBCHAT_ARG_PROMPT_VENDORS.includes(account.vendor) && request.prompt.length > ZAICODE_SUBCHAT_ARG_PROMPT_MAX) {
-    const written = await writeZaicodePromptFile(request.prompt);
+  if (ZAICODE_SUBCHAT_ARG_PROMPT_VENDORS.includes(account.vendor) && prompt.length > ZAICODE_SUBCHAT_ARG_PROMPT_MAX) {
+    const written = await writeZaicodePromptFile(prompt);
     if (!written.ok) {
       return {
         ok: false,
@@ -122,7 +136,7 @@ export async function runZaicodeSubchatTurn(
   // The operator's explicit pick (SRC-051) wins over the auto logic.
   const model = request.model || zaicodeSubchatAutoModel(account.vendor, engines.limits[account.id]?.windows);
   const invocation = buildZaicodeSubchatInvocation(account, {
-    prompt: request.prompt,
+    prompt,
     sessionId: request.sessionId,
     yolo: engines.config.workerYolo,
     model,

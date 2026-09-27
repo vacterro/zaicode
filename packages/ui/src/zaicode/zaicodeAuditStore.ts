@@ -21,6 +21,8 @@ export interface ZaicodeAuditProject {
 interface ZaicodeAuditStoreState {
   campaigns: ZaicodeAuditCampaign[];
   smartMode: boolean;
+  maxCycles: number;
+  runId: string | null;
   loading: boolean;
   error: string | null;
   refresh: (audits: IZaicodeAuditService) => Promise<void>;
@@ -29,6 +31,7 @@ interface ZaicodeAuditStoreState {
   start: (audits: IZaicodeAuditService, project: ZaicodeAuditProject) => Promise<void>;
   cancel: (audits: IZaicodeAuditService, campaignId: string) => Promise<void>;
   setSmartMode: (audits: IZaicodeAuditService, enabled: boolean) => Promise<void>;
+  setMaxCycles: (audits: IZaicodeAuditService, maxCycles: number) => Promise<void>;
   campaignsFor: (workspacePath: string) => ZaicodeAuditCampaign[];
   activeCountFor: (workspacePath: string) => number;
 }
@@ -51,6 +54,8 @@ export const useZaicodeAuditStore = create<ZaicodeAuditStoreState>((set, get) =>
   return {
     campaigns: [],
     smartMode: false,
+    maxCycles: 10,
+    runId: null,
     loading: false,
     error: null,
 
@@ -58,7 +63,7 @@ export const useZaicodeAuditStore = create<ZaicodeAuditStoreState>((set, get) =>
       set({ loading: true });
       try {
         const state = await audits.getState();
-        set({ campaigns: state.campaigns, smartMode: state.smartMode, loading: false, error: null });
+        set({ campaigns: state.campaigns, smartMode: state.smartMode, maxCycles: state.maxCycles, runId: state.runId, loading: false, error: null });
       } catch (error) {
         logger.error("[zaicode-audits] refresh failed", { error: describeError(error) });
         set({ loading: false, error: describeError(error) });
@@ -70,6 +75,7 @@ export const useZaicodeAuditStore = create<ZaicodeAuditStoreState>((set, get) =>
     start: (audits, project) => after(audits, () => audits.start(project)),
     cancel: (audits, campaignId) => after(audits, () => audits.cancel(campaignId)),
     setSmartMode: (audits, enabled) => after(audits, () => audits.setSmartMode(enabled)),
+    setMaxCycles: (audits, maxCycles) => after(audits, () => audits.setSmartMaxCycles(maxCycles)),
 
     campaignsFor: (workspacePath) =>
       get()

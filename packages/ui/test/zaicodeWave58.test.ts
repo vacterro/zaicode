@@ -148,7 +148,7 @@ function project(patch: Partial<ZaicodeContinueProject> & { key: string }): Zaic
 
 test("continue one session: goal taken up again, cc / continue, a waiting one opens, a running one is left", () => {
   const goal = decideZaicodeSessionContinue(brief({ sessionId: "s", projectKey: "a", goalStatus: "paused", goalObjective: "cc all" }), true);
-  assert.deepEqual(goal, { action: "send", command: { kind: "goal", objective: "cc all" }, why: "its goal was stopped" });
+  assert.deepEqual(goal, { action: "send", command: { kind: "text", text: "cc" }, why: "its goal was stopped" });
   assert.deepEqual(decideZaicodeSessionContinue(brief({ sessionId: "s", projectKey: "a" }), true), {
     action: "send",
     command: { kind: "text", text: "cc" },
@@ -187,7 +187,7 @@ test("CONTINUE ALL: stopped goals and failed turns, SAIPEN work via MAIN or a ne
       ? `start:${step.projectKey}:${step.command.kind === "goal" ? step.command.objective : ""}`
       : `${step.sessionId}:${step.command.kind === "goal" ? `goal ${step.command.objective}` : step.command.text}`,
   );
-  assert.deepEqual(summary, ["g1:goal cc all", "f1:continue", "m1:goal cc all", "start:fresh:cc all"]);
+  assert.deepEqual(summary, ["g1:cc", "f1:continue", "m1:goal cc all", "start:fresh:cc all"]);
   assert.deepEqual(plan.skipped, [
     { name: "failed", why: "1 session(s) wait for your answer" },
     { name: "off", why: "switched off" },

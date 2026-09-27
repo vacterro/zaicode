@@ -55,7 +55,7 @@ const TOPICS: readonly HelpTopic[] = [
     lines: [
       "Hover — full breakdown: each window (5h, weekly…), percent left, when it resets.",
       "Click — Engines settings · Ctrl+Click — Stacked / Bars / Dots · Shift+Click — read every quota now.",
-      "Right-click — which engines show: hide 0% used, only engines whose 5h window can work now, hide one engine from the meter only, bars show left or used, vendor tint, names.",
+      "Right-click — which engines show: hide spent accounts, only engines whose 5h window can work now, hide one engine from the meter only, bars show left or used, vendor tint, names.",
       "Reading quota never spends quota: each vendor's own read-only call is used.",
     ],
     open: { label: "Meter settings", section: "zaicodeEngines" },

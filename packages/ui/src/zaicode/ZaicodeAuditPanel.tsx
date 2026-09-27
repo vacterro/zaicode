@@ -130,6 +130,15 @@ function CampaignCard({
             </div>
           );
         })}
+        {campaign.smartRunId && campaign.actionableFindings !== undefined && (
+          <div className="mt-1 border-t border-border/40 pt-1 text-[11px] text-foreground-subtle">
+            {campaign.actionableFindings === 0
+              ? "No actionable findings · Auto stopped for this project"
+              : campaign.actionableFindings === null
+                ? "Final report incomplete or missing ACTIONABLE_FINDINGS count"
+                : `${campaign.actionableFindings} actionable findings · implementation ${campaign.remediationStatus ?? (campaign.remediationJobId ? "unknown" : "pending")}`}
+          </div>
+        )}
         {report && (
           <pre className="mt-1 max-h-48 overflow-y-auto whitespace-pre-wrap break-words border-t border-border/40 pt-1 font-mono text-[10px] text-foreground-subtle">
             {report}
@@ -190,6 +199,17 @@ export function ZaicodeAuditPanel({ services, workspace }: ZaicodeAuditPanelProp
           <Zap className="size-3" />
           smart
           <Switch checked={store.smartMode} onCheckedChange={(enabled) => void store.setSmartMode(audits, enabled)} />
+        </label>
+        <label className="flex items-center gap-1 text-[10px] text-foreground-muted" title="Maximum automatic A3 campaigns per project in one Auto run">
+          Max A3
+          <select
+            aria-label="Maximum automatic A3 campaigns"
+            className="h-5 border border-border bg-background px-1 text-foreground"
+            value={store.maxCycles}
+            onChange={(event) => void store.setMaxCycles(audits, Number(event.target.value))}
+          >
+            {Array.from({ length: 10 }, (_, index) => index + 1).map((count) => <option key={count} value={count}>{count}</option>)}
+          </select>
         </label>
         <div className="ml-auto flex items-center gap-1">
           <Button size="sm" variant="outline" title="Generate + work: a new A3 campaign, wave 1 dispatched now" onClick={startNow}>

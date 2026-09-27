@@ -107,13 +107,13 @@ test("meter rules apply per surface; per-engine hide is meter only", () => {
   const idle = snapshot([window("five_hour", 100), window("weekly", 100)]);
   const spent = snapshot([window("five_hour", 0), window("weekly", 50)]);
   const busy = snapshot([window("five_hour", 60), window("weekly", 70)]);
-  assert.equal(isZaicodeEngineShown(account("a1"), idle, prefs, "meter", NOW), false);
+  assert.equal(isZaicodeEngineShown(account("a1"), idle, prefs, "meter", NOW), true);
   assert.equal(isZaicodeEngineShown(account("a1"), spent, prefs, "meter", NOW), false);
   assert.equal(isZaicodeEngineShown(account("a1"), busy, prefs, "meter", NOW), true);
   assert.equal(isZaicodeEngineShown(account("c2"), busy, prefs, "meter", NOW), false, "hidden from the meter");
   assert.equal(isZaicodeEngineShown(account("c2"), busy, prefs, "tiles", NOW), true, "but not from the tiles");
   assert.equal(isZaicodeEngineShown(account("a1"), idle, prefs, "tiles", NOW), true, "rules skip the tiles by default");
-  assert.equal(isZaicodeEngineShown(account("a1"), idle, { ...prefs, filterTiles: true }, "tiles", NOW), false);
+  assert.equal(isZaicodeEngineShown(account("a1"), idle, { ...prefs, filterTiles: true }, "tiles", NOW), true);
 });
 
 test("meter prefs heal bad values; fill runs both ways; tint is off at 0", () => {

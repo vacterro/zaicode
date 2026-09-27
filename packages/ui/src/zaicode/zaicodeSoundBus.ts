@@ -45,6 +45,11 @@ export function createZaicodeSoundMemory(): SoundMemory {
 let player: ZaicodeSoundPlayer | null = null;
 const memory = createZaicodeSoundMemory();
 
+/** Lets the generic UI listener stand down when a control played its own cue. */
+export function zaicodeDirectSoundPlayedSince(at: number): boolean {
+  return memory.lastDirectAt >= at;
+}
+
 export function registerZaicodeSoundPlayer(next: ZaicodeSoundPlayer): void {
   player = next;
 }

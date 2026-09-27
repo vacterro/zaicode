@@ -26,7 +26,7 @@ import {
  * one thing only the app can: a "SAIRoute" provider in the model list that
  * points at that router, with SAIFREN and SAIOPP as models and SAIFREN as the
  * default for new tasks when nothing else was chosen. Then the free-model
- * scan runs daily and says what it added.
+ * scan runs hourly and says what it added.
  */
 
 type ProviderSettingsService = ReturnType<typeof useServices>["providerSettingsService"];
@@ -34,8 +34,8 @@ type ProviderSettingsService = ReturnType<typeof useServices>["providerSettingsS
 const ROUTER_PROVIDER_NAME = "SAIRoute";
 const POOL_LIMITS_REV_KEY = "zaicode-pool-limits-rev";
 const POOL_LIMITS_REV = 1;
-const SCAN_EVERY_MS = 20 * 60 * 60 * 1000;
-const SCAN_CHECK_MS = 60 * 60 * 1000;
+const SCAN_EVERY_MS = 60 * 60 * 1000;
+const SCAN_CHECK_MS = 10 * 60 * 1000;
 
 let started = false;
 
@@ -173,19 +173,23 @@ async function scanIfDue(): Promise<void> {
   if (card) notifyZaicode("router.free", { ...card, status: "New free model", key: "router.free" });
 }
 
-/** Mount once (ZAICODE runtime): setup at start, then the daily scan. */
+/** Mount once (ZAICODE runtime): setup at start, then the hourly health scan. */
 export function useZaicodeRouterAutoSetup(): void {
   const { providerSettingsService } = useServices();
   useEffect(() => {
     if (started || !getZaicodeRouterSetupBridge()) return;
     started = true;
     let timer: number | null = null;
+    let disposed = false;
     void runZaicodeRouterSetup(providerSettingsService, "setup").then(() => {
+      if (disposed) return;
       void scanIfDue();
       timer = window.setInterval(() => void scanIfDue(), SCAN_CHECK_MS);
     });
     return () => {
+      disposed = true;
       if (timer !== null) window.clearInterval(timer);
+      started = false;
     };
   }, [providerSettingsService]);
 }

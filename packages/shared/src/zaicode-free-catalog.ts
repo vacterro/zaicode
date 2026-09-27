@@ -224,7 +224,7 @@ export function zaicodeNewFreeModels(
 ): string[] {
   const have = new Set(pool);
   const removed = new Set(removedByOperator);
-  return found.filter((id) => !have.has(id) && !removed.has(id));
+  return [...new Set(found)].filter((id) => !have.has(id) && !removed.has(id));
 }
 
 export interface ZaicodeFreePoolPlanInput {
