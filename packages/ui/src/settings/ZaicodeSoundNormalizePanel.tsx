@@ -8,7 +8,7 @@ import {
   zaicodeEffectiveGainDb,
   zaicodeSoundEventDef,
 } from "@/zaicode/zaicodeSoundSettingsModel.js";
-import { resolveSoundUrl } from "@/zaicode/zaicodeSoundEvents.js";
+import { playZaicodeSoundFile, resolveSoundUrl } from "@/zaicode/zaicodeSoundEvents.js";
 import {
   ZAICODE_NORMALIZE_ATTENUATION_CAP_DEFAULT,
   ZAICODE_NORMALIZE_ATTENUATION_CAP_MAX,
@@ -211,7 +211,27 @@ export function ZaicodeSoundNormalizePanel() {
                     <td className="py-0.5 pr-2">{zaicodeSoundEventDef(row.id)?.label ?? row.id}</td>
                     <td className="py-0.5 pr-2 tabular-nums">{row.measured ? `${row.beforeDb.toFixed(1)} dB` : "—"}</td>
                     <td className="py-0.5 pr-2 tabular-nums">
-                      {row.gainDb > 0 ? `+${row.gainDb}` : row.gainDb} dB
+                      <span className="inline-flex items-center gap-1">
+                        {row.gainDb > 0 ? `+${row.gainDb}` : row.gainDb} dB
+                        <button
+                          type="button"
+                          className="flex size-4 items-center justify-center border border-border text-foreground-subtle hover:bg-hover hover:text-foreground disabled:opacity-40"
+                          data-zaicode-normalize-preview={row.id}
+                          disabled={!row.measured}
+                          title={`Hear this one at ${row.afterDb.toFixed(1)} dB, before anything is stored`}
+                          onClick={() => {
+                            const event = settings.events[row.id];
+                            if (!event) return;
+                            void playZaicodeSoundFile(event.sound, {
+                              gainDb: zaicodeEffectiveGainDb(event) + row.gainDb,
+                              preview: true,
+                              ownMix: true,
+                            });
+                          }}
+                        >
+                          <Play className="size-2.5" />
+                        </button>
+                      </span>
                     </td>
                     <td className="py-0.5 pr-2 tabular-nums">{row.measured ? `${row.afterDb.toFixed(1)} dB` : "—"}</td>
                     <td className="py-0.5 text-foreground-subtlest">{REASON_TEXT[row.reason]}</td>
@@ -221,7 +241,8 @@ export function ZaicodeSoundNormalizePanel() {
             </table>
           </div>
           <p className="text-foreground-subtlest">
-            Preview one: nothing is stored yet, so a sound you do not like costs nothing to try.
+            Nothing is stored yet: the arrow auditions a sound at the level written in the table, so a proposal you do not
+            like costs nothing to try.
           </p>
         </div>
       ) : null}

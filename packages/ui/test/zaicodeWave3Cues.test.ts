@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { test } from "node:test";
 
 import {
@@ -197,6 +199,37 @@ test("Wave 3 A: apply is one change per event, and undo leaves the operator's ow
   assert.equal(undone.events["agent.done"]!.normalizeDb, 0);
   assert.equal(undone.events["agent.done"]!.sound, "fastprompter:mine.wav");
   assert.equal(undone.events["agent.done"]!.gainDb, -6);
+});
+
+test("Wave 3 A: the settings screen really offers the controls the wave asks for", () => {
+  const source = readFileSync(join(import.meta.dirname, "..", "src", "settings", "ZaicodeSoundNormalizePanel.tsx"), "utf8");
+  for (const hook of [
+    "data-zaicode-normalize-run", // the one action
+    "data-zaicode-normalize-apply", // atomic apply
+    "data-zaicode-normalize-undo", // undo that keeps the operator's own choices
+    "data-zaicode-normalize-preview", // hear it BEFORE it is stored
+  ]) {
+    assert.ok(source.includes(hook), `the panel offers ${hook}`);
+  }
+  // The preview must play at the PROPOSED level, not the current one.
+  assert.match(source, /gainDb: zaicodeEffectiveGainDb\(event\) \+ row\.gainDb/);
+  // Profile and the negative cap are on the same panel, not buried.
+  assert.match(source, /ZAICODE_NORMALIZE_ATTENUATION_CAP_MIN/);
+  assert.match(source, /ZAICODE_NORMALIZE_ATTENUATION_CAP_MAX/);
+  assert.match(source, /Before/);
+  assert.match(source, /After/);
+  // And it never writes a file: the only effect is a per-event dB.
+  const model = readFileSync(join(import.meta.dirname, "..", "src", "zaicode", "zaicodeSoundAnalysis.ts"), "utf8");
+  assert.doesNotMatch(model, /writeFile|createWriteStream|ffmpeg/);
+});
+
+test("Wave 3 B: the row really offers single and pool, with live shares", () => {
+  const source = readFileSync(join(import.meta.dirname, "..", "src", "settings", "ZaicodeSoundPoolControls.tsx"), "utf8");
+  assert.match(source, /\["single", "pool"\] as const/);
+  assert.match(source, /normalizeZaicodePool\(row\.pool\)/, "the shown shares come from the same normalizer the pick uses");
+  assert.match(source, /share\.percent\.toFixed\(2\)\}/, "the effective probability is displayed, not the raw weight");
+  assert.match(source, /missing/, "a file that cannot be found is marked");
+  assert.match(source, /locked/, "an entry can be pinned against redistribution");
 });
 
 test("Wave 3 A: a table saved before Wave 3 still loads, with the new fields defaulted", () => {
