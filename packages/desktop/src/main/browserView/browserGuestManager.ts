@@ -1950,7 +1950,7 @@ export class BrowserGuestManager {
    */
   private isInFlightScreenshotAlive(tracked: InFlightScreenshot): boolean {
     const running = this.runningRequests.get(tracked.requestId);
-    return Boolean(running) && !running.controller.signal.aborted;
+    return running !== undefined && !running.controller.signal.aborted;
   }
 
   private createRecordingEntry(
@@ -2218,6 +2218,11 @@ export class BrowserGuestManager {
         if (result.kind === "timeout")
           throw new Error(`recording action timed out: ${result.reason}`);
         return;
+      }
+      // Only a selector-less "click" reaches here: "type"/"waitFor" always produced a
+      // locatorAction above and returned. Narrow so the coordinate fields resolve.
+      if (action.type !== "click") {
+        throw new Error("recording action without a selector must be a click");
       }
       if (typeof action.x !== "number" || typeof action.y !== "number") {
         throw new Error("recording click requires selector or (x,y)");
@@ -2625,7 +2630,8 @@ export class BrowserGuestManager {
       // 如果 destroyed/mismatch 已经发起过重绑，沿用该请求，避免同一 tab 重复创建 webview。
       if (!tab.rebindRequested) this.onOpenTabRequested?.(tab.tabId, tab.owner);
       // 某些测试/旧 renderer 会在 Ready 回调内同步 attach；不能在 attach 已成功后再注册 waiter。
-      if (tab.guest && !safeBool(() => tab.guest.isDestroyed(), true)) return tab.guest;
+      const attachedGuest = tab.guest;
+      if (attachedGuest && !safeBool(() => attachedGuest.isDestroyed(), true)) return attachedGuest;
       const guest = await this.waitForGuest(tab.tabId);
       if (guest && !safeBool(() => guest.isDestroyed(), true)) return guest;
       if (attempt === 0 && !tab.hasAttachedGuest && !tab.attachFailure) return null;
@@ -2782,7 +2788,11 @@ export class BrowserGuestManager {
       title: tab.cachedTitle,
       viewport: await this.readTabViewport(tab),
       ...(this.effectiveActiveTabId(tab.owner) === tab.tabId ? { active: true } : {}),
-      ...(tab.lifecycle !== "active" ? { lifecycle: tab.lifecycle } : {}),
+      // BrowserTabSummary never carries "closed" (a closed tab is not summarised); only
+      // the two live non-active states are surfaced.
+      ...(tab.lifecycle === "deliverable" || tab.lifecycle === "handoff"
+        ? { lifecycle: tab.lifecycle }
+        : {}),
     };
   }
 
@@ -3852,8 +3862,12 @@ export class BrowserGuestManager {
   ): Promise<GuestWebContents | null> {
     if (tab.lifecycle === "closed" || tab.guest !== guest) return null;
     const restored = await this.restoreGuestState(tab, guest);
-    if (!restored || tab.lifecycle === "closed" || tab.guest !== guest) {
-      if (tab.lifecycle !== "closed" && tab.guest === guest) {
+    // restoreGuestState is async: the tab may have been closed concurrently. The guard
+    // above narrowed tab.lifecycle, so re-widen to TabLifecycle to re-check the live value
+    // (otherwise the compiler treats the "closed" branch as unreachable).
+    const lifecycleAfterRestore = tab.lifecycle as TabLifecycle;
+    if (!restored || lifecycleAfterRestore === "closed" || tab.guest !== guest) {
+      if (lifecycleAfterRestore !== "closed" && tab.guest === guest) {
         this.warn(`browser tab guest rebind restore failed tabId=${tab.tabId}`);
       }
       return null;

@@ -65,23 +65,6 @@ interface PendingProviderProvisioningExecution {
   readonly reject: (error: Error) => void;
 }
 
-function normalizeServerRemoteUrlForComparison(url: string): string {
-  try {
-    const parsed = new URL(url.trim());
-    if (parsed.protocol === "ws:") parsed.protocol = "http:";
-    if (parsed.protocol === "wss:") parsed.protocol = "https:";
-    parsed.hash = "";
-    parsed.search = "";
-    const normalizedPath = parsed.pathname.replace(/\/+$/g, "");
-    parsed.pathname = normalizedPath.endsWith("/ws")
-      ? normalizedPath.slice(0, -"/ws".length) || "/"
-      : normalizedPath || "/";
-    return parsed.toString().replace(/\/$/g, "");
-  } catch {
-    return url.trim().replace(/\/+$/g, "");
-  }
-}
-
 function buildRemoteTargetTelemetryKey(target: RemoteTarget): string {
   switch (target.kind) {
     case "ssh":
@@ -90,8 +73,6 @@ function buildRemoteTargetTelemetryKey(target: RemoteTarget): string {
       return `wsl:${target.distro?.trim() || "default"}\0${target.user?.trim() ?? ""}`;
     case "docker":
       return `docker:${target.container}`;
-    case "server":
-      return `server:${normalizeServerRemoteUrlForComparison(target.url)}`;
   }
 }
 
