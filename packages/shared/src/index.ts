@@ -203,6 +203,7 @@ export type {
   BrowserViewScreenshotSurfacePreparePayload,
   BrowserViewScreenshotSurfaceReadyPayload,
   BrowserViewScreenshotSurfaceReleasePayload,
+  BrowserViewSurfaceScaleMode,
   BrowserViewViewportChangedPayload,
   ChromeBrowserDataImportError,
   ChromeBrowserDataImportOptions,
@@ -217,6 +218,7 @@ export type {
   CuaOsSupport,
   DesktopWindowChromeState,
   DesktopTitleBarTheme,
+  DesktopZoomState,
   DockerContainerInfo,
   EditorInfo,
   ApplicationIconInfo,
@@ -238,6 +240,8 @@ export type {
   UpdateCheckResultPayload,
   UpdateStatePayload,
   WSLDistro,
+  WindowControlsOverlayMetrics,
+  WindowControlsOverlayReadyPayload,
   ZCodeStdioTapDevState,
 } from "./platform.js";
 export type {
