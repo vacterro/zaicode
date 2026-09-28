@@ -1,6 +1,9 @@
 // Command 信封工厂。
-// commandId = uuid v7（时间有序，重试不变）；clientId 每个客户端实例稳定并持久化，
+// commandId = uuid v7（时间有序，每个信封一个新值）；clientId 每个客户端实例稳定并持久化，
 // 服务端幂等表与 pendingCommands 展示都以它区分提交端。
+// SRC-070 (B): "一次物理提交 = 一个用户轮次" 由上行前的在途闸门保证
+// （`v4/conversationUserTurnIdempotency.ts`），不靠这里的 id：重复提交会被折叠，
+// 而重试必须是新的信封，否则 CLI 无法把重试和已接纳的轮次区分开。
 import {
   COMMANDS_REQUIRING_BASE_REVISION,
   ROW_TARGETING_COMMANDS,

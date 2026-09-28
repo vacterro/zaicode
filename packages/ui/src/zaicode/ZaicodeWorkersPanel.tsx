@@ -48,6 +48,7 @@ import {
   zaicodeWorkerTitle,
 } from "./zaicodeWorkers.js";
 import { ZAICODE_WORKERS_PANEL_MIN, ZAICODE_WORKERS_PANEL_MIN_WIDTH, useZaicodeWorkerPrefs } from "./zaicodeWorkerPrefs.js";
+import { zaicodeAnyWorkerRunning } from "./zaicodeElapsed.js";
 import {
   ZaicodeWorkerHeaderButtons,
   ZaicodeWorkerIconButton,
@@ -72,7 +73,7 @@ import {
 export function ZaicodeWorkersPanel({ services }: { services: IServiceAccessor }) {
   const state = useZaicodeWorkers();
   const prefs = useZaicodeWorkerPrefs();
-  const now = useZaicodeNow(30_000);
+  const now = useZaicodeNow(30_000, zaicodeAnyWorkerRunning(state.workers));
   const bodyRef = useRef<HTMLDivElement>(null);
   const dock = prefs.panelDock;
   const vertical = dock === "left" || dock === "right";

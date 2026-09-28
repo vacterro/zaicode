@@ -50,6 +50,13 @@ import {
   toDiffResult,
 } from "./gitCliHelpers.js";
 import {
+  classifyGitCommitFailure,
+  classifyGitPreflightFailure,
+  classifyGitPushFailure,
+  GitOutcomeError,
+  repoLabel,
+} from "./gitOutcome.js";
+import {
   createEmptySummary,
   type GitBranchComparisonChange,
   type GitBranchComparisonSnapshot,
@@ -168,7 +175,9 @@ function isPreviewableText(content: string): boolean {
   return !content.includes("\0");
 }
 
-async function readWorkingTreePreviewContent(absolutePath: string): Promise<string | null> {
+async function readWorkingTreePreviewContent(
+  absolutePath: string,
+): Promise<string | null> {
   try {
     const fileStat = await stat(absolutePath);
     if (!fileStat.isFile() || fileStat.size > DEFAULT_GIT_DIFF_BYTES) {
@@ -230,7 +239,8 @@ async function readBranchDiffContents({
     timeoutMs: DEFAULT_GIT_COMMAND_TIMEOUT_MS,
     maxOutputBytes: DEFAULT_GIT_OUTPUT_BYTES,
   });
-  const mergeBase = mergeBaseResult.exitCode === 0 ? mergeBaseResult.stdout.trim() : "";
+  const mergeBase =
+    mergeBaseResult.exitCode === 0 ? mergeBaseResult.stdout.trim() : "";
   const beforeContent = await readGitBlobPreviewContent({
     commandProvider,
     repoRoot,
@@ -294,7 +304,10 @@ async function readUnstagedDiffContents({
   return toCompleteDiffContents(beforeContent, afterContent);
 }
 
-function withDiffContents(diff: GitDiffResult, contents: GitDiffContents | null): GitDiffResult {
+function withDiffContents(
+  diff: GitDiffResult,
+  contents: GitDiffContents | null,
+): GitDiffResult {
   if (diff.availability !== "patch") {
     return diff;
   }
@@ -347,24 +360,32 @@ function toBranchMutationSuccess(params: {
   };
 }
 
-function parseBranchRefRecords(stdout: string, currentBranchName: string | null): GitLocalBranch[] {
+function parseBranchRefRecords(
+  stdout: string,
+  currentBranchName: string | null,
+): GitLocalBranch[] {
   return stdout
     .replace(/\r\n/g, "\n")
     .split("\n")
     .filter((line) => line.length > 0)
     .map((line): GitLocalBranch | null => {
-      const [name, upstreamName, commitHash, commitTimestamp] = line.split("\0");
+      const [name, upstreamName, commitHash, commitTimestamp] =
+        line.split("\0");
       if (!name) {
         return null;
       }
 
-      const timestampSeconds = commitTimestamp ? Number.parseInt(commitTimestamp, 10) : Number.NaN;
+      const timestampSeconds = commitTimestamp
+        ? Number.parseInt(commitTimestamp, 10)
+        : Number.NaN;
       return {
         name,
         isCurrent: name === currentBranchName,
         upstreamName: upstreamName || null,
         commitHash: commitHash || null,
-        commitTimestampMs: Number.isNaN(timestampSeconds) ? null : timestampSeconds * 1000,
+        commitTimestampMs: Number.isNaN(timestampSeconds)
+          ? null
+          : timestampSeconds * 1000,
       };
     })
     .filter((branch): branch is GitLocalBranch => Boolean(branch))
@@ -374,7 +395,8 @@ function parseBranchRefRecords(stdout: string, currentBranchName: string | null)
       }
 
       const leftTimestamp = left.commitTimestampMs ?? Number.NEGATIVE_INFINITY;
-      const rightTimestamp = right.commitTimestampMs ?? Number.NEGATIVE_INFINITY;
+      const rightTimestamp =
+        right.commitTimestampMs ?? Number.NEGATIVE_INFINITY;
       if (leftTimestamp !== rightTimestamp) {
         return rightTimestamp - leftTimestamp;
       }
@@ -399,8 +421,15 @@ function normalizeGitGraphSkip(skip: number | undefined): number {
   return Math.max(0, Math.floor(skip));
 }
 
-function addGitGraphRef(refs: GitCommitGraphRef[], ref: GitCommitGraphRef): void {
-  if (refs.some((candidate) => candidate.kind === ref.kind && candidate.name === ref.name)) {
+function addGitGraphRef(
+  refs: GitCommitGraphRef[],
+  ref: GitCommitGraphRef,
+): void {
+  if (
+    refs.some(
+      (candidate) => candidate.kind === ref.kind && candidate.name === ref.name,
+    )
+  ) {
     return;
   }
 
@@ -420,7 +449,9 @@ function parseGitGraphDecorationRef(rawRef: string): GitCommitGraphRef | null {
   const tagPrefix = "tag: ";
   if (ref.startsWith(tagPrefix)) {
     const tagRef = ref.slice(tagPrefix.length).trim();
-    const name = tagRef.startsWith("refs/tags/") ? tagRef.slice("refs/tags/".length) : tagRef;
+    const name = tagRef.startsWith("refs/tags/")
+      ? tagRef.slice("refs/tags/".length)
+      : tagRef;
     return name ? { name, kind: "tag" } : null;
   }
 
@@ -453,7 +484,9 @@ function parseGitGraphRefs(rawDecorations: string): GitCommitGraphRef[] {
     const headPointer = "HEAD -> ";
     if (decoration.startsWith(headPointer)) {
       addGitGraphRef(refs, { name: "HEAD", kind: "head" });
-      const pointedRef = parseGitGraphDecorationRef(decoration.slice(headPointer.length));
+      const pointedRef = parseGitGraphDecorationRef(
+        decoration.slice(headPointer.length),
+      );
       if (pointedRef) {
         addGitGraphRef(refs, pointedRef);
       }
@@ -475,8 +508,14 @@ function parseGitGraphRecords(stdout: string): GitCommitGraphCommit[] {
     .map((record) => record.trim())
     .filter((record) => record.length > 0)
     .map((record): GitCommitGraphCommit | null => {
-      const [hash, parents, authorName, authoredAtSeconds, subject, decorations] =
-        record.split(GIT_GRAPH_FIELD_SEPARATOR);
+      const [
+        hash,
+        parents,
+        authorName,
+        authoredAtSeconds,
+        subject,
+        decorations,
+      ] = record.split(GIT_GRAPH_FIELD_SEPARATOR);
       if (!hash) {
         return null;
       }
@@ -490,13 +529,17 @@ function parseGitGraphRecords(stdout: string): GitCommitGraphCommit[] {
         refs: parseGitGraphRefs(decorations ?? ""),
         subject: subject ?? "",
         authorName: authorName || null,
-        authoredAtMs: Number.isNaN(timestampSeconds) ? null : timestampSeconds * 1000,
+        authoredAtMs: Number.isNaN(timestampSeconds)
+          ? null
+          : timestampSeconds * 1000,
       };
     })
     .filter((commit): commit is GitCommitGraphCommit => Boolean(commit));
 }
 
-function parseTrackingRemoteName(trackingBranchName: string | null): string | null {
+function parseTrackingRemoteName(
+  trackingBranchName: string | null,
+): string | null {
   const remoteName = trackingBranchName?.split("/")[0]?.trim() ?? "";
   return remoteName.length > 0 ? remoteName : null;
 }
@@ -526,7 +569,10 @@ function parseGitIndexEntries(stdout: string): GitIndexEntry[] {
         throw new Error("Failed to parse staged Git index entry.");
       }
 
-      const [mode, objectHash, stage] = record.slice(0, tabIndex).trim().split(/\s+/);
+      const [mode, objectHash, stage] = record
+        .slice(0, tabIndex)
+        .trim()
+        .split(/\s+/);
       const path = normalizeGitPath(record.slice(tabIndex + 1));
       if (!mode || !objectHash || !stage || !path) {
         throw new Error("Failed to parse staged Git index entry.");
@@ -536,25 +582,48 @@ function parseGitIndexEntries(stdout: string): GitIndexEntry[] {
     });
 }
 
-export function createGitCliRepo(options?: { commandProvider?: GitCommandProvider }): GitCliRepo {
-  const commandProvider = options?.commandProvider ?? createGitCommandProvider();
-  const repositoryResolutionRequests = new Map<string, Promise<GitResolvedRepository>>();
-  const workspaceRepositoryInfoRequests = new Map<string, Promise<GitWorkspaceRepositoryInfo>>();
+export function createGitCliRepo(options?: {
+  commandProvider?: GitCommandProvider;
+}): GitCliRepo {
+  const commandProvider =
+    options?.commandProvider ?? createGitCommandProvider();
+  const repositoryResolutionRequests = new Map<
+    string,
+    Promise<GitResolvedRepository>
+  >();
+  const workspaceRepositoryInfoRequests = new Map<
+    string,
+    Promise<GitWorkspaceRepositoryInfo>
+  >();
   const statusRequests = new Map<string, Promise<GitStatusSnapshot>>();
   const collapsedUntrackedRepoRoots = new Set<string>();
 
-  function executeGitStatus(resolution: GitResolvedRepository, untrackedMode: "all" | "normal") {
+  function executeGitStatus(
+    resolution: GitResolvedRepository,
+    untrackedMode: "all" | "normal",
+  ) {
     return commandProvider.run({
       cwd: resolution.repoRoot,
-      args: ["status", "--porcelain=v2", "--branch", `--untracked-files=${untrackedMode}`, "-z"],
+      args: [
+        "status",
+        "--porcelain=v2",
+        "--branch",
+        `--untracked-files=${untrackedMode}`,
+        "-z",
+      ],
       timeoutMs: DEFAULT_GIT_COMMAND_TIMEOUT_MS,
       maxOutputBytes: DEFAULT_GIT_OUTPUT_BYTES,
     });
   }
 
   async function runGitStatus(resolution: GitResolvedRepository) {
-    const useCollapsedUntracked = collapsedUntrackedRepoRoots.has(resolution.repoRoot);
-    const result = await executeGitStatus(resolution, useCollapsedUntracked ? "normal" : "all");
+    const useCollapsedUntracked = collapsedUntrackedRepoRoots.has(
+      resolution.repoRoot,
+    );
+    const result = await executeGitStatus(
+      resolution,
+      useCollapsedUntracked ? "normal" : "all",
+    );
     if (useCollapsedUntracked || !result.outputTruncated) {
       return result;
     }
@@ -610,15 +679,22 @@ export function createGitCliRepo(options?: { commandProvider?: GitCommandProvide
       ensureGitCommandSucceeded("git check-ref-format --branch", result);
     }
 
-    return result.exitCode === 0 ? null : toInvalidBranchNameIssue(result.stderr);
+    return result.exitCode === 0
+      ? null
+      : toInvalidBranchNameIssue(result.stderr);
   }
 
-  async function hasOperationInProgress(resolution: GitResolvedRepository): Promise<boolean> {
+  async function hasOperationInProgress(
+    resolution: GitResolvedRepository,
+  ): Promise<boolean> {
     // 进行中的 merge / rebase / cherry-pick 在不同 Git 版本上的报错并不完全稳定，
     // 这里先通过 git-dir 标记位做一次轻量探测，让上层能拿到更稳定的阻塞原因。
     const gitPathResult = await commandProvider.run({
       cwd: resolution.repoRoot,
-      args: ["rev-parse", ...GIT_OPERATION_MARKERS.flatMap((marker) => ["--git-path", marker])],
+      args: [
+        "rev-parse",
+        ...GIT_OPERATION_MARKERS.flatMap((marker) => ["--git-path", marker]),
+      ],
       timeoutMs: DEFAULT_GIT_COMMAND_TIMEOUT_MS,
     });
     ensureGitCommandSucceeded("git rev-parse --git-path", gitPathResult);
@@ -628,9 +704,13 @@ export function createGitCliRepo(options?: { commandProvider?: GitCommandProvide
       .split("\n")
       .map((line) => line.trim())
       .filter((line) => line.length > 0)
-      .map((line) => (isAbsolute(line) ? line : resolve(resolution.repoRoot, line)));
+      .map((line) =>
+        isAbsolute(line) ? line : resolve(resolution.repoRoot, line),
+      );
 
-    const markerExists = await Promise.all(candidatePaths.map((path) => fileExists(path)));
+    const markerExists = await Promise.all(
+      candidatePaths.map((path) => fileExists(path)),
+    );
     return markerExists.some(Boolean);
   }
 
@@ -660,7 +740,9 @@ export function createGitCliRepo(options?: { commandProvider?: GitCommandProvide
     return null;
   }
 
-  async function listRemotes(resolution: GitResolvedRepository): Promise<string[]> {
+  async function listRemotes(
+    resolution: GitResolvedRepository,
+  ): Promise<string[]> {
     const result = await commandProvider.run({
       cwd: resolution.repoRoot,
       args: ["remote"],
@@ -672,18 +754,29 @@ export function createGitCliRepo(options?: { commandProvider?: GitCommandProvide
   }
 
   async function resolvePushRemote(status: GitStatusSnapshot): Promise<string> {
-    const resolution = ensureRepositoryAvailable(status.resolution, "push changes");
+    const resolution = ensureRepositoryAvailable(
+      status.resolution,
+      "push changes",
+    );
     const branchName = status.summary.branchName?.trim() ?? "";
     if (branchName.length === 0) {
-      throw new Error("Cannot resolve a Git push remote without a current branch.");
+      throw new Error(
+        "Cannot resolve a Git push remote without a current branch.",
+      );
     }
 
-    const branchRemote = await readOptionalGitConfig(resolution, `branch.${branchName}.remote`);
+    const branchRemote = await readOptionalGitConfig(
+      resolution,
+      `branch.${branchName}.remote`,
+    );
     if (branchRemote) {
       return branchRemote;
     }
 
-    const pushDefaultRemote = await readOptionalGitConfig(resolution, "remote.pushDefault");
+    const pushDefaultRemote = await readOptionalGitConfig(
+      resolution,
+      "remote.pushDefault",
+    );
     if (pushDefaultRemote) {
       return pushDefaultRemote;
     }
@@ -698,7 +791,9 @@ export function createGitCliRepo(options?: { commandProvider?: GitCommandProvide
     }
 
     if (remotes.length === 0) {
-      throw new Error("No Git remote is configured for the current repository.");
+      throw new Error(
+        "No Git remote is configured for the current repository.",
+      );
     }
 
     throw new Error(
@@ -709,84 +804,92 @@ export function createGitCliRepo(options?: { commandProvider?: GitCommandProvide
   return {
     invalidate,
 
-    async resolveRepository(workspacePath: string): Promise<GitResolvedRepository> {
+    async resolveRepository(
+      workspacePath: string,
+    ): Promise<GitResolvedRepository> {
       // 启动阶段 summary / changes / branch / identity 会并发读取同一个 workspace，
       // 这里复用进行中的仓库解析，避免一轮刷新里重复执行多次 `git rev-parse`。
-      return await reuseInFlightRequest(repositoryResolutionRequests, workspacePath, async () => {
-        const gitBinary = await commandProvider.resolveGitBinary();
-        if (!gitBinary) {
+      return await reuseInFlightRequest(
+        repositoryResolutionRequests,
+        workspacePath,
+        async () => {
+          const gitBinary = await commandProvider.resolveGitBinary();
+          if (!gitBinary) {
+            return {
+              workspacePath,
+              repoRoot: workspacePath,
+              workspaceInRepoPath: ".",
+              autoRefreshWatchPaths: [],
+              isGitAvailable: false,
+              isRepository: false,
+            };
+          }
+
+          const result = await commandProvider.run({
+            cwd: workspacePath,
+            args: [
+              "rev-parse",
+              "--show-toplevel",
+              "--show-prefix",
+              "--absolute-git-dir",
+              "--git-common-dir",
+            ],
+            timeoutMs: DEFAULT_GIT_COMMAND_TIMEOUT_MS,
+          });
+          if (result.exitCode !== 0) {
+            // 测试/窗口切换时 workspace 目录可能在并发请求过程中被删除（例如临时目录清理）。
+            // 之前这里会直接抛错，若调用方是 fire-and-forget 链路就会形成 unhandled rejection，
+            // 进而把 Vitest 跑挂成超时。目录缺失不属于“Git 协议失败”，应按“当前非可用仓库”降级返回。
+            if (isMissingWorkingDirectoryResult(result)) {
+              return {
+                workspacePath,
+                repoRoot: workspacePath,
+                workspaceInRepoPath: ".",
+                autoRefreshWatchPaths: [],
+                isGitAvailable: true,
+                isRepository: false,
+              };
+            }
+
+            if (isNotRepositoryResult(result)) {
+              return {
+                workspacePath,
+                repoRoot: workspacePath,
+                workspaceInRepoPath: ".",
+                autoRefreshWatchPaths: [],
+                isGitAvailable: true,
+                isRepository: false,
+              };
+            }
+
+            ensureGitCommandSucceeded("git rev-parse", result);
+          }
+
+          const lines = result.stdout.replace(/\r\n/g, "\n").split("\n");
+          const repoRoot = lines[0]?.trim();
+          if (!repoRoot) {
+            throw new Error("Failed to resolve Git repository root");
+          }
+
           return {
             workspacePath,
-            repoRoot: workspacePath,
-            workspaceInRepoPath: ".",
-            autoRefreshWatchPaths: [],
-            isGitAvailable: false,
-            isRepository: false,
+            repoRoot,
+            workspaceInRepoPath: normalizeWorkspaceInRepoPath(lines[1] ?? ""),
+            autoRefreshWatchPaths: buildAutoRefreshWatchPaths({
+              workspacePath,
+              absoluteGitDir: lines[2]?.trim() ?? "",
+              gitCommonDir: lines[3]?.trim() ?? "",
+            }),
+            isGitAvailable: true,
+            isRepository: true,
           };
-        }
-
-        const result = await commandProvider.run({
-          cwd: workspacePath,
-          args: [
-            "rev-parse",
-            "--show-toplevel",
-            "--show-prefix",
-            "--absolute-git-dir",
-            "--git-common-dir",
-          ],
-          timeoutMs: DEFAULT_GIT_COMMAND_TIMEOUT_MS,
-        });
-        if (result.exitCode !== 0) {
-          // 测试/窗口切换时 workspace 目录可能在并发请求过程中被删除（例如临时目录清理）。
-          // 之前这里会直接抛错，若调用方是 fire-and-forget 链路就会形成 unhandled rejection，
-          // 进而把 Vitest 跑挂成超时。目录缺失不属于“Git 协议失败”，应按“当前非可用仓库”降级返回。
-          if (isMissingWorkingDirectoryResult(result)) {
-            return {
-              workspacePath,
-              repoRoot: workspacePath,
-              workspaceInRepoPath: ".",
-              autoRefreshWatchPaths: [],
-              isGitAvailable: true,
-              isRepository: false,
-            };
-          }
-
-          if (isNotRepositoryResult(result)) {
-            return {
-              workspacePath,
-              repoRoot: workspacePath,
-              workspaceInRepoPath: ".",
-              autoRefreshWatchPaths: [],
-              isGitAvailable: true,
-              isRepository: false,
-            };
-          }
-
-          ensureGitCommandSucceeded("git rev-parse", result);
-        }
-
-        const lines = result.stdout.replace(/\r\n/g, "\n").split("\n");
-        const repoRoot = lines[0]?.trim();
-        if (!repoRoot) {
-          throw new Error("Failed to resolve Git repository root");
-        }
-
-        return {
-          workspacePath,
-          repoRoot,
-          workspaceInRepoPath: normalizeWorkspaceInRepoPath(lines[1] ?? ""),
-          autoRefreshWatchPaths: buildAutoRefreshWatchPaths({
-            workspacePath,
-            absoluteGitDir: lines[2]?.trim() ?? "",
-            gitCommonDir: lines[3]?.trim() ?? "",
-          }),
-          isGitAvailable: true,
-          isRepository: true,
-        };
-      });
+        },
+      );
     },
 
-    async getWorkspaceRepositoryInfo(workspacePath: string): Promise<GitWorkspaceRepositoryInfo> {
+    async getWorkspaceRepositoryInfo(
+      workspacePath: string,
+    ): Promise<GitWorkspaceRepositoryInfo> {
       return await reuseInFlightRequest(
         workspaceRepositoryInfoRequests,
         workspacePath,
@@ -813,7 +916,9 @@ export function createGitCliRepo(options?: { commandProvider?: GitCommandProvide
 
             if (gitEntryStat.isFile()) {
               const gitEntryContent = await readFile(gitEntryPath, "utf-8");
-              const firstLine = gitEntryContent.replace(/\r\n/g, "\n").split("\n")[0]?.trim() ?? "";
+              const firstLine =
+                gitEntryContent.replace(/\r\n/g, "\n").split("\n")[0]?.trim() ??
+                "";
               const gitDirPrefix = "gitdir:";
               if (firstLine.startsWith(gitDirPrefix)) {
                 const rawGitDir = firstLine.slice(gitDirPrefix.length).trim();
@@ -822,7 +927,9 @@ export function createGitCliRepo(options?: { commandProvider?: GitCommandProvide
                     ? rawGitDir
                     : resolve(resolution.repoRoot, rawGitDir)
                   : "";
-                const normalizedGitDir = resolvedGitDir ? resolvedGitDir.replace(/\\/g, "/") : "";
+                const normalizedGitDir = resolvedGitDir
+                  ? resolvedGitDir.replace(/\\/g, "/")
+                  : "";
 
                 // 关键业务逻辑：linked worktree 的 `.git` 文件会指向
                 // `<main-tree>/.git/worktrees/<name>`；这里只要命中这个结构就判为 worktree。
@@ -855,68 +962,89 @@ export function createGitCliRepo(options?: { commandProvider?: GitCommandProvide
     async getStatus(workspacePath: string): Promise<GitStatusSnapshot> {
       // staged / unstaged / summary / branch 比较都依赖同一份状态快照，
       // 并发复用可以把一次渲染里的重复 `status + diff --numstat` 合并成一轮 Git CLI 调用。
-      return await reuseInFlightRequest(statusRequests, workspacePath, async () => {
-        const resolution = await this.resolveRepository(workspacePath);
-        if (!resolution.isGitAvailable || !resolution.isRepository) {
+      return await reuseInFlightRequest(
+        statusRequests,
+        workspacePath,
+        async () => {
+          const resolution = await this.resolveRepository(workspacePath);
+          if (!resolution.isGitAvailable || !resolution.isRepository) {
+            return {
+              resolution,
+              summary: createEmptySummary(resolution),
+              entries: [],
+              stagedStats: new Map(),
+              unstagedStats: new Map(),
+              untrackedStats: new Map(),
+            };
+          }
+
+          const [statusResult, stagedStatsResult, unstagedStatsResult] =
+            await Promise.all([
+              // 默认保留逐文件未跟踪状态；只有确认当前 repoRoot 超限后，runGitStatus 才降级为目录折叠。
+              runGitStatus(resolution),
+              commandProvider.run({
+                cwd: resolution.repoRoot,
+                args: [
+                  "diff",
+                  "--cached",
+                  "--numstat",
+                  "-z",
+                  "--find-renames",
+                  "--",
+                ],
+                timeoutMs: DEFAULT_GIT_COMMAND_TIMEOUT_MS,
+                maxOutputBytes: DEFAULT_GIT_OUTPUT_BYTES,
+              }),
+              commandProvider.run({
+                cwd: resolution.repoRoot,
+                args: ["diff", "--numstat", "-z", "--find-renames", "--"],
+                timeoutMs: DEFAULT_GIT_COMMAND_TIMEOUT_MS,
+                maxOutputBytes: DEFAULT_GIT_OUTPUT_BYTES,
+              }),
+            ]);
+
+          ensureGitCommandSucceeded("git status", statusResult);
+          ensureGitCommandSucceeded(
+            "git diff --cached --numstat",
+            stagedStatsResult,
+          );
+          ensureGitCommandSucceeded("git diff --numstat", unstagedStatsResult);
+
+          const parsedStatus = parseStatusPorcelain(statusResult.stdout);
+          const untrackedStats = await buildUntrackedStats(
+            resolution.repoRoot,
+            parsedStatus.entries,
+          );
+
           return {
             resolution,
-            summary: createEmptySummary(resolution),
-            entries: [],
-            stagedStats: new Map(),
-            unstagedStats: new Map(),
-            untrackedStats: new Map(),
+            summary: {
+              workspacePath: resolution.workspacePath,
+              repoRoot: resolution.repoRoot,
+              workspaceInRepoPath: resolution.workspaceInRepoPath,
+              autoRefreshWatchPaths: resolution.autoRefreshWatchPaths,
+              branchName: parsedStatus.branchName,
+              trackingBranchName: parsedStatus.trackingBranchName,
+              headRefType: parsedStatus.headRefType,
+              ahead: parsedStatus.ahead,
+              behind: parsedStatus.behind,
+              isDirty: parsedStatus.entries.length > 0,
+              isGitAvailable: true,
+              isRepository: true,
+            },
+            entries: parsedStatus.entries,
+            stagedStats: parseNumstat(stagedStatsResult.stdout),
+            unstagedStats: parseNumstat(unstagedStatsResult.stdout),
+            untrackedStats,
           };
-        }
-
-        const [statusResult, stagedStatsResult, unstagedStatsResult] = await Promise.all([
-          // 默认保留逐文件未跟踪状态；只有确认当前 repoRoot 超限后，runGitStatus 才降级为目录折叠。
-          runGitStatus(resolution),
-          commandProvider.run({
-            cwd: resolution.repoRoot,
-            args: ["diff", "--cached", "--numstat", "-z", "--find-renames", "--"],
-            timeoutMs: DEFAULT_GIT_COMMAND_TIMEOUT_MS,
-            maxOutputBytes: DEFAULT_GIT_OUTPUT_BYTES,
-          }),
-          commandProvider.run({
-            cwd: resolution.repoRoot,
-            args: ["diff", "--numstat", "-z", "--find-renames", "--"],
-            timeoutMs: DEFAULT_GIT_COMMAND_TIMEOUT_MS,
-            maxOutputBytes: DEFAULT_GIT_OUTPUT_BYTES,
-          }),
-        ]);
-
-        ensureGitCommandSucceeded("git status", statusResult);
-        ensureGitCommandSucceeded("git diff --cached --numstat", stagedStatsResult);
-        ensureGitCommandSucceeded("git diff --numstat", unstagedStatsResult);
-
-        const parsedStatus = parseStatusPorcelain(statusResult.stdout);
-        const untrackedStats = await buildUntrackedStats(resolution.repoRoot, parsedStatus.entries);
-
-        return {
-          resolution,
-          summary: {
-            workspacePath: resolution.workspacePath,
-            repoRoot: resolution.repoRoot,
-            workspaceInRepoPath: resolution.workspaceInRepoPath,
-            autoRefreshWatchPaths: resolution.autoRefreshWatchPaths,
-            branchName: parsedStatus.branchName,
-            trackingBranchName: parsedStatus.trackingBranchName,
-            headRefType: parsedStatus.headRefType,
-            ahead: parsedStatus.ahead,
-            behind: parsedStatus.behind,
-            isDirty: parsedStatus.entries.length > 0,
-            isGitAvailable: true,
-            isRepository: true,
-          },
-          entries: parsedStatus.entries,
-          stagedStats: parseNumstat(stagedStatsResult.stdout),
-          unstagedStats: parseNumstat(unstagedStatsResult.stdout),
-          untrackedStats,
-        };
-      });
+        },
+      );
     },
 
-    async getIgnoredPaths(workspacePath: string, paths: string[]): Promise<string[]> {
+    async getIgnoredPaths(
+      workspacePath: string,
+      paths: string[],
+    ): Promise<string[]> {
       if (paths.length === 0) {
         return [];
       }
@@ -941,7 +1069,8 @@ export function createGitCliRepo(options?: { commandProvider?: GitCommandProvide
         }),
       );
       const validInputPairs = inputPairs.filter(
-        (pair): pair is { absolutePath: string; repoRelativePath: string } => Boolean(pair),
+        (pair): pair is { absolutePath: string; repoRelativePath: string } =>
+          Boolean(pair),
       );
       if (validInputPairs.length === 0) {
         return [];
@@ -949,7 +1078,11 @@ export function createGitCliRepo(options?: { commandProvider?: GitCommandProvide
 
       const ignoredResult = await commandProvider.run({
         cwd: resolution.repoRoot,
-        args: ["check-ignore", "--", ...validInputPairs.map((pair) => pair.repoRelativePath)],
+        args: [
+          "check-ignore",
+          "--",
+          ...validInputPairs.map((pair) => pair.repoRelativePath),
+        ],
         timeoutMs: DEFAULT_GIT_COMMAND_TIMEOUT_MS,
         maxOutputBytes: DEFAULT_GIT_OUTPUT_BYTES,
       });
@@ -974,9 +1107,14 @@ export function createGitCliRepo(options?: { commandProvider?: GitCommandProvide
         .map((pair) => pair.absolutePath);
     },
 
-    async listLocalBranches(workspacePath: string): Promise<GitLocalBranchListResult> {
+    async listLocalBranches(
+      workspacePath: string,
+    ): Promise<GitLocalBranchListResult> {
       const status = await this.getStatus(workspacePath);
-      if (!status.resolution.isGitAvailable || !status.resolution.isRepository) {
+      if (
+        !status.resolution.isGitAvailable ||
+        !status.resolution.isRepository
+      ) {
         return {
           headRefType: status.summary.headRefType,
           currentBranchName: status.summary.branchName,
@@ -1001,7 +1139,9 @@ export function createGitCliRepo(options?: { commandProvider?: GitCommandProvide
         currentBranchName: status.summary.branchName,
         branches: parseBranchRefRecords(
           result.stdout,
-          status.summary.headRefType === "branch" ? status.summary.branchName : null,
+          status.summary.headRefType === "branch"
+            ? status.summary.branchName
+            : null,
         ),
       };
     },
@@ -1073,7 +1213,10 @@ export function createGitCliRepo(options?: { commandProvider?: GitCommandProvide
       targetBranchName: string,
     ): Promise<GitBranchMutationResult> {
       const status = await this.getStatus(workspacePath);
-      const resolution = ensureRepositoryAvailable(status.resolution, "switch branches");
+      const resolution = ensureRepositoryAvailable(
+        status.resolution,
+        "switch branches",
+      );
       const normalizedBranchName = targetBranchName.trim();
       if (normalizedBranchName.length === 0) {
         return toBranchMutationFailure({
@@ -1126,7 +1269,10 @@ export function createGitCliRepo(options?: { commandProvider?: GitCommandProvide
         });
       }
 
-      const invalidBranchIssue = await validateBranchName(resolution, normalizedBranchName);
+      const invalidBranchIssue = await validateBranchName(
+        resolution,
+        normalizedBranchName,
+      );
       if (invalidBranchIssue) {
         return toBranchMutationFailure({
           action: "switch",
@@ -1168,7 +1314,10 @@ export function createGitCliRepo(options?: { commandProvider?: GitCommandProvide
       startPoint?: string,
     ): Promise<GitBranchMutationResult> {
       const status = await this.getStatus(workspacePath);
-      const resolution = ensureRepositoryAvailable(status.resolution, "create and switch branches");
+      const resolution = ensureRepositoryAvailable(
+        status.resolution,
+        "create and switch branches",
+      );
       const normalizedBranchName = branchName.trim();
       if (normalizedBranchName.length === 0) {
         return toBranchMutationFailure({
@@ -1207,7 +1356,10 @@ export function createGitCliRepo(options?: { commandProvider?: GitCommandProvide
         });
       }
 
-      const invalidBranchIssue = await validateBranchName(resolution, normalizedBranchName);
+      const invalidBranchIssue = await validateBranchName(
+        resolution,
+        normalizedBranchName,
+      );
       if (invalidBranchIssue) {
         return toBranchMutationFailure({
           action: "create-and-switch",
@@ -1224,7 +1376,14 @@ export function createGitCliRepo(options?: { commandProvider?: GitCommandProvide
       const result = await commandProvider.run({
         cwd: resolution.repoRoot,
         args: normalizedStartPoint
-          ? ["switch", "--no-guess", "-c", normalizedBranchName, "--", normalizedStartPoint]
+          ? [
+              "switch",
+              "--no-guess",
+              "-c",
+              normalizedBranchName,
+              "--",
+              normalizedStartPoint,
+            ]
           : ["switch", "--no-guess", "-c", normalizedBranchName],
         timeoutMs: DEFAULT_GIT_COMMAND_TIMEOUT_MS,
         maxOutputBytes: DEFAULT_GIT_OUTPUT_BYTES,
@@ -1262,10 +1421,16 @@ export function createGitCliRepo(options?: { commandProvider?: GitCommandProvide
       }
 
       if (!resolution.isRepository) {
-        return toUnavailableDiff(absolutePath, "Workspace is not inside a Git repository.");
+        return toUnavailableDiff(
+          absolutePath,
+          "Workspace is not inside a Git repository.",
+        );
       }
 
-      const repoRelativePath = await normalizeInputPath(resolution, params.path);
+      const repoRelativePath = await normalizeInputPath(
+        resolution,
+        params.path,
+      );
       if (params.sourceId === "branch") {
         const status = await this.getStatus(params.workspacePath);
         const trackingBranchName = status.summary.trackingBranchName;
@@ -1309,8 +1474,23 @@ export function createGitCliRepo(options?: { commandProvider?: GitCommandProvide
       const diffResult = await commandProvider.run({
         cwd: resolution.repoRoot,
         args: staged
-          ? ["diff", "--cached", "--no-ext-diff", "--no-color", "--binary", "--", repoRelativePath]
-          : ["diff", "--no-ext-diff", "--no-color", "--binary", "--", repoRelativePath],
+          ? [
+              "diff",
+              "--cached",
+              "--no-ext-diff",
+              "--no-color",
+              "--binary",
+              "--",
+              repoRelativePath,
+            ]
+          : [
+              "diff",
+              "--no-ext-diff",
+              "--no-color",
+              "--binary",
+              "--",
+              repoRelativePath,
+            ],
         timeoutMs: DEFAULT_GIT_DIFF_TIMEOUT_MS,
         maxOutputBytes: DEFAULT_GIT_DIFF_BYTES,
       });
@@ -1368,7 +1548,9 @@ export function createGitCliRepo(options?: { commandProvider?: GitCommandProvide
       });
     },
 
-    async getBranchComparison(workspacePath: string): Promise<GitBranchComparisonSnapshot> {
+    async getBranchComparison(
+      workspacePath: string,
+    ): Promise<GitBranchComparisonSnapshot> {
       const status = await this.getStatus(workspacePath);
       if (
         !status.resolution.isGitAvailable ||
@@ -1426,7 +1608,11 @@ export function createGitCliRepo(options?: { commandProvider?: GitCommandProvide
         "stage paths",
       );
       const repoPaths = Array.from(
-        new Set(await Promise.all(paths.map((path) => normalizeInputPath(resolution, path)))),
+        new Set(
+          await Promise.all(
+            paths.map((path) => normalizeInputPath(resolution, path)),
+          ),
+        ),
       );
       if (repoPaths.length === 0) {
         return;
@@ -1447,7 +1633,11 @@ export function createGitCliRepo(options?: { commandProvider?: GitCommandProvide
         "unstage paths",
       );
       const repoPaths = Array.from(
-        new Set(await Promise.all(paths.map((path) => normalizeInputPath(resolution, path)))),
+        new Set(
+          await Promise.all(
+            paths.map((path) => normalizeInputPath(resolution, path)),
+          ),
+        ),
       );
       if (repoPaths.length === 0) {
         return;
@@ -1462,13 +1652,21 @@ export function createGitCliRepo(options?: { commandProvider?: GitCommandProvide
       invalidate(workspacePath);
     },
 
-    async discard(workspacePath: string, paths: string[], staged: boolean): Promise<void> {
+    async discard(
+      workspacePath: string,
+      paths: string[],
+      staged: boolean,
+    ): Promise<void> {
       const resolution = ensureRepositoryAvailable(
         await this.resolveRepository(workspacePath),
         "discard paths",
       );
       const repoPaths = Array.from(
-        new Set(await Promise.all(paths.map((path) => normalizeInputPath(resolution, path)))),
+        new Set(
+          await Promise.all(
+            paths.map((path) => normalizeInputPath(resolution, path)),
+          ),
+        ),
       );
       if (repoPaths.length === 0) {
         return;
@@ -1477,7 +1675,14 @@ export function createGitCliRepo(options?: { commandProvider?: GitCommandProvide
       const result = await commandProvider.run({
         cwd: resolution.repoRoot,
         args: staged
-          ? ["restore", "--source=HEAD", "--staged", "--worktree", "--", ...repoPaths]
+          ? [
+              "restore",
+              "--source=HEAD",
+              "--staged",
+              "--worktree",
+              "--",
+              ...repoPaths,
+            ]
           : ["restore", "--worktree", "--", ...repoPaths],
         timeoutMs: DEFAULT_GIT_COMMAND_TIMEOUT_MS,
       });
@@ -1502,7 +1707,11 @@ export function createGitCliRepo(options?: { commandProvider?: GitCommandProvide
       const repoPaths =
         paths && paths.length > 0
           ? Array.from(
-              new Set(await Promise.all(paths.map((path) => normalizeInputPath(resolution, path)))),
+              new Set(
+                await Promise.all(
+                  paths.map((path) => normalizeInputPath(resolution, path)),
+                ),
+              ),
             )
           : [];
 
@@ -1513,7 +1722,10 @@ export function createGitCliRepo(options?: { commandProvider?: GitCommandProvide
           timeoutMs: DEFAULT_GIT_COMMAND_TIMEOUT_MS,
           maxOutputBytes: DEFAULT_GIT_OUTPUT_BYTES,
         });
-        ensureGitCommandSucceeded("git status selected paths", scopedStatusResult);
+        ensureGitCommandSucceeded(
+          "git status selected paths",
+          scopedStatusResult,
+        );
 
         const cleanupRepoPaths = Array.from(
           new Set([
@@ -1530,10 +1742,15 @@ export function createGitCliRepo(options?: { commandProvider?: GitCommandProvide
           timeoutMs: DEFAULT_GIT_COMMAND_TIMEOUT_MS,
           maxOutputBytes: DEFAULT_GIT_OUTPUT_BYTES,
         });
-        ensureGitCommandSucceeded("git ls-files selected staged entries", stagedEntriesResult);
+        ensureGitCommandSucceeded(
+          "git ls-files selected staged entries",
+          stagedEntriesResult,
+        );
         const stagedEntries = parseGitIndexEntries(stagedEntriesResult.stdout);
         if (stagedEntries.some((entry) => entry.stage !== "0")) {
-          throw new Error("Cannot commit selected staged paths while index conflicts exist.");
+          throw new Error(
+            "Cannot commit selected staged paths while index conflicts exist.",
+          );
         }
 
         const headResult = await commandProvider.run({
@@ -1541,7 +1758,8 @@ export function createGitCliRepo(options?: { commandProvider?: GitCommandProvide
           args: ["rev-parse", "--verify", "HEAD"],
           timeoutMs: DEFAULT_GIT_COMMAND_TIMEOUT_MS,
         });
-        const parentHash = headResult.exitCode === 0 ? headResult.stdout.trim() : null;
+        const parentHash =
+          headResult.exitCode === 0 ? headResult.stdout.trim() : null;
         const tempIndexDir = await mkdtemp(join(tmpdir(), "zcode-git-index-"));
         const tempIndexPath = join(tempIndexDir, "index");
         const tempIndexEnv = { GIT_INDEX_FILE: tempIndexPath };
@@ -1549,20 +1767,33 @@ export function createGitCliRepo(options?: { commandProvider?: GitCommandProvide
         try {
           const readTreeResult = await commandProvider.run({
             cwd: resolution.repoRoot,
-            args: parentHash ? ["read-tree", parentHash] : ["read-tree", "--empty"],
+            args: parentHash
+              ? ["read-tree", parentHash]
+              : ["read-tree", "--empty"],
             env: tempIndexEnv,
             timeoutMs: DEFAULT_GIT_COMMAND_TIMEOUT_MS,
           });
-          ensureGitCommandSucceeded("git read-tree selected commit base", readTreeResult);
+          ensureGitCommandSucceeded(
+            "git read-tree selected commit base",
+            readTreeResult,
+          );
 
           if (cleanupRepoPaths.length > 0) {
             const removeResult = await commandProvider.run({
               cwd: resolution.repoRoot,
-              args: ["update-index", "--force-remove", "--", ...cleanupRepoPaths],
+              args: [
+                "update-index",
+                "--force-remove",
+                "--",
+                ...cleanupRepoPaths,
+              ],
               env: tempIndexEnv,
               timeoutMs: DEFAULT_GIT_COMMAND_TIMEOUT_MS,
             });
-            ensureGitCommandSucceeded("git update-index remove selected paths", removeResult);
+            ensureGitCommandSucceeded(
+              "git update-index remove selected paths",
+              removeResult,
+            );
           }
 
           for (const entry of stagedEntries) {
@@ -1579,7 +1810,10 @@ export function createGitCliRepo(options?: { commandProvider?: GitCommandProvide
               env: tempIndexEnv,
               timeoutMs: DEFAULT_GIT_COMMAND_TIMEOUT_MS,
             });
-            ensureGitCommandSucceeded("git update-index add selected paths", addResult);
+            ensureGitCommandSucceeded(
+              "git update-index add selected paths",
+              addResult,
+            );
           }
 
           const scopedCommitResult = await commandProvider.run({
@@ -1589,14 +1823,20 @@ export function createGitCliRepo(options?: { commandProvider?: GitCommandProvide
             timeoutMs: DEFAULT_GIT_COMMAND_TIMEOUT_MS,
             maxOutputBytes: DEFAULT_GIT_OUTPUT_BYTES,
           });
-          ensureGitCommandSucceeded("git commit selected staged paths", scopedCommitResult);
+          ensureGitCommandSucceeded(
+            "git commit selected staged paths",
+            scopedCommitResult,
+          );
 
           const hashResult = await commandProvider.run({
             cwd: resolution.repoRoot,
             args: ["rev-parse", "HEAD"],
             timeoutMs: DEFAULT_GIT_COMMAND_TIMEOUT_MS,
           });
-          ensureGitCommandSucceeded("git rev-parse selected commit HEAD", hashResult);
+          ensureGitCommandSucceeded(
+            "git rev-parse selected commit HEAD",
+            hashResult,
+          );
           const commitHash = hashResult.stdout.trim();
 
           // 提交当前会话文件时不能把真实 index 整体替换成临时 index。
@@ -1606,7 +1846,10 @@ export function createGitCliRepo(options?: { commandProvider?: GitCommandProvide
             args: ["reset", "--quiet", "HEAD", "--", ...cleanupRepoPaths],
             timeoutMs: DEFAULT_GIT_COMMAND_TIMEOUT_MS,
           });
-          ensureGitCommandSucceeded("git reset selected committed paths", resetSelectedResult);
+          ensureGitCommandSucceeded(
+            "git reset selected committed paths",
+            resetSelectedResult,
+          );
           invalidate(workspacePath);
           return { commitHash };
         } finally {
@@ -1623,7 +1866,14 @@ export function createGitCliRepo(options?: { commandProvider?: GitCommandProvide
         timeoutMs: DEFAULT_GIT_COMMAND_TIMEOUT_MS,
         maxOutputBytes: DEFAULT_GIT_OUTPUT_BYTES,
       });
-      ensureGitCommandSucceeded("git commit", commitResult);
+      // SRC-070 (E): a commit that did not happen is named, not dumped as raw
+      // stderr. "Nothing to commit" is a different outcome from a hook refusal
+      // and the operator has to be able to tell them apart.
+      const commitFailure = classifyGitCommitFailure(
+        commitResult,
+        repoLabel(resolution.repoRoot, workspacePath),
+      );
+      if (commitFailure) throw new GitOutcomeError(commitFailure);
       invalidate(workspacePath);
 
       const hashResult = await commandProvider.run({
@@ -1636,8 +1886,32 @@ export function createGitCliRepo(options?: { commandProvider?: GitCommandProvide
     },
 
     async push(workspacePath: string): Promise<GitPushResult> {
-      const status = await this.getStatus(workspacePath);
-      const resolution = ensureRepositoryAvailable(status.resolution, "push changes");
+      // A preflight failure must not read as a push failure: push never ran.
+      let status: Awaited<ReturnType<GitCliRepo["getStatus"]>>;
+      try {
+        status = await this.getStatus(workspacePath);
+      } catch (error) {
+        const preflight =
+          error instanceof GitOutcomeError
+            ? error.failure
+            : classifyGitPreflightFailure(
+                {
+                  exitCode: 1,
+                  stderr: String(error),
+                  stdout: "",
+                  timedOut: false,
+                  outputTruncated: false,
+                  durationMs: 0,
+                } as never,
+                "pushing",
+              );
+        if (preflight) throw new GitOutcomeError(preflight);
+        throw error;
+      }
+      const resolution = ensureRepositoryAvailable(
+        status.resolution,
+        "push changes",
+      );
       const branchName = status.summary.branchName?.trim() ?? "";
       if (status.summary.headRefType !== "branch" || branchName.length === 0) {
         throw new Error("Cannot push while HEAD is detached.");
@@ -1659,14 +1933,24 @@ export function createGitCliRepo(options?: { commandProvider?: GitCommandProvide
         // 这里单独放宽输出上限，避免在 push 真正完成前因为 hook 输出过多被截断。
         maxOutputBytes: DEFAULT_GIT_PUSH_OUTPUT_BYTES,
       });
-      ensureGitCommandSucceeded("git push", pushResult);
+      // SRC-070 (E): the real outcome, including "the remote moved ahead" and
+      // "the remote could not be reached", which are not the same failure and
+      // not Git's fault in the second case. Nothing is ever force-pushed.
+      const pushFailure = classifyGitPushFailure(
+        pushResult,
+        repoLabel(resolution.repoRoot, workspacePath),
+        branchName,
+      );
+      if (pushFailure) throw new GitOutcomeError(pushFailure);
       invalidate(workspacePath);
 
       const nextStatus = await this.getStatus(workspacePath);
       return {
         branchName,
         trackingBranchName: nextStatus.summary.trackingBranchName,
-        remoteName: remoteName ?? parseTrackingRemoteName(nextStatus.summary.trackingBranchName),
+        remoteName:
+          remoteName ??
+          parseTrackingRemoteName(nextStatus.summary.trackingBranchName),
         setUpstream: !hasTrackingBranch,
         summary: nextStatus.summary,
       };
@@ -1687,12 +1971,24 @@ export function createGitCliRepo(options?: { commandProvider?: GitCommandProvide
       const [nameResult, emailResult] = await Promise.all([
         commandProvider.run({
           cwd: resolution.repoRoot,
-          args: ["config", "--show-scope", "--show-origin", "--get", "user.name"],
+          args: [
+            "config",
+            "--show-scope",
+            "--show-origin",
+            "--get",
+            "user.name",
+          ],
           timeoutMs: DEFAULT_GIT_COMMAND_TIMEOUT_MS,
         }),
         commandProvider.run({
           cwd: resolution.repoRoot,
-          args: ["config", "--show-scope", "--show-origin", "--get", "user.email"],
+          args: [
+            "config",
+            "--show-scope",
+            "--show-origin",
+            "--get",
+            "user.email",
+          ],
           timeoutMs: DEFAULT_GIT_COMMAND_TIMEOUT_MS,
         }),
       ]);

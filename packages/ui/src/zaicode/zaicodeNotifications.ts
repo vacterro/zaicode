@@ -289,12 +289,37 @@ interface ZaicodeToastState {
   toasts: ZaicodeToast[];
   dismiss: (id: number) => void;
   dismissAll: () => void;
+  /** True while the operator has closed the card this key produces. */
+  isDismissed: (key: string | undefined) => boolean;
 }
 
-export const useZaicodeToasts = create<ZaicodeToastState>((set) => ({
+/**
+ * Closing a card has to mean it stays closed (SRC-070 item D). Sources re-fire
+ * their key on every poll, so a dismissed card used to reappear on the next
+ * tick and the notice was impossible to get rid of. The ring is bounded, so a
+ * genuinely new event of the same kind can still reach the operator later, and
+ * the source event itself is never suppressed -- only the card it produced.
+ */
+const DISMISSED_KEY_LIMIT = 40;
+const dismissedKeys: string[] = [];
+
+function rememberDismissed(key: string | undefined): void {
+  if (!key || dismissedKeys.includes(key)) return;
+  dismissedKeys.push(key);
+  while (dismissedKeys.length > DISMISSED_KEY_LIMIT) dismissedKeys.shift();
+}
+
+export const useZaicodeToasts = create<ZaicodeToastState>((set, get) => ({
   toasts: [],
-  dismiss: (id) => set((state) => ({ toasts: state.toasts.filter((toast) => toast.id !== id) })),
-  dismissAll: () => set({ toasts: [] }),
+  isDismissed: (key) => Boolean(key) && dismissedKeys.includes(key!),
+  dismiss: (id) => {
+    rememberDismissed(get().toasts.find((toast) => toast.id === id)?.key);
+    set((state) => ({ toasts: state.toasts.filter((toast) => toast.id !== id) }));
+  },
+  dismissAll: () => {
+    for (const toast of get().toasts) rememberDismissed(toast.key);
+    set({ toasts: [] });
+  },
 }));
 
 let nextToastId = 1;
@@ -376,6 +401,9 @@ export function notifyZaicode(scenario: string, input: ZaicodeNotifyInput, now: 
   }
   if (!channels.toast) return null;
   const seconds = input.seconds ?? row.seconds;
+  // SRC-070 (D): a card the operator closed stays closed until its key ages
+  // out. The system notification above still went out: only the card is muted.
+  if (input.key && useZaicodeToasts.getState().isDismissed(input.key)) return null;
   const toast: ZaicodeToast = {
     id: nextToastId++,
     scenario,

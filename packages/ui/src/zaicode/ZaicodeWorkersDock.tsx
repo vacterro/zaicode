@@ -27,6 +27,7 @@ import {
   type ZaicodeWorkerWindowState,
 } from "./zaicodeWorkers.js";
 import { useZaicodeWorkerPrefs, type ZaicodeWorkersTrayAnchor } from "./zaicodeWorkerPrefs.js";
+import { zaicodeAnyWorkerRunning } from "./zaicodeElapsed.js";
 import {
   ZaicodeWorkerHeaderButtons,
   ZaicodeWorkerLabel,
@@ -243,6 +244,13 @@ const TRAY_POSITION: Record<ZaicodeWorkersTrayAnchor, string> = {
   left: "left-1 top-1/2 -translate-y-1/2 flex-col",
   right: "right-1 top-1/2 -translate-y-1/2 flex-col items-end",
 };
+/**
+ * SRC-070 (F): the tray was capped only on the side anchors, so a bottom tray
+ * grew past the bottom edge of a 768px-tall window and painted over the
+ * composer. The cap belongs to every anchor; wrapping keeps them all
+ * reachable, so this is layout, not hiding.
+ */
+const TRAY_SIZE = "max-h-[70vh] max-w-[70vw] overflow-auto";
 
 function WorkerTray({ workers, now }: { workers: readonly ZaicodeWorker[]; now: number }) {
   const anchor = useZaicodeWorkerPrefs((state) => state.trayAnchor);
@@ -251,7 +259,7 @@ function WorkerTray({ workers, now }: { workers: readonly ZaicodeWorker[]; now: 
   const vertical = anchor === "left" || anchor === "right";
   return (
     <div
-      className={cn("fixed z-40 flex max-w-[70vw] gap-1", TRAY_POSITION[anchor], vertical && "max-h-[70vh] overflow-y-auto")}
+      className={cn("fixed z-40 flex gap-1", TRAY_SIZE, TRAY_POSITION[anchor])}
       data-zaicode-workers-tray={anchor}
       data-zaicode-help="workers"
     >
@@ -289,7 +297,7 @@ function WorkerTray({ workers, now }: { workers: readonly ZaicodeWorker[]; now: 
 export function ZaicodeWorkersDock({ services }: { services: IServiceAccessor }) {
   const state = useZaicodeWorkers();
   const showHiddenPanel = useZaicodeWorkerPrefs((prefs) => prefs.trayShowsHiddenPanel);
-  const now = useZaicodeNow(30_000);
+  const now = useZaicodeNow(30_000, zaicodeAnyWorkerRunning(state.workers));
   const [zone, setZone] = useState<ZaicodeSnapZone | null>(null);
   const [, setViewport] = useState(0);
   const releaseRef = useRef<(id: string) => void>((id) => sidePaneTerminalSessionRegistry.release(id));

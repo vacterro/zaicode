@@ -41,10 +41,11 @@ function ToastCard({ toast, now }: { toast: ZaicodeToast; now: number }) {
           type="button"
           title="Dismiss"
           aria-label="Dismiss"
-          className="flex size-4 items-center justify-center text-foreground-subtle hover:bg-hover hover:text-foreground"
+          className="-m-1 flex size-6 items-center justify-center text-foreground-subtle hover:bg-hover hover:text-foreground"
           onClick={() => dismiss(toast.id)}
+          data-zaicode-toast-close
         >
-          <X className="size-3" />
+          <X className="size-3" aria-hidden="true" />
         </button>
       </div>
       <div className="flex flex-col gap-0.5 px-2 py-1.5">

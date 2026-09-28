@@ -14,6 +14,7 @@ import { useZaicodeMainSessionId } from "../zaicodeMainSession.js";
 import { useZaicodeProjectDisabled } from "../zaicodeProjectSwitch.js";
 import { useZaicodeSidebarPrefs, slotGroupOf, type ZaicodeRunningSession } from "../zaicodeSidebarPrefs.js";
 import { focusZaicodeWorker, zaicodeWorkerTitle, type ZaicodeWorker } from "../zaicodeWorkers.js";
+import { zaicodeWorkerElapsedMs } from "../zaicodeElapsed.js";
 import { openZaicodeSession, type ZaicodeSessionRef } from "../zaicodeSessionNav.js";
 import { openZaicodeWorkspaceView } from "../zaicodeActions.js";
 import { ZaicodeHomeCard } from "./ZaicodeHomeCards.js";
@@ -340,7 +341,7 @@ export function ZaicodeHomeAgents({
               <button type="button" className="flex w-full min-w-0 gap-2 text-left hover:bg-hover" onClick={() => focusZaicodeWorker(worker.id)}>
                 <span className="shrink-0 text-foreground-subtle">▣</span>
                 <span className="min-w-0 flex-1 truncate text-foreground">{zaicodeWorkerTitle(worker)}</span>
-                <span className="shrink-0 tabular-nums text-foreground-subtlest">{formatZaicodeDuration(now - worker.startedAt)}</span>
+                <span className="shrink-0 tabular-nums text-foreground-subtlest">{formatZaicodeDuration(zaicodeWorkerElapsedMs(worker, now))}</span>
               </button>
             </li>
           ))}

@@ -1,6 +1,8 @@
 import { useState } from "react";
 import type { ZaicodeAgentDefinition, ZaicodeJob, ZaicodeJobDiagnostic } from "@zcode/shared";
-import { zaicodeJobTaskText } from "@zcode/shared";
+import { formatZaicodeDuration, isZaicodeJobTerminal, zaicodeJobTaskText } from "@zcode/shared";
+import { zaicodeElapsedMs, zaicodeJobElapsedSource } from "./zaicodeElapsed.js";
+import { useZaicodeNow } from "./ZaicodeWorkerParts.js";
 import { ChevronDown, ChevronUp, Play, RotateCcw, Square, Trash2, Undo2, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge.js";
 import { Button } from "@/components/ui/button.js";
@@ -64,6 +66,12 @@ const PRIMARY_ICON: Record<Exclude<ZaicodeJobPrimaryAction, null>, typeof Play> 
  * 任务队列：「要做什么」。每行只有一个与状态匹配的主操作（运行/停止/重试/恢复），
  * 排序与删除在悬停时出现；筛选收敛为 全部/进行中/需要处理/已结束 四组。
  */
+/** A job's own elapsed; frozen once it reaches a terminal state. */
+function jobElapsedLabel(job: ZaicodeJob, now: number): string | null {
+  const source = zaicodeJobElapsedSource(job);
+  return source ? formatZaicodeDuration(zaicodeElapsedMs(source, now)) : null;
+}
+
 export function ZaicodeQueuePanel({
   jobs,
   diagnostics,
@@ -106,6 +114,9 @@ export function ZaicodeQueuePanel({
   const visibleJobs = sortJobsForDisplay(
     jobs.filter((job) => filter === "all" || jobStatusGroup(job.status) === filter),
   );
+  // SRC-070 (C): the queue clock exists only while a job is still running. A
+  // finished job shows its own `finishedAt - startedAt` and never moves again.
+  const now = useZaicodeNow(15_000, jobs.some((job) => !isZaicodeJobTerminal(job.status)));
 
   const runPrimary = (job: ZaicodeJob, action: ZaicodeJobPrimaryAction) => {
     if (action === "run") onDispatch(job.id);
@@ -323,6 +334,7 @@ export function ZaicodeQueuePanel({
                     </span>
                     <span className="truncate text-ui-xs text-foreground-subtlest">
                       {agent?.name ?? job.agentId} · {formatTime(job.startedAt ?? job.createdAt)}
+                      {jobElapsedLabel(job, now) ? ` · ${jobElapsedLabel(job, now)}` : ""}
                       {job.attempt > 1
                         ? ` · ${t("zaicode.queue.attempt", { count: job.attempt })}`
                         : ""}

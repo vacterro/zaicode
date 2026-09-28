@@ -27,6 +27,17 @@ import {
 const FLUSH_MS = 4;
 const MAX_HELPER_RESTARTS = 3;
 const MAX_BATCH = ZAICODE_PROTRAIL_EVENT_STRIDE * 4096;
+/**
+ * The overlays must converge on their own. A start that ran before the
+ * display list settled, a window that failed to load and a renderer that
+ * missed the first feed are all recoverable without the operator opening
+ * Settings, so each of them schedules another attempt. The first retries are
+ * quick; once they stop helping the cadence drops so a permanently broken
+ * display costs nothing.
+ */
+const OVERLAY_RETRY_MS = 250;
+const OVERLAY_RETRY_SLOW_MS = 2000;
+const OVERLAY_FAST_RETRIES = 20;
 
 const overlays = new Map<number, BrowserWindow>();
 const overlayWindows = new WeakSet<BrowserWindow>();
@@ -51,6 +62,8 @@ let status: ZaicodeProtrailGlobalStatus = { ...ZAICODE_PROTRAIL_GLOBAL_OFF };
 let batch: number[] = [];
 let flushTimer: ReturnType<typeof setTimeout> | null = null;
 let screenHooked = false;
+let overlayRetryTimer: ReturnType<typeof setTimeout> | null = null;
+let overlayRetries = 0;
 
 /** An overlay is not an application window: window pickers, "last window" logic and hotkeys skip it. */
 export function isZaicodeProtrailWindow(win: BrowserWindow): boolean {
@@ -72,7 +85,14 @@ function apply(): ZaicodeProtrailGlobalStatus {
   }
   config = next;
   if (status.state === "off") start();
-  else broadcast({ config });
+  else {
+    broadcast({ config });
+    // Repeating the same config used to only rebroadcast, so a start that
+    // produced no overlay (displays not enumerated yet) stayed dead until the
+    // operator toggled the setting. Reconcile instead: a healthy overlay set
+    // makes this a no-op.
+    if (!overlaysConverged()) syncOverlays();
+  }
   return { ...status };
 }
 
@@ -98,6 +118,7 @@ function setStatus(patch: Partial<ZaicodeProtrailGlobalStatus>): void {
 function start(): void {
   generation += 1;
   restarts = 0;
+  overlayRetries = 0;
   status = { state: "starting", input: "none", displays: 0, note: null };
   hookScreen(true);
   syncOverlays();
@@ -106,6 +127,9 @@ function start(): void {
 
 function stop(): void {
   generation += 1;
+  if (overlayRetryTimer) clearTimeout(overlayRetryTimer);
+  overlayRetryTimer = null;
+  overlayRetries = 0;
   pending?.stop();
   pending = null;
   input?.stop();
@@ -236,15 +260,74 @@ function syncOverlays(): void {
   }
   for (const display of displays) {
     const existing = overlays.get(display.id);
-    if (existing) {
-      overlayBounds.set(existing, display.bounds);
-      existing.setBounds(display.bounds);
-      send(existing, { origin: { x: display.bounds.x, y: display.bounds.y } });
-    } else {
+    if (!existing) {
       overlays.set(display.id, createOverlay(display));
+      continue;
     }
+    // Only a moved overlay needs its origin again: re-sending it on every
+    // reconcile would push a feed between the config broadcast and the
+    // overlay's next load, and the document is what applies it.
+    const previous = overlayBounds.get(existing);
+    overlayBounds.set(existing, display.bounds);
+    if (previous && previous.x === display.bounds.x && previous.y === display.bounds.y) continue;
+    existing.setBounds(display.bounds);
+    send(existing, { origin: { x: display.bounds.x, y: display.bounds.y } });
   }
-  setStatus({ displays: overlays.size });
+  settleOverlayRetry();
+}
+
+/**
+ * Republish the overlay state and re-arm (or drop) the reconcile timer. Called
+ * from the sync itself and from every event that changes whether an overlay is
+ * loaded, so the status never lags the windows it describes.
+ */
+function settleOverlayRetry(): void {
+  if (overlayRetryTimer) {
+    clearTimeout(overlayRetryTimer);
+    overlayRetryTimer = null;
+  }
+  setStatus({ displays: countReadyOverlays() });
+  if (overlaysConverged()) overlayRetries = 0;
+  else scheduleOverlayRetry();
+}
+
+/** One live, loaded overlay per connected display: the state ProTrail claims to be in. */
+function overlaysConverged(): boolean {
+  const displays = screen.getAllDisplays();
+  if (displays.length === 0) return false;
+  return displays.every((display) => {
+    const win = overlays.get(display.id);
+    return !!win && !win.isDestroyed() && readyOverlays.has(win);
+  });
+}
+
+function countReadyOverlays(): number {
+  let ready = 0;
+  for (const win of overlays.values()) if (!win.isDestroyed() && readyOverlays.has(win)) ready += 1;
+  return ready;
+}
+
+/** Re-run the sync until the overlays are there, at a cadence that stops costing anything if they never are. */
+function scheduleOverlayRetry(): void {
+  if (overlayRetryTimer) return;
+  if (wanted.size === 0) return;
+  overlayRetries += 1;
+  const delay = overlayRetries > OVERLAY_FAST_RETRIES ? OVERLAY_RETRY_SLOW_MS : OVERLAY_RETRY_MS;
+  overlayRetryTimer = setTimeout(() => {
+    overlayRetryTimer = null;
+    if (wanted.size === 0) return;
+    syncOverlays();
+  }, delay);
+  // A background reconcile must never be the reason a process stays alive.
+  (overlayRetryTimer as { unref?: () => void }).unref?.();
+}
+
+/** Show the overlay once its document is loaded. Idempotent: a reload must reveal it again. */
+function revealOverlay(win: BrowserWindow): void {
+  if (win.isDestroyed() || !readyOverlays.has(win) || win.isVisible()) return;
+  win.setBounds(overlayBounds.get(win) ?? win.getBounds());
+  win.showInactive();
+  win.setAlwaysOnTop(true, "screen-saver");
 }
 
 function createOverlay(display: Display): BrowserWindow {
@@ -289,16 +372,28 @@ function createOverlay(display: Display): BrowserWindow {
     readyOverlays.add(win);
     const current = overlayBounds.get(win) ?? bounds;
     send(win, { config, origin: { x: current.x, y: current.y } });
+    revealOverlay(win);
+    settleOverlayRetry();
   });
-  win.once("ready-to-show", () => {
-    if (win.isDestroyed()) return;
-    // A window created on a monitor with another scale can come up mis-sized; set it again.
-    win.setBounds(overlayBounds.get(win) ?? bounds);
-    win.showInactive();
-    win.setAlwaysOnTop(true, "screen-saver");
+  // A blank overlay is worse than no overlay: the desktop is covered by a
+  // click-through nothing and nothing else in the app can see it. Drop it and
+  // let the sync build a fresh one.
+  win.webContents.on("did-fail-load", () => {
+    readyOverlays.delete(win);
+    if (!win.isDestroyed()) win.destroy();
+    settleOverlayRetry();
   });
+  win.webContents.on("render-process-gone", () => {
+    readyOverlays.delete(win);
+    if (!win.isDestroyed()) win.destroy();
+    settleOverlayRetry();
+  });
+  // on, not once: after a document reload only did-finish-load fires again, and
+  // a window that never comes back would stay loaded but invisible.
+  win.on("ready-to-show", () => revealOverlay(win));
   win.on("closed", () => {
     for (const [id, candidate] of overlays) if (candidate === win) overlays.delete(id);
+    settleOverlayRetry();
   });
   if (!app.isPackaged && process.env["ELECTRON_RENDERER_URL"]) {
     void win.loadURL(`${process.env["ELECTRON_RENDERER_URL"]}/zaicode-protrail.html`);

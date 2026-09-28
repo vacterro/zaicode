@@ -10,6 +10,7 @@ import {
   zaicodeWorkerTitle,
 } from "./zaicodeWorkers.js";
 import { useZaicodeWorkerPrefs } from "./zaicodeWorkerPrefs.js";
+import { zaicodeAnyWorkerRunning } from "./zaicodeElapsed.js";
 import {
   ZaicodeWorkerHeaderButtons,
   ZaicodeWorkerIconButton,
@@ -27,7 +28,7 @@ import {
 export function ZaicodeSidebarWorkers() {
   const state = useZaicodeWorkers();
   const enabled = useZaicodeWorkerPrefs((prefs) => prefs.sidebarList);
-  const now = useZaicodeNow(30_000);
+  const now = useZaicodeNow(30_000, zaicodeAnyWorkerRunning(state.workers));
   if (!enabled || state.workers.length === 0) return null;
   const running = state.workers.filter((worker) => worker.exitCode === null).length;
   return (

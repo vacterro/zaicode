@@ -18,6 +18,7 @@ import { cn } from "@/components/lib/utils.js";
 import { ContextMenuItem, ContextMenuSeparator } from "@/components/ui/context-menu.js";
 import { toast } from "@/components/ui/toast.js";
 import { TerminalSession } from "@/terminal/TerminalSession.js";
+import { zaicodeWorkerElapsedMs } from "./zaicodeElapsed.js";
 import { openZaicodeSettings } from "./zaicodeActions.js";
 import {
   dockZaicodeWorker,
@@ -43,16 +44,22 @@ export function zaicodeWorkerTone(worker: Pick<ZaicodeWorker, "exitCode">): stri
 }
 
 export function zaicodeWorkerStatus(worker: ZaicodeWorker, now: number): string {
-  const age = formatZaicodeDuration((worker.endedAt ?? now) - worker.startedAt);
+  const age = formatZaicodeDuration(zaicodeWorkerElapsedMs(worker, now));
   return worker.exitCode === null ? `running ${age}` : `exited ${worker.exitCode} after ${age}`;
 }
 
-export function useZaicodeNow(intervalMs = 30_000): number {
+/**
+ * A clock for the elapsed labels. It only runs while something still counts:
+ * a component that stays mounted after the last worker finished must not keep
+ * a render interval alive.
+ */
+export function useZaicodeNow(intervalMs = 30_000, live = true): number {
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
+    if (!live) return;
     const timer = window.setInterval(() => setNow(Date.now()), intervalMs);
     return () => window.clearInterval(timer);
-  }, [intervalMs]);
+  }, [intervalMs, live]);
   return now;
 }
 
@@ -77,7 +84,7 @@ export function ZaicodeWorkerLabel({
       <span className="truncate text-foreground">{worker.projectName}</span>
       {showAge ? (
         <span className="shrink-0 text-foreground-subtlest">
-          {formatZaicodeDuration((worker.endedAt ?? now) - worker.startedAt)}
+          {formatZaicodeDuration(zaicodeWorkerElapsedMs(worker, now))}
           {worker.exitCode !== null ? ` · ${worker.exitCode === 0 ? "done" : `exit ${worker.exitCode}`}` : ""}
         </span>
       ) : null}

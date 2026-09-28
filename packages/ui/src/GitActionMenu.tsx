@@ -819,6 +819,17 @@ function GitPushDialog({
   );
 }
 
+/**
+ * SRC-070 (E): a classified git outcome already says what happened and what to
+ * do about it, in one operator-readable sentence. Prefixing it with a generic
+ * "Commit failed:" only buries that. Unclassified errors keep the old template.
+ */
+function gitOutcomeText(error: unknown): string | null {
+  const failure = (error as { failure?: { code?: unknown; message?: unknown } } | null | undefined)?.failure;
+  if (!failure || typeof failure.code !== "string" || typeof failure.message !== "string") return null;
+  return failure.message;
+}
+
 export function GitActionMenu({
   workspacePath,
   workspaceIdentity,
@@ -1210,7 +1221,8 @@ export function GitActionMenu({
           pushAfterCommit: Boolean(options?.pushAfterCommit),
         });
         setCommitError(
-          intl.formatMessage(
+          gitOutcomeText(error) ??
+            intl.formatMessage(
             {
               id:
                 committed && options?.pushAfterCommit
@@ -1269,10 +1281,11 @@ export function GitActionMenu({
         error: message,
       });
       setPushError(
-        intl.formatMessage(
-          { id: "git.actionMenu.pushDialog.error.requestFailed" },
-          { error: message },
-        ),
+        gitOutcomeText(error) ??
+          intl.formatMessage(
+            { id: "git.actionMenu.pushDialog.error.requestFailed" },
+            { error: message },
+          ),
       );
     } finally {
       setMutationPending(false);

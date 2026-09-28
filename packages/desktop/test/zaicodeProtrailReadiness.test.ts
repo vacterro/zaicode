@@ -28,14 +28,17 @@ function harness(platform = "linux") {
   class Overlay extends EventEmitter {
     webContents = new Contents();
     destroyed = false;
+    visible = false;
     constructor(readonly options: { type?: string }) { super(); windows.push(this); }
     isDestroyed() { return this.destroyed; }
+    isVisible() { return this.visible && !this.destroyed; }
+    getBounds() { return { x: 0, y: 0, width: 1920, height: 1080 }; }
     destroy() { this.destroyed = true; this.emit("closed"); }
     setIgnoreMouseEvents() {}
     setAlwaysOnTop() {}
     setVisibleOnAllWorkspaces() {}
     setBounds() {}
-    showInactive() {}
+    showInactive() { this.visible = true; }
     loadFile() {}
     loadURL() {}
   }

@@ -1,5 +1,6 @@
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { ZAICODE_PROTRAIL_GLOBAL_OFF, type ZaicodeProtrailGlobalStatus } from "@zcode/shared";
+import { runZaicodeProtrailGlobalConverge } from "./protrailGlobalConverge.js";
 import type { ProtrailConfig } from "./protrailModel.js";
 
 /**
@@ -56,9 +57,9 @@ export function useZaicodeProtrailGlobalStatus(): ZaicodeProtrailGlobalStatus {
 }
 
 /**
- * Keeps the desktop overlays in step with `wanted` and the config. Returns
- * true while the desktop draws (the window's own canvas then stays idle, so
- * nothing is drawn twice).
+ * Keeps the desktop overlays in step with `wanted` and the config, and does not
+ * stop until the desktop confirms it is drawing. Returns true while the desktop
+ * draws (the window's own canvas then stays idle, so nothing is drawn twice).
  */
 export function useZaicodeProtrailGlobalSync(config: ProtrailConfig, wanted: boolean): boolean {
   const [broken, setBroken] = useState(failed);
@@ -68,14 +69,26 @@ export function useZaicodeProtrailGlobalSync(config: ProtrailConfig, wanted: boo
   useEffect(() => {
     const api = bridge();
     if (!supported || !api?.setZaicodeProtrailGlobal) return;
-    // Slider drags change the config many times a second; the overlays need the last one.
-    const timer = setTimeout(() => {
-      api.setZaicodeProtrailGlobal!(active ? config : null).then(publish, () => {
-        markFailed();
-        setBroken(true);
-      });
-    }, 40);
-    return () => clearTimeout(timer);
+    return runZaicodeProtrailGlobalConverge(
+      {
+        set: (next) => api.setZaicodeProtrailGlobal!(next as ProtrailConfig | null),
+        status: () => api.getZaicodeProtrailGlobalStatus!(),
+      },
+      {
+        wanted: active,
+        config,
+        onStatus: publish,
+        onRecovered: () => {
+          if (!failed) return;
+          failed = false;
+          setBroken(false);
+        },
+        onUnavailable: () => {
+          markFailed();
+          setBroken(true);
+        },
+      },
+    );
   }, [config, active, supported]);
 
   useEffect(

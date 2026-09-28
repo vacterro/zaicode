@@ -2,7 +2,12 @@ import { resolveSelectionSideInheritedModel } from "@/lib/selectionSideInherited
 import { useStartPlanRecommendation } from "@/hooks/useStartPlanRecommendation.js";
 import type { SessionCreateSource } from "@zcode/shared";
 import { reportSessionCreate } from "@/lib/sessionCreateTelemetry.js";
+import { stopZaicodeAutoRetryForError } from "@/zaicode/zaicodeAutoRetry.js";
 import { getLocalTtftObserver } from "@/v4/telemetry/localTtftObserver.js";
+import {
+  conversationUserTurnKey,
+  sendUserTurnOnce,
+} from "@/v4/conversationUserTurnIdempotency.js";
 /* oxlint-disable eslint(max-lines) -- SessionPane 是单 pane 竖切的命令编排收口（订阅/发送/停止/fork/edit/retry/queue/slash 全集），与旧 ChatView 同粒度；HEAD 已超限（693 行计数），拆散命令组会打散 dispatchCommand/snapshotRef 的闭包纪律。 */
 import { useIsOfficeMode } from "@/hooks/useInterfaceMode.js";
 import {
@@ -1500,7 +1505,16 @@ export function SessionPane({
             targetSessionId,
           );
         }
-        ack = await sendCommand(envelope);
+        // SRC-070 (B): one physical submit, one user turn. A repeat that
+        // overlaps this one -- key repeat, a second click, a remounted
+        // composer replaying a queued SAIPEN command -- joins this request
+        // instead of putting a second turn on the wire.
+        ack =
+          type === "sendText" && typeof payload.text === "string"
+            ? await sendUserTurnOnce(conversationUserTurnKey(targetSessionId, payload.text), () =>
+                sendCommand(envelope),
+              )
+            : await sendCommand(envelope);
         if (telemetrySeed?.localTtft && ack.reasonCode === "guard.heldQueueConfirmationStale")
           getLocalTtftObserver()?.confirmationRetry(telemetrySeed.localTtft);
         else if (telemetrySeed?.localTtft)
@@ -4143,6 +4157,9 @@ export function SessionPane({
     if (!controlLastErrorKey) return;
     // v4 control.lastError 是投影事实，单纯关闭 banner 不会改投影。
     // 这里只记录当前错误指纹，避免下一次 render 把同一条错误立刻重新顶回来；新错误 at/message 变化仍会显示。
+    // SRC-070 (D): 关闭横幅必须同时停掉它背后的自动重试，否则唯一可见的
+    // "Stop auto-retry" 会随横幅一起消失，而重试在看不见的地方继续跑。
+    stopZaicodeAutoRetryForError(controlLastErrorKey);
     setDismissedErrorKeys((keys) =>
       keys.includes(controlLastErrorKey) ? keys : [...keys.slice(-19), controlLastErrorKey],
     );

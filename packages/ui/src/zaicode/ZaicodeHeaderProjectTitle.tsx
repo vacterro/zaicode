@@ -170,6 +170,14 @@ export function ZaicodeHeaderTitleSettingsPanel() {
 }
 
 /** The big project name itself. `placement` is where the header asks to draw it. */
+/** The sidebar column is collapsed, so the top overlay owns the whole header band. */
+function isSidebarPanelCollapsed(): boolean {
+  if (typeof window === "undefined") return false;
+  const raw = getComputedStyle(document.documentElement).getPropertyValue("--workspace-sidebar-panel-width").trim();
+  if (!raw) return false;
+  return Number.parseFloat(raw) <= 8;
+}
+
 export function ZaicodeHeaderProjectTitle({
   projectName,
   workspacePath,
@@ -212,6 +220,11 @@ export function ZaicodeHeaderProjectTitle({
     </ZaicodeRightClickSettings>
   );
   if (placement === "start") return title;
+  // SRC-070 (F): with the sidebar collapsed the top overlay is `w-fit` from x=0,
+  // so there is no free band left to centre a title in -- it painted underneath
+  // the toolbar buttons. The band belongs to the toolbar. The same title is
+  // still in the sidebar row and the `start` placement is untouched.
+  if (isSidebarPanelCollapsed()) return null;
   return (
     // SRC-051: center on the optically free band, not the header's measured
     // midpoint — the toolbar owns the sidebar-wide band on the left and the
@@ -220,7 +233,9 @@ export function ZaicodeHeaderProjectTitle({
     <div
       className="pointer-events-none absolute top-0 z-[1] flex h-12 items-center justify-center"
       style={{
-        left: "var(--workspace-sidebar-panel-width, 0px)",
+        // A collapsed sidebar leaves the toolbar `w-fit` from x=0, so the free
+        // band starts after it, not at the 4px collapsed width.
+        left: "var(--zaicode-top-overlay-width, var(--workspace-sidebar-panel-width, 0px))",
         right: "var(--windows-caption-controls-right-inset, 136px)",
       }}
       data-zaicode-header-project-center=""

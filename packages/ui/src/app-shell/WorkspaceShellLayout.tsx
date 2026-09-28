@@ -796,6 +796,12 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
         "--workspace-sidebar-panel-width": `${
           isSidebarPanelVisible ? workspaceSidebarPanelWidthPx : collapsedSidebarWidthPx
         }px`,
+        // SRC-070 (F): the top overlay is `w-fit` from x=0, so when the sidebar
+        // is collapsed it is wider than the 4px panel width. Anything centred in
+        // the header band has to start after it, or it paints under the buttons.
+        "--zaicode-top-overlay-width": isSidebarPanelVisible
+          ? `${workspaceSidebarPanelWidthPx}px`
+          : "calc(100% - var(--windows-caption-controls-right-inset, 136px))",
         "--workspace-sidebar-width": `${workspaceSidebarPanelWidthPx}px`,
         "--workspace-panel-radius": `${workspacePanelRadiusPx}px`,
         "--workspace-resize-handle-inset": `${workspaceResizeHandleInsetPx}px`,

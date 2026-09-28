@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { RotateCw } from "lucide-react";
+import { RotateCw, X } from "lucide-react";
 import type { ZaicodeAutoRetryState } from "./zaicodeAutoRetry.js";
 import { useZaicodeUiPrefs } from "./zaicodeUiPrefs.js";
 
@@ -8,13 +8,26 @@ export function ZaicodeAutoRetryNotice({ state }: { state: ZaicodeAutoRetryState
   const autoRetry = useZaicodeUiPrefs((prefs) => prefs.autoRetry);
   const update = useZaicodeUiPrefs((prefs) => prefs.update);
   const [now, setNow] = useState(() => Date.now());
+  // SRC-070 (D): the notice is closable in every state it can be in. Closing
+  // it stops the retry behind it, so the source event is not silenced -- the
+  // next new error arms it again -- and nothing fires where the operator
+  // cannot reach it.
+  const [closed, setClosed] = useState(false);
+  useEffect(() => {
+    setClosed(false);
+  }, [state.attempts, state.exhausted, state.armed]);
   useEffect(() => {
     if (!state.nextAt) return;
     const timer = window.setInterval(() => setNow(Date.now()), 1000);
     return () => window.clearInterval(timer);
   }, [state.nextAt]);
+  if (closed) return null;
   if (!state.available && !state.exhausted) return null;
   const seconds = state.nextAt ? Math.max(0, Math.ceil((state.nextAt - now) / 1000)) : null;
+  const close = () => {
+    state.stop();
+    setClosed(true);
+  };
   return (
     <div
       role="status"
@@ -48,7 +61,9 @@ export function ZaicodeAutoRetryNotice({ state }: { state: ZaicodeAutoRetryState
             Retry now
           </button>
         ) : null}
-        {state.nextAt ? (
+        {/* Reachable whenever a retry is live, not only while the countdown runs:
+            an exhausted notice used to leave the operator with no stop at all. */}
+        {state.available ? (
           <button
             type="button"
             className="border border-border px-1.5 hover:bg-hover hover:text-foreground"
@@ -65,6 +80,16 @@ export function ZaicodeAutoRetryNotice({ state }: { state: ZaicodeAutoRetryState
           title="Auto-retry after errors, for every session (Settings -> ZAICODE)"
         >
           {autoRetry ? "Auto: on" : "Auto: off"}
+        </button>
+        <button
+          type="button"
+          className="flex size-6 items-center justify-center border border-border hover:bg-hover hover:text-foreground"
+          onClick={close}
+          title="Close this notice and stop auto-retry for this error"
+          aria-label="Close this notice and stop auto-retry for this error"
+          data-zaicode-auto-retry-close
+        >
+          <X className="size-3.5" aria-hidden="true" />
         </button>
       </span>
     </div>

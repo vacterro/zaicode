@@ -117,8 +117,35 @@ export interface ZaicodeAutoRetryState {
   exhausted: boolean;
   /** An action exists for the current error (a manual retry is possible). */
   available: boolean;
+  /** The retry for this error is running and can be stopped. */
+  armed: boolean;
   retryNow: () => void;
   stop: () => void;
+}
+
+/**
+ * Errors the operator has closed (SRC-070 item D). The auto-retry for one of
+ * these stays off even after the pane is remounted: a notice that is closed
+ * and then keeps firing behind the operator's back is the same as a notice
+ * that cannot be closed. The set is bounded and per error key, never global --
+ * the next genuinely new error arms the retry again, and the source event
+ * itself is not suppressed.
+ */
+const stoppedErrorKeys = new Set<string>();
+const STOPPED_KEY_LIMIT = 40;
+
+/** Stops the background retry for one error, from anywhere in the app. */
+export function stopZaicodeAutoRetryForError(errorKey: string | null | undefined): void {
+  if (!errorKey) return;
+  stoppedErrorKeys.add(errorKey);
+  for (const key of stoppedErrorKeys) {
+    if (stoppedErrorKeys.size <= STOPPED_KEY_LIMIT) break;
+    stoppedErrorKeys.delete(key);
+  }
+}
+
+export function isZaicodeAutoRetryStopped(errorKey: string | null | undefined): boolean {
+  return Boolean(errorKey) && stoppedErrorKeys.has(errorKey!);
 }
 
 export function useZaicodeAutoRetry(params: {
@@ -228,7 +255,11 @@ export function useZaicodeAutoRetry(params: {
     maxAttempts,
     exhausted,
     available: Boolean(action && sessionId && !busy),
+    armed,
     retryNow: () => run(false),
-    stop: () => setStoppedKey(errorKey),
+    stop: () => {
+      stopZaicodeAutoRetryForError(errorKey);
+      setStoppedKey(errorKey);
+    },
   };
 }

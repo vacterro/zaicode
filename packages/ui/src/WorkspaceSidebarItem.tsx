@@ -1667,7 +1667,10 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
                    * 断连的 remote workspace 不能展开任务列表，因此这里也要禁掉 hover 展开态提示，
                    * 避免用户看到“可展开”的反馈却点不开，只保留 warning 背景提示当前需要先重连。
                    */
-                  "relative flex h-8 min-w-0 flex-1 justify-start gap-2 rounded-lg pl-2.5 pr-1 text-left text-foreground aria-expanded:bg-transparent aria-expanded:text-foreground",
+                  // SRC-070 (F): the gauge strip under this row is absolutely positioned up to
+                  // --zaicode-list-label-width wide (220px by preference). Without a clip
+                  // it paints over the row's own truncated title at the bottom edge.
+                  "relative flex h-8 min-w-0 flex-1 justify-start gap-2 overflow-hidden rounded-lg pl-2.5 pr-1 text-left text-foreground aria-expanded:bg-transparent aria-expanded:text-foreground",
                   "hover:bg-surface-hover hover:text-foreground",
                   isDisconnectedRemoteWorkspace &&
                     "hover:bg-transparent aria-expanded:bg-transparent",
