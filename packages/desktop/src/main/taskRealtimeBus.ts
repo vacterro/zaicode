@@ -11,6 +11,7 @@ import {
   type TaskRunLeaseResult,
   type TaskRunLeaseTarget,
   type TaskStreamMirrorBatchEvent,
+  type TaskStreamMirrorableEvent,
   type TaskStreamMirrorOp,
   type TaskStreamMirrorPublishOp,
   type TaskStreamWatermark,
@@ -248,7 +249,9 @@ export class TaskRealtimeBus {
 
     switch (parsed.data.type) {
       case HostResponseTypes.TaskRealtimePublish:
-        this.handleRealtimePublish(origin, parsed.data.event);
+        // The zod schema validates shape but widens to a passthrough object; the wire
+        // contract is the concrete union (matched by taskRealtimeBridge.ts's same cast).
+        this.handleRealtimePublish(origin, parsed.data.event as TaskRealtimeEvent);
         break;
       case HostResponseTypes.TaskRunLeaseAcquire:
         this.handleLeaseAcquire(origin, parsed.data.request);
@@ -257,7 +260,11 @@ export class TaskRealtimeBus {
         this.releaseLease(origin.hostId, parsed.data.target);
         break;
       case HostResponseTypes.TaskStreamOpPublish:
-        this.handleStreamOpPublish(origin, parsed.data.target, parsed.data.op);
+        this.handleStreamOpPublish(
+          origin,
+          parsed.data.target,
+          parsed.data.op as TaskStreamMirrorPublishOp,
+        );
         break;
       case HostResponseTypes.TaskOwnerCommandRequest:
         this.handleOwnerCommandRequest(origin, parsed.data.command);
@@ -591,15 +598,24 @@ export class TaskRealtimeBus {
     const coalesced: TaskStreamMirrorPublishOp[] = [];
     for (const op of ops) {
       const previous = coalesced[coalesced.length - 1];
-      if (this.canMergeTextChunk(previous, op)) {
-        coalesced[coalesced.length - 1] = {
-          kind: "stream_event",
-          event: {
-            ...previous.event,
-            content: previous.event.content + op.event.content,
-          },
-        };
-        continue;
+      if (previous?.kind === "stream_event" && op.kind === "stream_event") {
+        const previousText = this.textChunkContent(previous.event);
+        const opText = this.textChunkContent(op.event);
+        if (
+          previousText !== null &&
+          opText !== null &&
+          previous.event.type === op.event.type &&
+          previous.event.taskId === op.event.taskId &&
+          previous.event.traceId === op.event.traceId
+        ) {
+          coalesced[coalesced.length - 1] = {
+            kind: "stream_event",
+            // previous.event is a mergeable text chunk (textChunkContent != null) with the
+            // same discriminant as op.event; concatenating content keeps it in that member.
+            event: { ...previous.event, content: previousText + opText } as TaskStreamMirrorableEvent,
+          };
+          continue;
+        }
       }
       if (
         previous?.kind === "stream_event" &&
@@ -647,29 +663,13 @@ export class TaskRealtimeBus {
     return splitOps;
   }
 
-  private canMergeTextChunk(
-    previous: TaskStreamMirrorPublishOp | undefined,
-    op: TaskStreamMirrorPublishOp,
-  ): previous is Extract<TaskStreamMirrorPublishOp, { kind: "stream_event" }> & {
-    event: {
-      type: "agent_message_chunk" | "agent_thought_chunk";
-      taskId: string;
-      traceId: string;
-      content: string;
-    };
-  } {
-    return (
-      previous?.kind === "stream_event" &&
-      op.kind === "stream_event" &&
-      (op.event.type === "agent_message_chunk" || op.event.type === "agent_thought_chunk") &&
-      previous.event.type === op.event.type &&
-      previous.event.taskId === op.event.taskId &&
-      previous.event.traceId === op.event.traceId &&
-      "content" in previous.event &&
-      "content" in op.event &&
-      typeof previous.event.content === "string" &&
-      typeof op.event.content === "string"
-    );
+  /** The text payload of a mergeable message/thought chunk, or null for any other event. */
+  private textChunkContent(event: TaskStreamMirrorableEvent): string | null {
+    if (event.type !== "agent_message_chunk" && event.type !== "agent_thought_chunk") {
+      return null;
+    }
+    const content = (event as { content?: unknown }).content;
+    return typeof content === "string" ? content : null;
   }
 
   private isRedundantStateEvent(type: string): boolean {
