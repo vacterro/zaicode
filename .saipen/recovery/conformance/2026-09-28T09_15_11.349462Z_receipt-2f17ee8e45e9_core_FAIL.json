@@ -1,0 +1,46 @@
+{
+  "blocking_findings": {
+    "problem_count": 1,
+    "problems": [
+      {
+        "category": null,
+        "credential": false,
+        "detail": "improve report [improve-report] -- .saipen\\improve\\imp-vacterro-zaicode-20260927-3\\claude-code-local-verify-01\\saipen_improve_SAIPEN.md: report protocol_fingerprint 'sha256:41043c8b4054c4b50e60f3981bf",
+        "detail_hash": "e6d8edb22ae76d50",
+        "finding_key": "76b48f23558dce11",
+        "rule_id": "unclassified",
+        "severity": "problem",
+        "subject_id": null,
+        "subject_kind": "global",
+        "subject_ref": null
+      }
+    ],
+    "ruleset_fingerprint": "82e5e183ae8f0fd909be3fa3627f00489cacaab813d942186c832db02a05a1c1",
+    "ruleset_version": 1,
+    "status": "complete",
+    "warning_count": 19
+  },
+  "board_hash": "2003a65f13bf01f2",
+  "canonical_next_command": "saipen improve reconcile imp-_zaicode-20260922-1",
+  "content_hash": "2fbd96df487fa73a",
+  "exit_code": 1,
+  "external_actions": [],
+  "gate": "core",
+  "kind": "conformance_receipt",
+  "log_hash": "fa3071db03e17240",
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "receipt_id": "receipt-2f17ee8e45e9",
+  "remediation_commands": [
+    "saipen improve reconcile imp-_zaicode-20260922-1",
+    "saipen improve reconcile imp-_zaicode-20260922-2",
+    "saipen improve reconcile imp-_zaicode-20260924-1",
+    "saipen improve reconcile imp-_zaicode-20260924-2"
+  ],
+  "schema_version": 2,
+  "source_head": "eb84feab024d703512307ab61bb291a8143fbe12",
+  "source_tree_fingerprint": "git-delta-v1:87d50ef9ad22327a0521cd30a6b684d56db7857981b38d3cb30fd0304de2b6f7",
+  "state_hash": "f6dc3bafcdc93be7",
+  "timestamp_utc": "2026-09-28T09:15:11.349462Z",
+  "validator_protocol_version": "1",
+  "verdict": "FAIL"
+}
