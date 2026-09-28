@@ -25,3 +25,6 @@
 # It is pinned upstream, not authored here, so a stale local copy must never be
 # committed.
 /.claude/saipen-protocol/
+
+# Windows Explorer folder metadata: machine-local, never project content.
+desktop.ini

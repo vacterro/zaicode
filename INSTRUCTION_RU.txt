@@ -1,0 +1,45 @@
+﻿ZAICODE README REFRESH V2
+
+WHY V2 EXISTS
+-------------
+The first bundle placed README.md next to APPLY.ps1.
+If the archive was extracted directly into the repository root, the bundle README
+became the repository README before the script ran, so PowerShell tried to copy
+README.md onto itself.
+
+V2 fixes this by keeping all replacement files inside .\payload\.
+You can safely extract V2 directly into the repository root.
+
+SAFE APPLY
+----------
+From the repository root:
+
+powershell -ExecutionPolicy Bypass -File .\APPLY.ps1 -RepoPath "V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE"
+
+This applies files, creates a backup in %TEMP%, runs git diff --check, and shows status.
+It does NOT commit or push.
+
+COMMIT + PUSH
+-------------
+After reviewing:
+
+powershell -ExecutionPolicy Bypass -File .\APPLY.ps1 -RepoPath "V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE" -Commit -Push
+
+The current Git branch is detected automatically.
+
+IF YOU ALREADY EXTRACTED V1 INTO THE REPOSITORY ROOT
+----------------------------------------------------
+The README and screenshots may already be in place even though V1's script failed.
+Check:
+
+git diff --check
+git status --short -- README.md docs/screenshots
+git diff -- README.md
+
+If the changes look correct, you can simply commit them:
+
+git add README.md docs/screenshots/01-do-your-best.png docs/screenshots/02-saihome-dashboard.png docs/screenshots/03-agents-and-tasks.png docs/screenshots/04-scheduler.png docs/screenshots/05-audits.png docs/screenshots/06-active-session.png
+git commit -m "docs: refresh README screenshots and presentation order"
+git push origin HEAD
+
+The V2 script is still safe to run afterward if you prefer it to re-apply the exact payload.
