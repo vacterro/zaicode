@@ -27,12 +27,13 @@
      write that field name next to a concrete id anywhere in this file. -->
 
 ## DOING
-- [/] T-109 [P1] Wave 2: Session text Save/Export/Import, user-message styling, per-session auto-continue, large-paste attachment fidelity | verify: the requested change is present and demonstrated against the user own description of it | user_explicit: true | source_receipts: SRC-071 | owner: saipen-cli | claim_time: 2026-09-28T17:47:32Z
 
 
 ## TODO
 
 ## DONE
+- [x] T-109 [P1] Wave 2: Session text Save/Export/Import, user-message styling, per-session auto-continue, large-paste attachment fidelity | verify: the requested change is present and demonstrated against the user own description of it | user_explicit: true | source_receipts: SRC-071 | needs: T-110 | owner: saipen-cli | claim_time: 2026-09-28T23:18:41Z | closure_mode: own_patch
+- [x] T-110 [P1] Wave 3: ZAICODE audio engine v2 -- loudness normalization, per-event sound pools, agent-action cues, RPG spawned feedback | verify: the requested change is present and demonstrated against the user own description of it | user_explicit: true | source_receipts: SRC-072 | owner: saipen-cli | claim_time: 2026-09-28T23:17:18Z | closure_mode: own_patch
 - [x] T-108 [P1] Wave 1 runtime stability: ProTrail startup convergence, crew double-dispatch, elapsed timer freeze, notification close, commit/push truth, UI overlap | verify: the requested change is present and demonstrated against the user own description of it | user_explicit: true | source_receipts: SRC-070 | owner: saipen-cli | claim_time: 2026-09-28T16:59:21Z | closure_mode: own_patch
 - [x] T-106 [P1] cc all | verify: cc all is complete and the repository-declared verification harness passes | owner: saipen-cli | claim_time: 2026-09-28T14:33:38Z | closure_mode: own_patch
 - [x] T-105 [P1] SAIASUI: ProTrail core invariant while active + discoverable in-game settings + full tuning panel/presets/live-tuning + remove seed HUD | verify: the requested change is present and demonstrated against the user own description of it | user_explicit: true | source_receipts: SRC-068 | owner: claude-code-local-verify | claim_time: 2026-09-28T13:43:25Z | closure_mode: own_patch
