@@ -1,24 +1,31 @@
 import { create } from "zustand";
 import { readZaicodeSetting } from "../zaicodeSettingsSnapshot.js";
+import {
+  detectSaiasuiPreset,
+  normalizeSaiasuiConfig,
+  saiasuiPresetConfig,
+  SAIASUI_DEFAULTS,
+  type SaiasuiConfig,
+  type SaiasuiPreset,
+} from "./saiasuiConfig.js";
 import type { PacingMode } from "./saiasuiEngine.js";
 
-export interface SaiasuiSettings {
-  enabled: boolean;
-  sound: boolean;
-  pacing: PacingMode;
-}
 const SETTINGS = "zaicode-saiasui-settings-v1";
 const RECORDS = "zaicode-saiasui-records-v1";
 type Best = { score: number; combo: number };
 type Records = Record<PacingMode, Best>;
 
+/** Back-compat: the old three-field settings shape, still used by some callers/tests. */
+export interface SaiasuiSettings {
+  enabled: boolean;
+  sound: boolean;
+  pacing: PacingMode;
+}
+
+/** Legacy normalizer kept for the old settings surface; the full model is normalizeSaiasuiConfig. */
 export function normalizeSaiasuiSettings(raw: unknown): SaiasuiSettings {
-  const r = raw && typeof raw === "object" ? (raw as Record<string, unknown>) : {};
-  return {
-    enabled: r.enabled !== false,
-    sound: r.sound !== false,
-    pacing: r.pacing === "step" ? "step" : "linear",
-  };
+  const c = normalizeSaiasuiConfig(raw);
+  return { enabled: c.enabled, sound: c.audioEnabled, pacing: c.pacing };
 }
 
 function load(key: string): unknown {
@@ -47,29 +54,47 @@ function save(key: string, value: unknown) {
   }
 }
 
-export const useSaiasui = create<{
-  settings: SaiasuiSettings;
+interface SaiasuiStore {
+  config: SaiasuiConfig;
   best: Records;
-  configure: (patch: Partial<SaiasuiSettings>) => void;
+  /** Patch one or more fields; the run's preset drops to "custom" when a preset-defined field changes. */
+  configure: (patch: Partial<SaiasuiConfig>) => void;
+  /** Load a named preset wholesale (Custom keeps the current config). */
+  applyPreset: (preset: SaiasuiPreset) => void;
+  /** Reset every field to shipped defaults. */
+  resetAll: () => void;
   record: (mode: PacingMode, score: number, combo: number) => void;
-}>((set, get) => ({
-  settings: normalizeSaiasuiSettings(load(SETTINGS)),
-  best: records(),
-  configure: (patch) => {
-    const settings = normalizeSaiasuiSettings({ ...get().settings, ...patch });
-    save(SETTINGS, settings);
-    set({ settings });
-  },
-  record: (mode, score, combo) => {
-    const previous = get().best;
-    const best = {
-      ...previous,
-      [mode]: {
-        score: Math.max(previous[mode].score, score),
-        combo: Math.max(previous[mode].combo, combo),
-      },
-    };
-    save(RECORDS, best);
-    set({ best });
-  },
-}));
+}
+
+export const useSaiasui = create<SaiasuiStore>((set, get) => {
+  const persist = (next: SaiasuiConfig) => {
+    const config = normalizeSaiasuiConfig({ ...next, preset: detectSaiasuiPreset(normalizeSaiasuiConfig(next)) });
+    save(SETTINGS, config);
+    set({ config });
+  };
+  return {
+    config: normalizeSaiasuiConfig(load(SETTINGS)),
+    best: records(),
+    configure: (patch) => persist({ ...get().config, ...patch }),
+    applyPreset: (preset) => {
+      if (preset === "custom") {
+        persist({ ...get().config, preset: "custom" });
+        return;
+      }
+      persist(saiasuiPresetConfig(preset));
+    },
+    resetAll: () => persist({ ...SAIASUI_DEFAULTS }),
+    record: (mode, score, combo) => {
+      const previous = get().best;
+      const best = {
+        ...previous,
+        [mode]: {
+          score: Math.max(previous[mode].score, score),
+          combo: Math.max(previous[mode].combo, combo),
+        },
+      };
+      save(RECORDS, best);
+      set({ best });
+    },
+  };
+});

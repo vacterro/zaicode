@@ -23,6 +23,11 @@ export const saiasuiEnglish = {
   "saiasui.offer": "Play SAIASUI! (Esc dismisses)",
   "saiasui.hit": "Hit {target}",
   "saiasui.circle": "circle",
+  "saiasui.settings": "Settings",
+  "saiasui.resume": "Resume",
+  "saiasui.details": "Run details",
+  "saiasui.copySeed": "Copy seed",
+  "saiasui.tainted": "Custom · not a record",
 };
 
 export const saiasuiChinese: Record<keyof typeof saiasuiEnglish, string> = {
@@ -50,4 +55,9 @@ export const saiasuiChinese: Record<keyof typeof saiasuiEnglish, string> = {
   "saiasui.offer": "开始 SAIASUI!（Esc 关闭）",
   "saiasui.hit": "击中 {target}",
   "saiasui.circle": "圆圈",
+  "saiasui.settings": "设置",
+  "saiasui.resume": "继续",
+  "saiasui.details": "本局详情",
+  "saiasui.copySeed": "复制种子",
+  "saiasui.tainted": "自定义 · 不计入记录",
 };

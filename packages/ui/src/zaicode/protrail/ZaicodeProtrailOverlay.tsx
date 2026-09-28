@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { isZaicodeProductMode } from "@zcode/shared";
 import { useZaicodeUiPrefs } from "../zaicodeUiPrefs.js";
 import { ProtrailRuntime } from "./protrailRuntime.js";
+import { useZaicodeProtrailForced } from "./zaicodeProtrailForce.js";
 import { useZaicodeProtrailGlobalSync } from "./zaicodeProtrailGlobal.js";
 import { useZaicodeProtrail } from "./zaicodeProtrailStore.js";
 
@@ -12,16 +13,24 @@ import { useZaicodeProtrail } from "./zaicodeProtrailStore.js";
  * the desktop app) draws here: one click-through canvas (pointer-events:
  * none) that never receives, delays or swallows a click, fed by passive
  * capture listeners (coalesced pointer events for a smooth trail).
+ *
+ * A game-local force (SAIASUI, T-105) overrides the saved config while a game
+ * runs: the trail is drawn in-window, on, regardless of the user's saved
+ * preference, and reverts to that saved preference the instant the game exits.
+ * The forced config never touches the store, so nothing is mutated or leaked.
  */
 
 export function ZaicodeProtrailOverlay() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const runtimeRef = useRef<ProtrailRuntime | null>(null);
-  const config = useZaicodeProtrail((state) => state.config);
+  const saved = useZaicodeProtrail((state) => state.config);
+  const forced = useZaicodeProtrailForced();
+  const config = forced ?? saved;
   const noMotion = useZaicodeUiPrefs((state) => state.noMotion);
   const product = isZaicodeProductMode();
   const running = product && config.enabled && !(config.followCalm && noMotion);
-  const global = useZaicodeProtrailGlobalSync(config, running && config.everywhere);
+  // A forced game trail always draws in this window; it never goes desktop-wide.
+  const global = useZaicodeProtrailGlobalSync(config, running && config.everywhere && !forced);
   const local = running && !global;
   const localRef = useRef(local);
   localRef.current = local;

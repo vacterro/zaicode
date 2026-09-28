@@ -26,7 +26,7 @@ function Fixture() {
   const [draft, setDraft] = useState(true);
   const [text, setText] = useState("preserved draft");
   Object.assign(window, {
-    saiTest: { setDraft, configure: useSaiasui.getState().configure },
+    saiTest: { setDraft, configure: useSaiasui.getState().configure, applyPreset: useSaiasui.getState().applyPreset },
   });
   return (
     <div className="text-foreground">

@@ -8,6 +8,10 @@ export function isolateSaiasui(root: HTMLElement): () => void {
         !(child instanceof HTMLElement) ||
         child === root ||
         child.contains(root) ||
+        // ProTrail's click-through canvas must keep drawing over the game
+        // (T-105 core invariant); it has no focusable content, so leaving it
+        // un-inerted changes nothing about the modal's input isolation.
+        child.matches("[data-zaicode-protrail]") ||
         saved.has(child)
       )
         continue;

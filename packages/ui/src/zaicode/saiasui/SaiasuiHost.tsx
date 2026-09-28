@@ -31,14 +31,15 @@ export function SaiasuiHost() {
   const clicks = useRef<BlankClick[]>([]);
   const [offer, setOffer] = useState<{ x: number; y: number } | null>(null);
   const [playing, setPlaying] = useState(false);
-  const settings = useSaiasui((state) => state.settings);
+  const config = useSaiasui((state) => state.config);
+  const enabled = config.enabled;
   const exit = useCallback(() => {
     setPlaying(false);
     setOffer(null);
     clicks.current = [];
   }, []);
   useEffect(() => {
-    if (!settings.enabled) {
+    if (!enabled) {
       exit();
       return;
     }
@@ -90,7 +91,7 @@ export function SaiasuiHost() {
       window.removeEventListener("blur", exit);
       document.removeEventListener("visibilitychange", hidden);
     };
-  }, [settings.enabled, offer, playing, exit]);
+  }, [enabled, offer, playing, exit]);
   useEffect(() => {
     if (!offer) return;
     const timer = window.setTimeout(exit, 8000);
@@ -104,15 +105,15 @@ export function SaiasuiHost() {
   return (
     <>
       <span ref={anchor} hidden />
-      {settings.enabled && playing
+      {enabled && playing
         ? createPortal(
             <GameBoundary onExit={exit}>
-              <SaiasuiGame settings={settings} onExit={exit} />
+              <SaiasuiGame config={config} onExit={exit} />
             </GameBoundary>,
             document.body,
           )
         : null}
-      {settings.enabled && offer && !playing
+      {enabled && offer && !playing
         ? createPortal(
             <button
               type="button"
