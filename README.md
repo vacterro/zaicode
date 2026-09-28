@@ -102,7 +102,7 @@ pnpm bundle:zaicode          # -> packages/desktop/dist/win-unpacked/ZAICODE.exe
 
 The packaged app always starts in ZAICODE mode. While an older ZAICODE runs,
 the bundler stages the new build in `packages/desktop/dist-next`; the root
-launcher (branch `workspace`, `tools/launcher`) swaps it in on the next start.
+launcher (branch `master`, `tools/launcher`) swaps it in on the next start.
 The crisp bitmap Verdana variant used by the UI is not part of this repository;
 without it the interface falls back to the system Verdana.
 
@@ -119,7 +119,7 @@ Checks: `pnpm typecheck`, `pnpm lint`, and the ZAICODE tests, for example
 ZAICODE-owned code lives mostly in `packages/ui/src/zaicode/`,
 `packages/shared/src/zaicode-*.ts`, `packages/services/src/zaicode/` and
 `packages/desktop/src/main/zaicode*.ts`; the list of upstream files it touches is
-kept in `docs/ZAICODE_UPSTREAM_DELTA.md` on the `workspace` branch.
+kept in `docs/ZAICODE_UPSTREAM_DELTA.md` on the `master` branch.
 
 ## Upstream and license
 

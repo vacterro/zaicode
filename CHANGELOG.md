@@ -2,7 +2,7 @@
 
 All notable ZAICODE releases. Versions follow semantic versioning; the tag
 `vX.Y.Z` marks the `main` branch (application source) and `workspace-vX.Y.Z`
-the `workspace` branch (this root: launcher, docs, SAIPEN memory).
+`master` (this root: launcher, docs, SAIPEN memory).
 
 ## Unreleased
 

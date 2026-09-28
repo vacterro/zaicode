@@ -20,8 +20,8 @@ and no second local branch to keep in step: whichever executor has a verified
 checkpoint commits and pushes it, and the other side takes it with a
 fast-forward.
 
-`master` is the pre-transport history and `origin/workspace` is its published
-mirror. Neither is force-updated by the transport.
+`master` is the pre-transport history and the published default branch. It is
+not force-updated by the transport.
 
 ## What travels and what does not
 
