@@ -1,4 +1,5 @@
 import { resolveSelectionSideInheritedModel } from "@/lib/selectionSideInheritedModel.js";
+import { useZaicodeActionCues } from "@/zaicode/zaicodeActionCueRuntime.js";
 import { useStartPlanRecommendation } from "@/hooks/useStartPlanRecommendation.js";
 import type { SessionCreateSource } from "@zcode/shared";
 import { reportSessionCreate } from "@/lib/sessionCreateTelemetry.js";
@@ -615,6 +616,9 @@ export function SessionPane({
   }, [conversationTelemetry, conversationTelemetryForegroundEnabled, sessionId, telemetryVisible]);
   const [lease, setLease] = useState<SessionLease | null>(null);
   const state = useConversationProjection(lease);
+  // Wave 3 C: the agent-action cues watch this session's projection and
+  // emit through the Sounds table. No cue exists outside that table.
+  useZaicodeActionCues(lease?.store);
   const snapshot = state.snapshot;
   useEffect(() => {
     const title = saipen?.nextAction?.trim();

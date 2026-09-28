@@ -139,6 +139,23 @@ export function ZaicodeChangeFloaterSettings() {
             onChange={(showDamage) => prefs.update({ showDamage })}
             label="Removed lines: red -N (damage)"
           />
+          <ZaicodePrefCheck
+            checked={prefs.showSpawn}
+            disabled={off}
+            onChange={(showSpawn) => prefs.update({ showSpawn })}
+            label="New files: a spawned number (once per file the agent created)"
+            hint="A file that already existed, or one that was only renamed, does not spawn"
+          />
+          <label className="flex items-center justify-between gap-2">
+            <span className="text-foreground-subtle">Spawned word</span>
+            <input
+              className="w-24 border border-border bg-background px-1 text-foreground"
+              value={prefs.spawnLabel}
+              maxLength={12}
+              title="The word before the count, e.g. NEW 3"
+              onChange={(event) => prefs.update({ spawnLabel: event.target.value })}
+            />
+          </label>
           <ZaicodePrefSegment
             label="Style"
             value={prefs.style}

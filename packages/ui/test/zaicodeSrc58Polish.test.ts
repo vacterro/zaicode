@@ -40,7 +40,10 @@ test("the project row owns its sound cue, so the generic click cannot bury it", 
   const row = item.slice(trigger, item.indexOf("data-testid", trigger));
   assert.match(row, /data-zaicode-sound="sidebar\.project"/);
 
-  const events = read("zaicode/zaicodeSoundEvents.ts");
+  // The catalog moved to the asset-free model when Wave 3 split it out of the
+  // engine; the listener itself still lives with the playback engine.
+  const events = read("zaicode/zaicodeSoundSettingsModel.ts");
+  const engine = read("zaicode/zaicodeSoundEvents.ts");
   // SRC-060 moved the click classifier into zaicodeSoundVoices.ts (asset-free,
   // tested directly in zaicodeSoundEvents.test.ts); the listener plays its answer.
   const voices = read("zaicode/zaicodeSoundVoices.ts");
@@ -48,7 +51,7 @@ test("the project row owns its sound cue, so the generic click cannot bury it", 
     voices.includes('closest("[data-zaicode-sound]'),
     "the generic listener honours the declarative opt-out",
   );
-  assert.ok(events.includes('addEventListener("click"'), "the click listener is still wired");
-  assert.ok(events.includes("zaicodeClickSoundFor(target"), "the click listener asks the classifier");
+  assert.ok(engine.includes('addEventListener("click"'), "the click listener is still wired");
+  assert.ok(engine.includes("zaicodeClickSoundFor(target"), "the click listener asks the classifier");
   assert.ok(voices.includes('return "ui.button"'), "ui.button is still the generic button cue");
 });

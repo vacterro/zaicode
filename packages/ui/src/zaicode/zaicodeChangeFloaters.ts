@@ -37,6 +37,12 @@ export interface ZaicodeChangeFloaterPrefs {
   showHeal: boolean;
   /** Removed lines float as "-N" (damage). */
   showDamage: boolean;
+  /** Wave 3: a file that did not exist before spawns its own number. */
+  showSpawn: boolean;
+  /** The word before the count on a spawn. */
+  spawnLabel: string;
+  /** "" = the theme's "added" colour. */
+  spawnColor: string;
   distancePx: number;
   durationMs: number;
   /** Text size, percent of the counter's own size. */
@@ -95,6 +101,9 @@ export const ZAICODE_FLOATER_DEFAULTS: ZaicodeChangeFloaterPrefs = {
   style: "rise",
   showHeal: true,
   showDamage: true,
+  showSpawn: true,
+  spawnLabel: "NEW",
+  spawnColor: "",
   distancePx: 28,
   durationMs: 1400,
   scalePct: 120,
@@ -160,6 +169,9 @@ export function normalizeZaicodeFloaterPrefs(raw: unknown): ZaicodeChangeFloater
     style: ZAICODE_FLOATER_STYLES.some((style) => style.id === r.style) ? (r.style as ZaicodeFloaterStyle) : d.style,
     showHeal: flag(r.showHeal, d.showHeal),
     showDamage: flag(r.showDamage, d.showDamage),
+    showSpawn: flag(r.showSpawn, d.showSpawn),
+    spawnLabel: typeof r.spawnLabel === "string" ? r.spawnLabel.slice(0, 12) : d.spawnLabel,
+    spawnColor: color(r.spawnColor),
     distancePx: clampNumber(r.distancePx, ZAICODE_FLOATER_LIMITS.distancePx, d.distancePx),
     durationMs: clampNumber(r.durationMs, ZAICODE_FLOATER_LIMITS.durationMs, d.durationMs),
     scalePct: clampNumber(r.scalePct, ZAICODE_FLOATER_LIMITS.scalePct, d.scalePct),
@@ -200,6 +212,38 @@ export interface ZaicodeChangeCounts {
   removed: number;
 }
 
+/** What the changes stream says about one file, as the backend classified it. */
+export interface ZaicodeChangedFile {
+  path: string;
+  kind: "added" | "modified" | "deleted" | "renamed";
+}
+
+/**
+ * The files that are genuinely NEW (Wave 3, part D).
+ *
+ * A `spawned` is a claim about file identity, so it is made once, from the
+ * difference between two readings rather than from a counter: a file already
+ * present in the previous reading is not new, whatever its line count did, and
+ * only a backend that reports `added` spawns. A rename is `renamed` and never
+ * spawns, so moving a file cannot fire it; if a backend really does report a
+ * move as a new path, that is a new file identity and it spawns once.
+ */
+export function zaicodeSpawnedFiles(
+  previous: readonly ZaicodeChangedFile[] | null,
+  next: readonly ZaicodeChangedFile[],
+): string[] {
+  if (!previous) return [];
+  const known = new Set(previous.map((file) => file.path));
+  const seen = new Set<string>();
+  const spawned: string[] = [];
+  for (const file of next) {
+    if (file.kind !== "added" || known.has(file.path) || seen.has(file.path)) continue;
+    seen.add(file.path);
+    spawned.push(file.path);
+  }
+  return spawned;
+}
+
 /**
  * What changed between two readings of the counter. The first reading of a
  * counter (`previous` null) and a counter that went down (a commit, a revert,
@@ -217,15 +261,17 @@ export function zaicodeChangeDelta(
 }
 
 export interface ZaicodeFloater {
-  kind: "heal" | "damage";
+  kind: "heal" | "damage" | "spawn";
   amount: number;
   crit: boolean;
   text: string;
+  /** For a spawn: the files it stands for. */
+  files?: string[];
 }
 
 /** The numbers one (merged) burst shows, by the operator's settings. */
 export function zaicodeFloatersFor(
-  delta: { heal: number; damage: number },
+  delta: { heal: number; damage: number; spawned?: readonly string[] },
   prefs: ZaicodeChangeFloaterPrefs,
 ): ZaicodeFloater[] {
   if (!prefs.enabled) return [];
@@ -237,6 +283,18 @@ export function zaicodeFloatersFor(
   const floaters: ZaicodeFloater[] = [];
   if (prefs.showHeal && delta.heal > 0) floaters.push(make("heal", delta.heal));
   if (prefs.showDamage && delta.damage > 0) floaters.push(make("damage", delta.damage));
+  // A batch of new files coalesces into ONE number; the count stays exact.
+  const files = delta.spawned ?? [];
+  if (prefs.showSpawn && files.length > 0) {
+    const label = prefs.spawnLabel.trim() || "NEW";
+    floaters.push({
+      kind: "spawn",
+      amount: files.length,
+      crit: prefs.critAt > 0 && files.length >= prefs.critAt,
+      text: `${label} ${files.length}`,
+      files: [...files],
+    });
+  }
   return floaters;
 }
 

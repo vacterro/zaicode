@@ -1,4 +1,6 @@
 import { useRef, useState } from "react";
+import { ZaicodeSoundNormalizePanel } from "./ZaicodeSoundNormalizePanel.js";
+import { ZaicodePoolControls } from "./ZaicodeSoundPoolControls.js";
 import {
   AlertTriangle,
   Archive,
@@ -47,6 +49,7 @@ import {
   ZAICODE_SOUND_EVENTS,
   ZAICODE_SOUND_GAIN_MAX,
   ZAICODE_SOUND_GAIN_MIN,
+  type ZaicodeSoundEventSetting,
   importZaicodeSoundFile,
   playZaicodeSound,
   readZaicodeCustomSoundNames,
@@ -126,6 +129,7 @@ export function ZaicodeSoundSettings() {
   return (
     <div className="flex flex-col gap-3" data-zaicode-sound-settings data-zaicode-help="sounds">
       <section className="border border-border bg-card p-3">
+      <ZaicodeSoundNormalizePanel />
         <div className="flex flex-wrap items-center gap-3 text-ui-xs">
           <span className="text-ui-lg text-foreground">Sounds</span>
           <span className="text-foreground-subtle">
@@ -314,7 +318,7 @@ function SoundRow({
   onImport,
 }: {
   event: ZaicodeSoundEventDef;
-  row: { enabled: boolean; sound: string; gainDb: number; mode: "overlay" | "replace" };
+  row: ZaicodeSoundEventSetting;
   Glyph: LucideIcon;
   ownFileLabel: string | null;
   onImport: (id: string) => void;
@@ -381,7 +385,16 @@ function SoundRow({
         onMouseUp={() => playZaicodeSound(event.id, { preview: true })}
         onDoubleClick={() => setZaicodeSoundEvent(event.id, { gainDb: 0 })}
       />
-      <span className="text-right tabular-nums text-foreground-subtle">{formatDb(row.gainDb)}</span>
+      <ZaicodePoolControls event={event} row={row} />
+      <span className="text-right tabular-nums text-foreground-subtle">
+        {formatDb(row.gainDb)}
+        {row.normalizeDb !== 0 ? (
+          <span title={`Automatic loudness compensation: ${formatDb(row.normalizeDb)}`} className="ml-1 text-foreground-subtlest">
+            ({row.normalizeDb > 0 ? "+" : ""}
+            {row.normalizeDb})
+          </span>
+        ) : null}
+      </span>
       <button
         type="button"
         className="flex size-5 items-center justify-center border border-border text-foreground-subtle hover:bg-hover hover:text-foreground"
@@ -393,4 +406,3 @@ function SoundRow({
     </>
   );
 }
-

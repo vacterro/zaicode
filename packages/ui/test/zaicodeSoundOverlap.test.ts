@@ -74,9 +74,12 @@ test("settings: mix up to 16 by default, anything else falls back safely", () =>
 });
 
 test("every one-shot goes through the rule; previews, the game and the background stay outside", () => {
+  // The normalizer and the defaults moved to the asset-free model in Wave 3;
+  // the play path stayed with the engine.
   const engine = readFileSync(join(import.meta.dirname, "../src/zaicode/zaicodeSoundEvents.ts"), "utf8");
-  assert.match(engine, /overlap: normalizeZaicodeSoundOverlap\(record\.overlap\),\s+overlapLimit: normalizeZaicodeSoundLimit\(record\.overlapLimit\),/);
-  assert.match(engine, /overlap: "mix",\s+overlapLimit: ZAICODE_SOUND_LIMIT_MAX,/, "mix, 16 by default: nothing changes until the operator picks");
+  const model = readFileSync(join(import.meta.dirname, "../src/zaicode/zaicodeSoundSettingsModel.ts"), "utf8");
+  assert.match(model, /overlap: normalizeZaicodeSoundOverlap\(record\.overlap\),\s+overlapLimit: normalizeZaicodeSoundLimit\(record\.overlapLimit\),/);
+  assert.match(model, /overlap: "mix",\s+overlapLimit: ZAICODE_SOUND_LIMIT_MAX,/, "mix, 16 by default: nothing changes until the operator picks");
   // Event rows: the rule decides; a preview never waits or cuts.
   assert.match(engine, /return admitSound\(ctx, request, !options\.preview, \(\) => \{/);
   // Timers and reminders too; previews and SAIPEGGLE (ownMix) do not.

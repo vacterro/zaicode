@@ -39,6 +39,8 @@ import { ZaicodeSaipenMenu } from "@/zaicode/ZaicodeSaipenMenu.js";
 import { useZaicodeFreshSession, useZaicodeOpenSession } from "@/zaicode/zaicodeSaipen.js";
 import { playZaicodeSound } from "@/zaicode/zaicodeSoundBus.js";
 import { useIsOfficeMode } from "@/hooks/useInterfaceMode.js";
+import { ZaicodeGitSpawnWatcher } from "@/zaicode/ZaicodeGitSpawnWatcher.js";
+import type { ZaicodeChangedFile } from "@/zaicode/zaicodeChangeFloaters.js";
 import { GitBranchSwitcher } from "@/GitBranchSwitcher.js";
 import { ScopedErrorBoundary } from "@/ErrorBoundary.js";
 
@@ -1299,6 +1301,7 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
           onSelectRemoteProject={onSelectRemoteProject}
           onCancelRemoteProject={onCancelRemoteProject}
         />
+        <ZaicodeGitSpawnWatcher files={gitSpawnFiles} scopeKey={workspaceAbsPath} />
         {isZaicodeProductMode() ? (
           <ZaicodeSaipenMenu
             workspacePath={workspaceAbsPath}
@@ -1626,6 +1629,19 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
     () => [workspaceKey, isSidebarVisible],
     [workspaceKey, isSidebarVisible],
   );
+
+  // Wave 3 D: the authoritative changes stream, flattened to one list of
+  // file identities so a genuinely new file can be spawned exactly once.
+  const gitSpawnFiles = useMemo<ZaicodeChangedFile[]>(() => {
+    if (!isZaicodeProductMode()) return [];
+    const out: ZaicodeChangedFile[] = [];
+    for (const source of ["unstaged", "staged"] as const) {
+      for (const section of gitState.datasets[source]?.sections ?? []) {
+        for (const change of section.changes) out.push({ path: change.path, kind: change.kind });
+      }
+    }
+    return out;
+  }, [gitState.datasets, gitState.revision]);
 
   return (
     <DesktopWindowFrame

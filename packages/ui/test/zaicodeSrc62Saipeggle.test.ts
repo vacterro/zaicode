@@ -188,7 +188,7 @@ test("wired in: the button above Support Developer with its own settings gear, t
   assert.ok(game > 0 && game < page.indexOf('label="Support Developer"'), "SAIPEGGLE sits above Support Developer");
   assert.match(page, /openZaicodeSaipeggle\("settings"\)/);
   assert.match(src("zaicode/ZaicodeAppRuntime.tsx"), /<ZaicodeSaipeggleHost \/>/);
-  const sounds = src("zaicode/zaicodeSoundEvents.ts");
+  const sounds = src("zaicode/zaicodeSoundSettingsModel.ts");
   const used = new Set([...`${src("zaicode/saipeggle/saipeggleRules.ts")}${src("zaicode/saipeggle/saipeggleGame.ts")}`.matchAll(/"(saipeggle\.[a-zA-Z]+)"/g)].map((m) => m[1]!));
   for (const id of used) assert.match(sounds, new RegExp(`id: "${id.replace(".", "\\.")}", group: "SAIPEGGLE"`), id);
   assert.doesNotMatch(src("zaicode/ZaicodeAppRuntime.tsx"), /Pebble/);

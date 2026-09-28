@@ -93,6 +93,8 @@ export interface ZaicodeFloaterLook {
   maxFloaters: number;
   healColor: string;
   damageColor: string;
+  /** Wave 3: the colour of a spawned-file number; "" = the added colour. */
+  spawnColor: string;
 }
 
 export function zaicodeCounterLook(prefs: ZaicodeChangeFloaterPrefs): ZaicodeFloaterLook {
@@ -106,6 +108,7 @@ export function zaicodeCounterLook(prefs: ZaicodeChangeFloaterPrefs): ZaicodeFlo
     maxFloaters: prefs.maxFloaters,
     healColor: prefs.healColor,
     damageColor: prefs.damageColor,
+    spawnColor: prefs.spawnColor,
   };
 }
 
@@ -142,11 +145,15 @@ function launchOne(anchor: DOMRect, floater: ZaicodeFloater, share: number, look
   element.dataset.outline = look.outline ? "1" : "0";
   element.dataset.style = look.style;
   if (look.keepMoving) element.dataset.zfKeep = "1";
-  const dx = (floater.kind === "heal" ? -1 : 1) * (6 + Math.round(Math.random() * 10));
+  const dx = (floater.kind === "damage" ? 1 : -1) * (6 + Math.round(Math.random() * 10));
   element.style.left = `${x + (lane % 2 === 0 ? 1 : -1) * Math.ceil(lane / 2) * 8}px`;
   element.style.top = `${y - lane * Math.round(LANE_PX * scale)}px`;
   element.style.color =
-    floater.kind === "heal" ? look.healColor || "var(--color-diff-added)" : look.damageColor || "var(--color-diff-removed)";
+    floater.kind === "heal"
+      ? look.healColor || "var(--color-diff-added)"
+      : floater.kind === "spawn"
+        ? look.spawnColor || "var(--color-diff-added)"
+        : look.damageColor || "var(--color-diff-removed)";
   element.style.setProperty("--zf-name", `zf-${look.style}`);
   element.style.setProperty("--zf-d", `${look.distancePx}px`);
   element.style.setProperty("--zf-t", `${look.durationMs}ms`);
@@ -194,7 +201,7 @@ export function launchZaicodeFloaters(
       // An agent's change is a consequence, not the operator's click: it plays as an echo, so it never
       // silences the operator's own next sound, and a click of the operator's wins over it (SRC-062).
       if (options.sound) {
-        playZaicodeSound(step.floater.kind === "heal" ? "changes.heal" : "changes.damage", {
+        playZaicodeSound(step.floater.kind === "damage" ? "changes.damage" : step.floater.kind === "spawn" ? "changes.spawn" : "changes.heal", {
           echo: options.soundEcho ?? true,
         });
       }

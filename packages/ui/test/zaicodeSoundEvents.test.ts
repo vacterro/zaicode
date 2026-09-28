@@ -9,7 +9,7 @@ import {
 } from "../src/zaicode/zaicodeSoundVoices.js";
 
 const root = join(import.meta.dirname, "..", "src");
-const source = readFileSync(join(root, "zaicode", "zaicodeSoundEvents.ts"), "utf8");
+const source = readFileSync(join(root, "zaicode", "zaicodeSoundSettingsModel.ts"), "utf8");
 
 test("every default event sound ships in the FastPrompter library", () => {
   const files = [...source.matchAll(/fp\("([^"]+)"\)/g)].map((match) => match[1]!);

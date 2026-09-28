@@ -40,9 +40,10 @@ test("a slow session load stays inside the click's navigation echo window", () =
 });
 
 test("interface sounds choke each other; agent, engine and mail sounds always mix", () => {
+  // The event table and its normalizer moved to the asset-free model in Wave 3.
+  const model = readFileSync(join(import.meta.dirname, "..", "src", "zaicode", "zaicodeSoundSettingsModel.ts"), "utf8");
   const engine = readFileSync(join(import.meta.dirname, "..", "src", "zaicode", "zaicodeSoundEvents.ts"), "utf8");
-  // The event table: id -> group, read from the source (the engine module loads audio assets).
-  const groupOf = new Map([...engine.matchAll(/\{ id: "([a-zA-Z.]+)", group: "([A-Za-z &]+)"/g)].map((match) => [match[1]!, match[2]!]));
+  const groupOf = new Map([...model.matchAll(/\{ id: "([a-zA-Z.]+)", group: "([A-Za-z &]+)"/g)].map((match) => [match[1]!, match[2]!]));
   const chokes = (id: string) => isZaicodeChokeGroup(groupOf.get(id) ?? "?");
   for (const id of ["ui.button", "ui.expand", "ui.menuItem", "sidebar.project", "session.open", "session.new", "window.picker"]) {
     assert.equal(chokes(id), true, id);
@@ -50,8 +51,8 @@ test("interface sounds choke each other; agent, engine and mail sounds always mi
   for (const id of ["agent.done", "changes.heal", "worker.exit", "saimail.new", "limits.refill"]) {
     assert.equal(chokes(id), false, id);
   }
-  assert.match(engine, /interfaceOneAtATime: record\.interfaceOneAtATime !== false/, "on unless switched off");
-  assert.match(engine, /whenFocused: true,\s+interfaceOneAtATime: true/, "on by default");
+  assert.match(model, /interfaceOneAtATime: record\.interfaceOneAtATime !== false/, "on unless switched off");
+  assert.match(model, /whenFocused: true,\s+interfaceOneAtATime: true/, "on by default");
   // The choked sound fades over a few ms instead of clicking off.
   assert.match(engine, /linearRampToValueAtTime\(0, ctx\.currentTime \+ CHOKE_FADE_S\)/);
   // The overlap rule (zaicodeSoundOverlap.test.ts) applies it: in "mix" an interface sound cuts the other interface sounds.
