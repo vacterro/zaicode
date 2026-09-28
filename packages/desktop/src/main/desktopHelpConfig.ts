@@ -11,7 +11,11 @@ export function createDesktopHelpConfigReader(options: {
   appVersion: string;
   deviceMid: string;
 }) {
-  const read = createHelpAppConfigReader({ fetchImpl: (input, init) => net.fetch(input, init) });
+  // net.fetch's first arg is string | Request (no URL); the DOM fetch signature the
+  // reader types against also allows URL. Normalise URL -> string at the boundary.
+  const read = createHelpAppConfigReader({
+    fetchImpl: (input, init) => net.fetch(input instanceof URL ? input.href : input, init),
+  });
   return async () => {
     const endpointOrigin = await options.resolveEndpointOrigin();
     return read(
