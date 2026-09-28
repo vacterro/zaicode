@@ -1,0 +1,24 @@
+{
+  "event_id": "E-1812",
+  "externalization_event": {
+    "operation_id": "ticket-13707482f8314e99b09e7a049ec9400b",
+    "reason": "new LOG event exceeds the live cap; canonical detail externalization"
+  },
+  "lossless": true,
+  "metadata_path": ".saipen/recovery/log-detail/E-1812-fa9df8610d599d9b50c4cf39.json",
+  "operation": "log_event_externalization",
+  "original_event_bytes": 1440,
+  "original_event_path": ".saipen/recovery/log-detail/E-1812-fa9df8610d599d9b50c4cf39.LOG.md",
+  "original_event_sha256": "fa9df8610d599d9b50c4cf39acf6ab6ba439c058f58091449973a92878a7a620",
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "project_lineage": "lineage-b0732ed2f98947b9a3c97bfe71427eca",
+  "schema_version": 1,
+  "source": ".saipen/LOG.md",
+  "status": "COMMITTED",
+  "structural_event": {
+    "active": true,
+    "dependency_ticket": null,
+    "kind": "ticket_block"
+  },
+  "ticket_id": "T-107"
+}
