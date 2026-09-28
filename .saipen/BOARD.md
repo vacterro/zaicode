@@ -27,11 +27,15 @@
      write that field name next to a concrete id anywhere in this file. -->
 
 ## DOING
+- [/] T-107 [P1] Wave 1: fix ProTrail startup, saipen-crew double-submit, elapsed timer, notification close, commit/push UI, UI overlap | verify: the requested change is present and demonstrated against the user own description of it | user_explicit: true | source_receipts: SRC-069 | needs: T-108
 
 
 ## TODO
 
 ## DONE
+- [x] T-108 [P1] Wave 1 runtime stability: ProTrail startup convergence, crew double-dispatch, elapsed timer freeze, notification close, commit/push truth, UI overlap | verify: the requested change is present and demonstrated against the user own description of it | user_explicit: true | source_receipts: SRC-070 | owner: saipen-cli | claim_time: 2026-09-28T16:59:21Z | closure_mode: own_patch
+- [x] T-106 [P1] cc all | verify: cc all is complete and the repository-declared verification harness passes | owner: saipen-cli | claim_time: 2026-09-28T14:33:38Z | closure_mode: own_patch
+- [x] T-105 [P1] SAIASUI: ProTrail core invariant while active + discoverable in-game settings + full tuning panel/presets/live-tuning + remove seed HUD | verify: the requested change is present and demonstrated against the user own description of it | user_explicit: true | source_receipts: SRC-068 | owner: claude-code-local-verify | claim_time: 2026-09-28T13:43:25Z | closure_mode: own_patch
 - [x] T-103 [P1] • Смотри что еще придумал, а тебе не сложно добавить такую очевидную пасхалку-игралку: Юзер когда открывает первый раз ZAICODE, потом он типо хочет в новое о... | verify: the requested change is present and demonstrated against the user own description of it | user_explicit: true | source_receipts: SRC-066 | needs: T-104 | owner: claude-code-local-verify | claim_time: 2026-09-28T12:17:51Z | closure_mode: own_patch
 - [x] T-104 [P1] Закончить внедрение новой игры SAIASUI в ZAICODE | verify: the requested change is present and demonstrated against the user own description of it | user_explicit: true | source_receipts: SRC-067 | owner: claude-code-local-verify | claim_time: 2026-09-28T12:16:50Z | closure_mode: own_patch
 - [x] T-102 [P1] Fix genuine desktop/main type errors (click-union narrowing, server-kind union, TaskStreamMirrorableEvent, dns.lookup misuse) then bring tsconfig.main.json u... | verify: the requested change is present and demonstrated against the user own description of it | user_explicit: true | source_receipts: SRC-065 | owner: claude-code-local-verify | claim_time: 2026-09-28T09:15:31Z | closure_mode: own_patch
