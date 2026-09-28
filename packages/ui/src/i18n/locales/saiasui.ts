@@ -1,0 +1,53 @@
+export const saiasuiEnglish = {
+  "saiasui.intro":
+    "Aim training in New task. Click empty space five times in different places, then hit the circle. Esc returns to work immediately. No music.",
+  "saiasui.enable": "Enable New task Easter egg",
+  "saiasui.sound": "Hit sounds (respects master mute)",
+  "saiasui.tempo": "Tempo progression",
+  "saiasui.linear": "Linear — very gradual",
+  "saiasui.step": "Step — every 2 minutes",
+  "saiasui.rules":
+    "HP begins after 50 hits. GOD: 3 seconds protected · SLOW: 3 seconds · FULL: heal · +HP: optional tiny bonus. Moving circles drift gently. Tempo has a playable upper limit.",
+  "saiasui.records": "Best ({mode}): {score} · Max combo: {combo}",
+  "saiasui.score": "Score {score}",
+  "saiasui.combo": "{combo}× · Max {max}×",
+  "saiasui.best": "Best {score}",
+  "saiasui.exit": "Esc · Exit",
+  "saiasui.health": "Health",
+  "saiasui.segment": "{minutes} min · {grade} · {accuracy}%",
+  "saiasui.seed": "{mode} · Seed {seed}",
+  "saiasui.complete": "SAIASUI! · Run complete",
+  "saiasui.result": "Score {score} · Max combo {combo}× · Hits {hits}",
+  "saiasui.retryHint": "Esc returns to New task. Click empty space to start a new seed.",
+  "saiasui.return": "Return to work",
+  "saiasui.offer": "Play SAIASUI! (Esc dismisses)",
+  "saiasui.hit": "Hit {target}",
+  "saiasui.circle": "circle",
+};
+
+export const saiasuiChinese: Record<keyof typeof saiasuiEnglish, string> = {
+  "saiasui.intro":
+    "新任务页里的瞄准小游戏。在空白处不同位置点击五次，再击中圆圈开始。按 Esc 立即返回工作。没有背景音乐。",
+  "saiasui.enable": "启用新任务页彩蛋",
+  "saiasui.sound": "命中音效（遵循全局静音）",
+  "saiasui.tempo": "节奏增长方式",
+  "saiasui.linear": "线性 — 缓慢加速",
+  "saiasui.step": "阶梯 — 每两分钟加速",
+  "saiasui.rules":
+    "命中 50 次后显示 HP。GOD：保护 3 秒 · SLOW：减速 3 秒 · FULL：回满 HP · +HP：可选小目标。移动圆圈缓慢漂移，速度有可玩上限。",
+  "saiasui.records": "最佳（{mode}）：{score} · 最高连击：{combo}",
+  "saiasui.score": "得分 {score}",
+  "saiasui.combo": "{combo}× · 最高 {max}×",
+  "saiasui.best": "最佳 {score}",
+  "saiasui.exit": "Esc · 退出",
+  "saiasui.health": "生命值",
+  "saiasui.segment": "{minutes} 分钟 · {grade} · {accuracy}%",
+  "saiasui.seed": "{mode} · 种子 {seed}",
+  "saiasui.complete": "SAIASUI! · 本局结束",
+  "saiasui.result": "得分 {score} · 最高连击 {combo}× · 命中 {hits}",
+  "saiasui.retryHint": "按 Esc 返回新任务页，再点击空白处即可使用新种子开始。",
+  "saiasui.return": "返回工作",
+  "saiasui.offer": "开始 SAIASUI!（Esc 关闭）",
+  "saiasui.hit": "击中 {target}",
+  "saiasui.circle": "圆圈",
+};

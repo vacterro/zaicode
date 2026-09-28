@@ -36,6 +36,7 @@ const SETTING_KEYS = [
   "zaicode-lights-v1",
   "zaicode-lights-presets-v1",
   "zaicode-composer-prefs-v1",
+  "zaicode-saiasui-settings-v1",
 ] as const;
 
 type Snapshot = { version: 1; settings: Record<string, string>; cueAudio: Record<string, string> };
@@ -44,8 +45,13 @@ const defaults = bundled as Snapshot;
 
 /** Current installation wins. Bundled values fill only missing preferences. */
 export function readZaicodeSetting(key: string): string | null {
-  const current = localStorage.getItem(key);
-  if (current !== null) return current;
+  // 存储被禁用时读取会抛异常；可选音效预热不能因此阻断工作区加载。
+  try {
+    const current = localStorage.getItem(key);
+    if (current !== null) return current;
+  } catch {
+    // Bundled defaults remain usable without browser storage.
+  }
   return Object.prototype.hasOwnProperty.call(defaults.settings, key)
     ? defaults.settings[key] ?? null
     : null;

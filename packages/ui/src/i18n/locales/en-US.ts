@@ -1,5 +1,7 @@
 /** English translations */
+import { saiasuiEnglish } from "./saiasui.js";
 const enUS: Record<string, string> = {
+  ...saiasuiEnglish,
   "startPlan.recommendation.subagentDescription":
     "Your Start Plan has quota available for {model}. Switch this subagent’s model to the Start Plan?",
   "startPlan.recommendation.preferenceSaveFailed":

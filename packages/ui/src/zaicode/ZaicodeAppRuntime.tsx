@@ -158,6 +158,7 @@ function useZaicodeHotkeyDispatcher(): void {
       // SAIPEGGLE covers the window and owns the keyboard: F-keys and app hotkeys
       // would otherwise switch sessions or open panels unseen under the game.
       if (document.querySelector("[data-zaicode-saipeggle]")) return;
+      if (document.querySelector("[data-zaicode-saiasui]")) return;
       const bare = !event.ctrlKey && !event.altKey && !event.metaKey;
       const fIndex = zaicodeFKeyIndex(event);
       if (settings.fKeys !== "off" && fIndex !== null) {
@@ -219,6 +220,7 @@ function useZaicodeGlobalHotkeys(): void {
     if (!api?.onZaicodeGlobalHotkey) return;
     return api.onZaicodeGlobalHotkey((id) => {
       const target = GLOBAL_TO_APP[id];
+      if (document.querySelector("[data-zaicode-saiasui]") && target !== "sounds.stop" && target !== "app.exit") return;
       if (target) runZaicodeHotkeyAction(target);
     });
   }, []);

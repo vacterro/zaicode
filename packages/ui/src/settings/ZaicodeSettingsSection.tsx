@@ -1,4 +1,5 @@
 import { ZaicodeDelegationSettings } from "./ZaicodeDelegationSettings.js";
+import { SaiasuiSettings } from "@/zaicode/saiasui/SaiasuiSettings.js";
 import { useEffect, useState } from "react";
 import { getZaicodeProductMetadata, type ZaicodeAgentTemplate } from "@zcode/shared";
 import { Button } from "@/components/ui/button.js";
@@ -111,6 +112,7 @@ export function ZaicodeSettingsSection() {
       <ZaicodeTypographySettings />
       <ZaicodeSaimailSettings />
       <ZaicodeSplashSettings />
+      <SaiasuiSettings />
       <section className="border border-border bg-card p-4 text-ui-xs text-foreground-subtle" data-zaicode-moved-settings>
         Sidebar layout, the home screen and window zones are in <strong className="font-normal text-foreground">Layout &amp; home</strong>;
         Ambience and Problip in <strong className="font-normal text-foreground">Sounds</strong>; the terminal font in{" "}
