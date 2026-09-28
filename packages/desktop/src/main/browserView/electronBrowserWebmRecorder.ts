@@ -373,10 +373,12 @@ export async function createElectronBrowserWebmRecorder(
     if (!closed) fail(recorderError(`recorder renderer exited: ${details.reason ?? "unknown"}`));
   };
   recorderWindow.webContents.on("render-process-gone", onRendererGone);
-  const onConsoleMessage = (
-    _event: unknown,
-    details: { level?: string; message?: string },
-  ): void => {
+  // Electron 41 moved level/message onto the event object (Event<WebContentsConsoleMessageEventParams>);
+  // the second positional arg is deprecated. Read the fields off the event.
+  const onConsoleMessage = (details: {
+    level?: string;
+    message?: string;
+  }): void => {
     debug?.(
       `[browser-recording] recorder console level=${details.level ?? "unknown"} message=${details.message ?? ""}`,
     );

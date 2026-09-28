@@ -18,6 +18,7 @@ import type {
   CuaAccessibilitySettingsResult,
   CuaPermissionKind,
   PrepareCuaHelperPermissionDragResult,
+  TraceId,
 } from "@zcode/shared";
 import { createDesktopCuaHelperInstaller } from "./desktopCuaHelperInstaller.js";
 
@@ -211,10 +212,10 @@ function toInstallerLogger(
 ): CuaHelperInstallerLogger | undefined {
   if (!logger) return undefined;
   return {
-    debug: (_traceId, ...args) => logger.debug?.(...args),
-    info: (_traceId, ...args) => (logger.info ?? logger.warn)(...args),
-    warn: (_traceId, ...args) => logger.warn(...args),
-    error: (_traceId, ...args) => (logger.error ?? logger.warn)(...args),
+    debug: (_traceId: TraceId | undefined, ...args: unknown[]) => logger.debug?.(...args),
+    info: (_traceId: TraceId | undefined, ...args: unknown[]) => (logger.info ?? logger.warn)(...args),
+    warn: (_traceId: TraceId | undefined, ...args: unknown[]) => logger.warn(...args),
+    error: (_traceId: TraceId | undefined, ...args: unknown[]) => (logger.error ?? logger.warn)(...args),
   };
 }
 

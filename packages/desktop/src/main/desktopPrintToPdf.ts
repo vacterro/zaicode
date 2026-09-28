@@ -21,8 +21,13 @@ export function registerDesktopPrintToPdfIpcHandler(logger: {
         preferCSSPageSize: true,
         margins: { top: 0, bottom: 0, left: 0, right: 0 },
       });
-      // Buffer 可能是池化视图，切出独立 ArrayBuffer 再走 structured clone
-      const data = buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
+      // Buffer 可能是池化视图，切出独立 ArrayBuffer 再走 structured clone。
+      // Buffer 底层始终是 ArrayBuffer（Node 不用 SharedArrayBuffer 支撑 Buffer），
+      // 但 .buffer 的静态类型是 ArrayBufferLike，需显式收窄。
+      const data = buffer.buffer.slice(
+        buffer.byteOffset,
+        buffer.byteOffset + buffer.byteLength,
+      ) as ArrayBuffer;
       return { success: true, data };
     } catch (error) {
       logger.warn(
