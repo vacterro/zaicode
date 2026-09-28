@@ -664,3 +664,4 @@
 - 28.09.26 23:32 [E-1820] [parent: E-1819] [T-107] [agent: saipen-cli] [op: transition-582d52752b6c4ab1ad23b37dc37cce0e] RUN: transition to SHIP -- close as the duplicate it is, on the authority of the release evidence naming T-108 / zcode 046a5fb
 - 28.09.26 23:32 [E-1821] [parent: E-1820] [T-107] [agent: saipen-cli] [op: finish-8f65086e5dc0477e8cb865f723a0e89e] DEC: ticket finished via SAIOPS -- completion (from SHIP)
 - 28.09.26 23:51 [E-1822] [parent: E-1821] [T-94] [agent: saipen-cli] [op: checkpoint-69a41261157448d18a75b312b5ee6ea0] DEC: detail_ref: .saipen/recovery/log-detail/E-1822-30f13081f3b60b10c4589301.json
+- 28.09.26 23:53 [E-1823] [parent: E-1822] [T-94] [agent: saipen-cli] [op: checkpoint-c6c44c864d96420fa9fb061c1cdcadee] DEC: detail_ref: .saipen/recovery/log-detail/E-1823-1bd566a661707c24ef83a1ed.json
