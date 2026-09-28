@@ -13,6 +13,7 @@ import {
   createChatComposerPathAttachment,
   createClipboardTextAttachmentFilenameForDate,
   createClipboardTextPathComposerAttachment,
+  applyPastedTextEdit,
   formatAttachmentSize,
   revokeChatComposerAttachment,
   serializeChatComposerAttachment,
@@ -96,6 +97,8 @@ interface ComposerAttachmentsApi {
   restoreSessionOwnedAttachments: (attachments: readonly AttachmentRef[]) => boolean;
   /** 只返回已 ready ref；任一附件未就绪时返回 null 作 submit 二次门禁。 */
   prepareForSend: () => Promise<AttachmentRef[] | null>;
+  /** Replaces a pasted text attachment's payload and the file behind its ref. */
+  updatePastedText: (id: string, text: string) => Promise<boolean>;
   /** sendText accepted 后才移交远端暂存内容，发送失败时仍由草稿持有。 */
   adoptSentAttachments: (attachmentIds: readonly string[]) => Promise<void>;
   setAttachmentError: (message: string | null) => void;
@@ -1037,6 +1040,56 @@ export function useComposerAttachments(
     return current.flatMap((item) => (item.attachmentRef ? [item.attachmentRef] : []));
   }, [scopeKey]);
 
+  /**
+   * The operator edited a pasted text in the composer's own editor. Two
+   * things must end up true, or the model would read text nobody wrote:
+   * the in-memory payload is the new one, AND the file its ref points at
+   * holds the new one too. So a local paste gets a fresh temp file rather
+   * than a stale one still holding the old bytes; a path-less paste carries
+   * its bytes inline and only has to clear a staged ref.
+   */
+  const updatePastedText = useCallback(
+    async (id: string, text: string): Promise<boolean> => {
+      const item = readComposerAttachmentScope(scopeKey).find((candidate) => candidate.id === id);
+      if (!item || item.sourceKind !== "clipboard-text") return false;
+      const edited = applyPastedTextEdit(item, text);
+      let localPath = item.localPath;
+      if (item.localPath) {
+        const written = await platform.createTempTextAttachment?.({
+          text,
+          filename: createClipboardTextAttachmentFilenameForDate(),
+        });
+        if (written) {
+          localPath = written.localPath;
+        } else {
+          setAttachmentError(
+            intl.formatMessage({ id: "chat.attachments.pastedText.writeFailed" }, { message: "no temp text host" }),
+          );
+        }
+      }
+      const target = targetsRef.current.get(scopeKey);
+      const zeroCopy = localPath !== undefined && target !== undefined && !isRemoteAttachmentTarget(target);
+      const ref = zeroCopy && localPath
+        ? { ref: localPath, fileName: edited.filename, mime: edited.mimeType, bytes: edited.sizeBytes }
+        : undefined;
+      updateItem(scopeKey, id, (current) => ({
+        ...edited,
+        localPath,
+        uploadStatus: ref ? "ready" : target?.sessionId ? "queued" : "waitingSession",
+        uploadProgress: ref ? 100 : 0,
+        attachmentRef: ref,
+        operationId: `prompt-attachment-${id}-${nanoid(6)}`,
+        staged: false,
+        adopted: false,
+        showComplete: false,
+        localZeroCopy: Boolean(ref),
+      }));
+      if (!ref && target?.sessionId) enqueueUpload(scopeKey, id);
+      return true;
+    },
+    [enqueueUpload, intl, platform, scopeKey],
+  );
+
   const adoptSentAttachments = useCallback(
     async (attachmentIds: readonly string[]): Promise<void> => {
       const ids = new Set(attachmentIds);
@@ -1082,6 +1135,7 @@ export function useComposerAttachments(
       clearAttachments,
       restoreSessionOwnedAttachments,
       prepareForSend,
+      updatePastedText,
       adoptSentAttachments,
       setAttachmentError,
     }),
@@ -1103,6 +1157,7 @@ export function useComposerAttachments(
       prepareForSend,
       removeAttachment,
       retryAttachment,
+      updatePastedText,
     ],
   );
 }

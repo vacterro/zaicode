@@ -6,6 +6,7 @@ import {
   ZAICODE_LIST_BULLETS,
   ZAICODE_LIST_NUMBERS,
   ZAICODE_TEXT_ALIGNS,
+  ZAICODE_USER_TEXT_MODES,
   normalizeZaicodeTextStyle,
   zaicodeSessionTextDefaults,
   zaicodeTextColor,
@@ -115,5 +116,21 @@ export function normalizeZaicodeSessionText(raw: unknown): ZaicodeSessionTextPre
       thicknessPx: num(rule.thicknessPx, 0, 8, d.rule.thicknessPx),
       marginPx: num(rule.marginPx, -1, 96, d.rule.marginPx),
     },
+    userMessage: (() => {
+      const source = record(r.userMessage);
+      const user = record(source.style);
+      return {
+        mode: oneOf(source.mode, ZAICODE_USER_TEXT_MODES, d.userMessage.mode),
+        style: {
+          ...normalizeZaicodeTextStyle(user, d.userMessage.style),
+          lineHeight: user.lineHeight === 0 ? 0 : num(user.lineHeight, 1, 3, d.userMessage.style.lineHeight),
+          align: oneOf(user.align, ZAICODE_TEXT_ALIGNS, d.userMessage.style.align),
+          borderColor: color(user.borderColor, d.userMessage.style.borderColor),
+          borderWidthPx: num(user.borderWidthPx, -1, 12, d.userMessage.style.borderWidthPx),
+          borderRadiusPx: num(user.borderRadiusPx, -1, 48, d.userMessage.style.borderRadiusPx),
+          paddingPx: num(user.paddingPx, -1, 48, d.userMessage.style.paddingPx),
+        },
+      };
+    })(),
   };
 }

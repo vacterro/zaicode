@@ -364,3 +364,51 @@ export function ZaicodeRuleEditor({ prefs, patch }: { prefs: ZaicodeSessionTextP
     </div>
   );
 }
+
+/**
+ * The user's own messages (Wave 2): Default means the operator's text follows
+ * the shared Session text theme, Separate gives them their own values, which
+ * are the same style schema an agent element uses plus the bubble's own
+ * frame, rounding and padding.
+ */
+export function ZaicodeUserTextEditor({
+  prefs,
+  patch,
+}: {
+  prefs: ZaicodeSessionTextPrefs;
+  patch: (next: ZaicodeSessionTextPrefs) => void;
+}) {
+  const user = prefs.userMessage;
+  const set = (next: Partial<typeof user>) => patch({ ...prefs, userMessage: { ...user, ...next } });
+  const setStyle = (next: Partial<typeof user.style>) => set({ style: { ...user.style, ...next } });
+  return (
+    <div className="flex flex-col gap-1.5" data-zaicode-user-text-editor>
+      <ZaicodePrefSegment
+        label="Your messages"
+        value={user.mode}
+        options={[
+          { value: "default", label: "Default (shared theme)" },
+          { value: "separate", label: "Separate" },
+        ]}
+        onChange={(mode) => set({ mode })}
+      />
+      <p className="text-foreground-subtlest">
+        {user.mode === "default"
+          ? "Your own text follows the shared Session text theme, changed in the Agent answers tab."
+          : "Your messages use the settings below, on their own, in every session."}
+      </p>
+      {user.mode === "separate" ? (
+        <>
+          <ZaicodeTextStyleEditor style={user.style} firstSize={15} onChange={setStyle}>
+            <ZaicodePrefStepper label="Line spacing" value={Math.round(user.style.lineHeight * 20)} min={0} max={60} format={(v) => (v === 0 ? AS_APP : `${(v / 20).toFixed(2)}`)} onChange={(v) => setStyle({ lineHeight: v === 0 ? 0 : Math.max(1, v / 20) })} />
+            <ZaicodePrefSegment label="Alignment" value={user.style.align} options={ZAICODE_TEXT_ALIGNS.map((value) => ({ value, label: value === "inherit" ? AS_APP : value[0]!.toUpperCase() + value.slice(1) }))} onChange={(align) => setStyle({ align })} />
+            <ZaicodeTextColor label="Bubble frame" value={user.style.borderColor} onChange={(borderColor) => setStyle({ borderColor })} />
+            <ZaicodePrefStepper label="Frame width" value={user.style.borderWidthPx} min={-1} max={12} format={(px) => (px < 0 ? AS_APP : `${px}px`)} onChange={(borderWidthPx) => setStyle({ borderWidthPx })} />
+            <ZaicodePrefStepper label="Corner rounding" value={user.style.borderRadiusPx} min={-1} max={48} step={2} format={(px) => (px < 0 ? AS_APP : `${px}px`)} onChange={(borderRadiusPx) => setStyle({ borderRadiusPx: optional(user.style.borderRadiusPx, -1, 2, borderRadiusPx) })} />
+            <ZaicodePrefStepper label="Padding inside" value={user.style.paddingPx} min={-1} max={48} step={2} format={(px) => (px < 0 ? AS_APP : `${px}px`)} onChange={(paddingPx) => setStyle({ paddingPx: optional(user.style.paddingPx, -1, 8, paddingPx) })} />
+          </ZaicodeTextStyleEditor>
+        </>
+      ) : null}
+    </div>
+  );
+}

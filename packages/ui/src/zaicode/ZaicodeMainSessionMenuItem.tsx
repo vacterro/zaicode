@@ -1,10 +1,22 @@
-import { ContextMenuItem, ContextMenuSeparator } from "@/components/ui/context-menu.js";
+import { ContextMenuItem, ContextMenuSeparator, ContextMenuSub, ContextMenuSubContent, ContextMenuSubTrigger } from "@/components/ui/context-menu.js";
 import {
   useZaicodeMainSessionId,
   useZaicodeMainSessions,
   zaicodeMainSessionKey,
 } from "./zaicodeMainSession.js";
 import { useZaicodeSchedulerMarked, useZaicodeSchedulerMarks } from "./zaicodeSchedulerMarks.js";
+import {
+  ZAICODE_AUTO_CONTINUE_MODES,
+  ZAICODE_AUTO_CONTINUE_SHORT,
+  useZaicodeAutoContinue,
+  type ZaicodeAutoContinueMode,
+} from "./zaicodeAutoContinue.js";
+
+const AUTO_CONTINUE_HINT: Record<ZaicodeAutoContinueMode, string> = {
+  default: "Follow the global auto-continue switch in Settings",
+  on: "This session continues itself after a crash, even with the global switch off",
+  off: "This session never continues itself, whatever the global switch says",
+};
 
 /** Session context menu entry: make this the project's MAIN session, or unset it. */
 export function ZaicodeMainSessionMenuItem({
@@ -23,6 +35,8 @@ export function ZaicodeMainSessionMenuItem({
   const isMain = mainId === sessionId;
   const marked = useZaicodeSchedulerMarked(sessionId);
   const toggleMark = useZaicodeSchedulerMarks((state) => state.toggle);
+  const autoContinue = useZaicodeAutoContinue((state) => state.modeFor(sessionId));
+  const setAutoContinue = useZaicodeAutoContinue((state) => state.setMode);
   return (
     <>
       <ContextMenuItem
@@ -41,6 +55,26 @@ export function ZaicodeMainSessionMenuItem({
         <span className="w-4 text-center text-[var(--zaicode-highlight,var(--color-warning))]">⚑</span>
         {marked ? "Unmark for the SCHEDULER" : "Mark for the SCHEDULER (only-marked schedules continue it)"}
       </ContextMenuItem>
+      <ContextMenuSub>
+        <ContextMenuSubTrigger title="Auto-continue for THIS session only. The global switch in Settings still decides every session left on Default." data-zaicode-auto-continue-item={autoContinue}>
+          Auto-continue this session: {ZAICODE_AUTO_CONTINUE_SHORT[autoContinue]}
+        </ContextMenuSubTrigger>
+        <ContextMenuSubContent>
+          {ZAICODE_AUTO_CONTINUE_MODES.map((mode) => (
+            <ContextMenuItem
+              key={mode}
+              onSelect={() => setAutoContinue(sessionId, mode)}
+              title={AUTO_CONTINUE_HINT[mode]}
+              data-zaicode-auto-continue={mode}
+              aria-checked={autoContinue === mode}
+              className={autoContinue === mode ? "bg-selected" : undefined}
+            >
+              <span className="w-4 text-center text-[var(--zaicode-highlight,var(--color-warning))]">{autoContinue === mode ? "◆" : "◇"}</span>
+              {ZAICODE_AUTO_CONTINUE_SHORT[mode]}
+            </ContextMenuItem>
+          ))}
+        </ContextMenuSubContent>
+      </ContextMenuSub>
       <ContextMenuSeparator />
     </>
   );

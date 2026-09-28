@@ -72,10 +72,10 @@ import { useZaicodePublishLiveRun } from "@/zaicode/zaicodeLiveRuns.js";
 import {
   Attachment,
   Attachments,
-  AttachmentInfo,
   AttachmentPreview,
 } from "@/components/ai-elements/attachments.js";
 import { Button } from "@/components/ui/button.js";
+import { toast } from "@/components/ui/toast.js";
 import {
   Dialog,
   DialogClose,
@@ -104,6 +104,7 @@ import { useZCodeSessionStore } from "@/store/zcodeSessionStore.js";
 import type { ComposerMentionPrefill } from "@/store/zcodeSessionStoreTypes.js";
 import { FileDisplayIcon, resolveFileDisplayDescriptor } from "@/lib/fileDisplay.js";
 import {
+  formatAttachmentSize,
   isImageChatComposerAttachment,
   isPdfChatComposerAttachment,
   isMediaChatComposerAttachment,
@@ -174,6 +175,7 @@ import {
 import { WebElementContextAttachmentChip } from "@/v4/composer/WebElementContextAttachmentChip.js";
 import { ConversationSelectionReferenceChip } from "@/v4/composer/ConversationSelectionReferenceChip.js";
 import type { AttachmentPutFn } from "@/v4/composer/attachmentUpload.js";
+import { ComposerPastedTextEditor } from "@/v4/composer/ComposerPastedTextEditor.js";
 import { useScopedConversationTelemetrySupervisor } from "@/v4/telemetry/ConversationTelemetryAttachment.js";
 import type { ConversationPromptTelemetrySeed } from "@/v4/telemetry/conversationTelemetrySupervisor.js";
 import type { ComposerSubmissionConfig } from "@/v4/composer/composerSubmissionConfig.js";
@@ -708,6 +710,8 @@ function ConversationComposerImpl({
     onDropTargetControllerChange?.(dropTargetController);
     return () => onDropTargetControllerChange?.(null);
   }, [dropTargetController, onDropTargetControllerChange]);
+  const [pastedTextEdit, setPastedTextEdit] = useState<{ id: string; text: string; filename: string } | null>(null);
+  const [pastedTextSaving, setPastedTextSaving] = useState(false);
   const [attachmentPreviewIndex, setAttachmentPreviewIndex] = useState(0);
   const [attachmentPreviewOpen, setAttachmentPreviewOpen] = useState(false);
   const [pdfAttachmentPreview, setPdfAttachmentPreview] =
@@ -1732,6 +1736,9 @@ function ConversationComposerImpl({
           >
             {orderedComposerAttachments.map((attachment) => {
               const isClipboardTextAttachment = attachment.sourceKind === "clipboard-text";
+              // A pasted text the composer still holds in full can be opened and
+              // edited; one restored from a queue snapshot has a path only.
+              const isPastedTextAttachment = isClipboardTextAttachment && typeof attachment.text === "string";
               const isMediaAttachment = isMediaChatComposerAttachment(attachment);
               const isVideoAttachment = isVideoChatComposerAttachment(attachment);
               const isPdfAttachment = isPdfChatComposerAttachment(attachment);
@@ -1744,6 +1751,17 @@ function ConversationComposerImpl({
                 Boolean(attachment.objectUrl) && isImageChatComposerAttachment(attachment);
               const canPreviewVideoAttachment = Boolean(attachment.objectUrl) && isVideoAttachment;
               const canPreviewPdfAttachment = Boolean(attachment.objectUrl) && isPdfAttachment;
+              // Real metadata, never a bare label: what it is, how big, how many lines.
+              const pastedTextMetaLabel = isPastedTextAttachment
+                ? intl.formatMessage(
+                    { id: "chat.attachments.pastedText.meta" },
+                    {
+                      chars: new Intl.NumberFormat(locale).format(attachment.text!.length),
+                      lines: formatAttachmentLineCount(attachment, locale),
+                      size: formatAttachmentSize(attachment.sizeBytes),
+                    },
+                  )
+                : "";
               const fileDisplayDescriptor = resolveFileDisplayDescriptor(
                 attachment.localPath ?? attachment.filename,
               );
@@ -1831,7 +1849,15 @@ function ConversationComposerImpl({
                             });
                             setPdfAttachmentPreviewOpen(true);
                           }
-                        : undefined
+                          : isPastedTextAttachment
+                            ? () => {
+                                setPastedTextEdit({
+                                  id: attachment.id,
+                                  text: attachment.text ?? "",
+                                  filename: attachment.filename,
+                                });
+                              }
+                            : undefined
                   }
                   openLabel={
                     canPreviewVideoAttachment
@@ -1840,7 +1866,9 @@ function ConversationComposerImpl({
                         ? attachmentPreviewTitle
                         : canPreviewPdfAttachment
                           ? intl.formatMessage({ id: "chat.attachments.preview.openPdf" })
-                          : undefined
+                            : isPastedTextAttachment
+                              ? intl.formatMessage({ id: "chat.attachments.pastedText.edit" })
+                            : undefined
                   }
                 >
                   <div
@@ -1912,7 +1940,21 @@ function ConversationComposerImpl({
                   </div>
                   {!isMediaAttachment ? (
                     isClipboardTextAttachment ? (
-                      <AttachmentInfo className="max-w-48 text-ui-base text-foreground" />
+                      <div className="min-w-0 max-w-56 flex-1">
+                        <span
+                          className="block truncate text-ui-base font-medium text-foreground"
+                          title={intl.formatMessage({ id: "chat.attachments.clipboardText" })}
+                        >
+                          {intl.formatMessage({ id: "chat.attachments.clipboardText" })}
+                        </span>
+                        <span
+                          className="block truncate text-ui-sm font-normal text-foreground-subtle"
+                          data-composer-pasted-text-meta={attachment.id}
+                          title={pastedTextMetaLabel}
+                        >
+                          {isPastedTextAttachment ? pastedTextMetaLabel : attachment.filename}
+                        </span>
+                      </div>
                     ) : (
                       <div className="min-w-0 max-w-40 flex-1">
                         <span
@@ -2416,6 +2458,45 @@ function ConversationComposerImpl({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <ComposerPastedTextEditor
+        open={pastedTextEdit !== null}
+        filename={pastedTextEdit?.filename ?? ""}
+        text={pastedTextEdit?.text ?? ""}
+        saving={pastedTextSaving}
+        title={intl.formatMessage({ id: "chat.attachments.pastedText.title" })}
+        hint={intl.formatMessage({ id: "chat.attachments.pastedText.hint" })}
+        saveLabel={intl.formatMessage({ id: "chat.attachments.pastedText.save" })}
+        cancelLabel={intl.formatMessage({ id: "common.cancel" })}
+        describe={(meta) =>
+          intl.formatMessage(
+            { id: "chat.attachments.pastedText.meta" },
+            {
+              chars: new Intl.NumberFormat(locale).format(meta.chars),
+              lines: new Intl.NumberFormat(locale).format(meta.lines),
+              size: formatAttachmentSize(meta.bytes),
+            },
+          )
+        }
+        onCancel={() => setPastedTextEdit(null)}
+        onSave={(text) => {
+          const target = pastedTextEdit;
+          if (!target) return;
+          setPastedTextSaving(true);
+          void attachmentsApi
+            .updatePastedText(target.id, text)
+            .then((ok) => {
+              setPastedTextEdit(null);
+              toast(
+                ok
+                  ? intl.formatMessage({ id: "chat.attachments.pastedText.saved" })
+                  : intl.formatMessage({ id: "chat.attachments.pastedText.saveFailed" }),
+                ok ? { variant: "info" as const } : { variant: "warning" as const },
+              );
+            })
+            .finally(() => setPastedTextSaving(false));
+        }}
+      />
     </div>
   );
 }

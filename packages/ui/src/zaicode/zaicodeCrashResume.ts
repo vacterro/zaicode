@@ -11,6 +11,7 @@ import {
   type ZaicodeSessionBrief,
 } from "./zaicodeContinue.js";
 import { zaicodeContinueHandleFor } from "./zaicodeContinueHost.js";
+import { zaicodeAutoContinueAllowed, zaicodeAutoContinueModeFor } from "./zaicodeAutoContinue.js";
 import { useZaicodeUiPrefs } from "./zaicodeUiPrefs.js";
 import { relaunchZaicodeWorkersAfterCrash } from "./zaicodeWorkerRecovery.js";
 
@@ -49,11 +50,19 @@ export function planZaicodeCrashResume(
   project: (projectKey: string) => { hasSaipen: boolean; disabled: boolean } | null,
   now: number,
   maxAgeHours: number,
+  /**
+   * The per-session decision (Wave 2). Given the global switch and this
+   * session's own Default / On / Off, may this session continue itself? A
+   * session that says no is not a candidate at all, whatever the global
+   * switch says; a session that says yes still has to pass every rule above.
+   */
+  allowed: (sessionId: string) => boolean = () => true,
 ): ZaicodeCrashResumeStep[] {
   const oldest = now - maxAgeHours * 3_600_000;
   return sessions
     .filter((session) => session.crashCut && !session.running && !session.waiting && session.updatedAt >= oldest)
     .filter((session) => !project(session.projectKey)?.disabled)
+    .filter((session) => allowed(session.sessionId))
     .sort((left, right) => left.updatedAt - right.updatedAt)
     .map((session) => {
       const unfinishedGoal = session.goalObjective && (session.goalStatus === "active" || session.goalStatus === "paused");
@@ -138,6 +147,7 @@ export function useZaicodeCrashResume(): void {
         projectFacts,
         Date.now(),
         prefs.resumeAfterCrashHours,
+        (sessionId) => zaicodeAutoContinueAllowed(zaicodeAutoContinueModeFor(sessionId), prefs.resumeAfterCrash),
       );
     };
     const first = window.setTimeout(() => {
@@ -146,7 +156,9 @@ export function useZaicodeCrashResume(): void {
       markDone();
       const prefs = useZaicodeUiPrefs.getState();
       if (prefs.relaunchWorkersAfterCrash) relaunchZaicodeWorkersAfterCrash();
-      if (!prefs.resumeAfterCrash) return;
+      // No global early-out: a session that says On continues itself even
+      // when the global switch is off, and the planner drops every session
+      // that says Off. Only "off" is a candidate when nothing else is.
       const candidates = new Set(look().map((step) => step.sessionId));
       if (candidates.size === 0) return;
       window.setTimeout(() => {

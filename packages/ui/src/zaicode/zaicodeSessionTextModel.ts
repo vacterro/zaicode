@@ -133,6 +133,30 @@ export interface ZaicodeSessionTextPrefs {
   list: ZaicodeTextStyle & { bullet: ZaicodeListBullet; numbers: ZaicodeListNumber; markerColor: string; indentPx: number; gapPx: number };
   table: ZaicodeTextStyle & { borderColor: string; headerBackground: string; zebra: boolean; cellPaddingPx: number };
   rule: { style: ZaicodeLineStyle; color: string; thicknessPx: number; marginPx: number };
+  /**
+   * What YOU write (SRC-062, Wave 2). "default" = the user's own text follows
+   * the shared session-text theme; "separate" = the overrides below belong to
+   * the user alone and persist on their own. Same style schema as an agent
+   * element, so there is no second model and no second renderer: the bubble
+   * already carries `data-v4-user-input-bubble`, and that is the whole target.
+   */
+  userMessage: { mode: ZaicodeUserTextMode; style: ZaicodeUserTextStyle };
+}
+
+export const ZAICODE_USER_TEXT_MODES = ["default", "separate"] as const;
+export type ZaicodeUserTextMode = (typeof ZAICODE_USER_TEXT_MODES)[number];
+
+export interface ZaicodeUserTextStyle extends ZaicodeTextStyle {
+  /** 0 = inherit. */
+  lineHeight: number;
+  align: ZaicodeTextAlign;
+  borderColor: string;
+  /** -1 = as the app. */
+  borderWidthPx: number;
+  /** -1 = as the app. */
+  borderRadiusPx: number;
+  /** -1 = as the app. */
+  paddingPx: number;
 }
 
 export type ZaicodeSessionTextElement =
@@ -189,6 +213,10 @@ export function zaicodeSessionTextDefaults(): ZaicodeSessionTextPrefs {
     list: { ...s, bullet: "default", numbers: "default", markerColor: "", indentPx: -1, gapPx: -1 },
     table: { ...s, borderColor: "", headerBackground: "", zebra: false, cellPaddingPx: -1 },
     rule: { style: "solid", color: "", thicknessPx: 0, marginPx: -1 },
+    userMessage: {
+      mode: "default",
+      style: { ...s, lineHeight: 0, align: "inherit", borderColor: "", borderWidthPx: -1, borderRadiusPx: -1, paddingPx: -1 },
+    },
   };
 }
 

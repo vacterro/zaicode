@@ -132,6 +132,12 @@ function CrashSettings() {
         label="Auto-continue sessions a crash cut off"
         hint="Its goal again, else SAIPEN's cc (continue outside SAIPEN)"
       />
+      <p className="max-w-[580px] text-foreground-subtlest">
+        Per session: right-click a session in the sidebar →{" "}
+        <b>Auto-continue this session</b> → Default (this switch decides), On (it continues itself even with this switch
+        off) or Off (it never continues itself). An On or Off belongs to that session alone and is kept across restarts;
+        changing this switch never overwrites it.
+      </p>
       <ZaicodePrefStepper
         label="Only sessions cut off within"
         value={resumeAfterCrashHours}

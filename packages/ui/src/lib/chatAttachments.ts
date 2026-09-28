@@ -48,6 +48,13 @@ export interface ChatComposerAttachment {
   file?: File;
   filename: string;
   sourceKind?: ChatComposerAttachmentSourceKind;
+  /**
+   * The pasted text, character for character. A long paste becomes a chip so
+   * the composer stays fast, but the chip is only a VIEW: the payload lives
+   * here, so it can be opened, edited, re-opened and sent without ever
+   * collapsing to a placeholder. `localPath` is the same bytes on disk.
+   */
+  text?: string;
   lineCount?: number;
   charCount?: number;
   mimeType: string;
@@ -117,10 +124,43 @@ export function createClipboardTextPathComposerAttachment(
     localPath: attachment.localPath,
     mimeType: attachment.mimeType,
     sizeBytes: attachment.sizeBytes,
+    text,
     charCount: text.length,
     lineCount: countClipboardTextLines(text),
     sourceKind: "clipboard-text",
   };
+}
+
+/** UTF-8 length, which is what the model and the file both measure. */
+export function pastedTextByteLength(text: string): number {
+  return new TextEncoder().encode(text).length;
+}
+
+/** The metadata a pasted-text chip shows instead of a bare label. */
+export function pastedTextMetadata(text: string): { chars: number; lines: number; bytes: number } {
+  return { chars: text.length, lines: countClipboardTextLines(text), bytes: pastedTextByteLength(text) };
+}
+
+/**
+ * A pasted-text chip after the operator edited it: the same attachment with
+ * the new payload and metadata recomputed from it, so the chip can never
+ * describe text the model will not get. Everything else (id, filename,
+ * path, mime) is deliberately untouched.
+ */
+export function applyPastedTextEdit<T extends ChatComposerAttachment>(attachment: T, text: string): T {
+  const meta = pastedTextMetadata(text);
+  return {
+    ...attachment,
+    text,
+    charCount: meta.chars,
+    lineCount: meta.lines,
+    sizeBytes: meta.bytes,
+    mimeType: attachment.mimeType || "text/plain",
+  };
+}
+
+export function isPastedTextChatComposerAttachment(attachment: ChatComposerAttachment): boolean {
+  return attachment.sourceKind === "clipboard-text" && typeof attachment.text === "string";
 }
 
 export function shouldCreateClipboardTextAttachment(text: string): boolean {
@@ -247,6 +287,21 @@ export async function serializeChatComposerAttachment(
       mimeType,
       ...(attachment.sourceKind === "clipboard-text" ? { sourceKind: "clipboard-text" } : {}),
       sizeBytes: attachment.sizeBytes,
+    };
+  }
+
+  // A pasted text with no path (web / remote) carries its own bytes. This
+  // branch deliberately skips the inline size cap below: the alternative is
+  // the model receiving a truncated body or the literal label "pasted text",
+  // and the operator asked for this text by pasting it.
+  if (attachment.sourceKind === "clipboard-text" && typeof attachment.text === "string") {
+    return {
+      kind: "file",
+      filename: attachment.filename,
+      mimeType,
+      sizeBytes: pastedTextByteLength(attachment.text),
+      sourceKind: "clipboard-text",
+      textContent: attachment.text,
     };
   }
 

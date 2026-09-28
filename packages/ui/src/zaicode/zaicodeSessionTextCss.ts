@@ -20,6 +20,19 @@ import {
 
 export const ZAICODE_SESSION_TEXT_ROOT = "html.zaicode-session-text .zaicode-md";
 
+/**
+ * The same settings applied to what the OPERATOR writes. The bubble already
+ * carries `data-v4-user-input-bubble` (ConversationRowView), so this needs no
+ * new markup and no second renderer: one style schema, two scopes, the same
+ * `zaicodeTextStyleDeclarations`.
+ *
+ * `userMessage.mode === "default"` means the user's own text simply follows
+ * the shared body theme; "separate" gives the user their own values. Either
+ * way the selector is (0,2,1) -- the same floor as the agent root, and above
+ * pixel mode's (0,1,1) blanket font.
+ */
+export const ZAICODE_USER_TEXT_ROOT = "html.zaicode-session-text [data-v4-user-input-bubble]";
+
 function fontFamily(style: Pick<ZaicodeTextStyle, "font" | "customFont">): string | null {
   if (style.font === "inherit") return null;
   if (style.font === "custom") {
@@ -181,4 +194,38 @@ export function zaicodeSessionTextCss(prefs: ZaicodeSessionTextPrefs): string {
   css.push(rule(under(["hr"]), hrDeclarations));
 
   return css.filter(Boolean).join("\n");
+}
+
+/**
+ * Session-text settings -> the stylesheet for the operator's own messages.
+ * "default" inherits the shared body theme (that is what Default means); in
+ * "separate" the user's own style wins, plus the bubble's frame, rounding and
+ * padding, which have no agent-message equivalent.
+ */
+export function zaicodeUserTextCss(prefs: ZaicodeSessionTextPrefs): string {
+  if (!prefs.enabled) return "";
+  const user = prefs.userMessage;
+  const separate = user.mode === "separate";
+  const source = separate ? user.style : prefs.body;
+  const declarations = zaicodeTextStyleDeclarations({ ...source, marginTop: -1, marginBottom: -1 });
+  if (source.lineHeight > 0) declarations.push(`line-height:${source.lineHeight}`);
+  if (source.align !== "inherit") declarations.push(`text-align:${source.align}`);
+  if (separate) {
+    if (user.style.borderColor || user.style.borderWidthPx >= 0) {
+      declarations.push(`border:${user.style.borderWidthPx >= 0 ? user.style.borderWidthPx : 1}px solid ${user.style.borderColor || "var(--color-border, currentColor)"}`);
+    }
+    if (user.style.borderRadiusPx >= 0) declarations.push(`border-radius:${user.style.borderRadiusPx}px`);
+    if (user.style.paddingPx >= 0) declarations.push(`padding:${user.style.paddingPx}px`);
+  }
+  const selection = separate ? user.style.background : prefs.body.selection;
+  const css = [
+    rule(ZAICODE_USER_TEXT_ROOT, declarations),
+    selection ? rule(`${ZAICODE_USER_TEXT_ROOT}::selection,${ZAICODE_USER_TEXT_ROOT} *::selection`, [`background-color:${selection}`]) : "",
+  ];
+  return css.filter(Boolean).join("\n");
+}
+
+/** Both scopes, one stylesheet: what the app actually installs. */
+export function zaicodeAllSessionTextCss(prefs: ZaicodeSessionTextPrefs): string {
+  return [zaicodeSessionTextCss(prefs), zaicodeUserTextCss(prefs)].filter(Boolean).join("\n");
 }
