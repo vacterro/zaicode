@@ -1,7 +1,7 @@
 # ZAICODE
 
 <div align="center">
-  <img src="packages/ui/src/assets/zaicode-working.png" alt="ZAICODE" width="96" height="96" />
+  <img src="https://raw.githubusercontent.com/vacterro/zaicode/zaicode/packages/ui/src/assets/zaicode-working.png" alt="ZAICODE" width="96" height="96" />
 </div>
 <p align="center">
   <img src="https://img.shields.io/badge/version-0.0.1-c9a227" alt="version 0.0.1" />
@@ -9,7 +9,7 @@
   <img src="https://img.shields.io/badge/license-Apache--2.0-3b3527" alt="Apache-2.0" />
 </p>
 <p align="center">
-  ZAICODE · <a href="README.zcode.md">ZCode (简体中文)</a> · <a href="README.en.md">ZCode (English)</a>
+  ZAICODE · <a href="https://github.com/vacterro/zaicode/blob/zaicode/README.zcode.md">ZCode (简体中文)</a> · <a href="https://github.com/vacterro/zaicode/blob/zaicode/README.en.md">ZCode (English)</a>
 </p>
 
 <img width="1440" height="860" alt="ZAICODE hero — Do your best." src="docs/screenshots/01-do-your-best.png" />
@@ -93,7 +93,7 @@ used daily. There is no installer; build it from source.
 ## Build
 
 Requirements: Windows 10/11, Git, Node.js **24.14.0**, pnpm **10.33.2**
-([mise.toml](mise.toml) is the source of truth).
+([mise.toml](https://github.com/vacterro/zaicode/blob/zaicode/mise.toml) is the source of truth).
 
 ```bash
 pnpm bootstrap
@@ -124,11 +124,11 @@ kept in `docs/ZAICODE_UPSTREAM_DELTA.md` on the `workspace` branch.
 ## Upstream and license
 
 ZAICODE is derived from ZCode by Z.ai and is distributed under the same
-[Apache License 2.0](LICENSE); upstream notices are kept in
-[NOTICE.md](NOTICE.md) and [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
+[Apache License 2.0](https://github.com/vacterro/zaicode/blob/zaicode/LICENSE); upstream notices are kept in
+[NOTICE.md](https://github.com/vacterro/zaicode/blob/zaicode/NOTICE.md) and [THIRD-PARTY-NOTICES.md](https://github.com/vacterro/zaicode/blob/zaicode/THIRD-PARTY-NOTICES.md).
 Files were modified by the ZAICODE author. ZAICODE is an independent project,
 not affiliated with or endorsed by Z.ai. The original ZCode README is kept as
-[README.zcode.md](README.zcode.md) and [README.en.md](README.en.md).
+[README.zcode.md](https://github.com/vacterro/zaicode/blob/zaicode/README.zcode.md) and [README.en.md](https://github.com/vacterro/zaicode/blob/zaicode/README.en.md).
 
 <!-- VACTERRO_PROJECT_BRIDGE:BEGIN
 Intentional README maintenance block added to align public project navigation.
