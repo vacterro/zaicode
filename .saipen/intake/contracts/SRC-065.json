@@ -1,0 +1,14 @@
+{
+  "clauses": {
+    "SRC-065:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Fix genuine desktop/main type errors (click-union narrowing, server-kind union, TaskStreamMirrorableEvent, dns.lookup misuse) then bring tsconfig.main.json under the typecheck gate"
+    }
+  },
+  "derived_at": "2026-09-28T09:15:32Z",
+  "derived_from": "SRC-065",
+  "interpretation_revision": 1,
+  "schema_version": 1,
+  "source_sha256": "429c8a965cfd4b95206de06771cc2df20ca7b68c44e904fea0798237b3560fbb"
+}

@@ -1,0 +1,14 @@
+{
+  "clauses": {
+    "SRC-064:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "BUG-ONLY stabilization run: fix real defects across corridors A-H under feature freeze; keep T-94/T-9 operator-blocked and truthful"
+    }
+  },
+  "derived_at": "2026-09-28T08:00:32Z",
+  "derived_from": "SRC-064",
+  "interpretation_revision": 1,
+  "schema_version": 1,
+  "source_sha256": "6d75d7dbb6fe2920898945427508a78bc4abf8ceb3226a76a1f9fa0d550262e7"
+}

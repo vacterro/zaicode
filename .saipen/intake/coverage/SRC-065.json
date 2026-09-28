@@ -1,0 +1,14 @@
+{
+  "requirements": {
+    "SRC-065:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "T-102 closed with verification evidence in LOG: verify -> PASS [target: T-102] conf: high -- pnpm typecheck exit 0; verify:pre-push 79 pass/2 skip/0 fail; lint 0 err; main.json 83->20 (remainder config-only)",
+      "text": "Fix genuine desktop/main type errors (click-union narrowing, server-kind union, TaskStreamMirrorableEvent, dns.lookup misuse) then bring tsconfig.main.json under the typecheck gate",
+      "verification": "the Work this request created reached its own verification gate; see the T-102 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-102"
+    }
+  },
+  "schema_version": 1
+}

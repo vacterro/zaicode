@@ -27,11 +27,15 @@
      write that field name next to a concrete id anywhere in this file. -->
 
 ## DOING
+- [/] T-103 [P1] • Смотри что еще придумал, а тебе не сложно добавить такую очевидную пасхалку-игралку: Юзер когда открывает первый раз ZAICODE, потом он типо хочет в новое о... | verify: the requested change is present and demonstrated against the user own description of it | user_explicit: true | source_receipts: SRC-066 | needs: T-104 | owner: claude-code-local-verify | claim_time: 2026-09-28T12:17:51Z
 
 
 ## TODO
 
 ## DONE
+- [x] T-104 [P1] Закончить внедрение новой игры SAIASUI в ZAICODE | verify: the requested change is present and demonstrated against the user own description of it | user_explicit: true | source_receipts: SRC-067 | owner: claude-code-local-verify | claim_time: 2026-09-28T12:16:50Z | closure_mode: own_patch
+- [x] T-102 [P1] Fix genuine desktop/main type errors (click-union narrowing, server-kind union, TaskStreamMirrorableEvent, dns.lookup misuse) then bring tsconfig.main.json u... | verify: the requested change is present and demonstrated against the user own description of it | user_explicit: true | source_receipts: SRC-065 | owner: claude-code-local-verify | claim_time: 2026-09-28T09:15:31Z | closure_mode: own_patch
+- [x] T-101 [P1] BUG-ONLY stabilization run: fix real defects across corridors A-H under feature freeze; keep T-94/T-9 operator-blocked and truthful | verify: the requested change is present and demonstrated against the user own description of it | user_explicit: true | source_receipts: SRC-064 | owner: claude-code-local-verify | claim_time: 2026-09-28T08:00:06Z | closure_mode: own_patch
 - [x] T-97 [P0] BUILD user directive: run repository verification gates for cc all: pnpm typecheck, lint, architecture:check, verify:pre-push and focused zaicode tests in zcode/ | verify: agent FIT/impact pass recorded; normal SCOUT, BUILD, VERIFY, REVIEW and SHIP/DONE gates pass | owner: claude-code-local-verify | claim_time: 2026-09-27T17:24:36Z | closure_mode: own_patch
 - [x] T-96 [P1] cc all | verify: cc all is complete and the repository-declared verification harness passes | owner: claude-code-local-verify | claim_time: 2026-09-27T17:21:12Z | closure_mode: own_patch
 - [x] T-100 [P1] затем cc all | verify: затем cc all is complete and the repository-declared verification harness passes | owner: claude-code-local-verify | claim_time: 2026-09-27T17:17:19Z | closure_mode: own_patch

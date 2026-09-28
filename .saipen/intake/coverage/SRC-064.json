@@ -1,0 +1,14 @@
+{
+  "requirements": {
+    "SRC-064:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "T-101 closed with verification evidence in LOG: verify -> PASS [target: T-101] conf: high -- pnpm typecheck exit 0 (expanded to scheduler+preload); pnpm verify:pre-push 79 pass/2 skip/0 fail; pnpm lint 0 errors 76 warnings; pnpm architecture:check --changed 0 violations; focused regressions: zaicodeCreateAgentDefault 3/3, stageAgentBundleRetry 3/3",
+      "text": "BUG-ONLY stabilization run: fix real defects across corridors A-H under feature freeze; keep T-94/T-9 operator-blocked and truthful",
+      "verification": "the Work this request created reached its own verification gate; see the T-101 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-101"
+    }
+  },
+  "schema_version": 1
+}
