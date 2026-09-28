@@ -1,0 +1,14 @@
+{
+  "requirements": {
+    "SRC-070:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "T-108 closed with verification evidence in LOG: verify -> PASS [target: T-108] conf: high -- zcode/packages/ui 'node --import tsx --test test/zaicode*.test.ts' reported tests 456, pass 456, fail 0 (46 of them the new wave-1 A/B/C/D/F regressions); zcode/packages/desktop the same glob reported tests 84, pass 82, fail 0 (6 new ProTrail startup cases, A2/A3/A4 proven RED against the pre-fix module); zcode/packages/services the same glob reported t",
+      "text": "Wave 1 runtime stability: ProTrail startup convergence, crew double-dispatch, elapsed timer freeze, notification close, commit/push truth, UI overlap",
+      "verification": "the Work this request created reached its own verification gate; see the T-108 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-108"
+    }
+  },
+  "schema_version": 1
+}

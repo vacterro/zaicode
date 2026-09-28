@@ -1,0 +1,14 @@
+{
+  "clauses": {
+    "SRC-068:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "SAIASUI: ProTrail core invariant while active + discoverable in-game settings + full tuning panel/presets/live-tuning + remove seed HUD"
+    }
+  },
+  "derived_at": "2026-09-28T13:42:21Z",
+  "derived_from": "SRC-068",
+  "interpretation_revision": 1,
+  "schema_version": 1,
+  "source_sha256": "f475cfa9e838f23d5c164814c077b65807d82fe7aa5a4be8982a21d156d186e6"
+}

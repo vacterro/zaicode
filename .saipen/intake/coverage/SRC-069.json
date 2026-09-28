@@ -1,0 +1,14 @@
+{
+  "requirements": {
+    "SRC-069:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "T-107 closed with verification evidence in LOG: verify -> PASS [target: T-107] conf: high -- T-107 asks for the same six items as T-108 and the acceptance was met on the delivered tree: ProTrail converges from persisted enabled state (6 desktop + 9 UI regressions, RED against the pre-fix module); one saipen crew submit is one turn and one dispatch (8 regressions); completed work freezes and survives reload (12 regressions); the notice closes wi",
+      "text": "Wave 1: fix ProTrail startup, saipen-crew double-submit, elapsed timer, notification close, commit/push UI, UI overlap",
+      "verification": "the Work this request created reached its own verification gate; see the T-107 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-107"
+    }
+  },
+  "schema_version": 1
+}

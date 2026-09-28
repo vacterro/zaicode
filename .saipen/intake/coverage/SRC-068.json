@@ -1,0 +1,14 @@
+{
+  "requirements": {
+    "SRC-068:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "T-105 closed with verification evidence in LOG: verify -> PASS [target: T-105] conf: high -- pnpm typecheck OK; lint 0 errors; architecture:check OK; ui 416/416; full suite 79 pass/2 skip; zaicode prod build OK; git diff --check clean",
+      "text": "SAIASUI: ProTrail core invariant while active + discoverable in-game settings + full tuning panel/presets/live-tuning + remove seed HUD",
+      "verification": "the Work this request created reached its own verification gate; see the T-105 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-105"
+    }
+  },
+  "schema_version": 1
+}

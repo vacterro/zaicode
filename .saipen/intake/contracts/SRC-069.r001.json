@@ -1,0 +1,14 @@
+{
+  "clauses": {
+    "SRC-069:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Wave 1: fix ProTrail startup, saipen-crew double-submit, elapsed timer, notification close, commit/push UI, UI overlap"
+    }
+  },
+  "derived_at": "2026-09-28T17:00:10Z",
+  "derived_from": "SRC-069",
+  "interpretation_revision": 1,
+  "schema_version": 1,
+  "source_sha256": "b36edccd0e4db8dabc12f12e24b7e1820caef4d4cf79f9ae30d773398229a78b"
+}
