@@ -243,6 +243,15 @@ async function handleOffPeakClaimed(task: ZCodeOffPeakTask, now: number): Promis
     await offPeakRepo.releaseClaim(task.offPeakTaskId, { now });
     return;
   }
+  // A legacy record without a restored Selection (modelSelectionIssue=repair-required)
+  // must never dispatch: the message contract requires a concrete modelSelection, and
+  // dispatching undefined would run the task on no route. Release it back for the user
+  // to repair rather than seeding an unresolved run.
+  if (!task.modelSelection) {
+    await offPeakRepo.releaseClaim(task.offPeakTaskId, { now });
+    log("warn", `off-peak dispatch skipped: no modelSelection task=${task.offPeakTaskId}`);
+    return;
+  }
   offPeakInFlight.add(task.offPeakTaskId);
   const request: SchedulerToMainMessage = {
     type: "offpeak-dispatch-request",
