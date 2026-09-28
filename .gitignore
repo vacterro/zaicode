@@ -28,3 +28,12 @@
 
 # Windows Explorer folder metadata: machine-local, never project content.
 desktop.ini
+
+# Machine-local artifacts, not project content.
+# /stats is the per-run counter the installer already excludes; the protocol's
+# lock file is a runtime handle (MANIFEST.json lists locks/ as runtime-only);
+# .zcode/ holds a tool's per-session plans.
+stats
+/stats/
+/.saipen/locks/
+/.zcode/
