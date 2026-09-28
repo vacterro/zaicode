@@ -27,7 +27,7 @@
      write that field name next to a concrete id anywhere in this file. -->
 
 ## DOING
-- [/] T-107 [P1] Wave 1: fix ProTrail startup, saipen-crew double-submit, elapsed timer, notification close, commit/push UI, UI overlap | verify: the requested change is present and demonstrated against the user own description of it | user_explicit: true | source_receipts: SRC-069 | needs: T-108
+- [/] T-107 [P1] Wave 1: fix ProTrail startup, saipen-crew double-submit, elapsed timer, notification close, commit/push UI, UI overlap | verify: the requested change is present and demonstrated against the user own description of it | user_explicit: true | source_receipts: SRC-069 | needs: T-108 | owner: saipen-cli | claim_time: 2026-09-28T17:00:16Z
 
 
 ## TODO
