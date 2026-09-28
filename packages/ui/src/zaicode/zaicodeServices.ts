@@ -1,4 +1,5 @@
 import type {
+  IModelSelectionService,
   IServiceAccessor,
   IZaicodeAgentService,
   IZaicodeAuditService,
@@ -11,6 +12,8 @@ export interface ZaicodeServices {
   jobs: IZaicodeJobService;
   /** A3 audit campaigns (T-66); absent when the host predates the audit service. */
   audits: IZaicodeAuditService | null;
+  /** The machine's available provider/model view; the store validates a seeded default against it. */
+  modelSelection: IModelSelectionService;
 }
 
 export interface ZaicodeWorkspaceContext {
@@ -25,5 +28,6 @@ export function resolveZaicodeServices(accessor: IServiceAccessor): ZaicodeServi
     agents: accessor.zaicodeAgentService,
     jobs: accessor.zaicodeJobService,
     audits: accessor.zaicodeAuditService ?? null,
+    modelSelection: accessor.modelSelectionService,
   };
 }

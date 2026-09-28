@@ -11,7 +11,7 @@ import type {
 } from "@zcode/shared";
 import { logger } from "@/logger.js";
 import type { ZaicodeServices, ZaicodeWorkspaceContext } from "@/zaicode/zaicodeServices.js";
-import { readZaicodeDefaultModel } from "./zaicodeDefaultModel.js";
+import { resolveZaicodeDefaultSelection } from "./zaicodeDefaultModel.js";
 
 interface ZaicodeStoreState {
   agents: ZaicodeAgentDefinition[];
@@ -164,8 +164,19 @@ export const useZaicodeStore = create<ZaicodeStoreState>((set, get) => {
 
     createAgent: async (services, workspace, input) => {
       // SRC-038: a new agent without a pool takes the default model for new tasks, so it runs at once.
-      const fallback = input.modelSelection || input.providerRef || input.modelRef ? null : readZaicodeDefaultModel();
-      const withPool = fallback ? { ...input, modelSelection: { providerId: fallback.providerId, modelId: fallback.modelId } } : input;
+      // T-102: only seed the default when it still resolves against this machine's available
+      // provider/model view. A stale localStorage default (e.g. a SAIFREN pool this machine
+      // never configured) must not be written onto the agent as if it were ready to dispatch;
+      // leave the selection unresolved so the UI can tell the operator what is missing.
+      const wantsDefault = !(input.modelSelection || input.providerRef || input.modelRef);
+      let withPool = input;
+      if (wantsDefault) {
+        const view = await services.modelSelection.getView();
+        const resolved = resolveZaicodeDefaultSelection(view);
+        if (resolved) {
+          withPool = { ...input, modelSelection: resolved };
+        }
+      }
       const created = await runAction(services, workspace, () => services.agents.create(withPool));
       if (created) set({ selectedAgentId: created.id, selectedJobId: null });
       return created;
