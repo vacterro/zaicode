@@ -197,7 +197,9 @@ export function ZaicodeHeaderProjectTitle({
         ? "var(--color-foreground)"
         : "var(--zaicode-highlight, var(--color-foreground))";
   const title = (
-    <ZaicodeRightClickSettings title="Title bar: project name" panel={<ZaicodeHeaderTitleSettingsPanel />}>
+    // T-133: the right-click wrapper is the flex item; without min-w-0 it kept the whole name's width, so a long name
+    // ran under the title-bar widgets (only "ZAI" showed, no ellipsis) and pushed the session title out.
+    <ZaicodeRightClickSettings title="Title bar: project name" panel={<ZaicodeHeaderTitleSettingsPanel />} className="min-w-0 shrink">
       <span
         className={cn(
           "min-w-0 max-w-[40vw] shrink truncate leading-none [app-region:no-drag]",

@@ -58,7 +58,7 @@ export function WorkspaceHeaderActionSection({
     >
       {zaicode ? (
         <span className="contents @max-[680px]/workspace-header:hidden">
-          <ZaicodeTopbarClock useWindowsCaptionSpacing={useWindowsCaptionSpacing} />
+          <ZaicodeTopbarClock useWindowsCaptionSpacing={useWindowsCaptionSpacing} yieldToTitle={variant === "task"} />
         </span>
       ) : null}
       {zaicode ? (

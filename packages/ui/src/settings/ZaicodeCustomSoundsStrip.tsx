@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import { FolderOpen, RefreshCw } from "lucide-react";
 import { openZaicodeCustomizationFolder, refreshZaicodeCustomSounds, useZaicodeCustomSounds } from "@/zaicode/zaicodeCustomSounds.js";
 
@@ -10,6 +11,21 @@ import { openZaicodeCustomizationFolder, refreshZaicodeCustomSounds, useZaicodeC
 
 const button = "flex items-center gap-1 border border-border px-1.5 py-px text-ui-xs text-foreground-subtle hover:bg-hover hover:text-foreground";
 
+/** A folder path that wraps after a separator ("...customization\" / "sounds"), not inside a name ("sound" / "s"). */
+export function ZaicodeWrappedPath({ path }: { path: string }) {
+  const parts = path.split(/(?<=[\\/])/);
+  return (
+    <>
+      {parts.map((part, index) => (
+        <Fragment key={index}>
+          {part}
+          {index < parts.length - 1 ? <wbr /> : null}
+        </Fragment>
+      ))}
+    </>
+  );
+}
+
 export function ZaicodeCustomSoundsStrip() {
   const { available, info, mine, truncated } = useZaicodeCustomSounds();
   if (!available || !info) return null;
@@ -17,8 +33,8 @@ export function ZaicodeCustomSoundsStrip() {
     <div className="mt-2 flex flex-col gap-1 border border-border/60 bg-background px-2 py-1 text-ui-xs" data-zaicode-custom-sounds>
       <div className="flex flex-wrap items-center gap-2">
         <span className="text-foreground-subtle">Your sounds folder</span>
-        <span className="min-w-[12rem] flex-1 select-text break-all text-foreground" title={info.soundsDir}>
-          {info.soundsDir}
+        <span className="min-w-[12rem] flex-1 select-text text-foreground [overflow-wrap:anywhere]" title={info.soundsDir}>
+          <ZaicodeWrappedPath path={info.soundsDir} />
         </span>
         <span className="tabular-nums text-foreground-subtle">{mine.length === 1 ? "1 sound" : `${mine.length} sounds`}</span>
         <button type="button" className={button} title="Open the folder in the file manager" onClick={() => void openZaicodeCustomizationFolder({ kind: "sounds" })}>

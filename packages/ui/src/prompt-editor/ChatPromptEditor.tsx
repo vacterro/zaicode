@@ -420,7 +420,8 @@ export function ChatPromptEditor({
           appSlashCommands={appSlashCommands}
           enableMentionPanel={enableMentionPanel}
         />
-        {showSaipenControls ? (
+        {/* T-133: the strip speaks about "this project"; a draft with no project picked has none to init or start. */}
+        {showSaipenControls && workspacePath.trim() ? (
           <ZaicodeSaipenControls
             workspacePath={workspacePath}
             workspaceIdentity={workspaceIdentity}

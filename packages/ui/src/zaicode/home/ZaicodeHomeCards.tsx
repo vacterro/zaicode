@@ -122,11 +122,12 @@ export interface ZaicodeHomeNowFacts {
 
 function Stat({ label, value, hint, tone }: { label: string; value: ReactNode; hint?: string; tone?: "bad" | "warn" | "good" }) {
   return (
-    <div className="flex min-w-[88px] flex-1 flex-col border border-border/70 bg-background px-1.5 py-1" title={hint}>
+    <div className="flex min-w-[112px] flex-1 flex-col border border-border/70 bg-background px-1.5 py-1" title={hint} data-zaicode-home-stat={label}>
       <span className="text-[10px] tracking-wide text-foreground-subtlest">{label}</span>
       <span
         className={cn(
-          "truncate text-ui-sm tabular-nums",
+          // T-133: a narrow card cut "0 run · 0 ready" to "0 run · 0 r..."; the value wraps instead of hiding its end.
+          "break-words text-ui-sm leading-tight tabular-nums",
           tone === "bad" ? "text-destructive" : tone === "warn" ? "text-[var(--color-warning)]" : tone === "good" ? "text-[var(--color-success)]" : "text-foreground",
         )}
       >

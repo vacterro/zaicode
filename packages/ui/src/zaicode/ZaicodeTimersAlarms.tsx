@@ -120,7 +120,8 @@ function TimerForm({
         <div className="flex gap-1">
           <input
             className={cn(timerInputClass, "flex-1")}
-            placeholder="4 days 11 hours / 18:30 / tomorrow 9:00"
+            placeholder="4d 11h · 18:30 · tomorrow 9:00"
+            title="A delay (4 days 11 hours, 90m), a clock time (18:30) or a day and time (tomorrow 9:00)"
             value={draft.when}
             onChange={(event) => setDraft({ when: event.target.value })}
             onKeyDown={(event) => {
@@ -164,7 +165,8 @@ function TimerForm({
           <ZaicodeMomentField className="flex-1" value={preview ? preview.getTime() : null} onChange={(epoch) => setMoment(new Date(epoch))} />
           <TimerButton onClick={() => setMoment(new Date())}>Now</TimerButton>
         </div>
-        <span className={preview ? "text-foreground-subtle" : "text-[#ff9a66]"}>
+        {/* T-133: the empty field is a prompt, not a mistake: only text that cannot be read is shown as an error. */}
+        <span className={preview || !draft.when.trim() ? "text-foreground-subtle" : "text-[#ff9a66]"}>
           {draft.when.trim() ? (preview ? `→ ${formatTimerMoment(preview.getTime())} (${formatZaicodeRemaining((preview.getTime() - Date.now()) / 1000)})` : "Not a time I understand") : "Type a delay or a clock time, or use the buttons."}
         </span>
       </TimerGroup>

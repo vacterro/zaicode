@@ -222,7 +222,7 @@ export function ZaicodeHomeFleet({
               <div key={row.key} role="listitem" className={cn("border-b border-border/50 last:border-b-0", row.disabled && "opacity-50")}>
                 <button
                   type="button"
-                  className={cn("grid w-full grid-cols-[4px_minmax(80px,1fr)_46px_minmax(0,2fr)_auto] items-center gap-1.5 px-0.5 py-0.5 text-left hover:bg-hover", open && "bg-selected")}
+                  className={cn("grid w-full grid-cols-[4px_minmax(80px,3fr)_46px_minmax(0,2fr)_auto] items-center gap-1.5 px-0.5 py-0.5 text-left hover:bg-hover", open && "bg-selected")}
                   aria-expanded={open}
                   title={`${row.path}\n${row.reason}`}
                   onClick={() => setSelected(open ? null : row.key)}

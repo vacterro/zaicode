@@ -489,6 +489,9 @@ export function WorkspaceHeaderTitleSection({
           "flex min-w-12 max-w-100 shrink items-center gap-2 truncate font-semibold text-foreground @max-[560px]/workspace-header:max-w-[30vw] @max-[420px]/workspace-header:max-w-[22vw]",
           simplifyForNarrowRemote && "max-md:max-w-[42vw]",
           compact ? "text-[0.92rem]" : "text-ui-base",
+          // T-133: when the project name and the session title do not both fit, the session title (also in the
+          // sidebar row) gives up its room first, so the big project name stays readable.
+          isZaicodeProductMode() && "[flex-shrink:4]",
         )}
         title={activeTaskTitle}
       >

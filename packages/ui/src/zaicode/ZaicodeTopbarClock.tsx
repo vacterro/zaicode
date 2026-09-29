@@ -195,10 +195,16 @@ export function ZaicodeClockSettingsPanel() {
   );
 }
 
+/** Hidden while the workspace header is too narrow for the names beside it (a container query, no JS). */
+const NARROW_HEADER_HIDDEN = "@max-[760px]/workspace-header:hidden";
+
 export function ZaicodeTopbarClock({
   useWindowsCaptionSpacing = false,
+  yieldToTitle = false,
 }: {
   useWindowsCaptionSpacing?: boolean;
+  /** A session's header also holds the project and session names: there the date gives way when it is narrow. */
+  yieldToTitle?: boolean;
 }) {
   const store = useZaicodeTimers();
   const clock = store.clock;
@@ -259,13 +265,11 @@ export function ZaicodeTopbarClock({
       ? date.toLocaleDateString("en-GB", { weekday: "short" })
       : "";
   const zone = zaicodeTimeZoneName(date);
-  const head = [
-    dateText,
-    clock.showWeekNumber ? `W${zaicodeIsoWeek(date)}` : "",
-    time,
-    clock.showTimeZone ? zone : "",
-    clock.showDaypart ? zaicodeDaypart(date.getHours()) : "",
-  ].filter(Boolean);
+  const datePart = [dateText, clock.showWeekNumber ? `W${zaicodeIsoWeek(date)}` : ""].filter(Boolean).join(" · ");
+  const timePart = [time, clock.showTimeZone ? zone : ""].filter(Boolean).join(" · ");
+  const daypart = clock.showDaypart ? zaicodeDaypart(date.getHours()) : "";
+  const hasHead = Boolean(datePart || timePart || daypart);
+  const narrowHidden = yieldToTitle ? NARROW_HEADER_HIDDEN : undefined;
 
   const tip = [
     `${date.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" })} · ${formatZaicodeTimeOfDay(date, { seconds: true, hour12: clock.hour12 })} · week ${zaicodeIsoWeek(date)}`,
@@ -318,7 +322,25 @@ export function ZaicodeTopbarClock({
       >
         {missed ? <span className="text-[#ff7b6b]">!</span> : null}
         {clock.showTime ? <ZaicodeMiniAnalogClock date={date} /> : null}
-        {head.length > 0 ? <span className="text-foreground">{head.join(" · ")}</span> : null}
+        {hasHead ? (
+          <span className="text-foreground">
+            {/* T-133: in a narrow title bar the date and the part of day step aside (the tooltip keeps them), so the
+                project and session names are not pushed under the clock. The time always stays. */}
+            {datePart ? (
+              <span className={timePart ? narrowHidden : undefined}>
+                {datePart}
+                {timePart ? " · " : ""}
+              </span>
+            ) : null}
+            {timePart}
+            {daypart ? (
+              <span className={timePart || datePart ? narrowHidden : undefined}>
+                {timePart || datePart ? " · " : ""}
+                {daypart}
+              </span>
+            ) : null}
+          </span>
+        ) : null}
         {clock.showNextTimer && next ? (
           <span className="font-semibold" style={{ color: zaicodeTimerColor(next, now) }}>
             {format((next.target - now) / 1000)}
