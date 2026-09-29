@@ -47,6 +47,10 @@ const OVERLAY_FAST_RETRIES = 20;
 const HELPER_RETRY_SLOW_MS = 30_000;
 /** How long an overlay page gets to answer a health probe. */
 const PROBE_TIMEOUT_MS = 1500;
+/** A reader is watched this long after "ready"; four cursor moves with no event from it make it silent. */
+const READER_WATCH_MS = 15_000;
+const READER_WATCH_STEP_MS = 500;
+const READER_SILENT_MOVES = 4;
 
 const overlays = new Map<number, BrowserWindow>();
 const overlayWindows = new WeakSet<BrowserWindow>();
@@ -74,6 +78,7 @@ let screenHooked = false;
 let overlayRetryTimer: ReturnType<typeof setTimeout> | null = null;
 let overlayRetries = 0;
 let helperRetryTimer: ReturnType<typeof setTimeout> | null = null;
+let readerWatchTimer: ReturnType<typeof setTimeout> | null = null;
 /** Which window is on a monitor now and since when: a rebuilt overlay is a new life with a clean record. */
 const overlayLife = new WeakMap<BrowserWindow, { serial: number; createdAt: number }>();
 let overlaySerial = 0;
@@ -159,6 +164,8 @@ function stop(): void {
   overlayRetries = 0;
   if (helperRetryTimer) clearTimeout(helperRetryTimer);
   helperRetryTimer = null;
+  if (readerWatchTimer) clearTimeout(readerWatchTimer);
+  readerWatchTimer = null;
   pending?.stop();
   pending = null;
   input?.stop();
@@ -185,9 +192,31 @@ function startInput(run: number): void {
   ensureZaicodeProtrailInputHelper().then(
     (exe) => {
       if (run !== generation || pending || input?.kind === "raw-input") return;
+      let delivered = 0;
+      // A reader that failed to start, died, or was ready and yet silent: one path for all three.
+      const lost = (reason: string): void => {
+        if (run !== generation) return;
+        if (pending === helper) pending = null;
+        if (input === helper) input = null;
+        helper.stop();
+        restarts += 1;
+        log(`the click reader failed (${restarts}): ${reason}`);
+        if (restarts > MAX_HELPER_RESTARTS) {
+          useCursorPoll(`Clicks are not seen: ${reason}. The trail follows the cursor.`);
+          scheduleHelperRetry(run);
+          return;
+        }
+        if (!input) useCursorPoll("Restarting the click reader…", "starting");
+        setStatus({ state: "starting", note: `Restarting the click reader: ${reason}` });
+        setTimeout(() => {
+          if (run === generation && !pending && input?.kind !== "raw-input") startInput(run);
+        }, 1000 * restarts);
+      };
       const helper = startZaicodeProtrailRawInput(exe, {
         onEvent: (event) => {
-          if (input === helper) push(event, true);
+          if (input !== helper) return;
+          delivered += 1;
+          push(event, true);
         },
         onReady: () => {
           if (run !== generation || pending !== helper) return;
@@ -199,25 +228,9 @@ function startInput(run: number): void {
           helperRetryTimer = null;
           setStatus({ state: "running", input: "raw-input", note: null });
           log("the click reader is ready");
+          watchReaderDelivery(run, helper, () => delivered, lost);
         },
-        onFailure: (reason) => {
-          if (run !== generation) return;
-          if (pending === helper) pending = null;
-          if (input === helper) input = null;
-          helper.stop();
-          restarts += 1;
-          log(`the click reader failed (${restarts}): ${reason}`);
-          if (restarts > MAX_HELPER_RESTARTS) {
-            useCursorPoll(`Clicks are not seen: ${reason}. The trail follows the cursor.`);
-            scheduleHelperRetry(run);
-            return;
-          }
-          if (!input) useCursorPoll("Restarting the click reader…", "starting");
-          setStatus({ state: "starting", note: `Restarting the click reader: ${reason}` });
-          setTimeout(() => {
-            if (run === generation && !pending && input?.kind !== "raw-input") startInput(run);
-          }, 1000 * restarts);
-        },
+        onFailure: lost,
       });
       pending = helper;
     },
@@ -226,6 +239,37 @@ function startInput(run: number): void {
       useCursorPoll(`Clicks are not seen: ${error instanceof Error ? error.message : String(error)}. The trail follows the cursor.`);
     },
   );
+}
+
+/**
+ * A reader that said "ready" and has delivered nothing while the cursor demonstrably moved is as good as
+ * dead: a registration that took but does not deliver, a message pump that stalled. It replaced the cursor
+ * poll on "ready", so from then on the trail would follow nothing. A few different cursor positions in the
+ * first seconds with not one event from the reader count as that, and it is handled like a reader that
+ * failed: restarted, and after the usual tries the cursor poll carries the trail. Cursor moves that raw
+ * input cannot see (another program placing the pointer) are few and short, so four are asked for.
+ */
+function watchReaderDelivery(run: number, helper: ZaicodeProtrailInput, delivered: () => number, lost: (reason: string) => void): void {
+  const startedAt = Date.now();
+  let last: { x: number; y: number } | null = null;
+  let moves = 0;
+  const check = (): void => {
+    readerWatchTimer = null;
+    if (run !== generation || input !== helper || delivered() > 0) return;
+    const point = screen.getCursorScreenPoint();
+    if (last && (point.x !== last.x || point.y !== last.y)) moves += 1;
+    last = { x: point.x, y: point.y };
+    if (moves >= READER_SILENT_MOVES) {
+      lost("it was ready but delivered nothing while the cursor moved");
+      return;
+    }
+    if (Date.now() - startedAt >= READER_WATCH_MS) return;
+    readerWatchTimer = setTimeout(check, READER_WATCH_STEP_MS);
+    (readerWatchTimer as { unref?: () => void }).unref?.();
+  };
+  if (readerWatchTimer) clearTimeout(readerWatchTimer);
+  readerWatchTimer = setTimeout(check, READER_WATCH_STEP_MS);
+  (readerWatchTimer as { unref?: () => void }).unref?.();
 }
 
 /**

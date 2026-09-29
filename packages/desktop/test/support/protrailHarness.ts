@@ -58,6 +58,8 @@ export function fakeClock() {
         await flush();
       }
       now = target;
+      // Two turns: a promise callback that starts a fake process, and the process's own first answer.
+      await flush();
       await flush();
     },
   };
@@ -175,16 +177,24 @@ export function createProtrailHarness(options: HarnessOptions = {}) {
   let displays = options.displays ?? THREE_DISPLAYS;
   const handlers = new Map<string, (event: unknown, config: unknown) => unknown>();
   const logs: string[] = [];
-  const readers: { outcome: ReaderOutcome; stopped: boolean }[] = [];
+  const readers: { outcome: ReaderOutcome; stopped: boolean; emit(event: unknown): void }[] = [];
+  const cursor = { x: 100, y: 100 };
   const plan = [...(options.readerPlan ?? [])];
   const app = Object.assign(new EventEmitter(), { isPackaged: true });
-  const screen = Object.assign(new EventEmitter(), { getAllDisplays: () => displays, screenToDipPoint: (p: unknown) => p });
+  const screen = Object.assign(new EventEmitter(), {
+    getAllDisplays: () => displays,
+    screenToDipPoint: (p: unknown) => p,
+    getCursorScreenPoint: () => ({ ...cursor }),
+  });
   const input = {
     startZaicodeProtrailCursorPoll: () => ({ kind: "cursor-poll", stop() {} }),
     ensureZaicodeProtrailInputHelper: () => Promise.resolve("helper.exe"),
-    startZaicodeProtrailRawInput: (_exe: string, callbacks: { onReady?: () => void; onFailure?: (reason: string) => void }) => {
+    startZaicodeProtrailRawInput: (
+      _exe: string,
+      callbacks: { onEvent?: (event: unknown) => void; onReady?: () => void; onFailure?: (reason: string) => void },
+    ) => {
       const outcome = plan.shift() ?? "ready";
-      const reader = { outcome, stopped: false };
+      const reader = { outcome, stopped: false, emit: (event: unknown) => (reader.stopped ? undefined : callbacks.onEvent?.(event)) };
       readers.push(reader);
       // The reader answers on the next tick, like a process would.
       if (outcome === "ready") setImmediate(() => callbacks.onReady?.());
@@ -234,6 +244,8 @@ export function createProtrailHarness(options: HarnessOptions = {}) {
     windows,
     logs,
     readers,
+    /** Where the fake cursor is; move it to make the desktop cursor "move". */
+    cursor,
     screen,
     live: () => windows.filter((win) => !win.destroyed),
     setDisplays: (next: FakeDisplay[]) => {

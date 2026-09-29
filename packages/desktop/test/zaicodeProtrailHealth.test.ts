@@ -280,3 +280,38 @@ test("M9 the desktop-wide mode leaves a trail in the log: start, each overlay, e
   assert.match(log, /3 of 3 overlays confirmed/);
   assert.match(log, /the desktop-wide mode is off/);
 });
+
+test("M10 a click reader that is ready but delivers nothing while the cursor moves is replaced", async () => {
+  const h = createProtrailHarness({ platform: "win32", readerPlan: ["ready", "ready"] });
+  h.configure({ color: "red" });
+  await h.clock.advance(50);
+  assert.equal(h.readers.length, 1);
+  assert.equal(h.status().input, "raw-input");
+  // The cursor keeps moving; the reader, ready as it is, says nothing.
+  for (let i = 0; i < 8; i += 1) {
+    h.cursor.x += 30;
+    await h.clock.advance(500);
+  }
+  await h.clock.advance(1500);
+  assert.equal(h.readers.length, 2, "the silent reader was replaced by a new one");
+  assert.equal(h.readers[0]!.stopped, true);
+  assert.match(h.logs.join("\n"), /delivered nothing while the cursor moved/);
+  // The new reader delivers: however long the cursor moves now, nothing is restarted.
+  h.readers[1]!.emit({ kind: 0, button: -1, x: 10, y: 10, t: 1 });
+  for (let i = 0; i < 16; i += 1) {
+    h.cursor.x += 30;
+    await h.clock.advance(500);
+  }
+  assert.equal(h.readers.length, 2);
+  assert.equal(h.status().input, "raw-input");
+  h.configure(null);
+});
+
+test("M11 a cursor that does not move never makes a silent reader: nothing is restarted", async () => {
+  const h = createProtrailHarness({ platform: "win32", readerPlan: ["ready"] });
+  h.configure({ color: "red" });
+  await h.clock.advance(60_000);
+  assert.equal(h.readers.length, 1);
+  assert.equal(h.status().input, "raw-input");
+  h.configure(null);
+});
