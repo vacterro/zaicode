@@ -31,6 +31,7 @@
 
 
 ## TODO
+- [ ] T-127 [P2] И пул для рандомных звуков пока максимально неинтутитвно добавляется. К примеру для того чтобы добавить другой звук мне нужно обязательно его дубликат сначал... | needs: T-126 | verify: the requested change is present and demonstrated against the user own description of it | user_explicit: true | source_receipts: SRC-090
 - [ ] T-126 [P2] И чтобы список звуков обновлялся в реальном времени если добавляю свои кастомные. Хотел бы чтобы папка со звуками не была сложной для нахождения, как и други... | needs: T-124, T-125 | verify: the requested change is present and demonstrated against the user own description of it | user_explicit: true | source_receipts: SRC-089
 - [ ] T-125 [P2] И также в Sound settings тоже свои пресеты. Желеательно вообще в каждой секции создать пресеты, импорты, экспорты, сейвы вот эту всю систему. Расчитано на на... | needs: T-124 | verify: the requested change is present and demonstrated against the user own description of it | user_explicit: true | source_receipts: SRC-088
 

@@ -78,3 +78,29 @@ folder + live list) are queued behind it with `needs:`. Suggested order: T-126 f
 live catalog, launcher variable), then T-125 on top of it (presets, section scope, asset handling).
 Gate for both: `pnpm run verify:pre-push` in `zcode/`, plus a red-controlled test for the folder watcher
 (drop a file, the list changes without a restart) and for a preset round trip with a custom sound.
+
+## T-127 (SRC-090): adding sounds to a random-sound pool is not intuitive
+
+The operator, 2026-09-29, with a screenshot of Settings > Sounds, event "Switch project", pool mode:
+"the pool for random sounds is added in the least intuitive way: to add another sound I must first add a
+duplicate, or first confirm another sound to add".
+
+Diagnosis (verified in `zcode/packages/ui/src/settings/ZaicodeSoundPoolControls.tsx`, `ZaicodePoolControls`):
+
+- The only way to add a member is the button `add "<row.sound>"`. It adds the sound the row's ordinary
+  dropdown currently points at (`row.sound`), and `pool: [...row.pool.filter((entry) => entry.id !== row.sound), {...}]`
+  makes a second click on the same sound a no-op (the old entry is removed and re-added).
+- So to add a DIFFERENT sound the operator has to change the row's single-sound dropdown first (which also
+  changes what "single" would play and previews the sound) and only then press add. Switching to pool mode
+  with an empty pool shows one button whose label names a sound the operator did not mean as a member.
+- With one member the list shows a 100.00% share and a "pin" that can do nothing; the weight box is the only
+  control that reads as editable.
+
+Proposal: in pool mode the dropdown stops being "the sound" and becomes "add a sound to the pool": choosing
+an entry adds it as a member at once (with the preview) and the dropdown returns to its prompt; members are
+listed as rows (name, weight, share, remove) without the extra "show N member(s)" step; a member that is
+already in the pool is highlighted instead of silently replaced; "pin" is offered only with two or more
+members. Switching single -> pool seeds the pool with the current sound (weight 1) so the list is never
+empty and nothing is lost; pool -> single keeps the heaviest member as the single sound. Test: a pool built
+by choosing three different sounds in a row has three members, and the round trip single -> pool -> single
+keeps a sound. Depends on nothing; belongs next to T-125 (a preset must be able to carry a pool).
