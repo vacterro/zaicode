@@ -797,6 +797,8 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
         : null,
     [zaicodeFolders, zaicodeMode, zaicodeProjectSections],
   );
+  // SRC-083: the count the removed "No folder" row used to carry.
+  const zaicodeUnfiledCount = zaicodeFolderPlan?.folders.find((view) => view.unfiled)?.count ?? 0;
   /**
    * One row per project with its folder and pin already resolved, plus the two
    * rendering decisions those imply: whether this row is the FIRST of its
@@ -1678,8 +1680,17 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
           />
         ) : null}
         {zaicodeMode ? (
-          <div className="flex items-center justify-between gap-1 px-1 pb-1">
+          // SRC-083: one compact line. The "No folder" row is gone; its count sits next to the
+          // icon-only New folder button, where the operator pointed.
+          <div className="flex items-center gap-1 px-1 pb-0.5">
             <span className="text-ui-sm text-foreground-subtlest">Projects</span>
+            <span
+              className="ml-auto text-ui-sm tabular-nums text-foreground-subtlest"
+              title="Projects not in a folder"
+              data-zaicode-unfiled-count={zaicodeUnfiledCount}
+            >
+              {zaicodeUnfiledCount}
+            </span>
             <ZaicodeNewFolderButton />
           </div>
         ) : null}
@@ -1712,7 +1723,7 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
               );
               return (
                 <Fragment key={tab.id}>
-                {organizationRow?.header && folderView ? (
+                {organizationRow?.header && folderView && !folderView.unfiled ? (
                   <li data-zaicode-folder-row={folderView.unfiled ? "unfiled" : folderView.folder!.id} className="list-none">
                     <ZaicodeProjectFolderHeader
                       folder={folderView.folder}

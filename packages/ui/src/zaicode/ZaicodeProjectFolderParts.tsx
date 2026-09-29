@@ -28,11 +28,14 @@ export function ZaicodeNewFolderButton({ className }: { className?: string }) {
       type="button"
       data-zaicode-new-folder
       className={cn(
-        "flex items-center gap-1 border border-border px-1.5 py-px text-foreground-subtle hover:bg-hover hover:text-foreground disabled:opacity-40",
+        // Icon only (SRC-083): a square that reads as a button (a frame, the plus on the folder,
+        // the highlight colour on hover) and takes a third of the room the word did.
+        "flex size-6 shrink-0 items-center justify-center border border-border bg-surface text-foreground hover:border-[var(--zaicode-highlight,var(--color-border-hover))] hover:bg-hover disabled:opacity-40",
         className,
       )}
       disabled={busy}
-      title="Group projects into a folder. Nothing on disk moves."
+      aria-label="New folder"
+      title="New folder: group projects into it. Nothing on disk moves."
       onClick={() => {
         const name = window.prompt("Folder name", "New folder");
         if (name === null) return;
@@ -43,8 +46,7 @@ export function ZaicodeNewFolderButton({ className }: { className?: string }) {
         setBusy(false);
       }}
     >
-      <FolderPlus className="size-3" />
-      New folder
+      <FolderPlus className="size-4" />
     </button>
   );
 }
