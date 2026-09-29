@@ -53,7 +53,7 @@ import {
   DropdownMenuSubTrigger,
 } from "@/components/ui/dropdown-menu.js";
 import { FolderInput, Pin } from "lucide-react";
-import { ZaicodeProjectMoveMenu } from "@/zaicode/ZaicodeProjectFolderParts.js";
+import { ZaicodeProjectMoveMenu, ZaicodeProjectPinButton } from "@/zaicode/ZaicodeProjectFolderParts.js";
 import {
   ZAICODE_UNFILED,
   folderOfProject,
@@ -2156,6 +2156,12 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
                           <MessageCirclePlus className="h-3.5 w-3.5" />
                         </Button>
                       </ControlHintTooltip>
+                    ) : null}
+                    {mountRowActions && isZaicodeProductMode() ? (
+                      <ZaicodeProjectPinButton
+                        projectId={projectOrganizationId}
+                        pinned={projectPinned}
+                      />
                     ) : null}
                     {mountRowActions && isZaicodeProductMode() ? (
                       <ControlHintTooltip

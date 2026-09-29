@@ -27,7 +27,9 @@ import {
   ZAICODE_PROJECT_DESTRUCTIVE_LABELS,
   buildProjectOrganizationView,
   describeMoveTarget,
+  isFolderHidingRows,
   moveTargetsFor,
+  orderSectionTabs,
 } from "@/zaicode/zaicodeProjectOrganization.js";
 import {
   ZAICODE_MODEL_APPEARANCE_DEFAULTS,
@@ -432,4 +434,61 @@ test("Wave 4 B+D: the move targets are keyboard-usable, and destructive actions 
   const labels = Object.values(ZAICODE_PROJECT_DESTRUCTIVE_LABELS);
   assert.equal(new Set(labels).size, labels.length, "no two destructive actions share a name");
   assert.match(ZAICODE_PROJECT_DESTRUCTIVE_LABELS.deleteFolder, /projects are kept/i);
+});
+
+test("Wave 4 B: a pinned project is drawn first, and pinning one disturbs nothing else", () => {
+  const tabs = [{ id: "a" }, { id: "b" }, { id: "c" }, { id: "d" }];
+  const pinned = new Set(["c"]);
+  const pinnedOf = (tab: { id: string }) => pinned.has(tab.id);
+
+  // The regression: the plan ordered pins first, but the sidebar drew the
+  // caller's order anyway, so pinning a project did nothing visible.
+  assert.deepEqual(orderSectionTabs(tabs, pinnedOf).map((tab) => tab.id), ["c", "a", "b", "d"]);
+
+  // Pinning is a permutation, not a filter: no project is lost or duplicated.
+  const ordered = orderSectionTabs(tabs, pinnedOf);
+  assert.equal(ordered.length, tabs.length);
+  assert.deepEqual(new Set(ordered.map((t) => t.id)).size, tabs.length);
+  assert.deepEqual(tabs.map((t) => t.id), ["a", "b", "c", "d"], "the caller's own array is not mutated");
+
+  // Two pins keep the caller's relative order among themselves.
+  const two = new Set(["d", "b"]);
+  assert.deepEqual(
+    orderSectionTabs(tabs, (tab) => two.has(tab.id)).map((tab) => tab.id),
+    ["b", "d", "a", "c"],
+  );
+  // Nothing pinned is exactly the input order.
+  assert.deepEqual(orderSectionTabs(tabs, () => false).map((tab) => tab.id), ["a", "b", "c", "d"]);
+});
+
+test("Wave 4 A: collapsing a folder hides its rows but keeps its header, and never Unfiled", () => {
+  let state = withFolders();
+  const folderId = state.folders[0]!.id;
+  // The project has to actually BE in the folder: an empty folder has nothing
+  // to fold, and the test would be asserting a count of zero.
+  state = moveProjectToFolder(state, "project-a", folderId);
+  const section = [{ group: null, folded: false, tabs: [{ workspacePath: "a" }] }];
+
+  const openView = buildProjectOrganizationView(state, section, () => "project-a");
+  const open = openView.folders.find((view) => view.folder?.id === folderId)!;
+  assert.equal(isFolderHidingRows(open), false, "an open folder hides nothing");
+  assert.equal(open.count, 1);
+
+  state = setFolderCollapsed(state, folderId, true);
+  const collapsedView = buildProjectOrganizationView(state, section, () => "project-a");
+  const collapsed = collapsedView.folders.find((view) => view.folder?.id === folderId)!;
+  assert.equal(isFolderHidingRows(collapsed), true, "a collapsed folder hides its rows");
+  assert.equal(collapsed.count, 1, "the count still names what is folded away, so the header can say so");
+  assert.equal(collapsed.projects.length, 1, "the project is folded, not deleted");
+
+  // Unfiled holds whatever is not filed; folding it would hide live projects
+  // behind a header that offers no way to open them again.
+  const unfiledView = buildProjectOrganizationView(
+    setFolderCollapsed(state, folderId, false),
+    section,
+    () => "project-z",
+  );
+  const unfiled = unfiledView.folders.find((view) => view.unfiled)!;
+  assert.equal(unfiled.collapsed, false);
+  assert.equal(isFolderHidingRows(unfiled), false, "Unfiled can never hide its projects");
 });

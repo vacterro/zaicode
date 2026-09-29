@@ -121,9 +121,38 @@ export function buildProjectOrganizationView<T extends ZaicodeProjectRef>(
   };
 }
 
+/**
+ * Whether a folder view is hiding its rows right now.
+ *
+ * Only a REAL folder can hide anything. Unfiled holds whatever is not filed, so
+ * folding it away would hide live projects with no way to get them back; the
+ * header says so and offers no chevron for it.
+ */
+export function isFolderHidingRows(view: ZaicodeProjectFolderView): boolean {
+  return view.collapsed && !view.unfiled;
+}
+
+/**
+ * The rows one section draws, in the order it draws them: pinned projects
+ * first, then the caller's own order exactly as it was.
+ *
+ * The sort returns 0 for the common case and the engine's sort is stable, so
+ * pinning ONE project cannot shuffle the projects around it, and no project is
+ * ever emitted twice or dropped -- the result is a permutation of the input.
+ */
+export function orderSectionTabs<T extends { id: string }>(
+  tabs: readonly T[],
+  pinnedOf: (tab: T) => boolean,
+): T[] {
+  return [...tabs].sort((left, right) => {
+    const leftPinned = pinnedOf(left);
+    const rightPinned = pinnedOf(right);
+    return leftPinned === rightPinned ? 0 : leftPinned ? -1 : 1;
+  });
+}
+
 /** The keyboard-accessible move: a project to a folder, or to Unfiled. */
-export function moveTargetsFor(organization: ZaicodeProjectOrganization): { id: string; label: string }[] {
-  return [
+export function moveTargetsFor(organization: ZaicodeProjectOrganization): { id: string; label: string }[] {  return [
     { id: ZAICODE_UNFILED, label: "No folder" },
     ...organization.folders.map((folder) => ({ id: folder.id, label: folder.name })),
   ];
