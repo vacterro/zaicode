@@ -100,6 +100,7 @@ import {
 } from "@/zaicode/zaicodeSidebarPrefs.js";
 import { useZaicodeSessionNav, type ZaicodeSessionRef } from "@/zaicode/zaicodeSessionNav.js";
 import { ZaicodeSidebarNavBlock } from "@/zaicode/ZaicodeSidebarNavBlock.js";
+import { useZaicodeGatedNow } from "@/zaicode/zaicodeNowGate.js";
 import { ZaicodeSidebarWorkers } from "@/zaicode/ZaicodeSidebarWorkers.js";
 import { ZaicodeSessionActionStrip } from "@/zaicode/ZaicodeSessionActionStrip.js";
 import {
@@ -711,6 +712,8 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
   const zaicodePrefs = useZaicodeSidebarPrefs();
   const zaicodeStoredTodos = useZaicodeTodoProgress((state) => state.bySession);
   const publishZaicodeRunningSessions = useZaicodeRunningSessions((state) => state.publish);
+  // SRC-081: a minute tick, so a session that went quiet leaves the "working" list by itself.
+  const zaicodeStallNow = useZaicodeGatedNow(() => 60_000);
   useZaicodeArchiveUndoShortcut(zaicodeMode);
   const zaicodeArchiveNotice = useZaicodeArchiveUndo((state) => state.notice);
   const zaicodeArchiveNoticeUndoable = useZaicodeArchiveUndo((state) => state.noticeUndoable);
@@ -727,10 +730,16 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
     if (!zaicodeMode) return { byKey, all };
     for (const group of workspaceTaskLists.groups) {
       const key = buildTaskWorkspaceKey(group.workspacePath, group.workspaceIdentity);
-      const running = runningSessionsOf(key, group.items, zaicodeStoredTodos, {
-        workspacePath: group.workspacePath,
-        ...(group.workspaceIdentity ? { workspaceIdentity: group.workspaceIdentity } : {}),
-      });
+      const running = runningSessionsOf(
+        key,
+        group.items,
+        zaicodeStoredTodos,
+        {
+          workspacePath: group.workspacePath,
+          ...(group.workspaceIdentity ? { workspaceIdentity: group.workspaceIdentity } : {}),
+        },
+        zaicodeStallNow,
+      );
       all.push(...running);
       byKey.set(
         key,
@@ -741,7 +750,7 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
       );
     }
     return { byKey, all };
-  }, [workspaceTaskLists.groups, zaicodeMode, zaicodeStoredTodos]);
+  }, [workspaceTaskLists.groups, zaicodeMode, zaicodeStoredTodos, zaicodeStallNow]);
   useEffect(() => {
     if (zaicodeMode) publishZaicodeRunningSessions(zaicodeProjectLive.all);
   }, [publishZaicodeRunningSessions, zaicodeMode, zaicodeProjectLive.all]);

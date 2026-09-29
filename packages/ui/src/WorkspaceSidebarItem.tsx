@@ -151,6 +151,8 @@ import {
 import type { ZCodeTaskMeta } from "@zcode/shared";
 import { ZAICODE_WAITING_COLOR, formatZaicodeDuration } from "@zcode/shared";
 import { zaicodeRunClock } from "@/zaicode/zaicodeRunClock.js";
+import { zaicodeSessionLastHeard, zaicodeSessionStalled, zaicodeSessionWorking } from "@/zaicode/zaicodeStall.js";
+import { useZaicodeGatedNow } from "@/zaicode/zaicodeNowGate.js";
 import { useBaseWorkspaceServices, useWorkspaceServices } from "@/hooks/useWorkspaceServices.js";
 import {
   applyTaskQueryCacheMutation,
@@ -1021,12 +1023,22 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
     : undefined;
   // SRC-048: a session the open chat reports as running counts even when the list has not caught up.
   const zaicodeLiveRunIds = useZaicodeLiveRunIds(tab.workspacePath);
+  // SRC-081: one minute tick, so a session that went quiet turns from "working" into STALLED by itself.
+  const zaicodeStallNow = useZaicodeGatedNow(() => 60_000);
   const zaicodeRunningCount = isZaicodeProductMode()
     ? new Set([
-        ...taskItems.filter(isTaskListRowActive).map((task) => task.taskId),
+        ...taskItems.filter((task) => zaicodeSessionWorking(task, zaicodeStallNow)).map((task) => task.taskId),
         ...zaicodeLiveRunIds,
       ]).size
     : 0;
+  // Active in the feed but silent for hours: it does not count as working and the row says so.
+  const zaicodeStalledTasks: ZCodeTaskMeta[] = isZaicodeProductMode()
+    ? taskItems.filter((task) => zaicodeSessionStalled(task, zaicodeStallNow) && !zaicodeLiveRunIds.includes(task.taskId))
+    : [];
+  const zaicodeStalledSince = zaicodeStalledTasks.reduce((oldest, task) => {
+    const last = zaicodeSessionLastHeard(task);
+    return oldest === 0 ? last : Math.min(oldest, last);
+  }, 0);
   const zaicodeWaitingCount = isZaicodeProductMode()
     ? taskItems.filter(
         (task) => getTaskListAttention(task) !== null || Boolean(task.pendingInteraction),
@@ -1038,7 +1050,7 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
     zaicodeProjectIsMain &&
     Boolean(
       zaicodeMainTask &&
-      (zaicodeLiveRunIds.includes(zaicodeMainTask.taskId) || isTaskListRowActive(zaicodeMainTask)),
+      (zaicodeLiveRunIds.includes(zaicodeMainTask.taskId) || zaicodeSessionWorking(zaicodeMainTask, zaicodeStallNow)),
     );
   // SRC-051: "working for" mini — when the longest current working streak began.
   // SRC-058: read from the run clock the sidebar feeds (projectLiveOf), never
@@ -1048,7 +1060,14 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
     const now = Date.now();
     let since = 0;
     for (const task of taskItems) {
-      if (!isTaskListRowActive(task)) continue;
+      if (!zaicodeSessionWorking(task, Date.now())) {
+        // SRC-081: an idle session must be OBSERVED idle. Skipping it left its streak open
+        // forever, so Stop -> change model -> continue picked up the old start ("11h 29m").
+        // A Stop by the operator ends the streak at once; anything else after the grace.
+        zaicodeRunClock.observe(task.taskId, false, 0, now);
+        if (getTaskListRowActivity(task)?.phase === "completedInterrupted") zaicodeRunClock.end(task.taskId);
+        continue;
+      }
       const startedAt = zaicodeRunClock.observe(
         task.taskId,
         true,
@@ -1503,6 +1522,15 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
           {zaicodeWorkingSince > 0 ? formatZaicodeDuration(Date.now() - zaicodeWorkingSince) : null}
         </span>
       ) : null}
+      {zaicodeLiveIndicator && zaicodeStalledTasks.length > 0 ? (
+        <span
+          className="shrink-0 border border-[var(--color-warning)] px-0.5 text-[10px] leading-3 text-[var(--color-warning)]"
+          title={`${zaicodeStalledTasks.length} session(s) still say "running" but nothing has happened for ${formatZaicodeDuration(Date.now() - zaicodeStalledSince)}. Not counted as working: open it, or press Stop.`}
+          data-zaicode-project-stalled={zaicodeStalledTasks.length}
+        >
+          STALL {formatZaicodeDuration(Date.now() - zaicodeStalledSince)}
+        </span>
+      ) : null}
       {zaicodeLiveIndicator && zaicodeWaitingCount > 0 ? (
         <span
           className="border border-[var(--color-warning)] px-0.5 text-[10px] leading-3 text-[var(--color-warning)]"
@@ -1586,6 +1614,19 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
           {zaicodeRunningCount > 1 ? zaicodeRunningCount : null}
           {zaicodeWorkingSince > 0 ? formatZaicodeDuration(Date.now() - zaicodeWorkingSince) : null}
         </span>
+      ) : null}
+      {!zaicodeCompactRow ? (
+        <>
+          {zaicodeLiveIndicator && zaicodeStalledTasks.length > 0 ? (
+            <span
+              className="shrink-0 border border-[var(--color-warning)] px-0.5 text-[10px] leading-3 text-[var(--color-warning)]"
+              title={`${zaicodeStalledTasks.length} session(s) still say "running" but nothing has happened for ${formatZaicodeDuration(Date.now() - zaicodeStalledSince)}. Not counted as working: open it, or press Stop.`}
+              data-zaicode-project-stalled={zaicodeStalledTasks.length}
+            >
+              STALL {formatZaicodeDuration(Date.now() - zaicodeStalledSince)}
+            </span>
+          ) : null}
+        </>
       ) : null}
       {!zaicodeCompactRow &&
       isZaicodeProductMode() &&

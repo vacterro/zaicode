@@ -56,6 +56,14 @@ export class ZaicodeRunClock {
     return since;
   }
 
+  /**
+   * The operator pressed Stop: the streak is over now, not after the grace. Stop, change the
+   * model, continue is a new run, and its timer starts from zero (SRC-081).
+   */
+  end(sessionId: string): void {
+    this.entries.delete(sessionId);
+  }
+
   /** The recorded streak start, or 0 when the session is not known to be working. */
   sinceOf(sessionId: string): number {
     const entry = this.entries.get(sessionId);

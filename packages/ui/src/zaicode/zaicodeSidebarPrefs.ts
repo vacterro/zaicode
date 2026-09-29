@@ -10,6 +10,7 @@ import {
 } from "../v4/taskListRowActivity.js";
 import { todoReadinessRatio, type ZaicodeTodoItem } from "./zaicodeTodoProgress.js";
 import { zaicodeRunClock, type ZaicodeRunClock } from "./zaicodeRunClock.js";
+import { zaicodeSessionWorking } from "./zaicodeStall.js";
 
 /**
  * ZAICODE sidebar layout preferences (renderer-local, per machine).
@@ -586,8 +587,10 @@ export function runningSessionsOf(
   tasks: readonly ZCodeTaskMeta[],
   storedTodos: Readonly<Record<string, readonly ZaicodeTodoItem[]>>,
   location?: ZaicodeSessionLocation,
+  now: number = Date.now(),
 ): ZaicodeRunningSession[] {
-  return tasks.filter(isTaskListRowActive).map((task) => {
+  // SRC-081: a session nobody has heard from for hours is STALLED, not working.
+  return tasks.filter((task) => zaicodeSessionWorking(task, now)).map((task) => {
     const todos = getTaskListRowActivity(task)?.todos ?? storedTodos[task.taskId];
     return {
       sessionId: task.taskId,

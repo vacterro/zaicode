@@ -144,6 +144,7 @@ import { adoptZaicodeComposerModel } from "@/zaicode/zaicodeDefaultModel.js";
 import { useZaicodeAutoSessionTitle } from "@/zaicode/zaicodeAutoTitle.js";
 import { useZaicodeAutoRetry } from "@/zaicode/zaicodeAutoRetry.js";
 import { useZaicodeQueueAutoResume } from "@/zaicode/zaicodeQueueAutoResume.js";
+import { zaicodeRunClock } from "@/zaicode/zaicodeRunClock.js";
 import { zaicodeRetryClassOf } from "@/zaicode/zaicodeRetryPolicy.js";
 import { buildZaicodeA3Command } from "@/zaicode/zaicodeA3.js";
 import { projectPendingGuideQueue } from "@/v4/pendingGuideProjection.js";
@@ -3693,6 +3694,8 @@ export function SessionPane({
         sessionId,
         foregroundExecutionId: foregroundExecutionId ?? "",
       });
+      // SRC-081: Stop ends the working streak now; continuing after a model change starts from 0.
+      zaicodeRunClock.end(sessionId);
       void dispatchCommand(
         "stop",
         foregroundExecutionId ? { expectedForegroundExecutionId: foregroundExecutionId } : {},
