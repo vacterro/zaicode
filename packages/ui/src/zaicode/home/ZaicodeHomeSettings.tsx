@@ -50,7 +50,8 @@ export function ZaicodeHomeSettingsPanel() {
       const bytes = new TextEncoder().encode(json);
       const result = await platform.saveFile({
         data: bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer,
-        suggestedName: `zaicode-statistics-${new Date().toISOString().slice(0, 10)}.json`,
+        // The operator's calendar day, not UTC's (T-133): just after midnight the file was named after yesterday.
+        suggestedName: `zaicode-statistics-${new Date().toLocaleDateString("sv-SE")}.json`,
       });
       setPrivacy(result.canceled ? "Export cancelled." : result.success ? `Exported${result.path ? ` to ${result.path}` : ""}.` : `Export failed: ${result.error ?? "unknown error"}`);
     } else {

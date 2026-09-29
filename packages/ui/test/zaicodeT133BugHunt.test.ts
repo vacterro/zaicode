@@ -10,6 +10,7 @@ import { resolveZaicodeServices } from "../src/zaicode/zaicodeServices.js";
 import { ZaicodeHomeNow, type ZaicodeHomeNowFacts } from "../src/zaicode/home/ZaicodeHomeCards.js";
 import { ZaicodeHeaderProjectTitle } from "../src/zaicode/ZaicodeHeaderProjectTitle.js";
 import { ZaicodeWrappedPath } from "../src/settings/ZaicodeCustomSoundsStrip.js";
+import { presetDateLabel } from "../src/zaicode/zaicodePresetLabels.js";
 
 /**
  * T-133 (SRC-096, "keep catching bugs and polish what exists"): defects found by running the packaged app and reading
@@ -113,6 +114,22 @@ test("B7 the sounds folder path breaks after a separator, never inside a name ('
 test("B8 an empty alarm time is a prompt, not an error; only unreadable text turns orange", () => {
   const text = source("zaicode/ZaicodeTimersAlarms.tsx");
   assert.match(text, /className=\{preview \|\| !draft\.when\.trim\(\) \? "text-foreground-subtle" : "text-\[#ff9a66\]"\}/);
+});
+
+test("B9 a preset's date and the statistics export's file name are the operator's calendar day, not UTC's", () => {
+  const previous = process.env.TZ;
+  try {
+    process.env.TZ = "Europe/Tallinn";
+    assert.equal(presetDateLabel("2026-09-29T22:45:00.000Z"), "30 Sep 2026", "saved at 01:45 on 30 Sep in Tallinn");
+    process.env.TZ = "America/New_York";
+    assert.equal(presetDateLabel("2026-09-30T02:00:00.000Z"), "29 Sep 2026", "22:00 on 29 Sep in New York");
+  } finally {
+    if (previous === undefined) delete process.env.TZ;
+    else process.env.TZ = previous;
+  }
+  const exportSource = source("zaicode/home/ZaicodeHomeSettings.tsx");
+  assert.match(exportSource, /zaicode-statistics-\$\{new Date\(\)\.toLocaleDateString\("sv-SE"\)\}\.json/);
+  assert.ok(!/toISOString\(\)\.slice\(0, 10\)/.test(exportSource));
 });
 
 test("B6 SAIHOME Projects: the name column gets the larger share of the row", () => {

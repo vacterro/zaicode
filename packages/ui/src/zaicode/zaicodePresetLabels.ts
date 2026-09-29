@@ -15,12 +15,15 @@ export function ownSoundsLabel(count: number): string {
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-/** "29 Sep 2026" whatever the machine's locale says; empty for the placeholder date of a file that named none. */
+/**
+ * "29 Sep 2026" whatever the machine's locale says; empty for the placeholder date of a file that named none.
+ * The day is the operator's own (T-133): read in UTC, a preset saved at 01:45 on 30 Sep in Tallinn said "29 Sep".
+ */
 export function presetDateLabel(iso: string): string {
   const time = Date.parse(iso);
   if (Number.isNaN(time) || time < 86_400_000) return "";
   const date = new Date(time);
-  return `${date.getUTCDate()} ${MONTHS[date.getUTCMonth()]} ${date.getUTCFullYear()}`;
+  return `${date.getDate()} ${MONTHS[date.getMonth()]} ${date.getFullYear()}`;
 }
 
 /** The grey line under a preset's name. */
