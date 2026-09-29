@@ -12,6 +12,7 @@ import { WINDOWS_CAPTION_CONTROL_CLASS } from "@/windowCaptionControls.js";
 import { openZaicodeSettings } from "./zaicodeActions.js";
 import { useZaicodeEngines, readZaicodeEnginesState, visibleZaicodeAccounts } from "./zaicodeEngines.js";
 import { useZaicodeGatedNow, zaicodeNowStepMs } from "./zaicodeNowGate.js";
+import { ZaicodePlanResetsSection, useZaicodePlanResets } from "./ZaicodeCodingPlanResets.js";
 import { zaicodeVendorColor } from "./ZaicodeLimitViews.js";
 import { formatZaicodeRemaining } from "./zaicodeTimers.js";
 import { useZaicodeTimers } from "./zaicodeTimerStore.js";
@@ -157,6 +158,8 @@ export function ZaicodeResetTimer({ useWindowsCaptionSpacing = false }: { useWin
   const noHoverPopups = useZaicodeUiPrefs((state) => state.noHoverPopups);
   const [hover, setHover] = useState(false);
   const [pinned, setPinned] = useState(false);
+  // SRC-081: the ZCode Coding Plan's usable resets, with the button to spend one from here.
+  const planResets = useZaicodePlanResets();
   // Gated tick (T-67): the countdown shows seconds only inside the last hour,
   // so `now` advances once a minute until a reset comes that close.
   const now = useZaicodeGatedNow((at) => {
@@ -168,7 +171,7 @@ export function ZaicodeResetTimer({ useWindowsCaptionSpacing = false }: { useWin
   if (!clock.enabled || !clock.showNextReset) return null;
   const rows = zaicodeResetRows(visibleZaicodeAccounts(engines), engines.limits, now);
   const next = zaicodeNextUsefulReset(rows);
-  if (!next && rows.length === 0) return null;
+  if (!next && rows.length === 0 && planResets.total === 0) return null;
   const format = (seconds: number) => formatZaicodeRemaining(seconds, { minutes: clock.longMinutes });
   const open = pinned || (hover && !noHoverPopups);
   // The title bar clips its children (overflow hidden): the list is a portal popover under the timer.
@@ -196,7 +199,13 @@ export function ZaicodeResetTimer({ useWindowsCaptionSpacing = false }: { useWin
             }}
             data-zaicode-reset-timer={next?.vendor ?? ""}
           >
-            {next ? `${next.accountShort} ↺ ${format((next.at - now) / 1000)}` : "↺ full"}
+            {next ? `${next.accountShort} ↺ ${format((next.at - now) / 1000)}` : rows.length > 0 ? "↺ full" : "↺"}
+            {planResets.total > 0 ? (
+              <span className="text-[var(--zaicode-highlight,var(--color-warning))]" title={`${planResets.total} Coding Plan reset(s) you can use`} data-zaicode-plan-resets-badge={planResets.total}>
+                {" "}
+                ⟲{planResets.total}
+              </span>
+            ) : null}
           </button>
         </div>
       </PopoverAnchor>
@@ -209,6 +218,7 @@ export function ZaicodeResetTimer({ useWindowsCaptionSpacing = false }: { useWin
         onMouseLeave={() => setHover(false)}
       >
         <ResetTable rows={rows} now={now} format={format} hour12={clock.hour12} />
+        <ZaicodePlanResetsSection resets={planResets} now={now} />
       </PopoverContent>
     </Popover>
   );
