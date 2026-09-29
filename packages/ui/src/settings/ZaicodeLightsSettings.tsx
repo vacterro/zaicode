@@ -1,5 +1,8 @@
 import { useRef, type ReactNode } from "react";
 import { ZaicodeChangeFloaterSettings } from "@/settings/ZaicodeChangeFloaterSettings.js";
+import { ZaicodeModelAppearanceSettings } from "@/zaicode/ZaicodeModelAppearanceSettings.js";
+import { useZaicodeSessionBriefs } from "@/zaicode/zaicodeContinue.js";
+import { useMemo } from "react";
 import { ZaicodeChatFloaterSettings } from "@/settings/ZaicodeChatFloaterSettings.js";
 import { RotateCcw, Upload } from "lucide-react";
 import { cn } from "@/components/lib/utils.js";
@@ -350,6 +353,14 @@ function HighlightRow({ target }: { target: (typeof ZAICODE_HIGHLIGHT_TARGETS)[n
 }
 
 export function ZaicodeLightsSettings() {
+  // The models that actually did work, not the ones a picker is highlighting:
+  // that is the same distinction the appearance resolver makes, taken from
+  // the same source, so the settings list and the runtime cannot disagree.
+  const sessions = useZaicodeSessionBriefs((state) => state.sessions);
+  const seenModels = useMemo(
+    () => [...new Set(sessions.map((session) => session.model).filter((model): model is string => Boolean(model)))],
+    [sessions],
+  );
   return (
     <div className="flex flex-col gap-4" data-zaicode-lights-settings>
       <ZaicodeLightsPresetsBlock />
@@ -365,6 +376,7 @@ export function ZaicodeLightsSettings() {
         </div>
       </Block>
       <ZaicodeChangeFloaterSettings />
+      <ZaicodeModelAppearanceSettings seenModels={seenModels} />
       <ZaicodeChatFloaterSettings />
     </div>
   );
