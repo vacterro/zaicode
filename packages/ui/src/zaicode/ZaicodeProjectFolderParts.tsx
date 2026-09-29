@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { ChevronDown, ChevronRight, Folder, FolderPlus, MoreHorizontal, Pin, PinOff } from "lucide-react";
 import { cn } from "@/components/lib/utils.js";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover.js";
+import { useConfirmDialogStore } from "@/store/confirmDialogStore.js";
+import { ZaicodeNameField } from "./ZaicodeNameField.js";
 import {
   ZAICODE_UNFILED,
   useZaicodeProjectFolders,
@@ -22,75 +25,101 @@ import { ZAICODE_PROJECT_DESTRUCTIVE_LABELS, moveTargetsFor } from "./zaicodePro
 
 export function ZaicodeNewFolderButton({ className }: { className?: string }) {
   const createFolder = useZaicodeProjectFolders((state) => state.createFolder);
-  const [busy, setBusy] = useState(false);
+  const [open, setOpen] = useState(false);
   return (
-    <button
-      type="button"
-      data-zaicode-new-folder
-      className={cn(
-        // Icon only (SRC-083): a square that reads as a button (a frame, the plus on the folder,
-        // the highlight colour on hover) and takes a third of the room the word did.
-        "flex size-6 shrink-0 items-center justify-center border border-border bg-surface text-foreground hover:border-[var(--zaicode-highlight,var(--color-border-hover))] hover:bg-hover disabled:opacity-40",
-        className,
-      )}
-      disabled={busy}
-      aria-label="New folder"
-      title="New folder: group projects into it. Nothing on disk moves."
-      onClick={() => {
-        const name = window.prompt("Folder name", "New folder");
-        if (name === null) return;
-        setBusy(true);
-        // "New folder" with no name still creates one, so the button always
-        // does something; the name is editable afterwards.
-        createFolder(name.trim() || "New folder");
-        setBusy(false);
-      }}
-    >
-      <FolderPlus className="size-4" />
-    </button>
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          data-zaicode-new-folder
+          className={cn(
+            // Icon only (SRC-083): a square that reads as a button (a frame, the plus on the folder,
+            // the highlight colour on hover) and takes a third of the room the word did.
+            "flex size-6 shrink-0 items-center justify-center border border-border bg-surface text-foreground hover:border-[var(--zaicode-highlight,var(--color-border-hover))] hover:bg-hover",
+            className,
+          )}
+          aria-label="New folder"
+          title="New folder: group projects into it. Nothing on disk moves."
+        >
+          <FolderPlus className="size-4" />
+        </button>
+      </PopoverTrigger>
+      {/* The name is asked for right here (T-128): window.prompt does not exist in the desktop app, so the old button did nothing. */}
+      <PopoverContent align="start" className="w-64 rounded-none p-2" data-zaicode-new-folder-popover>
+        <ZaicodeNameField
+          initial="New folder"
+          label="Folder name"
+          confirmLabel="Create"
+          onSubmit={(name) => {
+            // A blank name still creates a folder ("New folder"), so the button always does something; the name is editable afterwards.
+            createFolder(name);
+            setOpen(false);
+          }}
+          onCancel={() => setOpen(false)}
+        />
+      </PopoverContent>
+    </Popover>
   );
 }
 
-function FolderMenu({ folder }: { folder: ZaicodeProjectFolder }) {
-  const [open, setOpen] = useState(false);
+/**
+ * The folder's own menu. The header decides when it exists (T-128): it used to hold a second `open` flag of its own that
+ * started false and returned nothing, so the menu could never be seen and Rename / Delete folder were unreachable.
+ */
+export function ZaicodeFolderMenu({ folder, onClose }: { folder: ZaicodeProjectFolder; onClose: () => void }) {
+  const [renaming, setRenaming] = useState(false);
   const renameFolder = useZaicodeProjectFolders((state) => state.renameFolder);
   const deleteFolder = useZaicodeProjectFolders((state) => state.deleteFolder);
-  if (!open) return null;
   return (
     <>
-      <div className="fixed inset-0 z-30" onClick={() => setOpen(false)} onContextMenu={(event) => { event.preventDefault(); setOpen(false); }} />
+      <div className="fixed inset-0 z-30" onClick={onClose} onContextMenu={(event) => { event.preventDefault(); onClose(); }} />
       <div
         role="menu"
         data-zaicode-folder-menu={folder.id}
         className="absolute z-40 mt-1 w-60 border border-border bg-popover p-1 text-foreground shadow-md"
       >
-        <button
-          type="button"
-          role="menuitem"
-          className="block w-full px-1.5 py-0.5 text-left hover:bg-hover"
-          onClick={() => {
-            const name = window.prompt("Rename folder", folder.name);
-            if (name !== null) renameFolder(folder.id, name);
-            setOpen(false);
-          }}
-        >
-          Rename folder
-        </button>
-        <button
-          type="button"
-          role="menuitem"
-          className="block w-full px-1.5 py-0.5 text-left text-destructive hover:bg-hover"
-          title="The projects inside move to No folder. Nothing is deleted."
-          onClick={() => {
-            // Two steps for the one destructive act here, because the wording
-            // in the menu is the operator's only warning.
-            if (!window.confirm(`${ZAICODE_PROJECT_DESTRUCTIVE_LABELS.deleteFolder} "${folder.name}"?`)) return;
-            deleteFolder(folder.id);
-            setOpen(false);
-          }}
-        >
-          {ZAICODE_PROJECT_DESTRUCTIVE_LABELS.deleteFolder}
-        </button>
+        {renaming ? (
+          <ZaicodeNameField
+            initial={folder.name}
+            label="Folder name"
+            confirmLabel="Rename"
+            className="p-0.5"
+            onSubmit={(name) => {
+              renameFolder(folder.id, name);
+              onClose();
+            }}
+            onCancel={() => setRenaming(false)}
+          />
+        ) : (
+          <>
+            <button type="button" role="menuitem" className="block w-full px-1.5 py-0.5 text-left hover:bg-hover" onClick={() => setRenaming(true)}>
+              Rename folder
+            </button>
+            <button
+              type="button"
+              role="menuitem"
+              className="block w-full px-1.5 py-0.5 text-left text-destructive hover:bg-hover"
+              title="The projects inside move to No folder. Nothing is deleted."
+              onClick={() => {
+                // Two steps for the one destructive act here, because the wording in the menu is the operator's only warning.
+                onClose();
+                void useConfirmDialogStore
+                  .getState()
+                  .requestConfirmation({
+                    title: `${ZAICODE_PROJECT_DESTRUCTIVE_LABELS.deleteFolder}?`,
+                    description: `"${folder.name}": the projects inside move out of it. Nothing on disk is deleted.`,
+                    confirmLabel: ZAICODE_PROJECT_DESTRUCTIVE_LABELS.deleteFolder,
+                    confirmVariant: "destructive",
+                  })
+                  .then((confirmed) => {
+                    if (confirmed) deleteFolder(folder.id);
+                  });
+              }}
+            >
+              {ZAICODE_PROJECT_DESTRUCTIVE_LABELS.deleteFolder}
+            </button>
+          </>
+        )}
       </div>
     </>
   );
@@ -151,7 +180,7 @@ export function ZaicodeProjectFolderHeader({
           <MoreHorizontal className="size-3" />
         </button>
       ) : null}
-      {menuOpen && folder ? <FolderMenu folder={folder} /> : null}
+      {menuOpen && folder ? <ZaicodeFolderMenu folder={folder} onClose={() => setMenuOpen(false)} /> : null}
       {unfiled ? <span className="sr-only">{folders.length} folder(s)</span> : null}
     </div>
   );

@@ -32,7 +32,8 @@ test("the title-bar reset timer carries the plan resets, and a reset is asked fo
   // ZCode's own controller does the reset; nothing is re-implemented here.
   assert.match(plan, /useCodingPlanQuotaResetUi\(\{/);
   assert.match(plan, /resetUi\.week\.reset\(\)/);
-  const confirmAt = plan.indexOf("window.confirm(");
+  // T-128: the app's own confirmation dialog replaced the operating system's; it is still asked before the reset is spent.
+  const confirmAt = plan.indexOf("requestConfirmation({");
   const resetAt = plan.indexOf("await resets.reset(kind)");
   assert.ok(confirmAt > 0 && resetAt > confirmAt, "confirm comes first");
 });

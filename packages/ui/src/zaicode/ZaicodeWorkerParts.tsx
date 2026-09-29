@@ -15,10 +15,12 @@ import {
 import type { IServiceAccessor } from "@zcode/services";
 import { formatZaicodeDuration } from "@zcode/shared";
 import { cn } from "@/components/lib/utils.js";
+import { useConfirmDialogStore } from "@/store/confirmDialogStore.js";
 import { ContextMenuItem, ContextMenuSeparator } from "@/components/ui/context-menu.js";
 import { toast } from "@/components/ui/toast.js";
 import { TerminalSession } from "@/terminal/TerminalSession.js";
 import { zaicodeWorkerElapsedMs } from "./zaicodeElapsed.js";
+import { zaicodeWorkerCloseRequest } from "./zaicodeWorkerClose.js";
 import { openZaicodeSettings } from "./zaicodeActions.js";
 import {
   dockZaicodeWorker,
@@ -93,14 +95,10 @@ export function ZaicodeWorkerLabel({
 }
 
 /** Stops (if running) and closes a worker; a running one asks first when the setting says so. */
-export function closeZaicodeWorkerWithConfirm(worker: ZaicodeWorker): void {
-  const { confirmClose } = useZaicodeWorkerPrefs.getState();
-  if (worker.exitCode === null && confirmClose) {
-    const ok = window.confirm(
-      `Stop ${zaicodeWorkerTitle(worker)}?\n\nThe ${worker.label} process in ${worker.projectPath} ends and its terminal closes.`,
-    );
-    if (!ok) return;
-  }
+export async function closeZaicodeWorkerWithConfirm(worker: ZaicodeWorker): Promise<void> {
+  const request = zaicodeWorkerCloseRequest(worker, useZaicodeWorkerPrefs.getState().confirmClose);
+  // The app's own confirmation (T-128): the operating system's dialog froze the whole window and beeped.
+  if (request && !(await useConfirmDialogStore.getState().requestConfirmation(request))) return;
   removeZaicodeWorker(worker.id);
 }
 
@@ -183,7 +181,7 @@ export function ZaicodeWorkerHeaderButtons({
       ) : null}
       <ZaicodeWorkerIconButton
         title={worker.exitCode === null ? "Stop this worker and close it" : "Close"}
-        onClick={() => closeZaicodeWorkerWithConfirm(worker)}
+        onClick={() => void closeZaicodeWorkerWithConfirm(worker)}
       >
         <X className="size-3.5" />
       </ZaicodeWorkerIconButton>
@@ -238,7 +236,7 @@ export function ZaicodeWorkerMenuItems({ worker }: { worker: ZaicodeWorker }) {
         Workers settings…
       </ContextMenuItem>
       <ContextMenuSeparator />
-      <ContextMenuItem onSelect={() => closeZaicodeWorkerWithConfirm(worker)}>
+      <ContextMenuItem onSelect={() => void closeZaicodeWorkerWithConfirm(worker)}>
         <X className="size-4" />
         {worker.exitCode === null ? `Stop ${worker.short} and close` : "Close"}
       </ContextMenuItem>

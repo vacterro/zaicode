@@ -2,6 +2,8 @@ import { useRef, useState } from "react";
 import { Download, RotateCcw, Save, Trash2, Upload } from "lucide-react";
 import { MessageResponse } from "@/components/ai-elements/message.js";
 import { toast } from "@/components/ui/toast.js";
+import { useConfirmDialogStore } from "@/store/confirmDialogStore.js";
+import { ZaicodeNameField } from "@/zaicode/ZaicodeNameField.js";
 import { ZaicodePrefCheck } from "@/zaicode/ZaicodePrefControls.js";
 import { useZaicodeSessionText } from "@/zaicode/zaicodeSessionText.js";
 import { describeZaicodeSessionTextDocument, parseZaicodeSessionTextDocument } from "@/zaicode/zaicodeSessionTextDocument.js";
@@ -101,6 +103,7 @@ export function ZaicodeSessionTextSettings() {
   const [element, setElement] = useState<ZaicodeSessionTextElement>("body");
   const [who, setWho] = useState<"agent" | "user">("agent");
   const importRef = useRef<HTMLInputElement | null>(null);
+  const [naming, setNaming] = useState(false);
   const patch = (next: ZaicodeSessionTextPrefs) => store.edit(next);
   const style = styleOf(prefs, element);
   const current = ZAICODE_SESSION_TEXT_ELEMENTS.find((entry) => entry.id === element)!;
@@ -111,12 +114,11 @@ export function ZaicodeSessionTextSettings() {
     else if (result.unchanged) toast("Session text was already saved — nothing to write");
     else toast("Session text saved");
   };
-  const saveAs = () => {
-    const name = window.prompt("Name of the new preset", "My text");
-    if (name) {
-      store.savePreset(name);
-      toast(`Saved the preset "${name.trim()}"`);
-    }
+  // The name is asked for in place (T-128): window.prompt does not exist in the desktop app, so this button used to do nothing.
+  const saveAs = (name: string) => {
+    store.savePreset(name);
+    toast(`Saved the preset "${name}"`);
+    setNaming(false);
   };
   const exportFile = () => {
     const blob = new Blob([store.exportDocument()], { type: "application/json" });
@@ -139,7 +141,12 @@ export function ZaicodeSessionTextSettings() {
       toast(error instanceof Error ? error.message : String(error), { variant: "warning" });
       return;
     }
-    if (!window.confirm(`${description}\n\nImport now?`)) {
+    const confirmed = await useConfirmDialogStore.getState().requestConfirmation({
+      title: "Import Session text settings?",
+      description: `${description}\n\nEvery Session text setting and preset is replaced by the ones in this file.`,
+      confirmLabel: "Import now",
+    });
+    if (!confirmed) {
       toast("Import cancelled — your settings are unchanged");
       return;
     }
@@ -240,9 +247,13 @@ export function ZaicodeSessionTextSettings() {
           <PresetButton key={preset.id} preset={preset} active={store.activePresetId === preset.id} onApply={() => store.edit(preset.prefs, preset.id)} onDelete={() => store.deletePreset(preset.id)} />
         ))}
         <span className="ml-1 flex gap-1">
-          <button type="button" className="flex items-center gap-1 border border-border px-1.5 py-px text-foreground-subtle hover:bg-hover" title="Keep the settings as they are now under a name of your own" onClick={saveAs}>
-            <Save className="size-3" /> Save as preset
-          </button>
+          {naming ? (
+            <ZaicodeNameField initial="My text" label="Name of the new preset" confirmLabel="Save preset" className="w-64" onSubmit={saveAs} onCancel={() => setNaming(false)} />
+          ) : (
+            <button type="button" className="flex items-center gap-1 border border-border px-1.5 py-px text-foreground-subtle hover:bg-hover" title="Keep the settings as they are now under a name of your own" onClick={() => setNaming(true)}>
+              <Save className="size-3" /> Save as preset
+            </button>
+          )}
         </span>
       </div>
 

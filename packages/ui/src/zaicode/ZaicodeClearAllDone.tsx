@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { BrushCleaning } from "lucide-react";
 import { cn } from "@/components/lib/utils.js";
+import { useConfirmDialogStore } from "@/store/confirmDialogStore.js";
 import { toast } from "@/components/ui/toast.js";
 import { useZaicodeHomeProjects } from "./home/ZaicodeHomeFleet.js";
 import { archiveZaicodeSessions } from "./zaicodeArchiveUndo.js";
@@ -77,7 +78,13 @@ export function ZaicodeClearAllDoneButton() {
 
   const run = async () => {
     if (busy || count === 0) return;
-    if (!window.confirm(`CLEAR ALL DONE\n\n${describe(plan)}`)) return;
+    // The app's own confirmation (T-128), not the operating system's: the list of what changes is in the dialog, in words.
+    const confirmed = await useConfirmDialogStore.getState().requestConfirmation({
+      title: "CLEAR ALL DONE",
+      description: describe(plan).replace(/^ {2}/gm, "• "),
+      confirmLabel: `Clear ${count}`,
+    });
+    if (!confirmed) return;
     setBusy(true);
     playZaicodeSound("ui.toggle");
     try {

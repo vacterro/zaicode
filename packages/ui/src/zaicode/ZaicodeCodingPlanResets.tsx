@@ -9,6 +9,7 @@ import { findCodingPlanQuotaLimit, isCodingPlanQuotaLimitFull } from "@/lib/codi
 import { resolveCodingPlanQuotaResetLimit } from "@/lib/codingPlanQuotaResetUi.js";
 import { buildUsageEntitlementCacheKey } from "@/lib/usageEntitlementCache.js";
 import { cn } from "@/components/lib/utils.js";
+import { useConfirmDialogStore } from "@/store/confirmDialogStore.js";
 import { formatZaicodeRemaining } from "./zaicodeTimers.js";
 
 /**
@@ -109,8 +110,14 @@ export function ZaicodePlanResetsSection({ resets, now }: { resets: ZaicodePlanR
   if (!resets.label || resets.opportunities.length === 0) return null;
   const run = async (kind: ZaicodePlanResetOpportunity["kind"]) => {
     const name = kind === "session" ? "5-hour" : "weekly";
-    // A reset is spent for good: one confirmation, in words.
-    if (!window.confirm(`Use one ${name} reset of ${resets.label}? The ${name} window refills now and the reset is used up.`)) return;
+    // A reset is spent for good: one confirmation, in words, in the app's own dialog (T-128).
+    const confirmed = await useConfirmDialogStore.getState().requestConfirmation({
+      title: `Use one ${name} reset?`,
+      description: `${resets.label}: the ${name} window refills now and the reset is used up.`,
+      confirmLabel: "Use the reset",
+      confirmVariant: "destructive",
+    });
+    if (!confirmed) return;
     setBusy(kind);
     try {
       await resets.reset(kind);
