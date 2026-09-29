@@ -27,10 +27,10 @@
      write that field name next to a concrete id anywhere in this file. -->
 
 ## DOING
+- [/] T-113 [P1] Wave 6: SAITRANSLATE locale completion -- resolve the authoritative locale list, count real source keys, expand and validate locale coverage | verify: the requested change is present and demonstrated against the user own description of it | user_explicit: true | source_receipts: SRC-075 | owner: claude-code-local-verify | claim_time: 2026-09-29T13:40:45Z
 
 
 ## TODO
-- [ ] T-113 [P1] Wave 6: SAITRANSLATE locale completion -- resolve the authoritative locale list, count real source keys, expand and validate locale coverage | verify: the requested change is present and demonstrated against the user own description of it | user_explicit: true | source_receipts: SRC-075 | owner: saipen-cli | claim_time: 2026-09-29T08:57:24Z
 
 ## DONE
 - [x] T-114 [P1] Привет, Соннет. Слушай, нужно сделать ZAICODE железобетонным и так чотбы SAIMAIL и ZAICODE работали наконец вместе, чтобы был шанс получения письма. | verify: the requested change is present and demonstrated against the user own description of it | user_explicit: true | source_receipts: SRC-076,SRC-077,SRC-078 | owner: claude-code-local-verify | claim_time: 2026-09-29T13:32:19Z | closure_mode: own_patch
