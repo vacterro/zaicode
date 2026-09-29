@@ -1587,10 +1587,16 @@ export function SettingsPage({
                       icon={DiscordMark}
                       label="Discord SAIPEN COMMUNITY"
                       title={ZAICODE_DISCORD_URL}
-                      className="mt-1 border border-dashed border-border hover:border-border-hover"
+                      // The wide pixel font runs the label into the border of a narrow sidebar
+                      // (SRC-086): the row grows and the words wrap instead of being cut.
+                      className="mt-1 h-auto min-h-8 border border-dashed border-border py-1 hover:border-border-hover"
                       onClick={() => platform.openExternal(ZAICODE_DISCORD_URL)}
                       data-zaicode-discord-link=""
-                    />
+                    >
+                      <span className="block whitespace-normal break-words text-ui-base leading-tight text-foreground">
+                        Discord SAIPEN COMMUNITY
+                      </span>
+                    </SettingsSidebarButton>
                   </>
                 ) : (
                   <SettingsSidebarButton

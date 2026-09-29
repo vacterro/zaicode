@@ -62,3 +62,13 @@ test("a sounds row keeps its nine columns and wraps the pool sub-row after the p
   assert.ok(preview >= 0, "each row ends in its preview button");
   assert.ok(pool > preview, "the full-width pool controls come after the last column cell, never between columns");
 });
+
+// SRC-086: the Discord label ran into the row's border in the narrow Settings sidebar.
+test("the Discord row wraps its label instead of running into the border", () => {
+  const page = readFileSync(join(import.meta.dirname, "..", "src", "SettingsPage.tsx"), "utf8").replace(/\r\n/g, "\n");
+  const start = page.indexOf('data-zaicode-discord-link=""');
+  const block = page.slice(page.lastIndexOf("<SettingsSidebarButton", start), page.indexOf("</SettingsSidebarButton>", start));
+  assert.ok(block.includes("h-auto min-h-8"), "the row may grow past one line");
+  assert.ok(block.includes("whitespace-normal"), "the words wrap");
+  assert.ok(!block.includes("truncate"), "nothing is cut with an ellipsis");
+});
