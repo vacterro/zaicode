@@ -1,0 +1,14 @@
+{
+  "requirements": {
+    "SRC-079:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "T-115 closed with verification evidence in LOG: verify -> PASS [target: T-115] conf: high -- gates on zcode 7e57289: verify:pre-push exit 0; focused desktop zaicodeSaimailRead 9/9 (real CLI), ui zaicodeSaimailReader 12/12; regressions zaicodeSaimailPost 6/6 + saimap model/post 16/16",
+      "text": "Direct operator mail opening in the compact SAIMAIL widget -- explicit Open/Read via the canonical backend, passive ops stay header-only",
+      "verification": "the Work this request created reached its own verification gate; see the T-115 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-115"
+    }
+  },
+  "schema_version": 1
+}

@@ -1,0 +1,14 @@
+{
+  "clauses": {
+    "SRC-079:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Direct operator mail opening in the compact SAIMAIL widget -- explicit Open/Read via the canonical backend, passive ops stay header-only"
+    }
+  },
+  "derived_at": "2026-09-29T14:06:48Z",
+  "derived_from": "SRC-079",
+  "interpretation_revision": 1,
+  "schema_version": 1,
+  "source_sha256": "5b71f13c1cae38565ffc840d5f3707b59b2d36e34554dbe54d9ebbaaaa97eea4"
+}
