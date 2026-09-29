@@ -55,7 +55,7 @@ test("one appearance write dispatches the event a subscribed control listens for
   assert.ok(fired.includes("event:zaicode-model-appearance-changed"), `the write notified listeners, got ${fired.join(", ")}`);
 });
 
-test("a sounds row keeps its nine columns and wraps the pool sub-row after the preview button", () => {
+test("a sounds row keeps its columns and wraps the pool sub-row after the preview button", () => {
   const table = readFileSync(join(import.meta.dirname, "..", "src", "settings", "ZaicodeSoundSettings.tsx"), "utf8");
   const preview = table.indexOf('title="Preview at the real volume"');
   const pool = table.indexOf("<ZaicodePoolControls event={event} row={row} />");

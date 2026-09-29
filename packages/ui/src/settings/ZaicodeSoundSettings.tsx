@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { ZaicodeSoundNormalizePanel } from "./ZaicodeSoundNormalizePanel.js";
-import { ZaicodePoolControls } from "./ZaicodeSoundPoolControls.js";
+import { ZaicodePoolControls, ZaicodePoolModeButton } from "./ZaicodeSoundPoolControls.js";
 import {
   AlertTriangle,
   Archive,
@@ -212,12 +212,13 @@ export function ZaicodeSoundSettings() {
           value={filter}
           onChange={(event) => setFilter(event.target.value)}
         />
-        <div className="grid grid-cols-[18px_minmax(120px,1.2fr)_28px_minmax(120px,1fr)_22px_58px_minmax(110px,1fr)_52px_22px] items-center gap-x-1.5 gap-y-1 text-ui-xs">
+        <div className="grid grid-cols-[18px_minmax(120px,1.2fr)_28px_minmax(120px,1fr)_22px_22px_58px_minmax(110px,1fr)_52px_22px] items-center gap-x-1.5 gap-y-1 text-ui-xs">
           <span />
           <span className="text-foreground-subtlest">Event</span>
           <span className="text-center text-foreground-subtlest">On</span>
           <span className="text-foreground-subtlest">Sound</span>
           <span />
+          <span className="text-center text-foreground-subtlest" title="1 = one sound, N = a pool of sounds chosen by weight">1/N</span>
           <span className="text-foreground-subtlest">Mode</span>
           <span className="text-foreground-subtlest">Gain</span>
           <span />
@@ -274,7 +275,7 @@ function SoundGroup({
 }) {
   return (
     <>
-      <span className="col-span-9 mt-1 flex items-center gap-2 border-b border-border/60 pb-0.5 font-semibold text-foreground-subtle">
+      <span className="col-span-10 mt-1 flex items-center gap-2 border-b border-border/60 pb-0.5 font-semibold text-foreground-subtle">
         <span className="min-w-0 flex-1">{group}</span>
         {/* SRC-060: a whole section (the 17-voice Orchestra) on or off in one click. */}
         {(["on", "off"] as const).map((state) => (
@@ -356,6 +357,7 @@ function SoundRow({
       >
         <Upload className="size-3" />
       </button>
+      <ZaicodePoolModeButton event={event} row={row} />
       <div className="flex gap-px">
         {(["overlay", "replace"] as const).map((mode) => (
           <button
@@ -402,8 +404,8 @@ function SoundRow({
       >
         <Play className="size-3" />
       </button>
-      {/* Last on purpose: the nine columns above must line up with the header,
-          and this full-width sub-row wraps onto its own line below them. */}
+      {/* Last on purpose: the ten columns above must line up with the header, and this full-width
+          sub-row (drawn only for a pool) wraps onto its own line below them. */}
       <ZaicodePoolControls event={event} row={row} />
     </>
   );

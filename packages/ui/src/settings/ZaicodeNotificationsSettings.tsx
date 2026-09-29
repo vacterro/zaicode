@@ -215,9 +215,10 @@ function GroupRows({ group, settings }: { group: string; settings: ZaicodeNotify
         const row = settings.scenarios[scenario.id] ?? scenario.defaults;
         return (
           <div key={scenario.id} className="contents">
-            <span className="min-w-0" title={scenario.hint}>
-              <span className="text-foreground">{scenario.label}</span>
-              <span className="block truncate text-[10px] text-foreground-subtlest">{scenario.hint}</span>
+            {/* One line: the hint follows the label (full text in the tooltip) instead of doubling every row (SRC-087). */}
+            <span className="flex min-w-0 items-baseline gap-2" title={scenario.hint}>
+              <span className="shrink-0 text-foreground">{scenario.label}</span>
+              <span className="min-w-0 truncate text-[10px] text-foreground-subtlest">{scenario.hint}</span>
             </span>
             <input type="checkbox" className="mx-auto" checked={row.toast} onChange={(event) => setZaicodeNotifyScenario(scenario.id, { toast: event.target.checked })} />
             <input type="checkbox" className="mx-auto" checked={row.system} onChange={(event) => setZaicodeNotifyScenario(scenario.id, { system: event.target.checked })} />

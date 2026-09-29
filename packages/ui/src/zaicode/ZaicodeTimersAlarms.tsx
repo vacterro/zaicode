@@ -252,8 +252,9 @@ function RowActions({ timer, onEdit }: { timer: ZaicodeTimer | null; onEdit: () 
 }
 
 function TimerTable({ timers, selectedId, onSelect, onOpen, now }: { timers: readonly ZaicodeTimer[]; selectedId: string | null; onSelect: (timer: ZaicodeTimer) => void; onOpen: (timer: ZaicodeTimer) => void; now: number }) {
+  // No min-height: an empty list or one timer is a line or two, not an 80 px box (SRC-087).
   return (
-    <div className="max-h-[150px] min-h-[80px] overflow-y-auto border border-border bg-background">
+    <div className="max-h-[150px] overflow-y-auto border border-border bg-background">
       <div className="sticky top-0 grid grid-cols-[1fr_110px_120px] bg-card px-1 text-foreground-subtlest">
         <span>Name</span>
         <span>Time</span>
