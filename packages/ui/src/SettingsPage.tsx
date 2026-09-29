@@ -70,6 +70,8 @@ import { SubagentsSection } from "@/settings/SubagentsSection.js";
 import { ZaicodeSettingsSection } from "@/settings/ZaicodeSettingsSection.js";
 import { ZaicodeEnginesSettings } from "@/settings/ZaicodeEnginesSettings.js";
 import { ZaicodeSoundSettings } from "@/settings/ZaicodeSoundSettings.js";
+import { ZaicodePresetsMenu } from "@/settings/ZaicodePresetsMenu.js";
+import { isZaicodePresetSection } from "@/zaicode/zaicodePresetSections.js";
 import { ZaicodeLayoutSettings } from "@/settings/ZaicodeLayoutSettings.js";
 import { ZaicodeWorkersSettings } from "@/settings/ZaicodeWorkersSettings.js";
 import { ZaicodeRouterSettings } from "@/settings/ZaicodeRouterSettings.js";
@@ -1739,6 +1741,9 @@ export function SettingsPage({
                               />
                             ) : null}
                           </div>
+                          {isZaicodePresetSection(activeSection) ? (
+                            <ZaicodePresetsMenu section={activeSection} />
+                          ) : null}
                         </div>
                         {activeSection === "general" ? (
                           <GeneralSectionHeader localePreference={localePreference} />

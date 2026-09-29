@@ -199,6 +199,18 @@ export function readZaicodeAudio(): ZaicodeAudioSettings {
   return cached;
 }
 
+/**
+ * Reads the settings from storage again (a preset wrote them) and tells every open view. A Problip that is
+ * running in this window keeps running: "run on launch" decides about a restart, not about a preset.
+ */
+export function reloadZaicodeAudio(): void {
+  const running = cached?.problip.running ?? false;
+  cached = null;
+  const next = readZaicodeAudio();
+  cached = next.problip.running === running ? next : { ...next, problip: { ...next.problip, running } };
+  window.dispatchEvent(new Event(CHANGE_EVENT));
+}
+
 function write(next: ZaicodeAudioSettings): void {
   cached = next;
   try {

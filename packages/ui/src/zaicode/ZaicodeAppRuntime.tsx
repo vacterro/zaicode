@@ -50,6 +50,7 @@ import {
 import { useZaicodeWorkerPrefs } from "./zaicodeWorkerPrefs.js";
 import { evenZaicodeSplitSizes } from "./zaicodeWorkerLayout.js";
 import { playZaicodeSound } from "./zaicodeSoundBus.js";
+import { useZaicodePresetReopen } from "./useZaicodePresetReopen.js";
 import { toggleZaicodeDispatchPanel } from "./ZaicodeDispatchPanel.js";
 import { isZaicodeCalm, useZaicodeUiPrefs, zaicodeCalmClasses } from "./zaicodeUiPrefs.js";
 import { installZaicodePixelSnap } from "./zaicodePixelSnap.js";
@@ -233,6 +234,8 @@ function useZaicodeRuntimeHandlers(): void {
     setOpenSettings(() => openSettingsTab());
     return () => setOpenSettings(null);
   }, [openSettingsTab, setOpenSettings]);
+  // A preset that reloaded the window (T-125) comes back to its Settings page, saying what was done.
+  useZaicodePresetReopen();
 
   useEffect(() => {
     const running = () => useZaicodeRunningSessions.getState().sessions;

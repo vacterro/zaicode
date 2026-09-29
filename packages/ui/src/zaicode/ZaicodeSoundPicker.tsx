@@ -69,6 +69,12 @@ function readPrefs(): PickerPrefs {
   return prefsCache;
 }
 
+/** Reads the picker's favourites and tabs from storage again (a preset wrote them) and tells every open picker. */
+export function reloadZaicodeSoundPickerPrefs(): void {
+  prefsCache = null;
+  window.dispatchEvent(new Event(PREFS_EVENT));
+}
+
 function writePrefs(patch: Partial<PickerPrefs>): void {
   prefsCache = { ...readPrefs(), ...patch };
   try {

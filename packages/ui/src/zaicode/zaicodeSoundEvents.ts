@@ -95,15 +95,17 @@ export function readZaicodeCustomSoundNames(): Record<string, string> {
   return { ...names, ...parseNames(readZaicodeSetting(customNamesKey)) };
 }
 
-/** Stores `file` as event `id`'s own sound and selects it. */
-export async function importZaicodeSoundFile(id: string, file: File): Promise<void> {
-  if (!/\.(wav|mp3|ogg)$/i.test(file.name)) throw new Error("Choose a WAV, MP3 or OGG file.");
+/**
+ * Puts `blob` in place as event `id`'s own file and forgets what was cached of the old one. Selects nothing:
+ * the import button selects the sound afterwards, a preset restoring a sound brings its own settings.
+ */
+export async function storeZaicodeOwnSound(id: string, blob: Blob, name: string): Promise<void> {
   const sound = `custom:${id}`;
   const db = await openCustomDb();
   try {
     await new Promise<void>((resolve, reject) => {
       const transaction = db.transaction(CUSTOM_STORE, "readwrite");
-      transaction.objectStore(CUSTOM_STORE).put(file, sound);
+      transaction.objectStore(CUSTOM_STORE).put(blob, sound);
       transaction.oncomplete = () => resolve();
       transaction.onerror = () => reject(transaction.error);
     });
@@ -115,11 +117,39 @@ export async function importZaicodeSoundFile(id: string, file: File): Promise<vo
   customUrls.delete(sound);
   buffers.delete(previous ?? "");
   try {
-    localStorage.setItem(customNamesKey, JSON.stringify({ ...readZaicodeCustomSoundNames(), [id]: file.name }));
+    localStorage.setItem(customNamesKey, JSON.stringify({ ...readZaicodeCustomSoundNames(), [id]: name }));
   } catch {
     // the name is cosmetic
   }
-  setZaicodeSoundEvent(id, { sound });
+}
+
+/** Stores `file` as event `id`'s own sound and selects it. */
+export async function importZaicodeSoundFile(id: string, file: File): Promise<void> {
+  if (!/\.(wav|mp3|ogg)$/i.test(file.name)) throw new Error("Choose a WAV, MP3 or OGG file.");
+  await storeZaicodeOwnSound(id, file, file.name);
+  setZaicodeSoundEvent(id, { sound: `custom:${id}` });
+}
+
+const OWN_SOUND_MIME: Record<string, string> = { wav: "audio/wav", mp3: "audio/mpeg", ogg: "audio/ogg" };
+
+function ownSoundMime(name: string): string {
+  return OWN_SOUND_MIME[/\.([a-z0-9]+)$/i.exec(name)?.[1]?.toLowerCase() ?? ""] ?? "audio/wav";
+}
+
+/**
+ * The bytes of an own sound (`custom:<event id>`) and the name it came with; null when this installation has
+ * none. A file the release snapshot carries counts: a preset made from it must bring the sound along.
+ */
+export async function readZaicodeOwnSound(sound: string): Promise<{ bytes: Uint8Array; name: string; mime: string } | null> {
+  const name = readZaicodeCustomSoundNames()[sound.slice("custom:".length)] ?? `${sound.slice("custom:".length)}.wav`;
+  const blob = await readZaicodeCustomSoundBlob(sound).catch(() => null);
+  if (blob) return { bytes: new Uint8Array(await blob.arrayBuffer()), name, mime: blob.type || ownSoundMime(name) };
+  const bundled = /^data:([^;,]*);base64,(.*)$/s.exec(readBundledZaicodeCustomSound(sound) ?? "");
+  if (!bundled) return null;
+  const raw = atob(bundled[2]!);
+  const bytes = new Uint8Array(raw.length);
+  for (let index = 0; index < raw.length; index += 1) bytes[index] = raw.charCodeAt(index);
+  return { bytes, name, mime: bundled[1] || ownSoundMime(name) };
 }
 
 // ---------------------------------------------------------------------------

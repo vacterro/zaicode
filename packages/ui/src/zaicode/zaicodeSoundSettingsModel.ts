@@ -368,6 +368,12 @@ export function readZaicodeSoundSettings(): ZaicodeSoundSettings {
   return cached;
 }
 
+/** Reads the table from storage again (a preset wrote it) and tells every open view. */
+export function reloadZaicodeSoundSettings(): void {
+  cached = null;
+  if (typeof window !== "undefined") window.dispatchEvent(new Event(CHANGE_EVENT));
+}
+
 export function writeZaicodeSoundSettings(next: ZaicodeSoundSettings): void {
   cached = next;
   try {
