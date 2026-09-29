@@ -103,7 +103,11 @@ export function ZaicodeSaimailHeaderButton({
           setRect(null);
           playZaicodeSound("saimail.open");
           if (ready && prefs.saimailClick === "reader") {
-            setReaderAnchor((current) => (current ? null : event.currentTarget.getBoundingClientRect()));
+            // Read the rect NOW: React clears event.currentTarget once the handler returns, and the
+            // updater below runs later -- reading it there was "Cannot read properties of null
+            // (reading 'getBoundingClientRect')" the moment the mailbox was opened (SRC-085).
+            const anchor = event.currentTarget.getBoundingClientRect();
+            setReaderAnchor((current) => (current ? null : anchor));
           } else if (ready && prefs.saimailClick === "brief") draftBrief();
           else openSettings();
         }}
