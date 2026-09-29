@@ -131,6 +131,14 @@ export class ZaicodeAuditService implements IZaicodeAuditService {
     renameSync(tmp, path);
   }
 
+  /** The combined handoff is durable evidence, so it is written atomically too. */
+  private static writeTextAtomic(path: string, text: string): void {
+    mkdirSync(dirname(path), { recursive: true });
+    const tmp = `${path}.${process.pid}.tmp`;
+    writeFileSync(tmp, text, "utf8");
+    renameSync(tmp, path);
+  }
+
   private static readJson<T>(path: string): T | null {
     try {
       return JSON.parse(readFileSync(path, "utf8")) as T;
@@ -390,7 +398,7 @@ export class ZaicodeAuditService implements IZaicodeAuditService {
     // Durable BEFORE the campaign claims it: a crash here leaves the campaign
     // unfinished and it re-synthesizes, rather than reporting a file that
     // is not there.
-    writeFileSync(join(dir, file), result.markdown, "utf8");
+    ZaicodeAuditService.writeTextAtomic(join(dir, file), result.markdown);
     campaign.combined = {
       file,
       kind: ZAICODE_AUDIT_PROFILE.combinedKind,

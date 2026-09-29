@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import test from "node:test";
 import type { ZaicodeAuditCampaign } from "@zcode/shared";
 import {
@@ -111,4 +113,30 @@ test("the project name falls back to the directory, so a run is never unnamed", 
   assert.equal(zaicodeA3ProjectName(TARGET), "_ZAICODE");
   assert.equal(zaicodeA3ProjectName({ ...TARGET, projectName: "" }), "_ZAICODE");
   assert.equal(zaicodeA3ProjectName({ ...TARGET, workspacePath: "V:\\repo\\", projectName: "" }), "repo");
+});
+
+/**
+ * Review catch, kept as a regression: `runZaicodeA3` used to call
+ * `audits!.getState()` before asking the decision whether a service existed,
+ * so with no host connected the command threw a TypeError instead of
+ * reporting "the local ZAICODE host is not connected".
+ *
+ * The module cannot be imported here (it pulls React through `toast`), so the
+ * guarantee is asserted on its source: the null check must come before the
+ * latch callback, and no non-null assertion may reach a service call.
+ */
+test("the no-host path is checked before the service is dereferenced", () => {
+  const source = readFileSync(
+    join(process.cwd(), "src", "zaicode", "zaicodeA3.ts"),
+    "utf8",
+  );
+  const guardAt = source.indexOf("if (!audits) {");
+  const derefAt = source.indexOf("await audits.getState()");
+  assert.ok(guardAt > 0, "runZaicodeA3 must guard on a missing service");
+  assert.ok(derefAt > guardAt, "the guard must come before the service is used");
+  assert.equal(
+    /audits!\./.test(source),
+    false,
+    "no non-null assertion may dereference the audit service",
+  );
 });

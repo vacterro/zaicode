@@ -36,16 +36,23 @@ function openAudits(): void {
 export async function runZaicodeA3(target: ZaicodeA3Target): Promise<ZaicodeA3Outcome> {
   const services = readZaicodeQueueServices();
   const audits = services?.audits ?? null;
+  // Checked BEFORE the latch, and before anything is awaited. Asking the
+  // decision about a service that is not there is how this used to throw a
+  // TypeError instead of saying "the host is not connected".
+  if (!audits) {
+    toast("/a3 needs the local ZAICODE host: it is not connected.");
+    return { kind: "unavailable", reason: "the local ZAICODE host is not connected" };
+  }
 
   // One at a time, process-wide. A double Enter is refused here, before any
   // service call, so it cannot even ask the service to start a second one.
   const result = await starter.once(async () => {
-    const state = await audits!.getState();
-    const decision = planZaicodeA3(state.campaigns, target, Boolean(audits));
+    const state = await audits.getState();
+    const decision = planZaicodeA3(state.campaigns, target, true);
     if (decision.kind === "unavailable") return decision;
     if (decision.kind === "open-existing") {
       openAudits();
-      void useZaicodeAuditStore.getState().refresh(audits!);
+      void useZaicodeAuditStore.getState().refresh(audits);
       toast(`A3 is already ${decision.status} for this project — wave ${decision.currentWave} of 3.`);
       return {
         kind: "existing" as const,
@@ -53,12 +60,12 @@ export async function runZaicodeA3(target: ZaicodeA3Target): Promise<ZaicodeA3Ou
         currentWave: decision.currentWave,
       };
     }
-    const campaign = await audits!.start({
+    const campaign = await audits.start({
       workspaceKey: target.workspaceKey,
       workspacePath: target.workspacePath,
       projectName: zaicodeA3ProjectName(target),
     });
-    await useZaicodeAuditStore.getState().refresh(audits!);
+    await useZaicodeAuditStore.getState().refresh(audits);
     if (!campaign) return { kind: "unavailable" as const, reason: "the audit service returned no campaign" };
     openAudits();
     playZaicodeSound("audit.start");

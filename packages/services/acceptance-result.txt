@@ -1,0 +1,51 @@
+ZAICODE A3 (Quick3) live acceptance
+  model      : qwen3.5:9b @ http://127.0.0.1:11434
+  target     : V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\shared\src
+  project    : ZAICODE
+
+STEP 1  /a3 -> one campaign, one Core
+  run 2b8aa323-a2e5-41fe-93b8-428abf7ab8d5
+  profile quick3 1.0.0 (fnv1a64:fdfa9302)
+  source  git:9f58b250c3c51feb7b04fc11a103cbd3fc4d68e0:11b357ee8b60e593
+  queue   1 job(s), 1 wave(s)
+
+STEP 2  three chained waves against the live model
+  [running] 0/3 saved
+    A3 1/3 AUDIT CORE — ZAICODE [86f26690-dd72-4e61-a868-e84116a50834#1]: read 5 file(s), turn 1
+    A3 1/3 AUDIT CORE — ZAICODE [86f26690-dd72-4e61-a868-e84116a50834#1]: read 4 file(s), turn 2
+    A3 1/3 AUDIT CORE — ZAICODE [86f26690-dd72-4e61-a868-e84116a50834#1]: read 4 file(s), turn 3
+    A3 1/3 AUDIT CORE — ZAICODE [86f26690-dd72-4e61-a868-e84116a50834#1]: wrote ZAICODE__01_AUDIT_CORE.md (9189 bytes)
+      ..."e handler code path.\n\nCORE_DONE_WHEN: All findings addressed in next sprint cycle via PR reviews with automated test coverage gates\nSTATUS: AUDIT_CORE: COMPLETE"
+  [running] 1/3 saved
+    A3 2/3 AUDIT SECOND WAVE — ZAICODE [86f26690-dd72-4e61-a868-e84116a50834#1]: read 5 file(s), turn 1
+    A3 2/3 AUDIT SECOND WAVE — ZAICODE [86f26690-dd72-4e61-a868-e84116a50834#1]: read 5 file(s), turn 2
+    A3 2/3 AUDIT SECOND WAVE — ZAICODE [86f26690-dd72-4e61-a868-e84116a50834#1]: wrote ZAICODE__02_AUDIT_SECOND_WAVE.md (262 bytes)
+      ..."98aae41c157549155191a13e6e8d27a08929f19b6a73b6133\nNO NEW VERIFIED SECOND-WAVE DEFECTS.\nSECOND_WAVE_DONE_WHEN: 2024-10-27T12:34:56Z\nSTATUS: SECOND_WAVE: COMPLETE"
+  [running] 2/3 saved
+    A3 3/3 AUDIT PERFORMANCE / STABILITY / EFFECTIVENESS — ZAICODE [86f26690-dd72-4e61-a868-e84116a50834#1]: wrote ZAICODE__03_AUDIT_PERFORMANCE.md (439 bytes)
+      ..."ntConfig.ts\" />\n<read_file path=\"conversation-preview-artifacts.ts\" />\n<read_file path=\"database-startup.ts\" />\n<read_file path=\"execution-output-preview.ts\" />"
+  [blocked] 2/3 saved · refused: the report does not contain "STATUS: PERFORMANCE: COMPLETE"
+  retrying wave performance (attempt 2); the wave index must not move
+  after retry: index 2, attempt 2
+  [running] 2/3 saved · attempt 2
+    A3 3/3 AUDIT PERFORMANCE / STABILITY / EFFECTIVENESS — ZAICODE [86f26690-dd72-4e61-a868-e84116a50834#2]: wrote ZAICODE__03_AUDIT_PERFORMANCE.md (468 bytes)
+      ..."aces, unbounded queues/maps/buffers in hot-path code at V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\shared\\src\n\nSTATUS: PERFORMANCE: COMPLETE"
+  [complete] 3/3 saved · attempt 2
+
+STEP 3  the four durable artifacts
+  ZAICODE__01_AUDIT_CORE.md          saved  bd357f91bc1c73b9
+  ZAICODE__02_AUDIT_SECOND_WAVE.md   saved  187cd970435d5089
+  ZAICODE__03_AUDIT_PERFORMANCE.md   saved  597b5cda179afef3
+  ZAICODE__00_AUDIT_ALL_3.md         saved  8da92ee090e5ef94
+    combined digest verified: true
+
+  campaign status: complete
+  verified findings: 10
+
+STEP 4  Fix with SAIPEN
+  job zaicode-job:0397ee51-47fd-4456-acfb-208b313fc94d on the queue: true
+  source drift: {"audited":"git:9f58b250c3c51feb7b04fc11a103cbd3fc4d68e0:11b357ee8b60e593","atFix":"git:9f58b250c3c51feb7b04fc11a103cbd3fc4d68e0:11b357ee8b60e593","changed":false,"recordedAt":"2026-09-29T08:38:34.286Z"}
+  the job names the artifact digest: true
+  the job names the artifact file:   true
+
+RESULT: PASS
