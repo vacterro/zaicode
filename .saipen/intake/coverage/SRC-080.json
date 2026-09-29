@@ -1,0 +1,14 @@
+{
+  "requirements": {
+    "SRC-080:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "T-116 closed with verification evidence in LOG: verify -> PASS [target: T-116] conf: high -- zcode e2d256a committed tree: pnpm run verify:pre-push exit 0 (typecheck, oxlint, architecture, full suite); focused test/zaicodeSettingsCommunity.test.ts 3/3 PASS; the pre-fix red control was recorded earlier at E-1926",
+      "text": "Settings UI: add Discord SAIPEN COMMUNITY link at bottom; fix slow Per-model appearance Separate toggle; fix broken Sound settings",
+      "verification": "the Work this request created reached its own verification gate; see the T-116 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-116"
+    }
+  },
+  "schema_version": 1
+}

@@ -1,0 +1,14 @@
+{
+  "clauses": {
+    "SRC-080:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Settings UI: add Discord SAIPEN COMMUNITY link at bottom; fix slow Per-model appearance Separate toggle; fix broken Sound settings"
+    }
+  },
+  "derived_at": "2026-09-29T14:28:18Z",
+  "derived_from": "SRC-080",
+  "interpretation_revision": 1,
+  "schema_version": 1,
+  "source_sha256": "791d5574a4e86e90d66681c60806e1351016c1186837a682a4bc4e0ec58b51b5"
+}

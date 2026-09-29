@@ -1,0 +1,113 @@
+{
+  "blocking_findings": {
+    "problem_count": 7,
+    "problems": [
+      {
+        "category": null,
+        "credential": false,
+        "detail": "SRC-071,T-109",
+        "detail_hash": "9eeb98457ea9ae99",
+        "finding_key": "5d1f02b4a9fa4a51",
+        "rule_id": "source_receipt_unresolved_work",
+        "severity": "problem",
+        "subject_id": "T-109",
+        "subject_kind": "work",
+        "subject_ref": null
+      },
+      {
+        "category": null,
+        "credential": false,
+        "detail": "SRC-072,T-110",
+        "detail_hash": "1298540ac9ad3fe3",
+        "finding_key": "38b7f10e7dde8311",
+        "rule_id": "source_receipt_unresolved_work",
+        "severity": "problem",
+        "subject_id": "T-110",
+        "subject_kind": "work",
+        "subject_ref": null
+      },
+      {
+        "category": null,
+        "credential": false,
+        "detail": "SRC-073,T-111",
+        "detail_hash": "90a2f398128fba14",
+        "finding_key": "8e14320e94f6628c",
+        "rule_id": "source_receipt_unresolved_work",
+        "severity": "problem",
+        "subject_id": "T-111",
+        "subject_kind": "work",
+        "subject_ref": null
+      },
+      {
+        "category": null,
+        "credential": false,
+        "detail": ".saipen/LOG.md:763 timestamp for E-1919 is 98m ahead of real UTC (slack is 5m) -- LOG timestamps MUST be real UTC time, and an event stamped at a minute that has not happened yet reorders everything a",
+        "detail_hash": "6d44fa268cdbbab4",
+        "finding_key": "76b48f23558dce11",
+        "rule_id": "unclassified",
+        "severity": "problem",
+        "subject_id": null,
+        "subject_kind": "global",
+        "subject_ref": ".saipen/LOG.md:763"
+      },
+      {
+        "category": null,
+        "credential": false,
+        "detail": ".saipen/LOG.md:766 timestamp for E-1922 is 113m ahead of real UTC (slack is 5m) -- LOG timestamps MUST be real UTC time, and an event stamped at a minute that has not happened yet reorders everything ",
+        "detail_hash": "4c93c3d3ddafde7d",
+        "finding_key": "76b48f23558dce11",
+        "rule_id": "unclassified",
+        "severity": "problem",
+        "subject_id": null,
+        "subject_kind": "global",
+        "subject_ref": ".saipen/LOG.md:766"
+      },
+      {
+        "category": null,
+        "credential": false,
+        "detail": ".saipen/LOG.md:768 timestamp for E-1924 is 125m ahead of real UTC (slack is 5m) -- LOG timestamps MUST be real UTC time, and an event stamped at a minute that has not happened yet reorders everything ",
+        "detail_hash": "995572b95879b6ed",
+        "finding_key": "76b48f23558dce11",
+        "rule_id": "unclassified",
+        "severity": "problem",
+        "subject_id": null,
+        "subject_kind": "global",
+        "subject_ref": ".saipen/LOG.md:768"
+      },
+      {
+        "category": null,
+        "credential": false,
+        "detail": ".saipen/LOG.md:769 timestamp for E-1925 is 125m ahead of real UTC (slack is 5m) -- LOG timestamps MUST be real UTC time, and an event stamped at a minute that has not happened yet reorders everything ",
+        "detail_hash": "67672df3a6378aee",
+        "finding_key": "76b48f23558dce11",
+        "rule_id": "unclassified",
+        "severity": "problem",
+        "subject_id": null,
+        "subject_kind": "global",
+        "subject_ref": ".saipen/LOG.md:769"
+      }
+    ],
+    "ruleset_fingerprint": "82e5e183ae8f0fd909be3fa3627f00489cacaab813d942186c832db02a05a1c1",
+    "ruleset_version": 1,
+    "status": "complete",
+    "warning_count": 25
+  },
+  "board_hash": "f6bc7e3277ef3b5d",
+  "canonical_next_command": null,
+  "content_hash": "8586b0b4ac7f70fd",
+  "exit_code": 1,
+  "external_actions": [],
+  "gate": "core",
+  "kind": "conformance_receipt",
+  "log_hash": "ef5130bf9ba7151c",
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "receipt_id": "receipt-b29a23ddacdc",
+  "remediation_commands": [],
+  "schema_version": 2,
+  "source_head": "6f6fa2f1dfc77585de74a00b902c7d2d7ee72b08",
+  "source_tree_fingerprint": "git-delta-v1:83c74f5d69a460fe774d543d52e4badcbe2d90ab6c70b7e0dde1ea19551784f5",
+  "state_hash": "3c34b1928f2fd77c",
+  "timestamp_utc": "2026-09-29T15:16:32.691054Z",
+  "validator_protocol_version": "1",
+  "verdict": "FAIL"
+}
