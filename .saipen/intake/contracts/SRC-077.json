@@ -1,0 +1,14 @@
+{
+  "clauses": {
+    "SRC-077:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Satisfy the captured request SRC-077 in full; the authoritative text is the receipt body (sha256 94b9a2b72f86): \u041d\u0443 \u0438 \u0449\u0430\u0441 \u043f\u043e\u043a\u0430 \u043f\u0440\u043e\u0431\u043b\u0435\u043c\u0430 \u0447\u0442\u043e \u043d\u0435 \u0437\u0430\u043f\u0443\u0441\u043a\u0430\u0435\u0442\u0441\u044f \u0432\u043e\u043e\u0431\u0449\u0435 This section ran into a problem The error is isolated to this section, so the rest of the app can keep running. Try this section again first, and refresh the app if the issue keeps happening.\u2026"
+    }
+  },
+  "derived_at": "2026-09-29T11:31:56Z",
+  "derived_from": "SRC-077",
+  "interpretation_revision": 1,
+  "schema_version": 1,
+  "source_sha256": "94b9a2b72f86b6bc1c77ccc2161b38bb8dd69eec047cdd4d1df2a680d077e9b2"
+}

@@ -1,0 +1,14 @@
+{
+  "requirements": {
+    "SRC-078:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "T-114 closed with verification evidence in LOG: verify -> PASS [target: T-114] conf: high -- zcode 6fa47dba (clean tree, unchanged since E-1879): pnpm run verify:pre-push exit 0 (typecheck 0, oxlint 0 errors/101 baseline, architecture 0 new, full suite 822 pass/0 fail/2 opt-in skips, git diff --check clean); focused reruns today: desktop+ui SAIMAIL suites fail 0, Wave108 dispatch/elapsed/notice 29/29; SAIMAIL end-to-end LIVE from the operator's",
+      "text": "Satisfy the captured request SRC-078 in full; the authoritative text is the receipt body (sha256 d49f3dbbfc5d): at file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/packages/desktop/dist/win-unpacked/resources/app.asar/out/renderer/assets/styles-CexkQFYY.js:1527:64007 at Whr (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/p\u2026",
+      "verification": "the Work this request created reached its own verification gate; see the T-114 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-114"
+    }
+  },
+  "schema_version": 1
+}

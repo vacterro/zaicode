@@ -1,0 +1,14 @@
+{
+  "clauses": {
+    "SRC-078:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Satisfy the captured request SRC-078 in full; the authoritative text is the receipt body (sha256 d49f3dbbfc5d): at file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/packages/desktop/dist/win-unpacked/resources/app.asar/out/renderer/assets/styles-CexkQFYY.js:1527:64007 at Whr (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/p\u2026"
+    }
+  },
+  "derived_at": "2026-09-29T11:31:59Z",
+  "derived_from": "SRC-078",
+  "interpretation_revision": 1,
+  "schema_version": 1,
+  "source_sha256": "d49f3dbbfc5da93968b8d3630224df745c186f9edd282d07e9cadc28a7dbbc21"
+}

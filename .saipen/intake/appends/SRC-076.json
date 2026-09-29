@@ -1,0 +1,58 @@
+{
+  "appends": [
+    {
+      "class": "APPEND",
+      "created_work": null,
+      "delta": "evidence",
+      "derived_clauses": [
+        "SRC-077:R001"
+      ],
+      "label": "operator crash report: app does not start",
+      "projected_at": "2026-09-29T11:31:57Z",
+      "receipt": "SRC-077",
+      "received_at": "2026-09-29T11:31:48Z",
+      "rewind": null,
+      "seq": 1,
+      "source_sha256": "94b9a2b72f86b6bc1c77ccc2161b38bb8dd69eec047cdd4d1df2a680d077e9b2",
+      "state": "PROJECTED",
+      "steps": [
+        "linked",
+        "derived",
+        "superseded"
+      ],
+      "superseded": [],
+      "supersedes": [],
+      "work": [
+        "T-114"
+      ]
+    },
+    {
+      "class": "APPEND",
+      "created_work": null,
+      "delta": "evidence",
+      "derived_clauses": [
+        "SRC-078:R001"
+      ],
+      "label": "operator crash report: component stack",
+      "projected_at": "2026-09-29T11:32:00Z",
+      "receipt": "SRC-078",
+      "received_at": "2026-09-29T11:31:50Z",
+      "rewind": null,
+      "seq": 2,
+      "source_sha256": "d49f3dbbfc5da93968b8d3630224df745c186f9edd282d07e9cadc28a7dbbc21",
+      "state": "PROJECTED",
+      "steps": [
+        "linked",
+        "derived",
+        "superseded"
+      ],
+      "superseded": [],
+      "supersedes": [],
+      "work": [
+        "T-114"
+      ]
+    }
+  ],
+  "schema_version": 1,
+  "source": "SRC-076"
+}

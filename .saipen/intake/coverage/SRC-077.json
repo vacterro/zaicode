@@ -1,0 +1,14 @@
+{
+  "requirements": {
+    "SRC-077:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "T-114 closed with verification evidence in LOG: verify -> PASS [target: T-114] conf: high -- zcode 6fa47dba (clean tree, unchanged since E-1879): pnpm run verify:pre-push exit 0 (typecheck 0, oxlint 0 errors/101 baseline, architecture 0 new, full suite 822 pass/0 fail/2 opt-in skips, git diff --check clean); focused reruns today: desktop+ui SAIMAIL suites fail 0, Wave108 dispatch/elapsed/notice 29/29; SAIMAIL end-to-end LIVE from the operator's",
+      "text": "Satisfy the captured request SRC-077 in full; the authoritative text is the receipt body (sha256 94b9a2b72f86): \u041d\u0443 \u0438 \u0449\u0430\u0441 \u043f\u043e\u043a\u0430 \u043f\u0440\u043e\u0431\u043b\u0435\u043c\u0430 \u0447\u0442\u043e \u043d\u0435 \u0437\u0430\u043f\u0443\u0441\u043a\u0430\u0435\u0442\u0441\u044f \u0432\u043e\u043e\u0431\u0449\u0435 This section ran into a problem The error is isolated to this section, so the rest of the app can keep running. Try this section again first, and refresh the app if the issue keeps happening.\u2026",
+      "verification": "the Work this request created reached its own verification gate; see the T-114 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-114"
+    }
+  },
+  "schema_version": 1
+}
