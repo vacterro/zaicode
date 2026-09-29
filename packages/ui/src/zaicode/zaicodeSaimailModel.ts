@@ -93,6 +93,45 @@ export function readSaimailHistory(): SaimailHistory {
   }
 }
 
+/**
+ * Reader view state for one popover visit (SRC-079). `opened` holds decrypted
+ * bodies ONLY between the operator's explicit Open/Reopen and the popover
+ * closing; `needsRefresh` says the canonical backend moved a letter UNREAD to
+ * READ and the poller should re-sync rather than the widget guessing.
+ */
+export interface ZaicodeSaimailReaderState {
+  opened: Record<string, { body: string | null; message: string; state: "UNREAD" | "READ" }>;
+  failures: Record<string, string>;
+  needsRefresh: boolean;
+}
+
+export function emptyZaicodeSaimailReaderState(): ZaicodeSaimailReaderState {
+  return { opened: {}, failures: {}, needsRefresh: false };
+}
+
+/** One canonical open/reopen result folded into the reader state; never invents a body or a read state. */
+export function applyZaicodeSaimailOpenedLetter(
+  state: ZaicodeSaimailReaderState,
+  envelopeId: string,
+  result: { ok: boolean; state: "UNREAD" | "READ" | null; body: string | null; message: string },
+): ZaicodeSaimailReaderState {
+  if (!result.ok) {
+    // Failed open: the header keeps its place, the durable state stays
+    // whatever the backend left it, and only the failure text is new.
+    return { ...state, failures: { ...state.failures, [envelopeId]: result.message } };
+  }
+  const failures = { ...state.failures };
+  delete failures[envelopeId];
+  return {
+    opened: {
+      ...state.opened,
+      [envelopeId]: { body: result.body, message: result.message, state: result.state ?? "UNREAD" },
+    },
+    failures,
+    needsRefresh: result.state === "READ",
+  };
+}
+
 export function recordSaimailUnread(unreadNames: readonly string[]): SaimailHistory {
   const next = nextSaimailHistory(readSaimailHistory(), unreadNames);
   try {

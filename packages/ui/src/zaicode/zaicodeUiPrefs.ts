@@ -8,7 +8,7 @@ import { readZaicodeSetting } from "./zaicodeSettingsSnapshot.js";
  */
 
 export type ZaicodeGreetingMode = "time" | "custom";
-export type ZaicodeSaimailClick = "brief" | "settings";
+export type ZaicodeSaimailClick = "brief" | "settings" | "reader";
 /** CLEAR: empty this session in place (default) or open a new empty one. */
 export type ZaicodeClearMode = "session" | "new";
 
@@ -76,7 +76,7 @@ export const ZAICODE_UI_DEFAULT_PREFS: ZaicodeUiPrefs = {
   saimailUnreadRing: true,
   saimailHoverPreview: true,
   saimailPreviewRows: 8,
-  saimailClick: "brief",
+  saimailClick: "reader",
   autoRetry: true,
   autoRetryIntervalSec: 60,
   autoRetryMaxAttempts: 100,
@@ -119,7 +119,9 @@ export function normalizeZaicodeUiPrefs(raw: unknown): ZaicodeUiPrefs {
     saimailUnreadRing: flag(r.saimailUnreadRing, d.saimailUnreadRing),
     saimailHoverPreview: flag(r.saimailHoverPreview, d.saimailHoverPreview),
     saimailPreviewRows: int(r.saimailPreviewRows, 1, 30, d.saimailPreviewRows),
-    saimailClick: r.saimailClick === "settings" ? "settings" : "brief",
+    saimailClick: ["brief", "settings", "reader"].includes(String(r.saimailClick))
+      ? (r.saimailClick as ZaicodeSaimailClick)
+      : d.saimailClick,
     autoRetry: flag(r.autoRetry, d.autoRetry),
     autoRetryIntervalSec: int(r.autoRetryIntervalSec, 10, 3600, d.autoRetryIntervalSec),
     autoRetryMaxAttempts: int(r.autoRetryMaxAttempts, 1, 1000, d.autoRetryMaxAttempts),

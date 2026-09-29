@@ -86,6 +86,7 @@ import {
 } from "./zaicodeLauncherPreferences.js";
 import { initZaicodeSaimailWorkspace } from "./zaicodeSaimailInit.js";
 import { getZaicodeSaimailPostStatus, runZaicodeSaimailPostAction } from "./zaicodeSaimailPost.js";
+import { listZaicodeSaimailReadLetters, openZaicodeSaimailLetter } from "./zaicodeSaimailRead.js";
 import { parseZaicodeSplashPrefsInput } from "./zaicodeSplashFiles.js";
 import { readZaicodeSplashPrefs, setZaicodeSplashPrefs } from "./zaicodeSplashPrefs.js";
 import {
@@ -460,6 +461,20 @@ export function registerPlatformIpcHandlers(options: {
       action,
       operatorPath: effectiveZaicodeSaimailWorkspace(),
       deskPath: zaicodeSaimailDeskPath(),
+    });
+  });
+  ipcMain.handle(PlatformChannels.ListZaicodeSaimailReadLetters, () =>
+    listZaicodeSaimailReadLetters({ workspace: effectiveZaicodeSaimailWorkspace() }),
+  );
+  ipcMain.handle(PlatformChannels.OpenZaicodeSaimailLetter, (_event, input: unknown) => {
+    const request = input as { envelopeId?: unknown; state?: unknown };
+    if (typeof request?.envelopeId !== "string" || (request?.state !== "UNREAD" && request?.state !== "READ")) {
+      throw new TypeError("Expected { envelopeId, state: UNREAD | READ }");
+    }
+    return openZaicodeSaimailLetter({
+      workspace: effectiveZaicodeSaimailWorkspace(),
+      envelopeId: request.envelopeId,
+      state: request.state,
     });
   });
   ipcMain.handle(PlatformChannels.MoveWindowBy, (event, delta: unknown) => {

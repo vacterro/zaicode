@@ -10,6 +10,7 @@ import { useTabStore } from "@/store/TabStoreProvider.js";
 import { WINDOWS_CAPTION_CONTROL_CLASS } from "@/windowCaptionControls.js";
 import { useZaicodeSaipen } from "@/zaicode/zaicodeSaipen.js";
 import { useZaicodeSaimailDesk } from "@/zaicode/zaicodeSaimail.js";
+import { ZaicodeSaimailReaderPopover } from "@/zaicode/ZaicodeSaimailReaderPopover.js";
 import { ZaicodeSaimailSettingsPanel } from "@/zaicode/ZaicodeHomeScreen.js";
 import { ZaicodeRightClickSettings } from "@/zaicode/ZaicodePrefControls.js";
 import { useZaicodeUiPrefs } from "@/zaicode/zaicodeUiPrefs.js";
@@ -43,6 +44,7 @@ export function ZaicodeSaimailHeaderButton({
   const { mailbox, desk } = useZaicodeSaimailDesk(currentTask);
   const openSettingsTab = useTabStore((state) => state.openSettingsTab);
   const [rect, setRect] = useState<DOMRect | null>(null);
+  const [readerAnchor, setReaderAnchor] = useState<DOMRect | null>(null);
   const prefs = useZaicodeUiPrefs();
   const unread = desk?.unread.length ?? 0;
   const ready = Boolean(mailbox && desk);
@@ -97,10 +99,12 @@ export function ZaicodeSaimailHeaderButton({
         onFocus={(event) => { if (prefs.saimailHoverPreview) show(event.currentTarget); }}
         onBlur={() => setRect(null)}
         onContextMenu={() => setRect(null)}
-        onClick={() => {
+        onClick={(event) => {
           setRect(null);
           playZaicodeSound("saimail.open");
-          if (ready && prefs.saimailClick === "brief") draftBrief();
+          if (ready && prefs.saimailClick === "reader") {
+            setReaderAnchor((current) => (current ? null : event.currentTarget.getBoundingClientRect()));
+          } else if (ready && prefs.saimailClick === "brief") draftBrief();
           else openSettings();
         }}
       >
@@ -111,6 +115,14 @@ export function ZaicodeSaimailHeaderButton({
         ) : null}
       </Button>
       </ZaicodeRightClickSettings>
+      {readerAnchor && desk && ready ? (
+        <ZaicodeSaimailReaderPopover
+          desk={desk}
+          currentTask={currentTask}
+          anchor={readerAnchor}
+          onClose={() => setReaderAnchor(null)}
+        />
+      ) : null}
       {rect && prefs.saimailHoverPreview
         ? createPortal(
             <div
@@ -184,7 +196,7 @@ export function ZaicodeSaimailHeaderButton({
               ) : null}
               <div className="border-t border-[var(--zaicode-bevel-dark,var(--color-border))] px-2 py-1 text-tooltip-tag-foreground">
                 {ready
-                  ? "Headers only, nothing opened. Click: ask the agent to read the desk."
+                  ? "Headers only. Open a letter to read it."
                   : "Local agent post office. Click: Settings -> ZAICODE -> SAIMAIL."}
               </div>
             </div>,

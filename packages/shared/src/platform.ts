@@ -25,7 +25,11 @@ import type {
   ZaicodeSaimailPostAction,
   ZaicodeSaimailPostResult,
   ZaicodeSaimailPostStatus,
-} from "./zaicode-saimail-post.js";
+} from "./zaicode-saimail-post.js";import type {
+  ZaicodeSaimailLetterState,
+  ZaicodeSaimailOpenedLetter,
+  ZaicodeSaimailReadLetterList,
+} from "./zaicode-saimail-read.js";
 import type { ZaicodeScreenMode } from "./zaicode-screen.js";
 import type {
   CuaAccessibilitySettingsResult,
@@ -931,6 +935,13 @@ export interface IPlatformService {
   getZaicodeSaimailPost?(): Promise<ZaicodeSaimailPostStatus>;
   /** ZAICODE：explicit click only — pair the agent desk with the operator mailbox, or send a test letter through it. */
   runZaicodeSaimailPost?(action: ZaicodeSaimailPostAction): Promise<ZaicodeSaimailPostResult>;
+  /** Lists already-read letters for the widget's reopen list: metadata only, never bodies. */
+  listZaicodeSaimailReadLetters?(): Promise<ZaicodeSaimailReadLetterList>;
+  /** Explicit operator action only: decrypt one letter via the canonical open/reopen path. */
+  openZaicodeSaimailLetter?(input: {
+    envelopeId: string;
+    state: ZaicodeSaimailLetterState;
+  }): Promise<ZaicodeSaimailOpenedLetter>;
   /** ZAICODE：像素级清晰渲染（100% 缩放、位图字体、无亚像素定位）；下次启动生效。 */
   getZaicodePixelExact?(): Promise<{ pixelExact: boolean; screen: ZaicodeScreenMode }>;
   setZaicodePixelExact?(mode: boolean | ZaicodeScreenMode): Promise<{ pixelExact: boolean; screen: ZaicodeScreenMode }>;

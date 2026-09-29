@@ -88,6 +88,11 @@ import type {
   ZaicodeSaimailPostResult,
   ZaicodeSaimailPostStatus,
   ZaicodeScreenMode,
+} from "@zcode/shared"
+import type {
+  ZaicodeSaimailLetterState,
+  ZaicodeSaimailOpenedLetter,
+  ZaicodeSaimailReadLetterList,
 } from "@zcode/shared";
 import {
   InternalChannels,
@@ -772,6 +777,13 @@ contextBridge.exposeInMainWorld("zcode", {
     ipcRenderer.invoke(PlatformChannels.GetZaicodeSaimailPost),
   runZaicodeSaimailPost: (action: ZaicodeSaimailPostAction): Promise<ZaicodeSaimailPostResult> =>
     ipcRenderer.invoke(PlatformChannels.RunZaicodeSaimailPost, action),
+  listZaicodeSaimailReadLetters: (): Promise<ZaicodeSaimailReadLetterList> =>
+    ipcRenderer.invoke(PlatformChannels.ListZaicodeSaimailReadLetters),
+  openZaicodeSaimailLetter: (input: {
+    envelopeId: string;
+    state: ZaicodeSaimailLetterState;
+  }): Promise<ZaicodeSaimailOpenedLetter> =>
+    ipcRenderer.invoke(PlatformChannels.OpenZaicodeSaimailLetter, input),
   getZaicodePixelExact: (): Promise<{ pixelExact: boolean; screen: ZaicodeScreenMode }> =>
     ipcRenderer.invoke(PlatformChannels.GetZaicodePixelExact),
   setZaicodePixelExact: (mode: boolean | ZaicodeScreenMode): Promise<{ pixelExact: boolean; screen: ZaicodeScreenMode }> =>

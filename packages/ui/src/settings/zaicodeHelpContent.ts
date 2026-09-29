@@ -272,7 +272,7 @@ export const ZAICODE_HELP_TOPICS: readonly HelpTopic[] = [
     what: "Letters between your agents and you, in a mailbox folder.",
     lines: [
       "The envelope in the title bar shows unread letters; hover lists them.",
-      "Click asks the agent to read the desk (it drafts, never sends by itself). Right-click for its options.",
+      "Click opens the letter reader: each letter shows its header, and only your Open/Reopen click decrypts the body. Closing the reader forgets the text. Right-click for its options.",
     ],
     open: { label: "ZAICODE settings", section: "zaicode" },
   },

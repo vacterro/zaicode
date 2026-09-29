@@ -327,7 +327,7 @@ export const ZAICODE_HELP_WIKI: Record<ZaicodeHelpTopicId, HelpArticle> = {
     why: "SAIMAIL is a mailbox folder where agents leave you letters (reports, questions) and you leave them instructions, so long-running work can talk to you asynchronously.",
     terms: [
       ["Envelope", "Title bar; shows unread letters, hover lists them."],
-      ["Click", "Asks the agent to read the desk; it drafts replies and never sends by itself."],
+      ["Click", "Opens the letter reader; each body decrypts only on your own Open/Reopen click."],
     ],
   },
   autostart: {

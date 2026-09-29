@@ -28,6 +28,10 @@ import type {
   ZaicodeSaimailPostResult,
   ZaicodeSaimailPostStatus,
 } from "./zaicode-saimail-post.js";
+import type {
+  ZaicodeSaimailOpenedLetter,
+  ZaicodeSaimailReadLetterList,
+} from "./zaicode-saimail-read.js";
 import type { ZaicodeProtrailGlobalStatus } from "./zaicode-protrail.js";
 import type { ZaicodeScreenMode } from "./zaicode-screen.js";
 import type {
@@ -408,6 +412,10 @@ export const PlatformChannels = {
   GetZaicodeSaimailPost: "zaicode:saimail-post-status",
   /** Renderer → Main：explicit click only — pair the agent desk with the operator mailbox, or send a test letter */
   RunZaicodeSaimailPost: "zaicode:saimail-post-run",
+  /** Renderer → Main：list already-read letters (metadata only) for the widget's reopen list */
+  ListZaicodeSaimailReadLetters: "zaicode:saimail-list-read-letters",
+  /** Renderer → Main：explicit operator action only — decrypt one letter via the canonical open/reopen path */
+  OpenZaicodeSaimailLetter: "zaicode:saimail-open-letter",
   /** Renderer → Main：像素级清晰渲染（100% 缩放 + 位图字体），下次启动生效 */
   GetZaicodePixelExact: "zaicode:get-pixel-exact",
   SetZaicodePixelExact: "zaicode:set-pixel-exact",
@@ -1185,6 +1193,15 @@ export interface PlatformChannelMap {
   [PlatformChannels.RunZaicodeSaimailPost]: {
     request: ZaicodeSaimailPostAction;
     response: ZaicodeSaimailPostResult;
+  };
+  [PlatformChannels.ListZaicodeSaimailReadLetters]: {
+    request: void;
+    response: ZaicodeSaimailReadLetterList;
+  };
+  [PlatformChannels.OpenZaicodeSaimailLetter]: {
+    /** The envelope to decrypt and the durable state the widget last saw. */
+    request: { envelopeId: string; state: "UNREAD" | "READ" };
+    response: ZaicodeSaimailOpenedLetter;
   };
   [PlatformChannels.GetZaicodePixelExact]: {
     request: void;

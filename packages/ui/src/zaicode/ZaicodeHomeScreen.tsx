@@ -213,6 +213,7 @@ export function ZaicodeSaimailSettingsPanel({ onOpenSettings }: { onOpenSettings
         label="Left click on the envelope"
         value={prefs.saimailClick}
         options={[
+          { value: "reader", label: "Open the letter reader", hint: "Read letters directly; a body opens only on your click" },
           { value: "brief", label: "Ask the agent to read the desk", hint: "Drafts (does not send) the brief request" },
           { value: "settings", label: "Open SAIMAIL settings" },
         ]}

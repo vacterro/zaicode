@@ -158,6 +158,12 @@ export function createDesktopPlatform(options: {
     runZaicodeSaimailPost: window.zcode.runZaicodeSaimailPost
       ? (action) => window.zcode.runZaicodeSaimailPost!(action)
       : undefined,
+    listZaicodeSaimailReadLetters: window.zcode.listZaicodeSaimailReadLetters
+      ? () => window.zcode.listZaicodeSaimailReadLetters!()
+      : undefined,
+    openZaicodeSaimailLetter: window.zcode.openZaicodeSaimailLetter
+      ? (input) => window.zcode.openZaicodeSaimailLetter!(input)
+      : undefined,
     getZaicodePixelExact: window.zcode.getZaicodePixelExact
       ? () => window.zcode.getZaicodePixelExact!()
       : undefined,
