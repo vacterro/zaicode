@@ -393,3 +393,25 @@ one refused command per executor change. This is the transport working as
 designed -- repository continuity over conversation continuity -- colliding with
 a field that is genuinely machine-local. Do not "fix" it by removing the field
 or by gitignoring STATE.md; the board depends on it.
+
+## Hand-written LOG lines carry UTC, not local time (2026-09-29, T-116/T-117)
+
+The operator machine runs UTC+3. Four LOG lines written by hand (not by `saipen checkpoint`)
+carried local time as if it were UTC: E-1919 16:55 while the real UTC minute was 14:09. The
+validator FAILs a stamp more than 5 minutes ahead of real UTC, so `saipen validate` answered
+`REFUSE [CONFORMANCE_UNHEALTHY]` (`conformance: CURRENT_FAIL`) for the rest of the session.
+
+Prefer `saipen checkpoint` (the engine stamps UTC). If a line must be written by hand, read the
+clock: `python -c "import datetime;print(datetime.datetime.now(datetime.timezone.utc).strftime('%d.%m.%y %H:%M'))"`.
+Repair used: restamp the lines to the previous engine event's minute, then record
+`saipen checkpoint DEC` naming original and replacement (the minute is inherited, not measured).
+Standing problems that are not this one: DONE Work T-109..T-111 carry unresolved source receipts
+SRC-071..073 (empty contracts, `derived_at: null`; accepted as DEBT-000111).
+
+## A `VERIFY -> PASS` checkpoint must not contain the word FAIL (2026-09-29, T-116)
+
+`log.verification_evidence` scans the newest RUN events of the current VERIFY cycle and lets a
+failure claim win over any PASS. A checkpoint that says "pre-fix red control 0/3 FAIL" is read as a
+failed verification and `transition REVIEW` answers `INCOMPLETE_TICKET ... requires explicit
+verification evidence`, however green the rest is. Say "red" for the control and keep FAIL/failed
+out of the PASS event.
