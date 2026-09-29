@@ -1,3 +1,4 @@
+/* eslint-disable max-lines -- one owner module: the overlay windows, the input source and their health share one piece of state (wanted, config, status) that a split would pass around by argument. */
 import { join } from "node:path";
 import { app, BrowserWindow, ipcMain, screen, type Display, type Rectangle, type WebContents } from "electron";
 import {
@@ -14,6 +15,7 @@ import {
   startZaicodeProtrailRawInput,
   type ZaicodeProtrailInput,
 } from "./zaicodeProtrailInput.js";
+import { createOverlayHealth, type OverlayProbe, type OverlayView } from "./zaicodeProtrailHealth.js";
 
 /**
  * ProTrail over the whole desktop (SRC-062), the way ProTrail itself works:
@@ -38,6 +40,13 @@ const MAX_BATCH = ZAICODE_PROTRAIL_EVENT_STRIDE * 4096;
 const OVERLAY_RETRY_MS = 250;
 const OVERLAY_RETRY_SLOW_MS = 2000;
 const OVERLAY_FAST_RETRIES = 20;
+/**
+ * A click reader that keeps failing (an antivirus scan, a machine still busy with its start) is asked
+ * again this often for as long as the mode is wanted, so clicks come back without a toggle.
+ */
+const HELPER_RETRY_SLOW_MS = 30_000;
+/** How long an overlay page gets to answer a health probe. */
+const PROBE_TIMEOUT_MS = 1500;
 
 const overlays = new Map<number, BrowserWindow>();
 const overlayWindows = new WeakSet<BrowserWindow>();
@@ -64,13 +73,27 @@ let flushTimer: ReturnType<typeof setTimeout> | null = null;
 let screenHooked = false;
 let overlayRetryTimer: ReturnType<typeof setTimeout> | null = null;
 let overlayRetries = 0;
+let helperRetryTimer: ReturnType<typeof setTimeout> | null = null;
+/** Which window is on a monitor now and since when: a rebuilt overlay is a new life with a clean record. */
+const overlayLife = new WeakMap<BrowserWindow, { serial: number; createdAt: number }>();
+let overlaySerial = 0;
+let logSink: (message: string) => void = () => undefined;
+
+function log(message: string): void {
+  try {
+    logSink(message);
+  } catch {
+    // Logging never breaks the overlays.
+  }
+}
 
 /** An overlay is not an application window: window pickers, "last window" logic and hotkeys skip it. */
 export function isZaicodeProtrailWindow(win: BrowserWindow): boolean {
   return overlayWindows.has(win);
 }
 
-export function registerZaicodeProtrailGlobalIpc(): void {
+export function registerZaicodeProtrailGlobalIpc(options: { log?: (message: string) => void } = {}): void {
+  if (options.log) logSink = options.log;
   ipcMain.handle(PlatformChannels.SetZaicodeProtrailGlobal, (event, next: unknown) => setGlobal(event.sender, next));
   ipcMain.handle(PlatformChannels.GetZaicodeProtrailGlobalStatus, () => ({ ...status }));
   app.on("will-quit", stop);
@@ -119,17 +142,23 @@ function start(): void {
   generation += 1;
   restarts = 0;
   overlayRetries = 0;
-  status = { state: "starting", input: "none", displays: 0, note: null };
+  status = { state: "starting", input: "none", displays: 0, verified: 0, monitors: screen.getAllDisplays().length, note: null };
+  log(`starting the desktop-wide mode for ${wanted.size} window${wanted.size === 1 ? "" : "s"}, ${screen.getAllDisplays().length} display(s)`);
   hookScreen(true);
   syncOverlays();
   startInput(generation);
+  health.start();
 }
 
 function stop(): void {
+  const wasOn = status.state !== "off";
   generation += 1;
+  health.stop();
   if (overlayRetryTimer) clearTimeout(overlayRetryTimer);
   overlayRetryTimer = null;
   overlayRetries = 0;
+  if (helperRetryTimer) clearTimeout(helperRetryTimer);
+  helperRetryTimer = null;
   pending?.stop();
   pending = null;
   input?.stop();
@@ -142,6 +171,7 @@ function stop(): void {
   overlays.clear();
   config = null;
   status = { ...ZAICODE_PROTRAIL_GLOBAL_OFF };
+  if (wasOn) log("the desktop-wide mode is off");
 }
 
 function startInput(run: number): void {
@@ -164,7 +194,11 @@ function startInput(run: number): void {
           pending = null;
           input?.stop();
           input = helper;
+          restarts = 0;
+          if (helperRetryTimer) clearTimeout(helperRetryTimer);
+          helperRetryTimer = null;
           setStatus({ state: "running", input: "raw-input", note: null });
+          log("the click reader is ready");
         },
         onFailure: (reason) => {
           if (run !== generation) return;
@@ -172,8 +206,10 @@ function startInput(run: number): void {
           if (input === helper) input = null;
           helper.stop();
           restarts += 1;
+          log(`the click reader failed (${restarts}): ${reason}`);
           if (restarts > MAX_HELPER_RESTARTS) {
             useCursorPoll(`Clicks are not seen: ${reason}. The trail follows the cursor.`);
+            scheduleHelperRetry(run);
             return;
           }
           if (!input) useCursorPoll("Restarting the click reader…", "starting");
@@ -190,6 +226,22 @@ function startInput(run: number): void {
       useCursorPoll(`Clicks are not seen: ${error instanceof Error ? error.message : String(error)}. The trail follows the cursor.`);
     },
   );
+}
+
+/**
+ * The reader gave up for now. Give it another go every half minute while the mode is wanted: the reason
+ * (a busy machine right after the start, a scan of the helper) rarely lasts, and the operator should not
+ * have to switch ProTrail off and on to get the clicks back.
+ */
+function scheduleHelperRetry(run: number): void {
+  if (helperRetryTimer) clearTimeout(helperRetryTimer);
+  helperRetryTimer = setTimeout(() => {
+    helperRetryTimer = null;
+    if (run !== generation || wanted.size === 0 || pending || input?.kind === "raw-input") return;
+    log("trying the click reader again");
+    startInput(run);
+  }, HELPER_RETRY_SLOW_MS);
+  (helperRetryTimer as { unref?: () => void }).unref?.();
 }
 
 function useCursorPoll(note: string, state: ZaicodeProtrailGlobalStatus["state"] = "running"): void {
@@ -264,12 +316,14 @@ function syncOverlays(): void {
       overlays.set(display.id, createOverlay(display));
       continue;
     }
-    // Only a moved overlay needs its origin again: re-sending it on every
+    // Only a moved or resized overlay needs to be told again: re-sending on every
     // reconcile would push a feed between the config broadcast and the
-    // overlay's next load, and the document is what applies it.
+    // overlay's next load, and the document is what applies it. A change of size
+    // alone counts (a monitor that settles on its real mode after the start keeps
+    // its origin): the window used to stay at the old, smaller size.
     const previous = overlayBounds.get(existing);
     overlayBounds.set(existing, display.bounds);
-    if (previous && previous.x === display.bounds.x && previous.y === display.bounds.y) continue;
+    if (previous && sameRect(previous, display.bounds)) continue;
     existing.setBounds(display.bounds);
     send(existing, { origin: { x: display.bounds.x, y: display.bounds.y } });
   }
@@ -286,7 +340,7 @@ function settleOverlayRetry(): void {
     clearTimeout(overlayRetryTimer);
     overlayRetryTimer = null;
   }
-  setStatus({ displays: countReadyOverlays() });
+  setStatus({ displays: countReadyOverlays(), verified: health.verified(), monitors: screen.getAllDisplays().length });
   if (overlaysConverged()) overlayRetries = 0;
   else scheduleOverlayRetry();
 }
@@ -321,6 +375,110 @@ function scheduleOverlayRetry(): void {
   // A background reconcile must never be the reason a process stays alive.
   (overlayRetryTimer as { unref?: () => void }).unref?.();
 }
+
+function sameRect(a: Rectangle, b: Rectangle): boolean {
+  return a.x === b.x && a.y === b.y && a.width === b.width && a.height === b.height;
+}
+
+function isProbe(value: unknown): value is OverlayProbe {
+  const probe = value as Partial<OverlayProbe> | null;
+  return (
+    !!probe &&
+    typeof probe.configured === "boolean" &&
+    typeof probe.enabled === "boolean" &&
+    typeof probe.frames === "boolean" &&
+    typeof probe.width === "number" &&
+    typeof probe.height === "number"
+  );
+}
+
+/** Asks an overlay page what it holds (zaicode-protrail.ts answers). No answer in time, or none at all, is null. */
+async function probeOverlay(win: BrowserWindow): Promise<OverlayProbe | null> {
+  try {
+    if (win.isDestroyed() || win.webContents.isDestroyed()) return null;
+    let deadline: ReturnType<typeof setTimeout> | undefined;
+    const silence = new Promise<null>((resolve) => {
+      deadline = setTimeout(() => resolve(null), PROBE_TIMEOUT_MS);
+      (deadline as { unref?: () => void }).unref?.();
+    });
+    const answer = await Promise.race([
+      win.webContents.executeJavaScript("window.__zaicodeProtrailProbe ? window.__zaicodeProtrailProbe() : null", false),
+      silence,
+    ]).finally(() => clearTimeout(deadline));
+    return isProbe(answer) ? answer : null;
+  } catch {
+    return null;
+  }
+}
+
+/** One view per display that has an overlay, for the health check. */
+function overlayViews(): OverlayView[] {
+  const views: OverlayView[] = [];
+  for (const display of screen.getAllDisplays()) {
+    const win = overlays.get(display.id);
+    const life = win ? overlayLife.get(win) : undefined;
+    if (!win || win.isDestroyed() || !life) continue;
+    views.push({
+      displayId: display.id,
+      serial: life.serial,
+      createdAt: life.createdAt,
+      ready: readyOverlays.has(win),
+      visible: win.isVisible(),
+      placed: sameRect(win.getBounds(), display.bounds),
+      expected: { width: display.bounds.width, height: display.bounds.height },
+      probe: () => probeOverlay(win),
+    });
+  }
+  return views;
+}
+
+/** The window a view describes, unless it has been replaced since the check looked. */
+function currentOverlay(view: OverlayView): BrowserWindow | null {
+  const win = overlays.get(view.displayId);
+  if (!win || win.isDestroyed() || overlayLife.get(win)?.serial !== view.serial) return null;
+  return win;
+}
+
+const health = createOverlayHealth({
+  now: () => Date.now(),
+  setTimer: (fn, ms) => {
+    const timer = setTimeout(fn, ms);
+    (timer as { unref?: () => void }).unref?.();
+    return timer;
+  },
+  clearTimer: (handle) => clearTimeout(handle as ReturnType<typeof setTimeout>),
+  wanted: () => wanted.size > 0,
+  views: overlayViews,
+  repairs: {
+    reveal: (view) => {
+      const win = currentOverlay(view);
+      if (win) revealOverlay(win);
+    },
+    place: (view) => {
+      const win = currentOverlay(view);
+      const display = screen.getAllDisplays().find((candidate) => candidate.id === view.displayId);
+      if (!win || !display) return;
+      overlayBounds.set(win, display.bounds);
+      win.setBounds(display.bounds);
+      send(win, { origin: { x: display.bounds.x, y: display.bounds.y } });
+    },
+    resend: (view) => {
+      const win = currentOverlay(view);
+      const bounds = win ? overlayBounds.get(win) : undefined;
+      if (win) send(win, { config, ...(bounds ? { origin: { x: bounds.x, y: bounds.y } } : {}) });
+    },
+    rebuild: (view) => {
+      const win = currentOverlay(view);
+      if (!win) return;
+      readyOverlays.delete(win);
+      overlays.delete(view.displayId);
+      win.destroy();
+      syncOverlays();
+    },
+  },
+  onChange: () => setStatus({ verified: health.verified() }),
+  log,
+});
 
 /** Show the overlay once its document is loaded. Idempotent: a reload must reveal it again. */
 function revealOverlay(win: BrowserWindow): void {
@@ -362,6 +520,8 @@ function createOverlay(display: Display): BrowserWindow {
   });
   overlayWindows.add(win);
   overlayBounds.set(win, bounds);
+  overlayLife.set(win, { serial: (overlaySerial += 1), createdAt: Date.now() });
+  log(`overlay ${display.id} created at ${bounds.x},${bounds.y} ${bounds.width}x${bounds.height}`);
   // WS_EX_TRANSPARENT + WS_EX_LAYERED: every click goes to the app underneath.
   win.setIgnoreMouseEvents(true);
   win.setAlwaysOnTop(true, "screen-saver");
@@ -370,6 +530,7 @@ function createOverlay(display: Display): BrowserWindow {
   win.webContents.on("did-start-loading", () => readyOverlays.delete(win));
   win.webContents.on("did-finish-load", () => {
     readyOverlays.add(win);
+    log(`overlay ${display.id} loaded after ${Date.now() - (overlayLife.get(win)?.createdAt ?? Date.now())} ms`);
     const current = overlayBounds.get(win) ?? bounds;
     send(win, { config, origin: { x: current.x, y: current.y } });
     revealOverlay(win);

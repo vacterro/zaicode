@@ -7,6 +7,7 @@ import test from "node:test";
 import ts from "typescript";
 import { PlatformChannels } from "@zcode/shared";
 import * as shared from "@zcode/shared";
+import { healthPort } from "./support/protrailPorts.js";
 
 // Execute the real main module with isolated Electron/input ports, without
 // opening windows or starting a system-wide input reader in the unit suite.
@@ -52,6 +53,7 @@ function harness(platform = "linux") {
       startZaicodeProtrailCursorPoll: () => ({ kind: "cursor-poll", stop() {} }),
       ensureZaicodeProtrailInputHelper: () => new Promise(() => {}),
     },
+    "./zaicodeProtrailHealth.js": healthPort(),
   };
   const source = readFileSync(join(import.meta.dirname, "../src/main/zaicodeProtrailGlobal.ts"), "utf8");
   const compiled = ts.transpileModule(source.replaceAll("import.meta.dirname", JSON.stringify(import.meta.dirname)), {

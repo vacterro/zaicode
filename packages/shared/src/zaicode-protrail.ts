@@ -15,7 +15,15 @@ export interface ZaicodeProtrailGlobalStatus {
   state: "off" | "starting" | "running" | "unavailable";
   /** raw-input: moves and clicks (ProTrail's own source). cursor-poll: moves only (no clicks, holds or wake). */
   input: "raw-input" | "cursor-poll" | "none";
+  /** Overlays whose document is loaded. */
   displays: number;
+  /** Connected monitors, each of which should get an overlay (absent from an older main process). */
+  monitors?: number;
+  /**
+   * Overlays whose own page confirmed it holds the config, has the monitor's size and draws frames
+   * (T-129). Absent from a main process that does not check; then `displays` is all there is.
+   */
+  verified?: number;
   /** Why clicks are not seen, or why the desktop-wide mode is unavailable. */
   note: string | null;
 }

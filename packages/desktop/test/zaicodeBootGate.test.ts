@@ -145,3 +145,19 @@ test("the boot gate never clicks a Settings entry that leaves the app", () => {
     assert.ok(skip.includes(label), `${label} is skipped by the gate`);
   }
 });
+
+// T-129: "ProTrail is on at the start of the session, but I have to switch it off and on." Overlays that
+// exist and count as ready drew nothing, and no gate looked. The packaged boot now waits for one overlay
+// per monitor and feeds each a synthetic sweep through the channel real mouse events use.
+test("the boot gate makes sure ProTrail comes up by itself on every monitor and really draws", () => {
+  const scripts = join(import.meta.dirname, "../scripts");
+  const gate = readFileSync(join(scripts, "verify-zaicode-boot.cjs"), "utf8");
+  const check = readFileSync(join(scripts, "verify-zaicode-protrail.cjs"), "utf8");
+  assert.match(gate, /const \{ checkProtrail \} = require\("\.\/verify-zaicode-protrail\.cjs"\);/);
+  assert.match(gate, /const protrail = await checkProtrail\(app\);/);
+  assert.match(gate, /ZCODE_ZAICODE_MODE: process\.env\.ZCODE_ZAICODE_MODE \?\? "1"/, "ProTrail exists only in ZAICODE mode, standalone runs included");
+  assert.match(check, /assert\.equal\(pages\.length, monitors, /, "one overlay per monitor, with no toggle");
+  assert.match(check, /lit\.every\(\(count\) => typeof count === "number" && count > 0\)/, "every overlay must light pixels");
+  assert.match(check, /"zaicode:protrail-overlay-feed"/, "the sweep uses the channel the real events use");
+  assert.doesNotMatch(check, /SetCursorPos|setCursorPos|sendInput|robotjs|mouse\.move/i, "the operator's own cursor is never touched");
+});

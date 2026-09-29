@@ -19,6 +19,8 @@ declare global {
     zaicodeProtrailOverlay?: {
       onFeed(callback: (feed: ZaicodeProtrailOverlayFeed) => void): () => void;
     };
+    /** Answers the main process's health check (T-129): what this page holds and whether it draws frames. */
+    __zaicodeProtrailProbe?: () => Promise<{ configured: boolean; enabled: boolean; width: number; height: number; frames: boolean }>;
   }
 }
 
@@ -53,4 +55,25 @@ if (canvas && bridge) {
     }
   });
   window.addEventListener("resize", () => runtime.kick());
+  window.__zaicodeProtrailProbe = () =>
+    new Promise((resolve) => {
+      let answered = false;
+      const answer = (frames: boolean) => {
+        if (answered) return;
+        answered = true;
+        resolve({
+          configured: runtime.configured(),
+          enabled: runtime.active(),
+          width: window.innerWidth,
+          height: window.innerHeight,
+          frames,
+        });
+      };
+      // A window whose compositor makes no frames never runs the callback: that is the answer.
+      const silence = window.setTimeout(() => answer(false), 900);
+      window.requestAnimationFrame(() => {
+        window.clearTimeout(silence);
+        answer(true);
+      });
+    });
 }

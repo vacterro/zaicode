@@ -58,7 +58,7 @@ test("one click-through, never-focused, always-on-top overlay per monitor", () =
 test("overlays are never taken for the ZAICODE window", () => {
   assert.match(main("index.ts"), /!isZaicodeSplashWindow\(win\) &&\s+!isZaicodeProtrailWindow\(win\)/);
   assert.match(main("zaicodeGlobalHotkeys.ts"), /!isZaicodeProtrailWindow\(window\)/);
-  assert.match(main("desktopMainIpcPlatform.ts"), /registerZaicodeProtrailGlobalIpc\(\);/);
+  assert.match(main("desktopMainIpcPlatform.ts"), /registerZaicodeProtrailGlobalIpc\(\{ log: \(message\) => options\.logger\.info\(`\[protrail\] \$\{message\}`\) \}\);/, "the registration hands the module the app logger, so the desktop-wide mode leaves lines in the log");
 });
 
 test("the overlay page and its preload are part of the build", () => {

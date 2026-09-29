@@ -7,6 +7,7 @@ import test from "node:test";
 import ts from "typescript";
 import { PlatformChannels } from "@zcode/shared";
 import * as shared from "@zcode/shared";
+import { healthPort } from "./support/protrailPorts.js";
 
 /**
  * Startup convergence for desktop-wide ProTrail (SRC-070 item A).
@@ -103,6 +104,7 @@ function harness(platform = "linux", initialDisplays: typeof THREE_DISPLAYS = TH
       startZaicodeProtrailCursorPoll: () => ({ kind: "cursor-poll", stop() {} }),
       ensureZaicodeProtrailInputHelper: () => new Promise(() => {}),
     },
+    "./zaicodeProtrailHealth.js": healthPort(),
   };
   const source = readFileSync(join(import.meta.dirname, "../src/main/zaicodeProtrailGlobal.ts"), "utf8");
   const compiled = ts.transpileModule(source.replaceAll("import.meta.dirname", JSON.stringify(import.meta.dirname)), {
@@ -216,7 +218,9 @@ test("A6 a healthy overlay set costs nothing: the reconcile is a no-op", async (
   const before = h.live().map((win) => win.webContents.feeds.length);
   h.configure({ color: "blue" });
   assert.equal(h.live().length, 3, "no overlay is rebuilt while every display already has a loaded one");
-  assert.equal(h.time.pending(), 0, "no retry is armed once the overlays are there");
+  // T-129: a slow health pass (one probe per overlay every few seconds) now watches a healthy set, so one
+  // timer is armed on purpose; what must not be armed is a reconcile retry.
+  assert.equal(h.time.pending(), 1, "only the slow health pass is armed once the overlays are there: no reconcile retry");
   for (const [index, win] of h.live().entries()) {
     assert.equal(win.webContents.feeds.length, before[index]! + 1, "only the new config is broadcast");
   }

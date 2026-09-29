@@ -10,7 +10,8 @@
 // takes only its own card down, so the boot alone would not notice it.
 // Wave 3 shipped a window that opened on "This section ran into a problem"
 // (a const read before its declaration); 765 unit tests and tsc were green
-// because nothing rendered the shell. This script renders it.
+// because nothing rendered the shell. This script renders it. It then makes sure the desktop-wide
+// ProTrail (on by default) comes up on every monitor by itself and really draws (verify-zaicode-protrail.cjs).
 //
 // On success it writes a receipt beside the build (default: next to
 // win-unpacked). bundle-zaicode.mjs refuses to leave a staged build that has
@@ -21,6 +22,7 @@ const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
 const { _electron } = require("playwright-core");
+const { checkProtrail } = require("./verify-zaicode-protrail.cjs");
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -66,6 +68,8 @@ async function main() {
     ZCODE_DESKTOP_SESSION_DATA_DIR: path.join(profile, "session"),
     ZCODE_DATA_BASE_DIR: profile,
     ZCODE_HOME: path.join(profile, ".zcode"),
+    // What the root launcher sets for the real app: the ZAICODE runtime (ProTrail among it) exists only in this mode.
+    ZCODE_ZAICODE_MODE: process.env.ZCODE_ZAICODE_MODE ?? "1",
   };
   delete env.TZ;
   // A boot gate must not inherit the operator's mailbox, router or agent state.
@@ -185,6 +189,11 @@ async function main() {
     assert.deepEqual(fatalWalk, [], `fatal renderer console errors while walking Settings: ${fatalWalk.join(" || ")}`);
     if (outDir) await page.screenshot({ path: path.join(outDir, "boot.png") });
 
+    // ProTrail (T-129): on by default, it must come up on every monitor by itself and really draw.
+    const protrail = await checkProtrail(app);
+    checks.protrail = protrail;
+    assert.deepEqual(pageErrors, [], `uncaught renderer exceptions after ProTrail came up: ${pageErrors.join(" || ")}`);
+
     const asar = path.join(path.dirname(executablePath), "resources", "app.asar");
     const receipt = {
       schema: "zaicode-boot-receipt/1",
@@ -198,7 +207,8 @@ async function main() {
       consoleErrorCount: consoleErrors.length,
     };
     fs.writeFileSync(receiptPath, `${JSON.stringify(receipt, null, 2)}\n`);
-    console.log(`PASS packaged boot: shell mounted, ${checks.settingsSections} Settings sections opened, no error card, ${pageErrors.length} uncaught exceptions, ${consoleErrors.length} console errors -> ${receiptPath}`);
+    const trail = checks.protrail?.skipped ? `ProTrail skipped (${checks.protrail.skipped})` : `ProTrail drawing on ${checks.protrail?.monitors} monitor(s)`;
+    console.log(`PASS packaged boot: shell mounted, ${checks.settingsSections} Settings sections opened, ${trail}, no error card, ${pageErrors.length} uncaught exceptions, ${consoleErrors.length} console errors -> ${receiptPath}`);
     if (consoleErrors.length) console.log(`console errors (informational):\n  ${consoleErrors.slice(0, 8).join("\n  ")}`);
   } catch (error) {
     if (outDir && app) {

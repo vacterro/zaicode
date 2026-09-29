@@ -1,6 +1,6 @@
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { ZAICODE_PROTRAIL_GLOBAL_OFF, type ZaicodeProtrailGlobalStatus } from "@zcode/shared";
-import { runZaicodeProtrailGlobalConverge } from "./protrailGlobalConverge.js";
+import { runZaicodeProtrailGlobalConverge, zaicodeProtrailDesktopDraws } from "./protrailGlobalConverge.js";
 import type { ProtrailConfig } from "./protrailModel.js";
 
 /**
@@ -58,13 +58,17 @@ export function useZaicodeProtrailGlobalStatus(): ZaicodeProtrailGlobalStatus {
 
 /**
  * Keeps the desktop overlays in step with `wanted` and the config, and does not
- * stop until the desktop confirms it is drawing. Returns true while the desktop
- * draws (the window's own canvas then stays idle, so nothing is drawn twice).
+ * stop until the desktop confirms it is drawing. Returns true only while the
+ * desktop is CONFIRMED to draw (the window's own canvas then stays idle, so
+ * nothing is drawn twice). Until then -- a start still settling, an overlay that
+ * exists but did not take its settings -- the window draws its own trail, so the
+ * operator never sits with ProTrail "on" and nothing on screen (T-129).
  */
 export function useZaicodeProtrailGlobalSync(config: ProtrailConfig, wanted: boolean): boolean {
   const [broken, setBroken] = useState(failed);
   const supported = !broken && !!bridge()?.setZaicodeProtrailGlobal;
   const active = wanted && supported;
+  const current = useSyncExternalStore(subscribe, () => status, () => status);
 
   useEffect(() => {
     const api = bridge();
@@ -100,5 +104,5 @@ export function useZaicodeProtrailGlobalSync(config: ProtrailConfig, wanted: boo
     [],
   );
 
-  return active;
+  return active && zaicodeProtrailDesktopDraws(current);
 }

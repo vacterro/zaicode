@@ -37,10 +37,38 @@ const RETRY_MAX_MS = 4000;
 /** Refusals in a row before the desktop is asked whether it answers at all. */
 const MAX_REFUSALS = 8;
 
-/** The desktop says it is really drawing: the mode is on and at least one overlay is loaded. */
+/**
+ * The desktop really draws: the mode is on and every monitor's overlay is confirmed by its own page
+ * (T-129). A main process that does not check (`verified` absent) is taken at its word about the
+ * overlays whose document is loaded, as before. "Loaded" alone once let a converged ProTrail stand
+ * in for one that drew nothing, so the window's own canvas is only switched off on this test.
+ */
+export function zaicodeProtrailDesktopDraws(next: ZaicodeProtrailGlobalStatus): boolean {
+  if (next.state !== "running") return false;
+  const confirmed = next.verified ?? next.displays;
+  return confirmed > 0 && confirmed >= (next.monitors ?? next.displays);
+}
+
+/** The desktop says it is really drawing (or, for `wanted` false, that it is off). */
 export function zaicodeProtrailGlobalConverged(next: ZaicodeProtrailGlobalStatus, wanted: boolean): boolean {
   if (!wanted) return next.state === "off";
-  return next.state === "running" && next.displays > 0;
+  return zaicodeProtrailDesktopDraws(next);
+}
+
+/** What Settings -> ProTrail says about the desktop-wide mode: the honest state, not the wished one. */
+export function zaicodeProtrailStatusLine(status: ZaicodeProtrailGlobalStatus): string {
+  if (status.state === "off") return "Not drawing outside ZAICODE right now.";
+  if (status.state === "unavailable") return status.note ?? "Not available in this build.";
+  const count = status.monitors ?? status.displays;
+  const monitors = `${count} monitor${count === 1 ? "" : "s"}`;
+  const note = status.note ? ` ${status.note}` : "";
+  if (status.state === "starting") return `Starting over ${monitors}…${note}`;
+  const source = status.input === "raw-input" ? "moves and clicks (Raw Input)" : "the cursor only (no clicks)";
+  // T-129: an overlay counts as drawing only once its own page said so; until then the window draws the trail itself.
+  if (status.verified !== undefined && status.verified < count) {
+    return `Checking the overlays: ${status.verified} of ${count} confirmed, reading ${source}. The trail is drawn in this window meanwhile.${note}`;
+  }
+  return `Drawing over ${monitors}, reading ${source}.${note}`;
 }
 
 /** Quick while a start is still settling, then slow enough that a permanent failure costs nothing. */

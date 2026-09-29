@@ -57,6 +57,11 @@ export class ProtrailRuntime {
     return !this.disposed && !!this.ctx && !!this.config?.enabled && this.allowed();
   }
 
+  /** A config (on or off) has been handed over. A desktop overlay's health probe reads it (T-129). */
+  configured(): boolean {
+    return this.config !== null;
+  }
+
   move(x: number, y: number, ts: number): void {
     if (!this.active() || !finite(x, y, ts)) return;
     this.samples.push({ x, y, ts });

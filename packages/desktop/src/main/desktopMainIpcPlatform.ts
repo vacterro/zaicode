@@ -435,7 +435,7 @@ export function registerPlatformIpcHandlers(options: {
     options.quitAppForZaicode?.("hotkey-quit");
     return { ok: true };
   });
-  registerZaicodeProtrailGlobalIpc();
+  registerZaicodeProtrailGlobalIpc({ log: (message) => options.logger.info(`[protrail] ${message}`) });
   ipcMain.handle(PlatformChannels.SetZaicodeSplashPrefs, (_event, input: unknown) =>
     setZaicodeSplashPrefs(parseZaicodeSplashPrefsInput(input)),
   );

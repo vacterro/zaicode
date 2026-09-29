@@ -3,7 +3,7 @@ import { RotateCcw } from "lucide-react";
 import { PROTRAIL_COLOR_PRESETS, protrailRgbToHex } from "@/zaicode/protrail/protrailModel.js";
 import { useZaicodeProtrail } from "@/zaicode/protrail/zaicodeProtrailStore.js";
 import { useZaicodeProtrailGlobalStatus, zaicodeProtrailGlobalSupported } from "@/zaicode/protrail/zaicodeProtrailGlobal.js";
-import type { ZaicodeProtrailGlobalStatus } from "@zcode/shared";
+import { zaicodeProtrailStatusLine } from "@/zaicode/protrail/protrailGlobalConverge.js";
 import { ZaicodeProtrailClickTab } from "./ZaicodeProtrailClickTab.js";
 import { ProtrailCheck, ProtrailGrid, ProtrailGroup } from "./ZaicodeProtrailControls.js";
 import { ZaicodeProtrailTrailTab } from "./ZaicodeProtrailTrailTab.js";
@@ -21,15 +21,6 @@ const TABS: readonly { value: Tab; label: string }[] = [
   { value: "trail", label: "Trail" },
   { value: "click", label: "Click" },
 ];
-
-function statusLine(status: ZaicodeProtrailGlobalStatus): string {
-  if (status.state === "off") return "Not drawing outside ZAICODE right now.";
-  if (status.state === "unavailable") return status.note ?? "Not available in this build.";
-  const monitors = `${status.displays} monitor${status.displays === 1 ? "" : "s"}`;
-  if (status.state === "starting") return `Starting over ${monitors}…${status.note ? ` ${status.note}` : ""}`;
-  const source = status.input === "raw-input" ? "moves and clicks (Raw Input)" : "the cursor only (no clicks)";
-  return `Drawing over ${monitors}, reading ${source}.${status.note ? ` ${status.note}` : ""}`;
-}
 
 function GeneralTab() {
   const { config, set, setTrail, setClick, resetAll } = useZaicodeProtrail();
@@ -65,7 +56,7 @@ function GeneralTab() {
         />
         {config.everywhere ? (
           <span className="text-foreground-subtle" data-zaicode-protrail-status={status.state}>
-            {desktop ? statusLine(status) : "This build has no desktop app, so ProTrail draws only inside ZAICODE."}
+            {desktop ? zaicodeProtrailStatusLine(status) : "This build has no desktop app, so ProTrail draws only inside ZAICODE."}
           </span>
         ) : null}
         <span className="text-foreground-subtle">
