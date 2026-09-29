@@ -23,6 +23,7 @@ const os = require("node:os");
 const path = require("node:path");
 const { _electron } = require("playwright-core");
 const { checkProtrail } = require("./verify-zaicode-protrail.cjs");
+const { checkCustomization } = require("./verify-zaicode-customization.cjs");
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -39,6 +40,7 @@ const receiptPath = option("--receipt") ?? path.join(path.dirname(path.dirname(e
 const tempBase = path.join(process.env.LOCALAPPDATA ?? os.tmpdir(), "Temp");
 fs.mkdirSync(tempBase, { recursive: true });
 const profile = fs.mkdtempSync(path.join(tempBase, "zaicode-boot-"));
+const customizationDir = path.join(profile, "customization");
 if (outDir) fs.mkdirSync(outDir, { recursive: true });
 
 /** Text the two error boundaries render (en-US and zh-CN locale files). */
@@ -70,6 +72,8 @@ async function main() {
     ZCODE_HOME: path.join(profile, ".zcode"),
     // What the root launcher sets for the real app: the ZAICODE runtime (ProTrail among it) exists only in this mode.
     ZCODE_ZAICODE_MODE: process.env.ZCODE_ZAICODE_MODE ?? "1",
+    // The customization folder (T-126) inside the throw-away profile: a gate run must never create or list the operator's own.
+    ZAICODE_CUSTOMIZATION_DIR: customizationDir,
   };
   delete env.TZ;
   // A boot gate must not inherit the operator's mailbox, router or agent state.
@@ -194,6 +198,12 @@ async function main() {
     checks.protrail = protrail;
     assert.deepEqual(pageErrors, [], `uncaught renderer exceptions after ProTrail came up: ${pageErrors.join(" || ")}`);
 
+    // The customization folder (T-126): a file dropped in from outside shows up on the Sounds page by itself.
+    checks.customization = await checkCustomization(page, customizationDir);
+    assert.deepEqual(pageErrors, [], `uncaught renderer exceptions after the customization check: ${pageErrors.join(" || ")}`);
+    const fatalCustomization = consoleErrors.filter((text) => FATAL_CONSOLE.test(text));
+    assert.deepEqual(fatalCustomization, [], `fatal renderer console errors after the customization check: ${fatalCustomization.join(" || ")}`);
+
     const asar = path.join(path.dirname(executablePath), "resources", "app.asar");
     const receipt = {
       schema: "zaicode-boot-receipt/1",
@@ -208,7 +218,7 @@ async function main() {
     };
     fs.writeFileSync(receiptPath, `${JSON.stringify(receipt, null, 2)}\n`);
     const trail = checks.protrail?.skipped ? `ProTrail skipped (${checks.protrail.skipped})` : `ProTrail drawing on ${checks.protrail?.monitors} monitor(s)`;
-    console.log(`PASS packaged boot: shell mounted, ${checks.settingsSections} Settings sections opened, ${trail}, no error card, ${pageErrors.length} uncaught exceptions, ${consoleErrors.length} console errors -> ${receiptPath}`);
+    console.log(`PASS packaged boot: shell mounted, ${checks.settingsSections} Settings sections opened, ${trail}, customization list live (${checks.customization.count.join("->")}), no error card, ${pageErrors.length} uncaught exceptions, ${consoleErrors.length} console errors -> ${receiptPath}`);
     if (consoleErrors.length) console.log(`console errors (informational):\n  ${consoleErrors.slice(0, 8).join("\n  ")}`);
   } catch (error) {
     if (outDir && app) {

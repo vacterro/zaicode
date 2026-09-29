@@ -16,7 +16,8 @@ import {
   type ImportPreview,
   type PresetEnv,
 } from "@/zaicode/zaicodePresetApply.js";
-import { cleanPresetName, type ZaicodePreset } from "@/zaicode/zaicodePresetFile.js";
+import { placeExportedPreset, type PresetFolder } from "@/zaicode/zaicodeCustomPresets.js";
+import { cleanPresetName, presetFilePrefix, type ZaicodePreset } from "@/zaicode/zaicodePresetFile.js";
 import { missingSoundsNote, presetMeta } from "@/zaicode/zaicodePresetLabels.js";
 import { zaicodePresetSection, type ZaicodePresetSectionId } from "@/zaicode/zaicodePresetSections.js";
 import {
@@ -28,6 +29,7 @@ import {
   replaceZaicodePreset,
   useZaicodePresets,
 } from "@/zaicode/zaicodePresetStore.js";
+import { ZaicodePresetFolderList } from "./ZaicodePresetFolderList.js";
 import { ZaicodePresetImportPreview } from "./ZaicodePresetImportPreview.js";
 
 /**
@@ -46,6 +48,8 @@ const armedButton = "flex items-center gap-1 border border-red-500/70 px-1.5 py-
 interface Say {
   tone: "ok" | "warn";
   text: string;
+  /** A file saved in the presets folder: the message offers to show it there. */
+  file?: string;
 }
 
 /** A destructive button asks twice: the first click arms it for a few seconds. */
@@ -157,7 +161,18 @@ function PresetRow({
  * The panel takes its environment as a prop, so it renders and runs without a window behind it (tests pass a
  * memory one); ZaicodePresetsMenu hands it the real one.
  */
-export function ZaicodePresetsPanel({ section, env, prune }: { section: ZaicodePresetSectionId; env: PresetEnv; prune: () => Promise<void> }) {
+export function ZaicodePresetsPanel({
+  section,
+  env,
+  prune,
+  folder = null,
+}: {
+  section: ZaicodePresetSectionId;
+  env: PresetEnv;
+  prune: () => Promise<void>;
+  /** The customization folder's presets folder (desktop only): exports land there, imports can read from it. */
+  folder?: PresetFolder | null;
+}) {
   const title = zaicodePresetSection(section)?.title ?? section;
   const all = useZaicodePresets((state) => state.presets);
   const undo = useZaicodePresets((state) => state.undos[section] ?? null);
@@ -169,7 +184,7 @@ export function ZaicodePresetsPanel({ section, env, prune }: { section: ZaicodeP
   const [preview, setPreview] = useState<ImportPreview | null>(null);
   const [previewName, setPreviewName] = useState("");
 
-  const say = (tone: Say["tone"], text: string) => setMessage({ tone, text });
+  const say = (tone: Say["tone"], text: string, file?: string) => setMessage(file ? { tone, text, file } : { tone, text });
   const full = () => say("warn", `${title} already has ${ZAICODE_PRESETS_MAX_PER_SECTION} presets: delete one first.`);
   const saidOutcome = (done: string, outcome: ApplyOutcome) => {
     // A reloading page says it itself once it is back; this window is going away.
@@ -215,8 +230,12 @@ export function ZaicodePresetsPanel({ section, env, prune }: { section: ZaicodeP
   const exportOne = (preset: ZaicodePreset) =>
     run(async () => {
       const { fileName, text, missing } = await exportPresetText(env, preset);
-      downloadZaicodeTextFile(fileName, text);
-      say(missing.length > 0 ? "warn" : "ok", `Saved “${preset.name}” as ${fileName}.${missingSoundsNote(missing, "exported")}`);
+      const placed = await placeExportedPreset(folder, fileName, text, downloadZaicodeTextFile);
+      const tone = missing.length > 0 ? "warn" : "ok";
+      const notes = missingSoundsNote(missing, "exported");
+      if (placed.where === "folder") return say(tone, `Saved “${preset.name}” in the presets folder as ${placed.name}.${notes}`, placed.name);
+      const why = placed.fallback ? " The presets folder could not be written, so it was downloaded instead." : "";
+      say(placed.fallback ? "warn" : tone, `Saved “${preset.name}” as ${fileName}.${why}${notes}`);
     });
 
   const remove = (preset: ZaicodePreset) =>
@@ -225,18 +244,26 @@ export function ZaicodePresetsPanel({ section, env, prune }: { section: ZaicodeP
       say("ok", `Deleted “${preset.name}”.`);
     });
 
-  const pick = () =>
-    pickZaicodeJsonFile((text) => {
-      const read = previewPresetFile(env, text);
-      if (!read.ok) return say("warn", read.error);
-      const target = read.preview.file.section;
-      if (target !== section) {
-        const other = zaicodePresetSection(target)?.title ?? target;
-        return say("warn", `This preset is for ${other}. Open Settings → ${other} and import it there.`);
-      }
-      setMessage(null);
-      setPreviewName(read.preview.file.name);
-      setPreview(read.preview);
+  const showText = (text: string) => {
+    const read = previewPresetFile(env, text);
+    if (!read.ok) return say("warn", read.error);
+    const target = read.preview.file.section;
+    if (target !== section) {
+      const other = zaicodePresetSection(target)?.title ?? target;
+      return say("warn", `This preset is for ${other}. Open Settings → ${other} and import it there.`);
+    }
+    setMessage(null);
+    setPreviewName(read.preview.file.name);
+    setPreview(read.preview);
+  };
+
+  const pick = () => pickZaicodeJsonFile(showText);
+
+  const pickFromFolder = (name: string) =>
+    run(async () => {
+      const text = await folder?.read(name);
+      if (text === null || text === undefined) return say("warn", `Could not read ${name}.`);
+      showText(text);
     });
 
   const adopt = (thenApply: boolean) =>
@@ -303,6 +330,11 @@ export function ZaicodePresetsPanel({ section, env, prune }: { section: ZaicodeP
           {message ? (
             <div role="status" className={cn("border bg-background px-2 py-1 text-foreground", message.tone === "warn" ? "border-amber-500/70" : "border-border")}>
               {message.text}
+              {message.file && folder ? (
+                <button type="button" className={cn(button, "mt-1")} onClick={() => folder.show(message.file!)}>
+                  Show in folder
+                </button>
+              ) : null}
             </div>
           ) : null}
           <div role="list" className="flex max-h-72 flex-col overflow-y-auto border-y border-border/50">
@@ -325,6 +357,7 @@ export function ZaicodePresetsPanel({ section, env, prune }: { section: ZaicodeP
               ))
             )}
           </div>
+          {folder ? <ZaicodePresetFolderList folder={folder} prefix={presetFilePrefix(section)} disabled={busy} onPick={(name) => void pickFromFolder(name)} /> : null}
           <div className="flex flex-wrap items-center gap-1">
             <button type="button" className={button} disabled={busy} onClick={pick}>
               <Upload className="size-3" />

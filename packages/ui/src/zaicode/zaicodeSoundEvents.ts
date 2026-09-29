@@ -8,8 +8,10 @@ import {
   readZaicodeSetting,
   ZAICODE_SOUND_CUSTOM_DB,
 } from "./zaicodeSettingsSnapshot.js";
+import { zaicodeSoundEntry } from "./zaicodeSoundCatalog.js";
 import { playZaicodeSound, registerZaicodeSoundAudible, registerZaicodeSoundPlayer, zaicodeDirectSoundPlayedSince } from "./zaicodeSoundBus.js";
 import { isZaicodeSoundQuietNow } from "./zaicodeNotifications.js";
+import { cachedZaicodeCustomSoundUrl, onZaicodeCustomSoundUrlRevoked, resolveZaicodeCustomSoundUrl } from "./zaicodeCustomSounds.js";
 import { ZAICODE_CLICKABLE, zaicodeChangeSoundFor, zaicodeClickSoundFor } from "./zaicodeSoundVoices.js";
 import { decideZaicodeSound, type ZaicodeSoundOverlap, type ZaicodeSoundRequest } from "./zaicodeSoundPolicy.js";
 import {
@@ -44,6 +46,8 @@ export function listZaicodeSoundFiles(): readonly { id: string; label: string }[
 export function zaicodeSoundUrl(sound: string): string | null {
   if (sound === "default") return taskNotificationPopUrl;
   if (sound.startsWith("custom:")) return customUrls.get(sound) ?? readBundledZaicodeCustomSound(sound);
+  // A file of the customization folder plays once it was read (resolveSoundUrl reads it); null until then.
+  if (sound.startsWith("customization:")) return cachedZaicodeCustomSoundUrl(sound);
   return getTaskNotificationSoundUrl(sound);
 }
 
@@ -63,6 +67,7 @@ function openCustomDb(): Promise<IDBDatabase> {
 }
 
 export async function resolveSoundUrl(sound: string): Promise<string | null> {
+  if (sound.startsWith("customization:")) return resolveZaicodeCustomSoundUrl(sound);
   if (!sound.startsWith("custom:")) return zaicodeSoundUrl(sound);
   const known = customUrls.get(sound);
   if (known) return known;
@@ -158,6 +163,8 @@ export async function readZaicodeOwnSound(sound: string): Promise<{ bytes: Uint8
 
 let context: AudioContext | null = null;
 const buffers = new Map<string, Promise<AudioBuffer | null>>();
+// A customization file that changed or went away has a new URL next time: its decoded copy is dead weight.
+onZaicodeCustomSoundUrlRevoked((url) => void buffers.delete(url));
 const CHOKE_FADE_S = 0.015;
 
 interface Voice {
@@ -519,7 +526,7 @@ export function zaicodeSoundDiagnostics(): string {
     `master=${settings.masterVolume}% muted=${settings.muted} whenFocused=${settings.whenFocused} interfaceOneAtATime=${settings.interfaceOneAtATime} overlap=${settings.overlap}/${settings.overlapLimit} ringing=${voices.length} waiting=${waiting.length}`,
     ...ZAICODE_SOUND_EVENTS.map((event) => {
       const row = settings.events[event.id]!;
-      const ok = zaicodeSoundUrl(row.sound) ? "ok" : "MISSING";
+      const ok = zaicodeSoundUrl(row.sound) || (row.sound.startsWith("customization:") && zaicodeSoundEntry(row.sound)) ? "ok" : "MISSING";
       return `${event.id.padEnd(18)} ${row.enabled ? "on " : "off"} ${String(row.gainDb).padStart(5)} dB ${row.mode.padEnd(7)} ${row.sound} [${ok}]`;
     }),
   ];

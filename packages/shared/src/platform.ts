@@ -952,6 +952,25 @@ export interface IPlatformService {
   zaicodeQuitApp?(): Promise<{ ok: boolean }>;
   /** ZAICODE dev：把界面设置快照写成随包默认值（源码树 zaicodeSettingsDefaults.json）并在 userData 备份。 */
   saveZaicodeSettingsSnapshot?(json: string): Promise<{ ok: boolean; message: string; sourcePath: string | null; backupPath: string | null }>;
+  /** ZAICODE (T-126): the customization folder next to the app: live sound list, preset files, open in the file manager. */
+  getZaicodeCustomizationInfo?(): Promise<import("./zaicode-customization.js").ZaicodeCustomizationInfo>;
+  listZaicodeCustomSounds?(): Promise<import("./zaicode-customization.js").ZaicodeCustomSoundList>;
+  readZaicodeCustomSound?(path: string): Promise<import("./zaicode-customization.js").ZaicodeCustomSoundReadResult>;
+  writeZaicodeCustomSound?(
+    request: import("./zaicode-customization.js").ZaicodeCustomSoundWriteRequest,
+  ): Promise<import("./zaicode-customization.js").ZaicodeCustomWriteResult>;
+  listZaicodeCustomPresets?(): Promise<import("./zaicode-customization.js").ZaicodeCustomPresetEntry[]>;
+  readZaicodeCustomPreset?(name: string): Promise<import("./zaicode-customization.js").ZaicodeCustomPresetReadResult>;
+  writeZaicodeCustomPreset?(
+    request: import("./zaicode-customization.js").ZaicodeCustomPresetWriteRequest,
+  ): Promise<import("./zaicode-customization.js").ZaicodeCustomWriteResult>;
+  openZaicodeCustomization?(request: {
+    kind: import("./zaicode-customization.js").ZaicodeCustomizationKind;
+    file?: string;
+  }): Promise<{ ok: boolean; message: string }>;
+  onZaicodeCustomizationChanged?(
+    callback: (change: import("./zaicode-customization.js").ZaicodeCustomizationChange) => void,
+  ): () => void;
   /** ZAICODE：相对位移移动窗口 (用于右键拖拽) */
   moveWindowBy?(delta: { dx: number; dy: number }): Promise<{ success: boolean }>;
   /** ZAICODE：停靠窗口至分屏区域 (FancyZones) */

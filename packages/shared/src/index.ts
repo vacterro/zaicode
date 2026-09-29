@@ -132,6 +132,7 @@ export * from "./zaicode-topology.js";
 export * from "./zaicode-splash.js";
 export * from "./zaicode-protrail.js";
 export * from "./zaicode-screen.js";
+export * from "./zaicode-customization.js";
 
 export interface ICredentialStore {
   get(key: string): Promise<string | null>;

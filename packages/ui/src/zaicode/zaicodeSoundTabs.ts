@@ -1,4 +1,4 @@
-import type { ZaicodeSoundEntry, ZaicodeSoundKind } from "./zaicodeSoundCatalog.js";
+import { isZaicodeCustomizationSoundId, type ZaicodeSoundEntry, type ZaicodeSoundKind } from "./zaicodeSoundCatalog.js";
 import { nextZaicodeCombo } from "./zaicodeCombo.js";
 
 /**
@@ -8,7 +8,7 @@ import { nextZaicodeCombo } from "./zaicodeCombo.js";
  * all. "All" clears the choice.
  */
 
-export type ZaicodeSoundTab = ZaicodeSoundKind | "all" | "favorites";
+export type ZaicodeSoundTab = ZaicodeSoundKind | "all" | "favorites" | "mine";
 
 /** The tabs after a click on `tab`; `additive` = Shift or Ctrl held. */
 export function nextZaicodeSoundTabs(
@@ -33,5 +33,10 @@ export function zaicodeSoundInTabs(
   favorites: ReadonlySet<string>,
 ): boolean {
   if (tabs.length === 0 || tabs.includes("all")) return true;
-  return tabs.includes(entry.kind) || (tabs.includes("favorites") && favorites.has(entry.id));
+  return (
+    tabs.includes(entry.kind) ||
+    (tabs.includes("favorites") && favorites.has(entry.id)) ||
+    // "Mine": the files of the customization folder, whatever their kind.
+    (tabs.includes("mine") && isZaicodeCustomizationSoundId(entry.id))
+  );
 }

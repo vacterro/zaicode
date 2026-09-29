@@ -1,11 +1,10 @@
 /* eslint-disable max-lines -- the picker, its list and its audition keys share one popover state; splitting them would scatter that state. */
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
-import { ChevronDown, Play, Square, Star, Upload } from "lucide-react";
+import { ChevronDown, FolderOpen, Play, Square, Star, Upload } from "lucide-react";
 import { cn } from "@/components/lib/utils.js";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover.js";
 import {
   formatZaicodeSoundLength,
-  listZaicodeSoundCatalog,
   zaicodeSoundDisplayName,
   zaicodeSoundEntry,
   ZAICODE_SOUND_KINDS,
@@ -13,6 +12,7 @@ import {
   type ZaicodeSoundKind,
 } from "./zaicodeSoundCatalog.js";
 import { readZaicodeSetting } from "./zaicodeSettingsSnapshot.js";
+import { openZaicodeCustomizationFolder, useZaicodeCustomSounds } from "./zaicodeCustomSounds.js";
 import { playZaicodeSoundFile, stopZaicodeSoundChannel } from "./zaicodeSoundEvents.js";
 import {
   dragZaicodeSoundTabs,
@@ -155,7 +155,7 @@ export function ZaicodeSoundPicker(props: ZaicodeSoundPickerProps) {
   const { value, onChange, allowDefault, ownFileLabel, onImportOwn, className, disabled, preferKind } = props;
   const [open, setOpen] = useState(false);
   const [trigger, setTrigger] = useState<HTMLButtonElement | null>(null);
-  const catalog = listZaicodeSoundCatalog();
+  const { catalog } = useZaicodeCustomSounds();
   const current = zaicodeSoundEntry(value);
   const label = value.startsWith("custom:")
     ? `★ ${ownFileLabel ?? "own file"}`
@@ -244,7 +244,8 @@ function PickerBody(
 ) {
   const { value, current, onPick, allowDefault, onImportOwn, preferKind } = props;
   const prefs = usePickerPrefs();
-  const catalog = listZaicodeSoundCatalog();
+  const custom = useZaicodeCustomSounds();
+  const { catalog } = custom;
   const [tabs, setTabs] = useState<Tab[]>(() =>
     prefs.tabs.length > 1 ? prefs.tabs : [current?.kind ?? preferKind ?? "all"],
   );
@@ -339,6 +340,9 @@ function PickerBody(
   const tabList: { id: Tab; label: string; hint: string; count: number }[] = [
     { id: "all", label: "All", hint: "Every sound", count: catalog.length },
     { id: "favorites", label: "★", hint: "Your favourites (click the star on a row)", count: prefs.favorites.length },
+    ...(custom.available
+      ? [{ id: "mine" as const, label: "Mine", hint: "Files you dropped into the customization folder (the list updates by itself)", count: custom.mine.length }]
+      : []),
     ...ZAICODE_SOUND_KINDS.map((kind) => ({ ...kind, count: counts.get(kind.id) ?? 0 })),
   ];
 
@@ -464,7 +468,13 @@ function PickerBody(
         role="listbox"
         aria-label="Sounds"
       >
-        {ids.length === 0 ? <div className="px-2 py-1 text-foreground-subtlest">Nothing matches.</div> : null}
+        {ids.length === 0 ? (
+          <div className="px-2 py-1 text-foreground-subtlest">
+            {tabs.includes("mine") && !filter.trim() && custom.mine.length === 0
+              ? "Nothing here yet. Drop WAV, MP3 or OGG files into your sounds folder (button below): they appear here at once."
+              : "Nothing matches."}
+          </div>
+        ) : null}
         {ids.map((id, index) => {
           const entry = id === "default" ? null : (shown[defaultRow ? index - 1 : index] ?? null);
           const favorite = prefs.favorites.includes(id);
@@ -543,16 +553,29 @@ function PickerBody(
       </div>
       <div className="flex items-center justify-between gap-2 text-[10px] text-foreground-subtlest">
         <span>Click listens · wheel / ↑↓ listen while “listen” is on · double-click, Enter or “use” picks · Esc closes</span>
-        {onImportOwn ? (
-          <button
-            type="button"
-            className="flex items-center gap-1 border border-border px-1 text-foreground-subtle hover:bg-hover hover:text-foreground"
-            onClick={onImportOwn}
-          >
-            <Upload className="size-3" />
-            Own file…
-          </button>
-        ) : null}
+        <div className="flex shrink-0 items-center gap-1">
+          {custom.available ? (
+            <button
+              type="button"
+              className="flex items-center gap-1 border border-border px-1 text-foreground-subtle hover:bg-hover hover:text-foreground"
+              title={`Open the folder for your own sounds${custom.info ? `\n${custom.info.soundsDir}` : ""}\nWhat you drop there shows up in the "Mine" tab at once.`}
+              onClick={() => void openZaicodeCustomizationFolder({ kind: "sounds" })}
+            >
+              <FolderOpen className="size-3" />
+              Folder
+            </button>
+          ) : null}
+          {onImportOwn ? (
+            <button
+              type="button"
+              className="flex items-center gap-1 border border-border px-1 text-foreground-subtle hover:bg-hover hover:text-foreground"
+              onClick={onImportOwn}
+            >
+              <Upload className="size-3" />
+              Own file…
+            </button>
+          ) : null}
+        </div>
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { ZaicodeSoundNormalizePanel } from "./ZaicodeSoundNormalizePanel.js";
+import { ZaicodeCustomSoundsStrip } from "./ZaicodeCustomSoundsStrip.js";
 import { ZaicodePoolControls, ZaicodePoolModeButton } from "./ZaicodeSoundPoolControls.js";
 import {
   AlertTriangle,
@@ -136,6 +137,7 @@ export function ZaicodeSoundSettings() {
             Every action has its own row. Gain is relative to the master volume: 0 dB = master.
           </span>
         </div>
+        <ZaicodeCustomSoundsStrip />
         <div className="mt-2 grid grid-cols-[auto_1fr_auto] items-center gap-x-3 gap-y-2 text-ui-xs">
           <span className="text-foreground-subtle">Master volume</span>
           <input

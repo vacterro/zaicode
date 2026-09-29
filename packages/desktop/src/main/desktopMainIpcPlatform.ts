@@ -102,6 +102,7 @@ import { writeZaicodePromptFile } from "./zaicodePromptFiles.js";
 import { saveZaicodeSettingsSnapshot } from "./zaicodeSettingsSnapshot.js";
 import { setZaicodeGlobalHotkeys } from "./zaicodeGlobalHotkeys.js";
 import { registerZaicodeProtrailGlobalIpc } from "./zaicodeProtrailGlobal.js";
+import { registerZaicodeCustomizationIpc } from "./zaicodeCustomizationHost.js";
 import { zaicodePixelExactApplied } from "./zaicodeCrispFonts.js";
 
 export function registerPlatformIpcHandlers(options: {
@@ -436,6 +437,7 @@ export function registerPlatformIpcHandlers(options: {
     return { ok: true };
   });
   registerZaicodeProtrailGlobalIpc({ log: (message) => options.logger.info(`[protrail] ${message}`) });
+  registerZaicodeCustomizationIpc({ log: (message) => options.logger.info(`[customization] ${message}`) });
   ipcMain.handle(PlatformChannels.SetZaicodeSplashPrefs, (_event, input: unknown) =>
     setZaicodeSplashPrefs(parseZaicodeSplashPrefsInput(input)),
   );

@@ -35,6 +35,18 @@ import type {
 import type { ZaicodeProtrailGlobalStatus } from "./zaicode-protrail.js";
 import type { ZaicodeScreenMode } from "./zaicode-screen.js";
 import type {
+  ZaicodeCustomizationChange,
+  ZaicodeCustomizationInfo,
+  ZaicodeCustomizationKind,
+  ZaicodeCustomPresetEntry,
+  ZaicodeCustomPresetReadResult,
+  ZaicodeCustomPresetWriteRequest,
+  ZaicodeCustomSoundList,
+  ZaicodeCustomSoundReadResult,
+  ZaicodeCustomSoundWriteRequest,
+  ZaicodeCustomWriteResult,
+} from "./zaicode-customization.js";
+import type {
   CancelPendingRemoteConnectionRequest,
   BindRemoteWorkspaceSessionContextRequest,
   BrowserViewScreenshotSurfacePreparePayload,
@@ -430,6 +442,23 @@ export const PlatformChannels = {
   GetZaicodeProtrailGlobalStatus: "zaicode:get-protrail-global-status",
   /** Main → ProTrail overlay page (send)：config, monitor origin and mouse events */
   ZaicodeProtrailOverlayFeed: "zaicode:protrail-overlay-feed",
+  /** Renderer → Main：where the customization folder is (T-126) */
+  GetZaicodeCustomizationInfo: "zaicode:customization-info",
+  /** Renderer → Main：the sounds in customization\sounds, with lengths */
+  ListZaicodeCustomSounds: "zaicode:customization-list-sounds",
+  /** Renderer → Main：the bytes of one sound inside customization\sounds */
+  ReadZaicodeCustomSound: "zaicode:customization-read-sound",
+  /** Renderer → Main：put a sound into customization\sounds (never overwrites a different file) */
+  WriteZaicodeCustomSound: "zaicode:customization-write-sound",
+  /** Renderer → Main：the preset files in customization\presets */
+  ListZaicodeCustomPresets: "zaicode:customization-list-presets",
+  ReadZaicodeCustomPreset: "zaicode:customization-read-preset",
+  /** Renderer → Main：save a preset file into customization\presets (never overwrites a different file) */
+  WriteZaicodeCustomPreset: "zaicode:customization-write-preset",
+  /** Renderer → Main：open the customization folder, or show one file of it, in the file manager */
+  OpenZaicodeCustomization: "zaicode:customization-open",
+  /** Main → Renderer (send)：something changed inside the customization folder */
+  ZaicodeCustomizationChanged: "zaicode:customization-changed",
   /** Renderer → Main：dev 按钮，把当前界面设置快照写成随包默认值（源码树）+ userData 备份 */
   SaveZaicodeSettingsSnapshot: "zaicode:save-settings-snapshot",
   /** Renderer → Main：相对位移移动窗口 (用于右键拖拽) */
@@ -1234,6 +1263,44 @@ export interface PlatformChannelMap {
   [PlatformChannels.GetZaicodeProtrailGlobalStatus]: {
     request: void;
     response: ZaicodeProtrailGlobalStatus;
+  };
+  [PlatformChannels.GetZaicodeCustomizationInfo]: {
+    request: void;
+    response: ZaicodeCustomizationInfo;
+  };
+  [PlatformChannels.ListZaicodeCustomSounds]: {
+    request: void;
+    response: ZaicodeCustomSoundList;
+  };
+  [PlatformChannels.ReadZaicodeCustomSound]: {
+    /** Path inside customization\sounds. */
+    request: string;
+    response: ZaicodeCustomSoundReadResult;
+  };
+  [PlatformChannels.WriteZaicodeCustomSound]: {
+    request: ZaicodeCustomSoundWriteRequest;
+    response: ZaicodeCustomWriteResult;
+  };
+  [PlatformChannels.ListZaicodeCustomPresets]: {
+    request: void;
+    response: ZaicodeCustomPresetEntry[];
+  };
+  [PlatformChannels.ReadZaicodeCustomPreset]: {
+    request: string;
+    response: ZaicodeCustomPresetReadResult;
+  };
+  [PlatformChannels.WriteZaicodeCustomPreset]: {
+    request: ZaicodeCustomPresetWriteRequest;
+    response: ZaicodeCustomWriteResult;
+  };
+  [PlatformChannels.OpenZaicodeCustomization]: {
+    /** What to open; `file` (a path inside that folder) shows the file selected instead. */
+    request: { kind: ZaicodeCustomizationKind; file?: string };
+    response: { ok: boolean; message: string };
+  };
+  [PlatformChannels.ZaicodeCustomizationChanged]: {
+    request: ZaicodeCustomizationChange;
+    response: void;
   };
   [PlatformChannels.SaveZaicodeSettingsSnapshot]: {
     request: string;

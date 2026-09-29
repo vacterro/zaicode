@@ -253,9 +253,14 @@ export function newPresetId(): string {
   return `preset-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
+/** What every export of one page's presets starts with: `zaicode-preset-sounds-`. The presets folder is listed by it. */
+export function presetFilePrefix(section: ZaicodePresetSectionId): string {
+  return `zaicode-preset-${zaicodeFileStem(section.replace(/^zaicode/, "").toLowerCase() || "settings", "settings")}-`;
+}
+
 /** The file name an export gets: what it is, whose it is. */
 export function presetFileName(section: ZaicodePresetSectionId, name: string): string {
-  return `zaicode-preset-${zaicodeFileStem(section.replace(/^zaicode/, "").toLowerCase() || "settings", "settings")}-${zaicodeFileStem(name, "preset")}.json`;
+  return `${presetFilePrefix(section)}${zaicodeFileStem(name, "preset")}.json`;
 }
 
 export function buildPresetFile(preset: ZaicodePreset, payloads: readonly PresetAssetPayload[], app?: string): ZaicodePresetFile {

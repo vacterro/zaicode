@@ -7,6 +7,7 @@ import type { PresetEnv } from "./zaicodePresetApply.js";
 import { zaicodePresetBlobStore } from "./zaicodePresetBlobs.js";
 import { setZaicodePresetUndo, usedBlobDigests, useZaicodePresets } from "./zaicodePresetStore.js";
 import { markPresetReopen } from "./zaicodePresetReopen.js";
+import { zaicodeCustomizationSoundSource } from "./zaicodeCustomSounds.js";
 
 /**
  * The real environment of the preset system (T-125): this window's storage, its own sounds, the way new
@@ -38,7 +39,7 @@ export const zaicodePresetEnv: PresetEnv = {
   read: readZaicodeSetting,
   // A refused write throws: the apply then puts everything back instead of leaving a page half changed.
   write: writeSetting,
-  sources: [zaicodeOwnSoundSource],
+  sources: [zaicodeOwnSoundSource, zaicodeCustomizationSoundSource],
   blobs: zaicodePresetBlobStore,
   undo: {
     get: (section) => useZaicodePresets.getState().undos[section] ?? null,

@@ -75,8 +75,23 @@ export function listZaicodeSoundCatalog(): readonly ZaicodeSoundEntry[] {
   return catalog;
 }
 
+/**
+ * Entries that come and go while the app runs: the files of the customization folder (zaicodeCustomSounds.ts
+ * owns them and publishes here). Kept apart from the bundled catalog, which never changes after start.
+ */
+let extraEntries: ReadonlyMap<string, ZaicodeSoundEntry> = new Map();
+
+export function setZaicodeExtraSoundEntries(entries: readonly ZaicodeSoundEntry[]): void {
+  extraEntries = new Map(entries.map((entry) => [entry.id, entry]));
+}
+
+/** Whether `id` names a file of the customization folder (`customization:<path>`). */
+export function isZaicodeCustomizationSoundId(id: string): boolean {
+  return id.startsWith("customization:");
+}
+
 export function zaicodeSoundEntry(id: string): ZaicodeSoundEntry | undefined {
-  return listZaicodeSoundCatalog().find((entry) => entry.id === id);
+  return extraEntries.get(id) ?? listZaicodeSoundCatalog().find((entry) => entry.id === id);
 }
 
 /** Human label of any stored sound id. */
@@ -85,5 +100,7 @@ export function zaicodeSoundDisplayName(id: string): string {
   if (id.startsWith("custom:")) return "own file";
   const entry = zaicodeSoundEntry(id);
   if (entry) return entry.folder ? `${entry.name} · ${entry.folder.replace(/^_vault\//, "")}` : entry.name;
+  // A file that was in the customization folder and is gone: say so instead of showing the raw id.
+  if (isZaicodeCustomizationSoundId(id)) return `${id.slice(id.lastIndexOf("/") + 1).replace(/^customization:/, "")} (missing)`;
   return id.replace(/^fastprompter:/, "");
 }

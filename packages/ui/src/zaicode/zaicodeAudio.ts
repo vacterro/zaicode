@@ -4,6 +4,7 @@ import { useSyncExternalStore } from "react";
 import { readZaicodeSetting } from "./zaicodeSettingsSnapshot.js";
 import { listTaskNotificationSounds } from "@/lib/taskNotificationSound.js";
 import { playZaicodeSound } from "./zaicodeSoundBus.js";
+import { requestZaicodeCustomSoundUrl, subscribeZaicodeCustomSounds } from "./zaicodeCustomSounds.js";
 
 /**
  * ZAICODE audio, ported from FastPrompter:
@@ -77,6 +78,8 @@ const ambienceFiles = import.meta.glob("../assets/fastprompter-sounds/**/*.{wav,
 }) as Record<string, string>;
 
 function ambienceUrl(id: string): string | null {
+  // A file of the customization folder is read through main; the layer starts when the read lands.
+  if (id.startsWith("customization:")) return requestZaicodeCustomSoundUrl(id, reconcileAmbience);
   const rel = id.replace(/^fastprompter:/, "");
   const entry = Object.entries(ambienceFiles).find(([path]) =>
     path.endsWith(`/fastprompter-sounds/${rel}`),
@@ -491,6 +494,8 @@ export function setZaicodeAmbienceActive(active: boolean): void {
 // Settings changes (sound, volume, enabled) apply immediately, even mid-playback.
 if (typeof window !== "undefined") {
   window.addEventListener(CHANGE_EVENT, () => reconcileAmbience());
+  // A customization sound that was replaced, removed or dropped in while the layer wants it.
+  subscribeZaicodeCustomSounds(() => reconcileAmbience());
 }
 
 /** Plays one Problip cue now. Returns false when skipped (busy) or unplayable. */

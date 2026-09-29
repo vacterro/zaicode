@@ -799,6 +799,26 @@ contextBridge.exposeInMainWorld("zcode", {
     ipcRenderer.invoke(PlatformChannels.GetZaicodeProtrailGlobalStatus),
   saveZaicodeSettingsSnapshot: (json: string): Promise<{ ok: boolean; message: string; sourcePath: string | null; backupPath: string | null }> =>
     ipcRenderer.invoke(PlatformChannels.SaveZaicodeSettingsSnapshot, json),
+  getZaicodeCustomizationInfo: () => ipcRenderer.invoke(PlatformChannels.GetZaicodeCustomizationInfo),
+  listZaicodeCustomSounds: () => ipcRenderer.invoke(PlatformChannels.ListZaicodeCustomSounds),
+  readZaicodeCustomSound: (path: string) => ipcRenderer.invoke(PlatformChannels.ReadZaicodeCustomSound, path),
+  writeZaicodeCustomSound: (request: { path: string; bytes: Uint8Array }) =>
+    ipcRenderer.invoke(PlatformChannels.WriteZaicodeCustomSound, request),
+  listZaicodeCustomPresets: () => ipcRenderer.invoke(PlatformChannels.ListZaicodeCustomPresets),
+  readZaicodeCustomPreset: (name: string) => ipcRenderer.invoke(PlatformChannels.ReadZaicodeCustomPreset, name),
+  writeZaicodeCustomPreset: (request: { name: string; text: string }) =>
+    ipcRenderer.invoke(PlatformChannels.WriteZaicodeCustomPreset, request),
+  openZaicodeCustomization: (request: { kind: "root" | "sounds" | "presets"; file?: string }) =>
+    ipcRenderer.invoke(PlatformChannels.OpenZaicodeCustomization, request),
+  onZaicodeCustomizationChanged: (callback: (change: "sounds" | "presets") => void): (() => void) => {
+    const listener = (_event: unknown, change: unknown) => {
+      if (change === "sounds" || change === "presets") callback(change);
+    };
+    ipcRenderer.on(PlatformChannels.ZaicodeCustomizationChanged, listener);
+    return () => {
+      ipcRenderer.removeListener(PlatformChannels.ZaicodeCustomizationChanged, listener);
+    };
+  },
   moveWindowBy: (delta: { dx: number; dy: number }): Promise<{ success: boolean }> =>
     ipcRenderer.invoke(PlatformChannels.MoveWindowBy, delta),
   snapWindowZone: (zone: { fx: number; fy: number; fw: number; fh: number; state?: "normal" | "maximized" }): Promise<{ success: boolean }> =>
