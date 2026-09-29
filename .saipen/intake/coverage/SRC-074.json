@@ -1,4 +1,14 @@
 {
-  "requirements": {},
+  "requirements": {
+    "SRC-074:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "T-112 closed with verification evidence in LOG: RUN: review -> PASS conf: high [target: T-112] -- the diff read against the intent, not only against the tests. One real defect found in MY OWN first commit and fixed at 00dcee9: runZaicodeA3 called audits!.getState() before asking the decision whether a service existed, so with the host disconnected /a3 threw a TypeError instead of the message planZaicodeA3's hasService branch was written to prod",
+      "text": "Wave 5: A3 audit system rebuilt to real AUDAPACK Quick3 semantics -- canonical profile, report validation, frozen source identity, exactly-once waves, artifact synthesis, /a3 command",
+      "verification": "the Work this request created reached its own verification gate; see the T-112 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-112"
+    }
+  },
   "schema_version": 1
 }
