@@ -42,6 +42,14 @@ export function ZaicodeAutoRetryNotice({ state }: { state: ZaicodeAutoRetryState
             {state.attempts + 1}/{state.maxAttempts}
           </span>
         </span>
+      ) : state.blockedBy === "quota" ? (
+        <span data-zaicode-retry-blocked="quota">
+          Usage limit: nothing retries by itself, asking again does not lift it. Retry now tries once.
+        </span>
+      ) : state.blockedBy === "auto-off" ? (
+        <span data-zaicode-retry-blocked="auto-off">
+          Auto is OFF: nothing retries by itself. Retry now, or turn Auto ON in the sidebar.
+        </span>
       ) : state.exhausted ? (
         <span className="text-destructive">
           Auto-retry gave up after {state.maxAttempts} attempts.
@@ -77,7 +85,7 @@ export function ZaicodeAutoRetryNotice({ state }: { state: ZaicodeAutoRetryState
           type="button"
           className="border border-border px-1.5 hover:bg-hover hover:text-foreground"
           onClick={() => update({ autoRetry: !autoRetry })}
-          title="Auto-retry after errors, for every session (Settings -> ZAICODE)"
+          title="Auto-retry after errors, for every session. It also needs the sidebar Auto ON (Settings -> Workers)"
         >
           {autoRetry ? "Auto: on" : "Auto: off"}
         </button>

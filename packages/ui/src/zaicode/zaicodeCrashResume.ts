@@ -11,7 +11,8 @@ import {
   type ZaicodeSessionBrief,
 } from "./zaicodeContinue.js";
 import { zaicodeContinueHandleFor } from "./zaicodeContinueHost.js";
-import { zaicodeAutoContinueAllowed, zaicodeAutoContinueModeFor } from "./zaicodeAutoContinue.js";
+import { zaicodeAutoContinueModeFor } from "./zaicodeAutoContinue.js";
+import { zaicodeMasterAutoOn, zaicodeMayAutoSend } from "./zaicodeRetryPolicy.js";
 import { useZaicodeUiPrefs } from "./zaicodeUiPrefs.js";
 import { relaunchZaicodeWorkersAfterCrash } from "./zaicodeWorkerRecovery.js";
 
@@ -147,7 +148,13 @@ export function useZaicodeCrashResume(): void {
         projectFacts,
         Date.now(),
         prefs.resumeAfterCrashHours,
-        (sessionId) => zaicodeAutoContinueAllowed(zaicodeAutoContinueModeFor(sessionId), prefs.resumeAfterCrash),
+        // SRC-082: the sidebar's Auto is the master here too; only a session that says On skips it.
+        (sessionId) =>
+          zaicodeMayAutoSend({
+            mode: zaicodeAutoContinueModeFor(sessionId),
+            masterOn: zaicodeMasterAutoOn(),
+            featureOn: prefs.resumeAfterCrash,
+          }),
       );
     };
     const first = window.setTimeout(() => {

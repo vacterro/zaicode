@@ -27,6 +27,7 @@ import { playZaicodeSound } from "./zaicodeSoundBus.js";
 import { zaicodeContinueHandleFor } from "./zaicodeContinueHost.js";
 import { resolveZaicodeServices } from "./zaicodeServices.js";
 import { useZaicodeAuditStore } from "./zaicodeAuditStore.js";
+import { ZaicodeRetryLedgerChip } from "./ZaicodeRetryLedgerChip.js";
 
 /**
  * Two big sidebar buttons (SRC-043):
@@ -283,7 +284,8 @@ export function ZaicodeSessionActionStrip() {
           )}
           aria-pressed={auto.smartMode}
           disabled={!audits}
-          title={`Auto: continue open project work, wait for SAIPEN to report DONE, then run A3 audits and implement findings. Maximum ${auto.maxCycles} audit cycles per project; change it in Audits.`}
+          title={`Auto: continue open project work, wait for SAIPEN to report DONE, then run A3 audits and implement findings. Maximum ${auto.maxCycles} audit cycles per project; change it in Audits.
+OFF means nothing acts by itself: no retry of a failed turn, no resume after a crash (a session set to Auto-continue: On excepted).`}
           onClick={() => {
             if (audits && !autoSwitchPending.current) {
               autoSwitchPending.current = true;
@@ -387,6 +389,8 @@ export function ZaicodeSessionActionStrip() {
           </button>
         </ZaicodeRightClickSettings>
       </div>
+      {/* SRC-082: every automatic retry that is scheduled, and one button that stops them all. */}
+      <ZaicodeRetryLedgerChip />
     </>
   );
 }

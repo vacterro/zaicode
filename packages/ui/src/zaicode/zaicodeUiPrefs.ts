@@ -7,6 +7,11 @@ import { readZaicodeSetting } from "./zaicodeSettingsSnapshot.js";
  * retry after a failed model turn. Renderer-local (per machine), applied live.
  */
 
+/** Whatever the settings say, an automatic retry gives up after this many attempts (SRC-082). */
+export const ZAICODE_AUTO_RETRY_HARD_CAP = 8;
+/** What the "Give up after" setting starts from. */
+export const ZAICODE_AUTO_RETRY_DEFAULT_ATTEMPTS = 5;
+
 export type ZaicodeGreetingMode = "time" | "custom";
 export type ZaicodeSaimailClick = "brief" | "settings" | "reader";
 /** CLEAR: empty this session in place (default) or open a new empty one. */
@@ -79,7 +84,7 @@ export const ZAICODE_UI_DEFAULT_PREFS: ZaicodeUiPrefs = {
   saimailClick: "reader",
   autoRetry: true,
   autoRetryIntervalSec: 60,
-  autoRetryMaxAttempts: 100,
+  autoRetryMaxAttempts: ZAICODE_AUTO_RETRY_DEFAULT_ATTEMPTS,
   resumeAfterCrash: true,
   resumeAfterCrashHours: 12,
   relaunchWorkersAfterCrash: true,
@@ -124,7 +129,7 @@ export function normalizeZaicodeUiPrefs(raw: unknown): ZaicodeUiPrefs {
       : d.saimailClick,
     autoRetry: flag(r.autoRetry, d.autoRetry),
     autoRetryIntervalSec: int(r.autoRetryIntervalSec, 10, 3600, d.autoRetryIntervalSec),
-    autoRetryMaxAttempts: int(r.autoRetryMaxAttempts, 1, 1000, d.autoRetryMaxAttempts),
+    autoRetryMaxAttempts: int(r.autoRetryMaxAttempts, 1, ZAICODE_AUTO_RETRY_HARD_CAP, d.autoRetryMaxAttempts),
     resumeAfterCrash: flag(r.resumeAfterCrash, d.resumeAfterCrash),
     resumeAfterCrashHours: int(r.resumeAfterCrashHours, 1, 168, d.resumeAfterCrashHours),
     relaunchWorkersAfterCrash: flag(r.relaunchWorkersAfterCrash, d.relaunchWorkersAfterCrash),

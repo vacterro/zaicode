@@ -16,10 +16,23 @@ import {
   resetZaicodeAutoRetryAttempt,
   zaicodeAutoRetryAttempts,
 } from "./zaicodeAutoRetry.js";
+import {
+  isZaicodeQuotaWall,
+  useZaicodeRetryLedger,
+  zaicodeAutoSendAllowed,
+  zaicodeRetryDelayMs,
+  zaicodeRetryLimit,
+} from "./zaicodeRetryPolicy.js";
 import { useZaicodeUiPrefs } from "./zaicodeUiPrefs.js";
 
 /**
- * Background auto-retry (SRC-051): a turn that fails in a project nobody has
+ * Background auto-retry (SRC-051; SRC-082 gave it a leash): it only works while the
+ * sidebar's Auto is ON (or the session's own auto-continue is On), never on a session a
+ * pane saw hit a quota wall, waits longer after every attempt, gives up after at most
+ * ZAICODE_AUTO_RETRY_HARD_CAP attempts, and every scheduled knock is in the ledger the
+ * sidebar shows, with one button that stops them all.
+ *
+ * Original (SRC-051): a turn that fails in a project nobody has
  * open retries on its own — the operator does not have to walk into the
  * project to arm the countdown. The open pane keeps its richer countdown
  * (useZaicodeAutoRetry, with "Retry now" / "Stop"); this host covers every
@@ -46,6 +59,10 @@ export function pickZaicodeBackgroundRetrySessions(
     isProjectDisabled: (projectKey: string) => boolean;
     attemptsOf: (sessionId: string) => number;
     maxAttempts: number;
+    /** The switches (sidebar Auto, the session's own mode, the retry switch) allow this session. */
+    mayAutoSend?: (sessionId: string) => boolean;
+    /** A pane saw this session hit a quota wall: asking again does not lift it. */
+    isQuotaWall?: (sessionId: string) => boolean;
   },
 ): ZaicodeSessionBrief[] {
   return briefs.filter(
@@ -55,6 +72,8 @@ export function pickZaicodeBackgroundRetrySessions(
       !brief.waiting &&
       !options.isLocal(brief.sessionId) &&
       !options.isProjectDisabled(brief.projectKey) &&
+      (options.mayAutoSend?.(brief.sessionId) ?? true) &&
+      !(options.isQuotaWall?.(brief.sessionId) ?? false) &&
       options.attemptsOf(brief.sessionId) < options.maxAttempts,
   );
 }
@@ -71,17 +90,20 @@ export function useZaicodeTurnRetryWatch(): void {
         window.clearTimeout(watch.timer);
         watches.delete(sessionId);
       }
+      useZaicodeRetryLedger.getState().clear(sessionId);
     };
 
     const fire = (brief: ZaicodeSessionBrief) => {
       watches.delete(brief.sessionId);
+      useZaicodeRetryLedger.getState().clear(brief.sessionId);
       const prefs = useZaicodeUiPrefs.getState();
-      if (!prefs.autoRetry) return;
+      // The gate is asked again at the moment of sending, not only when the timer was set.
+      if (!zaicodeAutoSendAllowed(brief.sessionId, prefs.autoRetry) || isZaicodeQuotaWall(brief.sessionId)) return;
       const current = useZaicodeSessionBriefs.getState().sessions.find((item) => item.sessionId === brief.sessionId);
       if (!current?.failed || current.running || current.waiting || isZaicodeAutoRetryLocal(current.sessionId)) return;
       if (inFlight.has(current.sessionId)) return;
       const project = useZaicodeHomeProjects.getState().rows[current.projectKey];
-      if (project?.disabled || zaicodeAutoRetryAttempts(current.sessionId) >= prefs.autoRetryMaxAttempts) return;
+      if (project?.disabled || zaicodeAutoRetryAttempts(current.sessionId) >= zaicodeRetryLimit(prefs.autoRetryMaxAttempts)) return;
       const hasSaipen = project?.hasSaipen ?? false;
       const unfinishedGoal =
         current.goalObjective && (current.goalStatus === "active" || current.goalStatus === "paused");
@@ -129,19 +151,28 @@ export function useZaicodeTurnRetryWatch(): void {
         isLocal: isZaicodeAutoRetryLocal,
         isProjectDisabled: (projectKey) => Boolean(useZaicodeHomeProjects.getState().rows[projectKey]?.disabled),
         attemptsOf: zaicodeAutoRetryAttempts,
-        maxAttempts: prefs.autoRetryMaxAttempts,
+        maxAttempts: zaicodeRetryLimit(prefs.autoRetryMaxAttempts),
+        mayAutoSend: (sessionId) => zaicodeAutoSendAllowed(sessionId, prefs.autoRetry),
+        isQuotaWall: isZaicodeQuotaWall,
       });
       const failedIds = new Set(failedNow.map((brief) => brief.sessionId));
       // Retired watches: the session recovered, vanished, or its pane took over.
       for (const sessionId of [...watches.keys()]) {
-        if (!failedIds.has(sessionId) || !prefs.autoRetry) clearWatch(sessionId);
+        if (!failedIds.has(sessionId)) clearWatch(sessionId);
       }
-      if (!prefs.autoRetry) return;
-      const delay = Math.max(1, prefs.autoRetryIntervalSec) * 1000;
       for (const brief of failedNow) {
         if (watches.has(brief.sessionId) || inFlight.has(brief.sessionId)) continue;
+        const attempts = zaicodeAutoRetryAttempts(brief.sessionId);
+        const delay = zaicodeRetryDelayMs(prefs.autoRetryIntervalSec, attempts);
         const timer = window.setTimeout(() => fire(brief), delay);
         watches.set(brief.sessionId, { timer });
+        useZaicodeRetryLedger.getState().set({
+          sessionId: brief.sessionId,
+          title: brief.title,
+          nextAt: Date.now() + delay,
+          attempt: attempts + 1,
+          source: "background",
+        });
       }
     };
 
