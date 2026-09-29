@@ -2,6 +2,7 @@ import { app } from "electron";
 import { mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import {
+  ZAICODE_SAIMAIL_DESK_ENV,
   DEFAULT_ZAICODE_SPLASH_OPTIONS,
   normalizeZaicodeSplashOptions,
   type ZaicodeSplashFit,
@@ -171,10 +172,19 @@ export function setZaicodeSaimailWorkspace(workspace: string | null): ZaicodeLau
  * An externally provided SAIMAIL_WORKSPACE is never overridden.
  */
 export function applyZaicodeSaimailEnvironment(): void {
+  // The desk path is a fixed place under userData, so agents can be told about it
+  // at spawn even before the desk exists: pairing later needs no restart, and an
+  // agent only sees guidance once the desk is really there (identity.ts checks).
+  if (!process.env[ZAICODE_SAIMAIL_DESK_ENV]?.trim()) process.env[ZAICODE_SAIMAIL_DESK_ENV] = zaicodeSaimailDeskPath();
   if (externalSaimailWorkspace) return;
   const workspace = readZaicodeLauncherPreferences().saimailWorkspace;
   if (workspace) process.env[SAIMAIL_WORKSPACE_ENV] = workspace;
   else delete process.env[SAIMAIL_WORKSPACE_ENV];
+}
+
+/** The agents' own SAIMAIL workspace: app data, not the operator's folder, so agent keys never sit in the operator's mailbox. */
+export function zaicodeSaimailDeskPath(): string {
+  return join(app.getPath("userData"), "saimail", "agent");
 }
 
 export function effectiveZaicodeSaimailWorkspace(): string | null {

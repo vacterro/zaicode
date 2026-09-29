@@ -23,6 +23,11 @@ import type {
 } from "./rendererActionTrace.js";
 import type { RendererHeapSample } from "./validation.js";
 import type { ZaicodeSplashPrefsInput, ZaicodeSplashPrefsState } from "./zaicode-splash.js";
+import type {
+  ZaicodeSaimailPostAction,
+  ZaicodeSaimailPostResult,
+  ZaicodeSaimailPostStatus,
+} from "./zaicode-saimail-post.js";
 import type { ZaicodeProtrailGlobalStatus } from "./zaicode-protrail.js";
 import type { ZaicodeScreenMode } from "./zaicode-screen.js";
 import type {
@@ -399,6 +404,10 @@ export const PlatformChannels = {
   SetZaicodeSaimailWorkspace: "zaicode:set-saimail-workspace",
   /** Renderer → Main：运营者显式点击后，用 saimail-local init 在该目录创建 operator 邮箱 */
   InitZaicodeSaimailWorkspace: "zaicode:init-saimail-workspace",
+  /** Renderer → Main：the SAIMAIL post office verdict (operator mailbox + agent desk + pairing), read-only */
+  GetZaicodeSaimailPost: "zaicode:saimail-post-status",
+  /** Renderer → Main：explicit click only — pair the agent desk with the operator mailbox, or send a test letter */
+  RunZaicodeSaimailPost: "zaicode:saimail-post-run",
   /** Renderer → Main：像素级清晰渲染（100% 缩放 + 位图字体），下次启动生效 */
   GetZaicodePixelExact: "zaicode:get-pixel-exact",
   SetZaicodePixelExact: "zaicode:set-pixel-exact",
@@ -1168,6 +1177,14 @@ export interface PlatformChannelMap {
   [PlatformChannels.InitZaicodeSaimailWorkspace]: {
     request: string;
     response: { ok: boolean; message: string };
+  };
+  [PlatformChannels.GetZaicodeSaimailPost]: {
+    request: void;
+    response: ZaicodeSaimailPostStatus;
+  };
+  [PlatformChannels.RunZaicodeSaimailPost]: {
+    request: ZaicodeSaimailPostAction;
+    response: ZaicodeSaimailPostResult;
   };
   [PlatformChannels.GetZaicodePixelExact]: {
     request: void;

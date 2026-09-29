@@ -77,12 +77,15 @@ import { registerDesktopSaveFileIpcHandler } from "./desktopSaveFile.js";
 import { registerDesktopPrintToPdfIpcHandler } from "./desktopPrintToPdf.js";
 import { registerCuaPipActiveSessionIpc } from "./desktopCuaPipIpc.js";
 import {
+  effectiveZaicodeSaimailWorkspace,
   readZaicodeLauncherPreferences,
   setZaicodeAutoRestartOnCrash,
   setZaicodePixelExact,
   setZaicodeSaimailWorkspace,
+  zaicodeSaimailDeskPath,
 } from "./zaicodeLauncherPreferences.js";
 import { initZaicodeSaimailWorkspace } from "./zaicodeSaimailInit.js";
+import { getZaicodeSaimailPostStatus, runZaicodeSaimailPostAction } from "./zaicodeSaimailPost.js";
 import { parseZaicodeSplashPrefsInput } from "./zaicodeSplashFiles.js";
 import { readZaicodeSplashPrefs, setZaicodeSplashPrefs } from "./zaicodeSplashPrefs.js";
 import {
@@ -443,6 +446,21 @@ export function registerPlatformIpcHandlers(options: {
     if (typeof workspace !== "string" || !workspace.trim())
       throw new TypeError("Expected SAIMAIL workspace path");
     return initZaicodeSaimailWorkspace(workspace.trim());
+  });
+  ipcMain.handle(PlatformChannels.GetZaicodeSaimailPost, () =>
+    getZaicodeSaimailPostStatus({
+      operatorPath: effectiveZaicodeSaimailWorkspace(),
+      deskPath: zaicodeSaimailDeskPath(),
+    }),
+  );
+  ipcMain.handle(PlatformChannels.RunZaicodeSaimailPost, (_event, action: unknown) => {
+    if (action !== "pair" && action !== "test-letter")
+      throw new TypeError("Expected a SAIMAIL post action (pair or test-letter)");
+    return runZaicodeSaimailPostAction({
+      action,
+      operatorPath: effectiveZaicodeSaimailWorkspace(),
+      deskPath: zaicodeSaimailDeskPath(),
+    });
   });
   ipcMain.handle(PlatformChannels.MoveWindowBy, (event, delta: unknown) => {
     const senderWindow = BrowserWindow.fromWebContents(event.sender);

@@ -289,6 +289,10 @@ declare global {
         workspace: string | null,
       ): Promise<{ autoRestartOnCrash: boolean; saimailWorkspace: string | null }>;
       initZaicodeSaimailWorkspace?(workspace: string): Promise<{ ok: boolean; message: string }>;
+      getZaicodeSaimailPost?(): Promise<import("@zcode/shared").ZaicodeSaimailPostStatus>;
+      runZaicodeSaimailPost?(
+        action: import("@zcode/shared").ZaicodeSaimailPostAction,
+      ): Promise<import("@zcode/shared").ZaicodeSaimailPostResult>;
       getZaicodePixelExact?(): Promise<{ pixelExact: boolean }>;
       setZaicodePixelExact?(enabled: boolean): Promise<{ pixelExact: boolean }>;
       saveZaicodeSettingsSnapshot?(json: string): Promise<{ ok: boolean; message: string; sourcePath: string | null; backupPath: string | null }>;

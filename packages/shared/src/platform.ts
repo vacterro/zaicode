@@ -21,6 +21,11 @@ import type {
 } from "./rendererActionTrace.js";
 import type { RendererHeapSample } from "./validation.js";
 import type { ZaicodeSplashPrefsInput, ZaicodeSplashPrefsState } from "./zaicode-splash.js";
+import type {
+  ZaicodeSaimailPostAction,
+  ZaicodeSaimailPostResult,
+  ZaicodeSaimailPostStatus,
+} from "./zaicode-saimail-post.js";
 import type { ZaicodeScreenMode } from "./zaicode-screen.js";
 import type {
   CuaAccessibilitySettingsResult,
@@ -922,6 +927,10 @@ export interface IPlatformService {
   ): Promise<{ autoRestartOnCrash: boolean; saimailWorkspace: string | null }>;
   /** ZAICODE：在该目录创建本机 operator 的 SAIMAIL 邮箱（saimail-local init）；只由显式点击触发。 */
   initZaicodeSaimailWorkspace?(workspace: string): Promise<{ ok: boolean; message: string }>;
+  /** ZAICODE：SAIMAIL post office verdict — operator mailbox, agent desk, pairing, refused letters. Read-only. */
+  getZaicodeSaimailPost?(): Promise<ZaicodeSaimailPostStatus>;
+  /** ZAICODE：explicit click only — pair the agent desk with the operator mailbox, or send a test letter through it. */
+  runZaicodeSaimailPost?(action: ZaicodeSaimailPostAction): Promise<ZaicodeSaimailPostResult>;
   /** ZAICODE：像素级清晰渲染（100% 缩放、位图字体、无亚像素定位）；下次启动生效。 */
   getZaicodePixelExact?(): Promise<{ pixelExact: boolean; screen: ZaicodeScreenMode }>;
   setZaicodePixelExact?(mode: boolean | ZaicodeScreenMode): Promise<{ pixelExact: boolean; screen: ZaicodeScreenMode }>;

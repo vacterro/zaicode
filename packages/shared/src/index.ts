@@ -118,6 +118,7 @@ export * from "./zaicode-audit-quick3.js";
 export * from "./zaicode-audit-validate.js";
 export * from "./zaicode-audit-campaign.js";
 export * from "./zaicode-delegation.js";
+export * from "./zaicode-saimail-post.js";
 export * from "./zaicode-routing.js";
 export * from "./zaicode-engines.js";
 export * from "./zaicode-router.js";
