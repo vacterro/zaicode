@@ -1,16 +1,16 @@
 ---
-phase: BLOCKED
-task: none
-next_action: "WAIT: nested-source freshness and 32-locale UI scope required before rerunning saitranslate"
-blocker: "Complete 32-language plus Дед coverage unavailable: product i18n supports only en-US/zh-CN; nested zcode source is outside the outer freshness binding."
+phase: BUILD
+task: SAIT-001
+next_action: "continue RU batches: node kitchen/runner.mjs batch ru-RU 40, then accept; digest sha256:72cc16a5..."
+blocker: none
 agent: saitranslate
 saipen_version: 8
 schema_version: 3
 style_contract: ded-4ae736e4
 saipen_home: "C:/Users/vac34/.config/opencode/skills/saipen"
-mode: read-only
+mode: full
 transition_from: PLAN
-updated: "2026-09-25T06:16:36Z"
+updated: "2026-09-29T13:55:00Z"
 role_revision: "sha256:7d18729f8d94eb58471ae3bb5fad9151e8499fea291e574b26439c5c89012e41"
 ---
 

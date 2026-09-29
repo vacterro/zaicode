@@ -1,0 +1,22 @@
+{
+  "source_keys": 5845,
+  "source_digest": "72cc16a5bd030ed6f422eb780ef5be0eba86bb3ace3a1fc1fab5c87b6372025e",
+  "bound_at": "2026-09-29T13:38:26.290Z",
+  "locales": {
+    "ru-RU": {
+      "digest": "72cc16a5bd030ed6f422eb780ef5be0eba86bb3ace3a1fc1fab5c87b6372025e",
+      "accepted": 120,
+      "batches_accepted": [
+        "ru-RU.b0001",
+        "ru-RU.b0002",
+        "ru-RU.b0003"
+      ],
+      "throughput": {
+        "keys": 120,
+        "seconds": 102.673
+      },
+      "issued": 3
+    }
+  },
+  "updated": "2026-09-29T13:40:09.079Z"
+}
