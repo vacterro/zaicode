@@ -32,7 +32,10 @@ interface ZaicodeAuditStoreState {
   generate: (audits: IZaicodeAuditService, project: ZaicodeAuditProject) => Promise<void>;
   work: (audits: IZaicodeAuditService, campaignId: string) => Promise<void>;
   start: (audits: IZaicodeAuditService, project: ZaicodeAuditProject) => Promise<void>;
+  retry: (audits: IZaicodeAuditService, campaignId: string) => Promise<void>;
   cancel: (audits: IZaicodeAuditService, campaignId: string) => Promise<void>;
+  /** Hand the exact combined artifact to the next implementation task. */
+  fixWithSaipen: (audits: IZaicodeAuditService, campaignId: string) => Promise<void>;
   setSmartMode: (audits: IZaicodeAuditService, enabled: boolean) => Promise<void>;
   setMaxCycles: (audits: IZaicodeAuditService, maxCycles: number) => Promise<void>;
   campaignsFor: (workspacePath: string) => ZaicodeAuditCampaign[];
@@ -144,7 +147,9 @@ export const useZaicodeAuditStore = create<ZaicodeAuditStoreState>((set, get) =>
     generate: (audits, project) => after(audits, () => audits.generate(project)),
     work: (audits, campaignId) => after(audits, () => audits.work(campaignId)),
     start: (audits, project) => after(audits, () => audits.start(project)),
+    retry: (audits, campaignId) => after(audits, () => audits.retry(campaignId)),
     cancel: (audits, campaignId) => after(audits, () => audits.cancel(campaignId)),
+    fixWithSaipen: (audits, campaignId) => after(audits, () => audits.fixWithSaipen(campaignId)),
     setSmartMode: (audits, enabled) => after(audits, () => audits.setSmartMode(enabled)),
     setMaxCycles: (audits, maxCycles) => after(audits, () => audits.setSmartMaxCycles(maxCycles)),
 

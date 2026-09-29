@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
-  ZAICODE_AUDIT_PROFILE_A3,
+  ZAICODE_AUDIT_PROFILE,
   describeZaicodeAuditCampaign,
   formatZaicodeAuditElapsed,
   type ZaicodeAuditCampaign,
@@ -26,7 +26,7 @@ const NOW = Date.parse("2026-09-27T09:00:00.000Z");
 
 function wave(over: Partial<ZaicodeAuditCampaignWaveState> = {}): ZaicodeAuditCampaignWaveState {
   return {
-    waveId: ZAICODE_AUDIT_PROFILE_A3.waves[0]!.id,
+    waveId: ZAICODE_AUDIT_PROFILE.waves[0]!.id,
     status: "pending",
     jobId: null,
     reportFile: null,
@@ -40,7 +40,7 @@ function campaign(over: Partial<ZaicodeAuditCampaign> = {}): ZaicodeAuditCampaig
   return {
     schemaVersion: 1,
     campaignId: "c1",
-    profileId: ZAICODE_AUDIT_PROFILE_A3.id,
+    profileId: ZAICODE_AUDIT_PROFILE.id,
     projectName: "zaicode",
     workspaceKey: "zaicode",
     workspacePath: "V:\\_zaicode",
@@ -48,7 +48,7 @@ function campaign(over: Partial<ZaicodeAuditCampaign> = {}): ZaicodeAuditCampaig
     createdAt: "2026-09-27T08:30:00.000Z",
     updatedAt: "2026-09-27T08:30:00.000Z",
     currentWaveIndex: 0,
-    waves: ZAICODE_AUDIT_PROFILE_A3.waves.map((w) => wave({ waveId: w.id })),
+    waves: ZAICODE_AUDIT_PROFILE.waves.map((w) => wave({ waveId: w.id })),
     finalHandoffFile: null,
     ...over,
   };
@@ -58,7 +58,7 @@ test("a planned campaign says which project, where it is, and that it is waiting
   const readout = describeZaicodeAuditCampaign(campaign(), NOW);
   assert.equal(readout.projectName, "zaicode");
   assert.equal(readout.workspacePath, "V:\\_zaicode");
-  assert.equal(readout.where, "1/3 Core correctness");
+  assert.equal(readout.where, "1/3 AUDIT CORE");
   assert.match(readout.stage, /waiting in the queue/);
   assert.equal(readout.active, false);
   assert.equal(readout.doneWaves, 0);
@@ -72,13 +72,13 @@ test("a running campaign names the wave and the agent it runs on", () => {
       currentWaveIndex: 1,
       waves: [
         wave({ status: "complete" }),
-        wave({ waveId: ZAICODE_AUDIT_PROFILE_A3.waves[1]!.id, status: "running", agentId: "zaicode-agent:auditor" }),
-        wave({ waveId: ZAICODE_AUDIT_PROFILE_A3.waves[2]!.id }),
+        wave({ waveId: ZAICODE_AUDIT_PROFILE.waves[1]!.id, status: "running", agentId: "zaicode-agent:auditor" }),
+        wave({ waveId: ZAICODE_AUDIT_PROFILE.waves[2]!.id }),
       ],
     }),
     NOW,
   );
-  assert.equal(readout.where, "2/3 Completeness");
+  assert.equal(readout.where, "2/3 AUDIT SECOND WAVE");
   assert.equal(readout.stage, "running now");
   // The gap SRC-060 named: the model was never written down before.
   assert.equal(readout.agentId, "zaicode-agent:auditor");
@@ -92,8 +92,8 @@ test("a partial wave is called out as partial, not just as running", () => {
       status: "running",
       waves: [
         wave({ status: "partial" }),
-        wave({ waveId: ZAICODE_AUDIT_PROFILE_A3.waves[1]!.id }),
-        wave({ waveId: ZAICODE_AUDIT_PROFILE_A3.waves[2]!.id }),
+        wave({ waveId: ZAICODE_AUDIT_PROFILE.waves[1]!.id }),
+        wave({ waveId: ZAICODE_AUDIT_PROFILE.waves[2]!.id }),
       ],
     }),
     NOW,
@@ -107,8 +107,8 @@ test("a blocked campaign is not counted as spare reserve", () => {
       status: "blocked",
       waves: [
         wave({ status: "partial" }),
-        wave({ waveId: ZAICODE_AUDIT_PROFILE_A3.waves[1]!.id }),
-        wave({ waveId: ZAICODE_AUDIT_PROFILE_A3.waves[2]!.id }),
+        wave({ waveId: ZAICODE_AUDIT_PROFILE.waves[1]!.id }),
+        wave({ waveId: ZAICODE_AUDIT_PROFILE.waves[2]!.id }),
       ],
     }),
     NOW,
@@ -124,7 +124,7 @@ test("a finished campaign says so and has no wave left to point at", () => {
     campaign({
       status: "complete",
       currentWaveIndex: 3,
-      waves: ZAICODE_AUDIT_PROFILE_A3.waves.map((w) => wave({ waveId: w.id, status: "complete" })),
+      waves: ZAICODE_AUDIT_PROFILE.waves.map((w) => wave({ waveId: w.id, status: "complete" })),
     }),
     NOW,
   );

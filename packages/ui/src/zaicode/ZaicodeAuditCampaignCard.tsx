@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ClipboardCopy, ExternalLink, FileText, Play, X } from "lucide-react";
+import { ClipboardCopy, ExternalLink, FileText, Play, RotateCcw, Wrench, X } from "lucide-react";
 import {
   formatZaicodeAuditElapsed,
   zaicodeAuditIdle,
@@ -46,12 +46,16 @@ export function ZaicodeAuditCampaignCard({
   audits,
   now,
   onWork,
+  onRetry,
+  onFix,
   onCancel,
 }: {
   campaign: ZaicodeAuditCampaign;
   audits: NonNullable<ZaicodeServices["audits"]>;
   now: number;
   onWork: (campaignId: string) => void;
+  onRetry: (campaignId: string) => void;
+  onFix: (campaignId: string) => void;
   onCancel: (campaignId: string) => void;
 }) {
   const [report, setReport] = useState<string | null>(null);
@@ -62,13 +66,32 @@ export function ZaicodeAuditCampaignCard({
   const live = campaign.live ?? null;
   const active = campaign.status === "planned" || campaign.status === "running" || campaign.status === "blocked";
   const currentWave = campaign.waves[campaign.currentWaveIndex];
+  const stopped = campaign.status === "blocked";
+  const complete = campaign.status === "complete" && campaign.combined !== null && campaign.combined !== undefined;
 
   const showCurrentReport = async () => {
     if (!currentWave?.reportFile) return;
     const markdown = await audits.readReport(campaign.campaignId, currentWave.waveId);
     setReport(markdown ?? "(no report yet: the wave is still writing it)");
   };
+  const showCombined = async () => {
+    if (!campaign.combined) return;
+    const markdown = await audits.readCombined(campaign.campaignId);
+    setReport(markdown ?? "(the combined file is recorded but is not on disk)");
+  };
   const copyFinished = async () => {
+    // Once it exists, the combined file IS the handoff -- copying the waves
+    // back to back would drop the header, the digests and the chain.
+    if (campaign.combined) {
+      const combined = await audits.readCombined(campaign.campaignId);
+      if (!combined) {
+        toast("The combined file is recorded but is not on disk");
+        return;
+      }
+      await navigator.clipboard.writeText(combined);
+      toast(`Copied ${campaign.combined.file}`);
+      return;
+    }
     const parts: string[] = [];
     for (const wave of campaign.waves) {
       if (wave.status !== "complete") continue;
@@ -108,6 +131,39 @@ export function ZaicodeAuditCampaignCard({
           {currentWave?.reportFile ? (
             <button type="button" className="flex items-center gap-1 border border-border px-1.5 py-px hover:bg-hover" title="Show the current wave's report" onClick={() => void showCurrentReport()}>
               <FileText className="size-3" /> Report
+            </button>
+          ) : null}
+          {campaign.combined ? (
+            <button
+              type="button"
+              className="flex items-center gap-1 border border-border px-1.5 py-px hover:bg-hover"
+              title={`The combined handoff: ${campaign.combined.file} (sha256 ${campaign.combined.sha256})`}
+              onClick={() => void showCombined()}
+            >
+              <FileText className="size-3" /> Handoff
+            </button>
+          ) : null}
+          {stopped ? (
+            <button
+              type="button"
+              className="flex items-center gap-1 border border-[var(--zaicode-highlight,var(--color-border-hover))] px-1.5 py-px hover:bg-hover"
+              data-zaicode-sound="audit.start"
+              title={`Run this same wave again (attempt ${(currentWave?.attempt ?? 0) + 1}). The wave index does not move.`}
+              onClick={() => onRetry(campaign.campaignId)}
+            >
+              <RotateCcw className="size-3" /> Retry wave {(currentWave?.attempt ?? 0) + 1}
+            </button>
+          ) : null}
+          {complete ? (
+            <button
+              type="button"
+              className="flex items-center gap-1 border border-[var(--zaicode-highlight,var(--color-border-hover))] bg-selected px-1.5 py-px font-medium hover:bg-hover"
+              data-zaicode-sound="audit.start"
+              title="Start an implementation task that reads this exact combined artifact. The audit stays read-only."
+              onClick={() => onFix(campaign.campaignId)}
+            >
+              <Wrench className="size-3" />
+              {campaign.fixJobId ? "Fixing with SAIPEN…" : "Fix with SAIPEN"}
             </button>
           ) : null}
           {stage.done > 0 ? (
@@ -168,18 +224,28 @@ export function ZaicodeAuditCampaignCard({
         </div>
       ) : null}
 
-      {campaign.status === "blocked" ? (
+      {stopped ? (
         <p className="text-[11px] text-red-300">
-          Stopped: the wave failed or its report missed the STATUS line. Open its report or session, then cancel and start again.
+          Stopped at wave {currentWave?.waveId}: {currentWave?.rejectReason ?? "the wave's job did not finish cleanly"}.
+          Nothing was advanced — retry re-runs this same wave, or cancel.
         </p>
       ) : null}
-      {campaign.smartRunId && campaign.actionableFindings !== undefined ? (
+      {campaign.combined ? (
         <p className="text-[11px] text-foreground-subtle">
-          {campaign.actionableFindings === 0
+          Handoff <span className="font-mono">{campaign.combined.file}</span> · sha256{" "}
+          <span className="font-mono">{campaign.combined.sha256.slice(0, 12)}</span> ·{" "}
+          {campaign.findings ?? 0} verified finding{(campaign.findings ?? 0) === 1 ? "" : "s"}
+          {campaign.sourceDrift?.changed
+            ? ` · source moved since the audit (${campaign.sourceDrift.audited} → ${campaign.sourceDrift.atFix})`
+            : ""}
+          {campaign.fixJobId ? ` · fix task ${campaign.remediationStatus ?? "queued"}` : ""}
+        </p>
+      ) : null}
+      {campaign.smartRunId && !campaign.combined && campaign.findings !== undefined ? (
+        <p className="text-[11px] text-foreground-subtle">
+          {campaign.findings === 0
             ? "No actionable findings: Auto stops auditing this project."
-            : campaign.actionableFindings === null
-              ? "The final report has no ACTIONABLE_FINDINGS count."
-              : `${campaign.actionableFindings} actionable findings · fixing them: ${campaign.remediationStatus ?? (campaign.remediationJobId ? "unknown" : "not started")}`}
+            : `${campaign.findings} verified finding${campaign.findings === 1 ? "" : "s"} so far`}
         </p>
       ) : null}
       {report !== null ? (

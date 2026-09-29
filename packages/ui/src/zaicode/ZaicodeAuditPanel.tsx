@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { ListChecks, Play, Plus, Zap } from "lucide-react";
 import {
-  ZAICODE_AUDIT_PROFILE_A3,
+  ZAICODE_AUDIT_PROFILE,
   describeZaicodeAuditCampaign,
   formatZaicodeAuditElapsed,
   zaicodeAuditCampaignIsActive,
@@ -129,7 +129,7 @@ export function ZaicodeAuditPanel({ services, workspace }: ZaicodeAuditPanelProp
 
   const active = store.campaigns.filter(zaicodeAuditCampaignIsActive);
   const history = store.campaigns.filter((campaign) => !zaicodeAuditCampaignIsActive(campaign)).slice(0, HISTORY_LIMIT);
-  const waves = ZAICODE_AUDIT_PROFILE_A3.waves;
+  const waves = ZAICODE_AUDIT_PROFILE.waves;
 
   return (
     <div className="flex h-full min-h-0 flex-col text-ui-xs" data-zaicode-audit-center data-zaicode-help="audit">
@@ -247,6 +247,8 @@ export function ZaicodeAuditPanel({ services, workspace }: ZaicodeAuditPanelProp
                 audits={audits}
                 now={now}
                 onWork={(campaignId) => void store.work(audits, campaignId)}
+                onRetry={(campaignId) => void store.retry(audits, campaignId)}
+                onFix={(campaignId) => void store.fixWithSaipen(audits, campaignId)}
                 onCancel={(campaignId) => void store.cancel(audits, campaignId)}
               />
             ))
@@ -292,6 +294,8 @@ export function ZaicodeAuditPanel({ services, workspace }: ZaicodeAuditPanelProp
                 audits={audits}
                 now={now}
                 onWork={(campaignId) => void store.work(audits, campaignId)}
+                onRetry={(campaignId) => void store.retry(audits, campaignId)}
+                onFix={(campaignId) => void store.fixWithSaipen(audits, campaignId)}
                 onCancel={(campaignId) => void store.cancel(audits, campaignId)}
               />
             ))}

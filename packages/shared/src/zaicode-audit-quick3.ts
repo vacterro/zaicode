@@ -195,6 +195,10 @@ export function buildZaicodeQuick3WavePrompt(input: {
   projectName: string;
   projectPath: string;
   sourceIdentity: string;
+  /** The run the gate will judge this report by; the report must echo it. */
+  runId?: string;
+  /** The exact file the report must be written to. */
+  reportFile?: string;
   predecessorArtifactName?: string;
   predecessorSha256?: string;
 }): string {
@@ -209,6 +213,7 @@ export function buildZaicodeQuick3WavePrompt(input: {
     "## This wave",
     `- Project: ${input.projectName} (${input.projectPath})`,
     `- Source identity: ${input.sourceIdentity}`,
+    ...(input.runId ? [`- Run id: ${input.runId}`] : []),
     `- Scope: ${wave.scope}`,
     `- File every finding under a ticket titled exactly \`${wave.ticketPrefix}N\` -- for example \`${wave.ticketPrefix}1\`.`,
     `- Each finding must carry these fields, in this order: ${wave.findingFields.join(", ")}.`,
@@ -222,11 +227,34 @@ export function buildZaicodeQuick3WavePrompt(input: {
     `- It must contain \`${wave.doneMarker}\` followed by what would make this wave provably complete.`,
     `- A report that only proposes how to audit or how to implement is INVALID and the wave will not advance.`,
   ];
+  // The gate checks identity by SUBSTRING, so the report has to carry the run
+  // id and the predecessor digest. Stating them here is what makes a report
+  // from a previous run, or an unchained one, impossible to pass.
+  const echoes = [
+    ...(input.runId ? [`the run id \`${input.runId}\``] : []),
+    ...(wave.dependsOn.length > 0 && input.predecessorSha256
+      ? [`the predecessor artifact sha256 \`${input.predecessorSha256}\``]
+      : []),
+  ];
+  if (echoes.length > 0) {
+    lines.push(`- The report must state ${echoes.join(" and ")} verbatim, or it is rejected as the wrong run.`);
+  }
   if (wave.dependsOn.length > 0 && input.predecessorArtifactName) {
     lines.push(
       "",
       "## What the previous wave found",
       `Read ${input.predecessorArtifactName} (sha256 ${input.predecessorSha256 ?? "unknown"}) first. Do not repeat its findings; build on them.`,
+    );
+  }
+  if (input.reportFile) {
+    // Without this the model answers in chat and the file the gate reads is
+    // never written: the wave then looks like a silent stall, not a rejection.
+    lines.push(
+      "",
+      "## Where the report goes",
+      `Write the report to this exact file, creating it, as markdown:`,
+      input.reportFile,
+      "Nothing else counts as this wave's output -- the file is what is read.",
     );
   }
   return lines.join("\n");

@@ -1,73 +1,23 @@
 /**
- * ZAICODE A3 audit campaigns (T-66, SRC-049), after AUDAPACK's own mechanism:
- * a declarative wave profile ("A3" = AUDAPACK's quick3: three waves), one
- * agent turn per wave with a strict output contract, completion gated by the
- * report's STATUS line, a SHA-256 chain between waves, and a finalizer wave
- * that synthesizes the combined handoff. Pure logic only: the campaign store,
- * queue and UI live in services/desktop/ui and call into here.
+ * ZAICODE A3 audit campaigns (T-66, SRC-049; Quick3 contract as of Wave 5).
+ * A campaign is AUDAPACK's three-wave machine on ZAICODE's own durable queue:
+ * a declarative wave profile, one agent turn per wave with a read-only role
+ * contract, completion gated by the report's own terminal line and done marker,
+ * a SHA-256 chain between waves, and a combined handoff synthesized only after
+ * all three artifacts are durable. Pure logic only: the campaign store, queue
+ * and UI live in services/desktop/ui and call into here.
  */
 
-export interface ZaicodeAuditWave {
-  id: string;
-  ordinal: number;
-  slug: string;
-  title: string;
-  /** Machine key the report's STATUS line must carry. */
-  statusKey: string;
-  /** What the wave looks at (AUDAPACK's prompt_focus). */
-  promptFocus: string;
-  outputContract: string;
-  /** Marker the report must contain beyond the STATUS line. */
-  doneMarker: string;
-  finalizer: boolean;
-}
+import { ZAICODE_AUDIT_QUICK3_PROFILE, zaicodeAuditQuick3Wave } from "./zaicode-audit-quick3.js";
 
-export const ZAICODE_AUDIT_PROFILE_A3 = {
-  id: "a3",
-  label: "A3",
-  description: "Three waves: core correctness, completeness, performance — then one combined handoff.",
-  waves: [
-    {
-      id: "core",
-      ordinal: 1,
-      slug: "AUDIT_CORE",
-      title: "Core correctness",
-      statusKey: "AUDIT_CORE",
-      promptFocus:
-        "Core correctness. Read the project's own docs and code; find real defects: broken invariants, wrong edge cases, error paths that swallow failures, data-loss risks. Only findings you can point to with file:line. No style nits, no hypotheticals.",
-      outputContract:
-        "One markdown report: a table of findings (severity, file:line, what is wrong, why it matters, smallest safe fix), then 'Next actions' as an ordered list an agent can execute.",
-      doneMarker: "AUDIT_CORE_DONE",
-      finalizer: false,
-    },
-    {
-      id: "second",
-      ordinal: 2,
-      slug: "AUDIT_SECOND_WAVE",
-      title: "Completeness",
-      statusKey: "AUDIT_SECOND",
-      promptFocus:
-        "Completeness against intent. Compare what the project's docs/requests promise with what the code does: missing pieces, half-wired features, dead paths, conditions nobody handles, TODOs that are really bugs. Build on the core wave's report; do not repeat its findings.",
-      outputContract:
-        "One markdown report: a gap table (promise, where it breaks, evidence, smallest safe fix), then 'Next actions' as an ordered list.",
-      doneMarker: "AUDIT_SECOND_DONE",
-      finalizer: false,
-    },
-    {
-      id: "performance",
-      ordinal: 3,
-      slug: "AUDIT_PERFORMANCE",
-      title: "Performance",
-      statusKey: "AUDIT_PERFORMANCE",
-      promptFocus:
-        "Performance and leaks without losing behaviour: listeners/timers/pollers never cleaned up, stores that grow without bound, needless renders and process spawns, hot paths with avoidable work. Every finding needs a measurement or a concrete mechanism, not a feeling.",
-      outputContract:
-        "One markdown report: a findings table (mechanism, evidence, expected effect, smallest safe fix), then 'Next actions' as an ordered list. Finish by synthesizing the three waves into one prioritized handoff.",
-      doneMarker: "AUDIT_PERFORMANCE_DONE",
-      finalizer: true,
-    },
-  ] as readonly ZaicodeAuditWave[],
-} as const;
+/**
+ * The one profile a campaign is bound to. The legacy hand-written A3 profile is
+ * gone: it is what produced an audit that read like an implementation plan,
+ * because its output contract ASKED for one ("then 'Next actions' as an
+ * ordered list"). Quick3's contract asks for verified findings with evidence
+ * and states that a plan does not count, and the report gate enforces it.
+ */
+export const ZAICODE_AUDIT_PROFILE = ZAICODE_AUDIT_QUICK3_PROFILE;
 
 export interface ZaicodeAuditCampaignWaveState {
   waveId: string;
@@ -85,6 +35,18 @@ export interface ZaicodeAuditCampaignWaveState {
    * campaigns written by an older build still load.
    */
   agentId?: string | null;
+  /**
+   * Quick3: which dispatch this is, starting at 1. A retry REPLACES the attempt
+   * at the same wave index -- it never moves the index -- so the operator can
+   * see that wave 2 was tried twice while wave 3 has still not started.
+   */
+  attempt?: number;
+  /** Stable per (run, wave); this is what makes a retry the same dispatch. */
+  idempotencyKey?: string;
+  /** Verified findings this wave's report carried, as the gate counted them. */
+  findings?: number;
+  /** Why the gate refused the last report, in its own words. */
+  rejectReason?: string | null;
 }
 
 /**
@@ -114,7 +76,12 @@ export interface ZaicodeAuditorView {
 }
 
 export interface ZaicodeAuditCampaign {
-  schemaVersion: 1;
+  /**
+   * 2 = the Quick3 campaign (Wave 5). 1 = the legacy A3 record, which still
+   * loads so an old campaign's history stays readable; the service reads it,
+   * never writes it.
+   */
+  schemaVersion: 1 | 2;
   campaignId: string;
   profileId: string;
   /** Identifies an automatic audit run; manual campaigns have no run id. */
@@ -144,6 +111,43 @@ export interface ZaicodeAuditCampaign {
   live?: ZaicodeAuditLiveJob | null;
   /** Current queue status, filled by getState and never used as persisted truth. */
   remediationStatus?: "draft" | "queued" | "ready" | "running" | "waiting" | "blocked" | "completed" | "failed" | "cancelled" | null;
+
+  // ---- Wave 5 (Quick3). Absent on a legacy v1 campaign. ----
+
+  /**
+   * The run identity, frozen at the campaign's start. Every artifact carries it
+   * and the gate checks it, so yesterday's reports cannot satisfy today's run.
+   */
+  runId?: string;
+  /** The profile contract this campaign is judged against, not the one on disk now. */
+  profileVersion?: string;
+  /** A stamp of that contract, so a mid-campaign edit cannot excuse a bad report. */
+  manifestHash?: string;
+  /**
+   * What was audited, frozen at start: git HEAD plus a digest of the dirty
+   * state, or `no-git:<path>` when the project is not a repository. A later
+   * Fix job records the drift between this and its own HEAD.
+   */
+  sourceIdentity?: string;
+  /** The model that actually runs the audit waves, as `provider / model`. */
+  modelIdentity?: string | null;
+  /**
+   * The synthesized handoff. It exists ONLY after all three wave artifacts are
+   * durable and hash-verified, which is why a campaign is `complete` only when
+   * this is written -- three saved waves without it is `saving`, never `ready`.
+   */
+  combined?: {
+    file: string;
+    kind: string;
+    sha256: string;
+    synthesizedAt: string;
+  } | null;
+  /** Verified findings across the whole campaign, summed from the gate. */
+  findings?: number;
+  /** The implementation job created by "Fix with SAIPEN", by identity. */
+  fixJobId?: string | null;
+  /** How far the source moved between the audited snapshot and the fix. */
+  sourceDrift?: { audited: string; atFix: string; changed: boolean; recordedAt: string } | null;
 }
 
 /**
@@ -183,11 +187,11 @@ export function describeZaicodeAuditCampaign(
   now: number = Date.now(),
 ): ZaicodeAuditReadout {
   const current = campaign.waves[campaign.currentWaveIndex] ?? null;
-  const wave = current ? zaicodeAuditWaveOf(ZAICODE_AUDIT_PROFILE_A3, current.waveId) : null;
+  const wave = current ? zaicodeAuditQuick3Wave(current.waveId) : null;
   const doneWaves = campaign.waves.filter((entry) => entry.status === "complete").length;
   const where =
     wave && current
-      ? `${wave.ordinal}/${ZAICODE_AUDIT_PROFILE_A3.waves.length} ${wave.title}`
+      ? `${wave.ordinal}/${ZAICODE_AUDIT_PROFILE.waves.length} ${wave.title}`
       : "no wave left";
   const stage =
     campaign.status === "running" && current?.status === "partial"
@@ -216,89 +220,11 @@ export function formatZaicodeAuditElapsed(ms: number): string {
   return hours > 0 ? `${hours}h ${pad(minutes)}m` : minutes > 0 ? `${minutes}m ${pad(seconds)}s` : `${seconds}s`;
 }
 
-export function zaicodeAuditWaveOf(profile: typeof ZAICODE_AUDIT_PROFILE_A3, waveId: string): ZaicodeAuditWave | null {
-  return profile.waves.find((wave) => wave.id === waveId) ?? null;
-}
-
 /** The wave a campaign works next, or null when every wave is complete. */
-export function zaicodeAuditCurrentWave(campaign: ZaicodeAuditCampaign): ZaicodeAuditWave | null {
+export function zaicodeAuditCurrentWave(campaign: ZaicodeAuditCampaign) {
   const state = campaign.waves[campaign.currentWaveIndex];
   if (!state) return null;
-  return zaicodeAuditWaveOf(ZAICODE_AUDIT_PROFILE_A3, state.waveId);
-}
-
-/**
- * AUDAPACK's wave prompt shape: shared protocol, the wave's focus, the output
- * contract, and the machine lines that gate completion. The agent writes the
- * report to `reportFile`; nothing else is accepted as progress.
- */
-export function buildZaicodeAuditWavePrompt(input: {
-  projectName: string;
-  workspacePath: string;
-  wave: ZaicodeAuditWave;
-  reportFile: string;
-  previousReport: string | null;
-  previousReports?: string[];
-}): string {
-  return [
-    `You are running AUDIT WAVE ${input.wave.ordinal}/3 (${input.wave.title}) of the A3 campaign for project ${input.projectName} at ${input.workspacePath}.`,
-    "",
-    `FOCUS: ${input.wave.promptFocus}`,
-    "",
-    `OUTPUT CONTRACT: ${input.wave.outputContract}`,
-    "",
-    "Write the report EXACTLY to this file (create it, markdown):",
-    input.reportFile,
-    "",
-    ...(input.wave.finalizer
-      ? ["Count distinct actionable findings across all three waves. Add one machine line before the two closing lines:", "ACTIONABLE_FINDINGS: <non-negative integer>", "Write 0 only when the combined handoff has no next actions.", ""]
-      : []),
-    "The report MUST end with these two machine lines (own line each, verbatim):",
-    `STATUS: ${input.wave.statusKey}: COMPLETE`,
-    input.wave.doneMarker,
-    "",
-    "Rules: read-only towards the code (change nothing); a wave with no findings still writes the report and both machine lines; never invent file:line; keep it dense.",
-    (input.previousReports?.length ?? 0) > 0
-      ? `\nRead every previous wave report before writing this one: ${input.previousReports!.join(", ")}. Build on them without repeating findings.`
-      : input.previousReport
-        ? `\nThe previous wave's report (${input.previousReport}) is your base: build on it, do not repeat it.`
-        : "",
-  ].join("\n");
-}
-
-export interface ZaicodeAuditWaveReportVerdict {
-  complete: boolean;
-  statusKey: string | null;
-  reason: "ok" | "missing-status" | "wrong-status" | "missing-marker" | "empty";
-}
-
-/**
- * AUDAPACK's gate: the STATUS line names this wave's key and says COMPLETE,
- * and the wave's done marker is present. Anything else is a partial.
- */
-export function parseZaicodeAuditWaveReport(
-  text: string,
-  wave: ZaicodeAuditWave,
-): ZaicodeAuditWaveReportVerdict {
-  if (!text.trim()) return { complete: false, statusKey: null, reason: "empty" };
-  const status = /^STATUS:\s*([A-Z0-9_]+):\s*(COMPLETE|PARTIAL)\s*$/m.exec(text);
-  if (!status) return { complete: false, statusKey: null, reason: "missing-status" };
-  if (status[1] !== wave.statusKey) {
-    return { complete: false, statusKey: status[1] ?? null, reason: "wrong-status" };
-  }
-  if (status[2] !== "COMPLETE") return { complete: false, statusKey: status[1] ?? null, reason: "missing-status" };
-  if (!text.includes(wave.doneMarker)) {
-    return { complete: false, statusKey: status[1] ?? null, reason: "missing-marker" };
-  }
-  return { complete: true, statusKey: status[1] ?? null, reason: "ok" };
-}
-
-/** A missing count cannot be treated as a clean audit by automatic mode. */
-export function parseZaicodeAuditActionableFindings(text: string): number | null {
-  const matches = [...text.matchAll(/^ACTIONABLE_FINDINGS:\s*(\d+)\s*$/gm)];
-  if (matches.length !== 1) return null;
-  const count = Number(matches[0]?.[1]);
-  return Number.isSafeInteger(count) ? count : null;
+  return zaicodeAuditQuick3Wave(state.waveId);
 }
 
 /**

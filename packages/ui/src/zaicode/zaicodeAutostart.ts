@@ -120,6 +120,11 @@ export function publishZaicodeQueueServices(services: ZaicodeServices | null): v
   syncZaicodeDisabledProjects(services);
 }
 
+/** The published service bundle, or null when the host has not registered. */
+export function readZaicodeQueueServices(): ZaicodeServices | null {
+  return queueServices;
+}
+
 /** The agent hit-and-go work runs on: an enabled one made from a hit-and-go template, created when missing. */
 export async function ensureZaicodeHitAndGoAgent(services: ZaicodeServices): Promise<ZaicodeAgentDefinition> {
   const templates = (await services.agents.listTemplates()).filter((template) => template.hitAndGo);

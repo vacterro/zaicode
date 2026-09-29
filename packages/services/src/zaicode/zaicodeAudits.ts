@@ -28,11 +28,24 @@ export interface IZaicodeAuditService {
   generate(input: { workspaceKey: string; workspacePath: string; projectName: string }): Promise<ZaicodeAuditCampaign | null>;
   /** Start working a planned campaign (dispatch wave 1). */
   work(campaignId: string): Promise<ZaicodeAuditCampaign | null>;
-  /** Generate and immediately work (explicit "audit now", and smart mode). */
+  /** Generate and immediately work (explicit "audit now", `/a3`, and smart mode). */
   start(input: { workspaceKey: string; workspacePath: string; projectName: string }): Promise<ZaicodeAuditCampaign | null>;
+  /**
+   * Retry the wave a blocked campaign is stopped at. The wave index does not
+   * move: the attempt number does.
+   */
+  retry(campaignId: string): Promise<ZaicodeAuditCampaign | null>;
   cancel(campaignId: string): Promise<ZaicodeAuditCampaign | null>;
   /** One wave report's markdown, or null. */
   readReport(campaignId: string, waveId: string): Promise<string | null>;
+  /** The synthesized `__00_AUDIT_ALL_3.md`, or null before it is durable. */
+  readCombined(campaignId: string): Promise<string | null>;
+  /**
+   * "Fix with SAIPEN": one implementation job that consumes the exact combined
+   * artifact by path and digest, records the source drift since the audit, and
+   * leaves the read-only audit artifacts untouched. Refuses before 3/3.
+   */
+  fixWithSaipen(campaignId: string): Promise<ZaicodeAuditCampaign | null>;
   /** Smart mode: empty board + nothing running -> the project starts an A3 campaign itself. */
   setSmartMode(enabled: boolean): Promise<{ smartMode: boolean }>;
   /** Maximum number of automatic campaigns per project in one run (1..10). */

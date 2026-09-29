@@ -20,9 +20,9 @@ const iso = (ms: number) => new Date(ms).toISOString();
 
 function campaign(over: Partial<ZaicodeAuditCampaign> = {}): ZaicodeAuditCampaign {
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     campaignId: "c1",
-    profileId: "a3",
+    profileId: "quick3",
     projectName: "_ZAICODE",
     workspaceKey: "k",
     workspacePath: "/p/_ZAICODE",
@@ -43,18 +43,18 @@ function campaign(over: Partial<ZaicodeAuditCampaign> = {}): ZaicodeAuditCampaig
 
 test("stage and steps say where the audit is, with each wave's time", () => {
   const now = T0 + 10 * 60_000;
-  assert.equal(zaicodeAuditStage(campaign()).label, "Running wave 2 of 3 · Completeness");
+  assert.equal(zaicodeAuditStage(campaign()).label, "Running wave 2 of 3 · AUDIT SECOND WAVE");
   assert.deepEqual(
     zaicodeAuditSteps(campaign(), now).map((step) => [step.title, step.state, step.elapsedMs]),
     [
-      ["Core correctness", "done", 6 * 60_000],
-      ["Completeness", "active", 4 * 60_000],
-      ["Performance", "waiting", null],
+      ["AUDIT CORE", "done", 6 * 60_000],
+      ["AUDIT SECOND WAVE", "active", 4 * 60_000],
+      ["AUDIT PERFORMANCE / STABILITY / EFFECTIVENESS", "waiting", null],
     ],
   );
   assert.equal(zaicodeAuditTotalMs(campaign(), now), 10 * 60_000);
   assert.equal(zaicodeAuditStage(campaign({ status: "planned", startedAt: null })).label, "Planned, not started");
-  assert.equal(zaicodeAuditStage(campaign({ status: "blocked" })).label, "Stopped at wave 2 of 3 · Completeness");
+  assert.equal(zaicodeAuditStage(campaign({ status: "blocked" })).label, "Stopped at wave 2 of 3 · AUDIT SECOND WAVE");
   // A stopped audit's clock stops at its last finished wave.
   assert.equal(zaicodeAuditTotalMs(campaign({ status: "blocked" }), now + 3_600_000), 6 * 60_000);
 });

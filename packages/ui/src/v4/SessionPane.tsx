@@ -143,6 +143,7 @@ import { ZaicodeWhereAmI } from "@/zaicode/ZaicodeWhereAmI.js";
 import { adoptZaicodeComposerModel } from "@/zaicode/zaicodeDefaultModel.js";
 import { useZaicodeAutoSessionTitle } from "@/zaicode/zaicodeAutoTitle.js";
 import { useZaicodeAutoRetry } from "@/zaicode/zaicodeAutoRetry.js";
+import { buildZaicodeA3Command } from "@/zaicode/zaicodeA3.js";
 import { projectPendingGuideQueue } from "@/v4/pendingGuideProjection.js";
 import { ConversationQuotaBanner } from "@/v4/ConversationQuotaBanner.js";
 import { PendingCommandRecoveryBanner } from "@/v4/PendingCommandRecoveryBanner.js";
@@ -2128,30 +2129,44 @@ export function SessionPane({
   // `/side` App 层斜杠命令。命令目录仍以 CLI catalog 为权威，这里只在渲染层
   // 按门禁注入"选中即打开辅助对话"的本地命令；草稿态（无父 session 可挂 child）、
   // 辅助对话自身、只读与手机 viewport 均不提供。
+  //
+  // `/a3` 走同一条通道（Wave 5）：它是"选中即执行"的本地命令，不插入 mention、
+  // 不发送消息，所以一次 `/a3` 只可能开始一个 Quick3 campaign，不可能变成一条
+  // 聊天消息。它按项目而不是按 session 门禁，所以草稿态同样可用。
   const appSlashCommands = useMemo<AppSlashCommand[] | undefined>(() => {
+    const commands: AppSlashCommand[] = [];
     if (
-      !sessionId ||
-      !onOpenSelectionSideChat ||
-      !shouldOfferSideSlashCommand({
+      sessionId &&
+      onOpenSelectionSideChat &&
+      shouldOfferSideSlashCommand({
         isDraft: sessionId === null,
         selectionSideChat,
         readOnly,
         isMobileViewport: false,
       })
     ) {
-      return undefined;
+      const openNewSelectionSideChat = () => {
+        void handleOpenSelectionSideConversation(undefined, true);
+      };
+      // 关键词固定同时包含中英文别名，任一 locale 下输入 side / btw / 辅助 都能搜到。
+      // `/btw` 是 `/side` 的等价别名，适配不同用户输入习惯，面板中各自独立展示。
+      const sharedKeywords = ["side", "btw", "side chat", "auxiliary", "辅助对话", "辅助", "侧边"];
+      const description = intl.formatMessage({ id: "chat.slash.app.side.description" });
+      commands.push(
+        { value: "side", description, keywords: sharedKeywords, run: openNewSelectionSideChat },
+        { value: "btw", description, keywords: sharedKeywords, run: openNewSelectionSideChat },
+      );
     }
-    const openNewSelectionSideChat = () => {
-      void handleOpenSelectionSideConversation(undefined, true);
-    };
-    // 关键词固定同时包含中英文别名，任一 locale 下输入 side / btw / 辅助 都能搜到。
-    // `/btw` 是 `/side` 的等价别名，适配不同用户输入习惯，面板中各自独立展示。
-    const sharedKeywords = ["side", "btw", "side chat", "auxiliary", "辅助对话", "辅助", "侧边"];
-    const description = intl.formatMessage({ id: "chat.slash.app.side.description" });
-    return [
-      { value: "side", description, keywords: sharedKeywords, run: openNewSelectionSideChat },
-      { value: "btw", description, keywords: sharedKeywords, run: openNewSelectionSideChat },
-    ].filter((command) => !cliSlashCommandNames.has(command.value));
+    if (workspacePath && !readOnly) {
+      const a3 = buildZaicodeA3Command({
+        workspaceKey: workspaceIdentity ?? workspacePath,
+        workspacePath,
+        projectName: "",
+      });
+      commands.push(a3);
+    }
+    const offered = commands.filter((command) => !cliSlashCommandNames.has(command.value));
+    return offered.length > 0 ? offered : undefined;
   }, [
     cliSlashCommandNames,
     handleOpenSelectionSideConversation,
@@ -2160,6 +2175,8 @@ export function SessionPane({
     readOnly,
     selectionSideChat,
     sessionId,
+    workspaceIdentity,
+    workspacePath,
   ]);
 
   const chatLoadingBlockedByInteraction = hasChatLoadingBlockingInteraction(

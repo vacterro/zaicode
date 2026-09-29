@@ -1,6 +1,6 @@
 import type { ModelSelection } from "./model-selection.js";
 import {
-  ZAICODE_AUDIT_PROFILE_A3,
+  ZAICODE_AUDIT_PROFILE,
   zaicodeAuditCampaignIsActive,
   type ZaicodeAuditCampaign,
 } from "./zaicode-audits.js";
@@ -31,7 +31,7 @@ function parseIso(value: string | null | undefined): number | null {
 /** One step per wave, in order, with its state and time. */
 export function zaicodeAuditSteps(campaign: ZaicodeAuditCampaign, now: number): ZaicodeAuditStep[] {
   return campaign.waves.map((wave, index) => {
-    const definition = ZAICODE_AUDIT_PROFILE_A3.waves.find((entry) => entry.id === wave.waveId);
+    const definition = ZAICODE_AUDIT_PROFILE.waves.find((entry) => entry.id === wave.waveId);
     const current = index === campaign.currentWaveIndex;
     let state: ZaicodeAuditStepState;
     if (wave.status === "complete") state = "done";
@@ -58,7 +58,7 @@ export interface ZaicodeAuditStage {
 export function zaicodeAuditStage(campaign: ZaicodeAuditCampaign): ZaicodeAuditStage {
   const total = campaign.waves.length;
   const done = campaign.waves.filter((wave) => wave.status === "complete").length;
-  const current = ZAICODE_AUDIT_PROFILE_A3.waves.find(
+  const current = ZAICODE_AUDIT_PROFILE.waves.find(
     (wave) => wave.id === campaign.waves[campaign.currentWaveIndex]?.waveId,
   );
   const wave = current ? `wave ${current.ordinal} of ${total} · ${current.title}` : `wave ${campaign.currentWaveIndex + 1}`;
