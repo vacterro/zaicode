@@ -665,3 +665,7 @@
 - 28.09.26 23:32 [E-1821] [parent: E-1820] [T-107] [agent: saipen-cli] [op: finish-8f65086e5dc0477e8cb865f723a0e89e] DEC: ticket finished via SAIOPS -- completion (from SHIP)
 - 28.09.26 23:51 [E-1822] [parent: E-1821] [T-94] [agent: saipen-cli] [op: checkpoint-69a41261157448d18a75b312b5ee6ea0] DEC: detail_ref: .saipen/recovery/log-detail/E-1822-30f13081f3b60b10c4589301.json
 - 28.09.26 23:53 [E-1823] [parent: E-1822] [T-94] [agent: saipen-cli] [op: checkpoint-c6c44c864d96420fa9fb061c1cdcadee] DEC: detail_ref: .saipen/recovery/log-detail/E-1823-1bd566a661707c24ef83a1ed.json
+- 28.09.26 23:54 [E-1824] [parent: E-1823] [T-111] [agent: saipen-cli] [op: userreq-ac40ccb926f5483a894b2ba74bdcecf8] DEC: user request SRC-073 projected as T-111 (user_explicit)
+- 28.09.26 23:54 [E-1825] [parent: E-1824] [agent: saipen-cli] [op: goal-6a0e28776dcb4ba0a113007960dc965f] DEC: goal pivot -- T-111 (SRC-073): Wave 4: virtual project folders, project pins, per-model highlight/worker appearance (Default vs Separate)
+- 28.09.26 23:54 [E-1826] [parent: E-1825] [T-111] [agent: saipen-cli] [op: claim-f6fc1a9beddd4899904877bf6db2dcdb] DEC: claimed via SAIOPS -- owner saipen-cli
+- 29.09.26 00:23 [E-1827] [parent: E-1826] [T-111] [agent: saipen-cli] [op: checkpoint-3c739e013beb4b03a27856d12889c4b8] RUN: detail_ref: .saipen/recovery/log-detail/E-1827-a1c6b3b5dc4d02442221c99d.json

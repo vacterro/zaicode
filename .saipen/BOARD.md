@@ -27,6 +27,7 @@
      write that field name next to a concrete id anywhere in this file. -->
 
 ## DOING
+- [/] T-111 [P1] Wave 4: virtual project folders, project pins, per-model highlight/worker appearance (Default vs Separate) | verify: the requested change is present and demonstrated against the user own description of it | user_explicit: true | source_receipts: SRC-073 | owner: saipen-cli | claim_time: 2026-09-29T00:23:01Z
 
 
 ## TODO
