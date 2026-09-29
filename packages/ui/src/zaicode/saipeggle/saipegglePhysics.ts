@@ -67,6 +67,7 @@ export type SpgStepEvent =
 export const SPG_STUCK_SECONDS = 1.6;
 export const SPG_RATTLE_SECONDS = 3;
 const STUCK_RADIUS = 14;
+const REJECT = SPG_BRICK_HALF + SPG_BRICK_R + SPG_BALL_R + 1;
 const WALL_BOUNCE = 0.82;
 const TANGENT_KEEP = 0.985;
 /** Below this approach speed a contact is resting, not an impact. */
@@ -178,8 +179,8 @@ export function saipeggleStep(
 
   for (const peg of pegs) {
     if (peg.gone) continue;
-    // Cheap reject before the exact test.
-    if (Math.abs(ball.x - peg.x) > 12 || Math.abs(ball.y - peg.y) > 12) continue;
+    // Cheap reject before the exact test (a brick reaches BRICK_HALF + BRICK_R + BALL_R from its centre).
+    if (Math.abs(ball.x - peg.x) > REJECT || Math.abs(ball.y - peg.y) > REJECT) continue;
     const core = saipeggleCore(peg, ball.x, ball.y);
     if (bounceOff(ball, core.cx, core.cy, core.r, physics.bounce, ball.fire <= 0)) events.push({ kind: "peg", peg });
   }

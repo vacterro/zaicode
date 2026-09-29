@@ -115,11 +115,20 @@ export function grade(accuracy: number): string {
             : "D";
 }
 
-function spawn(run: SaiasuiRun, kind: TargetKind): AimTarget {
+/** A new ball never appears on top of the one already showing (the +HP ball beside a normal one). */
+const SPAWN_APART = 0.14;
+
+function spawn(run: SaiasuiRun, kind: TargetKind, avoid: AimTarget | null = null): AimTarget {
+  let x = run.rng.range(0.06, 0.94);
+  let y = run.rng.range(0.06, 0.94);
+  for (let tries = 0; avoid && tries < 12 && Math.hypot(x - avoid.x, y - avoid.y) < SPAWN_APART; tries += 1) {
+    x = run.rng.range(0.06, 0.94);
+    y = run.rng.range(0.06, 0.94);
+  }
   return {
     id: ++run.serial,
-    x: run.rng.range(0.06, 0.94),
-    y: run.rng.range(0.06, 0.94),
+    x,
+    y,
     phase: run.rng.range(0, Math.PI * 2),
     born: run.elapsed,
     expires: run.elapsed + pacing(run).lifetime * (kind === "tiny" ? 1.5 : 1),
@@ -131,7 +140,11 @@ export function targetPoint(target: AimTarget, now: number, run?: SaiasuiRun, re
   const c = run?.config ?? SAIASUI_DEFAULTS;
   if (target.kind !== "moving" || reducedMotion || !c.movementEnabled) return { x: target.x, y: target.y };
   const angle = (now - target.born) * c.movementSpeed + target.phase;
-  return { x: target.x + Math.cos(angle) * c.movementAmount, y: target.y + Math.sin(angle) * c.movementAmount };
+  // A moving ball orbits its spawn point and never leaves the playfield (the amount goes up to 0.2).
+  return {
+    x: Math.min(0.98, Math.max(0.02, target.x + Math.cos(angle) * c.movementAmount)),
+    y: Math.min(0.98, Math.max(0.02, target.y + Math.sin(angle) * c.movementAmount)),
+  };
 }
 
 function miss(run: SaiasuiRun, hpLoss: number, fromTarget: boolean) {
@@ -184,12 +197,14 @@ export function advanceRun(run: SaiasuiRun, seconds: number): void {
   }
   if (!run.over && !run.target && run.elapsed >= run.nextSpawn) {
     let kind: TargetKind = "normal";
+    let bonus: AimTarget | null = null;
     if (run.hits >= run.nextEvent) {
       kind = rollEvent(run);
       run.nextEvent = run.hits + run.rng.int(c.eventIntervalMin, c.eventIntervalMax);
-      if (c.tinyEnabled && run.rng.chance(c.tinyFrequency)) run.bonus = spawn(run, "tiny");
+      if (c.tinyEnabled && run.rng.chance(c.tinyFrequency)) bonus = spawn(run, "tiny");
     }
-    run.target = spawn(run, kind);
+    run.target = spawn(run, kind, bonus ?? run.bonus);
+    run.bonus = bonus ?? run.bonus;
   }
 }
 

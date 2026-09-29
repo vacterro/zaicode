@@ -19,8 +19,14 @@ export const SPG_BOARD = { left: 48, right: 272, top: 14, bottom: 240 } as const
 export const SPG_CANNON = { x: 160, y: 20, barrel: 15 } as const;
 export const SPG_BALL_R = 3;
 export const SPG_PEG_R = 4;
-/** Bricks are capsules: a segment of this half length with this radius. */
-export const SPG_BRICK_HALF = 5;
+/**
+ * Bricks are capsules: a segment of this half length with this radius. The core
+ * (2 x 6.5 = 13) is as long as the centre spacing of a row of bricks (12-13), so
+ * neighbours' cores touch and a ball rolls along a row over a continuous surface.
+ * With 5 the cores were 3 px apart: a groove between every two bricks that threw
+ * a rolling ball into the air.
+ */
+export const SPG_BRICK_HALF = 6.5;
 export const SPG_BRICK_R = 2.5;
 export const SPG_BUCKET_Y = 229;
 export const SPG_BUCKET_HALF = 13;

@@ -182,7 +182,7 @@ export function SaiasuiGame({
         event.stopPropagation();
       }}
     >
-      <style>{`[data-saiasui-target] { border-radius: 50% !important; transform: none !important; }
+      <style>{`[data-saiasui-target] { transform: none !important; }
         [data-zaicode-saiasui] { font-family: inherit; }
         [data-saiasui-cover] { transition: none !important; }`}</style>
       <div

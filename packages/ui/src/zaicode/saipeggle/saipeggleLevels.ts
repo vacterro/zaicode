@@ -85,6 +85,16 @@ export function saipeggleRandomSpec(seed: string): SpgLevelSpec {
 
 const MARGIN = 5;
 
+/**
+ * A place is kept on a 1/16 px grid (exact in binary). The grid used to be
+ * half a pixel: a row of bricks on one straight line then wandered +-0.25 px
+ * off it, and a ball rolling along the row met a 0.4 px step at every seam and
+ * was thrown up by it. 1/16 keeps the row straight to 0.03 px.
+ */
+function snap(value: number): number {
+  return Math.round(value * 16) / 16;
+}
+
 function inside(p: SpgPlace): boolean {
   const reach = p.shape === "brick" ? SPG_BRICK_HALF : 0;
   return (
@@ -110,7 +120,7 @@ export function saipeggleLayout(spec: SpgLevelSpec, density: number): SpgPlace[]
   for (const p of raw) {
     if (!Number.isFinite(p.x) || !Number.isFinite(p.y) || !inside(p)) continue;
     if (kept.some((q) => Math.hypot(q.x - p.x, q.y - p.y) < gap(p, q))) continue;
-    kept.push({ x: Math.round(p.x * 2) / 2, y: Math.round(p.y * 2) / 2, shape: p.shape, angle: p.angle });
+    kept.push({ x: snap(p.x), y: snap(p.y), shape: p.shape, angle: p.angle });
     if (kept.length >= 180) break;
   }
   return kept;

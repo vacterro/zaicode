@@ -40,7 +40,7 @@ export function toneColor(colors: SpgColors, tone: SpgTone, lit = false): string
 
 // Peg sprites: drawn pixel by pixel once per look, then blitted.
 const sprites = new Map<string, HTMLCanvasElement>();
-const SPRITE = 20;
+const SPRITE = 24;
 
 function pegSprite(peg: SpgPeg, colors: SpgColors, flash: boolean): { canvas: HTMLCanvasElement; ox: number; oy: number } {
   const tones = colors.peg[peg.kind];
