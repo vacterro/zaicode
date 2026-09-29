@@ -190,6 +190,7 @@ export function ZaicodeHomePage({
     combos: router.combos,
     connections: router.connections,
     lastScanAt: routerSetup.lastScanAt,
+    now,
   });
   const stats = feed.stats.value;
   const actions = zaicodeHomeActionItems({

@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { cn } from "@/components/lib/utils.js";
 import { Button } from "@/components/ui/button.js";
 import { toast } from "@/components/ui/toast.js";
-import { suggestZaicodeProviderPrefix, type ZaicodeRouterConnection } from "@zcode/shared";
+import { isZaicodeRouterErrorRecent, suggestZaicodeProviderPrefix, type ZaicodeRouterConnection } from "@zcode/shared";
 import { useZaicodeRouter, zaicodeRouterCall, zaicodeRouterChange } from "@/zaicode/zaicodeRouter.js";
 
 /**
@@ -17,11 +17,26 @@ type NodeType = "openai-compatible" | "anthropic-compatible";
 
 const inputClass = "min-w-0 border border-border bg-background px-1 py-0.5 text-foreground";
 
+/** 9router keeps a connection's last error until its next success; an old one is history, not a current fault (T-133). */
+function isStaleError(connection: ZaicodeRouterConnection, now = Date.now()): boolean {
+  return Boolean(connection.lastError) && !isZaicodeRouterErrorRecent(connection, now);
+}
+
 function statusTone(connection: ZaicodeRouterConnection): string {
   if (!connection.isActive) return "text-foreground-subtlest";
   if (connection.testStatus === "active" || connection.testStatus === "success") return "text-[#7cc45a]";
+  if (connection.lastError && isStaleError(connection)) return "text-[var(--color-warning)]";
   if (connection.lastError || connection.testStatus === "error" || connection.testStatus === "expired") return "text-destructive";
   return "text-foreground-subtle";
+}
+
+/** The row's tooltip: the error and when it happened, on this PC's clock. */
+function statusTitle(connection: ZaicodeRouterConnection): string {
+  if (!connection.lastError) return connection.testStatus ?? "";
+  const at = connection.lastErrorAt ? new Date(connection.lastErrorAt) : null;
+  if (!at || Number.isNaN(at.getTime())) return connection.lastError;
+  const when = at.toLocaleString(undefined, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+  return `${connection.lastError}\nLast error ${when}${isStaleError(connection) ? " (old: it clears on the next success)" : ""}`;
 }
 
 function AddProviderForm() {
@@ -208,7 +223,7 @@ export function ZaicodeRouterProviders() {
                 void zaicodeRouterChange("Saving", { method: "PUT", path: `/api/providers/${connection.id}`, body: { isActive: event.target.checked } })
               }
             />
-            <span className={cn("min-w-0 flex-1 truncate", statusTone(connection))} title={connection.lastError ?? connection.testStatus ?? ""}>
+            <span className={cn("min-w-0 flex-1 truncate", statusTone(connection))} title={statusTitle(connection)}>
               {connection.name}
             </span>
             <span className="w-40 shrink-0 truncate text-foreground-subtlest" title={connection.baseUrl ?? connection.provider}>

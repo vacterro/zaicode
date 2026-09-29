@@ -1,6 +1,7 @@
 import {
   effectiveZaicodeWindows,
   isZaicodeRealReset,
+  isZaicodeRouterErrorRecent,
   zaicodeNextRefillAt,
   type ZaicodeEngineAccount,
   type ZaicodeJob,
@@ -140,6 +141,20 @@ export interface ZaicodeHomeRouting {
   truth: ZaicodeHomeTruth;
 }
 
+/** Active connections whose last error is recent (T-133), the newest first. */
+export function zaicodeRecentRouterFailures(
+  connections: readonly ZaicodeRouterConnection[],
+  now: number,
+): ZaicodeRouterConnection[] {
+  const at = (connection: ZaicodeRouterConnection) => {
+    const time = connection.lastErrorAt ? Date.parse(connection.lastErrorAt) : Number.NaN;
+    return Number.isNaN(time) ? 0 : time;
+  };
+  return connections
+    .filter((connection) => connection.isActive && isZaicodeRouterErrorRecent(connection, now))
+    .sort((left, right) => at(right) - at(left));
+}
+
 export function zaicodeHomeRouting(input: {
   status: ZaicodeRouterStatus;
   message: string;
@@ -147,11 +162,12 @@ export function zaicodeHomeRouting(input: {
   combos: readonly ZaicodeRouterCombo[];
   connections: readonly ZaicodeRouterConnection[];
   lastScanAt: number | null;
+  now?: number;
 }): ZaicodeHomeRouting {
   const pools = input.combos
     .filter((combo) => /^(saifren|saiopp)$/i.test(combo.name))
     .map((combo) => ({ name: combo.name.toUpperCase(), models: combo.models.length }));
-  const failing = input.connections.filter((connection) => connection.isActive && Boolean(connection.lastError));
+  const failing = zaicodeRecentRouterFailures(input.connections, input.now ?? Date.now());
   const active = input.connections.filter((connection) => connection.isActive).length;
   const base = {
     mode: input.host ? `${input.host.mode}${input.host.requestedMode === "auto" ? " (auto)" : ""}` : null,
@@ -171,15 +187,22 @@ export function zaicodeHomeRouting(input: {
   // SAIFREN (free) must have a model; SAIOPP (paid) is empty until a subscription is added, which is no fault.
   const free = pools.find((pool) => pool.name === "SAIFREN");
   const emptyFree = free !== undefined && free.models === 0;
-  if (failing.length > 0 || emptyFree || !free) {
+  // A pool routes around a provider that erred: one or two out of dozens are no fault of the router. A real share is.
+  const manyFailing = failing.length > 0 && failing.length >= Math.max(3, Math.ceil(active * 0.25));
+  if (manyFailing || emptyFree || !free) {
     const why = emptyFree
       ? "SAIFREN has no model"
       : !free
         ? "no SAIFREN pool"
-        : `${failing.length} provider(s) failing`;
+        : `${failing.length} of ${active} provider(s) failed in the last hour`;
     return { ...base, state: "degraded", headline: `Router up · ${why}`, truth: "authoritative" };
   }
-  return { ...base, state: "healthy", headline: "Router healthy", truth: "authoritative" };
+  return {
+    ...base,
+    state: "healthy",
+    headline: failing.length > 0 ? `Router healthy · ${failing.length} provider(s) erred in the last hour` : "Router healthy",
+    truth: "authoritative",
+  };
 }
 
 // ---------------------------------------------------------------------------

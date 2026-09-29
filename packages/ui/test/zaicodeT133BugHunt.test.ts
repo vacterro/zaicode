@@ -12,6 +12,8 @@ import { ZaicodeHeaderProjectTitle } from "../src/zaicode/ZaicodeHeaderProjectTi
 import { ZaicodeWrappedPath } from "../src/settings/ZaicodeCustomSoundsStrip.js";
 import { presetDateLabel } from "../src/zaicode/zaicodePresetLabels.js";
 import { dayTitle, zaicodeCount } from "../src/zaicode/home/ZaicodeHomeStatsCards.js";
+import { zaicodeHomeActionItems, zaicodeHomeRouting } from "../src/zaicode/home/zaicodeHomeModel.js";
+import { isZaicodeRouterErrorRecent } from "@zcode/shared";
 
 /**
  * T-133 (SRC-096, "keep catching bugs and polish what exists"): defects found by running the packaged app and reading
@@ -141,6 +143,38 @@ test("B10 SAIHOME Activity's day line counts in words that agree ('1 turn', not 
   const line = dayTitle({ date: "2026-09-30", totals } as unknown as Parameters<typeof dayTitle>[0], "activity");
   assert.match(line, /· 2 requests · 1 turn · 0 tasks done · 1 worker session · runtime/);
   assert.equal(zaicodeCount(0, "turn"), "0 turns");
+});
+
+test("B11 SAIHOME Routing counts only recent provider errors; old ones stayed red for weeks", () => {
+  const now = Date.parse("2026-09-30T01:00:00Z");
+  const connection = (index: number, lastErrorAt: string | null, lastError: string | null = "[502]: fetch connect timeout") => ({
+    id: `c${index}`, provider: `p${index}`, name: `P${index}`, authType: null, isActive: true, priority: null, testStatus: "unavailable",
+    lastError, lastErrorAt, baseUrl: null, prefix: null,
+  });
+  const combos = [{ id: "1", name: "SAIFREN", models: ["m"], kind: null, strategy: "fallback" }];
+  const route = (connections: ReturnType<typeof connection>[]) =>
+    zaicodeHomeRouting({ status: "up", message: "", host: null, combos, connections, lastScanAt: null, now });
+  // The operator's router on 30.09: 57 active, 41 carrying errors from 15.09-29.09, none from the last hour.
+  const old = Array.from({ length: 41 }, (_, index) => connection(index, "2026-09-15T18:29:56.309Z"));
+  const fine = Array.from({ length: 16 }, (_, index) => connection(100 + index, null, null));
+  const calm = route([...old, ...fine]);
+  assert.equal(calm.state, "healthy", "two-week-old errors are history");
+  assert.equal(calm.headline, "Router healthy");
+  assert.deepEqual(zaicodeHomeActionItems({ routing: calm, limitRows: [], projects: [], waitingSessions: 0, schedules: [], statsSources: [], statsError: null }), []);
+
+  const twoRecent = route([...old, ...fine.slice(2), connection(200, "2026-09-30T00:40:00Z"), connection(201, "2026-09-30T00:10:00Z")]);
+  assert.equal(twoRecent.state, "healthy", "a pool routes around two of 57");
+  assert.match(twoRecent.headline, /2 provider\(s\) erred in the last hour/);
+
+  const many = [...Array.from({ length: 20 }, (_, index) => connection(300 + index, "2026-09-30T00:30:00Z")), connection(400, "2026-09-30T00:55:00Z", "[429]: newest"), ...fine];
+  const degraded = route(many);
+  assert.equal(degraded.state, "degraded");
+  assert.match(degraded.headline, /21 of 37 provider\(s\) failed in the last hour/);
+  const item = zaicodeHomeActionItems({ routing: degraded, limitRows: [], projects: [], waitingSessions: 0, schedules: [], statsSources: [], statsError: null })[0]!;
+  assert.equal(item.why, "[429]: newest", "the newest error explains it");
+
+  assert.equal(isZaicodeRouterErrorRecent({ lastError: "x", lastErrorAt: null }, now), true, "no time: cannot be shown to be old");
+  assert.equal(isZaicodeRouterErrorRecent({ lastError: null, lastErrorAt: "2026-09-30T00:59:00Z" }, now), false);
 });
 
 test("B6 SAIHOME Projects: the name column gets the larger share of the row", () => {

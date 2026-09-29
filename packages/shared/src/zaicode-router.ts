@@ -103,6 +103,8 @@ export interface ZaicodeRouterConnection {
   priority: number | null;
   testStatus: string | null;
   lastError: string | null;
+  /** When 9router recorded `lastError` (ISO). It keeps the error until a later success, so an old one says nothing about now. */
+  lastErrorAt?: string | null;
   baseUrl: string | null;
   prefix: string | null;
   /** The account behind an OAuth connection, when 9router knows it. */
@@ -147,6 +149,20 @@ function str(value: unknown): string | null {
   return typeof value === "string" && value.trim() ? value : null;
 }
 
+/** An error older than this says nothing about the router now: 9router keeps a connection's last error until a success. */
+export const ZAICODE_ROUTER_RECENT_ERROR_MS = 60 * 60_000;
+
+/**
+ * Whether a connection's last error is recent (T-133). An error without a time cannot be shown to be old, so it counts.
+ * Free providers that are not picked keep theirs for weeks: on 2026-09-30, 41 of 57 active connections carried one,
+ * dated 15.09, 22.09, 23.09 ..., and SAIHOME's HEALTH was red for good.
+ */
+export function isZaicodeRouterErrorRecent(connection: Pick<ZaicodeRouterConnection, "lastError" | "lastErrorAt">, now: number): boolean {
+  if (!connection.lastError) return false;
+  const at = connection.lastErrorAt ? Date.parse(connection.lastErrorAt) : Number.NaN;
+  return Number.isNaN(at) || now - at <= ZAICODE_ROUTER_RECENT_ERROR_MS;
+}
+
 export function normalizeZaicodeRouterConnections(raw: unknown): ZaicodeRouterConnection[] {
   const list = (raw as { connections?: unknown })?.connections;
   if (!Array.isArray(list)) return [];
@@ -167,6 +183,7 @@ export function normalizeZaicodeRouterConnections(raw: unknown): ZaicodeRouterCo
         priority: typeof value.priority === "number" ? value.priority : null,
         testStatus: str(value.testStatus),
         lastError: str(value.lastError),
+        lastErrorAt: str(value.lastErrorAt),
         baseUrl: str(specific.baseUrl),
         prefix: str(specific.prefix),
         email: str(value.email) ?? str(specific.email),

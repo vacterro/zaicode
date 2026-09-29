@@ -55,6 +55,12 @@ export interface ZaicodeAuditStage {
   total: number;
 }
 
+/** The current wave's job has not started yet (queued or ready in the ZAICODE queue). */
+export function isZaicodeAuditJobWaiting(campaign: ZaicodeAuditCampaign): boolean {
+  const status = campaign.live?.status;
+  return status === "queued" || status === "ready";
+}
+
 export function zaicodeAuditStage(campaign: ZaicodeAuditCampaign): ZaicodeAuditStage {
   const total = campaign.waves.length;
   const done = campaign.waves.filter((wave) => wave.status === "complete").length;
@@ -66,7 +72,9 @@ export function zaicodeAuditStage(campaign: ZaicodeAuditCampaign): ZaicodeAuditS
     case "planned":
       return { label: "Planned, not started", done, total };
     case "running":
-      return { label: `Running ${wave}`, done, total };
+      // T-133: a wave whose job still waits in the queue is not running (on 30.09 two had waited three days: their
+      // projects were switched off, and the Audits view said "Running").
+      return { label: `${isZaicodeAuditJobWaiting(campaign) ? "Queued" : "Running"} ${wave}`, done, total };
     case "blocked":
       return { label: `Stopped at ${wave}`, done, total };
     case "cancelled":

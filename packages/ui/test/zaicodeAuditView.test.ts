@@ -55,6 +55,10 @@ test("stage and steps say where the audit is, with each wave's time", () => {
   assert.equal(zaicodeAuditTotalMs(campaign(), now), 10 * 60_000);
   assert.equal(zaicodeAuditStage(campaign({ status: "planned", startedAt: null })).label, "Planned, not started");
   assert.equal(zaicodeAuditStage(campaign({ status: "blocked" })).label, "Stopped at wave 2 of 3 · AUDIT SECOND WAVE");
+  // T-133: a wave whose job waits in the queue (a switched-off project, a full queue) is not "Running".
+  const live = { jobId: "j2", sessionId: null, startedAt: null, heartbeatAt: null, attempt: 0, agentName: "Auditor", model: null };
+  assert.equal(zaicodeAuditStage(campaign({ live: { ...live, status: "queued" } })).label, "Queued wave 2 of 3 · AUDIT SECOND WAVE");
+  assert.equal(zaicodeAuditStage(campaign({ live: { ...live, status: "running", startedAt: T0 } })).label, "Running wave 2 of 3 · AUDIT SECOND WAVE");
   // A stopped audit's clock stops at its last finished wave.
   assert.equal(zaicodeAuditTotalMs(campaign({ status: "blocked" }), now + 3_600_000), 6 * 60_000);
 });
