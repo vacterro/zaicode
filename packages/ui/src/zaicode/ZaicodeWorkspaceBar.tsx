@@ -10,7 +10,7 @@ import type { ZaicodeServices, ZaicodeWorkspaceContext } from "./zaicodeServices
 import { useZaicodeStore } from "./zaicodeStore.js";
 import { buildTaskWorkspaceKey } from "@/lib/taskQueryCache.js";
 import { projectNameOf } from "./zaicodeEngines.js";
-import { useZaicodeMainSessions, zaicodeMainSessionKey } from "./zaicodeMainSession.js";
+import { useZaicodeMainSessions, zaicodeMainSessionIdOf, zaicodeMainSessionKey } from "./zaicodeMainSession.js";
 import { startZaicodeInMain } from "./zaicodeScheduleRun.js";
 import { useZaicodeAuditStore } from "./zaicodeAuditStore.js";
 
@@ -86,7 +86,7 @@ export function ZaicodeHitAndGoButton({
     setRunning(true);
     try {
       const mainKey = zaicodeMainSessionKey(workspace.workspacePath, workspace.workspaceIdentity);
-      if (useZaicodeMainSessions.getState().byWorkspace[mainKey]) {
+      if (zaicodeMainSessionIdOf(useZaicodeMainSessions.getState().byWorkspace, mainKey)) {
         const outcome = await startZaicodeInMain({ prompt: "" }, [
           {
             path: workspace.workspacePath,

@@ -32,10 +32,17 @@ function load(): Persisted {
         if (typeof value === "string" && value) byWorkspace[key] = value;
       }
     }
-    return { byWorkspace };
+    return { byWorkspace: foldZaicodeMainKeys(byWorkspace) };
   } catch {
     return { byWorkspace: {} };
   }
+}
+
+/** Two saved entries for one project (two spellings of its path) become one: the later one wins. */
+export function foldZaicodeMainKeys(byWorkspace: Readonly<Record<string, string>>): Record<string, string> {
+  const byForm = new Map<string, [string, string]>();
+  for (const [key, value] of Object.entries(byWorkspace)) byForm.set(zaicodeMainKeyForm(key), [key, value]);
+  return Object.fromEntries(byForm.values());
 }
 
 function save(value: Persisted): void {
@@ -48,6 +55,33 @@ function save(value: Persisted): void {
 
 export function zaicodeMainSessionKey(workspacePath: string, workspaceIdentity?: string): string {
   return workspaceIdentity?.trim() || workspacePath;
+}
+
+/**
+ * How two spellings of one project path compare: C:\a\b, c:/a/b/ and C:/a/b are one key.
+ * The project row, the composer, CONTINUE ALL and the scheduler each name a project with
+ * the path they were handed, and a MAIN written under one spelling was invisible under
+ * another: the row then listed the very session it stands for as its own child (SRC-081).
+ * Only drive-letter paths fold case; identities and other paths are compared as written.
+ */
+export function zaicodeMainKeyForm(key: string): string {
+  const slashed = key.replace(/\\/g, "/").replace(/\/+$/, "");
+  return /^[a-z]:(\/|$)/i.test(slashed) ? slashed.toLowerCase() : slashed;
+}
+
+/** The key already in the map that means `key`, else `key` itself (so old saved keys keep working). */
+export function resolveZaicodeMainKey(byWorkspace: Readonly<Record<string, string>>, key: string): string {
+  if (key in byWorkspace) return key;
+  const form = zaicodeMainKeyForm(key);
+  for (const existing of Object.keys(byWorkspace)) {
+    if (zaicodeMainKeyForm(existing) === form) return existing;
+  }
+  return key;
+}
+
+/** MAIN's session id for a project under any spelling of its path. */
+export function zaicodeMainSessionIdOf(byWorkspace: Readonly<Record<string, string>>, key: string): string | null {
+  return byWorkspace[resolveZaicodeMainKey(byWorkspace, key)] ?? null;
 }
 
 interface ZaicodeMainSessionState extends Persisted {
@@ -64,23 +98,27 @@ export const useZaicodeMainSessions = create<ZaicodeMainSessionState>((set, get)
   ...load(),
   armed: {},
   setMain: (workspaceKey, sessionId) => {
-    if (get().byWorkspace[workspaceKey] === sessionId) return;
-    const byWorkspace = { ...get().byWorkspace, [workspaceKey]: sessionId };
+    // One project, one entry, however its path was spelled by the caller.
+    const key = resolveZaicodeMainKey(get().byWorkspace, workspaceKey);
+    if (get().byWorkspace[key] === sessionId) return;
+    const byWorkspace = { ...get().byWorkspace, [key]: sessionId };
     save({ byWorkspace });
     set({ byWorkspace });
   },
   clearMain: (workspaceKey) => {
-    if (!(workspaceKey in get().byWorkspace)) return;
+    const key = resolveZaicodeMainKey(get().byWorkspace, workspaceKey);
+    if (!(key in get().byWorkspace)) return;
     const byWorkspace = { ...get().byWorkspace };
-    delete byWorkspace[workspaceKey];
+    delete byWorkspace[key];
     save({ byWorkspace });
     set({ byWorkspace });
   },
-  arm: (workspaceKey) => set({ armed: { ...get().armed, [workspaceKey]: true } }),
+  arm: (workspaceKey) => set({ armed: { ...get().armed, [zaicodeMainKeyForm(workspaceKey)]: true } }),
   claimIfArmed: (workspaceKey, sessionId) => {
-    if (!get().armed[workspaceKey]) return false;
+    const armedKey = zaicodeMainKeyForm(workspaceKey);
+    if (!get().armed[armedKey]) return false;
     const armed = { ...get().armed };
-    delete armed[workspaceKey];
+    delete armed[armedKey];
     set({ armed });
     get().setMain(workspaceKey, sessionId);
     return true;
@@ -88,7 +126,7 @@ export const useZaicodeMainSessions = create<ZaicodeMainSessionState>((set, get)
 }));
 
 export function useZaicodeMainSessionId(workspaceKey: string): string | null {
-  return useZaicodeMainSessions((state) => state.byWorkspace[workspaceKey] ?? null);
+  return useZaicodeMainSessions((state) => zaicodeMainSessionIdOf(state.byWorkspace, workspaceKey));
 }
 
 /**

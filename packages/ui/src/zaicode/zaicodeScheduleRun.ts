@@ -10,7 +10,7 @@ import {
   type ZaicodeSessionBrief,
 } from "./zaicodeContinue.js";
 import { zaicodeContinueHandleFor } from "./zaicodeContinueHost.js";
-import { useZaicodeMainSessions, zaicodeMainSessionKey } from "./zaicodeMainSession.js";
+import { useZaicodeMainSessions, zaicodeMainSessionIdOf, zaicodeMainSessionKey } from "./zaicodeMainSession.js";
 import { readZaicodeKnownProjects, type ZaicodeKnownProject } from "./zaicodeScheduler.js";
 import { zaicodeMarkedSessionsIn } from "./zaicodeSchedulerMarks.js";
 import { readZaicodeWorkers, removeZaicodeWorker, type ZaicodeWorker } from "./zaicodeWorkers.js";
@@ -184,7 +184,7 @@ export async function startZaicodeInMain(job: Pick<ZaicodeAutostartJob, "prompt"
       continue;
     }
     const mainKey = zaicodeMainSessionKey(target.path, target.identity);
-    const mainId = useZaicodeMainSessions.getState().byWorkspace[mainKey] ?? null;
+    const mainId = zaicodeMainSessionIdOf(useZaicodeMainSessions.getState().byWorkspace, mainKey);
     const decision = decideZaicodeProjectStart(mainId, briefs().filter((session) => session.projectKey === target.key));
     try {
       if (decision.action === "open") {
