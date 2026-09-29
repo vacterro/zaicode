@@ -4,6 +4,9 @@ import bundled from "./zaicodeSettingsDefaults.json" with { type: "json" };
 const SETTING_KEYS = [
   "zaicode-ui-prefs-v1",
   "zaicode-sidebar-prefs-v1",
+  // Wave 4: virtual folders and pins are organization metadata about a
+  // project, and ride a profile like every other ZAICODE preference.
+  "zaicode-project-folders-v1",
   "zaicode-diamonds-v1",
   "zaicode-profiles",
   "zaicode-cues-v1",
@@ -34,6 +37,7 @@ const SETTING_KEYS = [
   "zaicode-saipen-log-order-v1",
   "zaicode-saipen-ticket-order-v1",
   "zaicode-lights-v1",
+  "zaicode-model-appearance-v1",
   "zaicode-lights-presets-v1",
   "zaicode-composer-prefs-v1",
   "zaicode-saiasui-settings-v1",

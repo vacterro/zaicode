@@ -16,6 +16,7 @@
 export const ZAICODE_PROFILE_KEYS: readonly string[] = [
   "zaicode-ui-prefs-v1",
   "zaicode-sidebar-prefs-v1",
+  "zaicode-project-folders-v1",
   "zaicode-diamonds-v1",
   "zaicode-cues-v1",
   "zaicode-icon-overrides",
@@ -42,6 +43,7 @@ export const ZAICODE_PROFILE_KEYS: readonly string[] = [
   "zaicode-color-studio-v1",
   "zaicode-saipen-log-order-v1",
   "zaicode-lights-v1",
+  "zaicode-model-appearance-v1",
   "zaicode-composer-prefs-v1",
   "zaicode-dispatch-prefs-v1",
   "zaicode-home-v1",
