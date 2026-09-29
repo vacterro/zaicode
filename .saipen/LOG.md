@@ -669,3 +669,7 @@
 - 28.09.26 23:54 [E-1825] [parent: E-1824] [agent: saipen-cli] [op: goal-6a0e28776dcb4ba0a113007960dc965f] DEC: goal pivot -- T-111 (SRC-073): Wave 4: virtual project folders, project pins, per-model highlight/worker appearance (Default vs Separate)
 - 28.09.26 23:54 [E-1826] [parent: E-1825] [T-111] [agent: saipen-cli] [op: claim-f6fc1a9beddd4899904877bf6db2dcdb] DEC: claimed via SAIOPS -- owner saipen-cli
 - 29.09.26 00:23 [E-1827] [parent: E-1826] [T-111] [agent: saipen-cli] [op: checkpoint-3c739e013beb4b03a27856d12889c4b8] RUN: detail_ref: .saipen/recovery/log-detail/E-1827-a1c6b3b5dc4d02442221c99d.json
+- 29.09.26 00:23 [E-1828] [parent: E-1827] [T-112] [agent: saipen-cli] [op: userreq-15a0b3639cda4a0f9131fe665e4522df] DEC: user request SRC-074 projected as T-112 (user_explicit)
+- 29.09.26 00:23 [E-1829] [parent: E-1828] [T-111] [agent: saipen-cli] [op: ticket-9155a953479b4665a55f3a1961bffeb1] DEC: ticket block via SAIOPS (active) -- dependency T-112 -- PAUSED by user request SRC-074: explicit new task T-112 takes the seat; resumes at SCOUT when T-112 closes
+- 29.09.26 00:23 [E-1830] [parent: E-1829] [T-112] [agent: saipen-cli] [op: claim-b4f31bfce4a84bde933d8bca679272d5] DEC: claimed via SAIOPS -- owner saipen-cli
+- 29.09.26 00:29 [E-1831] [parent: E-1830] [T-112] [agent: saipen-cli] [op: checkpoint-c0b2ecbef8bf4bebafbcf8485e5c0583] RUN: detail_ref: .saipen/recovery/log-detail/E-1831-5123f4854eafa87a520ba3d1.json
