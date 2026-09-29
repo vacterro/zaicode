@@ -6,7 +6,7 @@ import test from "node:test";
 // SRC-083: "remove the text No folder, put the count next to the New folder button, make New
 // folder an icon button that is still obvious; remove the empty space, be more compact".
 
-const source = (path: string) => readFileSync(join(import.meta.dirname, "../src", path), "utf8");
+const source = (path: string) => readFileSync(join(import.meta.dirname, "../src", path), "utf8").replace(/\r\n/g, "\n");
 
 test("New folder is an icon button that still reads as a button", () => {
   const parts = source("zaicode/ZaicodeProjectFolderParts.tsx");
