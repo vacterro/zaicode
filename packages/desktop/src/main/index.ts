@@ -257,6 +257,7 @@ import { startZaicodeEngines } from "./zaicodeEngines.js";
 import { isZaicodeSplashWindow, isZaicodeWindowHeld, showZaicodeSplash } from "./zaicodeSplash.js";
 import { isZaicodeProtrailWindow } from "./zaicodeProtrailGlobal.js";
 import { startZaicodeRouterHost, stopZaicodeRouterHost } from "./zaicodeRouterHost.js";
+import { startZaicodeOrphanShellSweeps } from "./zaicodeOrphanShells.js";
 import { applyZaicodeLocalTimeZone, shouldRelaunchForLocalTimeZone } from "./zaicodeTimeZone.js";
 
 registerLocalMediaPreviewScheme(protocol);
@@ -1918,6 +1919,12 @@ app.whenReady().then(async () => {
     void startZaicodeRouterHost();
     // will-quit: quitting is final here (a cancelled quit dialog never reaches it); the shared 9router is never touched.
     app.on("will-quit", () => stopZaicodeRouterHost());
+    // T-133: agent shells whose owner died (an earlier run, a crashed agent) are stopped; live ones are never touched.
+    const stopOrphanShellSweeps = startZaicodeOrphanShellSweeps({
+      appStartedAtMs: Date.now() - Math.round(process.uptime() * 1000),
+      log: (message) => logger.info(message),
+    });
+    app.on("will-quit", stopOrphanShellSweeps);
   }
   installLocalMediaPreviewProtocol(session.defaultSession.protocol, {
     isPathAuthorized: localMediaPreviewPathRegistry.isAuthorized,
