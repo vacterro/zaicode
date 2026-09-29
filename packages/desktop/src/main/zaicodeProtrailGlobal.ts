@@ -424,6 +424,11 @@ function sameRect(a: Rectangle, b: Rectangle): boolean {
   return a.x === b.x && a.y === b.y && a.width === b.width && a.height === b.height;
 }
 
+/** Fractional Windows scaling rounds a window's DIP bounds by a pixel or two; that is not a moved overlay. */
+function nearRect(a: Rectangle, b: Rectangle, slack = 2): boolean {
+  return Math.abs(a.x - b.x) <= slack && Math.abs(a.y - b.y) <= slack && Math.abs(a.width - b.width) <= slack && Math.abs(a.height - b.height) <= slack;
+}
+
 function isProbe(value: unknown): value is OverlayProbe {
   const probe = value as Partial<OverlayProbe> | null;
   return (
@@ -468,7 +473,7 @@ function overlayViews(): OverlayView[] {
       createdAt: life.createdAt,
       ready: readyOverlays.has(win),
       visible: win.isVisible(),
-      placed: sameRect(win.getBounds(), display.bounds),
+      placed: nearRect(win.getBounds(), display.bounds),
       expected: { width: display.bounds.width, height: display.bounds.height },
       probe: () => probeOverlay(win),
     });

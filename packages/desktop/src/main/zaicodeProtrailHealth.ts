@@ -49,7 +49,7 @@ export interface OverlayJudgement {
   expected: { width: number; height: number };
   /** Last probe answer; null = no answer. */
   probe: OverlayProbe | null;
-  /** Probes in a row that got no answer or reported no frames. */
+  /** Probes in a row that got no answer. */
   strikes: number;
   /** Times the config was sent again to this overlay in its current life. */
   resends: number;
@@ -57,8 +57,10 @@ export interface OverlayJudgement {
 
 /** A document that has not finished loading by then is dropped and built again. */
 export const OVERLAY_LOAD_DEADLINE_MS = 8000;
-/** Unanswered (or frameless) probes in a row before the overlay is rebuilt. */
+/** Unanswered probes in a row before the overlay is rebuilt. */
 export const OVERLAY_STRIKE_LIMIT = 3;
+/** Put-backs of one overlay before the check leaves it where it is: something else keeps moving it. */
+export const OVERLAY_PLACE_LIMIT = 6;
 /** Config re-sends before an overlay that still does not take it is rebuilt. */
 export const OVERLAY_RESEND_LIMIT = 2;
 const SIZE_TOLERANCE_PX = 2;
@@ -74,10 +76,14 @@ export function judgeOverlay(o: OverlayJudgement): OverlayVerdict {
   if (!o.visible) return not({ action: "reveal", why: "it is loaded but hidden" });
   if (!o.placed) return not({ action: "place", why: "it is not on its monitor" });
   const probe = o.probe;
-  if (!probe || !probe.frames) {
-    const why = probe ? "its page draws no frames" : "its page does not answer";
+  if (!probe) {
+    const why = "its page does not answer";
     return o.strikes >= OVERLAY_STRIKE_LIMIT ? not({ action: "rebuild", why }) : not({ action: "wait", why });
   }
+  // A page that answers but makes no frames sits in a window that is hidden or covered (a fullscreen game,
+  // a locked screen). A new window would be just as covered, and building one over a game is the worse harm,
+  // so it is left unconfirmed -- the ZAICODE window draws meanwhile -- and asked again next pass.
+  if (!probe.frames) return not({ action: "wait", why: "its page makes no frames (the window is hidden or covered)" });
   if (!probe.configured || !probe.enabled) {
     const why = probe.configured ? "its page holds a switched-off config" : "its page never took the config";
     return o.resends < OVERLAY_RESEND_LIMIT ? not({ action: "resend", why }) : not({ action: "rebuild", why });
@@ -179,10 +185,17 @@ export function createOverlayHealth(deps: OverlayHealthDeps) {
       deps.repairs.reveal(view);
       deps.log(`${label} shown again: ${action.why}`);
     } else if (action.action === "place") {
+      if (record.places >= OVERLAY_PLACE_LIMIT) {
+        // Six put-backs and it is still off its monitor: another program owns its position. Say so once, stop fighting.
+        if (record.why !== "place-limit") {
+          record.why = "place-limit";
+          deps.log(`${label} keeps being moved by something else (${record.places} put-backs); leaving it where it is`);
+        }
+        return;
+      }
       deps.repairs.place(view);
       record.places += 1;
-      // A window manager that keeps moving it would otherwise fill the log: the first move and every tenth.
-      if (record.places === 1 || record.places % 10 === 0) deps.log(`${label} put back on its monitor (${record.places}x): ${action.why}`);
+      deps.log(`${label} put back on its monitor (${record.places}): ${action.why}`);
     } else if (action.action === "resend") {
       record.resends += 1;
       deps.repairs.resend(view);
@@ -223,7 +236,7 @@ export function createOverlayHealth(deps: OverlayHealthDeps) {
     views.forEach((view, index) => {
       const record = recordOf(view);
       const answer = answers[index] ?? null;
-      if (view.ready) record.strikes = answer && answer.frames ? 0 : record.strikes + 1;
+      if (view.ready) record.strikes = answer ? 0 : record.strikes + 1;
       const verdict = judgeOverlay({
         now,
         createdAt: view.createdAt,

@@ -12,8 +12,8 @@ import ts from "typescript";
 const mainDir = join(import.meta.dirname, "../../src/main");
 
 /** A `.ts` module of src/main that imports nothing at runtime, compiled and evaluated in isolation. */
-export function loadPureMainModule(fileName: string): Record<string, unknown> {
-  const source = readFileSync(join(mainDir, fileName), "utf8");
+export function loadPureMainModule(fileName: string, sourcePath?: string): Record<string, unknown> {
+  const source = readFileSync(sourcePath ?? join(mainDir, fileName), "utf8");
   const compiled = ts.transpileModule(source, {
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
   }).outputText;
@@ -24,5 +24,6 @@ export function loadPureMainModule(fileName: string): Record<string, unknown> {
 
 /** The overlay health rules, for the module's `./zaicodeProtrailHealth.js` import. */
 export function healthPort(): Record<string, unknown> {
-  return loadPureMainModule("zaicodeProtrailHealth.ts");
+  // PROTRAIL_HEALTH_SOURCE: another copy of the rules, for the red control against an earlier version.
+  return loadPureMainModule("zaicodeProtrailHealth.ts", process.env.PROTRAIL_HEALTH_SOURCE);
 }

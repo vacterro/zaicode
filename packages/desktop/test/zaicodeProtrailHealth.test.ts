@@ -20,6 +20,7 @@ const health = healthPort() as {
   OVERLAY_STRIKE_LIMIT: number;
   OVERLAY_RESEND_LIMIT: number;
   OVERLAY_REBUILDS_PER_MINUTE: number;
+  OVERLAY_PLACE_LIMIT: number;
 };
 
 const probeOk = { configured: true, enabled: true, width: 1920, height: 1080, frames: true };
@@ -51,10 +52,14 @@ test("H2 a loaded overlay that is hidden is shown, one that is off its monitor i
   assert.equal(judged({ placed: false }).repair.action, "place");
 });
 
-test("H3 a page that does not answer, or draws no frames, is rebuilt only after repeated strikes", () => {
-  for (const probe of [null, { ...probeOk, frames: false }]) {
-    assert.equal(judged({ probe, strikes: 1 }).repair.action, "wait");
-    assert.equal(judged({ probe, strikes: health.OVERLAY_STRIKE_LIMIT }).repair.action, "rebuild");
+test("H3 a page that does not answer is rebuilt after repeated strikes; one that answers without frames never is", () => {
+  assert.equal(judged({ probe: null, strikes: 1 }).repair.action, "wait");
+  assert.equal(judged({ probe: null, strikes: health.OVERLAY_STRIKE_LIMIT }).repair.action, "rebuild");
+  // A window that is hidden or covered (a fullscreen game) makes no frames, and a new window would be as covered.
+  for (const strikes of [0, 1, health.OVERLAY_STRIKE_LIMIT, 99]) {
+    const verdict = judged({ probe: { ...probeOk, frames: false }, strikes });
+    assert.equal(verdict.repair.action, "wait", "a covered window is not a broken one");
+    assert.equal(verdict.verified, false, "but it is not confirmed either");
   }
 });
 
@@ -155,6 +160,15 @@ test("H9 a confirmed set is watched slowly and costs no repair", async () => {
   h.overlay.stop();
 });
 
+test("H10 an overlay that something else keeps moving is put back a few times, then left alone with one log line", async () => {
+  const h = orchestrated(() => [view({ placed: false })]);
+  h.overlay.start();
+  await h.time.advance(30_000);
+  assert.equal(h.calls.filter((call) => call.startsWith("place")).length, health.OVERLAY_PLACE_LIMIT, "put back exactly as often as allowed");
+  assert.equal(h.logs.filter((line) => /keeps being moved by something else/.test(line)).length, 1, "and the give-up is said once");
+  h.overlay.stop();
+});
+
 // ------------------------------------------------------------------ the real module
 
 test("M1 an overlay whose page never finishes loading is dropped and built again, with no toggle", async () => {
@@ -225,7 +239,7 @@ test("M5 the status counts what the overlays confirm, and how many monitors ther
   assert.equal(h.status().verified, 3);
   h.windows[2]!.webContents.page.noFrames = true;
   await h.clock.advance(20_000);
-  assert.ok((h.status().verified ?? 0) < 3 || h.windows.length > 3, "a page without frames is no longer confirmed, and is being replaced");
+  assert.equal(h.status().verified, 2, "a page without frames is no longer confirmed");
   h.configure(null);
 });
 
@@ -313,5 +327,36 @@ test("M11 a cursor that does not move never makes a silent reader: nothing is re
   await h.clock.advance(60_000);
   assert.equal(h.readers.length, 1);
   assert.equal(h.status().input, "raw-input");
+  h.configure(null);
+});
+
+test("M12 a window a pixel off its monitor by rounding is not a moved overlay", async () => {
+  const h = createProtrailHarness();
+  h.configure({ color: "red" });
+  await h.loadAll();
+  await h.clock.advance(1500);
+  const [left] = h.windows;
+  const placedAtLoad = left!.boundsSet.length;
+  left!.bounds = { ...left!.bounds, x: left!.bounds.x + 1, width: left!.bounds.width - 1 };
+  await h.clock.advance(30_000);
+  assert.equal(left!.boundsSet.length, placedAtLoad, "no further setBounds: fractional scaling rounds by a pixel or two");
+  assert.equal(h.status().verified, 3);
+  h.configure(null);
+});
+
+test("M13 an overlay whose window is covered makes no frames: it is not rebuilt, only left unconfirmed", async () => {
+  const h = createProtrailHarness();
+  h.configure({ color: "red" });
+  await h.loadAll();
+  await h.clock.advance(1500);
+  h.windows[1]!.webContents.page.noFrames = true;
+  await h.clock.advance(90_000);
+  assert.equal(h.windows.length, 3, "no window was built over the game");
+  assert.equal(h.status().verified, 2);
+  assert.doesNotMatch(h.logs.join("\n"), /rebuilt/);
+  // The window comes back into view: the very next pass confirms it again.
+  h.windows[1]!.webContents.page.noFrames = false;
+  await h.clock.advance(6000);
+  assert.equal(h.status().verified, 3);
   h.configure(null);
 });
