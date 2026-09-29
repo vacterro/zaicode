@@ -20,6 +20,7 @@
     "./zcode-protocol-v4": "./src/zcode-protocol-v4/index.ts",
     "./zaicode-audit-quick3": "./src/zaicode-audit-quick3.ts",
     "./zaicode-audit-validate": "./src/zaicode-audit-validate.ts",
+    "./zaicode-audit-campaign": "./src/zaicode-audit-campaign.ts",
     "./workspace-hook-discovery": "./src/workspace-hook-discovery.ts",
     "./workspace-hook-mutation": "./src/workspace-hook-mutation.ts",
     "./workspace-hook-review-monotonicity": "./src/workspace-hook-review-monotonicity.ts",

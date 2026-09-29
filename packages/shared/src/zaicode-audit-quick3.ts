@@ -60,6 +60,10 @@ export const ZAICODE_AUDIT_QUICK3_PROFILE = {
   label: "AUDAPACK Quick3",
   description: "Three read-only audit waves, chained and hash-verified, then one combined implementation handoff.",
   combinedFile: "<Project>__00_AUDIT_ALL_3.md",
+  /** The artifact kind the final synthesized file carries. */
+  combinedKind: "quick3_combined",
+  /** The final file's basename, without the project prefix. */
+  combinedBasename: "__00_AUDIT_ALL_3.md",
   roleContract: ZAICODE_AUDIT_ROLE_CONTRACT,
   waves: [
     {
@@ -151,6 +155,8 @@ export function zaicodeAuditProfileManifestHash(
     id: profile.id,
     version: profile.version,
     combinedFile: profile.combinedFile,
+    combinedKind: profile.combinedKind,
+    combinedBasename: profile.combinedBasename,
     roleContract: profile.roleContract,
     waves: profile.waves.map((wave) => ({
       id: wave.id,
