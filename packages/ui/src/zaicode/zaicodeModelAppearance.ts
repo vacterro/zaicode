@@ -1,3 +1,4 @@
+import { useSyncExternalStore } from "react";
 import { parseModelPickerValue } from "@zcode/shared";
 import { readZaicodeSetting } from "./zaicodeSettingsSnapshot.js";
 import {
@@ -263,7 +264,7 @@ export function listZaicodeModelOverrides(prefs: ZaicodeModelAppearancePrefs): {
 }
 
 const APPEARANCE_KEY = "zaicode-model-appearance-v1";
-const APPEARANCE_CHANGE_EVENT = "zaicode-model-appearance-changed";
+export const ZAICODE_MODEL_APPEARANCE_CHANGED_EVENT = "zaicode-model-appearance-changed";
 
 let cached: ZaicodeModelAppearancePrefs | null = null;
 
@@ -278,6 +279,24 @@ export function readZaicodeModelAppearancePrefs(): ZaicodeModelAppearancePrefs {
   return cached;
 }
 
+/**
+ * The prefs as live React state, the same contract `useZaicodeSoundSettings`
+ * has: one write dispatches one event, and every subscribed control re-renders
+ * from the cache in the same tick. Without this the Settings screen read the
+ * prefs once at mount, so a Separate toggle only showed up whenever some
+ * unrelated store next re-rendered the page.
+ */
+export function useZaicodeModelAppearancePrefs(): ZaicodeModelAppearancePrefs {
+  return useSyncExternalStore(
+    (listener) => {
+      window.addEventListener(ZAICODE_MODEL_APPEARANCE_CHANGED_EVENT, listener);
+      return () => window.removeEventListener(ZAICODE_MODEL_APPEARANCE_CHANGED_EVENT, listener);
+    },
+    readZaicodeModelAppearancePrefs,
+    readZaicodeModelAppearancePrefs,
+  );
+}
+
 /** One write, one notification: the resolver's input never half-updates. */
 export function writeZaicodeModelAppearancePrefs(
   update: (current: ZaicodeModelAppearancePrefs) => ZaicodeModelAppearancePrefs,
@@ -289,7 +308,7 @@ export function writeZaicodeModelAppearancePrefs(
   } catch {
     // Applies for this window; the next start reads what did land.
   }
-  if (typeof window !== "undefined") window.dispatchEvent(new Event(APPEARANCE_CHANGE_EVENT));
+  if (typeof window !== "undefined") window.dispatchEvent(new Event(ZAICODE_MODEL_APPEARANCE_CHANGED_EVENT));
   return next;
 }
 

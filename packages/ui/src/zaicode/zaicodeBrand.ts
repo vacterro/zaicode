@@ -15,3 +15,5 @@ export function appLogoUrl(): string {
 export const ZAICODE_REPO_URL = "https://github.com/vacterro/zaicode";
 /** "Support Developer": the developer's sponsorship page (operator, SRC-049). */
 export const ZAICODE_SUPPORT_URL = "https://buymeacoffee.com/vacuum34";
+/** The SAIPEN community Discord invite (Settings sidebar bottom link). */
+export const ZAICODE_DISCORD_URL = "https://discord.gg/SEYaYkuVgN";

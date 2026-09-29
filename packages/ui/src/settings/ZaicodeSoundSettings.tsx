@@ -385,7 +385,6 @@ function SoundRow({
         onMouseUp={() => playZaicodeSound(event.id, { preview: true })}
         onDoubleClick={() => setZaicodeSoundEvent(event.id, { gainDb: 0 })}
       />
-      <ZaicodePoolControls event={event} row={row} />
       <span className="text-right tabular-nums text-foreground-subtle">
         {formatDb(row.gainDb)}
         {row.normalizeDb !== 0 ? (
@@ -403,6 +402,9 @@ function SoundRow({
       >
         <Play className="size-3" />
       </button>
+      {/* Last on purpose: the nine columns above must line up with the header,
+          and this full-width sub-row wraps onto its own line below them. */}
+      <ZaicodePoolControls event={event} row={row} />
     </>
   );
 }

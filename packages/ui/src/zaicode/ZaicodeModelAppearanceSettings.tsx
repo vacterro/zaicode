@@ -9,10 +9,10 @@ import {
   ZAICODE_SHIPPED_WORKER_ICON,
   listZaicodeModelOverrides,
   parseZaicodeModelIdentity,
-  readZaicodeModelAppearancePrefs,
   resolveZaicodeWorkerIconUrl,
   setZaicodeGlobalAppearance,
   setZaicodeModelAppearance,
+  useZaicodeModelAppearancePrefs,
   zaicodeModelIdentityKey,
   type ZaicodeModelAppearancePrefs,
   type ZaicodeModelIdentity,
@@ -38,7 +38,6 @@ function ModelRow({ identity, prefs }: { identity: ZaicodeModelIdentity; prefs: 
   const override = prefs.models[key];
   const separate = override?.mode === "separate";
   const [uploading, setUploading] = useState(false);
-  const [pending, setPending] = useState(false);
 
   return (
     <div className="flex flex-col gap-1 border border-border/60 p-2" data-zaicode-model-row={key}>
@@ -54,12 +53,7 @@ function ModelRow({ identity, prefs }: { identity: ZaicodeModelIdentity; prefs: 
             { value: "default", label: "Default", hint: "Follow the global appearance above" },
             { value: "separate", label: "Separate", hint: "Its own highlight and worker icon" },
           ]}
-          onChange={(mode) => {
-            if (pending) return;
-            setPending(true);
-            setZaicodeModelAppearance(identity, { mode: mode as "default" | "separate" });
-            setPending(false);
-          }}
+          onChange={(mode) => setZaicodeModelAppearance(identity, { mode })}
         />
       </div>
       {separate ? (
@@ -145,7 +139,7 @@ export function ZaicodeModelAppearanceSettings({
   seenModels: readonly string[];
   className?: string;
 }) {
-  const prefs = readZaicodeModelAppearancePrefs();
+  const prefs = useZaicodeModelAppearancePrefs();
   const identities: ZaicodeModelIdentity[] = [];
   const seenKeys = new Set<string>();
   for (const model of seenModels) {
@@ -232,7 +226,7 @@ export function ZaicodeModelAppearanceSettings({
                   <ModelRow
                     key={entry.key}
                     identity={{ providerId, modelId }}
-                    prefs={readZaicodeModelAppearancePrefs()}
+                    prefs={prefs}
                   />
                 );
               })}
