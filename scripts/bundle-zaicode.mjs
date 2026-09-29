@@ -3,6 +3,7 @@ import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { withZaicodeEnv, assertZaicodeEnv } from "./zaicode-env.mjs";
 import { withPinnedNodePath } from "./mise-toolchain-env.mjs";
+import { runBootGate } from "./zaicode-boot-gate.mjs";
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const zaicodeEnv = withPinnedNodePath(withZaicodeEnv(process.env), process.execPath);
@@ -66,3 +67,12 @@ await run(
   ["--filter", "@zcode/desktop", "run", "bundle", "--", ...targetArgs, ...extra],
   bundleEnv,
 );
+
+// A build that cannot start must never be left where the launcher swaps it in.
+const gate = runBootGate({
+  repoRoot,
+  distName: bundleEnv.ZCODE_DESKTOP_DIST_DIR || "dist",
+  isWin,
+  env: zaicodeEnv,
+});
+if (!gate.ok) process.exit(1);
