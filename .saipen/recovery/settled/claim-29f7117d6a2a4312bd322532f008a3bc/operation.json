@@ -1,0 +1,30 @@
+{
+  "op_id": "claim-29f7117d6a2a4312bd322532f008a3bc",
+  "operation": "claim",
+  "created_at": "2026-09-29T15:59:47Z",
+  "agent": "claude-code-local-verify",
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "project_lineage": "lineage-b0732ed2f98947b9a3c97bfe71427eca",
+  "semantic_payload_hash": "556e564d3c38e40d",
+  "preconditions": {
+    ".saipen/BOARD.md": "7bacf69c93266661"
+  },
+  "read_preconditions": {
+    ".saipen/STATE.md": "2c4c0ebbf2c5e207",
+    ".saipen/LOG.md": "7018b0359c640265",
+    ".saipen/logs": "delete-tree-sha256:428c36d3f9008ab946025133cd6ec9aed48d027f0a7ab5693cc7b876649c1bd9"
+  },
+  "verification_policy": "core_fast",
+  "status": "COMMITTED",
+  "progress_index": 1,
+  "targets": [
+    {
+      "path": ".saipen/BOARD.md",
+      "role": "board",
+      "action": "write",
+      "before_hash": "7bacf69c93266661",
+      "after_hash": "0b0acfca70ed36fa",
+      "applied": true
+    }
+  ]
+}

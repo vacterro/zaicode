@@ -1,0 +1,14 @@
+{
+  "clauses": {
+    "SRC-086:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "\u0415\u0449\u0435 \u0432\u043e\u0442 \u0442\u0430\u043a\u043e\u0435 \u043c\u043e\u0436\u0435\u0442 \u0431\u044b\u0442\u044c.\n\n(Screenshot: the bottom of the Settings sidebar: \"Support Developer\" and, under it, the dashed row \"Discord SAIPEN COMMUNITY\" whose label runs right up to the row's right border.)"
+    }
+  },
+  "derived_at": "2026-09-29T15:54:00Z",
+  "derived_from": "SRC-086",
+  "interpretation_revision": 1,
+  "schema_version": 1,
+  "source_sha256": "bd08dbc74b537e2063ede751decfe6bdb86ec1db923b0f8a2427804b24663d0a"
+}

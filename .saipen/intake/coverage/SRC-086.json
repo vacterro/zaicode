@@ -1,0 +1,14 @@
+{
+  "requirements": {
+    "SRC-086:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "T-122 closed with verification evidence in LOG: verify -> PASS [target: T-122] conf: high -- zcode 178018f: pnpm run verify:pre-push exit 0 (ui 663/663, services 85/85, desktop pass, cli 30/30, oxlint 0 errors); test/zaicodeSettingsCommunity.test.ts 4/4 PASS, the new wrap test was red on the old SettingsPage.tsx",
+      "text": "\u0415\u0449\u0435 \u0432\u043e\u0442 \u0442\u0430\u043a\u043e\u0435 \u043c\u043e\u0436\u0435\u0442 \u0431\u044b\u0442\u044c.\n\n(Screenshot: the bottom of the Settings sidebar: \"Support Developer\" and, under it, the dashed row \"Discord SAIPEN COMMUNITY\" whose label runs right up to the row's right border.)",
+      "verification": "the Work this request created reached its own verification gate; see the T-122 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-122"
+    }
+  },
+  "schema_version": 1
+}
