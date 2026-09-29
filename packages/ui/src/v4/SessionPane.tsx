@@ -143,6 +143,8 @@ import { ZaicodeWhereAmI } from "@/zaicode/ZaicodeWhereAmI.js";
 import { adoptZaicodeComposerModel } from "@/zaicode/zaicodeDefaultModel.js";
 import { useZaicodeAutoSessionTitle } from "@/zaicode/zaicodeAutoTitle.js";
 import { useZaicodeAutoRetry } from "@/zaicode/zaicodeAutoRetry.js";
+import { useZaicodeQueueAutoResume } from "@/zaicode/zaicodeQueueAutoResume.js";
+import { zaicodeRetryClassOf } from "@/zaicode/zaicodeRetryPolicy.js";
 import { buildZaicodeA3Command } from "@/zaicode/zaicodeA3.js";
 import { projectPendingGuideQueue } from "@/v4/pendingGuideProjection.js";
 import { ConversationQuotaBanner } from "@/v4/ConversationQuotaBanner.js";
@@ -4162,6 +4164,18 @@ export function SessionPane({
     rows: snapshot?.rows.window ?? EMPTY_ZAICODE_RETRY_ROWS,
     retry: dispatchRetryTurn,
     edit: (target, text) => handleEdit(target, text),
+  });
+  // SRC-081: an error-paused queue resumes by itself under the same leash (Auto ON, backoff, cap,
+  // never on a usage-limit wall) instead of waiting for a click on "Continue".
+  useZaicodeQueueAutoResume({
+    enabled: isZaicodeProductMode() && !readOnly && !selectionSideChat,
+    sessionId,
+    queueItems: snapshot?.queue.items.length ?? 0,
+    autoDrain: snapshot?.queue.autoDrain ?? true,
+    pauseReason: snapshot?.queue.pauseReason ?? null,
+    phase: snapshot?.control.phase ?? null,
+    quotaWall: Boolean(controlLastError && zaicodeRetryClassOf(controlLastError) === "quota"),
+    resume: handleResumeQueue,
   });
   useEffect(() => {
     setSendSubmissionError(null);
