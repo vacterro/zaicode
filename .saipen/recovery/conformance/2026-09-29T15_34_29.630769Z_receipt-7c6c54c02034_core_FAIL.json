@@ -1,0 +1,65 @@
+{
+  "blocking_findings": {
+    "problem_count": 3,
+    "problems": [
+      {
+        "category": null,
+        "credential": false,
+        "detail": "SRC-071,T-109",
+        "detail_hash": "9eeb98457ea9ae99",
+        "finding_key": "5d1f02b4a9fa4a51",
+        "rule_id": "source_receipt_unresolved_work",
+        "severity": "problem",
+        "subject_id": "T-109",
+        "subject_kind": "work",
+        "subject_ref": null
+      },
+      {
+        "category": null,
+        "credential": false,
+        "detail": "SRC-072,T-110",
+        "detail_hash": "1298540ac9ad3fe3",
+        "finding_key": "38b7f10e7dde8311",
+        "rule_id": "source_receipt_unresolved_work",
+        "severity": "problem",
+        "subject_id": "T-110",
+        "subject_kind": "work",
+        "subject_ref": null
+      },
+      {
+        "category": null,
+        "credential": false,
+        "detail": "SRC-073,T-111",
+        "detail_hash": "90a2f398128fba14",
+        "finding_key": "8e14320e94f6628c",
+        "rule_id": "source_receipt_unresolved_work",
+        "severity": "problem",
+        "subject_id": "T-111",
+        "subject_kind": "work",
+        "subject_ref": null
+      }
+    ],
+    "ruleset_fingerprint": "82e5e183ae8f0fd909be3fa3627f00489cacaab813d942186c832db02a05a1c1",
+    "ruleset_version": 1,
+    "status": "complete",
+    "warning_count": 22
+  },
+  "board_hash": "3b77f5df6a2c097b",
+  "canonical_next_command": null,
+  "content_hash": "3aeae30d04ea38b8",
+  "exit_code": 1,
+  "external_actions": [],
+  "gate": "core",
+  "kind": "conformance_receipt",
+  "log_hash": "90fa40e08e79b71d",
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "receipt_id": "receipt-7c6c54c02034",
+  "remediation_commands": [],
+  "schema_version": 2,
+  "source_head": "59cd240ca227bf57702ebcd5853e3e2e13554e59",
+  "source_tree_fingerprint": "git-delta-v1:af7611b3e9a31c4a4bc0f81ce5d9cd19a64bdd4a71d97cb1820615db0bcd236c",
+  "state_hash": "36606323454178c4",
+  "timestamp_utc": "2026-09-29T15:34:29.630769Z",
+  "validator_protocol_version": "1",
+  "verdict": "FAIL"
+}

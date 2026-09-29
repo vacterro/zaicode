@@ -132,7 +132,10 @@ ZAICODE integrates it read-only and header-first:
   spawn, so pairing needs no restart) and, once the desk exists and knows the
   operator, the prompt (`saimail-guidance.ts`) gives the exact
   `saimail-local send --to operator ...` command with the rule that only
-  `"status": "ACCEPTED"` means it arrived. `SAIMAIL_WORKSPACE` still names the
+  `"status": "ACCEPTED"` means it arrived, and with the rule that a letter is rare
+  on purpose (SRC-084): only when the operator is probably not in the chat AND it
+  changes what they must do or decide -- never a finished ticket, results or a
+  summary the chat already carries, one letter per decision. `SAIMAIL_WORKSPACE` still names the
   operator mailbox; SAIPEN's `read_command` for it needs `--seat` set to the
   mailbox's own seat (`SAIPEN_SEAT_MISMATCH` otherwise) and the prompt says so.
   Proof: `packages/desktop/test/zaicodeSaimailPost.test.ts` runs the real CLI on

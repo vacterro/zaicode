@@ -27,12 +27,13 @@
      write that field name next to a concrete id anywhere in this file. -->
 
 ## DOING
-- [/] T-113 [P1] Wave 6: SAITRANSLATE locale completion -- resolve the authoritative locale list, count real source keys, expand and validate locale coverage | verify: the requested change is present and demonstrated against the user own description of it | user_explicit: true | source_receipts: SRC-075 | needs: T-115,T-116,T-117 | owner: claude-code-local-verify | claim_time: 2026-09-29T15:17:36Z
+- [/] T-113 [P1] Wave 6: SAITRANSLATE locale completion -- resolve the authoritative locale list, count real source keys, expand and validate locale coverage | verify: the requested change is present and demonstrated against the user own description of it | user_explicit: true | source_receipts: SRC-075 | needs: T-115,T-116,T-117,T-120
 
 
 ## TODO
 
 ## DONE
+- [x] T-120 [P1] Хорошо. Пока ждёшь, посмотри пожалуйста SAIMAIL и его тоже подкорректируй. Вскрой конверты (там их 2 должно быть; v:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\__SA... | verify: the requested change is present and demonstrated against the user own description of it | user_explicit: true | source_receipts: SRC-084 | owner: claude-code-local-verify | claim_time: 2026-09-29T15:34:49Z | closure_mode: own_patch
 - [x] T-117 [P1] • Поэтому да, я бы хотел если вообще чат пустой и не имеет сесси проект то вместо этого окна ![](file:///V:/___VAC/_PIC/_Clipboard_stuff/clipboard_20260929_1... | verify: the requested change is present and demonstrated against the user own description of it | user_explicit: true | source_receipts: SRC-081 | needs: T-118 | owner: claude-code-local-verify | claim_time: 2026-09-29T15:16:16Z | closure_mode: own_patch
 - [x] T-118 [P1] Еще вот что заметил что пытается в пустую просто так стучаться без всяких ограничений и нигде это очевидно не выключить и не проконтролировать, когда даже au... | verify: the requested change is present and demonstrated against the user own description of it | user_explicit: true | source_receipts: SRC-082 | needs: T-119 | owner: claude-code-local-verify | claim_time: 2026-09-29T15:15:15Z | closure_mode: own_patch
 - [x] T-119 [P1] • Я бы хотел еще убрать этот текст No folder, а количество рядом с кнопкой new folder сделать и New fodler хотел бы просто как инконку кнопку сделать тоже но... | verify: the requested change is present and demonstrated against the user own description of it | user_explicit: true | source_receipts: SRC-083 | owner: claude-code-local-verify | claim_time: 2026-09-29T15:14:15Z | closure_mode: own_patch
