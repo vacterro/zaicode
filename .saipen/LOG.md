@@ -673,3 +673,7 @@
 - 29.09.26 00:23 [E-1829] [parent: E-1828] [T-111] [agent: saipen-cli] [op: ticket-9155a953479b4665a55f3a1961bffeb1] DEC: ticket block via SAIOPS (active) -- dependency T-112 -- PAUSED by user request SRC-074: explicit new task T-112 takes the seat; resumes at SCOUT when T-112 closes
 - 29.09.26 00:23 [E-1830] [parent: E-1829] [T-112] [agent: saipen-cli] [op: claim-b4f31bfce4a84bde933d8bca679272d5] DEC: claimed via SAIOPS -- owner saipen-cli
 - 29.09.26 00:29 [E-1831] [parent: E-1830] [T-112] [agent: saipen-cli] [op: checkpoint-c0b2ecbef8bf4bebafbcf8485e5c0583] RUN: detail_ref: .saipen/recovery/log-detail/E-1831-5123f4854eafa87a520ba3d1.json
+- 29.09.26 00:32 [E-1832] [parent: E-1831] [T-113] [agent: saipen-cli] [op: userreq-baeb0986bc7340f5beb46cd47010c6b5] DEC: user request SRC-075 projected as T-113 (user_explicit)
+- 29.09.26 00:32 [E-1833] [parent: E-1832] [T-112] [agent: saipen-cli] [op: ticket-b6c8b51036c94020afaf702ecab7eef9] DEC: ticket block via SAIOPS (active) -- dependency T-113 -- PAUSED by user request SRC-075: explicit new task T-113 takes the seat; resumes at SCOUT when T-113 closes
+- 29.09.26 00:32 [E-1834] [parent: E-1833] [T-113] [agent: saipen-cli] [op: claim-b8060c20986c45a097755010329ad8f5] DEC: claimed via SAIOPS -- owner saipen-cli
+- 29.09.26 00:38 [E-1835] [parent: E-1834] [T-113] [agent: saipen-cli] [op: checkpoint-3f8328932b3d43c9811d3cfb55c4e20e] RUN: detail_ref: .saipen/recovery/log-detail/E-1835-8fb1ec509b91fe73a0510e00.json
