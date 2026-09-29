@@ -909,3 +909,5 @@
 - 29.09.26 16:01 [E-2065] [parent: E-2064] [T-124] [agent: claude-code-local-verify] [op: finish-9767b6b859bf409197481e43bdb02e96] DEC: ticket finished via SAIOPS -- completion (from SHIP)
 - 29.09.26 16:01 [E-2066] [parent: E-2065] [T-113] [agent: claude-code-local-verify] [op: finish-9767b6b859bf409197481e43bdb02e96] DEC: blocked parent resumed after dependency T-124 reached DONE; dependency completion is not a claim event -- no live claim restored; previous owner claude-code-local-verify is historical attribution only and the seat must be claimed explicitly
 - 29.09.26 16:02 [E-2067] [parent: E-2066] [T-127] [agent: claude-code-local-verify] [op: userreq-825036cd8cf64359b0c5a6a8a68f2e01] DEC: user request SRC-090 projected as T-127 (user_explicit)
+- 29.09.26 16:03 [E-2068] [parent: E-2067] [T-113] [agent: claude-code-local-verify] [op: claim-a453454e9a994f6190737371ff75e88c] DEC: claimed via SAIOPS -- owner claude-code-local-verify
+- 29.09.26 16:03 [E-2069] [parent: E-2068] [agent: claude-code-local-verify] [op: stop-c04383cec1714bf1bf3b1904cf6bd9dc] DEC: stop checkpoint
