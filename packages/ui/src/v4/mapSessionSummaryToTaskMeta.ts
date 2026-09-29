@@ -92,6 +92,7 @@ export function mapSessionSummaryToTaskMeta(
         : {}),
       ...(summary.workflowActivity ? { workflowActivity: summary.workflowActivity } : {}),
       ...(summary.todos ? { todos: summary.todos } : {}),
+      hasAssistantOutput: Boolean(summary.lastAssistantPreview?.trim()),
     },
   );
 }

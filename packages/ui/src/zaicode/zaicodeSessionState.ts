@@ -27,6 +27,16 @@ export function zaicodeSessionStateOf(task: ZCodeTaskMeta): ZaicodeSessionState 
   return typeof task.unreadAt === "number" ? "done" : "idle";
 }
 
+/**
+ * An empty chat (SRC-081): the session never said anything and stands idle (no goal left open,
+ * nothing running, waiting or failed). Opening it shows a window with nothing to read, so the
+ * project row offers the new-task screen instead. Unknown (no assistant flag yet) is not empty.
+ */
+export function zaicodeSessionIsEmptyChat(task: ZCodeTaskMeta): boolean {
+  if (getTaskListRowActivity(task)?.hasAssistantOutput !== false) return false;
+  return zaicodeSessionStateOf(task) === "idle";
+}
+
 /** Cut off mid-turn (see above); a finished goal or a clean last turn is not. */
 export function zaicodeWasCutOff(task: ZCodeTaskMeta): boolean {
   const phase = getTaskListRowActivity(task)?.phase;

@@ -19,6 +19,11 @@ export interface TaskListRowActivity {
   workflowActivity?: SessionWorkflowActivity;
   /** ZAICODE 侧栏 Todo 镜像（来自 sessions-index，实时）。 */
   todos?: SessionTodoSummaryItem[];
+  /**
+   * SRC-081: the session has said something (its summary carries an assistant preview).
+   * false = an empty chat: nothing to read, however the row got there. Absent = not reported.
+   */
+  hasAssistantOutput?: boolean;
 }
 
 export type TaskListMetaWithActivity = ZCodeTaskMeta & {

@@ -38,6 +38,12 @@ export interface ZaicodeProjectClickInput {
   activeWorkspace: boolean;
   /** The open session (any project), or null on the new-task screen / elsewhere. */
   activeTaskId: string | null;
+  /**
+   * MAIN is an empty chat: it never said anything and nothing runs in it. Opening it shows a
+   * window with no content ("what are these incompletes?", SRC-081); the new-task screen is
+   * what the operator wants there.
+   */
+  mainEmpty?: boolean;
 }
 
 /**
@@ -52,7 +58,8 @@ export function decideZaicodeProjectClick(input: ZaicodeProjectClickInput): Zaic
   const rowIsSession = input.projectIsMain && zaicodeMainIsValid(input.mainId, input.sessionIds);
   if (rowIsSession) {
     const mainOpen = input.activeWorkspace && input.activeTaskId === input.mainId;
-    return mainOpen ? { action: "fold" } : { action: "open", sessionId: input.mainId! };
+    if (mainOpen) return { action: "fold" };
+    return input.mainEmpty ? { action: "draft" } : { action: "open", sessionId: input.mainId! };
   }
   // A folder row: the first click goes to the project (the new-task screen, an earlier
   // operator request); once there, clicks only fold and unfold.

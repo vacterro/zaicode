@@ -21,6 +21,7 @@ import { useZaicodeHighlight, withZaicodeHighlight } from "@/zaicode/zaicodeHigh
 import { useZaicodeMainSessionId, useZaicodeMainSessions } from "@/zaicode/zaicodeMainSession.js";
 import { decideZaicodeMainToggle, decideZaicodeProjectClick } from "@/zaicode/zaicodeProjectClick.js";
 import { zaicodeProjectDoneMark } from "@/zaicode/zaicodeProjectDone.js";
+import { zaicodeSessionIsEmptyChat } from "@/zaicode/zaicodeSessionState.js";
 import { ZaicodeProjectDoneBadge } from "@/zaicode/ZaicodeProjectDoneBadge.js";
 import { openZaicodeWorkspaceView } from "@/zaicode/zaicodeActions.js";
 import { useZaicodeWorkspaceTab } from "@/zaicode/zaicodeScheduler.js";
@@ -909,6 +910,7 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
       sessionIds: taskItems.map((task) => task.taskId),
       activeWorkspace: isActiveWorkspace,
       activeTaskId: isActiveWorkspace ? (activeTaskId ?? null) : null,
+      mainEmpty: Boolean(zaicodeMainListed && zaicodeSessionIsEmptyChat(zaicodeMainListed)),
     });
     if (decision.action === "open") {
       // The row's own voice: the orchestra would call this click "expand" (the trigger's
@@ -916,8 +918,13 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
       playZaicodeSound("sidebar.project");
       onSelectTask(tab.workspacePath, decision.sessionId, tab.workspaceIdentity);
     }
-    else if (decision.action === "draft") onStartDraftInWorkspace(tab.workspacePath, tab.workspaceIdentity);
-    else toggleWorkspaceExpanded(tab.workspacePath);
+    else if (decision.action === "draft") {
+      // An empty MAIN is replaced, not shown: the session started here becomes the row (SRC-081).
+      if (zaicodeProjectIsMain && zaicodeMainListed && zaicodeSessionIsEmptyChat(zaicodeMainListed)) {
+        armZaicodeMain(zaicodeMainKey);
+      }
+      onStartDraftInWorkspace(tab.workspacePath, tab.workspaceIdentity);
+    } else toggleWorkspaceExpanded(tab.workspacePath);
     return true;
   };
   zaicodeMainToggleRef.current = () => {
