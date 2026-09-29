@@ -176,7 +176,7 @@ interface Harness {
   dispose: () => Promise<void>;
 }
 
-async function createHarness(factory: ReportFactory): Promise<Harness> {
+async function createHarness(factory: ReportFactory, logger?: { warn(message: string): void }): Promise<Harness> {
   const dir = await mkdtemp(join(tmpdir(), "zaicode-audit-"));
   const dbPath = join(dir, "tasks-index.sqlite");
   const auditRoot = join(dir, "audits");
@@ -193,7 +193,7 @@ async function createHarness(factory: ReportFactory): Promise<Harness> {
   jobServiceRef = jobService;
   await jobService.ensureReady();
   await jobService.setAutoRun(true);
-  const audits = new ZaicodeAuditService({ jobService, agentService, rootDir: () => auditRoot });
+  const audits = new ZaicodeAuditService({ jobService, agentService, rootDir: () => auditRoot, ...(logger ? { logger } : {}) });
   return {
     dir,
     auditRoot,
@@ -349,6 +349,45 @@ test("a report missing the terminal line blocks the campaign and never advances"
     assert.match(state.waves[0]!.rejectReason!, /AUDIT_CORE: COMPLETE/);
     assert.equal(state.waves[1]!.jobId, null, "the second wave is never dispatched");
     assert.equal(state.combined, null, "no handoff without three valid waves");
+  } finally {
+    await h.dispose();
+  }
+});
+
+test("T-133 a blocked wave is re-checked quietly: one warning, no rewrite, and a report fixed later still advances it", async () => {
+  const warnings: string[] = [];
+  let coreCtx: WaveCtx | null = null;
+  const h = await createHarness(
+    (ctx) => {
+      if (ctx.slug !== SLUGS.core) return null; // stop after Core
+      coreCtx = ctx;
+      return "# Findings\n\nno machine lines here\n";
+    },
+    { warn: (message) => warnings.push(message) },
+  );
+  try {
+    const campaign = await h.audits.start(WS);
+    const blocked = await drive(h, campaign!.campaignId);
+    assert.equal(blocked.status, "blocked");
+    assert.equal(warnings.length, 1, "the rejection is reported once");
+    const file = join(h.auditRoot, campaign!.campaignId, "campaign.json");
+    const saved = await readFile(file, "utf8");
+
+    // The host polls every minute; the verdict has not changed.
+    for (let pass = 0; pass < 3; pass += 1) {
+      await settle();
+      await h.audits.getState();
+    }
+    assert.equal(warnings.length, 1, "no warning per pass for a verdict that did not change");
+    assert.equal(await readFile(file, "utf8"), saved, "the campaign file is not rewritten");
+
+    // The report is put right on disk (a late artifact): the next pass advances the campaign.
+    await writeFile(coreCtx!.path, validReport(coreCtx!), "utf8");
+    await h.audits.getState();
+    const advanced = (await h.audits.getCampaign(campaign!.campaignId))!;
+    assert.equal(advanced.waves[0]!.status, "complete");
+    assert.equal(advanced.currentWaveIndex, 1);
+    assert.notEqual(advanced.status, "blocked");
   } finally {
     await h.dispose();
   }

@@ -451,6 +451,10 @@ export class ZaicodeAuditService implements IZaicodeAuditService {
       });
 
       if (!verdict.valid) {
+        // T-133: a blocked campaign is re-read on every pass (every minute), so an artifact that lands late still
+        // advances it. Judged the same as last time, nothing changed: no second warning, no rewrite of the file.
+        // Two stuck campaigns logged 2,880 identical warnings a day and rewrote their JSON as often.
+        if (campaign.status === "blocked" && state.status === "partial" && state.rejectReason === verdict.detail) return;
         state.status = "partial";
         state.rejectReason = verdict.detail;
         campaign.status = "blocked";
@@ -490,6 +494,7 @@ export class ZaicodeAuditService implements IZaicodeAuditService {
     }
 
     // failed / stopped / blocked
+    if (state.status === "blocked" && campaign.status === "blocked") return;
     state.status = "blocked";
     campaign.status = "blocked";
     this.saveCampaign(campaign);
