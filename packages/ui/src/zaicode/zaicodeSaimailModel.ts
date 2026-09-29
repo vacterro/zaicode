@@ -196,6 +196,27 @@ export function buildSaimailSnapshot(input: {
   return { seat: input.seat, unread, onCurrentWork, totalCount: input.headers.size };
 }
 
+/**
+ * What the arrival notice says about new letters: who wrote and about what, from
+ * the clear header, never the envelope's hash (an inbox folder is named by it, and
+ * "f3b7364dac9d..." tells the operator nothing). A letter whose header row is not
+ * read yet still gets a short, honest label.
+ */
+export function saimailArrivalBody(
+  freshNames: readonly string[],
+  headers: ReadonlyMap<string, ZaicodeTelegramHeader>,
+  limit = 3,
+): string {
+  const labels = freshNames.slice(0, limit).map((name) => {
+    const envelopeId = envelopeIdFromInboxEntry(name);
+    const header = envelopeId ? headers.get(envelopeId) : undefined;
+    if (!header) return `letter ${name.slice(0, 8)}`;
+    return header.topic ? `${header.from} · ${header.topic}` : header.from;
+  });
+  const more = freshNames.length - labels.length;
+  return more > 0 ? `${labels.join(", ")} and ${more} more` : labels.join(", ");
+}
+
 /** Receiver-local age (spec/03: age is now - RECEIVED_AT, never CREATED). */
 export function saimailAge(receivedAt: string | null, now: number): string {
   if (!receivedAt) return "";

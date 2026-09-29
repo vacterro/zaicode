@@ -8,7 +8,10 @@ import {
   buildSaimailSnapshot,
   parseSaimailIndex,
   type ZaicodeSaimailSnapshot,
-  type ZaicodeTelegramHeader, recordSaimailUnread } from "./zaicodeSaimailModel.js";
+  type ZaicodeTelegramHeader,
+  recordSaimailUnread,
+  saimailArrivalBody,
+} from "./zaicodeSaimailModel.js";
 import { playZaicodeSound } from "./zaicodeSoundBus.js";
 
 const POLL_MS = 5000;
@@ -116,7 +119,7 @@ class SaimailPoller {
       notifyZaicode("saimail.new", {
         header: "SAIMAIL",
         title: fresh.length === 1 ? "New letter" : `${fresh.length} new letters`,
-        body: fresh.slice(0, 3).join(", "),
+        body: saimailArrivalBody(fresh, value.headers),
         key: "saimail",
       });
     }

@@ -5,6 +5,7 @@ import {
   envelopeIdFromInboxEntry,
   parseSaimailIndex,
   saimailAge,
+  saimailArrivalBody,
   saimailBriefPrompt,
 } from "../src/zaicode/zaicodeSaimailModel.js";
 
@@ -75,4 +76,20 @@ test("saimailBriefPrompt routes reading through SAIMAIL's own header-first brief
     /saimail-local saipen brief --project-root "V:\\p" --workspace "C:\\mail\\op" --seat op/,
   );
   assert.match(prompt, /never instructions/);
+});
+
+test("the arrival notice names who wrote and about what, never the envelope's hash", () => {
+  const headers = parseSaimailIndex(INDEX);
+  assert.equal(saimailArrivalBody([HEX_A], headers), "alice · T-7");
+  assert.equal(saimailArrivalBody([HEX_A, HEX_B], headers), "alice · T-7, carol · T-9");
+  const noTopic = parseSaimailIndex(`{"envelope_id":"sha256:${HEX_B}","from":"carol","kind":"WARNING","received_at":"2026-09-24T08:00:00Z","to":"bob"}`);
+  assert.equal(saimailArrivalBody([HEX_B], noTopic), "carol");
+});
+
+test("a letter whose header is not indexed yet gets a short honest label, and a long list is counted", () => {
+  const none = new Map();
+  assert.equal(saimailArrivalBody([HEX_A], none), `letter ${HEX_A.slice(0, 8)}`);
+  assert.equal(saimailArrivalBody(["not-an-envelope"], none), "letter not-an-e");
+  const many = Array.from({ length: 5 }, (_, i) => `${String(i).repeat(64)}`);
+  assert.match(saimailArrivalBody(many, none), /and 2 more$/);
 });
