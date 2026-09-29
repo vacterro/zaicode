@@ -27,7 +27,7 @@
      write that field name next to a concrete id anywhere in this file. -->
 
 ## DOING
-- [/] T-113 [P1] Wave 6: SAITRANSLATE locale completion -- resolve the authoritative locale list, count real source keys, expand and validate locale coverage | verify: the requested change is present and demonstrated against the user own description of it | user_explicit: true | source_receipts: SRC-075 | owner: claude-code-local-verify | claim_time: 2026-09-29T13:40:45Z
+- [/] T-113 [P1] Wave 6: SAITRANSLATE locale completion -- resolve the authoritative locale list, count real source keys, expand and validate locale coverage | verify: the requested change is present and demonstrated against the user own description of it | user_explicit: true | source_receipts: SRC-075 | owner: claude-code-local-verify | claim_time: 2026-09-29T13:40:59Z
 
 
 ## TODO
