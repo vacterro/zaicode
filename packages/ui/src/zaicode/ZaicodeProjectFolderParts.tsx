@@ -162,9 +162,15 @@ export function ZaicodeProjectPinButton({ projectId, pinned }: { projectId: stri
       type="button"
       data-zaicode-pin={projectId}
       data-zaicode-pin-state={pinned ? "pinned" : "unpinned"}
+      // Not hover-revealed: the row carries no `group/row`, so a
+      // `group-hover/row:opacity-100` would never fire and the button would sit
+      // at opacity 0 forever. The caller already mounts it only with the rest
+      // of the row's actions, so it is visible exactly when it is reachable.
       className={cn(
-        "flex size-4 items-center justify-center",
-        pinned ? "text-[var(--zaicode-highlight,var(--color-warning))]" : "text-foreground-subtlest opacity-0 hover:text-foreground focus-visible:opacity-100 group-hover/row:opacity-100",
+        "flex size-4 shrink-0 items-center justify-center",
+        pinned
+          ? "text-[var(--zaicode-highlight,var(--color-warning))]"
+          : "text-foreground-subtlest hover:bg-hover hover:text-foreground",
       )}
       aria-pressed={pinned}
       aria-label={pinned ? ZAICODE_PROJECT_DESTRUCTIVE_LABELS.unpin : `Pin project to the top of the list`}
