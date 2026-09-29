@@ -2,10 +2,11 @@ import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync, mkdirSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, sep } from "node:path";
 import test from "node:test";
 import { ZAICODE_SAIMAIL_DESK_SEAT } from "@zcode/shared";
 import {
+  absoluteSaimailPath,
   getZaicodeSaimailPostStatus,
   pairZaicodeSaimail,
   readSaimailWorkspaceFacts,
@@ -213,5 +214,22 @@ test("a desk rebuilt under an alias the operator already holds for the old desk 
     assert.ok(aliases.some((alias) => alias.startsWith(`${ZAICODE_SAIMAIL_DESK_SEAT}-`)), "the new key sits under a key-suffixed alias, the old one is not overwritten");
     const sent = await sendZaicodeSaimailTestLetter({ operatorPath: op, deskPath: desk });
     assert.equal(sent.ok, true, sent.message);
+  });
+});
+
+test("a folder typed with dots and a trailing slash is one mailbox, spelled once, everywhere the CLI and the registry see it", real, async () => {
+  await scratch(async (root) => {
+    const op = join(root, "op");
+    const desk = join(root, "desk");
+    await cli("init", "--workspace", op, "--seat", "operator");
+    const typed = `${join(root, "elsewhere", "..", "op")}${sep}`;
+    assert.equal(absoluteSaimailPath(typed), op);
+    assert.equal(absoluteSaimailPath(`  ${op}  `), op, "surrounding spaces from a text field do not become part of the path");
+    const paired = await pairZaicodeSaimail({ operatorPath: typed, deskPath: desk });
+    assert.equal(paired.ok, true, paired.message);
+    assert.equal(readSaimailWorkspaceFacts(desk).peers[0]!.seat, "operator");
+    const peerWorkspace = JSON.parse(readFileSync(join(desk, "peers.json"), "utf8")).recipients.operator.workspace as string;
+    assert.equal(peerWorkspace.toLowerCase(), op.toLowerCase(), "the desk stored the absolute mailbox path, not what was typed");
+    assert.equal((await sendZaicodeSaimailTestLetter({ operatorPath: typed, deskPath: desk })).ok, true);
   });
 });

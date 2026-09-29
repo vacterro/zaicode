@@ -1,6 +1,6 @@
 import { execFile } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, renameSync, rmSync, statSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import {
   ZAICODE_SAIMAIL_DESK_SEAT,
   ZAICODE_SAIMAIL_OPERATOR_ALIAS,
@@ -164,6 +164,15 @@ export async function readSaimailCliFacts(run: SaimailCliRunner): Promise<Zaicod
   return { found: result.code === 0, version: result.code === 0 && first ? first : null };
 }
 
+/**
+ * A folder the operator typed may be relative or end in a slash; the CLI and the
+ * peer registry both need one absolute spelling of it, or a "peer workspace" would
+ * resolve against whatever directory the app happened to start in.
+ */
+export function absoluteSaimailPath(path: string): string {
+  return resolve(path.trim());
+}
+
 export async function getZaicodeSaimailPostStatus(input: {
   operatorPath: string | null;
   deskPath: string;
@@ -172,8 +181,8 @@ export async function getZaicodeSaimailPostStatus(input: {
   const run = input.run ?? runSaimailCli;
   return evaluateZaicodeSaimailPost({
     cli: await readSaimailCliFacts(run),
-    operator: input.operatorPath ? readSaimailWorkspaceFacts(input.operatorPath) : null,
-    desk: readSaimailWorkspaceFacts(input.deskPath),
+    operator: input.operatorPath ? readSaimailWorkspaceFacts(absoluteSaimailPath(input.operatorPath)) : null,
+    desk: readSaimailWorkspaceFacts(absoluteSaimailPath(input.deskPath)),
   });
 }
 
@@ -206,7 +215,8 @@ export async function pairZaicodeSaimail(input: {
   now?: Date;
 }): Promise<ZaicodeSaimailActionResult> {
   const run = input.run ?? runSaimailCli;
-  const { operatorPath, deskPath } = input;
+  const operatorPath = absoluteSaimailPath(input.operatorPath);
+  const deskPath = absoluteSaimailPath(input.deskPath);
   const operator = readSaimailWorkspaceFacts(operatorPath);
   if (!operator.exists) return { ok: false, message: "Your mailbox does not exist yet. Create it first." };
   const version = await run(["--version"]);
@@ -287,14 +297,16 @@ export async function sendZaicodeSaimailTestLetter(input: {
   now?: Date;
 }): Promise<ZaicodeSaimailActionResult> {
   const run = input.run ?? runSaimailCli;
-  const operator = readSaimailWorkspaceFacts(input.operatorPath);
-  const desk = readSaimailWorkspaceFacts(input.deskPath);
+  const operatorPath = absoluteSaimailPath(input.operatorPath);
+  const deskPath = absoluteSaimailPath(input.deskPath);
+  const operator = readSaimailWorkspaceFacts(operatorPath);
+  const desk = readSaimailWorkspaceFacts(deskPath);
   const status = evaluateZaicodeSaimailPost({ cli: { found: true, version: null }, operator, desk });
   if (!status.deskReady) return { ok: false, message: "Not paired yet. Use Set up delivery first." };
 
   const when = (input.now ?? new Date()).toISOString();
   const sent = await run([
-    "send", "--workspace", input.deskPath, "--to", ZAICODE_SAIMAIL_OPERATOR_ALIAS,
+    "send", "--workspace", deskPath, "--to", ZAICODE_SAIMAIL_OPERATOR_ALIAS,
     "--kind", "PERSONAL_MESSAGE", "--topic", "zaicode-check",
     "--claim", `ZAICODE test letter ${when}. If the envelope in the title bar lights up, agent letters reach you.`,
     "--json",
@@ -308,7 +320,7 @@ export async function sendZaicodeSaimailTestLetter(input: {
   if (outcome !== "ACCEPTED") return { ok: false, message: `Not delivered: ${describe(sent, "saimail-local send failed")}` };
 
   const envelopeId = text((sent.json?.message as { envelope_id?: unknown } | undefined)?.envelope_id)?.replace(/^sha256:/, "");
-  const landed = Boolean(envelopeId) && existsSync(join(input.operatorPath, "mail", "inbox", operator.seat ?? "", envelopeId!));
+  const landed = Boolean(envelopeId) && existsSync(join(operatorPath, "mail", "inbox", operator.seat ?? "", envelopeId!));
   return landed
     ? { ok: true, message: "Delivered. The envelope in the title bar shows the letter within a few seconds." }
     : { ok: false, message: "The post office accepted the letter but it is not in your unread folder." };
