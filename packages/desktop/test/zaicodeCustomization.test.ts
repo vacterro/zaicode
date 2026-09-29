@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, utimesSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, symlinkSync, utimesSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
@@ -157,6 +157,21 @@ test("list: a link out of the folder is not followed", async (t) => {
 });
 
 // ---------------------------------------------------------------- reading and writing
+
+test("write: below a link that points out of the folder nothing is created, not even the empty sub-folder", async (t) => {
+  const { base, info } = await opened(t);
+  const outside = join(base, "outside");
+  mkdirSync(outside);
+  try {
+    symlinkSync(outside, join(info.soundsDir, "link"), "junction");
+  } catch {
+    t.skip("this machine cannot create a folder link");
+    return;
+  }
+  assert.equal((await writeZaicodeCustomSound(info, { path: "link/new/deep/x.wav", bytes: wav(1) })).ok, false);
+  assert.equal((await writeZaicodeCustomSound(info, { path: "link/x.wav", bytes: wav(1) })).ok, false);
+  assert.deepEqual(readdirSync(outside), [], "nothing appeared outside the folder");
+});
 
 test("read: the bytes come back; a path that leaves the folder, a missing file or a non-sound is refused with a reason", async (t) => {
   const { info } = await opened(t);

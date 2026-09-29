@@ -115,6 +115,17 @@ async function realInside(baseDir: string, target: string): Promise<boolean> {
 
 const absoluteOf = (baseDir: string, path: string): string => join(baseDir, ...path.split("/"));
 
+/** The nearest folder at or above `path` that exists (the root of a drive at worst). */
+async function existingAncestor(path: string): Promise<string> {
+  let at = path;
+  for (;;) {
+    if (await lstat(at).then(() => true, () => false)) return at;
+    const parent = dirname(at);
+    if (parent === at) return at;
+    at = parent;
+  }
+}
+
 /** A regular file (not a link) with a size, or null. */
 async function fileFacts(path: string): Promise<{ bytes: number; mtimeMs: number } | null> {
   const facts = await lstat(path).catch(() => null);
@@ -246,8 +257,9 @@ async function writeBeside(
     }
     // A link or folder in the way is not ours to write through.
     if (await lstat(target).then(() => true, () => false)) continue;
+    // The folder to create may sit below a link that points out of the base: look before making anything.
+    if (!(await realInside(baseDir, await existingAncestor(dirname(target))))) return { ok: false, reason: "outside the folder" };
     await mkdir(dirname(target), { recursive: true });
-    if (!(await realInside(baseDir, dirname(target)))) return { ok: false, reason: "outside the folder" };
     try {
       await writeFile(target, content, { flag: "wx" });
       return { ok: true, path, created: true, absolute: target };
