@@ -235,7 +235,7 @@ function useZaicodeRuntimeHandlers(): void {
     return () => setOpenSettings(null);
   }, [openSettingsTab, setOpenSettings]);
   // A preset that reloaded the window (T-125) comes back to its Settings page, saying what was done.
-  useZaicodePresetReopen();
+  useZaicodePresetReopen(useTabStore((state) => state.tabs.length));
 
   useEffect(() => {
     const running = () => useZaicodeRunningSessions.getState().sessions;

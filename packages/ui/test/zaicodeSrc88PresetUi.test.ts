@@ -123,11 +123,13 @@ test("U5 wiring: the title row of every page with presets holds the menu, and th
   const menuAt = page.indexOf("<ZaicodePresetsMenu section=");
   assert.ok(menuAt > 0 && menuAt < page.indexOf("<GeneralSectionHeader"), "in the title row, above the page content");
   const runtime = read("zaicode/ZaicodeAppRuntime.tsx");
-  assert.match(runtime, /useZaicodePresetReopen\(\);/);
+  assert.match(runtime, /useZaicodePresetReopen\(useTabStore\(\(state\) => state\.tabs\.length\)\);/);
   const hook = read("zaicode/useZaicodePresetReopen.ts");
   assert.match(hook, /takePresetReopen\(sessionStorage\)/);
   assert.match(hook, /openZaicodeSettings\(marker\.section\)/);
   assert.match(hook, /actionLabel: "Undo"/, "the message after a reload can take the change back");
+  assert.match(hook, /tabCount > 0 \? SETTLE_MS : NO_TABS_MS/, "Settings opens after the workspace has stopped opening tabs");
+  assert.match(hook, /\[tabCount\]\);/, "a new tab restarts the wait");
 });
 
 test("U6 wiring: only Sounds takes a preset without a reload, through its three stores; everything else reloads and leaves a mark", () => {

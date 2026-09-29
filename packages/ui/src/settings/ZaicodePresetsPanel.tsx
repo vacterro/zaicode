@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Download, RefreshCw, Trash2, Undo2, Upload } from "lucide-react";
 import { cn } from "@/components/lib/utils.js";
 import { downloadZaicodeTextFile, pickZaicodeJsonFile } from "@/zaicode/zaicodeFiles.js";
@@ -81,6 +81,8 @@ function PresetRow({
   onRename: (name: string) => void;
 }) {
   const [draft, setDraft] = useState<string | null>(null);
+  // Escape leaves through a real blur (deterministic while the input is still there); this says "do not rename".
+  const cancelled = useRef(false);
   const updateKey = `update:${preset.id}`;
   const deleteKey = `delete:${preset.id}`;
   return (
@@ -95,16 +97,27 @@ function PresetRow({
             className="w-full border border-border bg-background px-1 text-foreground"
             onChange={(event) => setDraft(event.target.value)}
             onBlur={() => {
-              onRename(draft);
+              if (!cancelled.current) onRename(draft);
               setDraft(null);
             }}
             onKeyDown={(event) => {
               if (event.key === "Enter") event.currentTarget.blur();
-              if (event.key === "Escape") setDraft(null);
+              if (event.key === "Escape") {
+                cancelled.current = true;
+                event.currentTarget.blur();
+              }
             }}
           />
         ) : (
-          <button type="button" className="block w-full truncate text-left text-foreground hover:underline" title="Click to rename" onClick={() => setDraft(preset.name)}>
+          <button
+            type="button"
+            className="block w-full truncate text-left text-foreground hover:underline"
+            title="Click to rename"
+            onClick={() => {
+              cancelled.current = false;
+              setDraft(preset.name);
+            }}
+          >
             {preset.name}
           </button>
         )}
@@ -170,9 +183,10 @@ export function ZaicodePresetsPanel({ section, env, prune }: { section: ZaicodeP
     } catch (error) {
       say("warn", `That did not work: ${error instanceof Error ? error.message : String(error)}`);
     } finally {
+      // Sounds that no preset and no undo record needs any more (a cancelled save, a deleted preset) go now,
+      // while the buttons are still off: a save that starts during the clean-up could lose its own sound.
+      await prune().catch(() => undefined);
       setBusy(false);
-      // Sounds that no preset and no undo record needs any more (a cancelled save, a deleted preset) go now.
-      void prune();
     }
   }
 
@@ -203,6 +217,12 @@ export function ZaicodePresetsPanel({ section, env, prune }: { section: ZaicodeP
       const { fileName, text, missing } = await exportPresetText(env, preset);
       downloadZaicodeTextFile(fileName, text);
       say(missing.length > 0 ? "warn" : "ok", `Saved “${preset.name}” as ${fileName}.${missingSoundsNote(missing, "exported")}`);
+    });
+
+  const remove = (preset: ZaicodePreset) =>
+    run(async () => {
+      removeZaicodePreset(preset.id);
+      say("ok", `Deleted “${preset.name}”.`);
     });
 
   const pick = () =>
@@ -299,10 +319,7 @@ export function ZaicodePresetsPanel({ section, env, prune }: { section: ZaicodeP
                   onApply={() => void apply(preset)}
                   onUpdate={() => void update(preset)}
                   onExport={() => void exportOne(preset)}
-                  onDelete={() => {
-                    removeZaicodePreset(preset.id);
-                    void prune();
-                  }}
+                  onDelete={() => void remove(preset)}
                   onRename={(next) => renameZaicodePreset(preset.id, next)}
                 />
               ))

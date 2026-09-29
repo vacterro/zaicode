@@ -12,6 +12,10 @@ import { useZaicodePresets } from "./zaicodePresetStore.js";
  *
  * The mark is taken once per page load, outside the effect: a development double-mount must neither lose it
  * nor show the message twice.
+ *
+ * The workspace opens its tabs while it starts, each one taking the focus. Settings is opened once the tab
+ * count has been still for a moment (or after a longer wait when there are no tabs at all), so it is the last
+ * to take the focus and the one that stays.
  */
 
 let pending: PresetReopen | null | undefined;
@@ -27,11 +31,13 @@ function takeOnce(): PresetReopen | null {
   return pending;
 }
 
-export function useZaicodePresetReopen(): void {
+const SETTLE_MS = 1200;
+const NO_TABS_MS = 4000;
+
+export function useZaicodePresetReopen(tabCount: number): void {
   useEffect(() => {
     const marker = takeOnce();
     if (!marker) return;
-    // The workspace restores its tabs while it starts; Settings opened a moment later is the one that stays.
     const timer = window.setTimeout(() => {
       pending = null;
       openZaicodeSettings(marker.section);
@@ -40,7 +46,7 @@ export function useZaicodePresetReopen(): void {
         durationMs: 12_000,
         ...(undo ? { actionLabel: "Undo", onAction: () => void undoLastApply(zaicodePresetEnv, marker.section) } : {}),
       });
-    }, 800);
+    }, tabCount > 0 ? SETTLE_MS : NO_TABS_MS);
     return () => window.clearTimeout(timer);
-  }, []);
+  }, [tabCount]);
 }
