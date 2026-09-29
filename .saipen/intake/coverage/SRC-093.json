@@ -1,0 +1,14 @@
+{
+  "requirements": {
+    "SRC-093:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "T-130 closed with verification evidence in LOG: verify -> PASS [target: T-130] conf: high -- zcode d46d6f0: pnpm run verify:pre-push exit 0 (ui 761, services 85, desktop 182 pass 2 skipped, cli 30, oxlint 0 errors, architecture 0 new), pnpm run typecheck exit 0. New suites: desktop zaicodeCodexRpc 6 (real child process against a stand-in app-server) and zaicodeResetCreditsIpc 4, ui zaicodeSrc93ResetCredits 12. Red controls: 15 mutations each tu",
+      "text": "\u2022 \u0415\u0441\u0442\u044c \u0440\u0435\u0441\u0435\u0442\u044b \u043d\u0430 \u043a\u043e\u0434\u0435\u043a\u0441 \u0431\u0430\u043d\u043a\u043e\u0432\u044b\u0435 \u043d\u043e \u043d\u0438\u0433\u0434\u0435 \u043d\u0435 \u043f\u043e\u043a\u0430\u0437\u044b\u0432\u0430\u0435\u0442\u0441\u044f ![](file:///V:/___VAC/_PIC/_Clipboard_stuff/clipboard_20260929_232332_fd6a3049.png) ![](file:///V:/___VAC/_PIC/_Clipboard_stuff/clipboard_20260929_232352_5cec6181.png) + \u0434\u043e\u0431\u0430\u0432\u044c \u043f\u043e\u0434\u0434\u0435\u0440\u0436\u043a\u0443 \u0442\u0430\u043a\u0436\u0435 \u0438 \u0447\u0442\u0435\u043d\u0438\u0435 \u0440\u0435\u0441\u0435\u0442\u043e\u0432 \u0434\u043b\u044f ZCode Coding Plans, Claude Code; Codex \u0432\u0441\u0451 \u044d\u0442\u043e \u0432\u043c\u0435\u0441\u0442\u0435 + \u043c\u043e\u0436\u043d\u043e \u0441\u0440\u0430\u0437\u0443 \u0438\u0445 \u044e\u0437\u0430\u0442\u044c \u0438\u0437 ZAICODE \u0442\u043e\u0436\u0435 \u0431\u044b\u0441\u0442\u0440\u043e \u0438 \u0443\u0434\u043e\u0431\u043d\u043e.",
+      "verification": "the Work this request created reached its own verification gate; see the T-130 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-130"
+    }
+  },
+  "schema_version": 1
+}

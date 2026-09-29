@@ -1,0 +1,14 @@
+{
+  "requirements": {
+    "SRC-095:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "T-132 closed with verification evidence in LOG: verify -> PASS [target: T-132] conf: high -- zcode bfa2a9c: zaicodeSrc83Folders.test.ts passes inside pnpm run verify:pre-push exit 0 (ui 766, desktop 182, cli 30, architecture 0 new): New folder is an icon button that still reads as a button (FolderPlus, aria-label New folder, framed, size-6); the sidebar drops the No folder row and shows its count beside the button on one compact line. Real Elec",
+      "text": "\u2022 \u042f \u0431\u044b \u0445\u043e\u0442\u0435\u043b \u0435\u0449\u0435 \u0443\u0431\u0440\u0430\u0442\u044c \u044d\u0442\u043e\u0442 \u0442\u0435\u043a\u0441\u0442 No folder, \u0430 \u043a\u043e\u043b\u0438\u0447\u0435\u0441\u0442\u0432\u043e \u0440\u044f\u0434\u043e\u043c \u0441 \u043a\u043d\u043e\u043f\u043a\u043e\u0439 new folder \u0441\u0434\u0435\u043b\u0430\u0442\u044c \u0438 New fodler \u0445\u043e\u0442\u0435\u043b \u0431\u044b \u043f\u0440\u043e\u0441\u0442\u043e \u043a\u0430\u043a \u0438\u043d\u043a\u043e\u043d\u043a\u0443 \u043a\u043d\u043e\u043f\u043a\u0443 \u0441\u0434\u0435\u043b\u0430\u0442\u044c \u0442\u043e\u0436\u0435 \u043d\u043e \u0442\u0430\u043a \u0447\u0442\u043e\u0431\u044b \u043e\u043d\u0430 \u043e\u0447\u0435\u0432\u0438\u0434\u043d\u043e\u0439 \u0431\u044b\u043b\u043e, \u0432 \u043e\u0431\u0449\u0435\u043c \u043c\u0435\u0441\u0442\u043e \u043f\u0443\u0441\u0442\u043e\u0435 \u0443\u0431\u0440\u0430\u0442\u044c \u0438 \u0441\u0434\u0435\u043b\u0430\u0442\u044c \u043f\u043e\u043a\u043e\u043c\u043f\u0430\u043a\u043d\u0442\u043d\u0435\u0435.",
+      "verification": "the Work this request created reached its own verification gate; see the T-132 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-132"
+    }
+  },
+  "schema_version": 1
+}

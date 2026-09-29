@@ -5,18 +5,47 @@
   "locales": {
     "ru-RU": {
       "digest": "72cc16a5bd030ed6f422eb780ef5be0eba86bb3ace3a1fc1fab5c87b6372025e",
-      "accepted": 120,
+      "accepted": 5845,
       "batches_accepted": [
         "ru-RU.b0001",
         "ru-RU.b0002",
-        "ru-RU.b0003"
+        "ru-RU.b0003",
+        "ru-RU.b0004",
+        "ru-RU.b0005",
+        "ru-RU.b0006",
+        "ru-RU.b0007",
+        "ru-RU.b0008",
+        "ru-RU.b0009",
+        "ru-RU.b0010",
+        "ru-RU.b0011",
+        "ru-RU.b0012",
+        "ru-RU.b0013",
+        "ru-RU.b0014",
+        "ru-RU.b0015",
+        "ru-RU.b0016",
+        "ru-RU.b0017",
+        "ru-RU.b0018",
+        "ru-RU.b0019",
+        "ru-RU.b0020",
+        "ru-RU.b0021",
+        "ru-RU.b0022",
+        "ru-RU.b0023",
+        "ru-RU.b0024",
+        "ru-RU.b0025",
+        "ru-RU.b0026",
+        "ru-RU.b0027",
+        "ru-RU.b0028",
+        "ru-RU.b0029",
+        "ru-RU.b0030",
+        "ru-RU.b0031",
+        "ru-RU.b0032"
       ],
       "throughput": {
-        "keys": 120,
-        "seconds": 102.673
+        "keys": 5845,
+        "seconds": 1281.2220000000002
       },
-      "issued": 3
+      "issued": 32
     }
   },
-  "updated": "2026-09-29T13:40:09.079Z"
+  "updated": "2026-09-29T21:55:11.943Z"
 }

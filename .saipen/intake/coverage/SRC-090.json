@@ -1,4 +1,14 @@
 {
-  "requirements": {},
+  "requirements": {
+    "SRC-090:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "T-127 closed with verification evidence in LOG: verify -> PASS [target: T-127] conf: high -- zcode f2c21b7: pnpm run verify:pre-push exit 0 (ui 742, services 85, desktop 169 pass 2 skipped, cli 30, oxlint 0 errors, architecture 0 new), pnpm run typecheck exit 0. New suite zaicodeSrc90PoolBuild 13 tests: a pool built by three picks in a row has three members, a pick of a member removes it, single to pool to single keeps a sound, the pool is kept",
+      "text": "\u0418 \u043f\u0443\u043b \u0434\u043b\u044f \u0440\u0430\u043d\u0434\u043e\u043c\u043d\u044b\u0445 \u0437\u0432\u0443\u043a\u043e\u0432 \u043f\u043e\u043a\u0430 \u043c\u0430\u043a\u0441\u0438\u043c\u0430\u043b\u044c\u043d\u043e \u043d\u0435\u0438\u043d\u0442\u0443\u0442\u0438\u0442\u0432\u043d\u043e \u0434\u043e\u0431\u0430\u0432\u043b\u044f\u0435\u0442\u0441\u044f. \u041a \u043f\u0440\u0438\u043c\u0435\u0440\u0443 \u0434\u043b\u044f \u0442\u043e\u0433\u043e \u0447\u0442\u043e\u0431\u044b \u0434\u043e\u0431\u0430\u0432\u0438\u0442\u044c \u0434\u0440\u0443\u0433\u043e\u0439 \u0437\u0432\u0443\u043a \u043c\u043d\u0435 \u043d\u0443\u0436\u043d\u043e \u043e\u0431\u044f\u0437\u0430\u0442\u0435\u043b\u044c\u043d\u043e \u0435\u0433\u043e \u0434\u0443\u0431\u043b\u0438\u043a\u0430\u0442 \u0441\u043d\u0430\u0447\u0430\u043b\u0430 \u0434\u043e\u0431\u0430\u0432\u0438\u0442\u044c \u0438\u0438\u043b\u0438 \u0441\u043d\u0430\u0447\u0430\u043b\u0430 \u043c\u043d\u0435 \u043d\u0443\u0436\u043d\u043e \u043f\u043e\u0434\u0442\u0432\u0435\u0440\u0434\u0438\u0442\u044c \u0434\u0440\u0443\u0433\u043e\u0439 \u0437\u0432\u0443\u043a \u0434\u043b\u044f \u0434\u043e\u0431\u0430\u0432\u043a\u0438... \u042d\u0442\u043e \u0442\u043e\u0436\u0435 \u0437\u0430\u043f\u0438\u0448\u0438 \u043f\u043e\u0436\u0430\u043b\u0443\u0439\u0441\u0442\u0430. (Screenshot: Settings > Sounds, event Switch project in pool mode: the button add \"fastprompter:HORSE00.wav\" and a one-member list with weight 1 and 100.00%, pin and remove.)",
+      "verification": "the Work this request created reached its own verification gate; see the T-127 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-127"
+    }
+  },
   "schema_version": 1
 }

@@ -26,6 +26,10 @@
 # committed.
 /.claude/saipen-protocol/
 
+# The operator's own sounds and preset files (T-126): the customization folder the app creates next to zcode/.
+# It is user data by design, never a checkpoint.
+/customization/
+
 # Windows Explorer folder metadata: machine-local, never project content.
 desktop.ini
 

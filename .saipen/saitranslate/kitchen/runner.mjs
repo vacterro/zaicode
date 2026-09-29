@@ -178,6 +178,25 @@ function cmdBatch(locale, sizeArg) {
   console.log(`issued ${id}: ${pending.length} keys -> outbox/${id}.json`);
 }
 
+/** Every accepted value that is still an English copy with words in it and was not kept on purpose. */
+function cmdAudit(locale) {
+  const src = readSource();
+  const draftPath = join(DRAFTS, `${locale}.json`);
+  if (!existsSync(draftPath)) throw new Error(`no draft for ${locale}`);
+  const draft = JSON.parse(readFileSync(draftPath, "utf8"));
+  const keptPath = join(DRAFTS, `${locale}.kept.json`);
+  const kept = new Set(existsSync(keptPath) ? JSON.parse(readFileSync(keptPath, "utf8")) : []);
+  const stale = [];
+  for (const [key, value] of Object.entries(draft)) {
+    const source = src.catalog.get(key);
+    if (source === undefined || value !== source) continue;
+    const rest = value.replace(/\{\{[^}]+\}\}|\$\{[^}]+\}|\{\w+\}/g, "");
+    if (/\p{L}/u.test(rest) && !kept.has(key)) stale.push([key, value]);
+  }
+  console.log(`${locale}: ${Object.keys(draft).length} drafted, ${stale.length} unchanged English copies not kept on purpose`);
+  for (const [key, value] of stale) console.log(`  ${key} = ${JSON.stringify(value)}`);
+}
+
 function cmdAccept(path) {
   const src = readSource();
   const state = loadState();
@@ -191,7 +210,7 @@ function cmdAccept(path) {
   if (!Array.isArray(batch.keys) || !batch.source_digest) {
     const manifest = join(OUTBOX, `${batch.id}.json`);
     const issued = JSON.parse(readFileSync(manifest, "utf8"));
-    batch = { ...issued, translation: batch.translation };
+    batch = { ...issued, translation: batch.translation, kept: batch.kept };
   }
   if (batch.source_digest !== `sha256:${src.digest}`) {
     throw new Error(`batch ${batch.id} is bound to ${batch.source_digest}, not the current source`);
@@ -215,6 +234,11 @@ function cmdAccept(path) {
     const value = translated[key];
     if (seen.has(key)) errors.push(`duplicate key ${key}`);
     seen.add(key);
+    // A source value that is empty on purpose stays empty in every language: there is nothing to translate.
+    if (src.catalog.get(key) === "") {
+      if (value !== "") errors.push(`${key}: the source value is empty, so the translation must be empty`);
+      continue;
+    }
     if (typeof value !== "string" || value.trim() === "") {
       errors.push(`${key}: empty or non-string value`);
       continue;
@@ -225,8 +249,12 @@ function cmdAccept(path) {
       errors.push(`${key}: placeholders ${want.join(",") || "(none)"} != ${got.join(",") || "(none)"}`);
     }
     if (value === src.catalog.get(key)) {
-      const bare = placeholders(value).join("").replace(/[\s{}]/g, "") === "";
-      if (!bare) errors.push(`${key}: value is an unchanged English copy`);
+      // A value made only of placeholders, punctuation, digits and units carries no words to translate.
+      const rest = value.replace(/\{\{[^}]+\}\}|\$\{[^}]+\}|\{\w+\}/g, "");
+      const wordless = !/\p{L}/u.test(rest);
+      // A brand, a code or a unit is the same in every language: the translator says so per key (`kept`), and only a short value may be kept.
+      const keptOnPurpose = Array.isArray(batch.kept) && batch.kept.includes(key) && value.length <= 40;
+      if (!wordless && !keptOnPurpose) errors.push(`${key}: value is an unchanged English copy`);
     }
   }
   if (errors.length > 0) {
@@ -240,6 +268,11 @@ function cmdAccept(path) {
   const draft = existsSync(draftPath) ? JSON.parse(readFileSync(draftPath, "utf8")) : {};
   Object.assign(draft, translated);
   writeFileSync(draftPath, JSON.stringify(draft, null, 2) + "\n");
+  if (Array.isArray(batch.kept) && batch.kept.length > 0) {
+    const keptPath = join(DRAFTS, `${batch.locale}.kept.json`);
+    const known = existsSync(keptPath) ? JSON.parse(readFileSync(keptPath, "utf8")) : [];
+    writeFileSync(keptPath, JSON.stringify([...new Set([...known, ...batch.kept])], null, 2) + "\n");
+  }
 
   // Wall time from issue to accept: that IS the model production time for
   // this batch, so it is measured, never hand-reported.
@@ -263,6 +296,7 @@ const [cmd, a, b] = process.argv.slice(2);
 if (cmd === "status") cmdStatus();
 else if (cmd === "batch") cmdBatch(a, b);
 else if (cmd === "accept") cmdAccept(a);
+else if (cmd === "audit") cmdAudit(a);
 else {
   console.error("usage: node runner.mjs status | batch <locale> [size] | accept <batch-file>");
   process.exitCode = 1;
