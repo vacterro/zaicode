@@ -217,7 +217,19 @@ async function runWave(instructions: string, label: string): Promise<{ sessionId
       .filter((line) => line !== "")
       .join("\n"),
   });
-  const report = stripFences(await askModel(transcript));
+  let report = stripFences(await askModel(transcript));
+  if (!report.trim()) {
+    // A local model sometimes answers a long turn with nothing. That is a
+    // transport hiccup, not the auditor's verdict -- the gate must still see a
+    // real attempt, so ask once more rather than writing a 0-byte report.
+    console.error("    [model] empty final answer, asking once more");
+    transcript.push({ role: "assistant", content: "(empty)" });
+    transcript.push({
+      role: "user",
+      content: `Your last message was empty. Output the complete report now, ending with exactly: ${contract.terminal}`,
+    });
+    report = stripFences(await askModel(transcript));
+  }
 
   await mkdir(join(brief.reportPath, ".."), { recursive: true });
   await writeFile(brief.reportPath, report, "utf8");
@@ -298,8 +310,18 @@ async function main(): Promise<void> {
   // for a TERMINAL state rather than for a fixed number of rounds.
   const deadline = Date.now() + (Number(process.env.QA_TIMEOUT_MS ?? 45 * 60_000));
   let lastLine = "";
+  let retried = false;
   for (;;) {
-    if (Date.now() >= deadline || state.status === "complete" || state.status === "blocked") break;
+    if (Date.now() >= deadline || state.status === "complete") break;
+    // A blocked wave is retried ONCE through the shipped retry(), so the live
+    // run demonstrates the same-wave retry path rather than only the happy one.
+    if (state.status === "blocked" && !retried) {
+      retried = true;
+      const wave = state.waves[state.currentWaveIndex];
+      say(`  retrying wave ${wave?.waveId} (attempt ${(wave?.attempt ?? 0) + 1}); the wave index must not move`);
+      state = (await audits.retry(campaignId))!;
+      say(`  after retry: index ${state.currentWaveIndex}, attempt ${state.waves[state.currentWaveIndex]?.attempt}`);
+    }
     await settle(5000);
     state = (await audits.getState()).campaigns.find((c) => c.campaignId === campaignId)!;
     const wave = state.waves[state.currentWaveIndex];
