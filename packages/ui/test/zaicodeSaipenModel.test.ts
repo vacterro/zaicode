@@ -37,7 +37,7 @@ test("parseSaipenBoard counts sections and picks next ticket from TODO then BLOC
   const parsed = parseSaipenBoard(board);
   assert.deepEqual(parsed.doing, { id: "T-18", title: "UI batch" });
   assert.deepEqual(parsed.nextTicket, { id: "T-17", title: "Paused work" });
-  assert.deepEqual(parsed.counts, { doing: 1, todo: 0, done: 2, blocked: 1 });
+  assert.deepEqual(parsed.counts, { doing: 1, todo: 0, done: 2, blocked: 1, humanBlocked: 0 });
   const withTodo = parseSaipenBoard(`${board}\n## TODO\n- [ ] T-19 next up`);
   assert.equal(withTodo.nextTicket?.id, "T-19");
 });

@@ -1,4 +1,4 @@
-import type { ZaicodeSaipenProjection } from "@zcode/shared";
+import { isZaicodeHumanBlocker, type ZaicodeSaipenProjection } from "@zcode/shared";
 
 /**
  * Live, read-only projection of a project's SAIPEN memory (`.saipen/`):
@@ -21,7 +21,8 @@ export interface ZaicodeSaipenSnapshot {
   lastActionTime: string | null;
   doing: ZaicodeSaipenTicket | null;
   nextTicket: ZaicodeSaipenTicket | null;
-  counts: { doing: number; todo: number; done: number; blocked: number };
+  /** `humanBlocked`: how many of the `blocked` tickets wait for a person (the rest are BLOCKED for real). */
+  counts: { doing: number; todo: number; done: number; blocked: number; humanBlocked?: number };
   /** STATE `agent:` (the Work owner) and `last_event` (generation). */
   owner?: string | null;
   generation?: number | null;
@@ -111,6 +112,7 @@ function parseTicket(line: string): ZaicodeSaipenTicket | null {
 export function parseSaipenBoard(content: string) {
   const sections: Record<string, ZaicodeSaipenTicket[]> = {};
   let section = "";
+  let humanBlocked = 0;
   for (const line of content.split(/\r?\n/)) {
     const heading = /^## (\w+)/.exec(line);
     if (heading) {
@@ -119,6 +121,8 @@ export function parseSaipenBoard(content: string) {
     }
     const ticket = section ? parseTicket(line) : null;
     if (ticket) (sections[section] ??= []).push(ticket);
+    // A BLOCKED ticket whose blocker only a person can lift waits for the operator (orange).
+    if (ticket && section === "BLOCKED" && isZaicodeHumanBlocker(/\|\s*blocker:\s*([^|]*)/.exec(line)?.[1])) humanBlocked += 1;
   }
   const blocked = sections.BLOCKED ?? [];
   return {
@@ -129,6 +133,7 @@ export function parseSaipenBoard(content: string) {
       todo: sections.TODO?.length ?? 0,
       done: sections.DONE?.length ?? 0,
       blocked: blocked.length,
+      humanBlocked,
     },
   };
 }
@@ -150,11 +155,13 @@ export function parseSaipenLastAction(logTail: string) {
 
 /**
  * Board shares for the project title strip, filled from the right edge:
- * BLOCKED (red), then TODO incl. DOING (yellow), then DONE (green). Each part
- * is a 0..1 share of all tickets so the three segments always sum to 1.
+ * BLOCKED (red), then WAITING FOR A PERSON (orange), then TODO incl. DOING
+ * (yellow), then DONE (green). Each part is a 0..1 share of all tickets so the
+ * four segments always sum to 1.
  */
 export function saipenBoardShares(snapshot: ZaicodeSaipenSnapshot | null): {
   blocked: number;
+  human: number;
   todo: number;
   done: number;
   total: number;
@@ -163,5 +170,6 @@ export function saipenBoardShares(snapshot: ZaicodeSaipenSnapshot | null): {
   const { doing, todo, done, blocked } = snapshot.counts;
   const total = doing + todo + done + blocked;
   if (total === 0) return null;
-  return { blocked: blocked / total, todo: (todo + doing) / total, done: done / total, total };
+  const human = Math.min(blocked, Math.max(0, snapshot.counts.humanBlocked ?? 0));
+  return { blocked: (blocked - human) / total, human: human / total, todo: (todo + doing) / total, done: done / total, total };
 }

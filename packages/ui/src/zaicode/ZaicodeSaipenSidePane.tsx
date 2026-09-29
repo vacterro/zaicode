@@ -1,6 +1,7 @@
 /* eslint-disable max-lines -- ZAICODE SAIPEN side pane renders the protocol inspector sections from one parsed snapshot. */
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
+import { ZAICODE_WAITING_COLOR, isZaicodeHumanBlocker } from "@zcode/shared";
 import { cn } from "@/components/lib/utils.js";
 import { useZaicodeSaipen } from "./zaicodeSaipen.js";
 import { useZaicodeProjectRuntime, zaicodeSaipenHeadline } from "./zaicodeProjectRuntime.js";
@@ -375,15 +376,22 @@ export function ZaicodeSaipenSidePane({
           </span>
         </div>
         {headline?.blocker ? (
-          <div className="border border-destructive px-1 text-destructive" title={headline.blocker}>
-            BLOCKER: {headline.blocker}
-          </div>
+          isZaicodeHumanBlocker(headline.blocker) ? (
+            <div className="border px-1" style={{ borderColor: ZAICODE_WAITING_COLOR, color: ZAICODE_WAITING_COLOR }} title={headline.blocker} data-zaicode-human-wait>
+              WAITING FOR YOU: {headline.blocker}
+            </div>
+          ) : (
+            <div className="border border-destructive px-1 text-destructive" title={headline.blocker}>
+              BLOCKER: {headline.blocker}
+            </div>
+          )
         ) : null}
         {shares ? (
           <div className="flex items-center gap-2">
-            <span className="flex h-2 min-w-0 flex-1 border border-border" title="DONE / TODO+DOING / BLOCKED">
+            <span className="flex h-2 min-w-0 flex-1 border border-border" title="DONE / TODO+DOING / waiting for you / BLOCKED">
               <span style={{ width: `${shares.done * 100}%`, background: "var(--color-success)" }} />
               <span style={{ width: `${shares.todo * 100}%`, background: "var(--color-warning)" }} />
+              <span style={{ width: `${shares.human * 100}%`, background: ZAICODE_WAITING_COLOR }} />
               <span style={{ width: `${shares.blocked * 100}%`, background: "var(--color-destructive)" }} />
             </span>
             <span className="shrink-0 tabular-nums text-foreground-subtle">

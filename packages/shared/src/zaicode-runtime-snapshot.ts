@@ -36,6 +36,16 @@ export interface ZaicodeSaipenProjection {
   error: string | null;
 }
 
+/**
+ * A blocker that only a person can lift: the operator has to do or decide
+ * something (SAIPEN's own OPERATOR_REQUIRED class, a WAIT on a human, a manual
+ * verification). Every other blocker (a dependency, a failing gate, a board or
+ * recovery error) is BLOCKED in the plain sense.
+ */
+export function isZaicodeHumanBlocker(text: string | null | undefined): boolean {
+  return /^\s*(?:OPERATOR_REQUIRED|HUMAN[_ -]?(?:REQUIRED|NEEDED|WAIT)?|AWAITING[_ -]HUMAN|WAIT:\s*(?:human|operator|manual-verify))(?![A-Za-z])/i.test(text ?? "");
+}
+
 function str(value: unknown): string | null {
   return typeof value === "string" && value.trim() && value.trim().toLowerCase() !== "none" ? value.trim() : null;
 }
@@ -127,6 +137,10 @@ export function zaicodeProjectRuntimeState(snapshot: ZaicodeProjectRuntimeSnapsh
     return { state: "blocked", label: "BOARD ERROR", reason: `SAIPEN reports ${protocol.boardErrors} board error(s)` };
   }
   if (protocol?.blocker) {
+    // A person can lift this one: it is waiting for the operator, not stuck.
+    if (isZaicodeHumanBlocker(protocol.blocker)) {
+      return { state: "waiting", label: "WAITING FOR YOU", reason: protocol.blocker };
+    }
     return { state: "blocked", label: "BLOCKED", reason: protocol.blocker };
   }
   if (snapshot.sessions.waiting > 0) {
@@ -159,10 +173,13 @@ export function zaicodeProjectRuntimeState(snapshot: ZaicodeProjectRuntimeSnapsh
   return { state: "idle", label: "SAIPEN idle", reason: "no tickets" };
 }
 
+/** Orange: a person is needed. Red stays for a project that is really BLOCKED. */
+export const ZAICODE_WAITING_COLOR = "#e0884a";
+
 /** One colour language for the state everywhere (sidebar strip, composer chip, SAIPEN pane). */
 export const ZAICODE_RUNTIME_STATE_COLOR: Record<ZaicodeProjectRuntimeState, string | null> = {
   blocked: "var(--color-destructive)",
-  waiting: "var(--color-destructive)",
+  waiting: ZAICODE_WAITING_COLOR,
   working: "var(--zaicode-highlight, var(--color-warning))",
   pending: "var(--color-warning)",
   done: "var(--color-success)",

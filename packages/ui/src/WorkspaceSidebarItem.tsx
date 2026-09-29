@@ -14,6 +14,8 @@ import {
 } from "@/zaicode/zaicodeArchiveUndo.js";
 import { ZaicodeWorkingIcon } from "@/zaicode/ZaicodeWorkingIcon.js";
 import { ZaicodeProjectMainGlyph } from "@/zaicode/ZaicodeProjectMainGlyph.js";
+import { ZaicodeTodoMiniGauge } from "@/v4/ZaicodeTodoGauge.js";
+import type { ZaicodeTodoItem } from "@/zaicode/zaicodeTodoProgress.js";
 import { useZaicodeLiveRunIds } from "@/zaicode/zaicodeLiveRuns.js";
 import { useZaicodeHighlight, withZaicodeHighlight } from "@/zaicode/zaicodeHighlights.js";
 import { useZaicodeMainSessionId, useZaicodeMainSessions } from "@/zaicode/zaicodeMainSession.js";
@@ -32,6 +34,9 @@ import {
   getTaskListRowActivity,
   isTaskListRowActive,
 } from "@/v4/taskListRowActivity.js";
+
+// sessions-index arrived without TodoWrite: a stable empty array keeps the mirror effect quiet.
+const EMPTY_MAIN_TODO_ITEMS: readonly ZaicodeTodoItem[] = [];
 
 /** Project labels share one adjustable colour strip width. Progress remains in the tooltip. */
 function buildReadinessTint(runtime: ZaicodeProjectRuntimeView) {
@@ -144,7 +149,7 @@ import {
   testId,
 } from "@zcode/shared";
 import type { ZCodeTaskMeta } from "@zcode/shared";
-import { formatZaicodeDuration } from "@zcode/shared";
+import { ZAICODE_WAITING_COLOR, formatZaicodeDuration } from "@zcode/shared";
 import { zaicodeRunClock } from "@/zaicode/zaicodeRunClock.js";
 import { useBaseWorkspaceServices, useWorkspaceServices } from "@/hooks/useWorkspaceServices.js";
 import {
@@ -1700,7 +1705,15 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
                   sortableBindings &&
                     !isZaicodeProductMode() &&
                     "cursor-grab active:cursor-grabbing",
+                  // ZAICODE (SRC-081): the open project is outlined. Inside the row (negative offset):
+                  // the row clips its overflow, and the pixel skin zeroes box-shadow but not outline.
+                  isZaicodeProductMode() &&
+                    isActiveWorkspace &&
+                    "bg-selected/40 outline outline-1 -outline-offset-1 outline-foreground",
                 )}
+                data-zaicode-project-selected={
+                  isZaicodeProductMode() && isActiveWorkspace ? "" : undefined
+                }
                 onMouseEnter={zaicodeHoverZone ? undefined : () => setWorkspaceRowHovered(true)}
                 // 行在轮询刷新时可能重挂载，指针已在行内时不会再触发 mouseenter；移动即补上 hover。
                 onMouseMove={zaicodeHoverZone ? undefined : () => setWorkspaceRowHovered(true)}
@@ -2216,8 +2229,27 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
                     ) : null}
                   </div>
                 </div>
+                {isZaicodeProductMode() && zaicodeMainTask ? (
+                  // SRC-081: in the MAIN view the row IS the MAIN session, so its own TODO meter has no
+                  // row of its own to sit under. It runs along the top edge, opposite the board strip.
+                  <span
+                    className="pointer-events-none absolute left-2.5 top-0"
+                    style={{
+                      width: "var(--zaicode-list-label-width, 112px)",
+                      maxWidth: "calc(100% - 20px)",
+                    }}
+                    data-zaicode-main-todo-meter={zaicodeMainTask.taskId}
+                  >
+                    <ZaicodeTodoMiniGauge
+                      sessionId={zaicodeMainTask.taskId}
+                      {...(getTaskListRowActivity(zaicodeMainTask)
+                        ? { liveItems: getTaskListRowActivity(zaicodeMainTask)?.todos ?? EMPTY_MAIN_TODO_ITEMS }
+                        : {})}
+                    />
+                  </span>
+                ) : null}
                 {isZaicodeProductMode() && boardShares ? (
-                  // SAIPEN board strip, filled from the right edge: BLOCKED red, TODO yellow, DONE green.
+                  // SAIPEN board strip, filled from the right edge: BLOCKED red, waiting for a person orange, TODO yellow, DONE green.
                   <span
                     className="pointer-events-none absolute bottom-0 left-2.5 flex h-[3px] flex-row-reverse"
                     style={{
@@ -2231,6 +2263,14 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
                         width: `${boardShares.blocked * 100}%`,
                         background: "var(--color-destructive)",
                       }}
+                      data-zaicode-board-blocked
+                    />
+                    <span
+                      style={{
+                        width: `${boardShares.human * 100}%`,
+                        background: ZAICODE_WAITING_COLOR,
+                      }}
+                      data-zaicode-board-human
                     />
                     <span
                       style={{

@@ -70,7 +70,8 @@ test("one verdict: blocked and waiting before running, running before open work,
   // A session waiting for the human outranks running work.
   assert.equal(zaicodeProjectRuntimeState(snapshot(withProjection, { running: 1, waiting: 1 })).state, "waiting");
   // SAIPEN's blocker / recovery / board errors outrank everything.
-  const blocked = { ...withProjection, projection: { ...projection, blocker: "WAIT: operator" } };
+  // SRC-081: a blocker only a person can lift is "waiting" (orange), every other one is BLOCKED (red).
+  const blocked = { ...withProjection, projection: { ...projection, blocker: "ACTIVE_DEPENDENCY:T-5 -- paused" } };
   assert.equal(zaicodeProjectRuntimeState(snapshot(blocked, { running: 1 })).state, "blocked");
   const recovering = { ...withProjection, projection: { ...projection, recoveryPending: true } };
   assert.equal(zaicodeProjectRuntimeState(snapshot(recovering)).label, "RECOVERY");
