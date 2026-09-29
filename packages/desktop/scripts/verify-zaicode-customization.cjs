@@ -44,6 +44,13 @@ async function until(check, ms, what) {
  * @returns {Promise<{ source: string, appeared: boolean, count: number[] }>}
  */
 async function checkCustomization(page, dir) {
+  // The gate's Settings walk ends on the SAIPEGGLE page, whose game dialog covers the window and swallows clicks: start from a fresh page.
+  await page.reload();
+  await page.waitForSelector('[data-workspace-shell="true"]', { timeout: 60_000 });
+  await sleep(1500);
+  await page.locator("button[aria-label='Settings']").first().click({ timeout: 10_000 });
+  await page.locator("nav").filter({ hasText: "Keyboard Shortcuts" }).first().waitFor({ timeout: 15_000 });
+
   const info = await page.evaluate(() => window.zcode.getZaicodeCustomizationInfo());
   assert.equal(path.resolve(info.root), path.resolve(dir), "the app uses the folder it was told to");
   assert.equal(info.source, "env-dir");
