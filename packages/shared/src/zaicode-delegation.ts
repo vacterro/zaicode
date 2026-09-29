@@ -172,7 +172,9 @@ export function zaicodeChildInstructions(input: { parentJobId: string; parentTit
     "## You are a helper (ZAICODE delegation)",
     `The job ${input.parentJobId} ("${input.parentTitle}") asked for this. You cannot delegate further.`,
     "Do only what is asked here; do not claim or close the parent's SAIPEN Work.",
-    "End with a short report of what you did and what you found. If SAIMAIL is set up",
-    "(SAIMAIL_WORKSPACE), also send that report as a telegram to the Work owner.",
+    "End with a short report of what you did and what you found. If a SAIMAIL recipient for the Work owner",
+    "is registered (`saimail-local recipient list`), also send that report to it as a telegram; when `send`",
+    "answers RECIPIENT_UNKNOWN, stop trying: the report itself is the result, and the parent decides what the",
+    "operator needs to see.",
   ].join("\n");
 }
