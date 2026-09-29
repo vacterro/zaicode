@@ -170,6 +170,15 @@ build swap failed"). `RemoveBuildDirectory` now falls back to
 already running keeps its old code until it restarts; clearing
 `win-unpacked.previous` by hand (PowerShell 7 or `rd` with `\?\`) unblocks it.
 
+**Correction (2026-09-29, T-123):** that fallback was dead code. It called
+`Directory.Delete(@"\\?\" + path)`, and a csc-built .NET Framework exe rejects the prefix
+("Illegal characters in path"; launcher.log: `rd failed`), so every swap moved the old build aside as
+`win-unpacked.previous-<14 digits>` (~250 MB each, ten of them, 2.6 GB). It now shells out to
+`cmd /d /c rd /s /q "\\?\<path>"`, and the launcher prunes those stamped leftovers in one background
+`cmd` at the next start. Proof: `powershell.exe -File tools\launcher\Test-LauncherCleanup.ps1` (red: the old
+call throws under the launcher's own compiler; green: a 488-character path is deleted). Note that
+powershell.exe's own runtime accepts `\\?\`, so a probe run inside PowerShell hides the defect.
+
 ## SAIPEN home has two layouts (2026-09-25, T-43)
 
 `SAIPEN_HOME` from the ZAICODE launcher is `%LOCALAPPDATA%\saipen\scheduled-source`,

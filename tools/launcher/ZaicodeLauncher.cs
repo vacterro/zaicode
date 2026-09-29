@@ -364,6 +364,7 @@ internal static class ZaicodeLauncher
         string staged = Path.Combine(workspace, StagedDir);
         string live = Path.Combine(workspace, LiveDir);
         string stagedExe = Path.Combine(staged, "ZAICODE.exe");
+        PruneAsideBuilds(workspace);
         if (!StagedBuildReady(workspace)) return;
         string liveExe = Path.Combine(live, "ZAICODE.exe");
         if (File.Exists(liveExe) && File.GetLastWriteTimeUtc(liveExe) >= File.GetLastWriteTimeUtc(stagedExe))
@@ -450,18 +451,89 @@ internal static class ZaicodeLauncher
         {
             Log("Delete " + Path.GetFileName(path) + " failed (" + error.Message + "); retrying long-path aware");
         }
+        RemoveLongPathDirectory(target);
+        if (!Directory.Exists(target)) return;
+        string aside = target + "-" + DateTime.UtcNow.ToString("yyyyMMddHHmmss");
+        Directory.Move(target, aside);
+        Log("Old build moved aside to " + Path.GetFileName(aside) + " (delete it by hand)");
+    }
+
+    /// <summary>
+    /// Deletes a folder holding paths past MAX_PATH (the bundled 9router's Next output). .NET Framework's
+    /// Directory.Delete throws "Illegal characters in path" for a \\?\ path, which made the earlier
+    /// long-path fallback dead code: every staged swap left a ~250 MB win-unpacked.previous-STAMP behind
+    /// (ten of them, 2.6 GB). cmd's rd accepts the prefix.
+    /// </summary>
+    internal static bool RemoveLongPathDirectory(string path)
+    {
         try
         {
-            Directory.Delete(@"\\?\" + target, true);
+            ProcessStartInfo info = new ProcessStartInfo("cmd.exe", "/d /c rd /s /q \"" + @"\\?\" + path + "\"")
+            {
+                CreateNoWindow = true,
+                UseShellExecute = false,
+            };
+            using (Process process = Process.Start(info))
+            {
+                if (!process.WaitForExit(180000))
+                {
+                    Log("rd did not finish in 3 minutes: " + path);
+                    return false;
+                }
+            }
         }
         catch (Exception error)
         {
             Log("rd failed: " + error.Message);
         }
-        if (!Directory.Exists(target)) return;
-        string aside = target + "-" + DateTime.UtcNow.ToString("yyyyMMddHHmmss");
-        Directory.Move(target, aside);
-        Log("Old build moved aside to " + Path.GetFileName(aside) + " (delete it by hand)");
+        return !Directory.Exists(path);
+    }
+
+    /// <summary>
+    /// Removes the win-unpacked.previous-STAMP folders the launcher itself once moved aside because it could
+    /// not delete them. Only that exact name (14 digits) is touched, never a link, and the delete runs in the
+    /// background: the app must not wait for 250 MB of small files.
+    /// </summary>
+    private static void PruneAsideBuilds(string workspace)
+    {
+        try
+        {
+            string live = Path.GetFullPath(Path.Combine(workspace, LiveDir));
+            string parent = Path.GetDirectoryName(live);
+            string prefix = Path.GetFileName(live) + ".previous-";
+            if (parent == null || !Directory.Exists(parent)) return;
+            // One background process, one folder after the other: ten folders at once would thrash the disk
+            // right as the app starts.
+            System.Text.StringBuilder command = new System.Text.StringBuilder();
+            foreach (string directory in Directory.GetDirectories(parent, prefix + "*"))
+            {
+                string stamp = Path.GetFileName(directory).Substring(prefix.Length);
+                if (stamp.Length != 14 || !IsAllDigits(stamp)) continue;
+                if ((File.GetAttributes(directory) & FileAttributes.ReparsePoint) != 0) continue;
+                if (command.Length > 0) command.Append(" & ");
+                command.Append("rd /s /q \"" + @"\\?\" + directory + "\"");
+                Log("Pruning leftover " + Path.GetFileName(directory));
+            }
+            if (command.Length == 0) return;
+            Process.Start(new ProcessStartInfo("cmd.exe", "/d /c " + command)
+            {
+                CreateNoWindow = true,
+                UseShellExecute = false,
+            });
+        }
+        catch (Exception error)
+        {
+            Log("Prune failed: " + error.Message);
+        }
+    }
+
+    internal static bool IsAllDigits(string text)
+    {
+        foreach (char letter in text)
+        {
+            if (letter < '0' || letter > '9') return false;
+        }
+        return text.Length > 0;
     }
 
     [System.Runtime.InteropServices.DllImport("gdi32.dll", CharSet = System.Runtime.InteropServices.CharSet.Unicode)]
