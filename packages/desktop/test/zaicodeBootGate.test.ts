@@ -3,6 +3,7 @@ import { existsSync, mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync 
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
+import { readFileSync } from "node:fs";
 import { runBootGate } from "../../../scripts/zaicode-boot-gate.mjs";
 
 /**
@@ -132,5 +133,15 @@ test("the skip switch works and says it was used; other platforms and a missing 
     assert.deepEqual(runBootGate({ repoRoot, distName: "dist-next", isWin: true, env: {}, smoke: neverRuns, log: quiet }), { ok: true, action: "no-build" });
   } finally {
     rmSync(root, { recursive: true, force: true });
+  }
+});
+
+// SRC-081: the Discord SAIPEN COMMUNITY link joined the Settings sidebar; a gate that clicks every
+// entry would have opened the operator's browser from a test. Every external link is on the skip list.
+test("the boot gate never clicks a Settings entry that leaves the app", () => {
+  const gate = readFileSync(join(import.meta.dirname, "../scripts/verify-zaicode-boot.cjs"), "utf8");
+  const skip = /const skip = (\/.+\/i);/.exec(gate)?.[1] ?? "";
+  for (const label of ["back to workspace", "on github", "support developer", "discord saipen community"]) {
+    assert.ok(skip.includes(label), `${label} is skipped by the gate`);
   }
 });

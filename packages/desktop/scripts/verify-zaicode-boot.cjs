@@ -161,7 +161,7 @@ async function main() {
     await nav.waitFor({ timeout: 15_000 });
     const entries = await nav.locator("button").evaluateAll((nodes) => nodes.map((node) => (node.textContent ?? "").trim().replace(/\s+/g, " ")));
     // Links that leave the app (the browser must never open from a gate) and the way back.
-    const skip = /back to workspace|on github|support developer/i;
+    const skip = /back to workspace|on github|support developer|discord saipen community/i;
     const visited = [];
     const broken = [];
     for (const [index, name] of entries.entries()) {

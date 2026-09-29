@@ -33,7 +33,21 @@ test("a paired desk is announced with the exact command, the quoted path and the
   assert.match(line, /--to operator/);
   assert.match(line, /"status": "ACCEPTED"/);
   assert.match(line, /QUARANTINED, RECIPIENT_UNKNOWN/);
-  assert.match(line, /ONE/, "one letter per ending, not a stream");
+  assert.match(line, /ONE letter per decision/, "one letter per decision, not a stream");
+});
+
+// SRC-084: two letters in the operator's mailbox were completion reports that the chat answer already
+// carried ("T-258 fixed, gates green" and "T-21 closed"). The old text said "when a Work ends ... send ONE".
+test("the desk line makes a letter rare: chat first, a finished Work is never a letter", () => {
+  const line = buildSaimailGuidanceLines({ ZAICODE_SAIMAIL_DESK: DESK }, paired)[0]!;
+  assert.match(line, /RARE on purpose/);
+  assert.match(line, /chat is where you talk to the operator/i);
+  assert.match(line, /BOTH hold/);
+  assert.match(line, /NEVER a letter for: a Work or ticket that finished/);
+  assert.match(line, /summary or final report/);
+  assert.match(line, /anything you already said in the chat/);
+  assert.match(line, /why chat is not enough/);
+  assert.doesNotMatch(line, /When a Work ends, is BLOCKED/, "the old rule that made every ending a letter is gone");
 });
 
 test("a desk that is missing, or does not know the operator, is never advertised", () => {
