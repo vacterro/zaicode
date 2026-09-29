@@ -10,6 +10,7 @@ import { useZaicodeAutostartRunner } from "@/zaicode/zaicodeAutostart.js";
 import { useZaicodeLimitAlerts } from "@/zaicode/ZaicodeLimitMeter.js";
 import { readZaicodeHomePrefs, zaicodeStartupMainView } from "@/zaicode/home/zaicodeHomePrefs.js";
 import { installZaicodeDeclarativeSounds, playZaicodeSound } from "@/zaicode/zaicodeSoundEvents.js";
+import { installZaicodeChatSelectAll } from "@/zaicode/zaicodeChatSelectAll.js";
 import { ZAICODE_SOUND_NAV_ECHO_MS, zaicodeNavigationEcho } from "@/zaicode/zaicodeSoundBus.js";
 import { installZaicodeSessionText } from "@/zaicode/zaicodeSessionText.js";
 import { setZaicodeCurrentWorkspace } from "@/zaicode/zaicodeEngines.js";
@@ -312,6 +313,7 @@ export function App({
     installZaicodeSessionText();
     installZaicodeDeclarativeSounds();
     installZaicodeHorizontalScrollGuard();
+    installZaicodeChatSelectAll();
   }, []);
   useEffect(() => {
     setZaicodeCurrentWorkspace(workspaceAbsPath || undefined, workspaceIdentity || undefined);
