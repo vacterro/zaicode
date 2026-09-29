@@ -1,42 +1,14 @@
 import { useRef, useState } from "react";
 import { ZaicodeSoundNormalizePanel } from "./ZaicodeSoundNormalizePanel.js";
 import { ZaicodeCustomSoundsStrip } from "./ZaicodeCustomSoundsStrip.js";
-import { ZaicodePoolControls, ZaicodePoolModeButton } from "./ZaicodeSoundPoolControls.js";
+import { ZAICODE_SOUND_GLYPHS } from "./zaicodeSoundGlyphs.js";
+import { ZaicodePoolControls, ZaicodePoolModeButton, ZaicodePoolSummary } from "./ZaicodeSoundPoolControls.js";
 import {
-  AlertTriangle,
-  Archive,
-  ArrowLeftRight,
-  BatteryCharging,
-  Check,
-  Clock,
   Copy,
-  Cpu,
   Dot,
-  FolderOpen,
-  Grid3x3,
-  Hand,
-  HelpCircle,
-  Keyboard,
-  List,
-  Mail,
-  Move,
-  Pencil,
-  Pin,
   Play,
-  Plus,
-  RefreshCw,
-  Save,
-  Send,
-  Settings,
   Square,
-  Star,
-  StepForward,
-  ToggleLeft,
-  Undo2,
   Upload,
-  Wrench,
-  X,
-  ChevronsDownUp,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/components/lib/utils.js";
@@ -63,41 +35,6 @@ import {
   zaicodeSoundDiagnostics,
   type ZaicodeSoundEventDef,
 } from "@/zaicode/zaicodeSoundEvents.js";
-
-const GLYPHS: Record<string, LucideIcon> = {
-  check: Check,
-  cross: X,
-  question: HelpCircle,
-  hand: Hand,
-  dot: Dot,
-  play: Play,
-  plus: Plus,
-  swap: ArrowLeftRight,
-  box: Archive,
-  undo: Undo2,
-  pen: Pencil,
-  pin: Pin,
-  send: Send,
-  step: StepForward,
-  grid: Grid3x3,
-  folder: FolderOpen,
-  move: Move,
-  list: List,
-  fold: ChevronsDownUp,
-  save: Save,
-  engine: Cpu,
-  wrench: Wrench,
-  battery: BatteryCharging,
-  warn: AlertTriangle,
-  refresh: RefreshCw,
-  clock: Clock,
-  mail: Mail,
-  gear: Settings,
-  copy: Copy,
-  key: Keyboard,
-  toggle: ToggleLeft,
-  star: Star,
-};
 
 function formatDb(value: number): string {
   const rounded = Math.round(value * 2) / 2;
@@ -252,7 +189,8 @@ export function ZaicodeSoundSettings() {
             void importZaicodeSoundFile(id, file)
               .then(() => {
                 setCustomNames(readZaicodeCustomSoundNames());
-                playZaicodeSound(id, { preview: true });
+                // Hear the file that was just chosen, not whatever a pool would draw.
+                playZaicodeSound(id, { preview: true, sound: `custom:${id}` });
               })
               .catch((error: unknown) => toast(error instanceof Error ? error.message : String(error)));
           }}
@@ -297,7 +235,7 @@ function SoundGroup({
       </span>
       {rows.map((event) => {
         const row = settings.events[event.id]!;
-        const Glyph = GLYPHS[event.glyph] ?? Dot;
+        const Glyph = ZAICODE_SOUND_GLYPHS[event.glyph] ?? Dot;
         return (
           <SoundRow
             key={event.id}
@@ -339,18 +277,22 @@ function SoundRow({
         onChange={(change) => setZaicodeSoundEvent(event.id, { enabled: change.target.checked })}
         aria-label={`${event.label} on`}
       />
-      <ZaicodeSoundPicker
-        className="min-w-0"
-        value={row.sound}
-        allowDefault
-        ownFileLabel={ownFileLabel}
-        previewGainDb={row.gainDb}
-        onImportOwn={() => onImport(event.id)}
-        onChange={(sound) => {
-          setZaicodeSoundEvent(event.id, { sound });
-          playZaicodeSound(event.id, { preview: true, sound });
-        }}
-      />
+      {row.soundMode === "pool" ? (
+        <ZaicodePoolSummary row={row} />
+      ) : (
+        <ZaicodeSoundPicker
+          className="min-w-0"
+          value={row.sound}
+          allowDefault
+          ownFileLabel={ownFileLabel}
+          previewGainDb={row.gainDb}
+          onImportOwn={() => onImport(event.id)}
+          onChange={(sound) => {
+            setZaicodeSoundEvent(event.id, { sound });
+            playZaicodeSound(event.id, { preview: true, sound });
+          }}
+        />
+      )}
       <button
         type="button"
         className="flex size-5 items-center justify-center border border-border text-foreground-subtle hover:bg-hover hover:text-foreground"

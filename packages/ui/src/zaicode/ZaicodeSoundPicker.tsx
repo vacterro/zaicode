@@ -140,6 +140,11 @@ export interface ZaicodeSoundPickerProps {
   disabled?: boolean;
   /** Tab to open on when the current sound has no kind (e.g. ambience pickers). */
   preferKind?: ZaicodeSoundKind;
+  /**
+   * Several-choice mode (T-127, a pool's "add sounds"): the trigger always reads `label`, picking a sound flips its
+   * membership and the list stays open, so a pool of five is five picks in a row and nothing else. `value` is unused.
+   */
+  multi?: { members: readonly string[]; label: string; onToggle: (sound: string) => void };
 }
 
 function previewSound(sound: string, props: Pick<ZaicodeSoundPickerProps, "previewVolume" | "previewGainDb">) {
@@ -152,16 +157,18 @@ function previewSound(sound: string, props: Pick<ZaicodeSoundPickerProps, "previ
 }
 
 export function ZaicodeSoundPicker(props: ZaicodeSoundPickerProps) {
-  const { value, onChange, allowDefault, ownFileLabel, onImportOwn, className, disabled, preferKind } = props;
+  const { value, onChange, allowDefault, ownFileLabel, onImportOwn, className, disabled, preferKind, multi } = props;
   const [open, setOpen] = useState(false);
   const [trigger, setTrigger] = useState<HTMLButtonElement | null>(null);
   const { catalog } = useZaicodeCustomSounds();
   const current = zaicodeSoundEntry(value);
-  const label = value.startsWith("custom:")
-    ? `★ ${ownFileLabel ?? "own file"}`
-    : value === "default"
-      ? "(notification pop)"
-      : zaicodeSoundDisplayName(value);
+  const label = multi
+    ? multi.label
+    : value.startsWith("custom:")
+      ? `★ ${ownFileLabel ?? "own file"}`
+      : value === "default"
+        ? "(notification pop)"
+        : zaicodeSoundDisplayName(value);
 
   /** Shift+wheel over the closed picker: next / previous sound of the same kind, played at once. */
   const stepClosed = (direction: 1 | -1) => {
@@ -173,7 +180,7 @@ export function ZaicodeSoundPicker(props: ZaicodeSoundPickerProps) {
     onChange(next.id);
     previewSound(next.id, props);
   };
-  useWheelStep(trigger, disabled || open ? null : stepClosed, { requireShift: true });
+  useWheelStep(trigger, disabled || open || multi ? null : stepClosed, { requireShift: true });
 
   return (
     <Popover
@@ -192,11 +199,15 @@ export function ZaicodeSoundPicker(props: ZaicodeSoundPickerProps) {
             disabled && "opacity-50",
             className,
           )}
-          title={`${value}\nShift+wheel: previous / next sound of this kind (plays it). Click: browse and listen.`}
+          title={
+            multi
+              ? "Click: browse and listen. Double-click, Enter or the button on a row adds a sound to the pool (or takes it out)."
+              : `${value}\nShift+wheel: previous / next sound of this kind (plays it). Click: browse and listen.`
+          }
           data-zaicode-sound-picker
         >
           <span className="min-w-0 flex-1 truncate">{label}</span>
-          {current ? (
+          {current && !multi ? (
             <span className="shrink-0 text-[10px] tabular-nums text-foreground-subtlest">
               {formatZaicodeSoundLength(current.seconds)}
             </span>
@@ -215,6 +226,8 @@ export function ZaicodeSoundPicker(props: ZaicodeSoundPickerProps) {
             {...props}
             current={current}
             onPick={(sound) => {
+              // A pool keeps the list open: the next sound is one more pick, not a reopen.
+              if (multi) return multi.onToggle(sound);
               onChange(sound);
               setOpen(false);
               stopZaicodeSoundChannel(PREVIEW_CHANNEL);
@@ -242,7 +255,9 @@ function PickerBody(
     allowDefault: boolean;
   },
 ) {
-  const { value, current, onPick, allowDefault, onImportOwn, preferKind } = props;
+  const { value, current, onPick, allowDefault, onImportOwn, preferKind, multi } = props;
+  const members = new Set(multi?.members ?? []);
+  const picked = (id: string) => (multi ? members.has(id) : id === value);
   const prefs = usePickerPrefs();
   const custom = useZaicodeCustomSounds();
   const { catalog } = custom;
@@ -440,7 +455,7 @@ function PickerBody(
             type="button"
             className={cn(
               "truncate border px-0.5 text-[10px] leading-4",
-              id === value
+              picked(id)
                 ? "border-[var(--zaicode-highlight,var(--color-border-hover))] text-foreground"
                 : "border-border text-foreground-subtle hover:bg-hover hover:text-foreground",
             )}
@@ -449,6 +464,7 @@ function PickerBody(
             onClick={() => onPick(id)}
             onContextMenu={(event) => {
               event.preventDefault();
+              if (multi) return;
               const quick = [...prefs.quick];
               quick[index] = value;
               writePrefs({ quick });
@@ -483,11 +499,11 @@ function PickerBody(
               key={id}
               data-row={index}
               role="option"
-              aria-selected={id === value}
+              aria-selected={picked(id)}
               className={cn(
                 "flex cursor-default items-center gap-1 px-1 leading-5 hover:bg-hover",
                 index === cursor ? "bg-selected text-foreground" : "text-foreground-subtle",
-                id === value && "font-semibold text-foreground",
+                picked(id) && "font-semibold text-foreground",
               )}
               onMouseDown={keepSearchFocus}
               onClick={() => {
@@ -496,9 +512,9 @@ function PickerBody(
                 audition(index, true);
               }}
               onDoubleClick={() => onPick(id)}
-              title="Click: listen. Double-click or Enter: use this sound"
+              title={multi ? "Click: listen. Double-click or Enter: add this sound to the pool, or take it out" : "Click: listen. Double-click or Enter: use this sound"}
             >
-              <span className="w-3 shrink-0 text-center">{id === value ? "✓" : ""}</span>
+              <span className="w-3 shrink-0 text-center">{picked(id) ? "✓" : ""}</span>
               <span className="min-w-0 flex-1 truncate">{entry ? entry.name : "(notification pop)"}</span>
               {entry?.folder ? (
                 <span className="shrink-0 text-[10px] text-foreground-subtlest">{entry.folder.replace(/^_vault\//, "")}</span>
@@ -519,14 +535,14 @@ function PickerBody(
                 <button
                   type="button"
                   className="shrink-0 border border-[var(--zaicode-highlight,var(--color-border-hover))] px-1 text-[10px] leading-4 text-foreground hover:bg-hover"
-                  title="Use this sound for the row"
+                  title={multi ? (picked(id) ? "Take this sound out of the pool" : "Add this sound to the pool") : "Use this sound for the row"}
                   onClick={(event) => {
                     event.stopPropagation();
                     onPick(id);
                   }}
                   data-zaicode-sound-use
                 >
-                  use
+                  {multi ? (picked(id) ? "remove" : "add") : "use"}
                 </button>
               ) : null}
               {entry ? (
@@ -552,7 +568,11 @@ function PickerBody(
         ) : null}
       </div>
       <div className="flex items-center justify-between gap-2 text-[10px] text-foreground-subtlest">
-        <span>Click listens · wheel / ↑↓ listen while “listen” is on · double-click, Enter or “use” picks · Esc closes</span>
+        <span>
+          {multi
+            ? "Click listens · wheel / ↑↓ listen while “listen” is on · double-click, Enter or “add” adds or removes · Esc closes"
+            : "Click listens · wheel / ↑↓ listen while “listen” is on · double-click, Enter or “use” picks · Esc closes"}
+        </span>
         <div className="flex shrink-0 items-center gap-1">
           {custom.available ? (
             <button

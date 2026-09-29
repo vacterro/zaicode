@@ -226,11 +226,15 @@ test("Wave 3 A: the settings screen really offers the controls the wave asks for
 test("Wave 3 B: the row really offers single and pool, with live shares", () => {
   const source = readFileSync(join(import.meta.dirname, "..", "src", "settings", "ZaicodeSoundPoolControls.tsx"), "utf8");
   // SRC-087: the two labelled buttons became one cell in the row that flips between the two modes.
-  assert.match(source, /soundMode: pool \? "single" : "pool"/, "the row still offers both single and pool");
-  assert.match(source, /normalizeZaicodePool\(row\.pool\)/, "the shown shares come from the same normalizer the pick uses");
-  assert.match(source, /share\.percent\.toFixed\(2\)\}/, "the effective probability is displayed, not the raw weight");
-  assert.match(source, /missing/, "a file that cannot be found is marked");
-  assert.match(source, /locked/, "an entry can be pinned against redistribution");
+  // T-127: the flip goes through the action that seeds a new pool with the current sound and keeps the heaviest one going back
+  // (zaicodeSrc90PoolBuild.test.ts runs it); the row still offers both single and pool.
+  assert.match(source, /setZaicodeSoundSelectionMode\(event\.id, pool \? "single" : "pool"\)/, "the row still offers both single and pool");
+  // T-127 moved the member list, without its audio, into ZaicodePoolMembers so it renders on its own.
+  const members = readFileSync(join(import.meta.dirname, "..", "src", "settings", "ZaicodePoolMembers.tsx"), "utf8");
+  assert.match(members, /normalizeZaicodePool\(row\.pool\)/, "the shown shares come from the same normalizer the pick uses");
+  assert.match(members, /share\.percent\.toFixed\(2\)\}/, "the effective probability is displayed, not the raw weight");
+  assert.match(members, /missing/, "a file that cannot be found is marked");
+  assert.match(members, /locked/, "an entry can be pinned against redistribution");
 });
 
 test("Wave 3 A: a table saved before Wave 3 still loads, with the new fields defaulted", () => {

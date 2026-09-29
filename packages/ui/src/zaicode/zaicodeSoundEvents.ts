@@ -9,6 +9,7 @@ import {
   ZAICODE_SOUND_CUSTOM_DB,
 } from "./zaicodeSettingsSnapshot.js";
 import { zaicodeSoundEntry } from "./zaicodeSoundCatalog.js";
+import { addZaicodePoolMember } from "./zaicodeSoundPoolActions.js";
 import { playZaicodeSound, registerZaicodeSoundAudible, registerZaicodeSoundPlayer, zaicodeDirectSoundPlayedSince } from "./zaicodeSoundBus.js";
 import { isZaicodeSoundQuietNow } from "./zaicodeNotifications.js";
 import { cachedZaicodeCustomSoundUrl, onZaicodeCustomSoundUrlRevoked, resolveZaicodeCustomSoundUrl } from "./zaicodeCustomSounds.js";
@@ -133,6 +134,8 @@ export async function importZaicodeSoundFile(id: string, file: File): Promise<vo
   if (!/\.(wav|mp3|ogg)$/i.test(file.name)) throw new Error("Choose a WAV, MP3 or OGG file.");
   await storeZaicodeOwnSound(id, file, file.name);
   setZaicodeSoundEvent(id, { sound: `custom:${id}` });
+  // In a pool the row's own sound is only a fallback: the file has to become a member to be heard.
+  if (readZaicodeSoundSettings().events[id]?.soundMode === "pool") addZaicodePoolMember(id, `custom:${id}`);
 }
 
 const OWN_SOUND_MIME: Record<string, string> = { wav: "audio/wav", mp3: "audio/mpeg", ogg: "audio/ogg" };

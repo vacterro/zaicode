@@ -218,3 +218,54 @@ export function pickZaicodePoolSound(entries: readonly ZaicodePoolEntry[], rng: 
   }
   return selectable[selectable.length - 1]!.id;
 }
+
+// ---------------------------------------------------------------------------
+// Building a pool without ceremony (T-127)
+// ---------------------------------------------------------------------------
+
+/**
+ * A new member's weight: what the members that count already carry on average, so a sound added to a tuned
+ * pool gets a fair share instead of the 1 % a fixed weight of 1 would give next to weights of 50 and 30.
+ */
+function newMemberWeight(entries: readonly ZaicodePoolEntry[]): number {
+  const counting = entries.filter((entry) => !entry.missing && weightOf(entry) > 0);
+  if (counting.length === 0) return 1;
+  const mean = counting.reduce((sum, entry) => sum + weightOf(entry), 0) / counting.length;
+  return Math.max(0.001, Math.round(mean * 1000) / 1000);
+}
+
+/**
+ * Picking a sound in "add sounds to the pool" flips its membership: a sound that is not a member joins with a fair
+ * weight (pinned shares stay where they were), a sound that is one leaves. Pure, so a pool built by picking three
+ * different sounds in a row is a tested fact and not a hope about a dropdown.
+ */
+export function togglePoolMember(entries: readonly ZaicodePoolEntry[], soundId: string): ZaicodePoolEntry[] {
+  if (entries.some((entry) => entry.id === soundId)) return entries.filter((entry) => entry.id !== soundId);
+  const joined = [...entries, { id: soundId, weight: newMemberWeight(entries), locked: false, missing: false }];
+  // Pinned shares hold what they were BEFORE the newcomer: the free members (and the newcomer) share what is left.
+  const usable = (entry: ZaicodePoolEntry) => !entry.missing && weightOf(entry) > 0;
+  const pinned = new Set(entries.filter((entry) => entry.locked && usable(entry)).map((entry) => entry.id));
+  const pinnedBps = normalizeZaicodePool(entries).shares.reduce((sum, share) => sum + (pinned.has(share.id) ? share.bps : 0), 0);
+  if (pinned.size === 0 || pinnedBps <= 0 || pinnedBps >= TOTAL_BPS) return joined;
+  const pinnedWeight = joined.filter((entry) => pinned.has(entry.id)).reduce((sum, entry) => sum + weightOf(entry), 0);
+  const free = joined.filter((entry) => !pinned.has(entry.id) && usable(entry));
+  const freeWeight = free.reduce((sum, entry) => sum + weightOf(entry), 0);
+  if (freeWeight <= 0) return joined;
+  const scale = (pinnedWeight * (TOTAL_BPS - pinnedBps)) / pinnedBps / freeWeight;
+  return joined.map((entry) => (free.includes(entry) ? { ...entry, weight: Math.round(weightOf(entry) * scale * 1000) / 1000 } : entry));
+}
+
+/** Switching an event from one sound to a pool: the sound it plays now becomes the first member, so nothing is lost and the list is never empty. */
+export function seedPool(entries: readonly ZaicodePoolEntry[], sound: string): ZaicodePoolEntry[] {
+  return entries.length > 0 || !sound ? [...entries] : [{ id: sound, weight: 1, locked: false, missing: false }];
+}
+
+/** Switching back from a pool: the heaviest member that can play (the first of equals), else the sound the event had. */
+export function heaviestPoolSound(entries: readonly ZaicodePoolEntry[], fallback: string): string {
+  let best: ZaicodePoolEntry | null = null;
+  for (const entry of entries) {
+    if (entry.missing || weightOf(entry) <= 0) continue;
+    if (best === null || weightOf(entry) > weightOf(best)) best = entry;
+  }
+  return best?.id ?? fallback;
+}
