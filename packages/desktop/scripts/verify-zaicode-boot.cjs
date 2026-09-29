@@ -5,6 +5,9 @@
 // Starts the PACKAGED app on a throw-away profile and passes only when the
 // window really reaches a mounted workspace shell: no error card on screen, no
 // uncaught renderer exception, no "before initialization" / "is not defined".
+// It then opens Settings and visits every section of its navigation: a section
+// is a lazily rendered screen that no unit test renders, and one that throws
+// takes only its own card down, so the boot alone would not notice it.
 // Wave 3 shipped a window that opened on "This section ran into a problem"
 // (a const read before its declaration); 765 unit tests and tsc were green
 // because nothing rendered the shell. This script renders it.
@@ -150,6 +153,36 @@ async function main() {
     assert.deepEqual(narrowBoundaries, [], "no error card after resizing");
     checks.narrowWindow = true;
 
+    // Settings: every navigation entry that opens inside the app.
+    await page.setViewportSize({ width: 1200, height: 800 });
+    await sleep(300);
+    await page.locator("button[aria-label='Settings']").first().click({ timeout: 10_000 });
+    const nav = page.locator("nav").filter({ hasText: "Keyboard Shortcuts" }).first();
+    await nav.waitFor({ timeout: 15_000 });
+    const entries = await nav.locator("button").evaluateAll((nodes) => nodes.map((node) => (node.textContent ?? "").trim().replace(/\s+/g, " ")));
+    // Links that leave the app (the browser must never open from a gate) and the way back.
+    const skip = /back to workspace|on github|support developer/i;
+    const visited = [];
+    const broken = [];
+    for (const [index, name] of entries.entries()) {
+      if (!name || skip.test(name)) continue;
+      try {
+        await nav.locator("button").nth(index).click({ timeout: 8000 });
+      } catch (error) {
+        console.log(`note: could not open Settings > ${name} (${String(error.message ?? error).split("\n")[0]})`);
+        continue;
+      }
+      await sleep(600);
+      visited.push(name);
+      const cards = (await page.$$eval('[role="alert"]', (nodes) => nodes.map((node) => (node.textContent ?? "").trim().slice(0, 300)))).filter((text) => BOUNDARY_TEXT.test(text));
+      if (cards.length) broken.push(`${name}: ${cards[0]}`);
+    }
+    assert.deepEqual(broken, [], `Settings sections that render an error card: ${broken.join(" || ")}`);
+    assert.ok(visited.length >= 15, `the Settings walk reached its sections (visited ${visited.length}: ${visited.join(", ")})`);
+    checks.settingsSections = visited.length;
+    assert.deepEqual(pageErrors, [], `uncaught renderer exceptions while walking Settings: ${pageErrors.join(" || ")}`);
+    const fatalWalk = consoleErrors.filter((text) => FATAL_CONSOLE.test(text));
+    assert.deepEqual(fatalWalk, [], `fatal renderer console errors while walking Settings: ${fatalWalk.join(" || ")}`);
     if (outDir) await page.screenshot({ path: path.join(outDir, "boot.png") });
 
     const asar = path.join(path.dirname(executablePath), "resources", "app.asar");
@@ -165,7 +198,7 @@ async function main() {
       consoleErrorCount: consoleErrors.length,
     };
     fs.writeFileSync(receiptPath, `${JSON.stringify(receipt, null, 2)}\n`);
-    console.log(`PASS packaged boot: shell mounted, no error card, ${pageErrors.length} uncaught exceptions, ${consoleErrors.length} console errors (${Object.keys(checks).length} checks) -> ${receiptPath}`);
+    console.log(`PASS packaged boot: shell mounted, ${checks.settingsSections} Settings sections opened, no error card, ${pageErrors.length} uncaught exceptions, ${consoleErrors.length} console errors -> ${receiptPath}`);
     if (consoleErrors.length) console.log(`console errors (informational):\n  ${consoleErrors.slice(0, 8).join("\n  ")}`);
   } catch (error) {
     if (outDir && app) {
