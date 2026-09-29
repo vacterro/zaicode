@@ -226,6 +226,7 @@ export const ZAICODE_HELP_TOPICS: readonly HelpTopic[] = [
     lines: [
       "Sounds table — one row per action: on / off, sound, your own file, volume relative to the master.",
       "Sound picker — short cues, jingles, voice and long ambience are separate groups with their length; hover, the wheel or arrow keys play what is under the cursor.",
+      "Your sounds, pools, presets — WAV, MP3 or OGG files dropped into customization\\sounds (the page shows the path) appear under “Mine” in every picker at once; the 1 / N cell makes a row a pool you fill under “Add sounds to the pool…”; Presets (top right) save and share a page, exports land in customization\\presets.",
       "Problip — a short cue at your interval, to keep a rhythm in long sessions.",
       "Ambience — a quiet background loop that plays only while agents work.",
     ],
