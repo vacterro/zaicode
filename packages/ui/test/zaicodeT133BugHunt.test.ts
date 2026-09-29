@@ -11,6 +11,7 @@ import { ZaicodeHomeNow, type ZaicodeHomeNowFacts } from "../src/zaicode/home/Za
 import { ZaicodeHeaderProjectTitle } from "../src/zaicode/ZaicodeHeaderProjectTitle.js";
 import { ZaicodeWrappedPath } from "../src/settings/ZaicodeCustomSoundsStrip.js";
 import { presetDateLabel } from "../src/zaicode/zaicodePresetLabels.js";
+import { dayTitle, zaicodeCount } from "../src/zaicode/home/ZaicodeHomeStatsCards.js";
 
 /**
  * T-133 (SRC-096, "keep catching bugs and polish what exists"): defects found by running the packaged app and reading
@@ -130,6 +131,16 @@ test("B9 a preset's date and the statistics export's file name are the operator'
   const exportSource = source("zaicode/home/ZaicodeHomeSettings.tsx");
   assert.match(exportSource, /zaicode-statistics-\$\{new Date\(\)\.toLocaleDateString\("sv-SE"\)\}\.json/);
   assert.ok(!/toISOString\(\)\.slice\(0, 10\)/.test(exportSource));
+});
+
+test("B10 SAIHOME Activity's day line counts in words that agree ('1 turn', not '1 turns')", () => {
+  const totals = {
+    tokens: 43_466, input: 43_000, output: 3, cacheRead: 153, cacheWrite: 0, reasoning: 0, requests: 2, failedRequests: 1, turns: 1,
+    jobsDone: 0, jobsFailed: 0, jobsCancelled: 0, jobsRecovered: 0, modelMs: 7000, agentMs: 0, workerSessions: 1,
+  };
+  const line = dayTitle({ date: "2026-09-30", totals } as unknown as Parameters<typeof dayTitle>[0], "activity");
+  assert.match(line, /· 2 requests · 1 turn · 0 tasks done · 1 worker session · runtime/);
+  assert.equal(zaicodeCount(0, "turn"), "0 turns");
 });
 
 test("B6 SAIHOME Projects: the name column gets the larger share of the row", () => {

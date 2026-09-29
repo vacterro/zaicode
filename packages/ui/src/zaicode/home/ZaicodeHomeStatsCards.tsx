@@ -159,9 +159,14 @@ export function ZaicodeHomeStats({ stats, error }: { stats: ZaicodeHomeStats | n
   );
 }
 
-function dayTitle(day: ZaicodeStatsDay, measure: ZaicodeStreakMeasure): string {
+/** "1 turn", "2 turns" (T-133: the day line read "1 turns"). */
+export function zaicodeCount(count: number, noun: string): string {
+  return `${count} ${noun}${count === 1 ? "" : "s"}`;
+}
+
+export function dayTitle(day: ZaicodeStatsDay, measure: ZaicodeStreakMeasure): string {
   const t = day.totals;
-  return `${day.date}: ${exact(t.tokens)} tokens · ${t.requests} requests · ${t.turns} turns · ${t.jobsDone} tasks done · ${t.workerSessions} worker session(s) · runtime ${formatZaicodeRuntime(t.agentMs + t.modelMs)}${measure !== "activity" ? ` · ${MEASURE_LABEL[measure]}: ${exact(zaicodeStreakValue(t, measure))}` : ""}`;
+  return `${day.date}: ${exact(t.tokens)} tokens · ${zaicodeCount(t.requests, "request")} · ${zaicodeCount(t.turns, "turn")} · ${t.jobsDone} tasks done · ${zaicodeCount(t.workerSessions, "worker session")} · runtime ${formatZaicodeRuntime(t.agentMs + t.modelMs)}${measure !== "activity" ? ` · ${MEASURE_LABEL[measure]}: ${exact(zaicodeStreakValue(t, measure))}` : ""}`;
 }
 
 const LEVEL_COLORS = [

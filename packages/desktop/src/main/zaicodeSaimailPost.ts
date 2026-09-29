@@ -289,6 +289,12 @@ export async function pairZaicodeSaimail(input: {
     : { ok: false, message: "Both sides registered, but the check still fails; open the checks below." };
 }
 
+/** "2026-09-30 01:44:24" on this PC's clock (T-133: the letter said "2026-09-29T22:44:24.547Z", UTC, at 01:44 local). */
+export function zaicodeLocalStamp(date: Date): string {
+  const pad = (value: number) => String(value).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+}
+
 /** Sends one letter from the desk to the operator and confirms it landed in the unread folder. */
 export async function sendZaicodeSaimailTestLetter(input: {
   operatorPath: string;
@@ -304,11 +310,11 @@ export async function sendZaicodeSaimailTestLetter(input: {
   const status = evaluateZaicodeSaimailPost({ cli: { found: true, version: null }, operator, desk });
   if (!status.deskReady) return { ok: false, message: "Not paired yet. Use Set up delivery first." };
 
-  const when = (input.now ?? new Date()).toISOString();
+  const when = zaicodeLocalStamp(input.now ?? new Date());
   const sent = await run([
     "send", "--workspace", deskPath, "--to", ZAICODE_SAIMAIL_OPERATOR_ALIAS,
     "--kind", "PERSONAL_MESSAGE", "--topic", "zaicode-check",
-    "--claim", `ZAICODE test letter ${when}. If the envelope in the title bar lights up, agent letters reach you.`,
+    "--claim", `ZAICODE test letter, sent ${when}. If the envelope in the title bar lights up, agent letters reach you.`,
     "--json",
   ]);
   if (sent.missing) return { ok: false, message: `${saimailCliName()} was not found on PATH.` };

@@ -121,8 +121,14 @@ test("the passive hover preview keeps its header-only wording and no agent round
 test("the widget needs no agent: click opens the reader by default, brief stays a choice", () => {
   const prefs = normalizeZaicodeUiPrefs({});
   assert.equal(prefs.saimailClick, "reader", "a fresh install reads letters directly");
-  assert.equal(normalizeZaicodeUiPrefs({ saimailClick: "brief" }).saimailClick, "brief");
-  assert.equal(normalizeZaicodeUiPrefs({ saimailClick: "settings" }).saimailClick, "settings");
+  // A choice made since the reader exists sticks (saimailRev 1 is written with every save).
+  assert.equal(normalizeZaicodeUiPrefs({ saimailClick: "brief", saimailRev: 1 }).saimailClick, "brief");
+  assert.equal(normalizeZaicodeUiPrefs({ saimailClick: "settings", saimailRev: 1 }).saimailClick, "settings");
+  // T-133: stored before the reader existed ("brief" was the old default every save wrote; the release defaults
+  // carried "settings"), it moves to the reader once -- the envelope kept opening Settings instead of the letters.
+  assert.equal(normalizeZaicodeUiPrefs({ saimailClick: "brief" }).saimailClick, "reader");
+  assert.equal(normalizeZaicodeUiPrefs({ saimailClick: "settings", homeRev: 2 }).saimailClick, "reader");
+  assert.equal(normalizeZaicodeUiPrefs(normalizeZaicodeUiPrefs({ saimailClick: "settings" })).saimailRev, 1, "and the move is recorded");
   assert.equal(
     normalizeZaicodeUiPrefs({ saimailClick: "junk" }).saimailClick,
     normalizeZaicodeUiPrefs({}).saimailClick,

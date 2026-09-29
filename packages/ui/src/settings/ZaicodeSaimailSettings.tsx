@@ -100,7 +100,7 @@ export function ZaicodeSaimailSettings() {
   };
 
   const status = !mailbox
-    ? "Off. Pick a folder for your mailbox, then Save (or Create mailbox for a new one)."
+    ? "Off. Type or pick a folder: Save uses a mailbox that is already there, Create mailbox here (shown once a folder is named) makes a new one."
     : desk
       ? `Connected: seat ${desk.seat}, ${desk.unread.length} unread.`
       : "This folder is not a SAIMAIL mailbox yet.";

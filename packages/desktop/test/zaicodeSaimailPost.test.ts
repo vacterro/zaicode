@@ -12,6 +12,7 @@ import {
   readSaimailWorkspaceFacts,
   runSaimailCli,
   sendZaicodeSaimailTestLetter,
+  zaicodeLocalStamp,
   type SaimailCliResult,
   type SaimailCliRunner,
 } from "../src/main/zaicodeSaimailPost.js";
@@ -232,4 +233,15 @@ test("a folder typed with dots and a trailing slash is one mailbox, spelled once
     assert.equal(peerWorkspace.toLowerCase(), op.toLowerCase(), "the desk stored the absolute mailbox path, not what was typed");
     assert.equal((await sendZaicodeSaimailTestLetter({ operatorPath: typed, deskPath: desk })).ok, true);
   });
+});
+
+test("T-133 the test letter names the time on this PC's clock, not a UTC ISO stamp", () => {
+  const previous = process.env.TZ;
+  try {
+    process.env.TZ = "Europe/Tallinn";
+    assert.equal(zaicodeLocalStamp(new Date("2026-09-29T22:44:24.547Z")), "2026-09-30 01:44:24");
+  } finally {
+    if (previous === undefined) delete process.env.TZ;
+    else process.env.TZ = previous;
+  }
 });

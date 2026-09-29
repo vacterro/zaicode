@@ -64,9 +64,17 @@ export interface ZaicodeUiPrefs {
    * only because every save wrote the old defaults, so they move once.
    */
   homeRev: number;
+  /**
+   * SAIMAIL click revision. 1 (T-133): the envelope opens and reads letters itself since T-115 (SRC-079: "open the
+   * mail right in the widget"). Prefs stored before that held "brief" (the old default, written by every save) or
+   * "settings" -- the bundled release defaults carried "settings" -- so a click kept opening Settings instead of the
+   * letters. Those move to "reader" once; a choice made after that sticks.
+   */
+  saimailRev: number;
 }
 
 const HOME_REV = 2;
+const SAIMAIL_REV = 1;
 
 export const ZAICODE_UI_DEFAULT_PREFS: ZaicodeUiPrefs = {
   showGreeting: true,
@@ -93,6 +101,7 @@ export const ZAICODE_UI_DEFAULT_PREFS: ZaicodeUiPrefs = {
   noDim: false,
   noHoverPopups: false,
   homeRev: HOME_REV,
+  saimailRev: SAIMAIL_REV,
 };
 
 const STORAGE_KEY = "zaicode-ui-prefs-v1";
@@ -110,6 +119,7 @@ export function normalizeZaicodeUiPrefs(raw: unknown): ZaicodeUiPrefs {
   const from = int(r.greetingFromHour, 0, 23, d.greetingFromHour);
   const to = int(r.greetingToHour, 1, 24, d.greetingToHour);
   const homeCurrent = typeof r.homeRev === "number" && r.homeRev >= HOME_REV;
+  const saimailCurrent = typeof r.saimailRev === "number" && r.saimailRev >= SAIMAIL_REV;
   return {
     showGreeting: flag(r.showGreeting, d.showGreeting),
     greetingMode: r.greetingMode === "custom" ? "custom" : "time",
@@ -124,9 +134,10 @@ export function normalizeZaicodeUiPrefs(raw: unknown): ZaicodeUiPrefs {
     saimailUnreadRing: flag(r.saimailUnreadRing, d.saimailUnreadRing),
     saimailHoverPreview: flag(r.saimailHoverPreview, d.saimailHoverPreview),
     saimailPreviewRows: int(r.saimailPreviewRows, 1, 30, d.saimailPreviewRows),
-    saimailClick: ["brief", "settings", "reader"].includes(String(r.saimailClick))
-      ? (r.saimailClick as ZaicodeSaimailClick)
-      : d.saimailClick,
+    saimailClick:
+      saimailCurrent && ["brief", "settings", "reader"].includes(String(r.saimailClick))
+        ? (r.saimailClick as ZaicodeSaimailClick)
+        : d.saimailClick,
     autoRetry: flag(r.autoRetry, d.autoRetry),
     autoRetryIntervalSec: int(r.autoRetryIntervalSec, 10, 3600, d.autoRetryIntervalSec),
     autoRetryMaxAttempts: int(r.autoRetryMaxAttempts, 1, ZAICODE_AUTO_RETRY_HARD_CAP, d.autoRetryMaxAttempts),
@@ -138,6 +149,7 @@ export function normalizeZaicodeUiPrefs(raw: unknown): ZaicodeUiPrefs {
     noDim: flag(r.noDim, d.noDim),
     noHoverPopups: flag(r.noHoverPopups, d.noHoverPopups),
     homeRev: HOME_REV,
+    saimailRev: SAIMAIL_REV,
   };
 }
 
