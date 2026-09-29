@@ -424,3 +424,22 @@ failure claim win over any PASS. A checkpoint that says "pre-fix red control 0/3
 failed verification and `transition REVIEW` answers `INCOMPLETE_TICKET ... requires explicit
 verification evidence`, however green the rest is. Say "red" for the control and keep FAIL/failed
 out of the PASS event.
+
+## A ProTrail overlay that is "ready" can still draw nothing (2026-09-29, T-129)
+
+The desktop-wide ProTrail called an overlay up once its window existed and its document had loaded. The
+operator's report -- ProTrail is on, shows nothing until it is switched off and on -- is a state that count
+cannot see: their process tree had the overlay renderers and the click helper recreated only at the manual
+toggle, while `app.windows=4` (main + three overlays) held from the first minute of the session. The unit
+suites ran against a fake Electron and could not see it either. Measured here: the packaged live build on a
+throw-away profile seeded with the operator's Local Storage started and drew in 5 of 5 cold starts, also under
+CPU load, so the trigger is environmental or intermittent and was NOT reproduced. PowerToys FancyZones runs on
+that machine with `openWindowOnActiveMonitor` and relocates ordinary windows after show (T-94).
+
+What exists now: every overlay page answers a health probe (holds a config, monitor-sized page, makes frames);
+main repairs what the answer shows (show, put back, resend the config, rebuild) and publishes `verified` and
+`monitors`; the window draws its own trail until every monitor is confirmed; the click reader is retried every
+30 s after it gave up; the packaged boot gate (`verify-zaicode-protrail.cjs`) sends a synthetic sweep through
+the overlays and counts lit canvas pixels. To look at a live start, run a Playwright `_electron.launch` probe on
+a throw-away profile (seed `session/Local Storage` from the operator's userData for their settings) and read the
+`[protrail]` lines in `~/.zaicode/v2/logs`. Never read "ready" or "running" as "drawing": measure pixels.

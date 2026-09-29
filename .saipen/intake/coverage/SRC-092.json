@@ -1,0 +1,14 @@
+{
+  "requirements": {
+    "SRC-092:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "T-129 closed with verification evidence in LOG: verify -> PASS [target: T-129] conf: high -- zcode 3e6bb7a: pnpm run verify:pre-push exit 0 (ui 671, services 85, desktop 131 pass 2 skipped, cli 30, oxlint 0 errors, architecture 0 new); desktop zaicodeProtrailHealth 23/23, red on the pre-fix module bdf7ab0 (M1-M10) and on the first version 2f00201 (H3 H10 M12 M13); ui zaicodeProtrailConfirm 6/6; staged build boot gate PASS, ProTrail lit on 3 of ",
+      "text": "\u0415\u0449\u0435 \u0437\u0430\u043c\u0435\u0442\u0438\u043b \u0441\u043d\u043e\u0432\u0430 Protrail \u043f\u0440\u0438 \u043d\u0430\u0447\u0430\u043b\u0435 \u0441\u0435\u0441\u0441\u0438\u0438 \u043d\u0435 \u0437\u0430\u043f\u0443\u0441\u043a\u0430\u0435\u0442\u0441\u044f. \u0422\u043e\u0435\u0441\u0442\u044c \u043e\u043d\u043e \u043a\u0430\u043a \u0431\u044b \"\u0432\u043a\u043b\u044e\u0447\u0435\u043d\u043e\" \u0432\u043d\u0430\u0447\u0430\u043b\u0435 \u043d\u043e \u043f\u0440\u0438\u0445\u043e\u0434\u0438\u0442\u0441\u044f \u043f\u0435\u0440\u0435\u043a\u043b\u044e\u0447\u0430\u0442\u044c \u043e\u0431\u0440\u0430\u0442\u043d\u043e \u0447\u0442\u043e\u0431\u044b \u0437\u0430\u0440\u0430\u0431\u043e\u0442\u0430\u043b\u043e.",
+      "verification": "the Work this request created reached its own verification gate; see the T-129 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-129"
+    }
+  },
+  "schema_version": 1
+}
