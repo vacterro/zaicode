@@ -1301,7 +1301,6 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
           onSelectRemoteProject={onSelectRemoteProject}
           onCancelRemoteProject={onCancelRemoteProject}
         />
-        <ZaicodeGitSpawnWatcher files={gitSpawnFiles} scopeKey={workspaceAbsPath} />
         {isZaicodeProductMode() ? (
           <ZaicodeSaipenMenu
             workspacePath={workspaceAbsPath}
@@ -1663,6 +1662,17 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
           // CSS 变量驱动的专用 split，普通窗口 resize 只走浏览器布局，不触发 React 状态。
         )}
       >
+        {/*
+          Wave 3 D watcher. It belongs to the shell, not to the draft composer
+          header: that header is a useMemo factory that React runs while
+          rendering, before `gitSpawnFiles` below the hooks exists ("Cannot
+          access before initialization" took the whole window down), and it only
+          exists while a draft is on screen. A hidden workspace unmounts it, so
+          coming back re-baselines instead of announcing every file as new.
+        */}
+        {isWorkspaceVisible ? (
+          <ZaicodeGitSpawnWatcher files={gitSpawnFiles} scopeKey={workspaceAbsPath} />
+        ) : null}
         <div
           ref={workspaceSidebarPanelElementRef}
           data-panel=""
