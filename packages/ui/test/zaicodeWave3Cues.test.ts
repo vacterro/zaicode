@@ -225,7 +225,8 @@ test("Wave 3 A: the settings screen really offers the controls the wave asks for
 
 test("Wave 3 B: the row really offers single and pool, with live shares", () => {
   const source = readFileSync(join(import.meta.dirname, "..", "src", "settings", "ZaicodeSoundPoolControls.tsx"), "utf8");
-  assert.match(source, /\["single", "pool"\] as const/);
+  // SRC-087: the two labelled buttons became one cell in the row that flips between the two modes.
+  assert.match(source, /soundMode: pool \? "single" : "pool"/, "the row still offers both single and pool");
   assert.match(source, /normalizeZaicodePool\(row\.pool\)/, "the shown shares come from the same normalizer the pick uses");
   assert.match(source, /share\.percent\.toFixed\(2\)\}/, "the effective probability is displayed, not the raw weight");
   assert.match(source, /missing/, "a file that cannot be found is marked");
