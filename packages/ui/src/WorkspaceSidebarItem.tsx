@@ -48,6 +48,20 @@ function buildReadinessTint(runtime: ZaicodeProjectRuntimeView) {
 }
 import { isZaicodeProductMode } from "@zcode/shared";
 import {
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+} from "@/components/ui/dropdown-menu.js";
+import { FolderInput, Pin } from "lucide-react";
+import { ZaicodeProjectMoveMenu } from "@/zaicode/ZaicodeProjectFolderParts.js";
+import {
+  ZAICODE_UNFILED,
+  folderOfProject,
+  isPinned as isProjectPinned,
+  resolveProjectId,
+  useZaicodeProjectFolders,
+} from "@/zaicode/zaicodeProjectFolders.js";
+import {
   memo,
   useCallback,
   useEffect,
@@ -960,6 +974,13 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
   const zaicodeDimIdle = useZaicodeSidebarPrefs((state) => state.liveFirst && state.liveDimIdle);
   const setZaicodeSlotGroup = useZaicodeSidebarPrefs((state) => state.setGroup);
   const zaicodeSlotKey = buildTaskWorkspaceKey(tab.workspacePath, tab.workspaceIdentity);
+  // Wave 4: this project's stable id, its folder and its pin. Reading never
+  // mints -- the id is minted where the project is first registered.
+  const zaicodeFolders = useZaicodeProjectFolders();
+  const projectOrganizationId = resolveProjectId(zaicodeFolders, zaicodeSlotKey);
+  const projectPinned = isProjectPinned(zaicodeFolders, projectOrganizationId);
+  const projectFolderId = folderOfProject(zaicodeFolders, projectOrganizationId);
+  const toggleProjectPin = () => zaicodeFolders.setPinned(projectOrganizationId, !projectPinned);
   const zaicodeSlotGroup = slotGroupOf(zaicodeSlotGroups, zaicodeSlotKey, zaicodeDefaultSlot);
   const zaicodeProjectOff = useZaicodeProjectDisabled(
     isZaicodeProductMode() ? zaicodeSlotKey : null,
@@ -1831,6 +1852,32 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
                           </DropdownMenuTrigger>
                         </ControlHintTooltip>
                         <DropdownMenuContent align="end" onClick={handleActionMenuClick}>
+                          {isZaicodeProductMode() ? (
+                            <>
+                              <DropdownMenuItem
+                                data-zaicode-pin-menu={projectOrganizationId}
+                                onSelect={() => toggleProjectPin()}
+                              >
+                                <Pin className="h-3.5 w-3.5" />
+                                {projectPinned ? "Unpin project" : "Pin project to the top"}
+                              </DropdownMenuItem>
+                              <DropdownMenuSub>
+                                <DropdownMenuSubTrigger
+                                  title="Move into a folder, or out to No folder. Nothing on disk moves."
+                                >
+                                  <FolderInput className="h-3.5 w-3.5" />
+                                  Move to folder
+                                </DropdownMenuSubTrigger>
+                                <DropdownMenuSubContent>
+                                  <ZaicodeProjectMoveMenu
+                                    projectId={projectOrganizationId}
+                                    folderId={projectFolderId}
+                                  />
+                                </DropdownMenuSubContent>
+                              </DropdownMenuSub>
+                              <DropdownMenuSeparator />
+                            </>
+                          ) : null}
                           {zaicodeCompactRow ? (
                             <>
                               <DropdownMenuItem

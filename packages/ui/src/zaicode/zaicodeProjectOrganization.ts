@@ -22,9 +22,15 @@ import {
  * header a project sits under and what order it appears in within one.
  */
 
-export interface ZaicodeProjectSectionGroup {
+/** What the plan needs to know about a project: the two fields its id is built from. */
+export interface ZaicodeProjectRef {
+  workspacePath: string;
+  workspaceIdentity?: string;
+}
+
+export interface ZaicodeProjectSectionGroup<T extends ZaicodeProjectRef = ZaicodeProjectRef> {
   group: string | null;
-  tabs: readonly unknown[];
+  tabs: readonly T[];
   folded: boolean;
 }
 
@@ -48,10 +54,10 @@ export interface ZaicodeProjectPlanRow {
   index: number;
 }
 
-export function buildProjectPlan(
+export function buildProjectPlan<T extends ZaicodeProjectRef>(
   organization: ZaicodeProjectOrganization,
-  sections: readonly ZaicodeProjectSectionGroup[],
-  projectIdOf: (tab: unknown) => string,
+  sections: readonly ZaicodeProjectSectionGroup<T>[],
+  projectIdOf: (tab: T) => string,
 ): ZaicodeProjectPlanRow[] {
   const rows: ZaicodeProjectPlanRow[] = [];
   let index = 0;
@@ -103,10 +109,10 @@ export interface ZaicodeProjectOrganizationView {
   rowByProject: Map<string, ZaicodeProjectPlanRow>;
 }
 
-export function buildProjectOrganizationView(
+export function buildProjectOrganizationView<T extends ZaicodeProjectRef>(
   organization: ZaicodeProjectOrganization,
-  sections: readonly ZaicodeProjectSectionGroup[],
-  projectIdOf: (tab: unknown) => string,
+  sections: readonly ZaicodeProjectSectionGroup<T>[],
+  projectIdOf: (tab: T) => string,
 ): ZaicodeProjectOrganizationView {
   const rows = buildProjectPlan(organization, sections, projectIdOf);
   return {

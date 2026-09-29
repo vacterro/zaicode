@@ -13,6 +13,13 @@ import {
   type SetStateAction,
 } from "react";
 import {
+  ZaicodeNewFolderButton,
+  ZaicodeProjectFolderHeader,
+  ZaicodeProjectPinButton,
+} from "@/zaicode/ZaicodeProjectFolderParts.js";
+import { resolveProjectId, useZaicodeProjectFolders } from "@/zaicode/zaicodeProjectFolders.js";
+import { buildProjectOrganizationView } from "@/zaicode/zaicodeProjectOrganization.js";
+import {
   Archive,
   Blocks,
   CalendarClock,
@@ -766,7 +773,61 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
   >(null);
   const liveZaicodeProjectSectionsRef = useRef(liveZaicodeProjectSections);
   liveZaicodeProjectSectionsRef.current = liveZaicodeProjectSections;
+  const zaicodeFolders = useZaicodeProjectFolders();
   const zaicodeProjectSections = frozenZaicodeProjectSections ?? liveZaicodeProjectSections;
+  // Wave 4: the folder/pin plan over the same project list. The slot sections
+  // above are untouched -- this only decides which folder a project sits under
+  // and whether it is pinned, so organizing a project can never change what
+  // the sidebar already worked out about live work.
+  const zaicodeFolderPlan = useMemo(
+    () =>
+      zaicodeMode
+        ? buildProjectOrganizationView(
+            zaicodeFolders,
+            zaicodeProjectSections,
+            (tab: { workspacePath: string; workspaceIdentity?: string }) =>
+              resolveProjectId(
+                zaicodeFolders,
+                buildTaskWorkspaceKey(tab.workspacePath, tab.workspaceIdentity),
+              ),
+          )
+        : null,
+    [zaicodeFolders, zaicodeMode, zaicodeProjectSections],
+  );
+  /**
+   * One row per project with its folder and pin already resolved, and a flag
+   * for the first project of each folder so the header is drawn once. Doing
+   * this here rather than inside the JSX keeps the markup about markup.
+   */
+  const zaicodeSectionRows = useMemo(() => {
+    const rows = new Map<
+      string,
+      { folderId: string; pinned: boolean; first: boolean }
+    >();
+    if (!zaicodeFolderPlan) return rows;
+    const folderOf = (tab: { workspacePath: string; workspaceIdentity?: string }) => {
+      const projectId = resolveProjectId(
+        zaicodeFolders,
+        buildTaskWorkspaceKey(tab.workspacePath, tab.workspaceIdentity),
+      );
+      const view = zaicodeFolderPlan.folders.find((candidate) => candidate.projects.includes(projectId));
+      return { projectId, folderId: view?.folder?.id ?? "unfiled", folderKey: view?.unfiled ? "unfiled" : (view?.folder?.id ?? "unfiled") };
+    };
+    for (const section of zaicodeProjectSections) {
+      const seenFolders = new Set<string>();
+      for (const tab of section.folded ? [] : section.tabs) {
+        const { projectId, folderKey } = folderOf(tab);
+        const first = !seenFolders.has(folderKey);
+        seenFolders.add(folderKey);
+        rows.set(tab.id, {
+          folderId: folderKey,
+          pinned: zaicodeFolderPlan.rowByProject.get(projectId)?.pinned === true,
+          first,
+        });
+      }
+    }
+    return rows;
+  }, [zaicodeFolderPlan, zaicodeFolders, zaicodeProjectSections]);
   const zaicodeOrderedProjectTabs = useMemo(
     () => zaicodeProjectSections.flatMap((section) => (section.folded ? [] : section.tabs)),
     [zaicodeProjectSections],
@@ -1598,6 +1659,12 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
             )}
           />
         ) : null}
+        {zaicodeMode ? (
+          <div className="flex items-center justify-between gap-1 px-1 pb-1">
+            <span className="text-ui-sm text-foreground-subtlest">Projects</span>
+            <ZaicodeNewFolderButton />
+          </div>
+        ) : null}
         <SortableContext
           items={zaicodeOrderedProjectTabs.map((tab) => tab.id)}
           strategy={workspaceVerticalListSortingStrategy}
@@ -1616,14 +1683,27 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
                 tab.workspacePath,
                 tab.workspaceIdentity,
               );
+              const organizationRow = zaicodeSectionRows.get(tab.id);
               const taskGroup = workspaceTaskGroupByKey.get(workspaceKey);
               const taskLoading =
                 workspaceTaskLists.loadingByWorkspaceKey[workspaceKey] ??
                 false;
 
+              const folderView = zaicodeFolderPlan?.folders.find(
+                (candidate) => (candidate.unfiled ? "unfiled" : candidate.folder?.id) === organizationRow?.folderId,
+              );
               return (
+                <Fragment key={tab.id}>
+                {organizationRow?.first && folderView ? (
+                  <li data-zaicode-folder-row={folderView.unfiled ? "unfiled" : folderView.folder!.id} className="list-none">
+                    <ZaicodeProjectFolderHeader
+                      folder={folderView.folder}
+                      count={folderView.count}
+                      collapsed={folderView.collapsed}
+                    />
+                  </li>
+                ) : null}
                 <SortableWorkspaceSidebarItem
-                  key={tab.id}
                   tab={tab}
                   isActiveWorkspace={tab.workspacePath === workspacePath}
                   isExpanded={resolveWorkspaceDragExpanded({
@@ -1661,6 +1741,7 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
                   onReconnectRemoteWorkspace={onReconnectRemoteWorkspace}
                   onOpenFileTree={handleOpenWorkspaceFileTree}
                 />
+                </Fragment>
               );
             })}
               </ul>
