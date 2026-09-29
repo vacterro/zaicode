@@ -18,6 +18,8 @@ import {
 } from "./zaicodeEngines.js";
 import { readZaicodeFresh, useZaicodeFreshVersion, useZaicodeNotifySettings } from "./zaicodeNotifications.js";
 import { zaicodeGlowHandlers, zaicodeGlowStyle } from "./zaicodeGlow.js";
+import { ZaicodeResetCreditButton, expiryLabel } from "./ZaicodeResetCreditsSection.js";
+import { zaicodeResetCreditRows } from "./zaicodeResetCredits.js";
 
 /** Re-render every `intervalMs` so countdowns and elapsed resets stay true. */
 export function useZaicodeClock(intervalMs = 30_000): number {
@@ -100,6 +102,8 @@ export function ZaicodeAccountLimits({
   const glow = useZaicodeNotifySettings().glow;
   const windows = snapshot ? effectiveZaicodeWindows(snapshot.windows, now) : [];
   const updated = snapshot?.fetchedAt ? `${formatZaicodeDuration(now - snapshot.fetchedAt)} ago` : null;
+  // T-130: a Codex account with reset credits says so here, with the button, right under the windows they would refill.
+  const credits = zaicodeResetCreditRows([account], { [account.id]: snapshot }, now)[0] ?? null;
   return (
     <div className="flex flex-col gap-0.5" data-zaicode-account-limits={account.id}>
       <div className="flex items-baseline gap-1.5">
@@ -145,6 +149,18 @@ export function ZaicodeAccountLimits({
           </div>
         );
       })}
+      {credits ? (
+        <div className="flex items-center gap-2 pl-2" data-zaicode-account-reset-credits={account.id}>
+          <span className="shrink-0 font-semibold text-[var(--zaicode-highlight,var(--color-warning))]">
+            ⟲ {credits.usable} reset credit{credits.usable === 1 ? "" : "s"}
+          </span>
+          <span className="min-w-0 flex-1 truncate text-foreground-subtlest" title={credits.credit?.description ?? undefined}>
+            {credits.credit?.title ? `${credits.credit.title} · ` : ""}
+            {expiryLabel(credits.nextExpiresAt, now)}
+          </span>
+          <ZaicodeResetCreditButton row={credits} />
+        </div>
+      ) : null}
       {snapshot?.error && windows.length > 0 ? (
         <div className="pl-2 text-foreground-subtlest">last read failed: {snapshot.error}</div>
       ) : null}

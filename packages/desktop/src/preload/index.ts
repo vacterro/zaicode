@@ -832,6 +832,8 @@ contextBridge.exposeInMainWorld("zcode", {
     ipcRenderer.invoke(PlatformChannels.RefreshZaicodeEngines, accountId ?? null),
   setZaicodeEnginesConfig: (patch: Record<string, unknown>) =>
     ipcRenderer.invoke(PlatformChannels.SetZaicodeEnginesConfig, patch),
+  consumeZaicodeResetCredit: (request: { accountId: string; creditId: string | null }) =>
+    ipcRenderer.invoke(PlatformChannels.ConsumeZaicodeResetCredit, request),
   onZaicodeEnginesChanged: (callback: (state: unknown) => void): (() => void) => {
     const listener = (_event: unknown, state: unknown) => callback(state);
     ipcRenderer.on(PlatformChannels.ZaicodeEnginesChanged, listener);

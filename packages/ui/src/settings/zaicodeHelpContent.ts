@@ -61,7 +61,7 @@ export const ZAICODE_HELP_TOPICS: readonly HelpTopic[] = [
       "Bar under a tile — quota left: green > 50%, amber, red < 20%, dark = out. Background tint says the same (strength in Engines & limits).",
       "Click a tile = START and new prompts start it as a worker in this project · double-click = start a worker at once · right-click = start, read quota, fix sign-in, hide. To chat with a subscription account inside ZAICODE, pick it in the model menu under the prompt box (account → model → effort).",
       "Dashed tile with ! — needs sign-in or the CLI is missing; right-click → Fix shows the exact command first.",
-      "A tile glows after its quota window resets; the card says which window.",
+      "A tile glows after its quota window resets; the card says which window. Reset credits (Codex grants them, the ZCode Coding Plan too) show as ⟲ next to the reset timer and in Engines & limits, with a button that uses one after asking; Claude Code has none.",
     ],
     open: { label: "Engines & limits", section: "zaicodeEngines" },
   },

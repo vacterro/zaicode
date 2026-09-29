@@ -90,6 +90,7 @@ import { listZaicodeSaimailReadLetters, openZaicodeSaimailLetter } from "./zaico
 import { parseZaicodeSplashPrefsInput } from "./zaicodeSplashFiles.js";
 import { readZaicodeSplashPrefs, setZaicodeSplashPrefs } from "./zaicodeSplashPrefs.js";
 import {
+  consumeZaicodeResetCredit,
   getZaicodeEnginesState,
   getZaicodeStartWithWindows,
   launchZaicodeExternalWorker,
@@ -437,7 +438,12 @@ export function registerPlatformIpcHandlers(options: {
     return { ok: true };
   });
   registerZaicodeProtrailGlobalIpc({ log: (message) => options.logger.info(`[protrail] ${message}`) });
-  registerZaicodeCustomizationIpc({ log: (message) => options.logger.info(`[customization] ${message}`) });
+  // An optional convenience: whatever goes wrong in it must not stop the other handlers, or the app, from starting.
+  try {
+    registerZaicodeCustomizationIpc({ log: (message) => options.logger.info(`[customization] ${message}`) });
+  } catch (error) {
+    options.logger.info(`[customization] not available: ${error instanceof Error ? error.message : String(error)}`);
+  }
   ipcMain.handle(PlatformChannels.SetZaicodeSplashPrefs, (_event, input: unknown) =>
     setZaicodeSplashPrefs(parseZaicodeSplashPrefsInput(input)),
   );
@@ -570,6 +576,10 @@ export function registerPlatformIpcHandlers(options: {
     };
   });
   ipcMain.handle(PlatformChannels.GetZaicodeEngines, () => getZaicodeEnginesState());
+  ipcMain.handle(PlatformChannels.ConsumeZaicodeResetCredit, (_event, request: unknown) => {
+    const record = typeof request === "object" && request !== null ? (request as { accountId?: unknown; creditId?: unknown }) : {};
+    return consumeZaicodeResetCredit(record.accountId, record.creditId);
+  });
   ipcMain.handle(PlatformChannels.RefreshZaicodeEngines, async (_event, accountId: unknown) => {
     await refreshZaicodeEngines(typeof accountId === "string" && accountId ? accountId : undefined);
     return getZaicodeEnginesState();

@@ -27,7 +27,9 @@ test("the title-bar reset timer carries the plan resets, and a reset is asked fo
   assert.match(timer, /useZaicodePlanResets\(\)/);
   assert.match(timer, /<ZaicodePlanResetsSection resets=\{planResets\} now=\{now\} \/>/);
   assert.match(timer, /data-zaicode-plan-resets-badge/);
-  assert.match(timer, /planResets\.total === 0\) return null/, "the timer shows for a plan with resets even when no other limit row exists");
+  // T-130: Codex reset credits join the Coding Plan's in one count ("spendable"); the timer still shows when that count is not zero.
+  assert.match(timer, /const spendable = planResets\.total \+ zaicodeResetCreditsTotal\(creditRows\);/);
+  assert.match(timer, /spendable === 0\) return null/, "the timer shows for a plan with resets even when no other limit row exists");
   const plan = source("zaicode/ZaicodeCodingPlanResets.tsx");
   // ZCode's own controller does the reset; nothing is re-implemented here.
   assert.match(plan, /useCodingPlanQuotaResetUi\(\{/);

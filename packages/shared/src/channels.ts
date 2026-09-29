@@ -34,6 +34,7 @@ import type {
 } from "./zaicode-saimail-read.js";
 import type { ZaicodeProtrailGlobalStatus } from "./zaicode-protrail.js";
 import type { ZaicodeScreenMode } from "./zaicode-screen.js";
+import type { ZaicodeResetConsumeResult } from "./zaicode-reset-credits.js";
 import type {
   ZaicodeCustomizationChange,
   ZaicodeCustomizationInfo,
@@ -473,6 +474,8 @@ export const PlatformChannels = {
   GetZaicodeEngines: "zaicode:get-engines",
   /** Renderer → Main：rediscover engines and read quota (all, or one account id) */
   RefreshZaicodeEngines: "zaicode:refresh-engines",
+  /** Renderer → Main：spend one reset credit of a Codex account (T-130); only after the window asked in words */
+  ConsumeZaicodeResetCredit: "zaicode:consume-reset-credit",
   /** Renderer → Main：engines settings (interval, hidden accounts, kick prompt, ...) */
   SetZaicodeEnginesConfig: "zaicode:set-engines-config",
   /** Main → Renderer：engines state changed (sweep progress / results) */
@@ -1301,6 +1304,11 @@ export interface PlatformChannelMap {
   [PlatformChannels.ZaicodeCustomizationChanged]: {
     request: ZaicodeCustomizationChange;
     response: void;
+  };
+  [PlatformChannels.ConsumeZaicodeResetCredit]: {
+    /** `creditId` null lets the backend pick the next credit. */
+    request: { accountId: string; creditId: string | null };
+    response: ZaicodeResetConsumeResult;
   };
   [PlatformChannels.SaveZaicodeSettingsSnapshot]: {
     request: string;

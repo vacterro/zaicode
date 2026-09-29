@@ -985,6 +985,11 @@ export interface IPlatformService {
   setZaicodeEnginesConfig?(
     patch: Partial<import("./zaicode-engines.js").ZaicodeEnginesConfig>,
   ): Promise<import("./zaicode-engines.js").ZaicodeEnginesState>;
+  /** ZAICODE (T-130): spends one reset credit of a Codex account and answers what came of it. */
+  consumeZaicodeResetCredit?(request: {
+    accountId: string;
+    creditId: string | null;
+  }): Promise<import("./zaicode-reset-credits.js").ZaicodeResetConsumeResult>;
   onZaicodeEnginesChanged?(
     callback: (state: import("./zaicode-engines.js").ZaicodeEnginesState) => void,
   ): () => void;

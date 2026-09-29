@@ -73,3 +73,15 @@ test("main re-checks what the renderer sends: a request that is not the expected
   assert.ok(host.includes('typeof request["name"] !== "string" || typeof request["text"] !== "string"'));
   assert.ok(host.includes('kind !== "root" && kind !== "sounds" && kind !== "presets"'));
 });
+
+test("the customization folder can never be the reason the app does not start: an unresolvable profile folder falls back, and a failure is logged, not thrown", () => {
+  // Measured: with a home whose profile folders Electron cannot resolve, app.getPath("appData") threw "Failed to get 'appData' path"
+  // from inside registerPlatformIpcHandlers, which aborted the whole start and left no window.
+  assert.ok(host.includes("function safeAppData(): string | undefined {"));
+  assert.ok(host.includes("appData: safeAppData() });"));
+  assert.ok(!host.includes('appData: app.getPath("appData")'), "no eager, unguarded appData call");
+  assert.ok(ipc.includes("registerZaicodeCustomizationIpc({ log: (message) => options.logger.info(`[customization] ${message}`) });"));
+  const at = ipc.indexOf("registerZaicodeCustomizationIpc({");
+  assert.ok(ipc.slice(Math.max(0, at - 200), at).includes("try {"), "registration sits inside a try");
+  assert.ok(ipc.slice(at, at + 400).includes("} catch (error) {"));
+});

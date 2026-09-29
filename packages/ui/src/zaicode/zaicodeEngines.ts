@@ -8,6 +8,7 @@ import {
   type ZaicodeEnginesConfig,
   type ZaicodeEnginesState,
   type ZaicodeLimitSnapshot,
+  type ZaicodeResetConsumeResult,
   isZaicodeMetricsOnlyAccount,
 } from "@zcode/shared";
 import { readZaicodeSetting } from "./zaicodeSettingsSnapshot.js";
@@ -23,6 +24,7 @@ interface ZaicodeEnginesBridge {
   getZaicodeEngines?(): Promise<ZaicodeEnginesState>;
   refreshZaicodeEngines?(accountId?: string): Promise<ZaicodeEnginesState>;
   setZaicodeEnginesConfig?(patch: Partial<ZaicodeEnginesConfig>): Promise<ZaicodeEnginesState>;
+  consumeZaicodeResetCredit?(request: { accountId: string; creditId: string | null }): Promise<ZaicodeResetConsumeResult>;
   onZaicodeEnginesChanged?(callback: (state: ZaicodeEnginesState) => void): () => void;
   launchZaicodeExternalWorker?(params: { cwd: string; command: string; title: string }): Promise<{
     ok: boolean;

@@ -12,6 +12,8 @@
  * vendor did not state is absent, never guessed.
  */
 
+import type { ZaicodeResetCredits } from "./zaicode-reset-credits.js";
+
 export const ZAICODE_ENGINE_VENDORS = ["claude", "codex", "antigravity", "zcode", "freebuff"] as const;
 export type ZaicodeEngineVendor = (typeof ZAICODE_ENGINE_VENDORS)[number];
 
@@ -98,6 +100,11 @@ export interface ZaicodeLimitSnapshot {
   /** Why the last attempt failed, in the vendor's words when possible; null after a success. */
   error: string | null;
   source: string;
+  /**
+   * Resets the account can spend on demand (Codex hands them out; T-130). Kept from the last read that sent the block;
+   * null / absent = the vendor sent none, which is not the same as "0 left".
+   */
+  resetCredits?: ZaicodeResetCredits | null;
 }
 
 export interface ZaicodeEnginesConfig {

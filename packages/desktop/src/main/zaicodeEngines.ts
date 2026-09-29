@@ -12,6 +12,7 @@ import {
   parseAntigravityUsage,
   parseClaudeUsageText,
   parseCodexRateLimits,
+  parseCodexResetCredits,
   parseFreebuffSession,
   parseZcodeQuota,
   zaicodeBottleneck,
@@ -20,7 +21,11 @@ import {
   type ZaicodeEnginesState,
   type ZaicodeLimitSnapshot,
   type ZaicodeLimitWindow,
+  describeZaicodeResetOutcome,
+  type ZaicodeResetConsumeResult,
+  type ZaicodeResetCredits,
 } from "@zcode/shared";
+import { codexRpcCall, consumeCodexResetCredit, type CodexRpcOptions } from "./zaicodeCodexRpc.js";
 import { setWindowsDesktopTrayLimits } from "./desktopTray.js";
 
 /**
@@ -568,6 +573,8 @@ interface ProbeOutcome {
   plan: string | null;
   error: string | null;
   source: string;
+  /** Codex only (T-130): the resets the account can spend; absent for the vendors that have none to read. */
+  resetCredits?: ZaicodeResetCredits | null;
 }
 
 function probeDir(): string {
@@ -626,89 +633,58 @@ async function probeClaude(account: ZaicodeEngineAccount): Promise<ProbeOutcome>
   return { windows, plan: "subscription", error: null, source };
 }
 
+function codexRpcOptions(account: ZaicodeEngineAccount): CodexRpcOptions | null {
+  if (!account.cli || !account.home || !isDirectory(account.home)) return null;
+  return {
+    command: commandFor(account.cli, ["app-server"]),
+    env: probeEnv({ CODEX_HOME: account.home, OPENAI_API_KEY: null, CODEX_API_KEY: null, CODEX_ACCESS_TOKEN: null }),
+    timeoutMs: CODEX_TIMEOUT_MS,
+    onChild: (child) => liveChildren.add(child),
+    onChildDone: (child) => liveChildren.delete(child),
+    kill: killTree,
+  };
+}
+
 async function probeCodex(account: ZaicodeEngineAccount): Promise<ProbeOutcome> {
   const source = "codex app-server account/rateLimits/read";
   if (!account.cli) return { windows: [], plan: null, error: "Codex CLI not found", source };
-  if (!account.home || !isDirectory(account.home)) return { windows: [], plan: null, error: "CODEX_HOME missing", source };
-  const command = commandFor(account.cli, ["app-server"]);
-  return new Promise((resolvePromise) => {
-    let child: ChildProcess;
-    try {
-      child = spawn(command.file, command.args, {
-        env: probeEnv({ CODEX_HOME: account.home, OPENAI_API_KEY: null, CODEX_API_KEY: null, CODEX_ACCESS_TOKEN: null }),
-        windowsHide: true,
-        stdio: ["pipe", "pipe", "ignore"],
-      });
-    } catch (error) {
-      resolvePromise({ windows: [], plan: null, error: error instanceof Error ? error.message : String(error), source });
-      return;
-    }
-    liveChildren.add(child);
-    let buffer = "";
-    let settled = false;
-    const finish = (outcome: ProbeOutcome) => {
-      if (settled) return;
-      settled = true;
-      clearTimeout(timer);
-      try {
-        child.stdin?.end();
-      } catch {
-        // already closed
-      }
-      killTree(child);
-      liveChildren.delete(child);
-      resolvePromise(outcome);
-    };
-    const timer = setTimeout(() => finish({ windows: [], plan: null, error: "timed out waiting for codex", source }), CODEX_TIMEOUT_MS);
-    const send = (message: Record<string, unknown>) => {
-      try {
-        child.stdin?.write(`${JSON.stringify({ jsonrpc: "2.0", ...message })}\n`);
-      } catch {
-        // the close handler reports it
-      }
-    };
-    child.stdout?.setEncoding("utf8");
-    child.stdout?.on("data", (chunk: string) => {
-      buffer += chunk;
-      let newline = buffer.indexOf("\n");
-      while (newline >= 0) {
-        const line = buffer.slice(0, newline).trim();
-        buffer = buffer.slice(newline + 1);
-        newline = buffer.indexOf("\n");
-        if (!line) continue;
-        type RpcMessage = { id?: unknown; result?: unknown; error?: { message?: unknown } };
-        let message: RpcMessage | null;
-        try {
-          message = JSON.parse(line) as RpcMessage | null;
-        } catch {
-          continue;
-        }
-        if (message?.id === 1) {
-          if (message.error) {
-            finish({ windows: [], plan: null, error: `initialize: ${String(message.error.message ?? "error")}`, source });
-            return;
-          }
-          send({ method: "initialized" });
-          send({ id: 2, method: "account/rateLimits/read" });
-        } else if (message?.id === 2) {
-          if (message.error) {
-            finish({ windows: [], plan: null, error: String(message.error.message ?? "rateLimits error").slice(0, 160), source });
-            return;
-          }
-          const parsed = parseCodexRateLimits(message.result);
-          finish({
-            windows: parsed.windows,
-            plan: parsed.plan,
-            error: parsed.windows.length ? null : "codex reported no quota window",
-            source,
-          });
-        }
-      }
-    });
-    child.on("error", (error) => finish({ windows: [], plan: null, error: error.message, source }));
-    child.on("close", () => finish({ windows: [], plan: null, error: "codex app-server exited", source }));
-    send({ id: 1, method: "initialize", params: { clientInfo: { name: "zaicode", version: "1.0.0" }, capabilities: null } });
-  });
+  const options = codexRpcOptions(account);
+  if (!options) return { windows: [], plan: null, error: "CODEX_HOME missing", source };
+  const answer = await codexRpcCall(options, "account/rateLimits/read");
+  if (!answer.ok) return { windows: [], plan: null, error: answer.error, source };
+  const parsed = parseCodexRateLimits(answer.result);
+  return {
+    windows: parsed.windows,
+    plan: parsed.plan,
+    resetCredits: parseCodexResetCredits(answer.result),
+    error: parsed.windows.length ? null : "codex reported no quota window",
+    source,
+  };
+}
+
+const spendingResets = new Set<string>();
+
+/**
+ * Spends one reset credit of a Codex account, on the person's explicit click (the window asked first, in words). Only a ready
+ * Codex account can be asked; one spend per account at a time; the idempotency key belongs to this attempt. Whatever the answer,
+ * the account's quota is read again so the windows and the count on screen are the vendor's, not a guess.
+ */
+export async function consumeZaicodeResetCredit(accountIdValue: unknown, creditIdValue: unknown): Promise<ZaicodeResetConsumeResult> {
+  const accountIdText = typeof accountIdValue === "string" ? accountIdValue : "";
+  const account = accounts.find((candidate) => candidate.id === accountIdText);
+  if (!account || account.vendor !== "codex") return { outcome: "unavailable", message: describeZaicodeResetOutcome("Codex", "unavailable", "no such Codex account") };
+  const creditId = typeof creditIdValue === "string" && creditIdValue.length > 0 && creditIdValue.length <= 200 ? creditIdValue : null;
+  const options = account.status === "ready" ? codexRpcOptions(account) : null;
+  if (!options) return { outcome: "unavailable", message: describeZaicodeResetOutcome(account.label, "unavailable", account.statusDetail || "the account is not ready") };
+  if (spendingResets.has(account.id)) return { outcome: "unavailable", message: describeZaicodeResetOutcome(account.label, "unavailable", "a reset is being used already") };
+  spendingResets.add(account.id);
+  try {
+    const result = await consumeCodexResetCredit((method, params) => codexRpcCall(options, method, params), account.label, creditId, randomUUID());
+    if (result.outcome !== "unavailable") await refreshZaicodeEngines(account.id).catch(() => undefined);
+    return result;
+  } finally {
+    spendingResets.delete(account.id);
+  }
 }
 
 async function probeAntigravity(account: ZaicodeEngineAccount): Promise<ProbeOutcome> {
@@ -997,6 +973,7 @@ async function probeAccount(account: ZaicodeEngineAccount): Promise<void> {
           checkedAt: now,
           error: null,
           source: outcome.source,
+          ...(outcome.resetCredits !== undefined ? { resetCredits: outcome.resetCredits } : {}),
         }
       : {
           accountId: account.id,
@@ -1007,6 +984,8 @@ async function probeAccount(account: ZaicodeEngineAccount): Promise<void> {
           checkedAt: now,
           error: outcome.error ?? "read failed",
           source: outcome.source,
+          // A read that failed does not forget the credits the last good read found.
+          ...(previous?.resetCredits !== undefined ? { resetCredits: previous.resetCredits } : {}),
         },
   };
 }

@@ -27,9 +27,22 @@ function broadcast(change: ZaicodeCustomizationChange): void {
 
 const isObject = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null;
 
+/**
+ * The per-user application data folder, or undefined. Electron throws "Failed to get 'appData' path" on a machine whose profile
+ * folders cannot be resolved; the customization folder is a convenience and must never be the reason the app does not start,
+ * so the resolver falls back to the home folder instead.
+ */
+function safeAppData(): string | undefined {
+  try {
+    return app.getPath("appData");
+  } catch {
+    return undefined;
+  }
+}
+
 export function registerZaicodeCustomizationIpc(options: { log?: (message: string) => void } = {}): void {
   const log = options.log ?? (() => undefined);
-  const resolved = resolveZaicodeCustomizationRoot({ env: process.env, execPath: process.execPath, appData: app.getPath("appData") });
+  const resolved = resolveZaicodeCustomizationRoot({ env: process.env, execPath: process.execPath, appData: safeAppData() });
   const info: ZaicodeCustomizationInfo = zaicodeCustomizationInfo(resolved.root, resolved.source);
   log(`customization folder ${info.root} (${info.source})`);
 

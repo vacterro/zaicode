@@ -13,6 +13,8 @@ import { openZaicodeSettings } from "./zaicodeActions.js";
 import { useZaicodeEngines, readZaicodeEnginesState, visibleZaicodeAccounts } from "./zaicodeEngines.js";
 import { useZaicodeGatedNow, zaicodeNowStepMs } from "./zaicodeNowGate.js";
 import { ZaicodePlanResetsSection, useZaicodePlanResets } from "./ZaicodeCodingPlanResets.js";
+import { ZaicodeResetCreditsSection } from "./ZaicodeResetCreditsSection.js";
+import { zaicodeResetCreditRows, zaicodeResetCreditsTotal } from "./zaicodeResetCredits.js";
 import { zaicodeVendorColor } from "./ZaicodeLimitViews.js";
 import { formatZaicodeRemaining } from "./zaicodeTimers.js";
 import { useZaicodeTimers } from "./zaicodeTimerStore.js";
@@ -171,7 +173,10 @@ export function ZaicodeResetTimer({ useWindowsCaptionSpacing = false }: { useWin
   if (!clock.enabled || !clock.showNextReset) return null;
   const rows = zaicodeResetRows(visibleZaicodeAccounts(engines), engines.limits, now);
   const next = zaicodeNextUsefulReset(rows);
-  if (!next && rows.length === 0 && planResets.total === 0) return null;
+  // T-130: Codex hands out reset credits; they sit in the same list as the ZCode Coding Plan's, and count in the same badge.
+  const creditRows = zaicodeResetCreditRows(visibleZaicodeAccounts(engines), engines.limits, now);
+  const spendable = planResets.total + zaicodeResetCreditsTotal(creditRows);
+  if (!next && rows.length === 0 && spendable === 0) return null;
   const format = (seconds: number) => formatZaicodeRemaining(seconds, { minutes: clock.longMinutes });
   const open = pinned || (hover && !noHoverPopups);
   // The title bar clips its children (overflow hidden): the list is a portal popover under the timer.
@@ -200,10 +205,10 @@ export function ZaicodeResetTimer({ useWindowsCaptionSpacing = false }: { useWin
             data-zaicode-reset-timer={next?.vendor ?? ""}
           >
             {next ? `${next.accountShort} ↺ ${format((next.at - now) / 1000)}` : rows.length > 0 ? "↺ full" : "↺"}
-            {planResets.total > 0 ? (
-              <span className="text-[var(--zaicode-highlight,var(--color-warning))]" title={`${planResets.total} Coding Plan reset(s) you can use`} data-zaicode-plan-resets-badge={planResets.total}>
+            {spendable > 0 ? (
+              <span className="text-[var(--zaicode-highlight,var(--color-warning))]" title={`${spendable} reset(s) you can use (Coding Plan, Codex)`} data-zaicode-plan-resets-badge={spendable}>
                 {" "}
-                ⟲{planResets.total}
+                ⟲{spendable}
               </span>
             ) : null}
           </button>
@@ -219,6 +224,7 @@ export function ZaicodeResetTimer({ useWindowsCaptionSpacing = false }: { useWin
       >
         <ResetTable rows={rows} now={now} format={format} hour12={clock.hour12} />
         <ZaicodePlanResetsSection resets={planResets} now={now} />
+        <ZaicodeResetCreditsSection rows={creditRows} now={now} hasClaude={visibleZaicodeAccounts(engines).some((account) => account.vendor === "claude")} />
       </PopoverContent>
     </Popover>
   );
