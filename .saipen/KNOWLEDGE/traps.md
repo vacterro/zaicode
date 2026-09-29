@@ -443,3 +443,21 @@ main repairs what the answer shows (show, put back, resend the config, rebuild) 
 the overlays and counts lit canvas pixels. To look at a live start, run a Playwright `_electron.launch` probe on
 a throw-away profile (seed `session/Local Storage` from the operator's userData for their settings) and read the
 `[protrail]` lines in `~/.zaicode/v2/logs`. Never read "ready" or "running" as "drawing": measure pixels.
+
+## Backslashes and unicode escapes do not survive every way of writing a file (2026-09-29, T-125)
+
+Through this environment's tools a Bash heredoc turns a double backslash into a single one, and a file body
+sent to the Write or Edit tool turns a unicode escape (backslash, u, four hex digits) into the character
+itself. A test that wrote the JS string "C:" + double backslash + "secret" through a heredoc landed as a
+single backslash (an invalid escape, caught only by the linter), and JSX text written with such an escape
+would have printed the escape. Write backslash-heavy source with the Edit or Write tool, keep unicode
+escapes out of JSX text (type the character), and check with `od -c` or grep after writing. A Python patch
+script written to a file with the Write tool and run afterwards avoids the heredoc entirely.
+
+## A server render of a zustand store shows its INITIAL snapshot, not its current state (2026-09-29, T-125)
+
+`renderToStaticMarkup` reads `api.getInitialState()` (zustand 5), so a test that calls `setState` and then
+renders sees the empty store; overriding `useStore.getInitialState` does nothing because the hook reads the
+inner api. The store built its list from localStorage when its module was first imported, so the way to put
+saved items on screen in a node test is to import a localStorage stub FIRST (test/support/presetStorage.ts)
+and keep the empty-state assertions in a separate test file (a store is one instance per process).
