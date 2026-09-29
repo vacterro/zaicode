@@ -27,9 +27,10 @@ const calls: string[] = [];
 const messages: string[] = [];
 const talking = { log: (text: string) => messages.push(text), warn: (text: string) => messages.push(text), error: (text: string) => messages.push(text) };
 
-test("a build that starts stays exactly where it is", () => {
+test("a staged build is hidden from the launcher while it is tested, then put back", () => {
   const { root, repoRoot, built } = repo("dist-next");
   try {
+    let visibleDuringTest: boolean | null = null;
     const result = runBootGate({
       repoRoot,
       distName: "dist-next",
@@ -37,13 +38,30 @@ test("a build that starts stays exactly where it is", () => {
       env: {},
       smoke: ({ executable }: { executable: string }) => {
         calls.push(executable);
+        visibleDuringTest = existsSync(join(built, "ZAICODE.exe"));
         return { status: 0 };
       },
       log: quiet,
     });
     assert.deepEqual(result, { ok: true, action: "passed" });
+    assert.equal(visibleDuringTest, false, "the launcher applies win-unpacked once the blockmap is newer: an untested build must not sit there");
+    assert.equal(calls.at(-1), join(`${built}.verifying`, "ZAICODE.exe"), "the packaged executable itself is started, from the hiding place");
+    assert.ok(existsSync(join(built, "ZAICODE.exe")), "a build that starts is back where the launcher expects it");
+    assert.equal(existsSync(`${built}.verifying`), false);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("a leftover hiding place from a crashed gate is cleared before the next one", () => {
+  const { root, repoRoot, built } = repo("dist-next");
+  try {
+    mkdirSync(`${built}.verifying`, { recursive: true });
+    writeFileSync(join(`${built}.verifying`, "stale.txt"), "old");
+    const result = runBootGate({ repoRoot, distName: "dist-next", isWin: true, env: {}, smoke: () => ({ status: 0 }), log: quiet });
+    assert.equal(result.ok, true);
+    assert.equal(existsSync(join(built, "stale.txt")), false);
     assert.ok(existsSync(join(built, "ZAICODE.exe")));
-    assert.equal(calls.at(-1), join(built, "ZAICODE.exe"), "the gate starts the packaged executable itself");
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -67,7 +85,7 @@ test("a staged build that cannot start is moved aside so the launcher never sees
     assert.equal(result.ok, false);
     assert.equal(result.action, "rejected");
     assert.equal(existsSync(join(built, "ZAICODE.exe")), false, "nothing is left at the path the launcher swaps in");
-    assert.deepEqual(readdirSync(parent), ["win-unpacked.rejected-20260929123456"], "the newest rejected build is kept, older rejects are cleared");
+    assert.deepEqual(readdirSync(parent), ["win-unpacked.rejected-20260929123456"], "the newest rejected build is kept, older rejects and the hiding place are gone");
     assert.ok(existsSync(join(parent, "win-unpacked.rejected-20260929123456", "ZAICODE.exe")), "the build is moved, not deleted");
     assert.match(messages.join("\n"), /launcher keeps the last good build/);
   } finally {
