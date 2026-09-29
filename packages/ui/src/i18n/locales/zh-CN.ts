@@ -3447,7 +3447,6 @@ const zhCN: Record<string, string> = {
   "zaicode.field.template": "从模板开始",
   "zaicode.field.templateHint": "预填角色、指令与权限。可自由编辑，保存后成为持久 agent。",
   "zaicode.field.instructions": "指令",
-  "zaicode.field.provider": "Provider 标识",
   "zaicode.field.reasoning": "推理档位",
   "zaicode.field.backend": "路由后端",
   "zaicode.backend.direct": "Direct",
