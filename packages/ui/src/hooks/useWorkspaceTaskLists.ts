@@ -30,6 +30,7 @@ import {
 import {
   buildWorkspaceRemoteSessionSignature,
   buildWorkspaceTaskListVersionSignature,
+  selectPendingWorkspaceTaskQueries,
 } from "@/hooks/workspaceTaskListRefreshSignatures.js";
 import { shouldRefetchTaskListMembershipForWorkspaceEvent } from "@/lib/taskListRefreshPolicy.js";
 import { syncTaskUnreadFromStatusWorkspaceEvent } from "@/lib/taskStatusUnreadSync.js";
@@ -400,20 +401,12 @@ export function useWorkspaceTaskLists(params: {
   const membershipVersion = useTaskListMembershipVersion();
   const [loading, setLoading] = useState<Record<string, boolean>>({});
   const [refreshTrigger, setRefreshTrigger] = useState(0);
-  const pendingConfigs = useMemo(() => {
-    const pending = queryConfigs.filter((config) => {
-      const cachedResult = resultsByQueryKey[config.queryKey];
-      return cachedResult == null || cachedResult.stale;
-    });
-    const activePending = pending.filter((config) => config.workspaceKey === activeWorkspaceKey);
-    if (activePending.length > 0) {
-      // 冷启动时若一次性查询所有历史 workspace，会和当前 workspace 的模型 readState 抢资源，
-      // 导致输入框底部持续显示“管理模型/加载中”。这里先保证当前 workspace 的任务列表和模型状态完成，
-      // 其他 workspace 等当前缓存落盘后再后台补齐。
-      return activePending;
-    }
-    return pending;
-  }, [activeWorkspaceKey, queryConfigs, resultsByQueryKey]);
+  // 冷启动时先只查当前 workspace（避免与模型 readState 抢资源）；之后当前 workspace 变 stale
+  // 与其它 stale workspace 一起刷新，否则运行中的当前项目会饿死其它项目的列表（T-136）。
+  const pendingConfigs = useMemo(
+    () => selectPendingWorkspaceTaskQueries(queryConfigs, resultsByQueryKey, activeWorkspaceKey),
+    [activeWorkspaceKey, queryConfigs, resultsByQueryKey],
+  );
   const sessionsIndexRevision = useMemo(
     () =>
       pendingConfigs
