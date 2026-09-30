@@ -7,8 +7,8 @@
  * between crisp and blurred at every other pixel.
  *
  * The fix measures where those columns really start and moves each by the
- * sub-pixel remainder (the CSS `translate` property, which composes with the
- * transforms they already use), so they always sit on whole device pixels.
+ * sub-pixel remainder using layout offsets, so text is rasterized at the
+ * corrected position rather than moving a composited text bitmap.
  */
 
 /** Elements that are centred by layout and carry text. */
@@ -38,20 +38,36 @@ export function zaicodeDevicePx(value: number, devicePixelRatio = typeof window 
   return Math.round(value * ratio) / ratio;
 }
 
-const APPLIED = new WeakMap<HTMLElement, { x: number; y: number }>();
+interface SnapEntry { x: number; y: number; position: string; left: string; top: string }
+const APPLIED = new Map<HTMLElement, SnapEntry>();
+
+function restore(element: HTMLElement, entry: SnapEntry): void {
+  element.style.position = entry.position;
+  element.style.left = entry.left;
+  element.style.top = entry.top;
+}
 
 function snapAll(): void {
   const ratio = window.devicePixelRatio || 1;
+  for (const [element, entry] of APPLIED) {
+    if (!element.isConnected || !element.matches(ZAICODE_PIXEL_SNAP_SELECTOR)) {
+      restore(element, entry);
+      APPLIED.delete(element);
+    }
+  }
   for (const element of Array.from(document.querySelectorAll<HTMLElement>(ZAICODE_PIXEL_SNAP_SELECTOR))) {
-    const applied = APPLIED.get(element) ?? { x: 0, y: 0 };
+    const applied = APPLIED.get(element) ?? { x: 0, y: 0, position: element.style.position, left: element.style.left, top: element.style.top };
     const rect = element.getBoundingClientRect();
     // `data-zaicode-pixel-snap="xy"` also snaps the vertical edge (SRC-048); scrolled columns keep x only,
     // their top moves with every scroll step and a stale vertical nudge would shake them.
     const x = zaicodeSnapOffset(rect.left, applied.x, ratio);
     const y = element.dataset.zaicodePixelSnap === "xy" ? zaicodeSnapOffset(rect.top, applied.y, ratio) : 0;
     if (x === applied.x && y === applied.y) continue;
-    APPLIED.set(element, { x, y });
-    element.style.translate = x === 0 && y === 0 ? "" : `${x}px ${y}px`;
+    APPLIED.set(element, { ...applied, x, y });
+    // translate 会把位图文字移到合成层，产生截图里的随机模糊；相对布局偏移保留文字栅格。
+    if (getComputedStyle(element).position === "static") element.style.position = "relative";
+    element.style.left = x === 0 ? applied.left : `calc(${applied.left || "0px"} + ${x}px)`;
+    element.style.top = y === 0 ? applied.top : `calc(${applied.top || "0px"} + ${y}px)`;
   }
 }
 
@@ -77,10 +93,14 @@ export function installZaicodePixelSnap(): () => void {
   const observeShell = () => {
     const shell = document.querySelector('[data-workspace-shell="true"]');
     if (shell && observer) observer.observe(shell);
+    for (const element of document.querySelectorAll(ZAICODE_PIXEL_SNAP_SELECTOR)) observer?.observe(element);
   };
   observeShell();
   window.addEventListener("resize", schedule);
   document.addEventListener("transitionend", schedule, true);
+  const mutations = new MutationObserver(() => { observeShell(); schedule(); });
+  mutations.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["class", "style", "data-zaicode-pixel-snap"] });
+  void document.fonts?.ready.then(schedule);
   const heartbeat = window.setInterval(() => {
     observeShell();
     schedule();
@@ -92,6 +112,9 @@ export function installZaicodePixelSnap(): () => void {
     document.removeEventListener("transitionend", schedule, true);
     window.clearInterval(heartbeat);
     observer?.disconnect();
+    mutations.disconnect();
     if (frame !== null) window.cancelAnimationFrame(frame);
+    for (const [element, entry] of APPLIED) restore(element, entry);
+    APPLIED.clear();
   };
 }

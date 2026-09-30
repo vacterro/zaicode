@@ -239,7 +239,7 @@ export function ZaicodeSlotGroupHeader({
     >
       {slot && (folded || count > 0) ? <Chevron className="size-3" /> : null}
       {group}
-      {prefs.showSlotCounts && count > 0 ? (
+      {(prefs.showSlotCounts || folded) && count > 0 ? (
         <span className="tabular-nums text-foreground-subtlest">·{count}</span>
       ) : null}
     </span>
@@ -254,6 +254,8 @@ export function ZaicodeSlotGroupHeader({
         slot ? "cursor-pointer hover:text-foreground" : "cursor-default",
       )}
       data-zaicode-slot-group={group}
+      data-zaicode-slot-count={count}
+      aria-expanded={slot ? !folded : undefined}
       title={
         slot
           ? `${group}: ${count} project(s). Click to ${folded ? "unfold" : "fold"}. Drag a project onto one in another slot, right-click a project, or Ctrl+click it to move it.`

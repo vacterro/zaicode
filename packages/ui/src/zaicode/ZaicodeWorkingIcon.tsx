@@ -19,6 +19,8 @@ import {
   type ZaicodeWorkingImage,
 } from "./zaicodeHighlights.js";
 import { zaicodeWorkingLayerStyle } from "./zaicodeWorkingIconStyle.js";
+import { resolveZaicodeModelWorking, useZaicodeModelAppearancePrefs } from "./zaicodeModelAppearance.js";
+import { useZaicodeSessionBriefs } from "./zaicodeContinue.js";
 
 const GLYPHS: Partial<Record<ZaicodeWorkingImage, LucideIcon>> = {
   loader: LoaderCircle,
@@ -45,14 +47,20 @@ export function ZaicodeWorkingIcon({
   className,
   title,
   prefs: override,
+  model,
+  sessionId,
 }: {
   className?: string;
   title?: string;
   /** Preview with unsaved settings (Settings page). */
   prefs?: ZaicodeWorkingIconPrefs;
+  model?: string | null | undefined;
+  sessionId?: string | null | undefined;
 }) {
   const stored = useZaicodeLights((state) => state.working);
-  const prefs = override ?? stored;
+  const appearance = useZaicodeModelAppearancePrefs();
+  const sessionModel = useZaicodeSessionBriefs((state) => sessionId ? state.sessions.find((session) => session.sessionId === sessionId)?.model : undefined);
+  const prefs = override ?? resolveZaicodeModelWorking(appearance, model ?? sessionModel, stored);
   const style = zaicodeWorkingIconStyle(prefs);
   const common = {
     "aria-hidden": title ? undefined : true,

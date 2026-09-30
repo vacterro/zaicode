@@ -62,7 +62,8 @@ export {
   type WorkspaceHeaderActionSectionProps,
 } from "@/WorkspaceHeaderSections/WorkspaceHeaderActionSection.js";
 import { playZaicodeSound } from "@/zaicode/zaicodeSoundBus.js";
-import { useZaicodeHighlight, withZaicodeHighlight } from "@/zaicode/zaicodeHighlights.js";
+import { withZaicodeHighlight } from "@/zaicode/zaicodeHighlights.js";
+import { useZaicodeModelHighlight as useZaicodeHighlight } from "@/zaicode/useZaicodeModelHighlight.js";
 import { useZaicodeRunningSessions } from "@/zaicode/zaicodeSidebarPrefs.js";
 import { ZaicodeHeaderProjectTitle, useZaicodeHeaderTitle } from "@/zaicode/ZaicodeHeaderProjectTitle.js";
 
@@ -113,7 +114,7 @@ export function WorkspaceHeaderTitleSection({
   const zaicodeHeaderWorking = useZaicodeRunningSessions((state) =>
     Boolean(activeTaskId) && state.sessions.some((session) => session.sessionId === activeTaskId),
   );
-  const zaicodeHeaderLight = useZaicodeHighlight("headerWorking", zaicodeHeaderWorking);
+  const zaicodeHeaderLight = useZaicodeHighlight("headerWorking", zaicodeHeaderWorking, undefined, resolvedActiveTaskMeta?.model);
   // SRC-044: the project name in big letters; the session title follows the same settings.
   const zaicodeHeaderShowSession = useZaicodeHeaderTitle((state) => state.showSession);
   const zaicodeHeaderSessionSize = useZaicodeHeaderTitle((state) => state.sessionSize);

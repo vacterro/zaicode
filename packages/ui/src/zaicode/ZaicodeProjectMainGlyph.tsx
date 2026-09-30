@@ -15,7 +15,7 @@ export function ZaicodeProjectMainGlyph({ task, live = false }: { task: ZCodeTas
   // `live`: the open chat says MAIN runs right now (SRC-048), even if the list has not caught up.
   const state = live ? "running" : zaicodeSessionStateOf(task);
   const title = `MAIN: ${task.title || task.taskId} · ${ZAICODE_SESSION_STATE_LABEL[state]}`;
-  if (state === "running") return <ZaicodeWorkingIcon className="size-4" title={title} />;
+  if (state === "running") return <ZaicodeWorkingIcon model={task.model} className="size-4" title={title} />;
   if (state === "interrupted") return <ZaicodeInterruptedGlyph />;
   if (state === "waiting") {
     return (

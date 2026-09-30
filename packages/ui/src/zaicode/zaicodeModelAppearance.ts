@@ -7,6 +7,9 @@ import {
   ZAICODE_HIGHLIGHT_SHAPES,
   ZAICODE_HIGHLIGHT_TARGETS,
   ZAICODE_HIGHLIGHT_DEFAULTS,
+  normalizeZaicodeWorkingIcon,
+  normalizeZaicodeHighlightRule,
+  type ZaicodeWorkingIconPrefs,
   type ZaicodeHighlightColor,
   type ZaicodeHighlightEffect,
   type ZaicodeHighlightRule,
@@ -74,6 +77,8 @@ export interface ZaicodeModelAppearanceOverride {
   highlight?: Partial<Record<ZaicodeHighlightTarget, Partial<ZaicodeHighlightRule>>>;
   /** A bundled icon id, an image URL, or a data: image -- the safe asset rules. */
   workerIcon?: string;
+  /** Complete Working icon configuration; absent means follow the global editor. */
+  working?: ZaicodeWorkingIconPrefs;
 }
 
 export interface ZaicodeModelAppearancePrefs {
@@ -144,6 +149,8 @@ function cleanRule(raw: unknown): Partial<ZaicodeHighlightRule> | null {
     out.seconds = Math.min(10, Math.max(0.1, value.seconds));
   }
   if (typeof value.keepMoving === "boolean") out.keepMoving = value.keepMoving;
+  if (value.tuning) out.tuning = normalizeZaicodeHighlightRule(value, ZAICODE_HIGHLIGHT_DEFAULTS.sessionWorking).tuning;
+  if (value.shapeTuning) out.shapeTuning = normalizeZaicodeHighlightRule(value, ZAICODE_HIGHLIGHT_DEFAULTS.sessionWorking).shapeTuning;
   return Object.keys(out).length > 0 ? out : null;
 }
 
@@ -185,6 +192,7 @@ export function normalizeZaicodeModelAppearancePrefs(raw: unknown): ZaicodeModel
       mode: entry.mode === "separate" ? "separate" : "default",
       ...(entry.highlight ? { highlight: cleanHighlight(entry.highlight) } : {}),
       ...(icon ? { workerIcon: icon } : {}),
+      ...(entry.working && typeof entry.working === "object" ? { working: normalizeZaicodeWorkingIcon(entry.working) } : {}),
     };
   }
   return {
@@ -218,15 +226,44 @@ export function resolveZaicodeModelAppearance(
   const override = key ? prefs.models[key] : undefined;
 
   if (override?.mode === "separate") {
+    const highlight = { ...prefs.global.highlight };
+    for (const { id } of ZAICODE_HIGHLIGHT_TARGETS) {
+      if (override.highlight?.[id]) highlight[id] = { ...highlight[id], ...override.highlight[id] };
+    }
     return {
       mode: "separate",
       // A Separate model starts from the global highlight and overrides only
       // what it names, so adding a new highlight target later still works.
-      highlight: { ...prefs.global.highlight, ...(override.highlight ?? {}) },
+      // 按目标内部字段合并：只改颜色时不能丢掉全局的动画和强度。
+      highlight,
       workerIcon: override.workerIcon ?? "",
     };
   }
   return { mode: "default", highlight: prefs.global.highlight, workerIcon: prefs.global.workerIcon };
+}
+
+export function resolveZaicodeModelHighlight(
+  prefs: ZaicodeModelAppearancePrefs,
+  model: string | null | undefined,
+  target: ZaicodeHighlightTarget,
+  global: ZaicodeHighlightRule,
+): ZaicodeHighlightRule {
+  return normalizeZaicodeHighlightRule({ ...global, ...resolveZaicodeModelAppearance(prefs, model).highlight[target] }, global);
+}
+
+/** Runtime and preview share the full editor vocabulary, including legacy image choices. */
+export function resolveZaicodeModelWorking(
+  prefs: ZaicodeModelAppearancePrefs,
+  model: string | null | undefined,
+  global: ZaicodeWorkingIconPrefs,
+  bundledUrl: (id: string) => string | null = () => null,
+): ZaicodeWorkingIconPrefs {
+  const key = zaicodeModelIdentityKey(parseZaicodeModelIdentity(model));
+  const override = prefs.models[key];
+  if (override?.mode === "separate" && override.working) return override.working;
+  // 旧图片覆盖保留；没有覆盖时必须使用当前 Working icon，不能退回出厂图片。
+  const asset = resolveZaicodeWorkerIconUrl(prefs, model, "", bundledUrl);
+  return asset ? { ...global, images: ["custom"], customImage: asset } : global;
 }
 
 /** The shipped working icon, used when neither the model nor the global set one. */

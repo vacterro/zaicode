@@ -92,9 +92,8 @@ test("the sidebar row: orange segment for a human, red for BLOCKED; the open pro
   assert.match(row, /data-zaicode-board-human/);
   assert.match(row, /background: ZAICODE_WAITING_COLOR/);
   assert.match(row, /data-zaicode-board-blocked/);
-  const selected = /isZaicodeProductMode\(\) &&\s*isActiveWorkspace &&\s*"[^"]*outline[^"]*"/.exec(row);
-  assert.ok(selected, "the open project's row carries an outline class");
-  assert.match(row, /data-zaicode-project-selected=/);
+  assert.match(row, /data-zaicode-project-selected=\{isZaicodeProductMode\(\) && isActiveWorkspace \? "" : undefined\}/);
+  assert.match(source("zaicode/zaicodeBevels.ts"), /\[data-zaicode-project-selected\][\s\S]*?outline: 2px solid/, "the whole open project row carries a persistent two-pixel outline");
   const meter = /data-zaicode-main-todo-meter=\{zaicodeMainTask\.taskId\}/.exec(row);
   assert.ok(meter, "MAIN's own TODO meter is drawn on the project row");
   const before = row.slice(Math.max(0, meter!.index - 400), meter!.index);

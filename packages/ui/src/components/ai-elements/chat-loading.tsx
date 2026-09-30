@@ -11,9 +11,10 @@ export interface ChatLoadingProps extends ComponentPropsWithoutRef<"div"> {
   loading: boolean;
   size?: "default" | "sm";
   className?: string;
+  sessionId?: string | null | undefined;
 }
 
-export function ChatLoading({ loading, size = "default", className, ...props }: ChatLoadingProps) {
+export function ChatLoading({ loading, size = "default", className, sessionId, ...props }: ChatLoadingProps) {
   const { intl } = useZCodeIntl();
 
   if (!loading) {
@@ -33,7 +34,7 @@ export function ChatLoading({ loading, size = "default", className, ...props }: 
       <div className={cn("flex items-center justify-center", size === "sm" ? "size-4" : "size-6")}>
         {isZaicodeProductMode() ? (
           // ZAICODE：转圈 spinner 换成操作员自带的 SAIPEN 头像，并且慢慢转动表示“在干活”（操作员要求转而不是呼吸）。
-          <ZaicodeWorkingIcon className={sizeClasses} />
+          <ZaicodeWorkingIcon sessionId={sessionId} className={sizeClasses} />
         ) : (
           <LoaderIcon
             aria-hidden="true"

@@ -17,7 +17,8 @@ import { ZaicodeProjectMainGlyph } from "@/zaicode/ZaicodeProjectMainGlyph.js";
 import { ZaicodeTodoMiniGauge } from "@/v4/ZaicodeTodoGauge.js";
 import type { ZaicodeTodoItem } from "@/zaicode/zaicodeTodoProgress.js";
 import { useZaicodeLiveRunIds } from "@/zaicode/zaicodeLiveRuns.js";
-import { useZaicodeHighlight, withZaicodeHighlight } from "@/zaicode/zaicodeHighlights.js";
+import { withZaicodeHighlight } from "@/zaicode/zaicodeHighlights.js";
+import { useZaicodeModelHighlight as useZaicodeHighlight } from "@/zaicode/useZaicodeModelHighlight.js";
 import { useZaicodeMainSessionId, useZaicodeMainSessions } from "@/zaicode/zaicodeMainSession.js";
 import { decideZaicodeMainToggle, decideZaicodeProjectClick } from "@/zaicode/zaicodeProjectClick.js";
 import { zaicodeProjectDoneMark } from "@/zaicode/zaicodeProjectDone.js";
@@ -1485,8 +1486,10 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
     ],
   );
   // ZAICODE (SRC-038): the operator's highlight for a project with work running / waiting.
-  const zaicodeProjectWaitingLight = useZaicodeHighlight("projectWaiting", zaicodeWaitingCount > 0);
-  const zaicodeProjectWorkingLight = useZaicodeHighlight("projectWorking", zaicodeRunningCount > 0);
+  const zaicodeWorkingModel = taskItems.find((task) => zaicodeLiveRunIds.includes(task.taskId) || zaicodeSessionWorking(task, zaicodeStallNow))?.model;
+  const zaicodeWaitingModel = taskItems.find((task) => Boolean(task.pendingInteraction) || getTaskListAttention(task) !== null)?.model;
+  const zaicodeProjectWaitingLight = useZaicodeHighlight("projectWaiting", zaicodeWaitingCount > 0, undefined, zaicodeWaitingModel);
+  const zaicodeProjectWorkingLight = useZaicodeHighlight("projectWorking", zaicodeRunningCount > 0, undefined, zaicodeWorkingModel);
   const zaicodeProjectLight = zaicodeProjectWaitingLight ?? zaicodeProjectWorkingLight;
   const readinessTint = zaicodeRuntime && zaicodeSaipen ? buildReadinessTint(zaicodeRuntime) : null;
   // Idle face of the ZAICODE row zone: working / waiting / switched off. Hover swaps it for
@@ -1524,7 +1527,7 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
           title={`${zaicodeRunningCount} session(s) working${zaicodeWorkingSince > 0 ? ` for ${formatZaicodeDuration(Date.now() - zaicodeWorkingSince)}` : ""}`}
           data-zaicode-project-working={zaicodeRunningCount}
         >
-          {!zaicodeMainGlyphWorking ? <ZaicodeWorkingIcon className="size-3.5" /> : null}
+          {!zaicodeMainGlyphWorking ? <ZaicodeWorkingIcon model={zaicodeWorkingModel} className="size-3.5" /> : null}
           {zaicodeRunningCount > 1 ? zaicodeRunningCount : null}
           {zaicodeWorkingSince > 0 ? formatZaicodeDuration(Date.now() - zaicodeWorkingSince) : null}
         </span>
@@ -1602,6 +1605,13 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
       >
         {workspaceSidebarLabel}
       </div>
+      {isZaicodeProductMode() && projectFolderId !== "unfiled" ? (
+        <span className="max-w-12 shrink-0 truncate border border-border px-0.5 text-ui-xs text-foreground-subtle"
+          data-zaicode-project-folder={projectFolderId}
+          title={`Folder: ${zaicodeFolders.folders.find((folder) => folder.id === projectFolderId)?.name ?? ""}`}>
+          {zaicodeFolders.folders.find((folder) => folder.id === projectFolderId)?.name}
+        </span>
+      ) : null}
       {zaicodeDoneMark && !zaicodeProjectOff ? (
         <ZaicodeProjectDoneBadge mark={zaicodeDoneMark} onOfferA3={openZaicodeAuditsHere} />
       ) : null}
@@ -1617,7 +1627,7 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
           title={`${zaicodeRunningCount} session(s) working${zaicodeWorkingSince > 0 ? ` for ${formatZaicodeDuration(Date.now() - zaicodeWorkingSince)}` : ""}`}
           data-zaicode-project-working={zaicodeRunningCount}
         >
-          {!zaicodeMainGlyphWorking ? <ZaicodeWorkingIcon className="size-3.5" /> : null}
+          {!zaicodeMainGlyphWorking ? <ZaicodeWorkingIcon model={zaicodeWorkingModel} className="size-3.5" /> : null}
           {zaicodeRunningCount > 1 ? zaicodeRunningCount : null}
           {zaicodeWorkingSince > 0 ? formatZaicodeDuration(Date.now() - zaicodeWorkingSince) : null}
         </span>
@@ -1690,7 +1700,7 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
       style={itemStyle}
       className={cn(
         "space-y-2",
-        zaicodeDimIdle && zaicodeRunningCount === 0 && zaicodeWaitingCount === 0 && "opacity-55",
+        zaicodeDimIdle && !isActiveWorkspace && zaicodeRunningCount === 0 && zaicodeWaitingCount === 0 && "opacity-55",
       )}
       data-zaicode-project-off={zaicodeProjectOff ? "" : undefined}
     >
@@ -1707,6 +1717,7 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
           borderRadius={8}
         >
           <div
+            data-zaicode-project-selected={isZaicodeProductMode() && isActiveWorkspace ? "" : undefined}
             className={cn(
               "group flex items-center gap-2 rounded-lg transition-[background-color,box-shadow]",
               isReconnectPending
@@ -1755,13 +1766,8 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
                     "cursor-grab active:cursor-grabbing",
                   // ZAICODE (SRC-081): the open project is outlined. Inside the row (negative offset):
                   // the row clips its overflow, and the pixel skin zeroes box-shadow but not outline.
-                  isZaicodeProductMode() &&
-                    isActiveWorkspace &&
-                    "bg-selected/40 outline outline-1 -outline-offset-1 outline-foreground",
+                  isZaicodeProductMode() && isActiveWorkspace && "bg-selected",
                 )}
-                data-zaicode-project-selected={
-                  isZaicodeProductMode() && isActiveWorkspace ? "" : undefined
-                }
                 onMouseEnter={zaicodeHoverZone ? undefined : () => setWorkspaceRowHovered(true)}
                 // 行在轮询刷新时可能重挂载，指针已在行内时不会再触发 mouseenter；移动即补上 hover。
                 onMouseMove={zaicodeHoverZone ? undefined : () => setWorkspaceRowHovered(true)}

@@ -101,7 +101,12 @@ export function ZaicodeSaipenControls({
     }
     onCommand(command);
   };
-  const start = () => {
+  const start = (event?: { shiftKey: boolean }) => {
+    // Shift 明确指定当前会话；不能走新 MAIN 或订阅 worker 的分支。
+    if (event?.shiftKey) {
+      if (!disabled) sendWork(ZAICODE_SAIPEN_START_COMMAND);
+      return;
+    }
     // A subscription engine picked on the sidebar: START runs its CLI as a worker in this project.
     if (engineAccount) {
       routeZaicodeSubscriptionPrompt(engineAccount, workspacePath);
@@ -282,8 +287,8 @@ export function ZaicodeSaipenControls({
           slot={composer.showSlot ? (isMain ? "main" : isSideSlot ? "side" : "none") : null}
           start={{
             label: engineAccount
-              ? `START with ${engineAccount.short} (worker)`
-              : `START — ${ZAICODE_SAIPEN_START_COMMAND} in a fresh MAIN session`,
+              ? `START with ${engineAccount.short} (worker) · Shift+click: /goal cc all in current session`
+              : `START — ${ZAICODE_SAIPEN_START_COMMAND} in a fresh MAIN session · Shift+click: current session`,
             disabled: sessionId ? false : disabled,
             onClick: start,
           }}
@@ -339,13 +344,13 @@ export function ZaicodeSaipenControls({
             data-zaicode-sound="saipen.start"
             aria-label={
               engineAccount
-                ? `Start ${engineAccount.label} as a worker in this project`
-                : "Start SAIPEN goal in a fresh MAIN session: continue and finish all tickets"
+                ? `Start ${engineAccount.label} as a worker · Shift+click: goal in current session`
+                : "Start SAIPEN goal in a fresh MAIN session · Shift+click: goal in current session"
             }
             title={
               engineAccount
-                ? `START with ${engineAccount.short} ${engineAccount.label}: its CLI starts as a worker in this project (WORKERS panel). Pick the engine on the sidebar.`
-                : `${ZAICODE_SAIPEN_START_COMMAND} — fresh session that becomes MAIN; continue and close every ticket possible without a human`
+                ? `START with ${engineAccount.short} ${engineAccount.label}: its CLI starts as a worker. Shift+click: ${ZAICODE_SAIPEN_START_COMMAND} in current session.`
+                : `${ZAICODE_SAIPEN_START_COMMAND} — fresh MAIN session. Shift+click: current session.`
             }
             className={buttonClass}
           >

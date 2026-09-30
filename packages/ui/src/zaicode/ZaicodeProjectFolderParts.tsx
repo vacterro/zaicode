@@ -46,6 +46,7 @@ export function ZaicodeNewFolderButton({ className }: { className?: string }) {
       </PopoverTrigger>
       {/* The name is asked for right here (T-128): window.prompt does not exist in the desktop app, so the old button did nothing. */}
       <PopoverContent align="start" className="w-64 rounded-none p-2" data-zaicode-new-folder-popover>
+        <p className="mb-1 text-ui-xs text-foreground-subtle">Appears above the slots. Project menu → Move to folder adds projects.</p>
         <ZaicodeNameField
           initial="New folder"
           label="Folder name"
@@ -168,6 +169,7 @@ export function ZaicodeProjectFolderHeader({
       <span className="truncate text-ui-sm text-foreground-subtle" title={label}>
         {label}
       </span>
+      {count === 0 ? <span className="text-ui-xs text-foreground-subtlest">Empty</span> : null}
       <span className="text-ui-sm tabular-nums text-foreground-subtlest">{count}</span>
       {!unfiled ? (
         <button

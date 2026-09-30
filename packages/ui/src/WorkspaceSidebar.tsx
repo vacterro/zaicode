@@ -809,19 +809,15 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
   // SRC-083: the count the removed "No folder" row used to carry.
   const zaicodeUnfiledCount = zaicodeFolderPlan?.folders.find((view) => view.unfiled)?.count ?? 0;
   /**
-   * One row per project with its folder and pin already resolved, plus the two
-   * rendering decisions those imply: whether this row is the FIRST of its
-   * folder anywhere in the list (the header is drawn once, not once per slot
-   * section) and whether a collapsed folder is hiding it. Doing this here
-   * rather than inside the JSX keeps the markup about markup.
+   * Resolve each project's pin and folder visibility independently of slots.
+   * Folder controls live above the slots, so even empty folders remain reachable.
    */
   const zaicodeRowPlan = useMemo(() => {
     const rows = new Map<
       string,
-      { folderId: string; pinned: boolean; header: boolean; hidden: boolean }
+      { folderId: string; pinned: boolean; hidden: boolean }
     >();
     if (!zaicodeFolderPlan) return rows;
-    const headerSeen = new Set<string>();
     for (const section of zaicodeProjectSections) {
       for (const tab of section.folded ? [] : section.tabs) {
         const projectId = resolveProjectId(
@@ -830,12 +826,9 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
         );
         const view = zaicodeFolderPlan.folders.find((candidate) => candidate.projects.includes(projectId));
         const folderId = view?.unfiled ? "unfiled" : (view?.folder?.id ?? "unfiled");
-        const header = !headerSeen.has(folderId);
-        headerSeen.add(folderId);
         rows.set(tab.id, {
           folderId,
           pinned: zaicodeFolderPlan.rowByProject.get(projectId)?.pinned === true,
-          header,
           // A collapsed folder keeps its header and its count; only its rows go.
           hidden: view ? isFolderHidingRows(view) : false,
         });
@@ -851,6 +844,7 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
     () =>
       zaicodeProjectSections.map((section) => ({
         ...section,
+        projectCount: section.tabs.length,
         tabs: section.folded
           ? []
           : orderSectionTabs(section.tabs, (tab) => zaicodeRowPlan.get(tab.id)?.pinned === true),
@@ -1716,6 +1710,16 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
             <ZaicodeNewFolderButton />
           </div>
         ) : null}
+        {zaicodeMode && zaicodeFolderPlan ? (
+          <div className="flex flex-col gap-px pb-1" data-zaicode-folder-strip>
+            {zaicodeFolderPlan.folders.filter((view) => !view.unfiled).map((view) => (
+              <ZaicodeProjectFolderHeader key={view.folder!.id} folder={view.folder} count={view.count} collapsed={view.collapsed} />
+            ))}
+            {zaicodeFolders.folders.length > 0 ? (
+              <span className="px-1 text-ui-xs text-foreground-subtlest">Project menu → Move to folder</span>
+            ) : null}
+          </div>
+        ) : null}
         <SortableContext
           items={zaicodeOrderedProjectTabs.map((tab) => tab.id)}
           strategy={workspaceVerticalListSortingStrategy}
@@ -1723,7 +1727,7 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
           {zaicodeRenderSections.map((section) => (
             <Fragment key={section.group ?? "all"}>
               {section.group ? (
-                <ZaicodeSlotGroupHeader group={section.group} count={section.tabs.length} />
+                <ZaicodeSlotGroupHeader group={section.group} count={section.projectCount} />
               ) : null}
               <ul
                 data-testid={TID_WORKSPACE_LIST}
@@ -1740,24 +1744,12 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
                 workspaceTaskLists.loadingByWorkspaceKey[workspaceKey] ??
                 false;
 
-              const folderView = zaicodeFolderPlan?.folders.find(
-                (candidate) => (candidate.unfiled ? "unfiled" : candidate.folder?.id) === organizationRow?.folderId,
-              );
               return (
                 <Fragment key={tab.id}>
-                {organizationRow?.header && folderView && !folderView.unfiled ? (
-                  <li data-zaicode-folder-row={folderView.unfiled ? "unfiled" : folderView.folder!.id} className="list-none">
-                    <ZaicodeProjectFolderHeader
-                      folder={folderView.folder}
-                      count={folderView.count}
-                      collapsed={folderView.collapsed}
-                    />
-                  </li>
-                ) : null}
                 {organizationRow?.hidden ? null : (
                 <SortableWorkspaceSidebarItem
                   tab={tab}
-                  isActiveWorkspace={tab.workspacePath === workspacePath}
+                  isActiveWorkspace={buildTaskWorkspaceKey(tab.workspacePath, tab.workspaceIdentity) === buildTaskWorkspaceKey(workspacePath, workspaceIdentity)}
                   isExpanded={resolveWorkspaceDragExpanded({
                     activeDragId: activeWorkspaceDragId,
                     expanded: expandedWorkspacePaths.has(

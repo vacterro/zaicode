@@ -46,9 +46,9 @@ import { isWorkspaceReadOnly } from "@/store/tabStore.js";
 import { TaskTitleOverflowText } from "@/components/TaskTitleOverflowText.js";
 
 /** ZAICODE (SRC-044): the operator's Working icon here too, not the vendor spinner. */
-function GroupedRowWorkingIcon() {
+function GroupedRowWorkingIcon({ model }: { model?: string | null | undefined }) {
   return isZaicodeProductMode() ? (
-    <ZaicodeWorkingIcon className="size-3.5" />
+    <ZaicodeWorkingIcon model={model} className="size-3.5" />
   ) : (
     <LoaderIcon className="size-3.5 animate-spin text-foreground-subtle" />
   );
@@ -227,7 +227,7 @@ function GroupedTaskRowComponent({
             )}
           >
             {leadingIndicator === "loading" ? (
-              <GroupedRowWorkingIcon />
+              <GroupedRowWorkingIcon model={task.model} />
             ) : zaicodeInterrupted ? (
               <ZaicodeInterruptedGlyph />
             ) : statusDotClassName ? (
@@ -443,7 +443,7 @@ function GroupedTaskRowComponent({
           {!shouldSuppressTaskMetadata ? (
             <span className="flex shrink-0 items-center gap-1">
               {leadingIndicator === "loading" ? (
-                <GroupedRowWorkingIcon />
+                <GroupedRowWorkingIcon model={task.model} />
               ) : zaicodeInterrupted ? (
                 <ZaicodeInterruptedGlyph />
               ) : statusDotClassName ? (

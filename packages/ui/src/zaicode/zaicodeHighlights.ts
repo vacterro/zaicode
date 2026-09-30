@@ -350,7 +350,7 @@ export function normalizeZaicodeWorkingIcon(raw: unknown): ZaicodeWorkingIconPre
   const d = ZAICODE_WORKING_ICON_DEFAULTS;
   const r = (raw && typeof raw === "object" ? raw : {}) as Partial<Record<keyof ZaicodeWorkingIconPrefs | "image" | "motion", unknown>>;
   const customImage =
-    typeof r.customImage === "string" && /^(data:image\/|data:video\/)/.test(r.customImage) && r.customImage.length <= ZAICODE_WORKING_CUSTOM_IMAGE_MAX * 1.4
+    typeof r.customImage === "string" && /^(data:image\/|data:video\/|https?:\/\/|\.{0,2}\/)/i.test(r.customImage) && r.customImage.length <= ZAICODE_WORKING_CUSTOM_IMAGE_MAX * 1.4
       ? r.customImage
       : null;
   // An own picture that is gone drops out of the stack; an empty stack is the mark again.

@@ -7,7 +7,8 @@ import { ZaicodeInterruptedGlyph } from "@/zaicode/ZaicodeInterruptedGlyph.js";
 import { zaicodeWasCutOff } from "@/zaicode/zaicodeSessionState.js";
 import { useZaicodeLiveRun } from "@/zaicode/zaicodeLiveRuns.js";
 import { useZaicodeSchedulerMarked } from "@/zaicode/zaicodeSchedulerMarks.js";
-import { useZaicodeHighlight, withZaicodeHighlight } from "@/zaicode/zaicodeHighlights.js";
+import { withZaicodeHighlight } from "@/zaicode/zaicodeHighlights.js";
+import { useZaicodeModelHighlight as useZaicodeHighlight } from "@/zaicode/useZaicodeModelHighlight.js";
 import { ZaicodeRoleGlyph } from "@/zaicode/ZaicodeRoleGlyph.js";
 import { useZaicodeDiamondColor, zaicodeDiamondLabel } from "@/zaicode/zaicodeDiamondColors.js";
 import { ZAICODE_ROLE_META, useZaicodeSessionRole } from "@/zaicode/zaicodeSessionRoles.js";
@@ -448,9 +449,9 @@ export const MemoTaskItem = memo(function TaskListItem({
   }, [task, taskActivity, zaicodeLiveRun]);
   // ZAICODE (SRC-038): the operator's highlight for a working / waiting / open session title.
   const zaicodeMode = isZaicodeProductMode();
-  const zaicodeWaitingLight = useZaicodeHighlight("sessionWaiting", zaicodeMode && Boolean(task.pendingInteraction));
-  const zaicodeWorkingLight = useZaicodeHighlight("sessionWorking", zaicodeMode && leadingIndicator === "loading");
-  const zaicodeOpenLight = useZaicodeHighlight("sessionOpen", zaicodeMode && isActive);
+  const zaicodeWaitingLight = useZaicodeHighlight("sessionWaiting", zaicodeMode && Boolean(task.pendingInteraction), undefined, task.model);
+  const zaicodeWorkingLight = useZaicodeHighlight("sessionWorking", zaicodeMode && leadingIndicator === "loading", undefined, task.model);
+  const zaicodeOpenLight = useZaicodeHighlight("sessionOpen", zaicodeMode && isActive, undefined, task.model);
   const zaicodeTitleLight = zaicodeWaitingLight ?? zaicodeWorkingLight ?? zaicodeOpenLight;
   // SRC-044: marked for the SCHEDULER (only-marked schedules continue exactly these).
   const zaicodeSchedulerMarked = useZaicodeSchedulerMarked(task.taskId);
@@ -775,7 +776,7 @@ export const MemoTaskItem = memo(function TaskListItem({
             />
           ) : leadingIndicator === "loading" ? (
             isZaicodeProductMode() ? (
-              <ZaicodeWorkingIcon />
+              <ZaicodeWorkingIcon model={task.model} />
             ) : (
               <LoaderIcon className="size-4 animate-spin text-foreground-subtle" />
             )

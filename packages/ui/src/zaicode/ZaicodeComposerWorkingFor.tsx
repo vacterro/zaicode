@@ -39,7 +39,7 @@ export function ZaicodeComposerWorkingFor({
       data-zaicode-composer-working-for={Math.floor(duration / 60_000)}
       title="How long this session has been working"
     >
-      <ZaicodeWorkingIcon className="size-3" />
+      <ZaicodeWorkingIcon sessionId={sessionId} className="size-3" />
       {formatZaicodeDuration(duration)}
     </span>
   );

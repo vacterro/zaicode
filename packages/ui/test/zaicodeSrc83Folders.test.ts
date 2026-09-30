@@ -21,7 +21,7 @@ test("New folder is an icon button that still reads as a button", () => {
 
 test("the sidebar drops the No folder row and shows its count beside the button, on one compact line", () => {
   const sidebar = source("WorkspaceSidebar.tsx");
-  assert.match(sidebar, /organizationRow\?\.header && folderView && !folderView\.unfiled/, "the unfiled header row is not drawn");
+  assert.match(sidebar, /zaicodeFolderPlan\.folders\.filter\(\(view\) => !view\.unfiled\)/, "the strip lists named folders, including empty ones, without drawing the unfiled header");
   assert.match(sidebar, /data-zaicode-unfiled-count=\{zaicodeUnfiledCount\}/);
   const header = /data-zaicode-unfiled-count[\s\S]{0,400}<ZaicodeNewFolderButton \/>/.exec(sidebar);
   assert.ok(header, "the count sits right before the New folder button");

@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from "react";
+import type { CSSProperties, ReactNode, MouseEventHandler } from "react";
 import { ChevronsDownUp, ChevronsUpDown, Eraser, Play, StepForward, TriangleAlert } from "lucide-react";
 import { cn } from "@/components/lib/utils.js";
 import { ZaicodeComposerPartsPanel } from "@/zaicode/ZaicodeComposerPartsPanel.js";
@@ -55,7 +55,7 @@ export interface ZaicodeCompactMode {
 export interface ZaicodeSaipenCompactRowProps {
   /** null hides the slot square. */
   slot: "main" | "side" | "none" | null;
-  start: { label: string; disabled: boolean; onClick: () => void };
+  start: { label: string; disabled: boolean; onClick: MouseEventHandler<HTMLButtonElement> };
   step: { disabled: boolean; onClick: () => void };
   clear: { label: string; disabled: boolean; onClick: () => void };
   /** null hides the mode squares. */
@@ -149,7 +149,7 @@ function CompactButton({
   className: string;
   label: string;
   disabled?: boolean;
-  onClick: () => void;
+  onClick: MouseEventHandler<HTMLButtonElement>;
   sound: string;
   children: ReactNode;
 }) {

@@ -84,6 +84,11 @@ const ROWS_OPEN = [
 ].map((selector) => `html.zaicode-bevels.zaicode-bevel-rows ${selector}`);
 
 export const ZAICODE_BEVEL_CSS = `
+/* 项目选择必须独立于会话标题的亮色和 raised bevel，整行保持可见的内框。 */
+html.zaicode-fonts [data-zaicode-project-selected] {
+  outline: 2px solid var(--zaicode-highlight, var(--color-foreground)) !important;
+  outline-offset: -2px !important;
+}
 ${RAISED.join(",\n")},
 ${FLOATING.join(",\n")},
 ${ROWS.join(",\n")} {
@@ -92,6 +97,9 @@ ${ROWS.join(",\n")} {
 ${SUNKEN.join(",\n")},
 ${PRESSED.join(",\n")},
 ${ROWS_OPEN.join(",\n")} {
+  box-shadow: ${ZAICODE_BEVEL_SUNKEN} !important;
+}
+html.zaicode-bevels.zaicode-bevel-rows [data-testid^="workspace-item-"][data-zaicode-project-selected] {
   box-shadow: ${ZAICODE_BEVEL_SUNKEN} !important;
 }
 /* The one sanctioned movement: a pressed button's label shifts 1 px (saipen UI). */
