@@ -394,11 +394,13 @@ function Get-ZaicodeComponentStatus($Layout, $Component, [string]$Git, [switch]$
     $record.detail = "no origin/$($Component.Branch) yet: check for updates once online"
     return [pscustomobject]$record
   }
-  $record.behind = [int](Invoke-ZaicodeGitText $Git $Component.Dir @('rev-list', '--count', "HEAD..origin/$($Component.Branch)"))
+  # --first-parent: the steps of the branch itself. A shallow clone cannot see what lies under a merge and would count a
+  # merged branch's whole history as new (81 for one merge on the first real run).
+  $record.behind = [int](Invoke-ZaicodeGitText $Git $Component.Dir @('rev-list', '--count', '--first-parent', "HEAD..origin/$($Component.Branch)"))
   $record.ahead = [int](Invoke-ZaicodeGitText $Git $Component.Dir @('rev-list', '--count', "origin/$($Component.Branch)..HEAD"))
   $record.dirty = [bool](Invoke-ZaicodeGitText $Git $Component.Dir @('status', '--porcelain', '--untracked-files=no'))
   if ($record.behind -gt 0) {
-    $log = Invoke-ZaicodeGitText $Git $Component.Dir @('log', '--format=%s', '-n', '8', "HEAD..origin/$($Component.Branch)")
+    $log = Invoke-ZaicodeGitText $Git $Component.Dir @('log', '--first-parent', '--format=%s', '-n', '8', "HEAD..origin/$($Component.Branch)")
     if ($log) { $record.subjects = @($log -split "`n" | Where-Object { $_ }) }
   }
   if ($current -and $current -ne $Component.Branch) {
