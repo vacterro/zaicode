@@ -74,6 +74,7 @@ export function describeZaicodeReading(
   snapshot: ZaicodeLimitSnapshot | undefined,
   now: number,
 ): string {
+  if (account.optional) return `${account.label}: optional, sign in any time`;
   if (account.status === "cli-missing") return `${account.label}: CLI missing`;
   if (account.status === "login-required") return `${account.label}: sign-in required`;
   if (reading.availability === "blocked") {

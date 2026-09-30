@@ -215,7 +215,8 @@ export function ZaicodeEngineBar() {
               const active = activeEngine === account.id;
               const running = workers.filter((worker) => worker.accountId === account.id && worker.exitCode === null).length;
               const probing = engines.probing.includes(account.id);
-              const offline = reading.tone === "offline";
+              // T-134: a login never set up here is dimmed by its tone, without the "!" of a broken one.
+              const offline = reading.tone === "offline" && !account.optional;
               const fill = zaicodeMeterFillPercent(reading.remaining, meterPrefs.fill);
               const fresh = readZaicodeFresh(`engine:${account.id}`);
               const prepared = preparedMeter(account.id);

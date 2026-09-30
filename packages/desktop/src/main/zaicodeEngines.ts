@@ -380,6 +380,11 @@ function discoverClaude(): ZaicodeEngineAccount[] {
       account.statusDetail = `Not signed in (${displayHome(dir)}).`;
       account.fixCommand = `${setHome}& '${cli.replace(/'/g, "''")}' auth login`;
     }
+    // T-134: the default slot of someone who never used Claude Code here is an offer, not a problem.
+    if (isDefault && !loggedIn && !isDirectory(dir)) {
+      account.optional = true;
+      account.statusDetail = `Optional: sign in any time to add a Claude subscription (${displayHome(dir)}).`;
+    }
     return account;
   });
 }
@@ -411,6 +416,10 @@ function discoverCodex(): ZaicodeEngineAccount[] {
       account.status = "login-required";
       account.statusDetail = `Not signed in (${displayHome(dir)}).`;
       account.fixCommand = `$env:CODEX_HOME = '${dir.replace(/'/g, "''")}'; codex login`;
+    }
+    if (isDefault && !isFile(join(dir, "auth.json")) && !isDirectory(dir)) {
+      account.optional = true;
+      account.statusDetail = `Optional: sign in any time to add a Codex subscription (${displayHome(dir)}).`;
     }
     return account;
   });

@@ -57,8 +57,14 @@ export function zaicodeHomeLimitRows(input: {
   for (const account of input.accounts) {
     if (input.hiddenAccounts.includes(account.id)) continue;
     const snapshot = input.limits[account.id];
-    const needsAttention =
-      account.status === "login-required" ? "sign-in required" : account.status === "cli-missing" ? "CLI missing" : null;
+    // T-134: a login never set up on this machine is an offer, not a problem (no "needs you", no red HEALTH).
+    const needsAttention = account.optional
+      ? null
+      : account.status === "login-required"
+        ? "sign-in required"
+        : account.status === "cli-missing"
+          ? "CLI missing"
+          : null;
     if (!input.showAll && !needsAttention && !isZaicodeEngineShown(account, snapshot, input.meterPrefs, "meter", input.now)) {
       filtered += 1;
       continue;

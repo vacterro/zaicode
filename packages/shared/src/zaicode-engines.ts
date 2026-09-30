@@ -58,6 +58,12 @@ export interface ZaicodeEngineAccount {
   status: ZaicodeEngineStatus;
   /** One human sentence: what is wrong and what fixes it. Empty when ready. */
   statusDetail: string;
+  /**
+   * T-134: never set up on this machine (the vendor's default login home does
+   * not exist). Listed so it can be signed in any time, but not "needs you":
+   * a first install runs on the free pool and nags about nothing.
+   */
+  optional?: boolean;
   /** Exact command that fixes the state, shown before it runs (login / install). */
   fixCommand: string | null;
 }

@@ -25,7 +25,30 @@ and scheduled from one window, and the subscription CLIs you already pay for
 agents.
 
 **0.0.1** is the first tagged snapshot: a personal, Windows-first build that is
-used daily. There is no installer; build it from source.
+used daily.
+
+## Install in one click
+
+1. Download **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)**.
+2. Double-click it and press **INSTALL**.
+
+That is all. Setup brings what the machine lacks (Git, Node.js, Python, as private
+copies: no administrator rights), fetches ZAICODE, SAIPEN and SAIMAIL from GitHub,
+builds the app on the machine and puts a ZAICODE shortcut on the desktop. The first
+run takes 15-30 minutes; the window shows every step.
+
+Free models work at once: ZAICODE starts its own router and fills the **SAIFREN**
+pool from keyless free tiers, so a task typed into New task gets an answer with no
+key, no account and no setting. Claude Code, Codex and Antigravity subscriptions are
+optional and can be signed in any time.
+
+**One whole, four parts.** The workspace (launcher, installer), the app, SAIPEN and
+SAIMAIL are four repositories. Each updates on its own: *Settings -> ZAICODE ->
+Updates* shows every part, updates it by hand or by itself (checked a few minutes
+after the start and every six hours). A new app build is prepared while ZAICODE runs
+and starts with the next start; your own edits in a clone are never overwritten.
+From a terminal: `install\Update-ZAICODE.ps1 [-Component saipen] [-Check]`.
+Autotroubleshoot: `install\Doctor.cmd`. Details: [docs/ZAICODE_INSTALL.md](https://github.com/vacterro/zaicode/blob/master/docs/ZAICODE_INSTALL.md).
 
 ## What it adds to ZCode
 
@@ -70,7 +93,7 @@ pnpm bundle:zaicode          # -> packages/desktop/dist/win-unpacked/ZAICODE.exe
 
 The packaged app always starts in ZAICODE mode. While an older ZAICODE runs,
 the bundler stages the new build in `packages/desktop/dist-next`; the root
-launcher (branch `workspace`, `tools/launcher`) swaps it in on the next start.
+launcher (branch `master`, `tools/launcher`) swaps it in on the next start.
 The crisp bitmap Verdana variant used by the UI is not part of this repository;
 without it the interface falls back to the system Verdana.
 
@@ -84,13 +107,14 @@ Checks: `pnpm typecheck`, `pnpm lint`, and the ZAICODE tests, for example
 
 | Branch      | Contents                                                                 |
 | ----------- | ------------------------------------------------------------------------ |
-| `main`      | this tree: upstream ZCode history plus the ZAICODE layer                 |
-| `workspace` | the root workspace: launcher, product docs (`UI.md`, `docs/`), SAIPEN memory, CHANGELOG |
+| `master`    | the root workspace: launcher, installer (`install/`), product docs (`UI.md`, `docs/`), SAIPEN memory, CHANGELOG |
+| `zaicode`   | the app: upstream ZCode history plus the ZAICODE layer (what the installer and the updates follow) |
+| `main`      | the same app history as `zaicode`, kept in step |
 
 ZAICODE-owned code lives mostly in `packages/ui/src/zaicode/`,
 `packages/shared/src/zaicode-*.ts`, `packages/services/src/zaicode/` and
 `packages/desktop/src/main/zaicode*.ts`; the list of upstream files it touches is
-kept in `docs/ZAICODE_UPSTREAM_DELTA.md` on the `workspace` branch.
+kept in `docs/ZAICODE_UPSTREAM_DELTA.md` on the `master` branch.
 
 ## Upstream and license
 
