@@ -1,0 +1,38 @@
+{
+  "appends": [
+    {
+      "class": "APPEND",
+      "delta": "implementation",
+      "derived_clauses": [],
+      "label": "model picker: buttons when few models",
+      "projected_at": null,
+      "receipt": "SRC-102",
+      "received_at": "2026-09-30T13:11:33Z",
+      "rewind": null,
+      "seq": 1,
+      "source_sha256": "f1757a6706f709c22bd1efcb05af34a95bbf638466b3ac63fd4ca1b614acc048",
+      "state": "RECEIVED",
+      "steps": [],
+      "supersedes": [],
+      "work": []
+    },
+    {
+      "class": "CLARIFICATION",
+      "delta": "context",
+      "derived_clauses": [],
+      "label": "operator approves the full-access edits",
+      "projected_at": null,
+      "receipt": "SRC-103",
+      "received_at": "2026-09-30T13:11:36Z",
+      "rewind": null,
+      "seq": 2,
+      "source_sha256": "acf897c46a283cde84b4e2c7bde8639fae363a1435005ccd2126035e068885b6",
+      "state": "RECEIVED",
+      "steps": [],
+      "supersedes": [],
+      "work": []
+    }
+  ],
+  "schema_version": 1,
+  "source": "SRC-100"
+}

@@ -1,7 +1,7 @@
 {
   "source_keys": 5845,
-  "source_digest": "72cc16a5bd030ed6f422eb780ef5be0eba86bb3ace3a1fc1fab5c87b6372025e",
-  "bound_at": "2026-09-29T13:38:26.290Z",
+  "source_digest": "f7d744b9ad34a78a0b4a77426b4d4b92f36c0d89f831fb5256b7c72b2b5f89eb",
+  "bound_at": "2026-09-30T13:18:09.320Z",
   "locales": {
     "ru-RU": {
       "digest": "72cc16a5bd030ed6f422eb780ef5be0eba86bb3ace3a1fc1fab5c87b6372025e",
@@ -45,7 +45,138 @@
         "seconds": 1281.2220000000002
       },
       "issued": 32
+    },
+    "uk-UA": {
+      "digest": "f7d744b9ad34a78a0b4a77426b4d4b92f36c0d89f831fb5256b7c72b2b5f89eb",
+      "accepted": 360,
+      "batches_accepted": [
+        "uk-UA.b0001",
+        "uk-UA.b0002",
+        "uk-UA.b0003"
+      ],
+      "throughput": {
+        "keys": 360,
+        "seconds": 383.884
+      },
+      "issued": 4
+    },
+    "et-EE": {
+      "digest": "f7d744b9ad34a78a0b4a77426b4d4b92f36c0d89f831fb5256b7c72b2b5f89eb",
+      "accepted": 1400,
+      "batches_accepted": [
+        "et-EE.b0002",
+        "et-EE.b0003",
+        "et-EE.b0005",
+        "et-EE.b0006",
+        "et-EE.b0007",
+        "et-EE.b0008",
+        "et-EE.b0010"
+      ],
+      "throughput": {
+        "keys": 1400,
+        "seconds": 252.63800000000003
+      },
+      "issued": 10
+    },
+    "ded": {
+      "digest": "f7d744b9ad34a78a0b4a77426b4d4b92f36c0d89f831fb5256b7c72b2b5f89eb",
+      "accepted": 0,
+      "batches_accepted": [],
+      "throughput": {
+        "keys": 0,
+        "seconds": 0
+      },
+      "issued": 1
+    },
+    "ja-JP": {
+      "digest": "f7d744b9ad34a78a0b4a77426b4d4b92f36c0d89f831fb5256b7c72b2b5f89eb",
+      "accepted": 300,
+      "batches_accepted": [
+        "ja-JP.b0001",
+        "ja-JP.b0002"
+      ],
+      "throughput": {
+        "keys": 300,
+        "seconds": 180.667
+      },
+      "issued": 3
+    },
+    "de-DE": {
+      "digest": "f7d744b9ad34a78a0b4a77426b4d4b92f36c0d89f831fb5256b7c72b2b5f89eb",
+      "accepted": 300,
+      "batches_accepted": [
+        "de-DE.b0001",
+        "de-DE.b0002"
+      ],
+      "throughput": {
+        "keys": 300,
+        "seconds": 309.819
+      },
+      "issued": 4
+    },
+    "fr-FR": {
+      "digest": "f7d744b9ad34a78a0b4a77426b4d4b92f36c0d89f831fb5256b7c72b2b5f89eb",
+      "accepted": 300,
+      "batches_accepted": [
+        "fr-FR.b0001",
+        "fr-FR.b0002"
+      ],
+      "throughput": {
+        "keys": 300,
+        "seconds": 223.947
+      },
+      "issued": 3
+    },
+    "es-ES": {
+      "digest": "f7d744b9ad34a78a0b4a77426b4d4b92f36c0d89f831fb5256b7c72b2b5f89eb",
+      "accepted": 240,
+      "batches_accepted": [
+        "es-ES.b0001",
+        "es-ES.b0002"
+      ],
+      "throughput": {
+        "keys": 240,
+        "seconds": 62.93299999999999
+      },
+      "issued": 3
+    },
+    "pt-BR": {
+      "digest": "f7d744b9ad34a78a0b4a77426b4d4b92f36c0d89f831fb5256b7c72b2b5f89eb",
+      "accepted": 240,
+      "batches_accepted": [
+        "pt-BR.b0001",
+        "pt-BR.b0002"
+      ],
+      "throughput": {
+        "keys": 240,
+        "seconds": 47.289
+      },
+      "issued": 3
+    },
+    "pl-PL": {
+      "digest": "f7d744b9ad34a78a0b4a77426b4d4b92f36c0d89f831fb5256b7c72b2b5f89eb",
+      "accepted": 120,
+      "batches_accepted": [
+        "pl-PL.b0001"
+      ],
+      "throughput": {
+        "keys": 120,
+        "seconds": 45.196
+      },
+      "issued": 2
+    },
+    "it-IT": {
+      "digest": "f7d744b9ad34a78a0b4a77426b4d4b92f36c0d89f831fb5256b7c72b2b5f89eb",
+      "accepted": 120,
+      "batches_accepted": [
+        "it-IT.b0001"
+      ],
+      "throughput": {
+        "keys": 120,
+        "seconds": 97.276
+      },
+      "issued": 2
     }
   },
-  "updated": "2026-09-29T21:55:11.943Z"
+  "updated": "2026-09-30T13:28:11.335Z"
 }

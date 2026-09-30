@@ -1,0 +1,16 @@
+[
+  "login.oauth.regionTag.bigmodel",
+  "login.apiKey.provider.zai",
+  "login.apiKey.provider.bigmodel",
+  "browser.elementPicker.popover.font",
+  "sidePane.saipen",
+  "modelTrajectory.toolId",
+  "codeViewer.markdownMode",
+  "codeViewer.svgMode",
+  "ssh.port",
+  "remote.kind.ssh",
+  "remote.kind.wsl",
+  "remote.kind.docker",
+  "remote.kind.wsl.wizardDescription",
+  "terminal.title"
+]

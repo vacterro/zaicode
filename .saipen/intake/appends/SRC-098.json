@@ -1,0 +1,38 @@
+{
+  "appends": [
+    {
+      "class": "CLARIFICATION",
+      "delta": "context",
+      "derived_clauses": [],
+      "label": "operator continuation order T-134 -> T-135 -> T-113",
+      "projected_at": null,
+      "receipt": "SRC-099",
+      "received_at": "2026-09-30T12:14:40Z",
+      "rewind": null,
+      "seq": 1,
+      "source_sha256": "4ec92a6a0b80d4b87200a19784adeb4a47a0408fc24dbdd540b0ecc89c2feab6",
+      "state": "RECEIVED",
+      "steps": [],
+      "supersedes": [],
+      "work": []
+    },
+    {
+      "class": "CLARIFICATION",
+      "delta": "context",
+      "derived_clauses": [],
+      "label": "operator go-ahead for the live 9router swap",
+      "projected_at": null,
+      "receipt": "SRC-101",
+      "received_at": "2026-09-30T13:11:30Z",
+      "rewind": null,
+      "seq": 2,
+      "source_sha256": "94f151a0708ef3f0fde2f183c46af60ea727f83384d18d91348149b22ad3e708",
+      "state": "RECEIVED",
+      "steps": [],
+      "supersedes": [],
+      "work": []
+    }
+  ],
+  "schema_version": 1,
+  "source": "SRC-098"
+}
