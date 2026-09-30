@@ -20,6 +20,7 @@ import {
   filterOutputTokenContinuationEntries,
   preserveCanonicalContextPrefix,
 } from "./turn-output-token-continuation.js";
+import { zaicodeCompactContextWindow } from "../../compact/zaicode-context-ceiling.js";
 
 export async function microcompactIfNeeded(
   this: AgentRuntimeInternal,
@@ -37,7 +38,7 @@ export async function microcompactIfNeeded(
   throwIfTurnAborted(abortSignal);
 
   const autoConfig: AutoCompactPolicyConfig = {
-    contextWindow: context.model.properties.contextWindow,
+    contextWindow: zaicodeCompactContextWindow(context.model.properties.contextWindow),
     ...this.config.compact,
     maxOutputTokens: resolveNormalRequestMaxOutputTokens({
       modelMaxOutputTokens: context.model.optionSpecs.maxOutputTokens.max,

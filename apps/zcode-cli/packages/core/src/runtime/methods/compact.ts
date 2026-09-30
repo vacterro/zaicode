@@ -41,6 +41,7 @@ import type {
 } from "./turn-loop-state.js";
 import { recordTurnUsageFact } from "./usage-observability.js";
 import { findLatestCommittedAssistantUsage } from "./turn-model-step-usage.js";
+import { zaicodeCompactContextWindow } from "../../compact/zaicode-context-ceiling.js";
 
 export async function executeManualCompact(
   this: AgentRuntimeInternal,
@@ -191,7 +192,7 @@ export async function autoCompactIfNeeded(
   throwIfTurnAborted(abortSignal);
 
   const config: AutoCompactPolicyConfig = {
-    contextWindow: context.model.properties.contextWindow,
+    contextWindow: zaicodeCompactContextWindow(context.model.properties.contextWindow),
     ...this.config.compact,
     maxOutputTokens: resolveNormalRequestMaxOutputTokens({
       modelMaxOutputTokens: context.model.optionSpecs.maxOutputTokens.max,
