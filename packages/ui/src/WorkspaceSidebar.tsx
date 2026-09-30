@@ -1556,6 +1556,13 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
                     primaryTaskTabTriggerRefs.current.grouped = node;
                   }}
                   value="grouped"
+                  // T-133: a narrow ZAICODE sidebar hides the word; the icon alone had no hint and no accessible name.
+                  {...(isZaicodeProductMode()
+                    ? {
+                        title: intl.formatMessage({ id: "workspaceSidebar.organizeGrouped" }),
+                        "aria-label": intl.formatMessage({ id: "workspaceSidebar.organizeGrouped" }),
+                      }
+                    : {})}
                   className="relative z-10 h-6 flex-none gap-1 rounded-full border-transparent bg-transparent py-0 pl-1.5 pr-2 text-ui-sm font-medium text-foreground-subtle transition-colors data-active:border-transparent data-active:bg-transparent data-active:text-foreground data-active:shadow-none dark:data-active:border-transparent dark:data-active:bg-transparent"
                 >
                   <Hash aria-hidden="true" className="size-3 shrink-0" />
@@ -1570,6 +1577,12 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
                     primaryTaskTabTriggerRefs.current.workspace = node;
                   }}
                   value="workspace"
+                  {...(isZaicodeProductMode()
+                    ? {
+                        title: intl.formatMessage({ id: "workspaceSidebar.organizeByProject" }),
+                        "aria-label": intl.formatMessage({ id: "workspaceSidebar.organizeByProject" }),
+                      }
+                    : {})}
                   className="relative z-10 h-6 flex-none gap-1 rounded-full border-transparent bg-transparent py-0 pl-1.5 pr-2 text-ui-sm font-medium text-foreground-subtle transition-colors data-active:border-transparent data-active:bg-transparent data-active:text-foreground data-active:shadow-none dark:data-active:border-transparent dark:data-active:bg-transparent"
                 >
                   <Folder aria-hidden="true" className="size-3 shrink-0" />

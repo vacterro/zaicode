@@ -144,6 +144,7 @@ export const ZAICODE_HELP_TOPICS: readonly HelpTopic[] = [
       "Open it — the SAIHOME menu line, Alt+H, or the tray menu. It is the first view after a start unless Layout & home says otherwise.",
       "Now — working sessions and workers, the queue, today's tokens and runs, the next reset, the next schedule, health.",
       "Needs you — only problems, each with why, impact and one button (router down, sign-in needed, blocked project, missed schedule…).",
+      "Routing — the router is degraded only when a real share of its providers (a quarter, at least 3) failed in the last hour, or SAIFREN has no model. 9router keeps a provider's last error until it next works, so older errors are history: amber with their date under Router → Providers & keys.",
       "Tokens & work — today / yesterday / week / month / all time from local statistics; CLI workers report no tokens and are shown as unmeasured, never as 0.",
       "Activity — day squares by activity, tokens, tasks, runs or runtime; arrow keys walk the days; current and longest streak.",
       "Projects — every project's SAIPEN state; click a row for details, Go to project and Open MAIN session (nothing is created).",

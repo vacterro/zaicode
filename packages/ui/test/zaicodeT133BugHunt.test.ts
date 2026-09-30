@@ -177,6 +177,15 @@ test("B11 SAIHOME Routing counts only recent provider errors; old ones stayed re
   assert.equal(isZaicodeRouterErrorRecent({ lastError: null, lastErrorAt: "2026-09-30T00:59:00Z" }, now), false);
 });
 
+test("B12 the sidebar's icon-only Group / Project tabs carry a hint and an accessible name in ZAICODE", () => {
+  const text = source("WorkspaceSidebar.tsx");
+  for (const id of ["workspaceSidebar.organizeGrouped", "workspaceSidebar.organizeByProject"]) {
+    const at = text.indexOf(`title: intl.formatMessage({ id: "${id}" })`);
+    assert.ok(at > 0, `${id} has a title`);
+    assert.ok(text.indexOf(`"aria-label": intl.formatMessage({ id: "${id}" })`, at) > at, `${id} has an aria-label`);
+  }
+});
+
 test("B6 SAIHOME Projects: the name column gets the larger share of the row", () => {
   assert.match(source("zaicode/home/ZaicodeHomeFleet.tsx"), /grid-cols-\[4px_minmax\(80px,3fr\)_46px_minmax\(0,2fr\)_auto\]/);
 });
