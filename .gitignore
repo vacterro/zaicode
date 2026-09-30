@@ -20,7 +20,9 @@
 /.venv/
 /install/logs/
 /install/install-report.json
-/install/ZAICODE-Setup.exe
+# What an install recorded about itself and its last update check (T-134): machine state, not source.
+/install/install-state.json
+/install/update-state.json
 # The SAIPEN kernel a cloud executor fetches per .claude/skills/saipen/SKILL.md.
 # It is pinned upstream, not authored here, so a stale local copy must never be
 # committed.

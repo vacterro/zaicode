@@ -14,7 +14,9 @@ $script:ZaicodeDefaults = @{
   SaipenRepo   = 'https://github.com/vacterro/saipen.git'
   SaimailRepo  = 'https://github.com/vacterro/saimail.git'
   AppBranch    = 'zaicode'
-  RootBranch   = 'workspace'
+  # The published workspace branch. It was `workspace` until 2026-09-27 (T-98), when
+  # `master` became canonical and `workspace` left GitHub; a clone of it now fails.
+  RootBranch   = 'master'
   NodeVersion  = '24.14.0'
   PnpmVersion  = '10.33.2'
   PythonSeries = '3.13.'
@@ -48,7 +50,53 @@ function Get-ZaicodeLayout([string]$Root) {
     StagedExe    = Join-Path $root 'zcode\packages\desktop\dist-next\win-unpacked\ZAICODE.exe'
     Logs         = Join-Path $root 'install\logs'
     Report       = Join-Path $root 'install\install-report.json'
+    State        = Join-Path $root 'install\install-state.json'
+    UpdateState  = Join-Path $root 'install\update-state.json'
   }
+}
+
+# ---------------------------------------------------------------------------
+# Components: the four clones that make one ZAICODE. Each one updates on its own.
+# ---------------------------------------------------------------------------
+
+function Get-ZaicodeComponents($Layout, $Options) {
+  return @(
+    [pscustomobject]@{ Id = 'workspace'; Title = 'ZAICODE workspace (launcher, installer)'; Dir = $Layout.Root; Url = $Options.ZaicodeRepo; Branch = $script:ZaicodeDefaults.RootBranch },
+    [pscustomobject]@{ Id = 'app'; Title = 'ZAICODE app'; Dir = $Layout.Zcode; Url = $Options.ZaicodeRepo; Branch = $script:ZaicodeDefaults.AppBranch },
+    [pscustomobject]@{ Id = 'saipen'; Title = 'SAIPEN'; Dir = $Layout.Saipen; Url = $Options.SaipenRepo; Branch = 'main' },
+    [pscustomobject]@{ Id = 'saimail'; Title = 'SAIMAIL'; Dir = $Layout.Saimail; Url = $Options.SaimailRepo; Branch = 'main' }
+  )
+}
+
+# What the installer used, so a later update (from the app, or Update-ZAICODE.ps1 alone) needs no arguments.
+function Write-ZaicodeInstallState($Layout, $Options) {
+  $previous = Read-ZaicodeInstallState $Layout
+  $state = [ordered]@{
+    schema = 1
+    installedAt = if ($previous -and $previous.installedAt) { $previous.installedAt } else { (Get-Date).ToString('o') }
+    updatedAt = (Get-Date).ToString('o')
+    repos = [ordered]@{ zaicode = $Options.ZaicodeRepo; saipen = $Options.SaipenRepo; saimail = $Options.SaimailRepo }
+    branches = [ordered]@{ workspace = $script:ZaicodeDefaults.RootBranch; app = $script:ZaicodeDefaults.AppBranch; saipen = 'main'; saimail = 'main' }
+  }
+  New-Item -ItemType Directory -Force -Path (Split-Path $Layout.State) | Out-Null
+  $state | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath $Layout.State -Encoding UTF8
+}
+
+function Read-ZaicodeInstallState($Layout) {
+  if (-not (Test-Path -LiteralPath $Layout.State)) { return $null }
+  try { return (Get-Content -LiteralPath $Layout.State -Raw | ConvertFrom-Json) } catch { return $null }
+}
+
+# ---------------------------------------------------------------------------
+# Progress for ZAICODE-Setup.exe: one "##ZAICODE {json}" line per event on stdout
+# when the window asked for it (ZAICODE_SETUP_PROGRESS=1). The console run is unchanged.
+# ---------------------------------------------------------------------------
+
+function Write-ZaicodeProgress([hashtable]$Event) {
+  if ($env:ZAICODE_SETUP_PROGRESS -ne '1') { return }
+  $json = (New-Object PSObject -Property $Event) | ConvertTo-Json -Compress -Depth 4
+  [Console]::Out.WriteLine('##ZAICODE ' + $json)
+  [Console]::Out.Flush()
 }
 
 # ---------------------------------------------------------------------------
@@ -56,6 +104,8 @@ function Get-ZaicodeLayout([string]$Root) {
 # ---------------------------------------------------------------------------
 
 $script:ZaicodeLogFile = $null
+# Update-ZAICODE.ps1 -Json: stdout carries the JSON only, the narration goes to the log file.
+$script:ZaicodeQuiet = $false
 
 function Start-ZaicodeLog([string]$Dir, [string]$Name) {
   New-Item -ItemType Directory -Force -Path $Dir | Out-Null
@@ -66,7 +116,7 @@ function Start-ZaicodeLog([string]$Dir, [string]$Name) {
 
 function Write-ZaicodeLog([string]$Message, [string]$Color = 'Gray') {
   $line = '{0}  {1}' -f (Get-Date -Format 'HH:mm:ss'), $Message
-  Write-Host $line -ForegroundColor $Color
+  if (-not $script:ZaicodeQuiet) { Write-Host $line -ForegroundColor $Color }
   if ($script:ZaicodeLogFile) { Add-Content -LiteralPath $script:ZaicodeLogFile -Value $line -Encoding UTF8 }
 }
 
@@ -280,13 +330,7 @@ function Get-ZaicodeHead([string]$Git, [string]$Dir) {
 # Re-run = update: fast-forwards every existing clone; says which ones moved.
 function Update-ZaicodeClones($Layout, $Options, [string]$Git) {
   $changed = @{}
-  $clones = @(
-    @{ Id = 'workspace'; Dir = $Layout.Root; Url = $Options.ZaicodeRepo; Branch = $script:ZaicodeDefaults.RootBranch },
-    @{ Id = 'app'; Dir = $Layout.Zcode; Url = $Options.ZaicodeRepo; Branch = $script:ZaicodeDefaults.AppBranch },
-    @{ Id = 'saipen'; Dir = $Layout.Saipen; Url = $Options.SaipenRepo; Branch = 'main' },
-    @{ Id = 'saimail'; Dir = $Layout.Saimail; Url = $Options.SaimailRepo; Branch = 'main' }
-  )
-  foreach ($clone in $clones) {
+  foreach ($clone in (Get-ZaicodeComponents $Layout $Options)) {
     $before = Get-ZaicodeHead $Git $clone.Dir
     if (-not $before) { continue }
     Sync-ZaicodeRepo -Git $Git -Url $clone.Url -Branch $clone.Branch -Dir $clone.Dir
@@ -295,6 +339,132 @@ function Update-ZaicodeClones($Layout, $Options, [string]$Git) {
     if ($changed[$clone.Id]) { Write-ZaicodeLog ("updated {0}: {1} -> {2}" -f $clone.Id, $before.Substring(0, 8), $after.Substring(0, 8)) 'Cyan' }
   }
   return $changed
+}
+
+# ---------------------------------------------------------------------------
+# One component at a time (Update-ZAICODE.ps1, Settings -> Updates in the app)
+# ---------------------------------------------------------------------------
+
+function Get-ZaicodeComponentVersion($Layout, [string]$Id) {
+  switch ($Id) {
+    'workspace' { $file = Join-Path $Layout.Root 'VERSION'; if (Test-Path -LiteralPath $file) { return (Get-Content -LiteralPath $file -Raw).Trim() } }
+    'app' {
+      # The app carries the upstream ZCode version it is built on; its own identity is the commit.
+      $file = Join-Path $Layout.Zcode 'package.json'
+      if (Test-Path -LiteralPath $file) { try { return 'ZCode ' + [string]((Get-Content -LiteralPath $file -Raw | ConvertFrom-Json).version) } catch { } }
+    }
+    'saipen' { return (Get-ZaicodeSaipenVersion $Layout) }
+    'saimail' { return (Get-ZaicodeSaimailVersion $Layout) }
+  }
+  return 'unknown'
+}
+
+function Invoke-ZaicodeGitText([string]$Git, [string]$Dir, [string[]]$Arguments) {
+  $result = Invoke-ZaicodeCommand -File $Git -Arguments (@('-C', $Dir) + $Arguments) -AllowFailure
+  if ($result.Code -ne 0) { return $null }
+  return $result.Output.Trim()
+}
+
+# Where one clone stands against its published branch. -Fetch asks GitHub first.
+# status: current | available | ahead | diverged | local-changes | missing | offline
+function Get-ZaicodeComponentStatus($Layout, $Component, [string]$Git, [switch]$Fetch) {
+  $record = [ordered]@{
+    id = $Component.Id; title = $Component.Title; dir = $Component.Dir; branch = $Component.Branch
+    version = 'unknown'; head = $null; remote = $null; behind = 0; ahead = 0; dirty = $false
+    status = 'missing'; detail = ''; subjects = @()
+  }
+  if (-not $Git -or -not (Test-ZaicodeRepo $Git $Component.Dir)) {
+    $record.detail = 'not installed here'
+    return [pscustomobject]$record
+  }
+  $record.version = Get-ZaicodeComponentVersion $Layout $Component.Id
+  $record.head = Invoke-ZaicodeGitText $Git $Component.Dir @('rev-parse', 'HEAD')
+  $current = Invoke-ZaicodeGitText $Git $Component.Dir @('rev-parse', '--abbrev-ref', 'HEAD')
+  if ($Fetch) {
+    $fetched = Invoke-ZaicodeCommand -File $Git -Arguments @('-C', $Component.Dir, 'fetch', '--quiet', 'origin', $Component.Branch) -AllowFailure
+    if ($fetched.Code -ne 0) {
+      $record.status = 'offline'
+      $record.detail = 'GitHub did not answer; try again later'
+      return [pscustomobject]$record
+    }
+  }
+  $record.remote = Invoke-ZaicodeGitText $Git $Component.Dir @('rev-parse', '--verify', '--quiet', "origin/$($Component.Branch)")
+  if (-not $record.remote) {
+    $record.status = 'offline'
+    $record.detail = "no origin/$($Component.Branch) yet: check for updates once online"
+    return [pscustomobject]$record
+  }
+  $record.behind = [int](Invoke-ZaicodeGitText $Git $Component.Dir @('rev-list', '--count', "HEAD..origin/$($Component.Branch)"))
+  $record.ahead = [int](Invoke-ZaicodeGitText $Git $Component.Dir @('rev-list', '--count', "origin/$($Component.Branch)..HEAD"))
+  $record.dirty = [bool](Invoke-ZaicodeGitText $Git $Component.Dir @('status', '--porcelain', '--untracked-files=no'))
+  if ($record.behind -gt 0) {
+    $log = Invoke-ZaicodeGitText $Git $Component.Dir @('log', '--format=%s', '-n', '8', "HEAD..origin/$($Component.Branch)")
+    if ($log) { $record.subjects = @($log -split "`n" | Where-Object { $_ }) }
+  }
+  if ($current -and $current -ne $Component.Branch) {
+    $record.status = 'local-changes'
+    $record.detail = "on branch $current, not $($Component.Branch): left alone"
+  } elseif ($record.behind -gt 0 -and $record.ahead -gt 0) {
+    $record.status = 'diverged'
+    $record.detail = "$($record.ahead) local commit(s) not on GitHub: left alone"
+  } elseif ($record.behind -gt 0) {
+    $record.status = 'available'
+    $record.detail = "$($record.behind) new commit(s)"
+  } elseif ($record.ahead -gt 0) {
+    $record.status = 'ahead'
+    $record.detail = "$($record.ahead) local commit(s) newer than GitHub"
+  } else {
+    $record.status = 'current'
+    $record.detail = 'up to date'
+  }
+  return [pscustomobject]$record
+}
+
+# Fast-forwards one clone and runs what that component needs afterwards. Local work is never touched:
+# a dirty tree that the update would overwrite, another branch or local commits leave the clone as it is.
+function Update-ZaicodeComponent($Layout, $Options, $Component, [string]$Git, [switch]$NoBuild) {
+  $status = Get-ZaicodeComponentStatus $Layout $Component $Git -Fetch
+  if ($status.status -ne 'available') { return $status }
+  $before = $status.head
+  $merge = Invoke-ZaicodeCommand -File $Git -Arguments @('-C', $Component.Dir, 'merge', '--ff-only', '--quiet', "origin/$($Component.Branch)") -AllowFailure
+  if ($merge.Code -ne 0) {
+    $status.status = 'local-changes'
+    $status.detail = 'local edits overlap the update: kept them, not updated'
+    return $status
+  }
+  $after = Invoke-ZaicodeGitText $Git $Component.Dir @('rev-parse', 'HEAD')
+  Write-ZaicodeLog ("updated {0}: {1} -> {2}" -f $Component.Id, $before.Substring(0, 8), $after.Substring(0, 8)) 'Cyan'
+  $followUp = ''
+  try {
+    switch ($Component.Id) {
+      'workspace' { Build-ZaicodeLauncher $Layout; $followUp = 'launcher rebuilt' }
+      'app' {
+        $node = Find-ZaicodeNode $Layout
+        if (-not $node) { throw 'Node.js 24 is missing: run Autotroubleshoot' }
+        $marker = Get-ZaicodeLockMarker $Layout
+        if (-not (Test-Path -LiteralPath $marker) -or (Get-Content -LiteralPath $marker -Raw).Trim() -ne (Get-ZaicodeLockHash $Layout)) {
+          Install-ZaicodeModules $Layout $node
+        }
+        if ($NoBuild) { $followUp = 'source updated (build skipped)' }
+        else {
+          $running = Test-ZaicodeAppRunning $Layout
+          Build-ZaicodeApp $Layout $node
+          $followUp = if ($running) { 'new build staged: it starts with the next ZAICODE start' } else { 'app rebuilt' }
+        }
+      }
+      'saipen' { Set-ZaicodeSaipenLauncher $Layout (Find-ZaicodePython $Layout); $followUp = 'SAIPEN launcher refreshed' }
+      'saimail' { Install-ZaicodeSaimail $Layout (Find-ZaicodePython $Layout); $followUp = 'SAIMAIL reinstalled into .venv' }
+    }
+  } catch {
+    $status = Get-ZaicodeComponentStatus $Layout $Component $Git
+    $status.status = 'failed'
+    $status.detail = "updated the source, but: $($_.Exception.Message)"
+    return $status
+  }
+  $status = Get-ZaicodeComponentStatus $Layout $Component $Git
+  $status.status = 'updated'
+  $status.detail = ("{0} -> {1}; {2}" -f $before.Substring(0, 8), $after.Substring(0, 8), $followUp)
+  return $status
 }
 
 # ---------------------------------------------------------------------------
@@ -395,7 +565,19 @@ function Build-ZaicodeApp($Layout, [string]$Node) {
   $environment = @{ PATH = (Get-ZaicodePath $Layout $Node) }
   $router = Join-Path $Layout.RouterDir 'node_modules\9router'
   if (Test-Path -LiteralPath (Join-Path $router 'app')) { $environment['ZAICODE_ROUTER_PACKAGE_SRC'] = $router }
+  # A running ZAICODE keeps dist\win-unpacked locked: build beside it, the launcher swaps it in on the next start.
+  # bundle-zaicode.mjs checks this only once, at its own start, so the installer decides it here too.
+  if (Test-ZaicodeAppRunning $Layout) { $environment['ZCODE_DESKTOP_DIST_DIR'] = 'dist-next' }
   Invoke-ZaicodeCommand -File $Node -Arguments @('scripts/bundle-zaicode.mjs') -WorkingDirectory $Layout.Zcode -Environment $environment | Out-Null
+}
+
+function Test-ZaicodeAppRunning($Layout) {
+  if (-not (Test-Path -LiteralPath $Layout.AppExe)) { return $false }
+  try {
+    $stream = [IO.File]::Open($Layout.AppExe, 'Open', 'ReadWrite', 'None')
+    $stream.Close()
+    return $false
+  } catch { return $true }
 }
 
 function Build-ZaicodeLauncher($Layout) {

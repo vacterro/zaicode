@@ -8,16 +8,60 @@ run it, wait, and a ZAICODE shortcut is on the desktop.
 
 ## One click
 
-- `install\Setup-ZAICODE.cmd` (double-click), or `ZAICODE-Setup.exe` (built by
-  `install\setup\build.cmd`; it carries the scripts inside).
+- **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)**:
+  download, double-click, press **INSTALL**. The window (gold on dark, the
+  SAIPEN banner) shows every step as it runs, the time so far and the log on
+  demand; at the end **START ZAICODE**, or **TRY AGAIN** / **Autotroubleshoot**
+  / **Open log** when a step did not finish. Pointed at an existing ZAICODE
+  folder the button reads **UPDATE**: the same run updates and repairs. The
+  exe carries the install scripts and needs nothing next to it; it is built by
+  `install\setup\build.cmd` (the .NET Framework compiler every Windows 10/11
+  has).
+- `install\Setup-ZAICODE.cmd` (double-click): the same install in a console.
 - From nothing, in PowerShell:
 
   ```powershell
-  & ([scriptblock]::Create((irm https://raw.githubusercontent.com/vacterro/zaicode/workspace/install/Install-ZAICODE.ps1)))
+  & ([scriptblock]::Create((irm https://raw.githubusercontent.com/vacterro/zaicode/master/install/Install-ZAICODE.ps1)))
   ```
 
-Nothing to click on the way. The first run builds the app on this machine,
-which takes a while; later runs only update and repair.
+Setup options: `ZAICODE-Setup.exe -InstallDir D:\ZAICODE` (preset folder),
+`/auto` (starts at once), `/quiet` (no window: the console installer, exit code
+= result). The first run builds the app on this machine, which takes a while;
+later runs only update and repair.
+
+## Free models, nothing to set up
+
+The app ships its own 9router. On a machine without one ZAICODE runs it
+privately (isolated mode, port 20138), fills **SAIFREN** from keyless free
+tiers and makes `SAIRoute / SAIFREN` the model of new tasks, so the first task
+typed into New task gets an answer: no key, no account, no setting. Claude
+Code, Codex and Antigravity logins are optional; a login never set up on the
+machine shows as "optional, sign in any time", not as a "needs you" item.
+Proof: `node packages/desktop/scripts/verify-zaicode-free.cjs <ZAICODE.exe>`
+starts the packaged app on an empty profile (its own HOME, APPDATA and
+LOCALAPPDATA) and passes only when the router is isolated, SAIFREN answers its
+first-token probe and a task in New task is answered.
+
+## Updates: four parts, one ZAICODE
+
+The workspace (launcher, installer), the app, SAIPEN and SAIMAIL are four
+clones. Each one updates on its own: **Settings -> ZAICODE -> Updates** lists
+them with their version and commit, updates one by hand or all of them, and
+has a "by itself" switch per part (on by default in an installed ZAICODE, off
+in a developer checkout). ZAICODE looks a few minutes after the start and then
+every six hours. After an update each part gets what it needs: the app its
+dependencies (when `pnpm-lock.yaml` moved) and a new build (staged while
+ZAICODE runs, started on the next start), SAIPEN its launcher, SAIMAIL its
+`.venv` install, the workspace a new root launcher. A clone on another branch,
+with local commits, or with edits the update would overwrite is reported and
+left exactly as it is.
+
+```powershell
+.\install\Update-ZAICODE.ps1                          # everything
+.\install\Update-ZAICODE.ps1 -Component saipen        # one part (or "app,saimail")
+.\install\Update-ZAICODE.ps1 -Check                   # what is new, change nothing
+.\install\Update-ZAICODE.ps1 -Check -Json             # the same for a program
+```
 
 ## What it does
 
@@ -29,7 +73,7 @@ the install and fixes what broke.
 | ---- | ---- |
 | Git, Node.js 24, Python 3.11+ | uses the machine's copy when it fits; otherwise a private copy in `.tools\` (MinGit from Git for Windows, Node.js 24.14.0 from nodejs.org, Python from its NuGet package). No administrator rights. |
 | pnpm | the pinned pnpm 10.33.2 in `.tools\pnpm10` |
-| ZAICODE workspace | clone of `vacterro/zaicode` branch `master` (launcher source, docs; the developer's `.saipen/` memory is left out) |
+| ZAICODE workspace | clone of `vacterro/zaicode` branch `master` (launcher source, installer, docs; the developer's `.saipen/` memory is left out; branch `workspace` until 2026-09-27) |
 | ZAICODE app source | clone of branch `zaicode` into `zcode\` |
 | SAIPEN | clone of `vacterro/saipen` into `saipen\`; its `bin\saipen.cmd` is written for this clone and this Python |
 | SAIMAIL | clone of `vacterro/saimail` into `saimail\`, installed into `.venv\` |
@@ -93,3 +137,9 @@ launcher pointed at a missing Python, SAIMAIL's venv deleted, node_modules
 recorded for another lockfile, a leftover build folder deeper than MAX_PATH),
 asserts the doctor reports and repairs every one, then starts the shortcut's
 target with an isolated profile and stops exactly the process tree it started.
+
+`install\tests\Test-ZaicodeUpdate.ps1` builds four throw-away repositories on
+disk and an install of their clones, then proves that a check changes nothing,
+that one part updates alone with its follow-up (SAIPEN launcher, root
+launcher), that overlapping local edits and local commits are kept, and that an
+unknown part name is refused. No network.

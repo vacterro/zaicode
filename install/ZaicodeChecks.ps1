@@ -211,15 +211,18 @@ function Repair-ZaicodeCheck([string]$Id, $Ctx) {
 function Invoke-ZaicodeChecks($Layout, $Options, [switch]$Repair, [string[]]$Only = @()) {
   $ctx = New-ZaicodeContext $Layout $Options
   $results = @()
-  foreach ($check in $script:ZaicodeCheckList) {
-    if ($Only.Count -gt 0 -and $Only -notcontains $check.Id) { continue }
+  $selected = @($script:ZaicodeCheckList | Where-Object { $Only.Count -eq 0 -or $Only -contains $_.Id })
+  Write-ZaicodeProgress @{ type = 'plan'; checks = @($selected | ForEach-Object { @{ id = $_.Id; title = $_.Title } }) }
+  foreach ($check in $selected) {
     $started = Get-Date
     $problem = $null
     $repaired = $false
     $failure = $null
+    Write-ZaicodeProgress @{ type = 'check'; id = $check.Id; status = 'checking' }
     try { $problem = Test-ZaicodeCheck $check.Id $ctx } catch { $problem = "test failed: $($_.Exception.Message)" }
     if ($problem -and $Repair -and $check.Level -ne 'INFO') {
       Write-ZaicodeLog ("repair {0}: {1}" -f $check.Title, $problem) 'Cyan'
+      Write-ZaicodeProgress @{ type = 'check'; id = $check.Id; status = 'repairing'; detail = $problem }
       try {
         Repair-ZaicodeCheck $check.Id $ctx
         $after = $null
@@ -234,6 +237,7 @@ function Invoke-ZaicodeChecks($Layout, $Options, [switch]$Repair, [string[]]$Onl
     if ($failure) { $detail = $failure } elseif ($problem -and -not $repaired) { $detail = $problem }
     $color = switch ($status) { 'OK' { 'Green' } 'FIXED' { 'Cyan' } 'INFO' { 'Gray' } 'WARN' { 'Yellow' } default { 'Red' } }
     Write-ZaicodeLog ('{0,-6} {1,-38} {2}' -f $status, $check.Title, $detail) $color
+    Write-ZaicodeProgress @{ type = 'check'; id = $check.Id; status = $status; detail = [string]$detail }
     $results += [pscustomobject]@{
       Id = $check.Id; Title = $check.Title; Status = $status; Problem = $problem; Error = $failure
       Seconds = [math]::Round(((Get-Date) - $started).TotalSeconds, 1)

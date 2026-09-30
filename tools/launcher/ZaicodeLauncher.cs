@@ -88,6 +88,8 @@ internal static class ZaicodeLauncher
 
         Environment.SetEnvironmentVariable("ZCODE_ZAICODE_MODE", "1");
         Environment.SetEnvironmentVariable("ZCODE_ZAICODE_IDENTITY", "1");
+        // T-134: Settings -> ZAICODE -> Updates runs install\Update-ZAICODE.ps1 of this very folder.
+        Environment.SetEnvironmentVariable("ZAICODE_INSTALL_ROOT", workspace);
         if (preview && !StartPreviewSession(settingsDirectory))
         {
             ZaicodeSplash.Close();

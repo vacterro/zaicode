@@ -12,7 +12,7 @@
   (Autotroubleshoot) runs the same checks and repairs.
 
   From nothing (PowerShell):
-    & ([scriptblock]::Create((irm https://raw.githubusercontent.com/vacterro/zaicode/workspace/install/Install-ZAICODE.ps1)))
+    & ([scriptblock]::Create((irm https://raw.githubusercontent.com/vacterro/zaicode/master/install/Install-ZAICODE.ps1)))
 
 .PARAMETER AddClaudeAccounts
   Prepare N extra Claude Code login homes (~/.claude-accountN); ZAICODE lists
@@ -35,7 +35,7 @@ param(
   [string]$ZaicodeRepo = 'https://github.com/vacterro/zaicode.git',
   [string]$SaipenRepo = 'https://github.com/vacterro/saipen.git',
   [string]$SaimailRepo = 'https://github.com/vacterro/saimail.git',
-  [string]$LibraryBaseUrl = 'https://raw.githubusercontent.com/vacterro/zaicode/workspace/install'
+  [string]$LibraryBaseUrl = 'https://raw.githubusercontent.com/vacterro/zaicode/master/install'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -73,6 +73,7 @@ $changed = @{}
 $git = Find-ZaicodeGit $layout
 if ($git -and (Test-ZaicodeRepo $git $layout.Root)) {
   Write-ZaicodeLog 'Updating the existing install from GitHub' 'White'
+  Write-ZaicodeProgress @{ type = 'phase'; id = 'update'; title = 'Updating ZAICODE, SAIPEN and SAIMAIL from GitHub' }
   try { $changed = Update-ZaicodeClones $layout $options $git } catch { Write-ZaicodeLog "update skipped: $($_.Exception.Message)" 'Yellow' }
 }
 
@@ -81,6 +82,7 @@ $results = @(Invoke-ZaicodeChecks $layout $options -Repair)
 # New app or launcher source: rebuild after the checks (which reinstall dependencies when the lockfile moved).
 # A running ZAICODE gets the app build staged and swapped in on its next start.
 if ($changed['app'] -and -not @($results | Where-Object { $_.Id -eq 'app' -and $_.Status -eq 'FIXED' }).Count) {
+  Write-ZaicodeProgress @{ type = 'phase'; id = 'rebuild'; title = 'Building the updated app' }
   try { Build-ZaicodeApp $layout (Find-ZaicodeNode $layout); Write-ZaicodeLog 'App rebuilt from the new source' 'Cyan' }
   catch { $results += [pscustomobject]@{ Id = 'app-update'; Title = 'App rebuild after update'; Status = 'FAIL'; Problem = 'rebuild failed'; Error = $_.Exception.Message; Seconds = 0 } }
 }
@@ -118,6 +120,9 @@ $report = [ordered]@{
 }
 New-Item -ItemType Directory -Force -Path (Split-Path $layout.Report) | Out-Null
 $report | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $layout.Report -Encoding UTF8
+# What was installed from where: lets the app (Settings -> Updates) and Update-ZAICODE.ps1 update each part alone.
+if ($failed.Count -eq 0) { try { Write-ZaicodeInstallState $layout $options } catch { Write-ZaicodeLog "install state not written: $($_.Exception.Message)" 'Yellow' } }
+Write-ZaicodeProgress @{ type = 'done'; ok = ($failed.Count -eq 0); minutes = $report.minutes; log = $log; launcher = $layout.Launcher; failed = @($failed | ForEach-Object { $_.Title }) }
 
 Write-ZaicodeLog '' 'White'
 if ($failed.Count -gt 0) {
