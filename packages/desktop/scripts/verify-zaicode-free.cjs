@@ -130,6 +130,13 @@ async function main() {
     await page.waitForFunction(() => /SAIFREN (is )?ready/i.test(document.body.innerText), null, { timeout: 120_000 });
     steps.defaultModel = await page.evaluate(() => localStorage.getItem("zaicode-default-model") ?? "(release default)");
     steps.appReady = Math.round((Date.now() - started) / 1000);
+    // A first start must not keep a stale "no SAIFREN pool" (red HEALTH) once the pool exists.
+    await page.locator('button:has-text("SAIHOME")').first().click({ timeout: 10_000 }).catch(() => undefined);
+    const stale = await page
+      .waitForFunction(() => !/no SAIFREN pool/i.test(document.body.innerText), null, { timeout: 30_000 })
+      .then(() => false)
+      .catch(() => true);
+    assert.equal(stale, false, "SAIHOME still says 'no SAIFREN pool' 30 s after SAIFREN was ready");
 
     // 3. First use as a new person does it: New task, write, Enter (a project is added if the app asks for one).
     await shot(page, "free-1-ready.png");

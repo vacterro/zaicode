@@ -4,6 +4,7 @@ import { useServices } from "@/hooks/useServices.js";
 import { logger } from "@/logger.js";
 import { projectProviderSettingsViewToFormProviders } from "@/lib/providerSettingsFormProjection.js";
 import { notifyZaicode } from "./zaicodeNotifications.js";
+import { useZaicodeRouter } from "./zaicodeRouter.js";
 import { playZaicodeSound } from "./zaicodeSoundBus.js";
 import { readZaicodeDefaultModel, setZaicodeDefaultModel } from "./zaicodeDefaultModel.js";
 import { findZaicodeRouterProvider } from "./zaicodeRoutingModel.js";
@@ -163,6 +164,9 @@ export async function runZaicodeRouterSetup(service: ProviderSettingsService, ki
       appStep = { id: "app", label: "Model list", status: "failed", detail: error instanceof Error ? error.message : String(error) };
     }
     useZaicodeRouterSetup.setState({ last: result, lastKind: kind, appStep, host: result.host });
+    // T-134: SAIHOME's routing card read the router before SAIFREN existed and kept "no SAIFREN pool" (a red
+    // HEALTH on a first start) until its next refresh: read it again now that the pools are in place.
+    void useZaicodeRouter.getState().refresh().catch(() => undefined);
     return result;
   } catch (error) {
     logger.warn("[zaicode-router] setup failed", { error: error instanceof Error ? error.message : String(error) });

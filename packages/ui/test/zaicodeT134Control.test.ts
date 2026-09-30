@@ -237,3 +237,10 @@ test("F1 a first install nags about nothing: a Claude / Codex login never set up
   assert.match(engines, /if \(isDefault && !loggedIn && !isDirectory\(dir\)\) \{\n\s+account\.optional = true;/);
   assert.match(engines, /if \(isDefault && !isFile\(join\(dir, "auth\.json"\)\) && !isDirectory\(dir\)\) \{\n\s+account\.optional = true;/);
 });
+
+test("F2 once the free pools exist SAIHOME reads the router again, so a first start shows no stale 'no SAIFREN pool'", () => {
+  const setup = source("zaicode/useZaicodeRouterAutoSetup.ts");
+  const stored = setup.indexOf("useZaicodeRouterSetup.setState({ last: result, lastKind: kind, appStep, host: result.host });");
+  const refresh = setup.indexOf("void useZaicodeRouter.getState().refresh()", stored);
+  assert.ok(stored > 0 && refresh > stored, "the routing card is refreshed right after the setup result is stored");
+});
