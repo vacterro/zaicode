@@ -197,6 +197,15 @@
       "text": "Do not invent new product capabilities unless the operator explicitly requests them.",
       "verification": "saipen LOG -> PASS: the new capabilities (T-136) were explicitly requested by the operator (SRC-100/102)",
       "work": "T-135"
+    },
+    "SRC-099:R023": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "E-2274",
+      "text": "CLOSE T-134, FORMALLY COMPLETE T-135, THEN RESUME T-113: verify T-135 against current state (diff coverage, test baseline, package, isolated runtime, apply-update) and progress it to DONE",
+      "verification": "coverage.py MISSING 0; npx vitest run no new failing test; npm run pack:cli 0.5.91-extra; verify-zaicode-free.cjs PASS; apply-update contract 6 passed -> PASS",
+      "work": "T-135"
     }
   },
   "schema_version": 1
