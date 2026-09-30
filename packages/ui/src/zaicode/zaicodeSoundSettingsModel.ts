@@ -15,6 +15,7 @@ import {
 } from "./zaicodeSoundPolicy.js";
 import { isZaicodeChokeGroup } from "./zaicodeSoundVoices.js";
 import { zaicodeActionCueEvents } from "./zaicodeActionCues.js";
+import { normalizeZaicodeSoundConditions, type ZaicodeSoundConditionFields } from "./zaicodeSoundConditions.js";
 import {
   normalizeZaicodePool,
   pickZaicodePoolSound,
@@ -43,6 +44,7 @@ export type ZaicodeSoundGroup =
   | "SAIMAIL"
   | "Interface"
   | "Orchestra"
+  | "Updates"
   | "SAIPEGGLE";
 
 export interface ZaicodeSoundEventDef {
@@ -109,6 +111,9 @@ export const ZAICODE_SOUND_EVENTS: readonly ZaicodeSoundEventDef[] = [
   { id: "limits.low", group: "Engines", label: "Quota low", hint: "A subscription window dropped under 20%", glyph: "warn", sound: fp("pop_cartoon_pop.wav"), enabled: true, gainDb: -4 },
   { id: "limits.refresh", group: "Engines", label: "Limits refreshed", hint: "A manual quota refresh finished", glyph: "refresh", sound: fp("recharged.wav"), enabled: false, gainDb: -10 },
   { id: "autostart.fire", group: "Engines", label: "Autostart fired", hint: "A scheduled autostart launched its worker", glyph: "clock", sound: fp("NEWDAY.wav"), enabled: true, gainDb: -6 },
+  // T-134: the free pool had no voice of its own (it only showed a card).
+  { id: "free.ready", group: "Engines", label: "Free models ready", hint: "SAIFREN answered for the first time on this machine: free models work, nothing to set up", glyph: "check", sound: fp("success_powerup.wav"), enabled: true, gainDb: -6 },
+  { id: "free.newModel", group: "Engines", label: "New free model", hint: "The hourly scan added a free model to SAIFREN", glyph: "plus", sound: fp("item_store_add_to_cart.wav"), enabled: true, gainDb: -8 },
   { id: "autostart.missed", group: "Engines", label: "Autostart missed", hint: "A scheduled autostart missed its window", glyph: "clock", sound: fp("warn1.wav"), enabled: true, gainDb: -6 },
   // SAIMAIL
   { id: "saimail.new", group: "SAIMAIL", label: "New letter", hint: "A new SAIMAIL letter arrived", glyph: "mail", sound: fp("downmail.wav"), enabled: true, gainDb: -2 },
@@ -142,6 +147,10 @@ export const ZAICODE_SOUND_EVENTS: readonly ZaicodeSoundEventDef[] = [
   { id: "ui.escape", group: "Orchestra", label: "Esc", hint: "Esc was pressed (close, cancel)", glyph: "undo", sound: fp("whoosh_short_whoosh2.wav"), enabled: false, gainDb: -14 },
   { id: "ui.hover", group: "Orchestra", label: "Hover", hint: "The pointer moved onto a button", glyph: "dot", sound: fp("cs_style/buttonrollover.wav"), enabled: false, gainDb: -22 },
   { id: "ui.typing", group: "Orchestra", label: "Typing", hint: "A key was typed into a text field (typewriter)", glyph: "key", sound: fp("type_key_1.wav"), enabled: false, gainDb: -20 },
+  // T-134: ZAICODE, SAIPEN and SAIMAIL update one by one (Settings -> Updates).
+  { id: "update.available", group: "Updates", label: "Update available", hint: "A part of ZAICODE (app, SAIPEN, SAIMAIL, launcher) has a new version on GitHub", glyph: "refresh", sound: fp("notify_notification.wav"), enabled: true, gainDb: -8 },
+  { id: "update.applied", group: "Updates", label: "Update installed", hint: "A part was updated (a new app build starts with the next ZAICODE start)", glyph: "check", sound: fp("success_vote_success.wav"), enabled: true, gainDb: -6 },
+  { id: "update.failed", group: "Updates", label: "Update failed", hint: "An update stopped: Settings -> Updates says why and keeps local work untouched", glyph: "warn", sound: fp("warn1.wav"), enabled: true, gainDb: -6 },
   // SAIPEGGLE (SRC-062): the game's own voices; the peg hits climb a scale within a shot.
   { id: "saipeggle.shoot", group: "SAIPEGGLE", label: "Cannon fires", hint: "SAIPEGGLE: a ball leaves the cannon", glyph: "play", sound: fp("pop_lavapop.wav"), enabled: true, gainDb: -8 },
   { id: "saipeggle.peg", group: "SAIPEGGLE", label: "Peg hit", hint: "SAIPEGGLE: a peg lights up (each hit of a shot one note higher)", glyph: "dot", sound: fp("chime_bell_ding1.wav"), enabled: true, gainDb: -10 },
@@ -167,7 +176,8 @@ const EVENT_BY_ID = new Map(ZAICODE_SOUND_EVENTS.map((event) => [event.id, event
 export const ZAICODE_SOUND_GAIN_MIN = -24;
 export const ZAICODE_SOUND_GAIN_MAX = 12;
 
-export interface ZaicodeSoundEventSetting {
+/** T-134: `when`, `throughQuiet` and `cooldownSec` (zaicodeSoundConditions.ts) ride on every row. */
+export interface ZaicodeSoundEventSetting extends ZaicodeSoundConditionFields {
   enabled: boolean;
   /** The single sound, in Single mode; the fallback in Pool mode. */
   sound: string;
@@ -332,6 +342,7 @@ export function normalizeZaicodeSoundSettings(raw: unknown): ZaicodeSoundSetting
       mode: value.mode === "replace" ? "replace" : "overlay",
       soundMode: value.soundMode === "pool" ? "pool" : "single",
       pool: normalizeStoredPool(value.pool),
+      ...normalizeZaicodeSoundConditions(value),
     };
   }
   return {

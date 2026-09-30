@@ -3,6 +3,7 @@ import { ZaicodeSoundNormalizePanel } from "./ZaicodeSoundNormalizePanel.js";
 import { ZaicodeCustomSoundsStrip } from "./ZaicodeCustomSoundsStrip.js";
 import { ZAICODE_SOUND_GLYPHS } from "./zaicodeSoundGlyphs.js";
 import { ZaicodePoolControls, ZaicodePoolModeButton, ZaicodePoolSummary } from "./ZaicodeSoundPoolControls.js";
+import { ZaicodeSoundConditionButton, ZaicodeSoundConditionRow } from "./ZaicodeSoundConditionControls.js";
 import {
   Copy,
   Dot,
@@ -151,7 +152,7 @@ export function ZaicodeSoundSettings() {
           value={filter}
           onChange={(event) => setFilter(event.target.value)}
         />
-        <div className="grid grid-cols-[18px_minmax(120px,1.2fr)_28px_minmax(120px,1fr)_22px_22px_58px_minmax(110px,1fr)_52px_22px] items-center gap-x-1.5 gap-y-1 text-ui-xs">
+        <div className="grid grid-cols-[18px_minmax(120px,1.2fr)_28px_minmax(120px,1fr)_22px_22px_58px_minmax(110px,1fr)_52px_34px_22px] items-center gap-x-1.5 gap-y-1 text-ui-xs">
           <span />
           <span className="text-foreground-subtlest">Event</span>
           <span className="text-center text-foreground-subtlest">On</span>
@@ -161,6 +162,7 @@ export function ZaicodeSoundSettings() {
           <span className="text-foreground-subtlest">Mode</span>
           <span className="text-foreground-subtlest">Gain</span>
           <span />
+          <span className="text-foreground-subtlest" title="The row's own conditions: only in the background / in front, through quiet hours, at most once per N seconds">When</span>
           <span />
           {groups.map((group) => (
             <SoundGroup
@@ -215,7 +217,7 @@ function SoundGroup({
 }) {
   return (
     <>
-      <span className="col-span-10 mt-1 flex items-center gap-2 border-b border-border/60 pb-0.5 font-semibold text-foreground-subtle">
+      <span className="col-span-full mt-1 flex items-center gap-2 border-b border-border/60 pb-0.5 font-semibold text-foreground-subtle">
         <span className="min-w-0 flex-1">{group}</span>
         {/* SRC-060: a whole section (the 17-voice Orchestra) on or off in one click. */}
         {(["on", "off"] as const).map((state) => (
@@ -264,6 +266,7 @@ function SoundRow({
   ownFileLabel: string | null;
   onImport: (id: string) => void;
 }) {
+  const [conditionsOpen, setConditionsOpen] = useState(false);
   return (
     <>
       <Glyph className={cn("size-3.5", row.enabled ? "text-foreground-subtle" : "text-foreground-subtlest")} />
@@ -340,6 +343,7 @@ function SoundRow({
           </span>
         ) : null}
       </span>
+      <ZaicodeSoundConditionButton event={event} row={row} open={conditionsOpen} onToggle={() => setConditionsOpen((open) => !open)} />
       <button
         type="button"
         className="flex size-5 items-center justify-center border border-border text-foreground-subtle hover:bg-hover hover:text-foreground"
@@ -348,9 +352,10 @@ function SoundRow({
       >
         <Play className="size-3" />
       </button>
-      {/* Last on purpose: the ten columns above must line up with the header, and this full-width
+      {/* Last on purpose: the eleven columns above must line up with the header, and this full-width
           sub-row (drawn only for a pool) wraps onto its own line below them. */}
       <ZaicodePoolControls event={event} row={row} />
+      {conditionsOpen ? <ZaicodeSoundConditionRow event={event} row={row} /> : null}
     </>
   );
 }

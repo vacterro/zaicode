@@ -12,6 +12,7 @@ import { zaicodeSoundEntry } from "./zaicodeSoundCatalog.js";
 import { addZaicodePoolMember } from "./zaicodeSoundPoolActions.js";
 import { playZaicodeSound, registerZaicodeSoundAudible, registerZaicodeSoundPlayer, zaicodeDirectSoundPlayedSince } from "./zaicodeSoundBus.js";
 import { isZaicodeSoundQuietNow } from "./zaicodeNotifications.js";
+import { zaicodeSoundConditionsAllow } from "./zaicodeSoundConditions.js";
 import { cachedZaicodeCustomSoundUrl, onZaicodeCustomSoundUrlRevoked, resolveZaicodeCustomSoundUrl } from "./zaicodeCustomSounds.js";
 import { ZAICODE_CLICKABLE, zaicodeChangeSoundFor, zaicodeClickSoundFor } from "./zaicodeSoundVoices.js";
 import { decideZaicodeSound, type ZaicodeSoundOverlap, type ZaicodeSoundRequest } from "./zaicodeSoundPolicy.js";
@@ -336,10 +337,19 @@ export async function playZaicodeSoundAsync(
   const row = settings.events[id];
   if (!row) return false;
   if (!options.preview) {
-    if (!isZaicodeProductMode() || settings.muted || !row.enabled || isZaicodeSoundQuietNow()) return false;
-    if (!settings.whenFocused && typeof document !== "undefined" && document.hasFocus()) return false;
+    if (!isZaicodeProductMode() || settings.muted || !row.enabled) return false;
     const now = Date.now();
-    if (now - (lastPlayedAt.get(id) ?? 0) < DEBOUNCE_MS) return false;
+    const last = lastPlayedAt.get(id) ?? 0;
+    // T-134: quiet hours, the focus rule and the row's own conditions (background only, through quiet hours, cooldown).
+    const verdict = zaicodeSoundConditionsAllow(row, {
+      focused: typeof document !== "undefined" && document.hasFocus(),
+      quietNow: isZaicodeSoundQuietNow(),
+      whenFocusedGlobal: settings.whenFocused,
+      now,
+      lastPlayedAt: last,
+    });
+    if (!verdict.play) return false;
+    if (now - last < DEBOUNCE_MS) return false;
     lastPlayedAt.set(id, now);
   }
   const url = await resolveSoundUrl(options.sound ?? zaicodeSoundForEvent(id) ?? row.sound);
@@ -355,7 +365,7 @@ export async function playZaicodeSoundAsync(
   return admitSound(ctx, request, !options.preview, () => {
     // A sound that waited in line checks the switches again when its turn comes.
     const now = readZaicodeSoundSettings();
-    if (!options.preview && (now.muted || isZaicodeSoundQuietNow())) return;
+    if (!options.preview && (now.muted || (isZaicodeSoundQuietNow() && now.events[id]?.throughQuiet !== true))) return;
     startVoice(ctx, id, buffer, zaicodeGainFactor(now.masterVolume, zaicodeEffectiveGainDb(now.events[id] ?? row)), {
       interface: request.interface,
       pooled: !options.preview,

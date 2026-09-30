@@ -4,6 +4,7 @@ import { useServices } from "@/hooks/useServices.js";
 import { logger } from "@/logger.js";
 import { projectProviderSettingsViewToFormProviders } from "@/lib/providerSettingsFormProjection.js";
 import { notifyZaicode } from "./zaicodeNotifications.js";
+import { playZaicodeSound } from "./zaicodeSoundBus.js";
 import { readZaicodeDefaultModel, setZaicodeDefaultModel } from "./zaicodeDefaultModel.js";
 import { findZaicodeRouterProvider } from "./zaicodeRoutingModel.js";
 import {
@@ -127,6 +128,7 @@ async function ensureRouterProvider(service: ProviderSettingsService, result: Za
   const resolves = chosen && after.some((entry) => entry.providerId === chosen.providerId && entry.models.some((model) => model.modelId === chosen.modelId));
   if (!resolves) setZaicodeDefaultModel({ providerId: provider.providerId, modelId: ZAICODE_FREE_POOL });
   if (created) {
+    playZaicodeSound("free.ready");
     notifyZaicode("router.ready", {
       title: "SAIFREN is ready",
       body: "Free models, nothing to set up: write a task in New task and press Enter.",
@@ -175,7 +177,9 @@ async function scanIfDue(): Promise<void> {
   if (last !== null && Date.now() - last < SCAN_EVERY_MS) return;
   const scan = await scanZaicodeFreeModelsFromUi().catch(() => null);
   const card = scan ? describeZaicodeFreeModelsAdded(scan.added) : null;
-  if (card) notifyZaicode("router.free", { ...card, status: "New free model", key: "router.free" });
+  if (!card) return;
+  playZaicodeSound("free.newModel");
+  notifyZaicode("router.free", { ...card, status: "New free model", key: "router.free" });
 }
 
 /** Mount once (ZAICODE runtime): setup at start, then the hourly health scan. */

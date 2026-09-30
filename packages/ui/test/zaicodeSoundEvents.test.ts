@@ -22,7 +22,8 @@ test("sound event ids are unique and every group is known", () => {
   const ids = [...source.matchAll(/\{ id: "([^"]+)", group: "([^"]+)"/g)];
   const unique = new Set(ids.map((match) => match[1]));
   assert.equal(unique.size, ids.length);
-  const groups = new Set(["Agent", "Sessions", "Composer", "Sidebar", "Window", "Engines", "SAIMAIL", "Interface", "Orchestra", "SAIPEGGLE"]);
+  // T-134 added "Updates" (ZAICODE / SAIPEN / SAIMAIL updates).
+  const groups = new Set(["Agent", "Sessions", "Composer", "Sidebar", "Window", "Engines", "SAIMAIL", "Interface", "Orchestra", "Updates", "SAIPEGGLE"]);
   for (const match of ids) assert.ok(groups.has(match[2]!), `unknown group ${match[2]}`);
   // Every former cue keeps a row, so migrated settings land somewhere.
   for (const cue of ["done", "failed", "question", "human", "update", "started"]) assert.ok(unique.has(`agent.${cue}`));

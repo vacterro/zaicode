@@ -15,9 +15,11 @@ test("Sounds: single/pool is a cell in the event row, and only a pool takes an e
   assert.doesNotMatch(pool, /\{mode === "single" \? "single" : "pool"\}/, "the two labelled buttons are gone from the sub-row");
   const table = source("settings/ZaicodeSoundSettings.tsx");
   assert.match(table, /<ZaicodePoolModeButton event=\{event\} row=\{row\} \/>/);
-  // The header, the group rows and the event rows agree on ten columns.
-  assert.match(table, /grid-cols-\[18px_minmax\(120px,1\.2fr\)_28px_minmax\(120px,1fr\)_22px_22px_58px_minmax\(110px,1fr\)_52px_22px\]/);
-  assert.match(table, /col-span-10 mt-1 flex/);
+  // The header, the group rows and the event rows agree on eleven columns (T-134 added "When").
+  assert.match(table, /grid-cols-\[18px_minmax\(120px,1\.2fr\)_28px_minmax\(120px,1fr\)_22px_22px_58px_minmax\(110px,1fr\)_52px_34px_22px\]/);
+  assert.match(table, /col-span-full mt-1 flex/);
+  // The conditions sub-row, like the pool one, exists only when asked for: no empty line per event.
+  assert.match(table, /\{conditionsOpen \? <ZaicodeSoundConditionRow event=\{event\} row=\{row\} \/> : null\}/);
   assert.doesNotMatch(table, /col-span-9/);
   const preview = table.indexOf('title="Preview at the real volume"');
   assert.ok(table.indexOf("<ZaicodePoolControls", preview) > preview, "the pool sub-row still follows the last column cell");
