@@ -1,4 +1,14 @@
 {
-  "requirements": {},
+  "requirements": {
+    "SRC-098:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "T-135 closed with verification evidence in LOG: verify -> PASS [target: T-135] conf: high -- ran coverage.py over 92 changed paths of the old extra: PORTED 70, SUPERSEDED_BY_UPSTREAM 14, INTENTIONALLY_DROPPED 8 (2 tarballs; extra Cline replaced by upstream Cline), MISSING 0. npx vitest run: extra 2817 passed, clean v0.5.91 2715 passed, the same 101 upstream-baseline tests red in both (identical lists, none new). verify-zaicode-free.cjs with the",
+      "text": "\u0414\u0430, \u0437\u0430\u043e\u0434\u043d\u043e \u043f\u043e\u0436\u0430\u043b\u0443\u0439\u0441\u0442\u0430 \u0438 \u043c\u043e\u0439 9router_extra \u043f\u0440\u043e\u043f\u0430\u0442\u0447 \u0434\u043e \u043a\u043e\u043d\u0446\u0430 \u0437\u0430\u043e\u0434\u043d\u043e \u0434\u043e \u043f\u043e\u0441\u043b\u0435\u0434\u043d\u0435\u0439 \u0432\u0435\u0440\u0441\u0438\u0438 \u0447\u0442\u043e\u0431\u044b \u0440\u0430\u0431\u043e\u0442\u0430\u043b\u043e.",
+      "verification": "the Work this request created reached its own verification gate; see the T-135 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-135"
+    }
+  },
   "schema_version": 1
 }

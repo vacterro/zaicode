@@ -59,7 +59,7 @@
         "keys": 510,
         "seconds": 707.452
       },
-      "issued": 5
+      "issued": 6
     },
     "et-EE": {
       "digest": "f7d744b9ad34a78a0b4a77426b4d4b92f36c0d89f831fb5256b7c72b2b5f89eb",
@@ -91,18 +91,19 @@
     },
     "ja-JP": {
       "digest": "f7d744b9ad34a78a0b4a77426b4d4b92f36c0d89f831fb5256b7c72b2b5f89eb",
-      "accepted": 600,
+      "accepted": 750,
       "batches_accepted": [
         "ja-JP.b0001",
         "ja-JP.b0002",
         "ja-JP.b0003",
-        "ja-JP.b0004"
+        "ja-JP.b0004",
+        "ja-JP.b0005"
       ],
       "throughput": {
-        "keys": 600,
-        "seconds": 624.6550000000001
+        "keys": 750,
+        "seconds": 718.0520000000001
       },
-      "issued": 5
+      "issued": 6
     },
     "de-DE": {
       "digest": "f7d744b9ad34a78a0b4a77426b4d4b92f36c0d89f831fb5256b7c72b2b5f89eb",
@@ -129,7 +130,7 @@
         "keys": 300,
         "seconds": 223.947
       },
-      "issued": 3
+      "issued": 4
     },
     "es-ES": {
       "digest": "f7d744b9ad34a78a0b4a77426b4d4b92f36c0d89f831fb5256b7c72b2b5f89eb",
@@ -185,8 +186,8 @@
         "keys": 360,
         "seconds": 239.57
       },
-      "issued": 4
+      "issued": 5
     }
   },
-  "updated": "2026-09-30T13:30:33.785Z"
+  "updated": "2026-09-30T13:32:00.748Z"
 }
