@@ -33,6 +33,7 @@ interface TaskOutputToolResultDisplay {
   kind: "task_output";
   retrievalStatus: "success" | "not_ready" | "timeout";
   taskStatus?: string;
+  description?: string;
   output?: string;
   truncated?: true;
 }
@@ -170,11 +171,14 @@ function parseDisplay(value: unknown): ToolResultDisplay | undefined {
       return undefined;
     }
     const taskStatus = readOptionalString(value, "taskStatus");
+    const description = readOptionalString(value, "description");
     const output = readOptionalString(value, "output");
     const truncated = value.truncated;
     if (
       taskStatus === null ||
       (taskStatus !== undefined && taskStatus.length > 64) ||
+      description === null ||
+      (description !== undefined && description.length > 200) ||
       output === null ||
       (output !== undefined && output.length > 2_000) ||
       (truncated !== undefined && truncated !== true)
@@ -185,6 +189,7 @@ function parseDisplay(value: unknown): ToolResultDisplay | undefined {
       kind: "task_output",
       retrievalStatus: value.retrievalStatus,
       ...(taskStatus !== undefined ? { taskStatus } : {}),
+      ...(description !== undefined ? { description } : {}),
       ...(output !== undefined ? { output } : {}),
       ...(truncated === true ? { truncated: true } : {}),
     };

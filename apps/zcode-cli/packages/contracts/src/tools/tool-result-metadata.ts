@@ -17,6 +17,7 @@ import {
 
 export const COMPLETED_TOOL_PART_METADATA_SCHEMA_VERSION = 1;
 export const TASK_OUTPUT_DISPLAY_MAX_STATUS_CHARS = 64;
+export const TASK_OUTPUT_DISPLAY_MAX_DESCRIPTION_CHARS = 200;
 export const TASK_OUTPUT_DISPLAY_MAX_OUTPUT_CHARS = 2_000;
 export const MCP_TOOL_DISPLAY_MAX_NAME_CHARS = 256;
 export const MCP_TOOL_DISPLAY_MAX_DESCRIPTION_CHARS = 4 * 1024;
@@ -102,6 +103,8 @@ export const taskOutputToolResultDisplayPayloadSchema = z
     kind: z.literal("task_output"),
     retrievalStatus: z.enum(["success", "not_ready", "timeout"]),
     taskStatus: z.string().min(1).max(TASK_OUTPUT_DISPLAY_MAX_STATUS_CHARS).optional(),
+    /** T-136: what the task is (the background command), so the card does not show a bare id. */
+    description: z.string().min(1).max(TASK_OUTPUT_DISPLAY_MAX_DESCRIPTION_CHARS).optional(),
     output: z.string().min(1).max(TASK_OUTPUT_DISPLAY_MAX_OUTPUT_CHARS).optional(),
     truncated: z.literal(true).optional(),
   })

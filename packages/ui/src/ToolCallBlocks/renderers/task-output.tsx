@@ -83,12 +83,16 @@ export function TaskOutputToolCallBlock(context: ToolCallBlockRenderContext) {
   const kindLabel = intl.formatMessage({
     id: context.isRunning ? "chat.toolCall.taskOutput.fetching" : "chat.toolCall.kind.taskOutput",
   });
+  // T-136: name the background command, not only its opaque id (exec_...); the id stays in the tooltip.
+  const description = taskOutputDisplay?.description;
 
   const primaryText = useMemo(
     () => (
-      <code className="min-w-0 truncate font-mono">{taskId ?? toolCall.title ?? "TaskOutput"}</code>
+      <code className="min-w-0 truncate font-mono" title={taskId}>
+        {description ?? taskId ?? toolCall.title ?? "TaskOutput"}
+      </code>
     ),
-    [taskId, toolCall.title],
+    [description, taskId, toolCall.title],
   );
   const renderContent = useCallback(
     () => (

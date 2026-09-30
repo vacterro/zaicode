@@ -9,6 +9,7 @@ import {
   ZCODE_MCP_NODE_REPL_CUA_APP_META_KEY,
   SEND_MESSAGE_TOOL_NAME,
   SendMessageOutputSchema,
+  TASK_OUTPUT_DISPLAY_MAX_DESCRIPTION_CHARS,
   TASK_OUTPUT_DISPLAY_MAX_OUTPUT_CHARS,
   TASK_OUTPUT_DISPLAY_MAX_STATUS_CHARS,
   TASK_OUTPUT_TOOL_NAME,
@@ -173,6 +174,10 @@ export function createToolResultDisplay(
     const taskStatus = parsed.data.task?.status
       .trim()
       .slice(0, TASK_OUTPUT_DISPLAY_MAX_STATUS_CHARS);
+    const description = parsed.data.task?.description
+      .replace(/\s+/g, " ")
+      .trim()
+      .slice(0, TASK_OUTPUT_DISPLAY_MAX_DESCRIPTION_CHARS);
     const fullOutput = parsed.data.task?.output.trimEnd();
     const hasOutput = fullOutput !== undefined && fullOutput.trim().length > 0;
     const truncated = hasOutput && fullOutput.length > TASK_OUTPUT_DISPLAY_MAX_OUTPUT_CHARS;
@@ -183,6 +188,7 @@ export function createToolResultDisplay(
       kind: "task_output",
       retrievalStatus: parsed.data.retrieval_status,
       ...(taskStatus ? { taskStatus } : {}),
+      ...(description ? { description } : {}),
       ...(hasOutput ? { output: fullOutput.slice(0, TASK_OUTPUT_DISPLAY_MAX_OUTPUT_CHARS) } : {}),
       ...(truncated ? { truncated: true } : {}),
     };

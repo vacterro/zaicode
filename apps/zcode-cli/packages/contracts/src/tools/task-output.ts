@@ -60,6 +60,8 @@ export const TaskOutputResultSchema = z
   .object({
     retrieval_status: z.enum(["success", "not_ready", "timeout"]),
     task: TaskOutputTaskSchema.nullable(),
+    /** ZAICODE: why a wait ended while the task still runs, and what to do instead of waiting again. */
+    wait_note: z.string().optional(),
   })
   .strict();
 

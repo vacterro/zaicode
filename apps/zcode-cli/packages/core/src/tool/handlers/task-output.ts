@@ -25,13 +25,18 @@ import type {
   ToolPersistedModelContentInput,
 } from "../types.js";
 import { formatCompactFileSize, projectTask, throwIfAborted } from "./task-output-projection.js";
+import {
+  describeUnfinishedWait,
+  isTaskActive,
+  resolveTaskOutputWaitPolicy,
+  waitForTask,
+} from "./task-output-wait.js";
 
 const TASK_OUTPUT_DEFAULT_LENGTH = 32_000;
 const TASK_OUTPUT_MAX_LENGTH = 160_000;
 const TASK_OUTPUT_PERSIST_THRESHOLD_CHARS = 100_000;
 const TASK_OUTPUT_RESULT_BUDGET_BYTES = 400_000;
 const TASK_OUTPUT_PERSIST_PREVIEW_CHARS = 2_000;
-const TASK_OUTPUT_POLL_INTERVAL_MS = 100;
 const TASK_OUTPUT_ERROR_CODE = {
   TASK_ID_REQUIRED: 1,
   TASK_NOT_FOUND: 2,
@@ -66,12 +71,15 @@ const taskOutputHandler: ToolHandler = async (input, context) => {
   }
 
   await emitWaitingProgress(context);
-  const task = await waitForTask(parsed.task_id, parsed.timeout, context);
+  const policy = resolveTaskOutputWaitPolicy();
+  const waited = await waitForTask(parsed.task_id, parsed.timeout, context, policy);
+  const task = waited.task;
   if (!task) {
     return taskOutputResult("timeout", null);
   }
   if (isTaskActive(task.status)) {
-    return taskOutputResult("timeout", await projectTask(task, context));
+    const result = taskOutputResult("timeout", await projectTask(task, context));
+    return policy.guidance ? { ...result, wait_note: describeUnfinishedWait(waited) } : result;
   }
   const projectedTask = await projectTask(task, context);
   throwIfAborted(context.abortSignal);
@@ -193,6 +201,9 @@ function formatTaskOutputModelContent(output: unknown): string {
       blocks.push(`<error>${task.error}</error>`);
     }
   }
+  if (parsed.wait_note) {
+    blocks.push(`<note>${parsed.wait_note}</note>`);
+  }
   return blocks.join("\n\n");
 }
 
@@ -226,29 +237,6 @@ function formatPersistedTaskOutputModelContent(input: ToolPersistedModelContentI
   });
 }
 
-async function waitForTask(
-  taskId: string,
-  timeoutMs: number,
-  context: ToolExecutionContext,
-): Promise<RuntimeTaskSnapshot | undefined> {
-  const startedAt = Date.now();
-  while (Date.now() - startedAt < timeoutMs) {
-    throwIfAborted(context.abortSignal);
-    const task = context.runtimeTaskRegistry?.get(taskId);
-    if (!task) return undefined;
-    if (!isTaskActive(task.status)) return task;
-    await delay(TASK_OUTPUT_POLL_INTERVAL_MS);
-  }
-  return context.runtimeTaskRegistry?.get(taskId);
-}
-
-function delay(milliseconds: number): Promise<void> {
-  return new Promise((resolve) => {
-    setTimeout(resolve, milliseconds);
-  });
-}
-
-const isTaskActive = (status: string): boolean => status === "running" || status === "pending";
 
 function markTaskNotified(task: RuntimeTaskSnapshot, context: ToolExecutionContext): void {
   context.runtimeTaskRegistry?.update(task.taskId, (current) =>

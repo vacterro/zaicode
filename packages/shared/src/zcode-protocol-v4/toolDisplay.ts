@@ -56,6 +56,7 @@ const toolResultDisplaySchema = z.discriminatedUnion("kind", [
     kind: z.literal("task_output"),
     retrievalStatus: z.enum(["success", "not_ready", "timeout"]),
     taskStatus: z.string().min(1).max(64).optional(),
+    description: z.string().min(1).max(200).optional(),
     output: z.string().min(1).max(2_000).optional(),
     truncated: z.literal(true).optional(),
   }),
@@ -212,6 +213,7 @@ const toolCallTaskOutputDisplaySchema = z
     kind: z.literal("task_output"),
     retrievalStatus: z.enum(["success", "not_ready", "timeout"]),
     taskStatus: z.string().min(1).max(64).optional(),
+    description: z.string().min(1).max(200).optional(),
     output: z.string().min(1).max(2_000).optional(),
     truncated: z.literal(true).optional(),
   })
