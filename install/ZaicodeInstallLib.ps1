@@ -398,7 +398,8 @@ function Get-ZaicodeComponentStatus($Layout, $Component, [string]$Git, [switch]$
   # merged branch's whole history as new (81 for one merge on the first real run).
   $record.behind = [int](Invoke-ZaicodeGitText $Git $Component.Dir @('rev-list', '--count', '--first-parent', "HEAD..origin/$($Component.Branch)"))
   $record.ahead = [int](Invoke-ZaicodeGitText $Git $Component.Dir @('rev-list', '--count', "origin/$($Component.Branch)..HEAD"))
-  $record.dirty = [bool](Invoke-ZaicodeGitText $Git $Component.Dir @('status', '--porcelain', '--untracked-files=no'))
+  # Content changes only: a build rewrites some tracked generated files with other line endings (same content).
+  $record.dirty = [bool](Invoke-ZaicodeGitText $Git $Component.Dir @('diff', '--name-only', 'HEAD'))
   if ($record.behind -gt 0) {
     $log = Invoke-ZaicodeGitText $Git $Component.Dir @('log', '--first-parent', '--format=%s', '-n', '8', "HEAD..origin/$($Component.Branch)")
     if ($log) { $record.subjects = @($log -split "`n" | Where-Object { $_ }) }
@@ -424,7 +425,27 @@ function Get-ZaicodeComponentStatus($Layout, $Component, [string]$Git, [switch]$
 
 # Fast-forwards one clone and runs what that component needs afterwards. Local work is never touched:
 # a dirty tree that the update would overwrite, another branch or local commits leave the clone as it is.
+# The app build regenerates a few tracked files (dist-types\*.d.ts) with LF endings in a CRLF checkout: git lists them
+# as modified although `git diff` finds no content change, and such an entry would block the next fast-forward
+# ("local changes would be overwritten"). Only those entries are restored; a file with a real change is never touched.
+function Restore-ZaicodeLineEndingOnly([string]$Git, [string]$Dir) {
+  $listed = Invoke-ZaicodeGitText $Git $Dir @('-c', 'core.quotepath=false', 'status', '--porcelain', '--untracked-files=no')
+  if (-not $listed) { return 0 }
+  $changed = @((Invoke-ZaicodeGitText $Git $Dir @('-c', 'core.quotepath=false', 'diff', '--name-only', 'HEAD')) -split "`n" | Where-Object { $_ })
+  $restored = 0
+  foreach ($line in ($listed -split "`n")) {
+    if ($line -notmatch '^ M (.+)$') { continue }
+    $path = $Matches[1].Trim('"')
+    if ($changed -contains $path) { continue }
+    $result = Invoke-ZaicodeCommand -File $Git -Arguments @('-C', $Dir, 'checkout', '--', $path) -AllowFailure
+    if ($result.Code -eq 0) { $restored++ }
+  }
+  if ($restored -gt 0) { Write-ZaicodeLog "$Dir`: $restored file(s) the build had rewritten with other line endings restored" 'DarkGray' }
+  return $restored
+}
+
 function Update-ZaicodeComponent($Layout, $Options, $Component, [string]$Git, [switch]$NoBuild) {
+  if (Test-ZaicodeRepo $Git $Component.Dir) { Restore-ZaicodeLineEndingOnly $Git $Component.Dir | Out-Null }
   $status = Get-ZaicodeComponentStatus $Layout $Component $Git -Fetch
   if ($status.status -ne 'available') { return $status }
   $before = $status.head
