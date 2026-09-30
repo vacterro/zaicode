@@ -27,6 +27,7 @@ import { useZCodeSessionService } from "@/hooks/useZCodeSessionService.js";
 import { useSettings } from "@/hooks/useSettingService.js";
 import { parseModelPickerValue } from "@/lib/zcodeSessionProjection.js";
 import { initializeNewTaskDraft } from "@/v4/composer/newTaskDraft.js";
+import { resolveZaicodeComposerMode } from "@/v4/composer/draftWorkspaceDefaults.js";
 import {
   clearV4ComposerDraft,
   persistV4ComposerDraft,
@@ -163,7 +164,7 @@ export function useDraftConfigControl(params: {
             ...draft,
             mode:
               mode.success && mode.data !== "plan"
-                ? mode.data
+                ? resolveZaicodeComposerMode(mode.data)
                 : isZaicodeProductMode()
                   ? "yolo"
                   : "build",
@@ -186,7 +187,7 @@ export function useDraftConfigControl(params: {
     : draft.modelSelection;
   const draftConfig = useMemo<Partial<SessionConfigState>>(
     () => ({
-      mode: draft.mode,
+      mode: resolveZaicodeComposerMode(draft.mode),
       planEnabled: draft.planEnabled ?? false,
       modelSelection: effectiveSelection,
       provider: effectiveSelection?.providerId ?? "",
@@ -222,7 +223,7 @@ export function useDraftConfigControl(params: {
           ? draftConfigRef.current.modelSelection
           : next.modelSelection;
       draftConfigRef.current = {
-        mode: next.mode,
+        mode: resolveZaicodeComposerMode(next.mode),
         planEnabled: next.planEnabled ?? false,
         modelSelection: selection,
         provider: selection?.providerId ?? "",
@@ -241,7 +242,7 @@ export function useDraftConfigControl(params: {
       const mode = submissionModeSchema.safeParse(next.mode);
       updateComposerDraft((current) => ({
         ...current,
-        mode: mode.success ? mode.data : current.mode,
+        mode: mode.success ? resolveZaicodeComposerMode(mode.data) : current.mode,
         modelSelection: next.modelSelection,
         // 用户已经显式改选，不能再由导入时等待的默认初始化覆盖。
         ...(current.initializeFromNewTask

@@ -2,6 +2,7 @@ import type { ModelSelectionView } from "@zcode/services";
 import { isZaicodeProductMode } from "@zcode/shared";
 import { readComposerRecent, resolveDraftInitialModelSelection } from "@/lib/composerRecent.js";
 import { resolveZaicodeDefaultSelection } from "@/zaicode/zaicodeDefaultModel.js";
+import { resolveZaicodeComposerMode } from "@/v4/composer/draftWorkspaceDefaults.js";
 import {
   persistV4ComposerDraft,
   readV4ComposerDraft,
@@ -21,7 +22,9 @@ export function initializeNewTaskDraft(
   return {
     ...draft,
     initializeFromNewTask: undefined,
-    mode: recent?.mode === "plan" ? defaultMode : (recent?.mode ?? defaultMode),
+    mode: resolveZaicodeComposerMode(
+      recent?.mode === "plan" ? defaultMode : (recent?.mode ?? defaultMode),
+    ),
     planEnabled: false,
     modelSelection:
       (isZaicodeProductMode() ? resolveZaicodeDefaultSelection(view) : null) ??

@@ -34,9 +34,15 @@ import {
   getNextConfigSelectValue,
   useToolbarShortcutBindings,
 } from "@/v4/composer/toolbarShortcuts.js";
+import { resolveZaicodeComposerMode } from "@/v4/composer/draftWorkspaceDefaults.js";
 import type { V4ComposerToolbarProps } from "@/v4/composer/V4ComposerToolbar.js";
 
 function noop(): void {}
+
+function isOfferedPermissionMode(mode: { id: string }): boolean {
+  if (mode.id === "plan") return false;
+  return !isZaicodeProductMode() || mode.id === "yolo";
+}
 
 /** Plan 是独立勾选项，三种权限仍为单选；只编辑草稿，不向 Runtime 发切换命令。 */
 function V4ComposerModeSwitchImpl({
@@ -61,8 +67,10 @@ function V4ComposerModeSwitchImpl({
   const displayProvider = provider ?? ZCODE_AGENT_PROVIDER;
   const modeShortcutLabel = useShortcutCommandLabel("cycleSessionMode");
   const modes = getZCodeAgentAvailableModes();
-  const permissions = modes.filter((mode) => mode.id !== "plan");
-  const effectiveMode = draftConfig?.mode ?? (isZaicodeProductMode() ? "yolo" : "build");
+  // T-136: ZAICODE offers one permission mode, full access; plan stays a separate checkbox.
+  const permissions = modes.filter(isOfferedPermissionMode);
+  const effectiveMode =
+    resolveZaicodeComposerMode(draftConfig?.mode) ?? (isZaicodeProductMode() ? "yolo" : "build");
   const selected = permissions.find((mode) => mode.id === effectiveMode);
   const label = (mode: (typeof modes)[number]) =>
     getModeOptionDisplayLabel(intl, displayProvider, { value: mode.id, name: mode.name });
@@ -78,7 +86,7 @@ function V4ComposerModeSwitchImpl({
       type: "select",
       currentValue: effectiveMode,
       options: getZCodeAgentAvailableModes()
-        .filter((mode) => mode.id !== "plan")
+        .filter(isOfferedPermissionMode)
         .map((mode) => ({ value: mode.id, name: mode.name })),
     }),
     [effectiveMode],

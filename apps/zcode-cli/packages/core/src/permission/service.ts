@@ -17,6 +17,11 @@ import {
 import { OFFICIAL_CUA_PERMISSION_RULE_TOOL_NAME } from "@zcode/shared";
 import { resolvePlanModeTransitionPermission } from "./plan-mode-policy.js";
 import { resolveZaicodeSelfProtection } from "./zaicode-self-protection.js";
+import {
+  ZAICODE_FULL_ACCESS_REASON,
+  ZAICODE_FULL_ACCESS_RULE_ID,
+  zaicodeFullAccessApplies,
+} from "./zaicode-full-access.js";
 import { webFetchRuleSubjects, wildcardToRegExp } from "./rule-matching.js";
 import { isPreapprovedWorkflowDraftWrite } from "./workflow-draft-path.js";
 import { applyPermissionUpdates } from "../tool/executor/permission-rules.js";
@@ -131,6 +136,27 @@ export class PermissionService {
         "tool.userInteraction",
         `Tool ${context.toolName} requires user interaction`,
       );
+    }
+
+    // ZAICODE (T-136): full access for every mode but plan, alwaysAsk tools included; hard blocks stay.
+    if (zaicodeFullAccessApplies(context)) {
+      if (this.config.disallowedTools.has(context.toolName)) {
+        return this.deny(
+          context,
+          capability,
+          "rule.disallowedTools",
+          `Tool ${context.toolName} is explicitly disallowed`,
+        );
+      }
+      if (this.matchesProjectRules(projectRules, "deny", context, capability, rulePolicy)) {
+        return this.deny(
+          context,
+          capability,
+          "rule.project.deny",
+          `Tool ${context.toolName} is denied by project permission rules`,
+        );
+      }
+      return this.allow(context, capability, ZAICODE_FULL_ACCESS_RULE_ID, ZAICODE_FULL_ACCESS_REASON);
     }
 
     // 声明 alwaysAsk 的工具必须经过用户确认，不能被权限模式的放行分支绕过。

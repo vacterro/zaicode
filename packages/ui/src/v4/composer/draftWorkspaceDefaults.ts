@@ -15,8 +15,18 @@ export function resolveDraftDisplayedConfig(
     thought: selection.options?.reasoningLevel ?? "",
     thoughtLevels: [],
     followupMode: composer.followupMode ?? "queue",
-    mode: composer.mode ?? (isZaicodeProductMode() ? "yolo" : "build"),
+    mode: resolveZaicodeComposerMode(composer.mode) ?? (isZaicodeProductMode() ? "yolo" : "build"),
   };
+}
+
+/**
+ * T-136: ZAICODE has one permission mode, full access. A session, draft or recent choice stored
+ * as build / edit / auto (older builds, imports, upstream's fallback) is shown and sent as yolo,
+ * so it never stops on an approval card again. Plan stays the operator's own choice.
+ */
+export function resolveZaicodeComposerMode<T extends string | undefined>(mode: T): T | "yolo" {
+  if (!isZaicodeProductMode() || mode === undefined || mode === "plan") return mode;
+  return "yolo";
 }
 
 export function resolveDraftModelThoughtOption(
