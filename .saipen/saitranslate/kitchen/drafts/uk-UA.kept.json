@@ -1,0 +1,16 @@
+[
+  "sidePane.saipen",
+  "gitGraph.title",
+  "gitGraph.menuAction",
+  "codeViewer.markdownMode",
+  "codeViewer.svgMode",
+  "remote.kind.ssh",
+  "remote.kind.wsl",
+  "remote.kind.docker",
+  "remote.kind.wsl.wizardDescription",
+  "taskList.minutesAgo",
+  "taskList.hoursAgo",
+  "taskList.daysAgo",
+  "taskList.attentionCount",
+  "taskList.changeStats"
+]

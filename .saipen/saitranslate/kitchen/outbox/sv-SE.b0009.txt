@@ -1,0 +1,120 @@
+1|"Grenen är redan utcheckad i en annan worktree."
+2|"Byte av gren misslyckades. Försök igen."
+3|"Grenåtgärd misslyckades: {error}"
+4|"Git Graph"
+5|"{count} commits i {lanes} filer"
+6|"Senaste {count} commits i {lanes} filer"
+7|"{count} merges"
+8|"{count} refs"
+9|"Git commit-graf"
+10|"Vald commit"
+11|"Inspektera commit"
+12|"Git Graph"
+13|"Visa aktuellt repositories commit-graf."
+14|"Graf"
+15|"Beskrivning"
+16|"Datum"
+17|"Upphovsperson"
+18|"Commit"
+19|"Rubrik"
+20|"Commit"
+21|"Författare"
+22|"Datum"
+23|"Föräldrar"
+24|"Inga commits"
+25|"Detta arkiv har ännu ingen commit-historik."
+26|"Git Graph kunde inte laddas: {error}"
+27|"Uppdatera Git Graph"
+28|"Uppdatering av Git Graph misslyckades: {error}"
+29|"Ladda fler commits"
+30|"Laddar mer..."
+31|"Kodvisare"
+32|"Stäng kodvisare"
+33|"Laddar fil..."
+34|"Laddar bildförhandsvisning..."
+35|"Filen finns inte, eller så kan den här miljön inte komma åt sökvägen."
+36|"Filen verkar innehålla binärdata och kan ännu inte förhandsvisas som kod."
+37|"Den här bildförhandsvisningen är för närvarande inte tillgänglig."
+38|"Laddar mediaförhandsvisning..."
+39|"Den här mediaförhandsvisningen är för närvarande inte tillgänglig."
+40|"Den här miljön kan inte spela upp detta mediaformat."
+41|"Media kunde inte laddas. Försök igen senare eller öppna den i ett externt program."
+42|"Laddar PDF-förhandsvisning..."
+43|"PDF-förhandsvisning är för närvarande inte tillgänglig."
+44|"Laddar PDF..."
+45|"Kunde inte ladda PDF"
+46|"Inga PDF-data"
+47|"Föregående sida"
+48|"Nästa sida"
+49|"Sidnummer"
+50|"Zooma in"
+51|"Zooma ut"
+52|"Den här Office-filen kan inte förhandsvisas."
+53|"Den här Office-filen är för stor för förhandsvisning (max 25 MB)."
+54|"Arbetsbokens blad"
+55|"Laddar presentation förhandsvisning..."
+56|"Presentationsförhandsvisning är för närvarande inte tillgänglig."
+57|"Laddar presentation..."
+58|"Kunde inte ladda presentationen"
+59|"Den här presentationen har inga bildrutor"
+60|"Den här presentationen överstiger gränsen på 64 MB för förhandsvisning."
+61|Den här fjärrmiljön kan förhandsvisa presentationer upp till 8 MB.
+62|Den här presentationen ändrades eller trunkerades medan den lästes och kan därför inte förhandsvisas. Försök igen.
+63|Föregående bildruta
+64|Nästa bildruta
+65|Bildrutenummer
+66|Zooma in
+67|Välj element
+68|Avsluta val
+69|AI Edit
+70|Lägg till en kommentar för detta element
+71|Avbryt
+72|Lägg till i konversation
+73|Zooma ut
+74|Bildruta-miniatyrer
+75|Bildruta {pageNumber}
+76|Exportera som PDF
+77|Exporterar PDF...
+78|PDF sparad till {path}
+79|Kunde inte exportera PDF
+80|Filen är tom
+81|Filen överstiger gränsen på 256 KB för förhandsvisning. Öppna den i en annan redigerare för att se hela innehållet.
+82|Visa kod
+83|Visa diff
+84|Källförhandsvisning
+85|Markdown
+86|Förhandsvisa
+87|Källa
+88|SVG
+89|Förhandsvisa
+90|Kod
+91|Bryt rader
+92|Mermaid-diagram
+93|Bryt rader
+94|Kopiera kod
+95|Mermaid-källan är tom.
+96|Rendering av Mermaid-diagram misslyckades
+97|Öppna förhandsvisning
+98|Förhandsvisning av Mermaid-diagram som kan zoomas och panoreras.
+99|Zooma in
+100|Zooma ut
+101|Zoomnivå
+102|Zooma till {percent}%
+103|Zooma för att passa
+104|Anpassa till fönstret
+105|Återställ zoom
+106|Återställ zoom
+107|Stäng förhandsvisning
+108|Renderar diagram...
+109|Källa
+110|Kopiera Markdown
+111|Ladda ner CSV
+112|Förhandsvisa tabell
+113|Expandera tabellens rullområde
+114|Fäll ihop tabellens rullområde
+115|Tabellförhandsvisning
+116|Granska tabellen i en större rullbar vy.
+117|Markdown-tabell kopierad
+118|Kunde inte kopiera tabell: {error}
+119|Kunde inte ladda ner tabell
+120|Lägg till kommentar

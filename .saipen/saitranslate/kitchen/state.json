@@ -48,22 +48,33 @@
     },
     "uk-UA": {
       "digest": "f7d744b9ad34a78a0b4a77426b4d4b92f36c0d89f831fb5256b7c72b2b5f89eb",
-      "accepted": 510,
+      "accepted": 1890,
       "batches_accepted": [
         "uk-UA.b0001",
         "uk-UA.b0002",
         "uk-UA.b0003",
-        "uk-UA.b0004"
+        "uk-UA.b0004",
+        "uk-UA.b0007",
+        "uk-UA.b0008",
+        "uk-UA.b0010",
+        "uk-UA.b0011",
+        "uk-UA.b0012",
+        "uk-UA.b0013",
+        "uk-UA.b0014",
+        "uk-UA.b0015",
+        "uk-UA.b0016",
+        "uk-UA.b0017",
+        "uk-UA.b0018"
       ],
       "throughput": {
-        "keys": 510,
-        "seconds": 707.452
+        "keys": 1890,
+        "seconds": 1471.464
       },
-      "issued": 6
+      "issued": 19
     },
     "et-EE": {
       "digest": "f7d744b9ad34a78a0b4a77426b4d4b92f36c0d89f831fb5256b7c72b2b5f89eb",
-      "accepted": 1400,
+      "accepted": 5200,
       "batches_accepted": [
         "et-EE.b0002",
         "et-EE.b0003",
@@ -71,13 +82,32 @@
         "et-EE.b0006",
         "et-EE.b0007",
         "et-EE.b0008",
-        "et-EE.b0010"
+        "et-EE.b0010",
+        "et-EE.b0012",
+        "et-EE.b0013",
+        "et-EE.b0014",
+        "et-EE.b0016",
+        "et-EE.b0017",
+        "et-EE.b0018",
+        "et-EE.b0020",
+        "et-EE.b0021",
+        "et-EE.b0023",
+        "et-EE.b0024",
+        "et-EE.b0025",
+        "et-EE.b0026",
+        "et-EE.b0027",
+        "et-EE.b0028",
+        "et-EE.b0030",
+        "et-EE.b0031",
+        "et-EE.b0032",
+        "et-EE.b0033",
+        "et-EE.b0034"
       ],
       "throughput": {
-        "keys": 1400,
-        "seconds": 252.63800000000003
+        "keys": 5200,
+        "seconds": 915.4850000000001
       },
-      "issued": 10
+      "issued": 35
     },
     "ded": {
       "digest": "f7d744b9ad34a78a0b4a77426b4d4b92f36c0d89f831fb5256b7c72b2b5f89eb",
@@ -91,103 +121,239 @@
     },
     "ja-JP": {
       "digest": "f7d744b9ad34a78a0b4a77426b4d4b92f36c0d89f831fb5256b7c72b2b5f89eb",
-      "accepted": 750,
+      "accepted": 2220,
       "batches_accepted": [
         "ja-JP.b0001",
         "ja-JP.b0002",
         "ja-JP.b0003",
         "ja-JP.b0004",
-        "ja-JP.b0005"
+        "ja-JP.b0005",
+        "ja-JP.b0007",
+        "ja-JP.b0009",
+        "ja-JP.b0010",
+        "ja-JP.b0011",
+        "ja-JP.b0012",
+        "ja-JP.b0013",
+        "ja-JP.b0014",
+        "ja-JP.b0015",
+        "ja-JP.b0016",
+        "ja-JP.b0017",
+        "ja-JP.b0018",
+        "ja-JP.b0019"
       ],
       "throughput": {
-        "keys": 750,
-        "seconds": 718.0520000000001
+        "keys": 2220,
+        "seconds": 1388.845
       },
-      "issued": 6
+      "issued": 20
     },
     "de-DE": {
       "digest": "f7d744b9ad34a78a0b4a77426b4d4b92f36c0d89f831fb5256b7c72b2b5f89eb",
-      "accepted": 450,
+      "accepted": 1470,
       "batches_accepted": [
         "de-DE.b0001",
         "de-DE.b0002",
-        "de-DE.b0004"
+        "de-DE.b0004",
+        "de-DE.b0005",
+        "de-DE.b0006",
+        "de-DE.b0008",
+        "de-DE.b0009",
+        "de-DE.b0010",
+        "de-DE.b0011",
+        "de-DE.b0012",
+        "de-DE.b0013"
       ],
       "throughput": {
-        "keys": 450,
-        "seconds": 441.55100000000004
+        "keys": 1470,
+        "seconds": 1441.202
       },
-      "issued": 5
+      "issued": 14
     },
     "fr-FR": {
       "digest": "f7d744b9ad34a78a0b4a77426b4d4b92f36c0d89f831fb5256b7c72b2b5f89eb",
-      "accepted": 300,
+      "accepted": 1500,
       "batches_accepted": [
         "fr-FR.b0001",
-        "fr-FR.b0002"
+        "fr-FR.b0002",
+        "fr-FR.b0006",
+        "fr-FR.b0007",
+        "fr-FR.b0008",
+        "fr-FR.b0009",
+        "fr-FR.b0010",
+        "fr-FR.b0011",
+        "fr-FR.b0012",
+        "fr-FR.b0013",
+        "fr-FR.b0014",
+        "fr-FR.b0015"
       ],
       "throughput": {
-        "keys": 300,
-        "seconds": 223.947
+        "keys": 1500,
+        "seconds": 805.0960000000001
       },
-      "issued": 4
+      "issued": 16
     },
     "es-ES": {
       "digest": "f7d744b9ad34a78a0b4a77426b4d4b92f36c0d89f831fb5256b7c72b2b5f89eb",
-      "accepted": 360,
+      "accepted": 1080,
       "batches_accepted": [
         "es-ES.b0001",
         "es-ES.b0002",
-        "es-ES.b0003"
+        "es-ES.b0003",
+        "es-ES.b0006",
+        "es-ES.b0007",
+        "es-ES.b0008",
+        "es-ES.b0009",
+        "es-ES.b0010",
+        "es-ES.b0011"
       ],
       "throughput": {
-        "keys": 360,
-        "seconds": 225.839
+        "keys": 1080,
+        "seconds": 576.593
       },
-      "issued": 4
+      "issued": 13
     },
     "pt-BR": {
       "digest": "f7d744b9ad34a78a0b4a77426b4d4b92f36c0d89f831fb5256b7c72b2b5f89eb",
-      "accepted": 360,
+      "accepted": 1560,
       "batches_accepted": [
         "pt-BR.b0001",
         "pt-BR.b0002",
-        "pt-BR.b0003"
+        "pt-BR.b0003",
+        "pt-BR.b0005",
+        "pt-BR.b0007",
+        "pt-BR.b0008",
+        "pt-BR.b0009",
+        "pt-BR.b0010",
+        "pt-BR.b0011",
+        "pt-BR.b0012",
+        "pt-BR.b0013",
+        "pt-BR.b0014",
+        "pt-BR.b0015"
       ],
       "throughput": {
-        "keys": 360,
-        "seconds": 157.41500000000002
+        "keys": 1560,
+        "seconds": 911.7280000000003
       },
-      "issued": 4
+      "issued": 16
     },
     "pl-PL": {
       "digest": "f7d744b9ad34a78a0b4a77426b4d4b92f36c0d89f831fb5256b7c72b2b5f89eb",
-      "accepted": 360,
+      "accepted": 1200,
       "batches_accepted": [
         "pl-PL.b0001",
         "pl-PL.b0002",
-        "pl-PL.b0003"
+        "pl-PL.b0003",
+        "pl-PL.b0004",
+        "pl-PL.b0007",
+        "pl-PL.b0008",
+        "pl-PL.b0009",
+        "pl-PL.b0010",
+        "pl-PL.b0011",
+        "pl-PL.b0012"
       ],
       "throughput": {
-        "keys": 360,
-        "seconds": 230.211
+        "keys": 1200,
+        "seconds": 1029.412
       },
-      "issued": 4
+      "issued": 13
     },
     "it-IT": {
       "digest": "f7d744b9ad34a78a0b4a77426b4d4b92f36c0d89f831fb5256b7c72b2b5f89eb",
-      "accepted": 360,
+      "accepted": 1080,
       "batches_accepted": [
         "it-IT.b0001",
         "it-IT.b0002",
-        "it-IT.b0003"
+        "it-IT.b0003",
+        "it-IT.b0006",
+        "it-IT.b0007",
+        "it-IT.b0008",
+        "it-IT.b0009",
+        "it-IT.b0011",
+        "it-IT.b0012"
       ],
       "throughput": {
-        "keys": 360,
-        "seconds": 239.57
+        "keys": 1080,
+        "seconds": 648.963
       },
-      "issued": 5
+      "issued": 13
+    },
+    "nl-NL": {
+      "digest": "f7d744b9ad34a78a0b4a77426b4d4b92f36c0d89f831fb5256b7c72b2b5f89eb",
+      "accepted": 1080,
+      "batches_accepted": [
+        "nl-NL.b0001",
+        "nl-NL.b0002",
+        "nl-NL.b0004",
+        "nl-NL.b0005",
+        "nl-NL.b0006",
+        "nl-NL.b0007",
+        "nl-NL.b0008",
+        "nl-NL.b0009",
+        "nl-NL.b0010"
+      ],
+      "throughput": {
+        "keys": 1080,
+        "seconds": 798.3879999999999
+      },
+      "issued": 11
+    },
+    "fi-FI": {
+      "digest": "f7d744b9ad34a78a0b4a77426b4d4b92f36c0d89f831fb5256b7c72b2b5f89eb",
+      "accepted": 1080,
+      "batches_accepted": [
+        "fi-FI.b0001",
+        "fi-FI.b0002",
+        "fi-FI.b0004",
+        "fi-FI.b0005",
+        "fi-FI.b0006",
+        "fi-FI.b0007",
+        "fi-FI.b0008",
+        "fi-FI.b0009",
+        "fi-FI.b0010"
+      ],
+      "throughput": {
+        "keys": 1080,
+        "seconds": 851.8589999999998
+      },
+      "issued": 11
+    },
+    "da-DK": {
+      "digest": "f7d744b9ad34a78a0b4a77426b4d4b92f36c0d89f831fb5256b7c72b2b5f89eb",
+      "accepted": 960,
+      "batches_accepted": [
+        "da-DK.b0001",
+        "da-DK.b0003",
+        "da-DK.b0004",
+        "da-DK.b0005",
+        "da-DK.b0006",
+        "da-DK.b0007",
+        "da-DK.b0008",
+        "da-DK.b0009"
+      ],
+      "throughput": {
+        "keys": 960,
+        "seconds": 818.781
+      },
+      "issued": 10
+    },
+    "sv-SE": {
+      "digest": "f7d744b9ad34a78a0b4a77426b4d4b92f36c0d89f831fb5256b7c72b2b5f89eb",
+      "accepted": 840,
+      "batches_accepted": [
+        "sv-SE.b0001",
+        "sv-SE.b0003",
+        "sv-SE.b0004",
+        "sv-SE.b0005",
+        "sv-SE.b0006",
+        "sv-SE.b0007",
+        "sv-SE.b0008"
+      ],
+      "throughput": {
+        "keys": 840,
+        "seconds": 600.6410000000001
+      },
+      "issued": 9
     }
   },
-  "updated": "2026-09-30T13:32:00.748Z"
+  "updated": "2026-09-30T13:48:01.795Z"
 }

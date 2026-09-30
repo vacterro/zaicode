@@ -1,5 +1,16 @@
 [
   "login.apiKey.provider.zai",
   "login.apiKey.provider.bigmodel",
-  "sidePane.saipen"
+  "sidePane.saipen",
+  "remote.kind.ssh",
+  "remote.kind.wsl",
+  "remote.kind.docker",
+  "settings.browser.title",
+  "settings.mcp.form.protocolVersion.modern",
+  "settings.modelProvider.baseUrlPlaceholder",
+  "settings.modelProvider.apiFormat.short.anthropicMessages",
+  "settings.modelProvider.connectionMode.oauth",
+  "settings.modelProvider.connectionMode.startPlan",
+  "settings.modelProvider.connectionMode.apiKeyBadge",
+  "settings.modelProvider.codingPlan.purchaseBanner.startPlanTitle"
 ]

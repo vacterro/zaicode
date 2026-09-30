@@ -100,8 +100,9 @@ function glossary() {
   ].join(" ");
 }
 
-function prompt(batch, feedback) {
-  const lines = batch.keys.map((key, index) => `${index + 1}|${JSON.stringify(batch.messages[key])}`);
+function prompt(batch, feedback, numbers) {
+  const wanted = numbers ?? batch.keys.map((_, index) => index + 1);
+  const lines = wanted.map((number) => `${number}|${JSON.stringify(batch.messages[batch.keys[number - 1]])}`);
   const system = [
     `You translate the user interface of ZAICODE, a desktop app for AI coding agents, from English into ${LANGUAGES[locale]}.`,
     "Input: numbered lines N|\"English\" (the English is a JSON string).",
@@ -117,8 +118,8 @@ function prompt(batch, feedback) {
   return { system, user };
 }
 
-async function ask(batch, feedback) {
-  const { system, user } = prompt(batch, feedback);
+async function ask(batch, feedback, numbers) {
+  const { system, user } = prompt(batch, feedback, numbers);
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 300_000);
   try {
@@ -158,6 +159,25 @@ function answerLines(answer, count) {
   return out;
 }
 
+/** Batch line numbers the runner or the line mapper refused, from their own output. */
+function refusedNumbers(batch, output) {
+  const numbers = new Set();
+  for (const line of output.split(/\r?\n/)) {
+    const missing = /missing number (\d+)/.exec(line);
+    if (missing) numbers.add(Number(missing[1]));
+    const bad = /line (\d+): not a JSON string/.exec(line);
+    if (bad) numbers.add(Number(bad[1]));
+    const duplicate = /duplicate number (\d+)/.exec(line);
+    if (duplicate) numbers.add(Number(duplicate[1]));
+    const keyed = /^\s*-\s+([A-Za-z0-9_.-]+):/.exec(line);
+    if (keyed) {
+      const index = batch.keys.indexOf(keyed[1]);
+      if (index >= 0) numbers.add(index + 1);
+    }
+  }
+  return [...numbers].sort((a, b) => a - b);
+}
+
 async function one() {
   const issued = await withLock(() => node("runner.mjs", ["batch", locale, String(size)]));
   const match = /issued (\S+):/.exec(issued.stdout);
@@ -167,30 +187,42 @@ async function one() {
   }
   const id = match[1];
   const batch = JSON.parse(readFileSync(join(OUTBOX, `${id}.json`), "utf8"));
+  const started = Date.now();
+  // Accepted-looking answer lines by batch number; a retry asks ONLY for the numbers still wrong.
+  const answers = new Map();
   let feedback = "";
-  for (let attempt = 1; attempt <= retries; attempt += 1) {
-    const started = Date.now();
-    let answer;
-    try {
-      answer = await ask(batch, feedback);
-    } catch (error) {
-      feedback = "";
-      log(`${id} attempt ${attempt}: model call failed: ${error instanceof Error ? error.message : String(error)}`);
-      continue;
+  let servedBy = model;
+  for (let attempt = 1; attempt <= retries + 2; attempt += 1) {
+    const missing = batch.keys.map((_, index) => index + 1).filter((number) => !answers.has(number));
+    if (missing.length > 0) {
+      let answer;
+      try {
+        answer = await ask(batch, feedback, missing.length === batch.keys.length ? undefined : missing);
+      } catch (error) {
+        log(`${id} attempt ${attempt}: model call failed: ${error instanceof Error ? error.message : String(error)}`);
+        continue;
+      }
+      servedBy = answer.servedBy;
+      for (const line of answerLines(answer.text, batch.keys.length)) {
+        const number = Number(line.slice(0, line.indexOf("|")));
+        if (missing.includes(number)) answers.set(number, line);
+      }
     }
-    const lines = answerLines(answer.text, batch.keys.length);
     const file = join(OUTBOX, `${id}.txt`);
-    writeFileSync(file, lines.join("\n") + "\n");
+    writeFileSync(file, [...answers.entries()].sort((a, b) => a[0] - b[0]).map(([, line]) => line).join("\n") + "\n");
     const done = await withLock(() => node("tools.mjs", ["done", id, file]));
     const output = (done.stdout + done.stderr).trim();
     if (done.status === 0 && /ACCEPTED/.test(output)) {
-      log(`${id} attempt ${attempt} ACCEPTED in ${((Date.now() - started) / 1000).toFixed(1)} s via ${answer.servedBy}: ${output.split(/\r?\n/).at(-1)}`);
+      log(`${id} attempt ${attempt} ACCEPTED in ${((Date.now() - started) / 1000).toFixed(1)} s via ${servedBy}: ${output.split(/\r?\n/).at(-1)}`);
       return "accepted";
     }
+    const refused = refusedNumbers(batch, output);
+    for (const number of refused) answers.delete(number);
     feedback = output.split(/\r?\n/).slice(0, 25).join("\n");
-    log(`${id} attempt ${attempt} rejected via ${answer.servedBy}: ${feedback.split(/\r?\n/)[0]}`);
+    log(`${id} attempt ${attempt} rejected via ${servedBy}: ${refused.length} line(s) to redo; ${feedback.split(/\r?\n/)[0]}`);
+    if (refused.length === 0) answers.clear();
   }
-  log(`${id} gave up after ${retries} attempts (resumable: the keys stay pending)`);
+  log(`${id} gave up after ${retries + 2} attempts (resumable: the keys stay pending)`);
   return "failed";
 }
 

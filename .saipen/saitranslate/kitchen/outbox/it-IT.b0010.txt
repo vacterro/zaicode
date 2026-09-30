@@ -1,0 +1,120 @@
+1|"Il branch è già attivato in un altro worktree."
+2|"Cambio branch non riuscito. Riprova."
+3|"Operazione su branch non riuscita: {error}"
+4|"Git Graph"
+5|"{count} commit su {lanes} corsie"
+6|"Ultimi {count} commit su {lanes} corsie"
+7|"{count} merge"
+8|"{count} riferimenti"
+9|"Grafico commit Git"
+10|"Commit selezionato"
+11|"Ispeziona commit"
+12|"Git Graph"
+13|"Visualizza il grafico dei commit del repository corrente."
+14|"Grafico"
+15|"Descrizione"
+16|"Data"
+17|"Autore"
+18|"Commit"
+19|"Oggetto"
+20|"Commit"
+21|"Autore"
+22|"Data"
+23|"Genitori"
+24|"Nessun commit"
+25|"Questo repository non ha ancora uno storico dei commit."
+26|"Git Graph non è stato caricato: {error}"
+27|"Aggiorna Git Graph"
+28|"Aggiornamento Git Graph non riuscito: {error}"
+29|"Carica altri commit"
+30|"Caricamento in corso..."
+31|"Visualizzatore codice"
+32|"Chiudi visualizzatore codice"
+33|"Caricamento file..."
+34|"Caricamento anteprima immagine..."
+35|"Il file non esiste o questo ambiente non può accedere a quel percorso."
+36|"Questo file sembra dati binari e non può ancora essere anteprimo come codice."
+37|"Questa anteprima immagine non è al momento disponibile."
+38|"Caricamento anteprima media..."
+39|"Questa anteprima media non è al momento disponibile."
+40|"Questo ambiente non può riprodurre questo formato media."
+41|"Impossibile caricare il media. Riprova più tardi o aprilo in un'applicazione esterna."
+42|"Caricante anteprima PDF..."
+43|"Questa anteprima PDF non è al momento disponibile."
+44|"Caricamento PDF..."
+45|"Impossibile caricare il PDF"
+46|"Nessun dato PDF"
+47|"Pagina precedente"
+48|"Pagina successiva"
+49|"Numero di pagina"
+50|"Ingrandisci"
+51|"Riduci"
+52|"Questo file Office non può essere visualizzato in anteprima."
+53|"Questo file Office è troppo grande per l'anteprima (massimo 25 MB)."
+54|"Fogli del workbook"
+55|"Caricante anteprima presentazione..."
+56|"Questa anteprima presentazione non è al momento disponibile."
+57|"Caricamento presentazione..."
+58|"Impossibile caricare la presentazione"
+59|"Questa presentazione non diapositive"
+60|"Questa presentazione supera il limite di anteprima di 64 MB."
+61|"Questo ambiente remoto può anteprime presentazioni fino a 8 MB."
+62|"Questa presentazione è stata modificata o truncata durante la lettura, quindi non può essere visualizzata in anteprima. Riprova."
+63|"Diapositiva precedente"
+64|"Diapositiva successiva"
+65|"Numero diapositiva"
+66|"Ingrandisci"
+67|"Seleziona elemento"
+68|"Esci dalla selezione"
+69|"Modifica AI"
+70|"Aggiungi un commento per questo elemento"
+71|"Annulla"
+72|"Aggiungi alla conversazione"
+73|"Riduci"
+74|"Miniature diapositive"
+75|"Diapositiva {pageNumber}"
+76|"Esporta come PDF"
+77|"Esportazione PDF..."
+78|"PDF salvato in {path}"
+79|"Esportazione PDF non riuscita"
+80|"Il file è vuoto"
+81|Questo file supera il limite di anteprima di 256 KB. Aprilo in un altro editor per vedere il contenuto completo.
+82|Vedi codice
+83|Vedi diff
+84|Anteprima sorgente
+85|Markdown
+86|Anteprima
+87|Sorgente
+88|SVG
+89|Anteprima
+90|Codice
+91|A capo automatico
+92|Diagramma Mermaid
+93|A capo automatico
+94|Copia codice
+95|Il sorgente Mermaid è vuoto.
+96|Rendering del diagramma Mermaid non riuscito
+97|Apri anteprima
+98|Anteprima diagramma Mermaid con zoom e spostamento.
+99|Ingrandisci
+100|Riduci
+101|Livello di zoom
+102|Zoom al {percent}%
+103|Adatta alla vista
+104|Adatta alla finestra
+105|Reimposta zoom
+106|Reimposta zoom
+107|Chiudi anteprima
+108|Rendering del diagramma...
+109|Sorgente
+110|Copia Markdown
+111|Scarica CSV
+112|Anteprima tabella
+113|Espandi area di scorrimento tabella
+114|Comprimi area di scorrimento tabella
+115|Anteprima tabella
+116|Esamina la tabella in una vista scorrevole più grande.
+117|Tabella Markdown copiata
+118|Copia tabella non riuscita: {error}
+119|Download tabella non riuscito
+120|Aggiungi commento

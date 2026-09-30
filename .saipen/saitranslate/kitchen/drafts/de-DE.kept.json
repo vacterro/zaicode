@@ -1,3 +1,14 @@
 [
-  "login.oauth.regionTag.bigmodel"
+  "login.oauth.regionTag.bigmodel",
+  "login.apiKey.provider.zai",
+  "login.apiKey.provider.bigmodel",
+  "sidePane.saipen",
+  "codeViewer.markdownMode",
+  "codeViewer.svgMode",
+  "codeViewer.svgSource",
+  "remote.kind.ssh",
+  "remote.kind.wsl",
+  "remote.kind.docker",
+  "taskGroup.color.orange",
+  "chat.previewCards.text"
 ]
