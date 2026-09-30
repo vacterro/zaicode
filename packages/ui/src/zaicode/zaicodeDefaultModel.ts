@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from "react";
 import { readZaicodeSetting } from "./zaicodeSettingsSnapshot.js";
-import { readZaicodeActiveEngine, setZaicodeActiveEngine } from "./zaicodeEngines.js";
+import { readZaicodeActiveEngine, readZaicodeCurrentWorkspace, setZaicodeActiveEngine } from "./zaicodeEngines.js";
 import type { ModelSelectionView } from "@zcode/services";
 import type { ModelSelection } from "@zcode/shared/model-selection";
 
@@ -13,6 +13,39 @@ import type { ModelSelection } from "@zcode/shared/model-selection";
 export interface ZaicodeDefaultModel {
   providerId: string;
   modelId: string;
+  reasoningLevel?: string;
+}
+
+export const ZAICODE_COMPOSER_MODEL_EVENT = "zaicode-composer-model-request";
+export interface ZaicodeComposerModelRequest {
+  selection: ZaicodeDefaultModel;
+  workspaceKey: string;
+  consumed: boolean;
+}
+
+/** Register only while the composer is focused. The first owner of this workspace claims the command. */
+export function subscribeZaicodeComposerModel(workspaceKey: string, onSelect: (selection: ZaicodeDefaultModel) => void): () => void {
+  const select = (event: Event) => {
+    const request = (event as CustomEvent<ZaicodeComposerModelRequest>).detail;
+    if (request.consumed || request.workspaceKey !== workspaceKey) return;
+    request.consumed = true;
+    onSelect(request.selection);
+  };
+  window.addEventListener(ZAICODE_COMPOSER_MODEL_EVENT, select);
+  return () => window.removeEventListener(ZAICODE_COMPOSER_MODEL_EVENT, select);
+}
+
+/** Explicit sidebar command. Only the focused composer consumes it; hidden panes retain their intent. */
+export function requestZaicodeComposerModel(selection: ZaicodeDefaultModel): boolean {
+  setZaicodeActiveEngine(null);
+  setZaicodeDefaultModel(selection);
+  const workspace = readZaicodeCurrentWorkspace();
+  if (!workspace) return false;
+  const detail: ZaicodeComposerModelRequest = {
+    selection, workspaceKey: workspace.identity?.trim() || workspace.path, consumed: false,
+  };
+  window.dispatchEvent(new CustomEvent(ZAICODE_COMPOSER_MODEL_EVENT, { detail }));
+  return detail.consumed;
 }
 
 const STORAGE_KEY = "zaicode-default-model";
@@ -32,6 +65,8 @@ export function readZaicodeDefaultModel(): ZaicodeDefaultModel | null {
         ? {
             providerId: (parsed as ZaicodeDefaultModel).providerId,
             modelId: (parsed as ZaicodeDefaultModel).modelId,
+            ...(typeof (parsed as ZaicodeDefaultModel).reasoningLevel === "string"
+              ? { reasoningLevel: (parsed as ZaicodeDefaultModel).reasoningLevel } : {}),
           }
         : null;
   } catch {
@@ -104,7 +139,9 @@ export function resolveZaicodeDefaultSelection(view: ModelSelectionView): ModelS
     .find((provider) => provider.providerId === preferred.providerId)
     ?.models.find((candidate) => candidate.modelId === preferred.modelId);
   if (!model) return null;
-  const reasoningLevel = defaultReasoningLevel(model.config.optionSpecs.reasoningLevel.values);
+  const levels = model.config.optionSpecs.reasoningLevel.values;
+  const reasoningLevel = preferred.reasoningLevel && levels.includes(preferred.reasoningLevel)
+    ? preferred.reasoningLevel : defaultReasoningLevel(levels);
   return {
     providerId: preferred.providerId,
     modelId: preferred.modelId,

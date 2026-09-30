@@ -51,8 +51,8 @@ test("interface sounds choke each other; agent, engine and mail sounds always mi
   for (const id of ["agent.done", "changes.heal", "worker.exit", "saimail.new", "limits.refill"]) {
     assert.equal(chokes(id), false, id);
   }
-  assert.match(model, /interfaceOneAtATime: record\.interfaceOneAtATime !== false/, "on unless switched off");
-  assert.match(model, /whenFocused: true,\s+interfaceOneAtATime: true/, "on by default");
+  assert.match(model, /interfaceOneAtATime: record\.interfaceOneAtATime === true/, "an explicit cut preference is retained");
+  assert.match(model, /whenFocused: true,\s+interfaceOneAtATime: false/, "interface events mix by default");
   // The choked sound fades over a few ms instead of clicking off.
   assert.match(engine, /linearRampToValueAtTime\(0, ctx\.currentTime \+ CHOKE_FADE_S\)/);
   // The overlap rule (zaicodeSoundOverlap.test.ts) applies it: in "mix" an interface sound cuts the other interface sounds.

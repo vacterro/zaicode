@@ -335,3 +335,6 @@ export * from "./clientConfig.js";
 export * from "./pluginStoreOrdering.js";
 export * from "./session-debug.js";
 export { redactFeedbackText } from "./feedbackPrivacy.js";
+
+export { SUPPORTED_LOCALES, LOCALE_NATIVE_NAMES, isLocale, resolveSupportedLocale, localeDirection } from "./locales.js";
+export { getLocalizedAuxiliaryMessage } from "./auxiliaryLocaleMessages.js";

@@ -24,6 +24,7 @@ const path = require("node:path");
 const { _electron } = require("playwright-core");
 const { checkProtrail } = require("./verify-zaicode-protrail.cjs");
 const { checkCustomization } = require("./verify-zaicode-customization.cjs");
+const { checkWorkflowControls, chooseLocale } = require("./verify-zaicode-workflows.cjs");
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -70,14 +71,25 @@ async function main() {
     ZCODE_DESKTOP_SESSION_DATA_DIR: path.join(profile, "session"),
     ZCODE_DATA_BASE_DIR: profile,
     ZCODE_HOME: path.join(profile, ".zcode"),
+    // CLI discovery and host services use OS home variables, independently of Electron's home path.
+    HOME: profile,
+    USERPROFILE: profile,
+    APPDATA: path.join(profile, "AppData", "Roaming"),
+    LOCALAPPDATA: path.join(profile, "AppData", "Local"),
     // What the root launcher sets for the real app: the ZAICODE runtime (ProTrail among it) exists only in this mode.
     ZCODE_ZAICODE_MODE: process.env.ZCODE_ZAICODE_MODE ?? "1",
     // The customization folder (T-126) inside the throw-away profile: a gate run must never create or list the operator's own.
     ZAICODE_CUSTOMIZATION_DIR: customizationDir,
+    ZAICODE_UPDATES: "off",
   };
   delete env.TZ;
   // A boot gate must not inherit the operator's mailbox, router or agent state.
   delete env.SAIMAIL_WORKSPACE;
+  // Vendor-specific home/auth variables override HOME and would leak real accounts into this profile.
+  for (const key of Object.keys(env)) {
+    if (/^(CLAUDE|CODEX|ANTHROPIC|OPENAI|GEMINI|GOOGLE_API|AI_AGENT|ZCODE_ZAICODE_PREVIEW)/i.test(key)) delete env[key];
+  }
+  delete env.ZAICODE_INSTALL_ROOT;
 
   const pageErrors = [];
   const consoleErrors = [];
@@ -203,6 +215,29 @@ async function main() {
     assert.deepEqual(pageErrors, [], `uncaught renderer exceptions after the customization check: ${pageErrors.join(" || ")}`);
     const fatalCustomization = consoleErrors.filter((text) => FATAL_CONSOLE.test(text));
     assert.deepEqual(fatalCustomization, [], `fatal renderer console errors after the customization check: ${fatalCustomization.join(" || ")}`);
+
+    checks.workflowControls = await checkWorkflowControls(page, app, profile);
+    await chooseLocale(page, "ru-RU", "Русский");
+    await app.close();
+    app = await _electron.launch({ executablePath, args: [`--user-data-dir=${profile}`], env, timeout: 90_000 });
+    child = app.process(); pid = child.pid;
+    app.on("window", watch);
+    let restarted;
+    const restartDeadline = Date.now() + 60_000;
+    while (!restarted && Date.now() < restartDeadline) {
+      restarted = app.windows().find((window) => !window.isClosed() && window.url().includes("/out/renderer/index.html"));
+      if (!restarted) await sleep(500);
+    }
+    assert.ok(restarted, "the same isolated profile restarts");
+    watch(restarted);
+    await restarted.waitForFunction(() => document.documentElement.lang === "ru-RU" && document.querySelector('[data-workspace-shell="true"]'), null, { timeout: 90_000 });
+    // Settings is the durable owner; a fresh renderer may hydrate from it before its local cache exists.
+    await restarted.getByTestId("task-settings-button").filter({ visible: true }).click();
+    await restarted.getByTestId("settings-section-nav-general").click();
+    assert.match(await restarted.getByTestId("settings-locale-select-trigger").innerText(), /Русский/, "the explicit Russian preference, rather than System, persists across an application restart");
+    checks.localeRestart = "ru-RU";
+    assert.deepEqual(pageErrors, [], "no renderer errors during workflow checks or restart");
+    assert.deepEqual(consoleErrors.filter((text) => FATAL_CONSOLE.test(text)), [], "no fatal console errors during workflow checks or restart");
 
     const asar = path.join(path.dirname(executablePath), "resources", "app.asar");
     const receipt = {

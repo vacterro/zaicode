@@ -5,7 +5,7 @@ import type {
   LocalePreference,
   ZCodeInteractionBehavior,
 } from "@zcode/shared";
-import {
+import { SUPPORTED_LOCALES, LOCALE_NATIVE_NAMES,
   TID_SETTINGS_ASK_USER_QUESTION_AUTO_RESOLUTION_SWITCH,
   TID_SETTINGS_NATIVE_SEARCH_SWITCH,
 } from "@zcode/shared";
@@ -291,7 +291,7 @@ export function GeneralSectionContent({
             >
               <SelectTrigger
                 size="lg"
-                className="w-[260px] min-w-0 justify-between"
+                className="w-[260px] max-w-full min-w-0 justify-between"
                 data-testid={TID_SETTINGS_LOCALE_SELECT_TRIGGER}
               >
                 <SelectValue />
@@ -303,18 +303,11 @@ export function GeneralSectionContent({
                 >
                   {intl.formatMessage({ id: "settings.locale.system" })}
                 </SelectItem>
-                <SelectItem
-                  value="zh-CN"
-                  data-testid={testId(TID_SETTINGS_LOCALE_SELECT_ITEM, "zh-CN")}
-                >
-                  {intl.formatMessage({ id: "settings.locale.zh-CN" })}
-                </SelectItem>
-                <SelectItem
-                  value="en-US"
-                  data-testid={testId(TID_SETTINGS_LOCALE_SELECT_ITEM, "en-US")}
-                >
-                  {intl.formatMessage({ id: "settings.locale.en-US" })}
-                </SelectItem>
+                {SUPPORTED_LOCALES.map((tag) => (
+                  <SelectItem key={tag} value={tag} data-testid={testId(TID_SETTINGS_LOCALE_SELECT_ITEM, tag)}>
+                    {LOCALE_NATIVE_NAMES[tag]}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           }
@@ -900,7 +893,7 @@ export function GeneralSectionHeader({ localePreference }: { localePreference: L
   return (
     <div className="mt-4 flex flex-wrap gap-2">
       <SettingsBadge>
-        {intl.formatMessage({ id: `settings.locale.${localePreference}` })}
+        {localePreference === "system" ? intl.formatMessage({ id: "settings.locale.system" }) : LOCALE_NATIVE_NAMES[localePreference]}
       </SettingsBadge>
     </div>
   );

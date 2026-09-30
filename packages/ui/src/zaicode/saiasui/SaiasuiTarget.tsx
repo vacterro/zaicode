@@ -27,8 +27,14 @@ export function SaiasuiTarget({
   const now = run.elapsed;
   const p = targetPoint(target, now, run, reducedMotion);
   const { radius, ringReach, extent } = saiasuiTargetShape(target, now, config);
-  const x = 78 + p.x * Math.max(0, width - 156);
-  const y = 128 + p.y * Math.max(0, height - 224);
+  const minX = Math.max(radius + 12, 78);
+  const maxX = Math.max(minX, width - 78 - radius);
+  const minY = Math.max(radius + 56, 128);
+  const maxY = Math.max(minY, height - 96 - radius);
+  const rawX = 78 + p.x * Math.max(0, width - 156);
+  const rawY = 128 + p.y * Math.max(0, height - 224);
+  const x = Math.max(minX, Math.min(maxX, rawX));
+  const y = Math.max(minY, Math.min(maxY, rawY));
   const accent =
     config.colorMode === "mono"
       ? "var(--color-foreground)"

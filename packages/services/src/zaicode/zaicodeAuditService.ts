@@ -177,7 +177,7 @@ export class ZaicodeAuditService implements IZaicodeAuditService {
       const campaign = ZaicodeAuditService.readJson<ZaicodeAuditCampaign>(join(root, entry.name, "campaign.json"));
       // v1 (the pre-Quick3 record) still loads so its history stays readable;
       // the service never writes one back.
-      if (campaign && (campaign.schemaVersion === 1 || campaign.schemaVersion === 2)) campaigns.push(campaign);
+      if (campaign && (campaign.schemaVersion === 1 || campaign.schemaVersion === 2) && (includeAll || !campaign.archivedAt)) campaigns.push(campaign);
     }
     campaigns.sort((left, right) => (left.createdAt < right.createdAt ? 1 : -1));
     const active = campaigns.filter(zaicodeAuditCampaignIsActive);
@@ -671,6 +671,26 @@ export class ZaicodeAuditService implements IZaicodeAuditService {
       const state = campaign.waves[campaign.currentWaveIndex];
       if (state?.jobId) await this.deps.jobService.cancel(state.jobId).catch(() => undefined);
       campaign.status = "cancelled";
+      this.saveCampaign(campaign);
+      return campaign;
+    });
+  }
+
+  async archive(campaignId: string): Promise<ZaicodeAuditCampaign | null> {
+    return this.withCampaign(campaignId, async () => {
+      const campaign = ZaicodeAuditService.readJson<ZaicodeAuditCampaign>(this.campaignFile(campaignId));
+      if (!campaign || campaign.archivedAt) return campaign;
+      if (campaign.status === "running") throw new Error("Stop this audit before archiving it.");
+      const jobIds = [...new Set([...campaign.waves.map((wave) => wave.jobId), campaign.fixJobId, campaign.remediationJobId].filter((id): id is string => Boolean(id)))];
+      const jobs = await Promise.all(jobIds.map((id) => this.deps.jobService.get(id)));
+      if (jobs.some((job) => job?.status === "running")) throw new Error("Stop the audit's running task before archiving it.");
+      if (jobs.some((job) => job?.error?.startsWith("cancel_stop_failed:"))) throw new Error("Retry cancellation before archiving this audit.");
+      // 旧 planned/blocked 任务仍可能排队；取消成功后才隐藏，报告和活动记录不删除。
+      for (const job of jobs) {
+        if (job && !["completed", "failed", "cancelled"].includes(job.status)) await this.deps.jobService.cancel(job.id);
+      }
+      if (campaign.status === "planned" || campaign.status === "blocked") campaign.status = "cancelled";
+      campaign.archivedAt = new Date().toISOString();
       this.saveCampaign(campaign);
       return campaign;
     });

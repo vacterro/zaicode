@@ -36,6 +36,8 @@ export interface IZaicodeAuditService {
    */
   retry(campaignId: string): Promise<ZaicodeAuditCampaign | null>;
   cancel(campaignId: string): Promise<ZaicodeAuditCampaign | null>;
+  /** Archive a stopped/planned/finished audit; refuses while any associated job is running. Reports stay intact. */
+  archive(campaignId: string): Promise<ZaicodeAuditCampaign | null>;
   /** One wave report's markdown, or null. */
   readReport(campaignId: string, waveId: string): Promise<string | null>;
   /** The synthesized `__00_AUDIT_ALL_3.md`, or null before it is durable. */

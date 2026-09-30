@@ -129,8 +129,11 @@ export function SaiasuiHost() {
                 clipPath: "circle(50%)",
               }}
               onPointerDown={(event) => {
-                event.preventDefault();
                 event.stopPropagation();
+                if (event.button === 0) {
+                  setOffer(null);
+                  setPlaying(true);
+                }
               }}
               onClick={(event) => {
                 event.stopPropagation();

@@ -5,7 +5,7 @@ export const zhCN: ZCodeCopy = {
   cli: {
     errors: {
       localeUnsupported: (value) =>
-        `不支持的 --locale 值：${value}。支持的语言：en-US、zh-CN、auto。`,
+        `不支持的 --locale 值：${value}。支持的语言：en-US, ru-RU, et-EE, uk-UA, ja-JP, ded, zh-CN, de-DE, fr-FR, es-ES, it-IT, pt-BR, nl-NL, pl-PL, sv-SE, da-DK, fi-FI, nb-NO, ko-KR, th-TH, vi-VN, ar-SA, he-IL, tr-TR, hi-IN, id-ID, el-GR, cs-CZ, ro-RO, hu-HU, bg-BG, sk-SK, hr-HR、auto。`,
     },
     help: (version) => `zcode ${version}
 
@@ -40,7 +40,7 @@ export const zhCN: ZCodeCopy = {
     工具名用逗号或空格分隔，例如 "Bash Edit"。
     "Bash(git *)" 也会移除整个 Bash，不支持按命令内容匹配。
   --force-mcs      对 Anthropic provider 强制启用 mid-conversation system 投影
-  --locale <locale>  UI 语言：en-US、zh-CN 或 auto
+  --locale <locale>  UI 语言：en-US, ru-RU, et-EE, uk-UA, ja-JP, ded, zh-CN, de-DE, fr-FR, es-ES, it-IT, pt-BR, nl-NL, pl-PL, sv-SE, da-DK, fi-FI, nb-NO, ko-KR, th-TH, vi-VN, ar-SA, he-IL, tr-TR, hi-IN, id-ID, el-GR, cs-CZ, ro-RO, hu-HU, bg-BG, sk-SK, hr-HR 或 auto
   --mode <mode>    prompt 权限模式：build、edit、plan 或 yolo（--prompt 默认 yolo）
   --resume <sessionId>  按 sessionId 恢复持久化 session（sess_...）
   --target <text>  在 headless 模式运行或设置 session goal

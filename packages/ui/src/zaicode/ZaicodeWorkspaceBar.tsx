@@ -37,7 +37,7 @@ export function ZaicodeWorkspaceTabs({ workspacePath }: { workspacePath?: string
           aria-selected={tab === id}
           title={hint}
           className={cn(
-            "relative flex items-center gap-1 border px-1.5 py-0.5 text-ui-xs",
+            "relative flex shrink-0 items-center gap-1 whitespace-nowrap border px-1.5 py-0.5 text-ui-xs",
             tab === id
               ? "border-[var(--zaicode-highlight,var(--color-border-hover))] bg-selected text-foreground"
               : "border-border text-foreground-subtle hover:bg-hover hover:text-foreground",

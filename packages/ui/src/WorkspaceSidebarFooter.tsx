@@ -1,7 +1,7 @@
 /* oxlint-disable eslint(max-lines) -- footer 聚合账户、主题、模式和快捷键菜单。 */
 import type { Locale, UserInfo } from "@zcode/shared";
 import { memo, useCallback, useEffect, useState } from "react";
-import {
+import { SUPPORTED_LOCALES, LOCALE_NATIVE_NAMES,
   DesktopCommandIds,
   TID_LOGIN_MENU_ITEM,
   TID_LOGIN_TRIGGER,
@@ -321,28 +321,15 @@ export const WorkspaceSidebarFooter = memo(function WorkspaceSidebarFooterCompon
                 <div className="flex items-center gap-1 px-2 py-1 text-ui-sm" data-zaicode-inline-locale>
                   <Globe className="size-4 text-foreground-subtle" />
                   <span className="min-w-0 flex-1">{intl.formatMessage({ id: "settings.locale" })}</span>
-                  {(
-                    [
-                      ["system", "Auto"],
-                      ["en-US", "EN"],
-                      ["zh-CN", "中文"],
-                    ] as const
-                  ).map(([value, label]) => (
-                    <button
-                      key={value}
-                      type="button"
-                      aria-pressed={localeMenuValue === value}
-                      className={cn(
-                        "h-6 border px-1.5",
-                        localeMenuValue === value
-                          ? "border-border bg-selected text-foreground"
-                          : "border-transparent text-foreground-subtle hover:bg-hover",
-                      )}
-                      onClick={() => onLocaleChange(value)}
-                    >
-                      {label}
-                    </button>
-                  ))}
+                  <select
+                    aria-label={intl.formatMessage({ id: "settings.locale" })}
+                    value={localeMenuValue}
+                    onChange={(event) => onLocaleChange(event.target.value)}
+                    className="h-6 min-w-0 max-w-[180px] border border-border bg-background px-1 text-foreground"
+                  >
+                    <option value="system">{intl.formatMessage({ id: "settings.locale.system" })}</option>
+                    {SUPPORTED_LOCALES.map((tag) => <option key={tag} value={tag}>{LOCALE_NATIVE_NAMES[tag]}</option>)}
+                  </select>
                 </div>
                 <DropdownMenuSeparator />
               </>
@@ -360,16 +347,9 @@ export const WorkspaceSidebarFooter = memo(function WorkspaceSidebarFooterCompon
                       id: "sidebar.settings.systemDefault",
                     })}
                   </DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="en-US">
-                    {intl.formatMessage({
-                      id: "sidebar.settings.locale.en-US",
-                    })}
-                  </DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="zh-CN">
-                    {intl.formatMessage({
-                      id: "sidebar.settings.locale.zh-CN",
-                    })}
-                  </DropdownMenuRadioItem>
+                  {SUPPORTED_LOCALES.map((tag) => (
+                    <DropdownMenuRadioItem key={tag} value={tag}>{LOCALE_NATIVE_NAMES[tag]}</DropdownMenuRadioItem>
+                  ))}
                 </DropdownMenuRadioGroup>
               </DropdownMenuSubContent>
             </DropdownMenuSub>

@@ -276,7 +276,8 @@ export interface RuntimeConfigPatch {
   ui?: Partial<RuntimeConfig["ui"]>;
 }
 
-export type SupportedLocale = "en-US" | "zh-CN";
+export const CLI_SUPPORTED_LOCALES = ["en-US", "ru-RU", "et-EE", "uk-UA", "ja-JP", "ded", "zh-CN", "de-DE", "fr-FR", "es-ES", "it-IT", "pt-BR", "nl-NL", "pl-PL", "sv-SE", "da-DK", "fi-FI", "nb-NO", "ko-KR", "th-TH", "vi-VN", "ar-SA", "he-IL", "tr-TR", "hi-IN", "id-ID", "el-GR", "cs-CZ", "ro-RO", "hu-HU", "bg-BG", "sk-SK", "hr-HR"] as const;
+export type SupportedLocale = (typeof CLI_SUPPORTED_LOCALES)[number];
 export type UiLocale = SupportedLocale | "auto";
 export type UiThemeMode = "dark" | "light";
 export type UiThemePreference = UiThemeMode | "auto";

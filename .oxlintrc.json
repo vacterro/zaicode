@@ -15,7 +15,7 @@
       }
     },
     {
-      "files": ["**/i18n/locales/*.ts"],
+      "files": ["**/i18n/locales/*.ts", "**/auxiliaryLocaleMessages.ts", "**/expandedDesktopMenuMessages.ts"],
       "rules": {
         "max-lines": "off"
       }

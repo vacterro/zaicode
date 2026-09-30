@@ -175,6 +175,8 @@ export function saipeggleStep(
   if (ball.y - SPG_BALL_R < SPG_BOARD.top && ball.vy < 0) {
     ball.y = SPG_BOARD.top + SPG_BALL_R;
     ball.vy = -ball.vy * WALL_BOUNCE;
+    ball.offWall = true;
+    events.push({ kind: "wall" });
   }
 
   for (const peg of pegs) {

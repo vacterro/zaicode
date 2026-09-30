@@ -1,183 +1,82 @@
 import assert from "node:assert/strict";
-import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import { SUPPORTED_LOCALES, isLocale, resolveSupportedLocale, localeDirection } from "../../shared/src/locales.js";
+import { localeSchema, appSettingsSchema } from "../../shared/src/validationAppSettings.js";
+import { desktopMenuMessages } from "../../shared/src/desktopMenu.js";
+import { MESSAGES } from "../src/i18n/messages.js";
+import { resolveLocale, detectLocale, SUPPORTED_LOCALES as CLI_LOCALES } from "../../../apps/zcode-cli/packages/i18n/src/locale.js";
+import { getZCodeCopy } from "../../../apps/zcode-cli/packages/i18n/src/index.js";
 
-/**
- * Locale catalog integrity (Wave 6, part D).
- *
- * The coverage target is not guessed here. It is read from the protocol that
- * is installed on this machine -- `phases/translate.md` states "32 languages
- * plus the Дед voice" and names them -- and the test REFUSES to run if that
- * file is gone, so a future agent cannot quietly re-invent the list.
- *
- * What this gate refuses to do is hide a gap. A locale that is not there is
- * reported as not there; the fallback in the product is never allowed to make
- * a missing locale look covered. `PLACEHOLDER` parity is checked per key,
- * because a translation that silently drops an interpolation is a crash at
- * runtime, not a cosmetic difference.
- */
+const EXPECTED = ["en-US", "ru-RU", "et-EE", "uk-UA", "ja-JP", "ded", "zh-CN", "de-DE", "fr-FR", "es-ES", "it-IT", "pt-BR", "nl-NL", "pl-PL", "sv-SE", "da-DK", "fi-FI", "nb-NO", "ko-KR", "th-TH", "vi-VN", "ar-SA", "he-IL", "tr-TR", "hi-IN", "id-ID", "el-GR", "cs-CZ", "ro-RO", "hu-HU", "bg-BG", "sk-SK", "hr-HR"];
+const tokens = (value: string) => [...value.matchAll(/\$\{[^}]+\}|\{\{[^}]+\}\}|\{\w+\}/g)].map(match=>match[0]).sort();
 
-const REPO = join(import.meta.dirname, "..", "..", "..");
-const UI_LOCALES = join(REPO, "packages", "ui", "src", "i18n", "locales");
-const SOURCE_LOCALE = "en-US";
-
-/** Resolved from the installed protocol, not from a handoff. */
-const PROTOCOL_LIST = [
-  ["en", "en-US"], ["ru", "ru-RU"], ["et", "et-EE"], ["ja", "ja-JP"], ["uk", "uk-UA"],
-  ["de", "de-DE"], ["fr", "fr-FR"], ["es", "es-ES"], ["it", "it-IT"], ["pt", "pt-BR"],
-  ["nl", "nl-NL"], ["pl", "pl-PL"], ["sv", "sv-SE"], ["da", "da-DK"], ["fi", "fi-FI"],
-  ["no", "nb-NO"], ["zh", "zh-CN"], ["ko", "ko-KR"], ["th", "th-TH"], ["vi", "vi-VN"],
-  ["ar", "ar-SA"], ["he", "he-IL"], ["tr", "tr-TR"], ["hi", "hi-IN"], ["id", "id-ID"],
-  ["el", "el-GR"], ["cs", "cs-CZ"], ["ro", "ro-RO"], ["hu", "hu-HU"], ["bg", "bg-BG"],
-  ["sk", "sk-SK"], ["hr", "hr-HR"],
-] as const;
-
-/** The protocol's default set is always and everywhere. */
-const CORE_OWNED = new Set(["en-US", "ru-RU", "et-EE", "ded"]);
-
-function readKeys(file: string): string[] {
-  return [...readFileSync(file, "utf-8").matchAll(/^\s*"([A-Za-z0-9_.]+)":/gm)].map((match) => match[1]!);
-}
-
-function readValues(file: string): Map<string, string> {
-  const out = new Map<string, string>();
-  for (const line of readFileSync(file, "utf-8").split("\n")) {
-    const match = line.match(/^\s*"([A-Za-z0-9_.]+)":\s*"(.*)",?\s*$/);
-    if (match) out.set(match[1]!, match[2]!);
-  }
-  return out;
-}
-
-/** ICU/simple placeholders and interpolation tokens, in a stable multiset. */
-function placeholders(value: string): string[] {
-  return [
-    ...value.matchAll(/\{(\w+)\}/g),
-    ...value.matchAll(/\$\{[^}]+\}/g),
-    ...value.matchAll(/\{\{[^}]+\}\}/g),
-  ]
-    .map((match) => match[0])
-    .sort();
-}
-
-function localeFiles(): string[] {
-  return readdirSync(UI_LOCALES)
-    .filter((name) => name.endsWith(".ts") && name !== "saiasui.ts")
-    .map((name) => join(UI_LOCALES, name));
-}
-
-test("Wave 6: the coverage target is read from the installed protocol, not from a handoff", () => {
-  const protocolCandidates = [
-    join("V:", "___VAC", "__K", "__CODE", "_AI_STUFF_AGENTIC", "_SAIPEN", "saipen", "phases", "translate.md"),
-  ];
-  const found = protocolCandidates.find((path) => existsSync(path));
-  assert.ok(found, "the installed protocol's translate.md must be readable; the locale list may not be guessed");
-  const text = readFileSync(found, "utf-8");
-  assert.match(text, /32 languages plus the Дед voice/, "the protocol still states the 32 + Дед surface");
-  // The protocol names languages in English; the tag mapping is this file's,
-  // and it is written out rather than derived, so a reader can check it.
-  const NAMES = [
-    "English", "Russian", "Estonian", "Japanese", "Ukrainian", "German", "French", "Spanish",
-    "Italian", "Portuguese", "Dutch", "Polish", "Swedish", "Danish", "Finnish", "Norwegian",
-    "Chinese", "Korean", "Thai", "Vietnamese", "Arabic", "Hebrew", "Turkish", "Hindi",
-    "Indonesian", "Greek", "Czech", "Romanian", "Hungarian", "Bulgarian", "Slovak", "Croatian",
-  ];
-  assert.equal(NAMES.length, 32);
-  for (const name of NAMES) {
-    assert.ok(text.includes(name), `the installed protocol names ${name}`);
-  }
-  // The tag for each language is written out in PROTOCOL_LIST above, in the
-  // same order the protocol names them; the count is the part that can drift.
-  assert.equal(PROTOCOL_LIST.length, NAMES.length, "one tag per protocol language");
-  assert.equal(PROTOCOL_LIST.length, 32, "32 language locales, plus the Дед voice as the 33rd target");
-  assert.equal(CORE_OWNED.size, 4, "Core owns EN, RU, EE and Дед; the producer owns the rest");
-});
-
-test("Wave 6: the source catalog and every present locale have exact key parity", () => {
-  const source = readKeys(join(UI_LOCALES, `${SOURCE_LOCALE}.ts`));
-  assert.ok(source.length > 5000, `the source catalog is real, got ${source.length} keys`);
-  assert.deepEqual(
-    source.filter((key, index) => source.indexOf(key) !== index),
-    [],
-    "no duplicate keys in the source catalog",
-  );
-
-  const files = localeFiles();
-  assert.ok(files.length >= 1, "at least the source locale is present");
-  for (const file of files) {
-    const name = file.slice(file.lastIndexOf("\\") + 1).replace(/\.ts$/, "");
-    const keys = readKeys(file);
-    assert.deepEqual(
-      keys.filter((key, index) => keys.indexOf(key) !== index),
-      [],
-      `${name} has no duplicate keys`,
-    );
-    const missing = source.filter((key) => !keys.includes(key));
-    const extra = keys.filter((key) => !source.includes(key));
-    assert.deepEqual(missing, [], `${name} is missing keys the source has`);
-    assert.deepEqual(extra, [], `${name} has keys the source does not`);
-  }
-});
-
-test("Wave 6: placeholders and interpolation tokens survive translation", () => {
-  const source = readValues(join(UI_LOCALES, `${SOURCE_LOCALE}.ts`));
-  for (const file of localeFiles()) {
-    const name = file.slice(file.lastIndexOf("\\") + 1).replace(/\.ts$/, "");
-    if (name === SOURCE_LOCALE) continue;
-    const values = readValues(file);
-    const broken: string[] = [];
-    for (const [key, sourceValue] of source) {
-      const translated = values.get(key);
-      if (translated === undefined) continue;
-      const expected = placeholders(sourceValue);
-      const actual = placeholders(translated);
-      if (expected.join("|") !== actual.join("|")) {
-        broken.push(`${key}: expected ${expected.join(", ") || "(none)"} got ${actual.join(", ") || "(none)"}`);
-      }
+test("complete collected catalogs match all 32 languages and the DED voice", () => {
+  assert.deepEqual([...SUPPORTED_LOCALES], EXPECTED);
+  assert.deepEqual([...CLI_LOCALES], EXPECTED);
+  assert.deepEqual(Object.keys(MESSAGES).sort(), [...EXPECTED].sort());
+  const source = MESSAGES["en-US"];
+  assert.equal(Object.keys(source).length, 5879, "includes Unicode severity keys, 27 SAIASUI strings and four T-141 model controls");
+  for (const locale of SUPPORTED_LOCALES) {
+    assert.deepEqual(Object.keys(MESSAGES[locale]).sort(), Object.keys(source).sort(), locale);
+    for (const [key, value] of Object.entries(source)) {
+      assert.deepEqual(tokens(MESSAGES[locale][key]!), tokens(value), `${locale}/${key}`);
     }
-    assert.deepEqual(broken, [], `${name} keeps every placeholder the source has`);
+    const file = join(import.meta.dirname, "../src/i18n/locales", `${locale}.ts`);
+    const keys = [...readFileSync(file,"utf8").matchAll(/^\s*"([^"\s]+)":/gm)].map(match=>match[1]);
+    assert.equal(new Set(keys).size, keys.length, `${locale}: duplicate literal keys`);
   }
 });
 
-test("Wave 6: no locale outside the resolved protocol set is present", () => {
-  const allowed = new Set(PROTOCOL_LIST.map(([, tag]) => tag));
-  for (const file of localeFiles()) {
-    const name = file.slice(file.lastIndexOf("\\") + 1).replace(/\.ts$/, "");
-    assert.ok(allowed.has(name), `${name} is not one of the 32 resolved locales`);
+test("preferences accept every catalog and retain explicit validation for unknown input", () => {
+  for (const locale of SUPPORTED_LOCALES) {
+    assert.ok(isLocale(locale));
+    assert.equal(localeSchema.parse(locale),locale);
+    const settings = appSettingsSchema.parse({ locale, localePreference: locale });
+    assert.equal(settings.locale,locale);
+    assert.equal(settings.localePreference,locale);
+  }
+  for (const value of [undefined,null,"ru","xx-XX","",{},"DED"]) assert.equal(isLocale(value),false);
+  assert.equal(localeSchema.safeParse("xx-XX").success,false);
+});
+
+test("system and CLI detection resolve natural-language tags without choosing a voice", () => {
+  for (const [input, expected] of [["ru_RU","ru-RU"],["et-EE","et-EE"],["pt-PT","pt-BR"],["de-AT","de-DE"],["zh-Hant-TW","zh-CN"],["no-NO","nb-NO"],["he","he-IL"],["ja","ja-JP"]]) {
+    assert.equal(resolveSupportedLocale(input),expected);
+    assert.equal(resolveLocale("auto",input),expected);
+  }
+  assert.equal(detectLocale({env:{LC_ALL:"de_DE.UTF-8",LANG:"ru_RU"}}),"de-DE");
+  assert.equal(detectLocale({env:{LANGUAGE:"xx:ja_JP"}}),"ja-JP");
+  assert.equal(resolveLocale("xx-XX"),"en-US");
+  assert.equal(resolveSupportedLocale("ru"),"ru-RU");
+  assert.equal(localeDirection("ar-SA"),"rtl");
+  assert.equal(localeDirection("he-IL"),"rtl");
+  assert.equal(localeDirection("et-EE"),"ltr");
+  assert.equal(localeDirection("ded"),"ltr");
+});
+
+test("native menus retain every translated label and interpolation", () => {
+  const source=desktopMenuMessages["en-US"];
+  for(const locale of SUPPORTED_LOCALES) {
+    assert.deepEqual(Object.keys(desktopMenuMessages[locale]).sort(),Object.keys(source).sort(),locale);
+    for(const key of Object.keys(source) as Array<keyof typeof source>) assert.deepEqual(tokens(desktopMenuMessages[locale][key]),tokens(source[key]),`${locale}/${key}`);
   }
 });
 
-test("Wave 6: coverage is reported truthfully, never through the fallback", () => {
-  // NOT an assertion that coverage is 33: the ticket stays open until the
-  // producer's locales land. This asserts the opposite -- that a missing locale
-  // stays visibly missing, so the fallback can never disguise it.
-  const present = localeFiles().map((file) => file.slice(file.lastIndexOf("\\") + 1).replace(/\.ts$/, ""));
-  const missing = PROTOCOL_LIST.map(([, tag]) => tag).filter((tag) => !present.includes(tag));
-
-  const shared = existsSync(join(REPO, "packages", "shared", "src", "protocol.ts"));
-  assert.ok(shared, "the shared Locale type lives here; the switcher cannot offer an unregistered locale");
-
-  const localeType = readFileSync(join(REPO, "packages", "shared", "src", "protocol.ts"), "utf-8");
-  const declared = [...localeType.matchAll(/"([a-z]{2}-[A-Z]{2})"/g)].map((match) => match[1]!);
-  for (const tag of present) {
-    assert.ok(declared.includes(tag), `${tag} is present as a file AND declared in the Locale type`);
+test("CLI catalogs preserve dynamic values and both plural/retry branches", () => {
+  for(const locale of SUPPORTED_LOCALES) {
+    const copy=getZCodeCopy(locale);
+    assert.equal(copy.locale,locale);
+    assert.ok(copy.cli.help("VERSION_MARKER").includes("VERSION_MARKER"),locale);
+    assert.ok(copy.cli.help("VERSION_MARKER").includes("--locale"),locale);
+    assert.ok(copy.tui.model.requestFailed("ERROR_MARKER").includes("ERROR_MARKER"),locale);
+    assert.ok(copy.tui.model.retryScheduled({attempt:2,maxAttempts:4,delay:"DELAY_MARKER",reason:"REASON_MARKER"}).includes("2/3"),locale);
+    for(const count of [1,2]) {
+      assert.ok(copy.tui.sidebar.mcp.tools(count).includes(String(count)),locale);
+      assert.ok(copy.tui.input.queuedTitle(count).includes(String(count)),locale);
+    }
+    assert.ok(copy.tui.transcript.compact.retrying({attempt:2,maxAttempts:3}).includes("2/3"),locale);
+    assert.ok(copy.tui.transcript.compact.retrying({attempt:2,maxAttempts:0}).length>0,locale);
   }
-  // The report the operator should see, in the test's own output.
-  console.log(
-    `locale coverage: ${present.length}/${PROTOCOL_LIST.length} languages present (${missing.length} to produce) + the Дед voice`,
-  );
-  assert.ok(
-    missing.length >= 0 && missing.length <= PROTOCOL_LIST.length,
-    `missing locales resolve: ${missing.length}`,
-  );
-});
-
-test("Wave 6: the switcher only cycles locales that actually exist", () => {
-  const switcher = readFileSync(join(REPO, "packages", "ui", "src", "i18n", "LocaleSwitcher.tsx"), "utf-8");
-  const present = localeFiles().map((file) => file.slice(file.lastIndexOf("\\") + 1).replace(/\.ts$/, ""));
-  for (const tag of present) {
-    assert.ok(switcher.includes(`"${tag}"`), `the switcher can reach ${tag}`);
-  }
-  const cycled = [...switcher.matchAll(/\[([^\]]*)\]/g)].map((match) => match[0]);
-  assert.ok(cycled.length > 0, "the switcher declares a cycle");
 });

@@ -6768,6 +6768,10 @@ const enUS: Record<string, string> = {
   "scheduledPreview.toast.running": "Running “{title}”…",
   "scheduledPreview.toast.view": "View",
   "scheduledPreview.addSchedule": "Add schedule",
+  "settings.modelProvider.displayName": "Display name",
+  "settings.modelProvider.enableAllModels": "Enable all",
+  "settings.modelProvider.disableAllModels": "Disable all",
+  "settings.modelProvider.enableOnlyModel": "Enable only…",
 };
 
 export default enUS;

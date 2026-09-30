@@ -12,6 +12,7 @@ export type ProviderModelInputFormatDraft = ModelInputFormatData;
 
 export interface ProviderModelDraftValues {
   idValue: string;
+  displayNameValue?: string;
   contextWindowValue: string;
   maxOutputTokensValue: string;
   inputFormatValue: ProviderModelInputFormatDraft;
@@ -49,6 +50,7 @@ export function createProviderModelDraftValues(
   const inputFormat = properties?.inputFormat;
   return {
     idValue: model.modelId,
+    displayNameValue: model.config.displayName ?? "",
     // 编辑器只把 Personal Overlay 当作真实输入；继承值由 UI 作为 placeholder 展示。
     contextWindowValue:
       model.personalConfig.properties?.contextWindow == null
@@ -295,7 +297,7 @@ export function resolveProviderModelDraftCommit({
   } else {
     deleteMutable(effectiveOptionSpecs, "maxOutputTokens");
   }
-  const personalConfig = useRecommendedConfig
+  const resolvedPersonalConfig = useRecommendedConfig
     ? sparsePersonalConfig
     : materializeEditorManagedPersonalConfig({
         current: sparsePersonalConfig,
@@ -306,6 +308,8 @@ export function resolveProviderModelDraftCommit({
           optionSpecs: effectiveOptionSpecs,
         },
       });
+  const displayName = draft.displayNameValue?.trim() || null;
+  const personalConfig = { ...resolvedPersonalConfig, ...(displayName ? { displayName } : currentModel.config.displayName ? { displayName: null } : {}) };
   return {
     status: "commit",
     model: {
@@ -316,6 +320,7 @@ export function resolveProviderModelDraftCommit({
       personalConfig,
       config: {
         ...currentModel.config,
+        displayName,
         enabled: effectiveEnabled,
         properties: effectiveProperties,
         optionSpecs: effectiveOptionSpecs,

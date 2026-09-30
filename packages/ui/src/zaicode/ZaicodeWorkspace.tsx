@@ -133,8 +133,8 @@ export function ZaicodeWorkspace({
 
   return (
     <div className="@container/zws flex h-full min-h-0 flex-col bg-background">
-      <header className="flex h-10 shrink-0 items-center justify-between gap-2 border-b border-border px-3">
-        <div className="flex min-w-0 items-center gap-2">
+      <header className="flex min-h-10 shrink-0 flex-wrap items-center justify-between gap-2 border-b border-border px-3 py-1">
+        <div className="flex min-w-0 max-w-full flex-wrap items-center gap-2">
           <span className="text-ui-base font-medium text-foreground">
             {intl.formatMessage({ id: "zaicode.title" })}
           </span>
@@ -143,7 +143,7 @@ export function ZaicodeWorkspace({
             {intl.formatMessage({ id: "zaicode.subtitle" })}
           </span>
         </div>
-        <div className="flex shrink-0 items-center gap-1">
+        <div className="flex max-w-full flex-wrap items-center gap-1">
           <ZaicodeHitAndGoButton services={ctx} workspace={workspace} disabled={busy} />
           <ZaicodeWorkingMeter jobs={store.jobs} />
           <Button

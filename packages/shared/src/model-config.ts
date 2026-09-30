@@ -102,6 +102,8 @@ export const modelOptionSpecsDataSchema = z
 export const completeModelConfigDataSchema = z
   .object({
     enabled: z.boolean(),
+    /** Renderer label only; the model's transport ID stays unchanged. */
+    displayName: z.string().min(1).nullable().optional(),
     properties: completeModelPropertiesDataSchema,
     optionSpecs: completeModelOptionSpecsDataSchema,
   })

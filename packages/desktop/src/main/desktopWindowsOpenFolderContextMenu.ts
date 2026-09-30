@@ -1,6 +1,6 @@
 import { spawn } from "node:child_process";
 import { resolve } from "node:path";
-import { isZaicodeProductMode, type Locale } from "@zcode/shared";
+import { getLocalizedAuxiliaryMessage, isZaicodeProductMode, type Locale } from "@zcode/shared";
 
 // ZAICODE 与本机正式版 ZCode 并排安装：此前共用 "ZCode.OpenInZCode" 键，
 // ZAICODE 启动时把正式版的「Open in ZCode」改指向 ZAICODE.exe。ZAICODE 使用独立键与文案。
@@ -10,11 +10,11 @@ const menuKeys = (name: string) => [
   `HKCU\\Software\\Classes\\Directory\\shell\\${name}`,
   `HKCU\\Software\\Classes\\Drive\\shell\\${name}`,
 ];
-const MENU_LABELS: Record<Locale, string> = {
+const MENU_LABELS: Partial<Record<Locale, string>> = {
   "zh-CN": "在ZCode中打开",
   "en-US": "Open in ZCode",
 };
-const ZAICODE_MENU_LABELS: Record<Locale, string> = {
+const ZAICODE_MENU_LABELS: Partial<Record<Locale, string>> = {
   "zh-CN": "在ZAICODE中打开",
   "en-US": "Open in ZAICODE",
 };
@@ -30,7 +30,7 @@ interface WindowsOpenFolderRegistryOperation {
 
 function getWindowsOpenFolderMenuName(locale: Locale): string {
   const labels = isZaicodeProductMode() ? ZAICODE_MENU_LABELS : MENU_LABELS;
-  return labels[locale] ?? labels["en-US"];
+  return labels[locale] ?? getLocalizedAuxiliaryMessage(locale, isZaicodeProductMode() ? "platform.openZAICODE" : "platform.openZCode") ?? "Open in ZCode";
 }
 
 function quoteWindowsCommandArg(value: string): string {

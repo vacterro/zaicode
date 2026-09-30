@@ -1874,7 +1874,7 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
                   <div
                     className={cn(
                       "flex shrink-0 items-center",
-                      zaicodeCompactRow ? "w-[60px] justify-end" : "gap-1",
+                      zaicodeCompactRow ? "gap-px justify-end" : "gap-1",
                     )}
                     data-zaicode-row-zone={
                       zaicodeHoverZone

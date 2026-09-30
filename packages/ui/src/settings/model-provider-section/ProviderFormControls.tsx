@@ -250,7 +250,7 @@ export function ModelRowInput({
             data-testid={inputTestId}
             className="min-w-0 truncate font-mono text-ui-base text-foreground"
           >
-            {model.modelId}
+            {model.config.displayName || model.modelId}
           </span>
           <span
             className="inline-flex h-5 max-w-20 shrink-0 items-center truncate rounded-md border border-border bg-surface px-1.5 font-mono text-ui-sm text-foreground-subtle"

@@ -12,6 +12,7 @@ import {
   type ZaicodePoolOption,
 } from "./zaicodeRoutingModel.js";
 import { ZaicodeIcon } from "./zaicodeIconSlots.js";
+import type { ProviderSettingsView } from "@zcode/services";
 
 export interface ZaicodePoolSelection {
   providerId: string;
@@ -21,22 +22,18 @@ export interface ZaicodePoolSelection {
 }
 
 /** Reads the configured providers and projects them into pool groups. */
+export function projectZaicodePoolGroups(view: ProviderSettingsView | null): ZaicodePoolGroup[] {
+  return buildPoolGroups(resolveProviderSettingsFormProviders({ view }).map((provider) => ({
+    providerId: provider.providerId, providerName: getProviderFormLabel(provider),
+    enabled: provider.enabled, models: provider.models,
+  })));
+}
+
 export function useZaicodePoolGroups(): { groups: ZaicodePoolGroup[]; loading: boolean } {
   const { providerSettingsService } = useServices();
   const read = useProviderSettingsServiceView(providerSettingsService);
   const view = read.state.status === "ready" ? read.state.view : null;
-  const groups = useMemo(
-    () =>
-      buildPoolGroups(
-        resolveProviderSettingsFormProviders({ view }).map((provider) => ({
-          providerId: provider.providerId,
-          providerName: getProviderFormLabel(provider),
-          enabled: provider.enabled,
-          models: provider.models,
-        })),
-      ),
-    [view],
-  );
+  const groups = useMemo(() => projectZaicodePoolGroups(view), [view]);
   return { groups, loading: read.state.status === "loading" };
 }
 

@@ -33,7 +33,9 @@ function ZaicodeSaipeggleView({ initial, onExit }: { initial: SaipeggleScreen; o
   const progress = useSaipeggle((state) => state.progress);
   const recordWin = useSaipeggle((state) => state.recordWin);
   const setCurrent = useSaipeggle((state) => state.setCurrent);
-  const [selection, setSelection] = useState<Selection>(() => ({ index: Math.min(progress.current, progress.unlocked - 1) }));
+  const [selection, setSelection] = useState<Selection>(() => ({
+    index: Math.max(0, Math.min(progress.current, Math.max(0, progress.unlocked - 1))),
+  }));
   const spec = useMemo(() => ("index" in selection ? CAMPAIGN[selection.index]! : selection.spec), [selection]);
   const adventureIndex = "index" in selection ? selection.index : null;
 

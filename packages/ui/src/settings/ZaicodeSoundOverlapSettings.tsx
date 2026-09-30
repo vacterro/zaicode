@@ -9,14 +9,14 @@ import {
 
 const OVERLAPS: readonly { value: ZaicodeSoundOverlap; label: string; hint: string }[] = [
   { value: "mix", label: "Mix", hint: "Sounds play over each other, up to the limit; above it the oldest one fades." },
-  { value: "queue", label: "Queue", hint: "One after another, never over each other. The same sound waits only once." },
+  { value: "queue", label: "Queue", hint: "One after another. Each repeated input waits, up to the limit." },
   { value: "cut", label: "Cut", hint: "A new sound fades the ones still ringing: never two at once." },
 ];
 
 const EXPLAIN: Record<ZaicodeSoundOverlap, (limit: number) => string> = {
   mix: (limit) => `Sounds play over each other, at most ${limit} at once; above that the oldest one fades out.`,
   queue: (limit) =>
-    `Sounds wait for their turn and play one after another. At most ${limit} wait; more are skipped, and a sound already waiting is not added twice.`,
+    `Sounds play one after another. Each repeated input waits; at most ${limit} wait, and further inputs are skipped.`,
   cut: () => "A new sound fades out whatever is still ringing, so there is never more than one: no cacophony.",
 };
 
@@ -36,7 +36,7 @@ export function ZaicodeSoundOverlapSettings() {
           label=""
           value={overlap}
           options={OVERLAPS}
-          onChange={(next) => setZaicodeSoundSettings({ overlap: next })}
+          onChange={(next) => setZaicodeSoundSettings({ overlap: next, ...(next === "mix" ? { interfaceOneAtATime: false } : {}) })}
         />
       </div>
       <span />

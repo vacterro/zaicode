@@ -140,7 +140,7 @@ import { ConversationHeader, type PaneWorkspaceBadge } from "@/v4/ConversationHe
 import { ConversationQueuePanel } from "@/v4/ConversationQueuePanel.js";
 import { useZaicodeClearSession, useZaicodeSaipen } from "@/zaicode/zaicodeSaipen.js";
 import { ZaicodeWhereAmI } from "@/zaicode/ZaicodeWhereAmI.js";
-import { adoptZaicodeComposerModel } from "@/zaicode/zaicodeDefaultModel.js";
+import { adoptZaicodeComposerModel, subscribeZaicodeComposerModel } from "@/zaicode/zaicodeDefaultModel.js";
 import { useZaicodeAutoSessionTitle } from "@/zaicode/zaicodeAutoTitle.js";
 import { useZaicodeAutoRetry } from "@/zaicode/zaicodeAutoRetry.js";
 import { useZaicodeQueueAutoResume } from "@/zaicode/zaicodeQueueAutoResume.js";
@@ -3561,6 +3561,18 @@ export function SessionPane({
     },
     [handleDraftSelectThought],
   );
+
+  useEffect(() => {
+    if (!isZaicodeProductMode() || !focused || readOnly) return;
+    return subscribeZaicodeComposerModel(workspaceKey, (selection) => {
+      handleSelectModel(selection.providerId, selection.modelId, null);
+      if (selection.reasoningLevel) {
+        handleSelectThought(selection.reasoningLevel, {
+          provider: selection.providerId, model: selection.modelId,
+        });
+      }
+    });
+  }, [focused, readOnly, workspaceKey, handleSelectModel, handleSelectThought]);
 
   const handleRecoverCustomModelSelection = useCallback(
     async (value: string, sourceModel: ModelSelectionSource | null) => {

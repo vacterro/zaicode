@@ -21,7 +21,7 @@ export interface ZaicodePoolProviderInput {
   models: readonly {
     modelId: string;
     selectable: boolean;
-    config?: { optionSpecs?: { reasoningLevel?: { values?: readonly string[] | null } | null } | null };
+    config?: { displayName?: string | null; optionSpecs?: { reasoningLevel?: { values?: readonly string[] | null } | null } | null };
   }[];
 }
 
@@ -29,6 +29,7 @@ export interface ZaicodePoolOption {
   providerId: string;
   providerLabel: string;
   modelId: string;
+  displayName?: string;
   reasoningLevels: readonly string[];
   /** i18n id of a short pool description, only for well-known pools. */
   hintId: string | null;
@@ -78,6 +79,7 @@ export function buildPoolGroups(
             providerId: provider.providerId,
             providerLabel,
             modelId: model.modelId,
+            ...(model.config?.displayName ? { displayName: model.config.displayName } : {}),
             reasoningLevels: model.config?.optionSpecs?.reasoningLevel?.values ?? [],
             hintId: poolHintId(model.modelId),
           })),

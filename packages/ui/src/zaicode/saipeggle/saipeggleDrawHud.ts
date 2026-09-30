@@ -26,7 +26,14 @@ function leftPanel(ctx: CanvasRenderingContext2D, game: SpgGame, c: SpgColors): 
   const info = SPG_POWER_INFO[game.power];
   saipeggleText(ctx, "POWER", 24, 202, c.dim, { align: "center" });
   saipeggleText(ctx, info.short, 24, 212, c.peg.green.lit, { align: "center" });
-  const charge = game.guideShots || game.pyramidTurns || game.zenShots;
+  const charge =
+    game.power === "guide"
+      ? game.guideShots
+      : game.power === "pyramid"
+        ? game.pyramidTurns
+        : game.power === "zen"
+          ? game.zenShots
+          : game.guideShots || game.pyramidTurns || game.zenShots;
   if (charge > 0) saipeggleText(ctx, `x${charge}`, 24, 222, c.highlight, { align: "center" });
 }
 

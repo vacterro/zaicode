@@ -19,7 +19,7 @@ import type {
   UserInfo,
   ZCodeInteractionBehavior,
 } from "@zcode/shared";
-import {
+import { isLocale,
   BUILTIN_MODEL_PROVIDER_IDS,
   isZaicodeProductMode,
   TID_SETTINGS_BACK_BUTTON,
@@ -1314,7 +1314,7 @@ export function SettingsPage({
         });
         return;
       }
-      if (value === "zh-CN" || value === "en-US") {
+      if (isLocale(value)) {
         runUserAction({
           input: { featureId: "settings.locale", action: "change_locale", trigger: "select" },
           operation: () => setLocalePreference(value as Locale),
@@ -1904,7 +1904,10 @@ export function SettingsPage({
                             }
                           />
                         ) : activeSection === "shortcuts" ? (
-                          <ShortcutSettingsSection isDesktop={Boolean(isDesktop)} />
+                          <div className="flex flex-col gap-4">
+                            <ShortcutSettingsSection isDesktop={Boolean(isDesktop)} />
+                            {isZaicodeProductMode() ? <ZaicodeHotkeysSettings /> : null}
+                          </div>
                         ) : activeSection === "modelProvider" ? (
                           <ServiceProvider services={localHostServices}>
                             {/* 模型配置属于本机全局事实源；激活远端 workspace 时也不能注入远端 Host。 */}

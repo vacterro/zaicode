@@ -380,6 +380,22 @@ export function ProviderModelsSection({
   const { intl } = useZCodeIntl();
   const { providerSettingsService } = useServices();
   const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [bulkSaving, setBulkSaving] = useState(false);
+  const bulkSavingRef = useRef(false);
+  const [bulkError, setBulkError] = useState<string | null>(null);
+  const setEnabledModels = async (enabled: boolean, onlyModelId?: string) => {
+    if (!onModelEnabledChange || bulkSavingRef.current) return;
+    bulkSavingRef.current = true;
+    setBulkSaving(true);
+    setBulkError(null);
+    try {
+      for (const model of models) {
+        const next = onlyModelId ? model.modelId === onlyModelId : enabled;
+        if ((model.config.enabled !== false) !== next) await onModelEnabledChange(model.modelId, next);
+      }
+    } catch (error) { setBulkError(error instanceof Error ? error.message : String(error)); }
+    finally { bulkSavingRef.current = false; setBulkSaving(false); }
+  };
   const [addSaving, setAddSaving] = useState(false);
   const addSavingRef = useRef(false);
   const [addCommitError, setAddCommitError] = useState<string | null>(null);
@@ -473,6 +489,15 @@ export function ProviderModelsSection({
         <span className="text-ui-base text-foreground-subtle">
           {intl.formatMessage({ id: "settings.modelProvider.models" })}
         </span>
+        {onModelEnabledChange && models.length ? <div className="flex flex-wrap items-center gap-1" aria-busy={bulkSaving}>
+          <Button type="button" size="sm" variant="secondary" disabled={bulkSaving} onClick={() => void setEnabledModels(true)}>{intl.formatMessage({ id: "settings.modelProvider.enableAllModels" })}</Button>
+          <Button type="button" size="sm" variant="secondary" disabled={bulkSaving} onClick={() => void setEnabledModels(false)}>{intl.formatMessage({ id: "settings.modelProvider.disableAllModels" })}</Button>
+          <select aria-label={intl.formatMessage({ id: "settings.modelProvider.enableOnlyModel" })} value="" disabled={bulkSaving} className="max-w-48 border border-border bg-background text-ui-base"
+            onChange={(event) => { if (event.target.value) void setEnabledModels(true, event.target.value); }}>
+            <option value="">{intl.formatMessage({ id: "settings.modelProvider.enableOnlyModel" })}</option>
+            {models.map((model) => <option key={model.modelId} value={model.modelId}>{model.config.displayName || model.modelId}</option>)}
+          </select>
+        </div> : null}
         <Button
           type="button"
           variant="secondary"
@@ -485,6 +510,7 @@ export function ProviderModelsSection({
           {intl.formatMessage({ id: "settings.modelProvider.addModel" })}
         </Button>
       </div>
+      {bulkError ? <p role="alert" className="mb-2 text-ui-sm text-destructive">{bulkError}</p> : null}
       {models.length > 0 ? (
         <div className="overflow-hidden rounded-lg border border-input-border bg-input">
           <SortableProviderModelList

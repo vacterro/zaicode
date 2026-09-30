@@ -33,7 +33,7 @@ import {
   Sparkle,
   Type,
 } from "lucide-react";
-import { isSettingsSectionEnabled, type SettingsSectionId } from "@/lib/settingsNavigation.js";
+import { isSettingsSectionEnabled, resolveSettingsSection, type SettingsSectionId } from "@/lib/settingsNavigation.js";
 import type { Theme } from "@/useTheme.js";
 
 export const THEME_MODES: Array<{
@@ -299,6 +299,7 @@ export function resolveSettingsSectionForPlatform(
   visibleSections: ReadonlyArray<Pick<SettingsSectionDefinition, "id">>,
   fallbackSection: SettingsSectionId = "general",
 ): SettingsSectionId {
+  section = resolveSettingsSection(section, fallbackSection);
   if (visibleSections.some((candidate) => candidate.id === section)) return section;
   if (visibleSections.some((candidate) => candidate.id === fallbackSection)) {
     return fallbackSection;

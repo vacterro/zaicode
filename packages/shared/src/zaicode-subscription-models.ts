@@ -279,12 +279,12 @@ export function planZaicodeSubscriptionSync(input: {
     const add = specs.filter((spec) => !listed.has(spec.modelId));
     const offered = new Set(specs.map((spec) => spec.modelId));
     const remove = specs.length > 0 ? state.modelIds.filter((modelId) => !offered.has(modelId)) : [];
-    const moved = state.baseUrl !== baseUrl || state.providerName !== account.label || state.apiKey !== input.apiKey;
+    const moved = state.baseUrl !== baseUrl || state.apiKey !== input.apiKey;
     if (moved || add.length > 0 || remove.length > 0) {
       plan.update.push({
         providerId: state.providerId,
         account,
-        overlay: moved ? { providerName: account.label, baseUrl } : null,
+        overlay: moved ? { providerName: state.providerName.trim() || account.label, baseUrl } : null,
         add,
         remove,
       });

@@ -42,12 +42,13 @@ test("mix: sounds layer up to the limit, then the oldest ones fade", () => {
   assert.deepEqual(decideZaicodeSound(rules("mix", 16, false), mixed, [], ask("ui.expand", { interface: true })), { play: true, stop: [] });
 });
 
-test("queue: one after another, a bounded line, the same sound waits once", () => {
+test("queue: one after another, a bounded line, overlap repeats and replace dedupes", () => {
   assert.deepEqual(decideZaicodeSound(rules("queue", 3), [], [], ask("a")), { play: true, stop: [] });
   assert.deepEqual(decideZaicodeSound(rules("queue", 3), [voice("a")], [], ask("b")), { play: false, wait: true });
   // Something already waits: a new sound lines up behind it even if nothing rings for a moment.
   assert.deepEqual(decideZaicodeSound(rules("queue", 3), [], ["b"], ask("c")), { play: false, wait: true });
-  assert.deepEqual(decideZaicodeSound(rules("queue", 3), [voice("a")], ["b"], ask("b")), { play: false, wait: false }, "b waits already");
+  assert.deepEqual(decideZaicodeSound(rules("queue", 3), [voice("a")], ["b"], ask("b")), { play: false, wait: true }, "a second real event also waits");
+  assert.deepEqual(decideZaicodeSound(rules("queue", 3), [voice("a")], ["b"], ask("b", { replaceOwn: true })), { play: false, wait: false }, "replace keeps one pending event");
   assert.deepEqual(decideZaicodeSound(rules("queue", 3), [voice("a")], ["b", "c", "d"], ask("e")), { play: false, wait: false }, "the line is full");
   // Its own "replace": the same sound ringing alone restarts at once, still one at a time.
   assert.deepEqual(decideZaicodeSound(rules("queue", 3), [voice("a")], [], ask("a", { replaceOwn: true })), { play: true, stop: [0] });

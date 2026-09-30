@@ -1,3 +1,4 @@
+import { getLocalizedAuxiliaryMessage } from "@zcode/shared";
 import type { Locale, SkillScope } from "@zcode/shared";
 
 interface SkillDisplayCandidate {
@@ -41,7 +42,7 @@ const OFFICIAL_PLUGIN_PATH_MARKERS = [
   "/zcode-guide-plugin/",
 ];
 
-const BUILTIN_SKILL_DESCRIPTIONS: Record<string, Record<Locale, string>> = {
+const BUILTIN_SKILL_DESCRIPTIONS: Record<string, Partial<Record<Locale, string>>> = {
   "android-dev": {
     "zh-CN": "通过 android-emulator MCP 工具构建、运行、检查并轻量自动化 Android 应用。",
     "en-US":
@@ -179,6 +180,8 @@ export function resolveSkillSourceLabel(scope: SkillScope, locale?: Locale): str
     if (scope === "plugin") return "插件";
     return "用户";
   }
+  const translated = locale ? getLocalizedAuxiliaryMessage(locale, `skillScope.${scope}`) : undefined;
+  if (translated) return translated;
   if (scope === "workspace") return "Workspace";
   if (scope === "plugin") return "Plugin";
   return "User";
@@ -189,7 +192,7 @@ export function resolveSkillDisplayDescription(
   locale?: Locale,
 ): string {
   const localized = isOfficialBuiltinSkill(skill)
-    ? BUILTIN_SKILL_DESCRIPTIONS[skill.name]?.[locale ?? "en-US"]
+    ? (BUILTIN_SKILL_DESCRIPTIONS[skill.name]?.[locale ?? "en-US"] ?? getLocalizedAuxiliaryMessage(locale ?? "en-US", `skill.${skill.name}`))
     : undefined;
   return localized ?? skill.description;
 }

@@ -59,6 +59,7 @@ export function ZaicodeAuditPanel({ services, workspace }: ZaicodeAuditPanelProp
   const store = useZaicodeAuditStore();
   const audits = services.audits;
   const [now, setNow] = useState(() => Date.now());
+  const [archiving, setArchiving] = useState(false);
   const [selected, setSelected] = useState<ReadonlySet<string>>(() => new Set([workspace.workspacePath]));
 
   const projects: ZaicodeAuditProject[] = useMemo(() => {
@@ -130,11 +131,25 @@ export function ZaicodeAuditPanel({ services, workspace }: ZaicodeAuditPanelProp
   const active = store.campaigns.filter(zaicodeAuditCampaignIsActive);
   const history = store.campaigns.filter((campaign) => !zaicodeAuditCampaignIsActive(campaign)).slice(0, HISTORY_LIMIT);
   const waves = ZAICODE_AUDIT_PROFILE.waves;
+  const archivable = store.campaigns.filter((campaign) => campaign.status !== "running" && campaign.live?.status !== "running" && campaign.remediationStatus !== "running");
+  const archiveIdle = async () => {
+    if (!audits || archiving) return;
+    setArchiving(true);
+    try {
+      for (const campaign of archivable) {
+        await store.archive(audits, campaign.campaignId);
+        if (useZaicodeAuditStore.getState().error) break;
+      }
+    } finally { setArchiving(false); }
+  };
 
   return (
     <div className="flex h-full min-h-0 flex-col text-ui-xs" data-zaicode-audit-center data-zaicode-help="audit">
       <div className="flex shrink-0 flex-col gap-1 border-b border-border px-3 py-2">
         <div className="flex items-center gap-2">
+          <button type="button" className="shrink-0 border border-border px-1.5 text-foreground-subtle hover:bg-hover disabled:opacity-50" disabled={archiving || archivable.length === 0} title="Archive stopped, planned and finished audits. Running audits are kept; report files stay on disk." onClick={() => void archiveIdle()}>
+            {archiving ? "Archiving…" : `Archive idle (${archivable.length})`}
+          </button>
           <ListChecks className="size-4 text-foreground-subtle" />
           <span className="text-ui-sm font-medium text-foreground">Audits</span>
           <span className="text-foreground-subtle">
@@ -250,6 +265,7 @@ export function ZaicodeAuditPanel({ services, workspace }: ZaicodeAuditPanelProp
                 onRetry={(campaignId) => void store.retry(audits, campaignId)}
                 onFix={(campaignId) => void store.fixWithSaipen(audits, campaignId)}
                 onCancel={(campaignId) => void store.cancel(audits, campaignId)}
+                onArchive={(campaignId) => void store.archive(audits, campaignId)}
               />
             ))
           )}
@@ -297,6 +313,7 @@ export function ZaicodeAuditPanel({ services, workspace }: ZaicodeAuditPanelProp
                 onRetry={(campaignId) => void store.retry(audits, campaignId)}
                 onFix={(campaignId) => void store.fixWithSaipen(audits, campaignId)}
                 onCancel={(campaignId) => void store.cancel(audits, campaignId)}
+                onArchive={(campaignId) => void store.archive(audits, campaignId)}
               />
             ))}
           </section>

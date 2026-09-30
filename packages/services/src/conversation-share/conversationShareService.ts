@@ -14,7 +14,7 @@ import type {
   ConversationShareRecord,
   Locale,
 } from "@zcode/shared";
-import {
+import { getLocalizedAuxiliaryMessage,
   decodeConversationShareRows,
   buildConversationPreviewArtifactCandidates,
   CONVERSATION_PREVIEW_CARD_VISIBLE_LIMIT,
@@ -233,13 +233,13 @@ function previewPreflightKey(
  * 导入会话的标题前缀。services 层没有 intl，这里只维护一份最小映射；
  * 前缀在导入时定型并持久化为 session.title（titleSource: "custom"），之后切界面语言不再改写。
  */
-const IMPORTED_SHARE_TITLE_PREFIX: Readonly<Record<Locale, string>> = {
+const IMPORTED_SHARE_TITLE_PREFIX: Readonly<Partial<Record<Locale, string>>> = {
   "zh-CN": "来自分享：",
   "en-US": "From Share: ",
 };
 
 function formatImportedShareSessionTitle(shareTitle: string, locale: Locale | undefined): string {
-  return `${IMPORTED_SHARE_TITLE_PREFIX[locale ?? "zh-CN"]}${shareTitle.trim()}`;
+  return `${(IMPORTED_SHARE_TITLE_PREFIX[locale ?? "zh-CN"] ?? getLocalizedAuxiliaryMessage(locale ?? "zh-CN", "share.importedPrefix") ?? "From Share: ")}${shareTitle.trim()}`;
 }
 
 function localizePublishedShare(

@@ -4,9 +4,10 @@ import { completeModelConfigDataSchema, modelConfigDataSchema } from "@zcode/sha
 const complete = completeModelConfigDataSchema.shape;
 // 手动模式只冻结产品明确开放的叶子；新增系统字段默认不属于个人手动配置。
 export const manualModelConfigSchema = completeModelConfigDataSchema
-  .pick({ enabled: true })
+  .pick({ enabled: true, displayName: true })
   .extend({
     enabled: modelConfigDataSchema.shape.enabled,
+    displayName: modelConfigDataSchema.shape.displayName,
     properties: complete.properties
       .pick({
         contextWindow: true,
@@ -36,7 +37,7 @@ export function extractManualModelConfig(input: unknown): ManualModelConfig {
 /** 保留独立 enabled 和系统叶子；恢复智能配置及规则合成都使用同一字段归属。 */
 export function clearManualModelConfig(input: z.infer<typeof modelConfigDataSchema>) {
   return modelConfigDataSchema.parse(
-    omitSchemaFields(manualModelConfigSchema.omit({ enabled: true }), input),
+    omitSchemaFields(manualModelConfigSchema.omit({ enabled: true, displayName: true }), input),
   );
 }
 

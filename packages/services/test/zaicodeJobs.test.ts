@@ -469,6 +469,67 @@ test("ZAICODE job queue: jobs are isolated per workspace and executor failures a
   }
 });
 
+test("cancellation before the executor responds stops its late session exactly once", async () => {
+  let resolveStarted!: (value: { sessionId: string; stop: () => Promise<void> }) => void;
+  let entered!: () => void;
+  const starting = new Promise<void>((resolve) => { entered = resolve; });
+  let stops = 0;
+  const harness = await createHarness({ executor: async () => {
+    entered();
+    return new Promise((resolve) => { resolveStarted = resolve; });
+  } });
+  try {
+    const agent = await seedAgent(harness);
+    const job = await createJob(harness, agent.id);
+    const dispatch = harness.jobService.dispatch(job.id);
+    await starting;
+    assert.equal((await harness.jobService.cancel(job.id))?.status, "cancelled");
+    resolveStarted({ sessionId: "late-session", stop: async () => { stops += 1; } });
+    assert.equal((await dispatch)?.status, "cancelled");
+    assert.equal(stops, 1);
+    assert.equal((await harness.jobService.get(job.id))?.sessionId, undefined);
+  } finally { await harness.dispose(); }
+});
+
+test("a failed runtime stop is reported and the same cancel can retry it", async () => {
+  let stops = 0;
+  const harness = await createHarness({ executor: async () => ({ sessionId: "session", stop: async () => {
+    stops += 1;
+    if (stops === 1) throw new Error("stop transport unavailable");
+  } }) });
+  try {
+    const agent = await seedAgent(harness);
+    const job = await createJob(harness, agent.id);
+    await harness.jobService.dispatch(job.id);
+    await assert.rejects(harness.jobService.cancel(job.id), /stop transport unavailable/);
+    assert.match((await harness.jobService.get(job.id))?.error ?? "", /^cancel_stop_failed:/);
+    await assert.rejects(harness.jobService.retry(job.id), /Retry cancellation/);
+    await assert.rejects(harness.jobService.remove(job.id), /Retry cancellation/);
+    assert.ok(await harness.jobService.get(job.id), "a failed stop remains available for retry");
+    assert.equal((await harness.jobService.cancel(job.id))?.status, "cancelled");
+    assert.equal((await harness.jobService.get(job.id))?.error, undefined);
+    assert.equal(stops, 2);
+  } finally { await harness.dispose(); }
+});
+
+test("a new attempt cannot start while cancellation is still waiting for the runtime", async () => {
+  let release!: () => void;
+  let entered!: () => void;
+  const stopping = new Promise<void>((resolve) => { entered = resolve; });
+  const gate = new Promise<void>((resolve) => { release = resolve; });
+  const harness = await createHarness({ executor: async () => ({ sessionId: "session", stop: async () => { entered(); await gate; } }) });
+  try {
+    const agent = await seedAgent(harness);
+    const job = await createJob(harness, agent.id);
+    await harness.jobService.dispatch(job.id);
+    const cancel = harness.jobService.cancel(job.id);
+    await stopping;
+    try { await assert.rejects(harness.jobService.retry(job.id), /Retry cancellation/); }
+    finally { release(); await cancel; }
+    assert.equal((await harness.jobService.retry(job.id)).retryOfJobId, job.id);
+  } finally { release(); await harness.dispose(); }
+});
+
 test("ZAICODE job queue: autopilot starts queued work and refills freed slots", async () => {
   const harness = await createHarness({ autoRun: true });
   const settle = () => new Promise((resolve) => setTimeout(resolve, 50));

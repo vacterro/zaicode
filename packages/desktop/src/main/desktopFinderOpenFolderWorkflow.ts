@@ -1,3 +1,4 @@
+import { getLocalizedAuxiliaryMessage } from "@zcode/shared";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
@@ -7,7 +8,7 @@ import type { Locale } from "@zcode/shared";
 const WORKFLOW_NAME = "Open in ZCode.workflow";
 const WORKFLOW_BUNDLE_ID = "dev.zcode.app.finder-open-workflow";
 const WORKFLOW_VERSION = "5";
-const SERVICES_MENU_LABELS: Record<Locale, string> = {
+const SERVICES_MENU_LABELS: Partial<Record<Locale, string>> = {
   "zh-CN": "在ZCode中打开",
   "en-US": "Open in ZCode",
 };
@@ -36,7 +37,7 @@ function escapeXml(value: string): string {
 }
 
 function getServicesMenuLabel(locale: Locale): string {
-  return SERVICES_MENU_LABELS[locale] ?? SERVICES_MENU_LABELS["en-US"];
+  return SERVICES_MENU_LABELS[locale] ?? getLocalizedAuxiliaryMessage(locale, "platform.openZCode") ?? "Open in ZCode";
 }
 
 function buildInfoPlist(locale: Locale): string {

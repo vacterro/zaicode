@@ -1,5 +1,5 @@
 /* eslint-disable max-lines -- workspace shell 当前集中编排 sidebar、chat、terminal 和 browser pane 的布局联动，先保持单文件收口，避免为满足行数限制打散关键布局状态。*/
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type {
   CSSProperties,
   KeyboardEvent as ReactKeyboardEvent,
@@ -35,6 +35,9 @@ import { DesktopTopOverlay } from "@/DesktopTopOverlay.js";
 import { DesktopWindowFrame } from "@/DesktopWindowFrame.js";
 import { WorkspacePluginPreview } from "@/WorkspacePluginPreview.js";
 import { isZaicodeProductMode } from "@zcode/shared";
+import { useZaicodeSidebarPrefs } from "@/zaicode/zaicodeSidebarPrefs.js";
+import { ZaicodeProjectRail } from "@/zaicode/ZaicodeProjectRail.js";
+import { resolveZaicodeSidebarWidth, zaicodeSidebarDragWidth, zaicodeSidebarKeyboardWidth, ZAICODE_SIDEBAR_RAIL_WIDTH } from "@/zaicode/zaicodeSidebarWidth.js";
 import { ZaicodeSaipenMenu } from "@/zaicode/ZaicodeSaipenMenu.js";
 import { useZaicodeFreshSession, useZaicodeOpenSession } from "@/zaicode/zaicodeSaipen.js";
 import { playZaicodeSound } from "@/zaicode/zaicodeSoundBus.js";
@@ -151,7 +154,7 @@ function clampWorkspaceSidebarWidth(widthPx: number, containerWidthPx?: number) 
         )
       : Number.POSITIVE_INFINITY;
 
-  return Math.round(Math.max(WORKSPACE_SIDEBAR_MIN_WIDTH_PX, Math.min(widthPx, maxWidthPx)));
+  return isZaicodeProductMode() ? resolveZaicodeSidebarWidth(widthPx, maxWidthPx) : Math.round(Math.max(WORKSPACE_SIDEBAR_MIN_WIDTH_PX, Math.min(widthPx, maxWidthPx)));
 }
 
 function readStoredWorkspaceSidebarWidthPx(): number | null {
@@ -675,7 +678,7 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
 
       event.preventDefault();
       const nextWidthPx = clampWorkspaceSidebarWidth(
-        resizeSession.startWidthPx + event.clientX - resizeSession.startX,
+        zaicodeSidebarDragWidth(resizeSession.startWidthPx, event.clientX - resizeSession.startX, isZaicodeProductMode() && useZaicodeSidebarPrefs.getState().sidebarsSwapped),
         resizeSession.containerWidthPx,
       );
       applyWorkspaceSidebarWidthDuringDrag(nextWidthPx);
@@ -725,13 +728,11 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
       let nextWidthPx: number | null = null;
 
       if (event.key === "ArrowLeft") {
-        nextWidthPx =
-          workspaceSidebarPanelWidthPxRef.current - WORKSPACE_SIDEBAR_RESIZE_KEYBOARD_STEP_PX;
+        nextWidthPx = isZaicodeProductMode() ? zaicodeSidebarKeyboardWidth(workspaceSidebarPanelWidthPxRef.current, -1, useZaicodeSidebarPrefs.getState().sidebarsSwapped, WORKSPACE_SIDEBAR_RESIZE_KEYBOARD_STEP_PX) : workspaceSidebarPanelWidthPxRef.current - WORKSPACE_SIDEBAR_RESIZE_KEYBOARD_STEP_PX;
       } else if (event.key === "ArrowRight") {
-        nextWidthPx =
-          workspaceSidebarPanelWidthPxRef.current + WORKSPACE_SIDEBAR_RESIZE_KEYBOARD_STEP_PX;
+        nextWidthPx = isZaicodeProductMode() ? zaicodeSidebarKeyboardWidth(workspaceSidebarPanelWidthPxRef.current, 1, useZaicodeSidebarPrefs.getState().sidebarsSwapped, WORKSPACE_SIDEBAR_RESIZE_KEYBOARD_STEP_PX) : workspaceSidebarPanelWidthPxRef.current + WORKSPACE_SIDEBAR_RESIZE_KEYBOARD_STEP_PX;
       } else if (event.key === "Home") {
-        nextWidthPx = WORKSPACE_SIDEBAR_MIN_WIDTH_PX;
+        nextWidthPx = isZaicodeProductMode() ? ZAICODE_SIDEBAR_RAIL_WIDTH : WORKSPACE_SIDEBAR_MIN_WIDTH_PX;
       } else if (event.key === "End") {
         nextWidthPx = maxWidthPx;
       }
@@ -1533,8 +1534,11 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
       });
     }
   }, [activeTaskId, workspaceKey]);
+  const sidebarsSwappedPreference = useZaicodeSidebarPrefs((s) => s.sidebarsSwapped);
+  const sidebarsSwapped = isZaicodeProductMode() && sidebarsSwappedPreference;
   const renderSidePanePanel = () => (
     <AnimatedSidePanePanel
+      resizeHandleAfter={sidebarsSwapped}
       services={services}
       isDesktop={isDesktop}
       isWindowsDesktop={isWindowsDesktop}
@@ -1604,7 +1608,8 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
       onSelectGitSource={setGitSelectedSourceId}
     />
   );
-  const sidePanePanel = renderSidePanePanel();
+  const sidePanePanel = <Fragment key="browser">{renderSidePanePanel()}</Fragment>;
+  const projectRail = isZaicodeProductMode() && workspaceSidebarPanelWidthPx <= ZAICODE_SIDEBAR_RAIL_WIDTH;
   const hasUpdateStatusButton =
     updateReadyVersion !== null ||
     updateState?.kind === "update-available" ||
@@ -1642,170 +1647,8 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
     return out;
   }, [gitState.datasets, gitState.revision]);
 
-  return (
-    <DesktopWindowFrame
-      title={`ZAICODE / ${getPathLeaf(workspaceAbsPath)}`}
-      showHeader
-      isDesktop={isDesktop}
-      isMacDesktop={isMacDesktop}
-      isWindowsDesktop={isWindowsDesktop}
-      headerTestId={TID_APP_HEADER}
-    >
-      <div
-        ref={workspaceShellRef}
-        data-workspace-shell="true"
-        style={workspaceShellSplitStyle}
-        className={cn(
-          "relative flex h-full min-h-0 w-full overflow-hidden",
-          // 窗口原生 resize 时，外层 react-resizable-panels 会把每一帧
-          // 都写进 layout store，连带侧栏 tooltip/menu 子树反复 commit。这里改成
-          // CSS 变量驱动的专用 split，普通窗口 resize 只走浏览器布局，不触发 React 状态。
-        )}
-      >
-        {/*
-          Wave 3 D watcher. It belongs to the shell, not to the draft composer
-          header: that header is a useMemo factory that React runs while
-          rendering, before `gitSpawnFiles` below the hooks exists ("Cannot
-          access before initialization" took the whole window down), and it only
-          exists while a draft is on screen. A hidden workspace unmounts it, so
-          coming back re-baselines instead of announcing every file as new.
-        */}
-        {isWorkspaceVisible ? (
-          <ZaicodeGitSpawnWatcher files={gitSpawnFiles} scopeKey={workspaceAbsPath} />
-        ) : null}
-        <div
-          ref={workspaceSidebarPanelElementRef}
-          data-panel=""
-          data-workspace-sidebar-panel="true"
-          id="sidebar"
-          className={cn(
-            // SRC-058: the action strip lays itself out with
-            // `@min-[360px]/workspace-sidebar`. A named container query only ever
-            // matches an ancestor that declares that name, and nothing declared
-            // it, so the wide three-column layout was dead and the strip stayed
-            // on the stacked fallback at every sidebar width.
-            "@container/workspace-sidebar w-[var(--workspace-sidebar-panel-width)] max-w-[50%] flex-none overflow-hidden duration-200 ease-out transition-[width,opacity] data-[workspace-sidebar-resizing=true]:transition-opacity",
-            // 拖动侧栏宽度时如果继续过渡 width，会让指针移动和实际宽度之间产生滞后。
-            // 拖拽 active 通过 DOM 标记切 transition，避免 pointerdown/up 为了切 class 重渲染整棵 workspace。
-            isSidebarPanelVisible ? "opacity-100" : "pointer-events-none opacity-0",
-          )}
-        >
-          <aside
-            ref={sidebarContainerRef}
-            className="h-full overflow-hidden select-none"
-            aria-hidden={!isSidebarPanelVisible}
-          >
-            <ScopedErrorBoundary
-              scope="workspace-sidebar"
-              resetKeys={workspaceOnlyResetKeys}
-              variant="panel"
-              className="h-full"
-            >
-              {/* session workbench groups：桌面和普通 web app 可分屏。 */}
-              <V4SplitPaneEntryProvider
-                enabled
-                canOpenSession={canOpenSessionInSplitPane}
-                onOpenSession={handleOpenSessionInSplitPane}
-              >
-                <WorkflowRunOpenProvider onOpenRun={handleOpenSidebarWorkflowRun}>
-                  <WorkspaceSidebar
-                    workspacePath={workspaceAbsPath}
-                    workspaceRemoteSessionId={workspaceRemoteSessionId}
-                    activePreviewPath={activePreviewPath}
-                    onSelectTask={handleSelectTaskInChat}
-                    onStartDraftInWorkspace={handleSidebarNewProjectDraft}
-                    onOpenCodeViewer={handleOpenCodeViewer}
-                    onOpenBrowserUrl={handleOpenBrowserUrl}
-                    fileTreeOpenRequest={fileTreeOpenRequest}
-                    onCreateTask={handleCreateTaskInChat}
-                    onCreateConversationTask={onCreateConversationTask ?? handleCreateTaskInChat}
-                    onOpenFolderFromWorkspaceMenu={onOpenFolderFromWorkspaceMenu}
-                    onOpenRemoteWorkspace={onOpenRemoteWorkspace}
-                    theme={theme}
-                    onConnectRemote={onConnectRemote}
-                    onSelectRemoteProject={onSelectRemoteProject}
-                    onCancelRemoteProject={onCancelRemoteProject}
-                    onReconnectRemoteWorkspace={onReconnectRemoteWorkspace}
-                    reconnectingRemoteWorkspaceKeys={reconnectingRemoteWorkspaceKeys}
-                    remoteWorkspaceErrorByWorkspaceKey={remoteWorkspaceErrorByWorkspaceKey}
-                    reconnectingRemoteWorkspaceLogsByWorkspaceKey={
-                      reconnectingRemoteWorkspaceLogsByWorkspaceKey
-                    }
-                    onLogout={onLogout}
-                    onLogin={onLogin}
-                    user={user}
-                    isDesktop={isDesktop}
-                    isMacDesktop={isMacDesktop}
-                    isWindowsDesktop={isWindowsDesktop}
-                    isSidebarVisible={isSidebarVisible}
-                    onToggleSidebar={handleToggleSidebar}
-                    toggleSidebarShortcutLabel={toggleSidebarShortcutLabel}
-                    canGoBack={canPrimaryNavigationBack}
-                    canGoForward={canTaskNavForward}
-                    onGoBack={primaryNavigationBack}
-                    onGoForward={handleTaskNavForward}
-                    goBackShortcutLabel={goBackShortcutLabel}
-                    goForwardShortcutLabel={goForwardShortcutLabel}
-                    onOpenCommandCenter={handleOpenCommandCenter}
-                    onOpenAutomations={handleOpenAutomations}
-                    automationsActive={workspaceMainView === "automations"}
-                    onOpenPluginStore={handleOpenPluginStore}
-                    pluginStoreActive={workspaceMainView === "plugin-store"}
-                    onOpenZaicode={() => onWorkspaceMainViewChange("zaicode")}
-                    zaicodeActive={workspaceMainView === "zaicode"}
-                    onFileTreeOpenChange={setIsSidebarFileTreeOpen}
-                  />
-                </WorkflowRunOpenProvider>
-              </V4SplitPaneEntryProvider>
-            </ScopedErrorBoundary>
-          </aside>
-        </div>
-
-        {isSidebarVisible ? (
-          <div
-            role="separator"
-            tabIndex={0}
-            aria-controls="sidebar"
-            aria-label={workspaceSidebarResizeLabel}
-            aria-orientation="vertical"
-            aria-valuemin={WORKSPACE_SIDEBAR_MIN_WIDTH_PX}
-            aria-valuenow={Math.round(workspaceSidebarPanelWidthPx)}
-            data-testid="resizable-handle"
-            onKeyDown={handleWorkspaceSidebarResizeKeyDown}
-            onPointerCancel={(event) => finishWorkspaceSidebarResize(event, true)}
-            onPointerDown={handleWorkspaceSidebarResizeStart}
-            onPointerMove={handleWorkspaceSidebarResizeMove}
-            onPointerUp={(event) => finishWorkspaceSidebarResize(event)}
-            className={cn(
-              "group/handle relative z-10 flex h-full w-1 shrink-0 touch-none cursor-ew-resize items-center justify-center bg-transparent outline-none [app-region:no-drag] focus:outline-none focus-visible:ring-0",
-              "after:pointer-events-none after:absolute after:rounded-full after:bg-foreground-subtlest/50 after:opacity-0 after:transition-opacity after:content-[''] after:inset-y-[var(--workspace-panel-radius)] after:w-0.5",
-              "hover:after:opacity-100 data-[separator=hover]:after:opacity-100 data-[separator=active]:after:opacity-100 focus-visible:after:opacity-100 [[data-workspace-sidebar-resizing=true]_&]:after:opacity-100",
-              hasDesktopPanelInset && "after:inset-y-[var(--workspace-resize-handle-inset)]",
-            )}
-          />
-        ) : null}
-        {/* 右侧主工作区：上方 header，下面左侧会话+终端，右侧共享 browser/code-viewer 槽位 */}
-        <div
-          data-panel=""
-          id="content"
-          className={cn(
-            "flex min-w-[320px] flex-1 flex-col",
-            hasDesktopPanelInset ? "p-1 pl-0 pt-0" : "p-0",
-          )}
-        >
-          {
-            hasDesktopPanelInset && (
-              <div className="h-1 w-full [app-region:drag]" />
-            ) /* 修复 macOS 顶部窗口控制按钮被 header 遮挡无法点击的问题 */
-          }
-          {/* ZAICODE (SRC-046): the WORKERS panel docks to any edge of the body; the frame is a no-op upstream. */}
-          <ZaicodeWorkersDockFrame services={services}>
-          <ResizablePanelGroup
-            layoutId="workspace-body-layout"
-            panelIds={WORKSPACE_BODY_PANEL_IDS}
-            className="min-h-0 min-w-0 flex-1"
-          >
-            <ResizablePanel
+  const conversationColumnPanel = (
+<ResizablePanel key="conversation-column"
               id="conversation-column"
               minSize="35%"
               defaultSize={isSidePaneVisible ? "52%" : undefined}
@@ -2119,9 +1962,178 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
                 ) : null}
               </ResizablePanelGroup>
             </ResizablePanel>
+  );
+
+  return (
+    <DesktopWindowFrame
+      title={`ZAICODE / ${getPathLeaf(workspaceAbsPath)}`}
+      showHeader
+      isDesktop={isDesktop}
+      isMacDesktop={isMacDesktop}
+      isWindowsDesktop={isWindowsDesktop}
+      headerTestId={TID_APP_HEADER}
+    >
+      <div
+        ref={workspaceShellRef}
+        data-workspace-shell="true"
+        style={workspaceShellSplitStyle}
+        className={cn(
+          "relative flex h-full min-h-0 w-full overflow-hidden",
+          sidebarsSwapped && "flex-row-reverse",
+          // 窗口原生 resize 时，外层 react-resizable-panels 会把每一帧
+          // 都写进 layout store，连带侧栏 tooltip/menu 子树反复 commit。这里改成
+          // CSS 变量驱动的专用 split，普通窗口 resize 只走浏览器布局，不触发 React 状态。
+        )}
+      >
+        {/*
+          Wave 3 D watcher. It belongs to the shell, not to the draft composer
+          header: that header is a useMemo factory that React runs while
+          rendering, before `gitSpawnFiles` below the hooks exists ("Cannot
+          access before initialization" took the whole window down), and it only
+          exists while a draft is on screen. A hidden workspace unmounts it, so
+          coming back re-baselines instead of announcing every file as new.
+        */}
+        {isWorkspaceVisible ? (
+          <ZaicodeGitSpawnWatcher files={gitSpawnFiles} scopeKey={workspaceAbsPath} />
+        ) : null}
+        <div
+          ref={workspaceSidebarPanelElementRef}
+          data-panel=""
+          data-workspace-sidebar-panel="true"
+          id="sidebar"
+          className={cn(
+            // SRC-058: the action strip lays itself out with
+            // `@min-[360px]/workspace-sidebar`. A named container query only ever
+            // matches an ancestor that declares that name, and nothing declared
+            // it, so the wide three-column layout was dead and the strip stayed
+            // on the stacked fallback at every sidebar width.
+            "@container/workspace-sidebar w-[var(--workspace-sidebar-panel-width)] max-w-[50%] flex-none overflow-hidden duration-200 ease-out transition-[width,opacity] data-[workspace-sidebar-resizing=true]:transition-opacity",
+            // 拖动侧栏宽度时如果继续过渡 width，会让指针移动和实际宽度之间产生滞后。
+            // 拖拽 active 通过 DOM 标记切 transition，避免 pointerdown/up 为了切 class 重渲染整棵 workspace。
+            isSidebarPanelVisible ? "opacity-100" : "pointer-events-none opacity-0",
+          )}
+        >
+          <aside
+            ref={sidebarContainerRef}
+            className="h-full overflow-hidden select-none"
+            aria-hidden={!isSidebarPanelVisible}
+          >
+            {projectRail ? <ZaicodeProjectRail onHome={() => onWorkspaceMainViewChange("saihome")} onNew={() => handleSidebarNewProjectDraft(workspaceAbsPath, workspaceIdentity)} /> : null}
+            <div className={projectRail ? "hidden" : "contents"} aria-hidden={projectRail || undefined}>
+            <ScopedErrorBoundary
+              scope="workspace-sidebar"
+              resetKeys={workspaceOnlyResetKeys}
+              variant="panel"
+              className="h-full"
+            >
+              {/* session workbench groups：桌面和普通 web app 可分屏。 */}
+              <V4SplitPaneEntryProvider
+                enabled
+                canOpenSession={canOpenSessionInSplitPane}
+                onOpenSession={handleOpenSessionInSplitPane}
+              >
+                <WorkflowRunOpenProvider onOpenRun={handleOpenSidebarWorkflowRun}>
+                  <WorkspaceSidebar
+                    workspacePath={workspaceAbsPath}
+                    workspaceRemoteSessionId={workspaceRemoteSessionId}
+                    activePreviewPath={activePreviewPath}
+                    onSelectTask={handleSelectTaskInChat}
+                    onStartDraftInWorkspace={handleSidebarNewProjectDraft}
+                    onOpenCodeViewer={handleOpenCodeViewer}
+                    onOpenBrowserUrl={handleOpenBrowserUrl}
+                    fileTreeOpenRequest={fileTreeOpenRequest}
+                    onCreateTask={handleCreateTaskInChat}
+                    onCreateConversationTask={onCreateConversationTask ?? handleCreateTaskInChat}
+                    onOpenFolderFromWorkspaceMenu={onOpenFolderFromWorkspaceMenu}
+                    onOpenRemoteWorkspace={onOpenRemoteWorkspace}
+                    theme={theme}
+                    onConnectRemote={onConnectRemote}
+                    onSelectRemoteProject={onSelectRemoteProject}
+                    onCancelRemoteProject={onCancelRemoteProject}
+                    onReconnectRemoteWorkspace={onReconnectRemoteWorkspace}
+                    reconnectingRemoteWorkspaceKeys={reconnectingRemoteWorkspaceKeys}
+                    remoteWorkspaceErrorByWorkspaceKey={remoteWorkspaceErrorByWorkspaceKey}
+                    reconnectingRemoteWorkspaceLogsByWorkspaceKey={
+                      reconnectingRemoteWorkspaceLogsByWorkspaceKey
+                    }
+                    onLogout={onLogout}
+                    onLogin={onLogin}
+                    user={user}
+                    isDesktop={isDesktop}
+                    isMacDesktop={isMacDesktop}
+                    isWindowsDesktop={isWindowsDesktop}
+                    isSidebarVisible={isSidebarVisible}
+                    onToggleSidebar={handleToggleSidebar}
+                    toggleSidebarShortcutLabel={toggleSidebarShortcutLabel}
+                    canGoBack={canPrimaryNavigationBack}
+                    canGoForward={canTaskNavForward}
+                    onGoBack={primaryNavigationBack}
+                    onGoForward={handleTaskNavForward}
+                    goBackShortcutLabel={goBackShortcutLabel}
+                    goForwardShortcutLabel={goForwardShortcutLabel}
+                    onOpenCommandCenter={handleOpenCommandCenter}
+                    onOpenAutomations={handleOpenAutomations}
+                    automationsActive={workspaceMainView === "automations"}
+                    onOpenPluginStore={handleOpenPluginStore}
+                    pluginStoreActive={workspaceMainView === "plugin-store"}
+                    onOpenZaicode={() => onWorkspaceMainViewChange("zaicode")}
+                    zaicodeActive={workspaceMainView === "zaicode"}
+                    onFileTreeOpenChange={setIsSidebarFileTreeOpen}
+                  />
+                </WorkflowRunOpenProvider>
+              </V4SplitPaneEntryProvider>
+            </ScopedErrorBoundary>
+            </div>
+          </aside>
+        </div>
+
+        {isSidebarVisible ? (
+          <div
+            role="separator"
+            tabIndex={0}
+            aria-controls="sidebar"
+            aria-label={workspaceSidebarResizeLabel}
+            aria-orientation="vertical"
+            aria-valuemin={isZaicodeProductMode() ? ZAICODE_SIDEBAR_RAIL_WIDTH : WORKSPACE_SIDEBAR_MIN_WIDTH_PX}
+            aria-valuenow={Math.round(workspaceSidebarPanelWidthPx)}
+            data-testid="resizable-handle"
+            onKeyDown={handleWorkspaceSidebarResizeKeyDown}
+            onPointerCancel={(event) => finishWorkspaceSidebarResize(event, true)}
+            onPointerDown={handleWorkspaceSidebarResizeStart}
+            onPointerMove={handleWorkspaceSidebarResizeMove}
+            onPointerUp={(event) => finishWorkspaceSidebarResize(event)}
+            className={cn(
+              "group/handle relative z-10 flex h-full w-1 shrink-0 touch-none cursor-ew-resize items-center justify-center bg-transparent outline-none [app-region:no-drag] focus:outline-none focus-visible:ring-0",
+              "after:pointer-events-none after:absolute after:rounded-full after:bg-foreground-subtlest/50 after:opacity-0 after:transition-opacity after:content-[''] after:inset-y-[var(--workspace-panel-radius)] after:w-0.5",
+              "hover:after:opacity-100 data-[separator=hover]:after:opacity-100 data-[separator=active]:after:opacity-100 focus-visible:after:opacity-100 [[data-workspace-sidebar-resizing=true]_&]:after:opacity-100",
+              hasDesktopPanelInset && "after:inset-y-[var(--workspace-resize-handle-inset)]",
+            )}
+          />
+        ) : null}
+        {/* 右侧主工作区：上方 header，下面左侧会话+终端，右侧共享 browser/code-viewer 槽位 */}
+        <div
+          data-panel=""
+          id="content"
+          className={cn(
+            "flex min-w-[320px] flex-1 flex-col",
+            hasDesktopPanelInset ? "p-1 pl-0 pt-0" : "p-0",
+          )}
+        >
+          {
+            hasDesktopPanelInset && (
+              <div className="h-1 w-full [app-region:drag]" />
+            ) /* 修复 macOS 顶部窗口控制按钮被 header 遮挡无法点击的问题 */
+          }
+          {/* ZAICODE (SRC-046): the WORKERS panel docks to any edge of the body; the frame is a no-op upstream. */}
+          <ZaicodeWorkersDockFrame services={services}>
+          <ResizablePanelGroup
+            layoutId="workspace-body-layout"
+            panelIds={WORKSPACE_BODY_PANEL_IDS}
+            className="min-h-0 min-w-0 flex-1"
+          >
+            {sidebarsSwapped ? [sidePanePanel, conversationColumnPanel] : [conversationColumnPanel, sidePanePanel]}
             {/* Browser Guest Host 必须与主视图路由解耦，避免 automations/plugin
                     切换时卸载 Guest；截图请求期间由上层临时展开真实面板承载可合成的 WebContents。 */}
-            {sidePanePanel}
           </ResizablePanelGroup>
           </ZaicodeWorkersDockFrame>
         </div>

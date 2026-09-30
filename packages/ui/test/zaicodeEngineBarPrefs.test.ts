@@ -28,9 +28,10 @@ test("the operator's own list wins; a model that disappeared is skipped", () => 
 });
 
 test("stored prefs normalize: at most four, no duplicates, subs on by default", () => {
-  assert.deepEqual(normalizeZaicodeEngineBarPrefs(null), { pools: null, showSubs: true });
+  assert.deepEqual(normalizeZaicodeEngineBarPrefs(null), { pools: null, modelButtons: null, showSubs: true });
   assert.deepEqual(normalizeZaicodeEngineBarPrefs({ pools: ["a", "a", "b", "c", "d", "e", 3], showSubs: false }), {
     pools: ["a", "b", "c", "d"],
+    modelButtons: null,
     showSubs: false,
   });
   assert.equal(zaicodeEngineBarLabel("ag/claude-opus-4-6-thinking"), "claude-opus-4-6-thinking");

@@ -97,7 +97,7 @@ export const BUILTIN_ZCODE_SLASH_COMMAND_HELP_ENTRIES: readonly BuiltinZCodeSlas
       ],
       name: "locale",
       summary: "Show or switch the UI locale.",
-      usage: "/locale [auto|en-US|zh-CN]",
+      usage: "/locale [auto|language-tag]",
     },
     {
       details: [

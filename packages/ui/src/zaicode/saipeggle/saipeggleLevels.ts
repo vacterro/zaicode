@@ -131,7 +131,10 @@ export function saipeggleDeal(places: readonly SpgPlace[], spec: SpgLevelSpec, s
   const pegs: SpgPeg[] = places.map((p, id) => ({ id, x: p.x, y: p.y, shape: p.shape, angle: p.angle, kind: "blue", lit: false, gone: false }));
   const rng = saipeggleRng(`${spec.seed}/deal/${attempt}`);
   const order = rng.shuffle(pegs.map((peg) => peg.id));
-  const orange = Math.min(settings.orange, Math.floor(pegs.length * 0.45));
+  const orange =
+    pegs.length > 0 && settings.orange > 0
+      ? Math.max(1, Math.min(settings.orange, Math.floor(pegs.length * 0.45)))
+      : 0;
   const green = Math.max(0, Math.min(settings.green, pegs.length - orange - 1));
   order.slice(0, orange).forEach((id) => (pegs[id]!.kind = "orange"));
   order.slice(orange, orange + green).forEach((id) => (pegs[id]!.kind = "green"));
@@ -150,7 +153,9 @@ function toBase64Url(text: string): string {
 }
 
 function fromBase64Url(code: string): string {
-  const binary = atob(code.replace(/-/g, "+").replace(/_/g, "/"));
+  const unpadded = code.replace(/-/g, "+").replace(/_/g, "/");
+  const padded = unpadded.padEnd(unpadded.length + ((4 - (unpadded.length % 4)) % 4), "=");
+  const binary = atob(padded);
   return new TextDecoder().decode(Uint8Array.from(binary, (char) => char.charCodeAt(0)));
 }
 

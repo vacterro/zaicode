@@ -6453,6 +6453,10 @@ const zhCN: Record<string, string> = {
   "scheduledPreview.toast.running": "正在运行“{title}”…",
   "scheduledPreview.toast.view": "查看",
   "scheduledPreview.addSchedule": "添加计划",
+  "settings.modelProvider.displayName": "显示名称",
+  "settings.modelProvider.enableAllModels": "全部启用",
+  "settings.modelProvider.disableAllModels": "全部停用",
+  "settings.modelProvider.enableOnlyModel": "仅启用…",
 };
 
 export default zhCN;

@@ -73,6 +73,13 @@ export function ZaicodeSaipeggleCanvas({ spec, settings, best, onWin, onNext, on
   const host = useRef<HTMLDivElement | null>(null);
   const canvas = useRef<HTMLCanvasElement | null>(null);
   const [attempt, setAttempt] = useState(0);
+  const lastSpecId = useRef(spec.id);
+  useEffect(() => {
+    if (lastSpecId.current !== spec.id) {
+      lastSpecId.current = spec.id;
+      setAttempt(0);
+    }
+  }, [spec.id]);
   const [paused, setPaused] = useState(false);
   const pausedRef = useRef(paused);
   pausedRef.current = paused;
@@ -93,13 +100,27 @@ export function ZaicodeSaipeggleCanvas({ spec, settings, best, onWin, onNext, on
   useEffect(() => canvas.current?.focus({ preventScroll: true }), []);
 
   useEffect(() => {
+    const el = canvas.current;
+    if (!el) return;
+    const wheel = (event: WheelEvent) => {
+      event.preventDefault();
+      const g = game.current;
+      if (g && g.phase === "aim") saipeggleSetAim(g, g.aim + Math.sign(event.deltaY) * FINE);
+    };
+    el.addEventListener("wheel", wheel, { passive: false });
+    return () => el.removeEventListener("wheel", wheel);
+  }, []);
+
+  useEffect(() => {
     const keys = new Set<string>();
     const act = () => {
       const g = game.current;
       if (!g || pausedRef.current) return;
-      if (g.phase === "won") handlers.current.onNext();
-      else if (g.phase === "lost") setAttempt((value) => value + 1);
-      else saipeggleShoot(g);
+      if (g.phase === "won") {
+        if (g.phaseTime >= 0.4) handlers.current.onNext();
+      } else if (g.phase === "lost") {
+        if (g.phaseTime >= 0.4) setAttempt((value) => value + 1);
+      } else saipeggleShoot(g);
     };
     const down = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement | null;
@@ -195,13 +216,11 @@ export function ZaicodeSaipeggleCanvas({ spec, settings, best, onWin, onNext, on
             setPaused(false);
             return;
           }
-          if (g.phase === "won") onNext();
-          else if (g.phase === "lost") setAttempt((value) => value + 1);
-          else saipeggleShoot(g);
-        }}
-        onWheel={(event) => {
-          const g = game.current;
-          if (g && g.phase === "aim") saipeggleSetAim(g, g.aim + Math.sign(event.deltaY) * FINE);
+          if (g.phase === "won") {
+            if (g.phaseTime >= 0.4) onNext();
+          } else if (g.phase === "lost") {
+            if (g.phaseTime >= 0.4) setAttempt((value) => value + 1);
+          } else saipeggleShoot(g);
         }}
       />
     </div>

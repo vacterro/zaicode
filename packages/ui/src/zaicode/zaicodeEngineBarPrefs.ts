@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { readZaicodeSetting } from "./zaicodeSettingsSnapshot.js";
+import type { ZaicodePoolGroup, ZaicodePoolOption } from "./zaicodeRoutingModel.js";
 
 /**
  * What the sidebar engine bar shows (SRC-061: "simpler, not so loud, and
@@ -11,12 +12,19 @@ import { readZaicodeSetting } from "./zaicodeSettingsSnapshot.js";
 export interface ZaicodeEngineBarPrefs {
   /** Model ids of the SAIRoute provider shown as buttons, in order; null = the defaults. */
   pools: string[] | null;
+  /** Provider-qualified choices avoid collisions between subscription accounts. */
+  modelButtons: { providerId: string; modelId: string }[] | null;
   /** The subscription tiles row. */
   showSubs: boolean;
 }
 
 export const ZAICODE_ENGINE_BAR_DEFAULT_POOLS: readonly string[] = ["SAIFREN", "SAIOPP"];
 export const ZAICODE_ENGINE_BAR_MAX_POOLS = 4;
+export const ZAICODE_ENGINE_BAR_MAX_MODELS = 8;
+
+export function zaicodeEngineBarModelKey(model: { providerId: string; modelId: string }): string {
+  return JSON.stringify([model.providerId, model.modelId]);
+}
 
 export function normalizeZaicodeEngineBarPrefs(raw: unknown): ZaicodeEngineBarPrefs {
   const record = raw && typeof raw === "object" ? (raw as Record<string, unknown>) : {};
@@ -26,7 +34,25 @@ export function normalizeZaicodeEngineBarPrefs(raw: unknown): ZaicodeEngineBarPr
         ZAICODE_ENGINE_BAR_MAX_POOLS,
       )
     : null;
-  return { pools, showSubs: record.showSubs !== false };
+  const modelButtons = Array.isArray(record.modelButtons)
+    ? [...new Map(record.modelButtons.flatMap((entry) => {
+        if (!entry || typeof entry !== "object" || typeof entry.providerId !== "string" || typeof entry.modelId !== "string" || !entry.providerId.trim() || !entry.modelId.trim()) return [];
+        const model = { providerId: entry.providerId, modelId: entry.modelId };
+        return [[zaicodeEngineBarModelKey(model), model] as const];
+      })).values()].slice(0, ZAICODE_ENGINE_BAR_MAX_MODELS) : null;
+  return { pools, modelButtons, showSubs: record.showSubs !== false };
+}
+
+export function zaicodeEngineBarModels(groups: readonly ZaicodePoolGroup[], prefs: ZaicodeEngineBarPrefs, providerAccount: Record<string, string>): ZaicodePoolOption[] {
+  const all = groups.flatMap((group) => group.options);
+  if (prefs.modelButtons) {
+    const byKey = new Map(all.map((option) => [zaicodeEngineBarModelKey(option), option]));
+    return prefs.modelButtons.flatMap((model) => byKey.has(zaicodeEngineBarModelKey(model)) ? [byKey.get(zaicodeEngineBarModelKey(model))!] : []);
+  }
+  const primary = groups.find((group) => group.isRouter) ?? groups[0];
+  const defaults = primary ? zaicodeEngineBarPools(primary.options, prefs) : [];
+  const subscriptions = groups.filter((group) => group.providerId in providerAccount && group !== primary).flatMap((group) => group.options.slice(0, 1));
+  return [...defaults, ...subscriptions].slice(0, ZAICODE_ENGINE_BAR_MAX_MODELS);
 }
 
 /**

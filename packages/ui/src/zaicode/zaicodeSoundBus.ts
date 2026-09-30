@@ -46,6 +46,10 @@ export function zaicodeNavigationEcho(
 }
 /** The same event twice this fast is one event (double renders, double listeners). */
 export const ZAICODE_SOUND_DEDUPE_MS = 120;
+/** 每次进入控件或敲键都是真实操作，不是 React 状态回声。 */
+export function isZaicodeRepeatableSound(id: string): boolean {
+  return id === "ui.hover" || id === "ui.typing";
+}
 /**
  * SRC-061: an echo waits this long before it may play. React opens a popover
  * (or calls toast()) inside the click handler, before the document-level
@@ -70,7 +74,7 @@ export function admitZaicodeSound(
   echoWindowMs: number = ZAICODE_SOUND_ECHO_MS,
 ): boolean {
   const last = memory.lastById.get(id);
-  if (last !== undefined && now - last < ZAICODE_SOUND_DEDUPE_MS) return false;
+  if (!isZaicodeRepeatableSound(id) && last !== undefined && now - last < ZAICODE_SOUND_DEDUPE_MS) return false;
   if (echo && now - memory.lastDirectAt < echoWindowMs) return false;
   memory.lastById.set(id, now);
   if (!echo) memory.lastDirectAt = now;

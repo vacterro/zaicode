@@ -1,4 +1,4 @@
-import { resolveZaicodRoutePlan } from "@zcode/shared";
+import { isZaicodeJobTerminal, resolveZaicodRoutePlan } from "@zcode/shared";
 import type {
   ZaicodeAgentCreateInput,
   ZaicodeAgentDefinition,
@@ -331,7 +331,7 @@ export function ZaicodeInspector({
             <Button
               size="sm"
               variant="outline"
-              disabled={busy || selectedJob.status === "running"}
+              disabled={busy || selectedJob.status === "running" || isZaicodeJobTerminal(selectedJob.status)}
               onClick={() => onDispatch(selectedJob.id)}
             >
               <Play className="size-3" />
@@ -340,7 +340,7 @@ export function ZaicodeInspector({
             <Button
               size="sm"
               variant="ghost"
-              disabled={busy}
+              disabled={busy || (isZaicodeJobTerminal(selectedJob.status) && !selectedJob.error?.startsWith("cancel_stop_failed:"))}
               onClick={() => onCancelJob(selectedJob.id)}
             >
               <X className="size-3" />

@@ -72,7 +72,7 @@ export interface SystemInfo {
 }
 
 /** 支持的语言 */
-export type Locale = "zh-CN" | "en-US";
+export type Locale = import("./locales.js").SupportedLocale;
 
 /** 界面语言偏好；system 表示跟随当前运行端系统语言。 */
 export type LocalePreference = "system" | Locale;

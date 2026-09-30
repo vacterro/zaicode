@@ -91,6 +91,7 @@ export const ZAICODE_FRESHNESS_COLORS: Readonly<Record<ZaicodeFreshnessBucket, s
 };
 
 export interface ZaicodeSidebarPrefs {
+  sidebarsSwapped: boolean;
   navOpen: boolean;
   /** Project view where the project row stands for its MAIN session (SRC-044). */
   projectIsMain: boolean;
@@ -178,6 +179,7 @@ export function normalizeZaicodeSidebarColor(value: unknown): string | undefined
 
 const STORAGE_KEY = "zaicode-sidebar-prefs-v1";
 export const ZAICODE_SIDEBAR_DEFAULT_PREFS: ZaicodeSidebarPrefs = {
+  sidebarsSwapped: false,
   navOpen: true,
   projectIsMain: true,
   slots: true,
@@ -240,6 +242,7 @@ export function normalizeZaicodeSidebarPrefs(raw: unknown): ZaicodeSidebarPrefs 
   const flag = (value: unknown, fallback: boolean) =>
     typeof value === "boolean" ? value : fallback;
   return {
+    sidebarsSwapped: flag(r.sidebarsSwapped, d.sidebarsSwapped),
     navOpen: flag(r.navOpen, d.navOpen),
     projectIsMain: flag(r.projectIsMain, d.projectIsMain),
     slots: flag(r.slots, d.slots),

@@ -30,6 +30,7 @@ import type {
   ZaicodeJobExecutor,
 } from "./zaicodeJobs.js";
 import type { ZaicodeJobRepo } from "./zaicodeJobRepo.js";
+import { cancelZaicodeJob, retainZaicodeCancellationFailure } from "./zaicodeJobCancellation.js";
 
 const MAX_CONCURRENCY_SETTING_KEY = "max_concurrency_per_workspace";
 /** 自动驾驶：入队 / 完成 / 恢复后自动按并发上限派发；默认开启，"0" 关闭。 */
@@ -231,6 +232,15 @@ export class ZaicodeJobService implements IZaicodeJobService {
 
     try {
       const handle = await executor({ job: claimed, agent });
+      // cancel 可先于执行器返回。先登记 stop，再检查持久队列，避免迟到的会话逃过取消。
+      if (handle.stop) this.runningHandles.set(jobId, { runId, stop: handle.stop });
+      const accepted = await this.deps.repo.get(jobId);
+      if (accepted?.status === "cancelled" || accepted?.runId !== runId) {
+        await handle.stop?.();
+        this.runningHandles.delete(jobId);
+        this.emitChanged();
+        return accepted;
+      }
       await this.deps.repo.attachSession({
         jobId,
         runId,
@@ -238,11 +248,14 @@ export class ZaicodeJobService implements IZaicodeJobService {
         actualModelSelection: handle.actualModelSelection,
         now: this.now(),
       });
-      if (handle.stop) this.runningHandles.set(jobId, { runId, stop: handle.stop });
       this.emitChanged();
       return this.deps.repo.get(jobId);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
+      if (await retainZaicodeCancellationFailure(this.deps.repo, this.runningHandles.has(jobId), jobId, message, this.now())) {
+        this.emitChanged();
+        return this.deps.repo.get(jobId);
+      }
       await this.deps.repo.markTerminal({
         jobId,
         runId,
@@ -276,25 +289,17 @@ export class ZaicodeJobService implements IZaicodeJobService {
   }
 
   async cancel(jobId: string): Promise<ZaicodeJob | null> {
-    await this.deps.repo.ensureReady();
-    const { job, applied } = await this.deps.repo.cancel(jobId, this.now());
-    const handle = this.runningHandles.get(jobId);
-    if (applied && handle) {
-      this.runningHandles.delete(jobId);
-      try {
-        await handle.stop?.();
-      } catch (error) {
-        this.log(`ZAICODE 任务取消时中止会话失败: ${jobId}`, error);
-      }
-    }
-    this.emitChanged();
-    return job;
+    return cancelZaicodeJob({
+      repo: this.deps.repo, handles: this.runningHandles, jobId,
+      now: () => this.now(), emitChanged: () => this.emitChanged(), log: (message, error) => this.log(message, error),
+    });
   }
 
   async retry(jobId: string): Promise<ZaicodeJob> {
     await this.deps.repo.ensureReady();
     const current = await this.deps.repo.get(jobId);
     if (!current) throw new Error(`ZAICODE 任务不存在: ${jobId}`);
+    if ((current.status === "cancelled" && this.runningHandles.has(jobId)) || current.error?.startsWith("cancel_stop_failed:")) throw new Error("Retry cancellation before starting another attempt.");
     if (!isZaicodeJobTerminal(current.status) && current.status !== "blocked") {
       throw new Error(`仅终态或 blocked 任务可重试: ${current.status}`);
     }
@@ -326,9 +331,10 @@ export class ZaicodeJobService implements IZaicodeJobService {
 
   async remove(jobId: string): Promise<boolean> {
     await this.deps.repo.ensureReady();
+    const current = await this.deps.repo.get(jobId);
+    if (this.runningHandles.has(jobId) || current?.error?.startsWith("cancel_stop_failed:")) throw new Error("Retry cancellation before removing this task.");
     const removed = await this.deps.repo.remove(jobId);
     if (removed) {
-      this.runningHandles.delete(jobId);
       this.emitChanged();
     }
     return removed;

@@ -28,6 +28,7 @@ import { resolveModelProviderDisplayName } from "./constants.js";
 import { useProviderDetailFeedback } from "./ProviderDetailFeedback.js";
 import { useIdleTrigger } from "./useIdleTrigger.js";
 import { useOptimisticReorder } from "./useOptimisticReorder.js";
+import { beginProviderSave, isCurrentProviderSave } from "./providerSaveGenerations.js";
 
 type ProviderNameEditKeyAction = "commit" | "cancel";
 type ProviderDraftCleanupAction = "commit" | "skip-delete";
@@ -36,13 +37,6 @@ interface ProviderSaveNotificationTarget {
   operation?: "delete";
   /** 显式弹窗在原草稿中重试，不让外部通知另起一次脱离编辑事务的保存。 */
   draftOwnsRetry?: boolean;
-}
-
-function shouldApplyProviderSaveCompletion(
-  currentRevision: number,
-  completedRevision: number,
-): boolean {
-  return currentRevision === completedRevision;
 }
 
 function resolveProviderDraftCleanupAction({
@@ -271,6 +265,7 @@ export function InlineEditableProviderCard({
     saveNotificationRef.current.dismissFeedback(`provider-save:${providerIdRef.current}`);
   }, []);
 
+  const saveGenerationsRef = useRef(new Map<string, number>());
   const runSaveOperation = useCallback(
     async (operation: () => Promise<void>, target: ProviderSaveNotificationTarget = {}) => {
       selfSaveRequestedRef.current = true;
@@ -280,6 +275,7 @@ export function InlineEditableProviderCard({
       const dedupeKey = target.modelId
         ? `model-save:${notification.providerId}:${target.modelId}`
         : `provider-save:${notification.providerId}`;
+      const generation = beginProviderSave(saveGenerationsRef.current, dedupeKey);
       const messageValues = {
         provider: notification.providerDisplayName,
         model: target.modelId ?? "",
@@ -314,7 +310,7 @@ export function InlineEditableProviderCard({
       });
       try {
         await operation();
-        if (!shouldApplyProviderSaveCompletion(draftRevisionRef.current, revision)) return;
+        if (!isCurrentProviderSave(saveGenerationsRef.current, dedupeKey, generation)) return;
         notification.showFeedback({
           key: dedupeKey,
           message: notification.formatMessage(
@@ -327,7 +323,7 @@ export function InlineEditableProviderCard({
         });
       } catch (error) {
         selfSaveRequestedRef.current = false;
-        if (shouldApplyProviderSaveCompletion(draftRevisionRef.current, revision)) {
+        if (isCurrentProviderSave(saveGenerationsRef.current, dedupeKey, generation)) {
           notification.showFeedback({
             key: dedupeKey,
             message: notification.formatMessage(

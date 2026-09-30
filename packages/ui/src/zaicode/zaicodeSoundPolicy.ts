@@ -65,7 +65,8 @@ export function decideZaicodeSound(
     if (request.replaceOwn && ringing.length > 0 && ringing.every((voice) => voice.key === request.key)) {
       return { play: true, stop: all };
     }
-    if (waiting.includes(request.key)) return { play: false, wait: false };
+    // replace 行仅保留一次等待；overlap 行的真实重复输入各自排队。
+    if (request.replaceOwn && waiting.includes(request.key)) return { play: false, wait: false };
     if (waiting.length >= rules.limit) return { play: false, wait: false };
     return { play: false, wait: true };
   }

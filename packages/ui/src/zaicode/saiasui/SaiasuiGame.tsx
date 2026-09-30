@@ -1,4 +1,5 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+/* eslint-disable max-lines -- SAIASUI game loop and UI overlays */
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useZCodeIntl } from "@/i18n/IntlProvider.js";
 import { protrailDefaults } from "../protrail/protrailModel.js";
 import { setZaicodeProtrailForced } from "../protrail/zaicodeProtrailForce.js";
@@ -21,14 +22,14 @@ export function SaiasuiGame({
 }) {
   const { intl } = useZCodeIntl();
   const root = useRef<HTMLDivElement>(null);
-  const [run] = useState(() =>
+  const [config, setConfig] = useState(initialConfig);
+  const [run, setRun] = useState(() =>
     createRun(
       globalThis.crypto?.randomUUID?.() ??
         `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`,
       initialConfig,
     ),
   );
-  const [config, setConfig] = useState(initialConfig);
   const [paused, setPaused] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [groupsOpen, setGroupsOpen] = useState<Record<string, boolean>>({});
@@ -43,6 +44,17 @@ export function SaiasuiGame({
   pausedRef.current = paused || settingsOpen;
   const settingsOpenRef = useRef(settingsOpen);
   settingsOpenRef.current = settingsOpen;
+
+  const restart = useCallback(() => {
+    const nextSeed =
+      globalThis.crypto?.randomUUID?.() ??
+      `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+    setRun(createRun(nextSeed, config));
+    setPaused(false);
+    setSettingsOpen(false);
+  }, [config]);
+  const restartRef = useRef(restart);
+  restartRef.current = restart;
 
   useLayoutEffect(() => (root.current ? isolateSaiasui(root.current) : undefined), []);
 
@@ -88,8 +100,27 @@ export function SaiasuiGame({
           setSettingsOpen(false);
           setPaused(false);
         } else onExit();
+        event.stopImmediatePropagation();
+        return;
       }
-      // 应用热键不能在游戏下修改草稿；原生 Tab/按钮默认动作仍可用。
+      const target = event.target as HTMLElement | null;
+      const isInput =
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "SELECT" ||
+          target.tagName === "BUTTON" ||
+          target.tagName === "TEXTAREA" ||
+          target.isContentEditable);
+      if (isInput) return;
+
+      if (run.over && (event.key === "r" || event.key === "R" || event.key === "Enter" || event.key === " ")) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        restartRef.current();
+        return;
+      }
+
+      // Prevent background shortcut keys
       event.stopImmediatePropagation();
     };
     window.addEventListener("resize", resize);
@@ -251,7 +282,12 @@ export function SaiasuiGame({
                 aria-valuenow={Math.ceil(run.hp)}
                 className="h-2 min-w-0 flex-1 border border-border bg-card"
               >
-                <div className="h-full bg-success" style={{ width: `${(run.hp / c.maxHp) * 100}%` }} />
+                <div
+                  className="h-full bg-success"
+                  style={{
+                    width: `${Math.max(0, Math.min(100, (run.hp / Math.max(1, c.maxHp)) * 100))}%`,
+                  }}
+                />
               </div>{" "}
               {Math.ceil(run.hp)}
             </div>
@@ -359,9 +395,18 @@ export function SaiasuiGame({
                 {intl.formatMessage({ id: "saiasui.copySeed" })}
               </button>
             </details>
-            <button className="mt-4 border border-border px-3 py-1" type="button" onClick={onExit}>
-              {intl.formatMessage({ id: "saiasui.return" })}
-            </button>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <button
+                className="border border-border bg-primary/20 px-3 py-1 font-medium"
+                type="button"
+                onClick={restart}
+              >
+                {intl.formatMessage({ id: "appError.retry" })}
+              </button>
+              <button className="border border-border px-3 py-1" type="button" onClick={onExit}>
+                {intl.formatMessage({ id: "saiasui.return" })}
+              </button>
+            </div>
           </div>
         </div>
       ) : null}

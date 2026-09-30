@@ -989,7 +989,8 @@ export function ModelProviderSection({
     async (input: { templateId?: string; providerName?: string }) => {
       setCreatingProvider(true);
       try {
-        const created = await createPersonalProvider({ ...input, locale });
+        const providerLocale = locale === "zh-CN" ? "zh-CN" : "en-US";
+        const created = await createPersonalProvider({ ...input, locale: providerLocale });
         setPendingCreatedProviderId(created.providerId);
         setSelectedNodeKey(createCustomProviderNodeKey(created.providerId));
         setTemplatePickerOpen(false);

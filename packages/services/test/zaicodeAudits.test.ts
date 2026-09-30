@@ -746,6 +746,44 @@ test("state persists to campaign.json under the audit root", async () => {
   }
 });
 
+test("T-141: archiving a planned audit preserves its files and hides the entry across reloads", async () => {
+  const h = await createHarness(allValid());
+  try {
+    const campaign = (await h.audits.generate(WS))!;
+    const archived = await h.audits.archive(campaign.campaignId);
+    assert.equal(archived?.status, "cancelled");
+    assert.ok(archived?.archivedAt);
+    assert.ok(existsSync(join(h.auditRoot, campaign.campaignId, "campaign.json")));
+    assert.equal((await h.audits.getState()).campaigns.length, 0);
+    assert.deepEqual(await h.audits.archive(campaign.campaignId), archived);
+    const next = await h.audits.generate(WS);
+    assert.ok(next);
+    assert.notEqual(next.campaignId, campaign.campaignId);
+  } finally { await h.dispose(); }
+});
+
+test("T-141: archiving refuses a running wave and keeps it visible", async () => {
+  const h = await createHarness(() => null);
+  try {
+    const campaign = (await h.audits.start(WS))!;
+    await assert.rejects(h.audits.archive(campaign.campaignId), /Stop.*audit/);
+    assert.equal((await h.audits.getState()).campaigns[0]?.campaignId, campaign.campaignId);
+  } finally { await h.dispose(); }
+});
+
+test("T-141: a cancelled audit with a failed runtime stop cannot be archived", async () => {
+  const h = await createHarness(() => null);
+  const repo = new ZaicodeJobRepo(join(h.dir, "tasks-index.sqlite"), 500);
+  try {
+    const campaign = (await h.audits.start(WS))!;
+    await h.audits.cancel(campaign.campaignId);
+    await repo.ensureReady();
+    await repo.setCancellationStopError(campaign.waves[0]!.jobId!, "cancel_stop_failed: offline", Date.now());
+    await assert.rejects(h.audits.archive(campaign.campaignId), /Retry cancellation/);
+    assert.equal((await h.audits.getState()).campaigns[0]?.campaignId, campaign.campaignId);
+  } finally { repo.close(); await h.dispose(); }
+});
+
 test("T-67: the campaign history is capped; every active campaign always reconciles", async () => {
   const h = await createHarness(allValid());
   try {

@@ -174,6 +174,11 @@ export function ProviderModelMetadataDialog({
         >
           <ModelSettingsGroup group="basic">
             <div data-model-identity-row="true" className="flex flex-col gap-4">
+              <label className="text-ui-base text-foreground-subtle">
+                {intl.formatMessage({ id: "settings.modelProvider.displayName" })}
+                <Input size="lg" value={draft.displayNameValue ?? ""} placeholder={draft.idValue}
+                  onChange={(event) => onDraftChange({ displayNameValue: event.target.value })} />
+              </label>
               <div className="min-w-0 flex-1">
                 <label className="mb-1 block text-ui-base text-foreground-subtle">
                   {intl.formatMessage({ id: "settings.modelProvider.modelId" })}

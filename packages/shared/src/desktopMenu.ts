@@ -1,3 +1,4 @@
+import { expandedDesktopMenuMessages } from "./expandedDesktopMenuMessages.js";
 import { DEFAULT_LOCALE, type Locale } from "./protocol.js";
 import { isZaicodeProductMode } from "./zaicode.js";
 
@@ -60,6 +61,7 @@ export type DesktopMenuMessageId =
 type DesktopMenuLocaleMessages = Record<DesktopMenuMessageId, string>;
 
 export const desktopMenuMessages: Record<Locale, DesktopMenuLocaleMessages> = {
+  ...expandedDesktopMenuMessages,
   "zh-CN": {
     "titleBar.menu.file": "文件",
     "titleBar.menu.edit": "编辑",

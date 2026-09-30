@@ -49,6 +49,7 @@ export function ZaicodeAuditCampaignCard({
   onRetry,
   onFix,
   onCancel,
+  onArchive,
 }: {
   campaign: ZaicodeAuditCampaign;
   audits: NonNullable<ZaicodeServices["audits"]>;
@@ -57,6 +58,7 @@ export function ZaicodeAuditCampaignCard({
   onRetry: (campaignId: string) => void;
   onFix: (campaignId: string) => void;
   onCancel: (campaignId: string) => void;
+  onArchive?: (campaignId: string) => void;
 }) {
   const [report, setReport] = useState<string | null>(null);
   const steps = zaicodeAuditSteps(campaign, now);
@@ -177,7 +179,10 @@ export function ZaicodeAuditCampaignCard({
             </button>
           ) : null}
         </span>
-      </div>
+            {onArchive && campaign.status !== "running" && live?.status !== "running" ? (
+              <button type="button" className="border border-border px-1.5 py-px text-foreground-subtle hover:bg-hover" title="Archive this audit from the list; reports stay on disk" onClick={() => onArchive(campaign.campaignId)}>Archive</button>
+            ) : null}
+          </div>
 
       <ol className="flex flex-wrap items-stretch gap-1" aria-label="Audit waves">
         {steps.map((step, index) => (

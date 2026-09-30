@@ -1,7 +1,8 @@
+import { CLI_SUPPORTED_LOCALES } from "@zcode/contracts";
 import type { SupportedLocale, UiLocale } from "@zcode/contracts";
 
 export const DEFAULT_LOCALE: SupportedLocale = "en-US";
-export const SUPPORTED_LOCALES = ["en-US", "zh-CN"] as const satisfies readonly SupportedLocale[];
+export const SUPPORTED_LOCALES = CLI_SUPPORTED_LOCALES;
 const LOCALE_ENV_KEYS = ["LC_ALL", "LC_MESSAGES", "LANG", "LANGUAGE"] as const;
 const LANGUAGE_LIST_SEPARATOR = ":";
 const LOCALE_ENCODING_SEPARATOR = ".";
@@ -14,7 +15,7 @@ export interface LocaleDetectionInput {
 }
 
 export function isSupportedLocale(value: string | undefined): value is SupportedLocale {
-  return value === "en-US" || value === "zh-CN";
+  return typeof value === "string" && (SUPPORTED_LOCALES as readonly string[]).includes(value);
 }
 
 export function isUiLocale(value: string | undefined): value is UiLocale {
@@ -43,8 +44,12 @@ function normalizeLocale(value: string | null | undefined): SupportedLocale | un
   if (!tag || NON_LANGUAGE_LOCALES.has(tag.toLowerCase())) return undefined;
   if (isSupportedLocale(tag)) return tag;
   const lower = tag.toLowerCase();
-  if (lower === "en" || lower.startsWith("en-")) return "en-US";
-  if (lower === "zh" || lower.startsWith("zh-")) return "zh-CN";
+  const exact = SUPPORTED_LOCALES.find((locale) => locale.toLowerCase() === lower);
+  if (exact) return exact;
+  const language = lower.split("-")[0];
+  if (language === "no" || language === "nn") return "nb-NO";
+  const supported = SUPPORTED_LOCALES.find((locale) => locale !== "ded" && locale.split("-")[0] === language);
+  if (supported) return supported;
   return undefined;
 }
 

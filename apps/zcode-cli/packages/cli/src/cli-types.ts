@@ -129,7 +129,7 @@ export interface CliTargetRequest {
 
 export type ModeCapableApp = Awaited<ReturnType<typeof createZCodeApp>> & {
   getMode?: () => CliRuntimeMode;
-  setLocale?: (locale: UiLocale) => Promise<{ locale: "en-US" | "zh-CN" }>;
+  setLocale?: (locale: UiLocale) => Promise<{ locale: Exclude<UiLocale, "auto"> }>;
   setMode?: (mode: CliRuntimeMode) => Promise<{ mode: CliRuntimeMode }>;
 };
 

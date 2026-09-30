@@ -1,3 +1,4 @@
+import { CLI_SUPPORTED_LOCALES } from "@zcode/contracts";
 /* eslint-disable max-lines -- zcode-cli 配置 schema 需要集中维护文件解析和 provider 继承，拆散会让配置语义更难对齐。 */
 import { z } from "zod";
 import type { RuntimeConfigPatch } from "@zcode/contracts";
@@ -210,7 +211,7 @@ const loggingSchema = z.object({
 });
 
 const uiSchema = z.object({
-  locale: z.enum(["auto", "en-US", "zh-CN"]).optional(),
+  locale: z.enum(["auto", ...CLI_SUPPORTED_LOCALES]).optional(),
   theme: z.enum(["auto", "dark", "light"]).optional(),
 });
 

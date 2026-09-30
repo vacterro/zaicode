@@ -1,4 +1,7 @@
 import {
+  SPG_AIM_LIMIT,
+  SPG_BALL_R,
+  SPG_BOARD,
   SPG_FREE_BALL_SCORES,
   SPG_LONG_SHOT,
   SPG_PEG_POINTS,
@@ -211,7 +214,9 @@ export function activatePower(game: SpgGame, peg: SpgPeg, ball: SpgBall): void {
       game.pyramidTurns += 3;
       break;
     case "multiball": {
-      const extra = saipeggleNewBall(peg.x, peg.y - 8, -ball.vx, -Math.abs(ball.vy) * 0.9 - 40);
+      const extraX = Math.max(SPG_BOARD.left + SPG_BALL_R, Math.min(SPG_BOARD.right - SPG_BALL_R, peg.x));
+      const extraY = Math.max(SPG_BOARD.top + SPG_BALL_R, Math.min(SPG_BOARD.bottom - SPG_BALL_R, peg.y - 8));
+      const extra = saipeggleNewBall(extraX, extraY, -ball.vx, -Math.abs(ball.vy) * 0.9 - 40);
       extra.lastHitX = peg.x;
       extra.lastHitY = peg.y;
       game.balls.push(extra);
@@ -249,10 +254,11 @@ function pathValue(game: SpgGame, hits: readonly SpgPeg[], caught: boolean): num
 export function zenAim(game: SpgGame): number {
   const physics = physicsOf(game);
   const bucket = bucketOf(game);
-  let best = game.aim;
+  let best = Math.max(-SPG_AIM_LIMIT, Math.min(SPG_AIM_LIMIT, game.aim));
   let bestValue = -1;
   for (let step = -12; step <= 12; step += 1) {
-    const aim = game.aim + (step * 0.25 * Math.PI) / 180;
+    const rawAim = game.aim + (step * 0.25 * Math.PI) / 180;
+    const aim = Math.max(-SPG_AIM_LIMIT, Math.min(SPG_AIM_LIMIT, rawAim));
     const trace = saipeggleTrace(aim, game.pegs, bucket, physics, { seconds: 7, every: 1000 });
     const value = pathValue(game, trace.hits, trace.caught) - Math.abs(step) * 0.5;
     if (value > bestValue) {

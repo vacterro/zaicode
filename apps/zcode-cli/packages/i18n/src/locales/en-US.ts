@@ -5,7 +5,7 @@ export const enUS: ZCodeCopy = {
   cli: {
     errors: {
       localeUnsupported: (value) =>
-        `Unsupported --locale value: ${value}. Supported locales: en-US, zh-CN, auto.`,
+        `Unsupported --locale value: ${value}. Supported locales: en-US, ru-RU, et-EE, uk-UA, ja-JP, ded, zh-CN, de-DE, fr-FR, es-ES, it-IT, pt-BR, nl-NL, pl-PL, sv-SE, da-DK, fi-FI, nb-NO, ko-KR, th-TH, vi-VN, ar-SA, he-IL, tr-TR, hi-IN, id-ID, el-GR, cs-CZ, ro-RO, hu-HU, bg-BG, sk-SK, hr-HR, auto.`,
     },
     help: (version) => `zcode ${version}
 
@@ -40,7 +40,7 @@ Options:
     Comma or space-separated tool names, e.g. "Bash Edit".
     "Bash(git *)" removes all of Bash; command patterns are not matched.
   --force-mcs      Force mid-conversation system projection for Anthropic providers
-  --locale <locale>  UI locale: en-US, zh-CN, or auto
+  --locale <locale>  UI locale: en-US, ru-RU, et-EE, uk-UA, ja-JP, ded, zh-CN, de-DE, fr-FR, es-ES, it-IT, pt-BR, nl-NL, pl-PL, sv-SE, da-DK, fi-FI, nb-NO, ko-KR, th-TH, vi-VN, ar-SA, he-IL, tr-TR, hi-IN, id-ID, el-GR, cs-CZ, ro-RO, hu-HU, bg-BG, sk-SK, hr-HR, or auto
   --mode <mode>    Permission mode for prompts: build, edit, plan, or yolo (default: yolo for --prompt)
   --resume <sessionId>  Resume a persisted session by sessionId (sess_...)
   --target <text>  Run or set the session goal in headless mode

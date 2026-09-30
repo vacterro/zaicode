@@ -10,7 +10,7 @@ import {
 } from "./zaicodeSettingsSnapshot.js";
 import { zaicodeSoundEntry } from "./zaicodeSoundCatalog.js";
 import { addZaicodePoolMember } from "./zaicodeSoundPoolActions.js";
-import { playZaicodeSound, registerZaicodeSoundAudible, registerZaicodeSoundPlayer, zaicodeDirectSoundPlayedSince } from "./zaicodeSoundBus.js";
+import { isZaicodeRepeatableSound, playZaicodeSound, registerZaicodeSoundAudible, registerZaicodeSoundPlayer, zaicodeDirectSoundPlayedSince } from "./zaicodeSoundBus.js";
 import { isZaicodeSoundQuietNow } from "./zaicodeNotifications.js";
 import { zaicodeSoundConditionsAllow } from "./zaicodeSoundConditions.js";
 import { cachedZaicodeCustomSoundUrl, onZaicodeCustomSoundUrlRevoked, resolveZaicodeCustomSoundUrl } from "./zaicodeCustomSounds.js";
@@ -349,7 +349,7 @@ export async function playZaicodeSoundAsync(
       lastPlayedAt: last,
     });
     if (!verdict.play) return false;
-    if (now - last < DEBOUNCE_MS) return false;
+    if (!isZaicodeRepeatableSound(id) && now - last < DEBOUNCE_MS) return false;
     lastPlayedAt.set(id, now);
   }
   const url = await resolveSoundUrl(options.sound ?? zaicodeSoundForEvent(id) ?? row.sound);

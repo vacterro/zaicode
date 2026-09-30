@@ -106,10 +106,11 @@ export function ZaicodeSidebarSettings() {
   return (
     <div className="flex flex-col gap-4" data-zaicode-sidebar-settings-root>
       <Block
-        title="Text and icons"
-        hint="The whole sidebar's text size (whole pixels, so the bitmap font stays crisp) and icon scale, applied the moment you click."
+        title="Layout, text and icons"
+        hint="Swap the sidebars, adjust text and icons, or drag the project sidebar fully closed for the compact project rail. Changes apply immediately."
         testId="text"
       >
+        <ZaicodePrefCheck checked={prefs.sidebarsSwapped} onChange={(sidebarsSwapped) => prefs.update({ sidebarsSwapped })} label="Swap left and right sidebars" />
         <SegmentRow<ZaicodeSidebarTextSize>
           label="Text size"
           value={prefs.textSize}

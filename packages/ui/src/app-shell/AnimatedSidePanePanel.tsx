@@ -340,8 +340,10 @@ export function AnimatedSidePanePanel({
   showWindowControls,
   onCloseSidePane,
   toggleSidePaneShortcutLabel,
+  resizeHandleAfter = false,
 }: {
   services: IServiceAccessor;
+  resizeHandleAfter?: boolean;
   frameClassName?: string;
   captionControlsStyle?: CSSProperties;
   showWindowControls?: boolean;
@@ -1397,10 +1399,9 @@ export function AnimatedSidePanePanel({
     );
   }
 
-  return (
-    <>
-      {isVisible ? (
+  const resizeHandle = isVisible ? (
         <ResizableHandle
+          key="browser-resize"
           data-workspace-side-pane-resize-handle="true"
           className={cn(
             // 拖动条占据真实 4px 间距，关闭时随 handle 一起移除，不为隐藏面板保留空隙。
@@ -1411,8 +1412,12 @@ export function AnimatedSidePanePanel({
             "hover:after:opacity-100 data-[separator=hover]:after:opacity-100 data-[separator=active]:after:opacity-100 focus-visible:after:opacity-100",
           )}
         />
-      ) : null}
+      ) : null;
+  return (
+    <>
+      {!resizeHandleAfter ? resizeHandle : null}
       <ResizablePanel
+        key="browser"
         id="browser"
         panelRef={panelRef}
         elementRef={panelElementRef}
@@ -1435,6 +1440,7 @@ export function AnimatedSidePanePanel({
       >
         {panelContent}
       </ResizablePanel>
+      {resizeHandleAfter ? resizeHandle : null}
     </>
   );
 }

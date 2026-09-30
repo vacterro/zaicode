@@ -274,8 +274,10 @@ function runCli(
         cwd: options.cwd,
         env: options.env,
         windowsHide: true,
-        stdio: ["ignore", "pipe", "pipe"],
+        stdio: ["pipe", "pipe", "pipe"],
       });
+      // Codex 会读取非 TTY 的附加输入；Windows NUL 句柄可能读失败，关闭管道明确表示 EOF。
+      child.stdin?.end();
     } catch (error) {
       resolvePromise({ ok: false, stdout: "", error: error instanceof Error ? error.message : String(error) });
       return;

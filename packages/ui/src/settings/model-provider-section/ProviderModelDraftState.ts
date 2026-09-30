@@ -89,6 +89,7 @@ export function restoreModelDraft(
       useRecommendedConfig: true,
     }),
     idValue: draft.idValue,
+    displayNameValue: draft.displayNameValue,
     enabledValue: draft.enabledValue,
     clearPersonalConfigValue: true,
   };

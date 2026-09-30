@@ -487,6 +487,13 @@ export class ZaicodeJobRepo {
     return { job: await this.get(jobId), applied: Number(result.changes) > 0 };
   }
 
+  /** A cancelled intent can still have a runtime whose stop failed; retain that failure for UI retry. */
+  async setCancellationStopError(jobId: string, error: string | null, now: number): Promise<void> {
+    this.getDatabase().prepare(
+      "UPDATE zaicode_jobs SET error = @error, updated_at = @now WHERE job_id = @jobId AND status = 'cancelled'",
+    ).run({ jobId, error, now });
+  }
+
   /** 恢复 blocked 任务到队列（不重置 attempt/run 历史，供审计）。 */
   async resumeBlocked(jobId: string, now: number): Promise<ZaicodeJob | null> {
     this.getDatabase()

@@ -58,6 +58,8 @@ const HIDDEN_SETTINGS_SECTIONS = new Set<SettingsSectionId>([
   // 编辑页代码保留，放开时从这里移除即可。
   "workspaceFileSearch",
   "computerUse",
+  // Hotkeys 已并入 Keyboard Shortcuts；保留旧 id 的跳转兼容。
+  "zaicodeHotkeys",
 ]);
 
 interface SettingsSectionIntentEventDetail {
@@ -120,6 +122,7 @@ export function resolveSettingsSection(
   fallbackSection: SettingsSectionId = "general",
 ): SettingsSectionId {
   if (section === "plugins") return "plugin";
+  if (section === "zaicodeHotkeys") return "shortcuts";
   return isSettingsSectionEnabled(section) ? section : fallbackSection;
 }
 

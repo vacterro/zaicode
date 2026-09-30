@@ -98,6 +98,8 @@ export interface ZaicodeAuditCampaign {
   status: "planned" | "running" | "complete" | "blocked" | "cancelled";
   createdAt: string;
   updatedAt: string;
+  /** Archived list entry; report files remain available on disk. */
+  archivedAt?: string | null;
   currentWaveIndex: number;
   waves: ZaicodeAuditCampaignWaveState[];
   finalHandoffFile: string | null;

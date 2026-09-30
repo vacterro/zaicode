@@ -225,9 +225,13 @@ export function zaicodeShouldStartIdleWindow(params: {
   if (!snapshot || snapshot.error !== null) return false;
   const idle = snapshot.windows.some(
     (window) =>
-      window.startsOnUse === true && window.gatedBy === null && window.remainingPercent !== 0,
+      !isZaicodeReserveWindow(window) && window.startsOnUse === true && window.gatedBy === null && window.remainingPercent !== 0,
   );
   if (!idle) return false;
+  // 主额度耗尽时不能为待命储备触发默认模型请求；储备只供支持它的模型使用。
+  if (effectiveZaicodeWindows(snapshot.windows, now).some(
+    (window) => !isZaicodeReserveWindow(window) && !isScopedZaicodeWindow(window) && window.remainingPercent === 0,
+  )) return false;
   const last = snapshot.windowStart;
   if (!last) return true;
   const wait = last.ok ? ZAICODE_WINDOW_START_COOLDOWN_MS : ZAICODE_WINDOW_START_RETRY_MS;
@@ -503,7 +507,8 @@ export function parseCodexRateLimits(result: unknown): ZaicodeCodexParse {
     add(snapshot.primary, "", "");
     add(snapshot.secondary, "", "");
   }
-  for (const [id, raw] of pools) {
+  // 后端对象插入顺序不保证主额度在前；主池先显示，备用池始终放最后。
+  for (const [id, raw] of [...pools].sort(([left], [right]) => Number(left.toLowerCase() !== "codex") - Number(right.toLowerCase() !== "codex"))) {
     if (!raw || typeof raw !== "object") continue;
     const pool = raw as Record<string, unknown>;
     const isDefault = id.toLowerCase() === "codex";
@@ -766,7 +771,7 @@ export function effectiveZaicodeWindows(
         other.remainingPercent <= 0,
     );
     return blocker ? { ...window, remainingPercent: 0, gatedBy: blocker.label } : window;
-  });
+  }).sort((left, right) => Number(isZaicodeReserveWindow(left)) - Number(isZaicodeReserveWindow(right)));
 }
 
 /**
@@ -778,28 +783,35 @@ export function isScopedZaicodeWindow(window: ZaicodeLimitWindow): boolean {
   return window.key.startsWith("weekly_") || window.key.startsWith("spend_limit");
 }
 
+/** Codex standby quota is a fallback pool, not a reason to start its primary window. */
+export function isZaicodeReserveWindow(window: Pick<ZaicodeLimitWindow, "group" | "groupLabel">): boolean {
+  return /reserve/i.test(`${window.group} ${window.groupLabel}`);
+}
+
 /** The window that runs out first — what decides whether an engine can work now. */
 export function zaicodeBottleneck(
   windows: readonly ZaicodeLimitWindow[],
   now: number = Date.now(),
 ): ZaicodeLimitWindow | null {
-  let best: ZaicodeLimitWindow | null = null;
-  for (const window of effectiveZaicodeWindows(windows, now)) {
-    if (window.remainingPercent === null || isScopedZaicodeWindow(window)) continue;
-    // Independent pools (Antigravity) only need ONE usable pool; the engine
-    // is as good as its best pool, and within a pool as bad as its worst window.
-    if (!best || window.remainingPercent < best.remainingPercent!) best = window;
+  const effective = effectiveZaicodeWindows(windows, now).filter((window) => window.remainingPercent !== null && !isScopedZaicodeWindow(window));
+  if (windows.some(isZaicodeReserveWindow)) {
+    const primaryLimit = bestZaicodeQuotaPool(effective.filter((window) => !isZaicodeReserveWindow(window)));
+    // Reserve is only usable after a primary limit has actually run out.
+    if (primaryLimit?.remainingPercent !== 0) return primaryLimit;
   }
-  if (!best) return null;
-  const groups = new Set(windows.map((window) => window.group));
-  if (groups.size <= 1) return best;
+  return bestZaicodeQuotaPool(effective);
+}
+
+/** Independent pools need one usable pool; within each pool the tightest window wins. */
+function bestZaicodeQuotaPool(windows: readonly ZaicodeLimitWindow[]): ZaicodeLimitWindow | null {
+  const pools = new Map<string, ZaicodeLimitWindow>();
+  for (const window of windows) {
+    const previous = pools.get(window.group);
+    if (!previous || window.remainingPercent! < previous.remainingPercent!) pools.set(window.group, window);
+  }
   let bestPool: ZaicodeLimitWindow | null = null;
-  for (const group of groups) {
-    const poolWorst = zaicodeBottleneck(
-      windows.filter((window) => window.group === group),
-      now,
-    );
-    if (poolWorst && (!bestPool || (poolWorst.remainingPercent ?? 0) > (bestPool.remainingPercent ?? 0))) {
+  for (const poolWorst of pools.values()) {
+    if (!bestPool || poolWorst.remainingPercent! > bestPool.remainingPercent!) {
       bestPool = poolWorst;
     }
   }
