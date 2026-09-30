@@ -97,7 +97,8 @@ try {
   $wsFiles['.gitignore'] = "/zcode/`n/saipen/`n/saimail/`n/install/logs/`n/install/install-state.json`n/install/update-state.json`n/launcher-built.txt`n"
   $ws = New-Remote 'workspace' 'master' $wsFiles
   $app = New-Remote 'app' 'zaicode' @{ 'package.json' = "{ `"name`": `"zcode`", `"version`": `"3.14.0`" }`n"; 'pnpm-lock.yaml' = "lockfileVersion: '9.0'`n"; 'src\feature.txt' = "one`n" }
-  $saipen = New-Remote 'saipen' 'main' @{ 'VERSION' = "8.0.1`n"; 'tools\saipen.py' = "print('saipen')`n" }
+  # SAIPEN ships its maintainer's launcher; the installer rewrites it for this clone (a tracked file changed by us).
+  $saipen = New-Remote 'saipen' 'main' @{ 'VERSION' = "8.0.1`n"; 'tools\saipen.py' = "print('saipen')`n"; 'bin\saipen.cmd' = "@echo off`r`nrem the maintainer's launcher`r`n" }
 
   $install = Join-Path $WorkDir 'install'
   Clone $ws $install
@@ -160,6 +161,54 @@ try {
   $r = Run-Update @('-Component', 'workspace')
   Assert-That ($r['workspace'].status -eq 'diverged') "workspace with a local commit -> diverged ($($r['workspace'].status))"
   Assert-That ((Head $install) -eq $local) 'the local commit is untouched'
+
+  Write-Host 'what is no one''s work never blocks an update (found on the first real one-click install)' -ForegroundColor White
+  # 1. SAIPEN changes the launcher file the installer rewrote for this clone.
+  Assert-That (((Invoke-Git -C (Join-Path $install 'saipen') status --porcelain) -match 'bin/saipen.cmd')) 'the installer''s own launcher shows as a changed tracked file'
+  $r = Run-Update @('-Check')
+  Assert-That ($r['saipen'].dirty -eq $false) 'that file is not counted as a local edit'
+  [IO.File]::WriteAllText((Join-Path $saipen.Seed 'bin\saipen.cmd'), "@echo off`r`nrem the maintainer's new launcher`r`n")
+  Publish $saipen 'VERSION' "8.0.3`n" 'feat: SAIPEN 8.0.3 with a new launcher'
+  $r = Run-Update @('-Component', 'saipen')
+  Assert-That ($r['saipen'].status -eq 'updated') "saipen with the installer's launcher in place updates ($($r['saipen'].status): $($r['saipen'].detail))"
+  Assert-That ((Get-Content (Join-Path $install 'saipen\bin\saipen.cmd') -Raw) -match [regex]::Escape((Join-Path $install 'saipen\tools\saipen.py'))) 'and the launcher names this clone again'
+  # A real edit that overlaps the next update wins; the installer's launcher is put back exactly as it was.
+  $launcherBefore = Get-Content (Join-Path $install 'saipen\bin\saipen.cmd') -Raw
+  [IO.File]::WriteAllText((Join-Path $install 'saipen\VERSION'), "8.0.3-mine`n")
+  [IO.File]::WriteAllText((Join-Path $saipen.Seed 'bin\saipen.cmd'), "@echo off`r`nrem yet another launcher`r`n")
+  Publish $saipen 'VERSION' "8.0.4`n" 'feat: SAIPEN 8.0.4'
+  $r = Run-Update @('-Component', 'saipen')
+  Assert-That ($r['saipen'].status -eq 'local-changes') "a real edit overlapping the update keeps the clone as it is ($($r['saipen'].status))"
+  Assert-That ((Get-Content (Join-Path $install 'saipen\VERSION') -Raw).Trim() -eq '8.0.3-mine') 'the edit is untouched'
+  Assert-That ((Get-Content (Join-Path $install 'saipen\bin\saipen.cmd') -Raw) -eq $launcherBefore) 'and the launcher for this clone is back as it was'
+  Invoke-Git -C (Join-Path $install 'saipen') checkout --quiet -- VERSION | Out-Null
+  # 2. A file stored with CRLF under an eol=lf attribute (SAIMAIL's README.md): git lists it as changed forever.
+  $appSeed = $app.Seed
+  [IO.File]::WriteAllText((Join-Path $appSeed 'notes.md'), "line one`r`nline two`r`n")
+  Invoke-Git -C $appSeed -c core.autocrlf=false add notes.md | Out-Null
+  Invoke-Git -C $appSeed -c core.autocrlf=false -c user.name=test -c user.email=test@example.invalid commit --quiet -m 'notes with CRLF' | Out-Null
+  [IO.File]::WriteAllText((Join-Path $appSeed '.gitattributes'), "notes.md text eol=lf`n")
+  Invoke-Git -C $appSeed -c core.autocrlf=false add .gitattributes | Out-Null
+  Invoke-Git -C $appSeed -c core.autocrlf=false -c user.name=test -c user.email=test@example.invalid commit --quiet -m 'eol=lf for notes' | Out-Null
+  Invoke-Git -C $appSeed push --quiet origin $app.Branch | Out-Null
+  $r = Run-Update @('-Component', 'app', '-NoBuild')
+  Assert-That ($r['app'].status -eq 'updated') "app took the CRLF commits ($($r['app'].status))"
+  $zc = Join-Path $install 'zcode'
+  Assert-That (((Invoke-Git -C $zc status --porcelain) -match 'notes.md')) 'git now lists notes.md as changed (line endings only)'
+  # 3. The person's own stash stays exactly theirs.
+  [IO.File]::WriteAllText((Join-Path $zc 'src\feature.txt'), "my idea`n")
+  Invoke-Git -C $zc -c user.name=me -c user.email=me@example.invalid stash push --quiet -m 'my own stash' -- src/feature.txt | Out-Null
+  $r = Run-Update @('-Check')
+  Assert-That ($r['app'].dirty -eq $false) "a line-ending-only file is not a local edit (dirty=$($r['app'].dirty))"
+  [IO.File]::WriteAllText((Join-Path $appSeed 'notes.md'), "line one`r`nline two`r`nline three`r`n")
+  Invoke-Git -C $appSeed -c core.autocrlf=false add notes.md | Out-Null
+  Invoke-Git -C $appSeed -c core.autocrlf=false -c user.name=test -c user.email=test@example.invalid commit --quiet -m 'notes: line three' | Out-Null
+  Invoke-Git -C $appSeed push --quiet origin $app.Branch | Out-Null
+  $r = Run-Update @('-Component', 'app', '-NoBuild')
+  Assert-That ($r['app'].status -eq 'updated') "an update that changes that file goes through ($($r['app'].status): $($r['app'].detail))"
+  Assert-That ((Get-Content (Join-Path $zc 'notes.md') -Raw) -match 'line three') 'the file is the new one'
+  $stashes = Invoke-Git -C $zc stash list
+  Assert-That (($stashes -match 'my own stash') -and (@($stashes -split "`n" | Where-Object { $_ }).Count -eq 1)) "the person's stash is still there, alone ($stashes)"
 
   # Windows PowerShell 5.1 turns a native command's stderr into an error under 'Stop' (traps.md): judge the text.
   $ErrorActionPreference = 'Continue'

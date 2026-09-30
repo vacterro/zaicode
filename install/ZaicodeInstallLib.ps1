@@ -398,8 +398,8 @@ function Get-ZaicodeComponentStatus($Layout, $Component, [string]$Git, [switch]$
   # merged branch's whole history as new (81 for one merge on the first real run).
   $record.behind = [int](Invoke-ZaicodeGitText $Git $Component.Dir @('rev-list', '--count', '--first-parent', "HEAD..origin/$($Component.Branch)"))
   $record.ahead = [int](Invoke-ZaicodeGitText $Git $Component.Dir @('rev-list', '--count', "origin/$($Component.Branch)..HEAD"))
-  # Content changes only: a build rewrites some tracked generated files with other line endings (same content).
-  $record.dirty = [bool](Invoke-ZaicodeGitText $Git $Component.Dir @('diff', '--name-only', 'HEAD'))
+  # Real edits only: not the installer's own files, not a line-ending-only difference (Get-ZaicodeDisposablePaths).
+  $record.dirty = Test-ZaicodeRealEdits $Git $Component.Dir $Component.Id
   if ($record.behind -gt 0) {
     $log = Invoke-ZaicodeGitText $Git $Component.Dir @('log', '--first-parent', '--format=%s', '-n', '8', "HEAD..origin/$($Component.Branch)")
     if ($log) { $record.subjects = @($log -split "`n" | Where-Object { $_ }) }
@@ -425,31 +425,61 @@ function Get-ZaicodeComponentStatus($Layout, $Component, [string]$Git, [switch]$
 
 # Fast-forwards one clone and runs what that component needs afterwards. Local work is never touched:
 # a dirty tree that the update would overwrite, another branch or local commits leave the clone as it is.
-# The app build regenerates a few tracked files (dist-types\*.d.ts) with LF endings in a CRLF checkout: git lists them
-# as modified although `git diff` finds no content change, and such an entry would block the next fast-forward
-# ("local changes would be overwritten"). Only those entries are restored; a file with a real change is never touched.
-function Restore-ZaicodeLineEndingOnly([string]$Git, [string]$Dir) {
-  $listed = Invoke-ZaicodeGitText $Git $Dir @('-c', 'core.quotepath=false', 'status', '--porcelain', '--untracked-files=no')
-  if (-not $listed) { return 0 }
-  $changed = @((Invoke-ZaicodeGitText $Git $Dir @('-c', 'core.quotepath=false', 'diff', '--name-only', 'HEAD')) -split "`n" | Where-Object { $_ })
-  $restored = 0
-  foreach ($line in ($listed -split "`n")) {
-    if ($line -notmatch '^ M (.+)$') { continue }
-    $path = $Matches[1].Trim('"')
-    if ($changed -contains $path) { continue }
-    $result = Invoke-ZaicodeCommand -File $Git -Arguments @('-C', $Dir, 'checkout', '--', $path) -AllowFailure
-    if ($result.Code -eq 0) { $restored++ }
+# Paths an update may set aside because they are no one's work (T-134, found on the first real one-click install):
+#  - files the installer itself writes into a clone (SAIPEN's bin/saipen and bin/saipen.cmd name this clone and its
+#    Python; they are rendered again right after the update);
+#  - files that differ from HEAD only in line endings: the app build rewrites tracked dist-types/*.d.ts with LF in a
+#    CRLF checkout, and SAIMAIL's README.md is stored with CRLF under an eol=lf attribute, so git lists it forever.
+# Either kind made the next fast-forward stop with "local changes would be overwritten". A file with a real edit is
+# never in this list.
+$script:ZaicodeOwnedPaths = @{ saipen = @('bin/saipen', 'bin/saipen.cmd') }
+
+function Get-ZaicodeModifiedPaths([string]$Git, [string]$Dir) {
+  # Raw output: a trimmed first line loses the leading space of its " M" code.
+  $result = Invoke-ZaicodeCommand -File $Git -Arguments @('-C', $Dir, '-c', 'core.quotepath=false', 'status', '--porcelain', '--untracked-files=no') -AllowFailure
+  if ($result.Code -ne 0 -or -not $result.Output) { return @() }
+  return @($result.Output -split "`n" | Where-Object { $_.Length -gt 3 } | ForEach-Object { $_.Substring(3).Trim('"') })
+}
+
+function Get-ZaicodeDisposablePaths([string]$Git, [string]$Dir, [string]$Id) {
+  $owned = @($script:ZaicodeOwnedPaths[$Id])
+  $out = @()
+  foreach ($path in (Get-ZaicodeModifiedPaths $Git $Dir)) {
+    if ($owned -contains $path) { $out += $path; continue }
+    $same = Invoke-ZaicodeCommand -File $Git -Arguments @('-C', $Dir, 'diff', '--quiet', '--ignore-cr-at-eol', 'HEAD', '--', $path) -AllowFailure
+    if ($same.Code -eq 0) { $out += $path }
   }
-  if ($restored -gt 0) { Write-ZaicodeLog "$Dir`: $restored file(s) the build had rewritten with other line endings restored" 'DarkGray' }
-  return $restored
+  return $out
+}
+
+# A real edit: modified, and neither the installer's own file nor a line-ending-only difference.
+function Test-ZaicodeRealEdits([string]$Git, [string]$Dir, [string]$Id) {
+  $disposable = @(Get-ZaicodeDisposablePaths $Git $Dir $Id)
+  return [bool](@(Get-ZaicodeModifiedPaths $Git $Dir | Where-Object { $disposable -notcontains $_ }).Count)
 }
 
 function Update-ZaicodeComponent($Layout, $Options, $Component, [string]$Git, [switch]$NoBuild) {
-  if (Test-ZaicodeRepo $Git $Component.Dir) { Restore-ZaicodeLineEndingOnly $Git $Component.Dir | Out-Null }
   $status = Get-ZaicodeComponentStatus $Layout $Component $Git -Fetch
   if ($status.status -ne 'available') { return $status }
   $before = $status.head
+  # What is no one's work (Get-ZaicodeDisposablePaths) must not stop the fast-forward. A stash cannot help a file stored
+  # with CRLF under eol=lf (git writes it with LF again at once) and --assume-unchanged does not survive a merge that
+  # touches the file. Taking those paths from the update first leaves the index equal to the target for them, so the
+  # fast-forward goes through; their bytes are kept and put back if it does not.
+  $aside = @(Get-ZaicodeDisposablePaths $Git $Component.Dir $Component.Id)
+  $kept = @{}
+  foreach ($path in $aside) {
+    $file = Join-Path $Component.Dir $path
+    if (Test-Path -LiteralPath $file) { $kept[$path] = [IO.File]::ReadAllBytes($file) }
+  }
+  if ($aside.Count -gt 0) {
+    Invoke-ZaicodeCommand -File $Git -Arguments (@('-C', $Component.Dir, 'checkout', "origin/$($Component.Branch)", '--') + $aside) -AllowFailure | Out-Null
+  }
   $merge = Invoke-ZaicodeCommand -File $Git -Arguments @('-C', $Component.Dir, 'merge', '--ff-only', '--quiet', "origin/$($Component.Branch)") -AllowFailure
+  if ($merge.Code -ne 0 -and $aside.Count -gt 0) {
+    Invoke-ZaicodeCommand -File $Git -Arguments (@('-C', $Component.Dir, 'reset', '--quiet', '--') + $aside) -AllowFailure | Out-Null
+    foreach ($path in $kept.Keys) { [IO.File]::WriteAllBytes((Join-Path $Component.Dir $path), $kept[$path]) }
+  }
   if ($merge.Code -ne 0) {
     $status.status = 'local-changes'
     $status.detail = 'local edits overlap the update: kept them, not updated'
