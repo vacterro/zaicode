@@ -2,35 +2,76 @@
   "appends": [
     {
       "class": "CLARIFICATION",
+      "created_work": null,
       "delta": "context",
-      "derived_clauses": [],
+      "derived_clauses": [
+        "SRC-099:R001",
+        "SRC-099:R002",
+        "SRC-099:R003",
+        "SRC-099:R004",
+        "SRC-099:R005",
+        "SRC-099:R006",
+        "SRC-099:R007",
+        "SRC-099:R008",
+        "SRC-099:R009",
+        "SRC-099:R010",
+        "SRC-099:R011",
+        "SRC-099:R012",
+        "SRC-099:R013",
+        "SRC-099:R014",
+        "SRC-099:R015",
+        "SRC-099:R016",
+        "SRC-099:R017",
+        "SRC-099:R018",
+        "SRC-099:R019",
+        "SRC-099:R020",
+        "SRC-099:R021",
+        "SRC-099:R022"
+      ],
       "label": "operator continuation order T-134 -> T-135 -> T-113",
-      "projected_at": null,
+      "projected_at": "2026-09-30T13:28:59Z",
       "receipt": "SRC-099",
       "received_at": "2026-09-30T12:14:40Z",
       "rewind": null,
       "seq": 1,
       "source_sha256": "4ec92a6a0b80d4b87200a19784adeb4a47a0408fc24dbdd540b0ecc89c2feab6",
-      "state": "RECEIVED",
-      "steps": [],
+      "state": "PROJECTED",
+      "steps": [
+        "linked",
+        "derived",
+        "superseded"
+      ],
+      "superseded": [],
       "supersedes": [],
-      "work": []
+      "work": [
+        "T-135"
+      ]
     },
     {
       "class": "CLARIFICATION",
+      "created_work": null,
       "delta": "context",
-      "derived_clauses": [],
+      "derived_clauses": [
+        "SRC-101:R001"
+      ],
       "label": "operator go-ahead for the live 9router swap",
-      "projected_at": null,
+      "projected_at": "2026-09-30T13:29:04Z",
       "receipt": "SRC-101",
       "received_at": "2026-09-30T13:11:30Z",
       "rewind": null,
       "seq": 2,
       "source_sha256": "94f151a0708ef3f0fde2f183c46af60ea727f83384d18d91348149b22ad3e708",
-      "state": "RECEIVED",
-      "steps": [],
+      "state": "PROJECTED",
+      "steps": [
+        "linked",
+        "derived",
+        "superseded"
+      ],
+      "superseded": [],
       "supersedes": [],
-      "work": []
+      "work": [
+        "T-135"
+      ]
     }
   ],
   "schema_version": 1,

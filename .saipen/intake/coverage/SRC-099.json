@@ -1,4 +1,203 @@
 {
-  "requirements": {},
+  "requirements": {
+    "SRC-099:R001": {
+      "actionable": false,
+      "class": "context",
+      "disposition": "UNKNOWN",
+      "evidence": null,
+      "text": "Do not create replacement tickets.",
+      "verification": null,
+      "work": "T-135"
+    },
+    "SRC-099:R002": {
+      "actionable": false,
+      "class": "context",
+      "disposition": "UNKNOWN",
+      "evidence": null,
+      "text": "Do not reopen completed work.",
+      "verification": null,
+      "work": "T-135"
+    },
+    "SRC-099:R003": {
+      "actionable": false,
+      "class": "context",
+      "disposition": "UNKNOWN",
+      "evidence": null,
+      "text": "Do not invent new features during this continuation.",
+      "verification": null,
+      "work": "T-135"
+    },
+    "SRC-099:R004": {
+      "actionable": false,
+      "class": "context",
+      "disposition": "UNKNOWN",
+      "evidence": null,
+      "text": "it must resume after current explicit higher-priority work is completed.",
+      "verification": null,
+      "work": "T-135"
+    },
+    "SRC-099:R005": {
+      "actionable": false,
+      "class": "context",
+      "disposition": "UNKNOWN",
+      "evidence": null,
+      "text": "Do not fabricate coverage, tombstones, source receipts, evidence or historical events merely to make validation green.",
+      "verification": null,
+      "work": "T-135"
+    },
+    "SRC-099:R006": {
+      "actionable": false,
+      "class": "context",
+      "disposition": "UNKNOWN",
+      "evidence": null,
+      "text": "Do not let unrelated legacy receipt debt mutate current product truth.",
+      "verification": null,
+      "work": "T-135"
+    },
+    "SRC-099:R007": {
+      "actionable": false,
+      "class": "context",
+      "disposition": "UNKNOWN",
+      "evidence": null,
+      "text": "Do not rebuild or rewrite T-134 without a new regression.",
+      "verification": null,
+      "work": "T-135"
+    },
+    "SRC-099:R008": {
+      "actionable": false,
+      "class": "context",
+      "disposition": "UNKNOWN",
+      "evidence": null,
+      "text": "Do not create T-136 for the same work.",
+      "verification": null,
+      "work": "T-135"
+    },
+    "SRC-099:R009": {
+      "actionable": false,
+      "class": "context",
+      "disposition": "UNKNOWN",
+      "evidence": null,
+      "text": "Do not blindly trust the evidence file.",
+      "verification": null,
+      "work": "T-135"
+    },
+    "SRC-099:R010": {
+      "actionable": false,
+      "class": "context",
+      "disposition": "UNKNOWN",
+      "evidence": null,
+      "text": "There must be no unexplained MISSING item.",
+      "verification": null,
+      "work": "T-135"
+    },
+    "SRC-099:R011": {
+      "actionable": false,
+      "class": "context",
+      "disposition": "UNKNOWN",
+      "evidence": null,
+      "text": "Do not \"fix\" upstream baseline tests merely to make the count prettier.",
+      "verification": null,
+      "work": "T-135"
+    },
+    "SRC-099:R012": {
+      "actionable": false,
+      "class": "context",
+      "disposition": "UNKNOWN",
+      "evidence": null,
+      "text": "Do not require identical timing.",
+      "verification": null,
+      "work": "T-135"
+    },
+    "SRC-099:R013": {
+      "actionable": false,
+      "class": "context",
+      "disposition": "UNKNOWN",
+      "evidence": null,
+      "text": "Do not overwrite unrelated operator work in _9router_extra.",
+      "verification": null,
+      "work": "T-135"
+    },
+    "SRC-099:R014": {
+      "actionable": false,
+      "class": "context",
+      "disposition": "UNKNOWN",
+      "evidence": null,
+      "text": "do not stage unrelated paths.",
+      "verification": null,
+      "work": "T-135"
+    },
+    "SRC-099:R015": {
+      "actionable": false,
+      "class": "context",
+      "disposition": "UNKNOWN",
+      "evidence": null,
+      "text": "The live operator router must not be stopped or replaced automatically.",
+      "verification": null,
+      "work": "T-135"
+    },
+    "SRC-099:R016": {
+      "actionable": false,
+      "class": "context",
+      "disposition": "UNKNOWN",
+      "evidence": null,
+      "text": "DO NOT execute the destructive/live swap in this continuation unless an explicit current operator instruction authorizes it.",
+      "verification": null,
+      "work": "T-135"
+    },
+    "SRC-099:R017": {
+      "actionable": false,
+      "class": "context",
+      "disposition": "UNKNOWN",
+      "evidence": null,
+      "text": "Do not misreport it as engineering failure.",
+      "verification": null,
+      "work": "T-135"
+    },
+    "SRC-099:R018": {
+      "actionable": false,
+      "class": "context",
+      "disposition": "UNKNOWN",
+      "evidence": null,
+      "text": "Do not leave a fully verified implementation sitting in TODO merely because most of the implementation was completed before the ticket was formally claimed.",
+      "verification": null,
+      "work": "T-135"
+    },
+    "SRC-099:R019": {
+      "actionable": false,
+      "class": "context",
+      "disposition": "UNKNOWN",
+      "evidence": null,
+      "text": "Do not create another localization ticket.",
+      "verification": null,
+      "work": "T-135"
+    },
+    "SRC-099:R020": {
+      "actionable": false,
+      "class": "context",
+      "disposition": "UNKNOWN",
+      "evidence": null,
+      "text": "Do not reduce final acceptance to only the default set.",
+      "verification": null,
+      "work": "T-135"
+    },
+    "SRC-099:R021": {
+      "actionable": false,
+      "class": "context",
+      "disposition": "UNKNOWN",
+      "evidence": null,
+      "text": "Do not declare the ticket BLOCKED simply because translation volume is large.",
+      "verification": null,
+      "work": "T-135"
+    },
+    "SRC-099:R022": {
+      "actionable": false,
+      "class": "context",
+      "disposition": "UNKNOWN",
+      "evidence": null,
+      "text": "Do not invent new product capabilities unless the operator explicitly requests them.",
+      "verification": null,
+      "work": "T-135"
+    }
+  },
   "schema_version": 1
 }
