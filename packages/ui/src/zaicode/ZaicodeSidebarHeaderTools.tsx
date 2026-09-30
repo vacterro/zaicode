@@ -1,15 +1,14 @@
-import { ListCollapse, ListTree } from "lucide-react";
 import { cn } from "@/components/lib/utils.js";
+import { ZaicodeIcon } from "./zaicodeIconSlots.js";
 import { readinessBarColor } from "./zaicodeTodoProgress.js";
 import { useZaicodeRunningSessions, useZaicodeSidebarPrefs } from "./zaicodeSidebarPrefs.js";
-import { useZaicodeLayout } from "./zaicodeLayoutPrefs.js";
+import { isZaicodeLayoutEntryShown, useZaicodeLayout } from "./zaicodeLayoutPrefs.js";
 import { cycleZaicodeSession, openZaicodeSession, useZaicodeSessionNav } from "./zaicodeSessionNav.js";
 
 /** Header toggle for the sidebar menu block (New task, ZAICODE, ... as the operator chose). */
 export function ZaicodeSidebarNavToggle() {
   const navOpen = useZaicodeSidebarPrefs((state) => state.navOpen);
   const update = useZaicodeSidebarPrefs((state) => state.update);
-  const Icon = navOpen ? ListCollapse : ListTree;
   const label = navOpen ? "Hide the menu (New task, ZAICODE, …)" : "Show the menu (New task, ZAICODE, …)";
   return (
     <button
@@ -23,7 +22,7 @@ export function ZaicodeSidebarNavToggle() {
         navOpen && "bg-selected text-foreground",
       )}
     >
-      <Icon className="size-4" />
+      <ZaicodeIcon slot={navOpen ? "tool.menuOpen" : "tool.menu"} />
     </button>
   );
 }
@@ -36,9 +35,10 @@ export function ZaicodeSidebarNavToggle() {
  */
 export function ZaicodeRunningMeter() {
   const sessions = useZaicodeRunningSessions((state) => state.sessions);
-  const visible = useZaicodeLayout((state) => state.headerTools.find((tool) => tool.id === "meter")?.visible !== false);
+  const entry = useZaicodeLayout((state) => state.headerTools.find((tool) => tool.id === "meter"));
   const activeTaskId = useZaicodeSessionNav((state) => state.activeTaskId);
-  if (!visible) return null;
+  // T-134: "while working" / "while idle" apply; the meter sits outside the button row, so "hover" keeps it shown.
+  if (entry && !isZaicodeLayoutEntryShown(entry, { working: sessions.length, hover: true })) return null;
   const count = sessions.length;
   const ordered = [...sessions].sort((left, right) => right.ratio - left.ratio);
   const title =

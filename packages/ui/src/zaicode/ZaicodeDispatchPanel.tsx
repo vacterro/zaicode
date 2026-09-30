@@ -1,4 +1,3 @@
-import { Send } from "lucide-react";
 import { create } from "zustand";
 import { cn } from "@/components/lib/utils.js";
 import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover.js";
@@ -27,6 +26,7 @@ import { useZaicodeSessionNav } from "./zaicodeSessionNav.js";
 import { launchZaicodeWorker, openZaicodeShellWorker } from "./zaicodeWorkers.js";
 import { playZaicodeSound } from "./zaicodeSoundBus.js";
 import { openZaicodeSettings } from "./zaicodeActions.js";
+import { ZaicodeIcon } from "./zaicodeIconSlots.js";
 
 /** Open state, so the hotkey and the header button drive the same panel. */
 export const useZaicodeDispatchPanel = create<{ open: boolean; setOpen: (open: boolean) => void }>((set) => ({
@@ -201,7 +201,7 @@ export function ZaicodeDispatchButton() {
             onClick={() => setOpen(!open)}
             testId="zaicode-dispatch"
           >
-            <Send className="size-4" />
+            <ZaicodeIcon slot="tool.dispatch" />
           </ZaicodeTopButton>
         </span>
       </PopoverAnchor>

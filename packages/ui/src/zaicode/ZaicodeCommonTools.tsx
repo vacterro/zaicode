@@ -1,16 +1,4 @@
 import type { MouseEvent, ReactNode } from "react";
-import {
-  AlarmClock,
-  ChevronLeft,
-  ChevronRight,
-  CircleHelp,
-  Crosshair,
-  House,
-  Palette,
-  SquareTerminal,
-  Volume2,
-  VolumeX,
-} from "lucide-react";
 import { cn } from "@/components/lib/utils.js";
 import { Button } from "@/components/ui/button.js";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu.js";
@@ -24,6 +12,7 @@ import { useZaicodeRunningSessions } from "./zaicodeSidebarPrefs.js";
 import { setZaicodeSoundSettings, useZaicodeSoundSettings } from "./zaicodeSoundEvents.js";
 import { useZaicodeTimers } from "./zaicodeTimerStore.js";
 import { toggleZaicodeWorkersDock, useZaicodeWorkers } from "./zaicodeWorkers.js";
+import { ZaicodeIcon } from "./zaicodeIconSlots.js";
 
 /**
  * The icon buttons the sidebar header and the sidebar footer share (SRC-062:
@@ -104,7 +93,7 @@ export function useZaicodeCommonTools(side: "top" | "bottom"): (id: ZaicodeCommo
       case "home":
         return (
           <ZaicodeTopButton key={id} side={side} title="SAIHOME" shortcut={hint("ui.home")} onClick={() => void openZaicodeHomeView()}>
-            <House className="size-4" />
+            <ZaicodeIcon slot="tool.home" />
           </ZaicodeTopButton>
         );
       case "focusCycle":
@@ -122,30 +111,30 @@ export function useZaicodeCommonTools(side: "top" | "bottom"): (id: ZaicodeCommo
             }}
             {...(side === "bottom" ? { testId: "zaicode-focus-cycle" } : {})}
           >
-            <Crosshair className="size-4" />
+            <ZaicodeIcon slot="tool.focusCycle" />
           </ZaicodeTopButton>
         );
       case "cycleArrows":
         return (
           <span key={id} className="flex">
             <ZaicodeTopButton side={side} title="Previous session" shortcut={hint("session.prev")} onClick={() => cycle(-1)}>
-              <ChevronLeft className="size-4" />
+              <ZaicodeIcon slot="tool.prev" />
             </ZaicodeTopButton>
             <ZaicodeTopButton side={side} title="Next session" shortcut={hint("session.next")} onClick={() => cycle(1)}>
-              <ChevronRight className="size-4" />
+              <ZaicodeIcon slot="tool.next" />
             </ZaicodeTopButton>
           </span>
         );
       case "timers":
         return (
           <ZaicodeTopButton key={id} side={side} title="Timers" shortcut={hint("timers.open")} onClick={() => openTimers("alarms")}>
-            <AlarmClock className="size-4" />
+            <ZaicodeIcon slot="tool.timers" />
           </ZaicodeTopButton>
         );
       case "help":
         return (
           <ZaicodeTopButton key={id} side={side} title="Help" shortcut={hint("ui.help")} onClick={() => void openZaicodeHelp()}>
-            <CircleHelp className="size-4" />
+            <ZaicodeIcon slot="tool.help" />
           </ZaicodeTopButton>
         );
       case "mute":
@@ -158,7 +147,7 @@ export function useZaicodeCommonTools(side: "top" | "bottom"): (id: ZaicodeCommo
             pressed={sound.muted}
             onClick={() => setZaicodeSoundSettings({ muted: !sound.muted })}
           >
-            {sound.muted ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}
+            <ZaicodeIcon slot={sound.muted ? "tool.muted" : "tool.mute"} />
           </ZaicodeTopButton>
         );
       case "palette":
@@ -175,7 +164,7 @@ export function useZaicodeCommonTools(side: "top" | "bottom"): (id: ZaicodeCommo
                   aria-label="Theme"
                   data-testid={side === "bottom" ? "zaicode-header-palette" : undefined}
                 >
-                  <Palette className="size-4" />
+                  <ZaicodeIcon slot="tool.palette" />
                 </Button>
               </DropdownMenuTrigger>
             </ControlHintTooltip>
@@ -194,7 +183,7 @@ export function useZaicodeCommonTools(side: "top" | "bottom"): (id: ZaicodeCommo
             pressed={workers.open}
             onClick={toggleZaicodeWorkersDock}
           >
-            <SquareTerminal className="size-4" />
+            <ZaicodeIcon slot="tool.workers" />
           </ZaicodeTopButton>
         );
       case "dispatch":

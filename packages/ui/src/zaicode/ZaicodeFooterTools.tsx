@@ -1,15 +1,16 @@
-import type { ReactNode } from "react";
-import { MousePointer2 } from "lucide-react";
+import { useState, type ReactNode } from "react";
 import { cn } from "@/components/lib/utils.js";
 import { ControlHintTooltip } from "@/ControlHintTooltip.js";
 import { ZaicodeProblipButton } from "./ZaicodeAudioPanels.js";
 import { isZaicodeCommonTool, useZaicodeCommonTools } from "./ZaicodeCommonTools.js";
-import { ZaicodeLayoutListEditor } from "./ZaicodeLayoutListEditor.js";
+import { ZAICODE_FOOTER_ICON_SLOTS, ZaicodeLayoutListEditor } from "./ZaicodeLayoutListEditor.js";
 import { ZaicodeOverflowRow } from "./ZaicodeOverflowRow.js";
 import { ZaicodePrefSegment, ZaicodeRightClickSettings } from "./ZaicodePrefControls.js";
 import { openZaicodeSettings } from "./zaicodeActions.js";
-import { ZAICODE_FOOTER_TOOLS, useZaicodeLayout, type ZaicodeFooterToolId } from "./zaicodeLayoutPrefs.js";
+import { ZAICODE_FOOTER_TOOLS, isZaicodeLayoutEntryShown, useZaicodeLayout, type ZaicodeFooterToolId } from "./zaicodeLayoutPrefs.js";
+import { useZaicodeRunningSessions } from "./zaicodeSidebarPrefs.js";
 import { useZaicodeProtrail } from "./protrail/zaicodeProtrailStore.js";
+import { ZaicodeIcon } from "./zaicodeIconSlots.js";
 
 /**
  * The sidebar footer's button row (SRC-062): "make the ProTrail on/off
@@ -41,7 +42,7 @@ export function ZaicodeProtrailFooterButton() {
         data-zaicode-protrail-button={enabled ? "on" : "off"}
         data-zaicode-help="protrail"
       >
-        <MousePointer2 className="size-4" />
+        <ZaicodeIcon slot="tool.protrail" />
       </button>
     </ControlHintTooltip>
   );
@@ -65,6 +66,7 @@ export function ZaicodeFooterEditor() {
         defs={ZAICODE_FOOTER_TOOLS}
         onChange={layout.setFooterTools}
         onReset={layout.resetFooter}
+        iconSlots={ZAICODE_FOOTER_ICON_SLOTS}
       />
     </div>
   );
@@ -79,6 +81,8 @@ export function ZaicodeFooterTools({ settingsButton }: { settingsButton: ReactNo
   const tools = useZaicodeLayout((state) => state.footerTools);
   const fill = useZaicodeLayout((state) => state.footerProfile === "avatar");
   const common = useZaicodeCommonTools("top");
+  const working = useZaicodeRunningSessions((state) => state.sessions.length);
+  const [hover, setHover] = useState(false);
   const render = (id: ZaicodeFooterToolId): ReactNode => {
     if (isZaicodeCommonTool(id)) return common(id);
     if (id === "problip") return <ZaicodeProblipButton key={id} />;
@@ -87,7 +91,7 @@ export function ZaicodeFooterTools({ settingsButton }: { settingsButton: ReactNo
     return null;
   };
   const items = tools
-    .filter((tool) => tool.visible)
+    .filter((tool) => isZaicodeLayoutEntryShown(tool, { working, hover }))
     .map((tool) => ({ key: tool.id, node: render(tool.id) }))
     .filter((item) => item.node !== null);
   return (
@@ -99,13 +103,15 @@ export function ZaicodeFooterTools({ settingsButton }: { settingsButton: ReactNo
       align="end"
       className={cn("items-center", fill ? "min-w-0 flex-1" : "shrink-0")}
     >
-      {fill ? (
-        <ZaicodeOverflowRow className="flex-1" items={items} />
-      ) : (
-        <div className="flex items-center gap-1.5" data-zaicode-footer-tools>
-          {items.map((item) => item.node)}
-        </div>
-      )}
+      <div className={cn("flex items-center", fill && "min-w-0 flex-1")} onPointerEnter={() => setHover(true)} onPointerLeave={() => setHover(false)}>
+        {fill ? (
+          <ZaicodeOverflowRow className="flex-1" items={items} />
+        ) : (
+          <div className="flex min-h-8 min-w-8 items-center gap-1.5" data-zaicode-footer-tools>
+            {items.map((item) => item.node)}
+          </div>
+        )}
+      </div>
     </ZaicodeRightClickSettings>
   );
 }

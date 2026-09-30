@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { CalendarClock } from "lucide-react";
 import { ZAICODE_HIT_AND_GO_PROMPT, formatZaicodeDuration } from "@zcode/shared";
 import { cn } from "@/components/lib/utils.js";
 import { Button } from "@/components/ui/button.js";
@@ -20,6 +19,7 @@ import {
 } from "./zaicodeScheduler.js";
 import { useZaicodeLights, zaicodeHighlightAttrs, type ZaicodeLightAttrs } from "./zaicodeHighlights.js";
 import { openZaicodeWorkspaceView } from "./zaicodeActions.js";
+import { ZaicodeIcon } from "./zaicodeIconSlots.js";
 
 /**
  * The SCHEDULER's small faces (SRC-038): the sidebar line and the "prompt
@@ -75,7 +75,7 @@ export function ZaicodeSchedulerNavButton({ className, onOpenZaicode }: { classN
       onClick={() => openZaicodeScheduler(onOpenZaicode)}
       data-zaicode-scheduler-nav
     >
-      <CalendarClock className="size-4" />
+      <ZaicodeIcon slot="nav.scheduler" />
       <span className="min-w-0 flex-1 truncate text-left">{navLabel}</span>
       {next ? (
         <span className="ml-auto shrink-0 border border-[var(--zaicode-highlight,var(--color-border-hover))] px-1 text-ui-xs font-normal tabular-nums text-foreground">
@@ -151,7 +151,7 @@ export function ZaicodeAgentSchedules({ agentId, agentName }: { agentId: string;
           openZaicodeScheduler();
         }}
       >
-        <CalendarClock className="size-3" />
+        <ZaicodeIcon slot="nav.scheduler" className="size-3" />
         Schedule this agent…
       </Button>
     </div>

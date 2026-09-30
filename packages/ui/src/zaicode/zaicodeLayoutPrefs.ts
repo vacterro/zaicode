@@ -57,11 +57,44 @@ export type ZaicodeNavItemId =
   | "workers"
   | "settings";
 
+/**
+ * T-134: when a ticked button / line is on screen. always (the default) |
+ * working (while at least one session works) | idle (while nothing works) |
+ * hover (only while the pointer is over its row: a clean sidebar that still
+ * has every button one move away).
+ */
+export const ZAICODE_LAYOUT_WHENS = ["always", "working", "idle", "hover"] as const;
+export type ZaicodeLayoutWhen = (typeof ZAICODE_LAYOUT_WHENS)[number];
+
 export interface ZaicodeLayoutEntry<T extends string> {
   id: T;
   visible: boolean;
   /** The operator's own name for the line (SRC-044); absent = the built-in label. */
   label?: string;
+  /** T-134: absent = always. */
+  when?: ZaicodeLayoutWhen;
+}
+
+export function normalizeZaicodeLayoutWhen(value: unknown): ZaicodeLayoutWhen {
+  return ZAICODE_LAYOUT_WHENS.includes(value as ZaicodeLayoutWhen) ? (value as ZaicodeLayoutWhen) : "always";
+}
+
+/** Whether a stored entry is on screen right now (`working` = sessions working, `hover` = pointer over its row). */
+export function isZaicodeLayoutEntryShown(
+  entry: Pick<ZaicodeLayoutEntry<string>, "visible" | "when">,
+  context: { working: number; hover: boolean },
+): boolean {
+  if (!entry.visible) return false;
+  switch (normalizeZaicodeLayoutWhen(entry.when)) {
+    case "working":
+      return context.working > 0;
+    case "idle":
+      return context.working === 0;
+    case "hover":
+      return context.hover;
+    default:
+      return true;
+  }
 }
 
 /** Longest custom menu-line name. */
@@ -145,10 +178,12 @@ export function normalizeZaicodeLayoutList<T extends string>(
       const visible = (entry as { visible?: unknown }).visible;
       const label = (entry as { label?: unknown }).label;
       const custom = typeof label === "string" ? label.trim().slice(0, ZAICODE_LAYOUT_LABEL_MAX) : "";
+      const when = normalizeZaicodeLayoutWhen((entry as { when?: unknown }).when);
       out.push({
         id: id as T,
         visible: typeof visible === "boolean" ? visible : known.get(id)!.visible,
         ...(custom ? { label: custom } : {}),
+        ...(when !== "always" ? { when } : {}),
       });
     }
   }

@@ -1,11 +1,11 @@
-import { cloneElement, isValidElement, type ReactElement, type ReactNode } from "react";
-import { AlarmClock, Blocks, CircleHelp, House, Search, Settings, SquareTerminal } from "lucide-react";
+import { cloneElement, isValidElement, useState, type ReactElement, type ReactNode } from "react";
 import { cn } from "@/components/lib/utils.js";
 import { Button } from "@/components/ui/button.js";
 import { ZaicodeIcon } from "./zaicodeIconSlots.js";
 import { ZaicodeNavItemsEditor } from "./ZaicodeLayoutListEditor.js";
 import { ZaicodeRightClickSettings } from "./ZaicodePrefControls.js";
-import { useZaicodeLayout, type ZaicodeNavItemId } from "./zaicodeLayoutPrefs.js";
+import { isZaicodeLayoutEntryShown, useZaicodeLayout, type ZaicodeNavItemId } from "./zaicodeLayoutPrefs.js";
+import { useZaicodeRunningSessions } from "./zaicodeSidebarPrefs.js";
 import { ZAICODE_HELP_ATTRIBUTE, isZaicodeHelpTopicId, ZAICODE_NAV_HELP_TOPICS } from "./zaicodeHelpTopics.js";
 import { useZaicodeTimers } from "./zaicodeTimerStore.js";
 import { openZaicodeHelp, openZaicodeHomeView, openZaicodeSettings, useZaicodeActions } from "./zaicodeActions.js";
@@ -50,6 +50,8 @@ export function ZaicodeSidebarNavBlock({
   zaicodeLabel: string;
 }) {
   const items = useZaicodeLayout((state) => state.navItems);
+  const working = useZaicodeRunningSessions((state) => state.sessions.length);
+  const [hover, setHover] = useState(false);
   const openTimers = useZaicodeTimers((state) => state.openDialog);
   // Only the dock flag: the menu must not re-render when a worker window moves (SRC-043).
   const workersOpen = useZaicodeWorkersSelector((state) => state.open);
@@ -73,7 +75,7 @@ export function ZaicodeSidebarNavBlock({
             title="SAIHOME: what is happening (clock, limits, projects, agents, statistics). Opening it starts nothing."
             onClick={() => void openZaicodeHomeView()}
           >
-            <House className="size-4" />
+            <ZaicodeIcon slot="nav.saihome" />
             {label("saihome", "SAIHOME")}
           </Button>
         );
@@ -89,7 +91,7 @@ export function ZaicodeSidebarNavBlock({
       case "search":
         return (
           <Button key={id} variant="ghost" size="lg" data-icon="inline-start" className={line(false)} onClick={onOpenCommandCenter}>
-            <Search className="size-4" />
+            <ZaicodeIcon slot="nav.search" />
             <span className="min-w-0 flex-1 truncate text-left">{label("search", searchLabel)}</span>
             <span className="ml-auto shrink-0 text-ui-xs font-normal text-foreground-subtlest">{searchShortcut}</span>
           </Button>
@@ -99,35 +101,35 @@ export function ZaicodeSidebarNavBlock({
       case "plugins":
         return (
           <Button key={id} variant="ghost" size="lg" data-icon="inline-start" data-testid="plugin-store-sidebar-open" aria-pressed={pluginStoreActive} className={line(pluginStoreActive)} onClick={onOpenPluginStore}>
-            <Blocks className="size-4" />
+            <ZaicodeIcon slot="nav.plugins" />
             {label("plugins", pluginsLabel)}
           </Button>
         );
       case "timers":
         return (
           <Button key={id} variant="ghost" size="lg" data-icon="inline-start" className={line(false)} onClick={() => openTimers("alarms")}>
-            <AlarmClock className="size-4" />
+            <ZaicodeIcon slot="nav.timers" />
             {label("timers", "Timers")}
           </Button>
         );
       case "help":
         return (
           <Button key={id} variant="ghost" size="lg" data-icon="inline-start" className={line(false)} onClick={() => void openZaicodeHelp()}>
-            <CircleHelp className="size-4" />
+            <ZaicodeIcon slot="nav.help" />
             {label("help", "Help")}
           </Button>
         );
       case "workers":
         return (
           <Button key={id} variant="ghost" size="lg" data-icon="inline-start" aria-pressed={workersOpen} className={line(workersOpen)} onClick={toggleZaicodeWorkersDock}>
-            <SquareTerminal className="size-4" />
+            <ZaicodeIcon slot="nav.workers" />
             {label("workers", "WORKERS")}
           </Button>
         );
       case "settings":
         return (
           <Button key={id} variant="ghost" size="lg" data-icon="inline-start" className={line(false)} onClick={() => void openZaicodeSettings()}>
-            <Settings className="size-4" />
+            <ZaicodeIcon slot="nav.settings" />
             {label("settings", "Settings")}
           </Button>
         );
@@ -152,7 +154,7 @@ export function ZaicodeSidebarNavBlock({
     });
   };
 
-  const visible = items.filter((item) => item.visible);
+  const visible = items.filter((item) => isZaicodeLayoutEntryShown(item, { working, hover }));
   return (
     <ZaicodeRightClickSettings
       title="Menu lines"
@@ -160,8 +162,16 @@ export function ZaicodeSidebarNavBlock({
       panel={<ZaicodeNavItemsEditor />}
       className="flex w-full"
     >
-      <div className={cn("flex w-full flex-col gap-1", className)} data-zaicode-nav-block>
-        {visible.length > 0 ? visible.map((item) => render(item.id)) : (
+      <div
+        className={cn("flex w-full flex-col gap-1", className)}
+        data-zaicode-nav-block
+        onPointerEnter={() => setHover(true)}
+        onPointerLeave={() => setHover(false)}
+      >
+        {visible.length > 0 ? visible.map((item) => render(item.id)) : items.some((item) => item.visible) ? (
+          // T-134: every ticked line waits for a moment (hover / working / idle): keep a strip to point at.
+          <span className="px-2 text-ui-xs text-foreground-subtlest" title="The menu lines show on hover or while agents work / idle (right-click: when)">⋯</span>
+        ) : (
           <span className="px-2 text-ui-xs text-foreground-subtlest">Empty menu — right-click to add lines.</span>
         )}
       </div>

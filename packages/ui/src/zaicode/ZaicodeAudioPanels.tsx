@@ -1,6 +1,6 @@
 /* eslint-disable max-lines -- ZAICODE audio panels (director, problip, ambience) read and write one audio settings store; kept together so that store has one UI surface. */
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Metronome, Play, Square } from "lucide-react";
+import { Play, Square } from "lucide-react";
 import { cn } from "@/components/lib/utils.js";
 import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from "@/components/ui/popover.js";
 import { useZaicodeRunningSessions } from "./zaicodeSidebarPrefs.js";
@@ -32,6 +32,7 @@ import {
 } from "./zaicodeSoundEvents.js";
 import { setPendingSettingsSection } from "@/lib/settingsNavigation.js";
 import { useTabStore } from "@/store/TabStoreProvider.js";
+import { ZaicodeIcon } from "./zaicodeIconSlots.js";
 
 const buttonClass =
   "border border-border bg-card px-2 py-0.5 text-ui-xs text-foreground hover:bg-hover disabled:opacity-40";
@@ -545,7 +546,7 @@ export function ZaicodeProblipButton() {
           )}
           data-zaicode-problip-button
         >
-          <Metronome className="size-4" />
+          <ZaicodeIcon slot="tool.problip" />
           {problip.running && problip.showCounter && today > 0 ? (
             <span className="absolute -bottom-0.5 -right-0.5 bg-background px-0.5 text-[9px] leading-none tabular-nums text-foreground">
               {formatProblipBadge(today)}
