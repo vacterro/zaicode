@@ -225,3 +225,22 @@ Chosen over: keeping `master` as the work branch and cherry-picking verified
 checkpoints onto `saipen-live` (two histories, silent divergence risk), and
 over a submodule (adds a network dependency to every state read for a
 dependency that is already a plain nested clone).
+
+## D-18 ZAICODE is four parts that update one by one, through the installer's own code (T-134, 2026-09-30)
+
+The workspace (`master`: launcher, installer), the app (`zaicode`), SAIPEN and
+SAIMAIL (`main`) stay four clones; `install\Update-ZAICODE.ps1` fast-forwards
+any of them alone and runs that part's follow-up with the installer library
+(app: `pnpm install` when the lockfile moved + `bundle-zaicode.mjs`, staged into
+`dist-next` while the app runs; SAIPEN: launcher; SAIMAIL: `.venv`; workspace:
+root launcher). The app never updates itself in-process: the desktop main
+process (`zaicodeUpdatesHost.ts`) runs that script, keeps a per-part "by
+itself" switch (default on only when `install\install-state.json` exists, i.e.
+an installer-made ZAICODE) and looks 3 min after the start and every 6 h. Local
+work always wins: another branch, local commits or an overlapping dirty file
+leave the clone as it is and say so.
+
+Chosen over: a monolithic release archive (one version for four independent
+repos, a rebuild to change SAIPEN), git submodules (a network dependency on
+every state read, D-17) and Electron's auto-updater (no signed release feed,
+and it would replace the app but never SAIPEN or SAIMAIL).

@@ -6,6 +6,30 @@ All notable ZAICODE releases. Versions follow semantic versioning; the tag
 
 ## Unreleased
 
+### T-134 (SRC-097): one click, free at once, four parts that update on their own
+
+- **ZAICODE-Setup.exe** (`install/`): download, double-click, INSTALL. A window
+  in the ZAICODE look shows every step live; TRY AGAIN / Autotroubleshoot /
+  Open log when something stops, START ZAICODE at the end. Proven on an empty
+  folder: 17/17 steps, then the installed app answered a task on the free pool
+  with no setting touched.
+- Fixed: an install from nothing cloned the vanished `workspace` branch, and
+  the first app build on a fresh Windows died unpacking `.tar.xz` (no `xz` on
+  Windows). Both work now.
+- **Updates, part by part**: the workspace, the app, SAIPEN and SAIMAIL each
+  update alone, by hand or by themselves (Settings -> ZAICODE -> Updates,
+  `install/Update-ZAICODE.ps1`). A new app build is staged while ZAICODE runs;
+  local edits and local commits are never overwritten; files the installer or
+  a build writes (SAIPEN's launcher, line-ending-only differences) never block
+  an update.
+- **More control**: every sidebar button and menu line has its own icon slot
+  and a show condition (always / while working / while idle / on hover); every
+  sound has its own conditions (only in the background / in front, through
+  quiet hours, at most once per N seconds); new sounds for free models ready,
+  a new free model and updates.
+- First start: no "sign-in required" for Claude / Codex logins that were never
+  set up, and no stale "no SAIFREN pool" once the free pool is ready.
+
 ### T-63 (SRC-048)
 
 - Sidebar: a project whose open session works now shows the Working icon (the

@@ -142,3 +142,14 @@ Product layer (`zcode/`) is a SEPARATE repository and a separate gate; see
 `git -C zcode status`. Workspace-layer gate for the launcher is
 `tools\launcher\build.cmd`. The `pnpm` gates in the table above run inside
 `zcode/` only.
+
+ZAICODE install, updates and the free path (added 2026-09-30, T-134):
+
+| Purpose | Command |
+|---------|---------|
+| One-click installer window | `install\setup\build.cmd` -> `install\ZAICODE-Setup.exe` (`/auto`, `/quiet`, `-InstallDir D`) |
+| Update the parts one by one | `install\Update-ZAICODE.ps1 [-Component workspace,app,saipen,saimail] [-Check] [-Json] [-NoBuild]` |
+| Update proof (throw-away repos, no network) | `powershell -File install\tests\Test-ZaicodeUpdate.ps1` |
+| FREE on a fresh profile (packaged app) | `node packages/desktop/scripts/verify-zaicode-free.cjs <ZAICODE.exe> [--router-package DIR] [--out DIR]` from `zcode/` |
+| Updates controller tests | `node --import tsx --test test/zaicodeUpdates.test.ts` from `packages/desktop` |
+| T-134 UI tests | `node --import tsx --test test/zaicodeT134Control.test.ts` from `packages/ui` (in the `zaicode*` glob) |

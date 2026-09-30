@@ -191,9 +191,17 @@
     "SRC-096": {
       "linked_work": "T-133",
       "source_sha256": "a14a8d45cc2427b7c56502507d816788464701113f26272bbba09d75ecdc66ee"
+    },
+    "SRC-097": {
+      "linked_work": "T-134",
+      "source_sha256": "f83082f39eb827f0932787a0b4a2538dffb2b855a831be4f8dffa8934033981c"
+    },
+    "SRC-098": {
+      "linked_work": "T-135",
+      "source_sha256": "bbd2dc34ce1162fab9512f1052ab37171511572f8c487bc4c9f4d530bb3f84ff"
     }
   },
-  "next_id": 97,
+  "next_id": 99,
   "schema_version": 1,
   "tombstones": {
     "SRC-001": {

@@ -461,3 +461,22 @@ renders sees the empty store; overriding `useStore.getInitialState` does nothing
 inner api. The store built its list from localStorage when its module was first imported, so the way to put
 saved items on screen in a node test is to import a localStorage stub FIRST (test/support/presetStorage.ts)
 and keep the empty-state assertions in a separate test file (a store is one instance per process).
+
+## The published workspace branch is `master`; `workspace` is gone (2026-09-30, T-134)
+
+The installer cloned branch `workspace` (and fetched its scripts from
+`raw.githubusercontent.com/.../workspace/install`) after that branch left
+GitHub on 2026-09-27 (T-98, `master` canonical): an install from nothing failed
+at the workspace clone. `RootBranch` and every one-liner now name `master`.
+Check `git ls-remote https://github.com/vacterro/zaicode.git` before trusting a
+branch name in docs.
+
+## A fresh-machine test inherits this machine's agent logins (2026-09-30, T-134)
+
+Overriding HOME / USERPROFILE / APPDATA is not enough: this shell exports
+`CLAUDE_CONFIG_DIR` (and friends), so a "fresh" packaged app still listed the
+operator's second Claude account with live quota. `verify-zaicode-free.cjs`
+drops every `CLAUDE*`, `CODEX*`, `ANTHROPIC*`, `OPENAI*`, `GEMINI*` variable.
+On a fresh profile the default model comes from the bundled release defaults
+(`zaicodeSettingsDefaults.json`: `new-provider / SAIFREN`, which resolves), not
+from localStorage: check what New task shows, not the storage key.
