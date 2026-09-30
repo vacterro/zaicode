@@ -39,6 +39,8 @@ import type {
   SessionUsageState,
 } from "@zcode/shared/zcode-protocol-v4";
 import { ModelConfigSelect, type ModelSelectGroup } from "@/ModelConfigSelect.js";
+import { ZaicodeModelButtons } from "@/zaicode/ZaicodeModelButtons.js";
+import { zaicodeToolbarModelButtons } from "@/zaicode/zaicodeModelButtonsModel.js";
 import { Button } from "@/components/ui/button.js";
 import { cn } from "@/components/lib/utils.js";
 import { ChatContextUsage } from "@/chat-input-toolbar/display.js";
@@ -979,6 +981,11 @@ function V4ComposerModelControlsImpl({
   // 有可选组时正常显示；无组但有「管理模型」入口时也显示，避免用户零模型入口。
   const modelMenuVisible = modelSelectGroups.length > 0 || showManageModelsAction;
   const providerSubmenuClassName = undefined;
+  // T-136: a few models -> one button each; the dropdown shrinks to a menu button (Manage models, Ctrl+M).
+  const zaicodeModelButtons = useMemo(
+    () => zaicodeToolbarModelButtons(modelSelectGroups),
+    [modelSelectGroups],
+  );
   useToolbarShortcutBindings({
     hasAnyOption: Boolean(modelOption) || Boolean(thoughtOption),
     toolbarDisabled: disabled || recoveryPending,
@@ -1049,6 +1056,15 @@ function V4ComposerModelControlsImpl({
           })}
         </span>
       ) : modelMenuVisible ? (
+        <>
+        {zaicodeModelButtons ? (
+          <ZaicodeModelButtons
+            buttons={zaicodeModelButtons}
+            value={normalizedModelValue}
+            disabled={disabled || recoveryPending || modelSelectionState.status !== "ready"}
+            onSelect={handleModelValueChange}
+          />
+        ) : null}
         <ModelConfigSelect
           modelGroups={modelSelectGroups}
           normalizedValue={normalizedModelValue}
@@ -1072,21 +1088,35 @@ function V4ComposerModelControlsImpl({
           open={activeConfigPicker === "model"}
           onOpenChange={handleModelPickerOpenChange}
           openRequestKey={modelMenuOpenRequestKey}
-          labelVisibilityClassName="hidden @sm/composer:inline-flex"
-          indicatorClassName="hidden @sm/composer:block group-data-[composer-model-icon=true]/toolbar:hidden"
+          labelVisibilityClassName={
+            zaicodeModelButtons ? "hidden" : "hidden @sm/composer:inline-flex"
+          }
+          indicatorClassName={
+            zaicodeModelButtons
+              ? "hidden"
+              : "hidden @sm/composer:block group-data-[composer-model-icon=true]/toolbar:hidden"
+          }
           triggerLabelClassName={
-            isZaicodeProductMode()
+            zaicodeModelButtons
+              ? "hidden"
+              : isZaicodeProductMode()
               ? "hidden min-w-0 whitespace-normal break-all text-left leading-tight @sm/composer:block group-data-[composer-model-icon=true]/toolbar:hidden"
               : "hidden min-w-0 text-left @sm/composer:block group-data-[composer-model-icon=true]/toolbar:hidden [&>span]:max-w-full [&>span>span]:block [&>span>span]:truncate"
           }
           triggerClassName={cn(
             "composer-model-trigger max-w-[var(--composer-model-max-width,16rem)] group-data-[composer-model-icon=true]/toolbar:size-7 group-data-[composer-model-icon=true]/toolbar:p-0 group-data-[composer-model-icon=true]/toolbar:gap-0 group-data-[composer-model-icon=true]/toolbar:justify-center @max-sm/composer:size-7 @max-sm/composer:justify-center @max-sm/composer:gap-0 @max-sm/composer:p-0",
             isZaicodeProductMode() && "h-auto min-h-7 whitespace-normal py-1",
+            zaicodeModelButtons && "size-7 min-h-7 justify-center gap-0 p-0",
           )}
-          triggerIconClassName="inline-flex @sm/composer:hidden group-data-[composer-model-icon=true]/toolbar:inline-flex"
+          triggerIconClassName={
+            zaicodeModelButtons
+              ? "inline-flex"
+              : "inline-flex @sm/composer:hidden group-data-[composer-model-icon=true]/toolbar:inline-flex"
+          }
           focusSelectorOnClose={V4_COMPOSER_INPUT_SELECTOR}
           providerSubmenuClassName={providerSubmenuClassName}
         />
+        </>
       ) : null}
       {thoughtOption ? (
         <ThoughtLevelCycleControl

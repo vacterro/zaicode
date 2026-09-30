@@ -47,6 +47,7 @@ import {
 import { RollingToolbarLabel } from "@/chat-input-toolbar/RollingToolbarLabel.js";
 import { ModelInputCapabilityBadge } from "@/components/ModelInputCapabilityBadge.js";
 import { ZaicodeReadinessBar, type ZaicodeReadinessView } from "@/zaicode/ZaicodeReadinessBar.js";
+import { zaicodeGroupAsButtons } from "@/zaicode/zaicodeModelButtonsModel.js";
 
 export interface ModelSelectGroupItem {
   key: string;
@@ -591,6 +592,49 @@ export const ModelConfigSelect = memo(function ModelConfigSelectComponent({
                 ) ? (
                   <DropdownMenuSeparator />
                 ) : null;
+                // T-136: a small ZAICODE provider shows its models as buttons, not a submenu.
+                if (zaicodeGroupAsButtons(group) && !group.items.some((item) => isItemLocked(item.value))) {
+                  return (
+                    <Fragment key={group.key}>
+                      {groupSeparator}
+                      <div data-zaicode-model-group-buttons={group.key}>
+                        <DropdownMenuLabel
+                          className="flex min-h-7 items-center px-2 pt-1 pb-0.5"
+                          data-testid={testId(TID_CHAT_MODEL_SELECT_GROUP, group.key)}
+                          data-model-provider-key={group.key}
+                        >
+                          {renderGroupLabel(group)}
+                        </DropdownMenuLabel>
+                        <div className="flex flex-wrap gap-1 px-2 pb-1.5">
+                          {group.items.map((item) => {
+                            const selected = item.value === normalizedValue;
+                            return (
+                              <DropdownMenuItem
+                                key={item.key}
+                                title={item.name}
+                                data-testid={testId(TID_CHAT_MODEL_SELECT_ITEM, item.value)}
+                                data-model-option-selected={selected ? "true" : undefined}
+                                data-checked={selected ? "true" : undefined}
+                                className={cn(
+                                  "min-h-7 max-w-[14rem] rounded-md border px-2 py-0.5 text-ui-sm",
+                                  selected
+                                    ? "border-foreground-subtle bg-surface font-semibold"
+                                    : "border-border",
+                                )}
+                                onSelect={() => {
+                                  handleModelValueChange(item.value);
+                                  handlePopoverOpenChange(false);
+                                }}
+                              >
+                                <span className="truncate">{item.name}</span>
+                              </DropdownMenuItem>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </Fragment>
+                  );
+                }
                 if (group.directItems) {
                   return (
                     <Fragment key={group.key}>
