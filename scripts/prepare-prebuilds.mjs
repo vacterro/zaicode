@@ -191,9 +191,15 @@ async function downloadWithRetry(url, destinationPath, maxAttempts = 3) {
   }
 }
 
+// ZAICODE (T-134): Windows' own tar (bsdtar) has gzip built in but calls an external `xz` program for .tar.xz,
+// which a fresh Windows does not have ("Can't initialize filter; unable to run program xz -d -qq"): the first
+// build of a one-click install always died here. nodejs.org publishes every archive as .tar.gz as well.
+const nodeArchiveExt = process.platform === "win32" ? "tar.gz" : "tar.xz";
+
 async function extractArchiveMember(url, destinationDir, archiveMember) {
   const tempDir = mkdtempSync(join(tmpdir(), "zcode-node-dist-"));
-  const archivePath = join(tempDir, "node.tar.xz");
+  const archiveFile = `node.${nodeArchiveExt}`;
+  const archivePath = join(tempDir, archiveFile);
 
   try {
     await downloadWithRetry(url, archivePath);
@@ -204,8 +210,8 @@ async function extractArchiveMember(url, destinationDir, archiveMember) {
     runCommand(
       "tar",
       [
-        "-xJf",
-        "node.tar.xz",
+        nodeArchiveExt === "tar.gz" ? "-xzf" : "-xJf",
+        archiveFile,
         "--strip-components=2",
         "-C",
         destinationDir.replaceAll("\\", "/"),
@@ -279,7 +285,7 @@ async function prepareNodeBinaries() {
     }
 
     mkdirSync(nodeDir, { recursive: true });
-    const archiveName = `node-${nodeVersion}-${platformKey}.tar.xz`;
+    const archiveName = `node-${nodeVersion}-${platformKey}.${nodeArchiveExt}`;
     const url = `${nodeDistBase()}/${nodeVersion}/${archiveName}`;
 
     console.log(`  [download] ${url}`);
