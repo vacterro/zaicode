@@ -136,14 +136,17 @@ Checks: `pnpm typecheck`, `pnpm lint`, and the ZAICODE tests, for example
 
 | Branch      | Contents                                                                 |
 | ----------- | ------------------------------------------------------------------------ |
-| `master`    | the root workspace: launcher, installer (`install/`), product docs (`UI.md`, `docs/`), SAIPEN memory, CHANGELOG |
-| `zaicode`   | the app: upstream ZCode history plus the ZAICODE layer (what the installer and the updates follow) |
-| `main`      | the same app history as `zaicode`, kept in step |
+| `master`    | the canonical workspace: launcher, installer (`install/`), product docs (`UI.md`, `docs/`), SAIPEN state and CHANGELOG |
+| `zaicode`   | the canonical app source: upstream ZCode history plus the ZAICODE product layer used for builds and updates |
 
-ZAICODE-owned code lives mostly in `packages/ui/src/zaicode/`,
+Legacy or automation-created refs may still appear temporarily, but they are not
+canonical product branches. New workspace work belongs on `master`; app-source
+work belongs on `zaicode`.
+
+ZAICODE-owned app code lives mostly in `packages/ui/src/zaicode/`,
 `packages/shared/src/zaicode-*.ts`, `packages/services/src/zaicode/` and
-`packages/desktop/src/main/zaicode*.ts`; the list of upstream files it touches is
-kept in `docs/ZAICODE_UPSTREAM_DELTA.md` on the `master` branch.
+`packages/desktop/src/main/zaicode*.ts` on the `zaicode` branch. The workspace
+documentation and launcher/update tooling live on `master`.
 
 ## Upstream and license
 
