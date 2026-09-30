@@ -3,10 +3,10 @@
     "SRC-102:R001": {
       "actionable": true,
       "class": "requirement",
-      "disposition": "UNKNOWN",
-      "evidence": null,
+      "disposition": "VERIFIED",
+      "evidence": "T-136 closed with verification evidence in LOG: verify -> PASS [target: T-136] conf: high -- zcode c71febd (includes SRC-102): verify:pre-push exit 0 on the final tree (lint 0 errors, architecture OK, ui 803, services 86, desktop 200+2 skipped, cli 40); ui zaicodeT136 9/9 incl. toolbar buttons (<=6 models) and in-menu buttons (<=4 per provider); staged bundle boot gate PASS; FREE gate on it PASS and its composer screenshot shows the SAIFREN/SAI",
       "text": "Satisfy the captured request SRC-102 in full; the authoritative text is the receipt body (sha256 f1757a6706f7): \u042f \u0431\u044b \u0442\u0443\u0442 \u0445\u043e\u0442\u0435\u043b \u0438\u043c\u0435\u0442\u044c \u043a\u043d\u043e\u043f\u043a\u0438 \u043c\u0435\u0441\u0442\u043e \u043a\u043e\u043c\u0431\u043e\u0431\u043e\u043a\u0441\u0430. \u041a\u043e\u043c\u0431\u043e\u0431\u043e\u043a\u0441 \u0442\u043e\u043b\u044c\u043a\u043e \u0432 \u0442\u043e\u043c \u0441\u043b\u0443\u0447\u0430\u0435 \u0435\u0441\u043b\u0438 \u043c\u043e\u0434\u0435\u043b\u0435\u0439 \u043c\u043d\u043e\u0433\u043e, \u0430 \u0442\u0430\u043a \u043a\u043d\u043e\u043f\u043e\u043a \u0445\u0432\u0430\u0442\u0430\u0435\u0442 \u0440\u0435\u0430\u043b\u044c\u043d\u043e (screenshot: the composer model menu -- SAIRoute > SAIFREN / SAIOPP, Z.ai Coding Plan >, Manage models; picker show\u2026",
-      "verification": null,
+      "verification": "the Work this request created reached its own verification gate; see the T-136 VERIFY cycle in .saipen/LOG.md",
       "work": "T-136"
     }
   },
