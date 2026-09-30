@@ -971,6 +971,19 @@ export interface IPlatformService {
   onZaicodeCustomizationChanged?(
     callback: (change: import("./zaicode-customization.js").ZaicodeCustomizationChange) => void,
   ): () => void;
+  /** ZAICODE (T-134): the four parts (workspace, app, SAIPEN, SAIMAIL), each updated on its own. */
+  getZaicodeUpdates?(): Promise<import("./zaicode-updates.js").ZaicodeUpdatesState>;
+  checkZaicodeUpdates?(): Promise<import("./zaicode-updates.js").ZaicodeUpdatesState>;
+  applyZaicodeUpdates?(
+    components: import("./zaicode-updates.js").ZaicodeUpdateComponentId[],
+  ): Promise<import("./zaicode-updates.js").ZaicodeUpdatesState>;
+  setZaicodeUpdateAuto?(
+    component: import("./zaicode-updates.js").ZaicodeUpdateComponentId,
+    enabled: boolean,
+  ): Promise<import("./zaicode-updates.js").ZaicodeUpdatesState>;
+  onZaicodeUpdatesChanged?(
+    callback: (state: import("./zaicode-updates.js").ZaicodeUpdatesState) => void,
+  ): () => void;
   /** ZAICODE：相对位移移动窗口 (用于右键拖拽) */
   moveWindowBy?(delta: { dx: number; dy: number }): Promise<{ success: boolean }>;
   /** ZAICODE：停靠窗口至分屏区域 (FancyZones) */

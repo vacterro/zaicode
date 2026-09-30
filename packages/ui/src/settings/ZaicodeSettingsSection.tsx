@@ -11,6 +11,7 @@ import { Switch } from "@/components/ui/switch.js";
 import { ZaicodeTypographySettings } from "./ZaicodeTypographySettings.js";
 import { ZaicodeSaimailSettings } from "./ZaicodeSaimailSettings.js";
 import { ZaicodeSplashSettings } from "./ZaicodeSplashSettings.js";
+import { ZaicodeUpdatesSettings } from "./ZaicodeUpdatesSettings.js";
 import { setZaicodeAutoSessionTitle, useZaicodeAutoSessionTitle } from "@/zaicode/zaicodeAutoTitle.js";
 import { setZaicodeListLabelWidth, useZaicodeAppearance } from "@/zaicode/zaicodeAppearance.js";
 import { captureZaicodeSettingsSnapshot } from "@/zaicode/zaicodeSettingsSnapshot.js";
@@ -85,6 +86,7 @@ export function ZaicodeSettingsSection() {
 
   return (
     <div className="flex flex-col gap-4">
+      <ZaicodeUpdatesSettings />
       <section className="border border-border bg-card p-4" data-zaicode-save-settings>
         <h2 className="text-ui-lg text-foreground">Release defaults</h2>
         <p className="mt-1 text-ui-xs text-foreground-subtle">

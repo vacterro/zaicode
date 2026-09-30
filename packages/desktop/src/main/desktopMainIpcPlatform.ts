@@ -104,6 +104,7 @@ import { saveZaicodeSettingsSnapshot } from "./zaicodeSettingsSnapshot.js";
 import { setZaicodeGlobalHotkeys } from "./zaicodeGlobalHotkeys.js";
 import { registerZaicodeProtrailGlobalIpc } from "./zaicodeProtrailGlobal.js";
 import { registerZaicodeCustomizationIpc } from "./zaicodeCustomizationHost.js";
+import { registerZaicodeUpdatesIpc } from "./zaicodeUpdatesHost.js";
 import { zaicodePixelExactApplied } from "./zaicodeCrispFonts.js";
 
 export function registerPlatformIpcHandlers(options: {
@@ -443,6 +444,12 @@ export function registerPlatformIpcHandlers(options: {
     registerZaicodeCustomizationIpc({ log: (message) => options.logger.info(`[customization] ${message}`) });
   } catch (error) {
     options.logger.info(`[customization] not available: ${error instanceof Error ? error.message : String(error)}`);
+  }
+  // T-134: ZAICODE, SAIPEN and SAIMAIL updated one by one; the same rule: never the reason the app does not start.
+  try {
+    registerZaicodeUpdatesIpc({ log: (message) => options.logger.info(`[updates] ${message}`) });
+  } catch (error) {
+    options.logger.info(`[updates] not available: ${error instanceof Error ? error.message : String(error)}`);
   }
   ipcMain.handle(PlatformChannels.SetZaicodeSplashPrefs, (_event, input: unknown) =>
     setZaicodeSplashPrefs(parseZaicodeSplashPrefsInput(input)),

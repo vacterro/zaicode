@@ -819,6 +819,18 @@ contextBridge.exposeInMainWorld("zcode", {
       ipcRenderer.removeListener(PlatformChannels.ZaicodeCustomizationChanged, listener);
     };
   },
+  getZaicodeUpdates: () => ipcRenderer.invoke(PlatformChannels.GetZaicodeUpdates),
+  checkZaicodeUpdates: () => ipcRenderer.invoke(PlatformChannels.CheckZaicodeUpdates),
+  applyZaicodeUpdates: (components: string[]) => ipcRenderer.invoke(PlatformChannels.ApplyZaicodeUpdates, components),
+  setZaicodeUpdateAuto: (component: string, enabled: boolean) =>
+    ipcRenderer.invoke(PlatformChannels.SetZaicodeUpdateAuto, { component, enabled }),
+  onZaicodeUpdatesChanged: (callback: (state: unknown) => void): (() => void) => {
+    const listener = (_event: unknown, state: unknown) => callback(state);
+    ipcRenderer.on(PlatformChannels.ZaicodeUpdatesChanged, listener);
+    return () => {
+      ipcRenderer.removeListener(PlatformChannels.ZaicodeUpdatesChanged, listener);
+    };
+  },
   moveWindowBy: (delta: { dx: number; dy: number }): Promise<{ success: boolean }> =>
     ipcRenderer.invoke(PlatformChannels.MoveWindowBy, delta),
   snapWindowZone: (zone: { fx: number; fy: number; fw: number; fh: number; state?: "normal" | "maximized" }): Promise<{ success: boolean }> =>

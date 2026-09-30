@@ -460,6 +460,13 @@ export const PlatformChannels = {
   OpenZaicodeCustomization: "zaicode:customization-open",
   /** Main → Renderer (send)：something changed inside the customization folder */
   ZaicodeCustomizationChanged: "zaicode:customization-changed",
+  /** ZAICODE updates (T-134)：the workspace, the app, SAIPEN and SAIMAIL, each on its own (install/Update-ZAICODE.ps1) */
+  GetZaicodeUpdates: "zaicode:updates-get",
+  CheckZaicodeUpdates: "zaicode:updates-check",
+  ApplyZaicodeUpdates: "zaicode:updates-apply",
+  SetZaicodeUpdateAuto: "zaicode:updates-set-auto",
+  /** Main → Renderer (send)：the updates state changed (a check or an update started / finished) */
+  ZaicodeUpdatesChanged: "zaicode:updates-changed",
   /** Renderer → Main：dev 按钮，把当前界面设置快照写成随包默认值（源码树）+ userData 备份 */
   SaveZaicodeSettingsSnapshot: "zaicode:save-settings-snapshot",
   /** Renderer → Main：相对位移移动窗口 (用于右键拖拽) */
@@ -1303,6 +1310,27 @@ export interface PlatformChannelMap {
   };
   [PlatformChannels.ZaicodeCustomizationChanged]: {
     request: ZaicodeCustomizationChange;
+    response: void;
+  };
+  [PlatformChannels.GetZaicodeUpdates]: {
+    request: void;
+    response: import("./zaicode-updates.js").ZaicodeUpdatesState;
+  };
+  [PlatformChannels.CheckZaicodeUpdates]: {
+    request: void;
+    response: import("./zaicode-updates.js").ZaicodeUpdatesState;
+  };
+  [PlatformChannels.ApplyZaicodeUpdates]: {
+    /** Empty = every part with something new. */
+    request: import("./zaicode-updates.js").ZaicodeUpdateComponentId[];
+    response: import("./zaicode-updates.js").ZaicodeUpdatesState;
+  };
+  [PlatformChannels.SetZaicodeUpdateAuto]: {
+    request: { component: import("./zaicode-updates.js").ZaicodeUpdateComponentId; enabled: boolean };
+    response: import("./zaicode-updates.js").ZaicodeUpdatesState;
+  };
+  [PlatformChannels.ZaicodeUpdatesChanged]: {
+    request: import("./zaicode-updates.js").ZaicodeUpdatesState;
     response: void;
   };
   [PlatformChannels.ConsumeZaicodeResetCredit]: {

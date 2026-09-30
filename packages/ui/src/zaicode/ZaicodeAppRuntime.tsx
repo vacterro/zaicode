@@ -2,6 +2,7 @@ import { useEffect, useSyncExternalStore } from "react";
 import { useTabStore } from "@/store/TabStoreProvider.js";
 import { useZaicodeTimerEngine } from "./useZaicodeTimerEngine.js";
 import { useZaicodeRouterAutoSetup } from "./useZaicodeRouterAutoSetup.js";
+import { useZaicodeUpdatesBridge } from "./zaicodeUpdatesStore.js";
 import { ZaicodeToastHost } from "./ZaicodeToastHost.js";
 import { ZaicodeTimersWindow } from "./ZaicodeTimersDialog.js";
 import {
@@ -426,6 +427,8 @@ export function ZaicodeAppRuntime() {
   useZaicodeAuditSmartPoller();
   useZaicodeTimerEngine();
   useZaicodeRouterAutoSetup();
+  // T-134: ZAICODE, SAIPEN and SAIMAIL updates (Settings -> ZAICODE); their sounds play wherever you are.
+  useZaicodeUpdatesBridge();
   useZaicodeHotkeyDispatcher();
   useZaicodeGlobalHotkeys();
   useZaicodeRuntimeHandlers();
