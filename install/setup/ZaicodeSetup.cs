@@ -526,7 +526,7 @@ internal sealed class SetupForm : Form
             g.DrawImage(banner, new Rectangle(left, y, w, h));
             int tx = left + w + S(18);
             Color headColor = page == Page.Finished ? (succeeded ? Good : Bad) : Gold;
-            DrawAt(g, page == Page.Finished ? (succeeded ? "ZAICODE is ready" : "Not finished yet") : phase, title, headColor, tx, y + S(8));
+            DrawClipped(g, page == Page.Finished ? (succeeded ? "ZAICODE is ready" : "Not finished yet") : phase, title, headColor, new Rectangle(tx, y + S(6), right - tx, S(22)));
             DrawAt(g, Elapsed(), font, Dim, tx, y + S(32));
             int done = steps.FindAll(s => s.Status != "PENDING" && s.Status != "CHECKING" && s.Status != "REPAIRING").Count;
             SetupStep current = steps.Find(s => s.Status == "CHECKING" || s.Status == "REPAIRING");
@@ -589,9 +589,12 @@ internal sealed class SetupForm : Form
             DrawAt(g, glyph, symbols, color, area.X, y + (row - S(16)) / 2);
             int titleWidth = S(250);
             DrawClipped(g, step.Title, font, step.Status == "PENDING" ? Dim : Ink, new Rectangle(area.X + S(22), y + (row - S(14)) / 2, titleWidth, S(16)));
-            string detail = step.Status == "OK" ? "" : step.Detail;
-            if (step.Status == "FIXED" && string.IsNullOrEmpty(detail)) detail = "set up";
-            if (step.Status == "FIXED") detail = "set up";
+            // While a step runs its "problem" text (what the check found missing) reads like an error: say what happens.
+            string detail = step.Status == "OK" ? ""
+                : step.Status == "FIXED" ? "set up"
+                : step.Status == "REPAIRING" ? "setting up" + new string('.', 1 + spinner / 3 % 3)
+                : step.Status == "CHECKING" ? "checking"
+                : step.Detail;
             DrawClipped(g, detail, font, step.Status == "FAIL" ? Bad : Dim, new Rectangle(area.X + S(22) + titleWidth + S(8), y + (row - S(14)) / 2, area.Right - area.X - S(22) - titleWidth - S(8), S(16)));
             y += row;
             if (y + row > area.Bottom + 2) break;
@@ -609,8 +612,9 @@ internal sealed class SetupForm : Form
             case "FAIL": color = Bad; return "\u2717";
             case "CHECKING":
             case "REPAIRING":
-                color = Gold;
-                return new[] { "\u25D0", "\u25D3", "\u25D1", "\u25D2" }[spinner % 4];
+                // A pulsing arrow: the quarter-circle glyphs render as odd pictures in some fonts.
+                color = spinner % 4 < 2 ? Gold : GoldDark;
+                return "\u25B6";
             default: color = Line; return "\u00B7";
         }
     }
@@ -633,7 +637,7 @@ internal sealed class SetupForm : Form
     private string Elapsed()
     {
         TimeSpan span = clock.Elapsed;
-        return string.Format("{0}:{1:00} elapsed{2}", (int)span.TotalMinutes, span.Seconds, page == Page.Running ? "  -  you can keep working, this window does it all" : "");
+        return string.Format("{0}:{1:00} {2}", (int)span.TotalMinutes, span.Seconds, page == Page.Running ? "elapsed - nothing to click" : "in all");
     }
 
     private int DrawCheck(Graphics g, int x, int y, string label, bool value, Action toggle)

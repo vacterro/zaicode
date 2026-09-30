@@ -73,7 +73,7 @@ $changed = @{}
 $git = Find-ZaicodeGit $layout
 if ($git -and (Test-ZaicodeRepo $git $layout.Root)) {
   Write-ZaicodeLog 'Updating the existing install from GitHub' 'White'
-  Write-ZaicodeProgress @{ type = 'phase'; id = 'update'; title = 'Updating ZAICODE, SAIPEN and SAIMAIL from GitHub' }
+  Write-ZaicodeProgress @{ type = 'phase'; id = 'update'; title = 'Updating from GitHub' }
   try { $changed = Update-ZaicodeClones $layout $options $git } catch { Write-ZaicodeLog "update skipped: $($_.Exception.Message)" 'Yellow' }
 }
 

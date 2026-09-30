@@ -22,6 +22,7 @@ schemas, environment variables or RPC contracts.
 | `packages/desktop/src/host/remoteWorkspaceServiceCollection.ts` | register both ZAICODE descriptors through a focused-tested resolver; unavailable stubs are explicit when the remote host omits them | remote collection is a closed registration list | low |
 | `packages/desktop/src/main/desktopRuntimeEnv.ts` | ZAICODE runtime application name | runtime identity switch is compile-time flavored | low |
 | `packages/desktop/scripts/desktop-product-identity.mjs` | ZAICODE identity entry + strict switch + AUMID lookup fix | centralized identity module is the sanctioned flavor owner | low |
+| `scripts/prepare-prebuilds.mjs` | on a Windows host the remote Node binaries come as `.tar.gz` (T-134) | Windows' own tar has no built-in xz and a fresh Windows has no `xz.exe`, so the first build of every one-click install failed; the archive choice sits inside the download helper | low (three lines, Linux/macOS unchanged) |
 | `package.json` | `dev:zaicode`, `build:zaicode`, `bundle:zaicode`, `zaicode:env:check` scripts | single canonical entrypoints; no upstream build system forked | trivial |
 | `tools/start-zaicode-dev.ps1` | now consumes `ZCODE_ZAICODE_IDENTITY=1` + delegates to `pnpm dev:zaicode` | isolation+identity travel as one unit | low |
 | `packages/ui/src/SettingsPage.tsx` | ZAICODE settings section render branch | settings render switch is a closed chain | low |
