@@ -27,12 +27,13 @@
      write that field name next to a concrete id anywhere in this file. -->
 
 ## DOING
-- [/] T-113 [P1] Wave 6: SAITRANSLATE locale completion -- resolve the authoritative locale list, count real source keys, expand and validate locale coverage | verify: the requested change is present and demonstrated against the user own description of it | user_explicit: true | source_receipts: SRC-075 | needs: T-115,T-116,T-117,T-120,T-121,T-122,T-123,T-124,T-125,T-126,T-127,T-128,T-130,T-131,T-132 | owner: claude-code-local-verify | claim_time: 2026-09-29T21:55:19Z
+- [/] T-113 [P1] Wave 6: SAITRANSLATE locale completion -- resolve the authoritative locale list, count real source keys, expand and validate locale coverage | verify: the requested change is present and demonstrated against the user own description of it | user_explicit: true | source_receipts: SRC-075 | needs: T-115,T-116,T-117,T-120,T-121,T-122,T-123,T-124,T-125,T-126,T-127,T-128,T-130,T-131,T-132,T-133 | owner: claude-code-local-verify | claim_time: 2026-09-30T02:33:15Z
 
 
 ## TODO
 
 ## DONE
+- [x] T-133 [P1] Хорошо, продолжи пожалуйста ловить и исправлять баги до конца. Пусть оно будет работать достаточно хорошо и допили уже существующие фичи до блеска. | verify: every defect found by the bug hunt is fixed with a regression test or recorded with the exact reason it cannot be, each polished feature is named with its before/after in .saipen/evidence/T-133-bughunt.md, and pnpm run verify:pre-push passes on the final tree | user_explicit: true | source_receipts: SRC-096 | owner: claude-code-local-verify | claim_time: 2026-09-30T02:33:06Z | closure_mode: own_patch
 - [x] T-132 [P2] • Я бы хотел еще убрать этот текст No folder, а количество рядом с кнопкой new folder сделать и New fodler хотел бы просто как инконку кнопку сделать тоже но... | verify: the requested change is present and demonstrated against the user own description of it | user_explicit: true | source_receipts: SRC-095 | owner: claude-code-local-verify | claim_time: 2026-09-29T21:12:08Z | closure_mode: own_patch
 - [x] T-131 [P1] • Я бы хотел чтобы Ctrl + A в чате только содержимое чата выделяло для копирования а не половину программы. | verify: the requested change is present and demonstrated against the user own description of it | user_explicit: true | source_receipts: SRC-094 | owner: claude-code-local-verify | claim_time: 2026-09-29T21:10:23Z | closure_mode: own_patch
 - [x] T-130 [P1] • Есть ресеты на кодекс банковые но нигде не показывается ![](file:///V:/___VAC/_PIC/_Clipboard_stuff/clipboard_20260929_232332_fd6a3049.png) ![](file:///V:/... | verify: the requested change is present and demonstrated against the user own description of it | user_explicit: true | source_receipts: SRC-093 | owner: claude-code-local-verify | claim_time: 2026-09-29T21:02:05Z | closure_mode: own_patch
