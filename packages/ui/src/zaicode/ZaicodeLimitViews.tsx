@@ -165,8 +165,22 @@ export function ZaicodeAccountLimits({
       {snapshot?.error && windows.length > 0 ? (
         <div className="pl-2 text-foreground-subtlest">last read failed: {snapshot.error}</div>
       ) : null}
+      {snapshot?.windowStart ? (
+        <div className="pl-2 text-foreground-subtlest" title={snapshot.windowStart.detail}>
+          {describeZaicodeWindowStart(snapshot.windowStart, now)}
+        </div>
+      ) : null}
     </div>
   );
+}
+
+/** T-136: "window started by ZAICODE 12 min ago" / "window start failed 3 min ago: <why>". */
+export function describeZaicodeWindowStart(
+  record: { at: number; ok: boolean; detail: string },
+  now: number,
+): string {
+  const ago = `${formatZaicodeDuration(Math.max(0, now - record.at))} ago`;
+  return record.ok ? `window started by ZAICODE ${ago}` : `window start failed ${ago}: ${record.detail}`;
 }
 
 /** FastPrompter "AI Usage Limits" panel: every visible account, grouped. */
@@ -227,6 +241,7 @@ export function zaicodeReadingTitle(
     );
   }
   if (snapshot?.error) lines.push(`  last read: ${snapshot.error}`);
+  if (snapshot?.windowStart) lines.push(`  ${describeZaicodeWindowStart(snapshot.windowStart, now)}`);
   if (account.status !== "ready" && account.statusDetail) lines.push(account.statusDetail);
   return lines.join("\n");
 }

@@ -111,6 +111,15 @@ export interface ZaicodeLimitSnapshot {
    * null / absent = the vendor sent none, which is not the same as "0 left".
    */
   resetCredits?: ZaicodeResetCredits | null;
+  /** T-136: the last time ZAICODE started an idle window of this account with a tiny request. */
+  windowStart?: ZaicodeWindowStartRecord | null;
+}
+
+/** One start of an idle window (T-136): when, whether the vendor answered, in a few words. */
+export interface ZaicodeWindowStartRecord {
+  at: number;
+  ok: boolean;
+  detail: string;
 }
 
 export interface ZaicodeEnginesConfig {
@@ -126,6 +135,11 @@ export interface ZaicodeEnginesConfig {
   workerPrompt: string;
   /** Launch workers in YOLO mode (skip per-tool permission prompts), like AUDAPACK consoles. */
   workerYolo: boolean;
+  /**
+   * T-136: when a window "starts at first use" (not running yet), start it at once with the
+   * smallest request the account's CLI can make, so the 5 hours run instead of waiting for you.
+   */
+  keepWindowsRolling: boolean;
 }
 
 export const ZAICODE_ENGINES_DEFAULT_CONFIG: ZaicodeEnginesConfig = {
@@ -135,6 +149,7 @@ export const ZAICODE_ENGINES_DEFAULT_CONFIG: ZaicodeEnginesConfig = {
   hiddenAccounts: [],
   workerPrompt: "saipen continue",
   workerYolo: true,
+  keepWindowsRolling: true,
 };
 
 export const ZAICODE_ENGINE_INTERVAL_CHOICES = [0, 2, 5, 10, 15, 30, 60] as const;
@@ -171,7 +186,52 @@ export function normalizeZaicodeEnginesConfig(raw: unknown): ZaicodeEnginesConfi
       typeof record.workerYolo === "boolean" ? record.workerYolo : ZAICODE_ENGINES_DEFAULT_CONFIG.workerYolo,
     readFreebuff:
       typeof record.readFreebuff === "boolean" ? record.readFreebuff : ZAICODE_ENGINES_DEFAULT_CONFIG.readFreebuff,
+    keepWindowsRolling:
+      typeof record.keepWindowsRolling === "boolean"
+        ? record.keepWindowsRolling
+        : ZAICODE_ENGINES_DEFAULT_CONFIG.keepWindowsRolling,
   };
+}
+
+// ---------------------------------------------------------------------------
+// Rolling windows (T-136)
+// ---------------------------------------------------------------------------
+
+/**
+ * Vendors whose idle window ZAICODE can start with one tiny request through their own CLI.
+ * Antigravity and ZCode's plan are not started: no minimal request path is known for them.
+ */
+export const ZAICODE_WINDOW_STARTER_VENDORS: readonly ZaicodeEngineVendor[] = ["claude", "codex"];
+/** A started window is not started again for this long (the next reads show it running). */
+export const ZAICODE_WINDOW_START_COOLDOWN_MS = 15 * 60_000;
+/** A start the vendor refused waits this long before the next try. */
+export const ZAICODE_WINDOW_START_RETRY_MS = 60 * 60_000;
+
+/**
+ * True when this account has a window that waits for its first request and ZAICODE should
+ * start it now: the setting is on, the account is visible, ready and read without error, the
+ * window is not held shut by a longer one and not spent, and no start ran recently.
+ */
+export function zaicodeShouldStartIdleWindow(params: {
+  account: Pick<ZaicodeEngineAccount, "id" | "vendor" | "status">;
+  snapshot: ZaicodeLimitSnapshot | undefined;
+  config: Pick<ZaicodeEnginesConfig, "keepWindowsRolling" | "hiddenAccounts">;
+  now: number;
+}): boolean {
+  const { account, snapshot, config, now } = params;
+  if (!config.keepWindowsRolling) return false;
+  if (!ZAICODE_WINDOW_STARTER_VENDORS.includes(account.vendor)) return false;
+  if (account.status !== "ready" || config.hiddenAccounts.includes(account.id)) return false;
+  if (!snapshot || snapshot.error !== null) return false;
+  const idle = snapshot.windows.some(
+    (window) =>
+      window.startsOnUse === true && window.gatedBy === null && window.remainingPercent !== 0,
+  );
+  if (!idle) return false;
+  const last = snapshot.windowStart;
+  if (!last) return true;
+  const wait = last.ok ? ZAICODE_WINDOW_START_COOLDOWN_MS : ZAICODE_WINDOW_START_RETRY_MS;
+  return now - last.at >= wait;
 }
 
 // ---------------------------------------------------------------------------

@@ -16,6 +16,7 @@ import {
   parseFreebuffSession,
   parseZcodeQuota,
   zaicodeBottleneck,
+  zaicodeShouldStartIdleWindow,
   type ZaicodeEngineAccount,
   type ZaicodeEnginesConfig,
   type ZaicodeEnginesState,
@@ -27,6 +28,13 @@ import {
 } from "@zcode/shared";
 import { codexRpcCall, consumeCodexResetCredit, type CodexRpcOptions } from "./zaicodeCodexRpc.js";
 import { setWindowsDesktopTrayLimits } from "./desktopTray.js";
+import {
+  claudeWindowStartArgs,
+  codexWindowStartArgs,
+  readClaudeWindowStart,
+  readCodexWindowStart,
+  type ZaicodeWindowStartOutcome,
+} from "./zaicodeWindowStarter.js";
 
 /**
  * ZAICODE engines, main-process half: discovers every subscription the
@@ -48,6 +56,7 @@ const CACHE_FILE = "zaicode-engines-cache.json";
 const PROBE_CONCURRENCY = 2;
 const CLAUDE_TIMEOUT_MS = 60_000;
 const CODEX_TIMEOUT_MS = 30_000;
+const CODEX_WINDOW_START_TIMEOUT_MS = 120_000;
 const AGY_TIMEOUT_MS = 45_000;
 const ZCODE_TIMEOUT_MS = 15_000;
 const MAX_OUTPUT_BYTES = 1024 * 1024;
@@ -983,6 +992,7 @@ async function probeAccount(account: ZaicodeEngineAccount): Promise<void> {
           error: null,
           source: outcome.source,
           ...(outcome.resetCredits !== undefined ? { resetCredits: outcome.resetCredits } : {}),
+          ...(previous?.windowStart ? { windowStart: previous.windowStart } : {}),
         }
       : {
           accountId: account.id,
@@ -995,8 +1005,59 @@ async function probeAccount(account: ZaicodeEngineAccount): Promise<void> {
           source: outcome.source,
           // A read that failed does not forget the credits the last good read found.
           ...(previous?.resetCredits !== undefined ? { resetCredits: previous.resetCredits } : {}),
+          ...(previous?.windowStart ? { windowStart: previous.windowStart } : {}),
         },
   };
+  if (zaicodeShouldStartIdleWindow({ account, snapshot: limits[account.id], config, now })) {
+    void startIdleWindow(account);
+  }
+}
+
+const startingWindows = new Set<string>();
+/** Re-read an account this long after starting its window, so the meter shows it running. */
+const WINDOW_START_REREAD_MS = 20_000;
+
+/**
+ * T-136: starts an account's idle window with the smallest request its CLI can make (see
+ * zaicodeWindowStarter.ts), records the attempt on the account's snapshot, then reads the
+ * account again. One start per account at a time; the cooldown lives in the snapshot record.
+ */
+async function startIdleWindow(account: ZaicodeEngineAccount): Promise<void> {
+  if (!account.cli || startingWindows.has(account.id)) return;
+  startingWindows.add(account.id);
+  let outcome: ZaicodeWindowStartOutcome;
+  try {
+    if (account.vendor === "claude") {
+      const result = await runCli(account.cli, claudeWindowStartArgs(), {
+        cwd: probeDir(),
+        timeoutMs: CLAUDE_TIMEOUT_MS,
+        env: probeEnv({ CLAUDE_CONFIG_DIR: account.isDefaultHome ? null : account.home }),
+      });
+      outcome = readClaudeWindowStart(result.ok, result.stdout, result.error);
+    } else if (account.vendor === "codex" && account.home) {
+      const result = await runCli(account.cli, codexWindowStartArgs(), {
+        cwd: probeDir(),
+        timeoutMs: CODEX_WINDOW_START_TIMEOUT_MS,
+        env: probeEnv({ CODEX_HOME: account.home, OPENAI_API_KEY: null, CODEX_API_KEY: null, CODEX_ACCESS_TOKEN: null }),
+      });
+      outcome = readCodexWindowStart(result.ok, result.stdout, result.error);
+    } else {
+      return;
+    }
+  } catch (error) {
+    outcome = { ok: false, detail: error instanceof Error ? error.message : String(error) };
+  } finally {
+    startingWindows.delete(account.id);
+  }
+  const current = limits[account.id];
+  if (current) {
+    limits = { ...limits, [account.id]: { ...current, windowStart: { at: Date.now(), ...outcome } } };
+    persistCache();
+    broadcast();
+  }
+  console.info(`[ZAICODE] window start ${account.label}: ${outcome.ok ? "ok" : "failed"} -- ${outcome.detail}`);
+  const timer = setTimeout(() => void refreshZaicodeEngines(account.id), WINDOW_START_REREAD_MS);
+  timer.unref?.();
 }
 
 async function runPool(targets: ZaicodeEngineAccount[]): Promise<void> {

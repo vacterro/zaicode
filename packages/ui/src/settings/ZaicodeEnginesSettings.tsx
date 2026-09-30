@@ -392,6 +392,17 @@ export function ZaicodeEnginesSettings() {
           </label>
           <label className="flex items-center justify-between gap-3">
             <span className="text-foreground-subtle">
+              Keep 5h windows rolling: when a Claude or Codex window &quot;starts at first use&quot;, start it at once
+              with one tiny request (no tools, one-word answer, cheapest model), so the hours run without waiting for
+              you
+            </span>
+            <Switch
+              checked={engines.config.keepWindowsRolling}
+              onCheckedChange={(keepWindowsRolling) => void updateZaicodeEnginesConfig({ keepWindowsRolling })}
+            />
+          </label>
+          <label className="flex items-center justify-between gap-3">
+            <span className="text-foreground-subtle">
               Read ZCode&apos;s Coding Plan key (only that entry, only sent to api.z.ai / bigmodel.cn)
             </span>
             <Switch
