@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button.js";
 import { ZaicodeIcon } from "./zaicodeIconSlots.js";
 import { ZaicodeNavItemsEditor } from "./ZaicodeLayoutListEditor.js";
 import { ZaicodeRightClickSettings } from "./ZaicodePrefControls.js";
+import { useZaicodeUiPrefs } from "./zaicodeUiPrefs.js";
 import { isZaicodeLayoutEntryShown, useZaicodeLayout, type ZaicodeNavItemId } from "./zaicodeLayoutPrefs.js";
 import { useZaicodeRunningSessions } from "./zaicodeSidebarPrefs.js";
 import { ZAICODE_HELP_ATTRIBUTE, isZaicodeHelpTopicId, ZAICODE_NAV_HELP_TOPICS } from "./zaicodeHelpTopics.js";
@@ -51,6 +52,8 @@ export function ZaicodeSidebarNavBlock({
 }) {
   const items = useZaicodeLayout((state) => state.navItems);
   const working = useZaicodeRunningSessions((state) => state.sessions.length);
+  // SRC-113: Full view shows every ticked menu line, ignoring the moment-based conditions.
+  const actionView = useZaicodeUiPrefs((state) => state.actionView);
   const [hover, setHover] = useState(false);
   const openTimers = useZaicodeTimers((state) => state.openDialog);
   // Only the dock flag: the menu must not re-render when a worker window moves (SRC-043).
@@ -154,7 +157,7 @@ export function ZaicodeSidebarNavBlock({
     });
   };
 
-  const visible = items.filter((item) => isZaicodeLayoutEntryShown(item, { working, hover }));
+  const visible = items.filter((item) => isZaicodeLayoutEntryShown(item, { working, hover, view: actionView }));
   return (
     <ZaicodeRightClickSettings
       title="Menu lines"

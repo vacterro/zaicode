@@ -2,6 +2,7 @@ import { useState, type ReactNode } from "react";
 import { cn } from "@/components/lib/utils.js";
 import { ControlHintTooltip } from "@/ControlHintTooltip.js";
 import { ZaicodeProblipButton } from "./ZaicodeAudioPanels.js";
+import { useZaicodeUiPrefs } from "./zaicodeUiPrefs.js";
 import { isZaicodeCommonTool, useZaicodeCommonTools } from "./ZaicodeCommonTools.js";
 import { ZAICODE_FOOTER_ICON_SLOTS, ZaicodeLayoutListEditor } from "./ZaicodeLayoutListEditor.js";
 import { ZaicodeOverflowRow } from "./ZaicodeOverflowRow.js";
@@ -83,6 +84,7 @@ export function ZaicodeFooterTools({ settingsButton }: { settingsButton: ReactNo
   const common = useZaicodeCommonTools("top");
   const working = useZaicodeRunningSessions((state) => state.sessions.length);
   const [hover, setHover] = useState(false);
+  const actionView = useZaicodeUiPrefs((state) => state.actionView);
   const render = (id: ZaicodeFooterToolId): ReactNode => {
     if (isZaicodeCommonTool(id)) return common(id);
     if (id === "problip") return <ZaicodeProblipButton key={id} />;
@@ -91,7 +93,7 @@ export function ZaicodeFooterTools({ settingsButton }: { settingsButton: ReactNo
     return null;
   };
   const items = tools
-    .filter((tool) => isZaicodeLayoutEntryShown(tool, { working, hover }))
+    .filter((tool) => isZaicodeLayoutEntryShown(tool, { working, hover, view: actionView }))
     .map((tool) => ({ key: tool.id, node: render(tool.id) }))
     .filter((item) => item.node !== null);
   return (

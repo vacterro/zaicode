@@ -104,7 +104,8 @@ test("B4 in a narrow session header the clock gives up the date and the part of 
 
 test("B5 a draft with no project picked has no SAIPEN strip (INIT SAIPEN 'in this project' had no project)", () => {
   const text = source("prompt-editor/ChatPromptEditor.tsx");
-  assert.match(text, /\{showSaipenControls && workspacePath\.trim\(\) \? \(\s*<ZaicodeSaipenControls/);
+  // SRC-112 wrapped the strip and the OUTBOX chip in one fragment; the guard itself is unchanged.
+  assert.match(text, /\{showSaipenControls && workspacePath\.trim\(\) \? \(\s*<>\s*\{?[\s\S]{0,600}?<ZaicodeSaipenControls/);
 });
 
 test("B7 the sounds folder path breaks after a separator, never inside a name ('customization\\sound' / 's')", () => {

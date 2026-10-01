@@ -2,6 +2,7 @@ import { cn } from "@/components/lib/utils.js";
 import { ZaicodeIcon } from "./zaicodeIconSlots.js";
 import { readinessBarColor } from "./zaicodeTodoProgress.js";
 import { useZaicodeRunningSessions, useZaicodeSidebarPrefs } from "./zaicodeSidebarPrefs.js";
+import { useZaicodeUiPrefs } from "./zaicodeUiPrefs.js";
 import { isZaicodeLayoutEntryShown, useZaicodeLayout } from "./zaicodeLayoutPrefs.js";
 import { cycleZaicodeSession, openZaicodeSession, useZaicodeSessionNav } from "./zaicodeSessionNav.js";
 
@@ -36,9 +37,10 @@ export function ZaicodeSidebarNavToggle() {
 export function ZaicodeRunningMeter() {
   const sessions = useZaicodeRunningSessions((state) => state.sessions);
   const entry = useZaicodeLayout((state) => state.headerTools.find((tool) => tool.id === "meter"));
+  const actionView = useZaicodeUiPrefs((state) => state.actionView);
   const activeTaskId = useZaicodeSessionNav((state) => state.activeTaskId);
   // T-134: "while working" / "while idle" apply; the meter sits outside the button row, so "hover" keeps it shown.
-  if (entry && !isZaicodeLayoutEntryShown(entry, { working: sessions.length, hover: true })) return null;
+  if (entry && !isZaicodeLayoutEntryShown(entry, { working: sessions.length, hover: true, view: actionView })) return null;
   const count = sessions.length;
   const ordered = [...sessions].sort((left, right) => right.ratio - left.ratio);
   const title =

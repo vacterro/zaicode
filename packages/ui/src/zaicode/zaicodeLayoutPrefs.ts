@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { readZaicodeSetting } from "./zaicodeSettingsSnapshot.js";
+import type { ZaicodeActionView } from "./zaicodeUiPrefs.js";
 
 /**
  * Which buttons sit in the sidebar header and footer and which lines the
@@ -79,12 +80,20 @@ export function normalizeZaicodeLayoutWhen(value: unknown): ZaicodeLayoutWhen {
   return ZAICODE_LAYOUT_WHENS.includes(value as ZaicodeLayoutWhen) ? (value as ZaicodeLayoutWhen) : "always";
 }
 
-/** Whether a stored entry is on screen right now (`working` = sessions working, `hover` = pointer over its row). */
+/**
+ * Whether a stored entry is on screen right now (`working` = sessions working,
+ * `hover` = pointer over its row).
+ *
+ * SRC-113: `view: "full"` drops the conditional half of the rule, so a button
+ * the operator ticked with `when: hover` is simply there. Only an unticked
+ * entry stays hidden -- Full reveals what is configured, it does not add.
+ */
 export function isZaicodeLayoutEntryShown(
   entry: Pick<ZaicodeLayoutEntry<string>, "visible" | "when">,
-  context: { working: number; hover: boolean },
+  context: { working: number; hover: boolean; view?: ZaicodeActionView },
 ): boolean {
   if (!entry.visible) return false;
+  if (context.view === "full") return true;
   switch (normalizeZaicodeLayoutWhen(entry.when)) {
     case "working":
       return context.working > 0;

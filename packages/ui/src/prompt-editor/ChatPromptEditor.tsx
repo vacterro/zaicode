@@ -30,6 +30,7 @@ import { usePromptEditorDragState } from "@/prompt-editor/usePromptEditorDragSta
 import { ChatPromptActionMenu } from "@/prompt-editor/ChatPromptActionMenu.js";
 import { useComposerToolbarFit } from "@/prompt-editor/useComposerToolbarFit.js";
 import { ZaicodeSaipenControls } from "@/prompt-editor/ZaicodeSaipenControls.js";
+import { ZaicodeSubOutboxChip } from "@/zaicode/ZaicodeSubOutboxChip.js";
 import { readZaicodeActiveEngine, readZaicodeEnginesState } from "@/zaicode/zaicodeEngines.js";
 import { routeZaicodeSubscriptionPrompt } from "@/zaicode/zaicodeSubscriptionRoute.js";
 import { useZaicodeComposerPrefs } from "@/zaicode/zaicodeComposerPrefs.js";
@@ -249,6 +250,18 @@ export function ChatPromptEditor({
     [onSubmit, resolvedInputApiRef, routeToSubscriptionEngine],
   );
 
+  // SRC-112: the one way the SAIPEN strip and the SubSaipen OUTBOX send a
+  // command into this composer. A draft the person is already typing into is
+  // never overwritten.
+  const sendProjectCommand = useCallback(
+    (command: string) => {
+      if (resolvedInputApiRef.current?.getMarkdown().trim()) return;
+      resolvedInputApiRef.current?.setText(command);
+      runAfterFrame(() => onSubmit(command));
+    },
+    [onSubmit, resolvedInputApiRef],
+  );
+
   const handleKeyDown: KeyboardEventHandler<HTMLFormElement> = useCallback(
     (event) => {
       if (event.key !== "Escape" || !onCancel || submitting) {
@@ -422,17 +435,22 @@ export function ChatPromptEditor({
         />
         {/* T-133: the strip speaks about "this project"; a draft with no project picked has none to init or start. */}
         {showSaipenControls && workspacePath.trim() ? (
-          <ZaicodeSaipenControls
-            workspacePath={workspacePath}
-            workspaceIdentity={workspaceIdentity}
-            sessionId={taskId}
-            disabled={disabled || submitDisabled || submitting || hasEditorText}
-            onCommand={(command) => {
-              if (resolvedInputApiRef.current?.getMarkdown().trim()) return;
-              resolvedInputApiRef.current?.setText(command);
-              runAfterFrame(() => onSubmit(command));
-            }}
-          />
+          <>
+            {/* SRC-112: the SubSaipen OUTBOX, above the strip: it renders nothing on a project with no subSaipens. */}
+            <ZaicodeSubOutboxChip
+              workspacePath={workspacePath}
+              workspaceIdentity={workspaceIdentity}
+              disabled={disabled || submitDisabled || submitting || hasEditorText}
+              onCommand={sendProjectCommand}
+            />
+            <ZaicodeSaipenControls
+              workspacePath={workspacePath}
+              workspaceIdentity={workspaceIdentity}
+              sessionId={taskId}
+              disabled={disabled || submitDisabled || submitting || hasEditorText}
+              onCommand={sendProjectCommand}
+            />
+          </>
         ) : null}
         <div ref={toolbarRef} className={cn("group/toolbar flex items-end gap-3", zaicodeTightShell && "gap-2")}>
           <div className="flex min-w-0 flex-1 items-center" data-composer-leading-actions>

@@ -16,6 +16,13 @@ export type ZaicodeGreetingMode = "time" | "custom";
 export type ZaicodeSaimailClick = "brief" | "settings" | "reader";
 /** CLEAR: empty this session in place (default) or open a new empty one. */
 export type ZaicodeClearMode = "session" | "new";
+/**
+ * SRC-113: how much of the interface is on screen at once. `compact` honours
+ * each entry's own `when` (only while working, only while idle, only on
+ * hover); `full` draws every ticked button and line, so nothing the operator
+ * configured stays hidden behind a condition they have to rediscover.
+ */
+export type ZaicodeActionView = "compact" | "full";
 
 export interface ZaicodeUiPrefs {
   // Home (empty draft) screen
@@ -51,6 +58,11 @@ export interface ZaicodeUiPrefs {
   /** Workers (subscription CLIs) that ran when ZAICODE died start again in the same project. */
   relaunchWorkersAfterCrash: boolean;
   clearMode: ZaicodeClearMode;
+  /**
+   * SRC-113: Compact keeps the conditional buttons and lines conditional; Full
+   * shows all of them at once.
+   */
+  actionView: ZaicodeActionView;
   // Calm interface: less visual noise, nothing moves
   /** No animations or transitions anywhere (fades, slides, spinners). */
   noMotion: boolean;
@@ -97,6 +109,7 @@ export const ZAICODE_UI_DEFAULT_PREFS: ZaicodeUiPrefs = {
   resumeAfterCrashHours: 12,
   relaunchWorkersAfterCrash: true,
   clearMode: "session",
+  actionView: "compact",
   noMotion: false,
   noDim: false,
   noHoverPopups: false,
@@ -145,6 +158,7 @@ export function normalizeZaicodeUiPrefs(raw: unknown): ZaicodeUiPrefs {
     resumeAfterCrashHours: int(r.resumeAfterCrashHours, 1, 168, d.resumeAfterCrashHours),
     relaunchWorkersAfterCrash: flag(r.relaunchWorkersAfterCrash, d.relaunchWorkersAfterCrash),
     clearMode: r.clearMode === "new" ? "new" : "session",
+    actionView: r.actionView === "full" ? "full" : "compact",
     noMotion: flag(r.noMotion, d.noMotion),
     noDim: flag(r.noDim, d.noDim),
     noHoverPopups: flag(r.noHoverPopups, d.noHoverPopups),

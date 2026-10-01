@@ -128,10 +128,11 @@ test("L1 a layout entry can wait for a moment: while working, while idle, on hov
 });
 
 test("L2 the header, the footer, the menu and the meter all apply the condition", () => {
-  assert.match(source("zaicode/ZaicodeHeaderToolbar.tsx"), /isZaicodeLayoutEntryShown\(tool, \{ working, hover \}\)/);
-  assert.match(source("zaicode/ZaicodeFooterTools.tsx"), /isZaicodeLayoutEntryShown\(tool, \{ working, hover \}\)/);
-  assert.match(source("zaicode/ZaicodeSidebarNavBlock.tsx"), /isZaicodeLayoutEntryShown\(item, \{ working, hover \}\)/);
-  assert.match(source("zaicode/ZaicodeSidebarHeaderTools.tsx"), /isZaicodeLayoutEntryShown\(entry, \{ working: sessions\.length, hover: true \}\)/);
+  // SRC-113 added `view: actionView`: Compact is the unchanged behaviour, Full drops the condition.
+  assert.match(source("zaicode/ZaicodeHeaderToolbar.tsx"), /isZaicodeLayoutEntryShown\(tool, \{ working, hover, view: actionView \}\)/);
+  assert.match(source("zaicode/ZaicodeFooterTools.tsx"), /isZaicodeLayoutEntryShown\(tool, \{ working, hover, view: actionView \}\)/);
+  assert.match(source("zaicode/ZaicodeSidebarNavBlock.tsx"), /isZaicodeLayoutEntryShown\(item, \{ working, hover, view: actionView \}\)/);
+  assert.match(source("zaicode/ZaicodeSidebarHeaderTools.tsx"), /isZaicodeLayoutEntryShown\(entry, \{ working: sessions\.length, hover: true, view: actionView \}\)/);
 });
 
 test("I1 every sidebar header / footer button and every menu line draws a swappable icon slot", () => {

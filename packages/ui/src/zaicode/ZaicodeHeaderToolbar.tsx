@@ -2,6 +2,8 @@ import { useState, type ReactNode } from "react";
 import { ZaicodeSidebarNavToggle } from "./ZaicodeSidebarHeaderTools.js";
 import { ZaicodeHeaderToolsEditor } from "./ZaicodeLayoutListEditor.js";
 import { ZaicodeRightClickSettings } from "./ZaicodePrefControls.js";
+import { useZaicodeUiPrefs } from "./zaicodeUiPrefs.js";
+import { ZaicodeActionViewToggle } from "./ZaicodeActionViewToggle.js";
 import { isZaicodeLayoutEntryShown, useZaicodeLayout, type ZaicodeHeaderToolId } from "./zaicodeLayoutPrefs.js";
 import { useZaicodeRunningSessions } from "./zaicodeSidebarPrefs.js";
 import { openZaicodeSettings } from "./zaicodeActions.js";
@@ -38,6 +40,8 @@ export function ZaicodeHeaderToolbar(props: ZaicodeHeaderToolbarProps) {
   // T-134: a button can show only while sessions work, only while idle, or only on hover.
   const working = useZaicodeRunningSessions((state) => state.sessions.length);
   const [hover, setHover] = useState(false);
+  // SRC-113: Full view draws every ticked header button, not only the ones this moment calls for.
+  const actionView = useZaicodeUiPrefs((state) => state.actionView);
 
   const render = (id: ZaicodeHeaderToolId): ReactNode => {
     if (isZaicodeCommonTool(id)) return common(id);
@@ -80,22 +84,26 @@ export function ZaicodeHeaderToolbar(props: ZaicodeHeaderToolbarProps) {
   };
 
   return (
-    <ZaicodeRightClickSettings
-      title="Header buttons"
-      hint="Pick the buttons for this row and their order. The working meter sits on the right. Buttons that do not fit move into ⋯."
-      panel={<ZaicodeHeaderToolsEditor />}
-      className="flex min-w-0 flex-1"
-    >
-      {/* SRC-035: a narrow sidebar used to cut the last icons off; they now move into ⋯ instead. */}
-      <div className="flex min-w-0 flex-1" onPointerEnter={() => setHover(true)} onPointerLeave={() => setHover(false)}>
-        <ZaicodeOverflowRow
-          className="flex-1"
-          items={tools
-            .filter((tool) => tool.id !== "meter" && isZaicodeLayoutEntryShown(tool, { working, hover }))
-            .map((tool) => ({ key: tool.id, node: render(tool.id) }))
-            .filter((item) => item.node !== null)}
-        />
-      </div>
-    </ZaicodeRightClickSettings>
+    <>
+      <ZaicodeRightClickSettings
+        title="Header buttons"
+        hint="Pick the buttons for this row and their order. The working meter sits on the right. Buttons that do not fit move into ⋯."
+        panel={<ZaicodeHeaderToolsEditor />}
+        className="flex min-w-0 flex-1"
+      >
+        {/* SRC-035: a narrow sidebar used to cut the last icons off; they now move into ⋯ instead. */}
+        <div className="flex min-w-0 flex-1" onPointerEnter={() => setHover(true)} onPointerLeave={() => setHover(false)}>
+          <ZaicodeOverflowRow
+            className="flex-1"
+            items={tools
+              .filter((tool) => tool.id !== "meter" && isZaicodeLayoutEntryShown(tool, { working, hover, view: actionView }))
+              .map((tool) => ({ key: tool.id, node: render(tool.id) }))
+              .filter((item) => item.node !== null)}
+          />
+        </div>
+      </ZaicodeRightClickSettings>
+      {/* SRC-113: the switch that turns every conditional button and line on at once. */}
+      <ZaicodeActionViewToggle className="ml-1" />
+    </>
   );
 }
