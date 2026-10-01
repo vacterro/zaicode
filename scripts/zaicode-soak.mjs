@@ -181,7 +181,7 @@ let cdp = null;
  * about, so every evaluate goes through here and reconnects a bounded number of times.
  */
 async function attachPage() {
-  const target = await findPageTarget(PORT, 120_000);
+  const target = await findMainPageTarget(PORT, 120_000);
   cdp = await Cdp.connect(target.webSocketDebuggerUrl);
   await cdp.send("Runtime.enable");
   return cdp;
@@ -205,23 +205,51 @@ async function evaluateWithReattach(expression) {
   throw lastError;
 }
 
-async function findPageTarget(port, timeoutMs) {
+async function findPageTargets(port) {
+  const response = await fetch(`http://127.0.0.1:${port}/json/list`);
+  const targets = await response.json();
+  return targets.filter(
+    (target) => target.type === "page" && target.webSocketDebuggerUrl && !target.url.startsWith("devtools://"),
+  );
+}
+
+/**
+ * The main window, not one of the aux pages the app also opens.
+ *
+ * The packaged app publishes several `type: "page"` targets over one debug port: the main
+ * window plus a ProTrail display page per extra screen. The ProTrail pages are deliberate
+ * overlays with a handful of nodes, and taking the newest target id among them picks one --
+ * which is how this harness spent its first runs reporting an 11-node shell as the product
+ * surface. Size is the honest discriminator here rather than a title, because a title is a
+ * string the app can change and a rendered tree is not.
+ */
+async function findMainPageTarget(port, timeoutMs) {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
     try {
-      const response = await fetch(`http://127.0.0.1:${port}/json/list`);
-      const targets = await response.json();
-      const pages = targets.filter(
-        (target) => target.type === "page" && target.webSocketDebuggerUrl && !target.url.startsWith("devtools://"),
-      );
-      // A fresh profile opens a splash/boot shell before the real window; the newest
-      // target is the one the operator is looking at, so prefer it over list order.
-      const page = pages.sort((left, right) => (right.id ?? "").localeCompare(left.id ?? ""))[0];
-      if (page) return page;
+      const pages = await findPageTargets(port);
+      if (pages.length > 0) {
+        let best = null;
+        for (const page of pages) {
+          let nodes = 0;
+          let probe = null;
+          try {
+            probe = await Cdp.connect(page.webSocketDebuggerUrl);
+            await probe.send("Runtime.enable");
+            nodes = (await probe.evaluate("document.getElementsByTagName('*').length")) ?? 0;
+          } catch {
+            // A target that will not answer is simply not the one we want.
+          } finally {
+            probe?.close();
+          }
+          if (!best || nodes > best.nodes) best = { page, nodes };
+        }
+        if (best) return best.page;
+      }
     } catch {
       // 还没起来，继续等。
     }
-    await sleep(1000);
+    await sleep(1_000);
   }
   throw new Error(`no debuggable page on port ${port} after ${timeoutMs}ms`);
 }
