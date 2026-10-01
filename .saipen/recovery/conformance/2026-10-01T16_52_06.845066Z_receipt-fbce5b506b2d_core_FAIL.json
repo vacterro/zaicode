@@ -1,0 +1,94 @@
+{
+  "blocking_findings": {
+    "problem_count": 5,
+    "problems": [
+      {
+        "category": null,
+        "credential": false,
+        "detail": "core sweep [sweep-ticket-link] -- .saipen\\improve\\imp-vacterro-zaicode-20261001-1\\SWEEP.md:2 PROTOCOL_VIOLATION RUN-1/IMP-001 produced ticket T-149 without recurrence: and weak_model: (META-IMPROVEMEN",
+        "detail_hash": "127ae32efe4dd128",
+        "finding_key": "76b48f23558dce11",
+        "rule_id": "unclassified",
+        "severity": "problem",
+        "subject_id": null,
+        "subject_kind": "global",
+        "subject_ref": ".saipen\\improve\\imp-vacterro-zaicode-20261001-1\\SWEEP.md:2"
+      },
+      {
+        "category": null,
+        "credential": false,
+        "detail": ".saipen/LOG.md:1311 timestamp for E-2467 is 10m ahead of real UTC (slack is 5m) -- LOG timestamps MUST be real UTC time, and an event stamped at a minute that has not happened yet reorders everything ",
+        "detail_hash": "4293e944508b5399",
+        "finding_key": "76b48f23558dce11",
+        "rule_id": "unclassified",
+        "severity": "problem",
+        "subject_id": null,
+        "subject_kind": "global",
+        "subject_ref": ".saipen/LOG.md:1311"
+      },
+      {
+        "category": null,
+        "credential": false,
+        "detail": ".saipen/LOG.md:1312 timestamp for E-2468 is 12m ahead of real UTC (slack is 5m) -- LOG timestamps MUST be real UTC time, and an event stamped at a minute that has not happened yet reorders everything ",
+        "detail_hash": "9161cc4dda05bf78",
+        "finding_key": "76b48f23558dce11",
+        "rule_id": "unclassified",
+        "severity": "problem",
+        "subject_id": null,
+        "subject_kind": "global",
+        "subject_ref": ".saipen/LOG.md:1312"
+      },
+      {
+        "category": null,
+        "credential": false,
+        "detail": ".saipen/LOG.md:1313 timestamp for E-2469 is 14m ahead of real UTC (slack is 5m) -- LOG timestamps MUST be real UTC time, and an event stamped at a minute that has not happened yet reorders everything ",
+        "detail_hash": "731761600f9aed1c",
+        "finding_key": "76b48f23558dce11",
+        "rule_id": "unclassified",
+        "severity": "problem",
+        "subject_id": null,
+        "subject_kind": "global",
+        "subject_ref": ".saipen/LOG.md:1313"
+      },
+      {
+        "category": null,
+        "credential": false,
+        "detail": ".saipen/LOG.md:1314 timestamp for E-2470 is 14m ahead of real UTC (slack is 5m) -- LOG timestamps MUST be real UTC time, and an event stamped at a minute that has not happened yet reorders everything ",
+        "detail_hash": "d4447eb4e56bc11d",
+        "finding_key": "76b48f23558dce11",
+        "rule_id": "unclassified",
+        "severity": "problem",
+        "subject_id": null,
+        "subject_kind": "global",
+        "subject_ref": ".saipen/LOG.md:1314"
+      }
+    ],
+    "ruleset_fingerprint": "82e5e183ae8f0fd909be3fa3627f00489cacaab813d942186c832db02a05a1c1",
+    "ruleset_version": 1,
+    "status": "complete",
+    "warning_count": 29
+  },
+  "board_hash": "60c6b715977970f5",
+  "canonical_next_command": "saipen ticket reasoning T-149",
+  "content_hash": "85ba6f5c98e6e0bb",
+  "exit_code": 1,
+  "external_actions": [],
+  "gate": "core",
+  "kind": "conformance_receipt",
+  "log_hash": "22ef20a59261fca2",
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "receipt_id": "receipt-fbce5b506b2d",
+  "remediation_commands": [
+    "saipen ticket reasoning T-149",
+    "saipen ticket reasoning T-148",
+    "saipen ticket reasoning T-151",
+    "saipen ticket reasoning T-152"
+  ],
+  "schema_version": 2,
+  "source_head": "408b9e677b42679782b9b0ed0c488a5c36d09b53",
+  "source_tree_fingerprint": "git-delta-v1:a15d9b96f4cfdac6ce9e7d50825f11e4de6cae063422b350cf95a333332cb421",
+  "state_hash": "e7f128d5c329aec6",
+  "timestamp_utc": "2026-10-01T16:52:06.845066Z",
+  "validator_protocol_version": "1",
+  "verdict": "FAIL"
+}

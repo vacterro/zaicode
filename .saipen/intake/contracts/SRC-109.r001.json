@@ -1,0 +1,14 @@
+{
+  "clauses": {
+    "SRC-109:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Remove the thought toggle from models with no explicit reasoning support and keep the reasoning mode always on -- 'off' is not an effort"
+    }
+  },
+  "derived_at": "2026-10-01T16:45:01Z",
+  "derived_from": "SRC-109",
+  "interpretation_revision": 1,
+  "schema_version": 1,
+  "source_sha256": "5bfcf20d41bfcf973c71f3639d39f9a9f7b3f538c83c8f20764f913dfffecef8"
+}

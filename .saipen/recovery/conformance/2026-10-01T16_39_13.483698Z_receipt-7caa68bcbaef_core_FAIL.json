@@ -1,0 +1,139 @@
+{
+  "blocking_findings": {
+    "problem_count": 9,
+    "problems": [
+      {
+        "category": null,
+        "credential": false,
+        "detail": "SRC-109,T-143",
+        "detail_hash": "03da5e8810235718",
+        "finding_key": "a1c9150bdcc276e4",
+        "rule_id": "source_receipt_unresolved_work",
+        "severity": "problem",
+        "subject_id": "T-143",
+        "subject_kind": "work",
+        "subject_ref": null
+      },
+      {
+        "category": null,
+        "credential": false,
+        "detail": "SRC-114,T-145",
+        "detail_hash": "6949d1b96187c14e",
+        "finding_key": "2cb58485d6ee1d0d",
+        "rule_id": "source_receipt_unresolved_work",
+        "severity": "problem",
+        "subject_id": "T-145",
+        "subject_kind": "work",
+        "subject_ref": null
+      },
+      {
+        "category": null,
+        "credential": false,
+        "detail": "no current-cycle VERIFY boundary; reverify: no current-tree PASS re-verification receipt",
+        "detail_hash": "186e51123c0cc004",
+        "finding_key": "bdd1449c3e7a62a4",
+        "rule_id": "work_closure_evidence",
+        "severity": "problem",
+        "subject_id": "T-145",
+        "subject_kind": "work",
+        "subject_ref": null
+      },
+      {
+        "category": null,
+        "credential": false,
+        "detail": ".saipen/LOG.md:1309 timestamp for E-2465 is 16m ahead of real UTC (slack is 5m) -- LOG timestamps MUST be real UTC time, and an event stamped at a minute that has not happened yet reorders everything ",
+        "detail_hash": "08a8af58d50a2b39",
+        "finding_key": "76b48f23558dce11",
+        "rule_id": "unclassified",
+        "severity": "problem",
+        "subject_id": null,
+        "subject_kind": "global",
+        "subject_ref": ".saipen/LOG.md:1309"
+      },
+      {
+        "category": null,
+        "credential": false,
+        "detail": ".saipen/LOG.md:1310 timestamp for E-2466 is 16m ahead of real UTC (slack is 5m) -- LOG timestamps MUST be real UTC time, and an event stamped at a minute that has not happened yet reorders everything ",
+        "detail_hash": "45d6b7112a6c66ee",
+        "finding_key": "76b48f23558dce11",
+        "rule_id": "unclassified",
+        "severity": "problem",
+        "subject_id": null,
+        "subject_kind": "global",
+        "subject_ref": ".saipen/LOG.md:1310"
+      },
+      {
+        "category": null,
+        "credential": false,
+        "detail": ".saipen/LOG.md:1311 timestamp for E-2467 is 23m ahead of real UTC (slack is 5m) -- LOG timestamps MUST be real UTC time, and an event stamped at a minute that has not happened yet reorders everything ",
+        "detail_hash": "8a39dc0f200894eb",
+        "finding_key": "76b48f23558dce11",
+        "rule_id": "unclassified",
+        "severity": "problem",
+        "subject_id": null,
+        "subject_kind": "global",
+        "subject_ref": ".saipen/LOG.md:1311"
+      },
+      {
+        "category": null,
+        "credential": false,
+        "detail": ".saipen/LOG.md:1312 timestamp for E-2468 is 25m ahead of real UTC (slack is 5m) -- LOG timestamps MUST be real UTC time, and an event stamped at a minute that has not happened yet reorders everything ",
+        "detail_hash": "a11834be1de44f7d",
+        "finding_key": "76b48f23558dce11",
+        "rule_id": "unclassified",
+        "severity": "problem",
+        "subject_id": null,
+        "subject_kind": "global",
+        "subject_ref": ".saipen/LOG.md:1312"
+      },
+      {
+        "category": null,
+        "credential": false,
+        "detail": ".saipen/LOG.md:1313 timestamp for E-2469 is 27m ahead of real UTC (slack is 5m) -- LOG timestamps MUST be real UTC time, and an event stamped at a minute that has not happened yet reorders everything ",
+        "detail_hash": "afe4a6f907461c0f",
+        "finding_key": "76b48f23558dce11",
+        "rule_id": "unclassified",
+        "severity": "problem",
+        "subject_id": null,
+        "subject_kind": "global",
+        "subject_ref": ".saipen/LOG.md:1313"
+      },
+      {
+        "category": null,
+        "credential": false,
+        "detail": ".saipen/LOG.md:1314 timestamp for E-2470 is 27m ahead of real UTC (slack is 5m) -- LOG timestamps MUST be real UTC time, and an event stamped at a minute that has not happened yet reorders everything ",
+        "detail_hash": "ff546dded0a70197",
+        "finding_key": "76b48f23558dce11",
+        "rule_id": "unclassified",
+        "severity": "problem",
+        "subject_id": null,
+        "subject_kind": "global",
+        "subject_ref": ".saipen/LOG.md:1314"
+      }
+    ],
+    "ruleset_fingerprint": "82e5e183ae8f0fd909be3fa3627f00489cacaab813d942186c832db02a05a1c1",
+    "ruleset_version": 1,
+    "status": "complete",
+    "warning_count": 29
+  },
+  "board_hash": "dcb5eea45241329d",
+  "canonical_next_command": "saipen work reverify T-145",
+  "content_hash": "1be65af0bb8f3129",
+  "exit_code": 1,
+  "external_actions": [],
+  "gate": "core",
+  "kind": "conformance_receipt",
+  "log_hash": "fc0ff30266f52fbd",
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "receipt_id": "receipt-7caa68bcbaef",
+  "remediation_commands": [
+    "saipen work reverify T-145"
+  ],
+  "schema_version": 2,
+  "source_head": "408b9e677b42679782b9b0ed0c488a5c36d09b53",
+  "source_tree_fingerprint": "git-delta-v1:a15d9b96f4cfdac6ce9e7d50825f11e4de6cae063422b350cf95a333332cb421",
+  "state_hash": "4af510be839b84a7",
+  "timestamp_utc": "2026-10-01T16:39:13.483698Z",
+  "validator_protocol_version": "1",
+  "verdict": "FAIL"
+}

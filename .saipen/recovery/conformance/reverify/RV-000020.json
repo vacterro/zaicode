@@ -1,0 +1,48 @@
+{
+  "agent": "saipen-cli",
+  "created_at": "2026-10-01T16:37:42Z",
+  "evidence_class": "executed",
+  "findings_digest": "9d7d93ec7512fca503215dd66c15e6569d03d1e2c4cb8d96e27c4978cca2c392",
+  "gate": "core",
+  "integrity_digest": "6dd182302c13bc5c",
+  "journal_op_id": "reverify.c3edb73f20e2",
+  "original_closure": {
+    "claim_time": "2026-09-30T15:09:19Z",
+    "closure_mode": "own_patch",
+    "last_ticket_event": "E-2433",
+    "owner": "claude-code-local-verify",
+    "source_receipts": "SRC-075"
+  },
+  "own_problem_keys": [
+    "8608bcc9f592a8f1"
+  ],
+  "problem_count": 10,
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "project_lineage": "lineage-b0732ed2f98947b9a3c97bfe71427eca",
+  "receipt_id": "RV-000020",
+  "ruleset_fingerprint": "82e5e183ae8f0fd909be3fa3627f00489cacaab813d942186c832db02a05a1c1",
+  "ruleset_version": 1,
+  "schema_version": 1,
+  "source_head": "408b9e677b42679782b9b0ed0c488a5c36d09b53",
+  "source_tree_fingerprint": "git-delta-v1:a15d9b96f4cfdac6ce9e7d50825f11e4de6cae063422b350cf95a333332cb421",
+  "verdict": "PASS_WITH_CARRIED_DEBT",
+  "verification": [
+    {
+      "command": "strict_gate:core",
+      "default_contract": true,
+      "executed": true,
+      "result": "PASS_WITH_CARRIED_DEBT"
+    }
+  ],
+  "verification_contract": {
+    "commands": [
+      "strict_gate:core"
+    ],
+    "findings_digest": "9d7d93ec7512fca503215dd66c15e6569d03d1e2c4cb8d96e27c4978cca2c392",
+    "gate": "core"
+  },
+  "verification_contract_digest": "c8fe5ad87ab553f3",
+  "verifier": "saipen-cli",
+  "warning_count": 29,
+  "work": "T-113"
+}

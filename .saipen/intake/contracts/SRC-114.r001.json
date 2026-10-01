@@ -1,0 +1,14 @@
+{
+  "clauses": {
+    "SRC-114:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "HELP must be ordered as a curriculum starting from the basics, not in the order the cards happen to be written"
+    }
+  },
+  "derived_at": "2026-10-01T16:43:36Z",
+  "derived_from": "SRC-114",
+  "interpretation_revision": 1,
+  "schema_version": 1,
+  "source_sha256": "b75e78df07016bf6185bd59d520e5544f7ac4be200924e409dceb9ae7cd5be64"
+}

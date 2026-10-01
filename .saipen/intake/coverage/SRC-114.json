@@ -1,4 +1,32 @@
 {
-  "requirements": {},
+  "requirements": {
+    "SRC-114:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "E-2491",
+      "text": "HELP must be ordered as a curriculum starting from the basics, not in the order the cards happen to be written",
+      "verification": "packages/ui/src/settings/zaicodeHelpOrder.ts ZAICODE_HELP_CURRICULUM chapter 1 'Start here' -> start, glossary, sidebar, home, composer, header is the single source of reading order, cited by the file's own SRC-114 comment",
+      "work": "T-145"
+    },
+    "SRC-114:R002": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "E-2491",
+      "text": "HELP's outbound links must point at ZAICODE's own internal HELP and the zaicode repository with working bug-report and feature-request targets, never the upstream vendor's docs",
+      "verification": "packages/ui/src/zaicode/zaicodeBrand.ts ZAICODE_REPO_URL/ISSUE_URL/FEATURE_URL point at github.com/vacterro/zaicode; helpMenuActions.ts:6 imports them, openHelp calls openZaicodeHelp() instead of the vendor docs, and openGitHubIssue/openGitHubFeature open the labelled templates; grep for https:// in zaicodeHelpContent.ts and zaicodeHelpWiki.ts returns zero",
+      "work": "T-145"
+    },
+    "SRC-114:R003": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "E-2491",
+      "text": "About must be on ZAICODE's own subject and use the ZAICODE brand mark, not the upstream vendor logo",
+      "verification": "zaicodeBrand.ts appLogoUrl() returns zaicode-logo-20.png under isZaicodeProductMode() and the Z.ai logo upstream; consumed by App.tsx:67, WindowsTopLeftLogo.tsx:2, WorkspaceSidebarCollapsedRail.tsx:2. packages/desktop/electron-builder.config.js:629-630 stages build/zaicode-logo-128.png into extraResources",
+      "work": "T-145"
+    }
+  },
   "schema_version": 1
 }

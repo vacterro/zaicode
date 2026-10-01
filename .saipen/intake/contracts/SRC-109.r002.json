@@ -9,16 +9,11 @@
       "actionable": true,
       "class": "requirement",
       "text": "The 5-hour Antigravity and ZCode quota windows must be presented in every surface as running from the moment ZAICODE first saw them: 0% consumed, counting down continuously, and never restarting on each sweep"
-    },
-    "SRC-109:R003": {
-      "actionable": true,
-      "class": "requirement",
-      "text": "The folder-deletion confirmation text must stay inside the dialog frame even for a long unbroken folder name"
     }
   },
-  "derived_at": "2026-10-01T16:45:07Z",
+  "derived_at": "2026-10-01T16:45:04Z",
   "derived_from": "SRC-109",
-  "interpretation_revision": 3,
+  "interpretation_revision": 2,
   "schema_version": 1,
   "source_sha256": "5bfcf20d41bfcf973c71f3639d39f9a9f7b3f538c83c8f20764f913dfffecef8"
 }

@@ -1,4 +1,32 @@
 {
-  "requirements": {},
+  "requirements": {
+    "SRC-109:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "E-2491",
+      "text": "Remove the thought toggle from models with no explicit reasoning support and keep the reasoning mode always on -- 'off' is not an effort",
+      "verification": "packages/shared/src/model-selection.ts:60 isThoughtLevelSwitch treats a bare on/off pair as no control at all under isZaicodeProductMode, :81 selectableThoughtLevels filters every off marker out, :66 fixedEnabledReasoningLevel pins the on value; the pin is enforced on the request, not only in the UI, at provider/src/model-selection-config.ts:115,139 and provider/src/effective-model-selection.ts:55; ui/src/lib/modelThoughtOption.ts:19-22 returns null for a switch model and offers only selectable levels",
+      "work": "T-143"
+    },
+    "SRC-109:R002": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "E-2491",
+      "text": "The 5-hour Antigravity and ZCode quota windows must be presented in every surface as running from the moment ZAICODE first saw them: 0% consumed, counting down continuously, and never restarting on each sweep",
+      "verification": "packages/shared/src/zaicode-engines.ts:96-101 defines rollingFrom as the moment ZAICODE first saw an unstarted Antigravity/ZCode window and states 0% consumed and counting down; :343-353 carries the anchor across sweeps and derives resetsAt from it so the countdown cannot restart; :358 isZaicodeRollingWindow; ui/src/zaicode/ZaicodeResetTimer.tsx:51,85-97 renders it as rolling and at 0% consumed",
+      "work": "T-143"
+    },
+    "SRC-109:R003": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "E-2491",
+      "text": "The folder-deletion confirmation text must stay inside the dialog frame even for a long unbroken folder name",
+      "verification": "packages/ui/src/components/ui/dialog.tsx:88-93 gives DialogHeader min-w-0 with the T-143 comment naming the grid min-width:auto cause; packages/ui/src/ConfirmDialog.tsx:114-120 gives the confirmation description min-w-0 whitespace-pre-line break-words [overflow-wrap:anywhere] so an unbroken folder name wraps instead of widening the dialog",
+      "work": "T-143"
+    }
+  },
   "schema_version": 1
 }

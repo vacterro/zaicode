@@ -9,16 +9,11 @@
       "actionable": true,
       "class": "requirement",
       "text": "HELP's outbound links must point at ZAICODE's own internal HELP and the zaicode repository with working bug-report and feature-request targets, never the upstream vendor's docs"
-    },
-    "SRC-114:R003": {
-      "actionable": true,
-      "class": "requirement",
-      "text": "About must be on ZAICODE's own subject and use the ZAICODE brand mark, not the upstream vendor logo"
     }
   },
-  "derived_at": "2026-10-01T16:43:42Z",
+  "derived_at": "2026-10-01T16:43:39Z",
   "derived_from": "SRC-114",
-  "interpretation_revision": 3,
+  "interpretation_revision": 2,
   "schema_version": 1,
   "source_sha256": "b75e78df07016bf6185bd59d520e5544f7ac4be200924e409dceb9ae7cd5be64"
 }
