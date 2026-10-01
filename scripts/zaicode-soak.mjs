@@ -325,6 +325,17 @@ async function main() {
     let nextChurn = 0;
 
     while (Date.now() < hardStop) {
+      if (child.exitCode !== null) {
+        // An unattended run that keeps sampling a dead app for the rest of its window
+        // produces hours of probe errors instead of a verdict. Stop, and let the samples
+        // already on disk be judged for what they are: `buildVerdict` reads a window with
+        // no renderable surface as FAIL_SURFACE_NOT_RENDERED, which is the truth.
+        console.error(
+          `app exited early (code ${child.exitCode}) at ${Math.round((Date.now() - startedAt) / 1000)}s`,
+        );
+        exitCode = 1;
+        break;
+      }
       if (Date.now() >= nextChurn) {
         nextChurn = Date.now() + CHURN_SECONDS * 1000;
         try {
