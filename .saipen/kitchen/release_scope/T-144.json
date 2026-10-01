@@ -1,5 +1,5 @@
 {
-  "op_id": "scope-762b64edfad3491c9a55524565784a61",
+  "op_id": "scope-2922beb4d1a249348cc0e779ae88ce70",
   "paths": {
     ".saipen/evidence/T-144-src111-disposition-20261001.md": "508e903cde0d8b49a2650afabe8ea4630d6dfa00bd94d9706594348f20da6236",
     "release/Build-Release.ps1": "524076f2a969a04d952ec069e439866763edc9fa41b5f044c0b5db082775dbb1",
@@ -33,9 +33,9 @@
   },
   "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
   "project_lineage": "lineage-b0732ed2f98947b9a3c97bfe71427eca",
-  "recorded_at": "2026-10-01T15:47:06Z",
+  "recorded_at": "2026-10-01T16:03:15Z",
   "schema_version": 2,
-  "source_head": "3f74596abdb4a1264656f83aa3b2bdb22469f3e6",
-  "source_tree_fingerprint": "git-delta-v1:32156ffad3d664b1e5d0ddddaeabae4a893bbeeecc98f535bcb14d9eb8afc195",
+  "source_head": "180a9e6e4ed44e6695739a286adcf9bfafe76d0e",
+  "source_tree_fingerprint": "git-delta-v1:7bc492e8f72928bcafb7aee7ddd6d1a535a20734b8f6f4c0e538b451c8d4dd4a",
   "ticket": "T-144"
 }
