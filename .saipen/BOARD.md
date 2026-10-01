@@ -27,7 +27,7 @@
      write that field name next to a concrete id anywhere in this file. -->
 
 ## DOING
-- [/] T-144 [P1] • Я бы хотел вообще убрать этот on off "thought" для тех у кого это явно не поддерживается из коробки и всегда ON оставить, просто это бесмысленная настройка... | verify: the requested change is present and demonstrated against the user own description of it | user_explicit: true | source_receipts: SRC-110,SRC-111,SRC-112,SRC-113
+- [/] T-144 [P1] • Я бы хотел вообще убрать этот on off "thought" для тех у кого это явно не поддерживается из коробки и всегда ON оставить, просто это бесмысленная настройка... | verify: the requested change is present and demonstrated against the user own description of it | user_explicit: true | source_receipts: SRC-110,SRC-111,SRC-112,SRC-113 | owner: saipen-cli | claim_time: 2026-10-01T13:20:59Z
 
 ## TODO
 
