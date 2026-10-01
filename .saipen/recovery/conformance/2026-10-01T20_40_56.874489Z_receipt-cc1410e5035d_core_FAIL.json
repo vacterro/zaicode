@@ -1,0 +1,45 @@
+{
+  "blocking_findings": {
+    "problem_count": 1,
+    "problems": [
+      {
+        "category": null,
+        "credential": false,
+        "detail": "no current-cycle VERIFY boundary; reverify: no current-tree PASS re-verification receipt",
+        "detail_hash": "186e51123c0cc004",
+        "finding_key": "8608bcc9f592a8f1",
+        "rule_id": "work_closure_evidence",
+        "severity": "problem",
+        "subject_id": "T-113",
+        "subject_kind": "work",
+        "subject_ref": null
+      }
+    ],
+    "ruleset_fingerprint": "82e5e183ae8f0fd909be3fa3627f00489cacaab813d942186c832db02a05a1c1",
+    "ruleset_version": 1,
+    "status": "complete",
+    "warning_count": 29
+  },
+  "board_hash": "d5faea63a61df35a",
+  "canonical_next_command": "saipen work reverify T-113",
+  "content_hash": "d7705726781edb07",
+  "exit_code": 1,
+  "external_actions": [],
+  "gate": "core",
+  "install_fingerprint": "install-v1:32957b92562a4f4e92486b5fc031b9ba6fae278d96494cce69a911cb27cd4e19",
+  "install_home": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_SAIPEN",
+  "kind": "conformance_receipt",
+  "log_hash": "a794a66e98694dc6",
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "receipt_id": "receipt-cc1410e5035d",
+  "remediation_commands": [
+    "saipen work reverify T-113"
+  ],
+  "schema_version": 2,
+  "source_head": "f7260ecfc8c768df50d0820deb8b74b21784f9e0",
+  "source_tree_fingerprint": "git-delta-v1:217ae6cb7fb5dd74e26c9f18469a16300c920d4d8fe9c15f374afd62a3ca9a28",
+  "state_hash": "5d9628c6c9962a5f",
+  "timestamp_utc": "2026-10-01T20:40:56.874489Z",
+  "validator_protocol_version": "1",
+  "verdict": "FAIL"
+}
