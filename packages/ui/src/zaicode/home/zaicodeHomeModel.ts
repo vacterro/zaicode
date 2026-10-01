@@ -1,8 +1,8 @@
 import {
   effectiveZaicodeWindows,
-  isZaicodeRealReset,
   isZaicodeRouterErrorRecent,
   zaicodeNextRefillAt,
+  zaicodeWindowShowsLiveCountdown,
   type ZaicodeEngineAccount,
   type ZaicodeJob,
   type ZaicodeLimitSnapshot,
@@ -86,8 +86,9 @@ export function zaicodeNextResetOf(snapshot: ZaicodeLimitSnapshot | undefined, n
   let best: number | null = null;
   for (const window of effectiveZaicodeWindows(snapshot.windows, now)) {
     // Idle (starts on first use) and gated windows have no coming refill (SRC-048).
-    if (window.resetsAt === null || !isZaicodeRealReset(window, now)) continue;
-    if (window.remainingPercent !== null && window.remainingPercent >= 100) continue;
+    // SRC-116: same 100% trap as the topbar clock -- a rolling window must reach SAIHOME.
+    if (window.resetsAt === null) continue;
+    if (!zaicodeWindowShowsLiveCountdown(window, now)) continue;
     if (best === null || window.resetsAt < best) best = window.resetsAt;
   }
   return best ?? zaicodeNextRefillAt(snapshot, now) ?? null;

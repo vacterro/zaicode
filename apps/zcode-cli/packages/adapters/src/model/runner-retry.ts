@@ -1,4 +1,5 @@
 import { ModelErrorCode, ModelFailureReason, type Logger } from "@zcode/contracts";
+import { openProviderQuotaCircuit } from "@zcode/shared";
 import { isProviderBusinessError } from "./model-execution.js";
 import { findProviderBusinessError, type ClassifiedModelFailure } from "./failure-classifier.js";
 import { readMappedAiSdkProviderBusinessError } from "./failure-ai-sdk-provider-error.js";
@@ -25,6 +26,31 @@ const RELIABLE_ATTRIBUTION_CONTEXT_KEYS = [
   "source",
   "statusCode",
 ] as const;
+
+/**
+ * SRC-116 TRACK B: this is the only place every provider failure passes through with the
+ * provider that produced it, so it is where a route is declared exhausted.
+ *
+ * B2 says what must NOT count as exhaustion, and it is honoured literally: a network error, a
+ * 5xx, an auth failure and a missing model all stay retryable failures of that one request. Only
+ * a rate-limit classification the provider will not retry itself -- plan limit, spent credits,
+ * concurrency cap -- means "stop using this route", and then the circuit owns the reset time.
+ */
+function noteProviderQuotaCircuit(
+  providerId: string | undefined,
+  failure: ClassifiedModelFailure,
+  context: { retryAfterMs?: number },
+): void {
+  if (!providerId) return;
+  if (failure.code !== ModelErrorCode.ModelRateLimited) return;
+  if (failure.retryable) return;
+  openProviderQuotaCircuit({
+    providerId,
+    now: Date.now(),
+    reason: failure.message.slice(0, 120),
+    retryAfterMs: context.retryAfterMs ?? failure.retryAfterMs ?? null,
+  });
+}
 
 export class TerminalStreamChunkError extends Error {
   constructor(readonly adapterError: AiSdkModelAdapterError) {
@@ -137,6 +163,8 @@ export function toAdapterError(
     traceId: statusContext.traceId,
     transport: statusContext.transport,
   };
+
+  noteProviderQuotaCircuit(statusContext.providerId, failure, normalizedContext);
 
   if (error instanceof AiSdkModelAdapterError) {
     // 已有 adapter error 的因果归因可能来自更接近失败现场的可靠证据；

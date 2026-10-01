@@ -17,6 +17,10 @@ import {
   type TaskRuntimeState,
   type WorkspaceZCodeUIState,
 } from "./zcodeSessionStoreTypes.js";
+import {
+  ZAICODE_TASK_STATE_RETENTION,
+  boundRecordByFirstTouch,
+} from "./recordFirstTouchRetention.js";
 
 // ────────────────────────────────────────────
 // Internal helpers（store 本体也需要使用）
@@ -133,6 +137,52 @@ export function getWorkspaceState(
   return identityState;
 }
 
+/**
+ * Every workspace mutation funnels through here, so this is the one place that has to
+ * bound the per-task mirrors. The pinned ids are the ones a surface is actively reading:
+ * dropping the selected task's UI state would take its plan panel and pending permission
+ * queue with it. Everything else is a re-derivable mirror, so it is retained by first
+ * touch and released past the cap.
+ *
+ * ponytail: no last-access timestamp is tracked, so a task the operator keeps re-opening
+ * can still age out. Add a touch counter in the selector if that ever shows up.
+ */
+function boundWorkspaceTaskState(state: WorkspaceZCodeUIState): WorkspaceZCodeUIState {
+  const pinned = [state.activeTaskId, state.draftSessionId, state.groupedDraftTask?.draftId];
+  const runtime = boundRecordByFirstTouch(
+    state.taskRuntimeByTaskId,
+    ZAICODE_TASK_STATE_RETENTION,
+    pinned,
+  );
+  const ui = boundRecordByFirstTouch(
+    state.taskUiByTaskId,
+    ZAICODE_TASK_STATE_RETENTION,
+    pinned,
+  );
+  const unread = boundRecordByFirstTouch(
+    state.taskUnreadByTaskId,
+    ZAICODE_TASK_STATE_RETENTION,
+    pinned,
+  );
+  const configOptions = boundRecordByFirstTouch(
+    state.taskConfigOptionsByTaskId,
+    ZAICODE_TASK_STATE_RETENTION,
+    pinned,
+  );
+  return runtime === state.taskRuntimeByTaskId &&
+    ui === state.taskUiByTaskId &&
+    unread === state.taskUnreadByTaskId &&
+    configOptions === state.taskConfigOptionsByTaskId
+    ? state
+    : {
+        ...state,
+        taskRuntimeByTaskId: runtime,
+        taskUiByTaskId: ui,
+        taskUnreadByTaskId: unread,
+        taskConfigOptionsByTaskId: configOptions,
+      };
+}
+
 export function updateWorkspaceState(
   state: ZCodeSessionStoreState,
   workspacePath: string,
@@ -145,7 +195,7 @@ export function updateWorkspaceState(
       ? getWorkspaceState(state, workspacePath, workspaceIdentity)
       : (state.workspaces[workspaceKey] ??
         createIdentityWorkspaceStateSeed(state.workspaces[workspacePath], workspaceIdentity));
-  const nextWorkspaceState = updater(current);
+  const nextWorkspaceState = boundWorkspaceTaskState(updater(current));
 
   if (nextWorkspaceState === current) {
     // 单 ZCode Agent 迁移后旧 provider 选择都会归一为 glm，很多调用实际不会改变状态。

@@ -16,6 +16,10 @@ import {
 } from "@/lib/taskQueryCache.js";
 import { notifyTaskLifecycle } from "@/lib/taskLifecycleEvents.js";
 import { uiMemoryDiagnosticsRegistry } from "@/lib/memoryDiagnostics.js";
+import {
+  ZAICODE_QUERY_CACHE_RETENTION,
+  boundRecordByFirstTouch,
+} from "./recordFirstTouchRetention.js";
 
 interface TaskListMembershipState {
   pinned: boolean;
@@ -460,10 +464,16 @@ export const useTaskQueryCacheStore = create<TaskQueryCacheState>()((set) => ({
       }
 
       return {
-        resultsByQueryKey: {
-          ...state.resultsByQueryKey,
-          [queryKey]: buildCachedTaskListResult(resultParams),
-        },
+        // 每个 search= / workspaces= 组合都是新 queryKey，只增不删：长跑里每敲一次搜索
+        // 就永久留下一份 taskKeys[] 和两份 snippet map。缺失的 key 对 reader 就是
+        // "还没取过"，refresh signature 会重新拉，所以按首次触达顺序截断是自愈的。
+        resultsByQueryKey: boundRecordByFirstTouch(
+          {
+            ...state.resultsByQueryKey,
+            [queryKey]: buildCachedTaskListResult(resultParams),
+          },
+          ZAICODE_QUERY_CACHE_RETENTION,
+        ),
         taskMetaByEntityKey: taskMetaChanged ? nextTaskMetaByEntityKey : state.taskMetaByEntityKey,
         taskUnreadOverlayByEntityKey: taskUnreadOverlayChanged
           ? nextTaskUnreadOverlayByEntityKey
@@ -591,7 +601,9 @@ export const useTaskQueryCacheStore = create<TaskQueryCacheState>()((set) => ({
       }
 
       return {
-        resultsByQueryKey: resultsChanged ? nextResultsByQueryKey : state.resultsByQueryKey,
+        resultsByQueryKey: resultsChanged
+          ? boundRecordByFirstTouch(nextResultsByQueryKey, ZAICODE_QUERY_CACHE_RETENTION)
+          : state.resultsByQueryKey,
         taskMetaByEntityKey: taskMetaChanged ? nextTaskMetaByEntityKey : state.taskMetaByEntityKey,
         taskUnreadOverlayByEntityKey: taskUnreadOverlayChanged
           ? nextTaskUnreadOverlayByEntityKey
@@ -1002,11 +1014,22 @@ export function removeTaskFromTaskQueryCaches(
   return removed;
 }
 
-// 内存诊断计数器：版本化 queryKey 只增不删，先落日志。
+// 内存诊断计数器：queryKey 现在按首次触达截断在 ZAICODE_QUERY_CACHE_RETENTION，
+// 真实基数落进诊断快照，用来在长跑时间线上对帧率而不是只猜。
 uiMemoryDiagnosticsRegistry.register("taskQueryCache", () => {
   const state = useTaskQueryCacheStore.getState();
+  let retainedTaskKeys = 0;
+  let retainedSnippets = 0;
+  for (const key of Object.keys(state.resultsByQueryKey)) {
+    const result = state.resultsByQueryKey[key];
+    if (!result) continue;
+    retainedTaskKeys += result.taskKeys.length;
+    retainedSnippets += Object.keys(result.searchSnippetsByTaskKey ?? {}).length;
+  }
   return {
     queryKeys: Object.keys(state.resultsByQueryKey).length,
     taskMetas: Object.keys(state.taskMetaByEntityKey).length,
+    retainedTaskKeys,
+    retainedSnippets,
   };
 });

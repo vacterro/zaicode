@@ -16,7 +16,7 @@ import {
   parseFreebuffSession,
   parseZcodeQuota,
   zaicodeBottleneck,
-  zaicodeShouldStartIdleWindow,
+  zaicodeIdleWindowToStart,
   type ZaicodeEngineAccount,
   type ZaicodeEnginesConfig,
   type ZaicodeEnginesState,
@@ -993,6 +993,9 @@ async function probeAccount(account: ZaicodeEngineAccount): Promise<void> {
         checkedAt: Date.now(),
         error: account.statusDetail || "login required",
         source: previous?.source ?? "",
+        // SRC-116: a sign-in flap must not forget that this account's window was already
+        // started, or the next sweep starts it again and the cooldown never means anything.
+        ...(previous?.windowStart ? { windowStart: previous.windowStart } : {}),
       },
     };
     return;
@@ -1046,8 +1049,9 @@ async function probeAccount(account: ZaicodeEngineAccount): Promise<void> {
           ...(previous?.windowStart ? { windowStart: previous.windowStart } : {}),
         },
   };
-  if (zaicodeShouldStartIdleWindow({ account, snapshot: limits[account.id], config, now })) {
-    void startIdleWindow(account);
+  const idleWindow = zaicodeIdleWindowToStart({ account, snapshot: limits[account.id], config, now });
+  if (idleWindow) {
+    void startIdleWindow(account, idleWindow.key);
   }
 }
 
@@ -1060,7 +1064,7 @@ const WINDOW_START_REREAD_MS = 20_000;
  * zaicodeWindowStarter.ts), records the attempt on the account's snapshot, then reads the
  * account again. One start per account at a time; the cooldown lives in the snapshot record.
  */
-async function startIdleWindow(account: ZaicodeEngineAccount): Promise<void> {
+async function startIdleWindow(account: ZaicodeEngineAccount, windowKey: string): Promise<void> {
   if ((account.vendor !== "zcode" && !account.cli) || startingWindows.has(account.id)) return;
   startingWindows.add(account.id);
   let outcome: ZaicodeWindowStartOutcome;
@@ -1111,7 +1115,7 @@ async function startIdleWindow(account: ZaicodeEngineAccount): Promise<void> {
   }
   const current = limits[account.id];
   if (current) {
-    limits = { ...limits, [account.id]: { ...current, windowStart: { at: Date.now(), ...outcome } } };
+    limits = { ...limits, [account.id]: { ...current, windowStart: { at: Date.now(), ...outcome, windowKey } } };
     persistCache();
     broadcast();
   }

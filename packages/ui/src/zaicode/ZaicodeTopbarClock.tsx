@@ -1,9 +1,9 @@
 import {
   effectiveZaicodeWindows,
   formatZaicodeTimeOfDay,
-  isZaicodeRealReset,
   zaicodeIsoWeek,
   zaicodeTimeZoneName,
+  zaicodeWindowShowsLiveCountdown,
 } from "@zcode/shared";
 import { cn } from "@/components/lib/utils.js";
 import { WINDOWS_CAPTION_CONTROL_CLASS } from "@/windowCaptionControls.js";
@@ -126,8 +126,11 @@ export function useZaicodeNextReset(now: number): ZaicodeNextReset | null {
     if (!snapshot) continue;
     for (const window of effectiveZaicodeWindows(snapshot.windows, now)) {
       // Idle (starts on first use) and gated windows have no coming refill (SRC-048).
-      if (window.resetsAt === null || !isZaicodeRealReset(window, now)) continue;
-      if (window.remainingPercent === null || window.remainingPercent >= 100) continue;
+      // SRC-116: a window ZAICODE rolls itself reads 100% by construction (0% consumed),
+      // so the old "< 100%" filter here hid every rolling window from the topbar clock
+      // while the engine tile counted the same window down.
+      if (window.resetsAt === null) continue;
+      if (!zaicodeWindowShowsLiveCountdown(window, now)) continue;
       if (!best || window.resetsAt < best.at) {
         best = {
           accountShort: account.short,

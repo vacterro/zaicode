@@ -15,9 +15,11 @@ import {
   type ZaicodeJobExecutor,
 } from "@zcode/services";
 import {
+  describeProviderQuotaRoute,
   describeZaicodRouteFailure,
   isZaicodeRawCommand,
   pickZaicodeFallbackPool,
+  resolveProviderQuotaRoute,
   resolveZaicodRoutePlan,
   zaicodeChildInstructions,
   zaicodeDelegationInstructions,
@@ -106,9 +108,27 @@ export function createZaicodeJobExecutor(deps: ZaicodeRunDispatchDeps): ZaicodeJ
       resolvedSelection = fallback;
     }
     if (resolvedSelection) {
+      const view = await services.getOptional(IModelSelectionService)?.getView().catch(() => null);
+      // SRC-116 TRACK B: a route proven quota-exhausted is not re-tried on every job. One
+      // resolver, asked once here for every dispatch path a ZAICODE run can take, decides the
+      // effective route and says so out loud, so the queue never claims GLM while running SAIFREN.
+      const route = resolveProviderQuotaRoute({
+        requested: resolvedSelection,
+        fallback: view ? pickZaicodeFallbackPool(view.providers) : null,
+        now: Date.now(),
+      });
+      if (route.fallback) {
+        deps.logWarn(
+          `ZAICODE: ${describeProviderQuotaRoute(resolvedSelection.providerId, route, Date.now())} (job=${job.id})`,
+        );
+        resolvedSelection = route.selection;
+      }
       try {
-        const view = await services.getOptional(IModelSelectionService)?.getView();
-        const model = view?.providers
+        // The view was already read above to pick the fallback pool. Re-read only when
+        // that read failed, so one dispatch asks the selection service once, not twice --
+        // and the throw here still stays contained the way the clamp always was.
+        const effectiveView = view ?? (await services.getOptional(IModelSelectionService)?.getView());
+        const model = effectiveView?.providers
           .find((provider) => provider.providerId === resolvedSelection!.providerId)
           ?.models.find((candidate) => candidate.modelId === resolvedSelection!.modelId);
         resolvedSelection = clampZaicodeReasoningLevel(

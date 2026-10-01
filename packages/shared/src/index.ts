@@ -121,6 +121,8 @@ export * from "./zaicode-delegation.js";
 export * from "./zaicode-saimail-post.js";
 export * from "./zaicode-saimail-read.js";
 export * from "./zaicode-routing.js";
+export * from "./provider-quota-circuit.js";
+export * from "./runtimeHealthSnapshot.js";
 export * from "./zaicode-engines.js";
 export * from "./zaicode-router.js";
 export * from "./zaicode-free-catalog.js";

@@ -53,6 +53,42 @@ interface MemoryDiagnosticsLoggerHandle {
   stop(): void;
 }
 
+interface LoopLagProbe {
+  /** Fire now; resolves with how late the timer actually ran, in ms. */
+  measure(): Promise<number>;
+}
+
+function createLoopLagProbe(): LoopLagProbe {
+  return {
+    measure() {
+      return new Promise((resolve) => {
+        const started = performance.now();
+        setTimeout(() => resolve(performance.now() - started), 0);
+      });
+    },
+  };
+}
+
+let lastLoopLagMs: number | undefined;
+
+/**
+ * Event-loop lag, sampled on the same 60 s cadence as the memory counters.
+ *
+ * This is the signal that separates "the renderer is holding too much" from "the renderer
+ * is blocked": a leaked cache shows up as rising heap, a blocked loop shows up as lag.
+ * A degrading long-horizon run usually shows both, and only lag correlates with the
+ * 1-2 FPS the operator actually sees. It is kept out of `sampleNow`'s synchronous path
+ * because a blocking measurement must not become part of the sample it measures.
+ */
+uiMemoryDiagnosticsRegistry.register("eventLoop", () => ({
+  ...(lastLoopLagMs === undefined ? {} : { lagMs: Math.round(lastLoopLagMs * 100) / 100 }),
+}));
+
+/** Latest measured event-loop lag in ms, or undefined before the first probe resolves. */
+export function readEventLoopLagMs(): number | undefined {
+  return lastLoopLagMs;
+}
+
 export function startMemoryDiagnosticsLogger(
   options: StartMemoryDiagnosticsLoggerOptions = {},
 ): MemoryDiagnosticsLoggerHandle {
@@ -98,19 +134,34 @@ export function startMemoryDiagnosticsLogger(
     }
   };
 
-  let handle: ReturnType<typeof setInterval> | undefined = setInterval(
-    sampleNow,
-    options.intervalMs ?? MEMORY_SAMPLE_INTERVAL_MS,
-  );
+  const intervalMs = options.intervalMs ?? MEMORY_SAMPLE_INTERVAL_MS;
+  let handle: ReturnType<typeof setInterval> | undefined = setInterval(sampleNow, intervalMs);
+
+  const probe = createLoopLagProbe();
+  const sampleLoopLag = (): void => {
+    probe
+      .measure()
+      .then((lagMs) => {
+        lastLoopLagMs = lagMs;
+      })
+      .catch(() => {
+        // 探针失败只丢这一次的读数。
+      });
+  };
+  sampleLoopLag();
+  let lagHandle: ReturnType<typeof setInterval> | undefined = setInterval(sampleLoopLag, intervalMs);
 
   return {
     sampleNow,
     stop() {
-      if (handle === undefined) {
-        return;
+      if (handle !== undefined) {
+        clearInterval(handle);
+        handle = undefined;
       }
-      clearInterval(handle);
-      handle = undefined;
+      if (lagHandle !== undefined) {
+        clearInterval(lagHandle);
+        lagHandle = undefined;
+      }
     },
   };
 }

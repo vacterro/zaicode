@@ -122,6 +122,10 @@ export function loadWindow(
       unavailableWorkspacePath: bootstrap?.unavailableWorkspacePath,
       windowKind: bootstrap?.windowKind,
       locale: bootstrap?.locale,
+      // T-164: the long-horizon soak harness launches the packaged app with this switch
+      // and needs the renderer's runtime-health snapshot on the page. It is inert unless
+      // the flag is passed, so a normal launch is unchanged.
+      zaicodeSoak: process.argv.includes("--zaicode-soak=1") ? "1" : undefined,
     }).filter((entry): entry is [string, string] => entry[1] != null),
   );
 

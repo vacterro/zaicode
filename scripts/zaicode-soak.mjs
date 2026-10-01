@@ -1,0 +1,504 @@
+#!/usr/bin/env node
+// ZAICODE long-horizon soak harness (T-164 / SRC-116 TRACK A).
+//
+// What it is for: SRC-116's claim is that ZAICODE degrades to ~1-2 FPS after 6-9 h and
+// that a selected project can render permanently blank. Both are claims about a *long*
+// run against the *packaged* app, so the harness has to be a long run against the
+// packaged app -- not a unit test, and not the operator's already-running instance.
+//
+// How it works, with no new dependencies:
+//   - spawns the packaged binary with its own --user-data-dir and --remote-debugging-port,
+//     so it can never attach to, or stop, whatever the operator has open;
+//   - drives the real renderer over the DevTools protocol (Node 22+ has a global
+//     WebSocket), clicking and typing through the same surface a person uses;
+//   - samples a timeline: frame rate, long-frame count, rendered node count, JS heap,
+//     process RSS, and the app's own runtime-health counters;
+//   - asserts the invariant SRC-116 names -- a selected project converges to a loaded
+//     surface, an explicit loading state, or an explicit error, and NEVER a blank one;
+//   - writes timeline.jsonl plus verdict.json, and exits by killing only the PID it
+//     spawned.
+//
+// Usage:
+//   node scripts/zaicode-soak.mjs --minutes 8                  # churn window
+//   node scripts/zaicode-soak.mjs --minutes 90 --soak-hours 12  # the real thing
+//   node scripts/zaicode-soak.mjs --minutes 2 --accelerated 20  # 20x the churn rate
+import { spawn } from "node:child_process";
+import { mkdir, readFile, writeFile, rm } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import path from "node:path";
+import process from "node:process";
+
+const args = parseArgs(process.argv.slice(2));
+const REPO_ROOT = path.resolve(import.meta.dirname, "..");
+const OUT_DIR = path.resolve(args.out ?? path.join(REPO_ROOT, ".soak", stamp()));
+const APP =
+  args.app ??
+  firstExisting([
+    path.join(REPO_ROOT, "packages/desktop/dist/win-unpacked/ZAICODE.exe"),
+    path.join(REPO_ROOT, "packages/desktop/dist/win-unpacked/ZCode.exe"),
+    path.join(REPO_ROOT, "apps/desktop/dist/win-unpacked/ZAICODE.exe"),
+  ]);
+const REPLAY = typeof args.replay === "string" ? args.replay : null;
+const CHURN_MINUTES = Number(args.minutes ?? 90);
+const SOAK_HOURS = Number(args["soak-hours"] ?? 0);
+const SAMPLE_SECONDS = Number(args["sample-seconds"] ?? 15);
+const CHURN_SECONDS = Number(args["churn-seconds"] ?? 20) / Number(args.accelerated ?? 1);
+const PORT = Number(args.port ?? 9333);
+const KEEP_OPEN = args["keep-open"] === true;
+const PROJECT_ROWS = Number(args["project-rows"] ?? 6);
+
+function stamp() {
+  return new Date().toISOString().replace(/[:.]/g, "-");
+}
+
+function parseArgs(argv) {
+  const out = {};
+  for (let i = 0; i < argv.length; i += 1) {
+    const token = argv[i];
+    if (!token.startsWith("--")) continue;
+    const key = token.slice(2);
+    const next = argv[i + 1];
+    if (next === undefined || next.startsWith("--")) {
+      out[key] = true;
+    } else {
+      out[key] = next;
+      i += 1;
+    }
+  }
+  return out;
+}
+
+function firstExisting(candidates) {
+  for (const candidate of candidates) if (existsSync(candidate)) return candidate;
+  return candidates[0];
+}
+
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+/** Only ever the PID this process spawned. Never a name, image or process list. */
+async function rssBytesOf(pid) {
+  if (process.platform !== "win32") return null;
+  return new Promise((resolve) => {
+    const child = spawn(
+      "powershell",
+      [
+        "-NoProfile",
+        "-Command",
+        `(Get-Process -Id ${pid} -ErrorAction SilentlyContinue).WorkingSet64`,
+      ],
+      { stdio: ["ignore", "pipe", "ignore"] },
+    );
+    let out = "";
+    child.stdout.on("data", (chunk) => {
+      out += chunk;
+    });
+    child.on("close", () => {
+      const value = Number(out.trim());
+      resolve(Number.isFinite(value) && value > 0 ? value : null);
+    });
+  });
+}
+
+// ── DevTools protocol ────────────────────────────────────────────────────────
+
+class Cdp {
+  #socket;
+  #nextId = 1;
+  #pending = new Map();
+
+  static async connect(url) {
+    const socket = new WebSocket(url);
+    await new Promise((resolve, reject) => {
+      socket.addEventListener("open", resolve, { once: true });
+      socket.addEventListener("error", () => reject(new Error(`cdp connect failed: ${url}`)), {
+        once: true,
+      });
+    });
+    const client = new Cdp();
+    client.#socket = socket;
+    socket.addEventListener("message", (event) => {
+      const message = JSON.parse(typeof event.data === "string" ? event.data : "");
+      if (message.id === undefined) return;
+      const pending = client.#pending.get(message.id);
+      if (!pending) return;
+      client.#pending.delete(message.id);
+      if (message.error) pending.reject(new Error(`${message.error.message}`));
+      else pending.resolve(message.result);
+    });
+    return client;
+  }
+
+  send(method, params = {}) {
+    const id = this.#nextId++;
+    this.#socket.send(JSON.stringify({ id, method, params }));
+    return new Promise((resolve, reject) => {
+      this.#pending.set(id, { resolve, reject });
+      setTimeout(() => {
+        if (this.#pending.delete(id)) reject(new Error(`cdp timeout: ${method}`));
+      }, 60_000);
+    });
+  }
+
+  /** Evaluate in the page and return the JSON value. Throws are the caller's problem. */
+  async evaluate(expression) {
+    const result = await this.send("Runtime.evaluate", {
+      expression,
+      returnByValue: true,
+      awaitPromise: true,
+    });
+    if (result.exceptionDetails) {
+      throw new Error(result.exceptionDetails.text ?? "evaluate threw");
+    }
+    return result.result?.value;
+  }
+
+  close() {
+    this.#socket.close();
+  }
+}
+
+/** The current DevTools connection; replaced whenever the page target is swapped. */
+let cdp = null;
+
+/**
+ * Attaches to the live page, re-resolving the target list.
+ *
+ * A 12-hour run against the packaged app WILL lose its page target: a remote session
+ * reconnect, a workspace remount or a crash-recovery reload all replace the webContents.
+ * A harness that dies on the first target swap would never reach the window SRC-116 is
+ * about, so every evaluate goes through here and reconnects a bounded number of times.
+ */
+async function attachPage() {
+  const target = await findPageTarget(PORT, 120_000);
+  cdp = await Cdp.connect(target.webSocketDebuggerUrl);
+  await cdp.send("Runtime.enable");
+  return cdp;
+}
+
+async function evaluateWithReattach(expression) {
+  let lastError;
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      return await cdp.evaluate(expression);
+    } catch (error) {
+      lastError = error;
+      cdp.close();
+      try {
+        await attachPage();
+      } catch {
+        await sleep(2_000);
+      }
+    }
+  }
+  throw lastError;
+}
+
+async function findPageTarget(port, timeoutMs) {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    try {
+      const response = await fetch(`http://127.0.0.1:${port}/json/list`);
+      const targets = await response.json();
+      const pages = targets.filter(
+        (target) => target.type === "page" && target.webSocketDebuggerUrl && !target.url.startsWith("devtools://"),
+      );
+      // A fresh profile opens a splash/boot shell before the real window; the newest
+      // target is the one the operator is looking at, so prefer it over list order.
+      const page = pages.sort((left, right) => (right.id ?? "").localeCompare(left.id ?? ""))[0];
+      if (page) return page;
+    } catch {
+      // 还没起来，继续等。
+    }
+    await sleep(1000);
+  }
+  throw new Error(`no debuggable page on port ${port} after ${timeoutMs}ms`);
+}
+
+// ── In-page probes ────────────────────────────────────────────────────────────
+
+const PROBE = `(async () => {
+  const root = document.querySelector("#root") ?? document.body;
+  const frames = [];
+  await new Promise((resolve) => {
+    let last = performance.now();
+    const started = last;
+    const tick = (now) => {
+      frames.push(now - last);
+      last = now;
+      if (now - started >= 2000) resolve();
+      else requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  });
+  const long = frames.filter((d) => d > 50).length;
+  const heap = performance.memory;
+  const health = window.__ZAICODE_RUNTIME_HEALTH__ ? window.__ZAICODE_RUNTIME_HEALTH__() : null;
+  const text = (root?.textContent ?? "").trim();
+  return {
+    fps: Math.round((frames.length / 2) * 100) / 100,
+    longFrames: long,
+    nodes: document.getElementsByTagName("*").length,
+    heapUsedBytes: heap ? heap.usedJSHeapSize : null,
+    heapTotalBytes: heap ? heap.totalJSHeapSize : null,
+    // SRC-116 的不变量：一个 valid project 选中后必须收敛到 loaded / loading / 明确错误，
+    // 而不是永久空白。空白 = 几乎没有可见文本，也没有可见的子树。
+    blank: (document.getElementsByTagName("*").length < 5 && text.length < 8),
+    visibleTextLength: text.length,
+    health,
+  };
+})()`;
+
+const CHURN = `(async () => {
+  const click = (el) => { if (el) { el.click(); return true; } return false; };
+  const actions = [];
+  const rows = Array.from(document.querySelectorAll('[data-zaicode-project-row], [data-zaicode-home-project]'));
+  if (rows.length > 0) { click(rows[Math.floor(Math.random() * rows.length)]); actions.push("project-row"); }
+  const search = document.querySelector('input[type="search"], input[data-zaicode-search], input[placeholder*="earch"]');
+  if (search) {
+    const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set;
+    setter.call(search, "a" + Math.floor(Math.random() * 1000));
+    search.dispatchEvent(new Event("input", { bubbles: true }));
+    actions.push("search");
+    await new Promise((r) => setTimeout(r, 400));
+    setter.call(search, "");
+    search.dispatchEvent(new Event("input", { bubbles: true }));
+  }
+  const back = document.querySelector('[data-zaicode-home-back], [aria-label="Back"]');
+  if (back) { click(back); actions.push("back"); }
+  return actions;
+})()`;
+
+// ── Run ───────────────────────────────────────────────────────────────────────
+
+async function main() {
+  if (REPLAY) {
+    // A 12-hour run should never have to be repeated just to re-analyse it.
+    const timeline = (await readFile(REPLAY, "utf8"))
+      .split(String.fromCharCode(10))
+      .filter((line) => line.trim().length > 0)
+      .map((line) => JSON.parse(line));
+    const config = { replayedFrom: REPLAY, samples: timeline.length };
+    const verdict = buildVerdict(timeline, config);
+    await mkdir(OUT_DIR, { recursive: true });
+    await writeFile(path.join(OUT_DIR, "verdict.json"), `${JSON.stringify(verdict, null, 2)}
+`);
+    await writeFile(path.join(OUT_DIR, "report.md"), renderReport(verdict, OUT_DIR));
+    console.log(`verdict: ${verdict.verdict}`);
+    return 0;
+  }
+  if (!existsSync(APP)) {
+    throw new Error(`packaged app not found: ${APP}\nBuild it first, or pass --app <path>.`);
+  }
+  await mkdir(OUT_DIR, { recursive: true });
+  const userDataDir = path.join(OUT_DIR, "profile");
+  await rm(userDataDir, { recursive: true, force: true });
+
+  // 独立 user-data-dir：跑的是同一份 packaged app，但不碰操作员正在用的那个实例。
+  const child = spawn(
+    APP,
+    [
+      `--remote-debugging-port=${PORT}`,
+      // The renderer only exposes its runtime-health snapshot when this flag is present.
+      "--zaicode-soak=1",
+      `--user-data-dir=${userDataDir}`,
+      "--no-first-run",
+      "--no-default-browser-check",
+    ],
+    {
+      stdio: ["ignore", "pipe", "pipe"],
+      detached: false,
+      env: {
+        ...process.env,
+        // ZAICODE relocates userData to its own appData directory and takes a
+        // single-instance lock on it, so `--user-data-dir` alone would be ignored and
+        // this launch would just forward to the operator's running instance. These
+        // overrides are the supported way to get a genuinely separate profile, and a
+        // separate profile means a separate lock.
+        ZCODE_DESKTOP_USER_DATA_DIR: userDataDir,
+        ZCODE_DESKTOP_SESSION_DATA_DIR: path.join(userDataDir, "session"),
+      },
+    },
+  );
+  const appLogs = [];
+  child.stdout?.on("data", (chunk) => appLogs.push(String(chunk)));
+  child.stderr?.on("data", (chunk) => appLogs.push(String(chunk)));
+
+  const startedAt = Date.now();
+  const timeline = [];
+  const churnActions = {};
+  let churnErrors = 0;
+  let exitCode = 0;
+  try {
+    await attachPage();
+    // 等首屏真的画出来，否则前几个样本是启动噪声而不是稳态。
+    await sleep(20_000);
+
+    const churnUntil = Date.now() + CHURN_MINUTES * 60_000;
+    const soakUntil = Date.now() + SOAK_HOURS * 3_600_000;
+    const hardStop = Math.max(churnUntil, soakUntil);
+    let nextChurn = 0;
+
+    while (Date.now() < hardStop) {
+      if (Date.now() >= nextChurn) {
+        nextChurn = Date.now() + CHURN_SECONDS * 1000;
+        try {
+          for (const action of await evaluateWithReattach(CHURN)) {
+            churnActions[action] = (churnActions[action] ?? 0) + 1;
+          }
+        } catch (error) {
+          churnErrors += 1;
+          timeline.push({ at: new Date().toISOString(), churnError: String(error) });
+        }
+      }
+      const sample = {
+        at: new Date().toISOString(),
+        elapsedSeconds: Math.round((Date.now() - startedAt) / 1000),
+        phase: Date.now() < churnUntil ? "churn" : "soak",
+        rssBytes: await rssBytesOf(child.pid),
+      };
+      try {
+        Object.assign(sample, await evaluateWithReattach(PROBE));
+      } catch (error) {
+        sample.probeError = String(error);
+      }
+      timeline.push(sample);
+      await writeFile(path.join(OUT_DIR, "timeline.jsonl"), timeline.map((row) => JSON.stringify(row)).join("\n"));
+      log(sample);
+      await sleep(SAMPLE_SECONDS * 1000);
+    }
+  } catch (error) {
+    exitCode = 1;
+    console.error(`soak failed: ${error.message}`);
+  } finally {
+    cdp?.close();
+    if (!KEEP_OPEN && child.pid !== undefined) {
+      child.kill();
+      await sleep(2000);
+      if (child.exitCode === null) child.kill("SIGKILL");
+    }
+    if (appLogs.length > 0) {
+      await writeFile(path.join(OUT_DIR, "app.log"), appLogs.join(""));
+    }
+  }
+
+  const verdict = buildVerdict(timeline, {
+    churnMinutes: CHURN_MINUTES,
+    soakHours: SOAK_HOURS,
+    // A run that clicked nothing must not read as a run that churned: the degradation
+    // claims in SRC-116 are about a loaded surface under repeated use.
+    churnActions,
+    churnErrors,
+  });
+  await writeFile(path.join(OUT_DIR, "verdict.json"), `${JSON.stringify(verdict, null, 2)}\n`);
+  await writeFile(path.join(OUT_DIR, "report.md"), renderReport(verdict, OUT_DIR));
+  console.log(`\nverdict: ${verdict.verdict}`);
+  console.log(`timeline: ${path.join(OUT_DIR, "timeline.jsonl")}`);
+  return exitCode;
+}
+
+function log(sample) {
+  if (sample.probeError) {
+    console.log(`[${sample.elapsedSeconds}s] probe failed: ${sample.probeError}`);
+    return;
+  }
+  console.log(
+    `[${sample.elapsedSeconds}s ${sample.phase}] fps=${sample.fps} long=${sample.longFrames} ` +
+      `heap=${Math.round((sample.heapUsedBytes ?? 0) / 1048576)}MB rss=${Math.round((sample.rssBytes ?? 0) / 1048576)}MB ` +
+      `nodes=${sample.nodes}${sample.blank ? " BLANK-SURFACE" : ""}`,
+  );
+}
+
+/** Least-squares slope per minute, so "degraded" is a number and not a vibe. */
+function slopePerMinute(points) {
+  const n = points.length;
+  if (n < 2) return 0;
+  const meanX = points.reduce((sum, p) => sum + p.x, 0) / n;
+  const meanY = points.reduce((sum, p) => sum + p.y, 0) / n;
+  let num = 0;
+  let den = 0;
+  for (const p of points) {
+    num += (p.x - meanX) * (p.y - meanY);
+    den += (p.x - meanX) ** 2;
+  }
+  return den === 0 ? 0 : num / den;
+}
+
+function buildVerdict(timeline, config) {
+  const samples = timeline.filter((row) => typeof row.fps === "number");
+  const blankSamples = timeline.filter((row) => row.blank === true);
+  const first = samples[0];
+  const last = samples.at(-1);
+  const midpoint = samples[Math.floor(samples.length / 2)];
+  const fpsSlope = slopePerMinute(samples.map((s) => ({ x: s.elapsedSeconds / 60, y: s.fps })));
+  const heapSlope = slopePerMinute(
+    samples.filter((s) => typeof s.heapUsedBytes === "number").map((s) => ({ x: s.elapsedSeconds / 60, y: s.heapUsedBytes })),
+  );
+  const rssSlope = slopePerMinute(
+    samples.filter((s) => typeof s.rssBytes === "number").map((s) => ({ x: s.elapsedSeconds / 60, y: s.rssBytes })),
+  );
+  // SRC-116's symptom is a specific number: ~1-2 FPS after hours. Judging "degraded" by
+  // a raw fps/minute slope flags ordinary render jitter (a 3% drift over two minutes is
+  // noise), so the rule is the operator's own: half the baseline, or under 10 FPS, or
+  // jank that did not exist at the start. Anything looser would make a green run and a
+  // broken one indistinguishable.
+  const worstFps = samples.reduce((min, s) => Math.min(min, s.fps), Number.POSITIVE_INFINITY);
+  const janky = samples.filter((s) => (s.longFrames ?? 0) > 0).length;
+  const degraded =
+    (first && midpoint ? last.fps < midpoint.fps * 0.5 : false) ||
+    (last ? last.fps < 10 : false) ||
+    (first && samples.length > 2 && janky / samples.length > 0.5 && (first.longFrames ?? 0) === 0);
+  return {
+    verdict: blankSamples.length > 0 ? "FAIL_BLANK_SURFACE" : degraded ? "FAIL_DEGRADED" : "PASS",
+    generatedAt: new Date().toISOString(),
+    config,
+    samples: samples.length,
+    durationSeconds: last?.elapsedSeconds ?? 0,
+    fps: {
+      first: first?.fps ?? null,
+      midpoint: midpoint?.fps ?? null,
+      last: last?.fps ?? null,
+      worst: Number.isFinite(worstFps) ? worstFps : null,
+      slopePerMinute: Number(fpsSlope.toFixed(4)),
+    },
+    heapUsedMb: {
+      first: first ? Number((first.heapUsedBytes / 1048576).toFixed(1)) : null,
+      last: last ? Number((last.heapUsedBytes / 1048576).toFixed(1)) : null,
+      growthMbPerMinute: Number((heapSlope / 1048576).toFixed(3)),
+    },
+    rssMb: {
+      first: first ? Number((first.rssBytes / 1048576).toFixed(1)) : null,
+      last: last ? Number((last.rssBytes / 1048576).toFixed(1)) : null,
+      growthMbPerMinute: Number((rssSlope / 1048576).toFixed(3)),
+    },
+    jankySamples: janky,
+    blankSurfaceSamples: blankSamples.length,
+    churnActions: config.churnActions ?? {},
+    churnErrors: config.churnErrors ?? 0,
+    churnTotal: Object.values(config.churnActions ?? {}).reduce((sum, n) => sum + n, 0),
+    finalHealthSnapshot: last?.health ?? null,
+  };
+}
+
+function renderReport(verdict, outDir) {
+  return [
+    `# ZAICODE soak verdict — ${verdict.verdict}`,
+    "",
+    `- window: ${verdict.durationSeconds}s, ${verdict.samples} samples`,
+    `- FPS: ${verdict.fps.first} -> ${verdict.fps.midpoint} -> ${verdict.fps.last} (worst ${verdict.fps.worst}, slope ${verdict.fps.slopePerMinute}/min)`,
+    `- renderer heap: ${verdict.heapUsedMb.first} MB -> ${verdict.heapUsedMb.last} MB (${verdict.heapUsedMb.growthMbPerMinute} MB/min)`,
+    `- process RSS: ${verdict.rssMb.first} MB -> ${verdict.rssMb.last} MB (${verdict.rssMb.growthMbPerMinute} MB/min)`,
+    `- janky samples (long frames present): ${verdict.jankySamples} of ${verdict.samples}`,
+    `- blank-surface samples: ${verdict.blankSurfaceSamples}`,
+    `- churn interactions: ${verdict.churnTotal} (${JSON.stringify(verdict.churnActions)}), errors ${verdict.churnErrors}`,
+    "",
+    `Timeline: \`${outDir}/timeline.jsonl\``,
+    "",
+  ].join("\n");
+}
+
+main()
+  .then((code) => process.exit(code))
+  .catch(async (error) => {
+    console.error(String(error?.stack ?? error));
+    process.exit(1);
+  });

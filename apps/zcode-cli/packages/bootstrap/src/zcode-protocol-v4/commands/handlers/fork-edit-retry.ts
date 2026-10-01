@@ -388,6 +388,12 @@ async function startCanonicalIntent(
   attachmentRefs: ReturnType<typeof stableAttachmentRefs>,
   attachments: Awaited<ReturnType<typeof mapAttachmentRefsToTurnAttachments>>,
 ): Promise<void> {
+  // SRC-116 B6: a replay reuses the failed turn's CONTENT (prompt, attachments, run context) but
+  // never its ROUTE. The failed intent carried the provider/model it died on, and the turn
+  // machine prefers a pinned intent over the session value -- so an operator who switched GLM to
+  // SAIFREN after a limit error and pressed Retry got GLM again, every time. Only when the session
+  // holds no selection at all does the historical pin still stand.
+  const currentSelection = record.app.runtime?.getSessionModelSelection?.();
   const intent = inputIntentMetadataFromCanonical(
     envelope,
     {
@@ -399,7 +405,7 @@ async function startCanonicalIntent(
       requestedDelivery: editTarget.intent.requestedDelivery,
       admittedDelivery: editTarget.intent.admittedDelivery,
       fallbackReasonCode: editTarget.intent.fallbackReasonCode,
-      modelSelection: editTarget.intent.modelSelection,
+      modelSelection: currentSelection ?? editTarget.intent.modelSelection,
       mode: editTarget.intent.mode,
       planEnabled: editTarget.intent.planEnabled,
       attachmentRefs,

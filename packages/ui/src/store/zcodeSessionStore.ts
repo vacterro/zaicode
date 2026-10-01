@@ -47,7 +47,26 @@ export type {
   WorkspaceNavEntry,
 } from "@/lib/taskNavigationHistory.js";
 
-// 内存诊断计数器：workspace 桶全仓无删除路径，先落日志。
-uiMemoryDiagnosticsRegistry.register("sessionStore", () => ({
-  workspaces: Object.keys(useZCodeSessionStore.getState().workspaces).length,
-}));
+// 内存诊断计数器：workspace 桶全仓无删除路径，per-task map 现在由
+// updateWorkspaceState 按首次触达顺序截断，两者的真实基数都落进诊断快照，
+// 让长跑的时间线能把帧率退化对上具体的累积量。
+uiMemoryDiagnosticsRegistry.register("sessionStore", () => {
+  const workspaces = useZCodeSessionStore.getState().workspaces;
+  const keys = Object.keys(workspaces);
+  let taskRuntime = 0;
+  let taskUi = 0;
+  let cachedTasks = 0;
+  for (const key of keys) {
+    const workspace = workspaces[key];
+    if (!workspace) continue;
+    taskRuntime += Object.keys(workspace.taskRuntimeByTaskId).length;
+    taskUi += Object.keys(workspace.taskUiByTaskId).length;
+    cachedTasks += workspace.taskListCache?.length ?? 0;
+  }
+  return {
+    workspaces: keys.length,
+    taskRuntime,
+    taskUi,
+    cachedTasks,
+  };
+});

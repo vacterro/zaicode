@@ -49,6 +49,31 @@ export interface ZaicodeAuditProgress {
   campaigns: number;
 }
 
+/**
+ * SRC-116 TRACK A: the mirror grew for the whole session -- every campaign the service ever
+ * returned, each carrying its full wave list -- and every sidebar row rescanned the whole array
+ * on every render. Over a 9-hour autonomous run that is thousands of retained objects and an
+ * O(rows x campaigns x waves) render cost, which is what a frame-rate collapse looks like.
+ *
+ * Bounded here, not deleted: the durable queue behind IZaicodeAuditService still holds every
+ * campaign. Active campaigns are never dropped -- a running wave must keep its badge.
+ */
+export const ZAICODE_AUDIT_HISTORY_LIMIT = 30;
+
+export function boundZaicodeAuditCampaigns(
+  campaigns: readonly ZaicodeAuditCampaign[],
+  limit: number = ZAICODE_AUDIT_HISTORY_LIMIT,
+): ZaicodeAuditCampaign[] {
+  const active: ZaicodeAuditCampaign[] = [];
+  const finished: ZaicodeAuditCampaign[] = [];
+  for (const campaign of campaigns) {
+    (zaicodeAuditCampaignIsActive(campaign) ? active : finished).push(campaign);
+  }
+  if (finished.length <= limit) return [...active, ...finished];
+  finished.sort((a, b) => (a.createdAt < b.createdAt ? 1 : a.createdAt > b.createdAt ? -1 : 0));
+  return [...active, ...finished.slice(0, limit)];
+}
+
 /** Visible project-row progress for every non-terminal A3 campaign. */
 export function zaicodeAuditProgressFor(
   campaigns: readonly ZaicodeAuditCampaign[],
@@ -129,9 +154,11 @@ export const useZaicodeAuditStore = create<ZaicodeAuditStoreState>((set, get) =>
       try {
         const state = await audits.getState();
         for (const cue of zaicodeAuditTransitions(lastSeen, state.campaigns)) playZaicodeSound(cue);
-        lastSeen = state.campaigns;
+        // SRC-116: the sound-cue memory kept the whole untrimmed list, so it leaked exactly like
+        // the mirror it compared against. It holds the same bounded slice now.
+        lastSeen = boundZaicodeAuditCampaigns(state.campaigns);
         set({
-          campaigns: state.campaigns,
+          campaigns: lastSeen,
           auditor: state.auditor ?? null,
           smartMode: state.smartMode,
           maxCycles: state.maxCycles,

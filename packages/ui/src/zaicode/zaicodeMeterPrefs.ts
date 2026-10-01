@@ -198,7 +198,7 @@ export function zaicodeEngineUsableNow(
   const groups = new Set(windows.map((window) => window.group));
   for (const group of groups) {
     const pool = windows.filter((window) => window.group === group);
-    const five = pool.filter((window) => window.key === "five_hour");
+    const five = pool.filter((window) => window.key.startsWith("five_hour"));
     const gate = five.length > 0 ? five : pool;
     if (gate.some((window) => (window.remainingPercent ?? 0) > 0)) return true;
   }

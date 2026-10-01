@@ -324,6 +324,33 @@ export const useZaicodeToasts = create<ZaicodeToastState>((set, get) => ({
 
 let nextToastId = 1;
 
+/**
+ * 常驻卡片上限。
+ *
+ * 两种 toast 会永久累积：keyless 卡片走 `!toast.key || item.key !== toast.key` 的 filter，
+ * 每次都追加而不是顶掉旧的；`seconds = 0` 的卡片 expiresAt 为 null，只能手关。
+ * 自 Autonomous 跑几小时后这两个集合能把通知栈撑到几百张，每张都带 body 字符串和
+ * action 闭包。带 action 的卡片永远不参与回收——"Approve"/"Retry" 被静默丢掉比多占
+ * 一点内存严重得多。
+ */
+export const ZAICODE_TOAST_LIMIT = 12;
+
+export function boundZaicodeToasts(
+  toasts: readonly ZaicodeToast[],
+  now: number,
+  limit: number = ZAICODE_TOAST_LIMIT,
+): ZaicodeToast[] {
+  // 到期卡片先清掉：它们的移除回调可能没跑到，但内容已经没人看了。
+  const alive = toasts.filter((toast) => toast.expiresAt === null || toast.expiresAt > now);
+  if (alive.length <= limit) return alive;
+  const evictable = alive.filter((toast) => toast.actions.length === 0);
+  const surplus = Math.min(evictable.length, alive.length - limit);
+  if (surplus === 0) return alive;
+  const oldestFirst = [...evictable].sort((left, right) => left.createdAt - right.createdAt);
+  const dropped = new Set(oldestFirst.slice(0, surplus).map((toast) => toast.id));
+  return alive.filter((toast) => !dropped.has(toast.id));
+}
+
 const GROUP_ACCENT: Record<ZaicodeNotifyGroup, string> = {
   Agents: "#d9b340",
   Limits: "#7cc850",
@@ -418,7 +445,10 @@ export function notifyZaicode(scenario: string, input: ZaicodeNotifyInput, now: 
     ...(input.key ? { key: input.key } : {}),
   };
   useZaicodeToasts.setState((state) => ({
-    toasts: [...state.toasts.filter((item) => !toast.key || item.key !== toast.key), toast],
+    toasts: boundZaicodeToasts(
+      [...state.toasts.filter((item) => !toast.key || item.key !== toast.key), toast],
+      now,
+    ),
   }));
   return toast.id;
 }

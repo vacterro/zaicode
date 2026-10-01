@@ -98,6 +98,7 @@ import { usePaneLayoutStore } from "@/v4/paneLayoutStore.js";
 import { useWorkbenchGroupStore } from "@/v4/workbenchGroupStore.js";
 import type { AssistantPreviewCardsAutoOpenRequest } from "@/lib/assistantPreviewCards.js";
 import { startMemoryDiagnosticsLogger } from "@/lib/memoryDiagnostics.js";
+import { readRuntimeHealthSnapshot } from "@/lib/runtimeHealthSnapshot.js";
 import { mirrorZaicodeSplashBoot } from "@/zaicode/zaicodeSplashMirror.js";
 
 const EMPTY_RECONNECTING_REMOTE_WORKSPACE_LOGS_BY_WORKSPACE_KEY: NonNullable<
@@ -162,6 +163,13 @@ export function App({
     const memoryDiagnosticsLogger = startMemoryDiagnosticsLogger({
       reportHeapSample: reportRendererHeapSample,
     });
+    // T-164: the soak harness reads the same snapshot the operator can export, so a
+    // long-horizon run measures the app's own numbers instead of a proxy. Gated on an
+    // explicit query flag: nothing is exposed to a normal session.
+    if (new URLSearchParams(window.location.search).has("zaicodeSoak")) {
+      (window as unknown as Record<string, unknown>).__ZAICODE_RUNTIME_HEALTH__ =
+        readRuntimeHealthSnapshot;
+    }
     return () => memoryDiagnosticsLogger.stop();
   }, [reportRendererHeapSample]);
   // ZAICODE (SRC-049, SRC-060): mirror the custom splash picture and the splash

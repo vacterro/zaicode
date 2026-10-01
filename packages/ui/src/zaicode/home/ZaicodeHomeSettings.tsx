@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ZAICODE_STREAK_MEASURES, type ZaicodeStreakMeasure } from "@zcode/shared";
 import { useServices } from "@/hooks/useServices.js";
+import { readRuntimeHealthSnapshotJson } from "@/lib/runtimeHealthSnapshot.js";
 import { usePlatform } from "@/hooks/usePlatform.js";
 import { ZaicodePrefCheck, ZaicodePrefHeading, ZaicodePrefSegment } from "../ZaicodePrefControls.js";
 import { refreshZaicodeHome } from "./zaicodeHomeFeed.js";
@@ -59,8 +60,32 @@ export function ZaicodeHomeSettingsPanel() {
       setPrivacy("Copied to the clipboard (no file dialog here).");
     }
   };
-  return (
-    <div className="flex max-w-[520px] flex-col gap-1.5" data-zaicode-home-settings>
+  // T-164: the runtime-health snapshot is the artefact to attach to a "ZAICODE got slow"
+  // report. It is assembled and redacted in one place, so this button only moves bytes.
+  const exportHealth = async () => {
+    const json = readRuntimeHealthSnapshotJson();
+    if (platform.saveFile) {
+      const bytes = new TextEncoder().encode(json);
+      const result = await platform.saveFile({
+        data: bytes.buffer.slice(
+          bytes.byteOffset,
+          bytes.byteOffset + bytes.byteLength,
+        ) as ArrayBuffer,
+        suggestedName: `zaicode-runtime-health-${new Date().toLocaleDateString("sv-SE")}.json`,
+      });
+      setPrivacy(
+        result.canceled
+          ? "Export cancelled."
+          : result.success
+            ? `Exported${result.path ? ` to ${result.path}` : ""}.`
+            : `Export failed: ${result.error ?? "unknown error"}`,
+      );
+    } else {
+      await navigator.clipboard.writeText(json);
+      setPrivacy("Copied to the clipboard (no file dialog here).");
+    }
+  };
+  return (    <div className="flex max-w-[520px] flex-col gap-1.5" data-zaicode-home-settings>
       <ZaicodePrefSegment<ZaicodeStartupView>
         label="When ZAICODE starts, show"
         value={prefs.startup}
@@ -196,6 +221,13 @@ export function ZaicodeHomeSettingsPanel() {
       <div className="flex flex-wrap items-center gap-1">
         <button type="button" className="border border-border px-1.5 text-foreground-subtle hover:bg-hover hover:text-foreground" onClick={() => void exportStats().catch((error: unknown) => setPrivacy(String(error)))}>
           Export statistics (JSON)
+        </button>
+        <button
+          type="button"
+          className="border border-border px-1.5 text-foreground-subtle hover:bg-hover hover:text-foreground"
+          onClick={() => void exportHealth().catch((error: unknown) => setPrivacy(String(error)))}
+        >
+          Export runtime health (JSON)
         </button>
         {confirmClear ? (
           <>

@@ -53,8 +53,54 @@ export interface SidePaneTerminalSessionEntry {
 
 // 模块级状态：跨 workspace、跨 React 组件树常驻。
 const sessions = new Map<string, SidePaneTerminalSessionEntry>();
-// 内存诊断计数器：常驻 xterm 实例数无上限，先落日志。
-uiMemoryDiagnosticsRegistry.register("xterm", () => ({ sessions: sessions.size }));
+// 每个 entry 最后一次被 register / attach 的单调序号。Map 本身按插入序，但已存在的 key
+// 再次写入不会换位，所以复用中的 terminal 会被误判成"最老"，需要显式记一次触达。
+const touchSequenceByKey = new Map<string, number>();
+let touchCounter = 0;
+
+/**
+ * Detached 终端的常驻上限。
+ *
+ * 一个 detached entry 挂着活的 PTY、xterm 实例和全部 scrollback DOM，只为了下次重挂时
+ * 秒回。自 Autonomous 跑几小时、每个 worker 都开过 side pane 终端又没显式关掉时，这些
+ * entry 就是纯累积：一个 PTY 进程 + 一个 xterm 实例 + 它的 DOM 子树，谁也不再挂载它们。
+ * 超过上限后按最老触达顺序回收，且只回收 detached 的——挂在真实容器里的终端可能正跑
+ * 着东西，不能因为数量超了就杀掉。
+ */
+export const SIDE_PANE_DETACHED_TERMINAL_LIMIT = 8;
+
+function isDetached(entry: SidePaneTerminalSessionEntry): boolean {
+  const parent = entry.hostEl.parentElement;
+  if (!parent) return true;
+  if (parent === stashDiv) return true;
+  // hostEl 在 React 接管前可能挂在非 Element 容器上；回收判定不能因此抛出去，
+  // 抛出去会连带让 register 失败、终端根本建不起来。
+  return typeof parent.getAttribute === "function"
+    ? parent.getAttribute("data-side-pane-terminal-stash") !== null
+    : false;
+}
+
+function touchEntry(key: string): void {
+  touchCounter += 1;
+  touchSequenceByKey.set(key, touchCounter);
+}
+
+function releaseStaleDetachedEntries(): void {
+  const detached = Array.from(sessions.entries())
+    .filter(([, entry]) => isDetached(entry))
+    .sort((left, right) => (touchSequenceByKey.get(left[0]) ?? 0) - (touchSequenceByKey.get(right[0]) ?? 0));
+  for (const [key] of detached.slice(0, Math.max(0, detached.length - SIDE_PANE_DETACHED_TERMINAL_LIMIT))) {
+    releaseEntry(key);
+  }
+}
+
+// 内存诊断计数器：常驻 xterm 实例数，detached 与 attached 分开落，
+// 长跑时间线要能区分"终端开着"和"终端只是没被回收"。
+uiMemoryDiagnosticsRegistry.register("xterm", () => {
+  let detached = 0;
+  for (const entry of sessions.values()) if (isDetached(entry)) detached += 1;
+  return { sessions: sessions.size, detached };
+});
 
 // 隐藏暂存容器：存放 detached 的 hostEl，避免被 React 卸载渲染容器时连带销毁 xterm DOM。
 let stashDiv: HTMLDivElement | null = null;
@@ -75,6 +121,7 @@ function releaseEntry(key: string): void {
   const entry = sessions.get(key);
   if (!entry) return;
   sessions.delete(key);
+  touchSequenceByKey.delete(key);
   try {
     entry.dispose();
   } catch (error) {
@@ -107,6 +154,8 @@ export const sidePaneTerminalSessionRegistry = {
   /** TerminalSession persistentKey 路径首次创建资源后，把 entry 存入 registry 常驻。 */
   register(key: string, entry: SidePaneTerminalSessionEntry): void {
     sessions.set(key, entry);
+    touchEntry(key);
+    releaseStaleDetachedEntries();
   },
 
   /**
@@ -116,6 +165,7 @@ export const sidePaneTerminalSessionRegistry = {
   attachDom(key: string, host: HTMLElement): void {
     const entry = sessions.get(key);
     if (!entry) return;
+    touchEntry(key);
     if (entry.hostEl.parentElement === host) return;
     host.appendChild(entry.hostEl);
   },
