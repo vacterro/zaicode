@@ -27,10 +27,9 @@
      write that field name next to a concrete id anywhere in this file. -->
 
 ## DOING
-
+- [/] T-144 [P1] • Я бы хотел вообще убрать этот on off "thought" для тех у кого это явно не поддерживается из коробки и всегда ON оставить, просто это бесмысленная настройка... | verify: the requested change is present and demonstrated against the user own description of it | user_explicit: true | source_receipts: SRC-110,SRC-111,SRC-112,SRC-113
 
 ## TODO
-- [ ] T-144 [P1] • Я бы хотел вообще убрать этот on off "thought" для тех у кого это явно не поддерживается из коробки и всегда ON оставить, просто это бесмысленная настройка... | verify: the requested change is present and demonstrated against the user own description of it | user_explicit: true | source_receipts: SRC-110,SRC-111,SRC-112,SRC-113
 
 ## DONE
 - [x] T-143 [P1] Исправить ZAICODE: убрать переключатель thought у моделей без явной поддержки и оставить разумный режим всегда включённым; пятчасовые окна Antigravity и ZCode должны работать во всех местах, запускаться при точно 0% consumption и непрерывно идти; текст диалога удаления папки должен оставаться внутри рамки | verify: zaicode d82fd494 (backup/zaicode): shared thought policy hides a bare on/off control and drops every off marker, carried by the single resolveModelThoughtOption funnel to composer, workflow, automation, off-peak, subagent and draft defaults, with the stored selection repaired and the request itself pinned; ZaicodeLimitWindow.rollingFrom anchors an unstarted Antigravity/ZCode window at exactly 0% consumed with resetsAt = rollingFrom + duration, survives the next sweep, and is relaxed through isZaicodeRollingWindow into isZaicodeRealReset, zaicodeNextRefillAt, formatZaicodeWindowReset, the autostart scheduler and the reset title; Antigravity fraction-less buckets and ZCode 0-of-0 rows are kept and both vendors got window starters; ConfirmDialog and DialogHeader/Footer take overflow-hidden, overflow-wrap:anywhere and min-w-0 so the text stays in frame; pnpm run typecheck exit 0 and pnpm run verify:pre-push exit 0 with architecture OK and 851 + 92 + 205 + 40 tests 0 fail; proof .saipen/evidence/T-143-build-20261001.md | user_explicit: true | source_receipts: SRC-109 | owner: claude-code-local-verify | claim_time: 2026-10-01T08:51:01Z | closure_mode: own_patch
