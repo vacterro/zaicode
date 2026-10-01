@@ -1,0 +1,35 @@
+{
+  "op_id": "improve-admit-9eb391360b76453db61ada6418839a14",
+  "operation": "improve_admit",
+  "created_at": "2026-10-01T17:49:54Z",
+  "agent": "saipen-cli-01",
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "project_lineage": "lineage-b0732ed2f98947b9a3c97bfe71427eca",
+  "semantic_payload_hash": "c747d7137a92ae10",
+  "preconditions": {
+    ".saipen/improve/imp-vacterro-zaicode-20261001-4/MANIFEST.md": "",
+    ".saipen/improve/imp-vacterro-zaicode-20261001-4/saipen-cli-01/saipen_improve_SAIPEN.md": ""
+  },
+  "read_preconditions": {},
+  "verification_policy": "improve_atomic_file",
+  "status": "COMMITTED",
+  "progress_index": 2,
+  "targets": [
+    {
+      "path": ".saipen/improve/imp-vacterro-zaicode-20261001-4/MANIFEST.md",
+      "role": "manifest",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "459c64362b83b370",
+      "applied": true
+    },
+    {
+      "path": ".saipen/improve/imp-vacterro-zaicode-20261001-4/saipen-cli-01/saipen_improve_SAIPEN.md",
+      "role": "report",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "889d0198b83ce4f5",
+      "applied": true
+    }
+  ]
+}
