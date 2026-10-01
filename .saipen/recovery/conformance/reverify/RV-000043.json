@@ -1,0 +1,50 @@
+{
+  "agent": "saipen-cli",
+  "created_at": "2026-10-01T18:11:42Z",
+  "evidence_class": "executed",
+  "findings_digest": "0b31d7a2f7c4f7276251dc632beb72da3a8a4efde1e13bc54e72a3987c52671c",
+  "gate": "core",
+  "integrity_digest": "fef3223cc44fc99f",
+  "journal_op_id": "reverify.c184c1e75202",
+  "original_closure": {
+    "claim_time": "2026-09-30T15:09:19Z",
+    "closure_mode": "own_patch",
+    "owner": "claude-code-local-verify",
+    "source_receipts": "SRC-075"
+  },
+  "own_problem_keys": [
+    "8608bcc9f592a8f1"
+  ],
+  "problem_count": 2,
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "project_lineage": "lineage-b0732ed2f98947b9a3c97bfe71427eca",
+  "receipt_id": "RV-000043",
+  "ruleset_fingerprint": "82e5e183ae8f0fd909be3fa3627f00489cacaab813d942186c832db02a05a1c1",
+  "ruleset_version": 1,
+  "schema_version": 1,
+  "source_head": "8aa5e973687c8deee03dac1ea1c5697ec648ade9",
+  "source_tree_fingerprint": "git-delta-v1:a15d9b96f4cfdac6ce9e7d50825f11e4de6cae063422b350cf95a333332cb421",
+  "verdict": "PASS_WITH_CARRIED_DEBT",
+  "verification": [
+    {
+      "command": "pnpm --dir zcode --filter @zcode/ui exec node --import tsx --test \"test/zaicodeLocaleParity.test.ts\"",
+      "duration_ms": 4689,
+      "executed": true,
+      "exit_code": 0,
+      "output_bytes": 879,
+      "output_digest": "103e3cf233f89a9a",
+      "result": "PASS"
+    }
+  ],
+  "verification_contract": {
+    "commands": [
+      "pnpm --dir zcode --filter @zcode/ui exec node --import tsx --test \"test/zaicodeLocaleParity.test.ts\""
+    ],
+    "findings_digest": "0b31d7a2f7c4f7276251dc632beb72da3a8a4efde1e13bc54e72a3987c52671c",
+    "gate": "core"
+  },
+  "verification_contract_digest": "45dafa7491d554ef",
+  "verifier": "saipen-cli",
+  "warning_count": 28,
+  "work": "T-113"
+}
