@@ -3000,6 +3000,8 @@ const messages: Record<string,string> = {
   "settings.sidebar.group.zaicode": "ZAICODE",
   "zaicode.settings.autoRestart": "충돌 후 재시작",
   "zaicode.fallback.switched": "{fromModel} 한도에 도달했습니다. 다음 메시지는 {toModel}로 전송됩니다. 모델 메뉴에서 언제든 되돌릴 수 있습니다.",
+  "zaicode.fallback.routeHold":
+    "{fromModel} 은(는) {until} 까지 쿼타 보류 상태입니다. 이 메시지는 {toModel}(으)로 전송됩니다.",
   "zaicode.settings.autoRestartHint": "기본값으로 켜짐. 런처는 비정상 종료된 앱을 다시 시작하고, 데스크톱 호스트는 깨진 창을 새로 불러옵니다.",
   "zaicode.todo.title": "할 일",
   "zaicode.todo.detach": "할 일 창 분리",

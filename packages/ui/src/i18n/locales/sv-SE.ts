@@ -3000,6 +3000,8 @@ const messages: Record<string,string> = {
   "settings.sidebar.group.zaicode": "ZAICODE",
   "zaicode.settings.autoRestart": "Starta om efter en krasch",
   "zaicode.fallback.switched": "{fromModel} nådde sin gräns. Nästa meddelande går till {toModel}; byt tillbaka när som helst i modellmenyn.",
+  "zaicode.fallback.routeHold":
+    "{fromModel} har kvotostopp till {until}. Det här meddelandet går till {toModel}.",
   "zaicode.settings.autoRestartHint": "På som standard. Startaren startar om en kraschad app; skrivbordsvärden laddar om ett kraschat fönster.",
   "zaicode.todo.title": "Att göra",
   "zaicode.todo.detach": "Lossa att-göra-fönstret",

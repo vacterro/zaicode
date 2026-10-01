@@ -3000,6 +3000,8 @@ const messages: Record<string,string> = {
   "settings.sidebar.group.zaicode": "ZAICODE",
   "zaicode.settings.autoRestart": "Reiniciar após uma falha",
   "zaicode.fallback.switched": "{fromModel} atingiu o limite. A próxima mensagem irá para {toModel}; volte a usar o anterior quando quiser no menu de modelos.",
+  "zaicode.fallback.routeHold":
+    "{fromModel} está em retenção de cota até {until}. Esta mensagem irá para {toModel}.",
   "zaicode.settings.autoRestartHint": "Ativado por padrão. O reiniciador reinicia um app que travou; o host da desktop recarrega uma janela que travou.",
   "zaicode.todo.title": "A fazer",
   "zaicode.todo.detach": "Desacoplar janela de tarefas",

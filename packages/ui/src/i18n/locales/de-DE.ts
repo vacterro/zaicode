@@ -3000,6 +3000,8 @@ const messages: Record<string,string> = {
   "settings.sidebar.group.zaicode": "ZAICODE",
   "zaicode.settings.autoRestart": "Nach Absturz neu starten",
   "zaicode.fallback.switched": "{fromModel} hat sein Limit erreicht. Die nächste Nachricht geht an {toModel}; jederzeit im Modellmenü zurückschalten.",
+  "zaicode.fallback.routeHold":
+    "{fromModel} liegt bis {until} in der Kontosperre. Diese Nachricht geht an {toModel}.",
   "zaicode.settings.autoRestartHint": "Standardmäßig aktiv. Der Starter startet eine abgestürzte App neu; der Desktop-Host lädt ein abgestürztes Fenster neu.",
   "zaicode.todo.title": "Aufgaben",
   "zaicode.todo.detach": "Todo-Fenster abtrennen",

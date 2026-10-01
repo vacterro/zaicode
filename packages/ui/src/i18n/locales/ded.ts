@@ -3000,6 +3000,8 @@ const messages: Record<string,string> = {
   "settings.sidebar.group.zaicode": "ZAICODE",
   "zaicode.settings.autoRestart": "Рестарт после падения",
   "zaicode.fallback.switched": "{fromModel} упёрся в лимит. Следующее сообщение уйдёт в {toModel}; вернуть можно в любой момент в меню моделей.",
+  "zaicode.fallback.routeHold":
+    "{fromModel} на квотной паузе до {until}. Это сообщение уйдёт в {toModel}.",
   "zaicode.settings.autoRestartHint": "Включено из коробки. Лаунчер поднимает упавшее приложение; десктопный хост перезагружает упавшее окно.",
   "zaicode.todo.title": "Туду",
   "zaicode.todo.detach": "Открепить окно туду",

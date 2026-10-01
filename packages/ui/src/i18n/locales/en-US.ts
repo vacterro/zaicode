@@ -3568,6 +3568,8 @@ const enUS: Record<string, string> = {
   "zaicode.settings.autoRestart": "Restart after a crash",
   "zaicode.fallback.switched":
     "{fromModel} hit its limit. The next message goes to {toModel}; switch back any time in the model menu.",
+  "zaicode.fallback.routeHold":
+    "{fromModel} is on a quota hold until {until}. This message goes to {toModel}.",
   "zaicode.settings.autoRestartHint":
     "On by default. The launcher restarts a crashed app; the desktop host reloads a crashed window.",
   "zaicode.todo.title": "Todo",

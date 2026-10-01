@@ -3000,6 +3000,8 @@ const messages: Record<string,string> = {
   "settings.sidebar.group.zaicode": "ZAICODE Bölümü",
   "zaicode.settings.autoRestart": "Çökmeden sonra yeniden başlat",
   "zaicode.fallback.switched": "{fromModel} sınırına ulaştı. Sonraki mesaj {toModel}'e gider; model menüsünden istediğin zaman geri dön.",
+  "zaicode.fallback.routeHold":
+    "{fromModel} {until} saatine kadar kota kısıtlamasında. Bu mesaj {toModel} modeline gider.",
   "zaicode.settings.autoRestartHint": "Varsayılan olarak açık. Launcher çöken uygulamayı yeniden başlatır; masaüstü hostu çöken pencereyi yeniden yükler.",
   "zaicode.todo.title": "Yapılacaklar",
   "zaicode.todo.detach": "Yapılacaklar penceresini ayır",

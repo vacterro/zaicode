@@ -3000,6 +3000,8 @@ const messages: Record<string,string> = {
   "settings.sidebar.group.zaicode": "ZAICODE",
   "zaicode.settings.autoRestart": "Restart setelah crash",
   "zaicode.fallback.switched": "{fromModel} sudah mencapai batasnya. Pesan berikutnya dikirim ke {toModel}; bisa kembali kapan saja lewat menu model.",
+  "zaicode.fallback.routeHold":
+    "{fromModel} dalam tahan kuota sampai {until}. Pesan ini dikirim ke {toModel}.",
   "zaicode.settings.autoRestartHint": "Aktif secara bawaan. Peluncur memulai ulang aplikasi yang crash; host desktop memuat ulang jendela yang crash.",
   "zaicode.todo.title": "Daftar Tugas",
   "zaicode.todo.detach": "Lepaskan jendela todo",

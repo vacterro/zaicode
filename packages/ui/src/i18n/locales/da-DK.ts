@@ -3000,6 +3000,8 @@ const messages: Record<string,string> = {
   "settings.sidebar.group.zaicode": "ZAICODE",
   "zaicode.settings.autoRestart": "Genstart efter et nedbrud",
   "zaicode.fallback.switched": "{fromModel} nåede sin grænse. Den næste besked sendes til {toModel}; skift tilbage når som helst i modellmenuen.",
+  "zaicode.fallback.routeHold":
+    "{fromModel} er i kvoteholder til {until}. Denne besked sendes til {toModel}.",
   "zaicode.settings.autoRestartHint": "Slået til som standard. Startappen genstarter en app, der er crashet; desktopværten genindlæser et vindue, der er crashet.",
   "zaicode.todo.title": "To-do",
   "zaicode.todo.detach": "Frigør todo-vindue",

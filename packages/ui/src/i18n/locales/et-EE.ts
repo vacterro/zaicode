@@ -3000,6 +3000,8 @@ const messages: Record<string,string> = {
   "settings.sidebar.group.zaicode": "ZAICODE",
   "zaicode.settings.autoRestart": "Taaskäivita pärast krahhi",
   "zaicode.fallback.switched": "{fromModel} jõudis oma piirini. Järgmine sõnum läheb mudelile {toModel}; saate mudelimenüüs igal ajal tagasi lülituda.",
+  "zaicode.fallback.routeHold":
+    "{fromModel} on kvoodipeatus kuni {until}. See sõnum läheb mudelile {toModel}.",
   "zaicode.settings.autoRestartHint": "Vaikimisi sees. Käivitaja taaskäivitab krahhi läinud rakenduse; töölauahost laadib krahhi läinud akna uuesti.",
   "zaicode.todo.title": "Ülesandeloend",
   "zaicode.todo.detach": "Eralda ülesandeloendi aken",

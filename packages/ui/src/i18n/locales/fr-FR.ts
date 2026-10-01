@@ -3000,6 +3000,8 @@ const messages: Record<string,string> = {
   "settings.sidebar.group.zaicode": "ZAICODE",
   "zaicode.settings.autoRestart": "Redémarrer après un crash",
   "zaicode.fallback.switched": "{fromModel} a atteint sa limite. Le prochain message ira vers {toModel} ; revenez à l'autre à tout moment dans le menu des modèles.",
+  "zaicode.fallback.routeHold":
+    "{fromModel} est en gel de quota jusqu'à {until}. Ce message ira vers {toModel}.",
   "zaicode.settings.autoRestartHint": "Activé par défaut. Le lanceur redémarre l'application après un crash ; l'hôte desktop recharge la fenêtre après un crash.",
   "zaicode.todo.title": "Tâches",
   "zaicode.todo.detach": "Détacher la fenêtre Todo",

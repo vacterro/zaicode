@@ -138,7 +138,7 @@ export function resolveProviderQuotaRoute<T extends { providerId: string }>(inpu
   return { selection: input.fallback, circuit, fallback: true };
 }
 
-/** "GLM unavailable until 18:40, using SAIFREN fallback" / "" when the requested route runs. */
+/** "GLM unavailable until 18:40 (estimated), using SAIFREN fallback" / "" when no circuit held. */
 export function describeProviderQuotaRoute(
   requestedProviderId: string,
   route: Pick<ProviderQuotaRoute<unknown>, "circuit" | "fallback">,
@@ -147,6 +147,9 @@ export function describeProviderQuotaRoute(
   const circuit = route.circuit;
   if (!circuit) return "";
   const until = new Date(circuit.until).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
-  const head = `${requestedProviderId} unavailable until ${until}`;
+  // `resetSource` exists so a locally-timed hold never reads as a vendor reset promise: the
+  // operator is told the time we will retry, not a time the provider promised.
+  const qualifier = circuit.resetSource === "vendor" ? "" : " (estimated)";
+  const head = `${requestedProviderId} unavailable until ${until}${qualifier}`;
   return route.fallback ? `${head}, using the fallback pool` : head;
 }

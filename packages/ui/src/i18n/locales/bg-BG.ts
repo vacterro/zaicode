@@ -3000,6 +3000,8 @@ const messages: Record<string,string> = {
   "settings.sidebar.group.zaicode": "ZAICODE",
   "zaicode.settings.autoRestart": "Рестартиране след срив",
   "zaicode.fallback.switched": "{fromModel} достигна лимита. Следващото съобщение отива към {toModel}; връщайте се по всяко време от менюто на моделите.",
+  "zaicode.fallback.routeHold":
+    "{fromModel} е в квота до {until}. Това съобщение отива към {toModel}.",
   "zaicode.settings.autoRestartHint": "Включено по подразбиране. Стартиращият модул рестартира аварийното приложение; desktop хостът презарежда аварийния прозорец.",
   "zaicode.todo.title": "Списък",
   "zaicode.todo.detach": "Отдели прозореца на списъка",

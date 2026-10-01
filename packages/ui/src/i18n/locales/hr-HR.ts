@@ -3000,6 +3000,8 @@ const messages: Record<string,string> = {
   "settings.sidebar.group.zaicode": "ZAICODE grupa",
   "zaicode.settings.autoRestart": "Ponovno pokreni nakon pada",
   "zaicode.fallback.switched": "{fromModel} je dosegnuo limit. Sljedeća poruka ide {toModel}; u bilo kojem trenutku se vratite natrag putem izbornika modela.",
+  "zaicode.fallback.routeHold":
+    "{fromModel} je u kvotnom ograničenju do {until}. Ova poruka ide {toModel}.",
   "zaicode.settings.autoRestartHint": "Uključeno prema zadanom. Pokretelj ponovno pokreće aplikaciju koja se srušila; radna površina ponovno učitava prozor koji se srušio.",
   "zaicode.todo.title": "Zadaci",
   "zaicode.todo.detach": "Odvoji prozor zadataka",

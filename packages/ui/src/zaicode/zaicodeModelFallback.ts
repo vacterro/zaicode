@@ -24,17 +24,25 @@ interface FallbackView {
   }[];
 }
 
-/** First non-GLM model: the host's preferred selection if it is one, else registry order. */
+/**
+ * First non-GLM model: the host's preferred selection if it is one, else registry order.
+ *
+ * `excludeProviderId` is the route already known dead. Handing it back as the fallback would
+ * make the resolver refuse the move and leave the turn on the very wall it was rescued from.
+ */
 export function pickZaicodeFallbackModel(
   view: FallbackView | null,
+  excludeProviderId?: string,
 ): { providerId: string; modelId: string } | null {
   if (!view) return null;
+  const usable = (providerId: string): boolean =>
+    !isOfficialGlmProvider(providerId) && providerId !== excludeProviderId;
   const preferred = view.preferredSelection;
-  if (preferred && !isOfficialGlmProvider(preferred.providerId)) {
+  if (preferred && usable(preferred.providerId)) {
     return { providerId: preferred.providerId, modelId: preferred.modelId };
   }
   for (const provider of view.providers) {
-    if (isOfficialGlmProvider(provider.providerId)) continue;
+    if (!usable(provider.providerId)) continue;
     const model = provider.models[0];
     if (model) return { providerId: provider.providerId, modelId: model.modelId };
   }

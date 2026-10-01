@@ -3000,6 +3000,8 @@ const messages: Record<string,string> = {
   "settings.sidebar.group.zaicode": "ZAICODE",
   "zaicode.settings.autoRestart": "Restart po páde",
   "zaicode.fallback.switched": "{fromModel} dosiahol svoj limit. Ďalšia správa sa pošle do {toModel}; kedykoľvek sa môžete vrátiť späť v ponuke modelov.",
+  "zaicode.fallback.routeHold":
+    "{fromModel} je v kvótovom obmedzení do {until}. Táto správa sa pošle do {toModel}.",
   "zaicode.settings.autoRestartHint": "Zapnuté predvolene. Spúšťač reštartuje zlyhanú aplikáciu; desktopový host znovu načíta zlyhané okno.",
   "zaicode.todo.title": "Úloha",
   "zaicode.todo.detach": "Oddeliť okno Todo",

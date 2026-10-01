@@ -3000,6 +3000,8 @@ const messages: Record<string,string> = {
   "settings.sidebar.group.zaicode": "ZAICODE",
   "zaicode.settings.autoRestart": "Riavvia dopo un crash",
   "zaicode.fallback.switched": "{fromModel} ha raggiunto il limite. Il prossimo messaggio andrà a {toModel}; puoi tornare indietro quando vuoi dal menu dei modelli.",
+  "zaicode.fallback.routeHold":
+    "{fromModel} è in blocco quota fino alle {until}. Questo messaggio andrà a {toModel}.",
   "zaicode.settings.autoRestartHint": "Attivo per impostazione predefinita. Il launcher riavvia un'app bloccata; l'host desktop ricarica una finestra bloccata.",
   "zaicode.todo.title": "Cose da fare",
   "zaicode.todo.detach": "Stacca la finestra todo",

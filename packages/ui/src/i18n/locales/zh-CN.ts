@@ -3346,6 +3346,7 @@ const zhCN: Record<string, string> = {
   "settings.sidebar.group.zaicode": "ZAICODE",
   "zaicode.settings.autoRestart": "崩溃后自动重启",
   "zaicode.fallback.switched": "{fromModel} 已达额度上限，下一条消息改用 {toModel}；可随时在模型菜单切回。",
+  "zaicode.fallback.routeHold": "{fromModel} 处于额度保留中，直至 {until}。这条消息改用 {toModel}。",
   "zaicode.settings.autoRestartHint": "默认开启。启动器重启崩溃的应用，桌面进程重载崩溃的窗口。",
   "zaicode.todo.title": "待办",
   "zaicode.todo.detach": "分离待办窗口",

@@ -3000,6 +3000,8 @@ const messages: Record<string,string> = {
   "settings.sidebar.group.zaicode": "Група ZAICODE",
   "zaicode.settings.autoRestart": "Перезапуск після збою",
   "zaicode.fallback.switched": "{fromModel} досяг ліміту. Наступне повідомлення піде до {toModel}; повернутися можна будь-коли в меню моделей.",
+  "zaicode.fallback.routeHold":
+    "{fromModel} на утриманні квоти до {until}. Це повідомлення піде до {toModel}.",
   "zaicode.settings.autoRestartHint": "Увімкнено за замовчуванням. Launcher перезапускає застосунок після збою; desktop host перезавантажує вікно.",
   "zaicode.todo.title": "Список справ",
   "zaicode.todo.detach": "Від'єднати вікно Todo",

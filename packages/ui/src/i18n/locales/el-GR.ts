@@ -3000,6 +3000,8 @@ const messages: Record<string,string> = {
   "settings.sidebar.group.zaicode": "Ομάδα ZAICODE",
   "zaicode.settings.autoRestart": "Επανεκκίνηση μετά από σφάλμα",
   "zaicode.fallback.switched": "Το {fromModel} έφτασε το όριό του. Το επόμενο μήνυμα θα πάει στο {toModel}; επιστρέψτε ανά πάσα στιγμή στο μενού μοντέλων.",
+  "zaicode.fallback.routeHold":
+    "Το {fromModel} βρίσκεται σε κλειδώμα ποσόστωσης έως {until}. Αυτό το μήνυμα θα πάει στο {toModel}.",
   "zaicode.settings.autoRestartHint": "Ενεργό από προεπιλογή. Ο εκτοξευτής επανεκκινεί εφαρμογή που έκρηξε· ο υπολογιστής ξαναφορτώνει παράθυρο που έκρηξε.",
   "zaicode.todo.title": "Εκκρεμή",
   "zaicode.todo.detach": "Αποσύνδεση παραθύρου εκκρεμής",

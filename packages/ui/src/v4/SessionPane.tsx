@@ -62,6 +62,7 @@ import {
   isOfficialGlmProvider,
   pickZaicodeFallbackModel,
 } from "@/zaicode/zaicodeModelFallback.js";
+import { noteComposerQuotaExhaustion, routeComposerSelection } from "@/zaicode/zaicodeQuotaRoute.js";
 import type {
   ConversationShareAllowedArtifact,
   ConversationShareTurnPreflightResult,
@@ -2703,6 +2704,32 @@ export function SessionPane({
           onAcceptedSelection = captureAcceptedModelSelection(chosen, original);
           submission = { ...submission, modelSelection: chosen };
         }
+        // T-167: 最后一个路由决定点。派发器每个 job 都问 resolveProviderQuotaRoute，
+        // 手发回合也必须问同一个；已被证实欠费到点的 provider 不再被这条消息再撞一次。
+        // 改道只发生一次，且必须让操作者看见「切到哪、欠到几点」。
+        const routed = routeComposerSelection(submission.modelSelection, modelSelectionView, Date.now());
+        if (routed.fallback) {
+          logger.info("[zaicode] composer send -> fallback route", {
+            from: submission.modelSelection,
+            to: routed.selection,
+            holdUntil: routed.holdUntil,
+          });
+          onAcceptedSelection = captureAcceptedModelSelection(
+            routed.selection,
+            submission.modelSelection,
+          );
+          submission = { ...submission, modelSelection: routed.selection };
+          toast(
+            intl.formatMessage(
+              { id: "zaicode.fallback.routeHold" },
+              {
+                fromModel: original.modelId,
+                toModel: routed.selection.modelId,
+                until: routed.holdUntil ?? "",
+              },
+            ),
+          );
+        }
       }
       const prewarmTargetBeforeSend =
         sessionId === null ? prewarmBindingRef.current?.sessionId : null;
@@ -2988,6 +3015,7 @@ export function SessionPane({
       handleOpenSelectionSideConversationWithPrompt,
       intl,
       lease,
+      modelSelectionView,
       resolveInitialDraftConfig,
       createSubmissionFromComposer,
       sessionId,
@@ -4126,14 +4154,19 @@ export function SessionPane({
   const zaicodeFallbackKeyRef = useRef<string | null>(null);
   useEffect(() => {
     const currentProvider = draftConfig.modelSelection?.providerId ?? snapshot?.config.provider;
-    if (!isOfficialGlmProvider(currentProvider)) {
+    const onGlm = isOfficialGlmProvider(currentProvider);
+    if (!onGlm) {
       // provider 已经不是 GLM：清掉去重键，下一次真正撞墙才会再切一次。
       zaicodeFallbackKeyRef.current = null;
-      return;
     }
     if (!isZaicodeProductMode() || !quotaBanner.state.visible) return;
     const kind = quotaBanner.state.kind;
     if (!kind || !ZAICODE_FALLBACK_QUOTA_KINDS.has(kind)) return;
+    // T-167: 一堵已证实的配额墙对任何 provider 都记账，不只 GLM——手发回合下一次提交要走
+    // 同一个 circuit。没有这里的写入，composer 侧的 resolver 无路可判，只能照旧撞墙。
+    // 这四个 kind 本身就排除网络故障、鉴权失败和 5xx，它们从不产生这四种横幅。
+    noteComposerQuotaExhaustion({ providerId: currentProvider, kind, now: Date.now() });
+    if (!onGlm) return;
     const fallback = pickZaicodeFallbackModel(modelSelectionView);
     if (!fallback) return;
     const key = `${sessionId ?? "draft"}:${kind}:${controlLastErrorKey ?? ""}`;

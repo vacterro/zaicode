@@ -3000,6 +3000,8 @@ const messages: Record<string,string> = {
   "settings.sidebar.group.zaicode": "ZAICODE",
   "zaicode.settings.autoRestart": "Újraindítás összeomlás után",
   "zaicode.fallback.switched": "A {fromModel} elérte a korlátját. A következő üzenet a {toModel} modellhez kerül; bármikor visszaválthatsz a modell menüben.",
+  "zaicode.fallback.routeHold":
+    "Az {fromModel} kvótatartásban van {until}-ig. Ez az üzenet a {toModel} modellhez kerül.",
   "zaicode.settings.autoRestartHint": "Alapértelmezetten be. Az indító újraindítja az összeomlott alkalmazást; az asztali kliens újratölti az összeomlott ablakot.",
   "zaicode.todo.title": "Teendők",
   "zaicode.todo.detach": "Teendő ablak leválasztása",
