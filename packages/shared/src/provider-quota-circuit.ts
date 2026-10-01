@@ -142,7 +142,6 @@ export function resolveProviderQuotaRoute<T extends { providerId: string }>(inpu
 export function describeProviderQuotaRoute(
   requestedProviderId: string,
   route: Pick<ProviderQuotaRoute<unknown>, "circuit" | "fallback">,
-  now: number,
 ): string {
   const circuit = route.circuit;
   if (!circuit) return "";

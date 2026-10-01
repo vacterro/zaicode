@@ -117,7 +117,7 @@ test("T-167: an estimated hold is never stated as a vendor reset", () => {
   noteComposerQuotaExhaustion({ providerId: GLM, kind: "daily-exhausted", now: NOW });
   const circuit = providerQuotaCircuit(GLM, NOW)!;
   assert.equal(circuit.resetSource, "estimated");
-  const line = describeProviderQuotaRoute(GLM, { circuit, fallback: true }, NOW);
+  const line = describeProviderQuotaRoute(GLM, { circuit, fallback: true });
   assert.match(line, /estimated/, line);
   assert.match(line, /using the fallback pool/, line);
 });

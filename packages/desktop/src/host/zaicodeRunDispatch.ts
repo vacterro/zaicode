@@ -8,6 +8,7 @@
  */
 import {
   IModelSelectionService,
+  IZCodeAgentService,
   IZCodeTaskService,
   IZaicodeJobService,
   type ServiceCollection,
@@ -26,6 +27,7 @@ import {
   zaicodeJobTaskText,
 } from "@zcode/shared";
 import type { ZaicodeDelegationSpool } from "./zaicodeDelegationSpool.js";
+import { watchProviderQuotaCircuit } from "./hostProviderQuotaCircuit.js";
 
 interface ZaicodeRunDispatchDeps {
   /** 与 automation 相同的目标解析：远端 workspace 走远端 host，本地走 activeServices。 */
@@ -119,7 +121,7 @@ export function createZaicodeJobExecutor(deps: ZaicodeRunDispatchDeps): ZaicodeJ
       });
       if (route.fallback) {
         deps.logWarn(
-          `ZAICODE: ${describeProviderQuotaRoute(resolvedSelection.providerId, route, Date.now())} (job=${job.id})`,
+          `ZAICODE: ${describeProviderQuotaRoute(resolvedSelection.providerId, route)} (job=${job.id})`,
         );
         resolvedSelection = route.selection;
       }
@@ -198,10 +200,27 @@ export function createZaicodeJobExecutor(deps: ZaicodeRunDispatchDeps): ZaicodeJ
       }
     }
 
+    // T-168: 让本进程成为记账的那一端。CLI 子进程看得见 adapter 层的分类，宿主看不见，
+    // 所以这次运行期间订阅它已经在发的事实流，把「已证实欠费」记进上面那道闸门读的同一张表。
+    // 订阅寿命等于这次运行：终态回写先释放它，长运行也不会攒监听器。取不到 agent service
+    // 就跳过订阅——记账是增强，派发本身绝不能因为它开不起来。
+    const agentService = services.getOptional(IZCodeAgentService);
+    const quotaCircuitWatch = agentService
+      ? watchProviderQuotaCircuit({
+          agentService,
+          target: {
+            workspacePath: job.workspacePath,
+            ...(job.workspaceIdentity ? { workspaceIdentity: job.workspaceIdentity } : {}),
+          },
+          logWarn: (message, error) => deps.logWarn(`ZAICODE: ${message} (job=${job.id})`, error),
+        })
+      : null;
+
     if (jobService) {
       const disposable = taskService.onDynamicTaskTerminalOutcome(taskId)((result) => {
         if (result.inputId !== traceId) return;
         disposable.dispose();
+        quotaCircuitWatch?.dispose();
         deps.delegationSpool?.close(job.id);
         void jobService
           .reportRunOutcome({
@@ -217,21 +236,27 @@ export function createZaicodeJobExecutor(deps: ZaicodeRunDispatchDeps): ZaicodeJ
       });
     }
 
-    await taskService.sendPrompt({
-      taskId,
-      traceId,
-      content: buildZaicodeJobPrompt({
-        jobId: job.id,
-        jobTitle: job.title,
-        jobInstructions: job.instructions,
-        agentInstructions: agent.instructions,
-        ...(delegationSection ? { delegationSection } : {}),
-      }),
-      clientMode: "desktop-continuous",
-      ...(resolvedSelection ? { modelSelection: resolvedSelection } : {}),
-      ...(toolAllowlist ? { toolAllowlist } : {}),
-      ...(toolDenylist ? { toolDenylist } : {}),
-    });
+    try {
+      await taskService.sendPrompt({
+        taskId,
+        traceId,
+        content: buildZaicodeJobPrompt({
+          jobId: job.id,
+          jobTitle: job.title,
+          jobInstructions: job.instructions,
+          agentInstructions: agent.instructions,
+          ...(delegationSection ? { delegationSection } : {}),
+        }),
+        clientMode: "desktop-continuous",
+        ...(resolvedSelection ? { modelSelection: resolvedSelection } : {}),
+        ...(toolAllowlist ? { toolAllowlist } : {}),
+        ...(toolDenylist ? { toolDenylist } : {}),
+      });
+    } catch (error) {
+      // 派发失败不会有终态回写来收口这条订阅，必须在这里放掉，否则每次失败都漏一个监听器。
+      quotaCircuitWatch?.dispose();
+      throw error;
+    }
 
     return {
       sessionId: taskId,

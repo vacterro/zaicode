@@ -47,14 +47,14 @@ test("an exhausted route is never hammered and falls back to the free pool", () 
     assert.equal(route.selection.providerId, "saifren", `attempt at ${attempt}`);
     assert.equal(route.fallback, true);
   }
-  assert.match(describeProviderQuotaRoute("GLM", resolveProviderQuotaRoute({ requested: glm, fallback: saifren, now: NOW }), NOW), /GLM unavailable until .*fallback pool/);
+  assert.match(describeProviderQuotaRoute("GLM", resolveProviderQuotaRoute({ requested: glm, fallback: saifren, now: NOW })), /GLM unavailable until .*fallback pool/);
 });
 
 test("a healthy route is used as requested, with no fallback announced", () => {
   const route = resolveProviderQuotaRoute({ requested: saifren, fallback: null, now: NOW });
   assert.equal(route.selection.providerId, "saifren");
   assert.equal(route.circuit, null);
-  assert.equal(describeProviderQuotaRoute("SAIFREN", route, NOW), "");
+  assert.equal(describeProviderQuotaRoute("SAIFREN", route), "");
 });
 
 test("with no fallback pool available the requested route is kept and the error is the vendor's", () => {
@@ -62,7 +62,7 @@ test("with no fallback pool available the requested route is kept and the error 
   const route = resolveProviderQuotaRoute({ requested: glm, fallback: null, now: NOW });
   assert.equal(route.selection.providerId, glm.providerId, "refusing the task would be worse");
   assert.equal(route.fallback, false);
-  assert.match(describeProviderQuotaRoute("GLM", route, NOW), /^GLM unavailable until \d/);
+  assert.match(describeProviderQuotaRoute("GLM", route), /^GLM unavailable until \d/);
 });
 
 test("recovery closes the circuit and the route comes back", () => {

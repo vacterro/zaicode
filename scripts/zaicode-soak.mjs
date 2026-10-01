@@ -27,6 +27,7 @@ import { mkdir, readFile, writeFile, rm } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import process from "node:process";
+import { CHURN, PROBE } from "./zaicode-soak-probes.mjs";
 
 const args = parseArgs(process.argv.slice(2));
 const REPO_ROOT = path.resolve(import.meta.dirname, "..");
@@ -45,7 +46,6 @@ const SAMPLE_SECONDS = Number(args["sample-seconds"] ?? 15);
 const CHURN_SECONDS = Number(args["churn-seconds"] ?? 20) / Number(args.accelerated ?? 1);
 const PORT = Number(args.port ?? 9333);
 const KEEP_OPEN = args["keep-open"] === true;
-const PROJECT_ROWS = Number(args["project-rows"] ?? 6);
 
 function stamp() {
   return new Date().toISOString().replace(/[:.]/g, "-");
@@ -213,60 +213,6 @@ async function findPageTarget(port, timeoutMs) {
   }
   throw new Error(`no debuggable page on port ${port} after ${timeoutMs}ms`);
 }
-
-// ── In-page probes ────────────────────────────────────────────────────────────
-
-const PROBE = `(async () => {
-  const root = document.querySelector("#root") ?? document.body;
-  const frames = [];
-  await new Promise((resolve) => {
-    let last = performance.now();
-    const started = last;
-    const tick = (now) => {
-      frames.push(now - last);
-      last = now;
-      if (now - started >= 2000) resolve();
-      else requestAnimationFrame(tick);
-    };
-    requestAnimationFrame(tick);
-  });
-  const long = frames.filter((d) => d > 50).length;
-  const heap = performance.memory;
-  const health = window.__ZAICODE_RUNTIME_HEALTH__ ? window.__ZAICODE_RUNTIME_HEALTH__() : null;
-  const text = (root?.textContent ?? "").trim();
-  return {
-    fps: Math.round((frames.length / 2) * 100) / 100,
-    longFrames: long,
-    nodes: document.getElementsByTagName("*").length,
-    heapUsedBytes: heap ? heap.usedJSHeapSize : null,
-    heapTotalBytes: heap ? heap.totalJSHeapSize : null,
-    // SRC-116 的不变量：一个 valid project 选中后必须收敛到 loaded / loading / 明确错误，
-    // 而不是永久空白。空白 = 几乎没有可见文本，也没有可见的子树。
-    blank: (document.getElementsByTagName("*").length < 5 && text.length < 8),
-    visibleTextLength: text.length,
-    health,
-  };
-})()`;
-
-const CHURN = `(async () => {
-  const click = (el) => { if (el) { el.click(); return true; } return false; };
-  const actions = [];
-  const rows = Array.from(document.querySelectorAll('[data-zaicode-project-row], [data-zaicode-home-project]'));
-  if (rows.length > 0) { click(rows[Math.floor(Math.random() * rows.length)]); actions.push("project-row"); }
-  const search = document.querySelector('input[type="search"], input[data-zaicode-search], input[placeholder*="earch"]');
-  if (search) {
-    const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set;
-    setter.call(search, "a" + Math.floor(Math.random() * 1000));
-    search.dispatchEvent(new Event("input", { bubbles: true }));
-    actions.push("search");
-    await new Promise((r) => setTimeout(r, 400));
-    setter.call(search, "");
-    search.dispatchEvent(new Event("input", { bubbles: true }));
-  }
-  const back = document.querySelector('[data-zaicode-home-back], [aria-label="Back"]');
-  if (back) { click(back); actions.push("back"); }
-  return actions;
-})()`;
 
 // ── Run ───────────────────────────────────────────────────────────────────────
 
