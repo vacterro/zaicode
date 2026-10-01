@@ -129,6 +129,18 @@ test("SRC-112: ZAICODE only reads the OUTBOX, it never writes it", () => {
   }
 });
 
+test("SRC-112: one reader per project, not one per open composer", () => {
+  const source = sourceOf("../src/zaicode/useZaicodeSubOutbox.ts");
+  // Ten sessions in a project is ten composers; without a shared poller that is
+  // ten times the reads for one fact, and ten times the traffic on a remote host.
+  assert.match(source, /const pollers = new Map<string, OutboxPoller>\(\)/);
+  assert.match(source, /function acquirePoller\(/);
+  assert.match(source, /if \(this\.listeners\.size === 1\) void this\.tick\(\)/);
+  assert.match(source, /if \(poller\.idle\)/);
+  // The read itself lives on the class, not in the hook's effect.
+  assert.equal(source.split(/readTextFile\(\{ path: `\$\{root\}/).length - 1, 1);
+});
+
 test("SRC-112: the chip is mounted above the SAIPEN strip, Collect sends the collect command", () => {
   const chip = sourceOf("../src/zaicode/ZaicodeSubOutboxChip.tsx");
   assert.match(chip, /zaicodeCollectCommand\(producer\)/);

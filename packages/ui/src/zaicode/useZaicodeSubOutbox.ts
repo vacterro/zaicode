@@ -51,6 +51,102 @@ function summarize(packages: ZaicodeOutboxPackage[]): ZaicodeSubOutboxSnapshot {
   return { packages, counts: zaicodeOutboxCounts(packages), producers: zaicodeReadyProducers(packages) };
 }
 
+type Listener = (snapshot: ZaicodeSubOutboxSnapshot | null) => void;
+
+/**
+ * One reader per project, shared by every open composer (SRC-112).
+ *
+ * A project with ten sessions open has ten composers, and each would otherwise
+ * readdir the subs root and re-read every OUTBOX.md on its own timer. That is
+ * ten times the file traffic for one fact -- and on a remote host it is ten
+ * times the network. Same shared-poller shape as the SAIPEN reader, for the
+ * same reason: one answer, many subscribers.
+ */
+class OutboxPoller {
+  private readonly listeners = new Set<Listener>();
+  private snapshot: ZaicodeSubOutboxSnapshot | null = null;
+  private timer: number | null = null;
+  private running = false;
+
+  constructor(
+    private readonly workspacePath: string,
+    private readonly fileService: FileService,
+  ) {}
+
+  subscribe(listener: Listener): () => void {
+    this.listeners.add(listener);
+    listener(this.snapshot);
+    if (this.listeners.size === 1) void this.tick();
+    return () => {
+      this.listeners.delete(listener);
+      if (this.listeners.size === 0 && this.timer !== null) {
+        window.clearTimeout(this.timer);
+        this.timer = null;
+      }
+    };
+  }
+
+  get idle(): boolean {
+    return this.listeners.size === 0;
+  }
+
+  private schedule(delay: number) {
+    if (this.listeners.size === 0) return;
+    this.timer = window.setTimeout(() => void this.tick(), delay);
+  }
+
+  private emit(snapshot: ZaicodeSubOutboxSnapshot | null) {
+    this.snapshot = snapshot;
+    for (const listener of this.listeners) listener(snapshot);
+  }
+
+  private async tick() {
+    this.timer = null;
+    if (this.running || this.listeners.size === 0) return;
+    if (typeof document !== "undefined" && document.visibilityState === "hidden") {
+      this.schedule(POLL_MS);
+      return;
+    }
+    this.running = true;
+    try {
+      const root = `${this.workspacePath.replace(/[\\/]+$/, "")}/.saipen/extensions/subs`;
+      const roles = (await this.fileService.readdir({ path: root, includeHidden: true })).filter(
+        isZaicodeSubOutboxRole,
+      );
+      const packages: ZaicodeOutboxPackage[] = [];
+      for (const role of roles) {
+        const content = await this.fileService
+          .readTextFile({ path: `${root}/${role.name}/kitchen/OUTBOX.md`, length: OUTBOX_BYTES })
+          .then((slice) => slice.content)
+          .catch(() => "");
+        packages.push(...parseZaicodeOutbox(content));
+      }
+      this.emit(summarize(packages));
+    } catch (error) {
+      // An absent `.saipen/` is "no subSaipens here"; an unreadable one is not.
+      if (isMissing(error)) this.emit(null);
+      else this.emit({ ...ZAICODE_OUTBOX_EMPTY, readError: readError(error) });
+    } finally {
+      this.running = false;
+      this.schedule(POLL_MS);
+    }
+  }
+}
+
+type FileService = ReturnType<typeof useWorkspaceServices>["fileService"];
+
+const pollers = new Map<string, OutboxPoller>();
+
+function acquirePoller(workspacePath: string, fileService: FileService): OutboxPoller {
+  const key = workspacePath.replace(/[\\/]+$/, "").toLowerCase();
+  let poller = pollers.get(key);
+  if (!poller) {
+    poller = new OutboxPoller(workspacePath, fileService);
+    pollers.set(key, poller);
+  }
+  return poller;
+}
+
 export function useZaicodeSubOutbox(
   workspacePath: string,
   workspaceIdentity?: string,
@@ -63,41 +159,13 @@ export function useZaicodeSubOutbox(
       setSnapshot(null);
       return undefined;
     }
-    const root = `${workspacePath.replace(/[\\/]+$/, "")}/.saipen/extensions/subs`;
-    let disposed = false;
-    let timer: number | null = null;
-    const tick = async () => {
-      timer = null;
-      if (disposed || (typeof document !== "undefined" && document.visibilityState === "hidden")) {
-        timer = window.setTimeout(() => void tick(), POLL_MS);
-        return;
-      }
-      try {
-        const roles = (await fileService.readdir({ path: root, includeHidden: true })).filter(
-          isZaicodeSubOutboxRole,
-        );
-        const packages: ZaicodeOutboxPackage[] = [];
-        for (const role of roles) {
-          const content = await fileService
-            .readTextFile({ path: `${root}/${role.name}/kitchen/OUTBOX.md`, length: OUTBOX_BYTES })
-            .then((slice) => slice.content)
-            .catch(() => "");
-          packages.push(...parseZaicodeOutbox(content));
-        }
-        if (!disposed) setSnapshot(summarize(packages));
-      } catch (error) {
-        // An absent `.saipen/` is "no subSaipens here"; an unreadable one is not.
-        if (disposed) return;
-        if (isMissing(error)) setSnapshot(null);
-        else setSnapshot({ ...ZAICODE_OUTBOX_EMPTY, readError: readError(error) });
-      } finally {
-        if (!disposed) timer = window.setTimeout(() => void tick(), POLL_MS);
-      }
-    };
-    void tick();
+    const poller = acquirePoller(workspacePath, fileService);
+    const unsubscribe = poller.subscribe(setSnapshot);
     return () => {
-      disposed = true;
-      if (timer !== null) window.clearTimeout(timer);
+      unsubscribe();
+      if (poller.idle) {
+        for (const [key, value] of pollers) if (value === poller) pollers.delete(key);
+      }
     };
   }, [fileService, workspacePath]);
 
