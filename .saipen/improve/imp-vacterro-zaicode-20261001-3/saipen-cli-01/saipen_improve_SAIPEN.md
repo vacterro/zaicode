@@ -1,0 +1,30 @@
+agent: saipen-cli-01
+role: core
+model_or_runtime: unknown
+project: vacterro-zaicode
+saipen_version: 8.0.1
+protocol_fingerprint: sha256:0ce0b643e4ff3631be3f3a3e0f67ae438b6f28d42ccdea71ee83285ba3e6c836
+source_head: cb91bb15b1c10ac9a2a06d821d5eb69a90ee1520
+source_tree_fingerprint: git-delta-v1:a15d9b96f4cfdac6ce9e7d50825f11e4de6cae063422b350cf95a333332cb421
+discovery_model: git-delta-v1
+context_scope: SAIPEN audit, phase DONE
+context_available: partial
+report_status: complete
+
+## RUN 1
+
+IMP-001 [P2] [LOGIC_ERROR] [reproduced] [ticket] -- An out-of-band revert of one protocol file leaves STATE and BOARD inconsistent, and `saipen recover` refuses to repair it
+  expected: `saipen recover` reconciles a project whose canonical files disagree.
+  actual: It returns RESIDUAL_DEFECTS with 'reconciliation has no repair left to make' and points at a state it will not fix, while every mutating command refuses on the same floor.
+  evidence: `git checkout -- .saipen/BOARD.md` rolled back every board mutation since the last commit (six unblocks, four reasoning writes, the T-151 claim). STATE.md was untouched, so it still carried task=T-151 while ## DOING was empty. `saipen recover` -> 'reconciliation has no repair left to make and the project is still invalid: FLOOR: STATE.task=T-151 but BOARD DOING is empty at the raw floor'. `saipen claim T-151 --explicit` -> 'DOING holds T-153' then, after that, 'T-151 carries a blocker; explicit priority override does not override authorization'. `saipen ticket unblock` and `ticket block` both refused with the same FLOOR text. Only reverting STATE.md as well restored a writable project, and then every rolled-back mutation had to be re-applied by hand.
+  impact: A single git operation outside the engine can strand the project with no sanctioned way back, and the recovery path itself is the thing that refuses. The cost was losing six unblocks, four reasoning writes and a claim, all re-appliable but none of them recorded anywhere automatic.
+  fix: Make recover reconcile the FLOOR case it detects -- when STATE names a ticket that no live section holds, offer to clear task or re-derive the section -- instead of declaring there is no repair left.
+
+IMP-002 [P3] [OTHER] [observed] [note] -- Two blockers this session rested on a premise about a mechanism that reading five lines of code would have refuted
+  expected: A block reason states why the work cannot proceed, and it is checked against the code that enforces the barrier.
+  actual: T-148 was blocked on 'protocol history is immutable, do not touch' and T-151 on 'sealing the LOG would move the failing lines into a sealed segment and launder them'. Both premises were false and neither was checked.
+  evidence: validate.py:4733 compares every LOG stamp to datetime.now(), so an ahead-of-real-UTC stamp is transient and heals by itself -- the seals at E-2465..E-2470 were green by 17:00 with no edit. validate.py:3275 appends to timestamp_events for sealed and active logs alike, so sealing cannot hide anything. The root cause of the six stamps was named in the project's own LOG at E-2486: local time (+2h) written into a UTC field.
+  impact: Both false blockers stalled the board, and a third false premise -- reading STYLE.md from a checkout the runtime does not execute -- produced a committed regression that had to be reverted. The generalisable error is asserting what a mechanism does instead of reading it.
+  fix: Before writing a block reason that names a mechanism, cite the line that implements it. A blocker whose justification is 'this would corrupt X' is a claim about code, and code is readable.
+
+NO_FINDINGS_FOR_REMAINING_SCOPE -- the nine BLOCKED tickets were re-read and each cites concrete evidence (a dirty engine tree, a host deletion, a missing receipt); none of them hides a defect this seat can resolve, and the two IMPROVE cycles already swept cover the rest of the surface.
