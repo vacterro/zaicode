@@ -183,8 +183,6 @@ export function moveZaicodeWorker(id: string, to: number): void {
 export const openZaicodeWorkersDock = (activeId?: string): void =>
   activeId ? focusZaicodeWorker(activeId) : openZaicodeWorkersPanel();
 export const toggleZaicodeWorkersDock = toggleZaicodeWorkersPanel;
-export const minimizeZaicodeWorkersDock = hideZaicodeWorkersPanel;
-export const closeZaicodeWorkersDock = hideZaicodeWorkersPanel;
 
 // ---------------------------------------------------------------------------
 // One worker

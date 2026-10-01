@@ -98,7 +98,7 @@ function enqueue(burst: QueuedBurst): void {
   }
 }
 
-export interface ZaicodeChatEditState {
+interface ZaicodeChatEditState {
   /** The edit is still running. */
   running: boolean;
   /** When the edit entered the stream (local ms), when known. */
