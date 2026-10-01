@@ -5846,5 +5846,9 @@
   "scheduledPreview.addSchedule": "Thêm lịch",
   "feedback.severity.P1-高.label": "Không thể sử dụng",
   "feedback.severity.P2-中.label": "Ảnh hưởng đến việc sử dụng",
-  "feedback.severity.P3-低.label": "Vấn đề nhỏ/góp ý"
+  "feedback.severity.P3-低.label": "Vấn đề nhỏ/góp ý",
+  "settings.modelProvider.displayName": "Tên hiển thị",
+  "settings.modelProvider.enableAllModels": "Bật tất cả",
+  "settings.modelProvider.disableAllModels": "Tắt tất cả",
+  "settings.modelProvider.enableOnlyModel": "Chỉ bật…"
 }

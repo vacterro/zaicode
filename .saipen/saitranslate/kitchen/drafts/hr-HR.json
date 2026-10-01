@@ -5846,5 +5846,9 @@
   "scheduledPreview.keepAwakeDisabled": "Održavanje budnosti isključeno",
   "scheduledPreview.toast.running": "Pokreće se „{title}”…",
   "scheduledPreview.toast.view": "Prikaži",
-  "scheduledPreview.addSchedule": "Dodaj raspored"
+  "scheduledPreview.addSchedule": "Dodaj raspored",
+  "settings.modelProvider.displayName": "Prikazani naziv",
+  "settings.modelProvider.enableAllModels": "Omogući sve",
+  "settings.modelProvider.disableAllModels": "Onemogući sve",
+  "settings.modelProvider.enableOnlyModel": "Omogući samo…"
 }

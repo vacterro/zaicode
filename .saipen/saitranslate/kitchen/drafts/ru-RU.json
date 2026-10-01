@@ -5846,5 +5846,9 @@
   "scheduledPreview.addSchedule": "Добавить расписание",
   "feedback.severity.P1-高.label": "Невозможно пользоваться",
   "feedback.severity.P2-中.label": "Мешает работе",
-  "feedback.severity.P3-低.label": "Небольшая проблема или предложение"
+  "feedback.severity.P3-低.label": "Небольшая проблема или предложение",
+  "settings.modelProvider.displayName": "Отображаемое имя",
+  "settings.modelProvider.enableAllModels": "Включить все",
+  "settings.modelProvider.disableAllModels": "Отключить все",
+  "settings.modelProvider.enableOnlyModel": "Включить только…"
 }

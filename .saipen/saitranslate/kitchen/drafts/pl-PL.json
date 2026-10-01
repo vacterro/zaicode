@@ -5846,5 +5846,9 @@
   "scheduledPreview.addSchedule": "Dodaj harmonogram",
   "feedback.severity.P1-高.label": "Nie można użyć",
   "feedback.severity.P2-中.label": "Wpływa na korzystanie",
-  "feedback.severity.P3-低.label": "Drobny problem/sugestia"
+  "feedback.severity.P3-低.label": "Drobny problem/sugestia",
+  "settings.modelProvider.displayName": "Nazwa wyświetlana",
+  "settings.modelProvider.enableAllModels": "Włącz wszystkie",
+  "settings.modelProvider.disableAllModels": "Wyłącz wszystkie",
+  "settings.modelProvider.enableOnlyModel": "Włącz tylko…"
 }

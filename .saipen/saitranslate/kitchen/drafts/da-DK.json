@@ -5846,5 +5846,9 @@
   "scheduledPreview.addSchedule": "Tilføj tidsplan",
   "feedback.severity.P1-高.label": "Kan ikke bruge det",
   "feedback.severity.P2-中.label": "Påvirker brugen",
-  "feedback.severity.P3-低.label": "Mindre problem/forslag"
+  "feedback.severity.P3-低.label": "Mindre problem/forslag",
+  "settings.modelProvider.displayName": "Visningsnavn",
+  "settings.modelProvider.enableAllModels": "Aktivér alle",
+  "settings.modelProvider.disableAllModels": "Deaktivér alle",
+  "settings.modelProvider.enableOnlyModel": "Aktivér kun…"
 }

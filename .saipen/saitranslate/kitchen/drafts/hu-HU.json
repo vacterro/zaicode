@@ -5846,5 +5846,9 @@
   "scheduledPreview.keepAwakeDisabled": "Ébren tartás kikapcsolva",
   "scheduledPreview.toast.running": "„{title}” fut…",
   "scheduledPreview.toast.view": "Megtekintés",
-  "scheduledPreview.addSchedule": "Ütemezés hozzáadása"
+  "scheduledPreview.addSchedule": "Ütemezés hozzáadása",
+  "settings.modelProvider.displayName": "Megjelenített név",
+  "settings.modelProvider.enableAllModels": "Összes engedélyezése",
+  "settings.modelProvider.disableAllModels": "Összes letiltása",
+  "settings.modelProvider.enableOnlyModel": "Csak ez engedélyezve…"
 }

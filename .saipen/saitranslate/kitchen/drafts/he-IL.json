@@ -5846,5 +5846,9 @@
   "scheduledPreview.keepAwakeDisabled": "שמירת יקיצה הושבתה",
   "scheduledPreview.toast.running": "מריץ את “{title}”…",
   "scheduledPreview.toast.view": "הצגה",
-  "scheduledPreview.addSchedule": "הוסף לוח זמנים"
+  "scheduledPreview.addSchedule": "הוסף לוח זמנים",
+  "settings.modelProvider.displayName": "שם תצוגה",
+  "settings.modelProvider.enableAllModels": "הפעל הכול",
+  "settings.modelProvider.disableAllModels": "השבת הכול",
+  "settings.modelProvider.enableOnlyModel": "הפעל רק…"
 }

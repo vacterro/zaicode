@@ -5846,5 +5846,9 @@
   "scheduledPreview.addSchedule": "Додати розклад",
   "feedback.severity.P1-高.label": "Не можна використовувати",
   "feedback.severity.P2-中.label": "Впливає на використання",
-  "feedback.severity.P3-低.label": "Дрібна проблема/пропозиція"
+  "feedback.severity.P3-低.label": "Дрібна проблема/пропозиція",
+  "settings.modelProvider.displayName": "Відображувана назва",
+  "settings.modelProvider.enableAllModels": "Увімкнути всі",
+  "settings.modelProvider.disableAllModels": "Вимкнути всі",
+  "settings.modelProvider.enableOnlyModel": "Увімкнути лише…"
 }

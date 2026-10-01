@@ -5846,5 +5846,9 @@
   "scheduledPreview.addSchedule": "Lisää aikataulu",
   "feedback.severity.P1-高.label": "Sitä ei voi käyttää",
   "feedback.severity.P2-中.label": "Vaikuttaa käyttöön",
-  "feedback.severity.P3-低.label": "Vähäinen ongelma/ehdotus"
+  "feedback.severity.P3-低.label": "Vähäinen ongelma/ehdotus",
+  "settings.modelProvider.displayName": "Näyttönimi",
+  "settings.modelProvider.enableAllModels": "Ota kaikki käyttöön",
+  "settings.modelProvider.disableAllModels": "Poista kaikki käytöstä",
+  "settings.modelProvider.enableOnlyModel": "Ota käyttöön vain…"
 }

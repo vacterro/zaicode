@@ -5846,5 +5846,9 @@
   "scheduledPreview.keepAwakeDisabled": "Η διατήρηση ενεργής απενεργοποιήθηκε",
   "scheduledPreview.toast.running": "Εκτέλεση «{title}»…",
   "scheduledPreview.toast.view": "Προβολή",
-  "scheduledPreview.addSchedule": "Προσθήκη προγράμματος"
+  "scheduledPreview.addSchedule": "Προσθήκη προγράμματος",
+  "settings.modelProvider.displayName": "Εμφανιζόμενο όνομα",
+  "settings.modelProvider.enableAllModels": "Ενεργοποίηση όλων",
+  "settings.modelProvider.disableAllModels": "Απενεργοποίηση όλων",
+  "settings.modelProvider.enableOnlyModel": "Ενεργοποίηση μόνο…"
 }

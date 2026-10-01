@@ -5846,5 +5846,9 @@
   "scheduledPreview.addSchedule": "Lägg till schema",
   "feedback.severity.P1-高.label": "Kan inte använda det",
   "feedback.severity.P2-中.label": "Påverkar användningen",
-  "feedback.severity.P3-低.label": "Mindre problem/förslag"
+  "feedback.severity.P3-低.label": "Mindre problem/förslag",
+  "settings.modelProvider.displayName": "Visningsnamn",
+  "settings.modelProvider.enableAllModels": "Aktivera alla",
+  "settings.modelProvider.disableAllModels": "Inaktivera alla",
+  "settings.modelProvider.enableOnlyModel": "Aktivera endast…"
 }

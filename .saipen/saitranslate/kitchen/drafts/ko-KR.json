@@ -5846,5 +5846,9 @@
   "scheduledPreview.addSchedule": "일정 추가",
   "feedback.severity.P1-高.label": "사용할 수 없음",
   "feedback.severity.P2-中.label": "사용에 영향",
-  "feedback.severity.P3-低.label": "경미한 문제/제안"
+  "feedback.severity.P3-低.label": "경미한 문제/제안",
+  "settings.modelProvider.displayName": "표시 이름",
+  "settings.modelProvider.enableAllModels": "모두 활성화",
+  "settings.modelProvider.disableAllModels": "모두 비활성화",
+  "settings.modelProvider.enableOnlyModel": "선택한 모델만 활성화…"
 }

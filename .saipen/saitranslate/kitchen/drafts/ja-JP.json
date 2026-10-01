@@ -5846,5 +5846,9 @@
   "scheduledPreview.addSchedule": "スケジュールを追加",
   "feedback.severity.P1-高.label": "使用できません",
   "feedback.severity.P2-中.label": "利用に影響",
-  "feedback.severity.P3-低.label": "軽微な問題／提案"
+  "feedback.severity.P3-低.label": "軽微な問題／提案",
+  "settings.modelProvider.displayName": "表示名",
+  "settings.modelProvider.enableAllModels": "すべて有効にする",
+  "settings.modelProvider.disableAllModels": "すべて無効にする",
+  "settings.modelProvider.enableOnlyModel": "次のみ有効にする…"
 }

@@ -5846,5 +5846,9 @@
   "scheduledPreview.addSchedule": "Lisa ajastus",
   "feedback.severity.P1-高.label": "Ei saa kasutada",
   "feedback.severity.P2-中.label": "Mõjutab kasutamist",
-  "feedback.severity.P3-低.label": "Väike probleem/soovitus"
+  "feedback.severity.P3-低.label": "Väike probleem/soovitus",
+  "settings.modelProvider.displayName": "Kuvamisnimi",
+  "settings.modelProvider.enableAllModels": "Luba kõik",
+  "settings.modelProvider.disableAllModels": "Keela kõik",
+  "settings.modelProvider.enableOnlyModel": "Luba ainult…"
 }

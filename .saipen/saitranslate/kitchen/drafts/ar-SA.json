@@ -5846,5 +5846,9 @@
   "scheduledPreview.addSchedule": "إضافة جدولة",
   "feedback.severity.P1-高.label": "لا يمكن استخدامه",
   "feedback.severity.P2-中.label": "يؤثر على الاستخدام",
-  "feedback.severity.P3-低.label": "مشكلة بسيطة/اقتراح"
+  "feedback.severity.P3-低.label": "مشكلة بسيطة/اقتراح",
+  "settings.modelProvider.displayName": "اسم العرض",
+  "settings.modelProvider.enableAllModels": "تفعيل الكل",
+  "settings.modelProvider.disableAllModels": "تعطيل الكل",
+  "settings.modelProvider.enableOnlyModel": "تفعيل فقط…"
 }

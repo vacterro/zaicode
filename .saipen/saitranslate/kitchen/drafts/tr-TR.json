@@ -5846,5 +5846,9 @@
   "scheduledPreview.addSchedule": "Zamanlama ekle",
   "feedback.severity.P1-高.label": "Kullanılamıyor",
   "feedback.severity.P2-中.label": "Kullanımı etkiler",
-  "feedback.severity.P3-低.label": "Küçük sorun/öneri"
+  "feedback.severity.P3-低.label": "Küçük sorun/öneri",
+  "settings.modelProvider.displayName": "Görünen ad",
+  "settings.modelProvider.enableAllModels": "Tümünü etkinleştir",
+  "settings.modelProvider.disableAllModels": "Tümünü devre dışı bırak",
+  "settings.modelProvider.enableOnlyModel": "Yalnızca etkinleştir…"
 }

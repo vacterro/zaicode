@@ -5846,5 +5846,9 @@
   "scheduledPreview.addSchedule": "Planning toevoegen",
   "feedback.severity.P1-高.label": "Kan niet worden gebruikt",
   "feedback.severity.P2-中.label": "Heeft invloed op het gebruik",
-  "feedback.severity.P3-低.label": "Klein probleem/suggestie"
+  "feedback.severity.P3-低.label": "Klein probleem/suggestie",
+  "settings.modelProvider.displayName": "Weergavenaam",
+  "settings.modelProvider.enableAllModels": "Alles inschakelen",
+  "settings.modelProvider.disableAllModels": "Alles uitschakelen",
+  "settings.modelProvider.enableOnlyModel": "Alleen inschakelen…"
 }

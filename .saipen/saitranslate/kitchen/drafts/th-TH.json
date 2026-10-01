@@ -5846,5 +5846,9 @@
   "scheduledPreview.keepAwakeDisabled": "ปิดการไม่ให้เครื่องพักแล้ว",
   "scheduledPreview.toast.running": "กำลังรัน “{title}”…",
   "scheduledPreview.toast.view": "ดู",
-  "scheduledPreview.addSchedule": "เพิ่มตารางเวลา"
+  "scheduledPreview.addSchedule": "เพิ่มตารางเวลา",
+  "settings.modelProvider.displayName": "ชื่อที่แสดง",
+  "settings.modelProvider.enableAllModels": "เปิดใช้งานทั้งหมด",
+  "settings.modelProvider.disableAllModels": "ปิดใช้งานทั้งหมด",
+  "settings.modelProvider.enableOnlyModel": "เปิดใช้งานเฉพาะ…"
 }

@@ -5846,5 +5846,9 @@
   "scheduledPreview.addSchedule": "Tambah jadwal",
   "feedback.severity.P1-高.label": "Tidak dapat digunakan",
   "feedback.severity.P2-中.label": "Memengaruhi penggunaan",
-  "feedback.severity.P3-低.label": "Masalah kecil/saran"
+  "feedback.severity.P3-低.label": "Masalah kecil/saran",
+  "settings.modelProvider.displayName": "Nama tampilan",
+  "settings.modelProvider.enableAllModels": "Aktifkan semua",
+  "settings.modelProvider.disableAllModels": "Nonaktifkan semua",
+  "settings.modelProvider.enableOnlyModel": "Aktifkan hanya…"
 }

@@ -5846,5 +5846,9 @@
   "scheduledPreview.addSchedule": "Adicionar agendamento",
   "feedback.severity.P1-高.label": "Não é possível usar",
   "feedback.severity.P2-中.label": "Afeta o uso",
-  "feedback.severity.P3-低.label": "Problema menor/sugestão"
+  "feedback.severity.P3-低.label": "Problema menor/sugestão",
+  "settings.modelProvider.displayName": "Nome de exibição",
+  "settings.modelProvider.enableAllModels": "Ativar todos",
+  "settings.modelProvider.disableAllModels": "Desativar todos",
+  "settings.modelProvider.enableOnlyModel": "Ativar apenas…"
 }

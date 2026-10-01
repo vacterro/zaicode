@@ -5846,5 +5846,9 @@
   "scheduledPreview.addSchedule": "Добави график",
   "feedback.severity.P1-高.label": "Не може да се използва",
   "feedback.severity.P2-中.label": "Засяга използването",
-  "feedback.severity.P3-低.label": "Незначителен проблем/предложение"
+  "feedback.severity.P3-低.label": "Незначителен проблем/предложение",
+  "settings.modelProvider.displayName": "Показвано име",
+  "settings.modelProvider.enableAllModels": "Включи всички",
+  "settings.modelProvider.disableAllModels": "Изключи всички",
+  "settings.modelProvider.enableOnlyModel": "Включи само…"
 }

@@ -5846,5 +5846,9 @@
   "scheduledPreview.addSchedule": "शेड्यूल जोड़ें",
   "feedback.severity.P1-高.label": "इसका उपयोग नहीं कर सकते",
   "feedback.severity.P2-中.label": "उपयोग को प्रभावित करता है",
-  "feedback.severity.P3-低.label": "छोटी समस्या/सुझाव"
+  "feedback.severity.P3-低.label": "छोटी समस्या/सुझाव",
+  "settings.modelProvider.displayName": "प्रदर्शित नाम",
+  "settings.modelProvider.enableAllModels": "सभी सक्षम करें",
+  "settings.modelProvider.disableAllModels": "सभी अक्षम करें",
+  "settings.modelProvider.enableOnlyModel": "केवल सक्षम करें…"
 }

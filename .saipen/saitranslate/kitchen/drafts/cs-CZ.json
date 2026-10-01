@@ -5846,5 +5846,9 @@
   "scheduledPreview.keepAwakeDisabled": "Zákaz uspání vypnut",
   "scheduledPreview.toast.running": "Spuštění „{title}“…",
   "scheduledPreview.toast.view": "Zobrazit",
-  "scheduledPreview.addSchedule": "Přidat plán"
+  "scheduledPreview.addSchedule": "Přidat plán",
+  "settings.modelProvider.displayName": "Zobrazovaný název",
+  "settings.modelProvider.enableAllModels": "Povolit vše",
+  "settings.modelProvider.disableAllModels": "Zakázat vše",
+  "settings.modelProvider.enableOnlyModel": "Povolit pouze…"
 }

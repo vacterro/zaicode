@@ -5846,5 +5846,9 @@
   "scheduledPreview.addSchedule": "Añadir programación",
   "feedback.severity.P1-高.label": "No se puede usar",
   "feedback.severity.P2-中.label": "Afecta al uso",
-  "feedback.severity.P3-低.label": "Problema menor/sugerencia"
+  "feedback.severity.P3-低.label": "Problema menor/sugerencia",
+  "settings.modelProvider.displayName": "Nombre visible",
+  "settings.modelProvider.enableAllModels": "Activar todos",
+  "settings.modelProvider.disableAllModels": "Desactivar todos",
+  "settings.modelProvider.enableOnlyModel": "Activar solo…"
 }
