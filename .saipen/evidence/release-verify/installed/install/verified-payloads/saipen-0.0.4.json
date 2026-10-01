@@ -1,0 +1,16 @@
+{
+    "id":  "saipen",
+    "runtimeContract":  1,
+    "files":  [
+                  {
+                      "path":  "managed/saipen/0.0.4/runtime.txt",
+                      "sha256":  "f1c809da8974959153ffac10d0dbe06247c325d713117b9592690d053e8069c7",
+                      "size":  21
+                  }
+              ],
+    "schema":  1,
+    "paths":  {
+                  "saipen":  "managed/saipen/0.0.4"
+              },
+    "version":  "0.0.4"
+}

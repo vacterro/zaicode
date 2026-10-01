@@ -1,0 +1,38 @@
+{
+    "version":  "0.0.5",
+    "runtimeContract":  1,
+    "channel":  "test",
+    "schema":  1,
+    "product":  "zaicode",
+    "approved":  true,
+    "components":  [
+                       {
+                           "url":  "http://127.0.0.1:61834/releases/0.0.5/app-0.0.5.zip",
+                           "sha256":  "49e5179ff14c26d9da867de7b1e97713dfe63805de5e292f7c598b539d4fb062",
+                           "id":  "app",
+                           "size":  484,
+                           "version":  "0.0.5"
+                       },
+                       {
+                           "url":  "http://127.0.0.1:61834/releases/0.0.5/saipen-0.0.5.zip",
+                           "sha256":  "9c55fde6e3441566a5b65d6a0b1c928a02f04a4deb90a050d69e32c852388a43",
+                           "id":  "saipen",
+                           "size":  493,
+                           "version":  "0.0.5"
+                       },
+                       {
+                           "url":  "http://127.0.0.1:61834/releases/0.0.5/saimail-0.0.5.zip",
+                           "sha256":  "a6d76452908e6b05c89276c86f26e933d1866a959f22a151fe1d1710e40a9adf",
+                           "id":  "saimail",
+                           "size":  498,
+                           "version":  "0.0.5"
+                       },
+                       {
+                           "url":  "http://127.0.0.1:61834/releases/0.0.5/router-0.0.5.zip",
+                           "sha256":  "95aa2f00f26c8bd9ab05c7fe806e18177b57aa4f41dcbd7f3d0506a8b2bdd5b0",
+                           "id":  "router",
+                           "size":  496,
+                           "version":  "0.0.5"
+                       }
+                   ]
+}

@@ -1,0 +1,14 @@
+{
+  "clauses": {
+    "SRC-115:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "saihunt"
+    }
+  },
+  "derived_at": "2026-10-01T14:43:30Z",
+  "derived_from": "SRC-115",
+  "interpretation_revision": 1,
+  "schema_version": 1,
+  "source_sha256": "8def17f51c9067bba6e9ce26c13536df3531a5f0efb1186a2be97192cc890cea"
+}

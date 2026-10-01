@@ -1,8 +1,27 @@
 # Changelog
 
-All notable ZAICODE releases. Versions follow semantic versioning; the tag
-`vX.Y.Z` marks the `main` branch (application source) and `workspace-vX.Y.Z`
-`master` (this root: launcher, docs, SAIPEN memory).
+All notable ZAICODE releases. Versions follow semantic versioning. Tags
+`vX.Y.Z` identify the workspace on `master`; each entry records the separate
+application commit on `zaicode`. The upstream framework version is independent.
+
+## 0.0.2 — 2026-09-30
+
+- Complete 33 UI/CLI locale catalogs and translated user documentation from
+  the authenticated T-140/T-113 package. New model controls retain exact key
+  and interpolation-token parity across all catalogs.
+- T-141: subscription selection reaches the focused chat; model names and
+  effort persist; bulk model switches reduce setup clicks. Provider saves
+  settle independently, reserve quota appears last, and Windows CLI probes
+  receive a closed stdin pipe.
+- Cancellation retains failed stops for retry and prevents hidden live tasks.
+  Idle audits archive without deleting reports. Sidebars swap, collapse into
+  a 52px rail, and keep separate controls in a narrow window. Repeated hover
+  sounds follow the chosen overlap mode; shortcut settings share one page.
+- T-139: retain the reviewed SAIPEGGLE and SAIASUI corrections.
+- Application commit: `e90914815ad3c607132cc6aafeea0a106f848cb4`.
+  Validation: 1158 tests pass, two platform skips; packaged sidebar, 640px
+  hit targets, locale restart and three-monitor ProTrail pass. The isolated
+  free pool answers a first task without configuration.
 
 ## Unreleased
 

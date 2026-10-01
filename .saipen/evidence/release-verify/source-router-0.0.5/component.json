@@ -1,0 +1,16 @@
+{
+    "id":  "router",
+    "runtimeContract":  1,
+    "files":  [
+                  {
+                      "path":  "managed/router/0.0.5/runtime.txt",
+                      "sha256":  "188999177513f42d97e16f70ad75bf6218a311afaca731196d83cd7cddd0de58",
+                      "size":  21
+                  }
+              ],
+    "schema":  1,
+    "paths":  {
+                  "router":  "managed/router/0.0.5"
+              },
+    "version":  "0.0.5"
+}

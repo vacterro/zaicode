@@ -1,0 +1,16 @@
+{
+    "id":  "saimail",
+    "runtimeContract":  1,
+    "files":  [
+                  {
+                      "path":  "managed/saimail/0.0.4/runtime.txt",
+                      "sha256":  "7ec777be205ca6a5b1522a51fef1dd5e023cbfb95a8875448257049e1d453fca",
+                      "size":  22
+                  }
+              ],
+    "schema":  1,
+    "paths":  {
+                  "saimail":  "managed/saimail/0.0.4"
+              },
+    "version":  "0.0.4"
+}

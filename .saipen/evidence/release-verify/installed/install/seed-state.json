@@ -1,0 +1,41 @@
+{
+    "schema":  1,
+    "runtimeContract":  1,
+    "version":  "0.0.3",
+    "channel":  "test",
+    "testManifestUrl":  "http://127.0.0.1:61834/stable.json",
+    "components":  {
+                       "app":  {
+                                   "receiptSha256":  "95707e4451dd8608c340a97dfc0db73cf73ba1a7e44c2aba6af89cc4d7e14132",
+                                   "paths":  {
+                                                 "app":  "versions/0.0.3/app"
+                                             },
+                                   "sha256":  "d6568736c002b3c12bdea687059052dccbf8fc13660964ec873d66417b06cdd3",
+                                   "version":  "0.0.3"
+                               },
+                       "saipen":  {
+                                      "receiptSha256":  "87782cd9709069ab108da6922ece836b4ae40a6071ef15435bc550c600ce67fd",
+                                      "paths":  {
+                                                    "saipen":  "managed/saipen/0.0.3"
+                                                },
+                                      "sha256":  "6fb4682c56a56edf3fe5fab70ceaf5e814e44726c69118b03146dde36b88b232",
+                                      "version":  "0.0.3"
+                                  },
+                       "saimail":  {
+                                       "receiptSha256":  "bf6a0deb207f5c16b6eaa6db543ec52b5af8dc262c90ec23b2354f98ee86fa3f",
+                                       "paths":  {
+                                                     "saimail":  "managed/saimail/0.0.3"
+                                                 },
+                                       "sha256":  "d5a459762d7d18877585510d11a4b95096231435513ad4073111a428a1d2dad1",
+                                       "version":  "0.0.3"
+                                   },
+                       "router":  {
+                                      "receiptSha256":  "50765bf0f0d081a6e71867b565b393e989aa627bb8b9cdc47de3460ec797ae7d",
+                                      "paths":  {
+                                                    "router":  "managed/router/0.0.3"
+                                                },
+                                      "sha256":  "4dd29bde214bdfc8e592ed4ac61bc8d6b8ef847bc64259ca90fe749cfa426038",
+                                      "version":  "0.0.3"
+                                  }
+                   }
+}

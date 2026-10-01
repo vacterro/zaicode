@@ -480,3 +480,24 @@ drops every `CLAUDE*`, `CODEX*`, `ANTHROPIC*`, `OPENAI*`, `GEMINI*` variable.
 On a fresh profile the default model comes from the bundled release defaults
 (`zaicodeSettingsDefaults.json`: `new-provider / SAIFREN`, which resolves), not
 from localStorage: check what New task shows, not the storage key.
+
+## A subSaipen OUTBOX queue is ONE deep, and `verified` is a closed verdict (2026-10-01, T-146)
+
+Two refusals that both read like a broken deliverable and are not:
+
+1. `saipen sub collect` refuses with `MALFORMED_PACKAGE: expected exactly
+   one current READY package; found N` as soon as a sweep files more than one.
+   PROTOCOL.md section 4 step 3 asks PREPARE to write "the combined result", so
+   one sweep delivers ONE package carrying every finding in its `payload`; the
+   negative-result signal record belongs in that package's `details`, not in a
+   package of its own -- coverage evidence is not collectable work.
+2. Every `verified:` must fullmatch `(?i)(PASS|FAIL|BLOCKED)(\s*--\s*.*)?`.
+   Prose there ("verified: looks good") is never positive evidence. Related:
+   a blank line inside any field block sets `active_field = None` in
+   `tools/saipen_engine/subs.py`, so every indented line after it is rejected as
+   malformed -- one paragraph per field, no blank separators.
+
+Bar: `saipen outbox check <role>` must exit 0 before collect is attempted.
+A sub's own `next_action` must start with `WAIT:`/`saipen `/`PHASE `/`RUN:`/
+`RESUME:`, and a `phase: DONE` sub state needs `task: none`, or `saipen sub
+list` reports `health: INVALID` and nobody says why in the STATUS line.

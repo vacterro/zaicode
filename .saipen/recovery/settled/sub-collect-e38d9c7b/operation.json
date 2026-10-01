@@ -1,0 +1,72 @@
+{
+  "op_id": "sub-collect-e38d9c7b",
+  "operation": "sub_collect",
+  "created_at": "2026-10-01T14:42:23Z",
+  "agent": "saipen-cli",
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "project_lineage": "lineage-b0732ed2f98947b9a3c97bfe71427eca",
+  "semantic_payload_hash": "5d22f58461941d24",
+  "preconditions": {
+    ".saipen/LOG.md": "e112b4c45f3f53e0",
+    ".saipen/BOARD.md": "a582d6b6071a52c3",
+    ".saipen/STATE.md": "a702db3b655bf597",
+    ".saipen/extensions/subs/MANIFEST.md": "53614a535d5d5dd5"
+  },
+  "read_preconditions": {
+    ".": "source-identity-v1:8629ca73153a6dc595eaa93600ea28e39c6843aef6749f09c7c6d96c94005132",
+    ".saipen/logs/LOG-001.md": "9d77443ef6269f79",
+    ".saipen/logs/LOG-002.md": "de23495e9525a297",
+    "V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/.saipen/extensions/subs/saihunt.md": "5927e8c0ace9d76b",
+    ".saipen/extensions/subs/saihunt/kitchen/OUTBOX.md": "632c688745183710"
+  },
+  "verification_policy": "sub_collect",
+  "status": "COMMITTED",
+  "progress_index": 4,
+  "targets": [
+    {
+      "path": ".saipen/LOG.md",
+      "role": "log",
+      "action": "write",
+      "before_hash": "e112b4c45f3f53e0",
+      "after_hash": "94ae30726c34553f",
+      "applied": true
+    },
+    {
+      "path": ".saipen/BOARD.md",
+      "role": "board",
+      "action": "write",
+      "before_hash": "a582d6b6071a52c3",
+      "after_hash": "de0ff9a0256b4f40",
+      "applied": true
+    },
+    {
+      "path": ".saipen/STATE.md",
+      "role": "state",
+      "action": "write",
+      "before_hash": "a702db3b655bf597",
+      "after_hash": "364adcea64d6dd44",
+      "applied": true
+    },
+    {
+      "path": ".saipen/extensions/subs/MANIFEST.md",
+      "role": "manifest",
+      "action": "write",
+      "before_hash": "53614a535d5d5dd5",
+      "after_hash": "77547e03da68cb10",
+      "applied": true
+    }
+  ],
+  "receipt_metadata": {
+    "operation": "sub_collect",
+    "status": "COMMITTED",
+    "package_identities": [
+      "sha256:7786957a72c65f1356f99f8da24c26fb683feabb5c0a453e8c96f5047f23319a"
+    ],
+    "producers": [
+      "saihunt"
+    ],
+    "tickets": [
+      "T-147"
+    ]
+  }
+}

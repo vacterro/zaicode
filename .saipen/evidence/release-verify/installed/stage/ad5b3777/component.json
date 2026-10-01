@@ -1,0 +1,16 @@
+{
+    "id":  "app",
+    "runtimeContract":  1,
+    "files":  [
+                  {
+                      "path":  "versions/0.0.5/app/runtime.txt",
+                      "sha256":  "41cb8d16560383e3c66826cb08d1f251b7673dfbcd90b122da9c334b78a3db86",
+                      "size":  18
+                  }
+              ],
+    "schema":  1,
+    "paths":  {
+                  "app":  "versions/0.0.5/app"
+              },
+    "version":  "0.0.5"
+}

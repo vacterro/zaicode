@@ -1,10 +1,12 @@
 # ZAICODE
 
+**v0.0.2**
+
 <div align="center">
   <img src="https://raw.githubusercontent.com/vacterro/zaicode/zaicode/packages/ui/src/assets/zaicode-working.png" alt="ZAICODE" width="96" height="96" />
 </div>
 <p align="center">
-  <img src="https://img.shields.io/badge/version-0.0.1-c9a227" alt="version 0.0.1" />
+  <img src="https://img.shields.io/badge/version-0.0.2-c9a227" alt="version 0.0.2" />
   <img src="https://img.shields.io/badge/platform-Windows-3b3527" alt="Windows" />
   <img src="https://img.shields.io/badge/license-Apache--2.0-3b3527" alt="Apache-2.0" />
 </p>

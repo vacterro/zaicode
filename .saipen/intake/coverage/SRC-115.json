@@ -1,0 +1,14 @@
+{
+  "requirements": {
+    "SRC-115:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "T-146 closed with verification evidence in LOG: VERIFY PASS conf:high. Gate 1 (deliverable grammar): saipen outbox check saihunt -> OUTBOX_VALID. Gate 2 (product regression): pnpm test exit 0 -- ui 860/860, services 92/92, desktop 209 pass 0 fail of 211, cli-core 40/40. Gate 3 (boundary): git status over both trees shows the zcode product tree untouched; every saihunt write confined to .saipen/extensions/subs/saihunt/. Gate 4 (handoff): sub col",
+      "text": "saihunt",
+      "verification": "the Work this request created reached its own verification gate; see the T-146 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-146"
+    }
+  },
+  "schema_version": 1
+}
