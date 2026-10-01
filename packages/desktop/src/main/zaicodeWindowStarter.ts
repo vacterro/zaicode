@@ -54,6 +54,54 @@ export function codexWindowStartArgs(): string[] {
   ];
 }
 
+/** Headless Flash request: the vendor still charges its actual input/output tokens. */
+export function antigravityWindowStartArgs(): string[] {
+  return [
+    "-p",
+    ZAICODE_WINDOW_START_PROMPT,
+    "--model",
+    "gemini-3.5-flash-medium",
+    "--effort",
+    "low",
+    "--sandbox",
+    "--output-format",
+    "json",
+  ];
+}
+
+const ZCODE_CODING_ORIGINS = new Set(["https://api.z.ai", "https://open.bigmodel.cn"]);
+const ZCODE_CODING_PATH = "/api/coding/paas/v4";
+
+/** Resolve only a plan API endpoint; a general/prepaid endpoint is never a start target. */
+export function zcodeWindowStartRequest(baseUrl: string, providerId = "builtin:zai-coding-plan") {
+  const fallback = providerId.includes("bigmodel")
+    ? `https://open.bigmodel.cn${ZCODE_CODING_PATH}`
+    : `https://api.z.ai${ZCODE_CODING_PATH}`;
+  let configured: URL;
+  try {
+    configured = new URL(baseUrl.trim() || fallback);
+  } catch {
+    return null;
+  }
+  if (
+    !ZCODE_CODING_ORIGINS.has(configured.origin) ||
+    configured.username ||
+    configured.password ||
+    configured.search ||
+    configured.hash ||
+    ![ZCODE_CODING_PATH, "/api/anthropic", "/api/anthropic/v1"].includes(configured.pathname.replace(/\/+$/, ""))
+  ) return null;
+  return {
+    url: `${configured.origin}${ZCODE_CODING_PATH}/chat/completions`,
+    body: {
+      model: "GLM-5.3-Flash",
+      messages: [{ role: "user", content: ZAICODE_WINDOW_START_PROMPT }],
+      max_tokens: 1,
+      stream: false,
+    },
+  } as const;
+}
+
 export interface ZaicodeWindowStartOutcome {
   ok: boolean;
   detail: string;
@@ -96,4 +144,35 @@ export function readClaudeWindowStart(ok: boolean, stdout: string, error: string
 export function readCodexWindowStart(ok: boolean, stdout: string, error: string): ZaicodeWindowStartOutcome {
   if (ok) return { ok: true, detail: "started with one low-effort codex exec" };
   return { ok: false, detail: error || firstLine(stdout) || "codex exec failed" };
+}
+
+/** Antigravity's JSON status is authoritative even when its process exits successfully. */
+export function readAntigravityWindowStart(ok: boolean, stdout: string, error: string): ZaicodeWindowStartOutcome {
+  let payload: { status?: unknown; usage?: { total_tokens?: unknown }; error?: unknown };
+  try {
+    payload = JSON.parse(stdout) as typeof payload;
+  } catch {
+    return { ok: false, detail: error || firstLine(stdout) || "Antigravity gave no JSON answer" };
+  }
+  if (!ok || payload.status !== "SUCCESS") {
+    return { ok: false, detail: typeof payload.error === "string" ? firstLine(payload.error) : error || "Antigravity did not complete" };
+  }
+  const tokens = payload.usage?.total_tokens;
+  return { ok: true, detail: `started with one Flash request${typeof tokens === "number" ? ` (${tokens} tokens)` : ""}` };
+}
+
+/** The response body is never included on failure: it may contain provider diagnostics. */
+export function readZcodeWindowStart(status: number, body: string): ZaicodeWindowStartOutcome {
+  if (status < 200 || status >= 300) return { ok: false, detail: `HTTP ${status}` };
+  let payload: { choices?: unknown; usage?: { total_tokens?: unknown } };
+  try {
+    payload = JSON.parse(body) as typeof payload;
+  } catch {
+    return { ok: false, detail: "ZCode returned invalid JSON" };
+  }
+  if (!Array.isArray(payload.choices) || payload.choices.length === 0) {
+    return { ok: false, detail: "ZCode returned no completion" };
+  }
+  const tokens = payload.usage?.total_tokens;
+  return { ok: true, detail: `started with one Coding Plan request${typeof tokens === "number" ? ` (${tokens} tokens)` : ""}` };
 }

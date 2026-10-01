@@ -1,4 +1,9 @@
 import {
+  fixedEnabledReasoningLevel,
+  isThoughtLevelOff,
+  strongestThinkingLevel,
+} from "@zcode/shared/model-selection";
+import {
   validateModelSelectionOptions,
   type ModelSelection,
   type ProviderRegistryView,
@@ -105,7 +110,9 @@ export function completeNewModelSelection(
   const model = registry.providers
     .find((provider) => provider.providerId === selection.providerId)
     ?.models.find((candidate) => candidate.modelId === selection.modelId);
-  const reasoningLevel = model?.config.optionSpecs.reasoningLevel.values.at(-1);
+  const values = model?.config.optionSpecs.reasoningLevel.values ?? [];
+  // T-143: 新选择永远落在"真的在想"的档位上，最后一档若是关闭标记就不算数。
+  const reasoningLevel = fixedEnabledReasoningLevel(values) ?? strongestThinkingLevel(values);
   if (!reasoningLevel) return undefined;
   return {
     providerId: selection.providerId,
@@ -129,6 +136,16 @@ export function normalizeModelSelection(
   if (!model) return undefined;
   const values = model.config.optionSpecs.reasoningLevel.values;
   const reasoningLevel = selection.options?.reasoningLevel;
+  const fixedEnabled = fixedEnabledReasoningLevel(values);
+  if (fixedEnabled) {
+    // 二元开关只投影启用档；旧会话的 off 留在历史中，不进入下一次请求。
+    return { ...selection, options: { ...selection.options, reasoningLevel: fixedEnabled } };
+  }
+  if (reasoningLevel !== undefined && isThoughtLevelOff(reasoningLevel)) {
+    // T-143: 分档模型上的旧 off 档位（disabled/none/...）不再是可选项，能想就一直在想。
+    const thinking = strongestThinkingLevel(values);
+    if (thinking) return { ...selection, options: { ...selection.options, reasoningLevel: thinking } };
+  }
   if (reasoningLevel !== undefined && values.includes(reasoningLevel)) return selection;
   return {
     providerId: selection.providerId,

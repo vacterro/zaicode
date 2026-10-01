@@ -104,7 +104,7 @@ function snapshot(windows: ZaicodeLimitWindow[], extra: Partial<ZaicodeLimitSnap
 const claude = { id: "claude:a2", vendor: "claude" as const, status: "ready" as const };
 const config = normalizeZaicodeEnginesConfig({});
 
-test("keep windows rolling is on by default and starts an idle Claude or Codex window", () => {
+test("keep windows rolling is on by default for all supported five-hour accounts", () => {
   assert.equal(config.keepWindowsRolling, true);
   assert.equal(
     zaicodeShouldStartIdleWindow({ account: claude, snapshot: snapshot([window({})]), config, now: NOW }),
@@ -119,6 +119,18 @@ test("keep windows rolling is on by default and starts an idle Claude or Codex w
     }),
     true,
   );
+  for (const vendor of ["antigravity", "zcode"] as const) {
+    assert.equal(
+      zaicodeShouldStartIdleWindow({
+        account: { ...claude, id: vendor, vendor },
+        snapshot: snapshot([window({ key: "five_hour" })]),
+        config,
+        now: NOW,
+      }),
+      true,
+      vendor,
+    );
+  }
 });
 
 test("a running, spent, gated, hidden, failing or unsupported window is left alone", () => {
@@ -129,7 +141,7 @@ test("a running, spent, gated, hidden, failing or unsupported window is left alo
     ["hidden", { account: claude, snapshot: snapshot([window({})]), config: { ...config, hiddenAccounts: ["claude:a2"] }, now: NOW }],
     ["read error", { account: claude, snapshot: snapshot([window({})], { error: "timed out" }), config, now: NOW }],
     ["login", { account: { ...claude, status: "login-required" }, snapshot: snapshot([window({})]), config, now: NOW }],
-    ["antigravity", { account: { ...claude, vendor: "antigravity" }, snapshot: snapshot([window({})]), config, now: NOW }],
+    ["untracked vendor", { account: { ...claude, vendor: "freebuff" }, snapshot: snapshot([window({})]), config, now: NOW }],
     ["off", { account: claude, snapshot: snapshot([window({})]), config: { ...config, keepWindowsRolling: false }, now: NOW }],
   ];
   for (const [name, params] of cases) assert.equal(zaicodeShouldStartIdleWindow(params), false, name);

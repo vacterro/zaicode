@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState, type RefObject } from "react"
 import {
   TID_CHAT_THOUGHT_LEVEL_SELECT_ITEM,
   TID_CHAT_THOUGHT_LEVEL_SELECT_TRIGGER,
+  isThoughtLevelSwitch,
   testId,
   type ZCodeConfigOption,
   type ZCodeProvider,
@@ -147,7 +148,7 @@ export function ThoughtLevelCycleControl({
   const dotCount = Math.max(1, thinkingEntries.length);
   const progressPercent = (activeDotCount / dotCount) * 100;
 
-  if (option.type !== "select" || entries.length === 0 || !currentEntry) {
+  if (option.type !== "select" || entries.length === 0 || !currentEntry || isThoughtLevelSwitch(entries.map((entry) => entry.value))) {
     return null;
   }
 

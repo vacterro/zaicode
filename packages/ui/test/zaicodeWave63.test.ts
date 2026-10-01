@@ -5,6 +5,7 @@ import {
   evaluateZaicodeAutostartJob,
   formatZaicodeWindowReset,
   isZaicodeRealReset,
+  isZaicodeRollingWindow,
   markZaicodeWindowsStartingOnUse,
   type ZaicodeLimitSnapshot,
   type ZaicodeLimitWindow,
@@ -193,7 +194,7 @@ function win(patch: Partial<ZaicodeLimitWindow> & { key: string }): ZaicodeLimit
   };
 }
 
-test("resets: a reset one full window after the read is 'starts on first use'", () => {
+test("resets: a reset one full window after the read is anchored, not slid", () => {
   const marked = markZaicodeWindowsStartingOnUse(
     [
       win({ key: "five_hour", resetsAt: READ + 5 * HOUR - 40_000 }),
@@ -204,13 +205,35 @@ test("resets: a reset one full window after the read is 'starts on first use'", 
     READ,
   );
   assert.deepEqual(marked.map((window) => window.startsOnUse), [true, false, true, false]);
-  assert.equal(formatZaicodeWindowReset(marked[0]!, READ + 60_000), "starts on first use (5h window)");
+  // T-143: the vendor still says "starts on first use", so ZAICODE runs the window itself,
+  // from 0% consumed, for its full length -- instead of printing a promise it never keeps.
+  assert.deepEqual(marked.map((window) => window.rollingFrom), [READ, undefined, READ, undefined]);
+  assert.equal(marked[0]?.remainingPercent, 100);
+  assert.equal(marked[0]?.resetsAt, READ + 5 * HOUR);
+  assert.equal(formatZaicodeWindowReset(marked[0]!, READ + 60_000), "resets in 4h 59m");
   assert.equal(formatZaicodeWindowReset({ ...marked[1]!, gatedBy: "weekly" }, READ), "blocked by weekly");
-  assert.equal(isZaicodeRealReset(marked[0]!, READ), false);
+  assert.equal(isZaicodeRealReset(marked[0]!, READ), true, "a locally anchored window is a real coming refill");
   assert.equal(isZaicodeRealReset(marked[1]!, READ), true);
 });
 
-test("resets: the screenshot case -- idle Codex / Antigravity 5 h never lead the title; real resets do", () => {
+test("resets: a vendor reset anchored to a completed start runs even while consumption rounds to 0%", () => {
+  const startedAt = READ + 10_000;
+  const rereadAt = startedAt + 20_000;
+  const [window] = markZaicodeWindowsStartingOnUse(
+    [win({ key: "five_hour", remainingPercent: 100, resetsAt: startedAt + 5 * HOUR })],
+    rereadAt,
+    { at: startedAt, ok: true, detail: "one tiny request" },
+  );
+  assert.equal(window?.startsOnUse, false);
+  assert.equal(isZaicodeRealReset(window!, rereadAt), true);
+  assert.equal(
+    markZaicodeWindowsStartingOnUse([win({ key: "five_hour", resetsAt: rereadAt + 5 * HOUR })], rereadAt, { at: startedAt, ok: true, detail: "request did not start" })[0]?.startsOnUse,
+    true,
+    "a moving vendor timestamp remains idle despite a successful transport result",
+  );
+});
+
+test("resets: the screenshot case -- a rolling Antigravity 5 h leads the title; gated waits behind it", () => {
   const now = READ + 4 * 60_000;
   const accounts = [
     { id: "codex:1", short: "C1", label: "Codex 1", vendor: "codex" },
@@ -236,10 +259,14 @@ test("resets: the screenshot case -- idle Codex / Antigravity 5 h never lead the
   };
   const rows = zaicodeResetRows(accounts, limits, now);
   const next = zaicodeNextUsefulReset(rows);
-  assert.equal(next?.accountShort, "A2", "the 5 h windows of C1 and AG are not the next reset");
+  // T-143: the Antigravity 5 h now really runs (from 0%, anchored), so it IS the next reset
+  // instead of sitting under the table as "5h on use". C1's is blocked by its spent weekly.
+  assert.equal(next?.accountShort, "AG", "the running Antigravity 5 h leads, not the one parked as 'on use'");
+  assert.equal(next?.rolling, true);
+  assert.equal(next?.at, READ + 5 * HOUR);
   const codexSession = rows.find((row) => row.accountShort === "C1" && row.window === "Session");
   assert.equal(codexSession?.kind, "gated", "spent weekly blocks it");
-  assert.equal(rows.find((row) => row.accountShort === "AG")?.kind, "idle");
+  assert.equal(rows.find((row) => row.accountShort === "A2")?.kind, "reset");
   assert.deepEqual(
     rows.map((row) => row.kind),
     rows.map((row) => row.kind).sort((a, b) => ["reset", "gated", "idle"].indexOf(a) - ["reset", "gated", "idle"].indexOf(b)),
@@ -247,7 +274,7 @@ test("resets: the screenshot case -- idle Codex / Antigravity 5 h never lead the
   );
 });
 
-test("resets: a scheduled 'after the 5 h refill' job does not chase a window that has not started", () => {
+test("resets: a scheduled 'after the 5 h refill' job waits for the anchored refill", () => {
   const job = createZaicodeAutostartJob({ id: "j", projectPath: "P", engineId: "codex:1", trigger: "reset", window: "five_hour" }, READ);
   const snapshot: ZaicodeLimitSnapshot = {
     accountId: "codex:1",
@@ -259,6 +286,24 @@ test("resets: a scheduled 'after the 5 h refill' job does not chase a window tha
     source: "",
   };
   const decision = evaluateZaicodeAutostartJob(job, snapshot, READ + 60_000);
+  assert.equal(decision.state, "waiting-reset");
+  assert.equal(decision.reason, "waiting for refill");
+  assert.equal(decision.dueAt, READ + 5 * HOUR + job.safetyDelaySeconds * 1000, "the anchored end time plus the job's own safety delay");
+  assert.equal(evaluateZaicodeAutostartJob(job, snapshot, decision.dueAt!).state, "due", "and it actually fires when the window ends");
+});
+
+test("resets: a legacy idle window with no anchor still never masquerades as a refill", () => {
+  // The exact shape a pre-T-143 build persisted: marked as starting-on-use, but with nothing to count down.
+  const unanchored = win({ key: "five_hour", resetsAt: READ + 5 * HOUR, startsOnUse: true });
+  assert.equal(isZaicodeRollingWindow(unanchored), false);
+  assert.equal(isZaicodeRealReset(unanchored, READ), false);
+  assert.equal(formatZaicodeWindowReset(unanchored, READ), "starts on first use (5h window)");
+  const job = createZaicodeAutostartJob({ id: "j", projectPath: "P", engineId: "codex:1", trigger: "reset", window: "five_hour" }, READ);
+  const decision = evaluateZaicodeAutostartJob(
+    job,
+    { accountId: "codex:1", windows: [unanchored], plan: null, fetchedAt: READ, checkedAt: READ, error: null, source: "" },
+    READ + 60_000,
+  );
   assert.equal(decision.state, "waiting-reset");
   assert.match(decision.reason, /starts on first use/);
 });

@@ -29,10 +29,14 @@ import {
 import { codexRpcCall, consumeCodexResetCredit, type CodexRpcOptions } from "./zaicodeCodexRpc.js";
 import { setWindowsDesktopTrayLimits } from "./desktopTray.js";
 import {
+  antigravityWindowStartArgs,
   claudeWindowStartArgs,
   codexWindowStartArgs,
+  readAntigravityWindowStart,
   readClaudeWindowStart,
   readCodexWindowStart,
+  readZcodeWindowStart,
+  zcodeWindowStartRequest,
   type ZaicodeWindowStartOutcome,
 } from "./zaicodeWindowStarter.js";
 
@@ -523,17 +527,16 @@ function discoverZcode(config: ZaicodeEnginesConfig): ZaicodeEngineAccount[] {
     statusDetail: "",
     fixCommand: null,
   };
-  if (!script || !node) {
-    account.status = "cli-missing";
-    account.statusDetail = !node ? "node.exe is not on PATH." : "ZCode CLI build (zcode.cjs) not found.";
-    account.fixCommand = null;
-  } else if (!config.readZcodeConfig) {
+  // 配额读取和 Coding Plan 触发都直接走已配置的 API；缺少开发用 CLI 不应让窗口停转。
+  if (!config.readZcodeConfig) {
     account.status = "no-plan";
     account.statusDetail = "Quota reading is off (Settings -> Engines -> Read ZCode plan key).";
   } else if (plans.length === 0) {
     account.status = "no-plan";
     account.statusDetail = "No Z.ai / BigModel Coding Plan key in ZCode's config.";
-    account.fixCommand = `& '${(node ?? "node").replace(/'/g, "''")}' '${script.replace(/'/g, "''")}' login zai`;
+    account.fixCommand = script && node
+      ? `& '${node.replace(/'/g, "''")}' '${script.replace(/'/g, "''")}' login zai`
+      : null;
   }
   return [account];
 }
@@ -795,6 +798,39 @@ function httpsGetJson(url: string, apiKey: string, timeoutMs: number): Promise<u
   });
 }
 
+/** One bounded Coding Plan model call; this path never falls back to a prepaid endpoint. */
+function postZcodeWindowStart(url: string, apiKey: string, body: unknown): Promise<{ status: number; body: string }> {
+  return new Promise((resolvePromise, reject) => {
+    const target = new URL(url);
+    if (target.protocol !== "https:" || !["api.z.ai", "open.bigmodel.cn"].includes(target.hostname) || target.pathname !== "/api/coding/paas/v4/chat/completions") {
+      reject(new Error("unrecognized Coding Plan endpoint"));
+      return;
+    }
+    const payload = JSON.stringify(body);
+    const request = httpsRequest(target, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+        "Content-Length": Buffer.byteLength(payload),
+        Accept: "application/json",
+      },
+      timeout: ZCODE_TIMEOUT_MS,
+    }, (response) => {
+      let text = "";
+      response.setEncoding("utf8");
+      response.on("data", (chunk: string) => {
+        text += chunk;
+        if (text.length > 64 * 1024) request.destroy(new Error("Coding Plan response too large"));
+      });
+      response.on("end", () => resolvePromise({ status: response.statusCode ?? 0, body: text }));
+    });
+    request.on("timeout", () => request.destroy(new Error("timed out")));
+    request.on("error", reject);
+    request.end(payload);
+  });
+}
+
 async function probeZcode(config: ZaicodeEnginesConfig): Promise<ProbeOutcome> {
   const source = "z.ai monitor quota";
   if (!config.readZcodeConfig) return { windows: [], plan: null, error: "plan key reading is off", source };
@@ -987,7 +1023,7 @@ async function probeAccount(account: ZaicodeEngineAccount): Promise<void> {
     [account.id]: success
       ? {
           accountId: account.id,
-          windows: markZaicodeWindowsStartingOnUse(outcome.windows, now),
+          windows: markZaicodeWindowsStartingOnUse(outcome.windows, now, previous?.windowStart, previous?.windows),
           plan: outcome.plan,
           fetchedAt: now,
           checkedAt: now,
@@ -1025,7 +1061,7 @@ const WINDOW_START_REREAD_MS = 20_000;
  * account again. One start per account at a time; the cooldown lives in the snapshot record.
  */
 async function startIdleWindow(account: ZaicodeEngineAccount): Promise<void> {
-  if (!account.cli || startingWindows.has(account.id)) return;
+  if ((account.vendor !== "zcode" && !account.cli) || startingWindows.has(account.id)) return;
   startingWindows.add(account.id);
   let outcome: ZaicodeWindowStartOutcome;
   try {
@@ -1043,6 +1079,28 @@ async function startIdleWindow(account: ZaicodeEngineAccount): Promise<void> {
         env: probeEnv({ CODEX_HOME: account.home, OPENAI_API_KEY: null, CODEX_API_KEY: null, CODEX_ACCESS_TOKEN: null }),
       });
       outcome = readCodexWindowStart(result.ok, result.stdout, result.error);
+    } else if (account.vendor === "antigravity") {
+      const result = await runCli(account.cli, antigravityWindowStartArgs(), {
+        cwd: probeDir(),
+        timeoutMs: AGY_TIMEOUT_MS,
+        env: probeEnv({
+          SSH_CONNECTION: null,
+          SSH_TTY: null,
+          AGY_CLI_INTERACTIVE_HEADLESS: null,
+          BROWSER: join(SYSTEM_ROOT, "System32", "where.exe"),
+          AGY_CLI_DISABLE_AUTO_UPDATE: "true",
+        }),
+      });
+      outcome = readAntigravityWindowStart(result.ok, result.stdout, result.error);
+    } else if (account.vendor === "zcode") {
+      const entry = readZcodePlanEntries()[0];
+      const request = entry ? zcodeWindowStartRequest(entry.baseUrl, entry.id) : null;
+      if (!entry || !request) {
+        outcome = { ok: false, detail: "no trusted Coding Plan endpoint" };
+      } else {
+        const result = await postZcodeWindowStart(request.url, entry.apiKey, request.body);
+        outcome = readZcodeWindowStart(result.status, result.body);
+      }
     } else {
       return;
     }

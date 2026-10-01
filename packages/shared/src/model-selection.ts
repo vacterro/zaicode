@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { isZaicodeProductMode } from "./zaicode.js";
 
 /** 用户对后续模型执行的完整选择；不表达已经创建的 Active Model。 */
 export const modelSelectionSchema = z
@@ -29,6 +30,63 @@ export interface EffectiveModelSelectionResult {
 }
 
 export const ZCODE_MODEL_REASONING_SEPARATOR = "$";
+
+const BINARY_REASONING_OFF = new Set([
+  "disable",
+  "disabled",
+  "false",
+  "no",
+  "none",
+  "nothink",
+  "no-think",
+  "no_think",
+  "off",
+]);
+const BINARY_REASONING_ON = new Set(["enable", "enabled", "on", "true"]);
+
+export function isThoughtLevelOff(value: string): boolean {
+  return BINARY_REASONING_OFF.has(value.trim().toLowerCase());
+}
+
+export function isThoughtLevelOn(value: string): boolean {
+  return BINARY_REASONING_ON.has(value.trim().toLowerCase());
+}
+
+/**
+ * T-143: a list of nothing but on/off markers is a switch, not an effort scale. The only
+ * question it can ask is "dumb model or smart model", and ZAICODE never takes "dumb", so
+ * such a model gets no thought control at all. Real effort scales keep theirs.
+ */
+export function isThoughtLevelSwitch(values: readonly string[]): boolean {
+  if (!isZaicodeProductMode() || values.length === 0 || values.length > 2) return false;
+  return values.every((value) => isThoughtLevelOn(value) || isThoughtLevelOff(value));
+}
+
+/** A binary switch is a fixed enabled choice in ZAICODE; graded efforts keep their controls. */
+export function fixedEnabledReasoningLevel(values: readonly string[]): string | null {
+  if (!isZaicodeProductMode()) return null;
+  if (values.length === 1) {
+    return isThoughtLevelOn(values[0]!) ? values[0]! : null;
+  }
+  if (values.length !== 2) return null;
+  const enabled = values.find(isThoughtLevelOn);
+  const disabled = values.find(isThoughtLevelOff);
+  return enabled && disabled && enabled !== disabled ? enabled : null;
+}
+
+/**
+ * T-143: the levels a ZAICODE user may still pick. An off marker is never one of them --
+ * a model that can think is never parked in "does not think", not even by a stale session.
+ */
+export function selectableThoughtLevels(values: readonly string[]): readonly string[] {
+  if (!isZaicodeProductMode()) return values;
+  return values.filter((value) => !isThoughtLevelOff(value));
+}
+
+/** The strongest level that still means "think"; null when the model never thinks. */
+export function strongestThinkingLevel(values: readonly string[]): string | null {
+  return selectableThoughtLevels(values).at(-1) ?? null;
+}
 
 /** UI Picker/legacy CLI 的展示值；不是可逆的 ModelSelection 序列化格式。 */
 export function formatModelPickerValue(selection: ModelSelection | undefined): string {

@@ -5,6 +5,7 @@ import { getConfigOptionEntryLabel } from "@/chat-input-toolbar/display.js";
 type ThoughtLevelEntry = NonNullable<ZCodeConfigOption["options"]>[number];
 
 const NO_THOUGHT_LEVEL_VALUES = new Set([
+  "disable",
   "disabled",
   "false",
   "no",
@@ -16,6 +17,7 @@ const NO_THOUGHT_LEVEL_VALUES = new Set([
 ]);
 
 const THOUGHT_LEVEL_LABEL_IDS: Record<string, string> = {
+  disable: "chat.toolbar.thoughtLevel.value.off",
   disabled: "chat.toolbar.thoughtLevel.value.off",
   false: "chat.toolbar.thoughtLevel.value.off",
   no: "chat.toolbar.thoughtLevel.value.off",

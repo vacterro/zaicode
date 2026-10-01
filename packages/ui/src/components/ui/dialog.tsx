@@ -86,7 +86,9 @@ function DialogContent({
 
 function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
-    <div data-slot="dialog-header" className={cn("flex flex-col gap-1", className)} {...props} />
+    // min-w-0: DialogContent is a grid, and a grid item defaults to min-width:auto -- a long
+    // unbroken word would otherwise set the dialog wider than its own max-width (T-143).
+    <div data-slot="dialog-header" className={cn("flex min-w-0 flex-col gap-1", className)} {...props} />
   );
 }
 
@@ -101,7 +103,7 @@ function DialogFooter({
   return (
     <div
       data-slot="dialog-footer"
-      className={cn("flex flex-col-reverse gap-2 sm:flex-row sm:justify-end", className)}
+      className={cn("flex min-w-0 flex-col-reverse gap-2 sm:flex-row sm:justify-end", className)}
       {...props}
     >
       {children}

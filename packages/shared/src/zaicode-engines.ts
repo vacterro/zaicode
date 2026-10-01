@@ -92,6 +92,13 @@ export interface ZaicodeLimitWindow {
    * Absent in snapshots read before this field existed.
    */
   startsOnUse?: boolean;
+  /**
+   * T-143: the moment ZAICODE first saw this unstarted window. Antigravity and ZCode
+   * never confirm the start (no CLI request we can make moves their clock), so the
+   * window is presented as running from this moment: 0% consumed, counting down,
+   * anchored here so the countdown does not restart on every sweep.
+   */
+  rollingFrom?: number;
 }
 
 export interface ZaicodeLimitSnapshot {
@@ -198,10 +205,10 @@ export function normalizeZaicodeEnginesConfig(raw: unknown): ZaicodeEnginesConfi
 // ---------------------------------------------------------------------------
 
 /**
- * Vendors whose idle window ZAICODE can start with one tiny request through their own CLI.
- * Antigravity and ZCode's plan are not started: no minimal request path is known for them.
+ * Vendors whose idle window ZAICODE can start with one bounded request.
+ * ZCode uses its Coding Plan endpoint; the other vendors use their own CLI.
  */
-export const ZAICODE_WINDOW_STARTER_VENDORS: readonly ZaicodeEngineVendor[] = ["claude", "codex"];
+export const ZAICODE_WINDOW_STARTER_VENDORS: readonly ZaicodeEngineVendor[] = ["claude", "codex", "antigravity", "zcode"];
 /** A started window is not started again for this long (the next reads show it running). */
 export const ZAICODE_WINDOW_START_COOLDOWN_MS = 15 * 60_000;
 /** A start the vendor refused waits this long before the next try. */
@@ -287,6 +294,7 @@ function makeWindow(partial: Partial<ZaicodeLimitWindow> & { key: string }): Zai
     gatedBy: partial.gatedBy ?? null,
     assumedFull: partial.assumedFull ?? false,
     startsOnUse: partial.startsOnUse ?? false,
+    ...(typeof partial.rollingFrom === "number" ? { rollingFrom: partial.rollingFrom } : {}),
   };
 }
 
@@ -298,25 +306,68 @@ export const ZAICODE_IDLE_WINDOW_TOLERANCE_MS = 3 * 60_000;
  * request in the current window reports its reset as read time + the window's
  * length; read again five minutes later, it says the same "5 h" again. That is
  * not a coming refill, it is a window that starts with the first request.
+ *
+ * T-143: the operator never wants to read "starts on first use" under a spinner that
+ * then stands still. Such a window is anchored to the first read that saw it idle and
+ * presented as a live window from 0% consumed, so the countdown runs and never slides.
  */
 export function markZaicodeWindowsStartingOnUse(
   windows: readonly ZaicodeLimitWindow[],
   readAt: number,
+  previousStart?: ZaicodeWindowStartRecord | null,
+  previousWindows?: readonly ZaicodeLimitWindow[] | null,
 ): ZaicodeLimitWindow[] {
+  const previousByKey = new Map((previousWindows ?? []).map((window) => [window.key, window]));
   return windows.map((window) => {
     const minutes = window.durationMinutes;
-    const idle =
+    const looksIdle =
       window.resetsAt !== null &&
       minutes !== null &&
       minutes > 0 &&
       Math.abs(window.resetsAt - (readAt + minutes * 60_000)) <= ZAICODE_IDLE_WINDOW_TOLERANCE_MS;
-    return window.startsOnUse === idle ? window : { ...window, startsOnUse: idle };
+    const durationMs = (minutes ?? 0) * 60_000;
+    // 首次消费可能被供应商四舍五入成 0%；成功请求后的固定 reset 时间才证明窗口已启动。
+    const anchoredAfterStart =
+      previousStart?.ok === true &&
+      window.resetsAt !== null &&
+      readAt - previousStart.at >= 10_000 &&
+      readAt - previousStart.at < durationMs &&
+      window.resetsAt > readAt &&
+      window.resetsAt <= previousStart.at + durationMs + 5_000;
+    const idle = looksIdle && !(window.remainingPercent !== null && window.remainingPercent < 100) && !anchoredAfterStart;
+    if (!idle) {
+      if (window.startsOnUse === false && window.rollingFrom === undefined) return window;
+      const { rollingFrom: _dropped, ...started } = window;
+      return { ...started, startsOnUse: false };
+    }
+    const carried = previousByKey.get(window.key)?.rollingFrom;
+    const rollingFrom =
+      typeof carried === "number" && durationMs > 0 && readAt - carried < durationMs ? carried : readAt;
+    return {
+      ...window,
+      startsOnUse: true,
+      rollingFrom,
+      // 起始即 0% 消费：第一次读到它就是这样，之后按锚点连续走。
+      remainingPercent: 100,
+      assumedFull: false,
+      resetsAt: durationMs > 0 ? rollingFrom + durationMs : window.resetsAt,
+    };
   });
 }
 
-/** A reset that is a real coming refill: known, ahead, not a window waiting for first use, not gated. */
+/** T-143: an unstarted window ZAICODE keeps rolling itself has a real, local end time. */
+export function isZaicodeRollingWindow(window: Pick<ZaicodeLimitWindow, "startsOnUse" | "rollingFrom">): boolean {
+  return window.startsOnUse === true && typeof window.rollingFrom === "number";
+}
+
+/** A reset that is a real coming refill: known, ahead, not waiting on a request, not gated. */
 export function isZaicodeRealReset(window: ZaicodeLimitWindow, now: number): boolean {
-  return window.resetsAt !== null && window.resetsAt > now && window.startsOnUse !== true && window.gatedBy === null;
+  return (
+    window.resetsAt !== null &&
+    window.resetsAt > now &&
+    (window.startsOnUse !== true || isZaicodeRollingWindow(window)) &&
+    window.gatedBy === null
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -567,7 +618,10 @@ export function parseAntigravityUsage(payload: unknown): ZaicodeLimitWindow[] {
       const fraction = typeof bucket.remaining_fraction === "number" ? bucket.remaining_fraction : null;
       const remaining =
         fraction !== null && Number.isFinite(fraction) && fraction >= 0 && fraction <= 1 ? fraction * 100 : null;
-      if (remaining === null && !disabled) continue;
+      const resetTime = epochMs(bucket.reset_time);
+      // T-143: a bucket with a reset time but no fraction is a window at 0% consumed,
+      // not a bucket to hide. Antigravity omits the fraction until the first request.
+      if (remaining === null && !disabled && resetTime === null) continue;
       const shortGroup = /gemini/i.test(label) ? "Gemini" : /claude|gpt/i.test(label) ? "Claude & GPT" : label;
       windows.push(
         makeWindow({
@@ -575,8 +629,8 @@ export function parseAntigravityUsage(payload: unknown): ZaicodeLimitWindow[] {
           label: `${shortGroup} ${zaicodeWindowLabel(key)}`,
           group: groupId,
           groupLabel: label,
-          remainingPercent: disabled ? 0 : remaining,
-          resetsAt: epochMs(bucket.reset_time),
+          remainingPercent: disabled ? 0 : (remaining ?? 100),
+          resetsAt: resetTime,
           durationMinutes: WINDOW_MINUTES[key] ?? null,
         }),
       );
@@ -630,9 +684,11 @@ export function parseZcodeQuota(envelope: unknown): ZaicodeZcodeParse {
     if (!key || windows.some((window) => window.key === key)) continue;
     const spent = typeof entry.currentValue === "number" ? entry.currentValue : null;
     const left = typeof entry.remaining === "number" ? entry.remaining : null;
-    if (spent === null || left === null || spent + left <= 0) continue;
+    if (spent === null || left === null) continue;
+    // T-143: 0 of 0 is a window at exactly 0% consumed, not a row to throw away.
+    const total = spent + left;
     windows.push(
-      makeWindow({ key, remainingPercent: (left / (spent + left)) * 100, resetsAt: epochMs(entry.nextResetTime) }),
+      makeWindow({ key, remainingPercent: total <= 0 ? 100 : (left / total) * 100, resetsAt: epochMs(entry.nextResetTime) }),
     );
   }
   windows.sort((left, right) => (left.durationMinutes ?? 1e9) - (right.durationMinutes ?? 1e9));
@@ -845,8 +901,9 @@ export function zaicodeNextRefillAt(
   let latest: number | null = null;
   for (const window of spent) {
     const gate = window.gatedBy ? effective.find((other) => other.label === window.gatedBy) : window;
-    // A window that starts on first use has no refill time: its "reset" slides with every read.
-    const at = gate && gate.startsOnUse !== true ? gate.resetsAt : null;
+    // T-143: a window ZAICODE rolls itself has a local end time; only a window still
+    // waiting on somebody's first request has none.
+    const at = gate && (gate.startsOnUse !== true || isZaicodeRollingWindow(gate)) ? gate.resetsAt : null;
     if (at !== null && at > now && (latest === null || at > latest)) latest = at;
   }
   return latest;
@@ -869,7 +926,7 @@ export function formatZaicodeDuration(ms: number): string {
 export function formatZaicodeWindowReset(window: ZaicodeLimitWindow, now: number = Date.now()): string {
   if (window.gatedBy) return `blocked by ${window.gatedBy}`;
   if (window.assumedFull) return "refilled";
-  if (window.startsOnUse) {
+  if (window.startsOnUse && !isZaicodeRollingWindow(window)) {
     return window.durationMinutes ? `starts on first use (${zaicodeWindowLabel(window.key)} window)` : "starts on first use";
   }
   return formatZaicodeReset(window.resetsAt, now);
@@ -1152,7 +1209,8 @@ export function evaluateZaicodeAutostartJob(
         return { state: "waiting-reset", dueAt: null, eventId: "", reason: "reset time not known yet" };
       }
       // SRC-048: an untouched window reports "read time + 5 h" on every read; waiting for it never ends.
-      if (window.startsOnUse) {
+      // T-143: unless ZAICODE is rolling it locally, which gives it a real end time.
+      if (window.startsOnUse && !isZaicodeRollingWindow(window)) {
         return { state: "waiting-reset", dueAt: null, eventId: "", reason: "window not started: it starts on first use" };
       }
       const dueAt = window.resetsAt + Math.max(0, job.safetyDelaySeconds) * 1000;

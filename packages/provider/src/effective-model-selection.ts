@@ -1,5 +1,10 @@
 import type { AccountProviderStates } from "./account-provider-state.js";
-import type { EffectiveModelSelectionResult } from "@zcode/shared/model-selection";
+import {
+  fixedEnabledReasoningLevel,
+  isThoughtLevelOff,
+  strongestThinkingLevel,
+  type EffectiveModelSelectionResult,
+} from "@zcode/shared/model-selection";
 export type { EffectiveModelSelectionResult } from "@zcode/shared/model-selection";
 import {
   validateModelSelectionOptions,
@@ -46,7 +51,21 @@ export function resolveEffectiveModelSelection(input: {
   }
   const model = provider.models.find((candidate) => candidate.modelId === original.modelId);
   if (!model) return Object.freeze({ effectiveSelection: null, selectionIssue: "model-not-found" });
-  let normalized = original;
+  const levels = model.config.optionSpecs.reasoningLevel.values;
+  const fixedEnabled = fixedEnabledReasoningLevel(levels);
+  // T-143: the request itself never asks a thinking model to stop thinking, whatever an old
+  // session or a hand-edited config left in it.
+  const storedLevel = original.options?.reasoningLevel;
+  const upgrade =
+    !fixedEnabled && storedLevel !== undefined && isThoughtLevelOff(storedLevel)
+      ? strongestThinkingLevel(levels)
+      : null;
+  let normalized =
+    fixedEnabled !== null
+      ? { ...original, options: { ...original.options, reasoningLevel: fixedEnabled } }
+      : upgrade !== null
+        ? { ...original, options: { ...original.options, reasoningLevel: upgrade } }
+        : original;
   let validation = validateModelSelectionOptions(model, normalized);
   if (!validation.ok && validation.code === "reasoning-level-not-supported") {
     const reasoningLevel = input.resolveLegacyReasoningLevel?.({ ...original, providerId });

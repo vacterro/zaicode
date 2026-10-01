@@ -2,6 +2,7 @@ import { useState } from "react";
 import {
   effectiveZaicodeWindows,
   formatZaicodeTimeOfDay,
+  isZaicodeRollingWindow,
   zaicodeWindowLabel,
   type ZaicodeEngineAccount,
   type ZaicodeLimitSnapshot,
@@ -47,6 +48,8 @@ export interface ZaicodeResetRow {
   at: number;
   /** reset = a real coming refill; idle = starts on first use; gated = waits for a longer window. */
   kind: "reset" | "idle" | "gated";
+  /** T-143: an unstarted window ZAICODE rolls itself: it counts down from its own anchor. */
+  rolling: boolean;
   /** Label of the spent longer window (gated rows). */
   gatedBy: string | null;
   /** The window length label ("5h") for idle rows. */
@@ -79,7 +82,8 @@ export function zaicodeResetRows(
         window: WINDOW_NAMES[window.key] ?? window.label,
         remainingPercent: window.remainingPercent,
         at: window.resetsAt,
-        kind: window.gatedBy ? "gated" : window.startsOnUse ? "idle" : "reset",
+        kind: window.gatedBy ? "gated" : window.startsOnUse && !isZaicodeRollingWindow(window) ? "idle" : "reset",
+        rolling: isZaicodeRollingWindow(window),
         gatedBy: window.gatedBy,
         length: zaicodeWindowLabel(window.key),
       });
@@ -90,7 +94,12 @@ export function zaicodeResetRows(
 
 /** The one the timer shows: the soonest real refill of a window that is not full. */
 export function zaicodeNextUsefulReset(rows: readonly ZaicodeResetRow[]): ZaicodeResetRow | null {
-  return rows.find((row) => row.kind === "reset" && (row.remainingPercent === null || row.remainingPercent < 100)) ?? null;
+  // T-143: a rolling window is at 0% consumed and still the one the operator watches.
+  return (
+    rows.find(
+      (row) => row.kind === "reset" && (row.rolling || row.remainingPercent === null || row.remainingPercent < 100),
+    ) ?? null
+  );
 }
 
 function ResetTable({ rows, now, format, hour12 }: { rows: ZaicodeResetRow[]; now: number; format: (seconds: number) => string; hour12: boolean }) {

@@ -1,10 +1,14 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
+  antigravityWindowStartArgs,
   claudeWindowStartArgs,
   codexWindowStartArgs,
+  readAntigravityWindowStart,
   readClaudeWindowStart,
   readCodexWindowStart,
+  readZcodeWindowStart,
+  zcodeWindowStartRequest,
 } from "../src/main/zaicodeWindowStarter.js";
 
 /** T-136 (SRC-100): the smallest request that starts an idle 5h window. */
@@ -57,4 +61,35 @@ test("codex exec: exit 0 started, anything else is a failure", () => {
   const failed = readCodexWindowStart(false, "", "You've hit your usage limit");
   assert.equal(failed.ok, false);
   assert.match(failed.detail, /usage limit/);
+});
+
+test("Antigravity starts with one sandboxed low-effort Flash request", () => {
+  const args = antigravityWindowStartArgs();
+  assert.equal(args[0], "-p");
+  assert.equal(args[args.indexOf("--output-format") + 1], "json");
+  assert.equal(args[args.indexOf("--model") + 1], "gemini-3.5-flash-medium");
+  assert.equal(args[args.indexOf("--effort") + 1], "low");
+  assert.ok(args.includes("--sandbox"));
+  assert.ok(!args.includes("--dangerously-skip-permissions"));
+  assert.equal(readAntigravityWindowStart(true, '{"status":"SUCCESS","response":"ok","usage":{"total_tokens":7}}', "").ok, true);
+  assert.equal(readAntigravityWindowStart(true, '{"status":"ERROR","error":"model unavailable"}', "").ok, false);
+});
+
+test("ZCode start uses only the configured vendor's coding-only endpoint", () => {
+  const request = zcodeWindowStartRequest("https://api.z.ai/api/coding/paas/v4");
+  assert.equal(request?.url, "https://api.z.ai/api/coding/paas/v4/chat/completions");
+  assert.equal(request?.body.model, "GLM-5.3-Flash");
+  assert.equal(request?.body.max_tokens, 1);
+  assert.equal(request?.body.stream, false);
+  assert.equal(request?.body.messages.length, 1);
+  assert.equal(zcodeWindowStartRequest("https://api.z.ai/api/paas/v4"), null, "never bill the general prepaid API");
+  assert.equal(zcodeWindowStartRequest("https://untrusted.example/api/coding/paas/v4"), null);
+});
+
+test("ZCode accepts a real completion and redacts provider failure bodies", () => {
+  const accepted = readZcodeWindowStart(200, '{"choices":[{"message":{"content":"ok"}}],"usage":{"total_tokens":2}}');
+  assert.equal(accepted.ok, true);
+  assert.match(accepted.detail, /2 tokens/);
+  assert.deepEqual(readZcodeWindowStart(401, '{"message":"secret-key"}'), { ok: false, detail: "HTTP 401" });
+  assert.equal(readZcodeWindowStart(200, '{"not_a_completion":true}').ok, false);
 });

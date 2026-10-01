@@ -1,4 +1,8 @@
-import type { ZCodeConfigOption } from "@zcode/shared";
+import {
+  isThoughtLevelSwitch,
+  selectableThoughtLevels,
+  type ZCodeConfigOption,
+} from "@zcode/shared";
 import type { ModelSelectionView } from "@zcode/services";
 
 /** 从 Registry 的 ModelConfig Option Specs 读取思考档位。 */
@@ -14,7 +18,10 @@ export function resolveModelThoughtOption(params: {
   );
   const model = provider?.models.find((candidate) => candidate.modelId === params.modelId);
   const reasoning = model?.config.optionSpecs.reasoningLevel;
-  if (!reasoning || reasoning.values.length === 0) return null;
+  if (!reasoning || reasoning.values.length === 0 || isThoughtLevelSwitch(reasoning.values)) return null;
+  // T-143: "off" is not an effort. A model that can think always does; the menu only says how much.
+  const levels = selectableThoughtLevels(reasoning.values);
+  if (levels.length === 0) return null;
 
   return {
     id: "thought_level",
@@ -23,10 +30,8 @@ export function resolveModelThoughtOption(params: {
     type: "select",
     // Reasoning 没有默认档位；空字符串表示模型已选但用户尚未选择 reasoning。
     currentValue:
-      params.currentValue && reasoning.values.includes(params.currentValue)
-        ? params.currentValue
-        : "",
-    options: reasoning.values.map((level) => ({
+      params.currentValue && levels.includes(params.currentValue) ? params.currentValue : "",
+    options: levels.map((level) => ({
       value: level,
       name: params.formatLevelName?.(level) ?? level,
     })),
