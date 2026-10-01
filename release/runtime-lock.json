@@ -1,0 +1,25 @@
+{
+  "schema": 1,
+  "python": {
+    "version": "3.13.15",
+    "url": "https://www.python.org/ftp/python/3.13.15/python-3.13.15-embed-amd64.zip",
+    "sha256": "d1f04d990aee1253d8569e8e5104e30fa9f5fa830899f14843448872d936a2cf"
+  },
+  "git": {
+    "version": "2.55.0.5",
+    "url": "https://github.com/git-for-windows/git/releases/download/v2.55.0.windows.5/PortableGit-2.55.0.5-64-bit.7z.exe",
+    "sha256": "5aa8a20f6e9abb2c755f0e73c91c687701a46b309ad84a0ca6509380fa4ae290"
+  },
+  "router": {
+    "version": "0.5.91-extra",
+    "sha256": "55a4224bddde9f76fde10f496c9e5077da1ebd3f444d9d823723dd909aca8de0",
+    "revision": "2c4182107be6a9b7b3af2c7cf88cee2eae44ef3d"
+  },
+  "saipen": { "version": "8.0.1", "revision": "bf70d2eb9b73df5e9a74333cb817446b1f91ed1a" },
+  "saimail": { "version": "0.0.2a3", "revision": "02506e0d3c8f34126fd121bd840a9e8613cb79dc" },
+  "pythonWheels": [
+    { "name": "cryptography", "version": "46.0.3", "wheelPattern": "cp311-abi3-win_amd64.whl" },
+    { "name": "cffi", "version": "2.0.0", "wheelPattern": "cp313-cp313-win_amd64.whl" },
+    { "name": "pycparser", "version": "2.23", "wheelPattern": "py3-none-any.whl" }
+  ]
+}
