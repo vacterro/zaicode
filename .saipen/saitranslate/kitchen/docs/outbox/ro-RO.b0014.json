@@ -1,0 +1,14 @@
+{
+  "id": "ro-RO.b0014",
+  "locale": "ro-RO",
+  "source_digest": "sha256:1271cb40a659cdd128ed0e8704711399b15a4f147fe0448f87593f7e97dec09b",
+  "issued_at": "2026-09-30T14:40:44.413Z",
+  "keys": [
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0094",
+    "docs.docs_ZAICODE_INSTALL_md.p0008"
+  ],
+  "messages": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0094": "**SAFE_TO_DEFER** — the product layer. A cloud session can clone\r\n{protected0} branch {protected1} and work there. Workspace-layer work does\r\nnot require product work, but it does require the clone:\r\n{protected2} declares {protected3}, and without it the\r\nvalidator fails with {protected4}. {protected5} gates need the pinned pnpm 10.33.2\r\nand a prepared workspace. {protected6} on a fresh cloud image is the\r\ndocumented way in, and the product's {protected7} already declares it.",
+    "docs.docs_ZAICODE_INSTALL_md.p0008": "{protected0}"
+  }
+}

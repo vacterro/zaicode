@@ -1,0 +1,7 @@
+{
+  "id": "uk-UA.b0018",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0094": "**SAFE_TO_DEFER** — продуктовий шар. Хмарна сесія може клонувати {protected0} гілку {protected1} і працювати там. Робота над шаром workspace не потребує роботи над продуктом, але потребує самого клону: {protected2} оголошує {protected3}, і без нього валідатор завершується помилкою через {protected4}. Gate'и {protected5} потребують зафіксованого pnpm 10.33.2 та підготовленого workspace. {protected6} на свіжому хмарному образі — задокументований спосіб входу, а {protected7} продукту вже оголошує його.",
+    "docs.docs_ZAICODE_INSTALL_md.p0008": "{protected0}"
+  }
+}

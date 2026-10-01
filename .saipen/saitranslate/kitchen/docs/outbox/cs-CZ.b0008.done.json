@@ -1,0 +1,15 @@
+{
+  "id": "cs-CZ.b0008",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0024": "| Soubor | Role |\r\n|------|------|\r\n| {protected0} | validuje, sjednotí větev, nainstaluje a spustí watcher, zapíše autostart, prokáže local == remote |\r\n| {protected1} | smyčka: fetch, porovnat, fast-forward nebo push, log, pauza; pak průchod produktovým kódem a self-update |\r\n| {protected2} | round-trip z nezávislého executoru plus důkaz obnovy po restartu |\r\n| {protected3} | průchod produktovým kódem a self-update nad jednorázovými Git repozitáři (bez sítě, bez skutečného remote) |",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0026": "Instalace a oprava:",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0030": "Je idempotentní. Stav na tomto stroji žije v {protected0}:\r\n{protected1} (kopie), {protected2} (rotováno na\r\n2 MB do {protected3}), {protected4} (jediná instance),\r\n{protected5} a položka ve složce Startup\r\n{protected6}.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0032": "Instalátor odmítne znečištěný strom a nikdy ho nečistí. Pokud je každá znečištěná cesta\r\nkanonický stav SAIPEN v {protected0}, oznámí to a vypíše přesné\r\npříkazy pro checkpoint; jde o stav protokolu bez checkpointu, ne o poruchu transportu,\r\na instalátor ho necommitne za zádům protokolu.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0034": "## Chování watcheru",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0036": "| Situace | Krok |\r\n|-----------|------|\r\n| čisté, local je předek remote | {protected0} |\r\n| čisté, remote je předek local | {protected1} |\r\n| znečištěné | pauza; ani fetch |\r\n| jiná větev | pauza |\r\n| oba se posunuly, žádný společný předek | pauza, zapsat oba commit id, nemergovat nic |\r\n| fetch nebo síť selhala | zapsat degraded, zkusit v dalším ticku |\r\n| probíhá merge/rebase{protected2} | pauza |",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0038": "Nikdy: force push, hard reset, stash, clean, checkout cizí větve, commit\r\nani zastavení podle jména procesu. Instalátor zastaví watcher pouze podle\r\npid, který si zapsal do vlastního pid souboru.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0040": "Znečištěný strom nic nestojí, protože watcher kontroluje znečištění před fetchem.\r\nNečinný checkout tedy nevolá síť vůbec.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0042": "### Průchod produktovým kódem (T-90)",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0044": "{protected0} je vlastní repozitář, takže tabulka výše nikdy nepohybuje produktovým\r\nkódem. Po něm tentýž tick zpracuje checkout produktu ({protected1},\r\nvýchozí {protected2}; větev {protected3}, výchozí {protected4}).\r\nPrůchod produktovým kódem běží, ať je vnější strom čistý, nebo znečištěný. Vždy jen pull."
+  }
+}

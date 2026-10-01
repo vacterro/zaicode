@@ -1,0 +1,15 @@
+{
+  "id": "tr-TR.b0003",
+  "translation": {
+    "docs.README_md.p0048": "ZAICODE, Z.ai tarafından ZCode'den türetilmiştir ve aynı\r\n[Apache License 2.0]({protected0}) koşullarıyla dağıtılır; yukarı kaynak bildirimleri\r\n[NOTICE.md]({protected1}) ve [THIRD-PARTY-NOTICES.md]({protected2}) dosyalarında tutulur.\r\nDosyalar ZAICODE yazarı tarafından değiştirilmiştir. ZAICODE bağımsız bir projedir;\r\nZ.ai ile ilişkili değildir ve Z.ai tarafından desteklenmez. Özgün ZCode README dosyası\r\n[README.zcode.md]({protected3}) ve [README.en.md]({protected4}) olarak korunur.",
+    "docs.README_md.p0052": "## Proje ağı",
+    "docs.README_md.p0054": "Bu depo, daha geniş **SAIPEN / vacterro** proje ekosistemimin parçasıdır.",
+    "docs.README_md.p0056": "[**Yazar merkezi**]({protected0}) · [**SAIPEN HQ**]({protected1}) · [**SAIPEN Core**]({protected2}) · [**ZAICODE**]({protected3}) · [**FastPrompter**]({protected4}) · [**SAIPEN Community**]({protected5})",
+    "docs.README_md.p0058": "Tekrarlanabilir hatalar ve kalıcı özellik istekleri için bu deponun [GitHub Issues]({protected0}) bölümünü kullanın. Hızlı tartışma, ekran görüntüleri ve projeler arası geri bildirim için Discord'u kullanın.",
+    "docs.docs_ZAICODE_INSTALL_md.p0000": "# ZAICODE Kurulumu",
+    "docs.docs_ZAICODE_INSTALL_md.p0002": "ZAICODE, birlikte çalışan üç projedir: ZAICODE uygulaması, SAIPEN (ajan işini\r\ndoğru yolda tutan protokol) ve SAIMAIL (ajanların birbirine haber vermek için\r\nkullandığı posta). Elle kurmak üç klon, bir Node.js araç zinciri, bir Python\r\nortamı ve bir derleme demektir. Kurulum sihirbazı hepsini yapar:\r\nçalıştırın, bekleyin, masaüstünde ZAICODE kısayolu hazır.",
+    "docs.docs_ZAICODE_INSTALL_md.p0004": "## Tek tıkla",
+    "docs.docs_ZAICODE_INSTALL_md.p0006": "- **[ZAICODE-Setup.exe]({protected0})**:\n  indirin, çift tıklayın, **KUR**'a basın. Pencere (koyu zeminde altın renkli, SAIPEN\r\n  banner'ı) her adımı çalışırken, geçen süreyi ve isteğe bağlı olarak günlüğü\r\n  gösterir; sonunda **ZAICODE'U BAŞLAT**, ya da bir adım tamamlanmadıysa\r\n  **TEKRAR DENE** / **Otomatik Sorun Gider** / **Günlüğü aç**.\n  Mevcut bir ZAICODE klasörü gösterildiğinde düğme **GÜNCELLE** yazar: aynı\r\n  çalıştırma hem günceller hem onarır. exe kurulum betiklerini içinde taşır,\r\n  yanında başka hiçbir şeye gerek yoktur; {protected1} tarafından derlenmiştir\r\n  (her Windows 10/11'de bulunan .NET Framework derleyicisi).\n- {protected2} (çift tıklama): aynı kurulumun konsol sürümü.\n- Sıfırdan, PowerShell'de:",
+    "docs.docs_ZAICODE_INSTALL_md.p0008": "  ```powershell\n  & ([scriptblock]::Create((irm {protected0})))\n  ```\n\n  Bu komut, kurulum betiğini indirir ve çalıştırır."
+  }
+}

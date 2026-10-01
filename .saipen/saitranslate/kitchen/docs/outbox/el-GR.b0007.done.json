@@ -1,0 +1,15 @@
+{
+  "id": "el-GR.b0007",
+  "translation": {
+    "docs.docs_ZAICODE_INSTALL_md.p0032": "Κάθε σύνδεση Claude Code ή Codex ζει στο δικό της home: {protected0},\n{protected1}, ... και {protected2}, {protected3}, ... Το ZAICODE τις\nβρίσκει όλες. Για να προετοιμάσετε άλλες κατά την εγκατάσταση:",
+    "docs.docs_ZAICODE_INSTALL_md.p0036": "Ο εγκαταστάτης δημιουργεί τα homes και τυπώνει την ακριβή εντολή σύνδεσης για\nκαθένα ({protected0}). Το ίδιο και μέσα στο ZAICODE: Ρυθμίσεις ->\nΜηχανές & όρια -> προσθέστε άλλη σύνδεση.",
+    "docs.docs_ZAICODE_INSTALL_md.p0038": "## Αυτοδιάγνωση",
+    "docs.docs_ZAICODE_INSTALL_md.p0042": "Κατάσταση ανά έλεγχο: OK, FIXED (ήταν χαλασμένο, διορθώθηκε), WARN (λειτουργεί, αλλά λείπει κάτι\nπροαιρετικό), INFO (χρειάζεται εσάς: μια σύνδεση), FAIL. Τα logs είναι στο\n{protected0}; η σύνοψη της τελευταίας εγκατάστασης: {protected1}.\nΣτην εφαρμογή, Router -> Autotroubleshoot διορθώνει τον ενεργό router και τα pools.",
+    "docs.docs_ZAICODE_INSTALL_md.p0044": "## Παράμετροι",
+    "docs.docs_ZAICODE_INSTALL_md.p0046": "| Παράμετρος | Προεπιλογή | |\n| ---- | ---- | ---- |\n| {protected0} | {protected1} | πού πηγαίνει όλα |\n| {protected2} | Desktop | πού μπαίνει η συντόμευση ZAICODE |\n| {protected3}, {protected4} | | παράλειψη αυτών των συντομεύσεων |\n| {protected5} | | ιδιωτικά Git / Node.js / Python, ακόμη κι αν υπάρχουν ήδη στο μηχάνημα |\n| {protected6} | | εκκίνηση ZAICODE στο τέλος |\n| {protected7}, {protected8}, {protected9} | τα repos GitHub | άλλη πηγή (ένα fork, διαδρομή τοπικού clone) |",
+    "docs.docs_ZAICODE_INSTALL_md.p0048": "## Απόδειξη",
+    "docs.docs_ZAICODE_INSTALL_md.p0050": "{protected0}\nελέγχει μια φρέσκια εγκατάσταση, σπέρνει βλάβες (συντόμευση και launcher διεγραμμένα, ο launcher\nτου SAIPEN να δείχνει σε Python που λείπει, venv του SAIMAIL διεγραμμένο, node_modules\nκαταχωρισμένα για άλλο lockfile, υπολειπόμενος φάκελος build βαθύτερα από το MAX_PATH),\nεπιβεβαιώνει ότι το doctor αναφέρει και επιδιορθώνει καθεμία, και μετά ξεκινά τον στόχο της\nσυντόμευσης με απομονωμένο profile και σταματά ακριβώς το δέντρο διεργασιών που ξεκίνησε.",
+    "docs.docs_ZAICODE_INSTALL_md.p0052": "{protected0} δημιουργεί τέσσερα προσωρινά repositories στον\nδίσκο και μια εγκατάσταση των clones τους, και μετά αποδεικνύει ότι ένας έλεγχος δεν αλλάζει τίποτα,\nότι ένα μέρος ενημερώνεται μόνο του μαζί με το follow-up του (launcher SAIPEN, root\nlauncher), ότι επικαλυπτόμενες τοπικές αλλαγές και τοπικά commits διατηρούνται, και ότι\nάγνωστο όνομα μέρους απορρίπτεται. Χωρίς δίκτυο.\n",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0000": "# ZAICODE SAIPEN μεταφορά μέσω cloud"
+  }
+}

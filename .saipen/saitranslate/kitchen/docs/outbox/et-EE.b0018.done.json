@@ -1,0 +1,7 @@
+{
+  "id": "et-EE.b0018",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0094": "**SAFE_TO_DEFER** — produktikiht. Pilvesessioon saab kloonida\r\n{protected0} haru {protected1} ja töötada seal. Tööruumikihi töö\r\nei nõua produktitööd, kuid nõuab klooni:\r\n{protected2} deklareerib {protected3} ning ilma selleta\r\nebaõnnestub validaator veaga {protected4}. {protected5} väravad vajavad lukustatud pnpm 10.33.2\r\nja ettevalmistatud tööruumi. {protected6} värskel pilvepildil on\r\ndokumenteeritud sissepääs ning produkti {protected7} deklareerib selle juba.",
+    "docs.docs_ZAICODE_INSTALL_md.p0008": "{protected0}"
+  }
+}

@@ -58,26 +58,26 @@
 58|"Kunde inte ladda presentationen"
 59|"Den här presentationen har inga bildrutor"
 60|"Den här presentationen överstiger gränsen på 64 MB för förhandsvisning."
-61|Den här fjärrmiljön kan förhandsvisa presentationer upp till 8 MB.
-62|Den här presentationen ändrades eller trunkerades medan den lästes och kan därför inte förhandsvisas. Försök igen.
-63|Föregående bildruta
-64|Nästa bildruta
-65|Bildrutenummer
-66|Zooma in
-67|Välj element
-68|Avsluta val
-69|AI Edit
-70|Lägg till en kommentar för detta element
-71|Avbryt
-72|Lägg till i konversation
-73|Zooma ut
-74|Bildruta-miniatyrer
-75|Bildruta {pageNumber}
-76|Exportera som PDF
-77|Exporterar PDF...
-78|PDF sparad till {path}
-79|Kunde inte exportera PDF
-80|Filen är tom
+61|"Den här fjärrmiljön kan förhandsgranska presentationer upp till 8 MB."
+62|"Presentationen ändrades eller kortades ned medan den lästes och kan därför inte förhandsgrasas. Försök igen."
+63|"Föregående bild"
+64|"Nästa bild"
+65|"Bildnummer"
+66|"Zooma in"
+67|"Välj element"
+68|"Avsluta val"
+69|"AI-redigering"
+70|"Lägg till en kommentar för det här elementet"
+71|"Avbryt"
+72|"Lägg till i konversation"
+73|"Zooma ut"
+74|"Bildminiatyrer"
+75|"Bild {pageNumber}"
+76|"Exportera som PDF"
+77|"Exporterar PDF…"
+78|"PDF sparad till {path}"
+79|"Kunde inte exportera PDF"
+80|"Filen är tom"
 81|Filen överstiger gränsen på 256 KB för förhandsvisning. Öppna den i en annan redigerare för att se hela innehållet.
 82|Visa kod
 83|Visa diff

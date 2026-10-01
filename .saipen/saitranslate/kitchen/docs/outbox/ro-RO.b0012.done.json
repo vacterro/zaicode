@@ -1,0 +1,15 @@
+{
+  "id": "ro-RO.b0012",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0106": "- citește verdictul cloud și clasifică-l ca această limită, ticket cu ticket\r\n  ({protected0} § 6 conține verificarea);\r\n- nu rescrie sidecars, nu re-verifică doar ca să iasă verde și nu petrecești\r\n  copia kernelului;\r\n- păstrează evenimentele LOG sub 1024 de octeți pe ambele părți.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0108": "Aceeași legare de cale a mașinii blochează și munca. Baza de datorie\r\npre-BUILD se captează prima dată când un ticket intră în BUILD și se\r\nre-verifică la fiecare intrare ulterioară. Un ticket care a intrat prima dată\r\nîn BUILD pe mașina operatorului nu poate intra în BUILD în cloud:\r\ntranziția este refuzată cu {protected0}. T-84 este cazul din registru:\r\nDEBT-000079 a fost capturat la E-1377, iar tranziția refuzată la E-1446.\r\nLasă un asemenea ticket pe mașina care i-a capturat baza.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0110": "## Divergență",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0112": "Dacă localul și remote-ul nu mai împart un strămoș comun, watcher-ul se\r\noprește. Nu face merge, rebase sau force. Ambele id-uri de commit intră\r\nîn log, corecția se aplică {protected0} de mână, iar\r\nrezultatul primește checkpoint ca orice altă schimbare.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0114": "## Acțiunea exactă din partea cloud",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0116": "### Script de configurare a mediului (o singură dată, în setările mediului cloud)",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0118": "Meniul mediului cloud din bara de titlu a sesiunii -> Editare -> Script de\r\nconfigurare. Rulește înainte de fiecare sesiune nouă, deci fiecare sesiune\r\npornește cu toolchain-ul de produs gata:",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0122": "### Promptul pentru fiecare sesiune nouă",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0124": "Pornește sesiunea pe repository-ul {protected0}, ramura {protected1} și\r\nasigură-te că agentul de pe mașina operatorului nu scrie în același timp.\r\nÎnlocuiește ultima linie cu {protected2} pentru a preda lucru nou.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0134": "Pe mașina operatorului, watcher-ul face fast-forward la {protected0} din\r\n{protected1}; {protected2} (sau {protected3}) îl construiește, iar\r\nurmătoarea pornire a ZAICODE-ului schimbă noua versiune."
+  }
+}

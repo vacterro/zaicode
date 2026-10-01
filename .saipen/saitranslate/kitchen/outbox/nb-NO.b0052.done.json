@@ -1,0 +1,8 @@
+{
+  "id": "nb-NO.b0052",
+  "translation": {
+    "feedback.severity.P1-高.label": "Kan ikke bruke det",
+    "feedback.severity.P2-中.label": "Påvirker bruk",
+    "feedback.severity.P3-低.label": "Mindre problem/forslag"
+  }
+}

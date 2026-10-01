@@ -1,0 +1,18 @@
+{
+  "id": "ro-RO.b0003",
+  "translation": {
+    "docs.README_md.p0048": "ZAICODE este derivat din ZCode de Z.ai și distribuit sub aceeași\r\n[Licență Apache 2.0]({protected0}); notificările originale sunt păstrate în\r\n[NOTICE.md]({protected1}) și [THIRD-PARTY-NOTICES.md]({protected2}).\r\nFișierele au fost modificate de autorul ZAICODE. ZAICODE este un proiect independent,\r\nneafiliat și neaprobat de Z.ai. README-ul original ZCode este păstrat ca\r\n[README.zcode.md]({protected3}) și [README.en.md]({protected4}).",
+    "docs.README_md.p0052": "## Rețeaua proiectului",
+    "docs.README_md.p0054": "Acest repository face parte din ecosistemul mai larg **SAIPEN / vacterro**.",
+    "docs.README_md.p0056": "[**Hub autor**]({protected0}) · [**SAIPEN HQ**]({protected1}) · [**SAIPEN Core**]({protected2}) · [**ZAICODE**]({protected3}) · [**FastPrompter**]({protected4}) · [**Comunitatea SAIPEN**]({protected5})",
+    "docs.README_md.p0058": "Pentru buguri reproducibile și cereri de funcții durabile, folosește [GitHub Issues-ul acestui repository]({protected0}). Folosește Discord pentru discuții rapide, capturi de ecran și feedback între proiecte.",
+    "docs.docs_ZAICODE_INSTALL_md.p0000": "# Instalarea ZAICODE",
+    "docs.docs_ZAICODE_INSTALL_md.p0002": "ZAICODE sunt trei proiecte care lucrează ca unul: aplicația ZAICODE, SAIPEN (protocolul\r\ncare ține munca agenților sub control) și SAIMAIL (poșta pe care agenții o folosesc\r\npentru a-și comunica). Instalarea lor manual înseamnă trei clonări, un toolchain Node.js,\r\nun mediu Python și o compilare. Installerul face toate astea:\r\nrulează-l, așteaptă, și scurtătura ZAICODE e pe desktop.",
+    "docs.docs_ZAICODE_INSTALL_md.p0004": "## Un singur click",
+    "docs.docs_ZAICODE_INSTALL_md.p0006": "- **[ZAICODE-Setup.exe]({protected0})**:\n  descarcă, dublu-click, apasă **INSTALL**. Fereastra (auriu pe fundal închis,\n  bannerul SAIPEN) arată fiecare pas în timp ce rulează, timpul scurs și jurnalul\n  la cerere; la final **START ZAICODE**, sau **TRY AGAIN** / **Autotroubleshoot**\n  / **Open log** când un pas nu s-a terminat. Pointat pe un folder ZAICODE existent,\n  butonul scrie **UPDATE**: aceeași rulare actualizează și repară. Exe-ul conține\n  scripturile de instalare și nu are nevoie de nimic lângă el; este compilat de\n  {protected1} (compilatorul .NET Framework prezent pe orice Windows 10/11).\n- {protected2} (dublu-click): aceeași instalare în consolă.\n- De la zero, în PowerShell:",
+    "docs.docs_ZAICODE_INSTALL_md.p0008": "  ```powershell\n  & ([scriptblock]::Create((irm {protected0})))\n  ```"
+  },
+  "kept": [
+    "docs.docs_ZAICODE_INSTALL_md.p0008"
+  ]
+}

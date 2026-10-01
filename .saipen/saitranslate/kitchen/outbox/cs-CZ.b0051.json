@@ -1,0 +1,12 @@
+{
+  "id": "cs-CZ.b0051",
+  "locale": "cs-CZ",
+  "source_digest": "sha256:3649b64da723a738a49c2c9cb825f80faa8412dc7c9157c599b0b9b95bffdb35",
+  "issued_at": "2026-09-30T14:40:31.276Z",
+  "keys": [
+    "chat.permission.workflow.save.overwriteHint"
+  ],
+  "messages": {
+    "chat.permission.workflow.save.overwriteHint": "A workflow with this name already exists at this path. Saving replaces the whole file."
+  }
+}

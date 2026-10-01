@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "work": "T-94",
+  "observed_at_utc": "2026-10-01 06:21:24 UTC",
+  "transport": "request_user_input_async",
+  "question_item_id": "[\"request_user_input_async\",\"call_2MvFkDLWVLa3D7NWbg3IeLYU\",0]",
+  "question_verbatim": "T-94 on endiselt inimese kontrolli ootel. Kas praeguses ZAICODE järgus järgib ProTrail kursorit kõigil kolmel monitoril ilma nihketa ning laseb klõpsud alusrakendustesse läbi ka pärast taaskäivitust? Vaja on tegelikku PASS või FAIL tulemust; „pole kontrollitud” jätab testi avatuks.",
+  "answer_verbatim": "PASS",
+  "accepted_scope": [
+    "ProTrail follows the cursor on all three monitors in the current ZAICODE build",
+    "No visible coordinate offset",
+    "Clicks pass through to underlying applications",
+    "The same behavior after restart"
+  ],
+  "scope_limit": "This is the human placement/click-through/restart verdict requested in this thread. It does not independently assert mixed-DPI, physical hotplug, or every legacy manual UI step.",
+  "current_product_head": "d359a2a9e44d082fb842602bdbefd13c4358c583",
+  "prior_remaining_scope_authority": "Canonical T-94 LOG E-1823 narrowed the remaining empirical acceptance to real Windows desktop-manager placement. Historical implementation and automated verification remain in T-94-src062.md.",
+  "prior_evidence": ".saipen/evidence/T-94-src062.md"
+}

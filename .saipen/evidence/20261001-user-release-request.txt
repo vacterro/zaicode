@@ -1,0 +1,782 @@
+• Я бы хотел вообще убрать этот on off "thought" для тех у кого это явно не поддерживается из коробки и всегда ON оставить, просто это бесмысленная настройка где юзер всегда должен решать почему то: тупая или умная модель - умная всегда, без вариантов, заложено всегда. ![](file:///V:/___VAC/_PIC/_Clipboard_stuff/clipboard_20261001_110048_ad5238d6.png)
+
+• Антигравити и ZCode чёто не продолжаются крутилки 5 часового окна, где не должно стоять типо "on first use start" - а вечно идти так чтобы это 5 часовое окно не стояло никогда, а шло.
+
+• Выходит текст за рамки при удалении папки ![](file:///V:/___VAC/_PIC/_Clipboard_stuff/clipboard_20261001_091028_9d5e857d.png) Потом как выполнишь это под конец это -> ZAICODE
+
+RELEASE / ONE-CLICK INSTALLER — BUILD THE FIRST REAL END-USER DISTRIBUTION
+
+ROLE
+
+Continue from the CURRENT local repository and SAIPEN machine truth.
+
+This is a RELEASE task.
+
+Do not create unrelated features.
+Do not refactor functioning systems merely because the release exposes them.
+Do not weaken current verification gates.
+
+USER PRODUCT CONTRACT
+
+A completely new Windows user must be able to:
+
+1. download ONE installer;
+2. run it;
+3. launch ZAICODE;
+4. immediately have the complete intended stack available:
+
+   - ZAICODE
+   - SAIPEN
+   - SAIMAIL
+   - required bundled runtime/helpers
+   - default FREE execution path
+   - bundled/update-managed 9router_extra where required
+
+without:
+
+- manually installing SAIPEN;
+- manually installing SAIMAIL;
+- cloning GitHub repositories;
+- downloading ZIP files separately;
+- running setup PowerShell scripts by hand;
+- manually editing PATH;
+- manually locating protocol folders;
+- manually copying files between repositories;
+- manually installing the default router;
+- understanding the internal multi-repository architecture.
+
+The user's first experience must be:
+
+INSTALL -> LAUNCH -> WORK.
+
+Updates must later come through the product update system and only install
+verified/trusted releases.
+
+CURRENT PRODUCT BASELINE
+
+Current published ZAICODE product from the latest accepted product work:
+
+d359a2a9e44d082fb842602bdbefd13c4358c583
+
+Previous release work already established substantial installer/update
+infrastructure and fresh-machine testing.
+
+Do not assume it is sufficient.
+
+Re-test the complete new-user contract from zero.
+
+CURRENT KNOWN PRODUCT STATE
+
+Major engineering work is effectively complete:
+
+- localization integrated;
+- 33 runtime catalogs available;
+- folders/pins/model appearance implemented;
+- Quick3/A3 implemented;
+- FREE zero-setup path previously demonstrated;
+- independent component update mechanisms exist;
+- 9router_extra has been ported to 0.5.91-extra;
+- latest UX stabilization passed product tests and packaged Electron acceptance.
+
+There may still be separate SAIPEN protocol-maintainer / historical release debt.
+
+Do not falsify or patch protocol history merely to make the installer release
+look green.
+
+Separate:
+- real product release blockers;
+- legacy protocol bookkeeping debt;
+- operator-only validation.
+
+======================================================================
+PHASE 1 — DEFINE THE DISTRIBUTION BOUNDARY
+======================================================================
+
+Inspect the current architecture and identify every component required for a new
+user to obtain the same functional baseline as the operator.
+
+At minimum evaluate:
+
+ZAICODE desktop application.
+
+SAIPEN:
+- protocol runtime;
+- skills/config required by ZAICODE;
+- bootstrap/installation path;
+- project initialization behavior;
+- updater behavior.
+
+SAIMAIL:
+- local runtime/service/client pieces;
+- key/trust/bootstrap behavior;
+- persistence;
+- updater behavior.
+
+9router_extra / FREE route:
+- exact package/version currently approved;
+- bootstrap;
+- local process/service lifecycle;
+- first-run readiness;
+- update boundary.
+
+Other required helpers/runtimes:
+- Node runtime, Python runtime or other dependencies if the installed product
+  genuinely requires them;
+- native helpers;
+- packaged scripts;
+- manifests;
+- migration/bootstrap assets.
+
+Do not require globally installed developer tooling when the product can bundle
+or privately manage it.
+
+END-USER INSTALLATION MUST NOT DEPEND ON:
+
+- Git;
+- GitHub CLI;
+- VS Code;
+- npm/pnpm;
+- Python installed globally;
+- developer shell initialization;
+- source repository presence.
+
+If an unavoidable external runtime genuinely cannot be bundled:
+detect it explicitly and install/bootstrap it through the installer workflow
+where licensing/security permits.
+
+Do not make the user troubleshoot it manually.
+
+======================================================================
+PHASE 2 — INSTALL LAYOUT
+======================================================================
+
+Design/verify a stable production install layout.
+
+Separate:
+
+A. immutable/versioned application binaries;
+
+B. managed bundled components;
+
+C. user data/configuration;
+
+D. projects/workspaces;
+
+E. caches/temp files;
+
+F. update staging;
+
+G. logs/diagnostics.
+
+Do not place durable user state under temporary directories.
+
+Do not rely on V:\_TEMP, AppData temp cleanup locations or source-tree paths for
+durable product state.
+
+Auto-cleanup must not be able to delete SAIPEN/SAIMAIL/ZAICODE durable state.
+
+Use normal Windows per-user/application data locations unless existing ZAICODE
+architecture already defines a better stable contract.
+
+UPGRADES MUST PRESERVE:
+
+- user settings;
+- sessions;
+- model/provider configuration;
+- sounds;
+- custom icons;
+- appearance overrides;
+- project metadata;
+- folders;
+- pins;
+- slots;
+- SAIMAIL state;
+- SAIPEN project/workspace state;
+- operator data.
+
+======================================================================
+PHASE 3 — ONE INSTALLER
+======================================================================
+
+Produce one primary distributable Windows installer.
+
+The operator expects something conceptually like:
+
+ZAICODE-Setup.exe
+
+The final filename may include version.
+
+Running it must install the complete supported user stack.
+
+Do not ship a launcher that merely downloads five independent manual installers
+and abandons the user halfway through.
+
+The installer may internally bootstrap signed/verified components, but the UX
+must remain one coherent setup.
+
+Installer requirements:
+
+- normal Windows GUI installer;
+- clear install destination;
+- reasonable default;
+- Start Menu entry;
+- optional desktop shortcut;
+- clean uninstall;
+- repair/reinstall capability where practical;
+- upgrade existing installation;
+- preserve user data on update/uninstall unless the user explicitly requests
+  data removal;
+- no unexpected administrator requirement if per-user installation is possible.
+
+If elevated privileges are genuinely required for a component:
+request elevation only at the required step and explain why.
+
+======================================================================
+PHASE 4 — FIRST-RUN BOOTSTRAP
+======================================================================
+
+A brand-new Windows profile must be supported.
+
+On first launch, ZAICODE must automatically verify/bootstrap all required managed
+components.
+
+The user must NOT need to separately understand SAIPEN or SAIMAIL installation.
+
+Expected startup flow:
+
+ZAICODE starts
+-> checks installed managed components
+-> initializes missing safe defaults
+-> initializes SAIPEN integration
+-> initializes SAIMAIL local integration
+-> initializes FREE execution path
+-> verifies local router/runtime
+-> reaches usable UI
+
+This must be idempotent.
+
+Launching ZAICODE ten times must not create ten duplicate services, routers,
+protocol installations or mailbox identities.
+
+BOOTSTRAP STATES
+
+Expose understandable product states such as:
+
+Ready
+Setting up
+Updating
+Needs attention
+Unavailable
+
+Do not expose internal developer jargon unless the user opens diagnostics.
+
+FAIL-OPEN POLICY
+
+Follow the existing ZAICODE product preference:
+
+If the product can physically launch safely, launch it.
+
+Do not hard-block the whole application because one optional provider,
+SAIMAIL peer, translation service or secondary component is unavailable.
+
+Hard-block only where the requested operation is genuinely impossible or unsafe.
+
+======================================================================
+PHASE 5 — DEFAULT FREE EXPERIENCE
+======================================================================
+
+A completely new user must be able to use ZAICODE without first adding a paid
+provider.
+
+Re-test the actual packaged install.
+
+The default FREE route must:
+
+- bootstrap automatically;
+- expose an available model;
+- start required router/runtime automatically;
+- accept a new task;
+- return a real answer;
+- survive ZAICODE restart;
+- recover after router/runtime restart.
+
+No account wall should appear for the default FREE route if no account is
+actually required.
+
+Optional paid integrations may remain optional.
+
+======================================================================
+PHASE 6 — SAIPEN ZERO-MANUAL-SETUP
+======================================================================
+
+The installed ZAICODE must carry or automatically obtain the approved SAIPEN
+runtime required by the release.
+
+New-user experience must NOT say:
+
+"Clone SAIPEN"
+"Install protocol manually"
+"Copy .claude skills"
+"Run bootstrap script from repository"
+
+Required behavior:
+
+- SAIPEN managed installation is automatically available;
+- ZAICODE can initialize a new compatible project/workspace;
+- existing compatible projects can be detected;
+- protocol version can be identified;
+- updates can be staged;
+- user/project state survives updates.
+
+Do not automatically overwrite user-modified project protocol/state.
+
+Separate:
+- managed SAIPEN implementation/runtime;
+- per-project SAIPEN machine state.
+
+Updating the managed runtime must not rewrite project history.
+
+======================================================================
+PHASE 7 — SAIMAIL ZERO-MANUAL-SETUP
+======================================================================
+
+SAIMAIL must be installed/bootstrap-managed by the same ZAICODE distribution.
+
+A new user must not clone or manually install SAIMAIL.
+
+Verify:
+
+- local SAIMAIL components initialize;
+- mailbox identity/state is durable;
+- restart works;
+- ZAICODE can access the integration;
+- unavailable/unpaired peers produce understandable status;
+- unknown senders remain subject to intended trust/quarantine behavior;
+- no security/trust mechanism is bypassed to claim zero-setup success.
+
+Zero setup means:
+
+the software is installed and ready to use.
+
+It does NOT mean silently trusting arbitrary remote identities.
+
+======================================================================
+PHASE 8 — VERIFIED UPDATE CHANNEL
+======================================================================
+
+This is mandatory.
+
+The product must never automatically install arbitrary unverified artifacts.
+
+Define one authoritative release/update channel.
+
+Every automatically accepted update must have verifiable identity.
+
+At minimum use:
+
+- manifest;
+- version;
+- component id;
+- artifact digest/hash;
+- expected size where useful;
+- release channel;
+- trusted source.
+
+Prefer cryptographic signature verification if the current release architecture
+supports it.
+
+If signature infrastructure does not yet exist, artifact digest validation from
+a trusted release manifest is the minimum acceptable boundary for this release,
+and signature support should be recorded as release-hardening debt rather than
+pretended to exist.
+
+COMPONENT UPDATES
+
+ZAICODE may update independently from:
+
+- SAIPEN managed runtime;
+- SAIMAIL;
+- 9router_extra;
+- other managed components.
+
+But updates must come from the same trusted release policy.
+
+Do not update directly from arbitrary branch HEAD.
+
+Automatic updates must consume published/approved release artifacts.
+
+======================================================================
+PHASE 9 — SAFE AUTO-UPDATE
+======================================================================
+
+Implement/verify:
+
+check
+-> download to staging
+-> verify
+-> stage
+-> activate safely
+
+Never overwrite the currently running executable in place in a way that can
+leave a half-updated installation.
+
+Use atomic/versioned activation where practical.
+
+If update verification fails:
+
+- keep current known-good version;
+- discard/quarantine bad staged artifact;
+- report failure;
+- do not brick the application.
+
+If update activation fails:
+
+- rollback to the last known-good version where architecture allows.
+
+Do not delete the old known-good version until the new one has passed the
+required activation boundary.
+
+======================================================================
+PHASE 10 — RELEASE CHANNELS
+======================================================================
+
+Support at least a stable production channel.
+
+If existing architecture already has dev/test/staging channels, preserve them,
+but a normal end user must default to:
+
+STABLE
+
+Stable must receive only explicitly promoted verified builds.
+
+Do not auto-update normal users from:
+- master HEAD;
+- arbitrary CI artifacts;
+- unreviewed branch output.
+
+A developer/internal installation may expose alternative channels separately.
+
+======================================================================
+PHASE 11 — FRESH MACHINE ACCEPTANCE
+======================================================================
+
+This is the critical release gate.
+
+Do not prove the installer only on the developer's existing machine/profile.
+
+Create or use a genuinely isolated Windows environment/profile.
+
+Prefer:
+- clean Windows VM;
+- Windows Sandbox if suitable;
+- fresh dedicated test profile;
+- equivalent reproducible isolated environment.
+
+The environment must NOT already contain:
+
+- ZAICODE configuration;
+- SAIPEN installation;
+- SAIMAIL installation;
+- source repositories;
+- router config;
+- developer PATH assumptions.
+
+Test EXACTLY what a new user does:
+
+1. obtain installer;
+2. run installer;
+3. finish installation;
+4. launch ZAICODE;
+5. wait for automatic bootstrap;
+6. create/open a usable project;
+7. create a task/session;
+8. run the default FREE path;
+9. receive an actual model answer;
+10. verify SAIPEN availability;
+11. verify SAIMAIL availability;
+12. restart ZAICODE;
+13. verify state persists;
+14. uninstall/reinstall or upgrade where applicable;
+15. verify user state preservation according to contract.
+
+Record timings but do not fail solely because first bootstrap takes some time.
+
+The key acceptance criterion:
+
+NO MANUAL DEVELOPER SETUP.
+
+======================================================================
+PHASE 12 — UPDATE ACCEPTANCE
+======================================================================
+
+Also prove an actual update.
+
+Install version A.
+
+Then publish/use a controlled test update B through the same mechanism used by
+the release channel.
+
+Verify:
+
+- update discovered;
+- artifact downloaded;
+- identity verified;
+- update staged;
+- activation occurs safely;
+- new version starts;
+- existing user state remains;
+- SAIPEN state remains;
+- SAIMAIL state remains;
+- projects remain;
+- settings remain.
+
+NEGATIVE CONTROL
+
+Also test a deliberately corrupted or mismatched artifact.
+
+The updater must reject it.
+
+This negative test is important.
+
+A "verified update system" that has never rejected a bad artifact has not proven
+its security boundary.
+
+======================================================================
+PHASE 13 — OFFLINE / PARTIAL FAILURE
+======================================================================
+
+Test:
+
+- installer with network available;
+- first launch with temporary network outage;
+- update check offline;
+- optional remote service unavailable;
+- SAIMAIL peer unavailable;
+- router restart.
+
+Expected behavior:
+
+- ZAICODE remains launchable where safe;
+- existing local functionality remains available;
+- product explains degraded component state;
+- recovery occurs when dependency returns;
+- no repeated destructive re-bootstrap loop.
+
+======================================================================
+PHASE 14 — RELEASE METADATA
+======================================================================
+
+Produce authoritative release metadata.
+
+Include:
+
+- ZAICODE version;
+- product commit;
+- installer artifact;
+- installer SHA-256;
+- bundled component versions;
+- SAIPEN managed version/revision;
+- SAIMAIL version/revision;
+- 9router_extra version;
+- supported Windows versions;
+- release channel;
+- build timestamp;
+- release notes;
+- known operator-only limitations.
+
+Do not expose internal protocol debt as if it were a product failure unless it
+actually affects end users.
+
+======================================================================
+PHASE 15 — FINAL PRODUCT ARTIFACTS
+======================================================================
+
+Produce the actual final installer, not merely an unpacked dev directory.
+
+Expected primary artifact:
+
+ZAICODE-Setup-<version>.exe
+
+If the packaging system also outputs supporting artifacts, retain them, but the
+end-user download story remains ONE primary installer.
+
+Stage a portable/unpacked build only as a diagnostic/developer artifact, not as
+the primary installation path.
+
+======================================================================
+PHASE 16 — RELEASE / PUBLISH
+======================================================================
+
+If all product acceptance gates pass:
+
+- tag/version according to the repository's existing release policy;
+- publish the verified release through the approved repository/release channel;
+- publish/update the stable update manifest;
+- ensure the installer URL/artifact resolves from that release;
+- do not publish source-only instructions as the primary download experience.
+
+If repository release publishing requires credentials already available to the
+agent, use the normal authorized path.
+
+If publishing itself requires an operator-only credential or approval that is
+not available:
+
+complete every engineering/release artifact,
+record exact publish command/action,
+and stop at OPERATOR_REQUIRED.
+
+Do NOT pretend the release is public if only local artifacts exist.
+
+======================================================================
+DO NOT SHIP IF
+======================================================================
+
+Do not call this release complete if a clean user still has to:
+
+- clone a repository;
+- install SAIPEN manually;
+- install SAIMAIL manually;
+- run pnpm/npm manually;
+- run Python setup manually;
+- edit paths manually;
+- download the router separately;
+- read developer setup documentation before first task;
+- manually update internal components to reach the supported state.
+
+If any of those are still required, the one-click product contract is FAIL.
+
+======================================================================
+VERIFICATION
+======================================================================
+
+Run current product gates:
+
+- focused installer/bootstrap tests;
+- updater tests;
+- component manifest tests;
+- UI tests;
+- service tests;
+- desktop tests;
+- CLI tests;
+- typecheck;
+- lint;
+- architecture validation;
+- git diff --check;
+- verify:pre-push;
+- production build;
+- installer build;
+- clean-machine install acceptance;
+- first FREE task acceptance;
+- restart acceptance;
+- update acceptance;
+- corrupted-update rejection test;
+- uninstall/upgrade acceptance.
+
+Do not weaken tests or release verification.
+
+======================================================================
+FINAL REPORT
+======================================================================
+
+Return a compact release report.
+
+RELEASE
+version:
+product HEAD:
+tag:
+channel:
+
+PRIMARY DOWNLOAD ARTIFACT
+path:
+filename:
+size:
+sha256:
+
+BUNDLED / MANAGED COMPONENTS
+
+ZAICODE:
+version/revision:
+
+SAIPEN:
+version/revision:
+installation mode:
+update mode:
+
+SAIMAIL:
+version/revision:
+installation mode:
+update mode:
+
+9router_extra:
+version:
+
+FRESH MACHINE
+
+installer:
+PASS / FAIL
+
+first launch:
+PASS / FAIL
+
+SAIPEN ready:
+PASS / FAIL
+
+SAIMAIL ready:
+PASS / FAIL
+
+FREE model first answer:
+PASS / FAIL
+
+manual developer steps required:
+NONE
+or list exact blockers
+
+UPDATE
+
+stable manifest:
+PASS / FAIL
+
+verified download:
+PASS / FAIL
+
+bad artifact rejection:
+PASS / FAIL
+
+state-preserving upgrade:
+PASS / FAIL
+
+GATES
+
+tests:
+typecheck:
+lint:
+architecture:
+verify:pre-push:
+production build:
+installer build:
+
+PUBLICATION
+
+release published:
+YES / NO
+
+release location:
+<exact release reference>
+
+If NO:
+exact operator-required publish action:
+
+KNOWN LIMITATIONS
+
+Only real end-user-visible limitations.
+
+FINAL VERDICT
+
+READY_FOR_NEW_USERS
+
+or
+
+NOT_READY_FOR_NEW_USERS
+
+Do not return READY_FOR_NEW_USERS unless a genuinely clean Windows environment
+passed the full install -> launch -> first task path without developer setup.

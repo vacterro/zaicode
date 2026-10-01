@@ -1,0 +1,15 @@
+{
+  "id": "tr-TR.b0011",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0106": "- bulut hükmünü alıntıla, ticket başına bu sınır olarak sınıflandır\r\n  ({protected0} § 6 kontrolü içerir);\r\n- sidecar'ları asla yeniden yazma, yalnızca yeşil almak için yeniden doğrulama yapma, kernel\r\n  kopyasını yamalama;\r\n- LOG olaylarını her iki tarafta 1024 baytın altında tut.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0108": "Aynı machine-path bağlama işi de bloke eder. BUILD öncesi borç tabanı, ticket ilk kez BUILD'e girdiğinde alınır ve sonraki her girişte yeniden kontrol edilir. Bu yüzden ilk kez operatör makinesinde BUILD'e giren bir ticket bulutta BUILD'e giremez: geçiş {protected0} ile reddedilir. Kayıttaki vaka T-84: DEBT-000079 E-1377'de alındı, geçiş E-1446'da reddedildi. Böyle bir ticket'ı tabanını yakalayan makineye bırak.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0110": "## Ayrışma",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0112": "Yerel ve uzak ortak bir atayı paylaşmayı bırakırsa watcher durur. Birleştirme, rebase veya zorlama yapmaz. Her iki commit id log'a yazılır, düzeltme elle {protected0} olur ve sonuç diğer her değişiklik gibi checkpoint'lenir.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0114": "## Bulut tarafındaki tam işlem",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0116": "### Ortam kurulum script'i (tek sefer, bulut ortamının ayarlarında)",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0118": "Oturum başlık çubuğundaki bulut ortamı menüsü -> Edit -> Setup script. Her yeni oturumdan önce çalışır, böylece her oturum ürün toolchain'i hazır başlar:",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0122": "### Her yeni oturum için prompt",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0124": "Oturumu {protected0} deposunda, {protected1} branch'inde başlat ve operatör makinesinin agent'ının aynı anda yazmadığından emin ol. Yeni işi devretmek için son satırı {protected2} ile değiştir.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0134": "Operatör makinesinde watcher {protected0}'i {protected1}'den fast-forward eder; {protected2} (ya da {protected3}) onu derer ve ZAICODE'nin bir sonraki başlatılışı yeni build'i devreye alır.\r\n"
+  }
+}

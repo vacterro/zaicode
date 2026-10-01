@@ -1,0 +1,3 @@
+1|"Nu se poate utiliza"
+2|"Afectează utilizarea"
+3|"Problema minoră/sugestie"

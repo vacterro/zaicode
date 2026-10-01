@@ -1,0 +1,10 @@
+{
+  "id": "da-DK.b0054",
+  "translation": {
+    "resourceManager.storage.diskUsage": "ZAICODE bruger {used}",
+    "settings.modelProvider.baseUrlPlaceholder": "https://api.example.com/v1"
+  },
+  "kept": [
+    "settings.modelProvider.baseUrlPlaceholder"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "id": "sk-SK.b0019",
+  "translation": {
+    "docs.docs_ZAICODE_INSTALL_md.p0032": "Každé prihlásenie Claude Code alebo Codex má vlastný domov: {protected0},\n{protected1}, ... a {protected2}, {protected3}, ... ZAICODE nájde\nvšetky. Ak si chceš pripraviť viac pri inštalácii:",
+    "docs.docs_ZAICODE_INSTALL_md.p0036": "Inštalátor vytvorí domovy a vypíše presný prihlasovací príkaz pre každý\n({protected0}). Rovnaké je aj v ZAICODE: Settings ->\nEngines & limits -> pridať ďalšie prihlásenie.",
+    "docs.docs_ZAICODE_INSTALL_md.p0038": "## Automatická diagnostika",
+    "docs.docs_ZAICODE_INSTALL_md.p0042": "Stav pre každú kontrolu: OK, FIXED (bolo rozbité, opravené), WARN (funguje, ale\nniečo voliteľné chýba), INFO (potrebuje ťa: prihlásenie), FAIL. Logy sú v\n{protected0}; súhrn poslednej inštalácie je {protected1}.\nV aplikácii Router -> Autotroubleshoot opraví bežiaci router a pooly.",
+    "docs.docs_ZAICODE_INSTALL_md.p0044": "## Možnosti",
+    "docs.docs_ZAICODE_INSTALL_md.p0046": "| Parameter | Predvolené | |\n| ---- | ---- | ---- |\n| {protected0} | {protected1} | kam ide všetko |\n| {protected2} | Desktop | kam ide skratka ZAICODE |\n| {protected3}, {protected4} | | preskočiť tieto skratky |\n| {protected5} | | súkromný Git / Node.js / Python, aj keď ich zariadenie má |\n| {protected6} | | po dokončení spustiť ZAICODE |\n| {protected7}, {protected8}, {protected9} | repozitáre GitHub | iný zdroj (fork, lokálna cesta klonu) |",
+    "docs.docs_ZAICODE_INSTALL_md.p0048": "## Dôkaz",
+    "docs.docs_ZAICODE_INSTALL_md.p0050": "{protected0}\noveruje čistú inštaláciu, nasadí poruchy (skratka aj spúšťač odstránené, spúšťač\nSAIPEN ukazujúci na chýbajúci Python, venv SAIMAIL odstránený, node_modules\nzapísaný pre iný lockfile, zvyškový build priečinok hlbší než MAX_PATH),\noverí, že diagnostika nahlási a opraví každú z nich, potom spustí cieľ skratky\ns izolovaným profilom a zastaví presne strom procesov, ktorý spustil.",
+    "docs.docs_ZAICODE_INSTALL_md.p0052": "{protected0} vytvorí štyri jednorazové repozitáre\nna disku a nainštaluje ich klonovanie, potom dokáže, že kontrola nič nemení,\nže jedna súčasť sa aktualizuje sama so svojou nadväznou opravou (spúšťač SAIPEN,\nkoreňový spúšťač), že prekrývajúce sa lokálne úpravy a lokálne commity zostanú\nzachované a že neznámy názov súčasti sa odmietne. Bez siete.\n",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0000": "# ZAICODE SAIPEN cloudový prenos"
+  }
+}

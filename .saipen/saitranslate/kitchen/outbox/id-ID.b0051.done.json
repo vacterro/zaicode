@@ -1,0 +1,8 @@
+{
+  "id": "id-ID.b0051",
+  "translation": {
+    "feedback.severity.P1-高.label": "Tidak dapat digunakan",
+    "feedback.severity.P2-中.label": "Memengaruhi penggunaan",
+    "feedback.severity.P3-低.label": "Masalah kecil/saran"
+  }
+}

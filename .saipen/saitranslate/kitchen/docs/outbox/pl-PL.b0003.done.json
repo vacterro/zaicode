@@ -1,0 +1,19 @@
+{
+  "id": "pl-PL.b0003",
+  "translation": {
+    "docs.README_md.p0048": "ZAICODE pochodzi z ZCode od Z.ai i jest dystrybuowany na tych samych warunkach\r\n[Apache License 2.0]({protected0}); powiadomienia projektu źródłowego zachowano w\r\n[NOTICE.md]({protected1}) i [THIRD-PARTY-NOTICES.md]({protected2}).\r\nPliki zmodyfikował autor ZAICODE. ZAICODE to niezależny projekt, niepowiązany\r\nz Z.ai ani przez niego wspierany. Oryginalny README ZCode zachowano jako\r\n[README.zcode.md]({protected3}) i [README.en.md]({protected4}).",
+    "docs.README_md.p0052": "## Project network",
+    "docs.README_md.p0054": "To repozytorium jest częścią szerszego ekosystemu projektów **SAIPEN / vacterro**.",
+    "docs.README_md.p0056": "[**Centrum autora**]({protected0}) · [**SAIPEN HQ**]({protected1}) · [**SAIPEN Core**]({protected2}) · [**ZAICODE**]({protected3}) · [**FastPrompter**]({protected4}) · [**SAIPEN Community**]({protected5})",
+    "docs.README_md.p0058": "W celu zgłaszania powtarzalnych błędów i trwałych próśb o funkcje korzystaj z [GitHub Issues tego repozytorium]({protected0}). Używaj Discorda do szybkich dyskusji, zrzutów ekranu i opinii między projektami.",
+    "docs.docs_ZAICODE_INSTALL_md.p0000": "# Instalowanie ZAICODE",
+    "docs.docs_ZAICODE_INSTALL_md.p0002": "ZAICODE to trzy projekty działające jako jeden: aplikacja ZAICODE, SAIPEN (protokół,\r\nktóry pilnuje, by praca agenta nie rozjechała się) i SAIMAIL (poczta, którą agenci\r\nwymieniają się wiadomościami). Ręczna instalacja oznacza trzy klony, łańcuch\r\nnarzędzi Node.js, środowisko Python i build. Instalator robi to wszystko:\r\nuruchom go, poczekaj, a skrót ZAICODE pojawi się na pulpicie.",
+    "docs.docs_ZAICODE_INSTALL_md.p0004": "## Jedno kliknięcie",
+    "docs.docs_ZAICODE_INSTALL_md.p0006": "- **[ZAICODE-Setup.exe]({protected0})**:\n  pobierz, kliknij dwukrotnie, naciśnij **INSTALL**. Okno (złoto na ciemnym tle,\n  baner SAIPEN) pokazuje każdy krok w trakcie, czas, jaki już upłynął, oraz log\n  na żądanie; na koniec **START ZAICODE**, albo **TRY AGAIN** / **Autotroubleshoot**\n  / **Open log**, gdy któryś krok się nie zakończył. Wskazane na istniejący folder\n  ZAICODE przycisk zmienia się na **UPDATE**: ten sam przebieg aktualizuje i naprawia.\n  Plik .exe zawiera skrypty instalacyjne i nie wymaga niczego obok; buduje go\n  {protected1} (kompilator .NET Framework obecny w każdym Windows 10/11).\n- {protected2} (podwójne kliknięcie): ta sama instalacja w konsoli.\n- Od zera, w PowerShell:",
+    "docs.docs_ZAICODE_INSTALL_md.p0008": "  ```powershell\n  & ([scriptblock]::Create((irm {protected0})))\n  ```"
+  },
+  "kept": [
+    "docs.README_md.p0052",
+    "docs.docs_ZAICODE_INSTALL_md.p0008"
+  ]
+}

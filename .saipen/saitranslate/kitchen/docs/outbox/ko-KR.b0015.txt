@@ -1,0 +1,2 @@
+1|"**SAFE_TO_DEFER** — 제품 계층. 클라우드 세션은 {protected0} 브랜치 {protected1}을 클론해 그곳에서 작업할 수 있다. 워크스페이스 계층 작업은 제품 작업을 요하지 않지만 클론은 필요하다: {protected2}는 {protected3}을 선언하며, 없으면 밸리데이터가 {protected4}로 실패한다. {protected5} 게이트는 고정된 pnpm 10.33.2와 준비된 워크스페이스를 요구한다. 새 클라우드 이미지에서 {protected6}는 문서화된 진입 방법이며, 제품의 {protected7}가 이미 이를 선언한다."
+2|"{protected0}"

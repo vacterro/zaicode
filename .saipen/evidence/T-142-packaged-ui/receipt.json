@@ -1,0 +1,121 @@
+{
+  "ok": true,
+  "checks": {
+    "appearance": {
+      "key": "new-provider::saifren",
+      "persisted": true,
+      "defaultImage": "cog",
+      "modelImage": "fan",
+      "motion": "swing",
+      "iconColour": "#00ffff",
+      "highlightColour": "#ff00ff",
+      "highlightEffect": "blink"
+    },
+    "selectedProject": {
+      "width": "2px",
+      "color": "rgb(240, 208, 96)",
+      "opacity": "1",
+      "text": "project-two◇"
+    },
+    "collapsedCount": 2,
+    "folder": {
+      "immediatelyVisible": true,
+      "membership": 1,
+      "collapse": true,
+      "expand": true
+    },
+    "pixelPositions": [
+      {
+        "width": 1000,
+        "values": [
+          {
+            "x": 289,
+            "translate": "none"
+          }
+        ]
+      },
+      {
+        "width": 1001,
+        "values": [
+          {
+            "x": 290,
+            "translate": "none"
+          }
+        ]
+      },
+      {
+        "width": 1002,
+        "values": [
+          {
+            "x": 290,
+            "translate": "none"
+          }
+        ]
+      },
+      {
+        "width": 1003,
+        "values": [
+          {
+            "x": 291,
+            "translate": "none"
+          }
+        ]
+      },
+      {
+        "width": 1004,
+        "values": [
+          {
+            "x": 291,
+            "translate": "none"
+          }
+        ]
+      },
+      {
+        "width": 1005,
+        "values": [
+          {
+            "x": 292,
+            "translate": "none"
+          }
+        ]
+      },
+      {
+        "width": 1006,
+        "values": [
+          {
+            "x": 292,
+            "translate": "none"
+          }
+        ]
+      },
+      {
+        "width": 1007,
+        "values": [
+          {
+            "x": 293,
+            "translate": "none"
+          }
+        ]
+      },
+      {
+        "width": 1008,
+        "values": [
+          {
+            "x": 293,
+            "translate": "none"
+          }
+        ]
+      },
+      {
+        "width": 1009,
+        "values": [
+          {
+            "x": 294,
+            "translate": "none"
+          }
+        ]
+      }
+    ],
+    "noPageErrors": true
+  }
+}

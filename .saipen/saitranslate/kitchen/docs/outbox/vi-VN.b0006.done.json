@@ -1,0 +1,15 @@
+{
+  "id": "vi-VN.b0006",
+  "translation": {
+    "docs.README_md.p0048": "ZAICODE bắt nguồn từ ZCode của Z.ai và được phân phối theo cùng\r\n[Apache License 2.0]({protected0}); các thông báo gốc được giữ trong\r\n[NOTICE.md]({protected1}) và [THIRD-PARTY-NOTICES.md]({protected2}).\r\nCác tệp đã được tác giả ZAICODE sửa đổi. ZAICODE là một dự án độc lập,\r\nkhông liên kết hay được Z.ai bảo trợ. README gốc của ZCode được giữ ở\r\n[README.zcode.md]({protected3}) và [README.en.md]({protected4}).",
+    "docs.README_md.p0052": "## Mạng lưới dự án",
+    "docs.README_md.p0054": "Kho lưu trữ này là một phần của hệ sinh thái **SAIPEN / vacterro** rộng lớn hơn.",
+    "docs.README_md.p0056": "[**Trung tâm tác giả**]({protected0}) · [**SAIPEN HQ**]({protected1}) · [**SAIPEN Core**]({protected2}) · [**ZAICODE**]({protected3}) · [**FastPrompter**]({protected4}) · [**Cộng đồng SAIPEN**]({protected5})",
+    "docs.README_md.p0058": "Để báo lỗi có thể tái hiện và yêu cầu tính năng lâu dài, hãy dùng [GitHub Issues của kho lưu trữ này]({protected0}). Dùng Discord để thảo luận nhanh, chia sẻ ảnh chụp màn hình và phản hồi xuyên dự án.",
+    "docs.docs_ZAICODE_INSTALL_md.p0000": "# Cài đặt ZAICODE",
+    "docs.docs_ZAICODE_INSTALL_md.p0002": "ZAICODE gồm ba dự án hoạt động như một: ứng dụng ZAICODE, SAIPEN (giao thức giữ công việc của agent đúng hướng) và SAIMAIL (hệ thống thư mà các agent dùng để trao đổi với nhau). Cài thủ công nghĩa là ba lần clone, một bộ công cụ Node.js, một môi trường Python và một bản build. Trình cài đặt làm hết tất cả: chạy nó, chờ, và một lối tắt ZAICODE sẽ nằm trên desktop.",
+    "docs.docs_ZAICODE_INSTALL_md.p0004": "## Một cú nhấp chuột",
+    "docs.docs_ZAICODE_INSTALL_md.p0006": "- **[ZAICODE-Setup.exe]({protected0})**:\n  tải về, nhấp đúp, nhấn **INSTALL**. Cửa sổ (màu vàng trên nền tối, biểu ngữ SAIPEN) hiển thị từng bước khi chạy, thời gian đã trôi qua và log khi cần; kết thúc là **START ZAICODE**, hoặc **TRY AGAIN** / **Autotroubleshoot**\n  / **Open log** khi một bước chưa hoàn tất. Khi trỏ vào thư mục ZAICODE\n  đã có, nút sẽ ghi **UPDATE**: cùng một lần chạy đó vừa cập nhật vừa sửa chữa. Tệp\n  exe mang theo các script cài đặt và không cần gì bên cạnh; nó được build bởi\n  {protected1} (trình biên dịch .NET Framework mà mọi Windows 10/11 đều có).\n- {protected2} (nhấp đúp): cùng bản cài đặt trong cửa sổ console.\n- Từ số 0, trong PowerShell:",
+    "docs.docs_ZAICODE_INSTALL_md.p0008": "Chạy lệnh PowerShell sau:\n\n  ```powershell\n  & ([scriptblock]::Create((irm {protected0})))\n  ```"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "id": "vi-VN.b0051",
+  "translation": {
+    "chat.permission.workflow.save.overwriteHint": "Một quy trình có tên này đã tồn tại tại đường dẫn này. Lưu sẽ thay thế toàn bộ tệp.",
+    "chat.permission.denyAlways.description.generic": "Luôn từ chối cùng yêu cầu quyền trong tương lai"
+  }
+}

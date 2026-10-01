@@ -1,0 +1,15 @@
+{
+  "id": "el-GR.b0008",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0002": "Πώς αυτό το checkout και μια συνεδρία Claude Code Cloud τρέχουν έναν χώρο εργασίας SAIPEN\r\nμε διαφορετική τοπικότητα εκτελεστή, και πού είναι το όριο μεταξύ τους.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0004": "## Η μορφή",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0008": "Ένας κλάδος μεταφέρει την κατάσταση του πρωτοκόλλου. Δεν υπάρχει βήμα merge, ούτε rebase,\r\nούτε δεύτερος τοπικός κλάδος προς συγχρονισμό: όποιος εκτελεστής έχει επαληθευμένο\r\ncheckpoint τον κάνει commit και push, και η άλλη πλευρά τον παίρνει με\r\nfast-forward.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0010": "{protected0} είναι το ιστορικό πριν τη μεταφορά και ο δημοσιευμένος προεπιλεγμένος κλάδος. Δεν\r\nαλλάζει με force-update από τη μεταφορά.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0012": "## Τι ταξιδεύει και τι όχι",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0014": "Ένα checkpoint σε αυτό το αποθετήριο φέρει την κατάσταση του πρωτοκόλλου SAIPEN, τον\r\nroot launcher, τον installer, τα docs και αυτά τα transport scripts. Αυτό είναι\r\nόλο το layer του χώρου εργασίας.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0016": "Φέρει **κανένα byte προϊόντος**. Το {protected0} είναι ξεχωριστό αποθετήριο Git, καταχωρημένο\r\nστο {protected1} και στο gitignore σε αυτό το root\r\n({protected2}). Η δουλειά προϊόντος χρειάζεται δικό της clone του {protected3} στον κλάδο\r\n{protected4}, και αυτό το clone είναι δεύτερο, ανεξάρτητο αντικείμενο με δικό του ιστορικό.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0018": "Η συνέπεια ξεγελά περιεχομένου: ένα καθαρό {protected0} σε αυτό το root δεν λέει\r\nτίποτα για ανεπιβεβαίωτη δουλειά προϊόντος, και ένα fast-forward του {protected1} δεν λέει\r\nτίποτα για τον κώδικα προϊόντος. Έλεγξε ρητά το {protected2}.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0020": "## Το τοπικό ήμισυ",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0022": "Δύο scripts, και τα δύο ανήκουν στο αποθετήριο, ώστε ένα νέο μηχάνημα να τα παίρνει από το αποθετήριο\r\nκαι όχι από τη μνήμη:"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "ok": true,
+  "at": "2026-09-30T19:41:37.668Z",
+  "executable": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\dist-next\\win-unpacked\\ZAICODE.exe",
+  "steps": {
+    "shell": 10,
+    "router": {
+      "mode": "isolated",
+      "url": "http://127.0.0.1:20138",
+      "package": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\dist-next\\win-unpacked\\resources\\router\\9router",
+      "firstToken": {
+        "ok": true,
+        "detail": "answered in 1.4 s",
+        "servedBy": "stealth/space-bunny-alpha"
+      }
+    },
+    "routerReady": 12,
+    "defaultModel": "(release default)",
+    "appReady": 12,
+    "sentAt": 19,
+    "answered": 22
+  }
+}

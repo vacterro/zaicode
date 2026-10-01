@@ -1,0 +1,15 @@
+{
+  "id": "id-ID.b0005",
+  "translation": {
+    "docs.docs_ZAICODE_INSTALL_md.p0032": "Setiap login Claude Code atau Codex punya home sendiri: {protected0},\n{protected1}, ... dan {protected2}, {protected3}, ... ZAICODE menemukan\nsemuanya. Untuk menyiapkan lebih banyak saat instalasi:",
+    "docs.docs_ZAICODE_INSTALL_md.p0036": "Installer membuat home tersebut dan mencetak perintah login persis untuk setiap\n({protected0}). Sama saja di ZAICODE: Pengaturan ->\nEngine & batas -> tambah login lain.",
+    "docs.docs_ZAICODE_INSTALL_md.p0038": "## Perbaikan Otomatis",
+    "docs.docs_ZAICODE_INSTALL_md.p0042": "Status per cek: OK, FIXED (rusak, diperbaiki), WARN (berfungsi, tapi ada yang\nopsional hilang), INFO (butuh kamu: login), FAIL. Log ada di\n{protected0}; ringkasan instalasi terakhir di {protected1}.\nDi aplikasi, Router -> Autotroubleshoot memperbaiki router dan pool yang berjalan.",
+    "docs.docs_ZAICODE_INSTALL_md.p0044": "## Opsi",
+    "docs.docs_ZAICODE_INSTALL_md.p0046": "| Parameter | Default | |\n| ---- | ---- | ---- |\n| {protected0} | {protected1} | tempat semua ditaruh |\n| {protected2} | Desktop | tempat shortcut ZAICODE |\n| {protected3}, {protected4} | | lewati shortcut tersebut |\n| {protected5} | | Git / Node.js / Python privat meski mesin sudah punya |\n| {protected6} | | jalankan ZAICODE setelah selesai |\n| {protected7}, {protected8}, {protected9} | repo GitHub | sumber lain (fork, path clone lokal) |",
+    "docs.docs_ZAICODE_INSTALL_md.p0048": "## Bukti",
+    "docs.docs_ZAICODE_INSTALL_md.p0050": "{protected0}\nmemeriksa instalasi segar, menyuntik kegagalan (shortcut dan launcher dihapus, launcher\nSAIPEN menunjuk Python yang hilang, venv SAIMAIL dihapus, node_modules\ntercatat untuk lockfile lain, folder build sisa lebih dalam dari MAX_PATH),\npastikan doctor melaporkan dan memperbaiki tiapnya, lalu menjalankan target shortcut\ndengan profil terisolasi dan menghentikan tepat process tree yang dia mulai.",
+    "docs.docs_ZAICODE_INSTALL_md.p0052": "{protected0} membangun empat repo sekali pakai di\ndisk plus instalasi clone-nya, lalu membuktikan bahwa satu cek tidak mengubah apa pun, bahwa satu bagian saja diperbarui beserta pengikutnya (launcher SAIPEN, launcher\nroot), bahwa edit lokal dan commit lokal yang bertumpang tindih kept, dan bahwa nama\npart tak dikenal ditolak. Tanpa jaringan.\n",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0000": "# Transport cloud ZAICODE SAIPEN"
+  }
+}

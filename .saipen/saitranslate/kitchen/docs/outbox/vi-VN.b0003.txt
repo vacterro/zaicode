@@ -1,0 +1,10 @@
+1|"ZAICODE được tạo từ ZCode của Z.ai và phân phối theo cùng giấy phép\r\n[Apache License 2.0]({protected0}); các thông báo gốc được giữ trong\r\n[NOTICE.md]({protected1}) và [THIRD-PARTY-NOTICES.md]({protected2}).\r\nTập tin đã được tác giả ZAICODE chỉnh sửa. ZAICODE là dự án độc lập,\r\nkhông liên kết hay được Z.ai bảo trợ. README gốc của ZCode được giữ ở\r\n[README.zcode.md]({protected3}) và [README.en.md]({protected4})."
+2|"## Mạng lưới dự án"
+3|"Kho lưu trữ này là một phần của hệ sinh thái dự án **SAIPEN / vacterro** rộng hơn."
+4|"[**Trung tâm tác giả**]({protected0}) · [**SAIPEN HQ**]({protected1}) · [**SAIPEN Core**]({protected2}) · [**ZAICODE**]({protected3}) · [**FastPrompter**]({protected4}) · [**Cộng đồng SAIPEN**]({protected5})"
+5|"Để báo lỗi có thể tái hiện và yêu cầu tính năng lâu dài, hãy dùng [GitHub Issues của kho lưu trữ này]({protected0}). Dùng Discord để thảo luận nhanh, chia sẻ ảnh chụp màn hình và phản hồi xuyên dự án."
+6|"# Cài đặt ZAICODE"
+7|"ZAICODE là ba dự án hoạt động như một: ứng dụng ZAICODE, SAIPEN (giao thức giữ agent tiến trình) và SAIMAIL (hệ thống mail agent dùng để trao đổi với nhau). Cài thủ công nghĩa là ba lần clone, bộ công cụ Node.js, môi trường Python và một lần build. Trình cài đặt lo tất cả: chạy nó, chờ, và phím tắt ZAICODE xuất hiện trên desktop."
+8|"## Một cú nhấp"
+9|"- **[ZAICODE-Setup.exe]({protected0})**:\n  tải về, nhấp đúp, nhấn **INSTALL**. Cửa sổ (nền tối, chữ vàng, biểu ngữ SAIPEN) hiển thị từng bước khi chạy, thời gian đã trôi qua và log khi cần; kết thúc là **START ZAICODE**, hoặc **TRY AGAIN** / **Autotroubleshoot**\n  / **Open log** khi một bước chưa xong. Khi trỏ vào thư mục ZAICODE đã có, nút hiện **UPDATE**: cùng một lần chạy đó vừa cập nhật vừa sửa chữa. File exe mang sẵn script cài đặt nên không cần gì bên cạnh; nó được build bởi\n  {protected1} (trình biên dịch .NET Framework mọi Windows 10/11 đều có).\n- {protected2} (nhấp đúp): cùng bản cài đặt trong cửa sổ console.\n- Từ con số không, dùng PowerShell:"
+10|=

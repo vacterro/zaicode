@@ -1,0 +1,16 @@
+[
+  {
+    "name": "pixels",
+    "verifier": "c0b30682181ede574e9e3e21a9aa2601c5061b39b26aa88523d1d55918711987",
+    "before": "986ecb877b06d75184ffeb5bab417576c912f3b75602923dacab492fa96f0e71",
+    "beforeExit": 1,
+    "afterExit": 0
+  },
+  {
+    "name": "start-browser",
+    "verifier": "9973222a45b39b2dc34b2b64037ca83ec294bd1fd641401a6d16427c513c0966",
+    "before": "c5139e1a3f212bd0aaf548533ab30ba6af3eaa3b6235cbd2f8f590bdfb89587f",
+    "beforeExit": 1,
+    "afterExit": 0
+  }
+]

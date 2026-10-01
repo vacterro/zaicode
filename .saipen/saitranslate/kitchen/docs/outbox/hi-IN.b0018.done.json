@@ -1,0 +1,7 @@
+{
+  "id": "hi-IN.b0018",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0094": "**SAFE_TO_DEFER** — प्रोडक्ट लेयर। क्लाउड सेशन {protected0} ब्रांच {protected1} क्लोन करके वहीं काम कर सकता है। वर्कस्पेस-लेयर का काम प्रोडक्ट काम नहीं माँगता, पर क्लोन ज़रूर चाहिए:\r\n{protected2} {protected3} घोषित करता है, और उसके बिना वैलिडेटर {protected4} से विफल होता है। {protected5} गेट के लिए पिन किया pnpm 10.33.2 और तैयार वर्कस्पेस चाहिए। ताज़ा क्लाउड इमेज पर {protected6} दस्तावेज़ीकृत तरीका है, और प्रोडक्ट का {protected7} उसे पहले से घोषित करता है।",
+    "docs.docs_ZAICODE_INSTALL_md.p0008": "{protected0}"
+  }
+}

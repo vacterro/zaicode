@@ -1,0 +1,18 @@
+{
+  "id": "sv-SE.b0001",
+  "translation": {
+    "docs.README_md.p0000": "# ZAICODE",
+    "docs.README_md.p0006": "ZAICODE är en operatörsarbetsbänk för att köra många AI-kodningsagenter samtidigt över\r\nmånga projekt, utan att behålla öga på dem. Det är en modifierad version av\r\n[ZCode]({protected0}) (skrivbordsapp, webbläsargränssnitt och agent-\r\nCLI) med ett produktlager ovanpå: varje projekt drivs av\r\n[SAIPEN]({protected1})-protokollet, arbete startas, fortsätts\r\noch schemaläggs från ett fönster, och de prenumerations-CLI:er du redan betalar för\r\n(Claude Code, Codex, Antigravity) körs som dockade workers bredvid agenterna i appen.",
+    "docs.README_md.p0008": "**0.0.1** är den första taggade ögonblicksbilden: en personlig, Windows-först-byggd version som\r\nanvänds dagligen.",
+    "docs.README_md.p0010": "## Installera med ett klick",
+    "docs.README_md.p0012": "1. Ladda ner **[ZAICODE-Setup.exe]({protected0})**.\r\n2. Dubbelklicka och tryck **INSTALL**.",
+    "docs.README_md.p0014": "Klart. Installationen tillför det maskinen saknar (Git, Node.js, Python, som privata\r\nkopior: inga administratörsrättigheter), hämtar ZAICODE, SAIPEN och SAIMAIL från GitHub,\r\nbygger appen på maskinen och lägger en ZAICODE-genväg på skrivbordet. Första\r\nkörningen tar 15–30 minuter; fönstret visar varje steg.",
+    "docs.README_md.p0016": "Gratismodeller fungerar direkt: ZAICODE startar en egen router och fyller **SAIFREN**\r\npoolen med nyckellösa fria nivåer, så ett uppdrag som skrivs i New task får svar utan\r\nnyckel, konto eller inställning. Claude Code, Codex och Antigravity-prenumerationer är\r\nvalfria och kan loggas in när som helst.",
+    "docs.README_md.p0018": "**En helhet, fyra delar.** Arbetsytan (launcher, installerare), appen, SAIPEN och\r\nSAIMAIL är fyra repositorier. Varje uppdateras separat: *Settings -> ZAICODE ->\r\nUpdates* visar alla delar, uppdaterar dem manuellt eller automatiskt (kontrolleras några\r\nminuter efter start och var sjätte timme). En ny appbyggning förbereds medan ZAICODE kör\r\noch startar vid nästa start; dina egna ändringar i en klon skrivs aldrig över.\r\nFrån en terminal: {protected0}.\r\nAutofelsökning: {protected1}. Detaljer: [docs/ZAICODE_INSTALL.md](docs/ZAICODE_INSTALL.md).",
+    "docs.README_md.p0020": "## Guidning genom gränssnittet",
+    "docs.README_md.p0024": "## Vad det tillför ZCode"
+  },
+  "kept": [
+    "docs.README_md.p0000"
+  ]
+}

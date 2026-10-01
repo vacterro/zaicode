@@ -1,0 +1,15 @@
+{
+  "id": "vi-VN.b0009",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0002": "Cách checkout này và một phiên Claude Code Cloud cùng chạy một workspace SAIPEN\r\nvới executor khác nhau về vị trí, và ranh giới giữa chúng nằm ở đâu.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0004": "## Hình dạng",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0008": "Một nhánh mang trạng thái giao thức. Không có bước merge, không có bước rebase\r\nvà không có nhánh cục bộ thứ hai phải đồng bộ: executor nào có checkpoint\r\nđã xác minh thì commit và push, phía bên kia lấy bằng fast-forward.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0010": "{protected0} là lịch sử trước vận chuyển và nhánh mặc định đã publish. Nó\r\nkhông bị force-update bởi lớp vận chuyển.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0012": "## Cái gì đi kèm, cái gì không",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0014": "Một checkpoint trong repo này mang trạng thái giao thức SAIPEN, launcher gốc,\r\ninstaller, tài liệu và các script vận chuyển này. Đó là toàn bộ lớp workspace.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0016": "Nó mang **không byte sản phẩm nào**. {protected0} là một repo Git riêng, được liệt kê\r\ntrong {protected1} và bị gitignore ở thư mục gốc này\r\n({protected2}). Công việc sản phẩm cần bản clone riêng của {protected3} trên nhánh\r\n{protected4}, và bản clone đó là một đối tượng thứ hai, độc lập, có lịch sử riêng.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0018": "Hệ quả dễ hiểu sai: {protected0} sạch ở thư mục gốc này không nói gì về công việc\r\nsản phẩm chưa commit, và fast-forward của {protected1} không nói gì về mã sản phẩm.\r\nHãy kiểm tra {protected2} một cách tường minh.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0020": "## Nửa cục bộ",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0022": "Hai script, cả hai đều do repo sở hữu để máy mới nhận chúng từ kho chứ không phải từ trí nhớ:"
+  }
+}

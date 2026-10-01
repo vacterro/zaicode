@@ -1,0 +1,15 @@
+{
+  "id": "he-IL.b0009",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0066": "**המסע החוזר נצפה.** E-1562 (ענן) התכנס את המצביע אל {protected0}; E-1571 (מכונת המפעיל)\r\nהתכנס אותו בחזרה ל־{protected1}, אוטומטית, ללא {protected2} ידני.\r\nשני הכיוונים הם אותה התכנסות אוטומטית, ולכן צפו ל־{protected3} אחד\r\n{protected4} לכל החלפת מקומיות, והתייחסו אליו כרעש צפוי\r\nולא כתקלה. הוא נשאר רעש עד ש־P1-2\r\n({protected5}) יוציא את המצביע ממצב מגורסן; אל תממשו את\r\nP1-2 כתוצאה של זיהויו. אף פעם אל תערכו ידנית את המצביע.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0068": "{protected0} עשוי להצביע על **checkout פיתוח** של הקרנל שמקדים\r\nאת ה־pin, ולא על clone נקי של {protected1} — במכונת המפעיל זו\r\nהענף {protected2} עם עבודה שלא נשמרה. קרנל שאינו\r\nב־commit המנוקד אינו בהכרח שגוי, אבל גם אינו מקור clean-room,\r\nולכן הכלל שלהלן על חוזה הקול חל עליו במלואו. אף פעם אל תבצעו\r\ncommit, stash, reset, checkout או clean בתוך checkout כזה;\r\nשחזור ממוקד של קובץ בודד — {protected3} — הוא החריגה\r\nהיחידה המותרת, ורק כאשר המפעיל ביקש זאת.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0070": "### STYLE.md אינו הגדרה מקומית",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0072": "{protected0} חייב להיות **זהה בייתי לקובץ של הקרנל המנוקד**\r\nבכל מכונה, בכל עותק, ללא חריגים וללא עריכות מקומיות. קיימים\r\nיותר מעותק אחד במכונת המפעיל:",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0074": "- checkout הקרנל ב־{protected0} (Git clone; במכונת\r\n  המפעיל זהו checkout פיתוח);\r\n- {protected1}, המאוכלס על ידי\r\n  המשימה המתוזמנת {protected2} ({protected3}). הוא **אינו\r\n  מאגר Git**, ולכן {protected4} לעולם לא יוכל לתקנו — רק\r\n  re-sync דרך ה־injector, או כתיבה ישירה של התוכן שפורסם, היא\r\n  הדרך היחידה.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0076": "ה־token של {protected0} ב־{protected1} הוא hash של טקסט\r\nהקובץ ({protected2}, {protected3}: CRLF מנורמל, שורת\r\n{protected4} מוחרגת). עורכים את {protected5} בעותק אחד וה־token\r\nזז; העותק האחר והענן, אשר שולפים את הקרנל שפורסם,\r\nשומרים על ה־token שפורסם, וכל כתיבה של CLI בצד שאינו\r\nתואם נדחית עם {protected6}.\r\nזו כל התקלה: הצד המקומי כותב מצב שהענן אינו יכול לכתוב.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0078": "**שינוי שפת התשובה הוא commit בקרנל בתוספת re-pin**, אף פעם\r\nעריכה מקומית. משנים אותה במאגר הקרנל, מפרסמים, מבצעים\r\nre-pin ל־commit ב־SKILL.md, ומעדכנים את {protected0} דרך\r\n{protected1}. עריכה מקומית של {protected2} מגדירה שוני\r\nבכל מכונה שאינה המכונה שביצעה אותה.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0080": "| מלכודה אחת שכדאי לציין: {protected0} שפורסם הוא shim\r\nמ绑 מכונה שמקבע את הנתיבים המוחלטים של interpreter ושל checkout\r\nשל מפעיל מסוים. הוא רץ בדיוק על מכונה אחת. הענן חייב להשתמש\r\nב־{protected1}.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0082": "קיצורי דרך: {protected0} ממשיך את ה־Work הנוכחי; {protected1} קורא\r\nאת כל ההודעה כ־source{protected2} וממשיך כל Work זמין. אף אחד מהם\r\nלא מבקש אישור שגרתי.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0084": "## סיווג יכולות"
+  }
+}

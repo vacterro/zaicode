@@ -1,0 +1,10 @@
+1|"ZAICODE est dérivé de ZCode de Z.ai et distribué sous la même\r\n[Licence Apache 2.0]({protected0}) ; les avis amont sont conservés dans\r\n[NOTICE.md]({protected1}) et [THIRD-PARTY-NOTICES.md]({protected2}).\r\nFichiers modifiés par l'auteur de ZAICODE. ZAICODE est un projet indépendant,\r\nsans affiliation ni approbation de Z.ai. Le README original de ZCode est conservé dans\r\n[README.zcode.md]({protected3}) et [README.en.md]({protected4})."
+2|"## Réseau du projet"
+3|"Ce dépôt fait partie de l'écosystème **SAIPEN / vacterro**."
+4|"[**Hub d'auteur**]({protected0}) · [**SAIPEN HQ**]({protected1}) · [**SAIPEN Core**]({protected2}) · [**ZAICODE**]({protected3}) · [**FastPrompter**]({protected4}) · [**Communauté SAIPEN**]({protected5})"
+5|"Pour des bugs reproductibles et demandes de durables fonctionnalités, utilisez les [GitHub Issues de ce dépôt]({protected0}). Utilisez Discord pour discussions rapides, captures d'écran et retours inter-projets."
+6|"# Installer ZAICODE"
+7|"ZAICODE = trois projets qui marchent ensemble : l'app ZAICODE, SAIPEN (le\nprotocole qui garde le travail des agents sur les rails) et SAIMAIL (le courrier\nque les agents s'envoient). Installation manuelle : trois clones, une toolchain\nNode.js, un environnement Python et un build. L'installateur fait tout :\nlancez-le, attendez, le raccourci ZAICODE est sur le bureau."
+8|"## Un clic"
+9|"- **[ZAICODE-Setup.exe]({protected0})** :\n  téléchargé, double-clic, **INSTALL**. La fenêtre (or sur fond sombre, bannière\n  SAIPEN) affiche chaque étape en cours, le temps écoulé et le journal à la\n  demande ; à la fin **START ZAICODE**, ou **TRY AGAIN** / **Autotroubleshoot**\n  / **Open log** si une étape n'a pas fini. Sur un dossier ZAICODE existant, le\n  bouton indique **UPDATE** : même run, mise à jour et réparation. L'exe embarque\n  les scripts d'installation, rien à côté de lui ; construit par\n  {protected1} (le compilateur .NET Framework présent sur chaque Windows 10/11).\n- {protected2} (double-clic) : la même installation en console.\n- De zéro, en PowerShell :"
+10|=

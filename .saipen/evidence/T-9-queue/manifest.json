@@ -1,0 +1,44 @@
+{
+  "files": [
+    {
+      "file": "queue-completed.png",
+      "sha256": "784ac8272e85ffec2b85f4eb182b22ba32c3b6ec4e1fa1ec9e78dc2b1906a7ae"
+    },
+    {
+      "file": "queue-ready.png",
+      "sha256": "3a0a80b66dce18496ce327a85d0f50926b4343d3b5556300ffb540d4e04bc69e"
+    },
+    {
+      "file": "queue-ui.cjs",
+      "sha256": "2c253f9661a705f4500991a4093193cf50805a4064668900c32651d974d3e89d"
+    },
+    {
+      "file": "README.md",
+      "sha256": "ec54d6eb2c4d94d37e7a4b703baa08580a352c0d680b29da249d04368daf0005"
+    },
+    {
+      "file": "receipt.json",
+      "sha256": "4eb70792070087e7c6038c0aea9b2405bfa246a85f0600a03ded8d584acd840b"
+    },
+    {
+      "file": "review-receipt.json",
+      "sha256": "fcf0e73d46ba89822a97a99b9798c6baa1aacb3651cb01c0ed175e093425936b"
+    },
+    {
+      "file": "review.log",
+      "sha256": "23c6a62ff5efc78cb76a90557a0b6fb526fbeb24aee2d880f8716ca64070e5d6"
+    },
+    {
+      "file": "run.log",
+      "sha256": "39322d0f7310af00ca41cc4d4a3cf40b9f43c4b0af246ebd562301abecaa0605"
+    },
+    {
+      "file": "verify.cjs",
+      "sha256": "2927b5c0ae3528f16269be259a1d656693447d0c0910d444b3460f9d5a6903c7"
+    }
+  ],
+  "appAsarSha256": "fc81e74fe66a62bf2a3ef3440701545dba552129fbe71902e3d4c3a0af0d1b67",
+  "productCommit": "e90914815ad3c607132cc6aafeea0a106f848cb4",
+  "inheritedIsolationHarnessSha256": "74a60701e1de05bb662a7244bc8f41387e2b3c70e1bffb82aadf549a2774518f",
+  "at": "2026-09-30T20:18:19.6014785Z"
+}

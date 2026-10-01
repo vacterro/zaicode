@@ -1,0 +1,27 @@
+{
+  "id": "ru-RU.b0034",
+  "translation": {
+    "login.apiKey.provider.bigmodel": "BigModel",
+    "sidePane.saipen": "SAIPEN",
+    "login.oauth.regionTag.bigmodel": "CN",
+    "login.apiKey.provider.zai": "Z.ai",
+    "modelTrajectory.toolId": "ID",
+    "codeViewer.markdownMode": "Markdown",
+    "codeViewer.svgMode": "SVG",
+    "remote.kind.ssh": "SSH",
+    "remote.kind.wsl": "WSL",
+    "remote.kind.docker": "Docker"
+  },
+  "kept": [
+    "login.apiKey.provider.bigmodel",
+    "sidePane.saipen",
+    "login.oauth.regionTag.bigmodel",
+    "login.apiKey.provider.zai",
+    "modelTrajectory.toolId",
+    "codeViewer.markdownMode",
+    "codeViewer.svgMode",
+    "remote.kind.ssh",
+    "remote.kind.wsl",
+    "remote.kind.docker"
+  ]
+}

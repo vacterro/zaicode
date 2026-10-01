@@ -1,0 +1,8 @@
+{
+  "id": "ar-SA.b0050",
+  "translation": {
+    "feedback.severity.P1-高.label": "لا يمكن استخدامه",
+    "feedback.severity.P2-中.label": "يؤثر على الاستخدام",
+    "feedback.severity.P3-低.label": "مشكلة بسيطة/اقتراح"
+  }
+}

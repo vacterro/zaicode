@@ -1,0 +1,15 @@
+{
+  "id": "tr-TR.b0005",
+  "translation": {
+    "docs.docs_ZAICODE_INSTALL_md.p0032": "Her Claude Code veya Codex oturumum kendi ana dizininde durur: {protected0},\n{protected1}, ... ve {protected2}, {protected3}, ... ZAICODE hepsini bulur.\nKurulum anında daha fazlasını hazırlamak için:",
+    "docs.docs_ZAICODE_INSTALL_md.p0036": "Kurulum sihirbazı bu dizinleri oluşturur ve her biri için tam oturum komutunu yazdırır\n({protected0}). Aynısı ZAICODE içinde de var: Ayarlar ->\nMotorlar ve limitler -> başka bir oturum ekle.",
+    "docs.docs_ZAICODE_INSTALL_md.p0038": "## Oto-sorun giderme",
+    "docs.docs_ZAICODE_INSTALL_md.p0042": "Kontrol başına durum: OK, FIXED (bozuktu, onarıldı), WARN (çalışıyor ama bir şey\neyok — isteğe bağlı), INFO (siz gerekiyor: bir oturum), FAIL. Günlükler {protected0} içinde; son kurulumun özeti {protected1}.\nUygulamada Router -> Oto-sorun giderme çalışan yönlendiriciyi ve havuzları onarır.",
+    "docs.docs_ZAICODE_INSTALL_md.p0044": "## Seçenekler",
+    "docs.docs_ZAICODE_INSTALL_md.p0046": "| Parametre | Varsayılan | |\n| ---- | ---- | ---- |\n| {protected0} | {protected1} | her şeyin gittiği yer |\n| {protected2} | Desktop | ZAICODE kısayolunun gittiği yer |\n| {protected3}, {protected4} | | bu kısayolları atla |\n| {protected5} | | makinede olsalar bile özel Git / Node.js / Python kur |\n| {protected6} | | bitince ZAICODE'yi başlat |\n| {protected7}, {protected8}, {protected9} | GitHub depoları | başka kaynak (çatal, yerel kopya yolu) |",
+    "docs.docs_ZAICODE_INSTALL_md.p0048": "## Kanıt",
+    "docs.docs_ZAICODE_INSTALL_md.p0050": "{protected0}\ntemiz bir kurulumu denetler, hataları tohumlar (kısayol ve başlatıcı silinmiş, SAIPEN\nbaşlatıcısı var olmayan bir Python'a yönlendirilmiş, SAIMAIL'in venv'i silinmiş,\nnode_modules başka bir kilit dosyası için kaydedilmiş, MAX_PATH'ten daha derinde kalmış\naşama klasörü), doctor'ın her birini bildirdiğini ve onardığını doğrular, sonra kısayolun\nhedefini izole bir profil ile başlatır ve yalnızca kendi başlattığı süreç ağacını durdurur.",
+    "docs.docs_ZAICODE_INSTALL_md.p0052": "{protected0} diskte dört geçici depo ve bunların kopyalarından bir kurulum oluşturur,\nsonra bir kontrolün hiçbir şeyi değiştirmediğini, tek bir parçanın takibiyle kendi başına\ngüncellendiğini (SAIPEN başlatıcısı, kök başlatıcı), üst üste binen yerel düzenlemelerin ve\nyerel commit'lerin korunduğunu, bilinmeyen parça adının reddedildiğini kanıtlar. Ağ yok.\n",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0000": "# ZAICODE SAIPEN bulut taşıması"
+  }
+}

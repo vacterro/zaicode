@@ -1,0 +1,11 @@
+{
+  "id": "ko-KR.b0051",
+  "translation": {
+    "login.apiKey.provider.bigmodel": "BigModel",
+    "sidebar.usage.plan.mcp": "ZAICODE MCP"
+  },
+  "kept": [
+    "login.apiKey.provider.bigmodel",
+    "sidebar.usage.plan.mcp"
+  ]
+}

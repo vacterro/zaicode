@@ -1,0 +1,30 @@
+{
+  "id": "ko-KR.b0005",
+  "locale": "ko-KR",
+  "source_digest": "sha256:07aa0d0a845f4042a403e9b332760ca9da784aa93f0e5c06527a63231247e6f2",
+  "issued_at": "2026-09-30T14:18:41.163Z",
+  "keys": [
+    "docs.docs_ZAICODE_INSTALL_md.p0032",
+    "docs.docs_ZAICODE_INSTALL_md.p0036",
+    "docs.docs_ZAICODE_INSTALL_md.p0038",
+    "docs.docs_ZAICODE_INSTALL_md.p0042",
+    "docs.docs_ZAICODE_INSTALL_md.p0044",
+    "docs.docs_ZAICODE_INSTALL_md.p0046",
+    "docs.docs_ZAICODE_INSTALL_md.p0048",
+    "docs.docs_ZAICODE_INSTALL_md.p0050",
+    "docs.docs_ZAICODE_INSTALL_md.p0052",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0000"
+  ],
+  "messages": {
+    "docs.docs_ZAICODE_INSTALL_md.p0032": "Every Claude Code or Codex login lives in its own home: {protected0},\n{protected1}, ... and {protected2}, {protected3}, ... ZAICODE finds\nthem all. To prepare more at install time:",
+    "docs.docs_ZAICODE_INSTALL_md.p0036": "The installer creates the homes and prints the exact login command for each\n({protected0}). The same is in ZAICODE: Settings ->\nEngines & limits -> add another login.",
+    "docs.docs_ZAICODE_INSTALL_md.p0038": "## Autotroubleshoot",
+    "docs.docs_ZAICODE_INSTALL_md.p0042": "Status per check: OK, FIXED (was broken, repaired), WARN (works, but something\noptional is missing), INFO (needs you: a login), FAIL. Logs are in\n{protected0}; the last install's summary is {protected1}.\nIn the app, Router -> Autotroubleshoot repairs the running router and pools.",
+    "docs.docs_ZAICODE_INSTALL_md.p0044": "## Options",
+    "docs.docs_ZAICODE_INSTALL_md.p0046": "| Parameter | Default | |\n| ---- | ---- | ---- |\n| {protected0} | {protected1} | where everything goes |\n| {protected2} | Desktop | where the ZAICODE shortcut goes |\n| {protected3}, {protected4} | | skip those shortcuts |\n| {protected5} | | private Git / Node.js / Python even when the machine has them |\n| {protected6} | | start ZAICODE when done |\n| {protected7}, {protected8}, {protected9} | the GitHub repos | another source (a fork, a local clone path) |",
+    "docs.docs_ZAICODE_INSTALL_md.p0048": "## Proof",
+    "docs.docs_ZAICODE_INSTALL_md.p0050": "{protected0}\nchecks a fresh install, seeds faults (shortcut and launcher deleted, SAIPEN\nlauncher pointed at a missing Python, SAIMAIL's venv deleted, node_modules\nrecorded for another lockfile, a leftover build folder deeper than MAX_PATH),\nasserts the doctor reports and repairs every one, then starts the shortcut's\ntarget with an isolated profile and stops exactly the process tree it started.",
+    "docs.docs_ZAICODE_INSTALL_md.p0052": "{protected0} builds four throw-away repositories on\ndisk and an install of their clones, then proves that a check changes nothing,\nthat one part updates alone with its follow-up (SAIPEN launcher, root\nlauncher), that overlapping local edits and local commits are kept, and that an\nunknown part name is refused. No network.\n",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0000": "# ZAICODE SAIPEN cloud transport"
+  }
+}

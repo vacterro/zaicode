@@ -1,0 +1,15 @@
+{
+  "id": "ja-JP.b0006",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0002": "このチェックアウトと Claude Code Cloud セッションが、executor の配置先が異なる同一个 SAIPEN ワークスペース\r\nをどう共有するか、およびその境界がどこか。",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0004": "## 全体像",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0008": "プロトコル状態は 1 本のブランチが担う。merge 手順も rebase 手順も、同期保つ 2 本目のローカルブランチも\r\n存在しない: 検証済みチェックポイントを持つ executor がそれを commit して push し、反対側は\r\nfast-forward で受け取る。",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0010": "{protected0} はトランスポート前の履歴であり、公開されるデフォルトブランチである。トランスポートによって\r\nforce-update されることはない。",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0012": "## 何が移動し、何が移動しないか",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0014": "このリポジトリのチェックポイントは SAIPEN プロトコル状態、ルートランチャーインストーラー、\r\nドキュメント、およびこれらのトランスポートスクリプトを運ぶ。それがワークスペース層的全部である。",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0016": "**製品バイトは一切含まれない**。{protected0} は別個の Git リポジトリであり、{protected1} に記載され、\r\nこのルートで gitignore されている（{protected2}）。製品作業には {protected3} の自身用 clone が\r\nブランチ {protected4} で必要になる。その clone は独自の履歴を持つ第 2 の独立したオブジェクトである。",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0018": "結果として-Rom Mistakes.pm やすい: このルートのクリーンな {protected0} は未コミットの製品作業について何も\r\n語らず、{protected1} の fast-forward も製品コードについて何も語らない。{protected2} を明示的に確認する。",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0020": "## ローカル側",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0022": "スクリプト 2 つ。両方リポジトリ所有なので、新しいマシンでは\r\n記憶ではなくリポジトリから入る："
+  }
+}

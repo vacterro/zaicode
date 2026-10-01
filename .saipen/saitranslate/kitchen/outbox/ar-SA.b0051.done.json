@@ -1,0 +1,14 @@
+{
+  "id": "ar-SA.b0051",
+  "translation": {
+    "settings.skills.diagnostics.code.skill_invalid_name": "يجب أن يتكون `name` من أحرف صغيرة / أرقام / شرطات",
+    "onboarding.step.agentsFile": "AGENTS.md",
+    "onboarding.finish.summary.agentsFile": "AGENTS.md",
+    "chat.draft.suggestedPrompt.plugin.github": "Github"
+  },
+  "kept": [
+    "onboarding.step.agentsFile",
+    "onboarding.finish.summary.agentsFile",
+    "chat.draft.suggestedPrompt.plugin.github"
+  ]
+}

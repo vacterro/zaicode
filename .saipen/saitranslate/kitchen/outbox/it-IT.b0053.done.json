@@ -1,0 +1,8 @@
+{
+  "id": "it-IT.b0053",
+  "translation": {
+    "feedback.severity.P1-高.label": "Impossibile utilizzarlo",
+    "feedback.severity.P2-中.label": "Influisce sull’uso",
+    "feedback.severity.P3-低.label": "Problema minore/suggerimento"
+  }
+}

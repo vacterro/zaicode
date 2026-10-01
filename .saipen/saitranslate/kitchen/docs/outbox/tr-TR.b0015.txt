@@ -1,0 +1,2 @@
+1|"**SAFE_TO_DEFER** — ürün katmanı. Bir cloud oturumu {protected0} branch {protected1} klonlayıp orada çalışabilir. Workspace katmanı işi ürün işi gerektirmez, ama klonu gerektirir: {protected2}, {protected3} bildirir; bunun olmadan validator {protected4} ile başarısız olur. {protected5} gate'leri sabitlenmiş pnpm 10.33.2 ve hazırlanmış bir workspace ister. {protected6}, taze bir cloud imajda belgelenmiş giriş yoludur ve ürünün {protected7} bunu zaten bildirir."
+2|"{protected0}"

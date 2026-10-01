@@ -1,0 +1,15 @@
+{
+  "id": "es-ES.b0012",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0106": "- cita el veredicto de la nube y clasifícalo como este límite, ticket a ticket\n  ({protected0} § 6 contiene la comprobación);\n- nunca reescribas sidecars, no re-verifiques solo para poner en verde ni parchees la copia\n  del kernel;\n- mantén los eventos de LOG por debajo de 1024 bytes en ambos lados.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0108": "El mismo enlace a la ruta de la máquina también bloquea el trabajo. La línea base de deuda previa a BUILD\nse captura la primera vez que un ticket entra en BUILD y se vuelve a comprobar en cada entrada\nposterior. Por tanto, un ticket que entró en BUILD por primera vez en la máquina del operador no\npuede entrar en BUILD en la nube: la transición se rechaza con\n{protected0}. T-84 es el caso registrado: DEBT-000079 se capturó en E-1377 y la transición se rechazó en E-1446. Deja esos tickets\nen la máquina que capturó su línea base.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0110": "## Divergencia",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0112": "Si local y remoto dejan de compartir un ancestro, el watcher se detiene. No\nhace merge, rebase ni force. Ambos ids de commit van al log, la corrección se\nhace {protected0} a mano y\nel resultado se marca como checkpoint igual que cualquier otro cambio.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0114": "## La acción exacta en el lado de la nube",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0116": "### Script de configuración del entorno (una vez, en los ajustes del entorno en la nube)",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0118": "Menú del entorno en la nube en la barra de título de la sesión -> Edit -> Setup script. Se\nejecuta antes de cada sesión nueva, así que cada sesión arranca con el toolchain del producto\nlisto:",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0122": "### El prompt para cada sesión nueva",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0124": "Inicia la sesión en el repositorio {protected0}, rama {protected1}, y\nasegúrate de que el agente de la máquina del operador no esté escribiendo a la vez.\nSustituye la última línea por {protected2} para traspasar trabajo nuevo.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0134": "En la máquina del operador el watcher hace fast-forward de {protected0} desde\n{protected1}; {protected2} (o {protected3}) lo compila, y el\nsiguiente arranque de ZAICODE cambia la compilación nueva.\n"
+  }
+}

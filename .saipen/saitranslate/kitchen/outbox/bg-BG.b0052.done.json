@@ -1,0 +1,9 @@
+{
+  "id": "bg-BG.b0052",
+  "translation": {
+    "settings.skills.diagnostics.code.skill_missing_name": "Липсва поле `name` във frontmatter",
+    "settings.skills.diagnostics.code.skill_invalid_name": "`name` трябва да съдържа само малки букви / цифри / тирета",
+    "settings.skills.diagnostics.code.skill_missing_description": "Липсва поле `description` във frontmatter",
+    "settings.skills.diagnostics.code.skill_description_too_long": "`description` надхвърля 1024 знака (съкратено)"
+  }
+}

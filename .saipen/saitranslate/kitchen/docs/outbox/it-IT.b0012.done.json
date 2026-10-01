@@ -1,0 +1,15 @@
+{
+  "id": "it-IT.b0012",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0106": "- cita il verdetto del cloud e classificalo come questo confine, ticket per ticket\r\n  ({protected0} § 6 contiene il controllo);\r\n- non riscrivere mai i sidecar, non riverificare solo per ottenere il verde, non patchare la copia\r\n  del kernel;\r\n- mantieni gli eventi LOG sotto 1024 byte su entrambi i lati.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0108": "Anche il vincolo del percorso macchina blocca il lavoro. Il debito di pre-BUILD viene acquisito la prima volta che un ticket entra in BUILD e ricontrollato a ogni ingresso successivo. Un ticket entrato la prima volta in BUILD sulla macchina dell'operatore non può quindi entrare in BUILD nel cloud: la transizione viene rifiutata con {protected0}. T-84 è il caso registrato: DEBT-000079 acquisito a E-1377, transizione rifiutata a E-1446. Lascia questi ticket alla macchina che ha acquisito il baseline.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0110": "## Divergenza",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0112": "Se locale e remoto smettono di condividere un antenato, il watcher si ferma. Non fa merge, rebase né force. Entrambi i commit id finiscono nel log, la correzione è {protected0} a mano, e il risultato viene messo in checkpoint come qualsiasi altra modifica.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0114": "## L'azione esatta lato cloud",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0116": "### Script di setup dell'ambiente (una volta, nelle impostazioni dell'ambiente cloud)",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0118": "Menu dell'ambiente cloud nella barra del titolo della sessione -> Edit -> Setup script. Viene eseguito prima di ogni nuova sessione, così ogni sessione parte con la toolchain del prodotto già pronta:",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0122": "### Il prompt per ogni nuova sessione",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0124": "Avvia la sessione sul repository {protected0}, branch {protected1}, e\r\n  assicurati che l'agent sulla macchina dell'operatore non stia scrivendo nello stesso momento.\r\n  Sostituisci l'ultima riga con {protected2} per passare il lavoro nuovo.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0134": "Sulla macchina dell'operatore il watcher fa fast-forward di {protected0} da\r\n{protected1}; {protected2} (o {protected3}) lo builda, e\r\nil successivo avvio di ZAICODE sostituisce la nuova build.\r\n"
+  }
+}

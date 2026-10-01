@@ -1,0 +1,18 @@
+{
+  "id": "da-DK.b0001",
+  "translation": {
+    "docs.README_md.p0000": "# ZAICODE",
+    "docs.README_md.p0006": "ZAICODE er en operatør-arbejdsplads til at køre mange AI-kodningsagenter på én gang på tværs af\r\nmange projekter uden at passe dem. Det er en modificeret build af\r\n[ZCode]({protected0}) (desktopapp, browser-UI og agent-\r\nCLI) med et produktlag oveni: hvert projekt styres via\r\n[SAIPEN]({protected1})-protokollen, arbejde startes, fortsættes\r\nog planlægges fra ét vindue, og de abonnements-CLI'er du allerede betaler for\r\n(Claude Code, Codex, Antigravity) kører som dokkede workers ved siden af indbyggede\r\nagenter.",
+    "docs.README_md.p0008": "**0.0.1** er det første taggede snapshot: en personlig, Windows-fokuseret build der\r\nbruges dagligt.",
+    "docs.README_md.p0010": "## Installér med ét klik",
+    "docs.README_md.p0012": "1. Download **[ZAICODE-Setup.exe]({protected0})**.\r\n2. Dobbeltklik på den og tryk på **INSTALL**.",
+    "docs.README_md.p0014": "Det er alt. Setup henter det, maskinen mangler (Git, Node.js, Python som private\r\nkopier: uden administratorrettigheder), henter ZAICODE, SAIPEN og SAIMAIL fra GitHub,\r\nbygger appen på maskinen og lægger en ZAICODE-genvej på skrivebordet. Første\r\nkørsel tager 15-30 minutter; vinduet viser hvert trin.",
+    "docs.README_md.p0016": "Gratis modeller virker med det samme: ZAICODE starter sin egen router og fylder **SAIFREN**-\r\npuljen fra nøglefri gratis niveau, så en opgave skrevet ind i New task får et svar uden\r\nnøgle, konto og indstillinger. Claude Code-, Codex- og Antigravity-abonnementer er\r\nvalgfrie og kan logges ind når som helst.",
+    "docs.README_md.p0018": "**Ét hele, fire dele.** Workspace (launcher, installer), appen, SAIPEN og\r\nSAIMAIL er fire repositories. Hver opdaterer sig selv: *Settings -> ZAICODE ->\r\nUpdates* viser alle dele, opdaterer dem manuelt eller automatisk (tjekket et par minutter\r\nefter start og hver sjette time). En ny app-build forberedes mens ZAICODE kører\r\nog starter ved næste opstart; dine egne ændringer i et clone overskrives aldrig.\r\nFra en terminal: {protected0}.\r\nAutotroubleshoot: {protected1}. Detaljer: [docs/ZAICODE_INSTALL.md](docs/ZAICODE_INSTALL.md).",
+    "docs.README_md.p0020": "## Rundtur i brugerfladen",
+    "docs.README_md.p0024": "## Hvad det tilføjer til ZCode"
+  },
+  "kept": [
+    "docs.README_md.p0000"
+  ]
+}

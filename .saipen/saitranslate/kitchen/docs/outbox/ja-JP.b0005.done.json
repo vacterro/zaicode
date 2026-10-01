@@ -1,0 +1,15 @@
+{
+  "id": "ja-JP.b0005",
+  "translation": {
+    "docs.docs_ZAICODE_INSTALL_md.p0032": "Claude Code や Codex のログインはそれぞれ専用のホームを持ちます: {protected0},\n{protected1}, ... 以及 {protected2}, {protected3}, ... ZAICODE はそれらを\nすべて見つけます。インストール時にさらに用意するには:",
+    "docs.docs_ZAICODE_INSTALL_md.p0036": "インストーラーがホームを作成し、各ログインの正確なコマンドを表示します\n({protected0})。ZAICODE 内でも同様です: Settings ->\nEngines & limits -> ログインを追加。",
+    "docs.docs_ZAICODE_INSTALL_md.p0038": "## 自動トラブルシュート",
+    "docs.docs_ZAICODE_INSTALL_md.p0042": "チェックごとの状態: OK、FIXED（壊れていた、修復済み）、WARN（動作するが、\n任意の要素が不足）、INFO（要対応: ログインが必要）、FAIL。ログは\n{protected0} にあり、直近のインストールの概要は {protected1} です。\nアプリ内では Router -> Autotroubleshoot が実行中のルーターとプールを修復します。",
+    "docs.docs_ZAICODE_INSTALL_md.p0044": "## オプション",
+    "docs.docs_ZAICODE_INSTALL_md.p0046": "| パラメータ | 既定値 | |\n| ---- | ---- | ---- |\n| {protected0} | {protected1} | すべての設置先 |\n| {protected2} | Desktop | ZAICODE ショートカットの作成先 |\n| {protected3}, {protected4} | | 該当ショートカットをスキップ |\n| {protected5} | | マシンに既存—even あっても専用の Git / Node.js / Python を導入 |\n| {protected6} | | 完了後に ZAICODE を起動 |\n| {protected7}, {protected8}, {protected9} | GitHub のリポジトリ | 別のソース（フォーク、ローカルクローンのパス） |",
+    "docs.docs_ZAICODE_INSTALL_md.p0048": "## 証明",
+    "docs.docs_ZAICODE_INSTALL_md.p0050": "{protected0}\nは新規インストールを検証し、異常を注入します（ショートカットとランチャーを削除、SAIPEN\nランチャーlynx を存在しない Python に向け、SAIMAIL の venv を削除、別ロックファイル用の\nnode_modules を記録、MAX_PATH より深い残存ビルドフォルダ）、\ndoctor が各異常の報告と修復を行うことを検証し、随后ショートカットの対象を\n分離プロファイルで起動し、起動したプロセスツリーだけを停止します。",
+    "docs.docs_ZAICODE_INSTALL_md.p0052": "{protected0}\nは使い捨てリポジトリを 4 つディスク上に作成し、そのクローンをインストール、\nあるチェックは変更を加えないこと、1 つの部品のみが追随更新（お正式启动 subtuple）すること\n（SAIPEN ランチャー、ルートランチャー）、重な��ローカル編集とローカルコミットが\n保持されること、未知の部品名が拒否されることを証明します。ネットワーク不要。\n",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0000": "# ZAICODE SAIPEN クラウドトランスポート"
+  }
+}

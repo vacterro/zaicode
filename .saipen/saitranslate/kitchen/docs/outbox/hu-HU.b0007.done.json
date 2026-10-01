@@ -1,0 +1,15 @@
+{
+  "id": "hu-HU.b0007",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0002": "Hogyan futtatja ez a checkout és egy Claude Code Cloud munkamenet ugyanazt a SAIPEN munkaterületet különböző végrehajtási helyiséggel, és hol húzódik a köztük lévő határ.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0004": "## A forma",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0008": "Egyetlen ág hordozza a protokollállapotot. Nincs merge lépés, nincs rebase lépés\r\nés nincs második helyi ág, amit szinkronban kellene tartani: bármelyik végrehajtó,\r\namelyiknél van ellenőrzött checkpoint, commitolja és pusholja azt, a másik\r\noldal pedig fast-forwardelt veszi át.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0010": "{protected0} a tranzszport előtti előzmény és a kiadott alapértelmezett ág. A tranzszport\r\nnem frissíti erőszakkal.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0012": "## Mi utazik és mi nem",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0014": "A checkpoint ebben a repóban a SAIPEN protokollállapotot, a root launchert, a\r\ntelepítőt, a dokumentációt és ezeket a tranzszport szkripteket tartalmazza. Ez a\r\nteljes munkaterületi réteg.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0016": "**Egyetlen termékbyteot sem** tartalmaz. {protected0} különálló Git repository,\r\na {protected1} listában szerepel, és ezen a gyökéren gitignore-olt\r\n({protected2}). A termékmunkához saját {protected3} klón kell a {protected4} ágon,\r\nés az a klón második, független objektum, saját előzménnyel.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0018": "A következményt könnyű rosszul értendő: a tiszta {protected0} ezen a gyökéren semmit\r\nnem mond a nem commitolt termékmunkáról, a {protected1} fast-forward pedig semmit a\r\ntermékkódról. Ellenőrizd {protected2}-t kifejezetten.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0020": "## Helyi fél",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0022": "Két szkript, mindkettő a repó tulajdona, hogy egy új gép a repóból szerezze meg őket,\r\nnem emlékezetből:"
+  }
+}

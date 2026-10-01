@@ -1,0 +1,15 @@
+{
+  "id": "hu-HU.b0012",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0106": "- idézd fel az.cloud ítéletet, és ticketenként minősítsd e határra,\r\n  ({protected0} § 6 tartalmazza az ellenőrzést);\r\n- soha ne írd át a sidecar fájlokat, ne csak azért újra-ellenőrizd, hogy zöld legyen, és ne\r\n  foltozd be a kernel\r\n  másolatát;\r\n- a LOG események maradjanak 1024 bájt alatt mindkét oldalon.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0108": "Ugyanez a gépút-kötés a munkát is blokkolja. A BUILD előtti adósság-alap\r\nakkor rögzül, amikor egy ticket először belép a BUILD-be, és minden későbbi\r\nbelépéskor újra-ellenőrzik. Az a ticket tehát, amely először az operátor gépén lépett\r\nbe BUILD-be, nem léphet be BUILD-be a felhőben: az átmenetet\r\n{protected0} elutasítja. A T-84 a nyilvántartott eset: a DEBT-000079\r\nE-1377-nél rögzült, az átmenetet E-1446-nél utasították el. Az ilyen ticketet\r\nhagyd azon a gépen, amely rögzítette az alapját.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0110": "## Elágazás",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0112": "Ha a helyi és a távoli ág nem osztozik ősben, a watcher leáll. Nem\r\nmerge-el, nem rebase-el és nem kényszerít. Mindkét commit id bekerül a naplóba, a javítást\r\n{protected0} kézzel kell elvégezni,\r\naz eredményt pedig mint bármely más változtatást checkpointoljuk.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0114": "## A pontos felhőoldali művelet",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0116": "### Környezetbeállító script (egyszer, a felhő környezet beállításaiban)",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0118": "A felhő környezet menü a munkamenet címsorában -> Szerkesztés -> Beállító script. Ez\r\nminden új munkamenet előtt fut, így minden munkamenet a termék\r\ntoolchainnel indul készen:",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0122": "### A prompt minden új munkamenethez",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0124": "Indítsd a munkamenetet a {protected0} repón, {protected1} ágon,\r\nés győződj meg róla, hogy az operátor gépének agente nem ír ugyanakkor.\r\nAz utolsó sort cseréld {protected2}-ra az átadáshoz.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0134": "Az operátor gépén a watcher gyorsan előretölti a(z) {protected0}-t {protected1}-ből;\r\na {protected2} (vagy {protected3}) buildeli, és\r\na ZAICODE következő indítására becsúszik az új build."
+  }
+}

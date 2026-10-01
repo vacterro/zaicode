@@ -1,0 +1,29 @@
+{
+  "ok": true,
+  "results": [
+    {
+      "ratio": 1,
+      "mountedAndResized": true,
+      "lateMount": true,
+      "cleanup": true
+    },
+    {
+      "ratio": 1.25,
+      "mountedAndResized": true,
+      "lateMount": true,
+      "cleanup": true
+    },
+    {
+      "ratio": 1.5,
+      "mountedAndResized": true,
+      "lateMount": true,
+      "cleanup": true
+    },
+    {
+      "ratio": 2,
+      "mountedAndResized": true,
+      "lateMount": true,
+      "cleanup": true
+    }
+  ]
+}

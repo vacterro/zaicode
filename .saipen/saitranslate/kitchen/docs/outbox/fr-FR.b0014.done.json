@@ -1,0 +1,18 @@
+{
+  "id": "fr-FR.b0014",
+  "translation": {
+    "docs.README_md.p0000": "# ZAICODE",
+    "docs.README_md.p0006": "ZAICODE est un poste de travail opérateur pour exécuter plusieurs agents de code IA à la fois sur\r\nde nombreux projets, sans avoir à les surveiller. C'est une version modifiée de\r\n[ZCode]({protected0}) (application de bureau, interface navigateur et agent\r\nCLI) avec une couche produit au-dessus : chaque projet est piloté par le\r\nprotocole [SAIPEN]({protected1}), le travail est lancé, repris\r\net planifié depuis une seule fenêtre, et les CLI d'abonnement que vous payez\r\ndéjà (Claude Code, Codex, Antigravity) tournent comme travailleurs ancrés à côté des\r\nagents intégrés.",
+    "docs.README_md.p0008": "**0.0.1** est le premier instantané étiqueté : une version personnelle, pensée d'abord pour Windows, utilisée\r\nquotidiennement.",
+    "docs.README_md.p0010": "## Installer en un clic",
+    "docs.README_md.p0012": "1. Téléchargez **[ZAICODE-Setup.exe]({protected0})**.\r\n2. Faites un double-clic et appuyez sur **INSTALL**.",
+    "docs.README_md.p0014": "C'est tout. L'installateur fournit ce qui manque à la machine (Git, Node.js, Python, en copies privées :\r\npas de droits administrateur), récupère ZAICODE, SAIPEN et SAIMAIL depuis GitHub,\r\ncompile l'application sur la machine et place un raccourci ZAICODE sur le bureau. La première\r\nexécution prend 15 à 30 minutes ; la fenêtre affiche chaque étape.",
+    "docs.README_md.p0016": "Les modèles gratuits fonctionnent immédiatement : ZAICODE démarre son propre routeur et remplit le pool **SAIFREN**\r\navec des paliers gratuits sans clé, si bien qu'une tâche saisie dans New task obtient une réponse sans\r\nclé, sans compte et sans réglage. Les abonnements Claude Code, Codex et Antigravity sont\r\nfacultatifs et l'on peut s'y connecter à tout moment.",
+    "docs.README_md.p0018": "**Un tout, quatre parties.** Le workspace (lanceur, installateur), l'application, SAIPEN et\r\nSAIMAIL sont quatre dépôts. Chacun se met à jour de son côté : *Settings -> ZAICODE ->\r\nUpdates* affiche chaque partie et la met à jour à la main ou automatiquement (vérification quelques\r\nminutes après le démarrage puis toutes les six heures). Une nouvelle version de l'application est préparée pendant que ZAICODE tourne\r\net prend effet au prochain lancement ; vos propres modifications dans un clone ne sont jamais écrasées.\r\nDepuis un terminal : {protected0}.\r\nAutotroubleshoot : {protected1}. Détails : [docs/ZAICODE_INSTALL.md](docs/ZAICODE_INSTALL.md).",
+    "docs.README_md.p0020": "## Tour de l'interface",
+    "docs.README_md.p0024": "## Ce que ZAICODE ajoute à ZCode"
+  },
+  "kept": [
+    "docs.README_md.p0000"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "id": "ro-RO.b0014",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0094": {
+      "English": "**SAFE_TO_DEFER** — the product layer. A cloud session can clone\r\n{protected0} branch {protected1} and work there. Workspace-layer work does\r\nnot require product work, but it does require the clone:\r\n{protected2} declares {protected3}, and without it the\r\nvalidator fails with {protected4}. {protected5} gates need the pinned pnpm 10.33.2\r\nand a prepared workspace. {protected6} on a fresh cloud image is the\r\ndocumented way in, and the product's {protected7} already declares it.",
+      "draft": "**SAFE_TO_DEFER** — stratul de produs. O sesiune cloud poate clona\r\nramura {protected0} {protected1} și lucra acolo. Lucrul la stratul workspace\r\nnu necesită lucrul la produs, dar necesită clonarea:\r\n{protected2} declară {protected3}, iar fără ea\r\nvalidatorul eșuează cu {protected4}. Porțile {protected5} au nevoie de pnpm 10.33.2\r\nfixat și de un workspace pregătit. {protected6} pe o imagine cloud\r\nproaspătă este calea documentată de intrare, iar {protected7} al produsului o declară deja."
+    },
+    "docs.docs_ZAICODE_INSTALL_md.p0008": {
+      "English": "{protected0}",
+      "draft": "{protected0}"
+    }
+  }
+}

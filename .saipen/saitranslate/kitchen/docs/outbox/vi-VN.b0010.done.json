@@ -1,0 +1,15 @@
+{
+  "id": "vi-VN.b0010",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0024": "| Tệp | Vai trò |\r\n|------|------|\r\n| {protected0} | kiểm tra, hòa giải nhánh, cài và khởi động watcher, ghi mục tự chạy, chứng minh local == remote |\r\n| {protected1} | vòng lặp: fetch, so sánh, fast-forward hoặc push, ghi log, tạm dừng; rồi lượt sản phẩm và tự cập nhật |\r\n| {protected2} | vòng khứ hồi từ một executor độc lập cộng bằng chứng phục hồi sau khi tắt máy |\r\n| {protected3} | lượt sản phẩm và tự cập nhật trên các kho Git tạm (không mạng, không remote thật) |\r\n",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0026": "Cài đặt và sửa chữa:",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0030": "Thao tác này idempotent. Trạng thái cục bộ của máy nằm ở {protected0}:\r\n{protected1} (bản sao), {protected2} (xoay vòng tại\r\n2 MB sang {protected3}), {protected4} (một instance duy nhất),\r\n{protected5}, và một mục trong thư mục Startup\r\n{protected6}.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0032": "Trình cài đặt từ chối cây thư mục bẩn và không bao giờ tự dọn. Nếu mọi đường dẫn bẩn đều là\r\ntrạng thái SAIPEN chuẩn dưới {protected0}, nó nói rõ và in đúng các\r\nlệnh checkpoint; đó là trạng thái giao thức chưa checkpoint, không phải lỗi\r\nvận chuyển, và trình cài đặt sẽ không commit nó sau lưng giao thức.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0034": "## Hành vi watcher",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0036": "| Tình huống | Hành động |\r\n|-----------|------|\r\n| sạch, local là tổ tiên của remote | {protected0} |\r\n| sạch, remote là tổ tiên của local | {protected1} |\r\n| bẩn | tạm dừng; không cả fetch |\r\n| đang ở nhánh khác | tạm dừng |\r\n| cả hai cùng tiến, không có tổ tiên chung | tạm dừng, ghi log cả hai commit id, không merge gì |\r\n| fetch hoặc mạng lỗi | ghi log degraded, thử lại ở tick sau |\r\n| merge/rebase{protected2} đang dở | tạm dừng |",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0038": "Không bao giờ: force push, hard reset, stash, clean, checkout nhánh lạ,\r\ncommit, hay dừng theo tên tiến trình. Trình cài đặt chỉ dừng watcher theo\r\npid mà nó đã ghi trong pid file của chính nó.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0040": "Cây bẩn không tốn gì, vì watcher kiểm tra bẩn trước khi fetch.\r\nVì vậy một checkout nhàn rỗi hoàn toàn không gọi mạng.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0042": "### Lượt sản phẩm (T-90)",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0044": "{protected0} là kho riêng của nó, nên bảng trên không bao giờ động vào mã\r\nsản phẩm. Sau đó, cùng tick đó xử lý checkout sản phẩm ({protected1},\r\nmặc định {protected2}; nhánh {protected3}, mặc định {protected4}). Lượt\r\nsản phẩm chạy dù cây ngoài có bẩn hay không. Nó chỉ pull."
+  }
+}

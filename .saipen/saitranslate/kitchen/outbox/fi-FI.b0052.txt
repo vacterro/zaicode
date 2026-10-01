@@ -1,0 +1,2 @@
+1|=
+2|"Skripti on vain lukutila. Muuta sitä muokkaamalla se ZAICODElla keskustelussa ja tallentamalla uusi versio."

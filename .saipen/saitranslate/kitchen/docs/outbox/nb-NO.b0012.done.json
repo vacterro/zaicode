@@ -1,0 +1,15 @@
+{
+  "id": "nb-NO.b0012",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0106": "- siter sky-dommen og klassifiser den som denne grensen, billett for billett\r\n  ({protected0} § 6 har sjekken);\r\n- aldri skriv om sidecars, verifiser ikke på nytt bare for å få grønt, og ikke patch kjernen\r\n  kopien;\r\n- hold LOG-hendelser under 1024 byte på begge sider.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0108": "Samme maskinbane-binding blokkerer også arbeid. Gjeldsbaselinen før BUILD\r\nblir fanget første gang et billett går inn i BUILD, og kontrolleres på nytt ved\r\nhvert senere inngang. Et billett som første gang gikk inn i BUILD på operatormaskinen\r\nkan derfor ikke gå inn i BUILD i skyen: overgangen avvises med\r\n{protected0}. T-84 er saken på registeret: DEBT-000079 ble\r\nfanget ved E-1377, og overgangen avvist ved E-1446. La slike billetter være\r\npå maskinen som fanget baselinen.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0110": "## Avvik",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0112": "Hvis lokal og ekstern slutter å dele en stamfar, stopper overvåkeren. Den\r\nslår ikke sammen, rebaserer eller tvinger. Begge commit-id-ene havner i loggen, og retningen\r\n{protected0} for hånd, mens\r\nresultatet sjekkepunktes som enhver annen endring.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0114": "## Den eksakte handlingen i skyen",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0116": "### Oppsettsskript for miljøet (én gang, i sky-miljøets innstillinger)",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0118": "Sky-miljømenyen i sesjonens tittelfelt -> Edit -> Setup script. Det\r\nkjører før hver ny sesjon, slik at hver sesjon starter med verktøysettet klart:",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0122": "### Prompten for hver ny sesjon",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0124": "Start sesjonen på repositoriet {protected0}, grenen {protected1}, og\r\npass på at agenten på operatormaskinen ikke skriver samtidig.\r\nBytt ut siste linje med {protected2} for å gi fra deg nytt arbeid.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0134": "På operatormaskinen spoler overvåkeren {protected0} fremover fra\r\n{protected1}; {protected2} (eller {protected3}) bygger den, og\r\nneste start av ZAICODE bytter inn den nye versjonen.\r\n"
+  }
+}

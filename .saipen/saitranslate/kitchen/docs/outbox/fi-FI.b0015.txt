@@ -1,0 +1,2 @@
+1|"**SAFE_TO_DEFER** — tuotekerros. Pilvi-istunto voi kloonata\r\n{protected0}-haaran {protected1} ja työskennellä siellä. Työtilakerroksen työ ei\r\nvaadi tuotetyötä, mutta se vaatii kloonin:\r\n{protected2} ilmoittaa {protected3}, ja ilman sitä\r\nvalidaatori epäonnistuu {protected4}. {protected5}-portit vaativat pinnatun pnpm 10.33.2\r\nja valmistellun työtilan. {protected6} tuoreessa pilvikuvassa on\r\ndokumentoitu sisääntulotapa, ja tuotteen {protected7} ilmoittaa sen jo."
+2|"{protected0}"

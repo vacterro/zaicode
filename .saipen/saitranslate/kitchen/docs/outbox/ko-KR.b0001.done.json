@@ -1,0 +1,18 @@
+{
+  "id": "ko-KR.b0001",
+  "translation": {
+    "docs.README_md.p0000": "# ZAICODE",
+    "docs.README_md.p0006": "ZAICODE는 여러 프로젝트에서 AI 코딩 에이전트를 한꺼번에 실행하고 감시하지 않아도 되게 하는 운영자 워크벤치입니다. [ZCode]({protected0})(데스크톱 앱, 브라우저 UI, 에이전트 CLI)의 수정 빌드에 제품 계층을 얹은 형태입니다. 모든 프로젝트는 [SAIPEN]({protected1}) 프로토콜로 구동되고, 작업은 하나의 창에서 시작·계속·예약되며, 이미 결제 중인 구독 CLI(Claude Code, Codex, Antigravity)는 앱 내 에이전트 옆에 도킹된 워커로 실행됩니다.",
+    "docs.README_md.p0008": "**0.0.1**은 첫 태그 스냅샷: Windows 우선, 매일 쓰는 개인용 빌드.",
+    "docs.README_md.p0010": "## 한 번 클릭으로 설치",
+    "docs.README_md.p0012": "1. **[ZAICODE-Setup.exe]({protected0})** 다운로드.\r\n2. 더블클릭 후 **INSTALL**.",
+    "docs.README_md.p0014": "그게 전부입니다. 설정 파일은 머신에 없는 것(Git, Node.js, Python — 사설 복사본, 관리자 권한 불필요)을 설치하고, GitHub에서 ZAICODE와 SAIPEN, SAIMAIL을 받아这台에서 앱을 빌드한 뒤 바탕화면에 ZAICODE 바로가기를 만듭니다. 첫 실행은 15~30분 걸리며, 창에 모든 단계가 표시됩니다.",
+    "docs.README_md.p0016": "무료 모델은 바로 동작합니다. ZAICODE가 자체 라우터를 실행하고 키 없이 가능한 무료 티어에서 **SAIFREN** 풀을 채우므로, New task에 입력한 작업은 키·계정·설정 없이 답을 받습니다. Claude Code, Codex, Antigravity 구독은 선택 사항이며 언제든 로그인할 수 있습니다.",
+    "docs.README_md.p0018": "**하나의 완전한 구성, 네 개 파트.** 워크스페이스(런처, 설치 프로그램), 앱, SAIPEN, SAIMAIL은 네 저장소입니다. 각자 독립적으로 업데이트됩니다: *Settings -> ZAICODE -> Updates*에서 모든 파트를 보고, 수동 또는 자동으로 갱신합니다(시작 몇 분 후, 이후 6시간마다). 새 앱 빌드는 ZAICODE 실행 중에 준비되고 다음 시작 때 적용되며, 클론에 직접 수정한 내용은 덮어쓰이지 않습니다. 터미널에서: {protected0}.\r\n자동 문제 해결: {protected1}. 자세한 내용: [docs/ZAICODE_INSTALL.md](docs/ZAICODE_INSTALL.md).",
+    "docs.README_md.p0020": "## 인터페이스 둘러보기",
+    "docs.README_md.p0024": "## ZCode에 더해지는 것"
+  },
+  "kept": [
+    "docs.README_md.p0000"
+  ]
+}

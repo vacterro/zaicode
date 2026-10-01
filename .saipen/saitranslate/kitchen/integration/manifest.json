@@ -1,0 +1,519 @@
+{
+  "locales": [
+    "en-US",
+    "ru-RU",
+    "et-EE",
+    "uk-UA",
+    "ja-JP",
+    "ded",
+    "zh-CN",
+    "de-DE",
+    "fr-FR",
+    "es-ES",
+    "it-IT",
+    "pt-BR",
+    "nl-NL",
+    "pl-PL",
+    "sv-SE",
+    "da-DK",
+    "fi-FI",
+    "nb-NO",
+    "ko-KR",
+    "th-TH",
+    "vi-VN",
+    "ar-SA",
+    "he-IL",
+    "tr-TR",
+    "hi-IN",
+    "id-ID",
+    "el-GR",
+    "cs-CZ",
+    "ro-RO",
+    "hu-HU",
+    "bg-BG",
+    "sk-SK",
+    "hr-HR"
+  ],
+  "files": [
+    {
+      "file": "packages/shared/src/locales.ts",
+      "before": null,
+      "after": "e1c354ab32eb9d7030c16dc7dc8eb8461849d2888f73384fc87e761e6f133610"
+    },
+    {
+      "file": "packages/shared/src/protocol.ts",
+      "before": "a37ed96487aa25dbc6f91c1d2ccb1ce5c60847431cb6a4d16804a2fdde245af5",
+      "after": "0ab38fd0e0cbb710dfab871bf893bcffc52f6e9b05dc881390abd8f7580bc74e"
+    },
+    {
+      "file": "packages/shared/src/index.ts",
+      "before": "3590ada848f37a2215782991ebf7f84624d84bfa3ae43c31211c7a0d07319092",
+      "after": "b0ef4204316fa927e328c2f50f3535f7afc6549c457c07859963d278c1764f47"
+    },
+    {
+      "file": "packages/shared/src/validationAppSettings.ts",
+      "before": "cd38a06c1d30c2615da39df7d7e18cb8b29862f521176a18238322ae9896346a",
+      "after": "622abdcc7e3b2313d7674e9e622a35f57151b2a01221e1c790b8dc2fb74ed601"
+    },
+    {
+      "file": "packages/ui/src/i18n/IntlProvider.tsx",
+      "before": "7e0e4c7fbf5658c3bc0d6e95293e28a22ecf0d4b29f22f93de92d94dbbfb6827",
+      "after": "b53262c2bb3490c7a3f99b344f30c1390617da5babe0e051a1f5b194930d6952"
+    },
+    {
+      "file": "packages/ui/src/i18n/LocaleSwitcher.tsx",
+      "before": "47a563b3d762672c7ff54ebc0fb3914545946b0f6c8c2e1e87a71df57e5d603b",
+      "after": "3a1029007d3185f5e985b33d4ef47b4cb3f85ce02d0795139af913c7127ef81a"
+    },
+    {
+      "file": "packages/ui/src/settingsPageHelpers.tsx",
+      "before": "2cdac6e6966ffa3dcbd2d5774e8b097f930f6d893458e4943615dc3414c5fa1b",
+      "after": "01108082ae190115df68ea9296c0a6771c5cb15a92556ce9ff1242cd1054927c"
+    },
+    {
+      "file": "packages/ui/src/SettingsPage.tsx",
+      "before": "87ceee954f3d5d76a21499dc08d3d5ac7933873ed9be7aa24fd21751775f9c25",
+      "after": "2efa4195a3495267f4fd0aaeafe1c00c35ef09ca3250b43f1c64f19ac027f556"
+    },
+    {
+      "file": "packages/ui/src/WorkspaceSidebar.tsx",
+      "before": "37202b6ffaf9e6ec5b57744e4ba34b2c328708fa3290eb55e8a8d47a563c02c6",
+      "after": "70df1e3dfe4c70aa3fa4057986f611d4c0d0fb2c92c83733dd1198f86a4c7962"
+    },
+    {
+      "file": "packages/ui/src/WorkspaceSidebarFooter.tsx",
+      "before": "c951cd24e42b1f83648fee27780872671c5718e58eb05afafbd3915a6f1ef326",
+      "after": "7c5842406d4c65869ad35d1c73a743d3297687537b4e7c07506930f8e99888dd"
+    },
+    {
+      "file": "packages/ui/src/ErrorBoundary.tsx",
+      "before": "03a9065c3abeb4bbf25860a28b9816cbdc089e86d74aed4bbc0c4e30d27f9f41",
+      "after": "f97f1e161cb0af29ebfea8c73d377a3c6df891da3c621f6ad903cb339765e40e"
+    },
+    {
+      "file": "packages/desktop/src/main/desktopApplicationMenu.ts",
+      "before": "c82e8e62227a874e90cd0e54c593841a8adade8ff4b021488d1b62e7ef9d99e3",
+      "after": "fbfcc5defd47549e07a05384c2a9545403339acfece70f70d6b90abf77ca2d95"
+    },
+    {
+      "file": "apps/zcode-cli/packages/contracts/src/config/index.ts",
+      "before": "055439fabb33a46c5c587a3d2109247501cf52b546f8cae03a0b947850b48785",
+      "after": "431b1c0a0bc56df325209230e309bc68333934a40e4dfde58a8b40bbe37a630c"
+    },
+    {
+      "file": "apps/zcode-cli/packages/shared-types/src/index.ts",
+      "before": "430bf486422046003a099ee5b6f2129c16eed318fc9296739d53f14d1c1b314c",
+      "after": "33c375bdc4e133edc0cf7b15c81740b4eed7bd3a08dbd5be502a2bcd88553f90"
+    },
+    {
+      "file": "apps/zcode-cli/packages/adapters/src/config/schema.ts",
+      "before": "82be1e9388c358ba148bae782a4db58ced138f2eb2190f564e9a6b49b27670ec",
+      "after": "d551600613a0f0f1442a6ea1f879af601fd3f4710ba643c03160cdbc1e1c1fad"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locale.ts",
+      "before": "53a891f9e44b39e461b48685383c34421ae60fafe6d0922c1d14af015c9a9af0",
+      "after": "89991e9b07289bfbcf6f69ee05b6b9918b6ff104c28ed2587cc5d22c0e9c65c1"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/ru-RU.ts",
+      "before": null,
+      "after": "80ca733476c13d8421a93023cf9cc75dc70fed4af1aaf15c12867af93f9db5ec"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/ru-RU.ts",
+      "before": null,
+      "after": "f378f2afbc8b2d03a65868c6c461ee878fb4306168e87076eeae3bcb937e3df7"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/et-EE.ts",
+      "before": null,
+      "after": "72e8f72cc2a165ebdd0a3dd6e9ee8ba7f95766969643f54936d43d0687516c4c"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/et-EE.ts",
+      "before": null,
+      "after": "eba0872872adfb2db6d2af51187191991f0211f4e96fea62f3aeb7ac25a26939"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/uk-UA.ts",
+      "before": null,
+      "after": "fc1742210bc5e784b60c07a2f82c469382a6f30b5cdac7b3dc2f72f163f1b5ed"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/uk-UA.ts",
+      "before": null,
+      "after": "c99ca2378e552c17f5cab1fe045c54ef69952dc4150adc3c22bbbacfa84b502a"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/ja-JP.ts",
+      "before": null,
+      "after": "cc120f31602245a28dbf719905a97031f430e05f614f25d8529dc2c0cbcca489"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/ja-JP.ts",
+      "before": null,
+      "after": "9bed3a309f9779cc206dfc7df23ce7e74a6ef4205d7dd190e2edb4f8daf26173"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/ded.ts",
+      "before": null,
+      "after": "22bfaac8ec41542e22b14663664b75d89d9fb43cde1273915fa1ada0a4e96f1b"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/ded.ts",
+      "before": null,
+      "after": "0a7d0d2b9ae94b24abd9d66e84e49b98e888266cae8d7758243383bcb56e5593"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/de-DE.ts",
+      "before": null,
+      "after": "2671e527e775c5f3fe6f9c2ee393652b0c927ae765e7571f04942b8ab92313e3"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/de-DE.ts",
+      "before": null,
+      "after": "acdd5686389e01d9742518ff14e82a328ad6e885af3f592f37245d91adfa3007"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/fr-FR.ts",
+      "before": null,
+      "after": "b0ae3d0b3825c2bf5c48346584dc0f71c65717bf5c3555a168bc0d65c85ea035"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/fr-FR.ts",
+      "before": null,
+      "after": "0ecf648b246968ead113a6ae903e2f6676a71e98b801e7524fa7ae5b0ac6786b"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/es-ES.ts",
+      "before": null,
+      "after": "3991038bd2f08c9cd447dba9127d5b3b8fa13b841292873817d5a3140895e73d"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/es-ES.ts",
+      "before": null,
+      "after": "84a14644b12583202eb928c97ff802b81bfa37608d27d8e4216339834908124c"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/it-IT.ts",
+      "before": null,
+      "after": "953a57ab7863bfdad5de0e4109286f3bb2f742684c848420b4fc409432eb65bf"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/it-IT.ts",
+      "before": null,
+      "after": "28c3a3e4a8d53d23b1a2a600062dfc2ae656fecc8c963f9dd86cc6a75f270210"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/pt-BR.ts",
+      "before": null,
+      "after": "7972a68fe70387d4534a55a17d05110c0d715760f5960cd3e35e95e1b5916b6d"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/pt-BR.ts",
+      "before": null,
+      "after": "affcda1646ef62b317b033ebae7826c71f9a9ab23a9fa8eecea6a580aef7fbce"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/nl-NL.ts",
+      "before": null,
+      "after": "08f210c86e0de5f2fe218e2ab38049373afe0f7d709604166ef7cac0138d1ba5"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/nl-NL.ts",
+      "before": null,
+      "after": "acef117a1a73f8c957366e2158a5276c9304890b989d7761218264a83ddab866"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/pl-PL.ts",
+      "before": null,
+      "after": "26c8a06d1e2bbbca1b29a0f0559691c6ad09cd9f1101445b8215ab31014e7199"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/pl-PL.ts",
+      "before": null,
+      "after": "05e5ff6b1010fcfc7d2b999498e6ea8708d88840cd7a729175f02bdc6828b644"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/sv-SE.ts",
+      "before": null,
+      "after": "e22ea6583ba4004bfaf8c94d32056682f7f3b282811760a21fa7c034aa0718c9"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/sv-SE.ts",
+      "before": null,
+      "after": "aa7c4ac6cbd545f5c664f422a76959c6290386445d95337ad010f59296151077"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/da-DK.ts",
+      "before": null,
+      "after": "61653f29e516ee3ed605a1abdecc6d614678a99558010da6b91eecdf466978f2"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/da-DK.ts",
+      "before": null,
+      "after": "e0d23798383b3d73e329fce0ebb1e096606ccdb34a1da1b5341e5b53014da652"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/fi-FI.ts",
+      "before": null,
+      "after": "f557da2a8beb20c9714f0480ec7171146bdaba793dd50b3bbc24fdee23def078"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/fi-FI.ts",
+      "before": null,
+      "after": "ddc11836def36401bf6b2bf69e55420294ceeee8d97996003dab5f4b8fc55c64"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/nb-NO.ts",
+      "before": null,
+      "after": "b9f4196e0a82c640d0034b7df40b63393d4a8384f2f5e5f641804aa9dec3cfa2"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/nb-NO.ts",
+      "before": null,
+      "after": "f684bc1120eed02a5996bf72a971adf439698ad57d5ea476454b958a4c2d9a86"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/ko-KR.ts",
+      "before": null,
+      "after": "748ef94d45447602c815bf899bb801f3259fa3a421bfa51024c0976ab57ecddb"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/ko-KR.ts",
+      "before": null,
+      "after": "fa951bb722213c6da05876cc5420abccb08f3217b9b22e1d1b41d760311e07d6"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/th-TH.ts",
+      "before": null,
+      "after": "56f0b1bd4c44b22a1d85d90460af26ff82a4f496be75959d6e2a8993b87afd85"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/th-TH.ts",
+      "before": null,
+      "after": "d785c673377d5f1d7c8e148d5efc1e4fb95708438a661a35849dfddebfa9c27e"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/vi-VN.ts",
+      "before": null,
+      "after": "d422f34bf580bbcab833efa9f577a7173b747d0db2f39e861b3daf8cd1cd0b8d"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/vi-VN.ts",
+      "before": null,
+      "after": "c594406e5f29797ba64291057fba34e586f2a63baa8f8005a8213fb36c0638f9"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/ar-SA.ts",
+      "before": null,
+      "after": "af91a7c6324dfef125498ae3500f3ee3c24fbfe1700fa9edc863225e60149e2e"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/ar-SA.ts",
+      "before": null,
+      "after": "ce3e4a5c7a103a5a355cfcd3ed58b0a1acb655f44d27e60e643202e04f90e407"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/he-IL.ts",
+      "before": null,
+      "after": "948d877658b2cea15ddc710ce7df67bd03a396bdf3a5335a86376e48dce84388"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/he-IL.ts",
+      "before": null,
+      "after": "bf29b85b5ef3edcd1e80a9bb42f3f92c0a87a6c99aafe86530f309e388460915"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/tr-TR.ts",
+      "before": null,
+      "after": "c6e891d86732124752b0f82706988bc3797eb1a6ac9e73967f9c0b17fde240e9"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/tr-TR.ts",
+      "before": null,
+      "after": "b3a44485be8789bf2d92d21d44a887d0775cdeb5fe5bc1679023f0afdf512932"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/hi-IN.ts",
+      "before": null,
+      "after": "46923815b38441cc9948584197190ce56e3f9d7a220f0c5e361910b0a30ed4dc"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/hi-IN.ts",
+      "before": null,
+      "after": "622470364f093475b929c6810fbb81600c31b15b9cdbf99f94abb991b6cdbfeb"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/id-ID.ts",
+      "before": null,
+      "after": "8e7df94839f1a5f56a39c745b3bcfcf38cbe8ce6b57510d6cd1397d60621f6d7"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/id-ID.ts",
+      "before": null,
+      "after": "d37b486b3a98a85e73f316f7b8f1259a660f612c303dec2e7625893ef98a2d8f"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/el-GR.ts",
+      "before": null,
+      "after": "0dd4f8ba3928179ac1fa69d9a09f3db7b4f0900807b8df3a554536e07809f4da"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/el-GR.ts",
+      "before": null,
+      "after": "e1e046320396c4f78f6c1c69ceed1a0709dd99db0190d6e10c920eb879d63a10"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/cs-CZ.ts",
+      "before": null,
+      "after": "04d986829d65533f75d322d3e73e0f6b34dfde2978d3b7c37bece207db22397a"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/cs-CZ.ts",
+      "before": null,
+      "after": "3cd8ef7a7d117f2adeb163a0bff98976189e9d36df85efd3f876dc91bd7856bf"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/ro-RO.ts",
+      "before": null,
+      "after": "f70375e61d5b511a9761efdb3bb44410f2935124d7a1322f8ea7dcb2b3ef01e4"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/ro-RO.ts",
+      "before": null,
+      "after": "ef76190fce9168a4b59774624c2699bb7043ae4fed8e1ea9f4096590b81cf3a7"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/hu-HU.ts",
+      "before": null,
+      "after": "5556c0368358cf780221f561d0e417a07c6a1c17c39ad88396ba4e0ded016b36"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/hu-HU.ts",
+      "before": null,
+      "after": "9f966dcedf7c0ccad64837062a18a3c8867771a1aebc6740ce3c41c36311a14a"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/bg-BG.ts",
+      "before": null,
+      "after": "075d41aacaa02bf06416a9cd9f891f2d21c1e9382f12c2bb9580b165455cd298"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/bg-BG.ts",
+      "before": null,
+      "after": "d9abbda88161612d959dceee669ef5a022ab865a6d70bc0b4dc6e4c5ec9204f9"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/sk-SK.ts",
+      "before": null,
+      "after": "0cf97b27545b8832276810c42aaccb8a22956bdede394107218fbb9f2d75990c"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/sk-SK.ts",
+      "before": null,
+      "after": "510de7d2c33fb3af71a9913aa1ab602e9149c1584bb0e29d820824433e414496"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/hr-HR.ts",
+      "before": null,
+      "after": "d0bdcc4de8135d7b640dd567673ef6789f195415b2370881c4b59e19759b1ce2"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/hr-HR.ts",
+      "before": null,
+      "after": "8f38330c3ff52b513cbd7515cbacdec272d3f54b2ecb424c29318f839db235ee"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/en-US.ts",
+      "before": "62a85dbe6416b306be3ce483a2f990e4543fc732f5f7faee50e52d23a1337d8a",
+      "after": "c70c847fac4c6c0e9262dadf5256ae2df9f8b71aea502a89f616d32a35c46a21"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/zh-CN.ts",
+      "before": "1adaaa1e41820a8e502f61ccb149868c2a1232fd8972da72fa4362d5807fabe1",
+      "after": "46806952c8e6704695cb98687e4fbc2e9f0ad9927f3339731c678ccd48ef035e"
+    },
+    {
+      "file": "packages/ui/src/i18n/messages.ts",
+      "before": null,
+      "after": "34c6f01da5b48350947cb80afa834f47aa985153e77ee8e9d1d5781560bd8ad0"
+    },
+    {
+      "file": "packages/shared/src/expandedDesktopMenuMessages.ts",
+      "before": null,
+      "after": "f666b855edd135905c25feafbbf42f12235fc8306ff1f976f408f8712cb6ae02"
+    },
+    {
+      "file": "packages/shared/src/auxiliaryLocaleMessages.ts",
+      "before": null,
+      "after": "273ce8fe150a9c8a5b7ba07799407c38efd562f2fdcdedf4b971adea39f13e4f"
+    },
+    {
+      "file": "packages/shared/src/conversation-share.ts",
+      "before": "c00f23e339753c25e43e7683776f996b6b7ee33b2431ee171e843251ccc90d3e",
+      "after": "ebf532c74028b35d78fbaac0416178f3da7d1c86496c81aec53b09828580ddef"
+    },
+    {
+      "file": "packages/desktop/src/main/desktopFinderOpenFolderWorkflow.ts",
+      "before": "88aabc3d192d9ba8ff10a71c450699da2fbbd933c00a941b0c8486bbb2824e36",
+      "after": "ea11ffc4c55e2f75fe55226415a329570b1137a8f1ae79cf256bc7543f7f2f3e"
+    },
+    {
+      "file": "packages/desktop/src/main/desktopWindowsOpenFolderContextMenu.ts",
+      "before": "281f58718e85010ba420e009f5d786ba244030a237fdc32b191c7fdd2f9094b6",
+      "after": "77f2a553647aabeafb38a7e137a932fec51d9caffc8084b0b8d091c6fba0cc1c"
+    },
+    {
+      "file": "packages/services/src/conversation-share/conversationShareService.ts",
+      "before": "c645ec58fcf29dae710a951659c06747b316144a7e2ed57a848e2629c7e638db",
+      "after": "422f3afa6840943033c773f7ad1c24f082b457eaa9e97e20be31f604953208ea"
+    },
+    {
+      "file": "packages/ui/src/lib/builtinSkillI18n.ts",
+      "before": "653c2fc5ca132cca6636aa938cadce3335a6fed719b4693596e5ee70dc6ec8e3",
+      "after": "5ec476f06284c283e3526a9a02366a4f567ab3819d958d822ae826d6a4300278"
+    },
+    {
+      "file": "packages/ui/src/test-actions.ts",
+      "before": "1bf0ddc20b988a9993adc07a170de3400a823ff7278504d16663e7ad4d425a14",
+      "after": "e04da628a1f53769f9f5739fa5506542b677f4afafe1b9b9b4b09b5e86985b90"
+    },
+    {
+      "file": "packages/ui/src/feedback/feedbackSubmitSubmission.ts",
+      "before": "0dceebe59fd5772efdd7701ecd0599aec0e19aeed751b808270f4516758209ac",
+      "after": "ccbbac68a5867ab0c4f46eb5d07cd2a4791c45ce3c2152683d3c371e1883a423"
+    },
+    {
+      "file": "apps/zcode-cli/packages/cli/src/cli-types.ts",
+      "before": "651a76b1d8b486b42cef82469e3a695e1b5538548e35e621d594b06f954cafb1",
+      "after": "5a6c4971e1993b7efa866f7525783ed279c05231ea268be07c0bffba9b3f4111"
+    },
+    {
+      "file": "packages/shared/src/zcode-slash-command-help.ts",
+      "before": "55bc038638e12104dd08659a243a6384689a8e14bbbbc083aa385a1b6dbd80cf",
+      "after": "15cef529f83fad8ef9102efab9e4e219246feba797e00f507e2698f7065535ac"
+    },
+    {
+      "file": "packages/shared/src/desktopMenu.ts",
+      "before": "62f8a87d15a4ace41a05b06db7f1e98f2c376f08083739fe62d8dcd2cfcd1dbc",
+      "after": "0ca74bbe9780f946283d06ce55c17d751e39ec1c85892ccbc9a98654c7239838"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/index.ts",
+      "before": "13f8ecb10319f3991d23c854c95eb427b1744c8949a88e1ff94494fc67a63d6d",
+      "after": "7e851833a687630e7258f64dcef26e4fde4f5f047ffaac9e26717b3410b7ada0"
+    },
+    {
+      "file": "packages/ui/src/i18n/locale-manifest.json",
+      "before": null,
+      "after": "439616a8e9eb203cc1e071547bf3bc90c00916d9c1e233585287d6964d133356"
+    },
+    {
+      "file": "packages/ui/test/zaicodeLocaleParity.test.ts",
+      "before": "508c56fb08644a0a0a565fbc955f72d8ff09829ea0fa31edd7b5687d39b0cb34",
+      "after": "b5ff929a7051aba8948e7ad804dd3021aa6920e5692debe33671b75f90559b6e"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "id": "hi-IN.b0051",
+  "locale": "hi-IN",
+  "source_digest": "sha256:3649b64da723a738a49c2c9cb825f80faa8412dc7c9157c599b0b9b95bffdb35",
+  "issued_at": "2026-09-30T14:40:08.557Z",
+  "keys": [
+    "settings.modelProvider.baseUrlPlaceholder",
+    "offPeak.keepAwakeBanner"
+  ],
+  "messages": {
+    "settings.modelProvider.baseUrlPlaceholder": "https://api.example.com/v1",
+    "offPeak.keepAwakeBanner": "Keep your computer awake while ZAICODE is running a chat."
+  }
+}

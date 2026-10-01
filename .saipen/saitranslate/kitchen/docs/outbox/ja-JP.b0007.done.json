@@ -1,0 +1,15 @@
+{
+  "id": "ja-JP.b0007",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0024": "| ファイル | 役割 |\r\n|------|------|\r\n| {protected0} | 検証し、ブランチを调和し、ウォッチャーをインストール・起動し、自動起動エントリを書き出し、local == remote を証明する |\r\n| {protected1} | ループ: fetch、比較、fast-forward または push、ログ、一時停止。その後、プロダクトパスと自己更新 |\r\n| {protected2} | 独立した実行系からの往復試験と、コールドリカバリの証明 |\r\n| {protected3} | 使い捨ての Git リポジトリに対するプロダクトパスと自己更新（ネットワークなし、実リモートなし）|",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0026": "インストールと修復:",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0030": "冪等性がある。マシンローカルの状態は {protected0} に置かれる:\r\n{protected1}（コピー）、{protected2}（\r\n2 MB で {protected3} へローテート）、{protected4}（単一インスタンス）、\r\n{protected5}、およびスタートアップフォルダのエントリ\r\n{protected6}。",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0032": "インストーラーは dirty ツリーを拒否し、勝手に clean しない。すべての dirty パスが\r\n{protected0} 配下の正規の SAIPEN 状態であれば、その旨を示して正確な\r\nチェックポイントコマンドを表示する。これはチェックポイントされていない\r\nプロトコル状態であり、トランスポート障害ではない。インストーラーが\r\nプロトコルの裏で commit することは決してない。",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0034": "## ウォッチャーの挙動",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0036": "| 状況 | 動作 |\r\n|-----------|------|\r\n| clean、local が remote の祖先 | {protected0} |\r\n| clean、remote が local の祖先 | {protected1} |\r\n| dirty | 一時停止。fetch すら行わない |\r\n| 別のブランチ上 | 一時停止 |\r\n| 両方が進み、共通の祖先がない | 一時停止し、両方の commit id をログに記録し、何も merge しない |\r\n| fetch またはネットワークが失敗 | 低下としてログに記録し、次のティックで再試行 |\r\n| merge/rebase{protected2} が進行中 | 一時停止 |",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0038": "禁止事項: force push、hard reset、stash、clean、他ブランチの checkout、\r\ncommit、プロセス名による停止。インストーラーが停止するのは、\r\n自分の pid ファイルに記録した pid のウォッチャーのみ。",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0040": "dirty ツリーはコストにならない。ウォッチャーは fetch の前に\r\ndirty を確認するから。したがって、アイドル状態の checkout は\r\nネットワーク通信を一切行わない。",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0042": "### プロダクトパス (T-90)",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0044": "{protected0} は独自のリポジトリなので、上のテーブルがプロダクトコードを\r\n動かすことはない。その後、同じティックでプロダクトの checkout（{protected1}、\r\n既定は {protected2}。ブランチ {protected3}、既定は {protected4}）を処理する。\r\nプロダクトパスは外側のツリーが dirty かどうかに関係なく実行される。\r\n常に pull するだけ。"
+  }
+}

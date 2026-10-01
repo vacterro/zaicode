@@ -1,0 +1,7 @@
+{
+  "id": "nb-NO.b0016",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0094": "**SAFE_TO_DEFER** — produktlaget. En skyøkt kan klone\r\n{protected0}-grenen {protected1} og jobbe der. Arbeid i arbeidsområdelaget krever\r\nikke produktarbeid, men krever kloningen:\r\n{protected2} deklarerer {protected3}, og uten den feiler\r\nvalidatoren med {protected4}. {protected5}-porter trenger den pinnede pnpm 10.33.2\r\nog et forberedt arbeidsområde. {protected6} på et ferskt skybilde er den\r\n dokumenterte veien inn, og produktets {protected7} deklarerer den allerede.",
+    "docs.docs_ZAICODE_INSTALL_md.p0008": "{protected0}"
+  }
+}

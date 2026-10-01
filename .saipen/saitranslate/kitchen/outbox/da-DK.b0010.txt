@@ -60,7 +60,7 @@
 60|"Zoom ud"
 61|"Om ZAICODE"
 62|"Søg efter opdateringer"
-63|"Feedback"
+63|"Tilbagemelding"
 64|"Fællesskab"
 65|"Eksportér logs"
 66|"Slå udviklerværktøjer til/fra"

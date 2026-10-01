@@ -1,0 +1,3 @@
+1|"Nicht verwendbar"
+2|"Beeinträchtigt die Nutzung"
+3|"Kleines Problem/Verbesserungsvorschlag"

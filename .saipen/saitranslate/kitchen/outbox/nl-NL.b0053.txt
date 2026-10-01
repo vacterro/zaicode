@@ -1,0 +1,3 @@
+1|"Kan niet worden gebruikt"
+2|"Heeft invloed op het gebruik"
+3|"Klein probleem/suggestie"

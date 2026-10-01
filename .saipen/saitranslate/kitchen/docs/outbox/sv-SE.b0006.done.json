@@ -1,0 +1,15 @@
+{
+  "id": "sv-SE.b0006",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0002": "Hur den här utcheckningen och en Claude Code Cloud-session kör en enda SAIPEN-arbetsyta\r\nmed olika exekveringsort, och var gränsen mellan dem går.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0004": "## Formen",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0008": "En gren bär protokollstillståndet. Det finns ingen merge-steg, ingen rebase-steg\r\noch ingen andra lokal gren att hålla i synk: vilken exekutor som har en verifierad\r\ncheckpoint committar och pushar den, och den andra sidan tar den med en\r\nfast-forward.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0010": "{protected0} är förhistoriken före transporten och den publicerade standardgrenen. Den\r\ntvingas inte uppdateras av transporten.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0012": "## Vad som färdas och vad som inte gör det",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0014": "En checkpoint i det här repot bär SAIPEN-protokollstillståndet, rot-startaren,\r\ninstallationsprogrammet, dokumentationen och dessa transportskript. Det är\r\nhela arbetsytelagret.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0016": "Den bär **ingen produktbyte**. {protected0} är ett separat Git-repo, listat\r\ni {protected1} och gitignorat i den här roten\r\n({protected2}). Produktarbete behöver sin egen klon av {protected3} på grenen\r\n{protected4}, och den klonen är ett andra, oberoende objekt med sin egen historik.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0018": "Följden är lätt att ta fel på: en ren {protected0} i den här roten säger\r\ningenting om ocommittat produktarbete, och en {protected1} fast-forward säger\r\ningenting om produktionskod. Kontrollera {protected2} uttryckligen.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0020": "## Den lokala halvan",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0022": "Två skript, båda ägda av repot så att en ny maskin får dem från repot\r\nistället för från minnet:"
+  }
+}

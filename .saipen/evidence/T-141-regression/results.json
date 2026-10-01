@@ -1,0 +1,34 @@
+[
+  {
+    "name": "saves",
+    "verifier": "60bd6a49c4ee4583a5ca79d5ce7d36d6174ac3da08e25198fb60ecef16b0e490",
+    "before": "2158d97081523c1423a1b4c7c0318e92d89c3e7f3610cf6001e7923588efe0d1",
+    "after": "6b5be7681c0334e5ec78fb2997f3c0111c32bac0057e8ae785f6e47f3659f7f3",
+    "beforeExit": 1,
+    "afterExit": 0
+  },
+  {
+    "name": "quota",
+    "verifier": "e538365aefe1dd5ca5fbbc235e4b91f4c6de18c406583374db95ce85c280d55f",
+    "before": "de610ec38a357929a465040e99f47f4d0e1bcb8b05a6d09805dc33903cc6f40d",
+    "after": "c0ebab9805b328841de49cfe4ffc60670c14146187e8657e48003e75413daf2a",
+    "beforeExit": 1,
+    "afterExit": 0
+  },
+  {
+    "name": "sound",
+    "verifier": "17a474748e5e5873143610a1d83cca6bc17c8f5b6af0b21a8dbe22e97a4523f2",
+    "before": "6de39c9a30684ec2aab0debf56ae784135ef47d76cd9015670d83f29e52c86f9",
+    "after": "af3dad9b15ec202b1027f3315eec66091523d7edee9907615c16cc6fcf028ada",
+    "beforeExit": 1,
+    "afterExit": 0
+  },
+  {
+    "name": "cancellation",
+    "verifier": "ed2a466c96c82cc8855ebcc1b2a05c1a7a5cec8bf0f0da6f5616e04ae008aa0e",
+    "before": "5664b52bfb30a4da5f5aedb714b7e2fd21c53adc69fa025bdd373ab7df6438c1",
+    "after": "6cf6a5bb1d1a63662eaa9da16f0ca60a04a1f24a761f2f0c2788cf8f7abd8c70",
+    "beforeExit": 1,
+    "afterExit": 0
+  }
+]

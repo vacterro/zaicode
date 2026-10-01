@@ -1,0 +1,18 @@
+{
+  "id": "nl-NL.b0014",
+  "translation": {
+    "docs.README_md.p0000": "# ZAICODE",
+    "docs.README_md.p0006": "ZAICODE is een operatorwerkplek om veel AI-codingagents tegelijk over\r\nveel projecten te draaien, zonder ze in de gaten te houden. Het is een aangepaste build van\r\n[ZCode]({protected0}) (desktopapp, browser-UI en agent-\r\nCLI) met een productlaag erbovenop: elk project wordt aangestuurd via het\r\n[SAIPEN]({protected1})-protocol, werk wordt gestart, hervat\r\nen gepland vanuit één venster, en de abonnements-CLI's die je al betaalt\r\n(Claude Code, Codex, Antigravity) draaien als gedockte workers naast de in-app\r\nagents.",
+    "docs.README_md.p0008": "**0.0.1** is de eerste getagde snapshot: een persoonlijke, Windows-eerst build die\r\ndagelijks gebruikt wordt.",
+    "docs.README_md.p0010": "## Installatie in één klik",
+    "docs.README_md.p0012": "1. Download **[ZAICODE-Setup.exe]({protected0})**.\r\n2. Dubbelklik erop en druk op **INSTALL**.",
+    "docs.README_md.p0014": "Dat is alles. Setup haalt op wat de machine mist (Git, Node.js, Python, als privékopieën: geen beheerdersrechten), haalt ZAICODE, SAIPEN en SAIMAIL op van GitHub, bouwt de app op de machine en zet een ZAICODE-snelkoppeling op het bureaublad. De eerste\r\nstart duurt 15-30 minuten; het venster toont elke stap.",
+    "docs.README_md.p0016": "Gratis modellen werken meteen: ZAICODE start zijn eigen router en vult de **SAIFREN**-\r\npool uit de gratis tiers zonder sleutel, dus een taak die je in Nieuwe taak typt krijgt antwoord zonder sleutel, account of instelling. Claude Code-, Codex- en Antigravity-abonnementen zijn\r\noptioneel en kunnen op elk moment worden ingelogd.",
+    "docs.README_md.p0018": "**Eén geheel, vier delen.** De werkplek (launcher, installer), de app, SAIPEN en\r\nSAIMAIL zijn vier repositories. Elk werkt zichzelf bij: *Instellingen -> ZAICODE -> Updates* toont elk deel, werkt het handmatig of automatisch bij (gecontroleerd enkele minuten\r\nna de start en elke zes uur). Een nieuwe app-build wordt klaargemaakt terwijl ZAICODE draait\r\nen start bij de volgende start; je eigen wijzigingen in een clone worden nooit overschreven.\r\nVanaf een terminal: {protected0}.\r\nAutotroubleshoot: {protected1}. Details: [docs/ZAICODE_INSTALL.md](docs/ZAICODE_INSTALL.md).",
+    "docs.README_md.p0020": "## Rondleiding door de interface",
+    "docs.README_md.p0024": "## Wat het toevoegt aan ZCode"
+  },
+  "kept": [
+    "docs.README_md.p0000"
+  ]
+}

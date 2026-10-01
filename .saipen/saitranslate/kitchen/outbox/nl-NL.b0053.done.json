@@ -1,0 +1,8 @@
+{
+  "id": "nl-NL.b0053",
+  "translation": {
+    "feedback.severity.P1-高.label": "Kan niet worden gebruikt",
+    "feedback.severity.P2-中.label": "Heeft invloed op het gebruik",
+    "feedback.severity.P3-低.label": "Klein probleem/suggestie"
+  }
+}

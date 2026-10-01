@@ -1,0 +1,18 @@
+{
+  "id": "vi-VN.b0001",
+  "translation": {
+    "docs.README_md.p0000": "# ZAICODE",
+    "docs.README_md.p0006": "ZAICODE là bàn làm việc cho người vận hành, chạy nhiều AI coding agent cùng lúc trên\r\nnhiều dự án mà không phải trông chừng. Đây là bản build đã sửa đổi của\r\n[ZCode]({protected0}) (app desktop, giao diện web và agent\r\nCLI) với một lớp sản phẩm bên trên: mọi dự án đều được điều khiển qua\r\ngiao thức [SAIPEN]({protected1}), công việc khởi tạo, tiếp tục\r\nvà lên lịch ngay trong một cửa sổ, còn các CLI theo gói bạn đang trả tiền\r\n(Claude Code, Codex, Antigravity) chạy như worker cận kề các agent trong app.",
+    "docs.README_md.p0008": "**0.0.1** là bản snapshot đầu tiên có gắn tag: bản build cá nhân, ưu tiên Windows, dùng hằng ngày.",
+    "docs.README_md.p0010": "## Cài đặt một cú nhấp",
+    "docs.README_md.p0012": "1. Tải **[ZAICODE-Setup.exe]({protected0})**.\r\n2. Nhấp đúp và bấm **INSTALL**.",
+    "docs.README_md.p0014": "Xong. Trình cài đặt bổ sung những gì máy còn thiếu (Git, Node.js, Python, dạng bản sao\r\nriêng: không cần quyền admin), tải ZAICODE, SAIPEN và SAIMAIL từ GitHub,\r\nbuild app ngay trên máy và tạo shortcut ZAICODE trên desktop. Lần chạy đầu\r\nmất 15-30 phút; cửa sổ hiện từng bước.",
+    "docs.README_md.p0016": "Các model miễn phí dùng được ngay: ZAICODE tự chạy router và lấp đầy kho **SAIFREN**\r\ntừ các tầng miễn phí không cần key, nên task gõ trong New task sẽ có câu trả lời mà\r\nkhông cần key, tài khoản hay cài đặt nào. Gói Claude Code, Codex và Antigravity\r\nlà tùy chọn, đăng nhập bất cứ lúc nào cũng được.",
+    "docs.README_md.p0018": "**Một tổng thể, bốn phần.** Workspace (launcher, installer), app, SAIPEN và\r\nSAIMAIL là bốn repository riêng. Mỗi phần tự cập nhật: *Settings -> ZAICODE -> Updates* hiện mọi phần, cập nhật tay hoặc tự động\r\n(kiểm tra vài phút sau khi khởi động và mỗi sáu giờ). Bản build app mới được chuẩn bị trong\r\nlúc ZAICODE chạy và sẽ dùng ở lần khởi động kế tiếp; các chỉnh sửa của bạn trong\r\nbản clone không bao giờ bị ghi đè. Từ terminal: {protected0}.\r\nTự khắc phục sự cố: {protected1}. Chi tiết: [docs/ZAICODE_INSTALL.md](docs/ZAICODE_INSTALL.md).",
+    "docs.README_md.p0020": "## Tham quan giao diện",
+    "docs.README_md.p0024": "## Những gì bổ sung cho ZCode"
+  },
+  "kept": [
+    "docs.README_md.p0000"
+  ]
+}

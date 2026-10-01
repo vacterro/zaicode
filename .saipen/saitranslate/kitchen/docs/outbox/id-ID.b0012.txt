@@ -1,0 +1,10 @@
+1|=
+2|"ZAICODE adalah meja kerja operator untuk menjalankan banyak AI coding agent sekaligus di\r\nbanyak proyek, tanpa mengawasi satu per satu. Ini adalah build modifikasi dari\r\n[ZCode]({protected0}) (aplikasi desktop, UI browser dan agent\r\nCLI) dengan lapisan produk di atasnya: setiap proyek dijalankan melalui protokol\r\n[SAIPEN]({protected1}), pekerjaan dimulai, dilanjutkan\r\ndan dijadwalkan dari satu jendela, serta CLI langganan yang sudah Anda bayar\r\n(Claude Code, Codex, Antigravity) berjalan sebagai worker yang tertambat di samping agent\r\ndalam aplikasi."
+3|"**0.0.1** adalah snapshot bertag pertama: build pribadi yang mengutamakan Windows dan\r\ndipakai harian."
+4|"## Instal sekali klik"
+5|"1. Unduh **[ZAICODE-Setup.exe]({protected0})**.\r\n2. Klik ganda lalu tekan **INSTALL**."
+6|"Selesai. Setup memasang apa yang kurang dari mesin (Git, Node.js, Python, sebagai\r\nsalinan privat: tanpa hak administrator), mengambil ZAICODE, SAIPEN dan SAIMAIL dari GitHub,\r\nbuild aplikasi di mesin tersebut dan membuat shortcut ZAICODE di desktop. Jalankan pertama\r\nmemakan 15-30 menit; jendela menampilkan setiap langkah."
+7|"Model gratis langsung jalan: ZAICODE menjalankan router sendiri dan mengisi pool **SAIFREN**\r\ndari tingkatan gratis tanpa kunci, sehingga tugas yang diketik di New task langsung\r\nmendapat jawaban tanpa kunci, tanpa akun dan tanpa pengaturan. Langganan Claude Code,\r\nCodex dan Antigravity bersifat opsional dan bisa masuk kapan saja."
+8|"**Satu kesatuan, empat bagian.** Workspace (launcher, installer), aplikasi, SAIPEN dan\r\nSAIMAIL adalah empat repositori. Masing-masing memperbarui sendiri: *Settings -> ZAICODE ->\r\nUpdates* menampilkan setiap bagian, memperbaruinya manual atau otomatis (dicek beberapa\r\nmenit setelah mulai dan setiap enam jam). Build aplikasi baru disiapkan saat ZAICODE berjalan\r\ndan mulai pada start berikutnya; suntingan Anda sendiri di clone tidak pernah ditimpa.\r\nDari terminal: {protected0}.\r\nAutotroubleshoot: {protected1}. Detail: [docs/ZAICODE_INSTALL.md](docs/ZAICODE_INSTALL.md)."
+9|"## Tur antarmuka"
+10|"## Apa yang ditambahkan ZAICODE ke ZCode"

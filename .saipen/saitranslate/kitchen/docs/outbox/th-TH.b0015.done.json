@@ -1,0 +1,7 @@
+{
+  "id": "th-TH.b0015",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0094": "**SAFE_TO_DEFER** — ชั้นผลิตภัณฑ์ เซสชันคลาวด์สามารถโคลน\r\n{protected0} branch {protected1} แล้วทำงานที่นั่นได้ งานชั้น workspace ไม่ต้องพึ่งงานชั้นผลิตภัณฑ์ แต่ต้องมีการโคลน:\r\n{protected2} ประกาศ {protected3} และถ้าไม่มี validator จะล้มเหลวด้วย {protected4} {protected5} gate ต้องการ pnpm 10.33.2 ที่ pin ไว้และ workspace ที่เตรียมไว้แล้ว {protected6} บน image คลาวด์ใหม่คือวิธีเข้าใช้ที่ระบุไว้ในเอกสาร และ {protected7} ของผลิตภัณฑ์ก็ประกาศไว้แล้ว",
+    "docs.docs_ZAICODE_INSTALL_md.p0008": "{protected0}"
+  }
+}

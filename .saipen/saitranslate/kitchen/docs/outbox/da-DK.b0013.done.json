@@ -1,0 +1,15 @@
+{
+  "id": "da-DK.b0013",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0106": "- citér cloud-verdiktet og klassificér det som denne grænse, ticket for ticket\r\n  ({protected0} § 6 har checken);\r\n- skriv aldrig sidecars om, genverificér kun for at få grønt, og patch ikke\r\n  kernel-kopien;\r\n- hold LOG-events under 1024 bytes på begge sider.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0108": "Den samme maskinsti-binding blokerer også arbejde. Gælds-baslinen før BUILD\r\nregistreres, første gang en ticket går ind i BUILD, og kontrolleres igen ved\r\nhvert senere indtog. En ticket, der første gang gik ind i BUILD på\r\noperatørmaskinen, kan derfor ikke gå ind i BUILD i clouden: overgangen afvises\r\nmed {protected0}. T-84 er det registrerede tilfælde: DEBT-000079 blev\r\nregistreret ved E-1377, og overgangen blev afvist ved E-1446. Lad en sådan\r\nticket blive hos den maskine, der registrerede dens baseline.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0110": "## Divergens",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0112": "Hvis lokal og remote hold op med at dele en stamfader, stopper watcher'en. Den\r\nmerger ikke, rebaser ikke og force-pusher ikke. Begge commit-id'er skrives i\r\nloggen, rettelsen laves {protected0} i hånden, og\r\nresultatet checkpointes som enhver anden ændring.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0114": "## Den præcise handling i clouden",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0116": "### Script til opsætning af miljøet (én gang, i cloudmiljøets indstillinger)",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0118": "Cloud-miljø-menuen i sessionens titelbjælke -> Rediger -> Opsætningsscript. Det\r\nkører før hver ny session, så hver session starter med produktværktøjskæden\r\nklar:",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0122": "### Prompten til hver ny session",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0124": "Start sessionen på repository {protected0}, branch {protected1}, og sørg for, at\r\nagenten på operatørmaskinen ikke skriver samtidig. Erstat den sidste linje med\r\n{protected2} for at afgive nyt arbejde.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0134": "På operatørmaskinen fast-forwarder watcher'en {protected0} fra\r\n{protected1}; {protected2} (eller {protected3}) bygger den, og\r\nnæste start af ZAICODE skifter den nye build ind.\r\n"
+  }
+}

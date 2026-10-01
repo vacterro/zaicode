@@ -1,0 +1,15 @@
+{
+  "id": "pt-BR.b0021",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0046": "| Situação | Ação |\r\n|-----------|------|\r\n| remoto à frente, nenhum arquivo recebido está sujo aqui | {protected0}; trabalho de produto não commitado fica como está |\r\n| remoto à frente, um arquivo recebido está sujo aqui | RETIDO: registre os arquivos; não mescle nada |\r\n| local à frente | registre; **nunca enviado** (produto é publicado por SAIPEN SHIP) |\r\n| divergido | pause; registre os dois ids; não mescle nada |\r\n| outro branch, op do git em andamento, fetch falhou | pause |\r\n| sem checkout de {protected1}, ou {protected2} | ignorado |",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0048": "o git recusa sozinho um fast-forward que sobrescreveria uma alteração local, então\r\na verificação RETIDO é uma guarda anterior e mais clara, não a única. Um\r\nfast-forward de produto não reconstrói nada: para testar, rode {protected0}\r\n(ou a prévia de dev).",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0050": "### Autoatualização (T-90)",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0052": "O watcher roda como cópia sob {protected0}, então um watcher mais novo no\r\nrepositório nunca roda sem reinstalação. No modo loop, ele compara\r\no próprio arquivo com a cópia commitada do repositório a cada passada. Instala\r\nessa cópia sobre si mesmo e reinicia exatamente uma vez, com os mesmos\r\nargumentos, só quando tudo isso vale:",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0054": "- os dois arquivos diferem;\r\n- a cópia do repositório não tem edições não commitadas;\r\n- a cópia do repositório faz parse sem erros.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0056": "Uma cópia que não faz parse é recusada e registrada; o watcher em\r\nexecução continua.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0058": "Watchers instalados antes do T-90 não têm nem a passada de produto nem a\r\nautoatualização. Rode {protected0} uma vez numa máquina assim; depois,\r\no watcher se atualiza sozinho.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0060": "## Metade na nuvem",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0062": "{protected0} na raiz é a regra de entrada e\r\n{protected1} é o procedimento de execução. A skill busca\r\no kernel SAIPEN de {protected2} e o executa pela\r\nsuperfície de engine declarada {protected3}. O kernel é fixado por commit\r\n({protected4}), nunca por tag. A tag {protected5} é um kernel mais antigo com o mesmo\r\n{protected6}; o {protected7} dele muta estado, e o validador dele rejeita este board.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0064": "{protected0} registra o caminho do kernel do executor que fez\r\ncheckpoint por último. Na nuvem, o primeiro {protected1} no kernel {protected2} converge\r\no ponteiro para o kernel em execução como um único {protected3} registrado em journal\r\n(E-1410). Na máquina do operador o ponteiro chega morto do mesmo jeito. Kernel\r\ncom convergência automática repara isso em {protected4}; caso contrário, rode\r\n{protected5}."
+  }
+}

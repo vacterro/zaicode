@@ -1,0 +1,15 @@
+{
+  "id": "zh-CN.b0008",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0046": "| 情况 | 动作 |\r\n|-----------|------|\r\n| 远端领先，此处无传入文件为脏 | {protected0}；未提交的产品改动原样保留 |\r\n| 远端领先，某个传入文件在此处为脏 | HELD：记录文件，不合并任何内容 |\r\n| 本地领先 | 记录；**绝不推送**（产品由 SAIPEN SHIP 发布） |\r\n| 分叉 | 暂停，记录两个 id，不合并任何内容 |\r\n| 其他分支、有 git 操作进行中、fetch 失败 | 暂停 |\r\n| 无 {protected1} 检出，或 {protected2} | 跳过 |",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0048": "git 本身就会拒绝覆盖本地改动的 fast-forward，因此 HELD 检查是更早、更清晰的守卫，而非唯一守卫。产品 fast-forward 不重建任何内容：要测试，运行 {protected0}（或开发预览）。",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0050": "### 自更新（T-90）",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0052": "watcher 以副本形式在 {protected0} 下运行，所以仓库里更新的 watcher 不重装就不会生效。循环模式下，它现在每轮都把自己的文件与仓库中已提交的副本比较。仅当以下条件全部成立时，它才用该副本覆盖自身，并以相同参数重启恰好一次：",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0054": "- 两个文件不同；\r\n- 仓库副本没有未提交改动；\r\n- 仓库副本解析无错。",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0056": "无法解析的副本会被拒绝并记入日志，正在运行的 watcher 继续运行。",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0058": "T-90 之前安装的 watcher 既没有产品更新，也没有自更新。在这类机器上重跑一次 {protected0}；之后 watcher 会自我更新。",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0060": "## 云端部分",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0062": "根目录的 {protected0} 是入口规则，{protected1} 是执行流程。该 skill 从 {protected2} 拉取 SAIPEN 内核，并通过声明的引擎接口 {protected3} 运行它。内核按 commit（{protected4}）锁定，绝不按 tag。Tag {protected5} 是同一 {protected6} 的旧内核；其 {protected7} 会改动状态，且其校验器拒绝本板。",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0064": "{protected0} 记录最近一次做检查点的执行器的内核路径。在云端，针对内核 {protected2} 的首次 {protected1} 会把它收敛到正在运行的内核，作为一条已入账的 {protected3}（E-1410）。在操作员机器上，该指针同样一上来就是失效的。具备自动收敛的内核会在 {protected4} 时修复它；否则运行 {protected5}。"
+  }
+}

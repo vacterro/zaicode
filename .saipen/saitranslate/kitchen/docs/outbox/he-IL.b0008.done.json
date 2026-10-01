@@ -1,0 +1,15 @@
+{
+  "id": "he-IL.b0008",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0046": "| מצב | פעולה |\r\n|-----------|------|\r\n| ה־remote קדים, אין כאן שינוי מקומי בקובץ הנכנס | {protected0}; עבודת מוצר שלא נשמרה נשארת כמות שהיא |\r\n| ה־remote קדים, יש כאן שינוי מקומי בקובץ הנכנס | HELD: רשום את הקבצים, אל תמזג דבר |\r\n| המקומי קדים | רשום; **לעולם לא נדחף** (המוצר מתפרסם על ידי SAIPEN SHIP) |\r\n| הסתעפות | הפסק, רשום את שני המזהים, אל תמזג דבר |\r\n| ענף אחר, פעולת git בתהליך, fetch נכשל | הפסק |\r\n| אין checkout של {protected1}, או {protected2} | דילוג |",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0048": "‏git בעצמו מסרב fast-forward שידרוס שינוי מקומי, ולכן בדיקת HELD היא מגן קודם, ברור יותר, ולא היחיד. fast-forward של המוצר אינו בונה מחדש דבר: לבדיקה, הרץ {protected0} (או תצוגת הפיתוח).",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0050": "### עדכון עצמי (T-90)",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0052": "הצופה רצה כעותק תחת {protected0}, ולכן צופה חדשה יותר שבמאגר מעולם לא הופעלה ללא התקנה מחדש. במצב לולאה היא כעת משווה את הקובץ שלה מול העותק המחויב במאגר בכל מעבר. היא מתקינה את העותק הזה על עצמה ומופעלת מחדש בדיוק פעם אחת, עם אותם ארגומנטים, רק כשכל התנאים הבאים מתקיימים:",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0054": "- שני הקבצים שונים;\r\n- לעותק במאגר אין עריכות שלא נשמרו;\r\n- העותק במאגר מפועל ללא שגיאות.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0056": "עותק שאינו מפועל נדחה ונרשם, והצופה הרצה ממשיכה בפעולה.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0058": "צופות שהותקנו לפני T-90 חסרות גם את מעבר המוצר וגם את העדכון העצמי. הרץ {protected0} פעם אחת במכונה כזאת; אחרי זה, הצופה מעדכנת את עצמה.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0060": "## חצי הענן",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0062": "{protected0} בשורש הוא כלל הכניסה, ו{protected1} הוא נוהל ההרצה. ה-skill טוען את הקרנל של SAIPEN מ{protected2} ומריץ אותו דרך משטח המנוע המוצג {protected3}. הקרנל מוצמד לפי commit ({protected4}), לעולם לא לפי tag. ‏Tag {protected5} הוא קרנל ישן עם אותו {protected6}; ‏{protected7} שלו משנה מצב, וה-validator שלו דוחה את הלוח הזה.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0064": "{protected0} רשום את נתיב הליבה של ה-executor שעשה checkpoint אחרון.\r\nבענן, ה-{protected1} הראשון על ליבה {protected2} מתכנס אל הליבה\r\nהפעילה כ-{protected3} אחת עם יומן (E-1410). במכונת המפעיל\r\nהמצביע מגיע מת באותו אופן. ליבה עם התכנסות אוטומטית\r\nמתקנת אותו ב-{protected4}; אחרת הרץ {protected5}."
+  }
+}

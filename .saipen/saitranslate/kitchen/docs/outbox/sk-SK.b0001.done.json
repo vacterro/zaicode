@@ -1,0 +1,18 @@
+{
+  "id": "sk-SK.b0001",
+  "translation": {
+    "docs.README_md.p0000": "# ZAICODE",
+    "docs.README_md.p0006": "ZAICODE je operátorský pracovný stôl na prevádzkovanie viacerých AI programovacích agentov naraz\r\nover viacerých projektov, bez stráženia ich. Je to upravená zostava\r\n[ZCode]({protected0}) (stolová aplikácia, webové rozhranie a agentná\r\nCLI) s produktovou vrstvou navrchu: každý projekt riadi\r\n[SAIPEN]({protected1}) protokol, práca sa začína, pokračuje\r\na plánuje z jedného okna a predplatné CLI, ktoré už platíte\r\n(Claude Code, Codex, Antigravity), bežia ako pripojení pracovníci vedľa agentov\r\nvnútri aplikácie.",
+    "docs.README_md.p0008": "**0.0.1** je prvý označený snímok: osobná zostava zameraná na Windows, ktorá sa\r\npoužíva denne.",
+    "docs.README_md.p0010": "## Inštalácia jedným kliknutím",
+    "docs.README_md.p0012": "1. Stiahnite **[ZAICODE-Setup.exe]({protected0})**.\r\n2. Dvakrát naň kliknite a stlačte **INŠTALOVAŤ**.",
+    "docs.README_md.p0014": "To je všetko. Inštalátor doplní, čo stroju chýba (Git, Node.js, Python ako\r\nsúkromné kopie: bez administrátorských práv), stiahne ZAICODE, SAIPEN a SAIMAIL\r\nz GitHubu, zostaví aplikáciu na stroji a umiestni na plochu skratku\r\nZAICODE. Prvé spustenie trvá 15-30 minút; okno zobrazuje každý krok.",
+    "docs.README_md.p0016": "Bezplatné modely fungujú hneď: ZAICODE spustí vlastný smerovač a naplní **SAIFREN**\r\nzásobu z bezklúčových bezplatných úrovní, takže úloha zadaná do New task\r\ndostane odpoveď bez kľúča, bez účtu a bez nastavenia. Predplatné Claude Code,\r\nCodex a Antigravity sú voliteľné a možno sa do nich prihlásiť kedykoľvek.",
+    "docs.README_md.p0018": "**Jedno celé, štyri časti.** Pracovný priestor (spúšťač, inštalátor), aplikácia, SAIPEN\r\na SAIMAIL sú štyri repozitáre. Každý sa aktualizuje sám: *Settings -> ZAICODE ->\r\nUpdates* zobrazuje všetky časti, aktualizuje ju ručne alebo sám (kontroluje sa\r\npár minút po spustení a každých šesť hodín). Nová zostava aplikácie sa\r\npripravuje, kým ZAICODE beží, a spustí sa pri ďalšom štarte; vaše vlastné úpravy\r\nv kloni sa nikdy neprepíšu.\r\nZ terminálu: {protected0}.\r\nAutotroubleshoot: {protected1}. Podrobnosti: [docs/ZAICODE_INSTALL.md](docs/ZAICODE_INSTALL.md).",
+    "docs.README_md.p0020": "## Prehliadka rozhrania",
+    "docs.README_md.p0024": "## Čo pridáva oproti ZCode"
+  },
+  "kept": [
+    "docs.README_md.p0000"
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "id": "hi-IN.b0050",
+  "translation": {
+    "feedback.severity.P1-高.label": "इसका उपयोग नहीं कर सकते",
+    "feedback.severity.P2-中.label": "उपयोग को प्रभावित करता है",
+    "feedback.severity.P3-低.label": "छोटी समस्या/सुझाव"
+  }
+}

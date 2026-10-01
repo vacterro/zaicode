@@ -1,0 +1,18 @@
+{
+  "ok": true,
+  "code": "FINISHED",
+  "op_id": "finish-7024d2c402b145318c87b04da903587c",
+  "changed_files": [
+    ".saipen/LOG.md",
+    ".saipen/BOARD.md",
+    ".saipen/STATE.md"
+  ],
+  "recovery_required": false,
+  "ticket": "T-142",
+  "event_id": "E-2408",
+  "phase": "DONE",
+  "task": "none",
+  "next_action": "saipen status",
+  "transition_from": "SHIP",
+  "dry_run": true
+}

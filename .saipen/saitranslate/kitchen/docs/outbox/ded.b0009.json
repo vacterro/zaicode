@@ -1,0 +1,30 @@
+{
+  "id": "ded.b0009",
+  "locale": "ded",
+  "source_digest": "sha256:07aa0d0a845f4042a403e9b332760ca9da784aa93f0e5c06527a63231247e6f2",
+  "issued_at": "2026-09-30T14:04:56.534Z",
+  "keys": [
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0066",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0068",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0070",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0072",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0074",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0076",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0078",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0080",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0082",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0084"
+  ],
+  "messages": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0066": "**The return trip is observed.** E-1562 (cloud) converged the pointer to\r\n{protected0}; E-1571 (operator machine)\r\nconverged it straight back to {protected1}, automatically, with no manual\r\n{protected2}. Both directions are the same automatic convergence, so expect\r\none {protected3} {protected4} per locality switch and treat it as expected noise\r\nrather than a defect. It stays noise until P1-2\r\n({protected5}) moves the pointer out of versioned\r\nstate; do not implement P1-2 as a side effect of noticing it. Never hand-edit\r\nthe pointer.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0068": "{protected0} may point at a kernel **development checkout** that is ahead\r\nof the pin, not at a clean {protected1} clone — on the operator machine it is the\r\n{protected2} branch with uncommitted work. A kernel that is not at the\r\npinned commit is not automatically wrong, but it is not a clean-room source\r\neither, so the rule below about the voice contract applies to it with full\r\nforce. Never commit, stash, reset, check out or clean anything in such a\r\ncheckout; a targeted single-file restore of {protected3} is the only\r\npermitted exception, and only when the operator asked for it.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0070": "### STYLE.md is not a local setting",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0072": "{protected0} must be **byte-identical to the pinned kernel's file** on\r\nevery machine, in every copy, with no exceptions and no local edits. There is\r\nmore than one copy on an operator machine:",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0074": "- the kernel checkout at {protected0} (a Git clone, on the operator\r\n  machine a development checkout);\r\n- {protected1}, populated by the\r\n  {protected2} scheduled task ({protected3}). It is **not a\r\n  Git repository**, so {protected4} can never repair it — a re-sync through\r\n  the injector, or a direct write of the published content, is the only path.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0076": "The {protected0} token in {protected1} is a hash of that file's text\r\n({protected2}, {protected3}: CRLF normalized, the\r\n{protected4} line excluded). Edit {protected5} in one copy and the\r\ntoken moves; the other copy and the cloud, which fetch the published kernel,\r\nkeep the published token, and every CLI write on the mismatching side is\r\nrefused with {protected6}.\r\nThat is the whole failure: the local side writes state the cloud cannot write.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0078": "**Changing the reply language is a kernel commit plus a repin**, never a local\r\nedit. Change it in the kernel repository, publish it, re-pin the commit in\r\nSKILL.md, and update {protected0} through {protected1}. A local\r\nedit to {protected2} desynchronizes every machine that is not the one making it.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0080": "One trap worth naming: the published {protected0} is a machine-bound shim that\r\nhardcodes one operator's absolute interpreter and checkout paths. It runs on\r\nexactly one machine. The cloud must use {protected1}.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0082": "Shortcuts: {protected0} continues the current Work; {protected1} ingests the whole\r\nmessage as source{protected2} and continues every eligible Work. Neither asks for\r\nroutine confirmation.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0084": "## Capability classification"
+  }
+}

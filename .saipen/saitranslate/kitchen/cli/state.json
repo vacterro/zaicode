@@ -1,0 +1,521 @@
+{
+  "source_keys": 199,
+  "source_digest": "46b3c73a762af1e6bc229341ba9fd6d9e6abdd488c1b17333948c6ed6a4dfd36",
+  "bound_at": "2026-09-30T14:00:50.136Z",
+  "locales": {
+    "ru-RU": {
+      "digest": "46b3c73a762af1e6bc229341ba9fd6d9e6abdd488c1b17333948c6ed6a4dfd36",
+      "accepted": 199,
+      "batches_accepted": [
+        "ru-RU.b0001",
+        "ru-RU.b0002",
+        "ru-RU.b0003",
+        "ru-RU.b0004",
+        "ru-RU.b0005"
+      ],
+      "throughput": {
+        "keys": 199,
+        "seconds": 56.00900000000001
+      },
+      "issued": 5
+    },
+    "et-EE": {
+      "digest": "46b3c73a762af1e6bc229341ba9fd6d9e6abdd488c1b17333948c6ed6a4dfd36",
+      "accepted": 199,
+      "batches_accepted": [
+        "et-EE.b0001",
+        "et-EE.b0002",
+        "et-EE.b0003",
+        "et-EE.b0004",
+        "et-EE.b0005"
+      ],
+      "throughput": {
+        "keys": 199,
+        "seconds": 153.49
+      },
+      "issued": 5
+    },
+    "ded": {
+      "digest": "46b3c73a762af1e6bc229341ba9fd6d9e6abdd488c1b17333948c6ed6a4dfd36",
+      "accepted": 199,
+      "batches_accepted": [
+        "ded.b0001",
+        "ded.b0002",
+        "ded.b0003",
+        "ded.b0004",
+        "ded.b0005",
+        "ded.b0006"
+      ],
+      "throughput": {
+        "keys": 200,
+        "seconds": 60.309000000000005
+      },
+      "issued": 6
+    },
+    "uk-UA": {
+      "digest": "46b3c73a762af1e6bc229341ba9fd6d9e6abdd488c1b17333948c6ed6a4dfd36",
+      "accepted": 199,
+      "batches_accepted": [
+        "uk-UA.b0001",
+        "uk-UA.b0002",
+        "uk-UA.b0003",
+        "uk-UA.b0004",
+        "uk-UA.b0005"
+      ],
+      "throughput": {
+        "keys": 199,
+        "seconds": 110.458
+      },
+      "issued": 5
+    },
+    "ja-JP": {
+      "digest": "46b3c73a762af1e6bc229341ba9fd6d9e6abdd488c1b17333948c6ed6a4dfd36",
+      "accepted": 199,
+      "batches_accepted": [
+        "ja-JP.b0001",
+        "ja-JP.b0002",
+        "ja-JP.b0003",
+        "ja-JP.b0004",
+        "ja-JP.b0005"
+      ],
+      "throughput": {
+        "keys": 199,
+        "seconds": 104.15099999999998
+      },
+      "issued": 5
+    },
+    "de-DE": {
+      "digest": "46b3c73a762af1e6bc229341ba9fd6d9e6abdd488c1b17333948c6ed6a4dfd36",
+      "accepted": 199,
+      "batches_accepted": [
+        "de-DE.b0001",
+        "de-DE.b0002",
+        "de-DE.b0003",
+        "de-DE.b0004",
+        "de-DE.b0005"
+      ],
+      "throughput": {
+        "keys": 199,
+        "seconds": 105.05299999999998
+      },
+      "issued": 5
+    },
+    "fr-FR": {
+      "digest": "46b3c73a762af1e6bc229341ba9fd6d9e6abdd488c1b17333948c6ed6a4dfd36",
+      "accepted": 199,
+      "batches_accepted": [
+        "fr-FR.b0001",
+        "fr-FR.b0002",
+        "fr-FR.b0003",
+        "fr-FR.b0004",
+        "fr-FR.b0005"
+      ],
+      "throughput": {
+        "keys": 199,
+        "seconds": 126.543
+      },
+      "issued": 5
+    },
+    "es-ES": {
+      "digest": "46b3c73a762af1e6bc229341ba9fd6d9e6abdd488c1b17333948c6ed6a4dfd36",
+      "accepted": 199,
+      "batches_accepted": [
+        "es-ES.b0001",
+        "es-ES.b0002",
+        "es-ES.b0003",
+        "es-ES.b0004",
+        "es-ES.b0005"
+      ],
+      "throughput": {
+        "keys": 199,
+        "seconds": 123.92999999999999
+      },
+      "issued": 5
+    },
+    "it-IT": {
+      "digest": "46b3c73a762af1e6bc229341ba9fd6d9e6abdd488c1b17333948c6ed6a4dfd36",
+      "accepted": 199,
+      "batches_accepted": [
+        "it-IT.b0001",
+        "it-IT.b0002",
+        "it-IT.b0003",
+        "it-IT.b0004",
+        "it-IT.b0005"
+      ],
+      "throughput": {
+        "keys": 199,
+        "seconds": 70.732
+      },
+      "issued": 5
+    },
+    "pt-BR": {
+      "digest": "46b3c73a762af1e6bc229341ba9fd6d9e6abdd488c1b17333948c6ed6a4dfd36",
+      "accepted": 199,
+      "batches_accepted": [
+        "pt-BR.b0001",
+        "pt-BR.b0002",
+        "pt-BR.b0003",
+        "pt-BR.b0004",
+        "pt-BR.b0005"
+      ],
+      "throughput": {
+        "keys": 199,
+        "seconds": 73.795
+      },
+      "issued": 5
+    },
+    "nl-NL": {
+      "digest": "46b3c73a762af1e6bc229341ba9fd6d9e6abdd488c1b17333948c6ed6a4dfd36",
+      "accepted": 199,
+      "batches_accepted": [
+        "nl-NL.b0001",
+        "nl-NL.b0002",
+        "nl-NL.b0003",
+        "nl-NL.b0004",
+        "nl-NL.b0005"
+      ],
+      "throughput": {
+        "keys": 199,
+        "seconds": 156.085
+      },
+      "issued": 5
+    },
+    "pl-PL": {
+      "digest": "46b3c73a762af1e6bc229341ba9fd6d9e6abdd488c1b17333948c6ed6a4dfd36",
+      "accepted": 199,
+      "batches_accepted": [
+        "pl-PL.b0001",
+        "pl-PL.b0002",
+        "pl-PL.b0003",
+        "pl-PL.b0004",
+        "pl-PL.b0005"
+      ],
+      "throughput": {
+        "keys": 199,
+        "seconds": 154.92000000000002
+      },
+      "issued": 5
+    },
+    "sv-SE": {
+      "digest": "46b3c73a762af1e6bc229341ba9fd6d9e6abdd488c1b17333948c6ed6a4dfd36",
+      "accepted": 199,
+      "batches_accepted": [
+        "sv-SE.b0001",
+        "sv-SE.b0002",
+        "sv-SE.b0003",
+        "sv-SE.b0004",
+        "sv-SE.b0005"
+      ],
+      "throughput": {
+        "keys": 199,
+        "seconds": 133.281
+      },
+      "issued": 5
+    },
+    "da-DK": {
+      "digest": "46b3c73a762af1e6bc229341ba9fd6d9e6abdd488c1b17333948c6ed6a4dfd36",
+      "accepted": 199,
+      "batches_accepted": [
+        "da-DK.b0001",
+        "da-DK.b0002",
+        "da-DK.b0003",
+        "da-DK.b0004",
+        "da-DK.b0005"
+      ],
+      "throughput": {
+        "keys": 199,
+        "seconds": 206.096
+      },
+      "issued": 5
+    },
+    "fi-FI": {
+      "digest": "46b3c73a762af1e6bc229341ba9fd6d9e6abdd488c1b17333948c6ed6a4dfd36",
+      "accepted": 199,
+      "batches_accepted": [
+        "fi-FI.b0001",
+        "fi-FI.b0002",
+        "fi-FI.b0003",
+        "fi-FI.b0004",
+        "fi-FI.b0005"
+      ],
+      "throughput": {
+        "keys": 199,
+        "seconds": 135.32399999999998
+      },
+      "issued": 5
+    },
+    "nb-NO": {
+      "digest": "46b3c73a762af1e6bc229341ba9fd6d9e6abdd488c1b17333948c6ed6a4dfd36",
+      "accepted": 199,
+      "batches_accepted": [
+        "nb-NO.b0001",
+        "nb-NO.b0002",
+        "nb-NO.b0003",
+        "nb-NO.b0004",
+        "nb-NO.b0005"
+      ],
+      "throughput": {
+        "keys": 199,
+        "seconds": 74.33500000000001
+      },
+      "issued": 5
+    },
+    "zh-CN": {
+      "digest": "46b3c73a762af1e6bc229341ba9fd6d9e6abdd488c1b17333948c6ed6a4dfd36",
+      "accepted": 199,
+      "batches_accepted": [
+        "zh-CN.b0001",
+        "zh-CN.b0002",
+        "zh-CN.b0003",
+        "zh-CN.b0004",
+        "zh-CN.b0005"
+      ],
+      "throughput": {
+        "keys": 199,
+        "seconds": 31.883
+      },
+      "issued": 5
+    },
+    "ko-KR": {
+      "digest": "46b3c73a762af1e6bc229341ba9fd6d9e6abdd488c1b17333948c6ed6a4dfd36",
+      "accepted": 199,
+      "batches_accepted": [
+        "ko-KR.b0001",
+        "ko-KR.b0002",
+        "ko-KR.b0003",
+        "ko-KR.b0004",
+        "ko-KR.b0005"
+      ],
+      "throughput": {
+        "keys": 199,
+        "seconds": 43.863
+      },
+      "issued": 5
+    },
+    "th-TH": {
+      "digest": "46b3c73a762af1e6bc229341ba9fd6d9e6abdd488c1b17333948c6ed6a4dfd36",
+      "accepted": 199,
+      "batches_accepted": [
+        "th-TH.b0001",
+        "th-TH.b0002",
+        "th-TH.b0003",
+        "th-TH.b0004",
+        "th-TH.b0005"
+      ],
+      "throughput": {
+        "keys": 199,
+        "seconds": 171.56399999999996
+      },
+      "issued": 5
+    },
+    "vi-VN": {
+      "digest": "46b3c73a762af1e6bc229341ba9fd6d9e6abdd488c1b17333948c6ed6a4dfd36",
+      "accepted": 199,
+      "batches_accepted": [
+        "vi-VN.b0001",
+        "vi-VN.b0002",
+        "vi-VN.b0003",
+        "vi-VN.b0004",
+        "vi-VN.b0005"
+      ],
+      "throughput": {
+        "keys": 199,
+        "seconds": 86.526
+      },
+      "issued": 5
+    },
+    "ar-SA": {
+      "digest": "46b3c73a762af1e6bc229341ba9fd6d9e6abdd488c1b17333948c6ed6a4dfd36",
+      "accepted": 199,
+      "batches_accepted": [
+        "ar-SA.b0001",
+        "ar-SA.b0002",
+        "ar-SA.b0003",
+        "ar-SA.b0004",
+        "ar-SA.b0005"
+      ],
+      "throughput": {
+        "keys": 199,
+        "seconds": 54.678000000000004
+      },
+      "issued": 5
+    },
+    "he-IL": {
+      "digest": "46b3c73a762af1e6bc229341ba9fd6d9e6abdd488c1b17333948c6ed6a4dfd36",
+      "accepted": 199,
+      "batches_accepted": [
+        "he-IL.b0001",
+        "he-IL.b0002",
+        "he-IL.b0003",
+        "he-IL.b0004",
+        "he-IL.b0005"
+      ],
+      "throughput": {
+        "keys": 199,
+        "seconds": 163.36899999999997
+      },
+      "issued": 5
+    },
+    "tr-TR": {
+      "digest": "46b3c73a762af1e6bc229341ba9fd6d9e6abdd488c1b17333948c6ed6a4dfd36",
+      "accepted": 199,
+      "batches_accepted": [
+        "tr-TR.b0001",
+        "tr-TR.b0002",
+        "tr-TR.b0003",
+        "tr-TR.b0004",
+        "tr-TR.b0005"
+      ],
+      "throughput": {
+        "keys": 199,
+        "seconds": 83.01599999999999
+      },
+      "issued": 5
+    },
+    "hi-IN": {
+      "digest": "46b3c73a762af1e6bc229341ba9fd6d9e6abdd488c1b17333948c6ed6a4dfd36",
+      "accepted": 199,
+      "batches_accepted": [
+        "hi-IN.b0001",
+        "hi-IN.b0002",
+        "hi-IN.b0003",
+        "hi-IN.b0004",
+        "hi-IN.b0005"
+      ],
+      "throughput": {
+        "keys": 199,
+        "seconds": 78.759
+      },
+      "issued": 5
+    },
+    "id-ID": {
+      "digest": "46b3c73a762af1e6bc229341ba9fd6d9e6abdd488c1b17333948c6ed6a4dfd36",
+      "accepted": 199,
+      "batches_accepted": [
+        "id-ID.b0001",
+        "id-ID.b0002",
+        "id-ID.b0003",
+        "id-ID.b0004",
+        "id-ID.b0005"
+      ],
+      "throughput": {
+        "keys": 199,
+        "seconds": 134.201
+      },
+      "issued": 5
+    },
+    "el-GR": {
+      "digest": "46b3c73a762af1e6bc229341ba9fd6d9e6abdd488c1b17333948c6ed6a4dfd36",
+      "accepted": 199,
+      "batches_accepted": [
+        "el-GR.b0001",
+        "el-GR.b0002",
+        "el-GR.b0003",
+        "el-GR.b0004",
+        "el-GR.b0005"
+      ],
+      "throughput": {
+        "keys": 199,
+        "seconds": 201.212
+      },
+      "issued": 5
+    },
+    "cs-CZ": {
+      "digest": "46b3c73a762af1e6bc229341ba9fd6d9e6abdd488c1b17333948c6ed6a4dfd36",
+      "accepted": 199,
+      "batches_accepted": [
+        "cs-CZ.b0001",
+        "cs-CZ.b0002",
+        "cs-CZ.b0003",
+        "cs-CZ.b0004",
+        "cs-CZ.b0005"
+      ],
+      "throughput": {
+        "keys": 199,
+        "seconds": 169.96699999999998
+      },
+      "issued": 5
+    },
+    "ro-RO": {
+      "digest": "46b3c73a762af1e6bc229341ba9fd6d9e6abdd488c1b17333948c6ed6a4dfd36",
+      "accepted": 199,
+      "batches_accepted": [
+        "ro-RO.b0001",
+        "ro-RO.b0002",
+        "ro-RO.b0003",
+        "ro-RO.b0004",
+        "ro-RO.b0005"
+      ],
+      "throughput": {
+        "keys": 199,
+        "seconds": 282.69
+      },
+      "issued": 5
+    },
+    "hu-HU": {
+      "digest": "46b3c73a762af1e6bc229341ba9fd6d9e6abdd488c1b17333948c6ed6a4dfd36",
+      "accepted": 199,
+      "batches_accepted": [
+        "hu-HU.b0001",
+        "hu-HU.b0002",
+        "hu-HU.b0003",
+        "hu-HU.b0004",
+        "hu-HU.b0005"
+      ],
+      "throughput": {
+        "keys": 199,
+        "seconds": 154.921
+      },
+      "issued": 5
+    },
+    "bg-BG": {
+      "digest": "46b3c73a762af1e6bc229341ba9fd6d9e6abdd488c1b17333948c6ed6a4dfd36",
+      "accepted": 199,
+      "batches_accepted": [
+        "bg-BG.b0001",
+        "bg-BG.b0002",
+        "bg-BG.b0003",
+        "bg-BG.b0004",
+        "bg-BG.b0005"
+      ],
+      "throughput": {
+        "keys": 199,
+        "seconds": 108.03099999999999
+      },
+      "issued": 5
+    },
+    "sk-SK": {
+      "digest": "46b3c73a762af1e6bc229341ba9fd6d9e6abdd488c1b17333948c6ed6a4dfd36",
+      "accepted": 199,
+      "batches_accepted": [
+        "sk-SK.b0001",
+        "sk-SK.b0002",
+        "sk-SK.b0003",
+        "sk-SK.b0004",
+        "sk-SK.b0005"
+      ],
+      "throughput": {
+        "keys": 199,
+        "seconds": 98.732
+      },
+      "issued": 5
+    },
+    "hr-HR": {
+      "digest": "46b3c73a762af1e6bc229341ba9fd6d9e6abdd488c1b17333948c6ed6a4dfd36",
+      "accepted": 199,
+      "batches_accepted": [
+        "hr-HR.b0001",
+        "hr-HR.b0002",
+        "hr-HR.b0003",
+        "hr-HR.b0004",
+        "hr-HR.b0005"
+      ],
+      "throughput": {
+        "keys": 199,
+        "seconds": 106.26299999999999
+      },
+      "issued": 5
+    }
+  },
+  "updated": "2026-09-30T14:38:52.388Z"
+}

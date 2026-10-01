@@ -1,0 +1,18 @@
+{
+  "id": "ar-SA.b0051",
+  "locale": "ar-SA",
+  "source_digest": "sha256:3649b64da723a738a49c2c9cb825f80faa8412dc7c9157c599b0b9b95bffdb35",
+  "issued_at": "2026-09-30T14:39:59.412Z",
+  "keys": [
+    "settings.skills.diagnostics.code.skill_invalid_name",
+    "onboarding.step.agentsFile",
+    "onboarding.finish.summary.agentsFile",
+    "chat.draft.suggestedPrompt.plugin.github"
+  ],
+  "messages": {
+    "settings.skills.diagnostics.code.skill_invalid_name": "`name` must be lowercase / digits / hyphens",
+    "onboarding.step.agentsFile": "AGENTS.md",
+    "onboarding.finish.summary.agentsFile": "AGENTS.md",
+    "chat.draft.suggestedPrompt.plugin.github": "Github"
+  }
+}

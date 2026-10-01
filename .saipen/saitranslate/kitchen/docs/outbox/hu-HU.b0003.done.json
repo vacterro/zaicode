@@ -1,0 +1,18 @@
+{
+  "id": "hu-HU.b0003",
+  "translation": {
+    "docs.README_md.p0048": "A ZAICODE a Z.ai ZCode-járól származik, és ugyanaz alatt az\r\n[Apache License 2.0]({protected0}) licenc alatt terjed. Az eredeti értesítések:\r\n[NOTICE.md]({protected1}) és [THIRD-PARTY-NOTICES.md]({protected2}).\r\nA fájlokat a ZAICODE szerzője módosította. A ZAICODE független projekt,\r\nnem áll kapcsolatban a Z.ai-vel, és nem általa támogatott. Az eredeti ZCode\r\nREADME megmaradt: [README.zcode.md]({protected3}) és [README.en.md]({protected4}).",
+    "docs.README_md.p0052": "## Projekt-hálózat",
+    "docs.README_md.p0054": "Ez a tár a szélesebb **SAIPEN / vacterro** projekt-ökoszisztém része.",
+    "docs.README_md.p0056": "[**Szerző hub**]({protected0}) · [**SAIPEN HQ**]({protected1}) · [**SAIPEN Core**]({protected2}) · [**ZAICODE**]({protected3}) · [**FastPrompter**]({protected4}) · [**SAIPEN Közösség**]({protected5})",
+    "docs.README_md.p0058": "Visszaadható hibák és tartós funkciókérelmek: [a tár GitHub Issues]({protected0}). Gyors beszélgetés, képernyőképek, projektek közötti visszajelzés: Discord.",
+    "docs.docs_ZAICODE_INSTALL_md.p0000": "# ZAICODE telepítése",
+    "docs.docs_ZAICODE_INSTALL_md.p0002": "A ZAICODE három projekt, ami együtt működik: a ZAICODE app, a SAIPEN (a\r\nprotokoll, ami rendben tartja az ügynök munkáját) és a SAIMAIL (a levelezés,\r\namit az ügynökök egymás közt használnak). Kézi telepítésnél ez három\r\nklón, Node.js eszközsor, Python környezet és egy build. A telepítő mindezt\r\nmegcsinálja: futtasd, várj, és a ZAICODE ikon már az asztalon van.",
+    "docs.docs_ZAICODE_INSTALL_md.p0004": "## Egy kattintás",
+    "docs.docs_ZAICODE_INSTALL_md.p0006": "- **[ZAICODE-Setup.exe]({protected0})**:\r\n  töltsd le, dupla kattintás, **TELEPÍTÉS**. Az ablak (arany sötét háttéren,\r\n  SAIPEN banner) lépésenként mutat mindent, a közben eltelt időt és a naplót\r\n  kérésre; a végén **ZAICODE INDÍTÁSA**, vagy **ÚJRA** / **Autotroubleshoot**\r\n  / **Napló megnyitása**, ha egy lépés nem fejeződött be. Meglévő ZAICODE\r\n  mappára mutatva a gomb felirata **FRISSÍTÉS**: ugyanaz a futás frissít és\r\n  javít. Az exe tartalmazza a telepítő szkripteket, nem kell semmi mellette;\r\n  {protected1} építi (a .NET Framework fordító, ami minden Windows 10/11-en megvan).\r\n- {protected2} (dupla kattintás): ugyanez a telepítés konzolban.\r\n- Nulláról, PowerShellben:",
+    "docs.docs_ZAICODE_INSTALL_md.p0008": "  ```powershell\n  & ([scriptblock]::Create((irm {protected0})))\n  ```"
+  },
+  "kept": [
+    "docs.docs_ZAICODE_INSTALL_md.p0008"
+  ]
+}

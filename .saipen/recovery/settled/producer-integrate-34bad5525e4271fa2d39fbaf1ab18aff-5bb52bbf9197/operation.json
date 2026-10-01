@@ -1,0 +1,1604 @@
+{
+  "op_id": "producer-integrate-34bad5525e4271fa2d39fbaf1ab18aff-5bb52bbf9197",
+  "operation": "producer_integration",
+  "created_at": "2026-09-30T16:39:00Z",
+  "agent": "claude-code-local-verify",
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "project_lineage": "lineage-b0732ed2f98947b9a3c97bfe71427eca",
+  "semantic_payload_hash": "sha256:34bad5525e4271fa2d39fbaf1ab18affc0fba6c99ee77f83d3e0d20132187a90",
+  "preconditions": {},
+  "read_preconditions": {},
+  "verification_policy": "none",
+  "status": "COMMITTED",
+  "progress_index": 197,
+  "targets": [
+    {
+      "path": "README.ded.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "1a357ceb0dbca335",
+      "applied": true
+    },
+    {
+      "path": "README.ee.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "9fd2ce4ef044aa03",
+      "applied": true
+    },
+    {
+      "path": "README.ja.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "7027af5bbbf2bce1",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/README.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "53d277e2451ba9b6",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/ar-SA/README.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "8ddbd65179cab98a",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/ar-SA/ZAICODE_INSTALL.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "2b0302918cf74198",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/ar-SA/ZAICODE_SAIPEN_CLOUD.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "b0d36ba2e211148b",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/bg-BG/README.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "c86e5690bc325744",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/bg-BG/ZAICODE_INSTALL.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "03eb4793cf5f6ed7",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/bg-BG/ZAICODE_SAIPEN_CLOUD.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "ccf53847051b085c",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/cs-CZ/README.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "fa3150a964ebcfb0",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/cs-CZ/ZAICODE_INSTALL.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "9c8ed0c863e08e77",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/cs-CZ/ZAICODE_SAIPEN_CLOUD.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "f6a2953062ecc356",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/da-DK/README.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "5b8b2c0ba15eec76",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/da-DK/ZAICODE_INSTALL.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "5eac5fe9d9da80a0",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/da-DK/ZAICODE_SAIPEN_CLOUD.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "1e5c4275fdc1b85d",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/de-DE/README.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "effb7c3782ce156c",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/de-DE/ZAICODE_INSTALL.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "6e082bc3c6a9a04a",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/de-DE/ZAICODE_SAIPEN_CLOUD.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "88555eb46afca50a",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/ded/README.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "b3a2a83dbfe619d0",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/ded/ZAICODE_INSTALL.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "78ef129b9733c8a3",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/ded/ZAICODE_SAIPEN_CLOUD.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "3cd87ad258e8671a",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/el-GR/README.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "e6bfde086d3e380b",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/el-GR/ZAICODE_INSTALL.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "bb7cdfa9ef5a3a71",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/el-GR/ZAICODE_SAIPEN_CLOUD.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "4e9efd12b86d4079",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/es-ES/README.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "65f573ebe7897ec6",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/es-ES/ZAICODE_INSTALL.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "5122eed5177e65be",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/es-ES/ZAICODE_SAIPEN_CLOUD.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "74450ec6452c8680",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/et-EE/README.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "ef2376a3e5c3d57a",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/et-EE/ZAICODE_INSTALL.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "cd570d46d7062a64",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/et-EE/ZAICODE_SAIPEN_CLOUD.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "6336551b2c9c36a3",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/fi-FI/README.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "d473a241e3ccb6b5",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/fi-FI/ZAICODE_INSTALL.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "365f439760cdf8d0",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/fi-FI/ZAICODE_SAIPEN_CLOUD.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "227f9a9fa199014e",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/fr-FR/README.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "6274d138712251fb",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/fr-FR/ZAICODE_INSTALL.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "ce3898d52422391b",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/fr-FR/ZAICODE_SAIPEN_CLOUD.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "6cb144bae58eabbc",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/he-IL/README.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "9e19e14e0fd68107",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/he-IL/ZAICODE_INSTALL.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "4f34dda3b17db5fc",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/he-IL/ZAICODE_SAIPEN_CLOUD.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "b8106e2b88944c37",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/hi-IN/README.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "8323068ee66f87a8",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/hi-IN/ZAICODE_INSTALL.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "32b789f919f8f298",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/hi-IN/ZAICODE_SAIPEN_CLOUD.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "ed5a4d55de0d123a",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/hr-HR/README.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "f71d80eef212be27",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/hr-HR/ZAICODE_INSTALL.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "700df89d28a5431e",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/hr-HR/ZAICODE_SAIPEN_CLOUD.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "926fb9a363340b9f",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/hu-HU/README.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "12119aaf25af060f",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/hu-HU/ZAICODE_INSTALL.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "b8c1fbc51b66078a",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/hu-HU/ZAICODE_SAIPEN_CLOUD.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "bfac4ec14fd6e3c6",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/id-ID/README.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "4b1ac8bbcc189668",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/id-ID/ZAICODE_INSTALL.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "33d7add52e3d3fa0",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/id-ID/ZAICODE_SAIPEN_CLOUD.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "30abc10a2f1b9b3b",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/it-IT/README.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "1eee6331fa463b59",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/it-IT/ZAICODE_INSTALL.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "54156f90ea991ba7",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/it-IT/ZAICODE_SAIPEN_CLOUD.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "a572181d496b1f57",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/ja-JP/README.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "e47155b5a597629d",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/ja-JP/ZAICODE_INSTALL.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "e709f143a9fc0207",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/ja-JP/ZAICODE_SAIPEN_CLOUD.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "768f1174b530dfe9",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/ko-KR/README.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "16c49e85fff284d6",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/ko-KR/ZAICODE_INSTALL.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "77d3e14f9ea8d983",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/ko-KR/ZAICODE_SAIPEN_CLOUD.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "eec126bf0b7c2960",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/nb-NO/README.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "f54e475bc39b7d5d",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/nb-NO/ZAICODE_INSTALL.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "f23707a5ca801b06",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/nb-NO/ZAICODE_SAIPEN_CLOUD.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "d6f8df6c25435435",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/nl-NL/README.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "2796ad98a5e5c4b7",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/nl-NL/ZAICODE_INSTALL.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "9e55150752f2f535",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/nl-NL/ZAICODE_SAIPEN_CLOUD.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "392ac86754c1f873",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/pl-PL/README.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "8de302ed75801642",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/pl-PL/ZAICODE_INSTALL.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "58d5a8e9b2573f5c",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/pl-PL/ZAICODE_SAIPEN_CLOUD.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "10ab8208e96317ec",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/pt-BR/README.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "53a07081ea4da570",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/pt-BR/ZAICODE_INSTALL.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "e334bd7b0ad10fba",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/pt-BR/ZAICODE_SAIPEN_CLOUD.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "717b5e252db8640f",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/ro-RO/README.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "cae8a74a814c4843",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/ro-RO/ZAICODE_INSTALL.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "5e920875ae6f392b",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/ro-RO/ZAICODE_SAIPEN_CLOUD.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "e806dd43c754ee71",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/ru-RU/README.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "6cc7d7014128fc77",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/ru-RU/ZAICODE_INSTALL.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "47a57c962f0ec7e0",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/ru-RU/ZAICODE_SAIPEN_CLOUD.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "d42e94fe38e0318d",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/sk-SK/README.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "21ab0936475509b3",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/sk-SK/ZAICODE_INSTALL.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "534ca521d37a199c",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/sk-SK/ZAICODE_SAIPEN_CLOUD.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "c8cb89492edccd4a",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/sv-SE/README.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "4cdde97b581c2ed5",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/sv-SE/ZAICODE_INSTALL.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "7854a45aacb2c694",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/sv-SE/ZAICODE_SAIPEN_CLOUD.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "69d707dd7d6cc063",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/th-TH/README.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "9b4732241fdb7a9d",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/th-TH/ZAICODE_INSTALL.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "32befc36f0de0ce1",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/th-TH/ZAICODE_SAIPEN_CLOUD.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "83686bd94fc0619c",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/tr-TR/README.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "99ecec48377cd635",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/tr-TR/ZAICODE_INSTALL.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "613dac2591fce0c9",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/tr-TR/ZAICODE_SAIPEN_CLOUD.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "3359f222ceb85b24",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/uk-UA/README.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "4536e9797d00118a",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/uk-UA/ZAICODE_INSTALL.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "e43494bc062cfe4b",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/uk-UA/ZAICODE_SAIPEN_CLOUD.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "98ad57fc8a3615bd",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/vi-VN/README.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "a14cb15485fcd2d0",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/vi-VN/ZAICODE_INSTALL.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "fe3dd72dcc17adee",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/vi-VN/ZAICODE_SAIPEN_CLOUD.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "06a196b3c0a93dca",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/zh-CN/README.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "941ebaa07f5a76ac",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/zh-CN/ZAICODE_INSTALL.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "2911bb48bc7a2b51",
+      "applied": true
+    },
+    {
+      "path": "docs/locales/zh-CN/ZAICODE_SAIPEN_CLOUD.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "a1ccb38daf953285",
+      "applied": true
+    },
+    {
+      "path": "zcode/apps/zcode-cli/packages/adapters/src/config/schema.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "82be1e9388c358ba",
+      "after_hash": "d551600613a0f0f1",
+      "applied": true
+    },
+    {
+      "path": "zcode/apps/zcode-cli/packages/cli/src/cli-types.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "651a76b1d8b486b4",
+      "after_hash": "5a6c4971e1993b7e",
+      "applied": true
+    },
+    {
+      "path": "zcode/apps/zcode-cli/packages/contracts/src/config/index.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "055439fabb33a46c",
+      "after_hash": "431b1c0a0bc56df3",
+      "applied": true
+    },
+    {
+      "path": "zcode/apps/zcode-cli/packages/i18n/src/index.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "13f8ecb10319f399",
+      "after_hash": "7e851833a687630e",
+      "applied": true
+    },
+    {
+      "path": "zcode/apps/zcode-cli/packages/i18n/src/locale.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "53a891f9e44b39e4",
+      "after_hash": "89991e9b07289bfb",
+      "applied": true
+    },
+    {
+      "path": "zcode/apps/zcode-cli/packages/i18n/src/locales/ar-SA.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "ce3e4a5c7a103a5a",
+      "applied": true
+    },
+    {
+      "path": "zcode/apps/zcode-cli/packages/i18n/src/locales/bg-BG.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "d9abbda88161612d",
+      "applied": true
+    },
+    {
+      "path": "zcode/apps/zcode-cli/packages/i18n/src/locales/cs-CZ.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "3cd8ef7a7d117f2a",
+      "applied": true
+    },
+    {
+      "path": "zcode/apps/zcode-cli/packages/i18n/src/locales/da-DK.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "e0d23798383b3d73",
+      "applied": true
+    },
+    {
+      "path": "zcode/apps/zcode-cli/packages/i18n/src/locales/de-DE.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "acdd5686389e01d9",
+      "applied": true
+    },
+    {
+      "path": "zcode/apps/zcode-cli/packages/i18n/src/locales/ded.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "0a7d0d2b9ae94b24",
+      "applied": true
+    },
+    {
+      "path": "zcode/apps/zcode-cli/packages/i18n/src/locales/el-GR.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "e1e046320396c4f7",
+      "applied": true
+    },
+    {
+      "path": "zcode/apps/zcode-cli/packages/i18n/src/locales/en-US.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "62a85dbe6416b306",
+      "after_hash": "c70c847fac4c6c0e",
+      "applied": true
+    },
+    {
+      "path": "zcode/apps/zcode-cli/packages/i18n/src/locales/es-ES.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "84a14644b1258320",
+      "applied": true
+    },
+    {
+      "path": "zcode/apps/zcode-cli/packages/i18n/src/locales/et-EE.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "eba0872872adfb2d",
+      "applied": true
+    },
+    {
+      "path": "zcode/apps/zcode-cli/packages/i18n/src/locales/fi-FI.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "ddc11836def36401",
+      "applied": true
+    },
+    {
+      "path": "zcode/apps/zcode-cli/packages/i18n/src/locales/fr-FR.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "0ecf648b246968ea",
+      "applied": true
+    },
+    {
+      "path": "zcode/apps/zcode-cli/packages/i18n/src/locales/he-IL.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "bf29b85b5ef3edcd",
+      "applied": true
+    },
+    {
+      "path": "zcode/apps/zcode-cli/packages/i18n/src/locales/hi-IN.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "622470364f093475",
+      "applied": true
+    },
+    {
+      "path": "zcode/apps/zcode-cli/packages/i18n/src/locales/hr-HR.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "8f38330c3ff52b51",
+      "applied": true
+    },
+    {
+      "path": "zcode/apps/zcode-cli/packages/i18n/src/locales/hu-HU.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "9f966dcedf7c0cca",
+      "applied": true
+    },
+    {
+      "path": "zcode/apps/zcode-cli/packages/i18n/src/locales/id-ID.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "d37b486b3a98a85e",
+      "applied": true
+    },
+    {
+      "path": "zcode/apps/zcode-cli/packages/i18n/src/locales/it-IT.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "28c3a3e4a8d53d23",
+      "applied": true
+    },
+    {
+      "path": "zcode/apps/zcode-cli/packages/i18n/src/locales/ja-JP.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "9bed3a309f9779cc",
+      "applied": true
+    },
+    {
+      "path": "zcode/apps/zcode-cli/packages/i18n/src/locales/ko-KR.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "fa951bb722213c6d",
+      "applied": true
+    },
+    {
+      "path": "zcode/apps/zcode-cli/packages/i18n/src/locales/nb-NO.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "f684bc1120eed02a",
+      "applied": true
+    },
+    {
+      "path": "zcode/apps/zcode-cli/packages/i18n/src/locales/nl-NL.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "acef117a1a73f8c9",
+      "applied": true
+    },
+    {
+      "path": "zcode/apps/zcode-cli/packages/i18n/src/locales/pl-PL.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "05e5ff6b1010fcfc",
+      "applied": true
+    },
+    {
+      "path": "zcode/apps/zcode-cli/packages/i18n/src/locales/pt-BR.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "affcda1646ef62b3",
+      "applied": true
+    },
+    {
+      "path": "zcode/apps/zcode-cli/packages/i18n/src/locales/ro-RO.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "ef76190fce9168a4",
+      "applied": true
+    },
+    {
+      "path": "zcode/apps/zcode-cli/packages/i18n/src/locales/ru-RU.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "f378f2afbc8b2d03",
+      "applied": true
+    },
+    {
+      "path": "zcode/apps/zcode-cli/packages/i18n/src/locales/sk-SK.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "510de7d2c33fb3af",
+      "applied": true
+    },
+    {
+      "path": "zcode/apps/zcode-cli/packages/i18n/src/locales/sv-SE.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "aa7c4ac6cbd545f5",
+      "applied": true
+    },
+    {
+      "path": "zcode/apps/zcode-cli/packages/i18n/src/locales/th-TH.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "d785c673377d5f1d",
+      "applied": true
+    },
+    {
+      "path": "zcode/apps/zcode-cli/packages/i18n/src/locales/tr-TR.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "b3a44485be8789bf",
+      "applied": true
+    },
+    {
+      "path": "zcode/apps/zcode-cli/packages/i18n/src/locales/uk-UA.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "c99ca2378e552c17",
+      "applied": true
+    },
+    {
+      "path": "zcode/apps/zcode-cli/packages/i18n/src/locales/vi-VN.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "c594406e5f29797b",
+      "applied": true
+    },
+    {
+      "path": "zcode/apps/zcode-cli/packages/i18n/src/locales/zh-CN.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "1adaaa1e41820a8e",
+      "after_hash": "46806952c8e67046",
+      "applied": true
+    },
+    {
+      "path": "zcode/apps/zcode-cli/packages/shared-types/src/index.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "430bf48642204600",
+      "after_hash": "33c375bdc4e133ed",
+      "applied": true
+    },
+    {
+      "path": "zcode/packages/desktop/src/main/desktopApplicationMenu.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "c82e8e62227a874e",
+      "after_hash": "fbfcc5defd47549e",
+      "applied": true
+    },
+    {
+      "path": "zcode/packages/desktop/src/main/desktopFinderOpenFolderWorkflow.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "88aabc3d192d9ba8",
+      "after_hash": "ea11ffc4c55e2f75",
+      "applied": true
+    },
+    {
+      "path": "zcode/packages/desktop/src/main/desktopWindowsOpenFolderContextMenu.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "281f58718e85010b",
+      "after_hash": "77f2a553647aabea",
+      "applied": true
+    },
+    {
+      "path": "zcode/packages/services/src/conversation-share/conversationShareService.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "c645ec58fcf29dae",
+      "after_hash": "422f3afa68409430",
+      "applied": true
+    },
+    {
+      "path": "zcode/packages/shared/src/auxiliaryLocaleMessages.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "273ce8fe150a9c8a",
+      "applied": true
+    },
+    {
+      "path": "zcode/packages/shared/src/conversation-share.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "c00f23e339753c25",
+      "after_hash": "ebf532c74028b35d",
+      "applied": true
+    },
+    {
+      "path": "zcode/packages/shared/src/desktopMenu.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "62f8a87d15a4ace4",
+      "after_hash": "0ca74bbe9780f946",
+      "applied": true
+    },
+    {
+      "path": "zcode/packages/shared/src/expandedDesktopMenuMessages.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "f666b855edd13590",
+      "applied": true
+    },
+    {
+      "path": "zcode/packages/shared/src/index.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "3590ada848f37a22",
+      "after_hash": "b0ef4204316fa927",
+      "applied": true
+    },
+    {
+      "path": "zcode/packages/shared/src/locales.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "e1c354ab32eb9d70",
+      "applied": true
+    },
+    {
+      "path": "zcode/packages/shared/src/protocol.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "a37ed96487aa25db",
+      "after_hash": "0ab38fd0e0cbb710",
+      "applied": true
+    },
+    {
+      "path": "zcode/packages/shared/src/validationAppSettings.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "cd38a06c1d30c261",
+      "after_hash": "622abdcc7e3b2313",
+      "applied": true
+    },
+    {
+      "path": "zcode/packages/shared/src/zcode-slash-command-help.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "55bc038638e12104",
+      "after_hash": "15cef529f83fad8e",
+      "applied": true
+    },
+    {
+      "path": "zcode/packages/ui/src/ErrorBoundary.tsx",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "03a9065c3abeb4bb",
+      "after_hash": "f97f1e161cb0af29",
+      "applied": true
+    },
+    {
+      "path": "zcode/packages/ui/src/SettingsPage.tsx",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "87ceee954f3d5d76",
+      "after_hash": "2efa4195a3495267",
+      "applied": true
+    },
+    {
+      "path": "zcode/packages/ui/src/WorkspaceSidebar.tsx",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "37202b6ffaf9e6ec",
+      "after_hash": "70df1e3dfe4c70aa",
+      "applied": true
+    },
+    {
+      "path": "zcode/packages/ui/src/WorkspaceSidebarFooter.tsx",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "c951cd24e42b1f83",
+      "after_hash": "7c5842406d4c6586",
+      "applied": true
+    },
+    {
+      "path": "zcode/packages/ui/src/feedback/feedbackSubmitSubmission.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "0dceebe59fd5772e",
+      "after_hash": "ccbbac68a5867ab0",
+      "applied": true
+    },
+    {
+      "path": "zcode/packages/ui/src/i18n/IntlProvider.tsx",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "7e0e4c7fbf5658c3",
+      "after_hash": "b53262c2bb3490c7",
+      "applied": true
+    },
+    {
+      "path": "zcode/packages/ui/src/i18n/LocaleSwitcher.tsx",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "47a563b3d762672c",
+      "after_hash": "3a1029007d3185f5",
+      "applied": true
+    },
+    {
+      "path": "zcode/packages/ui/src/i18n/locale-manifest.json",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "439616a8e9eb203c",
+      "applied": true
+    },
+    {
+      "path": "zcode/packages/ui/src/i18n/locales/ar-SA.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "af91a7c6324dfef1",
+      "applied": true
+    },
+    {
+      "path": "zcode/packages/ui/src/i18n/locales/bg-BG.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "075d41aacaa02bf0",
+      "applied": true
+    },
+    {
+      "path": "zcode/packages/ui/src/i18n/locales/cs-CZ.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "04d986829d65533f",
+      "applied": true
+    },
+    {
+      "path": "zcode/packages/ui/src/i18n/locales/da-DK.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "61653f29e516ee3e",
+      "applied": true
+    },
+    {
+      "path": "zcode/packages/ui/src/i18n/locales/de-DE.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "2671e527e775c5f3",
+      "applied": true
+    },
+    {
+      "path": "zcode/packages/ui/src/i18n/locales/ded.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "22bfaac8ec41542e",
+      "applied": true
+    },
+    {
+      "path": "zcode/packages/ui/src/i18n/locales/el-GR.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "0dd4f8ba3928179a",
+      "applied": true
+    },
+    {
+      "path": "zcode/packages/ui/src/i18n/locales/es-ES.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "3991038bd2f08c9c",
+      "applied": true
+    },
+    {
+      "path": "zcode/packages/ui/src/i18n/locales/et-EE.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "72e8f72cc2a165eb",
+      "applied": true
+    },
+    {
+      "path": "zcode/packages/ui/src/i18n/locales/fi-FI.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "f557da2a8beb20c9",
+      "applied": true
+    },
+    {
+      "path": "zcode/packages/ui/src/i18n/locales/fr-FR.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "b0ae3d0b3825c2bf",
+      "applied": true
+    },
+    {
+      "path": "zcode/packages/ui/src/i18n/locales/he-IL.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "948d877658b2cea1",
+      "applied": true
+    },
+    {
+      "path": "zcode/packages/ui/src/i18n/locales/hi-IN.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "46923815b38441cc",
+      "applied": true
+    },
+    {
+      "path": "zcode/packages/ui/src/i18n/locales/hr-HR.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "d0bdcc4de8135d7b",
+      "applied": true
+    },
+    {
+      "path": "zcode/packages/ui/src/i18n/locales/hu-HU.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "5556c0368358cf78",
+      "applied": true
+    },
+    {
+      "path": "zcode/packages/ui/src/i18n/locales/id-ID.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "8e7df94839f1a5f5",
+      "applied": true
+    },
+    {
+      "path": "zcode/packages/ui/src/i18n/locales/it-IT.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "953a57ab7863bfda",
+      "applied": true
+    },
+    {
+      "path": "zcode/packages/ui/src/i18n/locales/ja-JP.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "cc120f31602245a2",
+      "applied": true
+    },
+    {
+      "path": "zcode/packages/ui/src/i18n/locales/ko-KR.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "748ef94d45447602",
+      "applied": true
+    },
+    {
+      "path": "zcode/packages/ui/src/i18n/locales/nb-NO.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "b9f4196e0a82c640",
+      "applied": true
+    },
+    {
+      "path": "zcode/packages/ui/src/i18n/locales/nl-NL.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "08f210c86e0de5f2",
+      "applied": true
+    },
+    {
+      "path": "zcode/packages/ui/src/i18n/locales/pl-PL.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "26c8a06d1e2bbbca",
+      "applied": true
+    },
+    {
+      "path": "zcode/packages/ui/src/i18n/locales/pt-BR.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "7972a68fe70387d4",
+      "applied": true
+    },
+    {
+      "path": "zcode/packages/ui/src/i18n/locales/ro-RO.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "f70375e61d5b511a",
+      "applied": true
+    },
+    {
+      "path": "zcode/packages/ui/src/i18n/locales/ru-RU.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "80ca733476c13d84",
+      "applied": true
+    },
+    {
+      "path": "zcode/packages/ui/src/i18n/locales/sk-SK.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "0cf97b27545b8832",
+      "applied": true
+    },
+    {
+      "path": "zcode/packages/ui/src/i18n/locales/sv-SE.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "e22ea6583ba4004b",
+      "applied": true
+    },
+    {
+      "path": "zcode/packages/ui/src/i18n/locales/th-TH.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "56f0b1bd4c44b22a",
+      "applied": true
+    },
+    {
+      "path": "zcode/packages/ui/src/i18n/locales/tr-TR.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "c6e891d867321247",
+      "applied": true
+    },
+    {
+      "path": "zcode/packages/ui/src/i18n/locales/uk-UA.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "fc1742210bc5e784",
+      "applied": true
+    },
+    {
+      "path": "zcode/packages/ui/src/i18n/locales/vi-VN.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "d422f34bf580bbca",
+      "applied": true
+    },
+    {
+      "path": "zcode/packages/ui/src/i18n/messages.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "34c6f01da5b48350",
+      "applied": true
+    },
+    {
+      "path": "zcode/packages/ui/src/lib/builtinSkillI18n.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "653c2fc5ca132cca",
+      "after_hash": "5ec476f06284c283",
+      "applied": true
+    },
+    {
+      "path": "zcode/packages/ui/src/settingsPageHelpers.tsx",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "2cdac6e6966ffa3d",
+      "after_hash": "01108082ae190115",
+      "applied": true
+    },
+    {
+      "path": "zcode/packages/ui/src/test-actions.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "1bf0ddc20b988a99",
+      "after_hash": "e04da628a1f53769",
+      "applied": true
+    },
+    {
+      "path": "zcode/packages/ui/test/zaicodeLocaleParity.test.ts",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "508c56fb08644a0a",
+      "after_hash": "b5ff929a7051aba8",
+      "applied": true
+    },
+    {
+      "path": "zcode/specs/locale-expansion.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "f2a72574c1a993a4",
+      "after_hash": "f2a72574c1a993a4",
+      "applied": true
+    }
+  ],
+  "receipt_metadata": {
+    "operation": "producer_integration",
+    "status": "COMMITTED",
+    "crew_epoch": "",
+    "ticket_id": "T-140",
+    "producer": "saitranslate",
+    "package_identity": "sha256:34bad5525e4271fa2d39fbaf1ab18affc0fba6c99ee77f83d3e0d20132187a90",
+    "input_source": "5bb52bbf919705a37a19cda6fd2dd182e001d956",
+    "input_source_fingerprint": "git-delta-v1:5af9f086c8563baf9f16210673a713cdd3040f1cfcdc98b6f7914ad741d0cf27",
+    "resulting_source": "5bb52bbf919705a37a19cda6fd2dd182e001d956",
+    "resulting_source_fingerprint": "git-delta-v1:8aaa573676399b65e6be82187c8bda35afeec12bebb854a2a133719947327780"
+  }
+}

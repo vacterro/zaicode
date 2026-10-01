@@ -1,0 +1,15 @@
+{
+  "id": "ja-JP.b0010",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0086": "**AVAILABLE_IN_CLOUD** — プロトコル状態とワークスペース層。{protected0} の読み書き、ランチャー ({protected1})、{protected2} 配下のインストーラー、{protected3}、{protected4}、{protected5}、トランスポートスクリプト。{protected6} での Git の read・commit・push・fetch。ファイル検証・差分レビュー・テキストチェックであるいずれのゲートも。",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0088": "**LOCAL_WINDOWS_ONLY** — このマシンを必要とするゲート。",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0090": "| ゲート | 理由 |\r\n|------|-----|\r\n| {protected0} | {protected1} を .NET Framework {protected2} でコンパイルする。クラウドイメージには Windows SDK がない |\r\n| パッケージ版 Electron E2E ({protected3} デスクトップ、Solo → キュー → ディスパッチ) | デスクトップセッションとシード済みプロバイダープロファイルが必要 |\r\n| 稼働中の 9router | このマシン上の Windows サービス |\r\n| 対話型デスクトップのクリック操作 | 人間と画面が必要 |\r\n| ウォッチャー自身のランタイムケース | ウォッチャーはチェックアウトを保持するマシンでしか実行されない |",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0092": "これらはローカル専用の受け入れ境界として記録される。差分が正しく見えるだけで PASS として報告されることはない。",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0094": "**SAFE_TO_DEFER** — 製品レイヤー。クラウドセッションは {protected0} ブランチ {protected1} をクローンしてそこで作業できる。ワークスペースレイヤーの作業は製品_layerの作业を必要としないが、クローンは必要がある:\r\n{protected2} が {protected3} を宣言しており、ないとバリデータが `source freshness computation BLOCKED -- declared nested repository is missing: 'zcode'{protected4}pnpm` で失敗する。pnpm 10.33.2 のピン留めと準備済みワークスペースが必要。{protected5} が新鮮なクラウドイメージでの文書化された入口であり、製品の {protected6} はすでにそれを宣言している。",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0096": "クラウドが検証できるのは {protected0} 上にある製品バイトのみ。オペレーターの {protected1} チェックアウトにのみ存在する製品デルタはここでは不可視なので、その製品ゲートは内容にかかわらずクラウドでは NOT RUN となる。T-84 が最初のケース (E-1411) で、修正はローカル専用のまま {protected2} は修正前のコードを持っていた。",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0098": "**UNSAFE_TO_EMULATE** — ローカル専用ゲートを緑に見せかける行為すべて。ランチャーのビルドをスタブ化、パッケージアプリの実行の偽装、記録された {protected0} の結果を直前に実行されたかのように再生すること、および「コードは正しく見える」を {protected1} の PASS 行に変換することは行わない。",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0100": "**KNOWN_CLOUD_DIVERGENCE** — チェックアウトの場所に依存する適合性。カーネル {protected0} ではクラウドのバリデータがオペレーターのマシンでは出ない {protected1} の FAIL を報告する (執筆時点で T-47、T-62、T-76、T-78)。",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0102": "カーネルは 1024 バイトを超える LOG イベントを\r\n{protected0} サイドカーへ移す。読み取り時は、チェックアウトの絶対パスが書き出し元のパスと一致する場合にのみサイドカーを復元する。したがって Windows で書かれた長い VERIFY 判定はクラウドでは読めず、逆も同様である。",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0104": "欠陥はカーネルにあり {protected0} に P1-1 として起票済み。取り込まれるまで:"
+  }
+}

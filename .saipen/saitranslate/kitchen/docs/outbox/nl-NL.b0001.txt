@@ -1,0 +1,10 @@
+1|=
+2|"ZAICODE is een operatorwerkplek om veel AI-codingagents tegelijk over\r\nveel projecten te draaien, zonder ze in de gaten te houden. Het is een aangepaste build van\r\n[ZCode]({protected0}) (desktopapp, browserinterface en agent-\r\nCLI) met een productlaag erbovenop: elk project wordt aangestuurd via het\r\n[SAIPEN]({protected1})-protocol, werk wordt gestart, hervat\r\nen gepland vanuit één venster, en de abonnements-CLI's die je al betaalt\r\n(Claude Code, Codex, Antigravity) draaien als vastgezette workers naast de agents\r\nin de app."
+3|"**0.0.1** is de eerste getagde snapshot: een persoonlijke, Windows-eerst build die\r\ndagelijks gebruikt wordt."
+4|"## Installatie in één klik"
+5|"1. Download **[ZAICODE-Setup.exe]({protected0})**.\r\n2. Dubbelklik erop en druk op **INSTALL**."
+6|"Dat is alles. Setup haalt op wat de machine mist (Git, Node.js, Python, als privékopieën: geen beheerdersrechten), haalt ZAICODE, SAIPEN en SAIMAIL op van GitHub, bouwt de app op de machine en zet een ZAICODE-snelkoppeling op het bureaublad. De eerste\r\nstart duurt 15-30 minuten; het venster toont elke stap."
+7|"Gratis modellen werken meteen: ZAICODE start zijn eigen router en vult de **SAIFREN**-\r\npool uit de gratis abonnementen zonder sleutel, dus een taak die je in Nieuwe taak typt krijgt antwoord zonder sleutel, account of instelling. Claude Code-, Codex- en Antigravity-abonnementen zijn\r\noptioneel en kunnen op elk moment worden ingelogd."
+8|"**Eén geheel, vier delen.** De werkplek (launcher, installer), de app, SAIPEN en\r\nSAIMAIL zijn vier repositories. Elk werkt zichzelf bij: *Instellingen -> ZAICODE -> Updates* toont elk deel, werkt het handmatig of automatisch bij (gecontroleerd enkele minuten\r\nna de start en elke zes uur). Een nieuwe app-build wordt klaargemaakt terwijl ZAICODE draait\r\nen start met de volgende start; je eigen wijzigingen in een clone worden nooit overschreven.\r\nVanaf een terminal: {protected0}.\r\nAutotroubleshoot: {protected1}. Details: [docs/ZAICODE_INSTALL.md](docs/ZAICODE_INSTALL.md)."
+9|"## Rondleiding door de interface"
+10|"## Wat het toevoegt aan ZCode"

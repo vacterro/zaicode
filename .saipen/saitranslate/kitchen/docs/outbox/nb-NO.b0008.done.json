@@ -1,0 +1,15 @@
+{
+  "id": "nb-NO.b0008",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0024": "| File | Role |\r\n|------|------|\r\n| {protected0} | validerer, forliker branchen, installerer og starter watcheren, skriver autostart-oppføringen, beviser at lokal == fjern |\r\n| {protected1} | loopen: hent, sammenlign, fast-forward eller push, logg, pause; deretter produktrunden og selvoppdateringen |\r\n| {protected2} | tur-retur fra en uavhengig executor pluss bevis på gjenoppretting fra kald tilstand |\r\n| {protected3} | produktrunde og selvoppdatering mot engangskast-Git-lagre (ingen nettverk, ingen ekte fjerntier) |\n",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0026": "Installer og reparer:",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0030": "Den er idempotent. Maskinlokal tilstand ligger i {protected0}:\r\n{protected1} (en kopi), {protected2} (roteres ved\r\n2 MB til {protected3}), {protected4} (én instans),\r\n{protected5}, og en oppføring i Startmappen\r\n{protected6}.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0032": "Installasjonsprogrammet nekter et skittent tre og renser det aldri. Hvert skittent spor er\r\nkanonisk SAIPEN-tilstand under {protected0}, sier det fra og skriver ut de eksakte\r\ncheckpoint-kommandoene; det er en protokolltilstand uten checkpoint, ikke en transportfeil,\r\nog installasjonsprogrammet vil ikke committe den bak protokollens rygg.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0034": "## Watcher-atferd",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0036": "| Situasjon | Handling |\r\n|-----------|------|\r\n| rent, lokal er forfader til fjern | {protected0} |\r\n| rent, fjern er forfader til lokal | {protected1} |\r\n| skittent | pause; ikke engang et hent |\r\n| på en annen branch | pause |\r\n| begge fremede, ingen felles forfader | pause, logg begge commit-id-er, ikke merk noe |\r\n| hent eller nettverk feilet | logg degradert, prøv igjen neste tikk |\r\n| en merge/rebase{protected2} pågår | pause |",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0038": "Aldri: force push, hard reset, stash, clean, checkout av fremmed branch,\r\ncommit, eller stopp etter prosessnavn. Installasjonsprogrammet stopper en watcher bare\r\nmed pid-en den lagret i sin egen pid-fil.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0040": "Et skittent tre koster ingenting, fordi watcher sjekker skitt før den henter.\r\nEn inaktiv checkout foretar derfor ingen nettverkskall i det hele tatt.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0042": "### Produktrunde (T-90)",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0044": "{protected0} er sitt eget repositorium, så tabellen ovenfor flytter aldri produktkode.\r\nEtter den håndterer samme tikk produkt-checkouten ({protected1},\r\nstandard {protected2}; branch {protected3}, standard {protected4}). Produktrunden\r\nkjøres uansett om det ytre treet er skittent. Den bare puller noe."
+  }
+}

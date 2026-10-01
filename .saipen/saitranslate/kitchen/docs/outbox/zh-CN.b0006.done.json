@@ -1,0 +1,15 @@
+{
+  "id": "zh-CN.b0006",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0002": "本结账流程与 Claude Code Cloud 会话如何以不同的执行器位置运行同一个 SAIPEN 工作区，\r\n以及两者之间的边界在哪里。",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0004": "## 结构",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0008": "一个分支承载协议状态。没有合并步骤、没有变基步骤，\r\n也没有第二个本地分支需要保持同步：哪个执行器拿到已验证的\r\n检查点，就提交并推送，另一侧以\r\n快进方式获取。",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0010": "{protected0} 是传输前的历史记录，也是已发布的默认分支。传输过程\r\n不会强制更新它。",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0012": "## 传输的内容与不传输的内容",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0014": "本仓库中的检查点包含 SAIPEN 协议状态、根\r\n启动器、安装器、文档以及这些传输脚本。这就是\r\n整个工作区层。",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0016": "它**不包含任何产品字节**。{protected0} 是一个独立的 Git 仓库，列在\r\n{protected1} 中，并在此根目录下被 gitignore\r\n（{protected2}）。产品工作需要自行克隆 {protected3}，使用分支\r\n{protected4}，该克隆是第二个独立对象，拥有自己的历史记录。",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0018": "后果很容易搞错：此根目录下干净的 {protected0} 说明不了任何\r\n未提交的产品工作，而 {protected1} 的快进也说明不了产品代码的情况。请显式检查\r\n{protected2}。",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0020": "## 本地部分",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0022": "两个脚本，都由仓库管理，这样新机器可以从仓库获取它们，\r\n而不必靠记忆："
+  }
+}

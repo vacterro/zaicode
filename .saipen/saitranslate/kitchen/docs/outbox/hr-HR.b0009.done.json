@@ -1,0 +1,15 @@
+{
+  "id": "hr-HR.b0009",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0024": "| Datoteka | Uloga |\r\n|------|------|\r\n| {protected0} | validira, usklađuje granu, instalira i pokreće watcher, piše unos za automatsko pokretanje, dokazuje local == remote |\r\n| {protected1} | petlja: fetch, usporedba, fast-forward ili push, zapis, pauza; zatim product pass i self-update |\r\n| {protected2} | round-trip iz neovisnog izvršitelja plus dokaz cold-recovery |\r\n| {protected3} | product pass i self-update nad jednokratnim Git repozitorijima (bez mreže, bez pravog remote-a) |",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0026": "Instalacija i popravak:",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0030": "Idempotentno je. Stanje lokalno na stroju živi u {protected0}:\r\n{protected1} (kopija), {protected2} (rotira se na\r\n2 MB u {protected3}), {protected4} (jedna instanca),\r\n{protected5}, i unos u Startup folderu\r\n{protected6}.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0032": "Installer odbija prljivo stablo i nikad ga ne čisti. Ako je svaki prljavi put\r\nkanonsko SAIPEN stanje pod {protected0}, kaže to i ispiše točne\r\nnaredbe za checkpoint; to je stanje protokola bez checkpointa, a ne\r\ngreška prijevoza, i Installer ga neće commitati iza leđa protokola.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0034": "## Ponašanje watchera",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0036": "| Situacija | Premještaj |\r\n|----------|-----------|\r\n| čisto, lokalna je predak udaljene | {protected0} |\r\n| čisto, udaljena je predak lokalne | {protected1} |\r\n| nečisto | pauziraj; ni samo fetch |\r\n| na drugoj grani | pauziraj |\r\n| obje napredovale, nema zajedničkog pretka | pauziraj, zabilježi oba commit id, ne spajaj ništa |\r\n| fetch ili mreža pali | zabilježi kvar, pokušaj ponovno sljedeći tick |\r\n| merge/rebase{protected2} u tijeku | pauziraj |",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0038": "Nikad: force push, hard reset, stash, clean, checkout strane grane,\r\ncommit, ni zaustavljanje po nazivu procesa. Installer zaustavlja watcher\r\nsamo prema pid-u zapisanom u vlastitom pid fileu.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0040": "Prljivo stablo ne košta ništa, jer watcher provjeri prljavost prije fetch-a.\r\nZato idle checkout uopće ne radi mrežne pozive.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0042": "### Productski prolaz (T-90)",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0044": "{protected0} je vlastiti repozitorij, pa tablica gore nikad ne pomiče product\r\nkod. Nakon njega isti tick obrađuje product checkout ({protected1},\r\ndefault {protected2}; grana {protected3}, default {protected4}). Product\r\npass se izvršava bez obzira na to je li vanjsko stablo prljivo. Samo pull-uje."
+  }
+}

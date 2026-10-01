@@ -1,0 +1,10 @@
+1|=
+2|"ZAICODE on operaatori tööpink, mis käivitab korraga palju AI-koodimisagente\r\npaljude projektide peal, ilma neid järel valvamata. See on modifitseeritud ehitus\r\n[ZCode]({protected0})-st (töölaurea, brauseri liides ja agendi\r\nCLI) lisatud tootekihiga: iga projekti juhitakse\r\n[SAIPEN]({protected1}) protokolli kaudu, tööd alustatakse, jätkatakse\r\nja planeeritakse ühest aknast ning tasulised CLI-d, mille eest juba maksad\r\n(Claude Code, Codex, Antigravity), töötavad dokis ankurdatud töölistena\r\nrakenduse agentide kõrval."
+3|"**0.0.1** on esimene sildistatud hetkeõigus: isiklik, Windowsi-põhine ehitus, mida\r\nkasutatakse iga päev."
+4|"## Paigalda ühe klikiga"
+5|"1. Laadi alla **[ZAICODE-Setup.exe]({protected0})**.\r\n2. Topeltklõpsa sellel ja vajuta **INSTALL**."
+6|"See on kõik. Paigaldus toob masinale puuduvad osad (Git, Node.js, Python privaatsete\r\nkoopiatena: administraatori õigusi pole), laeb ZAICODE, SAIPEN ja SAIMAIL GitHubist,\r\nehitab rakenduse masinal ning lisab töölauale ZAICODE otsetee. Esimene\r\nkäivitus võtab 15-30 minutit; aknas on näha iga samm."
+7|"Vabad mudelid töötavad kohe: ZAICODE käivitab oma marsruuteri ja täidab **SAIFREN**\r\nvarutootliku vabade astmete varudega, nii et üleskande sisestamine New task väljale\r\nannab vastuse ilma võtme, konto ja seadusteta. Claude Code, Codex ja Antigravity\r\ntellimused on valikulised ja nendega saab logida sisse igal ajal."
+8|"**Üks tervik, neli osa.** Tööpink (käivitaja, paigaldaja), rakendus, SAIPEN ja\r\nSAIMAIL on neli hoidlat. Igaüks uuendub eraldi: *Settings -> ZAICODE ->\r\nUpdates* kuvab kõik osad, uuendab need käsitsi või ise (kontroll paar minutit\r\npärast käivitust ja iga kuue tunni tagant). Uus rakenduse ehitus valmistatakse\r\nette ZAICODE töötamise ajal ja käivitub järgmisel käivitusel; sinu enda muudatused\r\nkloonis ei ole kunagi üle kirjutatud. Terminalist: {protected0}.\r\nAutotroubleshoot: {protected1}. Detailid: [docs/ZAICODE_INSTALL.md](docs/ZAICODE_INSTALL.md)."
+9|"## Liidese ülevaade"
+10|"## Mis lisandub ZCode-le"

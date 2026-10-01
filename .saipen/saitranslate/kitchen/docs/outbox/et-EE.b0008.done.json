@@ -1,0 +1,15 @@
+{
+  "id": "et-EE.b0008",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0024": "| Fail | Roll |\n|------|------|\n| {protected0} | valideerib, kooskõlastab haru, paigaldab ja käivitab watcheri, kirjutab automaatl käivituse kirje, tõestab kohalik == kaug |\n| {protected1} | tsükkel: fetch, võrdlus, fast-forward või push, log, paus; seejärel toote-pass ja iseuuendus |\n| {protected2} | edasi-tagasi liikumine sõltumatu executoriga plus külma taastumise tõend |\n| {protected3} | toote-pass ja iseuuendus visatavate Git repositoritega (võrku pole, päris kauge pole) |",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0026": "Paigaldamine ja parandamine:",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0030": "See on idempotentne. Masin lokaalne seisund asub {protected0}:\r\n{protected1} (koopia), {protected2} (pööratakse\r\n2 MB juures {protected3} asendile), {protected4} (üks eksemplar),\r\n{protected5} ja Startup-kausta kirje\r\n{protected6}.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0032": "Paigaldaja keelab määrdunud puu ega puhasta seda kunagi. Kui iga määrdunud\r\nrada on kanoniline SAIPENi seisund all {protected0}, ütleb ta seda ja\r\nprindib täpsed checkpointi käsud; see on checkpointimata protokolli seisund,\r\neb transpordiviga, ning paigaldaja ei commiti seda protokolli selja taga.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0034": "## Watcheri käitumine",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0036": "| Olukord | Liigutus |\n|-----------|------|\n| puhas, kohalik on kauge eellane | {protected0} |\n| puhas, kauge on kohaliku eellane | {protected1} |\n| määrdunud | paus; isegi mitte fetch |\n| teisel harul | paus |\n| mõlemad edasi liikunud, ühist eellast pole | paus, logi mõlemad commit id, ära ühenda midagi |\n| fetch või võrk ebaõnnestus | logi degradeerunud, korda järgmises tikus |\n| merge/rebase{protected2} käib | paus |",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0038": "Mitte kunagi: force push, hard reset, stash, clean, võõra haru checkout,\r\ncommit ega peatamine protsessi nime järgi. Paigaldaja peatab watcheri ainult\r\nenda pid failis kirjutatud pid järgi.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0040": "Määrdunud puu ei maksa midagi, sest watcher kontrollib määrdumist enne\r\nfetchi. Seega ei tee ükski checkout võrgukutseid üldse.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0042": "### Toote-pass (T-90)",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0044": "{protected0} on omaette repositoorium, seega ülalolev tabel ei liiguta kunagi\rntootekoodi. Pärast seda käsitleb sama tik toote checkouti ({protected1},\r\nvaikimisi {protected2}; haru {protected3}, vaikimisi {protected4}). Toote-pass\r\nkäib olenemata sellest, kas välimine puu on määrdunud. See tõmbab ainult."
+  }
+}

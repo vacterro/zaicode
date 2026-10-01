@@ -13,7 +13,7 @@ import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
-const KITCHEN = import.meta.dirname;
+const KITCHEN = process.env.SAITRANSLATE_KITCHEN_DIR ?? import.meta.dirname;
 const OUTBOX = join(KITCHEN, "outbox");
 
 function loadBatch(id) {
@@ -25,7 +25,7 @@ function loadBatch(id) {
 const [command, id, file] = process.argv.slice(2);
 if (command === "next") {
   // next <locale> [size]: issue the next batch and show it, in one step.
-  const issued = spawnSync(process.execPath, [join(KITCHEN, "runner.mjs"), "batch", id, file ?? "200"], { encoding: "utf8" });
+  const issued = spawnSync(process.execPath, [join(import.meta.dirname, "runner.mjs"), "batch", id, file ?? "200"], { encoding: "utf8" });
   const match = /issued (\S+):/.exec(issued.stdout);
   if (!match) {
     process.stdout.write(issued.stdout);
@@ -74,7 +74,7 @@ if (command === "next") {
   }
   const target = join(OUTBOX, `${id}.done.json`);
   writeFileSync(target, JSON.stringify({ id, translation, ...(kept.length > 0 ? { kept } : {}) }, null, 2) + "\n");
-  const result = spawnSync(process.execPath, [join(KITCHEN, "runner.mjs"), "accept", target], { encoding: "utf8" });
+  const result = spawnSync(process.execPath, [join(import.meta.dirname, "runner.mjs"), "accept", target], { encoding: "utf8" });
   process.stdout.write(result.stdout);
   process.stderr.write(result.stderr);
   process.exit(result.status ?? 1);

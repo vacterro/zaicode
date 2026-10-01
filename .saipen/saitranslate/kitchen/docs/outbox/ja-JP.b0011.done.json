@@ -1,0 +1,15 @@
+{
+  "id": "ja-JP.b0011",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0106": "- そのクラウド判定を引用し、チケットごとにこの境界へ分類する\n  （{protected0} § 6 にチェックがある）;\n- sidecar を書き換えない。緑を得るためだけの再検証もしない。kernel\n  のコピーをパッチしない;\n- 両側とも LOG イベントは 1024 バイト未満に保つ。",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0108": "同じ machine-path 結合は作業もブロックする。BUILD 前の負債ベースラインは、\r\nチケットが初めて BUILD に入った時点で取得され、以降の再進入のたびに\r\n再チェックされる。したがって Cuts 初めて BUILD に入ったのはオペレーター\r\nマシン上のチケットはクラウドでは BUILD に入れない。その遷移は\r\n{protected0} で拒否される。記録上の事例が T-84 で、DEBT-000079 は\r\nE-1377 で取得され、E-1446 で遷移が拒否された。当該チケットはベース\r\nラインを取得したマシンに任せろ。",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0110": "## 分岐",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0112": "ローカルとリモートが共通祖先を共有しなくなった場合、watcher は停止する。\r\nmerge も rebase も force もしない。両方のコミット ID をログに残し、\r\n修正は {protected0} で手作業で行い、\r\n結果は他 변경と同様にチェックポイントする。",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0114": "## クラウド側で実行する正確な操作",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0116": "### 環境セットアップスクリプト（クラウド環境の設定で一度だけ）",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0118": "セッションタイトルバーのクラウド環境メニュー -> Edit -> Setup script。\r\n新しいセッションごとに実行されるので、各セッションは製品ツールチェーンが\r\n準備済みの状態から始まる：",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0122": "### 新しいセッションごとのプロンプト",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0124": "セッションをリポジトリ {protected0}、ブランチ {protected1} で開始し、\r\nオペレーター côté machine のエージェントが同時に書き込んでいないことを\r\n確認する。最後の行を {protected2} に置き換えると新規作業を引き継げる。",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0134": "オペレーター側マシンでは watcher が {protected0} を {protected1} から\r\nfast-forward し、{protected2}（または {protected3}）がビルドする。\r\nZAICODE の次の起動時に新しいビルドARTAに差し替わる。\r\n"
+  }
+}

@@ -1,0 +1,1357 @@
+{
+  "checkedAt": "2026-09-30T15:05:15.539Z",
+  "sources": {
+    "ui": {
+      "keys": 5848,
+      "digest": "19d9e22ad7314cd977c28849959f91fde33937a42a4f59fcee28c989cc4cb005"
+    },
+    "cli": {
+      "keys": 199,
+      "digest": "169bf5bc8be7f02116c36b9714fd1759f779960ca2ec1b5fcadcf2cdb27bfc19"
+    },
+    "docs": {
+      "keys": 110,
+      "digest": "bb73e5c1f6d6a0a3592ed2aba6584e540f1ac84300fc1133afd339848ba30dd8"
+    },
+    "extras": {
+      "keys": 107,
+      "digest": "68dce83ceb6b448d30df413eb560ac509e366dbf2715b218840b353f7a16ee3d"
+    }
+  },
+  "locales": {
+    "ru-RU": {
+      "ui": {
+        "keys": 5848,
+        "target": 5848,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "8ba4f9f0e1f6ed213b8fadf8704ce72657b23925ca504614a1a0122231f69a17"
+      },
+      "cli": {
+        "keys": 199,
+        "target": 199,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "56939caaa9265dacf8dc5fb6576cbfa6f1f748e02b712d658abb9c42b913cff9"
+      },
+      "docs": {
+        "keys": 110,
+        "target": 110,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "fbd31c71761506e1f75ad630eadcb29a31063b0914d54e69f7932693d778c0ef"
+      },
+      "extras": {
+        "keys": 107,
+        "target": 107,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "f3c81729b4cddadd5298c82b0b8dc04d3371f5d710f01e4c6186b52c94234458"
+      }
+    },
+    "et-EE": {
+      "ui": {
+        "keys": 5848,
+        "target": 5848,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "64a0538ce3bb47fb7cc5dbc02e4282a06d96e71c55fd508032ce5377e4e7c8c3"
+      },
+      "cli": {
+        "keys": 199,
+        "target": 199,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "1cc1473561b2d2242cd55af543a146a192b151b64ac4530fa22dc35ed292d9ce"
+      },
+      "docs": {
+        "keys": 110,
+        "target": 110,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "a1bbb6065affa1e3653e96726e2763e9517d25785c48ce52fb35387356fd4ae9"
+      },
+      "extras": {
+        "keys": 107,
+        "target": 107,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "71eb8e4560866cb81dbd1adb1f74c4deeba7aaaa987cdc1560c7aca8218a9afe"
+      }
+    },
+    "uk-UA": {
+      "ui": {
+        "keys": 5848,
+        "target": 5848,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "3babe0276fe20572a86ddc63d1cb3b4035cc81ec0754a0ee1af4d56cc8b9cccd"
+      },
+      "cli": {
+        "keys": 199,
+        "target": 199,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "92d7045f6bbc1b547fe6e585c7d7d039d1a5bdac2b2fc9e1b3abcbcaa83b7764"
+      },
+      "docs": {
+        "keys": 110,
+        "target": 110,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "660a9a4225a1749783bdccce81dbe3e0a5a375a94999d662b4c894c5e3061323"
+      },
+      "extras": {
+        "keys": 107,
+        "target": 107,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "77c60234ad2989aa061bcadb0a67ad1e3f3011acfca621a1bab204ab7debfd10"
+      }
+    },
+    "ja-JP": {
+      "ui": {
+        "keys": 5848,
+        "target": 5848,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "90e6805e4e9868b793a029b544f854a2800cc7b4ff74f85c016f753bff0d330f"
+      },
+      "cli": {
+        "keys": 199,
+        "target": 199,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "b90f9d051c479e458151379a9c38b11041d6dd169f935e4a8bed34f288aaffcc"
+      },
+      "docs": {
+        "keys": 110,
+        "target": 110,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "60686cdd071f747af98cc3e7387f684b122278251b6c4f152104fc12ae98661e"
+      },
+      "extras": {
+        "keys": 107,
+        "target": 107,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "79befc329360a4633133bf0640bed83346ecc07a41e73303bf9fb38ecb5f105d"
+      }
+    },
+    "ded": {
+      "ui": {
+        "keys": 5848,
+        "target": 5848,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "590bdc392f29dbd86bce0d36dadec8bf5cf7d14fa6fd65e60dfed964eb8e881e"
+      },
+      "cli": {
+        "keys": 199,
+        "target": 199,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "cbbac89305107fc189f493ea3ae34663fca4caa466d7e65b0b72555dbbe4b894"
+      },
+      "docs": {
+        "keys": 110,
+        "target": 110,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "d35289ba7ab4c9bed22862a45f854c1e2c005aa0d907768a23d79855d2fcbe7d"
+      },
+      "extras": {
+        "keys": 107,
+        "target": 107,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "de44b95f51a8a2a26d148c67d44d5a25b72fa9ed4693ca82fee3b044aa66cbef"
+      }
+    },
+    "zh-CN": {
+      "cli": {
+        "keys": 199,
+        "target": 199,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "ad721115183d8032d6f8d169412455f0f7aa8344c1ecd9defebb9630490beb6c"
+      },
+      "docs": {
+        "keys": 110,
+        "target": 110,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "d41fb753ad6aad45d57c60526347d47fae389f02fb062321562bbae6dffec683"
+      },
+      "extras": {
+        "keys": 107,
+        "target": 107,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "fc60c533a8c2202422f50022a3293bf42c042ce2af9a0667cd0ef20a5147ef3e"
+      }
+    },
+    "de-DE": {
+      "ui": {
+        "keys": 5848,
+        "target": 5848,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "4e24aa4ec379d193a7fecc04ddfa7bc28df4bcdd1e6c8373bf2768750321a2cb"
+      },
+      "cli": {
+        "keys": 199,
+        "target": 199,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "43bd30f9fac7ad3daadd7ac17e8e109a5cde4c47f851c258049f06f8eb954f85"
+      },
+      "docs": {
+        "keys": 110,
+        "target": 110,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "f4f6d051b48b150e2ef4eab008379bb2bd3afbe234efe9a461346ed275e189ad"
+      },
+      "extras": {
+        "keys": 107,
+        "target": 107,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "f5b8443463293513890358ed2356fa208ab408221f44bfbadb9a31ca21eb1634"
+      }
+    },
+    "fr-FR": {
+      "ui": {
+        "keys": 5848,
+        "target": 5848,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "937878aa116ade5fee4b71fe69d9c23bd638db99b1ff283b3d49ab8876e6a290"
+      },
+      "cli": {
+        "keys": 199,
+        "target": 199,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "be12fbd3c2bd1e640b964fa6ad69c0f2f00b789a0c5386cff629de8ef4e90496"
+      },
+      "docs": {
+        "keys": 110,
+        "target": 110,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "143773c8e83532a28ab4fbd83308e83187db55818f48d6be96a054eb6636be59"
+      },
+      "extras": {
+        "keys": 107,
+        "target": 107,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "a73897bb06aaf38e513c835ead08e76079775f23f4ec06b7b88c83878e9246a0"
+      }
+    },
+    "es-ES": {
+      "ui": {
+        "keys": 5848,
+        "target": 5848,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "7fea6d3501fa30ea14a0840908910d98b6797048c5e192d87aff1a03cd6a5364"
+      },
+      "cli": {
+        "keys": 199,
+        "target": 199,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "c45cde389b28a054ed6f60269c905bda26227d0a4366ddbce3bf996bd6b5b1c4"
+      },
+      "docs": {
+        "keys": 110,
+        "target": 110,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "d27b5a65f9b2ec2bac85dcade19a7e81eddf6e1cfa82bd0a91a8a35e5a871e2c"
+      },
+      "extras": {
+        "keys": 107,
+        "target": 107,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "16c754206ac7bea3da6d0c06d6cffc68abfca836bce5e7ff2ecb18ea575d28f6"
+      }
+    },
+    "it-IT": {
+      "ui": {
+        "keys": 5848,
+        "target": 5848,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "cfc7c592a8af6545697c1a065310e78bc7a80adc4c077a0988adf338a5c9d7bf"
+      },
+      "cli": {
+        "keys": 199,
+        "target": 199,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "933e6d1b679d92e5cca725cb8c880744bccb8be07a5f4d95da31f5a24d932410"
+      },
+      "docs": {
+        "keys": 110,
+        "target": 110,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "58355646e14a2c6c2300719685b88da42bea10014e40a8bcd116a8ae620be469"
+      },
+      "extras": {
+        "keys": 107,
+        "target": 107,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "f97e6980619e49d99406dbcf126d8b9fd59ee7c27a56b903c3b74501a75ab1ba"
+      }
+    },
+    "pt-BR": {
+      "ui": {
+        "keys": 5848,
+        "target": 5848,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "4721d55257a5c339f93f02c8d9755137a66c65cdc1fa5dffef1084a6bea5c9a6"
+      },
+      "cli": {
+        "keys": 199,
+        "target": 199,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "37b9f9d8bb7f7280809aad0b6b90e4ba57366a88bda19023d7f69a5b74acb4b5"
+      },
+      "docs": {
+        "keys": 110,
+        "target": 110,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "336e909202ae03d7a3fad13114cddf84dbac1abcb6168d80db381a4500818a9d"
+      },
+      "extras": {
+        "keys": 107,
+        "target": 107,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "dd3024de44f542c22637a25ce62d18d4725884790d2d52eb12b8a05a8793fdfc"
+      }
+    },
+    "nl-NL": {
+      "ui": {
+        "keys": 5848,
+        "target": 5848,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "8eaadc6d235162242da4bd4da8308b17c2b9623a2fb66d37420abd4691e8aa78"
+      },
+      "cli": {
+        "keys": 199,
+        "target": 199,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "b458be270464a7ad9583f4c4b118dd492bd806c715693f3679532cd637829f79"
+      },
+      "docs": {
+        "keys": 110,
+        "target": 110,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "f68e023135d5692b3cbdcaad0a8d25fd23c82551934e35edb3e0e49e422fdb5c"
+      },
+      "extras": {
+        "keys": 107,
+        "target": 107,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "0ebd44c86b0dd611046f644b1bf2ce168407e6bdbc5f7714e328ed738467a3d2"
+      }
+    },
+    "pl-PL": {
+      "ui": {
+        "keys": 5848,
+        "target": 5848,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "3c148a6e0586c3663b1601d28db62ceae001d333198c760ce90a78c529160ddb"
+      },
+      "cli": {
+        "keys": 199,
+        "target": 199,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "b9a90e2398d71f6ab280e84e4e3ad9dd64e22eb0427441deb9837e54ede9d15e"
+      },
+      "docs": {
+        "keys": 110,
+        "target": 110,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "ad786e364af434b9a4f6ab52b0ecccb1884f0be4715f223c27c8e71ac1dd695c"
+      },
+      "extras": {
+        "keys": 107,
+        "target": 107,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "038eb55a25aeca1525e7e5e8ab235ada04221fa2e105b247c29dc5ff61589b40"
+      }
+    },
+    "sv-SE": {
+      "ui": {
+        "keys": 5848,
+        "target": 5848,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "30b50d8742e0d6672472cfb808f5433901f1721a89cef641a4b3b63834058443"
+      },
+      "cli": {
+        "keys": 199,
+        "target": 199,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "09575423be176f74e8ea22fc3f5216d66f9b363dc20762ef02e0865739237b81"
+      },
+      "docs": {
+        "keys": 110,
+        "target": 110,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "441afd9ddb31598cbb7a3307baaaf37e7ad6916df8b22816de2b4de587f92bb3"
+      },
+      "extras": {
+        "keys": 107,
+        "target": 107,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "dde394d0905674c60f0303f83dac8433db5b6421cd9fb743416782222149f4c0"
+      }
+    },
+    "da-DK": {
+      "ui": {
+        "keys": 5848,
+        "target": 5848,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "2185bc0cfa2025f59b93371eac72f33b8c565f2b8051c86c5b5524e29281706e"
+      },
+      "cli": {
+        "keys": 199,
+        "target": 199,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "d0a4cc0aeeb70bb1305091c51e35aeb98f431d9cd4fade5f42d108627a309e0b"
+      },
+      "docs": {
+        "keys": 110,
+        "target": 110,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "b31a27b5bb6852f2e8039846ba094ac8dd3cb441033374f0dba4fa22012d3855"
+      },
+      "extras": {
+        "keys": 107,
+        "target": 107,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "197c7bd1afcdf29befbdae74c7501b04e8fee4b8620ae670b0083272d21c21b6"
+      }
+    },
+    "fi-FI": {
+      "ui": {
+        "keys": 5848,
+        "target": 5848,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "4c0ee34f6bd0e13dbcbbec50fadffa0d75c64bbb529cc9c4c787d0a2828d8594"
+      },
+      "cli": {
+        "keys": 199,
+        "target": 199,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "9e7d05656b4f41f8268d2b0ae076601a5d41bcd95c08b4fef4f39a49fe9468b3"
+      },
+      "docs": {
+        "keys": 110,
+        "target": 110,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "5a2c36e6dc4c3b2e1b70867605fe9e87549988616789006c3e57e16977eaac18"
+      },
+      "extras": {
+        "keys": 107,
+        "target": 107,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "452da663219371f6f65b0d2aeb0e6dc8fb1f266875ccfb22a87a9bff417e268f"
+      }
+    },
+    "nb-NO": {
+      "ui": {
+        "keys": 5848,
+        "target": 5848,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "5555d8cf3ca08efa942157e4f9bf5cf85e70f4ed22f57a0f94d1558ee33f6e72"
+      },
+      "cli": {
+        "keys": 199,
+        "target": 199,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "2ebdcfaa74cb13b82a1c40add1be137d42f16274cbd20d68160ac4205cbc1364"
+      },
+      "docs": {
+        "keys": 110,
+        "target": 110,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "32fb69247751610b04547248971b2a364f8dd0efd554d79cfb5d54f4240fb8e7"
+      },
+      "extras": {
+        "keys": 107,
+        "target": 107,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "5c7686121c2d204c2d6702c100d8b9d71570799512075473affc5ec088eb717f"
+      }
+    },
+    "ko-KR": {
+      "ui": {
+        "keys": 5848,
+        "target": 5848,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "7dd99baffe9d1041f1d14cc67c507a0ac4d9de3a36e5a09536cbc3312cec3971"
+      },
+      "cli": {
+        "keys": 199,
+        "target": 199,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "8cfdeafff326f82aeb2eb5bfbac2c16b0d27af78610149aecfe00b66c9555f30"
+      },
+      "docs": {
+        "keys": 110,
+        "target": 110,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "c3444a6ea2da93e7db24bfa8b2b47f9ad19fa4a774bc3ecab135bc09bae3e798"
+      },
+      "extras": {
+        "keys": 107,
+        "target": 107,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "86c6a192838c4214996169de718d919da2aef696dd46c8e4d26b90abe1745853"
+      }
+    },
+    "th-TH": {
+      "ui": {
+        "keys": 5848,
+        "target": 5848,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "a7c4aec0534e9fe1d1d201bc9dc74b735d86bef87591921131d32634fcb2c488"
+      },
+      "cli": {
+        "keys": 199,
+        "target": 199,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "0cef43ff1ebeee4e87bc080e76d12c4c382b405c57fb03a976c44eb6de8d49b0"
+      },
+      "docs": {
+        "keys": 110,
+        "target": 110,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "6dd242cbf4216227d40025d624c5536c8595676bfbb0c4711e1abc07a65f9aeb"
+      },
+      "extras": {
+        "keys": 107,
+        "target": 107,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "dc2497559dc57124d75d2fb0f25e1a3002ab9d90839433fe8e4c8907702c6146"
+      }
+    },
+    "vi-VN": {
+      "ui": {
+        "keys": 5848,
+        "target": 5848,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "b174e292ac989ca81b59252146c0abb1c21aa8cc512a7dd1b4375f2a489ea5ca"
+      },
+      "cli": {
+        "keys": 199,
+        "target": 199,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "84c6af63bb5849e17f0994f690bf25e15fed22a8896f74b61e97406a86ef2191"
+      },
+      "docs": {
+        "keys": 110,
+        "target": 110,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "63c21cb153215f1d6b8c0d561e1c97239c5aebb04dc5a6d70f01490ed6b9369b"
+      },
+      "extras": {
+        "keys": 107,
+        "target": 107,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "a0cdaa1b1fc6a83b13c5cddf695fdf72979136c5c2471b795b4a8b5b2448d556"
+      }
+    },
+    "ar-SA": {
+      "ui": {
+        "keys": 5848,
+        "target": 5848,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "b1429a6260c90fe40ed6a2bf30d5d579522b1698b33a8eb4044967e7b9c71b38"
+      },
+      "cli": {
+        "keys": 199,
+        "target": 199,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "566d12da6e22829d71283de7186103228e99f0976f5726b5a1acbe9ac22c74a1"
+      },
+      "docs": {
+        "keys": 110,
+        "target": 110,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "ff75f7110285cf0062ca2eb56238f1fc648b4717ace2d2636cea54d6ce95619a"
+      },
+      "extras": {
+        "keys": 107,
+        "target": 107,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "73a826ec396c88b124a50cd8586de687b37f2c9906b792fc24c6fc77c50dbe60"
+      }
+    },
+    "he-IL": {
+      "ui": {
+        "keys": 5848,
+        "target": 5848,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "8fadb4f002054921042b29eb03c0889e74eb89145a253916b0cecb370372f778"
+      },
+      "cli": {
+        "keys": 199,
+        "target": 199,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "cf2cfcc57f29b6d0f0bdcd86e45cdc85ff74507f5d509e87cb726497c4a2e94f"
+      },
+      "docs": {
+        "keys": 110,
+        "target": 110,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "101dbc416e4e7538788c35249668c3522ad9ce166d114b5185833bca6156096e"
+      },
+      "extras": {
+        "keys": 107,
+        "target": 107,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "6ede2ac01643146de76e7909a55d18ddcf75a784c8e6babbc897ae43c76aead3"
+      }
+    },
+    "tr-TR": {
+      "ui": {
+        "keys": 5848,
+        "target": 5848,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "69ea35316e7c352d3027efa17ac004c6be10dff64e0fb14c9c2a65f00c73ddc0"
+      },
+      "cli": {
+        "keys": 199,
+        "target": 199,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "633b6d6f96a434d027d23bf1bc2853236613ee8e818aab474d717f99c5a556c9"
+      },
+      "docs": {
+        "keys": 110,
+        "target": 110,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "a8f7094cad0d294e48af6fb1adc35cba0a9c9ec75193a2242542a789ae02e020"
+      },
+      "extras": {
+        "keys": 107,
+        "target": 107,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "66fce78b2a27b9c9a1d5b8447b3a61de47c95806996a37617dbcbeb360b6ad02"
+      }
+    },
+    "hi-IN": {
+      "ui": {
+        "keys": 5848,
+        "target": 5848,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "f3dab1113980753133733f259808d9f1cba81611ac5267539f24bcd79d1a3b68"
+      },
+      "cli": {
+        "keys": 199,
+        "target": 199,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "9c27a13cad70c60ae5333d2938c9ae8dd9b21f4e0fc8bd3f6adb539e8daa10f2"
+      },
+      "docs": {
+        "keys": 110,
+        "target": 110,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "3fa6ef090fbbbf14f2f51b19652726535d842fc679918d1ee47168173bcef814"
+      },
+      "extras": {
+        "keys": 107,
+        "target": 107,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "f0b61a8203a438adf47b4a3b8f5c0c4a7d6123f367fd0463571468e1f03ab332"
+      }
+    },
+    "id-ID": {
+      "ui": {
+        "keys": 5848,
+        "target": 5848,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "be4de91625b9b6b0c5384a919b7d48c37a321abe8e78b9e1ae92251ac9f4320b"
+      },
+      "cli": {
+        "keys": 199,
+        "target": 199,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "8645fc14d5260af3193ffef1c8449e43029574e3ffcee73202cdfc64a292f585"
+      },
+      "docs": {
+        "keys": 110,
+        "target": 110,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "4972f4dbdeded0e356cdf64c0b43f1170568ce9c1542a22e479a2ede2a010174"
+      },
+      "extras": {
+        "keys": 107,
+        "target": 107,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "771ecb4366903c2412d4fef725c9548b0de96bc0f4bb6548b3540f1d4d26d31a"
+      }
+    },
+    "el-GR": {
+      "ui": {
+        "keys": 5848,
+        "target": 5848,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "9a67b3707c69d18bc5436fdf73ecd9d39239cceebcaecceb9e00cbcdea59a654"
+      },
+      "cli": {
+        "keys": 199,
+        "target": 199,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "6f5613aa5d19aa3d6889e4206697d03e51a3bed97d77f4f00e538e467cd20c01"
+      },
+      "docs": {
+        "keys": 110,
+        "target": 110,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "bdb66897c05a6a774ed52ecff45ee6c4e7fd94c4aac6af03ff59cded905b6cf3"
+      },
+      "extras": {
+        "keys": 107,
+        "target": 107,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "38aed5c66cbcfab1336bc57aca975fb6f421ad7540eb8732eb1cf5d703d33cc9"
+      }
+    },
+    "cs-CZ": {
+      "ui": {
+        "keys": 5848,
+        "target": 5848,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "6c732bab8367244e311ef72ff68c843defd228f9f37cc5fb109d53a8bbc81045"
+      },
+      "cli": {
+        "keys": 199,
+        "target": 199,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "7a208ce2c344071e46ebcbc6fad09264c3ce98715d2eafc1a4f4d51686530607"
+      },
+      "docs": {
+        "keys": 110,
+        "target": 110,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "adc6ae9f1881590c1d5605bed01959c06f48b004631ae3cae46b009b10543674"
+      },
+      "extras": {
+        "keys": 107,
+        "target": 107,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "e05a06798b94d0b0e7ac33556840c072b5894cee0d19a9223363831efd0806dc"
+      }
+    },
+    "ro-RO": {
+      "ui": {
+        "keys": 5848,
+        "target": 5848,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "54b9c5d79e5b1318a8c78a83d50a92b9ecb79d9b952ff2e737685695c9e9b1ea"
+      },
+      "cli": {
+        "keys": 199,
+        "target": 199,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "2664a8973d9c40cac40301c48df154015559c3f567b8129957508a96cfa630be"
+      },
+      "docs": {
+        "keys": 110,
+        "target": 110,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "2b823cf409c74217d22fe491010a13eea4ff2dc4793511290499e4547e1da642"
+      },
+      "extras": {
+        "keys": 107,
+        "target": 107,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "9ca8f091a9a053ccecac17e546aa1d0325bce99c4fa2950de0133185b79329bc"
+      }
+    },
+    "hu-HU": {
+      "ui": {
+        "keys": 5848,
+        "target": 5848,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "c4f77394252eb0d942e7d02d9985c22734003c593f92f1b7b5af739d1f49787a"
+      },
+      "cli": {
+        "keys": 199,
+        "target": 199,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "62e72a1f86705ccbf285fe1b6ffd5767e937883dd7a49fb1a040155bea5fb2bf"
+      },
+      "docs": {
+        "keys": 110,
+        "target": 110,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "8ccd950b7523f9116ea40abf902ca46082a5eb2006e2e6b77f6a1211052ad46c"
+      },
+      "extras": {
+        "keys": 107,
+        "target": 107,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "b553b4115730856c362359ddb63a9b660d2b1ce6cce917d5a4d62421742d6d82"
+      }
+    },
+    "bg-BG": {
+      "ui": {
+        "keys": 5848,
+        "target": 5848,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "60bf9c411463f7ecac9614565a2334ec74744780f4d20617fc5d58dfc2b3b725"
+      },
+      "cli": {
+        "keys": 199,
+        "target": 199,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "66cb1b3bcfb06bd6334647517c52ce99bf7db44059da7b5abb7ff91e4fa7a4c3"
+      },
+      "docs": {
+        "keys": 110,
+        "target": 110,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "1030678c2bd3210c951b918d04388784f8195b09ddd4fe5a159c75e007cc694d"
+      },
+      "extras": {
+        "keys": 107,
+        "target": 107,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "077628e4efa082d53bb427dfe1e264b193653b07a9ba13b19418cadfe5b06c86"
+      }
+    },
+    "sk-SK": {
+      "ui": {
+        "keys": 5848,
+        "target": 5848,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "f372c823496d28bd58b55f59a59b3454d89c4070fd795630ad925409aa65e64b"
+      },
+      "cli": {
+        "keys": 199,
+        "target": 199,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "271ee4e6e76b0448355af2d4d8f6a9c18d7d9a9c6d71c4aa38925f34b9560927"
+      },
+      "docs": {
+        "keys": 110,
+        "target": 110,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "56848a47f36351a2e3e6391d710699635ba9c5e9b27f26952c8682b243a3af41"
+      },
+      "extras": {
+        "keys": 107,
+        "target": 107,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "07f3ae5b121c6bccc03eb559658ff48e9a67272503e97bdb92b819bd2289eece"
+      }
+    },
+    "hr-HR": {
+      "ui": {
+        "keys": 5848,
+        "target": 5848,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "e9a44ed9f88cce2ed6d6c6e7cde077ec881f34eaf476cdeb9fcdef79ffcc20c2"
+      },
+      "cli": {
+        "keys": 199,
+        "target": 199,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "19d3611446c606e958872b98eda4d7de0c4be50314ee168433431d17f5b23d0d"
+      },
+      "docs": {
+        "keys": 110,
+        "target": 110,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "b6b906df239bb64ad9a8f623baf6bbd7e1ee558945971d45a30197af1a7b933f"
+      },
+      "extras": {
+        "keys": 107,
+        "target": 107,
+        "missing": [],
+        "extra": [],
+        "broken": [],
+        "technical": [],
+        "suspicious": [],
+        "digest": "35af29a9edf61eafec036a18369cf0f9df244bf72f77ac5334b52bce3c680bf1"
+      }
+    }
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "id": "de-DE.b0017",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0094": "**SAFE_TO_DEFER** — die Produktschicht. Eine Cloud-Session kann\r\n{protected0} Branch {protected1} klonen und dort arbeiten. Workspace-Arbeit\r\nbraucht keine Produktschicht, aber den Clone: {protected2} deklariert {protected3},\r\nund ohne ihn scheitert der Validator mit {protected4}. {protected5} brauchen das\r\ngepinnte pnpm 10.33.2 und einen vorbereiteten Workspace. {protected6} auf einem\r\nfrischen Cloud-Image ist der dokumentierte Weg hinein, und das {protected7} des\r\nProdukts deklariert ihn bereits.",
+    "docs.docs_ZAICODE_INSTALL_md.p0008": "{protected0}"
+  }
+}

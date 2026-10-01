@@ -1,0 +1,15 @@
+{
+  "id": "pt-BR.b0014",
+  "translation": {
+    "docs.README_md.p0048": "ZAICODE deriva do ZCode, da Z.ai, e é distribuído sob a mesma\n[Licença Apache 2.0]({protected0}); os avisos do upstream ficam em\n[NOTICE.md]({protected1}) e [THIRD-PARTY-NOTICES.md]({protected2}).\nOs arquivos foram modificados pelo autor do ZAICODE. O ZAICODE é um projeto\nindependente, sem afiliação nem endosso da Z.ai. O README original do ZCode\nficou em [README.zcode.md]({protected3}) e [README.en.md]({protected4}).",
+    "docs.README_md.p0052": "## Rede de projetos",
+    "docs.README_md.p0054": "Este repositório faz parte do ecossistema mais amplo **SAIPEN / vacterro**.",
+    "docs.README_md.p0056": "[**Hub do autor**]({protected0}) · [**SAIPEN HQ**]({protected1}) · [**SAIPEN Core**]({protected2}) · [**ZAICODE**]({protected3}) · [**FastPrompter**]({protected4}) · [**Comunidade SAIPEN**]({protected5})",
+    "docs.README_md.p0058": "Para bugs reproduzíveis e pedidos de recursos consistentes, use as\n[GitHub Issues deste repositório]({protected0}). Use o Discord para\ndiscussão rápida, capturas de tela e retorno entre projetos.",
+    "docs.docs_ZAICODE_INSTALL_md.p0000": "# Instalando o ZAICODE",
+    "docs.docs_ZAICODE_INSTALL_md.p0002": "O ZAICODE são três projetos que funcionam como um: o app ZAICODE, o SAIPEN\n(o protocolo que mantém o trabalho dos agentes em dia) e o SAIMAIL (o\ncorreio que os agentes usam para se avisar). Instalar na mão significa três\nclones, um toolchain Node.js, um ambiente Python e um build. O instalador faz\ntudo isso: execute, espere e um atalho do ZAICODE aparece na área de trabalho.",
+    "docs.docs_ZAICODE_INSTALL_md.p0004": "## Um clique",
+    "docs.docs_ZAICODE_INSTALL_md.p0006": "- **[ZAICODE-Setup.exe]({protected0})**:\n  baixe, dê dois cliques, pressione **INSTALAR**. A janela (dourado sobre\n  escuro, a faixa SAIPEN) mostra cada etapa em execução, o tempo decorrido e\n  o log sob demanda; no fim, **INICIAR ZAICODE**, ou **TENTAR NOVAMENTE** /\n  **Autotroubleshoot** / **Abrir log** quando alguma etapa não terminou.\n  Apontado para uma pasta ZAICODE existente, o botão exibe **ATUALIZAR**: a\n  mesma execução atualiza e repara. O exe traz os scripts de instalação e\n  não precisa de nada ao lado; é compilado por {protected1} (o compilador\n  .NET Framework que todo Windows 10/11 tem).\n- {protected2} (dois cliques): a mesma instalação em um console.\n- Do zero, no PowerShell:",
+    "docs.docs_ZAICODE_INSTALL_md.p0008": "  ```powershell\n  & ([scriptblock]::Create((irm {protected0})))\n  ```\n  Execute no PowerShell (administrador) para instalar o ZAICODE."
+  }
+}

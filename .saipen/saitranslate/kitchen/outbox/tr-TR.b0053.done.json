@@ -1,0 +1,8 @@
+{
+  "id": "tr-TR.b0053",
+  "translation": {
+    "feedback.severity.P1-高.label": "Kullanılamıyor",
+    "feedback.severity.P2-中.label": "Kullanımı etkiler",
+    "feedback.severity.P3-低.label": "Küçük sorun/öneri"
+  }
+}

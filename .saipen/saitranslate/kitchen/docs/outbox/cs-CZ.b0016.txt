@@ -1,0 +1,2 @@
+1|"**SAFE_TO_DEFER** — produktová vrstva. Cloudová relace může klonovat\r\nvětev {protected0} {protected1} a pracovat v ní. Práce na vrstvě workspace\r\nnevyžaduje práci na produktu, ale klon vyžaduje:\r\n{protected2} deklaruje {protected3} a bez něj\r\nvalidátor selže se {protected4}. {protected5} brány vyžadují připnutý pnpm 10.33.2\r\na připravený workspace. {protected6} na čerstvém cloudovém image je\r\ndokumentovaný způsob vstupu a produkt ho už deklaruje v {protected7}."
+2|"{protected0}"

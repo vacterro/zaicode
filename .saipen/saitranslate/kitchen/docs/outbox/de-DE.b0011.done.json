@@ -1,0 +1,15 @@
+{
+  "id": "de-DE.b0011",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0106": "- das Cloud-Vergeben zitieren und Ticket für Ticket als diese Grenze einstufen\r\n  ({protected0} § 6 enthält die Prüfung);\r\n- Sidecars nie neu schreiben, nicht nur zur Grünmeldung erneut verifizieren oder die Kernel-\r\n  Kopie patchen;\r\n- LOG-Ereignisse auf beiden Seiten unter 1024 Bytes halten.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0108": "Dieselbe Bindung an den Maschinenpfad blockiert ebenfalls Arbeit. Die Schulden-Baseline vor\r\nBUILD wird beim ersten Eintritt eines Tickets in BUILD erfasst und bei jedem späteren Eintritt\r\nerneut geprüft. Ein Ticket, das erstmals auf der Operator-Maschine BUILD erreicht hat, kann\r\ndaher in der Cloud nicht in BUILD eingehen: der Übergang wird mit {protected0} verweigert. T-84\r\nist der dokumentierte Fall: DEBT-000079 wurde bei E-1377 erfasst, der Übergang bei E-1446\r\nverweigert. Solche Tickets der Maschine überlassen, die ihre Baseline erfasst hat.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0110": "## Divergenz",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0112": "Teilen lokales und entferntes Repository keinen gemeinsamen Vorfahren mehr, stoppt der Watcher.\r\nEr merged nicht, rebased nicht und erzwingt nichts. Beide Commit-Ids landen im Log, die\r\nKorrektur erfolgt {protected0} von Hand, und\r\ndas Ergebnis wird wie jede andere Änderung als Checkpoint gesichert.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0114": "## Die exakte Aktion auf der Cloud-Seite",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0116": "### Setup-Skript der Umgebung (einmalig, in den Einstellungen der Cloud-Umgebung)",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0118": "Cloud-Umgebungsmenü in der Session-Titelleiste -> Bearbeiten -> Setup-Skript. Es\r\nläuft vor jeder neuen Session, damit startet jede Session mit der Produkt-Toolchain bereit:",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0122": "### Der Prompt für jede neue Session",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0124": "Starte die Session auf Repository {protected0}, Branch {protected1}, und\r\nstelle sicher, dass der Agent auf der Operator-Maschine nicht gleichzeitig schreibt.\r\nErsetze die letzte Zeile mit {protected2}, um neue Arbeit zu übergeben.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0134": "Auf der Operator-Maschine fast-forwardt der Watcher {protected0} von\r\n{protected1}; {protected2} (oder {protected3}) baut es, und beim\r\nnächsten Start von ZAICODE wird der neue Build übernommen.\r\n"
+  }
+}

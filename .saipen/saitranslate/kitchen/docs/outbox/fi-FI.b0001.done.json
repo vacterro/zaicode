@@ -1,0 +1,15 @@
+{
+  "id": "fi-FI.b0001",
+  "translation": {
+    "docs.README_md.p0000": "# ZAICODE\n",
+    "docs.README_md.p0006": "ZAICODE on operaattorityöpöytä monen tekoälykoodausagentin ajamiseksi kerralla\r\nuseassa projektissa ilman jatkuvaa valvontaa. Se on muokattu versio\r\n[ZCode]({protected0})sta (työpöytäsovellus, selainkäyttöliittymä ja agentin\r\nCLI), jonka päällä on tuotekerros: jokaista projektia ohjaa\r\n[SAIPEN]({protected1}) -protokolla, työ aloitetaan, jatketaan ja ajastetaan\r\nyhdestä ikkunasta, ja jo maksamasi tilaus-CLI:t\r\n(Claude Code, Codex, Antigravity) toimivat telakoituina työntekijöinä sovelluksen\r\nsisäisten agenttien rinnalla.",
+    "docs.README_md.p0008": "**0.0.1** on ensimmäinen versioitu tilannekuva: henkilökohtainen, Windows-ensisijainen\r\nversio, jota käytetään päivittäin.",
+    "docs.README_md.p0010": "## Asennus yhdellä klikkauksella",
+    "docs.README_md.p0012": "1. Lataa **[ZAICODE-Setup.exe]({protected0})**.\r\n2. Kaksoisnapsauta ja paina **ASENNA**.",
+    "docs.README_md.p0014": "Siinä se. Asennus hakee puuttuvat osat (Git, Node.js, Python) omina yksityiskopioina:\r\nei ylläpitäjän oikeuksia, hakee ZAICODE-, SAIPEN- ja SAIMAIL-koodit GitHubista,\r\nrakentaa sovelluksen koneelle ja lisää ZAICODE-pikakuvakkeen työpöydälle. Ensimmäinen\r\nkäynti kestää 15-30 minuuttia; ikkuna näyttää jokaisen vaiheen.",
+    "docs.README_md.p0016": "Ilmaiset mallit toimivat heti: ZAICODE käynnistää oman reitittimensä ja täyttää **SAIFREN**-poolin\r\navaimettömistä ilmaisista tasoista, joten Uusi tehtävä -kenttään kirjoitettu tehtävä\r\nsaa vastauksen ilman avainta, tiliä ja asetuksia. Claude Code-, Codex- ja\r\nAntigravity-tilausvalinnat ovat vapaaehtoisia, ja niihin voi kirjautua milloin tahansa.",
+    "docs.README_md.p0018": "**Yksi kokonaisuus, neljä osaa.** Työtila (käynnistin, asennusohjelma), sovellus, SAIPEN ja\r\nSAIMAIL ovat neljä repositoriota. Jokainen päivittyy erikseen: *Asetukset -> ZAICODE ->\r\nPäivitykset* näyttää kaikki osat, ja ne voi päivittää käsin tai automaattisesti\r\n(tarkistus muutaman minuutin kuluttua käynnistyksestä ja kuuden tunnin välein). Uusi\r\nsovellusversio valmistellaan ZAICODEN ajon aikana ja otetaan käyttöön seuraavassa\r\nkäynnistyksessä; omat muokkauskloonissasi eivät koskaan sovi päälle.\r\nTerminaalista: {protected0}.\r\nAutomaattinen vianmääritys: {protected1}. Tarkemmat tiedot: [docs/ZAICODE_INSTALL.md](docs/ZAICODE_INSTALL.md).",
+    "docs.README_md.p0020": "## Käyttöliittymän kiertue",
+    "docs.README_md.p0024": "## Mitä se lisää ZCodeen"
+  }
+}

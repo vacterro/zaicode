@@ -1,0 +1,15 @@
+{
+  "id": "es-ES.b0007",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0002": "Cómo este checkout y una sesión de Claude Code Cloud ejecutan un espacio de trabajo\r\nSAIPEN con distinta localidad de ejecutor, y dónde está el límite entre ambos.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0004": "## La forma",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0008": "Una rama transporta el estado del protocolo. No hay paso de merge, ni de rebase,\r\nni una segunda rama local que mantener sincronizada: el ejecutor que tenga un\r\ncheckpoint verificado lo confirma y lo sube, y el otro lado lo toma con un\r\nfast-forward.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0010": "{protected0} es el historial previo al transporte y la rama publicada por defecto. El\r\ntransporte no la actualiza con force.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0012": "## Qué viaja y qué no",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0014": "Un checkpoint de este repositorio transporta el estado del protocolo SAIPEN, el\r\nlanzador raíz, el instalador, la documentación y estos scripts de transporte. Esa es\r\ntoda la capa de espacio de trabajo.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0016": "Transporta **ningún byte de producto**. {protected0} es un repositorio Git aparte, listado\r\nen {protected1} y con gitignore en esta raíz\r\n({protected2}). El trabajo de producto necesita su propio clon de {protected3} en la rama\r\n{protected4}, y ese clon es un segundo objeto independiente con su propio historial.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0018": "La consecuencia es fácil de confundir: un {protected0} limpio en esta raíz no dice\r\nnada del trabajo de producto sin confirmar, y un fast-forward de {protected1} no dice\r\nnada del código de producto. Comprueba {protected2} explícitamente.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0020": "## Mitad local",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0022": "Dos scripts, ambos propiedad del repo, para que una máquina nueva los obtenga del\r\nrepositorio y no de la memoria:"
+  }
+}

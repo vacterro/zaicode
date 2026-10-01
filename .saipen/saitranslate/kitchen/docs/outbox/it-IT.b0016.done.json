@@ -1,0 +1,7 @@
+{
+  "id": "it-IT.b0016",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0094": "**SAFE_TO_DEFER** — il layer di prodotto. Una sessione cloud può clonare il branch {protected1} di {protected0} e lavorare lì. Il lavoro sul layer workspace non richiede interventi sul prodotto, ma richiede il clone:\r\n{protected2} dichiara {protected3}, e senza di esso il validatore fallisce con {protected4}. I gate di {protected5} richiedono pnpm 10.33.2 pinnato e un workspace preparato. {protected6} su un'immagine cloud nuova è il modo documentato per iniziare, e {protected7} del prodotto lo dichiara già.",
+    "docs.docs_ZAICODE_INSTALL_md.p0008": "{protected0}"
+  }
+}

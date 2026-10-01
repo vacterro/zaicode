@@ -1,0 +1,12 @@
+{
+  "id": "sv-SE.b0055",
+  "locale": "sv-SE",
+  "source_digest": "sha256:3649b64da723a738a49c2c9cb825f80faa8412dc7c9157c599b0b9b95bffdb35",
+  "issued_at": "2026-09-30T14:39:27.951Z",
+  "keys": [
+    "settings.modelProvider.presetDescription"
+  ],
+  "messages": {
+    "settings.modelProvider.presetDescription": "Built-in Z.ai and BigModel providers with OAuth-assisted configuration."
+  }
+}

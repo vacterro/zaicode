@@ -1,0 +1,12 @@
+{
+  "id": "cs-CZ.b0003",
+  "locale": "cs-CZ",
+  "source_digest": "sha256:a3baaff6fb1f63af5f84b3c2a3439e2a74f921a8f3474c2cf090fade124fe6ed",
+  "issued_at": "2026-09-30T14:40:37.872Z",
+  "keys": [
+    "native.tray.tooltip"
+  ],
+  "messages": {
+    "native.tray.tooltip": "ZCode"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "id": "ro-RO.b0006",
+  "translation": {
+    "docs.docs_ZAICODE_INSTALL_md.p0032": "Fiecare login Claude Code sau Codex trăiește în propriul home: {protected0},\n{protected1}, ... și {protected2}, {protected3}, ... ZAICODE le găsește\npe toate. Pentru a pregăti mai multe la instalare:",
+    "docs.docs_ZAICODE_INSTALL_md.p0036": "Instalatorul creează home-urile și afișează comanda exactă de login pentru fiecare\n({protected0}). Același lucru e în ZAICODE: Setări ->\nEngines & limits -> adaugă alt login.",
+    "docs.docs_ZAICODE_INSTALL_md.p0038": "## Depanare automată",
+    "docs.docs_ZAICODE_INSTALL_md.p0042": "Stare per verificare: OK, FIXED (era stricat, reparat), WARN (merge, dar lipsește\nceva opțional), INFO (nevoie de tine: un login), FAIL. Logurile sunt în\n{protected0}; rezumatul ultimei instalări e {protected1}.\nÎn app, Router -> Autotroubleshoot repară routerul și pool-urile în execuție.",
+    "docs.docs_ZAICODE_INSTALL_md.p0044": "## Opțiuni",
+    "docs.docs_ZAICODE_INSTALL_md.p0046": "| Parametru | Implicit | |\n| ---- | ---- | ---- |\n| {protected0} | {protected1} | unde merge tot |\n| {protected2} | Desktop | unde ajunge shortcut-ul ZAICODE |\n| {protected3}, {protected4} | | sar peste shortcut-urile astea |\n| {protected5} | | Git / Node.js / Python privat chiar dacă mașina le are |\n| {protected6} | | pornește ZAICODE când gata |\n| {protected7}, {protected8}, {protected9} | repo-urile GitHub | altă sursă (fork, cale de clone local) |",
+    "docs.docs_ZAICODE_INSTALL_md.p0048": "## Demonstrație",
+    "docs.docs_ZAICODE_INSTALL_md.p0050": "{protected0}\nverifică o instalare curată, injectează defecțiuni (shortcut și launcher șterse, launcher\nSAIPEN pointing către un Python lipsă, venv-ul SAIMAIL șters, node_modules\nînregistrate pentru alt lockfile, un folder build rămas mai adânc decât MAX_PATH),\nverifică că doctor raportează și repară fiecare, apoi pornește ținta shortcut-ului\ncu profil izolat și oprește exact arborele de procese pornit.",
+    "docs.docs_ZAICODE_INSTALL_md.p0052": "{protected0} construiește patru repo-uri de unică folosință\npe disc plus o instalare a clonelor lor, apoi demonstrează că o verificare nu schimbă\nnimic, că o singură parte se actualizează împreună cu follow-up-ul ei (launcher SAIPEN,\nlauncher root), că editările locale suprapuse și commit-urile locale se păstrează, și că un\nnume de parte necunoscut e refuzat. Fără rețea.\n",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0000": "# Transport cloud ZAICODE SAIPEN"
+  }
+}

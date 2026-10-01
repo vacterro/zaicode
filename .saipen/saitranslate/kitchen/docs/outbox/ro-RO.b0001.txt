@@ -1,0 +1,10 @@
+1|=
+2|"ZAICODE este o bancă de lucru pentru operatori: rulează mulți agenți de codare AI simultan, pe\r\nmai multe proiecte, fără supraveghere. Este o versiune modificată a\r\n[ZCode]({protected0}) (aplicație desktop, interfață în browser și\r\nCLI pentru agenți), cu un strat de produs adăugat: fiecare proiect este condus prin\r\nprotocolul [SAIPEN]({protected1}), lucrul este pornit, continuat\r\nși programat dintr-o singură fereastră, iar CLI-urile de abonament pe care deja le\r\nplătești (Claude Code, Codex, Antigravity) rulează ca lucrători docked lângă agenții\r\ndin aplicație."
+3|"**0.0.1** este primul instantaneu etichetat: o versiune personală, orientată pe Windows, folosită\r\nzi de zi."
+4|"## Instalare cu un singur clic"
+5|"1. Descarcă **[ZAICODE-Setup.exe]({protected0})**.\r\n2. Dublu-clic pe el și apasă **INSTALARE**."
+6|"Atât. Instalarea aduce ce lipsește de pe machine (Git, Node.js, Python, ca\r\ncopii private: fără drepturi de administrator), preia ZAICODE, SAIPEN și SAIMAIL de pe GitHub,\r\ncompilează aplicația pe machine și pune o scurtătură ZAICODE pe desktop. Prima\r\nrulare durează 15-30 de minute; fereastra arată fiecare pas."
+7|"Modelele gratuite merg imediat: ZAICODE pornește propriul router și umple pool-ul **SAIFREN**\r\ndin tier-uri gratuite fără cheie, așa că o sarcină tastată în New task primește răspuns fără\r\ncheie, fără cont și fără nicio setare. Abonamentele Claude Code, Codex și Antigravity\r\nsunt opționale și pot fi conectate oricând."
+8|"**Un tot, patru părți.** Workspace-ul (lansator, instalator), aplicația, SAIPEN și\r\nSAIMAIL sunt patru depozite. Fiecare se actualizează separat: *Settings -> ZAICODE ->\r\nUpdates* arată fiecare parte, o actualizează manual sau automat (verificat câteva minute\r\ndupă pornire și la fiecare șase ore). O versiune nouă a aplicației se pregătește cât timp ZAICODE rulează\r\nși pornește la următoarea repornire; modificările tale proprii într-un clone nu sunt niciodată suprascrise.\r\nDintr-un terminal: {protected0}.\r\nDepanare automată: {protected1}. Detalii: [docs/ZAICODE_INSTALL.md](docs/ZAICODE_INSTALL.md)."
+9|"## Prezentarea interfeței"
+10|"## Ce adaugă la ZCode"

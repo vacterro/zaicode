@@ -1,0 +1,17 @@
+{
+  "ok": true,
+  "results": [
+    {
+      "compact": true,
+      "shiftedCurrent": true,
+      "mainPreserved": true,
+      "plainFresh": true
+    },
+    {
+      "compact": false,
+      "shiftedCurrent": true,
+      "mainPreserved": true,
+      "plainFresh": true
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "id": "el-GR.b0015",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0094": "**SAFE_TO_DEFER** — το επίπεδο του προϊόντος. Μια cloud session μπορεί να κάνει clone\r\nτο {protected0} branch {protected1} και να δουλέψει εκεί. Η δουλειά στο επίπεδο\r\nτου workspace δεν απαιτεί δουλειά στο προϊόν, αλλά απαιτεί το clone:\r\nτο {protected2} δηλώνει {protected3}, και χωρίς αυτό ο\r\nvalidator αποτυγχάνει με {protected4}. Τα {protected5} gates χρειάζονται το pinned pnpm 10.33.2\r\nκαι ένα προετοιμασμένο workspace. Το {protected6} σε καθαρό cloud image είναι\r\nο τεκμηριωμένος τρόπος εισόδου, και το {protected7} του προϊόντος το δηλώνει ήδη.",
+    "docs.docs_ZAICODE_INSTALL_md.p0008": "{protected0}"
+  }
+}

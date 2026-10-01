@@ -1,0 +1,11 @@
+{
+  "id": "ro-RO.b0051",
+  "translation": {
+    "sidePane.saipen": "SAIPEN",
+    "settings.modelProvider.baseUrlPlaceholder": "https://api.example.com/v1"
+  },
+  "kept": [
+    "sidePane.saipen",
+    "settings.modelProvider.baseUrlPlaceholder"
+  ]
+}

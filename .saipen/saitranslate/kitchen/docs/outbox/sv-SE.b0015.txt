@@ -1,0 +1,2 @@
+1|"**SAFE_TO_DEFER** — produktlagret. En molnsession kan klona\r\n{protected0} gren {protected1} och arbeta där. Arbetsytelagerarbete kräver\r\ninte produktarbete, men det kräver klonen:\r\n{protected2} deklarerar {protected3}, och utan den misslyckas\r\nvalidatorn med {protected4}. {protected5} gates kräver den fästade pnpm 10.33.2\r\noch en förberedd arbetsyta. {protected6} på en färsk molnbild är det\r\ndokumenterade sättet in, och produktens {protected7} deklarerar den redan."
+2|"{protected0}"

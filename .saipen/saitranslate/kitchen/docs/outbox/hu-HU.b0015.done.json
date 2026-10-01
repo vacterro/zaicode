@@ -1,0 +1,7 @@
+{
+  "id": "hu-HU.b0015",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0094": "**SAFE_TO_DEFER** — a termékréteg. A felhőmunkamenet klónozhatja a {protected0} {protected1} ágat és dolgozhat rajta. A munkaterület-réteg munkája nem igényel termékmunkát, de igényli a klónt:\r\n{protected2} deklarálja a {protected3} értéket, és enélkül a\r\nvalidátor a következő hibával fut le: {protected4}. A {protected5} kapukhoz a rögzített pnpm 10.33.2\r\nés egy előkészített munkaterület szükséges. A {protected6} egy friss felhőképen a\r\ndokumentált belépési mód, és a termék {protected7} már deklarálja.",
+    "docs.docs_ZAICODE_INSTALL_md.p0008": "{protected0}"
+  }
+}

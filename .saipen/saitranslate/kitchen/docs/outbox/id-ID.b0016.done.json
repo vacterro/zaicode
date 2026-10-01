@@ -1,0 +1,7 @@
+{
+  "id": "id-ID.b0016",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0094": "**SAFE_TO_DEFER** — lapisan produk. Sesi cloud dapat mengkloning {protected0} cabang {protected1} dan bekerja di sana. Pekerjaan lapisan workspace tidak memerlukan pekerjaan produk, tetapi memerlukan clone: {protected2} mendeklarasikan {protected3}, dan tanpanya validator gagal dengan {protected4}. Gate {protected5} memerlukan pnpm 10.33.2 yang di-pin dan workspace yang telah disiapkan. {protected6} pada citra cloud segar adalah cara masuk yang terdokumentasi, dan {protected7} milik produk sudah mendeklarasikannya.",
+    "docs.docs_ZAICODE_INSTALL_md.p0008": "{protected0}"
+  }
+}

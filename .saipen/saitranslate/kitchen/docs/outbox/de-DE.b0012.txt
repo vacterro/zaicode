@@ -1,0 +1,10 @@
+1|=
+2|"ZAICODE ist eine Operator-Workbench, um viele AI-Coding-Agents gleichzeitig über\r\nviele Projekte zu betreiben – ohne sie zu beaufsichtigen. Es ist ein modifizierter Build\r\nvon [ZCode]({protected0}) (Desktop-App, Browser-UI und Agent-\r\nCLI) mit einer Produktschicht darüber: Jedes Projekt wird über das\r\n[SAIPEN]({protected1})-Protokoll gesteuert, Arbeit wird aus einem Fenster gestartet,\r\nfortgesetzt und geplant, und die Abo-CLIs, die du bereits bezahlst\r\n(Claude Code, Codex, Antigravity) laufen als angedockte Worker neben den In-App-\r\nAgenten."
+3|"**0.0.1** ist der erste getaggte Snapshot: ein persönlicher, Windows-first Build, der\r\n täglich genutzt wird."
+4|"## Installation mit einem Klick"
+5|"1. **[ZAICODE-Setup.exe]({protected0})** herunterladen.\r\n2. Doppelklick, dann **INSTALL** drücken."
+6|"Das ist alles. Das Setup bringt mit, was dem Rechner fehlt (Git, Node.js, Python, als private\r\nKopien: keine Administratorrechte), holt ZAICODE, SAIPEN und SAIMAIL von GitHub,\r\nbaut die App auf dem Rechner und legt eine ZAICODE-Verknüpfung auf den Desktop. Der erste\r\nStart dauert 15–30 Minuten; das Fenster zeigt jeden Schritt."
+7|"Kostenlose Modelle funktionieren sofort: ZAICODE startet seinen eigenen Router und füllt den **SAIFREN**-\r\nPool aus keylosen Free-Tiers, sodass eine in New task eingegebene Aufgabe ohne\r\nKey, ohne Konto und ohne Einstellung eine Antwort bekommt. Claude Code-, Codex- und Antigravity-Abos\r\nsind optional und jederzeit anmeldbar."
+8|"**Ein Ganzes, vier Teile.** Workspace (Launcher, Installer), App, SAIPEN und\r\nSAIMAIL sind vier Repositories. Jedes aktualisiert sich selbst: *Settings -> ZAICODE ->\r\nUpdates* zeigt alle Teile, aktualisiert sie manuell oder automatisch (geprüft ein paar Minuten\r\nnach dem Start und alle sechs Stunden). Ein neuer App-Build wird vorbereitet, während ZAICODE läuft\r\nund startet mit dem nächsten Start; eigene Änderungen im Clone werden nie überschrieben.\r\nAus dem Terminal: {protected0}.\r\nAuto-Fehlersuche: {protected1}. Details: [docs/ZAICODE_INSTALL.md](docs/ZAICODE_INSTALL.md)."
+9|"## Oberflächentour"
+10|"## Was es zu ZCode hinzufügt"

@@ -1,0 +1,15 @@
+{
+  "id": "sv-SE.b0011",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0106": "- citera molndomen och klassificera den ticket för ticket som denna gräns\r\n  ({protected0} § 6 har kontrollen);\r\n- skriv aldrig om sidecars, verifiera inte om bara för att få grönt, och patcha\r\n  inte kernelkopian;\r\n- håll LOG-händelser under 1024 byte på båda sidor.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0108": "Samma maskinvägsbindning blockerar också arbete. Skuldbaslinjen före\r\nBUILD fångas första gången en ticket går in i BUILD och kontrolleras om vid\r\nvarje senare inträde. En ticket som första gången gick in i BUILD på\r\noperatörsmaskinen kan därför inte gå in i BUILD i molnet: övergången nekas\r\nmed {protected0}. T-84 är fallet som finns registrerat: DEBT-000079\r\nfångades vid E-1377 och övergången nekades vid E-1446. Lämna sådana\r\ntickets till maskinen som fångade dess baslinje.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0110": "## Divergens",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0112": "Om lokalt och fjärrbart slutar dela en förfader stannar watcher. Den\r\nmergar, rebasar eller tvingar inte. Båda commit-id:n loggas, fixen görs\r\n{protected0} manuellt, och\r\nresultatet checkpointas som vilken annan ändring.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0114": "## Den exakta åtgärden i molnet",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0116": "### Miljösetup-skript (en gång, i molnmiljöns inställningar)",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0118": "Molnmiljö-menyn i sessionens titelfält -> Edit -> Setup script. Det\r\nkörs före varje ny session, så varje session startar med produktens\r\nverktygskedja redo:",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0122": "### Prompten för varje ny session",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0124": "Starta sessionen på repositorium {protected0}, gren {protected1}, och\r\nse till att operatörsmaskinens agent inte skriver samtidigt.\r\nErsätt sista raden med {protected2} för att lämna över nytt arbete.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0134": "På operatörsmaskinen gör watcher fast-forward av {protected0} från\r\n{protected1}; {protected2} (eller {protected3}) bygger den, och\r\nnästa start av ZAICODE byter in den nya byggningen.\r\n"
+  }
+}

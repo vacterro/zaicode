@@ -1,0 +1,15 @@
+{
+  "id": "et-EE.b0009",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0046": "| Olukord | Tegevus |\r\n|-----------|------|\r\n| remote ees, ükski tulev fail pole siin muudetud | {protected0}; toimimata tootetöö jääb selliseks nagu on |\r\n| remote ees, tulev fail on siin muudetud | HELD: logi failid, ära ühenda midagi |\r\n| lokaal ees | logi; **ei lükatud kunagi üles** (toote avaldab SAIPEN SHIP) |\r\n| lahknenud | peata, logi mõlemad id-d, ära ühenda midagi |\r\n| teine branch, git-operatsioon pooleli, fetch ebaõnnestus | peata |\r\n| pole {protected1} väljavõttu, või {protected2} | jäetud vahele |",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0048": "git keelab iseenesest kiire ületõmbe, mis kustutaks kohaliku muudatuse, nii\r\net HELD-kontroll on varem ja selgem kaitse, mitte ainus. Toote kiire\r\nületõmme ei ehitagi midagi ümber: testimiseks käivita {protected0} (või\r\ndev-eelvaatus).",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0050": "### Iseuuendus (T-90)",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0052": "Vaatleja töötab koopiana {protected0} all, nii et hoidikus olev uuem vaatleja\r\nei ole kunagi ilma uuesti paigaldamiseta käivitunud. Loop-režiimis võrdleb\r\nta nüüd iga käigu oma faili hoidiku committitud koopiaga. See paigaldab\r\nkoopia enda peale ja taaskäivitub täpselt üks kord, samade argumentidega,\r\nainult kui kõik järgmised tingimused on täidetud:",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0054": "- kaks faili erinevad;\r\n- hoidiku koopial pole toimimata muudatusi;\r\n- hoidiku koopia sünteesib veakontrollita.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0056": "Koopia, mis ei sünteesi, lükatakse tagasi ja logitakse, töötav vaatleja\r\njätkab tööd.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0058": "Enne T-90 paigaldatud vaatlejatel puuduvad nii toote kontroll kui ka\r\niseuuendus. Käivita sellisel masinal üks kord {protected0}; pärast seda\r\nuuendab vaatleja ise end.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0060": "## Pilve pool",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0062": "{protected0} juures on sisenemisreegel ja\r\n{protected1} on täitmisprotseduur. Skill toob\r\nSAIPEN tuuma {protected2}-st ja käitab selle läbi\r\ndeklareeritud mootoripinna {protected3}. Tuum on kinnitatud committi\r\n({protected4}), mitte kunagi tagi järgi. Tag {protected5} on vanem tuum\r\nsama {protected6}-ga; selle {protected7} muudab olekut ja selle\r\nvalidaja lükkab selle boardi tagasi.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0064": "{protected0} salvestab tuuma raja sellest täitjast, mis\r\nviimati checkpointi. Pilves viib esimene {protected1} tuumal {protected2}\r\nselle ühe journalitud {protected3}-na töötavale tuumale (E-1410). Operaatori\r\nmasinal jõuab osutaja samal viisil surnuna. Tuum, millel on automaatne\r\nlähenemine, parandab selle {protected4} käigus; muul juhul käivita\r\n{protected5}."
+  }
+}

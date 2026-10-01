@@ -1,0 +1,15 @@
+{
+  "id": "nl-NL.b0005",
+  "translation": {
+    "docs.README_md.p0048": "ZAICODE is afgeleid van ZCode door Z.ai en wordt verspreid onder dezelfde\r\n[Apache License 2.0]({protected0}); upstream-notities blijven in\r\n[NOTICE.md]({protected1}) en [THIRD-PARTY-NOTICES.md]({protected2}).\r\nBestanden zijn gewijzigd door de ZAICODE-auteur. ZAICODE is een onafhankelijk project,\r\nniet verbonden aan of onderschreven door Z.ai. De originele ZCode-README blijft als\r\n[README.zcode.md]({protected3}) en [README.en.md]({protected4}).",
+    "docs.README_md.p0052": "## Projectnetwerk",
+    "docs.README_md.p0054": "Deze repository maakt deel uit van het bredere **SAIPEN / vacterro**-projectecosysteem.",
+    "docs.README_md.p0056": "[**Auteurshub**]({protected0}) · [**SAIPEN HQ**]({protected1}) · [**SAIPEN Core**]({protected2}) · [**ZAICODE**]({protected3}) · [**FastPrompter**]({protected4}) · [**SAIPEN Community**]({protected5})",
+    "docs.README_md.p0058": "Voor reproduceerbare bugs en duurzame featureverzoeken: gebruik de [GitHub Issues van deze repository]({protected0}). Gebruik Discord voor snelle discussie, screenshots en feedback over projecten heen.",
+    "docs.docs_ZAICODE_INSTALL_md.p0000": "# ZAICODE installeren",
+    "docs.docs_ZAICODE_INSTALL_md.p0002": "ZAICODE is drie projecten die als één werken: de ZAICODE-app, SAIPEN (het protocol dat agentwerk op koers houdt) en SAIMAIL (de mail die agents gebruiken om elkaar dingen te vertellen). Handmatig installeren betekent drie clones, een Node.js-toolchain, een Python-omgeving en een build. De installer doet dat allemaal: draai hem, wacht, en er staat een ZAICODE-snelkoppeling op het bureaublad.",
+    "docs.docs_ZAICODE_INSTALL_md.p0004": "## Eén klik",
+    "docs.docs_ZAICODE_INSTALL_md.p0006": "- **[ZAICODE-Setup.exe]({protected0})**:\n  download, dubbelklik, druk op **INSTALL**. Het venster (goud op donker, de\n  SAIPEN-banner) toont elke stap terwijl die draait, de tijd tot nu toe en het log\n  op aanvraag; aan het einde **START ZAICODE**, of **TRY AGAIN** / **Autotroubleshoot**\n  / **Open log** als een stap niet klaar was. Op een bestaande ZAICODE-map\n  leest de knop **UPDATE**: dezelfde run werkts bij en repareert. De\n  exe bevat de installscripts en heeft er niets naast nodig; hij is gebouwd door\n  {protected1} (de .NET Framework-compiler die elke Windows 10/11 heeft).\n- {protected2} (dubbelklik): dezelfde installatie in een console.\n- Vanaf niets, in PowerShell:",
+    "docs.docs_ZAICODE_INSTALL_md.p0008": "  ```PowerShell\n  & ([scriptblock]::Create((irm {protected0})))\n  ```"
+  }
+}

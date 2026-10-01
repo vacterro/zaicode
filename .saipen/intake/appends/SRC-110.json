@@ -1,0 +1,84 @@
+{
+  "appends": [
+    {
+      "class": "CLARIFICATION",
+      "created_work": null,
+      "delta": "evidence",
+      "derived_clauses": [
+        "SRC-111:R001"
+      ],
+      "label": "Operator long-running acceptance",
+      "projected_at": "2026-10-01T08:16:30Z",
+      "receipt": "SRC-111",
+      "received_at": "2026-10-01T08:16:13Z",
+      "rewind": null,
+      "seq": 1,
+      "source_sha256": "b0284815d3307c3c40f7d387a9e583f3e41739f0896313b5ff0e7e9133d9b81b",
+      "state": "PROJECTED",
+      "steps": [
+        "linked",
+        "derived",
+        "superseded"
+      ],
+      "superseded": [],
+      "supersedes": [],
+      "work": [
+        "T-144"
+      ]
+    },
+    {
+      "class": "APPEND",
+      "created_work": null,
+      "delta": "implementation",
+      "derived_clauses": [
+        "SRC-112:R001"
+      ],
+      "label": "Ready SUBSAIPEN outbox action and automatic continuation",
+      "projected_at": "2026-10-01T08:29:41Z",
+      "receipt": "SRC-112",
+      "received_at": "2026-10-01T08:29:35Z",
+      "rewind": null,
+      "seq": 2,
+      "source_sha256": "6f58a6021edb7128775091e53e4d9362d497af88ffcefbd91840dfe3901dd79e",
+      "state": "PROJECTED",
+      "steps": [
+        "linked",
+        "derived",
+        "superseded"
+      ],
+      "superseded": [],
+      "supersedes": [],
+      "work": [
+        "T-144"
+      ]
+    },
+    {
+      "class": "APPEND",
+      "created_work": null,
+      "delta": "implementation",
+      "derived_clauses": [
+        "SRC-113:R001"
+      ],
+      "label": "Compact and full automatic action expansion",
+      "projected_at": "2026-10-01T08:51:01Z",
+      "receipt": "SRC-113",
+      "received_at": "2026-10-01T08:50:34Z",
+      "rewind": null,
+      "seq": 3,
+      "source_sha256": "8d758d3b2fdc831fbdc9eaa798f1a4292445de8290df7b3206dc16769cd47706",
+      "state": "PROJECTED",
+      "steps": [
+        "linked",
+        "derived",
+        "superseded"
+      ],
+      "superseded": [],
+      "supersedes": [],
+      "work": [
+        "T-144"
+      ]
+    }
+  ],
+  "schema_version": 1,
+  "source": "SRC-110"
+}

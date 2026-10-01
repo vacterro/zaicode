@@ -1,0 +1,15 @@
+{
+  "id": "it-IT.b0006",
+  "translation": {
+    "docs.docs_ZAICODE_INSTALL_md.p0032": "Ogni login di Claude Code o Codex vive nella sua home: {protected0},\n{protected1}, ... e {protected2}, {protected3}, ... ZAICODE li trova\ntutti. Per prepararne altri al momento dell'installazione:",
+    "docs.docs_ZAICODE_INSTALL_md.p0036": "L'installer crea le home e stampa il comando di login esatto per ciascuna\n({protected0}). Lo stesso vale in ZAICODE: Impostazioni ->\nMotori e limiti -> aggiungi un altro login.",
+    "docs.docs_ZAICODE_INSTALL_md.p0038": "## Risoluzione automatica dei problemi",
+    "docs.docs_ZAICODE_INSTALL_md.p0042": "Stato per controllo: OK, FIXED (era rotto, riparato), WARN (funziona, ma manca qualcosa\nfacoltativo), INFO (serve te: un login), FAIL. I log sono in\n{protected0}; il riepilogo dell'ultima installazione è {protected1}.\nNell'app, Router -> Autotroubleshoot ripara il router e le pool in esecuzione.",
+    "docs.docs_ZAICODE_INSTALL_md.p0044": "## Opzioni",
+    "docs.docs_ZAICODE_INSTALL_md.p0046": "| Parametro | Predefinito | |\n| ---- | ---- | ---- |\n| {protected0} | {protected1} | dove va tutto |\n| {protected2} | Desktop | dove va il collegamento ZAICODE |\n| {protected3}, {protected4} | | salta quei collegamenti |\n| {protected5} | | Git / Node.js / Python privati anche se la macchina li ha già |\n| {protected6} | | avvia ZAICODE al termine |\n| {protected7}, {protected8}, {protected9} | i repo GitHub | un'altra sorgente (un fork, un percorso di clone locale) |",
+    "docs.docs_ZAICODE_INSTALL_md.p0048": "## Prova",
+    "docs.docs_ZAICODE_INSTALL_md.p0050": "{protected0}\nverifica un'installazione nuova, inietta guasti (collegamento e launcher cancellati, launcher\nSAIPEN puntato a un Python mancante, venv di SAIMAIL cancellato, node_modules\nregistrati per un altro lockfile, una cartella di build residua più profonda di MAX_PATH),\nasserisce che il doctor segnali e ripari ogni guasto, poi avvia il bersaglio del collegamento con un profilo isolato e ferma esattamente l'albero di processi che ha avviato.",
+    "docs.docs_ZAICODE_INSTALL_md.p0052": "{protected0} costruisce quattro repository usa-e-getta su\ndisco e un'installazione dei loro cloni, poi dimostra che un controllo non cambia nulla,\nche una singola parte si aggiorna da sola con il suo seguito (launcher SAIPEN, launcher\nradice), che le modifiche locali sovrapposte e i commit locali vengono conservati, e che un\nnome di parte sconosciuto viene rifiutato. Nessuna rete.\n",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0000": "# ZAICODE trasporto cloud SAIPEN"
+  }
+}

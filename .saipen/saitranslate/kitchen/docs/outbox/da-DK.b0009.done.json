@@ -1,0 +1,15 @@
+{
+  "id": "da-DK.b0009",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0024": "| File | Rolle |\r\n|------|------|\r\n| {protected0} | validerer, forsoner grenen, installerer og starter watcher, skriver autostart-pointen, beviser lokal == remote |\r\n| {protected1} | sløjfen: hent, sammenlign, fast-forward eller push, log, pause; derefter produktrunden og selvopdateringen |\r\n| {protected2} | tur-retur fra en uafhængig executor plus bevis på cold-recovery |\r\n| {protected3} | produktrunde og selvopdatering mod midlertidige Git-repositorier (intet netværk, intet rigtigt remote) |",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0026": "Installation og reparation:",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0030": "Den er idempotent. Maskinlokal tilstand ligger i {protected0}:\r\n{protected1} (en kopi), {protected2} (roteret ved\r\n2 MB til {protected3}), {protected4} (én instans),\r\n{protected5} samt en post i Startmappen\r\n{protected6}.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0032": "Installeren nægter et beskidt træ og renser det aldrig. Hvis alle beskidte stier er\r\nkanonisk SAIPEN-tilstand under {protected0}, siger den det og udskriver de præcise\r\ncheckpoint-kommandoer; det er en protocoltilstand uden checkpoint, ikke en transportfejl,\r\nog installeren vil ikke committe den bag protokollens ryg.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0034": "## Watcher-adfærd",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0036": "| Situation | Handling |\r\n|-----------|------|\r\n| rent, lokal er forfader til remote | {protected0} |\r\n| rent, remote er forfader til lokal | {protected1} |\r\n| beskidt | pause; ikke engang et fetch |\r\n| på en anden gren | pause |\r\n| begge er fremskreden, ingen fælles forfader | pause, log begge commit-id'er, merge intet |\r\n| fetch eller netværk mislykkedes | log nedbrud, prøv igen næste tick |\r\n| en merge/rebase{protected2} er i gang | pause |",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0038": "Aldrig: force push, hard reset, stash, clean, checkout af en fremmed gren,\r\ncommit eller stop via processnavn. Installeren stopper kun en watcher med\r\ndet pid, den selv har registreret i sin egen pid-fil.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0040": "Et beskidt træ koster intet, fordi watcher tjekker beskidhed, før den henter.\r\nEn inaktiv checkout laver derfor ingen netværkskald overhovedet.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0042": "### Produktrunde (T-90)",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0044": "{protected0} er sit eget repository, så tabellen ovenfor flytter aldrig produktkode\r\n. Derefter håndterer samme tick produkt-checkouten ({protected1},\r\nstandard {protected2}; gren {protected3}, standard {protected4}).\r\nProduktrunden kører, uanset om det ydre træ er beskidt. Den puller udelukkende."
+  }
+}

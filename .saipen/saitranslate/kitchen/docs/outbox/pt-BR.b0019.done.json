@@ -1,0 +1,15 @@
+{
+  "id": "pt-BR.b0019",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0002": "Como este checkout e uma sessão do Claude Code Cloud executam um mesmo workspace SAIPEN com executor em localidades diferentes, e onde fica a fronteira entre eles.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0004": "## A forma",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0008": "Uma branch carrega o estado do protocolo. Não há etapa de merge, nem de rebase,\r\nnem uma segunda branch local para manter em sincronia: o executor que tiver um\r\ncheckpoint verificado faz commit e push, e o outro lado o recebe com\r\nfast-forward.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0010": "{protected0} é o histórico pré-transporte e a branch padrão publicada. Ela\r\nnão sofre force-update pelo transporte.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0012": "## O que viaja e o que não viaja",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0014": "Um checkpoint neste repositório carrega o estado do protocolo SAIPEN, o\r\nlauncher da raiz, o instalador, a documentação e estes scripts de transporte.\r\nEssa é toda a camada de workspace.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0016": "Ele não carrega **nenhum byte de produto**. {protected0} é um repositório Git\r\nseparado, listado em {protected1} e com gitignore nesta raiz\r\n({protected2}). Trabalho de produto precisa de seu próprio clone de {protected3}\r\nna branch {protected4}, e esse clone é um segundo objeto independente, com\r\nhistórico próprio.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0018": "A consequência é fácil de errar: um {protected0} limpo nesta raiz não diz\r\nnada sobre trabalho de produto não commitado, e um fast-forward de {protected1}\r\nnão diz nada sobre código de produto. Verifique {protected2} explicitamente.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0020": "## Metade local",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0022": "Dois scripts, ambos pertencentes ao repo, para que uma máquina nova os obtenha\r\ndo repositório em vez de da memória:"
+  }
+}

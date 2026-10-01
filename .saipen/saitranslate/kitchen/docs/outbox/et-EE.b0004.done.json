@@ -1,0 +1,15 @@
+{
+  "id": "et-EE.b0004",
+  "translation": {
+    "docs.README_md.p0048": "ZAICODE on tuletatud ZCode-st, mille autor on Z.ai, ning seda levitatakse samade\r\n[Apache License 2.0]({protected0}) tingimuste alusel; ülesvoolete teatised on alles\r\n[NOTICE.md]({protected1}) ja [THIRD-PARTY-NOTICES.md]({protected2}) failides.\r\nFailide muutmise autor oli ZAICODE autor. ZAICODE on sõltumatu projekt,\r\nei ole seotud ega toetatud Z.ai poolt. Originaalne ZCode README on alles\r\nfailis [README.zcode.md]({protected3}) ja [README.en.md]({protected4}).",
+    "docs.README_md.p0052": "## Projekti võrgustik",
+    "docs.README_md.p0054": "See hoidla kuulub laiemasse **SAIPEN / vacterro** projektide ökosüsteemi.",
+    "docs.README_md.p0056": "[**Autori keskus**]({protected0}) · [**SAIPEN HQ**]({protected1}) · [**SAIPEN Core**]({protected2}) · [**ZAICODE**]({protected3}) · [**FastPrompter**]({protected4}) · [**SAIPEN Community**]({protected5})",
+    "docs.README_md.p0058": "Reproduceeritavate vigade ja pikaajaliste funktsioonipäringute jaoks kasuta [selle hoidla GitHub Issues-i]({protected0}). Kiireks aruteluks, ekraanipiltideks ja projektidevaheliseks tagasisideks kasuta Discordi.",
+    "docs.docs_ZAICODE_INSTALL_md.p0000": "# ZAICODE paigaldamine",
+    "docs.docs_ZAICODE_INSTALL_md.p0002": "ZAICODE on kolm projekti, mis töötavad ühe tervikuna: ZAICODE rakendus, SAIPEN (protokoll, mis hoiab agendi töörajas) ja SAIMAIL (post, mida agendid kasutavad üksteisele teate saatmiseks). Käsitsi paigaldamine tähendab kolme klooni, Node.js tööriistahela, Pythoni keskkonda ja ehitust. Installer teeb kõik selle ära:\r\nkäivita, oota, ja ZAICODE otsetee on töölaual.",
+    "docs.docs_ZAICODE_INSTALL_md.p0004": "## Ühe klõpsuga",
+    "docs.docs_ZAICODE_INSTALL_md.p0006": "- **[ZAICODE-Setup.exe]({protected0})**:\n  laadi alla, topeltklõpsa, vajuta **INSTALL**. Aken (kuldne tume taustal,\n  SAIPENi bänner) näitab iga sammu käivitamisel, kulunud aega ja logi\n  nõudmisel; lõpus **START ZAICODE** või **TRY AGAIN** / **Autotroubleshoot**\n  / **Open log**, kui mõni samm ei lõpetatud. Olemasoleva ZAICODE\n  kausta puhul on nupul tekst **UPDATE**: sama käivitus nii uuendab kui ka\n  parandab. exe sisaldab paigaldusskripte ega vaja enda kõrval midagi; selle\n  ehitab {protected1} (.NET Frameworki kompileerija, mis on igal Windows 10/11\n  olemas).\n- {protected2} (topeltklõpsa): sama paigaldus konsoolis.\n- Nullist, PowerShellis:",
+    "docs.docs_ZAICODE_INSTALL_md.p0008": "  ```powershell\r\n  & ([scriptblock]::Create((irm {protected0})))\r\n  ```"
+  }
+}

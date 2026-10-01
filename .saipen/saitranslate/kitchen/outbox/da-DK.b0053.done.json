@@ -1,0 +1,8 @@
+{
+  "id": "da-DK.b0053",
+  "translation": {
+    "feedback.severity.P1-高.label": "Kan ikke bruge det",
+    "feedback.severity.P2-中.label": "Påvirker brugen",
+    "feedback.severity.P3-低.label": "Mindre problem/forslag"
+  }
+}

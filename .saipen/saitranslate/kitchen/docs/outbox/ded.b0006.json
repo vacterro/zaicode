@@ -1,0 +1,30 @@
+{
+  "id": "ded.b0006",
+  "locale": "ded",
+  "source_digest": "sha256:07aa0d0a845f4042a403e9b332760ca9da784aa93f0e5c06527a63231247e6f2",
+  "issued_at": "2026-09-30T14:02:45.264Z",
+  "keys": [
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0002",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0004",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0008",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0010",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0012",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0014",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0016",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0018",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0020",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0022"
+  ],
+  "messages": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0002": "How this checkout and a Claude Code Cloud session run one SAIPEN workspace\r\nwith different executor locality, and where the boundary between them is.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0004": "## The shape",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0008": "One branch carries the protocol state. There is no merge step, no rebase step\r\nand no second local branch to keep in step: whichever executor has a verified\r\ncheckpoint commits and pushes it, and the other side takes it with a\r\nfast-forward.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0010": "{protected0} is the pre-transport history and the published default branch. It is\r\nnot force-updated by the transport.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0012": "## What travels and what does not",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0014": "A checkpoint in this repository carries the SAIPEN protocol state, the root\r\nlauncher, the installer, the docs and these transport scripts. That is the\r\nwhole workspace layer.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0016": "It carries **no product byte**. {protected0} is a separate Git repository, listed\r\nin {protected1} and gitignored at this root\r\n({protected2}). Product work needs its own clone of {protected3} on branch\r\n{protected4}, and that clone is a second, independent object with its own history.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0018": "The consequence is easy to get wrong: a clean {protected0} at this root says\r\nnothing about uncommitted product work, and a {protected1} fast-forward says\r\nnothing about product code. Check {protected2} explicitly.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0020": "## Local half",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0022": "Two scripts, both repo-owned so a new machine gets them from the repository\r\ninstead of from memory:"
+  }
+}

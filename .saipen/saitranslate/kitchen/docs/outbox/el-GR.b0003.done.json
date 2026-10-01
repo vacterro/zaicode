@@ -1,0 +1,18 @@
+{
+  "id": "el-GR.b0003",
+  "translation": {
+    "docs.README_md.p0048": "Το ZAICODE προέρχεται από το ZCode της Z.ai και διανέμεται υπό την ίδια\r\n[Apache License 2.0]({protected0}); οι σημειώσεις upstream διατηρούνται στο\r\n[NOTICE.md]({protected1}) και [THIRD-PARTY-NOTICES.md]({protected2}).\r\nΤα αρχεία τροποποιήθηκαν από τον συγγραφέα του ZAICODE. Το ZAICODE είναι ανεξάρτητο\r\nέργο, χωρίς συνεργασία ούτε έγκριση από τη Z.ai. Το αρχικό README του ZCode\r\nδιατηρείται ως [README.zcode.md]({protected3}) και [README.en.md]({protected4}).",
+    "docs.README_md.p0052": "## Δίκτυο έργων",
+    "docs.README_md.p0054": "Αυτό το repository αποτελεί μέρος του ευρύτερου οικοσυστήματος έργων **SAIPEN / vacterro**.",
+    "docs.README_md.p0056": "[**Κέντρο συγγραφέων**]({protected0}) · [**SAIPEN HQ**]({protected1}) · [**SAIPEN Core**]({protected2}) · [**ZAICODE**]({protected3}) · [**FastPrompter**]({protected4}) · [**SAIPEN Community**]({protected5})",
+    "docs.README_md.p0058": "Για αναπαραγωγίσιμα σφάλματα και μακροχρόνιες αιτήματα λειτουργιών, χρησιμοποιήστε τα [GitHub Issues αυτού του repository]({protected0}). Το Discord προορίζεται για γρήγορες συζητήσεις, screenshots και απόψεις μεταξύ έργων.",
+    "docs.docs_ZAICODE_INSTALL_md.p0000": "# Εγκατάσταση του ZAICODE",
+    "docs.docs_ZAICODE_INSTALL_md.p0002": "Το ZAICODE είναι τρία έργα που λειτουργούν ως ένα: η εφαρμογή ZAICODE, το SAIPEN (το\nπρωτόκολλο που κρατά τη δουλειά των agents προσηλωμένη) και το SAIMAIL (το mail\nπου χρησιμοποιούν οι agents για να ενημερώνονται μεταξύ τους). Η χειροκίνητη εγκατάσταση\nσημαίνει τρία clones, Node.js toolchain, Python environment και build. Ο installer κάνει\nόλα αυτά: τρέξτε τον, περιμένετε, και η συντόμευση ZAICODE είναι στην επιφάνεια εργασίας.",
+    "docs.docs_ZAICODE_INSTALL_md.p0004": "## Με ένα κλικ",
+    "docs.docs_ZAICODE_INSTALL_md.p0006": "- **[ZAICODE-Setup.exe]({protected0})**:\n  κατεβάστε, κάντε διπλό κλικ, πατήστε **INSTALL**. Το παράθυρο (χρυσό σε σκούρο\n  φόντο, το banner του SAIPEN) δείχνει κάθε βήμα καθώς τρέχει, τον χρόνο που έχει\n  περάσει και το log όποτε ζητηθεί· στο τέλος **START ZAICODE**, ή **TRY AGAIN** /\n  **Autotroubleshoot** / **Open log** αν κάποιο βήμα δεν ολοκληρώθηκε. Όταν δείχνει σε\n  υπάρχον φάκελο ZAICODE, το κουμπί γράφει **UPDATE**: η ίδια εκτέλεση ενημερώνει και\n  επισκευάζει. Το exe περιέχει τα scripts εγκατάστασης και δεν χρειάζεται τίποτα δίπλα\n  του· κατασκευάζεται από {protected1} (ο compiler .NET Framework που έχει κάθε Windows 10/11).\n- {protected2} (διπλό κλικ): η ίδια εγκατάσταση σε κονσόλα.\n- Από το τίποτα, σε PowerShell:",
+    "docs.docs_ZAICODE_INSTALL_md.p0008": "  ```powershell\n  & ([scriptblock]::Create((irm {protected0})))\n  ```"
+  },
+  "kept": [
+    "docs.docs_ZAICODE_INSTALL_md.p0008"
+  ]
+}

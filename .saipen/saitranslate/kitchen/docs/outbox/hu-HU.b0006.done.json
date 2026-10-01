@@ -1,0 +1,15 @@
+{
+  "id": "hu-HU.b0006",
+  "translation": {
+    "docs.docs_ZAICODE_INSTALL_md.p0032": "Minden Claude Code vagy Codex bejelentkezés saját otthonban él: {protected0},\n{protected1}, ... és {protected2}, {protected3}, ... A ZAICODE mindet\nmegtalálja. Ha telepítéskor többet szeretnél előkészíteni:",
+    "docs.docs_ZAICODE_INSTALL_md.p0036": "A telepítő létrehozza az otthonokat, és mindegyikhez kiírja a pontos bejelentkezési\nparancsot ({protected0}). Ugyanez a ZAICODE-ban: Settings ->\nEngines & limits -> új bejelentkezés hozzáadása.",
+    "docs.docs_ZAICODE_INSTALL_md.p0038": "## Automatikus hibakeresés",
+    "docs.docs_ZAICODE_INSTALL_md.p0042": "Ellenőrzésenkénti állapot: OK, FIXED (hibás volt, javítva), WARN (működik, de valami\nopcionális hiányzik), INFO (rajtad múlik: bejelentkezés), FAIL. A naplók itt vannak:\n{protected0}; az utolsó telepítés összefoglalója: {protected1}.\nAz alkalmazásban: Router -> Automatikus hibakeresés megjavítja a futó routert és a készleteket.",
+    "docs.docs_ZAICODE_INSTALL_md.p0044": "## Opciók",
+    "docs.docs_ZAICODE_INSTALL_md.p0046": "| Paraméter | Alapérték | |\n| ---- | ---- | ---- |\n| {protected0} | {protected1} | hová kerül minden |\n| {protected2} | Desktop | hová kerül a ZAICODE parancsikonja |\n| {protected3}, {protected4} | | ezeket a parancsikonokat kihagyja |\n| {protected5} | | saját Git / Node.js / Python, akkor is, ha a gépen már van |\n| {protected6} | | a ZAICODE indítása a befejezés után |\n| {protected7}, {protected8}, {protected9} | a GitHub repók | másik forrás (fork, helyi klón útvonal) |",
+    "docs.docs_ZAICODE_INSTALL_md.p0048": "## Bizonyíték",
+    "docs.docs_ZAICODE_INSTALL_md.p0050": "{protected0}\nellenőrzi a friss telepítést, hibákat ültet be (törölt parancsikon és launcher, a SAIPEN\nlauncher hiányzó Pythonra mutat, a SAIMAIL venv törölve, egy másik lockfile-hoz rögzített\nnode_modules, egy MAX_PATH-nál mélyebben maradt build mappa),\nassertálja, hogy a doctor minden hibát jelez és megjavít, majd izolált profillal elindítja a\nparancsikon célját, és pontosan az általa indított folyamatfát állítja le.",
+    "docs.docs_ZAICODE_INSTALL_md.p0052": "{protected0} négy eldobható repót épít a lemezen és a klónjuk telepítését, majd\nbizonyítja, hogy az egyik ellenőrzés semmit nem változtat, hogy egyetlen alkatrész önmagában frissül\na saját utótevéjével (SAIPEN launcher, root launcher), hogy az átfedő helyi módosítások és a helyi\ncommitok megmaradnak, és hogy ismeretlen alkatrésznevet elutasít. Hálózat nélkül.\n",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0000": "# ZAICODE SAIPEN felhős átvitel"
+  }
+}

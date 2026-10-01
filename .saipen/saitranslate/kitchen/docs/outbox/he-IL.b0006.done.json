@@ -1,0 +1,15 @@
+{
+  "id": "he-IL.b0006",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0002": "כיצד checkout זה וסשן Claude Code Cloud מריצים סביבת עבודה אחת של SAIPEN\r\nבמקומיות מבצע שונה, ואיפה הגבול ביניהם.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0004": "## המבנה",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0008": "ענף אחד נושא את מצב הפרוטוקול. אין שלב merge, אין שלב rebase\r\nואין ענף מקומי שני שצריך לשמור מסונכרן: המבצע שיש לו נקודת ביקורת מאומתת\r\nמבצע commit ו-push, והצד השני לוקח אותו\r\nב-fast-forward.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0010": "{protected0} הוא ההיסטוריה שלפני ההעברה וענף ברירת המחדל שפורסם. הוא\r\nלא מתעדכן ב-force-update על ידי ההעברה.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0012": "## מה עובר ומה לא",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0014": "נקודת ביקורת במאגר זה נושאת את מצב הפרוטוקול של SAIPEN, את מפעיל השורש,\r\nאת המתקין, את התיעוד ואת סקריפטי ההעברה האלה. זו כל\r\nשכבת סביבת העבודה.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0016": "היא אינה נושאת **שום בייט של מוצר**. {protected0} הוא מאגר Git נפרד, המופיע\r\nב-{protected1} ומבוטל ב-gitignore בשורש הזה\r\n({protected2}). עבודת מוצר דורשת clone משלו של {protected3} על ענף\r\n{protected4}, וה-clone הזה הוא אובייקט שני, עצמאי, עם היסטוריה משלו.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0018": "התוצאה מבלבלת בקלות: {protected0} נקי בשורש הזה אומר\r\nשום דבר על עבודת מוצר שלא נשמרה, ו-fast-forward של {protected1} אומר\r\nשום דבר על קוד המוצר. בדוק {protected2} במפורש.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0020": "## הצד המקומי",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0022": "שני סקריפטים, שניהם בבעלות המאגר כדי שמכונה חדשה תקבל אותם מהמאגר\r\nולא מזיכרון:"
+  }
+}

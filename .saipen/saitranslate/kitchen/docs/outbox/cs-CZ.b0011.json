@@ -1,0 +1,30 @@
+{
+  "id": "cs-CZ.b0011",
+  "locale": "cs-CZ",
+  "source_digest": "sha256:07aa0d0a845f4042a403e9b332760ca9da784aa93f0e5c06527a63231247e6f2",
+  "issued_at": "2026-09-30T14:34:49.149Z",
+  "keys": [
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0086",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0088",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0090",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0092",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0094",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0096",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0098",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0100",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0102",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0104"
+  ],
+  "messages": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0086": "**AVAILABLE_IN_CLOUD** — protocol state and the workspace layer. Reading and\r\nwriting {protected0}, the launcher ({protected1}), the\r\ninstaller under {protected2}, {protected3}, {protected4}, {protected5}, and the\r\ntransport scripts. Git read, commit, push and fetch on {protected6}. Any\r\ngate that is a file assertion, a diff review or a text check.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0088": "**LOCAL_WINDOWS_ONLY** — the gates that need this machine.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0090": "| Gate | Why |\r\n|------|-----|\r\n| {protected0} | compiles {protected1} with the .NET Framework {protected2}; no Windows SDK on a cloud image |\r\n| packaged Electron E2E ({protected3} desktop, Solo → queue → dispatch) | needs a desktop session and a seeded provider profile |\r\n| the live 9router | a Windows service on this machine |\r\n| interactive desktop click-through | a human and a screen |\r\n| the watcher's own runtime cases | the watcher only ever runs on the machine holding the checkout |",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0092": "These are recorded as local-only acceptance boundaries. They are never\r\nreported as passed because the diff looked right.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0094": "**SAFE_TO_DEFER** — the product layer. A cloud session can clone\r\n{protected0} branch {protected1} and work there. Workspace-layer work does\r\nnot require product work, but it does require the clone:\r\n{protected2} declares {protected3}, and without it the\r\nvalidator fails with `source freshness computation BLOCKED -- declared nested\r\nrepository is missing: 'zcode'{protected4}pnpm` gates need the pinned pnpm 10.33.2\r\nand a prepared workspace. {protected5} on a fresh cloud image is the\r\ndocumented way in, and the product's {protected6} already declares it.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0096": "The cloud can verify only product bytes that are on {protected0}. A\r\nproduct delta that exists only in the operator's {protected1} checkout is\r\ninvisible here, so every product gate for it is NOT RUN in the cloud, whatever\r\nthe gate. T-84 is the first case (E-1411): its fix was local-only while\r\n{protected2} still carried the pre-fix code.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0098": "**UNSAFE_TO_EMULATE** — anything that would make a local-only gate look green.\r\nDo not stub the launcher build, fake a packaged-app run, replay a recorded\r\n{protected0} result as if it had just run, or convert \"the code\r\nlooks correct\" into a PASS line in {protected1}.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0100": "**KNOWN_CLOUD_DIVERGENCE** — conformance that depends on where the checkout\r\nlives. On kernel {protected0} the cloud validator reports {protected1}\r\nFAILs (T-47, T-62, T-76, T-78 at the time of writing) that the operator\r\nmachine does not.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0102": "The kernel moves any LOG event over 1024 bytes into a\r\n{protected0} sidecar. On read it restores the sidecar only\r\nwhen the checkout's absolute path equals the path it was written from. A long\r\nVERIFY verdict written on Windows is therefore unreadable in the cloud, and the\r\nreverse holds too.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0104": "The defect is in the kernel and is filed as P1-1 in\r\n{protected0}. Until it lands:"
+  }
+}

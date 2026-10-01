@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "locales": [
+    "en-US",
+    "ru-RU",
+    "et-EE",
+    "uk-UA",
+    "ja-JP",
+    "ded",
+    "zh-CN",
+    "de-DE",
+    "fr-FR",
+    "es-ES",
+    "it-IT",
+    "pt-BR",
+    "nl-NL",
+    "pl-PL",
+    "sv-SE",
+    "da-DK",
+    "fi-FI",
+    "nb-NO",
+    "ko-KR",
+    "th-TH",
+    "vi-VN",
+    "ar-SA",
+    "he-IL",
+    "tr-TR",
+    "hi-IN",
+    "id-ID",
+    "el-GR",
+    "cs-CZ",
+    "ro-RO",
+    "hu-HU",
+    "bg-BG",
+    "sk-SK",
+    "hr-HR"
+  ],
+  "source": {
+    "ui": {
+      "keys": 5848,
+      "digest": "19d9e22ad7314cd977c28849959f91fde33937a42a4f59fcee28c989cc4cb005"
+    },
+    "extras": {
+      "keys": 107,
+      "digest": "68dce83ceb6b448d30df413eb560ac509e366dbf2715b218840b353f7a16ee3d"
+    },
+    "cli": {
+      "keys": 199,
+      "digest": "169bf5bc8be7f02116c36b9714fd1759f779960ca2ec1b5fcadcf2cdb27bfc19"
+    }
+  },
+  "verification": "Exact source key/placeholder/technical token coverage; generated catalogs must pass zaicodeLocaleParity.test.ts before release."
+}

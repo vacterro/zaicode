@@ -1,0 +1,15 @@
+{
+  "id": "cs-CZ.b0009",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0046": "| Situace | Akce |\r\n|-----------|------|\r\n| remote je napřed, žádný přicházející soubor zde není změněný | {protected0}; necommitnutá práce produktu zůstává jak je |\r\n| remote je napřed, přicházející soubor je zde změněný | HELD: zapsat soubory, nic nemergeovat |\r\n| lokální je napřed | zapsat; **nikdy nepushováno** (produkt publikuje SAIPEN SHIP) |\r\n| rozdílné historie | pauza, zapsat obě id, nic nemergeovat |\r\n| jiná větev, probíhá git operace, fetch selhal | pauza |\r\n| žádný checkout {protected1} nebo {protected2} | přeskočeno |",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0048": "git sám odmítne fast-forward, který by přepsal lokální změnu, takže\r\nkontrola HELD je dřívější a přehlednější pojistka, ne jediná. Fast-forward\r\nproduktu nic nepřestavuje: pro test spusť {protected0} (nebo dev náhled).",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0050": "### Samoaktualizace (T-90)",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0052": "Watcher běží jako kopie pod {protected0}, takže novější watcher v repozitáři nikdy\r\nnespuštěl bez reinstalace. V režimu smyčky nyní při každém průchodu\r\nporovnává vlastní soubor s commitnutou kopií v repozitáři. Instaluje tuto\r\nkopii přes sebe a restartuje se přesně jednou, se stejnými argumenty, a to\r\njen když platí všechny tyto podmínky:",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0054": "- se oba soubory liší;\r\n- kopie v repozitáři nemá necommitnuté úpravy;\r\n- kopie v repozitáři se parsluje bez chyb.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0056": "Kopie, která se neparsluje, je odmítnuta a zapsána do logu, běžící watcher\r\npokračuje dál.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0058": "Watchery nainstalované před T-90 postrádají jak průchod produktu, tak\r\nsamoaktualizaci. Na takovém stroji jednou znovu spusť {protected0}; potom se\r\nwatcher aktualizuje sám.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0060": "## Cloudová polovina",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0062": "{protected0} v kořeni je vstupní pravidlo a\r\n{protected1} je prováděcí postup. Skill načte\r\nSAIPEN kernel z {protected2} a spustí ho přes\r\ndeklarovanou engine surface {protected3}. Kernel je připnut commitem\r\n({protected4}), nikdy tagem. Tag {protected5} je starší kernel se stejným\r\n{protected6}; jeho {protected7} mění stav a jeho validátor tuto desku odmítá.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0064": "{protected0} zapisuje cestu k kernelu toho exekutora, který\r\nudělal poslední checkpoint. V cloudu první {protected1} na kernelu {protected2}\r\nsjednotí ukazatel s běžícím kernelem jako jeden evidovaný {protected3} (E-1410).\r\nNa stroji operátora dorazí ukazatel mrtvý stejně. Kernel s automatickou\r\nkonvergencí ho opraví při {protected4}; jinak spusť\r\n{protected5}."
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "id": "zh-CN.b0001",
+  "translation": {
+    "docs.README_md.p0000": "# ZAICODE 智能编码助手",
+    "docs.README_md.p0006": "ZAICODE 是操作员工作台：可同时在多个项目上运行大量 AI 编码代理，无需时刻盯着。它是\r\n[ZCode]({protected0})（桌面应用、浏览器界面和代理\r\nCLI）的改造版，在其上叠加了一层产品能力：每个项目都由\r\n[SAIPEN]({protected1}) 协议驱动，任务的启动、续跑和调度都在同一个窗口内完成，\r\n你已付费的订阅 CLI（Claude Code、Codex、Antigravity）作为停靠的\r\n工作者与应用内代理并行运行。",
+    "docs.README_md.p0008": "**0.0.1** 是第一个标记快照：面向个人的、以 Windows 优先的版本，\r\n每天都在用。",
+    "docs.README_md.p0010": "## 一键安装",
+    "docs.README_md.p0012": "1. 下载 **[ZAICODE-Setup.exe]({protected0})**。\r\n2. 双击它并按 **INSTALL**。",
+    "docs.README_md.p0014": "仅此而已。安装程序会补齐本机缺少的部分（Git、Node.js、Python，以私有副本形式安装：不需要管理员权限），从 GitHub 拉取 ZAICODE、SAIPEN 和 SAIMAIL，在本机构建应用，并在桌面放置 ZAICODE 快捷方式。首次\r\n运行需 15-30 分钟；窗口中会显示每个步骤。",
+    "docs.README_md.p0016": "免费模型开箱即用：ZAICODE 会启动自带路由器，用免密钥的免费额度填满 **SAIFREN**\r\n池，因此在「New task」中输入的任务无需密钥、无需账号、无需任何设置即可得到\r\n回复。Claude Code、Codex 和 Antigravity 订阅是可选的，随时都可以登录。",
+    "docs.README_md.p0018": "**四部分，一体。** 工作台（启动器、安装程序）、应用、SAIPEN 和\r\nSAIMAIL 共四个仓库，各自独立更新：*Settings -> ZAICODE ->\r\nUpdates* 会列出每个部分，可手动更新，也可自动更新（启动后几分钟检查一次，此后每六小时一次）。新版本应用会在 ZAICODE 运行时准备就绪，并在下次启动时生效；你在克隆中的自行修改永不会被覆盖。\r\n在终端中执行：{protected0}。\r\n自动排障：{protected1}。详见：[docs/ZAICODE_INSTALL.md](docs/ZAICODE_INSTALL.md)。",
+    "docs.README_md.p0020": "## 界面导览",
+    "docs.README_md.p0024": "## 它为 ZCode 增加了什么"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "id": "ja-JP.b0001",
+  "translation": {
+    "docs.README_md.p0000": "# ZAICODE",
+    "docs.README_md.p0006": "ZAICODE は、多くのプロジェクト上で多数の AI コーディングエージェントを\r\n同時に運用するためのオペレータワークベンチです。張り付きは不要です。\r\n[ZCode]({protected0})（デスクトップアプリ、ブラウザ UI、エージェント\r\nCLI）を改造したビルドの上に製品レイヤーを載せたもの。すべてのプロジェクトは\r\n[SAIPEN]({protected1}) プロトコルで駆動され、作業の開始・継続・スケジュール設定は\r\n1 つのウィンドウで行い、すでに課金しているサブスクリプション CLI\r\n（Claude Code、Codex、Antigravity）はアプリ内エージェントの隣にドッキングされた\r\nワーカーとして動作します。",
+    "docs.README_md.p0008": "**0.0.1** は最初のタグ付きスナップショットです。Windows 優先の個人用ビルドで、\r\n毎日使っています。",
+    "docs.README_md.p0010": "## ワンクリックでインストール",
+    "docs.README_md.p0012": "1. **[ZAICODE-Setup.exe]({protected0})** をダウンロードします。\r\n2. ダブルクリックし、**INSTALL** を押します。",
+    "docs.README_md.p0014": "これだけです。セットアップがマシンに無いもの（Git、Node.js、Python。プライベート\r\nコピーとして入れるため管理者権限は不要）を導入し、GitHub から ZAICODE、SAIPEN、\r\nSAIMAIL を取得し、マシン上でアプリをビルドして、デスクトップに ZAICODE の\r\nショートカットを作成します。初回起動には 15〜30 分かかります。ウィンドウに\r\n各手順が表示されます。",
+    "docs.README_md.p0016": "無料モデルはすぐに使えます。ZAICODE は独自のルーターを起動し、キー不要の無料ティア\r\nから **SAIFREN** プールを埋めます。そのため「新規タスク」に入力したタスクには、\r\nキー不要・アカウント不要・設定不要で回答が得られます。Claude Code、Codex、\r\nAntigravity のサブスクリプションは任意で、いつでもサインインできます。",
+    "docs.README_md.p0018": "**1 つで完結、4 つのパーツ。** ワークスペース（ランチャー、インストーラー）、アプリ、\r\nSAIPEN、SAIMAIL の 4 つのリポジトリで構成されています。それぞれが\r\n独立して更新されます。*Settings -> ZAICODE -> Updates* ですべてのパーツを\r\n表示し、手動または自動で更新できます（起動数分後と 6 時間ごとに確認）。\r\n新しいアプリビルドは ZAICODE の実行中に準備され、次回起動時に適用されます。\r\nクローンに你自己で加えた変更が上書きされることはありません。\r\nターミナルから: {protected0}。\r\n自動トラブルシューティング: {protected1}。詳細: [docs/ZAICODE_INSTALL.md](docs/ZAICODE_INSTALL.md)。",
+    "docs.README_md.p0020": "## 画面の概要",
+    "docs.README_md.p0024": "## ZCode への追加機能"
+  },
+  "kept": [
+    "docs.README_md.p0000"
+  ]
+}

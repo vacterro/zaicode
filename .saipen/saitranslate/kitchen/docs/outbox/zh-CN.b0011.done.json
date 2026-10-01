@@ -1,0 +1,15 @@
+{
+  "id": "zh-CN.b0011",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0106": "- 引用云端裁定结果，逐张工单归类到该边界\n  （检查见 {protected0} § 6）；\n- 绝不改写 sidecar、只为变绿而重新验证、或修补内核\n  副本；\n- 两侧 LOG 事件均控制在 1024 字节以内。",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0108": "同一机器路径绑定同样会阻塞工作。BUILD 前的债务基线\n在工单首次进入 BUILD 时采集，之后每次进入都重新校验。\n因此，首次在运维机器上进入 BUILD 的工单无法在云端进入\nBUILD：该转换被 {protected0} 拒绝。T-84 即在案：DEBT-000079\n采集于 E-1377，转换被拒于 E-1446。此类工单交回采集其基线的\n那台机器处理。",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0110": "## 分歧",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0112": "本地与远端不再共享祖先时，watcher 停止。它不合并、不 rebase、不强推。\n两个 commit id 都写入日志，修复由人工 {protected0}，\n结果与其他改动一样做 checkpoint。",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0114": "## 云端的确切操作",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0116": "### 环境设置脚本（一次性，在云端环境的设置中）",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0118": "会话标题栏的云端环境菜单 -> 编辑 -> 设置脚本。\n它在每个新会话前运行，因此每个会话开始时产品工具链已就绪：",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0122": "### 每个新会话的提示词",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0124": "在仓库 {protected0}、分支 {protected1} 上开始会话，\n并确保运维机器上的 agent 未在同时写入。\n交出新增工作时，将最后一行替换为 {protected2}。",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0134": "在运维机器上，watcher 将 {protected0} 从 {protected1} 快进；\n{protected2}（或 {protected3}）构建它，ZAICODE 下次启动时\n换上新的构建。\n"
+  }
+}

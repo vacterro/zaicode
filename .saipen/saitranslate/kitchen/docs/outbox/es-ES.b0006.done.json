@@ -1,0 +1,15 @@
+{
+  "id": "es-ES.b0006",
+  "translation": {
+    "docs.docs_ZAICODE_INSTALL_md.p0032": "Cada inicio de sesión de Claude Code o Codex vive en su propio home: {protected0},\n{protected1}, ... y {protected2}, {protected3}, ... ZAICODE los\nencuentra todos. Para preparar más en la instalación:",
+    "docs.docs_ZAICODE_INSTALL_md.p0036": "El instalador crea los homes e imprime el comando exacto de inicio de sesión para cada\nuno ({protected0}). Lo mismo en ZAICODE: Configuración ->\nEngines & limits -> añadir otro inicio de sesión.",
+    "docs.docs_ZAICODE_INSTALL_md.p0038": "## Autodiagnóstico",
+    "docs.docs_ZAICODE_INSTALL_md.p0042": "Estado por comprobación: OK, FIXED (roto, reparado), WARN (funciona, pero falta algo\nopcional), INFO (te necesita: un inicio de sesión), FAIL. Logs en\n{protected0}; el resumen de la última instalación es {protected1}.\nEn la app, Router -> Autodiagnóstico repara el router y los pools en marcha.",
+    "docs.docs_ZAICODE_INSTALL_md.p0044": "## Opciones",
+    "docs.docs_ZAICODE_INSTALL_md.p0046": "| Parámetro | Predeterminado | |\n| ---- | ---- | ---- |\n| {protected0} | {protected1} | dónde va todo |\n| {protected2} | Desktop | dónde va el acceso directo de ZAICODE |\n| {protected3}, {protected4} | | omite esos accesos directos |\n| {protected5} | | Git / Node.js / Python privados aunque el equipo ya los tenga |\n| {protected6} | | inicia ZAICODE al terminar |\n| {protected7}, {protected8}, {protected9} | los repos de GitHub | otra fuente (un fork, una ruta de clonación local) |",
+    "docs.docs_ZAICODE_INSTALL_md.p0048": "## Prueba",
+    "docs.docs_ZAICODE_INSTALL_md.p0050": "{protected0}\ncomprueba una instalación limpia, siembra fallos (acceso directo y lanzador borrados, lanzador de\nSAIPEN apuntando a un Python inexistente, venv de SAIMAIL borrado, node_modules\nregistrado para otro lockfile, una carpeta de build residual más profunda que MAX_PATH),\nverifica que el doctor informa y repara cada uno, luego arranca el destino del acceso\ndirecto con un perfil aislado y detiene exactamente el árbol de procesos que inició.",
+    "docs.docs_ZAICODE_INSTALL_md.p0052": "{protected0} construye cuatro repos desechables en\ndisco y una instalación de sus clones, luego demuestra que una comprobación no cambia nada,\nque una sola pieza se actualiza sola con su seguimiento (lanzador de SAIPEN, lanzador\nraíz), que los cambios locales solapados y los commits locales se conservan, y que un\nnombre de pieza desconocido se rechaza. Sin red.\n",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0000": "# ZAICODE: transporte en la nube de SAIPEN"
+  }
+}

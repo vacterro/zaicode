@@ -1,0 +1,14 @@
+{
+  "id": "ko-KR.b0051",
+  "locale": "ko-KR",
+  "source_digest": "sha256:3649b64da723a738a49c2c9cb825f80faa8412dc7c9157c599b0b9b95bffdb35",
+  "issued_at": "2026-09-30T14:39:43.782Z",
+  "keys": [
+    "login.apiKey.provider.bigmodel",
+    "sidebar.usage.plan.mcp"
+  ],
+  "messages": {
+    "login.apiKey.provider.bigmodel": "BigModel",
+    "sidebar.usage.plan.mcp": "ZAICODE MCP"
+  }
+}

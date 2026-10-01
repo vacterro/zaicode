@@ -1,0 +1,10 @@
+{
+  "id": "ru-RU.b0033",
+  "translation": {
+    "chat.toolCall.taskOutput.fetching": "Ожидание фоновой задачи",
+    "chat.toolCall.taskOutput.timeout": "Задача ещё выполняется, ожидание завершено",
+    "feedback.severity.P1-高.label": "Невозможно пользоваться",
+    "feedback.severity.P2-中.label": "Мешает работе",
+    "feedback.severity.P3-低.label": "Небольшая проблема или предложение"
+  }
+}

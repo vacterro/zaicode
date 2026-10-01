@@ -1,0 +1,15 @@
+{
+  "id": "nl-NL.b0013",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0106": "- citeer het cloud-oordeel en classificeer het per ticket als deze grens\r\n  ({protected0} § 6 bevat de controle);\r\n- sidecars nooit herschrijven, nooit enkel opnieuw verifiëren om groen te scoren, of de kernelkopie\r\n  patchen;\r\n- houd LOG-events aan beide kanten onder 1024 bytes.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0108": "Dezelfde machinepadbinding blokkeert ook werk. De pre-BUILD-schuldbaseline wordt vastgelegd de eerste keer dat een ticket BUILD betreedt en bij elke latere toetreding opnieuw gecontroleerd. Een ticket dat voor het eerst BUILD betreedt op de operator-machine kan daarom niet in de cloud BUILD binnengaan: de overgang wordt geweigerd met {protected0}. T-84 is het geval op record: DEBT-000079 werd vastgelegd bij E-1377 en de overgang geweigerd bij E-1446. Laat zo'n ticket over aan de machine die de baseline heeft vastgelegd.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0110": "## Afwijking",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0112": "Als lokaal en remote geen gemeenschappelijke voorouder meer delen, stopt de watcher. Hij merged niet, rebased niet en forceert niet. Beide commit-ids komen in het log terecht, de fix wordt met de hand {protected0}, en het\r\nresultaat wordt net als elke andere wijziging als checkpoint vastgelegd.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0114": "## De exacte cloudzijdige actie",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0116": "### Installatiescript voor de omgeving (eenmalig, in de instellingen van de cloudomgeving)",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0118": "Cloudomgevingsmenu in de sessietitelbalk -> Bewerken -> Installatiescript. Het draait vóór elke nieuwe sessie, dus elke sessie start met de producttoolchain klaar:",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0122": "### De prompt voor elke nieuwe sessie",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0124": "Start de sessie op repository {protected0}, branch {protected1}, en\r\nzorg dat de agent op de operator-machine niet tegelijk schrijft.\r\nVervang de laatste regel door {protected2} om nieuw werk over te dragen.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0134": "Op de operator-machine fast-forwardt de watcher {protected0} vanuit\r\n{protected1}; {protected2} (of {protected3}) bouwt het, en de\r\nvolgende start van ZAICODE wisselt de nieuwe build in.\r\n"
+  }
+}

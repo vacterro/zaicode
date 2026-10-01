@@ -1,0 +1,6 @@
+{
+  "ok": false,
+  "code": "VALIDATION_FAILED",
+  "detail": "release version parity unmet:\n- .saipen/saitranslate/kitchen/cli/README_CLI.md is missing\n- .saipen/saitranslate/kitchen/docs/README_DOCS.md is missing\n- .saipen/saitranslate/kitchen/drafts/README_DRAFTS.md is missing\n- .saipen/saitranslate/kitchen/extras/README_EXTRAS.md is missing\n- .saipen/saitranslate/kitchen/integration/README_INTEGRATION.md is missing\n- .saipen/saitranslate/kitchen/integration-workspace/README_INTEGRATION-WORKSPACE.md is missing\n- .saipen/saitranslate/kitchen/outbox/README_OUTBOX.md is missing\n- .saipen/saitranslate/kitchen/payload/README_PAYLOAD.md is missing",
+  "canonical_next_command": null
+}

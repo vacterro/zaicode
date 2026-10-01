@@ -1,0 +1,15 @@
+{
+  "id": "ko-KR.b0002",
+  "translation": {
+    "docs.README_md.p0026": "- **MAIN 세션이 있는 프로젝트.** 각 프로젝트는 MAIN 세션 하나(START,\r\n  {protected0})와 헬퍼 세션(subSaipens: WIKI, TEST, AUDIT, …)를 가집니다.\r\n  기본 사이드바 보기는 프로젝트 행을 MAIN으로 표시하고, ▶는 새 세션을\r\n  여는 대신 MAIN을 계속합니다. 전체 계속, 완료, 완료 항목 모두 지우기는\r\n  모든 프로젝트를 훑습니다. 중간에 잘린 세션은 완료가 아닌 INTERRUPTED로\r\n  표시됩니다.\r\n- **크래시 안전성.** 죽은 프로세스가 잘라버린 세션과 진행 중이던 목표는\r\n  재시작 후 자동으로 이어집니다. 실행 중이던 워커도 다시 시작합니다. ZAICODE\r\n  내부의 에이전트는 프로세스 이름으로 ZAICODE를 종료할 수 없습니다.\r\n- **워커.** 구독 CLI는 창 어느 가장자리에도 도킹된 터미널(또는 자체 스내핑\r\n  창)에서 실행됩니다. 최초 실행 시 \"이 폴더를 신뢰할까요?\" 질문은 미리\r\n  응답해 두고, 사용 한도에 도달한 워커는 보고 후 설정에 따라 종료하거나\r\n  초기화 후 재시작합니다.\r\n- **한도와 초기화.** 계정·풀별 쿼터 계기판, 가장 가까운 초기화를 세는\r\n  제목 표시줄 타이머, 마우스를 올리면 전체 초기화 목록 표시.\r\n- **SCHEDULER.** 스스로 시작하는 프롬프트: 지정 시각, 매일, N분마다, 또는\r\n  쿼터 창이 채워질 때. 프로젝트 하나 또는 사이드바 섹션 전체에 적용되며\r\n  가장 막힌 프로젝트(차단됨 / 열린 SAIPEN 티켓 기준)를 먼저 처리합니다.\r\n  조건으로 임시 방편 작업(무료 풀 세션, 약한 워커)을 먼저 중단하거나, 유휴\r\n  프로젝트에서만 실행하거나, 표시된 세션만 계속할 수 있습니다. 프롬프트\r\n  길이 제한은 사실상 없습니다.\r\n- **라우팅.** 번들된 9router(MIT)가 설정 없는 풀을 제공: SAIFREN\r\n  (무키 무료 티어)과 SAIOPP(내 구독).\r\n- **SAIHOME, 타이머, 사운드, 하이라이트.** 통계가 있는 운영자 홈,\r\n  FastPrompter식 타이머·알람, 동작별 사운드, Win95 다크 골드 픽셀 선명한\r\n  인터페이스.",
+    "docs.README_md.p0028": "## 빌드",
+    "docs.README_md.p0030": "요구 사항: Windows 10/11, Git, Node.js **24.14.0**, pnpm **10.33.2**\r\n([mise.toml]({protected0})이 기준).",
+    "docs.README_md.p0034": "패키징된 앱은 항상 ZAICODE 모드로 시작합니다. 구형 ZAICODE가 실행 중이면\r\n  번들러가 새 빌드를 {protected0}에 임시 저장하고, 루트\r\n  런처(브랜치 {protected1}, {protected2})가 다음 시작 시 교체합니다.\r\n  UI가 쓰는 선명한 비트맵 Verdana 변형은 이 저장소에 포함되지 않으며,\r\n  없으면 시스템 Verdana로 대체됩니다.",
+    "docs.README_md.p0036": "점검: {protected0}, {protected1}, 그리고 ZAICODE 테스트. 예: {protected3}에서\r\n{protected2}.",
+    "docs.README_md.p0038": "## 저장소 구조",
+    "docs.README_md.p0040": "| 브랜치      | 내용                                                                 |\r\n| ----------- | ------------------------------------------------------------------------ |\r\n| {protected0}    | 정통 워크스페이스: 런처, 인스톨러({protected1}), 제품 문서({protected2}, {protected3}), SAIPEN 상태, CHANGELOG |\r\n| {protected4}   | 정통 앱 소스: 업스트림 ZCode 이력 + 빌드·업데이트에 쓰이는 ZAICODE 제품 레이어 |",
+    "docs.README_md.p0042": "레거시나 자동화로 생긴 ref가 잠시 남을 수 있지만 정통 제품\r\n브랜치가 아닙니다. 새 워크스페이스 작업은 {protected0}에, 앱 소스\r\n작업은 {protected1}에 넣습니다.",
+    "docs.README_md.p0044": "ZAICODE 소유 앱 코드는 대부분 {protected4} 브랜치의 {protected0},\r\n{protected1}, {protected2}, {protected3}에 있습니다. 워크스페이스\r\n문서와 런처{protected5} 툴링은 {protected6}에 있습니다.",
+    "docs.README_md.p0046": "## 업스트림 및 라이선스"
+  }
+}

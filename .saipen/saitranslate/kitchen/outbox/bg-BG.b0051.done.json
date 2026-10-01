@@ -1,0 +1,8 @@
+{
+  "id": "bg-BG.b0051",
+  "translation": {
+    "feedback.severity.P1-高.label": "Не може да се използва",
+    "feedback.severity.P2-中.label": "Засяга използването",
+    "feedback.severity.P3-低.label": "Незначителен проблем/предложение"
+  }
+}

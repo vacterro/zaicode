@@ -1,0 +1,15 @@
+{
+  "id": "hi-IN.b0008",
+  "translation": {
+    "docs.docs_ZAICODE_INSTALL_md.p0032": "हर Claude Code या Codex लॉगिन अपने होम में रहता है: {protected0},\n{protected1}, ... और {protected2}, {protected3}, ... ZAICODE सभी ढूँढ़ लेता है।\nइंस्टॉल समय पर और तैयार करने के लिए:",
+    "docs.docs_ZAICODE_INSTALL_md.p0036": "इंस्टॉलर होम बनाता है और हर एक के लिए सही लॉगिन कमांड छापता है\n({protected0})। यही ZAICODE में भी है: Settings ->\nEngines & limits -> दूसरा लॉगिन जोड़ें।",
+    "docs.docs_ZAICODE_INSTALL_md.p0038": "## ऑटोट्रबलशूट",
+    "docs.docs_ZAICODE_INSTALL_md.p0042": "हर जाँच की स्थिति: OK, FIXED (टूटा था, ठीक किया), WARN (चल रहा है, पर कुछ\nवैकल्पिक नहीं है), INFO (आपसे चाहिए: लॉगिन), FAIL। लॉग {protected0} में हैं;\nपिछले इंस्टॉल का सारांश {protected1} है।\nऐप में, Router -> Autotroubleshoot चल रहे राउटर और पूल ठीक करता है।",
+    "docs.docs_ZAICODE_INSTALL_md.p0044": "## विकल्प",
+    "docs.docs_ZAICODE_INSTALL_md.p0046": "| पैरामीटर | डिफ़ॉल्ट | |\n| ---- | ---- | ---- |\n| {protected0} | {protected1} | सब कुछ कहाँ जाता है |\n| {protected2} | Desktop | ZAICODE शॉर्टकट कहाँ जाता है |\n| {protected3}, {protected4} | | वे शॉर्टकट छोड़ें |\n| {protected5} | | निजी Git / Node.js / Python, भले ही मशीन में मौजूद हों |\n| {protected6} | | काम पूरा होने पर ZAICODE चलाएँ |\n| {protected7}, {protected8}, {protected9} | GitHub रिपॉज़िटरी | दूसरा स्रोत (फ़ोर्क, लोकल क्लोन पथ) |",
+    "docs.docs_ZAICODE_INSTALL_md.p0048": "## प्रमाण",
+    "docs.docs_ZAICODE_INSTALL_md.p0050": "{protected0}\nफ्रेश इंस्टॉल जाँचता है, खराबियाँ पैदा करता है (शॉर्टकट और लॉन्चर डिलीट, SAIPEN\nलॉन्चर गुम Python पर सेट, SAIMAIL की venv डिलीट, node_modules\nदूसरे lockfile के लिए दर्ज, MAX_PATH से गहरा बचा बिल्ड फ़ोल्डर),\nतय करता है कि doctor हर एक की रिपोर्ट दे और ठीक करे, फिर शॉर्टकट के लक्ष्य को\nआइसोलेटेड प्रोफ़ाइल से चलाता है और ठीक वही प्रोसेस ट्री रोकता है जो उसने शुरू की थी।",
+    "docs.docs_ZAICODE_INSTALL_md.p0052": "{protected0} डिस्क पर चार फेंकने-योग्य रिपॉज़िटरी और उनके क्लोन का इंस्टॉल\nबनाता है, फिर साबित करता है कि जाँच कुछ नहीं बदलती, कि एक हिस्सा अपने\nअगले अपडेट के साथ अकेला बदलता है (SAIPEN लॉन्चर, रूट लॉन्चर), कि ओवरलैप करती\nलोकल एडिट और लोकल कमिट बनी रहती हैं, और कि अज्ञात हिस्से का नाम अस्वीकार किया\nजाता है। कोई नेटवर्क नहीं।\n",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0000": "# ZAICODE SAIPEN क्लाउड ट्रांसपोर्ट"
+  }
+}

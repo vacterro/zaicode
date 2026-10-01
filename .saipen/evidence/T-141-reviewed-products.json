@@ -1,0 +1,1360 @@
+{
+  "at": "2026-09-30T19:38:31.089Z",
+  "productHead": "c71febd1c8ee5a44dd52fe6a759a5c5b334b08f7",
+  "exactTranslations": 63,
+  "amendedLocales": 31,
+  "workspaceDocuments": 100,
+  "paths": [
+    {
+      "file": ".oxlintrc.json",
+      "owners": [
+        "T-140"
+      ],
+      "sha256": "f8f31ca13c4a6a21312ee0417202b57ea9186be804841f5f01718da694b3ccd3"
+    },
+    {
+      "file": "apps/zcode-cli/packages/adapters/src/config/schema.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "d551600613a0f0f1442a6ea1f879af601fd3f4710ba643c03160cdbc1e1c1fad"
+    },
+    {
+      "file": "apps/zcode-cli/packages/cli/src/cli-types.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "5a6c4971e1993b7efa866f7525783ed279c05231ea268be07c0bffba9b3f4111"
+    },
+    {
+      "file": "apps/zcode-cli/packages/contracts/src/config/index.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "431b1c0a0bc56df325209230e309bc68333934a40e4dfde58a8b40bbe37a630c"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/index.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "7e851833a687630e7258f64dcef26e4fde4f5f047ffaac9e26717b3410b7ada0"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locale.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "89991e9b07289bfbcf6f69ee05b6b9918b6ff104c28ed2587cc5d22c0e9c65c1"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/ar-SA.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "ce3e4a5c7a103a5a355cfcd3ed58b0a1acb655f44d27e60e643202e04f90e407"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/bg-BG.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "d9abbda88161612d959dceee669ef5a022ab865a6d70bc0b4dc6e4c5ec9204f9"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/cs-CZ.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "3cd8ef7a7d117f2adeb163a0bff98976189e9d36df85efd3f876dc91bd7856bf"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/da-DK.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "e0d23798383b3d73e329fce0ebb1e096606ccdb34a1da1b5341e5b53014da652"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/de-DE.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "acdd5686389e01d9742518ff14e82a328ad6e885af3f592f37245d91adfa3007"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/ded.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "0a7d0d2b9ae94b24abd9d66e84e49b98e888266cae8d7758243383bcb56e5593"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/el-GR.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "e1e046320396c4f78f6c1c69ceed1a0709dd99db0190d6e10c920eb879d63a10"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/en-US.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "c70c847fac4c6c0e9262dadf5256ae2df9f8b71aea502a89f616d32a35c46a21"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/es-ES.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "84a14644b12583202eb928c97ff802b81bfa37608d27d8e4216339834908124c"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/et-EE.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "eba0872872adfb2db6d2af51187191991f0211f4e96fea62f3aeb7ac25a26939"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/fi-FI.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "ddc11836def36401bf6b2bf69e55420294ceeee8d97996003dab5f4b8fc55c64"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/fr-FR.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "0ecf648b246968ead113a6ae903e2f6676a71e98b801e7524fa7ae5b0ac6786b"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/he-IL.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "bf29b85b5ef3edcd1e80a9bb42f3f92c0a87a6c99aafe86530f309e388460915"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/hi-IN.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "622470364f093475b929c6810fbb81600c31b15b9cdbf99f94abb991b6cdbfeb"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/hr-HR.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "8f38330c3ff52b513cbd7515cbacdec272d3f54b2ecb424c29318f839db235ee"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/hu-HU.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "9f966dcedf7c0ccad64837062a18a3c8867771a1aebc6740ce3c41c36311a14a"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/id-ID.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "d37b486b3a98a85e73f316f7b8f1259a660f612c303dec2e7625893ef98a2d8f"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/it-IT.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "28c3a3e4a8d53d23b1a2a600062dfc2ae656fecc8c963f9dd86cc6a75f270210"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/ja-JP.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "9bed3a309f9779cc206dfc7df23ce7e74a6ef4205d7dd190e2edb4f8daf26173"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/ko-KR.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "fa951bb722213c6da05876cc5420abccb08f3217b9b22e1d1b41d760311e07d6"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/nb-NO.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "f684bc1120eed02a5996bf72a971adf439698ad57d5ea476454b958a4c2d9a86"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/nl-NL.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "acef117a1a73f8c957366e2158a5276c9304890b989d7761218264a83ddab866"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/pl-PL.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "05e5ff6b1010fcfc7d2b999498e6ea8708d88840cd7a729175f02bdc6828b644"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/pt-BR.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "affcda1646ef62b317b033ebae7826c71f9a9ab23a9fa8eecea6a580aef7fbce"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/ro-RO.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "ef76190fce9168a4b59774624c2699bb7043ae4fed8e1ea9f4096590b81cf3a7"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/ru-RU.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "f378f2afbc8b2d03a65868c6c461ee878fb4306168e87076eeae3bcb937e3df7"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/sk-SK.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "510de7d2c33fb3af71a9913aa1ab602e9149c1584bb0e29d820824433e414496"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/sv-SE.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "aa7c4ac6cbd545f5c664f422a76959c6290386445d95337ad010f59296151077"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/th-TH.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "d785c673377d5f1d7c8e148d5efc1e4fb95708438a661a35849dfddebfa9c27e"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/tr-TR.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "b3a44485be8789bf2d92d21d44a887d0775cdeb5fe5bc1679023f0afdf512932"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/uk-UA.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "c99ca2378e552c17f5cab1fe045c54ef69952dc4150adc3c22bbbacfa84b502a"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/vi-VN.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "c594406e5f29797ba64291057fba34e586f2a63baa8f8005a8213fb36c0638f9"
+    },
+    {
+      "file": "apps/zcode-cli/packages/i18n/src/locales/zh-CN.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "46806952c8e6704695cb98687e4fbc2e9f0ad9927f3339731c678ccd48ef035e"
+    },
+    {
+      "file": "apps/zcode-cli/packages/shared-types/src/index.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "33c375bdc4e133edc0cf7b15c81740b4eed7bd3a08dbd5be502a2bcd88553f90"
+    },
+    {
+      "file": "packages/desktop/scripts/verify-zaicode-boot.cjs",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "5fab4fc57d968b88ea090f3f7040813eaef9267ed332e7c6ee3283d85a76ca24"
+    },
+    {
+      "file": "packages/desktop/scripts/verify-zaicode-workflows.cjs",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "e96277ba28aa5449c01b728eec1230478f988436928cfc27feb6448e8b5f3a9d"
+    },
+    {
+      "file": "packages/desktop/src/main/desktopApplicationMenu.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "fbfcc5defd47549e07a05384c2a9545403339acfece70f70d6b90abf77ca2d95"
+    },
+    {
+      "file": "packages/desktop/src/main/desktopFinderOpenFolderWorkflow.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "ea11ffc4c55e2f75fe55226415a329570b1137a8f1ae79cf256bc7543f7f2f3e"
+    },
+    {
+      "file": "packages/desktop/src/main/desktopWindowsOpenFolderContextMenu.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "77f2a553647aabeafb38a7e137a932fec51d9caffc8084b0b8d091c6fba0cc1c"
+    },
+    {
+      "file": "packages/desktop/src/main/zaicodeEngines.ts",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "20af40b0ddfc9d450606841a187e6dcab79ce1a3bdd193c1080cae948c5547f1"
+    },
+    {
+      "file": "packages/provider/src/config/manual-model-config.ts",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "39c7e7c2c1b0942192998d4e2ba79cf3fa78ebf912e61fc3d70a7dd9877199fb"
+    },
+    {
+      "file": "packages/provider/src/config/model-config.ts",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "80e809a1fed65489b364fe8d262e5a58a28a65e2b7293327340c15bda426ef3f"
+    },
+    {
+      "file": "packages/services/src/conversation-share/conversationShareService.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "422f3afa6840943033c773f7ad1c24f082b457eaa9e97e20be31f604953208ea"
+    },
+    {
+      "file": "packages/services/src/session/tasksDatabase/startup.ts",
+      "owners": [
+        "T-140"
+      ],
+      "sha256": "e0690fd0c5362bd14f1a1f14dc8da324131488e1274697a91551ffd88766f142"
+    },
+    {
+      "file": "packages/services/src/zaicode/zaicodeAuditService.ts",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "16defd3dcc3b69e57a5ab7ff0d5d1e484c000f419a1ef23c3bc4e543f29b03cf"
+    },
+    {
+      "file": "packages/services/src/zaicode/zaicodeAudits.ts",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "f606cf7e71f6e86411963bc70924d9e1d813f06e17a291e9d3ab7de4d2715117"
+    },
+    {
+      "file": "packages/services/src/zaicode/zaicodeJobCancellation.ts",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "1662b58dad8da7f4d686ae685f40a159aef54074496d0d85569185fcd9b6e9c2"
+    },
+    {
+      "file": "packages/services/src/zaicode/zaicodeJobRepo.ts",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "8190dc043ab47e11d86ced7ed482c653bd15a18bea5def4596264dd9e874c288"
+    },
+    {
+      "file": "packages/services/src/zaicode/zaicodeJobService.ts",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "6cf6a5bb1d1a63662eaa9da16f0ca60a04a1f24a761f2f0c2788cf8f7abd8c70"
+    },
+    {
+      "file": "packages/services/test/zaicodeAudits.test.ts",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "f18756a6bfcd77ca43ea44e9a42e88c673eb2208751250b4c0f880c4c7247d7e"
+    },
+    {
+      "file": "packages/services/test/zaicodeJobs.test.ts",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "feb40bf94e7253e8a1d3ee7f1be8c2c287a835b84408ff5b3957658db83214d2"
+    },
+    {
+      "file": "packages/shared/src/auxiliaryLocaleMessages.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "68016d3b356c1f8bf069d8b3c541bcc4ca4cc7e0ed25102a004c1baa40e3b1dd"
+    },
+    {
+      "file": "packages/shared/src/conversation-share.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "ebf532c74028b35d78fbaac0416178f3da7d1c86496c81aec53b09828580ddef"
+    },
+    {
+      "file": "packages/shared/src/desktopMenu.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "0ca74bbe9780f946283d06ce55c17d751e39ec1c85892ccbc9a98654c7239838"
+    },
+    {
+      "file": "packages/shared/src/expandedDesktopMenuMessages.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "4e178aba190c4c806957f0e46cf30a102a2c8a661a98e0c5a81af9f8b2cb7c01"
+    },
+    {
+      "file": "packages/shared/src/index.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "b0ef4204316fa927e328c2f50f3535f7afc6549c457c07859963d278c1764f47"
+    },
+    {
+      "file": "packages/shared/src/locales.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "e1c354ab32eb9d7030c16dc7dc8eb8461849d2888f73384fc87e761e6f133610"
+    },
+    {
+      "file": "packages/shared/src/model-config.ts",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "3ef9039392e055fa896199084da1982d57408f27391dcf95d7400732ee84bdce"
+    },
+    {
+      "file": "packages/shared/src/protocol.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "0ab38fd0e0cbb710dfab871bf893bcffc52f6e9b05dc881390abd8f7580bc74e"
+    },
+    {
+      "file": "packages/shared/src/validationAppSettings.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "622abdcc7e3b2313d7674e9e622a35f57151b2a01221e1c790b8dc2fb74ed601"
+    },
+    {
+      "file": "packages/shared/src/zaicode-audits.ts",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "bcff7dc34a5e7fae140fb2fed2cc48722b2df7d92128f723dca2fe82e5209b6d"
+    },
+    {
+      "file": "packages/shared/src/zaicode-engines.ts",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "c0ebab9805b328841de49cfe4ffc60670c14146187e8657e48003e75413daf2a"
+    },
+    {
+      "file": "packages/shared/src/zaicode-subscription-models.ts",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "dccb4f65ec1d636d2127e051ba74421fd66b5d0845c3b6d5ad1a0fb65cd2b6d9"
+    },
+    {
+      "file": "packages/shared/src/zcode-slash-command-help.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "15cef529f83fad8ef9102efab9e4e219246feba797e00f507e2698f7065535ac"
+    },
+    {
+      "file": "packages/ui/src/ErrorBoundary.tsx",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "f97f1e161cb0af29ebfea8c73d377a3c6df891da3c621f6ad903cb339765e40e"
+    },
+    {
+      "file": "packages/ui/src/SettingsPage.tsx",
+      "owners": [
+        "T-140",
+        "T-113",
+        "T-141"
+      ],
+      "sha256": "30c14fd08a608756df851b66c0373a77b96af6eb9aadaae2c8bfce09517eba46"
+    },
+    {
+      "file": "packages/ui/src/WorkspaceSidebar.tsx",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "70df1e3dfe4c70aa3fa4057986f611d4c0d0fb2c92c83733dd1198f86a4c7962"
+    },
+    {
+      "file": "packages/ui/src/WorkspaceSidebarFooter.tsx",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "7c5842406d4c65869ad35d1c73a743d3297687537b4e7c07506930f8e99888dd"
+    },
+    {
+      "file": "packages/ui/src/WorkspaceSidebarItem.tsx",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "7b1d6556f07889d9fe7f267d3be4bb9207ced68e745a83a0082f44add28a0acf"
+    },
+    {
+      "file": "packages/ui/src/app-shell/AnimatedSidePanePanel.tsx",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "53391a442103a94106d97a8faa19e543ef496b1189f79493d1b5019f9e11d10e"
+    },
+    {
+      "file": "packages/ui/src/app-shell/WorkspaceShellLayout.tsx",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "04a86b63b2090780de700f67900b14c1529ebb5dd80e313956be80c37e68590a"
+    },
+    {
+      "file": "packages/ui/src/feedback/feedbackSubmitSubmission.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "ccbbac68a5867ab0c4f46eb5d07cd2a4791c45ce3c2152683d3c371e1883a423"
+    },
+    {
+      "file": "packages/ui/src/i18n/IntlProvider.tsx",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "b53262c2bb3490c7a3f99b344f30c1390617da5babe0e051a1f5b194930d6952"
+    },
+    {
+      "file": "packages/ui/src/i18n/LocaleSwitcher.tsx",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "3a1029007d3185f5e985b33d4ef47b4cb3f85ce02d0795139af913c7127ef81a"
+    },
+    {
+      "file": "packages/ui/src/i18n/locale-manifest.json",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "439616a8e9eb203cc1e071547bf3bc90c00916d9c1e233585287d6964d133356"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/ar-SA.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "43e54a8fc4afef71f1863a127b7857876a7dc98e2a9221bc7b02f90e2704e91f"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/bg-BG.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "b1666e64986aa1992b0251aa940aab99ba7361ece41c397160144b231b90a896"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/cs-CZ.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "665e791243a58a3a54131d2286aab8244d35dfaa31dadf34c6ae4ac47380abe0"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/da-DK.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "92660e2f794f630120c71960d61cce2b7b925087d51ca1211c83753fb4adcf2a"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/de-DE.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "197475842a8f808e0f9cc3d986c6ec380dcdc510011d7434519884d140946a58"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/ded.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "32eaf032c6224fcd84e68016ecb31f4951377cc63644903478fba074f75d7fac"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/el-GR.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "bab8a1d14c57f934e04a63e8e792e6c7569b5824532f2a6ddc8059ccc215dfde"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/en-US.ts",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "3e6c57ab48e7b819b0d7ac022ce3be764db61697cc73b1eee77689d8aeb64da5"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/es-ES.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "470f20208c8249f0ed99ab88acbf213440c949bf8b3f09e826489ccd879b50b7"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/et-EE.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "eac2f7900740597775364483d3765c7052aa7f683e55ba12f61cd605270186f5"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/fi-FI.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "71172d73d6894f8ab57c619c92c7c30be08e67426e38e47ac5f7f9c83501961c"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/fr-FR.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "6409ed9512461e3a48f77b35594933afaf29eed8d3db473e1a84756e2f75c49d"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/he-IL.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "66b336aad05d98bb38571c4aa40f5f1bca3558a27ea5f7ebfbbdc8cc908f3c58"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/hi-IN.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "9882a4b83eaaab35703907ecfd13317690360f2ba22ea017247b5d0cdd87baf0"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/hr-HR.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "b8ead19f802c2fa01a534fa84a98b1a100d695d7a958e68879dc2a27c27d83be"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/hu-HU.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "d75e2c4b23069ea351af73fc381017c7bee4e4a0287f13112f910e824bbe1ef3"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/id-ID.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "f88cca979022d2bdc8d10da89a9ce2cb476ae665763d803dad83cf965a790f88"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/it-IT.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "8910f046680d9603fbbaeb4730d19619148fd875da353ca221ae52a0302d6577"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/ja-JP.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "ae42bb329c74157df318071672dc82cf81b0ac6dc37bfa715387197b15c67acf"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/ko-KR.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "62d9bf2b9a8ebbbf6bf10f6c9c2414bdf73fa5b4e2421e7108e3730885b22cc6"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/nb-NO.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "0c70da4aea33607972e7eef6a7ffe9e66fd3e3a79a4c488f856de916bb128c82"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/nl-NL.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "840b98ad59160aad1dc2e2587c02ca3e7e93c2c9f87e36f3ee192761c277e887"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/pl-PL.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "bda323535819cc19b94eee45c6a8308c15240cd633a20d85dff64c837abc5b51"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/pt-BR.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "5fde6db0e2540f2aa3326ab02aa0a762ff3b143bfed0b40946027f3e5f8aa317"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/ro-RO.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "6fcb7ea367bc44876cf4ab1ecc56f9dfbb0038afd89880e995ec41a3d07b8451"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/ru-RU.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "5323811dbd0a30e00f3dd7fc1c7ebe684d22ccb1304bbfd216ab989b276a31d4"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/saiasui.ts",
+      "owners": [
+        "T-139"
+      ],
+      "sha256": "fa2cb6a045a268862fe7f2f6c86caba7bfaaf5d2efe0ef9f2e3c6c0832392a38"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/sk-SK.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "4e81980280d38fd655b5d76dc3d2fa5258671574a298d9cc1c07e10c75b58238"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/sv-SE.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "006793c2df9374b2a683ae8a2531647379a8d8bad303b3e2bcff8e98206cd574"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/th-TH.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "fec125488739726bb6b7f82ce53c2a9824252d785213570d3aff1de7160654d4"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/tr-TR.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "29b1fb298e4d9898962e60e9b784d379ee2e6fa7b51e23033fdd80b946553bf7"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/uk-UA.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "ee16d64bdf1100b68a4dd358bc0848b64e1f0f53755112221748126aed43ae1c"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/vi-VN.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "d3283e3c8d9d97d8b27d0786cf04ce428951865e65924fb11d6e5b9f8c9b5b8d"
+    },
+    {
+      "file": "packages/ui/src/i18n/locales/zh-CN.ts",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "eb77aa4920350499d7f6dd43ea16cee9dd1c2704b294c288300cb7a781c1276e"
+    },
+    {
+      "file": "packages/ui/src/i18n/messages.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "34c6f01da5b48350947cb80afa834f47aa985153e77ee8e9d1d5781560bd8ad0"
+    },
+    {
+      "file": "packages/ui/src/lib/builtinSkillI18n.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "5ec476f06284c283e3526a9a02366a4f567ab3819d958d822ae826d6a4300278"
+    },
+    {
+      "file": "packages/ui/src/lib/modelSelectionGroups.ts",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "b927b3b29bcac8d3cfc512fe3773db767287e786aca3cc322b9efb7b2af97117"
+    },
+    {
+      "file": "packages/ui/src/lib/settingsNavigation.ts",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "3fd29015bcb55ecb2ef13889c97b72c27352d8576f603016d1aadeafdb2b6e10"
+    },
+    {
+      "file": "packages/ui/src/settings/CodingPlanEmbeddedWebviewDialog.tsx",
+      "owners": [
+        "T-140"
+      ],
+      "sha256": "db50880785ec50a39d3014e18eebba949c15e2ea4eefebae450487b3c607636d"
+    },
+    {
+      "file": "packages/ui/src/settings/ModelProviderSection.tsx",
+      "owners": [
+        "T-140"
+      ],
+      "sha256": "3a8d4fe13a19c5c0e0381f59134a7541ba3ea9ef36952adfe15a411e70a25271"
+    },
+    {
+      "file": "packages/ui/src/settings/ZaicodeSidebarSettings.tsx",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "327d0aa993a4b1048bf0da5508ba5b1c36c57a2baf0c54fb9aeefbc31fa767c8"
+    },
+    {
+      "file": "packages/ui/src/settings/ZaicodeSoundOverlapSettings.tsx",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "96488f5118ec01a39b5dd97b7c6d1c3ed04da11e6ac73d6e66eff474590b9f3c"
+    },
+    {
+      "file": "packages/ui/src/settings/model-provider-section/InlineEditableProviderCard.tsx",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "6b5be7681c0334e5ec78fb2997f3c0111c32bac0057e8ae785f6e47f3659f7f3"
+    },
+    {
+      "file": "packages/ui/src/settings/model-provider-section/ProviderCardSections.tsx",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "df4c3938fd273bb86fa79c7470dd35940585b3725108c30a40d9fd64ad50d427"
+    },
+    {
+      "file": "packages/ui/src/settings/model-provider-section/ProviderFormControls.tsx",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "a715ec92cce6cb9eb193f836360a1f36bbea5368beb1e01b66bf61df2b32ed7a"
+    },
+    {
+      "file": "packages/ui/src/settings/model-provider-section/ProviderModelDraftState.ts",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "7963b881e8258e895256e4263174ae9ddade304b59a0772c53389f8bad3ac268"
+    },
+    {
+      "file": "packages/ui/src/settings/model-provider-section/ProviderModelMetadata.ts",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "fd246d75252b53e61be11f7d152044a923364fb1481ef17d2b8b628d3a40de87"
+    },
+    {
+      "file": "packages/ui/src/settings/model-provider-section/ProviderModelMetadataDialog.tsx",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "6a0b588e60490ef95d1fc1c0d91abe08e8cfada01a52339dcd037d33b690f0c4"
+    },
+    {
+      "file": "packages/ui/src/settings/model-provider-section/ProviderTemplatePicker.tsx",
+      "owners": [
+        "T-140"
+      ],
+      "sha256": "d60ebaf6bbd23fe49347f62c0cbedd3bd7e6c1dd410b6adfc6516f45a0fd2278"
+    },
+    {
+      "file": "packages/ui/src/settings/model-provider-section/providerSaveGenerations.ts",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "fa344785ede0d5634aabdec6ffbf815814b63c19bd99435ffa5c1d7744d842de"
+    },
+    {
+      "file": "packages/ui/src/settings/settingsPageConfig.ts",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "bf5c90f20c5ba24b8f6599db2d212cf9a27e1a93757c03de81bb6383a89a1273"
+    },
+    {
+      "file": "packages/ui/src/settingsPageHelpers.tsx",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "01108082ae190115df68ea9296c0a6771c5cb15a92556ce9ff1242cd1054927c"
+    },
+    {
+      "file": "packages/ui/src/test-actions.ts",
+      "owners": [
+        "T-140",
+        "T-113"
+      ],
+      "sha256": "e04da628a1f53769f9f5739fa5506542b677f4afafe1b9b9b4b09b5e86985b90"
+    },
+    {
+      "file": "packages/ui/src/v4/SessionPane.tsx",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "1858e3691283370f02c2c885fc4c2dd9cf33b8fc7f091c58b15447378c0d1156"
+    },
+    {
+      "file": "packages/ui/src/zaicode/ZaicodeAuditCampaignCard.tsx",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "59abdf67b72f8634085787b96c63e25678cbe4d9dc55ab605c045caca75cb67f"
+    },
+    {
+      "file": "packages/ui/src/zaicode/ZaicodeAuditPanel.tsx",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "dcede0a588e674625abc4c4f54ff57932031c8707c2e0b1dc609575b625c3bc0"
+    },
+    {
+      "file": "packages/ui/src/zaicode/ZaicodeEngineBar.tsx",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "6ee6390c8bc7c2dec6cbfc413ac4efc21e23cb1cff738b2fca96d3abfef8f199"
+    },
+    {
+      "file": "packages/ui/src/zaicode/ZaicodeEngineModelRow.tsx",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "ea9db6485d1494c04a2eb6f090b1a26dc0ef06dbde8d3f9000d001f2578d19b6"
+    },
+    {
+      "file": "packages/ui/src/zaicode/ZaicodeInspector.tsx",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "428367caa304eef87d6f027b387d5086d143f69dc02330555c74f184b860d1c2"
+    },
+    {
+      "file": "packages/ui/src/zaicode/ZaicodePoolPicker.tsx",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "f458ddf9b041e681f1c0da915b1ad0fda2f2b3597e367e0252ebcad05517df31"
+    },
+    {
+      "file": "packages/ui/src/zaicode/ZaicodeProjectRail.tsx",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "4eabecac3957a6a4d535a3eb59cc385efe123f3bcafb26ec99e7d4343f9b71b6"
+    },
+    {
+      "file": "packages/ui/src/zaicode/ZaicodeWorkspace.tsx",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "e2c74f7b354a4f63e965a75cb27c843cda7eb9b963dfefe882ab9911dec1db63"
+    },
+    {
+      "file": "packages/ui/src/zaicode/ZaicodeWorkspaceBar.tsx",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "677466a178ca4ec31e0b503c9dc7e15ad5d2312118ed8c5c135b7011527a9553"
+    },
+    {
+      "file": "packages/ui/src/zaicode/saiasui/SaiasuiGame.tsx",
+      "owners": [
+        "T-139"
+      ],
+      "sha256": "5846c16dc478831e9acc08477fd3302270d10e398ee1c832014a0cad91575d8d"
+    },
+    {
+      "file": "packages/ui/src/zaicode/saiasui/SaiasuiHost.tsx",
+      "owners": [
+        "T-139"
+      ],
+      "sha256": "74208f2f7afd06ba820d052c5e863aa0f4d59302009633f5908678830a1ca348"
+    },
+    {
+      "file": "packages/ui/src/zaicode/saiasui/SaiasuiTarget.tsx",
+      "owners": [
+        "T-139"
+      ],
+      "sha256": "01328cffb657319f351bdaa7b9436b0c3fdb3a330c9241a0fa52b06d746255ab"
+    },
+    {
+      "file": "packages/ui/src/zaicode/saipeggle/ZaicodeSaipeggleCanvas.tsx",
+      "owners": [
+        "T-139"
+      ],
+      "sha256": "d3b930edb20fb1c44e08021f82f76001107763556bbfa44aba69f3788d636a3d"
+    },
+    {
+      "file": "packages/ui/src/zaicode/saipeggle/ZaicodeSaipeggleView.tsx",
+      "owners": [
+        "T-139"
+      ],
+      "sha256": "87590af7f52e52d4cc846a474a0d3d48480fb5145dc46500d8171146be15a171"
+    },
+    {
+      "file": "packages/ui/src/zaicode/saipeggle/saipeggleDrawHud.ts",
+      "owners": [
+        "T-139"
+      ],
+      "sha256": "aa03cd635ec0c40beb4b37e42ebea55fb66509818e88575ec5b9b74dd26320f0"
+    },
+    {
+      "file": "packages/ui/src/zaicode/saipeggle/saipeggleLevels.ts",
+      "owners": [
+        "T-139"
+      ],
+      "sha256": "6c68d3486b5fe58181b4a33ded1f259740bfa6d34f06bce1a35f67095e6f21c2"
+    },
+    {
+      "file": "packages/ui/src/zaicode/saipeggle/saipegglePhysics.ts",
+      "owners": [
+        "T-139"
+      ],
+      "sha256": "27ee9616f608484843e13a9558a7615874e43ef30742da8935d125050339fd1f"
+    },
+    {
+      "file": "packages/ui/src/zaicode/saipeggle/saipeggleRules.ts",
+      "owners": [
+        "T-139"
+      ],
+      "sha256": "7b485539de1bbac963403301945be9cd996c32575c05032baa2e73a0bcf22fdf"
+    },
+    {
+      "file": "packages/ui/src/zaicode/zaicodeAuditStore.ts",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "abe3a018b6e4818b1e40c0aef63dc01ef5909556df86cbd04178d9217f700330"
+    },
+    {
+      "file": "packages/ui/src/zaicode/zaicodeDefaultModel.ts",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "ba6b717ed5d2c48e5d950da15bdd73c00fd98b33ff64cf0c71ee75e46cc6fdb4"
+    },
+    {
+      "file": "packages/ui/src/zaicode/zaicodeEngineBarPrefs.ts",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "d54b0162b0af8d9ea4a74936855650462749b54b77dcc98a62523495a78d4039"
+    },
+    {
+      "file": "packages/ui/src/zaicode/zaicodeRoutingModel.ts",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "296bbc8ec2a29975de8e5cbc3f896055ebf63469f619b2c67d92966bf331dd23"
+    },
+    {
+      "file": "packages/ui/src/zaicode/zaicodeSidebarPrefs.ts",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "007ecc4bf01705aa3647b56bd215d3e0165dda448d3c94ae39e6dab2c1fad825"
+    },
+    {
+      "file": "packages/ui/src/zaicode/zaicodeSidebarWidth.ts",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "2c5d9dddefb99046100aee870e611793472e6239aa6367531928dbcf317b8478"
+    },
+    {
+      "file": "packages/ui/src/zaicode/zaicodeSoundBus.ts",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "7223f7ece43c20f712d4019f416a7e726c9ecf6f295c803979b773e2fae86726"
+    },
+    {
+      "file": "packages/ui/src/zaicode/zaicodeSoundEvents.ts",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "a2fa7dd4d4daad0877a8edaee5a09d396473334415fa4c1cd0e93cacdffae1aa"
+    },
+    {
+      "file": "packages/ui/src/zaicode/zaicodeSoundPolicy.ts",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "5f827bdcfc7a5608e34182237b3f59d19ad33752dc91284ca91e38b473056d37"
+    },
+    {
+      "file": "packages/ui/src/zaicode/zaicodeSoundSettingsModel.ts",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "4655041c925ff64c728cef368fa6cb4709e5d36fbafaf13540c324c98ac8a848"
+    },
+    {
+      "file": "packages/ui/src/zaicode/zaicodeSubscriptionSelection.ts",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "75e3d743094652abb5cd41b4c0e8fa357ddad74e85aa3a896d4dc64d1e450995"
+    },
+    {
+      "file": "packages/ui/test/zaicodeEngineBarPrefs.test.ts",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "4d92db6d3f57b6363f0a46093d5be81c9b2566f7dfde36afe5d17c04592272d8"
+    },
+    {
+      "file": "packages/ui/test/zaicodeLocaleParity.test.ts",
+      "owners": [
+        "T-140",
+        "T-113",
+        "T-141"
+      ],
+      "sha256": "14c065612e5979f28c83a3b23bc8407d54aa650651af5e6381870230b3a8045e"
+    },
+    {
+      "file": "packages/ui/test/zaicodeSaipeggleSaiasuiFixes.test.ts",
+      "owners": [
+        "T-139"
+      ],
+      "sha256": "e1a6a077e24807df8f860c5514d43a97a74099e248fef64ebd088e8b25267f20"
+    },
+    {
+      "file": "packages/ui/test/zaicodeSoundOverlap.test.ts",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "9c5c1346a443f99490ff47b71c9eeaf55e19d79b2af2c4ef2016a54d46bf1d24"
+    },
+    {
+      "file": "packages/ui/test/zaicodeSrc62Sounds.test.ts",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "c18b27a2bd8bcc0cc7bafe9a9d332879798353f466dde14e8d256b4a7c9e7e41"
+    },
+    {
+      "file": "packages/ui/test/zaicodeT141ModelNames.test.ts",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "a4caded452e0668f1a11984c20bfe4c593110b65cb8da1e8d5515dc7fb287500"
+    },
+    {
+      "file": "packages/ui/test/zaicodeT141Quota.test.ts",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "f1539eff2aed610c007c070e6f5119419a231bd1ba5681b718604dc981500b45"
+    },
+    {
+      "file": "packages/ui/test/zaicodeT141Saves.test.ts",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "a3fcbe39e3102606ce288820819c7e4b6133b9a9ef0024d9395e849f7f733a9a"
+    },
+    {
+      "file": "packages/ui/test/zaicodeT141Selection.test.ts",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "ee058612880caf7f5ff1035f41600703fb5534189816f9980de51da8edece7ed"
+    },
+    {
+      "file": "packages/ui/test/zaicodeT141Sidebar.test.ts",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "2803d7c7402dfb5ccd8d1e47b519e9cf094c3665a1a070b04cac56e326f7eb9a"
+    },
+    {
+      "file": "packages/ui/test/zaicodeT141SoundsShortcuts.test.ts",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "b3ef0e9c466d95bf57f500ab811bbad565c8870507201f3aff54816009a2eaf3"
+    },
+    {
+      "file": "packages/web/src/communityUrl.ts",
+      "owners": [
+        "T-140"
+      ],
+      "sha256": "f3e525a2c36b98d98b6a03305a8b8416784e1b607709f0ca2ae2f2e17b00d76c"
+    },
+    {
+      "file": "packages/web/src/main.tsx",
+      "owners": [
+        "T-140"
+      ],
+      "sha256": "690188f96451cdce4ce934696507f1696ba7e113578a220836d0b5f3c599c09d"
+    },
+    {
+      "file": "specs/locale-expansion.md",
+      "owners": [
+        "T-140"
+      ],
+      "sha256": "f2a72574c1a993a4280d056ba97a98a730c9c5edab3923bd37a18a85d305ce5e"
+    },
+    {
+      "file": "specs/zaicode-t141-workflows.md",
+      "owners": [
+        "T-141"
+      ],
+      "sha256": "66904fea8790672b761aa863a64491199a051ab41e66f58e8f70a5a62eb9110d"
+    }
+  ]
+}

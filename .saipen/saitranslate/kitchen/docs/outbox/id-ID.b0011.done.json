@@ -1,0 +1,15 @@
+{
+  "id": "id-ID.b0011",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0106": "- kutip vonis cloud dan klasifikasikan sebagai batas ini, ticket demi ticket\n  ({protected0} § 6 punya pemeriksaan);\n- jangan pernah menulis ulang sidecar, jangan hanya verifikasi ulang demi hijau, atau menambal salinan kernel;\n- jaga event LOG di bawah 1024 byte di kedua sisi.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0108": "Pengikatan jalur mesin yang sama juga memblokir pekerjaan. Baseline utang pra-BUILD\ntercatat saat pertama kali sebuah ticket masuk BUILD, lalu diperiksa ulang tiap\nentri berikutnya. Jadi ticket yang pertama kali masuk BUILD di mesin operator\ntidak bisa masuk BUILD di cloud: transisinya ditolak dengan {protected0}. T-84 adalah\nkasus tercatat: DEBT-000079 tercatat di E-1377 dan transisinya ditolak di E-1446.\nBiarkan ticket seperti itu ditangani mesin yang mencatat baseline-nya.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0110": "## Divergensi",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0112": "Kalau lokal dan remote berhenti berbagi leluhur, watcher berhenti. Tidak\nmerge, rebase, atau paksa. Dua id commit masuk log, perbaikannya {protected0}\nsecara manual, dan hasilnya di-checkpoint seperti perubahan lain.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0114": "## Tindakan sisi cloud yang persis",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0116": "### Skrip setup lingkungan (sekali, di pengaturan lingkungan cloud)",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0118": "Menu lingkungan cloud di title bar sesi -> Edit -> Setup script. Skrip ini\njalan sebelum tiap sesi baru, jadi tiap sesi mulai dengan toolchain produk siap:",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0122": "### Prompt untuk tiap sesi baru",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0124": "Mulai sesi di repository {protected0}, branch {protected1}, dan\npastikan agent di mesin operator tidak menulis bersamaan.\nGanti baris terakhir dengan {protected2} untuk menyerahkan pekerjaan baru.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0134": "Di mesin operator, watcher melakukan fast-forward {protected0} dari\n{protected1}; {protected2} (atau {protected3}) membangunnya, dan\nstart berikutnya ZAICODE menukar build baru itu masuk.\n"
+  }
+}

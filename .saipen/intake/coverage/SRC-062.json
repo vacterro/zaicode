@@ -1,4 +1,14 @@
 {
-  "requirements": {},
+  "requirements": {
+    "SRC-062:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "T-94 closed with verification evidence in LOG: review verify -> PASS [target: T-94] conf: high -- unchanged SRC-062/ProTrail suites independently rerun in REVIEW: UI 63/63, desktop 39/39; product diff empty; exact human PASS E-2410/E-2420 re-read; no P0/P1; memory promotion NONE (existing lesson). DEC: SHIP.",
+      "text": "SRC-062 (operator, 2026-09-27, after the T-93 PASS): nine items and three appends. (1) SAIPEGGLE, a Peggle Deluxe style game replacing PEBBLE DROP. (2) ProTrail inside ZAICODE and globally over Windows. (3) DONE mark for a clean SAIPEN board plus an A3 audit offer. (4) Model picker: palette colours and visible readiness bars. (5) Session text: Word-like styles with presets. (6) Sound overlap: one sound per action, no pile-up. (7) RPG change numbers in the chat. (8) Calm-interface switch for those numbers. (9) Splash placeholder until the picture is decoded. Appends: (a) project click opens MAIN predictably and the diamond is a real MAIN switch; (b) a ProTrail switch next to Problip plus a configurable sidebar footer; (c) ProTrail global in Windows. Carries the SRC-061 item 1b SUBCHAT removal, authorized by the T-93 PASS, shipped as zaicode 037b980.",
+      "verification": "the Work this request created reached its own verification gate; see the T-94 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-94"
+    }
+  },
   "schema_version": 1
 }

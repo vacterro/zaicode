@@ -1,0 +1,38 @@
+{
+  "id": "de-DE.b0003",
+  "translation": {
+    "aux.platform.openZCode": "In ZCode öffnen",
+    "aux.platform.openZAICODE": "In ZAICODE öffnen",
+    "aux.share.importedPrefix": "Von Share: ",
+    "aux.skillScope.workspace": "Arbeitsbereich",
+    "aux.skillScope.plugin": "Plugin",
+    "aux.skillScope.user": "Benutzer",
+    "aux.skill.android-dev": "Android-Apps über die android-emulator MCP-Tools bauen, ausführen, inspizieren und leicht automatisieren.",
+    "aux.skill.brainstorming": "Vor jeder kreativen Arbeit verwenden, einschließlich Erstellen von Features, Bauen von Komponenten, Hinzufügen von Funktionen oder Ändern von Verhalten. Erkundet Absicht, Anforderungen und Design vor der Umsetzung.",
+    "aux.skill.control-browser": "Den eingebauten Browser von ZAICODE steuern: Webseiten und lokale Entwicklungsziele öffnen, inspizieren, anklicken, tippen, screenshotten oder verifizieren.",
+    "aux.skill.dispatching-parallel-agents": "Verwenden bei 2+ unabhängigen Aufgaben ohne gemeinsamen Zustand oder sequenzielle Abhängigkeiten.",
+    "aux.skill.docx": "DOCX-Dokumente erstellen, bearbeiten und analysieren – mit Revisionen, Kommentaren, beibehaltener Formatierung und Textextraktion. Für neue Dokumente, Bearbeitungen, Revisionsbearbeitung, Kommentare und professionelle Word-Arbeit.",
+    "aux.skill.dynamic-workflows": "Verwenden beim Schreiben, Debuggen oder erneuten Einreichen eines Dynamic-Workflow-Skripts für CreateWorkflow: Subagent-Topologie wählen, Subagent-Ergebnisse eingeben, Fan-out über Dateien oder git, Schleifen über world.run-Befehle abhängen, Teile mit EvalWorkflowSnippet testen, Planer-Reviewer-Schleifen, report()-Rettung, Artefakte veröffentlichen, die der Benutzer öffnet, Umgang mit einem Hintergrundlauf.",
+    "aux.skill.executing-plans": "Verwenden, wenn ein schriftlicher Umsetzungsplan in einer separaten Sitzung mit Review-Checkpoints ausgeführt werden soll.",
+    "aux.skill.finishing-a-development-branch": "Verwenden, wenn die Umsetzung fertig ist, Tests bestehen und entschieden werden muss, wie die Arbeit per Merge, PR oder Aufräumen integriert wird.",
+    "aux.skill.ios-dev": "iOS-Simulator-Apps über die ios-simulator MCP-Tools bauen, ausführen, inspizieren und leicht automatisieren.",
+    "aux.skill.pdf": "Professionelles PDF-Toolkit für Berichte, kreative Grafiken, akademisches LaTeX und bestehende PDF-Workflows. Unterstützt Berichte, Poster, Papiere, Lebensläufe, Extraktion, Zusammenführen, Teilen, Formulare und Konvertierung.",
+    "aux.skill.pptx": "In der PPTX-Vorschauleiste ausgewählte Elemente inspizieren und gezielt aktualisieren. Prüft den Fingerabdruck der gesamten Datei und den OOXML-Locator für Text in Formen oder Tabellenzellen und stoppt bei Konflikten, statt zu raten.",
+    "aux.skill.receiving-code-review": "Verwenden, wenn Code-Review-Feedback vor der Umsetzung von Vorschlägen eingeht, besonders wenn es unklar oder technisch fragwürdig ist.",
+    "aux.skill.requesting-code-review": "Verwenden beim Abschluss von Aufgaben, bei der Umsetzung größerer Features oder vor dem Merge, um zu prüfen, ob die Arbeit die Anforderungen erfüllt.",
+    "aux.skill.plugin-creator": "ZAICODE-Plugins erstellen und validieren sowie lokale Installation und Updates anleiten.",
+    "aux.skill.skill-creator": "Neue Skills erstellen, bestehende Skills bearbeiten und Formulierungen iterieren. Für SKILL.md von Grund auf, Skills verbessern, wiederkehrende Workflows festhalten oder Beschreibungen für zuverlässiges Auslösen optimieren.",
+    "aux.skill.subagent-driven-development": "Verwenden bei der Ausführung von Umsetzungsplänen mit unabhängigen Aufgaben in der aktuellen Sitzung.",
+    "aux.skill.systematic-debugging": "Verwenden bei jedem Bug, Testfehler oder unerwartetem Verhalten, bevor Fixes vorgeschlagen werden.",
+    "aux.skill.test-driven-development": "Verwenden bei der Umsetzung jedes Features oder Bugfixes, bevor Implementierungscode geschrieben wird.",
+    "aux.skill.using-git-worktrees": "Verwenden beim Start von Feature-Arbeit, die Isolation braucht, oder vor der Ausführung von Umsetzungsplänen. Stellt sicher, dass ein isolierter Arbeitsbereich über native Tools oder git-worktree-Fallback existiert.",
+    "aux.skill.using-superpowers": "Beim Start jeder Konversation verwenden. Legt fest, wie Skills gefunden und genutzt werden, und verlangt den Skill-Tool-Aufruf vor jeder Antwort, auch vor Rückfragen.",
+    "aux.skill.verification-before-completion": "Verwenden, bevor behauptet wird, Arbeit sei fertig, behoben oder bestanden. Verlangt Verifikationsbefehle auszuführen und die Ausgabe zu bestätigen, bevor Erfolg behauptet wird.",
+    "aux.skill.web-gui-tester": "Reine GUI-Black-Box-Tests gegen Webseiten und lokale Web-Frontends mit ZAICODE Browser Use ausführen – echte Benutzerinteraktionen, semantische DOM-Evidenz und inspizierte Screenshots kombiniert.",
+    "aux.skill.writing-plans": "Verwenden bei einer Spezifikation oder Anforderungen für eine Aufgabe mit mehreren Schritten, bevor Code angefasst wird.",
+    "aux.skill.writing-skills": "Verwenden beim Erstellen neuer Skills, Bearbeiten bestehender Skills oder Verifizieren von Skills vor dem Deployment."
+  },
+  "kept": [
+    "aux.skillScope.plugin"
+  ]
+}

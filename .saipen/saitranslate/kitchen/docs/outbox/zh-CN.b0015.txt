@@ -1,0 +1,2 @@
+1|"**SAFE_TO_DEFER** — 产品层。云端会话可以克隆\r\n{protected0} 分支 {protected1} 并在其中工作。工作区层的工作\r\n不依赖产品层，但依赖克隆：\r\n{protected2} 声明了 {protected3}，缺失时校验器会失败并报\r\n{protected4}。{protected5} 门禁需要固定的 pnpm 10.33.2\r\n和已准备好的工作区。在全新云镜像上，\r\n{protected6} 是文档记载的进入方式，且产品的 {protected7} 已声明它。"
+2|"{protected0}"

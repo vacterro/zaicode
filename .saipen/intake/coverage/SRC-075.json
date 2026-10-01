@@ -1,4 +1,14 @@
 {
-  "requirements": {},
+  "requirements": {
+    "SRC-075:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "Wave 6 saitranslate collected and verified in T-140",
+      "text": "Wave 6: SAITRANSLATE locale completion -- resolve the authoritative locale list, count real source keys, expand and validate locale coverage",
+      "verification": "pnpm --dir zcode --filter @zcode/ui exec node --import tsx --test test/zaicodeLocaleParity.test.ts",
+      "work": "T-113"
+    }
+  },
   "schema_version": 1
 }

@@ -1,0 +1,15 @@
+{
+  "id": "zh-CN.b0004",
+  "translation": {
+    "docs.docs_ZAICODE_INSTALL_md.p0010": "安装选项：{protected0}（预置文件夹）、\n{protected1}（立即启动）、{protected2}（无窗口：控制台安装器，退出码\n= 结果）。首次运行会在本机构建应用，耗时较长；\n之后的运行只做更新与修复。",
+    "docs.docs_ZAICODE_INSTALL_md.p0012": "## 免费模型，无需任何配置",
+    "docs.docs_ZAICODE_INSTALL_md.p0014": "应用自带 9router。在没有它的机器上，ZAICODE 会私下运行它（隔离模式、端口 20138），用免密钥的免费额度填充 **SAIFREN**，并把 {protected0} 设为新任务的模型，因此在「新建任务」里输入的第一个任务就能得到回答：无需密钥、无需账号、无需设置。\nClaude Code、Codex 和 Antigravity 登录是可选的；机器上从未设置过的登录显示为“可选，随时登录”，而不是“需要你处理”的条目。\n验证：{protected1}\n在空配置下启动打包好的应用（独立的 HOME、APPDATA 和 LOCALAPPDATA），仅当路由器处于隔离状态、SAIFREN 通过其首 token 探测、且「新建任务」中的任务得到回答时才通过。",
+    "docs.docs_ZAICODE_INSTALL_md.p0016": "## 更新：四部分，一个 ZAICODE",
+    "docs.docs_ZAICODE_INSTALL_md.p0018": "工作区（启动器、安装器）、应用、SAIPEN 和 SAIMAIL 是四个克隆。各自独立更新：**设置 -> ZAICODE -> 更新** 列出它们的版本与提交，可手动更新单个或全部，并为每部分提供“自行更新”开关（已安装的 ZAICODE 默认开启，开发者检出时默认关闭）。ZAICODE 在启动几分钟后检查一次，之后每六小时一次。更新后各部分拿到自己需要的：应用拿到依赖（当 {protected0} 变动时）和新构建（ZAICODE运行时暂存，下次启动生效），SAIPEN 拿到其启动器，SAIMAIL 拿到其 {protected1} 安装，工作区拿到新的根启动器。处于其他分支、有本地提交、或有会被更新覆盖的改动的克隆会被报告，并原样保留。",
+    "docs.docs_ZAICODE_INSTALL_md.p0022": "## 它做什么",
+    "docs.docs_ZAICODE_INSTALL_md.p0024": "安装器就是按此顺序在空文件夹上以“repair”运行的 Autotroubleshoot 检查。每一步都是幂等的，因此再次运行会更新安装并修复损坏的部分。",
+    "docs.docs_ZAICODE_INSTALL_md.p0026": "| 检查项 | 修复方式 |\n| ---- | ---- |\n| Git、Node.js 24、Python 3.11+ | 版本合适时使用机器上的副本；否则在 {protected0} 中使用私有副本（来自 Git for Windows 的 MinGit、来自 nodejs.org 的 Node.js 24.14.0、来自其 NuGet 包的 Python）。无需管理员权限。 |\n| pnpm | {protected1} 中固定版本的 pnpm 10.33.2 |\n| ZAICODE 工作区 | {protected2} 分支 {protected3} 的克隆（启动器源码、安装器、文档；不含开发者的 {protected4} 记忆；分支 {protected5} 持续到 2026-09-27） |\n| ZAICODE 应用源码 | 分支 {protected6} 克隆到 {protected7} |\n| SAIPEN | 克隆 {protected8} 到 {protected9}；其 {protected10} 专为此克隆和此 Python 编写 |\n| SAIMAIL | 克隆 {protected11} 到 {protected12}，安装到 {protected13} |\n| saimail-local | SAIMAIL 的命令行客户端，ZAICODE 的 SAIMAIL 面板使用它（自 SAIMAIL {protected14} 起随附；{protected15} 检查报告 OK） |\n| 9router 包 | 从 npm 安装 {protected16} 到 {protected17}，已打包，SAIFREN 零配置即可用（npm 无法访问时给出 WARN） |\n| 应用依赖 | {protected18}（{protected19} 变化时重新安装） |\n| 应用构建 | {protected20}；ZAICODE 运行期间新构建暂存，下次启动时切换 |\n| 暂存构建切换 | 清除长路径切换失败留下的 {protected21}，并在 ZAICODE 关闭时切换等待中的构建 |\n| 根启动器 | {protected22} -> {protected23} |\n| 快捷方式 | 桌面与开始菜单 {protected24} -> {protected25} |\n| Claude / Codex 登录 | 仅报告：每个 {protected26} / {protected27} 登录在 ZAICODE 中都是独立引擎（A1、A2、C1 等）；需要你在浏览器中登录的项会被标出 |",
+    "docs.docs_ZAICODE_INSTALL_md.p0028": "根启动器把 ZAICODE 指向已安装的 SAIPEN（{protected0}），并把 {protected1} 和 {protected2} 放到应用 PATH 最前面，使应用及其代理和 worker 使用已安装的副本。",
+    "docs.docs_ZAICODE_INSTALL_md.p0030": "## 多个订阅"
+  }
+}

@@ -1,0 +1,8 @@
+1|ZAICODE ist von ZCode von Z.ai abgeleitet und wird unter derselben\r\n[Apache License 2.0]({protected0}) verbreitet; die Upstream-Hinweise bleiben in\r\n[NOTICE.md]({protected1}) und [THIRD-PARTY-NOTICES.md]({protected2}) erhalten.\r\nDateien wurden vom ZAICODE-Autor geändert. ZAICODE ist ein unabhängiges Projekt,\r\nnicht mit Z.ai verbunden und nicht von Z.ai unterstützt. Das originale ZCode-README bleibt als\r\n[README.zcode.md]({protected3}) und [README.en.md]({protected4}) erhalten.
+2|## Vernetzte Projekte
+3|Dieses Repository ist Teil des breiteren Projektökosystems **SAIPEN / vacterro**.
+4|[**Autoren-Hub**]({protected0}) · [**SAIPEN HQ**]({protected1}) · [**SAIPEN Core**]({protected2}) · [**ZAICODE**]({protected3}) · [**FastPrompter**]({protected4}) · [**SAIPEN Community**]({protected5})
+5|Für reproduzierbare Fehler und dauerhafte Feature-Wünsche nutze [die GitHub Issues dieses Repositories]({protected0}). Discord eignet sich für schnelle Diskussionen, Screenshots und projektübergreifendes Feedback.
+6|# ZAICODE installieren
+7|ZAICODE besteht aus drei Projekten, die wie eines funktionieren: die ZAICODE-App, SAIPEN (das\r\nProtokoll, das die Agentenarbeit auf Kurs hält) und SAIMAIL (die Post, mit der sich\r\nAgenten gegenseitig informieren). Manuelles Installieren bedeutet drei Clones, eine Node.js-\r\nToolchain, eine Python-Umgebung und einen Build. Der Installer erledigt alles:\r\nstarten, warten, und eine ZAICODE-Verknüpfung liegt auf dem Desktop.
+10|```powershell\n  & ([scriptblock]::Create((irm {protected0})))\n  ```

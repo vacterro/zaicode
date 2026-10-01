@@ -1,0 +1,8 @@
+{
+  "id": "et-EE.b0042",
+  "translation": {
+    "feedback.severity.P1-高.label": "Ei saa kasutada",
+    "feedback.severity.P2-中.label": "Mõjutab kasutamist",
+    "feedback.severity.P3-低.label": "Väike probleem/soovitus"
+  }
+}

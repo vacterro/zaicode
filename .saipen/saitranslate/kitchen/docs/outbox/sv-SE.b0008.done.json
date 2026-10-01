@@ -1,0 +1,15 @@
+{
+  "id": "sv-SE.b0008",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0046": "| Situation | Åtgärd |\n|-----------|------|\n| remote före, ingen inkommande fil är ändrad här | {protected0}; ocommittat produktarbete lämnas som det är |\n| remote före, en inkommande fil är ändrad här | HELD: logga filerna, merge ingenting |\n| lokal före | logga; **aldrig pushad** (produkten publiceras av SAIPEN SHIP) |\n| divergerat | pausa, logga båda id:n, merge ingenting |\n| annan branch, en git-åtgärd pågår, fetch misslyckades | pausa |\n| ingen {protected1}-checkout, eller {protected2} | hoppad |",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0048": "git vägrar själv en fast-forward som skulle skriva över en lokal ändring, så HELD-kontrollen är ett tidigare, tydligare skydd, inte det enda. En produkt-fast-forward bygger inte om något: för att testa, kör {protected0} (eller dev-förhandsvisningen).",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0050": "### Självuppdatering (T-90)",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0052": "Watchern körs som en kopia under {protected0}, så en nyare watcher i repot har aldrig körts utan reinstallering. I loop-läge jämför den nu sin egen fil med repots committade kopia varje omgång. Den installerar den kopian över sig själv och startar om exakt en gång, med samma argument, endast när allt av detta stämmer:",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0054": "- filerna skiljer sig åt;\n- repokopian har inga ocommittade ändringar;\n- repokopian parsas utan fel.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0056": "En kopia som inte parsas avvisas och loggas, och den körande watchern fortsätter.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0058": "Watchers installerade före T-90 saknar både produktgenomgången och självuppdateringen. Kör {protected0} en gång på en sådan maskin; efter det uppdaterar watchern sig själv.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0060": "## Molnhalvan",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0062": "{protected0} i roten är intreregeln och {protected1} är utförandeförfarandet. Skillen hämtar SAIPEN-kerneln från {protected2} och kör den via den deklarerade motorytan {protected3}. Kerneln låses fast på commit ({protected4}), aldrig på tagg. Tagg {protected5} är en äldre kernel med samma {protected6}; dess {protected7} muterar state, och dess validator avvisar den här boarden.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0064": "{protected0} registrerar kernelvägen för den executor som checkpointade sist. I molnet konvergerar den första {protected1} på kernel {protected2} den till den körande kerneln som en enda journaliserad {protected3} (E-1410). På operatörmaskinen kommer pekaren in död på samma sätt. En kernel med automatisk konvergens reparerar den vid {protected4}; annars kör {protected5}."
+  }
+}

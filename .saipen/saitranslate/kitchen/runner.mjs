@@ -23,8 +23,9 @@
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { technicalTokens, suspiciousTranslation } from './tokens.mjs';
 
-const KITCHEN = import.meta.dirname;
+const KITCHEN = process.env.SAITRANSLATE_KITCHEN_DIR ?? import.meta.dirname;
 const STATE = join(KITCHEN, "state.json");
 const DRAFTS = join(KITCHEN, "drafts");
 const OUTBOX = join(KITCHEN, "outbox");
@@ -60,7 +61,7 @@ function unescape(inner, quote) {
 
 function extractCatalog(text) {
   const entries = new Map();
-  const re = /^\s*"([A-Za-z0-9_.-]+)":\s*(?:'((?:[^'\\]|\\.)*)'|"((?:[^"\\]|\\.)*)")\s*,?\s*$/gm;
+  const re = /^\s*"([^"\s]+)":\s*(?:'((?:[^'\\]|\\.)*)'|"((?:[^"\\]|\\.)*)")\s*,?\s*$/gm;
   let m;
   while ((m = re.exec(text)) !== null) {
     if (entries.has(m[1])) throw new Error(`duplicate source key ${m[1]}`);
@@ -99,6 +100,13 @@ function saveState(state) {
 }
 
 function readSource() {
+  if (process.env.SAITRANSLATE_SOURCE_CATALOG) {
+    const catalog = new Map(Object.entries(JSON.parse(readFileSync(process.env.SAITRANSLATE_SOURCE_CATALOG, "utf8"))));
+    if (!catalog.size || [...catalog.values()].some((value) => typeof value !== "string")) {
+      throw new Error("custom source catalog must contain nonempty string entries");
+    }
+    return { catalog, digest: sourceDigest(catalog), order: [...catalog.keys()] };
+  }
   const text = readFileSync(SOURCE, "utf8");
   const catalog = extractCatalog(text);
   if (catalog.size < 5000) throw new Error(`source catalog implausibly small: ${catalog.size}`);
@@ -115,6 +123,7 @@ function localeState(state, locale, digest) {
       issued: 0,
     };
   }
+  state.locales[locale].digest = digest;
   return state.locales[locale];
 }
 
@@ -137,14 +146,14 @@ function cmdStatus() {
   }
 }
 
-function cmdBatch(locale, sizeArg) {
+function cmdBatch(locale, sizeArg, repairKeys) {
   if (!LOCALES.has(locale)) throw new Error(`unknown locale ${locale}`);
   if (locale === SOURCE_LOCALE) throw new Error("the source locale needs no batches");
   const size = Math.max(1, Math.min(200, Number(sizeArg) || 40));
   const src = readSource();
   let state = loadState();
   if (!state || state.source_digest !== src.digest) {
-    if (state) console.log("source digest changed: previous state archived, rebinding");
+    if (state) console.log("source digest changed: preserving accepted drafts, rebinding; final audit must verify them against the current source");
     state = {
       source_keys: src.catalog.size,
       source_digest: src.digest,
@@ -156,7 +165,10 @@ function cmdBatch(locale, sizeArg) {
   const ls = localeState(state, locale, src.digest);
   const draftPath = join(DRAFTS, `${locale}.json`);
   const done = existsSync(draftPath) ? new Set(Object.keys(JSON.parse(readFileSync(draftPath, "utf8")))) : new Set();
-  const pending = src.order.filter((k) => !done.has(k) && !ls.batches_active?.includes?.(k)).slice(0, size);
+  if (repairKeys && (!Array.isArray(repairKeys) || repairKeys.some(key => !src.catalog.has(key)))) {
+    throw new Error("repair keys must be an array of current source keys");
+  }
+  const pending = repairKeys ? [...new Set(repairKeys)].slice(0, 200) : src.order.filter((k) => !done.has(k) && !ls.batches_active?.includes?.(k)).slice(0, size);
   if (pending.length === 0) {
     console.log(`${locale}: nothing pending (${done.size} drafted)`);
     return;
@@ -248,6 +260,10 @@ function cmdAccept(path) {
     if (want.join("|") !== got.join("|")) {
       errors.push(`${key}: placeholders ${want.join(",") || "(none)"} != ${got.join(",") || "(none)"}`);
     }
+    const sourceValue = src.catalog.get(key) ?? '';
+    const missingTokens = technicalTokens(sourceValue).filter(token => !value.includes(token));
+    if (missingTokens.length) errors.push(`${key}: technical tokens missing: ${missingTokens.join(', ')}`);
+    if (suspiciousTranslation(sourceValue,value)) errors.push(`${key}: translation is a transport marker or suspiciously truncated; provide the full meaning`);
     if (value === src.catalog.get(key)) {
       // A value made only of placeholders, punctuation, digits and units carries no words to translate.
       const rest = value.replace(/\{\{[^}]+\}\}|\$\{[^}]+\}|\{\w+\}/g, "");
@@ -280,7 +296,7 @@ function cmdAccept(path) {
     0,
     (Date.now() - Date.parse(batch.issued_at)) / 1000,
   );
-  ls.accepted += keys.length;
+  ls.accepted = Object.keys(draft).length;
   ls.batches_accepted.push(batch.id);
   ls.throughput.keys += keys.length;
   ls.throughput.seconds += seconds;
@@ -295,6 +311,7 @@ function cmdAccept(path) {
 const [cmd, a, b] = process.argv.slice(2);
 if (cmd === "status") cmdStatus();
 else if (cmd === "batch") cmdBatch(a, b);
+else if (cmd === "repair") cmdBatch(a, 200, JSON.parse(readFileSync(b, "utf8")));
 else if (cmd === "accept") cmdAccept(a);
 else if (cmd === "audit") cmdAudit(a);
 else {

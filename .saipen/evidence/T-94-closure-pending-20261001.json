@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "work": "T-94",
+  "objective": "cc all",
+  "observed_at_utc": "2026-10-01 06:37:53 UTC",
+  "product_head": "d359a2a9e44d082fb842602bdbefd13c4358c583",
+  "implementation_delta_in_this_continuation": false,
+  "human_result": {
+    "answer": "PASS",
+    "source": ".saipen/evidence/T-94-operator-pass-20261001.json",
+    "events": [
+      "E-2410",
+      "E-2420"
+    ],
+    "scope": "Current three-monitor placement, click-through, and restart. Mixed-DPI and physical hotplug are not asserted."
+  },
+  "verify": {
+    "typecheck": "PASS",
+    "pre_push": "PASS",
+    "passed": 1168,
+    "platform_skips": 2,
+    "lint_errors": 0,
+    "lint_warnings": 100,
+    "architecture_violations": 0,
+    "logs": [
+      ".saipen/evidence/T-94-current-typecheck-20261001.log",
+      ".saipen/evidence/T-94-current-prepush-20261001.log"
+    ]
+  },
+  "independent_review": {
+    "ui": {
+      "pass": 63,
+      "fail": 0
+    },
+    "desktop": {
+      "pass": 39,
+      "fail": 0
+    },
+    "logs": [
+      ".saipen/evidence/T-94-review-ui-20261001.log",
+      ".saipen/evidence/T-94-review-desktop-20261001.log"
+    ],
+    "product_diff": "empty"
+  },
+  "closure_preview": {
+    "command": "saipen ticket done T-94 --closure-mode inherited_verified --implementation-source release:d359a2a9e44d082fb842602bdbefd13c4358c583 --dry-run --json",
+    "result": {
+      "ok": false,
+      "code": "VALIDATION_FAILED",
+      "op_id": null,
+      "changed_files": [],
+      "recovery_required": false,
+      "message": "implementation source 'release:d359a2a9e44d082fb842602bdbefd13c4358c583' cannot be resolved to a durable published release; no COMMITTED release receipt names 'd359a2a9e44d082fb842602bdbefd13c4358c583'",
+      "ticket": "T-94",
+      "detail": "implementation source 'release:d359a2a9e44d082fb842602bdbefd13c4358c583' cannot be resolved to a durable published release; no COMMITTED release receipt names 'd359a2a9e44d082fb842602bdbefd13c4358c583'"
+    }
+  },
+  "remaining_blocker": "RELEASE_AUTHORITY_PENDING",
+  "disposition": "Human placement acceptance is recorded. Canonical inherited closure still requires a real terminal release receipt. No publication receipt, replacement diff, or human verdict was fabricated."
+}

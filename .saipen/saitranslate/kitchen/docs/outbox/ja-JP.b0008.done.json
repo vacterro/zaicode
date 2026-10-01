@@ -1,0 +1,15 @@
+{
+  "id": "ja-JP.b0008",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0046": "| 状況 | 対応 |\r\n|-----------|------|\r\n| リモートが先行、受け入れるファイルがここでは未コミット | {protected0}; 未コミットの製品変更はそのまま残す |\r\n| リモートが先行、受け入れるファイルがここでは dirty | HELD: ファイルを記録、merge しない |\r\n| ローカルが先行 | 記録、**push しない**（製品は SAIPEN SHIP が公開） |\r\n| 分岐 | 一時停止、両方の id を記録、merge しない |\r\n| 他ブランチ、git 操作進行中、fetch 失敗 | 一時停止 |\r\n| {protected1} のチェックアウトなし、または {protected2} | スキップ |",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0048": "git 自身が、ローカル変更を上書きする fast-forward を拒否する。\r\nしたがって HELD チェックはより早い、より明確なガードであり、唯一のガードではない。製品の\r\nfast-forward は何も再構築しない: テストには {protected0} を実行（または dev プレビュー）。",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0050": "### セルフ更新 (T-90)",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0052": "ウォッチャーは {protected0} の配下でコピーとして動くため、リポジトリ内の新しいウォッチャーが再インストールなしで実行されることはない。ループモードでは、各パスごとに\r\n自分のファイルとリポジトリのコミット済みコピーを比較する。次の条件をすべて満たす場合のみ、\r\n同じ引数で、そのコピーを自分の上にインストールし、ちょうど一度再起動する:",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0054": "- 2つのファイルが異なる;\r\n- リポジトリのコピーに未コミットの編集がない;\r\n- リポジトリのコピーがエラーなくパースできる。",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0056": "パースできないコピーは拒否して記録され、実行中のウォッチャーは\r\nそのまま継続する。",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0058": "T-90 より前にインストールされたウォッチャーには、製品パスもセルフ更新も無い。\r\nそのようなマシンでは {protected0} を一度再実行する; その後、\r\nウォッチャーは自己更新する。",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0060": "## クラウド側",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0062": "{protected0} found at root はエントリールール、{protected1} は実行手順。スキルは {protected2} から\r\nSAIPEN カーネルを取得し、宣言されたエンジン面 {protected3} 経由で実行する。カーネルはタグではなく\r\ncommit ({protected4}) で固定。タグ {protected5} は同じ {protected6} を持つ旧カーネルで、\r\nその {protected7} は状態を変更し、バリデータはこのボードを拒否する。",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0064": "{protected0} は、最後にチェックポイントした実行者のカーネルパスを記録する。クラウドでは、\r\nカーネル {protected2} に対する最初の {protected1} が、記録済みの 1 つの {protected3} として実行中のカーネルに\r\n収束させる（E-1410）。オペレータマシンでも同じ方法で、 포インタは到達時に死んだ状態になる。自動収束\r\nを持つカーネルは {protected4} で修復する; なければ\r\n{protected5} を実行。"
+  }
+}

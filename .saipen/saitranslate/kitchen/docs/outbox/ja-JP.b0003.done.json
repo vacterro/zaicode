@@ -1,0 +1,15 @@
+{
+  "id": "ja-JP.b0003",
+  "translation": {
+    "docs.README_md.p0048": "ZAICODE は Z.ai の ZCode を派生させたもので、同じ\r\n[Apache License 2.0]({protected0}) で配布しています。アップストリームの通知は\r\n[NOTICE.md]({protected1}) と [THIRD-PARTY-NOTICES.md]({protected2}) に保持しています。\r\nファイルは ZAICODE の作者が変更しました。ZAICODE は独立したプロジェクトであり、\r\nZ.ai とは提携・承認の関係にありません。元の ZCode の README は\r\n[README.zcode.md]({protected3}) と [README.en.md]({protected4}) として保持しています。",
+    "docs.README_md.p0052": "## プロジェクトネットワーク",
+    "docs.README_md.p0054": "このリポジトリは、より広い **SAIPEN / vacterro** プロジェクトエコシステムの一部です。",
+    "docs.README_md.p0056": "[**著者ハブ**]({protected0}) · [**SAIPEN HQ**]({protected1}) · [**SAIPEN Core**]({protected2}) · [**ZAICODE**]({protected3}) · [**FastPrompter**]({protected4}) · [**SAIPEN コミュニティ**]({protected5})",
+    "docs.README_md.p0058": "再現可能なバグや永続的な機能リクエストは [このリポジトリの GitHub Issues]({protected0}) を使ってください。Discord は素早い議論、スクリーンショット、プロジェクト横断のフィードバック向けです。",
+    "docs.docs_ZAICODE_INSTALL_md.p0000": "# ZAICODE のインストール",
+    "docs.docs_ZAICODE_INSTALL_md.p0002": "ZAICODE は一体として働く 3 つのプロジェクトから成ります: ZAICODE アプリ、SAIPEN（エージェントの作業 }{\nTracks agent work でilteri Titre愚痴の復旧）そして SAIMAIL（エージェント同士が\r\n彼此に情報を伝えるためのメール）です。手作業でインストールすると、3 つのクローン、Node.js\r\nツールチェーン、Python 環境、ビルドが必要になります。インストーラーがすべてを\r\nまとめてxiesます: 実行して待つだけで、デスクトップに ZAICODE のショートカットが配置されます。",
+    "docs.docs_ZAICODE_INSTALL_md.p0004": "## ワンクリック",
+    "docs.docs_ZAICODE_INSTALL_md.p0006": "- **[ZAICODE-Setup.exe]({protected0})**:\n  ダウンロードしてダブルクリックし、**INSTALL** を押します。ウィンドウ（ダーク地に金の配色、\n  SAIPEN のバナー）が各ステップの進行、経過時間、ログ（必要な時）を表示し、最後に\n  **START ZAICODE**、あるいはステップが未完了だった場合は **TRY AGAIN** /\n  **Autotroubleshoot** / **Open log** となります。既存の ZAICODE フォルダを指定すると\n  ボタンは **UPDATE** になります: 同じ手順で更新と修復が行われます。exe にはインストール\n  スクリプトが同梱されており、周囲に何も不要です。{protected1}（Windows 10/11 crumpled，即可）\n  がビルドしています。\n- {protected2}（ダブルクリック）: コンソールでの同じインストール。\n- ゼロから、PowerShell で: ",
+    "docs.docs_ZAICODE_INSTALL_md.p0008": "  ```powershell\n  # インストールスクリプトを取得して実行\n  & ([scriptblock]::Create((irm {protected0})))\n  ```"
+  }
+}

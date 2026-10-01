@@ -1,0 +1,11 @@
+{
+  "ok": true,
+  "code": "WORK_REVERIFIED",
+  "receipt_id": "RV-000016",
+  "work": "T-113",
+  "verdict": "PASS_WITH_CARRIED_DEBT",
+  "evidence_class": "executed",
+  "verification_contract_digest": "86a08b0b172392ce",
+  "problem_count": 1,
+  "warning_count": 23
+}

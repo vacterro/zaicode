@@ -1,0 +1,18 @@
+{
+  "id": "cs-CZ.b0003",
+  "translation": {
+    "docs.README_md.p0048": "ZAICODE vychází ze ZCode od Z.ai a je šířen pod stejnou licenci\r\n[Apache License 2.0]({protected0}); upstreamová oznámení jsou zachována v\r\n[NOTICE.md]({protected1}) a [THIRD-PARTY-NOTICES.md]({protected2}).\r\nSoubory byly upraveny autorem ZAICODE. ZAICODE je nezávislý projekt,\r\nnespodléhá společnosti Z.ai ani jí není podpořeno. Původní README ZCode je zachováno jako\r\n[README.zcode.md]({protected3}) a [README.en.md]({protected4}).",
+    "docs.README_md.p0052": "## Síť projektů",
+    "docs.README_md.p0054": "Tento repozitář je součástí širšího ekosystému projektů **SAIPEN / vacterro**.",
+    "docs.README_md.p0056": "[**Autorovo centrum**]({protected0}) · [**SAIPEN HQ**]({protected1}) · [**SAIPEN Core**]({protected2}) · [**ZAICODE**]({protected3}) · [**FastPrompter**]({protected4}) · [**Komunita SAIPEN**]({protected5})",
+    "docs.README_md.p0058": "Pro reprodukovatelné chyby a trvalé požadavky na funkce použijte [GitHub Issues tohoto repozitáře]({protected0}). Pro rychlé diskuse, snímky obrazovky a zpětnou vazbu mezi projekty použijte Discord.",
+    "docs.docs_ZAICODE_INSTALL_md.p0000": "# Instalace ZAICODE",
+    "docs.docs_ZAICODE_INSTALL_md.p0002": "ZAICODE jsou tři projekty, které fungují jako jeden: aplikace ZAICODE, SAIPEN (protokol,\r\n který udržuje práci agentů na správné cestě) a SAIMAIL (pošta, kterou si agenti\r\nposílají zprávy). Ruční instalace znamená tři klonování, nástroje Node.js,\r\nprostředí Pythonu a sestavení. Instalátor udělá vše:\r\nspusťte ho, počkejte a zástupce ZAICODE bude na ploše.",
+    "docs.docs_ZAICODE_INSTALL_md.p0004": "## Jedno kliknutí",
+    "docs.docs_ZAICODE_INSTALL_md.p0006": "- **[ZAICODE-Setup.exe]({protected0})**:\r\n  stáhněte, dvojklikněte, stiskněte **INSTALL**. Okno (zlaté na tmavém\r\n  podkladu, banner SAIPEN) zobrazuje každý krok při běhu, čas dosud\r\n  a na vyžádání i protokol; na konci **START ZAICODE**, nebo **TRY AGAIN**\r\n  / **Autotroubleshoot** / **Open log**, pokud některý krok nedokončil.\r\n  Při ukázání na existující složku ZAICODE bude tlačítko psát **UPDATE**:\r\n  stejný běh zároveň aktualizuje a opraví. Soubor exe obsahuje instalační\r\n  skripty a nepotřebuje nic vedle sebe; sestavuje ho {protected1} (kompilátor\r\n  .NET Framework, který má každý Windows 10/11).\r\n- {protected2} (dvojklik): stejná instalace v konzoli.\r\n- Z ničeho, v PowerShellu:",
+    "docs.docs_ZAICODE_INSTALL_md.p0008": "  ```powershell\n  & ([scriptblock]::Create((irm {protected0})))\n  ```"
+  },
+  "kept": [
+    "docs.docs_ZAICODE_INSTALL_md.p0008"
+  ]
+}

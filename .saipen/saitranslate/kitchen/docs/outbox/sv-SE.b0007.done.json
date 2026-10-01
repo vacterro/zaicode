@@ -1,0 +1,15 @@
+{
+  "id": "sv-SE.b0007",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0024": "| Fil | Roll |\r\n|------|------|\r\n| {protected0} | validerar, sammanställer branchen, installerar och startar bevakaren, skriver autostart-posten, bevisar lokal == fjärr |\r\n| {protected1} | loopen: hämta, jämför, fast-forward eller pusha, logga, pausa; sedan produktgenomgång och självuppdatering |\r\n| {protected2} | rundtur från en oberoende exekverare plus bevis för kallåterhämtning |\r\n| {protected3} | produktgenomgång och självuppdatering mot engångs-Git-repositorier (inget nätverk, ingen riktig fjärr) |",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0026": "Installera och reparera:",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0030": "Den är idempotent. Maskinlokal tillstånd ligger i {protected0}:\r\n{protected1} (en kopia), {protected2} (roteras vid\r\n2 MB till {protected3}), {protected4} (en enda instans),\r\n{protected5} och en post i Startup-mappen\r\n{protected6}.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0032": "Installationsprogrammet vägrar ett smutsigt träd och rensar det aldrig. Om alla smutsiga sökvägar är\r\nkanonisk SAIPEN-tillstånd under {protected0}, säger det detta och skriver ut exakta\r\ncheckpunktskommandon; det är ett protokolstillstånd utan checkpoint, inte en transport-\r\nfel, och installationsprogrammet kommer inte att committa det bakom protokollets rygg.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0034": "## Bevakarens beteende",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0036": "| Situation | Åtgärd |\r\n|----------|------|\r\n| rent, lokal är en förfader till fjärr | {protected0} |\r\n| rent, fjärr är en förfader till lokal | {protected1} |\r\n| smutsigt | pausa; inte ens en hämtning |\r\n| på en annan branch | pausa |\r\n| båda gått framåt, ingen gemensam förfader | pausa, logga båda commit-id, slå inte ihop något |\r\n| hämtning eller nätverk misslyckades | logga försämrat läge, försök igen nästa tick |\r\n| en merge/rebase{protected2} pågår | pausa |",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0038": "Aldrig: force push, hard reset, stash, clean, checkout av främmande branch,\r\ncommit eller stopp via processnamn. Installationsprogrammet stoppar bara en bevakare med\r\ndet pid den registrerat i sin egen pid-fil.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0040": "Ett smutsigt träd kostar ingenting, eftersom bevakaren kontrollerar smutsighet innan den hämtar.\r\nEn inaktiv checkout gör alltså inga nätverksanrop alls.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0042": "### Produktgenomgång (T-90)",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0044": "{protected0} är ett eget repositorium, så tabellen ovan flyttar aldrig produkt-\r\nkod. Efter den hanterar samma tick produkt-checkouten ({protected1},\r\nstandard {protected2}; branch {protected3}, standard {protected4}). \r\nProduktgenomgången körs oavsett om det yttre trädet är smutsigt. Den drar bara."
+  }
+}

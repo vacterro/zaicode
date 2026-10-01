@@ -1,0 +1,8 @@
+{
+  "id": "fi-FI.b0051",
+  "translation": {
+    "feedback.severity.P1-高.label": "Sitä ei voi käyttää",
+    "feedback.severity.P2-中.label": "Vaikuttaa käyttöön",
+    "feedback.severity.P3-低.label": "Vähäinen ongelma/ehdotus"
+  }
+}

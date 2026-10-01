@@ -1,0 +1,15 @@
+{
+  "id": "ru-RU.b0008",
+  "translation": {
+    "docs.docs_ZAICODE_INSTALL_md.p0032": "Каждый вход в Claude Code или Codex живёт в своём домашнем каталоге: {protected0},\n{protected1}, ... и {protected2}, {protected3}, ... ZAICODE находит\nих все. Подготовить больше при установке:",
+    "docs.docs_ZAICODE_INSTALL_md.p0036": "Установщик создаёт домашние каталоги и печатает точную команду входа для каждого\n({protected0}). То же самое в ZAICODE: Settings ->\nEngines & limits -> добавить ещё один вход.",
+    "docs.docs_ZAICODE_INSTALL_md.p0038": "## Автодиагностика",
+    "docs.docs_ZAICODE_INSTALL_md.p0042": "Статус каждой проверки: OK, FIXED (было сломано, исправлено), WARN (работает, но чего-то\nнеобязательного не хватает), INFO (нужно вам: вход), FAIL. Логи в\n{protected0}; сводка последней установки — {protected1}.\nВ приложении Router -> Autotroubleshoot чинит работающий роутер и пулы.",
+    "docs.docs_ZAICODE_INSTALL_md.p0044": "## Параметры",
+    "docs.docs_ZAICODE_INSTALL_md.p0046": "| Параметр | По умолчанию | |\n| ---- | ---- | ---- |\n| {protected0} | {protected1} | куда всё устанавливается |\n| {protected2} | Desktop | куда кладётся ярлык ZAICODE |\n| {protected3}, {protected4} | | пропустить эти ярлыки |\n| {protected5} | | приватные Git / Node.js / Python, даже если они есть в системе |\n| {protected6} | | запустить ZAICODE после установки |\n| {protected7}, {protected8}, {protected9} | репозитории GitHub | другой источник (форк, локальный клон) |",
+    "docs.docs_ZAICODE_INSTALL_md.p0048": "## Проверка",
+    "docs.docs_ZAICODE_INSTALL_md.p0050": "{protected0}\nпроверяет чистую установку, создаёт неисправности (ярлык и лаунчер удалены, лаунчер SAIPEN\nуказывает на отсутствующий Python, venv у SAIMAIL удалён, node_modules\nзаписан для другого lockfile, остался сборочный каталог глубже MAX_PATH),\nпроверяет, что доктор находит и чинит каждую, затем запускает цель ярлыка\nс изолированным профилем и останавливает ровно то дерево процессов, которое сам запустил.",
+    "docs.docs_ZAICODE_INSTALL_md.p0052": "{protected0} собирает четыре одноразовых репозитория на\nдиске и установку их клонов, затем доказывает: проверка ничего не меняет, одна часть\nобновляется отдельно со своим продолжением (лаунчер SAIPEN, корневой лаунчер),\nпересекающиеся локальные правки и локальные коммиты сохраняются, неизвестное\nимя части отклоняется. Без сети.\n",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0000": "# ZAICODE SAIPEN облачный транспорт"
+  }
+}

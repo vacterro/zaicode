@@ -1,0 +1,15 @@
+{
+  "id": "bg-BG.b0009",
+  "translation": {
+    "docs.docs_ZAICODE_INSTALL_md.p0032": "Всеки вход за Claude Code или Codex има свой собствен home: {protected0},\n{protected1}, ... и {protected2}, {protected3}, ... ZAICODE намира\nвсички. За да подготвите повече при инсталиране:",
+    "docs.docs_ZAICODE_INSTALL_md.p0036": "Инсталаторът създава homes и отпечатва точната команда за вход за всеки\n({protected0}). Същото е и в ZAICODE: Настройки ->\nДвигатели и лимити -> добави още един вход.",
+    "docs.docs_ZAICODE_INSTALL_md.p0038": "## Автоотстраняване на проблеми",
+    "docs.docs_ZAICODE_INSTALL_md.p0042": "Състояние за всяка проверка: OK, FIXED (беше счупено, поправено), WARN (работи, но липсва нещо\nнезадължително), INFO (нуждае се от вас: вход), FAIL. Логовете са в\n{protected0}; резюмето на последната инсталация е {protected1}.\nВ приложението: Рутер -> Autotroubleshoot поправя работещия рутер и пулове.",
+    "docs.docs_ZAICODE_INSTALL_md.p0044": "## Опции",
+    "docs.docs_ZAICODE_INSTALL_md.p0046": "| Параметър | По подразбиране | |\n| ---- | ---- | ---- |\n| {protected0} | {protected1} | къде отива всичко |\n| {protected2} | Desktop | къде отива прекият на ZAICODE |\n| {protected3}, {protected4} | | пропусни тези преки |\n| {protected5} | | частен Git / Node.js / Python дори когато машината ги има |\n| {protected6} | | стартирай ZAICODE при завършване |\n| {protected7}, {protected8}, {protected9} | GitHub хранилищата | друг източник (fork, локален clone път) |",
+    "docs.docs_ZAICODE_INSTALL_md.p0048": "## Доказателство",
+    "docs.docs_ZAICODE_INSTALL_md.p0050": "{protected0}\nпроверява нова инсталация, създава неизправности (прекът и launcher изтрити, launcher на\nSAIPEN сочи към липсващ Python, venv на SAIMAIL изтрит, node_modules записан за\nдруг lockfile, остатъчна build папка по-дълбока от MAX_PATH),\nутвърждава, че doctor докладва и поправя всяка, после стартира целта на прека с\nизолиран профил и спира точно дървото процеси, което е стартирал.",
+    "docs.docs_ZAICODE_INSTALL_md.p0052": "{protected0} създава четири еднократни хранилища на\nдиск и инсталация на техните клони, после доказва, че проверка не променя нищо,\nче една част се обновява сама с последващата си поправка (launcher на SAIPEN, root\nlauncher), че припокриващи се локални редакции и локални commit-и се запазват и че\nнепознато име на част се отхвърля. Без мрежа.\n",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0000": "# ZAICODE SAIPEN облачен транспорт"
+  }
+}

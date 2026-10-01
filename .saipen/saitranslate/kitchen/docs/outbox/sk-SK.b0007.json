@@ -1,0 +1,30 @@
+{
+  "id": "sk-SK.b0007",
+  "locale": "sk-SK",
+  "source_digest": "sha256:1271cb40a659cdd128ed0e8704711399b15a4f147fe0448f87593f7e97dec09b",
+  "issued_at": "2026-09-30T14:39:58.982Z",
+  "keys": [
+    "docs.docs_ZAICODE_INSTALL_md.p0010",
+    "docs.docs_ZAICODE_INSTALL_md.p0012",
+    "docs.docs_ZAICODE_INSTALL_md.p0014",
+    "docs.docs_ZAICODE_INSTALL_md.p0016",
+    "docs.docs_ZAICODE_INSTALL_md.p0018",
+    "docs.docs_ZAICODE_INSTALL_md.p0022",
+    "docs.docs_ZAICODE_INSTALL_md.p0024",
+    "docs.docs_ZAICODE_INSTALL_md.p0026",
+    "docs.docs_ZAICODE_INSTALL_md.p0028",
+    "docs.docs_ZAICODE_INSTALL_md.p0030"
+  ],
+  "messages": {
+    "docs.docs_ZAICODE_INSTALL_md.p0010": "Setup options: {protected0} (preset folder),\n{protected1} (starts at once), {protected2} (no window: the console installer, exit code\n= result). The first run builds the app on this machine, which takes a while;\nlater runs only update and repair.",
+    "docs.docs_ZAICODE_INSTALL_md.p0012": "## Free models, nothing to set up",
+    "docs.docs_ZAICODE_INSTALL_md.p0014": "The app ships its own 9router. On a machine without one ZAICODE runs it\nprivately (isolated mode, port 20138), fills **SAIFREN** from keyless free\ntiers and makes {protected0} the model of new tasks, so the first task\ntyped into New task gets an answer: no key, no account, no setting. Claude\nCode, Codex and Antigravity logins are optional; a login never set up on the\nmachine shows as \"optional, sign in any time\", not as a \"needs you\" item.\nProof: {protected1}\nstarts the packaged app on an empty profile (its own HOME, APPDATA and\nLOCALAPPDATA) and passes only when the router is isolated, SAIFREN answers its\nfirst-token probe and a task in New task is answered.",
+    "docs.docs_ZAICODE_INSTALL_md.p0016": "## Updates: four parts, one ZAICODE",
+    "docs.docs_ZAICODE_INSTALL_md.p0018": "The workspace (launcher, installer), the app, SAIPEN and SAIMAIL are four\nclones. Each one updates on its own: **Settings -> ZAICODE -> Updates** lists\nthem with their version and commit, updates one by hand or all of them, and\nhas a \"by itself\" switch per part (on by default in an installed ZAICODE, off\nin a developer checkout). ZAICODE looks a few minutes after the start and then\nevery six hours. After an update each part gets what it needs: the app its\ndependencies (when {protected0} moved) and a new build (staged while\nZAICODE runs, started on the next start), SAIPEN its launcher, SAIMAIL its\n{protected1} install, the workspace a new root launcher. A clone on another branch,\nwith local commits, or with edits the update would overwrite is reported and\nleft exactly as it is.",
+    "docs.docs_ZAICODE_INSTALL_md.p0022": "## What it does",
+    "docs.docs_ZAICODE_INSTALL_md.p0024": "The installer is the Autotroubleshoot checks run with \"repair\" on an empty\nfolder, in this order. Each step is idempotent, so running it again updates\nthe install and fixes what broke.",
+    "docs.docs_ZAICODE_INSTALL_md.p0026": "| Check | Repair |\n| ---- | ---- |\n| Git, Node.js 24, Python 3.11+ | uses the machine's copy when it fits; otherwise a private copy in {protected0} (MinGit from Git for Windows, Node.js 24.14.0 from nodejs.org, Python from its NuGet package). No administrator rights. |\n| pnpm | the pinned pnpm 10.33.2 in {protected1} |\n| ZAICODE workspace | clone of {protected2} branch {protected3} (launcher source, installer, docs; the developer's {protected4} memory is left out; branch {protected5} until 2026-09-27) |\n| ZAICODE app source | clone of branch {protected6} into {protected7} |\n| SAIPEN | clone of {protected8} into {protected9}; its {protected10} is written for this clone and this Python |\n| SAIMAIL | clone of {protected11} into {protected12}, installed into {protected13} |\n| saimail-local | SAIMAIL's command-line client, which ZAICODE's SAIMAIL panels use (shipped since SAIMAIL {protected14}; the {protected15} check reports OK) |\n| 9router package | {protected16} from npm into {protected17}, bundled so SAIFREN works with zero setup (WARN if npm cannot reach it) |\n| App dependencies | {protected18} (again when {protected19} changes) |\n| App build | {protected20}; while ZAICODE runs the new build is staged and swapped in on the next start |\n| Staged build swap | clears a {protected21} left behind by a long-path swap failure and swaps a waiting build in while ZAICODE is closed |\n| Root launcher | {protected22} -> {protected23} |\n| Shortcuts | Desktop and Start menu {protected24} -> {protected25} |\n| Claude / Codex logins | reported only: every {protected26} / {protected27} login is its own engine in ZAICODE (A1, A2, C1, ...); a login needs you, in the browser |",
+    "docs.docs_ZAICODE_INSTALL_md.p0028": "The root launcher points ZAICODE at the installed SAIPEN ({protected0}) and puts\n{protected1} and {protected2} first on the app's PATH, so the app, its agents\nand its workers use the installed copies.",
+    "docs.docs_ZAICODE_INSTALL_md.p0030": "## Several subscriptions"
+  }
+}

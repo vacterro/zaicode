@@ -1,0 +1,30 @@
+{
+  "id": "fr-FR.b0010",
+  "locale": "fr-FR",
+  "source_digest": "sha256:07aa0d0a845f4042a403e9b332760ca9da784aa93f0e5c06527a63231247e6f2",
+  "issued_at": "2026-09-30T14:10:38.157Z",
+  "keys": [
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0046",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0048",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0050",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0052",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0054",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0056",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0058",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0060",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0062",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0064"
+  ],
+  "messages": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0046": "| Situation | Move |\r\n|-----------|------|\r\n| remote ahead, no incoming file is dirty here | {protected0}; uncommitted product work stays as it is |\r\n| remote ahead, an incoming file is dirty here | HELD: log the files, merge nothing |\r\n| local ahead | log; **never pushed** (product is published by SAIPEN SHIP) |\r\n| diverged | pause, log both ids, merge nothing |\r\n| other branch, a git op in flight, fetch failed | pause |\r\n| no {protected1} checkout, or {protected2} | skipped |",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0048": "git refuses on its own a fast-forward that would overwrite a local change, so\r\nthe HELD check is an earlier, clearer guard, not the only one. A product\r\nfast-forward does not rebuild anything: to test, run {protected0} (or\r\nthe dev preview).",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0050": "### Self-update (T-90)",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0052": "The watcher runs as a copy under {protected0}, so a newer watcher in\r\nthe repository never ran without a reinstall. In loop mode it now compares\r\nits own file with the repository's committed copy on every pass. It installs\r\nthat copy over itself and restarts exactly once, with the same arguments,\r\nonly when all of these hold:",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0054": "- the two files differ;\r\n- the repository copy has no uncommitted edits;\r\n- the repository copy parses without errors.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0056": "A copy that does not parse is refused and logged, and the running watcher\r\ncarries on.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0058": "Watchers installed before T-90 lack both the product pass and self-update.\r\nRe-run {protected0} once on such a machine; after that, the\r\nwatcher updates itself.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0060": "## Cloud half",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0062": "{protected0} at the root is the entry rule and\r\n{protected1} is the execution procedure. The skill fetches\r\nthe SAIPEN kernel from {protected2} and runs it through the\r\ndeclared engine surface {protected3}. The kernel is pinned by commit\r\n({protected4}), never by tag. Tag {protected5} is an older kernel with the same\r\n{protected6}; its {protected7} mutates state, and its validator rejects this board.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0064": "{protected0} records the kernel path of whichever executor checkpointed\r\nlast. In the cloud, the first {protected1} on kernel {protected2} converges\r\nit to the running kernel as one journaled {protected3} (E-1410). On the operator\r\nmachine the pointer arrives dead in the same way. A kernel with automatic\r\nconvergence repairs it on {protected4}; otherwise run\r\n{protected5}."
+  }
+}

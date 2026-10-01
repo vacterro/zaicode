@@ -1,0 +1,15 @@
+{
+  "id": "es-ES.b0008",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0024": "| Archivo | Rol |\r\n|------|------|\r\n| {protected0} | valida, reconcilia la rama, instala e inicia el watcher, escribe la entrada de autoinicio, demuestra local == remoto |\r\n| {protected1} | el bucle: fetch, comparar, fast-forward o push, registro, pausa; después la pasada de producto y la autoupdate |\r\n| {protected2} | round-trip desde un ejecutor independiente más prueba de recuperación en frío |\r\n| {protected3} | pasada de producto y autoupdate contra repositorios Git desechables (sin red, sin remoto real) |",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0026": "Instalación y reparación:",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0030": "Es idempotente. El estado local de la máquina vive en {protected0}:\r\n{protected1} (una copia), {protected2} (rotado a\r\n2 MB en {protected3}), {protected4} (instancia única),\r\n{protected5} y una entrada en la carpeta Inicio\r\n{protected6}.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0032": "El instalador rechaza un árbol sucio y nunca lo limpia. Si todas las rutas sucias son\r\nestado canónico de SAIPEN bajo {protected0}, lo dice e imprime los comandos\r\nexactos de checkpoint; eso es un estado de protocolo sin checkpoint, no un fallo\r\nde transporte, y el instalador no lo commiteará a espaldas del protocolo.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0034": "## Comportamiento del watcher",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0036": "| Situación | Movimiento |\r\n|-----------|------|\r\n| limpio, local es ancestro de remoto | {protected0} |\r\n| limpio, remoto es ancestro de local | {protected1} |\r\n| sucio | pausa; ni siquiera hace fetch |\r\n| en otra rama | pausa |\r\n| ambos avanzados, sin ancestro común | pausa, registra ambos commit ids, no fusiona nada |\r\n| fetch o red falló | registra degradado, reintenta en el siguiente tick |\r\n| hay un merge/rebase{protected2} en curso | pausa |",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0038": "Nunca: force push, hard reset, stash, clean, checkout de una rama ajena,\r\ncommit ni parada por nombre de proceso. El instalador detiene un watcher solo por el\r\npid que registró en su propio fichero pid.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0040": "Un árbol sucio no cuesta nada, porque el watcher comprueba el estado sucio antes de\r\nhacer fetch. Un checkout inactivo, por tanto, no hace ninguna llamada de red.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0042": "### Pasada de producto (T-90)",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0044": "{protected0} es su propio repositorio, así que la tabla anterior nunca mueve código\r\nde producto. Después, el mismo tick gestiona el checkout de producto ({protected1},\r\npor defecto {protected2}; rama {protected3}, por defecto {protected4}). La\r\npasada de producto se ejecute haya estado sucio o no el árbol exterior. Solo hace pull."
+  }
+}

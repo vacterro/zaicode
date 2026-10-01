@@ -1,0 +1,15 @@
+{
+  "id": "sk-SK.b0009",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0002": "Ako tento checkout a relácia Claude Code Cloud spúšťajú jeden workspace SAIPEN\r\ns rôznou lokalitou exekútora a kde je hranica medzi nimi.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0004": "## Tvar",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0008": "Jedna vetva nesie stav protokolu. Žiadny krok merge, žiadny rebase\r\na žiadna druhá lokálna vetva na synchronizáciu: ten exekútor, ktorý má\r\noverený checkpoint, ho commitne a pushne, druhá strana ho prevezme\r\nfast-forwardom.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0010": "{protected0} je história pred transportom a publikovaná predvolená vetva. Transport ju\r\nneaktualizuje silou.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0012": "## Čo putuje a čo nie",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0014": "Checkpoint v tomto repozitári nesie stav protokolu SAIPEN, root\r\nlauncher, installer, dokumentáciu a tieto transport skripty. To je celá vrstva\r\nworkspace.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0016": "**Nenesie žiadny produktový bajt.** {protected0} je samostatný Git repozitár,\r\nuvedený v {protected1} a gitignorovaný na tomto root\r\n({protected2}). Práca na produkte potrebuje vlastný clone {protected3} na vetve\r\n{protected4}, pričom ten clone je druhý, nezávislý objekt s vlastnou\r\nhistóriou.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0018": "Dôsledok sa dá ľahko pokaziť: čistý {protected0} na tomto root nehovorí\r\nnič o necommitnutej produktovej práci a fast-forward {protected1} nehovorí\r\nnič o produktovom kóde. {protected2} kontroluj výslovne.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0020": "## Lokálna polovica",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0022": "Dva skripty, obidva vlastnené repozitárom, aby nový stroj dostal skripty z repozitára\r\na nie z pamäti:"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "id": "ar-SA.b0010",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0086": "**AVAILABLE_IN_CLOUD** — حالة البروتوكول وطبقة مساحة العمل. قراءة وكتابة {protected0}، المُشغِّل ({protected1})، المُثبِّت تحت {protected2}، {protected3}، {protected4}، {protected5}، وسكربتات النقل. Git read وcommit وpush وfetch على {protected6}. أي بوابة تكون تأكيد ملف أو مراجعة diff أو فحص نصي.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0088": "**LOCAL_WINDOWS_ONLY** — البوابات التي تحتاج هذه الآلة تحديداً.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0090": "| البوابة | السبب |\r\n|------|-----|\r\n| {protected0} | يترجم {protected1} مع .NET Framework {protected2}؛ لا وجود لـ Windows SDK على صورة سحابية |\r\n| Electron E2E مُحزَّم ({protected3} سطح مكتب، Solo ← الطابور ← الإرسال) | يتطلب جلسة سطح مكتب وملف مزوّد مُهيّأ مسبقًا |\r\n| 9router الحيّ | خدمة Windows على هذا الجهاز |\r\n| النقر التفاعلي على سطح المكتب | إنسان وشاشة |\r\n| حالات وقت التشغيل الخاصة بالمراقب | المراقب لا يعمل إلا على الجهاز الحاوي لنسخة العمل |",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0092": "تُسجَّل هذه كحدود قبول محلية فقط. لا تُبلَّغ كناجحة أبداً لمجرد أن الـ diff بدا صحيحاً.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0094": "**SAFE_TO_DEFER** — طبقة المنتج. يمكن لجلسة سحابية أن تنسخ فرع {protected0} {protected1} وتعمل هناك. عمل طبقة المساحة لا يتطلب عمل المنتج، لكنه يتطلب النسخة:\r\n{protected2} يُعلن {protected3}، وبدونه يفشل المُحقِّق بالرسالة `source freshness computation BLOCKED -- declared nested repository is missing: 'zcode'{protected4}pnpm`. تحتاج البوابات إلى pnpm 10.33.2 مثبَّت ومساحة عمل مُجهَّزة. {protected5} على صورة سحابية جديدة هو طريقة الدخول الموثَّقة، و{protected6} في المنتج يُعلنه بالفعل.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0096": "السحابة لا تستطيع التحقق إلا من بايتات المنتج الموجودة على {protected0}. أي فرق في المنتج موجود فقط في نسخة {protected1} لدى المشغِّل يبقى غير مرئي هنا، لذا تكون كل بوابة منتج له NOT RUN في السحابة، مهما كانت nature البوابة. T-84 أول حالة (E-1411): كان إصلاحه محلياً فقط بينما {protected2} ما زال يحمل الكود قبل الإصلاح.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0098": "**UNSAFE_TO_EMULATE** — أي شيء يجعل بوابة محلية فقط تبدو خضراء. لا تُهمِل بناء المُشغِّل، ولا تُزيّف تشغيل تطبيق مُجمَّع، ولا تُعيد عرض نتيجة {protected0} مُسجَّلة كأنها حدثت للتو، ولا تحوّل «الكود يبدو صحيحاً» إلى سطر PASS في {protected1}.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0100": "**KNOWN_CLOUD_DIVERGENCE** — مطابقة تعتمد على مكان وجود النسخة المحلية. على النواة {protected0} يُبلِغ مُحقِّق السحابة عن {protected1} كفاشلة (T-47، T-62، T-76، T-78 وقت كتابة هذا) بينما لا تظهر على آلة المشغِّل.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0102": "تنقل النواة أي حدث LOG يتجاوز 1024 بايت إلى ملف جانبي {protected0}. وعند القراءة تستعيد ذلك الملف الجانبي فقط عندما يساوي المسار المطلق للنسخة المحلية المسار الذي كُتب منه. لذلك لا يُقرأ حكم VERIFY طويل مكتوب على Windows في السحابة، والعكس صحيح أيضاً.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0104": "العيب في النواة ومسجَّل كـ P1-1 في {protected0}. حتى يصل:"
+  }
+}

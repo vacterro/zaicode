@@ -1,0 +1,10 @@
+1|"ZAICODE er udviklet ud fra ZCode af Z.ai og distribueres under den samme\r\n[Apache License 2.0]({protected0}); upstream-notices er bevaret i\r\n[NOTICE.md]({protected1}) og [THIRD-PARTY-NOTICES.md]({protected2}).\r\nFiler blev modificeret af ZAICODE-forfatteren. ZAICODE er et uafhængigt projekt,\r\nikke tilknyttet Z.ai og ikke godkendt af Z.ai. Den oprindelige ZCode README er bevaret som\r\n[README.zcode.md]({protected3}) og [README.en.md]({protected4})."
+2|"## Projektnetværk"
+3|"Dette repository er en del af det bredere **SAIPEN / vacterro**-projektøkosystem."
+4|"[**Forfatterhub**]({protected0}) · [**SAIPEN HQ**]({protected1}) · [**SAIPEN Core**]({protected2}) · [**ZAICODE**]({protected3}) · [**FastPrompter**]({protected4}) · [**SAIPEN Community**]({protected5})"
+5|"Brug [dette repositories GitHub Issues]({protected0}) til reproducerbare fejl og holdbare funktionsønsker. Brug Discord til hurtig diskussion, skærmbilleder og feedback på tværs af projekter."
+6|"# Installer ZAICODE"
+7|"ZAICODE er tre projekter, der arbejder som ét: ZAICODE-appen, SAIPEN (protokollen\r\nder holder agentarbejde på sporet) og SAIMAIL (posten agenterne bruger til\r\nat fortælle hinanden ting). Manuel installation betyder tre clones, et Node.js\r\nværktøjssæt, et Python-miljø og et build. Installationsprogrammet gør alt det:\r\nkør det, vent, og en ZAICODE-genvej ligger på skrivebordet."
+8|"## Ét klik"
+9|"- **[ZAICODE-Setup.exe]({protected0})**:\r\n  download, dobbeltklik, tryk på **INSTALLER**. Vinduet (guld på mørk baggrund,\r\n  SAIPEN-banner) viser hvert trin undervejs, tiden der er gået og loggen\r\n  efter behov; til sidst **START ZAICODE**, eller **PRØV IGEN** / **Autotroubleshoot**\r\n  / **Åbn log**, når et trin ikke blev færdigt. Peget på en eksisterende ZAICODE\r\n  mappe hedder knappen **OPDATER**: samme kørsel opdaterer og reparerer.\r\n  exe-filen indeholder installationsscripts og kræver intet ved siden af sig;\r\n  den er bygget af {protected1} (.NET Framework-compileren, som alle Windows\r\n  10/11 har).\r\n- {protected2} (dobbeltklik): samme installation i en konsol.\r\n- Fra bunden af, i PowerShell:"
+10|=

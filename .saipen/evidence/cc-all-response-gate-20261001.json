@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "observed_at_utc": "2026-10-01 06:52:08 UTC",
+  "command": "saipen response render --stdin --auto-eligibility --project-root V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE",
+  "exit_code": 1,
+  "output": "REFUSE [EXEC_RESPONSE_INVALID]\r\nreason: eligible autonomous action remains; returning control is invalid",
+  "canonical_route": {
+    "computed_reason": "goal-blocked",
+    "computed_next_action": "saipen status",
+    "top_workable_ticket": null,
+    "phase": "DONE",
+    "task": "none",
+    "log_tail_event": 2429,
+    "closure_complete": false,
+    "operator_action_due": false
+  },
+  "canonical_conformance": {
+    "status": "CURRENT_PASS",
+    "receipt_id": "receipt-9e7b0cef1ed6"
+  },
+  "disposition": "The canonical continuation says goal-blocked with RESTATE_AND_STOP, no workable Work, no pending operation and no due human verdict. The response guard independently refuses this stop. The earlier E-2376 contradiction recurs. No protocol implementation, override, synthetic audit, publication authority, or human action was invented to bypass it.",
+  "goal_status": "active",
+  "goal_complete": false
+}

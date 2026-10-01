@@ -1,0 +1,15 @@
+{
+  "id": "cs-CZ.b0012",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0106": "- citovat verdikt cloudu a zařadit ho jako tuto hranici, ticket po ticketu\n  ({protected0} § 6 má tuto kontrolu);\n- nikdy nepřepisovat sidecars, neověřovat znovu jen aby to prošlo, ani nepatchovat\n  kernelovou kopii;\n- LOG události držet pod 1024 bajty na obou stranách.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0108": "Stejná vazba na strojovou cestu blokuje i práci. Baseline dluhu před BUILD se\r\nzachytí při prvním vstupu ticketu do BUILD a znovu se ověří při každém dalším\r\nvstupu. Ticket, který poprvé vstoupil do BUILD na stroji operátora, tedy\r\nnemůže vstoupit do BUILD v cloudu: přechod se odmítne s\r\n{protected0}. T-84 je případ v záznamu: DEBT-000079 byl\r\nzachycen na E-1377 a přechod odmítnut na E-1446. Takový ticket nech\r\nstroji, který zachytil jeho baseline.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0110": "## Rozdělení",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0112": "Pokud lokální a vzdálená větev přestanou sdílet společného předka, watcher se\r\nzastaví. Nemerge, nerebase, neforce. Obě commit ids jdou do logu, oprava\r\nje {protected0} ručně a\r\nvýsledek se uloží jako checkpoint jako každá jiná změna.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0114": "## Přesná akce na straně cloudu",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0116": "### Setup script prostředí (jednou, v nastavení cloud prostředí)",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0118": "Menu cloud prostředí v titulní liště session -> Edit -> Setup script. Spouští\r\nse před každou novou session, takže každá session začíná s připravenou\r\nproduktovou toolchain:",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0122": "### Prompt pro každou novou session",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0124": "Začni session na repository {protected0}, branch {protected1}, a\r\nujisti se, že agent na stroji operátora zároveň nezapisuje.\r\nPoslední řádek nahraď s {protected2} pro předání nové práce.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0134": "Na stroji operátora watcher fast-forwarduje {protected0} z\r\n{protected1}; {protected2} (nebo {protected3}) ho sestaví a\r\ndalší start ZAICODE nasadí nový build.\r\n"
+  }
+}

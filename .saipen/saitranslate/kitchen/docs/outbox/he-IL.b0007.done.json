@@ -1,0 +1,15 @@
+{
+  "id": "he-IL.b0007",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0024": "| קובץ | תפקיד |\r\n|------|------|\r\n| {protected0} | מאמת, מיישב את הענף, מתקין ומפעיל את הצופה, כותב את רשומת ההפעלה-אוטומטית, מוכיח שמקומי == מרוחק |\r\n| {protected1} | הלולאה: fetch, השוואה, fast-forward או push, יומן, השהיה; ואז מעבר המוצר ועדכון עצמי |\r\n| {protected2} | round-trip מתוך מבצע עצמאי בנוסף הוכחת התאוששות מקוררת |\r\n| {protected3} | מעבר מוצר ועדכון עצמי מול מאגרי Git חד-פעמיים (ללא רשת, ללא מרוחק אמיתי) |",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0026": "התקנה ותיקון:",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0030": "זה אידמפוטנטי. מצב מקומי למכונה חי ב-{protected0}:\r\n{protected1} (עותק), {protected2} (מסובב ב\r\n2 MB אל {protected3}), {protected4} (מופע יחיד),\r\n{protected5}, ורשומה בתיקיית Startup\r\n{protected6}.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0032": "המתקין מסרב לעץ מלוכלך ולעולם אינו מנקה אותו. אם כל נתיב מלוכלך הוא\r\nמצב SAIPEN קנוני תחת {protected0}, הוא אומר זאת ומדפיס את פקודות\r\nה-checkpoint המדויקות; זו מצב פרוטוקול ללא checkpoint, לא תקלת תעבורה,\r\nוהמתקין לא יבצע commit מאחורי גב הפרוטוקול.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0034": "## התנהגות הצופה",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0036": "| מצב | פעולה |\r\n|-----------|------|\r\n| נקי, מקומי הוא ancestor של מרוחק | {protected0} |\r\n| נקי, מרוחק הוא ancestor של מקומי | {protected1} |\r\n| מלוכלך | השהיה; אפילו לא fetch |\r\n| בענף אחר | השהיה |\r\n| שניהם התקדמו, אין ancestor משותף | השהיה, יומן שני מזהי commit, לא ממזג דבר |\r\n| fetch או הרשת נכשלו | יומן degraded, ניסיון חוזר ב-tick הבא |\r\n| merge/rebase{protected2} בתהליך | השהיה |",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0038": "לעולם: force push, hard reset, stash, clean, checkout של ענף זר,\r\ncommit, או עצירה לפי שם תהליך. המתקין עוצר צופה רק לפי\r\nה-pid שרשם בקובץ pid שלו.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0040": "עץ מלוכלך אינו עולה כלום, מפני שהצופה בודקת לכלוך לפני שהיא עושה fetch.\r\nלכן checkout במנוחה אינו אומר כלל שיחות רשת.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0042": "### מעבר מוצר (T-90)",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0044": "{protected0} הוא מאגר בפני עצמו, ולכן הטבלה למעלה אינה מזיזה לעולם קוד\r\nמוצר. אחריו, אותו tick מטפל ב-checkout של המוצר ({protected1},\r\nברירת מחדל {protected2}; ענף {protected3}, ברירת מחדל {protected4}).\r\nמעבר המוצר רץ בין אם עץ החיצוני מלוכלך או לא. הוא רק מושך."
+  }
+}

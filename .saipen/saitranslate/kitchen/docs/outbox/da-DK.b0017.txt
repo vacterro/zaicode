@@ -1,0 +1,2 @@
+1|"**SAFE_TO_DEFER** — produktlaget. En cloud-session kan klone\r\n{protected0} branch {protected1} og arbejde der. Workspace-lagsarbejde kræver\r\nikke produktarbejde, men kræver clone'en:\r\n{protected2} deklarerer {protected3}, og uden den fejler\r\nvalidatoren med {protected4}. {protected5} gates kræver den pinned pnpm 10.33.2\r\nog et forberedt workspace. {protected6} på et friskt cloud-image er den\r\ndokumenterede vej ind, og produktets {protected7} deklarerer den allerede."
+2|"{protected0}"

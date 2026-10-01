@@ -1,0 +1,15 @@
+{
+  "id": "pl-PL.b0006",
+  "translation": {
+    "docs.docs_ZAICODE_INSTALL_md.p0032": "Każde logowanie Claude Code lub Codex ma własny katalog domowy: {protected0},\n{protected1}, ... oraz {protected2}, {protected3}, ... ZAICODE znajduje\nje wszystkie. Aby przygotować więcej w czasie instalacji:",
+    "docs.docs_ZAICODE_INSTALL_md.p0036": "Installer tworzy te katalogi i wypisuje dokładne polecenie logowania dla każdego\n({protected0}). Tak samo w ZAICODE: Ustawienia ->\nSilniki i limity -> dodaj kolejne logowanie.",
+    "docs.docs_ZAICODE_INSTALL_md.p0038": "## Autodiagnostyka",
+    "docs.docs_ZAICODE_INSTALL_md.p0042": "Status dla każdego sprawdzenia: OK, FIXED (było zepsute, naprawione), WARN (działa, ale brakuje\nczegoś opcjonalnego), INFO (potrzebuje Ciebie: logowanie), FAIL. Logi są w\n{protected0}; podsumowanie ostatniej instalacji to {protected1}.\nW aplikacji Router -> Autotroubleshoot naprawia uruchomiony router i pule.",
+    "docs.docs_ZAICODE_INSTALL_md.p0044": "## Opcje",
+    "docs.docs_ZAICODE_INSTALL_md.p0046": "| Parametr | Domyślnie | |\n| ---- | ---- | ---- |\n| {protected0} | {protected1} | gdzie trafia wszystko |\n| {protected2} | Desktop | gdzie trafia skrót ZAICODE |\n| {protected3}, {protected4} | | pomiń te skróty |\n| {protected5} | | prywatne Git / Node.js / Python nawet gdy maszyna je ma |\n| {protected6} | | uruchom ZAICODE po zakończeniu |\n| {protected7}, {protected8}, {protected9} | repozytoria GitHub | inne źródło (fork, ścieżka lokalnego klonu) |",
+    "docs.docs_ZAICODE_INSTALL_md.p0048": "## Dowód",
+    "docs.docs_ZAICODE_INSTALL_md.p0050": "{protected0}\nsprawdza świeżą instalację, wprowadza uszkodzenia (usunięty skrót i launcher, launcher SAIPEN\nwskazujący na brakujący Python, usunięty venv SAIMAIL, node_modules\nzapisany dla innego lockfile, pozostały folder build głębiej niż MAX_PATH),\nsprawdza, że doctor zgłasza i naprawia każde z nich, następnie uruchamia cel skrótu\nz izolowanym profilem i zatrzymuje dokładnie uruchomione drzewo procesów.",
+    "docs.docs_ZAICODE_INSTALL_md.p0052": "{protected0} tworzy cztery jednorazowe repozytoria na\ndysku oraz instalację ich klonów, następnie dowodzi, że sprawdzenie nic nie zmienia,\nże jedna część aktualizuje się sama wraz ze swoją zależnością (launcher SAIPEN, launcher\nroot), że nakładające się lokalne edycje i lokalne commity są zachowywane oraz że nieznana\nnazwa części jest odrzucana. Bez sieci.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0000": "# ZAICODE SAIPEN transport chmurowy"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "id": "th-TH.b0003",
+  "translation": {
+    "docs.README_md.p0048": "ZAICODE 派生自 Z.ai 的 ZCode 依同一\r\n[Apache License 2.0]({protected0}) 授权分发；上游声明保留于\r\n[NOTICE.md]({protected1}) 与 [THIRD-PARTY-NOTICES.md]({protected2})。\r\n文件经 ZAICODE 作者修改。ZAICODE 为独立项目，\r\n与 Z.ai 无隶属或背书关系。原 ZCode README 保留于\r\n[README.zcode.md]({protected3}) 与 [README.en.md]({protected4})。",
+    "docs.README_md.p0052": "## โครงการในเครือ",
+    "docs.README_md.p0054": "ที่เก็บนี้เป็นส่วนหนึ่งของระบบ **SAIPEN / vacterro**",
+    "docs.README_md.p0056": "[**ศูนย์รวมผู้เขียน**]({protected0}) · [**SAIPEN HQ**]({protected1}) · [**SAIPEN Core**]({protected2}) · [**ZAICODE**]({protected3}) · [**FastPrompter**]({protected4}) · [**SAIPEN Community**]({protected5})",
+    "docs.README_md.p0058": "รายงานบั๊กแบบทำซ้ำได้และขอฟีเจอร์ระยะยาว ใช้ [GitHub Issues ของที่เก็บนี้]({protected0}) ใช้ Discord สำหรับคุยสั้น ๆ ส่งภาพหน้าจอ และข้อมูลข้ามโครงการ",
+    "docs.docs_ZAICODE_INSTALL_md.p0000": "# การติดตั้ง ZAICODE",
+    "docs.docs_ZAICODE_INSTALL_md.p0002": "ZAICODE คือสามโครงการที่ทำงานร่วมกัน: แอป ZAICODE, SAIPEN (โปรโตคอลที่คุมให้งานเอเจนต์อยู่ทางราว) และ SAIMAIL (จดหมายที่เอเจนต์ใช้สื่อสารกัน) การติดตั้งด้วยมือแปลว่าต้อง clone สามที่, ติดตั้ง Node.js toolchain, ตั้งค่า Python environment แล้ว build ตัวติดตั้งทำทั้งหมดให้: รันแล้วรอ สั้น ๆ ก็มีทางลัด ZAICODE บนเดสก์ท็อป",
+    "docs.docs_ZAICODE_INSTALL_md.p0004": "## คลิกเดียวจบ",
+    "docs.docs_ZAICODE_INSTALL_md.p0006": "- **[ZAICODE-Setup.exe]({protected0})**:\n  ดาวน์โหลด ดับเบิลคลิก กด **INSTALL** หน้าต่าง (สีทองบนพื้นเข้ม พร้อมแบนเนอร์\n  SAIPEN) แสดงทุกขั้นตอนขณะทำงาน เวลาที่ใช้ไป และดู log ได้ตามต้องการ\n  เมื่อจบ **START ZAICODE** หรือ **TRY AGAIN** / **Autotroubleshoot**\n  / **Open log** เมื่อขั้นตอนใดไม่เสร็จ หากชี้ไปที่โฟลเดอร์ ZAICODE\n  ที่มีอยู่แล้ว ปุ่มจะขึ้นเป็น **UPDATE**: การรันเดิมอัปเดตและซ่อมทั้งระบบ\n  ไฟล์ exe พกสคริปต์ติดตั้งมาด้วย ไม่ต้องมีอะไรข้าง ๆ มัน สร้างโดย\n  {protected1} (คอมไพเลอร์ .NET Framework ที่มีในทุกเครื่อง Windows 10/11)\n- {protected2} (ดับเบิลคลิก): การติดตั้งชุดเดียวกันในคอนโซล\n- เริ่มจากศูนย์ ใน PowerShell:",
+    "docs.docs_ZAICODE_INSTALL_md.p0008": "   ```powershell\n   & ([scriptblock]::Create((irm {protected0})))\n   ```"
+  }
+}

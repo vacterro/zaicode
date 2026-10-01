@@ -1,0 +1,15 @@
+{
+  "id": "da-DK.b0010",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0046": "| Situation | Bevægelse |\r\n|-----------|------|\r\n| remote foran, ingen indgående fil er dirty her | {protected0}; ucommittet produktarbejde bliver som det er |\r\n| remote foran, en indgående fil er dirty her | HELD: log filerne, merge intet |\r\n| lokal foran | log; **aldrig pushet** (produktet udgives af SAIPEN SHIP) |\r\n| divergeret | pause, log begge id'er, merge intet |\r\n| anden branch, en git-operation i gang, fetch mislykkedes | pause |\r\n| ingen {protected1}-checkout, eller {protected2} | sprunget over |",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0048": "git afviser selv en fast-forward, der ville overskrive en lokal ændring,\r\nså HELD-kontrollen er en tidligere, klarere vagt, ikke den eneste. En\r\nprodukt-fast-forward genbygger intet: for at teste, kør {protected0} (eller\r\ndev-previewen).",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0050": "### Selvopdatering (T-90)",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0052": "Watcheren kører som en kopi under {protected0}, så en nyere watcher i\r\nrepositoriet kørte aldrig uden geninstallation. I loop-tilstand sammenligner\r\nden nu sin egen fil med repositoriets committede kopi hver omgang. Den\r\ninstallerer den kopi over sig selv og genstarter præcis én gang, med de\r\nsamme argumenter, kun når alle disse er opfyldt:",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0054": "- de to filer afviger;\r\n- repositoriekopien har ingen ucommittede ændringer;\r\n- repositoriekopien parser uden fejl.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0056": "En kopi, der ikke parser, afvises og logges, og den kørende watcher\r\nfortsætter.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0058": "Watchere installeret før T-90 mangler både produktrunden og selvopdateringen.\r\nKør {protected0} én gang på sådan en maskine; derefter opdaterer\r\nwatcheren sig selv.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0060": "## Cloud-halvdelen",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0062": "{protected0} i roden er indgangsreglen, og\r\n{protected1} er udførelsesproceduren. Skill'en henter\r\nSAIPEN-kernelen fra {protected2} og kører den gennem\r\nden erklærede engine-overflade {protected3}. Kernelen er fastlåst på commit\r\n({protected4}), aldrig på tag. Tag {protected5} er en ældre kernel med samme\r\n{protected6}; dens {protected7} muterer tilstand, og dens validator afviser\r\ndette board.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0064": "{protected0} registrerer kernelstien for den executor, der checkpointede\r\nsidst. I skyen konvergerer den første {protected1} på kernel {protected2} den\r\ntil den kørende kernel som én journalført {protected3} (E-1410). På\r\noperatørmaskinen ankommer pointeren død på samme måde. En kernel med\r\nautomatisk konvergens reparerer den ved {protected4}; kør ellers\r\n{protected5}."
+  }
+}

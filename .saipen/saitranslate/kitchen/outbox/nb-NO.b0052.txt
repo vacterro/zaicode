@@ -1,0 +1,3 @@
+1|"Kan ikke bruke det"
+2|"Påvirker bruk"
+3|"Mindre problem/forslag"

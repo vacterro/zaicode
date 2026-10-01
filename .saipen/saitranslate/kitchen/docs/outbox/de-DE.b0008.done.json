@@ -1,0 +1,15 @@
+{
+  "id": "de-DE.b0008",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0046": "| Situation | Aktion |\r\n|-----------|------|\r\n| Remote voraus, keine eingehende Datei hier dirty | {protected0}; nicht committete Produktarbeit bleibt unverändert |\r\n| Remote voraus, eine eingehende Datei hier dirty | HELD: Dateien protokollieren, nichts mergen |\r\n| lokal voraus | protokollieren; **nie gepusht** (Produkt wird von SAIPEN SHIP veröffentlicht) |\r\n| divergiert | pausieren, beide Ids protokollieren, nichts mergen |\r\n| anderer Branch, Git-Operation läuft, Fetch fehlgeschlagen | pausieren |\r\n| kein {protected1}-Checkout, oder {protected2} | übersprungen |",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0048": "git verweigert von sich aus ein Fast-Forward, das eine lokale Änderung überschreiben würde, daher\r\nist die HELD-Prüfung eine frühere, klarere Wache – nicht die einzige. Ein Produkt-\r\nFast-Forward baut nichts neu: zum Testen {protected0} ausführen (oder\r\ndie Dev-Vorschau).",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0050": "### Self-Update (T-90)",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0052": "Der Watcher läuft als Kopie unter {protected0}, daher lief ein neuerer Watcher im\r\nRepository nie ohne Neuinstallation. Im Loop-Modus vergleicht er jetzt\r\nbei jedem Durchgang seine eigene Datei mit der committeten Kopie im Repository. Er installiert\r\ndiese Kopie über sich selbst und startet genau einmal neu, mit denselben Argumenten,\r\nnur wenn alle diese Bedingungen zutreffen:",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0054": "- die beiden Dateien unterscheiden sich;\r\n- die Repository-Kopie hat keine nicht committeten Änderungen;\r\n- die Repository-Kopie lässt sich ohne Fehler parsen.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0056": "Eine Kopie, die nicht parst, wird abgelehnt und protokolliert, der laufende Watcher\r\nmacht weiter.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0058": "Watcher, die vor T-90 installiert wurden, haben weder den Produkt-Durchlauf noch Self-Update.\r\nAuf einer solchen Maschine {protected0} einmal erneut ausführen; danach\r\naktualisiert sich der Watcher selbst.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0060": "## Cloud-Hälfte",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0062": "{protected0} im Root ist die Eintrittsregel und\r\n{protected1} ist das Ausführungsverfahren. Der Skill holt\r\nden SAIPEN-Kernel von {protected2} und führt ihn über die\r\ndeklarierte Engine-Oberfläche {protected3} aus. Der Kernel ist per Commit\r\n({protected4}) gepinnt, nie per Tag. Tag {protected5} ist ein älterer Kernel mit demselben\r\n{protected6}; dessen {protected7} mutiert den Zustand, und dessen Validator lehnt dieses Board ab.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0064": "{protected0}记录iert den Kernel-Pfad des zuletzt checkpointenden\r\nExecutors. In der Cloud konvergiert das erste {protected1} auf Kernel {protected2} ihn\r\nin einem einzigen protokollierten {protected3} auf den laufenden Kernel (E-1410). Auf der\r\nOperator-Maschine kommt der Pointer genauso tot an. Ein Kernel mit automatischer\r\nKonvergenz repariert ihn bei {protected4}; sonst\r\n{protected5} ausführen."
+  }
+}

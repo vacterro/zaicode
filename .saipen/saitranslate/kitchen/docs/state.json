@@ -1,0 +1,803 @@
+{
+  "source_keys": 110,
+  "source_digest": "1271cb40a659cdd128ed0e8704711399b15a4f147fe0448f87593f7e97dec09b",
+  "bound_at": "2026-09-30T14:38:48.240Z",
+  "locales": {
+    "ru-RU": {
+      "digest": "1271cb40a659cdd128ed0e8704711399b15a4f147fe0448f87593f7e97dec09b",
+      "accepted": 110,
+      "batches_accepted": [
+        "ru-RU.b0001",
+        "ru-RU.b0002",
+        "ru-RU.b0006",
+        "ru-RU.b0007",
+        "ru-RU.b0008",
+        "ru-RU.b0009",
+        "ru-RU.b0010",
+        "ru-RU.b0011",
+        "ru-RU.b0012",
+        "ru-RU.b0013",
+        "ru-RU.b0014",
+        "ru-RU.b0015",
+        "ru-RU.b0019"
+      ],
+      "throughput": {
+        "keys": 122,
+        "seconds": 316.17900000000003
+      },
+      "issued": 19
+    },
+    "et-EE": {
+      "digest": "1271cb40a659cdd128ed0e8704711399b15a4f147fe0448f87593f7e97dec09b",
+      "accepted": 110,
+      "batches_accepted": [
+        "et-EE.b0001",
+        "et-EE.b0002",
+        "et-EE.b0004",
+        "et-EE.b0005",
+        "et-EE.b0006",
+        "et-EE.b0007",
+        "et-EE.b0008",
+        "et-EE.b0009",
+        "et-EE.b0010",
+        "et-EE.b0011",
+        "et-EE.b0012",
+        "et-EE.b0014",
+        "et-EE.b0015",
+        "et-EE.b0016",
+        "et-EE.b0018"
+      ],
+      "throughput": {
+        "keys": 142,
+        "seconds": 697.0260000000001
+      },
+      "issued": 20
+    },
+    "ded": {
+      "digest": "1271cb40a659cdd128ed0e8704711399b15a4f147fe0448f87593f7e97dec09b",
+      "accepted": 110,
+      "batches_accepted": [
+        "ded.b0001",
+        "ded.b0002",
+        "ded.b0003",
+        "ded.b0004",
+        "ded.b0005",
+        "ded.b0006",
+        "ded.b0007",
+        "ded.b0008",
+        "ded.b0009",
+        "ded.b0010",
+        "ded.b0011",
+        "ded.b0012",
+        "ded.b0013",
+        "ded.b0014",
+        "ded.b0015",
+        "ded.b0016",
+        "ded.b0017",
+        "ded.b0018",
+        "ded.b0022"
+      ],
+      "throughput": {
+        "keys": 182,
+        "seconds": 753.889
+      },
+      "issued": 22
+    },
+    "uk-UA": {
+      "digest": "1271cb40a659cdd128ed0e8704711399b15a4f147fe0448f87593f7e97dec09b",
+      "accepted": 110,
+      "batches_accepted": [
+        "uk-UA.b0001",
+        "uk-UA.b0002",
+        "uk-UA.b0005",
+        "uk-UA.b0006",
+        "uk-UA.b0007",
+        "uk-UA.b0008",
+        "uk-UA.b0009",
+        "uk-UA.b0010",
+        "uk-UA.b0011",
+        "uk-UA.b0012",
+        "uk-UA.b0013",
+        "uk-UA.b0014",
+        "uk-UA.b0018"
+      ],
+      "throughput": {
+        "keys": 122,
+        "seconds": 398.25800000000004
+      },
+      "issued": 18
+    },
+    "ja-JP": {
+      "digest": "1271cb40a659cdd128ed0e8704711399b15a4f147fe0448f87593f7e97dec09b",
+      "accepted": 110,
+      "batches_accepted": [
+        "ja-JP.b0001",
+        "ja-JP.b0002",
+        "ja-JP.b0003",
+        "ja-JP.b0004",
+        "ja-JP.b0005",
+        "ja-JP.b0006",
+        "ja-JP.b0007",
+        "ja-JP.b0008",
+        "ja-JP.b0009",
+        "ja-JP.b0010",
+        "ja-JP.b0011",
+        "ja-JP.b0012",
+        "ja-JP.b0013",
+        "ja-JP.b0017"
+      ],
+      "throughput": {
+        "keys": 132,
+        "seconds": 559.6719999999999
+      },
+      "issued": 17
+    },
+    "de-DE": {
+      "digest": "1271cb40a659cdd128ed0e8704711399b15a4f147fe0448f87593f7e97dec09b",
+      "accepted": 110,
+      "batches_accepted": [
+        "de-DE.b0001",
+        "de-DE.b0002",
+        "de-DE.b0003",
+        "de-DE.b0004",
+        "de-DE.b0005",
+        "de-DE.b0006",
+        "de-DE.b0007",
+        "de-DE.b0008",
+        "de-DE.b0009",
+        "de-DE.b0010",
+        "de-DE.b0011",
+        "de-DE.b0012",
+        "de-DE.b0013",
+        "de-DE.b0017"
+      ],
+      "throughput": {
+        "keys": 132,
+        "seconds": 442.459
+      },
+      "issued": 17
+    },
+    "fr-FR": {
+      "digest": "1271cb40a659cdd128ed0e8704711399b15a4f147fe0448f87593f7e97dec09b",
+      "accepted": 110,
+      "batches_accepted": [
+        "fr-FR.b0001",
+        "fr-FR.b0002",
+        "fr-FR.b0005",
+        "fr-FR.b0006",
+        "fr-FR.b0007",
+        "fr-FR.b0008",
+        "fr-FR.b0009",
+        "fr-FR.b0010",
+        "fr-FR.b0011",
+        "fr-FR.b0012",
+        "fr-FR.b0013",
+        "fr-FR.b0014",
+        "fr-FR.b0015",
+        "fr-FR.b0016",
+        "fr-FR.b0020"
+      ],
+      "throughput": {
+        "keys": 142,
+        "seconds": 361.298
+      },
+      "issued": 20
+    },
+    "es-ES": {
+      "digest": "1271cb40a659cdd128ed0e8704711399b15a4f147fe0448f87593f7e97dec09b",
+      "accepted": 110,
+      "batches_accepted": [
+        "es-ES.b0001",
+        "es-ES.b0002",
+        "es-ES.b0004",
+        "es-ES.b0005",
+        "es-ES.b0006",
+        "es-ES.b0007",
+        "es-ES.b0008",
+        "es-ES.b0009",
+        "es-ES.b0010",
+        "es-ES.b0011",
+        "es-ES.b0012",
+        "es-ES.b0013",
+        "es-ES.b0014",
+        "es-ES.b0018"
+      ],
+      "throughput": {
+        "keys": 132,
+        "seconds": 356.859
+      },
+      "issued": 18
+    },
+    "it-IT": {
+      "digest": "1271cb40a659cdd128ed0e8704711399b15a4f147fe0448f87593f7e97dec09b",
+      "accepted": 110,
+      "batches_accepted": [
+        "it-IT.b0001",
+        "it-IT.b0002",
+        "it-IT.b0004",
+        "it-IT.b0005",
+        "it-IT.b0006",
+        "it-IT.b0007",
+        "it-IT.b0008",
+        "it-IT.b0009",
+        "it-IT.b0010",
+        "it-IT.b0011",
+        "it-IT.b0012",
+        "it-IT.b0016"
+      ],
+      "throughput": {
+        "keys": 112,
+        "seconds": 274.994
+      },
+      "issued": 16
+    },
+    "pt-BR": {
+      "digest": "1271cb40a659cdd128ed0e8704711399b15a4f147fe0448f87593f7e97dec09b",
+      "accepted": 110,
+      "batches_accepted": [
+        "pt-BR.b0001",
+        "pt-BR.b0002",
+        "pt-BR.b0003",
+        "pt-BR.b0004",
+        "pt-BR.b0005",
+        "pt-BR.b0006",
+        "pt-BR.b0007",
+        "pt-BR.b0008",
+        "pt-BR.b0009",
+        "pt-BR.b0010",
+        "pt-BR.b0011",
+        "pt-BR.b0012",
+        "pt-BR.b0013",
+        "pt-BR.b0014",
+        "pt-BR.b0016",
+        "pt-BR.b0017",
+        "pt-BR.b0018",
+        "pt-BR.b0019",
+        "pt-BR.b0020",
+        "pt-BR.b0021",
+        "pt-BR.b0022",
+        "pt-BR.b0023",
+        "pt-BR.b0024"
+      ],
+      "throughput": {
+        "keys": 222,
+        "seconds": 1036.2859999999998
+      },
+      "issued": 24
+    },
+    "nl-NL": {
+      "digest": "1271cb40a659cdd128ed0e8704711399b15a4f147fe0448f87593f7e97dec09b",
+      "accepted": 110,
+      "batches_accepted": [
+        "nl-NL.b0001",
+        "nl-NL.b0002",
+        "nl-NL.b0005",
+        "nl-NL.b0006",
+        "nl-NL.b0007",
+        "nl-NL.b0008",
+        "nl-NL.b0009",
+        "nl-NL.b0010",
+        "nl-NL.b0011",
+        "nl-NL.b0012",
+        "nl-NL.b0013",
+        "nl-NL.b0014",
+        "nl-NL.b0018"
+      ],
+      "throughput": {
+        "keys": 122,
+        "seconds": 246.432
+      },
+      "issued": 18
+    },
+    "pl-PL": {
+      "digest": "1271cb40a659cdd128ed0e8704711399b15a4f147fe0448f87593f7e97dec09b",
+      "accepted": 110,
+      "batches_accepted": [
+        "pl-PL.b0001",
+        "pl-PL.b0002",
+        "pl-PL.b0004",
+        "pl-PL.b0005",
+        "pl-PL.b0006",
+        "pl-PL.b0007",
+        "pl-PL.b0008",
+        "pl-PL.b0009",
+        "pl-PL.b0010",
+        "pl-PL.b0011",
+        "pl-PL.b0012",
+        "pl-PL.b0013",
+        "pl-PL.b0017"
+      ],
+      "throughput": {
+        "keys": 122,
+        "seconds": 290.301
+      },
+      "issued": 17
+    },
+    "sv-SE": {
+      "digest": "1271cb40a659cdd128ed0e8704711399b15a4f147fe0448f87593f7e97dec09b",
+      "accepted": 110,
+      "batches_accepted": [
+        "sv-SE.b0001",
+        "sv-SE.b0002",
+        "sv-SE.b0003",
+        "sv-SE.b0004",
+        "sv-SE.b0005",
+        "sv-SE.b0006",
+        "sv-SE.b0007",
+        "sv-SE.b0008",
+        "sv-SE.b0009",
+        "sv-SE.b0010",
+        "sv-SE.b0011",
+        "sv-SE.b0015"
+      ],
+      "throughput": {
+        "keys": 112,
+        "seconds": 274.643
+      },
+      "issued": 15
+    },
+    "da-DK": {
+      "digest": "1271cb40a659cdd128ed0e8704711399b15a4f147fe0448f87593f7e97dec09b",
+      "accepted": 110,
+      "batches_accepted": [
+        "da-DK.b0001",
+        "da-DK.b0002",
+        "da-DK.b0005",
+        "da-DK.b0006",
+        "da-DK.b0007",
+        "da-DK.b0008",
+        "da-DK.b0009",
+        "da-DK.b0010",
+        "da-DK.b0011",
+        "da-DK.b0012",
+        "da-DK.b0013",
+        "da-DK.b0017"
+      ],
+      "throughput": {
+        "keys": 112,
+        "seconds": 197.874
+      },
+      "issued": 17
+    },
+    "fi-FI": {
+      "digest": "1271cb40a659cdd128ed0e8704711399b15a4f147fe0448f87593f7e97dec09b",
+      "accepted": 110,
+      "batches_accepted": [
+        "fi-FI.b0001",
+        "fi-FI.b0002",
+        "fi-FI.b0003",
+        "fi-FI.b0004",
+        "fi-FI.b0005",
+        "fi-FI.b0006",
+        "fi-FI.b0007",
+        "fi-FI.b0008",
+        "fi-FI.b0009",
+        "fi-FI.b0010",
+        "fi-FI.b0011",
+        "fi-FI.b0015"
+      ],
+      "throughput": {
+        "keys": 112,
+        "seconds": 351.0180000000001
+      },
+      "issued": 15
+    },
+    "nb-NO": {
+      "digest": "1271cb40a659cdd128ed0e8704711399b15a4f147fe0448f87593f7e97dec09b",
+      "accepted": 110,
+      "batches_accepted": [
+        "nb-NO.b0001",
+        "nb-NO.b0002",
+        "nb-NO.b0004",
+        "nb-NO.b0005",
+        "nb-NO.b0006",
+        "nb-NO.b0007",
+        "nb-NO.b0008",
+        "nb-NO.b0009",
+        "nb-NO.b0010",
+        "nb-NO.b0011",
+        "nb-NO.b0012",
+        "nb-NO.b0016"
+      ],
+      "throughput": {
+        "keys": 112,
+        "seconds": 384.703
+      },
+      "issued": 16
+    },
+    "zh-CN": {
+      "digest": "1271cb40a659cdd128ed0e8704711399b15a4f147fe0448f87593f7e97dec09b",
+      "accepted": 110,
+      "batches_accepted": [
+        "zh-CN.b0001",
+        "zh-CN.b0002",
+        "zh-CN.b0003",
+        "zh-CN.b0004",
+        "zh-CN.b0005",
+        "zh-CN.b0006",
+        "zh-CN.b0007",
+        "zh-CN.b0008",
+        "zh-CN.b0009",
+        "zh-CN.b0010",
+        "zh-CN.b0011",
+        "zh-CN.b0015"
+      ],
+      "throughput": {
+        "keys": 112,
+        "seconds": 174.24400000000003
+      },
+      "issued": 15
+    },
+    "ko-KR": {
+      "digest": "1271cb40a659cdd128ed0e8704711399b15a4f147fe0448f87593f7e97dec09b",
+      "accepted": 110,
+      "batches_accepted": [
+        "ko-KR.b0001",
+        "ko-KR.b0002",
+        "ko-KR.b0003",
+        "ko-KR.b0004",
+        "ko-KR.b0005",
+        "ko-KR.b0006",
+        "ko-KR.b0007",
+        "ko-KR.b0008",
+        "ko-KR.b0009",
+        "ko-KR.b0010",
+        "ko-KR.b0011",
+        "ko-KR.b0015"
+      ],
+      "throughput": {
+        "keys": 112,
+        "seconds": 207.646
+      },
+      "issued": 15
+    },
+    "th-TH": {
+      "digest": "1271cb40a659cdd128ed0e8704711399b15a4f147fe0448f87593f7e97dec09b",
+      "accepted": 110,
+      "batches_accepted": [
+        "th-TH.b0001",
+        "th-TH.b0002",
+        "th-TH.b0003",
+        "th-TH.b0004",
+        "th-TH.b0005",
+        "th-TH.b0006",
+        "th-TH.b0007",
+        "th-TH.b0008",
+        "th-TH.b0009",
+        "th-TH.b0010",
+        "th-TH.b0011",
+        "th-TH.b0015"
+      ],
+      "throughput": {
+        "keys": 112,
+        "seconds": 370.28999999999996
+      },
+      "issued": 15
+    },
+    "vi-VN": {
+      "digest": "1271cb40a659cdd128ed0e8704711399b15a4f147fe0448f87593f7e97dec09b",
+      "accepted": 110,
+      "batches_accepted": [
+        "vi-VN.b0001",
+        "vi-VN.b0002",
+        "vi-VN.b0006",
+        "vi-VN.b0007",
+        "vi-VN.b0008",
+        "vi-VN.b0009",
+        "vi-VN.b0010",
+        "vi-VN.b0011",
+        "vi-VN.b0012",
+        "vi-VN.b0013",
+        "vi-VN.b0014",
+        "vi-VN.b0018"
+      ],
+      "throughput": {
+        "keys": 112,
+        "seconds": 177.804
+      },
+      "issued": 18
+    },
+    "ar-SA": {
+      "digest": "1271cb40a659cdd128ed0e8704711399b15a4f147fe0448f87593f7e97dec09b",
+      "accepted": 110,
+      "batches_accepted": [
+        "ar-SA.b0001",
+        "ar-SA.b0002",
+        "ar-SA.b0003",
+        "ar-SA.b0004",
+        "ar-SA.b0005",
+        "ar-SA.b0006",
+        "ar-SA.b0007",
+        "ar-SA.b0008",
+        "ar-SA.b0009",
+        "ar-SA.b0010",
+        "ar-SA.b0011",
+        "ar-SA.b0015"
+      ],
+      "throughput": {
+        "keys": 112,
+        "seconds": 301.27199999999993
+      },
+      "issued": 15
+    },
+    "he-IL": {
+      "digest": "1271cb40a659cdd128ed0e8704711399b15a4f147fe0448f87593f7e97dec09b",
+      "accepted": 110,
+      "batches_accepted": [
+        "he-IL.b0001",
+        "he-IL.b0002",
+        "he-IL.b0003",
+        "he-IL.b0004",
+        "he-IL.b0005",
+        "he-IL.b0006",
+        "he-IL.b0007",
+        "he-IL.b0008",
+        "he-IL.b0009",
+        "he-IL.b0010",
+        "he-IL.b0011",
+        "he-IL.b0016"
+      ],
+      "throughput": {
+        "keys": 113,
+        "seconds": 454.04100000000005
+      },
+      "issued": 16
+    },
+    "tr-TR": {
+      "digest": "1271cb40a659cdd128ed0e8704711399b15a4f147fe0448f87593f7e97dec09b",
+      "accepted": 110,
+      "batches_accepted": [
+        "tr-TR.b0001",
+        "tr-TR.b0002",
+        "tr-TR.b0003",
+        "tr-TR.b0004",
+        "tr-TR.b0005",
+        "tr-TR.b0006",
+        "tr-TR.b0007",
+        "tr-TR.b0008",
+        "tr-TR.b0009",
+        "tr-TR.b0010",
+        "tr-TR.b0011",
+        "tr-TR.b0015"
+      ],
+      "throughput": {
+        "keys": 112,
+        "seconds": 366.74699999999996
+      },
+      "issued": 15
+    },
+    "hi-IN": {
+      "digest": "1271cb40a659cdd128ed0e8704711399b15a4f147fe0448f87593f7e97dec09b",
+      "accepted": 110,
+      "batches_accepted": [
+        "hi-IN.b0001",
+        "hi-IN.b0002",
+        "hi-IN.b0006",
+        "hi-IN.b0007",
+        "hi-IN.b0008",
+        "hi-IN.b0009",
+        "hi-IN.b0010",
+        "hi-IN.b0011",
+        "hi-IN.b0012",
+        "hi-IN.b0013",
+        "hi-IN.b0014",
+        "hi-IN.b0018"
+      ],
+      "throughput": {
+        "keys": 112,
+        "seconds": 277.017
+      },
+      "issued": 18
+    },
+    "id-ID": {
+      "digest": "1271cb40a659cdd128ed0e8704711399b15a4f147fe0448f87593f7e97dec09b",
+      "accepted": 110,
+      "batches_accepted": [
+        "id-ID.b0001",
+        "id-ID.b0002",
+        "id-ID.b0003",
+        "id-ID.b0004",
+        "id-ID.b0005",
+        "id-ID.b0006",
+        "id-ID.b0007",
+        "id-ID.b0008",
+        "id-ID.b0009",
+        "id-ID.b0010",
+        "id-ID.b0011",
+        "id-ID.b0012",
+        "id-ID.b0016"
+      ],
+      "throughput": {
+        "keys": 122,
+        "seconds": 292.112
+      },
+      "issued": 16
+    },
+    "el-GR": {
+      "digest": "1271cb40a659cdd128ed0e8704711399b15a4f147fe0448f87593f7e97dec09b",
+      "accepted": 110,
+      "batches_accepted": [
+        "el-GR.b0001",
+        "el-GR.b0002",
+        "el-GR.b0005",
+        "el-GR.b0006",
+        "el-GR.b0007",
+        "el-GR.b0008",
+        "el-GR.b0009",
+        "el-GR.b0010",
+        "el-GR.b0011",
+        "el-GR.b0012",
+        "el-GR.b0013",
+        "el-GR.b0015"
+      ],
+      "throughput": {
+        "keys": 112,
+        "seconds": 347.72900000000004
+      },
+      "issued": 17
+    },
+    "cs-CZ": {
+      "digest": "1271cb40a659cdd128ed0e8704711399b15a4f147fe0448f87593f7e97dec09b",
+      "accepted": 110,
+      "batches_accepted": [
+        "cs-CZ.b0001",
+        "cs-CZ.b0002",
+        "cs-CZ.b0004",
+        "cs-CZ.b0005",
+        "cs-CZ.b0006",
+        "cs-CZ.b0007",
+        "cs-CZ.b0008",
+        "cs-CZ.b0009",
+        "cs-CZ.b0010",
+        "cs-CZ.b0011",
+        "cs-CZ.b0012",
+        "cs-CZ.b0013",
+        "cs-CZ.b0014",
+        "cs-CZ.b0016",
+        "cs-CZ.b0017"
+      ],
+      "throughput": {
+        "keys": 142,
+        "seconds": 540.983
+      },
+      "issued": 20
+    },
+    "ro-RO": {
+      "digest": "1271cb40a659cdd128ed0e8704711399b15a4f147fe0448f87593f7e97dec09b",
+      "accepted": 110,
+      "batches_accepted": [
+        "ro-RO.b0001",
+        "ro-RO.b0002",
+        "ro-RO.b0004",
+        "ro-RO.b0005",
+        "ro-RO.b0006",
+        "ro-RO.b0007",
+        "ro-RO.b0008",
+        "ro-RO.b0009",
+        "ro-RO.b0010",
+        "ro-RO.b0011",
+        "ro-RO.b0012",
+        "ro-RO.b0017",
+        "ro-RO.b0018",
+        "ro-RO.b0019",
+        "ro-RO.b0020",
+        "ro-RO.b0021",
+        "ro-RO.b0022",
+        "ro-RO.b0023",
+        "ro-RO.b0025"
+      ],
+      "throughput": {
+        "keys": 181,
+        "seconds": 615.5859999999998
+      },
+      "issued": 25
+    },
+    "hu-HU": {
+      "digest": "1271cb40a659cdd128ed0e8704711399b15a4f147fe0448f87593f7e97dec09b",
+      "accepted": 110,
+      "batches_accepted": [
+        "hu-HU.b0001",
+        "hu-HU.b0002",
+        "hu-HU.b0004",
+        "hu-HU.b0005",
+        "hu-HU.b0006",
+        "hu-HU.b0007",
+        "hu-HU.b0008",
+        "hu-HU.b0009",
+        "hu-HU.b0010",
+        "hu-HU.b0011",
+        "hu-HU.b0012",
+        "hu-HU.b0013",
+        "hu-HU.b0015"
+      ],
+      "throughput": {
+        "keys": 122,
+        "seconds": 376.72499999999997
+      },
+      "issued": 17
+    },
+    "bg-BG": {
+      "digest": "1271cb40a659cdd128ed0e8704711399b15a4f147fe0448f87593f7e97dec09b",
+      "accepted": 110,
+      "batches_accepted": [
+        "bg-BG.b0001",
+        "bg-BG.b0002",
+        "bg-BG.b0007",
+        "bg-BG.b0008",
+        "bg-BG.b0009",
+        "bg-BG.b0010",
+        "bg-BG.b0011",
+        "bg-BG.b0012",
+        "bg-BG.b0013",
+        "bg-BG.b0014",
+        "bg-BG.b0015",
+        "bg-BG.b0016",
+        "bg-BG.b0017"
+      ],
+      "throughput": {
+        "keys": 130,
+        "seconds": 688.858
+      },
+      "issued": 18
+    },
+    "sk-SK": {
+      "digest": "1271cb40a659cdd128ed0e8704711399b15a4f147fe0448f87593f7e97dec09b",
+      "accepted": 110,
+      "batches_accepted": [
+        "sk-SK.b0001",
+        "sk-SK.b0002",
+        "sk-SK.b0006",
+        "sk-SK.b0007",
+        "sk-SK.b0008",
+        "sk-SK.b0009",
+        "sk-SK.b0010",
+        "sk-SK.b0011",
+        "sk-SK.b0012",
+        "sk-SK.b0013",
+        "sk-SK.b0014",
+        "sk-SK.b0015",
+        "sk-SK.b0016",
+        "sk-SK.b0017",
+        "sk-SK.b0018",
+        "sk-SK.b0019",
+        "sk-SK.b0020",
+        "sk-SK.b0021"
+      ],
+      "throughput": {
+        "keys": 180,
+        "seconds": 878.6350000000001
+      },
+      "issued": 22
+    },
+    "hr-HR": {
+      "digest": "1271cb40a659cdd128ed0e8704711399b15a4f147fe0448f87593f7e97dec09b",
+      "accepted": 110,
+      "batches_accepted": [
+        "hr-HR.b0001",
+        "hr-HR.b0002",
+        "hr-HR.b0003",
+        "hr-HR.b0005",
+        "hr-HR.b0006",
+        "hr-HR.b0007",
+        "hr-HR.b0008",
+        "hr-HR.b0009",
+        "hr-HR.b0010",
+        "hr-HR.b0011",
+        "hr-HR.b0012",
+        "hr-HR.b0013",
+        "hr-HR.b0014",
+        "hr-HR.b0016",
+        "hr-HR.b0017",
+        "hr-HR.b0018",
+        "hr-HR.b0019",
+        "hr-HR.b0020"
+      ],
+      "throughput": {
+        "keys": 171,
+        "seconds": 657.7749999999999
+      },
+      "issued": 21
+    }
+  },
+  "updated": "2026-09-30T14:55:34.339Z"
+}

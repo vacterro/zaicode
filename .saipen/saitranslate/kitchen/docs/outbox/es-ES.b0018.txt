@@ -1,0 +1,2 @@
+1|"**SAFE_TO_DEFER** — la capa de producto. Una sesión en la nube puede clonar\r\n{protected0} la rama {protected1} y trabajar allí. El trabajo de la capa de espacio\r\nde trabajo no exige trabajo de producto, pero sí exige el clon:\r\n{protected2} declara {protected3} y sin él el\r\nvalidador falla con {protected4}. Los gates de {protected5} necesitan el pnpm 10.33.2 fijado\r\ny un espacio de trabajo preparado. {protected6} en una imagen de la nube nueva es\r\nla vía de entrada documentada, y el {protected7} del producto ya lo declara."
+2|"{protected0}"

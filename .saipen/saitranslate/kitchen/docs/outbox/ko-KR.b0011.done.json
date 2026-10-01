@@ -1,0 +1,15 @@
+{
+  "id": "ko-KR.b0011",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0106": "- 클라우드 판정을 그대로 인용하고, 티켓별로 이 경계로 분류\r\n  ({protected0} § 6에 검사 항목);\r\n- 사이드카를 다시 쓰지 말고, 통과시키려고 재검증하지도 말고, 커널\r\n  사본을 패치하지도 말 것;\r\n- 양쪽 모두 LOG 이벤트를 1024바이트 미만으로 유지할 것.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0108": "동일한 machine-path 바인딩이 작업도 막는다. BUILD 이전 부채 기준선은 티켓이 처음 BUILD에 진입할 때 캡처되고, 이후 진입할 때마다 다시 검사된다. 따라서 운영자 머신에서 처음 BUILD에 진입한 티켓은 클라우드에서 BUILD에 진입할 수 없다. 전환이 {protected0}로 거부된다. 기록된 사례가 T-84다. DEBT-000079는 E-1377에서 캡처되었고 전환은 E-1446에서 거부되었다. 이런 티켓은 기준선을 캡처한 머신에 맡겨라.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0110": "## 불일치",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0112": "로컬과 원격이 더 이상 조상을 공유하지 않으면, 워처는 멈춘다. 병합하거나 리베이스하거나 강제하지 않는다. 두 커밋 ID가 로그에 들어가며, 수정은 {protected0}로 손수 처리되고, 그 결과는 다른 변경과 마찬가지로 체크포인트된다.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0114": "## 클라우드 측에서 할 정확한 작업",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0116": "### 환경 설정 스크립트 (클라우드 환경 설정에서 한 번만)",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0118": "세션 타이틀 바의 클라우드 환경 메뉴 -> 편집 -> 설정 스크립트. 모든 새 세션 전에 실행되므로, 각 세션이 제품 툴체인 준비 완료 상태로 시작한다:",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0122": "### 모든 새 세션에 쓸 프롬프트",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0124": "저장소 {protected0}, 브랜치 {protected1}에서 세션을 시작하고, 운영자 머신의 에이전트가 동시에 쓰지 않는지 확인하라.\r\n새 작업을 넘길 때는 마지막 줄을 {protected2}로 바꿔라.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0134": "운영자 머신에서 워처가 {protected1}에서 {protected0}을 fast-forward하고, {protected2}(또는 {protected3})가 이를 빌드하며, ZAICODE를 다음에 시작할 때 새 빌드가 적용된다.\r\n"
+  }
+}

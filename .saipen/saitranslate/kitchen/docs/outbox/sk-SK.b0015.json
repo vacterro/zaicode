@@ -1,0 +1,30 @@
+{
+  "id": "sk-SK.b0015",
+  "locale": "sk-SK",
+  "source_digest": "sha256:1271cb40a659cdd128ed0e8704711399b15a4f147fe0448f87593f7e97dec09b",
+  "issued_at": "2026-09-30T14:44:55.765Z",
+  "keys": [
+    "docs.README_md.p0000",
+    "docs.README_md.p0006",
+    "docs.README_md.p0008",
+    "docs.README_md.p0010",
+    "docs.README_md.p0012",
+    "docs.README_md.p0014",
+    "docs.README_md.p0016",
+    "docs.README_md.p0018",
+    "docs.README_md.p0020",
+    "docs.README_md.p0024"
+  ],
+  "messages": {
+    "docs.README_md.p0000": "# ZAICODE",
+    "docs.README_md.p0006": "ZAICODE is an operator workbench for running many AI coding agents at once over\r\nmany projects, without babysitting them. It is a modified build of\r\n[ZCode]({protected0}) (desktop app, browser UI and agent\r\nCLI) with a product layer on top: every project is driven by the\r\n[SAIPEN]({protected1}) protocol, work is started, continued\r\nand scheduled from one window, and the subscription CLIs you already pay for\r\n(Claude Code, Codex, Antigravity) run as docked workers next to the in-app\r\nagents.",
+    "docs.README_md.p0008": "**0.0.1** is the first tagged snapshot: a personal, Windows-first build that is\r\nused daily.",
+    "docs.README_md.p0010": "## Install in one click",
+    "docs.README_md.p0012": "1. Download **[ZAICODE-Setup.exe]({protected0})**.\r\n2. Double-click it and press **INSTALL**.",
+    "docs.README_md.p0014": "That is all. Setup brings what the machine lacks (Git, Node.js, Python, as private\r\ncopies: no administrator rights), fetches ZAICODE, SAIPEN and SAIMAIL from GitHub,\r\nbuilds the app on the machine and puts a ZAICODE shortcut on the desktop. The first\r\nrun takes 15-30 minutes; the window shows every step.",
+    "docs.README_md.p0016": "Free models work at once: ZAICODE starts its own router and fills the **SAIFREN**\r\npool from keyless free tiers, so a task typed into New task gets an answer with no\r\nkey, no account and no setting. Claude Code, Codex and Antigravity subscriptions are\r\noptional and can be signed in any time.",
+    "docs.README_md.p0018": "**One whole, four parts.** The workspace (launcher, installer), the app, SAIPEN and\r\nSAIMAIL are four repositories. Each updates on its own: *Settings -> ZAICODE ->\r\nUpdates* shows every part, updates it by hand or by itself (checked a few minutes\r\nafter the start and every six hours). A new app build is prepared while ZAICODE runs\r\nand starts with the next start; your own edits in a clone are never overwritten.\r\nFrom a terminal: {protected0}.\r\nAutotroubleshoot: {protected1}. Details: [docs/ZAICODE_INSTALL.md](docs/ZAICODE_INSTALL.md).",
+    "docs.README_md.p0020": "## Interface tour",
+    "docs.README_md.p0024": "## What it adds to ZCode"
+  }
+}

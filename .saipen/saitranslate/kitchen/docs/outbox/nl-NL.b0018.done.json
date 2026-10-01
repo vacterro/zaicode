@@ -1,0 +1,7 @@
+{
+  "id": "nl-NL.b0018",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0094": "**SAFE_TO_DEFER** — de productlaag. Een cloudsessie kan {protected0} branch\r\n{protected1} klonen en daar werken. Werk op de werkruimtelaag vereist geen\r\nproductwerk, maar wel de clone: {protected2} declareert {protected3}, en\r\nzonder dat faalt de validator met {protected4}. {protected5}-gates vereisen\r\nde vastgezette pnpm 10.33.2 en een voorbereide werkruimte. {protected6} op\r\neen fris cloudimage is de gedocumenteerde ingang, en de {protected7} van het\r\nproduct declareert het al.",
+    "docs.docs_ZAICODE_INSTALL_md.p0008": "{protected0}"
+  }
+}

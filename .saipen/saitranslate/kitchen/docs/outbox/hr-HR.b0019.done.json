@@ -1,0 +1,15 @@
+{
+  "id": "hr-HR.b0019",
+  "translation": {
+    "docs.docs_ZAICODE_INSTALL_md.p0032": "Svaka prijava za Claude Code ili Codex živi u vlastitom home direktoriju: {protected0},\n{protected1}, ... i {protected2}, {protected3}, ... ZAICODE ih pronalazi\nsve. Za pripremu više pri instalaciji:",
+    "docs.docs_ZAICODE_INSTALL_md.p0036": "Instalacijski program kreira home direktorije i ispisuje točnu naredbu prijave za svaki\n({protected0}). Isto je i u ZAICODE-u: Postavke ->\nMotori i granice -> dodaj još jednu prijavu.",
+    "docs.docs_ZAICODE_INSTALL_md.p0038": "## Automatsko rješavanje problema",
+    "docs.docs_ZAICODE_INSTALL_md.p0042": "Status po provjeri: OK, FIXED (bilo pokvareno, popravljeno), WARN (radi, ali nešto\nopcijsko nedostaje), INFO (treba te: prijava), FAIL. Logovi su u\n{protected0}; sažetak zadnje instalacije je {protected1}.\nU aplikaciji: Router -> Autotroubleshoot popravlja aktivni router i poolove.",
+    "docs.docs_ZAICODE_INSTALL_md.p0044": "## Opcije",
+    "docs.docs_ZAICODE_INSTALL_md.p0046": "| Parametar | Zadano | |\n| ---- | ---- | ---- |\n| {protected0} | {protected1} | gdje se sve instalira |\n| {protected2} | Desktop | gdje ide prečac ZAICODE |\n| {protected3}, {protected4} | | preskoči te prečice |\n| {protected5} | | privatni Git / Node.js / Python čak i kad ih stroj ima |\n| {protected6} | | pokreni ZAICODE po završetku |\n| {protected7}, {protected8}, {protected9} | GitHub repozitoriji | drugi izvor (fork, lokalna putanja klona) |",
+    "docs.docs_ZAICODE_INSTALL_md.p0048": "## Dokaz",
+    "docs.docs_ZAICODE_INSTALL_md.p0050": "{protected0}\nprovjerava svježu instalaciju, ubacuje kvarove (obrisan prečac i pokretač, SAIPEN\npokretač usmjeren na nepostojeći Python, obrisan SAIMAIL venv, node_modules\nzapisan za drugu lockfile datoteku, zaostala build mapa dublja od MAX_PATH),\npotvrđuje da doctor prijavljuje i popravlja svaki, zatim pokreće metu prečaca\ns izoliranim profilom i zaustavlja točno stablo procesa koje je pokrenuo.",
+    "docs.docs_ZAICODE_INSTALL_md.p0052": "{protected0} gradi četiri privremena repozitorija na\ndisku i instalaciju njihovih klona, zatim dokazuje da provjera ne mijenja ništa,\nda se jedan dio samostalno ažurira sa svojim pratećim dijelom (SAIPEN pokretač, root\npokretač), da se preklapajuće lokalne izmjene i lokalni commitovi čuvaju te da se\nnaziv nepoznate komponente odbija. Bez mreže.\n",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0000": "# ZAICODE SAIPEN prijenos u oblak"
+  }
+}

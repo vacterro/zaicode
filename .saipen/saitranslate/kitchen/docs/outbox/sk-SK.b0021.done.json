@@ -1,0 +1,15 @@
+{
+  "id": "sk-SK.b0021",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0024": "| Súbor | Rola |\r\n|------|------|\r\n| {protected0} | overuje, zosúladí vetvu, nainštaluje a spustí sledovač, zapíše položku autostart, dokazuje, že lokálne == vzdialené |\r\n| {protected1} | slučka: fetch, porovnanie, fast-forward alebo push, log, pauza; potom produktový priechod a samoupdate |\r\n| {protected2} | round-trip z nezávislého executoru plus dôkaz zotavenia po studenom štarte |\r\n| {protected3} | produktový priechod a samoupdate voči dočasným Git repozitárom (bez siete, bez skutočného remote) |",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0026": "Inštalácia a oprava:",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0030": "Je idempotentný. Stav lokálneho stroja žije v {protected0}:\r\n{protected1} (kópia), {protected2} (rotovaný na\r\n2 MB do {protected3}), {protected4} (jedna inštancia),\r\n{protected5} a položka v priečinku Startup\r\n{protected6}.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0032": "Inštalátor odmietne znečistený strom a nikdy ho nevyčistí. Ak je každá znečistená cesta kanonickým stavom SAIPEN pod {protected0}, oznámi to a vypíše presné príkazy na checkpoint; ide o stav protokolu bez checkpointu, nie o chybu prenosu, a inštalátor ho necommitne za chrbát protokolu.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0034": "## Správanie sledovača",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0036": "| Situácia | Krok |\r\n|-----------|------|\r\n| čisté, lokálne je predchodcom vzdialeného | {protected0} |\r\n| čisté, vzdialené je predchodcom lokálneho | {protected1} |\r\n| znečistené | pauza; ani fetch nie |\r\n| na inej vetve | pauza |\r\n| obe postúpili, žiadny spoločný predchod | pauza, zapíše obe id commitov, nič nemergeuje |\r\n| fetch alebo sieť zlyhali | zapíše zhoršený stav, skúsi znova v ďalšom ticku |\r\n| prebieha merge/rebase{protected2} | pauza |",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0038": "Nikdy: force push, hard reset, stash, clean, checkout cudzej vetvy,\r\ncommit ani zastavenie podľa názvu procesu. Inštalátor zastaví sledovač len podľa\r\npid, ktorý zapísal do vlastného pid súboru.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0040": "Znečistený strom nestojí nič, lebo sledovač overí znečistenie pred fetchom.\r\nNečinný checkout tak nerobí vôbec žiadne sieťové volania.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0042": "### Produktový priechod (T-90)",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0044": "{protected0} je sám osebe repozitár, takže tabuľka vyššie nikdy neposunie produktový\r\nkód. Po ňom rovnaký tick spracuje produktový checkout ({protected1},\r\npredvolene {protected2}; vetva {protected3}, predvolene {protected4}). Produktový\r\npriechod beží bez ohľadu na to, či je vonkajší strom znečistený. Vždy len ťahuje."
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "id": "th-TH.b0001",
+  "translation": {
+    "docs.README_md.p0000": "# ZAICODE",
+    "docs.README_md.p0006": "ZAICODE คือ workbench สำหรับ operatorในการรัน AI coding agent หลายตัวพร้อมกัน\r\nหลายโปรเจกต์ โดยไม่ต้องคอยเฝ้าเป็น build ดัดแปลงของ\r\n[ZCode]({protected0}) (แอปเดสก์ท็อป, UI ผ่านเบราว์เซอร์ และ agent\r\nCLI)โดยเพิ่มชั้น productเข้าไป: ทุกโปรเจกต์ถูกขับเคลื่อนด้วย\r\nprotocol [SAIPEN]({protected1}) เริ่ม ต่อ และตั้งเวลางานได้จากหน้าต่างเดียว\r\nส่วน subscription CLI ที่คุณจ่ายเงินอยู่แล้ว\r\n(Claude Code, Codex, Antigravity) จะรันเป็น worker ที่ dock อยู่ข้าง agentในแอป",
+    "docs.README_md.p0008": "**0.0.1** คือ snapshotแรกที่ tagแล้ว: build ส่วนตัว เน้น Windows ใช้งานทุกวัน",
+    "docs.README_md.p0010": "## ติดตั้งคลิกเดียว",
+    "docs.README_md.p0012": "1. ดาวน์โหลด **[ZAICODE-Setup.exe]({protected0})**\r\n2. ดับเบิลคลิก แล้วกด **INSTALL**",
+    "docs.README_md.p0014": "จบแค่นี้ Setup จะเติมสิ่งที่เครื่องขาด (Git, Node.js, Python เป็น\r\nสำเนาแยกส่วน: ไม่ต้องใช้สิทธิ์แอดมิน) ดึง ZAICODE, SAIPEN และ SAIMAIL จาก GitHub\r\nbuild แอปบนเครื่อง และวาง shortcut ของ ZAICODE ไว้บนเดสก์ท็อป การรันครั้งแรก\r\nใช้เวลา 15-30 นาที หน้าต่างจะแสดงทุกขั้นตอน",
+    "docs.README_md.p0016": "โมเดลฟรีใช้ได้ทันที: ZAICODE สตาร์ต router ของตัวเองและเติม pool ของ\r\n**SAIFREN** จากชั้นฟรีแบบไม่ต้องใช้คีย์ งานที่พิมพ์ใน New task จึงได้คำตอบโดยไม่ต้องมี\r\nคีย์ ไม่ต้องมีบัญชี ไม่ต้องตั้งค่า ส่วน subscription ของ Claude Code, Codex\r\nและ Antigravity เป็นตัวเลือก ล็อกอินเมื่อไรก็ได้",
+    "docs.README_md.p0018": "**หนึ่งทั้งหมด สี่ส่วน** workspace (launcher, installer), แอป, SAIPEN และ\r\nSAIMAIL เป็นสี่ repository แต่ละส่วนอัปเดตแยกกัน: *Settings -> ZAICODE ->\r\nUpdates* จะแสดงทุกส่วน อัปเดตเองหรือด้วยมือก็ได้ (ตรวจอัตโนมัติไม่กี่นาที\r\nหลังเริ่ม และทุกหกชั่วโมง) build ใหม่ของแอปจะถูกเตรียมไว้ระหว่างที่ ZAICODE ทำงาน\r\nและเริ่มใช้ในการสตาร์ตครั้งถัดไป การแก้ไขของคุณเองใน clone จะไม่ถูกเขียนทับ\r\nจากเทอร์มินัล: {protected0}.\r\nแก้ปัญหาอัตโนมัติ: {protected1}. รายละเอียด: [docs/ZAICODE_INSTALL.md](docs/ZAICODE_INSTALL.md).",
+    "docs.README_md.p0020": "## ชม interface",
+    "docs.README_md.p0024": "## สิ่งที่เพิ่มจาก ZCode"
+  },
+  "kept": [
+    "docs.README_md.p0000"
+  ]
+}

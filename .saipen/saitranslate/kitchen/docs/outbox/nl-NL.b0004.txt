@@ -1,0 +1,10 @@
+1|"ZAICODE is afgeleid van ZCode van Z.ai en wordt verspreid onder dezelfde\r\n[Apache License 2.0]({protected0}); upstream-vermeldingen blijven in\r\n[NOTICE.md]({protected1}) en [THIRD-PARTY-NOTICES.md]({protected2}).\r\nBestanden zijn gewijzigd door de auteur van ZAICODE. ZAICODE is een onafhankelijk project,\r\nniet gelieerd aan of onderschreven door Z.ai. De originele ZCode README blijft als\r\n[README.zcode.md]({protected3}) en [README.en.md]({protected4})."
+2|"## Projectnetwerk"
+3|"Deze repository maakt deel uit van het bredere **SAIPEN / vacterro**-projectecosysteem."
+4|"[**Auteurshub**]({protected0}) · [**SAIPEN HQ**]({protected1}) · [**SAIPEN Core**]({protected2}) · [**ZAICODE**]({protected3}) · [**FastPrompter**]({protected4}) · [**SAIPEN Community**]({protected5})"
+5|"Voor reproduceerbare bugs en duurzame feature requests gebruik je [de GitHub Issues van deze repository]({protected0}). Gebruik Discord voor snelle discussie, screenshots en feedback over projecten heen."
+6|"# ZAICODE installeren"
+7|"ZAICODE bestaat uit drie projecten die als één werken: de ZAICODE-app, SAIPEN (het protocol dat agentwerk op koers houdt) en SAIMAIL (de mail waarmee agents elkaar dingen vertellen). Zelf installeren betekent drie clones, een Node.js-toolchain, een Python-omgeving en een build. Het installatieprogramma doet dat allemaal: draai het, wacht, en er staat een ZAICODE-snelkoppeling op je bureaublad."
+8|"## Eén klik"
+9|"- **[ZAICODE-Setup.exe]({protected0})**:\n  download, dubbelklik, druk op **INSTALL**. Het venster (goud op donker, de\n  SAIPEN-banner) toont elke stap terwijl hij draait, de tijd tot nu toe en het log op\n  aanvraag; aan het einde **START ZAICODE**, of **TRY AGAIN** / **Autotroubleshoot**\n  / **Open log** als een stap niet klaar was. Gepoint naar een bestaande ZAICODE-\n  map heet de knop **UPDATE**: dezelfde run werkt bij en herstelt. De exe bevat de\n  installatiescripts en heeft er niets naast nodig; hij is gebouwd door {protected1} (de\n  .NET Framework-compiler die elke Windows 10/11 heeft).\n- {protected2} (dubbelklik): dezelfde installatie in een console.\n- Vanaf niets, in PowerShell:"
+10|=

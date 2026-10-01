@@ -1,0 +1,15 @@
+{
+  "id": "fi-FI.b0008",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0046": "| Tilanne | Siirto |\r\n|-----------|------|\r\n| remote edellä, yksikään saapuva tiedosto ei ole likainen täällä | {protected0}; committoimaton tuotetyö pysyy sellaisenaan |\r\n| remote edellä, saapuva tiedosto on likainen täällä | HELD: kirjaa tiedostot, älä yhdistä mitään |\r\n| paikallinen edellä | kirjaa; **ei koskaan pushattu** (tuotteen julkaisee SAIPEN SHIP) |\r\n| eronnut | keskeytä, kirjaa molemmat id:t, älä yhdistä mitään |\r\n| muu haara, git-operaatio käynnissä, fetch epäonnistui | keskeytä |\r\n| ei {protected1} checkouttia, tai {protected2} | ohitettu |",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0048": "git torjuu itse fast-forwardin, joka ylikirjoittaisi paikallisen muutoksen, joten\r\nHELD-tarkistus on aikaisempi ja selkeämpi suoja, ei ainoa. Tuotteen\r\nfast-forward ei rakenna mitään uudelleen: testaa komennolla {protected0} (tai\r\ndev-esikatselulla).",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0050": "### Päivitys itselleen (T-90)",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0052": "Watcher toimii kopiona hakemistossa {protected0}, joten repossa oleva uudempi\r\nwatcher ei koskaan käynyt ilman uudelleenasennusta. Silmukkatilassa se vertaa\r\nnyt omaa tiedostoaan repon commitoituun kopioon joka kierroksella. Se asentaa\r\nkyseisen kopion itsensä päälle ja käynnistää itsensä täsmälleen kerran, samoilla\r\nargumenteilla, vain kun kaikki nämä ehdot täyttyvät:",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0054": "- kaksi tiedostoa eroavat;\r\n- repon kopiossa ei ole committoimattomia muutoksia;\r\n- repon kopio jäsennöityy virheettömästi.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0056": "Kopio, joka ei jäsennöidy, torjutaan ja kirjataan, ja käynnissä oleva watcher\r\njatkää.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0058": "Ennen T-90:aa asennetut watcherit ovat sekä tuotepassista että itsensä\r\npäivittämisestä vailla. Aja {protected0} kerran uudelleen tällaisella\r\nkoneella; sen jälkeen watcher päivittää itsensä.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0060": "## Pilvipuoli",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0062": "{protected0} juuressa on sisääntulosääntö ja\r\n{protected1} on suoritusohje. Skill hakee\r\nSAIPEN-ytimen osoitteesta {protected2} ja suorittaa sen\r\nilmoitetun moottoripinnan {protected3} kautta. Ydin on sidottu commitilla\r\n({protected4}), ei koskaan tagilla. Tagi {protected5} on vanhempi ydin, jolla on\r\nsama {protected6}; sen {protected7} muuttaa tilaa, ja sen validaattori hylkää\r\ntämän taulun.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0064": "{protected0} tallentaa sen suorittajan ytimen polun, joka\r\ntarkistuspisteistoi viimeksi. Pilvessä ensimmäinen {protected1} ytimen\r\n{protected2} päällä yhdistää sen käynnissä olevaan ytimeen yhtenä kirjattuna\r\n{protected3}:na (E-1410). Ylläpitäjän koneella osoitin saapuu samalla tavalla\r\nkuolleena. Ydin, jossa on automaattinen yhdistäminen, korjaa sen\r\n{protected4}; muutoin aja {protected5}."
+  }
+}

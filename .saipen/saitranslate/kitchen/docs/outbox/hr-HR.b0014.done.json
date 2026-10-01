@@ -1,0 +1,18 @@
+{
+  "id": "hr-HR.b0014",
+  "translation": {
+    "docs.README_md.p0000": "# ZAICODE",
+    "docs.README_md.p0006": "ZAICODE je radna stanica operatera za pokretanje više AI kodnih agenata odjednom nad\r\nviše projekata, bez stalnog nadzora. Izrađena je iz\r\n[ZCode]({protected0}) (desktop aplikacija, browser UI i agent\r\nCLI) s dodatnim slojem proizvoda: svaki projekt vođen je\r\n[SAIPEN]({protected1}) protokolom, posao se pokreće, nastavlja\r\ni zakazuje iz jednog prozora, a pretplatnički CLI-jevi koje već plaćate\r\n(Claude Code, Codex, Antigravity) rade kao privezani workeri uz ugrađene agente.",
+    "docs.README_md.p0008": "**0.0.1** je prvi označeni snapshot: osobna, Windows-first izvedba koja se\r\ncoristi svakodnevno.",
+    "docs.README_md.p0010": "## Instalacija jednim klikom",
+    "docs.README_md.p0012": "1. Preuzmi **[ZAICODE-Setup.exe]({protected0})**.\r\n2. Dvaput klikni i pritisni **INSTALL**.",
+    "docs.README_md.p0014": "To je sve. Setup donosi ono što stroju nedostaje (Git, Node.js, Python, kao privatne\r\nkopije: bez administratorskih prava), preuzima ZAICODE, SAIPEN i SAIMAIL s GitHuba,\r\ngradi aplikaciju na stroju i stavlja ZAICODE prečac na radnu površinu. Prvo\r\npokretanje traje 15-30 minuta; prozor prikazuje svaki korak.",
+    "docs.README_md.p0016": "Besplatni modeli rade odmah: ZAICODE pokreće vlastiti router i puni **SAIFREN**\r\nfond iz besplatnih tiera bez ključa, pa zadatak upisan u New task dobiva odgovor bez\r\nključa, računa i postavki. Pretplate Claude Code, Codex i Antigravity\r\nsu opcionalne i možeš se prijaviti u bilo kojem trenutku.",
+    "docs.README_md.p0018": "**Jedno cijelo, četiri dijela.** Radni prostor (launcher, installer), aplikacija, SAIPEN i\r\nSAIMAIL četiri su repozitorija. Svaki se ažurira samostalno: *Settings -> ZAICODE ->\r\nUpdates* prikazuje sve dijelove; ažuriraj ih ručno ili automatski (provjera nekoliko minuta\r\nnakon pokretanja i svakih šest sati). Nova izvedba aplikacije priprema se dok ZAICODE radi\r\ni pokreće se pri sljedećem pokretanju; tvoje vlastite izmjene u klonu nikad se ne prepisuju.\r\nIz terminala: {protected0}.\r\nAutotroubleshoot: {protected1}. Detalji: [docs/ZAICODE_INSTALL.md](docs/ZAICODE_INSTALL.md).",
+    "docs.README_md.p0020": "## Obilazak sučelja",
+    "docs.README_md.p0024": "## Što dodaje ZCodeu"
+  },
+  "kept": [
+    "docs.README_md.p0000"
+  ]
+}

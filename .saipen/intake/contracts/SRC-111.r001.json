@@ -1,0 +1,14 @@
+{
+  "clauses": {
+    "SRC-111:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Satisfy the captured request SRC-111 in full; the authoritative text is the receipt body (sha256 b0284815d330): \u0412\u0438\u0441\u044f\u0447\u0438\u0435 \u0431\u043b\u043e\u043a\u0435\u0440\u044b \u043a\u0430\u0441\u0442\u0430\u0442\u0438 \u043c\u043e\u0436\u0435\u0448\u044c \u0437\u0430\u043a\u0440\u044b\u0442\u044c PASS \u043f\u043e\u0442\u043e\u043c\u0443 \u0447\u0442\u043e \u044e\u0437\u0430\u044e \u043d\u043e\u0440\u043c \u0438 \u0431\u0435\u0437 \u043f\u0440\u043e\u0431\u043b\u0435\u043c \u0440\u0430\u0431\u043e\u0442\u0430\u0435\u0442, \u043d\u0430 \u043d\u043e\u0447\u044c \u043e\u0441\u0442\u0430\u0432\u043b\u044f\u044e \u0438 \u0440\u0430\u0431\u043e\u0442\u0430\u0435\u0442, \u0437\u043d\u0430\u0447\u0438\u0442 \u0433\u0443\u0434. --json"
+    }
+  },
+  "derived_at": "2026-10-01T08:16:28Z",
+  "derived_from": "SRC-111",
+  "interpretation_revision": 1,
+  "schema_version": 1,
+  "source_sha256": "b0284815d3307c3c40f7d387a9e583f3e41739f0896313b5ff0e7e9133d9b81b"
+}

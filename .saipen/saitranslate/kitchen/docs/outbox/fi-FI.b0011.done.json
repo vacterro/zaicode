@@ -1,0 +1,15 @@
+{
+  "id": "fi-FI.b0011",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0106": "- siteera pilven tuomiota ja luokittele se tälle rajalle lipun mukaan\r\n  ({protected0} § 6 sisältää tarkistuksen);\r\n- älä koskaan kirjoita sidecar-tiedostoja uudelleen, älä tee uutta tarkistusta\r\n  vain vihreän tuloksen vuoksi, äläkä paikkaa kernel-kopiota;\r\n- pidä LOG-tapahtumat alle 1024 tavun molemmilla puolilla.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0108": "Sama konepolun sitominen estää myös työt. Velkojen perusluku ennen\r\nBUILD-vaihetta tallennetaan ensimmäisen kerran, kun lippu siirtyy\r\nBUILD-tilaan, ja tarkistetaan uudelleen jokaisella myöhemmällä siirtymällä.\r\nLippu, joka siirtyi ensimmäisen kerran BUILD-tilaan\r\nkoneella, ei siis voi siirtyä BUILD-tilaan pilvessä: siirtymä\r\nhylätään ({protected0}). T-84 on kirjattu tapaus: DEBT-000079\r\ntallennettiin kohdassa E-1377 ja siirtymä hylättiin kohdassa E-1446.\r\nJätä tällainen lippu sille koneelle, joka tallensi sen perusluvun.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0110": "## Erimiis",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0112": "Jos paikallinen ja etäinen eivät enää jaa yhteistä esi-isää, watcher\r\npysähtyy. Se ei yhdistä, uudelleenperusta eikä pakota. Molemmat\r\ncommit-tunnukset menevät lokiin, korjaus tehdään {protected0} käsin ja\r\ntulos tallennetaan kuin mikään muu muutos.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0114": "## Tarkka pilvipuolen toimi",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0116": "### Ympäristön asennuskomento (kerran, pilviympäristön asetuksissa)",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0118": "Pilviympäristön valikko istunnon otsikkorivillä -> Edit -> Setup script.\r\nSe suoritetaan ennen jokaista uutta istuntoa, joten jokainen istunto\r\nalkaa tuotteen työkaluketjun ollessa valmis:",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0122": "### Aloituskäsky jokaiseen uuteen istuntoon",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0124": "Aloita istunto repositoriossa {protected0}, haarassa {protected1}, ja\r\nvarmista, ettei koneen agentti kirjoita samanaikaisesti.\r\nKorvaa viimeinen rivi merkillä {protected2} luodaksesi uuden työn.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0134": "Koneella watcher tekee pik Hyppyr-forwardin {protected0} kohteesta\r\n{protected1}; {protected2} (tai {protected3}) kokoaa sen, ja\r\nZAICODEn seuraava käynnistys vaihtaa uuden koontiversion paikalleen.\r\n"
+  }
+}

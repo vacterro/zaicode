@@ -1,0 +1,15 @@
+{
+  "id": "th-TH.b0011",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0106": "- อ้างคำตัดสินจากคลาวด์แล้วจัดเข้าขอบเขตนี้ ทีละ ticket\r\n  ({protected0} § 6 มีการตรวจสอบ);\r\n- ห้ามเขียน sidecar ใหม่ ห้ามตรวจซ้ำเพื่อให้ผ่าน ห้ามแก้ kernel\r\n  copy;\r\n- ให้เหตุการณ์ใน LOG อยู่ใต้ 1024 bytes ทั้งสองฝั่ง",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0108": "การผูกกับ machine-path เดียวกันนี้ยังบล็อกงานอยู่ด้วย Debt baseline ก่อน BUILD\r\nจะถูกบันทึกครั้งแรกที่ ticket เข้าสู่ BUILD และตรวจซ้ำทุกครั้งที่เข้าอีก\r\nดังนั้น ticket ที่เคยเข้า BUILD ครั้งแรกบนเครื่อง operator จะเข้า BUILD ในคลาวด์ไม่ได้ ระบบ\r\nปฏิเสธการเปลี่ยนสถานะด้วย {protected0} T-84 คือเคสที่บันทึกไว้: DEBT-000079\r\nถูกบันทึกที่ E-1377 และการเปลี่ยนสถานะถูกปฏิเสธที่ E-1446 ให้ ticket แบบนี้อยู่กับเครื่องที่\r\nบันทึก baseline ของมัน",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0110": "## การแยกสาย",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0112": "ถ้า local กับ remote หยุดมี ancestor ร่วมกัน watcher จะหยุดทำงาน มันไม่\r\nmerge ไม่ rebase ไม่ force ทั้งสอง commit id จะเข้าไปใน log การแก้ไขเป็น\r\n{protected0} โดยมือ และ\r\nผลลัพธ์จะถูก checkpoint เหมือนการเปลี่ยนแปลงอื่น ๆ",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0114": "## คำสั่งที่ต้องทำบนฝั่งคลาวด์อย่างเจาะจง",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0116": "### Setup script ของ environment (ทำครั้งเดียว ใน settings ของ environment ฝั่งคลาวด์)",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0118": "เมนู Cloud environment ใน session title bar -> Edit -> Setup script มัน\r\nจะรันก่อนทุก session ใหม่ ดังนั้นแต่ละ session จะเริ่มโดยมี product toolchain พร้อมใช้งาน:",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0122": "### prompt สำหรับทุก session ใหม่",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0124": "เริ่ม session บน repository {protected0} branch {protected1} และ\r\nตรวจสอบว่า agent บนเครื่อง operator ไม่ได้เขียนไฟล์พร้อมกัน\r\nแทนที่บรรทัดสุดท้ายด้วย {protected2} เพื่อส่งงานใหม่ต่อ",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0134": "บนเครื่อง operator watcher จะ fast-forward {protected0} จาก\r\n{protected1}; {protected2} (หรือ {protected3}) เป็นผู้ build และ\r\nการเปิด ZAICODE ครั้งถัดไปจะเปลี่ยนมาใช้ build ใหม่\r\n"
+  }
+}

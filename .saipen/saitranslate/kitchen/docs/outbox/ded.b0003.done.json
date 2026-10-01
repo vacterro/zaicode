@@ -1,0 +1,15 @@
+{
+  "id": "ded.b0003",
+  "translation": {
+    "docs.README_md.p0048": "ZAICODE — это ZCode от Z.ai под той же\r\n[Apache License 2.0]({protected0}); исходные уведомления лежат в\r\n[NOTICE.md]({protected1}) и [THIRD-PARTY-NOTICES.md]({protected2}).\r\nФайлы правил автор ZAICODE. ZAICODE — самостоятельный проект,\r\nни с Z.ai не связан, ни им не одобрен. Оригинальный README ZCode сохранён как\r\n[README.zcode.md]({protected3}) и [README.en.md]({protected4}).",
+    "docs.README_md.p0052": "## Сеть проектов",
+    "docs.README_md.p0054": "Этот репозиторий — часть общей экосистемы **SAIPEN / vacterro**.",
+    "docs.README_md.p0056": "[**Хаб автора**]({protected0}) · [**SAIPEN HQ**]({protected1}) · [**SAIPEN Core**]({protected2}) · [**ZAICODE**]({protected3}) · [**FastPrompter**]({protected4}) · [**SAIPEN Community**]({protected5})",
+    "docs.README_md.p0058": "Баги с повтором и долгие просьбы о фичах — сюда: [GitHub Issues этого репозитория]({protected0}). Discord — для быстрого обсуждения, скринов и отзывов между проектами.",
+    "docs.docs_ZAICODE_INSTALL_md.p0000": "# Ставим ZAICODE",
+    "docs.docs_ZAICODE_INSTALL_md.p0002": "ZAICODE — это три проекта, работающих как один: приложение ZAICODE, SAIPEN (протокол, который держит работу агентов в узде) и SAIMAIL (почта, которой агенты пользуются, чтобы говорить друг с другом). Ставить руками — значит три клона, тулчейн Node.js, окружение Python и сборка. Установщик делает всё это сам: запустил, подождал — ярлык ZAICODE на рабочем столе.",
+    "docs.docs_ZAICODE_INSTALL_md.p0004": "## Один клик",
+    "docs.docs_ZAICODE_INSTALL_md.p0006": "- **[ZAICODE-Setup.exe]({protected0})**:\n  скачал, открыл двойным щелчком, жмёшь **INSTALL**. Окно (золото на тёмном,\n  баннер SAIPEN) показывает каждый шаг по ходу дела, сколько времени прошло и\n  по требованию — лог; в конце **START ZAICODE**, а если шаг не прошёл —\n  **TRY AGAIN** / **Autotroubleshoot** / **Open log**. Если указать уже\n  готовую папку ZAICODE, кнопка будет **UPDATE**: тот же прогон и обновит, и\n  починит. В exe лежат скрипты установки, рядом ничего не нужно; собирает его\n  {protected1} (компилятор .NET Framework, он есть в любых Windows 10/11).\n- {protected2} (двойной щелчок): та же установка, но в консоли.\n- С нуля, через PowerShell:",
+    "docs.docs_ZAICODE_INSTALL_md.p0008": "Запускаем через powershell:\n\n  ```powershell\n  & ([scriptblock]::Create((irm {protected0})))\n  ```"
+  }
+}

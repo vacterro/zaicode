@@ -1,0 +1,15 @@
+{
+  "id": "hi-IN.b0010",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0024": "| फ़ाइल | भूमिका |\r\n|------|------|\r\n| {protected0} | मान्यता जाँचता है, ब्रांच सिंक करता है, watcher इंस्टॉल व शुरू करता है, autostart एंट्री लिखता है, साबित करता है कि local == remote |\r\n| {protected1} | लूप: fetch, तुलना, fast-forward या push, लॉग, रोकें; फिर product pass और self-update |\r\n| {protected2} | स्वतंत्र executor से round-trip, साथ में cold-recovery प्रमाण |\r\n| {protected3} | throwaway Git repositories पर product pass और self-update (कोई नेटवर्क नहीं, कोई असली remote नहीं) |",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0026": "इंस्टॉल और मरम्मत:",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0030": "यह idempotent है। मशीन-स्थानीय state {protected0} में रहता है:\r\n{protected1} (एक कॉपी), {protected2} ({protected3} पर 2 MB पर rotate),\r\n{protected4} (एकल instance),\r\n{protected5}, और Startup-folder एंट्री\r\n{protected6}।",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0032": "इंस्टॉलर dirty tree अस्वीकार करता है, सफ़ाई कभी नहीं करता। यदि हर dirty path {protected0} के अंतर्गत canonical SAIPEN state है, तो यह बताता है और सटीक checkpoint कमांड छापता है; यह uncheckpointed protocol state है, transport fault नहीं, और इंस्टॉलर इसे protocol की पीठ पीछे commit नहीं करेगा।",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0034": "## Watcher व्यवहार",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0036": "| स्थिति | कदम |\r\n|-----------|------|\r\n| clean, local remote का ancestor है | {protected0} |\r\n| clean, remote local का ancestor है | {protected1} |\r\n| dirty | रुकें; fetch भी नहीं |\r\n| किसी दूसरी branch पर | रुकें |\r\n| दोनों आगे बढ़े, कोई साझा ancestor नहीं | रुकें, दोनों commit id लॉग करें, कुछ merge न करें |\r\n| fetch या नेटवर्क विफल | degraded लॉग करें, अगले tick पर पुनः प्रयास |\r\n| कोई merge/rebase{protected2} चल रहा है | रुकें |",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0038": "कभी नहीं: force push, hard reset, stash, clean, किसी विदेशी branch का checkout,\r\ncommit, या process name से रोकना। इंस्टॉलर watcher को केवल अपने pid file में दर्ज pid से रोकता है।",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0040": "Dirty tree की कोई कीमत नहीं, क्योंकि watcher fetch से पहले dirt जाँचता है।\r\nइसलिए idle checkout बिल्कुल कोई नेटवर्क कॉल नहीं करता।",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0042": "### उत्पाद समीक्षा चरण (T-90)",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0044": "{protected0} अपना ही repository है, इसलिए ऊपर की तालिका product code को कभी नहीं हिलाती। उसके बाद, वही tick product checkout संभालता है ({protected1},\r\ndefault {protected2}; branch {protected3}, default {protected4})।\r\nProduct pass चलता है चाहे outer tree dirty हो या न हो। यह केवल pull करता है।"
+  }
+}

@@ -1,0 +1,2 @@
+page.waitForFunction: Timeout 1000ms exceeded.
+    at C:\Users\vac34\.agents\skills\playwright-skill\.temp-execution-1790808526933.js:22:18

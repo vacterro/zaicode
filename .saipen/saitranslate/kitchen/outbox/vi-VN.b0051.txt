@@ -1,0 +1,2 @@
+1|"Một quy trình có tên này đã tồn tại tại đường dẫn này. Lưu sẽ thay thế toàn bộ tệp."
+2|"Luôn từ chối cùng yêu cầu quyền trong tương lai"

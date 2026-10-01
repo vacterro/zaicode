@@ -1,0 +1,10 @@
+1|=
+2|"ZAICODE to stanowisko operatorskie do uruchamiania wielu agentów programistycznych AI naraz,\r\nna wielu projektach, bez nadzorowania ich. To zmodyfikowana kompilacja\r\n[ZCode]({protected0}) (aplikacja desktopowa, interfejs przeglądarkowy i agent\r\nCLI) z dodatkową warstwą produktową: każdy projekt prowadzony jest przez\r\nprotokół [SAIPEN]({protected1}), praca jest rozpoczynana, kontynuowana\r\ni planowana z jednego okna, a subskrypcyjne CLI, za które już płacisz\r\n(Claude Code, Codex, Antigravity), działają jako dołączone workery obok agentów w aplikacji."
+3|"**0.0.1** to pierwsza oznaczona wersja: osobista kompilacja, przede wszystkim na Windows,\r\nużywana codziennie."
+4|"## Instalacja jednym kliknięciem"
+5|"1. Pobierz **[ZAICODE-Setup.exe]({protected0})**.\r\n2. Kliknij dwukrotnie i naciśnij **INSTALL**."
+6|"To wszystko. Instalator doinstaluje to, czego brakuje (Git, Node.js, Python, jako kopie\r\nprywatne: bez praw administratora), pobiera ZAICODE, SAIPEN i SAIMAIL z GitHuba,\r\nbuduje aplikację na maszynie i umieszcza skrót ZAICODE na pulpicie. Pierwsze\r\nuruchomienie trwa 15-30 minut; okno pokazuje każdy krok."
+7|"Darmowe modele działają od razu: ZAICODE uruchamia własny router i napełnia pulę **SAIFREN**\r\nz darmowych tierów bez kluczy, więc zadanie wpisane w New task dostaje odpowiedź bez\r\nklucza, bez konta i bez ustawień. Subskrypcje Claude Code, Codex i Antigravity są\r\nopcjonalne — można się zalogować w dowolnej chwili."
+8|"**Jedno całe, cztery części.** Obszar roboczy (launcher, instalator), aplikacja, SAIPEN i\r\nSAIMAIL to cztery repozytoria. Każde aktualizuje się osobno: *Ustawienia -> ZAICODE ->\r\nAktualizacje* pokazuje każdą część, aktualizuje ją ręcznie lub automatycznie (sprawdzanie\r\nkilka minut po starcie i co sześć godzin). Nowa kompilacja aplikacji przygotowuje się\r\nw trakcie pracy ZAICODE i uruchamia przy następnym starcie; Twoje własne zmiany w klonie\r\nnigdy nie są nadpisywane. Z terminala: {protected0}.\r\nAutodiagnostyka: {protected1}. Szczegóły: [docs/ZAICODE_INSTALL.md](docs/ZAICODE_INSTALL.md)."
+9|"## Przewodnik po interfejsie"
+10|"## Co dodaje do ZCode"

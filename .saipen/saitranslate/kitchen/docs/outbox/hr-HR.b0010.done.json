@@ -1,0 +1,15 @@
+{
+  "id": "hr-HR.b0010",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0046": "| Situacija | Postupak |\r\n|-----------|------|\r\n| udaljeni naprijed, nijedan dolazni file ovdje nije nečist | {protected0}; nedovršeni product rad ostaje kakav jeste |\r\n| udaljeni naprijed, dolazni file ovdje je nečist | HELD: evidentiraj fileove, nemergeaj ništa |\r\n| lokalni naprijed | evidentiraj; **nikad pushano** (product objavljuje SAIPEN SHIP) |\r\n| divergirano | pauziraj, evidentiraj oba id-a, nemergeaj ništa |\r\n| druga grana, git operacija u tijeku, fetch pao | pauziraj |\r\n| nema {protected1} checkouta, ili {protected2} | preskočeno |",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0048": "git sam odbija fast-forward koji bi preprepisao lokalnu promjenu,\r\npa je HELD provjera ranija, jasnija zaštita, ne jedina. Product\r\nfast-forward ne gradi ništa ispočetka: za test pokrenite {protected0} (ili\r\ndev preview).",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0050": "### Samo-ažuriranje (T-90)",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0052": "Watcher radi kao kopija pod {protected0}, pa noviji watcher u\r\nrepozitoriju nikad nije radio bez ponovne instalacije. U loop modu sada\r\nuspoređuje vlastiti file s commitiranom kopijom u repozitoriju pri svakom\r\nprolasku. Tu kopiju instalira preko sebe i restarta točno jednom, s istim\r\nargumentima, i to samo ako vrijede svi ovi uvjeti:",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0054": "- dvije file se razlikuju;\r\n- kopija u repozitoriju nema nedovršenih izmjena;\r\n- kopija u repozitoriju se parsira bez grešaka.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0056": "Kopija koja se ne parsira odbija se i evidentira, a pokrenuti watcher\r\nnastavlja s radom.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0058": "Watcheri instalirani prije T-90 nemaju ni product pass ni samo-ažuriranje.\r\nNa takvom stroju jednom pokrenite {protected0}; nakon toga se watcher\r\nažurira sam.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0060": "## Cloud dio",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0062": "{protected0} u rootu je pravilo ulaza, a\r\n{protected1} je postupak izvršavanja. Skill dohvaća\r\nSAIPEN kernel s {protected2} i izvršava ga kroz\r\ndeklarirani engine surface {protected3}. Kernel je zaključen commitom\r\n({protected4}), nikad tagom. Tag {protected5} je stariji kernel s istim\r\n{protected6}; njegov {protected7} mijenja stanje, a njegov validator odbija ovu\r\nploču.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0064": "{protected0} evidentira putanju kernela čiji je executor zadnji zapisao\r\ncheckpoint. U cloudu prvi {protected1} na kernelu {protected2} konvergira\r\nga na pokrenuti kernel kao jedan evidentirani {protected3} (E-1410). Na stroju\r\noperatera pokazivač stiže mrtav na isti način. Kernel s automatskom\r\nkonvergencijom popravlja ga na {protected4}; inače pokrenite\r\n{protected5}."
+  }
+}

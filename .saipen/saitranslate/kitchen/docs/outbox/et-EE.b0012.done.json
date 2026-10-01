@@ -1,0 +1,15 @@
+{
+  "id": "et-EE.b0012",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0106": "- tsiteeri pilve otsust ja liigita see selle piirina, pilet kaupa\n  ({protected0} § 6 sisaldab kontrolli);\n- ära kirjuta kõrvalkodeid ümber, ära kinnita uuesti ainult roheliseks, ära paranda tuumakoopia;\n- hoia LOG sündmused mõlemal poolel alla 1022 baiti.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0108": "Sama masintee sidumine blokeerib ka tööd. Enne BUILD-i võetud võla aluspunkt püütakse kinni esimest korda, kui pilet siseneb BUILD-i, ja kontrollitakse uuesti iga hilisema sisenemise korral. Seetõttu ei saa pilet, mis esimest korda sisenes BUILD-i operaatori masinas, BUILD-i pilves sisenema: üleminek keeldutakse {protected0}ga. T-84 on dokumenteeritud juhtum: DEBT-000079 püütakse kinni kohal E-1377 ja üleminek keeldutakse kohal E-1446. Jäta selline pilet sellele masinale, mis tema aluspunkti kinni püüdis.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0110": "## Lahknevus",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0112": "Kui kohalik ja kauge ei jaga enam ühist eellast, peatub jälgimine. See ei ühenda, ei rebaseeri ega sunni. Mõlemad commiti id-id lähevad logi, parandus tehakse {protected0} käsitsi ja\ntulemus talletatakse kontrollpunktina nagu iga muu muudatus.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0114": "## Täpne pilvepoolne toiming",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0116": "### Keskkonna seadistusskript (üks kord pilvekeskkonna seadetes)",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0118": "Pilvekeskkonna menüü sessiooni pealkirjaribal -> Edit -> Setup script. See\nkäib enne iga uut sessiooni, nii et iga sessioon algab toote\ntööriistaga valmis:",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0122": "### Iga uue sessiooni alguskäsk",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0124": "Alusta sessioon repositooriumis {protected0}, harul {protected1}, ja\nveendu, et operaatori masina agent samal ajal ei kirjuta.\nAsenda viimane rida {protected2}-ga, et uus töö üle anda.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0134": "Operaatori masinas jälgimine teeb kiire edasiviigu {protected0} alates\n{protected1}; {protected2} (või {protected3}) ehitab selle ning\nZAICODE järgmine käivitus vahetab uue ehituse sisse.\n"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "id": "fi-FI.b0003",
+  "translation": {
+    "docs.README_md.p0048": "ZAICODE on johdettu ZCodesta (Z.ai) ja jaetaan samalla\r\n[Apache License 2.0]({protected0}) -lisenssillä; upstream-ilmoitukset säilytetään\r\n[NOTICE.md]({protected1})- ja [THIRD-PARTY-NOTICES.md]({protected2})-tiedostoissa.\r\nTiedostoja on muokannut ZAICODEn tekijä. ZAICODE on itsenäinen projekti,\r\neikä se ole sidoksissa Z.aihin eikä Z.aien hyväksymä. Alkuperäinen ZCode README säilytetään\r\n[README.zcode.md]({protected3})- ja [README.en.md]({protected4})-tiedostona.",
+    "docs.README_md.p0052": "## Projektiverkko",
+    "docs.README_md.p0054": "Tämä repositorio kuuluu laajempaan **SAIPEN / vacterro** -projektiympäristöön.",
+    "docs.README_md.p0056": "[**Tekijäkeskus**]({protected0}) · [**SAIPEN HQ**]({protected1}) · [**SAIPEN Core**]({protected2}) · [**ZAICODE**]({protected3}) · [**FastPrompter**]({protected4}) · [**SAIPEN-yhteisö**]({protected5})",
+    "docs.README_md.p0058": "Toistettavien bugien ja pysyvien ominaisuuspyyntöjen osalta käytä [tämän repositorion GitHub Issuesiä]({protected0}). Discord nopeaan keskusteluun, kuvakaappauksiin ja projektien väliseen palautteeseen.",
+    "docs.docs_ZAICODE_INSTALL_md.p0000": "# ZAICODEn asennus",
+    "docs.docs_ZAICODE_INSTALL_md.p0002": "ZAICODE on kolme projektia, jotka toimivat yhtenä: ZAICODE-sovellus, SAIPEN (protokolla, joka pitää agentin työn raiteilla) ja SAIMAIL (posti, jolla agentit kertovat toisilleen asioita). Näiden asentaminen käsin tarkoittaa kolmea kloonausta, Node.js-työkalua, Python-ympäristöä ja buildia. Asentaja tekee kaiken: käynnistä se, odota, ja ZAICODE-pikakuvake on työpöydällä.",
+    "docs.docs_ZAICODE_INSTALL_md.p0004": "## Yksi klikkaus",
+    "docs.docs_ZAICODE_INSTALL_md.p0006": "- **[ZAICODE-Setup.exe]({protected0})**:\n  lataa, kaksoisnapsauta, paina **INSTALL**. Ikkuna (kultaa tummalla, SAIPEN-banneri) näyttää jokaisen vaiheen sen kestäessä, kuluneen ajan ja pyydettäessä lokin; lopuksi **START ZAICODE**, tai **TRY AGAIN** / **Autotroubleshoot**\n  / **Open log**, jos jokin vaihe ei valmistunut. Kun kohde on olemassa oleva ZAICODE-kansio, painikkeen teksti on **UPDATE**: sama ajo päivittää ja korjaa. Exe sisältää asennusskriptit eikä tarvitse mitään rinnalleen; sen kääntää {protected1} (.NET Framework -kääntäjä, joka löytyy jokaisesta Windows 10/11:stä).\n- {protected2} (kaksoisnapsauta): sama asennus konsolissa.\n- Tyhjästä, PowerShellissa:",
+    "docs.docs_ZAICODE_INSTALL_md.p0008": "```powershell\n& ([scriptblock]::Create((irm {protected0})))\n```"
+  }
+}

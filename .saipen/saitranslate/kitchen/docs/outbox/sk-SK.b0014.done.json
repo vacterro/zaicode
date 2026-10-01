@@ -1,0 +1,15 @@
+{
+  "id": "sk-SK.b0014",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0106": "- citovať verdikt cloudu a zaradiť ho ako túto hranicu, ticket po tickete\r\n  ({protected0} § 6 obsahuje kontrolu);\r\n- nikdy neprepisovať sidecars, nepreverovať znova len aby bolo zelené, ani nepatchovať\r\n  kópiu kernelu;\r\n- udržiavať LOG udalosti pod 1024 bajtmi na oboch stranách.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0108": "Rovnaké viazanie na stroj blokuje aj prácu. Baseline dlhu pred BUILD sa zachytí pri\r\nprvom vstupe ticketu do BUILD a pri každom neskoršom vstupe sa znova skontroluje.\r\nTicket, ktorý prvýkrát vstúpil do BUILD na operátorskom stroji, preto nemôže\r\nvstúpiť do BUILD v cloude: prechod sa odmietne s {protected0}. T-84 je prípad\r\nv zázname: DEBT-000079 bol zachytený na E-1377 a prechod odmietnutý na E-1446.\r\nTaký ticket nechajte stroju, ktorý zachytil jeho baseline.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0110": "## Divergencia",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0112": "Ak lokálna a vzdialená vetva už nemajú spoločného predka, watcher sa zastaví.\r\nNemerge, nerebase, neforce. Obe ID commitov idú do logu, oprava sa {protected0}\r\nručne a výsledok sa uloží ako checkpoint ako každá iná zmena.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0114": "## Presná akcia na strane cloudu",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0116": "### Setup skript prostredia (raz, v nastaveni cloud prostredia)",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0118": "Ponuka cloud prostredia v titulárke session -> Edit -> Setup script. Spúšťa sa\r\npred každou novou session, takže každá session začne s pripravenou produktovou\r\ntoolchain:",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0122": "### Prompt pre každú novú session",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0124": "Spustite session na repozitári {protected0}, branche {protected1} a uistite sa,\r\nže agent operátorskeho stroja zároveň nezapisuje. Nahradte posledný riadok\r\ns {protected2} pri odovzdaní novej práce.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0134": "Na operátorskom stroji watcher fast-forward-uje {protected0} z {protected1};\r\n{protected2} (alebo {protected3}) ho zostaví a pri nextom štarte ZAICODE sa nový\r\nbuild nasadí.\r\n"
+  }
+}

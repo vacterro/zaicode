@@ -1,0 +1,8 @@
+{
+  "id": "uk-UA.b0053",
+  "translation": {
+    "feedback.severity.P1-高.label": "Не можна використовувати",
+    "feedback.severity.P2-中.label": "Впливає на використання",
+    "feedback.severity.P3-低.label": "Дрібна проблема/пропозиція"
+  }
+}

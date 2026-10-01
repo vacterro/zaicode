@@ -1,0 +1,10 @@
+1|=
+2|"ZAICODE je pracovní stůl pro operátory, kde běží mnoho AI programovacích agentů současně nad\r\nmnoha projekty, bez dozoru. Jde o upravenou verzi\r\n[ZCode]({protected0}) (desktopová aplikace, UI v prohlížeči a\r\nCLI agenta) s produktovou vrstvou navíc: každý projekt řídí\r\n[SAIPEN]({protected1}) protokol, práce se spouští, pokračuje\r\na plánuje z jednoho okna a předplatné CLI, která už platíte\r\n(Claude Code, Codex, Antigravity) běží jako připojení pracovníci vedle agentů\r\nv aplikaci."
+3|"**0.0.1** je první označený snímek: osobní sestavení, Windows napřed, které\r\nse používá denně."
+4|"## Instalace jedním kliknutím"
+5|"1. Stáhněte **[ZAICODE-Setup.exe]({protected0})**.\r\n2. Dvakrát na něj klikněte a stiskněte **INSTALL**."
+6|"To je vše. Instalace doplní to, co stroj postrádá (Git, Node.js, Python jako soukromé\r\nkopie: bez práv administrátora), stáhne ZAICODE, SAIPEN a SAIMAIL z GitHubu,\r\npostaví aplikaci na stroji a umístí zástupce ZAICODE na plochu. První\r\nspuštění trvá 15-30 minut; okno zobrazuje každý krok."
+7|"Bezplatné modely fungují ihned: ZAICODE si spustí vlastní router a plní fond **SAIFREN**\r\nz bezklíčových bezplatných úrovní, takže úkol zadaný v Nová úloha dostane odpověď bez\r\nklíče, bez účtu a bez nastavení. Předplatné Claude Code, Codex a Antigravity jsou\r\nvolitelná a lze se přihlásit kdykoli."
+8|"**Jedno celé, čtyři části.** Pracovní prostor (spouštěč, instalátor), aplikace, SAIPEN a\r\nSAIMAIL jsou čtyři repozitáře. Každý se aktualizuje samostatně: *Nastavení -> ZAICODE ->\r\nAktualizace* ukazuje každou část, aktualizuje ji ručně nebo sám (kontrola pár minut\r\npo startu a každých šest hodin). Nové sestavení aplikace se připraví, když ZAICODE běží,\r\na spustí se při příštím startu; vaše vlastní úpravy v klonu se nikdy nepřepíšou.\r\nZ terminálu: {protected0}.\r\nAutodiagnostika: {protected1}. Podrobnosti: [docs/ZAICODE_INSTALL.md](docs/ZAICODE_INSTALL.md)."
+9|"## Prohlídka rozhraní"
+10|"## Co přidává ZCode"

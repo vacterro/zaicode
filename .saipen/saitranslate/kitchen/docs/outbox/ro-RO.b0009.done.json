@@ -1,0 +1,15 @@
+{
+  "id": "ro-RO.b0009",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0046": "| Situație | Acțiune |\r\n|-----------|------|\r\n| remote ahead, niciun fișier primit nu e dirty aici | {protected0}; lucra necomisă rămâne cum e |\r\n| remote ahead, un fișier primit e dirty aici | HELD: loghează fișierele, nu merge nimic |\r\n| local ahead | loghează; **niciodată push** (produsul e publicat de SAIPEN SHIP) |\r\n| diverged | pauză, loghează ambele id, nu merge nimic |\r\n| altă branch, o operație git în curs, fetch eșuat | pauză |\r\n| fără checkout {protected1}, sau {protected2} | skipped |",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0048": "git refuză singur un fast-forward care ar suprascrie o modificare locală, deci\r\nverificarea HELD e o gardă anterioară, mai clară, nu unica. Un\r\nfast-forward de produs nu reconstruiește nimic: pentru test, rulează {protected0} (sau\r\nprevizualizarea dev).",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0050": "### Auto-actualizare (T-90)",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0052": "Watcherul rulează ca o copie sub {protected0}, deci un watcher mai nou din\r\nrepository nu a rulat niciodată fără reinstalare. În modul loop, acum își\r\ncompară propriul fișier cu copia commitată din repository la fiecare pas. Instalează\r\nacea copie peste el și repornește exact o dată, cu aceleași argumente,\r\ndoar când toate acestea se îndeplinesc:",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0054": "- cele două fișiere diferă;\r\n- copia din repository nu are editări necomitate;\r\n- copia din repository se parsează fără erori.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0056": "O copie care nu se parsează e refuzată și logată, iar watcherul care rulează\r\ncontinuă.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0058": "Watcherii instalați înainte de T-90 nu au nici pasul de produs, nici auto-actualizare.\r\nRulează {protected0} o singură dată pe o asemenea mașină; după aceea,\r\nwatcherul se actualizează singur.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0060": "## Jumătatea cloud",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0062": "{protected0} de la rădăcină e regula de intrare, iar\r\n{protected1} e procedura de execuție. Skillul preia\r\nkernelul SAIPEN din {protected2} și îl rulează prin\r\nsuprafața de engine declarată {protected3}. Kernelul e fixat prin commit\r\n({protected4}), niciodată prin tag. Tagul {protected5} e un kernel mai vechi cu același\r\n{protected6}; {protected7} al lui mută starea, iar validatorul lui respinge acest board.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0064": "{protected0} înregistrează calea kernelului executorului care a făcut\r\nultimul checkpoint. În cloud, primul {protected1} pe kernelul {protected2} îl\r\nconvergează la kernelul curent ca un singur {protected3} journalizat (E-1410). Pe\r\nmașina operatorului, pointerul ajunge mort în același mod. Un kernel cu\r\nconvergență automată îl repară la {protected4}; altfel rulează\r\n{protected5}."
+  }
+}

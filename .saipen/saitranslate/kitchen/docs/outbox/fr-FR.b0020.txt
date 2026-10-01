@@ -1,0 +1,2 @@
+1|"**SAFE_TO_DEFER** — la couche produit. Une session cloud peut cloner la branche {protected1} de {protected0} et y travailler. Le travail en couche espace de travail ne requiert pas de travail produit, mais requiert bien le clone : {protected2} déclare {protected3}, et sans lui le valideur échoue avec {protected4}. Les gates {protected5} exigent pnpm 10.33.2 épinglé et un espace de travail préparé. {protected6} sur une image cloud vierge est la méthode d'accès documentée, et le {protected7} du produit le déclare déjà."
+2|"{protected0}"

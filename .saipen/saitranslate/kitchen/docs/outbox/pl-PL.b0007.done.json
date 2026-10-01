@@ -1,0 +1,15 @@
+{
+  "id": "pl-PL.b0007",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0002": "Jak ten checkout i sesja Claude Code Cloud uruchamiają jedną przestrzeń roboczą SAIPEN\r\nz różną lokalnością executora i gdzie przebiega granica między nimi.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0004": "## Kształt",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0008": "Jedna gałąź nosi stan protokołu. Nie ma kroku scalania, kroku rebase\r\nani drugiej gałęzi lokalnej do utrzymania w synchronizacji: którykolwiek executor ma\r\nzweryfikowany checkpoint, ten go commituje i wypycha, a druga strona\r\nodbiera go przez fast-forward.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0010": "{protected0} to historia sprzed transportu i opublikowana gałąź domyślna. Transport\r\nnie wykonuje na niej force-update.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0012": "## Co podróżuje, a co nie",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0014": "Checkpoint w tym repozytorium zawiera stan protokołu SAIPEN, launcher główny,\r\ninstalator, dokumentację i te skrypty transportowe. To cała warstwa przestrzeni roboczej.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0016": "Nie zawiera **żadnego bajtu produktu**. {protected0} to osobne repozytorium Git,\r\nwymienione w {protected1} i zignorowane przez git w tym katalogu\r\n({protected2}). Praca nad produktem wymaga własnego klona {protected3} na gałęzi\r\n{protected4}, a ten klon to drugi, niezależny obiekt z własną historią.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0018": "Konsekwencja łatwa do pomylenia: czysty {protected0} w tym katalogu mówi nic\r\no niezacommitowanej pracy nad produktem, a fast-forward w {protected1} mówi nic\r\no kodzie produktu. Sprawdź {protected2} wprost.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0020": "## Połowa lokalna",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0022": "Dwa skrypty, oba należące do repozytorium, żeby nowa maszyna pobrała je z repozytorium,\r\na nie z pamięci:"
+  }
+}

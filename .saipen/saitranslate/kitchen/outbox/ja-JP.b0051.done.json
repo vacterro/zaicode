@@ -1,0 +1,33 @@
+{
+  "id": "ja-JP.b0051",
+  "translation": {
+    "cuaPermission.perm.accessibility.purpose": "UI要素の読み取り・操作＋入力の合成",
+    "cuaPermission.perm.screenRecording": "画面録画",
+    "cuaPermission.perm.screenRecording.purpose": "画面をキャプチャ",
+    "cuaPermission.osFloorTitle": "Computer Use には macOS {minimum} 以降が必要です（現在およそ macOS {current}）",
+    "cuaPermission.osFloorDescription": "先に macOS をアップグレードしてください。古いバージョンでは権限の設定ができません。",
+    "cuaPermission.ready": "権限の準備完了",
+    "cuaPermission.ready.sessionValidationHint": "ZAICODE は最初のセッション開始時に、Computer Use のツールがそのセッションで動作するか検証します。",
+    "settings.computerUse.title": "Computer Use",
+    "settings.computerUse.toggleLabel": "Computer Use を有効化",
+    "settings.computerUse.toggleDescription": "オンにすると Computer Use（MCP サーバーとスキル）が有効になります。",
+    "settings.computerUse.composerEntry.label": "コンポーザーに Computer Use ボタンを表示",
+    "settings.computerUse.composerEntry.description": "オフの場合、コンポーザーのボタンは非表示になります。",
+    "settings.computerUse.composerEntry.requiresEnabled": "このボタンを表示するには、先に Computer Use をオンにしてください。",
+    "settings.computerUse.composerEntry.saveFailed": "保存に失敗しました: {error}",
+    "settings.computerUse.pluginDisabledHint": "Computer Use プラグインが有効になっていません。Computer Use を使用するには、プラグインで有効化してください。",
+    "settings.computerUse.unsupported.title": "ここでは Computer Use を使用できません",
+    "settings.computerUse.unsupported.remoteDescription": "Computer Use は SSH、WSL、Docker などのリモート環境ではまだ対応していません。ローカルの macOS または Windows ワークスペースに切り替えてください。",
+    "settings.computerUse.unsupported.linuxDescription": "Computer Use は Linux デスクトップではまだ対応していません。ローカルの macOS または Windows ワークスペースに切り替えてください。",
+    "settings.computerUse.unsupported.badge": "ここでは使用できません",
+    "settings.computerUse.unsupported.group": "利用できない組み込み機能",
+    "scheduledPreview.keepAwakeEnabled": "スリープ防止を有効化",
+    "scheduledPreview.keepAwakeDisabled": "スリープ防止を無効化",
+    "scheduledPreview.toast.running": "「{title}」を実行中…",
+    "scheduledPreview.toast.view": "表示",
+    "scheduledPreview.addSchedule": "スケジュールを追加"
+  },
+  "kept": [
+    "settings.computerUse.title"
+  ]
+}

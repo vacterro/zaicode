@@ -1,0 +1,15 @@
+{
+  "id": "he-IL.b0005",
+  "translation": {
+    "docs.docs_ZAICODE_INSTALL_md.p0032": "כל התחברות של Claude Code או Codex חיות בבית משלה: {protected0},\n{protected1}, ... ו־{protected2}, {protected3}, ... ZAICODE מוצא את כולן. כדי להכין יותר בזמן התקנה:",
+    "docs.docs_ZAICODE_INSTALL_md.p0036": "המתקין יוצר את הבתים ומדפיס את פקודת ההתחברות המדויקת לכל אחת\n({protected0}). אותו דבר ב־ZAICODE: Settings ->\nEngines & limits -> להוסיף התחברות נוספת.",
+    "docs.docs_ZAICODE_INSTALL_md.p0038": "## אבחון ותיקון אוטומטי",
+    "docs.docs_ZAICODE_INSTALL_md.p0042": "מצב לכל בדיקה: OK, FIXED (היה שבור, תוקן), WARN (עובד, אך חסר משהו\nרשותי), INFO (צריך אותך: התחברות), FAIL. היומנים ב־\n{protected0}; סיכום ההתקנה האחרונה הוא {protected1}.\nבאפליקציה, Router -> Autotroubleshoot מתקן את הנתב הפעיל ואת המאגרים.",
+    "docs.docs_ZAICODE_INSTALL_md.p0044": "## אפשרויות",
+    "docs.docs_ZAICODE_INSTALL_md.p0046": "| פרמטר | ברירת מחדל | |\n| ---- | ---- | ---- |\n| {protected0} | {protected1} | הכל הולך לשם |\n| {protected2} | Desktop | היכן קיצור הגישה של ZAICODE נמצא |\n| {protected3}, {protected4} | | דלג על קיצורי הגישה האלה |\n| {protected5} | | Git / Node.js / Python פרטיים גם אם כבר מותקנים במכונה |\n| {protected6} | | הפעל את ZAICODE בסיום |\n| {protected7}, {protected8}, {protected9} | מאגרי GitHub | מקור אחר (פורק, נתיב clone מקומי) |",
+    "docs.docs_ZAICODE_INSTALL_md.p0048": "## אימות",
+    "docs.docs_ZAICODE_INSTALL_md.p0050": "{protected0}\nבודק התקנה חדשה, מזריע תקלות (קיצור דרך וlauncher נמחקו, launcher של SAIPEN\nמופנה ל־Python חסר, venv של SAIMAIL נמחק, node_modules\nרשום עבור lockfile אחר, תיקיית build שנותרה עמוקה יותר מ־MAX_PATH),\nמאמת שהdoctor מדווח ומתקן כל אחת, ואז מפעיל את מטרת קיצור הדרך עם\nprofile מבודד ועוצר בדיוק את עץ התהליכים שהפעיל.",
+    "docs.docs_ZAICODE_INSTALL_md.p0052": "{protected0} בונה ארבעה מאגרים חד־פעמיים\nבדיסק והתקנה של ה־clones שלהם, ואז מוכיח שבדיקה לא משנה דבר, שחלק אחד\nמתעדכן לבדו עם ההמשך שלו (launcher של SAIPEN, launcher שורש),\nשעריכות מקומיות ו־commits מקומיים נשמרים, וששם חלק לא מוכר נדחה. ללא רשת.\n",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0000": "# תעבורת ענן ZAICODE SAIPEN"
+  }
+}

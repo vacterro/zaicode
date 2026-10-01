@@ -1,0 +1,15 @@
+{
+  "id": "uk-UA.b0009",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0024": "| Файл | Роль |\r\n|------|------|\r\n| {protected0} | перевіряє, синхронізує гілку, встановлює й запускає watcher, записує запис автозапуску, доводить, що local == remote |\r\n| {protected1} | цикл: fetch, порівняння, fast-forward або push, журнал, пауза; потім продуктовий прохід і самооновлення |\r\n| {protected2} | round-trip з незалежного виконавця плюс доказ відновлення після перезапуску |\r\n| {protected3} | продуктовий прохід і самооновлення на одноразових Git-репозиторіях (без мережі, без справжнього remote) |",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0026": "Встановлення та відновлення:",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0030": "Ідемпотентно. Локальний стан машини живе в {protected0}:\r\n{protected1} (копія), {protected2} (ротовано на\r\n2 MB до {protected3}), {protected4} (один екземпляр),\r\n{protected5} та запис у теці Startup\r\n{protected6}.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0032": "Інсталятор відмовляє на брудному дереві й ніколи його не чистить. Якщо кожен брудний шлях — це канонічний стан SAIPEN у {protected0}, він повідомляє про це й друкує точні\r\nкоманди для checkpoint; це не збій транспорту, а непротокольний стан, і інсталятор не робитиме commit за спиною в протоколу.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0034": "## Поведінка watcher",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0036": "| Ситуація | Дія |\r\n|-----------|------|\r\n| чисто, local є предком remote | {protected0} |\r\n| чисто, remote є предком local | {protected1} |\r\n| брудно | пауза; навіть без fetch |\r\n| інша гілка | пауза |\r\n| обидві просунулися, немає спільного предка | пауза, залогуювати обидва commit id, нічого не мержити |\r\n| fetch або мережа не вдалася | залогувати погіршення, повторити на наступному тіку |\r\n| триває merge/rebase{protected2} | пауза |",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0038": "Ніколи: force push, hard reset, stash, clean, checkout чужої гілки,\r\ncommit або зупинка за назвою процесу. Інсталятор зупиняє watcher лише за\r\npid, який сам записав у власний pid-файл.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0040": "Брудне дерево нічого не варте, бо watcher перевіряє бруд перед тим, як робити fetch.\r\nТож простоюючий checkout узагалі не робить жодних мережевих викликів.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0042": "### Продуктовий прохід (T-90)",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0044": "{protected0} є власним репозиторієм, тож таблиця вище ніколи не переміщує продуктовий\r\nкод. Після нього той самий тік обробляє checkout продукту ({protected1},\r\nза замовчуванням {protected2}; гілка {protected3}, за замовчуванням {protected4}).\r\nПродуктовий прохід виконується незалежно від того, чи зовнішнє дерево брудне. Він лише pull."
+  }
+}

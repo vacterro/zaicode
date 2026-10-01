@@ -91,5 +91,15 @@
   "feedback.submit.template.section.errorTraceId",
   "chat.toolCall.cua.appName",
   "chat.toolCall.cua.group.completedLabel",
-  "settings.computerUse.title"
+  "settings.computerUse.title",
+  "login.apiKey.provider.bigmodel",
+  "sidePane.saipen",
+  "login.oauth.regionTag.bigmodel",
+  "login.apiKey.provider.zai",
+  "modelTrajectory.toolId",
+  "codeViewer.markdownMode",
+  "codeViewer.svgMode",
+  "remote.kind.ssh",
+  "remote.kind.wsl",
+  "remote.kind.docker"
 ]

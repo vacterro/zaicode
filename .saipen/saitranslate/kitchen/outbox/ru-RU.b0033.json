@@ -1,0 +1,20 @@
+{
+  "id": "ru-RU.b0033",
+  "locale": "ru-RU",
+  "source_digest": "sha256:3649b64da723a738a49c2c9cb825f80faa8412dc7c9157c599b0b9b95bffdb35",
+  "issued_at": "2026-09-30T14:31:49.696Z",
+  "keys": [
+    "chat.toolCall.taskOutput.fetching",
+    "chat.toolCall.taskOutput.timeout",
+    "feedback.severity.P1-高.label",
+    "feedback.severity.P2-中.label",
+    "feedback.severity.P3-低.label"
+  ],
+  "messages": {
+    "chat.toolCall.taskOutput.fetching": "Waiting for background task",
+    "chat.toolCall.taskOutput.timeout": "Still running, wait ended",
+    "feedback.severity.P1-高.label": "Cannot use it",
+    "feedback.severity.P2-中.label": "Affects usage",
+    "feedback.severity.P3-低.label": "Minor issue/suggestion"
+  }
+}

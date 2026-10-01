@@ -1,0 +1,2 @@
+1|"**SAFE_TO_DEFER** — lớp sản phẩm. Một phiên đám mây có thể clone nhánh {protected1} của {protected0} và làm việc ở đó. Việc ở lớp workspace không đòi hỏi việc ở lớp sản phẩm, nhưng vẫn cần bản clone:\r\n{protected2} khai báo {protected3}, và thiếu nó thì\r\nvalidator thất bại với {protected4}. Các {protected5} gate cần pnpm 10.33.2\r\nđược ghim và workspace đã chuẩn bị. {protected6} trên image đám mây mới là\r\ncách vào theo tài liệu, và {protected7} của sản phẩm đã khai báo nó."
+2|"{protected0}"

@@ -1,0 +1,15 @@
+{
+  "id": "et-EE.b0007",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0002": "Kuidas see checkout ja Claude Code Cloudi sessioon käitavad sama SAIPEN tööala\r\nerineva täitja asukohaga ning kus nende piir paikneb.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0004": "## Kuju",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0008": "Üks haru kannab protokolli olekut. Pole sammudeühistamist, pole taasbaseerimist\r\nega teist kohalikku haru, mida sammus hoida: kellegi täitja kinnitatud\r\nkontrollpunkt on olemas, see commmititakse ja tüügitakse üles, teine pool võtab\r\nselle kiiresti ette.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0010": "{protected0} on eel-transpordi ajalugu ja avaldatud vaikeharu. Transport seda\r\njõuga ei uuenda.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0012": "## Mis liigub ja mis mitte",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0014": "Selle repositooriumi kontrollpunkt kannab SAIPEN protokolli olekut, juht\r\nkäivitaja, paaldaja, dokumente ja neid transpordiskripte. See on kogu\r\ntööalakiht.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0016": "See ei kanna ühtki tootebaiti. {protected0} on eraldi Git repositoorium, mis on\r\nloetletud failis {protected1} ja siin gitignoreeritud\r\n({protected2}). Tootetöö vajab oma {protected3} klooni harul\r\n{protected4}, ning see kloon on teine, sõltumatu objekt oma ajaluguga.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0018": "Tagajärg on kergesti valesti tõlgendatav: puhas {protected0} selles juures ei ütle\r\nmidagi kommitimata tootetöö kohta ning {protected1} kiire ülekanne ei ütle\r\nmidagi tootekoodi kohta. Kontrolli {protected2} eraldi.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0020": "## Kohalik pool",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0022": "Kaks skripti, mõlemad repo omad, nii et uus masin saab need repositooriumist,\r\nei mälust:"
+  }
+}

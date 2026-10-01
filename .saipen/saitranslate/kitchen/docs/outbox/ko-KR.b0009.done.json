@@ -1,0 +1,15 @@
+{
+  "id": "ko-KR.b0009",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0066": "**왕복이 관찰됨.** E-1562(클라우드)가 포인터를 {protected0}(으)로 수렴시켰고, E-1571(작업자 머신)이 수동 {protected2} 없이 자동�� 곧바로 {protected1}(으)로 되돌림. 양방향 모두 같은 자동 수렴이므로, 위치 전환마다 {protected3} {protected4} 한 건은 예상하며 결함이 아니라 기대 노이즈로 취급. P1-2({protected5})가 포인터를 버전 관리 상태 밖으로 옮기기 전까지는 노이즈에 머묾. 발견했다고 P1-2를 부수 효과로 구현하지 말 것. 포인터를 손으로 직접 수정 금지.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0068": "{protected0}는 핀 고정 커널의 깨끗한 {protected1} 클론이 아니라 핀보다 앞선 커널 **개발 체크아웃**을 가리킬 수 있음 — 작업자 머신에서는 커밋 안 된 작업이 있는 {protected2} 브랜치임. 핀 커밋이 아닌 커널이 자동으로 틀린 것은 아니지만, 클린룸 소스도 아님. 아래 음성 계약 규칙이 여기에 온전히 적용됨. 이런 체크아웃에서 아무것도 커밋·stash·reset·체크아웃·클린하지 말 것. {protected3}의 단일 파일 대상 복원만이 유일한 예외이며, 작업자가 요청했을 때만.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0070": "### STYLE.md는 로컬 설정이 아님",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0072": "{protected0}는 모든 머신의 모든 사본에서 예외 없이, 로컬 편집 없이 핀 고정 커널의 파일과 **바이트 단위로 동일**해야 함. 작업자 머신에는 사본이 둘 이상 있음:",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0074": "- {protected0}의 커널 체크아웃(Git 클론. 작업자 머신에서는 개발 체크아웃);\n- {protected2} 예약 작업({protected3})으로 채워지는 {protected1}. **Git 저장소가 아님**이므로 {protected4}로는 절대 복구 불가 — 인젝터를 통한 재동기화 또는 게시된 내용의 직접 쓰기가 유일한 경로.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0076": "{protected1} 안의 {protected0} 토큰은 그 파일 텍스트의 해시임({protected2}, {protected3}: CRLF 정규화, {protected4} 줄 제외). 사본 하나에서 {protected5}를 편집하면 토큰이 바뀌고, 다른 사본과 게시 커널을 가져오는 클라우드는 게시된 토큰을 유지함. 어긋난 쪽의 모든 CLI 쓰기가 {protected6}(으)로 거부됨. 실패의 전부임: 로컬 쪽이 클라우드가 쓸 수 없는 상태를 씀.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0078": "**응답 언어 변경은 커널 커밋 + 재핀이며, 로컬 편집이 아님.** 커널 저장소에서 변경하고, 게시하고, SKILL.md에서 커밋을 재핀하고, {protected1}을 통해 {protected0} 갱신. {protected2}에 대한 로컬 편집은 그 편집을 하는 머신을 제외한 모든 머신을 비동기화함.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0080": "명시할 만한 함정 하나: 게시된 {protected0}는 특정 작업자의 절대 인터프리터 경로와 체크아웃 경로를 하드코딩한 머신 종속 심임. 정확히 한 머신에서만 동작함. 클라우드는 {protected1}을 사용해야 함.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0082": "단축: {protected0}는 현재 Work를 이어감; {protected1}은 메시지 전체를 소스{protected2}(으)로 받아들여 대상 Work를 모두 이어감. 둘 다 일상적 확인을 묻지 않음.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0084": "## 기능 분류"
+  }
+}

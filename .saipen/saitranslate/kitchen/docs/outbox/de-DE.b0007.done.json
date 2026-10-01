@@ -1,0 +1,15 @@
+{
+  "id": "de-DE.b0007",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0024": "| Datei | Rolle |\r\n|------|------|\r\n| {protected0} | validiert, gleicht den Branch ab, installiert und startet den Watcher, schreibt den Autostart-Eintrag, belegt lokal == remote |\r\n| {protected1} | die Schleife: fetch, vergleichen, fast-forward oder push, loggen, pausieren; danach der Produktdurchlauf und das Self-Update |\r\n| {protected2} | Roundtrip aus einem unabhängigen Executor plus Nachweis der Kaltwiederherstellung |\r\n| {protected3} | Produktdurchlauf und Self-Update gegen Wegwerf-Git-Repositories (kein Netzwerk, kein echtes Remote) |\r\n",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0026": "Installation und Reparatur:",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0030": "Idempotent. Maschinenlokaler Zustand liegt in {protected0}:\r\n{protected1} (eine Kopie), {protected2} (rotiert bei\r\n2 MB nach {protected3}), {protected4} (einzelne Instanz),\r\n{protected5} sowie ein Eintrag im Startup-Ordner\r\n{protected6}.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0032": "Der Installer verweigert einen schmutzigen Baum und bereinigt ihn nie. Ist jeder schmutzige Pfad kanonischer SAIPEN-Zustand unter {protected0}, meldet er das und gibt die exakten Checkpoint-Befehle aus; das ist ein nicht eingecheckter Protokollzustand, kein Transportfehler, und der Installer committet ihn nicht hinter dem Protokoll her.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0034": "## Verhalten des Watchers",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0036": "| Situation | Aktion |\r\n|-----------|------|\r\n| sauber, lokal ist Vorfahre von remote | {protected0} |\r\n| sauber, remote ist Vorfahre von lokal | {protected1} |\r\n| schmutzig | pausieren; nicht einmal ein fetch |\r\n| auf einem anderen Branch | pausieren |\r\n| beide fortgeschritten, kein gemeinsamer Vorfahre | pausieren, beide Commit-Ids loggen, nichts mergen |\r\n| fetch oder Netzwerk fehlgeschlagen | degraded loggen, im nächsten Tick erneut versuchen |\r\n| Merge/Rebase{protected2} läuft | pausieren |",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0038": "Nie: force push, hard reset, stash, clean, checkout eines fremden Branch,\r\ncommit oder Stopp per Prozessname. Der Installer stoppt einen Watcher nur über die\r\npid, die er in seiner eigenen pid-Datei aufgezeichnet hat.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0040": "Ein schmutziger Baum kostet nichts, weil der Watcher den Schmutz vor dem Fetch prüft.\r\nEin ungenutztes Checkout stellt daher überhaupt keine Netzwerkaufrufe an.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0042": "### Produktdurchlauf (T-90)",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0044": "{protected0} ist ein eigenes Repository, daher bewegt die Tabelle oben nie\r\nProduktcode. Danach verarbeitet derselbe Tick das Produkt-Checkout ({protected1},\r\nStandard {protected2}; Branch {protected3}, Standard {protected4}). Der\r\nProduktdurchlauf läuft, egal ob der äußere Baum schmutzig ist. Er pullt nur."
+  }
+}

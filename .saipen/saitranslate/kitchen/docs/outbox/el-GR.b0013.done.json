@@ -1,0 +1,15 @@
+{
+  "id": "el-GR.b0013",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0106": "- παραθέστε την απόφαση του cloud και χαρακτηρίστε την ως αυτό το όριο, ticket ανά ticket\n  ({protected0} § 6 έχει τον έλεγχο);\n- ποτέ μην ξαναγράφετε τα sidecars, μην επανελέγχετε μόνο για να βγείτε πράσινο, μην παθάλετε το kernel\n  copy;\n- κρατήστε τα LOG events κάτω από 1024 bytes και στις δύο πλευρές.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0108": "Η ίδια δέσμευση machine-path μπλοκάρει δουλειά. Το pre-BUILD debt baseline καταγράφεται την πρώτη φορά που ένα ticket μπαίνει σε BUILD και επανελέγχεται σε κάθε μεταγενέστερη είσοδο. Ένα ticket που μπήκε πρώτο σε BUILD στη μηχανή του operator δεν μπορεί να μπει σε BUILD στο cloud: η μετάβαση απορρίπτεται με {protected0}. Το T-84 είναι η περίπτωση που κρατάει ρεκόρ: το DEBT-000079 καταγράφηκε στο E-1377 και η μετάβαση απορρίφθηκε στο E-1446. Αφήστε τέτοια ticket στη μηχανή που κατέγραψε το baseline της.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0110": "## Απόκλιση",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0112": "Αν το local και το remote σταματήσουν να μοιράζονται πρόγονο, ο watcher σταματά. Δεν κάνει merge, rebase ή force. Και τα δύο commit ids μπαίνουν στο log, η διόρθωση γίνεται {protected0} με το χέρι, και το\nαποτέλεσμα αποθηκεύεται σε checkpoint όπως οποιαδήποτε άλλη αλλαγή.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0114": "## Η ακριβής ενέργεια στο cloud",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0116": "### Script ρύθμισης περιβάλλοντος (μία φορά, στις ρυθμίσεις του cloud περιβάλλοντος)",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0118": "Μενού του cloud περιβάλλοντος στη γραμμή τίτλου της συνεδρίας -> Edit -> Setup script. Τρέχει πριν από κάθε νέα συνεδρία, άρα κάθε συνεδρία ξεκινά με το product toolchain έτοιμο:",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0122": "### Το prompt για κάθε νέα συνεδρία",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0124": "Ξεκινήστε τη συνεδρία στο repository {protected0}, branch {protected1}, και\nβεβαιωθείτε ότι ο agent της μηχανής του operator δεν γράφει ταυτόχρονα.\nΑντικαταστήστε την τελευταία γραμμή με {protected2} για να παραδώσετε νέα δουλειά.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0134": "Στη μηχανή του operator ο watcher κάνει fast-forward {protected0} από\n{protected1}; {protected2} (ή {protected3}) το χτίζει, και η\nεπόμενη εκκίνηση του ZAICODE βάζει στη θέση το νέο build.\n"
+  }
+}

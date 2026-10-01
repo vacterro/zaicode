@@ -1,0 +1,15 @@
+{
+  "id": "ko-KR.b0010",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0086": "**AVAILABLE_IN_CLOUD** — 프로토콜 상태와 워크스페이스 계층. {protected0} 읽기/쓰기, 런처({protected1}), {protected2} 하위 인스톨러, {protected3}, {protected4}, {protected5}, 전송 스크립트. {protected6} 대상 Git 읽기, 커밋, 푸시, fetch. 파일 단언, diff 리뷰, 텍스트 검사인 게이트 전부.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0088": "**LOCAL_WINDOWS_ONLY** — 이 머신이 필요한 게이트.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0090": "| 게이트 | 이유 |\r\n|------|-----|\r\n| {protected0} | {protected1}을 .NET Framework {protected2}(으)로 컴파일. 클라우드 이미지엔 Windows SDK 없음 |\r\n| 패키징된 Electron E2E ({protected3} 데스크톱, Solo → queue → dispatch) | 데스크톱 세션과 시드된 provider 프로필 필요 |\r\n| 라이브 9router | 이 머신의 Windows 서비스 |\r\n| 인터랙티브 데스크톱 클릭 스루 | 사람과 화면 필요 |\r\n| 워처 자체 런타임 케이스 | 워처는 체크아웃을 가진 머신에서만 실행됨 |",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0092": "이것들은 로컬 전용 인수 경계로 기록됨. diff가 멀쩡해 보여 통과로 보고되지 않음.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0094": "**SAFE_TO_DEFER** — 제품 계층. 클라우드 세션은 {protected0}의 {protected1} 브랜치를 클론해 그곳에서 작업 가능. 워크스페이스 계층 작업은 제품 작업을 요구하지 않지만 클론은 요구함: {protected2}가 {protected3}을 선언하며, 없으면 밸리데이터가 `source freshness computation BLOCKED -- declared nested\r\nrepository is missing: 'zcode'{protected4}pnpm` 게이트들에서 고정 pnpm 10.33.2와 준비된 워크스페이스를 요구하며 실패함. 새 클라우드 이미지에서 {protected5}는 문서화된 진입 경로이고, 제품의 {protected6}가 이미 이를 선언함.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0096": "클라우드는 {protected0}에 있는 제품 바이트만 검증 가능. 오퍼레이터의 {protected1} 체크아웃에만 존재하는 제품 델타는 여기선 보이지 않으므로, 게이트 종류와 무관하게 해당 제품 게이트는 클라우드에서 NOT RUN. T-84가 첫 사례(E-1411): 수정은 로컬 전용이었고 {protected2}는 여전히 수정 전 코드를 담고 있었음.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0098": "**UNSAFE_TO_EMULATE** — 로컬 전용 게이트를 초록으로 보이게 만드는 모든 것. 런처 빌드를 스텁 처리하거나, 패키징 앱 실행을 위조하거나, 기록된 {protected0} 결과를 방금 실행된 것처럼 재생하거나, \"코드가\r\ncorrect해 보인다\"를 {protected1}의 PASS 줄로 바꾸지 말 것.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0100": "**KNOWN_CLOUD_DIVERGENCE** — 체크아웃 위치에 따라 달라지는 적합성. 커널 {protected0}에서 클라우드 밸리데이터는 오퍼레이터 머신에서는 발생하지 않는 {protected1} FAIL(T-47, T-62, T-76, T-78, 작성 시점 기준)을 보고함.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0102": "커널은 1024바이트를 넘는 모든 LOG 이벤트를 {protected0} 사이드카로 이동시킴. 읽을 때 체크아웃의 절대 경로가 기록된 경로와 같을 때만 사이드카 복원. 따라서 Windows에서 기록된 긴 VERIFY 판정은 클라우드에서 읽을 수 없으며, 반대 방향도 마찬가지.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0104": "결함은 커널에 있고 {protected0}에 P1-1로 등록됨. 반영될 때까지:"
+  }
+}

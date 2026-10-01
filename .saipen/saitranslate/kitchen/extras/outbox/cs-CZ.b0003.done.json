@@ -1,0 +1,9 @@
+{
+  "id": "cs-CZ.b0003",
+  "translation": {
+    "native.tray.tooltip": "ZCode"
+  },
+  "kept": [
+    "native.tray.tooltip"
+  ]
+}

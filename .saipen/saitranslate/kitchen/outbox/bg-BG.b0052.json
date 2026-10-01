@@ -1,0 +1,18 @@
+{
+  "id": "bg-BG.b0052",
+  "locale": "bg-BG",
+  "source_digest": "sha256:3649b64da723a738a49c2c9cb825f80faa8412dc7c9157c599b0b9b95bffdb35",
+  "issued_at": "2026-09-30T14:40:46.705Z",
+  "keys": [
+    "settings.skills.diagnostics.code.skill_missing_name",
+    "settings.skills.diagnostics.code.skill_invalid_name",
+    "settings.skills.diagnostics.code.skill_missing_description",
+    "settings.skills.diagnostics.code.skill_description_too_long"
+  ],
+  "messages": {
+    "settings.skills.diagnostics.code.skill_missing_name": "Frontmatter missing `name` field",
+    "settings.skills.diagnostics.code.skill_invalid_name": "`name` must be lowercase / digits / hyphens",
+    "settings.skills.diagnostics.code.skill_missing_description": "Frontmatter missing `description` field",
+    "settings.skills.diagnostics.code.skill_description_too_long": "`description` exceeds 1024 chars (truncated)"
+  }
+}

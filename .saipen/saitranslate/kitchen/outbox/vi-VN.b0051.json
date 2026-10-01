@@ -1,0 +1,14 @@
+{
+  "id": "vi-VN.b0051",
+  "locale": "vi-VN",
+  "source_digest": "sha256:3649b64da723a738a49c2c9cb825f80faa8412dc7c9157c599b0b9b95bffdb35",
+  "issued_at": "2026-09-30T14:39:54.820Z",
+  "keys": [
+    "chat.permission.workflow.save.overwriteHint",
+    "chat.permission.denyAlways.description.generic"
+  ],
+  "messages": {
+    "chat.permission.workflow.save.overwriteHint": "A workflow with this name already exists at this path. Saving replaces the whole file.",
+    "chat.permission.denyAlways.description.generic": "Always reject the same permission request in the future"
+  }
+}

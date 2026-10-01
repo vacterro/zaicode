@@ -1,0 +1,18 @@
+{
+  "id": "hu-HU.b0013",
+  "translation": {
+    "docs.README_md.p0000": "# ZAICODE",
+    "docs.README_md.p0006": "A ZAICODE egy üzemeltetői munkaállomás: egyszerre sok AI-kódoló ügynök futtatható sok projekten, felügyelet nélkül. A [ZCode]({protected0}) módosított buildje (asztali alkalmazás, böngészős felület és ügynök\r\nCLI), ráépülő termékréteggel: minden projektet a [SAIPEN]({protected1}) protokoll hajt, a munkát egyetlen ablakból indítod, folytatod és ütemezed, a már előfizetett CLI-k\r\n(Claude Code, Codex, Antigravity) pedig dokkolt végrehajtóként futnak az alkalmazáson belüli\r\nügynökök mellett.",
+    "docs.README_md.p0008": "A **0.0.1** az első címkézett pillanatkép: személyes, Windowsra elsőként készült build, amit\r\nnaponta használok.",
+    "docs.README_md.p0010": "## Telepítés egy kattintással",
+    "docs.README_md.p0012": "1. Töltsd le a **[ZAICODE-Setup.exe]({protected0})** fájlt.\r\n2. Kattints rá duplán, majd nyomd meg az **INSTALL** gombot.",
+    "docs.README_md.p0014": "Ennyi az egész. A telepítő pótolja, amiből a gépen hiányzik (Git, Node.js, Python, privát példányként: nem kell rendszergazdai jog), letölti a ZAICODE-ot, a SAIPEN-t és a SAIMAIL-t a GitHubról,\r\nfelépíti az alkalmazást a gépen, és ikont tesz az asztalra. Az első\r\nindítás 15-30 perc; az ablak minden lépést megmutat.",
+    "docs.README_md.p0016": "Az ingyenes modellek rögtön működnek: a ZAICODE elindítja a saját routerét, és feltölti a **SAIFREN** készletet kulcs nélküli ingyenes sávokból, így az Új feladat mezőbe beírt feladat kulcs, fiók és\r\nbeállítás nélkül kap választ. A Claude Code, Codex és Antigravity előfizetések\r\nopcionálisak, bármikor bejelentkezhetsz velük.",
+    "docs.README_md.p0018": "**Egy egész, négy rész.** A munkaterület (indító, telepítő), az alkalmazás, a SAIPEN és a\r\nSAIMAIL négy külön tároló. Mindegyik önállóan frissül: a *Beállítások -> ZAICODE ->\r\nFrissítések* megjeleníti az összes részt, kézzel vagy magától frissíti (indítás után\r\nnéhány perccel, majd hatóránként). Az új alkalmazás-build a ZAICODE futása közben készül el,\r\nés a következő indítással lép életbe; a saját módosításaid egy klónban soha nem\r\níródnak felül.\r\nTerminálból: {protected0}.\r\nAutomatikus hibakeresés: {protected1}. Részletek: [docs/ZAICODE_INSTALL.md](docs/ZAICODE_INSTALL.md).",
+    "docs.README_md.p0020": "## Felületi túra",
+    "docs.README_md.p0024": "## Mit ad hozzá a ZCode-hoz"
+  },
+  "kept": [
+    "docs.README_md.p0000"
+  ]
+}

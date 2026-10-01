@@ -1,0 +1,86 @@
+Command palette
+
+Search and run commands available in this workspace.
+
+ZAICODE
+SAIHOME
+CONTINUE ALL
+Auto OFF
+DONE
+0
+SAIFREN
+SAIOPP
+SAIRoute / SAIFREN
+disabled
+enabled
+A1
+C1
+AG
+◆
+Projects
+2
+Visible folder
+Empty
+0
+Project menu → Move to folder
+MAIN0
+project-two
+◇
+project-one
+MAIN1
+SIDE0
+SIDE1
+SIDE2
+SIDE3
+vacuum34
+Thu 1 Oct · 01:33:58 · Night
+AG ↺ 3h 32m
+AG
+
+Do your best.
+
+New task screen
+project-two
+SAIPEN
+not initialized
+
+
+
+
+Ask ZAICODE anything, @ to add context, / for commands or capabilities
+◇ MAIN?
+INIT SAIPEN
+CLEAR
+No .saipen/ in this project — SAIPEN memory not initialized.
+Add context
+Full access
+SAIFREN
+SAIOPP
+Off
+Off
+On
+Send
+0
+Pin project to the top
+Move to folder
+Move to No folder
+Move into Visible folder
+New session
+Files
+Switch project off
+A3 audit…
+Start worker here
+A1
+C1
+AG
+ZC
+Autostart for this project…
+Move to slot · now MAIN0
+MAIN0
+MAIN1
+SIDE0
+SIDE1
+SIDE2
+SIDE3
+Archive all sessions
+Remove

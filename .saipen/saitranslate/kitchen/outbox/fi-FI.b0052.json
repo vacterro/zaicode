@@ -1,0 +1,14 @@
+{
+  "id": "fi-FI.b0052",
+  "locale": "fi-FI",
+  "source_digest": "sha256:3649b64da723a738a49c2c9cb825f80faa8412dc7c9157c599b0b9b95bffdb35",
+  "issued_at": "2026-09-30T14:39:39.262Z",
+  "keys": [
+    "settings.modelProvider.baseUrlPlaceholder",
+    "workflows.hub.detail.script.note"
+  ],
+  "messages": {
+    "settings.modelProvider.baseUrlPlaceholder": "https://api.example.com/v1",
+    "workflows.hub.detail.script.note": "The script is read-only. To change it, revise it with ZAICODE in chat and save a new version."
+  }
+}

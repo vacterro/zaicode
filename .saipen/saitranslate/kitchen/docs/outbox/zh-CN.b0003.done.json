@@ -1,0 +1,15 @@
+{
+  "id": "zh-CN.b0003",
+  "translation": {
+    "docs.README_md.p0048": "ZAICODE 源自 Z.ai 的 ZCode，采用相同的\r\n[Apache License 2.0]({protected0}) 发布；上游声明保留在\r\n[NOTICE.md]({protected1}) 和 [THIRD-PARTY-NOTICES.md]({protected2}) 中。\r\n文件由 ZAICODE 作者修改。ZAICODE 是独立项目，\r\n与 Z.ai 无隶属关系，也未获其背书。原始 ZCode README 保留为\r\n[README.zcode.md]({protected3}) 和 [README.en.md]({protected4})。",
+    "docs.README_md.p0052": "## 项目网络",
+    "docs.README_md.p0054": "本仓库属于更大的 **SAIPEN / vacterro** 项目生态。",
+    "docs.README_md.p0056": "[**作者主页**]({protected0}) · [**SAIPEN 总部**]({protected1}) · [**SAIPEN Core**]({protected2}) · [**ZAICODE**]({protected3}) · [**FastPrompter**]({protected4}) · [**SAIPEN 社区**]({protected5})",
+    "docs.README_md.p0058": "可复现的 bug、长期有效的功能需求，请使用[本仓库的 GitHub Issues]({protected0})。快速讨论、截图、跨项目反馈请用 Discord。",
+    "docs.docs_ZAICODE_INSTALL_md.p0000": "# 安装 ZAICODE",
+    "docs.docs_ZAICODE_INSTALL_md.p0002": "ZAICODE 由三个协同工作的项目组成：ZAICODE 应用、SAIPEN（让 agent 工作不跑偏的协议）、SAIMAIL（agent 互相通信用的邮件）。手动安装意味着三个仓库克隆、一套 Node.js 工具链、一个 Python 环境加一次构建。安装程序包办全部：\r\n运行它、等待，桌面上就有 ZAICODE 快捷方式。",
+    "docs.docs_ZAICODE_INSTALL_md.p0004": "## 一键安装",
+    "docs.docs_ZAICODE_INSTALL_md.p0006": "- **[ZAICODE-Setup.exe]({protected0})**：\r\n  下载、双击、按 **INSTALL**。窗口（深色底金色，SAIPEN 横幅）会实时显示每个步骤、已用时间，并可按需查看日志；结束时按 **START ZAICODE**，若某步未完成则按 **TRY AGAIN** / **Autotroubleshoot**\r\n  / **Open log**。指向已有的 ZAICODE 文件夹时按钮显示 **UPDATE**：同样的流程完成更新与修复。该\r\n  exe 自带安装脚本，旁无其他文件即可运行；由 {protected1} 构建（Windows 10/11\r\n  自带的 .NET Framework 编译器）。\r\n- {protected2}（双击）：在控制台里执行同样的安装。\r\n- 从零开始，用 PowerShell：",
+    "docs.docs_ZAICODE_INSTALL_md.p0008": "  ```powershell\r\n  & ([scriptblock]::Create((irm {protected0})))\r\n  ```"
+  }
+}

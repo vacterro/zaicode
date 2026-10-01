@@ -1,0 +1,7 @@
+{
+  "id": "pt-BR.b0016",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0094": "**SAFE_TO_DEFER** — a camada de produto. Uma sessão em nuvem pode clonar\no branch {protected0} {protected1} e trabalhar ali. Trabalho da camada de\nworkspace não exige trabalho de produto, mas exige o clone:\n{protected2} declara {protected3}, e sem ele o\nvalidador falha com {protected4}. {protected5} precisam do pnpm 10.33.2\nfixado e de um workspace pronto. {protected6} em uma imagem nova em nuvem é a\nforma documentada de entrar, e o {protected7} do produto já o declara.",
+    "docs.docs_ZAICODE_INSTALL_md.p0008": "{protected0}"
+  }
+}

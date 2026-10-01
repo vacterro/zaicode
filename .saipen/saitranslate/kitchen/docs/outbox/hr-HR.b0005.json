@@ -1,0 +1,12 @@
+{
+  "id": "hr-HR.b0005",
+  "locale": "hr-HR",
+  "source_digest": "sha256:1271cb40a659cdd128ed0e8704711399b15a4f147fe0448f87593f7e97dec09b",
+  "issued_at": "2026-09-30T14:40:50.331Z",
+  "keys": [
+    "docs.docs_ZAICODE_INSTALL_md.p0008"
+  ],
+  "messages": {
+    "docs.docs_ZAICODE_INSTALL_md.p0008": "{protected0}"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "clauses": {
+    "SRC-105:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "SAIPEN: improve and fix bugs in SAIPEGGLE and SAIASUI"
+    }
+  },
+  "derived_at": "2026-09-30T16:34:52Z",
+  "derived_from": "SRC-105",
+  "interpretation_revision": 1,
+  "schema_version": 1,
+  "source_sha256": "e55a4bc0a26312bca78f297011625ee1b0a14fb05e1f556939f57570225dde39"
+}

@@ -1,0 +1,14 @@
+{
+  "requirements": {
+    "SRC-106:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "T-139 closed with verification evidence in LOG: verify -> PASS [target: T-139] conf: high -- pnpm --filter @zcode/ui exec node --import tsx --test test/zaicodeSaipeggleSaiasuiFixes.test.ts test/zaicodeSrc62Saipeggle.test.ts test/zaicodeSaipeggleSmooth.test.ts test/zaicodeSaiasui*.test.ts reported 45 passed, 0 failed, 0 errors in oxlint",
+      "text": "improve and fix bugs in SAIPEGGLE and SAIASUI",
+      "verification": "the Work this request created reached its own verification gate; see the T-139 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-139"
+    }
+  },
+  "schema_version": 1
+}

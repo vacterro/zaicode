@@ -1,0 +1,37 @@
+saipen conformance validation starting (tools/validate.py)...
+Project root: V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE (git-worktree)
+Project lineage: lineage-b0732ed2f98947b9a3c97bfe71427eca
+PASS: state.schema.json and the engine STATE contract constants agree
+PASS: state.schema.json states nothing the validator ignores (4 keywords enforced natively, 5 delegated, 4 types interpreted)
+PASS: STATE.md schema valid (checked against state.schema.json)
+PASS: .saipen/IDENTITY.md is a canonical portable lineage carrier (lineage-b0732ed2f98947b9a3c97bfe71427eca)
+PASS: goal execution_intent counters present
+PASS: subSaipen STATE.md shape valid (1 checked, live + shipped library)
+PASS: .saipen/extensions/subs/MANIFEST.md parses strictly (0 entries)
+PASS: BOARD.md has all required section headings
+PASS: BOARD.md no duplicate tickets
+PASS: BOARD.md no dangling needs: references
+PASS: BOARD.md acyclic
+PASS: BOARD.md Work supersession relations are terminal, existing and acyclic
+PASS: BOARD.md claimed tickets have their needs: satisfied
+PASS: BOARD.md at most one ## DOING ticket (0 claimed)
+PASS: every DONE closure provenance satisfies its declared closure contract
+PASS: LOG.md format valid (skeleton, E-### unique + monotonic, parents resolve; 3 segment(s))
+PASS: improve seat report schema valid (40 report(s) scanned)
+PASS: core sweep linkage valid: every disposition resolves to a real finding/ticket, no unverified or INVALID/ALREADY_FIXED finding produced a ticket, source_reports resolve exactly
+PASS: subsaipen write boundary continuous: no sub artifact targets a main-project canonical file (red control 7)
+PASS: KNOWLEDGE/ clean
+PASS: KNOWLEDGE/ structured surface valid (0 card(s), 0 active, index absent)
+PASS: subSaipen liveness clean (none idle, no uncollected findings)
+PASS: append targets end on a line boundary (9 checked)
+PASS: Golden Default palette integrity verified (21 Wintage tokens, sha256:271ba26cd75948e8)
+WARN [board-soft-cap]: BOARD.md is 43 KB (soft cap ~16 KB), of which 35 KB is closed-ticket text -- that content already lives in LOG.md/CHANGELOG.md, so scrub ## DONE at the next CLEAN (RFC § 1.2, phases/clean.md step 1)
+WARN [log-taxonomy]: .saipen/logs/LOG-001.md:445 taxonomy 'SHIP' isn't RUN/DEC/H -- non-conformant for new entries (RFC § 1.2)
+WARN [log-taxonomy]: .saipen/logs/LOG-001.md:446 taxonomy 'SHIP' isn't RUN/DEC/H -- non-conformant for new entries (RFC § 1.2)
+WARN [hand-authored-op-id]: 4 event(s) carry an off-grammar `[op: ...]` id that no writer emits; exempt as history (sealed segment, at or below the resolved floor, or backed by a real operation record): .saipen/logs/LOG-001.md:441 E-440 [op: validate-98a1240b]; .saipen/logs/LOG-002.md:223 E-1090 [op: checkpoint-scout-t66]; .saipen/logs/LOG-002.md:247 E-1114 [op: restamp-e1090-conformance-repair] (T-1577)
+WARN [log-soft-cap]: .saipen/LOG.md is 1252 lines / 381 KB, past the ~300 line / ~64 KB soft cap -- seal it into .saipen/logs/LOG-<NNN>.md at the next checkpoint (RFC § 1.2, phases/clean.md)
+WARN [producer-package-stale]: .saipen/saitranslate/kitchen/OUTBOX.md [SAIT-001] carries source_tree_fingerprint 'git-delta-v1:5af9f086c8563baf9f16210673a713cdd3040f1cfcdc98b6f7914ad741d0cf27' but the current tree computes 'git-delta-v1:0c577445cbe0fa13593b577a9452a4a128604b5e12a09a87a9d56f1d3eab4b9f' -- the tree changed since the package was produced (same HEAD or not), so it is stale and MUST NOT be collected (PROTOCOL.md § 6, T-543) -- reported under `--gate core`, where this producer is not being consumed; it FAILs under `--gate collect:saitranslate` and blocks nothing else
+WARN [cross-doc-drift]: cross-doc drift [ahead-stamp-repair] -- CORE.md must say a future-stamped LOG line is restamped to a defensible bound with a DEC naming the original, the replacement, and that the minute is inherited rather than measured. Without it the only sanctioned response is waiting, which keeps a false record and reds every gate until the clock catches up
+WARN [cross-doc-drift]: cross-doc drift [shortcut-memory-ban] -- BOOT.md step 7 must order § 1.10's table read before acting on a shortcut and explicitly state that memory is never a source for it. An agent that believes it knows what a key means answers from recall rather than reading the file
+WARN [cross-doc-drift]: ... and 15 more like the above
+Validation complete. Agent is conformant. (23 warning(s))

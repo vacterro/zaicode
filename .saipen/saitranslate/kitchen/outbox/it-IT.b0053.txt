@@ -1,0 +1,3 @@
+1|"Impossibile utilizzarlo"
+2|"Influisce sull’uso"
+3|"Problema minore/suggerimento"

@@ -1,0 +1,15 @@
+{
+  "id": "hr-HR.b0020",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0002": "Kako ovaj checkout i Claude Code Cloud sesija pokreću isti SAIPEN workspace\ns različitom lokalnošću izvršitelja i gdje je granica između njih.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0004": "## Oblik",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0008": "Jedna grana nosi stanje protokola. Nema koraka merge, nema koraka rebase\ni nema druge lokalne grane koju treba održavati usklađenom: izvršitelj koji\nima verificiran checkpoint commit-a ga i push-a, a druga strana preuzima\nga fast-forward-om.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0010": "{protected0} je povijest prije transporta i objavljena zadana grana.\nTransport ga ne mijenja force-om.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0012": "## Što putuje i što ne putuje",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0014": "Checkpoint u ovom repozitoriju nosi stanje SAIPEN protokola, root\nlauncher, installer, dokumentaciju i ove transport skripte. To je\ncijeli sloj workspacea.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0016": "Ne nosi **nijedan product byte**. {protected0} je zaseban Git repozitorij, naveden\nu {protected1} i gitignoriran u ovom rootu\n({protected2}). Product rad treba vlastiti klon {protected3} na grani\n{protected4}, a taj klon je drugi, neovisan objekt s vlastitom poviješću.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0018": "Posljedica se lako shvaća pogrešno: čist {protected0} u ovom rootu ne govori\nništa o necommitiranom product radu, a {protected1} fast-forward ne govori\nništa o product kodu. Provjeri {protected2} izričito.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0020": "## Lokalna polovica",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0022": "Dvije skripte, obje dio repozitorija, pa novi stroj dobiva ih iz repozitorija\na ne iz sjećanja:"
+  }
+}

@@ -1,4 +1,14 @@
 {
-  "requirements": {},
+  "requirements": {
+    "SRC-071:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "Wave 2 delivered and verified",
+      "text": "Wave 2: Session text Save/Export/Import, user-message styling, per-session auto-continue, large-paste attachment fidelity",
+      "verification": "pnpm test",
+      "work": "T-109"
+    }
+  },
   "schema_version": 1
 }

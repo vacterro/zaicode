@@ -1,0 +1,15 @@
+{
+  "id": "vi-VN.b0011",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0046": "| Tình huống | Hành động |\r\n|-----------|------|\r\n| remote đi trước, không file nào đến bị sửa ở đây | {protected0}; sản phẩm chưa commit giữ nguyên như cũ |\r\n| remote đi trước, có file đến bị sửa ở đây | HELD: ghi log các file, không merge gì |\r\n| local đi trước | ghi log; **không bao giờ push** (sản phẩm do SAIPEN SHIP phát hành) |\r\n| phân kỳ | dừng, ghi log cả hai id, không merge gì |\r\n| nhánh khác, đang có thao tác git dở dang, fetch thất bại | dừng |\r\n| không có checkout {protected1}, hoặc {protected2} | skipped |",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0048": "git tự chối fast-forward ghi đè một thay đổi local, nên\r\nkiểm tra HELD chỉ là chốt chặn sớm và rõ ràng, không phải chốt chặn duy nhất. Fast-forward sản phẩm không rebuild gì cả: để kiểm thử, hãy chạy {protected0} (hoặc bản xem trước dev).",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0050": "### Tự cập nhật (T-90)",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0052": "Watcher chạy dưới dạng một bản sao ở {protected0}, nên watcher mới hơn bên trong repo\r\nchưa từng chạy mà không cài lại. Ở chế độ loop, nó nay so sánh\r\nfile của chính nó với bản đã commit trong repo trên mỗi vòng lặp. Nó cài bản đó\r\nđè lên chính nó và khởi động lại đúng một lần, với cùng các tham số,\r\nchỉ khi tất cả các điều sau đều đúng:",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0054": "- hai file khác nhau;\r\n- bản trong repo không có chỉnh sửa chưa commit;\r\n- bản trong repo phân tích không lỗi.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0056": "Một bản sao không phân tích được sẽ bị từ chối và ghi log, còn watcher\r\nđang chạy thì tiếp tục.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0058": "Watcher được cài trước T-90 thiếu cả bước sản phẩm lẫn tự cập nhật.\r\nHãy chạy lại {protected0} một lần trên máy như vậy; sau đó,\r\nwatcher sẽ tự cập nhật.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0060": "## Nửa đám mây",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0062": "{protected0} ở thư mục gốc là quy tắc vào, còn\r\n{protected1} là quy trình thực thi. Skill tải\r\nSAIPEN kernel từ {protected2} và chạy nó qua\r\nbề mặt engine đã khai báo là {protected3}. Kernel được ghim theo commit\r\n({protected4}), không bao giờ theo tag. Tag {protected5} là một kernel cũ hơn có cùng\r\n{protected6}; {protected7} của nó thay đổi trạng thái, và validator của nó từ chối board này.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0064": "{protected0} ghi lại đường dẫn kernel của executor đã checkpoint\r\nlần cuối. Trên cloud, lần {protected1} đầu tiên trên kernel {protected2} sẽ hội tụ\r\nnó về kernel đang chạy thành một {protected3} đã ghi sổ (E-1410). Trên máy\r\ncủa operator, con trỏ cũng đến chết theo đúng cách đó. Kernel có hội tụ tự động\r\nsẽ sửa nó ở {protected4}; nếu không thì hãy chạy\r\n{protected5}."
+  }
+}

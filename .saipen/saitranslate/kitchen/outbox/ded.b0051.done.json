@@ -1,0 +1,8 @@
+{
+  "id": "ded.b0051",
+  "translation": {
+    "feedback.severity.P1-高.label": "Нельзя использовать",
+    "feedback.severity.P2-中.label": "Мешает работе",
+    "feedback.severity.P3-低.label": "Мелочь/предложение"
+  }
+}

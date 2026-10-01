@@ -1,0 +1,538 @@
+{
+  "locales": [
+    "ru-RU",
+    "et-EE",
+    "uk-UA",
+    "ja-JP",
+    "ded",
+    "zh-CN",
+    "de-DE",
+    "fr-FR",
+    "es-ES",
+    "it-IT",
+    "pt-BR",
+    "nl-NL",
+    "pl-PL",
+    "sv-SE",
+    "da-DK",
+    "fi-FI",
+    "nb-NO",
+    "ko-KR",
+    "th-TH",
+    "vi-VN",
+    "ar-SA",
+    "he-IL",
+    "tr-TR",
+    "hi-IN",
+    "id-ID",
+    "el-GR",
+    "cs-CZ",
+    "ro-RO",
+    "hu-HU",
+    "bg-BG",
+    "sk-SK",
+    "hr-HR"
+  ],
+  "files": [
+    {
+      "file": "docs/locales/ru-RU/README.md",
+      "before": null,
+      "after": "6cc7d7014128fc7737ed61335fcf4e735142a66b5d426f4cd46a03a0a36ad950"
+    },
+    {
+      "file": "docs/locales/ru-RU/ZAICODE_INSTALL.md",
+      "before": null,
+      "after": "47a57c962f0ec7e0b9fec9c9de1d00c41734e3ea405a5e7fb07bc337cd829a73"
+    },
+    {
+      "file": "docs/locales/ru-RU/ZAICODE_SAIPEN_CLOUD.md",
+      "before": null,
+      "after": "d42e94fe38e0318d5845f01ca748215098dca783cac11af3a5eacceddff20457"
+    },
+    {
+      "file": "docs/locales/et-EE/README.md",
+      "before": null,
+      "after": "ef2376a3e5c3d57acdb7ba8bfc1b222590da1bb2fbabde8f14bfcdbf780b9497"
+    },
+    {
+      "file": "docs/locales/et-EE/ZAICODE_INSTALL.md",
+      "before": null,
+      "after": "cd570d46d7062a6444fa0f403ec4516952c08a6ca397726848c0e46d8d849dd1"
+    },
+    {
+      "file": "docs/locales/et-EE/ZAICODE_SAIPEN_CLOUD.md",
+      "before": null,
+      "after": "6336551b2c9c36a34e17b2f37f175983d3e6830502295ee0a3c87108cc7eab46"
+    },
+    {
+      "file": "docs/locales/uk-UA/README.md",
+      "before": null,
+      "after": "4536e9797d00118a194419184d3b1742712803b95249017bd0924b32b79e3075"
+    },
+    {
+      "file": "docs/locales/uk-UA/ZAICODE_INSTALL.md",
+      "before": null,
+      "after": "e43494bc062cfe4b1421c1d631ec670d4dfc9b3447396af96944b65d9f1eecc0"
+    },
+    {
+      "file": "docs/locales/uk-UA/ZAICODE_SAIPEN_CLOUD.md",
+      "before": null,
+      "after": "98ad57fc8a3615bd8b2d5a8f604a9d4894e43d43dff9fef3b198c4cca043b142"
+    },
+    {
+      "file": "docs/locales/ja-JP/README.md",
+      "before": null,
+      "after": "e47155b5a597629de12b00817cdf451e4076f27fcbbb92086f65bf00a4adda06"
+    },
+    {
+      "file": "docs/locales/ja-JP/ZAICODE_INSTALL.md",
+      "before": null,
+      "after": "e709f143a9fc0207b7c7bc5b0e5bd8c30b535271e1b03350920faf6efb063cea"
+    },
+    {
+      "file": "docs/locales/ja-JP/ZAICODE_SAIPEN_CLOUD.md",
+      "before": null,
+      "after": "768f1174b530dfe931d96900ed98923a476513a4b2eb8d40ee79be3138f7fd65"
+    },
+    {
+      "file": "docs/locales/ded/README.md",
+      "before": null,
+      "after": "b3a2a83dbfe619d0ad9210c8091b98aecf5afb5a07ea27ed3271feef5c4da04c"
+    },
+    {
+      "file": "docs/locales/ded/ZAICODE_INSTALL.md",
+      "before": null,
+      "after": "78ef129b9733c8a32fd8e768aed072b207f18a8f353ee0594dde90e7f66b8dc7"
+    },
+    {
+      "file": "docs/locales/ded/ZAICODE_SAIPEN_CLOUD.md",
+      "before": null,
+      "after": "3cd87ad258e8671a0eb8f1cc91bb6ae59676634f31c52dc3a5fe44dc065b6334"
+    },
+    {
+      "file": "docs/locales/zh-CN/README.md",
+      "before": null,
+      "after": "941ebaa07f5a76acff6a917a0ba471c67277b73ae0a53672985257ea0f60bc3d"
+    },
+    {
+      "file": "docs/locales/zh-CN/ZAICODE_INSTALL.md",
+      "before": null,
+      "after": "2911bb48bc7a2b51dba98a406b70625c9d5643dfaca65dc37f180fd94a667bb6"
+    },
+    {
+      "file": "docs/locales/zh-CN/ZAICODE_SAIPEN_CLOUD.md",
+      "before": null,
+      "after": "a1ccb38daf9532854853f015f5f97a2c9ac1f6f801a18b4bd3340fc03a44ee9f"
+    },
+    {
+      "file": "docs/locales/de-DE/README.md",
+      "before": null,
+      "after": "effb7c3782ce156c02e21c2d150f2a8f23e916ddc6f9a4404385d70fe13d641b"
+    },
+    {
+      "file": "docs/locales/de-DE/ZAICODE_INSTALL.md",
+      "before": null,
+      "after": "6e082bc3c6a9a04aaf045fbbf2c20810c76712fffc66eec68f69b9dcd50094d7"
+    },
+    {
+      "file": "docs/locales/de-DE/ZAICODE_SAIPEN_CLOUD.md",
+      "before": null,
+      "after": "88555eb46afca50a303048c3976354706cd85f826f865dfac005bd92ee95c81f"
+    },
+    {
+      "file": "docs/locales/fr-FR/README.md",
+      "before": null,
+      "after": "6274d138712251fb85fae125ecde1ecb59e9f8344e2192c749079076e41f9e48"
+    },
+    {
+      "file": "docs/locales/fr-FR/ZAICODE_INSTALL.md",
+      "before": null,
+      "after": "ce3898d52422391b913d8a43799fb792479893f2b1817e131c1dc5335972369d"
+    },
+    {
+      "file": "docs/locales/fr-FR/ZAICODE_SAIPEN_CLOUD.md",
+      "before": null,
+      "after": "6cb144bae58eabbc497a96ede93c46b11cd921f704ff06f508d8b849098ef1a3"
+    },
+    {
+      "file": "docs/locales/es-ES/README.md",
+      "before": null,
+      "after": "65f573ebe7897ec6fee350ddaa53e94184d04241674ff2234c5a01b6cc42fa16"
+    },
+    {
+      "file": "docs/locales/es-ES/ZAICODE_INSTALL.md",
+      "before": null,
+      "after": "5122eed5177e65be3761e53171cb1bac09894bff7edef37e621737eebcec5148"
+    },
+    {
+      "file": "docs/locales/es-ES/ZAICODE_SAIPEN_CLOUD.md",
+      "before": null,
+      "after": "74450ec6452c8680329960c05e8630a9b2ffe53acabc6a34b4629b36d98658b3"
+    },
+    {
+      "file": "docs/locales/it-IT/README.md",
+      "before": null,
+      "after": "1eee6331fa463b59eb459bbfab575832cde5d0a80e80f43c1675ae72632b3378"
+    },
+    {
+      "file": "docs/locales/it-IT/ZAICODE_INSTALL.md",
+      "before": null,
+      "after": "54156f90ea991ba7f98d104ee4ffbe4b21704f4b9e779732f393d2255f14f69a"
+    },
+    {
+      "file": "docs/locales/it-IT/ZAICODE_SAIPEN_CLOUD.md",
+      "before": null,
+      "after": "a572181d496b1f57da31519a8ccbdf447cf47704b01aa83429dba1ff46d2af03"
+    },
+    {
+      "file": "docs/locales/pt-BR/README.md",
+      "before": null,
+      "after": "53a07081ea4da570c9974afb6ba272aafd6d2a0e4e83efdaf7ca8f8793516542"
+    },
+    {
+      "file": "docs/locales/pt-BR/ZAICODE_INSTALL.md",
+      "before": null,
+      "after": "e334bd7b0ad10fba48c2434e37e5cb16a15519588e26d63c79c9cf24a43be5dc"
+    },
+    {
+      "file": "docs/locales/pt-BR/ZAICODE_SAIPEN_CLOUD.md",
+      "before": null,
+      "after": "717b5e252db8640fc8f460fded3037f56462516f77abf6d031ee56f096d8da7a"
+    },
+    {
+      "file": "docs/locales/nl-NL/README.md",
+      "before": null,
+      "after": "2796ad98a5e5c4b72a10a589a4d2b551420267e41ea51ad7cfb271eb455d51c7"
+    },
+    {
+      "file": "docs/locales/nl-NL/ZAICODE_INSTALL.md",
+      "before": null,
+      "after": "9e55150752f2f5354eef86ac3a06079aad29a260fa0bdac105e16451a4487421"
+    },
+    {
+      "file": "docs/locales/nl-NL/ZAICODE_SAIPEN_CLOUD.md",
+      "before": null,
+      "after": "392ac86754c1f873fea6476b07212321373e45bb34d4cc3c92dfbfdd1fd80de9"
+    },
+    {
+      "file": "docs/locales/pl-PL/README.md",
+      "before": null,
+      "after": "8de302ed758016425d7dac6fc34be8a053526499466262c8ba4665e12c20454b"
+    },
+    {
+      "file": "docs/locales/pl-PL/ZAICODE_INSTALL.md",
+      "before": null,
+      "after": "58d5a8e9b2573f5c8c681537b67e780ced2889369be6132421ab8b958c46bdd7"
+    },
+    {
+      "file": "docs/locales/pl-PL/ZAICODE_SAIPEN_CLOUD.md",
+      "before": null,
+      "after": "10ab8208e96317ec80894ce1666d477adbc31a6a8a9e43848cc2069b6321e6fb"
+    },
+    {
+      "file": "docs/locales/sv-SE/README.md",
+      "before": null,
+      "after": "4cdde97b581c2ed58495a0d58f2a3201399b8b70ad408e7d1544da2c7b93f522"
+    },
+    {
+      "file": "docs/locales/sv-SE/ZAICODE_INSTALL.md",
+      "before": null,
+      "after": "7854a45aacb2c694df0427f30e919d07d05d62724b7197139ebb31e67f65c8d9"
+    },
+    {
+      "file": "docs/locales/sv-SE/ZAICODE_SAIPEN_CLOUD.md",
+      "before": null,
+      "after": "69d707dd7d6cc063e4906f833e1f1a1b6754c59ab99009eceed811b984142010"
+    },
+    {
+      "file": "docs/locales/da-DK/README.md",
+      "before": null,
+      "after": "5b8b2c0ba15eec7655ad50f8e9c7c2c168e427311ab46b9c8cd69c05c5d0aa30"
+    },
+    {
+      "file": "docs/locales/da-DK/ZAICODE_INSTALL.md",
+      "before": null,
+      "after": "5eac5fe9d9da80a09e1cb54f594dda95e9aedee54727ba7aa950eb1850797068"
+    },
+    {
+      "file": "docs/locales/da-DK/ZAICODE_SAIPEN_CLOUD.md",
+      "before": null,
+      "after": "1e5c4275fdc1b85d895ebfeff7642d47b1a66f282e89d5491a9b358366e6947c"
+    },
+    {
+      "file": "docs/locales/fi-FI/README.md",
+      "before": null,
+      "after": "d473a241e3ccb6b56da6dd51d3f12102c2465d3329bc351c43686033bacc2c2c"
+    },
+    {
+      "file": "docs/locales/fi-FI/ZAICODE_INSTALL.md",
+      "before": null,
+      "after": "365f439760cdf8d0457db645cb734ce10da77a9fcfb534b54c811c19601b373f"
+    },
+    {
+      "file": "docs/locales/fi-FI/ZAICODE_SAIPEN_CLOUD.md",
+      "before": null,
+      "after": "227f9a9fa199014e5054755403410c5282992cbfb2abcb722713071c1871fbf7"
+    },
+    {
+      "file": "docs/locales/nb-NO/README.md",
+      "before": null,
+      "after": "f54e475bc39b7d5d98a05a70d02b73941e305346a1465034901798efe2908b01"
+    },
+    {
+      "file": "docs/locales/nb-NO/ZAICODE_INSTALL.md",
+      "before": null,
+      "after": "f23707a5ca801b06c19a4204c3796b637999620b00c67744f0852b00ac4c067c"
+    },
+    {
+      "file": "docs/locales/nb-NO/ZAICODE_SAIPEN_CLOUD.md",
+      "before": null,
+      "after": "d6f8df6c25435435571f5126d73753196bee64dc181c65b63c3547f3210fad33"
+    },
+    {
+      "file": "docs/locales/ko-KR/README.md",
+      "before": null,
+      "after": "16c49e85fff284d6e24ffb908b03fd07955dda0cc564e274ad8596fb6fd3e3b0"
+    },
+    {
+      "file": "docs/locales/ko-KR/ZAICODE_INSTALL.md",
+      "before": null,
+      "after": "77d3e14f9ea8d9833810a539853bc711a75bd01e13d5a7285a454f31bfafbd9d"
+    },
+    {
+      "file": "docs/locales/ko-KR/ZAICODE_SAIPEN_CLOUD.md",
+      "before": null,
+      "after": "eec126bf0b7c296027c63365622305ba4b4c482122e73a611010a96303ef9f0d"
+    },
+    {
+      "file": "docs/locales/th-TH/README.md",
+      "before": null,
+      "after": "9b4732241fdb7a9d86ba481708d5c5647c3fc0c31a096069bcfd231bc9b94490"
+    },
+    {
+      "file": "docs/locales/th-TH/ZAICODE_INSTALL.md",
+      "before": null,
+      "after": "32befc36f0de0ce103b97fc000e48174fa4ac0846000f6f6255072b1a0f2ee5a"
+    },
+    {
+      "file": "docs/locales/th-TH/ZAICODE_SAIPEN_CLOUD.md",
+      "before": null,
+      "after": "83686bd94fc0619c31aa76eb1dcfe2fd9a37ffae687e93f9947ae48213acb5b7"
+    },
+    {
+      "file": "docs/locales/vi-VN/README.md",
+      "before": null,
+      "after": "a14cb15485fcd2d0f3938015cec6b3708163ddb4d30557ed788c00f3cd4527f1"
+    },
+    {
+      "file": "docs/locales/vi-VN/ZAICODE_INSTALL.md",
+      "before": null,
+      "after": "fe3dd72dcc17adee9ada05288a57dce01c06b2ad4a60e56bffc01bdbac5eb289"
+    },
+    {
+      "file": "docs/locales/vi-VN/ZAICODE_SAIPEN_CLOUD.md",
+      "before": null,
+      "after": "06a196b3c0a93dca9aa4329da2bd7708ee6d0a7988dba3be5d6b9219192a5f64"
+    },
+    {
+      "file": "docs/locales/ar-SA/README.md",
+      "before": null,
+      "after": "8ddbd65179cab98a4388d6293cd7898a68b4fb9fd88ff46ff769248e9c16adbd"
+    },
+    {
+      "file": "docs/locales/ar-SA/ZAICODE_INSTALL.md",
+      "before": null,
+      "after": "2b0302918cf74198fbb546340047ca53e970eeb218b729e7016de94ade00112f"
+    },
+    {
+      "file": "docs/locales/ar-SA/ZAICODE_SAIPEN_CLOUD.md",
+      "before": null,
+      "after": "b0d36ba2e211148bfdc3275bec791b2325d3c379ab6cc6e919fb50e27d001b85"
+    },
+    {
+      "file": "docs/locales/he-IL/README.md",
+      "before": null,
+      "after": "9e19e14e0fd6810730b3636ca23b93b6af07db16042c1db71196526a06ce35a9"
+    },
+    {
+      "file": "docs/locales/he-IL/ZAICODE_INSTALL.md",
+      "before": null,
+      "after": "4f34dda3b17db5fcec325f70a40500dcc88d6ecf098c7ec6ec093af068fc2d0f"
+    },
+    {
+      "file": "docs/locales/he-IL/ZAICODE_SAIPEN_CLOUD.md",
+      "before": null,
+      "after": "b8106e2b88944c3744bc5af266dc8033530cf00754112394750517c4f92954f4"
+    },
+    {
+      "file": "docs/locales/tr-TR/README.md",
+      "before": null,
+      "after": "99ecec48377cd635a374d1c4c348c53207da9e2aefcd55b37df86581fa817b45"
+    },
+    {
+      "file": "docs/locales/tr-TR/ZAICODE_INSTALL.md",
+      "before": null,
+      "after": "613dac2591fce0c9ec108f853b03304b0e467b12d02e61837801964365aca4aa"
+    },
+    {
+      "file": "docs/locales/tr-TR/ZAICODE_SAIPEN_CLOUD.md",
+      "before": null,
+      "after": "3359f222ceb85b24ec16257d06a2695f06b661effd574f27c4ae24962143e55b"
+    },
+    {
+      "file": "docs/locales/hi-IN/README.md",
+      "before": null,
+      "after": "8323068ee66f87a8ee98f7565b3440d98cc1f5f13b7091d3fed411e358a64c8a"
+    },
+    {
+      "file": "docs/locales/hi-IN/ZAICODE_INSTALL.md",
+      "before": null,
+      "after": "32b789f919f8f298da9b53303d7261d36fe5e7acb5f5d22460ee732b32258cea"
+    },
+    {
+      "file": "docs/locales/hi-IN/ZAICODE_SAIPEN_CLOUD.md",
+      "before": null,
+      "after": "ed5a4d55de0d123a867c4ba090df056068a4a6e797ef9d7ff90dde8dbb90327b"
+    },
+    {
+      "file": "docs/locales/id-ID/README.md",
+      "before": null,
+      "after": "4b1ac8bbcc18966845acdbebc5a0db3e64100db3183d6c5c18482630676d3eaa"
+    },
+    {
+      "file": "docs/locales/id-ID/ZAICODE_INSTALL.md",
+      "before": null,
+      "after": "33d7add52e3d3fa090292fe25813825df122b29d61468dbc5262d69df61ad1e9"
+    },
+    {
+      "file": "docs/locales/id-ID/ZAICODE_SAIPEN_CLOUD.md",
+      "before": null,
+      "after": "30abc10a2f1b9b3b18a037a29b9222bd9f5e5f48f2ba6e5dd6a3aba8e741e6df"
+    },
+    {
+      "file": "docs/locales/el-GR/README.md",
+      "before": null,
+      "after": "e6bfde086d3e380bc7f4401e05a7a778bb57975b64902eb12f85bd465054d25d"
+    },
+    {
+      "file": "docs/locales/el-GR/ZAICODE_INSTALL.md",
+      "before": null,
+      "after": "bb7cdfa9ef5a3a71ff4bdfd9d1769c27c99ea75fef6242974979437cefdf8254"
+    },
+    {
+      "file": "docs/locales/el-GR/ZAICODE_SAIPEN_CLOUD.md",
+      "before": null,
+      "after": "4e9efd12b86d4079cd69a100a460e656fcc288a27b01e35f2994de973f09a984"
+    },
+    {
+      "file": "docs/locales/cs-CZ/README.md",
+      "before": null,
+      "after": "fa3150a964ebcfb0efc3d5cb3e6ea04955e3df9bcf7970528ebcf3c00b304ba7"
+    },
+    {
+      "file": "docs/locales/cs-CZ/ZAICODE_INSTALL.md",
+      "before": null,
+      "after": "9c8ed0c863e08e778194be4149ea1373a4789f67bb8868536261663ab1fc5f5b"
+    },
+    {
+      "file": "docs/locales/cs-CZ/ZAICODE_SAIPEN_CLOUD.md",
+      "before": null,
+      "after": "f6a2953062ecc35658f98e9816d63c8f85a4126dd241fe4f187916131887982d"
+    },
+    {
+      "file": "docs/locales/ro-RO/README.md",
+      "before": null,
+      "after": "cae8a74a814c4843460750c8ec63608e915eb38360c94c30578d55d6fc22f926"
+    },
+    {
+      "file": "docs/locales/ro-RO/ZAICODE_INSTALL.md",
+      "before": null,
+      "after": "5e920875ae6f392bc20a15012f18b4a9d9787c5686cf0bd13560f3d1963d1842"
+    },
+    {
+      "file": "docs/locales/ro-RO/ZAICODE_SAIPEN_CLOUD.md",
+      "before": null,
+      "after": "e806dd43c754ee713d801b929f3bfccf29b3995477971206d64316e6f60eb7fb"
+    },
+    {
+      "file": "docs/locales/hu-HU/README.md",
+      "before": null,
+      "after": "12119aaf25af060f1a4dd0981a11f0913fa303005a9a70cf54565c7a888dbdf5"
+    },
+    {
+      "file": "docs/locales/hu-HU/ZAICODE_INSTALL.md",
+      "before": null,
+      "after": "b8c1fbc51b66078a94260e171e4ece9f1d69fbb4c64bc024dfbc315b2d73ca75"
+    },
+    {
+      "file": "docs/locales/hu-HU/ZAICODE_SAIPEN_CLOUD.md",
+      "before": null,
+      "after": "bfac4ec14fd6e3c61b8e38de1fc312fd0b6e3d8c63d18f6d61d527129e980623"
+    },
+    {
+      "file": "docs/locales/bg-BG/README.md",
+      "before": null,
+      "after": "c86e5690bc32574470193268f75e455246c0fd8d70d40775a6f95099b8778ad3"
+    },
+    {
+      "file": "docs/locales/bg-BG/ZAICODE_INSTALL.md",
+      "before": null,
+      "after": "03eb4793cf5f6ed75cce185930e0d733caa228dd8db1a1e31e3ff2760c470242"
+    },
+    {
+      "file": "docs/locales/bg-BG/ZAICODE_SAIPEN_CLOUD.md",
+      "before": null,
+      "after": "ccf53847051b085c3d5cfaadab4dc15c042e483b484077a74a8fc91b80f927fb"
+    },
+    {
+      "file": "docs/locales/sk-SK/README.md",
+      "before": null,
+      "after": "21ab0936475509b3cc1de61b14f02d20785fbcf9c1d19d068a31c552736c56ee"
+    },
+    {
+      "file": "docs/locales/sk-SK/ZAICODE_INSTALL.md",
+      "before": null,
+      "after": "534ca521d37a199c05c958f6e5c4c6f7dd300a55f6b7f5b3a13abef2bc2f22de"
+    },
+    {
+      "file": "docs/locales/sk-SK/ZAICODE_SAIPEN_CLOUD.md",
+      "before": null,
+      "after": "c8cb89492edccd4a401b3e8faa444ad5f764cea49c65618aaa48615d8b1d44d4"
+    },
+    {
+      "file": "docs/locales/hr-HR/README.md",
+      "before": null,
+      "after": "f71d80eef212be278be3c80ca4d04a23a37bc9e9baeca86542400d09600f652e"
+    },
+    {
+      "file": "docs/locales/hr-HR/ZAICODE_INSTALL.md",
+      "before": null,
+      "after": "700df89d28a5431e7673856a9f860f7162da68af45910b4bf1bf98cd427e090d"
+    },
+    {
+      "file": "docs/locales/hr-HR/ZAICODE_SAIPEN_CLOUD.md",
+      "before": null,
+      "after": "926fb9a363340b9ffec00b72c79cb559d6d6304cbbf8879bc6f44c91be92963a"
+    },
+    {
+      "file": "README.ee.md",
+      "before": null,
+      "after": "9fd2ce4ef044aa0349fd9e5c7381425e87dbc2338296e260d7e12c5e3eda6292"
+    },
+    {
+      "file": "README.ded.md",
+      "before": null,
+      "after": "1a357ceb0dbca335df0323c4df165d72f25bdbeb43be451d66cc231eadd98855"
+    },
+    {
+      "file": "README.ja.md",
+      "before": null,
+      "after": "7027af5bbbf2bce14e3a75a237c79309fc8ffe3bf1c677f75eb907899e96f93f"
+    },
+    {
+      "file": "docs/locales/README.md",
+      "before": null,
+      "after": "53d277e2451ba9b6b851b16a34c6022c880d12d8115061a0012393e0d3430a2e"
+    }
+  ]
+}

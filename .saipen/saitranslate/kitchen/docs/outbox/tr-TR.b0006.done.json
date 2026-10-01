@@ -1,0 +1,15 @@
+{
+  "id": "tr-TR.b0006",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0002": "Bu ödeme akışı ile bir Claude Code Cloud oturumu, tek bir SAIPEN çalışma alanını\r\nfarklı yürütücü konumlarıyla nasıl çalıştırır ve sınır nerede.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0004": "## Biçim",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0008": "Protokol durumunu tek bir dal taşır. Birleştirme adımı, yeniden tabanlama\r\nadımı ve eşitlenmesi gereken ikinci bir yerel dal yoktur: doğrulanmış kontrol\r\nnoktasına sahip yürütücü onu commit edip iter, diğer taraf fast-forward ile alır.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0010": "{protected0}, taşıma öncesi geçmiş ve yayınlanmış varsayılan daldır. Taşıma\r\ntarafından zorla güncellenmez.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0012": "## Ney seyahat eder, ne seyahat etmez",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0014": "Bu depodaki bir kontrol noktası; SAIPEN protokol durumunu, kök başlatıcıyı,\r\nkurulum dosyasını, belgeleri ve bu taşıma betiklerini taşır. Çalışma alanı\r\nkatmanının tamamı budur.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0016": "**Hiçbir ürün baytı taşımaz.** {protected0} ayrı bir Git deposudur, {protected1}\r\niçinde listelenir ve bu kökte .gitignore edilir ({protected2}). Ürün çalışması,\r\n{protected4} dalında {protected3} deposunun kendi klonunu gerektirir; bu klon\r\ng kendi geçmişi olan ikinci, bağımsız bir nesnedir.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0018": "Sonuç yanlış anlaşılması kolaydır: bu kökte temiz bir {protected0}, commit edilmemiş\r\nürün çalışması hakkında hiçbir şey söylemez; {protected1} fast-forward ise\r\nürün kodu hakkında hiçbir şey söylemez. {protected2} dosyasını açıkça kontrol edin.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0020": "## Yerel yarı",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0022": "İki betik; ikisi de depoya ait, böylece yeni bir makine onları bellekten değil\r\ndepodan alır:"
+  }
+}

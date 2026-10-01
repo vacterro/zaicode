@@ -1,0 +1,9 @@
+{
+  "ok": true,
+  "code": "PUBLISHED",
+  "package_identity": "sha256:34bad5525e4271fa2d39fbaf1ab18affc0fba6c99ee77f83d3e0d20132187a90",
+  "source_head": "5bb52bbf919705a37a19cda6fd2dd182e001d956",
+  "source_tree_fingerprint": "git-delta-v1:5af9f086c8563baf9f16210673a713cdd3040f1cfcdc98b6f7914ad741d0cf27",
+  "role_revision": "sha256:7d18729f8d94eb58471ae3bb5fad9151e8499fea291e574b26439c5c89012e41",
+  "files": 197
+}

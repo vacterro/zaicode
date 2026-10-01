@@ -1,0 +1,15 @@
+{
+  "id": "fi-FI.b0005",
+  "translation": {
+    "docs.docs_ZAICODE_INSTALL_md.p0032": "Jokainen Claude Coden tai Codexin kirjautuminen elää omassa kotikansiossaan: {protected0},\n{protected1}, ... sekä {protected2}, {protected3}, ... ZAICODE löytää\nne kaikki. Valmistele lisää asennuksen yhteydessä:",
+    "docs.docs_ZAICODE_INSTALL_md.p0036": "Asennusohjelma luo kotikansiot ja tulostaa tarkan kirjautumiskomennon jokaiselle\n({protected0}). Sama löytyy ZAICODEsta: Asetukset ->\nMoottorit & rajat -> lisää toinen kirjautuminen.",
+    "docs.docs_ZAICODE_INSTALL_md.p0038": "## Automaattinen vianmääritys",
+    "docs.docs_ZAICODE_INSTALL_md.p0042": "Tila per tarkistus: OK, FIXED (oli rikki, korjattu), WARN (toimii, mutta jotain\nvalinnaisesta puuttuu), INFO (vaatii sinua: kirjautuminen), FAIL. Lokit ovat\n{protected0}; viimeisimmän asennuksen yhteenveto on {protected1}.\nSovelluksessa Router -> Autotroubleshoot korjaa käynnissä olevan reitittimen ja poolit.",
+    "docs.docs_ZAICODE_INSTALL_md.p0044": "## Asetukset",
+    "docs.docs_ZAICODE_INSTALL_md.p0046": "| Parametri | Oletusarvo | |\n| ---- | ---- | ---- |\n| {protected0} | {protected1} | minne kaikki menee |\n| {protected2} | Desktop | mihin ZAICODE-pikakuvake menee |\n| {protected3}, {protected4} | | jätä nämä pikakuvakkeet pois |\n| {protected5} | | oma Git / Node.js / Python vaikka koneella ne olisivatkin |\n| {protected6} | | käynnistä ZAICODE valmistuessa |\n| {protected7}, {protected8}, {protected9} | GitHub-repositoriot | toinen lähde (forkki, paikallinen kloonauspolku) |",
+    "docs.docs_ZAICODE_INSTALL_md.p0048": "## Todistus",
+    "docs.docs_ZAICODE_INSTALL_md.p0050": "{protected0}\ntarkistaa tuoreen asennuksen, luo viat (pikakuvake ja käynnistin poistettu, SAIPENin\nkäynnistin osoittaa puuttuvaan Pythoniin, SAIMAILin venv poistettu, node_modules kirjattu\ntoiselle lukitustiedostolle, jäänyt build-kansio MAX_PATHia syvemmä),\nvarmistaa, että lääkäri raportoi ja korjaa jokaisen, ja sitten käynnistää pikakuvakkeen\nkohteen eristetyllä profiililla ja pysäyttää tarkalleen sen käynnistämän prosessipuun.",
+    "docs.docs_ZAICODE_INSTALL_md.p0052": "{protected0} rakentaa neljä kertakäyttöistä repositoria\nlevylle ja asennuksen niiden klooneista, sitten todistaa, että tarkistus ei muuta mitään, että yksi osa päivittyy yksin seuraavansa mukaan (SAIPEN-käynnistin, juuri-\nkäynnistin), että päällekkäiset paikalliset muutokset ja paikalliset commitit säilyvät, ja että tuntemattoman osan nimi hylätään. Ei verkkoa.\n",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0000": "# ZAICODE SAIPEN pilvensiirto"
+  }
+}

@@ -1,0 +1,3 @@
+1|"Tidak dapat digunakan"
+2|"Memengaruhi penggunaan"
+3|"Masalah kecil/saran"

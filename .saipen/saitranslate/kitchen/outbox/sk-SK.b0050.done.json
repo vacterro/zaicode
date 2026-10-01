@@ -1,0 +1,8 @@
+{
+  "id": "sk-SK.b0050",
+  "translation": {
+    "feedback.severity.P1-高.label": "Nemožno použiť",
+    "feedback.severity.P2-中.label": "Ovplyvňuje používanie",
+    "feedback.severity.P3-低.label": "Malý problém/návrh"
+  }
+}

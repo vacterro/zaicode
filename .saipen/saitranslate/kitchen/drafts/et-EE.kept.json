@@ -112,5 +112,7 @@
   "resourceManager.cpu",
   "resourceManager.appUsage",
   "resourceManager.column.pid",
-  "feedback.tickets.column.id"
+  "feedback.tickets.column.id",
+  "feedback.duration.minutes",
+  "feedback.submit.template.section.errorTraceId"
 ]

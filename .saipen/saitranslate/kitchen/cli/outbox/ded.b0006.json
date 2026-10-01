@@ -1,0 +1,12 @@
+{
+  "id": "ded.b0006",
+  "locale": "ded",
+  "source_digest": "sha256:46b3c73a762af1e6bc229341ba9fd6d9e6abdd488c1b17333948c6ed6a4dfd36",
+  "issued_at": "2026-09-30T14:38:48.249Z",
+  "keys": [
+    "cli.s0033"
+  ],
+  "messages": {
+    "cli.s0033": "BigModel Coding Plan"
+  }
+}

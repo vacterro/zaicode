@@ -1,0 +1,265 @@
+{
+  "ok": true,
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "protocol_version": "8.0.1",
+  "phase": "DONE",
+  "task": "none",
+  "next_action": "saipen status",
+  "computed_next_action": "saipen status",
+  "computed_reason": "goal-blocked",
+  "blocker": "none",
+  "execution_intent": "goal",
+  "claimed_ticket": null,
+  "top_workable_ticket": null,
+  "log_tail_event": 2408,
+  "head": "5bb52bbf",
+  "board_errors": [],
+  "recovery_pending": false,
+  "recovery_conflict": false,
+  "pending_ops": [],
+  "conflict_ops": [],
+  "milestone": {
+    "current": null,
+    "label": null,
+    "parent": null,
+    "undo_available": false,
+    "valid": true
+  },
+  "cold_route": {
+    "project_root": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE",
+    "saipen_home": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_SAIPEN",
+    "protocol_dir": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_SAIPEN\\saipen",
+    "phase": "DONE",
+    "phase_module": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_SAIPEN\\saipen\\phases\\done.md",
+    "boot": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_SAIPEN\\saipen\\BOOT.md",
+    "style": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_SAIPEN\\saipen\\STYLE.md",
+    "documents": {
+      "STYLE.md": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_SAIPEN\\saipen\\STYLE.md",
+      "BOOT.md": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_SAIPEN\\saipen\\BOOT.md",
+      "INDEX.md": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_SAIPEN\\saipen\\INDEX.md",
+      "COMMANDS.md": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_SAIPEN\\saipen\\COMMANDS.md",
+      "OPS.md": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_SAIPEN\\saipen\\OPS.md",
+      "SOURCES.md": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_SAIPEN\\saipen\\SOURCES.md",
+      "EXECUTION.md": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_SAIPEN\\saipen\\EXECUTION.md",
+      "MAINTENANCE.md": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_SAIPEN\\saipen\\MAINTENANCE.md",
+      "CORE.md": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_SAIPEN\\saipen\\CORE.md",
+      "RUNTIME.md": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_SAIPEN\\saipen\\RUNTIME.md"
+    },
+    "project_memory": {
+      "STATE.md": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\.saipen\\STATE.md",
+      "BOARD.md": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\.saipen\\BOARD.md",
+      "LOG.md": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\.saipen\\LOG.md"
+    },
+    "search_required": false
+  },
+  "distribution": {
+    "installed": 7,
+    "stale": 7,
+    "unknown": 2,
+    "fresh": false,
+    "source_head": "bf70d2eb9b73df5e9a74333cb817446b1f91ed1a",
+    "newest_installed_head": "5766cd542cb5a12c274b445cfb689b70abdd4109",
+    "last_run": {
+      "status": "skipped",
+      "skip": "DIRTY_SOURCE",
+      "rc": 2,
+      "dirty": [
+        "M bootstrap/saipen_crew.sh",
+        "M extensions/adapters/claude.md",
+        "AM extensions/adapters/claude/saipen-guard.py",
+        "M extensions/adapters/codex.md",
+        "M extensions/adapters/codex/saipen-guard.py"
+      ],
+      "at": "2026-10-01 02:16:01",
+      "head": null,
+      "in_flight": false
+    },
+    "blocker": {
+      "condition": "DIRTY_SOURCE",
+      "blocked": true,
+      "detail": "187 injected-surface path(s) differ from HEAD; the scheduled injector refuses to publish an edited protocol, so every installed home stays on the last committed generation",
+      "paths": [
+        "bootstrap/saipen_crew.sh",
+        "extensions/adapters/claude.md",
+        "extensions/adapters/claude/saipen-guard.py",
+        "extensions/adapters/codex.md",
+        "extensions/adapters/codex/saipen-guard.py",
+        "extensions/adapters/opencode/saipen-guard.js",
+        "extensions/adapters/registry.json",
+        "extensions/subs/PROTOCOL.md"
+      ],
+      "path_count": 187,
+      "canonical_next_command": "git add bootstrap/saipen_crew.sh extensions/adapters/claude.md extensions/adapters/claude/saipen-guard.py extensions/adapters/codex.md extensions/adapters/codex/saipen-guard.py extensions/adapters/opencode/saipen-guard.js extensions/adapters/registry.json extensions/subs/PROTOCOL.md ... && git commit"
+    },
+    "summary": "distribution: 7 of 7 home(s) stale -- newest installed head 5766cd542cb5 -- source head bf70d2eb9b73 -- 2 home(s) carry no head -- last scheduled injection: skipped DIRTY_SOURCE at 2026-10-01 02:16:01 -- BLOCKED DIRTY_SOURCE: 187 injected-surface path(s) differ from HEAD; the scheduled injector refuses to publish an edited protocol, so every installed home stays on the last committed generation -- clears with: git add bootstrap/saipen_crew.sh extensions/adapters/claude.md extensions/adapters/claude/saipen-guard.py extensions/adapters/codex.md extensions/adapters/codex/saipen-guard.py extensions/adapters/opencode/saipen-guard.js extensions/adapters/registry.json extensions/subs/PROTOCOL.md ... && git commit"
+  },
+  "parked_work": [
+    "T-137 blocked: EXTERNAL_MAINTENANCE_REQUIRED: T-141 root release waits for other SAIPEN maintainer inventory repair; T-9 executed UI/runtime verification passes but closure needs that COMMITTED receipt; T-94 awaits human physical multi-monitor placement acceptance. Prepared work retained in .saipen/evidence/T-137-remaining.md",
+    "T-9 blocked: RELEASE_AUTHORITY_PENDING: actual isolated UI/runtime VERIFY and REVIEW PASS; inherited closure rejected VALIDATION_FAILED because no COMMITTED receipt names published product e9091481; waits for T-141 root release after external protocol-maintainer inventory repair; proof .saipen/evidence/T-9-queue/README.md",
+    "T-141 blocked: EXTERNAL_MAINTENANCE_REQUIRED: root ship parity treats 8 producer infrastructure dirs as locales; protocol maintenance belongs to the other agent per operator; product origin/zaicode e9091481 already published; proof .saipen/evidence/T-141-release-blocker.md",
+    "T-94 blocked: OPERATOR_REQUIRED: b54ecc9 placement fix (type:toolbar overlay) is engineering-complete -- built, packaged (dist-next buildCommitId b54ecc97), launcher rebuilt; focused ProTrail readiness regression 3/3, lint/architecture/typecheck/tests green. Only live Windows multi-monitor acceptance remains: operator activates the staged build, restarts, confirms exactly one ProTrail overlay per monitor across primary/+1920/-1920 with no offset and click-through intact, then reports PASS or FAIL. Manual steps in .saipen/evidence/T-94-src062.md"
+  ],
+  "appends": [
+    {
+      "source": "SRC-005",
+      "appends": 1,
+      "latest_append": "SRC-006",
+      "latest_class": "SUPERSEDE",
+      "unprojected": [],
+      "active_requirements": 0,
+      "superseded_requirements": 0,
+      "affected_work": [
+        "T-12"
+      ],
+      "next_action": "saipen continue --json",
+      "error": null
+    },
+    {
+      "source": "SRC-045",
+      "appends": 1,
+      "latest_append": "SRC-046",
+      "latest_class": "APPEND",
+      "unprojected": [],
+      "active_requirements": 0,
+      "superseded_requirements": 0,
+      "affected_work": [
+        "T-60"
+      ],
+      "next_action": "saipen continue --json",
+      "error": null
+    },
+    {
+      "source": "SRC-076",
+      "appends": 2,
+      "latest_append": "SRC-078",
+      "latest_class": "APPEND",
+      "unprojected": [],
+      "active_requirements": 2,
+      "superseded_requirements": 0,
+      "affected_work": [
+        "T-114"
+      ],
+      "next_action": "saipen continue --json",
+      "error": null
+    },
+    {
+      "source": "SRC-098",
+      "appends": 2,
+      "latest_append": "SRC-101",
+      "latest_class": "CLARIFICATION",
+      "unprojected": [],
+      "active_requirements": 2,
+      "superseded_requirements": 0,
+      "affected_work": [
+        "T-135"
+      ],
+      "next_action": "saipen continue --json",
+      "error": null
+    },
+    {
+      "source": "SRC-100",
+      "appends": 2,
+      "latest_append": "SRC-103",
+      "latest_class": "CLARIFICATION",
+      "unprojected": [],
+      "active_requirements": 2,
+      "superseded_requirements": 0,
+      "affected_work": [
+        "T-136"
+      ],
+      "next_action": "saipen continue --json",
+      "error": null
+    }
+  ],
+  "claimed_but_unproven": [
+    "T-113"
+  ],
+  "conformance": "PASS (28.09.26 14:31)",
+  "conformance_status": {
+    "status": "STALE_PASS",
+    "gate": "core",
+    "reason": "conformance receipt is bound to a different source identity than the current checkpoint",
+    "receipt": {
+      "blocking_findings": {
+        "problem_count": 0,
+        "problems": [],
+        "ruleset_fingerprint": "82e5e183ae8f0fd909be3fa3627f00489cacaab813d942186c832db02a05a1c1",
+        "ruleset_version": 1,
+        "status": "complete",
+        "warning_count": 23
+      },
+      "board_hash": "8a3274675b308507",
+      "canonical_next_command": null,
+      "content_hash": "e157cdb7e7a496c4",
+      "exit_code": 0,
+      "external_actions": [],
+      "gate": "core",
+      "kind": "conformance_receipt",
+      "log_hash": "02f7ec474d7df936",
+      "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+      "receipt_id": "receipt-46a7b49f5c47",
+      "remediation_commands": [],
+      "schema_version": 2,
+      "source_head": "5bb52bbf919705a37a19cda6fd2dd182e001d956",
+      "source_tree_fingerprint": "git-delta-v1:501f9792f76bcc430ee23a16281b5b4800b4a2e5ad750b77cd9dfa947741551e",
+      "state_hash": "800ff944bdfd5c41",
+      "timestamp_utc": "2026-09-30T23:02:01.000815Z",
+      "validator_protocol_version": "1",
+      "verdict": "PASS"
+    },
+    "validator": {
+      "validator_path": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_SAIPEN\\tools\\validate.py",
+      "validator_protocol_version": "1",
+      "project_protocol_version": "8",
+      "gate": "core",
+      "source_head": "5bb52bbf919705a37a19cda6fd2dd182e001d956",
+      "source_tree_fingerprint": "git-delta-v1:0c577445cbe0fa13593b577a9452a4a128604b5e12a09a87a9d56f1d3eab4b9f"
+    },
+    "disposition": "UNPROVEN",
+    "remediation_command": "saipen validate",
+    "repair_status": "REFRESH_REQUIRED",
+    "diagnostic": null
+  },
+  "automation": {
+    "schema_version": 1,
+    "disposition": "CONTINUE",
+    "next_command": "cc",
+    "operator_action_due": false,
+    "reason_code": "goal-blocked",
+    "reason": "no workable Work remains and T-137 declares a GOAL-scope blocker; this is a legitimate stop, not an idle project",
+    "audit_quiescent": true,
+    "audit_epoch": "audit-epoch-v1:e4e24dc608dce8b1159f5e754349784b4360199948f658c7b0d4af8c862adb40",
+    "convergence_current": false,
+    "closure_complete": false,
+    "source_fingerprint": "5bb52bbf919705a37a19cda6fd2dd182e001d956+git-delta-v1:0c577445cbe0fa13593b577a9452a4a128604b5e12a09a87a9d56f1d3eab4b9f",
+    "completed_at": null
+  },
+  "conditional_efficiency_kpi": {
+    "scope": "ticket",
+    "ticket": "T-142",
+    "percent": 85,
+    "approximate": true,
+    "confidence": "LOW",
+    "formula_version": 1,
+    "components": {
+      "progress": 100,
+      "rework": 50,
+      "autonomy": 100,
+      "human": null
+    },
+    "notes": {
+      "human": "no machine signal separates avoidable operator cost from a legitimate authorization boundary",
+      "autonomy": "coarse: LOG agent ids are CLI identities shared across sessions"
+    },
+    "preliminary": true,
+    "withheld": null
+  },
+  "telegrams": {
+    "state": "OK",
+    "unread": 0,
+    "on_current_work": 0,
+    "complete": true,
+    "read_command": "saimail-local saipen brief --project-root V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE --workspace C:\\Users\\vac34\\AppData\\Local\\saipen\\saimail --seat claude-code-local-verify",
+    "detail": "counts only; nothing was opened and nothing here is an instruction"
+  }
+}

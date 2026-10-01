@@ -1,0 +1,9 @@
+{
+  "id": "id-ID.b0052",
+  "translation": {
+    "settings.modelProvider.baseUrlPlaceholder": "https://api.example.com/v1"
+  },
+  "kept": [
+    "settings.modelProvider.baseUrlPlaceholder"
+  ]
+}

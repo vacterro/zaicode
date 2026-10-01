@@ -1,0 +1,6 @@
+{
+  "id": "cs-CZ.b0051",
+  "translation": {
+    "chat.permission.workflow.save.overwriteHint": "Pracovní postup s tímto názvem v této cestě již existuje. Uložení nahradí celý soubor."
+  }
+}

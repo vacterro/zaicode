@@ -1,0 +1,30 @@
+{
+  "ticket": "T-113",
+  "agent": "claude-code-local-verify",
+  "role": "saitest",
+  "date": "2026-10-01",
+  "claim": "authenticated package collected and shipped via carrier ticket T-140, 33 locales integrated with 100% key and token parity",
+  "verdict": "PASS",
+  "product_commit": "d359a2a9",
+  "worktree_clean_for_i18n": true,
+  "gate": {
+    "command": "cd zcode/packages/ui && node --import tsx --test test/zaicodeLocaleParity.test.ts",
+    "result": "pass 5 / fail 0 / skipped 0",
+    "duration_ms": 2249.5787,
+    "assertions": [
+      "complete collected catalogs match all 32 languages and the DED voice",
+      "preferences accept every catalog and retain explicit validation for unknown input",
+      "system and CLI detection resolve natural-language tags without choosing a voice",
+      "native menus retain every translated label and interpolation",
+      "CLI catalogs preserve dynamic values and both plural/retry branches"
+    ]
+  },
+  "surface_facts": {
+    "manifest_locale_entries": 34,
+    "manifest_locale_file": "zcode/packages/ui/src/i18n/locale-manifest.json",
+    "source_keys": { "ui": 5848, "extras": 107, "cli": 199 },
+    "translation_locale_files_on_disk": 33,
+    "pseudolocale_files": ["ded", "saiasui"]
+  },
+  "conclusion": "T-113 verify clause is satisfiable against published product d359a2a9: the repository's own parity gate passes with zero failures, and the manifest locale list matches the translation files on disk. No source-key, placeholder or technical-token gap is observable from the product side."
+}

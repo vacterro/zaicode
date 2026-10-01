@@ -1,0 +1,15 @@
+{
+  "id": "uk-UA.b0007",
+  "translation": {
+    "docs.docs_ZAICODE_INSTALL_md.p0032": "Кожен вхід у Claude Code або Codex живе у власному home: {protected0},\n{protected1}, ... та {protected2}, {protected3}, ... ZAICODE знаходить\nїх усі. Підготувати більше під час встановлення:",
+    "docs.docs_ZAICODE_INSTALL_md.p0036": "Інсталятор створює ці home й друкує точну команду входу для кожного\n({protected0}). Те саме в ZAICODE: Settings ->\nEngines & limits -> додати ще один вхід.",
+    "docs.docs_ZAICODE_INSTALL_md.p0038": "## Автовиправлення",
+    "docs.docs_ZAICODE_INSTALL_md.p0042": "Стан кожної перевірки: OK, FIXED (було зламано, виправлено), WARN (працює, але бракує\nдеякої необовʼязкової речі), INFO (потрібна ваша участь: вхід), FAIL. Логи в\n{protected0}; підсумок останнього встановлення — {protected1}.\nУ застосунку Router -> Autotroubleshoot виправляє запущений router і пули.",
+    "docs.docs_ZAICODE_INSTALL_md.p0044": "## Параметри",
+    "docs.docs_ZAICODE_INSTALL_md.p0046": "| Параметр | За замовчуванням | |\n| ---- | ---- | ---- |\n| {protected0} | {protected1} | куди все йде |\n| {protected2} | Desktop | куди потрапляє ярлик ZAICODE |\n| {protected3}, {protected4} | | пропустити ці ярлики |\n| {protected5} | | приватні Git / Node.js / Python навіть якщо вони вже є на машині |\n| {protected6} | | запустити ZAICODE після завершення |\n| {protected7}, {protected8}, {protected9} | репозиторії GitHub | інше джерело (форк, локальний клон) |",
+    "docs.docs_ZAICODE_INSTALL_md.p0048": "## Доказ",
+    "docs.docs_ZAICODE_INSTALL_md.p0050": "{protected0}\nперевіряє свіже встановлення, створює збої (ярлик і лаунчер видалено, лаунчер SAIPEN\nвказує на відсутній Python, venv SAIMAIL видалено, node_modules записано для іншого\nlockfile, залишився тезковий каталог углиб за MAX_PATH), стверджує, що doctor\nповідомляє про кожен з них і виправляє, потім запускає ціль ярлика з ізольованим\nпрофілем і зупиняє рівно те дерево процесів, яке сам запустив.",
+    "docs.docs_ZAICODE_INSTALL_md.p0052": "{protected0} створює на диску чотири одноразові репозиторії та встановлення їхніх\nклонів, потім доводить, що перевірка нічого не змінює, що одна частина оновлюється\nокремо зі своїм подальшим кроком (лаунчер SAIPEN, кореневий лаунчер), що\nперетинні локальні зміни та локальні коміти зберігаються, і що невідома назва\nчастини відхиляється. Без мережі.\n",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0000": "# ZAICODE SAIPEN хмарний транспорт"
+  }
+}

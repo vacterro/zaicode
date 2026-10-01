@@ -1,0 +1,15 @@
+{
+  "id": "da-DK.b0007",
+  "translation": {
+    "docs.docs_ZAICODE_INSTALL_md.p0032": "Hver Claude Code- eller Codex-login har sit eget home: {protected0},\n{protected1}, ... og {protected2}, {protected3}, ... ZAICODE finder\ndem alle. Sådan forbereder du flere ved installation:",
+    "docs.docs_ZAICODE_INSTALL_md.p0036": "Installeren opretter homes og udskriver den præcise login-kommando for hver\n({protected0}). Det samme findes i ZAICODE: Settings ->\nEngines & limits -> tilføj endnu en login.",
+    "docs.docs_ZAICODE_INSTALL_md.p0038": "## Autofejlfinding",
+    "docs.docs_ZAICODE_INSTALL_md.p0042": "Status pr. kontrol: OK, FIXED (var brudt, repareret), WARN (virker, men noget\nvalgfrit mangler), INFO (kræver dig: et login), FAIL. Logfiler ligger i\n{protected0}; sidste installations oversigt er {protected1}.\nI appen reparerer Router -> Autotroubleshoot den kørende router og pools.",
+    "docs.docs_ZAICODE_INSTALL_md.p0044": "## Valgmuligheder",
+    "docs.docs_ZAICODE_INSTALL_md.p0046": "| Parameter | Standard | |\n| ---- | ---- | ---- |\n| {protected0} | {protected1} | hvor alt placeres |\n| {protected2} | Desktop | hvor ZAICODE-genvejen placeres |\n| {protected3}, {protected4} | | spring disse genveje over |\n| {protected5} | | privat Git / Node.js / Python selvom maskinen har dem |\n| {protected6} | | start ZAICODE når den er færdig |\n| {protected7}, {protected8}, {protected9} | GitHub-repos | en anden kilde (en fork, en lokal clone-sti) |",
+    "docs.docs_ZAICODE_INSTALL_md.p0048": "## Bevis",
+    "docs.docs_ZAICODE_INSTALL_md.p0050": "{protected0}\nkontrollerer en frisk installation, indplanter fejl (genvej og launcher slettet, SAIPEN\nlauncher pegede på en manglende Python, SAIMAILs venv slettet, node_modules\nregistreret for en anden lockfile, en tilbageblivende build-mappe dybere end MAX_PATH),\nasserer at doctor-rapporteren melder og reparerer hver enkelt, og starter derefter genvejens\nmål med en isoleret profil og stopper præcis den procesrige, den startede.",
+    "docs.docs_ZAICODE_INSTALL_md.p0052": "{protected0} bygger fire midlertidige repos\npå disk og en installation af deres clones og beviser derefter, at en kontrol intet ændrer, at én del\nalene opdateres med sin opfølgning (SAIPEN-launcher, root-launcher), at overlappende\nlokale ændringer og lokale commits bevares, og at et ukendt delnavn afvises. Intet netværk.\n",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0000": "# ZAICODE SAIPEN cloudtransport"
+  }
+}

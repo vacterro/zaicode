@@ -1,0 +1,18 @@
+{
+  "id": "da-DK.b0003",
+  "translation": {
+    "docs.README_md.p0048": "ZAICODE er udledt af ZCode fra Z.ai og distribueres under den samme\r\n[Apache License 2.0]({protected0}); upstream-notices bevares i\r\n[NOTICE.md]({protected1}) og [THIRD-PARTY-NOTICES.md]({protected2}).\r\nFiler blev ændret af ZAICODE-forfatteren. ZAICODE er et uafhængigt projekt,\r\nikke tilknyttet Z.ai eller godkendt af dem. Den oprindelige ZCode README bevares som\r\n[README.zcode.md]({protected3}) og [README.en.md]({protected4}).",
+    "docs.README_md.p0052": "## Projektnetværk",
+    "docs.README_md.p0054": "Dette repository er en del af det bredere **SAIPEN / vacterro**-projektekøkosystem.",
+    "docs.README_md.p0056": "[**Forfatterhub**]({protected0}) · [**SAIPEN HQ**]({protected1}) · [**SAIPEN Core**]({protected2}) · [**ZAICODE**]({protected3}) · [**FastPrompter**]({protected4}) · [**SAIPEN Community**]({protected5})",
+    "docs.README_md.p0058": "Brug [dette repositories GitHub Issues]({protected0}) til reproducerbare fejl og holdbare funktionsønsker. Brug Discord til hurtig diskussion, skærmbilleder og feedback på tværs af projekter.",
+    "docs.docs_ZAICODE_INSTALL_md.p0000": "# Installation af ZAICODE",
+    "docs.docs_ZAICODE_INSTALL_md.p0002": "ZAICODE er tre projekter, der virker som ét: ZAICODE-appen, SAIPEN\r\n(protokollen, der holder agentarbejde på sporet) og SAIMAIL (posten, agenter\r\nbruger til at fortælle hinanden ting). Manuel installation betyder tre clones, et\r\nNode.js-toolchain, et Python-miljø og et build. Installationsprogrammet gør alt\r\ndet: kør det, vent, og en ZAICODE-genvej ligger på skrivebordet.",
+    "docs.docs_ZAICODE_INSTALL_md.p0004": "## Et klik",
+    "docs.docs_ZAICODE_INSTALL_md.p0006": "- **[ZAICODE-Setup.exe]({protected0})**:\n  download, dobbeltklik, tryk på **INSTALL**. Vinduet (guld på mørk baggrund,\r\n  SAIPEN-banneret) viser hvert trin undervejs, den forløbne tid og loggen\r\n  efter behov; til sidst **START ZAICODE**, eller **TRY AGAIN** /\r\n  **Autotroubleshoot** / **Open log**, hvis et trin ikke blev færdigt.Peger du på\r\n  en eksisterende ZAICODE-mappe, står der **UPDATE**: samme kørsel opdaterer og\r\n  reparerer. Ex'en indeholder installationsscripts og kræver intet ved siden af\r\n  sig; den er bygget af {protected1} (.NET Framework-compileren, som alle Windows\r\n  10/11 har).\n- {protected2} (dobbeltklik): samme installation i en konsol.\n- Fra ingenting, i PowerShell:",
+    "docs.docs_ZAICODE_INSTALL_md.p0008": "  ```powershell\n  & ([scriptblock]::Create((irm {protected0})))\n  ```"
+  },
+  "kept": [
+    "docs.docs_ZAICODE_INSTALL_md.p0008"
+  ]
+}

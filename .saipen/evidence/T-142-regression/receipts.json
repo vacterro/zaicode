@@ -1,0 +1,26 @@
+[
+  {
+    "name": "appearance",
+    "verifier": "51e13b6cd41da2d853053fa31af854f60e333ba6091de7def75d23a72a286c2c",
+    "before": "037af6c0401be53d0f206c74e8a79a5e6ee3ce6bda781c9c3e42ea3efb1b93c4",
+    "after": "ce1ea9070dbf247d6db93180dd79c6321b1c5b4211f75e2b94cfb151450b2505",
+    "beforeExit": 1,
+    "afterExit": 0
+  },
+  {
+    "name": "start",
+    "verifier": "c6c71c3066cf08de5cd6010e57f9f20caeebd68acf2540d11f543342f9d89ff5",
+    "before": "c5139e1a3f212bd0aaf548533ab30ba6af3eaa3b6235cbd2f8f590bdfb89587f",
+    "after": "b4e2174f05442f3e06764e063a2d6ed719bbdf88740d1d5c41a57f9d2f226990",
+    "beforeExit": 1,
+    "afterExit": 0
+  },
+  {
+    "name": "sidebar",
+    "verifier": "9f7a87792111cb16c56f60fb0e5c9d180061a6aa38df2d2957fcf9b1d85583b7",
+    "before": "70df1e3dfe4c70aa3fa4057986f611d4c0d0fb2c92c83733dd1198f86a4c7962",
+    "after": "2b206aaea73496e3161bd04edc4b3626419b9db2b6e9b155a59baac0f417f513",
+    "beforeExit": 1,
+    "afterExit": 0
+  }
+]

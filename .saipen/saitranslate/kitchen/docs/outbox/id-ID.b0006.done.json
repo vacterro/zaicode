@@ -1,0 +1,15 @@
+{
+  "id": "id-ID.b0006",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0002": "Cara checkout ini dan sesi Claude Code Cloud menjalankan satu workspace SAIPEN\r\ndengan lokalitas executor berbeda, dan di mana batas keduanya.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0004": "## Bentuknya",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0008": "Satu cabang membawa state protokol. Tidak ada langkah merge, tidak ada rebase,\r\ntidak ada cabang lokal kedua yang harus disinkronkan: executor yang punya\r\ncheckpoint terverifikasi melakukan commit dan push, sisi lain mengambilnya\r\ndengan fast-forward.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0010": "{protected0} adalah riwayat pre-transport dan branch default yang dipublikasikan. Ini\r\ntidak di-force-update oleh transport.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0012": "## Yang travels dan yang tidak",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0014": "Checkpoint di repo ini membawa state protokol SAIPEN, root\r\nlauncher, installer, docs, dan script transport ini. Itu seluruh lapisan workspace.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0016": "Ini membawa **nol byte produk**. {protected0} adalah repositori Git terpisah, terdaftar\r\ndi {protected1} dan di-gitignore di root ini\r\n({protected2}). Pekerjaan produk butuh clone sendiri dari {protected3} pada branch\r\n{protected4}, dan clone itu objek kedua yang independen dengan riwayatnya sendiri.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0018": "Konsekuensinya mudah salah paham: {protected0} yang bersih di root ini tidak\r\napa-apa soal pekerjaan produk yang belum di-commit, dan fast-forward {protected1} tidak\r\napa-apa soal kode produk. Periksa {protected2} secara eksplisit.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0020": "## Setengah lokal",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0022": "Dua script, keduanya milik repo agar mesin baru mendapatkannya dari repositori\r\nbukan dari ingatan:"
+  }
+}

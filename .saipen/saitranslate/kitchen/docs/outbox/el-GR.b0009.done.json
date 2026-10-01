@@ -1,0 +1,15 @@
+{
+  "id": "el-GR.b0009",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0024": "| File | Role |\r\n|------|------|\r\n| {protected0} | επικυρώνει, εναρμονίζει τον κλάδο, εγκαθιστά και ξεκινά τον watcher, γράφει την καταχώριση αυτόματης εκκίνησης, αποδεικνύει local == remote |\r\n| {protected1} | ο βρόχος: fetch, σύγκριση, fast-forward ή push, log, παύση· έπειτα το πέρασμα προϊόντος και η αυτοενημέρωση |\r\n| {protected2} | round-trip από ανεξάρτητο executor plus απόδειξη cold-recovery |\r\n| {protected3} | πέρασμα προϊόντος και αυτοενημέρωση σε προσωρινά Git repositories (χωρίς δίκτυο, χωρίς πραγματικό remote) |",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0026": "Εγκατάσταση και επισκευή:",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0030": "Είναι idempotent. Η κατάσταση σε επίπεδο μηχανής ζει στο {protected0}:\r\n{protected1} (αντίγραφο), {protected2} (εναλλασσόμενο στα\r\n2 MB προς {protected3}), {protected4} (μία μόνο εγκατάσταση),\r\n{protected5}, και μια καταχώριση στον φάκελο Startup\r\n{protected6}.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0032": "Ο installer αρνείται dirty tree και δεν το καθαρίζει ποτέ. Αν κάθε dirty διαδρομή είναι\r\nκανονική κατάσταση SAIPEN κάτω από {protected0}, το λέει και τυπώνει τις ακριβείς\r\nεντολές checkpoint· αυτό είναι απόθευση πρωτοκόλλου χωρίς checkpoint, όχι σφάλμα μεταφοράς,\r\nκαι ο installer δεν θα κάνει commit πίσω από την πλάτη του πρωτοκόλλου.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0034": "## Συμπεριφορά watcher",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0036": "| Situation | Move |\r\n|-----------|------|\r\n| clean, το local είναι πρόγονος του remote | {protected0} |\r\n| clean, το remote είναι πρόγονος του local | {protected1} |\r\n| dirty | παύση· ούτε καν fetch |\r\n| σε άλλον κλάδο | παύση |\r\n| και τα δύο προχώρησαν, χωρίς κοινό πρόγονο | παύση, log των δύο commit ids, κανένα merge |\r\n| fetch ή δίκτυο απέτυχε | log degraded, επανάληψη στο επόμενο tick |\r\n| εκκρεμεί merge/rebase{protected2} | παύση |",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0038": "Ποτέ: force push, hard reset, stash, clean, checkout ξένου κλάδου,\r\ncommit, ή διακοπή βάσει ονόματος διεργασίας. Ο installer σταματά watcher μόνο μέσω\r\nτου pid που κατέγραψε στο δικό του pid file.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0040": "Ένα dirty tree δεν κοστίζει τίποτα, γιατί ο watcher ελέγχει το dirt πριν το fetch.\r\nΆρα ένα αδρανές checkout δεν κάνει καθόλου κλήσεις δικτύου.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0042": "### Πέρασμα προϊόντος (T-90)",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0044": "{protected0} είναι δικό του repository, άρα ο παραπάνω πίνακας δεν κινεί ποτέ κώδικα\r\nπροϊόντος. Μετά από αυτό, το ίδιο tick χειρίζεται το checkout του προϊόντος ({protected1},\r\nπροεπιλογή {protected2}· κλάδος {protected3}, προεπιλογή {protected4}). Το\r\nπέρασμα προϊόντος τρέχει είτε το εξωτερικό tree είναι dirty είτε όχι. Κάνει μόνο pull."
+  }
+}

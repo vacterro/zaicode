@@ -1,0 +1,8 @@
+{
+  "id": "ja-JP.b0052",
+  "translation": {
+    "feedback.severity.P1-高.label": "使用できません",
+    "feedback.severity.P2-中.label": "利用に影響",
+    "feedback.severity.P3-低.label": "軽微な問題／提案"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "id": "ro-RO.b0051",
+  "locale": "ro-RO",
+  "source_digest": "sha256:3649b64da723a738a49c2c9cb825f80faa8412dc7c9157c599b0b9b95bffdb35",
+  "issued_at": "2026-09-30T14:40:40.701Z",
+  "keys": [
+    "sidePane.saipen",
+    "settings.modelProvider.baseUrlPlaceholder"
+  ],
+  "messages": {
+    "sidePane.saipen": "SAIPEN",
+    "settings.modelProvider.baseUrlPlaceholder": "https://api.example.com/v1"
+  }
+}

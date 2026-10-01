@@ -1,0 +1,18 @@
+{
+  "id": "ru-RU.b0003",
+  "translation": {
+    "docs.README_md.p0048": "ZAICODE происходит из ZCode от Z.ai и распространяется по той же\r\n[лицензии Apache 2.0]({protected0}); уведомления исходного проекта сохранены в\r\n[NOTICE.md]({protected1}) и [THIRD-PARTY-NOTICES.md]({protected2}).\r\nФайлы изменены автором ZAICODE. ZAICODE — независимый проект,\r\nне связанный с Z.ai и не одобренный им. Оригинальный README ZCode сохранён как\r\n[README.zcode.md]({protected3}) и [README.en.md]({protected4}).",
+    "docs.README_md.p0052": "## Сеть проектов",
+    "docs.README_md.p0054": "Этот репозиторий — часть экосистемы **SAIPEN / vacterro**.",
+    "docs.README_md.p0056": "[**Хаб автора**]({protected0}) · [**SAIPEN HQ**]({protected1}) · [**SAIPEN Core**]({protected2}) · [**ZAICODE**]({protected3}) · [**FastPrompter**]({protected4}) · [**Сообщество SAIPEN**]({protected5})",
+    "docs.README_md.p0058": "Для воспроизводимых багов и долгосрочных запросов функций используйте [GitHub Issues этого репозитория]({protected0}). Discord — для быстрых обсуждений, скриншотов и обратной связи по разным проектам.",
+    "docs.docs_ZAICODE_INSTALL_md.p0000": "# Установка ZAICODE",
+    "docs.docs_ZAICODE_INSTALL_md.p0002": "ZAICODE — три проекта, работающих как одно целое: приложение ZAICODE, SAIPEN (протокол, который держит работу агентов под контролем) и SAIMAIL (почта, которой агенты обмениваются сообщениями). Установка вручную — это три клона, инструменты Node.js, среда Python и сборка. Установщик делает всё это:\r\nзапустите его, подождите — ярлык ZAICODE появится на рабочем столе.",
+    "docs.docs_ZAICODE_INSTALL_md.p0004": "## Один клик",
+    "docs.docs_ZAICODE_INSTALL_md.p0006": "- **[ZAICODE-Setup.exe]({protected0})**:\r\n  скачайте, дважды щёлкните, нажмите **INSTALL**. Окно (золото на тёмном фоне,\r\n  баннер SAIPEN) показывает каждый шаг по ходу выполнения, прошедшее время и\r\n  журнал по запросу; в конце — **START ZAICODE** либо **TRY AGAIN** / **Autotroubleshoot**\r\n  / **Open log**, если какой-то шаг не завершился. Если указать существующую папку\r\n  ZAICODE, кнопка будет называться **UPDATE**: тот же запуск обновляет и\r\n  восстанавливает. Exe содержит скрипты установки и не требует ничего рядом;\r\n  он собран через {protected1} (компилятор .NET Framework, есть в любой\r\n  Windows 10/11).\r\n- {protected2} (двойной щелчок): та же установка в консоли.\r\n- С нуля, в PowerShell:",
+    "docs.docs_ZAICODE_INSTALL_md.p0008": "  ```powershell\n  & ([scriptblock]::Create((irm {protected0})))\n  ```"
+  },
+  "kept": [
+    "docs.docs_ZAICODE_INSTALL_md.p0008"
+  ]
+}

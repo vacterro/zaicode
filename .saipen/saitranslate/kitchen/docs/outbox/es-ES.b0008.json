@@ -1,0 +1,30 @@
+{
+  "id": "es-ES.b0008",
+  "locale": "es-ES",
+  "source_digest": "sha256:07aa0d0a845f4042a403e9b332760ca9da784aa93f0e5c06527a63231247e6f2",
+  "issued_at": "2026-09-30T14:09:39.533Z",
+  "keys": [
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0024",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0026",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0030",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0032",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0034",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0036",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0038",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0040",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0042",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0044"
+  ],
+  "messages": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0024": "| File | Role |\r\n|------|------|\r\n| {protected0} | validates, reconciles the branch, installs and starts the watcher, writes the autostart entry, proves local == remote |\r\n| {protected1} | the loop: fetch, compare, fast-forward or push, log, pause; then the product pass and self-update |\r\n| {protected2} | round-trip from an independent executor plus cold-recovery proof |\r\n| {protected3} | product pass and self-update against throwaway Git repositories (no network, no real remote) |",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0026": "Install and repair:",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0030": "It is idempotent. Machine-local state lives in {protected0}:\r\n{protected1} (a copy), {protected2} (rotated at\r\n2 MB to {protected3}), {protected4} (single instance),\r\n{protected5}, and a Startup-folder entry\r\n{protected6}.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0032": "The installer refuses a dirty tree and never cleans it. If every dirty path is\r\ncanonical SAIPEN state under {protected0}, it says so and prints the exact\r\ncheckpoint commands; that is an uncheckpointed protocol state, not a transport\r\nfault, and the installer will not commit it behind the protocol's back.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0034": "## Watcher behaviour",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0036": "| Situation | Move |\r\n|-----------|------|\r\n| clean, local is an ancestor of remote | {protected0} |\r\n| clean, remote is an ancestor of local | {protected1} |\r\n| dirty | pause; not even a fetch |\r\n| on another branch | pause |\r\n| both advanced, no shared ancestor | pause, log both commit ids, merge nothing |\r\n| fetch or network failed | log degraded, retry next tick |\r\n| a merge/rebase{protected2} is in flight | pause |",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0038": "Never: force push, hard reset, stash, clean, checkout of a foreign branch,\r\ncommit, or a stop by process name. The installer stops a watcher only by the\r\npid it recorded in its own pid file.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0040": "A dirty tree costs nothing, because the watcher checks dirt before it fetches.\r\nAn idle checkout therefore makes no network calls at all.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0042": "### Product pass (T-90)",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0044": "{protected0} is its own repository, so the table above never moves product\r\ncode. After it, the same tick handles the product checkout ({protected1},\r\ndefault {protected2}; branch {protected3}, default {protected4}). The\r\nproduct pass runs whether or not the outer tree is dirty. It only ever pulls."
+  }
+}

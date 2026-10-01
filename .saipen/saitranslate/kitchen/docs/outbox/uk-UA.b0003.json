@@ -1,0 +1,30 @@
+{
+  "id": "uk-UA.b0003",
+  "locale": "uk-UA",
+  "source_digest": "sha256:07aa0d0a845f4042a403e9b332760ca9da784aa93f0e5c06527a63231247e6f2",
+  "issued_at": "2026-09-30T14:02:24.453Z",
+  "keys": [
+    "docs.README_md.p0048",
+    "docs.README_md.p0052",
+    "docs.README_md.p0054",
+    "docs.README_md.p0056",
+    "docs.README_md.p0058",
+    "docs.docs_ZAICODE_INSTALL_md.p0000",
+    "docs.docs_ZAICODE_INSTALL_md.p0002",
+    "docs.docs_ZAICODE_INSTALL_md.p0004",
+    "docs.docs_ZAICODE_INSTALL_md.p0006",
+    "docs.docs_ZAICODE_INSTALL_md.p0008"
+  ],
+  "messages": {
+    "docs.README_md.p0048": "ZAICODE is derived from ZCode by Z.ai and is distributed under the same\r\n[Apache License 2.0]({protected0}); upstream notices are kept in\r\n[NOTICE.md]({protected1}) and [THIRD-PARTY-NOTICES.md]({protected2}).\r\nFiles were modified by the ZAICODE author. ZAICODE is an independent project,\r\nnot affiliated with or endorsed by Z.ai. The original ZCode README is kept as\r\n[README.zcode.md]({protected3}) and [README.en.md]({protected4}).",
+    "docs.README_md.p0052": "## Project network",
+    "docs.README_md.p0054": "This repository is part of the broader **SAIPEN / vacterro** project ecosystem.",
+    "docs.README_md.p0056": "[**Author hub**]({protected0}) · [**SAIPEN HQ**]({protected1}) · [**SAIPEN Core**]({protected2}) · [**ZAICODE**]({protected3}) · [**FastPrompter**]({protected4}) · [**SAIPEN Community**]({protected5})",
+    "docs.README_md.p0058": "For reproducible bugs and durable feature requests, use [this repository's GitHub Issues]({protected0}). Use Discord for quick discussion, screenshots, and cross-project feedback.",
+    "docs.docs_ZAICODE_INSTALL_md.p0000": "# Installing ZAICODE",
+    "docs.docs_ZAICODE_INSTALL_md.p0002": "ZAICODE is three projects that work as one: the ZAICODE app, SAIPEN (the\nprotocol that keeps agent work on track) and SAIMAIL (the mail agents use to\ntell each other things). Installing them by hand means three clones, a Node.js\ntoolchain, a Python environment and a build. The installer does all of it:\nrun it, wait, and a ZAICODE shortcut is on the desktop.",
+    "docs.docs_ZAICODE_INSTALL_md.p0004": "## One click",
+    "docs.docs_ZAICODE_INSTALL_md.p0006": "- **[ZAICODE-Setup.exe]({protected0})**:\n  download, double-click, press **INSTALL**. The window (gold on dark, the\n  SAIPEN banner) shows every step as it runs, the time so far and the log on\n  demand; at the end **START ZAICODE**, or **TRY AGAIN** / **Autotroubleshoot**\n  / **Open log** when a step did not finish. Pointed at an existing ZAICODE\n  folder the button reads **UPDATE**: the same run updates and repairs. The\n  exe carries the install scripts and needs nothing next to it; it is built by\n  {protected1} (the .NET Framework compiler every Windows 10/11\n  has).\n- {protected2} (double-click): the same install in a console.\n- From nothing, in PowerShell:",
+    "docs.docs_ZAICODE_INSTALL_md.p0008": "  ```powershell\n  & ([scriptblock]::Create((irm {protected0})))\n  ```"
+  }
+}

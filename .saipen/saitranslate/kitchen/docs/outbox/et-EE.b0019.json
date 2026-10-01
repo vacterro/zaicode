@@ -1,0 +1,30 @@
+{
+  "id": "et-EE.b0019",
+  "locale": "et-EE",
+  "source_digest": "sha256:1271cb40a659cdd128ed0e8704711399b15a4f147fe0448f87593f7e97dec09b",
+  "issued_at": "2026-09-30T14:41:24.432Z",
+  "keys": [
+    "docs.README_md.p0026",
+    "docs.README_md.p0028",
+    "docs.README_md.p0030",
+    "docs.README_md.p0034",
+    "docs.README_md.p0036",
+    "docs.README_md.p0038",
+    "docs.README_md.p0040",
+    "docs.README_md.p0042",
+    "docs.README_md.p0044",
+    "docs.README_md.p0046"
+  ],
+  "messages": {
+    "docs.README_md.p0026": "- **Projects with a MAIN session.** Each project has one MAIN session (START,\r\n  {protected0}) and helper sessions (subSaipens: WIKI, TEST, AUDIT, …). The\r\n  default sidebar view shows the project row as its MAIN; ▶ continues MAIN\r\n  instead of opening another session. CONTINUE ALL, DONE and CLEAR ALL DONE\r\n  sweep every project; a session cut off mid-turn shows INTERRUPTED, never DONE.\r\n- **Crash safety.** Sessions a dead process cut off and goals still active\r\n  continue by themselves after a restart; running workers start again. Agents\r\n  inside ZAICODE cannot kill ZAICODE by process name.\r\n- **Workers.** Subscription CLIs run in terminals docked to any edge of the\r\n  window (or in their own snapping windows). First-run \"Trust this folder?\"\r\n  questions are answered; a worker that hits its usage limit is reported and,\r\n  by setting, closed or restarted after the reset.\r\n- **Limits and resets.** Quota meters per account and pool, a title-bar timer\r\n  for the nearest reset with the full list of coming resets on hover.\r\n- **SCHEDULER.** Prompts that start by themselves: at a time, daily, every N\r\n  minutes or when a quota window refills; in one project or a whole sidebar\r\n  section, worst projects (most blocked / open SAIPEN tickets) first. Conditions\r\n  can stop stopgap work (free-pool sessions, weaker workers) first, run only on\r\n  idle projects, or continue only marked sessions. Prompts have no practical\r\n  length limit.\r\n- **Routing.** A bundled 9router (MIT) gives zero-setup pools: SAIFREN\r\n  (keyless free tiers) and SAIOPP (your subscriptions).\r\n- **SAIHOME, timers, sounds, highlights.** An operator home with statistics,\r\n  FastPrompter-style timers and alarms, per-action sounds and a Win95 dark\r\n  golden, pixel-crisp interface.",
+    "docs.README_md.p0028": "## Build",
+    "docs.README_md.p0030": "Requirements: Windows 10/11, Git, Node.js **24.14.0**, pnpm **10.33.2**\r\n([mise.toml]({protected0}) is the source of truth).",
+    "docs.README_md.p0034": "The packaged app always starts in ZAICODE mode. While an older ZAICODE runs,\r\nthe bundler stages the new build in {protected0}; the root\r\nlauncher (branch {protected1}, {protected2}) swaps it in on the next start.\r\nThe crisp bitmap Verdana variant used by the UI is not part of this repository;\r\nwithout it the interface falls back to the system Verdana.",
+    "docs.README_md.p0036": "Checks: {protected0}, {protected1}, and the ZAICODE tests, for example\r\n{protected2} from {protected3}.",
+    "docs.README_md.p0038": "## Repository layout",
+    "docs.README_md.p0040": "| Branch      | Contents                                                                 |\n| ----------- | ------------------------------------------------------------------------ |\n| {protected0}    | the canonical workspace: launcher, installer ({protected1}), product docs ({protected2}, {protected3}), SAIPEN state and CHANGELOG |\n| {protected4}   | the canonical app source: upstream ZCode history plus the ZAICODE product layer used for builds and updates |",
+    "docs.README_md.p0042": "Legacy or automation-created refs may still appear temporarily, but they are not\ncanonical product branches. New workspace work belongs on {protected0}; app-source\nwork belongs on {protected1}.",
+    "docs.README_md.p0044": "ZAICODE-owned app code lives mostly in {protected0},\n{protected1}, {protected2} and\n{protected3} on the {protected4} branch. The workspace\ndocumentation and launcher{protected5} tooling live on {protected6}.",
+    "docs.README_md.p0046": "## Upstream and license"
+  }
+}

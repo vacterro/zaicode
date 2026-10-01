@@ -1,0 +1,52 @@
+{
+  "ok": true,
+  "at": "2026-09-30T20:17:17.380Z",
+  "executable": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\dist-next\\win-unpacked\\ZAICODE.exe",
+  "steps": {
+    "shell": 8,
+    "router": {
+      "mode": "isolated",
+      "url": "http://127.0.0.1:20138",
+      "package": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\dist-next\\win-unpacked\\resources\\router\\9router",
+      "firstToken": {
+        "ok": true,
+        "detail": "answered in 2.2 s",
+        "servedBy": "stealth/space-bunny-alpha"
+      }
+    },
+    "routerReady": 11,
+    "defaultModel": "(release default)",
+    "appReady": 11,
+    "queue": {
+      "job": {
+        "job_id": "zaicode-job:904f5684-e442-4043-87e3-df31e8322e46",
+        "status": "completed",
+        "agent_id": "zaicode-agent:31fa0776-cd3d-4605-8a39-d1cb0a0cdf15",
+        "session_id": "sess_84d1b3b3-8736-446c-8258-582d5b041437",
+        "run_id": "ec219f12-c461-4a84-80b6-27d5365f840a",
+        "attempt": 1,
+        "started_at": 1790799428222,
+        "finished_at": 1790799434350,
+        "actual_model_selection": "{\"providerId\":\"new-provider\",\"modelId\":\"SAIFREN\",\"options\":{\"reasoningLevel\":\"enabled\"}}"
+      },
+      "agent": {
+        "name": "T9 isolated queue smoke",
+        "modelSelection": {
+          "providerId": "new-provider",
+          "modelId": "SAIFREN",
+          "options": {
+            "reasoningLevel": "enabled"
+          }
+        }
+      },
+      "observations": [
+        "Queued",
+        "Running",
+        "Completed"
+      ],
+      "instrumentControl": "Before Run, the same completion oracle rejected the real Queued row"
+    },
+    "answered": 22,
+    "sentAt": 11
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "id": "vi-VN.b0050",
+  "translation": {
+    "feedback.severity.P1-高.label": "Không thể sử dụng",
+    "feedback.severity.P2-中.label": "Ảnh hưởng đến việc sử dụng",
+    "feedback.severity.P3-低.label": "Vấn đề nhỏ/góp ý"
+  }
+}

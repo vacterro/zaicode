@@ -1,0 +1,10 @@
+1|=
+2|"ZAICODE, birçok AI kodlama ajanını aynı anda, çok sayıda proje üzerinde\r\nbebek baktırmadan çalıştırmak için bir operatör tezgâhıdır.\r\n[ZCode]({protected0}) (masaüstü uygulaması, tarayıcı arayüzü ve ajan\r\nCLI) üzerine ürün katmanı eklenmiş bir derlemedir: her proje\r\n[SAIPEN]({protected1}) protokolüyle sürülür, iş tek bir pencereden başlatılır,\r\ndevam ettirilir ve zamanlanır; zaten ödediğiniz abonelik CLI'ları\r\n(Claude Code, Codex, Antigravity) uygulama içi ajanların yanında yana yerleştirilmiş\r\nişçiler olarak çalışır."
+3|"**0.0.1** ilk etiketli anlık görüntüdür: kişisel, önce Windows'a yönelik, her gün\r\nkullanılan bir derleme."
+4|"## Tek tıkla kurulum"
+5|"1. **[ZAICODE-Setup.exe]({protected0})** dosyasını indirin.\r\n2. Çift tıklayın ve **INSTALL** tuşuna basın."
+6|"Hepsi bu. Kurulum, makinede eksik olan her şeyi özel kopyalar olarak getirir\r\n(Git, Node.js, Python; yönetici hakkı gerekmez), ZAICODE, SAIPEN ve SAIMAIL'ı\r\nGitHub'dan çeker, uygulamayı makinede derler ve masaüstüne bir ZAICODE kısayolu\r\neyler. İlk çalıştırma 15-30 dakika sürer; pencere her adımı gösterir."
+7|"Ücretsiz modeller anında çalışır: ZAICODE kendi yönlendiricisini başlatır ve **SAIFREN**\r\nhavuzunu anahtarsız ücretsiz katmanlarla doldurur; böylece New task'a yazılan bir iş\r\nanahtarsız, hesapsız ve ayarsız yanıt alır. Claude Code, Codex ve Antigravity\r\nabonelikleri isteğe bağlıdır ve istendiği zaman oturum açılabilir."
+8|"**Bütün olarak bir, dört parça.** Çalışma alanı (başlatıcı, kurulum), uygulama, SAIPEN\r\nve SAIMAIL dört depodur. Her biri kendi başına güncellenir: *Settings -> ZAICODE ->\r\nUpdates* her parçayı gösterir, elle veya kendiliğinden günceller (başlatmadan birkaç\r\ndakika sonra ve her altı saatte bir). ZAICODE çalışırken yeni bir uygulama derlemesi\r\nhazırlanır ve bir sonraki başlatmada devreye girer; klon içindeki kendi\r\ndüzenlemeleriniz asla üzerine yazılmaz. Terminalden: {protected0}.\r\nOtomatik sorun giderme: {protected1}. Ayrıntılar: [docs/ZAICODE_INSTALL.md](docs/ZAICODE_INSTALL.md)."
+9|"## Arayüz turu"
+10|"## ZCode'a ekledikleri"

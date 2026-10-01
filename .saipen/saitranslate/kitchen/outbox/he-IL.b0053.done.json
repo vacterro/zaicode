@@ -1,0 +1,9 @@
+{
+  "id": "he-IL.b0053",
+  "translation": {
+    "chat.toolCall.kind.nodeRepl": "Node.js"
+  },
+  "kept": [
+    "chat.toolCall.kind.nodeRepl"
+  ]
+}

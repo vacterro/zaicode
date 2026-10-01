@@ -1,0 +1,10 @@
+{
+  "id": "fi-FI.b0052",
+  "translation": {
+    "settings.modelProvider.baseUrlPlaceholder": "https://api.example.com/v1",
+    "workflows.hub.detail.script.note": "Skripti on vain lukutila. Muuta sitä muokkaamalla se ZAICODElla keskustelussa ja tallentamalla uusi versio."
+  },
+  "kept": [
+    "settings.modelProvider.baseUrlPlaceholder"
+  ]
+}

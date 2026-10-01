@@ -18,7 +18,7 @@ import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync, appendFileSync } from "node:fs";
 import { join } from "node:path";
 
-const KITCHEN = import.meta.dirname;
+const KITCHEN = process.env.SAITRANSLATE_KITCHEN_DIR ?? import.meta.dirname;
 const OUTBOX = join(KITCHEN, "outbox");
 const LOCK = join(KITCHEN, ".lock");
 const LOG = join(KITCHEN, "produce.log");
@@ -88,7 +88,7 @@ async function withLock(fn) {
 }
 
 function node(script, args) {
-  return spawnSync(process.execPath, [join(KITCHEN, script), ...args], { encoding: "utf8" });
+  return spawnSync(process.execPath, [join(import.meta.dirname, script), ...args], { encoding: "utf8" });
 }
 
 function glossary() {
@@ -102,23 +102,28 @@ function glossary() {
 
 function prompt(batch, feedback, numbers) {
   const wanted = numbers ?? batch.keys.map((_, index) => index + 1);
-  const lines = wanted.map((number) => `${number}|${JSON.stringify(batch.messages[batch.keys[number - 1]])}`);
+  const draftFile = join(KITCHEN, 'drafts', `${locale}.json`);
+  const review = process.env.SAITRANSLATE_POLISH === '1';
+  const draft = review && existsSync(draftFile) ? JSON.parse(readFileSync(draftFile, 'utf8')) : {};
+  const lines = wanted.map((number) => `${number}|${JSON.stringify(review ? { English: batch.messages[batch.keys[number - 1]], draft: draft[batch.keys[number - 1]] } : batch.messages[batch.keys[number - 1]])}`);
   const system = [
-    `You translate the user interface of ZAICODE, a desktop app for AI coding agents, from English into ${LANGUAGES[locale]}.`,
+    `You translate ${process.env.SAITRANSLATE_SURFACE_DESCRIPTION ?? "the user interface"} of ZAICODE, a desktop app for AI coding agents, from English into ${LANGUAGES[locale]}.`,
     "Input: numbered lines N|\"English\" (the English is a JSON string).",
-    "Output: exactly one line per input line, in the same order, and nothing else: N|\"translation\" as a JSON string",
+    ...(process.env.SAITRANSLATE_SOURCE_CATALOG?.includes('docs') ? ['Output one JSON object and nothing else. Its keys are the input numbers as strings, and each value is the complete translated paragraph as a JSON string. Escape newlines inside strings as \\n.'] : ["Output: exactly one line per input line, in the same order, and nothing else: N|\"translation\" as a JSON string"]),
     "(escape quotes and backslashes; keep \\n as \\n).",
     "Rules: translate every word a user reads; natural, concise UI wording; same tone as the source.",
     "Placeholders {name}, {{name}} and ${name} must appear exactly as in the source, untranslated.",
     "If the whole value is a brand, code, unit or file name that stays identical in every language, output N|= instead.",
+    "Never use = for ordinary words or sentences such as Save, Cancel, Agent, Running, Settings, or Help. Translate them. Preserve Markdown syntax, commands, command flags, URLs and code; translate their human-readable descriptions.",
     "If the English is empty (\"\"), output N|\"\".",
     glossary(),
+    ...(review ? ["Input includes an English source and a previous translation. Proofread and improve the draft against the source: correct meaning, fluent native grammar, spelling and natural terminology. Avoid literal word-by-word calques and invented words. Preserve accurate technical detail, every placeholder and all Markdown. Output the complete corrected translation even when no correction is needed."] : []),
   ].join("\n");
   const user = (feedback ? `Your previous answer was rejected:\n${feedback}\nFix exactly these problems.\n\n` : "") + lines.join("\n");
   return { system, user };
 }
 
-async function ask(batch, feedback, numbers) {
+async function ask(batch, feedback, numbers, requestedModel = model) {
   const { system, user } = prompt(batch, feedback, numbers);
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 300_000);
@@ -127,7 +132,7 @@ async function ask(batch, feedback, numbers) {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${routerKey()}` },
       body: JSON.stringify({
-        model,
+        model: requestedModel,
         stream: false,
         temperature: 0.2,
         messages: [
@@ -148,6 +153,14 @@ async function ask(batch, feedback, numbers) {
 
 function answerLines(answer, count) {
   const out = [];
+  if (process.env.SAITRANSLATE_SOURCE_CATALOG?.includes('docs')) {
+    try {
+      const object = JSON.parse(answer.trim().replace(/^```(?:json)?\s*/, '').replace(/\s*```$/, ''));
+      if (object && typeof object === 'object' && !Array.isArray(object)) {
+        return Object.entries(object).filter(([number, value]) => Number.isInteger(Number(number)) && Number(number) >= 1 && Number(number) <= count && typeof value === 'string').map(([number, value]) => `${number}|${JSON.stringify(value)}`);
+      }
+    } catch { /* Retry through the numbered transport parser. */ }
+  }
   for (const raw of answer.split(/\r?\n/)) {
     const line = raw.trim().replace(/^```\w*$/, "");
     const match = /^(\d+)\|(.*)$/.exec(line);
@@ -169,7 +182,7 @@ function refusedNumbers(batch, output) {
     if (bad) numbers.add(Number(bad[1]));
     const duplicate = /duplicate number (\d+)/.exec(line);
     if (duplicate) numbers.add(Number(duplicate[1]));
-    const keyed = /^\s*-\s+([A-Za-z0-9_.-]+):/.exec(line);
+    const keyed = /^\s*-\s+([^:\s]+):/.exec(line);
     if (keyed) {
       const index = batch.keys.indexOf(keyed[1]);
       if (index >= 0) numbers.add(index + 1);
@@ -179,7 +192,8 @@ function refusedNumbers(batch, output) {
 }
 
 async function one() {
-  const issued = await withLock(() => node("runner.mjs", ["batch", locale, String(size)]));
+  const repair = option('--repair', null);
+  const issued = await withLock(() => node("runner.mjs", repair ? ['repair', locale, repair] : ["batch", locale, String(size)]));
   const match = /issued (\S+):/.exec(issued.stdout);
   if (!match) {
     log(`nothing issued: ${(issued.stdout + issued.stderr).trim().split(/\r?\n/).at(-1)}`);
@@ -190,16 +204,27 @@ async function one() {
   const started = Date.now();
   // Accepted-looking answer lines by batch number; a retry asks ONLY for the numbers still wrong.
   const answers = new Map();
+  // Opaque code blocks and placeholder-only values have no translatable prose.
+  // Preserve them deterministically through the same acceptance gate.
+  batch.keys.forEach((key, index) => {
+    if (/^\{protected\d+\}$/.test(batch.messages[key])) answers.set(index + 1, `${index + 1}|${JSON.stringify(batch.messages[key])}`);
+  });
   let feedback = "";
   let servedBy = model;
+  let requestedModel = model;
   for (let attempt = 1; attempt <= retries + 2; attempt += 1) {
     const missing = batch.keys.map((_, index) => index + 1).filter((number) => !answers.has(number));
     if (missing.length > 0) {
       let answer;
       try {
-        answer = await ask(batch, feedback, missing.length === batch.keys.length ? undefined : missing);
+        answer = await ask(batch, feedback, missing.length === batch.keys.length ? undefined : missing, requestedModel);
       } catch (error) {
         log(`${id} attempt ${attempt}: model call failed: ${error instanceof Error ? error.message : String(error)}`);
+        if (requestedModel !== 'SAIFREN') {
+          requestedModel = 'SAIFREN';
+          log(`${id}: direct free model unavailable; retry through the authorized SAIFREN pool`);
+        }
+        await new Promise(resolve => setTimeout(resolve, 1000));
         continue;
       }
       servedBy = answer.servedBy;
@@ -212,6 +237,10 @@ async function one() {
     writeFileSync(file, [...answers.entries()].sort((a, b) => a[0] - b[0]).map(([, line]) => line).join("\n") + "\n");
     const done = await withLock(() => node("tools.mjs", ["done", id, file]));
     const output = (done.stdout + done.stderr).trim();
+    if (/source digest drifted|batch \S+ is bound to/.test(output)) {
+      log(`${id}: source changed during model call; re-issue a fresh batch`);
+      return 'failed';
+    }
     if (done.status === 0 && /ACCEPTED/.test(output)) {
       log(`${id} attempt ${attempt} ACCEPTED in ${((Date.now() - started) / 1000).toFixed(1)} s via ${servedBy}: ${output.split(/\r?\n/).at(-1)}`);
       return "accepted";
@@ -240,4 +269,5 @@ for (let n = 0; n < maxBatches; n += 1) {
     break;
   }
 }
+if (failures > 0) process.exitCode = 1;
 log(`producer finished: ${accepted} batch(es) accepted this run`);

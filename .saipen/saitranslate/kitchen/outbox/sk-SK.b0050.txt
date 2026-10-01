@@ -1,0 +1,3 @@
+1|"Nemožno použiť"
+2|"Ovplyvňuje používanie"
+3|"Malý problém/návrh"

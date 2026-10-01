@@ -1,0 +1,15 @@
+{
+  "id": "hr-HR.b0013",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0106": "- navedi odluku oblaka i klasificiraj je kao ovu granicu, ticket po ticket\r\n  ({protected0} § 6 ima provjeru);\r\n- nikad ne prepisuj sidecar-ove, ne reverificiraj samo da bude zeleno, niti\r\n  krpaj kernel kopiju;\r\n- drži LOG događaje ispod 1024 bajtova s obje strane.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0108": "Isto vezivanje putanja stroja blokira rad. Početno stanje duga prije\r\nBUILD-a snima se prvi put kad ticket uđe u BUILD i provjerava se prije svakog\r\nsljedećeg ulaska. Ticket koji je prvi put ušao u BUILD na stroju operatera\r\nzato ne može ući u BUILD u oblaku: prijelaz se odbija s\r\n{protected0}. T-84 je zabilježeni slučaj: DEBT-000079 je\r\nsnimljen na E-1377, a prijelaz odbijen na E-1446. Takav ticket ostavi\r\nstroju koji je snimio njegovo početno stanje.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0110": "## Odstupanje",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0112": "Ako lokalna i udaljena kopija prestanu dijeliti pretka, watcher prestaje. Ne\r\nspaja, ne rebasa, ne forsira. Oba commit id-a idu u log, ispravak se\r\n{protected0} ručno, a\r\nrezultat se checkpointa kao i svaka druga promjena.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0114": "## Točna radnja na strani oblaka",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0116": "### Skripta za postavljanje okruženja (jednom, u postavkama oblaka)",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0118": "Izbornik oblakovnog okruženja u traci naslova sesije -> Edit -> Setup script. Pokreće\r\nse prije svake nove sesije, pa svaka sesija kreće s gotovim alatom proizvoda:",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0122": "### Prompt za svaku novu sesiju",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0124": "Započni sesiju na repozitoriju {protected0}, grani {protected1}, i\r\nprovjeri da agent na stroju operatera u međuvremenu ne piše.\r\nZamijeni zadnji redak s {protected2} da predaš novi rad.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0134": "Na stroju operatera watcher brzo premješta {protected0} s\r\n{protected1}; {protected2} (ili {protected3}) ga gradi, a\r\nsljedeće pokretanje ZAICODE-a ubacuje novu build-u.\r\n"
+  }
+}

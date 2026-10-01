@@ -1,0 +1,30 @@
+{
+  "id": "nb-NO.b0012",
+  "locale": "nb-NO",
+  "source_digest": "sha256:07aa0d0a845f4042a403e9b332760ca9da784aa93f0e5c06527a63231247e6f2",
+  "issued_at": "2026-09-30T14:22:31.338Z",
+  "keys": [
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0106",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0108",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0110",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0112",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0114",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0116",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0118",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0122",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0124",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0134"
+  ],
+  "messages": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0106": "- quote the cloud verdict and classify it as this boundary, ticket by ticket\r\n  ({protected0} § 6 has the check);\r\n- never rewrite sidecars, re-verify only to get green, or patch the kernel\r\n  copy;\r\n- keep LOG events under 1024 bytes on both sides.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0108": "The same machine-path binding also blocks work. The pre-BUILD debt baseline\r\nis captured the first time a ticket enters BUILD and re-checked on every later\r\nentry. A ticket that first entered BUILD on the operator machine therefore\r\ncannot enter BUILD in the cloud: the transition is refused with\r\n{protected0}. T-84 is the case on record: DEBT-000079 was\r\ncaptured at E-1377 and the transition refused at E-1446. Leave such a ticket to\r\nthe machine that captured its baseline.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0110": "## Divergence",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0112": "If local and remote stop sharing an ancestor, the watcher stops. It does not\r\nmerge, rebase or force. Both commit ids go into the log, the fix is\r\n{protected0} by hand, and\r\nthe result is checkpointed like any other change.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0114": "## The exact cloud-side action",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0116": "### Environment setup script (one time, in the cloud environment's settings)",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0118": "Cloud environment menu in the session title bar -> Edit -> Setup script. It\r\nruns before every new session, so each session starts with the product\r\ntoolchain ready:",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0122": "### The prompt for every new session",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0124": "Start the session on repository {protected0}, branch {protected1}, and\r\nmake sure the operator machine's agent is not writing at the same time.\r\nReplace the last line with {protected2} to hand over new work.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0134": "On the operator machine the watcher fast-forwards {protected0} from\r\n{protected1}; {protected2} (or {protected3}) builds it, and the\r\nnext start of ZAICODE swaps the new build in.\r\n"
+  }
+}

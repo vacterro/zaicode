@@ -1,0 +1,15 @@
+{
+  "id": "pt-BR.b0018",
+  "translation": {
+    "docs.docs_ZAICODE_INSTALL_md.p0032": "Cada login do Claude Code ou Codex tem seu próprio home: {protected0},\n{protected1}, ... e {protected2}, {protected3}, ... O ZAICODE encontra\ntodos. Para preparar mais na instalação:",
+    "docs.docs_ZAICODE_INSTALL_md.p0036": "O instalador cria os homes e imprime o comando de login exato de cada\num ({protected0}). O mesmo dentro do ZAICODE: Configurações ->\nEngines & limits -> adicionar outro login.",
+    "docs.docs_ZAICODE_INSTALL_md.p0038": "## Autodiagnóstico",
+    "docs.docs_ZAICODE_INSTALL_md.p0042": "Status por verificação: OK, FIXED (estava quebrado, reparado), WARN (funciona, mas falta\nalgo opcional), INFO (precisa de você: um login), FAIL. Logs em\n{protected0}; o resumo da última instalação é {protected1}.\nNo app, Router -> Autotroubleshoot repara o router em execução e os pools.",
+    "docs.docs_ZAICODE_INSTALL_md.p0044": "## Opções",
+    "docs.docs_ZAICODE_INSTALL_md.p0046": "| Parâmetro | Padrão | |\n| ---- | ---- | ---- |\n| {protected0} | {protected1} | onde tudo é instalado |\n| {protected2} | Desktop | onde vai o atalho do ZAICODE |\n| {protected3}, {protected4} | | pula esses atalhos |\n| {protected5} | | Git / Node.js / Python próprios mesmo quando a máquina já tem |\n| {protected6} | | inicia o ZAICODE ao terminar |\n| {protected7}, {protected8}, {protected9} | os repositórios do GitHub | outra origem (um fork, um caminho de clone local) |",
+    "docs.docs_ZAICODE_INSTALL_md.p0048": "## Comprovação",
+    "docs.docs_ZAICODE_INSTALL_md.p0050": "{protected0}\nverifica uma instalação nova, semeia falhas (atalho e lançador apagados, lançador do\nSAIPEN apontando para um Python inexistente, venv do SAIMAIL apagado, node_modules\nregistrado para outro lockfile, uma pasta de build remanescente mais profunda que MAX_PATH),\nconfirma que o doctor relata e repara cada uma, então inicia o alvo do atalho com\num perfil isolado e encerra exatamente a árvore de processos que ele iniciou.",
+    "docs.docs_ZAICODE_INSTALL_md.p0052": "{protected0} cria quatro repositórios descartáveis em\ndisco e uma instalação dos clones deles, então comprova que uma verificação não muda nada,\nque um componente é atualizado sozinho junto com seu dependente (lançador do SAIPEN, lançador\nraiz), que edições locais sobrepostas e commits locais são preservados, e que um nome\nde componente desconhecido é recusado. Sem rede.\n",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0000": "# Transporte na nuvem do ZAICODE SAIPEN"
+  }
+}

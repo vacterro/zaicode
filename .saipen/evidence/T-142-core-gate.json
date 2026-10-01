@@ -1,0 +1,6 @@
+{
+  "ok": false,
+  "code": "VALIDATION_FAILED",
+  "detail": "validate accepts no arguments; surplus: --gate core",
+  "canonical_next_command": "saipen validate"
+}

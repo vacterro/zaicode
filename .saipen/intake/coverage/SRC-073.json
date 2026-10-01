@@ -1,4 +1,14 @@
 {
-  "requirements": {},
+  "requirements": {
+    "SRC-073:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "Wave 4 delivered and verified",
+      "text": "Wave 4: virtual project folders, project pins, per-model highlight/worker appearance (Default vs Separate)",
+      "verification": "pnpm test",
+      "work": "T-111"
+    }
+  },
   "schema_version": 1
 }

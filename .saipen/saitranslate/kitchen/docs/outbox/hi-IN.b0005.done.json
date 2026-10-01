@@ -1,0 +1,18 @@
+{
+  "id": "hi-IN.b0005",
+  "translation": {
+    "docs.README_md.p0048": "ZAICODE, Z.ai के ZCode से प्राप्त है और उसी\r\n[Apache License 2.0]({protected0}) के तहत वितरित है; अपस्ट्रीम नोटिस\r\n[NOTICE.md]({protected1}) और [THIRD-PARTY-NOTICES.md]({protected2}) में रखे गए हैं।\r\nफ़ाइलें ZAICODE लेखक द्वारा संशोधित की गई हैं। ZAICODE एक स्वतंत्र प्रोजेक्ट है,\r\nZ.ai से संबद्ध या उसके द्वारा अनुमोदित नहीं। मूल ZCode README\r\n[README.zcode.md]({protected3}) और [README.en.md]({protected4}) में रखा गया है।",
+    "docs.README_md.p0052": "## प्रोजेक्ट नेटवर्क",
+    "docs.README_md.p0054": "यह रिपॉज़िटरी व्यापक **SAIPEN / vacterro** प्रोजेक्ट इकोसिस्टम का हिस्सा है।",
+    "docs.README_md.p0056": "[**लेखक हब**]({protected0}) · [**SAIPEN HQ**]({protected1}) · [**SAIPEN Core**]({protected2}) · [**ZAICODE**]({protected3}) · [**FastPrompter**]({protected4}) · [**SAIPEN समुदाय**]({protected5})",
+    "docs.README_md.p0058": "पुनरुत्पादन योग्य बग और टिकाऊ फ़ीचर अनुरोधों के लिए [इस रिपॉज़िटरी के GitHub Issues]({protected0}) का उपयोग करें। त्वरित चर्चा, स्क्रीनशॉट और क्रॉस-प्रोजेक्ट प्रतिक्रिया के लिए Discord का उपयोग करें।",
+    "docs.docs_ZAICODE_INSTALL_md.p0000": "# ZAICODE इंस्टॉल करना",
+    "docs.docs_ZAICODE_INSTALL_md.p0002": "ZAICODE तीन प्रोजेक्ट हैं जो एक साथ काम करते हैं: ZAICODE ऐप, SAIPEN (वह प्रोटोकॉल जो एजेंट के काम को सही पटरी पर बनाए रखता है) और SAIMAIL (वह मेल जिसका उपयोग एजेंट एक-दूसरे को बताने के लिए करते हैं)। इन्हें हाथ से इंस्टॉल करने का अर्थ है तीन क्लोन, Node.js टूलचेन, Python एनवायरनमेंट और बिल्ड। इंस्टॉलर यह सब कर देता है: इसे चलाएँ, प्रतीक्षा करें, और डेस्कटॉप पर ZAICODE शॉर्टकट मिल जाता है।",
+    "docs.docs_ZAICODE_INSTALL_md.p0004": "## एक क्लिक",
+    "docs.docs_ZAICODE_INSTALL_md.p0006": "- **[ZAICODE-Setup.exe]({protected0})**:\n  डाउनलोड करें, डबल-क्लिक करें, **INSTALL** दबाएँ। विंडो (गहरे रंग पर सुनहरा, SAIPEN बैनर) हर चरण को चलते हुए दिखाती है, अब तक का समय और माँग पर लॉग; अंत में **START ZAICODE**, या जब कोई चरण पूरा न हुआ हो तो **TRY AGAIN** / **Autotroubleshoot**\n  / **Open log**। किसी मौजूदा ZAICODE फ़ोल्डर पर इसे लक्षित करने पर बटन **UPDATE** दिखता है: वही रन अपडेट और मरम्मत करता है। यह exe\r\n  इंस्टॉल स्क्रिप्ट्स साथ लेकर आता है और इसे आस-पास किसी चीज़ की ज़रूरत नहीं; इसे {protected1} द्वारा बनाया गया है (वह .NET Framework कंपाइलर जो हर Windows 10/11 में होता है)।\r\n- {protected2} (डबल-क्लिक): कंसोल में वही इंस्टॉल।\n- कुछ भी न हो, PowerShell में:",
+    "docs.docs_ZAICODE_INSTALL_md.p0008": "  ```powershell\n  & ([scriptblock]::Create((irm {protected0})))\n  ```"
+  },
+  "kept": [
+    "docs.docs_ZAICODE_INSTALL_md.p0008"
+  ]
+}

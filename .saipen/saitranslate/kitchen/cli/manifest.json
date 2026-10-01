@@ -1,0 +1,1735 @@
+{
+  "source_digest": "62a85dbe6416b306be3ce483a2f990e4543fc732f5f7faee50e52d23a1337d8a",
+  "entries": [
+    {
+      "key": "cli.s0001",
+      "start": 173,
+      "end": 251,
+      "value": "Unsupported {protected0} value: {expression0}. Supported locales: en-US, zh-CN, auto.",
+      "tokens": [
+        "--locale"
+      ],
+      "expressions": [
+        "value"
+      ]
+    },
+    {
+      "key": "cli.s0002",
+      "start": 285,
+      "end": 3713,
+      "value": "zcode {expression0}\n\nUsage:\n  zcode [command] [options]\n\nWith no command, zcode opens the full-screen TUI.\n\nCommands:\n  app-server Run the ZCode Protocol stdio app server\n  commands   List custom slash commands ({protected0})\n  doctor     Inspect runtime and packaging assumptions\n  login [zai|bigmodel]  Sign in through browser authorization\n  logout     Remove the shared Z.AI login credentials\n  plugins    Manage plugins and marketplaces ({protected1}; alias: plugin)\n  skills     List local skills ({protected2})\n  tui        Open the terminal UI\n  version    Print the CLI version\n\nOptions:\n  -h, {protected3}       Show help\n  -v, {protected4}    Show version\n  -p, {protected5} <text>  Run a single prompt without opening the TUI\n  {protected6}   With {protected7}, enable automatic Memory extraction and wait before exiting (requires Memory enabled)\n  {protected8} <mode> Enable Browser Use backend (supported: headless)\n  {protected9} <surface>  Presentation surface for headless prompts/app-server: terminal or desktop\n  {protected10} <path> Chrome/Chromium executable for headless Browser Use\n  {protected11} <path>  Attach a local file to {protected12}; repeat for multiple files\n  {protected13} <path>     Run this command from the given directory\n  {protected14}, {protected15} <tools...>\n    Remove whole tools for this prompt/TUI run only; saved settings are unchanged.\n    Comma or space-separated tool names, e.g. \"Bash Edit\".\n    \"Bash(git *)\" removes all of Bash; command patterns are not matched.\n  {protected16}      Force mid-conversation system projection for Anthropic providers\n  {protected17} <locale>  UI locale: en-US, zh-CN, or auto\n  {protected18} <mode>    Permission mode for prompts: build, edit, plan, or yolo (default: yolo for {protected19})\n  {protected20} <sessionId>  Resume a persisted session by sessionId (sess_...)\n  {protected21} <text>  Run or set the session goal in headless mode\n  {protected22} Replace any existing session goal set by {protected23}\n  -c, {protected24}        Resume the latest session for the current directory\n  {protected25}           Print machine-readable JSON where supported\n  {protected26}     Print the OAuth URL without opening a browser\n  {protected27}       Disable ANSI colors\n  {protected28}        Print extra diagnostic detail\n\nSlash Commands:\n  {protected29} [command]       Show slash command help\n  {protected30}                Choose Z.AI or BigModel browser login\n  {protected31}               Remove the shared Z.AI login credentials\n  {protected32} [instructions]  Compact the current conversation\n  {protected33} [status|resume|stop|<task>]  Run or manage the expert workflow\n  {protected34} [list|cancel|resume]  List, cancel, or resume dynamic workflow runs\n  {protected35} [latest|checkpointId]  Fork a new session from a workspace checkpoint\n  {protected36} [list|status|connect|disconnect]  Show or manage MCP servers\n  {protected37} [mode]          Show or switch permission mode: build, edit, plan, or yolo\n  {protected38} [id]           Show or switch the current session model\n  {protected39}                  Start a fresh session in the TUI\n  {protected40} [sessionId]   Resume a session by sessionId; omit it for latest in cwd\n  {protected41} [latest|checkpointId]  Show latest checkpoint or restore workspace files\n  {protected42} [name] [task]  List skills, or force the next prompt to load one\n  {protected43} [action]        Show or set the current session goal\n",
+      "tokens": [
+        "`commands list`",
+        "`plugins list|install|uninstall|enable|disable|update|validate|marketplace ...`",
+        "`skills list`",
+        "--help",
+        "--version",
+        "--prompt",
+        "--memory-bench",
+        "--prompt",
+        "--browser-use",
+        "--surface",
+        "--browser-executable",
+        "--attach",
+        "--prompt",
+        "--cwd",
+        "--disallowed-tools",
+        "--disallowedTools",
+        "--force-mcs",
+        "--locale",
+        "--mode",
+        "--prompt",
+        "--resume",
+        "--target",
+        "--target-replace",
+        "--target",
+        "--continue",
+        "--json",
+        "--no-browser",
+        "--no-color",
+        "--verbose",
+        "/help",
+        "/login",
+        "/logout",
+        "/compact",
+        "/expert",
+        "/dwf",
+        "/fork",
+        "/mcp",
+        "/mode",
+        "/model",
+        "/new",
+        "/resume",
+        "/rewind",
+        "/skill",
+        "/goal"
+      ],
+      "expressions": [
+        "version"
+      ]
+    },
+    {
+      "key": "cli.s0003",
+      "start": 3759,
+      "end": 3795,
+      "value": "Copied selected text to clipboard.",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0004",
+      "start": 3812,
+      "end": 3843,
+      "value": "Could not copy selected text.",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0005",
+      "start": 3865,
+      "end": 3921,
+      "value": "Text clipboard copy is not available in this terminal.",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0006",
+      "start": 3963,
+      "end": 3973,
+      "value": "disabled",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0007",
+      "start": 3991,
+      "end": 4000,
+      "value": "enabled",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0008",
+      "start": 4049,
+      "end": 4067,
+      "value": "esc to interrupt",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0009",
+      "start": 4093,
+      "end": 4114,
+      "value": "Type to queue input",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0010",
+      "start": 4136,
+      "end": 4151,
+      "value": "Type a prompt",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0011",
+      "start": 4183,
+      "end": 4207,
+      "value": "+ {expression0} more queued",
+      "tokens": [],
+      "expressions": [
+        "count"
+      ]
+    },
+    {
+      "key": "cli.s0012",
+      "start": 4234,
+      "end": 4271,
+      "value": "Submitted after the next tool call.",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0013",
+      "start": 4304,
+      "end": 4324,
+      "value": " Queue ({expression0}) ",
+      "tokens": [],
+      "expressions": [
+        "count"
+      ]
+    },
+    {
+      "key": "cli.s0014",
+      "start": 4340,
+      "end": 4347,
+      "value": "Input",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0015",
+      "start": 4373,
+      "end": 4413,
+      "value": "No input history source is configured.",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0016",
+      "start": 4439,
+      "end": 4476,
+      "value": "No previous input for this project.",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0017",
+      "start": 4508,
+      "end": 4534,
+      "value": "Restored previous input.",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0018",
+      "start": 4601,
+      "end": 4655,
+      "value": "Restored previous input with {expression0} attachment(s).",
+      "tokens": [],
+      "expressions": [
+        "count"
+      ]
+    },
+    {
+      "key": "cli.s0019",
+      "start": 4692,
+      "end": 4727,
+      "value": "Could not restore previous input.",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0020",
+      "start": 4748,
+      "end": 4782,
+      "value": "Type a question and press Enter.",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0021",
+      "start": 4827,
+      "end": 4899,
+      "value": "Use {protected0} to view models, or {protected1} to connect a Coding Plan account.",
+      "tokens": [
+        "/model",
+        "/login"
+      ],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0022",
+      "start": 4917,
+      "end": 4984,
+      "value": "No available models. Configure a provider or sign in with {protected0}.",
+      "tokens": [
+        "/login"
+      ],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0023",
+      "start": 5001,
+      "end": 5068,
+      "value": "No available models. Configure a provider or sign in with {protected0}.",
+      "tokens": [
+        "/login"
+      ],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0024",
+      "start": 5084,
+      "end": 5106,
+      "value": "model setup required",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0025",
+      "start": 5156,
+      "end": 5189,
+      "value": "No login options are available.",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0026",
+      "start": 5204,
+      "end": 5245,
+      "value": "Use Up/Down to choose, Enter to select.",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0027",
+      "start": 5317,
+      "end": 5353,
+      "value": "Enter BigModel Coding Plan API Key",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0028",
+      "start": 5382,
+      "end": 5430,
+      "value": "Paste the key here. It is hidden while typing.",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0029",
+      "start": 5452,
+      "end": 5482,
+      "value": "BigModel Coding Plan API Key",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0030",
+      "start": 5506,
+      "end": 5545,
+      "value": "Paste a Coding Plan API key manually.",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0031",
+      "start": 5612,
+      "end": 5648,
+      "value": "Waiting for BigModel authorization",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0032",
+      "start": 5692,
+      "end": 5768,
+      "value": "Complete sign-in in your browser. Authorization is detected automatically.",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0033",
+      "start": 5790,
+      "end": 5812,
+      "value": "BigModel Coding Plan",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0034",
+      "start": 5836,
+      "end": 5898,
+      "value": "Open browser login; authorization is detected automatically.",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0035",
+      "start": 5959,
+      "end": 5991,
+      "value": "Enter Z.AI Coding Plan API Key",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0036",
+      "start": 6020,
+      "end": 6068,
+      "value": "Paste the key here. It is hidden while typing.",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0037",
+      "start": 6090,
+      "end": 6116,
+      "value": "Z.AI Coding Plan API Key",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0038",
+      "start": 6140,
+      "end": 6179,
+      "value": "Paste a Coding Plan API key manually.",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0039",
+      "start": 6241,
+      "end": 6273,
+      "value": "Waiting for Z.AI authorization",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0040",
+      "start": 6317,
+      "end": 6397,
+      "value": "Complete sign-in in your browser. I will continue when authorization finishes.",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0041",
+      "start": 6419,
+      "end": 6437,
+      "value": "Z.AI Coding Plan",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0042",
+      "start": 6461,
+      "end": 6515,
+      "value": "Open browser login and create a Coding Plan API key.",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0043",
+      "start": 6580,
+      "end": 6621,
+      "value": "Login cancelled. Choose a setup method.",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0044",
+      "start": 6638,
+      "end": 6681,
+      "value": "Esc cancels and returns to setup choices.",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0045",
+      "start": 6700,
+      "end": 6738,
+      "value": "Waiting for browser authorization...",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0046",
+      "start": 6789,
+      "end": 6838,
+      "value": "API key entry cancelled. Choose a setup method.",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0047",
+      "start": 6862,
+      "end": 6886,
+      "value": "API key input cleared.",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0048",
+      "start": 6910,
+      "end": 6932,
+      "value": "API key is required.",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0049",
+      "start": 6949,
+      "end": 7001,
+      "value": "Enter saves the key. Esc returns to setup choices.",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0050",
+      "start": 7025,
+      "end": 7040,
+      "value": "Paste API key",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0051",
+      "start": 7059,
+      "end": 7097,
+      "value": "Enter the API key, then press Enter.",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0052",
+      "start": 7122,
+      "end": 7141,
+      "value": "Saving API key...",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0053",
+      "start": 7168,
+      "end": 7209,
+      "value": "Choose a login or API key setup method.",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0054",
+      "start": 7228,
+      "end": 7274,
+      "value": "Choose how to set up a Coding Plan provider.",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0055",
+      "start": 7290,
+      "end": 7310,
+      "value": "Set Up Coding Plan",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0056",
+      "start": 7369,
+      "end": 7403,
+      "value": "Model request failed: {expression0}",
+      "tokens": [],
+      "expressions": [
+        "message"
+      ]
+    },
+    {
+      "key": "cli.s0057",
+      "start": 7430,
+      "end": 7456,
+      "value": "Model response received.",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0058",
+      "start": 7505,
+      "end": 7549,
+      "value": "Model response received. {expression0} tokens.",
+      "tokens": [],
+      "expressions": [
+        "tokens"
+      ]
+    },
+    {
+      "key": "cli.s0059",
+      "start": 7628,
+      "end": 7718,
+      "value": "Retrying model request {expression0}/{expression1} in {expression2}: {expression3}",
+      "tokens": [],
+      "expressions": [
+        "attempt",
+        "Math.max(1, maxAttempts - 1)",
+        "delay",
+        "reason"
+      ]
+    },
+    {
+      "key": "cli.s0060",
+      "start": 7742,
+      "end": 7765,
+      "value": "Model stream stalled.",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0061",
+      "start": 7827,
+      "end": 7838,
+      "value": "Subagents",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0062",
+      "start": 7856,
+      "end": 7875,
+      "value": "No subagents yet.",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0063",
+      "start": 7899,
+      "end": 7915,
+      "value": "No output yet.",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0064",
+      "start": 7932,
+      "end": 7953,
+      "value": "← Main conversation",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0065",
+      "start": 7974,
+      "end": 8001,
+      "value": "Read-only · Esc to return",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0066",
+      "start": 8021,
+      "end": 8049,
+      "value": "Loading subagent output...",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0067",
+      "start": 8073,
+      "end": 8103,
+      "value": "Subagent output unavailable.",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0068",
+      "start": 8121,
+      "end": 8128,
+      "value": "Retry",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0069",
+      "start": 8145,
+      "end": 8156,
+      "value": "Load more",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0070",
+      "start": 8180,
+      "end": 8236,
+      "value": "Main conversation needs your input — return to respond",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0071",
+      "start": 8265,
+      "end": 8283,
+      "value": "Ended ({expression0})",
+      "tokens": [],
+      "expressions": [
+        "count"
+      ]
+    },
+    {
+      "key": "cli.s0072",
+      "start": 8324,
+      "end": 8333,
+      "value": "running",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0073",
+      "start": 8355,
+      "end": 8364,
+      "value": "waiting",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0074",
+      "start": 8386,
+      "end": 8395,
+      "value": "blocked",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0075",
+      "start": 8417,
+      "end": 8428,
+      "value": "completed",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0076",
+      "start": 8449,
+      "end": 8457,
+      "value": "failed",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0077",
+      "start": 8481,
+      "end": 8492,
+      "value": "cancelled",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0078",
+      "start": 8511,
+      "end": 8517,
+      "value": "lost",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0079",
+      "start": 8571,
+      "end": 8590,
+      "value": "No API calls yet.",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0080",
+      "start": 8608,
+      "end": 8615,
+      "value": "Model",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0081",
+      "start": 8643,
+      "end": 8659,
+      "value": "+{expression0} more",
+      "tokens": [],
+      "expressions": [
+        "count"
+      ]
+    },
+    {
+      "key": "cli.s0082",
+      "start": 8680,
+      "end": 8690,
+      "value": "Requests",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0083",
+      "start": 8709,
+      "end": 8717,
+      "value": "Server",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0084",
+      "start": 8759,
+      "end": 8764,
+      "value": "hit",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0085",
+      "start": 8784,
+      "end": 8794,
+      "value": "last hit",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0086",
+      "start": 8815,
+      "end": 8826,
+      "value": "last miss",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0087",
+      "start": 8869,
+      "end": 8900,
+      "value": "{expression0} read / {expression1} write",
+      "tokens": [],
+      "expressions": [
+        "read",
+        "write"
+      ]
+    },
+    {
+      "key": "cli.s0088",
+      "start": 8918,
+      "end": 8925,
+      "value": "total",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0089",
+      "start": 8971,
+      "end": 8978,
+      "value": "Cache",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0090",
+      "start": 9005,
+      "end": 9016,
+      "value": "Cache R/W",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0091",
+      "start": 9064,
+      "end": 9072,
+      "value": "Reason",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0092",
+      "start": 9091,
+      "end": 9099,
+      "value": "Tokens",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0093",
+      "start": 9116,
+      "end": 9122,
+      "value": "Used",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0094",
+      "start": 9141,
+      "end": 9149,
+      "value": "Window",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0095",
+      "start": 9201,
+      "end": 9223,
+      "value": "No file changes yet.",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0096",
+      "start": 9251,
+      "end": 9267,
+      "value": "+{expression0} more",
+      "tokens": [],
+      "expressions": [
+        "count"
+      ]
+    },
+    {
+      "key": "cli.s0097",
+      "start": 9309,
+      "end": 9337,
+      "value": "No MCP servers configured.",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0098",
+      "start": 9360,
+      "end": 9385,
+      "value": "MCP status unavailable.",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0099",
+      "start": 9405,
+      "end": 9428,
+      "value": "Loading MCP status...",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0100",
+      "start": 9456,
+      "end": 9472,
+      "value": "+{expression0} more",
+      "tokens": [],
+      "expressions": [
+        "count"
+      ]
+    },
+    {
+      "key": "cli.s0101",
+      "start": 9492,
+      "end": 9501,
+      "value": "Servers",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0102",
+      "start": 9544,
+      "end": 9555,
+      "value": "connected",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0103",
+      "start": 9580,
+      "end": 9592,
+      "value": "connecting",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0104",
+      "start": 9615,
+      "end": 9625,
+      "value": "disabled",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0105",
+      "start": 9652,
+      "end": 9666,
+      "value": "disconnected",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0106",
+      "start": 9687,
+      "end": 9695,
+      "value": "failed",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0107",
+      "start": 9719,
+      "end": 9730,
+      "value": "untrusted",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0108",
+      "start": 9788,
+      "end": 9821,
+      "value": "{expression0}/{expression1} connected",
+      "tokens": [],
+      "expressions": [
+        "connected",
+        "total"
+      ]
+    },
+    {
+      "key": "cli.s0109",
+      "start": 9943,
+      "end": 9953,
+      "value": "complete",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0110",
+      "start": 9971,
+      "end": 9978,
+      "value": "error",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0111",
+      "start": 10022,
+      "end": 10043,
+      "value": "error {expression0}",
+      "tokens": [],
+      "expressions": [
+        "statusCode"
+      ]
+    },
+    {
+      "key": "cli.s0112",
+      "start": 10063,
+      "end": 10072,
+      "value": "pending",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0113",
+      "start": 10116,
+      "end": 10122,
+      "value": "Last",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0114",
+      "start": 10164,
+      "end": 10171,
+      "value": "Draft",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0115",
+      "start": 10205,
+      "end": 10221,
+      "value": "{expression0} chars",
+      "tokens": [],
+      "expressions": [
+        "count"
+      ]
+    },
+    {
+      "key": "cli.s0116",
+      "start": 10244,
+      "end": 10251,
+      "value": "empty",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0117",
+      "start": 10272,
+      "end": 10282,
+      "value": "Messages",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0118",
+      "start": 10299,
+      "end": 10305,
+      "value": "Mode",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0119",
+      "start": 10323,
+      "end": 10330,
+      "value": "Model",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0120",
+      "start": 10351,
+      "end": 10361,
+      "value": "Provider",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0121",
+      "start": 10381,
+      "end": 10390,
+      "value": "Thought",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0122",
+      "start": 10408,
+      "end": 10415,
+      "value": "Trace",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0123",
+      "start": 10432,
+      "end": 10438,
+      "value": "Turn",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0124",
+      "start": 10460,
+      "end": 10471,
+      "value": "Workspace",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0125",
+      "start": 10517,
+      "end": 10523,
+      "value": "APIs",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0126",
+      "start": 10543,
+      "end": 10552,
+      "value": "Context",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0127",
+      "start": 10568,
+      "end": 10573,
+      "value": "MCP",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0128",
+      "start": 10599,
+      "end": 10615,
+      "value": "Modified Files",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0129",
+      "start": 10631,
+      "end": 10636,
+      "value": "Run",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0130",
+      "start": 10655,
+      "end": 10663,
+      "value": "Status",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0131",
+      "start": 10681,
+      "end": 10688,
+      "value": "Todos",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0132",
+      "start": 10722,
+      "end": 10737,
+      "value": "OpenTUI shell",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0133",
+      "start": 10753,
+      "end": 10762,
+      "value": "Sidebar",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0134",
+      "start": 10796,
+      "end": 10811,
+      "value": "No todos yet.",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0135",
+      "start": 10839,
+      "end": 10855,
+      "value": "+{expression0} more",
+      "tokens": [],
+      "expressions": [
+        "count"
+      ]
+    },
+    {
+      "key": "cli.s0136",
+      "start": 10876,
+      "end": 10886,
+      "value": "Progress",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0137",
+      "start": 10943,
+      "end": 10972,
+      "value": "Context compression failed.",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0138",
+      "start": 10992,
+      "end": 11017,
+      "value": "Conversation compacted.",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0139",
+      "start": 11038,
+      "end": 11062,
+      "value": "Compressing context...",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0140",
+      "start": 11099,
+      "end": 11136,
+      "value": "Interrupted model stream discarded.",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0141",
+      "start": 11159,
+      "end": 11177,
+      "value": "Calling model...",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0142",
+      "start": 11221,
+      "end": 11260,
+      "value": "Permission requested for {expression0}.",
+      "tokens": [],
+      "expressions": [
+        "toolName"
+      ]
+    },
+    {
+      "key": "cli.s0143",
+      "start": 11303,
+      "end": 11341,
+      "value": "Permission resolved for {expression0}.",
+      "tokens": [],
+      "expressions": [
+        "toolName"
+      ]
+    },
+    {
+      "key": "cli.s0144",
+      "start": 11357,
+      "end": 11365,
+      "value": "Ready.",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0145",
+      "start": 11392,
+      "end": 11432,
+      "value": "Recovering interrupted model stream...",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0146",
+      "start": 11457,
+      "end": 11483,
+      "value": "Retrying model stream...",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0147",
+      "start": 11508,
+      "end": 11526,
+      "value": "Session resumed.",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0148",
+      "start": 11562,
+      "end": 11581,
+      "value": "Target {expression0}.",
+      "tokens": [],
+      "expressions": [
+        "action"
+      ]
+    },
+    {
+      "key": "cli.s0149",
+      "start": 11600,
+      "end": 11613,
+      "value": "Thinking...",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0150",
+      "start": 11651,
+      "end": 11680,
+      "value": "Tool {expression0} completed.",
+      "tokens": [],
+      "expressions": [
+        "toolName"
+      ]
+    },
+    {
+      "key": "cli.s0151",
+      "start": 11715,
+      "end": 11741,
+      "value": "Tool {expression0} failed.",
+      "tokens": [],
+      "expressions": [
+        "toolName"
+      ]
+    },
+    {
+      "key": "cli.s0152",
+      "start": 11777,
+      "end": 11804,
+      "value": "Tool {expression0} pending.",
+      "tokens": [],
+      "expressions": [
+        "toolName"
+      ]
+    },
+    {
+      "key": "cli.s0153",
+      "start": 11840,
+      "end": 11867,
+      "value": "Tool {expression0} running.",
+      "tokens": [],
+      "expressions": [
+        "toolName"
+      ]
+    },
+    {
+      "key": "cli.s0154",
+      "start": 11888,
+      "end": 11902,
+      "value": "Turn failed.",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0155",
+      "start": 11957,
+      "end": 11996,
+      "value": "TUI requires an interactive terminal.",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0156",
+      "start": 12015,
+      "end": 12049,
+      "value": "Starting ZCode... Ctrl+C to exit",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0157",
+      "start": 12116,
+      "end": 12136,
+      "value": "Context compressed",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0158",
+      "start": 12155,
+      "end": 12183,
+      "value": "Context compression failed",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0159",
+      "start": 12207,
+      "end": 12240,
+      "value": "Context compression interrupted",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0160",
+      "start": 12271,
+      "end": 12299,
+      "value": "Ctrl-R to retry {expression0}",
+      "tokens": [],
+      "expressions": [
+        "command"
+      ]
+    },
+    {
+      "key": "cli.s0161",
+      "start": 12392,
+      "end": 12450,
+      "value": "Retrying context compression ({expression0}/{expression1})",
+      "tokens": [],
+      "expressions": [
+        "attempt",
+        "maxAttempts"
+      ]
+    },
+    {
+      "key": "cli.s0162",
+      "start": 12466,
+      "end": 12496,
+      "value": "Retrying context compression",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0163",
+      "start": 12516,
+      "end": 12562,
+      "value": "Context is up to date; no compression needed",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0164",
+      "start": 12582,
+      "end": 12603,
+      "value": "Compressing context",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0165",
+      "start": 12647,
+      "end": 12654,
+      "value": "Agent",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0166",
+      "start": 12673,
+      "end": 12681,
+      "value": "System",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0167",
+      "start": 12698,
+      "end": 12704,
+      "value": "User",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0168",
+      "start": 12753,
+      "end": 12762,
+      "value": "Thought",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0169",
+      "start": 12783,
+      "end": 12796,
+      "value": "Thinking...",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0170",
+      "start": 12822,
+      "end": 12834,
+      "value": "Transcript",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0171",
+      "start": 12872,
+      "end": 12881,
+      "value": "actors:",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0172",
+      "start": 12984,
+      "end": 13014,
+      "value": "usage: {expression0} tokens",
+      "tokens": [],
+      "expressions": [
+        "spentTokens"
+      ]
+    },
+    {
+      "key": "cli.s0173",
+      "start": 13096,
+      "end": 13165,
+      "value": "Workflow {expression0} - {expression1} ({expression2}/{expression3} steps)",
+      "tokens": [],
+      "expressions": [
+        "label",
+        "status",
+        "nodesSettled",
+        "nodesTotal"
+      ]
+    },
+    {
+      "key": "cli.s0174",
+      "start": 13196,
+      "end": 13215,
+      "value": "error: {expression0}",
+      "tokens": [],
+      "expressions": [
+        "message"
+      ]
+    },
+    {
+      "key": "cli.s0175",
+      "start": 13238,
+      "end": 13251,
+      "value": "+ to expand",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0176",
+      "start": 13276,
+      "end": 13291,
+      "value": "- to collapse",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0177",
+      "start": 13307,
+      "end": 13313,
+      "value": "log:",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0178",
+      "start": 13365,
+      "end": 13410,
+      "value": "{expression0}/{expression1} steps settled",
+      "tokens": [],
+      "expressions": [
+        "nodesSettled",
+        "nodesTotal"
+      ]
+    },
+    {
+      "key": "cli.s0179",
+      "start": 13442,
+      "end": 13462,
+      "value": "result: {expression0}",
+      "tokens": [],
+      "expressions": [
+        "preview"
+      ]
+    },
+    {
+      "key": "cli.s0180",
+      "start": 13505,
+      "end": 13516,
+      "value": "completed",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0181",
+      "start": 13538,
+      "end": 13547,
+      "value": "errored",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0182",
+      "start": 13569,
+      "end": 13578,
+      "value": "pending",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0183",
+      "start": 13600,
+      "end": 13609,
+      "value": "running",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0184",
+      "start": 13631,
+      "end": 13640,
+      "value": "stopped",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0185",
+      "start": 13694,
+      "end": 13702,
+      "value": "by you",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0186",
+      "start": 13722,
+      "end": 13736,
+      "value": "by the agent",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0187",
+      "start": 13759,
+      "end": 13772,
+      "value": "model error",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0188",
+      "start": 13798,
+      "end": 13814,
+      "value": "process exited",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0189",
+      "start": 13839,
+      "end": 13869,
+      "value": "superseded by an amended run",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0190",
+      "start": 13903,
+      "end": 13950,
+      "value": "(truncated - full history in the run journal)",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0191",
+      "start": 14013,
+      "end": 14089,
+      "value": "Workflow {expression0} was interrupted and can be resumed: {protected0} resume {expression1}",
+      "tokens": [
+        "/dwf"
+      ],
+      "expressions": [
+        "label",
+        "runId"
+      ]
+    },
+    {
+      "key": "cli.s0192",
+      "start": 14147,
+      "end": 14175,
+      "value": "Enter selects, Esc cancels",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0193",
+      "start": 14206,
+      "end": 14230,
+      "value": " [disabled: {expression0}]",
+      "tokens": [],
+      "expressions": [
+        "reason"
+      ]
+    },
+    {
+      "key": "cli.s0194",
+      "start": 14282,
+      "end": 14350,
+      "value": "filter: {expression0} | {expression1}",
+      "tokens": [],
+      "expressions": [
+        "filter || \"-\"",
+        "help ?? \"Enter selects, Esc cancels\""
+      ]
+    },
+    {
+      "key": "cli.s0195",
+      "parentStart": 14282,
+      "expressionIndex": 1,
+      "start": 8,
+      "end": 36,
+      "value": "Enter selects, Esc cancels",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0196",
+      "start": 14416,
+      "end": 14446,
+      "value": "No matching workspace paths.",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0197",
+      "start": 14464,
+      "end": 14492,
+      "value": "Loading workspace paths...",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0198",
+      "start": 14579,
+      "end": 14586,
+      "value": "Files",
+      "tokens": [],
+      "expressions": []
+    },
+    {
+      "key": "cli.s0199",
+      "start": 14624,
+      "end": 14634,
+      "value": "Commands",
+      "tokens": [],
+      "expressions": []
+    }
+  ]
+}

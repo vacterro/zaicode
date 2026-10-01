@@ -1,0 +1,12 @@
+{
+  "id": "el-GR.b0047",
+  "locale": "el-GR",
+  "source_digest": "sha256:3649b64da723a738a49c2c9cb825f80faa8412dc7c9157c599b0b9b95bffdb35",
+  "issued_at": "2026-09-30T14:40:24.248Z",
+  "keys": [
+    "settings.zcodeInteractionBehaviorDescription"
+  ],
+  "messages": {
+    "settings.zcodeInteractionBehaviorDescription": "While ZAICODE is running, add follow-up actions to the queue or guide them to run after the next tool call."
+  }
+}

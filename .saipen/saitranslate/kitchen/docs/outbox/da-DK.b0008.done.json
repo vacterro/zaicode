@@ -1,0 +1,15 @@
+{
+  "id": "da-DK.b0008",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0002": "Hvordan denne checkout og en Claude Code Cloud-session kører én SAIPEN-workspace\r\nmed forskellig executor-placering, og hvor grænsen mellem dem går.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0004": "## Formen",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0008": "Én gren bærer protokoltilstanden. Der er intet merge-trin, intet rebase-trin\r\nog ingen anden lokal gren at holde i takt: den executor, der har en verificeret\r\ncheckpoint, committer og pusher den, og den anden side tager den med en\r\nfast-forward.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0010": "{protected0} er historikken før transporten og den publicerede standardgren. Den\r\nopdateres ikke med force af transporten.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0012": "## Hvad der rejser, og hvad der ikke gør",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0014": "En checkpoint i dette repository bærer SAIPEN-protokoltilstanden, rod-launcheren,\r\ninstalleren, dokumentationen og disse transportscripts. Det er hele\r\nworkspacelaget.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0016": "Den bærer **ingen eneste produktbyte**. {protected0} er et separat Git-repository, der står\r\ni {protected1} og er gitignoreret i denne rod\r\n({protected2}). Produktarbejde kræver sin egen klon af {protected3} på gren\r\n{protected4}, og den klon er et andet, uafhængigt objekt med sin egen historik.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0018": "Konsekvensen er let at tage fejl i: en ren {protected0} i denne rod siger\r\nintet om ucommittet produktarbejde, og en {protected1} fast-forward siger\r\nintet om produktkode. Tjek {protected2} eksplicit.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0020": "## Lokal halvdel",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0022": "To scripts, begge ejet af repoet, så en ny maskine får dem fra repository\r\ni stedet for fra hukommelsen:"
+  }
+}

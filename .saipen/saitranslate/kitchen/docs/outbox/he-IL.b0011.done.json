@@ -1,0 +1,15 @@
+{
+  "id": "he-IL.b0011",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0106": "- ציטוט הפסק הענן וסיווגו כגבול זה, כרטיס לכרטיס\r\n  ({protected0} § 6 מכיל את הבדיקה);\r\n- לעולם אין לשכתב sidecars, לא לאמת מחדש רק כדי להפוך הכול לירוק, ולא לתקן את\r\n  העותק של ה-kernel;\r\n- לשמור על אירועי LOG מתחת ל-1024 סימנים בשני הצדדים.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0108": "אותה קשירה לנתיב המכונה גם חוסמת עבודה. קו הבסיס לחוב שלפני BUILD נלכד בפעם הראשונה שכרטיס נכנס\r\nל-BUILD ונבדק מחדש בכל כניסה מאוחרת יותר. כרטיס שנכנס ל-BUILD לראשונה על מכונת המפעיל\r\nלכן אינו יכול להיכנס ל-BUILD בענן: המעבר נדח עם\r\n{protected0}. T-84 הוא המקרה המתועד: DEBT-000079 נלכד ב-E-1377 והמעבר נדח ב-E-1446.\r\nהשאירו כרטיס כזה למכונה שלפדה את קו הבסיס שלו.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0110": "## סטייה",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0112": "אם מקומי ומרוחק מפסיקים לשתף אב משותף, הצופה עוצר. הוא לא ממזג, לא מבצע rebase ולא מאלץ.\r\nשני מזהי ה-commit נכנסים ליומן, התיקון מתבצע ב-{protected0} ידנית, ו\r\nהתוצאה נשמרת כנקודת שחזור כמו כל שינוי אחר.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0114": "## פעולת הצד המדוייקת בענן",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0116": "### סקריפט הגדרת הסביבה (פעם אחת, בהגדרות של סביבת הענן)",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0118": "תפריט סביבת הענן בסרגל הכותרת של ההפעלה -> Edit -> Setup script. הוא\r\nרץ לפני כל הפעלה חדשה, ולכן כל הפעלה מתחילה עם כלי העבודה של המוצר מוכן:",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0122": "### ההנחיה לכל הפעלה חדשה",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0124": "התחילו את ההפעלה על מאגר {protected0}, ענף {protected1}, ו\r\nודאו שהסוכן של מכונת המפעיל אינו כותב באותו זמן.\r\nהחליפו את השורה האחרונה ב-{protected2} כדי להעביר עבודה חדשה.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0134": "על מכונת המפעיל הצופה מבצע fast-forward ל-{protected0} מ\r\n{protected1}; {protected2} (או {protected3}) בונה אותו, וה\r\nהפעלה הבאה של ZAICODE מחליפה את ה-build החדש.\r\n"
+  }
+}

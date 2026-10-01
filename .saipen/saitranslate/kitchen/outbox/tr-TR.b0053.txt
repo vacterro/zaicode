@@ -1,0 +1,3 @@
+1|"Kullanılamıyor"
+2|"Kullanımı etkiler"
+3|"Küçük sorun/öneri"

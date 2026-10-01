@@ -1,0 +1,15 @@
+{
+  "id": "hr-HR.b0017",
+  "translation": {
+    "docs.README_md.p0048": "ZAICODE je izveden iz ZCode-a tvrtke Z.ai i distribuira se pod istom\r\n[Apache License 2.0]({protected0}); napomene nadređenog projekta čuvaju se u\r\n[NOTICE.md]({protected1}) i [THIRD-PARTY-NOTICES.md]({protected2}).\r\nDatoteke je izmijenio autor ZAICODE-a. ZAICODE je neovisni projekt,\r\nnije povezan s tvrtkom Z.ai niti od njih podržan. Izvorni ZCode README čuva se kao\r\n[README.zcode.md]({protected3}) i [README.en.md]({protected4}).",
+    "docs.README_md.p0052": "## Mreža projekata",
+    "docs.README_md.p0054": "Ovaj repozitorij dio je šireg ekosustava projekata **SAIPEN / vacterro**.",
+    "docs.README_md.p0056": "[**Hub autora**]({protected0}) · [**SAIPEN HQ**]({protected1}) · [**SAIPEN Core**]({protected2}) · [**ZAICODE**]({protected3}) · [**FastPrompter**]({protected4}) · [**SAIPEN zajednica**]({protected5})",
+    "docs.README_md.p0058": "Za reproducibilne pogreške i trajne zahtjeve za funkcije koristite [GitHub Issues ovog repozitorija]({protected0}). Discord koristite za brze rasprave, snimke zaslona i povratne informacije među projektima.",
+    "docs.docs_ZAICODE_INSTALL_md.p0000": "# Instalacija ZAICODE-a",
+    "docs.docs_ZAICODE_INSTALL_md.p0002": "ZAICODE su tri projekta koja rade kao jedan: aplikacija ZAICODE, SAIPEN (protokol\r\nkoji drži rad agenata na pravom putu) i SAIMAIL (pošta kojom se agenti\r\nmeđusobno obavještavaju). Ručna instalacija znači tri kloniranja, Node.js\r\nalatni lanac, Python okruženje i build. Instalacijski program sve to napravi:\r\npokrenite ga, pričekajte i na radnoj površini pojavi se prečac ZAICODE.",
+    "docs.docs_ZAICODE_INSTALL_md.p0004": "## Jednim klikom",
+    "docs.docs_ZAICODE_INSTALL_md.p0006": "- **[ZAICODE-Setup.exe]({protected0})**:\n  preuzmite, dvaput kliknite, pritisnite **INSTALL**. Prozor (zlatne boje na tamnoj pozadini,\n  SAIPEN baner) prikazuje svaki korak dok se izvršava, proteklo vrijeme i po potrebi\n  zapisnik; na kraju **START ZAICODE**, odnosno **TRY AGAIN** / **Autotroubleshoot**\n  / **Open log** ako neki korak nije dovršen. Ako pokazujete na postojeću ZAICODE\n  mapu, gumb piše **UPDATE**: isti postupak ažurira i popravlja.\n  exe datoteka nosi instalacijske skripte i ne treba ništa uz sebe; gradi je\n  {protected1} (kompajler .NET Frameworka koji ima svaki Windows 10/11).\n- {protected2} (dvaput klik): ista instalacija u konzoli.\n- Iz ničega, u PowerShellu:",
+    "docs.docs_ZAICODE_INSTALL_md.p0008": "{protected0}"
+  }
+}

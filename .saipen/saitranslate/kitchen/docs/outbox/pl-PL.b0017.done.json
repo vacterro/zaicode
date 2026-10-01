@@ -1,0 +1,7 @@
+{
+  "id": "pl-PL.b0017",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0094": "**SAFE_TO_DEFER** — warstwa produktu. Sesja chmurowa może sklonować\r\n{protected0} gałąź {protected1} i pracować na niej. Praca nad warstwą workspace nie wymaga pracy nad produktem, ale wymaga klona:\r\n{protected2} deklaruje {protected3}, a bez tego walidator kończy się błędem {protected4}. Bramki {protected5} wymagają przypiętego pnpm 10.33.2\r\ni przygotowanego workspace. {protected6} na świeżym obrazie chmurowym to udokumentowana droga wejścia, a {protected7} produktu już go deklaruje.",
+    "docs.docs_ZAICODE_INSTALL_md.p0008": "{protected0}"
+  }
+}

@@ -1,4 +1,14 @@
 {
-  "requirements": {},
+  "requirements": {
+    "SRC-072:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "Wave 3 delivered and verified",
+      "text": "Wave 3: ZAICODE audio engine v2 -- loudness normalization, per-event sound pools, agent-action cues, RPG spawned feedback",
+      "verification": "pnpm test",
+      "work": "T-110"
+    }
+  },
   "schema_version": 1
 }

@@ -1,0 +1,8 @@
+{
+  "id": "ro-RO.b0050",
+  "translation": {
+    "feedback.severity.P1-高.label": "Nu se poate utiliza",
+    "feedback.severity.P2-中.label": "Afectează utilizarea",
+    "feedback.severity.P3-低.label": "Problema minoră/sugestie"
+  }
+}

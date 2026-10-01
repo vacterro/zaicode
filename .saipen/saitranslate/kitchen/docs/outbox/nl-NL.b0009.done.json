@@ -1,0 +1,15 @@
+{
+  "id": "nl-NL.b0009",
+  "translation": {
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0024": "| File | Rol |\r\n|------|------|\r\n| {protected0} | valideert, brengt de branch in overeenstemming, installeert en start de watcher, schrijft de autostartvermelding, bewijst lokaal == remote |\r\n| {protected1} | de lus: ophalen, vergelijken, fast-forward of push, loggen, pauzeren; daarna de productieronde en self-update |\r\n| {protected2} | round-trip vanaf een onafhankelijke executor plus bewijs van koude herstelbaarheid |\r\n| {protected3} | productieronde en self-update tegen wegwerpen-Git-repositories (geen netwerk, geen echte remote) |",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0026": "Installeren en repareren:",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0030": "Het is idempotent. Machine-lokale staat staat in {protected0}:\r\n{protected1} (een kopie), {protected2} (gerotated bij\r\n2 MB naar {protected3}), {protected4} (één instantie),\r\n{protected5}, en een entry in de Startup-map\r\n{protected6}.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0032": "Het installatieprogramma weigert een vuile tree en maakt hem nooit schoon. Is elk vuil pad\r\ncanonieke SAIPEN-staat onder {protected0}, dan zegt het dat en print het de exacte\r\ncheckpoint-commando's; dat is een protocolstatus zonder checkpoint, geen transportfout,\r\nen het installatieprogramma commit het niet achter de rug van het protocol om.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0034": "## Gedrag van de watcher",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0036": "| Situatie | Actie |\r\n|-----------|------|\r\n| schoon, lokaal is een voorouder van remote | {protected0} |\r\n| schoon, remote is een voorouder van lokaal | {protected1} |\r\n| vuil | pauzeren; zelfs geen fetch |\r\n| op een andere branch | pauzeren |\r\n| beide vooruit, geen gedeelde voorouder | pauzeren, beide commit-ids loggen, niets mergen |\r\n| fetch of netwerk mislukt | degraded loggen, volgende tick opnieuw proberen |\r\n| een merge/rebase{protected2} is bezig | pauzeren |",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0038": "Nooit: force push, hard reset, stash, clean, checkout van een vreemde branch,\r\ncommit, of stop op procesnaam. Het installatieprogramma stopt een watcher alleen via de\r\npid die het zelf in zijn eigen pid-bestand heeft vastgelegd.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0040": "Een vuile tree kost niets, want de watcher controleert vuil vóór het ophalen.\r\nEen inactieve checkout doet dus helemaal geen netwerkoproepen.",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0042": "### Productpass (T-90)",
+    "docs.docs_ZAICODE_SAIPEN_CLOUD_md.p0044": "{protected0} is een eigen repository, dus verplaatst de tabel hierboven nooit product-\r\ncode. Daarna behandelt dezelfde tick de productcheckout ({protected1},\r\nstandaard {protected2}; branch {protected3}, standaard {protected4}). De\r\nproductpass draait of de buitenste tree nu vuil is of niet. Hij trekt altijd alleen."
+  }
+}
