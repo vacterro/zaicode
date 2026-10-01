@@ -73,3 +73,6 @@ acceptance-result.txt
 
 # T-164: soak harness output holds a throwaway browser profile and session data.
 .soak/
+
+# soak/bundle scratch logs
+.bundle.txt
