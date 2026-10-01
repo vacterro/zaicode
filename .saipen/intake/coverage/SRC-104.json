@@ -1,4 +1,14 @@
 {
-  "requirements": {},
+  "requirements": {
+    "SRC-104:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "T-137 closed with verification evidence in LOG: verify -> PASS [target: T-137] conf: high -- node .saipen/saitranslate/kitchen/audit.mjs exit 0, 32 locales, ui 5852/5852 everywhere, 0 missing / 0 broken / 0 token / 0 suspicious (checkedAt 2026-10-01T16:00:30.444Z). Draft-vs-shipped parity check over the four keys across all 31 locales: 0 mismatches.",
+      "text": "/goal \u0425\u043e\u0440\u043e\u0448\u043e, \u0437\u0430\u043a\u043e\u043d\u0447\u0438 \u043d\u0430\u0447\u0430\u0442\u043e\u0435 \u043f\u043e\u0436\u0430\u043b\u0443\u0439\u0441\u0442\u0430. \u041f\u0435\u0440\u0435\u0432\u043e\u0434 \u0442\u0430\u043c \u0438 \u043e\u0441\u0442\u0430\u043b\u044c\u043d\u044b\u0435 \u0434\u043e\u043b\u0433\u0438 \u043d\u0435\u0437\u0430\u0432\u0435\u0440\u0448\u0451\u043d\u043d\u044b\u0435 \u0434\u043e \u043a\u043e\u043d\u0446\u0430.",
+      "verification": "the Work this request created reached its own verification gate; see the T-137 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-137"
+    }
+  },
   "schema_version": 1
 }
