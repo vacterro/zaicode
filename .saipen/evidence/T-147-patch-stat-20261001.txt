@@ -1,0 +1,5 @@
+ packages/ui/src/zaicode/ZaicodeDefaultModelBar.tsx | 82 ----------------------
+ 1 file changed, 82 deletions(-)
+ packages/ui/src/zaicode/useZaicodeChatChangeFloater.ts | 2 +-
+ packages/ui/src/zaicode/zaicodeWorkers.ts              | 2 --
+ 2 files changed, 1 insertion(+), 3 deletions(-)

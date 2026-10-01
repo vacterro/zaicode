@@ -1,0 +1,14 @@
+{
+  "clauses": {
+    "SRC-110:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Satisfy the captured request SRC-110 in full; the authoritative text is the receipt body (sha256 e0e6af669d57): the operator's three UI corrections -- remove the thought on/off toggle and always keep thought ON, make the Antigravity and ZCode quota windows rolling 5h, and fit the delete-folder dialog text inside its frame -- followed by the sixteen-phase RELEASE / ONE-CLICK INSTALLER specification demanding ZAICODE-Setup-<version>.exe deliver INSTALL -> LAUNCH -> WORK on a fresh Windows machine with no Git, npm, pnpm, global Python or cloned repository."
+    }
+  },
+  "derived_at": "2026-10-01T16:14:07Z",
+  "derived_from": "SRC-110",
+  "interpretation_revision": 1,
+  "schema_version": 1,
+  "source_sha256": "e0e6af669d57882b8dc6d2e294f176530ed9fa5fc6ae6a183edda91bbe2af9fe"
+}

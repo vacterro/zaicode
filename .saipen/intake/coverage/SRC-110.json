@@ -1,4 +1,32 @@
 {
-  "requirements": {},
+  "requirements": {
+    "SRC-110:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "SUPERSEDED",
+      "evidence": "E-2491",
+      "text": "Satisfy the captured request SRC-110 in full; the authoritative text is the receipt body (sha256 e0e6af669d57): the operator's three UI corrections -- remove the thought on/off toggle and always keep thought ON, make the Antigravity and ZCode quota windows rolling 5h, and fit the delete-folder dialog text inside its frame -- followed by the sixteen-phase RELEASE / ONE-CLICK INSTALLER specification demanding ZAICODE-Setup-<version>.exe deliver INSTALL -> LAUNCH -> WORK on a fresh Windows machine with no Git, npm, pnpm, global Python or cloned repository.",
+      "verification": null,
+      "work": "T-144"
+    },
+    "SRC-110:R002": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "E-2491",
+      "text": "Deliver the sixteen-phase RELEASE / ONE-CLICK INSTALLER specification as a ZAICODE-Setup-<version>.exe that needs no Git, npm, pnpm, global Python or cloned repository, with a verified update channel, a safe atomic auto-update, a stable channel, a corrupted-artifact negative control, and an explicit READY_FOR_NEW_USERS or NOT_READY_FOR_NEW_USERS verdict published in release/RELEASE-NOTES.md.",
+      "verification": "release/Test-Release.ps1 -> 15/15 PASS; pnpm run typecheck -> exit 0; pnpm run verify:pre-push -> exit 0, architecture OK, 875/92/209/40 pass 0 fail",
+      "work": "T-144"
+    },
+    "SRC-110:R003": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "BLOCKED",
+      "evidence": "E-2491",
+      "text": "Prove the installer on a genuinely fresh, clean Windows machine: run the acceptance end to end so a first-time user can install, launch and complete a first task with no developer setup of any kind.",
+      "verification": null,
+      "work": "T-144"
+    }
+  },
   "schema_version": 1
 }

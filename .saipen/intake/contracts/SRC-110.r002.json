@@ -9,16 +9,11 @@
       "actionable": true,
       "class": "requirement",
       "text": "Deliver the sixteen-phase RELEASE / ONE-CLICK INSTALLER specification as a ZAICODE-Setup-<version>.exe that needs no Git, npm, pnpm, global Python or cloned repository, with a verified update channel, a safe atomic auto-update, a stable channel, a corrupted-artifact negative control, and an explicit READY_FOR_NEW_USERS or NOT_READY_FOR_NEW_USERS verdict published in release/RELEASE-NOTES.md."
-    },
-    "SRC-110:R003": {
-      "actionable": true,
-      "class": "requirement",
-      "text": "Prove the installer on a genuinely fresh, clean Windows machine: run the acceptance end to end so a first-time user can install, launch and complete a first task with no developer setup of any kind."
     }
   },
-  "derived_at": "2026-10-01T16:16:18Z",
+  "derived_at": "2026-10-01T16:16:17Z",
   "derived_from": "SRC-110",
-  "interpretation_revision": 3,
+  "interpretation_revision": 2,
   "schema_version": 1,
   "source_sha256": "e0e6af669d57882b8dc6d2e294f176530ed9fa5fc6ae6a183edda91bbe2af9fe"
 }
