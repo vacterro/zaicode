@@ -24,7 +24,7 @@
 //   node scripts/zaicode-soak.mjs --minutes 2 --accelerated 20  # 20x the churn rate
 import { spawn } from "node:child_process";
 import { mkdir, readFile, writeFile, rm } from "node:fs/promises";
-import { existsSync } from "node:fs";
+import { existsSync, statSync } from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import { CHURN, PROBE } from "./zaicode-soak-probes.mjs";
@@ -33,13 +33,6 @@ import { buildVerdict } from "./zaicode-soak-verdict.mjs";
 const args = parseArgs(process.argv.slice(2));
 const REPO_ROOT = path.resolve(import.meta.dirname, "..");
 const OUT_DIR = path.resolve(args.out ?? path.join(REPO_ROOT, ".soak", stamp()));
-const APP =
-  args.app ??
-  firstExisting([
-    path.join(REPO_ROOT, "packages/desktop/dist/win-unpacked/ZAICODE.exe"),
-    path.join(REPO_ROOT, "packages/desktop/dist/win-unpacked/ZCode.exe"),
-    path.join(REPO_ROOT, "apps/desktop/dist/win-unpacked/ZAICODE.exe"),
-  ]);
 const REPLAY = typeof args.replay === "string" ? args.replay : null;
 const CHURN_MINUTES = Number(args.minutes ?? 90);
 const SOAK_HOURS = Number(args["soak-hours"] ?? 0);
@@ -47,6 +40,29 @@ const SAMPLE_SECONDS = Number(args["sample-seconds"] ?? 15);
 const CHURN_SECONDS = Number(args["churn-seconds"] ?? 20) / Number(args.accelerated ?? 1);
 const PORT = Number(args.port ?? 9333);
 const KEEP_OPEN = args["keep-open"] === true;
+
+/**
+ * The packaged app under test: the newest candidate, not the first one present.
+ *
+ * A running ZAICODE.exe locks `dist/win-unpacked`, so the bundler stages the fresh build
+ * into `dist-next` and the root launcher swaps it in later. Taking the first existing path
+ * would quietly soak yesterday's binary for twelve hours while a current one sits beside
+ * it: a green verdict for code that is not the code under review.
+ */
+function newestApp(candidates) {
+  const present = candidates.filter((candidate) => existsSync(candidate));
+  if (present.length === 0) return candidates[0];
+  return present.reduce((newest, candidate) =>
+    statSync(candidate).mtimeMs > statSync(newest).mtimeMs ? candidate : newest,
+  );
+}
+
+const APP = args.app ?? newestApp([
+  path.join(REPO_ROOT, "packages/desktop/dist/win-unpacked/ZAICODE.exe"),
+  path.join(REPO_ROOT, "packages/desktop/dist/win-unpacked/ZCode.exe"),
+  path.join(REPO_ROOT, "packages/desktop/dist-next/win-unpacked/ZAICODE.exe"),
+  path.join(REPO_ROOT, "apps/desktop/dist/win-unpacked/ZAICODE.exe"),
+]);
 
 function stamp() {
   return new Date().toISOString().replace(/[:.]/g, "-");
@@ -67,11 +83,6 @@ function parseArgs(argv) {
     }
   }
   return out;
-}
-
-function firstExisting(candidates) {
-  for (const candidate of candidates) if (existsSync(candidate)) return candidate;
-  return candidates[0];
 }
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -335,6 +346,9 @@ async function main() {
     // claims in SRC-116 are about a loaded surface under repeated use.
     churnActions,
     churnErrors,
+    // The verdict is only evidence about the binary that produced it, so the report names
+    // it: which exe, and how old it was when the run started.
+    app: { path: APP, builtAt: new Date(statSync(APP).mtimeMs).toISOString() },
   });
   await writeFile(path.join(OUT_DIR, "verdict.json"), `${JSON.stringify(verdict, null, 2)}\n`);
   await writeFile(path.join(OUT_DIR, "report.md"), renderReport(verdict, OUT_DIR));
@@ -368,6 +382,8 @@ function renderReport(verdict, outDir) {
     `- janky samples (long frames present): ${verdict.jankySamples} of ${verdict.samples}`,
     `- blank-surface samples: ${verdict.blankSurfaceSamples}`,
     `- churn interactions: ${verdict.churnTotal} (${JSON.stringify(verdict.churnActions)}), errors ${verdict.churnErrors}`,
+    `- under test: ${verdict.config?.app?.path ?? "(replay: no binary)"}` +
+      `${verdict.config?.app?.builtAt ? ` built ${verdict.config.app.builtAt}` : ""}`,
     "",
     `Timeline: \`${outDir}/timeline.jsonl\``,
     "",
