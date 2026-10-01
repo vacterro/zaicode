@@ -1,7 +1,7 @@
 ---
 phase: DONE
 task: T-143
-next_action: "PHASE SCOUT T-144 (SRC-110..113, installer release) -- T-143 closed, its three UI corrections already shipped in zaicode d82fd494"
+next_action: "PHASE SCOUT T-144"
 blocker: none
 agent: claude-code-local-verify
 saipen_version: 8
