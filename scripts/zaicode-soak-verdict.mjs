@@ -1,0 +1,111 @@
+/**
+ * Verdict logic for scripts/zaicode-soak.mjs.
+ *
+ * Split out so the rules that decide PASS can be exercised directly: a 12-hour run costs a
+ * day, so the conditions that would make it green without having tested anything have to be
+ * provable without spending that day.
+ */
+
+/** Least-squares slope per minute, so "degraded" is a number and not a vibe. */
+export function slopePerMinute(points) {
+  const n = points.length;
+  if (n < 2) return 0;
+  const meanX = points.reduce((sum, p) => sum + p.x, 0) / n;
+  const meanY = points.reduce((sum, p) => sum + p.y, 0) / n;
+  let num = 0;
+  let den = 0;
+  for (const p of points) {
+    num += (p.x - meanX) * (p.y - meanY);
+    den += (p.x - meanX) ** 2;
+  }
+  return den === 0 ? 0 : num / den;
+}
+
+/**
+ * Median DOM nodes below which the run never exercised the product.
+ *
+ * A packaged Electron window that fails to reach the ZAICODE renderer still answers CDP
+ * with ~11 nodes; a rendered home screen is in the thousands. The floor sits far below any
+ * real render so a genuine run never trips it, and far above an empty shell so the empty
+ * shell cannot pass.
+ */
+export const RENDERED_NODE_FLOOR = 200;
+
+export function buildVerdict(timeline, config) {
+  const samples = timeline.filter((row) => typeof row.fps === "number");
+  const blankSamples = timeline.filter((row) => row.blank === true);
+  const first = samples[0];
+  const last = samples.at(-1);
+  const midpoint = samples[Math.floor(samples.length / 2)];
+  const fpsSlope = slopePerMinute(samples.map((s) => ({ x: s.elapsedSeconds / 60, y: s.fps })));
+  const heapSlope = slopePerMinute(
+    samples.filter((s) => typeof s.heapUsedBytes === "number").map((s) => ({ x: s.elapsedSeconds / 60, y: s.heapUsedBytes })),
+  );
+  const rssSlope = slopePerMinute(
+    samples.filter((s) => typeof s.rssBytes === "number").map((s) => ({ x: s.elapsedSeconds / 60, y: s.rssBytes })),
+  );
+  // SRC-116's symptom is a specific number: ~1-2 FPS after hours. Judging "degraded" by
+  // a raw fps/minute slope flags ordinary render jitter (a 3% drift over two minutes is
+  // noise), so the rule is the operator's own: half the baseline, or under 10 FPS, or
+  // jank that did not exist at the start. Anything looser would make a green run and a
+  // broken one indistinguishable.
+  const worstFps = samples.reduce((min, s) => Math.min(min, s.fps), Number.POSITIVE_INFINITY);
+  const janky = samples.filter((s) => (s.longFrames ?? 0) > 0).length;
+  const degraded =
+    (first && midpoint ? last.fps < midpoint.fps * 0.5 : false) ||
+    (last ? last.fps < 10 : false) ||
+    (first && samples.length > 2 && janky / samples.length > 0.5 && (first.longFrames ?? 0) === 0);
+  // A PASS has to mean the surface actually ran. Three ways a run collects plausible
+  // numbers without ever exercising the app, all of which used to read green: the
+  // renderer never painted its tree (a bare Electron shell is ~11 nodes, a rendered
+  // ZAICODE home is thousands), the churn clicked nothing, or every probe failed and
+  // there are no samples to judge. A 12-hour run that does any of these costs a day
+  // to learn nothing, so each is its own verdict rather than a footnote.
+  const nodeCounts = samples.map((s) => s.nodes).filter((n) => typeof n === "number").sort((a, b) => a - b);
+  const medianNodes = nodeCounts.length > 0 ? nodeCounts[Math.floor(nodeCounts.length / 2)] : 0;
+  const churnTotal = Object.values(config.churnActions ?? {}).reduce((sum, n) => sum + n, 0);
+  const churnRequested = Number(config.churnMinutes ?? 0) > 0;
+  const verdict =
+    samples.length === 0
+      ? "FAIL_NO_SAMPLES"
+      : medianNodes < RENDERED_NODE_FLOOR
+        ? "FAIL_SURFACE_NOT_RENDERED"
+        : blankSamples.length > 0
+          ? "FAIL_BLANK_SURFACE"
+          : degraded
+            ? "FAIL_DEGRADED"
+            : churnRequested && churnTotal === 0
+              ? "FAIL_NO_CHURN"
+              : "PASS";
+  return {
+    verdict,
+    generatedAt: new Date().toISOString(),
+    config,
+    samples: samples.length,
+    medianNodes,
+    durationSeconds: last?.elapsedSeconds ?? 0,
+    fps: {
+      first: first?.fps ?? null,
+      midpoint: midpoint?.fps ?? null,
+      last: last?.fps ?? null,
+      worst: Number.isFinite(worstFps) ? worstFps : null,
+      slopePerMinute: Number(fpsSlope.toFixed(4)),
+    },
+    heapUsedMb: {
+      first: first ? Number((first.heapUsedBytes / 1048576).toFixed(1)) : null,
+      last: last ? Number((last.heapUsedBytes / 1048576).toFixed(1)) : null,
+      growthMbPerMinute: Number((heapSlope / 1048576).toFixed(3)),
+    },
+    rssMb: {
+      first: first ? Number((first.rssBytes / 1048576).toFixed(1)) : null,
+      last: last ? Number((last.rssBytes / 1048576).toFixed(1)) : null,
+      growthMbPerMinute: Number((rssSlope / 1048576).toFixed(3)),
+    },
+    jankySamples: janky,
+    blankSurfaceSamples: blankSamples.length,
+    churnActions: config.churnActions ?? {},
+    churnErrors: config.churnErrors ?? 0,
+    churnTotal,
+    finalHealthSnapshot: last?.health ?? null,
+  };
+}

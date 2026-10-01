@@ -28,6 +28,7 @@ import { existsSync } from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import { CHURN, PROBE } from "./zaicode-soak-probes.mjs";
+import { buildVerdict } from "./zaicode-soak-verdict.mjs";
 
 const args = parseArgs(process.argv.slice(2));
 const REPO_ROOT = path.resolve(import.meta.dirname, "..");
@@ -230,7 +231,7 @@ async function main() {
 `);
     await writeFile(path.join(OUT_DIR, "report.md"), renderReport(verdict, OUT_DIR));
     console.log(`verdict: ${verdict.verdict}`);
-    return 0;
+    return verdict.verdict === "PASS" ? 0 : 1;
   }
   if (!existsSync(APP)) {
     throw new Error(`packaged app not found: ${APP}\nBuild it first, or pass --app <path>.`);
@@ -339,7 +340,9 @@ async function main() {
   await writeFile(path.join(OUT_DIR, "report.md"), renderReport(verdict, OUT_DIR));
   console.log(`\nverdict: ${verdict.verdict}`);
   console.log(`timeline: ${path.join(OUT_DIR, "timeline.jsonl")}`);
-  return exitCode;
+  // A failed verdict must be able to gate an automated run, so it leaves a non-zero
+  // exit code instead of only printing the word.
+  return exitCode === 0 && verdict.verdict === "PASS" ? 0 : 1;
 }
 
 function log(sample) {
@@ -354,82 +357,11 @@ function log(sample) {
   );
 }
 
-/** Least-squares slope per minute, so "degraded" is a number and not a vibe. */
-function slopePerMinute(points) {
-  const n = points.length;
-  if (n < 2) return 0;
-  const meanX = points.reduce((sum, p) => sum + p.x, 0) / n;
-  const meanY = points.reduce((sum, p) => sum + p.y, 0) / n;
-  let num = 0;
-  let den = 0;
-  for (const p of points) {
-    num += (p.x - meanX) * (p.y - meanY);
-    den += (p.x - meanX) ** 2;
-  }
-  return den === 0 ? 0 : num / den;
-}
-
-function buildVerdict(timeline, config) {
-  const samples = timeline.filter((row) => typeof row.fps === "number");
-  const blankSamples = timeline.filter((row) => row.blank === true);
-  const first = samples[0];
-  const last = samples.at(-1);
-  const midpoint = samples[Math.floor(samples.length / 2)];
-  const fpsSlope = slopePerMinute(samples.map((s) => ({ x: s.elapsedSeconds / 60, y: s.fps })));
-  const heapSlope = slopePerMinute(
-    samples.filter((s) => typeof s.heapUsedBytes === "number").map((s) => ({ x: s.elapsedSeconds / 60, y: s.heapUsedBytes })),
-  );
-  const rssSlope = slopePerMinute(
-    samples.filter((s) => typeof s.rssBytes === "number").map((s) => ({ x: s.elapsedSeconds / 60, y: s.rssBytes })),
-  );
-  // SRC-116's symptom is a specific number: ~1-2 FPS after hours. Judging "degraded" by
-  // a raw fps/minute slope flags ordinary render jitter (a 3% drift over two minutes is
-  // noise), so the rule is the operator's own: half the baseline, or under 10 FPS, or
-  // jank that did not exist at the start. Anything looser would make a green run and a
-  // broken one indistinguishable.
-  const worstFps = samples.reduce((min, s) => Math.min(min, s.fps), Number.POSITIVE_INFINITY);
-  const janky = samples.filter((s) => (s.longFrames ?? 0) > 0).length;
-  const degraded =
-    (first && midpoint ? last.fps < midpoint.fps * 0.5 : false) ||
-    (last ? last.fps < 10 : false) ||
-    (first && samples.length > 2 && janky / samples.length > 0.5 && (first.longFrames ?? 0) === 0);
-  return {
-    verdict: blankSamples.length > 0 ? "FAIL_BLANK_SURFACE" : degraded ? "FAIL_DEGRADED" : "PASS",
-    generatedAt: new Date().toISOString(),
-    config,
-    samples: samples.length,
-    durationSeconds: last?.elapsedSeconds ?? 0,
-    fps: {
-      first: first?.fps ?? null,
-      midpoint: midpoint?.fps ?? null,
-      last: last?.fps ?? null,
-      worst: Number.isFinite(worstFps) ? worstFps : null,
-      slopePerMinute: Number(fpsSlope.toFixed(4)),
-    },
-    heapUsedMb: {
-      first: first ? Number((first.heapUsedBytes / 1048576).toFixed(1)) : null,
-      last: last ? Number((last.heapUsedBytes / 1048576).toFixed(1)) : null,
-      growthMbPerMinute: Number((heapSlope / 1048576).toFixed(3)),
-    },
-    rssMb: {
-      first: first ? Number((first.rssBytes / 1048576).toFixed(1)) : null,
-      last: last ? Number((last.rssBytes / 1048576).toFixed(1)) : null,
-      growthMbPerMinute: Number((rssSlope / 1048576).toFixed(3)),
-    },
-    jankySamples: janky,
-    blankSurfaceSamples: blankSamples.length,
-    churnActions: config.churnActions ?? {},
-    churnErrors: config.churnErrors ?? 0,
-    churnTotal: Object.values(config.churnActions ?? {}).reduce((sum, n) => sum + n, 0),
-    finalHealthSnapshot: last?.health ?? null,
-  };
-}
-
 function renderReport(verdict, outDir) {
   return [
     `# ZAICODE soak verdict — ${verdict.verdict}`,
     "",
-    `- window: ${verdict.durationSeconds}s, ${verdict.samples} samples`,
+    `- window: ${verdict.durationSeconds}s, ${verdict.samples} samples, median DOM nodes ${verdict.medianNodes}`,
     `- FPS: ${verdict.fps.first} -> ${verdict.fps.midpoint} -> ${verdict.fps.last} (worst ${verdict.fps.worst}, slope ${verdict.fps.slopePerMinute}/min)`,
     `- renderer heap: ${verdict.heapUsedMb.first} MB -> ${verdict.heapUsedMb.last} MB (${verdict.heapUsedMb.growthMbPerMinute} MB/min)`,
     `- process RSS: ${verdict.rssMb.first} MB -> ${verdict.rssMb.last} MB (${verdict.rssMb.growthMbPerMinute} MB/min)`,

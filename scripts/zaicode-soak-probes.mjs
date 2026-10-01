@@ -31,8 +31,10 @@ export const PROBE = `(async () => {
     heapUsedBytes: heap ? heap.usedJSHeapSize : null,
     heapTotalBytes: heap ? heap.totalJSHeapSize : null,
     // SRC-116 的不变量：一个 valid project 选中后必须收敛到 loaded / loading / 明确错误，
-    // 而不是永久空白。空白 = 几乎没有可见文本，也没有可见的子树。
-    blank: (document.getElementsByTagName("*").length < 5 && text.length < 8),
+    // 而不是永久空白。空白 = 画出来了却没有可读内容；「整棵树根本没渲染」是另一回事，
+    // 由 RENDERED_NODE_FLOOR 单独判，所以这里只看可见文本，不再和节点数取交集——
+    // 取交集会让「外壳 11 个节点」同时落进两个判据，永远轮不到这条。
+    blank: text.length < 8,
     visibleTextLength: text.length,
     health,
   };
