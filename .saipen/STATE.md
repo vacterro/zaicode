@@ -6,7 +6,7 @@ blocker: none
 agent: saipen-cli
 saipen_version: 8
 schema_version: 3
-style_contract: ded-4ae736e4
+style_contract: ded-71fc58de
 saipen_home: "V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_SAIPEN"
 mode: full
 transition_from: SHIP
