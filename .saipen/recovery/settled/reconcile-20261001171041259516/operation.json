@@ -1,0 +1,43 @@
+{
+  "op_id": "reconcile-20261001171041259516",
+  "operation": "reconcile",
+  "created_at": "2026-10-01T17:10:41Z",
+  "agent": "saipen-cli",
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "project_lineage": "lineage-b0732ed2f98947b9a3c97bfe71427eca",
+  "semantic_payload_hash": "ae566cb974fc4411",
+  "preconditions": {
+    ".saipen/STATE.md": "695c93c9835ec0e6",
+    ".saipen/LOG.md": "f46db5addbd14e87"
+  },
+  "read_preconditions": {
+    ".saipen/BOARD.md": "4b4f4f81de72af53",
+    ".saipen/logs": "delete-tree-sha256:43d12d8769b98884f0cb928a20e21ea9056fe43cc34ee36abdbed9bc38d1d455"
+  },
+  "verification_policy": "core_fast",
+  "status": "COMMITTED",
+  "progress_index": 2,
+  "targets": [
+    {
+      "path": ".saipen/LOG.md",
+      "role": "log",
+      "action": "write",
+      "before_hash": "f46db5addbd14e87",
+      "after_hash": "a5e23411e376cc7f",
+      "applied": true
+    },
+    {
+      "path": ".saipen/STATE.md",
+      "role": "state",
+      "action": "write",
+      "before_hash": "695c93c9835ec0e6",
+      "after_hash": "1e7d19154311f3a7",
+      "applied": true
+    }
+  ],
+  "receipt_metadata": {
+    "inherited_findings": [
+      "STATE proposed last_event 2573 != LOG tail 2586"
+    ]
+  }
+}

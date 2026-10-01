@@ -1,0 +1,82 @@
+{
+  "blocking_findings": {
+    "problem_count": 4,
+    "problems": [
+      {
+        "category": null,
+        "credential": false,
+        "detail": "FLOOR: STATE.task=T-151 but BOARD DOING is empty at the raw floor",
+        "detail_hash": "df493fadaab921dc",
+        "finding_key": "76b48f23558dce11",
+        "rule_id": "unclassified",
+        "severity": "problem",
+        "subject_id": null,
+        "subject_kind": "global",
+        "subject_ref": null
+      },
+      {
+        "category": null,
+        "credential": false,
+        "detail": "STATE.md next_action names T-151, which sits under ## BLOCKED -- finished and blocked tickets are not executable, and \u00a7 1.11's Pick Rule selects from ## TODO (## BLOCKED is excluded on purpose)",
+        "detail_hash": "16d87ef2dbc01e1a",
+        "finding_key": "76b48f23558dce11",
+        "rule_id": "unclassified",
+        "severity": "problem",
+        "subject_id": null,
+        "subject_kind": "global",
+        "subject_ref": null
+      },
+      {
+        "category": null,
+        "credential": false,
+        "detail": "STATE.md task T-151 is not the claimed ## DOING ticket (none) in ticket-bearing phase SCOUT -- a TODO/DONE/BLOCKED ticket cannot be the active task; Recovery reconstructs the claim from BOARD and the ",
+        "detail_hash": "1b9d5f872638ba89",
+        "finding_key": "76b48f23558dce11",
+        "rule_id": "unclassified",
+        "severity": "problem",
+        "subject_id": null,
+        "subject_kind": "global",
+        "subject_ref": null
+      },
+      {
+        "category": null,
+        "credential": false,
+        "detail": "core sweep [sweep-ticket-link] -- .saipen\\improve\\imp-vacterro-zaicode-20261001-1\\SWEEP.md:2 PROTOCOL_VIOLATION RUN-1/IMP-001 produced ticket T-149 without recurrence: and weak_model: (META-IMPROVEMEN",
+        "detail_hash": "127ae32efe4dd128",
+        "finding_key": "76b48f23558dce11",
+        "rule_id": "unclassified",
+        "severity": "problem",
+        "subject_id": null,
+        "subject_kind": "global",
+        "subject_ref": ".saipen\\improve\\imp-vacterro-zaicode-20261001-1\\SWEEP.md:2"
+      }
+    ],
+    "ruleset_fingerprint": "82e5e183ae8f0fd909be3fa3627f00489cacaab813d942186c832db02a05a1c1",
+    "ruleset_version": 1,
+    "status": "complete",
+    "warning_count": 29
+  },
+  "board_hash": "4b4f4f81de72af53",
+  "canonical_next_command": "saipen ticket reasoning T-149",
+  "content_hash": "1f027de52fabbf14",
+  "exit_code": 1,
+  "external_actions": [],
+  "gate": "core",
+  "kind": "conformance_receipt",
+  "log_hash": "137e9fc17cd8bda2",
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "receipt_id": "receipt-83995fb4f8d5",
+  "remediation_commands": [
+    "saipen ticket reasoning T-149",
+    "saipen ticket reasoning T-148",
+    "saipen ticket reasoning T-151",
+    "saipen ticket reasoning T-152"
+  ],
+  "schema_version": 2,
+  "source_head": "2e408df87cdfce68d7c5c0cd7a61f327f78d288c",
+  "source_tree_fingerprint": "git-delta-v1:a15d9b96f4cfdac6ce9e7d50825f11e4de6cae063422b350cf95a333332cb421",
+  "state_hash": "6d79b370c99d317d",
+  "timestamp_utc": "2026-10-01T17:09:22.959064Z",
+  "validator_protocol_version": "1",
+  "verdict": "FAIL"
+}

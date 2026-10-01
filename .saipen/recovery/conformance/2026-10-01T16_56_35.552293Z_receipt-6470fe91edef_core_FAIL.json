@@ -1,0 +1,120 @@
+{
+  "blocking_findings": {
+    "problem_count": 7,
+    "problems": [
+      {
+        "category": null,
+        "credential": false,
+        "detail": "no current-cycle VERIFY boundary; reverify: no current-tree PASS re-verification receipt",
+        "detail_hash": "186e51123c0cc004",
+        "finding_key": "8608bcc9f592a8f1",
+        "rule_id": "work_closure_evidence",
+        "severity": "problem",
+        "subject_id": "T-113",
+        "subject_kind": "work",
+        "subject_ref": null
+      },
+      {
+        "category": null,
+        "credential": false,
+        "detail": "no current-cycle VERIFY boundary; reverify: no current-tree PASS re-verification receipt",
+        "detail_hash": "186e51123c0cc004",
+        "finding_key": "bdd1449c3e7a62a4",
+        "rule_id": "work_closure_evidence",
+        "severity": "problem",
+        "subject_id": "T-145",
+        "subject_kind": "work",
+        "subject_ref": null
+      },
+      {
+        "category": null,
+        "credential": false,
+        "detail": "core sweep [sweep-ticket-link] -- .saipen\\improve\\imp-vacterro-zaicode-20261001-1\\SWEEP.md:2 PROTOCOL_VIOLATION RUN-1/IMP-001 produced ticket T-149 without recurrence: and weak_model: (META-IMPROVEMEN",
+        "detail_hash": "127ae32efe4dd128",
+        "finding_key": "76b48f23558dce11",
+        "rule_id": "unclassified",
+        "severity": "problem",
+        "subject_id": null,
+        "subject_kind": "global",
+        "subject_ref": ".saipen\\improve\\imp-vacterro-zaicode-20261001-1\\SWEEP.md:2"
+      },
+      {
+        "category": null,
+        "credential": false,
+        "detail": ".saipen/LOG.md:1311 timestamp for E-2467 is 5m ahead of real UTC (slack is 5m) -- LOG timestamps MUST be real UTC time, and an event stamped at a minute that has not happened yet reorders everything a",
+        "detail_hash": "1ac715a450009cf7",
+        "finding_key": "76b48f23558dce11",
+        "rule_id": "unclassified",
+        "severity": "problem",
+        "subject_id": null,
+        "subject_kind": "global",
+        "subject_ref": ".saipen/LOG.md:1311"
+      },
+      {
+        "category": null,
+        "credential": false,
+        "detail": ".saipen/LOG.md:1312 timestamp for E-2468 is 7m ahead of real UTC (slack is 5m) -- LOG timestamps MUST be real UTC time, and an event stamped at a minute that has not happened yet reorders everything a",
+        "detail_hash": "f92a0ee4c95a5c79",
+        "finding_key": "76b48f23558dce11",
+        "rule_id": "unclassified",
+        "severity": "problem",
+        "subject_id": null,
+        "subject_kind": "global",
+        "subject_ref": ".saipen/LOG.md:1312"
+      },
+      {
+        "category": null,
+        "credential": false,
+        "detail": ".saipen/LOG.md:1313 timestamp for E-2469 is 9m ahead of real UTC (slack is 5m) -- LOG timestamps MUST be real UTC time, and an event stamped at a minute that has not happened yet reorders everything a",
+        "detail_hash": "ac704d1dd5460018",
+        "finding_key": "76b48f23558dce11",
+        "rule_id": "unclassified",
+        "severity": "problem",
+        "subject_id": null,
+        "subject_kind": "global",
+        "subject_ref": ".saipen/LOG.md:1313"
+      },
+      {
+        "category": null,
+        "credential": false,
+        "detail": ".saipen/LOG.md:1314 timestamp for E-2470 is 9m ahead of real UTC (slack is 5m) -- LOG timestamps MUST be real UTC time, and an event stamped at a minute that has not happened yet reorders everything a",
+        "detail_hash": "61fa62dccd2e7f88",
+        "finding_key": "76b48f23558dce11",
+        "rule_id": "unclassified",
+        "severity": "problem",
+        "subject_id": null,
+        "subject_kind": "global",
+        "subject_ref": ".saipen/LOG.md:1314"
+      }
+    ],
+    "ruleset_fingerprint": "82e5e183ae8f0fd909be3fa3627f00489cacaab813d942186c832db02a05a1c1",
+    "ruleset_version": 1,
+    "status": "complete",
+    "warning_count": 29
+  },
+  "board_hash": "4b4f4f81de72af53",
+  "canonical_next_command": "saipen work reverify T-113",
+  "content_hash": "a9e353e53d0d2d8b",
+  "exit_code": 1,
+  "external_actions": [],
+  "gate": "core",
+  "kind": "conformance_receipt",
+  "log_hash": "9d17a7a5b5323ada",
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "receipt_id": "receipt-6470fe91edef",
+  "remediation_commands": [
+    "saipen work reverify T-113",
+    "saipen work reverify T-145",
+    "saipen ticket reasoning T-149",
+    "saipen ticket reasoning T-148",
+    "saipen ticket reasoning T-151",
+    "saipen ticket reasoning T-152"
+  ],
+  "schema_version": 2,
+  "source_head": "2e408df87cdfce68d7c5c0cd7a61f327f78d288c",
+  "source_tree_fingerprint": "git-delta-v1:a15d9b96f4cfdac6ce9e7d50825f11e4de6cae063422b350cf95a333332cb421",
+  "state_hash": "695c93c9835ec0e6",
+  "timestamp_utc": "2026-10-01T16:56:35.552293Z",
+  "validator_protocol_version": "1",
+  "verdict": "FAIL"
+}
