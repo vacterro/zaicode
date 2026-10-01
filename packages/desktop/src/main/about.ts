@@ -57,7 +57,11 @@ const ABOUT_APPLICATION_NAME = ZCODE_PRODUCT_FLAVOR === "zaicode" ? "ZAICODE" : 
 // 自定义 About 内容本体是 256x280；原生窗口如果同尺寸会让内容贴满透明窗口边界。
 // 这里给 BrowserWindow 额外留出背景呼吸空间，避免正式 About 看起来比 demo 更局促。
 const ABOUT_WINDOW_WIDTH = 256;
-const ABOUT_WINDOW_HEIGHT = 312;
+const ABOUT_WINDOW_HEIGHT = 340;
+// SRC-114: the About box had to stop saying "ZCode" in a build called ZAICODE, and
+// it had room to grow: the tagline and the source line sit under the version.
+const ZAICODE_ABOUT_TAGLINE = "Coding agents on your projects, in your own subscriptions.";
+const ZAICODE_ABOUT_REPOSITORY = "github.com/vacterro/zaicode";
 const ABOUT_MESSAGES: Record<
   Locale,
   {
@@ -75,7 +79,7 @@ const ABOUT_MESSAGES: Record<
     optimizedForAppleSilicon: "已针对 Apple Silicon 优化。",
     copyright: (year) =>
       ZCODE_PRODUCT_FLAVOR === "zaicode"
-        ? `ZAICODE，基于 ZCode。版权所有 © ${year} ZCode。`
+        ? `ZAICODE，基于 ZCode 构建。版权所有 © ${year} vacterro。`
         : `版权所有 © ${year} ZCode。`,
   },
   "en-US": {
@@ -85,7 +89,7 @@ const ABOUT_MESSAGES: Record<
     optimizedForAppleSilicon: "Optimized for Apple Silicon.",
     copyright: (year) =>
       ZCODE_PRODUCT_FLAVOR === "zaicode"
-        ? `ZAICODE, built on ZCode. Copyright © ${year} ZCode.`
+        ? `ZAICODE, built on ZCode. Copyright © ${year} vacterro.`
         : `Copyright © ${year} ZCode.`,
   },
 };
@@ -221,6 +225,31 @@ function resolveAboutIconPath(isPackaged: boolean): string {
     : join(import.meta.dirname, "../../build/icon.png");
 }
 
+/** Where the ZAICODE logo is staged: build time next to the other brand assets,
+ *  packaged time next to icon.png (see electron-builder.config.js extraResources). */
+function resolveZaicodeLogoPath(isPackaged: boolean): string {
+  return isPackaged
+    ? join(process.resourcesPath, "zaicode-logo-128.png")
+    : join(import.meta.dirname, "../../build/zaicode-logo-128.png");
+}
+
+/**
+ * The ZAICODE logo as a data URI, or undefined when it is missing. A missing logo
+ * must not take the whole About box down: the caller falls back to the vector mark.
+ */
+function readZaicodeLogoDataUri(isPackaged: boolean): string | undefined {
+  const logoPath = resolveZaicodeLogoPath(isPackaged);
+  if (!existsSync(logoPath)) {
+    return undefined;
+  }
+
+  try {
+    return `data:image/png;base64,${readFileSync(logoPath).toString("base64")}`;
+  } catch {
+    return undefined;
+  }
+}
+
 export async function showAboutDialog(
   parentWindow?: BrowserWindow,
   locale: Locale = DEFAULT_LOCALE,
@@ -268,6 +297,10 @@ export async function showAboutDialog(
         optimizationLine: formatAboutOptimizationLine(snapshot, locale),
         versionLabel: aboutMessages.versionLabel,
         okButtonLabel: aboutMessages.okButtonLabel,
+        logoDataUri:
+          ZCODE_PRODUCT_FLAVOR === "zaicode" ? readZaicodeLogoDataUri(app.isPackaged) : undefined,
+        tagline: ZCODE_PRODUCT_FLAVOR === "zaicode" ? ZAICODE_ABOUT_TAGLINE : undefined,
+        repository: ZCODE_PRODUCT_FLAVOR === "zaicode" ? ZAICODE_ABOUT_REPOSITORY : undefined,
       }),
     )}`,
   );

@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { ZAICODE_WAITING_COLOR, isZaicodeHumanBlocker } from "@zcode/shared";
 import { cn } from "@/components/lib/utils.js";
-import { useZaicodeSaipen } from "./zaicodeSaipen.js";
+import { useZaicodeSaipen, useZaicodeSaipenRefresh } from "./zaicodeSaipen.js";
 import { useZaicodeProjectRuntime, zaicodeSaipenHeadline } from "./zaicodeProjectRuntime.js";
 import {
   saipenBoardShares,
@@ -216,6 +216,7 @@ export function ZaicodeSaipenSidePane({
   className?: string;
 }) {
   const saipen = useZaicodeSaipen(workspacePath, workspaceIdentity);
+  const recheck = useZaicodeSaipenRefresh(workspacePath, workspaceIdentity);
   const runtime = useZaicodeProjectRuntime(workspacePath, workspaceIdentity, saipen);
   // T-41: the header lines print SAIPEN's projection when it answered.
   const headline = zaicodeSaipenHeadline(saipen);
@@ -300,15 +301,36 @@ export function ZaicodeSaipenSidePane({
       return next;
     });
 
-  if (!saipen) {
-    return (
-      <div className={cn("flex h-full min-h-0 flex-col items-center justify-center gap-2 p-4 text-ui-xs", className)}>
-        <span className="text-foreground-subtle">SAIPEN · {projectName}</span>
-        <span className="text-foreground-subtlest">No .saipen/ memory in this project yet.</span>
-        <span className="text-foreground-subtlest">INIT SAIPEN in the composer strip creates it.</span>
-      </div>
-    );
-  }
+if (!saipen || saipen.readError) {
+      return (
+        <div className={cn("flex h-full min-h-0 flex-col items-center justify-center gap-2 p-4 text-ui-xs", className)}>
+          <span className="text-foreground-subtle">SAIPEN · {projectName}</span>
+          {saipen?.readError ? (
+            // SRC-114: this used to say "no .saipen/ memory yet" for a directory
+            // that was there and could not be read. A pane that says nothing
+            // useful is indistinguishable from a pane that is not working.
+            <>
+              <span className="text-destructive">.saipen/ exists but cannot be read.</span>
+              <span className="max-w-full break-words text-center text-foreground-subtlest">
+                {saipen.readError}
+              </span>
+              <button
+                type="button"
+                className="border border-border px-2 py-0.5 text-foreground hover:bg-hover"
+                onClick={recheck}
+              >
+                Retry
+              </button>
+            </>
+          ) : (
+            <>
+              <span className="text-foreground-subtlest">No .saipen/ memory in this project yet.</span>
+              <span className="text-foreground-subtlest">INIT SAIPEN in the composer strip creates it.</span>
+            </>
+          )}
+        </div>
+      );
+    }
 
   const shares = saipenBoardShares(saipen);
   const chipColor = runtime?.color ?? null;

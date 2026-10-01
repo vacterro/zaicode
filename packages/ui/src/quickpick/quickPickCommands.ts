@@ -40,6 +40,9 @@ export interface QuickPickCommand {
   id: string;
   sectionId: QuickPickCommandSectionId;
   titleId: string;
+  /** Wins over titleId when set. For a ZAICODE command that is branded rather than
+   *  translated: the same sentence in 33 locales would only add maintenance. */
+  title?: string;
   icon: QuickPickCommandIcon;
   shortcut?: string;
   keywords: string[];
@@ -265,8 +268,12 @@ export function createQuickPickCommands({
     id: "product-docs",
     sectionId: "app",
     titleId: "quickPick.command.productDocs",
+    // SRC-114: in ZAICODE, "Help" means ZAICODE's own encyclopedia. Keeping the
+    // upstream vendor-docs label on a command that no longer opens vendor docs
+    // is how a user ends up on a site that has nothing to do with the program.
+    ...(isZaicodeProductMode() ? { title: "ZAICODE Help" } : {}),
     icon: "book",
-    keywords: ["docs", "documentation", "product docs", "文档", "产品文档"],
+    keywords: ["help", "docs", "documentation", "文档", "产品文档", "справка"],
     run: handlers.openProductDocs,
   });
 

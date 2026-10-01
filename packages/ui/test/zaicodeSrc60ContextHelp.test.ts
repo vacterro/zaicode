@@ -33,7 +33,12 @@ function node(topic: string | null, parent: FakeElement | null = null): FakeElem
 type FakeElement = ReturnType<typeof node>;
 
 test("every registered topic id has a card, and every card is registered", () => {
-  const help = read("settings/zaicodeHelpContent.ts");
+  // The cards live in two files (SRC-114 split them to stay under the line
+  // ceiling); zaicodeHelpContent.ts concatenates them in exactly this order.
+  const help = [
+    read("settings/zaicodeHelpTopicsCore.ts"),
+    read("settings/zaicodeHelpTopicsAdvanced.ts"),
+  ].join("\n");
   const declared = new Set([...help.matchAll(/^\s{4}id: "([a-z]+)",$/gm)].map((m) => m[1]!));
   for (const id of ZAICODE_HELP_TOPIC_IDS) {
     assert.ok(declared.has(id), `topic "${id}" is registered but has no card`);

@@ -623,6 +623,12 @@ export default {
       from: "build/icon.png",
       to: "icon.png",
     },
+    {
+      // ZAICODE 品牌图标（SRC-114）：About 窗口是 sandbox + CSP `img-src data:`，
+      // 主进程读这个文件并内联成 data URI 展示，所以它必须进包，否则只剩矢量兜底。
+      from: "build/zaicode-logo-128.png",
+      to: "zaicode-logo-128.png",
+    },
     ...(zaicodeRouterPackageSource
       ? [
           {

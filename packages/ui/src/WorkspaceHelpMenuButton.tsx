@@ -6,7 +6,10 @@ import {
 import {
   ActivityIcon,
   BookOpenIcon,
+  BugIcon,
   CircleHelpIcon,
+  DownloadIcon,
+  CodeIcon,
   LightbulbIcon,
   InfoIcon,
   MessageSquareIcon,
@@ -45,7 +48,6 @@ export function WorkspaceHelpMenuButton({
   const platform = usePlatform();
   const updateMenu = useDesktopUpdateMenu(isDesktop);
   const openFeedbackSubmit = useFeedbackStore((state) => state.openSubmit);
-  const openFeatureRequest = useFeedbackStore((state) => state.openFeatureRequest);
   const helpMenuLabel = intl.formatMessage({ id: "workspaceHeader.help.menu" });
   const helpMenuActions = createHelpMenuActionHandlers({
     platform,
@@ -88,21 +90,35 @@ export function WorkspaceHelpMenuButton({
         align="end"
         className="min-w-0 w-max [&_[data-slot=dropdown-menu-item]]:pr-6"
       >
-        <DropdownMenuItem onSelect={helpMenuActions.openProductDocs}>
+        {/* SRC-114: this opens ZAICODE's own encyclopedia, so it is labelled "Help"
+            and not "Product docs", which promised the vendor's documentation site. */}
+        <DropdownMenuItem onSelect={helpMenuActions.openZaicodeHelp}>
           <BookOpenIcon className="size-4" />
-          {intl.formatMessage({ id: "workspaceHeader.help.docs" })}
+          {helpMenuLabel}
         </DropdownMenuItem>
         <DropdownMenuItem onSelect={handleOpenCommunity}>
           <UsersIcon className="size-4" />
           {intl.formatMessage({ id: "workspaceHeader.help.community" })}
         </DropdownMenuItem>
-        <DropdownMenuItem onSelect={helpMenuActions.openIssueReport}>
+        <DropdownMenuItem onSelect={helpMenuActions.openGitHubIssue}>
           <MessageSquareIcon className="size-4" />
-          {intl.formatMessage({ id: "workspaceHeader.help.issueReport" })}
+          Report a problem on GitHub
         </DropdownMenuItem>
-        <DropdownMenuItem onSelect={openFeatureRequest}>
+        <DropdownMenuItem onSelect={helpMenuActions.openGitHubFeature}>
           <LightbulbIcon className="size-4" />
-          {intl.formatMessage({ id: "workspaceHeader.help.productRequest" })}
+          Ask for a feature on GitHub
+        </DropdownMenuItem>
+        <DropdownMenuItem onSelect={helpMenuActions.openIssueReport}>
+          <BugIcon className="size-4" />
+          Report in ZAICODE instead
+        </DropdownMenuItem>
+        <DropdownMenuItem onSelect={helpMenuActions.openRepository}>
+          <CodeIcon className="size-4" />
+          Source on GitHub
+        </DropdownMenuItem>
+        <DropdownMenuItem onSelect={helpMenuActions.exportLogs}>
+          <DownloadIcon className="size-4" />
+          Export logs
         </DropdownMenuItem>
         {/* Windows/Linux 没有原生菜单栏，自绘标题栏箭头菜单也已下线，
             资源管理器只能从这里进；Web 端没有该窗口，不渲染。 */}

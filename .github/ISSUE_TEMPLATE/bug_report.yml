@@ -1,0 +1,43 @@
+name: Bug report
+description: Something in ZAICODE does not work the way it says it should
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. The more precise the steps, the faster it is fixed.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you saw, and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Starting from a fresh start, what did you click?
+      placeholder: |
+        1. Open ...
+        2. Click ...
+        3. See ...
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: ZAICODE version
+      description: Settings -> Help & about, or the About window.
+      placeholder: "3.14.0"
+  - type: input
+    id: platform
+    attributes:
+      label: Windows version
+      placeholder: "Windows 11 23H2"
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: |
+        Optional. Help -> Export logs writes a zip; drag it here if the problem is not visual.

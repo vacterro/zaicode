@@ -1,8 +1,10 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { create } from "zustand";
 import type { ZaicodeSaipenProjection } from "@zcode/shared";
 import { useWorkspaceServices } from "@/hooks/useWorkspaceServices.js";
 import {
+  describeZaicodeSaipenReadError,
+  isZaicodeSaipenMissingFileError,
   parseSaipenBoard,
   parseSaipenLastAction,
   parseSaipenState,
@@ -166,14 +168,36 @@ class SaipenPoller {
       } else if (this.snapshot && zaicodeSaipenNeedsRecheck(this.snapshot.projection, this.askedAt, Date.now())) {
         void this.askProjection(this.snapshot);
       }
-    } catch {
+    } catch (error) {
       this.lastState = null;
-      if (this.snapshot !== null) this.emit(null);
+      // SRC-114: a read failure and an absent directory used to be the same
+      // null, so a permissions error was shown as "no .saipen/ memory yet".
+      // Only a genuinely missing directory keeps that answer.
+      if (isZaicodeSaipenMissingFileError(error)) {
+        if (this.snapshot !== null) this.emit(null);
+      } else {
+        this.emit({
+          ...parseSaipenState(""),
+          ...parseSaipenBoard(""),
+          ...parseSaipenLastAction(""),
+          detail: { state: [], tickets: [], log: [] },
+          readError: describeZaicodeSaipenReadError(error),
+        });
+      }
       delay = MISSING_POLL_MS;
     } finally {
       this.running = false;
       this.schedule(delay);
     }
+  }
+
+  /** Ask again now: the RETRY in an unreadable-state pane, and nothing else. */
+  recheck(): void {
+    if (this.timer !== null) {
+      window.clearTimeout(this.timer);
+      this.timer = null;
+    }
+    void this.tick();
   }
 }
 
@@ -213,6 +237,22 @@ export function useZaicodeSaipen(
   }, [fileService, workspacePath]);
 
   return snapshot;
+}
+
+/**
+ * Ask the shared poller for a fresh read now. Used by the SAIPEN pane's RETRY
+ * when `.saipen/` exists but could not be read: without it the only way out of
+ * that state was to wait for the next poll, with nothing on screen to press.
+ */
+export function useZaicodeSaipenRefresh(
+  workspacePath: string,
+  workspaceIdentity?: string,
+): () => void {
+  const { fileService } = useWorkspaceServices(workspacePath, undefined, workspaceIdentity);
+  return useCallback(() => {
+    if (!workspacePath) return;
+    acquirePoller(workspacePath, fileService).recheck();
+  }, [fileService, workspacePath]);
 }
 
 /**

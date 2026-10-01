@@ -502,7 +502,7 @@ export const CommandCenterDialog = memo(function CommandCenterDialogComponent({
       effectiveCommands
         .map((command) => ({
           command,
-          title: intl.formatMessage({ id: command.titleId }),
+          title: command.title ?? intl.formatMessage({ id: command.titleId }),
         }))
         .filter(({ command, title }) => matchesCommand(command, title, searchQuery)),
     [effectiveCommands, intl, searchQuery],

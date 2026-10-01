@@ -13,6 +13,14 @@ export function appLogoUrl(): string {
 
 /** The public repository (Settings sidebar link; the Onboard wizard's old place, SRC-049). */
 export const ZAICODE_REPO_URL = "https://github.com/vacterro/zaicode";
+/**
+ * SRC-114: reporting that actually lands somewhere. The in-app feedback dialog
+ * has no inbox behind it, so a bug found in ZAICODE ended in a dead end. These
+ * open GitHub with the kind and the version already in the form, which is what
+ * makes a report usable instead of merely filed.
+ */
+export const ZAICODE_ISSUE_URL = `${ZAICODE_REPO_URL}/issues/new?labels=bug&template=bug_report.yml`;
+export const ZAICODE_FEATURE_URL = `${ZAICODE_REPO_URL}/issues/new?labels=enhancement&template=feature_request.yml`;
 /** "Support Developer": the developer's sponsorship page (operator, SRC-049). */
 export const ZAICODE_SUPPORT_URL = "https://buymeacoffee.com/vacuum34";
 /** The SAIPEN community Discord invite (Settings sidebar bottom link). */

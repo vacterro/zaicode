@@ -5,6 +5,18 @@ interface CustomAboutDialogHtmlInput {
   optimizationLine: string;
   versionLabel: string;
   okButtonLabel: string;
+  /**
+   * SRC-114: the About box used to draw the upstream vendor's mark whatever build
+   * it was, which told the user of a rebrand that the thing on their disk belongs
+   * to somebody else. This is the ZAICODE logo inlined as a data URI (the window
+   * is sandboxed with `img-src data:`), or undefined when it is unavailable -- in
+   * which case the caller has already decided what the fallback is.
+   */
+  logoDataUri?: string;
+  /** One line saying what the program is, not just which version of it. */
+  tagline?: string;
+  /** Where the source lives. A rebrand nobody can find the source of is a dead end. */
+  repository?: string;
 }
 
 function escapeHtml(value: string): string {
@@ -59,7 +71,7 @@ export function createCustomAboutDialogHtml(input: CustomAboutDialogHtmlInput): 
       .about-window {
         width: 100%;
         max-width: 256px;
-        height: 280px;
+        height: 308px;
         display: grid;
         place-items: stretch;
         padding: 0;
@@ -107,6 +119,23 @@ export function createCustomAboutDialogHtml(input: CustomAboutDialogHtmlInput): 
         display: block;
       }
 
+      /* The logo arrives as a PNG of unknown aspect ratio, so it is fitted into a
+         square instead of being allowed to stretch the card. */
+      .app-logo-img {
+        width: 32px;
+        height: 32px;
+        display: block;
+        object-fit: contain;
+        border-radius: 6px;
+      }
+
+      .tagline {
+        margin: 6px 0 0;
+        font-size: 12px;
+        line-height: 1.25;
+        color: #5b5b60;
+      }
+
       .title {
         margin: 20px 0 0;
         font-size: 13.5px;
@@ -116,15 +145,21 @@ export function createCustomAboutDialogHtml(input: CustomAboutDialogHtmlInput): 
       }
 
       .meta {
-        margin-top: 28px;
+        margin-top: 18px;
         display: flex;
         flex-direction: column;
-        gap: 17px;
+        gap: 10px;
         font-size: 13px;
         line-height: 1.2;
         font-weight: 400;
         letter-spacing: 0;
         color: #303033;
+      }
+
+      .repository {
+        font-size: 12px;
+        color: #5b5b60;
+        word-break: break-all;
       }
 
 
@@ -163,6 +198,11 @@ export function createCustomAboutDialogHtml(input: CustomAboutDialogHtmlInput): 
         .meta {
           color: #e2e2e2;
         }
+
+        .tagline,
+        .repository {
+          color: #a1a1a6;
+        }
       }
     </style>
   </head>
@@ -171,7 +211,12 @@ export function createCustomAboutDialogHtml(input: CustomAboutDialogHtmlInput): 
       <section class="about-card" role="dialog" aria-modal="true" aria-labelledby="about-title">
         <div class="content">
           <div class="app-icon" aria-hidden="true">
-            <svg
+            ${
+              input.logoDataUri
+                ? // Not escaped: built by the caller from a local file's bytes, so it is
+                  // base64 and cannot contain a quote or a closing tag.
+                  `<img class="app-logo-img" src="${input.logoDataUri}" alt="" />`
+                : `<svg
               xmlns="http://www.w3.org/2000/svg"
               width="118"
               height="100"
@@ -189,15 +234,18 @@ export function createCustomAboutDialogHtml(input: CustomAboutDialogHtmlInput): 
                 fill="currentColor"
                 d="M121.601 217.732L139.65 192.134C142.465 188.166 147.076 185.734 152.067 185.734H249.604V217.736H121.601V217.732Z"
               />
-            </svg>
+            </svg>`
+            }
           </div>
           <h1 id="about-title" class="title">
             ${escapeHtml(input.applicationName)}<br />
             ${escapeHtml(input.versionLabel)} ${escapeHtml(input.appVersion)}
           </h1>
+          ${input.tagline ? `<p class="tagline">${escapeHtml(input.tagline)}</p>` : ""}
           <div class="meta">
             ${input.optimizationLine ? `<div>${escapeHtml(input.optimizationLine)}</div>` : ""}
             <div>${escapeHtml(input.copyright)}</div>
+            ${input.repository ? `<div class="repository">${escapeHtml(input.repository)}</div>` : ""}
           </div>
         </div>
         <div class="spacer"></div>

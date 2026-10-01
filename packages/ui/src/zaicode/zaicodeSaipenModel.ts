@@ -32,11 +32,36 @@ export interface ZaicodeSaipenSnapshot {
    * undefined = not asked yet, null = unavailable (no launcher, remote, error).
    */
   projection?: ZaicodeSaipenProjection | null;
+  /**
+   * SRC-114: `.saipen/` exists but could not be read. It used to be the same
+   * "nothing here" answer as an absent directory, so a permission error or a
+   * file caught mid-write was reported as "no memory yet" -- a statement the
+   * user cannot act on. Absent means null; unreadable means this.
+   */
+  readError?: string;
   /** Full BOARD / LOG / STATE projection for the SAIPEN side pane (absent in light consumers). */
   detail?: ZaicodeSaipenDetail;
 }
 
 export type ZaicodeSaipenSection = "DOING" | "TODO" | "BLOCKED" | "DONE";
+
+/**
+ * Whether a failed read means "there is no `.saipen/` here" as opposed to
+ * "there is one and I could not read it". Only the former may answer with a
+ * null snapshot; the latter must say so, or the UI states a falsehood.
+ */
+export function isZaicodeSaipenMissingFileError(error: unknown): boolean {
+  const code = (error as { code?: unknown } | null)?.code;
+  if (code === "ENOENT" || code === "ENOTDIR") return true;
+  const message = error instanceof Error ? error.message : String(error ?? "");
+  return /\bENOENT\b|no such file|not found/i.test(message);
+}
+
+/** One line a user can act on, without a stack trace. */
+export function describeZaicodeSaipenReadError(error: unknown): string {
+  const message = error instanceof Error ? error.message : String(error ?? "");
+  return message.trim() || "unknown error";
+}
 
 /** One BOARD.md ticket with its `| key: value` fields. */
 export interface ZaicodeSaipenBoardTicket {

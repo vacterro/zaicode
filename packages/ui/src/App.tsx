@@ -1,6 +1,7 @@
 /* eslint-disable max-lines -- App 当前集中编排 workspace 级状态、导航、Git 派生数据和 shell wiring；已将新增 side pane memory 桥接抽出，剩余拆分需要按 shell 边界单独重构。 */
 import { isZaicodeProductMode } from "@zcode/shared";
 import { useZaicodeSoundSettings } from "@/zaicode/zaicodeSoundEvents.js";
+import { openZaicodeHelp } from "@/zaicode/zaicodeActions.js";
 import { useZaicodeRightClickDrag } from "@/zaicode/useZaicodeRightClickDrag.js";
 import { useZaicodeFancyZonesHotkey } from "@/zaicode/useZaicodeFancyZonesHotkey.js";
 import { ZaicodeFancyZoneOverlay } from "@/zaicode/ZaicodeFancyZoneOverlay.js";
@@ -753,6 +754,13 @@ export function App({
   }, [openFeedbackSubmit, openFeedbackTickets, platform]);
   const handleOpenCommunity = useCallback(() => platform.openCommunity(), [platform]);
   const handleOpenProductDocs = useCallback(() => {
+    // SRC-114: ZAICODE ships its own encyclopedia, so "Help" opens that. The
+    // vendor documentation site stays for upstream ZCode, which is the only
+    // build it documents.
+    if (isZaicodeProductMode()) {
+      openZaicodeHelp();
+      return;
+    }
     platform.openExternal(ZCODE_PRODUCT_DOCS_URL);
   }, [platform]);
   const themeTarget = resolveTheme(theme) === "dark" ? "light" : "dark";
