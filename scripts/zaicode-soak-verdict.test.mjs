@@ -72,3 +72,27 @@ test("SRC-116's symptom, half the baseline frame rate, still fails as degraded",
   ];
   assert.equal(buildVerdict(timeline, { ...CHURNED, soakHours: 1 }).verdict, "FAIL_DEGRADED");
 });
+
+test("a replayed run recovers the churn it recorded, not zero", () => {
+  // `--replay` is handed the timeline and nothing else. It used to report 0 interactions
+  // for a run that had been clicking all along, because the samples never carried the
+  // counts: the churn evidence existed in the log and the verdict could not see it.
+  const timeline = [
+    sample(0, { churnActions: { "project-row": 2 } }),
+    sample(15, { churnActions: { "project-row": 2, composer: 1 } }),
+    sample(30, { churnError: "detached" }),
+  ];
+  const verdict = buildVerdict(timeline, { churnMinutes: 2, soakHours: 12 });
+  assert.equal(verdict.churnTotal, 5);
+  assert.deepEqual(verdict.churnActions, { "project-row": 4, composer: 1 });
+  assert.equal(verdict.churnErrors, 1);
+  // Churn rides on a sample, so it never inflates the sample count.
+  assert.equal(verdict.samples, 3);
+});
+
+test("a replayed run that recorded no churn fails as no-churn", () => {
+  // The same fix must not turn the rule off for replays: a timeline with no churn on it
+  // is a run that churned nothing, and says so.
+  const timeline = [0, 15, 30, 45, 60].map((second) => sample(second));
+  assert.equal(buildVerdict(timeline, { churnMinutes: 90, soakHours: 12 }).verdict, "FAIL_NO_CHURN");
+});

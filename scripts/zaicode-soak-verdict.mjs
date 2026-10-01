@@ -31,6 +31,24 @@ export function slopePerMinute(points) {
  */
 export const RENDERED_NODE_FLOOR = 200;
 
+/**
+ * The churn a timeline actually recorded, recovered from the samples themselves.
+ *
+ * A live run keeps its own tally, but `--replay` is handed nothing but the timeline, and
+ * without this a replayed 12-hour run reported `churn interactions: 0` while the log beside
+ * it showed hundreds of clicks: the evidence existed and the verdict could not see it. The
+ * same verdict then reads a run that churned and a run that never clicked as identical.
+ */
+function tallyChurn(samples) {
+  const actions = {};
+  for (const sample of samples) {
+    for (const [action, count] of Object.entries(sample.churnActions ?? {})) {
+      actions[action] = (actions[action] ?? 0) + count;
+    }
+  }
+  return actions;
+}
+
 export function buildVerdict(timeline, config) {
   const samples = timeline.filter((row) => typeof row.fps === "number");
   const blankSamples = timeline.filter((row) => row.blank === true);
@@ -63,7 +81,10 @@ export function buildVerdict(timeline, config) {
   // to learn nothing, so each is its own verdict rather than a footnote.
   const nodeCounts = samples.map((s) => s.nodes).filter((n) => typeof n === "number").sort((a, b) => a - b);
   const medianNodes = nodeCounts.length > 0 ? nodeCounts[Math.floor(nodeCounts.length / 2)] : 0;
-  const churnTotal = Object.values(config.churnActions ?? {}).reduce((sum, n) => sum + n, 0);
+  const churnActions = config.churnActions ?? tallyChurn(samples);
+  const churnErrors =
+    config.churnErrors ?? samples.filter((s) => typeof s.churnError === "string").length;
+  const churnTotal = Object.values(churnActions).reduce((sum, n) => sum + n, 0);
   const churnRequested = Number(config.churnMinutes ?? 0) > 0;
   const verdict =
     samples.length === 0
@@ -103,8 +124,8 @@ export function buildVerdict(timeline, config) {
     },
     jankySamples: janky,
     blankSurfaceSamples: blankSamples.length,
-    churnActions: config.churnActions ?? {},
-    churnErrors: config.churnErrors ?? 0,
+    churnActions,
+    churnErrors,
     churnTotal,
     finalHealthSnapshot: last?.health ?? null,
   };

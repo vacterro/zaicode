@@ -336,15 +336,18 @@ async function main() {
         exitCode = 1;
         break;
       }
+      let churnThisRound = {};
+      let churnErrorThisRound = null;
       if (Date.now() >= nextChurn) {
         nextChurn = Date.now() + CHURN_SECONDS * 1000;
         try {
           for (const action of await evaluateWithReattach(CHURN)) {
             churnActions[action] = (churnActions[action] ?? 0) + 1;
+            churnThisRound[action] = (churnThisRound[action] ?? 0) + 1;
           }
         } catch (error) {
           churnErrors += 1;
-          timeline.push({ at: new Date().toISOString(), churnError: String(error) });
+          churnErrorThisRound = String(error);
         }
       }
       const sample = {
@@ -358,6 +361,11 @@ async function main() {
       } catch (error) {
         sample.probeError = String(error);
       }
+      // Churn rides on the sample rather than as its own timeline row: one row per
+      // measurement keeps `samples` an honest count, and it is what lets `--replay`
+      // reconstruct the churn the run actually performed rather than reporting zero.
+      if (Object.keys(churnThisRound).length > 0) sample.churnActions = churnThisRound;
+      if (churnErrorThisRound !== null) sample.churnError = churnErrorThisRound;
       timeline.push(sample);
       await writeFile(path.join(OUT_DIR, "timeline.jsonl"), timeline.map((row) => JSON.stringify(row)).join("\n"));
       log(sample);
