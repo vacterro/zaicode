@@ -14,6 +14,7 @@ import { useTabStore } from "@/store/TabStoreProvider.js";
 import { ZAICODE_SAIPEN_SHORTCUTS, useZaicodeSaipen } from "@/zaicode/zaicodeSaipen.js";
 import { useZaicodeSaimailDesk } from "@/zaicode/zaicodeSaimail.js";
 import { saimailBriefPrompt } from "@/zaicode/zaicodeSaimailModel.js";
+import { openZaicodeSaipenView } from "./zaicodeActions.js";
 
 /**
  * Replaces the upstream Plugins preview in ZAICODE: the chip shows the
@@ -37,88 +38,98 @@ export function ZaicodeSaipenMenu({
     : "not initialized";
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          type="button"
-          variant="ghost"
-          size="default"
-          className="shrink-0 gap-1.5 bg-transparent pl-3 pr-2 text-ui-base/relaxed text-foreground hover:bg-surface-hover focus-visible:bg-surface-hover"
-          data-zaicode-saipen-menu=""
-          title={saipen?.nextAction ? `NEXT: ${saipen.nextAction}` : "SAIPEN shortcuts"}
-        >
-          <span className="whitespace-nowrap">SAIPEN</span>
-          <span className="whitespace-nowrap text-ui-xs text-foreground-subtle">{position}</span>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" side="bottom" className="w-72 max-w-[calc(100vw-2rem)]">
-        {saipen ? (
-          <>
-            <DropdownMenuLabel className="truncate text-ui-xs font-normal text-foreground-subtle">
-              NEXT: {saipen.nextAction ?? "—"}
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            {ZAICODE_SAIPEN_SHORTCUTS.map((shortcut) => (
-              <DropdownMenuItem
-                key={shortcut.command}
-                title={shortcut.hint}
-                onSelect={() => onInsertCommand(shortcut.command)}
-              >
-                <span className="min-w-0 flex-1 truncate">{shortcut.label}</span>
-                <DropdownMenuShortcut className="font-mono">
-                  {shortcut.command.trim()}
-                </DropdownMenuShortcut>
-              </DropdownMenuItem>
-            ))}
-            {mailbox && desk ? (
-              <>
-                <DropdownMenuSeparator />
+    <div className="flex shrink-0 items-center gap-px">
+      <Button
+        type="button"
+        variant="ghost"
+        onClick={() => openZaicodeSaipenView(workspacePath, workspaceIdentity)}
+        title="Open SAIPEN STATE, BOARD and LOG"
+        data-zaicode-phase-chip
+      >
+        <span className="whitespace-nowrap">{position}</span>
+      </Button>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            type="button"
+            variant="ghost"
+            size="default"
+            className="shrink-0 gap-1.5 bg-transparent pl-3 pr-2 text-ui-base/relaxed text-foreground hover:bg-surface-hover focus-visible:bg-surface-hover"
+            data-zaicode-saipen-menu=""
+            title={saipen?.nextAction ? `NEXT: ${saipen.nextAction}` : "SAIPEN shortcuts"}
+          >
+            <span className="whitespace-nowrap">SAIPEN</span>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" side="bottom" className="w-72 max-w-[calc(100vw-2rem)]">
+          {saipen ? (
+            <>
+              <DropdownMenuLabel className="truncate text-ui-xs font-normal text-foreground-subtle">
+                NEXT: {saipen.nextAction ?? "—"}
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {ZAICODE_SAIPEN_SHORTCUTS.map((shortcut) => (
                 <DropdownMenuItem
-                  title="Draft a request for the agent to read the SAIMAIL desk (headers first)"
-                  onSelect={() =>
-                    onInsertCommand(
-                      saimailBriefPrompt({
-                        projectRoot: workspacePath,
-                        workspace: mailbox,
-                        seat: desk.seat,
-                      }),
-                    )
-                  }
+                  key={shortcut.command}
+                  title={shortcut.hint}
+                  onSelect={() => onInsertCommand(shortcut.command)}
                 >
-                  <Mail className="size-3.5" />
-                  <span className="min-w-0 flex-1 truncate">Read SAIMAIL desk</span>
-                  <DropdownMenuShortcut className="tabular-nums">
-                    {desk.unread.length} unread
+                  <span className="min-w-0 flex-1 truncate">{shortcut.label}</span>
+                  <DropdownMenuShortcut className="font-mono">
+                    {shortcut.command.trim()}
                   </DropdownMenuShortcut>
                 </DropdownMenuItem>
-              </>
-            ) : (
-              <>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  title="SAIMAIL is the local agent post office. Pick or create your mailbox folder."
-                  onSelect={() => {
-                    setPendingSettingsSection("zaicode");
-                    openSettingsTab();
-                  }}
-                >
-                  <Mail className="size-3.5" />
-                  <span className="min-w-0 flex-1 truncate">Set up SAIMAIL…</span>
-                  <DropdownMenuShortcut>{mailbox ? "not a mailbox" : "off"}</DropdownMenuShortcut>
-                </DropdownMenuItem>
-              </>
-            )}
-          </>
-        ) : (
-          <DropdownMenuItem
-            title="Create .saipen/ memory for this project"
-            onSelect={() => onInsertCommand("saipen set")}
-          >
-            <span className="min-w-0 flex-1 truncate">Initialize SAIPEN</span>
-            <DropdownMenuShortcut className="font-mono">saipen set</DropdownMenuShortcut>
-          </DropdownMenuItem>
-        )}
-      </DropdownMenuContent>
-    </DropdownMenu>
+              ))}
+              {mailbox && desk ? (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    title="Draft a request for the agent to read the SAIMAIL desk (headers first)"
+                    onSelect={() =>
+                      onInsertCommand(
+                        saimailBriefPrompt({
+                          projectRoot: workspacePath,
+                          workspace: mailbox,
+                          seat: desk.seat,
+                        }),
+                      )
+                    }
+                  >
+                    <Mail className="size-3.5" />
+                    <span className="min-w-0 flex-1 truncate">Read SAIMAIL desk</span>
+                    <DropdownMenuShortcut className="tabular-nums">
+                      {desk.unread.length} unread
+                    </DropdownMenuShortcut>
+                  </DropdownMenuItem>
+                </>
+              ) : (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    title="SAIMAIL is the local agent post office. Pick or create your mailbox folder."
+                    onSelect={() => {
+                      setPendingSettingsSection("zaicode");
+                      openSettingsTab();
+                    }}
+                  >
+                    <Mail className="size-3.5" />
+                    <span className="min-w-0 flex-1 truncate">Set up SAIMAIL…</span>
+                    <DropdownMenuShortcut>{mailbox ? "not a mailbox" : "off"}</DropdownMenuShortcut>
+                  </DropdownMenuItem>
+                </>
+              )}
+            </>
+          ) : (
+            <DropdownMenuItem
+              title="Create .saipen/ memory for this project"
+              onSelect={() => onInsertCommand("saipen set")}
+            >
+              <span className="min-w-0 flex-1 truncate">Initialize SAIPEN</span>
+              <DropdownMenuShortcut className="font-mono">saipen set</DropdownMenuShortcut>
+            </DropdownMenuItem>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
   );
 }

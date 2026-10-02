@@ -5,10 +5,7 @@ import type { SessionCreateSource } from "@zcode/shared";
 import { reportSessionCreate } from "@/lib/sessionCreateTelemetry.js";
 import { stopZaicodeAutoRetryForError } from "@/zaicode/zaicodeAutoRetry.js";
 import { getLocalTtftObserver } from "@/v4/telemetry/localTtftObserver.js";
-import {
-  conversationUserTurnKey,
-  sendUserTurnOnce,
-} from "@/v4/conversationUserTurnIdempotency.js";
+import { conversationUserTurnKey, sendUserTurnOnce } from "@/v4/conversationUserTurnIdempotency.js";
 /* oxlint-disable eslint(max-lines) -- SessionPane 是单 pane 竖切的命令编排收口（订阅/发送/停止/fork/edit/retry/queue/slash 全集），与旧 ChatView 同粒度；HEAD 已超限（693 行计数），拆散命令组会打散 dispatchCommand/snapshotRef 的闭包纪律。 */
 import { useIsOfficeMode } from "@/hooks/useInterfaceMode.js";
 import {
@@ -29,6 +26,7 @@ import {
   TID_V4_SESSION_PANE,
   testId,
   ZCODE_AGENT_PROVIDER,
+  providerQuotaCircuit,
 } from "@zcode/shared";
 import type {
   ConversationShareAccessMode,
@@ -58,11 +56,13 @@ import {
 import { isZaicodeProductMode, localizeConversationShareUrl } from "@zcode/shared";
 import { ZaicodeTodoGauge } from "@/v4/ZaicodeTodoGauge.js";
 import {
-  ZAICODE_FALLBACK_QUOTA_KINDS,
-  isOfficialGlmProvider,
   pickZaicodeFallbackModel,
 } from "@/zaicode/zaicodeModelFallback.js";
-import { noteComposerQuotaExhaustion, routeComposerSelection } from "@/zaicode/zaicodeQuotaRoute.js";
+import {
+  composerQuotaFailureKind,
+  noteComposerQuotaExhaustion,
+  routeComposerSelection,
+} from "@/zaicode/zaicodeQuotaRoute.js";
 import type {
   ConversationShareAllowedArtifact,
   ConversationShareTurnPreflightResult,
@@ -141,7 +141,10 @@ import { ConversationHeader, type PaneWorkspaceBadge } from "@/v4/ConversationHe
 import { ConversationQueuePanel } from "@/v4/ConversationQueuePanel.js";
 import { useZaicodeClearSession, useZaicodeSaipen } from "@/zaicode/zaicodeSaipen.js";
 import { ZaicodeWhereAmI } from "@/zaicode/ZaicodeWhereAmI.js";
-import { adoptZaicodeComposerModel, subscribeZaicodeComposerModel } from "@/zaicode/zaicodeDefaultModel.js";
+import {
+  adoptZaicodeComposerModel,
+  subscribeZaicodeComposerModel,
+} from "@/zaicode/zaicodeDefaultModel.js";
 import { useZaicodeAutoSessionTitle } from "@/zaicode/zaicodeAutoTitle.js";
 import { useZaicodeAutoRetry } from "@/zaicode/zaicodeAutoRetry.js";
 import { useZaicodeQueueAutoResume } from "@/zaicode/zaicodeQueueAutoResume.js";
@@ -627,7 +630,14 @@ export function SessionPane({
   const snapshot = state.snapshot;
   useEffect(() => {
     const title = saipen?.nextAction?.trim();
-    if (!isZaicodeProductMode() || !autoSessionTitle || !focused || readOnly || !sessionId || !title) {
+    if (
+      !isZaicodeProductMode() ||
+      !autoSessionTitle ||
+      !focused ||
+      readOnly ||
+      !sessionId ||
+      !title
+    ) {
       return;
     }
     autoTitleQueueRef.current = autoTitleQueueRef.current.then(async () => {
@@ -648,7 +658,17 @@ export function SessionPane({
         logger.warn("[v4-pane] SAIPEN title update failed", error);
       }
     });
-  }, [autoSessionTitle, focused, readOnly, saipen?.nextAction, sessionId, snapshot?.meta.title, workspaceIdentity, workspacePath, zcodeTaskService]);
+  }, [
+    autoSessionTitle,
+    focused,
+    readOnly,
+    saipen?.nextAction,
+    sessionId,
+    snapshot?.meta.title,
+    workspaceIdentity,
+    workspacePath,
+    zcodeTaskService,
+  ]);
   const newlyCreatedSessionIdRef = useRef<string | null>(null);
   const shareDraft = useConversationShareSelectionStore((storeState) =>
     sessionId ? storeState.drafts[sessionId] : undefined,
@@ -2707,7 +2727,11 @@ export function SessionPane({
         // T-167: 最后一个路由决定点。派发器每个 job 都问 resolveProviderQuotaRoute，
         // 手发回合也必须问同一个；已被证实欠费到点的 provider 不再被这条消息再撞一次。
         // 改道只发生一次，且必须让操作者看见「切到哪、欠到几点」。
-        const routed = routeComposerSelection(submission.modelSelection, modelSelectionView, Date.now());
+        const routed = routeComposerSelection(
+          submission.modelSelection,
+          modelSelectionView,
+          Date.now(),
+        );
         if (routed.fallback) {
           logger.info("[zaicode] composer send -> fallback route", {
             from: submission.modelSelection,
@@ -3478,9 +3502,16 @@ export function SessionPane({
   );
   zaicodeAlignSessionModelRef.current = async () => {
     if (!isZaicodeProductMode() || !sessionId) return;
-    const selection = draftConfigRef.current.modelSelection;
+    const requested = draftConfigRef.current.modelSelection;
     const config = snapshotRef.current?.config;
-    if (!selection || !config) return;
+    if (!requested || !config) return;
+    const routed = routeComposerSelection(requested, modelSelectionView, Date.now());
+    const selection = routed.selection;
+    if (routed.fallback) {
+      handleDraftSelectModel(selection.providerId, selection.modelId);
+      if (selection.options?.reasoningLevel)
+        handleDraftSelectThought(selection.options.reasoningLevel);
+    }
     if (config.provider === selection.providerId && config.model === selection.modelId) return;
     const ack = await dispatchConfigCas("switchModelConfig", {
       provider: selection.providerId,
@@ -3492,6 +3523,11 @@ export function SessionPane({
       to: `${selection.providerId}/${selection.modelId}`,
       status: ack?.status ?? "none",
     });
+    if (!ack || !["accepted", "noop", "duplicate"].includes(ack.status)) {
+      throw new Error(
+        `Model switch before retry failed: ${ack?.reasonCode ?? ack?.status ?? "missing acknowledgement"}`,
+      );
+    }
   };
   const telemetryDraftConfig = draftConfig;
   const ensureDraftPrewarmConfigBeforeSend = useCallback(
@@ -3596,7 +3632,8 @@ export function SessionPane({
       handleSelectModel(selection.providerId, selection.modelId, null);
       if (selection.reasoningLevel) {
         handleSelectThought(selection.reasoningLevel, {
-          provider: selection.providerId, model: selection.modelId,
+          provider: selection.providerId,
+          model: selection.modelId,
         });
       }
     });
@@ -3768,7 +3805,9 @@ export function SessionPane({
     void dispatchCommand("clearConversation", {}, sessionId)
       .then((ack) => {
         if (ack.status !== "accepted" && ack.status !== "noop") {
-          logger.warn(`[zaicode] clearConversation rejected: ${ack.status} ${ack.reasonCode ?? ""}`);
+          logger.warn(
+            `[zaicode] clearConversation rejected: ${ack.status} ${ack.reasonCode ?? ""}`,
+          );
           toast(`CLEAR failed: ${ack.message ?? ack.reasonCode ?? ack.status}`);
         }
       })
@@ -3818,6 +3857,7 @@ export function SessionPane({
   const handleLoadOlder = useCallback(() => {
     return lease?.store.loadOlder();
   }, [lease]);
+  const handleReturnToLatest = useCallback(() => lease?.store.releaseHistory(), [lease]);
 
   const handleLoadAllOlder = useCallback(() => {
     return lease
@@ -3862,7 +3902,7 @@ export function SessionPane({
       sessionId,
       turnId: snapshot?.rows.window[0]?.turnId,
     });
-    void lease.store.loadOlder();
+    void lease.store.loadOlder(undefined, true);
   }, [lease, sessionId, snapshot, state.loadingOlder, state.subscriptionId]);
 
   // subscribe ACK 会先把 store 置 live，initial snapshot 稍后才到；只看
@@ -4152,27 +4192,39 @@ export function SessionPane({
   // 重复弹 toast，一旦 provider 不再是 GLM（切换成功）就复位——这样 undo/重发把草稿恢复成
   // GLM 再撞墙时会重新切到 SAIFREN，而不是被一次性键钉死在 GLM 上（回归修复）。
   const zaicodeFallbackKeyRef = useRef<string | null>(null);
+  const zaicodeQuotaFailureRef = useRef<{ key: string; providerId: string | undefined } | null>(
+    null,
+  );
   useEffect(() => {
-    const currentProvider = draftConfig.modelSelection?.providerId ?? snapshot?.config.provider;
-    const onGlm = isOfficialGlmProvider(currentProvider);
-    if (!onGlm) {
-      // provider 已经不是 GLM：清掉去重键，下一次真正撞墙才会再切一次。
+    const kind = composerQuotaFailureKind(
+      controlLastError,
+      quotaBanner.state.visible ? quotaBanner.state.kind : null,
+    );
+    if (!isZaicodeProductMode() || !kind) {
       zaicodeFallbackKeyRef.current = null;
+      zaicodeQuotaFailureRef.current = null;
+      return;
     }
-    if (!isZaicodeProductMode() || !quotaBanner.state.visible) return;
-    const kind = quotaBanner.state.kind;
-    if (!kind || !ZAICODE_FALLBACK_QUOTA_KINDS.has(kind)) return;
-    // T-167: 一堵已证实的配额墙对任何 provider 都记账，不只 GLM——手发回合下一次提交要走
-    // 同一个 circuit。没有这里的写入，composer 侧的 resolver 无路可判，只能照旧撞墙。
-    // 这四个 kind 本身就排除网络故障、鉴权失败和 5xx，它们从不产生这四种横幅。
-    noteComposerQuotaExhaustion({ providerId: currentProvider, kind, now: Date.now() });
-    if (!onGlm) return;
-    const fallback = pickZaicodeFallbackModel(modelSelectionView);
-    if (!fallback) return;
     const key = `${sessionId ?? "draft"}:${kind}:${controlLastErrorKey ?? ""}`;
+    // Attribute a failure once to the route that failed. Changing the draft or aligning a
+    // retry must never turn the old GLM error into evidence that SAIFREN is exhausted.
+    if (zaicodeQuotaFailureRef.current?.key !== key) {
+      const providerId = controlLastError?.attribution?.providerId ??
+        snapshot?.config.provider ?? draftConfig.modelSelection?.providerId;
+      zaicodeQuotaFailureRef.current = { key, providerId };
+      noteComposerQuotaExhaustion({
+        providerId, kind, now: Date.now(), failedAt: controlLastError?.at, failureId: key,
+      });
+    }
+    const failedProvider = zaicodeQuotaFailureRef.current.providerId;
+    const currentProvider = draftConfig.modelSelection?.providerId ?? snapshot?.config.provider;
+    if (!failedProvider || currentProvider !== failedProvider ||
+      !providerQuotaCircuit(failedProvider, Date.now())) return;
+    const fallback = pickZaicodeFallbackModel(modelSelectionView, failedProvider);
+    if (!fallback) return;
     if (zaicodeFallbackKeyRef.current === key) return;
     zaicodeFallbackKeyRef.current = key;
-    logger.info("[zaicode] GLM quota wall -> fallback model", { kind, fallback });
+    logger.info("[zaicode] quota wall -> fallback model", { kind, failedProvider, fallback });
     handleDraftSelectModel(fallback.providerId, fallback.modelId);
     // 自动切换必须可见：否则用户只看到模型名悄悄变了。
     toast(
@@ -4185,6 +4237,7 @@ export function SessionPane({
       ),
     );
   }, [
+    controlLastError,
     controlLastErrorKey,
     draftConfig.modelSelection?.modelId,
     draftConfig.modelSelection?.providerId,
@@ -4203,8 +4256,18 @@ export function SessionPane({
     (quotaBanner.takesOverError ? null : projectedComposerError);
   // ZAICODE：回合报错（模型无内容、额度、断线……）后默认每 60 秒自动重试，最多 100 次，
   // 不让工作停住；关闭错误横幅即停止本次错误的自动重试。
+  const zaicodeQuotaFallbackReady = Boolean(
+    controlLastError && composerQuotaFailureKind(
+      controlLastError, quotaBanner.state.visible ? quotaBanner.state.kind : null,
+    ) && draftConfig.modelSelection?.providerId &&
+    draftConfig.modelSelection.providerId !== (
+      controlLastError.attribution?.providerId ?? zaicodeQuotaFailureRef.current?.providerId ??
+      snapshot?.config.provider
+    ) && !providerQuotaCircuit(draftConfig.modelSelection.providerId, Date.now())
+  );
   const zaicodeAutoRetry = useZaicodeAutoRetry({
     enabled: isZaicodeProductMode() && !readOnly && !selectionSideChat,
+    quotaFallbackReady: zaicodeQuotaFallbackReady,
     sessionId,
     error: projectedComposerError ? controlLastError : null,
     errorKey: controlLastErrorKey,
@@ -4222,7 +4285,7 @@ export function SessionPane({
     autoDrain: snapshot?.queue.autoDrain ?? true,
     pauseReason: snapshot?.queue.pauseReason ?? null,
     phase: snapshot?.control.phase ?? null,
-    quotaWall: Boolean(controlLastError && zaicodeRetryClassOf(controlLastError) === "quota"),
+    quotaWall: Boolean(controlLastError && zaicodeRetryClassOf(controlLastError) === "quota" && !zaicodeQuotaFallbackReady),
     resume: handleResumeQueue,
   });
   useEffect(() => {
@@ -4874,7 +4937,9 @@ export function SessionPane({
       onDrop={effectiveDropTargetController?.onDrop}
       className="relative flex h-full min-h-0 flex-col"
     >
-      {isZaicodeProductMode() && isDraft && focused && !readOnly && !selectionSideChat ? <SaiasuiHost key={`${workspaceIdentity ?? workspacePath}:${paneId}`} /> : null}
+      {isZaicodeProductMode() && isDraft && focused && !readOnly && !selectionSideChat ? (
+        <SaiasuiHost key={`${workspaceIdentity ?? workspacePath}:${paneId}`} />
+      ) : null}
       {effectiveDropTargetController?.active ? (
         <div className="pointer-events-none absolute inset-0 z-50 flex items-center justify-center bg-accent/55 backdrop-blur-sm">
           <div className="flex items-center gap-2 rounded-full border border-border bg-accent px-4 py-2 text-ui-base text-foreground shadow-sm">
@@ -4891,7 +4956,10 @@ export function SessionPane({
         </div>
       ) : null}
       {isZaicodeProductMode() ? (
-        <ZaicodeWhereAmI workspacePath={workspacePath} sessionTitle={snapshot?.meta.title ?? null} />
+        <ZaicodeWhereAmI
+          workspacePath={workspacePath}
+          sessionTitle={snapshot?.meta.title ?? null}
+        />
       ) : null}
       <ConversationHeader
         title={snapshot?.meta.title ?? ""}
@@ -5034,6 +5102,7 @@ export function SessionPane({
               canLoadOlder={timelineSnapshot ? hasOlderRows(timelineSnapshot) : false}
               loadingOlder={timelineSnapshot ? state.loadingOlder : false}
               onLoadOlder={handleLoadOlder}
+              onReturnToLatest={handleReturnToLatest}
               onLoadAllOlder={handleLoadAllOlder}
               turnNavigatorDirectoryRevision={state.turnNavigatorDirectoryRevision}
               bottomDock={conversationBottomDock}

@@ -84,6 +84,7 @@ import {
 import { useZCodeIntl } from "@/i18n/IntlProvider.js";
 import { ZaicodeIcon } from "@/zaicode/zaicodeIconSlots.js";
 import { ZaicodeEngineBar } from "@/zaicode/ZaicodeEngineBar.js";
+import { reconcileZaicodeLiveRuns, useZaicodeLiveRuns, zaicodeLiveRunIdsIn } from "@/zaicode/zaicodeLiveRuns.js";
 import { ZaicodeAudioDirector } from "@/zaicode/ZaicodeAudioPanels.js";
 import { useZaicodeArchiveUndo, useZaicodeArchiveUndoShortcut } from "@/zaicode/zaicodeArchiveUndo.js";
 import {
@@ -710,6 +711,11 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
   // ZAICODE：运行中会话（全局计数 + 就绪度）、优先级分组（MAIN0..SIDE2）与“运行中置顶”排序。
   const zaicodeMode = isZaicodeProductMode();
   const zaicodePrefs = useZaicodeSidebarPrefs();
+  const zaicodeLiveRuns = useZaicodeLiveRuns((state) => state.runs);
+  useEffect(() => {
+    if (zaicodeMode)
+      reconcileZaicodeLiveRuns(workspaceTaskLists.groups.flatMap((group) => group.items));
+  }, [workspaceTaskLists.groups, zaicodeMode]);
   const zaicodeStoredTodos = useZaicodeTodoProgress((state) => state.bySession);
   const publishZaicodeRunningSessions = useZaicodeRunningSessions((state) => state.publish);
   // SRC-081: a minute tick, so a session that went quiet leaves the "working" list by itself.
@@ -741,16 +747,36 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
         zaicodeStallNow,
       );
       all.push(...running);
-      byKey.set(
-        key,
-        projectLiveOf(
+      for (const sessionId of zaicodeLiveRunIdsIn(zaicodeLiveRuns, group.workspacePath)) {
+        if (running.some((session) => session.sessionId === sessionId)) continue;
+        const task = group.items.find((item) => item.taskId === sessionId);
+        const session = {
+          sessionId,
+          title: task?.title || sessionId,
+          ratio: 0,
+          workspaceKey: key,
+          workspacePath: group.workspacePath,
+          ...(group.workspaceIdentity ? { workspaceIdentity: group.workspaceIdentity } : {}),
+        };
+        running.push(session);
+        all.push(session);
+      }
+      byKey.set(key, {
+        ...projectLiveOf(
           group.items,
           running.map((session) => session.ratio),
         ),
-      );
+        running: running.length,
+      });
     }
     return { byKey, all };
-  }, [workspaceTaskLists.groups, zaicodeMode, zaicodeStoredTodos, zaicodeStallNow]);
+  }, [
+    workspaceTaskLists.groups,
+    zaicodeMode,
+    zaicodeStoredTodos,
+    zaicodeStallNow,
+    zaicodeLiveRuns,
+  ]);
   useEffect(() => {
     if (zaicodeMode) publishZaicodeRunningSessions(zaicodeProjectLive.all);
   }, [publishZaicodeRunningSessions, zaicodeMode, zaicodeProjectLive.all]);

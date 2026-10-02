@@ -69,6 +69,7 @@ export const ZAICODE_HOTKEY_ACTIONS: readonly ZaicodeHotkeyAction[] = [
   { id: "sounds.mute", group: "Sounds", scope: "app", label: "Mute / unmute all sounds", hint: "Master mute of the Sounds table", defaults: ["Alt+M", ""] },
   { id: "sounds.stop", group: "Sounds", scope: "app", label: "Stop playing sounds", hint: "Stops everything that is playing right now", defaults: ["Alt+.", ""] },
   // Interface
+  { id: "ui.usageSidebar", group: "Interface", scope: "app", label: "Usage sidebar", hint: "Show or hide 9router Usage beside the chat", defaults: ["Ctrl+Alt+B", ""] },
   { id: "ui.home", group: "Interface", scope: "app", label: "SAIHOME", hint: "Opens the operator home (clock, limits, projects, agents, statistics)", defaults: ["Alt+H", ""] },
   { id: "ui.settings", group: "Interface", scope: "app", label: "Settings", hint: "Opens Settings", defaults: ["", ""] },
   { id: "ui.help", group: "Interface", scope: "app", label: "Help", hint: "Opens ZAICODE Help", defaults: ["F1", ""] },
@@ -393,7 +394,10 @@ export function findZaicodeHotkeyConflicts(settings: ZaicodeHotkeySettings): Zai
   const conflicts: ZaicodeHotkeyConflict[] = [];
   for (const [binding, actions] of byBinding) {
     const unique = [...new Set(actions)];
-    const shadowed = upstream.get(binding) ?? null;
+    // Usage deliberately owns the old side-pane key in ZAICODE. The capture-phase
+    // dispatcher stops this event before the upstream listener; other assignments still conflict.
+    const usageOwnsSidePane = binding === "Ctrl+Alt+B" && unique.length === 1 && unique[0] === "ui.usageSidebar" && upstream.get(binding) === "toggleSidePane";
+    const shadowed = usageOwnsSidePane ? null : upstream.get(binding) ?? null;
     if (unique.length > 1 || shadowed) conflicts.push({ binding, actions: unique, upstream: shadowed });
   }
   return conflicts;

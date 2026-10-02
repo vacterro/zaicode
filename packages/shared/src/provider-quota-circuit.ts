@@ -1,19 +1,19 @@
 /**
  * SRC-116 TRACK B: one circuit per provider, opened by a proven quota exhaustion and closed by
- * proven recovery.
+ * successful recovery or its advertised retry time.
  *
  * Before this, a paid route that had reached its plan limit was re-tried on every task and
  * every Retry, and nothing in the product knew the route was dead until the operator saw the
  * error again. The circuit is deliberately process-local: it is a live-transport fact, not
  * durable state, and a stale "this provider is dead" file would outlive the quota it described.
  *
- * Anti-flap (B5): reopening is driven by the provider's own reset time, not by a poll. A route
- * that trips again re-opens with a fresh `until`, so a provider stuck on "limit reached" cannot
- * flap between exhausted and available once per sweep.
+ * A known vendor reset is honoured. When no reset is known, repeated exhaustion doubles
+ * the retry interval, so a provider stuck at its limit is not hammered on every dispatch.
  */
 
 /** How long a route stays closed when the provider named no reset time. */
 export const PROVIDER_QUOTA_CIRCUIT_DEFAULT_MS = 15 * 60_000;
+export const PROVIDER_QUOTA_CIRCUIT_MAX_ESTIMATED_MS = 6 * 60 * 60_000;
 /** A provider may name a reset further out than this (weekly plans); honour it. */
 export const PROVIDER_QUOTA_CIRCUIT_MAX_MS = 7 * 24 * 60 * 60_000;
 /** A stale circuit is dropped rather than kept forever: nobody closes a provider on paper. */
@@ -31,6 +31,8 @@ export interface ProviderQuotaCircuit {
   reason: string;
   /** Where `until` came from, so the UI never presents an estimate as a vendor reset. */
   resetSource: "vendor" | "retry-after" | "estimated";
+  /** Stable source event, so replaying an old session cannot renew its hold. */
+  failureId?: string;
 }
 
 const circuits = new Map<string, ProviderQuotaCircuit>();
@@ -50,19 +52,30 @@ export function openProviderQuotaCircuit(input: {
   /** The vendor's own next-reset time, when it sent one. */
   resetAt?: number | null;
   retryAfterMs?: number | null;
+  failureId?: string;
 }): ProviderQuotaCircuit {
   const previous = circuits.get(input.providerId);
+  if (previous && (
+    input.now < previous.openedAt ||
+    (input.failureId && previous.failureId === input.failureId)
+  )) return previous;
+  const failures = (previous?.failures ?? 0) + 1;
   const until =
     typeof input.resetAt === "number" && input.resetAt > input.now
       ? clampUntil(input.now, input.resetAt)
       : typeof input.retryAfterMs === "number" && input.retryAfterMs > 0
         ? clampUntil(input.now, input.now + input.retryAfterMs)
-        : input.now + PROVIDER_QUOTA_CIRCUIT_DEFAULT_MS;
+        : input.now +
+          Math.min(
+            PROVIDER_QUOTA_CIRCUIT_MAX_ESTIMATED_MS,
+            PROVIDER_QUOTA_CIRCUIT_DEFAULT_MS * 2 ** Math.min(10, failures - 1),
+          );
   const circuit: ProviderQuotaCircuit = {
     providerId: input.providerId,
     openedAt: input.now,
     until,
-    failures: (previous?.failures ?? 0) + 1,
+    failures,
+    ...(input.failureId ? { failureId: input.failureId } : {}),
     reason: input.reason ?? "quota exhausted",
     resetSource:
       typeof input.resetAt === "number" && input.resetAt > input.now
@@ -76,9 +89,8 @@ export function openProviderQuotaCircuit(input: {
 }
 
 /**
- * The circuit on this provider right now, or null when the route is usable. A circuit past its
- * `until` still counts as a circuit until something proves recovery: it is the next failure
- * that re-opens it, which is the revalidation the product owes the operator.
+ * The circuit right now, or null once its retry time is reached. Keep the expired record
+ * briefly so another proven failure backs off instead of restarting the first interval.
  */
 export function providerQuotaCircuit(providerId: string, now: number): ProviderQuotaCircuit | null {
   const circuit = circuits.get(providerId);
@@ -87,6 +99,7 @@ export function providerQuotaCircuit(providerId: string, now: number): ProviderQ
     circuits.delete(providerId);
     return null;
   }
+  if (now >= circuit.until) return null;
   return circuit;
 }
 
@@ -130,7 +143,11 @@ export function resolveProviderQuotaRoute<T extends { providerId: string }>(inpu
 }): ProviderQuotaRoute<T> {
   const circuit = providerQuotaCircuit(input.requested.providerId, input.now);
   if (!circuit) return { selection: input.requested, circuit: null, fallback: false };
-  if (!input.fallback || input.fallback.providerId === input.requested.providerId) {
+  if (
+    !input.fallback ||
+    input.fallback.providerId === input.requested.providerId ||
+    providerQuotaCircuit(input.fallback.providerId, input.now)
+  ) {
     // No route to move to: keeping the requested one beats refusing the task, and the error the
     // operator sees is the vendor's own, not a silent substitute.
     return { selection: input.requested, circuit, fallback: false };
@@ -145,7 +162,10 @@ export function describeProviderQuotaRoute(
 ): string {
   const circuit = route.circuit;
   if (!circuit) return "";
-  const until = new Date(circuit.until).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+  const until = new Date(circuit.until).toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
   // `resetSource` exists so a locally-timed hold never reads as a vendor reset promise: the
   // operator is told the time we will retry, not a time the provider promised.
   const qualifier = circuit.resetSource === "vendor" ? "" : " (estimated)";

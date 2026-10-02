@@ -62,7 +62,9 @@ export function buildZaicodeJobPrompt(input: {
   return sections.filter((section) => section.length > 0).join("\n\n");
 }
 
-type ZaicodeModelSelection = NonNullable<ReturnType<typeof resolveZaicodRoutePlan>["resolvedSelection"]>;
+type ZaicodeModelSelection = NonNullable<
+  ReturnType<typeof resolveZaicodRoutePlan>["resolvedSelection"]
+>;
 
 /**
  * An agent may omit reasoning (the Solo preset) or carry a level from another
@@ -104,20 +106,32 @@ export function createZaicodeJobExecutor(deps: ZaicodeRunDispatchDeps): ZaicodeJ
     let resolvedSelection = routePlan.resolvedSelection ?? undefined;
     if (routePlan.failureClassification !== "none") {
       // SRC-038: an agent without a pool borrows ZAICODE's free pool instead of failing.
-      const view = await services.getOptional(IModelSelectionService)?.getView().catch(() => null);
+      const view = await services
+        .getOptional(IModelSelectionService)
+        ?.getView()
+        .catch(() => null);
       const fallback = view ? pickZaicodeFallbackPool(view.providers) : null;
       if (!fallback) throw new Error(describeZaicodRouteFailure(routePlan, agent.name));
       resolvedSelection = fallback;
     }
     if (resolvedSelection) {
-      const view = await services.getOptional(IModelSelectionService)?.getView().catch(() => null);
+      const view = await services
+        .getOptional(IModelSelectionService)
+        ?.getView()
+        .catch(() => null);
       // SRC-116 TRACK B: a route proven quota-exhausted is not re-tried on every job. One
       // resolver, asked once here for every dispatch path a ZAICODE run can take, decides the
       // effective route and says so out loud, so the queue never claims GLM while running SAIFREN.
+      const routingNow = Date.now();
       const route = resolveProviderQuotaRoute({
         requested: resolvedSelection,
-        fallback: view ? pickZaicodeFallbackPool(view.providers) : null,
-        now: Date.now(),
+        fallback: view
+          ? pickZaicodeFallbackPool(view.providers, undefined, {
+              excludeProviderId: resolvedSelection.providerId,
+              now: routingNow,
+            })
+          : null,
+        now: routingNow,
       });
       if (route.fallback) {
         deps.logWarn(
@@ -129,7 +143,8 @@ export function createZaicodeJobExecutor(deps: ZaicodeRunDispatchDeps): ZaicodeJ
         // The view was already read above to pick the fallback pool. Re-read only when
         // that read failed, so one dispatch asks the selection service once, not twice --
         // and the throw here still stays contained the way the clamp always was.
-        const effectiveView = view ?? (await services.getOptional(IModelSelectionService)?.getView());
+        const effectiveView =
+          view ?? (await services.getOptional(IModelSelectionService)?.getView());
         const model = effectiveView?.providers
           .find((provider) => provider.providerId === resolvedSelection!.providerId)
           ?.models.find((candidate) => candidate.modelId === resolvedSelection!.modelId);
@@ -138,7 +153,10 @@ export function createZaicodeJobExecutor(deps: ZaicodeRunDispatchDeps): ZaicodeJ
           model?.config.optionSpecs.reasoningLevel.values,
         );
       } catch (error) {
-        deps.logWarn(`ZAICODE: model catalog unavailable for reasoning check (job=${job.id})`, error);
+        deps.logWarn(
+          `ZAICODE: model catalog unavailable for reasoning check (job=${job.id})`,
+          error,
+        );
       }
     }
 

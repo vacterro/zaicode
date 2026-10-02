@@ -22,6 +22,7 @@ import {
 import { trackBlankClick } from "../src/zaicode/saiasui/saiasuiGesture.js";
 import { readZaicodeSetting } from "../src/zaicode/zaicodeSettingsSnapshot.js";
 import { normalizeSaiasuiSettings } from "../src/zaicode/saiasui/saiasuiStore.js";
+import bundled from "../src/zaicode/zaicodeSettingsDefaults.json" with { type: "json" };
 
 function cfg(patch: Partial<SaiasuiConfig> = {}): SaiasuiConfig {
   return { ...SAIASUI_DEFAULTS, ...patch };
@@ -39,7 +40,8 @@ test("unavailable storage and malformed settings fall back without blocking the 
     },
   });
   try {
-    assert.equal(readZaicodeSetting("zaicode-saiasui-settings-v1"), null);
+    const defaults = bundled.settings as Record<string, string>;
+    assert.equal(readZaicodeSetting("zaicode-saiasui-settings-v1"), defaults["zaicode-saiasui-settings-v1"] ?? null);
     assert.deepEqual(normalizeSaiasuiSettings(null), {
       enabled: true,
       sound: true,

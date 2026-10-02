@@ -18,7 +18,7 @@ test("GLM account providers (and legacy builtin ids) are recognised", () => {
   assert.equal(isOfficialGlmProvider(null), false);
 });
 
-test("fallback skips GLM and prefers a non-GLM preferred selection", () => {
+test("fallback skips GLM and prefers SAIFREN over a different preferred model", () => {
   assert.deepEqual(pickZaicodeFallbackModel({ providers }), {
     providerId: "new-provider",
     modelId: "SAIFREN",
@@ -28,7 +28,7 @@ test("fallback skips GLM and prefers a non-GLM preferred selection", () => {
       providers,
       preferredSelection: { providerId: "new-provider", modelId: "SAIOPP" },
     }),
-    { providerId: "new-provider", modelId: "SAIOPP" },
+    { providerId: "new-provider", modelId: "SAIFREN" },
   );
   assert.deepEqual(
     pickZaicodeFallbackModel({

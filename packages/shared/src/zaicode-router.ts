@@ -56,11 +56,14 @@ const ALLOWED: readonly { method: ZaicodeRouterMethod; pattern: RegExp }[] = [
   { method: "GET", pattern: /^\/api\/settings$/ },
   { method: "PATCH", pattern: /^\/api\/settings$/ },
   { method: "GET", pattern: /^\/api\/usage\/stats\?period=(today|24h|7d|30d|60d|all)$/ },
+  { method: "GET", pattern: /^\/api\/usage\/chart\?period=(today|24h|7d|30d|60d)$/ },
   // One account's own quota (5h / weekly ...), read-only: the readiness bars of subscription models.
   // (Not the log, history or stream routes that sit beside it: those carry request contents.)
   {
     method: "GET",
-    pattern: new RegExp(`^/api/usage/(?!(?:stats|history|logs|request-logs|request-details|stream|chart|providers)$)${ID}$`),
+    pattern: new RegExp(
+      `^/api/usage/(?!(?:stats|history|logs|request-logs|request-details|stream|chart|providers)$)${ID}$`,
+    ),
   },
 ];
 
@@ -74,7 +77,8 @@ export const ZAICODE_ROUTER_SETTINGS_KEYS: readonly string[] = [
 export function isZaicodeRouterCallAllowed(call: ZaicodeRouterCall): boolean {
   if (typeof call?.path !== "string" || call.path.length > 400) return false;
   if (call.path.includes("..") || call.path.includes("//")) return false;
-  if (!ALLOWED.some((rule) => rule.method === call.method && rule.pattern.test(call.path))) return false;
+  if (!ALLOWED.some((rule) => rule.method === call.method && rule.pattern.test(call.path)))
+    return false;
   if (call.method === "PATCH" && call.path === "/api/settings") {
     const body = call.body;
     if (!body || typeof body !== "object" || Array.isArray(body)) return false;
@@ -87,7 +91,9 @@ export function isZaicodeRouterCallAllowed(call: ZaicodeRouterCall): boolean {
 export function pickZaicodeRouterSettings(raw: unknown): Record<string, unknown> | null {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
   const value = raw as Record<string, unknown>;
-  return Object.fromEntries(ZAICODE_ROUTER_SETTINGS_KEYS.filter((key) => key in value).map((key) => [key, value[key]]));
+  return Object.fromEntries(
+    ZAICODE_ROUTER_SETTINGS_KEYS.filter((key) => key in value).map((key) => [key, value[key]]),
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -157,7 +163,10 @@ export const ZAICODE_ROUTER_RECENT_ERROR_MS = 60 * 60_000;
  * Free providers that are not picked keep theirs for weeks: on 2026-09-30, 41 of 57 active connections carried one,
  * dated 15.09, 22.09, 23.09 ..., and SAIHOME's HEALTH was red for good.
  */
-export function isZaicodeRouterErrorRecent(connection: Pick<ZaicodeRouterConnection, "lastError" | "lastErrorAt">, now: number): boolean {
+export function isZaicodeRouterErrorRecent(
+  connection: Pick<ZaicodeRouterConnection, "lastError" | "lastErrorAt">,
+  now: number,
+): boolean {
   if (!connection.lastError) return false;
   const at = connection.lastErrorAt ? Date.parse(connection.lastErrorAt) : Number.NaN;
   return Number.isNaN(at) || now - at <= ZAICODE_ROUTER_RECENT_ERROR_MS;
@@ -195,7 +204,10 @@ export function normalizeZaicodeRouterConnections(raw: unknown): ZaicodeRouterCo
 }
 
 /** 9router's `modelLock_<model>` fields hold ISO times; the nearest one still ahead, as epoch ms. */
-export function zaicodeConnectionLockedUntil(value: Record<string, unknown>, now: number = Date.now()): number | null {
+export function zaicodeConnectionLockedUntil(
+  value: Record<string, unknown>,
+  now: number = Date.now(),
+): number | null {
   let nearest: number | null = null;
   for (const [key, raw] of Object.entries(value)) {
     if (!key.startsWith("modelLock_") || typeof raw !== "string") continue;
@@ -226,22 +238,31 @@ export function normalizeZaicodeRouterNodes(raw: unknown): ZaicodeRouterNode[] {
   });
 }
 
-export function normalizeZaicodeRouterCombos(raw: unknown, settings: unknown): ZaicodeRouterCombo[] {
+export function normalizeZaicodeRouterCombos(
+  raw: unknown,
+  settings: unknown,
+): ZaicodeRouterCombo[] {
   const list = (raw as { combos?: unknown })?.combos;
   if (!Array.isArray(list)) return [];
-  const strategies = ((settings as { comboStrategies?: unknown })?.comboStrategies ?? {}) as Record<string, unknown>;
+  const strategies = ((settings as { comboStrategies?: unknown })?.comboStrategies ?? {}) as Record<
+    string,
+    unknown
+  >;
   return list.flatMap((item): ZaicodeRouterCombo[] => {
     if (!item || typeof item !== "object") return [];
     const value = item as Record<string, unknown>;
     const id = str(value.id);
     const name = str(value.name);
     if (!id || !name) return [];
-    const strategy = (strategies[name] as { fallbackStrategy?: unknown } | undefined)?.fallbackStrategy;
+    const strategy = (strategies[name] as { fallbackStrategy?: unknown } | undefined)
+      ?.fallbackStrategy;
     return [
       {
         id,
         name,
-        models: Array.isArray(value.models) ? value.models.filter((model): model is string => typeof model === "string") : [],
+        models: Array.isArray(value.models)
+          ? value.models.filter((model): model is string => typeof model === "string")
+          : [],
         kind: str(value.kind),
         strategy: strategy === "round-robin" || strategy === "fusion" ? strategy : "fallback",
       },
@@ -266,7 +287,10 @@ export function normalizeZaicodeRouterModels(raw: unknown): ZaicodeRouterModel[]
         provider: str(value.provider) ?? id.split("/")[0] ?? "",
         name: str(value.name) ?? id,
         vision: caps.vision === true,
-        contextWindow: typeof caps.contextWindow === "number" && caps.contextWindow > 0 ? caps.contextWindow : null,
+        contextWindow:
+          typeof caps.contextWindow === "number" && caps.contextWindow > 0
+            ? caps.contextWindow
+            : null,
         maxOutput: typeof caps.maxOutput === "number" && caps.maxOutput > 0 ? caps.maxOutput : null,
         reasoning: caps.reasoning === true,
       },
@@ -288,13 +312,19 @@ export function withZaicodeComboStrategy(
     delete next[comboName];
     return next;
   }
-  const previous = (next[comboName] && typeof next[comboName] === "object" ? next[comboName] : {}) as Record<string, unknown>;
+  const previous = (
+    next[comboName] && typeof next[comboName] === "object" ? next[comboName] : {}
+  ) as Record<string, unknown>;
   next[comboName] = { ...previous, fallbackStrategy: strategy };
   return next;
 }
 
 /** Moves `model` inside a combo's list by `delta` (clamped); unknown model = unchanged copy. */
-export function moveZaicodeComboModel(models: readonly string[], model: string, delta: number): string[] {
+export function moveZaicodeComboModel(
+  models: readonly string[],
+  model: string,
+  delta: number,
+): string[] {
   const index = models.indexOf(model);
   if (index < 0) return [...models];
   const target = Math.max(0, Math.min(models.length - 1, index + delta));
@@ -343,7 +373,10 @@ export function zaicodeSubscriptionModels(
   connections: readonly ZaicodeRouterConnection[],
   models: readonly ZaicodeRouterModel[],
 ): { provider: string; label: string; active: boolean; models: ZaicodeRouterModel[] }[] {
-  const byProvider = new Map<string, { provider: string; label: string; active: boolean; models: ZaicodeRouterModel[] }>();
+  const byProvider = new Map<
+    string,
+    { provider: string; label: string; active: boolean; models: ZaicodeRouterModel[] }
+  >();
   for (const connection of connections) {
     if (connection.authType !== "oauth") continue;
     const entry = byProvider.get(connection.provider);
@@ -356,7 +389,9 @@ export function zaicodeSubscriptionModels(
       label: connection.name,
       active: connection.isActive,
       models: models.filter(
-        (model) => model.provider === connection.provider || model.provider === zaicodeRouterAliasOf(connection.provider),
+        (model) =>
+          model.provider === connection.provider ||
+          model.provider === zaicodeRouterAliasOf(connection.provider),
       ),
     });
   }
@@ -370,7 +405,11 @@ export function isZaicodeComboNameValid(name: string): boolean {
 
 /** A custom provider's prefix becomes the model alias (`prefix/model`); keep it short and plain. */
 export function suggestZaicodeProviderPrefix(name: string, taken: readonly string[]): string {
-  const base = name.toLowerCase().replace(/[^a-z0-9]+/g, "").slice(0, 8) || "custom";
+  const base =
+    name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "")
+      .slice(0, 8) || "custom";
   let candidate = base;
   for (let n = 2; taken.includes(candidate); n += 1) candidate = `${base}${n}`;
   return candidate;

@@ -95,7 +95,6 @@ import type { ConversationSelectionReference } from "@/lib/conversationSelection
 const EMPTY_PENDING_GUIDES: readonly QueueItem[] = [];
 
 const ROW_OVERSCAN = 8;
-const RUNNING_WORK_DURATION_TICK_MS = 1000;
 const COMPOSER_MESSAGE_MASK_FADE_PX = 24;
 const COMPOSER_MESSAGE_MASK_TRANSPARENT_HEIGHT_PX = 96;
 const USER_SCROLL_INTENT_TTL_MS = 1200;
@@ -278,6 +277,7 @@ interface ConversationTimelineProps {
   loadingOlder?: boolean;
   /** 拉取更早一窗历史（接近顶部时自动预取）。 */
   onLoadOlder?: () => Promise<void> | void;
+  onReturnToLatest?: () => void;
   /** 宽屏问题目录挂载后一次补齐当前有效分支的全部历史。 */
   onLoadAllOlder?: () => Promise<ConversationTurnNavigatorHydrationResult>;
   /**
@@ -364,6 +364,7 @@ function ConversationTimelineImpl({
   canLoadOlder = false,
   loadingOlder = false,
   onLoadOlder,
+  onReturnToLatest,
   onLoadAllOlder,
   turnNavigatorDirectoryRevision = 0,
   bottomDock,
@@ -413,20 +414,18 @@ function ConversationTimelineImpl({
     observer.observe(element);
     return () => observer.disconnect();
   }, [hasHeaderSlot]);
-  const [liveNowMs, setLiveNowMs] = useState(() => Date.now());
   const renderUnits = useMemo(
     () =>
       buildConversationTurnRenderUnits(rows, {
-        nowMs: liveNowMs,
+        nowMs: Date.now(),
         sessionPhase,
       }),
-    [liveNowMs, rows, sessionPhase],
+    [rows, sessionPhase],
   );
   const { virtualizedUnits, liveUnit, liveUnitIndex } = useMemo(
     () => splitConversationTimelineLiveTail(renderUnits),
     [renderUnits],
   );
-  const hasRunningUnit = useMemo(() => renderUnits.some((unit) => unit.isRunning), [renderUnits]);
   const turnNavigatorQueryRowIds = useMemo(
     () =>
       new Set(
@@ -568,21 +567,6 @@ function ConversationTimelineImpl({
     };
   }, [backgroundScrollLocked, selectionPanelLayoutContainerRef, syncShareSelectionPanelLayout]);
 
-  useEffect(() => {
-    if (!hasRunningUnit) {
-      return;
-    }
-
-    // 运行中的 assistant work 状态文案要显示“工作中 N 秒”并随时间推进；
-    // 完成态耗时由协议事实固定，builder 会拒绝把这个 UI 时钟用于已结束轮次。
-    setLiveNowMs(Date.now());
-    const timer = window.setInterval(() => {
-      setLiveNowMs(Date.now());
-    }, RUNNING_WORK_DURATION_TICK_MS);
-
-    return () => window.clearInterval(timer);
-  }, [hasRunningUnit]);
-
   useLayoutEffect(() => {
     const element = timelineRootRef.current;
     if (!element) return;
@@ -614,6 +598,9 @@ function ConversationTimelineImpl({
   }, []);
 
   useEffect(() => {
+    // ZAICODE sessions can contain days of tool output. Opening a view must not
+    // hydrate every historical row merely to populate a navigation rail.
+    if (isZaicodeProductMode()) return;
     if (
       !shouldHydrateConversationTurnNavigatorDirectory({
         canLoadOlder,
@@ -1216,6 +1203,7 @@ function ConversationTimelineImpl({
     });
     commitFollowing(following);
     if (scrollSource === "user") {
+      if (isZaicodeProductMode() && following) onReturnToLatest?.();
       pendingDetachedScrollRestoreRef.current = null;
       userAdjustedScrollSinceRestoreRef.current = true;
       saveCurrentScrollMemory();
@@ -1225,6 +1213,7 @@ function ConversationTimelineImpl({
     const loadOlder = loadOlderRef.current;
     const triggerPx = historyPrefetchTriggerPx(element.clientHeight);
     if (
+      (!isZaicodeProductMode() || (scrollSource === "user" && !following)) &&
       shouldTriggerLoadOlder({
         scrollTop: element.scrollTop,
         canLoadOlder: loadOlder.canLoadOlder,
@@ -1256,11 +1245,13 @@ function ConversationTimelineImpl({
     commitFollowing,
     getActiveUserScrollIntent,
     saveCurrentScrollMemory,
+    onReturnToLatest,
     syncTurnNavigatorViewport,
     virtualizer,
   ]);
 
   const handleBackToBottom = useCallback(() => {
+    onReturnToLatest?.();
     pendingDetachedScrollRestoreRef.current = null;
     clearUserScrollIntent();
     commitFollowing(true);
@@ -1268,7 +1259,13 @@ function ConversationTimelineImpl({
     // scrollToBottom 只更新组件内 ref；若用户点击后立刻切任务，scope
     // cleanup/scroll 事件可能还没运行，旧 Map 会把下次恢复重新带回中部甚至顶部。
     saveCurrentScrollMemory();
-  }, [clearUserScrollIntent, commitFollowing, saveCurrentScrollMemory, scrollToBottom]);
+  }, [
+    clearUserScrollIntent,
+    commitFollowing,
+    onReturnToLatest,
+    saveCurrentScrollMemory,
+    scrollToBottom,
+  ]);
 
   useLayoutEffect(() => {
     if (!scrollToBottomActionRef) return;
@@ -1720,6 +1717,21 @@ function ConversationTimelineImpl({
           onJumpToQuery={scrollToQuery}
         />
       )}
+      {isZaicodeProductMode() && canLoadOlder && onLoadOlder ? (
+        <div className="flex shrink-0 justify-center border-b border-border px-2 py-1">
+          <button
+            type="button"
+            className="text-ui-xs text-foreground-subtle hover:text-foreground disabled:opacity-50"
+            disabled={loadingOlder}
+            onClick={() => {
+              commitFollowing(false);
+              void onLoadOlder();
+            }}
+          >
+            {loadingOlder ? "Loading earlier messages…" : "Load earlier messages"}
+          </button>
+        </div>
+      ) : null}
       <div
         ref={scrollRef}
         data-testid={TID_V4_TIMELINE}

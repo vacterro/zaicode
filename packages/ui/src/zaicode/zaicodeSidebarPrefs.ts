@@ -593,17 +593,19 @@ export function runningSessionsOf(
   now: number = Date.now(),
 ): ZaicodeRunningSession[] {
   // SRC-081: a session nobody has heard from for hours is STALLED, not working.
-  return tasks.filter((task) => zaicodeSessionWorking(task, now)).map((task) => {
-    const todos = getTaskListRowActivity(task)?.todos ?? storedTodos[task.taskId];
-    return {
-      sessionId: task.taskId,
-      title: task.title || task.taskId,
-      ratio: todoReadinessRatio(todos),
-      workspaceKey,
-      ...(location ? { workspacePath: location.workspacePath } : {}),
-      ...(location?.workspaceIdentity ? { workspaceIdentity: location.workspaceIdentity } : {}),
-    };
-  });
+  return tasks
+    .filter((task) => zaicodeSessionWorking(task, now))
+    .map((task) => {
+      const todos = getTaskListRowActivity(task)?.todos ?? storedTodos[task.taskId];
+      return {
+        sessionId: task.taskId,
+        title: task.title || task.taskId,
+        ratio: todoReadinessRatio(todos),
+        workspaceKey,
+        ...(location ? { workspacePath: location.workspacePath } : {}),
+        ...(location?.workspaceIdentity ? { workspaceIdentity: location.workspaceIdentity } : {}),
+      };
+    });
 }
 
 /** Sessions of one project waiting for the operator (question / permission). */
@@ -643,6 +645,8 @@ function sameSessions(
     left.every(
       (session, index) =>
         session.sessionId === right[index]!.sessionId &&
+        session.workspaceKey === right[index]!.workspaceKey &&
+        session.workspacePath === right[index]!.workspacePath &&
         session.ratio === right[index]!.ratio &&
         session.title === right[index]!.title,
     )

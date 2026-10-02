@@ -38,7 +38,7 @@ export const ZAICODE_HELP_CURRICULUM: readonly HelpChapter[] = [
   {
     title: "3 · Watch it work",
     what: "Limits, resets, results and what the agent says back.",
-    topics: ["saihome", "meter", "timers", "changes", "sessiontext", "notifications"],
+    topics: ["saihome", "meter", "usage", "timers", "changes", "sessiontext", "notifications"],
   },
   {
     title: "4 · Make it yours",

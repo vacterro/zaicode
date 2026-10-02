@@ -3,12 +3,24 @@ import { cn } from "@/components/lib/utils.js";
 import { setPendingSettingsSection } from "@/lib/settingsNavigation.js";
 import { useTabStore } from "@/store/TabStoreProvider.js";
 import { ZaicodePrefCheck, ZaicodeRightClickSettings } from "./ZaicodePrefControls.js";
-import { ZAICODE_ENGINE_BAR_MAX_MODELS, useZaicodeEngineBarPrefs, zaicodeEngineBarLabel, zaicodeEngineBarModels, zaicodeEngineBarModelKey } from "./zaicodeEngineBarPrefs.js";
+import {
+  ZAICODE_ENGINE_BAR_MAX_MODELS,
+  useZaicodeEngineBarPrefs,
+  zaicodeEngineBarLabel,
+  zaicodeEngineBarModels,
+  zaicodeEngineBarModelKey,
+} from "./zaicodeEngineBarPrefs.js";
 import type { ZaicodeDefaultModel } from "./zaicodeDefaultModel.js";
 import type { ZaicodePoolGroup, ZaicodePoolOption } from "./zaicodeRoutingModel.js";
 
 /** Existing model catalog projected into configurable quick choices, with the selected effort. */
-export function ZaicodeEngineModelRow({ groups, providerAccount, selectedModel, activeEngine, selectModel }: {
+export function ZaicodeEngineModelRow({
+  groups,
+  providerAccount,
+  selectedModel,
+  activeEngine,
+  selectModel,
+}: {
   groups: readonly ZaicodePoolGroup[];
   providerAccount: Record<string, string>;
   selectedModel: ZaicodeDefaultModel | null;
@@ -20,17 +32,26 @@ export function ZaicodeEngineModelRow({ groups, providerAccount, selectedModel, 
   const group = groups[0];
   const pools = zaicodeEngineBarModels(groups, barPrefs, providerAccount);
   const options = groups.flatMap((entry) => entry.options);
-  const selectedOption = options.find((option) => option.providerId === selectedModel?.providerId && option.modelId === selectedModel.modelId);
-  return (<>
+  const selectedOption = options.find(
+    (option) =>
+      option.providerId === selectedModel?.providerId && option.modelId === selectedModel.modelId,
+  );
+  return (
+    <>
       {group ? (
         <ZaicodeRightClickSettings
           title="Which models show here"
           hint="Choose up to eight models, including subscriptions. The rest stay in the model picker."
           className="w-full"
           panel={
-            <div className="flex max-h-80 flex-col gap-1 overflow-y-auto" data-zaicode-engine-bar-pools>
+            <div
+              className="flex max-h-80 flex-col gap-1 overflow-y-auto"
+              data-zaicode-engine-bar-pools
+            >
               {options.map((option) => {
-                const shown = pools.some((pool) => zaicodeEngineBarModelKey(pool) === zaicodeEngineBarModelKey(option));
+                const shown = pools.some(
+                  (pool) => zaicodeEngineBarModelKey(pool) === zaicodeEngineBarModelKey(option),
+                );
                 return (
                   <ZaicodePrefCheck
                     key={zaicodeEngineBarModelKey(option)}
@@ -39,8 +60,17 @@ export function ZaicodeEngineModelRow({ groups, providerAccount, selectedModel, 
                     onChange={(checked) =>
                       barPrefs.update({
                         modelButtons: checked
-                          ? [...pools.map(({ providerId, modelId }) => ({ providerId, modelId })), { providerId: option.providerId, modelId: option.modelId }]
-                          : pools.filter((pool) => zaicodeEngineBarModelKey(pool) !== zaicodeEngineBarModelKey(option)).map(({ providerId, modelId }) => ({ providerId, modelId })),
+                          ? [
+                              ...pools.map(({ providerId, modelId }) => ({ providerId, modelId })),
+                              { providerId: option.providerId, modelId: option.modelId },
+                            ]
+                          : pools
+                              .filter(
+                                (pool) =>
+                                  zaicodeEngineBarModelKey(pool) !==
+                                  zaicodeEngineBarModelKey(option),
+                              )
+                              .map(({ providerId, modelId }) => ({ providerId, modelId })),
                       })
                     }
                     label={`${option.providerLabel} / ${option.displayName || option.modelId}`}
@@ -62,7 +92,10 @@ export function ZaicodeEngineModelRow({ groups, providerAccount, selectedModel, 
             </div>
           }
         >
-          <div className="flex w-full min-w-0 items-center gap-1" title={`In-app model pools (${group.providerLabel}). Right-click: which models show here.`}>
+          <div
+            className="flex w-full min-w-0 items-center gap-1"
+            title={`In-app model pools (${group.providerLabel}). Right-click: which models show here.`}
+          >
             {/* SRC-061: the provider is a small button that opens its settings, not a truncated label. */}
             <button
               type="button"
@@ -81,7 +114,11 @@ export function ZaicodeEngineModelRow({ groups, providerAccount, selectedModel, 
             >
               <Route className="size-3" />
             </button>
-            <div className="flex min-w-0 flex-1 flex-wrap gap-px" role="radiogroup" aria-label="In-app model pools">
+            <div
+              className="flex min-w-0 flex-1 flex-wrap gap-px"
+              role="radiogroup"
+              aria-label="In-app model pools"
+            >
               {pools.map((option) => {
                 const active =
                   activeEngine === null &&
@@ -102,7 +139,8 @@ export function ZaicodeEngineModelRow({ groups, providerAccount, selectedModel, 
                     title={`Use ${option.providerLabel} / ${option.modelId} in this chat`}
                     onClick={() => selectModel(option)}
                   >
-                    {option.providerId in providerAccount ? `${option.providerLabel} · ` : ""}{option.displayName || zaicodeEngineBarLabel(option.modelId)}
+                    {option.providerId in providerAccount ? `${option.providerLabel} · ` : ""}
+                    {option.displayName || zaicodeEngineBarLabel(option.modelId)}
                   </button>
                 );
               })}
@@ -112,14 +150,33 @@ export function ZaicodeEngineModelRow({ groups, providerAccount, selectedModel, 
       ) : null}
       {selectedOption ? (
         <div className="flex min-w-0 items-center gap-1" data-zaicode-engine-selection>
-          <span className="min-w-0 flex-1 truncate" title={`${selectedOption.providerLabel} / ${selectedOption.modelId}`}>{selectedOption.providerLabel} / {selectedOption.displayName || selectedOption.modelId}</span>
-          {selectedOption.reasoningLevels.length ? <select
-            aria-label="Model effort" className="min-w-0 border border-border bg-background text-ui-xs"
-            value={selectedModel?.reasoningLevel ?? (selectedOption.reasoningLevels.includes("medium") ? "medium" : selectedOption.reasoningLevels[0])}
-            onChange={(event) => selectModel(selectedOption, event.target.value)}
-          >{selectedOption.reasoningLevels.map((level) => <option key={level} value={level}>{level}</option>)}</select> : null}
+          <span
+            className="min-w-0 flex-1 truncate"
+            title={`${selectedOption.providerLabel} / ${selectedOption.modelId}`}
+          >
+            {selectedOption.providerLabel} / {selectedOption.displayName || selectedOption.modelId}
+          </span>
+          {selectedOption.reasoningLevels.length > 1 ? (
+            <select
+              aria-label="Model effort"
+              className="min-w-0 border border-border bg-background text-ui-xs"
+              value={
+                selectedModel?.reasoningLevel ??
+                (selectedOption.reasoningLevels.includes("medium")
+                  ? "medium"
+                  : selectedOption.reasoningLevels[0])
+              }
+              onChange={(event) => selectModel(selectedOption, event.target.value)}
+            >
+              {selectedOption.reasoningLevels.map((level) => (
+                <option key={level} value={level}>
+                  {level}
+                </option>
+              ))}
+            </select>
+          ) : null}
         </div>
       ) : null}
-
-  </>);
+    </>
+  );
 }

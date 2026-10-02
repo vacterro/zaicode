@@ -13,6 +13,7 @@ import {
   ChevronLeft,
   ChevronRight,
   CircleHelp,
+  ChartNoAxesCombined,
   Crosshair,
   House,
   ListCollapse,
@@ -103,6 +104,7 @@ export const ZAICODE_ICON_SLOTS = {
   "tool.newTask": MessageCirclePlus,
   "tool.timers": AlarmClock,
   "tool.help": CircleHelp,
+  "tool.usage": ChartNoAxesCombined,
   "tool.mute": Volume2,
   "tool.muted": VolumeX,
   "tool.palette": Palette,
@@ -230,7 +232,9 @@ export function buildZaicodeIconBadgeDataUri(input: {
     input.gradient && from !== to
       ? `<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${escapeSvgText(from)}"/><stop offset="1" stop-color="${escapeSvgText(to)}"/></linearGradient></defs>`
       : "";
-  const text = glyph ? `<text x="8" y="8" text-anchor="middle" dominant-baseline="central" font-family="Verdana,sans-serif" font-size="8" font-weight="bold" fill="#101010">${glyph}</text>` : "";
+  const text = glyph
+    ? `<text x="8" y="8" text-anchor="middle" dominant-baseline="central" font-family="Verdana,sans-serif" font-size="8" font-weight="bold" fill="#101010">${glyph}</text>`
+    : "";
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">${stops}<rect x="1" y="1" width="14" height="14" rx="2" ${fill}/>${text}</svg>`;
   return `data:image/svg+xml,${encodeURIComponent(svg)}`;
 }
@@ -259,7 +263,12 @@ function goldBadgeOverrides(): Overrides {
 }
 
 export const ZAICODE_ICON_PRESETS: readonly ZaicodeIconPreset[] = [
-  { id: "reset", label: "Theme icons", hint: "Every slot back to its built-in icon", overrides: {} },
+  {
+    id: "reset",
+    label: "Theme icons",
+    hint: "Every slot back to its built-in icon",
+    overrides: {},
+  },
   {
     id: "emoji",
     label: "Emoji",
@@ -306,9 +315,16 @@ export function readZaicodeIconProfiles(): ZaicodeIconProfile[] {
       const value = entry && typeof entry === "object" ? (entry as Record<string, unknown>) : null;
       if (!value || typeof value.id !== "string" || typeof value.name !== "string") continue;
       const overrides: Overrides = {};
-      const table = value.overrides && typeof value.overrides === "object" ? (value.overrides as Record<string, unknown>) : {};
+      const table =
+        value.overrides && typeof value.overrides === "object"
+          ? (value.overrides as Record<string, unknown>)
+          : {};
       for (const [slot, icon] of Object.entries(table)) {
-        if (ZAICODE_ICON_SLOT_IDS.includes(slot as ZaicodeIconSlot) && typeof icon === "string" && icon.trim()) {
+        if (
+          ZAICODE_ICON_SLOT_IDS.includes(slot as ZaicodeIconSlot) &&
+          typeof icon === "string" &&
+          icon.trim()
+        ) {
           overrides[slot as ZaicodeIconSlot] = icon.trim();
         }
       }
@@ -328,7 +344,8 @@ export function readZaicodeIconProfiles(): ZaicodeIconProfile[] {
 export function saveZaicodeIconProfile(name: string, overrides: Overrides): ZaicodeIconProfile {
   const clean: Overrides = {};
   for (const [slot, value] of Object.entries(overrides)) {
-    if (ZAICODE_ICON_SLOT_IDS.includes(slot as ZaicodeIconSlot) && value.trim()) clean[slot as ZaicodeIconSlot] = value.trim();
+    if (ZAICODE_ICON_SLOT_IDS.includes(slot as ZaicodeIconSlot) && value.trim())
+      clean[slot as ZaicodeIconSlot] = value.trim();
   }
   const profile: ZaicodeIconProfile = {
     id: `profile-${Date.now().toString(36)}`,
@@ -336,7 +353,10 @@ export function saveZaicodeIconProfile(name: string, overrides: Overrides): Zaic
     savedAt: Date.now(),
     overrides: clean,
   };
-  const next = [profile, ...readZaicodeIconProfiles().filter((entry) => entry.name !== profile.name)].slice(0, MAX_PROFILES);
+  const next = [
+    profile,
+    ...readZaicodeIconProfiles().filter((entry) => entry.name !== profile.name),
+  ].slice(0, MAX_PROFILES);
   try {
     localStorage.setItem(PROFILES_KEY, JSON.stringify(next));
   } catch {
@@ -347,7 +367,10 @@ export function saveZaicodeIconProfile(name: string, overrides: Overrides): Zaic
 
 export function deleteZaicodeIconProfile(id: string): void {
   try {
-    localStorage.setItem(PROFILES_KEY, JSON.stringify(readZaicodeIconProfiles().filter((entry) => entry.id !== id)));
+    localStorage.setItem(
+      PROFILES_KEY,
+      JSON.stringify(readZaicodeIconProfiles().filter((entry) => entry.id !== id)),
+    );
   } catch {
     // nothing to remove from
   }

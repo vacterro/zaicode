@@ -8,6 +8,11 @@ import { setPendingSettingsSection } from "@/lib/settingsNavigation.js";
  * module, hotkey or menu can then call these without a React context.
  */
 
+export interface ZaicodeSaipenTarget {
+  workspacePath: string;
+  workspaceIdentity?: string | undefined;
+}
+
 interface ZaicodeActionsState {
   openSettings: (() => void) | null;
   setOpenSettings: (open: (() => void) | null) => void;
@@ -17,6 +22,10 @@ interface ZaicodeActionsState {
   /** Opens SAIHOME (registered by the shell layout). */
   openZaicodeHome: (() => void) | null;
   setOpenZaicodeHome: (open: (() => void) | null) => void;
+  openSaipen: ((target?: ZaicodeSaipenTarget) => boolean) | null;
+  setOpenSaipen: (open: ((target?: ZaicodeSaipenTarget) => boolean) | null) => void;
+  saipenSidebar: ZaicodeSaipenTarget | null;
+  setSaipenSidebar: (target: ZaicodeSaipenTarget | null) => void;
   /** The main view on screen now, mirrored by the shell (sidebar highlights read it). */
   mainView: string;
   setMainView: (view: string) => void;
@@ -29,6 +38,10 @@ export const useZaicodeActions = create<ZaicodeActionsState>((set) => ({
   setOpenZaicodeView: (openZaicodeView) => set({ openZaicodeView }),
   openZaicodeHome: null,
   setOpenZaicodeHome: (openZaicodeHome) => set({ openZaicodeHome }),
+  openSaipen: null,
+  setOpenSaipen: (openSaipen) => set({ openSaipen }),
+  saipenSidebar: null,
+  setSaipenSidebar: (saipenSidebar) => set({ saipenSidebar }),
   mainView: "chat",
   setMainView: (mainView) => set({ mainView }),
 }));
@@ -38,6 +51,19 @@ export function openZaicodeHomeView(): boolean {
   const open = useZaicodeActions.getState().openZaicodeHome;
   if (!open) return false;
   open();
+  return true;
+}
+
+export function openZaicodeSaipenView(workspacePath?: string, workspaceIdentity?: string): boolean {
+  const state = useZaicodeActions.getState();
+  const target = workspacePath ? { workspacePath, workspaceIdentity } : undefined;
+  if (state.openSaipen?.(target)) {
+    state.setSaipenSidebar(null);
+    return true;
+  }
+  // A centered draft has no visible workspace pane. Keep the inspected project explicit.
+  if (!target) return false;
+  state.setSaipenSidebar(target);
   return true;
 }
 

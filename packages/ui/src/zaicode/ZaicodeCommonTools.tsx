@@ -1,7 +1,11 @@
 import type { MouseEvent, ReactNode } from "react";
 import { cn } from "@/components/lib/utils.js";
 import { Button } from "@/components/ui/button.js";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu.js";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu.js";
 import { ControlHintTooltip } from "@/ControlHintTooltip.js";
 import { ZaicodeDispatchButton } from "./ZaicodeDispatchPanel.js";
 import { ZaicodePaletteMenuContent } from "./ZaicodeFooterMenus.js";
@@ -13,6 +17,7 @@ import { setZaicodeSoundSettings, useZaicodeSoundSettings } from "./zaicodeSound
 import { useZaicodeTimers } from "./zaicodeTimerStore.js";
 import { toggleZaicodeWorkersDock, useZaicodeWorkers } from "./zaicodeWorkers.js";
 import { ZaicodeIcon } from "./zaicodeIconSlots.js";
+import { openZaicodeUsage, toggleZaicodeUsageSidebar, useZaicodeUsage } from "./zaicodeUsage.js";
 
 /**
  * The icon buttons the sidebar header and the sidebar footer share (SRC-062:
@@ -21,6 +26,7 @@ import { ZaicodeIcon } from "./zaicodeIconSlots.js";
  */
 
 export type ZaicodeCommonToolId =
+  | "usage"
   | "home"
   | "focusCycle"
   | "cycleArrows"
@@ -31,7 +37,18 @@ export type ZaicodeCommonToolId =
   | "workers"
   | "dispatch";
 
-const COMMON = new Set<string>(["home", "focusCycle", "cycleArrows", "timers", "help", "mute", "palette", "workers", "dispatch"]);
+const COMMON = new Set<string>([
+  "usage",
+  "home",
+  "focusCycle",
+  "cycleArrows",
+  "timers",
+  "help",
+  "mute",
+  "palette",
+  "workers",
+  "dispatch",
+]);
 
 export function isZaicodeCommonTool(id: string): id is ZaicodeCommonToolId {
   return COMMON.has(id);
@@ -65,7 +82,10 @@ export function ZaicodeTopButton({
         type="button"
         variant="ghost"
         size="icon-md"
-        className={cn("[app-region:no-drag] transition-colors", pressed && "bg-selected text-foreground")}
+        className={cn(
+          "[app-region:no-drag] transition-colors",
+          pressed && "bg-selected text-foreground",
+        )}
         aria-label={title}
         aria-pressed={pressed}
         disabled={disabled}
@@ -80,19 +100,47 @@ export function ZaicodeTopButton({
 }
 
 /** Renders a shared tool by id; `side` is where its hint opens. */
-export function useZaicodeCommonTools(side: "top" | "bottom"): (id: ZaicodeCommonToolId) => ReactNode {
+export function useZaicodeCommonTools(
+  side: "top" | "bottom",
+): (id: ZaicodeCommonToolId) => ReactNode {
   const hotkeys = useZaicodeHotkeySettings();
   const sound = useZaicodeSoundSettings();
   const workers = useZaicodeWorkers();
   const openTimers = useZaicodeTimers((state) => state.openDialog);
+  const usageMode = useZaicodeUsage((state) => state.mode);
   const hint = (id: string) => zaicodeHotkeyLabel(id, hotkeys);
-  const cycle = (direction: 1 | -1) => cycleZaicodeSession(direction, useZaicodeRunningSessions.getState().sessions);
+  const cycle = (direction: 1 | -1) =>
+    cycleZaicodeSession(direction, useZaicodeRunningSessions.getState().sessions);
 
   return (id) => {
     switch (id) {
+      case "usage":
+        return (
+          <ZaicodeTopButton
+            key={id}
+            side={side}
+            title="9router Usage · right-click: sidebar"
+            shortcut={hint("ui.usageSidebar")}
+            pressed={usageMode !== "closed"}
+            onClick={() => openZaicodeUsage(usageMode === "page" ? "closed" : "page")}
+            onContextMenu={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              toggleZaicodeUsageSidebar();
+            }}
+          >
+            <ZaicodeIcon slot="tool.usage" />
+          </ZaicodeTopButton>
+        );
       case "home":
         return (
-          <ZaicodeTopButton key={id} side={side} title="SAIHOME" shortcut={hint("ui.home")} onClick={() => void openZaicodeHomeView()}>
+          <ZaicodeTopButton
+            key={id}
+            side={side}
+            title="SAIHOME"
+            shortcut={hint("ui.home")}
+            onClick={() => void openZaicodeHomeView()}
+          >
             <ZaicodeIcon slot="tool.home" />
           </ZaicodeTopButton>
         );
@@ -117,23 +165,45 @@ export function useZaicodeCommonTools(side: "top" | "bottom"): (id: ZaicodeCommo
       case "cycleArrows":
         return (
           <span key={id} className="flex">
-            <ZaicodeTopButton side={side} title="Previous session" shortcut={hint("session.prev")} onClick={() => cycle(-1)}>
+            <ZaicodeTopButton
+              side={side}
+              title="Previous session"
+              shortcut={hint("session.prev")}
+              onClick={() => cycle(-1)}
+            >
               <ZaicodeIcon slot="tool.prev" />
             </ZaicodeTopButton>
-            <ZaicodeTopButton side={side} title="Next session" shortcut={hint("session.next")} onClick={() => cycle(1)}>
+            <ZaicodeTopButton
+              side={side}
+              title="Next session"
+              shortcut={hint("session.next")}
+              onClick={() => cycle(1)}
+            >
               <ZaicodeIcon slot="tool.next" />
             </ZaicodeTopButton>
           </span>
         );
       case "timers":
         return (
-          <ZaicodeTopButton key={id} side={side} title="Timers" shortcut={hint("timers.open")} onClick={() => openTimers("alarms")}>
+          <ZaicodeTopButton
+            key={id}
+            side={side}
+            title="Timers"
+            shortcut={hint("timers.open")}
+            onClick={() => openTimers("alarms")}
+          >
             <ZaicodeIcon slot="tool.timers" />
           </ZaicodeTopButton>
         );
       case "help":
         return (
-          <ZaicodeTopButton key={id} side={side} title="Help" shortcut={hint("ui.help")} onClick={() => void openZaicodeHelp()}>
+          <ZaicodeTopButton
+            key={id}
+            side={side}
+            title="Help"
+            shortcut={hint("ui.help")}
+            onClick={() => void openZaicodeHelp()}
+          >
             <ZaicodeIcon slot="tool.help" />
           </ZaicodeTopButton>
         );

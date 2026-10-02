@@ -37,7 +37,12 @@ import { WorkspacePluginPreview } from "@/WorkspacePluginPreview.js";
 import { isZaicodeProductMode } from "@zcode/shared";
 import { useZaicodeSidebarPrefs } from "@/zaicode/zaicodeSidebarPrefs.js";
 import { ZaicodeProjectRail } from "@/zaicode/ZaicodeProjectRail.js";
-import { resolveZaicodeSidebarWidth, zaicodeSidebarDragWidth, zaicodeSidebarKeyboardWidth, ZAICODE_SIDEBAR_RAIL_WIDTH } from "@/zaicode/zaicodeSidebarWidth.js";
+import {
+  resolveZaicodeSidebarWidth,
+  zaicodeSidebarDragWidth,
+  zaicodeSidebarKeyboardWidth,
+  ZAICODE_SIDEBAR_RAIL_WIDTH,
+} from "@/zaicode/zaicodeSidebarWidth.js";
 import { ZaicodeSaipenMenu } from "@/zaicode/ZaicodeSaipenMenu.js";
 import { useZaicodeFreshSession, useZaicodeOpenSession } from "@/zaicode/zaicodeSaipen.js";
 import { playZaicodeSound } from "@/zaicode/zaicodeSoundBus.js";
@@ -57,6 +62,8 @@ import { AutomationsMainBreadcrumbFrame } from "@/settings/AutomationsMainBreadc
 import { PluginStorePage } from "@/settings/PluginStorePage.js";
 import { ZaicodeWorkspace } from "@/zaicode/ZaicodeWorkspace.js";
 import { useZaicodeActions } from "@/zaicode/zaicodeActions.js";
+import { useZaicodeUsage } from "@/zaicode/zaicodeUsage.js";
+import { ZaicodeUsageView } from "@/zaicode/ZaicodeUsageView.js";
 import { ZaicodeHomePage } from "@/zaicode/home/ZaicodeHomePage.js";
 import { useZaicodeHomePrefs } from "@/zaicode/home/zaicodeHomePrefs.js";
 import { ZaicodeWorkersDockFrame } from "@/zaicode/ZaicodeWorkersDockFrame.js";
@@ -154,7 +161,9 @@ function clampWorkspaceSidebarWidth(widthPx: number, containerWidthPx?: number) 
         )
       : Number.POSITIVE_INFINITY;
 
-  return isZaicodeProductMode() ? resolveZaicodeSidebarWidth(widthPx, maxWidthPx) : Math.round(Math.max(WORKSPACE_SIDEBAR_MIN_WIDTH_PX, Math.min(widthPx, maxWidthPx)));
+  return isZaicodeProductMode()
+    ? resolveZaicodeSidebarWidth(widthPx, maxWidthPx)
+    : Math.round(Math.max(WORKSPACE_SIDEBAR_MIN_WIDTH_PX, Math.min(widthPx, maxWidthPx)));
 }
 
 function readStoredWorkspaceSidebarWidthPx(): number | null {
@@ -678,7 +687,11 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
 
       event.preventDefault();
       const nextWidthPx = clampWorkspaceSidebarWidth(
-        zaicodeSidebarDragWidth(resizeSession.startWidthPx, event.clientX - resizeSession.startX, isZaicodeProductMode() && useZaicodeSidebarPrefs.getState().sidebarsSwapped),
+        zaicodeSidebarDragWidth(
+          resizeSession.startWidthPx,
+          event.clientX - resizeSession.startX,
+          isZaicodeProductMode() && useZaicodeSidebarPrefs.getState().sidebarsSwapped,
+        ),
         resizeSession.containerWidthPx,
       );
       applyWorkspaceSidebarWidthDuringDrag(nextWidthPx);
@@ -728,11 +741,27 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
       let nextWidthPx: number | null = null;
 
       if (event.key === "ArrowLeft") {
-        nextWidthPx = isZaicodeProductMode() ? zaicodeSidebarKeyboardWidth(workspaceSidebarPanelWidthPxRef.current, -1, useZaicodeSidebarPrefs.getState().sidebarsSwapped, WORKSPACE_SIDEBAR_RESIZE_KEYBOARD_STEP_PX) : workspaceSidebarPanelWidthPxRef.current - WORKSPACE_SIDEBAR_RESIZE_KEYBOARD_STEP_PX;
+        nextWidthPx = isZaicodeProductMode()
+          ? zaicodeSidebarKeyboardWidth(
+              workspaceSidebarPanelWidthPxRef.current,
+              -1,
+              useZaicodeSidebarPrefs.getState().sidebarsSwapped,
+              WORKSPACE_SIDEBAR_RESIZE_KEYBOARD_STEP_PX,
+            )
+          : workspaceSidebarPanelWidthPxRef.current - WORKSPACE_SIDEBAR_RESIZE_KEYBOARD_STEP_PX;
       } else if (event.key === "ArrowRight") {
-        nextWidthPx = isZaicodeProductMode() ? zaicodeSidebarKeyboardWidth(workspaceSidebarPanelWidthPxRef.current, 1, useZaicodeSidebarPrefs.getState().sidebarsSwapped, WORKSPACE_SIDEBAR_RESIZE_KEYBOARD_STEP_PX) : workspaceSidebarPanelWidthPxRef.current + WORKSPACE_SIDEBAR_RESIZE_KEYBOARD_STEP_PX;
+        nextWidthPx = isZaicodeProductMode()
+          ? zaicodeSidebarKeyboardWidth(
+              workspaceSidebarPanelWidthPxRef.current,
+              1,
+              useZaicodeSidebarPrefs.getState().sidebarsSwapped,
+              WORKSPACE_SIDEBAR_RESIZE_KEYBOARD_STEP_PX,
+            )
+          : workspaceSidebarPanelWidthPxRef.current + WORKSPACE_SIDEBAR_RESIZE_KEYBOARD_STEP_PX;
       } else if (event.key === "Home") {
-        nextWidthPx = isZaicodeProductMode() ? ZAICODE_SIDEBAR_RAIL_WIDTH : WORKSPACE_SIDEBAR_MIN_WIDTH_PX;
+        nextWidthPx = isZaicodeProductMode()
+          ? ZAICODE_SIDEBAR_RAIL_WIDTH
+          : WORKSPACE_SIDEBAR_MIN_WIDTH_PX;
       } else if (event.key === "End") {
         nextWidthPx = maxWidthPx;
       }
@@ -863,6 +892,22 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
   const showChatMainView = useCallback(() => {
     onWorkspaceMainViewChange("chat");
   }, [onWorkspaceMainViewChange]);
+  const usageMode = useZaicodeUsage((state) => state.mode);
+  useEffect(() => {
+    if (!isZaicodeProductMode() || !isWorkspaceVisible || !handleOpenSaipenTab) return;
+    const open = (target?: { workspacePath: string; workspaceIdentity?: string | undefined }) => {
+      if (!activeTaskId) return false;
+      if (target && buildTaskWorkspaceKey(target.workspacePath, target.workspaceIdentity) !== workspaceKey) return false;
+      handleOpenSaipenTab();
+      return true;
+    };
+    useZaicodeActions.getState().setOpenSaipen(open);
+    return () => {
+      if (useZaicodeActions.getState().openSaipen === open) {
+        useZaicodeActions.getState().setOpenSaipen(null);
+      }
+    };
+  }, [activeTaskId, handleOpenSaipenTab, isWorkspaceVisible, workspaceKey]);
   // ZAICODE (SRC-038): the home-screen SCHEDULER card and other surfaces open the ZAICODE view.
   useEffect(() => {
     if (!isZaicodeProductMode()) return;
@@ -881,7 +926,13 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
     useZaicodeActions.getState().setMainView(workspaceMainView);
     // "Last active" startup remembers the view the operator was on.
     const remembered =
-      workspaceMainView === "saihome" ? "home" : workspaceMainView === "zaicode" ? "zaicode" : workspaceMainView === "chat" ? "chat" : null;
+      workspaceMainView === "saihome"
+        ? "home"
+        : workspaceMainView === "zaicode"
+          ? "zaicode"
+          : workspaceMainView === "chat"
+            ? "chat"
+            : null;
     if (remembered && useZaicodeHomePrefs.getState().lastView !== remembered) {
       useZaicodeHomePrefs.getState().update({ lastView: remembered });
     }
@@ -1609,7 +1660,8 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
     />
   );
   const sidePanePanel = <Fragment key="browser">{renderSidePanePanel()}</Fragment>;
-  const projectRail = isZaicodeProductMode() && workspaceSidebarPanelWidthPx <= ZAICODE_SIDEBAR_RAIL_WIDTH;
+  const projectRail =
+    isZaicodeProductMode() && workspaceSidebarPanelWidthPx <= ZAICODE_SIDEBAR_RAIL_WIDTH;
   const hasUpdateStatusButton =
     updateReadyVersion !== null ||
     updateState?.kind === "update-available" ||
@@ -1648,320 +1700,317 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
   }, [gitState.datasets, gitState.revision]);
 
   const conversationColumnPanel = (
-<ResizablePanel key="conversation-column"
-              id="conversation-column"
-              minSize="35%"
-              defaultSize={isSidePaneVisible ? "52%" : undefined}
-            >
-              <ResizablePanelGroup
-                orientation="vertical"
-                layoutId="workspace-conversation-column-layout"
-                panelIds={WORKSPACE_CONVERSATION_PANEL_IDS}
-                className="h-full min-h-0"
+    <ResizablePanel
+      key="conversation-column"
+      id="conversation-column"
+      minSize="35%"
+      defaultSize={isSidePaneVisible ? "52%" : undefined}
+    >
+      <ResizablePanelGroup
+        orientation="vertical"
+        layoutId="workspace-conversation-column-layout"
+        panelIds={WORKSPACE_CONVERSATION_PANEL_IDS}
+        className="h-full min-h-0"
+      >
+        <ResizablePanel id="conversation" elementRef={conversationPanelElementRef} minSize="35%">
+          <section
+            data-workspace-conversation-frame="true"
+            className={cn(
+              "relative flex h-full min-h-0 flex-1 flex-col overflow-hidden bg-background",
+              isSidePaneVisible
+                ? "rounded-[var(--workspace-panel-radius)] border border-border"
+                : resolveWorkspaceShellWindowChromeClass({
+                    isMacDesktop,
+                    isWindowsDesktop,
+                    isLinuxDesktop,
+                    macOSMajorVersion: desktopWindowChromeState?.macOSMajorVersion,
+                    isWindowsMaximized: desktopWindowChromeState?.isMaximized ?? false,
+                    supportsNativeRoundedCorners:
+                      desktopWindowChromeState?.supportsNativeRoundedCorners ?? null,
+                  }),
+              isTerminalVisible && "rounded-b-[var(--workspace-panel-radius)] border-b",
+            )}
+          >
+            {shouldRenderWorkspaceHeader ? (
+              <ScopedErrorBoundary
+                scope="workspace-header"
+                resetKeys={workspaceOnlyResetKeys}
+                variant="compact"
+                className="border-b"
               >
-                <ResizablePanel
-                  id="conversation"
-                  elementRef={conversationPanelElementRef}
-                  minSize="35%"
+                <WorkspaceHeader
+                  reserveWindowControls={!isSidePaneVisible}
+                  variant={activeTaskId === null ? "draft" : "task"}
+                  draftDropTargetController={
+                    activeTaskId === null ? draftHeaderDropTargetController : undefined
+                  }
+                  readOnlyReason={workspaceReadOnlyReason}
+                  workspaceAbsPath={workspaceAbsPath}
+                  remoteSessionId={workspaceRemoteSessionId}
+                  workspaceIdentity={workspaceIdentity}
+                  remoteTarget={workspaceRemoteTarget}
+                  localWorkspacePath={workspaceLocalPathForRemoteMcpSync}
+                  projectName={projectName}
+                  activeTaskTitle={activeTaskTitle}
+                  activeTaskChangeSummary={activeTaskChangeSummary}
+                  hasUpdateReady={hasUpdateStatusButton}
+                  activeTaskId={activeTaskId}
+                  user={user}
+                  activeTraceId={activeTraceId}
+                  activeSessionId={activeSessionId}
+                  activeTaskProvider={activeTaskProvider}
+                  resolvedActiveTaskMeta={resolvedActiveTaskMeta}
+                  sessionLogPath={taskSessionFile.path}
+                  nativeSessionLogProvider={taskNativeSessionLogFile.provider}
+                  nativeSessionLogPath={taskNativeSessionLogFile.path}
+                  nativeSessionLogExists={taskNativeSessionLogFile.exists}
+                  nativeSessionLogLoading={taskNativeSessionLogFile.loading}
+                  workspaceHeaderState={workspaceShellZCodeState}
+                  gitSummary={gitState.summary}
+                  gitDirtyFileCount={gitDirtyFileCount}
+                  isMacDesktop={isMacDesktop}
+                  isMacFullscreen={isMacFullscreen}
+                  isWindowsDesktop={isWindowsDesktop}
+                  windowsWindowControlsRightPaddingPx={windowsWindowControlsRightPaddingPx}
+                  isDesktop={isDesktop}
+                  isSidebarVisible={isSidebarVisible}
+                  isTerminalOpen={isTerminalOpen}
+                  isSidePaneOpen={isSidePaneOpen}
+                  onRefreshGit={handleRefreshGit}
+                  onToggleTerminal={handleToggleTerminal}
+                  onToggleBrowser={handleToggleBrowser}
+                  onToggleSidePane={handleToggleSidePane}
+                  toggleSidePaneShortcutLabel={toggleSidePaneShortcutLabel}
+                  onReloadSession={handleReloadSession}
+                  reloadSessionDisabled={workspaceSessionActionDisabled}
+                  reloadSessionPending={reloadSessionPending}
+                  onCreateTask={handleCreateTaskInChat}
+                  onOpenWorkspace={onOpenWorkspace}
+                  allowOpenWorkspace={allowOpenWorkspace}
+                />
+              </ScopedErrorBoundary>
+            ) : null}
+            <div className="min-h-0 flex-1 overflow-hidden">
+              {workspaceMainView === "automations" ? (
+                <main
+                  id={AUTOMATIONS_TOAST_ANCHOR_ID}
+                  className="flex h-full min-h-0 flex-1 flex-col bg-background"
                 >
-                  <section
-                    data-workspace-conversation-frame="true"
-                    className={cn(
-                      "relative flex h-full min-h-0 flex-1 flex-col overflow-hidden bg-background",
-                      isSidePaneVisible
-                        ? "rounded-[var(--workspace-panel-radius)] border border-border"
-                        : resolveWorkspaceShellWindowChromeClass({
-                            isMacDesktop,
-                            isWindowsDesktop,
-                            isLinuxDesktop,
-                            macOSMajorVersion: desktopWindowChromeState?.macOSMajorVersion,
-                            isWindowsMaximized: desktopWindowChromeState?.isMaximized ?? false,
-                            supportsNativeRoundedCorners:
-                              desktopWindowChromeState?.supportsNativeRoundedCorners ?? null,
-                          }),
-                      isTerminalVisible && "rounded-b-[var(--workspace-panel-radius)] border-b",
-                    )}
+                  <AutomationsMainBreadcrumbFrame
+                    isDesktop={Boolean(isDesktop)}
+                    sectionLabel={intl.formatMessage({
+                      id: "settings.automations.title",
+                    })}
+                    ariaLabel={intl.formatMessage({
+                      id: "automations.breadcrumbLabel",
+                    })}
                   >
-                    {shouldRenderWorkspaceHeader ? (
+                    <div
+                      // 不同 Automations tab 的内容高度不同，滚动条出现/消失会改变
+                      // mx-auto 内容列的可用宽度，造成整页左右弹动；预留稳定槽位保持居中基准不变。
+                      className="min-h-0 flex-1 overflow-y-auto [scrollbar-gutter:stable]"
+                    >
                       <ScopedErrorBoundary
-                        scope="workspace-header"
+                        scope="automations-main"
                         resetKeys={workspaceOnlyResetKeys}
-                        variant="compact"
-                        className="border-b"
+                        variant="panel"
+                        className="min-h-full"
                       >
-                        <WorkspaceHeader
-                          reserveWindowControls={!isSidePaneVisible}
-                          variant={activeTaskId === null ? "draft" : "task"}
-                          draftDropTargetController={
-                            activeTaskId === null ? draftHeaderDropTargetController : undefined
-                          }
-                          readOnlyReason={workspaceReadOnlyReason}
-                          workspaceAbsPath={workspaceAbsPath}
-                          remoteSessionId={workspaceRemoteSessionId}
-                          workspaceIdentity={workspaceIdentity}
-                          remoteTarget={workspaceRemoteTarget}
-                          localWorkspacePath={workspaceLocalPathForRemoteMcpSync}
-                          projectName={projectName}
-                          activeTaskTitle={activeTaskTitle}
-                          activeTaskChangeSummary={activeTaskChangeSummary}
-                          hasUpdateReady={hasUpdateStatusButton}
-                          activeTaskId={activeTaskId}
-                          user={user}
-                          activeTraceId={activeTraceId}
-                          activeSessionId={activeSessionId}
-                          activeTaskProvider={activeTaskProvider}
-                          resolvedActiveTaskMeta={resolvedActiveTaskMeta}
-                          sessionLogPath={taskSessionFile.path}
-                          nativeSessionLogProvider={taskNativeSessionLogFile.provider}
-                          nativeSessionLogPath={taskNativeSessionLogFile.path}
-                          nativeSessionLogExists={taskNativeSessionLogFile.exists}
-                          nativeSessionLogLoading={taskNativeSessionLogFile.loading}
-                          workspaceHeaderState={workspaceShellZCodeState}
-                          gitSummary={gitState.summary}
-                          gitDirtyFileCount={gitDirtyFileCount}
-                          isMacDesktop={isMacDesktop}
-                          isMacFullscreen={isMacFullscreen}
-                          isWindowsDesktop={isWindowsDesktop}
-                          windowsWindowControlsRightPaddingPx={windowsWindowControlsRightPaddingPx}
-                          isDesktop={isDesktop}
-                          isSidebarVisible={isSidebarVisible}
-                          isTerminalOpen={isTerminalOpen}
-                          isSidePaneOpen={isSidePaneOpen}
-                          onRefreshGit={handleRefreshGit}
-                          onToggleTerminal={handleToggleTerminal}
-                          onToggleBrowser={handleToggleBrowser}
-                          onToggleSidePane={handleToggleSidePane}
-                          toggleSidePaneShortcutLabel={toggleSidePaneShortcutLabel}
-                          onReloadSession={handleReloadSession}
-                          reloadSessionDisabled={workspaceSessionActionDisabled}
-                          reloadSessionPending={reloadSessionPending}
-                          onCreateTask={handleCreateTaskInChat}
-                          onOpenWorkspace={onOpenWorkspace}
-                          allowOpenWorkspace={allowOpenWorkspace}
-                        />
-                      </ScopedErrorBoundary>
-                    ) : null}
-                    <div className="min-h-0 flex-1 overflow-hidden">
-                      {workspaceMainView === "automations" ? (
-                        <main
-                          id={AUTOMATIONS_TOAST_ANCHOR_ID}
-                          className="flex h-full min-h-0 flex-1 flex-col bg-background"
-                        >
-                          <AutomationsMainBreadcrumbFrame
-                            isDesktop={Boolean(isDesktop)}
-                            sectionLabel={intl.formatMessage({
-                              id: "settings.automations.title",
-                            })}
-                            ariaLabel={intl.formatMessage({
-                              id: "automations.breadcrumbLabel",
-                            })}
-                          >
-                            <div
-                              // 不同 Automations tab 的内容高度不同，滚动条出现/消失会改变
-                              // mx-auto 内容列的可用宽度，造成整页左右弹动；预留稳定槽位保持居中基准不变。
-                              className="min-h-0 flex-1 overflow-y-auto [scrollbar-gutter:stable]"
-                            >
-                              <ScopedErrorBoundary
-                                scope="automations-main"
-                                resetKeys={workspaceOnlyResetKeys}
-                                variant="panel"
-                                className="min-h-full"
-                              >
-                                <div className="mx-auto flex w-full max-w-5xl flex-col px-4 py-4 md:px-6 md:py-6">
-                                  <AutomationsSection
-                                    workspacePath={workspaceAbsPath}
-                                    workspaceIdentity={workspaceIdentity}
-                                    onCreateViaChat={handleCreateAutomationInChat}
-                                    onNavigateToLaunchedRun={handleNavigateToLaunchedRun}
-                                    onOpenWorkflowRun={handleOpenSavedWorkflowRun}
-                                    onOpenWorkflowArtifact={handleOpenSavedWorkflowArtifact}
-                                    openAutomationId={openAutomationId}
-                                    openAutomationTab={openAutomationTab}
-                                    onOpenAutomationConsumed={onOpenAutomationConsumed}
-                                    onOpenSession={({
-                                      sessionId,
-                                      workspacePath,
-                                      workspaceIdentity,
-                                    }) =>
-                                      handleSelectTaskInChat(
-                                        workspacePath,
-                                        sessionId,
-                                        workspaceIdentity,
-                                      )
-                                    }
-                                  />
-                                </div>
-                              </ScopedErrorBoundary>
-                            </div>
-                          </AutomationsMainBreadcrumbFrame>
-                        </main>
-                      ) : workspaceMainView === "plugin-store" ? (
-                        <main className="flex h-full min-h-0 flex-1 flex-col bg-background">
-                          <AutomationsMainBreadcrumbFrame
-                            isDesktop={Boolean(isDesktop)}
-                            sectionLabel={intl.formatMessage({
-                              id: "workspace.openPluginsSettings",
-                            })}
-                            ariaLabel={intl.formatMessage({
-                              id: "settings.breadcrumbLabel",
-                            })}
-                          >
-                            <div className="min-h-0 flex-1 overflow-y-auto [scrollbar-gutter:stable]">
-                              <div className="mx-auto flex w-full max-w-4xl flex-col px-4 py-4 md:px-6 md:py-6">
-                                <PluginStorePage
-                                  key={`plugin-store:${pluginStoreOpenVersion}`}
-                                  workspacePath={workspaceAbsPath}
-                                  workspaceIdentity={workspaceIdentity}
-                                  onCreateTask={handleCreateTaskInChat}
-                                  onManageInstalled={handleManageInstalledPlugins}
-                                />
-                              </div>
-                            </div>
-                          </AutomationsMainBreadcrumbFrame>
-                        </main>
-                      ) : workspaceMainView === "saihome" ? (
-                        <main className="flex h-full min-h-0 flex-1 flex-col bg-background" data-zaicode-saihome-main>
-                          <ScopedErrorBoundary
-                            scope="zaicode-saihome"
-                            resetKeys={workspaceOnlyResetKeys}
-                            variant="panel"
-                            className="h-full"
-                          >
-                            <ZaicodeHomePage
-                              onOpenSession={(sessionWorkspacePath, sessionId, sessionWorkspaceIdentity) =>
-                                handleSelectTaskInChat(sessionWorkspacePath, sessionId, sessionWorkspaceIdentity)
-                              }
-                              onOpenProject={(projectPath, projectIdentity) => {
-                                const tabs = tabStoreApi.getState();
-                                const activated = tabs.activateTabByPath(
-                                  projectPath,
-                                  projectIdentity ? { workspaceIdentity: projectIdentity } : undefined,
-                                );
-                                if (!activated && !projectIdentity) tabs.addTab(projectPath);
-                                showChatMainView();
-                              }}
-                              onNewTask={() => handleCreateTaskInChat({ createSource: "project" })}
-                            />
-                          </ScopedErrorBoundary>
-                        </main>
-                      ) : workspaceMainView === "zaicode" ? (
-                        <main className="flex h-full min-h-0 flex-1 flex-col bg-background">
-                          <ZaicodeWorkspace
+                        <div className="mx-auto flex w-full max-w-5xl flex-col px-4 py-4 md:px-6 md:py-6">
+                          <AutomationsSection
                             workspacePath={workspaceAbsPath}
-                            {...(workspaceIdentity ? { workspaceIdentity } : {})}
-                            onOpenSession={(sessionId) =>
-                              handleSelectTaskInChat(workspaceAbsPath, sessionId, workspaceIdentity)
+                            workspaceIdentity={workspaceIdentity}
+                            onCreateViaChat={handleCreateAutomationInChat}
+                            onNavigateToLaunchedRun={handleNavigateToLaunchedRun}
+                            onOpenWorkflowRun={handleOpenSavedWorkflowRun}
+                            onOpenWorkflowArtifact={handleOpenSavedWorkflowArtifact}
+                            openAutomationId={openAutomationId}
+                            openAutomationTab={openAutomationTab}
+                            onOpenAutomationConsumed={onOpenAutomationConsumed}
+                            onOpenSession={({ sessionId, workspacePath, workspaceIdentity }) =>
+                              handleSelectTaskInChat(workspacePath, sessionId, workspaceIdentity)
                             }
                           />
-                        </main>
-                      ) : (
-                        <main className="relative flex h-full min-h-0 flex-1 flex-col overflow-hidden">
-                          {renderChatFindDialog()}
-                          <ScopedErrorBoundary
-                            scope="workspace-chat"
-                            resetKeys={workspaceDraftResetKeys}
-                            variant="panel"
-                            className="h-full"
-                          >
-                            {/* pane 绑定必须用原始选择态 activeTaskId，
+                        </div>
+                      </ScopedErrorBoundary>
+                    </div>
+                  </AutomationsMainBreadcrumbFrame>
+                </main>
+              ) : workspaceMainView === "plugin-store" ? (
+                <main className="flex h-full min-h-0 flex-1 flex-col bg-background">
+                  <AutomationsMainBreadcrumbFrame
+                    isDesktop={Boolean(isDesktop)}
+                    sectionLabel={intl.formatMessage({
+                      id: "workspace.openPluginsSettings",
+                    })}
+                    ariaLabel={intl.formatMessage({
+                      id: "settings.breadcrumbLabel",
+                    })}
+                  >
+                    <div className="min-h-0 flex-1 overflow-y-auto [scrollbar-gutter:stable]">
+                      <div className="mx-auto flex w-full max-w-4xl flex-col px-4 py-4 md:px-6 md:py-6">
+                        <PluginStorePage
+                          key={`plugin-store:${pluginStoreOpenVersion}`}
+                          workspacePath={workspaceAbsPath}
+                          workspaceIdentity={workspaceIdentity}
+                          onCreateTask={handleCreateTaskInChat}
+                          onManageInstalled={handleManageInstalledPlugins}
+                        />
+                      </div>
+                    </div>
+                  </AutomationsMainBreadcrumbFrame>
+                </main>
+              ) : isWorkspaceVisible && usageMode === "page" ? (
+                <main className="flex h-full min-h-0 min-w-0 flex-1 flex-col">
+                  <ScopedErrorBoundary
+                    scope="zaicode-usage"
+                    resetKeys={workspaceOnlyResetKeys}
+                    variant="panel"
+                    className="h-full"
+                  >
+                    <ZaicodeUsageView />
+                  </ScopedErrorBoundary>
+                </main>
+              ) : workspaceMainView === "saihome" ? (
+                <main
+                  className="flex h-full min-h-0 flex-1 flex-col bg-background"
+                  data-zaicode-saihome-main
+                >
+                  <ScopedErrorBoundary
+                    scope="zaicode-saihome"
+                    resetKeys={workspaceOnlyResetKeys}
+                    variant="panel"
+                    className="h-full"
+                  >
+                    <ZaicodeHomePage
+                      onOpenSession={(sessionWorkspacePath, sessionId, sessionWorkspaceIdentity) =>
+                        handleSelectTaskInChat(
+                          sessionWorkspacePath,
+                          sessionId,
+                          sessionWorkspaceIdentity,
+                        )
+                      }
+                      onOpenProject={(projectPath, projectIdentity) => {
+                        const tabs = tabStoreApi.getState();
+                        const activated = tabs.activateTabByPath(
+                          projectPath,
+                          projectIdentity ? { workspaceIdentity: projectIdentity } : undefined,
+                        );
+                        if (!activated && !projectIdentity) tabs.addTab(projectPath);
+                        showChatMainView();
+                      }}
+                      onNewTask={() => handleCreateTaskInChat({ createSource: "project" })}
+                    />
+                  </ScopedErrorBoundary>
+                </main>
+              ) : workspaceMainView === "zaicode" ? (
+                <main className="flex h-full min-h-0 flex-1 flex-col bg-background">
+                  <ZaicodeWorkspace
+                    workspacePath={workspaceAbsPath}
+                    {...(workspaceIdentity ? { workspaceIdentity } : {})}
+                    onOpenSession={(sessionId) =>
+                      handleSelectTaskInChat(workspaceAbsPath, sessionId, workspaceIdentity)
+                    }
+                  />
+                </main>
+              ) : (
+                <main className="relative flex h-full min-h-0 flex-1 flex-col overflow-hidden">
+                  {renderChatFindDialog()}
+                  <ScopedErrorBoundary
+                    scope="workspace-chat"
+                    resetKeys={workspaceDraftResetKeys}
+                    variant="panel"
+                    className="h-full"
+                  >
+                    {/* pane 绑定必须用原始选择态 activeTaskId，
                                   不能用 meta 派生的 activeSessionId——v4 createSession 刚建的会话
                                   不在 taskListCache/optimistic 缓存里，meta 解析为 null 会让 pane
                                   永远停在 draft。v4 语义下 sessionId ≡ taskId，meta 只服务 Header 显示。
                                   桌面主区升级为分屏宿主（Layout/Focus 两层）；primary pane
                                   绑定语义与 testid 契约（paneId=workspace-main）不变。 */}
-                            <V4WorkspaceChatArea
-                              readOnly={Boolean(workspaceReadOnlyReason)}
-                              foregroundEnabled={isWorkspaceVisible}
-                              workspacePath={workspaceAbsPath}
-                              workspaceIdentity={workspaceIdentity}
-                              isDesktop={isDesktop === true}
-                              remoteSessionId={workspaceRemoteSessionId}
-                              sessionId={activeTaskId}
-                              activeSelectionSideChatSessionId={activeSelectionSideChatSessionId}
-                              provider={activeTaskProvider ?? undefined}
-                              onSessionCreated={handleV4SessionCreated}
-                              onSessionDeleted={handleV4SessionDeleted}
-                              draftComposerHeader={draftComposerHeader}
-                              onPrimaryDraftDropTargetControllerChange={
-                                setDraftHeaderDropTargetController
-                              }
-                              gitSummary={gitState.summary}
-                              gitDirtyFileCount={gitDirtyFileCount}
-                              activeTaskChangeSummary={activeTaskChangeSummary}
-                              gitWorktreeReviewSourceId={gitWorktreeReviewSourceId}
-                              gitWorktreeChangeSummary={gitWorktreeChangeSummary}
-                              summaryPanelVariantOverride={summaryPanelVariantOverride}
-                              onSummaryPanelVariantOverrideChange={
-                                onSummaryPanelVariantOverrideChange
-                              }
-                              onRefreshGit={handleRefreshGit}
-                              onOpenGitReview={handleOpenGitReview}
-                              onPaneActiveSessionChange={handlePaneActiveSessionChange}
-                              onOpenBrowserUrl={handleOpenBrowserUrl}
-                              onOpenAutomationsMain={handleOpenAutomations}
-                              onOpenCodeViewer={handleOpenCodeViewer}
-                              onAutoOpenAssistantPptx={
-                                isDesktop ? handleAutoOpenAssistantPptx : undefined
-                              }
-                              onOpenBackgroundBash={handleOpenBackgroundBash}
-                              onOpenSubagentSession={handleOpenSubagentSession}
-                              onOpenSubagentDirectory={handleOpenSubagentDirectory}
-                              onSyncSubagentSessionTabs={handleSyncSubagentSessionTabs}
-                              onOpenSelectionSideChat={handleOpenSelectionSideChat}
-                              onOpenPlanDetail={handleOpenPlanDetail}
-                              onOpenWorkflowRun={handleOpenWorkflowRun}
-                              onOpenWorkflowArtifact={handleOpenWorkflowArtifact}
-                              onOpenWorkflowRunDirectory={handleOpenWorkflowRunDirectory}
-                              onOpenWorkflowActorSession={handleOpenWorkflowActorSession}
-                              onOpenWorkflowWorkspace={handleOpenWorkflowWorkspace}
-                              onOpenFileLink={handleOpenMarkdownFileLink}
-                              conversationFindQuery={conversationFindQuery}
-                              conversationFindActiveIndex={conversationFindActiveIndex}
-                              conversationFindNavigationRequestId={
-                                conversationFindNavigationRequestId
-                              }
-                              onConversationFindMatchStateChange={
-                                onConversationFindMatchStateChange
-                              }
-                              searchResultHighlightRequest={activeSearchResultHighlightRequest}
-                              onSearchResultHighlightDone={onSearchResultHighlightDone}
-                            />
-                          </ScopedErrorBoundary>
-                        </main>
-                      )}
-                    </div>
-                  </section>
-                </ResizablePanel>
-                {workspaceMainView !== "automations" && workspaceMainView !== "plugin-store" ? (
-                  <AnimatedTerminalPanel
-                    frameClassName={cn(
-                      isSidePaneVisible
-                        ? "rounded-[var(--workspace-panel-radius)] border border-border"
-                        : resolveWorkspaceShellWindowChromeClass({
-                            isMacDesktop,
-                            isWindowsDesktop,
-                            isLinuxDesktop,
-                            macOSMajorVersion: desktopWindowChromeState?.macOSMajorVersion,
-                            isWindowsMaximized: desktopWindowChromeState?.isMaximized ?? false,
-                            supportsNativeRoundedCorners:
-                              desktopWindowChromeState?.supportsNativeRoundedCorners ?? null,
-                          }),
-                      "rounded-t-[var(--workspace-panel-radius)] border-t",
-                    )}
-                    services={services}
-                    workspaceAbsPath={workspaceAbsPath}
-                    workspaceIdentity={workspaceIdentity}
-                    openWorkspaceKeys={openWorkspaceKeys}
-                    isVisible={isTerminalVisible}
-                    isWindowsDesktop={isWindowsDesktop}
-                    panelRef={terminalPanelRef}
-                    panelElementRef={terminalPanelElementRef}
-                    onClose={() => setIsTerminalOpen(false)}
-                    onOpenBrowserUrl={handleOpenBrowserUrl}
-                  />
-                ) : null}
-              </ResizablePanelGroup>
-            </ResizablePanel>
+                    <V4WorkspaceChatArea
+                      readOnly={Boolean(workspaceReadOnlyReason)}
+                      foregroundEnabled={isWorkspaceVisible}
+                      workspacePath={workspaceAbsPath}
+                      workspaceIdentity={workspaceIdentity}
+                      isDesktop={isDesktop === true}
+                      remoteSessionId={workspaceRemoteSessionId}
+                      sessionId={activeTaskId}
+                      activeSelectionSideChatSessionId={activeSelectionSideChatSessionId}
+                      provider={activeTaskProvider ?? undefined}
+                      onSessionCreated={handleV4SessionCreated}
+                      onSessionDeleted={handleV4SessionDeleted}
+                      draftComposerHeader={draftComposerHeader}
+                      onPrimaryDraftDropTargetControllerChange={setDraftHeaderDropTargetController}
+                      gitSummary={gitState.summary}
+                      gitDirtyFileCount={gitDirtyFileCount}
+                      activeTaskChangeSummary={activeTaskChangeSummary}
+                      gitWorktreeReviewSourceId={gitWorktreeReviewSourceId}
+                      gitWorktreeChangeSummary={gitWorktreeChangeSummary}
+                      summaryPanelVariantOverride={summaryPanelVariantOverride}
+                      onSummaryPanelVariantOverrideChange={onSummaryPanelVariantOverrideChange}
+                      onRefreshGit={handleRefreshGit}
+                      onOpenGitReview={handleOpenGitReview}
+                      onPaneActiveSessionChange={handlePaneActiveSessionChange}
+                      onOpenBrowserUrl={handleOpenBrowserUrl}
+                      onOpenAutomationsMain={handleOpenAutomations}
+                      onOpenCodeViewer={handleOpenCodeViewer}
+                      onAutoOpenAssistantPptx={isDesktop ? handleAutoOpenAssistantPptx : undefined}
+                      onOpenBackgroundBash={handleOpenBackgroundBash}
+                      onOpenSubagentSession={handleOpenSubagentSession}
+                      onOpenSubagentDirectory={handleOpenSubagentDirectory}
+                      onSyncSubagentSessionTabs={handleSyncSubagentSessionTabs}
+                      onOpenSelectionSideChat={handleOpenSelectionSideChat}
+                      onOpenPlanDetail={handleOpenPlanDetail}
+                      onOpenWorkflowRun={handleOpenWorkflowRun}
+                      onOpenWorkflowArtifact={handleOpenWorkflowArtifact}
+                      onOpenWorkflowRunDirectory={handleOpenWorkflowRunDirectory}
+                      onOpenWorkflowActorSession={handleOpenWorkflowActorSession}
+                      onOpenWorkflowWorkspace={handleOpenWorkflowWorkspace}
+                      onOpenFileLink={handleOpenMarkdownFileLink}
+                      conversationFindQuery={conversationFindQuery}
+                      conversationFindActiveIndex={conversationFindActiveIndex}
+                      conversationFindNavigationRequestId={conversationFindNavigationRequestId}
+                      onConversationFindMatchStateChange={onConversationFindMatchStateChange}
+                      searchResultHighlightRequest={activeSearchResultHighlightRequest}
+                      onSearchResultHighlightDone={onSearchResultHighlightDone}
+                    />
+                  </ScopedErrorBoundary>
+                </main>
+              )}
+            </div>
+          </section>
+        </ResizablePanel>
+        {workspaceMainView !== "automations" && workspaceMainView !== "plugin-store" ? (
+          <AnimatedTerminalPanel
+            frameClassName={cn(
+              isSidePaneVisible
+                ? "rounded-[var(--workspace-panel-radius)] border border-border"
+                : resolveWorkspaceShellWindowChromeClass({
+                    isMacDesktop,
+                    isWindowsDesktop,
+                    isLinuxDesktop,
+                    macOSMajorVersion: desktopWindowChromeState?.macOSMajorVersion,
+                    isWindowsMaximized: desktopWindowChromeState?.isMaximized ?? false,
+                    supportsNativeRoundedCorners:
+                      desktopWindowChromeState?.supportsNativeRoundedCorners ?? null,
+                  }),
+              "rounded-t-[var(--workspace-panel-radius)] border-t",
+            )}
+            services={services}
+            workspaceAbsPath={workspaceAbsPath}
+            workspaceIdentity={workspaceIdentity}
+            openWorkspaceKeys={openWorkspaceKeys}
+            isVisible={isTerminalVisible}
+            isWindowsDesktop={isWindowsDesktop}
+            panelRef={terminalPanelRef}
+            panelElementRef={terminalPanelElementRef}
+            onClose={() => setIsTerminalOpen(false)}
+            onOpenBrowserUrl={handleOpenBrowserUrl}
+          />
+        ) : null}
+      </ResizablePanelGroup>
+    </ResizablePanel>
   );
 
   return (
@@ -2018,71 +2067,79 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
             className="h-full overflow-hidden select-none"
             aria-hidden={!isSidebarPanelVisible}
           >
-            {projectRail ? <ZaicodeProjectRail onHome={() => onWorkspaceMainViewChange("saihome")} onNew={() => handleSidebarNewProjectDraft(workspaceAbsPath, workspaceIdentity)} /> : null}
-            <div className={projectRail ? "hidden" : "contents"} aria-hidden={projectRail || undefined}>
-            <ScopedErrorBoundary
-              scope="workspace-sidebar"
-              resetKeys={workspaceOnlyResetKeys}
-              variant="panel"
-              className="h-full"
+            {projectRail ? (
+              <ZaicodeProjectRail
+                onHome={() => onWorkspaceMainViewChange("saihome")}
+                onNew={() => handleSidebarNewProjectDraft(workspaceAbsPath, workspaceIdentity)}
+              />
+            ) : null}
+            <div
+              className={projectRail ? "hidden" : "contents"}
+              aria-hidden={projectRail || undefined}
             >
-              {/* session workbench groups：桌面和普通 web app 可分屏。 */}
-              <V4SplitPaneEntryProvider
-                enabled
-                canOpenSession={canOpenSessionInSplitPane}
-                onOpenSession={handleOpenSessionInSplitPane}
+              <ScopedErrorBoundary
+                scope="workspace-sidebar"
+                resetKeys={workspaceOnlyResetKeys}
+                variant="panel"
+                className="h-full"
               >
-                <WorkflowRunOpenProvider onOpenRun={handleOpenSidebarWorkflowRun}>
-                  <WorkspaceSidebar
-                    workspacePath={workspaceAbsPath}
-                    workspaceRemoteSessionId={workspaceRemoteSessionId}
-                    activePreviewPath={activePreviewPath}
-                    onSelectTask={handleSelectTaskInChat}
-                    onStartDraftInWorkspace={handleSidebarNewProjectDraft}
-                    onOpenCodeViewer={handleOpenCodeViewer}
-                    onOpenBrowserUrl={handleOpenBrowserUrl}
-                    fileTreeOpenRequest={fileTreeOpenRequest}
-                    onCreateTask={handleCreateTaskInChat}
-                    onCreateConversationTask={onCreateConversationTask ?? handleCreateTaskInChat}
-                    onOpenFolderFromWorkspaceMenu={onOpenFolderFromWorkspaceMenu}
-                    onOpenRemoteWorkspace={onOpenRemoteWorkspace}
-                    theme={theme}
-                    onConnectRemote={onConnectRemote}
-                    onSelectRemoteProject={onSelectRemoteProject}
-                    onCancelRemoteProject={onCancelRemoteProject}
-                    onReconnectRemoteWorkspace={onReconnectRemoteWorkspace}
-                    reconnectingRemoteWorkspaceKeys={reconnectingRemoteWorkspaceKeys}
-                    remoteWorkspaceErrorByWorkspaceKey={remoteWorkspaceErrorByWorkspaceKey}
-                    reconnectingRemoteWorkspaceLogsByWorkspaceKey={
-                      reconnectingRemoteWorkspaceLogsByWorkspaceKey
-                    }
-                    onLogout={onLogout}
-                    onLogin={onLogin}
-                    user={user}
-                    isDesktop={isDesktop}
-                    isMacDesktop={isMacDesktop}
-                    isWindowsDesktop={isWindowsDesktop}
-                    isSidebarVisible={isSidebarVisible}
-                    onToggleSidebar={handleToggleSidebar}
-                    toggleSidebarShortcutLabel={toggleSidebarShortcutLabel}
-                    canGoBack={canPrimaryNavigationBack}
-                    canGoForward={canTaskNavForward}
-                    onGoBack={primaryNavigationBack}
-                    onGoForward={handleTaskNavForward}
-                    goBackShortcutLabel={goBackShortcutLabel}
-                    goForwardShortcutLabel={goForwardShortcutLabel}
-                    onOpenCommandCenter={handleOpenCommandCenter}
-                    onOpenAutomations={handleOpenAutomations}
-                    automationsActive={workspaceMainView === "automations"}
-                    onOpenPluginStore={handleOpenPluginStore}
-                    pluginStoreActive={workspaceMainView === "plugin-store"}
-                    onOpenZaicode={() => onWorkspaceMainViewChange("zaicode")}
-                    zaicodeActive={workspaceMainView === "zaicode"}
-                    onFileTreeOpenChange={setIsSidebarFileTreeOpen}
-                  />
-                </WorkflowRunOpenProvider>
-              </V4SplitPaneEntryProvider>
-            </ScopedErrorBoundary>
+                {/* session workbench groups：桌面和普通 web app 可分屏。 */}
+                <V4SplitPaneEntryProvider
+                  enabled
+                  canOpenSession={canOpenSessionInSplitPane}
+                  onOpenSession={handleOpenSessionInSplitPane}
+                >
+                  <WorkflowRunOpenProvider onOpenRun={handleOpenSidebarWorkflowRun}>
+                    <WorkspaceSidebar
+                      workspacePath={workspaceAbsPath}
+                      workspaceRemoteSessionId={workspaceRemoteSessionId}
+                      activePreviewPath={activePreviewPath}
+                      onSelectTask={handleSelectTaskInChat}
+                      onStartDraftInWorkspace={handleSidebarNewProjectDraft}
+                      onOpenCodeViewer={handleOpenCodeViewer}
+                      onOpenBrowserUrl={handleOpenBrowserUrl}
+                      fileTreeOpenRequest={fileTreeOpenRequest}
+                      onCreateTask={handleCreateTaskInChat}
+                      onCreateConversationTask={onCreateConversationTask ?? handleCreateTaskInChat}
+                      onOpenFolderFromWorkspaceMenu={onOpenFolderFromWorkspaceMenu}
+                      onOpenRemoteWorkspace={onOpenRemoteWorkspace}
+                      theme={theme}
+                      onConnectRemote={onConnectRemote}
+                      onSelectRemoteProject={onSelectRemoteProject}
+                      onCancelRemoteProject={onCancelRemoteProject}
+                      onReconnectRemoteWorkspace={onReconnectRemoteWorkspace}
+                      reconnectingRemoteWorkspaceKeys={reconnectingRemoteWorkspaceKeys}
+                      remoteWorkspaceErrorByWorkspaceKey={remoteWorkspaceErrorByWorkspaceKey}
+                      reconnectingRemoteWorkspaceLogsByWorkspaceKey={
+                        reconnectingRemoteWorkspaceLogsByWorkspaceKey
+                      }
+                      onLogout={onLogout}
+                      onLogin={onLogin}
+                      user={user}
+                      isDesktop={isDesktop}
+                      isMacDesktop={isMacDesktop}
+                      isWindowsDesktop={isWindowsDesktop}
+                      isSidebarVisible={isSidebarVisible}
+                      onToggleSidebar={handleToggleSidebar}
+                      toggleSidebarShortcutLabel={toggleSidebarShortcutLabel}
+                      canGoBack={canPrimaryNavigationBack}
+                      canGoForward={canTaskNavForward}
+                      onGoBack={primaryNavigationBack}
+                      onGoForward={handleTaskNavForward}
+                      goBackShortcutLabel={goBackShortcutLabel}
+                      goForwardShortcutLabel={goForwardShortcutLabel}
+                      onOpenCommandCenter={handleOpenCommandCenter}
+                      onOpenAutomations={handleOpenAutomations}
+                      automationsActive={workspaceMainView === "automations"}
+                      onOpenPluginStore={handleOpenPluginStore}
+                      pluginStoreActive={workspaceMainView === "plugin-store"}
+                      onOpenZaicode={() => onWorkspaceMainViewChange("zaicode")}
+                      zaicodeActive={workspaceMainView === "zaicode"}
+                      onFileTreeOpenChange={setIsSidebarFileTreeOpen}
+                    />
+                  </WorkflowRunOpenProvider>
+                </V4SplitPaneEntryProvider>
+              </ScopedErrorBoundary>
             </div>
           </aside>
         </div>
@@ -2094,7 +2151,9 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
             aria-controls="sidebar"
             aria-label={workspaceSidebarResizeLabel}
             aria-orientation="vertical"
-            aria-valuemin={isZaicodeProductMode() ? ZAICODE_SIDEBAR_RAIL_WIDTH : WORKSPACE_SIDEBAR_MIN_WIDTH_PX}
+            aria-valuemin={
+              isZaicodeProductMode() ? ZAICODE_SIDEBAR_RAIL_WIDTH : WORKSPACE_SIDEBAR_MIN_WIDTH_PX
+            }
             aria-valuenow={Math.round(workspaceSidebarPanelWidthPx)}
             data-testid="resizable-handle"
             onKeyDown={handleWorkspaceSidebarResizeKeyDown}
@@ -2126,15 +2185,34 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
           }
           {/* ZAICODE (SRC-046): the WORKERS panel docks to any edge of the body; the frame is a no-op upstream. */}
           <ZaicodeWorkersDockFrame services={services}>
-          <ResizablePanelGroup
-            layoutId="workspace-body-layout"
-            panelIds={WORKSPACE_BODY_PANEL_IDS}
-            className="min-h-0 min-w-0 flex-1"
-          >
-            {sidebarsSwapped ? [sidePanePanel, conversationColumnPanel] : [conversationColumnPanel, sidePanePanel]}
-            {/* Browser Guest Host 必须与主视图路由解耦，避免 automations/plugin
+            <div className="flex min-h-0 min-w-0 flex-1">
+              <ResizablePanelGroup
+                layoutId="workspace-body-layout"
+                panelIds={WORKSPACE_BODY_PANEL_IDS}
+                className="min-h-0 min-w-0 flex-1"
+              >
+                {sidebarsSwapped
+                  ? [sidePanePanel, conversationColumnPanel]
+                  : [conversationColumnPanel, sidePanePanel]}
+                {/* Browser Guest Host 必须与主视图路由解耦，避免 automations/plugin
                     切换时卸载 Guest；截图请求期间由上层临时展开真实面板承载可合成的 WebContents。 */}
-          </ResizablePanelGroup>
+              </ResizablePanelGroup>
+              {isWorkspaceVisible && usageMode === "sidebar" ? (
+                <aside
+                  className="min-h-0 min-w-0 shrink-0 border-l border-border"
+                  style={{ width: "min(420px,40vw)" }}
+                >
+                  <ScopedErrorBoundary
+                    scope="zaicode-usage-sidebar"
+                    resetKeys={workspaceOnlyResetKeys}
+                    variant="panel"
+                    className="h-full"
+                  >
+                    <ZaicodeUsageView sidebar />
+                  </ScopedErrorBoundary>
+                </aside>
+              ) : null}
+            </div>
           </ZaicodeWorkersDockFrame>
         </div>
         <ScopedErrorBoundary

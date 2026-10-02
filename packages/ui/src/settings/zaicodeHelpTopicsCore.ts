@@ -2,6 +2,7 @@ import type { SettingsSectionId } from "@/lib/settingsNavigation.js";
 import { openZaicodeWorkersPanel } from "@/zaicode/zaicodeWorkers.js";
 import { useZaicodeTimers } from "@/zaicode/zaicodeTimerStore.js";
 import { openZaicodeSaipeggle } from "@/zaicode/saipeggle/ZaicodeSaipeggleView.js";
+import { openZaicodeUsage } from "@/zaicode/zaicodeUsage.js";
 import type { HelpTopic } from "./zaicodeHelpContent.js";
 
 // Split in two only because a single file of this size trips the 400-line lint
@@ -9,7 +10,6 @@ import type { HelpTopic } from "./zaicodeHelpContent.js";
 // ZAICODE_HELP_CURRICULUM (zaicodeHelpOrder.ts) decides that.
 
 export const ZAICODE_HELP_TOPICS_CORE: readonly HelpTopic[] = [
-
   {
     id: "start",
     title: "Start here",
@@ -70,6 +70,18 @@ export const ZAICODE_HELP_TOPICS_CORE: readonly HelpTopic[] = [
     open: { label: "Meter settings", section: "zaicodeEngines" },
   },
   {
+    id: "usage",
+    title: "Usage (9router)",
+    what: "Requests, tokens and estimated costs across every client using your local 9router.",
+    lines: [
+      "Usage in the header or footer opens the full page; right-click or Ctrl+Alt+B opens it beside the chat.",
+      "Pick today, 24 hours, 7 days, 30 days, 60 days or all time. The trend switches between tokens and estimated cost.",
+      "Recent requests, Models, Providers and Accounts explain where the traffic goes. Requests from external tools are included too.",
+      "Live refresh reads every 10 seconds while this view is visible; closing it stops refresh. Dashboard opens the original 9router Usage page.",
+    ],
+    open: { label: "Usage", run: () => openZaicodeUsage() },
+  },
+  {
     id: "accounts",
     title: "Subscriptions as models (Codex 1, Claude 2 …)",
     what: "Every subscription account connected in 9router is its own entry in the model menu: pick the account, then the model, then the effort.",
@@ -89,7 +101,7 @@ export const ZAICODE_HELP_TOPICS_CORE: readonly HelpTopic[] = [
     what: "Word-like styles for the agent's answers: the text, every heading, bold, italics, underlines, links, code in the text, quotes, lists, tables and the divider line.",
     lines: [
       "Settings → Session text. Pick a part on the left (Text, Heading 1 …), change it in the middle, watch the sample answer on the right.",
-      "Every value starts at \"as app\": it keeps the ZAICODE look until you change it.",
+      'Every value starts at "as app": it keeps the ZAICODE look until you change it.',
       "Underline: none, a line, dotted, dashed, double or wavy, in its own colour, thickness and distance from the text.",
       "Headings can have a line under or over them, a frame, a bar on the left or a shaded band, and Word-like numbers 1. / 1.1 / 1.1.1.",
       "Presets apply a whole look in one click (Word document, Book, Typewriter, Terminal, Pixel, Highlighter, Large print, Compact); save your own, export and import them as a file.",

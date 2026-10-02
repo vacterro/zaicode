@@ -21,6 +21,8 @@ import { logger } from "@/logger.js";
 import type { ConversationTurnNavigatorHydrationResult } from "@/v4/conversationTurnNavigatorHelpers.js";
 import type { ConversationTransport } from "@/v4/transport.js";
 import { uiMemoryDiagnosticsRegistry } from "@/lib/memoryDiagnostics.js";
+import { isZaicodeProductMode } from "@zcode/shared";
+import { retainConversationTail, ZAICODE_AUTO_LEADING_TURN_ROWS } from "./conversationRetention.js";
 
 /**
  * runtime 换代打断 subscribe 后的退避节奏。
@@ -238,6 +240,8 @@ export function shouldAutoLoadIncompleteLeadingTurn(
   loadingOlder: boolean,
 ): boolean {
   if (loadingOlder || !hasOlderRows(snapshot) || !snapshot) return false;
+  if (isZaicodeProductMode() && snapshot.rows.window.length >= ZAICODE_AUTO_LEADING_TURN_ROWS)
+    return false;
   const leadingTurnId = snapshot.rows.window[0]?.turnId;
   if (!leadingTurnId) return false;
   return !snapshot.rows.window.some(
@@ -326,6 +330,7 @@ export class ConversationProjectionStore {
       > & { directoryRevision: number })
     | null = null;
   private closed = false;
+  private retainingHistory = false;
 
   constructor(
     readonly topic: string,
@@ -364,6 +369,14 @@ export class ConversationProjectionStore {
 
   getState(): ConversationStoreState {
     return this.state;
+  }
+
+  releaseHistory(): void {
+    this.retainingHistory = false;
+    if (isZaicodeProductMode() && this.state.snapshot) {
+      const snapshot = retainConversationTail(this.state.snapshot);
+      if (snapshot !== this.state.snapshot) this.setState({ snapshot });
+    }
   }
 
   getSessionOpenRendererTiming(): SessionOpenRendererTiming {
@@ -660,7 +673,10 @@ export class ConversationProjectionStore {
       );
       // 规则 1：整体替换，扔掉手里的一切换新的。
       this.setState({
-        snapshot: frame.payload.snapshot,
+        snapshot:
+          isZaicodeProductMode() && !this.retainingHistory
+            ? retainConversationTail(frame.payload.snapshot)
+            : frame.payload.snapshot,
         planDirectoryRevision: this.state.planDirectoryRevision + 1,
         // snapshot 整体替换后 real-user query 集合可能已变，终态缓存必须失效。
         turnNavigatorDirectoryRevision: this.state.turnNavigatorDirectoryRevision + 1,
@@ -717,7 +733,10 @@ export class ConversationProjectionStore {
     }
     const applied = applyConversationDeltas(current, frame.payload.deltas);
     // seq 是快照对齐水位，delta 帧应用完推进到帧右端点。
-    const next = { ...applied, seq: frame.toSeq };
+    const next =
+      isZaicodeProductMode() && !this.retainingHistory
+        ? retainConversationTail({ ...applied, seq: frame.toSeq })
+        : { ...applied, seq: frame.toSeq };
     logSubagentProjectionTransition(this.topic, current, next, "deltas");
     const removedFromRowId = frame.payload.deltas.reduce<number | null>(
       (earliest, delta) =>
@@ -955,7 +974,10 @@ export class ConversationProjectionStore {
    * - 合并以 rowId 为键：与订阅流的 row.upserted/removed 天然一致，
    *   在途期间到达的 delta 帧不受影响（它们只动 ≥ 窗口首行的行）。
    */
-  async loadOlder(limit: number = PROTOCOL_V4_LIMITS.snapshotTailWindowRows): Promise<void> {
+  async loadOlder(
+    limit: number = PROTOCOL_V4_LIMITS.snapshotTailWindowRows,
+    automatic = false,
+  ): Promise<void> {
     if (this.closed || this.state.loadingOlder) return;
     const snapshot = this.state.snapshot;
     if (!hasOlderRows(snapshot) || !snapshot) return;
@@ -983,6 +1005,7 @@ export class ConversationProjectionStore {
       if (current.rows.window[0]?.rowId !== beforeRowId) return;
       const window = mergeOlderRows(current.rows.window, result.rows);
       if (window === null) return;
+      if (!automatic) this.retainingHistory = true;
       this.setState({
         snapshot: { ...current, rows: { ...current.rows, window } },
       });
@@ -1004,6 +1027,7 @@ export class ConversationProjectionStore {
    * 避免每 200 行重建一次 timeline render units 与两个 virtualizer。
    */
   async loadAllOlder(): Promise<ConversationTurnNavigatorHydrationResult> {
+    this.retainingHistory = true;
     const stale = (logEpoch = this.state.snapshot?.logEpoch ?? "unknown") => ({
       status: "stale" as const,
       logEpoch,
@@ -1326,7 +1350,13 @@ export class ConversationProjectionStore {
     this.subscriptionHasAppliedBase = false;
     this.generation++;
     const { subscriptionId } = this.state;
-    this.setState({ status: "closed", subscriptionId: null });
+    this.setState({
+      status: "closed",
+      subscriptionId: null,
+      snapshot: null,
+      sessionPlans: [],
+      optimisticCommands: [],
+    });
     if (subscriptionId) {
       try {
         await this.transport.unsubscribe(subscriptionId);

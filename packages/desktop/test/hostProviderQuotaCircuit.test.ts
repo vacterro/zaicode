@@ -99,6 +99,12 @@ test("T-168: the watcher feeds the circuit from the fact stream and survives a t
   assert.equal(listeners.length, 1);
   listeners[0]!(failedFact());
   assert.ok(providerQuotaCircuit("saifren", NOW));
+  listeners[0]!(failedFact({ status: "model_request_completed" }));
+  assert.equal(
+    providerQuotaCircuit("saifren", NOW),
+    null,
+    "successful production telemetry proves recovery",
+  );
   watch.dispose();
 
   const boom = new Error("sink exploded");

@@ -1,9 +1,11 @@
 import { useEffect, useSyncExternalStore } from "react";
 import { useTabStore } from "@/store/TabStoreProvider.js";
 import { useZaicodeTimerEngine } from "./useZaicodeTimerEngine.js";
+import { toggleZaicodeUsageSidebar } from "./zaicodeUsage.js";
 import { useZaicodeRouterAutoSetup } from "./useZaicodeRouterAutoSetup.js";
 import { useZaicodeUpdatesBridge } from "./zaicodeUpdatesStore.js";
 import { ZaicodeToastHost } from "./ZaicodeToastHost.js";
+import { ZaicodeGlobalSidebars } from "./ZaicodeGlobalSidebars.js";
 import { ZaicodeTimersWindow } from "./ZaicodeTimersDialog.js";
 import {
   useZaicodeActions,
@@ -11,10 +13,7 @@ import {
   openZaicodeHomeView,
   openZaicodeSettings,
 } from "./zaicodeActions.js";
-import {
-  rememberZaicodeHelpPointer,
-  zaicodeHelpTopicUnderPointer,
-} from "./zaicodeHelpTopics.js";
+import { rememberZaicodeHelpPointer, zaicodeHelpTopicUnderPointer } from "./zaicodeHelpTopics.js";
 import {
   matchZaicodeHotkey,
   readZaicodeHotkeySettings,
@@ -222,7 +221,12 @@ function useZaicodeGlobalHotkeys(): void {
     if (!api?.onZaicodeGlobalHotkey) return;
     return api.onZaicodeGlobalHotkey((id) => {
       const target = GLOBAL_TO_APP[id];
-      if (document.querySelector("[data-zaicode-saiasui]") && target !== "sounds.stop" && target !== "app.exit") return;
+      if (
+        document.querySelector("[data-zaicode-saiasui]") &&
+        target !== "sounds.stop" &&
+        target !== "app.exit"
+      )
+        return;
       if (target) runZaicodeHotkeyAction(target);
     });
   }, []);
@@ -258,11 +262,13 @@ function useZaicodeRuntimeHandlers(): void {
       ),
       registerZaicodeHotkeyHandler("sounds.stop", stopAllZaicodeSounds),
       registerZaicodeHotkeyHandler("ui.help", () => void openZaicodeHelp()),
+      registerZaicodeHotkeyHandler("ui.usageSidebar", toggleZaicodeUsageSidebar),
       // SRC-060: Shift+F1 jumps to the topic for whatever is under the
       // pointer. Null means the operator asked for Help with nothing
       // pointed at, which is the same as plain F1.
-      registerZaicodeHotkeyHandler("ui.helpContext", () =>
-        void openZaicodeHelp(zaicodeHelpTopicUnderPointer() ?? undefined),
+      registerZaicodeHotkeyHandler(
+        "ui.helpContext",
+        () => void openZaicodeHelp(zaicodeHelpTopicUnderPointer() ?? undefined),
       ),
       registerZaicodeHotkeyHandler("ui.home", () => void openZaicodeHomeView()),
       registerZaicodeHotkeyHandler("ui.settings", () => void openZaicodeSettings()),
@@ -435,6 +441,7 @@ export function ZaicodeAppRuntime() {
   return (
     <>
       <ZaicodeToastHost />
+      <ZaicodeGlobalSidebars />
       <ZaicodeTimersWindow />
       <ZaicodeSaipeggleHost />
       <ZaicodeProtrailOverlay />

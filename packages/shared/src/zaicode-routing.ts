@@ -1,5 +1,6 @@
 import type { ModelSelection } from "./model-selection.js";
 import type { ZaicodeAgentRole } from "./zaicode-agents.js";
+import { providerQuotaCircuit } from "./provider-quota-circuit.js";
 
 /**
  * ZAICODE 路由抽象（handoff MILESTONE H）。
@@ -99,14 +100,29 @@ export function describeZaicodRouteFailure(plan: ZaicodeRoutePlan, agentName: st
  * any pool still fails.
  */
 export function pickZaicodeFallbackPool(
-  providers: readonly { providerId: string; providerName?: string | null | undefined; models: readonly { modelId: string }[] }[],
+  providers: readonly {
+    providerId: string;
+    providerName?: string | null | undefined;
+    models: readonly { modelId: string }[];
+  }[],
   pools: readonly string[] = ["SAIFREN", "SAIOPP"],
+  options: { excludeProviderId?: string; now?: number } = {},
 ): { providerId: string; modelId: string } | null {
-  const ordered = [...providers].sort(
-    (left, right) => Number(right.providerName === "SAIRoute") - Number(left.providerName === "SAIRoute"),
-  );
+  const now = options.now ?? Date.now();
+  const ordered = providers
+    .filter(
+      (provider) =>
+        provider.providerId !== options.excludeProviderId &&
+        !providerQuotaCircuit(provider.providerId, now),
+    )
+    .sort(
+      (left, right) =>
+        Number(right.providerName === "SAIRoute") - Number(left.providerName === "SAIRoute"),
+    );
   for (const pool of pools) {
-    const provider = ordered.find((candidate) => candidate.models.some((model) => model.modelId === pool));
+    const provider = ordered.find((candidate) =>
+      candidate.models.some((model) => model.modelId === pool),
+    );
     if (provider) return { providerId: provider.providerId, modelId: pool };
   }
   return null;

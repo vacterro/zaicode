@@ -1,5 +1,12 @@
 import type { CSSProperties, ReactNode, MouseEventHandler } from "react";
-import { ChevronsDownUp, ChevronsUpDown, Eraser, Play, StepForward, TriangleAlert } from "lucide-react";
+import {
+  ChevronsDownUp,
+  ChevronsUpDown,
+  Eraser,
+  Play,
+  StepForward,
+  TriangleAlert,
+} from "lucide-react";
 import { cn } from "@/components/lib/utils.js";
 import { ZaicodeComposerPartsPanel } from "@/zaicode/ZaicodeComposerPartsPanel.js";
 import { ZaicodeRightClickSettings } from "@/zaicode/ZaicodePrefControls.js";
@@ -37,7 +44,11 @@ export function ZaicodeComposerCompactToggle() {
         onClick={() => update({ compact: !compact })}
         data-zaicode-compact-toggle
       >
-        {compact ? <ChevronsUpDown className="size-3.5" /> : <ChevronsDownUp className="size-3.5" />}
+        {compact ? (
+          <ChevronsUpDown className="size-3.5" />
+        ) : (
+          <ChevronsDownUp className="size-3.5" />
+        )}
       </button>
     </ZaicodeRightClickSettings>
   );
@@ -63,7 +74,14 @@ export interface ZaicodeSaipenCompactRowProps {
   onMode: (command: string) => void;
   blocker: string | null;
   /** null hides the phase chip. */
-  chip: { text: string; title: string; style?: CSSProperties | undefined; state?: string | undefined; board: string | null } | null;
+  chip: {
+    text: string;
+    onClick: () => void;
+    title: string;
+    style?: CSSProperties | undefined;
+    state?: string | undefined;
+    board: string | null;
+  } | null;
 }
 
 const SQUARE =
@@ -81,18 +99,42 @@ export function ZaicodeSaipenCompactRow(props: ZaicodeSaipenCompactRowProps) {
               ? "border-[var(--zaicode-highlight,var(--color-warning))] text-[var(--zaicode-highlight,var(--color-warning))]"
               : "border-dashed border-border text-foreground-subtlest",
           )}
-          title={slot === "main" ? "MAIN session of this project" : slot === "side" ? "Side slot" : "No MAIN yet: START makes this session MAIN"}
+          title={
+            slot === "main"
+              ? "MAIN session of this project"
+              : slot === "side"
+                ? "Side slot"
+                : "No MAIN yet: START makes this session MAIN"
+          }
         >
           {slot === "main" ? "◆" : "◇"}
         </span>
       ) : null}
-      <CompactButton className={SQUARE} label={start.label} disabled={start.disabled} onClick={start.onClick} sound="saipen.start">
+      <CompactButton
+        className={SQUARE}
+        label={start.label}
+        disabled={start.disabled}
+        onClick={start.onClick}
+        sound="saipen.start"
+      >
         <Play className="size-3.5" />
       </CompactButton>
-      <CompactButton className={SQUARE} label="STEP — cc, one SAIPEN step here" disabled={step.disabled} onClick={step.onClick} sound="saipen.step">
+      <CompactButton
+        className={SQUARE}
+        label="STEP — cc, one SAIPEN step here"
+        disabled={step.disabled}
+        onClick={step.onClick}
+        sound="saipen.step"
+      >
         <StepForward className="size-3.5" />
       </CompactButton>
-      <CompactButton className={SQUARE} label={clear.label} disabled={clear.disabled} onClick={clear.onClick} sound="saipen.clear">
+      <CompactButton
+        className={SQUARE}
+        label={clear.label}
+        disabled={clear.disabled}
+        onClick={clear.onClick}
+        sound="saipen.clear"
+      >
         <Eraser className="size-3.5" />
       </CompactButton>
       {modes ? (
@@ -103,7 +145,9 @@ export function ZaicodeSaipenCompactRow(props: ZaicodeSaipenCompactRowProps) {
               key={mode.label}
               className={cn(
                 "flex size-6 shrink-0 items-center justify-center border text-[9px] leading-none hover:bg-hover",
-                mode.highlighted ? "border-[var(--zaicode-highlight,var(--color-warning))]" : "border-border",
+                mode.highlighted
+                  ? "border-[var(--zaicode-highlight,var(--color-warning))]"
+                  : "border-border",
                 mode.dimmed && "opacity-50",
               )}
               label={`${mode.label} — ${mode.hint}`}
@@ -117,12 +161,18 @@ export function ZaicodeSaipenCompactRow(props: ZaicodeSaipenCompactRowProps) {
       ) : null}
       <span className="ml-auto" />
       {blocker ? (
-        <span className="flex size-6 shrink-0 items-center justify-center text-destructive" title={`BLOCKER: ${blocker}`}>
+        <span
+          className="flex size-6 shrink-0 items-center justify-center text-destructive"
+          title={`BLOCKER: ${blocker}`}
+        >
           <TriangleAlert className="size-3.5" />
         </span>
       ) : null}
       {chip ? (
-        <span
+        <button
+          type="button"
+            onClick={chip.onClick}
+          aria-label="Open SAIPEN STATE, BOARD and LOG"
           className="shrink-0 border border-border px-1 leading-5 tabular-nums text-foreground"
           style={chip.style}
           data-zaicode-readiness={chip.state}
@@ -130,7 +180,7 @@ export function ZaicodeSaipenCompactRow(props: ZaicodeSaipenCompactRowProps) {
         >
           {chip.text}
           {chip.board ? <span className="ml-1 text-foreground-subtlest">{chip.board}</span> : null}
-        </span>
+        </button>
       ) : null}
       <ZaicodeComposerCompactToggle />
     </div>
@@ -169,12 +219,32 @@ function CompactButton({
 }
 
 /** One status line under the strip: NEXT / THEN / LAST. */
-export function ZaicodeSaipenLine({ label, tag, text, strong }: { label: string; tag?: string; text: string; strong?: boolean }) {
+export function ZaicodeSaipenLine({
+  label,
+  tag,
+  text,
+  strong,
+}: {
+  label: string;
+  tag?: string;
+  text: string;
+  strong?: boolean;
+}) {
   return (
-    <div className="flex min-w-0 items-center gap-1.5 truncate text-foreground-subtlest" title={tag ? `${tag} ${text}` : text}>
+    <div
+      className="flex min-w-0 items-center gap-1.5 truncate text-foreground-subtlest"
+      title={tag ? `${tag} ${text}` : text}
+    >
       <span className="shrink-0 font-medium text-foreground-subtle">{label}:</span>
       {tag ? <span className="shrink-0 text-foreground-subtle">{tag}</span> : null}
-      <span className={cn("min-w-0 flex-1 truncate", strong ? "text-foreground" : "text-foreground-subtle")}>{text}</span>
+      <span
+        className={cn(
+          "min-w-0 flex-1 truncate",
+          strong ? "text-foreground" : "text-foreground-subtle",
+        )}
+      >
+        {text}
+      </span>
     </div>
   );
 }
@@ -207,7 +277,10 @@ export function ZaicodeSaipenModesRow({
       data-zaicode-parallel={parallelHint ? "on" : undefined}
     >
       <span
-        className={cn("mr-1", parallelHint && "text-[var(--zaicode-highlight,var(--color-warning))]")}
+        className={cn(
+          "mr-1",
+          parallelHint && "text-[var(--zaicode-highlight,var(--color-warning))]",
+        )}
         title={
           parallelHint
             ? "MAIN is working: the highlighted helpers can run here in parallel without touching its work."
@@ -230,7 +303,9 @@ export function ZaicodeSaipenModesRow({
               parallelHint && !mode.parallel && "opacity-50",
             )}
             title={`${mode.hint}${
-              mode.parallel ? " — safe to run in parallel with MAIN" : " — changes the tree/board: better when MAIN is idle"
+              mode.parallel
+                ? " — safe to run in parallel with MAIN"
+                : " — changes the tree/board: better when MAIN is idle"
             } (${runsHere ? "runs here" : "opens a fresh session"})`}
             aria-label={mode.hint}
             onClick={() => onMode(mode.command)}

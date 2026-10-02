@@ -6,7 +6,6 @@ import { useZaicodeRightClickDrag } from "@/zaicode/useZaicodeRightClickDrag.js"
 import { useZaicodeFancyZonesHotkey } from "@/zaicode/useZaicodeFancyZonesHotkey.js";
 import { ZaicodeFancyZoneOverlay } from "@/zaicode/ZaicodeFancyZoneOverlay.js";
 import { ZaicodeWorkersDock } from "@/zaicode/ZaicodeWorkersDock.js";
-import { ZaicodeAppRuntime } from "@/zaicode/ZaicodeAppRuntime.js";
 import { useZaicodeAutostartRunner } from "@/zaicode/zaicodeAutostart.js";
 import { useZaicodeLimitAlerts } from "@/zaicode/ZaicodeLimitMeter.js";
 import { readZaicodeHomePrefs, zaicodeStartupMainView } from "@/zaicode/home/zaicodeHomePrefs.js";
@@ -1369,7 +1368,6 @@ export function App({
       />
       <ZaicodeFancyZoneOverlay open={isFancyZonesOpen} onClose={closeFancyZones} />
       {isZaicodeProductMode() ? <ZaicodeWorkersDock services={services} /> : null}
-      {isZaicodeProductMode() ? <ZaicodeAppRuntime /> : null}
     </>
   );
 }

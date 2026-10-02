@@ -1,6 +1,6 @@
 import type { IDisposable } from "@zcode/rpc";
 import type { IZCodeAgentService, ZCodeAgentWorkspaceTarget } from "@zcode/services";
-import { openProviderQuotaCircuit } from "@zcode/shared";
+import { closeProviderQuotaCircuit, openProviderQuotaCircuit } from "@zcode/shared";
 import type { ConversationTelemetryFact } from "@zcode/shared/zcode-protocol-v4";
 
 /**
@@ -35,6 +35,7 @@ export function noteProviderQuotaCircuitFromFact(
   openProviderQuotaCircuit({
     providerId: fact.providerId,
     now,
+    failureId: fact.eventId,
     reason:
       typeof fact.statusCode === "number" ? `rate_limited (${fact.statusCode})` : "rate_limited",
     // CLI 在这条事实上没有把 retry-after 带上来，所以闸门时长是我们自己的间隔，不是
@@ -58,6 +59,10 @@ export function watchProviderQuotaCircuit(options: {
   const now = options.now ?? Date.now;
   return options.agentService.onDynamicConversationTelemetryFact(options.target)((fact) => {
     try {
+      if (fact.kind === "model.request.status" && fact.status === "model_request_completed") {
+        closeProviderQuotaCircuit(fact.providerId, now());
+        return;
+      }
       noteProviderQuotaCircuitFromFact(fact, now());
     } catch (error) {
       // 记账失败绝不能顺着通知分发抛回 Agent service；丢这一条事实，其余监听器照常。

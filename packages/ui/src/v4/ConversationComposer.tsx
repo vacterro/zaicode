@@ -710,7 +710,11 @@ function ConversationComposerImpl({
     onDropTargetControllerChange?.(dropTargetController);
     return () => onDropTargetControllerChange?.(null);
   }, [dropTargetController, onDropTargetControllerChange]);
-  const [pastedTextEdit, setPastedTextEdit] = useState<{ id: string; text: string; filename: string } | null>(null);
+  const [pastedTextEdit, setPastedTextEdit] = useState<{
+    id: string;
+    text: string;
+    filename: string;
+  } | null>(null);
   const [pastedTextSaving, setPastedTextSaving] = useState(false);
   const [attachmentPreviewIndex, setAttachmentPreviewIndex] = useState(0);
   const [attachmentPreviewOpen, setAttachmentPreviewOpen] = useState(false);
@@ -1123,7 +1127,11 @@ function ConversationComposerImpl({
   });
   const canStop = Boolean(snapshot?.control.canStop);
   // ZAICODE (SRC-048): tell the sidebar this session runs; its list projection can lag behind.
-  useZaicodePublishLiveRun(isZaicodeProductMode() ? sessionId : null, workspacePath, canStop);
+  useZaicodePublishLiveRun(
+    isZaicodeProductMode() && snapshot ? sessionId : null,
+    workspacePath,
+    canStop,
+  );
   const modifiedEnterReversesDelivery = modifiedEnterSubmits && canStop;
   const hasText = text.trim().length > 0;
   const hasDraftToSubmit =
@@ -1738,7 +1746,8 @@ function ConversationComposerImpl({
               const isClipboardTextAttachment = attachment.sourceKind === "clipboard-text";
               // A pasted text the composer still holds in full can be opened and
               // edited; one restored from a queue snapshot has a path only.
-              const isPastedTextAttachment = isClipboardTextAttachment && typeof attachment.text === "string";
+              const isPastedTextAttachment =
+                isClipboardTextAttachment && typeof attachment.text === "string";
               const isMediaAttachment = isMediaChatComposerAttachment(attachment);
               const isVideoAttachment = isVideoChatComposerAttachment(attachment);
               const isPdfAttachment = isPdfChatComposerAttachment(attachment);
@@ -1849,15 +1858,15 @@ function ConversationComposerImpl({
                             });
                             setPdfAttachmentPreviewOpen(true);
                           }
-                          : isPastedTextAttachment
-                            ? () => {
-                                setPastedTextEdit({
-                                  id: attachment.id,
-                                  text: attachment.text ?? "",
-                                  filename: attachment.filename,
-                                });
-                              }
-                            : undefined
+                        : isPastedTextAttachment
+                          ? () => {
+                              setPastedTextEdit({
+                                id: attachment.id,
+                                text: attachment.text ?? "",
+                                filename: attachment.filename,
+                              });
+                            }
+                          : undefined
                   }
                   openLabel={
                     canPreviewVideoAttachment
@@ -1866,8 +1875,8 @@ function ConversationComposerImpl({
                         ? attachmentPreviewTitle
                         : canPreviewPdfAttachment
                           ? intl.formatMessage({ id: "chat.attachments.preview.openPdf" })
-                            : isPastedTextAttachment
-                              ? intl.formatMessage({ id: "chat.attachments.pastedText.edit" })
+                          : isPastedTextAttachment
+                            ? intl.formatMessage({ id: "chat.attachments.pastedText.edit" })
                             : undefined
                   }
                 >

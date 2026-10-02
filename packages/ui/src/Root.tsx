@@ -26,6 +26,7 @@ import { setDefaultFileDisplayBasePath } from "@/lib/fileDisplay.js";
 import { readRendererLaunchTimings, shouldReportLaunchToInput } from "@/lib/launchToInputReport.js";
 import { reportUiLaunchToInput } from "@/lib/uiPerfArmsTelemetry.js";
 import { announceZaicodeAppInteractive } from "@/zaicode/zaicodeStartupReady.js";
+import { ZaicodeAppRuntime } from "@/zaicode/ZaicodeAppRuntime.js";
 import { countAllUnreadTasks } from "@/lib/unreadTaskCount.js";
 import {
   isProviderStartupSyncPending,
@@ -130,6 +131,7 @@ export function Root(props: RootProps) {
                   >
                     <CodingPlanUpgradeDialogProvider>
                       <RootInner {...props} />
+                      {isZaicodeProductMode() ? <ZaicodeAppRuntime /> : null}
                     </CodingPlanUpgradeDialogProvider>
                   </AssistantCodeCommentFeatureProvider>
                 </DiffsWorkerPoolProvider>

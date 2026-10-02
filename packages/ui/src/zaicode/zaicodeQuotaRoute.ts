@@ -12,9 +12,25 @@
  * vocabulary: a network error, a 5xx, an auth failure or a missing model never produces one of
  * these kinds, so they never close a route.
  */
-import { openProviderQuotaCircuit, resolveProviderQuotaRoute, type ModelSelection } from "@zcode/shared";
+import {
+  openProviderQuotaCircuit,
+  resolveProviderQuotaRoute,
+  type ModelSelection,
+} from "@zcode/shared";
 import type { ModelSelectionView } from "@zcode/services";
+import type { SessionErrorInfo } from "@zcode/shared/zcode-protocol-v4";
 import { ZAICODE_FALLBACK_QUOTA_KINDS, pickZaicodeFallbackModel } from "./zaicodeModelFallback.js";
+import { zaicodeRetryClassOf } from "./zaicodeRetryPolicy.js";
+
+/** Quota facts from any provider; tool/network errors never exhaust a model route. */
+export function composerQuotaFailureKind(
+  error: SessionErrorInfo | null,
+  bannerKind: string | null | undefined,
+): string | null {
+  if (bannerKind && ZAICODE_FALLBACK_QUOTA_KINDS.has(bannerKind)) return bannerKind;
+  return error && error.source !== "tool" && error.source !== "network" &&
+    zaicodeRetryClassOf(error) === "quota" ? "provider-limited" : null;
+}
 
 /**
  * Record a proven exhaustion for `providerId`. Returns false when the fact is not one this
@@ -24,12 +40,16 @@ export function noteComposerQuotaExhaustion(input: {
   providerId: string | null | undefined;
   kind: string | null | undefined;
   now: number;
+  failedAt?: number;
+  failureId?: string;
 }): boolean {
   if (!input.providerId || !input.kind) return false;
   if (!ZAICODE_FALLBACK_QUOTA_KINDS.has(input.kind)) return false;
   openProviderQuotaCircuit({
     providerId: input.providerId,
-    now: input.now,
+    now: input.failedAt !== undefined && Number.isFinite(input.failedAt)
+      ? Math.min(input.now, input.failedAt) : input.now,
+    failureId: input.failureId,
     reason: input.kind,
   });
   return true;
@@ -72,7 +92,7 @@ export function routeComposerSelection(
   view: ModelSelectionView | null,
   now: number,
 ): ComposerQuotaRoute {
-  const fallback = pickZaicodeFallbackModel(view, requested.providerId);
+  const fallback = pickZaicodeFallbackModel(view, requested.providerId, now);
   const route = resolveProviderQuotaRoute({ requested, fallback, now });
   if (!route.fallback) {
     return {

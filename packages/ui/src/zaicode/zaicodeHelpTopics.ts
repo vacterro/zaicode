@@ -22,6 +22,7 @@ export const ZAICODE_HELP_TOPIC_IDS = [
   "saipeggle",
   "engines",
   "meter",
+  "usage",
   // SRC-061: subscription accounts as models in the model menu.
   "accounts",
   "workers",
@@ -61,7 +62,9 @@ export type ZaicodeHelpTopicId = (typeof ZAICODE_HELP_TOPIC_IDS)[number];
 
 const KNOWN = new Set<string>(ZAICODE_HELP_TOPIC_IDS);
 
-export function isZaicodeHelpTopicId(value: string | null | undefined): value is ZaicodeHelpTopicId {
+export function isZaicodeHelpTopicId(
+  value: string | null | undefined,
+): value is ZaicodeHelpTopicId {
   return typeof value === "string" && KNOWN.has(value);
 }
 
@@ -72,7 +75,9 @@ export function isZaicodeHelpTopicId(value: string | null | undefined): value is
  * The first recognised ancestor wins, so a control that lives inside a tagged
  * panel but has a more specific tag still answers for itself.
  */
-export function zaicodeHelpTopicFor(element: Element | null | undefined): ZaicodeHelpTopicId | null {
+export function zaicodeHelpTopicFor(
+  element: Element | null | undefined,
+): ZaicodeHelpTopicId | null {
   let node: Element | null = element ?? null;
   // Bounded so a detached or cyclic tree cannot spin here.
   for (let depth = 0; node && depth < 64; depth += 1) {

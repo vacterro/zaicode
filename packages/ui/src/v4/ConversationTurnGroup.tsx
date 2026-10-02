@@ -572,8 +572,19 @@ function AssistantHistoryStatus({
   open: boolean;
 }) {
   const { intl, locale } = useZCodeIntl();
+  const [now, setNow] = useState(Date.now);
+  const clockStartedAt =
+    segment.workStatus?.state === "running" ? segment.workStatus.clockStartedAt : undefined;
+  useEffect(() => {
+    if (clockStartedAt === undefined) return;
+    setNow(Date.now());
+    const timer = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(timer);
+  }, [clockStartedAt]);
   const durationLabel = formatConversationWorkDuration(
-    segment.workStatus?.durationMs,
+    clockStartedAt === undefined
+      ? segment.workStatus?.durationMs
+      : Math.max(0, now - clockStartedAt),
     intl,
     locale,
   );
@@ -828,7 +839,11 @@ function ConversationTurnFlow({
           stageTailIsRunning={unit.isRunning}
           assistantCodeCommentProjectionEnabled={assistantCodeCommentProjectionEnabled}
         />
-        <TurnChatLoadingSlot apiRetry={apiRetry} eligible={showLoading} sessionId={context.sessionId} />
+        <TurnChatLoadingSlot
+          apiRetry={apiRetry}
+          eligible={showLoading}
+          sessionId={context.sessionId}
+        />
       </div>
     );
   }
@@ -893,7 +908,11 @@ function ConversationTurnFlow({
           shareSelectionRowId={shareSelectionRowId}
         />
       ))}
-      <TurnChatLoadingSlot apiRetry={apiRetry} eligible={showLoading} sessionId={context.sessionId} />
+      <TurnChatLoadingSlot
+        apiRetry={apiRetry}
+        eligible={showLoading}
+        sessionId={context.sessionId}
+      />
     </div>
   );
 }
@@ -1095,7 +1114,11 @@ function ConversationBackgroundResultWork({
           assistantCodeCommentProjectionEnabled={assistantCodeCommentProjectionEnabled}
         />
       ) : null}
-      <TurnChatLoadingSlot apiRetry={apiRetry} eligible={showLoading} sessionId={context.sessionId} />
+      <TurnChatLoadingSlot
+        apiRetry={apiRetry}
+        eligible={showLoading}
+        sessionId={context.sessionId}
+      />
     </div>
   );
 }

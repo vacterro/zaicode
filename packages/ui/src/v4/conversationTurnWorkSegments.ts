@@ -14,6 +14,7 @@ import type { AssistantWorkRow, ConversationTurnFlowItem } from "@/v4/conversati
 export interface ConversationTurnWorkStatus {
   state: "running" | "completed" | "interrupted";
   durationMs?: number;
+  clockStartedAt?: number;
 }
 
 export interface ConversationTurnWorkSegment {
@@ -188,6 +189,21 @@ export function buildConversationTurnWorkSegments(options: {
       segmentDurationMs,
       options.isInterrupted && segmentIndex === visualDrafts.length - 1,
     );
+    // Only the status label ticks. Keep the projection and historical render
+    // units stable between incoming frames, including guided work segments.
+    if (
+      segmentWorkStatus?.state === "running" &&
+      segmentDurationMs !== undefined &&
+      options.nowMs !== undefined
+    ) {
+      const fact = (segment.triggerRow?.entityId
+        ? options.header?.workSegments?.find((candidate) => candidate.triggerEntityId === segment.triggerRow?.entityId)
+        : undefined) ?? options.header?.workSegments?.[segmentIndex] ??
+        (visualDrafts.length === 1 ? options.header : undefined);
+      if (fact?.activeMs === undefined && fact?.endedAt === undefined) {
+        segmentWorkStatus.clockStartedAt = options.nowMs - segmentDurationMs;
+      }
+    }
     const segmentKey =
       segmentIndex === 0
         ? options.key

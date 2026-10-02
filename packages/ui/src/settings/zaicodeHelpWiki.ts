@@ -23,6 +23,37 @@ export interface HelpArticle {
 }
 
 export const ZAICODE_HELP_WIKI: Record<ZaicodeHelpTopicId, HelpArticle> = {
+  usage: {
+    why: "A model router can serve ZAICODE and other tools at the same time. Usage shows the router's own totals, so you can see all that traffic in one place and keep watching it while an agent works.",
+    steps: [
+      "Click Usage in the header or footer to open the full page.",
+      "Press Ctrl+Alt+B, right-click Usage, or choose Sidebar in the page to keep the chat visible beside it.",
+      "Choose a period, then compare Tokens and Cost in the trend. All time totals use the latest 60 days for the trend.",
+      "Use Recent requests, Models, Providers or Accounts to see what generated the traffic.",
+      "Leave Live refresh on for a read every 10 seconds, or turn it off and use Refresh. Close stops the polling.",
+    ],
+    terms: [
+      [
+        "Input / output / cached",
+        "Tokens sent to a model, received from it, or counted as cached by 9router.",
+      ],
+      [
+        "Estimated cost",
+        "9router's pricing estimate, which may differ from a subscription's bill.",
+      ],
+      [
+        "Active",
+        "Requests that 9router reports as currently in flight, including external clients.",
+      ],
+      ["Dashboard", "Opens the original local 9router Usage page in your browser."],
+    ],
+    problems: [
+      [
+        "Usage is unavailable",
+        "Refresh after 9router starts. The last successful figures stay visible with their update time.",
+      ],
+    ],
+  },
   start: {
     why: "An AI agent is a program that reads your project, runs commands and edits files for you, the way a helper would at your keyboard. ZAICODE gives every agent you have — free model pools and your paid subscriptions — one window, so you can start work, watch it and step in without juggling terminals.",
     steps: [
@@ -34,11 +65,26 @@ export const ZAICODE_HELP_WIKI: Record<ZaicodeHelpTopicId, HelpArticle> = {
       "Stuck anywhere? Point at the thing and press Shift+F1: Help opens at its explanation.",
     ],
     terms: [
-      ["Project", "A folder on your disk that agents work in. Everything an agent does happens inside it."],
-      ["Session", "One conversation with an agent inside a project, with its history. A project can have many."],
-      ["Prompt", "What you write to the agent. Plain language works; say what, where and how you will check it."],
-      ["Turn", "One round: you send, the agent works until it answers or stops. A turn can take seconds or an hour."],
-      ["Engine", "What does the thinking: a model pool or a subscription. Picked with the tiles at the top."],
+      [
+        "Project",
+        "A folder on your disk that agents work in. Everything an agent does happens inside it.",
+      ],
+      [
+        "Session",
+        "One conversation with an agent inside a project, with its history. A project can have many.",
+      ],
+      [
+        "Prompt",
+        "What you write to the agent. Plain language works; say what, where and how you will check it.",
+      ],
+      [
+        "Turn",
+        "One round: you send, the agent works until it answers or stops. A turn can take seconds or an hour.",
+      ],
+      [
+        "Engine",
+        "What does the thinking: a model pool or a subscription. Picked with the tiles at the top.",
+      ],
     ],
     tips: [
       "Start small: 'explain this project to me' is a safe first prompt that changes nothing.",
@@ -48,31 +94,88 @@ export const ZAICODE_HELP_WIKI: Record<ZaicodeHelpTopicId, HelpArticle> = {
   glossary: {
     why: "Words you will meet in ZAICODE, explained once, in plain terms. If a word on screen is not here, point at it and press Shift+F1.",
     terms: [
-      ["Agent", "An AI program that can read files, run commands and edit code on its own, turn after turn, until the task is done or it needs you."],
+      [
+        "Agent",
+        "An AI program that can read files, run commands and edit code on its own, turn after turn, until the task is done or it needs you.",
+      ],
       ["Project", "A folder on your disk that agents work in; the sidebar lists them."],
-      ["Session", "One conversation with an agent inside a project, with its full history. Sessions keep going while you look at other ones."],
-      ["Prompt", "What you write to the agent. Plain words work best: what you want, where, and how you will know it is right."],
-      ["Model", "The AI brain behind an agent (for example a GPT, Claude, GLM or Gemini model). Bigger models think better and cost more."],
+      [
+        "Session",
+        "One conversation with an agent inside a project, with its full history. Sessions keep going while you look at other ones.",
+      ],
+      [
+        "Prompt",
+        "What you write to the agent. Plain words work best: what you want, where, and how you will know it is right.",
+      ],
+      [
+        "Model",
+        "The AI brain behind an agent (for example a GPT, Claude, GLM or Gemini model). Bigger models think better and cost more.",
+      ],
       ["Provider", "Who serves the model: a company API, a free pool, or your subscription."],
-      ["Subscription", "A paid plan you already have (Claude, ChatGPT/Codex, Antigravity, Z.ai). ZAICODE uses its own login on your machine; nothing is shared."],
-      ["Quota / limit", "How much a subscription lets you use in a window of time (5 hours, a week, a month). When it runs out, that engine waits."],
-      ["Reset", "The moment a quota window refills. ZAICODE shows when each one resets and can start work right then."],
-      ["Token", "The unit models read and write text in (roughly ¾ of a word). Quotas and statistics count tokens."],
-      ["Reasoning effort", "How long a model thinks before answering (low … high, xhigh, max). More effort = better on hard problems, slower and pricier."],
-      ["CLI", "Command-line program. Claude Code and Codex are CLIs; ZAICODE starts them for you as workers."],
-      ["Worker", "A subscription CLI running inside a project on its own terminal, watched by ZAICODE."],
-      ["SAIFREN / SAIOPP", "ZAICODE's own model pools behind a local router: SAIFREN free models, SAIOPP deeper-thinking ones. The router falls over to the next model when one fails."],
-      ["SAIPEN", "A working method for agents: a project keeps a BOARD of tickets, a STATE and a LOG in its .saipen folder, so any agent can pick the work up where the last one left it."],
+      [
+        "Subscription",
+        "A paid plan you already have (Claude, ChatGPT/Codex, Antigravity, Z.ai). ZAICODE uses its own login on your machine; nothing is shared.",
+      ],
+      [
+        "Quota / limit",
+        "How much a subscription lets you use in a window of time (5 hours, a week, a month). When it runs out, that engine waits.",
+      ],
+      [
+        "Reset",
+        "The moment a quota window refills. ZAICODE shows when each one resets and can start work right then.",
+      ],
+      [
+        "Token",
+        "The unit models read and write text in (roughly ¾ of a word). Quotas and statistics count tokens.",
+      ],
+      [
+        "Reasoning effort",
+        "How long a model thinks before answering (low … high, xhigh, max). More effort = better on hard problems, slower and pricier.",
+      ],
+      [
+        "CLI",
+        "Command-line program. Claude Code and Codex are CLIs; ZAICODE starts them for you as workers.",
+      ],
+      [
+        "Worker",
+        "A subscription CLI running inside a project on its own terminal, watched by ZAICODE.",
+      ],
+      [
+        "SAIFREN / SAIOPP",
+        "ZAICODE's own model pools behind a local router: SAIFREN free models, SAIOPP deeper-thinking ones. The router falls over to the next model when one fails.",
+      ],
+      [
+        "SAIPEN",
+        "A working method for agents: a project keeps a BOARD of tickets, a STATE and a LOG in its .saipen folder, so any agent can pick the work up where the last one left it.",
+      ],
       ["Ticket", "One piece of work on a SAIPEN board, with how it will be checked."],
-      ["MAIN session", "The one session per project that carries its SAIPEN work. START and CONTINUE ALL use it."],
-      ["cc / goal cc all", "Short SAIPEN commands: 'cc' = continue the current work; '/goal cc all' = keep going until the board is done."],
-      ["LIVE", "Projects with an agent working right now (or waiting for you). With LIVE on they float to the top of the list."],
+      [
+        "MAIN session",
+        "The one session per project that carries its SAIPEN work. START and CONTINUE ALL use it.",
+      ],
+      [
+        "cc / goal cc all",
+        "Short SAIPEN commands: 'cc' = continue the current work; '/goal cc all' = keep going until the board is done.",
+      ],
+      [
+        "LIVE",
+        "Projects with an agent working right now (or waiting for you). With LIVE on they float to the top of the list.",
+      ],
       ["Slot", "A named group in the sidebar (MAIN0, MAIN1…, SIDE1…) to keep projects in order."],
-      ["Queue / job", "Tasks waiting for an agent. A job is one task on the queue; the queue runs as many at once as Parallel allows."],
-      ["Audit / wave", "An audit reads a project and lists what is wrong; it runs in waves (Core → Completeness → Performance), each a separate job."],
+      [
+        "Queue / job",
+        "Tasks waiting for an agent. A job is one task on the queue; the queue runs as many at once as Parallel allows.",
+      ],
+      [
+        "Audit / wave",
+        "An audit reads a project and lists what is wrong; it runs in waves (Core → Completeness → Performance), each a separate job.",
+      ],
       ["Handoff", "The final list of next actions an audit leaves for whoever fixes the findings."],
       ["Changes", "Lines added (+) and removed (-) in the project since the last commit."],
-      ["Commit", "A saved checkpoint of your project in Git. After a commit the Changes counter starts from zero."],
+      [
+        "Commit",
+        "A saved checkpoint of your project in Git. After a commit the Changes counter starts from zero.",
+      ],
     ],
   },
   saipeggle: {
@@ -84,7 +187,10 @@ export const ZAICODE_HELP_WIKI: Record<ZaicodeHelpTopicId, HelpArticle> = {
       "Hit the last orange peg for Extreme Fever and drop the ball into a 100K bucket.",
     ],
     terms: [
-      ["Multiplier", "x2 / x3 / x5 / x10 as more orange pegs are hit; every peg is worth that much more."],
+      [
+        "Multiplier",
+        "x2 / x3 / x5 / x10 as more orange pegs are hit; every peg is worth that much more.",
+      ],
       ["Seed", "The text a random board is built from: the same seed, the same board."],
       ["Board code", "A SPG1.… text holding a whole board, to share it with anyone."],
       ["P / R / Esc", "Pause, retry the level, pause and then the menu."],
@@ -99,15 +205,27 @@ export const ZAICODE_HELP_WIKI: Record<ZaicodeHelpTopicId, HelpArticle> = {
       "A dashed tile with ! needs a sign-in or its CLI is missing: right-click → Fix shows exactly what it will run.",
     ],
     terms: [
-      ["SAIFREN / SAIOPP", "In-app pools: free models / deep-thinking models, through the local router."],
-      ["A1 A2 · C1 C2 C3 · AG · ZC", "Your accounts: Anthropic (Claude), Codex (ChatGPT), Antigravity (Google), ZCode. Found automatically on this machine."],
+      [
+        "SAIFREN / SAIOPP",
+        "In-app pools: free models / deep-thinking models, through the local router.",
+      ],
+      [
+        "A1 A2 · C1 C2 C3 · AG · ZC",
+        "Your accounts: Anthropic (Claude), Codex (ChatGPT), Antigravity (Google), ZCode. Found automatically on this machine.",
+      ],
       ["Bar colour", "Green over 50% left, amber below, red under 20%, dark = out."],
       ["Glow", "A tile glows right after its quota window resets; hover says which window."],
       ["Right-click", "Start, read the quota now, fix sign-in, hide the tile."],
     ],
     problems: [
-      ["A tile stays dark", "Its quota is spent; the card says when it resets. Use another tile or schedule the prompt (Scheduler)."],
-      ["A subscription I have is missing", "Sign in with its own CLI once (claude, codex…), then right-click → Refresh; hidden tiles come back in Settings → Engines."],
+      [
+        "A tile stays dark",
+        "Its quota is spent; the card says when it resets. Use another tile or schedule the prompt (Scheduler).",
+      ],
+      [
+        "A subscription I have is missing",
+        "Sign in with its own CLI once (claude, codex…), then right-click → Refresh; hidden tiles come back in Settings → Engines.",
+      ],
     ],
   },
   meter: {
@@ -118,12 +236,26 @@ export const ZAICODE_HELP_WIKI: Record<ZaicodeHelpTopicId, HelpArticle> = {
       "Right-click chooses which engines show and how bars look.",
     ],
     terms: [
-      ["Window", "A quota period: 5 hours, a week, a month. A plan can have several; the tightest decides."],
+      [
+        "Window",
+        "A quota period: 5 hours, a week, a month. A plan can have several; the tightest decides.",
+      ],
       ["Stacked / Bars / Dots", "Three looks for the meter; Ctrl+Click cycles them."],
-      ["Hide spent", "Hide accounts that have no quota left right now (a fresh account at 100% always shows)."],
-      ["Glowing meter", "A prepared prompt (Scheduler) waits for this account's reset and will fire right after it."],
+      [
+        "Hide spent",
+        "Hide accounts that have no quota left right now (a fresh account at 100% always shows).",
+      ],
+      [
+        "Glowing meter",
+        "A prepared prompt (Scheduler) waits for this account's reset and will fire right after it.",
+      ],
     ],
-    problems: [["An account shows 'needs sign-in'", "Its CLI login expired; right-click the engine tile → Fix."]],
+    problems: [
+      [
+        "An account shows 'needs sign-in'",
+        "Its CLI login expired; right-click the engine tile → Fix.",
+      ],
+    ],
   },
   accounts: {
     why: "You pay for Codex, Claude or Antigravity subscriptions; this makes each of those accounts a normal model inside ZAICODE, so a chat uses exactly the account you picked, with its real effort, and you see how much it has left.",
@@ -134,10 +266,22 @@ export const ZAICODE_HELP_WIKI: Record<ZaicodeHelpTopicId, HelpArticle> = {
       "Watch the bar next to the account: green is plenty, yellow is getting low, red is almost out.",
     ],
     terms: [
-      ["Account", "One login of a vendor. Codex 1 and Codex 2 are two different logins, numbered in the order you connected them in 9router."],
-      ["Effort", "How hard the model thinks before it answers: low is fast and cheap, high (and xhigh on Codex) is slow and thorough."],
-      ["Fuel", "When the account you picked is at its limit, 9router answers with the next account of the same vendor so the work continues."],
-      ["Readiness bar", "What the account has left in its tightest window (5 hours, week …), read from the vendor through 9router."],
+      [
+        "Account",
+        "One login of a vendor. Codex 1 and Codex 2 are two different logins, numbered in the order you connected them in 9router.",
+      ],
+      [
+        "Effort",
+        "How hard the model thinks before it answers: low is fast and cheap, high (and xhigh on Codex) is slow and thorough.",
+      ],
+      [
+        "Fuel",
+        "When the account you picked is at its limit, 9router answers with the next account of the same vendor so the work continues.",
+      ],
+      [
+        "Readiness bar",
+        "What the account has left in its tightest window (5 hours, week …), read from the vendor through 9router.",
+      ],
     ],
   },
   sessiontext: {
@@ -165,9 +309,15 @@ export const ZAICODE_HELP_WIKI: Record<ZaicodeHelpTopicId, HelpArticle> = {
     ],
     terms: [
       ["Trail", "The fading line the cursor leaves behind as it moves."],
-      ["Hold", "Keeping a mouse button down: an aura charges up, and the release plays a stronger effect."],
+      [
+        "Hold",
+        "Keeping a mouse button down: an aura charges up, and the release plays a stronger effect.",
+      ],
       ["Motion wake", "Shapes left behind while you drag with a button held down."],
-      ["Click-through", "The effect layer never catches a click; the app under it gets every click as usual."],
+      [
+        "Click-through",
+        "The effect layer never catches a click; the app under it gets every click as usual.",
+      ],
     ],
   },
   workers: {
@@ -179,8 +329,14 @@ export const ZAICODE_HELP_WIKI: Record<ZaicodeHelpTopicId, HelpArticle> = {
     ],
     terms: [
       ["Dock", "WORKERS can sit docked at a window edge or float; drag its header."],
-      ["Working icon", "The spinner next to a working session or project; its picture and speed are yours (Highlights)."],
-      ["Crashed", "The CLI exited with an error; the row keeps its last output so you can see why."],
+      [
+        "Working icon",
+        "The spinner next to a working session or project; its picture and speed are yours (Highlights).",
+      ],
+      [
+        "Crashed",
+        "The CLI exited with an error; the row keeps its last output so you can see why.",
+      ],
     ],
   },
   saihome: {
@@ -191,9 +347,15 @@ export const ZAICODE_HELP_WIKI: Record<ZaicodeHelpTopicId, HelpArticle> = {
       "Click a project row for its SAIPEN state, then Go to project or Open MAIN session.",
     ],
     terms: [
-      ["Now", "Working sessions and workers, the queue, today's tokens and runs, the next reset and schedule."],
+      [
+        "Now",
+        "Working sessions and workers, the queue, today's tokens and runs, the next reset and schedule.",
+      ],
       ["Activity", "One square per day, coloured by how much happened; arrow keys walk the days."],
-      ["Presets", "EVERYTHING, MINIMAL, OPERATOR, STATS, FACTORY: which cards show; Edit layout for your own."],
+      [
+        "Presets",
+        "EVERYTHING, MINIMAL, OPERATOR, STATS, FACTORY: which cards show; Edit layout for your own.",
+      ],
     ],
   },
   header: {
@@ -201,12 +363,27 @@ export const ZAICODE_HELP_WIKI: Record<ZaicodeHelpTopicId, HelpArticle> = {
     terms: [
       ["← →", "Back / forward through the places you visited, like a browser."],
       ["Focus next session", "Click = next working or waiting session; right-click = previous."],
-      ["Project row buttons", "Hover a project: ◆ / ◇ switches 'this row is a session' (on: the row opens that session and the others are its children; off: a folder), ▶ START (continue it), … (more, new session)."],
-      ["Clicking a project", "First click: go to the project (the row's session, or the new-task screen). Every next click only folds or unfolds its sessions -- it never jumps to another session."],
-      ["✔ / ✔A3 after a name", "SAIPEN says the project is done and its board is clean (nothing open, blocked or parked). ✔A3: it changed since its last audit -- click to open the audit centre on it and plan an A3 wave. A3 x/y: an audit is planned (quiet) or running (bright)."],
-      ["Shift+Click a project", "Switch it off: dimmed, marked OFF, no automatic agent or schedule touches it."],
+      [
+        "Project row buttons",
+        "Hover a project: ◆ / ◇ switches 'this row is a session' (on: the row opens that session and the others are its children; off: a folder), ▶ START (continue it), … (more, new session).",
+      ],
+      [
+        "Clicking a project",
+        "First click: go to the project (the row's session, or the new-task screen). Every next click only folds or unfolds its sessions -- it never jumps to another session.",
+      ],
+      [
+        "✔ / ✔A3 after a name",
+        "SAIPEN says the project is done and its board is clean (nothing open, blocked or parked). ✔A3: it changed since its last audit -- click to open the audit centre on it and plan an A3 wave. A3 x/y: an audit is planned (quiet) or running (bright).",
+      ],
+      [
+        "Shift+Click a project",
+        "Switch it off: dimmed, marked OFF, no automatic agent or schedule touches it.",
+      ],
       ["Ctrl+Click a project", "Send it down to another slot."],
-      ["Working meter", "One cell per working session, from black (just started) to green (almost done)."],
+      [
+        "Working meter",
+        "One cell per working session, from black (just started) to green (almost done).",
+      ],
     ],
     tips: ["Right-click the header to choose which buttons it shows."],
   },
@@ -218,16 +395,31 @@ export const ZAICODE_HELP_WIKI: Record<ZaicodeHelpTopicId, HelpArticle> = {
       "Want finished ones to stay up instead of dropping back? Turn on Remain in position.",
     ],
     terms: [
-      ["Slots (MAIN0 … SIDE3)", "Named groups; a project sits in one. Fold a slot by clicking its header."],
-      ["LIVE", "Projects with a working (or waiting) session come first, most recent on top by default."],
-      ["Stay LIVE for", "A grace period: a project keeps its place this long after its work ends, so rows do not jump while you look."],
-      ["Remain in position", "A project that has been live keeps its LIVE rank for good, instead of returning to its manual place."],
+      [
+        "Slots (MAIN0 … SIDE3)",
+        "Named groups; a project sits in one. Fold a slot by clicking its header.",
+      ],
+      [
+        "LIVE",
+        "Projects with a working (or waiting) session come first, most recent on top by default.",
+      ],
+      [
+        "Stay LIVE for",
+        "A grace period: a project keeps its place this long after its work ends, so rows do not jump while you look.",
+      ],
+      [
+        "Remain in position",
+        "A project that has been live keeps its LIVE rank for good, instead of returning to its manual place.",
+      ],
       ["A3 n/m", "Audit waves done of planned for that project (Audits)."],
       ["OFF", "The project is switched off (Shift+Click to toggle)."],
       ["Freshness dot", "How recently something happened in the project."],
     ],
     problems: [
-      ["A project jumps around", "That is LIVE ordering. Raise 'Stay LIVE for', turn on Remain in position, or switch LIVE off."],
+      [
+        "A project jumps around",
+        "That is LIVE ordering. Raise 'Stay LIVE for', turn on Remain in position, or switch LIVE off.",
+      ],
     ],
   },
   continue: {
@@ -239,8 +431,14 @@ export const ZAICODE_HELP_WIKI: Record<ZaicodeHelpTopicId, HelpArticle> = {
       "Press DONE (Alt+Right) to open the oldest finished session you have not seen yet.",
     ],
     terms: [
-      ["Auto", "Keeps pushing projects to the end of their todo lists; when a project is truly done it can audit itself (Audits → Automatic)."],
-      ["Manual Stop", "If you press Stop in a session, Auto leaves that session alone until you continue it yourself."],
+      [
+        "Auto",
+        "Keeps pushing projects to the end of their todo lists; when a project is truly done it can audit itself (Audits → Automatic).",
+      ],
+      [
+        "Manual Stop",
+        "If you press Stop in a session, Auto leaves that session alone until you continue it yourself.",
+      ],
       ["▶ on a session row / Alt+Click", "Continue that one session without opening it."],
     ],
   },
@@ -253,10 +451,16 @@ export const ZAICODE_HELP_WIKI: Record<ZaicodeHelpTopicId, HelpArticle> = {
       "▶ Tour walks you over the real screen once.",
     ],
     terms: [
-      ["Hit & go", "One click: tell this project to keep going (cc all) in its MAIN session, or through an Autopilot agent."],
+      [
+        "Hit & go",
+        "One click: tell this project to keep going (cc all) in its MAIN session, or through an Autopilot agent.",
+      ],
       ["Autopilot", "On = queued tasks start by themselves; off = you start each one."],
       ["Parallel", "How many tasks may run at the same time."],
-      ["Configured vs actual model", "What the agent was set to use, and what really ran (a pool may fall over to another model)."],
+      [
+        "Configured vs actual model",
+        "What the agent was set to use, and what really ran (a pool may fall over to another model).",
+      ],
     ],
   },
   timers: {
@@ -267,7 +471,10 @@ export const ZAICODE_HELP_WIKI: Record<ZaicodeHelpTopicId, HelpArticle> = {
       "Shift+Click the clock adds minutes to a quick Temp Timer; Ctrl+Click starts / pauses Productivity.",
     ],
     terms: [
-      ["Alarm", "Once, daily, weekdays, weekly, monthly, yearly or every N minutes; own sound and colour."],
+      [
+        "Alarm",
+        "Once, daily, weekdays, weekly, monthly, yearly or every N minutes; own sound and colour.",
+      ],
       ["Interval reminder", "A sound every N minutes, on the clock or after the last one."],
       ["Heat colour", "The nearest timer's colour on the clock: blue far away → red close."],
     ],
@@ -290,15 +497,27 @@ export const ZAICODE_HELP_WIKI: Record<ZaicodeHelpTopicId, HelpArticle> = {
     ],
     terms: [
       ["Master volume", "Everything's level; each row adds or removes decibels on top."],
-      ["Overlay / replace", "Overlay lets the same sound stack; replace stops the previous one first."],
-      ["Orchestra", "Tabs, menu items, tick boxes (on and off differ), sliders, links, fold / unfold, windows opening and closing, disabled controls, paste, notices; Esc, hover and typing are optional."],
-      ["Echo", "A sound caused by your own click right before (a window your click opened) stays silent, so one action makes one sound."],
+      [
+        "Overlay / replace",
+        "Overlay lets the same sound stack; replace stops the previous one first.",
+      ],
+      [
+        "Orchestra",
+        "Tabs, menu items, tick boxes (on and off differ), sliders, links, fold / unfold, windows opening and closing, disabled controls, paste, notices; Esc, hover and typing are optional.",
+      ],
+      [
+        "Echo",
+        "A sound caused by your own click right before (a window your click opened) stays silent, so one action makes one sound.",
+      ],
       ["Problip", "A short cue on an interval, to keep a rhythm in long sessions."],
       ["Ambience", "A quiet background loop only while agents work."],
     ],
     problems: [
       ["Too many sounds", "Turn the Orchestra section 'all off', or lower the master volume."],
-      ["No sound at all", "Check Muted and 'Play while ZAICODE is focused', and Windows' own volume mixer."],
+      [
+        "No sound at all",
+        "Check Muted and 'Play while ZAICODE is focused', and Windows' own volume mixer.",
+      ],
     ],
   },
   hotkeys: {
@@ -317,7 +536,9 @@ export const ZAICODE_HELP_WIKI: Record<ZaicodeHelpTopicId, HelpArticle> = {
       ["Fact", "One short note saved as its own file; you can read and delete each one."],
       ["'remember that …'", "Say it in a prompt to save a fact on purpose."],
     ],
-    problems: [["The agent insists on something wrong", "Settings → Memory: find the fact and remove it."]],
+    problems: [
+      ["The agent insists on something wrong", "Settings → Memory: find the fact and remove it."],
+    ],
   },
   home: {
     why: "The empty new-session screen is the first thing you see before writing a task; you decide what it shows.",
@@ -367,7 +588,10 @@ export const ZAICODE_HELP_WIKI: Record<ZaicodeHelpTopicId, HelpArticle> = {
   settings: {
     why: "Every preference, grouped by what it changes. Right-clicking a control is usually the shortest way to its own settings.",
     terms: [
-      ["Profile", "A named set of your preferences; switching profiles switches sounds and pictures too."],
+      [
+        "Profile",
+        "A named set of your preferences; switching profiles switches sounds and pictures too.",
+      ],
       ["Next start", "Some settings (splash, window) apply after a restart and say so."],
     ],
   },
@@ -379,12 +603,21 @@ export const ZAICODE_HELP_WIKI: Record<ZaicodeHelpTopicId, HelpArticle> = {
       "Send; watch the spinner and 'working for' timer; Stop ends the turn.",
     ],
     terms: [
-      ["Working for", "How long the agent has worked on this turn (not how long the session exists)."],
+      [
+        "Working for",
+        "How long the agent has worked on this turn (not how long the session exists).",
+      ],
       ["Todo list", "The agent's own plan; ticks as steps finish."],
-      ["Retry", "After an error ZAICODE can retry the turn by itself after a countdown (Settings → Workers)."],
+      [
+        "Retry",
+        "After an error ZAICODE can retry the turn by itself after a countdown (Settings → Workers).",
+      ],
     ],
     problems: [
-      ["'Turn failed'", "The model returned an error (limit, network). Wait for auto-retry, press Retry now, or switch engine."],
+      [
+        "'Turn failed'",
+        "The model returned an error (limit, network). Wait for auto-retry, press Retry now, or switch engine.",
+      ],
     ],
   },
   changes: {
@@ -401,7 +634,9 @@ export const ZAICODE_HELP_WIKI: Record<ZaicodeHelpTopicId, HelpArticle> = {
       ["Merge window", "Changes within this time add up to one number instead of many small ones."],
       ["Style", "Rise, Pop, Drift or Arcade."],
     ],
-    problems: [["The counter went to 0", "A commit happened: Changes counts since the last commit."]],
+    problems: [
+      ["The counter went to 0", "A commit happened: Changes counts since the last commit."],
+    ],
   },
   splash: {
     why: "The start-up picture appears the moment ZAICODE starts and stays until the app is really ready, so you never look at a grey half-loaded window.",
@@ -422,7 +657,10 @@ export const ZAICODE_HELP_WIKI: Record<ZaicodeHelpTopicId, HelpArticle> = {
   todo: {
     why: "The todo dock shows the open session's plan: what the agent intends to do and what is done.",
     terms: [
-      ["Docked / free", "Stick it to the window edge or drag it anywhere; it stays inside the window when you resize."],
+      [
+        "Docked / free",
+        "Stick it to the window edge or drag it anywhere; it stays inside the window when you resize.",
+      ],
       ["Tick", "A finished step; plays the Todo done sound."],
     ],
   },
@@ -436,17 +674,38 @@ export const ZAICODE_HELP_WIKI: Record<ZaicodeHelpTopicId, HelpArticle> = {
       "When it finishes, Copy handoff gives you the list of next actions.",
     ],
     terms: [
-      ["Wave 1 — Core correctness", "Real defects: broken logic, wrong edge cases, lost errors, data loss."],
-      ["Wave 2 — Completeness", "What the project promises but does not do yet; half-wired features."],
-      ["Wave 3 — Performance", "Leaks, needless work, things that grow without end; writes the combined handoff."],
+      [
+        "Wave 1 — Core correctness",
+        "Real defects: broken logic, wrong edge cases, lost errors, data loss.",
+      ],
+      [
+        "Wave 2 — Completeness",
+        "What the project promises but does not do yet; half-wired features.",
+      ],
+      [
+        "Wave 3 — Performance",
+        "Leaks, needless work, things that grow without end; writes the combined handoff.",
+      ],
       ["Auditor", "The agent that runs the waves; change its model in Agents & tasks."],
-      ["Last sign of life", "How long the running wave has been silent: quiet after 3 minutes, stalled after 10."],
+      [
+        "Last sign of life",
+        "How long the running wave has been silent: quiet after 3 minutes, stalled after 10.",
+      ],
       ["Plan only", "Create the audit without running it; press Start on it later."],
-      ["Automatic audits", "When a project's SAIPEN board is empty and nothing runs, it audits itself; an implementer fixes the findings; it audits again — until an audit finds nothing or the limit is reached."],
+      [
+        "Automatic audits",
+        "When a project's SAIPEN board is empty and nothing runs, it audits itself; an implementer fixes the findings; it audits again — until an audit finds nothing or the limit is reached.",
+      ],
     ],
     problems: [
-      ["An audit is 'stopped'", "A wave failed or its report missed the STATUS line. Open its report or session, then cancel and start again."],
-      ["Stalled for many minutes", "Open its session to see what it is doing; cancel if it is stuck."],
+      [
+        "An audit is 'stopped'",
+        "A wave failed or its report missed the STATUS line. Open its report or session, then cancel and start again.",
+      ],
+      [
+        "Stalled for many minutes",
+        "Open its session to see what it is doing; cancel if it is stuck.",
+      ],
     ],
   },
 };

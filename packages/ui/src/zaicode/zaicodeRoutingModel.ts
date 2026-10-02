@@ -1,4 +1,5 @@
 import type { ZaicodeRouteBackend } from "@zcode/shared";
+import { selectableThoughtLevels } from "@zcode/shared";
 
 /**
  * ZAICODE pool model.
@@ -21,7 +22,10 @@ export interface ZaicodePoolProviderInput {
   models: readonly {
     modelId: string;
     selectable: boolean;
-    config?: { displayName?: string | null; optionSpecs?: { reasoningLevel?: { values?: readonly string[] | null } | null } | null };
+    config?: {
+      displayName?: string | null;
+      optionSpecs?: { reasoningLevel?: { values?: readonly string[] | null } | null } | null;
+    };
   }[];
 }
 
@@ -80,7 +84,9 @@ export function buildPoolGroups(
             providerLabel,
             modelId: model.modelId,
             ...(model.config?.displayName ? { displayName: model.config.displayName } : {}),
-            reasoningLevels: model.config?.optionSpecs?.reasoningLevel?.values ?? [],
+            reasoningLevels: selectableThoughtLevels(
+              model.config?.optionSpecs?.reasoningLevel?.values ?? [],
+            ),
             hintId: poolHintId(model.modelId),
           })),
       };
@@ -130,14 +136,17 @@ export function formatPoolLabel(providerLabel: string, modelId: string): string 
 }
 
 /** The ZAICODE provider that fronts 9router: named like SAIRoute or pointing at 9router's port. */
-export function findZaicodeRouterProvider<T extends { providerId: string; providerName?: string | null; config: unknown }>(
-  providers: readonly T[],
-  routerUrl: string | null,
-): T | null {
-  const port = routerUrl ? /:(\d+)/.exec(routerUrl.replace(/^[a-z]+:\/\//, ""))?.[1] ?? null : null;
+export function findZaicodeRouterProvider<
+  T extends { providerId: string; providerName?: string | null; config: unknown },
+>(providers: readonly T[], routerUrl: string | null): T | null {
+  const port = routerUrl
+    ? (/:(\d+)/.exec(routerUrl.replace(/^[a-z]+:\/\//, ""))?.[1] ?? null)
+    : null;
   return (
     providers.find((provider) => {
-      const baseUrl = String((provider.config as { api?: { baseUrl?: unknown } }).api?.baseUrl ?? "");
+      const baseUrl = String(
+        (provider.config as { api?: { baseUrl?: unknown } }).api?.baseUrl ?? "",
+      );
       return port !== null && new RegExp(`(localhost|127\\.0\\.0\\.1):${port}(/|$)`).test(baseUrl);
     }) ??
     providers.find((provider) => isRouterProvider(provider.providerId, provider.providerName)) ??

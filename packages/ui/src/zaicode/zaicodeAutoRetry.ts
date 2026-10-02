@@ -9,6 +9,7 @@ import { logger } from "@/logger.js";
 import { useZaicodeAutoContinue } from "./zaicodeAutoContinue.js";
 import { useZaicodeAuditStore } from "./zaicodeAuditStore.js";
 import {
+  clearZaicodeQuotaWall,
   markZaicodeQuotaWall,
   useZaicodeRetryLedger,
   zaicodeMayAutoSend,
@@ -45,8 +46,12 @@ export function isZaicodeManualRetryableError(error: Pick<SessionErrorInfo, "cod
  * every minute does not lift it, so it is left to Retry now and to the reset
  * (SRC-082, zaicodeRetryPolicy).
  */
-export function isZaicodeAutoRetryableError(error: Pick<SessionErrorInfo, "code" | "message">): boolean {
-  return isZaicodeManualRetryableError(error) && zaicodeRetryClassOf(error) === "transient";
+export function isZaicodeAutoRetryableError(
+  error: Pick<SessionErrorInfo, "code" | "message">,
+  quotaFallbackReady = false,
+): boolean {
+  return isZaicodeManualRetryableError(error) &&
+    (zaicodeRetryClassOf(error) === "transient" || quotaFallbackReady);
 }
 
 type RowLike = Pick<ConversationRow, "rowId" | "kind"> & {
@@ -178,6 +183,8 @@ export function isZaicodeAutoRetryStopped(errorKey: string | null | undefined): 
 
 export function useZaicodeAutoRetry(params: {
   enabled: boolean;
+  /** A different usable route is selected; Retry aligns it before sending. */
+  quotaFallbackReady?: boolean;
   sessionId: string | null;
   error: SessionErrorInfo | null;
   errorKey: string | null;
@@ -204,10 +211,11 @@ export function useZaicodeAutoRetry(params: {
     () => (error && isZaicodeManualRetryableError(error) ? pickZaicodeAutoRetryAction(rows as readonly RowLike[]) : null),
     [error, rows],
   );
-  const quotaWall = Boolean(error && zaicodeRetryClassOf(error) === "quota");
+  const quotaWall = Boolean(error && zaicodeRetryClassOf(error) === "quota" && !params.quotaFallbackReady);
   useEffect(() => {
     if (sessionId && quotaWall) markZaicodeQuotaWall(sessionId);
-  }, [quotaWall, sessionId, errorKey]);
+    else if (sessionId && params.quotaFallbackReady) clearZaicodeQuotaWall(sessionId);
+  }, [quotaWall, sessionId, errorKey, params.quotaFallbackReady]);
   const mayAutoSend = zaicodeMayAutoSend({ mode: sessionMode, masterOn, featureOn: autoRetry });
   const blockedBy: ZaicodeAutoRetryState["blockedBy"] = quotaWall
     ? "quota"
@@ -269,7 +277,7 @@ export function useZaicodeAutoRetry(params: {
     hasSession: Boolean(sessionId),
     enabled,
     hasError: Boolean(error),
-    retryable: Boolean(error && blockedBy === null && isZaicodeAutoRetryableError(error)),
+    retryable: Boolean(error && blockedBy === null && isZaicodeAutoRetryableError(error, params.quotaFallbackReady)),
     armed,
     stoppedThisError: Boolean(errorKey) && stoppedKey === errorKey,
   });

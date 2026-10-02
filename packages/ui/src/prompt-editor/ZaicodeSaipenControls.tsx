@@ -1,3 +1,4 @@
+import { openZaicodeSaipenView } from "@/zaicode/zaicodeActions.js";
 import { Button } from "@/components/ui/button.js";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import {
@@ -312,6 +313,7 @@ export function ZaicodeSaipenControls({
             composer.compactPhase
               ? {
                   text: where,
+                  onClick: () => openZaicodeSaipenView(workspacePath, workspaceIdentity),
                   title: chipTitle,
                   style: chipStyle,
                   state: runtime?.verdict.state,
@@ -372,7 +374,10 @@ export function ZaicodeSaipenControls({
           {clearButton}
           <span className="ml-auto" />
           {composer.showPhase ? (
-          <span
+          <button
+            type="button"
+            onClick={() => openZaicodeSaipenView(workspacePath, workspaceIdentity)}
+            aria-label="Open SAIPEN STATE, BOARD and LOG"
             className="shrink-0 border border-border px-1.5 tabular-nums text-foreground"
             style={chipStyle}
             data-zaicode-readiness={runtime?.verdict.state}
@@ -385,7 +390,7 @@ export function ZaicodeSaipenControls({
               .join(" — ")}
           >
             {where}
-          </span>
+          </button>
           ) : null}
           {composer.showBoard && ticketTotal > 0 ? (
             <span
@@ -429,4 +434,3 @@ export function ZaicodeSaipenControls({
     </div>
   );
 }
-

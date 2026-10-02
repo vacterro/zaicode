@@ -9,6 +9,7 @@ import type { ZaicodeSaipenSnapshot } from "./zaicodeSaipenModel.js";
 import { useZaicodeSessionNav, type ZaicodeSessionRef } from "./zaicodeSessionNav.js";
 import { useZaicodeRunningSessions, type ZaicodeRunningSession } from "./zaicodeSidebarPrefs.js";
 import { useZaicodeWorkersSelector, type ZaicodeWorker } from "./zaicodeWorkers.js";
+import { useZaicodeLiveRunIds } from "./zaicodeLiveRuns.js";
 
 /**
  * Renderer half of the System Read Model (T-41): one ProjectRuntimeSnapshot
@@ -17,14 +18,19 @@ import { useZaicodeWorkersSelector, type ZaicodeWorker } from "./zaicodeWorkers.
  */
 
 /** Windows paths compare case-insensitively and without a trailing separator. */
-export function sameZaicodeProjectPath(left: string | undefined | null, right: string | undefined | null): boolean {
+export function sameZaicodeProjectPath(
+  left: string | undefined | null,
+  right: string | undefined | null,
+): boolean {
   if (!left || !right) return false;
   const norm = (value: string) => value.replace(/\\/g, "/").replace(/\/+$/, "").toLowerCase();
   return norm(left) === norm(right);
 }
 
 /** SAIPEN's projection when it answered, else a file-derived stand-in marked `source: "files"`. */
-export function zaicodeProtocolOf(saipen: ZaicodeSaipenSnapshot | null): ZaicodeSaipenProjection | null {
+export function zaicodeProtocolOf(
+  saipen: ZaicodeSaipenSnapshot | null,
+): ZaicodeSaipenProjection | null {
   if (!saipen) return null;
   if (saipen.projection) return saipen.projection;
   return {
@@ -47,13 +53,22 @@ export function zaicodeProtocolOf(saipen: ZaicodeSaipenSnapshot | null): Zaicode
 }
 
 /** Sessions of `projectPath` in a published list (running / waiting). */
-function countZaicodeSessionsIn(list: readonly Pick<ZaicodeSessionRef, "workspacePath">[], projectPath: string): number {
-  return list.filter((session) => sameZaicodeProjectPath(session.workspacePath, projectPath)).length;
+function countZaicodeSessionsIn(
+  list: readonly Pick<ZaicodeSessionRef, "workspacePath">[],
+  projectPath: string,
+): number {
+  return list.filter((session) => sameZaicodeProjectPath(session.workspacePath, projectPath))
+    .length;
 }
 
 /** Live workers (any kind) of `projectPath`. */
-function countZaicodeWorkersIn(workers: readonly Pick<ZaicodeWorker, "projectPath" | "exitCode">[], projectPath: string): number {
-  return workers.filter((worker) => worker.exitCode === null && sameZaicodeProjectPath(worker.projectPath, projectPath)).length;
+function countZaicodeWorkersIn(
+  workers: readonly Pick<ZaicodeWorker, "projectPath" | "exitCode">[],
+  projectPath: string,
+): number {
+  return workers.filter(
+    (worker) => worker.exitCode === null && sameZaicodeProjectPath(worker.projectPath, projectPath),
+  ).length;
 }
 
 function zaicodeProjectRuntimeSnapshot(input: {
@@ -66,7 +81,10 @@ function zaicodeProjectRuntimeSnapshot(input: {
 }): ZaicodeProjectRuntimeSnapshot {
   const { saipen } = input;
   return {
-    project: { path: input.projectPath, ...(input.projectIdentity ? { identity: input.projectIdentity } : {}) },
+    project: {
+      path: input.projectPath,
+      ...(input.projectIdentity ? { identity: input.projectIdentity } : {}),
+    },
     protocol: zaicodeProtocolOf(saipen),
     board: saipen ? { ...saipen.counts } : null,
     owner: saipen?.owner ?? null,
@@ -109,7 +127,9 @@ export interface ZaicodeSaipenHeadline {
  * answered (its computed next action, its blocker, its top workable ticket),
  * else the STATE/BOARD parse. Titles still come from BOARD (display only).
  */
-export function zaicodeSaipenHeadline(saipen: ZaicodeSaipenSnapshot | null): ZaicodeSaipenHeadline | null {
+export function zaicodeSaipenHeadline(
+  saipen: ZaicodeSaipenSnapshot | null,
+): ZaicodeSaipenHeadline | null {
   if (!saipen) return null;
   const projection = saipen.projection;
   if (!projection || projection.source !== "saipen") {
@@ -118,14 +138,19 @@ export function zaicodeSaipenHeadline(saipen: ZaicodeSaipenSnapshot | null): Zai
       task: saipen.task,
       nextAction: saipen.nextAction,
       blocker: saipen.blocker,
-      nextTicket: saipen.nextTicket ? { id: saipen.nextTicket.id, title: saipen.nextTicket.title } : null,
+      nextTicket: saipen.nextTicket
+        ? { id: saipen.nextTicket.id, title: saipen.nextTicket.title }
+        : null,
     };
   }
   const titleOf = (id: string) =>
     saipen.detail?.tickets.find((ticket) => ticket.id === id)?.title ??
     [saipen.doing, saipen.nextTicket].find((ticket) => ticket?.id === id)?.title ??
     "";
-  const next = projection.topWorkableTicket && projection.topWorkableTicket !== projection.claimedTicket ? projection.topWorkableTicket : null;
+  const next =
+    projection.topWorkableTicket && projection.topWorkableTicket !== projection.claimedTicket
+      ? projection.topWorkableTicket
+      : null;
   return {
     phase: projection.phase,
     task: projection.task,
@@ -141,7 +166,9 @@ export interface ZaicodeProjectRuntimeView {
   color: string | null;
 }
 
-export function viewZaicodeProjectRuntime(snapshot: ZaicodeProjectRuntimeSnapshot): ZaicodeProjectRuntimeView {
+export function viewZaicodeProjectRuntime(
+  snapshot: ZaicodeProjectRuntimeSnapshot,
+): ZaicodeProjectRuntimeView {
   const verdict = zaicodeProjectRuntimeState(snapshot);
   return { snapshot, verdict, color: ZAICODE_RUNTIME_STATE_COLOR[verdict.state] };
 }
@@ -154,9 +181,20 @@ export function useZaicodeProjectRuntime(
 ): ZaicodeProjectRuntimeView | null {
   // Counts, not lists: every project row runs this hook, and a new list from any project
   // (streaming activity, a worker window drag) used to re-render all of them (SRC-043).
-  const running = useZaicodeRunningSessions((state) => countZaicodeSessionsIn(state.sessions, projectPath));
-  const waiting = useZaicodeSessionNav((state) => countZaicodeSessionsIn(state.waiting, projectPath));
-  const workers = useZaicodeWorkersSelector((state) => countZaicodeWorkersIn(state.workers, projectPath));
+  const runningIds = useZaicodeRunningSessions((state) =>
+    state.sessions
+      .filter((session) => sameZaicodeProjectPath(session.workspacePath, projectPath))
+      .map((session) => session.sessionId)
+      .join("\n"),
+  );
+  const liveRunIds = useZaicodeLiveRunIds(projectPath);
+  const running = new Set([...runningIds.split("\n").filter(Boolean), ...liveRunIds]).size;
+  const waiting = useZaicodeSessionNav((state) =>
+    countZaicodeSessionsIn(state.waiting, projectPath),
+  );
+  const workers = useZaicodeWorkersSelector((state) =>
+    countZaicodeWorkersIn(state.workers, projectPath),
+  );
   if (!projectPath) return null;
   return viewZaicodeProjectRuntime(
     zaicodeProjectRuntimeSnapshot({

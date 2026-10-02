@@ -333,6 +333,8 @@ test("Wave 4 C: the shipped default keys exist for the targets the editor offers
 
 test("Wave 4 C: an appearance override is stored per model and survives a reload", () => {
   const values = new Map<string, string>();
+  // The operator may have saved model overrides as bundled defaults. Isolate this round trip.
+  values.set("zaicode-model-appearance-v1", JSON.stringify(ZAICODE_MODEL_APPEARANCE_DEFAULTS));
   Object.defineProperty(globalThis, "localStorage", {
     configurable: true,
     value: {
