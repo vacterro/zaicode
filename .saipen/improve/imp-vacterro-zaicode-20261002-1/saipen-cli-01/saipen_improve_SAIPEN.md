@@ -4,12 +4,12 @@ model_or_runtime: unknown
 project: vacterro-zaicode
 saipen_version: 8.0.2
 protocol_fingerprint: sha256:e2e83e5b9235858c329823b2b6ad75d5e27f8c21c3e16022c2cae1be5298c36a
-source_head: 1d66574d216d26171fe7c01a19484ee6c817c3e1
-source_tree_fingerprint: git-delta-v1:c66baf69a8306f3b95dfc7badb5f72b088f8de8408e933efadc4d149721a1195
+source_head: 3e4e1de4e178eb480134be2abbca7cb159d12a4b
+source_tree_fingerprint: git-delta-v1:a70a526cf8db410966df756a32508300f75e54bb11af097efda463a525a2a0d0
 discovery_model: git-delta-v1
 context_scope: SAIPEN audit, phase DONE
 context_available: partial
-report_status: draft
+report_status: complete
 
 Audit of the work this seat closed since the last cycle (T-165 soak and its
 harness fixes d6aef8f2/19576ff4/23df332f, T-149 dispose reachability
