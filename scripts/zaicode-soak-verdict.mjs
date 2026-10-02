@@ -69,10 +69,23 @@ export function buildVerdict(timeline, config) {
   // broken one indistinguishable.
   const worstFps = samples.reduce((min, s) => Math.min(min, s.fps), Number.POSITIVE_INFINITY);
   const janky = samples.filter((s) => (s.longFrames ?? 0) > 0).length;
+  // `longFrames` counts frames slower than 50ms inside a TWO-SECOND probe window, so
+  // "longFrames > 0" means one frame in two seconds took longer than 50ms: an ordinary GC
+  // pause. The rule used to read degradation as "most samples janky AND the very first
+  // sample happened to be clean" -- a single 2-second window as the baseline, which is a
+  // coin flip rather than a baseline. The first 11.2-hour run measured this way held 88-90
+  // fps flat with a flat heap and 1171 real clicks, and was still called degraded at an
+  // 85% jank density that never moved. SRC-116's symptom is jank that APPEARS, so the
+  // comparison is now density early against density late: constant noise is not decay.
+  const jankDensity = (window) =>
+    window.length === 0 ? 0 : window.filter((s) => (s.longFrames ?? 0) > 0).length / window.length;
+  const edge = Math.max(1, Math.floor(samples.length * 0.1));
+  const jankRose =
+    samples.length >= 20 && jankDensity(samples.slice(0, edge)) < 0.25 && jankDensity(samples.slice(-edge)) > 0.75;
   const degraded =
     (first && midpoint ? last.fps < midpoint.fps * 0.5 : false) ||
     (last ? last.fps < 10 : false) ||
-    (first && samples.length > 2 && janky / samples.length > 0.5 && (first.longFrames ?? 0) === 0);
+    jankRose;
   // A PASS has to mean the surface actually ran. Three ways a run collects plausible
   // numbers without ever exercising the app, all of which used to read green: the
   // renderer never painted its tree (a bare Electron shell is ~11 nodes, a rendered
@@ -123,6 +136,10 @@ export function buildVerdict(timeline, config) {
       growthMbPerMinute: Number((rssSlope / 1048576).toFixed(3)),
     },
     jankySamples: janky,
+    jankDensity: {
+      early: Number(jankDensity(samples.slice(0, edge)).toFixed(3)),
+      late: Number(jankDensity(samples.slice(-edge)).toFixed(3)),
+    },
     blankSurfaceSamples: blankSamples.length,
     churnActions,
     churnErrors,

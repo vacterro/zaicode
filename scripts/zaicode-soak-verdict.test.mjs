@@ -96,3 +96,24 @@ test("a replayed run that recorded no churn fails as no-churn", () => {
   const timeline = [0, 15, 30, 45, 60].map((second) => sample(second));
   assert.equal(buildVerdict(timeline, { churnMinutes: 90, soakHours: 12 }).verdict, "FAIL_NO_CHURN");
 });
+
+test("steady jank at a flat frame rate is not degradation", () => {
+  // The real 11.2-hour run: fps held 88-96, heap flat, RSS fell, 1171 clicks -- and it was
+  // called FAIL_DEGRADED because one frame in a two-second window was slower than 50ms in
+  // 85% of samples. Constant noise is not decay, and fps did not move.
+  const timeline = Array.from({ length: 60 }, (_, i) =>
+    sample(i * 15, { fps: 90, longFrames: i === 0 ? 0 : 1 }),
+  );
+  const verdict = buildVerdict(timeline, CHURNED);
+  assert.equal(verdict.verdict, "PASS");
+  assert.ok(verdict.jankDensity.late > 0.75, `expected high late density, got ${verdict.jankDensity.late}`);
+});
+
+test("jank that appears late is degradation", () => {
+  // The rule must still bite: a surface that is clean through its first tenth and mostly
+  // janky by its last is the shape SRC-116 describes, even while fps survives.
+  const timeline = Array.from({ length: 60 }, (_, i) =>
+    sample(i * 15, { fps: 55, longFrames: i < 6 ? 0 : 3 }),
+  );
+  assert.equal(buildVerdict(timeline, CHURNED).verdict, "FAIL_DEGRADED");
+});
