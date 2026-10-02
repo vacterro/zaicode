@@ -414,3 +414,5 @@
 - 02.10.26 10:58 [E-2880] [parent: E-2879] [agent: saipen-cli] [op: transition-93015e5bfd0348c48b2270b3869acfd5] DEC: goal_tickets 14->15
 - 02.10.26 10:58 [E-2881] [parent: E-2880] [T-175] [agent: saipen-cli] [op: transition-dc266cf6786e49e9900b19af0fba5a0a] RUN: transition to SHIP -- _SAIPEN commit 8f28a384 carries the change; not pushed, matching T-154 which records the two installs already disagreeing
 - 02.10.26 10:58 [E-2882] [parent: E-2881] [T-175] [agent: saipen-cli] [op: finish-0c287a9f7d954b29b4e282297fc40882] DEC: ticket finished via SAIOPS -- completion (from SHIP)
+- 02.10.26 11:09 [E-2883] [parent: E-2882] [T-169] [agent: saipen-cli] [op: ticket-58a7ed5c18d048d08b4cc39870acc97f] DEC: detail_ref: .saipen/recovery/log-detail/E-2883-b95ead7f17f9f73c58633c81.json
+- 02.10.26 11:09 [E-2884] [parent: E-2883] [T-169] [agent: saipen-cli] [op: ticket-c9052103bb21464dbb3b7b2c02370969] DEC: detail_ref: .saipen/recovery/log-detail/E-2884-9c9e12e1d0871a5b83a0fa27.json
