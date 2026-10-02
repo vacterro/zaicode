@@ -263,7 +263,16 @@ async function main() {
       .split(String.fromCharCode(10))
       .filter((line) => line.trim().length > 0)
       .map((line) => JSON.parse(line));
-    const config = { replayedFrom: REPLAY, samples: timeline.length };
+    // The window the run was ASKED to cover travels with the re-judgement. Without it every
+    // config-driven rule reads as not-requested -- churnRequested is false, so FAIL_NO_CHURN
+    // is unreachable -- and the same timeline returns PASS on replay where the live run
+    // failed. `--minutes` / `--soak-hours` say what that run was for.
+    const config = {
+      replayedFrom: REPLAY,
+      samples: timeline.length,
+      churnMinutes: CHURN_MINUTES,
+      soakHours: SOAK_HOURS,
+    };
     const verdict = buildVerdict(timeline, config);
     await mkdir(OUT_DIR, { recursive: true });
     await writeFile(path.join(OUT_DIR, "verdict.json"), `${JSON.stringify(verdict, null, 2)}
@@ -394,8 +403,9 @@ async function main() {
     churnActions,
     churnErrors,
     // The verdict is only evidence about the binary that produced it, so the report names
-    // it: which exe, and how old it was when the run started.
-    app: { path: APP, builtAt: new Date(statSync(APP).mtimeMs).toISOString() },
+    // it: which exe, and how old it was when the run started. A binary that was replaced or
+    // removed mid-window must not take the verdict with it -- the timeline is the evidence.
+    app: { path: APP, builtAt: appBuiltAt() },
   });
   await writeFile(path.join(OUT_DIR, "verdict.json"), `${JSON.stringify(verdict, null, 2)}\n`);
   await writeFile(path.join(OUT_DIR, "report.md"), renderReport(verdict, OUT_DIR));
@@ -418,8 +428,22 @@ function log(sample) {
   );
 }
 
-function renderReport(verdict, outDir) {
-  return [
+/**
+ * When the binary under test was built, or null if it is no longer there.
+ *
+ * The stat happens after the sampling loop, so a build swapped in or deleted mid-run used
+ * to throw here -- out of main()'s try, into the top-level catch -- and take verdict.json
+ * and report.md with it, leaving a timeline no verdict and no report to read.
+ */
+function appBuiltAt() {
+  try {
+    return new Date(statSync(APP).mtimeMs).toISOString();
+  } catch {
+    return null;
+  }
+}
+
+function renderReport(verdict, outDir) {  return [
     `# ZAICODE soak verdict — ${verdict.verdict}`,
     "",
     `- window: ${verdict.durationSeconds}s, ${verdict.samples} samples, median DOM nodes ${verdict.medianNodes}`,

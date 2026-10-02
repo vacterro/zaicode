@@ -117,3 +117,30 @@ test("jank that appears late is degradation", () => {
   );
   assert.equal(buildVerdict(timeline, CHURNED).verdict, "FAIL_DEGRADED");
 });
+test("a window that never covered the horizon is not a pass", () => {
+  // 25 healthy samples lifted from the middle of the 11.2-hour run replayed as PASS,
+  // identical to the full 2341-sample verdict: durationSeconds was reported and never
+  // compared with the window the run was asked to cover.
+  const timeline = Array.from({ length: 25 }, (_, i) => sample(4_200 + i * 15));
+  const verdict = buildVerdict(timeline, { ...CHURNED, soakHours: 12 });
+  assert.equal(verdict.verdict, "FAIL_INCOMPLETE_WINDOW");
+  assert.equal(verdict.requestedSeconds, 12 * 3600);
+  assert.ok(verdict.durationSeconds < 12 * 3600);
+});
+
+test("a run that covered the horizon still passes", () => {
+  // The gate must not eat the real verdict: 12 hours at 15-second samples.
+  const timeline = Array.from({ length: 2881 }, (_, i) => sample(i * 15));
+  assert.equal(buildVerdict(timeline, { ...CHURNED, soakHours: 12 }).verdict, "PASS");
+});
+
+test("churn performed on a round whose probe failed is still churn", () => {
+  // The harness writes churn onto whichever sample a round produced. A round that churned
+  // and then lost its fps to a probe error used to vanish from the tally entirely.
+  const timeline = [0, 15, 30, 45].map((second) => sample(second, { churnActions: { click: 3 } }));
+  const broken = sample(60, { churnActions: { click: 3 }, probeError: "boom" });
+  delete broken.fps;
+  const verdict = buildVerdict([...timeline, broken], { churnMinutes: 90, soakHours: 0 });
+  assert.equal(verdict.churnTotal, 15);
+  assert.equal(verdict.verdict, "PASS");
+});

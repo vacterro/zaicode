@@ -94,11 +94,21 @@ export function buildVerdict(timeline, config) {
   // to learn nothing, so each is its own verdict rather than a footnote.
   const nodeCounts = samples.map((s) => s.nodes).filter((n) => typeof n === "number").sort((a, b) => a - b);
   const medianNodes = nodeCounts.length > 0 ? nodeCounts[Math.floor(nodeCounts.length / 2)] : 0;
-  const churnActions = config.churnActions ?? tallyChurn(samples);
+  // Churn is tallied over EVERY row, not the fps-filtered ones: the harness writes it onto
+  // whichever sample a round produced, so a round that churned and then failed its probe
+  // still performed churn and must still count.
+  const churnActions = config.churnActions ?? tallyChurn(timeline);
   const churnErrors =
-    config.churnErrors ?? samples.filter((s) => typeof s.churnError === "string").length;
+    config.churnErrors ?? timeline.filter((s) => typeof s.churnError === "string").length;
   const churnTotal = Object.values(churnActions).reduce((sum, n) => sum + n, 0);
   const churnRequested = Number(config.churnMinutes ?? 0) > 0;
+  // A PASS also has to mean the window was covered. Twenty-five healthy samples replayed
+  // from the middle of an 11.2-hour run read PASS exactly like the full 2341-sample
+  // verdict, because durationSeconds was reported and never compared with anything: the
+  // artifact could not tell a run that covered the horizon from one that covered minutes.
+  const requestedSeconds = Number(config.soakHours ?? 0) * 3600;
+  const coveredSeconds = last?.elapsedSeconds ?? 0;
+  const windowShort = requestedSeconds > 0 && coveredSeconds < requestedSeconds * 0.9;
   const verdict =
     samples.length === 0
       ? "FAIL_NO_SAMPLES"
@@ -110,14 +120,17 @@ export function buildVerdict(timeline, config) {
             ? "FAIL_DEGRADED"
             : churnRequested && churnTotal === 0
               ? "FAIL_NO_CHURN"
-              : "PASS";
+              : windowShort
+                ? "FAIL_INCOMPLETE_WINDOW"
+                : "PASS";
   return {
     verdict,
     generatedAt: new Date().toISOString(),
     config,
     samples: samples.length,
     medianNodes,
-    durationSeconds: last?.elapsedSeconds ?? 0,
+    durationSeconds: coveredSeconds,
+    requestedSeconds: requestedSeconds || null,
     fps: {
       first: first?.fps ?? null,
       midpoint: midpoint?.fps ?? null,
