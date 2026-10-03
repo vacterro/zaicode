@@ -1,7 +1,14 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ComponentProps } from "react";
+import { normalizeZaicodeRouterConnections, normalizeZaicodeRouterNodes } from "@zcode/shared";
 import { Button } from "@/components/ui/button.js";
 import { cn } from "@/components/lib/utils.js";
-import { getZaicodeRouterBridge } from "./zaicodeRouter.js";
+import { getZaicodeRouterBridge, useZaicodeRouter } from "./zaicodeRouter.js";
+import {
+  buildZaicodeUsageLabels,
+  displayZaicodeUsageBreakdown,
+  zaicodeUsageDisplayName,
+  zaicodeUsageStatus,
+} from "./zaicodeUsageLabels.js";
 import {
   normalizeZaicodeUsage,
   normalizeZaicodeUsageChart,
@@ -15,6 +22,26 @@ import {
 const number = (value: number) => value.toLocaleString(undefined, { maximumFractionDigits: 0 });
 const cost = (value: number) => `$${value.toFixed(4)}`;
 
+function UsageChoice({
+  selected,
+  ...props
+}: ComponentProps<typeof Button> & { selected: boolean }) {
+  return (
+    <Button
+      {...props}
+      variant="ghost"
+      size="sm"
+      className={cn(
+        "border text-ui-xs",
+        selected
+          ? "border-border-hover bg-selected text-foreground"
+          : "border-transparent text-foreground-subtle",
+        props.className,
+      )}
+    />
+  );
+}
+
 export function ZaicodeUsageView({ sidebar = false }: { sidebar?: boolean }) {
   const period = useZaicodeUsage((state) => state.period);
   const [revision, setRevision] = useState(0);
@@ -26,6 +53,37 @@ export function ZaicodeUsageView({ sidebar = false }: { sidebar?: boolean }) {
   const [chart, setChart] = useState<ReturnType<typeof normalizeZaicodeUsageChart>>([]);
   const [metric, setMetric] = useState<"tokens" | "cost">("tokens");
   const [tab, setTab] = useState<"recent" | "models" | "providers" | "accounts">("recent");
+  const [labels, setLabels] = useState(() => {
+    const router = useZaicodeRouter.getState();
+    return buildZaicodeUsageLabels(router.nodes, router.connections);
+  });
+
+  useEffect(() => {
+    let disposed = false;
+    const bridge = getZaicodeRouterBridge();
+    if (!bridge?.callZaicodeRouter) return;
+    // Names are metadata: read once per view, separately from the live metrics.
+    void Promise.allSettled([
+      bridge.callZaicodeRouter({ method: "GET", path: "/api/provider-nodes" }),
+      bridge.callZaicodeRouter({ method: "GET", path: "/api/providers" }),
+    ]).then(([nodes, connections]) => {
+      if (disposed) return;
+      const router = useZaicodeRouter.getState();
+      setLabels(
+        buildZaicodeUsageLabels(
+          nodes.status === "fulfilled" && nodes.value.ok
+            ? normalizeZaicodeRouterNodes(nodes.value.data)
+            : router.nodes,
+          connections.status === "fulfilled" && connections.value.ok
+            ? normalizeZaicodeRouterConnections(connections.value.data)
+            : router.connections,
+        ),
+      );
+    });
+    return () => {
+      disposed = true;
+    };
+  }, []);
 
   useEffect(() => {
     let disposed = false;
@@ -84,7 +142,11 @@ export function ZaicodeUsageView({ sidebar = false }: { sidebar?: boolean }) {
         `${(index * 600) / Math.max(1, values.length - 1)},${110 - (value * 100) / peak}`,
     )
     .join(" ");
-  const rows: UsageCount[] = data ? (tab === "recent" ? data.recent : data[tab]) : [];
+  const rows: UsageCount[] = data
+    ? tab === "recent"
+      ? data.recent
+      : displayZaicodeUsageBreakdown(data[tab], tab, labels)
+    : [];
 
   return (
     <section
@@ -97,11 +159,12 @@ export function ZaicodeUsageView({ sidebar = false }: { sidebar?: boolean }) {
         <strong className="mr-auto">9router Usage</strong>
         <Button
           size="sm"
+          variant="ghost"
           onClick={() => (sidebar ? openZaicodeUsage("page") : toggleZaicodeUsageSidebar())}
         >
           {sidebar ? "Full page" : "Sidebar"}
         </Button>
-        <Button size="sm" onClick={() => openZaicodeUsage("closed")}>
+        <Button size="sm" variant="ghost" onClick={() => openZaicodeUsage("closed")}>
           Close
         </Button>
       </header>
@@ -111,16 +174,21 @@ export function ZaicodeUsageView({ sidebar = false }: { sidebar?: boolean }) {
         </p>
         <div className="mb-2 flex flex-wrap items-center gap-1" aria-label="Usage period">
           {ZAICODE_USAGE_PERIODS.map((value) => (
-            <Button
+            <UsageChoice
               key={value}
-              size="sm"
+              selected={period === value}
               aria-pressed={period === value}
               onClick={() => useZaicodeUsage.setState({ period: value })}
             >
               {value === "today" ? "Today" : value === "all" ? "All" : value.toUpperCase()}
-            </Button>
+            </UsageChoice>
           ))}
-          <Button size="sm" disabled={loading} onClick={() => setRevision((value) => value + 1)}>
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={loading}
+            onClick={() => setRevision((value) => value + 1)}
+          >
             Refresh
           </Button>
           <label className="flex items-center gap-1 text-ui-xs">
@@ -157,7 +225,7 @@ export function ZaicodeUsageView({ sidebar = false }: { sidebar?: boolean }) {
               ["Estimated cost", totals?.cost],
             ] as const
           ).map(([label, value]) => (
-            <div key={label} className="min-w-0 border border-border bg-surface p-2">
+            <div key={label} className="min-w-0 border border-border p-2">
               <span className="block text-ui-xs text-foreground-subtle">{label}</span>
               <strong className="break-all tabular-nums">
                 {value === undefined
@@ -174,24 +242,28 @@ export function ZaicodeUsageView({ sidebar = false }: { sidebar?: boolean }) {
           <div className="mb-3 border border-border p-2">
             <strong className="text-ui-xs">Active requests</strong>
             {data.active.map((row, index) => (
-              <p key={index} className="break-all text-ui-xs">
-                {row.provider} / {row.name} · {row.requests} running
+              <p key={index} className="truncate text-ui-xs">
+                {zaicodeUsageDisplayName(row.name, "models", labels)} · {row.requests} running
               </p>
             ))}
           </div>
         ) : null}
         <div className="mb-3 border border-border p-2">
           <div className="flex gap-1">
-            <Button
-              size="sm"
+            <UsageChoice
+              selected={metric === "tokens"}
               aria-pressed={metric === "tokens"}
               onClick={() => setMetric("tokens")}
             >
               Tokens
-            </Button>
-            <Button size="sm" aria-pressed={metric === "cost"} onClick={() => setMetric("cost")}>
+            </UsageChoice>
+            <UsageChoice
+              selected={metric === "cost"}
+              aria-pressed={metric === "cost"}
+              onClick={() => setMetric("cost")}
+            >
               Cost
-            </Button>
+            </UsageChoice>
             {period === "all" ? <span className="text-ui-xs">Trend · last 60 days</span> : null}
           </div>
           <svg
@@ -210,51 +282,76 @@ export function ZaicodeUsageView({ sidebar = false }: { sidebar?: boolean }) {
         </div>
         <div className="mb-1 flex flex-wrap gap-1" role="tablist" aria-label="Usage breakdown">
           {(["recent", "models", "providers", "accounts"] as const).map((value) => (
-            <Button
+            <UsageChoice
               key={value}
               role="tab"
+              selected={tab === value}
               aria-selected={tab === value}
-              size="sm"
               onClick={() => setTab(value)}
             >
               {value === "recent"
                 ? "Recent requests"
                 : value.charAt(0).toUpperCase() + value.slice(1)}
-            </Button>
+            </UsageChoice>
           ))}
         </div>
         <div className="max-w-full overflow-x-auto border border-border" role="tabpanel">
-          <table className="w-full text-left text-ui-xs tabular-nums">
-            <thead>
+          <table className="w-full table-fixed text-left text-ui-xs tabular-nums">
+            <thead className="bg-surface text-foreground-subtle">
               <tr>
-                <th className="p-1">{tab === "recent" ? "Model / status" : "Name"}</th>
-                <th className="p-1">{tab === "recent" ? "Time" : "Requests"}</th>
-                <th className="p-1">Input</th>
-                <th className="p-1">Output</th>
-                <th className="p-1">Cached</th>
-                {tab !== "recent" ? <th className="p-1">Cost</th> : null}
+                <th
+                  className={cn("px-2 py-1 font-normal", tab === "recent" ? "w-[34%]" : "w-[29%]")}
+                >
+                  {tab === "recent" ? "Model" : "Name"}
+                </th>
+                <th
+                  className={cn("px-1 py-1 text-right font-normal", tab === "recent" && "w-[18%]")}
+                >
+                  {tab === "recent" ? "Time" : "Requests"}
+                </th>
+                <th className="px-1 py-1 text-right font-normal">Input</th>
+                <th className="px-1 py-1 text-right font-normal">Output</th>
+                <th className="px-1 py-1 text-right font-normal">Cached</th>
+                {tab !== "recent" ? (
+                  <th className="px-1 py-1 text-right font-normal">Cost</th>
+                ) : null}
               </tr>
             </thead>
             <tbody>
               {rows.map((row, index) => (
                 <tr key={`${row.name}:${index}`} className="border-t border-border">
-                  <td className="max-w-60 break-all p-1" title={row.name}>
-                    {row.name}
+                  <td className="px-2 py-1">
+                    <span
+                      className="block truncate"
+                      title={
+                        tab === "recent"
+                          ? zaicodeUsageDisplayName(row.name, "models", labels)
+                          : row.name
+                      }
+                    >
+                      {tab === "recent"
+                        ? zaicodeUsageDisplayName(row.name, "models", labels)
+                        : row.name}
+                    </span>
                     {tab === "recent" && data ? (
                       <span className="block text-foreground-subtle">
-                        {data.recent[index]?.provider} · {data.recent[index]?.status}
+                        {zaicodeUsageStatus(data.recent[index]?.status ?? "")}
                       </span>
                     ) : null}
                   </td>
-                  <td className="whitespace-nowrap p-1">
+                  <td className="break-all px-1 py-1 text-right text-foreground-subtle">
                     {tab === "recent" && data
-                      ? new Date(data.recent[index]!.timestamp).toLocaleTimeString()
+                      ? new Date(data.recent[index]!.timestamp).toLocaleTimeString(undefined, {
+                          hour12: false,
+                        })
                       : number(row.requests)}
                   </td>
-                  <td className="p-1">{number(row.input)}</td>
-                  <td className="p-1">{number(row.output)}</td>
-                  <td className="p-1">{number(row.cached)}</td>
-                  {tab !== "recent" ? <td className="p-1">{cost(row.cost)}</td> : null}
+                  <td className="break-all px-1 py-1 text-right">{number(row.input)}</td>
+                  <td className="break-all px-1 py-1 text-right">{number(row.output)}</td>
+                  <td className="break-all px-1 py-1 text-right">{number(row.cached)}</td>
+                  {tab !== "recent" ? (
+                    <td className="break-all px-1 py-1 text-right">{cost(row.cost)}</td>
+                  ) : null}
                 </tr>
               ))}
               {!rows.length ? (
@@ -274,6 +371,7 @@ export function ZaicodeUsageView({ sidebar = false }: { sidebar?: boolean }) {
         <Button
           className="mt-2"
           size="sm"
+          variant="ghost"
           onClick={() => void getZaicodeRouterBridge()?.openZaicodeRouterDashboard?.("usage")}
         >
           Open 9router dashboard
