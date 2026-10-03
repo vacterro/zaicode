@@ -1,4 +1,5 @@
 import { useState, type KeyboardEvent, type MouseEvent } from "react";
+import { isZaicodeProductMode } from "@zcode/shared";
 import { MessageResponse } from "@/components/ai-elements/message.js";
 import { ToolOutput } from "@/components/ai-elements/tool.js";
 import { Button } from "@/components/ui/button.js";
@@ -66,7 +67,10 @@ export function SwitchModeToolCallBlock(context: ToolCallBlockRenderContext) {
     );
   };
 
-  if (hasMarkdown) {
+  // 默认直接执行；历史成功计划不再占据聊天卡片。失败继续显示，记录与显式计划交互不删除。
+  if (isZaicodeProductMode() && !errorText) return null;
+
+  if (hasMarkdown && !errorText) {
     return (
       <>
         <section

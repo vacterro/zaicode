@@ -5,6 +5,7 @@ import type {
   ConversationRowTarget,
 } from "@zcode/shared/zcode-protocol-v4";
 import type { AssistantPreviewCard } from "@/lib/assistantPreviewCards.js";
+import { isZaicodeProductMode } from "@zcode/shared";
 import type { AssistantCodeCommentCard } from "@/lib/assistantCodeComment.js";
 import { extractPlanToolCallContent } from "@/lib/planToolCall.js";
 import { ConversationRowView } from "@/v4/ConversationRowView.js";
@@ -91,6 +92,7 @@ export function resolveAssistantCopyText(unit: ConversationTurnRenderUnit): stri
       : [unit.latestAssistantTextRow.text];
   const includedSegments = new Set(segments);
   for (const row of unit.assistantWorkRows) {
+    if (isZaicodeProductMode()) break;
     if (row.kind !== "toolCall" || row.toolName !== "ExitPlanMode") continue;
     const markdown = extractPlanToolCallContent(toolCallRowToLegacyNode(row).toolCall, "").markdown;
     if (!markdown || includedSegments.has(markdown)) continue;

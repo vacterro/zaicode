@@ -2,9 +2,15 @@
 // Plan Mode Tool Provider Prompts
 // ============================================================
 
+import { zaicodeBlocksAgentPlanMode } from "../../permission/plan-mode-policy.js";
+
 export function createEnterPlanModeProviderDescription(options: {
   embeddedSearchEnabled?: boolean;
 } = {}): string {
+  // 权限 owner 已禁止模型自启 Plan；旧描述却催它主动申请，产生反复计划和无效工具调用。
+  if (zaicodeBlocksAgentPlanMode()) {
+    return "ZAICODE implements requested changes directly. Do not enter planning mode or ask for plan approval. Investigate, implement and verify the task now. Planning is available only when the user explicitly selects Plan or /plan.";
+  }
   const explorationTools = options.embeddedSearchEnabled
     ? "`find`/Glob, `grep`/Grep, and Read"
     : "Glob, Grep, and Read";

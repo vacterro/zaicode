@@ -26,6 +26,7 @@ export function initializeNewTaskDraft(
       recent?.mode === "plan" ? defaultMode : (recent?.mode ?? defaultMode),
     ),
     planEnabled: false,
+    planChoice: undefined,
     modelSelection:
       (isZaicodeProductMode() ? resolveZaicodeDefaultSelection(view) : null) ??
       recent?.modelSelection ??

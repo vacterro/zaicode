@@ -168,7 +168,10 @@ export function useDraftConfigControl(params: {
                 : isZaicodeProductMode()
                   ? "yolo"
                   : "build",
-            planEnabled: resolveExecutionState(sessionConfig ?? {}).planEnabled,
+            // 恢复配置中的 Plan 不是本次用户选择；否则历史计划会让普通继续再次等待审批。
+            planEnabled: isZaicodeProductMode()
+              ? false
+              : resolveExecutionState(sessionConfig ?? {}).planEnabled,
             modelSelection: sessionConfig?.modelSelection,
           };
   }
@@ -474,6 +477,7 @@ export function useDraftConfigControl(params: {
           ...current,
           mode: current.mode === "plan" ? exitPlanMode : (current.mode ?? exitPlanMode),
           planEnabled: mode === "plan",
+          planChoice: mode === "plan" ? "explicit" : undefined,
           initializeFromNewTask: undefined,
         }));
         return;

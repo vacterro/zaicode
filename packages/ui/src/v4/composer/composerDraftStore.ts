@@ -9,7 +9,7 @@
 // 附件不入草稿（objectUrl/File 不可序列化，localPath 附件重启后归属难校验——
 // 与「v4 composer 不做附件草稿持久化」的裁决一致）。
 import { logger } from "@/logger.js";
-import { modelSelectionSchema, type ModelSelection } from "@zcode/shared";
+import { isZaicodeProductMode, modelSelectionSchema, type ModelSelection } from "@zcode/shared";
 import { submissionModeSchema, type SubmissionMode } from "@zcode/shared/zcode-protocol-v4";
 import type { ComposerMentionPrefill } from "@/store/zcodeSessionStoreTypes.js";
 
@@ -20,6 +20,8 @@ export interface V4ComposerDraft {
   /** 有合法 mode 表示已经初始化；没有模型仍是明确空态，不能按旧文本草稿补默认。 */
   mode?: SubmissionMode;
   planEnabled?: boolean;
+  /** 只有用户 /plan 或复选框才能保留计划意图；旧自动计划草稿默认迁移为执行。 */
+  planChoice?: "explicit";
   /** 已处理的工具变更，防止重连快照再次覆盖用户选择。 */
   lastPlanTransitionId?: string;
   lastPermissionGrantId?: string;
@@ -121,11 +123,14 @@ function readDraft(value: unknown): V4ComposerDraft | null {
       : {}),
     ...(hasMention ? { mention: mention as unknown as ComposerMentionPrefill } : {}),
     ...(mode.success ? { mode: mode.data === "plan" ? ("build" as const) : mode.data } : {}),
-    ...(typeof value.planEnabled === "boolean"
-      ? { planEnabled: value.planEnabled }
-      : mode.success
-        ? { planEnabled: mode.data === "plan" }
-        : {}),
+    ...(value.planChoice === "explicit" ? { planChoice: "explicit" as const } : {}),
+    ...(isZaicodeProductMode() && value.planChoice !== "explicit"
+      ? { planEnabled: false }
+      : typeof value.planEnabled === "boolean"
+        ? { planEnabled: value.planEnabled }
+        : mode.success
+          ? { planEnabled: mode.data === "plan" }
+          : {}),
     ...(typeof value.lastPermissionGrantId === "string"
       ? { lastPermissionGrantId: value.lastPermissionGrantId }
       : {}),
