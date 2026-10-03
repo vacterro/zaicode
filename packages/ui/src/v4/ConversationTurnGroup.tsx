@@ -564,13 +564,8 @@ function OffPeakTurnCards({
   );
 }
 
-function AssistantHistoryStatus({
-  segment,
-  open,
-}: {
-  segment: ConversationTurnWorkSegment;
-  open: boolean;
-}) {
+// 头尾读取同一份投影工时；时钟只更新标签，不能带着整段历史重新渲染。
+function AssistantWorkDurationLabel({ segment }: { segment: ConversationTurnWorkSegment }) {
   const { intl, locale } = useZCodeIntl();
   const [now, setNow] = useState(Date.now);
   const clockStartedAt =
@@ -590,13 +585,23 @@ function AssistantHistoryStatus({
   );
   const label =
     segment.workStatus?.state === "interrupted"
-      ? intl.formatMessage({ id: "chat.history.stopped" })
+      ? `${intl.formatMessage({ id: "chat.history.stopped" })}${durationLabel ? ` · ${durationLabel}` : ""}`
       : segment.workStatus?.state === "running"
         ? intl.formatMessage({ id: "chat.history.workingFor" }, { duration: durationLabel ?? "" })
         : durationLabel
           ? intl.formatMessage({ id: "chat.history.workedFor" }, { duration: durationLabel })
           : intl.formatMessage({ id: "chat.history.worked" });
 
+  return <span className="truncate">{label}</span>;
+}
+
+function AssistantHistoryStatus({
+  segment,
+  open,
+}: {
+  segment: ConversationTurnWorkSegment;
+  open: boolean;
+}) {
   return (
     <div className="flex w-full border-b border-[var(--color-border)]/50 pb-2">
       <CollapsibleTrigger asChild>
@@ -606,7 +611,7 @@ function AssistantHistoryStatus({
           data-history-open={String(open)}
           className="group/history-message inline-flex max-w-full items-center gap-2 text-left text-ui-base text-foreground-subtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-input-border-focused)]"
         >
-          <span className="truncate">{label}</span>
+          <AssistantWorkDurationLabel segment={segment} />
           {!segment.assistantHistoryDefaultOpen ? (
             <ChevronRightIcon
               aria-hidden
@@ -774,6 +779,14 @@ function ConversationWorkSegmentFlow({
       })}
       {shouldShowHistoryStatus && firstAssistantFlowItemIndex < 0 ? (
         <AssistantHistoryStatus segment={segment} open={open} />
+      ) : null}
+      {shouldShowHistoryStatus ? (
+        <div
+          data-conversation-work-duration="end"
+          className="flex min-w-0 border-t border-[var(--color-border)]/50 pt-2 text-ui-sm text-foreground-subtle"
+        >
+          <AssistantWorkDurationLabel segment={segment} />
+        </div>
       ) : null}
     </Collapsible>
   );

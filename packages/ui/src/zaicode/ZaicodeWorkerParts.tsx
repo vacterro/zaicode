@@ -79,15 +79,23 @@ export function ZaicodeWorkerLabel({
 }) {
   return (
     <span className={cn("flex min-w-0 items-center gap-1.5", className)}>
-      <span className="inline-block size-2 shrink-0 border border-black/60" style={{ background: zaicodeWorkerTone(worker) }} />
-      <span className="shrink-0 font-semibold" style={{ color: worker.vendor ? zaicodeVendorColor(worker.vendor) : undefined }}>
+      <span
+        className="inline-block size-2 shrink-0 border border-black/60"
+        style={{ background: zaicodeWorkerTone(worker) }}
+      />
+      <span
+        className="shrink-0 font-semibold"
+        style={{ color: worker.vendor ? zaicodeVendorColor(worker.vendor) : undefined }}
+      >
         {worker.short}
       </span>
       <span className="truncate text-foreground">{worker.projectName}</span>
       {showAge ? (
         <span className="shrink-0 text-foreground-subtlest">
           {formatZaicodeDuration(zaicodeWorkerElapsedMs(worker, now))}
-          {worker.exitCode !== null ? ` · ${worker.exitCode === 0 ? "done" : `exit ${worker.exitCode}`}` : ""}
+          {worker.exitCode !== null
+            ? ` · ${worker.exitCode === 0 ? "done" : `exit ${worker.exitCode}`}`
+            : ""}
         </span>
       ) : null}
     </span>
@@ -158,20 +166,33 @@ export function ZaicodeWorkerHeaderButtons({
   return (
     <span className="flex shrink-0 items-center">
       {worker.placement === "panel" ? (
-        <ZaicodeWorkerIconButton title="Own window (snappable; drag it to the bottom edge to dock back)" onClick={() => floatZaicodeWorker(worker.id)}>
+        <ZaicodeWorkerIconButton
+          title="Own window (snappable; drag it to the bottom edge to dock back)"
+          onClick={() => floatZaicodeWorker(worker.id)}
+        >
           <AppWindow className="size-3.5" />
         </ZaicodeWorkerIconButton>
       ) : (
-        <ZaicodeWorkerIconButton title="Dock into the WORKERS panel" onClick={() => dockZaicodeWorker(worker.id)}>
+        <ZaicodeWorkerIconButton
+          title="Dock into the WORKERS panel"
+          onClick={() => dockZaicodeWorker(worker.id)}
+        >
           <PanelBottom className="size-3.5" />
         </ZaicodeWorkerIconButton>
       )}
       {onSolo ? (
-        <ZaicodeWorkerIconButton title={solo ? "Back to the split" : "Fill the panel with this one"} pressed={solo} onClick={onSolo}>
+        <ZaicodeWorkerIconButton
+          title={solo ? "Back to the split" : "Fill the panel with this one"}
+          pressed={solo}
+          onClick={onSolo}
+        >
           <Scan className="size-3.5" />
         </ZaicodeWorkerIconButton>
       ) : null}
-      <ZaicodeWorkerIconButton title="Minimize to a chip (keeps running)" onClick={() => minimizeZaicodeWorker(worker.id)}>
+      <ZaicodeWorkerIconButton
+        title="Minimize to a chip (keeps running)"
+        onClick={() => minimizeZaicodeWorker(worker.id)}
+      >
         <Minus className="size-3.5" />
       </ZaicodeWorkerIconButton>
       {onMaximize ? (
@@ -193,7 +214,9 @@ export function ZaicodeWorkerHeaderButtons({
 export function ZaicodeWorkerMenuItems({ worker }: { worker: ZaicodeWorker }) {
   return (
     <>
-      <ContextMenuItem onSelect={() => focusZaicodeWorker(worker.id)}>Show {zaicodeWorkerTitle(worker)}</ContextMenuItem>
+      <ContextMenuItem onSelect={() => focusZaicodeWorker(worker.id)}>
+        Show {zaicodeWorkerTitle(worker)}
+      </ContextMenuItem>
       {worker.placement === "panel" ? (
         <ContextMenuItem onSelect={() => floatZaicodeWorker(worker.id)}>
           <AppWindow className="size-4" />
@@ -211,7 +234,10 @@ export function ZaicodeWorkerMenuItems({ worker }: { worker: ZaicodeWorker }) {
           Minimize to a chip
         </ContextMenuItem>
       ) : null}
-      <ContextMenuItem onSelect={() => terminalControl(worker.id)?.redraw()} disabled={worker.exitCode !== null}>
+      <ContextMenuItem
+        onSelect={() => terminalControl(worker.id)?.redraw()}
+        disabled={worker.exitCode !== null}
+      >
         <RefreshCw className="size-4" />
         Redraw its screen (a garbled picture)
       </ContextMenuItem>
@@ -244,6 +270,19 @@ export function ZaicodeWorkerMenuItems({ worker }: { worker: ZaicodeWorker }) {
   );
 }
 
+// 工时是界面元数据，不写入 CLI 输入；退出后继续读取原 worker 的结束时间。
+function ZaicodeWorkerDurationFooter({ worker }: { worker: ZaicodeWorker }) {
+  const now = useZaicodeNow(30_000, worker.exitCode === null);
+  return (
+    <footer
+      data-zaicode-worker-duration="end"
+      className="shrink-0 truncate border-t border-border px-1 py-0.5 text-ui-xs text-foreground-subtlest"
+    >
+      {zaicodeWorkerStatus(worker, now)}
+    </footer>
+  );
+}
+
 /** The worker's terminal: its own face (Terminus by default), focus follows the pointer press. */
 export function ZaicodeWorkerTerminal({
   worker,
@@ -261,29 +300,32 @@ export function ZaicodeWorkerTerminal({
   const isWindows = typeof navigator !== "undefined" && /Windows/i.test(navigator.userAgent);
   return (
     <section
-      className="h-full min-h-0 overflow-hidden bg-background px-1 pt-0.5"
+      className="flex h-full min-h-0 flex-col overflow-hidden bg-background px-1 pt-0.5"
       data-zaicode-worker-terminal={worker.short}
       // SRC-038: split panes sit at percentages; the snapper keeps each terminal on whole pixels.
       data-zaicode-pixel-snap
       onPointerDownCapture={() => raiseZaicodeWorker(worker.id)}
     >
-      <TerminalSession
-        sessionId={worker.id}
-        persistentKey={worker.id}
-        // An empty key keeps workers out of the per-workspace recycling.
-        workspaceKey=""
-        services={services}
-        cwd={worker.projectPath}
-        isVisible={visible}
-        isPanelResizing={resizing}
-        isWindowsDesktop={isWindows}
-        initialInput={worker.command || undefined}
-        onShellLabelChange={() => undefined}
-        onExit={(_sessionId, exitCode) => markZaicodeWorkerExited(worker.id, exitCode)}
-        onOpenBrowserUrl={(url) => window.open(url, "_blank", "noopener")}
-        {...(fontFamily ? { fontFamilyOverride: fontFamily } : {})}
-        {...(prefs.font !== "profile" ? { fontSizeOverride: prefs.fontSize } : {})}
-      />
+      <div className="min-h-0 flex-1">
+        <TerminalSession
+          sessionId={worker.id}
+          persistentKey={worker.id}
+          // An empty key keeps workers out of the per-workspace recycling.
+          workspaceKey=""
+          services={services}
+          cwd={worker.projectPath}
+          isVisible={visible}
+          isPanelResizing={resizing}
+          isWindowsDesktop={isWindows}
+          initialInput={worker.command || undefined}
+          onShellLabelChange={() => undefined}
+          onExit={(_sessionId, exitCode) => markZaicodeWorkerExited(worker.id, exitCode)}
+          onOpenBrowserUrl={(url) => window.open(url, "_blank", "noopener")}
+          {...(fontFamily ? { fontFamilyOverride: fontFamily } : {})}
+          {...(prefs.font !== "profile" ? { fontSizeOverride: prefs.fontSize } : {})}
+        />
+      </div>
+      <ZaicodeWorkerDurationFooter worker={worker} />
     </section>
   );
 }
