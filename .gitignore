@@ -2,6 +2,8 @@ node_modules/
 dist/
 # zcode-server-cli 发行包 staging 输出，本地组装产物不入库。
 dist-release/
+# 已验证旧包的本地备份不是源码；保留字节但不进入 Git 或 lint 的枚举。
+/.release-work/
 # macOS CI 按架构隔离 electron-builder 输出目录，这些仍是构建产物。
 packages/desktop/dist-*/
 out/
