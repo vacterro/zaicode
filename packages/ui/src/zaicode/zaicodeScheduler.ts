@@ -19,9 +19,10 @@ import { create } from "zustand";
 export type ZaicodeWorkspaceTab = "agents" | "scheduler" | "audits";
 
 /** Which page of the ZAICODE workspace is open (the sidebar SCHEDULER line opens the second). */
-export const useZaicodeWorkspaceTab = create<{ tab: ZaicodeWorkspaceTab; setTab: (tab: ZaicodeWorkspaceTab) => void }>(
-  (set) => ({ tab: "agents", setTab: (tab) => set({ tab }) }),
-);
+export const useZaicodeWorkspaceTab = create<{
+  tab: ZaicodeWorkspaceTab;
+  setTab: (tab: ZaicodeWorkspaceTab) => void;
+}>((set) => ({ tab: "agents", setTab: (tab) => set({ tab }) }));
 
 export interface ZaicodeKnownProject {
   path: string;
@@ -39,7 +40,9 @@ export function zaicodeScheduleTargets(
   defaultSlot: string,
 ): ZaicodeKnownProject[] {
   if (job.targetKind !== "section") {
-    const known = projects.find((project) => project.path.toLowerCase() === job.projectPath.toLowerCase());
+    const known = projects.find(
+      (project) => project.path.toLowerCase() === job.projectPath.toLowerCase(),
+    );
     return [known ?? { path: job.projectPath, key: job.projectPath, name: job.projectPath }];
   }
   return projects.filter((project) => (groups[project.key] ?? defaultSlot) === job.section);
@@ -47,7 +50,18 @@ export function zaicodeScheduleTargets(
 
 /** The words a schedule is summed up with in lists and tooltips. */
 export function describeZaicodeSchedule(
-  job: Pick<ZaicodeAutostartJob, "trigger" | "dailyTime" | "intervalMinutes" | "window" | "at" | "prompt" | "targetKind" | "section" | "projectPath">,
+  job: Pick<
+    ZaicodeAutostartJob,
+    | "trigger"
+    | "dailyTime"
+    | "intervalMinutes"
+    | "window"
+    | "at"
+    | "prompt"
+    | "targetKind"
+    | "section"
+    | "projectPath"
+  >,
   engineLabel: string,
 ): string {
   const when =
@@ -60,7 +74,8 @@ export function describeZaicodeSchedule(
           : job.trigger === "reset"
             ? `after the next ${job.window === "five_hour" ? "5h" : job.window} reset`
             : `after every ${job.window === "five_hour" ? "5h" : job.window} reset`;
-  const where = job.targetKind === "section" ? `every ${job.section} project` : shortProject(job.projectPath);
+  const where =
+    job.targetKind === "section" ? `every ${job.section} project` : shortProject(job.projectPath);
   return `${job.prompt.trim() || ZAICODE_HIT_AND_GO_PROMPT} · ${where} · ${engineLabel} · ${when}`;
 }
 
@@ -73,17 +88,37 @@ function shortProject(path: string): string {
 export interface ZaicodeScheduleNext {
   job: ZaicodeAutostartJob;
   decision: ZaicodeAutostartDecision;
+  autopilotRequired?: boolean;
+}
+
+/** The planned moment is not an unattended-launch promise while the host gate is off. */
+export function zaicodeScheduleWaitsForAutopilot(
+  decision: ZaicodeAutostartDecision,
+  autopilot: boolean,
+): boolean {
+  return !autopilot && !["disabled", "done", "invalid", "missed"].includes(decision.state);
 }
 
 /** The armed schedules in firing order (known moments first, soonest first). */
 export function zaicodeUpcomingSchedules(
   jobs: readonly ZaicodeAutostartJob[],
   decide: (job: ZaicodeAutostartJob) => ZaicodeAutostartDecision,
+  autopilot = true,
 ): ZaicodeScheduleNext[] {
   const armed = jobs
     .filter((job) => job.enabled)
-    .map((job) => ({ job, decision: decide(job) }))
-    .filter(({ decision }) => decision.state !== "done" && decision.state !== "disabled" && decision.state !== "invalid");
+    .map((job) => {
+      const decision = decide(job);
+      return {
+        job,
+        decision,
+        autopilotRequired: zaicodeScheduleWaitsForAutopilot(decision, autopilot),
+      };
+    })
+    .filter(
+      ({ decision }) =>
+        decision.state !== "done" && decision.state !== "disabled" && decision.state !== "invalid",
+    );
   return armed.sort((left, right) => {
     const a = left.decision.dueAt ?? Number.POSITIVE_INFINITY;
     const b = right.decision.dueAt ?? Number.POSITIVE_INFINITY;
@@ -98,14 +133,21 @@ export function zaicodeUpcomingSchedules(
 export function zaicodePreparedEngines(
   jobs: readonly ZaicodeAutostartJob[],
   decide: (job: ZaicodeAutostartJob) => ZaicodeAutostartDecision,
+  autopilot = true,
 ): Map<string, ZaicodeScheduleNext[]> {
   const prepared = new Map<string, ZaicodeScheduleNext[]>();
+  if (!autopilot) return prepared;
   for (const job of jobs) {
     if (!job.enabled || (job.trigger !== "reset" && job.trigger !== "everyReset")) continue;
     const engine = zaicodeAutostartWatchedEngine(job);
     if (!engine) continue;
     const decision = decide(job);
-    if (decision.state !== "waiting-reset" && decision.state !== "waiting-quota" && decision.state !== "due") continue;
+    if (
+      decision.state !== "waiting-reset" &&
+      decision.state !== "waiting-quota" &&
+      decision.state !== "due"
+    )
+      continue;
     prepared.set(engine, [...(prepared.get(engine) ?? []), { job, decision }]);
   }
   return prepared;
@@ -141,39 +183,78 @@ export const ZAICODE_SCHEDULE_PRESETS: readonly ZaicodeSchedulePreset[] = [
     id: "every-reset",
     label: "Every 5h reset → /goal cc all here",
     hint: "The moment the subscription's 5-hour window refills, work continues in this project until the board is clear. No window wasted.",
-    patch: { name: "Every 5h reset", trigger: "everyReset", window: "five_hour", prompt: "", targetKind: "project" },
+    patch: {
+      name: "Every 5h reset",
+      trigger: "everyReset",
+      window: "five_hour",
+      prompt: "",
+      targetKind: "project",
+    },
     needsEngine: true,
   },
   {
     id: "main0-reset",
     label: "Every 5h reset → /goal cc all in MAIN0",
     hint: "Each refill continues every MAIN0 project's MAIN session (a new MAIN only where there is none), the most blocked / open projects first.",
-    patch: { name: "MAIN0 after each reset", trigger: "everyReset", window: "five_hour", prompt: "", targetKind: "section", section: "MAIN0" },
+    patch: {
+      name: "MAIN0 after each reset",
+      trigger: "everyReset",
+      window: "five_hour",
+      prompt: "",
+      targetKind: "section",
+      section: "MAIN0",
+    },
     needsEngine: true,
   },
   {
     id: "night",
     label: "Every night 02:00 → /goal cc all in MAIN0, stop 07:00",
     hint: "Night shift: the MAIN0 projects' MAIN sessions work while you sleep and are stopped before morning.",
-    patch: { name: "Night shift", trigger: "daily", dailyTime: "02:00", prompt: "", targetKind: "section", section: "MAIN0", stopAt: "07:00" },
+    patch: {
+      name: "Night shift",
+      trigger: "daily",
+      dailyTime: "02:00",
+      prompt: "",
+      targetKind: "section",
+      section: "MAIN0",
+      stopAt: "07:00",
+    },
   },
   {
     id: "every-2h",
     label: "Every 2 hours → cc here",
     hint: "One SAIPEN step every two hours: small, steady progress.",
-    patch: { name: "Steady steps", trigger: "interval", intervalMinutes: 120, prompt: "cc", targetKind: "project" },
+    patch: {
+      name: "Steady steps",
+      trigger: "interval",
+      intervalMinutes: 120,
+      prompt: "cc",
+      targetKind: "project",
+    },
   },
   {
     id: "docs-morning",
     label: "Every morning 08:00 → saiwiki",
     hint: "Documentation refreshed before you start the day.",
-    patch: { name: "Morning docs", trigger: "daily", dailyTime: "08:00", prompt: "saiwiki", targetKind: "project" },
+    patch: {
+      name: "Morning docs",
+      trigger: "daily",
+      dailyTime: "08:00",
+      prompt: "saiwiki",
+      targetKind: "project",
+    },
   },
   {
     id: "weekly-hunt",
     label: "Weekly reset → saihunt",
     hint: "When the weekly window refills, one bug hunt over the project.",
-    patch: { name: "Weekly hunt", trigger: "everyReset", window: "weekly", prompt: "saihunt", targetKind: "project" },
+    patch: {
+      name: "Weekly hunt",
+      trigger: "everyReset",
+      window: "weekly",
+      prompt: "saihunt",
+      targetKind: "project",
+    },
     needsEngine: true,
   },
 ];

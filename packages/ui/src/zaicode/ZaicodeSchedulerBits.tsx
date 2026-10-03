@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
-import { ZAICODE_HIT_AND_GO_PROMPT, formatZaicodeDuration } from "@zcode/shared";
+import {
+  ZAICODE_HIT_AND_GO_PROMPT,
+  formatZaicodeDuration,
+  type ZaicodeAutostartJob,
+} from "@zcode/shared";
 import { cn } from "@/components/lib/utils.js";
 import { Button } from "@/components/ui/button.js";
 import {
@@ -17,9 +21,14 @@ import {
   zaicodeUpcomingSchedules,
   type ZaicodeScheduleNext,
 } from "./zaicodeScheduler.js";
-import { useZaicodeLights, zaicodeHighlightAttrs, type ZaicodeLightAttrs } from "./zaicodeHighlights.js";
+import {
+  useZaicodeLights,
+  zaicodeHighlightAttrs,
+  type ZaicodeLightAttrs,
+} from "./zaicodeHighlights.js";
 import { openZaicodeWorkspaceView } from "./zaicodeActions.js";
 import { ZaicodeIcon } from "./zaicodeIconSlots.js";
+import { useZaicodeStore } from "./zaicodeStore.js";
 
 /**
  * The SCHEDULER's small faces (SRC-038): the sidebar line and the "prompt
@@ -36,14 +45,26 @@ function useSlowClock(stepMs: number): number {
   return now;
 }
 
+export function useZaicodeUpcomingSchedules(
+  jobs: readonly ZaicodeAutostartJob[],
+  now: number,
+): ZaicodeScheduleNext[] {
+  const autopilot = useZaicodeStore((state) => state.autoRun);
+  return zaicodeUpcomingSchedules(jobs, (job) => decideZaicodeAutostartJob(job, now), autopilot);
+}
+
 function useUpcoming(stepMs: number): { now: number; upcoming: ZaicodeScheduleNext[] } {
   const jobs = useZaicodeAutostartJobs();
   const now = useSlowClock(stepMs);
-  return { now, upcoming: zaicodeUpcomingSchedules(jobs, (job) => decideZaicodeAutostartJob(job, now)) };
+  return {
+    now,
+    upcoming: useZaicodeUpcomingSchedules(jobs, now),
+  };
 }
 
 function nextText(next: ZaicodeScheduleNext | undefined, now: number): string {
   if (!next) return "";
+  if (next.autopilotRequired) return "Autopilot OFF";
   const dueAt = next.decision.dueAt;
   if (next.decision.state === "waiting-reset" && !dueAt) return "at reset";
   return dueAt ? (dueAt > now ? formatZaicodeDuration(dueAt - now) : "now") : "";
@@ -57,7 +78,13 @@ export function openZaicodeScheduler(openZaicode?: () => void): void {
 }
 
 /** Sidebar menu line: SCHEDULER, how many schedules are armed and when the next one fires. */
-export function ZaicodeSchedulerNavButton({ className, onOpenZaicode }: { className: string; onOpenZaicode?: () => void }) {
+export function ZaicodeSchedulerNavButton({
+  className,
+  onOpenZaicode,
+}: {
+  className: string;
+  onOpenZaicode?: () => void;
+}) {
   const { now, upcoming } = useUpcoming(30_000);
   const next = upcoming[0];
   const navLabel = useZaicodeNavLabel("scheduler", "SCHEDULER");
@@ -69,7 +96,9 @@ export function ZaicodeSchedulerNavButton({ className, onOpenZaicode }: { classN
       className={className}
       title={
         next
-          ? `${upcoming.length} armed · next: ${next.job.name || "schedule"} ${nextText(next, now)}\n${next.job.prompt || ZAICODE_HIT_AND_GO_PROMPT}`
+          ? next.autopilotRequired
+            ? "Autopilot is OFF. Enable it in Scheduler to run scheduled tasks automatically."
+            : `${upcoming.length} armed · next: ${next.job.name || "schedule"} ${nextText(next, now)}\n${next.job.prompt || ZAICODE_HIT_AND_GO_PROMPT}`
           : "SCHEDULER — prompts that start by themselves (times, intervals, quota resets). Nothing armed yet."
       }
       onClick={() => openZaicodeScheduler(onOpenZaicode)}
@@ -82,7 +111,9 @@ export function ZaicodeSchedulerNavButton({ className, onOpenZaicode }: { classN
           {upcoming.length} · {nextText(next, now)}
         </span>
       ) : (
-        <span className="ml-auto shrink-0 text-ui-xs font-normal text-foreground-subtlest">off</span>
+        <span className="ml-auto shrink-0 text-ui-xs font-normal text-foreground-subtlest">
+          off
+        </span>
       )}
     </Button>
   );
@@ -100,9 +131,14 @@ export interface ZaicodePreparedMeter {
  */
 export function useZaicodePreparedMeters(): (engineId: string) => ZaicodePreparedMeter {
   const jobs = useZaicodeAutostartJobs();
+  const autopilot = useZaicodeStore((state) => state.autoRun);
   const now = useSlowClock(30_000);
   const rule = useZaicodeLights((state) => state.highlights.meterPrepared);
-  const prepared = zaicodePreparedEngines(jobs, (job) => decideZaicodeAutostartJob(job, now));
+  const prepared = zaicodePreparedEngines(
+    jobs,
+    (job) => decideZaicodeAutostartJob(job, now),
+    autopilot,
+  );
   return (engineId) => {
     const waiting = prepared.get(engineId) ?? [];
     if (waiting.length === 0) return { lights: null, hint: null };
@@ -119,7 +155,13 @@ export function useZaicodePreparedMeters(): (engineId: string) => ZaicodePrepare
  * An agent's own beat (SRC-038: "each agent keeps its part -- which project,
  * when to start, why, when to stop"): its schedules and one click to add one.
  */
-export function ZaicodeAgentSchedules({ agentId, agentName }: { agentId: string; agentName: string }) {
+export function ZaicodeAgentSchedules({
+  agentId,
+  agentName,
+}: {
+  agentId: string;
+  agentName: string;
+}) {
   const jobs = useZaicodeAutostartJobs();
   const runner = `${ZAICODE_AUTOSTART_AGENT_PREFIX}${agentId}`;
   const own = jobs.filter((job) => job.engineId === runner);
@@ -127,10 +169,18 @@ export function ZaicodeAgentSchedules({ agentId, agentName }: { agentId: string;
     <div className="flex flex-col gap-1" data-zaicode-agent-schedules>
       <span className="text-ui-xs text-foreground-subtle">Schedules</span>
       {own.length === 0 ? (
-        <span className="text-ui-xs text-foreground-subtlest">None: this agent works only when you queue a task.</span>
+        <span className="text-ui-xs text-foreground-subtlest">
+          None: this agent works only when you queue a task.
+        </span>
       ) : (
         own.map((job) => (
-          <span key={job.id} className={cn("text-ui-xs", job.enabled ? "text-foreground" : "text-foreground-subtlest")}>
+          <span
+            key={job.id}
+            className={cn(
+              "text-ui-xs",
+              job.enabled ? "text-foreground" : "text-foreground-subtlest",
+            )}
+          >
             {job.enabled ? "● " : "○ "}
             {describeZaicodeSchedule(job, agentName)}
           </span>

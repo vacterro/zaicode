@@ -28,6 +28,7 @@ interface ZaicodeStoreState {
   selectAgent: (agentId: string | null) => void;
   selectJob: (jobId: string | null) => void;
   refresh: (services: ZaicodeServices, workspace: ZaicodeWorkspaceContext) => Promise<void>;
+  refreshAutoRun: (services: ZaicodeServices | null) => Promise<boolean>;
   createAgent: (
     services: ZaicodeServices,
     workspace: ZaicodeWorkspaceContext,
@@ -103,6 +104,7 @@ function describeError(error: unknown): string {
 }
 
 export const useZaicodeStore = create<ZaicodeStoreState>((set, get) => {
+  let autoRunQuery = 0;
   const runAction = async <T>(
     services: ZaicodeServices,
     workspace: ZaicodeWorkspaceContext,
@@ -128,7 +130,8 @@ export const useZaicodeStore = create<ZaicodeStoreState>((set, get) => {
     jobDiagnostics: [],
     templates: [],
     maxConcurrency: 1,
-    autoRun: true,
+    // 主机设置读取前不承诺自动派发；持久化默认值仍由 job service 决定。
+    autoRun: false,
     loading: false,
     error: null,
     selectedAgentId: null,
@@ -137,6 +140,27 @@ export const useZaicodeStore = create<ZaicodeStoreState>((set, get) => {
     selectAgent: (agentId) => set({ selectedAgentId: agentId, selectedJobId: null }),
     selectJob: (jobId) => set({ selectedJobId: jobId, selectedAgentId: null }),
 
+    refreshAutoRun: async (services) => {
+      const query = ++autoRunQuery;
+      if (!services) {
+        set({ autoRun: false });
+        return false;
+      }
+      try {
+        const autoRun = await services.jobs.getAutoRun();
+        // 迟到的设置读取不能覆盖用户刚确认的开关，或给旧 tick 授权。
+        if (query !== autoRunQuery) return false;
+        set({ autoRun });
+        return autoRun;
+      } catch (error) {
+        if (query === autoRunQuery) {
+          set({ autoRun: false });
+          logger.error("[zaicode] Autopilot 设置读取失败", { error: describeError(error) });
+        }
+        return false;
+      }
+    },
+
     refresh: async (services, workspace) => {
       set({ loading: true });
       try {
@@ -144,7 +168,7 @@ export const useZaicodeStore = create<ZaicodeStoreState>((set, get) => {
         const jobsResult = await services.jobs.list({ workspaceKey: workspace.workspaceKey });
         const templates = await services.agents.listTemplates();
         const maxConcurrency = await services.jobs.getMaxConcurrency();
-        const autoRun = await services.jobs.getAutoRun();
+        await get().refreshAutoRun(services);
         set({
           agents: agentsResult.agents,
           agentDiagnostics: agentsResult.diagnostics,
@@ -152,7 +176,6 @@ export const useZaicodeStore = create<ZaicodeStoreState>((set, get) => {
           jobDiagnostics: jobsResult.diagnostics,
           templates,
           maxConcurrency,
-          autoRun,
           loading: false,
           error: null,
         });
@@ -261,6 +284,8 @@ export const useZaicodeStore = create<ZaicodeStoreState>((set, get) => {
     setAutoRun: async (services, workspace, enabled) => {
       await runAction(services, workspace, async () => {
         await services.jobs.setAutoRun(enabled);
+        autoRunQuery += 1;
+        set({ autoRun: enabled });
         // 打开自动驾驶时立即消化已排队任务，而不是等下一次入队。
         if (enabled) await services.jobs.pump(workspace.workspaceKey);
       });

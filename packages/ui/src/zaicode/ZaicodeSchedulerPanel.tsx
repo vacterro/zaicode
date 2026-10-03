@@ -27,14 +27,24 @@ import {
   updateZaicodeAutostartJob,
   useZaicodeAutostartJobs,
 } from "./zaicodeAutostart.js";
-import { ZAICODE_SCHEDULE_PRESETS, describeZaicodeSchedule, zaicodeUpcomingSchedules } from "./zaicodeScheduler.js";
+import {
+  ZAICODE_SCHEDULE_PRESETS,
+  describeZaicodeSchedule,
+  zaicodeScheduleWaitsForAutopilot,
+  zaicodeUpcomingSchedules,
+} from "./zaicodeScheduler.js";
+import { useZaicodeStore } from "./zaicodeStore.js";
 import { ZAICODE_SLOT_GROUPS } from "./zaicodeSidebarPrefs.js";
 import { ZaicodeMomentField, ZaicodeTimeField } from "./ZaicodeTimeFields.js";
 import { formatZaicodeClockMinute, parseZaicodeClockText } from "./zaicodeClockText.js";
 import { ZaicodeScheduleConditions, ZaicodeSchedulePrompt } from "./ZaicodeScheduleConditions.js";
 
 const TRIGGERS: readonly { value: ZaicodeAutostartTrigger; label: string; title: string }[] = [
-  { value: "everyReset", label: "Every reset", title: "After every refill of the watched subscription's window" },
+  {
+    value: "everyReset",
+    label: "Every reset",
+    title: "After every refill of the watched subscription's window",
+  },
   { value: "reset", label: "Next reset", title: "Once, when the watched window refills" },
   { value: "daily", label: "Daily", title: "Every day at a time" },
   { value: "interval", label: "Every N min", title: "Repeat every N minutes" },
@@ -115,13 +125,29 @@ interface RunnerOption {
 
 function useRunnerOptions(agents: readonly ZaicodeAgentDefinition[]) {
   const engines = useZaicodeEngines();
-  const accounts = engines.accounts.filter((account) => account.status !== "cli-missing" && !isZaicodeMetricsOnlyAccount(account));
+  const accounts = engines.accounts.filter(
+    (account) => account.status !== "cli-missing" && !isZaicodeMetricsOnlyAccount(account),
+  );
   const runners: RunnerOption[] = [
-    { id: ZAICODE_AUTOSTART_INAPP_ENGINE, label: "START in ZAICODE (in-app, in each project's MAIN)" },
-    ...agents.filter((agent) => agent.enabled).map((agent) => ({ id: `${ZAICODE_AUTOSTART_AGENT_PREFIX}${agent.id}`, label: `Agent: ${agent.name} (queue)` })),
-    ...accounts.map((account) => ({ id: account.id, label: `${account.short} ${account.label} (CLI worker)` })),
+    {
+      id: ZAICODE_AUTOSTART_INAPP_ENGINE,
+      label: "START in ZAICODE (in-app, in each project's MAIN)",
+    },
+    ...agents
+      .filter((agent) => agent.enabled)
+      .map((agent) => ({
+        id: `${ZAICODE_AUTOSTART_AGENT_PREFIX}${agent.id}`,
+        label: `Agent: ${agent.name} (queue)`,
+      })),
+    ...accounts.map((account) => ({
+      id: account.id,
+      label: `${account.short} ${account.label} (CLI worker)`,
+    })),
   ];
-  const watch: RunnerOption[] = accounts.map((account) => ({ id: account.id, label: `${account.short} ${account.label}` }));
+  const watch: RunnerOption[] = accounts.map((account) => ({
+    id: account.id,
+    label: `${account.short} ${account.label}`,
+  }));
   return { runners, watch, accounts };
 }
 
@@ -135,15 +161,26 @@ function dueText(dueAt: number | null, now: number): string {
  * SCHEDULER (SRC-038): make subscriptions and agents work by themselves -- no
  * 5-hour window lost. Presets first, then every schedule with its state.
  */
-export function ZaicodeSchedulerPanel({ agents }: { agents: readonly ZaicodeAgentDefinition[] }) {
+export function ZaicodeSchedulerPanel({
+  agents,
+  onEnableAutopilot,
+}: {
+  agents: readonly ZaicodeAgentDefinition[];
+  onEnableAutopilot?: () => void;
+}) {
   const jobs = useZaicodeAutostartJobs();
+  const autopilot = useZaicodeStore((state) => state.autoRun);
   const projects = useProjects();
   const now = useNow(5000);
   const { runners, watch, accounts } = useRunnerOptions(agents);
   const { settings, update } = useSettings();
   const current = readZaicodeCurrentWorkspace()?.path ?? projects[0]?.path ?? "";
   const firstReady = accounts.find((account) => account.status === "ready")?.id ?? "";
-  const upcoming = zaicodeUpcomingSchedules(jobs, (job) => decideZaicodeAutostartJob(job, now)).slice(0, 3);
+  const upcoming = zaicodeUpcomingSchedules(
+    jobs,
+    (job) => decideZaicodeAutostartJob(job, now),
+    autopilot,
+  ).slice(0, 3);
   const labelOf = (id: string) => runners.find((runner) => runner.id === id)?.label ?? id;
 
   // A reset preset in one project runs on the subscription itself; in a section it goes through
@@ -160,8 +197,32 @@ export function ZaicodeSchedulerPanel({ agents }: { agents: readonly ZaicodeAgen
   };
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col overflow-y-auto p-3 text-ui-xs" data-zaicode-scheduler data-zaicode-help="scheduler">
+    <div
+      className="flex min-h-0 flex-1 flex-col overflow-y-auto p-3 text-ui-xs"
+      data-zaicode-scheduler
+      data-zaicode-help="scheduler"
+    >
       <section className="flex flex-col gap-2 border border-border bg-card p-3">
+        {!autopilot && upcoming.length > 0 ? (
+          <div
+            className="flex flex-wrap items-center gap-2 border border-[var(--color-warning)] p-2 text-foreground"
+            role="status"
+            data-zaicode-scheduler-autopilot
+          >
+            <span>
+              Autopilot is OFF. Scheduled tasks will not start automatically. Enable it for
+              unattended work.
+            </span>
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={!onEnableAutopilot}
+              onClick={onEnableAutopilot}
+            >
+              Enable Autopilot
+            </Button>
+          </div>
+        ) : null}
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="max-w-[640px]">
             <h2 className="flex items-center gap-2 text-ui-lg text-foreground">
@@ -169,10 +230,11 @@ export function ZaicodeSchedulerPanel({ agents }: { agents: readonly ZaicodeAgen
               Scheduler
             </h2>
             <p className="mt-1 text-foreground-subtle">
-              Prompts that start by themselves: at a time, every day, every N minutes, or the moment a subscription's
-              quota refills — in one project or in every project of a sidebar section. Empty prompt ={" "}
-              <code>{ZAICODE_HIT_AND_GO_PROMPT}</code>: finish the SAIPEN board. SAIPEN guards the work and calls you when
-              it needs you. A limit meter with a prompt waiting for its reset glows.
+              Prompts that start by themselves: at a time, every day, every N minutes, or the moment
+              a subscription's quota refills — in one project or in every project of a sidebar
+              section. Empty prompt = <code>{ZAICODE_HIT_AND_GO_PROMPT}</code>: finish the SAIPEN
+              board. SAIPEN guards the work and calls you when it needs you. A limit meter with a
+              prompt waiting for its reset glows.
             </p>
           </div>
           <div className="flex flex-col items-end gap-2">
@@ -180,12 +242,21 @@ export function ZaicodeSchedulerPanel({ agents }: { agents: readonly ZaicodeAgen
               size="sm"
               variant="outline"
               disabled={!current}
-              onClick={() => addZaicodeAutostartJob({ projectPath: current, engineId: ZAICODE_AUTOSTART_INAPP_ENGINE, trigger: "daily" })}
+              onClick={() =>
+                addZaicodeAutostartJob({
+                  projectPath: current,
+                  engineId: ZAICODE_AUTOSTART_INAPP_ENGINE,
+                  trigger: "daily",
+                })
+              }
             >
               <Plus className="size-3.5" />
               New schedule
             </Button>
-            <label className="flex items-center gap-2 text-foreground-subtle" title="Windows will not sleep while a chat or a scheduled run is working">
+            <label
+              className="flex items-center gap-2 text-foreground-subtle"
+              title="Windows will not sleep while a chat or a scheduled run is working"
+            >
               <Switch
                 checked={settings?.keepAwakeWhileRunning ?? false}
                 onCheckedChange={(value) => void update({ keepAwakeWhileRunning: value })}
@@ -194,18 +265,27 @@ export function ZaicodeSchedulerPanel({ agents }: { agents: readonly ZaicodeAgen
             </label>
           </div>
         </div>
-        <div className="flex flex-col gap-1 border-t border-border pt-2" data-zaicode-scheduler-next>
+        <div
+          className="flex flex-col gap-1 border-t border-border pt-2"
+          data-zaicode-scheduler-next
+        >
           <span className="text-foreground-subtlest">NEXT UP</span>
           {upcoming.length === 0 ? (
-            <span className="text-foreground-subtle">Nothing armed. Pick a preset below — one click, then adjust.</span>
+            <span className="text-foreground-subtle">
+              Nothing armed. Pick a preset below — one click, then adjust.
+            </span>
           ) : (
             upcoming.map(({ job, decision }) => (
               <span key={job.id} className="flex min-w-0 items-center gap-2">
                 <span className="shrink-0 border border-[var(--zaicode-highlight,var(--color-border-hover))] px-1 tabular-nums text-foreground">
-                  {dueText(decision.dueAt, now) || ZAICODE_SCHEDULE_STATE_TEXT[decision.state]}
+                  {zaicodeScheduleWaitsForAutopilot(decision, autopilot)
+                    ? "paused · Autopilot OFF"
+                    : dueText(decision.dueAt, now) || ZAICODE_SCHEDULE_STATE_TEXT[decision.state]}
                 </span>
                 <span className="min-w-0 truncate text-foreground">{job.name || "Schedule"}</span>
-                <span className="min-w-0 truncate text-foreground-subtlest">{describeZaicodeSchedule(job, labelOf(job.engineId))}</span>
+                <span className="min-w-0 truncate text-foreground-subtlest">
+                  {describeZaicodeSchedule(job, labelOf(job.engineId))}
+                </span>
               </span>
             ))
           )}
@@ -231,7 +311,14 @@ export function ZaicodeSchedulerPanel({ agents }: { agents: readonly ZaicodeAgen
       <div className="mt-3 flex flex-col gap-2">
         {jobs.length === 0 ? <p className="text-foreground-subtlest">No schedules yet.</p> : null}
         {jobs.map((job) => (
-          <ZaicodeScheduleRow key={job.id} job={job} now={now} projects={projects} runners={runners} watch={watch} />
+          <ZaicodeScheduleRow
+            key={job.id}
+            job={job}
+            now={now}
+            projects={projects}
+            runners={runners}
+            watch={watch}
+          />
         ))}
       </div>
     </div>
@@ -252,9 +339,12 @@ export function ZaicodeScheduleRow({
   watch: RunnerOption[];
 }) {
   const decision = decideZaicodeAutostartJob(job, now);
+  const autopilot = useZaicodeStore((state) => state.autoRun);
+  const paused = zaicodeScheduleWaitsForAutopilot(decision, autopilot);
   const update = (patch: Partial<ZaicodeAutostartJob>) => updateZaicodeAutostartJob(job.id, patch);
   const projectKnown = projects.some((project) => project.path === job.projectPath);
-  const watchesOwnEngine = !job.engineId.startsWith("pool:") && !job.engineId.startsWith(ZAICODE_AUTOSTART_AGENT_PREFIX);
+  const watchesOwnEngine =
+    !job.engineId.startsWith("pool:") && !job.engineId.startsWith(ZAICODE_AUTOSTART_AGENT_PREFIX);
   const resetTrigger = job.trigger === "reset" || job.trigger === "everyReset";
   const select = "max-w-[240px] border border-border bg-background px-1 py-0.5 text-foreground";
   return (
@@ -273,7 +363,7 @@ export function ZaicodeScheduleRow({
         <span
           className={cn(
             "border px-1",
-            decision.state === "due"
+            decision.state === "due" && !paused
               ? "border-[#4f9a2f] text-[#7fc35a]"
               : decision.state === "missed" || decision.state === "invalid"
                 ? "border-[#c8502a] text-[#e07a55]"
@@ -281,16 +371,30 @@ export function ZaicodeScheduleRow({
                   ? "border-[var(--zaicode-highlight,var(--color-border-hover))] text-foreground"
                   : "border-border text-foreground-subtle",
           )}
-          title={decision.reason}
+          title={paused ? "Enable Autopilot to run this schedule automatically" : decision.reason}
         >
-          {ZAICODE_SCHEDULE_STATE_TEXT[decision.state] ?? decision.state}
-          {decision.dueAt && decision.dueAt > now ? ` · in ${formatZaicodeDuration(decision.dueAt - now)}` : ""}
+          {paused
+            ? "paused · Autopilot OFF"
+            : (ZAICODE_SCHEDULE_STATE_TEXT[decision.state] ?? decision.state)}
+          {decision.dueAt && decision.dueAt > now
+            ? ` · ${paused ? "planned " : ""}in ${formatZaicodeDuration(decision.dueAt - now)}`
+            : ""}
         </span>
         <span className="flex-1" />
-        <Button size="sm" variant="outline" title="Run now (test it; does not use up the scheduled moment)" onClick={() => runZaicodeAutostartNow(job.id)}>
+        <Button
+          size="sm"
+          variant="outline"
+          title="Run now (test it; does not use up the scheduled moment)"
+          onClick={() => runZaicodeAutostartNow(job.id)}
+        >
           <Play className="size-3.5" />
         </Button>
-        <Button size="sm" variant="outline" title="Delete" onClick={() => removeZaicodeAutostartJob(job.id)}>
+        <Button
+          size="sm"
+          variant="outline"
+          title="Delete"
+          onClick={() => removeZaicodeAutostartJob(job.id)}
+        >
           <Trash2 className="size-3.5" />
         </Button>
       </div>
@@ -305,7 +409,11 @@ export function ZaicodeScheduleRow({
           onChange={(targetKind) => update({ targetKind })}
         />
         {job.targetKind === "section" ? (
-          <select className={select} value={job.section} onChange={(event) => update({ section: event.target.value })}>
+          <select
+            className={select}
+            value={job.section}
+            onChange={(event) => update({ section: event.target.value })}
+          >
             {ZAICODE_SLOT_GROUPS.map((group) => (
               <option key={group} value={group}>
                 {group}
@@ -313,8 +421,14 @@ export function ZaicodeScheduleRow({
             ))}
           </select>
         ) : (
-          <select className={select} value={job.projectPath} onChange={(event) => update({ projectPath: event.target.value })}>
-            {!projectKnown ? <option value={job.projectPath}>{projectNameOf(job.projectPath)}</option> : null}
+          <select
+            className={select}
+            value={job.projectPath}
+            onChange={(event) => update({ projectPath: event.target.value })}
+          >
+            {!projectKnown ? (
+              <option value={job.projectPath}>{projectNameOf(job.projectPath)}</option>
+            ) : null}
             {projects.map((project) => (
               <option key={project.path} value={project.path}>
                 {project.name}
@@ -323,8 +437,14 @@ export function ZaicodeScheduleRow({
           </select>
         )}
         <span>Who</span>
-        <select className={select} value={job.engineId} onChange={(event) => update({ engineId: event.target.value })}>
-          {!runners.some((runner) => runner.id === job.engineId) ? <option value={job.engineId}>{job.engineId}</option> : null}
+        <select
+          className={select}
+          value={job.engineId}
+          onChange={(event) => update({ engineId: event.target.value })}
+        >
+          {!runners.some((runner) => runner.id === job.engineId) ? (
+            <option value={job.engineId}>{job.engineId}</option>
+          ) : null}
           {runners.map((runner) => (
             <option key={runner.id} value={runner.id}>
               {runner.label}
@@ -333,8 +453,14 @@ export function ZaicodeScheduleRow({
         </select>
         {!watchesOwnEngine ? (
           <>
-            <span title="The subscription whose quota the reset triggers watch (and that must have quota to start)">Watch</span>
-            <select className={select} value={job.watchEngineId} onChange={(event) => update({ watchEngineId: event.target.value, firedEvents: [] })}>
+            <span title="The subscription whose quota the reset triggers watch (and that must have quota to start)">
+              Watch
+            </span>
+            <select
+              className={select}
+              value={job.watchEngineId}
+              onChange={(event) => update({ watchEngineId: event.target.value, firedEvents: [] })}
+            >
               <option value="">— no subscription —</option>
               {watch.map((engine) => (
                 <option key={engine.id} value={engine.id}>
@@ -347,7 +473,11 @@ export function ZaicodeScheduleRow({
       </div>
       <div className="flex flex-wrap items-center gap-2 text-foreground-subtle">
         <span>When</span>
-        <Segmented value={job.trigger} options={TRIGGERS} onChange={(trigger) => update({ trigger, firedEvents: [] })} />
+        <Segmented
+          value={job.trigger}
+          options={TRIGGERS}
+          onChange={(trigger) => update({ trigger, firedEvents: [] })}
+        />
         {job.trigger === "at" ? (
           <ZaicodeMomentField value={job.at} onChange={(at) => update({ at, enabled: true })} />
         ) : null}
@@ -386,7 +516,10 @@ export function ZaicodeScheduleRow({
         {resetTrigger && !watchesOwnEngine && !job.watchEngineId ? (
           <span className="text-[#e07a55]">pick the subscription to watch</span>
         ) : null}
-        <label className="flex items-center gap-1" title="Runs this schedule started through the queue are stopped at this time (START and CLI workers finish on their own)">
+        <label
+          className="flex items-center gap-1"
+          title="Runs this schedule started through the queue are stopped at this time (START and CLI workers finish on their own)"
+        >
           stop at
           <ZaicodeTimeField
             minute={job.stopAt ? parseZaicodeClockText(job.stopAt) : null}
@@ -395,7 +528,12 @@ export function ZaicodeScheduleRow({
             onClear={() => update({ stopAt: "" })}
           />
           {job.stopAt ? (
-            <button type="button" className="px-1 hover:text-foreground" title="No stop time: run until done" onClick={() => update({ stopAt: "" })}>
+            <button
+              type="button"
+              className="px-1 hover:text-foreground"
+              title="No stop time: run until done"
+              onClick={() => update({ stopAt: "" })}
+            >
               ×
             </button>
           ) : null}
@@ -404,7 +542,10 @@ export function ZaicodeScheduleRow({
       <ZaicodeSchedulePrompt value={job.prompt} onChange={(prompt) => update({ prompt })} />
       <ZaicodeScheduleConditions job={job} inApp={!watchesOwnEngine} onChange={update} />
       <div className="flex flex-wrap items-center gap-2 text-foreground-subtle">
-        <label className="flex items-center gap-1" title="Wait after a refill before starting (the vendor's clock is not ours)">
+        <label
+          className="flex items-center gap-1"
+          title="Wait after a refill before starting (the vendor's clock is not ours)"
+        >
           delay
           <input
             type="number"
@@ -416,7 +557,10 @@ export function ZaicodeScheduleRow({
           />
           s
         </label>
-        <label className="flex items-center gap-1" title="A moment older than this is missed, never launched late">
+        <label
+          className="flex items-center gap-1"
+          title="A moment older than this is missed, never launched late"
+        >
           catch-up
           <input
             type="number"
@@ -428,13 +572,22 @@ export function ZaicodeScheduleRow({
           />
           min
         </label>
-        <label className="flex items-center gap-1" title="Wait while the watched subscription has no quota">
-          <Switch checked={job.requireQuota} onCheckedChange={(requireQuota) => update({ requireQuota })} />
+        <label
+          className="flex items-center gap-1"
+          title="Wait while the watched subscription has no quota"
+        >
+          <Switch
+            checked={job.requireQuota}
+            onCheckedChange={(requireQuota) => update({ requireQuota })}
+          />
           wait for quota
         </label>
       </div>
       <div className="text-foreground-subtlest">
-        {describeZaicodeSchedule(job, runners.find((runner) => runner.id === job.engineId)?.label ?? job.engineId)}
+        {describeZaicodeSchedule(
+          job,
+          runners.find((runner) => runner.id === job.engineId)?.label ?? job.engineId,
+        )}
         {job.lastResult ? ` · last: ${job.lastResult}` : ""}
       </div>
     </div>

@@ -8,7 +8,7 @@ import { useZaicodeClock } from "../ZaicodeLimitViews.js";
 import { useZaicodeMeterPrefs } from "../zaicodeMeterPrefs.js";
 import { useZaicodeRouter } from "../zaicodeRouter.js";
 import { useZaicodeRouterSetup } from "../zaicodeRouterSetup.js";
-import { zaicodeUpcomingSchedules } from "../zaicodeScheduler.js";
+import { useZaicodeUpcomingSchedules } from "../ZaicodeSchedulerBits.js";
 import { useZaicodeSessionNav } from "../zaicodeSessionNav.js";
 import { useZaicodeRunningSessions } from "../zaicodeSidebarPrefs.js";
 import { useZaicodeWorkers } from "../zaicodeWorkers.js";
@@ -182,7 +182,7 @@ export function ZaicodeHomePage({
     showAll: showAllLimits,
     now,
   });
-  const upcoming = zaicodeUpcomingSchedules(autostartJobs, (job) => decideZaicodeAutostartJob(job, now));
+  const upcoming = useZaicodeUpcomingSchedules(autostartJobs, now);
   const routing = zaicodeHomeRouting({
     status: router.status,
     message: router.message,
@@ -252,7 +252,7 @@ export function ZaicodeHomePage({
                 truth: statsTruth,
               },
               nextReset: nextResetRow ? { label: nextResetRow.account.short, at: nextResetRow.nextResetAt! } : null,
-              nextSchedule: nextSchedule ? { label: nextSchedule.job.name || "schedule", at: nextSchedule.decision.dueAt ?? null } : null,
+              nextSchedule: nextSchedule ? { label: nextSchedule.autopilotRequired ? "Autopilot OFF" : nextSchedule.job.name || "schedule", at: nextSchedule.autopilotRequired ? null : nextSchedule.decision.dueAt ?? null } : null,
               problems: actions.length,
               now,
             }}

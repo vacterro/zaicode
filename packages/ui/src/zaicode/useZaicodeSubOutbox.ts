@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { resolveWorkspaceKey } from "@zcode/shared";
 import { useWorkspaceServices } from "@/hooks/useWorkspaceServices.js";
 import {
   isZaicodeSubOutboxRole,
@@ -42,13 +43,15 @@ function isMissing(error: unknown): boolean {
 }
 
 function readError(error: unknown): string {
-  return (
-    (error instanceof Error ? error.message : String(error ?? "")).trim() || "unknown error"
-  );
+  return (error instanceof Error ? error.message : String(error ?? "")).trim() || "unknown error";
 }
 
 function summarize(packages: ZaicodeOutboxPackage[]): ZaicodeSubOutboxSnapshot {
-  return { packages, counts: zaicodeOutboxCounts(packages), producers: zaicodeReadyProducers(packages) };
+  return {
+    packages,
+    counts: zaicodeOutboxCounts(packages),
+    producers: zaicodeReadyProducers(packages),
+  };
 }
 
 type Listener = (snapshot: ZaicodeSubOutboxSnapshot | null) => void;
@@ -137,8 +140,12 @@ type FileService = ReturnType<typeof useWorkspaceServices>["fileService"];
 
 const pollers = new Map<string, OutboxPoller>();
 
-function acquirePoller(workspacePath: string, fileService: FileService): OutboxPoller {
-  const key = workspacePath.replace(/[\\/]+$/, "").toLowerCase();
+function acquirePoller(
+  workspacePath: string,
+  fileService: FileService,
+  workspaceIdentity?: string,
+): OutboxPoller {
+  const key = resolveWorkspaceKey({ workspacePath, workspaceIdentity });
   let poller = pollers.get(key);
   if (!poller) {
     poller = new OutboxPoller(workspacePath, fileService);
@@ -159,7 +166,7 @@ export function useZaicodeSubOutbox(
       setSnapshot(null);
       return undefined;
     }
-    const poller = acquirePoller(workspacePath, fileService);
+    const poller = acquirePoller(workspacePath, fileService, workspaceIdentity);
     const unsubscribe = poller.subscribe(setSnapshot);
     return () => {
       unsubscribe();
@@ -167,7 +174,7 @@ export function useZaicodeSubOutbox(
         for (const [key, value] of pollers) if (value === poller) pollers.delete(key);
       }
     };
-  }, [fileService, workspacePath]);
+  }, [fileService, workspacePath, workspaceIdentity]);
 
   return snapshot;
 }

@@ -286,6 +286,7 @@ export function ZaicodeHomeLimits({
 }
 
 function scheduleWhen(next: ZaicodeScheduleNext, now: number): string {
+  if (next.autopilotRequired) return "paused";
   const due = next.decision.dueAt;
   if (next.decision.state === "waiting-reset" && !due) return "at reset";
   if (next.decision.state === "waiting-quota") return "waiting for quota";
@@ -293,8 +294,14 @@ function scheduleWhen(next: ZaicodeScheduleNext, now: number): string {
 }
 
 export function ZaicodeHomeScheduler({ upcoming, now }: { upcoming: readonly ZaicodeScheduleNext[]; now: number }) {
+  const paused = upcoming.some((next) => next.autopilotRequired);
   return (
-    <ZaicodeHomeCard title="Scheduler" right={upcoming.length > 0 ? `${upcoming.length} armed` : undefined} widget="scheduler" onOpen={() => openZaicodeScheduler()} openLabel="Open the SCHEDULER">
+    <ZaicodeHomeCard title="Scheduler" right={paused ? "Autopilot OFF" : upcoming.length > 0 ? `${upcoming.length} armed` : undefined} widget="scheduler" onOpen={() => openZaicodeScheduler()} openLabel="Open the SCHEDULER">
+      {paused ? (
+        <button type="button" className="self-start text-left text-ui-xs text-[var(--color-warning)]" onClick={() => openZaicodeScheduler()}>
+          Enable Autopilot in Scheduler for unattended work.
+        </button>
+      ) : null}
       {upcoming.length === 0 ? (
         <button type="button" className="flex items-center gap-1 self-start text-foreground-subtle hover:text-foreground" onClick={() => openZaicodeScheduler()}>
           <CalendarClock className="size-3.5" />

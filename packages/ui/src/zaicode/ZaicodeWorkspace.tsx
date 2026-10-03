@@ -15,7 +15,11 @@ import { ZaicodeIcon } from "@/zaicode/zaicodeIconSlots.js";
 import { ZaicodeIconEditor } from "@/zaicode/ZaicodeIconEditor.js";
 import { ZaicodeTeamPresetsStrip } from "@/zaicode/ZaicodeTeamPresets.js";
 import { ZaicodeTour } from "@/zaicode/ZaicodeTour.js";
-import { ZAICODE_WAITING_STATUSES, ZaicodeFlowBar, ZaicodeHelpStrip } from "@/zaicode/ZaicodeWorkspaceStrips.js";
+import {
+  ZAICODE_WAITING_STATUSES,
+  ZaicodeFlowBar,
+  ZaicodeHelpStrip,
+} from "@/zaicode/ZaicodeWorkspaceStrips.js";
 import { Play, Users, X } from "lucide-react";
 import { cn } from "@/components/lib/utils.js";
 import { ZaicodeSchedulerPanel } from "@/zaicode/ZaicodeSchedulerPanel.js";
@@ -211,7 +215,12 @@ export function ZaicodeWorkspace({
             <Users className="size-3" />
             Teams
           </Button>
-          <Button size="sm" variant="ghost" title="Guided tour of the screen" onClick={() => setTourOpen(true)}>
+          <Button
+            size="sm"
+            variant="ghost"
+            title="Guided tour of the screen"
+            onClick={() => setTourOpen(true)}
+          >
             <Play className="size-3" />
             Tour
           </Button>
@@ -245,7 +254,9 @@ export function ZaicodeWorkspace({
         </div>
       </header>
       <ZaicodeFlowBar agents={store.agents} jobs={store.jobs} autoRun={store.autoRun} />
-      {helpHidden ? null : <ZaicodeHelpStrip onHide={() => toggleHelp(true)} onTour={() => setTourOpen(true)} />}
+      {helpHidden ? null : (
+        <ZaicodeHelpStrip onHide={() => toggleHelp(true)} onTour={() => setTourOpen(true)} />
+      )}
       {showPresets ? (
         <ZaicodeTeamPresetsStrip
           agents={store.agents}
@@ -266,127 +277,135 @@ export function ZaicodeWorkspace({
         </div>
       ) : null}
       {tab === "scheduler" ? (
-        <ZaicodeSchedulerPanel agents={store.agents} />
+        <ZaicodeSchedulerPanel
+          agents={store.agents}
+          onEnableAutopilot={() => void withBusy(() => store.setAutoRun(ctx, workspace, true))}
+        />
       ) : tab === "audits" ? (
         <ZaicodeAuditPanel services={ctx} workspace={workspace} />
       ) : (
-      <div className="relative flex min-h-0 flex-1">
-        <aside className="flex w-56 min-h-0 shrink-0 flex-col border-r border-border @min-[1100px]/zws:w-64" data-zaicode-tour="agents">
-          <ZaicodeAgentRoster
-            agents={store.agents}
-            templates={store.templates}
-            jobs={store.jobs}
-            diagnostics={store.agentDiagnostics}
-            selectedAgentId={store.selectedAgentId}
-            busy={busy}
-            onSelect={store.selectAgent}
-            onCreate={() => {
-              store.selectAgent(null);
-              setInitialTemplateId(null);
-              setEditing(true);
-            }}
-            onChooseTemplate={(templateId) => {
-              store.selectAgent(null);
-              setInitialTemplateId(templateId);
-              setEditing(true);
-            }}
-            onDuplicate={(agentId) => withBusy(() => store.duplicateAgent(ctx, workspace, agentId))}
-            onRemove={(agentId) => withBusy(() => store.removeAgent(ctx, workspace, agentId))}
-            onToggleEnabled={(agent) =>
-              withBusy(() =>
-                store.updateAgent(ctx, workspace, agent.id, { enabled: !agent.enabled }),
-              )
-            }
-          />
-        </aside>
-        <main className="flex min-w-0 min-h-0 flex-1 flex-col" data-zaicode-tour="queue">
-          <ZaicodeQueuePanel
-            jobs={store.jobs}
-            diagnostics={store.jobDiagnostics}
-            agents={store.agents}
-            selectedJobId={store.selectedJobId}
-            autoRun={store.autoRun}
-            busy={busy}
-            workspacePath={workspace.workspacePath}
-            onSelectJob={store.selectJob}
-            onCreateAgent={() => {
-              store.selectAgent(null);
-              setInitialTemplateId(null);
-              setEditing(true);
-            }}
-            onCreateJob={(input) => withBusy(() => store.createJob(ctx, workspace, input))}
-            onDispatch={(jobId) => withBusy(() => store.dispatchJob(ctx, workspace, jobId))}
-            onCancel={(jobId) => withBusy(() => store.cancelJob(ctx, workspace, jobId))}
-            onRetry={(jobId) => withBusy(() => store.retryJob(ctx, workspace, jobId))}
-            onResume={(jobId) => withBusy(() => store.resumeJob(ctx, workspace, jobId))}
-            onRemove={(jobId) => withBusy(() => store.removeJob(ctx, workspace, jobId))}
-            onMove={(jobId, direction) =>
-              withBusy(() => store.reorderJob(ctx, workspace, jobId, direction))
-            }
-          />
-        </main>
-        <aside
-          className={cn(
-            "min-h-0 w-80 max-w-full shrink-0 flex-col border-l border-border bg-background",
-            // Wide: always beside the queue. Narrow: over the queue, only while there is something to show.
-            "@min-[1100px]/zws:static @min-[1100px]/zws:flex",
-            inspectorWanted ? "absolute inset-y-0 right-0 z-20 flex shadow-lg" : "hidden",
-          )}
-          data-zaicode-tour="inspector"
-          data-zaicode-inspector-overlay={inspectorWanted ? "open" : undefined}
-        >
-          {inspectorWanted ? (
-            <button
-              type="button"
-              className="absolute right-1 top-1 z-10 flex size-6 items-center justify-center text-foreground-subtle hover:bg-hover hover:text-foreground @min-[1100px]/zws:hidden"
-              title="Close"
-              onClick={closeInspector}
-            >
-              <X className="size-3.5" />
-            </button>
-          ) : null}
-          {iconsOpen ? (
-            <ZaicodeIconEditor onClose={() => setIconsOpen(false)} />
-          ) : (
-            <ZaicodeInspector
-              agent={selectedAgent}
-              job={selectedJob}
+        <div className="relative flex min-h-0 flex-1">
+          <aside
+            className="flex w-56 min-h-0 shrink-0 flex-col border-r border-border @min-[1100px]/zws:w-64"
+            data-zaicode-tour="agents"
+          >
+            <ZaicodeAgentRoster
               agents={store.agents}
-              jobs={store.jobs}
               templates={store.templates}
-              editing={editing}
-              initialTemplateId={initialTemplateId}
+              jobs={store.jobs}
+              diagnostics={store.agentDiagnostics}
+              selectedAgentId={store.selectedAgentId}
               busy={busy}
-              onStartEdit={() => setEditing(true)}
-              onCancelEdit={() => setEditing(false)}
-              onSaveNew={(input) =>
-                withBusy(async () => {
-                  await store.createAgent(ctx, workspace, input);
-                  setEditing(false);
-                })
-              }
-              onSavePatch={(patch) => {
-                if (!selectedAgent) return;
-                void withBusy(async () => {
-                  await store.updateAgent(ctx, workspace, selectedAgent.id, patch);
-                  setEditing(false);
-                });
+              onSelect={store.selectAgent}
+              onCreate={() => {
+                store.selectAgent(null);
+                setInitialTemplateId(null);
+                setEditing(true);
+              }}
+              onChooseTemplate={(templateId) => {
+                store.selectAgent(null);
+                setInitialTemplateId(templateId);
+                setEditing(true);
               }}
               onDuplicate={(agentId) =>
                 withBusy(() => store.duplicateAgent(ctx, workspace, agentId))
               }
-              onRemoveAgent={(agentId) =>
-                withBusy(() => store.removeAgent(ctx, workspace, agentId))
+              onRemove={(agentId) => withBusy(() => store.removeAgent(ctx, workspace, agentId))}
+              onToggleEnabled={(agent) =>
+                withBusy(() =>
+                  store.updateAgent(ctx, workspace, agent.id, { enabled: !agent.enabled }),
+                )
               }
-              onDispatch={(jobId) => withBusy(() => store.dispatchJob(ctx, workspace, jobId))}
-              onCancelJob={(jobId) => withBusy(() => store.cancelJob(ctx, workspace, jobId))}
-              onRetryJob={(jobId) => withBusy(() => store.retryJob(ctx, workspace, jobId))}
-              onResumeJob={(jobId) => withBusy(() => store.resumeJob(ctx, workspace, jobId))}
-              {...(onOpenSession ? { onOpenSession } : {})}
             />
-          )}
-        </aside>
-      </div>
+          </aside>
+          <main className="flex min-w-0 min-h-0 flex-1 flex-col" data-zaicode-tour="queue">
+            <ZaicodeQueuePanel
+              jobs={store.jobs}
+              diagnostics={store.jobDiagnostics}
+              agents={store.agents}
+              selectedJobId={store.selectedJobId}
+              autoRun={store.autoRun}
+              busy={busy}
+              workspacePath={workspace.workspacePath}
+              onSelectJob={store.selectJob}
+              onCreateAgent={() => {
+                store.selectAgent(null);
+                setInitialTemplateId(null);
+                setEditing(true);
+              }}
+              onCreateJob={(input) => withBusy(() => store.createJob(ctx, workspace, input))}
+              onDispatch={(jobId) => withBusy(() => store.dispatchJob(ctx, workspace, jobId))}
+              onCancel={(jobId) => withBusy(() => store.cancelJob(ctx, workspace, jobId))}
+              onRetry={(jobId) => withBusy(() => store.retryJob(ctx, workspace, jobId))}
+              onResume={(jobId) => withBusy(() => store.resumeJob(ctx, workspace, jobId))}
+              onRemove={(jobId) => withBusy(() => store.removeJob(ctx, workspace, jobId))}
+              onMove={(jobId, direction) =>
+                withBusy(() => store.reorderJob(ctx, workspace, jobId, direction))
+              }
+            />
+          </main>
+          <aside
+            className={cn(
+              "min-h-0 w-80 max-w-full shrink-0 flex-col border-l border-border bg-background",
+              // Wide: always beside the queue. Narrow: over the queue, only while there is something to show.
+              "@min-[1100px]/zws:static @min-[1100px]/zws:flex",
+              inspectorWanted ? "absolute inset-y-0 right-0 z-20 flex shadow-lg" : "hidden",
+            )}
+            data-zaicode-tour="inspector"
+            data-zaicode-inspector-overlay={inspectorWanted ? "open" : undefined}
+          >
+            {inspectorWanted ? (
+              <button
+                type="button"
+                className="absolute right-1 top-1 z-10 flex size-6 items-center justify-center text-foreground-subtle hover:bg-hover hover:text-foreground @min-[1100px]/zws:hidden"
+                title="Close"
+                onClick={closeInspector}
+              >
+                <X className="size-3.5" />
+              </button>
+            ) : null}
+            {iconsOpen ? (
+              <ZaicodeIconEditor onClose={() => setIconsOpen(false)} />
+            ) : (
+              <ZaicodeInspector
+                agent={selectedAgent}
+                job={selectedJob}
+                agents={store.agents}
+                jobs={store.jobs}
+                templates={store.templates}
+                editing={editing}
+                initialTemplateId={initialTemplateId}
+                busy={busy}
+                onStartEdit={() => setEditing(true)}
+                onCancelEdit={() => setEditing(false)}
+                onSaveNew={(input) =>
+                  withBusy(async () => {
+                    await store.createAgent(ctx, workspace, input);
+                    setEditing(false);
+                  })
+                }
+                onSavePatch={(patch) => {
+                  if (!selectedAgent) return;
+                  void withBusy(async () => {
+                    await store.updateAgent(ctx, workspace, selectedAgent.id, patch);
+                    setEditing(false);
+                  });
+                }}
+                onDuplicate={(agentId) =>
+                  withBusy(() => store.duplicateAgent(ctx, workspace, agentId))
+                }
+                onRemoveAgent={(agentId) =>
+                  withBusy(() => store.removeAgent(ctx, workspace, agentId))
+                }
+                onDispatch={(jobId) => withBusy(() => store.dispatchJob(ctx, workspace, jobId))}
+                onCancelJob={(jobId) => withBusy(() => store.cancelJob(ctx, workspace, jobId))}
+                onRetryJob={(jobId) => withBusy(() => store.retryJob(ctx, workspace, jobId))}
+                onResumeJob={(jobId) => withBusy(() => store.resumeJob(ctx, workspace, jobId))}
+                {...(onOpenSession ? { onOpenSession } : {})}
+              />
+            )}
+          </aside>
+        </div>
       )}
     </div>
   );

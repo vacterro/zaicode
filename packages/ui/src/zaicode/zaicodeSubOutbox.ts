@@ -27,6 +27,8 @@ export interface ZaicodeOutboxPackage {
   producer: string | null;
   severity: string | null;
   critical: boolean;
+  /** Package identity plus producer-recorded provenance, independent of composer state. */
+  generation: string;
 }
 
 /** One bold field of an OUTBOX package: `- **status:** ready`. */
@@ -57,6 +59,12 @@ export function parseZaicodeOutbox(content: string): ZaicodeOutboxPackage[] {
       producer: fieldValue(block, "producer"),
       severity: fieldValue(block, "severity"),
       critical: fieldValue(block, "critical") === "true",
+      generation: JSON.stringify([
+        start.id,
+        fieldValue(block, "source_head"),
+        fieldValue(block, "source_tree_fingerprint"),
+        fieldValue(block, "role_revision"),
+      ]),
     });
   }
   return packages;
@@ -73,7 +81,9 @@ export interface ZaicodeOutboxCounts {
 }
 
 /** Packages a person must decide about: `ready` first, then what is blocked on something. */
-export function zaicodeOutboxCounts(packages: readonly ZaicodeOutboxPackage[]): ZaicodeOutboxCounts {
+export function zaicodeOutboxCounts(
+  packages: readonly ZaicodeOutboxPackage[],
+): ZaicodeOutboxCounts {
   const counts: ZaicodeOutboxCounts = {
     ready: 0,
     draft: 0,
@@ -91,7 +101,11 @@ export function zaicodeOutboxCounts(packages: readonly ZaicodeOutboxPackage[]): 
 
 /** Every producer that has at least one ready package, alphabetical. */
 export function zaicodeReadyProducers(packages: readonly ZaicodeOutboxPackage[]): string[] {
-  return [...new Set(packages.filter((entry) => entry.status === "ready").map((entry) => entry.producer ?? ""))]
+  return [
+    ...new Set(
+      packages.filter((entry) => entry.status === "ready").map((entry) => entry.producer ?? ""),
+    ),
+  ]
     .filter(Boolean)
     .sort();
 }
@@ -103,6 +117,52 @@ export function zaicodeReadyProducers(packages: readonly ZaicodeOutboxPackage[])
 export function zaicodeCollectCommand(producer: string): string {
   return `saipen collect ${producer}`;
 }
+
+/** Automatic delivery attempts, not a second accepted task queue. */
+export class ZaicodeOutboxCollectGuard {
+  private readonly sent = new Map<string, Map<string, Set<string>>>();
+
+  collect(
+    workspaceKey: string,
+    packages: readonly ZaicodeOutboxPackage[],
+    send: (command: string) => boolean | void,
+    manual = false,
+  ): string[] {
+    let workspace = this.sent.get(workspaceKey);
+    if (!workspace) {
+      workspace = new Map();
+      this.sent.set(workspaceKey, workspace);
+    }
+    for (const producer of zaicodeReadyProducers(packages)) {
+      const generations = packages
+        .filter((entry) => entry.status === "ready" && entry.producer === producer)
+        .map((entry) => entry.generation)
+        .sort();
+      let previous = workspace.get(producer);
+      if (!previous) {
+        previous = new Set();
+        workspace.set(producer, previous);
+      }
+      const fresh = generations.filter((generation) => !previous.has(generation));
+      if (!manual && fresh.length === 0) continue;
+      // 忙碌、草稿或组件重挂载不是新 OUTBOX；先占用本代，防止同步重入重复投递。
+      for (const generation of fresh) previous.add(generation);
+      try {
+        if (send(zaicodeCollectCommand(producer)) !== false) return [producer];
+      } catch (error) {
+        for (const generation of fresh) previous.delete(generation);
+        throw error;
+      }
+      // 本地草稿拒绝未提交命令，不能把这一代记成已发送。
+      for (const generation of fresh) previous.delete(generation);
+      break;
+    }
+    return [];
+  }
+}
+
+/** Shared across composers and their remounts; keyed by the existing workspace identity. */
+export const zaicodeOutboxCollectGuard = new ZaicodeOutboxCollectGuard();
 
 /** Roles a directory listing offers as SubSaipen instances (saihunt/, saiwiki/, ...). */
 export function isZaicodeSubOutboxRole(entry: { name: string; type: string }): boolean {

@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import { resolveWorkspaceKey } from "@zcode/shared";
 import { Inbox } from "lucide-react";
 import { cn } from "@/components/lib/utils.js";
 import { toast } from "@/components/ui/toast.js";
 import { useZaicodeAuditStore } from "./zaicodeAuditStore.js";
-import { zaicodeCollectCommand } from "./zaicodeSubOutbox.js";
+import { zaicodeOutboxCollectGuard } from "./zaicodeSubOutbox.js";
 import { useZaicodeSubOutbox } from "./useZaicodeSubOutbox.js";
 
 /**
@@ -30,26 +31,20 @@ export function ZaicodeSubOutboxChip({
   workspacePath: string;
   workspaceIdentity?: string;
   disabled: boolean;
-  onCommand: (command: string) => void;
+  onCommand: (command: string) => boolean | void;
   className?: string;
 }) {
   const outbox = useZaicodeSubOutbox(workspacePath, workspaceIdentity);
   const auto = useZaicodeAuditStore((state) => state.smartMode);
   const [open, setOpen] = useState(false);
-  const sent = useRef("");
   const producers = outbox?.producers ?? [];
-  const signature = `${auto}|${producers.join(",")}`;
+  const workspaceKey = resolveWorkspaceKey({ workspacePath, workspaceIdentity });
 
   useEffect(() => {
-    if (!auto || disabled || producers.length === 0) {
-      sent.current = "";
-      return;
-    }
-    if (sent.current === signature) return;
-    sent.current = signature;
-    for (const producer of producers) onCommand(zaicodeCollectCommand(producer));
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- signature is the whole change signal
-  }, [auto, disabled, onCommand, producers, signature]);
+    if (!auto || disabled || !outbox || outbox.readError) return;
+    // 输入框暂时禁用不能清除已投递代；多个 composer 也共享同一工作区的保护。
+    zaicodeOutboxCollectGuard.collect(workspaceKey, outbox.packages, onCommand);
+  }, [auto, disabled, onCommand, outbox, workspaceKey]);
 
   if (!outbox) return null;
   const { counts } = outbox;
@@ -97,8 +92,14 @@ export function ZaicodeSubOutboxChip({
           disabled={disabled}
           title={`Collect ${producers.join(", ")} -- the canonical saipen collect command; SAIPEN keeps admission and decides what becomes a ticket.`}
           onClick={() => {
-            for (const producer of producers) onCommand(zaicodeCollectCommand(producer));
-            toast(`Collecting ${producers.join(", ")}.`, { durationMs: 5000 });
+            const accepted = zaicodeOutboxCollectGuard.collect(
+              workspaceKey,
+              outbox.packages,
+              onCommand,
+              true,
+            );
+            if (accepted.length > 0)
+              toast(`Collecting ${accepted.join(", ")}.`, { durationMs: 5000 });
           }}
           data-zaicode-sub-outbox-collect={producers.join(",")}
         >

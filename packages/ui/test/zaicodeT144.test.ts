@@ -93,10 +93,20 @@ test("SRC-112: only ready packages are collect targets, sorted and de-duplicated
   assert.deepEqual(zaicodeReadyProducers(parseZaicodeOutbox(OUTBOX)), ["saihunt"]);
   const several = parseZaicodeOutbox(
     [
-      "## B-002: b", "- **status:** ready", "- **producer:** saiwiki", "",
-      "## A-001: a", "- **status:** ready", "- **producer:** saihunt", "",
-      "## C-003: c", "- **status:** ready", "- **producer:** saihunt", "",
-      "## D-004: no producer", "- **status:** ready",
+      "## B-002: b",
+      "- **status:** ready",
+      "- **producer:** saiwiki",
+      "",
+      "## A-001: a",
+      "- **status:** ready",
+      "- **producer:** saihunt",
+      "",
+      "## C-003: c",
+      "- **status:** ready",
+      "- **producer:** saihunt",
+      "",
+      "## D-004: no producer",
+      "- **status:** ready",
     ].join("\n"),
   );
   assert.deepEqual(zaicodeReadyProducers(several), ["saihunt", "saiwiki"]);
@@ -143,7 +153,7 @@ test("SRC-112: one reader per project, not one per open composer", () => {
 
 test("SRC-112: the chip is mounted above the SAIPEN strip, Collect sends the collect command", () => {
   const chip = sourceOf("../src/zaicode/ZaicodeSubOutboxChip.tsx");
-  assert.match(chip, /zaicodeCollectCommand\(producer\)/);
+  assert.match(chip, /zaicodeOutboxCollectGuard\.collect\(/);
   assert.match(chip, /data-zaicode-sub-outbox-collect/);
   // Mounted beside the strip, not inside it: the strip has two layouts and the
   // chip must not be one that Compact can hide.
@@ -161,8 +171,8 @@ test("SRC-112: auto-continuation reuses the sidebar Auto switch, off by default"
   assert.match(chip, /useZaicodeAuditStore/);
   // The switch is read, never written: one meaning for "nothing acts by itself".
   assert.equal(/useZaicodeAuditStore[\s\S]{0,120}\.update\(/.test(chip), false);
-  // A signature guard, so a poll that sees the same package twice sends once.
-  assert.match(chip, /sent\.current === signature/);
+  // Delivery across busy cycles and remounts is covered by T-186's behavioral tests.
+  assert.match(chip, /zaicodeOutboxCollectGuard\.collect\(workspaceKey, outbox\.packages/);
 });
 
 test("SRC-113: Full shows a ticked entry whatever its own condition says", () => {
@@ -177,8 +187,17 @@ test("SRC-113: Full shows a ticked entry whatever its own condition says", () =>
   assert.equal(isZaicodeLayoutEntryShown(idle, { working: 0, hover: false }), true);
   // Full reveals what is configured; it does not add what was never ticked.
   for (const entry of [hover, working, idle]) {
-    assert.equal(isZaicodeLayoutEntryShown(entry, { working: 0, hover: false, view: "full" }), true);
-    assert.equal(isZaicodeLayoutEntryShown({ ...entry, visible: false }, { working: 2, hover: true, view: "full" }), false);
+    assert.equal(
+      isZaicodeLayoutEntryShown(entry, { working: 0, hover: false, view: "full" }),
+      true,
+    );
+    assert.equal(
+      isZaicodeLayoutEntryShown(
+        { ...entry, visible: false },
+        { working: 2, hover: true, view: "full" },
+      ),
+      false,
+    );
   }
 });
 
@@ -208,7 +227,10 @@ test("SRC-113: every call site passes the preference, so the switch reaches the 
 });
 
 test("SRC-113: the toggle sits in the header next to the buttons it governs", () => {
-  assert.match(sourceOf("../src/zaicode/ZaicodeActionViewToggle.tsx"), /actionView: full \? "compact" : "full"/);
+  assert.match(
+    sourceOf("../src/zaicode/ZaicodeActionViewToggle.tsx"),
+    /actionView: full \? "compact" : "full"/,
+  );
   assert.match(sourceOf("../src/zaicode/ZaicodeHeaderToolbar.tsx"), /ZaicodeActionViewToggle/);
 });
 

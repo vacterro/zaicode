@@ -231,7 +231,9 @@ export function ChatPromptEditor({
       const prompt = value.trim();
       if (!prompt || prompt.startsWith("/")) return false;
       const activeId = readZaicodeActiveEngine();
-      const account = activeId ? readZaicodeEnginesState().accounts.find((item) => item.id === activeId) : null;
+      const account = activeId
+        ? readZaicodeEnginesState().accounts.find((item) => item.id === activeId)
+        : null;
       if (!account) return false;
       routeZaicodeSubscriptionPrompt(account, workspacePath, prompt);
       resolvedInputApiRef.current?.setText("");
@@ -255,9 +257,10 @@ export function ChatPromptEditor({
   // never overwritten.
   const sendProjectCommand = useCallback(
     (command: string) => {
-      if (resolvedInputApiRef.current?.getMarkdown().trim()) return;
+      if (resolvedInputApiRef.current?.getMarkdown().trim()) return false;
       resolvedInputApiRef.current?.setText(command);
       runAfterFrame(() => onSubmit(command));
+      return true;
     },
     [onSubmit, resolvedInputApiRef],
   );
@@ -452,7 +455,10 @@ export function ChatPromptEditor({
             />
           </>
         ) : null}
-        <div ref={toolbarRef} className={cn("group/toolbar flex items-end gap-3", zaicodeTightShell && "gap-2")}>
+        <div
+          ref={toolbarRef}
+          className={cn("group/toolbar flex items-end gap-3", zaicodeTightShell && "gap-2")}
+        >
           <div className="flex min-w-0 flex-1 items-center" data-composer-leading-actions>
             <div className="flex shrink-0 items-center gap-1" data-composer-leading-content>
               {hasActionMenu ? (

@@ -2,6 +2,8 @@ import {
   cloneElement,
   isValidElement,
   useCallback,
+  useRef,
+  useState,
   type ComponentProps,
   type ReactNode,
   type Ref,
@@ -71,6 +73,45 @@ export function controlHintContentClassName(hasDescription: boolean, className?:
   );
 }
 
+/** True only when the complete title is already readable on the actual control. */
+export function controlHintRepeatsVisibleLabel(trigger: HTMLElement, title: string): boolean {
+  const document = trigger.ownerDocument;
+  const walker = document.createTreeWalker(trigger, NodeFilter.SHOW_TEXT);
+  const labels: string[] = [];
+  for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+    if (!node.textContent?.trim()) continue;
+    let visible = true;
+    for (
+      let element = node.parentElement;
+      element && trigger.contains(element);
+      element = element.parentElement
+    ) {
+      const style = document.defaultView?.getComputedStyle(element);
+      const bounds = element.getBoundingClientRect();
+      if (
+        element.hidden ||
+        element.getAttribute("aria-hidden") === "true" ||
+        style?.display === "none" ||
+        style?.visibility === "hidden" ||
+        bounds.width <= 1 ||
+        bounds.height <= 1
+      ) {
+        visible = false;
+        break;
+      }
+      // 截断标题仍有信息价值；不能因为 textContent 包含全文就删除提示。
+      if (
+        (style?.overflowX !== "visible" && element.scrollWidth > element.clientWidth + 1) ||
+        (style?.overflowY !== "visible" && element.scrollHeight > element.clientHeight + 1)
+      )
+        return false;
+    }
+    if (visible) labels.push(node.textContent);
+  }
+  const normalize = (value: string) => value.replace(/\s+/g, " ").trim();
+  return normalize(labels.join(" ")) === normalize(title);
+}
+
 export function ControlHintTooltip({
   children,
   title,
@@ -86,6 +127,8 @@ export function ControlHintTooltip({
   triggerClassName,
   triggerRef,
 }: ControlHintTooltipProps) {
+  const [hintOpen, setHintOpen] = useState(false);
+  const triggerElement = useRef<HTMLElement | null>(null);
   const useAppleShortcutFont = isAppleKeyboardPlatform();
   const shortcutFontClassName = useAppleShortcutFont ? "tracking-normal" : "font-mono";
   const shortcutFontStyle = useAppleShortcutFont
@@ -100,10 +143,28 @@ export function ControlHintTooltip({
   // 这里必须稳定 callback ref 身份，否则每次 render 都会触发 ref detach/attach 并形成更新循环。
   const composedTriggerRef = useCallback(
     (value: HTMLElement | null) => {
+      triggerElement.current = value;
       setRef(childRef, value);
       setRef(triggerRef, value);
     },
     [childRef, triggerRef],
+  );
+  const handleOpenChange = useCallback(
+    (next: boolean) => {
+      // 可见完整标签的原样复读不解释任何事；图标、快捷键和说明仍保留提示。
+      const repeated =
+        next &&
+        open === undefined &&
+        !description &&
+        !shortcut &&
+        typeof title === "string" &&
+        triggerElement.current &&
+        controlHintRepeatsVisibleLabel(triggerElement.current, title);
+      const allowed = next && !repeated;
+      setHintOpen(allowed);
+      onOpenChange?.(allowed);
+    },
+    [description, shortcut, title, open, onOpenChange],
   );
   const trigger = isTriggerElement ? (
     cloneElement(children, {
@@ -113,10 +174,7 @@ export function ControlHintTooltip({
       ref: composedTriggerRef,
     })
   ) : (
-    <span
-      ref={triggerRef as Ref<HTMLSpanElement>}
-      className={cn("inline-flex shrink-0", triggerClassName)}
-    >
+    <span ref={composedTriggerRef} className={cn("inline-flex shrink-0", triggerClassName)}>
       {children}
     </span>
   );
@@ -125,8 +183,8 @@ export function ControlHintTooltip({
   // 会把 Radix 上下文树放大到消息数量级；共享 Provider 统一放在 Root。
   const tooltip = (
     <Tooltip
-      open={open}
-      onOpenChange={onOpenChange}
+      open={open ?? hintOpen}
+      onOpenChange={handleOpenChange}
       // SRC-051: with instant-open tooltips, hoverable content let pointer jitter
       // between the trigger and the popped card close/reopen it in a loop (the
       // flicker); a hint is read where it appears, not hovered onto.
