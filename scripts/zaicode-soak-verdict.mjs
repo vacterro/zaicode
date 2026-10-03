@@ -106,9 +106,28 @@ export function buildVerdict(timeline, config) {
   // from the middle of an 11.2-hour run read PASS exactly like the full 2341-sample
   // verdict, because durationSeconds was reported and never compared with anything: the
   // artifact could not tell a run that covered the horizon from one that covered minutes.
+  // Coverage is the span the HARNESS walked, not the span its last successful probe
+  // measured. A round stamps elapsedSeconds before it probes, and a round whose probe
+  // failed still wrote that stamp -- it simply has no fps, so the fps filter drops it.
+  // Reading `last.elapsedSeconds` therefore took the coverage of the round BEFORE the
+  // one that died, and a run that ended on a failed probe reported less window than it
+  // covered: a real span silently read short against the horizon gate. The churn tally
+  // below already reads the unfiltered timeline for exactly this reason.
   const requestedSeconds = Number(config.soakHours ?? 0) * 3600;
-  const coveredSeconds = last?.elapsedSeconds ?? 0;
-  const windowShort = requestedSeconds > 0 && coveredSeconds < requestedSeconds * 0.9;
+  const coveredSeconds = Number(timeline.at(-1)?.elapsedSeconds) || 0;
+  // Coverage slack is ONE sample interval, not a percentage of the horizon. A round's
+  // clock starts when the round starts, then the probe runs and the harness waits for
+  // the next round, so a run cut off at its deadline is legitimately one interval short;
+  // that is the whole of what is forgiven. The rule used to forgive 10% instead, which
+  // on a 12-hour horizon excused 72 missing minutes and made the artifact unable to
+  // tell a stalled run from a completed one. A cadence at least as long as the horizon
+  // forgives nothing, or the slack would swallow the run it was meant to measure.
+  const sampleSeconds = typeof config.sampleSeconds === "number" &&
+    Number.isFinite(config.sampleSeconds) && config.sampleSeconds > 0
+    ? config.sampleSeconds : 15;
+  const coverageToleranceSeconds = requestedSeconds > sampleSeconds ? sampleSeconds : 0;
+  const windowShort = requestedSeconds > 0 &&
+    coveredSeconds < requestedSeconds - coverageToleranceSeconds;
   const verdict =
     samples.length === 0
       ? "FAIL_NO_SAMPLES"
@@ -130,7 +149,9 @@ export function buildVerdict(timeline, config) {
     samples: samples.length,
     medianNodes,
     durationSeconds: coveredSeconds,
+    coveredSeconds,
     requestedSeconds: requestedSeconds || null,
+    coverageToleranceSeconds,
     fps: {
       first: first?.fps ?? null,
       midpoint: midpoint?.fps ?? null,

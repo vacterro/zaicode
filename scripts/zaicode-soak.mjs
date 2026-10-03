@@ -272,6 +272,7 @@ async function main() {
       samples: timeline.length,
       churnMinutes: CHURN_MINUTES,
       soakHours: SOAK_HOURS,
+      sampleSeconds: SAMPLE_SECONDS,
     };
     const verdict = buildVerdict(timeline, config);
     await mkdir(OUT_DIR, { recursive: true });
@@ -398,6 +399,7 @@ async function main() {
   const verdict = buildVerdict(timeline, {
     churnMinutes: CHURN_MINUTES,
     soakHours: SOAK_HOURS,
+    sampleSeconds: SAMPLE_SECONDS,
     // A run that clicked nothing must not read as a run that churned: the degradation
     // claims in SRC-116 are about a loaded surface under repeated use.
     churnActions,
@@ -447,6 +449,9 @@ function renderReport(verdict, outDir) {  return [
     `# ZAICODE soak verdict — ${verdict.verdict}`,
     "",
     `- window: ${verdict.durationSeconds}s, ${verdict.samples} samples, median DOM nodes ${verdict.medianNodes}`,
+    // `--soak-hours` defaults to 0, so `requestedSeconds` is null for any run that did not
+    // ask for a horizon. Rendering that null wrote the literal "of nulls requested".
+    `- coverage: ${verdict.coveredSeconds}s of ${verdict.requestedSeconds ?? 0}s requested, tolerance ${verdict.coverageToleranceSeconds}s`,
     `- FPS: ${verdict.fps.first} -> ${verdict.fps.midpoint} -> ${verdict.fps.last} (worst ${verdict.fps.worst}, slope ${verdict.fps.slopePerMinute}/min)`,
     `- renderer heap: ${verdict.heapUsedMb.first} MB -> ${verdict.heapUsedMb.last} MB (${verdict.heapUsedMb.growthMbPerMinute} MB/min)`,
     `- process RSS: ${verdict.rssMb.first} MB -> ${verdict.rssMb.last} MB (${verdict.rssMb.growthMbPerMinute} MB/min)`,

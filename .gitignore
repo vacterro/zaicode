@@ -67,6 +67,10 @@ __pycache__/
 # 开发运行器的 Electron 下载缓存。
 packages/desktop/.e2e-artifacts/
 packages/desktop/.e2e-cache/
+# T-179: 桌面端 e2e 缓存也会写在仓库根。该副本是一个一次性浏览器 profile，
+# 里面是生成的 CA 私钥与 trust token。本仓库是 public，保持 untracked 但未 ignore
+# 等于离 `git add .` 发布密钥材料只差一步。
+.e2e-cache/
 packages/desktop/.e2e-network-capture/
 .zcode-runtime/
 acceptance-result.txt

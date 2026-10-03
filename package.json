@@ -20,7 +20,7 @@
     "prepare:desktop-runtime": "pnpm --filter @zcode/desktop prepare:runtime-assets",
     "dep:graph": "node scripts/dependency-graph.mjs",
     "dep:refs": "node scripts/dep-refs.mjs",
-    "test": "pnpm --filter @zcode/ui exec node --import tsx --test \"test/*.test.ts\" && pnpm --filter @zcode/services exec node --import tsx --test \"test/*.test.ts\" && pnpm --filter @zcode/desktop exec node --import tsx --test \"test/*.test.ts\" && pnpm --dir apps/zcode-cli/packages/core exec node --import tsx --test \"test/*.test.ts\" && pnpm --dir apps/zcode-cli/packages/adapters exec node --import tsx --test \"test/*.test.ts\" && pnpm --dir apps/zcode-cli/packages/bootstrap exec node --import tsx --test \"test/*.test.ts\"",
+    "test": "node --test \"scripts/*.test.mjs\" && pnpm --filter @zcode/ui exec node --import tsx --test \"test/*.test.ts\" && pnpm --filter @zcode/services exec node --import tsx --test \"test/*.test.ts\" && pnpm --filter @zcode/desktop exec node --import tsx --test \"test/*.test.ts\" && pnpm --dir apps/zcode-cli/packages/core exec node --import tsx --test \"test/*.test.ts\" && pnpm --dir apps/zcode-cli/packages/adapters exec node --import tsx --test \"test/*.test.ts\" && pnpm --dir apps/zcode-cli/packages/bootstrap exec node --import tsx --test \"test/*.test.ts\"",
     "verify:pre-push": "pnpm run lint && pnpm run architecture:check -- --changed && pnpm run test",
     "build": "pnpm -r build",
     "build:desktop-agent:bytecode": "node scripts/build-desktop-agent-bytecode.mjs",
