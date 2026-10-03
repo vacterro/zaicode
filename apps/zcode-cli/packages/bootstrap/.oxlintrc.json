@@ -1,0 +1,307 @@
+{
+  "extends": [
+    "../../.oxlintrc.json"
+  ],
+  "overrides": [
+    {
+      "files": [
+        "src/app/bundled-plugins.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 601,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/app/create-app.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 1148,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/app/session-facade.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 654,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/app/types.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 591,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/app/workspace-hook-review-controller.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 503,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/plugins.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 1280,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/zcode-protocol-v4/cold-event-merge.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 797,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/zcode-protocol-v4/command-inbox.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 432,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/zcode-protocol-v4/commands/handlers/goal-compact.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 408,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/zcode-protocol-v4/conversation-telemetry-facts.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 692,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/zcode-protocol-v4/conversation-topic-publisher.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 863,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/zcode-protocol-v4/product-projection.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 4713,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/zcode-protocol-v4/transcript-hydration.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 1669,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/zcode-protocol-v4/v4-gateway.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 2767,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/zcode-protocol/interaction-broker.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 584,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/zcode-protocol/plugins.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 557,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/zcode-protocol/server.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 827,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/zcode-protocol/session-mapper.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 1368,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/zcode-protocol/subagent-session-query.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 456,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/zcode-protocol/v4-bridge.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 1704,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    }
+  ]
+}

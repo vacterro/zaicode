@@ -1,0 +1,382 @@
+{
+  "extends": [
+    "../../.oxlintrc.json"
+  ],
+  "overrides": [
+    {
+      "files": [
+        "src/browser/index.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 414,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/config/file-config.adapter.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 509,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/config/index.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 439,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/fs/index.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 1644,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/mcp/index.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 1642,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/mcp/oauth-interactive.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 410,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/mcp/official-auth.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 408,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/mcp/pool.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 428,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/model/failure-classifier.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 562,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/model/runner-debug.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 776,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/model/runner-diagnostics.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 427,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/model/runner-generate.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 605,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/model/runner-stream.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 1518,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/model/transform.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 440,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/plugins/index.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 878,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/plugins/marketplace.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 2480,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/plugins/mcp.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 402,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/plugins/zip-source.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 458,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/skills/index.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 424,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/storage/index.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 435,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/storage/session-store/migrations.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 821,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/storage/session-store/repositories/usage.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 704,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/storage/session-store/sqlite-session-store.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 914,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/storage/session-target.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 422,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/storage/workspace-hook-trust-store.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 472,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    }
+  ]
+}

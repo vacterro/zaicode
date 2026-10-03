@@ -1,0 +1,37 @@
+{
+  "extends": [
+    "../../.oxlintrc.json"
+  ],
+  "overrides": [
+    {
+      "files": [
+        "server/analyzer.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 1368,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/App.tsx"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 1483,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "extends": [
+    "../../.oxlintrc.json"
+  ],
+  "ignorePatterns": ["packages/browser-use-plugin/skills"]
+}

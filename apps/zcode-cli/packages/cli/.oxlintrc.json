@@ -1,0 +1,37 @@
+{
+  "extends": [
+    "../../.oxlintrc.json"
+  ],
+  "overrides": [
+    {
+      "files": [
+        "src/prompt-command.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 540,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/run.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 514,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    }
+  ]
+}

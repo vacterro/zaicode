@@ -1,0 +1,437 @@
+[
+  {
+    "path": "apps/zcode-cli/packages/adapters/src/browser/index.ts",
+    "max": 414,
+    "blob": "e7699de069438e1acb0c13768cd9639f2ec118a7"
+  },
+  {
+    "path": "apps/zcode-cli/packages/adapters/src/config/file-config.adapter.ts",
+    "max": 509,
+    "blob": "c2fc2cfeed726c9889de2c338213e5082c2a6932"
+  },
+  {
+    "path": "apps/zcode-cli/packages/adapters/src/config/index.ts",
+    "max": 439,
+    "blob": "343b8bce8b04240806ebe2deb5ef8daeb69870c8"
+  },
+  {
+    "path": "apps/zcode-cli/packages/adapters/src/fs/index.ts",
+    "max": 1644,
+    "blob": "9c7d7aa6c5748cabcde37c065bfdcbe4dcb91f5b"
+  },
+  {
+    "path": "apps/zcode-cli/packages/adapters/src/mcp/index.ts",
+    "max": 1642,
+    "blob": "49ff5f9612fc9991a52c00917c19fdd69d64a9c7"
+  },
+  {
+    "path": "apps/zcode-cli/packages/adapters/src/mcp/oauth-interactive.ts",
+    "max": 410,
+    "blob": "a909278e78652405f21c5281f3e00076ca031bc2"
+  },
+  {
+    "path": "apps/zcode-cli/packages/adapters/src/mcp/official-auth.ts",
+    "max": 408,
+    "blob": "c33888e4128fb6867bff7e634cc0ca9c5e68860a"
+  },
+  {
+    "path": "apps/zcode-cli/packages/adapters/src/mcp/pool.ts",
+    "max": 428,
+    "blob": "161739991888a5835f10a7aeecdbf5178fd57dcd"
+  },
+  {
+    "path": "apps/zcode-cli/packages/adapters/src/model/failure-classifier.ts",
+    "max": 562,
+    "blob": "6e670105cc99dbcdf83cde8bd075f14866265d5f"
+  },
+  {
+    "path": "apps/zcode-cli/packages/adapters/src/model/runner-debug.ts",
+    "max": 776,
+    "blob": "00ba813a3d26d2ab90c417d66e242567d39e1b54"
+  },
+  {
+    "path": "apps/zcode-cli/packages/adapters/src/model/runner-diagnostics.ts",
+    "max": 427,
+    "blob": "61270c0a2628cb8b4e6d37369e8861d859fb95ff"
+  },
+  {
+    "path": "apps/zcode-cli/packages/adapters/src/model/runner-generate.ts",
+    "max": 605,
+    "blob": "d6391fab2dc8209bdd41fa20cb7e75be11dbe7b8"
+  },
+  {
+    "path": "apps/zcode-cli/packages/adapters/src/model/runner-stream.ts",
+    "max": 1518,
+    "blob": "7516fe0948672cd97aeefde243e7cd716b7f26e9"
+  },
+  {
+    "path": "apps/zcode-cli/packages/adapters/src/model/transform.ts",
+    "max": 440,
+    "blob": "18c6afef2bbff5e0e81926d5001fda3eedabcea1"
+  },
+  {
+    "path": "apps/zcode-cli/packages/adapters/src/plugins/index.ts",
+    "max": 878,
+    "blob": "8d86c288b4fe44090f75b71f438542e0489d734c"
+  },
+  {
+    "path": "apps/zcode-cli/packages/adapters/src/plugins/marketplace.ts",
+    "max": 2480,
+    "blob": "e3f701cd01c12df20ea3a5eec15fbda80a56b5b0"
+  },
+  {
+    "path": "apps/zcode-cli/packages/adapters/src/plugins/mcp.ts",
+    "max": 402,
+    "blob": "61b43782ae6626980a2fb7d0761fcbf4bb8c645b"
+  },
+  {
+    "path": "apps/zcode-cli/packages/adapters/src/plugins/zip-source.ts",
+    "max": 458,
+    "blob": "85548e54a0ae11516350188bd51566583250552f"
+  },
+  {
+    "path": "apps/zcode-cli/packages/adapters/src/skills/index.ts",
+    "max": 424,
+    "blob": "e1815a2ee4e098efce3276f93ee73cf352a1574b"
+  },
+  {
+    "path": "apps/zcode-cli/packages/adapters/src/storage/index.ts",
+    "max": 435,
+    "blob": "58b2e7b0fe2d70bc248b5ddb6ea7b6a3a2d5db13"
+  },
+  {
+    "path": "apps/zcode-cli/packages/adapters/src/storage/session-store/migrations.ts",
+    "max": 821,
+    "blob": "a6ccefc5fc438f0824ae2790f4b285dc4f86a6ee"
+  },
+  {
+    "path": "apps/zcode-cli/packages/adapters/src/storage/session-store/repositories/usage.ts",
+    "max": 704,
+    "blob": "8dbc3a280659bb49fb793f5ba2535649bddeaea2"
+  },
+  {
+    "path": "apps/zcode-cli/packages/adapters/src/storage/session-store/sqlite-session-store.ts",
+    "max": 914,
+    "blob": "1f413ad3e7c316efc4a429a9adf5a9aa0e7e1918"
+  },
+  {
+    "path": "apps/zcode-cli/packages/adapters/src/storage/session-target.ts",
+    "max": 422,
+    "blob": "f39234b0fcfd7d0eafd0d752648d57d3f857f19c"
+  },
+  {
+    "path": "apps/zcode-cli/packages/adapters/src/storage/workspace-hook-trust-store.ts",
+    "max": 472,
+    "blob": "685a55c77a72b4bd94e169e76acd21781dec388b"
+  },
+  {
+    "path": "apps/zcode-cli/packages/bootstrap/src/app/bundled-plugins.ts",
+    "max": 601,
+    "blob": "08335c99d21f9564e5523657664c19745b6b55bb"
+  },
+  {
+    "path": "apps/zcode-cli/packages/bootstrap/src/app/create-app.ts",
+    "max": 1148,
+    "blob": "596df226216c162ae15c6a05c61cac98f2f32a1d"
+  },
+  {
+    "path": "apps/zcode-cli/packages/bootstrap/src/app/session-facade.ts",
+    "max": 654,
+    "blob": "3a3b18795c635e62c89fd6e1e2ead3867d28fb5b"
+  },
+  {
+    "path": "apps/zcode-cli/packages/bootstrap/src/app/types.ts",
+    "max": 591,
+    "blob": "55b1f4170e28cd8b07ceffdbb8a49b692c650e06"
+  },
+  {
+    "path": "apps/zcode-cli/packages/bootstrap/src/app/workspace-hook-review-controller.ts",
+    "max": 503,
+    "blob": "0e95e7347bac1d26e20baf0a7bb0625e677089f3"
+  },
+  {
+    "path": "apps/zcode-cli/packages/bootstrap/src/plugins.ts",
+    "max": 1280,
+    "blob": "8fcd68d4211ce25e06b79b0985ac8c0bf4178066"
+  },
+  {
+    "path": "apps/zcode-cli/packages/bootstrap/src/zcode-protocol-v4/cold-event-merge.ts",
+    "max": 797,
+    "blob": "ea69f54f15ff33b499dbd8fce9af89e93a17c9c3"
+  },
+  {
+    "path": "apps/zcode-cli/packages/bootstrap/src/zcode-protocol-v4/command-inbox.ts",
+    "max": 432,
+    "blob": "13b42ad9721e9e3e720ec869a7aee5478cb8e409"
+  },
+  {
+    "path": "apps/zcode-cli/packages/bootstrap/src/zcode-protocol-v4/commands/handlers/goal-compact.ts",
+    "max": 408,
+    "blob": "6c05db5db68a1372150f822f8e4b0c1dbd2f2dd0"
+  },
+  {
+    "path": "apps/zcode-cli/packages/bootstrap/src/zcode-protocol-v4/conversation-telemetry-facts.ts",
+    "max": 692,
+    "blob": "a208dfe2a8a904870662688de2f049d80a092088"
+  },
+  {
+    "path": "apps/zcode-cli/packages/bootstrap/src/zcode-protocol-v4/conversation-topic-publisher.ts",
+    "max": 863,
+    "blob": "4f12e7cb34cc215eeb54d1a0a4faf05903dacc5c"
+  },
+  {
+    "path": "apps/zcode-cli/packages/bootstrap/src/zcode-protocol-v4/product-projection.ts",
+    "max": 4713,
+    "blob": "a6d4e734da23cabf11c08dd1403df9fed5a9b642"
+  },
+  {
+    "path": "apps/zcode-cli/packages/bootstrap/src/zcode-protocol-v4/transcript-hydration.ts",
+    "max": 1669,
+    "blob": "5c70c73a4021c6ef5b7ed9fdf08d5e16f8ddf36c"
+  },
+  {
+    "path": "apps/zcode-cli/packages/bootstrap/src/zcode-protocol-v4/v4-gateway.ts",
+    "max": 2767,
+    "blob": "43ea6c7ca5a8cd512aefb97d5792d8e45968b80c"
+  },
+  {
+    "path": "apps/zcode-cli/packages/bootstrap/src/zcode-protocol/interaction-broker.ts",
+    "max": 584,
+    "blob": "d7e8907c4ddf55ae32e8026a9224f881054ceca6"
+  },
+  {
+    "path": "apps/zcode-cli/packages/bootstrap/src/zcode-protocol/plugins.ts",
+    "max": 557,
+    "blob": "24648a74b7cf10144ed5f0849ba10ff22da76473"
+  },
+  {
+    "path": "apps/zcode-cli/packages/bootstrap/src/zcode-protocol/server.ts",
+    "max": 827,
+    "blob": "5dee835694ffa52928d231c9c2b956e7d156bcb2"
+  },
+  {
+    "path": "apps/zcode-cli/packages/bootstrap/src/zcode-protocol/session-mapper.ts",
+    "max": 1368,
+    "blob": "008547261dfdba7c3e40eaf3c11fd5191c35b804"
+  },
+  {
+    "path": "apps/zcode-cli/packages/bootstrap/src/zcode-protocol/subagent-session-query.ts",
+    "max": 456,
+    "blob": "9ffeee18f0db63dcc252d0a5412e5917b34bb714"
+  },
+  {
+    "path": "apps/zcode-cli/packages/bootstrap/src/zcode-protocol/v4-bridge.ts",
+    "max": 1704,
+    "blob": "08767fa4a5d5ded6f1eebea21ebd89ffa6fd6c94"
+  },
+  {
+    "path": "apps/zcode-cli/packages/cli/src/prompt-command.ts",
+    "max": 540,
+    "blob": "62d0ff3b97b8da7c810cebc37e2643abca8baa86"
+  },
+  {
+    "path": "apps/zcode-cli/packages/cli/src/run.ts",
+    "max": 514,
+    "blob": "39e1baf445f8e4edb05ce6103bcd2367e34fbc4b"
+  },
+  {
+    "path": "apps/zcode-cli/packages/contracts/src/events/event-reducer.ts",
+    "max": 517,
+    "blob": "f252b55d91d4b88bad19e43ee0a70fc2298f210e"
+  },
+  {
+    "path": "apps/zcode-cli/packages/contracts/src/interfaces/browser-control.port.ts",
+    "max": 480,
+    "blob": "f0837f96ba3170620e202af6595eb420d75a3572"
+  },
+  {
+    "path": "apps/zcode-cli/packages/contracts/src/interfaces/dynamic-workflow-run.port.ts",
+    "max": 408,
+    "blob": "90fcf5ee76502b0b657ae84e0c9a8858e09d4d2c"
+  },
+  {
+    "path": "apps/zcode-cli/packages/contracts/src/interfaces/session-store.port.ts",
+    "max": 1077,
+    "blob": "40155f30e74cb4527f17205ea46739f9b89f48ba"
+  },
+  {
+    "path": "apps/zcode-cli/packages/contracts/src/model/index.ts",
+    "max": 874,
+    "blob": "58a71923fefc6447da6d56521749c88dbc203362"
+  },
+  {
+    "path": "apps/zcode-cli/packages/contracts/src/workflow/index.ts",
+    "max": 768,
+    "blob": "19014a9700639cd4ad75ecbc62be2dd294fca781"
+  },
+  {
+    "path": "apps/zcode-cli/packages/core/src/agent/message-history.ts",
+    "max": 426,
+    "blob": "3f270cfe978467eff893aeef896b49160da1cef6"
+  },
+  {
+    "path": "apps/zcode-cli/packages/core/src/agent/session-history-hydrator.ts",
+    "max": 510,
+    "blob": "220dc62d0edbb48490ef41fd1c4bccdbc657d850"
+  },
+  {
+    "path": "apps/zcode-cli/packages/core/src/hooks/runner.ts",
+    "max": 424,
+    "blob": "ad4a03c027665c957bd714c8e32c05ae36ea4848"
+  },
+  {
+    "path": "apps/zcode-cli/packages/core/src/mcp/index.ts",
+    "max": 408,
+    "blob": "01ce6820957bfbf50fd576ce544c380c9a454fe3"
+  },
+  {
+    "path": "apps/zcode-cli/packages/core/src/permission/service.ts",
+    "max": 590,
+    "blob": "effc156443a35106a09005960a590939adebabe1"
+  },
+  {
+    "path": "apps/zcode-cli/packages/core/src/runtime/agent-runtime.ts",
+    "max": 575,
+    "blob": "1b0e6f35fa36451864251ba6b86c8a22f4ccd593"
+  },
+  {
+    "path": "apps/zcode-cli/packages/core/src/runtime/helpers/attachment-media-resolver.ts",
+    "max": 496,
+    "blob": "1ef8fd61dda5bc37cfb0c562e08397bf1e9a7209"
+  },
+  {
+    "path": "apps/zcode-cli/packages/core/src/runtime/internal-turn-methods.ts",
+    "max": 446,
+    "blob": "075c8552f33c7bb4bb4e37744e2cc131dfcd0165"
+  },
+  {
+    "path": "apps/zcode-cli/packages/core/src/runtime/methods/background.ts",
+    "max": 442,
+    "blob": "87d49abe817db2629b47bdb3e8abb39b960d566e"
+  },
+  {
+    "path": "apps/zcode-cli/packages/core/src/runtime/methods/compact-active.ts",
+    "max": 679,
+    "blob": "7b3c707d580919ef233c67a99c3fa6dbe75cea0a"
+  },
+  {
+    "path": "apps/zcode-cli/packages/core/src/runtime/methods/compact-persistence.ts",
+    "max": 466,
+    "blob": "9ec08dae0f643fd11956bba9f7eb52e967a4ba09"
+  },
+  {
+    "path": "apps/zcode-cli/packages/core/src/runtime/methods/compact.ts",
+    "max": 434,
+    "blob": "cfafb335b27f542455b9bb314fb39633b058a397"
+  },
+  {
+    "path": "apps/zcode-cli/packages/core/src/runtime/methods/events.ts",
+    "max": 590,
+    "blob": "ab8752af1cc90442352a537af55533edac6578df"
+  },
+  {
+    "path": "apps/zcode-cli/packages/core/src/runtime/methods/file-rewind.ts",
+    "max": 657,
+    "blob": "db664fb0e9ffd2b3821635bd23f0e639ef534311"
+  },
+  {
+    "path": "apps/zcode-cli/packages/core/src/runtime/methods/model.ts",
+    "max": 473,
+    "blob": "fc8721ea1b135731d56ade75bb10f51bbb35be67"
+  },
+  {
+    "path": "apps/zcode-cli/packages/core/src/runtime/methods/resume.ts",
+    "max": 412,
+    "blob": "515d26e0cb98561855301c6616bb5ad6881827f0"
+  },
+  {
+    "path": "apps/zcode-cli/packages/core/src/runtime/methods/runtime-command-queue.ts",
+    "max": 442,
+    "blob": "32c138dcee14fd7180bee3e8530f337721796042"
+  },
+  {
+    "path": "apps/zcode-cli/packages/core/src/runtime/methods/session-fork.ts",
+    "max": 1386,
+    "blob": "525d24afed33d889f7edd4f520739c90375736d8"
+  },
+  {
+    "path": "apps/zcode-cli/packages/core/src/runtime/methods/steering.ts",
+    "max": 1262,
+    "blob": "ec191268c847921b0a362ef90a819f05ac4ba7fa"
+  },
+  {
+    "path": "apps/zcode-cli/packages/core/src/runtime/methods/target-completion-verification.ts",
+    "max": 415,
+    "blob": "70109cc20b8cc926aab938819f3b086353cd4dd3"
+  },
+  {
+    "path": "apps/zcode-cli/packages/core/src/runtime/methods/turn-model-step.ts",
+    "max": 751,
+    "blob": "37c53c25c47a8d04a07eba1406d386ecc20e5a76"
+  },
+  {
+    "path": "apps/zcode-cli/packages/core/src/runtime/methods/turn-tools.ts",
+    "max": 501,
+    "blob": "a73ed30aae051e525811d4749149f6473bd0888c"
+  },
+  {
+    "path": "apps/zcode-cli/packages/core/src/runtime/methods/turn.ts",
+    "max": 808,
+    "blob": "351cf9b5a229e0d6929cb90d7e9c370d61171722"
+  },
+  {
+    "path": "apps/zcode-cli/packages/core/src/runtime/methods/usage-observability.ts",
+    "max": 404,
+    "blob": "ccecd001c0c5d511cf1aab05a4f1ae946b8d1c6a"
+  },
+  {
+    "path": "apps/zcode-cli/packages/core/src/tool/executor/background-tasks.ts",
+    "max": 950,
+    "blob": "3fb41377739a96eb9c3a503a72162941042c7511"
+  },
+  {
+    "path": "apps/zcode-cli/packages/core/src/tool/executor/call-runner.ts",
+    "max": 634,
+    "blob": "445867f2e9d550c0f5af1ac5ed5b2d7beed3560a"
+  },
+  {
+    "path": "apps/zcode-cli/packages/core/src/tool/handlers/bash.ts",
+    "max": 528,
+    "blob": "831593260a63ab51cd7fdbfa63d8b8f211157182"
+  },
+  {
+    "path": "apps/zcode-cli/packages/core/src/tool/handlers/read-session-context.ts",
+    "max": 412,
+    "blob": "98c0dbbd7814e048fe84bfca07476b66c3b289a8"
+  },
+  {
+    "path": "apps/zcode-cli/packages/core/src/tool/handlers/read.ts",
+    "max": 467,
+    "blob": "397c1d6fdb8bbf1119fb1debfdafd8d514b1c265"
+  },
+  {
+    "path": "apps/zcode-cli/packages/core/src/workflow/lifecycle.ts",
+    "max": 540,
+    "blob": "f326ae846e76871abddb618ed6904a08ae6f3990"
+  },
+  {
+    "path": "apps/zcode-cli/packages/debug/server/analyzer.ts",
+    "max": 1368,
+    "blob": "6b98445f89fb6b0895d4945ff8d627a8c811bf31"
+  },
+  {
+    "path": "apps/zcode-cli/packages/debug/src/App.tsx",
+    "max": 1483,
+    "blob": "b00d9b065e7228201053ca69dcd4bb8eb49ef8bf"
+  },
+  {
+    "path": "apps/zcode-cli/packages/telemetry/src/agent-trace-runtime.ts",
+    "max": 1526,
+    "blob": "ad852dfd1a12df5464fd045ade5544a4ccb9dc22"
+  },
+  {
+    "path": "apps/zcode-cli/packages/telemetry/src/model-api-recorder.ts",
+    "max": 410,
+    "blob": "a7a3618a3f8b5ac97ac3bd3dd95353cef97b1a30"
+  }
+]
