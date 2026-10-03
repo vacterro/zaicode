@@ -98,6 +98,7 @@ export function TerminalSession({
   persistentKey,
   workspaceKey,
   initialInput,
+  externalizable = false,
   fontFamilyOverride,
   fontSizeOverride,
 }: {
@@ -129,6 +130,7 @@ export function TerminalSession({
    * prints its first prompt (persistentKey path only; a remount never repeats it).
    */
   initialInput?: string;
+  externalizable?: boolean;
   /** ZAICODE workers: their own font (Terminus by default) instead of the terminal profile font. */
   fontFamilyOverride?: string;
   fontSizeOverride?: number;
@@ -385,7 +387,8 @@ export function TerminalSession({
         termRef.current = existingEntry.term;
         fitAddonRef.current = existingEntry.fitAddon;
         // A font chosen while this terminal was detached applies on re-attach.
-        if (fontOverrideRef.current.family) existingEntry.term.options.fontFamily = fontOverrideRef.current.family;
+        if (fontOverrideRef.current.family)
+          existingEntry.term.options.fontFamily = fontOverrideRef.current.family;
         const overrideSize = normalizeTerminalFontSize(fontOverrideRef.current.size);
         if (overrideSize) existingEntry.term.options.fontSize = overrideSize;
         terminalIdRef.current = existingEntry.terminalId || undefined;
@@ -592,8 +595,18 @@ export function TerminalSession({
       // 创建 PTY（异步）
       const initialCreateSize = initialTerminalSize ?? { cols: term.cols, rows: term.rows };
       void services.terminalService
-        .create({ cols: initialCreateSize.cols, rows: initialCreateSize.rows, cwd })
-        .then(({ id, shell, fontFamily, fontSize, theme, fontFamilySource, windowsPty }) => {
+        .create({ cols: initialCreateSize.cols, rows: initialCreateSize.rows, cwd, externalizable })
+        .then((created) => {
+          const {
+            id,
+            shell,
+            fontFamily,
+            fontSize,
+            theme,
+            fontFamilySource,
+            windowsPty,
+            canExtractToPowerShell,
+          } = created;
           if (ptyCancelled) {
             // cleanup 已发生：杀掉这个孤儿 PTY，不进 entry
             void services.terminalService.dispose({ id });
@@ -640,8 +653,10 @@ export function TerminalSession({
             }),
           );
           // ZAICODE：worker 控制入口（自动回答信任提问、重绘），随 entry 注销。
-          const unregisterControl = registerTerminalControl(persistentKey, {
-            write: (input) => void services.terminalService.write({ id, data: input }),
+          let initialInputSent = !initialInput;
+          let initialInputAcknowledged = !initialInput;
+          const control = {
+            write: (input: string) => void services.terminalService.write({ id, data: input }),
             redraw: () => {
               // 部分 TUI（如 Claude Code 的侧栏布局）在 reflow 后残留旧帧；改一列再改回，逼它整屏重绘。
               const cols = term.cols;
@@ -653,17 +668,47 @@ export function TerminalSession({
                 .then(() => services.terminalService.resize({ id, cols, rows }))
                 .catch((error: unknown) => logger.warn("[Terminal] redraw failed:", error));
             },
-          });
-          registryDisposers.push({ dispose: unregisterControl } as IDisposable);
+          };
+          const publishControl = () =>
+            registerTerminalControl(persistentKey, {
+              ...control,
+              ...(canExtractToPowerShell &&
+              initialInputAcknowledged &&
+              services.terminalService.extractToPowerShell
+                ? {
+                    extractToPowerShell: async () => {
+                      // 移动/隐藏仅卸载组件，PTY 仍属 registry；组件的取消标志不能否定活着的 worker。
+                      if (
+                        sidePaneTerminalSessionRegistry.get(persistentKey) !== entry ||
+                        entry.terminalId !== id
+                      )
+                        throw new Error("Worker terminal is no longer current");
+                      return services.terminalService.extractToPowerShell!({ id });
+                    },
+                  }
+                : {}),
+            });
+          let unregisterControl = publishControl();
+          registryDisposers.push({ dispose: () => unregisterControl() } as IDisposable);
           if (initialInput) {
             // Typed once the shell has drawn its prompt; the fallback covers a silent shell.
-            let initialInputSent = false;
             const sendInitialInput = () => {
               // The worker may move between containers (remount) before its first
               // prompt: the PTY lives as long as its registry entry, not this effect.
-              if (initialInputSent || sidePaneTerminalSessionRegistry.get(persistentKey) !== entry) return;
+              if (initialInputSent || sidePaneTerminalSessionRegistry.get(persistentKey) !== entry)
+                return;
               initialInputSent = true;
-              void services.terminalService.write({ id, data: `${initialInput}\r` });
+              void services.terminalService
+                .write({ id, data: `${initialInput}\r` })
+                .then(() => {
+                  if (sidePaneTerminalSessionRegistry.get(persistentKey) !== entry) return;
+                  initialInputAcknowledged = true;
+                  unregisterControl();
+                  unregisterControl = publishControl();
+                })
+                .catch((error: unknown) =>
+                  logger.warn("[Terminal] worker start input failed:", error),
+                );
             };
             const firstOutput = services.terminalService.onDynamicData(id)(() => {
               firstOutput.dispose();

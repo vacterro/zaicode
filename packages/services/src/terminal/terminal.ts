@@ -9,7 +9,7 @@ export interface TerminalWindowsPtyInfo {
 }
 
 export interface ITerminalService {
-  create(params: { cols: number; rows: number; cwd?: string }): Promise<{
+  create(params: { cols: number; rows: number; cwd?: string; externalizable?: boolean }): Promise<{
     id: string;
     shell: string;
     fontFamily: string;
@@ -17,7 +17,9 @@ export interface ITerminalService {
     theme?: TerminalThemeProfile;
     fontFamilySource: TerminalFontFamilySource;
     windowsPty?: TerminalWindowsPtyInfo;
+    canExtractToPowerShell?: boolean;
   }>;
+  extractToPowerShell?(params: { id: string }): Promise<{ pid: number }>;
   write(params: { id: string; data: string }): Promise<void>;
   resize(params: { id: string; cols: number; rows: number }): Promise<void>;
   dispose(params: { id: string }): Promise<void>;

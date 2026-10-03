@@ -14,10 +14,18 @@ export interface TerminalControl {
   write: (data: string) => void;
   /** Makes the program repaint: the PTY is resized by one column and back. */
   redraw: () => void;
+  /** One-way transfer of the existing live PTY; absent until startup is acknowledged. */
+  extractToPowerShell?: () => Promise<{ pid: number }>;
 }
 
 const outputListeners = new Set<TerminalOutputListener>();
 const controls = new Map<string, TerminalControl>();
+const controlListeners = new Set<() => void>();
+
+export function onTerminalControlChange(listener: () => void): () => void {
+  controlListeners.add(listener);
+  return () => controlListeners.delete(listener);
+}
 
 export function onTerminalOutput(listener: TerminalOutputListener): () => void {
   outputListeners.add(listener);
@@ -36,8 +44,12 @@ export function emitTerminalOutput(key: string, data: string): void {
 
 export function registerTerminalControl(key: string, control: TerminalControl): () => void {
   controls.set(key, control);
+  for (const listener of controlListeners) listener();
   return () => {
-    if (controls.get(key) === control) controls.delete(key);
+    if (controls.get(key) === control) {
+      controls.delete(key);
+      for (const listener of controlListeners) listener();
+    }
   };
 }
 

@@ -41,6 +41,8 @@ const receiptPath = option("--receipt") ?? path.join(path.dirname(path.dirname(e
 const tempBase = path.join(process.env.LOCALAPPDATA ?? os.tmpdir(), "Temp");
 fs.mkdirSync(tempBase, { recursive: true });
 const profile = fs.mkdtempSync(path.join(tempBase, "zaicode-boot-"));
+// Windows 凭据库不随 HOME 隔离；启动前禁用测试 profile 的付费窗口启动，避免 smoke 消耗真实账号额度。
+fs.writeFileSync(path.join(profile, "zaicode-engines.json"), JSON.stringify({ keepWindowsRolling: false }));
 const customizationDir = path.join(profile, "customization");
 if (outDir) fs.mkdirSync(outDir, { recursive: true });
 
@@ -114,6 +116,11 @@ async function main() {
     // Kept now: after close() the Playwright handle no longer answers process().
     child = app.process();
     pid = child.pid;
+    const actualUserData = await app.evaluate(({ app }) => app.getPath("userData"));
+    assert.equal(path.resolve(actualUserData), path.resolve(profile), "boot uses its own test profile");
+    const bootEnginesConfig = JSON.parse(fs.readFileSync(path.join(actualUserData, "zaicode-engines.json"), "utf8"));
+    assert.equal(bootEnginesConfig.keepWindowsRolling, false, "the launched boot profile disables automatic vendor window starts");
+    checks.vendorWindowStartsDisabled = true;
     app.on("window", watch);
     for (const window of app.windows()) watch(window);
 

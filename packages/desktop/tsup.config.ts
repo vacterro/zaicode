@@ -208,6 +208,8 @@ export default defineConfig([
     entry: {
       "host/index": "src/host/index.ts",
       "host/tasksStorageWorker": "src/host/tasksStorageWorker.ts",
+      "host/workerTerminalBroker": "../services/src/terminal/workerTerminalBroker.ts",
+      "host/workerTerminalProcess": "../services/src/terminal/workerTerminalProcess.ts",
     },
     outDir: "out",
     format: "esm",

@@ -7,6 +7,10 @@ import type { IPty } from "node-pty";
 import type { ISettingService } from "../setting/setting.js";
 import type { ITerminalService, TerminalWindowsPtyInfo } from "./terminal.js";
 import {
+  createWorkerTerminalProcess,
+  type WorkerTerminalProcess,
+} from "./workerTerminalProcess.js";
+import {
   resolveTerminalFontProfile,
   type TerminalFontFamilySource,
   type TerminalThemeProfile,
@@ -18,7 +22,7 @@ type NodePtyModule = typeof import("node-pty");
 type PtySpawnOptions = Parameters<NodePtyModule["spawn"]>[2];
 
 interface TerminalInstance {
-  pty: IPty;
+  pty: IPty | WorkerTerminalProcess;
   dataEmitter: Emitter<string>;
   exitEmitter: Emitter<number>;
 }
@@ -322,6 +326,7 @@ function resolveTerminalCwd(cwd?: string): string {
 
 export function createTerminalService(dependencies: {
   settingService: ISettingService;
+  workerTerminalFactory?: typeof createWorkerTerminalProcess;
 }): ITerminalService {
   const terminals = new Map<string, TerminalInstance>();
   let nextId = 0;
@@ -350,7 +355,12 @@ export function createTerminalService(dependencies: {
   }
 
   const service: ITerminalService & { disposeAll(): void } = {
-    async create(params: { cols: number; rows: number; cwd?: string }): Promise<{
+    async create(params: {
+      cols: number;
+      rows: number;
+      cwd?: string;
+      externalizable?: boolean;
+    }): Promise<{
       id: string;
       shell: string;
       fontFamily: string;
@@ -358,6 +368,7 @@ export function createTerminalService(dependencies: {
       theme?: TerminalThemeProfile;
       fontFamilySource: TerminalFontFamilySource;
       windowsPty?: TerminalWindowsPtyInfo;
+      canExtractToPowerShell?: boolean;
     }> {
       const id = String(nextId++);
       const shell = resolveTerminalShell();
@@ -371,21 +382,27 @@ export function createTerminalService(dependencies: {
         settings: terminalProfileSettings,
         env: process.env,
       });
-      const nodePty = await loadNodePtyModule();
-      ensureNodePtySpawnHelperExecutable();
       const dataEmitter = new Emitter<string>();
       const exitEmitter = new Emitter<number>();
 
-      let p: IPty;
+      let p: IPty | WorkerTerminalProcess;
       try {
-        p = spawnTerminalProcess({
-          nodePty,
+        const spawnParams = {
           shell,
           cols: params.cols,
           rows: params.rows,
           cwd,
           env,
-        });
+        };
+        if (params.externalizable && process.platform === "win32") {
+          p = await (dependencies.workerTerminalFactory ?? createWorkerTerminalProcess)(
+            spawnParams,
+          );
+        } else {
+          const nodePty = await loadNodePtyModule();
+          ensureNodePtySpawnHelperExecutable();
+          p = spawnTerminalProcess({ ...spawnParams, nodePty });
+        }
       } catch (error) {
         throw new Error(
           `Failed to start terminal with shell '${shell}' in '${cwd}': ${getErrorMessage(error)}`,
@@ -409,7 +426,15 @@ export function createTerminalService(dependencies: {
         theme: fontProfile.theme,
         fontFamilySource: fontProfile.source,
         windowsPty: resolveTerminalWindowsPtyInfo(),
+        canExtractToPowerShell: "extractToPowerShell" in p,
       };
+    },
+
+    async extractToPowerShell(params: { id: string }): Promise<{ pid: number }> {
+      const pty = getTerminal(params.id).pty;
+      if (!("extractToPowerShell" in pty))
+        throw new Error("This terminal cannot move to PowerShell");
+      return pty.extractToPowerShell();
     },
 
     async write(params: { id: string; data: string }): Promise<void> {

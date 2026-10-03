@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState, useSyncExternalStore, type ReactNode } from "react";
 import {
   AppWindow,
   Copy,
@@ -10,6 +10,7 @@ import {
   RotateCcw,
   Scan,
   Settings2,
+  TerminalSquare,
   X,
 } from "lucide-react";
 import type { IServiceAccessor } from "@zcode/services";
@@ -31,12 +32,14 @@ import {
   minimizeZaicodeWorker,
   raiseZaicodeWorker,
   removeZaicodeWorker,
+  readZaicodeWorkers,
   zaicodeWorkerTitle,
   type ZaicodeWorker,
 } from "./zaicodeWorkers.js";
 import { useZaicodeWorkerPrefs, zaicodeWorkerFontFamily } from "./zaicodeWorkerPrefs.js";
 import { zaicodeVendorColor } from "./ZaicodeLimitViews.js";
-import { terminalControl } from "@/terminal/terminalOutputTap.js";
+import { terminalControl, onTerminalControlChange } from "@/terminal/terminalOutputTap.js";
+import { extractZaicodeWorker } from "./zaicodeWorkerExtraction.js";
 
 /** Shared pieces of the WORKERS panel, worker windows, the tray and the sidebar list. */
 
@@ -212,6 +215,24 @@ export function ZaicodeWorkerHeaderButtons({
 
 /** Right-click menu of a worker (tab, pane, window title, chip, sidebar row). */
 export function ZaicodeWorkerMenuItems({ worker }: { worker: ZaicodeWorker }) {
+  const control = useSyncExternalStore(
+    onTerminalControlChange,
+    () => terminalControl(worker.id),
+    () => null,
+  );
+  const [extracting, setExtracting] = useState(false);
+  const moveToPowerShell = () => {
+    setExtracting(true);
+    void extractZaicodeWorker(worker, {
+      read: () => readZaicodeWorkers().workers,
+      remove: removeZaicodeWorker,
+    })
+      .then(() => toast("Worker moved to PowerShell"))
+      .catch((error: unknown) =>
+        toast(error instanceof Error ? error.message : "Could not move worker"),
+      )
+      .finally(() => setExtracting(false));
+  };
   return (
     <>
       <ContextMenuItem onSelect={() => focusZaicodeWorker(worker.id)}>
@@ -244,6 +265,13 @@ export function ZaicodeWorkerMenuItems({ worker }: { worker: ZaicodeWorker }) {
       <ContextMenuItem onSelect={() => runZaicodeWorkerAgain(worker)}>
         <RotateCcw className="size-4" />
         Start the same again (new worker)
+      </ContextMenuItem>
+      <ContextMenuItem
+        disabled={worker.exitCode !== null || !control?.extractToPowerShell || extracting}
+        onSelect={moveToPowerShell}
+      >
+        <TerminalSquare className="size-4" />
+        Move to PowerShell
       </ContextMenuItem>
       <ContextMenuItem
         disabled={!worker.command}
@@ -318,6 +346,7 @@ export function ZaicodeWorkerTerminal({
           isPanelResizing={resizing}
           isWindowsDesktop={isWindows}
           initialInput={worker.command || undefined}
+          externalizable={worker.kind === "worker"}
           onShellLabelChange={() => undefined}
           onExit={(_sessionId, exitCode) => markZaicodeWorkerExited(worker.id, exitCode)}
           onOpenBrowserUrl={(url) => window.open(url, "_blank", "noopener")}
