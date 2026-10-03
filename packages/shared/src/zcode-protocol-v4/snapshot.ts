@@ -360,6 +360,8 @@ export type CommandStateSummary = z.infer<typeof commandStateSummarySchema>;
 
 export const backgroundWorkSummarySchema = z.object({
   workId: z.string(),
+  /** Actual Bash input for activity classification, separate from its description. */
+  command: z.string().max(1600).optional(),
   // workflow = workflow run（CreateWorkflow）。**闭集加值的偏斜代价**：
   // 旧桌面收到未知值时整个 state.updated patch 解析失败（已知键的非法值是错误，不是剥离），
   // 于是整帧被 assembler 拒收，且 resync 的 snapshot 携带同一个值、同样失败——不能优雅降级。

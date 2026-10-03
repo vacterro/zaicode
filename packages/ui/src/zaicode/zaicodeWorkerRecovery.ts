@@ -2,6 +2,9 @@ import { toast } from "@/components/ui/toast.js";
 import { logger } from "@/logger.js";
 import { readZaicodeEnginesState } from "./zaicodeEngines.js";
 import { launchZaicodeWorker, readZaicodeWorkers, subscribeZaicodeWorkers } from "./zaicodeWorkers.js";
+import { readZaicodeAutostartJobs } from "./zaicodeAutostart.js";
+import { useZaicodeStore } from "./zaicodeStore.js";
+import { isZaicodeProjectDisabled } from "./zaicodeProjectSwitch.js";
 
 /**
  * Workers across a crash (SRC-044). A worker's PTY dies with ZAICODE, so the
@@ -17,6 +20,8 @@ const STORAGE_KEY = "zaicode-workers-alive-v1";
 const ACCOUNTS_WAIT_MS = 60_000;
 
 export interface ZaicodeAliveWorker {
+  workerId?: string;
+  scheduled?: boolean;
   accountId: string;
   projectPath: string;
   prompt: string | null;
@@ -41,6 +46,8 @@ export function normalizeZaicodeAliveWorkers(raw: unknown): ZaicodeAliveWorker[]
         prompt: typeof item.prompt === "string" ? item.prompt : null,
         placement: item.placement === "window" ? "window" : "panel",
         generation: Number.isInteger(item.generation) && item.generation > 0 ? item.generation : 1,
+        ...(typeof item.workerId === "string" ? { workerId: item.workerId } : {}),
+        ...(item.scheduled === true ? { scheduled: true } : {}),
       }),
     )
     .slice(0, 16);
@@ -66,6 +73,8 @@ function writeAlive(): void {
       prompt: worker.prompt ?? null,
       placement: worker.placement,
       generation: worker.generation,
+      workerId: worker.id,
+      ...(readZaicodeAutostartJobs().some((job) => job.continuationRuns.some((run) => run.workerId === worker.id)) ? { scheduled: true } : {}),
     }));
   try {
     if (alive.length === 0) localStorage.removeItem(STORAGE_KEY);
@@ -116,6 +125,11 @@ export function relaunchZaicodeWorkersAfterCrash(): void {
     if (!(await waitForAccounts())) return;
     const started: string[] = [];
     for (const entry of list) {
+      if (entry.scheduled) {
+        const job = readZaicodeAutostartJobs().find((value) => value.continuationRuns.some((run) => run.workerId === entry.workerId));
+        const run = job?.continuationRuns.find((value) => value.workerId === entry.workerId);
+        if (!job?.enabled || !job.continuation.enabled || !run || run.state !== "running" || !useZaicodeStore.getState().autoRun || isZaicodeProjectDisabled(run.workspaceKey)) continue;
+      }
       const account = readZaicodeEnginesState().accounts.find((candidate) => candidate.id === entry.accountId);
       if (!account) continue;
       const result = await launchZaicodeWorker({
@@ -124,6 +138,7 @@ export function relaunchZaicodeWorkersAfterCrash(): void {
         ...(entry.prompt ? { prompt: entry.prompt } : {}),
         ...(entry.placement === "window" ? { where: "window" as const } : {}),
         generation: entry.generation + 1,
+        ...(entry.workerId ? { workerId: entry.workerId } : {}),
       });
       if (result.ok) started.push(result.message);
       else logger.warn("[zaicode] worker relaunch after a crash failed", { message: result.message });

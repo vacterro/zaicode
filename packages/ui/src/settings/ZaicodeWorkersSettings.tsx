@@ -164,12 +164,7 @@ function WatchSettings() {
   return (
     <section className="flex flex-col gap-2 border border-border bg-card p-4" data-zaicode-worker-watch-settings>
       <h2 className="text-ui-lg text-foreground">Watching the CLI</h2>
-      <ZaicodePrefCheck
-        checked={prefs.autoTrust}
-        onChange={(autoTrust) => prefs.update({ autoTrust })}
-        label="Answer “Trust this folder?” with yes"
-        hint="Claude Code and Codex ask it once per new folder; a scheduled worker would wait for hours. Only in a worker's first 15 minutes."
-      />
+      <p className="text-ui-base text-foreground-subtle">Known folder and hook trust dialogs are approved automatically while the CLI worker is live.</p>
       <ZaicodePrefSegment
         label="When a worker hits its limit"
         value={prefs.onLimit}

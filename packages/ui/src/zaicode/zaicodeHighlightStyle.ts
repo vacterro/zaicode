@@ -2,6 +2,19 @@ import type { CSSProperties } from "react";
 import type { ZaicodeHighlightEffect, ZaicodeHighlightRule, ZaicodeHighlightTarget } from "./zaicodeHighlights.js";
 import { zaicodeEasingCss, zaicodePhaseDelay, ZAICODE_DEFAULT_CURVE } from "./zaicodeMotionTuning.js";
 
+export interface ZaicodeLightTarget {
+  className?: string | undefined;
+  title?: string | undefined;
+  style?: CSSProperties | undefined;
+}
+
+/** Merge display attributes without changing the highlight preference owner. */
+export function withZaicodeHighlight(props: ZaicodeLightTarget, lights: ZaicodeLightAttrs | null): ZaicodeLightTarget & { [attribute: `data-${string}`]: string | undefined } {
+  if (!lights) return { ...props };
+  const { style, ...attributes } = lights;
+  return { ...props, ...attributes, style: { ...props.style, ...style } };
+}
+
 /**
  * Attributes and custom properties that light an element up (SRC-038), with
  * the separate settings of every combined effect and shape (SRC-048). Kept
@@ -11,6 +24,8 @@ import { zaicodeEasingCss, zaicodePhaseDelay, ZAICODE_DEFAULT_CURVE } from "./za
 
 /** Colour a `state` highlight takes per target (the same one the rest of ZAICODE uses). */
 export const ZAICODE_HIGHLIGHT_STATE_COLORS: Record<ZaicodeHighlightTarget, string> = {
+  sessionTests: "#60c8e8",
+  projectTests: "#60c8e8",
   sessionWorking: "#f0c040",
   sessionWaiting: "#e0a040",
   sessionOpen: "#f0c040",

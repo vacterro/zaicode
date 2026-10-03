@@ -51,6 +51,14 @@ export function setZaicodeLiveRun(
   useZaicodeLiveRuns.setState({ runs: next });
 }
 
+/** Runtime death/replacement invalidates view reports; view unmount does not. */
+export function clearZaicodeLiveRunsIn(workspacePath: string): void {
+  const { runs } = useZaicodeLiveRuns.getState();
+  const folder = zaicodeLiveRunFolderKey(workspacePath);
+  const next = Object.fromEntries(Object.entries(runs).filter(([, run]) => run.folder !== folder));
+  if (Object.keys(next).length !== Object.keys(runs).length) useZaicodeLiveRuns.setState({ runs: next });
+}
+
 export function reconcileZaicodeLiveRuns(tasks: readonly ZCodeTaskMeta[]): void {
   const { runs } = useZaicodeLiveRuns.getState();
   let next = runs;

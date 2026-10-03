@@ -1,30 +1,31 @@
 import { useEffect, useSyncExternalStore } from "react";
+import { completeNewModelSelection } from "@zcode/provider";
 import { notifyZaicode } from "./zaicodeNotifications.js";
 import {
   createUuid,
   evaluateZaicodeAutostartJob,
-  normalizeZaicodeAutostartJobs,
+  normalizeZaicodeContinuingJobs,
   resolveWorkspaceKey,
   zaicodeAutostartWatchedEngine,
   zaicodeJobTaskText,
-  zaicodeScheduleStopAt,
   type ZaicodeAgentDefinition,
   type ZaicodeAutostartDecision,
-  type ZaicodeAutostartJob,
+  type ZaicodeContinuingJob as ZaicodeAutostartJob,
   type ZaicodeScheduledRun,
 } from "@zcode/shared";
 import { readZaicodeSetting } from "./zaicodeSettingsSnapshot.js";
 import { projectNameOf, readZaicodeEnginesState } from "./zaicodeEngines.js";
-import { launchZaicodeWorker } from "./zaicodeWorkers.js";
+import { launchZaicodeWorker, onZaicodeWorkerCancelled } from "./zaicodeWorkers.js";
 import { playZaicodeSound } from "./zaicodeSoundBus.js";
-import { ZAICODE_SAIPEN_START_COMMAND, useZaicodeFreshSession } from "./zaicodeSaipen.js";
 import {
   readZaicodeKnownProjects,
-  zaicodeRunsToStop,
   zaicodeScheduleTargets,
   type ZaicodeKnownProject,
 } from "./zaicodeScheduler.js";
 import { useZaicodeSidebarPrefs } from "./zaicodeSidebarPrefs.js";
+import { beginZaicodeContinuation, recordZaicodeContinuationWorkerLimit, tickZaicodeContinuations, type ZaicodeContinuationStore } from "./zaicodeAutostartContinuation.js";
+import type { ZaicodeWorker } from "./zaicodeWorkers.js";
+import type { ZaicodeWorkerLimitSignal } from "./zaicodeWorkerSignals.js";
 import { readZaicodeDefaultModel } from "./zaicodeDefaultModel.js";
 import { useZaicodeStore } from "./zaicodeStore.js";
 import type { ZaicodeServices } from "./zaicodeServices.js";
@@ -35,7 +36,7 @@ import {
   continueZaicodeMarked,
   orderZaicodeScheduleTargets,
   startZaicodeInMain,
-  stopZaicodeSessionRun,
+  applyZaicodeScheduleStopRules,
   zaicodeEngineRank,
   zaicodeHomeRows,
   zaicodeTargetIdle,
@@ -62,7 +63,7 @@ let cached: ZaicodeAutostartJob[] | null = null;
 export function readZaicodeAutostartJobs(): ZaicodeAutostartJob[] {
   if (cached) return cached;
   try {
-    cached = normalizeZaicodeAutostartJobs(JSON.parse(readZaicodeSetting(STORAGE_KEY) ?? "[]"));
+    cached = normalizeZaicodeContinuingJobs(JSON.parse(readZaicodeSetting(STORAGE_KEY) ?? "[]"));
   } catch {
     cached = [];
   }
@@ -93,7 +94,7 @@ export function useZaicodeAutostartJobs(): ZaicodeAutostartJob[] {
 export function addZaicodeAutostartJob(
   partial: Partial<ZaicodeAutostartJob> & { projectPath: string; engineId: string },
 ): ZaicodeAutostartJob {
-  const job = normalizeZaicodeAutostartJobs([
+  const job = normalizeZaicodeContinuingJobs([
     { ...partial, id: createUuid(), createdAt: Date.now() },
   ])[0]!;
   write([...readZaicodeAutostartJobs(), job]);
@@ -102,7 +103,7 @@ export function addZaicodeAutostartJob(
 
 export function updateZaicodeAutostartJob(id: string, patch: Partial<ZaicodeAutostartJob>): void {
   write(
-    normalizeZaicodeAutostartJobs(
+    normalizeZaicodeContinuingJobs(
       readZaicodeAutostartJobs().map((job) =>
         job.id === id ? { ...job, ...patch, id: job.id } : job,
       ),
@@ -115,12 +116,12 @@ export function removeZaicodeAutostartJob(id: string): void {
 }
 
 export function decideZaicodeAutostartJob(
-  job: ZaicodeAutostartJob,
+  job: import("@zcode/shared").ZaicodeAutostartJob,
   now: number = Date.now(),
 ): ZaicodeAutostartDecision {
   const engine = zaicodeAutostartWatchedEngine(job);
   return evaluateZaicodeAutostartJob(
-    job,
+    (job as ZaicodeAutostartJob).continuation?.enabled ? { ...job, requireQuota: false } : job,
     engine ? readZaicodeEnginesState().limits[engine] : undefined,
     now,
   );
@@ -133,6 +134,11 @@ export const ZAICODE_AUTOSTART_AGENT_PREFIX = "agent:";
 
 // The queue services are published by ZaicodeAppRuntime (they live in React context).
 let queueServices: ZaicodeServices | null = null;
+
+const continuationStore: ZaicodeContinuationStore = { read: readZaicodeAutostartJobs, update: updateZaicodeAutostartJob, services: () => queueServices, canDispatch: () => useZaicodeStore.getState().autoRun };
+export function recordZaicodeScheduledWorkerLimit(worker: ZaicodeWorker, signal: ZaicodeWorkerLimitSignal): boolean {
+  return recordZaicodeContinuationWorkerLimit(continuationStore, worker, signal);
+}
 
 export function publishZaicodeQueueServices(services: ZaicodeServices | null): void {
   queueServices = services;
@@ -204,7 +210,7 @@ async function fire(
     decision.eventId && !manual
       ? [...job.firedEvents, decision.eventId].slice(-40)
       : job.firedEvents;
-  const onceDone = job.trigger === "at" && !manual ? { enabled: false } : {};
+  const onceDone = job.trigger === "at" && !manual && !job.continuation.enabled ? { enabled: false } : {};
   const prefs = useZaicodeSidebarPrefs.getState();
   const resolved = zaicodeScheduleTargets(
     job,
@@ -262,7 +268,7 @@ async function fire(
     isAgent || isPool
       ? undefined
       : readZaicodeEnginesState().accounts.find((candidate) => candidate.id === job.engineId);
-  if (!isAgent && !isPool && !account) {
+  if (!isAgent && !isPool && !account && !job.continuation.enabled) {
     finish("engine not found");
     return;
   }
@@ -283,30 +289,39 @@ async function fire(
     return;
   }
 
+  if (job.continuation.enabled) {
+    const current = readZaicodeAutostartJobs().find((value) => value.id === job.id);
+    if (!current) return;
+    // 持久化每个项目的 lease 后才能派发；重启复用同一个记录。
+    updateZaicodeAutostartJob(job.id, { continuationRuns: beginZaicodeContinuation(current, ready, manual ? `manual:${now}` : decision.eventId, now) });
+    await tickZaicodeContinuations(manual ? { ...continuationStore, canDispatch: () => true } : continuationStore, manual || useZaicodeStore.getState().autoRun, now);
+    return;
+  }
+
+  let options: import("./zaicodeContinue.js").ZaicodeContinueOptions | undefined;
+  if (isPool && job.engineId !== ZAICODE_AUTOSTART_INAPP_ENGINE) {
+    const separator = job.engineId.indexOf("/", "pool:".length);
+    const view = await queueServices?.modelSelection.getView().catch(() => undefined);
+    const selection = view && separator > 0 ? completeNewModelSelection(view, { providerId: job.engineId.slice(5, separator), modelId: job.engineId.slice(separator + 1) }) : null;
+    if (!selection) { finish("Selected in-app model is unavailable"); return; }
+    options = { modelSelection: selection };
+  }
   if ((isPool || isAgent) && job.onlyMarked) {
-    const outcome = await continueZaicodeMarked(job, ready, now);
+    const outcome = await continueZaicodeMarked(job, ready, now, options);
     finish(`${outcome.runs.length} marked session(s) continued${clearedText}`, outcome.runs);
     if (outcome.runs.length > 0)
       announce(`Marked sessions continued in ${where}`, outcome.lines.join("\n"));
     return;
   }
   // START goes into MAIN (SRC-044): never a new session next to an existing MAIN.
-  if (job.engineId === ZAICODE_AUTOSTART_INAPP_ENGINE) {
-    const outcome = await startZaicodeInMain(job, ready, now);
+  if (isPool) {
+    // 指定模型必须进入真实 v4 payload；不能只把名字列在调度器中。
+    const outcome = await startZaicodeInMain(job, ready, now, options);
     finish(`${outcome.runs.length}/${ready.length} START in MAIN${clearedText}`, outcome.runs);
     if (outcome.runs.length > 0) announce(`START in ${where}`, outcome.lines.join("\n"));
     return;
   }
-  // An in-app model in one project opens a fresh session with it; a section (or an agent) goes through the queue.
-  if (isPool && ready.length === 1) {
-    finish(`START in ZAICODE${clearedText}`);
-    useZaicodeFreshSession
-      .getState()
-      .open(ready[0]!.path, ready[0]!.identity, job.prompt.trim() || ZAICODE_SAIPEN_START_COMMAND);
-    announce(`START in ${where}`, ready[0]!.path);
-    return;
-  }
-  if (isPool || isAgent) {
+  if (isAgent) {
     const services = queueServices;
     if (!services) {
       finish("the agent queue is not available here");
@@ -353,29 +368,6 @@ export function runZaicodeAutostartNow(id: string): void {
   if (job) void fire(job, decideZaicodeAutostartJob(job), true);
 }
 
-/** Stop rules: runs a schedule started (queue jobs, MAIN / marked sessions) end once its stop time has come. */
-async function applyStopRules(now: number): Promise<void> {
-  const services = queueServices;
-  for (const job of readZaicodeAutostartJobs()) {
-    const due = zaicodeRunsToStop(job, now, zaicodeScheduleStopAt);
-    if (due.length === 0) continue;
-    // Forget first: one stop per run, even if a cancel below fails.
-    updateZaicodeAutostartJob(job.id, { runs: job.runs.filter((run) => !due.includes(run.jobId)) });
-    for (const jobId of due) {
-      const run = job.runs.find((candidate) => candidate.jobId === jobId);
-      if (run && (await stopZaicodeSessionRun(run))) continue;
-      // Cancel is idempotent; a run that already finished stays finished.
-      await services?.jobs.cancel(jobId).catch(() => undefined);
-    }
-    notifyZaicode("autostart.fire", {
-      header: "Scheduler",
-      title: `Stopped at ${job.stopAt}: ${job.name || "schedule"}`,
-      body: `${due.length} run(s) ended by the stop time`,
-      key: `autostart-stop:${job.id}`,
-    });
-  }
-}
-
 let running = false;
 
 /** One scheduler for the whole app (mount once, in App). */
@@ -383,6 +375,12 @@ export function useZaicodeAutostartRunner(): void {
   useEffect(() => {
     if (running) return;
     running = true;
+    const offCancelled = onZaicodeWorkerCancelled((workerId) => {
+      for (const job of readZaicodeAutostartJobs()) {
+        if (!job.continuationRuns.some((run) => run.workerId === workerId)) continue;
+        updateZaicodeAutostartJob(job.id, { continuationRuns: job.continuationRuns.map((run) => run.workerId === workerId ? { ...run, state: "stopped", result: "Worker explicitly stopped" } : run) });
+      }
+    });
     const announcedMissed = new Set<string>();
     let ticking = false;
     const tick = async () => {
@@ -422,7 +420,11 @@ export function useZaicodeAutostartRunner(): void {
             }
           }
         }
-        await applyStopRules(now);
+        await applyZaicodeScheduleStopRules(readZaicodeAutostartJobs(), queueServices, (id, due) => {
+          const current = readZaicodeAutostartJobs().find((job) => job.id === id);
+          if (current) updateZaicodeAutostartJob(id, { runs: current.runs.filter((run) => !due.includes(run.jobId)) });
+        }, now);
+        await tickZaicodeContinuations(continuationStore, autopilot, now);
       } finally {
         ticking = false;
       }
@@ -431,6 +433,7 @@ export function useZaicodeAutostartRunner(): void {
     const timer = window.setInterval(tick, TICK_MS);
     return () => {
       running = false;
+      offCancelled();
       window.clearTimeout(first);
       window.clearInterval(timer);
     };

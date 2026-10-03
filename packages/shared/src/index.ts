@@ -328,6 +328,7 @@ export * from "./memoryDiagnostics.js";
 export * from "./database-startup.js";
 export * from "./processResourceTelemetry.js";
 export * from "./execution-state.js";
+export * from "./zaicode-schedule-continuation.js";
 
 export { bashOutputDisplaySchema } from "./bash-output-display.js";
 

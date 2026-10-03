@@ -26,6 +26,9 @@ export function zaicodeSessionLastHeard(task: ZCodeTaskMeta): number {
 
 export function zaicodeSessionStalled(task: ZCodeTaskMeta, now: number, stallMs: number = ZAICODE_STALL_MS): boolean {
   if (!isTaskListRowActive(task)) return false;
+  // 安静的长工具/测试仍有 runtime 活性证明；时间本身不能推翻执行事实。
+  const activity = getTaskListRowActivity(task);
+  if (activity?.sessionEnded !== undefined || activity?.hasBackgroundWork) return false;
   const last = zaicodeSessionLastHeard(task);
   return last > 0 && now - last > stallMs;
 }

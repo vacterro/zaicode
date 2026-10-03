@@ -203,6 +203,7 @@ export function createAgentSessionsIndexTransport(
       restartListeners.add(listener);
       restartUpstream ??= agentService.onAgentRuntimeRestarted((event) => {
         if (event.workspaceKey !== targetWorkspaceKey) return;
+        clearZaicodeLiveRunsIn(target.workspacePath);
         runtimeGeneration += 1;
         barrier.clear();
         decoder.clear();
@@ -225,6 +226,7 @@ export function createAgentSessionsIndexTransport(
             lifecycleUpstream ??=
               agentService.onAgentRuntimeLifecycle?.((event) => {
                 if (event.workspaceKey !== targetWorkspaceKey) return;
+                clearZaicodeLiveRunsIn(target.workspacePath);
                 runtimeGeneration += 1;
                 barrier.clear();
                 decoder.clear();
@@ -245,3 +247,4 @@ export function createAgentSessionsIndexTransport(
       : {}),
   };
 }
+import { clearZaicodeLiveRunsIn } from "@/zaicode/zaicodeLiveRuns.js";

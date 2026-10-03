@@ -18,10 +18,13 @@ import {
   type ZaicodeNewWorker,
   type ZaicodeWorker,
   type ZaicodeWorkerWindowState,
+  type ZaicodeWorkerLaunchResult,
 } from "./zaicodeWorkerRecords.js";
 import { readZaicodeWorkerPrefs, type ZaicodeWorkerPlacement } from "./zaicodeWorkerPrefs.js";
 import { notifyZaicode } from "./zaicodeNotifications.js";
 import { playZaicodeSound } from "./zaicodeSoundBus.js";
+import { emitZaicodeWorkerCancelled, emitZaicodeWorkerRemoved } from "./zaicodeWorkerEvents.js";
+export { onZaicodeWorkerCancelled, onZaicodeWorkerRemoved } from "./zaicodeWorkerEvents.js";
 
 /**
  * ZAICODE workers: every subscription CLI (and every one-click fix) runs as a
@@ -47,6 +50,7 @@ export {
   type ZaicodeWorkerIdentity,
   type ZaicodeWorkerPlace,
   type ZaicodeWorkerWindowState,
+  type ZaicodeWorkerLaunchResult,
 } from "./zaicodeWorkerRecords.js";
 
 export interface ZaicodeWorkersState {
@@ -294,7 +298,8 @@ export function markZaicodeWorkerExited(id: string, exitCode: number): void {
 }
 
 /** Removes the worker; its PTY is killed through the registry (onZaicodeWorkerRemoved). */
-export function removeZaicodeWorker(id: string): void {
+export function removeZaicodeWorker(id: string, reason: "operator" | "schedule" = "operator"): void {
+  if (reason === "operator" && findWorker(id)) emitZaicodeWorkerCancelled(id);
   const records = readZaicodeWorkerRecords();
   const index = records.findIndex((entry) => entry.identity.id === id);
   const workers = commitZaicodeWorkerRecords(records.filter((entry) => entry.identity.id !== id));
@@ -306,14 +311,7 @@ export function removeZaicodeWorker(id: string): void {
     focusedId: workersState.focusedId === id ? (fallback?.id ?? null) : workersState.focusedId,
     soloId: workersState.soloId === id ? null : workersState.soloId,
   });
-  for (const listener of removalListeners) listener(id);
-}
-
-const removalListeners = new Set<(id: string) => void>();
-
-export function onZaicodeWorkerRemoved(listener: (id: string) => void): () => void {
-  removalListeners.add(listener);
-  return () => removalListeners.delete(listener);
+  emitZaicodeWorkerRemoved(id);
 }
 
 
@@ -350,12 +348,6 @@ export function runningZaicodeWorkers(projectPath?: string): ZaicodeWorker[] {
   );
 }
 
-export interface ZaicodeWorkerLaunchResult {
-  ok: boolean;
-  message: string;
-  worker?: ZaicodeWorker;
-}
-
 /**
  * Starts `account` as a worker in `projectPath`. `where: "external"` opens a
  * separate PowerShell window instead (survives a ZAICODE restart); "dock" and
@@ -368,8 +360,15 @@ export async function launchZaicodeWorker(params: {
   where?: "dock" | "window" | "external";
   /** Restart of a worker a crash cut off: its generation (default: counted in this run). */
   generation?: number;
+  /** Scheduler lease: deterministic terminal identity for idempotent dispatch. */
+  workerId?: string;
+  canDispatch?: () => boolean;
 }): Promise<ZaicodeWorkerLaunchResult> {
   const { account, projectPath } = params;
+  const owns = (worker: ZaicodeWorker) => worker.kind === "worker" && worker.accountId === account.id && worker.projectPath.toLowerCase() === projectPath.toLowerCase();
+  const existing = params.workerId ? findWorker(params.workerId) : undefined;
+  if (existing && !owns(existing)) return { ok: false, message: "Worker lease belongs to another account or project" };
+  if (existing) return { ok: existing.exitCode === null, message: existing.exitCode === null ? "Owned worker is already running" : "Owned worker already ended", worker: existing };
   if (isZaicodeMetricsOnlyAccount(account)) {
     return { ok: false, message: `${account.label} is shown for its limits only; it does not run workers.` };
   }
@@ -377,6 +376,11 @@ export async function launchZaicodeWorker(params: {
   const config = readZaicodeEnginesState().config;
   const prompt = params.prompt ?? config.workerPrompt;
   const linePrompt = await resolveZaicodeWorkerLinePrompt(prompt);
+  // 长提示写文件期间关闭/暂停任务，不得继续生成新终端。
+  if (params.canDispatch && !params.canDispatch()) return { ok: false, message: "Scheduled dispatch was cancelled" };
+  const reconciled = params.workerId ? findWorker(params.workerId) : undefined;
+  if (reconciled && !owns(reconciled)) return { ok: false, message: "Worker lease belongs to another account or project" };
+  if (reconciled) return { ok: reconciled.exitCode === null, message: "Owned worker already dispatched", worker: reconciled };
   const command = buildZaicodeWorkerCommand(account, projectPath, { prompt: linePrompt, yolo: config.workerYolo });
   if (!command) return { ok: false, message: `${account.label} has no launchable CLI.` };
   const projectName = projectNameOf(projectPath);
@@ -393,7 +397,7 @@ export async function launchZaicodeWorker(params: {
   }
   const worker = addWorker(
     {
-      id: `zaicode-worker:${createUuid()}`,
+      id: params.workerId ?? `zaicode-worker:${createUuid()}`,
       kind: "worker",
       accountId: account.id,
       short: account.short,

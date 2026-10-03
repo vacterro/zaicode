@@ -87,6 +87,10 @@ export function mapSessionSummaryToTaskMeta(
       phase: summary.phase,
       lastActivityAt: summary.lastActivityAt,
       hasBackgroundWork: summary.hasBackgroundWork,
+      sessionEnded: summary.sessionEnded,
+      foregroundExecutionId: summary.foregroundExecutionId,
+      foregroundStartedAt: summary.foregroundStartedAt,
+      ...(summary.testActivity ? { testActivity: summary.testActivity } : {}),
       ...(summary.pendingInteractionSummary
         ? { pendingInteractions: summary.pendingInteractionSummary }
         : {}),

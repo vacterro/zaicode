@@ -13,6 +13,7 @@ import {
   type ZaicodeArchiveBatch,
 } from "@/zaicode/zaicodeArchiveUndo.js";
 import { ZaicodeWorkingIcon } from "@/zaicode/ZaicodeWorkingIcon.js";
+import { ZaicodeTestsIndicator } from "@/zaicode/ZaicodeTestsIndicator.js";
 import { ZaicodeProjectMainGlyph } from "@/zaicode/ZaicodeProjectMainGlyph.js";
 import { ZaicodeTodoMiniGauge } from "@/v4/ZaicodeTodoGauge.js";
 import type { ZaicodeTodoItem } from "@/zaicode/zaicodeTodoProgress.js";
@@ -59,7 +60,7 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
 } from "@/components/ui/dropdown-menu.js";
-import { FolderInput, Pin } from "lucide-react";
+import { ChevronRight, FolderInput, Pin } from "lucide-react";
 import { ZaicodeProjectMoveMenu, ZaicodeProjectPinButton } from "@/zaicode/ZaicodeProjectFolderParts.js";
 import {
   ZAICODE_UNFILED,
@@ -882,28 +883,22 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
     ? (taskItems.find((task) => task.taskId === zaicodeMainSessionId) ?? null)
     : null;
   const zaicodeMainTask = zaicodeProjectIsMain ? zaicodeMainListed : null;
-  // The row stands for MAIN, so MAIN is not listed again under it; the rest are its helpers.
-  const zaicodeChildTasks = useMemo(
-    () =>
-      zaicodeProjectIsMain && zaicodeMainSessionId
-        ? taskItems.filter((task) => task.taskId !== zaicodeMainSessionId)
-        : taskItems,
-    [taskItems, zaicodeMainSessionId, zaicodeProjectIsMain],
-  );
+  // MAIN 也列为有名字的会话；项目标题与会话入口不再互相隐藏。
+  const zaicodeChildTasks = taskItems;
   // Settings -> Sidebar (SRC-049): when session rows are listed at all - every
   // helper, only the ones working, or working + waiting for the operator.
   const zaicodeSessionsCondition = useZaicodeSidebarPrefs((state) => state.sessionsCondition);
   const zaicodeListedTasks = useMemo(() => {
     if (!isZaicodeProductMode() || zaicodeSessionsCondition === "always") return zaicodeChildTasks;
     return zaicodeChildTasks.filter((task) => {
+      if (task.taskId === zaicodeMainSessionId) return true;
       const active = isTaskListRowActive(task);
       if (zaicodeSessionsCondition === "working") return active;
       return active || getTaskListAttention(task) !== null;
     });
-  }, [zaicodeChildTasks, zaicodeSessionsCondition]);
+  }, [zaicodeChildTasks, zaicodeSessionsCondition, zaicodeMainSessionId]);
   zaicodeOpenMainRef.current = () => {
-    // SRC-062: one click = go to the project (MAIN when the row is a session, else the new-task
-    // screen); already there = fold / unfold only. A stale MAIN id is never opened.
+    // 项目标题始终导航，独立箭头才折叠；避免重复点击看似无动作。
     if (!isZaicodeProductMode()) return false;
     const decision = decideZaicodeProjectClick({
       projectIsMain: zaicodeProjectIsMain,
@@ -912,6 +907,7 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
       activeWorkspace: isActiveWorkspace,
       activeTaskId: isActiveWorkspace ? (activeTaskId ?? null) : null,
       mainEmpty: Boolean(zaicodeMainListed && zaicodeSessionIsEmptyChat(zaicodeMainListed)),
+      readableSessionIds: taskItems.filter((task) => !zaicodeSessionIsEmptyChat(task)).sort((a, b) => b.updatedAt - a.updatedAt).map((task) => task.taskId),
     });
     if (decision.action === "open") {
       // The row's own voice: the orchestra would call this click "expand" (the trigger's
@@ -1033,6 +1029,8 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
   const zaicodeLiveRunIds = useZaicodeLiveRunIds(tab.workspacePath);
   // SRC-081: one minute tick, so a session that went quiet turns from "working" into STALLED by itself.
   const zaicodeStallNow = useZaicodeGatedNow(() => 60_000);
+  const zaicodeTestActivities = taskItems.map((task) => getTaskListRowActivity(task)?.testActivity).filter((activity) => activity !== undefined);
+  const zaicodeTestsCount = zaicodeTestActivities.reduce((count, activity) => count + activity.count, 0);
   const zaicodeRunningCount = isZaicodeProductMode()
     ? new Set([
         ...taskItems.filter((task) => zaicodeSessionWorking(task, zaicodeStallNow)).map((task) => task.taskId),
@@ -1496,6 +1494,7 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
   // the actions in the same 60px, so nothing to the left ever moves.
   const zaicodeRowStatus = (
     <span className="flex shrink-0 items-center gap-1 text-ui-xs tabular-nums text-foreground-subtle">
+      <ZaicodeTestsIndicator project count={zaicodeTestsCount} commands={zaicodeTestActivities.flatMap((activity) => activity.commands).slice(0, 3)} />
       {zaicodeProjectOff ? (
         <span
           className="border border-border px-0.5 text-[10px] leading-3 text-foreground-subtlest"
@@ -1729,6 +1728,23 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
               isDragging && "bg-selected shadow-xl",
             )}
           >
+            {isZaicodeProductMode() ? (
+              // 标题只导航到会话；独立按钮折叠列表，避免改变导航后无法再收起子会话。
+              <button
+                type="button"
+                className="flex size-5 shrink-0 items-center justify-center text-foreground-subtle hover:bg-surface-hover hover:text-foreground"
+                aria-label={`${isExpanded ? "Collapse" : "Expand"} sessions of ${workspaceSidebarLabel}`}
+                aria-expanded={isExpanded}
+                disabled={isDisconnectedRemoteWorkspace}
+                data-zaicode-project-fold=""
+                onClick={(event) => {
+                  event.stopPropagation();
+                  toggleWorkspaceExpanded(tab.workspacePath);
+                }}
+              >
+                <ChevronRight className={cn("size-3.5", isExpanded && "rotate-90")} aria-hidden="true" />
+              </button>
+            ) : null}
             <CollapsibleTrigger asChild>
               <div
                 role="button"
@@ -1872,6 +1888,7 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
                 )}
 
                 <div className="flex shrink-0 items-center gap-2">
+                  {!zaicodeCompactRow ? <ZaicodeTestsIndicator project count={zaicodeTestsCount} commands={zaicodeTestActivities.flatMap((activity) => activity.commands).slice(0, 3)} /> : null}
                   {/* {isRemoteWorkspace && isReconnectPending ? (
                     <ReconnectingRemoteWorkspaceLogTooltip
                       logs={reconnectRuntimeLogs}

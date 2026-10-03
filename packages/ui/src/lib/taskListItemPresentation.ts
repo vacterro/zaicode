@@ -21,7 +21,7 @@ export function deriveTaskLeadingIndicator(
     return "unread";
   }
 
-  if (activity?.phase === "prewarming" || activity?.phase === "running") {
+  if ((activity?.sessionEnded !== true && (activity?.phase === "prewarming" || activity?.phase === "running")) || activity?.hasBackgroundWork) {
     return "loading";
   }
 

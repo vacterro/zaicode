@@ -1,4 +1,7 @@
-import type { ZaicodeAutostartJob, ZaicodeScheduleBeforeRun, ZaicodeScheduleOrder, ZaicodeScheduledRun } from "@zcode/shared";
+import { zaicodeScheduleStopAt, type ZaicodeAutostartJob, type ZaicodeScheduleBeforeRun, type ZaicodeScheduleOrder, type ZaicodeScheduledRun } from "@zcode/shared";
+import type { ZaicodeServices } from "./zaicodeServices.js";
+import { zaicodeRunsToStop } from "./zaicodeScheduler.js";
+import { notifyZaicode } from "./zaicodeNotifications.js";
 import { useZaicodeHomeProjects, type ZaicodeHomeProjectRow } from "./home/ZaicodeHomeFleet.js";
 import {
   ZAICODE_CONTINUE_START_OBJECTIVE,
@@ -8,6 +11,7 @@ import {
   useZaicodeSessionBriefs,
   type ZaicodeContinueCommand,
   type ZaicodeSessionBrief,
+  type ZaicodeContinueOptions,
 } from "./zaicodeContinue.js";
 import { zaicodeContinueHandleFor } from "./zaicodeContinueHost.js";
 import { useZaicodeMainSessions, zaicodeMainSessionIdOf, zaicodeMainSessionKey } from "./zaicodeMainSession.js";
@@ -174,7 +178,7 @@ export interface ZaicodeScheduleSessionOutcome {
 }
 
 /** START in MAIN: continue MAIN (or a cut-off session), a fresh MAIN only when nothing can continue. */
-export async function startZaicodeInMain(job: Pick<ZaicodeAutostartJob, "prompt">, targets: readonly ZaicodeKnownProject[], now: number): Promise<ZaicodeScheduleSessionOutcome> {
+export async function startZaicodeInMain(job: Pick<ZaicodeAutostartJob, "prompt">, targets: readonly ZaicodeKnownProject[], now: number, options?: ZaicodeContinueOptions): Promise<ZaicodeScheduleSessionOutcome> {
   const outcome: ZaicodeScheduleSessionOutcome = { lines: [], runs: [] };
   const command = zaicodeCommandForPrompt(job.prompt);
   for (const target of targets) {
@@ -192,7 +196,7 @@ export async function startZaicodeInMain(job: Pick<ZaicodeAutostartJob, "prompt"
         continue;
       }
       if (decision.action === "fresh") {
-        const sessionId = await handle.start(command);
+        const sessionId = await handle.start(command, options);
         useZaicodeMainSessions.getState().setMain(mainKey, sessionId);
         outcome.runs.push({ jobId: `session:${sessionId}`, workspaceKey: target.key, at: now });
         outcome.lines.push(`${target.name}: new MAIN → ${describeZaicodeContinueCommand(command)}`);
@@ -200,14 +204,14 @@ export async function startZaicodeInMain(job: Pick<ZaicodeAutostartJob, "prompt"
       }
       // A schedule's own prompt wins over the session's old goal; empty prompt = what START decided.
       const send = job.prompt.trim() ? command : decision.command;
-      const sent = await handle.send(decision.sessionId, send).then(
+      const sent = await handle.send(decision.sessionId, send, options).then(
         () => true,
         () => false,
       );
       if (!sent && !decision.makeMain) {
         // MAIN was deleted or archived: forget it and give the project a fresh MAIN instead.
         useZaicodeMainSessions.getState().clearMain(mainKey);
-        const sessionId = await handle.start(command);
+        const sessionId = await handle.start(command, options);
         useZaicodeMainSessions.getState().setMain(mainKey, sessionId);
         outcome.runs.push({ jobId: `session:${sessionId}`, workspaceKey: target.key, at: now });
         outcome.lines.push(`${target.name}: MAIN gone, new MAIN → ${describeZaicodeContinueCommand(command)}`);
@@ -225,7 +229,7 @@ export async function startZaicodeInMain(job: Pick<ZaicodeAutostartJob, "prompt"
 }
 
 /** "Only marked sessions": continue exactly the marked ones in the targets, nothing new. */
-export async function continueZaicodeMarked(job: Pick<ZaicodeAutostartJob, "prompt">, targets: readonly ZaicodeKnownProject[], now: number): Promise<ZaicodeScheduleSessionOutcome> {
+export async function continueZaicodeMarked(job: Pick<ZaicodeAutostartJob, "prompt">, targets: readonly ZaicodeKnownProject[], now: number, options?: ZaicodeContinueOptions): Promise<ZaicodeScheduleSessionOutcome> {
   const outcome: ZaicodeScheduleSessionOutcome = { lines: [], runs: [] };
   const known = briefs();
   for (const target of targets) {
@@ -243,7 +247,7 @@ export async function continueZaicodeMarked(job: Pick<ZaicodeAutostartJob, "prom
       }
       const command = job.prompt.trim() ? zaicodeCommandForPrompt(job.prompt) : decision?.command ?? zaicodeCommandForPrompt("");
       try {
-        await handle.send(mark.sessionId, command);
+        await handle.send(mark.sessionId, command, options);
         outcome.runs.push({ jobId: `session:${mark.sessionId}`, workspaceKey: target.key, at: now });
         outcome.lines.push(`${brief?.title ?? mark.sessionId} → ${describeZaicodeContinueCommand(command)}`);
       } catch (error) {
@@ -261,4 +265,19 @@ export async function stopZaicodeSessionRun(run: ZaicodeScheduledRun): Promise<b
   const handle = project ? zaicodeContinueHandleFor(project) : null;
   await handle?.stop(run.jobId.slice("session:".length)).catch(() => undefined);
   return true;
+}
+
+/** Existing queue/session stop rules, called by the single autostart timer. */
+export async function applyZaicodeScheduleStopRules(jobs: readonly ZaicodeAutostartJob[], services: ZaicodeServices | null, forget: (id: string, runs: string[]) => void, now: number): Promise<void> {
+  for (const job of jobs) {
+    const due = zaicodeRunsToStop(job, now, zaicodeScheduleStopAt);
+    if (due.length === 0) continue;
+    forget(job.id, due);
+    for (const jobId of due) {
+      const run = job.runs.find((candidate) => candidate.jobId === jobId);
+      if (run && (await stopZaicodeSessionRun(run))) continue;
+      await services?.jobs.cancel(jobId).catch(() => undefined);
+    }
+    notifyZaicode("autostart.fire", { header: "Scheduler", title: `Stopped at ${job.stopAt}: ${job.name || "schedule"}`, body: `${due.length} run(s) ended by the stop time`, key: `autostart-stop:${job.id}` });
+  }
 }

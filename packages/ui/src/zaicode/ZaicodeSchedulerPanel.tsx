@@ -5,7 +5,7 @@ import {
   ZAICODE_HIT_AND_GO_PROMPT,
   formatZaicodeDuration,
   type ZaicodeAgentDefinition,
-  type ZaicodeAutostartJob,
+  type ZaicodeContinuingJob as ZaicodeAutostartJob,
   type ZaicodeAutostartTrigger,
   isZaicodeMetricsOnlyAccount,
 } from "@zcode/shared";
@@ -13,6 +13,7 @@ import { cn } from "@/components/lib/utils.js";
 import { Button } from "@/components/ui/button.js";
 import { Switch } from "@/components/ui/switch.js";
 import { useSettings } from "@/hooks/useSettingService.js";
+import { useModelSelectionServiceView } from "@/hooks/useModelSelectionView.js";
 import { useTabStore } from "@/store/TabStoreProvider.js";
 import { isWorkspaceTab } from "@/store/tabStore.js";
 import { partitionWorkspaceTabsByPurpose } from "@/lib/workspacePurpose.js";
@@ -26,6 +27,7 @@ import {
   runZaicodeAutostartNow,
   updateZaicodeAutostartJob,
   useZaicodeAutostartJobs,
+  readZaicodeQueueServices,
 } from "./zaicodeAutostart.js";
 import {
   ZAICODE_SCHEDULE_PRESETS,
@@ -38,6 +40,7 @@ import { ZAICODE_SLOT_GROUPS } from "./zaicodeSidebarPrefs.js";
 import { ZaicodeMomentField, ZaicodeTimeField } from "./ZaicodeTimeFields.js";
 import { formatZaicodeClockMinute, parseZaicodeClockText } from "./zaicodeClockText.js";
 import { ZaicodeScheduleConditions, ZaicodeSchedulePrompt } from "./ZaicodeScheduleConditions.js";
+import { ZaicodeScheduleContinuation } from "./ZaicodeScheduleContinuation.js";
 
 const TRIGGERS: readonly { value: ZaicodeAutostartTrigger; label: string; title: string }[] = [
   {
@@ -124,6 +127,7 @@ interface RunnerOption {
 }
 
 function useRunnerOptions(agents: readonly ZaicodeAgentDefinition[]) {
+  const models = useModelSelectionServiceView(readZaicodeQueueServices()?.modelSelection);
   const engines = useZaicodeEngines();
   const accounts = engines.accounts.filter(
     (account) => account.status !== "cli-missing" && !isZaicodeMetricsOnlyAccount(account),
@@ -143,6 +147,7 @@ function useRunnerOptions(agents: readonly ZaicodeAgentDefinition[]) {
       id: account.id,
       label: `${account.short} ${account.label} (CLI worker)`,
     })),
+    ...(models.state.status === "ready" ? models.state.view.providers.flatMap((provider) => provider.models.map((model) => ({ id: `pool:${provider.providerId}/${model.modelId}`, label: `${provider.providerName || provider.providerId} · ${model.modelId} (in-app)` }))) : []),
   ];
   const watch: RunnerOption[] = accounts.map((account) => ({
     id: account.id,
@@ -541,6 +546,7 @@ export function ZaicodeScheduleRow({
       </div>
       <ZaicodeSchedulePrompt value={job.prompt} onChange={(prompt) => update({ prompt })} />
       <ZaicodeScheduleConditions job={job} inApp={!watchesOwnEngine} onChange={update} />
+      <ZaicodeScheduleContinuation job={job} runners={runners} onChange={update} />
       <div className="flex flex-wrap items-center gap-2 text-foreground-subtle">
         <label
           className="flex items-center gap-1"

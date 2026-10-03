@@ -1130,7 +1130,7 @@ function ConversationComposerImpl({
   useZaicodePublishLiveRun(
     isZaicodeProductMode() && snapshot ? sessionId : null,
     workspacePath,
-    canStop,
+    Boolean(snapshot && ((snapshot.control.sessionEnded !== true && ["running", "prewarming"].includes(snapshot.control.phase)) || snapshot.backgroundWorks.some((work) => work.status === "running"))),
   );
   const modifiedEnterReversesDelivery = modifiedEnterSubmits && canStop;
   const hasText = text.trim().length > 0;

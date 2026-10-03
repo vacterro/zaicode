@@ -4261,6 +4261,7 @@ export class ProductProjection {
       workId,
       kind,
       title,
+      ...(typeof payload.command === "string" ? { command: payload.command.slice(0, 1600) } : existing?.command ? { command: existing.command } : {}),
       status,
       startedAt: existing?.startedAt ?? this.ms(event),
       ...(status === "running" ? {} : { endedAt: this.ms(event) }),

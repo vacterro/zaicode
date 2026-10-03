@@ -57,6 +57,12 @@ export const ZAICODE_WORKER_PLACE_KEYS: readonly (keyof ZaicodeWorkerPlace)[] = 
 /** What readers see: identity and place merged. */
 export type ZaicodeWorker = ZaicodeWorkerIdentity & ZaicodeWorkerPlace;
 
+export interface ZaicodeWorkerLaunchResult {
+  ok: boolean;
+  message: string;
+  worker?: ZaicodeWorker;
+}
+
 export type ZaicodeNewWorker = Omit<ZaicodeWorkerIdentity, "generation">;
 
 export interface ZaicodeWorkerRecord {

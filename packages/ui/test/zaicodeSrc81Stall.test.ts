@@ -21,7 +21,7 @@ function task(id: string, phase: "running" | "completedSuccess", lastActivityAt:
   );
 }
 
-test("a session the feed calls running but nobody heard from for hours is STALLED, not working", () => {
+test("unproven stale foreground is STALLED; confirmed live background remains working", () => {
   const now = 100 * HOUR;
   const live = task("live", "running", now - 60_000);
   const quiet = task("quiet", "running", now - 11 * HOUR);
@@ -29,7 +29,7 @@ test("a session the feed calls running but nobody heard from for hours is STALLE
   const idle = task("idle", "completedSuccess", now - 20 * HOUR);
   assert.equal(zaicodeSessionStalled(live, now), false);
   assert.equal(zaicodeSessionStalled(quiet, now), true);
-  assert.equal(zaicodeSessionStalled(background, now), true, "background work that went silent counts too");
+  assert.equal(zaicodeSessionStalled(background, now), false, "SRC-129: live background evidence outranks elapsed silence");
   assert.equal(zaicodeSessionStalled(idle, now), false, "an idle session is not stalled, it is idle");
   assert.equal(zaicodeSessionWorking(live, now), true);
   assert.equal(zaicodeSessionWorking(quiet, now), false);
@@ -37,7 +37,7 @@ test("a session the feed calls running but nobody heard from for hours is STALLE
   assert.equal(zaicodeSessionWorking(task("build", "running", now - (ZAICODE_STALL_MS - 60_000)), now), true);
   // The list every "is anything going" surface reads leaves the stalled one out.
   const ids = runningSessionsOf("k", [live, quiet, background, idle], {}, undefined, now).map((session) => session.sessionId);
-  assert.deepEqual(ids, ["live"]);
+  assert.deepEqual(ids, ["live", "bg"]);
 });
 
 test("Stop, change the model, continue: the working timer starts from zero", () => {

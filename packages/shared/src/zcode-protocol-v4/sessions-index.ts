@@ -48,6 +48,13 @@ export const sessionSummarySchema = z.object({
   sessionEnded: z.boolean(),
   // 列表小圆点用（此处保留布尔，避免为侧栏订阅整个 backgroundWorks）。
   hasBackgroundWork: z.boolean(),
+  foregroundExecutionId: z.string().min(1).optional(),
+  foregroundStartedAt: timestampSchema.optional(),
+  /** Derived from live execution, never session titles or completed tool output. */
+  testActivity: z.object({
+    count: z.number().int().positive(),
+    commands: z.array(z.string().max(160)).max(3),
+  }).optional(),
   // 侧栏工作流运行行：有界的 run 摘要，
   // 只装画迷你轨道要的字段；会话没有任何 run 时缺席。optional 兼容旧 frame / 旧 CLI。
   workflowActivity: sessionWorkflowActivitySchema.optional(),

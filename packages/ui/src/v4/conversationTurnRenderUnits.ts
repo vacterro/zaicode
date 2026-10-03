@@ -8,6 +8,7 @@ import type {
   UserInputRow,
   WorkflowLaunchMeta,
 } from "@zcode/shared/zcode-protocol-v4";
+import { isZaicodeProductMode } from "@zcode/shared";
 import type { AssistantWorkRow, ConversationTurnFlowItem } from "@/v4/conversationTurnFlowItems.js";
 import {
   isWorkflowLaunchUserInputRow,
@@ -105,6 +106,8 @@ function isHookInvocationRow(row: ConversationRow): row is HookInvocationRow {
 }
 
 function isVisibleAssistantWorkRow(row: AssistantWorkRow): boolean {
+  // 未完成只是自动续跑的控制事实，不应刷满对话；失败与完成仍保留。
+  if (isZaicodeProductMode() && row.kind === "timelineMarker" && row.marker.type === "goalVerify" && row.marker.outcome === "notSatisfied") return false;
   if (row.kind === "reasoning" && row.text.trim().length === 0) {
     // reasoning_start/reasoning_end 可能形成空的终态 block；只在共享
     // render-unit 边界裁掉它，避免 completed 状态绕过 streaming renderer 的空行过滤。

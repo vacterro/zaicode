@@ -14,6 +14,10 @@ export interface TaskListRowActivity {
   phase: SessionSummary["phase"];
   lastActivityAt: number;
   hasBackgroundWork: boolean;
+  sessionEnded?: boolean;
+  foregroundExecutionId?: string;
+  foregroundStartedAt?: number;
+  testActivity?: SessionSummary["testActivity"];
   pendingInteractions?: PendingInteractionSummary;
   /** 侧栏工作流运行行的数据；无 run 时缺席。 */
   workflowActivity?: SessionWorkflowActivity;
@@ -47,8 +51,8 @@ export function getTaskListRowActivity(task: ZCodeTaskMeta): TaskListRowActivity
 
 /** 只采信 sessions-index 的实时 phase；tasks-index 残留 status=running 不能置顶历史任务。 */
 function isTaskListRowRunning(task: ZCodeTaskMeta): boolean {
-  const phase = getTaskListRowActivity(task)?.phase;
-  return phase === "prewarming" || phase === "running";
+  const activity = getTaskListRowActivity(task);
+  return activity?.sessionEnded !== true && (activity?.phase === "prewarming" || activity?.phase === "running");
 }
 
 /**

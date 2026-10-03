@@ -16,14 +16,14 @@ import {
 
 const base = { projectIsMain: true, sessionIds: ["main", "helper"], activeTaskId: null } as const;
 
-test("repeated clicks on a MAIN row: open MAIN, then only fold -- never a draft, never another session", () => {
+test("SRC-129 repeated project-label clicks open MAIN; folding belongs to the separate chevron", () => {
   const first = decideZaicodeProjectClick({ ...base, mainId: "main", activeWorkspace: false });
   assert.deepEqual(first, { action: "open", sessionId: "main" });
-  // MAIN is now open: every further click folds / unfolds.
+  // The new request replaces SRC-062's implicit folding with explicit navigation.
   for (let click = 0; click < 3; click += 1) {
     assert.deepEqual(
       decideZaicodeProjectClick({ ...base, mainId: "main", activeWorkspace: true, activeTaskId: "main" }),
-      { action: "fold" },
+      { action: "open", sessionId: "main" },
     );
   }
   // A helper of the same project is open: the row click goes back to MAIN.
@@ -35,7 +35,7 @@ test("repeated clicks on a MAIN row: open MAIN, then only fold -- never a draft,
 
 test("a stale MAIN id (the session is gone from the list) is never opened", () => {
   assert.equal(zaicodeMainIsValid("gone", ["a", "b"]), false);
-  assert.deepEqual(decideZaicodeProjectClick({ ...base, mainId: "gone", activeWorkspace: false }), { action: "draft" });
+  assert.deepEqual(decideZaicodeProjectClick({ ...base, mainId: "gone", activeWorkspace: false }), { action: "open", sessionId: "main" });
   // A cold project whose list has not loaded yet still trusts its MAIN.
   assert.deepEqual(
     decideZaicodeProjectClick({ ...base, sessionIds: [], mainId: "main", activeWorkspace: false }),
@@ -43,14 +43,15 @@ test("a stale MAIN id (the session is gone from the list) is never opened", () =
   );
 });
 
-test("a folder row: the first click goes to the project, the next ones only fold", () => {
-  assert.deepEqual(decideZaicodeProjectClick({ ...base, mainId: null, activeWorkspace: false }), { action: "draft" });
-  assert.deepEqual(decideZaicodeProjectClick({ ...base, mainId: null, activeWorkspace: true }), { action: "fold" });
+test("a folder label opens an existing conversation in both active and inactive projects", () => {
+  assert.deepEqual(decideZaicodeProjectClick({ ...base, mainId: null, activeWorkspace: false }), { action: "open", sessionId: "main" });
+  assert.deepEqual(decideZaicodeProjectClick({ ...base, mainId: null, activeWorkspace: true }), { action: "open", sessionId: "main" });
   // The MAIN view is off: a MAIN exists but the row is a folder.
   assert.deepEqual(
     decideZaicodeProjectClick({ ...base, projectIsMain: false, mainId: "main", activeWorkspace: true, activeTaskId: "main" }),
-    { action: "fold" },
+    { action: "open", sessionId: "main" },
   );
+  assert.deepEqual(decideZaicodeProjectClick({ ...base, mainId: null, sessionIds: [], activeWorkspace: true }), { action: "draft" });
 });
 
 test("the diamond switches: on -> off, off -> the open session, else the newest, else a new one", () => {

@@ -3,6 +3,7 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { TaskInlineRenameInput } from "@/TaskInlineRenameInput.js";
 import { ZaicodeTodoMiniGauge } from "@/v4/ZaicodeTodoGauge.js";
 import { ZaicodeWorkingIcon } from "@/zaicode/ZaicodeWorkingIcon.js";
+import { ZaicodeTestsIndicator } from "@/zaicode/ZaicodeTestsIndicator.js";
 import { ZaicodeInterruptedGlyph } from "@/zaicode/ZaicodeInterruptedGlyph.js";
 import { zaicodeWasCutOff } from "@/zaicode/zaicodeSessionState.js";
 import { useZaicodeLiveRun } from "@/zaicode/zaicodeLiveRuns.js";
@@ -481,6 +482,10 @@ export const MemoTaskItem = memo(function TaskListItem({
     id: isArchiveConfirming ? "common.confirm" : "taskList.archive",
   });
   const taskTitleWithChanges = formatTaskTitleWithChanges(taskTitle, taskChangeSummary, intl);
+  const zaicodeExecutionNode = zaicodeMode ? <>
+    {isMainSession ? <span className="shrink-0 text-ui-xs text-foreground-subtle" data-zaicode-main-session>MAIN</span> : null}
+    <ZaicodeTestsIndicator count={taskActivity?.testActivity?.count ?? 0} commands={taskActivity?.testActivity?.commands} />
+  </> : null;
   const inlineRenameNode =
     isRenamingInline && onCommitInlineRename && onCancelInlineRename ? (
       <TaskInlineRenameInput
@@ -836,6 +841,7 @@ export const MemoTaskItem = memo(function TaskListItem({
                 {taskTitle}
               </TaskTitleOverflowText>
             )}
+            {zaicodeExecutionNode}
             {task.pendingInteraction ? (
               <TaskInteractionBadge
                 interaction={task.pendingInteraction}
@@ -970,6 +976,7 @@ export const MemoTaskItem = memo(function TaskListItem({
                   {taskTitle}
                 </TaskTitleOverflowText>
               )}
+              {zaicodeExecutionNode}
               {changeSummaryNode ? (
                 <span
                   className={cn(

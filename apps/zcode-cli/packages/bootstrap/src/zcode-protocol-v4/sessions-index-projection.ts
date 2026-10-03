@@ -4,6 +4,7 @@
 // 事件订阅与 flush 调度归 gateway（v4-gateway）。
 import {
   deriveSessionWorkflowActivity,
+  deriveSessionTestActivity,
   SESSION_TODO_SUMMARY_MAX_CHARS,
   SESSION_TODO_SUMMARY_MAX_ITEMS,
   type ConversationSnapshot,
@@ -43,6 +44,7 @@ function deriveSessionSummary(
     if (lastAssistantPreview) break;
   }
   const hasBackgroundWork = snapshot.backgroundWorks.some((work) => work.status === "running");
+  const testActivity = deriveSessionTestActivity(snapshot);
   // 侧栏 Todo 镜像：与会话内 Todo 条同源（snapshot.plan），不另立事实。
   const todos = (snapshot.plan?.items ?? []).slice(0, SESSION_TODO_SUMMARY_MAX_ITEMS).map((item) => ({
     status: item.status,
@@ -90,6 +92,11 @@ function deriveSessionSummary(
     // 忠实透传 control.sessionEnded（语义：成功轮收口后即 true，不代表已删除）。
     sessionEnded: snapshot.control.sessionEnded,
     hasBackgroundWork,
+    ...(snapshot.control.activeWorks?.find((work) => work.foregroundExecutionId) ? {
+      foregroundExecutionId: snapshot.control.activeWorks.find((work) => work.foregroundExecutionId)!.foregroundExecutionId,
+      foregroundStartedAt: snapshot.control.activeWorks.find((work) => work.foregroundExecutionId)!.startedAt,
+    } : {}),
+    ...(testActivity ? { testActivity } : {}),
     ...(workflowActivity === undefined ? {} : { workflowActivity }),
     ...(pendingInteraction ? { pendingInteraction } : {}),
     ...(permissionCount > 0 || userInputCount > 0
@@ -119,6 +126,9 @@ function summariesEqual(a: SessionSummary, b: SessionSummary): boolean {
     a.phase === b.phase &&
     a.sessionEnded === b.sessionEnded &&
     a.hasBackgroundWork === b.hasBackgroundWork &&
+    a.foregroundExecutionId === b.foregroundExecutionId &&
+    a.foregroundStartedAt === b.foregroundStartedAt &&
+    JSON.stringify(a.testActivity ?? null) === JSON.stringify(b.testActivity ?? null) &&
     // phase 翻转 / 结算 / 在跑子代理数变化永不被 conflation 吃掉；反之只改 node 的事件在这里判等
     // （真实系统里它仍会因 lastActivityAt 推进而产帧——那是活动事实，语义不变）。
     JSON.stringify(a.workflowActivity ?? null) === JSON.stringify(b.workflowActivity ?? null) &&

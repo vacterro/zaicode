@@ -1,4 +1,3 @@
-import type { CSSProperties } from "react";
 import { create } from "zustand";
 import { readZaicodeSetting } from "./zaicodeSettingsSnapshot.js";
 import { ensureZaicodeMotionStyles } from "./zaicodeMotionCss.js";
@@ -39,6 +38,8 @@ export type { ZaicodeBezier, ZaicodeMotionDirection, ZaicodeMotionEasing } from 
 // ---------------------------------------------------------------- highlights
 
 export const ZAICODE_HIGHLIGHT_TARGETS = [
+  { id: "sessionTests", label: "Session tests running", hint: "A live test command in this session; separate from its agent" },
+  { id: "projectTests", label: "Project tests running", hint: "Live tests in any session of this project" },
   {
     id: "sessionWorking",
     label: "Session title while it works",
@@ -155,6 +156,8 @@ const rule = (
 };
 
 export const ZAICODE_HIGHLIGHT_DEFAULTS: Record<ZaicodeHighlightTarget, ZaicodeHighlightRule> = {
+  sessionTests: rule({ enabled: true, effect: "pulse", shape: "text", color: "state", seconds: 1.4 }),
+  projectTests: rule({ enabled: true, effect: "pulse", shape: "text", color: "state", seconds: 1.4 }),
   sessionWorking: rule({
     enabled: true,
     effect: "breathe",
@@ -411,7 +414,7 @@ export function normalizeZaicodeLights(raw: unknown): ZaicodeLightsPrefs {
 // ---------------------------------------------------------------- pure styling
 
 // Highlight attributes: zaicodeHighlightStyle.ts (kept apart for the 400-line limit).
-export { ZAICODE_EFFECT_DEPTH, ZAICODE_HIGHLIGHT_STATE_COLORS, zaicodeEffectAnimation, zaicodeHighlightAttrs, type ZaicodeLightAttrs } from "./zaicodeHighlightStyle.js";
+export { ZAICODE_EFFECT_DEPTH, ZAICODE_HIGHLIGHT_STATE_COLORS, zaicodeEffectAnimation, zaicodeHighlightAttrs, withZaicodeHighlight, type ZaicodeLightAttrs, type ZaicodeLightTarget } from "./zaicodeHighlightStyle.js";
 
 // Working icon style: zaicodeWorkingIconStyle.ts (kept apart for the 400-line limit).
 export { ZAICODE_WORKING_COMBO_TRANSFORM, zaicodeWorkingIconStyle, zaicodeWorkingMotionsReach } from "./zaicodeWorkingIconStyle.js";
@@ -483,18 +486,4 @@ export function readZaicodeLights(): ZaicodeLightsPrefs {
 export function useZaicodeHighlight(target: ZaicodeHighlightTarget, active: boolean, stateColor?: string | null): ZaicodeLightAttrs | null {
   const prefs = useZaicodeLights((state) => state.highlights[target]);
   return active ? zaicodeHighlightAttrs(target, prefs, stateColor) : null;
-}
-
-/** The element props a highlight merges into. */
-export interface ZaicodeLightTarget {
-  className?: string | undefined;
-  title?: string | undefined;
-  style?: CSSProperties | undefined;
-}
-
-/** Merges highlight attributes into an element's own class / title / style. */
-export function withZaicodeHighlight(props: ZaicodeLightTarget, lights: ZaicodeLightAttrs | null): ZaicodeLightTarget & { [attribute: `data-${string}`]: string | undefined } {
-  if (!lights) return { ...props };
-  const { style, ...attributes } = lights;
-  return { ...props, ...attributes, style: { ...props.style, ...style } };
 }

@@ -27,6 +27,8 @@ export interface ZaicodeSessionBrief {
   workspacePath: string;
   workspaceIdentity?: string;
   running: boolean;
+  foregroundExecutionId?: string;
+  foregroundStartedAt?: number;
   /** A question or permission waits for the operator. */
   waiting: boolean;
   /** The last turn ended on an error (limit, network, provider). */
@@ -72,6 +74,8 @@ export function zaicodeSessionBriefOf(
     workspacePath: location.workspacePath,
     ...(location.workspaceIdentity ? { workspaceIdentity: location.workspaceIdentity } : {}),
     running,
+    foregroundExecutionId: activity?.foregroundExecutionId,
+    foregroundStartedAt: activity?.foregroundStartedAt,
     waiting,
     failed,
     interrupted: !running && !waiting && !failed && zaicodeWasCutOff(task),
@@ -96,6 +100,8 @@ function briefSignature(brief: ZaicodeSessionBrief): string {
     brief.title,
     brief.projectKey,
     brief.running ? 1 : 0,
+    brief.foregroundExecutionId ?? "",
+    brief.foregroundStartedAt ?? "",
     brief.waiting ? 1 : 0,
     brief.failed ? 1 : 0,
     brief.interrupted ? 1 : 0,
@@ -430,13 +436,22 @@ export function describeZaicodeContinueStep(step: ZaicodeContinueStep): string {
 
 /** How a project row sends to its own host (local or remote workspace). */
 export interface ZaicodeProjectContinueHandle {
-  send: (sessionId: string, command: ZaicodeContinueCommand) => Promise<void>;
+  send: (sessionId: string, command: ZaicodeContinueCommand, options?: ZaicodeContinueOptions) => Promise<void>;
   /** Creates a fresh session, sends the command, returns its id. */
-  start: (command: ZaicodeContinueCommand) => Promise<string>;
+  start: (command: ZaicodeContinueCommand, options?: ZaicodeContinueOptions) => Promise<string>;
   /** Stops the running turn of a session (SCHEDULER conditions and stop times, SRC-046). */
-  stop: (sessionId: string) => Promise<void>;
+  stop: (sessionId: string, expectedForegroundExecutionId?: string) => Promise<void>;
   /** Empties a session in place without opening it (CLEAR from the project row, SRC-049). */
   clear: (sessionId: string) => Promise<void>;
+}
+
+export interface ZaicodeContinueOptions {
+  modelSelection?: import("@zcode/shared/model-selection").ModelSelection;
+  commandId?: string;
+  /** Persist the owned session before first input dispatch; allows replay of the same command. */
+  onCreated?: (sessionId: string) => void;
+  /** Recheck scheduler ownership after asynchronous hydration/creation. */
+  canDispatch?: () => boolean;
 }
 
 const handles = new Map<string, ZaicodeProjectContinueHandle>();

@@ -13,10 +13,9 @@
  *   logic, which starts a new-task draft when the row is folded and folds it
  *   when it is not, so repeated clicks walked MAIN -> draft -> fold.
  *
- * Now a click is always one of two things:
- * - go to the project: its MAIN session when the row is a session, otherwise
- *   the new-task screen there;
- * - already there: fold / unfold the row's sessions. Never a navigation.
+ * SRC-129 separates navigation from folding. The project label always opens
+ * MAIN or a meaningful existing session; only the separate chevron folds.
+ * Empty MAIN sessions are excluded, and an empty project opens a draft.
  *
  * And the row's diamond is a real switch (`decideZaicodeMainToggle`): on, the
  * project row IS a session (MAIN) and every other session is its child; off,
@@ -44,6 +43,8 @@ export interface ZaicodeProjectClickInput {
    * what the operator wants there.
    */
   mainEmpty?: boolean;
+  /** Sessions with readable content or live work, ordered by recency. */
+  readableSessionIds?: readonly string[];
 }
 
 /**
@@ -55,15 +56,16 @@ export function zaicodeMainIsValid(mainId: string | null, sessionIds: readonly s
 }
 
 export function decideZaicodeProjectClick(input: ZaicodeProjectClickInput): ZaicodeProjectClick {
-  const rowIsSession = input.projectIsMain && zaicodeMainIsValid(input.mainId, input.sessionIds);
-  if (rowIsSession) {
-    const mainOpen = input.activeWorkspace && input.activeTaskId === input.mainId;
-    if (mainOpen) return { action: "fold" };
-    return input.mainEmpty ? { action: "draft" } : { action: "open", sessionId: input.mainId! };
+  // 项目标题只导航；折叠属于独立箭头，重复点击不能跳进空草稿。
+  if (!input.mainEmpty && zaicodeMainIsValid(input.mainId, input.sessionIds)) {
+    return { action: "open", sessionId: input.mainId };
   }
-  // A folder row: the first click goes to the project (the new-task screen, an earlier
-  // operator request); once there, clicks only fold and unfold.
-  return input.activeWorkspace ? { action: "fold" } : { action: "draft" };
+  const readableIds = (input.readableSessionIds ?? input.sessionIds).filter((id) => !input.mainEmpty || id !== input.mainId);
+  if (input.activeWorkspace && input.activeTaskId && readableIds.includes(input.activeTaskId)) {
+    return { action: "open", sessionId: input.activeTaskId };
+  }
+  const sessionId = readableIds[0];
+  return sessionId ? { action: "open", sessionId } : { action: "draft" };
 }
 
 export type ZaicodeMainToggle =

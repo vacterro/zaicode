@@ -33,11 +33,12 @@ test("a session that never said anything and stands idle is an empty chat", () =
 
 test("the project click opens the new-task screen instead of an empty MAIN", () => {
   const base = { projectIsMain: true, mainId: "m", sessionIds: ["m", "x"], activeWorkspace: false, activeTaskId: null };
-  assert.deepEqual(decideZaicodeProjectClick({ ...base, mainEmpty: true }), { action: "draft" });
+  assert.deepEqual(decideZaicodeProjectClick({ ...base, mainEmpty: true, readableSessionIds: [] }), { action: "draft" });
   assert.deepEqual(decideZaicodeProjectClick({ ...base, mainEmpty: false }), { action: "open", sessionId: "m" });
   assert.deepEqual(decideZaicodeProjectClick(base), { action: "open", sessionId: "m" }, "unchanged without the flag");
-  // Already inside the empty MAIN: the click still only folds, never navigates.
-  assert.deepEqual(decideZaicodeProjectClick({ ...base, mainEmpty: true, activeWorkspace: true, activeTaskId: "m" }), { action: "fold" });
+  // SRC-129: a label always navigates; empty MAIN cannot sneak into its fallback.
+  assert.deepEqual(decideZaicodeProjectClick({ ...base, mainEmpty: true, activeWorkspace: true, activeTaskId: "m", readableSessionIds: [] }), { action: "draft" });
+  assert.deepEqual(decideZaicodeProjectClick({ ...base, mainEmpty: true, readableSessionIds: ["x"] }), { action: "open", sessionId: "x" });
 });
 
 test("wiring: the summary reports an assistant preview, the row asks and replaces an empty MAIN", () => {
