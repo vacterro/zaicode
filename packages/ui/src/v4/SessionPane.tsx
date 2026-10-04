@@ -62,7 +62,9 @@ import {
   composerQuotaFailureKind,
   noteComposerQuotaExhaustion,
   routeComposerSelection,
+  vendorResetAtForProvider,
 } from "@/zaicode/zaicodeQuotaRoute.js";
+import { readZaicodeEnginesState } from "@/zaicode/zaicodeEngines.js";
 import type {
   ConversationShareAllowedArtifact,
   ConversationShareTurnPreflightResult,
@@ -4212,8 +4214,21 @@ export function SessionPane({
       const providerId = controlLastError?.attribution?.providerId ??
         snapshot?.config.provider ?? draftConfig.modelSelection?.providerId;
       zaicodeQuotaFailureRef.current = { key, providerId };
+      const engines = readZaicodeEnginesState();
       noteComposerQuotaExhaustion({
         providerId, kind, now: Date.now(), failedAt: controlLastError?.at, failureId: key,
+        // T-190: hold the route until the vendor's own reset, so the work resumes on the
+        // provider's clock instead of on a local estimate that doubled to six hours.
+        ...(providerId
+          ? {
+              resetAt: vendorResetAtForProvider({
+                providerId,
+                accounts: engines.accounts,
+                limits: engines.limits,
+                now: Date.now(),
+              }),
+            }
+          : {}),
       });
     }
     const failedProvider = zaicodeQuotaFailureRef.current.providerId;
