@@ -117,3 +117,11 @@ s=d['limits']['antigravity:default']
 print(time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime(s['fetchedAt']/1000)), s['source'], s['error'])
 for w in s['windows']: print(' ',w['key'],w['remainingPercent'],w['resetsAt'],w['assumedFull'])"
 ```BB6B75F1 fix(zaicode): admit a rolling window the vendor still reports full (T-188)
+
+## Desktop main bundle rebuilt with the fix
+
+`pnpm --filter @zcode/desktop run build` at 2026-10-04T23:31 local, log in
+`T-188-package-build-20261004.txt`, exit 0. `grep -l zaicodeWindowIsFull out/` matches
+`out/main/chunk-VWJ24SHD.js` — the bundle the starter actually runs carries the fix.
+The electron-packaged `ZAICODE.exe` is not rebuilt by that script and the running app
+was not touched.
