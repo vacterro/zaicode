@@ -1,0 +1,65 @@
+saipen conformance validation starting (tools/validate.py)...
+Project root: V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\.saipen\kitchen\t169-clone-20261004 (explicit)
+Project lineage: lineage-b512942bac884a8691f6c98afcd6ddb9
+PASS: state.schema.json and the engine STATE contract constants agree
+PASS: state.schema.json states nothing the validator ignores (4 keywords enforced natively, 5 delegated, 4 types interpreted)
+PASS: STATE.md schema valid (checked against state.schema.json)
+PASS: .saipen/IDENTITY.md is a canonical portable lineage carrier (lineage-b512942bac884a8691f6c98afcd6ddb9)
+PASS: goal execution_intent counters present
+PASS: subSaipen STATE.md shape valid (7 checked, live + shipped library)
+PASS: .saipen/extensions/subs/MANIFEST.md parses strictly (5 entries)
+PASS: extensions/subs/MANIFEST.md parses strictly (4 entries)
+PASS: BOARD.md has all required section headings
+PASS: BOARD.md no duplicate tickets
+PASS: BOARD.md no dangling needs: references
+PASS: BOARD.md acyclic
+PASS: BOARD.md Work supersession relations are terminal, existing and acyclic
+PASS: BOARD.md claimed tickets have their needs: satisfied
+PASS: BOARD.md at most one ## DOING ticket (1 claimed)
+PASS: every DONE closure provenance satisfies its declared closure contract
+PASS: LOG.md format valid (skeleton, E-### unique + monotonic, parents resolve; 18 segment(s))
+PASS: improve seat report schema valid (20 report(s) scanned)
+PASS: core sweep linkage valid: every disposition resolves to a real finding/ticket, no unverified or INVALID/ALREADY_FIXED finding produced a ticket, source_reports resolve exactly
+PASS: subsaipen write boundary continuous: no sub artifact targets a main-project canonical file (red control 7)
+PASS: hunt skip marks resolve to real commits on the remote (24 checked)
+PASS: saiui charter integrity verified (references UI.md, no second palette, write ban enforced, fixer contract present, UI- prefix documented, bootstrap includes charters)
+PASS: 6 shipped sai*.md charter(s) declare the full metadata block (8 keys, closed enums)
+PASS: freshness hardening command/cleanup/worker contracts intact
+PASS: T-549 hard barrier blocks the T-551..T-561 improve wave
+PASS: convergence contract intact (13 stages in order, closure bar and post-K ordering rule present)
+PASS: KNOWLEDGE/ clean
+PASS: KNOWLEDGE/ structured surface valid (10 card(s), 10 active, index fresh)
+PASS: .saipen/USERPERSON.md is a well-formed optional USERPERSON profile
+PASS: README.md badge matches VERSION
+PASS: conformance corpus schema + IDs valid (257 rows, exactly 1..257)
+PASS: CONFORMANCE.md matches the generated corpus index
+PASS: no stray control characters in shipped text (440 files swept)
+PASS: core docs text lint clean (no U+FFFD/split keywords/fence drift)
+PASS: phase enum <-> phases/ docs in sync (16 phases)
+PASS: INDEX.md phase list matches enum + files (16 phases)
+PASS: CORE / IMPROVE / CLI Improve action sets match exactly
+PASS: runtime manifest complete (599 files, all tracked)
+PASS: adapter cross-references valid (checking saipen/ paths in all 10 adapters)
+PASS: no adapter or injector treats RFC.md as normative (13 checked, RFC stub is redirect-only)
+PASS: append targets end on a line boundary (39 checked)
+PASS: lint parity [T-628] -- harness.md and validate.yml agree on `python -m ruff check tools/ tests/` with ruff==0.16.0
+PASS: doc coverage accounted for (435 shipped documents, 25 checked patterns, 34 exempt)
+PASS: warn slug ownership verified for 4 tracked slug(s)
+PASS: Golden Default palette integrity verified (21 Wintage tokens, sha256:271ba26cd75948e8)
+WARN [board-soft-cap]: BOARD.md is 195 KB (soft cap ~16 KB), of which 154 KB is closed-ticket text -- that content already lives in LOG.md/CHANGELOG.md, so scrub ## DONE at the next CLEAN (RFC § 1.2, phases/clean.md step 1)
+WARN [op-id-ledger-absent]: this checkout holds no journaled operation record, so the 89 off-grammar `[op: ...]` id(s) below have no floor above which they could be forged and the [saio] gate that refuses one did not run here (T-1282)
+WARN [hand-authored-op-id]: 89 event(s) carry an off-grammar `[op: ...]` id that no writer emits; exempt as history (sealed segment, at or below the resolved floor, or backed by a real operation record): .saipen/logs/LOG-012.md:125 E-2882 [op: goal-wave-14fb7e09]; .saipen/logs/LOG-012.md:189 E-2946 [op: goal-wave-74a9e4f4]; .saipen/logs/LOG-013.md:58 E-3115 [op: user-request] (T-1577)
+WARN [goal-reauth-untripped]: a `DEC: goal reauthorized` line clears goal_waves 0 and goal_tickets 3, both under § 2.4's 3/20 caps -- the valve had not tripped, so nothing needed re-authorizing and the reset granted a fresh budget instead (RFC § 2.4 Entry)
+WARN [log-missing-date]: 125 sealed LOG entr(y/ies) predate the mandatory DATE (earliest .saipen/logs/LOG-001.md:3). Immutable by append-only; new entries are FAILed instead
+WARN [log-soft-cap]: .saipen/LOG.md is 5213 lines / 1745 KB, past the ~300 line / ~64 KB soft cap -- seal it into .saipen/logs/LOG-<NNN>.md at the next checkpoint (RFC § 1.2, phases/clean.md)
+WARN [producer-package-stale]: .saipen/extensions/subs/saihunt/kitchen/OUTBOX.md [HUNT-014] carries source_head 'b7f5b51280b8f49c5fedbf7a00aeb6d4f45743ba' but current source_head is '445d2478257f03c57026a6b97a8291caa97ab865' -- package is stale and MUST NOT be collected -- reported under `--gate core`, where this producer is not being consumed; it FAILs under `--gate collect:saihunt` and blocks nothing else
+WARN [producer-package-stale]: .saipen/extensions/subs/saihunt/kitchen/OUTBOX.md [HUNT-014] carries source_tree_fingerprint 'git-delta-v1:4c6fd9b3f13a1d7a0b203e00a759dae5eac1474eabb77cb3e39dad9da1953eb9' but the current tree computes 'git-delta-v1:c66baf69a8306f3b95dfc7badb5f72b088f8de8408e933efadc4d149721a1195' -- the tree changed since the package was produced (same HEAD or not), so it is stale and MUST NOT be collected (PROTOCOL.md § 6, T-543) -- reported under `--gate core`, where this producer is not being consumed; it FAILs under `--gate collect:saihunt` and blocks nothing else
+WARN [producer-package-stale]: ... and 6 more like the above
+WARN [saiui-mission-absent]: this SAIPEN home has no .saipen/kitchen/SAIUI_SAISENT_MISSION.md (gitignored producer state, absent from a fresh clone), so the rule that a target mission must label its findings as hypotheses to verify -- never as an audit already performed -- did not run here
+WARN [translation-surface-absent]: this SAIPEN home has no .saipen/saitranslate/kitchen/ (gitignored producer state, absent from a fresh clone), so nothing below it ran: locale README badge parity and staleness digests, the 32 locale sources, and the shortcut callouts compared across those sources, the 3 root mirrors and the 33 shipped guides/ files. This checkout has proved nothing about locale coverage
+WARN [subsaipen-uncollected]: 4 subSaipen OUTBOX entr(y/ies) sit at `status: ready` -- that is a finding waiting on `saipen sub collect`, visible only when someone runs it (extensions/subs/PROTOCOL.md § 4)
+WARN [cross-doc-drift]: cross-doc drift [ahead-stamp-repair] -- CORE.md must say a future-stamped LOG line is restamped to a defensible bound with a DEC naming the original, the replacement, and that the minute is inherited rather than measured. Without it the only sanctioned response is waiting, which keeps a false record and reds every gate until the clock catches up
+WARN [cross-doc-drift]: cross-doc drift [shortcut-memory-ban] -- RFC § 1.10 must state that answering a row from recall is the same failure as inventing a command, not a lesser one
+WARN [cross-doc-drift]: ... and 10 more like the above
+WARN [release-ledger]: 2 release(s) have a CHANGELOG entry but no git tag: v8.0.2, v8.1.0
+Validation complete. Agent is conformant. (30 warning(s))
