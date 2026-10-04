@@ -1,0 +1,35 @@
+✔ an idle Gemini pool uses an advertised low-effort Flash instead of a removed pinned model (12.9805ms)
+✔ the independent Claude/GPT pool must not spend a Gemini request (0.3411ms)
+✔ unknown pools and missing advertised models are unsupported rather than invented (0.1995ms)
+✖ the starter's effort agrees with the CLI's advertised model variant (1.986ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 3
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2658.4851
+
+✖ failing tests:
+
+test at test\zaicodeT188ModelInventory.test.ts:1:1319
+✖ the starter's effort agrees with the CLI's advertised model variant (1.986ms)
+  AssertionError [ERR_ASSERTION]: GPT OSS is advertised only as medium; the vendor rejects a conflicting low flag
+  
+  'low' !== 'medium'
+  
+      at TestContext.<anonymous> (V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\desktop\test\zaicodeT188ModelInventory.test.ts:30:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'low',
+    expected: 'medium',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

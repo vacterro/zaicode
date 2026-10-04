@@ -1,0 +1,14 @@
+{
+  "requirements": {
+    "SRC-126:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "T-191 closed with verification evidence in LOG: verify -> PASS [target: T-191] conf: high -- pnpm typecheck exit 0; pnpm verify:pre-push exit 0, 1339 passed/2 skipped/0 failures, lint 108 warnings/0 errors, architecture 0; frozen Playwright production-component browser 31/31 and core receipt-a906e111bc40 CURRENT_PASS. Final source digest032ac8cb and oracle228430d6 unchanged; record supplements the anchored regression pair E-3104/E-3108 with the",
+      "text": "\u041f\u0443\u0441\u0442\u044c \u0432 \u0441\u0435\u0441\u0441\u0438\u0438 \u0435\u0449\u0435 \u043f\u043e\u043a\u0430\u0437\u044b\u0432\u0430\u0435\u0442 \u0441\u043a\u043e\u043b\u044c\u043a\u043e \u043e\u0442\u0440\u0430\u0431\u043e\u0442\u0430\u043b\u0430 \u0441\u0435\u0441\u0441\u0438\u044f \u0447\u0430\u0441\u043e\u0432 \u043d\u0435 \u0442\u043e\u043b\u044c\u043a\u043e \u0432 \u043d\u0430\u0447\u0430\u043b\u0435 \u0441\u043e\u043e\u0431\u0449\u0435\u043d\u0438\u044f \u043d\u043e \u0438 \u0432 \u043a\u043e\u043d\u0446\u0435.",
+      "verification": "the Work this request created reached its own verification gate; see the T-191 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-191"
+    }
+  },
+  "schema_version": 1
+}

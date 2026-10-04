@@ -1,0 +1,27 @@
+{
+  "schema": "t208-regression/1",
+  "at": "2026-10-03T23:48:40.702Z",
+  "command": [
+    "c:\\nodejs\\node.exe",
+    "--import",
+    "tsx",
+    "--test",
+    "test/zaicodeT208LivePresets.test.ts"
+  ],
+  "verifier": "77cc5f58eea00c5034a3e9728e1e40f71e4572c944e774353a05d1f1b650dc02",
+  "backup": "V:\\_TEMP_\\zaicode-t208-regression-xGpw0R",
+  "base": "e480e1650ef54fe9976f411b36c2942e55b3b5c9",
+  "red": {
+    "subject": "ee377e1d44dcd733aa073b2eb0eddac3b9dc1f4a1ffff06323f3444855a6f7bc",
+    "exit": 1,
+    "collected": true,
+    "failures": true
+  },
+  "green": {
+    "subject": "5dd341f65d8dde221ab40472270cf11b283bc2511578ffccc12f5b5e69d69053",
+    "exit": 0,
+    "collected": true,
+    "passes": true
+  },
+  "restored": true
+}

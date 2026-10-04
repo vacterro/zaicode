@@ -1,0 +1,1 @@
+const fs=require('node:fs');fs.writeFileSync("V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\.saipen\\evidence\\T-192-console-1.json",JSON.stringify({runtime:process.execPath,stdinTTY:process.stdin.isTTY||false,stdoutTTY:process.stdout.isTTY||false,columns:process.stdout.columns||null}));setTimeout(()=>process.exit(0),500);

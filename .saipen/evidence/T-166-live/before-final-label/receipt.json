@@ -1,0 +1,108 @@
+{
+  "schema": "zaicode-t166-live/1",
+  "executablePath": "V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/.release-work/T-188-before/win-unpacked/ZAICODE.exe",
+  "targetKey": "five_hour@claude_and_gpt_models",
+  "profile": "V:\\_TEMP_\\zaicode-t166-91VAmK",
+  "playwrightVersion": "1.62.1",
+  "at": "2026-10-03T08:56:46.153Z",
+  "checks": {
+    "isolatedPackagedShell": true,
+    "liveQuota": true,
+    "idlePoolAvailable": true
+  },
+  "observations": [
+    {
+      "label": "first-live-sweep",
+      "at": 1791017718962,
+      "snapshot": {
+        "fetchedAt": 1791017718888,
+        "error": null,
+        "windows": [
+          {
+            "key": "weekly@gemini_models",
+            "remainingPercent": 11.942484974861145,
+            "resetsAt": 1791355281000,
+            "startsOnUse": false,
+            "durationMinutes": 10080
+          },
+          {
+            "key": "five_hour@gemini_models",
+            "remainingPercent": 97.95879125595093,
+            "resetsAt": 1791033253000,
+            "startsOnUse": false,
+            "durationMinutes": 300
+          },
+          {
+            "key": "weekly@claude_and_gpt_models",
+            "remainingPercent": 100,
+            "resetsAt": 1791622518888,
+            "rollingFrom": 1791017718888,
+            "startsOnUse": true,
+            "durationMinutes": 10080
+          },
+          {
+            "key": "five_hour@claude_and_gpt_models",
+            "remainingPercent": 100,
+            "resetsAt": 1791035718888,
+            "rollingFrom": 1791017718888,
+            "startsOnUse": true,
+            "durationMinutes": 300
+          }
+        ],
+        "windowStart": null,
+        "windowStarts": {}
+      },
+      "topbar": "Saturday, 3 October 2026 · 11:55:18 · week 40\nTime zone: Europe/Tallinn (EEST)\nNo timer set\nNext reset: Antigravity Gemini 5h in 4h 18m\n\nClick: Timers · Shift+Click: Temp Timer +15m · Ctrl+Click: work / break start-pause · Right-click: what to show",
+      "tile": "Antigravity (Antigravity) · gemini:antigravity\nAntigravity: 100% Claude & GPT weekly\n  Gemini weekly: 12% resets Wed 09:41\n  Gemini 5h: 98% resets in 4h 19m\n  Claude & GPT weekly: 100% resets Sat 11:55\n  Claude & GPT 5h: 100% resets in 5h 00m\n\nClick: select subscription model in this chat · Right-click: workers and settings"
+    },
+    {
+      "label": "starter-not-successful",
+      "at": 1791017778975,
+      "snapshot": {
+        "fetchedAt": 1791017719212,
+        "error": null,
+        "windows": [
+          {
+            "key": "weekly@gemini_models",
+            "remainingPercent": 11.942484974861145,
+            "resetsAt": 1791355281000,
+            "startsOnUse": false,
+            "durationMinutes": 10080
+          },
+          {
+            "key": "five_hour@gemini_models",
+            "remainingPercent": 97.95879125595093,
+            "resetsAt": 1791033253000,
+            "startsOnUse": false,
+            "durationMinutes": 300
+          },
+          {
+            "key": "weekly@claude_and_gpt_models",
+            "remainingPercent": 100,
+            "resetsAt": 1791622518888,
+            "rollingFrom": 1791017718888,
+            "startsOnUse": true,
+            "durationMinutes": 10080
+          },
+          {
+            "key": "five_hour@claude_and_gpt_models",
+            "remainingPercent": 100,
+            "resetsAt": 1791035718888,
+            "rollingFrom": 1791017718888,
+            "startsOnUse": true,
+            "durationMinutes": 300
+          }
+        ],
+        "windowStart": null,
+        "windowStarts": {}
+      },
+      "topbar": "Saturday, 3 October 2026 · 11:56:18 · week 40\nTime zone: Europe/Tallinn (EEST)\nNo timer set\nNext reset: Antigravity Gemini 5h in 4h 17m\n\nClick: Timers · Shift+Click: Temp Timer +15m · Ctrl+Click: work / break start-pause · Right-click: what to show",
+      "tile": "Antigravity (Antigravity) · gemini:antigravity\nAntigravity: 100% Claude & GPT weekly\n  Gemini weekly: 12% resets Wed 09:41\n  Gemini 5h: 98% resets in 4h 18m\n  Claude & GPT weekly: 100% resets Sat 11:55\n  Claude & GPT 5h: 100% resets in 4h 59m\n\nClick: select subscription model in this chat · Right-click: workers and settings"
+    },
+    {
+      "failure": "supported idle Antigravity window needs a real successful starter, not only a local countdown"
+    }
+  ],
+  "errors": [],
+  "ok": false
+}

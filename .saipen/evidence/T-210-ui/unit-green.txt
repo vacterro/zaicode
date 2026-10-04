@@ -1,0 +1,125 @@
+✔ complete collected catalogs match all 32 languages and the DED voice (666.6373ms)
+✔ preferences accept every catalog and retain explicit validation for unknown input (9.5241ms)
+✔ system and CLI detection resolve natural-language tags without choosing a voice (0.8789ms)
+✔ native menus retain every translated label and interpolation (3.9084ms)
+✔ CLI catalogs preserve dynamic values and both plural/retry branches (5.7286ms)
+[2026-10-04 03:29:05.408] [ui] v4 conversation store connect started {
+  event: 'v4.conversation.store.connect.started',
+  generation: 1,
+  hasBase: false,
+  module: 'ui.v4.conversation_projection_store',
+  status: 'started',
+  topic: 'conversation/stress'
+}
+[2026-10-04 03:29:05.409] [ui] v4 conversation store connect completed {
+  durationMs: 2,
+  event: 'v4.conversation.store.connect.completed',
+  generation: 1,
+  logEpoch: 'epoch',
+  mode: 'snapshot',
+  module: 'ui.v4.conversation_projection_store',
+  status: 'completed',
+  subscriptionId: 'sub',
+  topic: 'conversation/stress'
+}
+[2026-10-04 03:29:06.031] [ui] v4 conversation store close started {
+  event: 'v4.conversation.store.close.started',
+  generation: 1,
+  module: 'ui.v4.conversation_projection_store',
+  status: 'started',
+  subscriptionId: 'sub',
+  topic: 'conversation/stress'
+}
+[2026-10-04 03:29:06.031] [ui] v4 conversation store close completed {
+  durationMs: 0,
+  event: 'v4.conversation.store.close.completed',
+  module: 'ui.v4.conversation_projection_store',
+  status: 'completed',
+  topic: 'conversation/stress'
+}
+[2026-10-04 03:29:06.032] [ui] v4 conversation store connect started {
+  event: 'v4.conversation.store.connect.started',
+  generation: 1,
+  hasBase: false,
+  module: 'ui.v4.conversation_projection_store',
+  status: 'started',
+  topic: 'conversation/stress'
+}
+[2026-10-04 03:29:06.032] [ui] v4 conversation store connect completed {
+  durationMs: 0,
+  event: 'v4.conversation.store.connect.completed',
+  generation: 1,
+  logEpoch: 'epoch',
+  mode: 'snapshot',
+  module: 'ui.v4.conversation_projection_store',
+  status: 'completed',
+  subscriptionId: 'sub',
+  topic: 'conversation/stress'
+}
+[2026-10-04 03:29:06.032] [ui] v4 conversation store close started {
+  event: 'v4.conversation.store.close.started',
+  generation: 1,
+  module: 'ui.v4.conversation_projection_store',
+  status: 'started',
+  subscriptionId: 'sub',
+  topic: 'conversation/stress'
+}
+[2026-10-04 03:29:06.033] [ui] v4 conversation store close completed {
+  durationMs: 0,
+  event: 'v4.conversation.store.close.completed',
+  module: 'ui.v4.conversation_projection_store',
+  status: 'completed',
+  topic: 'conversation/stress'
+}
+[2026-10-04 03:29:06.033] [ui] v4 conversation store connect started {
+  event: 'v4.conversation.store.connect.started',
+  generation: 1,
+  hasBase: false,
+  module: 'ui.v4.conversation_projection_store',
+  status: 'started',
+  topic: 'conversation/stress'
+}
+[2026-10-04 03:29:06.033] [ui] v4 conversation store connect completed {
+  durationMs: 0,
+  event: 'v4.conversation.store.connect.completed',
+  generation: 1,
+  logEpoch: 'epoch',
+  mode: 'snapshot',
+  module: 'ui.v4.conversation_projection_store',
+  status: 'completed',
+  subscriptionId: 'sub',
+  topic: 'conversation/stress'
+}
+[2026-10-04 03:29:06.040] [ui] v4 conversation store close started {
+  event: 'v4.conversation.store.close.started',
+  generation: 1,
+  module: 'ui.v4.conversation_projection_store',
+  status: 'started',
+  subscriptionId: 'sub',
+  topic: 'conversation/stress'
+}
+[2026-10-04 03:29:06.040] [ui] v4 conversation store close completed {
+  durationMs: 0,
+  event: 'v4.conversation.store.close.completed',
+  module: 'ui.v4.conversation_projection_store',
+  status: 'completed',
+  topic: 'conversation/stress'
+}
+✔ only an active elapsed label gets a clock; reordered guided facts and completed history keep their timestamps (2.5226ms)
+✔ a 100,000-row autonomous turn retains a bounded live tail and the correct log watermarks (625.1863ms)
+✔ automatic leading-turn hydration stops after a few pages instead of reading the entire turn (1.2651ms)
+✔ explicit history reading survives incoming rows and returning to latest releases it (7.2706ms)
+✔ non-finite or negative durations remain unknown rather than becoming a fabricated second (1.1228ms)
+✔ unknown or invalid run starts never produce an elapsed duration or advancing clock (1.465ms)
+✔ known starts and recorded terminal durations retain authoritative facts (0.2111ms)
+✔ a days-old session that started working five minutes ago reads five minutes, not its age (1.3967ms)
+✔ re-reading the same run later keeps the start of the run, not the time of the read (0.2437ms)
+✔ an idle project reports no working start (0.1864ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3191.9295

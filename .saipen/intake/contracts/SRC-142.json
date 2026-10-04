@@ -1,0 +1,14 @@
+{
+  "clauses": {
+    "SRC-142:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "P0: applying any Settings preset must never restart the ZAICODE application, renderer or runtime while projects, sessions or workers are active; presets apply settings live, worker run identity and final result stay attached, project selection, unsent composer text and timers stay coherent; never solve by queueing a full restart."
+    }
+  },
+  "derived_at": "2026-10-04T00:20:23Z",
+  "derived_from": "SRC-142",
+  "interpretation_revision": 1,
+  "schema_version": 1,
+  "source_sha256": "4b32656fe70d714a8faf275945d5dca488f106ebfa5f2bf0c4f6d4028b13b262"
+}

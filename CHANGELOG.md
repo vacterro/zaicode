@@ -4,6 +4,42 @@ All notable ZAICODE releases. Versions follow semantic versioning. Tags
 `vX.Y.Z` identify the workspace on `master`; each entry records the separate
 application commit on `zaicode`. The upstream framework version is independent.
 
+## Unreleased
+
+### Added
+- SAI Accounts federation — the control plane is OPTIONAL, and ZAICODE is complete
+  without it. `packages/provider-node/src/sai-accounts-source.ts` reads the shared
+  account registry when the plane is installed: STANDALONE (no plane) resolves no
+  engine, spawns nothing and returns an empty list, so ZAICODE's Provider Config
+  Overlay, login and entitlement paths are byte-for-byte what they were. FEDERATED
+  adds shared accounts for the providers ZAICODE actually implements. HYBRID keeps
+  local accounts and merges a shared record with a local one only on a proven
+  identity locator — never on a display name, which is asserted directly, because
+  two accounts that share a name and differ in identity are the case a
+  name-keyed merge layer gets wrong silently. A shared account is read *through*
+  the plane, which owns that identity and its execution context; a plane that
+  cannot answer yields `offline` / `auth_required` / `unavailable` with the
+  reason attached, never a fallback read through a local path that belongs to a
+  different account. The plane exits nonzero while still printing a typed
+  envelope for an unreadable account, so the envelope is read *before* the exit
+  code — checking the exit code first turns a known state about one account into
+  a lie about the whole control plane. `provider_does_not_support_quota` is
+  treated as an honest no-opinion, not an outage. Global hide and local enable
+  stay two separate axes. Every call is bounded (4 s list, 30 s usage) and
+  read-only: no token, cookie or credential blob is ever read, copied, exported
+  or written. The selector is always the canonical `account_id`; the plane also
+  accepts a display name, and using one would reintroduce exactly the
+  merge-on-a-label ambiguity the design refuses. `resolveSaiAccountsEngine` takes
+  the install directory as a parameter rather than reading a hardcoded constant,
+  so a suite running on a machine that *has* the plane installed still tests
+  STANDALONE honestly. `packages/provider-node/test/sai-accounts-source.test.ts`
+  covers STANDALONE, broken plane, FEDERATED, duplicate discovery, central
+  failure, window translation and the read-only guarantee (35 assertions);
+  `provider-node` is now part of the root `pnpm test` chain, which it was not
+  before. Live check on a machine that has the plane installed: ZAICODE's 8
+  `account:*` providers yield 0 shared accounts — the plane publishes
+  antigravity/claude/codex — so the roster filter holds and nothing is invented.
+
 ## 0.0.2 — 2026-09-30
 
 - Complete 33 UI/CLI locale catalogs and translated user documentation from

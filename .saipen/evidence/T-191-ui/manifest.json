@@ -1,0 +1,95 @@
+{
+  "schema": "zaicode-t191-subject/1",
+  "sourceBase": "dbe0459259019308179c5b49e7e4f76a01fdecc7",
+  "subject": [
+    {
+      "path": "packages/ui/src/v4/ConversationTurnGroup.tsx",
+      "sha256": "c40f6ebc9563b9282221698cb3699f06c90a9817e63605a795e7f57e17ea546a"
+    },
+    {
+      "path": "packages/ui/src/zaicode/ZaicodeWorkerParts.tsx",
+      "sha256": "906b3b6e6ee057ab06dab13d5da197a1b8ea0c9415587adaaa5dbb2de233140a"
+    },
+    {
+      "path": "specs/zaicode-session-duration-tail.md",
+      "sha256": "38b99c8e14a75b4cbef9b32e4faf8647bc1861f0a43077598198ddb874c396f4"
+    }
+  ],
+  "instrument": [
+    {
+      "path": "serve.mjs",
+      "sha256": "d9215d6defa6d3d3d8464aece7c7b5c6f15ecef17698b7c0fd1ebbf8c51417f9"
+    },
+    {
+      "path": "harness.tsx",
+      "sha256": "3b0282c2dfd40d01354ca1c31078e2a70389363ca6fbcc5b7f70696011193115"
+    },
+    {
+      "path": "verifier.cjs",
+      "sha256": "228430d66947dc5bb9be28b6aa310059c8692e44e7cb01a014516faa6b618b0f"
+    }
+  ],
+  "subjectDigest": "032ac8cb6f7e95fc49c9bf9dbe8f5b0853e0d9f13f2d34bcd735a5a54169e49a",
+  "preserved": [
+    {
+      "path": "packages/shared/src/zaicode-engines.ts",
+      "sha256": "a36c7d09f56d37113dab6edd7c11f581d2cf8a2868113ec81e719fabe1676d32",
+      "actual": "a36c7d09f56d37113dab6edd7c11f581d2cf8a2868113ec81e719fabe1676d32"
+    },
+    {
+      "path": "packages/desktop/src/main/zaicodeEngines.ts",
+      "sha256": "713df03fb95d148cb125ffd78fb62f03d9613c486c10a1ef01de0a6e49d5bc2d",
+      "actual": "713df03fb95d148cb125ffd78fb62f03d9613c486c10a1ef01de0a6e49d5bc2d"
+    },
+    {
+      "path": "packages/desktop/src/main/zaicodeWindowStarter.ts",
+      "sha256": "28547f158e591f7add94e2ad1e37e780da31e588a8731325b7ad9c6583a489af",
+      "actual": "28547f158e591f7add94e2ad1e37e780da31e588a8731325b7ad9c6583a489af"
+    },
+    {
+      "path": "packages/ui/src/zaicode/ZaicodeLimitViews.tsx",
+      "sha256": "f38c89c39aacc8267d1c9f873259315f531b9c725456b551788bda975e8a84f1",
+      "actual": "f38c89c39aacc8267d1c9f873259315f531b9c725456b551788bda975e8a84f1"
+    },
+    {
+      "path": "packages/desktop/test/zaicodeWindowStarter.test.ts",
+      "sha256": "367246354dc2a75fd2789fa602651ddde228be686e5ff031ed9dee94d8d5e32d",
+      "actual": "367246354dc2a75fd2789fa602651ddde228be686e5ff031ed9dee94d8d5e32d"
+    },
+    {
+      "path": "packages/desktop/test/zaicodeT188ModelInventory.test.ts",
+      "sha256": "334ffb0fa092f288073e61f4716419aa757ae2f770dc8d2504040d80405b2902",
+      "actual": "334ffb0fa092f288073e61f4716419aa757ae2f770dc8d2504040d80405b2902"
+    },
+    {
+      "path": "packages/ui/test/zaicodeT188WindowStart.test.ts",
+      "sha256": "2d2b9bae39c377ebc5c985fb3f56589ed4debd690ceff262c9cfa15c668f9edf",
+      "actual": "2d2b9bae39c377ebc5c985fb3f56589ed4debd690ceff262c9cfa15c668f9edf"
+    },
+    {
+      "path": "packages/ui/test/zaicodeSrc116WindowTruth.test.ts",
+      "sha256": "e072883c8003c7e8e7ca9a59a3933a02a1189433c1e87c14bf2458cc5158c034",
+      "actual": "e072883c8003c7e8e7ca9a59a3933a02a1189433c1e87c14bf2458cc5158c034"
+    },
+    {
+      "path": "packages/ui/test/zaicodeT143.test.ts",
+      "sha256": "b308e6b034a283f512df0bb839e96fcc75e40bf694b1a64f706a55509634e2d9",
+      "actual": "b308e6b034a283f512df0bb839e96fcc75e40bf694b1a64f706a55509634e2d9"
+    },
+    {
+      "path": "packages/ui/test/zaicodeWave63.test.ts",
+      "sha256": "9721a6650c5f92378db4e409523824a1fc0b2c9b2e1313d00628a66f0520ae24",
+      "actual": "9721a6650c5f92378db4e409523824a1fc0b2c9b2e1313d00628a66f0520ae24"
+    },
+    {
+      "path": "packages/ui/test/zaicodeT136.test.ts",
+      "sha256": "189788b42677b5352e3b71c71bda698201e917658bd9a38ae560bc677a3770fe",
+      "actual": "189788b42677b5352e3b71c71bda698201e917658bd9a38ae560bc677a3770fe"
+    },
+    {
+      "path": "specs/zaicode-t188-live-window-start.md",
+      "sha256": "f086c5e1bb88bcdcf5df1611de3133dfc58139e5b7553137adf663261b87e9a5",
+      "actual": "f086c5e1bb88bcdcf5df1611de3133dfc58139e5b7553137adf663261b87e9a5"
+    }
+  ]
+}

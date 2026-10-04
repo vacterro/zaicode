@@ -1,0 +1,14 @@
+apps/zcode-cli                           |  WARN  Unsupported engine: wanted: {"node":"24.14.0"} (current: {"node":"v24.15.0","pnpm":"10.33.2"})
+✔ legacy Plan draft resumes as implementation and freezes Plan off without losing content/model (2.8959ms)
+✔ a deliberately selected Plan remains explicit after saving and submits true (0.3946ms)
+✔ replayed automatic plan entry cannot enable Plan in the default draft (0.1372ms)
+✔ explicit planning exits normally and a repeated exit stays idempotent (0.1052ms)
+✔ upstream Plan draft and transitions keep their own behavior (0.3357ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 706.0708

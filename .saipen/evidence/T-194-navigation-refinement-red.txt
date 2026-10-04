@@ -1,0 +1,48 @@
+apps/zcode-cli                           |  WARN  Unsupported engine: wanted: {"node":"24.14.0"} (current: {"node":"v24.15.0","pnpm":"10.33.2"})
+✔ project label repeatedly opens its conversation; folder mode also opens MAIN (1.0765ms)
+✔ project without MAIN opens the last meaningful session; empty project starts a draft (0.1219ms)
+✖ MAIN navigation survives an open helper and never reopens an explicitly empty MAIN (1.7365ms)
+✔ an ended foreground cannot spin from a stale running phase; background stays live (0.1628ms)
+✔ quiet live background tests are working after five hours (0.1302ms)
+✔ the actual index mapping carries test activity and turn completion (0.2342ms)
+✔ tests have independently configurable project and session motion targets (0.1373ms)
+✔ repeated goal-incomplete notices leave no empty turns; failure and completion remain (1.2942ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 7
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 658.3516
+
+✖ failing tests:
+
+test at test\zaicodeEfficientAutomation.test.ts:1:1538
+✖ MAIN navigation survives an open helper and never reopens an explicitly empty MAIN (1.7365ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+      action: 'open',
+  +   sessionId: 'b'
+  -   sessionId: 'a'
+    }
+  
+      at TestContext.<anonymous> (V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\ui\test\zaicodeEfficientAutomation.test.ts:28:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { action: 'open', sessionId: 'b' },
+    expected: { action: 'open', sessionId: 'a' },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+undefined
+V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\ui:
+ ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL  Command failed with exit code 1: node --import tsx --test test/zaicodeEfficientAutomation.test.ts

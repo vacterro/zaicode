@@ -1,0 +1,14 @@
+{
+  "requirements": {
+    "SRC-144:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "T-210 closed with verification evidence in LOG: VERIFY -> PASS: 32 browser checks; 31 inherited T-191 checks; 1483 tests passed, 2 inherited skips; typecheck/lint/architecture green; conf: high. Evidence T-210-verification.json.",
+      "text": "A session row can render `Working for` with an empty duration when the authoritative start timestamp is missing or invalid; it must never render an empty suffix: show a localized duration when start is known, neutral Working when active but unproven, and no Working at all when the run is not actually active; do not invent 0s for unknown starts.",
+      "verification": "the Work this request created reached its own verification gate; see the T-210 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-210"
+    }
+  },
+  "schema_version": 1
+}

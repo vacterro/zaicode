@@ -1,0 +1,85 @@
+{
+  "at": "2026-10-04T00:50:37.177Z",
+  "executablePath": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\.release-work\\t208-pass2-20261004\\win-unpacked\\ZAICODE.exe",
+  "profile": "V:\\_TEMP_\\zaicode-t209-hpPSop",
+  "before": {
+    "appPid": 27444,
+    "rendererPid": 15632,
+    "workers": {
+      "A": {
+        "pid": 13904,
+        "marker": "3324e5dc-78fa-4f41-9b5a-b63570af0972",
+        "startedAt": 1791074969727,
+        "count": 1,
+        "final": false
+      },
+      "B": {
+        "pid": 28620,
+        "marker": "5209e7ea-5792-404b-9fc0-37e021bec613",
+        "startedAt": 1791074974107,
+        "count": 1,
+        "final": false
+      }
+    }
+  },
+  "checks": [
+    {
+      "name": "positive: isolated packaged profile",
+      "pass": true
+    },
+    {
+      "name": "A positive: native output with one run identity",
+      "pass": true
+    },
+    {
+      "name": "B positive: native output with one run identity",
+      "pass": true
+    },
+    {
+      "name": "positive: split shows two terminals",
+      "pass": true
+    },
+    {
+      "name": "Tabs pointer click changes real layout",
+      "pass": true
+    },
+    {
+      "name": "Split pointer click restores both terminals",
+      "pass": true
+    },
+    {
+      "name": "bottom: configured dock visible",
+      "pass": true
+    },
+    {
+      "name": "bottom: collapse retains compact header",
+      "pass": false,
+      "detail": null
+    },
+    {
+      "name": "bottom: body actually disappears",
+      "pass": true
+    },
+    {
+      "name": "bottom collapsed: A original process continues",
+      "pass": true
+    },
+    {
+      "name": "bottom collapsed: B original process continues",
+      "pass": true
+    },
+    {
+      "name": "bottom collapsed: app and renderer survive",
+      "pass": true
+    },
+    {
+      "name": "packaged scenario completed",
+      "pass": false,
+      "detail": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByTitle('WORKERS panel (workers keep running while hidden)').first()\u001b[22m\n\n    at reopen (C:\\Users\\vac34\\.agents\\skills\\playwright-skill\\.temp-execution-1791074960986.js:57:163)\n    at async C:\\Users\\vac34\\.agents\\skills\\playwright-skill\\.temp-execution-1791074960986.js:73:37"
+    }
+  ],
+  "errors": [],
+  "pass": false,
+  "verifier": "44c7311b6d978e080ef1af58779f3fdaaea137cdcbd384e4e094bc196f09e64c",
+  "asarSha256": "9118adca0e96653fedcae1fb6ecff33c52fcf8e563551e0b82baa7b22647cd94"
+}

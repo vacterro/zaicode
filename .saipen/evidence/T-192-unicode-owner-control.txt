@@ -1,0 +1,1 @@
+[{"mode":"app-resize","pid":23996,"preservesEmoji":false},{"mode":"external-no-resize","pid":25900,"preservesEmoji":false},{"mode":"external-resize","pid":20368,"preservesEmoji":false}]

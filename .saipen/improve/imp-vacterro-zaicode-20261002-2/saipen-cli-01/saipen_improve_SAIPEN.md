@@ -1,0 +1,34 @@
+agent: saipen-cli-01
+role: core
+model_or_runtime: unknown
+project: vacterro-zaicode
+saipen_version: 8.0.2
+protocol_fingerprint: sha256:e2e83e5b9235858c329823b2b6ad75d5e27f8c21c3e16022c2cae1be5298c36a
+source_head: ab9866d4e25ba7258ca403631b22a1df44eeff9d
+source_tree_fingerprint: git-delta-v1:a6eff31663cd76784ba296394868e957bd89d653bb6c1219fc84e6a1c67e6e11
+discovery_model: git-delta-v1
+context_scope: SAIPEN audit, phase DONE
+context_available: partial
+report_status: complete
+
+## RUN 1
+
+IMP-001 [P3] [LOGIC_ERROR] [proven] [ticket] -- the covered soak window is measured from the fps-filtered last row, so a run whose final round failed its probe reports less coverage than it achieved
+  expected: coveredSeconds measures the wall-clock the run actually covered, and FAIL_INCOMPLETE_WINDOW fires only when the run genuinely stopped short of the horizon
+  actual: buildVerdict filters the timeline to rows carrying fps, then the new coverage code reads last = samples.at(-1) from that filtered list. When the final round failed its probe it carries no fps, so last is the previous surviving row and coveredSeconds under-reports by the dead round's interval. A run that reached the horizon can therefore trip FAIL_INCOMPLETE_WINDOW, and the verdict's durationSeconds understates the run. The same reasoning made churn read the unfiltered timeline one line below, so the two measurements now disagree about which rows exist
+  evidence: scripts/zaicode-soak-verdict.mjs:53 filters to typeof row.fps === 'number'; :55 binds last = samples.at(-1); :100 tallies churn from the unfiltered timeline; the coveredSeconds consumed by windowShort comes from the filtered last. Read directly, not reproduced: a 12h horizon has enough slack that one 15s sample does not flip the verdict, but the measurement is taken from the wrong list
+
+IMP-002 [P3] [OTHER] [observed] [note] -- a cold-start Antigravity quota probe was auto-denied twice and ZAICODE maps that denial to "agy reported no readable quota window"
+  expected: the first agy -p /usage --output-format json of a session returns quota windows, so a cold meter reads real quota on its first sweep
+  actual: the first two probes of this audit returned an empty response with denied_actions naming the command tool, and probeAntigravity passes no permission grant, so parseAntigravityUsage finds no window and the meter shows an error rather than quota
+  evidence: packages/desktop/src/main/zaicodeEngines.ts:717 spawns agy -p /usage --output-format json with no --dangerously-skip-permissions and no permissions.allow rule; the two denials returned response length 0, while every later run -- both with ZAICODE's probeEnv and with a plain environment -- returned 254 characters of quota windows. Not reproducible on demand, so the trigger is unidentified and self-heals on the next sweep; recorded rather than filed because an unreproducible observation is not grounds for auto-approving tools in the product
+
+IMP-003 [P3] [LOGIC_ERROR] [proven] [note] -- the roster-wins fix treats an unreadable MANIFEST as an absent one, so a corrupt active roster degrades to the divergence it was filed to remove
+  expected: a MANIFEST.md that exists but cannot be parsed is either honored or refused, never silently ignored
+  actual: _recorded_report_path catches ImproveError from _validate_report_path and returns None, which drops the caller back to the composed saipen_improve_<project_name>.md -- exactly the name the T-175 fix exists to stop trusting
+  evidence: tools/improve.py _recorded_report_path, whose docstring states the choice deliberately so that resolve_report_path, called on paths that need not exist yet, still resolves for an archived or hand-written cycle. Deliberate and documented, but the failure mode is silent: a corrupt roster reproduces the old bug instead of refusing
+
+IMP-004 [P3] [VAGUE] [proven] [note] -- the soak window check tolerates a ten percent shortfall before it fails, and reports both numbers without saying which one the verdict used
+  expected: a PASS means the horizon was covered, or the tolerance is visible in the verdict
+  actual: windowShort fires only below ninety percent of requestedSeconds, so a run covering 90.1 percent of a 12h horizon reads PASS. The returned object does carry durationSeconds and requestedSeconds, so the gap is legible -- but a consumer reading only the verdict string cannot tell a covered run from a nearly covered one
+  evidence: scripts/zaicode-soak-verdict.mjs computes windowShort as coveredSeconds < requestedSeconds * 0.9; the tolerance is a one-line constant with no comment naming why ten percent is safe

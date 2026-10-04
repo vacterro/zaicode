@@ -1,0 +1,14 @@
+{
+  "clauses": {
+    "SRC-130:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Make immediate implementation the default session behavior instead of producing a plan card and waiting for a separate implementation step, as shown in 2026-10-03_184158.png."
+    }
+  },
+  "derived_at": "2026-10-03T15:45:31Z",
+  "derived_from": "SRC-130",
+  "interpretation_revision": 1,
+  "schema_version": 1,
+  "source_sha256": "0c5457c1723c476ef958c8209bd0e64c0c1d150661a77a13e1c7f23b4f82959b"
+}

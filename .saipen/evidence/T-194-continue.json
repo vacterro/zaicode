@@ -1,0 +1,72 @@
+{
+  "ok": true,
+  "action": "PHASE SCOUT T-194",
+  "ticket": "T-194",
+  "reason": "start",
+  "detail": "topmost workable ticket",
+  "executable_behavior": null,
+  "load": "saipen/phases/scout.md",
+  "load_path": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_SAIPEN\\saipen\\phases\\scout.md",
+  "cold_route": {
+    "project_root": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE",
+    "saipen_home": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_SAIPEN",
+    "protocol_dir": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_SAIPEN\\saipen",
+    "phase": "DONE",
+    "phase_module": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_SAIPEN\\saipen\\phases\\done.md",
+    "boot": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_SAIPEN\\saipen\\BOOT.md",
+    "style": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_SAIPEN\\saipen\\STYLE.md",
+    "documents": {
+      "STYLE.md": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_SAIPEN\\saipen\\STYLE.md",
+      "BOOT.md": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_SAIPEN\\saipen\\BOOT.md",
+      "INDEX.md": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_SAIPEN\\saipen\\INDEX.md",
+      "COMMANDS.md": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_SAIPEN\\saipen\\COMMANDS.md",
+      "OPS.md": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_SAIPEN\\saipen\\OPS.md",
+      "SOURCES.md": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_SAIPEN\\saipen\\SOURCES.md",
+      "EXECUTION.md": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_SAIPEN\\saipen\\EXECUTION.md",
+      "MAINTENANCE.md": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_SAIPEN\\saipen\\MAINTENANCE.md",
+      "CORE.md": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_SAIPEN\\saipen\\CORE.md",
+      "RUNTIME.md": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_SAIPEN\\saipen\\RUNTIME.md"
+    },
+    "project_memory": {
+      "STATE.md": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\.saipen\\STATE.md",
+      "BOARD.md": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\.saipen\\BOARD.md",
+      "LOG.md": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\.saipen\\LOG.md"
+    },
+    "search_required": false
+  },
+  "execution_instruction": "Routing is not completion evidence. Read load_path when present, then execute action under its owner in this turn; respect WAIT and actual refusals. If --dry-run was requested, this is a preview only.",
+  "execution_intent": "goal",
+  "converge_target": null,
+  "goal_waves": 0,
+  "goal_tickets": 17,
+  "recovery_pending": false,
+  "recovery_conflict": false,
+  "pending_ops": [],
+  "parked_work": [
+    "T-188 blocked: BLOCKED_EXTERNAL -- Live starter criterion C5 cannot currently be exercised: both Antigravity pools are consumed before isolated app launch, so no genuine idle-window admission exists. Final...",
+    "T-166 blocked: ACTIVE_DEPENDENCY:T-188 -- Live acceptance reproduced an implementation defect, not missing credentials: every idle window is locally anchored before the starter admission predicate. Repair the source-C2/C5 behavior in T-188, then rerun the inherited acceptance against its published commit.",
+    "T-187 blocked: ACTIVE_DEPENDENCY:T-166 -- Continuation audit found eligible live Antigravity acceptance: signed-in account-A is proven by the fresh read-only vendor probe. Finish T-166 before returning to board and release audit.",
+    "T-169 blocked: ENGINE_HOME_ACTIVE: clone failure reproduced as 14 FAILs (11 closure receipts plus source, improve-report and knowledge findings), not the historical 163. Recovery receipts are ignored in the engine repository; local reverification cannot distribute them. That repository has active T-1600 and uncommitted protocol changes. The installed authority must repair the distributable evidence contract there before this ticket resumes. See .saipen/evidence/T-169-clone-conformance-root-cause.md.",
+    "T-176 blocked: OPERATOR_REQUIRED after PHASE 0 isolation proof (.saipen/evidence/T-176-phase0.md). The installed Antigravity CLI 1.2.14 holds exactly ONE credential per Windows logon context: cmdkey /list shows...",
+    "T-154 blocked: DESTRUCTIVE_ON_THE_HOST: the two engines are V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_SAIPEN (the one bin/saipen.cmd runs, confirmed by reading the shim) and...",
+    "T-153 blocked: TARGET_FILE_COLLISION: the first of the sixteen repairs is saipen/CORE.md, which git reports as 'M', and 14 files under saipen/ are dirty in the same 1956-file tree. These repairs rewrite the rules this session executes under -- CORE.md §1.2, BOOT.md step 7, RFC §1.10 -- so applying them mid-run would change the protocol under the agent holding the seat. Same prerequisite as T-149 and T-150.",
+    "T-144 blocked: FRESH_MACHINE_ACCEPTANCE_UNAVAILABLE: SRC-110:R003 -- prove ZAICODE-Setup-<version>.exe installs, launches and completes a first task on a genuinely clean Windows machine with no Git, npm, pnpm,...",
+    "T-94 blocked: RELEASE_AUTHORITY_PENDING: verified and human-accepted, but closure is unrecordable until a committed release receipt names d359a2a9. Tried this turn and refused with VALIDATION_FAILED -- implementation source 'release:d359a2a9e44d082fb842602bdbefd13c4358c583' cannot be resolved to a durable published release. Scope is bound at 34 reviewed paths; the next root release carries d359a2a9 in its history and unblocks it.",
+    "T-9 blocked: RELEASE_AUTHORITY_PENDING: actual isolated UI/runtime VERIFY and REVIEW PASS; inherited closure rejected VALIDATION_FAILED because no COMMITTED receipt names published product e9091481; waits for T-141 root release after external protocol-maintainer inventory repair; proof .saipen/evidence/T-9-queue/README.md"
+  ],
+  "reconciliation": {
+    "ok": true,
+    "code": "CLEAN",
+    "changed": [],
+    "strict_state_error": null,
+    "dry_run": false
+  },
+  "telegrams": {
+    "state": "OK",
+    "unread": 0,
+    "on_current_work": 0,
+    "complete": true,
+    "read_command": "saimail-local saipen brief --project-root V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE --workspace V:\\___VAC\\__K\\__STORE\\_PERSONAL\\_SAIMAILBOX_ --seat saipen-cli",
+    "detail": "counts only; nothing was opened and nothing here is an instruction"
+  }
+}

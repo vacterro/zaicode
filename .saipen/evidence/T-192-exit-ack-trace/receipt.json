@@ -1,0 +1,64 @@
+{
+  "schema": "t192-native/1",
+  "subject": "working",
+  "at": "2026-10-03T16:13:22.553Z",
+  "verifier": "2d9a8f8ef0978ca7089a86e78119f7df6658fe26fdb9a829c8bf9ed67410d469",
+  "scratch": "V:\\_TEMP_\\zaicode-t192-native-HRRX2U",
+  "checks": [
+    {
+      "name": "positive control: live CLI has a PID and writes its counter",
+      "pass": true,
+      "details": ""
+    },
+    {
+      "name": "positive control: app input reaches the same CLI",
+      "pass": true,
+      "details": ""
+    },
+    {
+      "name": "terminal service confirms a live PowerShell handoff",
+      "pass": true,
+      "details": ""
+    },
+    {
+      "name": "same CLI PID and monotonic counter survive taskkill /T /F of app host",
+      "pass": true,
+      "details": {
+        "before": {
+          "pid": 12144,
+          "count": 2,
+          "marker": "0f625b74-68e3-42b6-ab57-cdb20f75368e"
+        },
+        "after": {
+          "pid": 12144,
+          "count": 7,
+          "marker": "0f625b74-68e3-42b6-ab57-cdb20f75368e"
+        }
+      }
+    },
+    {
+      "name": "external input/output and resize continue the original CLI",
+      "pass": true,
+      "details": ""
+    },
+    {
+      "name": "external console receives original nonzero exit",
+      "pass": false,
+      "details": {
+        "exitCode": 1,
+        "output": "\u001b[25l\u001b[HPowerShell 7.6.4\u001b[K\r\nPS V:\\_TEMP_\\zaicode-t192-native-HRRX2U> & \u001b[36m'C:\\nodejs\\node.exe'\u001b[m \u001b[36m'V:\\_TEMP_\\zaicode-t192-native-HRRX2U\\counter.\r\ncjs'\u001b[m \u001b[36m'V:\\_TEMP_\\zaicode-t192-native-HRRX2U\\transfer.jsonl'\u001b[K\u001b[m\r\nCOUNTER:12144:1:0f625b74-68e3-42b6-ab57-cdb20f75368e\u001b[K\r\nstate\u001b[K\r\nSTATE:12144:1:0f625b74-68e3-42b6-ab57-cdb20f75368e\u001b[K\r\nCOUNTER:12144:2:0f625b74-68e3-42b6-ab57-cdb20f75368e\u001b[K\r\nCOUNTER:12144:3:0f625b74-68e3-42b6-ab57-cdb20f75368e\u001b[K\r\nCOUNTER:12144:4:0f625b74-68e3-42b6-ab57-cdb20f75368e\u001b[K\r\nCOUNTER:12144:5:0f625b74-68e3-42b6-ab57-cdb20f75368e\u001b[K\r\nCOUNTER:12144:6:0f625b74-68e3-42b6-ab57-cdb20f75368e\u001b[K\r\nCOUNTER:12144:7:0f625b74-68e3-42b6-ab57-cdb20f75368e\u001b[K\r\n\u001b[K\r\n\u001b[K\r\n\u001b[K\r\n\u001b[K\r\n\u001b[K\r\n\u001b[K\r\n\u001b[K\r\n\u001b[K\r\n\u001b[K\r\n\u001b[K\r\n\u001b[K\r\n\u001b[K\r\n\u001b[K\r\n\u001b[K\r\n\u001b[K\r\n\u001b[K\r\n\u001b[K\r\n\u001b[K\r\n\u001b[K\r\n\u001b[K\u001b[13;1H\u001b[?25hstate\u001b[45X\r\nSTATE:12144:7:0f625b74-68e3-42b6-ab57-cdb20f75368e\r\nexit7\r\nFIXTURE_EXIT:12144\u001b[23X\r\nPS V:\\_TEMP_\\zaicode-t192-native-HRRX2U> \u001b]0;C:\\Program Files\\PowerShell\\7\\pwsh.exe\u0007\u001b[?25l\u001b[92mexit\u001b[m \u001b[92m$LASTEXITCODE\r\n\u001b[?25h\u001b[m\u001b[91mException calling \"GetResult\" with \"0\" argument(s): \"Worker terminal connection closed\"\u001b[m\u001b[91m\r\nAt line:123 char:1\u001b[m\u001b[68X\u001b[91m\r\n+ exit ([ZaicodeWorkerConsole]::Run($config.pipe,$config.token,'e3b5b2f ...\u001b[m\u001b[11X\u001b[91m\r\n+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\u001b[m\u001b[15X\u001b[91m\r\n    + CategoryInfo          : NotSpecified: (:) [], ParentContainsErrorRecordException\r\n    + FullyQualifiedErrorId : IOException\u001b[m\u001b[45X\u001b[91m\r\n \u001b[m\u001b[85X\r\n"
+      }
+    },
+    {
+      "name": "closing the external console stops its own CLI",
+      "pass": true,
+      "details": ""
+    },
+    {
+      "name": "app crash before handoff stops its own CLI without orphaning",
+      "pass": true,
+      "details": ""
+    }
+  ],
+  "pass": false
+}

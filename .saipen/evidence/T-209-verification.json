@@ -1,0 +1,24 @@
+{
+  "at": "2026-10-04T04:17:55.713Z",
+  "verifier": "a9d29f58fcdf7127c1e702d3ac507d4e9deebaef4222cfe93cf664843edd6f9e",
+  "redSubject": "e6dc22fba62456f5c8fbf0132e3a2906ae9c11c6b2ba8dd5be51dc10c6a8065d",
+  "greenSubject": "4643aacf33f5fda48f3564c7580dcefd44fe4529fc26d205a433bfc5507c364a",
+  "totals": {
+    "tests": 1491,
+    "passed": 1489,
+    "failed": 0,
+    "skipped": 2
+  },
+  "packaged": 56,
+  "owned": [
+    "packages/ui/src/zaicode/ZaicodeWorkerParts.tsx",
+    "packages/ui/src/zaicode/ZaicodeWorkersDockFrame.tsx",
+    "packages/ui/src/zaicode/ZaicodeWorkersPanel.tsx",
+    "packages/ui/src/zaicode/zaicodePanelDock.tsx",
+    "packages/ui/src/zaicode/zaicodeWorkerLayout.ts",
+    "packages/ui/src/zaicode/zaicodeWorkerPrefs.ts",
+    "packages/ui/test/zaicodeT209WorkersCollapse.test.ts",
+    "specs/zaicode-t209-workers-collapse.md"
+  ],
+  "foreignPreserved": 18
+}

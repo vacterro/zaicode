@@ -2999,6 +2999,7 @@
   "settings.sidebar.group.zaicode": "ZAICODE",
   "zaicode.settings.autoRestart": "Перезапуск после сбоя",
   "zaicode.fallback.switched": "У {fromModel} достигнут лимит. Следующее сообщение уйдёт в {toModel}; вернуться можно в любой момент в меню моделей.",
+  "zaicode.fallback.routeHold": "{fromModel} на удержании квоты до {until}. Это сообщение уйдёт в {toModel}.",
   "zaicode.settings.autoRestartHint": "Включено по умолчанию. Лаунчер перезапускает упавшее приложение; десктопный хост перезагружает упавшее окно.",
   "zaicode.todo.title": "Список дел",
   "zaicode.todo.detach": "Открепить окно списка дел",

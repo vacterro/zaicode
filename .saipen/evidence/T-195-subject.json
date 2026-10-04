@@ -1,0 +1,122 @@
+{
+  "schema": "t195-subject/1",
+  "at": "2026-10-03T16:48:02.605Z",
+  "head": "6fa72c2959567c01f72dc6c2058a5b01217bed4d",
+  "own": [
+    {
+      "path": "packages/ui/src/v4/composer/composerDraftStore.ts",
+      "sha256": "f2e48230e991194a4595c96fb1721c744595e5d2f1b00f8d942baa86bdc057ef"
+    },
+    {
+      "path": "packages/ui/src/v4/composer/useDraftConfigControl.ts",
+      "sha256": "9ff3dc29393d562619145306bc187d5d15b42e109118afdd18096a72611f1fa3"
+    },
+    {
+      "path": "packages/ui/src/v4/composer/composerPlanTransition.ts",
+      "sha256": "45523cc7c4da5550ce75248f7541465c37a626cb93f9639c407b9f7bfa8d26ef"
+    },
+    {
+      "path": "packages/ui/src/v4/composer/newTaskDraft.ts",
+      "sha256": "40466abafd6f623fc7a1d2a8ba675076559432d2e8b5a5acc0b1abcb2d3590bd"
+    },
+    {
+      "path": "packages/ui/src/ToolCallBlocks/renderers/switch-mode.tsx",
+      "sha256": "02574752e72644a7860c808ed326f7c373879eb68b5f87406008d61483364acc"
+    },
+    {
+      "path": "packages/ui/src/v4/ConversationTurnRow.tsx",
+      "sha256": "7abf8537b55f4a6f918ffb5292791ea4a0a87858e215a11cc18b063ce6827b3a"
+    },
+    {
+      "path": "apps/zcode-cli/packages/core/src/tool/handlers/plan-mode-prompts.ts",
+      "sha256": "2f7f2bb37702ff408ee10164b72cfd35bd49d7dbe9315246d5a97bc28eab4156"
+    },
+    {
+      "path": "packages/ui/test/zaicodeImmediateImplementation.test.ts",
+      "sha256": "1b7ab46bc1e9d86aa7672837f21a40cfe4b0be9cfb836cc34a53736a8a245060"
+    },
+    {
+      "path": "apps/zcode-cli/packages/core/test/zaicodeImmediateImplementation.test.ts",
+      "sha256": "071855e76c117e8bedbf765056126ae93aa883ec4b59ee5bf19d5fa39bebec90"
+    },
+    {
+      "path": "specs/zaicode-immediate-implementation.md",
+      "sha256": "28b7d89d935e0c1026e2c9be11026a351cef21c376c952f2e8640613f8cd8d7b"
+    }
+  ],
+  "foreign": [
+    {
+      "path": "packages/desktop/test/zaicodeT188ModelInventory.test.ts",
+      "sha256": "334ffb0fa092f288073e61f4716419aa757ae2f770dc8d2504040d80405b2902"
+    },
+    {
+      "path": "packages/provider-node/scripts/sai-accounts-live-acceptance.ts",
+      "sha256": "751af46d38aa8a2b421f745d274536ab9af65ba259300922ee52974b9546dae8"
+    },
+    {
+      "path": "packages/provider-node/src/sai-accounts-source.ts",
+      "sha256": "607c4d146252b46dd0104736279a21618d70ad78551a5e350ab99d6cd21a3192"
+    },
+    {
+      "path": "packages/provider-node/test/sai-accounts-source.test.ts",
+      "sha256": "02e414d8c2599a0b6dba2206b419b547c684a73a19e65e8ad0b626733ff7247c"
+    },
+    {
+      "path": "packages/ui/test/zaicodeT188WindowStart.test.ts",
+      "sha256": "2d2b9bae39c377ebc5c985fb3f56589ed4debd690ceff262c9cfa15c668f9edf"
+    },
+    {
+      "path": "specs/zaicode-t188-live-window-start.md",
+      "sha256": "f086c5e1bb88bcdcf5df1611de3133dfc58139e5b7553137adf663261b87e9a5"
+    },
+    {
+      "path": "README.md",
+      "sha256": "e952a7b7cfb5926c7b150c487d855580f97c1633d785c1b4683aa5f15c05313b"
+    },
+    {
+      "path": "packages/desktop/src/main/zaicodeEngines.ts",
+      "sha256": "713df03fb95d148cb125ffd78fb62f03d9613c486c10a1ef01de0a6e49d5bc2d"
+    },
+    {
+      "path": "packages/desktop/src/main/zaicodeWindowStarter.ts",
+      "sha256": "28547f158e591f7add94e2ad1e37e780da31e588a8731325b7ad9c6583a489af"
+    },
+    {
+      "path": "packages/desktop/test/zaicodeWindowStarter.test.ts",
+      "sha256": "367246354dc2a75fd2789fa602651ddde228be686e5ff031ed9dee94d8d5e32d"
+    },
+    {
+      "path": "packages/provider-node/src/index.ts",
+      "sha256": "9d33a9e595b390276f1f6e9ec9d77270fd5aeb0ae61b06509755ed6cc4c9dfd8"
+    },
+    {
+      "path": "packages/shared/src/zaicode-engines.ts",
+      "sha256": "a36c7d09f56d37113dab6edd7c11f581d2cf8a2868113ec81e719fabe1676d32"
+    },
+    {
+      "path": "packages/ui/src/zaicode/ZaicodeLimitViews.tsx",
+      "sha256": "f38c89c39aacc8267d1c9f873259315f531b9c725456b551788bda975e8a84f1"
+    },
+    {
+      "path": "packages/ui/src/zaicode/zaicodeSettingsDefaults.json",
+      "sha256": "9c1837e7943f07597f1129850393f3a744094e36e46610a47fdf8959f68bc6e9"
+    },
+    {
+      "path": "packages/ui/test/zaicodeSrc116WindowTruth.test.ts",
+      "sha256": "e072883c8003c7e8e7ca9a59a3933a02a1189433c1e87c14bf2458cc5158c034"
+    },
+    {
+      "path": "packages/ui/test/zaicodeT136.test.ts",
+      "sha256": "189788b42677b5352e3b71c71bda698201e917658bd9a38ae560bc677a3770fe"
+    },
+    {
+      "path": "packages/ui/test/zaicodeT143.test.ts",
+      "sha256": "b308e6b034a283f512df0bb839e96fcc75e40bf694b1a64f706a55509634e2d9"
+    },
+    {
+      "path": "packages/ui/test/zaicodeWave63.test.ts",
+      "sha256": "9721a6650c5f92378db4e409523824a1fc0b2c9b2e1313d00628a66f0520ae24"
+    }
+  ],
+  "fingerprint": "0cfe1416b0722adfac0fd7516052c43a7fd0b1b2b73b26e720184614e79c14db"
+}

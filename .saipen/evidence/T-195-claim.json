@@ -1,0 +1,15 @@
+{
+  "ok": true,
+  "code": "CLAIMED",
+  "op_id": "claim-99c9667ea46f42ee96ffdf19c9f3d45b",
+  "changed_files": [
+    ".saipen/LOG.md",
+    ".saipen/BOARD.md",
+    ".saipen/STATE.md"
+  ],
+  "recovery_required": false,
+  "ticket": "T-195",
+  "event_id": "E-3149",
+  "phase": "SCOUT",
+  "next_action": "PHASE SCOUT T-195"
+}

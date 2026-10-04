@@ -1,0 +1,15 @@
+{
+  "verifier": "c8aa266a641df43be60b4f642899e5d19a7d6aec2e904f908d503eec28f23f32",
+  "backup": "V:\\_TEMP_\\zaicode-t208-wiring-AwkWh5",
+  "red": {
+    "subject": "6590a5accc4d14b245300281e1a1106faeb812b4577c953885222d32817413e4",
+    "exit": 1,
+    "collected": true
+  },
+  "green": {
+    "subject": "9805e0bf34e3a6c8bbef3ce7a65b27522c48b3d543d5315591441ce39740194e",
+    "exit": 0,
+    "collected": true
+  },
+  "restored": true
+}

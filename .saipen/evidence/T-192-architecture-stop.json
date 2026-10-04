@@ -1,0 +1,5 @@
+{
+  "command": "pnpm10 architecture:check --changed",
+  "exitCode": 0,
+  "at": "2026-10-03T14:53:40.3502914Z"
+}

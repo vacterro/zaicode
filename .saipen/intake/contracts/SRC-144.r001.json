@@ -1,0 +1,14 @@
+{
+  "clauses": {
+    "SRC-144:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "A session row can render `Working for` with an empty duration when the authoritative start timestamp is missing or invalid; it must never render an empty suffix: show a localized duration when start is known, neutral Working when active but unproven, and no Working at all when the run is not actually active; do not invent 0s for unknown starts."
+    }
+  },
+  "derived_at": "2026-10-04T00:41:59Z",
+  "derived_from": "SRC-144",
+  "interpretation_revision": 1,
+  "schema_version": 1,
+  "source_sha256": "bdf5484ab5e3019fd82239f24e82ed6151d9f82ef56362709309ad4c9c3ca14f"
+}

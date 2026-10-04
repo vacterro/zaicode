@@ -1,0 +1,13 @@
+{
+  "at": "2026-10-03T20:15:27.751Z",
+  "full": {
+    "tests": 1476,
+    "pass": 1474,
+    "fail": 0,
+    "skipped": 2
+  },
+  "own": 49,
+  "foreign": 18,
+  "sourceAggregate": "eba57db31ac12f8ecc4fce5ee1d75f3015f9351614e996a84180fbdfd9916ff9",
+  "changed": []
+}

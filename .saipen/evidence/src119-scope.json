@@ -1,0 +1,197 @@
+{
+  "ticket": "T-180",
+  "repository": "zcode",
+  "baseRevision": "4a9ad6d9aba404e432688fabf2de4a9dfd3dd092",
+  "excludedForeign": [
+    "README.md",
+    "package.json",
+    "packages/provider-node/src/index.ts",
+    "packages/ui/src/zaicode/zaicodeSettingsDefaults.json"
+  ],
+  "files": [
+    {
+      "path": "packages/desktop/src/host/hostProviderQuotaCircuit.ts",
+      "sha256": "4bcb207cbc184819b5e06d05aa6c383ce832c2fcd1eae0fb48ed43ee26048b6d"
+    },
+    {
+      "path": "packages/desktop/src/host/zaicodeRunDispatch.ts",
+      "sha256": "5bb12220e9457e70e400da1a8f0d602a7e116f26610171cde62ef4ddcb93bbf6"
+    },
+    {
+      "path": "packages/desktop/test/hostProviderQuotaCircuit.test.ts",
+      "sha256": "a7eb63d6a246fb7b938b864d0869d1ed5702b4e7b818dcf72ebd0ff95d30a091"
+    },
+    {
+      "path": "packages/shared/src/provider-quota-circuit.ts",
+      "sha256": "12ed3f0f3835995a0206b98eeb1047a1351b31f7f1b73d09d1cd798d0152ae1c"
+    },
+    {
+      "path": "packages/shared/src/zaicode-router.ts",
+      "sha256": "1467c60a8d12afadfc6952ab44ca72e4b5a3e43412d2999b51b29c00b1881fa3"
+    },
+    {
+      "path": "packages/shared/src/zaicode-routing.ts",
+      "sha256": "4eb24a0b2e5c91178c9d6de254c7eab0384df74dcc90ff2e1799d5004245035e"
+    },
+    {
+      "path": "packages/ui/src/App.tsx",
+      "sha256": "dead0232e2d332617d971dcb77e3a012b5e7d0e4f099ee97eea888fafe846120"
+    },
+    {
+      "path": "packages/ui/src/Root.tsx",
+      "sha256": "01d8ebd7bcfd70e155b7d06ca846c362de1384831cdfa80a18658551a8334d55"
+    },
+    {
+      "path": "packages/ui/src/WorkspaceSidebar.tsx",
+      "sha256": "5cd61fc6c8b6155e7370a6e4df1e47e080a1f7415aecb394f2d90ae0448508bb"
+    },
+    {
+      "path": "packages/ui/src/app-shell/WorkspaceShellLayout.tsx",
+      "sha256": "c413e7573815e9fa9ce839bf15c33707d67c3db777568c4183bce66f2ee79cb8"
+    },
+    {
+      "path": "packages/ui/src/prompt-editor/ZaicodeSaipenCompact.tsx",
+      "sha256": "176f6721cc7a6db42cb85dbec7cbb28b6c672910264052e18d3fb7052b106143"
+    },
+    {
+      "path": "packages/ui/src/prompt-editor/ZaicodeSaipenControls.tsx",
+      "sha256": "1b984cf0daab055c69ae2dd02b7db56741251b12d85170941e699bbdbb84bb03"
+    },
+    {
+      "path": "packages/ui/src/settings/zaicodeHelpOrder.ts",
+      "sha256": "2d28bc9b7d8ab45d6a91155614a6f039187d0507abc2de3097e76b780e1b23ab"
+    },
+    {
+      "path": "packages/ui/src/settings/zaicodeHelpTopicsCore.ts",
+      "sha256": "72dbef12889f3dc295b160066d50b7df8434f3d1dcf13345012699ee7c600353"
+    },
+    {
+      "path": "packages/ui/src/settings/zaicodeHelpWiki.ts",
+      "sha256": "c1b90ba1aa7de25c2946fc9190c836f6b5df68462d4504e01a51c5b929c3d2c3"
+    },
+    {
+      "path": "packages/ui/src/v4/ConversationComposer.tsx",
+      "sha256": "253d5cc7e77ab54356cf543df5c358d693c771ce45fa71e7427fee0d7d9e0516"
+    },
+    {
+      "path": "packages/ui/src/v4/ConversationTimeline.tsx",
+      "sha256": "9a85372fb08e41081a8d2d7ebab3919133c6e6dd2a3937bbeb9cd0e4be187545"
+    },
+    {
+      "path": "packages/ui/src/v4/ConversationTurnGroup.tsx",
+      "sha256": "d868164e4005ab2a10829cb0a484d96ca21e998e0aaf9990e3a72c62eb32cb4e"
+    },
+    {
+      "path": "packages/ui/src/v4/SessionPane.tsx",
+      "sha256": "fb89249fdb8a6b1d24653ce74fd935fd63942a3d17259379ceeddf5f465bd383"
+    },
+    {
+      "path": "packages/ui/src/v4/conversationProjectionStore.ts",
+      "sha256": "ec29b33415c81cba231265b2f6f2d0e890274463f2b15eaf006d18bf48667202"
+    },
+    {
+      "path": "packages/ui/src/v4/conversationRetention.ts",
+      "sha256": "239c6cef0fd6616047ef7109ecca985748c0eec74c91aa36dbf9ac1efdf0bd60"
+    },
+    {
+      "path": "packages/ui/src/v4/conversationTurnWorkSegments.ts",
+      "sha256": "b98c10fd08b005a7389023fb2318b56989afc20cabdb91d0a4a0031d3ab33d83"
+    },
+    {
+      "path": "packages/ui/src/zaicode/ZaicodeAppRuntime.tsx",
+      "sha256": "e471381c0edb0607ceba501757a38f0951bf3cfdcb654571d3f9c34f9b90c50e"
+    },
+    {
+      "path": "packages/ui/src/zaicode/ZaicodeCommonTools.tsx",
+      "sha256": "eb0cdc096f2f043b0eec6e8e49ce4d23e970f31e2b0ad97848dea856f00bf758"
+    },
+    {
+      "path": "packages/ui/src/zaicode/ZaicodeEngineModelRow.tsx",
+      "sha256": "4eb2ef46af6511af8e020afe35a038e7ed72bee34d2f150b6f08f5ab33bda9bf"
+    },
+    {
+      "path": "packages/ui/src/zaicode/ZaicodeGlobalSidebars.tsx",
+      "sha256": "3ec8ae3b159a9452ee75a69bc1908460861e43e99b217b88b221619843dc09fd"
+    },
+    {
+      "path": "packages/ui/src/zaicode/ZaicodeSaipenMenu.tsx",
+      "sha256": "66fab6006496446c92ec0dde360274dc99d787e350e4fefb710a9145f2f13ed2"
+    },
+    {
+      "path": "packages/ui/src/zaicode/ZaicodeUsageView.tsx",
+      "sha256": "cc8f4a6f4b9c264ad233da5c4bb58c9c71029ba0d100cd29d18e231cd5a58520"
+    },
+    {
+      "path": "packages/ui/src/zaicode/zaicodeActions.ts",
+      "sha256": "2f9746f82b4d25e7c7ed67501df143c70a6b73fc0b80b2e54fcc360b3c0ae299"
+    },
+    {
+      "path": "packages/ui/src/zaicode/zaicodeAutoRetry.ts",
+      "sha256": "2911c93acbb31d870beeb4e6836f6766e5e616dad2979277242c29eb36c48c33"
+    },
+    {
+      "path": "packages/ui/src/zaicode/zaicodeHelpTopics.ts",
+      "sha256": "31575f7352fdab3e4ed305e49ba5b47aed593365902c4a53a4b1fdfc166ff36b"
+    },
+    {
+      "path": "packages/ui/src/zaicode/zaicodeHotkeys.ts",
+      "sha256": "b3db3cec6428bef4bb2bcbe1eeee50932badc72be82491a78450b343c8f6e00c"
+    },
+    {
+      "path": "packages/ui/src/zaicode/zaicodeIconSlots.tsx",
+      "sha256": "0aa6e1890ec4b10f00b025b58806ee5879267adf3fcc401831d423603f9c2735"
+    },
+    {
+      "path": "packages/ui/src/zaicode/zaicodeLayoutPrefs.ts",
+      "sha256": "7ffc4cf56f69f0e60abb64abaa9162e9de50b089eac40fcf25e974b555b37611"
+    },
+    {
+      "path": "packages/ui/src/zaicode/zaicodeLiveRuns.ts",
+      "sha256": "d3158c6bcf4d8d5e1e53616c64a8371d93cdf5bd77e02030beaf0f3e3f95039e"
+    },
+    {
+      "path": "packages/ui/src/zaicode/zaicodeModelFallback.ts",
+      "sha256": "a49f22b5de7e24e754b6d121d34bcb3cbee275883dfb59a8bfafbdd9980bb765"
+    },
+    {
+      "path": "packages/ui/src/zaicode/zaicodeProjectRuntime.ts",
+      "sha256": "598491b702d48b04d8f6dceb36ebddb4430efefec6c6729d0c6c409d7875a8de"
+    },
+    {
+      "path": "packages/ui/src/zaicode/zaicodeQuotaRoute.ts",
+      "sha256": "b233f8e55a0bff4db0d2b2d1ee5ac46b4d73a5bf1e68c5b8221ac0f0392cd7be"
+    },
+    {
+      "path": "packages/ui/src/zaicode/zaicodeRoutingModel.ts",
+      "sha256": "d49c23ca0ecbc926d6895c9d2100c28dd66285859eeacf7c563d1c3fffbd9fb9"
+    },
+    {
+      "path": "packages/ui/src/zaicode/zaicodeSidebarPrefs.ts",
+      "sha256": "21ce6f4921e4e706729453214158d1a984a05ae1aedd3f1e117144ba8890fe43"
+    },
+    {
+      "path": "packages/ui/src/zaicode/zaicodeUsage.ts",
+      "sha256": "7c819287eb493bcda94eccdd659e5845085094048a17c9564da58c080ed6ee64"
+    },
+    {
+      "path": "packages/ui/test/zaicodeModelFallback.test.ts",
+      "sha256": "424208154bbc1330ad191b5481e5747f65e8ae3c03828991a23d929a7434f44b"
+    },
+    {
+      "path": "packages/ui/test/zaicodeSaiasui.test.ts",
+      "sha256": "eb4fc80398fa89527151bf58bd0a031dcf179124c5905041b2ebc097f7a870e9"
+    },
+    {
+      "path": "packages/ui/test/zaicodeSrc119Performance.test.ts",
+      "sha256": "6cc6cb2890bf5fdaf8c873d0b90a8bae21701c34e2ff8a21a7018c7c712881d7"
+    },
+    {
+      "path": "packages/ui/test/zaicodeSrc119UsageAndStatus.test.ts",
+      "sha256": "601c558bd0616defa7209a676c23e5f2065131491892820d3f67b48c0a8b6c38"
+    },
+    {
+      "path": "packages/ui/test/zaicodeWave4Organization.test.ts",
+      "sha256": "d0860d8db9b106eb1d51b193531183d71a36355f880169b0e46d1096ec1a90ea"
+    }
+  ]
+}

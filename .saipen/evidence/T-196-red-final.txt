@@ -1,0 +1,1925 @@
+✔ a new 400-line module passes and a 401-line module fails the actual CLI linter (111.6962ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/adapters/src/browser/index.ts (51.4152ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/adapters/src/config/file-config.adapter.ts (52.2869ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/adapters/src/config/index.ts (53.6017ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/adapters/src/fs/index.ts (61.963ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/adapters/src/mcp/index.ts (58.4203ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/adapters/src/mcp/oauth-interactive.ts (51.2948ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/adapters/src/mcp/official-auth.ts (55.1776ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/adapters/src/mcp/pool.ts (62.9662ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/adapters/src/model/failure-classifier.ts (54.9946ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/adapters/src/model/runner-debug.ts (52.8397ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/adapters/src/model/runner-diagnostics.ts (53.1777ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/adapters/src/model/runner-generate.ts (51.8045ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/adapters/src/model/runner-stream.ts (55.6285ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/adapters/src/model/transform.ts (55.1807ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/adapters/src/plugins/index.ts (51.6384ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/adapters/src/plugins/marketplace.ts (62.2426ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/adapters/src/plugins/mcp.ts (52.0132ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/adapters/src/plugins/zip-source.ts (49.3958ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/adapters/src/skills/index.ts (50.2294ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/adapters/src/storage/index.ts (50.5743ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/adapters/src/storage/session-store/migrations.ts (50.9128ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/adapters/src/storage/session-store/repositories/usage.ts (50.4143ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/adapters/src/storage/session-store/sqlite-session-store.ts (51.1664ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/adapters/src/storage/session-target.ts (51.4392ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/adapters/src/storage/workspace-hook-trust-store.ts (51.0678ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/bootstrap/src/app/bundled-plugins.ts (54.3676ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/bootstrap/src/app/create-app.ts (55.6382ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/bootstrap/src/app/session-facade.ts (51.7115ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/bootstrap/src/app/types.ts (50.435ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/bootstrap/src/app/workspace-hook-review-controller.ts (54.9532ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/bootstrap/src/plugins.ts (58.8717ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/bootstrap/src/zcode-protocol-v4/cold-event-merge.ts (50.7226ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/bootstrap/src/zcode-protocol-v4/command-inbox.ts (51.2068ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/bootstrap/src/zcode-protocol-v4/commands/handlers/goal-compact.ts (53.1842ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/bootstrap/src/zcode-protocol-v4/conversation-telemetry-facts.ts (49.9142ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/bootstrap/src/zcode-protocol-v4/conversation-topic-publisher.ts (53.5505ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/bootstrap/src/zcode-protocol-v4/product-projection.ts (85.9972ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/bootstrap/src/zcode-protocol-v4/transcript-hydration.ts (56.0221ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/bootstrap/src/zcode-protocol-v4/v4-gateway.ts (60.9557ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/bootstrap/src/zcode-protocol/interaction-broker.ts (50.9959ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/bootstrap/src/zcode-protocol/plugins.ts (50.4869ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/bootstrap/src/zcode-protocol/server.ts (51.2428ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/bootstrap/src/zcode-protocol/session-mapper.ts (52.4416ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/bootstrap/src/zcode-protocol/subagent-session-query.ts (49.7191ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/bootstrap/src/zcode-protocol/v4-bridge.ts (55.4325ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/cli/src/prompt-command.ts (56.65ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/cli/src/run.ts (50.3612ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/contracts/src/events/event-reducer.ts (50.5162ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/contracts/src/interfaces/browser-control.port.ts (52.1522ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/contracts/src/interfaces/dynamic-workflow-run.port.ts (50.9875ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/contracts/src/interfaces/session-store.port.ts (52.8451ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/contracts/src/model/index.ts (50.5333ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/contracts/src/workflow/index.ts (50.405ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/agent/message-history.ts (64.6389ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/agent/session-history-hydrator.ts (60.5134ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/hooks/runner.ts (50.7678ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/mcp/index.ts (143.4667ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/permission/service.ts (52.3209ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/runtime/agent-runtime.ts (50.7229ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/runtime/helpers/attachment-media-resolver.ts (50.9965ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/runtime/internal-turn-methods.ts (55.3752ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/runtime/methods/background.ts (50.6924ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/runtime/methods/compact-active.ts (53.4529ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/runtime/methods/compact-persistence.ts (53.1807ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/runtime/methods/compact.ts (51.6012ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/runtime/methods/events.ts (55.3837ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/runtime/methods/file-rewind.ts (58.4373ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/runtime/methods/model.ts (52.1266ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/runtime/methods/resume.ts (49.6729ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/runtime/methods/runtime-command-queue.ts (49.6552ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/runtime/methods/session-fork.ts (54.1939ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/runtime/methods/steering.ts (53.9958ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/runtime/methods/target-completion-verification.ts (54.6622ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/runtime/methods/turn-model-step.ts (54.9228ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/runtime/methods/turn-tools.ts (53.9815ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/runtime/methods/turn.ts (49.7941ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/runtime/methods/usage-observability.ts (50.6316ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/tool/executor/background-tasks.ts (51.9146ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/tool/executor/call-runner.ts (53.0972ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/tool/handlers/bash.ts (55.3217ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/tool/handlers/read-session-context.ts (53.2403ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/tool/handlers/read.ts (55.2288ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/workflow/lifecycle.ts (53.0876ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/debug/server/analyzer.ts (55.8745ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/debug/src/App.tsx (56.1889ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/telemetry/src/agent-trace-runtime.ts (55.7474ms)
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/telemetry/src/model-api-recorder.ts (53.2191ms)
+ℹ tests 88
+ℹ suites 0
+ℹ pass 1
+ℹ fail 87
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5111.9174
+
+✖ failing tests:
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/adapters/src/browser/index.ts (51.4152ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (414).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/browser/index.ts","labels":[{"span":{"offset":11370,"length":0,"line":414,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/adapters/src/config/file-config.adapter.ts (52.2869ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (509).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/config/file-config.adapter.ts","labels":[{"span":{"offset":14030,"length":0,"line":509,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/adapters/src/config/index.ts (53.6017ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (439).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/config/index.ts","labels":[{"span":{"offset":12070,"length":0,"line":439,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/adapters/src/fs/index.ts (61.963ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (1644).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/fs/index.ts","labels":[{"span":{"offset":47098,"length":0,"line":1644,"column":29}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/adapters/src/mcp/index.ts (58.4203ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (1642).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/mcp/index.ts","labels":[{"span":{"offset":47038,"length":0,"line":1642,"column":29}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/adapters/src/mcp/oauth-interactive.ts (51.2948ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (410).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/mcp/oauth-interactive.ts","labels":[{"span":{"offset":11258,"length":0,"line":410,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/adapters/src/mcp/official-auth.ts (55.1776ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (408).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/mcp/official-auth.ts","labels":[{"span":{"offset":11202,"length":0,"line":408,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/adapters/src/mcp/pool.ts (62.9662ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (428).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/mcp/pool.ts","labels":[{"span":{"offset":11762,"length":0,"line":428,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/adapters/src/model/failure-classifier.ts (54.9946ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (562).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/model/failure-classifier.ts","labels":[{"span":{"offset":15514,"length":0,"line":562,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/adapters/src/model/runner-debug.ts (52.8397ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (776).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/model/runner-debug.ts","labels":[{"span":{"offset":21506,"length":0,"line":776,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/adapters/src/model/runner-diagnostics.ts (53.1777ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (427).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/model/runner-diagnostics.ts","labels":[{"span":{"offset":11734,"length":0,"line":427,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/adapters/src/model/runner-generate.ts (51.8045ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (605).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/model/runner-generate.ts","labels":[{"span":{"offset":16718,"length":0,"line":605,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/adapters/src/model/runner-stream.ts (55.6285ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (1518).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/model/runner-stream.ts","labels":[{"span":{"offset":43318,"length":0,"line":1518,"column":29}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/adapters/src/model/transform.ts (55.1807ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (440).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/model/transform.ts","labels":[{"span":{"offset":12098,"length":0,"line":440,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/adapters/src/plugins/index.ts (51.6384ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (878).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/plugins/index.ts","labels":[{"span":{"offset":24362,"length":0,"line":878,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/adapters/src/plugins/marketplace.ts (62.2426ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (2480).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/plugins/marketplace.ts","labels":[{"span":{"offset":72178,"length":0,"line":2480,"column":29}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/adapters/src/plugins/mcp.ts (52.0132ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (402).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/plugins/mcp.ts","labels":[{"span":{"offset":11034,"length":0,"line":402,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/adapters/src/plugins/zip-source.ts (49.3958ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (458).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/plugins/zip-source.ts","labels":[{"span":{"offset":12602,"length":0,"line":458,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/adapters/src/skills/index.ts (50.2294ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (424).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/skills/index.ts","labels":[{"span":{"offset":11650,"length":0,"line":424,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/adapters/src/storage/index.ts (50.5743ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (435).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/storage/index.ts","labels":[{"span":{"offset":11958,"length":0,"line":435,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/adapters/src/storage/session-store/migrations.ts (50.9128ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (821).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/storage/session-store/migrations.ts","labels":[{"span":{"offset":22766,"length":0,"line":821,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/adapters/src/storage/session-store/repositories/usage.ts (50.4143ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (704).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/storage/session-store/repositories/usage.ts","labels":[{"span":{"offset":19490,"length":0,"line":704,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/adapters/src/storage/session-store/sqlite-session-store.ts (51.1664ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (914).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/storage/session-store/sqlite-session-store.ts","labels":[{"span":{"offset":25370,"length":0,"line":914,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/adapters/src/storage/session-target.ts (51.4392ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (422).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/storage/session-target.ts","labels":[{"span":{"offset":11594,"length":0,"line":422,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/adapters/src/storage/workspace-hook-trust-store.ts (51.0678ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (472).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/storage/workspace-hook-trust-store.ts","labels":[{"span":{"offset":12994,"length":0,"line":472,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/bootstrap/src/app/bundled-plugins.ts (54.3676ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (601).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/app/bundled-plugins.ts","labels":[{"span":{"offset":16606,"length":0,"line":601,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/bootstrap/src/app/create-app.ts (55.6382ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (1148).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/app/create-app.ts","labels":[{"span":{"offset":32218,"length":0,"line":1148,"column":29}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/bootstrap/src/app/session-facade.ts (51.7115ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (654).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/app/session-facade.ts","labels":[{"span":{"offset":18090,"length":0,"line":654,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/bootstrap/src/app/types.ts (50.435ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (591).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/app/types.ts","labels":[{"span":{"offset":16326,"length":0,"line":591,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/bootstrap/src/app/workspace-hook-review-controller.ts (54.9532ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (503).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/app/workspace-hook-review-controller.ts","labels":[{"span":{"offset":13862,"length":0,"line":503,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/bootstrap/src/plugins.ts (58.8717ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (1280).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/plugins.ts","labels":[{"span":{"offset":36178,"length":0,"line":1280,"column":29}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/bootstrap/src/zcode-protocol-v4/cold-event-merge.ts (50.7226ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (797).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/zcode-protocol-v4/cold-event-merge.ts","labels":[{"span":{"offset":22094,"length":0,"line":797,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/bootstrap/src/zcode-protocol-v4/command-inbox.ts (51.2068ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (432).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/zcode-protocol-v4/command-inbox.ts","labels":[{"span":{"offset":11874,"length":0,"line":432,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/bootstrap/src/zcode-protocol-v4/commands/handlers/goal-compact.ts (53.1842ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (408).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/zcode-protocol-v4/commands/handlers/goal-compact.ts","labels":[{"span":{"offset":11202,"length":0,"line":408,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/bootstrap/src/zcode-protocol-v4/conversation-telemetry-facts.ts (49.9142ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (692).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/zcode-protocol-v4/conversation-telemetry-facts.ts","labels":[{"span":{"offset":19154,"length":0,"line":692,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/bootstrap/src/zcode-protocol-v4/conversation-topic-publisher.ts (53.5505ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (863).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/zcode-protocol-v4/conversation-topic-publisher.ts","labels":[{"span":{"offset":23942,"length":0,"line":863,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/bootstrap/src/zcode-protocol-v4/product-projection.ts (85.9972ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (4713).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/zcode-protocol-v4/product-projection.ts","labels":[{"span":{"offset":139168,"length":0,"line":4713,"column":29}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/bootstrap/src/zcode-protocol-v4/transcript-hydration.ts (56.0221ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (1669).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/zcode-protocol-v4/transcript-hydration.ts","labels":[{"span":{"offset":47848,"length":0,"line":1669,"column":29}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/bootstrap/src/zcode-protocol-v4/v4-gateway.ts (60.9557ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (2767).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/zcode-protocol-v4/v4-gateway.ts","labels":[{"span":{"offset":80788,"length":0,"line":2767,"column":29}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/bootstrap/src/zcode-protocol/interaction-broker.ts (50.9959ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (584).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/zcode-protocol/interaction-broker.ts","labels":[{"span":{"offset":16130,"length":0,"line":584,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/bootstrap/src/zcode-protocol/plugins.ts (50.4869ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (557).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/zcode-protocol/plugins.ts","labels":[{"span":{"offset":15374,"length":0,"line":557,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/bootstrap/src/zcode-protocol/server.ts (51.2428ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (827).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/zcode-protocol/server.ts","labels":[{"span":{"offset":22934,"length":0,"line":827,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/bootstrap/src/zcode-protocol/session-mapper.ts (52.4416ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (1368).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/zcode-protocol/session-mapper.ts","labels":[{"span":{"offset":38818,"length":0,"line":1368,"column":29}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/bootstrap/src/zcode-protocol/subagent-session-query.ts (49.7191ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (456).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/zcode-protocol/subagent-session-query.ts","labels":[{"span":{"offset":12546,"length":0,"line":456,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/bootstrap/src/zcode-protocol/v4-bridge.ts (55.4325ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (1704).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/zcode-protocol/v4-bridge.ts","labels":[{"span":{"offset":48898,"length":0,"line":1704,"column":29}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/cli/src/prompt-command.ts (56.65ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (540).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/prompt-command.ts","labels":[{"span":{"offset":14898,"length":0,"line":540,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/cli/src/run.ts (50.3612ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (514).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/run.ts","labels":[{"span":{"offset":14170,"length":0,"line":514,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/contracts/src/events/event-reducer.ts (50.5162ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (517).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/events/event-reducer.ts","labels":[{"span":{"offset":14254,"length":0,"line":517,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/contracts/src/interfaces/browser-control.port.ts (52.1522ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (480).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/interfaces/browser-control.port.ts","labels":[{"span":{"offset":13218,"length":0,"line":480,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/contracts/src/interfaces/dynamic-workflow-run.port.ts (50.9875ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (408).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/interfaces/dynamic-workflow-run.port.ts","labels":[{"span":{"offset":11202,"length":0,"line":408,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/contracts/src/interfaces/session-store.port.ts (52.8451ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (1077).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/interfaces/session-store.port.ts","labels":[{"span":{"offset":30088,"length":0,"line":1077,"column":29}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/contracts/src/model/index.ts (50.5333ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (874).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/model/index.ts","labels":[{"span":{"offset":24250,"length":0,"line":874,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/contracts/src/workflow/index.ts (50.405ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (768).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/workflow/index.ts","labels":[{"span":{"offset":21282,"length":0,"line":768,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/agent/message-history.ts (64.6389ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (426).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/agent/message-history.ts","labels":[{"span":{"offset":11706,"length":0,"line":426,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/agent/session-history-hydrator.ts (60.5134ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (510).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/agent/session-history-hydrator.ts","labels":[{"span":{"offset":14058,"length":0,"line":510,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/hooks/runner.ts (50.7678ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (424).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/hooks/runner.ts","labels":[{"span":{"offset":11650,"length":0,"line":424,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/mcp/index.ts (143.4667ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (408).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/mcp/index.ts","labels":[{"span":{"offset":11202,"length":0,"line":408,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/permission/service.ts (52.3209ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (590).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/permission/service.ts","labels":[{"span":{"offset":16298,"length":0,"line":590,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/runtime/agent-runtime.ts (50.7229ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (575).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/runtime/agent-runtime.ts","labels":[{"span":{"offset":15878,"length":0,"line":575,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/runtime/helpers/attachment-media-resolver.ts (50.9965ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (496).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/runtime/helpers/attachment-media-resolver.ts","labels":[{"span":{"offset":13666,"length":0,"line":496,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/runtime/internal-turn-methods.ts (55.3752ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (446).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/runtime/internal-turn-methods.ts","labels":[{"span":{"offset":12266,"length":0,"line":446,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/runtime/methods/background.ts (50.6924ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (442).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/runtime/methods/background.ts","labels":[{"span":{"offset":12154,"length":0,"line":442,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/runtime/methods/compact-active.ts (53.4529ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (679).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/runtime/methods/compact-active.ts","labels":[{"span":{"offset":18790,"length":0,"line":679,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/runtime/methods/compact-persistence.ts (53.1807ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (466).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/runtime/methods/compact-persistence.ts","labels":[{"span":{"offset":12826,"length":0,"line":466,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/runtime/methods/compact.ts (51.6012ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (434).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/runtime/methods/compact.ts","labels":[{"span":{"offset":11930,"length":0,"line":434,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/runtime/methods/events.ts (55.3837ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (590).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/runtime/methods/events.ts","labels":[{"span":{"offset":16298,"length":0,"line":590,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/runtime/methods/file-rewind.ts (58.4373ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (657).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/runtime/methods/file-rewind.ts","labels":[{"span":{"offset":18174,"length":0,"line":657,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/runtime/methods/model.ts (52.1266ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (473).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/runtime/methods/model.ts","labels":[{"span":{"offset":13022,"length":0,"line":473,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/runtime/methods/resume.ts (49.6729ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (412).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/runtime/methods/resume.ts","labels":[{"span":{"offset":11314,"length":0,"line":412,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/runtime/methods/runtime-command-queue.ts (49.6552ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (442).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/runtime/methods/runtime-command-queue.ts","labels":[{"span":{"offset":12154,"length":0,"line":442,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/runtime/methods/session-fork.ts (54.1939ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (1386).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/runtime/methods/session-fork.ts","labels":[{"span":{"offset":39358,"length":0,"line":1386,"column":29}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/runtime/methods/steering.ts (53.9958ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (1262).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/runtime/methods/steering.ts","labels":[{"span":{"offset":35638,"length":0,"line":1262,"column":29}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/runtime/methods/target-completion-verification.ts (54.6622ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (415).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/runtime/methods/target-completion-verification.ts","labels":[{"span":{"offset":11398,"length":0,"line":415,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/runtime/methods/turn-model-step.ts (54.9228ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (751).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/runtime/methods/turn-model-step.ts","labels":[{"span":{"offset":20806,"length":0,"line":751,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/runtime/methods/turn-tools.ts (53.9815ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (501).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/runtime/methods/turn-tools.ts","labels":[{"span":{"offset":13806,"length":0,"line":501,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/runtime/methods/turn.ts (49.7941ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (808).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/runtime/methods/turn.ts","labels":[{"span":{"offset":22402,"length":0,"line":808,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/runtime/methods/usage-observability.ts (50.6316ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (404).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/runtime/methods/usage-observability.ts","labels":[{"span":{"offset":11090,"length":0,"line":404,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/tool/executor/background-tasks.ts (51.9146ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (950).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/tool/executor/background-tasks.ts","labels":[{"span":{"offset":26378,"length":0,"line":950,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/tool/executor/call-runner.ts (53.0972ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (634).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/tool/executor/call-runner.ts","labels":[{"span":{"offset":17530,"length":0,"line":634,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/tool/handlers/bash.ts (55.3217ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (528).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/tool/handlers/bash.ts","labels":[{"span":{"offset":14562,"length":0,"line":528,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/tool/handlers/read-session-context.ts (53.2403ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (412).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/tool/handlers/read-session-context.ts","labels":[{"span":{"offset":11314,"length":0,"line":412,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/tool/handlers/read.ts (55.2288ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (467).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/tool/handlers/read.ts","labels":[{"span":{"offset":12854,"length":0,"line":467,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/core/src/workflow/lifecycle.ts (53.0876ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (540).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/workflow/lifecycle.ts","labels":[{"span":{"offset":14898,"length":0,"line":540,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/debug/server/analyzer.ts (55.8745ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (1368).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"server/analyzer.ts","labels":[{"span":{"offset":38818,"length":0,"line":1368,"column":29}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/debug/src/App.tsx (56.1889ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (1483).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/App.tsx","labels":[{"span":{"offset":42268,"length":0,"line":1483,"column":29}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/telemetry/src/agent-trace-runtime.ts (55.7474ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (1526).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/agent-trace-runtime.ts","labels":[{"span":{"offset":43558,"length":0,"line":1526,"column":29}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts\cli-lint-budgets.test.mjs:56:3
+✖ the frozen inherited ceiling passes but growth fails: apps/zcode-cli/packages/telemetry/src/model-api-recorder.ts (53.2191ms)
+  AssertionError [ERR_ASSERTION]: [{"message":"File has too many lines (410).","code":"eslint(max-lines)","severity":"error","causes":[],"url":"https://oxc.rs/docs/guide/usage/linter/rules/eslint/max-lines.html","help":"Maximum allowed is 400.","filename":"src/model-api-recorder.ts","labels":[{"span":{"offset":11258,"length":0,"line":410,"column":27}}],"related":[]}]
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/scripts/cli-lint-budgets.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

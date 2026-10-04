@@ -1,0 +1,19 @@
+{
+  "clauses": {
+    "SRC-128:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Build a bundle for the operator to test subsequently."
+    },
+    "SRC-128:R002": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "After producing the test bundle, run saipen stop and stop further autonomous work until the operator resumes."
+    }
+  },
+  "derived_at": "2026-10-03T13:16:54Z",
+  "derived_from": "SRC-128",
+  "interpretation_revision": 2,
+  "schema_version": 1,
+  "source_sha256": "0ecb20ab7cebb84c598ad83ac360d05ae5654198b51652394b4b99a12b25832f"
+}

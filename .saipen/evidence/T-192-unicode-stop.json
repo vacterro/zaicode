@@ -1,0 +1,5 @@
+{
+  "command": "pnpm10 --dir packages/services exec tsx --test test/workerTerminalHandoff.test.ts",
+  "exitCode": 1,
+  "at": "2026-10-03T14:44:56.0142632Z"
+}

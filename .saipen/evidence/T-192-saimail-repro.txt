@@ -1,0 +1,24 @@
+✔ a folder that is not a mailbox, or a damaged one, reads as not existing, never as a crash (3.3216ms)
+✔ pairing refuses cleanly when there is no mailbox or no CLI, and touches nothing (3.5219ms)
+✔ the reported failure, then the repair: an unpaired agent letter is refused on arrival, pairing makes the next one arrive and ZAICODE's reader shows it (4418.8163ms)
+✔ a recreated operator mailbox makes the desk stale: it is moved aside, never deleted, and pairing works again (4048.8851ms)
+✔ a desk rebuilt under an alias the operator already holds for the old desk still gets its letters accepted (3260.0052ms)
+✔ a folder typed with dots and a trailing slash is one mailbox, spelled once, everywhere the CLI and the registry see it (1991.3108ms)
+✔ T-133 the test letter names the time on this PC's clock, not a UTC ISO stamp (0.3465ms)
+✔ pure: unread opens, read reopens; envelope ids are validated, not trusted (1.0633ms)
+✔ pure: the read-letter list parser is metadata-only -- a body in the JSON is not surfaced (0.9439ms)
+✔ pure: the opened-letter parser carries the body only when the CLI says ok (0.2056ms)
+✔ pure: listing never decrypts -- a malformed items array is refused, not guessed (0.1396ms)
+✔ real CLI, mock runner: the widget cannot smuggle a non-canonical command or a bad id (0.4707ms)
+✔ real CLI, mock runner: a missing CLI is a readable degraded state, not a crash (0.2436ms)
+✔ real CLI: explicit Open moves the durable UNREAD -> READ and returns the body (2155.0846ms)
+✔ real CLI: Reopen keeps durable READ and returns the body again (2457.926ms)
+✔ real CLI: a failed open leaves the letter unread and reports the refusal (2255.7804ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 14824.1822

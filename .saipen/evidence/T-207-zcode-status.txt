@@ -1,0 +1,31 @@
+ M README.md
+ M packages/desktop/src/main/zaicodeEngines.ts
+ M packages/desktop/src/main/zaicodeWindowStarter.ts
+ M packages/desktop/test/zaicodeWindowStarter.test.ts
+ M packages/provider-node/src/index.ts
+ M packages/shared/src/zaicode-engines.ts
+ M packages/ui/src/terminal/TerminalSession.tsx
+ M packages/ui/src/terminal/sidePaneTerminalSessionRegistry.ts
+ M packages/ui/src/zaicode/ZaicodeLimitViews.tsx
+ M packages/ui/src/zaicode/ZaicodeWorkerParts.tsx
+ M packages/ui/src/zaicode/ZaicodeWorkersDockFrame.tsx
+ M packages/ui/src/zaicode/ZaicodeWorkersPanel.tsx
+ M packages/ui/src/zaicode/zaicodePanelDock.tsx
+ M packages/ui/src/zaicode/zaicodeSettingsDefaults.json
+ M packages/ui/src/zaicode/zaicodeWorkerLayout.ts
+ M packages/ui/src/zaicode/zaicodeWorkerPrefs.ts
+ M packages/ui/test/zaicodeSrc116WindowTruth.test.ts
+ M packages/ui/test/zaicodeT136.test.ts
+ M packages/ui/test/zaicodeT143.test.ts
+ M packages/ui/test/zaicodeWave63.test.ts
+?? packages/desktop/.release-work/
+?? packages/desktop/test/zaicodeT188ModelInventory.test.ts
+?? packages/provider-node/scripts/
+?? packages/provider-node/src/sai-accounts-source.ts
+?? packages/provider-node/test/
+?? packages/ui/test/zaicodeT188WindowStart.test.ts
+?? packages/ui/test/zaicodeT209WorkersCollapse.test.ts
+?? packages/ui/test/zaicodeT212TerminalExit.test.ts
+?? specs/zaicode-t188-live-window-start.md
+?? specs/zaicode-t209-workers-collapse.md
+?? specs/zaicode-t212-terminal-exit-input.md

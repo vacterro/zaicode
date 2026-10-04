@@ -1,0 +1,81 @@
+const { chromium } = require('playwright');
+const fs = require('fs');
+const TARGET_URL = process.env.T186_URL || 'http://127.0.0.1:4186';
+const OUT = process.env.T186_OUT || 'V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/.saipen/evidence/T-186-ui/before';
+(async () => {
+  fs.mkdirSync(OUT, { recursive: true });
+  const browser = await chromium.launch({ headless: true });
+  const page = await browser.newPage({ viewport: { width: 1100, height: 700 } });
+  const errors = [];
+  page.on('pageerror', e => errors.push(e.message));
+  await page.clock.install({ time: new Date('2026-10-03T09:00:00Z') });
+  await page.goto(TARGET_URL);
+  await page.waitForFunction(() => globalThis.fixture?.update);
+  const checks = [];
+  const settle = async () => page.clock.runFor(50);
+  const update = async patch => { await page.evaluate(p => globalThis.fixture.update(p), patch); await settle(); };
+  const check = (name, actual, expected) => checks.push({ name, actual, expected, pass: actual === expected });
+  await page.evaluate(() => fixture.arm());
+  await page.clock.runFor(35000);
+  check('real scheduler does not launch while Autopilot is OFF', await page.evaluate(() => fixture.launches), 0);
+  check('OFF does not consume the occurrence', await page.evaluate(() => fixture.runtimeJobs()[0].firedEvents.length), 0);
+  await settle();
+  check('initial ready producer is collected', await page.evaluate(() => fixture.commands.length), 1);
+  for (let i = 0; i < 12; i++) { await update({ disabled: true }); await update({ disabled: false }); }
+  check('busy and draft cycles do not enqueue the same collect', await page.evaluate(() => fixture.commands.length), 1);
+  await update({ auto: false }); await update({ auto: true });
+  check('Auto toggle keeps generation attempt', await page.evaluate(() => fixture.commands.length), 1);
+  await update({ mount: 1 });
+  check('composer remount keeps generation attempt', await page.evaluate(() => fixture.commands.length), 1);
+  await page.evaluate(() => fixture.packages(['HUNT-002'])); await settle();
+  check('a new package of the same producer is collected', await page.evaluate(() => fixture.commands.length), 2);
+  await update({ workspace: 'V:/fixture/b' });
+  check('different workspace has independent admission', await page.evaluate(() => fixture.commands.length), 3);
+  await update({ workspace: 'V:/fixture/b', identity: 'remote-2' });
+  check('different remote identity has independent admission', await page.evaluate(() => fixture.commands.length), 4);
+  await update({ workspace: 'V:/fixture/rejected', identity: null, reject: true });
+  check('local rejection is not sent', await page.evaluate(() => fixture.commands.length), 4);
+  await update({ reject: false });
+  check('local rejection can be attempted again', await page.evaluate(() => fixture.commands.length), 5);
+  check('scheduler warns about Autopilot OFF', (await page.locator('[data-zaicode-scheduler-nav]').innerText()).includes('Autopilot'), true);
+  check('Scheduler page warns without hover', await page.locator('[data-zaicode-scheduler-autopilot]').count(), 1);
+  check('Scheduler row is paused', (await page.locator('[data-zaicode-schedule]').first().innerText()).includes('paused'), true);
+  check('SAIHOME says Autopilot OFF', (await page.locator('[data-zaicode-home-widget=scheduler]').innerText()).includes('Autopilot OFF'), true);
+  const enable = page.getByRole('button', { name: 'Enable Autopilot', exact: true });
+  if (await enable.count()) {
+    await enable.click();
+    await settle();
+  } else {
+    await update({ autopilot: true });
+  }
+  check('Enable Autopilot invokes the existing action', await page.evaluate(() => fixture.enables), 1);
+  check('Scheduler warning clears after enabling', await page.locator('[data-zaicode-scheduler-autopilot]').count(), 0);
+  await page.clock.runFor(15000);
+  check('real scheduler launches once after Autopilot is ON', await page.evaluate(() => fixture.launches), 1);
+  check('ON consumes exactly one occurrence', await page.evaluate(() => fixture.runtimeJobs()[0].firedEvents.length), 1);
+  await page.evaluate(() => fixture.stopAtNextMinute());
+  await update({ autopilot: false });
+  await page.clock.runFor(65000);
+  check('stop rule still works while Autopilot is OFF', await page.evaluate(() => fixture.stops), 1);
+  await update({ autopilot: true });
+  check('enabled Autopilot restores the countdown', (await page.locator('[data-zaicode-scheduler-nav]').innerText()).includes('Autopilot OFF'), false);
+  for (const [id, expected] of [['label', false], ['icon', true], ['clipped', true], ['clamped', true], ['description', true], ['shortcut', true], ['hidden', true], ['.plain-label', false]]) {
+    await page.mouse.move(1050, 650);
+    await page.locator(id.startsWith('.') ? id : '#' + id).hover();
+    await page.clock.runFor(850);
+    check('tooltip ' + id, await page.locator('[role=tooltip]').count() > 0, expected);
+  }
+  await page.mouse.move(1050, 650);
+  await page.locator('#label').focus();
+  await page.clock.runFor(850);
+  check('keyboard focus skips a repeated visible label', await page.locator('[role=tooltip]').count() > 0, false);
+  await page.locator('#icon').focus();
+  await page.clock.runFor(850);
+  check('keyboard focus retains an icon-only explanation', await page.locator('[role=tooltip]').count() > 0, true);
+  await page.screenshot({ path: OUT + '/fixture.png', fullPage: true });
+  const report = { checks, errors, pass: checks.every(c => c.pass) && errors.length === 0 };
+  fs.writeFileSync(OUT + '/report.json', JSON.stringify(report, null, 2));
+  console.log(JSON.stringify(report, null, 2));
+  await browser.close();
+  if (!report.pass) process.exitCode = 1;
+})().catch(e => { console.error(e); process.exitCode = 1; });

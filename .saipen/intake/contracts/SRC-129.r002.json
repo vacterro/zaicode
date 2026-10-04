@@ -1,0 +1,19 @@
+{
+  "clauses": {
+    "SRC-129:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Investigate and implement maximum token-use efficiency, including improvements to prompt-cache hits where user-side control is available."
+    },
+    "SRC-129:R002": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Make sidebar project, main-view and session switching clear and immediate, avoiding apparent no-op project clicks and unexplained empty panes."
+    }
+  },
+  "derived_at": "2026-10-03T15:18:19Z",
+  "derived_from": "SRC-129",
+  "interpretation_revision": 2,
+  "schema_version": 1,
+  "source_sha256": "f8856311137a437f00721d7e28f9387c3bea639bf353ea4ee8165d8553abbf29"
+}

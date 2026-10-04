@@ -1,0 +1,290 @@
+{
+  "at": "2026-10-03T20:06:09.659Z",
+  "head": "c21dfde1f2380e1a483a5bfca95f687e520dc690",
+  "own": [
+    {
+      "path": "apps/zcode-cli/packages/bootstrap/src/zcode-protocol-v4/product-projection.ts",
+      "sha256": "86e8630c087e6309e4d1075e0a59e9229a4e6c380bf53ebae81a2a0bd7a73be1"
+    },
+    {
+      "path": "apps/zcode-cli/packages/bootstrap/src/zcode-protocol-v4/sessions-index-projection.ts",
+      "sha256": "752fdca7d83db3df10885f6f8c819191208023bc8493d29984aff5ecca511a52"
+    },
+    {
+      "path": "apps/zcode-cli/packages/core/src/tool/provider-visible-order.ts",
+      "sha256": "ee2633d5878ae3289f1cc12ab80f526e6e68f68884dcb9df94fbb3c8ffb478bb"
+    },
+    {
+      "path": "packages/shared/src/index.ts",
+      "sha256": "60bf6356be5420a708f83f5809591deb887314c0a52023623e1d66598699e3d8"
+    },
+    {
+      "path": "packages/shared/src/zcode-protocol-v4/index.ts",
+      "sha256": "6d0fed43537150c080cc2bee5c8dd8b293ddef61cbe5b24b305dff10026d4f1f"
+    },
+    {
+      "path": "packages/shared/src/zcode-protocol-v4/sessions-index.ts",
+      "sha256": "8ad81adfcbc2a833e9831ed0f0a460bf05afa58d4741f85c6fe223075d27244f"
+    },
+    {
+      "path": "packages/shared/src/zcode-protocol-v4/snapshot.ts",
+      "sha256": "8039a443c30b012bcb779e11afaa1f4bdb22566ce7932e7a40bfdaedcfc10637"
+    },
+    {
+      "path": "packages/ui/src/TaskListItem.tsx",
+      "sha256": "e71a6260fb025c1b552853336f93b0a128358910db2acbcf135b421d5ff1ebaa"
+    },
+    {
+      "path": "packages/ui/src/WorkspaceSidebarItem.tsx",
+      "sha256": "95e7ea051302d1c90b105fe1630ecf5d389d534ae98e7f348a62968f12095062"
+    },
+    {
+      "path": "packages/ui/src/lib/taskListItemPresentation.ts",
+      "sha256": "05c114b0e98a85099d116d3e238afa380fa5346579f7bc4748ee3a050a4382d0"
+    },
+    {
+      "path": "packages/ui/src/settings/ZaicodeWorkersSettings.tsx",
+      "sha256": "3f211cf81934dae0bf930d7c8122aebf2585fe7122fbb197f859613c563c280d"
+    },
+    {
+      "path": "packages/ui/src/v4/ConversationComposer.tsx",
+      "sha256": "cedb7feabc49fbe3453c6446f8a6374607e6e8c19bef064501a2597d951acec8"
+    },
+    {
+      "path": "packages/ui/src/v4/agentSessionsIndexTransport.ts",
+      "sha256": "3dc7b4e86ab775d00ec93d8df5204d4f59bb06ac67134b7d6677bc4303f2148a"
+    },
+    {
+      "path": "packages/ui/src/v4/conversationTurnRenderUnits.ts",
+      "sha256": "78f07ebded46164319d0c0147e43e2ef845e1a17ed6ba3263511fa45ba5f862c"
+    },
+    {
+      "path": "packages/ui/src/v4/mapSessionSummaryToTaskMeta.ts",
+      "sha256": "da7716fa1c033ae343f42405d9212ee1c0bbef40af4dab02b1c33f550ecb4873"
+    },
+    {
+      "path": "packages/ui/src/v4/taskListRowActivity.ts",
+      "sha256": "6be60d946274aab32e56d24c07d9f36a146698bb944d46ff74859883f804abfa"
+    },
+    {
+      "path": "packages/ui/src/zaicode/ZaicodeSchedulerPanel.tsx",
+      "sha256": "6cd3e9dca724df86d33ba1e8fe452cc9472cce9d73b7c384c8f4d16b8583daf3"
+    },
+    {
+      "path": "packages/ui/src/zaicode/zaicodeAutostart.ts",
+      "sha256": "c54592c97b9e6d3edfa7ce1ce70506d8ae0f08b72b7356bca91c2dade16f7bcc"
+    },
+    {
+      "path": "packages/ui/src/zaicode/zaicodeContinue.ts",
+      "sha256": "f52e09ea455a5cbd8a504217902f960a25b196df675dc5f6d672abffc00a74b9"
+    },
+    {
+      "path": "packages/ui/src/zaicode/zaicodeContinueHost.ts",
+      "sha256": "fb17fcf881fee8b617a479e5251bafdeaf6f4f630b10ec084971c0ad19a4e79a"
+    },
+    {
+      "path": "packages/ui/src/zaicode/zaicodeHighlightStyle.ts",
+      "sha256": "f5b668a7cdb6e125fc80a72daf691b6f9695df7adce88f6bb60a6dcd942e9d98"
+    },
+    {
+      "path": "packages/ui/src/zaicode/zaicodeHighlights.ts",
+      "sha256": "f47b00279c7694bf3eb8ab6f3907ec8e13e21f764a3578ac60868f2ae3d02e56"
+    },
+    {
+      "path": "packages/ui/src/zaicode/zaicodeLiveRuns.ts",
+      "sha256": "e4f9986be63e88f4ab8ae568a05e2d24845e845f197738c2b043ff0ca69fc9f7"
+    },
+    {
+      "path": "packages/ui/src/zaicode/zaicodeProjectClick.ts",
+      "sha256": "ffff03c397f0e1626b004f9eda164f0430a7e59bab009df312c849103303917c"
+    },
+    {
+      "path": "packages/ui/src/zaicode/zaicodeScheduleRun.ts",
+      "sha256": "5c36b083a2dde8447489843bac06e21d25a1c25ad469d70ced68c80b5e227098"
+    },
+    {
+      "path": "packages/ui/src/zaicode/zaicodeStall.ts",
+      "sha256": "a19f1bc30ce51a0cd8b4dc1217015bd5aea9afa665ab33f6f8f8082cc8644da0"
+    },
+    {
+      "path": "packages/ui/src/zaicode/zaicodeWorkerRecords.ts",
+      "sha256": "50fc1b7c8f85ef339a62db73deca0804c16b511487b344e43991e1ba1e5574f5"
+    },
+    {
+      "path": "packages/ui/src/zaicode/zaicodeWorkerRecovery.ts",
+      "sha256": "96d09e252611a2bfef067dad2660960abe6aedc5db8f40d14b81c2fff0dccaa0"
+    },
+    {
+      "path": "packages/ui/src/zaicode/zaicodeWorkerWatch.ts",
+      "sha256": "7c8068875519af9ab01c549700aa695b1050c02491f7251a600684e59086f496"
+    },
+    {
+      "path": "packages/ui/src/zaicode/zaicodeWorkers.ts",
+      "sha256": "89d266f812626d2fa694b37650df5d3620bf8718b2f3aa0afee4bf81b085cd4c"
+    },
+    {
+      "path": "apps/zcode-cli/packages/bootstrap/test/session-test-activity.test.ts",
+      "sha256": "278ac0cf4c9ad2e083ad3277b3a7d8e4509813cdd242b87a69fb1ed8f51f9a00"
+    },
+    {
+      "path": "apps/zcode-cli/packages/core/test/zaicodePromptCacheOrder.test.ts",
+      "sha256": "19567c5578196d83236fac6c83c4c032e82fef013e826aa761e54f1fab35ec66"
+    },
+    {
+      "path": "packages/shared/src/zaicode-schedule-continuation.ts",
+      "sha256": "5b910053f40a87808a2bedf3e0391d27fc1dc15a82714979ca9abf8e3a3fb5fe"
+    },
+    {
+      "path": "packages/shared/src/zcode-protocol-v4/test-activity.ts",
+      "sha256": "ab601af2c61027cab535f88f9a015512bca3e6c14f80301e4bb9f1f923a517b7"
+    },
+    {
+      "path": "packages/ui/src/zaicode/ZaicodeScheduleContinuation.tsx",
+      "sha256": "8441fc74cbc8856b4a3cccec88b76b83220151a2d92347807100544b1d176a66"
+    },
+    {
+      "path": "packages/ui/src/zaicode/ZaicodeTestsIndicator.tsx",
+      "sha256": "d2ebd112326f82b208d14ea34ae0a84f1bb0aceadfb6a5b3b112afed875ab169"
+    },
+    {
+      "path": "packages/ui/src/zaicode/zaicodeAutostartContinuation.ts",
+      "sha256": "c26bef50a05283f8b84882f8ef15d742b92b613e8b25d16b3de0325892e7e3d8"
+    },
+    {
+      "path": "packages/ui/src/zaicode/zaicodeWorkerEvents.ts",
+      "sha256": "cd2e9923438f02c43f43717036d6892e6decddbf7a856d4fb8e3406ed1684ac4"
+    },
+    {
+      "path": "packages/ui/src/zaicode/zaicodeWorkerSignals.ts",
+      "sha256": "51bd45130e476103d6ee7dda76b59d2cd6768660e8846dddb666d74855289e2f"
+    },
+    {
+      "path": "packages/ui/test/zaicodeContinuation.test.ts",
+      "sha256": "81fc68bf9e2c3a9511d4dc3f97484cb1f230eda983c11eaf62f5ae19c289adca"
+    },
+    {
+      "path": "packages/ui/test/zaicodeContinuationEffects.test.ts",
+      "sha256": "1a1b147cf3eebdc9369535522405702cbc25660b872070074e90d0c9b97b41b4"
+    },
+    {
+      "path": "packages/ui/test/zaicodeEfficientAutomation.test.ts",
+      "sha256": "421d57099bdc2a6649bcf200137899201e429b8bd0640b7a2083d736a7a81f6a"
+    },
+    {
+      "path": "packages/ui/test/zaicodeScheduleDispatch.test.ts",
+      "sha256": "3d15770b3942afa833ff085a08a0cbe26114cb2e8ed860eef4a4ec15da9b8bf4"
+    },
+    {
+      "path": "packages/ui/test/zaicodeWorkerSignals.test.ts",
+      "sha256": "5e0b43ceaddf54f43078d219703005b23b93ac13bd239ea91146499c8d53dff2"
+    },
+    {
+      "path": "packages/ui/test/zaicodeWorkerTrustLifecycle.test.ts",
+      "sha256": "a74d269759f55d6ecca066a688bddc588ddddf050fe9468537bc03eab08407d6"
+    },
+    {
+      "path": "specs/zaicode-efficient-automation.md",
+      "sha256": "9bab0de19b288973ab76af3fdca97f314dbcb7c9358c73e7013364e7519a263d"
+    },
+    {
+      "path": "packages/ui/test/zaicodeSrc62ProjectClick.test.ts",
+      "sha256": "441bba6e8720738ba52e46e47f29490ffb496f5e4f9e8f82850b4ac2f31a833f"
+    },
+    {
+      "path": "packages/ui/test/zaicodeSrc81EmptyChat.test.ts",
+      "sha256": "49ce863f84c09e39b2b8fa9e3552d393027624e0004705fb61b464c9dfd53cc6"
+    },
+    {
+      "path": "packages/ui/test/zaicodeSrc81Stall.test.ts",
+      "sha256": "2f359f5c95666a6945be4458e45ee7452a387e029323fe7aeb3dc9e2db3c2840"
+    }
+  ],
+  "foreign": [
+    {
+      "path": "packages/desktop/test/zaicodeT188ModelInventory.test.ts",
+      "sha256": "334ffb0fa092f288073e61f4716419aa757ae2f770dc8d2504040d80405b2902"
+    },
+    {
+      "path": "packages/provider-node/scripts/sai-accounts-live-acceptance.ts",
+      "sha256": "751af46d38aa8a2b421f745d274536ab9af65ba259300922ee52974b9546dae8"
+    },
+    {
+      "path": "packages/provider-node/src/sai-accounts-source.ts",
+      "sha256": "607c4d146252b46dd0104736279a21618d70ad78551a5e350ab99d6cd21a3192"
+    },
+    {
+      "path": "packages/provider-node/test/sai-accounts-source.test.ts",
+      "sha256": "02e414d8c2599a0b6dba2206b419b547c684a73a19e65e8ad0b626733ff7247c"
+    },
+    {
+      "path": "packages/ui/test/zaicodeT188WindowStart.test.ts",
+      "sha256": "2d2b9bae39c377ebc5c985fb3f56589ed4debd690ceff262c9cfa15c668f9edf"
+    },
+    {
+      "path": "specs/zaicode-t188-live-window-start.md",
+      "sha256": "f086c5e1bb88bcdcf5df1611de3133dfc58139e5b7553137adf663261b87e9a5"
+    },
+    {
+      "path": "README.md",
+      "sha256": "e952a7b7cfb5926c7b150c487d855580f97c1633d785c1b4683aa5f15c05313b"
+    },
+    {
+      "path": "packages/desktop/src/main/zaicodeEngines.ts",
+      "sha256": "713df03fb95d148cb125ffd78fb62f03d9613c486c10a1ef01de0a6e49d5bc2d"
+    },
+    {
+      "path": "packages/desktop/src/main/zaicodeWindowStarter.ts",
+      "sha256": "28547f158e591f7add94e2ad1e37e780da31e588a8731325b7ad9c6583a489af"
+    },
+    {
+      "path": "packages/desktop/test/zaicodeWindowStarter.test.ts",
+      "sha256": "367246354dc2a75fd2789fa602651ddde228be686e5ff031ed9dee94d8d5e32d"
+    },
+    {
+      "path": "packages/provider-node/src/index.ts",
+      "sha256": "9d33a9e595b390276f1f6e9ec9d77270fd5aeb0ae61b06509755ed6cc4c9dfd8"
+    },
+    {
+      "path": "packages/shared/src/zaicode-engines.ts",
+      "sha256": "a36c7d09f56d37113dab6edd7c11f581d2cf8a2868113ec81e719fabe1676d32"
+    },
+    {
+      "path": "packages/ui/src/zaicode/ZaicodeLimitViews.tsx",
+      "sha256": "f38c89c39aacc8267d1c9f873259315f531b9c725456b551788bda975e8a84f1"
+    },
+    {
+      "path": "packages/ui/src/zaicode/zaicodeSettingsDefaults.json",
+      "sha256": "50cff3c3a503132dfecf6303afa457dab4dd68a9b9554c074dd1f7969fc67126"
+    },
+    {
+      "path": "packages/ui/test/zaicodeSrc116WindowTruth.test.ts",
+      "sha256": "e072883c8003c7e8e7ca9a59a3933a02a1189433c1e87c14bf2458cc5158c034"
+    },
+    {
+      "path": "packages/ui/test/zaicodeT136.test.ts",
+      "sha256": "189788b42677b5352e3b71c71bda698201e917658bd9a38ae560bc677a3770fe"
+    },
+    {
+      "path": "packages/ui/test/zaicodeT143.test.ts",
+      "sha256": "b308e6b034a283f512df0bb839e96fcc75e40bf694b1a64f706a55509634e2d9"
+    },
+    {
+      "path": "packages/ui/test/zaicodeWave63.test.ts",
+      "sha256": "9721a6650c5f92378db4e409523824a1fc0b2c9b2e1313d00628a66f0520ae24"
+    }
+  ],
+  "oldForeignReceipt": "T-196-foreign-live.json",
+  "foreignChanges": [],
+  "inheritedChanges": [],
+  "oracle": {
+    "browser": "adaea5946f6936f8cc7172e8b30cbf63f769fca8f10272eb2bc167ab07e9b7bc",
+    "harness": "5bda0a90e14032f423560adaa33db66a232cf5b5815667bef567981dc625ea69",
+    "server": "5dbdcc62e84592c1c446ff7ac88f09507cda2e9cd0fec88f01e38260851afa0d"
+  },
+  "deadlineRegression": {
+    "test": "packages/ui/test/zaicodeContinuationEffects.test.ts",
+    "verifier": "1a1b147cf3eebdc9369535522405702cbc25660b872070074e90d0c9b97b41b4",
+    "before": "d225b69e64dad780695d3047d2d9bc0eb2f384f49411da28333d0435365087d5",
+    "after": "c26bef50a05283f8b84882f8ef15d742b92b613e8b25d16b3de0325892e7e3d8"
+  }
+}

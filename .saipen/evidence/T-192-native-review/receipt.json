@@ -1,0 +1,61 @@
+{
+  "schema": "t192-native/1",
+  "subject": "working",
+  "at": "2026-10-03T13:22:47.678Z",
+  "verifier": "10a534171e95f311bf6d3d9dd581e80a6a2c6cc2a6e92dc23e2d583c625ef0b1",
+  "scratch": "V:\\_TEMP_\\zaicode-t192-native-auuZFV",
+  "checks": [
+    {
+      "name": "positive control: live CLI has a PID and writes its counter",
+      "pass": true,
+      "details": ""
+    },
+    {
+      "name": "positive control: app input reaches the same CLI",
+      "pass": true,
+      "details": ""
+    },
+    {
+      "name": "terminal service confirms a live PowerShell handoff",
+      "pass": true,
+      "details": ""
+    },
+    {
+      "name": "same CLI PID and monotonic counter survive taskkill /T /F of app host",
+      "pass": true,
+      "details": {
+        "before": {
+          "pid": 21008,
+          "count": 2,
+          "marker": "3e9de147-975b-44b4-8207-6d59cc0f5406"
+        },
+        "after": {
+          "pid": 21008,
+          "count": 7,
+          "marker": "3e9de147-975b-44b4-8207-6d59cc0f5406"
+        }
+      }
+    },
+    {
+      "name": "external input/output and resize continue the original CLI",
+      "pass": true,
+      "details": ""
+    },
+    {
+      "name": "external console receives original nonzero exit",
+      "pass": true,
+      "details": ""
+    },
+    {
+      "name": "closing the external console stops its own CLI",
+      "pass": true,
+      "details": ""
+    },
+    {
+      "name": "app crash before handoff stops its own CLI without orphaning",
+      "pass": true,
+      "details": ""
+    }
+  ],
+  "pass": true
+}

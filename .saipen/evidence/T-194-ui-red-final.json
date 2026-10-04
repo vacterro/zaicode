@@ -1,0 +1,217 @@
+{
+  "at": "2026-10-03T19:59:15.953Z",
+  "url": "http://127.0.0.1:4195",
+  "passed": 17,
+  "failed": 28,
+  "errors": [],
+  "results": [
+    {
+      "name": "compact/MAIN/1280: positive actual renderer",
+      "pass": true
+    },
+    {
+      "name": "compact/MAIN/1280: idle named MAIN survives working-only filter",
+      "pass": false,
+      "message": "The input did not match the regular expression /Project main conversation/. Input:\n\n'Fixture project\\n0m\\n\\nHelper test conversation\\n\\nnow'\n"
+    },
+    {
+      "name": "compact/MAIN/1280: project label opens MAIN repeatedly without folding",
+      "pass": false,
+      "message": "Expected values to be strictly equal:\n\nfalse !== true\n"
+    },
+    {
+      "name": "compact/MAIN/1280: helper remains reachable and MAIN click returns",
+      "pass": false,
+      "message": "locator.click: Timeout 1800ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#sidebar').getByText('Helper test conversation', { exact: true })\u001b[22m\n"
+    },
+    {
+      "name": "compact/MAIN/1280: separate folding control preserves selected conversation",
+      "pass": false,
+      "message": "Expected values to be strictly equal:\n\n0 !== 1\n"
+    },
+    {
+      "name": "compact/MAIN/1280: actual project, session and timeline test indicators",
+      "pass": false,
+      "message": "Expected values to be strictly equal:\n\n0 !== 1\n"
+    },
+    {
+      "name": "compact/MAIN/1280: test motion preferences are independent",
+      "pass": false,
+      "message": "locator.getAttribute: Timeout 1800ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#timeline [data-zaicode-tests=\"session\"]')\u001b[22m\n"
+    },
+    {
+      "name": "compact/MAIN/1280: ending actual activity clears test and working indicators",
+      "pass": true
+    },
+    {
+      "name": "compact/MAIN/1280: empty project click creates a usable draft",
+      "pass": false,
+      "message": "Expected values to be strictly equal:\n\n'main' !== 'draft'\n"
+    },
+    {
+      "name": "compact/MAIN/1280: persisted job callback accepts exact SAIFREN runner and ordering",
+      "pass": true
+    },
+    {
+      "name": "compact/MAIN/1280: job continuation toggle really changes the existing policy",
+      "pass": true
+    },
+    {
+      "name": "normal/MAIN/1280: positive actual renderer",
+      "pass": true
+    },
+    {
+      "name": "normal/MAIN/1280: idle named MAIN survives working-only filter",
+      "pass": false,
+      "message": "The input did not match the regular expression /Project main conversation/. Input:\n\n'Fixture project\\n0m\\n\\nHelper test conversation\\n\\nnow'\n"
+    },
+    {
+      "name": "normal/MAIN/1280: project label opens MAIN repeatedly without folding",
+      "pass": false,
+      "message": "Expected values to be strictly equal:\n\nfalse !== true\n"
+    },
+    {
+      "name": "normal/MAIN/1280: helper remains reachable and MAIN click returns",
+      "pass": false,
+      "message": "locator.click: Timeout 1800ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#sidebar').getByText('Helper test conversation', { exact: true })\u001b[22m\n"
+    },
+    {
+      "name": "normal/MAIN/1280: separate folding control preserves selected conversation",
+      "pass": false,
+      "message": "Expected values to be strictly equal:\n\n0 !== 1\n"
+    },
+    {
+      "name": "normal/MAIN/1280: actual project, session and timeline test indicators",
+      "pass": false,
+      "message": "Expected values to be strictly equal:\n\n0 !== 1\n"
+    },
+    {
+      "name": "normal/MAIN/1280: test motion preferences are independent",
+      "pass": false,
+      "message": "locator.getAttribute: Timeout 1800ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#timeline [data-zaicode-tests=\"session\"]')\u001b[22m\n"
+    },
+    {
+      "name": "normal/MAIN/1280: ending actual activity clears test and working indicators",
+      "pass": true
+    },
+    {
+      "name": "normal/MAIN/1280: empty project click creates a usable draft",
+      "pass": false,
+      "message": "Expected values to be strictly equal:\n\n'main' !== 'draft'\n"
+    },
+    {
+      "name": "normal/MAIN/1280: persisted job callback accepts exact SAIFREN runner and ordering",
+      "pass": true
+    },
+    {
+      "name": "normal/MAIN/1280: job continuation toggle really changes the existing policy",
+      "pass": true
+    },
+    {
+      "name": "compact/folder/480: positive actual renderer",
+      "pass": true
+    },
+    {
+      "name": "compact/folder/480: idle named MAIN survives working-only filter",
+      "pass": false,
+      "message": "The input did not match the regular expression /Project main conversation/. Input:\n\n'Fixture project\\n0m\\n\\nHelper test conversation\\n\\nnow'\n"
+    },
+    {
+      "name": "compact/folder/480: project label opens MAIN repeatedly without folding",
+      "pass": false,
+      "message": "Expected values to be strictly equal:\n\n'helper' !== 'main'\n"
+    },
+    {
+      "name": "compact/folder/480: helper remains reachable and MAIN click returns",
+      "pass": false,
+      "message": "locator.click: Timeout 1800ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#sidebar').getByText('Helper test conversation', { exact: true })\u001b[22m\n"
+    },
+    {
+      "name": "compact/folder/480: separate folding control preserves selected conversation",
+      "pass": false,
+      "message": "Expected values to be strictly equal:\n\n0 !== 1\n"
+    },
+    {
+      "name": "compact/folder/480: actual project, session and timeline test indicators",
+      "pass": false,
+      "message": "Expected values to be strictly equal:\n\n0 !== 1\n"
+    },
+    {
+      "name": "compact/folder/480: test motion preferences are independent",
+      "pass": false,
+      "message": "locator.getAttribute: Timeout 1800ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#timeline [data-zaicode-tests=\"session\"]')\u001b[22m\n"
+    },
+    {
+      "name": "compact/folder/480: ending actual activity clears test and working indicators",
+      "pass": true
+    },
+    {
+      "name": "compact/folder/480: empty project click creates a usable draft",
+      "pass": false,
+      "message": "Expected values to be strictly equal:\n\n'helper' !== 'draft'\n"
+    },
+    {
+      "name": "compact/folder/480: persisted job callback accepts exact SAIFREN runner and ordering",
+      "pass": true
+    },
+    {
+      "name": "compact/folder/480: job continuation toggle really changes the existing policy",
+      "pass": true
+    },
+    {
+      "name": "normal/folder/480: positive actual renderer",
+      "pass": true
+    },
+    {
+      "name": "normal/folder/480: idle named MAIN survives working-only filter",
+      "pass": false,
+      "message": "The input did not match the regular expression /Project main conversation/. Input:\n\n'Fixture project\\n0m\\n\\nHelper test conversation\\n\\nnow'\n"
+    },
+    {
+      "name": "normal/folder/480: project label opens MAIN repeatedly without folding",
+      "pass": false,
+      "message": "Expected values to be strictly equal:\n\n'helper' !== 'main'\n"
+    },
+    {
+      "name": "normal/folder/480: helper remains reachable and MAIN click returns",
+      "pass": false,
+      "message": "locator.click: Timeout 1800ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#sidebar').getByText('Helper test conversation', { exact: true })\u001b[22m\n"
+    },
+    {
+      "name": "normal/folder/480: separate folding control preserves selected conversation",
+      "pass": false,
+      "message": "Expected values to be strictly equal:\n\n0 !== 1\n"
+    },
+    {
+      "name": "normal/folder/480: actual project, session and timeline test indicators",
+      "pass": false,
+      "message": "Expected values to be strictly equal:\n\n0 !== 1\n"
+    },
+    {
+      "name": "normal/folder/480: test motion preferences are independent",
+      "pass": false,
+      "message": "locator.getAttribute: Timeout 1800ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#timeline [data-zaicode-tests=\"session\"]')\u001b[22m\n"
+    },
+    {
+      "name": "normal/folder/480: ending actual activity clears test and working indicators",
+      "pass": true
+    },
+    {
+      "name": "normal/folder/480: empty project click creates a usable draft",
+      "pass": false,
+      "message": "Expected values to be strictly equal:\n\n'helper' !== 'draft'\n"
+    },
+    {
+      "name": "normal/folder/480: persisted job callback accepts exact SAIFREN runner and ordering",
+      "pass": true
+    },
+    {
+      "name": "normal/folder/480: job continuation toggle really changes the existing policy",
+      "pass": true
+    },
+    {
+      "name": "no browser runtime or console errors",
+      "pass": true
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "ok": true,
+  "code": "TRANSITIONED",
+  "op_id": "transition-8cb918385271453f9ddf11cf8baf17e8",
+  "changed_files": [
+    ".saipen/LOG.md",
+    ".saipen/BOARD.md",
+    ".saipen/STATE.md"
+  ],
+  "recovery_required": false,
+  "phase": "SHIP",
+  "next_action": "PHASE SHIP T-195",
+  "event_id": "E-3157",
+  "ticket": "T-195"
+}

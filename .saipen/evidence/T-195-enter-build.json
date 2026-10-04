@@ -1,0 +1,15 @@
+{
+  "ok": true,
+  "code": "TRANSITIONED",
+  "op_id": "transition-3b3b2c6e71924b069a9c9528b1e2c7e2",
+  "changed_files": [
+    ".saipen/LOG.md",
+    ".saipen/BOARD.md",
+    ".saipen/STATE.md"
+  ],
+  "recovery_required": false,
+  "phase": "BUILD",
+  "next_action": "PHASE BUILD T-195",
+  "event_id": "E-3151",
+  "ticket": "T-195"
+}

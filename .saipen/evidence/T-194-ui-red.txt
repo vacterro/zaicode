@@ -1,0 +1,189 @@
+apps/zcode-cli                           |  WARN  Unsupported engine: wanted: {"node":"24.14.0"} (current: {"node":"v24.15.0","pnpm":"10.33.2"})
+✖ project label repeatedly opens its conversation; folder mode also opens MAIN (3.2126ms)
+✖ project without MAIN opens the last meaningful session; empty project starts a draft (0.3091ms)
+✖ an ended foreground cannot spin from a stale running phase; background stays live (0.2729ms)
+✖ quiet live background tests are working after five hours (0.1942ms)
+✖ the actual index mapping carries test activity and turn completion (0.3547ms)
+✖ tests have independently configurable project and session motion targets (5.9586ms)
+✖ repeated goal-incomplete notices leave no empty turns; failure and completion remain (2.1291ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 0
+ℹ fail 7
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 680.0536
+
+✖ failing tests:
+
+test at test\zaicodeEfficientAutomation.test.ts:1:827
+✖ project label repeatedly opens its conversation; folder mode also opens MAIN (3.2126ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+  +   action: 'fold'
+  -   action: 'open',
+  -   sessionId: 'a'
+    }
+  
+      at TestContext.<anonymous> (V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\ui\test\zaicodeEfficientAutomation.test.ts:17:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.start (node:internal/test_runner/test:1096:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:385:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { action: 'fold' },
+    expected: { action: 'open', sessionId: 'a' },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at test\zaicodeEfficientAutomation.test.ts:1:1120
+✖ project without MAIN opens the last meaningful session; empty project starts a draft (0.3091ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+  +   action: 'draft'
+  -   action: 'open',
+  -   sessionId: 'b'
+    }
+  
+      at TestContext.<anonymous> (V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\ui\test\zaicodeEfficientAutomation.test.ts:22:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { action: 'draft' },
+    expected: { action: 'open', sessionId: 'b' },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at test\zaicodeEfficientAutomation.test.ts:1:1538
+✖ an ended foreground cannot spin from a stale running phase; background stays live (0.2729ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  true !== false
+  
+      at TestContext.<anonymous> (V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\ui\test\zaicodeEfficientAutomation.test.ts:28:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at test\zaicodeEfficientAutomation.test.ts:1:1957
+✖ quiet live background tests are working after five hours (0.1942ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  false !== true
+  
+      at TestContext.<anonymous> (V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\ui\test\zaicodeEfficientAutomation.test.ts:33:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at test\zaicodeEfficientAutomation.test.ts:1:2182
+✖ the actual index mapping carries test activity and turn completion (0.3547ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + undefined
+  - {
+  -   commands: [
+  -     'pnpm test'
+  -   ],
+  -   count: 1
+  - }
+  
+      at TestContext.<anonymous> (V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\ui\test\zaicodeEfficientAutomation.test.ts:39:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: { count: 1, commands: [ 'pnpm test' ] },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at test\zaicodeEfficientAutomation.test.ts:1:2642
+✖ tests have independently configurable project and session motion targets (5.9586ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(ids.includes("projectTests"))
+  
+      at TestContext.<anonymous> (V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\ui\test\zaicodeEfficientAutomation.test.ts:44:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at test\zaicodeEfficientAutomation.test.ts:1:2868
+✖ repeated goal-incomplete notices leave no empty turns; failure and completion remain (2.1291ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   1,
+  +   2,
+      3,
+      4
+    ]
+  
+      at TestContext.<anonymous> (V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\ui\test\zaicodeEfficientAutomation.test.ts:52:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 1, 2, 3, 4 ],
+    expected: [ 3, 4 ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+undefined
+V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\ui:
+ ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL  Command failed with exit code 1: node --import tsx --test test/zaicodeEfficientAutomation.test.ts

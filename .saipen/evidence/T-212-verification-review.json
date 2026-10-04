@@ -1,0 +1,20 @@
+{
+  "at": "2026-10-04T03:51:16.299Z",
+  "verifier": "74582cc79e99142e7ac61c06239941c8e1e6c05bff449280c88442b97dc55665",
+  "redSubject": "9016870b9e15663629ab384c1f4ad28b4fc27ad3c4894503efb2a28d381939bf",
+  "greenSubject": "a01e22ce9c48a80fedccf810a107b68dfc9d92b6953ce46ef79e078104aba786",
+  "totals": {
+    "tests": 1489,
+    "passed": 1487,
+    "failed": 0,
+    "skipped": 2
+  },
+  "packaged": 10,
+  "owned": [
+    "packages/ui/src/terminal/TerminalSession.tsx",
+    "packages/ui/src/terminal/sidePaneTerminalSessionRegistry.ts",
+    "packages/ui/test/zaicodeT212TerminalExit.test.ts",
+    "specs/zaicode-t212-terminal-exit-input.md"
+  ],
+  "foreignPreserved": 18
+}

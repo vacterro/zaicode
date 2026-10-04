@@ -1,0 +1,42 @@
+✔ a production preset environment has no renderer reload capability (0.8202ms)
+✔ apply, reset and undo refresh every registered preset family in the same window (2.9422ms)
+✔ timer apply/reset/undo preserves active countdowns, alarms and interval history (3.8466ms)
+✔ a saved timer preset excludes machine schedules and productivity run facts (0.1968ms)
+✔ worker layout has a persistent, safely normalized collapsed flag without changing expanded geometry (1.1631ms)
+✔ the existing settings owner persists and rehydrates collapse without discarding dock, size or split (1.6332ms)
+✔ 0% used: untouched windows hide, any spend shows, no reading stays unknown (1.4914ms)
+✔ usable now = the 5h window has quota; a spent weekly gates it; one Antigravity pool is enough (0.3297ms)
+✔ meter rules apply per surface; per-engine hide is meter only (0.2613ms)
+✔ meter prefs heal bad values; fill runs both ways; tint is off at 0 (0.6518ms)
+✔ split sizes: wrong length resets to even; a divider moves only its neighbours (0.2643ms)
+✔ split layout: side by side, stacked, and a grid whose last row stretches (0.2563ms)
+✔ snap zones: halves, quarters, maximize, dock; none in the middle (0.1988ms)
+✔ magnetic edges stick within the distance; windows stay reachable (0.333ms)
+✔ workers: docked by default, float and dock back, minimize to a named chip, remove (1.373ms)
+✔ worker prefs heal; Terminus is the default face (0.2331ms)
+✔ home screen: the Empty marker and the empty SAIMAIL line move to off once (0.1311ms)
+✔ team presets map to templates and pools; a missing pool leaves the agent without one (0.2946ms)
+✔ worker hotkeys exist and the defaults stay conflict-free (0.8627ms)
+✔ a session the dead process left 'running' is INTERRUPTED, never DONE (1.2324ms)
+✔ DONE skips interrupted sessions; CONTINUE ALL continues them with cc (0.8195ms)
+✔ project START: MAIN continues in place, a cut-off session becomes MAIN, fresh only with nothing to continue (0.2922ms)
+✔ project A3 badge sums only active campaign wave progress (0.2459ms)
+✔ crash auto-continue: only crash-cut, recent, switched-on projects; oldest first; goal or cc (0.3893ms)
+✔ worker recovery list: bad entries dropped, placement kept (0.2316ms)
+✔ worker watch: the CLI's own limit line counts, prose about limits does not (1.497ms)
+✔ worker watch: first-run trust questions of Claude Code and Codex (0.3391ms)
+✔ nearest resets: every reset ahead, soonest first, FastPrompter's window names (0.5274ms)
+✔ dock: nearest edge under the pointer; a side column stacks panes (0.3134ms)
+✔ schedules keep whole audits and carry conditions with safe defaults (0.4995ms)
+✔ section order: most blocked / open first, unknown last, ties keep the sidebar order (0.2367ms)
+✔ before it starts: the stopgap goes (free pool sessions, weaker workers), the real thing stays (0.6702ms)
+✔ CLEAR ALL DONE: finished helpers archived, cut-off helpers continued, MAIN / running / waiting untouched (0.2051ms)
+✔ menu lines keep the operator's names; title bar prefs clamp (0.2089ms)
+ℹ tests 34
+ℹ suites 0
+ℹ pass 34
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2665.0819

@@ -1,0 +1,91 @@
+{
+  "at": "2026-10-03T20:19:39.336Z",
+  "status": "PASS",
+  "isolatedCandidate": "zcode/packages/desktop/.release-work/t194-20261003-2310",
+  "artifacts": [
+    {
+      "path": "zcode/packages/desktop/.release-work/t194-20261003-2310/ZAICODE-3.14.0-win-x64_TEST.exe",
+      "bytes": 199656530,
+      "sha256": "594d254486ae73ce80d771578c164b098ca47355b98daa74d938eb78b083862a"
+    },
+    {
+      "path": "zcode/packages/desktop/.release-work/t194-20261003-2310/win-unpacked/ZAICODE.exe",
+      "bytes": 222852096,
+      "sha256": "5df3a4a65813c04fdfb073bd5b9e0ed9505630b1fcfd99413fc14cfa26ed2d47"
+    },
+    {
+      "path": "zcode/packages/desktop/.release-work/t194-20261003-2310/win-unpacked/resources/app.asar",
+      "bytes": 364328611,
+      "sha256": "958cb06d1bcd73e804e4319df9b11839876a7bad88b578ff95fdcc25dd2e4244"
+    },
+    {
+      "path": "zcode/packages/desktop/.release-work/t194-20261003-2310/win-unpacked/resources/glm/zcode.cjs",
+      "bytes": 17900139,
+      "sha256": "9548b66a7a42701f01443992bb69069fe6d38468e7426d3757599d4a459150f2"
+    }
+  ],
+  "cliSourceMatchesPackaged": true,
+  "receiptPath": "zcode/packages/desktop/.release-work/t194-20261003-2310/boot-receipt.json",
+  "receipt": {
+    "schema": "zaicode-boot-receipt/1",
+    "ok": true,
+    "at": "2026-10-03T20:17:48.763Z",
+    "executable": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\.release-work\\t194-20261003-2310\\win-unpacked.verifying\\ZAICODE.exe",
+    "executableMtimeMs": 1791058586131.093,
+    "appAsarBytes": 364328611,
+    "appAsarMtimeMs": 1791058582729.9773,
+    "checks": {
+      "vendorWindowStartsDisabled": true,
+      "window": true,
+      "contentReady": true,
+      "noErrorCard": true,
+      "workspaceShell": true,
+      "sidebar": true,
+      "noPageErrors": true,
+      "noFatalConsoleErrors": true,
+      "narrowWindow": true,
+      "settingsSections": 28,
+      "protrail": {
+        "monitors": 3,
+        "lit": [
+          5765,
+          14365,
+          4460
+        ]
+      },
+      "customization": {
+        "source": "env-dir",
+        "appeared": true,
+        "count": [
+          0,
+          1,
+          2,
+          0
+        ]
+      },
+      "workflowControls": {
+        "mergedShortcuts": true,
+        "swappedSidebar": true,
+        "compactRail": true,
+        "keyboardExpansion": true,
+        "hitTargets": {
+          "projectActions": 4,
+          "headerActions": 12,
+          "narrowWidth": 640
+        },
+        "locales": [
+          "ru-RU",
+          "et-EE",
+          "ar-SA",
+          "en-US"
+        ]
+      },
+      "localeRestart": "ru-RU"
+    },
+    "consoleErrorCount": 0
+  },
+  "unchangedOwned": 49,
+  "unchangedForeign": 18,
+  "unpublished": true,
+  "newRequestsIncluded": false
+}

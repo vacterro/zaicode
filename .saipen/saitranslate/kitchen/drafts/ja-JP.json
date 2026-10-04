@@ -2999,6 +2999,7 @@
   "settings.sidebar.group.zaicode": "ZAICODE メニュー",
   "zaicode.settings.autoRestart": "クラッシュ後の再起動",
   "zaicode.fallback.switched": "{fromModel} が上限に達しました。次のメッセージは {toModel} に送られます。モデルメニューからいつでも切り替えできます。",
+  "zaicode.fallback.routeHold": "{fromModel} は {until} までクォータ保留中です。このメッセージは {toModel} に送られます。",
   "zaicode.settings.autoRestartHint": "デフォルトでオン。ランチャーはクラッシュしたアプリを再起動し、デスクトップホストはクラッシュしたウィンドウを再読み込みします。",
   "zaicode.todo.title": "タスク",
   "zaicode.todo.detach": "Todo ウィンドウをデタッチ",

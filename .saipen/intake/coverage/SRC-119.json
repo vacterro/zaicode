@@ -1,0 +1,122 @@
+{
+  "requirements": {
+    "SRC-119:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": ".saipen/evidence/src119-delivery.md",
+      "text": "Long chat sessions stay responsive, with older history loaded on demand.",
+      "verification": ".saipen/evidence/src119-gates-final.log",
+      "work": "T-180"
+    },
+    "SRC-119:R002": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": ".saipen/evidence/src119-delivery.md",
+      "text": "Remove the binary disabled/enabled selector shown for SAIFREN.",
+      "verification": ".saipen/evidence/src119-gates-final.log",
+      "work": "T-180"
+    },
+    "SRC-119:R003": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": ".saipen/evidence/src119-delivery.md",
+      "text": "A running project stays visibly running after switching to another project.",
+      "verification": ".saipen/evidence/src119-gates-final.log",
+      "work": "T-180"
+    },
+    "SRC-119:R004": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": ".saipen/evidence/src119-delivery.md",
+      "text": "Add 9router Usage monitoring inside ZAICODE as a full page and sidebar, reachable from header/footer and Ctrl+Alt+B, including requests from outside ZAICODE.",
+      "verification": ".saipen/evidence/src119-gates-final.log",
+      "work": "T-180"
+    },
+    "SRC-119:R005": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": ".saipen/evidence/src119-delivery.md",
+      "text": "Clicking the Phase chip opens the SAIPEN sidebar with STATE, BOARD and LOG.",
+      "verification": ".saipen/evidence/src119-gates-final.log",
+      "work": "T-180"
+    },
+    "SRC-119:R006": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "IMPLEMENTED",
+      "evidence": ".saipen/evidence/src119-delivery.md",
+      "text": "Bound long-running application memory and rendering work; projects remain usable after 6-9 hours, with no persistent chat data deletion.",
+      "verification": ".saipen/evidence/src119-gates-final.log",
+      "work": "T-180"
+    },
+    "SRC-119:R007": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": ".saipen/evidence/src119-delivery.md",
+      "text": "Exhausted paid plans automatically fall back to SAIFREN and are skipped until reset.",
+      "verification": ".saipen/evidence/src119-gates-final.log",
+      "work": "T-180"
+    },
+    "SRC-119:R008": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "IMPLEMENTED",
+      "evidence": ".saipen/evidence/src119-delivery.md",
+      "text": "Retry uses the newly selected model, including GLM-to-SAIFREN switches.",
+      "verification": ".saipen/evidence/src119-gates-final.log",
+      "work": "T-180"
+    },
+    "SRC-119:R009": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "IMPLEMENTED",
+      "evidence": ".saipen/evidence/src119-delivery.md",
+      "text": "Supported quota windows, including Antigravity, keep rolling automatically without waiting for user first use.",
+      "verification": ".saipen/evidence/src119-gates-final.log",
+      "work": "T-180"
+    },
+    "SRC-119:R010": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": ".saipen/evidence/src119-delivery.md",
+      "text": "A started quota window has a visible, consistent reset countdown.",
+      "verification": ".saipen/evidence/src119-gates-final.log",
+      "work": "T-180"
+    },
+    "SRC-119:R011": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": ".saipen/evidence/src119-delivery.md",
+      "text": "Help follows a basics-to-advanced curriculum and puts games last.",
+      "verification": ".saipen/evidence/src119-gates-final.log",
+      "work": "T-180"
+    },
+    "SRC-119:R012": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": ".saipen/evidence/src119-delivery.md",
+      "text": "Help opens internal documentation; issue and feature reporting open the ZAICODE GitHub.",
+      "verification": ".saipen/evidence/src119-gates-final.log",
+      "work": "T-180"
+    },
+    "SRC-119:R013": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": ".saipen/evidence/src119-delivery.md",
+      "text": "About describes ZAICODE and shows the operator brand icon.",
+      "verification": ".saipen/evidence/src119-gates-final.log",
+      "work": "T-180"
+    }
+  },
+  "schema_version": 1
+}

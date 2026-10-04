@@ -1,0 +1,126 @@
+{
+  "kind": "live-read-only-antigravity-probe",
+  "cliVersion": "1.2.14",
+  "capturedAt": "2026-10-03T07:46:25.217Z",
+  "probes": [
+    {
+      "args": [
+        "-p",
+        "/usage",
+        "--output-format",
+        "json"
+      ],
+      "startedAt": 1791013579456,
+      "readAt": 1791013581955,
+      "exitCode": 0,
+      "timedOut": false,
+      "json": true,
+      "stderrPresent": false,
+      "deniedActionCount": null,
+      "commandPresent": true,
+      "windows": [
+        {
+          "key": "weekly@gemini_models",
+          "remainingPercent": 12.282686680555344,
+          "resetsAt": 1791355281000,
+          "durationMinutes": 10080
+        },
+        {
+          "key": "five_hour@gemini_models",
+          "remainingPercent": 100,
+          "resetsAt": 1791031568000,
+          "durationMinutes": 300
+        },
+        {
+          "key": "weekly@claude_and_gpt_models",
+          "remainingPercent": 100,
+          "resetsAt": 1791618368000,
+          "durationMinutes": 10080
+        },
+        {
+          "key": "five_hour@claude_and_gpt_models",
+          "remainingPercent": 100,
+          "resetsAt": 1791031568000,
+          "durationMinutes": 300
+        }
+      ],
+      "rollingWindows": [
+        {
+          "key": "five_hour@gemini_models",
+          "rollingFrom": 1791013581955,
+          "resetsAt": 1791031581955
+        },
+        {
+          "key": "weekly@claude_and_gpt_models",
+          "rollingFrom": 1791013581955,
+          "resetsAt": 1791618381955
+        },
+        {
+          "key": "five_hour@claude_and_gpt_models",
+          "rollingFrom": 1791013581955,
+          "resetsAt": 1791031581955
+        }
+      ]
+    },
+    {
+      "args": [
+        "-p",
+        "/usage",
+        "--output-format",
+        "json",
+        "--dangerously-skip-permissions"
+      ],
+      "startedAt": 1791013581956,
+      "readAt": 1791013585217,
+      "exitCode": 0,
+      "timedOut": false,
+      "json": true,
+      "stderrPresent": false,
+      "deniedActionCount": null,
+      "commandPresent": true,
+      "windows": [
+        {
+          "key": "weekly@gemini_models",
+          "remainingPercent": 12.282686680555344,
+          "resetsAt": 1791355281000,
+          "durationMinutes": 10080
+        },
+        {
+          "key": "five_hour@gemini_models",
+          "remainingPercent": 100,
+          "resetsAt": 1791031571000,
+          "durationMinutes": 300
+        },
+        {
+          "key": "weekly@claude_and_gpt_models",
+          "remainingPercent": 100,
+          "resetsAt": 1791618371000,
+          "durationMinutes": 10080
+        },
+        {
+          "key": "five_hour@claude_and_gpt_models",
+          "remainingPercent": 100,
+          "resetsAt": 1791031571000,
+          "durationMinutes": 300
+        }
+      ],
+      "rollingWindows": [
+        {
+          "key": "five_hour@gemini_models",
+          "rollingFrom": 1791013585217,
+          "resetsAt": 1791031585217
+        },
+        {
+          "key": "weekly@claude_and_gpt_models",
+          "rollingFrom": 1791013585217,
+          "resetsAt": 1791618385217
+        },
+        {
+          "key": "five_hour@claude_and_gpt_models",
+          "rollingFrom": 1791013585217,
+          "resetsAt": 1791031585217
+        }
+      ]
+    }
+  ]
+}

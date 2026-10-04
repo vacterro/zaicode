@@ -1,0 +1,1578 @@
+
+> zcode@3.14.0 lint V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode
+> oxlint
+
+
+  ! eslint(no-unused-vars): Variable 'GIT_LABEL' is declared but never used. Unused variables should start with a '_'.
+    ,-[apps/zcode-cli/packages/core/src/context/sections/env-info.ts:17:7]
+ 16 | // const OPERATING_SYSTEM_LABEL = "Operating system";
+ 17 | const GIT_LABEL = "Git";
+    :       ^^^^|^^^^
+    :           `-- 'GIT_LABEL' is declared here
+ 18 | const NOT_A_GIT_REPOSITORY = "not a git repository";
+    `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Variable 'NOT_A_GIT_REPOSITORY' is declared but never used. Unused variables should start with a '_'.
+    ,-[apps/zcode-cli/packages/core/src/context/sections/env-info.ts:18:7]
+ 17 | const GIT_LABEL = "Git";
+ 18 | const NOT_A_GIT_REPOSITORY = "not a git repository";
+    :       ^^^^^^^^^^|^^^^^^^^^
+    :                 `-- 'NOT_A_GIT_REPOSITORY' is declared here
+ 19 | const YES_LABEL = "yes";
+    `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Interface 'AskUserQuestionAnswerDraft' is declared but never used.
+    ,-[packages/ui/src/lib/askUserQuestion.ts:26:11]
+ 25 | 
+ 26 | interface AskUserQuestionAnswerDraft {
+    :           ^^^^^^^^^^^^^|^^^^^^^^^^^^
+    :                        `-- 'AskUserQuestionAnswerDraft' is declared here
+ 27 |   selectedOptionIds: string[];
+    `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Type 'SettingsSectionId' is imported but never used.
+   ,-[packages/ui/src/settings/zaicodeHelpTopicsCore.ts:1:15]
+ 1 | import type { SettingsSectionId } from "@/lib/settingsNavigation.js";
+   :               ^^^^^^^^|^^^^^^^^
+   :                       `-- 'SettingsSectionId' is imported here
+ 2 | import { openZaicodeWorkersPanel } from "@/zaicode/zaicodeWorkers.js";
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Type 'SettingsSectionId' is imported but never used.
+   ,-[packages/ui/src/settings/zaicodeHelpTopicsAdvanced.ts:1:15]
+ 1 | import type { SettingsSectionId } from "@/lib/settingsNavigation.js";
+   :               ^^^^^^^^|^^^^^^^^
+   :                       `-- 'SettingsSectionId' is imported here
+ 2 | import { openZaicodeWorkersPanel } from "@/zaicode/zaicodeWorkers.js";
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'openZaicodeWorkersPanel' is imported but never used.
+   ,-[packages/ui/src/settings/zaicodeHelpTopicsAdvanced.ts:2:10]
+ 1 | import type { SettingsSectionId } from "@/lib/settingsNavigation.js";
+ 2 | import { openZaicodeWorkersPanel } from "@/zaicode/zaicodeWorkers.js";
+   :          ^^^^^^^^^^^|^^^^^^^^^^^
+   :                     `-- 'openZaicodeWorkersPanel' is imported here
+ 3 | import { useZaicodeTimers } from "@/zaicode/zaicodeTimerStore.js";
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'useZaicodeTimers' is imported but never used.
+   ,-[packages/ui/src/settings/zaicodeHelpTopicsAdvanced.ts:3:10]
+ 2 | import { openZaicodeWorkersPanel } from "@/zaicode/zaicodeWorkers.js";
+ 3 | import { useZaicodeTimers } from "@/zaicode/zaicodeTimerStore.js";
+   :          ^^^^^^^^|^^^^^^^
+   :                  `-- 'useZaicodeTimers' is imported here
+ 4 | import { openZaicodeSaipeggle } from "@/zaicode/saipeggle/ZaicodeSaipeggleView.js";
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'openZaicodeSaipeggle' is imported but never used.
+   ,-[packages/ui/src/settings/zaicodeHelpTopicsAdvanced.ts:4:10]
+ 3 | import { useZaicodeTimers } from "@/zaicode/zaicodeTimerStore.js";
+ 4 | import { openZaicodeSaipeggle } from "@/zaicode/saipeggle/ZaicodeSaipeggleView.js";
+   :          ^^^^^^^^^^|^^^^^^^^^
+   :                    `-- 'openZaicodeSaipeggle' is imported here
+ 5 | import type { HelpTopic } from "./zaicodeHelpContent.js";
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Variable 'key' is declared but never used. Unused variables should start with a '_'.
+     ,-[packages/ui/src/lib/runtimeHealthSnapshot.ts:104:14]
+ 103 |   let queryKeys = 0;
+ 104 |   for (const key of Object.keys(query.resultsByQueryKey)) queryKeys += 1;
+     :              ^|^
+     :               `-- 'key' is declared here
+ 105 |   return {
+     `----
+  help: Consider removing this declaration.
+
+  ! eslint-plugin-unicorn(no-useless-fallback-in-spread): Empty fallbacks in spreads are unnecessary
+     ,-[packages/ui/src/lib/runtimeHealthSnapshot.ts:148:5]
+ 147 |   const counters: Record<string, number> = {
+ 148 |     ...(input.readCountersSummary?.() ?? {}),
+     :     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 149 |     ...collectHotCacheSummary(),
+     `----
+  help: Spreading falsy values in object literals won't add any unexpected properties, so it's unnecessary to add an empty object as fallback.
+
+  ! eslint(no-unused-vars): Parameter 'text' is declared but never used. Unused parameters should start with a '_'.
+     ,-[packages/ui/test/zaicodeWave5Campaign.test.ts:107:14]
+ 106 |     digests,
+ 107 |     sha256: (text) => SHA("c"),
+     :              ^^|^
+     :                `-- 'text' is declared here
+ 108 |     synthesizedAt: "2026-09-29T11:00:00Z",
+     `----
+  help: Consider removing this parameter.
+
+  ! eslint-plugin-unicorn(no-useless-spread): Using a spread operator here creates a new array unnecessarily.
+     ,-[apps/zcode-cli/packages/adapters/src/mcp/pool.ts:345:35]
+ 344 |         leaseClosed = true;
+ 345 |         for (const serverName of [...leased.keys()]) release(serverName);
+     :                                   ^^^
+ 346 |       },
+     `----
+  help: `for…of` can iterate over iterable, it's unnecessary to convert to an array.
+
+  ! eslint-plugin-unicorn(no-useless-spread): Using a spread operator here creates a new array unnecessarily.
+     ,-[apps/zcode-cli/packages/adapters/src/mcp/pool.ts:356:35]
+ 355 |         const configuredNames = new Set(Object.keys(servers));
+ 356 |         for (const serverName of [...leased.keys()]) {
+     :                                   ^^^
+ 357 |           if (!configuredNames.has(serverName)) release(serverName);
+     `----
+  help: `for…of` can iterate over iterable, it's unnecessary to convert to an array.
+
+  ! eslint-plugin-unicorn(no-useless-fallback-in-spread): Empty fallbacks in spreads are unnecessary
+     ,-[packages/ui/src/settings/RemotePluginSyncDialog.tsx:331:19]
+ 330 |     configuredOptions: { ...configuredOptions },
+ 331 |     userConfig: { ...(plugin?.userConfig ?? {}) },
+     :                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 332 |   };
+     `----
+  help: Spreading falsy values in object literals won't add any unexpected properties, so it's unnecessary to add an empty object as fallback.
+
+  ! eslint-plugin-unicorn(no-useless-fallback-in-spread): Empty fallbacks in spreads are unnecessary
+     ,-[packages/ui/src/settings/RemotePluginSyncDialog.tsx:727:5]
+ 726 |   const mergedOptions = {
+ 727 |     ...(remotePlugin.configuredOptions ?? {}),
+     :     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 728 |     ...plan.options,
+     `----
+  help: Spreading falsy values in object literals won't add any unexpected properties, so it's unnecessary to add an empty object as fallback.
+
+  ! eslint-plugin-unicorn(no-useless-spread): Using a spread operator here creates a new object unnecessarily.
+     ,-[apps/zcode-cli/packages/adapters/src/mcp/oauth-refresh.ts:256:5]
+ 255 |   const cached = await loadDiscoveryRecord(input.credentialStore, input.keyPrefix, {
+ 256 |     ...(current.issuer ? { expectedIssuer: current.issuer } : {}),
+     :     ^^^
+ 257 |   });
+     `----
+  help: This expression returns a new object. Spreading it into an object expression to create a new object is redundant.
+
+  ! eslint-plugin-unicorn(no-useless-spread): Using a spread operator here creates a new object unnecessarily.
+     ,-[apps/zcode-cli/packages/adapters/src/mcp/oauth-refresh.ts:261:7]
+ 260 |     (await discoverOAuthServerInfo(input.serverUrl, {
+ 261 |       ...(input.fetchFn ? { fetchFn: input.fetchFn } : {}),
+     :       ^^^
+ 262 |     }));
+     `----
+  help: `input.fetchFn ? { fetchFn: input.fetchFn } : {}` returns a new object. Spreading it into an object expression to create a new object is redundant.
+
+  ! eslint(no-unused-vars): Variable 'settings' is declared but never used. Unused variables should start with a '_'.
+     ,-[packages/ui/test/zaicodeWave3Cues.test.ts:168:9]
+ 167 | test("Wave 3 A: the pass yields between files, so a big table cannot block the window", async () => {
+ 168 |   const settings = defaultZaicodeSoundSettings();
+     :         ^^^^|^^^
+     :             `-- 'settings' is declared here
+ 169 |   const targets = Array.from({ length: 12 }, (_value, index) => ({ eventId: `e${index}`, sound: `s${index}.wav` }));
+     `----
+  help: Consider removing this declaration.
+
+  ! eslint-plugin-unicorn(no-useless-spread): Using a spread operator here creates a new array unnecessarily.
+     ,-[packages/ui/src/zaicode/zaicodeCustomSounds.ts:228:25]
+ 227 |       // A file that was replaced or removed must not keep playing from its old bytes.
+ 228 |       for (const id of [...urlCache.keys()]) {
+     :                         ^^^
+ 229 |         const path = zaicodeCustomSoundPathOf(id);
+     `----
+  help: `for…of` can iterate over iterable, it's unnecessary to convert to an array.
+
+  ! eslint(no-unused-vars): Identifier '$getSelection' is imported but never used.
+    ,-[packages/ui/src/mentions/MentionPlugin.tsx:9:3]
+  8 |   $createTextNode,
+  9 |   $getSelection,
+    :   ^^^^^^|^^^^^^
+    :         `-- '$getSelection' is imported here
+ 10 |   $isRangeSelection,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier '$isRangeSelection' is imported but never used.
+    ,-[packages/ui/src/mentions/MentionPlugin.tsx:10:3]
+  9 |   $getSelection,
+ 10 |   $isRangeSelection,
+    :   ^^^^^^^^|^^^^^^^^
+    :           `-- '$isRangeSelection' is imported here
+ 11 |   BLUR_COMMAND,
+    `----
+  help: Consider removing this import.
+
+  ! eslint-plugin-unicorn(no-useless-fallback-in-spread): Empty fallbacks in spreads are unnecessary
+      ,-[apps/zcode-cli/packages/adapters/src/mcp/index.ts:1134:11]
+ 1133 |           ...(mcpTransportPid != null ? { mcpTransportPid } : {}),
+ 1134 |           ...(mcpProcessIdentity ?? {}),
+      :           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 1135 |           ...(processExit
+      `----
+  help: Spreading falsy values in object literals won't add any unexpected properties, so it's unnecessary to add an empty object as fallback.
+
+  ! eslint-plugin-unicorn(no-useless-fallback-in-spread): Empty fallbacks in spreads are unnecessary
+      ,-[apps/zcode-cli/packages/adapters/src/mcp/index.ts:1169:9]
+ 1168 |         mcpServerName: name,
+ 1169 |         ...(mcpProcessIdentity ?? {}),
+      :         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 1170 |         ...(mcpTransportPid != null ? { mcpTransportPid } : {}),
+      `----
+  help: Spreading falsy values in object literals won't add any unexpected properties, so it's unnecessary to add an empty object as fallback.
+
+  ! eslint(no-unused-vars): Type 'TraceContext' is imported but never used.
+    ,-[apps/zcode-cli/packages/adapters/src/mcp/index.ts:36:3]
+ 35 |   OfficialMcpTrustedOriginRegistry,
+ 36 |   TraceContext,
+    :   ^^^^^^|^^^^^
+    :         `-- 'TraceContext' is imported here
+ 37 | } from "@zcode/contracts";
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Variable 'file' is declared but never used. Unused variables should start with a '_'.
+    ,-[packages/ui/test/zaicodeWave2SessionText.test.ts:80:9]
+ 79 |   const prefs = fullPrefs();
+ 80 |   const file = exportZaicodeSessionTextDocument(prefs, []);
+    :         ^^|^
+    :           `-- 'file' is declared here
+ 81 | 
+    `----
+  help: Consider removing this declaration.
+
+  ! eslint-plugin-unicorn(no-useless-spread): Using a spread operator here creates a new object unnecessarily.
+    ,-[packages/ui/src/lib/memoryDiagnostics.ts:84:3]
+ 83 | uiMemoryDiagnosticsRegistry.register("eventLoop", () => ({
+ 84 |   ...(lastLoopLagMs === undefined ? {} : { lagMs: Math.round(lastLoopLagMs * 100) / 100 }),
+    :   ^^^
+ 85 | }));
+    `----
+  help: This expression returns a new object. Spreading it into an object expression to create a new object is redundant.
+
+  ! eslint(no-unused-vars): Identifier 'getIconPalette' is imported but never used.
+   ,-[packages/ui/src/lib/fileDisplay.tsx:8:3]
+ 7 |   resolveIconName,
+ 8 |   getIconPalette,
+   :   ^^^^^^^|^^^^^^
+   :          `-- 'getIconPalette' is imported here
+ 9 |   getIconLabel,
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'getIconLabel' is imported but never used.
+    ,-[packages/ui/src/lib/fileDisplay.tsx:9:3]
+  8 |   getIconPalette,
+  9 |   getIconLabel,
+    :   ^^^^^^|^^^^^
+    :         `-- 'getIconLabel' is imported here
+ 10 |   buildInlineSvgDataUrl,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'buildInlineSvgDataUrl' is imported but never used.
+    ,-[packages/ui/src/lib/fileDisplay.tsx:10:3]
+  9 |   getIconLabel,
+ 10 |   buildInlineSvgDataUrl,
+    :   ^^^^^^^^^^|^^^^^^^^^^
+    :             `-- 'buildInlineSvgDataUrl' is imported here
+ 11 | } from "@/lib/fileDisplayHelpers.js";
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'getPathLeaf' is imported but never used.
+   ,-[packages/ui/src/lib/treemappingActivity.ts:3:10]
+ 2 | import type { TaskChatMessage, TaskChatToolCall } from "@/lib/taskChatMessageTypes.js";
+ 3 | import { getPathLeaf, isAbsoluteFilePath } from "@/lib/path.js";
+   :          ^^^^^|^^^^^
+   :               `-- 'getPathLeaf' is imported here
+ 4 | import { readRawToolCallFileSummaries } from "@/ToolCallBlocks/fileSummaries.js";
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'hostname' is imported but never used.
+    ,-[packages/desktop/src/main/index.ts:49:19]
+ 48 | import { join, resolve } from "node:path";
+ 49 | import { homedir, hostname } from "node:os";
+    :                   ^^^^|^^^
+    :                       `-- 'hostname' is imported here
+ 50 | import {
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'buildZCodeEndpointUrls' is imported but never used.
+    ,-[packages/desktop/src/main/index.ts:77:3]
+ 76 |   ZCODE_ARMS_RUM_ENDPOINT,
+ 77 |   buildZCodeEndpointUrls,
+    :   ^^^^^^^^^^^|^^^^^^^^^^
+    :              `-- 'buildZCodeEndpointUrls' is imported here
+ 78 |   resolveZCodeEndpointOrigin,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'createTempTextAttachment' is imported but never used.
+     ,-[packages/desktop/src/main/index.ts:116:10]
+ 115 | import { createPrimaryWindowCoordinator } from "./primaryWindowCoordinator.js";
+ 116 | import { createTempTextAttachment } from "./tempTextAttachment.js";
+     :          ^^^^^^^^^^^^|^^^^^^^^^^^
+     :                      `-- 'createTempTextAttachment' is imported here
+ 117 | import { flushMainE2ECoverage } from "./e2eCoverage.js";
+     `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'loadCliMcpFromUserDirectory' is imported but never used.
+     ,-[packages/desktop/src/main/index.ts:204:3]
+ 203 | import {
+ 204 |   loadCliMcpFromUserDirectory,
+     :   ^^^^^^^^^^^^^|^^^^^^^^^^^^^
+     :                `-- 'loadCliMcpFromUserDirectory' is imported here
+ 205 |   migrateLegacyCommonMcp,
+     `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'migrateLegacyCommonMcp' is imported but never used.
+     ,-[packages/desktop/src/main/index.ts:205:3]
+ 204 |   loadCliMcpFromUserDirectory,
+ 205 |   migrateLegacyCommonMcp,
+     :   ^^^^^^^^^^^|^^^^^^^^^^
+     :              `-- 'migrateLegacyCommonMcp' is imported here
+ 206 |   saveCliMcpToUserDirectory,
+     `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'saveCliMcpToUserDirectory' is imported but never used.
+     ,-[packages/desktop/src/main/index.ts:206:3]
+ 205 |   migrateLegacyCommonMcp,
+ 206 |   saveCliMcpToUserDirectory,
+     :   ^^^^^^^^^^^^|^^^^^^^^^^^^
+     :               `-- 'saveCliMcpToUserDirectory' is imported here
+ 207 | } from "./mcpUserDirectory/index.js";
+     `----
+  help: Consider removing this import.
+
+  ! eslint(no-unsafe-optional-chaining): Unsafe usage of optional chaining
+    ,-[packages/desktop/test/zaicodeSaimailRead.test.ts:53:30]
+ 52 |   assert.equal(sent.json?.status, "ACCEPTED");
+ 53 |   const envelopeId = String((sent.json?.message as { envelope_id?: unknown }).envelope_id);
+    :                              ^^^^^^^^^^^^^^^^^^
+ 54 |   return { operatorPath, seat, envelopeId };
+    `----
+  help: If this short-circuits with 'undefined' the evaluation will throw TypeError
+
+  ! eslint(no-unused-vars): Identifier 'sendZaicodeSaimailTestLetter' is imported but never used.
+    ,-[packages/desktop/test/zaicodeSaimailRead.test.ts:14:45]
+ 13 | import { listZaicodeSaimailReadLetters, openZaicodeSaimailLetter } from "../src/main/zaicodeSaimailRead.js";
+ 14 | import { pairZaicodeSaimail, runSaimailCli, sendZaicodeSaimailTestLetter, type SaimailCliRunner } from "../src/main/zaicodeSaimailPost.js";
+    :                                             ^^^^^^^^^^^^^^|^^^^^^^^^^^^^
+    :                                                           `-- 'sendZaicodeSaimailTestLetter' is imported here
+ 15 | 
+    `----
+  help: Consider removing this import.
+
+  ! eslint-plugin-unicorn(no-useless-spread): Using a spread operator here creates a new array unnecessarily.
+     ,-[packages/ui/src/zaicode/zaicodeArchiveUndo.ts:146:26]
+ 145 |   const batches: ZaicodeArchiveBatch[] = [];
+ 146 |   for (const handler of [...archiveAllHandlers.values()]) {
+     :                          ^^^
+ 147 |     try {
+     `----
+  help: `for…of` can iterate over iterable, it's unnecessary to convert to an array.
+
+  ! eslint-plugin-unicorn(no-useless-spread): Using a spread operator here creates a new array unnecessarily.
+     ,-[packages/desktop/test/zaicodeCustomization.test.ts:311:34]
+ 310 |       now += ms;
+ 311 |       for (const [id, entry] of [...pending]) {
+     :                                  ^^^
+ 312 |         if (entry.at <= now) {
+     `----
+  help: `for…of` can iterate over iterable, it's unnecessary to convert to an array.
+
+  ! eslint(no-unused-vars): Variable 'profile' is declared but never used. Unused variables should start with a '_'.
+     ,-[packages/shared/src/zaicode-audit-validate.ts:125:9]
+ 124 | ): ZaicodeAuditValidation {
+ 125 |   const profile = context.profile ?? ZAICODE_AUDIT_QUICK3_PROFILE;
+     :         ^^^|^^^
+     :            `-- 'profile' is declared here
+ 126 |   const wave = zaicodeAuditQuick3Wave(context.waveId);
+     `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-loss-of-precision): This number literal will lose precision at runtime.
+     ,-[packages/shared/src/zaicode-audit-quick3.ts:178:14]
+ 177 |   });
+ 178 |   let hash = 0xcbf29ce484222325;
+     :              ^^^^^^^^^^^^^^^^^^
+ 179 |   for (let index = 0; index < canonical.length; index += 1) {
+     `----
+  help: Use a number literal representable by a 64-bit floating-point number, or use a `BigInt` literal (for example, `9007199254740993n`) for exact large integers.
+  note: In JavaScript, `Number` values exactly represent integers only in the range -9007199254740991 to 9007199254740991 (`Number.MIN_SAFE_INTEGER` to `Number.MAX_SAFE_INTEGER`). `BigInt` supports arbitrarily large integers.
+
+  ! eslint(no-unused-vars): Variable 'unknownRecordSchema' is declared but never used. Unused variables should start with a '_'.
+   ,-[apps/zcode-cli/packages/adapters/src/config/schema.ts:7:7]
+ 6 | const stringRecordSchema = z.record(z.string(), z.string());
+ 7 | const unknownRecordSchema = z.record(z.string(), z.unknown());
+   :       ^^^^^^^^^|^^^^^^^^^
+   :                `-- 'unknownRecordSchema' is declared here
+ 8 | const positiveNumberSchema = z.number().finite().positive();
+   `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Identifier 'PRIMARY_LEAF' is imported but never used.
+    ,-[packages/ui/src/v4/V4WorkspaceChatArea.tsx:31:3]
+ 30 |   paneWorkspaceKey,
+ 31 |   PRIMARY_LEAF,
+    :   ^^^^^^|^^^^^
+    :         `-- 'PRIMARY_LEAF' is imported here
+ 32 |   usePaneLayoutStore,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Type 'AppSettings' is imported but never used.
+   ,-[packages/shared/src/validationAppSettings.ts:4:15]
+ 3 | import { z } from "zod";
+ 4 | import type { AppSettings } from "./protocol.js";
+   :               ^^^^^|^^^^^
+   :                    `-- 'AppSettings' is imported here
+ 5 | import { REMOTE_ASSET_INSTALL_MODES } from "./remoteAssetInstallMode.js";
+   `----
+  help: Consider removing this import.
+
+  ! eslint-plugin-unicorn(no-useless-fallback-in-spread): Empty fallbacks in spreads are unnecessary
+     ,-[apps/zcode-cli/packages/adapters/src/config/config-merger.ts:160:35]
+ 159 | ): PluginOptions {
+ 160 |   const merged: PluginOptions = { ...(current ?? {}) };
+     :                                   ^^^^^^^^^^^^^^^^^^
+ 161 |   for (const [pluginId, options] of Object.entries(next)) {
+     `----
+  help: Spreading falsy values in object literals won't add any unexpected properties, so it's unnecessary to add an empty object as fallback.
+
+  ! eslint-plugin-unicorn(no-useless-fallback-in-spread): Empty fallbacks in spreads are unnecessary
+     ,-[apps/zcode-cli/packages/adapters/src/config/config-merger.ts:163:7]
+ 162 |     merged[pluginId] = {
+ 163 |       ...(merged[pluginId] ?? {}),
+     :       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 164 |       ...options,
+     `----
+  help: Spreading falsy values in object literals won't add any unexpected properties, so it's unnecessary to add an empty object as fallback.
+
+  ! eslint(no-unused-vars): Identifier 'ZCODE_ENV' is imported but never used.
+     ,-[packages/services/src/node.ts:546:3]
+ 545 |   ZCODE_VERSION,
+ 546 |   ZCODE_ENV,
+     :   ^^^^|^^^^
+     :       `-- 'ZCODE_ENV' is imported here
+ 547 |   buildRuntimeZCodeApiUrl,
+     `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Variable 'commandsService' is declared but never used. Unused variables should start with a '_'.
+      ,-[packages/services/src/node.ts:1707:9]
+ 1706 |   });
+ 1707 |   const commandsService = createCommandsService({ isDesktopRuntime: true });
+      :         ^^^^^^^|^^^^^^^
+      :                `-- 'commandsService' is declared here
+ 1708 |   const hooksService = createHooksService({
+      `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Variable 'hooksService' is declared but never used. Unused variables should start with a '_'.
+      ,-[packages/services/src/node.ts:1708:9]
+ 1707 |   const commandsService = createCommandsService({ isDesktopRuntime: true });
+ 1708 |   const hooksService = createHooksService({
+      :         ^^^^^^|^^^^^
+      :               `-- 'hooksService' is declared here
+ 1709 |     grantWorkspaceHookTrust: (params) => zcodeAgentService.grantWorkspaceHookTrust(params),
+      `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Variable 'memoryService' is declared but never used. Unused variables should start with a '_'.
+      ,-[packages/services/src/node.ts:1711:9]
+ 1710 |   });
+ 1711 |   const memoryService = createMemoryService();
+      :         ^^^^^^|^^^^^^
+      :               `-- 'memoryService' is declared here
+ 1712 |   // 只要当前进程已经装配 Provider Runtime，就由该 Environment 自己的 Selection View
+      `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Identifier 'sessionCreateTelemetrySchema' is imported but never used.
+   ,-[packages/shared/src/validation.ts:3:3]
+ 2 | import {
+ 3 |   sessionCreateTelemetrySchema,
+   :   ^^^^^^^^^^^^^^|^^^^^^^^^^^^^
+   :                 `-- 'sessionCreateTelemetrySchema' is imported here
+ 4 |   automationSessionCreateTelemetrySchema,
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'PROTOCOL_V4_LIMITS' is imported but never used.
+    ,-[packages/shared/src/validation.ts:25:10]
+ 24 | import { zcodeTaskModeSchema } from "./zcode-task-mode-schema.js";
+ 25 | import { PROTOCOL_V4_LIMITS } from "./zcode-protocol-v4/core.js";
+    :          ^^^^^^^^^|^^^^^^^^
+    :                   `-- 'PROTOCOL_V4_LIMITS' is imported here
+ 26 | import { errorAttributionSchema } from "./zcode-protocol-v4/snapshot.js";
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'sessionWorkflowActivitySchema' is imported but never used.
+    ,-[packages/shared/src/validation.ts:27:10]
+ 26 | import { errorAttributionSchema } from "./zcode-protocol-v4/snapshot.js";
+ 27 | import { sessionWorkflowActivitySchema } from "./zcode-protocol-v4/sessions-index-workflow-activity.js";
+    :          ^^^^^^^^^^^^^^|^^^^^^^^^^^^^^
+    :                        `-- 'sessionWorkflowActivitySchema' is imported here
+ 28 | import {
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Variable 'browserWindowId' is declared but never used. Unused variables should start with a '_'.
+     ,-[packages/desktop/src/main/desktopWindowLifecycle.ts:122:9]
+ 121 |   const wcId = win.webContents.id;
+ 122 |   const browserWindowId = win.id;
+     :         ^^^^^^^|^^^^^^^
+     :                `-- 'browserWindowId' is declared here
+ 123 |   // 资源遥测据此把主窗口 renderer 归 renderer_main；辅助窗口与 DevTools 归 chromium_other。
+     `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Parameter 'isMobileViewport' is declared but never used. Unused parameters should start with a '_'.
+      ,-[packages/ui/src/v4/ConversationStatusPanel.tsx:1742:3]
+ 1741 |   parentSessionId,
+ 1742 |   isMobileViewport = false,
+      :   ^^^^^^^^|^^^^^^^
+      :           `-- 'isMobileViewport' is declared here
+ 1743 |   layoutMode = "none",
+      `----
+  help: Consider removing this parameter.
+
+  ! eslint(no-unused-vars): Variable 'events' is declared but never used. Unused variables should start with a '_'.
+    ,-[packages/ui/test/zaicodeSrc58Polish.test.ts:45:9]
+ 44 |   // engine; the listener itself still lives with the playback engine.
+ 45 |   const events = read("zaicode/zaicodeSoundSettingsModel.ts");
+    :         ^^^|^^
+    :            `-- 'events' is declared here
+ 46 |   const engine = read("zaicode/zaicodeSoundEvents.ts");
+    `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Type 'WindowTabState' is imported but never used.
+   ,-[packages/ui/src/root/rootPlatformWorkspaceSync.ts:1:15]
+ 1 | import { type WindowTabState } from "@/store/tabStore.js";
+   :               ^^^^^^^|^^^^^^
+   :                      `-- 'WindowTabState' is imported here
+ 2 | 
+   `----
+  help: Consider removing this import.
+
+  ! eslint-plugin-unicorn(no-useless-spread): Using a spread operator here creates a new array unnecessarily.
+    ,-[packages/ui/src/v4/taskListMembershipVersion.ts:13:27]
+ 12 |   version += 1;
+ 13 |   for (const listener of [...listeners]) {
+    :                           ^^^
+ 14 |     listener();
+    `----
+  help: `for…of` can iterate over iterable, it's unnecessary to convert to an array.
+
+  ! eslint(no-unused-vars): Type 'WorkflowGraphNode' is imported but never used.
+    ,-[apps/zcode-cli/packages/core/src/workflow/expert/runtime-context.ts:10:8]
+  9 |   type WorkflowEvent,
+ 10 |   type WorkflowGraphNode,
+    :        ^^^^^^^^|^^^^^^^^
+    :                `-- 'WorkflowGraphNode' is imported here
+ 11 |   type WorkflowNodeStatus,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Parameter 'isMobileViewport' is declared but never used. Unused parameters should start with a '_'.
+     ,-[packages/ui/src/v4/composer/V4ComposerToolbar.tsx:380:3]
+ 379 |   provider,
+ 380 |   isMobileViewport = false,
+     :   ^^^^^^^^|^^^^^^^
+     :           `-- 'isMobileViewport' is declared here
+ 381 |   draftMode = false,
+     `----
+  help: Consider removing this parameter.
+
+  ! eslint(no-unused-vars): Identifier 'ZAICODE_UNFILED' is imported but never used.
+    ,-[packages/ui/src/WorkspaceSidebarItem.tsx:66:3]
+ 65 | import {
+ 66 |   ZAICODE_UNFILED,
+    :   ^^^^^^^|^^^^^^^
+    :          `-- 'ZAICODE_UNFILED' is imported here
+ 67 |   folderOfProject,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'planZaicodeNormalization' is imported but never used.
+   ,-[packages/ui/src/zaicode/zaicodeSoundNormalize.ts:3:3]
+ 2 |   analyzeZaicodeSoundPcm,
+ 3 |   planZaicodeNormalization,
+   :   ^^^^^^^^^^^^|^^^^^^^^^^^
+   :               `-- 'planZaicodeNormalization' is imported here
+ 4 |   zaicodeSoundContentHash,
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'zaicodeSoundContentHash' is imported but never used.
+   ,-[packages/ui/src/zaicode/zaicodeSoundNormalize.ts:4:3]
+ 3 |   planZaicodeNormalization,
+ 4 |   zaicodeSoundContentHash,
+   :   ^^^^^^^^^^^|^^^^^^^^^^^
+   :              `-- 'zaicodeSoundContentHash' is imported here
+ 5 |   ZaicodeAnalysisCache,
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Type 'ZaicodeSoundAnalysis' is imported but never used.
+    ,-[packages/ui/src/zaicode/zaicodeSoundNormalize.ts:11:8]
+ 10 |   type ZaicodeNormalizeProfileId,
+ 11 |   type ZaicodeSoundAnalysis,
+    :        ^^^^^^^^^^|^^^^^^^^^
+    :                  `-- 'ZaicodeSoundAnalysis' is imported here
+ 12 | } from "./zaicodeSoundAnalysis.js";
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Parameter 'workspaceRemoteSessionId' is declared but never used. Unused parameters should start with a '_'.
+     ,-[packages/ui/src/WorkspaceSidebarFooter.tsx:110:3]
+ 109 |   workspaceIdentity,
+ 110 |   workspaceRemoteSessionId,
+     :   ^^^^^^^^^^^^|^^^^^^^^^^^
+     :               `-- 'workspaceRemoteSessionId' is declared here
+ 111 |   activeTaskId,
+     `----
+  help: Consider removing this parameter.
+
+  ! eslint(no-unused-vars): Parameter 'activeTaskId' is declared but never used. Unused parameters should start with a '_'.
+     ,-[packages/ui/src/WorkspaceSidebarFooter.tsx:111:3]
+ 110 |   workspaceRemoteSessionId,
+ 111 |   activeTaskId,
+     :   ^^^^^^|^^^^^
+     :         `-- 'activeTaskId' is declared here
+ 112 |   isDesktop = false,
+     `----
+  help: Consider removing this parameter.
+
+  ! eslint(no-unused-vars): Type 'ZCodeProvider' is imported but never used.
+   ,-[packages/shared/src/protocol.ts:5:15]
+ 4 | import type { ProviderFamilyConnectionSelectionSettings } from "./provider-family-connection-selection.js";
+ 5 | import type { ZCodeProvider } from "./zcode-task-types-core.js";
+   :               ^^^^^^|^^^^^^
+   :                     `-- 'ZCodeProvider' is imported here
+ 6 | import type { WorkspacePurpose } from "./workspacePurpose.js";
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Type 'ZaicodeSoundOverlap' is imported but never used.
+    ,-[packages/ui/src/zaicode/zaicodeSoundEvents.ts:18:35]
+ 17 | import { ZAICODE_CLICKABLE, zaicodeChangeSoundFor, zaicodeClickSoundFor } from "./zaicodeSoundVoices.js";
+ 18 | import { decideZaicodeSound, type ZaicodeSoundOverlap, type ZaicodeSoundRequest } from "./zaicodeSoundPolicy.js";
+    :                                   ^^^^^^^^^|^^^^^^^^^
+    :                                            `-- 'ZaicodeSoundOverlap' is imported here
+ 19 | import {
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'STORAGE_KEY' is imported but never used.
+    ,-[packages/ui/src/zaicode/zaicodeSoundEvents.ts:22:3]
+ 21 |   LEGACY_CUES_KEY,
+ 22 |   STORAGE_KEY,
+    :   ^^^^^|^^^^^
+    :        `-- 'STORAGE_KEY' is imported here
+ 23 |   ZAICODE_SOUND_EVENTS,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'ZAICODE_SOUND_GAIN_MAX' is imported but never used.
+    ,-[packages/ui/src/zaicode/zaicodeSoundEvents.ts:24:3]
+ 23 |   ZAICODE_SOUND_EVENTS,
+ 24 |   ZAICODE_SOUND_GAIN_MAX,
+    :   ^^^^^^^^^^^|^^^^^^^^^^
+    :              `-- 'ZAICODE_SOUND_GAIN_MAX' is imported here
+ 25 |   ZAICODE_SOUND_GAIN_MIN,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'ZAICODE_SOUND_GAIN_MIN' is imported but never used.
+    ,-[packages/ui/src/zaicode/zaicodeSoundEvents.ts:25:3]
+ 24 |   ZAICODE_SOUND_GAIN_MAX,
+ 25 |   ZAICODE_SOUND_GAIN_MIN,
+    :   ^^^^^^^^^^^|^^^^^^^^^^
+    :              `-- 'ZAICODE_SOUND_GAIN_MIN' is imported here
+ 26 |   resetZaicodeSoundSettings,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'resetZaicodeSoundSettings' is imported but never used.
+    ,-[packages/ui/src/zaicode/zaicodeSoundEvents.ts:26:3]
+ 25 |   ZAICODE_SOUND_GAIN_MIN,
+ 26 |   resetZaicodeSoundSettings,
+    :   ^^^^^^^^^^^^|^^^^^^^^^^^^
+    :               `-- 'resetZaicodeSoundSettings' is imported here
+ 27 |   setAllZaicodeSoundEvents,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'setAllZaicodeSoundEvents' is imported but never used.
+    ,-[packages/ui/src/zaicode/zaicodeSoundEvents.ts:27:3]
+ 26 |   resetZaicodeSoundSettings,
+ 27 |   setAllZaicodeSoundEvents,
+    :   ^^^^^^^^^^^^|^^^^^^^^^^^
+    :               `-- 'setAllZaicodeSoundEvents' is imported here
+ 28 |   setZaicodeSoundEvent,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'setZaicodeSoundSettings' is imported but never used.
+    ,-[packages/ui/src/zaicode/zaicodeSoundEvents.ts:29:3]
+ 28 |   setZaicodeSoundEvent,
+ 29 |   setZaicodeSoundSettings,
+    :   ^^^^^^^^^^^|^^^^^^^^^^^
+    :              `-- 'setZaicodeSoundSettings' is imported here
+ 30 |   zaicodePoolSharesForEvent,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'zaicodePoolSharesForEvent' is imported but never used.
+    ,-[packages/ui/src/zaicode/zaicodeSoundEvents.ts:30:3]
+ 29 |   setZaicodeSoundSettings,
+ 30 |   zaicodePoolSharesForEvent,
+    :   ^^^^^^^^^^^^|^^^^^^^^^^^^
+    :               `-- 'zaicodePoolSharesForEvent' is imported here
+ 31 |   isZaicodeInterfaceSound,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'migrateProjectSwitchCue' is imported but never used.
+    ,-[packages/ui/src/zaicode/zaicodeSoundEvents.ts:32:3]
+ 31 |   isZaicodeInterfaceSound,
+ 32 |   migrateProjectSwitchCue,
+    :   ^^^^^^^^^^^|^^^^^^^^^^^
+    :              `-- 'migrateProjectSwitchCue' is imported here
+ 33 |   normalizeZaicodeSoundSettings,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'normalizeZaicodeSoundSettings' is imported but never used.
+    ,-[packages/ui/src/zaicode/zaicodeSoundEvents.ts:33:3]
+ 32 |   migrateProjectSwitchCue,
+ 33 |   normalizeZaicodeSoundSettings,
+    :   ^^^^^^^^^^^^^^|^^^^^^^^^^^^^^
+    :                 `-- 'normalizeZaicodeSoundSettings' is imported here
+ 34 |   readZaicodeSoundSettings,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'zaicodeSetPoolWeight' is imported but never used.
+    ,-[packages/ui/src/zaicode/zaicodeSoundEvents.ts:38:3]
+ 37 |   zaicodeSoundForEvent,
+ 38 |   zaicodeSetPoolWeight,
+    :   ^^^^^^^^^^|^^^^^^^^^
+    :             `-- 'zaicodeSetPoolWeight' is imported here
+ 39 |   ZAICODE_SOUND_SELECTION_MODES,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'ZAICODE_SOUND_SELECTION_MODES' is imported but never used.
+    ,-[packages/ui/src/zaicode/zaicodeSoundEvents.ts:39:3]
+ 38 |   zaicodeSetPoolWeight,
+ 39 |   ZAICODE_SOUND_SELECTION_MODES,
+    :   ^^^^^^^^^^^^^^|^^^^^^^^^^^^^^
+    :                 `-- 'ZAICODE_SOUND_SELECTION_MODES' is imported here
+ 40 | } from "./zaicodeSoundSettingsModel.js";
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Type 'NodeReplCuaBroker' is imported but never used.
+    ,-[apps/zcode-cli/packages/node-repl-host/src/server.ts:25:40]
+ 24 | } from "./cua-bridge.js";
+ 25 | import { createNodeReplCuaBroker, type NodeReplCuaBroker } from "./cua-broker.js";
+    :                                        ^^^^^^^^|^^^^^^^^
+    :                                                `-- 'NodeReplCuaBroker' is imported here
+ 26 | import {
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Type 'Server' is imported but never used.
+   ,-[apps/zcode-cli/packages/node-repl-host/src/cua-broker.ts:3:29]
+ 2 | import { rm } from "node:fs/promises";
+ 3 | import { createServer, type Server, type Socket } from "node:net";
+   :                             ^^^|^^
+   :                                `-- 'Server' is imported here
+ 4 | import { tmpdir } from "node:os";
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Parameter 'current' is declared but never used. Unused parameters should start with a '_'.
+      ,-[packages/ui/src/v4/composer/useComposerAttachments.ts:1075:33]
+ 1074 |         : undefined;
+ 1075 |       updateItem(scopeKey, id, (current) => ({
+      :                                 ^^^|^^^
+      :                                    `-- 'current' is declared here
+ 1076 |         ...edited,
+      `----
+  help: Consider removing this parameter.
+
+  ! eslint(no-unused-vars): Identifier 'BUILTIN_MODEL_PROVIDER_IDS' is imported but never used.
+    ,-[packages/ui/src/WorkspaceSidebar.tsx:61:20]
+ 60 | import type { Locale, RemoteTarget, UserInfo, ZCodeTaskMeta } from "@zcode/shared";
+ 61 | import { isLocale, BUILTIN_MODEL_PROVIDER_IDS, isZaicodeProductMode } from "@zcode/shared";
+    :                    ^^^^^^^^^^^^^|^^^^^^^^^^^^
+    :                                 `-- 'BUILTIN_MODEL_PROVIDER_IDS' is imported here
+ 62 | import {
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'setPendingSettingsSectionIntent' is imported but never used.
+     ,-[packages/ui/src/WorkspaceSidebar.tsx:145:10]
+ 144 | import { useShortcutCommandLabel } from "@/shortcuts/useShortcutBindings.js";
+ 145 | import { setPendingSettingsSectionIntent } from "@/lib/settingsNavigation.js";
+     :          ^^^^^^^^^^^^^^^|^^^^^^^^^^^^^^^
+     :                         `-- 'setPendingSettingsSectionIntent' is imported here
+ 146 | import { buildTaskWorkspaceKey } from "@/lib/taskQueryCache.js";
+     `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Variable 'bumpTaskListVersion' is declared but never used. Unused variables should start with a '_'.
+     ,-[packages/ui/src/WorkspaceSidebar.tsx:396:9]
+ 395 |   const { openCodingPlanUpgrade } = useCodingPlanUpgradeDialog();
+ 396 |   const bumpTaskListVersion = useZCodeSessionStore((state) => state.bumpTaskListVersion);
+     :         ^^^^^^^^^|^^^^^^^^^
+     :                  `-- 'bumpTaskListVersion' is declared here
+ 397 |   const workspaceIdentity = useTabStore((state) => {
+     `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Parameter 'value' is declared but never used. Unused parameters should start with a '_'.
+     ,-[packages/ui/src/zaicode/zaicodeSidebarPrefs.ts:307:24]
+ 306 |               .filter(
+ 307 |                 ([key, value]) =>
+     :                        ^^|^^
+     :                          `-- 'value' is declared here
+ 308 |                   (ZAICODE_SLOT_GROUPS as readonly string[]).includes(key) || key === "LIVE",
+     `----
+  help: Consider removing this parameter.
+
+  ! eslint(no-unused-vars): Parameter 'isUnavailable' is declared but never used. Unused parameters should start with a '_'.
+     ,-[packages/ui/src/settings/model-provider-section/StatusCards.tsx:672:3]
+ 671 |   isPurchased,
+ 672 |   isUnavailable = false,
+     :   ^^^^^^|^^^^^^
+     :         `-- 'isUnavailable' is declared here
+ 673 |   isStartPlanProvider,
+     `----
+  help: Consider removing this parameter.
+
+  ! eslint(no-unused-vars): Identifier 'verifyStagedKoffi' is imported but never used.
+    ,-[packages/desktop/electron-builder.config.js:23:10]
+ 22 | } from "./scripts/desktop-product-identity.mjs";
+ 23 | import { verifyStagedKoffi } from "./scripts/koffi-package-assets.mjs";
+    :          ^^^^^^^^|^^^^^^^^
+    :                  `-- 'verifyStagedKoffi' is imported here
+ 24 | const ELECTRON_BUILDER_ARCH = {
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Variable 'desktopElectronVersion' is declared but never used. Unused variables should start with a '_'.
+     ,-[packages/desktop/electron-builder.config.js:122:7]
+ 121 | let nsisInstallSectionPath = null;
+ 122 | const desktopElectronVersion = requireFromConfig("./package.json").devDependencies.electron;
+     :       ^^^^^^^^^^^|^^^^^^^^^^
+     :                  `-- 'desktopElectronVersion' is declared here
+ 123 | const asarCliPath = resolve(
+     `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Identifier 'join' is imported but never used.
+   ,-[packages/desktop/scripts/node-pty-rebuild.mjs:3:19]
+ 2 | import { access } from "node:fs/promises";
+ 3 | import { dirname, join, normalize, posix as posixPath, sep } from "node:path";
+   :                   ^^|^
+   :                     `-- 'join' is imported here
+ 4 | import process from "node:process";
+   `----
+  help: Consider removing this import.
+
+  ! eslint-plugin-unicorn(no-new-array): Do not use `new Array(singleArgument)`.
+     ,-[packages/services/src/conversation-share/conversationShareService.ts:101:19]
+ 100 |   if (items.length === 0) return [];
+ 101 |   const results = new Array<Output>(items.length);
+     :                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 102 |   let nextIndex = 0;
+     `----
+  help: It's not clear whether the argument is meant to be the length of the array or the only element. If the argument is the array's length, consider using `Array.from({ length: n })`. If the argument is the only element, use `[element]`.
+
+  ! eslint-plugin-unicorn(no-useless-spread): Using a spread operator here creates a new array unnecessarily.
+     ,-[packages/ui/src/zaicode/zaicodeTurnRetryWatch.ts:160:32]
+ 159 |       // Retired watches: the session recovered, vanished, or its pane took over.
+ 160 |       for (const sessionId of [...watches.keys()]) {
+     :                                ^^^
+ 161 |         if (!failedIds.has(sessionId)) clearWatch(sessionId);
+     `----
+  help: `for…of` can iterate over iterable, it's unnecessary to convert to an array.
+
+  ! eslint-plugin-unicorn(no-useless-spread): Using a spread operator here creates a new array unnecessarily.
+     ,-[packages/ui/src/zaicode/zaicodeTurnRetryWatch.ts:185:32]
+ 184 |       window.clearInterval(interval);
+ 185 |       for (const sessionId of [...watches.keys()]) clearWatch(sessionId);
+     :                                ^^^
+ 186 |     };
+     `----
+  help: `for…of` can iterate over iterable, it's unnecessary to convert to an array.
+
+  ! eslint(no-unused-vars): Variable 'adaptersRoot' is declared but never used. Unused variables should start with a '_'.
+    ,-[packages/desktop/scripts/prepare-agent-node-bundle.mjs:25:7]
+ 24 | const cliBundlePath = resolve(repoRoot, "apps/zcode-cli/packages/cli/dist/zcode.cjs");
+ 25 | const adaptersRoot = resolve(repoRoot, "apps/zcode-cli/packages/adapters");
+    :       ^^^^^^|^^^^^
+    :             `-- 'adaptersRoot' is declared here
+ 26 | const pnpmRunEnv = {
+    `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Type 'ZCodeTaskMeta' is imported but never used.
+   ,-[packages/services/src/session/taskChangeSummary.ts:5:3]
+ 4 |   ZCodeTaskChangedFileSummary,
+ 5 |   ZCodeTaskMeta,
+   :   ^^^^^^|^^^^^^
+   :         `-- 'ZCodeTaskMeta' is imported here
+ 6 | } from "@zcode/shared";
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Type 'PanelImperativeHandle' is imported but never used.
+   ,-[packages/ui/src/app-shell/WorkspaceShellLayout.tsx:8:15]
+ 7 | } from "react";
+ 8 | import type { PanelImperativeHandle } from "react-resizable-panels";
+   :               ^^^^^^^^^^|^^^^^^^^^^
+   :                         `-- 'PanelImperativeHandle' is imported here
+ 9 | 
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'V4ChatPane' is imported but never used.
+    ,-[packages/ui/src/app-shell/WorkspaceShellLayout.tsx:14:10]
+ 13 | import { sidePaneTerminalSessionRegistry } from "@/terminal/sidePaneTerminalSessionRegistry.js";
+ 14 | import { V4ChatPane } from "@/v4/V4ChatPane.js";
+    :          ^^^^^|^^^^
+    :               `-- 'V4ChatPane' is imported here
+ 15 | import { V4WorkspaceChatArea } from "@/v4/V4WorkspaceChatArea.js";
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'Button' is imported but never used.
+    ,-[packages/ui/src/app-shell/WorkspaceShellLayout.tsx:89:10]
+ 88 | import { cn } from "@/components/lib/utils.js";
+ 89 | import { Button } from "@/components/ui/button.js";
+    :          ^^^|^^
+    :             `-- 'Button' is imported here
+ 90 | import { ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable.js";
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Parameter 'onCreateScratchWorkspace' is declared but never used. Unused parameters should start with a '_'.
+     ,-[packages/ui/src/app-shell/WorkspaceShellLayout.tsx:244:3]
+ 243 |   onOpenRemoteWorkspace,
+ 244 |   onCreateScratchWorkspace,
+     :   ^^^^^^^^^^^^|^^^^^^^^^^^
+     :               `-- 'onCreateScratchWorkspace' is declared here
+ 245 |   allowOpenWorkspace = true,
+     `----
+  help: Consider removing this parameter.
+
+  ! eslint(no-unused-vars): Parameter 'testMessages' is declared but never used. Unused parameters should start with a '_'.
+     ,-[packages/ui/src/app-shell/WorkspaceShellLayout.tsx:300:3]
+ 299 |   taskSessionFile,
+ 300 |   testMessages,
+     :   ^^^^^^|^^^^^
+     :         `-- 'testMessages' is declared here
+ 301 |   conversationFindActiveIndex,
+     `----
+  help: Consider removing this parameter.
+
+  ! eslint(no-unused-vars): Parameter 'handleOpenTreemapping' is declared but never used. Unused parameters should start with a '_'.
+     ,-[packages/ui/src/app-shell/WorkspaceShellLayout.tsx:328:3]
+ 327 |   handleOpenBrowserTab,
+ 328 |   handleOpenTreemapping,
+     :   ^^^^^^^^^^|^^^^^^^^^^
+     :             `-- 'handleOpenTreemapping' is declared here
+ 329 |   handleOpenWhiteboard,
+     `----
+  help: Consider removing this parameter.
+
+  ! eslint-plugin-unicorn(prefer-string-starts-ends-with): Prefer String#startsWith over a regex with a caret.
+     ,-[apps/zcode-cli/packages/cli/scripts/sea-official-plugin-assets.mjs:219:7]
+ 218 |   if (/(?:^|\/)dist\/mcp\/server\.js$/i.test(normalizedPath)) return 0o755;
+ 219 |   if (/^hooks\//u.test(normalizedPath) && !/\.(json|md|txt)$/iu.test(normalizedPath)) {
+     :       ^^^^^^^^^^^^^^^^
+ 220 |     return 0o755;
+     `----
+  help: Replace `/^hooks\//u.test(normalizedPath)` with `normalizedPath.startsWith('hooks/')`.
+
+  ! eslint-plugin-unicorn(no-useless-spread): Using a spread operator here creates a new array unnecessarily.
+     ,-[packages/desktop/src/host/startupDiskSampler.ts:107:28]
+ 106 |     try {
+ 107 |       for (const scope of [...this.scopes.values()]) {
+     :                            ^^^
+ 108 |         if (this.stopped) break;
+     `----
+  help: `for…of` can iterate over iterable, it's unnecessary to convert to an array.
+
+  ! eslint(no-unused-vars): Identifier 'IMediaPreviewService' is imported but never used.
+   ,-[packages/desktop/src/host/remoteWorkspaceServiceCollection.ts:5:3]
+ 4 |   IFileService,
+ 5 |   IMediaPreviewService,
+   :   ^^^^^^^^^^|^^^^^^^^^
+   :             `-- 'IMediaPreviewService' is imported here
+ 6 |   IGitService,
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'createMediaPreviewService' is imported but never used.
+    ,-[packages/desktop/src/host/remoteWorkspaceServiceCollection.ts:60:3]
+ 59 |   createUsageStatsService,
+ 60 |   createMediaPreviewService,
+    :   ^^^^^^^^^^^^|^^^^^^^^^^^^
+    :               `-- 'createMediaPreviewService' is imported here
+ 61 |   createCodingPlanSubscriptionService,
+    `----
+  help: Consider removing this import.
+
+  ! eslint-plugin-unicorn(no-useless-spread): Using a spread operator here creates a new object unnecessarily.
+     ,-[apps/zcode-cli/packages/bootstrap/src/zcode-protocol/v4-bridge.ts:153:13]
+ 152 |           options: {
+ 153 |             ...(reasoningLevel !== undefined ? { reasoningLevel } : {}),
+     :             ^^^
+ 154 |           },
+     `----
+  help: This expression returns a new object. Spreading it into an object expression to create a new object is redundant.
+
+  ! eslint(no-unused-vars): Parameter 'onOpenWorkspace' is declared but never used. Unused parameters should start with a '_'.
+     ,-[packages/ui/src/SettingsPage.tsx:314:3]
+ 313 |   onCreateTask,
+ 314 |   onOpenWorkspace,
+     :   ^^^^^^^|^^^^^^^
+     :          `-- 'onOpenWorkspace' is declared here
+ 315 |   allowOpenWorkspace = true,
+     `----
+  help: Consider removing this parameter.
+
+  ! eslint(no-unused-vars): Parameter 'allowOpenWorkspace' is declared but never used. Unused parameters should start with a '_'.
+     ,-[packages/ui/src/SettingsPage.tsx:315:3]
+ 314 |   onOpenWorkspace,
+ 315 |   allowOpenWorkspace = true,
+     :   ^^^^^^^^^|^^^^^^^^
+     :            `-- 'allowOpenWorkspace' is declared here
+ 316 |   onLogin,
+     `----
+  help: Consider removing this parameter.
+
+  ! eslint(no-unsafe-finally): Unsafe `finally` block.
+     ,-[apps/zcode-cli/packages/bootstrap/src/zcode-protocol/storage-startup.ts:144:21]
+ 143 |     } catch (error) {
+ 144 |       if (!failure) throw error;
+     :                     ^^^^^^^^^^^^
+ 145 |     }
+     `----
+  help: Control flow inside `try` or `catch` blocks will be overwritten by this statement.
+
+  ! eslint(no-unused-vars): Variable 'NOOP_CALL' is declared but never used. Unused variables should start with a '_'.
+     ,-[apps/zcode-cli/packages/core/src/telemetry/runtime-telemetry.ts:210:7]
+ 209 | 
+ 210 | const NOOP_CALL: ModelCallSpanWriter = {
+     :       ^^^^|^^^^
+     :           `-- 'NOOP_CALL' is declared here
+ 211 |   ...NOOP_SCOPE,
+     `----
+  help: Consider removing this declaration.
+
+  ! eslint-plugin-unicorn(no-useless-spread): Using a spread operator here creates a new array unnecessarily.
+      ,-[apps/zcode-cli/packages/bootstrap/src/zcode-protocol-v4/v4-gateway.ts:1054:42]
+ 1053 |     let released = 0;
+ 1054 |     for (const [childId, terminalAt] of [...this.detachedTerminalAt]) {
+      :                                          ^^^
+ 1055 |       if (nowMs - terminalAt < graceMs) continue;
+      `----
+  help: `for…of` can iterate over iterable, it's unnecessary to convert to an array.
+
+  ! eslint-plugin-unicorn(no-useless-spread): Using a spread operator here creates a new object unnecessarily.
+      ,-[apps/zcode-cli/packages/bootstrap/src/zcode-protocol-v4/v4-gateway.ts:1625:7]
+ 1624 |     const runs = await this.host.listDynamicWorkflowRuns(params.sessionId, {
+ 1625 |       ...(params.limit === undefined ? {} : { limit: params.limit }),
+      :       ^^^
+ 1626 |     });
+      `----
+  help: This expression returns a new object. Spreading it into an object expression to create a new object is redundant.
+
+  ! eslint-plugin-unicorn(no-useless-spread): Using a spread operator here creates a new array unnecessarily.
+      ,-[apps/zcode-cli/packages/bootstrap/src/zcode-protocol-v4/v4-gateway.ts:3236:27]
+ 3235 |     if (!waiters) return;
+ 3236 |     for (const waiter of [...waiters]) waiter.resolve();
+      :                           ^^^
+ 3237 |   }
+      `----
+  help: `for…of` can iterate over iterable, it's unnecessary to convert to an array.
+
+  ! eslint-plugin-unicorn(no-useless-spread): Using a spread operator here creates a new array unnecessarily.
+      ,-[apps/zcode-cli/packages/bootstrap/src/zcode-protocol-v4/v4-gateway.ts:3244:27]
+ 3243 |     if (!waiters) return;
+ 3244 |     for (const waiter of [...waiters]) waiter.reject(error);
+      :                           ^^^
+ 3245 |   }
+      `----
+  help: `for…of` can iterate over iterable, it's unnecessary to convert to an array.
+
+  ! eslint-plugin-unicorn(no-useless-spread): Using a spread operator here creates a new array unnecessarily.
+      ,-[apps/zcode-cli/packages/bootstrap/src/zcode-protocol-v4/v4-gateway.ts:3251:29]
+ 3250 |     for (const waiters of byEvent.values()) {
+ 3251 |       for (const waiter of [...waiters]) waiter.reject(error);
+      :                             ^^^
+ 3252 |     }
+      `----
+  help: `for…of` can iterate over iterable, it's unnecessary to convert to an array.
+
+  ! eslint(no-unused-vars): Type 'ZCodeSessionMode' is imported but never used.
+    ,-[apps/zcode-cli/packages/bootstrap/src/zcode-protocol/server-types.ts:27:8]
+ 26 |   type ZCodeProtocolTrace,
+ 27 |   type ZCodeSessionMode,
+    :        ^^^^^^^^|^^^^^^^
+    :                `-- 'ZCodeSessionMode' is imported here
+ 28 |   type ZCodeSessionPersistence,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Type 'RemoteTarget' is imported but never used.
+    ,-[packages/desktop/src/main/desktopHostProcess.ts:32:8]
+ 31 |   serializeLaunchMarks,
+ 32 |   type RemoteTarget,
+    :        ^^^^^^|^^^^^
+    :              `-- 'RemoteTarget' is imported here
+ 33 |   type WorkspacePurpose,
+    `----
+  help: Consider removing this import.
+
+  ! eslint-plugin-unicorn(no-useless-fallback-in-spread): Empty fallbacks in spreads are unnecessary
+    ,-[apps/zcode-cli/packages/adapters/src/plugins/official-marketplace.ts:79:5]
+ 78 |   const merged = {
+ 79 |     ...(bundledManifest ?? {}),
+    :     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 80 |     ...(cdnManifest ?? {}),
+    `----
+  help: Spreading falsy values in object literals won't add any unexpected properties, so it's unnecessary to add an empty object as fallback.
+
+  ! eslint-plugin-unicorn(no-useless-fallback-in-spread): Empty fallbacks in spreads are unnecessary
+    ,-[apps/zcode-cli/packages/adapters/src/plugins/official-marketplace.ts:80:5]
+ 79 |     ...(bundledManifest ?? {}),
+ 80 |     ...(cdnManifest ?? {}),
+    :     ^^^^^^^^^^^^^^^^^^^^^^
+ 81 |     name: ZCODE_OFFICIAL_PLUGIN_MARKETPLACE,
+    `----
+  help: Spreading falsy values in object literals won't add any unexpected properties, so it's unnecessary to add an empty object as fallback.
+
+  ! eslint(no-unused-vars): Type 'V4SessionRecordView' is imported but never used.
+    ,-[apps/zcode-cli/packages/bootstrap/src/zcode-protocol-v4/commands/handlers/queue.ts:15:34]
+ 14 | import { requireRecord } from "../record-access.js";
+ 15 | import type { V4CommandCoreHost, V4SessionRecordView } from "../types.js";
+    :                                  ^^^^^^^^^|^^^^^^^^^
+    :                                           `-- 'V4SessionRecordView' is imported here
+ 16 | import {
+    `----
+  help: Consider removing this import.
+
+  ! eslint-plugin-unicorn(no-useless-fallback-in-spread): Empty fallbacks in spreads are unnecessary
+     ,-[apps/zcode-cli/packages/adapters/src/storage/session-store/sqlite-session-store.ts:566:13]
+ 565 |           metadata: {
+ 566 |             ...(contextMessage.info.metadata ?? {}),
+     :             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 567 |             sharedContextStatus: input.status,
+     `----
+  help: Spreading falsy values in object literals won't add any unexpected properties, so it's unnecessary to add an empty object as fallback.
+
+  ! eslint(no-unused-vars): Parameter 'disposables' is declared but never used. Unused parameters should start with a '_'.
+    ,-[packages/rpc/src/proxy-channel.ts:48:5]
+ 47 |     service: unknown,
+ 48 |     disposables?: DisposableStore,
+    :     ^^^^^|^^^^^
+    :          `-- 'disposables' is declared here
+ 49 |   ): IServerChannel<TContext> {
+    `----
+  help: Consider removing this parameter.
+
+  ! eslint(no-unused-vars): Type 'ProviderContextUsageSnapshot' is imported but never used.
+    ,-[apps/zcode-cli/packages/core/src/runtime/methods/compact.ts:32:15]
+ 31 | import type { Model } from "../deps.js";
+ 32 | import type { ProviderContextUsageSnapshot } from "../types.js";
+    :               ^^^^^^^^^^^^^^|^^^^^^^^^^^^^
+    :                             `-- 'ProviderContextUsageSnapshot' is imported here
+ 33 | import type { AgentRuntimeInternal } from "../internal.js";
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Variable 'rootPath' is declared but never used. Unused variables should start with a '_'.
+     ,-[apps/zcode-cli/packages/adapters/src/plugins/index.ts:863:16]
+ 862 |   if (bundledRoots !== undefined) {
+ 863 |     for (const rootPath of bundledRoots) {
+     :                ^^^^|^^^
+     :                    `-- 'rootPath' is declared here
+ 864 |       throwIfAborted(options);
+     `----
+  help: Consider removing this declaration.
+
+  ! eslint-plugin-unicorn(no-useless-fallback-in-spread): Empty fallbacks in spreads are unnecessary
+     ,-[apps/zcode-cli/packages/adapters/src/storage/session-store/repositories/session-inputs.ts:266:15]
+ 265 |             metadata: {
+ 266 |               ...(contextMessage.info.metadata ?? {}),
+     :               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 267 |               sharedContextStatus: "attached",
+     `----
+  help: Spreading falsy values in object literals won't add any unexpected properties, so it's unnecessary to add an empty object as fallback.
+
+  ! eslint(no-unused-vars): Identifier 'emptyTokenUsageInfo' is imported but never used.
+    ,-[apps/zcode-cli/packages/core/src/runtime/methods/compact-persistence.ts:25:3]
+ 24 |   compactFailureReasonFromError,
+ 25 |   emptyTokenUsageInfo,
+    :   ^^^^^^^^^|^^^^^^^^^
+    :            `-- 'emptyTokenUsageInfo' is imported here
+ 26 |   isTurnCancellationError,
+    `----
+  help: Consider removing this import.
+
+  ! typescript-eslint(no-this-alias): Unexpected aliasing of 'this' to local variable.
+     ,-[packages/rpc/src/ipc.ts:161:11]
+ 160 |   ): T {
+ 161 |     const that = this;
+     :           ^^^^
+ 162 |     const isFilter = typeof routerOrFilter === "function";
+     `----
+  help: Assigning a variable to this instead of properly using arrow lambdas may be a symptom of pre-ES2015 practices or not managing scope well.
+
+  ! typescript-eslint(no-this-alias): Unexpected aliasing of 'this' to local variable.
+     ,-[packages/rpc/src/ipc.ts:219:11]
+ 218 |   ): Event<T> {
+ 219 |     const that = this;
+     :           ^^^^
+ 220 |     let disposables: DisposableStore | undefined;
+     `----
+  help: Assigning a variable to this instead of properly using arrow lambdas may be a symptom of pre-ES2015 practices or not managing scope well.
+
+  ! eslint(no-unused-vars): Type alias 'Modifier' is declared but never used.
+     ,-[packages/ui/src/zaicode/zaicodeHotkeys.ts:104:6]
+ 103 | const MODIFIERS = ["Ctrl", "Alt", "Shift", "Win"] as const;
+ 104 | type Modifier = (typeof MODIFIERS)[number];
+     :      ^^^^|^^^
+     :          `-- 'Modifier' is declared here
+ 105 | 
+     `----
+  help: Consider removing this declaration.
+
+  ! eslint-plugin-unicorn(no-useless-spread): `Set` accepts an iterable, so it's unnecessary to convert the iterable to an array.
+     ,-[packages/ui/src/zaicode/zaicodeHotkeys.ts:138:29]
+ 137 | 
+ 138 | const NAMED_KEYS = new Set([...Object.values(CODE_TO_KEY)]);
+     :                             ^^^
+ 139 | 
+     `----
+  help: Consider removing the spread operator.
+
+  ! eslint-plugin-unicorn(no-useless-spread): Using a spread operator here creates a new array unnecessarily.
+     ,-[packages/rpc/src/foundation.ts:158:29]
+ 157 |     }
+ 158 |     for (const listener of [...this.listeners]) {
+     :                             ^^^
+ 159 |       listener(event);
+     `----
+  help: `for…of` can iterate over iterable, it's unnecessary to convert to an array.
+
+  ! eslint(no-unused-vars): Variable 'executionMaxOutputTokens' is declared but never used. Unused variables should start with a '_'.
+     ,-[apps/zcode-cli/packages/core/src/runtime/methods/compact-active.ts:179:9]
+ 178 |     });
+ 179 |   const executionMaxOutputTokens = compactModel.optionSpecs.maxOutputTokens.max;
+     :         ^^^^^^^^^^^^|^^^^^^^^^^^
+     :                     `-- 'executionMaxOutputTokens' is declared here
+ 180 |   // Active compact 会跨多个 await 保留这份成员浅快照；它依赖 RuntimeMessageEntry
+     `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Parameter 'connectTo' is declared but never used. Unused parameters should start with a '_'.
+     ,-[packages/rpc/examples/04-remote-connection.ts:136:12]
+ 135 | class MockWebSocketFactory implements ISocketFactory<RemoteConnectionType.WebSocket> {
+ 136 |   supports(connectTo: RemoteConnection & { type: RemoteConnectionType.WebSocket }): boolean {
+     :            ^^^^|^^^^
+     :                `-- 'connectTo' is declared here
+ 137 |     return true;
+     `----
+  help: Consider removing this parameter.
+
+  ! eslint(no-unused-vars): Type 'BuiltInSubagentName' is imported but never used.
+    ,-[apps/zcode-cli/packages/bootstrap/src/subagents.ts:16:8]
+ 15 |   type BuiltInSubagentModelSelectionOverrides,
+ 16 |   type BuiltInSubagentName,
+    :        ^^^^^^^^^|^^^^^^^^^
+    :                 `-- 'BuiltInSubagentName' is imported here
+ 17 |   type PluginSubagentModelSelectionOverrides,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unsafe-finally): Unsafe `finally` block.
+    ,-[apps/zcode-cli/packages/adapters/src/storage/session-store/migration-runner.ts:94:20]
+ 93 |     } catch (error) {
+ 94 |       if (!failed) throw error;
+    :                    ^^^^^^^^^^^^
+ 95 |     }
+    `----
+  help: Control flow inside `try` or `catch` blocks will be overwritten by this statement.
+
+  ! eslint(no-unused-vars): Type 'LoggerFactory' is imported but never used.
+   ,-[apps/zcode-cli/packages/bootstrap/src/startup-logging.ts:2:35]
+ 1 | import { performance } from "node:perf_hooks";
+ 2 | import type { LogContext, Logger, LoggerFactory, LogLevel } from "@zcode/contracts";
+   :                                   ^^^^^^|^^^^^^
+   :                                         `-- 'LoggerFactory' is imported here
+ 3 | 
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Type 'LogLevel' is imported but never used.
+   ,-[apps/zcode-cli/packages/bootstrap/src/startup-logging.ts:2:50]
+ 1 | import { performance } from "node:perf_hooks";
+ 2 | import type { LogContext, Logger, LoggerFactory, LogLevel } from "@zcode/contracts";
+   :                                                  ^^^^|^^^
+   :                                                      `-- 'LogLevel' is imported here
+ 3 | 
+   `----
+  help: Consider removing this import.
+
+  ! eslint-plugin-unicorn(no-useless-spread): Using a spread operator here creates a new object unnecessarily.
+     ,-[apps/zcode-cli/packages/core/src/runtime/methods/turn.ts:269:9]
+ 268 |       activeTurn = this.beginActiveTurn(turnId, turnTraceContext, "regular", true, {
+ 269 |         ...(options?.inputId === undefined ? {} : { inputId: options.inputId }),
+     :         ^^^
+ 270 |       });
+     `----
+  help: This expression returns a new object. Spreading it into an object expression to create a new object is redundant.
+
+  ! eslint(no-unused-vars): Variable 'modelSelection' is declared but never used. Unused variables should start with a '_'.
+    ,-[apps/zcode-cli/packages/core/src/runtime/methods/turn-tools.ts:59:9]
+ 58 |   }
+ 59 |   const modelSelection = { providerId: model.providerId, modelId: model.modelId };
+    :         ^^^^^^^|^^^^^^
+    :                `-- 'modelSelection' is declared here
+ 60 |   const coreToolCalls: ToolCall[] = options.toolCalls.map((tc) => ({
+    `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-control-regex): Unexpected control character
+     ,-[packages/shared/src/zcode-protocol-v4/transport.ts:810:18]
+ 809 |       .max(255)
+ 810 |       .regex(/^[^\0\r\n]+$/),
+     :                  ^|
+     :                   `-- '\0' matches the null character (U+0000), which is a control character.
+ 811 |     mime: z
+     `----
+  help: Avoid matching control characters in regular expressions. If intentional, consider using a Unicode escape instead.
+
+  ! eslint-plugin-unicorn(no-useless-spread): Using a spread operator here creates a new object unnecessarily.
+     ,-[apps/zcode-cli/packages/adapters/src/model/runner.ts:99:9]
+  98 |       {
+  99 |         ...(options.logger ? { logger: options.logger } : {}),
+     :         ^^^
+ 100 |       },
+     `----
+  help: `options.logger ? { logger: options.logger } : {}` returns a new object. Spreading it into an object expression to create a new object is redundant.
+
+  ! eslint-plugin-unicorn(no-useless-fallback-in-spread): Empty fallbacks in spreads are unnecessary
+     ,-[apps/zcode-cli/packages/adapters/src/model/runner-normalization.ts:297:5]
+ 296 |     ...(response ? { response } : {}),
+ 297 |     ...(responseBody ?? {}),
+     :     ^^^^^^^^^^^^^^^^^^^^^^^
+ 298 |     ...(record.rawFinishReason === undefined ? {} : { rawFinishReason: record.rawFinishReason }),
+     `----
+  help: Spreading falsy values in object literals won't add any unexpected properties, so it's unnecessary to add an empty object as fallback.
+
+  ! eslint(no-unused-vars): Variable 'workingDirectory' is declared but never used. Unused variables should start with a '_'.
+     ,-[apps/zcode-cli/packages/bootstrap/src/plugins.ts:512:44]
+ 511 | ): Promise<ZCodeMarketplaceUpdateData> {
+ 512 |   const { configResult, pluginStorageRoot, workingDirectory } = resolvePluginContext(options);
+     :                                            ^^^^^^^^|^^^^^^^
+     :                                                    `-- 'workingDirectory' is declared here
+ 513 |   ensureDefaultPluginMarketplaces(pluginStorageRoot);
+     `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Parameter 'token' is declared but never used. Unused parameters should start with a '_'.
+     ,-[apps/zcode-cli/packages/bootstrap/src/mcp-config.ts:147:3]
+ 146 |   socketPath: string,
+ 147 |   token: string | undefined,
+     :   ^^|^^
+     :     `-- 'token' is declared here
+ 148 | ): McpServerConfig {
+     `----
+  help: Consider removing this parameter.
+
+  ! eslint-plugin-unicorn(no-useless-fallback-in-spread): Empty fallbacks in spreads are unnecessary
+     ,-[apps/zcode-cli/packages/bootstrap/src/app/bundled-plugins.ts:424:11]
+ 423 |           version: plugin.definition.version,
+ 424 |           ...(plugin.definition.listing ?? {}),
+     :           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 425 |         };
+     `----
+  help: Spreading falsy values in object literals won't add any unexpected properties, so it's unnecessary to add an empty object as fallback.
+
+  ! eslint-plugin-unicorn(prefer-string-starts-ends-with): Prefer String#startsWith over a regex with a caret.
+     ,-[apps/zcode-cli/packages/bootstrap/src/app/bundled-plugins.ts:679:7]
+ 678 |   if (/(?:^|\/)dist\/mcp\/server\.js$/i.test(normalizedPath)) return 0o755;
+ 679 |   if (/^hooks\//u.test(normalizedPath) && !/\.(json|md|txt)$/iu.test(normalizedPath)) {
+     :       ^^^^^^^^^^^^^^^^
+ 680 |     return 0o755;
+     `----
+  help: Replace `/^hooks\//u.test(normalizedPath)` with `normalizedPath.startsWith('hooks/')`.
+
+  ! eslint(no-unused-vars): Parameter 'reconnectingRemoteWorkspaceKeys' is declared but never used. Unused parameters should start with a '_'.
+    ,-[packages/ui/src/root/useRootPlatformEffects.ts:43:3]
+ 42 |   activeWorkspaceIdentity,
+ 43 |   reconnectingRemoteWorkspaceKeys = [],
+    :   ^^^^^^^^^^^^^^^|^^^^^^^^^^^^^^^
+    :                  `-- 'reconnectingRemoteWorkspaceKeys' is declared here
+ 44 |   remoteWorkspaceErrorByWorkspaceKey = {},
+    `----
+  help: Consider removing this parameter.
+
+  ! eslint(no-unused-vars): Parameter 'remoteWorkspaceErrorByWorkspaceKey' is declared but never used. Unused parameters should start with a '_'.
+    ,-[packages/ui/src/root/useRootPlatformEffects.ts:44:3]
+ 43 |   reconnectingRemoteWorkspaceKeys = [],
+ 44 |   remoteWorkspaceErrorByWorkspaceKey = {},
+    :   ^^^^^^^^^^^^^^^^^|^^^^^^^^^^^^^^^^
+    :                    `-- 'remoteWorkspaceErrorByWorkspaceKey' is declared here
+ 45 |   totalUnreadTaskCount,
+    `----
+  help: Consider removing this parameter.
+
+  ! eslint(no-unused-vars): Identifier 'lazy' is imported but never used.
+   ,-[packages/ui/src/Root.tsx:2:10]
+ 1 | /* eslint-disable max-lines -- Root 当前集中编排启动和 workspace shell wiring，先保持入口收口避免跨层状态拆散。 */
+ 2 | import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
+   :          ^^|^
+   :            `-- 'lazy' is imported here
+ 3 | import { LucideProvider, RefreshCw } from "lucide-react";
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'Suspense' is imported but never used.
+   ,-[packages/ui/src/Root.tsx:2:16]
+ 1 | /* eslint-disable max-lines -- Root 当前集中编排启动和 workspace shell wiring，先保持入口收口避免跨层状态拆散。 */
+ 2 | import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
+   :                ^^^^|^^^
+   :                    `-- 'Suspense' is imported here
+ 3 | import { LucideProvider, RefreshCw } from "lucide-react";
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Type 'WorkspaceTabState' is imported but never used.
+    ,-[packages/ui/src/Root.tsx:43:46]
+ 42 | import { TabStoreProvider, useTabStore, useTabStoreApi } from "@/store/TabStoreProvider.js";
+ 43 | import { isSettingsTab, isWorkspaceTab, type WorkspaceTabState } from "@/store/tabStore.js";
+    :                                              ^^^^^^^^|^^^^^^^^
+    :                                                      `-- 'WorkspaceTabState' is imported here
+ 44 | import { logger } from "@/logger.js";
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'useGlobalTaskList' is imported but never used.
+    ,-[packages/ui/src/Root.tsx:63:10]
+ 62 | import { DiffsWorkerPoolProvider } from "@/root/DiffsWorkerPoolProvider.js";
+ 63 | import { useGlobalTaskList } from "@/hooks/useGlobalTaskList.js";
+    :          ^^^^^^^^|^^^^^^^^
+    :                  `-- 'useGlobalTaskList' is imported here
+ 64 | import { ScopedErrorBoundary } from "@/ErrorBoundary.js";
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'useRef' is imported but never used.
+   ,-[packages/ui/src/settings/AutomationsSection.tsx:7:3]
+ 6 |   useMemo,
+ 7 |   useRef,
+   :   ^^^|^^
+   :      `-- 'useRef' is imported here
+ 8 |   useState,
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Parameter 'family' is declared but never used. Unused parameters should start with a '_'.
+     ,-[apps/zcode-cli/packages/bootstrap/src/app/standalone-account-provider-runtime.ts:134:32]
+ 133 |   const providers = new ProviderConfigMap(
+ 134 |     configuredProviders.map(({ family, providerId }) => {
+     :                                ^^^|^^
+     :                                   `-- 'family' is declared here
+ 135 |       const candidate = candidateByProviderId.get(providerId);
+     `----
+  help: Consider removing this parameter.
+
+  ! eslint(no-unused-vars): Parameter 'env' is declared but never used. Unused parameters should start with a '_'.
+     ,-[apps/zcode-cli/packages/bootstrap/src/app/standalone-account-provider-runtime.ts:171:3]
+ 170 |   credentialStore: Pick<SharedZCodeCredentialStore, "load" | "loadMany">,
+ 171 |   env: Readonly<Record<string, string | undefined>>,
+     :   ^|^
+     :    `-- 'env' is declared here
+ 172 | ): ProviderRuntimeHeadersPort {
+     `----
+  help: Consider removing this parameter.
+
+  ! eslint-plugin-unicorn(no-useless-spread): Using a spread operator here creates a new object unnecessarily.
+     ,-[apps/zcode-cli/packages/bootstrap/src/app/process-provider-registry-runtime.ts:118:15]
+ 117 |             readLegacyCliPersonalProviderConfig({
+ 118 |               ...(options.standalone?.legacyCliUserConfigFilePath
+     :               ^^^
+ 119 |                 ? { filePath: options.standalone.legacyCliUserConfigFilePath }
+     `----
+  help: This expression returns a new object. Spreading it into an object expression to create a new object is redundant.
+
+  ! eslint(no-unused-vars): Function 'createScriptWorkflowFacade' is declared but never used.
+    ,-[apps/zcode-cli/packages/bootstrap/src/app/script-workflow-methods.ts:57:10]
+ 56 | 
+ 57 | function createScriptWorkflowFacade(runtime: ScriptWorkflowRuntime): ScriptWorkflowFacade {
+    :          ^^^^^^^^^^^^^|^^^^^^^^^^^^
+    :                       `-- 'createScriptWorkflowFacade' is declared here
+ 58 |   return {
+    `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Identifier 'resolveRegistryModelSelection' is imported but never used.
+    ,-[apps/zcode-cli/packages/bootstrap/src/app/runtime-config.ts:19:3]
+ 18 |   resolveRegistryOwnedModelSelection,
+ 19 |   resolveRegistryModelSelection,
+    :   ^^^^^^^^^^^^^^|^^^^^^^^^^^^^^
+    :                 `-- 'resolveRegistryModelSelection' is imported here
+ 20 |   type ResolvedRegistrySelection,
+    `----
+  help: Consider removing this import.
+
+  ! eslint-plugin-unicorn(no-useless-fallback-in-spread): Empty fallbacks in spreads are unnecessary
+     ,-[apps/zcode-cli/packages/bootstrap/src/app/runtime-config.ts:171:9]
+ 170 |       builtInModelSelectionOverrides: {
+ 171 |         ...(input.builtInSubagentModelSelectionOverrides ?? {}),
+     :         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 172 |         ...runtimeBuiltInModelSelectionOverrides,
+     `----
+  help: Spreading falsy values in object literals won't add any unexpected properties, so it's unnecessary to add an empty object as fallback.
+
+  ! eslint(no-unused-vars): Variable 'firstOperation' is declared but never used. Unused variables should start with a '_'.
+     ,-[apps/zcode-cli/packages/core/src/runtime/methods/file-rewind.ts:215:9]
+ 214 | 
+ 215 |   const firstOperation = plan.operations[0];
+     :         ^^^^^^^|^^^^^^
+     :                `-- 'firstOperation' is declared here
+ 216 |   const lastOperation = plan.operations.at(-1);
+     `----
+  help: Consider removing this declaration.
+
+  ! eslint-plugin-unicorn(no-useless-spread): Using a spread operator here creates a new object unnecessarily.
+     ,-[apps/zcode-cli/packages/core/src/runtime/methods/session-fork.ts:103:13]
+ 102 |           options: {
+ 103 |             ...(reasoningLevel !== undefined ? { reasoningLevel } : {}),
+     :             ^^^
+ 104 |           },
+     `----
+  help: This expression returns a new object. Spreading it into an object expression to create a new object is redundant.
+
+Found 162 warnings and 0 errors.
+Finished in 560ms on 4639 files using 16 threads.

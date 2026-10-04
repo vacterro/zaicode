@@ -1,0 +1,14 @@
+{
+  "requirements": {
+    "SRC-142:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "T-208 closed with verification evidence in LOG: VERIFY -> PASS: frozen original4 and wiring2 regressions red on restored buggy subjects then green unchanged; focused50 PASS; full1480 PASS plus2 inherited skips; typecheck/lint/architecture/build/bundle exit0; packaged32 checks PASS for all10 families with same app/renderer/runtime/worker identity and attached final, draft/project/timers intact. Final packaged oracle rejects old Notifications rel",
+      "text": "P0: applying any Settings preset must never restart the ZAICODE application, renderer or runtime while projects, sessions or workers are active; presets apply settings live, worker run identity and final result stay attached, project selection, unsent composer text and timers stay coherent; never solve by queueing a full restart.",
+      "verification": "the Work this request created reached its own verification gate; see the T-208 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-208"
+    }
+  },
+  "schema_version": 1
+}

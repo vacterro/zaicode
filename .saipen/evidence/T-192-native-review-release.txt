@@ -1,0 +1,16 @@
+V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\node_modules\node-pty\lib\conpty_console_list_agent.js:13
+var consoleProcessList = getConsoleProcessList(shellPid);
+                         ^
+
+Error: AttachConsole failed
+    at Object.<anonymous> (V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\node_modules\node-pty\lib\conpty_console_list_agent.js:13:26)
+    at Module._compile (node:internal/modules/cjs/loader:1830:14)
+    at Object..js (node:internal/modules/cjs/loader:1961:10)
+    at Module.load (node:internal/modules/cjs/loader:1553:32)
+    at Module._load (node:internal/modules/cjs/loader:1355:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+    at node:internal/main/run_main_module:33:47
+
+Node.js v24.15.0
+{"subject":"working","pass":true,"checks":[{"name":"positive control: live CLI has a PID and writes its counter","pass":true},{"name":"positive control: app input reaches the same CLI","pass":true},{"name":"terminal service confirms a live PowerShell handoff","pass":true},{"name":"same CLI PID and monotonic counter survive taskkill /T /F of app host","pass":true},{"name":"external input/output and resize continue the original CLI","pass":true},{"name":"external console receives original nonzero exit","pass":true},{"name":"closing the external console stops its own CLI","pass":true},{"name":"app crash before handoff stops its own CLI without orphaning","pass":true}],"out":"V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\.saipen\\evidence\\T-192-native-review-release"}

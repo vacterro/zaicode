@@ -1,0 +1,50 @@
+{
+  "agent": "saipen-cli",
+  "created_at": "2026-10-03T01:42:47Z",
+  "evidence_class": "executed",
+  "findings_digest": "e560d1e69386d77819de9cfe1d671cdc5ede06e7e32a5958cbe84d043f122304",
+  "gate": "core",
+  "integrity_digest": "8cd0fef2c68268d7",
+  "journal_op_id": "reverify.4e79a6d61d53",
+  "original_closure": {
+    "claim_time": "2026-09-30T15:09:19Z",
+    "closure_mode": "own_patch",
+    "owner": "claude-code-local-verify",
+    "source_receipts": "SRC-075"
+  },
+  "own_problem_keys": [
+    "8608bcc9f592a8f1"
+  ],
+  "problem_count": 1,
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "project_lineage": "lineage-b0732ed2f98947b9a3c97bfe71427eca",
+  "receipt_id": "RV-000071",
+  "ruleset_fingerprint": "82e5e183ae8f0fd909be3fa3627f00489cacaab813d942186c832db02a05a1c1",
+  "ruleset_version": 1,
+  "schema_version": 1,
+  "source_head": "ab9866d4e25ba7258ca403631b22a1df44eeff9d",
+  "source_tree_fingerprint": "git-delta-v1:f5edccffb6591fd31a2b9271530ee14e4eeaa119dbe6bbb74e8fba870317b351",
+  "verdict": "PASS_WITH_CARRIED_DEBT",
+  "verification": [
+    {
+      "command": "node .saipen/saitranslate/kitchen/audit.mjs",
+      "duration_ms": 1941,
+      "executed": true,
+      "exit_code": 0,
+      "output_bytes": 4921,
+      "output_digest": "f86fc37606a4b422",
+      "result": "PASS"
+    }
+  ],
+  "verification_contract": {
+    "commands": [
+      "node .saipen/saitranslate/kitchen/audit.mjs"
+    ],
+    "findings_digest": "e560d1e69386d77819de9cfe1d671cdc5ede06e7e32a5958cbe84d043f122304",
+    "gate": "core"
+  },
+  "verification_contract_digest": "0d183e0b5f622e12",
+  "verifier": "saipen-cli",
+  "warning_count": 30,
+  "work": "T-113"
+}

@@ -1,0 +1,14 @@
+{
+  "clauses": {
+    "SRC-143:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "WORKERS panel header toggles expanded/collapsed but the visible layout never changes; expanded must show the configured visible worker rows/terminals and collapsed must actually remove the worker body to the compact header with no dead blank region, without stopping active workers and restoring the same workers on expand; panel collapse, single-worker collapse and worker kill stay three distinct semantics."
+    }
+  },
+  "derived_at": "2026-10-04T04:18:37Z",
+  "derived_from": "SRC-143",
+  "interpretation_revision": 1,
+  "schema_version": 1,
+  "source_sha256": "957569db7fb9d6dbaf39265bd629f66b525378e7befd6b81a13b74b082fbaffc"
+}

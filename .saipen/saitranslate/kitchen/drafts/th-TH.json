@@ -2999,6 +2999,7 @@
   "settings.sidebar.group.zaicode": "ZAICODE",
   "zaicode.settings.autoRestart": "เริ่มใหม่หลังแอปล่ม",
   "zaicode.fallback.switched": "{fromModel} ถึงขีดจำกัดแล้ว ข้อความถัดไปจะส่งไปที่ {toModel} สลับกลับได้ทุกเมื่อในเมนูโมเดล",
+  "zaicode.fallback.routeHold": "{fromModel} อยู่ในการพักโควตาจนถึง {until} ข้อความนี้จะส่งไปที่ {toModel}",
   "zaicode.settings.autoRestartHint": "เปิดโดยค่าเริ่มต้น ตัวเรียกแอปจะรีสตาร์ทแอปที่พัง ส่วนโฮสต์เดสก์ท็อปจะโหลดหน้าต่างที่พังใหม่",
   "zaicode.todo.title": "รายการงาน",
   "zaicode.todo.detach": "แยกหน้าต่างรายการงานออก",

@@ -1,0 +1,45 @@
+{
+  "schema": "t192-packaged/1",
+  "at": "2026-10-03T14:59:26.667Z",
+  "executable": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\dist-test-20261003-t192-pass3\\win-unpacked\\ZAICODE.exe",
+  "broker": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\dist-test-20261003-t192-pass3\\win-unpacked\\resources\\app.asar\\out\\host\\workerTerminalBroker.js",
+  "factory": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\dist-test-20261003-t192-pass3\\win-unpacked\\resources\\app.asar\\out\\host\\workerTerminalProcess.js",
+  "scratch": "V:\\_TEMP_\\zaicode-t192-packaged-f108CS",
+  "appAsarSha256": "f8b1d17af416306dc596001d800e1c42b56b4af7cd0a6e133c4a2865d4eabae3",
+  "verifier": "53952960d68becd1dccba298180dd9c6c3e6b12761eda810cf269f1bc11232f1",
+  "checks": [
+    {
+      "name": "packaged Electron loads its shipped broker and native ConPTY module",
+      "pass": true
+    },
+    {
+      "name": "positive control: a single live CLI process advances its state",
+      "pass": true
+    },
+    {
+      "name": "default launch opens a real interactive PowerShell and confirms handoff",
+      "pass": true
+    },
+    {
+      "name": "same CLI PID and state survive forced termination of the packaged app host",
+      "pass": true,
+      "detail": {
+        "before": {
+          "pid": 25140,
+          "count": 5,
+          "marker": "69d7f597-ed2f-4479-acd2-4d4b6fea1ddb"
+        },
+        "after": {
+          "pid": 25140,
+          "count": 10,
+          "marker": "69d7f597-ed2f-4479-acd2-4d4b6fea1ddb"
+        }
+      }
+    },
+    {
+      "name": "fixture exit completes the transferred shell without restarting the CLI",
+      "pass": true
+    }
+  ],
+  "pass": true
+}

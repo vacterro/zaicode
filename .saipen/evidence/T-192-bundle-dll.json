@@ -1,0 +1,5 @@
+{
+  "at": "2026-10-03T16:00:52.2899610Z",
+  "exitCode": 0,
+  "command": "pnpm10 bundle:zaicode --skip-prepare --skip-build"
+}

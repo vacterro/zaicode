@@ -1,0 +1,14 @@
+{
+  "clauses": {
+    "SRC-127:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Move an already running internal CLI worker into an ordinary external Windows PowerShell window in one direction, preserving the existing CLI process and mid-work state."
+    }
+  },
+  "derived_at": "2026-10-03T13:16:37Z",
+  "derived_from": "SRC-127",
+  "interpretation_revision": 1,
+  "schema_version": 1,
+  "source_sha256": "4f63c7a0a0207e9cbb659c6a337d01ca53731f452373daafd6ce5a7e007cad9e"
+}

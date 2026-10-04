@@ -1,0 +1,8 @@
+{
+  "ok": true,
+  "code": "REVERIFY_REUSED",
+  "receipt_id": "RV-000082",
+  "verdict": "PASS_WITH_CARRIED_DEBT",
+  "evidence_class": "executed",
+  "reuse": true
+}

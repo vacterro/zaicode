@@ -1,0 +1,68 @@
+{
+  "requirements": {
+    "SRC-129:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": ".saipen/evidence/T-194-verification.md",
+      "text": "Investigate and implement maximum token-use efficiency, including improvements to prompt-cache hits where user-side control is available.",
+      "verification": ".saipen/evidence/T-194-full-tests-deadline-final.txt",
+      "work": "T-194"
+    },
+    "SRC-129:R002": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": ".saipen/evidence/T-194-verification.md",
+      "text": "Make sidebar project, main-view and session switching clear and immediate, avoiding apparent no-op project clicks and unexplained empty panes.",
+      "verification": ".saipen/evidence/T-194-full-tests-deadline-final.txt",
+      "work": "T-194"
+    },
+    "SRC-129:R003": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": ".saipen/evidence/T-194-verification.md",
+      "text": "Eliminate conversation panes filled with repetitive Iteration / Goal incomplete, continuing notices shown in clipboard_20261003_160256_943dd4a2.png.",
+      "verification": ".saipen/evidence/T-194-full-tests-deadline-final.txt",
+      "work": "T-194"
+    },
+    "SRC-129:R004": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": ".saipen/evidence/T-194-verification.md",
+      "text": "Show distinct running-test activity in both project and session lists, and add separate project-test and session-test indicator controls to Highlights and motion.",
+      "verification": ".saipen/evidence/T-194-full-tests-deadline-final.txt",
+      "work": "T-194"
+    },
+    "SRC-129:R005": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": ".saipen/evidence/T-194-verification.md",
+      "text": "Investigate and fix incorrect Working states for sessions that have already ended and for sessions that are actually running.",
+      "verification": ".saipen/evidence/T-194-full-tests-deadline-final.txt",
+      "work": "T-194"
+    },
+    "SRC-129:R006": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": ".saipen/evidence/T-194-verification.md",
+      "text": "Extend Scheduler conditions and options with correct per-vendor CLI subscription limit/reset detection, delayed automatic fallback to SAIFREN or another eligible vendor, and continued automation until selected subscriptions reset.",
+      "verification": ".saipen/evidence/T-194-full-tests-deadline-final.txt",
+      "work": "T-194"
+    },
+    "SRC-129:R007": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": ".saipen/evidence/T-194-verification.md",
+      "text": "Automatically trust expected CLI startup hook/workspace dialogs, including Hooks need review / Trust all and continue shown in clipboard_20261003_112839_2e825604.png, so scheduled and supported CLI worker launches do not stall on artificial trust prompts.",
+      "verification": ".saipen/evidence/T-194-full-tests-deadline-final.txt",
+      "work": "T-194"
+    }
+  },
+  "schema_version": 1
+}

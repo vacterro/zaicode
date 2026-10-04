@@ -1,0 +1,170 @@
+ WARN  Unsupported engine: wanted: {"node":"24.14.0"} (current: {"node":"v24.15.0","pnpm":"10.33.2"})
+
+> zcode-cli@0.16.9 typecheck V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli
+> turbo run typecheck
+
+• turbo 2.9.14
+ WARNING  No locally installed `turbo` found in your repository. Using globally installed version (2.9.14), which can cause unexpected behavior.
+
+Installing the version in your repository (^2.4.0) before calling `turbo` will result in more predictable behavior across environments.
+ WARNING  Unable to calculate transitive closures: Workspace 'packages/node-repl-host' not found in lockfile.
+
+   • Packages in scope: @zcode/adapters, @zcode/bootstrap, @zcode/browser-use-plugin, @zcode/cli, @zcode/contracts, @zcode/core, @zcode/dynamic-workflow, @zcode/dynamic-workflow-runtime, @zcode/i18n, @zcode/node-repl-host, @zcode/prompt-trajectory, @zcode/shared-types, @zcode/swift-bridge, @zcode/telemetry, @zcode/tui, @zcode/typescript, debug
+   • Running typecheck in 17 packages
+   • Remote caching disabled
+
+@zcode/shared-types:typecheck: cache miss, executing cd0b4f8eb533242f
+@zcode/contracts:build: cache miss, executing 2729417f10d85e1c
+@zcode/dynamic-workflow:typecheck: cache miss, executing 74d9d9cc2ed37bad
+@zcode/prompt-trajectory:typecheck: cache miss, executing d7e1678f71bf308f
+@zcode/shared-types:build: cache miss, executing e1250aef5c68b1a4
+debug:typecheck: cache miss, executing eccca32c9ed0f7c7
+@zcode/dynamic-workflow:build: cache miss, executing fe1d18ae2fcc287a
+@zcode/contracts:typecheck: cache miss, executing 00af68822ce5fa24
+@zcode/prompt-trajectory:typecheck: 
+@zcode/prompt-trajectory:typecheck: > @zcode/prompt-trajectory@0.1.0 typecheck V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\tools\prompt-trajectory
+@zcode/prompt-trajectory:typecheck: > tsc --noEmit
+@zcode/prompt-trajectory:typecheck: 
+@zcode/shared-types:build: 
+@zcode/shared-types:build: > @zcode/shared-types@0.1.0 build V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\shared-types
+@zcode/shared-types:build: > tsc
+@zcode/shared-types:build: 
+@zcode/dynamic-workflow:typecheck: 
+@zcode/dynamic-workflow:typecheck: > @zcode/dynamic-workflow@0.1.0 typecheck V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\dynamic-workflow
+@zcode/dynamic-workflow:typecheck: > node scripts/generate-libs.mjs && tsc --noEmit
+@zcode/dynamic-workflow:typecheck: 
+@zcode/dynamic-workflow:build: 
+@zcode/dynamic-workflow:build: > @zcode/dynamic-workflow@0.1.0 build V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\dynamic-workflow
+@zcode/dynamic-workflow:build: > node scripts/generate-libs.mjs && tsc
+@zcode/dynamic-workflow:build: 
+@zcode/shared-types:typecheck: 
+@zcode/shared-types:typecheck: > @zcode/shared-types@0.1.0 typecheck V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\shared-types
+@zcode/shared-types:typecheck: > tsc --noEmit
+@zcode/shared-types:typecheck: 
+@zcode/contracts:build: 
+@zcode/contracts:build: > @zcode/contracts@0.1.0 build V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\contracts
+@zcode/contracts:build: > tsc
+@zcode/contracts:build: 
+@zcode/contracts:typecheck: 
+@zcode/contracts:typecheck: > @zcode/contracts@0.1.0 typecheck V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\contracts
+@zcode/contracts:typecheck: > tsc --noEmit
+@zcode/contracts:typecheck: 
+debug:typecheck: 
+debug:typecheck: > debug@0.1.0 typecheck V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\debug
+debug:typecheck: > tsc -p tsconfig.json --noEmit && tsc -p tsconfig.server.json --noEmit
+debug:typecheck: 
+@zcode/swift-bridge:typecheck: cache miss, executing c33aed5c6e8583a9
+@zcode/swift-bridge:typecheck: 
+@zcode/swift-bridge:typecheck: > @zcode/swift-bridge@0.1.0 typecheck V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\swift-bridge
+@zcode/swift-bridge:typecheck: > tsc --noEmit
+@zcode/swift-bridge:typecheck: 
+@zcode/dynamic-workflow-runtime:build: cache miss, executing d2f668fec49fdaab
+@zcode/dynamic-workflow-runtime:typecheck: cache miss, executing 76db9b2d060ccd02
+@zcode/dynamic-workflow-runtime:typecheck: 
+@zcode/dynamic-workflow-runtime:typecheck: > @zcode/dynamic-workflow-runtime@0.1.0 pretypecheck V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\dynamic-workflow-runtime
+@zcode/dynamic-workflow-runtime:typecheck: > pnpm --filter @zcode/dynamic-workflow build
+@zcode/dynamic-workflow-runtime:typecheck: 
+@zcode/dynamic-workflow-runtime:build: 
+@zcode/dynamic-workflow-runtime:build: > @zcode/dynamic-workflow-runtime@0.1.0 build V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\dynamic-workflow-runtime
+@zcode/dynamic-workflow-runtime:build: > tsc
+@zcode/dynamic-workflow-runtime:build: 
+@zcode/dynamic-workflow-runtime:typecheck: ../..                                    |  WARN  Unsupported engine: wanted: {"node":"24.14.0"} (current: {"node":"v24.15.0","pnpm":"10.33.2"})
+@zcode/dynamic-workflow-runtime:typecheck: 
+@zcode/dynamic-workflow-runtime:typecheck: > @zcode/dynamic-workflow@0.1.0 build V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\dynamic-workflow
+@zcode/dynamic-workflow-runtime:typecheck: > node scripts/generate-libs.mjs && tsc
+@zcode/dynamic-workflow-runtime:typecheck: 
+@zcode/dynamic-workflow-runtime:typecheck: 
+@zcode/dynamic-workflow-runtime:typecheck: > @zcode/dynamic-workflow-runtime@0.1.0 typecheck V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\dynamic-workflow-runtime
+@zcode/dynamic-workflow-runtime:typecheck: > tsc --noEmit
+@zcode/dynamic-workflow-runtime:typecheck: 
+@zcode/i18n:typecheck: cache miss, executing 9fa3dc474f909254
+@zcode/adapters:build: cache miss, executing 14408299b141e362
+@zcode/i18n:build: cache miss, executing d3097a75e377ae11
+@zcode/adapters:typecheck: cache miss, executing 8567094f05929ca2
+@zcode/telemetry:build: cache miss, executing 801662cfaa23bad5
+@zcode/core:typecheck: cache miss, executing 52e04c09c831a367
+@zcode/core:build: cache miss, executing eeb02af14b689dad
+@zcode/telemetry:typecheck: cache miss, executing 0bfbc1b699aa911a
+@zcode/i18n:typecheck: 
+@zcode/i18n:typecheck: > @zcode/i18n@0.1.0 typecheck V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\i18n
+@zcode/i18n:typecheck: > tsc --noEmit
+@zcode/i18n:typecheck: 
+@zcode/adapters:build: 
+@zcode/adapters:build: > @zcode/adapters@0.1.0 build V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\adapters
+@zcode/adapters:build: > tsc
+@zcode/adapters:build: 
+@zcode/i18n:build: 
+@zcode/i18n:build: > @zcode/i18n@0.1.0 build V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\i18n
+@zcode/i18n:build: > tsc
+@zcode/i18n:build: 
+@zcode/core:build: 
+@zcode/core:build: > @zcode/core@0.1.0 build V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\core
+@zcode/core:build: > tsc
+@zcode/core:build: 
+@zcode/core:typecheck: 
+@zcode/core:typecheck: > @zcode/core@0.1.0 typecheck V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\core
+@zcode/core:typecheck: > tsc --noEmit
+@zcode/core:typecheck: 
+@zcode/telemetry:typecheck: 
+@zcode/telemetry:typecheck: > @zcode/telemetry@0.1.0 typecheck V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\telemetry
+@zcode/telemetry:typecheck: > tsc --noEmit
+@zcode/telemetry:typecheck: 
+@zcode/telemetry:build: 
+@zcode/telemetry:build: > @zcode/telemetry@0.1.0 build V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\telemetry
+@zcode/telemetry:build: > tsc
+@zcode/telemetry:build: 
+@zcode/adapters:typecheck: 
+@zcode/adapters:typecheck: > @zcode/adapters@0.1.0 typecheck V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\adapters
+@zcode/adapters:typecheck: > tsc --noEmit
+@zcode/adapters:typecheck: 
+@zcode/tui:typecheck: cache miss, executing 5e7ec721ada46028
+@zcode/tui:build: cache miss, executing c673b3cc2bef4b0c
+@zcode/tui:build: 
+@zcode/tui:build: > @zcode/tui@0.1.0 build V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\tui
+@zcode/tui:build: > tsc && node scripts/build.mjs
+@zcode/tui:build: 
+@zcode/tui:typecheck: 
+@zcode/tui:typecheck: > @zcode/tui@0.1.0 typecheck V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\tui
+@zcode/tui:typecheck: > tsc --noEmit
+@zcode/tui:typecheck: 
+@zcode/tui:build: 
+@zcode/tui:build:   dist\index.js      2.9mb
+@zcode/tui:build:   dist\index.js.map  5.7mb
+@zcode/tui:build: 
+@zcode/tui:build: Done in 96ms
+@zcode/node-repl-host:typecheck: cache miss, executing e771fdb74090bf15
+@zcode/node-repl-host:build: cache miss, executing f102098b73f5ec37
+@zcode/bootstrap:build: cache miss, executing 576030c724d0c163
+@zcode/bootstrap:typecheck: cache miss, executing 19280cec9d85df08
+@zcode/bootstrap:typecheck: 
+@zcode/bootstrap:typecheck: > @zcode/bootstrap@0.1.0 typecheck V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\bootstrap
+@zcode/bootstrap:typecheck: > tsc --noEmit
+@zcode/bootstrap:typecheck: 
+@zcode/bootstrap:build: 
+@zcode/bootstrap:build: > @zcode/bootstrap@0.1.0 build V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\bootstrap
+@zcode/bootstrap:build: > tsc
+@zcode/bootstrap:build: 
+@zcode/node-repl-host:typecheck: 
+@zcode/node-repl-host:typecheck: > @zcode/node-repl-host@0.6.0 typecheck V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\node-repl-host
+@zcode/node-repl-host:typecheck: > tsc --noEmit
+@zcode/node-repl-host:typecheck: 
+@zcode/node-repl-host:build: 
+@zcode/node-repl-host:build: > @zcode/node-repl-host@0.6.0 build V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\node-repl-host
+@zcode/node-repl-host:build: > tsc && node scripts/build.mjs
+@zcode/node-repl-host:build: 
+@zcode/node-repl-host:build: [node-repl-host] V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\node-repl-host\dist\mcp\server.js
+@zcode/browser-use-plugin:typecheck: cache miss, executing 82cd534bdf4d17fc
+@zcode/cli:typecheck: cache miss, executing e7e7e4eb37a23666
+@zcode/browser-use-plugin:typecheck: 
+@zcode/browser-use-plugin:typecheck: > @zcode/browser-use-plugin@0.5.1 typecheck V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\browser-use-plugin
+@zcode/browser-use-plugin:typecheck: > tsc --noEmit
+@zcode/browser-use-plugin:typecheck: 
+@zcode/cli:typecheck: 
+@zcode/cli:typecheck: > @zcode/cli@0.1.0 typecheck V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\cli
+@zcode/cli:typecheck: > tsc --noEmit
+@zcode/cli:typecheck: 
+
+ Tasks:    27 successful, 27 total
+Cached:    0 cached, 27 total
+  Time:    40.561s 
+

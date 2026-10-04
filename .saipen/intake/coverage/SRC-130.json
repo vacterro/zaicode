@@ -1,0 +1,14 @@
+{
+  "requirements": {
+    "SRC-130:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": ".saipen/evidence/T-195-verification.md",
+      "text": "Make immediate implementation the default session behavior instead of producing a plan card and waiting for a separate implementation step, as shown in 2026-10-03_184158.png.",
+      "verification": ".saipen/evidence/T-195-ui/review/receipt.json",
+      "work": "T-195"
+    }
+  },
+  "schema_version": 1
+}

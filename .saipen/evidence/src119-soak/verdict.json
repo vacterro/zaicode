@@ -1,0 +1,233 @@
+{
+  "verdict": "PASS",
+  "generatedAt": "2026-10-02T22:30:43.075Z",
+  "config": {
+    "churnMinutes": 4,
+    "soakHours": 0,
+    "churnActions": {
+      "project-row": 20
+    },
+    "churnErrors": 0,
+    "app": {
+      "path": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\dist-next\\win-unpacked\\ZAICODE.exe",
+      "builtAt": "2026-10-02T22:23:31.809Z"
+    }
+  },
+  "samples": 20,
+  "medianNodes": 2862,
+  "durationSeconds": 254,
+  "requestedSeconds": null,
+  "fps": {
+    "first": 98.5,
+    "midpoint": 97,
+    "last": 99,
+    "worst": 90.5,
+    "slopePerMinute": 0.2657
+  },
+  "heapUsedMb": {
+    "first": 92.9,
+    "last": 92.9,
+    "growthMbPerMinute": 0
+  },
+  "rssMb": {
+    "first": 345.1,
+    "last": 305.8,
+    "growthMbPerMinute": -2.73
+  },
+  "jankySamples": 4,
+  "jankDensity": {
+    "early": 0,
+    "late": 0
+  },
+  "blankSurfaceSamples": 0,
+  "churnActions": {
+    "project-row": 20
+  },
+  "churnErrors": 0,
+  "churnTotal": 20,
+  "finalHealthSnapshot": {
+    "version": 1,
+    "takenAt": "2026-10-02T22:30:31.065Z",
+    "app": {
+      "platform": "Win32 Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) ZAICODE/3.14.0 Chrome/146.0.7680.…(truncated)",
+      "uptimeSeconds": 253
+    },
+    "memory": {
+      "heapUsedBytes": 97400000,
+      "heapTotalBytes": 188000000
+    },
+    "eventLoopLagMs": 0.5,
+    "counters": {
+      "hot.workspaces": 0,
+      "hot.taskUi": 0,
+      "hot.queryKeys": 19,
+      "hot.toasts": 0,
+      "retry.maxAttempts": 0,
+      "eventLoop.lagMs": 0.5,
+      "sessionStore.workspaces": 0,
+      "sessionStore.taskRuntime": 0,
+      "sessionStore.taskUi": 0,
+      "sessionStore.cachedTasks": 0,
+      "zaicodeNotifications.toasts": 0,
+      "zaicodeNotifications.freshMarks": 0,
+      "xterm.sessions": 0,
+      "xterm.detached": 0,
+      "zaicodeTimers.timers": 0,
+      "zaicodeTimers.tempTimers": 0,
+      "zaicodeTimers.intervalRules": 4,
+      "zaicodeTimers.missedAlarms": 0,
+      "zaicodeAudits.campaigns": 20,
+      "zaicodeAudits.activeCampaigns": 3,
+      "taskQueryCache.queryKeys": 19,
+      "taskQueryCache.taskMetas": 15,
+      "taskQueryCache.retainedTaskKeys": 15,
+      "taskQueryCache.retainedSnippets": 0,
+      "taskSnapshotCache.entries": 0,
+      "taskSnapshotCache.persisted": 0,
+      "projection.stores": 0,
+      "projection.rows": 0,
+      "toolLayout.openState": 0,
+      "shiki.highlighters": 0
+    },
+    "quotaCircuits": [],
+    "quotaWindows": [
+      {
+        "key": "five_hour",
+        "label": "5h",
+        "provider": "claude:c:\\users\\vac34\\.claude-account2",
+        "remainingPercent": 100,
+        "resetsAt": null,
+        "waitingForFirstUse": false,
+        "gatedBy": null
+      },
+      {
+        "key": "weekly",
+        "label": "weekly",
+        "provider": "claude:c:\\users\\vac34\\.claude-account2",
+        "remainingPercent": 0,
+        "resetsAt": "2026-10-06T10:59:00.000Z",
+        "waitingForFirstUse": false,
+        "gatedBy": null
+      },
+      {
+        "key": "five_hour",
+        "label": "5h",
+        "provider": "codex:c:\\users\\vac34\\.codex",
+        "remainingPercent": 64,
+        "resetsAt": "2026-10-03T02:17:11.000Z",
+        "waitingForFirstUse": false,
+        "gatedBy": null
+      },
+      {
+        "key": "weekly",
+        "label": "weekly",
+        "provider": "codex:c:\\users\\vac34\\.codex",
+        "remainingPercent": 94,
+        "resetsAt": "2026-10-09T21:17:11.000Z",
+        "waitingForFirstUse": false,
+        "gatedBy": null
+      },
+      {
+        "key": "five_hour",
+        "label": "5h",
+        "provider": "codex:c:\\users\\vac34\\.codex-account2",
+        "remainingPercent": 66,
+        "resetsAt": "2026-10-03T02:38:18.000Z",
+        "waitingForFirstUse": false,
+        "gatedBy": null
+      },
+      {
+        "key": "weekly",
+        "label": "weekly",
+        "provider": "codex:c:\\users\\vac34\\.codex-account2",
+        "remainingPercent": 95,
+        "resetsAt": "2026-10-09T21:38:18.000Z",
+        "waitingForFirstUse": false,
+        "gatedBy": null
+      },
+      {
+        "key": "weekly@base_model_inference",
+        "label": "GPT Reserve weekly",
+        "provider": "codex:c:\\users\\vac34\\.codex-account2",
+        "remainingPercent": 0,
+        "resetsAt": "2026-10-08T10:13:43.000Z",
+        "waitingForFirstUse": false,
+        "gatedBy": null
+      },
+      {
+        "key": "monthly",
+        "label": "monthly",
+        "provider": "codex:c:\\users\\vac34\\.codex-account3free",
+        "remainingPercent": 0,
+        "resetsAt": "2026-10-24T23:14:55.000Z",
+        "waitingForFirstUse": false,
+        "gatedBy": null
+      },
+      {
+        "key": "weekly@gemini_models",
+        "label": "Gemini weekly",
+        "provider": "antigravity:default",
+        "remainingPercent": 12.680238485336304,
+        "resetsAt": "2026-10-07T06:41:21.000Z",
+        "waitingForFirstUse": false,
+        "gatedBy": null
+      },
+      {
+        "key": "five_hour@gemini_models",
+        "label": "Gemini 5h",
+        "provider": "antigravity:default",
+        "remainingPercent": 2.3457400500774384,
+        "resetsAt": "2026-10-03T01:29:20.000Z",
+        "waitingForFirstUse": false,
+        "gatedBy": null
+      },
+      {
+        "key": "weekly@claude_and_gpt_models",
+        "label": "Claude & GPT weekly",
+        "provider": "antigravity:default",
+        "remainingPercent": 79.11720275878906,
+        "resetsAt": "2026-10-09T16:16:03.000Z",
+        "waitingForFirstUse": false,
+        "gatedBy": null
+      },
+      {
+        "key": "five_hour@claude_and_gpt_models",
+        "label": "Claude & GPT 5h",
+        "provider": "antigravity:default",
+        "remainingPercent": 37.35159933567047,
+        "resetsAt": "2026-10-03T03:00:49.000Z",
+        "waitingForFirstUse": false,
+        "gatedBy": null
+      },
+      {
+        "key": "five_hour",
+        "label": "5h",
+        "provider": "zcode:plan",
+        "remainingPercent": 100,
+        "resetsAt": null,
+        "waitingForFirstUse": false,
+        "gatedBy": null
+      },
+      {
+        "key": "weekly",
+        "label": "weekly",
+        "provider": "zcode:plan",
+        "remainingPercent": 0,
+        "resetsAt": "2026-10-07T17:41:21.999Z",
+        "waitingForFirstUse": false,
+        "gatedBy": null
+      },
+      {
+        "key": "daily",
+        "label": "daily",
+        "provider": "freebuff:8858a5f6-a8dc-41b6-826d-a2bfc00710e9",
+        "remainingPercent": 100,
+        "resetsAt": "2026-10-03T21:00:00.000Z",
+        "waitingForFirstUse": false,
+        "gatedBy": null
+      }
+    ],
+    "fallbackRoutes": [],
+    "notes": []
+  }
+}

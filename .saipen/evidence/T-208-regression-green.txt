@@ -1,0 +1,13 @@
+✔ a production preset environment has no renderer reload capability (1.1418ms)
+✔ apply, reset and undo refresh every registered preset family in the same window (4.0402ms)
+✔ timer apply/reset/undo preserves active countdowns, alarms and interval history (3.7257ms)
+✔ a saved timer preset excludes machine schedules and productivity run facts (0.2553ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 692.2503
+

@@ -1,0 +1,27 @@
+{
+  "ok": true,
+  "code": "USER_REQUEST_RECORDED",
+  "project_root": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE",
+  "actor": "saipen-cli",
+  "actor_source": "default",
+  "receipt": "SRC-129",
+  "ticket": "T-194",
+  "valve_reauthorized": false,
+  "preserved_decisions": [],
+  "ingress_authority": {
+    "witness": "model_supplied",
+    "capture": true,
+    "local_work": true,
+    "user_explicit": false,
+    "preempt_active_work": false,
+    "goal_pivot": false,
+    "reset_bounded_authority": false,
+    "detailed_response": false,
+    "external_action": false
+  },
+  "active_ticket": "T-192",
+  "action": "PHASE BUILD T-192",
+  "next_action": "PHASE BUILD T-192",
+  "parked": null,
+  "preempted": false
+}

@@ -1,0 +1,72 @@
+{
+  "auto": {
+    "workspace": false,
+    "app": false,
+    "saipen": false,
+    "saimail": false
+  },
+  "lastCheckAt": 1790984475730,
+  "lastUpdateAt": null,
+  "components": [
+    {
+      "id": "workspace",
+      "title": "ZAICODE workspace (launcher, installer)",
+      "dir": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE",
+      "branch": "master",
+      "version": "0.0.2",
+      "head": "ab9866d4e25ba7258ca403631b22a1df44eeff9d",
+      "remote": "5bb52bbf919705a37a19cda6fd2dd182e001d956",
+      "behind": 0,
+      "ahead": 42,
+      "dirty": true,
+      "status": "ahead",
+      "detail": "42 local commit(s) newer than GitHub",
+      "subjects": []
+    },
+    {
+      "id": "app",
+      "title": "ZAICODE app",
+      "dir": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode",
+      "branch": "zaicode",
+      "version": "ZCode 3.14.0",
+      "head": "4a9ad6d9aba404e432688fabf2de4a9dfd3dd092",
+      "remote": "23df332f00dbeafb77e40e46744ca6915f94b53a",
+      "behind": 0,
+      "ahead": 1,
+      "dirty": true,
+      "status": "ahead",
+      "detail": "1 local commit(s) newer than GitHub",
+      "subjects": []
+    },
+    {
+      "id": "saipen",
+      "title": "SAIPEN",
+      "dir": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\saipen",
+      "branch": "main",
+      "version": "unknown",
+      "head": null,
+      "remote": null,
+      "behind": 0,
+      "ahead": 0,
+      "dirty": false,
+      "status": "missing",
+      "detail": "not installed here",
+      "subjects": []
+    },
+    {
+      "id": "saimail",
+      "title": "SAIMAIL",
+      "dir": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\saimail",
+      "branch": "main",
+      "version": "unknown",
+      "head": null,
+      "remote": null,
+      "behind": 0,
+      "ahead": 0,
+      "dirty": false,
+      "status": "missing",
+      "detail": "not installed here",
+      "subjects": []
+    }
+  ]
+}

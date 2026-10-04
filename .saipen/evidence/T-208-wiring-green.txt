@@ -1,0 +1,10 @@
+✔ notification preset writes refresh existing subscribers without rewriting removed keys (2.1037ms)
+✔ the merged shortcut page retains Hotkeys presets only in ZAICODE mode (0.2183ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 236.4422

@@ -1,0 +1,156 @@
+✖ a production preset environment has no renderer reload capability (2.2091ms)
+✖ apply, reset and undo refresh every registered preset family in the same window (1.2896ms)
+✖ timer apply/reset/undo preserves active countdowns, alarms and interval history (0.7794ms)
+✖ a saved timer preset excludes machine schedules and productivity run facts (0.2407ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 0
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 730.3828
+
+✖ failing tests:
+
+test at test\zaicodeT208LivePresets.test.ts:1:2378
+✖ a production preset environment has no renderer reload capability (2.2091ms)
+  AssertionError [ERR_ASSERTION]: The input was expected to not match the regular expression /window\.location\.reload|reload:\s*\(/. Input:
+  
+  'import { storeZaicodeOwnSound, readZaicodeOwnSound, reloadZaicodeSoundSettings } from "./zaicodeSoundEvents.js";\n' +
+    'import { reloadZaicodeAudio } from "./zaicodeAudio.js";\n' +
+    'import { reloadZaicodeSoundPickerPrefs } from "./ZaicodeSoundPicker.js";\n' +
+    'import { readZaicodeSetting } from "./zaicodeSettingsSnapshot.js";\n' +
+    'import { pruneUnusedBlobs, toArrayBuffer, type PresetSoundSource } from "./zaicodePresetAssets.js";\n' +
+    'import type { PresetEnv } from "./zaicodePresetApply.js";\n' +
+    'import { zaicodePresetBlobStore } from "./zaicodePresetBlobs.js";\n' +
+    'import { setZaicodePresetUndo, usedBlobDigests, useZaicodePresets } from "./zaicodePresetStore.js";\n' +
+    'import { markPresetReopen } from "./zaicodePresetReopen.js";\n' +
+    'import { zaicodeCustomizationSoundSource } from "./zaicodeCustomSounds.js";\n' +
+    '\n' +
+    '/**\n' +
+    " * The real environment of the preset system (T-125): this window's storage, its own sounds, the way new\n" +
+    ' * values reach what is open. zaicodePresetApply.ts does the work against it; tests pass memory ones.\n' +
+    ' *\n' +
+    ' * Where a page cannot take new values while it is open (nearly every store reads storage once at start, like\n' +
+    ' * a profile switch), the window reloads and comes back to the same Settings page, saying what was done.\n' +
+    ' */\n' +
+    '\n' +
+    '/** Own files of the Sounds table: `custom:<event id>`, in IndexedDB, one per event. */\n' +
+    'export const zaicodeOwnSoundSource: PresetSoundSource = {\n' +
+    '  handles: (id) => id.startsWith("custom:"),\n' +
+    '  read: readZaicodeOwnSound,\n' +
+    '  write: async (id, sound) => {\n' +
+    '    const existing = await readZaicodeOwnSound(id).catch(() => null);\n' +
+    '    // The same bytes are already there: nothing to overwrite and nothing to invalidate.\n' +
+    '    if (existing && existing.bytes.length === sound.bytes.length && existing.bytes.every((byte, index) => byte === sound.bytes[index])) return id;\n' +
+    '    await storeZaicodeOwnSound(id.slice("custom:".length), new Blob([toArrayBuffer(sound.bytes)], { type: sound.mime }), sound.name);\n' +
+    '    return id;\n' +
+    '  },\n' +
+    '};\n' +
+    '\n' +
+    'function writeSetting(key: string, value: string | null): void {\n' +
+    '  if (value === null) localStorage.removeItem(key);\n' +
+    '  else localStorage.setItem(key, value);\n' +
+    '}\n' +
+    '\n' +
+    'export const zaicodePresetEnv: PresetEnv = {\n' +
+    '  read: readZaicodeSetting,\n' +
+    '  // A refused write throws: the apply then puts everything back instead of leaving a page half changed.\n' +
+    '  write: writeSetting,\n' +
+    '  sources: [zaicodeOwnSoundSource, zaicodeCustomizationSoundSource],\n' +
+    '  blobs: zaicodePresetBlobStore,\n' +
+    '  undo: {\n' +
+    '    get: (section) => useZaicodePresets.getState().undos[section] ?? null,\n' +
+    '    set: (section, undo) => void setZaicodePresetUndo(section, undo),\n' +
+    '  },\n' +
+    '  rehydrate: (section) => {\n' +
+    '    // The Sounds page is the one that can show new values without a reload: three small stores, one event each.\n' +
+    '    if (section !== "zaicodeSounds") return false;\n' +
+    '    reloadZaicodeSoundSettings();\n' +
+    '    reloadZaicodeAudio();\n' +
+    '    reloadZaicodeSoundPickerPrefs();\n' +
+    '    return true;\n' +
+    '  },\n' +
+    '  reload: (section, note) => {\n' +
+    '    try {\n' +
+    '      markPresetReopen(sessionStorage, { section, note });\n' +
+    '    } catch {\n' +
+    '      // Without the mark the window still reloads; the person opens the page again.\n' +
+    '    }\n' +
+    '    window.location.reload();\n' +
+    '  },\n' +
+    '  now: () => new Date().toISOString(),\n' +
+    '  app: "ZAICODE",\n' +
+    '};\n' +
+    '\n' +
+    '/** Deletes the sounds no saved preset and no Undo record needs (after a delete, an update, an undo). Best effort. */\n' +
+    'export async function pruneZaicodePresetBlobs(): Promise<void> {\n' +
+    '  const { presets, undos } = useZaicodePresets.getState();\n' +
+    '  await pruneUnusedBlobs(zaicodePresetBlobStore, usedBlobDigests(presets, undos)).catch(() => 0);\n' +
+    '}\n'
+  
+      at TestContext.<anonymous> (V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\ui\test\zaicodeT208LivePresets.test.ts:56:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.start (node:internal/test_runner/test:1096:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:385:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'import { storeZaicodeOwnSound, readZaicodeOwnSound, reloadZaicodeSoundSettings } from "./zaicodeSoundEvents.js";\nimport { reloadZaicodeAudio } from "./zaicodeAudio.js";\nimport { reloadZaicodeSoundPickerPrefs } from "./ZaicodeSoundPicker.js";\nimport { readZaicodeSetting } from "./zaicodeSettingsSnapshot.js";\nimport { pruneUnusedBlobs, toArrayBuffer, type PresetSoundSource } from "./zaicodePresetAssets.js";\nimport type { PresetEnv } from "./zaicodePresetApply.js";\nimport { zaicodePresetBlobStore } from "./zaicodePresetBlobs.js";\nimport { setZaicodePresetUndo, usedBlobDigests, useZaicodePresets } from "./zaicodePresetStore.js";\nimport { markPresetReopen } from "./zaicodePresetReopen.js";\nimport { zaicodeCustomizationSoundSource } from "./zaicodeCustomSounds.js";\n\n/**\n * The real environment of the preset system (T-125): this window\'s storage, its own sounds, the way new\n * values reach what is open. zaicodePresetApply.ts does the work against it; tests pass memory ones.\n *\n * Where a page cannot take new values while it is open (nearly every store reads storage once at start, like\n * a profile switch), the window reloads and comes back to the same Settings page, saying what was done.\n */\n\n/** Own files of the Sounds table: `custom:<event id>`, in IndexedDB, one per event. */\nexport const zaicodeOwnSoundSource: PresetSoundSource = {\n  handles: (id) => id.startsWith("custom:"),\n  read: readZaicodeOwnSound,\n  write: async (id, sound) => {\n    const existing = await readZaicodeOwnSound(id).catch(() => null);\n    // The same bytes are already there: nothing to overwrite and nothing to invalidate.\n    if (existing && existing.bytes.length === sound.bytes.length && existing.bytes.every((byte, index) => byte === sound.bytes[index])) return id;\n    await storeZaicodeOwnSound(id.slice("custom:".length), new Blob([toArrayBuffer(sound.bytes)], { type: sound.mime }), sound.name);\n    return id;\n  },\n};\n\nfunction writeSetting(key: string, value: string | null): void {\n  if (value === null) localStorage.removeItem(key);\n  else localStorage.setItem(key, value);\n}\n\nexport const zaicodePresetEnv: PresetEnv = {\n  read: readZaicodeSetting,\n  // A refused write throws: the apply then puts everything back instead of leaving a page half changed.\n  write: writeSetting,\n  sources: [zaicodeOwnSoundSource, zaicodeCustomizationSoundSource],\n  blobs: zaicodePresetBlobStore,\n  undo: {\n    get: (section) => useZaicodePresets.getState().undos[section] ?? null,\n    set: (section, undo) => void setZaicodePresetUndo(section, undo),\n  },\n  rehydrate: (section) => {\n    // The Sounds page is the one that can show new values without a reload: three small stores, one event each.\n    if (section !== "zaicodeSounds") return false;\n    reloadZaicodeSoundSettings();\n    reloadZaicodeAudio();\n    reloadZaicodeSoundPickerPrefs();\n    return true;\n  },\n  reload: (section, note) => {\n    try {\n      markPresetReopen(sessionStorage, { section, note });\n    } catch {\n      // Without the mark the window still reloads; the person opens the page again.\n    }\n    window.location.reload();\n  },\n  now: () => new Date().toISOString(),\n  app: "ZAICODE",\n};\n\n/** Deletes the sounds no saved preset and no Undo record needs (after a delete, an update, an undo). Best effort. */\nexport async function pruneZaicodePresetBlobs(): Promise<void> {\n  const { presets, undos } = useZaicodePresets.getState();\n  await pruneUnusedBlobs(zaicodePresetBlobStore, usedBlobDigests(presets, undos)).catch(() => 0);\n}\n',
+    expected: /window\.location\.reload|reload:\s*\(/,
+    operator: 'doesNotMatch',
+    diff: 'simple'
+  }
+
+test at test\zaicodeT208LivePresets.test.ts:1:2622
+✖ apply, reset and undo refresh every registered preset family in the same window (1.2896ms)
+  AssertionError [ERR_ASSERTION]: zaicodeSounds
+  
+  false !== true
+  
+      at TestContext.<anonymous> (V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\ui\test\zaicodeT208LivePresets.test.ts:64:12)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at test\zaicodeT208LivePresets.test.ts:1:3151
+✖ timer apply/reset/undo preserves active countdowns, alarms and interval history (0.7794ms)
+  AssertionError [ERR_ASSERTION]: running: state
+  
+  'idle' !== 'running'
+  
+      at TestContext.<anonymous> (V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\ui\test\zaicodeT208LivePresets.test.ts:107:16)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'idle',
+    expected: 'running',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at test\zaicodeT208LivePresets.test.ts:1:4689
+✖ a saved timer preset excludes machine schedules and productivity run facts (0.2407ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  true !== false
+  
+      at TestContext.<anonymous> (V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\ui\test\zaicodeT208LivePresets.test.ts:120:10)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+

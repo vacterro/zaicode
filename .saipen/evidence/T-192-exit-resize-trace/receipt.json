@@ -1,0 +1,64 @@
+{
+  "schema": "t192-native/1",
+  "subject": "working",
+  "at": "2026-10-03T16:15:35.633Z",
+  "verifier": "2d76534f13a45fcc42f1c068d3688970bcce2c3ebdda789b153efbd955477fee",
+  "scratch": "V:\\_TEMP_\\zaicode-t192-native-KM8guu",
+  "checks": [
+    {
+      "name": "positive control: live CLI has a PID and writes its counter",
+      "pass": true,
+      "details": ""
+    },
+    {
+      "name": "positive control: app input reaches the same CLI",
+      "pass": true,
+      "details": ""
+    },
+    {
+      "name": "terminal service confirms a live PowerShell handoff",
+      "pass": true,
+      "details": ""
+    },
+    {
+      "name": "same CLI PID and monotonic counter survive taskkill /T /F of app host",
+      "pass": true,
+      "details": {
+        "before": {
+          "pid": 10844,
+          "count": 2,
+          "marker": "90e6ff4e-e79c-4198-bba7-faa28200864c"
+        },
+        "after": {
+          "pid": 10844,
+          "count": 7,
+          "marker": "90e6ff4e-e79c-4198-bba7-faa28200864c"
+        }
+      }
+    },
+    {
+      "name": "external input/output and resize continue the original CLI",
+      "pass": true,
+      "details": ""
+    },
+    {
+      "name": "external console receives original nonzero exit",
+      "pass": true,
+      "details": {
+        "exitCode": 7,
+        "output": "\u001b[25l\u001b[HPowerShell 7.6.4\u001b[K\r\nPS V:\\_TEMP_\\zaicode-t192-native-KM8guu> & \u001b[36m'C:\\nodejs\\node.exe'\u001b[m \u001b[36m'V:\\_TEMP_\\zaicode-t192-native-KM8guu\\counter.\r\ncjs'\u001b[m \u001b[36m'V:\\_TEMP_\\zaicode-t192-native-KM8guu\\transfer.jsonl'\u001b[K\u001b[m\r\nCOUNTER:10844:1:90e6ff4e-e79c-4198-bba7-faa28200864c\u001b[K\r\nstate\u001b[K\r\nSTATE:10844:1:90e6ff4e-e79c-4198-bba7-faa28200864c\u001b[K\r\nCOUNTER:10844:2:90e6ff4e-e79c-4198-bba7-faa28200864c\u001b[K\r\nCOUNTER:10844:3:90e6ff4e-e79c-4198-bba7-faa28200864c\u001b[K\r\nCOUNTER:10844:4:90e6ff4e-e79c-4198-bba7-faa28200864c\u001b[K\r\nCOUNTER:10844:5:90e6ff4e-e79c-4198-bba7-faa28200864c\u001b[K\r\nCOUNTER:10844:6:90e6ff4e-e79c-4198-bba7-faa28200864c\u001b[K\r\nCOUNTER:10844:7:90e6ff4e-e79c-4198-bba7-faa28200864c\u001b[K\r\n\u001b[K\r\n\u001b[K\r\n\u001b[K\r\n\u001b[K\r\n\u001b[K\r\n\u001b[K\r\n\u001b[K\r\n\u001b[K\r\n\u001b[K\r\n\u001b[K\r\n\u001b[K\r\n\u001b[K\r\n\u001b[K\r\n\u001b[K\r\n\u001b[K\r\n\u001b[K\r\n\u001b[K\r\n\u001b[K\r\n\u001b[K\r\n\u001b[K\u001b[13;1H\u001b[?25hstate\u001b[45X\r\nSTATE:10844:7:90e6ff4e-e79c-4198-bba7-faa28200864c\r\nexit7\r\nFIXTURE_EXIT:10844\u001b[23X\r\nPS V:\\_TEMP_\\zaicode-t192-native-KM8guu> \u001b]0;C:\\Program Files\\PowerShell\\7\\pwsh.exe\u0007\u001b[?25l\u001b[92mexit\u001b[m \u001b[92m$LASTEXITCODE\r\n\u001b[?25h\u001b[m"
+      }
+    },
+    {
+      "name": "closing the external console stops its own CLI",
+      "pass": true,
+      "details": ""
+    },
+    {
+      "name": "app crash before handoff stops its own CLI without orphaning",
+      "pass": true,
+      "details": ""
+    }
+  ],
+  "pass": true
+}

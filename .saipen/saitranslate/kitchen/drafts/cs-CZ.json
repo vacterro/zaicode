@@ -2999,6 +2999,7 @@
   "settings.sidebar.group.zaicode": "ZAICODE",
   "zaicode.settings.autoRestart": "Restart po pádu",
   "zaicode.fallback.switched": "Model {fromModel} dosáhl limitu. Další zpráva půjde do {toModel}; kdykoli se můžeš vrátit v nabídce modelů.",
+  "zaicode.fallback.routeHold": "{fromModel} je v kvótové blokaci do {until}. Tato zpráva půjde do {toModel}.",
   "zaicode.settings.autoRestartHint": "Ve výchozím stavu zapnuto. Spouštěč restartuje spadlou aplikaci; desktopový host znovu načte spadlé okno.",
   "zaicode.todo.title": "Úkoly",
   "zaicode.todo.detach": "Odpojit okno Todo",

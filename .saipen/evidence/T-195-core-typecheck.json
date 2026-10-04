@@ -1,0 +1,5 @@
+{
+  "exitCode": 0,
+  "at": "2026-10-03T16:50:12.4384670Z",
+  "command": "pnpm10 --dir apps/zcode-cli/packages/core typecheck"
+}

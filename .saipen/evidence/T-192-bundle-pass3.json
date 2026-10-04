@@ -1,0 +1,8 @@
+{
+  "command": "pnpm10 bundle:zaicode --skip-prepare --skip-build",
+  "dist": "dist-test-20261003-t192-pass3",
+  "freshBuildReceipt": ".saipen/evidence/T-192-build-pass3.json",
+  "runtimeAssets": "unchanged from pass2",
+  "exitCode": 0,
+  "at": "2026-10-03T14:59:12.0886715Z"
+}

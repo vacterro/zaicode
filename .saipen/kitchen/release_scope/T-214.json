@@ -1,0 +1,15 @@
+{
+  "op_id": "scope-db8093b479cb4c5fad47c6fa8c0f4f9b",
+  "paths": {
+    ".saipen/evidence/T-214-audit.mjs": "94d7ad5a344d5a2d99b64d66fed9a904fa455d34352e4182176cd7a1cc9174f8",
+    ".saipen/evidence/T-214-gate.mjs": "408e9ccaf89bdc1ef2828a9f17c331a357f577589486554b470541a17ac3742e",
+    "zcode/packages/ui/src/terminal/TerminalSession.tsx": "80d61d2c9962823b89a31f478f5435c960c79bedb78d76dbc94b6f3862105b67"
+  },
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "project_lineage": "lineage-b0732ed2f98947b9a3c97bfe71427eca",
+  "recorded_at": "2026-10-04T04:41:53Z",
+  "schema_version": 2,
+  "source_head": "ab9866d4e25ba7258ca403631b22a1df44eeff9d",
+  "source_tree_fingerprint": "git-delta-v1:08dd8f86839ae806221f04fed5a1805f28f075b0b61d8d18dd337e4e839eb20f",
+  "ticket": "T-214"
+}

@@ -1,0 +1,49 @@
+{
+  "clauses": {
+    "SRC-119:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Long chat sessions stay responsive, with older history loaded on demand."
+    },
+    "SRC-119:R002": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Remove the binary disabled/enabled selector shown for SAIFREN."
+    },
+    "SRC-119:R003": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "A running project stays visibly running after switching to another project."
+    },
+    "SRC-119:R004": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Add 9router Usage monitoring inside ZAICODE as a full page and sidebar, reachable from header/footer and Ctrl+Alt+B, including requests from outside ZAICODE."
+    },
+    "SRC-119:R005": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Clicking the Phase chip opens the SAIPEN sidebar with STATE, BOARD and LOG."
+    },
+    "SRC-119:R006": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Bound long-running application memory and rendering work; projects remain usable after 6-9 hours, with no persistent chat data deletion."
+    },
+    "SRC-119:R007": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Exhausted paid plans automatically fall back to SAIFREN and are skipped until reset."
+    },
+    "SRC-119:R008": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Retry uses the newly selected model, including GLM-to-SAIFREN switches."
+    }
+  },
+  "derived_at": "2026-10-02T21:50:20Z",
+  "derived_from": "SRC-119",
+  "interpretation_revision": 8,
+  "schema_version": 1,
+  "source_sha256": "3467eff98907e313754321f9f0319b3e7013a108211f9865cf2649a4a0999d08"
+}

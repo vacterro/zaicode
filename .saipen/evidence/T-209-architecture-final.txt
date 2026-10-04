@@ -1,0 +1,9 @@
+[WARN] The "pnpm" field in package.json is no longer read by pnpm. The following keys were ignored: "pnpm.overrides", "pnpm.patchedDependencies". See https://pnpm.io/settings for the new home of each setting.
+
+> zcode@3.14.0 architecture:check V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode
+> node scripts/architecture/architecture-check.mjs check "--changed"
+
+architecture: OK
+violations: 0
+baseline: 0
+new: 0

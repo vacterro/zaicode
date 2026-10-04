@@ -2999,6 +2999,7 @@
   "settings.sidebar.group.zaicode": "ZAICODE",
   "zaicode.settings.autoRestart": "Reiniciar tras un fallo",
   "zaicode.fallback.switched": "{fromModel} alcanzó su límite. El siguiente mensaje irá a {toModel}; puedes volver en cualquier momento desde el menú de modelos.",
+  "zaicode.fallback.routeHold": "{fromModel} está en retención de cuota hasta las {until}. Este mensaje irá a {toModel}.",
   "zaicode.settings.autoRestartHint": "Activado por defecto. El lanzador reinicia una app caída; el host de escritorio recarga una ventana caída.",
   "zaicode.todo.title": "Pendientes",
   "zaicode.todo.detach": "Desacoplar ventana de pendientes",

@@ -1,0 +1,199 @@
+{
+  "checks": [
+    {
+      "name": "normal authoritative duration",
+      "actual": "Working for 2h 35m",
+      "expected": "Working for 2h 35m",
+      "pass": true
+    },
+    {
+      "name": "restored authoritative duration",
+      "actual": "Working for 2h 35m",
+      "expected": "Working for 2h 35m",
+      "pass": true
+    },
+    {
+      "name": "detached authoritative duration",
+      "actual": "Working for 2h 35m",
+      "expected": "Working for 2h 35m",
+      "pass": true
+    },
+    {
+      "name": "very fresh established start",
+      "actual": "Working for 1s",
+      "expected": "Working for 1s",
+      "pass": true
+    },
+    {
+      "name": "missing neutral chat label",
+      "actual": "Working for NaNs",
+      "expected": "Working",
+      "pass": false
+    },
+    {
+      "name": "missing neutral shared label",
+      "actual": "Working for",
+      "expected": "Working",
+      "pass": false
+    },
+    {
+      "name": "zero neutral chat label",
+      "actual": "Working for 20729d 10h",
+      "expected": "Working",
+      "pass": false
+    },
+    {
+      "name": "zero neutral shared label",
+      "actual": "Working for",
+      "expected": "Working",
+      "pass": false
+    },
+    {
+      "name": "negative neutral chat label",
+      "actual": "Working for 20729d 10h",
+      "expected": "Working",
+      "pass": false
+    },
+    {
+      "name": "negative neutral shared label",
+      "actual": "Working for",
+      "expected": "Working",
+      "pass": false
+    },
+    {
+      "name": "nan neutral chat label",
+      "actual": "Working for NaNs",
+      "expected": "Working",
+      "pass": false
+    },
+    {
+      "name": "nan neutral shared label",
+      "actual": "Working for",
+      "expected": "Working",
+      "pass": false
+    },
+    {
+      "name": "infinite neutral chat label",
+      "actual": "Working for 1s",
+      "expected": "Working",
+      "pass": false
+    },
+    {
+      "name": "infinite neutral shared label",
+      "actual": "Working for",
+      "expected": "Working",
+      "pass": false
+    },
+    {
+      "name": "future neutral chat label",
+      "actual": "Working for 1s",
+      "expected": "Working",
+      "pass": false
+    },
+    {
+      "name": "future neutral shared label",
+      "actual": "Working for",
+      "expected": "Working",
+      "pass": false
+    },
+    {
+      "name": "reported zero remains a known duration",
+      "actual": "Working for 1s",
+      "expected": "Working for 1s",
+      "pass": true
+    },
+    {
+      "name": "completed work remains terminal",
+      "actual": "Worked for 2h 35m",
+      "expected": "Worked for 2h 35m",
+      "pass": true
+    },
+    {
+      "name": "interrupted work remains terminal",
+      "actual": "Stopped · 2h 35m",
+      "expected": "Stopped · 2h 35m",
+      "pass": true
+    },
+    {
+      "name": "idle work has no Working label",
+      "actual": "Worked",
+      "expected": "Worked",
+      "pass": true
+    },
+    {
+      "name": "known active duration advances",
+      "actual": "Working for 2h 36m",
+      "expected": "Working for 2h 36m",
+      "pass": true
+    },
+    {
+      "name": "unknown start stays unknown after ticks",
+      "actual": "Working for NaNs",
+      "expected": "Working",
+      "pass": false
+    },
+    {
+      "name": "completed duration stays frozen",
+      "actual": "Worked for 2h 35m",
+      "expected": "Worked for 2h 35m",
+      "pass": true
+    },
+    {
+      "name": "display clock never rerenders work rows",
+      "actual": 26,
+      "expected": 26,
+      "pass": true
+    },
+    {
+      "name": "reused status component admits the next actual run",
+      "actual": "Working for 1s",
+      "expected": "Working for 1s",
+      "pass": true
+    },
+    {
+      "name": "next run clock advances after component reuse",
+      "actual": "Working for 2s",
+      "expected": "Working for 2s",
+      "pass": true
+    },
+    {
+      "name": "restarted renderer retains actual start",
+      "actual": "Working for 2h 36m",
+      "expected": "Working for 2h 36m",
+      "pass": true
+    },
+    {
+      "name": "restarted renderer creates no missing start",
+      "actual": "Working for NaNs",
+      "expected": "Working",
+      "pass": false
+    },
+    {
+      "name": "narrow layout has no overflow",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "neutral label is localized",
+      "actual": "Töötab juba NaNs",
+      "expected": "Töötab",
+      "pass": false
+    },
+    {
+      "name": "localized shared label matches",
+      "actual": "Töötab juba",
+      "expected": "Töötab",
+      "pass": false
+    },
+    {
+      "name": "page errors",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    }
+  ],
+  "errors": [],
+  "pass": false,
+  "verifierSha256": "98df466cbc846872afcd0b59da55d10c7f0da6747c105b80724d88e4123e4dcf"
+}

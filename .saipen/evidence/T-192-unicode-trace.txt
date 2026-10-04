@@ -1,0 +1,16 @@
+{"schema":"t192-unicode-trace/1","at":"2026-10-03T15:21:58.723Z","scratch":"V:\\_TEMP_\\zaicode-unicode-trace-caRW0l","writes":[{"role":"app","data":"Write-Output ('BEFORE:'+'tere-привет-🌙')\r"},{"role":"external","data":"Write-Output ('AFTER:'+'tere-привет-🌙')\r"}],"brokerExternalInputContainsEmoji":true,"inputCodepoints":["57","72","69","74","65","2d","4f","75","74","70","75","74","20","28","27","41","46","54","45","52","3a","27","2b","27","74","65","72","65","2d","43f","440","438","432","435","442","2d","1f319","27","29","d"],"originalShellPreservesEmoji":true,"transferredShellPreservesEmoji":false}
+V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\node_modules\node-pty\lib\conpty_console_list_agent.js:13
+var consoleProcessList = getConsoleProcessList(shellPid);
+                         ^
+
+Error: AttachConsole failed
+    at Object.<anonymous> (V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\node_modules\node-pty\lib\conpty_console_list_agent.js:13:26)
+    at Module._compile (node:internal/modules/cjs/loader:1830:14)
+    at Object..js (node:internal/modules/cjs/loader:1961:10)
+    at Module.load (node:internal/modules/cjs/loader:1553:32)
+    at Module._load (node:internal/modules/cjs/loader:1355:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+    at node:internal/main/run_main_module:33:47
+
+Node.js v24.15.0

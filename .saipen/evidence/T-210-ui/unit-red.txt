@@ -1,0 +1,76 @@
+✖ non-finite or negative durations remain unknown rather than becoming a fabricated second (2.0049ms)
+✖ unknown or invalid run starts never produce an elapsed duration or advancing clock (0.3238ms)
+✖ known starts and recorded terminal durations retain authoritative facts (0.2882ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 0
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 758.7605
+
+✖ failing tests:
+
+test at test\zaicodeT210KnownDuration.test.ts:1:487
+✖ non-finite or negative durations remain unknown rather than becoming a fabricated second (2.0049ms)
+  AssertionError [ERR_ASSERTION]: NaN
+  + actual - expected
+  
+  + 'NaNsecond'
+  - null
+  
+      at TestContext.<anonymous> (V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\ui\test\zaicodeT210KnownDuration.test.ts:15:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.start (node:internal/test_runner/test:1096:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:385:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'NaNsecond',
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at test\zaicodeT210KnownDuration.test.ts:1:889
+✖ unknown or invalid run starts never produce an elapsed duration or advancing clock (0.3238ms)
+  AssertionError [ERR_ASSERTION]: undefined
+  
+  NaN !== undefined
+  
+      at TestContext.<anonymous> (V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\ui\test\zaicodeT210KnownDuration.test.ts:24:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: NaN,
+    expected: undefined,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at test\zaicodeT210KnownDuration.test.ts:1:1699
+✖ known starts and recorded terminal durations retain authoritative facts (0.2882ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  NaN !== undefined
+  
+      at TestContext.<anonymous> (V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\ui\test\zaicodeT210KnownDuration.test.ts:44:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: NaN,
+    expected: undefined,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

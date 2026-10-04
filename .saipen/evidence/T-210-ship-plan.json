@@ -1,0 +1,14 @@
+{
+  "base": "a2a5ffdf5f1e97770742efe2ab58d3a363dceace",
+  "paths": [
+    "packages/ui/src/v4/ConversationShareReadonlyTimeline.tsx",
+    "packages/ui/src/v4/ConversationTurnGroup.tsx",
+    "packages/ui/src/v4/conversationTurnWorkSegments.ts",
+    "packages/ui/src/v4/conversationWorkDuration.ts",
+    "packages/ui/test/zaicodeT210KnownDuration.test.ts",
+    "specs/zaicode-t210-known-work-duration.md"
+  ],
+  "preShipIndex": "ae9eed246cf035b4cab4a09573cedd451c91c33e",
+  "origin": "https://github.com/vacterro/zaicode.git",
+  "branch": "zaicode"
+}

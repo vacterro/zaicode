@@ -1,0 +1,60 @@
+{
+  "schema": "zaicode-t188-subject/1",
+  "at": "2026-10-03T09:09:07.2492435Z",
+  "sourceBase": "dbe0459259019308179c5b49e7e4f76a01fdecc7",
+  "files": [
+    {
+      "path": "packages/shared/src/zaicode-engines.ts",
+      "sha256": "a36c7d09f56d37113dab6edd7c11f581d2cf8a2868113ec81e719fabe1676d32"
+    },
+    {
+      "path": "packages/desktop/src/main/zaicodeEngines.ts",
+      "sha256": "713df03fb95d148cb125ffd78fb62f03d9613c486c10a1ef01de0a6e49d5bc2d"
+    },
+    {
+      "path": "packages/desktop/src/main/zaicodeWindowStarter.ts",
+      "sha256": "28547f158e591f7add94e2ad1e37e780da31e588a8731325b7ad9c6583a489af"
+    },
+    {
+      "path": "packages/ui/src/zaicode/ZaicodeLimitViews.tsx",
+      "sha256": "f38c89c39aacc8267d1c9f873259315f531b9c725456b551788bda975e8a84f1"
+    },
+    {
+      "path": "packages/desktop/test/zaicodeWindowStarter.test.ts",
+      "sha256": "367246354dc2a75fd2789fa602651ddde228be686e5ff031ed9dee94d8d5e32d"
+    },
+    {
+      "path": "packages/desktop/test/zaicodeT188ModelInventory.test.ts",
+      "sha256": "334ffb0fa092f288073e61f4716419aa757ae2f770dc8d2504040d80405b2902"
+    },
+    {
+      "path": "packages/ui/test/zaicodeT188WindowStart.test.ts",
+      "sha256": "2d2b9bae39c377ebc5c985fb3f56589ed4debd690ceff262c9cfa15c668f9edf"
+    },
+    {
+      "path": "packages/ui/test/zaicodeSrc116WindowTruth.test.ts",
+      "sha256": "e072883c8003c7e8e7ca9a59a3933a02a1189433c1e87c14bf2458cc5158c034"
+    },
+    {
+      "path": "packages/ui/test/zaicodeT143.test.ts",
+      "sha256": "b308e6b034a283f512df0bb839e96fcc75e40bf694b1a64f706a55509634e2d9"
+    },
+    {
+      "path": "packages/ui/test/zaicodeWave63.test.ts",
+      "sha256": "9721a6650c5f92378db4e409523824a1fc0b2c9b2e1313d00628a66f0520ae24"
+    },
+    {
+      "path": "packages/ui/test/zaicodeT136.test.ts",
+      "sha256": "189788b42677b5352e3b71c71bda698201e917658bd9a38ae560bc677a3770fe"
+    },
+    {
+      "path": "specs/zaicode-t188-live-window-start.md",
+      "sha256": "f086c5e1bb88bcdcf5df1611de3133dfc58139e5b7553137adf663261b87e9a5"
+    }
+  ],
+  "regression": "2d2b9bae39c377ebc5c985fb3f56589ed4debd690ceff262c9cfa15c668f9edf",
+  "modelRegression": "334ffb0fa092f288073e61f4716419aa757ae2f770dc8d2504040d80405b2902",
+  "liveVerifier": "c398d5ce535282f21b69be0c54ac674ecb6d5ea273377cf5b6b9451f54ed6e58",
+  "beforeAsar": "cf6a30b6d841f91b469edf91e3f781366527dcf5a57216ab1bce30cf42f5410d",
+  "afterAsar": "1c184e4a39bf67125d17201044e5379a634ee1afb50b4d4e265827e67a62bd75"
+}

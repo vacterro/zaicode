@@ -1,0 +1,21 @@
+{
+  "at": "2026-10-03T19:33:58.263Z",
+  "previousIndex": "3f2d19d12c578311b619f1e086d34a0447dae74b",
+  "preStagedDiff": "empty; checked before staging",
+  "ownedPaths": [
+    "apps/zcode-cli/.oxlintrc.json",
+    "apps/zcode-cli/packages/adapters/.oxlintrc.json",
+    "apps/zcode-cli/packages/bootstrap/.oxlintrc.json",
+    "apps/zcode-cli/packages/bootstrap/src/zcode-protocol-v4/product-projection-payloads.ts",
+    "apps/zcode-cli/packages/bootstrap/src/zcode-protocol-v4/product-projection.ts",
+    "apps/zcode-cli/packages/cli/.oxlintrc.json",
+    "apps/zcode-cli/packages/contracts/.oxlintrc.json",
+    "apps/zcode-cli/packages/core/.oxlintrc.json",
+    "apps/zcode-cli/packages/debug/.oxlintrc.json",
+    "apps/zcode-cli/packages/telemetry/.oxlintrc.json",
+    "scripts/cli-lint-budgets.test.mjs",
+    "scripts/fixtures/cli-lint-legacy-lengths.json",
+    "specs/zaicode-cli-lint-baseline.md"
+  ],
+  "failedCheck": "product-projection.ts:5331 new blank line at EOF"
+}

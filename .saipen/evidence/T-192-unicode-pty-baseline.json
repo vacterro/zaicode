@@ -1,0 +1,19 @@
+{
+  "at": "2026-10-03T15:31:23.132Z",
+  "results": [
+    {
+      "dll": false,
+      "moduleVersion": "2.4.5",
+      "pid": 17940,
+      "preservesEmoji": false,
+      "tail": "\u001b[2J\u001b[m\u001b[HWindows PowerShell\r\nCopyright (C) Microsoft Corporation. All rights reserved.\r\n\r\nTry the new cross-platform PowerShell https://aka.ms/pscore6\u001b]0;C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\u0007\u001b[?25h\u001b[25l\u001b[6;1H\u001b[?25hPS V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode> \u001b[25l\u001b[6;57H> \u001b[93mWrite-Output\u001b[m (\u001b[36m'BASELINE:'\u001b[90m+\u001b[m(\u001b[93mGet-Module\u001b[m PSReadLine).Version.ToString())\r\n\u001b[?25hBASELINE:2.4.5\r\nPS V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode> \u001b[?25l\rPS V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode> \u001b[93mWrite-Output\u001b[m (\u001b[36m'SECOND:'\u001b[90m+\u001b[36m'tere-привет-'\u001b[m)\u001b[30X\r\nSECOND:tere-привет-\u001b[108X\r\nPS V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode>\u001b[70X\u001b[1C\u001b[?25h"
+    },
+    {
+      "dll": true,
+      "moduleVersion": "2.4.5",
+      "pid": 860,
+      "preservesEmoji": true,
+      "tail": ":'\u001b[0m\u001b[90m+\u001b[0m\u001b[36m'tere-прив\u001b[0m\u001b[38;5;238mет-')\u001b[0m\u001b[39;49m\u001b[0m\u001b[8;93H\u001b[?25h\u001b[?25l\u001b[8;59H\u001b[0m\u001b[93mWrite-Output\u001b[0m\u001b[39;49m \u001b[0m\u001b[37m(\u001b[0m\u001b[36m'SECOND:'\u001b[0m\u001b[90m+\u001b[0m\u001b[36m'tere-приве\u001b[0m\u001b[38;5;238mт-')\u001b[0m\u001b[39;49m\u001b[0m\u001b[8;94H\u001b[?25h\u001b[?25l\u001b[8;59H\u001b[0m\u001b[93mWrite-Output\u001b[0m\u001b[39;49m \u001b[0m\u001b[37m(\u001b[0m\u001b[36m'SECOND:'\u001b[0m\u001b[90m+\u001b[0m\u001b[36m'tere-привет\u001b[0m\u001b[38;5;238m-')\u001b[0m\u001b[39;49m\u001b[0m\u001b[8;95H\u001b[?25h\u001b[?25l\u001b[8;59H\u001b[0m\u001b[93mWrite-Output\u001b[0m\u001b[39;49m \u001b[0m\u001b[37m(\u001b[0m\u001b[36m'SECOND:'\u001b[0m\u001b[90m+\u001b[0m\u001b[36m'tere-привет-\u001b[0m\u001b[38;5;238m')\u001b[0m\u001b[39;49m\u001b[0m\u001b[8;96H\u001b[?25h\u001b[?25l\u001b[8;59H\u001b[0m\u001b[93mWrite-Output\u001b[0m\u001b[39;49m \u001b[0m\u001b[37m(\u001b[0m\u001b[36m'SECOND:'\u001b[0m\u001b[90m+\u001b[0m\u001b[36m'tere-привет-�\u001b[39;49m \u001b[0m\u001b[8;97H\u001b[?25h\u001b[?25l\u001b[8;59H\u001b[0m\u001b[93mWrite-Output\u001b[0m\u001b[39;49m \u001b[0m\u001b[37m(\u001b[0m\u001b[36m'SECOND:'\u001b[0m\u001b[90m+\u001b[0m\u001b[36m'tere-привет-🌙\u001b[39;49m\u001b[0m\u001b[8;98H\u001b[?25h\u001b[?25l\u001b[8;59H\u001b[0m\u001b[93mWrite-Output\u001b[0m\u001b[39;49m \u001b[0m\u001b[37m(\u001b[0m\u001b[36m'SECOND:'\u001b[0m\u001b[90m+\u001b[0m\u001b[36m'tere-привет-🌙'\u001b[39;49m\u001b[0m\u001b[8;99H\u001b[?25h\u001b[?25l\u001b[8;59H\u001b[8;57H\u001b[39;49m> \u001b[0m\u001b[0m\u001b[93mWrite-Output\u001b[0m\u001b[39;49m \u001b[0m\u001b[37m(\u001b[0m\u001b[36m'SECOND:'\u001b[0m\u001b[90m+\u001b[0m\u001b[36m'tere-привет-🌙'\u001b[0m\u001b[37m)\u001b[39;49m\u001b[0m\u001b[8;100H\u001b[?25h\r\n\u001b[0m\u001b[0mSECOND:tere-привет-🌙\r\nPS V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode> "
+    }
+  ]
+}

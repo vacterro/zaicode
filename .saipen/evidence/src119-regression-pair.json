@@ -1,0 +1,59 @@
+{
+  "recordedAt": "2026-10-02T23:25:24.979Z",
+  "baseRevision": "4a9ad6d9",
+  "scope": "Only these three subjects use the pre-fix revision in the isolated red checkout; other dependencies and newly introduced helper modules remain identical.",
+  "command": "node --import tsx --test test/zaicodeSrc119Performance.test.ts test/zaicodeSrc119UsageAndStatus.test.ts",
+  "cwd": "packages/ui",
+  "runtime": {
+    "node": "v24.15.0",
+    "tsx": "4.21.0"
+  },
+  "verifier": [
+    {
+      "path": "packages/ui/test/zaicodeSrc119Performance.test.ts",
+      "sha256": "6cc6cb2890bf5fdaf8c873d0b90a8bae21701c34e2ff8a21a7018c7c712881d7",
+      "redSha256": "6cc6cb2890bf5fdaf8c873d0b90a8bae21701c34e2ff8a21a7018c7c712881d7"
+    },
+    {
+      "path": "packages/ui/test/zaicodeSrc119UsageAndStatus.test.ts",
+      "sha256": "601c558bd0616defa7209a676c23e5f2065131491892820d3f67b48c0a8b6c38",
+      "redSha256": "601c558bd0616defa7209a676c23e5f2065131491892820d3f67b48c0a8b6c38"
+    },
+    {
+      "path": "packages/ui/tsconfig.json",
+      "sha256": "732667c4106f71044e1284f0521d2828bad7b5c66435eafbc638c5eaecee13b8",
+      "redSha256": "732667c4106f71044e1284f0521d2828bad7b5c66435eafbc638c5eaecee13b8"
+    }
+  ],
+  "subjects": [
+    {
+      "path": "packages/ui/src/v4/conversationProjectionStore.ts",
+      "greenSha256": "ec29b33415c81cba231265b2f6f2d0e890274463f2b15eaf006d18bf48667202",
+      "redSha256": "3b8356fee9741950cf5bef7bd017b50c7a660cc20bc79456adeefb273943bb39"
+    },
+    {
+      "path": "packages/ui/src/v4/conversationTurnWorkSegments.ts",
+      "greenSha256": "b98c10fd08b005a7389023fb2318b56989afc20cabdb91d0a4a0031d3ab33d83",
+      "redSha256": "62e6bd39801b0f600681f8178d73254fe0c311a21401cbc17b945e9473b39c94"
+    },
+    {
+      "path": "packages/ui/src/zaicode/zaicodeModelFallback.ts",
+      "greenSha256": "a49f22b5de7e24e754b6d121d34bcb3cbee275883dfb59a8bfafbdd9980bb765",
+      "redSha256": "f40026dad346f2346c4e9d164ba5a2ff7aa969e6249c34b68fd4a49485ab5d4a"
+    }
+  ],
+  "red": {
+    "exitCode": 1,
+    "collected": 12,
+    "passed": 7,
+    "failed": 5,
+    "log": ".saipen/evidence/src119-regression-red.log"
+  },
+  "green": {
+    "exitCode": 0,
+    "collected": 12,
+    "passed": 12,
+    "failed": 0,
+    "log": ".saipen/evidence/src119-regression-green.log"
+  }
+}

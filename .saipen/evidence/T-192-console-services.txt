@@ -1,0 +1,27 @@
+✔ a running Windows worker transfers its existing shell and interactive state once (3083.6357ms)
+V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\node_modules\node-pty\src\conpty_console_list_agent.ts:13
+const consoleProcessList = getConsoleProcessList(shellPid);
+                           ^
+
+Error: AttachConsole failed
+    at Object.<anonymous> (V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\node_modules\node-pty\src\conpty_console_list_agent.ts:13:28)
+    at Module._compile (node:internal/modules/cjs/loader:1830:14)
+    at Object.transformer (V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\node_modules\tsx\dist\register-D46fvsV_.cjs:3:1104)
+    at Module.load (node:internal/modules/cjs/loader:1553:32)
+    at Module._load (node:internal/modules/cjs/loader:1355:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at loadCJSModuleWithModuleLoad (node:internal/modules/esm/translators:326:3)
+    at ModuleWrap.<anonymous> (node:internal/modules/esm/translators:231:7)
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+
+Node.js v24.15.0
+✔ a failed external launch retains the original Windows worker and input owner (641.6571ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8288.1072

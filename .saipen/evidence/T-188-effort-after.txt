@@ -1,0 +1,20 @@
+✔ an idle Gemini pool uses an advertised low-effort Flash instead of a removed pinned model (10.584ms)
+✔ the independent Claude/GPT pool must not spend a Gemini request (0.4114ms)
+✔ unknown pools and missing advertised models are unsupported rather than invented (0.2224ms)
+✔ the starter's effort agrees with the CLI's advertised model variant (0.1828ms)
+✔ the Claude start has no tools, no MCP, no user hooks, the cheapest model, no saved session (1.2498ms)
+✔ the Codex start is read-only, low effort, ephemeral and outside any repository (0.1909ms)
+✔ a Claude answer that is not an error counts as started and names its tokens (0.3555ms)
+✔ a refused or unreadable Claude start is a failure with the vendor's words (1.0047ms)
+✔ codex exec: exit 0 started, anything else is a failure (0.2188ms)
+✔ Antigravity starts with one sandboxed low-effort Flash request (0.5369ms)
+✔ ZCode start uses only the configured vendor's coding-only endpoint (0.3731ms)
+✔ ZCode accepts a real completion and redacts provider failure bodies (0.2385ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 275.8154

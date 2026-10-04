@@ -2999,6 +2999,7 @@
   "settings.sidebar.group.zaicode": "ZAICODE",
   "zaicode.settings.autoRestart": "Repornește după o blocare",
   "zaicode.fallback.switched": "{fromModel} a atins limita. Următorul mesaj merge la {toModel}; reveniți oricând din meniul de modele.",
+  "zaicode.fallback.routeHold": "{fromModel} este în reținere de cotă până la {until}. Acest mesaj merge la {toModel}.",
   "zaicode.settings.autoRestartHint": "Activ implicit. Lansatorul repornește o aplicație căzută; gazda desktop reîncarcă o fereastră căzută.",
   "zaicode.todo.title": "De făcut",
   "zaicode.todo.detach": "Separă fereastra Todo",

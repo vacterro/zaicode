@@ -1,0 +1,130 @@
+{
+  "schema": "zaicode-t166-live/1",
+  "executablePath": "V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/packages/desktop/dist-next/win-unpacked/ZAICODE.exe",
+  "targetKey": "five_hour@claude_and_gpt_models",
+  "profile": "V:\\_TEMP_\\zaicode-t166-iHIVsh",
+  "playwrightVersion": "1.62.1",
+  "at": "2026-10-03T08:47:06.500Z",
+  "checks": {
+    "isolatedPackagedShell": true,
+    "liveQuota": true,
+    "idlePoolAvailable": true
+  },
+  "observations": [
+    {
+      "label": "first-live-sweep",
+      "at": 1791017165458,
+      "snapshot": {
+        "fetchedAt": 1791017165382,
+        "error": null,
+        "windows": [
+          {
+            "key": "weekly@gemini_models",
+            "remainingPercent": 11.942484974861145,
+            "resetsAt": 1791355281000,
+            "startsOnUse": false,
+            "durationMinutes": 10080
+          },
+          {
+            "key": "five_hour@gemini_models",
+            "remainingPercent": 97.95879125595093,
+            "resetsAt": 1791033253000,
+            "startsOnUse": false,
+            "durationMinutes": 300
+          },
+          {
+            "key": "weekly@claude_and_gpt_models",
+            "remainingPercent": 100,
+            "resetsAt": 1791621951000,
+            "startsOnUse": true,
+            "durationMinutes": 10080
+          },
+          {
+            "key": "five_hour@claude_and_gpt_models",
+            "remainingPercent": 100,
+            "resetsAt": 1791035151000,
+            "startsOnUse": true,
+            "durationMinutes": 300
+          }
+        ],
+        "windowStart": null,
+        "windowStarts": {
+          "weekly@claude_and_gpt_models": {
+            "at": 1791017165383,
+            "ok": false,
+            "windowKey": "weekly@claude_and_gpt_models"
+          },
+          "five_hour@claude_and_gpt_models": {
+            "at": 1791017165383,
+            "ok": false,
+            "windowKey": "five_hour@claude_and_gpt_models"
+          }
+        }
+      },
+      "topbar": "Saturday, 3 October 2026 · 11:46:05 · week 40\nTime zone: Europe/Tallinn (EEST)\nNo timer set\nNext reset: Antigravity Gemini 5h in 4h 28m\n\nClick: Timers · Shift+Click: Temp Timer +15m · Ctrl+Click: work / break start-pause · Right-click: what to show",
+      "tile": "Antigravity (Antigravity) · gemini:antigravity\nAntigravity: 100% Claude & GPT weekly\n  Gemini weekly: 12% resets Wed 09:41\n  Gemini 5h: 98% resets in 4h 28m\n  Claude & GPT weekly: 100% starts on first use (weekly@claude and gpt models window)\n  Claude & GPT 5h: 100% starts on first use (five hour@claude and gpt models window)\n\nClick: select subscription model in this chat · Right-click: workers and settings"
+    },
+    {
+      "label": "starter-not-successful",
+      "at": 1791017225472,
+      "snapshot": {
+        "fetchedAt": 1791017194305,
+        "error": null,
+        "windows": [
+          {
+            "key": "weekly@gemini_models",
+            "remainingPercent": 11.942484974861145,
+            "resetsAt": 1791355281000,
+            "startsOnUse": false,
+            "durationMinutes": 10080
+          },
+          {
+            "key": "five_hour@gemini_models",
+            "remainingPercent": 97.95879125595093,
+            "resetsAt": 1791033253000,
+            "startsOnUse": false,
+            "durationMinutes": 300
+          },
+          {
+            "key": "weekly@claude_and_gpt_models",
+            "remainingPercent": 100,
+            "resetsAt": 1791621980000,
+            "startsOnUse": true,
+            "durationMinutes": 10080
+          },
+          {
+            "key": "five_hour@claude_and_gpt_models",
+            "remainingPercent": 100,
+            "resetsAt": 1791035180000,
+            "startsOnUse": true,
+            "durationMinutes": 300
+          }
+        ],
+        "windowStart": {
+          "at": 1791017165383,
+          "ok": false,
+          "windowKey": "five_hour@claude_and_gpt_models"
+        },
+        "windowStarts": {
+          "weekly@claude_and_gpt_models": {
+            "at": 1791017165383,
+            "ok": false,
+            "windowKey": "weekly@claude_and_gpt_models"
+          },
+          "five_hour@claude_and_gpt_models": {
+            "at": 1791017165383,
+            "ok": false,
+            "windowKey": "five_hour@claude_and_gpt_models"
+          }
+        }
+      },
+      "topbar": "Saturday, 3 October 2026 · 11:47:05 · week 40\nTime zone: Europe/Tallinn (EEST)\nNo timer set\nNext reset: Antigravity Gemini 5h in 4h 27m\n\nClick: Timers · Shift+Click: Temp Timer +15m · Ctrl+Click: work / break start-pause · Right-click: what to show",
+      "tile": "Antigravity (Antigravity) · gemini:antigravity\nAntigravity: 100% Claude & GPT weekly\n  Gemini weekly: 12% resets Wed 09:41\n  Gemini 5h: 98% resets in 4h 27m\n  Claude & GPT weekly: 100% starts on first use (weekly@claude and gpt models window)\n  Claude & GPT 5h: 100% starts on first use (five hour@claude and gpt models window)\n  window start failed 1m ago: invalid model selection (--model \"gpt-oss-120b-medium\" --effort \"low\"): --model gpt-oss-120b-medium conflicts with --effort=low\n\nClick: select subscription model in this chat · Right-click: workers and settings"
+    },
+    {
+      "failure": "supported idle Antigravity window needs a real successful starter, not only a local countdown"
+    }
+  ],
+  "errors": [],
+  "ok": false
+}

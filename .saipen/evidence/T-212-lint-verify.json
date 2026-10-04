@@ -1,0 +1,34 @@
+{
+  "kind": "lint",
+  "at": "2026-10-04T03:36:02.934Z",
+  "command": [
+    "pnpm",
+    "lint"
+  ],
+  "exit": 0,
+  "sourceChanges": [],
+  "subject": {
+    "README.md": "e952a7b7cfb5926c7b150c487d855580f97c1633d785c1b4683aa5f15c05313b",
+    "packages/desktop/src/main/zaicodeEngines.ts": "713df03fb95d148cb125ffd78fb62f03d9613c486c10a1ef01de0a6e49d5bc2d",
+    "packages/desktop/src/main/zaicodeWindowStarter.ts": "28547f158e591f7add94e2ad1e37e780da31e588a8731325b7ad9c6583a489af",
+    "packages/desktop/test/zaicodeT188ModelInventory.test.ts": "334ffb0fa092f288073e61f4716419aa757ae2f770dc8d2504040d80405b2902",
+    "packages/desktop/test/zaicodeWindowStarter.test.ts": "367246354dc2a75fd2789fa602651ddde228be686e5ff031ed9dee94d8d5e32d",
+    "packages/provider-node/src/index.ts": "9d33a9e595b390276f1f6e9ec9d77270fd5aeb0ae61b06509755ed6cc4c9dfd8",
+    "packages/provider-node/src/sai-accounts-source.ts": "607c4d146252b46dd0104736279a21618d70ad78551a5e350ab99d6cd21a3192",
+    "packages/shared/src/zaicode-engines.ts": "a36c7d09f56d37113dab6edd7c11f581d2cf8a2868113ec81e719fabe1676d32",
+    "packages/ui/src/terminal/TerminalSession.tsx": "06b24da2efe6b1b5a838a0d53e70e2fb3f8d2df813652cb56ab026a01c133bc3",
+    "packages/ui/src/terminal/sidePaneTerminalSessionRegistry.ts": "f266e8c90f0ef9b16b0547773c41f3df92de27be2b3480e774626be2b414fc67",
+    "packages/ui/src/zaicode/ZaicodeLimitViews.tsx": "f38c89c39aacc8267d1c9f873259315f531b9c725456b551788bda975e8a84f1",
+    "packages/ui/src/zaicode/zaicodeSettingsDefaults.json": "5fa6e41db9d92f1060390bd0f11e653ea699a1ca8a27da0237483d378b782641",
+    "packages/ui/test/zaicodeSrc116WindowTruth.test.ts": "e072883c8003c7e8e7ca9a59a3933a02a1189433c1e87c14bf2458cc5158c034",
+    "packages/ui/test/zaicodeT136.test.ts": "189788b42677b5352e3b71c71bda698201e917658bd9a38ae560bc677a3770fe",
+    "packages/ui/test/zaicodeT143.test.ts": "b308e6b034a283f512df0bb839e96fcc75e40bf694b1a64f706a55509634e2d9",
+    "packages/ui/test/zaicodeT188WindowStart.test.ts": "2d2b9bae39c377ebc5c985fb3f56589ed4debd690ceff262c9cfa15c668f9edf",
+    "packages/ui/test/zaicodeT212TerminalExit.test.ts": "34ca3135ed1e2d332afe5e4a5e6702a41f73d926dbb47138e7310c54b6da7808",
+    "packages/ui/test/zaicodeWave63.test.ts": "9721a6650c5f92378db4e409523824a1fc0b2c9b2e1313d00628a66f0520ae24",
+    "specs/zaicode-t188-live-window-start.md": "f086c5e1bb88bcdcf5df1611de3133dfc58139e5b7553137adf663261b87e9a5",
+    "specs/zaicode-t212-terminal-exit-input.md": "5d1483a5ab994fe0da9c10fff104f1a2c364520ea710de973a833fabb4b3befb"
+  },
+  "log": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\.saipen\\evidence\\T-212-lint-verify.txt",
+  "logSha256": "0f85d2fe7f30153197e77a2d99ea8b949bd2e63462a62668bf7379e608911995"
+}

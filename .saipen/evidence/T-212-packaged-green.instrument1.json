@@ -1,0 +1,62 @@
+{
+  "at": "2026-10-04T01:50:42.606Z",
+  "executablePath": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\.release-work\\t212-20261004\\win-unpacked\\ZAICODE.exe",
+  "profile": "V:\\_TEMP_\\zaicode-t212-NGW2Y7",
+  "checks": [
+    {
+      "name": "positive: isolated packaged profile",
+      "pass": true
+    },
+    {
+      "name": "A positive: native output with one run identity",
+      "pass": true
+    },
+    {
+      "name": "B positive: native output with one run identity",
+      "pass": true
+    },
+    {
+      "name": "A positive: original native process receives typing",
+      "pass": true
+    },
+    {
+      "name": "B positive: original native process receives typing",
+      "pass": true
+    },
+    {
+      "name": "A positive: original run final identity retained",
+      "pass": true
+    },
+    {
+      "name": "A final history still visible after late input",
+      "pass": true
+    },
+    {
+      "name": "B positive: original run final identity retained",
+      "pass": true
+    },
+    {
+      "name": "B final history still visible after late input",
+      "pass": true
+    },
+    {
+      "name": "zero renderer exceptions after native exit and late input",
+      "pass": false,
+      "detail": [
+        {
+          "stage": "boot",
+          "stack": "TypeError: Cannot read properties of undefined (reading 'dimensions')\n    at get dimensions (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/packages/desktop/.release-work/t212-20261004/win-unpacked/resources/app.asar/out/renderer/assets/styles-C4MyjNav.js:22:105128)\n    at t.Viewport.syncScrollArea (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/packages/desktop/.release-work/t212-20261004/win-unpacked/resources/app.asar/out/renderer/assets/styles-C4MyjNav.js:22:46726)\n    at file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/packages/desktop/.release-work/t212-20261004/win-unpacked/resources/app.asar/out/renderer/assets/styles-C4MyjNav.js:22:44996"
+        }
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "stage": "boot",
+      "stack": "TypeError: Cannot read properties of undefined (reading 'dimensions')\n    at get dimensions (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/packages/desktop/.release-work/t212-20261004/win-unpacked/resources/app.asar/out/renderer/assets/styles-C4MyjNav.js:22:105128)\n    at t.Viewport.syncScrollArea (file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/packages/desktop/.release-work/t212-20261004/win-unpacked/resources/app.asar/out/renderer/assets/styles-C4MyjNav.js:22:46726)\n    at file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/packages/desktop/.release-work/t212-20261004/win-unpacked/resources/app.asar/out/renderer/assets/styles-C4MyjNav.js:22:44996"
+    }
+  ],
+  "pass": false,
+  "verifier": "f9c7f90fae6f7104bb3cd76e5097a821b49e8274d1e1419389c83e70b77b7d9c",
+  "asarSha256": "26a4445341b2af336b0649c0469866778a26e128d6541d9c6cc76340faaf84cd"
+}

@@ -1,0 +1,108 @@
+{
+  "checks": [
+    {
+      "name": "initial ready producer is collected",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "busy and draft cycles do not enqueue the same collect",
+      "actual": 13,
+      "expected": 1,
+      "pass": false
+    },
+    {
+      "name": "Auto toggle keeps generation attempt",
+      "actual": 14,
+      "expected": 1,
+      "pass": false
+    },
+    {
+      "name": "composer remount keeps generation attempt",
+      "actual": 15,
+      "expected": 1,
+      "pass": false
+    },
+    {
+      "name": "a new package of the same producer is collected",
+      "actual": 15,
+      "expected": 2,
+      "pass": false
+    },
+    {
+      "name": "different workspace has independent admission",
+      "actual": 15,
+      "expected": 3,
+      "pass": false
+    },
+    {
+      "name": "different remote identity has independent admission",
+      "actual": 15,
+      "expected": 4,
+      "pass": false
+    },
+    {
+      "name": "local rejection is not sent",
+      "actual": 15,
+      "expected": 4,
+      "pass": false
+    },
+    {
+      "name": "local rejection can be attempted again",
+      "actual": 15,
+      "expected": 5,
+      "pass": false
+    },
+    {
+      "name": "scheduler warns about Autopilot OFF",
+      "actual": false,
+      "expected": true,
+      "pass": false
+    },
+    {
+      "name": "enabled Autopilot restores the countdown",
+      "actual": false,
+      "expected": false,
+      "pass": true
+    },
+    {
+      "name": "tooltip label",
+      "actual": true,
+      "expected": false,
+      "pass": false
+    },
+    {
+      "name": "tooltip icon",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "tooltip clipped",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "tooltip description",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "tooltip shortcut",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "tooltip hidden",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    }
+  ],
+  "errors": [],
+  "pass": false
+}

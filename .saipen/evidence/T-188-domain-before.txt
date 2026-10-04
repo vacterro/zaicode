@@ -1,0 +1,230 @@
+✖ idle live quota remains eligible for a real starter and supplies no fabricated countdown (2.2284ms)
+✖ historical local anchors are not evidence that a vendor window started (0.2934ms)
+✖ a matching real attempt and fixed vendor reset keep the rounded-full window live (0.1741ms)
+✖ failed and foreign-pool attempts cannot prove a live reset (0.1769ms)
+✖ a successful transport with a still sliding vendor reset stays unstarted (0.1875ms)
+✖ an expired real anchor does not fabricate the next vendor window (0.1676ms)
+✖ persisted per-window results survive another pool's later failed attempt (0.1803ms)
+✖ independent pools retain their own successful admission through sweeps and restart (0.9202ms)
+✖ failure admission blocks sibling windows in that pool but leaves another pool available (0.3361ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 0
+ℹ fail 9
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 598.4862
+
+✖ failing tests:
+
+test at test\zaicodeT188WindowStart.test.ts:1:1017
+✖ idle live quota remains eligible for a real starter and supplies no fabricated countdown (2.2284ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  false !== true
+  
+      at TestContext.<anonymous> (V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\ui\test\zaicodeT188WindowStart.test.ts:26:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.start (node:internal/test_runner/test:1096:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:385:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at test\zaicodeT188WindowStart.test.ts:1:1469
+✖ historical local anchors are not evidence that a vendor window started (0.2934ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 1791025200000
+  - undefined
+  
+      at TestContext.<anonymous> (V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\ui\test\zaicodeT188WindowStart.test.ts:35:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 1791025200000,
+    expected: undefined,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at test\zaicodeT188WindowStart.test.ts:1:1810
+✖ a matching real attempt and fixed vendor reset keep the rounded-full window live (0.1741ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + undefined
+  - 1791028800000
+  
+      at TestContext.<anonymous> (V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\ui\test\zaicodeT188WindowStart.test.ts:42:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: 1791028800000,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at test\zaicodeT188WindowStart.test.ts:1:2200
+✖ failed and foreign-pool attempts cannot prove a live reset (0.1769ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  false !== true
+  
+      at TestContext.<anonymous> (V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\ui\test\zaicodeT188WindowStart.test.ts:50:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at test\zaicodeT188WindowStart.test.ts:1:2625
+✖ a successful transport with a still sliding vendor reset stays unstarted (0.1875ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  false !== true
+  
+      at TestContext.<anonymous> (V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\ui\test\zaicodeT188WindowStart.test.ts:59:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at test\zaicodeT188WindowStart.test.ts:1:2944
+✖ an expired real anchor does not fabricate the next vendor window (0.1676ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 1791046800000
+  - undefined
+  
+      at TestContext.<anonymous> (V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\ui\test\zaicodeT188WindowStart.test.ts:67:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 1791046800000,
+    expected: undefined,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at test\zaicodeT188WindowStart.test.ts:1:3325
+✖ persisted per-window results survive another pool's later failed attempt (0.1803ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 1791028820000
+  - 1791028800000
+            ^
+  
+      at TestContext.<anonymous> (V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\ui\test\zaicodeT188WindowStart.test.ts:76:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 1791028820000,
+    expected: 1791028800000,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at test\zaicodeT188WindowStart.test.ts:1:3793
+✖ independent pools retain their own successful admission through sweeps and restart (0.9202ms)
+  AssertionError [ERR_ASSERTION]: successful windows must not send another paid request each sweep
+  + actual - expected
+  
+  + {
+  +   assumedFull: false,
+  +   durationMinutes: 300,
+  +   gatedBy: null,
+  +   group: 'gemini_models',
+  +   groupLabel: '',
+  +   key: 'five_hour@gemini_models',
+  +   label: '5h',
+  +   remainingPercent: 100,
+  +   resetsAt: 1791046800000,
+  +   startsOnUse: true
+  + }
+  - null
+  
+      at TestContext.<anonymous> (V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\ui\test\zaicodeT188WindowStart.test.ts:86:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: { key: 'five_hour@gemini_models', label: '5h', group: 'gemini_models', groupLabel: '', remainingPercent: 100, resetsAt: 1791046800000, durationMinutes: 300, gatedBy: null, assumedFull: false, startsOnUse: true },
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at test\zaicodeT188WindowStart.test.ts:1:4506
+✖ failure admission blocks sibling windows in that pool but leaves another pool available (0.3361ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'weekly@gemini_models'
+  - 'five_hour@claude_and_gpt_models'
+  
+      at TestContext.<anonymous> (V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\ui\test\zaicodeT188WindowStart.test.ts:96:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'weekly@gemini_models',
+    expected: 'five_hour@claude_and_gpt_models',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

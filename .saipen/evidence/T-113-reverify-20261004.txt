@@ -1,0 +1,13 @@
+✔ complete collected catalogs match all 32 languages and the DED voice (632.0545ms)
+✔ preferences accept every catalog and retain explicit validation for unknown input (7.2012ms)
+✔ system and CLI detection resolve natural-language tags without choosing a voice (0.8121ms)
+✔ native menus retain every translated label and interpolation (2.9821ms)
+✔ CLI catalogs preserve dynamic values and both plural/retry branches (4.554ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3235.6831

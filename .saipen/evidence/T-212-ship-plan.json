@@ -1,0 +1,12 @@
+{
+  "base": "95d91ae6baef7b4d58dd5a1daaf73c93be933f7f",
+  "paths": [
+    "packages/ui/src/terminal/TerminalSession.tsx",
+    "packages/ui/src/terminal/sidePaneTerminalSessionRegistry.ts",
+    "packages/ui/test/zaicodeT212TerminalExit.test.ts",
+    "specs/zaicode-t212-terminal-exit-input.md"
+  ],
+  "preShipIndex": "4cd53f5f30f9190a45a509b607e7639dbdd57043",
+  "origin": "https://github.com/vacterro/zaicode.git",
+  "branch": "zaicode"
+}

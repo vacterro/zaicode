@@ -1,0 +1,26 @@
+{
+  "baseline": "\u001b[2J\u001b[m\u001b[HWindows PowerShell\r\nCopyright (C) Microsoft Corporation. All rights reserved.\r\n\r\nTry the new cross-platform PowerShell https://aka.ms/pscore6\u001b]0;C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\u0007\u001b[?25h\u001b[25l\u001b[6;1H\u001b[?25hPS V:\\_TEMP_\\zaicode-unicode-control-ZInCAw> \u001b[25l\u001b[91m\u001b[6;44H> \u001b[93mWrite-Output\u001b[m (\u001b[36m'BASE:'\u001b[90m+\u001b[36m'tere-привет-�\u001b[38;2;68;68;68m�'); exit\u001b[m\u001b[6;44H> \u001b[93mWrite-Output\u001b[m (\u001b[36m'BASE:'\u001b[90m+\u001b[36m'tere-привет-🌙'\u001b[m); \u001b[92mexit\r\n\u001b[?25h\u001b[mBASE:tere-привет-🌙\r\n",
+  "wire": "WIRE:tere-привет-🌙\r",
+  "wireCodepoints": [
+    "57",
+    "49",
+    "52",
+    "45",
+    "3a",
+    "74",
+    "65",
+    "72",
+    "65",
+    "2d",
+    "43f",
+    "440",
+    "438",
+    "432",
+    "435",
+    "442",
+    "2d",
+    "1f319",
+    "d"
+  ],
+  "consoleOutput": "\u001b[2J\u001b[m\u001b[H\u001b]0;C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\u0007\u001b[?25h"
+}

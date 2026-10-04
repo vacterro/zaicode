@@ -1,0 +1,16 @@
+{
+  "ok": true,
+  "code": "TRANSITIONED",
+  "op_id": "transition-304ab91afc724230a8257593196c1400",
+  "changed_files": [
+    ".saipen/LOG.md",
+    ".saipen/BOARD.md",
+    ".saipen/STATE.md"
+  ],
+  "recovery_required": false,
+  "phase": "REVIEW",
+  "next_action": "PHASE REVIEW T-192",
+  "event_id": "E-3143",
+  "ticket": "T-192",
+  "goal_tickets": 16
+}

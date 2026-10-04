@@ -1,0 +1,148 @@
+{
+  "schema": "t192-ui/1",
+  "checks": [
+    {
+      "name": "success: original command typed once",
+      "pass": true
+    },
+    {
+      "name": "success: requests broker capability at creation",
+      "pass": true
+    },
+    {
+      "name": "moving worker retains its original PTY",
+      "pass": true
+    },
+    {
+      "name": "success: menu offers one-way PowerShell action",
+      "pass": true
+    },
+    {
+      "name": "success: readiness/capability/exit guard",
+      "pass": true
+    },
+    {
+      "name": "success: retains worker until acknowledgement",
+      "pass": true
+    },
+    {
+      "name": "success removes presentation and releases old app attachment once",
+      "pass": true
+    },
+    {
+      "name": "success: never types the original CLI command twice",
+      "pass": true
+    },
+    {
+      "name": "failure: original command typed once",
+      "pass": true
+    },
+    {
+      "name": "failure: requests broker capability at creation",
+      "pass": true
+    },
+    {
+      "name": "failure: menu offers one-way PowerShell action",
+      "pass": true
+    },
+    {
+      "name": "failure: readiness/capability/exit guard",
+      "pass": true
+    },
+    {
+      "name": "failure: retains worker until acknowledgement",
+      "pass": true
+    },
+    {
+      "name": "failed launch keeps worker and its PTY",
+      "pass": true
+    },
+    {
+      "name": "failure: never types the original CLI command twice",
+      "pass": true
+    },
+    {
+      "name": "missing: original command typed once",
+      "pass": true
+    },
+    {
+      "name": "missing: requests broker capability at creation",
+      "pass": true
+    },
+    {
+      "name": "missing: menu offers one-way PowerShell action",
+      "pass": true
+    },
+    {
+      "name": "missing: readiness/capability/exit guard",
+      "pass": true
+    },
+    {
+      "name": "exited: original command typed once",
+      "pass": true
+    },
+    {
+      "name": "exited: requests broker capability at creation",
+      "pass": true
+    },
+    {
+      "name": "exited: menu offers one-way PowerShell action",
+      "pass": true
+    },
+    {
+      "name": "exited: readiness/capability/exit guard",
+      "pass": true
+    },
+    {
+      "name": "nostart: original command typed once",
+      "pass": true
+    },
+    {
+      "name": "nostart: requests broker capability at creation",
+      "pass": true
+    },
+    {
+      "name": "nostart: menu offers one-way PowerShell action",
+      "pass": true
+    },
+    {
+      "name": "nostart: readiness/capability/exit guard",
+      "pass": true
+    },
+    {
+      "name": "stale: original command typed once",
+      "pass": true
+    },
+    {
+      "name": "stale: requests broker capability at creation",
+      "pass": true
+    },
+    {
+      "name": "stale: menu offers one-way PowerShell action",
+      "pass": true
+    },
+    {
+      "name": "stale: readiness/capability/exit guard",
+      "pass": true
+    },
+    {
+      "name": "stale: retains worker until acknowledgement",
+      "pass": true
+    },
+    {
+      "name": "late handoff never removes a newer generation",
+      "pass": true
+    },
+    {
+      "name": "stale: never types the original CLI command twice",
+      "pass": true
+    },
+    {
+      "name": "no uncaught browser errors",
+      "pass": true
+    }
+  ],
+  "errors": [],
+  "pass": true,
+  "verifier": "41ee3615564c4116fb455c5969a2c26b1d630fe1fe41293f0f64b4247835a7ba"
+}

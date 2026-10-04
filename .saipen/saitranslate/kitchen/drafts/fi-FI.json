@@ -2999,6 +2999,7 @@
   "settings.sidebar.group.zaicode": "ZAICODE",
   "zaicode.settings.autoRestart": "Käynnistä uudelleen kaatkeen jälkeen",
   "zaicode.fallback.switched": "{fromModel} saavutti rajansa. Seuraava viesti menee malliin {toModel}; voit vaihtaa takaisin milloin tahansa valikosta.",
+  "zaicode.fallback.routeHold": "{fromModel} on kiintiötauolla klo {until}. Tämä viesti menee malliin {toModel}.",
   "zaicode.settings.autoRestartHint": "Oletuksena päällä. Käynnistin käynnistää uudelleen kaatuneen sovelluksen; työpöydän isäntä lataa uudelleen kaatuneen ikkunan.",
   "zaicode.todo.title": "Tehtävä",
   "zaicode.todo.detach": "Irroita tehtävä-ikkuna",

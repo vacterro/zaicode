@@ -1,0 +1,96 @@
+✖ a running Windows worker transfers its existing shell and interactive state once (15971.3556ms)
+V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\node_modules\node-pty\src\conpty_console_list_agent.ts:13
+const consoleProcessList = getConsoleProcessList(shellPid);
+                           ^
+
+Error: AttachConsole failed
+    at Object.<anonymous> (V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\node_modules\node-pty\src\conpty_console_list_agent.ts:13:28)
+    at Module._compile (node:internal/modules/cjs/loader:1830:14)
+    at Object.transformer (V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\node_modules\tsx\dist\register-D46fvsV_.cjs:3:1104)
+    at Module.load (node:internal/modules/cjs/loader:1553:32)
+    at Module._load (node:internal/modules/cjs/loader:1355:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at loadCJSModuleWithModuleLoad (node:internal/modules/esm/translators:326:3)
+    at ModuleWrap.<anonymous> (node:internal/modules/esm/translators:231:7)
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+
+Node.js v24.15.0
+✔ a failed external launch retains the original Windows worker and input owner (650.4926ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 1
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 21130.8492
+
+✖ failing tests:
+
+test at test\workerTerminalHandoff.test.ts:1:925
+✖ a running Windows worker transfers its existing shell and interactive state once (15971.3556ms)
+  Error: No /UNICODE:tere-привет-🌙/: t[m ([36m'READY:'[m [90m+[m [92m$PID[m [90m+[m [36m':'[m [90m+[m [92m$handoffMarker[m)    [K
+  READY:14680:a397f437-752b-4894-a695-61036e4f9ec4[K
+  PS V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\services>[K
+  [K
+  [K
+  [K
+  [K
+  [K
+  [K
+  [K
+  [K
+  [K
+  [K
+  [K
+  [K
+  [K
+  [K
+  [K
+  [K
+  [K
+  [K
+  [K
+  [K
+  [K
+  [K
+  [K[9;77H[?25h
+PS V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\services> [93mWrite-Output[m ([K[36m
+  'UNICODE:'[m [90m+[m [36m'tere-привет-'[m)[K
+  UNICODE:tere-привет-[K
+  PS V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\services>[K[1C[25l[25l[HWindows PowerShell[K
+  Copyright (C) Microsoft Corporation. All rights reserved.[K
+  [K
+  Try the new cross-platform PowerShell https://aka.ms/pscore6[K
+  [K
+  PS V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\services> [92m$handoffMarker[m [90m=[m [guid]::NewGuid()
+  .ToString(); [93mWrite-Output[m ([36m'READY:'[m [90m+[m [92m$PID[m [90m+[m [36m':'[m [90m+[m [92m$handoffMarker[m)[K
+  READY:14680:a397f437-752b-4894-a695-61036e4f9ec4[K
+  PS V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\services> [93mWrite-Output[m ([36m'UNICODE:'[m [90m+[m [36m'tere-п
+  ривет-'[m)[K
+  UNICODE:tere-привет-[K
+  PS V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\services>[K
+  [K
+  [K
+  [K
+  [K
+  [K
+  [K
+  [K
+  [K
+  [K
+  [K
+  [K
+  [K
+  [K
+  [K
+  [K
+  [K
+  [K
+  [K
+  [K
+  [K[12;77H[?25h
+      at Timeout.<anonymous> (V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\services\test\workerTerminalHandoff.test.ts:25:16)
+      at listOnTimeout (node:internal/timers:605:17)
+      at process.processTimers (node:internal/timers:541:7)

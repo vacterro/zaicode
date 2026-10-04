@@ -1,0 +1,72 @@
+{
+  "schema": "t208-packaged/1",
+  "at": "2026-10-03T23:39:02.183Z",
+  "executablePath": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\.release-work\\t194-20261003-2310\\win-unpacked\\ZAICODE.exe",
+  "profile": "V:\\_TEMP_\\zaicode-t208-ui-XY0b51",
+  "verifier": "8c6ebea88cd8c4c3a6758a6dfc3ccd21529fff55094dabeebebdf9f1aad23761",
+  "appAsarSha256": "958cb06d1bcd73e804e4319df9b11839876a7bad88b578ff95fdcc25dd2e4244",
+  "before": {
+    "appPid": 12064,
+    "rendererPid": 11420,
+    "utilityPids": [
+      3312,
+      14568,
+      20660,
+      24872
+    ],
+    "worker": {
+      "pid": 22236,
+      "marker": "dc890f2d-9e27-4661-8231-5295521cb604",
+      "startedAt": 1791070722729,
+      "count": 1,
+      "final": false
+    }
+  },
+  "mainNavigations": 1,
+  "checks": [
+    {
+      "name": "the packaged application uses a throw-away profile",
+      "pass": true
+    },
+    {
+      "name": "positive control: the real native worker advances with one run identity",
+      "pass": true
+    },
+    {
+      "name": "zaicodeSounds: application, renderer and runtime stay attached",
+      "pass": true,
+      "detail": {
+        "rendererPid": 11420,
+        "utilityPids": [
+          3312,
+          14568,
+          20660,
+          24872
+        ]
+      }
+    },
+    {
+      "name": "zaicodeSounds: worker PID, run marker and start identity survive",
+      "pass": true
+    },
+    {
+      "name": "zaicodeNotifications: application, renderer and runtime stay attached",
+      "pass": false,
+      "detail": {
+        "rendererPid": 11420,
+        "utilityPids": [
+          3312,
+          14568,
+          20660,
+          24872
+        ]
+      }
+    },
+    {
+      "name": "packaged acceptance completed",
+      "pass": false,
+      "detail": "AssertionError [ERR_ASSERTION]: zaicodeNotifications: application, renderer and runtime stay attached\n    at check (C:\\Users\\vac34\\.agents\\skills\\playwright-skill\\.temp-execution-1791070710015.js:37:10)\n    at C:\\Users\\vac34\\.agents\\skills\\playwright-skill\\.temp-execution-1791070710015.js:144:7"
+    }
+  ],
+  "pass": false
+}

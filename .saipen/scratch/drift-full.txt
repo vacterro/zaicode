@@ -1,0 +1,27 @@
+=== shortcut-memory-ban
+WARN [cross-doc-drift]: cross-doc drift [shortcut-memory-ban] -- RFC § 1.10 must state that answering a row from recall is the same failure as inventing a command, not a lesser one
+
+=== command-not-dropped
+WARN [cross-doc-drift]: cross-doc drift [command-not-dropped] -- RFC 1.11's OBEY step must say a command in a multi-command message that cannot execute now is recorded rather than dropped, and name where: `next_action` when it will be legal at the next continue, the top of `## TODO` when it will not. Ordering alone leaves the second command answerable in chat and forgotten
+
+=== plan-goal-pair
+WARN [cross-doc-drift]: cross-doc drift [plan-goal-pair] -- RFC 1.10 must carve out the plan-then-bare-goal pair in the same message, which starts the plan just written. Without it the shortcut table invites `dd cc`, a combination that cannot complete: `dd` ends at `goal_mode: false` and the next key is not a command there. The carve-out is a PAIR, not a loosening of the bare form -- E-1468 was a lone key mid-run, which is unchanged
+
+=== permanent-owner-section
+WARN [cross-doc-drift]: cross-doc drift [permanent-owner-section] -- RFC 1.2 must say that a ticket whose completion condition can never be met sits in `## BLOCKED` with the reason, not in `## TODO`. A permanent warning owner in `## TODO` passes every workability test the Pick Rule applies while its own `verify:` says closing it FAILs, and so does a ticket phases/translate.md gives to a dedicated instance while forbidding Core to grind through it
+
+=== shortcut-rationale
+WARN [cross-doc-drift]: cross-doc drift [shortcut-rationale] -- length must have no global cost meaning, undeclared repeated forms must not be invented, and the repeated-letter paragraph must say a shortcut is a command, never a greeting -- receiving one means executing the exact row (or its exact no-op), never answering with chat
+
+=== shortcut-semantics
+WARN [cross-doc-drift]: cross-doc drift [shortcut-semantics] -- cc:enters convergence from `normal`; cc:resumes `execution_intent: goal`; cc:never asks for an objective; cc:`cc <args>` is not a goal; gg:NEW GOAL ONLY; gg:`gg <objective>`; gg:never a continuation alias
+
+=== goal-counter-reset
+WARN [cross-doc-drift]: cross-doc drift [goal-counter-reset] -- RFC § 1.10's `saipen stop` paragraph must defer to § 2.4 Entry and say the resume command resets goal_waves/goal_tickets ONLY when they are at or over the caps (and that bare `saipen goal` never resets a counter). Asserting an unconditional reset re-grants a full safety-valve budget to a run nobody re-authorized (§ 2.4 Entry, E-1468)
+
+=== package-handoffs
+WARN [cross-doc-drift]: cross-doc drift [package-handoffs] -- RFC.md misses 'Not ready: run ee first.', 'Not ready: run qq first.', 'No main-project file, checkpoint, Git ref, or remote may change on that refusal.'
+
+=== ticket-fields
+WARN [cross-doc-drift]: cross-doc drift [ticket-fields] -- RFC § 1.2 no longer states the closed ticket-field list. It went unstated until v7.122.0 while the tool rejected everything outside it and cited § 1.2 for the rule
+

@@ -2999,6 +2999,7 @@
   "settings.sidebar.group.zaicode": "ZAICODE",
   "zaicode.settings.autoRestart": "Herstarten na een crash",
   "zaicode.fallback.switched": "{fromModel} heeft zijn limiet bereikt. Het volgende bericht gaat naar {toModel}; wissel op elk moment terug via het modelmenu.",
+  "zaicode.fallback.routeHold": "{fromModel} heeft een quotahold tot {until}. Dit bericht gaat naar {toModel}.",
   "zaicode.settings.autoRestartHint": "Standaard aan. De launcher herstart een gecrashte app; de desktop-host herlaadt een gecrasht venster.",
   "zaicode.todo.title": "Takenlijst",
   "zaicode.todo.detach": "Todo-venster losmaken",

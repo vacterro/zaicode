@@ -1,0 +1,14 @@
+{
+  "clauses": {
+    "SRC-119:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Long chat sessions stay responsive, with older history loaded on demand."
+    }
+  },
+  "derived_at": "2026-10-02T21:50:08Z",
+  "derived_from": "SRC-119",
+  "interpretation_revision": 1,
+  "schema_version": 1,
+  "source_sha256": "3467eff98907e313754321f9f0319b3e7013a108211f9865cf2649a4a0999d08"
+}

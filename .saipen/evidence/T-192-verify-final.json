@@ -1,0 +1,12 @@
+{
+  "ok": true,
+  "code": "CHECKPOINTED",
+  "op_id": "checkpoint-911f12526d964ad5ad2750cf6ea0ee8a",
+  "changed_files": [
+    ".saipen/LOG.md",
+    ".saipen/BOARD.md",
+    ".saipen/STATE.md"
+  ],
+  "recovery_required": false,
+  "event_id": "E-3136"
+}

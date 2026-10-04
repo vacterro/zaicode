@@ -1,0 +1,199 @@
+{
+  "checks": [
+    "Usage full page reads live 9router statistics",
+    "Usage provider breakdown and period changes work",
+    "Ctrl+Alt+B switches Usage into a sidebar",
+    "Ctrl+Alt+B closes the Usage sidebar",
+    "Phase chip opens the actual SAIPEN STATE/BOARD/LOG sidebar",
+    "F1 opens the internal Help curriculum at the basics"
+  ],
+  "errors": [],
+  "pid": 26376,
+  "usageText": "9router Usage\nSidebar\nClose\n\nAll traffic through this 9router, including ZAICODE and other clients.\n\nToday\n24H\n7D\n30D\n60D\nAll\nRefresh\nLive · 10s\n\nUpdated 2:32:25 AM\n\nRequests\n311\nInput tokens\n33,761,673\nCached tokens\n32,605,106\nOutput tokens\n178,389\nEstimated cost\n$0.0000\n\nCost is an estimate, not a bill.\n\nTokens\nCost\n00:00\n15,240,291 peak\n23:00\nRecent requests\nModels\nProviders\nAccounts\nModel / status\tTime\tInput\tOutput\tCached\nstealth/space-bunny-alpha\nopenai-compatible-chat-39321ca3-0516-4ad0-a4c0-f28d572a8852 · ok\n\t2:31:56 AM\t124,908\t308\t124,672\nstealth/space-bunny-alpha\nopenai-compatible-chat-39321ca3-0516-4ad0-a4c0-f28d572a8852 · ok\n\t2:31:43 AM\t124,495\t249\t124,288\nstealth/space-bunny-alpha\nopenai-compatible-chat-39321ca3-0516-4ad0-a4c0-f28d572a8852 · ok\n\t2:31:40 AM\t124,303\t102\t123,776\nstealth/space-bunny-alpha\nopenai-compatible-chat-39321ca3-0516-4ad0-a4c0-f28d572a8852 · ok\n\t2:31:37 AM\t123,679\t179\t123,520\nstealth/space-bunny-alpha\nopenai-compatible-chat-39321ca3-0516-4ad0-a4c0-f28d572a8852 · ok\n\t2:31:32 AM\t123,278\t336\t123,136\nstealth/space-bunny-alpha\nopenai-compatible-chat-39321ca3-0516-4ad0-a4c0-f28d572a8852 · ok\n\t2:31:23 AM\t122,677\t581\t122,624\nstealth/space-bunny-alpha\nopenai-compatible-chat-39321ca3-0516-4ad0-a4c0-f28d572a8852 · ok\n\t2:31:18 AM\t150,660\t79\t149,289\nstealth/space-bunny-alpha\nopenai-compatible-chat-39321ca3-0516-4ad0-a4c0-f28d572a8852 · ok\n\t2:31:16 AM\t149,504\t1,063\t149,066\nstealth/space-bunny-alpha\nopenai-compatible-chat-39321ca3-0516-4ad0-a4c0-f28d572a8852 · ok\n\t2:31:14 AM\t122,130\t496\t121,728\nstealth/space-bunny-alpha\nopenai-compatible-chat-39321ca3-0516-4ad0-a4c0-f28d572a8852 · ok\n\t2:31:08 AM\t149,259\t203\t148,809\nstealth/space-bunny-alpha\nopenai-compatible-chat-39321ca3-0516-4ad0-a4c0-f28d572a8852 · ok\n\t2:31:05 AM\t121,412\t423\t121,216\nstealth/space-bunny-alpha\nopenai-compatible-chat-39321ca3-0516-4ad0-a4c0-f28d572a8852 · ok\n\t2:30:59 AM\t121,200\t111\t120,960\nstealth/space-bunny-alpha\nopenai-compatible-chat-39321ca3-0516-4ad0-a4c0-f28d572a8852 · ok\n\t2:30:57 AM\t120,766\t291\t120,448\nstealth/space-bunny-alpha\nopenai-compatible-chat-39321ca3-0516-4ad0-a4c0-f28d572a8852 · ok\n\t2:30:51 AM\t120,203\t353\t120,064\nstealth/space-bunny-alpha\nopenai-compatible-cha",
+  "health": {
+    "version": 1,
+    "takenAt": "2026-10-02T23:32:31.117Z",
+    "app": {
+      "platform": "Win32 Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) ZAICODE/3.14.0 Chrome/146.0.7680.…(truncated)",
+      "uptimeSeconds": 12
+    },
+    "memory": {
+      "heapUsedBytes": 157000000,
+      "heapTotalBytes": 212000000
+    },
+    "eventLoopLagMs": 102.19999999925494,
+    "counters": {
+      "hot.workspaces": 1,
+      "hot.taskUi": 0,
+      "hot.queryKeys": 19,
+      "hot.toasts": 0,
+      "retry.maxAttempts": 0,
+      "eventLoop.lagMs": 102.2,
+      "sessionStore.workspaces": 1,
+      "sessionStore.taskRuntime": 0,
+      "sessionStore.taskUi": 0,
+      "sessionStore.cachedTasks": 0,
+      "zaicodeNotifications.toasts": 0,
+      "zaicodeNotifications.freshMarks": 0,
+      "xterm.sessions": 0,
+      "xterm.detached": 0,
+      "taskQueryCache.queryKeys": 19,
+      "taskQueryCache.taskMetas": 15,
+      "taskQueryCache.retainedTaskKeys": 15,
+      "taskQueryCache.retainedSnippets": 0,
+      "taskSnapshotCache.entries": 0,
+      "taskSnapshotCache.persisted": 0,
+      "projection.stores": 1,
+      "projection.rows": 0,
+      "zaicodeAudits.campaigns": 20,
+      "zaicodeAudits.activeCampaigns": 3,
+      "toolLayout.openState": 0,
+      "shiki.highlighters": 0,
+      "zaicodeTimers.timers": 0,
+      "zaicodeTimers.tempTimers": 0,
+      "zaicodeTimers.intervalRules": 4,
+      "zaicodeTimers.missedAlarms": 0
+    },
+    "quotaCircuits": [],
+    "quotaWindows": [
+      {
+        "key": "five_hour",
+        "label": "5h",
+        "provider": "claude:c:\\users\\vac34\\.claude-account2",
+        "remainingPercent": 100,
+        "resetsAt": null,
+        "waitingForFirstUse": false,
+        "gatedBy": null
+      },
+      {
+        "key": "weekly",
+        "label": "weekly",
+        "provider": "claude:c:\\users\\vac34\\.claude-account2",
+        "remainingPercent": 0,
+        "resetsAt": "2026-10-06T11:00:00.000Z",
+        "waitingForFirstUse": false,
+        "gatedBy": null
+      },
+      {
+        "key": "five_hour",
+        "label": "5h",
+        "provider": "codex:c:\\users\\vac34\\.codex",
+        "remainingPercent": 33,
+        "resetsAt": "2026-10-03T02:17:11.000Z",
+        "waitingForFirstUse": false,
+        "gatedBy": null
+      },
+      {
+        "key": "weekly",
+        "label": "weekly",
+        "provider": "codex:c:\\users\\vac34\\.codex",
+        "remainingPercent": 89,
+        "resetsAt": "2026-10-09T21:17:11.000Z",
+        "waitingForFirstUse": false,
+        "gatedBy": null
+      },
+      {
+        "key": "five_hour",
+        "label": "5h",
+        "provider": "codex:c:\\users\\vac34\\.codex-account2",
+        "remainingPercent": 26,
+        "resetsAt": "2026-10-03T02:38:18.000Z",
+        "waitingForFirstUse": false,
+        "gatedBy": null
+      },
+      {
+        "key": "weekly",
+        "label": "weekly",
+        "provider": "codex:c:\\users\\vac34\\.codex-account2",
+        "remainingPercent": 88,
+        "resetsAt": "2026-10-09T21:38:18.000Z",
+        "waitingForFirstUse": false,
+        "gatedBy": null
+      },
+      {
+        "key": "weekly@base_model_inference",
+        "label": "GPT Reserve weekly",
+        "provider": "codex:c:\\users\\vac34\\.codex-account2",
+        "remainingPercent": 0,
+        "resetsAt": "2026-10-08T10:13:43.000Z",
+        "waitingForFirstUse": false,
+        "gatedBy": null
+      },
+      {
+        "key": "monthly",
+        "label": "monthly",
+        "provider": "codex:c:\\users\\vac34\\.codex-account3free",
+        "remainingPercent": 0,
+        "resetsAt": "2026-10-24T23:14:55.000Z",
+        "waitingForFirstUse": false,
+        "gatedBy": null
+      },
+      {
+        "key": "weekly@gemini_models",
+        "label": "Gemini weekly",
+        "provider": "antigravity:default",
+        "remainingPercent": 12.680238485336304,
+        "resetsAt": "2026-10-07T06:41:21.000Z",
+        "waitingForFirstUse": false,
+        "gatedBy": null
+      },
+      {
+        "key": "five_hour@gemini_models",
+        "label": "Gemini 5h",
+        "provider": "antigravity:default",
+        "remainingPercent": 2.3457400500774384,
+        "resetsAt": "2026-10-03T01:29:20.000Z",
+        "waitingForFirstUse": false,
+        "gatedBy": null
+      },
+      {
+        "key": "weekly@claude_and_gpt_models",
+        "label": "Claude & GPT weekly",
+        "provider": "antigravity:default",
+        "remainingPercent": 79.11720275878906,
+        "resetsAt": "2026-10-09T16:16:03.000Z",
+        "waitingForFirstUse": false,
+        "gatedBy": null
+      },
+      {
+        "key": "five_hour@claude_and_gpt_models",
+        "label": "Claude & GPT 5h",
+        "provider": "antigravity:default",
+        "remainingPercent": 37.35159933567047,
+        "resetsAt": "2026-10-03T03:00:49.000Z",
+        "waitingForFirstUse": false,
+        "gatedBy": null
+      },
+      {
+        "key": "five_hour",
+        "label": "5h",
+        "provider": "zcode:plan",
+        "remainingPercent": 100,
+        "resetsAt": null,
+        "waitingForFirstUse": false,
+        "gatedBy": null
+      },
+      {
+        "key": "weekly",
+        "label": "weekly",
+        "provider": "zcode:plan",
+        "remainingPercent": 0,
+        "resetsAt": "2026-10-07T17:41:21.999Z",
+        "waitingForFirstUse": false,
+        "gatedBy": null
+      },
+      {
+        "key": "daily",
+        "label": "daily",
+        "provider": "freebuff:8858a5f6-a8dc-41b6-826d-a2bfc00710e9",
+        "remainingPercent": 100,
+        "resetsAt": "2026-10-03T21:00:00.000Z",
+        "waitingForFirstUse": false,
+        "gatedBy": null
+      }
+    ],
+    "fallbackRoutes": [],
+    "notes": []
+  },
+  "verdict": "PASS"
+}

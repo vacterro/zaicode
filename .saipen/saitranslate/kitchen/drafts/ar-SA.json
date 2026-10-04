@@ -2999,6 +2999,7 @@
   "settings.sidebar.group.zaicode": "ZAICODE",
   "zaicode.settings.autoRestart": "إعادة التشغيل بعد الانهيار",
   "zaicode.fallback.switched": "بلغ {fromModel} حدّه. تذهب الرسالة التالية إلى {toModel}؛ ارجع في أي وقت من قائمة النماذج.",
+  "zaicode.fallback.routeHold": "{fromModel} في إيقاف حصري حتى {until}. ستذهب هذه الرسالة إلى {toModel}.",
   "zaicode.settings.autoRestartHint": "مفعّل افتراضيًا. مُشغّل التطبيقات يعيد تشغيل التطبيق المنهار؛ مضيف سطح المكتب يعيد تحميل النافذة المنهارة.",
   "zaicode.todo.title": "مهام",
   "zaicode.todo.detach": "فصل نافذة المهام",

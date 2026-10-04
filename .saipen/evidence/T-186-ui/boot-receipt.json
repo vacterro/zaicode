@@ -1,0 +1,57 @@
+{
+  "schema": "zaicode-boot-receipt/1",
+  "ok": true,
+  "at": "2026-10-03T03:40:51.432Z",
+  "executable": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\dist-next\\win-unpacked.verifying\\ZAICODE.exe",
+  "executableMtimeMs": 1790998749703.9429,
+  "appAsarBytes": 364260317,
+  "appAsarMtimeMs": 1790998745540.3345,
+  "checks": {
+    "window": true,
+    "contentReady": true,
+    "noErrorCard": true,
+    "workspaceShell": true,
+    "sidebar": true,
+    "noPageErrors": true,
+    "noFatalConsoleErrors": true,
+    "narrowWindow": true,
+    "settingsSections": 28,
+    "protrail": {
+      "monitors": 3,
+      "lit": [
+        3394,
+        3431,
+        3431
+      ]
+    },
+    "customization": {
+      "source": "env-dir",
+      "appeared": true,
+      "count": [
+        0,
+        1,
+        2,
+        0
+      ]
+    },
+    "workflowControls": {
+      "mergedShortcuts": true,
+      "swappedSidebar": true,
+      "compactRail": true,
+      "keyboardExpansion": true,
+      "hitTargets": {
+        "projectActions": 4,
+        "headerActions": 12,
+        "narrowWidth": 640
+      },
+      "locales": [
+        "ru-RU",
+        "et-EE",
+        "ar-SA",
+        "en-US"
+      ]
+    },
+    "localeRestart": "ru-RU"
+  },
+  "consoleErrorCount": 0
+}

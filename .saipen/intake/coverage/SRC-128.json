@@ -1,0 +1,23 @@
+{
+  "requirements": {
+    "SRC-128:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": ".saipen/evidence/T-192-test-bundle.md",
+      "text": "Build a bundle for the operator to test subsequently.",
+      "verification": ".saipen/evidence/T-192-test-bundle.json",
+      "work": "T-193"
+    },
+    "SRC-128:R002": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": ".saipen/evidence/T-192-stop.json",
+      "text": "After producing the test bundle, run saipen stop and stop further autonomous work until the operator resumes.",
+      "verification": ".saipen/evidence/response/stop-fb107512296046c6b0e37e5bc7318a9d.json",
+      "work": "T-193"
+    }
+  },
+  "schema_version": 1
+}

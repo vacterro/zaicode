@@ -2999,6 +2999,7 @@
   "settings.sidebar.group.zaicode": "קבוצת ZAICODE",
   "zaicode.settings.autoRestart": "הפעל מחדש לאחר קריסה",
   "zaicode.fallback.switched": "{fromModel} הגיע למגבלה. ההודעה הבאה תישלח ל-{toModel}; אפשר לחזור בכל עת דרך תפריט המודלים.",
+  "zaicode.fallback.routeHold": "{fromModel} בהמתנת מכסה עד {until}. ההודעה הזו תישלח ל-{toModel}.",
   "zaicode.settings.autoRestartHint": "פעיל כברירת מחדל. המפעיל מפעיל מחדש אפליקציה שקרסה; מארח שולחן העבודה טוען מחדש חלון שקרס.",
   "zaicode.todo.title": "משימה לביצוע",
   "zaicode.todo.detach": "נתק חלון משימות",

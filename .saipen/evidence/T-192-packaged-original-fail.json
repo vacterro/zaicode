@@ -1,0 +1,25 @@
+{
+  "schema": "t192-packaged/1",
+  "at": "2026-10-03T13:45:28.745Z",
+  "executable": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\dist-test-20261003-t192\\win-unpacked.rejected-20261003134032\\ZAICODE.exe",
+  "broker": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\dist-test-20261003-t192\\win-unpacked.rejected-20261003134032\\resources\\app.asar\\out\\host\\workerTerminalBroker.js",
+  "scratch": "V:\\_TEMP_\\zaicode-t192-packaged-HedwmT",
+  "appAsarSha256": "48026671d76d910d8a01297e652c3929036708203ed6cfa532f119f48e40ad6d",
+  "verifier": "b42f9ee16afd6c162e4fd4e9daa2bbda5dff77721501a4c12f5a47c3bb852c58",
+  "checks": [
+    {
+      "name": "packaged Electron loads its shipped broker and native ConPTY module",
+      "pass": true
+    },
+    {
+      "name": "positive control: a single live CLI process advances its state",
+      "pass": true
+    },
+    {
+      "name": "packaged native instrument completed",
+      "pass": false,
+      "detail": "Error: Error: PowerShell did not attach to the worker "
+    }
+  ],
+  "pass": false
+}

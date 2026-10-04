@@ -1,0 +1,15 @@
+{
+  "tracked": [
+    "packages/ui/src/zaicode/ZaicodeWorkerParts.tsx",
+    "packages/ui/src/zaicode/ZaicodeWorkersDockFrame.tsx",
+    "packages/ui/src/zaicode/ZaicodeWorkersPanel.tsx",
+    "packages/ui/src/zaicode/zaicodePanelDock.tsx",
+    "packages/ui/src/zaicode/zaicodeWorkerLayout.ts",
+    "packages/ui/src/zaicode/zaicodeWorkerPrefs.ts"
+  ],
+  "untracked": [
+    "packages/ui/test/zaicodeT209WorkersCollapse.test.ts",
+    "specs/zaicode-t209-workers-collapse.md"
+  ],
+  "foreignPreserved": 18
+}

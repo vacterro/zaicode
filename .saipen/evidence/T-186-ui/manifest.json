@@ -1,0 +1,36 @@
+{
+  "pre_fix_commit": "1f65c4cdada05c2e7e8ffe99dcc6c349cf14bad3",
+  "verifier": "807ef59aa26002adb0812a3f432d3fc812155e1a26d51c8c69b41bece301a7b0",
+  "verifier_files": {
+    "harness.tsx": "62e024b7e74be48390088292b633a52d634e1d64bcd3477216a38f02418f9af6",
+    "serve.mjs": "0b6172368d1fbcdefa07e25cc230fe588590dfca5e55b6fb14ac36ae6aa370ec",
+    "verifier.cjs": "191b22a4b1e8c674283563ebe8c0a9c6c755acb199679eaa4b5d6c1fcc812df5"
+  },
+  "post_fix_subject": "690d96dc17a50b76a03801fb4b5c63e12ebc6ea63c4f062f7c7a3652b2d6633c",
+  "subject_files": {
+    "packages/ui/src/ControlHintTooltip.tsx": "1cbe911865f85044ee946ce5509e6edc3ca1c417b5f17971b3309000031a9656",
+    "packages/ui/src/prompt-editor/ChatPromptEditor.tsx": "a2307bdb256a398062bbc6110c625290c50862a1d8ca85b0c1e8e119b06cdbf7",
+    "packages/ui/src/zaicode/ZaicodeSchedulerBits.tsx": "286417f0b67a668919f477ac46175ed712eb2b88feb4b7e6ffe44fa2e4f40a06",
+    "packages/ui/src/zaicode/ZaicodeSchedulerPanel.tsx": "29f87c7237734f603f069deb9ce271bd1b23180b9761182724e9e45cb51f8aa9",
+    "packages/ui/src/zaicode/ZaicodeSubOutboxChip.tsx": "aacafb530fbe219d3511d7a8319fcddecb90b30b949a9c56a15acb74f210e100",
+    "packages/ui/src/zaicode/ZaicodeWorkspace.tsx": "0103912e99a92f607c0b092da3d446eb3d0da09c33c1d80bca8dc470b7416f2f",
+    "packages/ui/src/zaicode/home/ZaicodeHomeCards.tsx": "c03c445febef0f73a6ed4732aee97ef4e444231cc97d6ab1a2accafac7bcf1b4",
+    "packages/ui/src/zaicode/home/ZaicodeHomePage.tsx": "16eb9441c86c0acf42d03a005aed39f1b02a89a444ae890c0928a305a2caba33",
+    "packages/ui/src/zaicode/useZaicodeSubOutbox.ts": "ef72b18be000bbcf07c93ff80fdc63e4f8eaa5b0d990bcfa74dc5d9497f73a92",
+    "packages/ui/src/zaicode/zaicodeAutostart.ts": "0951159fb031a0cc8df31132c509a3e9101ee5ae6291869de22c613dc99a7979",
+    "packages/ui/src/zaicode/zaicodeScheduler.ts": "1765887c34b5a2fa8575a3ccae3985bf6aa647ca72d6d292ae3f73c58e5410aa",
+    "packages/ui/src/zaicode/zaicodeStore.ts": "99cc0100fed6772bbea95736a6ac59c88eb62e2365f6ad5c15b9889b39cce1d7",
+    "packages/ui/src/zaicode/zaicodeSubOutbox.ts": "256ad52686fced2469739ba92503ea11584f6e3b9161df1b260afb3e6dbdb069",
+    "packages/ui/test/zaicodeT144.test.ts": "dad8b85d9257985407d9f6b3e3824563e9d352ee0b308c9b0998e104d063dcf8",
+    "packages/ui/test/zaicodeT186CollectScheduler.test.ts": "85a530b03833b47b9cb40b5e7374ec03967a405d945d144788706a05d6ca640e",
+    "specs/zaicode-t186-autopilot-collect-hints.md": "1bd90af246f29f57caec1550dbc2792fcbd4647f08e17a55d102aaf56669f899"
+  },
+  "foreign_files": {
+    "README.md": "e952a7b7cfb5926c7b150c487d855580f97c1633d785c1b4683aa5f15c05313b",
+    "packages/provider-node/src/index.ts": "9d33a9e595b390276f1f6e9ec9d77270fd5aeb0ae61b06509755ed6cc4c9dfd8",
+    "packages/ui/src/zaicode/zaicodeSettingsDefaults.json": "9c1837e7943f07597f1129850393f3a744094e36e46610a47fdf8959f68bc6e9",
+    "packages/provider-node/scripts/sai-accounts-live-acceptance.ts": "751af46d38aa8a2b421f745d274536ab9af65ba259300922ee52974b9546dae8",
+    "packages/provider-node/src/sai-accounts-source.ts": "607c4d146252b46dd0104736279a21618d70ad78551a5e350ab99d6cd21a3192",
+    "packages/provider-node/test/sai-accounts-source.test.ts": "02e414d8c2599a0b6dba2206b419b547c684a73a19e65e8ad0b626733ff7247c"
+  }
+}

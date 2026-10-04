@@ -1,0 +1,146 @@
+{
+  "schema": "t196-subject/1",
+  "at": "2026-10-03T19:33:58.598Z",
+  "head": "dd9c0e9549a60dcd8e3fd4a2cb9fb8185113ab70",
+  "own": [
+    {
+      "path": "apps/zcode-cli/.oxlintrc.json",
+      "sha256": "013b3e6b3b3503e810928771a3ff41accf3fb6a407424800a695e47a14c2db65"
+    },
+    {
+      "path": "apps/zcode-cli/packages/adapters/.oxlintrc.json",
+      "sha256": "47faba3f0152bc208bf2214c14af02dc31c35b6013f2fb7053c3d5c1c05f2a33"
+    },
+    {
+      "path": "apps/zcode-cli/packages/bootstrap/.oxlintrc.json",
+      "sha256": "ba4b5dcbe87a49ef36eeba96c1dcedc940daf94751152b4ec6a94139beb41bdc"
+    },
+    {
+      "path": "apps/zcode-cli/packages/cli/.oxlintrc.json",
+      "sha256": "84e7df5b601b08177fe413334f4fcd5848ffe399005f64e7fa3446c32b166aae"
+    },
+    {
+      "path": "apps/zcode-cli/packages/contracts/.oxlintrc.json",
+      "sha256": "c3fa1d96f12981d1c3fd43f15363ed58086adf6dc4c96f1a120d21f6e7a328d3"
+    },
+    {
+      "path": "apps/zcode-cli/packages/core/.oxlintrc.json",
+      "sha256": "b107add6c1befa901450a146e77d03b6e0addca01b3baca5080ef3f5237e3151"
+    },
+    {
+      "path": "apps/zcode-cli/packages/debug/.oxlintrc.json",
+      "sha256": "194b14eb7b6a1741a1fa92c74c7933212b405fcc58f1a1dc78e76267d6a7308b"
+    },
+    {
+      "path": "apps/zcode-cli/packages/telemetry/.oxlintrc.json",
+      "sha256": "167adfe0bddde9469ebdccd4618aeff9e1c15deb7d9eb530d2612d04415dc6e4"
+    },
+    {
+      "path": "scripts/cli-lint-budgets.test.mjs",
+      "sha256": "d252bb9b5382c8f84867bcf3c415fc2ade3bda6daa524ef1570e2803e10ce0b5"
+    },
+    {
+      "path": "scripts/fixtures/cli-lint-legacy-lengths.json",
+      "sha256": "ba3084c47616ae8a448bf55f62f5c1ba2421b03856e4b8bcd16e9ae943a7ede2"
+    },
+    {
+      "path": "specs/zaicode-cli-lint-baseline.md",
+      "sha256": "2a559fb272ef8f660fcdac2764459aadbb51056069dd1a1078751a4154a83647"
+    },
+    {
+      "path": "apps/zcode-cli/packages/bootstrap/src/zcode-protocol-v4/product-projection-payloads.ts",
+      "sha256": "aa82e0ff8ef7183a60fb2198a36d1d660d6e9fd9ce206c138b127683b1ce2e48"
+    },
+    {
+      "path": "apps/zcode-cli/packages/bootstrap/src/zcode-protocol-v4/product-projection.ts",
+      "sha256": "86e8630c087e6309e4d1075e0a59e9229a4e6c380bf53ebae81a2a0bd7a73be1"
+    }
+  ],
+  "foreign": [
+    {
+      "path": "packages/desktop/test/zaicodeT188ModelInventory.test.ts",
+      "sha256": "334ffb0fa092f288073e61f4716419aa757ae2f770dc8d2504040d80405b2902"
+    },
+    {
+      "path": "packages/provider-node/scripts/sai-accounts-live-acceptance.ts",
+      "sha256": "751af46d38aa8a2b421f745d274536ab9af65ba259300922ee52974b9546dae8"
+    },
+    {
+      "path": "packages/provider-node/src/sai-accounts-source.ts",
+      "sha256": "607c4d146252b46dd0104736279a21618d70ad78551a5e350ab99d6cd21a3192"
+    },
+    {
+      "path": "packages/provider-node/test/sai-accounts-source.test.ts",
+      "sha256": "02e414d8c2599a0b6dba2206b419b547c684a73a19e65e8ad0b626733ff7247c"
+    },
+    {
+      "path": "packages/ui/test/zaicodeT188WindowStart.test.ts",
+      "sha256": "2d2b9bae39c377ebc5c985fb3f56589ed4debd690ceff262c9cfa15c668f9edf"
+    },
+    {
+      "path": "specs/zaicode-t188-live-window-start.md",
+      "sha256": "f086c5e1bb88bcdcf5df1611de3133dfc58139e5b7553137adf663261b87e9a5"
+    },
+    {
+      "path": "README.md",
+      "sha256": "e952a7b7cfb5926c7b150c487d855580f97c1633d785c1b4683aa5f15c05313b"
+    },
+    {
+      "path": "packages/desktop/src/main/zaicodeEngines.ts",
+      "sha256": "713df03fb95d148cb125ffd78fb62f03d9613c486c10a1ef01de0a6e49d5bc2d"
+    },
+    {
+      "path": "packages/desktop/src/main/zaicodeWindowStarter.ts",
+      "sha256": "28547f158e591f7add94e2ad1e37e780da31e588a8731325b7ad9c6583a489af"
+    },
+    {
+      "path": "packages/desktop/test/zaicodeWindowStarter.test.ts",
+      "sha256": "367246354dc2a75fd2789fa602651ddde228be686e5ff031ed9dee94d8d5e32d"
+    },
+    {
+      "path": "packages/provider-node/src/index.ts",
+      "sha256": "9d33a9e595b390276f1f6e9ec9d77270fd5aeb0ae61b06509755ed6cc4c9dfd8"
+    },
+    {
+      "path": "packages/shared/src/zaicode-engines.ts",
+      "sha256": "a36c7d09f56d37113dab6edd7c11f581d2cf8a2868113ec81e719fabe1676d32"
+    },
+    {
+      "path": "packages/ui/src/zaicode/ZaicodeLimitViews.tsx",
+      "sha256": "f38c89c39aacc8267d1c9f873259315f531b9c725456b551788bda975e8a84f1"
+    },
+    {
+      "path": "packages/ui/src/zaicode/zaicodeSettingsDefaults.json",
+      "sha256": "9c1837e7943f07597f1129850393f3a744094e36e46610a47fdf8959f68bc6e9"
+    },
+    {
+      "path": "packages/ui/test/zaicodeSrc116WindowTruth.test.ts",
+      "sha256": "e072883c8003c7e8e7ca9a59a3933a02a1189433c1e87c14bf2458cc5158c034"
+    },
+    {
+      "path": "packages/ui/test/zaicodeT136.test.ts",
+      "sha256": "189788b42677b5352e3b71c71bda698201e917658bd9a38ae560bc677a3770fe"
+    },
+    {
+      "path": "packages/ui/test/zaicodeT143.test.ts",
+      "sha256": "b308e6b034a283f512df0bb839e96fcc75e40bf694b1a64f706a55509634e2d9"
+    },
+    {
+      "path": "packages/ui/test/zaicodeWave63.test.ts",
+      "sha256": "9721a6650c5f92378db4e409523824a1fc0b2c9b2e1313d00628a66f0520ae24"
+    }
+  ],
+  "oracle": {
+    "verifier": "85edbf6f8f380b6c499b0016478b7224a4c1d75dbf8014028707846b27fdd3ed",
+    "pre": "e44def2be9f1975bec51396c6aeeb13d9bf6b7a5b30e5b324b3984f7d304dfcd",
+    "post": "ae4090377543f143b3bbe508d7535de6f6812921f3d71ab19aea77b1cb14de9f",
+    "control": "new 400 PASS / 401 FAIL; every frozen ceiling PASS / +1 FAIL",
+    "green": "88 PASS/0FAIL/0skip",
+    "red": "1 positive control PASS/87FAIL/0skip",
+    "version": "CLI Oxlint1.67.0; root1.60.0"
+  },
+  "partial": {
+    "path": "apps/zcode-cli/packages/bootstrap/src/zcode-protocol-v4/product-projection.ts",
+    "excludedParentLine": "      ...(typeof payload.command === \"string\" ? { command: payload.command.slice(0, 1600) } : existing?.command ? { command: existing.command } : {}),"
+  }
+}

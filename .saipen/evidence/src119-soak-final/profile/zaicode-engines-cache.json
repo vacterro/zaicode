@@ -1,0 +1,276 @@
+{
+  "limits": {
+    "claude:c:\\users\\vac34\\.claude-account2": {
+      "accountId": "claude:c:\\users\\vac34\\.claude-account2",
+      "windows": [
+        {
+          "key": "five_hour",
+          "label": "5h",
+          "group": "",
+          "groupLabel": "",
+          "remainingPercent": 100,
+          "resetsAt": null,
+          "durationMinutes": 300,
+          "gatedBy": null,
+          "assumedFull": false,
+          "startsOnUse": false
+        },
+        {
+          "key": "weekly",
+          "label": "weekly",
+          "group": "",
+          "groupLabel": "",
+          "remainingPercent": 0,
+          "resetsAt": 1791284340000,
+          "durationMinutes": 10080,
+          "gatedBy": null,
+          "assumedFull": false,
+          "startsOnUse": false
+        }
+      ],
+      "plan": "subscription",
+      "fetchedAt": 1790984295407,
+      "checkedAt": 1790984295407,
+      "error": null,
+      "source": "claude -p /usage"
+    },
+    "codex:c:\\users\\vac34\\.codex": {
+      "accountId": "codex:c:\\users\\vac34\\.codex",
+      "windows": [
+        {
+          "key": "five_hour",
+          "label": "5h",
+          "group": "",
+          "groupLabel": "",
+          "remainingPercent": 16,
+          "resetsAt": 1790993831000,
+          "durationMinutes": 300,
+          "gatedBy": null,
+          "assumedFull": false,
+          "startsOnUse": false
+        },
+        {
+          "key": "weekly",
+          "label": "weekly",
+          "group": "",
+          "groupLabel": "",
+          "remainingPercent": 87,
+          "resetsAt": 1791580631000,
+          "durationMinutes": 10080,
+          "gatedBy": null,
+          "assumedFull": false,
+          "startsOnUse": false
+        }
+      ],
+      "plan": "plus",
+      "fetchedAt": 1790984296427,
+      "checkedAt": 1790984296427,
+      "error": null,
+      "source": "codex app-server account/rateLimits/read",
+      "resetCredits": {
+        "availableCount": 0,
+        "credits": []
+      }
+    },
+    "claude:c:\\users\\vac34\\.claude": {
+      "accountId": "claude:c:\\users\\vac34\\.claude",
+      "windows": [],
+      "plan": null,
+      "fetchedAt": null,
+      "checkedAt": 1790984297100,
+      "error": "no subscription limits reported (API-key account?)",
+      "source": "claude -p /usage"
+    },
+    "codex:c:\\users\\vac34\\.codex-account2": {
+      "accountId": "codex:c:\\users\\vac34\\.codex-account2",
+      "windows": [
+        {
+          "key": "five_hour",
+          "label": "5h",
+          "group": "",
+          "groupLabel": "",
+          "remainingPercent": 11,
+          "resetsAt": 1790995098000,
+          "durationMinutes": 300,
+          "gatedBy": null,
+          "assumedFull": false,
+          "startsOnUse": false
+        },
+        {
+          "key": "weekly",
+          "label": "weekly",
+          "group": "",
+          "groupLabel": "",
+          "remainingPercent": 86,
+          "resetsAt": 1791581898000,
+          "durationMinutes": 10080,
+          "gatedBy": null,
+          "assumedFull": false,
+          "startsOnUse": false
+        },
+        {
+          "key": "weekly@base_model_inference",
+          "label": "GPT Reserve weekly",
+          "group": "base_model_inference",
+          "groupLabel": "GPT Reserve",
+          "remainingPercent": 0,
+          "resetsAt": 1791454423000,
+          "durationMinutes": 10080,
+          "gatedBy": null,
+          "assumedFull": false,
+          "startsOnUse": false
+        }
+      ],
+      "plan": "plus",
+      "fetchedAt": 1790984297207,
+      "checkedAt": 1790984297207,
+      "error": null,
+      "source": "codex app-server account/rateLimits/read",
+      "resetCredits": {
+        "availableCount": 0,
+        "credits": []
+      }
+    },
+    "codex:c:\\users\\vac34\\.codex-account3free": {
+      "accountId": "codex:c:\\users\\vac34\\.codex-account3free",
+      "windows": [
+        {
+          "key": "monthly",
+          "label": "monthly",
+          "group": "",
+          "groupLabel": "",
+          "remainingPercent": 0,
+          "resetsAt": 1792883695000,
+          "durationMinutes": 43200,
+          "gatedBy": null,
+          "assumedFull": false,
+          "startsOnUse": false
+        }
+      ],
+      "plan": "free",
+      "fetchedAt": 1790984297702,
+      "checkedAt": 1790984297702,
+      "error": null,
+      "source": "codex app-server account/rateLimits/read",
+      "resetCredits": {
+        "availableCount": 0,
+        "credits": []
+      }
+    },
+    "zcode:plan": {
+      "accountId": "zcode:plan",
+      "windows": [
+        {
+          "key": "five_hour",
+          "label": "5h",
+          "group": "",
+          "groupLabel": "",
+          "remainingPercent": 100,
+          "resetsAt": null,
+          "durationMinutes": 300,
+          "gatedBy": null,
+          "assumedFull": false,
+          "startsOnUse": false
+        },
+        {
+          "key": "weekly",
+          "label": "weekly",
+          "group": "",
+          "groupLabel": "",
+          "remainingPercent": 0,
+          "resetsAt": 1791394881999,
+          "durationMinutes": 10080,
+          "gatedBy": null,
+          "assumedFull": false,
+          "startsOnUse": false
+        }
+      ],
+      "plan": "lite",
+      "fetchedAt": 1790984298035,
+      "checkedAt": 1790984298035,
+      "error": null,
+      "source": "z.ai monitor quota"
+    },
+    "freebuff:8858a5f6-a8dc-41b6-826d-a2bfc00710e9": {
+      "accountId": "freebuff:8858a5f6-a8dc-41b6-826d-a2bfc00710e9",
+      "windows": [
+        {
+          "key": "daily",
+          "label": "daily",
+          "group": "",
+          "groupLabel": "",
+          "remainingPercent": 100,
+          "resetsAt": 1791061200000,
+          "durationMinutes": 1440,
+          "gatedBy": null,
+          "assumedFull": false,
+          "startsOnUse": false
+        }
+      ],
+      "plan": "starter · 105/105 FB today · wallet 0 FB",
+      "fetchedAt": 1790984298302,
+      "checkedAt": 1790984298302,
+      "error": null,
+      "source": "freebuff session (read-only)"
+    },
+    "antigravity:default": {
+      "accountId": "antigravity:default",
+      "windows": [
+        {
+          "key": "weekly@gemini_models",
+          "label": "Gemini weekly",
+          "group": "gemini_models",
+          "groupLabel": "Gemini Models",
+          "remainingPercent": 12.680238485336304,
+          "resetsAt": 1791355281000,
+          "durationMinutes": 10080,
+          "gatedBy": null,
+          "assumedFull": false,
+          "startsOnUse": false
+        },
+        {
+          "key": "five_hour@gemini_models",
+          "label": "Gemini 5h",
+          "group": "gemini_models",
+          "groupLabel": "Gemini Models",
+          "remainingPercent": 2.3457400500774384,
+          "resetsAt": 1790990960000,
+          "durationMinutes": 300,
+          "gatedBy": null,
+          "assumedFull": false,
+          "startsOnUse": false
+        },
+        {
+          "key": "weekly@claude_and_gpt_models",
+          "label": "Claude & GPT weekly",
+          "group": "claude_and_gpt_models",
+          "groupLabel": "Claude and GPT models",
+          "remainingPercent": 79.11720275878906,
+          "resetsAt": 1791562563000,
+          "durationMinutes": 10080,
+          "gatedBy": null,
+          "assumedFull": false,
+          "startsOnUse": false
+        },
+        {
+          "key": "five_hour@claude_and_gpt_models",
+          "label": "Claude & GPT 5h",
+          "group": "claude_and_gpt_models",
+          "groupLabel": "Claude and GPT models",
+          "remainingPercent": 37.35159933567047,
+          "resetsAt": 1790996449000,
+          "durationMinutes": 300,
+          "gatedBy": null,
+          "assumedFull": false,
+          "startsOnUse": false
+        }
+      ],
+      "plan": null,
+      "fetchedAt": 1790984299779,
+      "checkedAt": 1790984299779,
+      "error": null,
+      "source": "agy -p /usage"
+    }
+  },
+  "lastSweepAt": 1790984299782
+}

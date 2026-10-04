@@ -1,0 +1,193 @@
+{
+  "at": "2026-10-03T19:56:54.207Z",
+  "url": "http://127.0.0.1:4194",
+  "passed": 41,
+  "failed": 4,
+  "errors": [],
+  "results": [
+    {
+      "name": "compact/MAIN/1280: positive actual renderer",
+      "pass": true
+    },
+    {
+      "name": "compact/MAIN/1280: idle named MAIN survives working-only filter",
+      "pass": true
+    },
+    {
+      "name": "compact/MAIN/1280: project label opens MAIN repeatedly without folding",
+      "pass": true
+    },
+    {
+      "name": "compact/MAIN/1280: helper remains reachable and MAIN click returns",
+      "pass": true
+    },
+    {
+      "name": "compact/MAIN/1280: separate folding control preserves selected conversation",
+      "pass": false,
+      "message": "Expected values to be strictly equal:\n\n0 !== 1\n"
+    },
+    {
+      "name": "compact/MAIN/1280: actual project, session and timeline test indicators",
+      "pass": true
+    },
+    {
+      "name": "compact/MAIN/1280: test motion preferences are independent",
+      "pass": true
+    },
+    {
+      "name": "compact/MAIN/1280: ending actual activity clears test and working indicators",
+      "pass": true
+    },
+    {
+      "name": "compact/MAIN/1280: empty project click creates a usable draft",
+      "pass": true
+    },
+    {
+      "name": "compact/MAIN/1280: persisted job callback accepts exact SAIFREN runner and ordering",
+      "pass": true
+    },
+    {
+      "name": "compact/MAIN/1280: job continuation toggle really changes the existing policy",
+      "pass": true
+    },
+    {
+      "name": "normal/MAIN/1280: positive actual renderer",
+      "pass": true
+    },
+    {
+      "name": "normal/MAIN/1280: idle named MAIN survives working-only filter",
+      "pass": true
+    },
+    {
+      "name": "normal/MAIN/1280: project label opens MAIN repeatedly without folding",
+      "pass": true
+    },
+    {
+      "name": "normal/MAIN/1280: helper remains reachable and MAIN click returns",
+      "pass": true
+    },
+    {
+      "name": "normal/MAIN/1280: separate folding control preserves selected conversation",
+      "pass": false,
+      "message": "Expected values to be strictly equal:\n\n0 !== 1\n"
+    },
+    {
+      "name": "normal/MAIN/1280: actual project, session and timeline test indicators",
+      "pass": true
+    },
+    {
+      "name": "normal/MAIN/1280: test motion preferences are independent",
+      "pass": true
+    },
+    {
+      "name": "normal/MAIN/1280: ending actual activity clears test and working indicators",
+      "pass": true
+    },
+    {
+      "name": "normal/MAIN/1280: empty project click creates a usable draft",
+      "pass": true
+    },
+    {
+      "name": "normal/MAIN/1280: persisted job callback accepts exact SAIFREN runner and ordering",
+      "pass": true
+    },
+    {
+      "name": "normal/MAIN/1280: job continuation toggle really changes the existing policy",
+      "pass": true
+    },
+    {
+      "name": "compact/folder/480: positive actual renderer",
+      "pass": true
+    },
+    {
+      "name": "compact/folder/480: idle named MAIN survives working-only filter",
+      "pass": true
+    },
+    {
+      "name": "compact/folder/480: project label opens MAIN repeatedly without folding",
+      "pass": true
+    },
+    {
+      "name": "compact/folder/480: helper remains reachable and MAIN click returns",
+      "pass": true
+    },
+    {
+      "name": "compact/folder/480: separate folding control preserves selected conversation",
+      "pass": false,
+      "message": "Expected values to be strictly equal:\n\n0 !== 1\n"
+    },
+    {
+      "name": "compact/folder/480: actual project, session and timeline test indicators",
+      "pass": true
+    },
+    {
+      "name": "compact/folder/480: test motion preferences are independent",
+      "pass": true
+    },
+    {
+      "name": "compact/folder/480: ending actual activity clears test and working indicators",
+      "pass": true
+    },
+    {
+      "name": "compact/folder/480: empty project click creates a usable draft",
+      "pass": true
+    },
+    {
+      "name": "compact/folder/480: persisted job callback accepts exact SAIFREN runner and ordering",
+      "pass": true
+    },
+    {
+      "name": "compact/folder/480: job continuation toggle really changes the existing policy",
+      "pass": true
+    },
+    {
+      "name": "normal/folder/480: positive actual renderer",
+      "pass": true
+    },
+    {
+      "name": "normal/folder/480: idle named MAIN survives working-only filter",
+      "pass": true
+    },
+    {
+      "name": "normal/folder/480: project label opens MAIN repeatedly without folding",
+      "pass": true
+    },
+    {
+      "name": "normal/folder/480: helper remains reachable and MAIN click returns",
+      "pass": true
+    },
+    {
+      "name": "normal/folder/480: separate folding control preserves selected conversation",
+      "pass": false,
+      "message": "Expected values to be strictly equal:\n\n0 !== 1\n"
+    },
+    {
+      "name": "normal/folder/480: actual project, session and timeline test indicators",
+      "pass": true
+    },
+    {
+      "name": "normal/folder/480: test motion preferences are independent",
+      "pass": true
+    },
+    {
+      "name": "normal/folder/480: ending actual activity clears test and working indicators",
+      "pass": true
+    },
+    {
+      "name": "normal/folder/480: empty project click creates a usable draft",
+      "pass": true
+    },
+    {
+      "name": "normal/folder/480: persisted job callback accepts exact SAIFREN runner and ordering",
+      "pass": true
+    },
+    {
+      "name": "normal/folder/480: job continuation toggle really changes the existing policy",
+      "pass": true
+    },
+    {
+      "name": "no browser runtime or console errors",
+      "pass": true
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+✔ idle live quota remains eligible for a real starter and supplies no fabricated countdown (20.4825ms)
+✔ historical local anchors are not evidence that a vendor window started (0.2408ms)
+✔ a matching real attempt and fixed vendor reset keep the rounded-full window live (0.1613ms)
+✔ failed and foreign-pool attempts cannot prove a live reset (0.1461ms)
+✔ a successful transport with a still sliding vendor reset stays unstarted (0.1306ms)
+✔ an expired real anchor does not fabricate the next vendor window (0.1198ms)
+✔ persisted per-window results survive another pool's later failed attempt (0.136ms)
+✔ independent pools retain their own successful admission through sweeps and restart (0.2485ms)
+✔ failure admission blocks sibling windows in that pool but leaves another pool available (0.2475ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2145.1814

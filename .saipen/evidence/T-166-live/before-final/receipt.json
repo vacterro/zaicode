@@ -1,0 +1,65 @@
+{
+  "schema": "zaicode-t166-live/1",
+  "executablePath": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\dist-next\\win-unpacked\\ZAICODE.exe",
+  "profile": "V:\\_TEMP_\\zaicode-t166-U9fW9W",
+  "playwrightVersion": "1.62.1",
+  "at": "2026-10-03T08:18:06.296Z",
+  "checks": {
+    "isolatedPackagedShell": true,
+    "liveQuota": true,
+    "autoStartSucceeded": true
+  },
+  "observations": [
+    {
+      "label": "first-live-sweep",
+      "at": 1791015485588,
+      "snapshot": {
+        "fetchedAt": 1791015485550,
+        "error": null,
+        "windows": [
+          {
+            "key": "weekly@gemini_models",
+            "remainingPercent": 11.942484974861145,
+            "resetsAt": 1791355281000,
+            "startsOnUse": false,
+            "durationMinutes": 10080
+          },
+          {
+            "key": "five_hour@gemini_models",
+            "remainingPercent": 97.95879125595093,
+            "resetsAt": 1791033253000,
+            "startsOnUse": false,
+            "durationMinutes": 300
+          },
+          {
+            "key": "weekly@claude_and_gpt_models",
+            "remainingPercent": 100,
+            "resetsAt": 1791620285550,
+            "rollingFrom": 1791015485550,
+            "startsOnUse": true,
+            "durationMinutes": 10080
+          },
+          {
+            "key": "five_hour@claude_and_gpt_models",
+            "remainingPercent": 100,
+            "resetsAt": 1791033485550,
+            "rollingFrom": 1791015485550,
+            "startsOnUse": true,
+            "durationMinutes": 300
+          }
+        ],
+        "windowStart": null,
+        "windowStarts": {}
+      },
+      "topbar": "Saturday, 3 October 2026 · 11:18:04 · week 40\nTime zone: Europe/Tallinn (EEST)\nNo timer set\nNext reset: Antigravity Gemini 5h in 4h 56m\n\nClick: Timers · Shift+Click: Temp Timer +15m · Ctrl+Click: work / break start-pause · Right-click: what to show",
+      "tile": "Antigravity (Antigravity) · gemini:antigravity\nAntigravity: 100% Claude & GPT weekly\n  Gemini weekly: 12% resets Wed 09:41\n  Gemini 5h: 98% resets in 4h 56m\n  Claude & GPT weekly: 100% resets Sat 11:18\n  Claude & GPT 5h: 100% resets in 5h 00m\n\nClick: select subscription model in this chat · Right-click: workers and settings"
+    },
+    {
+      "failure": "page.waitForFunction: TypeError: Cannot read properties of undefined (reading 'five_hour@gemini_models')"
+    }
+  ],
+  "errors": [
+    "TypeError"
+  ],
+  "ok": false
+}

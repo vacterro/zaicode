@@ -1,0 +1,26 @@
+{
+  "ok": true,
+  "code": "STOP",
+  "op_id": "stop-fb107512296046c6b0e37e5bc7318a9d",
+  "changed_files": [
+    ".saipen/LOG.md",
+    ".saipen/BOARD.md",
+    ".saipen/STATE.md",
+    ".saipen/kitchen/digest.md",
+    ".saipen/evidence/response/stop-fb107512296046c6b0e37e5bc7318a9d.json"
+  ],
+  "recovery_required": false,
+  "next_action": "PHASE BUILD T-192",
+  "digest": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\.saipen\\kitchen\\digest.md",
+  "digest_lines": [
+    "done: stopped via SAIOPS checkpoint",
+    "remaining: T-192",
+    "awaiting: nothing"
+  ],
+  "delivery": "STATUS: BUILD T-192\nRESULT: Peatatud operaatori soovil; 13 lõpetatud; 10 blokeeritud (BLOCKED_EXTERNAL 1)\nNEXT EXACT ACTION: PHASE BUILD T-192\nVALIDATION: STALE_FAIL",
+  "response_record": ".saipen/evidence/response/stop-fb107512296046c6b0e37e5bc7318a9d.json",
+  "dry_run": false,
+  "route": "stop",
+  "operation_code": "STOPPED",
+  "detail": "stop checkpoint committed"
+}

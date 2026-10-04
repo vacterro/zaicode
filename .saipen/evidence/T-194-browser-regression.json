@@ -1,0 +1,85 @@
+{
+  "at": "2026-10-03T20:01:33.538Z",
+  "verifier": "07673d3dac19f1a4730f3289e7ba42d676c36f20d5a6b3c91a2f8d562f728fdb",
+  "oracleFiles": [
+    {
+      "path": "C:/Users/vac34/AppData/Local/Temp/playwright-test-t194-acceptance.js",
+      "sha256": "adaea5946f6936f8cc7172e8b30cbf63f769fca8f10272eb2bc167ab07e9b7bc"
+    },
+    {
+      "path": ".saipen/evidence/T-194-ui/harness.tsx",
+      "sha256": "5bda0a90e14032f423560adaa33db66a232cf5b5815667bef567981dc625ea69"
+    },
+    {
+      "path": ".saipen/evidence/T-194-ui/serve.mjs",
+      "sha256": "5dbdcc62e84592c1c446ff7ac88f09507cda2e9cd0fec88f01e38260851afa0d"
+    }
+  ],
+  "preSubject": "7ffb5ffed3f0ad171e7b8f83263443878f5f69b56b47f6dc592ac59c7710bb39",
+  "postSubject": "256b48d6deb3684fedfc3701d9e7aa0607b014f2b8dcf0ed77314c86904448b4",
+  "before": [
+    {
+      "path": "packages/ui/src/WorkspaceSidebarItem.tsx",
+      "sha256": "771256d8d9dc5ece665cf915836c99bda783af2fa65a52a5539bea0053d1328a"
+    },
+    {
+      "path": "packages/ui/src/TaskListItem.tsx",
+      "sha256": "550954b188f28372ca07d39764cd9095e982db6346e186c7923af6cfe30f6979"
+    },
+    {
+      "path": "packages/ui/src/zaicode/zaicodeProjectClick.ts",
+      "sha256": "7ab19f57c7b27d6aabc446cbd1096572a176472c87614509e3cc9e1d4a4a4668"
+    },
+    {
+      "path": "packages/ui/src/v4/taskListRowActivity.ts",
+      "sha256": "60be51de41777465dc791f8a4c1398a5defa11131b7c919e21f63d91935796f4"
+    },
+    {
+      "path": "packages/ui/src/lib/taskListItemPresentation.ts",
+      "sha256": "e4347ab61c22f77d20899985d937a50fb2db2cebe9ae756858f51b30f90e539d"
+    },
+    {
+      "path": "packages/ui/src/zaicode/zaicodeStall.ts",
+      "sha256": "c2bc5c752e131f8f80df84f99b4a6cd87042ef66c229aa03c9b1ebca936c95ad"
+    }
+  ],
+  "after": [
+    {
+      "path": "packages/ui/src/WorkspaceSidebarItem.tsx",
+      "sha256": "95e7ea051302d1c90b105fe1630ecf5d389d534ae98e7f348a62968f12095062"
+    },
+    {
+      "path": "packages/ui/src/TaskListItem.tsx",
+      "sha256": "e71a6260fb025c1b552853336f93b0a128358910db2acbcf135b421d5ff1ebaa"
+    },
+    {
+      "path": "packages/ui/src/zaicode/zaicodeProjectClick.ts",
+      "sha256": "ffff03c397f0e1626b004f9eda164f0430a7e59bab009df312c849103303917c"
+    },
+    {
+      "path": "packages/ui/src/v4/taskListRowActivity.ts",
+      "sha256": "6be60d946274aab32e56d24c07d9f36a146698bb944d46ff74859883f804abfa"
+    },
+    {
+      "path": "packages/ui/src/lib/taskListItemPresentation.ts",
+      "sha256": "05c114b0e98a85099d116d3e238afa380fa5346579f7bc4748ee3a050a4382d0"
+    },
+    {
+      "path": "packages/ui/src/zaicode/zaicodeStall.ts",
+      "sha256": "a19f1bc30ce51a0cd8b4dc1217015bd5aea9afa665ab33f6f8f8082cc8644da0"
+    }
+  ],
+  "red": {
+    "path": "T-194-ui-red-final.json",
+    "pass": 17,
+    "fail": 28,
+    "errors": 0
+  },
+  "green": {
+    "path": "T-194-ui-green.json",
+    "pass": 45,
+    "fail": 0,
+    "errors": 0
+  },
+  "subjectMechanism": "Exactly six production UI files restored from dd9c0e9 by esbuild onLoad; same fixture, browser oracle, timeout1800ms, runners and viewports. Ports4194/4195 only route current/restored subject carriers. No live source replacement."
+}

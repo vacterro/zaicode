@@ -1,0 +1,76 @@
+{
+  "schema": "t208-packaged/1",
+  "at": "2026-10-04T00:06:17.704Z",
+  "executablePath": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\.release-work\\t194-20261003-2310\\win-unpacked\\ZAICODE.exe",
+  "profile": "V:\\_TEMP_\\zaicode-t208-ui-QVodwO",
+  "verifier": "971b61a0fd09afe92e87cd46c9e4460eabdc387264c6db9ec6e24857f34c51a5",
+  "appAsarSha256": "958cb06d1bcd73e804e4319df9b11839876a7bad88b578ff95fdcc25dd2e4244",
+  "before": {
+    "appPid": 27316,
+    "rendererPid": 26980,
+    "utilityPids": [
+      2540,
+      19376,
+      24424,
+      26640
+    ],
+    "worker": {
+      "pid": 23040,
+      "marker": "03712d10-0d63-4cac-89a3-575aacbbcd53",
+      "startedAt": 1791072360048,
+      "count": 1,
+      "final": false
+    }
+  },
+  "mainNavigations": 1,
+  "checks": [
+    {
+      "name": "the packaged application uses a throw-away profile",
+      "pass": true
+    },
+    {
+      "name": "positive control: the real native worker advances with one run identity",
+      "pass": true
+    },
+    {
+      "name": "positive control: both cached task notification preferences initially show enabled",
+      "pass": true
+    },
+    {
+      "name": "zaicodeSounds: application, renderer and runtime stay attached",
+      "pass": true,
+      "detail": {
+        "rendererPid": 26980,
+        "utilityPids": [
+          2540,
+          19376,
+          24424,
+          26640
+        ]
+      }
+    },
+    {
+      "name": "zaicodeSounds: worker PID, run marker and start identity survive",
+      "pass": true
+    },
+    {
+      "name": "zaicodeNotifications: application, renderer and runtime stay attached",
+      "pass": false,
+      "detail": {
+        "rendererPid": 26980,
+        "utilityPids": [
+          2540,
+          19376,
+          24424,
+          26640
+        ]
+      }
+    },
+    {
+      "name": "packaged acceptance completed",
+      "pass": false,
+      "detail": "AssertionError [ERR_ASSERTION]: zaicodeNotifications: application, renderer and runtime stay attached\n    at check (C:\\Users\\vac34\\.agents\\skills\\playwright-skill\\.temp-execution-1791072348998.js:37:10)\n    at C:\\Users\\vac34\\.agents\\skills\\playwright-skill\\.temp-execution-1791072348998.js:152:7"
+    }
+  ],
+  "pass": false
+}

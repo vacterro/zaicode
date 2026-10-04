@@ -1,9 +1,9 @@
 {
-  "checkedAt": "2026-10-01T16:00:30.444Z",
+  "checkedAt": "2026-10-03T02:23:32.165Z",
   "sources": {
     "ui": {
-      "keys": 5852,
-      "digest": "f641b5518e35ef055bcc74d8c8ba4ae84abb1fd0e8288dfb4fe602cc47e0307e"
+      "keys": 5853,
+      "digest": "a77f599c3adf5982ed5b226d046ae9ea3c2f1a7d1f2ae9ebf8c520daeee8a6f4"
     },
     "cli": {
       "keys": 199,
@@ -21,14 +21,14 @@
   "locales": {
     "ru-RU": {
       "ui": {
-        "keys": 5852,
-        "target": 5852,
+        "keys": 5853,
+        "target": 5853,
         "missing": [],
         "extra": [],
         "broken": [],
         "technical": [],
         "suspicious": [],
-        "digest": "613c397c2deaa8fc307f05c247cac37a1dc0ef66bd531877df3475bcba4f07d1"
+        "digest": "ed3af92f31ed53f6baed62c2891ad14d352f76fdbe0ed4c3d28b15d83101f288"
       },
       "cli": {
         "keys": 199,
@@ -63,14 +63,14 @@
     },
     "et-EE": {
       "ui": {
-        "keys": 5852,
-        "target": 5852,
+        "keys": 5853,
+        "target": 5853,
         "missing": [],
         "extra": [],
         "broken": [],
         "technical": [],
         "suspicious": [],
-        "digest": "dcb7d63827dea3fd899bafc8a352ce9ca502f34b7c9aafd5542f59fac7978f9c"
+        "digest": "425478ca9a86795f4a162ea8b4f75a1818aa266a0a608dba4fa1d57aaf49276e"
       },
       "cli": {
         "keys": 199,
@@ -105,14 +105,14 @@
     },
     "uk-UA": {
       "ui": {
-        "keys": 5852,
-        "target": 5852,
+        "keys": 5853,
+        "target": 5853,
         "missing": [],
         "extra": [],
         "broken": [],
         "technical": [],
         "suspicious": [],
-        "digest": "d5405b184b07c0ff639a0dd471c2752068413a8db44c3b232b0536635346bf19"
+        "digest": "9a3a6937c37a55bd1418482c88d813e230cb0abc822f21be71acb7e60a64644c"
       },
       "cli": {
         "keys": 199,
@@ -147,14 +147,14 @@
     },
     "ja-JP": {
       "ui": {
-        "keys": 5852,
-        "target": 5852,
+        "keys": 5853,
+        "target": 5853,
         "missing": [],
         "extra": [],
         "broken": [],
         "technical": [],
         "suspicious": [],
-        "digest": "1bd79c151be33eef2976174eb1a8ad15094e9cbe815fdf88affe91847ee8e22a"
+        "digest": "cd2e52afb3ae91b5c6cda94131e0a0c36c92afbc531c8262eadfd99c9564101b"
       },
       "cli": {
         "keys": 199,
@@ -189,14 +189,14 @@
     },
     "ded": {
       "ui": {
-        "keys": 5852,
-        "target": 5852,
+        "keys": 5853,
+        "target": 5853,
         "missing": [],
         "extra": [],
         "broken": [],
         "technical": [],
         "suspicious": [],
-        "digest": "1b8eb41ba450fb2bb4ec9c7f7906618c110d92550de0258eaff57a980b124f06"
+        "digest": "85e8de51032ab617b9f16bfa6d37e5edd786500e64437822f0a6e2ea03907518"
       },
       "cli": {
         "keys": 199,
@@ -263,14 +263,14 @@
     },
     "de-DE": {
       "ui": {
-        "keys": 5852,
-        "target": 5852,
+        "keys": 5853,
+        "target": 5853,
         "missing": [],
         "extra": [],
         "broken": [],
         "technical": [],
         "suspicious": [],
-        "digest": "c454455104480550527c6c9405239429914599651fe46c6e5407a293a3b1f143"
+        "digest": "4e0d0d184ae5258f2172c1d99bed51aa024e477836e1ec13c0cf8e4b9ef62c7a"
       },
       "cli": {
         "keys": 199,
@@ -305,14 +305,14 @@
     },
     "fr-FR": {
       "ui": {
-        "keys": 5852,
-        "target": 5852,
+        "keys": 5853,
+        "target": 5853,
         "missing": [],
         "extra": [],
         "broken": [],
         "technical": [],
         "suspicious": [],
-        "digest": "f08b09387b53730c965bb85207c4fb4c28a65f934fc41658b2306aad07d35905"
+        "digest": "3df99f444a8b5ace68ac4dae08657565c1e4d8b60620f125b8fa794ba5081dd6"
       },
       "cli": {
         "keys": 199,
@@ -347,14 +347,14 @@
     },
     "es-ES": {
       "ui": {
-        "keys": 5852,
-        "target": 5852,
+        "keys": 5853,
+        "target": 5853,
         "missing": [],
         "extra": [],
         "broken": [],
         "technical": [],
         "suspicious": [],
-        "digest": "9da929a15efd19721c4d7e6a4997b61f6da30f49111bf6e2e0e612e2f11a8bbd"
+        "digest": "d5fe6663507fd1f4fcb33fd93b312787768d9e87e80922e130a136a1ddda96c2"
       },
       "cli": {
         "keys": 199,
@@ -389,14 +389,14 @@
     },
     "it-IT": {
       "ui": {
-        "keys": 5852,
-        "target": 5852,
+        "keys": 5853,
+        "target": 5853,
         "missing": [],
         "extra": [],
         "broken": [],
         "technical": [],
         "suspicious": [],
-        "digest": "d8abac09d99c3b8ab97294a2686202b585c61ed7227df58cea327f42084a35ca"
+        "digest": "5ec709e94be73a33e690155759dc5044d3ae9ad90c6b38ca3714757ba2fcd19e"
       },
       "cli": {
         "keys": 199,
@@ -431,14 +431,14 @@
     },
     "pt-BR": {
       "ui": {
-        "keys": 5852,
-        "target": 5852,
+        "keys": 5853,
+        "target": 5853,
         "missing": [],
         "extra": [],
         "broken": [],
         "technical": [],
         "suspicious": [],
-        "digest": "9092bc4e28872d4e29395c28c0975b383713ce57dcaaa3dc061c73ee71907727"
+        "digest": "5ee03c229e7709794d1febfcc17d11dd3654e8743f360d698cb0c2845c0acdcb"
       },
       "cli": {
         "keys": 199,
@@ -473,14 +473,14 @@
     },
     "nl-NL": {
       "ui": {
-        "keys": 5852,
-        "target": 5852,
+        "keys": 5853,
+        "target": 5853,
         "missing": [],
         "extra": [],
         "broken": [],
         "technical": [],
         "suspicious": [],
-        "digest": "0ff5f16fae9738a7f62037b962fa3c33b5f0b5b9872d905b8eaa8e138b8f628a"
+        "digest": "db524a331c84ca85a7bc403d36c9e0a257e310402fb7cfb370c6cba10b5ba440"
       },
       "cli": {
         "keys": 199,
@@ -515,14 +515,14 @@
     },
     "pl-PL": {
       "ui": {
-        "keys": 5852,
-        "target": 5852,
+        "keys": 5853,
+        "target": 5853,
         "missing": [],
         "extra": [],
         "broken": [],
         "technical": [],
         "suspicious": [],
-        "digest": "92c725e38255a62942e2100b29f027ab6abf110d777ab95217152c49ad881b0e"
+        "digest": "f00cf9b1601679c02b965214d1332f1a0c9fd1744d7fc9b74165f77ae9c9713d"
       },
       "cli": {
         "keys": 199,
@@ -557,14 +557,14 @@
     },
     "sv-SE": {
       "ui": {
-        "keys": 5852,
-        "target": 5852,
+        "keys": 5853,
+        "target": 5853,
         "missing": [],
         "extra": [],
         "broken": [],
         "technical": [],
         "suspicious": [],
-        "digest": "027ca54d0ad6e01091609b618093b177b1ca117e7bbb8c807674b76f60c818bd"
+        "digest": "b570c44b76233305065bc47d136bf82d4ca6a3297194c906e90015ea13ecca07"
       },
       "cli": {
         "keys": 199,
@@ -599,14 +599,14 @@
     },
     "da-DK": {
       "ui": {
-        "keys": 5852,
-        "target": 5852,
+        "keys": 5853,
+        "target": 5853,
         "missing": [],
         "extra": [],
         "broken": [],
         "technical": [],
         "suspicious": [],
-        "digest": "170564b4e0cef677d5fcd1711c969fe518767623c58e585dc84f63a62d9b58fd"
+        "digest": "15de05194b86ed7ea5da2e51a947de555e4fff03c811ccfd2a06c079196b5e9d"
       },
       "cli": {
         "keys": 199,
@@ -641,14 +641,14 @@
     },
     "fi-FI": {
       "ui": {
-        "keys": 5852,
-        "target": 5852,
+        "keys": 5853,
+        "target": 5853,
         "missing": [],
         "extra": [],
         "broken": [],
         "technical": [],
         "suspicious": [],
-        "digest": "459e0538751c1ed1e315cf37aeeb6ae97df385989d7af776360392b25a840a92"
+        "digest": "13c933dad26af5ac53321a16a5511f1beb3e83ab98b7ec75077be81b372b1229"
       },
       "cli": {
         "keys": 199,
@@ -683,14 +683,14 @@
     },
     "nb-NO": {
       "ui": {
-        "keys": 5852,
-        "target": 5852,
+        "keys": 5853,
+        "target": 5853,
         "missing": [],
         "extra": [],
         "broken": [],
         "technical": [],
         "suspicious": [],
-        "digest": "663d6c8e67c156ab1c0ec97ebae6efc078ff4c9b10b6c385a66077e2cca56609"
+        "digest": "c06320310f904a438ba2bbd3f4fb371187b1b0d65dbace3402b43107ac0f1ccd"
       },
       "cli": {
         "keys": 199,
@@ -725,14 +725,14 @@
     },
     "ko-KR": {
       "ui": {
-        "keys": 5852,
-        "target": 5852,
+        "keys": 5853,
+        "target": 5853,
         "missing": [],
         "extra": [],
         "broken": [],
         "technical": [],
         "suspicious": [],
-        "digest": "384bc36c0292e28033da6c68e1b6cdb6832a832475e2469f7498f57ebb3f5d91"
+        "digest": "ef13a00b497647dd1892c34ec7104a2283731b48de41bf585d10c148c3287abf"
       },
       "cli": {
         "keys": 199,
@@ -767,14 +767,14 @@
     },
     "th-TH": {
       "ui": {
-        "keys": 5852,
-        "target": 5852,
+        "keys": 5853,
+        "target": 5853,
         "missing": [],
         "extra": [],
         "broken": [],
         "technical": [],
         "suspicious": [],
-        "digest": "d9754e1d46b03ea1e7f545d81d905b499932e385bee306e5957ce4b6138363dd"
+        "digest": "f881550c9b4b85ea9bd640a67c08eb5a6fa31e8078def43bda6d655b1072eca0"
       },
       "cli": {
         "keys": 199,
@@ -809,14 +809,14 @@
     },
     "vi-VN": {
       "ui": {
-        "keys": 5852,
-        "target": 5852,
+        "keys": 5853,
+        "target": 5853,
         "missing": [],
         "extra": [],
         "broken": [],
         "technical": [],
         "suspicious": [],
-        "digest": "6a21999bd2455d6cfe6ca3f225a939c9175b3c7748f408f3797c8b321a93623e"
+        "digest": "206f0791484f8e3ee633f6229c90ab3f8e1adbbe70bd718b6e36b3ee26ef2736"
       },
       "cli": {
         "keys": 199,
@@ -851,14 +851,14 @@
     },
     "ar-SA": {
       "ui": {
-        "keys": 5852,
-        "target": 5852,
+        "keys": 5853,
+        "target": 5853,
         "missing": [],
         "extra": [],
         "broken": [],
         "technical": [],
         "suspicious": [],
-        "digest": "912df95d69868fb9783061befb8bcd49bffc2d4a678c451d4c3817ddad7af72f"
+        "digest": "6538eb1d35cbe8f10747138d91c463e0d1381352f8a3c7458978c7ab3a29b009"
       },
       "cli": {
         "keys": 199,
@@ -893,14 +893,14 @@
     },
     "he-IL": {
       "ui": {
-        "keys": 5852,
-        "target": 5852,
+        "keys": 5853,
+        "target": 5853,
         "missing": [],
         "extra": [],
         "broken": [],
         "technical": [],
         "suspicious": [],
-        "digest": "17ffb1ea9740991a5efb873d1e1583477b1830a1fff5fec234584a7df924c1a3"
+        "digest": "6cf8123bbe5d474ae9983315ad95078a0acff36c412abf7f2118ef043674e236"
       },
       "cli": {
         "keys": 199,
@@ -935,14 +935,14 @@
     },
     "tr-TR": {
       "ui": {
-        "keys": 5852,
-        "target": 5852,
+        "keys": 5853,
+        "target": 5853,
         "missing": [],
         "extra": [],
         "broken": [],
         "technical": [],
         "suspicious": [],
-        "digest": "8c715314009e033fbcb10de667383706dfa99578f38f63b36ea7c1ea41efe089"
+        "digest": "124d6cab96adb15b98caf750636a05dd3e11a8d8add47b8a559145db376f8595"
       },
       "cli": {
         "keys": 199,
@@ -977,14 +977,14 @@
     },
     "hi-IN": {
       "ui": {
-        "keys": 5852,
-        "target": 5852,
+        "keys": 5853,
+        "target": 5853,
         "missing": [],
         "extra": [],
         "broken": [],
         "technical": [],
         "suspicious": [],
-        "digest": "5fd962ace1f3aae67c8874e1015c35b6fc6dd6301c6cfd989d1e3aff84832c66"
+        "digest": "26747369b690124d75821e6c6494683b9869650075eec3e9ff006324be96588e"
       },
       "cli": {
         "keys": 199,
@@ -1019,14 +1019,14 @@
     },
     "id-ID": {
       "ui": {
-        "keys": 5852,
-        "target": 5852,
+        "keys": 5853,
+        "target": 5853,
         "missing": [],
         "extra": [],
         "broken": [],
         "technical": [],
         "suspicious": [],
-        "digest": "82b0929a7647a0e7f5dab5e684364b93774a7444caca51140839c571cd7878d7"
+        "digest": "ecb680e80d5fa89a24d38bab01af3f92cdeb66c0461167d4e0bf444bc35c8acf"
       },
       "cli": {
         "keys": 199,
@@ -1061,14 +1061,14 @@
     },
     "el-GR": {
       "ui": {
-        "keys": 5852,
-        "target": 5852,
+        "keys": 5853,
+        "target": 5853,
         "missing": [],
         "extra": [],
         "broken": [],
         "technical": [],
         "suspicious": [],
-        "digest": "4a28cefde28443703b477a11bb976c612601bf11a327c7ad84242b3163e5a383"
+        "digest": "215972ce3c31def2c9dab9fe6a47559f991f9f1b77a96022f8d4a692f316a786"
       },
       "cli": {
         "keys": 199,
@@ -1103,14 +1103,14 @@
     },
     "cs-CZ": {
       "ui": {
-        "keys": 5852,
-        "target": 5852,
+        "keys": 5853,
+        "target": 5853,
         "missing": [],
         "extra": [],
         "broken": [],
         "technical": [],
         "suspicious": [],
-        "digest": "d9b60344a620309f534c6112428fb08d2c23af4daa41a986c427701eaa22d331"
+        "digest": "66174ba9ca44d173357776c098ccdb13dbf7ec025aeebf6f36c43be2e3040959"
       },
       "cli": {
         "keys": 199,
@@ -1145,14 +1145,14 @@
     },
     "ro-RO": {
       "ui": {
-        "keys": 5852,
-        "target": 5852,
+        "keys": 5853,
+        "target": 5853,
         "missing": [],
         "extra": [],
         "broken": [],
         "technical": [],
         "suspicious": [],
-        "digest": "a12b964a7f3a05bbfb3f53419600d720acb875d00fdebf44b134378179ed4223"
+        "digest": "59e0571b02450139f40763af97e0ef2981fa71417a06ae4ac674734cfdf50aa4"
       },
       "cli": {
         "keys": 199,
@@ -1187,14 +1187,14 @@
     },
     "hu-HU": {
       "ui": {
-        "keys": 5852,
-        "target": 5852,
+        "keys": 5853,
+        "target": 5853,
         "missing": [],
         "extra": [],
         "broken": [],
         "technical": [],
         "suspicious": [],
-        "digest": "815606f3a6e64775d4e48dc5b287ce8b885b9f629ff7efda900f042cc4b91680"
+        "digest": "5672e3530e2e0ce9343533d6c0e45dc79c4afcd4a59e9af322f32279ea6ccb6a"
       },
       "cli": {
         "keys": 199,
@@ -1229,14 +1229,14 @@
     },
     "bg-BG": {
       "ui": {
-        "keys": 5852,
-        "target": 5852,
+        "keys": 5853,
+        "target": 5853,
         "missing": [],
         "extra": [],
         "broken": [],
         "technical": [],
         "suspicious": [],
-        "digest": "eb9a98d42f9e6cba39c9b2fbfb7ec08666e70959985c1d76437efec1d5705cda"
+        "digest": "114e8da334b747d36f318c0d3c4396e773d317364bbdd2f8f0f3fd498f1c8e14"
       },
       "cli": {
         "keys": 199,
@@ -1271,14 +1271,14 @@
     },
     "sk-SK": {
       "ui": {
-        "keys": 5852,
-        "target": 5852,
+        "keys": 5853,
+        "target": 5853,
         "missing": [],
         "extra": [],
         "broken": [],
         "technical": [],
         "suspicious": [],
-        "digest": "b4670053ad063723d9c07ef1056acaca5c420f161835af755c9ae8980145746d"
+        "digest": "1c89ddd489558b63b86ff7aeb6f732f300fb36fafd36e23f920d40e676bb3ddd"
       },
       "cli": {
         "keys": 199,
@@ -1313,14 +1313,14 @@
     },
     "hr-HR": {
       "ui": {
-        "keys": 5852,
-        "target": 5852,
+        "keys": 5853,
+        "target": 5853,
         "missing": [],
         "extra": [],
         "broken": [],
         "technical": [],
         "suspicious": [],
-        "digest": "0a6cd590e0c426b0a5383aa5076d02d58d3dc7d06b8be34d501150585f53b37a"
+        "digest": "d1fad6b790f3ee1d78db167a45bb5b9c950af6a2294ab43860cb8e7716724b5a"
       },
       "cli": {
         "keys": 199,

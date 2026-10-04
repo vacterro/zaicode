@@ -1,0 +1,18 @@
+{
+  "schema": "t192-packaged/1",
+  "at": "2026-10-03T14:08:21.680Z",
+  "executable": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\dist-test-20261003-t192\\win-unpacked.rejected-20261003134032\\ZAICODE.exe",
+  "broker": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\dist-test-20261003-t192\\win-unpacked.rejected-20261003134032\\resources\\app.asar\\out\\host\\workerTerminalBroker.js",
+  "factory": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\dist-test-20261003-t192\\win-unpacked.rejected-20261003134032\\resources\\app.asar\\out\\host\\workerTerminalProcess.js",
+  "scratch": "V:\\_TEMP_\\zaicode-t192-packaged-BIhYz6",
+  "appAsarSha256": "48026671d76d910d8a01297e652c3929036708203ed6cfa532f119f48e40ad6d",
+  "verifier": "53952960d68becd1dccba298180dd9c6c3e6b12761eda810cf269f1bc11232f1",
+  "checks": [
+    {
+      "name": "packaged native instrument completed",
+      "pass": false,
+      "detail": "Error: Timed out: packaged broker attachment () node:internal/modules/esm/resolve:279\r\n    throw new ERR_MODULE_NOT_FOUND(\r\n          ^\r\n\r\nError [ERR_MODULE_NOT_FOUND]: Cannot find module 'V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\dist-test-20261003-t192\\win-unpacked.rejected-20261003134032\\resources\\app.asar\\out\\host\\workerTerminalProcess.js' imported from V:\\_TEMP_\\zaicode-t192-packaged-BIhYz6\\host.mjs\r\n    at finalizeResolution (node:internal/modules/esm/resolve:279:11)\r\n    at moduleResolve (node:internal/modules/esm/resolve:877:10)\r\n    at defaultResolve (node:internal/modules/esm/resolve:1003:11)\r\n    at #cachedDefaultResolve (node:internal/modules/esm/loader:719:20)\r\n    at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:736:38)\r\n    at ModuleLoader.resolveSync (node:internal/modules/esm/loader:765:52)\r\n    at #resolve (node:internal/modules/esm/loader:701:17)\r\n    at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:621:35)\r\n    at ModuleJob.syncLink (node:internal/modules/esm/module_job:160:33)\r\n    at ModuleJob.link (node:internal/modules/esm/module_job:245:17) {\r\n  code: 'ERR_MODULE_NOT_FOUND',\r\n  url: 'file:///V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/packages/desktop/dist-test-20261003-t192/win-unpacked.rejected-20261003134032/resources/app.asar/out/host/workerTerminalProcess.js'\r\n}\r\n\r\nNode.js v24.14.0\r\n"
+    }
+  ],
+  "pass": false
+}

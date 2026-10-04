@@ -1,0 +1,187 @@
+{
+  "checks": [
+    {
+      "name": "normal authoritative duration",
+      "actual": "Working for 2h 35m",
+      "expected": "Working for 2h 35m",
+      "pass": true
+    },
+    {
+      "name": "restored authoritative duration",
+      "actual": "Working for 2h 35m",
+      "expected": "Working for 2h 35m",
+      "pass": true
+    },
+    {
+      "name": "detached authoritative duration",
+      "actual": "Working for 2h 35m",
+      "expected": "Working for 2h 35m",
+      "pass": true
+    },
+    {
+      "name": "very fresh established start",
+      "actual": "Working for 1s",
+      "expected": "Working for 1s",
+      "pass": true
+    },
+    {
+      "name": "missing neutral chat label",
+      "actual": "Working",
+      "expected": "Working",
+      "pass": true
+    },
+    {
+      "name": "missing neutral shared label",
+      "actual": "Working",
+      "expected": "Working",
+      "pass": true
+    },
+    {
+      "name": "zero neutral chat label",
+      "actual": "Working",
+      "expected": "Working",
+      "pass": true
+    },
+    {
+      "name": "zero neutral shared label",
+      "actual": "Working",
+      "expected": "Working",
+      "pass": true
+    },
+    {
+      "name": "negative neutral chat label",
+      "actual": "Working",
+      "expected": "Working",
+      "pass": true
+    },
+    {
+      "name": "negative neutral shared label",
+      "actual": "Working",
+      "expected": "Working",
+      "pass": true
+    },
+    {
+      "name": "nan neutral chat label",
+      "actual": "Working",
+      "expected": "Working",
+      "pass": true
+    },
+    {
+      "name": "nan neutral shared label",
+      "actual": "Working",
+      "expected": "Working",
+      "pass": true
+    },
+    {
+      "name": "infinite neutral chat label",
+      "actual": "Working",
+      "expected": "Working",
+      "pass": true
+    },
+    {
+      "name": "infinite neutral shared label",
+      "actual": "Working",
+      "expected": "Working",
+      "pass": true
+    },
+    {
+      "name": "future neutral chat label",
+      "actual": "Working",
+      "expected": "Working",
+      "pass": true
+    },
+    {
+      "name": "future neutral shared label",
+      "actual": "Working",
+      "expected": "Working",
+      "pass": true
+    },
+    {
+      "name": "reported zero remains a known duration",
+      "actual": "Working for 1s",
+      "expected": "Working for 1s",
+      "pass": true
+    },
+    {
+      "name": "completed work remains terminal",
+      "actual": "Worked for 2h 35m",
+      "expected": "Worked for 2h 35m",
+      "pass": true
+    },
+    {
+      "name": "interrupted work remains terminal",
+      "actual": "Stopped · 2h 35m",
+      "expected": "Stopped · 2h 35m",
+      "pass": true
+    },
+    {
+      "name": "idle work has no Working label",
+      "actual": "Worked",
+      "expected": "Worked",
+      "pass": true
+    },
+    {
+      "name": "known active duration advances",
+      "actual": "Working for 2h 36m",
+      "expected": "Working for 2h 36m",
+      "pass": true
+    },
+    {
+      "name": "unknown start stays unknown after ticks",
+      "actual": "Working",
+      "expected": "Working",
+      "pass": true
+    },
+    {
+      "name": "completed duration stays frozen",
+      "actual": "Worked for 2h 35m",
+      "expected": "Worked for 2h 35m",
+      "pass": true
+    },
+    {
+      "name": "display clock never rerenders work rows",
+      "actual": 26,
+      "expected": 26,
+      "pass": true
+    },
+    {
+      "name": "restarted renderer retains actual start",
+      "actual": "Working for 2h 36m",
+      "expected": "Working for 2h 36m",
+      "pass": true
+    },
+    {
+      "name": "restarted renderer creates no missing start",
+      "actual": "Working",
+      "expected": "Working",
+      "pass": true
+    },
+    {
+      "name": "narrow layout has no overflow",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "neutral label is localized",
+      "actual": "Töötab",
+      "expected": "Töötab",
+      "pass": true
+    },
+    {
+      "name": "localized shared label matches",
+      "actual": "Töötab",
+      "expected": "Töötab",
+      "pass": true
+    },
+    {
+      "name": "page errors",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    }
+  ],
+  "errors": [],
+  "pass": true,
+  "verifierSha256": "eccd050f10165a8ada4cfb82c40ddc3c319e5ec91ecaa13550e9d7ef623a9a17"
+}

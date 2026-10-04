@@ -1,5 +1,8 @@
 {
   "linked_work": "T-164",
+  "linked_works": [
+    "T-188"
+  ],
   "receipt_id": "SRC-116",
   "received_at": "2026-10-01T18:41:41Z",
   "redaction": {

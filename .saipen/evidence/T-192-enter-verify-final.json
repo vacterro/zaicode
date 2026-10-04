@@ -1,0 +1,15 @@
+{
+  "ok": true,
+  "code": "TRANSITIONED",
+  "op_id": "transition-cd6da5dac82f4195a6d9461816c43f4f",
+  "changed_files": [
+    ".saipen/LOG.md",
+    ".saipen/BOARD.md",
+    ".saipen/STATE.md"
+  ],
+  "recovery_required": false,
+  "phase": "VERIFY",
+  "next_action": "PHASE VERIFY T-192",
+  "event_id": "E-3135",
+  "ticket": "T-192"
+}

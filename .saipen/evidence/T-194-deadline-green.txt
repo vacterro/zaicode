@@ -1,0 +1,15 @@
+apps/zcode-cli                           |  WARN  Unsupported engine: wanted: {"node":"24.14.0"} (current: {"node":"v24.15.0","pnpm":"10.33.2"})
+✔ actual continuation executor persists one dispatch, delays vendor limit handoff and routes the exact SAIFREN model (9.0445ms)
+✔ restart reuses the persisted worker lease and terminal identity; completion consumes no later runner (0.8276ms)
+✔ pause and project disable block real effects; active occurrences are never evicted or duplicated (1.5354ms)
+✔ a later operator execution prevents the scheduled return from stopping or relaunching it (1.3336ms)
+✔ overlapping ticks cannot launch two workers while the first effect is pending (20.0339ms)
+✔ slow preparation cannot launch beyond the configured schedule stop time (2.6596ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1848.4631

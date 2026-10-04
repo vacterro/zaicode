@@ -1,0 +1,5 @@
+The filename, directory name, or volume label syntax is incorrect.
+undefined
+ ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL  Command "build:desktop:zaicode" not found
+
+Did you mean "pnpm build:desktop-agent:bytecode"?

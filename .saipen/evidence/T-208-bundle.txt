@@ -1,0 +1,386 @@
+
+> zcode@3.14.0 bundle:zaicode V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode
+> node scripts/bundle-zaicode.mjs "--" "--skip-build"
+
+(node:12948) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+[WARN] The "pnpm" field in package.json is no longer read by pnpm. The following keys were ignored: "pnpm.overrides", "pnpm.patchedDependencies". See https://pnpm.io/settings for the new home of each setting.
+apps/zcode-cli                           |  WARN  Unsupported engine: wanted: {"node":"24.14.0"} (current: {"node":"v24.15.0","pnpm":"10.33.2"})
+
+> @zcode/desktop@ bundle V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\desktop
+> node scripts/bundle.mjs "--" "--os" "win" "--arch" "x64" "--" "--skip-build"
+
+[bundle] target=win/x64
+[bundle] skipPrepare=false skipBuild=true
+[bundle] > pnpm prepare:runtime-assets
+../../apps/zcode-cli                     |  WARN  Unsupported engine: wanted: {"node":"24.14.0"} (current: {"node":"v24.15.0","pnpm":"10.33.2"})
+
+> @zcode/desktop@ prepare:runtime-assets V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\desktop
+> node scripts/prepare-runtime-assets.mjs
+
+[ci][timer] prepare-runtime-assets:prepare:remote-assets start
+../../apps/zcode-cli                     |  WARN  Unsupported engine: wanted: {"node":"24.14.0"} (current: {"node":"v24.15.0","pnpm":"10.33.2"})
+
+> @zcode/desktop@ prepare:remote-assets V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\desktop
+> node ../../scripts/prepare-prebuilds.mjs
+
+==> Preparing mock CDN release in V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\desktop\mock-cdn\releases\3.14.0
+  [skip] mock-cdn node/linux-arm64 already exists
+  [skip] mock-cdn node/linux-x64 already exists
+  [skip] mock-cdn node/darwin-arm64 already exists
+  [skip] mock-cdn node/darwin-x64 already exists
+==> Building server bundle
+../../apps/zcode-cli                     |  WARN  Unsupported engine: wanted: {"node":"24.14.0"} (current: {"node":"v24.15.0","pnpm":"10.33.2"})
+
+> @zcode/server@ build:remote V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\server
+> tsx build-remote.ts
+
+Built dist/remote/zcode-server.cjs
+  [ok] mock-cdn server/zcode-server.cjs
+==> Copying node-pty prebuilds from @lydell/node-pty
+  [skip] mock-cdn node-pty/linux-arm64 already exists
+  [skip] mock-cdn node-pty/linux-x64 already exists
+  [skip] mock-cdn node-pty/darwin-arm64 already exists
+  [skip] mock-cdn node-pty/darwin-x64 already exists
+==> Building zcode-cli bundle for remote agents
+apps/zcode-cli                           |  WARN  Unsupported engine: wanted: {"node":"24.14.0"} (current: {"node":"v24.15.0","pnpm":"10.33.2"})
+
+> @zcode/shared-types@0.1.0 build V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\shared-types
+> tsc
+
+apps/zcode-cli                           |  WARN  Unsupported engine: wanted: {"node":"24.14.0"} (current: {"node":"v24.15.0","pnpm":"10.33.2"})
+
+> @zcode/contracts@0.1.0 build V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\contracts
+> tsc
+
+apps/zcode-cli                           |  WARN  Unsupported engine: wanted: {"node":"24.14.0"} (current: {"node":"v24.15.0","pnpm":"10.33.2"})
+
+> @zcode/dynamic-workflow@0.1.0 build V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\dynamic-workflow
+> node scripts/generate-libs.mjs && tsc
+
+apps/zcode-cli                           |  WARN  Unsupported engine: wanted: {"node":"24.14.0"} (current: {"node":"v24.15.0","pnpm":"10.33.2"})
+
+> @zcode/dynamic-workflow-runtime@0.1.0 build V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\dynamic-workflow-runtime
+> tsc
+
+apps/zcode-cli                           |  WARN  Unsupported engine: wanted: {"node":"24.14.0"} (current: {"node":"v24.15.0","pnpm":"10.33.2"})
+
+> @zcode/core@0.1.0 build V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\core
+> tsc
+
+apps/zcode-cli                           |  WARN  Unsupported engine: wanted: {"node":"24.14.0"} (current: {"node":"v24.15.0","pnpm":"10.33.2"})
+
+> @zcode/adapters@0.1.0 build V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\adapters
+> tsc
+
+apps/zcode-cli                           |  WARN  Unsupported engine: wanted: {"node":"24.14.0"} (current: {"node":"v24.15.0","pnpm":"10.33.2"})
+
+> @zcode/i18n@0.1.0 build V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\i18n
+> tsc
+
+apps/zcode-cli                           |  WARN  Unsupported engine: wanted: {"node":"24.14.0"} (current: {"node":"v24.15.0","pnpm":"10.33.2"})
+
+> @zcode/telemetry@0.1.0 build V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\telemetry
+> tsc
+
+apps/zcode-cli                           |  WARN  Unsupported engine: wanted: {"node":"24.14.0"} (current: {"node":"v24.15.0","pnpm":"10.33.2"})
+
+> @zcode/bootstrap@0.1.0 build V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\bootstrap
+> tsc
+
+apps/zcode-cli                           |  WARN  Unsupported engine: wanted: {"node":"24.14.0"} (current: {"node":"v24.15.0","pnpm":"10.33.2"})
+
+> @zcode/node-repl-host@0.6.0 build V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\node-repl-host
+> tsc && node scripts/build.mjs
+
+[node-repl-host] V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\node-repl-host\dist\mcp\server.js
+apps/zcode-cli                           |  WARN  Unsupported engine: wanted: {"node":"24.14.0"} (current: {"node":"v24.15.0","pnpm":"10.33.2"})
+
+> @zcode/browser-use-plugin@0.5.1 build V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\browser-use-plugin
+> tsc && node scripts/build.mjs
+
+(node:18876) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+apps/zcode-cli                           |  WARN  Unsupported engine: wanted: {"node":"24.14.0"} (current: {"node":"v24.15.0","pnpm":"10.33.2"})
+
+> @zcode/cli@0.1.0 build:desktop-agent V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\cli
+> node scripts/build.mjs --desktop-agent
+
+
+  dist\zcode.cjs  17.1mb
+
+Done in 845ms
+[stage:agent-bundle] staged V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\desktop\bundled-agents\win32-x64\glm\zcode.cjs
+==> Building remote official plugin runtime: @zcode/browser-use-plugin
+.                                        |  WARN  Unsupported engine: wanted: {"node":"24.14.0"} (current: {"node":"v24.15.0","pnpm":"10.33.2"})
+
+> @zcode/browser-use-plugin@0.5.1 build V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\browser-use-plugin
+> tsc && node scripts/build.mjs
+
+==> Building remote official plugin runtime: @zcode/node-repl-host
+.                                        |  WARN  Unsupported engine: wanted: {"node":"24.14.0"} (current: {"node":"v24.15.0","pnpm":"10.33.2"})
+
+> @zcode/node-repl-host@0.6.0 build V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\node-repl-host
+> tsc && node scripts/build.mjs
+
+[node-repl-host] V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\node-repl-host\dist\mcp\server.js
+  [ok] mock-cdn glm official plugin packages/browser-use-plugin
+  [ok] mock-cdn glm official plugin packages/node-repl-host
+  [ok] mock-cdn glm/linux-arm64/zcode.cjs
+  [ok] mock-cdn glm official plugin packages/browser-use-plugin
+  [ok] mock-cdn glm official plugin packages/node-repl-host
+  [ok] mock-cdn glm/linux-x64/zcode.cjs
+  [ok] mock-cdn glm official plugin packages/browser-use-plugin
+  [ok] mock-cdn glm official plugin packages/node-repl-host
+  [ok] mock-cdn glm/darwin-arm64/zcode.cjs
+  [ok] mock-cdn glm official plugin packages/browser-use-plugin
+  [ok] mock-cdn glm official plugin packages/node-repl-host
+  [ok] mock-cdn glm/darwin-x64/zcode.cjs
+==> Preparing local native search binaries for remote platforms
+==> Preparing native search tools from repository archives
+    platform: linux-arm64
+    target:   V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\desktop\mock-cdn\releases\3.14.0\tools\linux-arm64
+    [skip] bfs v4.1.1-2 已存在
+    [skip] ugrep v7.8.4-1 已存在
+    [skip] ripgrep v14.1.1-1 已存在
+(node:11864) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+==> Done! native search tools (linux-arm64) -> V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\desktop\mock-cdn\releases\3.14.0\tools\linux-arm64
+==> Preparing native search tools from repository archives
+    platform: linux-x64
+    target:   V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\desktop\mock-cdn\releases\3.14.0\tools\linux-x64
+    [skip] bfs v4.1.1-2 已存在
+    [skip] ugrep v7.8.4-1 已存在
+    [skip] ripgrep v14.1.1-1 已存在
+==> Done! native search tools (linux-x64) -> V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\desktop\mock-cdn\releases\3.14.0\tools\linux-x64
+==> Preparing native search tools from repository archives
+    platform: darwin-arm64
+    target:   V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\desktop\mock-cdn\releases\3.14.0\tools\darwin-arm64
+    [skip] ripgrep v13.0.0-10 已存在
+==> Done! native search tools (darwin-arm64) -> V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\desktop\mock-cdn\releases\3.14.0\tools\darwin-arm64
+==> Preparing native search tools from repository archives
+    platform: darwin-x64
+    target:   V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\desktop\mock-cdn\releases\3.14.0\tools\darwin-x64
+    [skip] ripgrep v13.0.0-10 已存在
+==> Done! native search tools (darwin-x64) -> V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\desktop\mock-cdn\releases\3.14.0\tools\darwin-x64
+==> Packaging component artifacts and manifests
+  [component] server-bundle linux-arm64 -> components/linux-arm64/server-bundle/v3.14.0+188183c88c5e.tar.gz
+  [skip] component node-runtime linux-arm64 unchanged
+  [skip] component node-pty linux-arm64 unchanged
+  [component] glm linux-arm64 -> components/linux-arm64/glm/v0.13.3+a3cd35353a88.tar.gz
+  [skip] component bfs linux-arm64 unchanged
+  [skip] component ripgrep linux-arm64 unchanged
+  [skip] component ugrep linux-arm64 unchanged
+  [ok] mock-cdn releases/3.14.0/manifest-linux-arm64.json
+  [component] server-bundle linux-x64 -> components/linux-x64/server-bundle/v3.14.0+188183c88c5e.tar.gz
+  [skip] component node-runtime linux-x64 unchanged
+  [skip] component node-pty linux-x64 unchanged
+  [component] glm linux-x64 -> components/linux-x64/glm/v0.13.3+a3cd35353a88.tar.gz
+  [skip] component bfs linux-x64 unchanged
+  [skip] component ripgrep linux-x64 unchanged
+  [skip] component ugrep linux-x64 unchanged
+  [ok] mock-cdn releases/3.14.0/manifest-linux-x64.json
+  [component] server-bundle darwin-arm64 -> components/darwin-arm64/server-bundle/v3.14.0+188183c88c5e.tar.gz
+  [skip] component node-runtime darwin-arm64 unchanged
+  [skip] component node-pty darwin-arm64 unchanged
+  [component] glm darwin-arm64 -> components/darwin-arm64/glm/v0.13.3+a3cd35353a88.tar.gz
+  [skip] component ripgrep darwin-arm64 unchanged
+  [ok] mock-cdn releases/3.14.0/manifest-darwin-arm64.json
+  [component] server-bundle darwin-x64 -> components/darwin-x64/server-bundle/v3.14.0+188183c88c5e.tar.gz
+  [skip] component node-runtime darwin-x64 unchanged
+  [skip] component node-pty darwin-x64 unchanged
+  [component] glm darwin-x64 -> components/darwin-x64/glm/v0.13.3+a3cd35353a88.tar.gz
+  [skip] component ripgrep darwin-x64 unchanged
+  [ok] mock-cdn releases/3.14.0/manifest-darwin-x64.json
+==> Done! Mock CDN release ready at V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\desktop\mock-cdn\releases\3.14.0
+[ci][timer] prepare-runtime-assets:prepare:remote-assets end duration_ms=66447
+[ci][timer] prepare-runtime-assets:prepare:agent-bundle start
+../../apps/zcode-cli                     |  WARN  Unsupported engine: wanted: {"node":"24.14.0"} (current: {"node":"v24.15.0","pnpm":"10.33.2"})
+
+> @zcode/desktop@ prepare:agent-bundle V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\desktop
+> node scripts/prepare-agent-node-bundle.mjs
+
+[prepare:agent-bundle] building zcode-cli app-server bundle ...
+apps/zcode-cli                           |  WARN  Unsupported engine: wanted: {"node":"24.14.0"} (current: {"node":"v24.15.0","pnpm":"10.33.2"})
+
+> @zcode/shared-types@0.1.0 build V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\shared-types
+> tsc
+
+apps/zcode-cli                           |  WARN  Unsupported engine: wanted: {"node":"24.14.0"} (current: {"node":"v24.15.0","pnpm":"10.33.2"})
+
+> @zcode/contracts@0.1.0 build V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\contracts
+> tsc
+
+apps/zcode-cli                           |  WARN  Unsupported engine: wanted: {"node":"24.14.0"} (current: {"node":"v24.15.0","pnpm":"10.33.2"})
+
+> @zcode/dynamic-workflow@0.1.0 build V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\dynamic-workflow
+> node scripts/generate-libs.mjs && tsc
+
+apps/zcode-cli                           |  WARN  Unsupported engine: wanted: {"node":"24.14.0"} (current: {"node":"v24.15.0","pnpm":"10.33.2"})
+
+> @zcode/dynamic-workflow-runtime@0.1.0 build V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\dynamic-workflow-runtime
+> tsc
+
+apps/zcode-cli                           |  WARN  Unsupported engine: wanted: {"node":"24.14.0"} (current: {"node":"v24.15.0","pnpm":"10.33.2"})
+
+> @zcode/core@0.1.0 build V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\core
+> tsc
+
+apps/zcode-cli                           |  WARN  Unsupported engine: wanted: {"node":"24.14.0"} (current: {"node":"v24.15.0","pnpm":"10.33.2"})
+
+> @zcode/adapters@0.1.0 build V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\adapters
+> tsc
+
+apps/zcode-cli                           |  WARN  Unsupported engine: wanted: {"node":"24.14.0"} (current: {"node":"v24.15.0","pnpm":"10.33.2"})
+
+> @zcode/i18n@0.1.0 build V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\i18n
+> tsc
+
+apps/zcode-cli                           |  WARN  Unsupported engine: wanted: {"node":"24.14.0"} (current: {"node":"v24.15.0","pnpm":"10.33.2"})
+
+> @zcode/telemetry@0.1.0 build V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\telemetry
+> tsc
+
+apps/zcode-cli                           |  WARN  Unsupported engine: wanted: {"node":"24.14.0"} (current: {"node":"v24.15.0","pnpm":"10.33.2"})
+
+> @zcode/bootstrap@0.1.0 build V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\bootstrap
+> tsc
+
+apps/zcode-cli                           |  WARN  Unsupported engine: wanted: {"node":"24.14.0"} (current: {"node":"v24.15.0","pnpm":"10.33.2"})
+
+> @zcode/node-repl-host@0.6.0 build V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\node-repl-host
+> tsc && node scripts/build.mjs
+
+[node-repl-host] V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\node-repl-host\dist\mcp\server.js
+apps/zcode-cli                           |  WARN  Unsupported engine: wanted: {"node":"24.14.0"} (current: {"node":"v24.15.0","pnpm":"10.33.2"})
+
+> @zcode/browser-use-plugin@0.5.1 build V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\browser-use-plugin
+> tsc && node scripts/build.mjs
+
+(node:14148) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+apps/zcode-cli                           |  WARN  Unsupported engine: wanted: {"node":"24.14.0"} (current: {"node":"v24.15.0","pnpm":"10.33.2"})
+
+> @zcode/cli@0.1.0 build:desktop-agent V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\cli
+> node scripts/build.mjs --desktop-agent
+
+
+  dist\zcode.cjs  17.1mb
+
+Done in 950ms
+[stage:agent-bundle] staged V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\desktop\bundled-agents\win32-x64\glm\zcode.cjs
+[prepare:agent-bundle] building @zcode/browser-use-plugin runtime ...
+.                                        |  WARN  Unsupported engine: wanted: {"node":"24.14.0"} (current: {"node":"v24.15.0","pnpm":"10.33.2"})
+
+> @zcode/browser-use-plugin@0.5.1 build V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\browser-use-plugin
+> tsc && node scripts/build.mjs
+
+[prepare:agent-bundle] building @zcode/node-repl-host runtime ...
+.                                        |  WARN  Unsupported engine: wanted: {"node":"24.14.0"} (current: {"node":"v24.15.0","pnpm":"10.33.2"})
+
+> @zcode/node-repl-host@0.6.0 build V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\node-repl-host
+> tsc && node scripts/build.mjs
+
+[node-repl-host] V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\node-repl-host\dist\mcp\server.js
+[stage:agent-bundle] staged V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\desktop\bundled-agents\win32-x64\glm\zcode.cjs
+[prepare:agent-bundle] staged official plugin packages/browser-use-plugin
+[prepare:agent-bundle] staged official plugin packages/node-repl-host
+(node:12124) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+[ci][timer] prepare-runtime-assets:prepare:agent-bundle end duration_ms=60589
+[ci][timer] prepare-runtime-assets:prepare:native-search start
+../../apps/zcode-cli                     |  WARN  Unsupported engine: wanted: {"node":"24.14.0"} (current: {"node":"v24.15.0","pnpm":"10.33.2"})
+
+> @zcode/desktop@ prepare:native-search V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\desktop
+> node ../../scripts/prepare-native-search-tools.mjs
+
+==> Preparing native search tools from repository archives
+    platform: win32-x64
+    target:   V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\desktop\bundled-tools\win32-x64
+    [skip] ugrep v7.8.4-1 已存在
+    [skip] ripgrep v14.1.1-1 已存在
+==> Done! native search tools (win32-x64) -> V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\desktop\bundled-tools\win32-x64
+[ci][timer] prepare-runtime-assets:prepare:native-search end duration_ms=461
+(node:17188) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+[ci][timer] bundle:electron-builder start
+[bundle] > pnpm exec electron-builder --config electron-builder.config.js --win --x64
+(node:5652) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+../../apps/zcode-cli                     |  WARN  Unsupported engine: wanted: {"node":"24.14.0"} (current: {"node":"v24.15.0","pnpm":"10.33.2"})
+  • electron-builder  version=26.8.1 os=10.0.19045
+  • loaded configuration  file=V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\desktop\electron-builder.config.js
+  • @electron/rebuild already used by electron-builder, please consider to remove excess dependency from devDependencies
+
+To ensure your native dependencies are always matched electron version, simply add script `"postinstall": "electron-builder install-app-deps" to your `package.json`
+[ci][timer] beforePack:restoreTargetNodePtyPrebuild start
+[beforePack] node-pty prebuild restore skipped for win32-x64
+[ci][timer] beforePack:restoreTargetNodePtyPrebuild end duration_ms=0
+[ci][timer] beforePack:patchNsisInstallSection start
+[ci][timer] beforePack:patchNsisInstallSection end duration_ms=1
+  • skipped dependencies rebuild  reason=npmRebuild is set to false
+  • packaging       platform=win32 arch=x64 electron=41.0.3 appOutDir=.release-work\t208-20261004\win-unpacked
+  • packageManager not detected by file, falling back to environment detection  resolvedPackageManager=pnpm detected=V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\desktop
+  • searching for node modules  pm=pnpm searchDir=V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\desktop
+(node:21484) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+  • dependency not found on disk  dependencies=["@radix-ui/react-primitive@2.1.4","@radix-ui/react-slot@1.2.4","marked@17.0.6","pngjs@5.0.0","commander@14.0.3","diff@8.0.4","fs-extra@11.3.4","immer@10.2.0","tslib@2.3.0","yargs@15.4.1","diff@8.0.3","@shikijs/types@3.23.0","zod@3.25.76","kleur@3.0.3","execa@9.6.1","open@11.0.0","commander@11.1.0","execa@5.1.1","get-stream@6.0.1","human-signals@2.1.0","is-stream@2.0.1","signal-exit@3.0.7","strip-final-newline@2.0.0","npm-run-path@4.0.1","wrap-ansi@7.0.0","ora@8.2.0","ts-morph@26.0.0","semver@6.3.1","tslib@2.3.0","y18n@4.0.3","yargs-parser@18.1.3","cliui@6.0.0","find-up@4.1.0","is-obj@3.0.0","human-signals@8.0.1","strip-final-newline@4.0.0","get-stream@9.0.1","npm-run-path@6.0.0","data-uri-to-buffer@4.0.1","ast-types@0.16.1","semver@6.3.1","wsl-utils@0.3.1","which@4.0.0","cookie@1.1.1","path-to-regexp@6.3.0","type-fest@5.5.0","strip-ansi@6.0.1","ansi-styles@4.3.0","chalk@5.6.2","log-symbols@6.0.0","emoji-regex@10.6.0","@ts-morph/common@0.27.0","semver@6.3.1","picomatch@2.3.2","ajv@8.18.0","@types/unist@2.0.11","locate-path@5.0.0","path-key@4.0.0","resolve-from@4.0.0","mimic-fn@2.1.0","onetime@7.0.0","lru-cache@5.1.1","json-schema-traverse@1.0.0","p-locate@4.1.0","brace-expansion@5.0.5","yallist@3.1.1","iconv-lite@0.7.2","escape-string-regexp@5.0.0","p-limit@2.3.0","balanced-match@4.0.4"]
+[bundle][heartbeat] electron-builder running elapsed_ms=30002 idle_ms=18709
+[bundle][heartbeat] electron-builder running elapsed_ms=60007 idle_ms=48714
+  • updating asar integrity executable resource  executablePath=.release-work\t208-20261004\win-unpacked\ZAICODE.exe
+  • signing with signtool.exe  path=.release-work\t208-20261004\win-unpacked\resources\tools\ugrep\ugrep.exe
+  • signing with signtool.exe  path=.release-work\t208-20261004\win-unpacked\resources\tools\ripgrep\rg.exe
+[ci][timer] afterPack:zaicodeRouterModules start
+[ci][timer] afterPack:zaicodeRouterModules end duration_ms=754
+[ci][timer] afterPack:injectHoistedRuntimeModulesIntoAsar start
+[ci][timer] afterPack:scan-missing-runtime-modules start
+[ci][timer] afterPack:scan-missing-runtime-modules end duration_ms=403
+[afterPack] missing runtime modules count=22
+[ci][timer] afterPack:asar-extract start
+[ci][timer] afterPack:asar-extract end duration_ms=5417
+[ci][timer] afterPack:copy-runtime-modules start
+[bundle][heartbeat] electron-builder running elapsed_ms=90017 idle_ms=243
+[ci][timer] afterPack:copy-runtime-modules end duration_ms=475
+[ci][timer] afterPack:asar-pack start
+[ci][timer] afterPack:asar-pack end duration_ms=17771
+[ci][timer] afterPack:injectHoistedRuntimeModulesIntoAsar end duration_ms=26226
+[ci][timer] afterPack:stripPackagedSourcemapReferences start
+[ci][timer] afterPack:sourcemap-cleanup:asar-extract start
+[ci][timer] afterPack:sourcemap-cleanup:asar-extract end duration_ms=5569
+[afterPack] stripped sourceMappingURL references=5643 files=5619 maps=375
+[ci][timer] afterPack:sourcemap-cleanup:asar-pack start
+[bundle][heartbeat] electron-builder running elapsed_ms=120022 idle_ms=762
+[ci][timer] afterPack:sourcemap-cleanup:asar-pack end duration_ms=19562
+[afterPack] resources sourcemap cleanup references=949 files=949 maps=0
+[ci][timer] afterPack:stripPackagedSourcemapReferences end duration_ms=31452
+[ci][timer] afterPack:assertPackagedNativeResourcePolicy start
+[ci][timer] afterPack:assertPackagedNativeResourcePolicy end duration_ms=331
+[ci][timer] afterPack:assertPackagedNodePtyPrebuild start
+[ci][timer] afterPack:assertPackagedNodePtyPrebuild end duration_ms=0
+[ci][timer] afterPack:writeWindowsInstallManifest start
+[ci][timer] afterPack:writeWindowsInstallManifest end duration_ms=86
+  • signing with signtool.exe  path=.release-work\t208-20261004\win-unpacked\ZAICODE.exe
+  • signing with signtool.exe  path=.release-work\t208-20261004\win-unpacked\resources\app.asar.unpacked\node_modules\ssh2\util\pagent.exe
+  • signing with signtool.exe  path=.release-work\t208-20261004\win-unpacked\resources\app.asar.unpacked\node_modules\node-pty\third_party\conpty\1.23.251008001\win10-x64\OpenConsole.exe
+  • signing with signtool.exe  path=.release-work\t208-20261004\win-unpacked\resources\app.asar.unpacked\node_modules\node-pty\third_party\conpty\1.23.251008001\win10-arm64\OpenConsole.exe
+  • signing with signtool.exe  path=.release-work\t208-20261004\win-unpacked\resources\app.asar.unpacked\node_modules\node-pty\prebuilds\win32-x64\winpty-agent.exe
+  • signing with signtool.exe  path=.release-work\t208-20261004\win-unpacked\resources\app.asar.unpacked\node_modules\node-pty\prebuilds\win32-x64\conpty\OpenConsole.exe
+  • building        target=nsis file=.release-work\t208-20261004\ZAICODE-3.14.0-win-x64_TEST.exe archs=x64 oneClick=false perMachine=false
+  • signing with signtool.exe  path=.release-work\t208-20261004\win-unpacked\resources\elevate.exe
+[bundle][heartbeat] electron-builder running elapsed_ms=150034 idle_ms=7312
+  • signing with signtool.exe  path=.release-work\t208-20261004\ZAICODE-3.14.0-win-x64_TEST.__uninstaller.exe
+  • signing with signtool.exe  path=.release-work\t208-20261004\ZAICODE-3.14.0-win-x64_TEST.exe
+  • building block map  blockMapFile=.release-work\t208-20261004\ZAICODE-3.14.0-win-x64_TEST.exe.blockmap
+[ci][timer] bundle:electron-builder end duration_ms=177770
+[ci][timer] bundle:verify-runtime-dependencies start
+[ci][timer] bundle:verify-runtime-dependencies end duration_ms=510
+[ci][timer] bundle:audit-bundle-size start
+[bundle] > C:\nodejs\node.exe V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\desktop\scripts\audit-bundle-size.mjs --artifact-path V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\desktop\.release-work\t208-20261004\ZAICODE-3.14.0-win-x64_TEST.exe
+Artifact: V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\desktop\.release-work\t208-20261004\ZAICODE-3.14.0-win-x64_TEST.exe
+Type: .exe
+Size: 190.4 MiB
+Limit: 500 MiB
+[ci][timer] bundle:audit-bundle-size end duration_ms=37
+[bundle:zaicode] could not hide the staged build while it is tested (EPERM: operation not permitted, rename 'V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\desktop\.release-work\t208-20261004\win-unpacked' -> 'V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\desktop\.release-work\t208-20261004\win-unpacked.verifying'); testing it in place.
+[bundle:zaicode] boot gate: starting V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\desktop\.release-work\t208-20261004\win-unpacked\ZAICODE.exe on a throw-away profile
+PASS packaged boot: shell mounted, 28 Settings sections opened, ProTrail drawing on 3 monitor(s), customization list live (0->1->2->0), no error card, 0 uncaught exceptions, 0 console errors -> V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\desktop\.release-work\t208-20261004\boot-receipt.json

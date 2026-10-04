@@ -1,0 +1,2692 @@
+
+> zcode@3.14.0 verify:pre-push V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode
+> pnpm run lint && pnpm run architecture:check -- --changed && pnpm run test
+
+apps/zcode-cli                           |  WARN  Unsupported engine: wanted: {"node":"24.14.0"} (current: {"node":"v24.15.0","pnpm":"10.33.2"})
+
+> zcode@3.14.0 lint V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode
+> oxlint
+
+
+  ! eslint(no-unused-vars): Interface 'AskUserQuestionAnswerDraft' is declared but never used.
+    ,-[packages/ui/src/lib/askUserQuestion.ts:26:11]
+ 25 | 
+ 26 | interface AskUserQuestionAnswerDraft {
+    :           ^^^^^^^^^^^^^|^^^^^^^^^^^^
+    :                        `-- 'AskUserQuestionAnswerDraft' is declared here
+ 27 |   selectedOptionIds: string[];
+    `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Identifier 'hostname' is imported but never used.
+    ,-[packages/desktop/src/main/index.ts:49:19]
+ 48 | import { join, resolve } from "node:path";
+ 49 | import { homedir, hostname } from "node:os";
+    :                   ^^^^|^^^
+    :                       `-- 'hostname' is imported here
+ 50 | import {
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'buildZCodeEndpointUrls' is imported but never used.
+    ,-[packages/desktop/src/main/index.ts:77:3]
+ 76 |   ZCODE_ARMS_RUM_ENDPOINT,
+ 77 |   buildZCodeEndpointUrls,
+    :   ^^^^^^^^^^^|^^^^^^^^^^
+    :              `-- 'buildZCodeEndpointUrls' is imported here
+ 78 |   resolveZCodeEndpointOrigin,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'createTempTextAttachment' is imported but never used.
+     ,-[packages/desktop/src/main/index.ts:116:10]
+ 115 | import { createPrimaryWindowCoordinator } from "./primaryWindowCoordinator.js";
+ 116 | import { createTempTextAttachment } from "./tempTextAttachment.js";
+     :          ^^^^^^^^^^^^|^^^^^^^^^^^
+     :                      `-- 'createTempTextAttachment' is imported here
+ 117 | import { flushMainE2ECoverage } from "./e2eCoverage.js";
+     `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'loadCliMcpFromUserDirectory' is imported but never used.
+     ,-[packages/desktop/src/main/index.ts:204:3]
+ 203 | import {
+ 204 |   loadCliMcpFromUserDirectory,
+     :   ^^^^^^^^^^^^^|^^^^^^^^^^^^^
+     :                `-- 'loadCliMcpFromUserDirectory' is imported here
+ 205 |   migrateLegacyCommonMcp,
+     `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'migrateLegacyCommonMcp' is imported but never used.
+     ,-[packages/desktop/src/main/index.ts:205:3]
+ 204 |   loadCliMcpFromUserDirectory,
+ 205 |   migrateLegacyCommonMcp,
+     :   ^^^^^^^^^^^|^^^^^^^^^^
+     :              `-- 'migrateLegacyCommonMcp' is imported here
+ 206 |   saveCliMcpToUserDirectory,
+     `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'saveCliMcpToUserDirectory' is imported but never used.
+     ,-[packages/desktop/src/main/index.ts:206:3]
+ 205 |   migrateLegacyCommonMcp,
+ 206 |   saveCliMcpToUserDirectory,
+     :   ^^^^^^^^^^^^|^^^^^^^^^^^^
+     :               `-- 'saveCliMcpToUserDirectory' is imported here
+ 207 | } from "./mcpUserDirectory/index.js";
+     `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Type 'ZaicodeSoundOverlap' is imported but never used.
+    ,-[packages/ui/src/zaicode/zaicodeSoundEvents.ts:18:35]
+ 17 | import { ZAICODE_CLICKABLE, zaicodeChangeSoundFor, zaicodeClickSoundFor } from "./zaicodeSoundVoices.js";
+ 18 | import { decideZaicodeSound, type ZaicodeSoundOverlap, type ZaicodeSoundRequest } from "./zaicodeSoundPolicy.js";
+    :                                   ^^^^^^^^^|^^^^^^^^^
+    :                                            `-- 'ZaicodeSoundOverlap' is imported here
+ 19 | import {
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'STORAGE_KEY' is imported but never used.
+    ,-[packages/ui/src/zaicode/zaicodeSoundEvents.ts:22:3]
+ 21 |   LEGACY_CUES_KEY,
+ 22 |   STORAGE_KEY,
+    :   ^^^^^|^^^^^
+    :        `-- 'STORAGE_KEY' is imported here
+ 23 |   ZAICODE_SOUND_EVENTS,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'ZAICODE_SOUND_GAIN_MAX' is imported but never used.
+    ,-[packages/ui/src/zaicode/zaicodeSoundEvents.ts:24:3]
+ 23 |   ZAICODE_SOUND_EVENTS,
+ 24 |   ZAICODE_SOUND_GAIN_MAX,
+    :   ^^^^^^^^^^^|^^^^^^^^^^
+    :              `-- 'ZAICODE_SOUND_GAIN_MAX' is imported here
+ 25 |   ZAICODE_SOUND_GAIN_MIN,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'ZAICODE_SOUND_GAIN_MIN' is imported but never used.
+    ,-[packages/ui/src/zaicode/zaicodeSoundEvents.ts:25:3]
+ 24 |   ZAICODE_SOUND_GAIN_MAX,
+ 25 |   ZAICODE_SOUND_GAIN_MIN,
+    :   ^^^^^^^^^^^|^^^^^^^^^^
+    :              `-- 'ZAICODE_SOUND_GAIN_MIN' is imported here
+ 26 |   resetZaicodeSoundSettings,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'resetZaicodeSoundSettings' is imported but never used.
+    ,-[packages/ui/src/zaicode/zaicodeSoundEvents.ts:26:3]
+ 25 |   ZAICODE_SOUND_GAIN_MIN,
+ 26 |   resetZaicodeSoundSettings,
+    :   ^^^^^^^^^^^^|^^^^^^^^^^^^
+    :               `-- 'resetZaicodeSoundSettings' is imported here
+ 27 |   setAllZaicodeSoundEvents,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'setAllZaicodeSoundEvents' is imported but never used.
+    ,-[packages/ui/src/zaicode/zaicodeSoundEvents.ts:27:3]
+ 26 |   resetZaicodeSoundSettings,
+ 27 |   setAllZaicodeSoundEvents,
+    :   ^^^^^^^^^^^^|^^^^^^^^^^^
+    :               `-- 'setAllZaicodeSoundEvents' is imported here
+ 28 |   setZaicodeSoundEvent,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'setZaicodeSoundSettings' is imported but never used.
+    ,-[packages/ui/src/zaicode/zaicodeSoundEvents.ts:29:3]
+ 28 |   setZaicodeSoundEvent,
+ 29 |   setZaicodeSoundSettings,
+    :   ^^^^^^^^^^^|^^^^^^^^^^^
+    :              `-- 'setZaicodeSoundSettings' is imported here
+ 30 |   zaicodePoolSharesForEvent,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'zaicodePoolSharesForEvent' is imported but never used.
+    ,-[packages/ui/src/zaicode/zaicodeSoundEvents.ts:30:3]
+ 29 |   setZaicodeSoundSettings,
+ 30 |   zaicodePoolSharesForEvent,
+    :   ^^^^^^^^^^^^|^^^^^^^^^^^^
+    :               `-- 'zaicodePoolSharesForEvent' is imported here
+ 31 |   isZaicodeInterfaceSound,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'migrateProjectSwitchCue' is imported but never used.
+    ,-[packages/ui/src/zaicode/zaicodeSoundEvents.ts:32:3]
+ 31 |   isZaicodeInterfaceSound,
+ 32 |   migrateProjectSwitchCue,
+    :   ^^^^^^^^^^^|^^^^^^^^^^^
+    :              `-- 'migrateProjectSwitchCue' is imported here
+ 33 |   normalizeZaicodeSoundSettings,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'normalizeZaicodeSoundSettings' is imported but never used.
+    ,-[packages/ui/src/zaicode/zaicodeSoundEvents.ts:33:3]
+ 32 |   migrateProjectSwitchCue,
+ 33 |   normalizeZaicodeSoundSettings,
+    :   ^^^^^^^^^^^^^^|^^^^^^^^^^^^^^
+    :                 `-- 'normalizeZaicodeSoundSettings' is imported here
+ 34 |   readZaicodeSoundSettings,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'zaicodeSetPoolWeight' is imported but never used.
+    ,-[packages/ui/src/zaicode/zaicodeSoundEvents.ts:38:3]
+ 37 |   zaicodeSoundForEvent,
+ 38 |   zaicodeSetPoolWeight,
+    :   ^^^^^^^^^^|^^^^^^^^^
+    :             `-- 'zaicodeSetPoolWeight' is imported here
+ 39 |   ZAICODE_SOUND_SELECTION_MODES,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'ZAICODE_SOUND_SELECTION_MODES' is imported but never used.
+    ,-[packages/ui/src/zaicode/zaicodeSoundEvents.ts:39:3]
+ 38 |   zaicodeSetPoolWeight,
+ 39 |   ZAICODE_SOUND_SELECTION_MODES,
+    :   ^^^^^^^^^^^^^^|^^^^^^^^^^^^^^
+    :                 `-- 'ZAICODE_SOUND_SELECTION_MODES' is imported here
+ 40 | } from "./zaicodeSoundSettingsModel.js";
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Type 'ZCodeProvider' is imported but never used.
+   ,-[packages/shared/src/protocol.ts:5:15]
+ 4 | import type { ProviderFamilyConnectionSelectionSettings } from "./provider-family-connection-selection.js";
+ 5 | import type { ZCodeProvider } from "./zcode-task-types-core.js";
+   :               ^^^^^^|^^^^^^
+   :                     `-- 'ZCodeProvider' is imported here
+ 6 | import type { WorkspacePurpose } from "./workspacePurpose.js";
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Parameter 'value' is declared but never used. Unused parameters should start with a '_'.
+     ,-[packages/ui/src/zaicode/zaicodeSidebarPrefs.ts:307:24]
+ 306 |               .filter(
+ 307 |                 ([key, value]) =>
+     :                        ^^|^^
+     :                          `-- 'value' is declared here
+ 308 |                   (ZAICODE_SLOT_GROUPS as readonly string[]).includes(key) || key === "LIVE",
+     `----
+  help: Consider removing this parameter.
+
+  ! eslint(no-unused-vars): Parameter 'isMobileViewport' is declared but never used. Unused parameters should start with a '_'.
+      ,-[packages/ui/src/v4/ConversationStatusPanel.tsx:1742:3]
+ 1741 |   parentSessionId,
+ 1742 |   isMobileViewport = false,
+      :   ^^^^^^^^|^^^^^^^
+      :           `-- 'isMobileViewport' is declared here
+ 1743 |   layoutMode = "none",
+      `----
+  help: Consider removing this parameter.
+
+  ! eslint-plugin-unicorn(no-useless-spread): Using a spread operator here creates a new array unnecessarily.
+     ,-[packages/ui/src/zaicode/zaicodeArchiveUndo.ts:146:26]
+ 145 |   const batches: ZaicodeArchiveBatch[] = [];
+ 146 |   for (const handler of [...archiveAllHandlers.values()]) {
+     :                          ^^^
+ 147 |     try {
+     `----
+  help: `for…of` can iterate over iterable, it's unnecessary to convert to an array.
+
+  ! eslint(no-unsafe-optional-chaining): Unsafe usage of optional chaining
+    ,-[packages/desktop/test/zaicodeSaimailRead.test.ts:53:30]
+ 52 |   assert.equal(sent.json?.status, "ACCEPTED");
+ 53 |   const envelopeId = String((sent.json?.message as { envelope_id?: unknown }).envelope_id);
+    :                              ^^^^^^^^^^^^^^^^^^
+ 54 |   return { operatorPath, seat, envelopeId };
+    `----
+  help: If this short-circuits with 'undefined' the evaluation will throw TypeError
+
+  ! eslint(no-unused-vars): Identifier 'sendZaicodeSaimailTestLetter' is imported but never used.
+    ,-[packages/desktop/test/zaicodeSaimailRead.test.ts:14:45]
+ 13 | import { listZaicodeSaimailReadLetters, openZaicodeSaimailLetter } from "../src/main/zaicodeSaimailRead.js";
+ 14 | import { pairZaicodeSaimail, runSaimailCli, sendZaicodeSaimailTestLetter, type SaimailCliRunner } from "../src/main/zaicodeSaimailPost.js";
+    :                                             ^^^^^^^^^^^^^^|^^^^^^^^^^^^^
+    :                                                           `-- 'sendZaicodeSaimailTestLetter' is imported here
+ 15 | 
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Variable 'browserWindowId' is declared but never used. Unused variables should start with a '_'.
+     ,-[packages/desktop/src/main/desktopWindowLifecycle.ts:122:9]
+ 121 |   const wcId = win.webContents.id;
+ 122 |   const browserWindowId = win.id;
+     :         ^^^^^^^|^^^^^^^
+     :                `-- 'browserWindowId' is declared here
+ 123 |   // 资源遥测据此把主窗口 renderer 归 renderer_main；辅助窗口与 DevTools 归 chromium_other。
+     `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Parameter 'onOpenWorkspace' is declared but never used. Unused parameters should start with a '_'.
+     ,-[packages/ui/src/SettingsPage.tsx:314:3]
+ 313 |   onCreateTask,
+ 314 |   onOpenWorkspace,
+     :   ^^^^^^^|^^^^^^^
+     :          `-- 'onOpenWorkspace' is declared here
+ 315 |   allowOpenWorkspace = true,
+     `----
+  help: Consider removing this parameter.
+
+  ! eslint(no-unused-vars): Parameter 'allowOpenWorkspace' is declared but never used. Unused parameters should start with a '_'.
+     ,-[packages/ui/src/SettingsPage.tsx:315:3]
+ 314 |   onOpenWorkspace,
+ 315 |   allowOpenWorkspace = true,
+     :   ^^^^^^^^^|^^^^^^^^
+     :            `-- 'allowOpenWorkspace' is declared here
+ 316 |   onLogin,
+     `----
+  help: Consider removing this parameter.
+
+  ! eslint(no-unused-vars): Type 'AppSettings' is imported but never used.
+   ,-[packages/shared/src/validationAppSettings.ts:4:15]
+ 3 | import { z } from "zod";
+ 4 | import type { AppSettings } from "./protocol.js";
+   :               ^^^^^|^^^^^
+   :                    `-- 'AppSettings' is imported here
+ 5 | import { REMOTE_ASSET_INSTALL_MODES } from "./remoteAssetInstallMode.js";
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'sessionCreateTelemetrySchema' is imported but never used.
+   ,-[packages/shared/src/validation.ts:3:3]
+ 2 | import {
+ 3 |   sessionCreateTelemetrySchema,
+   :   ^^^^^^^^^^^^^^|^^^^^^^^^^^^^
+   :                 `-- 'sessionCreateTelemetrySchema' is imported here
+ 4 |   automationSessionCreateTelemetrySchema,
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'PROTOCOL_V4_LIMITS' is imported but never used.
+    ,-[packages/shared/src/validation.ts:25:10]
+ 24 | import { zcodeTaskModeSchema } from "./zcode-task-mode-schema.js";
+ 25 | import { PROTOCOL_V4_LIMITS } from "./zcode-protocol-v4/core.js";
+    :          ^^^^^^^^^|^^^^^^^^
+    :                   `-- 'PROTOCOL_V4_LIMITS' is imported here
+ 26 | import { errorAttributionSchema } from "./zcode-protocol-v4/snapshot.js";
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'sessionWorkflowActivitySchema' is imported but never used.
+    ,-[packages/shared/src/validation.ts:27:10]
+ 26 | import { errorAttributionSchema } from "./zcode-protocol-v4/snapshot.js";
+ 27 | import { sessionWorkflowActivitySchema } from "./zcode-protocol-v4/sessions-index-workflow-activity.js";
+    :          ^^^^^^^^^^^^^^|^^^^^^^^^^^^^^
+    :                        `-- 'sessionWorkflowActivitySchema' is imported here
+ 28 | import {
+    `----
+  help: Consider removing this import.
+
+  ! eslint-plugin-unicorn(no-useless-spread): Using a spread operator here creates a new array unnecessarily.
+     ,-[packages/ui/src/zaicode/zaicodeCustomSounds.ts:228:25]
+ 227 |       // A file that was replaced or removed must not keep playing from its old bytes.
+ 228 |       for (const id of [...urlCache.keys()]) {
+     :                         ^^^
+ 229 |         const path = zaicodeCustomSoundPathOf(id);
+     `----
+  help: `for…of` can iterate over iterable, it's unnecessary to convert to an array.
+
+  ! eslint-plugin-unicorn(no-useless-fallback-in-spread): Empty fallbacks in spreads are unnecessary
+     ,-[packages/ui/src/settings/RemotePluginSyncDialog.tsx:331:19]
+ 330 |     configuredOptions: { ...configuredOptions },
+ 331 |     userConfig: { ...(plugin?.userConfig ?? {}) },
+     :                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 332 |   };
+     `----
+  help: Spreading falsy values in object literals won't add any unexpected properties, so it's unnecessary to add an empty object as fallback.
+
+  ! eslint-plugin-unicorn(no-useless-fallback-in-spread): Empty fallbacks in spreads are unnecessary
+     ,-[packages/ui/src/settings/RemotePluginSyncDialog.tsx:727:5]
+ 726 |   const mergedOptions = {
+ 727 |     ...(remotePlugin.configuredOptions ?? {}),
+     :     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 728 |     ...plan.options,
+     `----
+  help: Spreading falsy values in object literals won't add any unexpected properties, so it's unnecessary to add an empty object as fallback.
+
+  ! eslint-plugin-unicorn(no-useless-spread): Using a spread operator here creates a new array unnecessarily.
+     ,-[packages/desktop/test/zaicodeCustomization.test.ts:311:34]
+ 310 |       now += ms;
+ 311 |       for (const [id, entry] of [...pending]) {
+     :                                  ^^^
+ 312 |         if (entry.at <= now) {
+     `----
+  help: `for…of` can iterate over iterable, it's unnecessary to convert to an array.
+
+  ! eslint(no-unused-vars): Parameter 'isUnavailable' is declared but never used. Unused parameters should start with a '_'.
+     ,-[packages/ui/src/settings/model-provider-section/StatusCards.tsx:672:3]
+ 671 |   isPurchased,
+ 672 |   isUnavailable = false,
+     :   ^^^^^^|^^^^^^
+     :         `-- 'isUnavailable' is declared here
+ 673 |   isStartPlanProvider,
+     `----
+  help: Consider removing this parameter.
+
+  ! eslint(no-unused-vars): Parameter 'isMobileViewport' is declared but never used. Unused parameters should start with a '_'.
+     ,-[packages/ui/src/v4/composer/V4ComposerToolbar.tsx:380:3]
+ 379 |   provider,
+ 380 |   isMobileViewport = false,
+     :   ^^^^^^^^|^^^^^^^
+     :           `-- 'isMobileViewport' is declared here
+ 381 |   draftMode = false,
+     `----
+  help: Consider removing this parameter.
+
+  ! eslint(no-unused-vars): Type alias 'Modifier' is declared but never used.
+     ,-[packages/ui/src/zaicode/zaicodeHotkeys.ts:104:6]
+ 103 | const MODIFIERS = ["Ctrl", "Alt", "Shift", "Win"] as const;
+ 104 | type Modifier = (typeof MODIFIERS)[number];
+     :      ^^^^|^^^
+     :          `-- 'Modifier' is declared here
+ 105 | 
+     `----
+  help: Consider removing this declaration.
+
+  ! eslint-plugin-unicorn(no-useless-spread): `Set` accepts an iterable, so it's unnecessary to convert the iterable to an array.
+     ,-[packages/ui/src/zaicode/zaicodeHotkeys.ts:138:29]
+ 137 | 
+ 138 | const NAMED_KEYS = new Set([...Object.values(CODE_TO_KEY)]);
+     :                             ^^^
+ 139 | 
+     `----
+  help: Consider removing the spread operator.
+
+  ! eslint(no-unused-vars): Parameter 'current' is declared but never used. Unused parameters should start with a '_'.
+      ,-[packages/ui/src/v4/composer/useComposerAttachments.ts:1075:33]
+ 1074 |         : undefined;
+ 1075 |       updateItem(scopeKey, id, (current) => ({
+      :                                 ^^^|^^^
+      :                                    `-- 'current' is declared here
+ 1076 |         ...edited,
+      `----
+  help: Consider removing this parameter.
+
+  ! eslint(no-unused-vars): Identifier '$getSelection' is imported but never used.
+    ,-[packages/ui/src/mentions/MentionPlugin.tsx:9:3]
+  8 |   $createTextNode,
+  9 |   $getSelection,
+    :   ^^^^^^|^^^^^^
+    :         `-- '$getSelection' is imported here
+ 10 |   $isRangeSelection,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier '$isRangeSelection' is imported but never used.
+    ,-[packages/ui/src/mentions/MentionPlugin.tsx:10:3]
+  9 |   $getSelection,
+ 10 |   $isRangeSelection,
+    :   ^^^^^^^^|^^^^^^^^
+    :           `-- '$isRangeSelection' is imported here
+ 11 |   BLUR_COMMAND,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Variable 'profile' is declared but never used. Unused variables should start with a '_'.
+     ,-[packages/shared/src/zaicode-audit-validate.ts:125:9]
+ 124 | ): ZaicodeAuditValidation {
+ 125 |   const profile = context.profile ?? ZAICODE_AUDIT_QUICK3_PROFILE;
+     :         ^^^|^^^
+     :            `-- 'profile' is declared here
+ 126 |   const wave = zaicodeAuditQuick3Wave(context.waveId);
+     `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-loss-of-precision): This number literal will lose precision at runtime.
+     ,-[packages/shared/src/zaicode-audit-quick3.ts:178:14]
+ 177 |   });
+ 178 |   let hash = 0xcbf29ce484222325;
+     :              ^^^^^^^^^^^^^^^^^^
+ 179 |   for (let index = 0; index < canonical.length; index += 1) {
+     `----
+  help: Use a number literal representable by a 64-bit floating-point number, or use a `BigInt` literal (for example, `9007199254740993n`) for exact large integers.
+  note: In JavaScript, `Number` values exactly represent integers only in the range -9007199254740991 to 9007199254740991 (`Number.MIN_SAFE_INTEGER` to `Number.MAX_SAFE_INTEGER`). `BigInt` supports arbitrarily large integers.
+
+  ! eslint-plugin-unicorn(no-useless-spread): Using a spread operator here creates a new array unnecessarily.
+    ,-[packages/ui/src/v4/taskListMembershipVersion.ts:13:27]
+ 12 |   version += 1;
+ 13 |   for (const listener of [...listeners]) {
+    :                           ^^^
+ 14 |     listener();
+    `----
+  help: `for…of` can iterate over iterable, it's unnecessary to convert to an array.
+
+  ! eslint-plugin-unicorn(no-useless-spread): Using a spread operator here creates a new object unnecessarily.
+    ,-[packages/ui/src/lib/memoryDiagnostics.ts:84:3]
+ 83 | uiMemoryDiagnosticsRegistry.register("eventLoop", () => ({
+ 84 |   ...(lastLoopLagMs === undefined ? {} : { lagMs: Math.round(lastLoopLagMs * 100) / 100 }),
+    :   ^^^
+ 85 | }));
+    `----
+  help: This expression returns a new object. Spreading it into an object expression to create a new object is redundant.
+
+  ! eslint(no-unused-vars): Identifier 'lazy' is imported but never used.
+   ,-[packages/ui/src/Root.tsx:2:10]
+ 1 | /* eslint-disable max-lines -- Root 当前集中编排启动和 workspace shell wiring，先保持入口收口避免跨层状态拆散。 */
+ 2 | import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
+   :          ^^|^
+   :            `-- 'lazy' is imported here
+ 3 | import { LucideProvider, RefreshCw } from "lucide-react";
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'Suspense' is imported but never used.
+   ,-[packages/ui/src/Root.tsx:2:16]
+ 1 | /* eslint-disable max-lines -- Root 当前集中编排启动和 workspace shell wiring，先保持入口收口避免跨层状态拆散。 */
+ 2 | import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
+   :                ^^^^|^^^
+   :                    `-- 'Suspense' is imported here
+ 3 | import { LucideProvider, RefreshCw } from "lucide-react";
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Type 'WorkspaceTabState' is imported but never used.
+    ,-[packages/ui/src/Root.tsx:43:46]
+ 42 | import { TabStoreProvider, useTabStore, useTabStoreApi } from "@/store/TabStoreProvider.js";
+ 43 | import { isSettingsTab, isWorkspaceTab, type WorkspaceTabState } from "@/store/tabStore.js";
+    :                                              ^^^^^^^^|^^^^^^^^
+    :                                                      `-- 'WorkspaceTabState' is imported here
+ 44 | import { logger } from "@/logger.js";
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'useGlobalTaskList' is imported but never used.
+    ,-[packages/ui/src/Root.tsx:63:10]
+ 62 | import { DiffsWorkerPoolProvider } from "@/root/DiffsWorkerPoolProvider.js";
+ 63 | import { useGlobalTaskList } from "@/hooks/useGlobalTaskList.js";
+    :          ^^^^^^^^|^^^^^^^^
+    :                  `-- 'useGlobalTaskList' is imported here
+ 64 | import { ScopedErrorBoundary } from "@/ErrorBoundary.js";
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Parameter 'reconnectingRemoteWorkspaceKeys' is declared but never used. Unused parameters should start with a '_'.
+    ,-[packages/ui/src/root/useRootPlatformEffects.ts:43:3]
+ 42 |   activeWorkspaceIdentity,
+ 43 |   reconnectingRemoteWorkspaceKeys = [],
+    :   ^^^^^^^^^^^^^^^|^^^^^^^^^^^^^^^
+    :                  `-- 'reconnectingRemoteWorkspaceKeys' is declared here
+ 44 |   remoteWorkspaceErrorByWorkspaceKey = {},
+    `----
+  help: Consider removing this parameter.
+
+  ! eslint(no-unused-vars): Parameter 'remoteWorkspaceErrorByWorkspaceKey' is declared but never used. Unused parameters should start with a '_'.
+    ,-[packages/ui/src/root/useRootPlatformEffects.ts:44:3]
+ 43 |   reconnectingRemoteWorkspaceKeys = [],
+ 44 |   remoteWorkspaceErrorByWorkspaceKey = {},
+    :   ^^^^^^^^^^^^^^^^^|^^^^^^^^^^^^^^^^
+    :                    `-- 'remoteWorkspaceErrorByWorkspaceKey' is declared here
+ 45 |   totalUnreadTaskCount,
+    `----
+  help: Consider removing this parameter.
+
+  ! eslint(no-unused-vars): Type 'SettingsSectionId' is imported but never used.
+   ,-[packages/ui/src/settings/zaicodeHelpTopicsAdvanced.ts:1:15]
+ 1 | import type { SettingsSectionId } from "@/lib/settingsNavigation.js";
+   :               ^^^^^^^^|^^^^^^^^
+   :                       `-- 'SettingsSectionId' is imported here
+ 2 | import { openZaicodeWorkersPanel } from "@/zaicode/zaicodeWorkers.js";
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'openZaicodeWorkersPanel' is imported but never used.
+   ,-[packages/ui/src/settings/zaicodeHelpTopicsAdvanced.ts:2:10]
+ 1 | import type { SettingsSectionId } from "@/lib/settingsNavigation.js";
+ 2 | import { openZaicodeWorkersPanel } from "@/zaicode/zaicodeWorkers.js";
+   :          ^^^^^^^^^^^|^^^^^^^^^^^
+   :                     `-- 'openZaicodeWorkersPanel' is imported here
+ 3 | import { useZaicodeTimers } from "@/zaicode/zaicodeTimerStore.js";
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'useZaicodeTimers' is imported but never used.
+   ,-[packages/ui/src/settings/zaicodeHelpTopicsAdvanced.ts:3:10]
+ 2 | import { openZaicodeWorkersPanel } from "@/zaicode/zaicodeWorkers.js";
+ 3 | import { useZaicodeTimers } from "@/zaicode/zaicodeTimerStore.js";
+   :          ^^^^^^^^|^^^^^^^
+   :                  `-- 'useZaicodeTimers' is imported here
+ 4 | import { openZaicodeSaipeggle } from "@/zaicode/saipeggle/ZaicodeSaipeggleView.js";
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'openZaicodeSaipeggle' is imported but never used.
+   ,-[packages/ui/src/settings/zaicodeHelpTopicsAdvanced.ts:4:10]
+ 3 | import { useZaicodeTimers } from "@/zaicode/zaicodeTimerStore.js";
+ 4 | import { openZaicodeSaipeggle } from "@/zaicode/saipeggle/ZaicodeSaipeggleView.js";
+   :          ^^^^^^^^^^|^^^^^^^^^
+   :                    `-- 'openZaicodeSaipeggle' is imported here
+ 5 | import type { HelpTopic } from "./zaicodeHelpContent.js";
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Type 'WindowTabState' is imported but never used.
+   ,-[packages/ui/src/root/rootPlatformWorkspaceSync.ts:1:15]
+ 1 | import { type WindowTabState } from "@/store/tabStore.js";
+   :               ^^^^^^^|^^^^^^
+   :                      `-- 'WindowTabState' is imported here
+ 2 | 
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Type 'SettingsSectionId' is imported but never used.
+   ,-[packages/ui/src/settings/zaicodeHelpTopicsCore.ts:1:15]
+ 1 | import type { SettingsSectionId } from "@/lib/settingsNavigation.js";
+   :               ^^^^^^^^|^^^^^^^^
+   :                       `-- 'SettingsSectionId' is imported here
+ 2 | import { openZaicodeWorkersPanel } from "@/zaicode/zaicodeWorkers.js";
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Parameter 'text' is declared but never used. Unused parameters should start with a '_'.
+     ,-[packages/ui/test/zaicodeWave5Campaign.test.ts:107:14]
+ 106 |     digests,
+ 107 |     sha256: (text) => SHA("c"),
+     :              ^^|^
+     :                `-- 'text' is declared here
+ 108 |     synthesizedAt: "2026-09-29T11:00:00Z",
+     `----
+  help: Consider removing this parameter.
+
+  ! eslint(no-unused-vars): Identifier 'useRef' is imported but never used.
+   ,-[packages/ui/src/settings/AutomationsSection.tsx:7:3]
+ 6 |   useMemo,
+ 7 |   useRef,
+   :   ^^^|^^
+   :      `-- 'useRef' is imported here
+ 8 |   useState,
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Variable 'events' is declared but never used. Unused variables should start with a '_'.
+    ,-[packages/ui/test/zaicodeSrc58Polish.test.ts:45:9]
+ 44 |   // engine; the listener itself still lives with the playback engine.
+ 45 |   const events = read("zaicode/zaicodeSoundSettingsModel.ts");
+    :         ^^^|^^
+    :            `-- 'events' is declared here
+ 46 |   const engine = read("zaicode/zaicodeSoundEvents.ts");
+    `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-control-regex): Unexpected control character
+     ,-[packages/shared/src/zcode-protocol-v4/transport.ts:810:18]
+ 809 |       .max(255)
+ 810 |       .regex(/^[^\0\r\n]+$/),
+     :                  ^|
+     :                   `-- '\0' matches the null character (U+0000), which is a control character.
+ 811 |     mime: z
+     `----
+  help: Avoid matching control characters in regular expressions. If intentional, consider using a Unicode escape instead.
+
+  ! eslint(no-unused-vars): Identifier 'PRIMARY_LEAF' is imported but never used.
+    ,-[packages/ui/src/v4/V4WorkspaceChatArea.tsx:31:3]
+ 30 |   paneWorkspaceKey,
+ 31 |   PRIMARY_LEAF,
+    :   ^^^^^^|^^^^^
+    :         `-- 'PRIMARY_LEAF' is imported here
+ 32 |   usePaneLayoutStore,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'getIconPalette' is imported but never used.
+   ,-[packages/ui/src/lib/fileDisplay.tsx:8:3]
+ 7 |   resolveIconName,
+ 8 |   getIconPalette,
+   :   ^^^^^^^|^^^^^^
+   :          `-- 'getIconPalette' is imported here
+ 9 |   getIconLabel,
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'getIconLabel' is imported but never used.
+    ,-[packages/ui/src/lib/fileDisplay.tsx:9:3]
+  8 |   getIconPalette,
+  9 |   getIconLabel,
+    :   ^^^^^^|^^^^^
+    :         `-- 'getIconLabel' is imported here
+ 10 |   buildInlineSvgDataUrl,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'buildInlineSvgDataUrl' is imported but never used.
+    ,-[packages/ui/src/lib/fileDisplay.tsx:10:3]
+  9 |   getIconLabel,
+ 10 |   buildInlineSvgDataUrl,
+    :   ^^^^^^^^^^|^^^^^^^^^^
+    :             `-- 'buildInlineSvgDataUrl' is imported here
+ 11 | } from "@/lib/fileDisplayHelpers.js";
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'verifyStagedKoffi' is imported but never used.
+    ,-[packages/desktop/electron-builder.config.js:23:10]
+ 22 | } from "./scripts/desktop-product-identity.mjs";
+ 23 | import { verifyStagedKoffi } from "./scripts/koffi-package-assets.mjs";
+    :          ^^^^^^^^|^^^^^^^^
+    :                  `-- 'verifyStagedKoffi' is imported here
+ 24 | const ELECTRON_BUILDER_ARCH = {
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Variable 'desktopElectronVersion' is declared but never used. Unused variables should start with a '_'.
+     ,-[packages/desktop/electron-builder.config.js:122:7]
+ 121 | let nsisInstallSectionPath = null;
+ 122 | const desktopElectronVersion = requireFromConfig("./package.json").devDependencies.electron;
+     :       ^^^^^^^^^^^|^^^^^^^^^^
+     :                  `-- 'desktopElectronVersion' is declared here
+ 123 | const asarCliPath = resolve(
+     `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Type 'RemoteTarget' is imported but never used.
+    ,-[packages/desktop/src/main/desktopHostProcess.ts:32:8]
+ 31 |   serializeLaunchMarks,
+ 32 |   type RemoteTarget,
+    :        ^^^^^^|^^^^^
+    :              `-- 'RemoteTarget' is imported here
+ 33 |   type WorkspacePurpose,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'IMediaPreviewService' is imported but never used.
+   ,-[packages/desktop/src/host/remoteWorkspaceServiceCollection.ts:5:3]
+ 4 |   IFileService,
+ 5 |   IMediaPreviewService,
+   :   ^^^^^^^^^^|^^^^^^^^^
+   :             `-- 'IMediaPreviewService' is imported here
+ 6 |   IGitService,
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'createMediaPreviewService' is imported but never used.
+    ,-[packages/desktop/src/host/remoteWorkspaceServiceCollection.ts:60:3]
+ 59 |   createUsageStatsService,
+ 60 |   createMediaPreviewService,
+    :   ^^^^^^^^^^^^|^^^^^^^^^^^^
+    :               `-- 'createMediaPreviewService' is imported here
+ 61 |   createCodingPlanSubscriptionService,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Type 'ZCodeTaskMeta' is imported but never used.
+   ,-[packages/services/src/session/taskChangeSummary.ts:5:3]
+ 4 |   ZCodeTaskChangedFileSummary,
+ 5 |   ZCodeTaskMeta,
+   :   ^^^^^^|^^^^^^
+   :         `-- 'ZCodeTaskMeta' is imported here
+ 6 | } from "@zcode/shared";
+   `----
+  help: Consider removing this import.
+
+  ! eslint-plugin-unicorn(no-useless-spread): Using a spread operator here creates a new array unnecessarily.
+     ,-[packages/desktop/src/host/startupDiskSampler.ts:107:28]
+ 106 |     try {
+ 107 |       for (const scope of [...this.scopes.values()]) {
+     :                            ^^^
+ 108 |         if (this.stopped) break;
+     `----
+  help: `for…of` can iterate over iterable, it's unnecessary to convert to an array.
+
+  ! eslint(no-unused-vars): Variable 'adaptersRoot' is declared but never used. Unused variables should start with a '_'.
+    ,-[packages/desktop/scripts/prepare-agent-node-bundle.mjs:25:7]
+ 24 | const cliBundlePath = resolve(repoRoot, "apps/zcode-cli/packages/cli/dist/zcode.cjs");
+ 25 | const adaptersRoot = resolve(repoRoot, "apps/zcode-cli/packages/adapters");
+    :       ^^^^^^|^^^^^
+    :             `-- 'adaptersRoot' is declared here
+ 26 | const pnpmRunEnv = {
+    `----
+  help: Consider removing this declaration.
+
+  ! eslint-plugin-unicorn(no-new-array): Do not use `new Array(singleArgument)`.
+     ,-[packages/services/src/conversation-share/conversationShareService.ts:101:19]
+ 100 |   if (items.length === 0) return [];
+ 101 |   const results = new Array<Output>(items.length);
+     :                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 102 |   let nextIndex = 0;
+     `----
+  help: It's not clear whether the argument is meant to be the length of the array or the only element. If the argument is the array's length, consider using `Array.from({ length: n })`. If the argument is the only element, use `[element]`.
+
+  ! eslint(no-unused-vars): Identifier 'join' is imported but never used.
+   ,-[packages/desktop/scripts/node-pty-rebuild.mjs:3:19]
+ 2 | import { access } from "node:fs/promises";
+ 3 | import { dirname, join, normalize, posix as posixPath, sep } from "node:path";
+   :                   ^^|^
+   :                     `-- 'join' is imported here
+ 4 | import process from "node:process";
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'planZaicodeNormalization' is imported but never used.
+   ,-[packages/ui/src/zaicode/zaicodeSoundNormalize.ts:3:3]
+ 2 |   analyzeZaicodeSoundPcm,
+ 3 |   planZaicodeNormalization,
+   :   ^^^^^^^^^^^^|^^^^^^^^^^^
+   :               `-- 'planZaicodeNormalization' is imported here
+ 4 |   zaicodeSoundContentHash,
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'zaicodeSoundContentHash' is imported but never used.
+   ,-[packages/ui/src/zaicode/zaicodeSoundNormalize.ts:4:3]
+ 3 |   planZaicodeNormalization,
+ 4 |   zaicodeSoundContentHash,
+   :   ^^^^^^^^^^^|^^^^^^^^^^^
+   :              `-- 'zaicodeSoundContentHash' is imported here
+ 5 |   ZaicodeAnalysisCache,
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Type 'ZaicodeSoundAnalysis' is imported but never used.
+    ,-[packages/ui/src/zaicode/zaicodeSoundNormalize.ts:11:8]
+ 10 |   type ZaicodeNormalizeProfileId,
+ 11 |   type ZaicodeSoundAnalysis,
+    :        ^^^^^^^^^^|^^^^^^^^^
+    :                  `-- 'ZaicodeSoundAnalysis' is imported here
+ 12 | } from "./zaicodeSoundAnalysis.js";
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'ZCODE_ENV' is imported but never used.
+     ,-[packages/services/src/node.ts:546:3]
+ 545 |   ZCODE_VERSION,
+ 546 |   ZCODE_ENV,
+     :   ^^^^|^^^^
+     :       `-- 'ZCODE_ENV' is imported here
+ 547 |   buildRuntimeZCodeApiUrl,
+     `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Variable 'commandsService' is declared but never used. Unused variables should start with a '_'.
+      ,-[packages/services/src/node.ts:1707:9]
+ 1706 |   });
+ 1707 |   const commandsService = createCommandsService({ isDesktopRuntime: true });
+      :         ^^^^^^^|^^^^^^^
+      :                `-- 'commandsService' is declared here
+ 1708 |   const hooksService = createHooksService({
+      `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Variable 'hooksService' is declared but never used. Unused variables should start with a '_'.
+      ,-[packages/services/src/node.ts:1708:9]
+ 1707 |   const commandsService = createCommandsService({ isDesktopRuntime: true });
+ 1708 |   const hooksService = createHooksService({
+      :         ^^^^^^|^^^^^
+      :               `-- 'hooksService' is declared here
+ 1709 |     grantWorkspaceHookTrust: (params) => zcodeAgentService.grantWorkspaceHookTrust(params),
+      `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Variable 'memoryService' is declared but never used. Unused variables should start with a '_'.
+      ,-[packages/services/src/node.ts:1711:9]
+ 1710 |   });
+ 1711 |   const memoryService = createMemoryService();
+      :         ^^^^^^|^^^^^^
+      :               `-- 'memoryService' is declared here
+ 1712 |   // 只要当前进程已经装配 Provider Runtime，就由该 Environment 自己的 Selection View
+      `----
+  help: Consider removing this declaration.
+
+  ! eslint-plugin-unicorn(no-useless-spread): Using a spread operator here creates a new array unnecessarily.
+     ,-[packages/rpc/src/foundation.ts:158:29]
+ 157 |     }
+ 158 |     for (const listener of [...this.listeners]) {
+     :                             ^^^
+ 159 |       listener(event);
+     `----
+  help: `for…of` can iterate over iterable, it's unnecessary to convert to an array.
+
+  ! eslint(no-unused-vars): Parameter 'connectTo' is declared but never used. Unused parameters should start with a '_'.
+     ,-[packages/rpc/examples/04-remote-connection.ts:136:12]
+ 135 | class MockWebSocketFactory implements ISocketFactory<RemoteConnectionType.WebSocket> {
+ 136 |   supports(connectTo: RemoteConnection & { type: RemoteConnectionType.WebSocket }): boolean {
+     :            ^^^^|^^^^
+     :                `-- 'connectTo' is declared here
+ 137 |     return true;
+     `----
+  help: Consider removing this parameter.
+
+  ! eslint(no-unused-vars): Variable 'file' is declared but never used. Unused variables should start with a '_'.
+    ,-[packages/ui/test/zaicodeWave2SessionText.test.ts:80:9]
+ 79 |   const prefs = fullPrefs();
+ 80 |   const file = exportZaicodeSessionTextDocument(prefs, []);
+    :         ^^|^
+    :           `-- 'file' is declared here
+ 81 | 
+    `----
+  help: Consider removing this declaration.
+
+  ! eslint-plugin-unicorn(no-useless-spread): Using a spread operator here creates a new array unnecessarily.
+     ,-[packages/ui/src/zaicode/zaicodeTurnRetryWatch.ts:160:32]
+ 159 |       // Retired watches: the session recovered, vanished, or its pane took over.
+ 160 |       for (const sessionId of [...watches.keys()]) {
+     :                                ^^^
+ 161 |         if (!failedIds.has(sessionId)) clearWatch(sessionId);
+     `----
+  help: `for…of` can iterate over iterable, it's unnecessary to convert to an array.
+
+  ! eslint-plugin-unicorn(no-useless-spread): Using a spread operator here creates a new array unnecessarily.
+     ,-[packages/ui/src/zaicode/zaicodeTurnRetryWatch.ts:185:32]
+ 184 |       window.clearInterval(interval);
+ 185 |       for (const sessionId of [...watches.keys()]) clearWatch(sessionId);
+     :                                ^^^
+ 186 |     };
+     `----
+  help: `for…of` can iterate over iterable, it's unnecessary to convert to an array.
+
+  ! eslint(no-unused-vars): Variable 'settings' is declared but never used. Unused variables should start with a '_'.
+     ,-[packages/ui/test/zaicodeWave3Cues.test.ts:168:9]
+ 167 | test("Wave 3 A: the pass yields between files, so a big table cannot block the window", async () => {
+ 168 |   const settings = defaultZaicodeSoundSettings();
+     :         ^^^^|^^^
+     :             `-- 'settings' is declared here
+ 169 |   const targets = Array.from({ length: 12 }, (_value, index) => ({ eventId: `e${index}`, sound: `s${index}.wav` }));
+     `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Parameter 'disposables' is declared but never used. Unused parameters should start with a '_'.
+    ,-[packages/rpc/src/proxy-channel.ts:48:5]
+ 47 |     service: unknown,
+ 48 |     disposables?: DisposableStore,
+    :     ^^^^^|^^^^^
+    :          `-- 'disposables' is declared here
+ 49 |   ): IServerChannel<TContext> {
+    `----
+  help: Consider removing this parameter.
+
+  ! eslint(no-unused-vars): Parameter 'workspaceRemoteSessionId' is declared but never used. Unused parameters should start with a '_'.
+     ,-[packages/ui/src/WorkspaceSidebarFooter.tsx:110:3]
+ 109 |   workspaceIdentity,
+ 110 |   workspaceRemoteSessionId,
+     :   ^^^^^^^^^^^^|^^^^^^^^^^^
+     :               `-- 'workspaceRemoteSessionId' is declared here
+ 111 |   activeTaskId,
+     `----
+  help: Consider removing this parameter.
+
+  ! eslint(no-unused-vars): Parameter 'activeTaskId' is declared but never used. Unused parameters should start with a '_'.
+     ,-[packages/ui/src/WorkspaceSidebarFooter.tsx:111:3]
+ 110 |   workspaceRemoteSessionId,
+ 111 |   activeTaskId,
+     :   ^^^^^^|^^^^^
+     :         `-- 'activeTaskId' is declared here
+ 112 |   isDesktop = false,
+     `----
+  help: Consider removing this parameter.
+
+  ! typescript-eslint(no-this-alias): Unexpected aliasing of 'this' to local variable.
+     ,-[packages/rpc/src/ipc.ts:161:11]
+ 160 |   ): T {
+ 161 |     const that = this;
+     :           ^^^^
+ 162 |     const isFilter = typeof routerOrFilter === "function";
+     `----
+  help: Assigning a variable to this instead of properly using arrow lambdas may be a symptom of pre-ES2015 practices or not managing scope well.
+
+  ! typescript-eslint(no-this-alias): Unexpected aliasing of 'this' to local variable.
+     ,-[packages/rpc/src/ipc.ts:219:11]
+ 218 |   ): Event<T> {
+ 219 |     const that = this;
+     :           ^^^^
+ 220 |     let disposables: DisposableStore | undefined;
+     `----
+  help: Assigning a variable to this instead of properly using arrow lambdas may be a symptom of pre-ES2015 practices or not managing scope well.
+
+  ! eslint(no-unused-vars): Identifier 'BUILTIN_MODEL_PROVIDER_IDS' is imported but never used.
+    ,-[packages/ui/src/WorkspaceSidebar.tsx:61:20]
+ 60 | import type { Locale, RemoteTarget, UserInfo, ZCodeTaskMeta } from "@zcode/shared";
+ 61 | import { isLocale, BUILTIN_MODEL_PROVIDER_IDS, isZaicodeProductMode } from "@zcode/shared";
+    :                    ^^^^^^^^^^^^^|^^^^^^^^^^^^
+    :                                 `-- 'BUILTIN_MODEL_PROVIDER_IDS' is imported here
+ 62 | import {
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'setPendingSettingsSectionIntent' is imported but never used.
+     ,-[packages/ui/src/WorkspaceSidebar.tsx:145:10]
+ 144 | import { useShortcutCommandLabel } from "@/shortcuts/useShortcutBindings.js";
+ 145 | import { setPendingSettingsSectionIntent } from "@/lib/settingsNavigation.js";
+     :          ^^^^^^^^^^^^^^^|^^^^^^^^^^^^^^^
+     :                         `-- 'setPendingSettingsSectionIntent' is imported here
+ 146 | import { buildTaskWorkspaceKey } from "@/lib/taskQueryCache.js";
+     `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Variable 'bumpTaskListVersion' is declared but never used. Unused variables should start with a '_'.
+     ,-[packages/ui/src/WorkspaceSidebar.tsx:396:9]
+ 395 |   const { openCodingPlanUpgrade } = useCodingPlanUpgradeDialog();
+ 396 |   const bumpTaskListVersion = useZCodeSessionStore((state) => state.bumpTaskListVersion);
+     :         ^^^^^^^^^|^^^^^^^^^
+     :                  `-- 'bumpTaskListVersion' is declared here
+ 397 |   const workspaceIdentity = useTabStore((state) => {
+     `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Variable 'key' is declared but never used. Unused variables should start with a '_'.
+     ,-[packages/ui/src/lib/runtimeHealthSnapshot.ts:104:14]
+ 103 |   let queryKeys = 0;
+ 104 |   for (const key of Object.keys(query.resultsByQueryKey)) queryKeys += 1;
+     :              ^|^
+     :               `-- 'key' is declared here
+ 105 |   return {
+     `----
+  help: Consider removing this declaration.
+
+  ! eslint-plugin-unicorn(no-useless-fallback-in-spread): Empty fallbacks in spreads are unnecessary
+     ,-[packages/ui/src/lib/runtimeHealthSnapshot.ts:148:5]
+ 147 |   const counters: Record<string, number> = {
+ 148 |     ...(input.readCountersSummary?.() ?? {}),
+     :     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 149 |     ...collectHotCacheSummary(),
+     `----
+  help: Spreading falsy values in object literals won't add any unexpected properties, so it's unnecessary to add an empty object as fallback.
+
+  ! eslint(no-unused-vars): Identifier 'getPathLeaf' is imported but never used.
+   ,-[packages/ui/src/lib/treemappingActivity.ts:3:10]
+ 2 | import type { TaskChatMessage, TaskChatToolCall } from "@/lib/taskChatMessageTypes.js";
+ 3 | import { getPathLeaf, isAbsoluteFilePath } from "@/lib/path.js";
+   :          ^^^^^|^^^^^
+   :               `-- 'getPathLeaf' is imported here
+ 4 | import { readRawToolCallFileSummaries } from "@/ToolCallBlocks/fileSummaries.js";
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'ZAICODE_UNFILED' is imported but never used.
+    ,-[packages/ui/src/WorkspaceSidebarItem.tsx:65:3]
+ 64 | import {
+ 65 |   ZAICODE_UNFILED,
+    :   ^^^^^^^|^^^^^^^
+    :          `-- 'ZAICODE_UNFILED' is imported here
+ 66 |   folderOfProject,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Type 'PanelImperativeHandle' is imported but never used.
+   ,-[packages/ui/src/app-shell/WorkspaceShellLayout.tsx:8:15]
+ 7 | } from "react";
+ 8 | import type { PanelImperativeHandle } from "react-resizable-panels";
+   :               ^^^^^^^^^^|^^^^^^^^^^
+   :                         `-- 'PanelImperativeHandle' is imported here
+ 9 | 
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'V4ChatPane' is imported but never used.
+    ,-[packages/ui/src/app-shell/WorkspaceShellLayout.tsx:14:10]
+ 13 | import { sidePaneTerminalSessionRegistry } from "@/terminal/sidePaneTerminalSessionRegistry.js";
+ 14 | import { V4ChatPane } from "@/v4/V4ChatPane.js";
+    :          ^^^^^|^^^^
+    :               `-- 'V4ChatPane' is imported here
+ 15 | import { V4WorkspaceChatArea } from "@/v4/V4WorkspaceChatArea.js";
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'Button' is imported but never used.
+    ,-[packages/ui/src/app-shell/WorkspaceShellLayout.tsx:89:10]
+ 88 | import { cn } from "@/components/lib/utils.js";
+ 89 | import { Button } from "@/components/ui/button.js";
+    :          ^^^|^^
+    :             `-- 'Button' is imported here
+ 90 | import { ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable.js";
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Parameter 'onCreateScratchWorkspace' is declared but never used. Unused parameters should start with a '_'.
+     ,-[packages/ui/src/app-shell/WorkspaceShellLayout.tsx:244:3]
+ 243 |   onOpenRemoteWorkspace,
+ 244 |   onCreateScratchWorkspace,
+     :   ^^^^^^^^^^^^|^^^^^^^^^^^
+     :               `-- 'onCreateScratchWorkspace' is declared here
+ 245 |   allowOpenWorkspace = true,
+     `----
+  help: Consider removing this parameter.
+
+  ! eslint(no-unused-vars): Parameter 'testMessages' is declared but never used. Unused parameters should start with a '_'.
+     ,-[packages/ui/src/app-shell/WorkspaceShellLayout.tsx:300:3]
+ 299 |   taskSessionFile,
+ 300 |   testMessages,
+     :   ^^^^^^|^^^^^
+     :         `-- 'testMessages' is declared here
+ 301 |   conversationFindActiveIndex,
+     `----
+  help: Consider removing this parameter.
+
+  ! eslint(no-unused-vars): Parameter 'handleOpenTreemapping' is declared but never used. Unused parameters should start with a '_'.
+     ,-[packages/ui/src/app-shell/WorkspaceShellLayout.tsx:328:3]
+ 327 |   handleOpenBrowserTab,
+ 328 |   handleOpenTreemapping,
+     :   ^^^^^^^^^^|^^^^^^^^^^
+     :             `-- 'handleOpenTreemapping' is declared here
+ 329 |   handleOpenWhiteboard,
+     `----
+  help: Consider removing this parameter.
+
+Found 108 warnings and 0 errors.
+Finished in 529ms on 3275 files using 16 threads.
+apps/zcode-cli                           |  WARN  Unsupported engine: wanted: {"node":"24.14.0"} (current: {"node":"v24.15.0","pnpm":"10.33.2"})
+
+> zcode@3.14.0 architecture:check V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode
+> node scripts/architecture/architecture-check.mjs check "--" "--changed"
+
+architecture: OK
+violations: 0
+baseline: 0
+new: 0
+apps/zcode-cli                           |  WARN  Unsupported engine: wanted: {"node":"24.14.0"} (current: {"node":"v24.15.0","pnpm":"10.33.2"})
+
+> zcode@3.14.0 test V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode
+> node --test "scripts/*.test.mjs" && pnpm --filter @zcode/ui exec node --import tsx --test "test/*.test.ts" && pnpm --filter @zcode/services exec node --import tsx --test "test/*.test.ts" && pnpm --filter @zcode/desktop exec node --import tsx --test "test/*.test.ts" && pnpm --dir apps/zcode-cli/packages/core exec node --import tsx --test "test/*.test.ts" && pnpm --dir apps/zcode-cli/packages/adapters exec node --import tsx --test "test/*.test.ts" && pnpm --dir apps/zcode-cli/packages/bootstrap exec node --import tsx --test "test/*.test.ts"
+
+✔ canonical ZAICODE environment sets both product switches and standalone identity (9.1415ms)
+✔ canonical assertion rejects a missing product mode (0.5994ms)
+✔ canonical assertion rejects a missing identity switch (0.9552ms)
+✔ malformed ZAICODE identity switch is rejected (0.2412ms)
+✔ normal production and test identities remain production and preview (6.1103ms)
+✔ a rendered surface that churned and held its frame rate passes (3.2871ms)
+✔ a run that never painted the product is not a pass (0.3092ms)
+✔ a run whose probes all failed has nothing to judge (0.2238ms)
+✔ a requested churn that clicked nothing is not a pass (0.2434ms)
+✔ a surface that painted a tree but stayed empty fails as blank (3.6554ms)
+✔ SRC-116's symptom, half the baseline frame rate, still fails as degraded (0.2439ms)
+✔ a replayed run recovers the churn it recorded, not zero (0.996ms)
+✔ a replayed run that recorded no churn fails as no-churn (0.2242ms)
+✔ steady jank at a flat frame rate is not degradation (0.4556ms)
+✔ jank that appears late is degradation (0.5617ms)
+✔ a window that never covered the horizon is not a pass (1.174ms)
+✔ a run that covered the horizon still passes (9.2761ms)
+✔ churn performed on a round whose probe failed is still churn (0.693ms)
+✔ 90-99 percent of a 12-hour horizon is incomplete, not PASS (2.8692ms)
+✔ coverage grants exactly one default sample interval, not percentage slack (0.434ms)
+✔ configured sample cadence defines and reports its own boundary (0.4044ms)
+✔ invalid cadence cannot expand coverage tolerance (0.3039ms)
+✔ a cadence at least as long as the horizon cannot waive the entire horizon (0.3123ms)
+✔ coverage is the harness span, not the last successful probe (0.304ms)
+✔ a timeline with no usable elapsed stamp reports zero coverage, not NaN (0.4111ms)
+✔ replay CLI carries custom cadence to the verdict, report and exit status (236.4318ms)
+✔ replay CLI preserves the default boundary and reports its tolerance (174.1648ms)
+ℹ tests 27
+ℹ suites 0
+ℹ pass 27
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 542.4546
+apps/zcode-cli                           |  WARN  Unsupported engine: wanted: {"node":"24.14.0"} (current: {"node":"v24.15.0","pnpm":"10.33.2"})
+✔ current task metadata is accepted without upgrading third-party Agent identities (20.1803ms)
+✔ obsolete Agent settings are stripped without dropping current user preferences (27.6599ms)
+✔ current question results work while Claude ACP text is no longer interpreted as answers (2.6131ms)
+✔ ZCode subagent identity wins over retired Codex nicknames (3.8455ms)
+✔ current tool errors remain available without Claude ACP status overrides (0.9297ms)
+✔ generic structured diffs still accept current tool content (0.309ms)
+✔ unrelated editor save preserves existing allow and deny lists, defaults to yolo (2.0529ms)
+✔ plan-mode change preserves existing allow and deny lists (0.1924ms)
+✔ selected backend is included in the editor save fields (0.1805ms)
+✔ editor status: a selected pool is ready, a missing pool asks for one (0.2496ms)
+✔ pool groups list router providers first and drop disabled/unselectable entries (0.7469ms)
+✔ known pools carry their description (0.1567ms)
+✔ backend intent label follows the provider kind (0.1731ms)
+✔ legacy saifren agents get the SAIFREN pool preselected (0.3033ms)
+✔ stage and steps say where the audit is, with each wave's time (3.0479ms)
+✔ the idle watchdog reads the running job's last sign of life (0.4713ms)
+✔ model labels and elapsed times read like a person would say them (0.3509ms)
+✔ each project's line shows its newest audit; an active one wins over history (0.3973ms)
+✔ finished waves and audits are heard once, not on the first reading (0.4769ms)
+✔ a binary off/on model has no Thought switch (1.4745ms)
+✔ explicit graded levels remain selectable and unsupported models show no switch (1.3224ms)
+✔ only a rise of the counter makes numbers; the first reading and a drop stay silent (1.7475ms)
+✔ heal is +N, damage is -N, a big burst is a critical hit (0.5454ms)
+✔ every part can be switched off (0.2501ms)
+✔ stored settings normalize: ranges clamp, bad colours and styles fall back (0.4218ms)
+✔ createAgent seeds the default only when it resolves against the available view (2.6687ms)
+✔ createAgent leaves the pool unresolved when the default is not available on this machine (0.343ms)
+✔ an explicit selection is never overridden by the default resolver (0.4334ms)
+✔ by default only the two ZAICODE pools show (1.9494ms)
+✔ the operator's own list wins; a model that disappeared is skipped (0.2168ms)
+✔ stored prefs normalize: at most four, no duplicates, subs on by default (0.2958ms)
+✔ claude /usage text parses session and weekly windows in the zone the CLI names (28.4285ms)
+✔ a 5h window never reads 'resets in 6h 30m' (SRC-033: reset read in the wrong zone) (1.5007ms)
+✔ codex rateLimits: plus account blocked by weekly, free account monthly (0.9592ms)
+✔ antigravity pools stay independent and a disabled 5h reads zero (0.7557ms)
+✔ zcode quota: unit selects the window, currentValue + remaining is the total (0.8535ms)
+✔ an elapsed window reads full until the next read (0.6695ms)
+✔ engines config normalizes unknown values to safe defaults (0.3112ms)
+✔ autostart: at-time job fires once, then is done; late start is missed (1.3491ms)
+✔ autostart: reset trigger waits for the refill plus the safety delay, fires once per reset (0.7771ms)
+✔ autostart: a blocked engine waits for quota instead of launching into a wall (0.4332ms)
+✔ autostart jobs normalize and drop malformed entries (0.4776ms)
+✔ BUILTIN_FANCYZONE_LAYOUTS includes Quarters and Columns (1.2318ms)
+✔ FancyZones fast cycling index wraps correctly (0.2159ms)
+✔ FancyZones settings fall back to valid defaults (0.3408ms)
+✔ Right-click drag 3px threshold logic (0.2009ms)
+✔ service hooks never change their hook order when the workspace path arrives (2.2701ms)
+✔ the overflow row can keep chosen items longest without reordering the row (1.4325ms)
+✔ the sidebar view row never cuts a button off at the default width (0.807ms)
+✔ an agent whose pool is not on this machine is not shown as ready to dispatch (4.5512ms)
+✔ every Help topic has a full article with a plain-words why (1.0691ms)
+✔ the glossary explains the words a beginner meets (0.2463ms)
+✔ every surface tag names a real Help topic (0.7952ms)
+✔ Shift+F1 reaches every topic that has a place on screen (0.2657ms)
+✔ a hint card never takes pointer events, with or without a description (9.2821ms)
+✔ a caller's className cannot turn pointer events back on (0.2895ms)
+✔ a dragged card lands before or after the card it was dropped on (2.4404ms)
+✔ dragging on a preset starts CUSTOM from what is on screen, so nothing jumps (0.6343ms)
+✔ a clock reminder's notice names the hour, not the interval (2.4159ms)
+✔ an elapsed reminder says how long it has been (0.2878ms)
+✔ the list says when a rule rings, in clock marks (0.3226ms)
+✔ every preset makes enabled, well-formed rules (0.8585ms)
+✔ complete collected catalogs match all 32 languages and the DED voice (918.2635ms)
+✔ preferences accept every catalog and retain explicit validation for unknown input (7.3363ms)
+✔ system and CLI detection resolve natural-language tags without choosing a voice (0.7762ms)
+✔ native menus retain every translated label and interpolation (3.1023ms)
+✔ CLI catalogs preserve dynamic values and both plural/retry branches (5.9751ms)
+✔ GLM account providers (and legacy builtin ids) are recognised (1.0044ms)
+✔ fallback skips GLM and prefers SAIFREN over a different preferred model (1.2995ms)
+✔ no fallback when only GLM is configured (0.1836ms)
+✔ C1 the desktop draws only when every monitor's overlay is confirmed by its own page (1.155ms)
+✔ C2 a main process that does not check is taken at its word about loaded overlays, as before (0.2009ms)
+✔ C3 the start-up loop keeps asking while overlays are loaded but not confirmed, and stops when they are (8.3725ms)
+✔ C4 Settings says what is confirmed, not what is loaded (0.5916ms)
+✔ C5 the window's own canvas idles only while the desktop is CONFIRMED, never merely wanted (0.5837ms)
+✔ C6 every overlay page answers the health probe with what it holds and whether it makes frames (0.5037ms)
+✔ the shipped Wave 3 bug is reported: a useMemo factory reads a const declared below it (47.2352ms)
+✔ every synchronous render callback shape is covered, not just useMemo (79.7238ms)
+✔ code that runs later is not reported: the variable exists by then (11.1049ms)
+✔ shadowing, names that are not reads, types and hoisting do not fool it (6.2766ms)
+✔ no synchronous render callback in the product reads a variable before it is initialised (19264.5762ms)
+✔ a mounted pane that is not counting down leaves the session to the background host (1.1901ms)
+✔ a pane that is counting down owns the retry (0.1656ms)
+✔ an operator Stop or an error retrying cannot fix keeps everyone from retrying (0.1396ms)
+✔ the first working observation starts the streak at the feed's own timestamp (1.1199ms)
+✔ a timestamp from the future is clamped to now, and no timestamp means now (0.1812ms)
+✔ opening the session later reads the same start (the composer only reads) (0.1683ms)
+✔ chained turns inside the grace window are one working streak (0.1695ms)
+✔ a gap longer than the grace window starts a new streak (0.1764ms)
+✔ an idle session past the grace window is forgotten (0.1552ms)
+✔ unavailable storage and malformed settings fall back without blocking the app (3.3402ms)
+✔ blank-click gesture needs five spaced clicks in six seconds (0.2918ms)
+✔ seed reproduces choices; other seeds change difficulty and positions (5.3954ms)
+✔ HP begins on hit 50; hits heal, idle drains, misses break combo (0.5408ms)
+✔ power-ups expire on active clock; tiny bonuses have no miss penalty (0.3236ms)
+✔ linear is gradual; step holds between 2-minute boundaries; both cap (0.3015ms)
+✔ sustained play survives 30 minutes in both modes over multiple seeds (19.7287ms)
+✔ grades are per segment, hits idempotent, game over freezes score (0.2988ms)
+✔ moving targets stay in the playfield and long frame gaps are bounded (1.054ms)
+✔ occasional missed circles remain recoverable and god protection expires (3.2494ms)
+✔ blank-click damage toggle changes HP behaviour (0.2124ms)
+✔ tempo / minimum-interval controls actually modify engine pacing (0.1942ms)
+✔ target-size settings drive geometry and moving range stays bounded (2.1621ms)
+✔ preset -> custom transition and preset detection (0.4253ms)
+✔ invalid persisted numeric values normalize safely (0.2743ms)
+✔ legacy three-field settings migrate: sound -> audioEnabled (0.234ms)
+✔ score-affecting live change taints the run; visual change does not (0.2374ms)
+✔ run duration ends the game deterministically (0.5756ms)
+✔ custom start/max HP honoured; HP can be always-on (0.1855ms)
+✔ a ball is drawn round: no border on a button (ZAICODE zeroes every border-radius), no fixed ring box (1.6051ms)
+✔ the ball's square holds the widest ring at every setting the panel allows (3.143ms)
+✔ a moving ball orbits inside the playfield at the largest movement amount (1.3933ms)
+✔ the +HP ball never spawns on top of the ball it comes with (2.7857ms)
+✔ SAIASUI isolation never inerts the ProTrail canvas (1.5401ms)
+✔ isolation restores a sibling that was already inert before the game (0.2789ms)
+✔ forced ProTrail config is set and cleared without a store mutation (0.3314ms)
+✔ SAIHOME is the default first view; startup preference is honoured (1.3335ms)
+✔ SAIHOME menu line lands first in an older stored menu (0.2284ms)
+✔ layout presets and the custom arrangement (1.4048ms)
+✔ analog clock angles: exact, ticking or smooth (0.71ms)
+✔ calendar: week starts, month / year rollover, DST-safe day steps (25.0098ms)
+✔ streaks: current survives an empty today; longest spans gaps correctly (0.6021ms)
+✔ limits wall: filters, temporary show-all, sign-in always visible, stale marked (1.2231ms)
+✔ routing: healthy, degraded, down, not known yet (0.7783ms)
+✔ NEEDS YOU: problems only, blocking first, disabled projects ignored (0.867ms)
+✔ queue counts and honest formatting (0.6776ms)
+✔ worker sessions: only subscription workers, only once they ended (0.256ms)
+✔ recent timeline: runs, worker sessions and journal events, newest first (1798.871ms)
+✔ parseSaimailIndex reads header rows and skips partial appends (2.4727ms)
+✔ buildSaimailSnapshot lists only unread inbox entries, newest first, and counts current work (13.0825ms)
+✔ unknown envelopes stay visible with placeholder headers (0.2768ms)
+✔ saimailAge uses receiver-local RECEIVED_AT (0.2593ms)
+✔ saimailBriefPrompt routes reading through SAIMAIL's own header-first brief (0.377ms)
+✔ the arrival notice names who wrote and about what, never the envelope's hash (0.407ms)
+✔ a letter whose header is not indexed yet gets a short honest label, and a long list is counted (0.2877ms)
+✔ no mailbox chosen: the post office is off and says how to start, without blaming anything (1.3724ms)
+✔ today's real state: a mailbox with zero peers cannot receive an agent letter, and the verdict names the repair (0.2865ms)
+✔ a desk that exists but nobody registered is a failure with the pair action, whichever side is missing (0.6565ms)
+✔ both directions registered: ready, and the desk is reported usable (0.2693ms)
+✔ a recreated operator mailbox leaves the desk holding an old key: stale, repaired by resetting the desk (0.2385ms)
+✔ refused letters are shown only when they arrived after the operator admitted the desk (1.1127ms)
+✔ a missing CLI is a failure and never offers an action that would need it (0.2198ms)
+✔ a folder that is not a mailbox offers to create one (0.2462ms)
+✔ the desk alias falls back to a key-suffixed one on a conflict and never collides with the plain one (0.3023ms)
+✔ listing stays metadata-only: the poller and the snapshot have no body and no open call (1.2199ms)
+✔ refresh and the passive surfaces cannot decrypt: nobody else opens letters (0.5952ms)
+✔ exactly one component can open a letter, and only from its Open/Reopen click (1.1515ms)
+✔ a selection is not an open: rendering a row draws headers, bodies come only from `opened` (0.2928ms)
+✔ read state is the backend's word: the poller re-syncs only on a canonical READ result (0.2199ms)
+✔ a failed open keeps the header, its durable state and says why (0.1659ms)
+✔ no cross-letter leakage: bodies are keyed per envelope, failures and busy flags too (0.125ms)
+✔ closing the reader forgets every body: close() wipes the plaintext state (1.0175ms)
+✔ the degraded state is said out loud when the build cannot open letters (0.2129ms)
+✔ the passive hover preview keeps its header-only wording and no agent round-trip (0.4114ms)
+✔ the widget needs no agent: click opens the reader by default, brief stays a choice (0.3929ms)
+✔ agent-to-agent SAIMAIL is unchanged: the desk guidance and brief prompt survive (0.2747ms)
+✔ saipeggle: ceiling collision emits wall event and sets ball.offWall (1.6726ms)
+✔ saipeggle: zenAim stays strictly within [-SPG_AIM_LIMIT, SPG_AIM_LIMIT] (12.1802ms)
+✔ saipeggle: multiball clamps extra ball within board bounds when triggered near ceiling (0.9775ms)
+✔ saipeggle: saipeggleDeal ensures at least 1 orange peg on small boards (0.2954ms)
+✔ saipeggle: level codes parse unpadded base64 correctly (0.696ms)
+✔ saiasui: locale strings include retryHint (0.1625ms)
+✔ a ball rolling along a straight row of bricks stays on it: no hop at any seam (19.3035ms)
+✔ bricks of one row lie on one line: no seam is a step (every adventure level) (25.1766ms)
+✔ a row of bricks 12-13 px apart has touching cores: no groove between two bricks (0.4553ms)
+✔ parseSaipenState reads phase, ticket, next action and hides blocker none (3.8394ms)
+✔ parseSaipenBoard counts sections and picks next ticket from TODO then BLOCKED (1.8899ms)
+✔ parseSaipenLastAction strips the Event Graph skeleton from the last LOG line (0.6338ms)
+✔ parseSaipenLastAction shows a repeated event tag once (0.2563ms)
+✔ the Discord SAIPEN COMMUNITY invite is the last Settings sidebar link (2.044ms)
+✔ one appearance write dispatches the event a subscribed control listens for (1.6575ms)
+✔ a sounds row keeps its columns and wraps the pool sub-row after the preview button (0.3527ms)
+✔ the Discord row wraps its label instead of running into the border (0.615ms)
+✔ release snapshot keeps durable preferences and drops runtime audio state (3.3667ms)
+✔ release snapshot refuses a Sounds-table own file it cannot carry (1.0934ms)
+✔ release snapshot keeps Sounds-table rows and own-file names (1.0703ms)
+✔ a switched-off voice does not silence the echo that follows it (3.3542ms)
+✔ an audible direct sound still swallows its own echo (0.4184ms)
+✔ an echo asked for before the click's own sound yields to it (0.3426ms)
+✔ an echo with no action behind it still plays, a moment later (0.3065ms)
+✔ every default event sound ships in the FastPrompter library (49.3932ms)
+✔ sound event ids are unique and every group is known (0.7017ms)
+✔ every Sounds-table row has a place that plays it (2440.403ms)
+✔ SRC-060 orchestra: each kind of control has its own voice (0.5338ms)
+✔ SRC-060 orchestra: form fields answer on change (0.2732ms)
+✔ SRC-060 orchestra: every voice the classifiers name is a row in the Sounds table (0.5235ms)
+✔ mix: sounds layer up to the limit, then the oldest ones fade (2.286ms)
+✔ queue: one after another, a bounded line, overlap repeats and replace dedupes (0.4192ms)
+✔ cut: a new sound fades everything still ringing (0.1825ms)
+✔ settings: mix up to 16 by default, anything else falls back safely (0.2569ms)
+✔ every one-shot goes through the rule; previews, the game and the background stay outside (1.0721ms)
+✔ a proven exhaustion holds the route until the provider's own reset (1.6879ms)
+✔ an exhausted route is never hammered and falls back to the free pool (23.1927ms)
+✔ a healthy route is used as requested, with no fallback announced (0.2998ms)
+✔ with no fallback pool available the requested route is kept and the error is the vendor's (0.5354ms)
+✔ recovery closes the circuit and the route comes back (0.431ms)
+✔ the circuit list is what a bug report exports (1.133ms)
+✔ the fallback pool the resolver reaches for is the one the product already ships (0.388ms)
+✔ a record under the cap keeps its identity so referential selectors do not re-render (1.2276ms)
+✔ first-touch retention drops the oldest keys and keeps the newest (0.9106ms)
+✔ a pinned key survives retention even when it is the oldest entry (3.1364ms)
+✔ pinning more keys than the cap never evicts anything (0.1785ms)
+✔ the query cache cap keeps the map at a fixed size no matter how many query shapes arrive (72.8957ms)
+✔ the session store funnel bounds per-task mirrors and pins the selected task (7.9994ms)
+✔ the session store funnel keeps the oldest task when it is the selected one (3.5052ms)
+✔ expired toasts are dropped and the stack never exceeds the cap (1.1224ms)
+✔ a toast carrying an action is never evicted, even over the cap (0.7585ms)
+✔ terminal audit history keeps every active campaign and only the newest finished ones (0.5623ms)
+✔ detached side pane terminals are reclaimed oldest-first (1.8284ms)
+✔ an attached side pane terminal is never reclaimed to satisfy the detached cap (0.428ms)
+✔ a snapshot keeps the fields a degradation report needs (1.8254ms)
+✔ credential-shaped and message-shaped fields never survive redaction (0.3491ms)
+✔ a long string is truncated rather than exported whole (0.2729ms)
+✔ the live builder fills every source it is given and never throws on the missing ones (2.9981ms)
+✔ a non-finite counter is dropped instead of serialising as null garbage (0.549ms)
+✔ a window persisted as waiting for first use remains startable without invented proof (1.5466ms)
+✔ an expired unproven anchor cannot invent the next vendor window (0.334ms)
+✔ a rolling window shows its countdown on the surfaces that skipped it at 100% (0.4682ms)
+✔ a start cooldown on one window does not hide a second pool's idle window (0.6448ms)
+[2026-10-03 13:05:45.130] [ui] v4 conversation store connect started {
+  event: 'v4.conversation.store.connect.started',
+  generation: 1,
+  hasBase: false,
+  module: 'ui.v4.conversation_projection_store',
+  status: 'started',
+  topic: 'conversation/stress'
+}
+[2026-10-03 13:05:45.132] [ui] v4 conversation store connect completed {
+  durationMs: 2,
+  event: 'v4.conversation.store.connect.completed',
+  generation: 1,
+  logEpoch: 'epoch',
+  mode: 'snapshot',
+  module: 'ui.v4.conversation_projection_store',
+  status: 'completed',
+  subscriptionId: 'sub',
+  topic: 'conversation/stress'
+}
+[2026-10-03 13:05:46.613] [ui] v4 conversation store close started {
+  event: 'v4.conversation.store.close.started',
+  generation: 1,
+  module: 'ui.v4.conversation_projection_store',
+  status: 'started',
+  subscriptionId: 'sub',
+  topic: 'conversation/stress'
+}
+[2026-10-03 13:05:46.613] [ui] v4 conversation store close completed {
+  durationMs: 0,
+  event: 'v4.conversation.store.close.completed',
+  module: 'ui.v4.conversation_projection_store',
+  status: 'completed',
+  topic: 'conversation/stress'
+}
+[2026-10-03 13:05:46.614] [ui] v4 conversation store connect started {
+  event: 'v4.conversation.store.connect.started',
+  generation: 1,
+  hasBase: false,
+  module: 'ui.v4.conversation_projection_store',
+  status: 'started',
+  topic: 'conversation/stress'
+}
+[2026-10-03 13:05:46.614] [ui] v4 conversation store connect completed {
+  durationMs: 0,
+  event: 'v4.conversation.store.connect.completed',
+  generation: 1,
+  logEpoch: 'epoch',
+  mode: 'snapshot',
+  module: 'ui.v4.conversation_projection_store',
+  status: 'completed',
+  subscriptionId: 'sub',
+  topic: 'conversation/stress'
+}
+[2026-10-03 13:05:46.615] [ui] v4 conversation store close started {
+  event: 'v4.conversation.store.close.started',
+  generation: 1,
+  module: 'ui.v4.conversation_projection_store',
+  status: 'started',
+  subscriptionId: 'sub',
+  topic: 'conversation/stress'
+}
+[2026-10-03 13:05:46.615] [ui] v4 conversation store close completed {
+  durationMs: 0,
+  event: 'v4.conversation.store.close.completed',
+  module: 'ui.v4.conversation_projection_store',
+  status: 'completed',
+  topic: 'conversation/stress'
+}
+[2026-10-03 13:05:46.616] [ui] v4 conversation store connect started {
+  event: 'v4.conversation.store.connect.started',
+  generation: 1,
+  hasBase: false,
+  module: 'ui.v4.conversation_projection_store',
+  status: 'started',
+  topic: 'conversation/stress'
+}
+[2026-10-03 13:05:46.616] [ui] v4 conversation store connect completed {
+  durationMs: 0,
+  event: 'v4.conversation.store.connect.completed',
+  generation: 1,
+  logEpoch: 'epoch',
+  mode: 'snapshot',
+  module: 'ui.v4.conversation_projection_store',
+  status: 'completed',
+  subscriptionId: 'sub',
+  topic: 'conversation/stress'
+}
+[2026-10-03 13:05:46.626] [ui] v4 conversation store close started {
+  event: 'v4.conversation.store.close.started',
+  generation: 1,
+  module: 'ui.v4.conversation_projection_store',
+  status: 'started',
+  subscriptionId: 'sub',
+  topic: 'conversation/stress'
+}
+[2026-10-03 13:05:46.626] [ui] v4 conversation store close completed {
+  durationMs: 0,
+  event: 'v4.conversation.store.close.completed',
+  module: 'ui.v4.conversation_projection_store',
+  status: 'completed',
+  topic: 'conversation/stress'
+}
+✔ only an active elapsed label gets a clock; reordered guided facts and completed history keep their timestamps (2.959ms)
+✔ a 100,000-row autonomous turn retains a bounded live tail and the correct log watermarks (1484.9996ms)
+✔ automatic leading-turn hydration stops after a few pages instead of reading the entire turn (2.0097ms)
+✔ explicit history reading survives incoming rows and returning to latest releases it (10.8256ms)
+✔ a running project survives a view change and old or missing index activity, then settles from fresh facts (2.3509ms)
+✔ Usage shows the router's totals and external clients without retaining request bodies or unbounded history (2.9514ms)
+✔ Usage page, sidebar and close are explicit modes; the sidebar shortcut toggles it (0.296ms)
+✔ quota fallback chooses SAIFREN ahead of paid preferences and skips every held provider (0.9847ms)
+✔ a quota circuit releases at its advertised reset and repeated exhaustion backs off (0.6782ms)
+✔ a replayed old quota error cannot renew the circuit or double its backoff (0.4268ms)
+✔ any provider's proven quota can switch to SAIFREN; tool and network text cannot close a route (54.8354ms)
+✔ Phase opens the visible workspace inspector or a sidebar for the exact draft project (0.4244ms)
+✔ the sidebar panel declares the container the action strip queries (1.9673ms)
+✔ the project row owns its sound cue, so the generic click cannot bury it (1.3862ms)
+✔ the counter subtree carries no key, and it renders no number itself (1.1289ms)
+✔ numbers are plain nodes in one fixed layer on <body>, removed on their own timer (0.2973ms)
+✔ the flash still retriggers on the same element, without a remount (0.1927ms)
+✔ the flash animation is still declared and still named (0.1345ms)
+✔ every registered topic id has a card, and every card is registered (1.8205ms)
+✔ every sidebar menu line has a help topic (13.6383ms)
+✔ resolution walks up to the nearest tagged ancestor (0.3841ms)
+✔ a more specific ancestor wins over the one further out (0.2633ms)
+✔ an unknown or absent tag resolves to null instead of a wrong card (0.3297ms)
+✔ a deep chain cannot spin the walk (18.6094ms)
+✔ Shift+F1 is bound and cannot be swallowed by the bare F-keys block (0.4722ms)
+✔ no two ZAICODE hotkeys claim the same default binding (0.2689ms)
+✔ the dispatcher resolves the pointer and passes the topic through (1.9782ms)
+✔ a jump while Help is already open still moves (6.9493ms)
+✔ Remain in position is off by default, so nothing changes for existing users (1.1131ms)
+✔ the setting is normalized, and a junk value falls back to the default (1.5826ms)
+✔ off: a project that finished an hour ago drops back, unchanged from before (1.5005ms)
+✔ on: a project that finished an hour ago keeps its LIVE rank (0.2309ms)
+✔ on: the rule needs a real activity record, so a project never seen live stays put (0.2425ms)
+✔ on: a project that is still running outranks one that merely stayed (0.2705ms)
+✔ the preference has exactly one control, next to the hold it overrides (0.7642ms)
+✔ keep moving: a number survives the calm interface and the system's reduced motion (1.3384ms)
+✔ a number starts above its anchor, not on the counter's own digits (0.1934ms)
+✔ numbers launched close together take the next free lane up (0.178ms)
+✔ with both, the red -N goes first and the green +N after the gap (the default) (1.3402ms)
+✔ chat numbers play only for a change that is happening now, under every condition set (0.302ms)
+✔ chat settings normalize and clamp (0.2622ms)
+✔ the Edit row wires its numbers to the edit's own id and liveness (0.4937ms)
+✔ only a DONE with a clean board is special (1.2507ms)
+✔ A3 is offered when it would look at something new, and never twice at once (1.1837ms)
+✔ the row shows the mark, a switched-off row does not, and planned A3 badges are quiet (0.9657ms)
+✔ the footer row defaults to Problip, ProTrail next to it, and the gear (1.7914ms)
+✔ a stored footer keeps the operator's order and drops what this build does not know (0.3815ms)
+✔ ProTrail's footer button: left click toggles, right click opens its settings (0.5756ms)
+✔ the profile can shrink to its avatar and hand its width to the buttons (0.4732ms)
+✔ repeated clicks on a MAIN row: open MAIN, then only fold -- never a draft, never another session (1.7296ms)
+✔ a stale MAIN id (the session is gone from the list) is never opened (0.2253ms)
+✔ a folder row: the first click goes to the project, the next ones only fold (0.1955ms)
+✔ the diamond switches: on -> off, off -> the open session, else the newest, else a new one (0.2787ms)
+✔ the sidebar row uses both decisions and the diamond shows its state (0.9318ms)
+✔ the defaults are ProTrail's release defaults, drawn everywhere (9.837ms)
+✔ a stored config is repaired like ProTrail's validators do it (0.9501ms)
+✔ fade, alpha and width follow trail_effect.cpp (0.3485ms)
+✔ hold: activation, charge and the charged release power (0.6004ms)
+✔ trigger buttons and a lost button-up (0.3095ms)
+✔ the motion wake spacing is 12 px x (1 / density)^0.75 (0.2511ms)
+✔ a trail is drawn from live samples and gone after its lifetime (1.3779ms)
+✔ the Raw Input helper's lines parse strictly (0.4191ms)
+✔ the overlay clock keeps the source's spacing and never lands in the future (0.2725ms)
+✔ one failing frame does not silence ProTrail until a reload; non-finite input is ignored (2.7268ms)
+✔ the bar draws on the palette's own tokens, never on the menu's surface (26.9552ms)
+✔ every tone follows the palette; no tone is a fixed dark hex (0.3812ms)
+✔ an unknown account is a hatched, dashed box with a dash, not an invisible strip (5.9329ms)
+✔ a nearly empty account still shows one pixel of fill (4.3108ms)
+✔ the adventure: 11 stages x 5 levels, every board design used, every board sound (39.6198ms)
+✔ a seed always builds the same board; the orange pegs are dealt again on every try (2.0784ms)
+✔ the multiplier climbs x2 / x3 / x5 / x10 with the orange pegs hit (0.3455ms)
+✔ physics: a ball bounces off a peg, loses energy, and never tunnels at top speed (1.4003ms)
+✔ physics: a ball resting on a peg slides off instead of sticking (friction only on impacts) (1.7495ms)
+✔ a whole level: shots, pops, free balls and Extreme Fever to the end (384.5249ms)
+✔ the Zen Ball stays within three degrees of the aim (40.5282ms)
+✔ a board code round-trips, and anything else is refused (1.6294ms)
+✔ settings are clamped; the font draws every letter the game writes; palette colours stay readable (1.7092ms)
+✔ wired in: the button above Support Developer with its own settings gear, the host, the sounds, no Pebble Drop (3.2528ms)
+✔ auto: pixels up to 125 % scaling, smooth from 150 % up; pixel / smooth are fixed (6.6974ms)
+✔ the old pixel switch migrates: off stays smooth, everything else becomes auto (0.4264ms)
+✔ auto size: compact on a 1366x768 laptop and on Full HD at 150 %, normal on larger work areas (0.4564ms)
+✔ wired: the start reads Windows scaling before the app is ready; compact is whole pixels (8.794ms)
+✔ untouched settings write no CSS at all: the app's look stays (2.3651ms)
+✔ every rule is scoped to an answer's markdown and beats pixel mode's !important font (1.7399ms)
+✔ underline is real: style, colour, thickness and distance; 'no line' removes one (0.5744ms)
+✔ Word-like heading numbers, bullets and list numbers (0.299ms)
+✔ stored settings normalize: bad colours, CSS in font names and out-of-range numbers never reach the page (0.5703ms)
+✔ presets: every built-in is a complete, different look; own presets round-trip through a file (1.9067ms)
+✔ one navigation is one sound: the session a project switch lands on stays silent (1.0535ms)
+✔ a slow session load stays inside the click's navigation echo window (0.3056ms)
+✔ interface sounds choke each other; agent, engine and mail sounds always mix (1.6439ms)
+✔ the project row that opens MAIN speaks with its own voice, not the orchestra's 'expand' (0.6961ms)
+✔ a session that never said anything and stands idle is an empty chat (1.2017ms)
+✔ the project click opens the new-task screen instead of an empty MAIN (1.121ms)
+✔ wiring: the summary reports an assistant preview, the row asks and replaces an empty MAIN (0.9909ms)
+✔ one project, one key, whatever the spelling of its path (0.9797ms)
+✔ a MAIN set under one spelling is found, replaced and cleared under another (1.1893ms)
+✔ saved duplicates fold into one entry, the later one wins; unknown keys resolve to themselves (0.2427ms)
+✔ an opportunity is listed with its count and expiry, and only while one exists (3.125ms)
+✔ the title-bar reset timer carries the plan resets, and a reset is asked for before it is spent (1.6357ms)
+✔ an error-paused queue resumes by itself when Auto allows it and the session is idle (1.1566ms)
+✔ it does not resume when a person stopped it, when it is running, empty or already draining (0.2301ms)
+✔ the leash: Auto OFF, a usage-limit wall and a spent budget all keep it paused (0.2046ms)
+✔ the session pane runs the hook with the queue, the phase and the error class (1.3479ms)
+✔ only a blocker a person can lift counts as waiting for a human (1.5504ms)
+✔ the board parse separates tickets that wait for a person from tickets that are BLOCKED (1.5839ms)
+✔ a project waiting for you is orange; a project really BLOCKED stays red (1.012ms)
+✔ the sidebar row: orange segment for a human, red for BLOCKED; the open project is outlined; MAIN shows its TODO meter on the top edge (1.4169ms)
+✔ a session the feed calls running but nobody heard from for hours is STALLED, not working (2.1569ms)
+✔ Stop, change the model, continue: the working timer starts from zero (1.4438ms)
+✔ an idle session that is observed idle ends its streak after the grace (0.2301ms)
+✔ wiring: the project row observes idle sessions and ends the clock on Stop; STALL is on the row (1.9128ms)
+✔ a usage limit is a wall, an empty answer is a hiccup (1.7262ms)
+✔ the count is capped no matter what the setting says, and the wait doubles (1.0992ms)
+✔ who may send by itself: a session's Off wins, On lets it, otherwise Auto AND the switch (0.3499ms)
+✔ the background host picks nothing that the switches forbid or that hit a quota wall (0.4409ms)
+✔ a quota wall is remembered for half an hour, then one probe may go out (0.2668ms)
+✔ the ledger shows what is scheduled and one halt stops every automatic send (0.3972ms)
+✔ wiring: the chat countdown, the background host and the crash resume all ask the policy; the sidebar shows the ledger (1.3828ms)
+✔ New folder is an icon button that still reads as a button (1.4913ms)
+✔ the sidebar drops the No folder row and shows its count beside the button, on one compact line (0.8737ms)
+✔ the envelope reads its rectangle before it sets state, never inside the updater (1.3979ms)
+✔ no component reads a synthetic event's currentTarget inside a state updater (716.5441ms)
+✔ Sounds: single/pool is a cell in the event row, and only a pool takes an extra line (1.4193ms)
+✔ Notifications: a scenario is one line, its hint follows the label; timers: no 80 px box for an empty list (0.482ms)
+✔ A1 saving takes the page's settings and keeps its own sound by digest, once (12.434ms)
+✔ A2 a preset shared through a file plays the same on another machine, own sound included (3.2865ms)
+✔ A3 a page that cannot be rehydrated in place reloads the window, once, after the settings are written (0.5655ms)
+✔ A4 Undo puts back the settings AND the own sound that an apply replaced (2.401ms)
+✔ A5 a sound the preset names but whose bytes are gone is REPORTED, never replaced by another (0.5719ms)
+✔ A6 a source that will not overwrite a different file puts the sound under another id, and the settings follow (1.9112ms)
+✔ A7 a damaged or altered file cannot bring a sound in: the bytes must match their digest (1.0061ms)
+✔ A8 Reset is an apply of the defaults: every key of the page removed, undoable (0.4323ms)
+✔ A9 Update replaces a preset with what the page holds now, keeping its name and id (0.3499ms)
+✔ A10 a write that storage refuses leaves the page as it was, with no undo to offer, and the error is raised (0.9611ms)
+✔ A11 a refused write also puts back the own sound the preset had replaced (2.7503ms)
+✔ A12 blobs nothing refers to any more are pruned, the ones a preset or an undo needs stay (0.3606ms)
+✔ A13 the outcome line says what was done, what was put in place and what stays silent (0.2229ms)
+✔ P1 every section owns its own keys, all of them part of a profile, none shared between sections (1.4888ms)
+✔ P2 an object setting is embedded as itself, a plain string as it is, unset as null; and back (1.1662ms)
+✔ P3 capture takes every key of the section; apply writes only those, and null removes the key (0.5592ms)
+✔ P4 apply never writes a key outside its section, whatever the settings claim (0.1872ms)
+✔ P5 what a preset would change is counted by value, not by whitespace (0.4426ms)
+✔ P6 the own sounds a preset needs are found in single choices and in pools, bundled ones are not (0.4662ms)
+✔ P7 an own-sound id is a bare event id or a relative path inside the customization folder, never a way out of it (0.2647ms)
+✔ P8 a preset written to a file and read back is the same preset, sounds included (1.0564ms)
+✔ P9 a file is never trusted: wrong kind, not JSON, a newer format, an unknown page are refused with the reason (0.3044ms)
+✔ P10 keys the page does not own are dropped and said, never written (0.3564ms)
+✔ P11 a sound that is malformed, mislabeled, oversized or twice in the file is left out and said (0.473ms)
+✔ P12 names are cleaned, made unique and turned into a file name (0.363ms)
+✔ P13 facts of THIS machine or of right now never travel: not captured, not compared, kept on apply (2.0208ms)
+✔ P14 a file cannot plant a fact of another machine: launchers, project maps, running flags are stripped on read and on apply (1.254ms)
+✔ P15 the local paths of a section name keys of that section, and the sidebar's project map is one of them (0.3517ms)
+✔ S1 a good row is read as it is; anything that is not a list, or not a row of a known page, is dropped (2.5817ms)
+✔ S2 a row is cleaned: foreign keys and local facts removed, names cleaned, sounds without a real digest dropped (1.329ms)
+✔ S3 a page keeps at most N presets (1.9566ms)
+✔ S4 the undo records of storage are read the same way, and the sounds they and the presets need are known (0.3343ms)
+✔ S5 adding gives a name not used on that page yet; another page may reuse it; a full page refuses (0.9604ms)
+✔ S6 replace keeps name and place, rename stays unique, remove removes (0.5519ms)
+✔ S7 the undo record of a page is set and cleared without touching the others (0.2945ms)
+✔ U1 the words: sizes, dates, what a file would do, which sounds could not be kept (6.5448ms)
+✔ U2 an import shows what it would do BEFORE anything is stored: page, changes, sounds, what was left out, then three ways forward (31.6085ms)
+✔ U3 an empty page offers save, import and reset; a Sounds page says its own files travel (14.023ms)
+✔ U4 the reopen mark survives one reload for a page with presets and nothing else (0.6643ms)
+✔ U5 wiring: the title row of every page with presets holds the menu, and the runtime reopens the page after a reload (6.6849ms)
+✔ U6 wiring: only Sounds takes a preset without a reload, through its three stores; everything else reloads and leaves a mark (2.0156ms)
+✔ U7 wiring: importing an own sound and restoring one from a preset use the same storage step, which forgets the cached old file (0.8599ms)
+✔ L1 saved presets are listed with their own page only, each with apply, replace, export and delete that say what they do (80.1634ms)
+✔ L2 an Undo button appears when the page has something to put back, named after what it puts back, and only there (13.1795ms)
+✔ C1 the list is live: a file that appears in the folder shows up in the catalog after main's notice, with no restart (149.7916ms)
+✔ C1b a refresh asked for during a scan waits for a scan that started after it: a file written a moment ago is in the list (175.6433ms)
+✔ C2 a preset notice for another kind does not scan the sounds (49.7776ms)
+✔ C3 a sound is read through main once, played from a URL, and read again only when the file changed (16.4526ms)
+✔ C4 a path the folder would refuse is never asked for (0.2922ms)
+✔ C5 the ambience layer's synchronous request starts one read, is called back when it lands, and does not spin on a missing file (387.8111ms)
+✔ C6 a file that was removed stops playing and reads as missing, not as its raw id (39.0536ms)
+✔ C7 the Mine tab shows the folder's files whatever their kind, and only those (0.339ms)
+✔ C8 a preset that names a customization sound carries its bytes and puts them back (57.0079ms)
+✔ C9 a sound this installation does not have is reported missing, never swapped for another (1.2542ms)
+✔ C10 the same sound imported twice adds no second copy (3.2021ms)
+✔ C11 the presets folder: exports land in it with one click, the list is by page, a failed write falls back to a download (12.669ms)
+✔ C12 the panel offers the folder only when there is one (20.6911ms)
+✔ C13 every place that lists or plays a sound goes through the live list (2.2586ms)
+✔ P1 a pool built by choosing three different sounds in a row has three members with equal shares; choosing one again takes it out (2.8313ms)
+✔ P2 a sound added to a tuned pool gets a fair share, not the sliver a weight of 1 would give beside 50 and 30 (0.5466ms)
+✔ P3 a pinned share stays where it was when a sound joins (0.4125ms)
+✔ P4 into a pool the current sound is the first member; out of it the heaviest member is the sound (0.4153ms)
+✔ P5 single -> pool -> three picks -> single keeps a sound, and the pool waits for the next switch (4.5701ms)
+✔ P6 two quick picks both land: each one reads the table at the click, not a copy the screen drew before (1.1054ms)
+✔ P7 adding a member that is already there changes nothing about it (weight and pin stay) (1.5428ms)
+✔ P8 an empty pool plays the event's own sound, and going single from an empty pool changes no sound (0.3787ms)
+✔ P9 the members are listed at once under one control that adds sounds; the old duplicate-first button and the show/hide step are gone (12.7268ms)
+✔ P10 'pin' means something only with two or more members (or while one is pinned, so it can be let go) (5.1898ms)
+✔ P11 an empty pool says what plays meanwhile; the row's own cell says how many (1.8806ms)
+✔ P12 a preset carries a pool: its members that are the person's own files travel with it (0.5815ms)
+✔ P13 the row shows the pool summary instead of a sound picker in pool mode; the picker has its several-choice mode; an imported file joins the pool (0.8205ms)
+✔ U1 no code in the window calls the browser's own dialogs: prompt() does not exist in the app, confirm() blocks and beeps (644.0725ms)
+✔ U2 a name field gives back what was typed, tidied, and the fallback when it was left blank (0.3382ms)
+✔ U3 the name field says what it asks, starts on the suggestion and offers the two ways out (17.9013ms)
+✔ U4 the folder menu is there when the header opens it, with Rename and Delete; the old menu rendered nothing (1.5204ms)
+✔ U5 New folder asks for the name in a popover and Rename in the menu; Delete folder asks in the app's own dialog (0.5156ms)
+✔ U6 closing a running worker asks (in the app's dialog, red button); an ended one, or the setting off, closes without a question (0.4994ms)
+✔ U7 Clear all done, a plan reset and the Session text import ask in the app's own dialog, before anything happens (0.549ms)
+✔ C1 the credits block becomes counts, dates in milliseconds and titles; a missing block is unknown, a zero is a real zero (2.2143ms)
+✔ C2 hostile or half-broken credit rows are dropped or tidied, never trusted (0.3598ms)
+✔ C3 what can be spent now: the vendor's count less the credits that ran out; the one that expires first is used first (306.457ms)
+✔ C4 the answers of the spend call are told apart, and every one has its own sentence naming the account (13.6776ms)
+✔ C5 the rows: only accounts with something to spend, the blocked one first, what a reset would refill named (1.1217ms)
+✔ C6 the question before a credit is used up says what refills, that it is gone, and how many stay; the button is red (65.6979ms)
+✔ C7 nothing is spent without the 'Use the reset' click: declined means the main process is never asked (0.8018ms)
+✔ C8 confirmed: the credit the row named is spent, once, and a second click while it runs is ignored (31.7538ms)
+✔ C9 a bridge that throws is 'nothing was spent', and the account is free to try again (0.5715ms)
+✔ C10 without the desktop bridge nothing happens (the web build has no Codex to ask) (0.1622ms)
+✔ C11 the section lists each account with count, what is spent, expiry and a button; Claude gets one honest line; nothing to spend draws nothing (19.0503ms)
+✔ C12 the reset list, its badge and every account block show the credits (0.6163ms)
+✔ K1 with the keyboard in the chat (focus, selection or the last click) select-all takes that chat (1.0889ms)
+✔ K2 anywhere else it is left to the browser: the sidebar, the page, nothing (0.2021ms)
+✔ K3 in a text field select-all keeps its meaning (that field's text), even when the field sits inside the chat (0.2097ms)
+✔ K4 only plain Ctrl+A or Cmd+A counts; Shift/Alt combinations and keys somebody already handled do not (0.3107ms)
+✔ K5 the listener is installed at app start, in the capture phase, and takes the chat's contents only (2.6296ms)
+✔ only a failed start-up or a running migration is shown to the operator early (0.946ms)
+✔ the interactive event fires once per window, after the next frames (1.0933ms)
+✔ accounts: one per OAuth connection, numbered per vendor in the order they were connected (25.0636ms)
+✔ models: bare ids in the menu, the vendor's real efforts on thinking models, and ZCode accepts the config (6.217ms)
+✔ the account rides in the provider's address and comes back out of it (0.5406ms)
+✔ sync: new accounts come in, new models are added, retired ones leave, gone accounts are removed (0.9703ms)
+✔ readiness: the tightest window, a resting account, a switched-off one, a vendor without numbers (1.1792ms)
+✔ the model menu: a bar on subscription accounts, nothing on other providers (0.2668ms)
+✔ the renderer may read one account's quota, not the request logs beside it (0.5164ms)
+✔ B1 the same services resolve to the same object, so an effect that lists them runs once, not on every render (1.837ms)
+✔ B1b Settings -> ZAICODE keeps loading its lists in an effect keyed on the resolved services only (0.7817ms)
+✔ B2 SAIHOME Now: a value wraps inside its tile instead of losing its end ('0 run · 0 r...', 'none pendi...') (35.8521ms)
+✔ B3 the title-bar project name shrinks with an ellipsis instead of running under the clock (12.7074ms)
+✔ B4 in a narrow session header the clock gives up the date and the part of day; the time stays, SAIHOME keeps it all (1.1776ms)
+✔ B5 a draft with no project picked has no SAIPEN strip (INIT SAIPEN 'in this project' had no project) (0.7634ms)
+✔ B7 the sounds folder path breaks after a separator, never inside a name ('customization\sound' / 's') (5.622ms)
+✔ B8 an empty alarm time is a prompt, not an error; only unreadable text turns orange (0.3968ms)
+✔ B9 a preset's date and the statistics export's file name are the operator's calendar day, not UTC's (0.9107ms)
+✔ B10 SAIHOME Activity's day line counts in words that agree ('1 turn', not '1 turns') (19.0689ms)
+✔ B11 SAIHOME Routing counts only recent provider errors; old ones stayed red for weeks (2.2504ms)
+✔ B12 the sidebar's icon-only Group / Project tabs carry a hint and an accessible name in ZAICODE (4.2108ms)
+✔ B6 SAIHOME Projects: the name column gets the larger share of the row (0.5308ms)
+✔ C1 a sound row without conditions follows the master rules exactly as before (1.9215ms)
+✔ C2 background-only / front-only rows, through quiet hours, and a cooldown (0.2854ms)
+✔ C3 stored conditions are cleaned, kept through the settings normalizer, and shown as a short tag (1.5896ms)
+✔ C4 the sound engine asks the row's conditions; a sound waiting in line keeps its quiet-hours pass (17.5855ms)
+✔ S1 moments that had no voice have one now: free models ready, a new free model, updates (0.5256ms)
+✔ L1 a layout entry can wait for a moment: while working, while idle, on hover (0.5303ms)
+✔ L2 the header, the footer, the menu and the meter all apply the condition (10.2194ms)
+✔ I1 every sidebar header / footer button and every menu line draws a swappable icon slot (0.8887ms)
+✔ I2 the layout editor shows each row's icon and its when-condition (156.1246ms)
+✔ U1 the update report of Update-ZAICODE.ps1 -Json parses, noise before it included (2.4867ms)
+✔ U2 installed parts update by themselves by default; a developer checkout only reports (0.5099ms)
+✔ U3 update sounds: news once, an installed part, a failure first (0.3453ms)
+✔ U4 Settings -> ZAICODE opens with the Updates card (0.9205ms)
+✔ F1 a first install nags about nothing: a Claude / Codex login never set up here is an offer, not 'needs you' (290.2208ms)
+✔ F2 once the free pools exist SAIHOME reads the router again, so a first start shows no stale 'no SAIFREN pool' (0.2535ms)
+✔ a stale active project no longer starves the other projects' lists (2.3071ms)
+✔ cold start still loads the active project alone first (0.394ms)
+✔ ZAICODE shows and sends a build or edit session as full access; plan stays (0.4133ms)
+✔ keep windows rolling is on by default for all supported five-hour accounts (0.9048ms)
+✔ a running, spent, gated, hidden, failing or unsupported window is left alone (0.4701ms)
+✔ a start is not repeated inside its cooldown, a refused one waits an hour (0.378ms)
+✔ the limits panel says who started the window (0.4402ms)
+✔ a few models become toolbar buttons; many keep the dropdown (0.5129ms)
+✔ inside the dropdown a small provider shows buttons, a big one keeps its submenu (0.258ms)
+✔ display name survives draft save, JSON reload, enable toggle and recommended-config restore without changing the request ID (6.7163ms)
+✔ subscription refresh updates proxy credentials while preserving the user provider name (1.4929ms)
+✔ a standby reserve cannot start an exhausted primary quota (1.162ms)
+✔ a reserve alone is not a primary window, a full idle primary can start (0.441ms)
+✔ a spent weekly primary prevents starting a fresh 5h window (0.1803ms)
+✔ primary Codex rows precede reserve even when the API lists reserve first (1.551ms)
+✔ standby reserve stays behind usable primary quota and becomes usable only after exhaustion (0.3454ms)
+✔ the card settles both concurrent model saves even when the provider draft changes in between (226.8236ms)
+✔ the card settles a failed model save after a different model completed (23.5002ms)
+✔ different model saves settle independently, even after another draft edit (0.2589ms)
+✔ out-of-order saves of the same model cannot replace the latest feedback (0.1773ms)
+✔ subscription models appear alongside pools and provider-qualified visibility survives duplicate model IDs (2.1401ms)
+✔ subscription selection keeps the intended account despite custom provider names and rejects ambiguous logins (0.3246ms)
+✔ sidebar commands reach only the current workspace composer and retain the supported effort for new chats (117.8862ms)
+✔ a short sidebar drag snaps to the rail and dragging back restores readable rows (1.047ms)
+✔ swapped sidebar resize and stored placement use the same preference (0.2711ms)
+✔ every real hover and typing event is admitted even within 120 ms (1.0416ms)
+✔ hotkeys has one visible destination and legacy links resolve to shortcuts (0.5008ms)
+✔ model working appearance retains the entire icon, motion and layer configuration (4.685ms)
+✔ unconfigured/default models follow current Working icon settings, never the shipped picture (0.8303ms)
+✔ legacy global and model assets survive without masking a new full working override (0.6457ms)
+✔ a model overriding one highlight field inherits the other global fields of that target (0.9144ms)
+✔ complete highlight fine tuning survives persistence and provider identities stay isolated (0.5686ms)
+✔ folded slots retain their hidden project count; an empty slot stays zero (192.15ms)
+✔ expanded slots count the same projects that they render (34.7116ms)
+✔ Shift START sends the goal here even with a subscription selected, preserving MAIN (139.5037ms)
+✔ plain START still creates fresh MAIN; a hotkey calls the same default behavior (32.8386ms)
+✔ Shift START respects current composer admission and plain START keeps worker routing (25.6819ms)
+✔ a model whose only thought levels are on/off gets no thought control (3.9371ms)
+✔ a real effort scale keeps its control (6.3441ms)
+✔ a scale that also lists an off marker never offers or keeps the off state (0.9693ms)
+✔ an unstarted 5 h window stays pending until a real vendor-backed start (7.3209ms)
+✔ the countdown is anchored, not restarted by the next sweep (0.9391ms)
+✔ a window the vendor really started is no longer local (0.6833ms)
+✔ ZCode reports a 0-of-0 5 h window as a full window instead of dropping it (2.1194ms)
+✔ Antigravity keeps a bucket that has a reset time but no fraction yet (0.9907ms)
+✔ the title timer counts down a rolling 5 h window instead of standing still (1.2344ms)
+✔ the confirm dialog wraps anywhere and clips to its own frame (2.8973ms)
+✔ the shared dialog header and footer may shrink inside the grid content (0.4749ms)
+✔ SRC-112: one OUTBOX file parses into its packages with their fields (4.6279ms)
+✔ SRC-112: a status outside the enum is null, never a guess (0.3827ms)
+✔ SRC-112: counts are per status and actionable is ready + blocked (0.3683ms)
+✔ SRC-112: only ready packages are collect targets, sorted and de-duplicated (0.3995ms)
+✔ SRC-112: the Collect button sends the canonical command, not its own protocol (0.1647ms)
+✔ SRC-112: a SubSaipen role is a plain directory, not _shared and not hidden (0.1772ms)
+✔ SRC-112: ZAICODE only reads the OUTBOX, it never writes it (0.7135ms)
+✔ SRC-112: one reader per project, not one per open composer (0.4915ms)
+✔ SRC-112: the chip is mounted above the SAIPEN strip, Collect sends the collect command (0.6626ms)
+✔ SRC-112: auto-continuation reuses the sidebar Auto switch, off by default (0.3691ms)
+✔ SRC-113: Full shows a ticked entry whatever its own condition says (0.2251ms)
+✔ SRC-113: the preference survives a stored value from an older build (0.1891ms)
+✔ SRC-113: every call site passes the preference, so the switch reaches the screen (0.5378ms)
+✔ SRC-113: the toggle sits in the header next to the buttons it governs (0.2776ms)
+✔ SRC-113: an unknown condition is 'always', so nothing hides behind a bad value (0.2158ms)
+✔ SRC-114 help: a newcomer meets the basics first, not the game (1.3233ms)
+✔ SRC-114 help: every topic is filed exactly once (1.4746ms)
+✔ SRC-114 help: chapters are contiguous and none is empty (0.2976ms)
+✔ SRC-114 help: a topic nobody filed is kept, in a chapter that says so (0.6629ms)
+✔ SRC-114 help: a filtered search is a subsequence, not a reshuffle (0.3653ms)
+✔ SRC-114 reporting: bug and feature requests land in the project's own repository (0.2627ms)
+✔ SRC-114 help menu: no help route leads to the vendor documentation site (0.4212ms)
+✔ SRC-114 issue templates: the links point at templates that exist (0.926ms)
+✔ SRC-114 saipen: a directory that cannot be read is not reported as absent (0.473ms)
+✔ T-167: an exhausted route moves the hand-sent turn and reports the hold (54.0089ms)
+✔ T-167: a route with no circuit is sent exactly as the operator chose it (0.4985ms)
+✔ T-167: B2 — only a proven exhausted plan opens the circuit (0.6029ms)
+✔ T-167: the fallback is never the route that is already dead (0.5615ms)
+✔ T-167: only one route dies at a time — the fallback is not itself fenced (0.4926ms)
+✔ T-167: the reasoning level travels only when the target model offers it (4.4151ms)
+✔ T-167: an estimated hold is never stated as a vendor reset (2.1902ms)
+✔ one ready generation is not redelivered across composer delivery attempts (3.9861ms)
+✔ new producers do not reset earlier producer admission, and order changes do not retrigger it (0.2578ms)
+✔ rejected or throwing local submission does not consume admission; manual retry remains possible (0.4602ms)
+✔ a synchronous second composer cannot redeliver an admitted generation (0.1751ms)
+✔ Autopilot off changes readiness and prepared glow, without consuming a planned occurrence (0.3845ms)
+✔ a missed or invalid schedule retains its real reason while Autopilot is off (0.1627ms)
+✔ the Autopilot projection reads host state and refuses a stale read after a confirmed toggle (0.9213ms)
+✔ a full queue refresh cannot overwrite a confirmed Autopilot toggle with an older read (0.5202ms)
+✔ idle live quota remains eligible for a real starter and supplies no fabricated countdown (2.099ms)
+✔ historical local anchors are not evidence that a vendor window started (0.1831ms)
+✔ a matching real attempt and fixed vendor reset keep the rounded-full window live (0.1982ms)
+✔ failed and foreign-pool attempts cannot prove a live reset (0.1834ms)
+✔ a successful transport with a still sliding vendor reset stays unstarted (0.2087ms)
+✔ an expired real anchor does not fabricate the next vendor window (0.1889ms)
+✔ persisted per-window results survive another pool's later failed attempt (0.2438ms)
+✔ independent pools retain their own successful admission through sweeps and restart (0.4234ms)
+✔ failure admission blocks sibling windows in that pool but leaves another pool available (0.3074ms)
+✔ working media keeps 1 MiB and 4096px boundaries and revokes preview URLs (4.0159ms)
+✔ a worker's identity survives every placement change as the same frozen record (3.308ms)
+✔ placement code cannot write an identity field; identity records cannot be mutated (0.7374ms)
+✔ only the runtime changes identity: an exit replaces it, the place stays (0.535ms)
+✔ generations: the same engine in the same project counts up; a crash restart continues the count (1.4468ms)
+✔ runtime transitions: exit ends the lease; restart is the next generation with a new runtime id (0.3122ms)
+✔ topology per project from identities only: path spelling ignored (0.4552ms)
+✔ slots and MAIN are pointers: moving a project or re-pointing MAIN leaves the registry as it was (1.3856ms)
+✔ ZAICODE_AGENT_ROLES contains subsaipen roles (0.8681ms)
+✔ built-in templates exist for subsaipen modes (0.2402ms)
+✔ board strip shares: blocked / todo(+doing) / done sum to 1 (1.1549ms)
+✔ priority slots: AUDAPACK groups, unassigned projects sit in MAIN0 (1.0008ms)
+✔ battlezone readiness: empty todo is dark, finished is green (0.4289ms)
+✔ dispatch clamps a reasoning level the pool does not support (0.209ms)
+✔ Usage resolves opaque provider and account IDs to the router's display names (1.4305ms)
+✔ Usage preserves all metrics when the catalog cannot identify old routes (1.1134ms)
+✔ Usage refuses ID-shaped display names, bounds metadata and keeps useful names (0.6909ms)
+✔ Usage checks complete identities before truncation so long names cannot conceal an opaque suffix (0.222ms)
+✔ Usage grouping sums every metric while keeping distinct readable identities (0.428ms)
+✔ Usage turns router statuses into readable outcomes without raw error codes (0.1666ms)
+✔ B1 one submit is one dispatch (1.2319ms)
+✔ B2 rapid double submit and key repeat collapse onto the first request (0.3072ms)
+✔ B3 the gate is in-flight only: the same words sent later are a real turn (0.2618ms)
+✔ B4 a retry after a real transport failure is a new attempt, not a swallowed turn (0.7589ms)
+✔ B5 different turns are never folded together (0.2924ms)
+✔ B6 a draft turn and the same text in a real session are different turns (0.169ms)
+✔ B7 the ledger outlives a composer remount, so a replayed submit still folds (0.2011ms)
+✔ B8 the uplink routes the user turn through the gate and leaves other commands alone (1.5737ms)
+✔ C1 a running item counts with the clock (1.1881ms)
+✔ C2 a terminal item freezes exactly at completion and ignores the clock (0.1841ms)
+✔ C3 the frozen value is the same after a reload, because it comes from the record (0.168ms)
+✔ C4 nothing counts, so no clock runs (0.1661ms)
+✔ C5 a worker that has exited never counts again (0.2551ms)
+✔ C6 a running worker counts, and keeps the clock alive (0.1802ms)
+✔ C7 a crashed worker (non-zero exit) is terminal too (0.1617ms)
+✔ C8 a queue job freezes on its own finishedAt and re-derives it after a reload (0.2911ms)
+✔ C9 every product-defined terminal job state freezes, and only those (0.2537ms)
+✔ C10 a job that never started has no elapsed to show (0.2427ms)
+✔ C11 the elapsed clock is not left running by a mounted component (0.916ms)
+✔ C12 no display derives a finished age from the current clock (0.3661ms)
+✔ F1 the workers tray is capped on every anchor, not only the side ones (1.6118ms)
+✔ F2 a centred header title yields the band when the toolbar owns it (0.3368ms)
+✔ F3 the overlay band variable is defined for both sidebar states (0.6178ms)
+✔ F4 no floating surface may be laid out without a ceiling on a 768px-tall window (1.0241ms)
+✔ F5 the top overlay never drops its width ceiling (0.3563ms)
+✔ F6 the row gauge strip never paints over the row it decorates (0.7692ms)
+✔ F7 the sidebar, content and side pane still fit at 1366x768 (0.571ms)
+✔ F8 the docked todo dock is clamped to the viewport (0.2607ms)
+✔ D1 stopping the retry for an error is recorded and survives a remount (1.1872ms)
+✔ D2 stopping one error does not silence the next one (0.1766ms)
+✔ D3 an absent error key stops nothing (0.1401ms)
+✔ D4 the stopped-key ring is bounded (0.2027ms)
+✔ D5 the notice has a real close control in every state it can be in (0.6009ms)
+✔ D6 Stop is reachable whenever a retry is live, not only during the countdown (0.2937ms)
+✔ D7 closing the composer error banner stops the retry behind it (1.4174ms)
+✔ D8 a dismissed card is not resurrected by the same source, and the ring is bounded (0.4175ms)
+✔ D9 the toast close control is a keyboard-reachable button with a real target (0.3681ms)
+✔ A7 the desktop refusing the first call is 'not yet', not 'this build cannot draw' (7.9729ms)
+✔ A8 a desktop that answers nothing at all is reported honestly, not retried forever (1.606ms)
+✔ A9 a desktop that refuses the call but still answers its status is not 'unavailable' (2.5789ms)
+✔ A10 'starting' with no overlay keeps asking until the trail is really drawn (0.8691ms)
+✔ A11 once converged the loop stops: a healthy ProTrail costs one call (8.6879ms)
+✔ A12 switching the mode off converges too: 'off' is the answer, not a retry (4.3355ms)
+✔ A13 a disposed loop never touches the desktop again (8.0877ms)
+✔ A14 the retry cadence backs off and stays bounded (0.2448ms)
+✔ A15 convergence means running AND loaded, not running alone (0.1565ms)
+✔ Wave 2 C: an explicit On / Off beats the global switch; Default follows it (1.0752ms)
+✔ Wave 2 C: the three states walk in order and come back round (0.9864ms)
+✔ Wave 2 C: the planner drops only the sessions that said Off (0.4481ms)
+✔ Wave 2 C: with the global switch off, only an explicit On is continued (0.1752ms)
+✔ Wave 2 C: a per-session decision never overrides the other safety rules (0.2316ms)
+✔ Wave 2 C: a decision is per session and survives a restart, and Default is not a stored decision (157.7688ms)
+✔ Wave 2 D: the inline threshold is exactly where it says it is (1.5109ms)
+✔ Wave 2 D: a pasted-text chip keeps the whole payload, and says how big it is (51.8126ms)
+✔ Wave 2 D: what the model receives is the exact text, never a label and never a truncation (43.2683ms)
+✔ Wave 2 D: a 200 KB paste is sent whole, past the inline size cap (3.797ms)
+✔ Wave 2 D: edit then send delivers the edited text, and the untouched chip is not mutated (0.557ms)
+✔ Wave 2 D: reopening before send returns exactly the same content (32.3442ms)
+✔ Wave 2 D: two pastes of the same text are two attachments, neither merged nor lost (0.8193ms)
+✔ Wave 2 D: the line count is right for CRLF, LF and the empty paste (0.1822ms)
+✔ Wave 2 D: the pasted-text filename is a real .txt, never the label (0.2548ms)
+✔ Wave 2 D: a non-pasted attachment is untouched by the pasted-text helpers (0.2461ms)
+✔ Wave 2 A: export -> reset -> import is a round-trip for every supported field (4.1426ms)
+✔ Wave 2 A: a foreign file, a wrong version and a broken file all fail without a document (1.2067ms)
+✔ Wave 2 A: the import description says what it replaces, before it replaces it (0.7618ms)
+✔ Wave 2 A: an export of the defaults carries every field, and re-imports to the defaults (0.3958ms)
+✔ Wave 2 B: a stored file from before the user domain still loads, and reads as Default (0.6975ms)
+✔ Wave 2 B: Default makes the user's own text follow the shared body theme (0.6983ms)
+✔ Wave 2 B: Separate styles the user's own text, frame included, and nothing of the agent's (0.3781ms)
+✔ Wave 2 B: the agent stylesheet is unchanged by a user domain (no duplicated rendering) (1.3557ms)
+✔ Wave 2 B: switching the master switch off removes both scopes (0.4603ms)
+✔ Wave 2 B: a hostile stored user style is clamped, never painted as CSS (0.4389ms)
+✔ Wave 2 A: an edit is dirty and visible, and is NOT stored until Save (1368.4156ms)
+✔ Wave 2 A: reopening Settings reads the saved value, not the component's (83.2615ms)
+✔ Wave 2 A: a Save that storage refuses says so, and keeps the change dirty (9.3678ms)
+✔ Wave 2 A: a no-op Save is reported as unchanged, and typing the saved value back is not dirty (11.3007ms)
+✔ Wave 2 A: reset is a change you can see, and only becomes the saved value on Save (25.5233ms)
+✔ Wave 2 A: export writes the draft on screen; import replaces everything at once (20.908ms)
+✔ empty SAIMAIL desk grows from 'someone one day' to 'another one?' (2.3547ms)
+✔ a letter counts as opened once, when it leaves the unread folder (0.2722ms)
+✔ helper roles come from the launch command, never from a word inside a title (1.9951ms)
+✔ hotkeys match the physical key on any layout (0.3781ms)
+✔ sidebar horizontal drift is reset only where no real scrollbar exists (0.1653ms)
+✔ zone presets heal corrupt geometry and keep at most ten (0.535ms)
+✔ a daily timer closed for a week lands in the future and fires once (2.3768ms)
+✔ monthly keeps the anchor day: 31 Jan -> 28 Feb -> 31 Mar (0.5103ms)
+✔ interval timer rolls by whole periods from its anchor moment (0.2185ms)
+✔ snooze always pushes later, never closer (0.2542ms)
+✔ one-shot deleteAfterFire disappears; plain one-shot stays as done (0.9333ms)
+✔ healing: corrupt entries skipped, legacy volume 0-10, duplicate ids renamed (0.3094ms)
+✔ temperature warms from blue to red; remaining formats like FastPrompter (0.3829ms)
+✔ next due skips paused, fired and top-bar-hidden timers on request (0.5659ms)
+✔ calendar occurrences follow the anchor, not the rolled target (0.5585ms)
+✔ sound pool: eligible rows by time window, silence when none (0.5765ms)
+✔ durations people type (0.8541ms)
+✔ clock times: past means tomorrow, ISO dates stay put (0.5667ms)
+✔ productivity: a long stall carries through phases and counts rounds (0.5142ms)
+✔ productivity: no breaks stops after work; skip jumps phases (0.193ms)
+✔ interval clock rules fire once per boundary; topmost wins a collision (0.6451ms)
+✔ interval active hours wrap past midnight; top-bar countdown respects them (0.2833ms)
+✔ elapsed interval arms on first sight, then fires after N minutes (0.1593ms)
+✔ bindings record and match by physical key on any layout (1.23ms)
+✔ hotkey conflicts: duplicates, F-keys block and upstream defaults are reported (1.3117ms)
+✔ layout lists keep the stored order, drop unknown ids, place new ones after their predecessor (0.3757ms)
+✔ session ring: waiting first, then working; recent only when idle; wraps both ways (0.2949ms)
+✔ sound kinds split by length and folder; the vault duplicate is hidden (109.3279ms)
+✔ quiet hours wrap past midnight; unknown scenario rows are ignored (1.3692ms)
+✔ window refill = a near-full climb, named per window; the first read is silent (1.9998ms)
+✔ percent text colours stay readable on the dark theme (0% is not dark red) (0.5695ms)
+✔ 0% used: untouched windows hide, any spend shows, no reading stays unknown (3.3158ms)
+✔ usable now = the 5h window has quota; a spent weekly gates it; one Antigravity pool is enough (0.5764ms)
+✔ meter rules apply per surface; per-engine hide is meter only (1.7892ms)
+✔ meter prefs heal bad values; fill runs both ways; tint is off at 0 (3.5301ms)
+✔ split sizes: wrong length resets to even; a divider moves only its neighbours (0.5229ms)
+✔ split layout: side by side, stacked, and a grid whose last row stretches (0.4576ms)
+✔ snap zones: halves, quarters, maximize, dock; none in the middle (0.3691ms)
+✔ magnetic edges stick within the distance; windows stay reachable (1.5096ms)
+✔ workers: docked by default, float and dock back, minimize to a named chip, remove (5.3431ms)
+✔ worker prefs heal; Terminus is the default face (0.401ms)
+✔ home screen: the Empty marker and the empty SAIMAIL line move to off once (0.2362ms)
+✔ team presets map to templates and pools; a missing pool leaves the agent without one (0.49ms)
+✔ worker hotkeys exist and the defaults stay conflict-free (1.5634ms)
+✔ CLEAR empties this session by default; 'new' is the only other mode (2.6784ms)
+✔ a composer model pick becomes the START default and releases a sidebar engine (3.1469ms)
+✔ a draft left inside the debounce window is written to the scope being left (10.581ms)
+✔ Dispatch prefs: own window by default, launchers validated, ids unique (0.4995ms)
+✔ Dispatch project: last pick, else the active project, else the first (0.2955ms)
+✔ Router allow-list: the page's calls pass, shutdown / update / traversal / other settings do not (2.0608ms)
+✔ Router records: connections, nodes, pools with strategy, models (1.7199ms)
+✔ Pool edits: strategy map like the dashboard, moves clamp, names and prefixes (0.5007ms)
+✔ Usage numbers are read whatever the field names of the 9router version (0.3108ms)
+✔ calm interface: off by default, three switches, three <html> classes (2.1045ms)
+✔ time of day: 24-hour by default, 12-hour on the switch, seconds optional (61.8253ms)
+✔ ISO week numbers (0.5097ms)
+✔ clock essentials exist and stay off unless chosen (0.152ms)
+✔ Wave 3 A: loudness is measured, not guessed from the peak (10.3634ms)
+✔ Wave 3 A: a quiet block is gated out instead of dragging the level down (3.0062ms)
+✔ Wave 3 A: silence and rubbish measure as unmeasured rather than as -0 dB (2.6048ms)
+✔ Wave 3 A: the reference is a median, so one loud sound cannot set the level (0.7095ms)
+✔ Wave 3 A: Soft, Standard and Aggressive are one algorithm at three strengths (0.3785ms)
+✔ Wave 3 A: the negative cap spans -24..-48 dB and changes the proposal (0.3242ms)
+✔ Wave 3 A: a boost never crosses the peak ceiling (0.251ms)
+✔ Wave 3 A: a set where nothing can be measured is reported, not applied (0.1947ms)
+✔ Wave 3 A: analysis is cached by CONTENT, so a rename re-uses the measurement (0.6527ms)
+✔ Wave 3 B: effective probabilities sum to exactly 100% (0.9748ms)
+✔ Wave 3 B: one entry is 100%, and no usable entry is a deterministic fallback (0.4787ms)
+✔ Wave 3 B: a missing file is visible and never chosen (1.2667ms)
+✔ Wave 3 B: the pick follows the displayed distribution, deterministically (49.3477ms)
+✔ Wave 3 B: changing one entry redistributes the rest proportionally (1.1137ms)
+✔ Wave 3 B: a locked entry keeps its share when another changes (0.5951ms)
+✔ Wave 3 B: zeroing the only entry hands the pool to a deterministic fallback (0.2628ms)
+✔ Wave 3 C: a tool maps to its cue by identity, never by its output text (1.6866ms)
+✔ Wave 3 C: a file that did not exist is a create, not an edit (0.1999ms)
+✔ Wave 3 C: reasoning and session state have their own cues (0.209ms)
+✔ Wave 3 C: 500 tiny reads do not make 500 sounds (0.4045ms)
+✔ Wave 3 C: a completion or a failure is never swallowed by the limiter (1.1131ms)
+✔ Wave 3 C: every declared cue has a row, and every row is a known cue (0.2121ms)
+✔ Wave 3 D: a new file spawns exactly once, and a re-read never again (0.2659ms)
+✔ Wave 3 D: a rename or a move is not a spawn (0.1946ms)
+✔ Wave 3 D: the first reading of a scope never spawns a backlog (0.1704ms)
+✔ Wave 3 D: a batch coalesces into one number with an exact count (0.4588ms)
+✔ Wave 3 A: one undecodable sound does not take the pass down (1147.2264ms)
+✔ Wave 3 A: the pass yields between files, so a big table cannot block the window (0.7155ms)
+✔ Wave 3 A: apply is one change per event, and undo leaves the operator's own choices alone (2.1567ms)
+✔ Wave 3 A: the settings screen really offers the controls the wave asks for (0.8137ms)
+✔ Wave 3 B: the row really offers single and pool, with live shares (0.3767ms)
+✔ Wave 3 A: a table saved before Wave 3 still loads, with the new fields defaulted (0.2245ms)
+✔ subscription models: OAuth connections only, matched through 9router's short alias (14.588ms)
+✔ the ZAICODE provider fronting 9router is found by port first, then by name (0.671ms)
+✔ saipen status --json becomes the protocol projection; 'none' and NOT_CONFIGURED read as absent (1.2576ms)
+✔ one verdict: blocked and waiting before running, running before open work, done only when SAIPEN says so (31.8586ms)
+✔ without SAIPEN's projection the files decide conservatively and say so (1.704ms)
+✔ owner and generation come from STATE; paths compare like Windows does (2.5283ms)
+✔ surface headlines print SAIPEN's projection, the file parse only without it (1.6553ms)
+✔ icon rows: everything fits, or the leading icons that fit plus room for the ⋯ button (1.2183ms)
+✔ LOG order flips both ways by time stamp; same minute keeps the Event Graph order (1.253ms)
+✔ uploaded photos: newest first, stored once, capped, junk dropped (0.7238ms)
+✔ notification delivery: per moment, in-app only, Windows only, both (0.6035ms)
+✔ a run of resets: every window whose reset time passed is announced at once, and only once (0.8811ms)
+✔ glow: fades with age when asked, ends when its quota starts going down (0.3571ms)
+✔ colour math: hex, HSL round trip, WCAG contrast, neutral adjust (0.8654ms)
+✔ a palette from one colour is deterministic and readable in both polarities (0.892ms)
+✔ Color Studio cascade: palette -> shifts -> single overrides; junk is dropped (1.3062ms)
+✔ free pool plan: an empty router gets every keyless provider and SAIFREN; a complete one gets nothing (2.2912ms)
+✔ free pool plan: the operator's own node for the same URL is reused, missing starters are appended (0.3652ms)
+✔ free models from each provider's own list; paid and non-chat models are never picked (0.83ms)
+✔ new free models: not in the pool and not removed by the operator (0.2191ms)
+✔ the notice says what was added: 'Today free model X added to SAIFREN' (0.4428ms)
+✔ app side of zero setup: an empty model list gets SAIRoute -> router, SAIFREN + SAIOPP, SAIFREN as default (101.4559ms)
+✔ highlights: off gives nothing; an effect animates its channel; steady does not move (1.5911ms)
+✔ highlights: colours -- theme, state (with a runtime override), own, rainbow adds a hue walk (0.2335ms)
+✔ highlights merge into an element's own class, title and style (0.9326ms)
+✔ lights normalize: bad values fall back or clamp; an own picture that is missing falls back to the mark (0.3938ms)
+✔ working icon: direction, ticks, still, keep-moving marker and size (0.7307ms)
+✔ motion CSS: the calm interface keeps only marked things moving; crisp mode cannot erase a highlight (0.3428ms)
+✔ sound picker tabs: click picks one, Shift/Ctrl adds and removes, drag collects, All resets (0.4693ms)
+✔ sounds: New task in another project plays one sound, not New task + Switch project (0.3561ms)
+✔ pixel snap: a column on a half pixel moves to a whole one; repeated calls converge (0.2527ms)
+✔ message box: compact off by default, every part on, unknown values ignored (0.3119ms)
+✔ SAIROUTE pools: 1M context and 131k output; only ZAICODE's old 128k is raised (0.251ms)
+✔ title position: projects and sessions keep their own alignment, bad values fall back to left (0.1831ms)
+✔ worker windows land on whole pixels after a drag on a scaled display (0.2768ms)
+✔ Wave 4 A: organizing a project never touches the filesystem (1.5955ms)
+✔ Wave 4 A: a project gets a stable id, and the same key always mints the same one (0.4412ms)
+✔ Wave 4 A: create, rename and reorder folders, with stable ids and a persistent order (1.5424ms)
+✔ Wave 4 A: deleting a folder keeps every project and files them under Unfiled (0.4402ms)
+✔ Wave 4 A: a project moves between folders and back to Unfiled, and a bad target is refused (0.2655ms)
+✔ Wave 4 A: collapse and expand are per folder and persist in the shape (0.4231ms)
+✔ Wave 4 A: a stored shape that lost a folder self-heals instead of ghosting (0.2901ms)
+✔ Wave 4 B: pins and folders are independent -- pinning does not unfile a project (0.2434ms)
+✔ Wave 4 B: pinned projects come first, in a stable order among themselves (0.3606ms)
+✔ Wave 4 B: re-pinning does not silently move a project, and counts are per folder (0.4159ms)
+✔ Wave 4 A: rows are folded into their folders, Unfiled first and only when non-empty (0.4925ms)
+✔ Wave 4 C: appearance follows the model that ran the work, not the label (3.6216ms)
+✔ Wave 4 C: the fallback chain is exact model Separate, then global Default, then shipped (1.3232ms)
+✔ Wave 4 C: any model can be Separate, not just the two shipped ones (0.276ms)
+✔ Wave 4 C: the worker icon falls back down the chain and never renders a broken asset (0.6265ms)
+✔ Wave 4 C: a stored appearance is sanitized -- unknown targets, bad colours and code-like assets are refused (0.222ms)
+✔ Wave 4 C: the shipped default keys exist for the targets the editor offers (0.1912ms)
+✔ Wave 4 C: an appearance override is stored per model and survives a reload (0.6857ms)
+✔ Wave 4 A+B: the render plan is pins first, then folders, and nothing is hidden (0.7216ms)
+✔ Wave 4 A: a project whose folder is not in the folder list shows up under Unfiled, not gone (0.2756ms)
+✔ Wave 4 B+D: the move targets are keyboard-usable, and destructive actions are named apart (0.3399ms)
+✔ Wave 4 B: a pinned project is drawn first, and pinning one disturbs nothing else (0.3041ms)
+✔ Wave 4 A: collapsing a folder hides its rows but keeps its header, and never Unfiled (0.3914ms)
+✔ hit and go: an empty task is /goal cc all; slash commands and bare shortcuts are commands (1.3174ms)
+✔ an agent without a pool borrows SAIFREN on SAIRoute, then SAIOPP; nothing -> null (1.1163ms)
+✔ schedules keep older records working and read the new fields safely (0.8555ms)
+✔ watched engine: a subscription watches itself; an agent or pool watches only what you pick (0.1898ms)
+✔ an agent schedule fires after the watched subscription's reset, and waits while it has no quota (1.3786ms)
+✔ stop time: the same day after the start, else the next day; runs past it are stopped (0.3781ms)
+✔ section target: every project in that sidebar section (default slot for unassigned ones) (0.3071ms)
+✔ next up, prepared meters and plain-words description (0.7888ms)
+✔ presets are valid schedules; SCHEDULER sits right after ZAICODE even for an older stored menu (0.6019ms)
+✔ the SAIHOME token ribbon lists today, yesterday, week, month and all time in that order (39.6389ms)
+✔ stale statistics are marked, missing statistics render nothing (2.1112ms)
+✔ the ribbon is on by default and the operator's choice is kept (0.5959ms)
+✔ typed clock times: zeros work, 24-hour, no guessing (1.665ms)
+✔ typed dates: DD.MM.YYYY, ISO, missing year, impossible dates refused (1.6575ms)
+✔ project on / off list: normalized, case- and slash-insensitive, bounded (0.3735ms)
+✔ slot drop targets are recognised only for real slots (0.1818ms)
+✔ a turn the operator stopped raises no 'Task completed' in ZAICODE (0.4149ms)
+✔ combo: click picks one, Shift adds / removes, the neutral value clears, the last one stays (4.6123ms)
+✔ highlights: several effects run together on their own channels; shapes draw together (1.1719ms)
+✔ highlights: a pre-SRC-043 single effect / shape is read as a one-item mix; steady never mixes (0.9678ms)
+✔ working icon: the Opacity slider survives blink and breathe (it is a filter, not the animated property) (1.4685ms)
+✔ working icon: Reach sets how dark blink goes, and the slider is offered for blink (1.065ms)
+✔ working icon: mixed motions animate their own channels and one transform reads them all (0.9216ms)
+✔ clock: FastPrompter's countdown colours; body text never falls back to black (1.0159ms)
+✔ continue one session: goal taken up again, cc / continue, a waiting one opens, a running one is left (1.1287ms)
+✔ CONTINUE ALL: stopped goals and failed turns, SAIPEN work via MAIN or a new MAIN; finished / off / waiting left alone (1.675ms)
+✔ DONE: finished, unseen, oldest first; the open one is skipped; opening marks it seen (0.805ms)
+✔ session brief: live phase decides failed; the goal comes from the task's target (0.385ms)
+✔ session nav: an unchanged waiting / recent list keeps its identity (no re-render storm) (0.4135ms)
+✔ project runtime from lists still counts this project's sessions and live workers only (0.6224ms)
+✔ Freebuff: Freebucks day pool is REMAINING of limit; wallet goes to the plan line; legacy pools stay apart (2.4082ms)
+✔ Freebuff is measured, never launched (0.3731ms)
+✔ profiles: a bundle captures every preference (null = unset), restores it, and never carries live facts (6.2081ms)
+✔ a project with no campaign starts one (2.0532ms)
+✔ no host service means no campaign and no silent nothing (0.2452ms)
+✔ another project's campaign does not occupy this project's seat (0.2304ms)
+✔ a planned campaign is opened, never duplicated (0.1933ms)
+✔ a running campaign is opened, never duplicated (0.1424ms)
+✔ a blocked campaign is opened, never duplicated (0.1172ms)
+✔ a complete campaign releases the seat (0.1519ms)
+✔ a cancelled campaign releases the seat (0.1553ms)
+✔ a double Enter starts one campaign, not two (6.9973ms)
+✔ the latch is released even when the start throws (0.8657ms)
+✔ the project name falls back to the directory, so a run is never unnamed (0.2583ms)
+✔ the no-host path is checked before the service is dereferenced (0.3603ms)
+✔ Wave 5: /a3 starts exactly once -- one campaign, one Core dispatch (2.7543ms)
+✔ Wave 5: a restart BEFORE dispatch may still dispatch exactly once (0.4154ms)
+✔ Wave 5: a restart AFTER dispatch recovers the run instead of a second Core (0.3571ms)
+✔ Wave 5: a full valid chain reaches the final artifact (1.114ms)
+✔ Wave 5: the synthesis is byte-stable and refuses a hash mismatch (0.6293ms)
+✔ Wave 5: a failed wave retries as ITSELF and never skips a wave index (0.277ms)
+✔ Wave 5: cancelling stops progression and keeps what was already proven (0.3796ms)
+✔ Wave 5: an old campaign's artifacts cannot satisfy a new run (0.3693ms)
+✔ Wave 5: source drift cannot mix live-source waves (0.4137ms)
+✔ Wave 5: a fresh campaign is a clean slate, whatever a previous run did (0.4167ms)
+✔ Wave 5: a well-formed Core report is valid and names the next wave (2.9671ms)
+✔ Wave 5: a Core report with no findings is valid when it says so with the exact sentence (0.2708ms)
+✔ Wave 5: missing STATUS keeps the wave at 0/3 (0.2891ms)
+✔ Wave 5: the STATUS line has to be the last line, not merely present (0.183ms)
+✔ Wave 5: plan-shaped output is rejected by name and never advances the wave (0.6424ms)
+✔ Wave 5: a report with neither findings nor the no-findings sentence is rejected (0.577ms)
+✔ Wave 5: a finding missing any required field is rejected (1.0436ms)
+✔ Wave 5: the wrong project or the wrong run is rejected (0.454ms)
+✔ Wave 5: a chained wave must carry its predecessor's hash (0.32ms)
+✔ Wave 5: a performance finding must be classified (0.5181ms)
+✔ Wave 5: a missing file is SAVING/ERROR, never READY (0.2335ms)
+✔ Wave 5: a digest that is not a sha256 is refused (0.305ms)
+✔ Wave 5: the validator never repairs -- a missing marker stays missing (0.2109ms)
+✔ Wave 5: the profile holds every string the wave is judged by, in one place (0.2972ms)
+✔ Wave 5: the manifest hash is stable and moves when the contract does (1.0174ms)
+✔ Wave 5: the prompt states the read-only contract and says a plan will not count (1.5905ms)
+✔ a session the dead process left 'running' is INTERRUPTED, never DONE (1.8536ms)
+✔ DONE skips interrupted sessions; CONTINUE ALL continues them with cc (1.4746ms)
+✔ project START: MAIN continues in place, a cut-off session becomes MAIN, fresh only with nothing to continue (0.5181ms)
+✔ project A3 badge sums only active campaign wave progress (0.3718ms)
+✔ crash auto-continue: only crash-cut, recent, switched-on projects; oldest first; goal or cc (0.4705ms)
+✔ worker recovery list: bad entries dropped, placement kept (0.3021ms)
+✔ worker watch: the CLI's own limit line counts, prose about limits does not (1.1989ms)
+✔ worker watch: first-run trust questions of Claude Code and Codex (0.2738ms)
+✔ nearest resets: every reset ahead, soonest first, FastPrompter's window names (0.8528ms)
+✔ dock: nearest edge under the pointer; a side column stacks panes (0.5446ms)
+✔ schedules keep whole audits and carry conditions with safe defaults (0.8274ms)
+✔ section order: most blocked / open first, unknown last, ties keep the sidebar order (0.375ms)
+✔ before it starts: the stopgap goes (free pool sessions, weaker workers), the real thing stays (1.1103ms)
+✔ CLEAR ALL DONE: finished helpers archived, cut-off helpers continued, MAIN / running / waiting untouched (0.3677ms)
+✔ menu lines keep the operator's names; title bar prefs clamp (0.3453ms)
+✔ working icon: no perspective anywhere, so a flip is a flat squash about the centre (2.2835ms)
+✔ working icon: wobble shakes as far left as right, bounce as far up as down (1.202ms)
+✔ easing: presets, own cubic-bezier (clamped), elastic / bounce as sampled linear() (1.4282ms)
+✔ working icon mix: every motion keeps its own speed, easing, direction, reach and phase (0.5584ms)
+✔ working icon layers: own opacity, size, blend, offset and extra motion; junk normalized away (0.7738ms)
+✔ highlight mix: every effect its own speed / easing / phase / depth, every shape its own colour and strength (1.6196ms)
+✔ presets: export -> import round trip gives new own presets with free names (2.6526ms)
+✔ presets: stored own presets are normalized; built-in ids and junk never load as own (0.4909ms)
+✔ resets: a reset one full window after the read stays pending without real start proof (1.871ms)
+✔ resets: a vendor reset anchored to a completed start runs even while consumption rounds to 0% (0.6765ms)
+✔ resets: the screenshot case -- a rolling Antigravity 5 h leads the title; gated waits behind it (0.9826ms)
+✔ resets: a scheduled 'after the 5 h refill' job waits for the anchored refill (0.5653ms)
+✔ resets: a legacy idle window with no anchor still never masquerades as a refill (0.2238ms)
+✔ live runs: the open chat's running session counts for its project folder until it stops (1.2423ms)
+✔ pixel snap: pop-up positions land on whole device pixels (2.07ms)
+✔ hard bevels: raised controls, sunken fields and pressed states, strong enough to beat pixel mode (0.8071ms)
+✔ SAIPEN pane tickets sort by number, T-2 before T-10 (SRC-049) (1.9617ms)
+✔ board order mode keeps the file's order and both modes are stable (0.3922ms)
+✔ the find field matches id, title, priority and field values, case-insensitively (0.5007ms)
+✔ a full Exit hotkey exists in-app and globally, Alt+F4 by default (SRC-049) (0.9326ms)
+✔ sidebar prefs keep the T-65 controls through normalize (SRC-049) (1.9629ms)
+✔ bad or missing T-65 values fall back to defaults, never to undefined (0.3031ms)
+✔ slot colour validation: 3- and 6-digit hex pass, everything else drops (1.321ms)
+✔ a stored slot colour for an unknown group never reaches the prefs (0.2107ms)
+✔ zaicodeNowStepMs: showSeconds forces the second step (0.8857ms)
+✔ zaicodeNowStepMs: a countdown inside the last hour needs seconds (formatZaicodeRemaining shows them) (0.2031ms)
+✔ gated tick: a minute display renders once a minute, not 60 times (T-67 before/after) (0.2856ms)
+✔ gated tick: a seconds display still renders every second (0.1702ms)
+✔ gated tick: stepping into the last hour switches to seconds without freezing (0.3508ms)
+✔ T-67: ZAICODE stores are visible to the 60s memory diagnostics (counters registered) (1420.4266ms)
+✔ LIVE defaults: order is recent and the hold is 2 minutes (SRC-051) (1.2912ms)
+✔ LIVE hold: a just-finished project keeps its LIVE rank, then drops (no teleport mid-glance) (1.5438ms)
+✔ LIVE recent order: most recently active first, whatever the readiness (0.3782ms)
+✔ freshness buckets: fresh / today / week / stale / none (SRC-051) (0.2124ms)
+✔ background auto-retry: only failed, quiet, non-local sessions of enabled projects inside the budget (0.6073ms)
+✔ icon badge builder: data URI, escaping, solid vs gradient (worker icon mini-editor output) (0.3762ms)
+✔ claude default account clears CLAUDE_CONFIG_DIR, a second account sets it (1.4045ms)
+✔ codex secondary homes drop inherited API keys; agy takes -i; zcode opens the TUI (0.2789ms)
+✔ quotes survive apostrophes; a missing CLI launches nothing (0.3612ms)
+✔ a days-old session that started working five minutes ago reads five minutes, not its age (1.4359ms)
+✔ re-reading the same run later keeps the start of the run, not the time of the read (1.4966ms)
+✔ an idle project reports no working start (0.2077ms)
+ℹ tests 945
+ℹ suites 0
+ℹ pass 945
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 23162.4414
+apps/zcode-cli                           |  WARN  Unsupported engine: wanted: {"node":"24.14.0"} (current: {"node":"v24.15.0","pnpm":"10.33.2"})
+[2026-10-03 13:06:06.076] [pid:9292] [zcode-task-service] [zcode-task-service] 历史快照读取完成 {
+  clientMode: 'desktop-continuous',
+  durationMs: 13,
+  indexDurationMs: 1,
+  messageLimit: null,
+  projectionDurationMs: 1,
+  resumeDurationMs: 11,
+  snapshotKind: 'session',
+  stats: {
+    assistantMessages: 0,
+    bodyRefs: 0,
+    contentChars: 0,
+    fileChanges: 0,
+    historyTotalMessages: 0,
+    messages: 0,
+    slashCommands: 0,
+    thoughtChars: 0,
+    toolCalls: 0,
+    toolSliceMessages: 0,
+    truncatedBefore: false,
+    userMessages: 0
+  },
+  taskId: 'claude-import-example',
+  workspaceIdentity: 'example-remote-workspace',
+  workspacePath: '/example/workspace'
+}
+✔ previously imported Claude history becomes a real session for desktop-continuous (156.9403ms)
+[2026-10-03 13:06:06.188] [pid:9292] [zcode-task-service] [zcode-task-service] 历史快照读取完成 {
+  clientMode: 'web-remote-replayable',
+  durationMs: 4,
+  indexDurationMs: 1,
+  messageLimit: null,
+  projectionDurationMs: 0,
+  resumeDurationMs: 3,
+  snapshotKind: 'session',
+  stats: {
+    assistantMessages: 0,
+    bodyRefs: 0,
+    contentChars: 0,
+    fileChanges: 0,
+    historyTotalMessages: 0,
+    messages: 0,
+    slashCommands: 0,
+    thoughtChars: 0,
+    toolCalls: 0,
+    toolSliceMessages: 0,
+    truncatedBefore: false,
+    userMessages: 0
+  },
+  taskId: 'claude-import-example',
+  workspaceIdentity: 'example-remote-workspace',
+  workspacePath: '/example/workspace'
+}
+✔ previously imported Claude history becomes a real session for web-remote-replayable (116.8962ms)
+✔ current Project Memory catalog and files remain readable (105.6195ms)
+✔ opening the task index leaves retired ACP IDs and user rows untouched (211.8191ms)
+[2026-10-03 13:06:06.512] [pid:13632] [zcode-task-service] [zcode-task-service] 历史快照读取完成 {
+  clientMode: 'desktop-continuous',
+  durationMs: 3,
+  indexDurationMs: 1,
+  messageLimit: null,
+  projectionDurationMs: 1,
+  resumeDurationMs: 1,
+  snapshotKind: 'session',
+  stats: {
+    assistantMessages: 0,
+    bodyRefs: 0,
+    contentChars: 0,
+    fileChanges: 0,
+    historyTotalMessages: 0,
+    messages: 0,
+    slashCommands: 1,
+    thoughtChars: 0,
+    toolCalls: 0,
+    toolSliceMessages: 0,
+    truncatedBefore: false,
+    userMessages: 0
+  },
+  taskId: 'wrapper-example',
+  workspaceIdentity: null,
+  workspacePath: '/example/workspace'
+}
+[2026-10-03 13:06:06.513] [pid:13632] [zcode-task-service] [zcode-task-service] 历史快照读取完成 {
+  clientMode: 'web-remote-replayable',
+  durationMs: 0,
+  indexDurationMs: 0,
+  messageLimit: null,
+  projectionDurationMs: 0,
+  resumeDurationMs: 0,
+  snapshotKind: 'session',
+  stats: {
+    assistantMessages: 0,
+    bodyRefs: 0,
+    contentChars: 0,
+    fileChanges: 0,
+    historyTotalMessages: 0,
+    messages: 0,
+    slashCommands: 1,
+    thoughtChars: 0,
+    toolCalls: 0,
+    toolSliceMessages: 0,
+    truncatedBefore: false,
+    userMessages: 0
+  },
+  taskId: 'wrapper-example',
+  workspaceIdentity: null,
+  workspacePath: '/example/workspace'
+}
+✔ missing sessions report the owner error even when a valid ACP snapshot exists (24.42ms)
+✔ current session recovery preserves Desktop and replayable projections (12.4206ms)
+✔ current Provider configuration starts without an old config migration callback (74.4787ms)
+✔ startup migrates published ZCode config into personal config without changing the source (302.4921ms)
+✔ startup preserves an existing personal config and never consults the legacy file (33.6957ms)
+✔ invalid legacy config is preserved and does not commit an empty personal config (35.9354ms)
+✔ routing-backend migration defaults existing agents to direct without rewriting other fields (202.2548ms)
+✔ agent backends default and round-trip through create, read, update, list, and duplicate (156.6493ms)
+✔ invalid backend values are rejected at create and reported for malformed persisted rows (138.8709ms)
+✔ a planned campaign says which project, where it is, and that it is waiting (1.5923ms)
+✔ a running campaign names the wave and the agent it runs on (0.2714ms)
+✔ a partial wave is called out as partial, not just as running (0.2345ms)
+✔ a blocked campaign is not counted as spare reserve (0.2108ms)
+✔ a finished campaign says so and has no wave left to point at (0.2291ms)
+✔ elapsed is measured from generation and never goes negative (0.1839ms)
+✔ a campaign written by an older build still reads (0.172ms)
+✔ elapsed formats the way a person reads it (0.3058ms)
+✔ generate is generate-first: planned, no job dispatched (170.2596ms)
+✔ work dispatches wave 1 and the campaign starts running (237.82ms)
+✔ a campaign is bound to one run, one profile manifest and one source identity (203.7458ms)
+✔ full A3: three valid reports chain to complete AND write the combined handoff (327.2366ms)
+✔ the combined handoff is byte-stable: its recorded digest IS the file on disk (326.6399ms)
+✔ a report missing the terminal line blocks the campaign and never advances (205.0613ms)
+✔ T-133 a blocked wave is re-checked quietly: one warning, no rewrite, and a report fixed later still advances it (370.577ms)
+✔ plan-shaped output is rejected by name and does not advance the wave (201.1842ms)
+✔ a report from another run cannot satisfy this campaign (170.3873ms)
+✔ a chained wave must carry its predecessor's hash (286.0919ms)
+✔ retry re-runs the SAME wave and never moves the wave index (510.5159ms)
+✔ a restart before dispatch produces exactly one Core (294.4976ms)
+✔ a restart after dispatch never duplicates the Core (223.4562ms)
+✔ cancel stops a running campaign and its wave job (108.7987ms)
+✔ a cancelled campaign keeps the artifacts it already proved (263.4722ms)
+✔ SRC-058: a reconcile queued behind cancel does not turn the cancelled campaign into blocked (115.3198ms)
+✔ Fix with SAIPEN consumes the exact combined artifact and records the drift (206.2771ms)
+✔ Fix with SAIPEN refuses before the combined artifact exists (143.6245ms)
+✔ an old campaign's artifacts cannot satisfy a new run (231.4632ms)
+✔ SRC-060: getState says who audits, on which model, and where the running wave is (202.8868ms)
+✔ smart mode: empty board + nothing running starts a campaign; a full board does not (264.052ms)
+✔ parallel: an audit campaign runs alongside other queue work (own jobs, shared queue) (101.3364ms)
+✔ state persists to campaign.json under the audit root (92.088ms)
+✔ T-141: archiving a planned audit preserves its files and hides the entry across reloads (138.2041ms)
+✔ T-141: archiving refuses a running wave and keeps it visible (110.439ms)
+✔ T-141: a cancelled audit with a failed runtime stop cannot be archived (93.9016ms)
+✔ T-67: the campaign history is capped; every active campaign always reconciles (581.6986ms)
+✔ packaged data isolation: ZAICODE and production roots are disjoint (1.2673ms)
+✔ policy: defaults, normalization, never a coordinator child (2.2328ms)
+✔ a running coordinator delegates a linked child; depth, budget, roles and run are enforced (166.0714ms)
+✔ only coordinator jobs may delegate, and only while running (116.9067ms)
+✔ a helper's final state reaches the parent's folder through the spool (197.8084ms)
+✔ ZAICODE agent definitions: CRUD, stable id, malformed rows become diagnostics (193.8141ms)
+✔ ZAICODE agent tool policy: omitted patch preserves policy and explicit patches can change or clear it (99.1378ms)
+✔ ZAICODE job queue: dispatch is single-flight and terminal writes are idempotent (118.3555ms)
+✔ ZAICODE job queue: stale completion cannot overwrite a newer retry (128.0959ms)
+✔ ZAICODE job queue: cancel is idempotent and stops the running session (113.9362ms)
+✔ ZAICODE job queue: restart reconciliation blocks stale running jobs and resume requeues them (107.0335ms)
+✔ ZAICODE job queue: concurrency gate is storage-backed and configurable (115.9884ms)
+✔ ZAICODE job queue: disabled or missing agent blocks dispatch with a reason (99.5509ms)
+✔ ZAICODE job queue: bounded orchestration probe delegates one child through the real path (204.301ms)
+✔ ZAICODE job queue: malformed persisted rows are reported, not executed (89.3674ms)
+✔ ZAICODE job queue: jobs are isolated per workspace and executor failures are terminal (77.5746ms)
+✔ cancellation before the executor responds stops its late session exactly once (87.7872ms)
+✔ a failed runtime stop is reported and the same cancel can retry it (107.0921ms)
+✔ a new attempt cannot start while cancellation is still waiting for the runtime (169.1325ms)
+✔ ZAICODE job queue: autopilot starts queued work and refills freed slots (290.527ms)
+✔ ZAICODE routing: direct route resolves a complete selection into an execution identity (6.6498ms)
+✔ ZAICODE routing: provider/model references alone never become an execution route (0.9567ms)
+✔ ZAICODE routing: router backends execute through the configured pool selection (0.7653ms)
+✔ ZAICODE routing: a router backend without a pool selection still fails closed (0.1678ms)
+✔ stats: today / yesterday / week / month / all from the agent store, local days (700.283ms)
+✔ stats: restart and replay never count twice; late rows are still picked up (393.7733ms)
+✔ stats: clear removes history and does not read it back (347.2684ms)
+✔ stats: queue runs and worker sessions; workers stay unmeasured, not zero-token work (435.7901ms)
+✔ stats: an empty profile answers honestly (no data, missing store = unavailable) (80.5126ms)
+✔ stats: DST end (Tallinn 2026-10-25) keeps events on their own local day (359.6026ms)
+✔ E1 a successful command is not a failure (1.3837ms)
+✔ E2 nothing to commit is its own outcome, and it names the repository (0.3985ms)
+✔ E3 the two ZAICODE repositories are named apart (0.2288ms)
+✔ E4 a hook refusal says the commit did not happen (0.2292ms)
+✔ E5 a missing identity is named as configuration, not as a Git failure (0.1826ms)
+✔ E6 a non-fast-forward push says nothing was pushed and what to do (3.8959ms)
+✔ E7 an unreachable remote is a connection problem, not a Git one (0.505ms)
+✔ E8 auth failures are told apart from everything else (0.3939ms)
+✔ E9 the three false alarms are named as what they are (0.2887ms)
+✔ E10 a preflight failure is never reported as a push failure (0.2719ms)
+✔ E11 an unrecognised refusal is still honest, and keeps the raw output (0.3499ms)
+✔ E12 the error carries the classification so the UI does not re-parse stderr (0.2696ms)
+✔ E13 nothing anywhere in the product force-pushes (42.6064ms)
+✔ E14 the push path only ever builds these argument lists (0.5395ms)
+ℹ tests 92
+ℹ suites 0
+ℹ pass 92
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 7822.1539
+apps/zcode-cli                           |  WARN  Unsupported engine: wanted: {"node":"24.14.0"} (current: {"node":"v24.15.0","pnpm":"10.33.2"})
+✔ T-168: a proven exhaustion opens the circuit in the dispatching process (1.1905ms)
+✔ T-168: B2 — network, 5xx, auth, malformed and missing-model never open a route (0.9086ms)
+✔ T-168: only a failed request counts — a completed or queued one proves nothing (0.1937ms)
+✔ T-168: the watcher feeds the circuit from the fact stream and survives a throwing sink (0.506ms)
+✔ T-168: the provider status code rides the reason so the hold is traceable (0.1754ms)
+✔ retryOnLock succeeds after a transient EBUSY then a clean attempt (1.9942ms)
+✔ retryOnLock retries EPERM/EACCES too, up to the cap, then rethrows (0.6054ms)
+✔ retryOnLock never retries a non-lock error (0.306ms)
+✔ a staged build is hidden from the launcher while it is tested, then put back (12.1183ms)
+✔ a leftover hiding place from a crashed gate is cleared before the next one (4.6274ms)
+✔ a staged build that cannot start is moved aside so the launcher never sees it, and the bundle fails (18.1116ms)
+✔ a live build that cannot start is left untouched but fails the bundle loudly (2.8994ms)
+✔ a smoke that times out or is killed (no status) counts as a failure, never as a pass (14.347ms)
+✔ the skip switch works and says it was used; other platforms and a missing build do not gate (2.1219ms)
+✔ the boot gate never clicks a Settings entry that leaves the app (0.7644ms)
+✔ the boot gate makes sure ProTrail comes up by itself on every monitor and really draws (0.5622ms)
+✔ R1 a quota read returns the windows AND the reset credits, and the credits come out as the person will see them (853.0262ms)
+✔ R2 spending a credit sends the credit id and this attempt's key, once, and reports what the server said (985.4192ms)
+✔ R3 'use one' without a credit id lets the backend pick; every answer the server can give has its own sentence (1458.3286ms)
+✔ R4 every way the process can go wrong is 'unavailable, nothing was spent', with the reason (761.8876ms)
+✔ R5 a server that never answers is given up on at the deadline and its process is ended (737.1742ms)
+✔ R6 noise before the answer is ignored; a missing program is an error, not a crash (90.6278ms)
+✔ root: the explicit folder wins, then the workspace variable, then the workspace above the executable, then app data (2.6739ms)
+✔ root: a relative path in a variable is ignored (it would follow whatever the working folder is) (0.3513ms)
+✔ folders and README are created once and never rewritten (303.2965ms)
+✔ list: sub-folders, upper-case extensions and the length of each file; other files and empty ones are left out (41.4776ms)
+✔ list: a file is measured once (a re-scan on every window focus must not read 5000 headers again); a changed one is measured again (16.5411ms)
+✔ list: an MP3 whose cover-art tag is bigger than the header window still gets its length (127.5594ms)
+✔ list: folders nested deeper than the scan looks are cut and the list says so (7.0321ms)
+✔ list: a link out of the folder is not followed (26.9784ms)
+✔ write: below a link that points out of the folder nothing is created, not even the empty sub-folder (6.6765ms)
+✔ read: the bytes come back; a path that leaves the folder, a missing file or a non-sound is refused with a reason (5.6462ms)
+✔ write: a new file is created, the same bytes again are recognised, other bytes never replace it (9.3354ms)
+✔ write: several writers racing for one name each keep their own sound (the one that lost the name takes the next) (15.1468ms)
+✔ write: escapes, non-sounds and empty bytes are refused and nothing is written (2.9652ms)
+✔ presets: written under a taken name they land beside it, listed newest first, read back exactly (731.7056ms)
+✔ presets: only plain .json names inside the folder are listed, read or written (42.2703ms)
+✔ open: folders open, a file is shown selected, anything that is not a file of the folder is refused (4.6729ms)
+✔ open: a file that is gone opens its folder instead of failing (311.3663ms)
+✔ open: the shell's error text comes back as the failure (3.4897ms)
+✔ a burst of events for one file is one notice, sent after the last event (0.6083ms)
+✔ sounds and presets are announced separately, and closing the notifier drops what is waiting (0.2134ms)
+✔ a file dropped into the sounds folder is announced without a restart, and a preset file as presets (445.741ms)
+✔ watching a folder that does not exist does not throw (0.6668ms)
+✔ every customization request has a name, a contract, a main handler, a preload method and a platform method (1.4406ms)
+✔ channel names are unique, so one request can never answer as another (0.3309ms)
+✔ the change notice goes main to the windows and reaches the page as a callback that can be removed (0.1805ms)
+✔ the host is registered with the other platform handlers, watches after the folders exist, and stops with the app (0.1617ms)
+✔ main re-checks what the renderer sends: a request that is not the expected shape is refused before any file work (0.1451ms)
+✔ the customization folder can never be the reason the app does not start: an unresolvable profile folder falls back, and a failure is logged, not thrown (0.1598ms)
+✔ a slash command or bare shortcut reaches the agent alone and first (SRC-038) (1.9453ms)
+✔ an agent without a pool runs on SAIFREN instead of failing with route-unresolved (4.4383ms)
+✔ Solo SAIFREN agent receives the model's required reasoning default (3.3124ms)
+✔ with no pool anywhere the old explanation still stops the run (0.8948ms)
+✔ O1 an agent shell whose owner is gone is selected; its forks and children ride along with the root (2.2794ms)
+✔ O2 a shell whose owner lives is never selected, however old (0.311ms)
+✔ O3 only agent shells: a terminal's bash and an orphaned non-shell are left alone (0.2439ms)
+✔ O4 a reused parent PID is not an owner: the process that holds it now is younger than the shell (0.1935ms)
+✔ O5 a shell born after the cutoff waits: its owner may be killing its own tree right now (0.2316ms)
+✔ O6 the scan's JSON: an array, a single object, missing command lines and junk rows (0.3971ms)
+✔ O7 a sweep kills every orphan root, logs each one, keeps the start-up orphans and never throws (0.7277ms)
+✔ H1 a page that has not loaded is waited for, then dropped and built again (1.5988ms)
+✔ H2 a loaded overlay that is hidden is shown, one that is off its monitor is put back (0.1865ms)
+✔ H3 a page that does not answer is rebuilt after repeated strikes; one that answers without frames never is (0.2115ms)
+✔ H4 a page that never took the config is sent it again, then rebuilt (0.1679ms)
+✔ H5 a page at the wrong size is not confirmed, and a rebuild is not the answer to a zoom (0.3013ms)
+✔ H6 everything in order is confirmed and asks for nothing (0.9019ms)
+✔ H7 the orchestrator counts confirmed overlays and says when the count changes (9.1283ms)
+✔ H8 a monitor that cannot be fixed is rebuilt a few times a minute, then left alone with one log line (3.1769ms)
+✔ H9 a confirmed set is watched slowly and costs no repair (1.1654ms)
+✔ H10 an overlay that something else keeps moving is put back a few times, then left alone with one log line (1.9317ms)
+✔ M1 an overlay whose page never finishes loading is dropped and built again, with no toggle (105.3712ms)
+✔ M2 an overlay page that missed the config is sent it again, then replaced (72.0383ms)
+✔ M3 an overlay moved by another program is put back on its monitor (77.9211ms)
+✔ M4 a monitor that settles on its real size keeps its origin: the overlay still follows the size (111.427ms)
+✔ M5 the status counts what the overlays confirm, and how many monitors there are (104.4316ms)
+✔ M6 a frozen page is replaced after it stops answering (101.2399ms)
+✔ M7 a click reader that keeps failing is tried again later, so clicks return without a toggle (52.4344ms)
+✔ M8 a healthy set is watched but never rebuilt, and switching the mode off leaves no timer (48.0187ms)
+✔ M9 the desktop-wide mode leaves a trail in the log: start, each overlay, each repair (37.6613ms)
+✔ M10 a click reader that is ready but delivers nothing while the cursor moves is replaced (36.1542ms)
+✔ M11 a cursor that does not move never makes a silent reader: nothing is restarted (117.9061ms)
+✔ M12 a window a pixel off its monitor by rounding is not a moved overlay (119.1863ms)
+✔ M13 an overlay whose window is covered makes no frames: it is not rebuilt, only left unconfirmed (60.7509ms)
+✔ every monitor receives current initial state before did-stop-loading (235.7528ms)
+✔ Windows overlays are native tool windows so desktop managers do not relocate them (222.9034ms)
+✔ reload withholds feeds then resends current state; destroyed targets receive nothing (57.6902ms)
+✔ A1 relaunch with persisted enabled: displays that settle late still get an overlay each (208.3005ms)
+✔ A2 a start that produced no overlay is repaired by the same config, not by a toggle (76.441ms)
+✔ A3 an overlay whose document fails to load is replaced, not left blank over the desktop (103.5727ms)
+✔ A4 a reloaded document reveals the overlay again: ready-to-show does not fire twice (66.7346ms)
+✔ A5 renderer reconnect: a new window re-claims and converges after the old document is destroyed (47.338ms)
+✔ A6 a healthy overlay set costs nothing: the reconcile is a no-op (50.6475ms)
+✔ remote workspace uses registered ZAICODE services when available (7.1707ms)
+✔ remote workspace registers explicit unavailable ZAICODE services when absent (8.1176ms)
+✔ the spend channel crosses all four layers with a contract (1.0995ms)
+✔ only a ready Codex account can be asked, one spend per account at a time, each attempt has its own key (0.3062ms)
+✔ after any answer the vendor's own numbers are read again; a failed read keeps the last credits (0.2164ms)
+✔ reading the quota never spends: the quota read asks the read method only (0.3588ms)
+✔ an empty router gets the keyless free providers, SAIFREN and SAIOPP; a second run changes nothing (2622.7808ms)
+✔ a starter the operator removed from SAIFREN is not put back (72.0298ms)
+✔ ZAICODE's key is created once and reused while 9router has it (34.7457ms)
+✔ first token through SAIFREN with no key, account or provider set up (real free providers) (1709.6386ms)
+✔ the daily scan appends a newly free model once, says so, and respects a removal (68.9222ms)
+✔ a bad free key is refused and leaves nothing behind (826.7432ms)
+✔ a crashed router comes back by itself (supervisor restart with backoff) (2502.6153ms)
+✔ Autotroubleshoot repairs: a stopped router is started again, a deleted pool is rebuilt (3603.878ms)
+✔ the CLI token is derived like 9router's own CLI (1.54ms)
+✔ an allowed call carries the token and returns 9router's JSON (85.2457ms)
+✔ 9router's validation text comes back as the message (8.0514ms)
+✔ a refused call never reaches 9router (0.4901ms)
+✔ a router that is down is reported, not thrown (0.8464ms)
+✔ 9router settings reach the renderer reduced to the pool strategies (30.9634ms)
+✔ a folder that is not a mailbox, or a damaged one, reads as not existing, never as a crash (24.1286ms)
+✔ pairing refuses cleanly when there is no mailbox or no CLI, and touches nothing (63.8467ms)
+✔ the reported failure, then the repair: an unpaired agent letter is refused on arrival, pairing makes the next one arrive and ZAICODE's reader shows it (6999.6919ms)
+✔ a recreated operator mailbox makes the desk stale: it is moved aside, never deleted, and pairing works again (5630.5345ms)
+✔ a desk rebuilt under an alias the operator already holds for the old desk still gets its letters accepted (4251.0608ms)
+✔ a folder typed with dots and a trailing slash is one mailbox, spelled once, everywhere the CLI and the registry see it (2274.6704ms)
+✔ T-133 the test letter names the time on this PC's clock, not a UTC ISO stamp (0.4625ms)
+✔ pure: unread opens, read reopens; envelope ids are validated, not trusted (10.4992ms)
+✔ pure: the read-letter list parser is metadata-only -- a body in the JSON is not surfaced (1.8446ms)
+✔ pure: the opened-letter parser carries the body only when the CLI says ok (0.301ms)
+✔ pure: listing never decrypts -- a malformed items array is refused, not guessed (3.7016ms)
+✔ real CLI, mock runner: the widget cannot smuggle a non-canonical command or a bad id (0.9971ms)
+✔ real CLI, mock runner: a missing CLI is a readable degraded state, not a crash (0.3812ms)
+✔ real CLI: explicit Open moves the durable UNREAD -> READ and returns the body (4139.2334ms)
+✔ real CLI: Reopen keeps durable READ and returns the body again (3590.0822ms)
+✔ real CLI: a failed open leaves the letter unread and reports the refusal (3143.9332ms)
+✔ a failed projection is retried after a few seconds, a good one is kept until the files change (6082.8797ms)
+✔ WAV: length is the data bytes over the byte rate, whatever chunks come before the data (2.2417ms)
+✔ WAV: a streamed file that wrote 0 or 0xFFFFFFFF as the data size is measured by what is really there (0.4435ms)
+✔ WAV: no data chunk, or a zero byte rate, is unknown (-1), never a guess (0.2666ms)
+✔ OGG Vorbis: last page granule over the sample rate of the id header (0.4042ms)
+✔ OGG Opus: granule counts 48 kHz samples minus the pre-skip (0.2431ms)
+✔ OGG: a position past 32 bits is read whole (a long recording), not cut to its low half (0.3019ms)
+✔ OGG: a stream whose last page has no position yet (all ones) is unknown (0.4795ms)
+✔ MP3: a Xing frame count wins over the bitrate estimate (0.6074ms)
+✔ MP3: constant bitrate is estimated from the bytes after the tag (0.6912ms)
+✔ MP3: garbage that only looks like a sync is skipped or unknown, never a crash (0.2937ms)
+✔ the format comes from the bytes, not from the name (0.4137ms)
+✔ replacing a PNG with a JPG leaves exactly one custom picture, the new one (9.0246ms)
+✔ a BMP replaced by a PNG is gone too (every format, not just the launcher's first) (8.4045ms)
+✔ a file that is not a supported picture changes nothing (4.0702ms)
+✔ format comes from the bytes, and a missing folder simply has no picture (0.8941ms)
+✔ app-ready with only the splash alive creates the main window (SRC-050) (1.6744ms)
+✔ an existing application window is reused instead of creating a second one (0.4688ms)
+✔ a hidden main window (startup hold, tray click) is shown, not recreated (0.317ms)
+✔ a window whose renderer crashed is destroyed and the next one revealed (0.3265ms)
+✔ the desktop platform adapter maps both splash preference methods (0.6834ms)
+✔ the preload still exposes what the adapter now maps (0.4163ms)
+✔ the splash settings component is not wired to a method that does not exist (0.5216ms)
+✔ a window held by the start-up splash is not revealed from the coordinator (0.3154ms)
+✔ an ordinary hidden window is still shown by the coordinator (0.3039ms)
+✔ a large picture is scaled into the box, never drawn at its own size (3.2906ms)
+✔ splash options normalize: unknown values fall back to the defaults (0.4234ms)
+✔ flipping the splash switch leaves the custom picture alone (imagePath stays undefined) (1.2544ms)
+✔ the bundled splash page is the template's output (one page for both pictures) (3.6249ms)
+✔ a custom page from an older template is rewritten; no picture, no page (33.7577ms)
+✔ every platform method the UI calls and preload exposes is mapped by the desktop adapter (327.922ms)
+✔ the input helper is ProTrail's Raw Input sink, and compiles with Windows' own C# 5 compiler (1.3942ms)
+✔ the helper is compiled once per source version and falls back to cursor polling (0.6572ms)
+✔ one click-through, never-focused, always-on-top overlay per monitor (0.6498ms)
+✔ overlays are never taken for the ZAICODE window (13.1601ms)
+✔ the overlay page and its preload are part of the build (0.9454ms)
+✔ the placeholder is a real 128 x 128 PNG (1.7773ms)
+✔ the page shows the emblem first and the picture only once it is decoded (0.5437ms)
+✔ the chosen account goes to priority 1, the others keep their order behind it (2.1535ms)
+✔ the gate: one account of a vendor at a time, many requests for it, first come first served (15.2275ms)
+✔ a request for Codex 2 is served by Codex 2: priority first, bare model routed, ZAICODE's key (137.0032ms)
+✔ two chats on two accounts of one vendor at once: each is served by its own account (381.9798ms)
+﹣ real 9router: the account named in the path is the one whose key reaches the vendor (0.2273ms) # set ZAICODE_ROUTER_PACKAGE to run
+✔ SRC-114 about: the brand mark is ZAICODE's own when the logo is available (1.3351ms)
+✔ SRC-114 about: a missing logo falls back to the vector mark instead of a blank (0.1949ms)
+✔ SRC-114 about: it says what the program is and where the source is (0.2911ms)
+✔ SRC-114 about: upstream ZCode keeps its own About, without a tagline (0.1496ms)
+✔ SRC-114 about: text from the build is escaped, not injected (0.1773ms)
+✔ SRC-114 about: the logo is staged where the main process looks for it (0.9848ms)
+✔ an idle Gemini pool uses an advertised low-effort Flash instead of a removed pinned model (13.5371ms)
+✔ the independent Claude/GPT pool must not spend a Gemini request (0.4035ms)
+✔ unknown pools and missing advertised models are unsupported rather than invented (0.2001ms)
+✔ the starter's effort agrees with the CLI's advertised model variant (0.1591ms)
+✔ an inherited TZ is removed before anything is spawned, and remembered (1.108ms)
+✔ no TZ: nothing changes (0.9359ms)
+✔ a packaged app that inherited TZ relaunches once, never in a loop (0.2243ms)
+✔ no inherited TZ, or a dev run: no relaunch (0.1368ms)
+✔ the patch turns on RTK and Caveman lite and never touches Ponytail (2.3765ms)
+✔ applied once: afterwards the operator's own settings stay (0.6815ms)
+✔ an older 9router that refuses the settings does not fail the setup (0.4807ms)
+﹣ a real 9router takes the defaults through its own settings API (0.1393ms) # no 9router package (ZAICODE_ROUTER_PACKAGE)
+✔ toolPolicy.allowedTools sent as toolAllowlist to sendPrompt only (createTask has no tool contract) (2.9392ms)
+✔ toolPolicy.disallowedTools sent as toolDenylist to sendPrompt (0.3296ms)
+✔ empty/undefined toolPolicy omits toolAllowlist and toolDenylist (0.263ms)
+✔ conflict: tool in both allowlist and denylist is excluded from allowlist (0.2856ms)
+✔ plan mode still sent as mode=plan (0.267ms)
+✔ yolo full access is sent as explicit mode=yolo (0.2981ms)
+✔ legacy auto permissionMode keeps the upstream runtime default (0.2441ms)
+✔ router backend executes through the configured pool (T-15 pool routing contract) (0.2514ms)
+✔ router backend without a pool selection fails closed without creating a task (0.5587ms)
+✔ executor consumes a reloaded persisted router backend through its pool (90.8485ms)
+✔ no runId throws before sendPrompt (0.8066ms)
+✔ tray menu: only the operator's destinations, no upstream housekeeping (1.2108ms)
+✔ tray menu page uses Golden Default tokens and escapes labels (0.4984ms)
+✔ tray menu picks come back through the title (0.1979ms)
+✔ tray menu opens up-left of the cursor and stays inside the work area (1.0807ms)
+✔ R1 the install root: the launcher's variable first, else found above the app; a developer checkout is not 'installed' (1.4877ms)
+✔ R2 check asks the script with -Check -Json and fills the four parts; nothing is changed (9.6978ms)
+✔ R3 one part updates on its own: only that part is named, the others keep their last report (2.6756ms)
+✔ R4 the schedule updates by itself only the parts set to, and only when something is new (2.3914ms)
+✔ R5 a developer checkout never updates by itself unless a part is switched on (4.9459ms)
+✔ R6 one run at a time; a script without a report is an error the card shows, not a silent success (4.1251ms)
+✔ R7 the per-part switches and the last report survive a restart (3.8533ms)
+✔ the Claude start has no tools, no MCP, no user hooks, the cheapest model, no saved session (1.239ms)
+✔ the Codex start is read-only, low effort, ephemeral and outside any repository (0.2035ms)
+✔ a Claude answer that is not an error counts as started and names its tokens (0.3568ms)
+✔ a refused or unreadable Claude start is a failure with the vendor's words (0.9309ms)
+✔ codex exec: exit 0 started, anything else is a failure (0.2102ms)
+✔ Antigravity starts with one sandboxed low-effort Flash request (6.3858ms)
+✔ ZCode start uses only the configured vendor's coding-only endpoint (0.5005ms)
+✔ ZCode accepts a real completion and redacts provider failure bodies (0.3198ms)
+ℹ tests 220
+ℹ suites 0
+ℹ pass 218
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 2
+ℹ todo 0
+ℹ duration_ms 22903.8333
+✔ no .saipen means no verdict (2.0997ms)
+✔ open TODO ticket keeps the goal running with the next ticket as action (19.4556ms)
+✔ only human-blocked tickets complete a continuation goal (15.2199ms)
+✔ autonomous blocker (missing files / wiki stubs) keeps goal running to resolve autonomously (9.9082ms)
+✔ busy phase without WAIT is not complete (4.4564ms)
+✔ clear board defers non-continuation objectives to the model verifier (1.6626ms)
+✔ continuation objectives (0.3647ms)
+✔ a 'user decision' on content is the agent's to make; credentials are not (8.3164ms)
+✔ a TODO ticket with a blocker is blocked, and a non-human WAIT is pushed back (35.3412ms)
+✔ the loop guard gives up on the same wall after two pushes (5.2565ms)
+✔ SAIPEN's projection decides open work, not the board parse (T-41 read model) (17.138ms)
+✔ the projection keeps the autonomy push for engineering blockers (1.2821ms)
+✔ parseSaipenGoalProjection reads saipen status --json and rejects junk (1.1188ms)
+✔ recovery budget: 10 by default, 100 in ZAICODE mode (0.854ms)
+✔ recovery budget: an explicit env override wins, sane values only (0.1773ms)
+✔ a session stored as build or edit runs the operator's command without a card (3.3993ms)
+✔ outside ZAICODE the same build session still asks (upstream unchanged) (0.6602ms)
+✔ plan mode, questions to the user, the self-kill guard and disallowed tools stay (0.7036ms)
+✔ ZAICODE_PERMISSION_PROMPTS=on gives upstream's prompts back (0.6373ms)
+✔ ZAICODE mode denies a model's own EnterPlanMode (SRC-038: subSaipen delivers, no plan) (1.1342ms)
+✔ upstream mode keeps EnterPlanMode allowed without a prompt (0.1818ms)
+✔ ZAICODE_AGENT_PLAN_MODE=allow gives the tool back (0.2246ms)
+✔ ExitPlanMode in a plan the operator chose still works in ZAICODE (1.0257ms)
+✔ no SAIMAIL environment at all: the prompt says nothing about mail (1.7296ms)
+✔ a paired desk is announced with the exact command, the quoted path and the honest failure rule (0.5215ms)
+✔ the desk line makes a letter rare: chat first, a finished Work is never a letter (0.3151ms)
+✔ a desk that is missing, or does not know the operator, is never advertised (0.3486ms)
+✔ the operator's mailbox keeps its guidance and now says what to do about a seat mismatch (0.1853ms)
+✔ both together: mailbox lines first, then the desk line (0.187ms)
+✔ the 2026-09-25 command that killed ZAICODE and all eight sessions is refused (1.3827ms)
+✔ every way of stopping ZAICODE by name, image or filter is refused (1.1486ms)
+✔ ordinary work that only mentions ZAICODE paths is not refused (0.1767ms)
+✔ only shell tools are inspected (0.2369ms)
+✔ yolo mode does not let the self-kill through (1.0909ms)
+✔ ZAICODE compacts a 1M-token model as if its window were 200k (1.2255ms)
+✔ the compaction ceiling is ZAICODE-only and can be moved or switched off (0.2271ms)
+✔ a TaskOutput wait is capped in ZAICODE only (1.3975ms)
+✔ a background shell that writes nothing ends the wait long before the model's 600 s (1592.7688ms)
+✔ a background shell that keeps writing is waited for up to the cap, not cut as silent (3503.3225ms)
+✔ a finished task returns at once (0.4704ms)
+ℹ tests 40
+ℹ suites 0
+ℹ pass 40
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 7070.6668
+✔ a non-retryable rate limit opens the provider's circuit (2.2294ms)
+✔ B2: a network error is not quota exhaustion (0.3325ms)
+✔ B2: a 5xx is not quota exhaustion (0.2332ms)
+✔ B2: model-not-found is not quota exhaustion (0.2087ms)
+✔ B2: an auth failure is not quota exhaustion (0.2308ms)
+✔ B2: a malformed request is not quota exhaustion (0.1921ms)
+✔ a retryable rate limit does not open the circuit: the route is still working (0.2151ms)
+✔ a failure with no resolved provider id cannot be attributed to a route (0.9569ms)
+✔ a vendor reset time wins over the default cooldown (0.3566ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2971.2918
+✔ CLEAR on a running goal session: stop, pause, drop goal and queue, cut, broadcast (2.4659ms)
+✔ CLEAR on an idle, already empty session is a quiet noop (0.2963ms)
+✔ CLEAR fails loudly when the branch cut is unavailable (0.562ms)
+✔ clearConversation is a native v4 command and is refused in selection side chats (0.2818ms)
+✔ upstream keeps the queue behind an unfinished goal (1.1276ms)
+✔ ZAICODE: a queued input on an idle session runs even while a goal is active or paused (SRC-044) (0.2252ms)
+✔ ZAICODE still never drains into a busy session or a queue the operator paused (0.1907ms)
+✔ the drain-past-goal switch follows ZAICODE mode (0.1895ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2411.229

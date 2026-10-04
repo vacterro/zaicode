@@ -1,0 +1,270 @@
+{
+  "schema": "t208-packaged/1",
+  "at": "2026-10-04T00:06:15.606Z",
+  "executablePath": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\.release-work\\t208-pass2-20261004\\win-unpacked\\ZAICODE.exe",
+  "profile": "V:\\_TEMP_\\zaicode-t208-ui-rOh2z5",
+  "verifier": "971b61a0fd09afe92e87cd46c9e4460eabdc387264c6db9ec6e24857f34c51a5",
+  "appAsarSha256": "9118adca0e96653fedcae1fb6ecff33c52fcf8e563551e0b82baa7b22647cd94",
+  "before": {
+    "appPid": 16868,
+    "rendererPid": 20716,
+    "utilityPids": [
+      13328,
+      14328,
+      26664,
+      27096
+    ],
+    "worker": {
+      "pid": 20876,
+      "marker": "c6269703-224b-44d6-94fd-86fa5d28955d",
+      "startedAt": 1791072370848,
+      "count": 1,
+      "final": false
+    }
+  },
+  "mainNavigations": 0,
+  "checks": [
+    {
+      "name": "the packaged application uses a throw-away profile",
+      "pass": true
+    },
+    {
+      "name": "positive control: the real native worker advances with one run identity",
+      "pass": true
+    },
+    {
+      "name": "positive control: both cached task notification preferences initially show enabled",
+      "pass": true
+    },
+    {
+      "name": "zaicodeSounds: application, renderer and runtime stay attached",
+      "pass": true,
+      "detail": {
+        "rendererPid": 20716,
+        "utilityPids": [
+          13328,
+          14328,
+          26664,
+          27096
+        ]
+      }
+    },
+    {
+      "name": "zaicodeSounds: worker PID, run marker and start identity survive",
+      "pass": true
+    },
+    {
+      "name": "zaicodeNotifications: application, renderer and runtime stay attached",
+      "pass": true,
+      "detail": {
+        "rendererPid": 20716,
+        "utilityPids": [
+          13328,
+          14328,
+          26664,
+          27096
+        ]
+      }
+    },
+    {
+      "name": "the notification fixture uses accepted serialized preference values",
+      "pass": true
+    },
+    {
+      "name": "zaicodeNotifications: worker PID, run marker and start identity survive",
+      "pass": true
+    },
+    {
+      "name": "zaicodeColors: application, renderer and runtime stay attached",
+      "pass": true,
+      "detail": {
+        "rendererPid": 20716,
+        "utilityPids": [
+          13328,
+          14328,
+          26664,
+          27096
+        ]
+      }
+    },
+    {
+      "name": "zaicodeColors: worker PID, run marker and start identity survive",
+      "pass": true
+    },
+    {
+      "name": "zaicodeProtrail: application, renderer and runtime stay attached",
+      "pass": true,
+      "detail": {
+        "rendererPid": 20716,
+        "utilityPids": [
+          13328,
+          14328,
+          26664,
+          27096
+        ]
+      }
+    },
+    {
+      "name": "zaicodeProtrail: worker PID, run marker and start identity survive",
+      "pass": true
+    },
+    {
+      "name": "zaicodeTimers: application, renderer and runtime stay attached",
+      "pass": true,
+      "detail": {
+        "rendererPid": 20716,
+        "utilityPids": [
+          13328,
+          14328,
+          26664,
+          27096
+        ]
+      }
+    },
+    {
+      "name": "zaicodeTimers: worker PID, run marker and start identity survive",
+      "pass": true
+    },
+    {
+      "name": "zaicodeHotkeys: application, renderer and runtime stay attached",
+      "pass": true,
+      "detail": {
+        "rendererPid": 20716,
+        "utilityPids": [
+          13328,
+          14328,
+          26664,
+          27096
+        ]
+      }
+    },
+    {
+      "name": "zaicodeHotkeys: worker PID, run marker and start identity survive",
+      "pass": true
+    },
+    {
+      "name": "zaicodeSidebar: application, renderer and runtime stay attached",
+      "pass": true,
+      "detail": {
+        "rendererPid": 20716,
+        "utilityPids": [
+          13328,
+          14328,
+          26664,
+          27096
+        ]
+      }
+    },
+    {
+      "name": "zaicodeSidebar: worker PID, run marker and start identity survive",
+      "pass": true
+    },
+    {
+      "name": "zaicodeLayout: application, renderer and runtime stay attached",
+      "pass": true,
+      "detail": {
+        "rendererPid": 20716,
+        "utilityPids": [
+          13328,
+          14328,
+          26664,
+          27096
+        ]
+      }
+    },
+    {
+      "name": "zaicodeLayout: worker PID, run marker and start identity survive",
+      "pass": true
+    },
+    {
+      "name": "zaicodeWorkers: application, renderer and runtime stay attached",
+      "pass": true,
+      "detail": {
+        "rendererPid": 20716,
+        "utilityPids": [
+          13328,
+          14328,
+          26664,
+          27096
+        ]
+      }
+    },
+    {
+      "name": "zaicodeWorkers: worker PID, run marker and start identity survive",
+      "pass": true
+    },
+    {
+      "name": "zaicodeEngines: application, renderer and runtime stay attached",
+      "pass": true,
+      "detail": {
+        "rendererPid": 20716,
+        "utilityPids": [
+          13328,
+          14328,
+          26664,
+          27096
+        ]
+      }
+    },
+    {
+      "name": "zaicodeEngines: worker PID, run marker and start identity survive",
+      "pass": true
+    },
+    {
+      "name": "the active timer retains its identity and deadline after all preset families",
+      "pass": true,
+      "detail": {
+        "id": "t208-live-timer",
+        "name": "T208 live timer",
+        "description": "",
+        "target": 1791072959417,
+        "repeat": "once",
+        "sound": "fastprompter:tick_on.wav",
+        "volume": 0,
+        "colorMode": "temperature",
+        "color": "#6aa9ff",
+        "enabled": true,
+        "fired": false,
+        "intervalMinutes": 300,
+        "kind": "alarm",
+        "showNotification": false,
+        "showInTopBar": true,
+        "repeatAnchor": "2026-10-04",
+        "soundMode": "single",
+        "soundRules": [],
+        "temporary": false,
+        "deleteAfterFire": false
+      }
+    },
+    {
+      "name": "timer preferences update live without importing another run counter",
+      "pass": true
+    },
+    {
+      "name": "notification presets update the existing application store and General controls",
+      "pass": true
+    },
+    {
+      "name": "the unsent composer text survives Settings preset application",
+      "pass": true
+    },
+    {
+      "name": "the selected project remains the fixture project",
+      "pass": true
+    },
+    {
+      "name": "the final result belongs to the original worker run",
+      "pass": true
+    },
+    {
+      "name": "the same worker terminal displays its final status",
+      "pass": true
+    },
+    {
+      "name": "no renderer exception occurred",
+      "pass": true,
+      "detail": []
+    }
+  ],
+  "pass": true
+}

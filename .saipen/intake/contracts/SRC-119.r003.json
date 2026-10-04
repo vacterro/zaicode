@@ -1,0 +1,24 @@
+{
+  "clauses": {
+    "SRC-119:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Long chat sessions stay responsive, with older history loaded on demand."
+    },
+    "SRC-119:R002": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Remove the binary disabled/enabled selector shown for SAIFREN."
+    },
+    "SRC-119:R003": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "A running project stays visibly running after switching to another project."
+    }
+  },
+  "derived_at": "2026-10-02T21:50:11Z",
+  "derived_from": "SRC-119",
+  "interpretation_revision": 3,
+  "schema_version": 1,
+  "source_sha256": "3467eff98907e313754321f9f0319b3e7013a108211f9865cf2649a4a0999d08"
+}

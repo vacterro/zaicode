@@ -1,0 +1,14 @@
+{
+  "requirements": {
+    "SRC-121:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "T-182 closed with verification evidence in LOG: verify -> PASS [target: T-182] conf: high -- SRC-121 body reads 'C:/Program Files/Git/goal cc all', which is MSYS path conversion applied to the leading slash of the operator's real request '/goal cc all'. The prefix is the Git installation root, not user text. The request itself is the active goal and is being executed in this session, so the ticket carries no independent work and no repository d",
+      "text": "C:/Program Files/Git/goal cc all",
+      "verification": "the Work this request created reached its own verification gate; see the T-182 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-182"
+    }
+  },
+  "schema_version": 1
+}

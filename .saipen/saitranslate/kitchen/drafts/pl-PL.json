@@ -2999,6 +2999,7 @@
   "settings.sidebar.group.zaicode": "ZAICODE",
   "zaicode.settings.autoRestart": "Uruchom ponownie po awarii",
   "zaicode.fallback.switched": "{fromModel} osiągnął swój limit. Następna wiadomość trafi do {toModel}; wróć w dowolnym momencie w menu modeli.",
+  "zaicode.fallback.routeHold": "{fromModel} jest w zatrzymaniu limitu do {until}. Ta wiadomość trafi do {toModel}.",
   "zaicode.settings.autoRestartHint": "Domyślnie włączone. Launcher restartuje zawieszoną aplikację; host desktopu przeładowuje okno.",
   "zaicode.todo.title": "Do zrobienia",
   "zaicode.todo.detach": "Odłącz okno zadań",

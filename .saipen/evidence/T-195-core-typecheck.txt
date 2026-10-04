@@ -1,0 +1,4 @@
+
+> @zcode/core@0.1.0 typecheck V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\core
+> tsc --noEmit
+

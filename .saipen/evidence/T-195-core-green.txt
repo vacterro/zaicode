@@ -1,0 +1,11 @@
+✔ ZAICODE planning guidance says implement directly and spends no proactive-plan boilerplate (0.8797ms)
+✔ actual permission owner allows edits while denying unsolicited planning before full access (0.5718ms)
+✔ upstream and an explicit configured planning override retain proactive planning (0.2459ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 831.3995

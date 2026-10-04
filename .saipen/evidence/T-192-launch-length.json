@@ -1,0 +1,9 @@
+{
+  "schema": "t192-launch-length/1",
+  "at": "2026-10-03T14:56:52.018Z",
+  "sampleConfiguration": true,
+  "clientCharacters": 6459,
+  "innerEncodedCharacters": 17224,
+  "previousOuterEncodedCharacters": 46488,
+  "correctedDirectLauncherCharacters": 17432
+}

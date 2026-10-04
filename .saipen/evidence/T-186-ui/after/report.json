@@ -1,0 +1,192 @@
+{
+  "checks": [
+    {
+      "name": "real scheduler does not launch while Autopilot is OFF",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "OFF does not consume the occurrence",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "initial ready producer is collected",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "busy and draft cycles do not enqueue the same collect",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Auto toggle keeps generation attempt",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "composer remount keeps generation attempt",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "a new package of the same producer is collected",
+      "actual": 2,
+      "expected": 2,
+      "pass": true
+    },
+    {
+      "name": "different workspace has independent admission",
+      "actual": 3,
+      "expected": 3,
+      "pass": true
+    },
+    {
+      "name": "different remote identity has independent admission",
+      "actual": 4,
+      "expected": 4,
+      "pass": true
+    },
+    {
+      "name": "local rejection is not sent",
+      "actual": 4,
+      "expected": 4,
+      "pass": true
+    },
+    {
+      "name": "local rejection can be attempted again",
+      "actual": 5,
+      "expected": 5,
+      "pass": true
+    },
+    {
+      "name": "scheduler warns about Autopilot OFF",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "Scheduler page warns without hover",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Scheduler row is paused",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "SAIHOME says Autopilot OFF",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "Enable Autopilot invokes the existing action",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "Scheduler warning clears after enabling",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "real scheduler launches once after Autopilot is ON",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "ON consumes exactly one occurrence",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "stop rule still works while Autopilot is OFF",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "enabled Autopilot restores the countdown",
+      "actual": false,
+      "expected": false,
+      "pass": true
+    },
+    {
+      "name": "tooltip label",
+      "actual": false,
+      "expected": false,
+      "pass": true
+    },
+    {
+      "name": "tooltip icon",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "tooltip clipped",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "tooltip clamped",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "tooltip description",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "tooltip shortcut",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "tooltip hidden",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "tooltip .plain-label",
+      "actual": false,
+      "expected": false,
+      "pass": true
+    },
+    {
+      "name": "keyboard focus skips a repeated visible label",
+      "actual": false,
+      "expected": false,
+      "pass": true
+    },
+    {
+      "name": "keyboard focus retains an icon-only explanation",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    }
+  ],
+  "errors": [],
+  "pass": true
+}

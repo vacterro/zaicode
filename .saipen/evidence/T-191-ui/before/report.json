@@ -1,0 +1,192 @@
+{
+  "checks": [
+    {
+      "name": "running has existing header",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "running footer matches header",
+      "actual": false,
+      "expected": true,
+      "pass": false
+    },
+    {
+      "name": "running footer contains hours",
+      "actual": false,
+      "expected": true,
+      "pass": false
+    },
+    {
+      "name": "completed has existing header",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "completed footer matches header",
+      "actual": false,
+      "expected": true,
+      "pass": false
+    },
+    {
+      "name": "completed footer contains hours",
+      "actual": false,
+      "expected": true,
+      "pass": false
+    },
+    {
+      "name": "interrupted has existing header",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "interrupted footer matches header",
+      "actual": false,
+      "expected": true,
+      "pass": false
+    },
+    {
+      "name": "interrupted footer contains hours",
+      "actual": false,
+      "expected": true,
+      "pass": false
+    },
+    {
+      "name": "unknown duration is not fabricated",
+      "actual": null,
+      "expected": "Worked",
+      "pass": false
+    },
+    {
+      "name": "control-only turn has no duration footer",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "guide keeps both segment durations",
+      "actual": "[]",
+      "expected": "[\"Worked for 2h 5m\",\"Worked for 30m\"]",
+      "pass": false
+    },
+    {
+      "name": "collapsed history retains footer",
+      "actual": false,
+      "expected": true,
+      "pass": false
+    },
+    {
+      "name": "running footer advances",
+      "actual": null,
+      "expected": "Working for 2h 36m",
+      "pass": false
+    },
+    {
+      "name": "completed footer stays frozen",
+      "actual": null,
+      "expected": "Worked for 2h 35m",
+      "pass": false
+    },
+    {
+      "name": "interrupted footer stays frozen",
+      "actual": null,
+      "expected": "Stopped · 2h 35m",
+      "pass": false
+    },
+    {
+      "name": "clock does not rerender chat rows",
+      "actual": 19,
+      "expected": 19,
+      "pass": true
+    },
+    {
+      "name": "clock does not remount terminal",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "clock submits no terminal input",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "worker retains original command",
+      "actual": "fixture-original-command",
+      "expected": "fixture-original-command",
+      "pass": true
+    },
+    {
+      "name": "worker footer is visible",
+      "actual": false,
+      "expected": true,
+      "pass": false
+    },
+    {
+      "name": "worker footer matches running age",
+      "actual": false,
+      "expected": true,
+      "pass": false
+    },
+    {
+      "name": "worker successful exit freezes duration",
+      "actual": null,
+      "expected": null,
+      "pass": true
+    },
+    {
+      "name": "worker footer reports successful exit",
+      "actual": false,
+      "expected": true,
+      "pass": false
+    },
+    {
+      "name": "worker failed exit uses recorded final duration",
+      "actual": null,
+      "expected": "exited 7 after 2h 35m",
+      "pass": false
+    },
+    {
+      "name": "floating worker keeps footer",
+      "actual": false,
+      "expected": true,
+      "pass": false
+    },
+    {
+      "name": "completed chat uses persisted duration",
+      "actual": null,
+      "expected": "Worked for 2h 35m",
+      "pass": false
+    },
+    {
+      "name": "narrow worker footer stays visible",
+      "actual": false,
+      "expected": true,
+      "pass": false
+    },
+    {
+      "name": "narrow viewport has no page overflow",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "duration footer uses existing localization",
+      "actual": null,
+      "expected": "已工作 2 时 35 分",
+      "pass": false
+    },
+    {
+      "name": "page errors",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    }
+  ],
+  "errors": [],
+  "pass": false
+}

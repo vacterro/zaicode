@@ -1,0 +1,91 @@
+✖ an idle Gemini pool uses an advertised low-effort Flash instead of a removed pinned model (2.2746ms)
+✖ the independent Claude/GPT pool must not spend a Gemini request (0.3604ms)
+✖ unknown pools and missing advertised models are unsupported rather than invented (0.6295ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 0
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 180.1139
+
+✖ failing tests:
+
+test at test\zaicodeT188ModelInventory.test.ts:1:354
+✖ an idle Gemini pool uses an advertised low-effort Flash instead of a removed pinned model (2.2746ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'gemini-3.5-flash-medium'
+  - 'gemini-3.8-flash-low'
+              ^
+  
+      at TestContext.<anonymous> (V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\desktop\test\zaicodeT188ModelInventory.test.ts:10:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.start (node:internal/test_runner/test:1096:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:385:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'gemini-3.5-flash-medium',
+    expected: 'gemini-3.8-flash-low',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at test\zaicodeT188ModelInventory.test.ts:1:716
+✖ the independent Claude/GPT pool must not spend a Gemini request (0.3604ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'gemini-3.5-flash-medium'
+  - 'gpt-oss-120b-medium'
+  
+      at TestContext.<anonymous> (V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\desktop\test\zaicodeT188ModelInventory.test.ts:18:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'gemini-3.5-flash-medium',
+    expected: 'gpt-oss-120b-medium',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at test\zaicodeT188ModelInventory.test.ts:1:961
+✖ unknown pools and missing advertised models are unsupported rather than invented (0.6295ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + [
+  +   '-p',
+  +   'Reply with the single word: ok',
+  +   '--model',
+  +   'gemini-3.5-flash-medium',
+  +   '--effort',
+  +   'low',
+  +   '--sandbox',
+  +   '--output-format',
+  +   'json'
+  + ]
+  - null
+  
+      at TestContext.<anonymous> (V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\desktop\test\zaicodeT188ModelInventory.test.ts:22:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ '-p', 'Reply with the single word: ok', '--model', 'gemini-3.5-flash-medium', '--effort', 'low', '--sandbox', '--output-format', 'json' ],
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

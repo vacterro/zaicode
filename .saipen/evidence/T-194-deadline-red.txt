@@ -1,0 +1,37 @@
+apps/zcode-cli                           |  WARN  Unsupported engine: wanted: {"node":"24.14.0"} (current: {"node":"v24.15.0","pnpm":"10.33.2"})
+✔ actual continuation executor persists one dispatch, delays vendor limit handoff and routes the exact SAIFREN model (7.8601ms)
+✔ restart reuses the persisted worker lease and terminal identity; completion consumes no later runner (0.7818ms)
+✔ pause and project disable block real effects; active occurrences are never evicted or duplicated (0.8878ms)
+✔ a later operator execution prevents the scheduled return from stopping or relaunching it (0.7594ms)
+✔ overlapping ticks cannot launch two workers while the first effect is pending (6.6093ms)
+✖ slow preparation cannot launch beyond the configured schedule stop time (5.5233ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 5
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1982.7632
+
+✖ failing tests:
+
+test at test\zaicodeContinuationEffects.test.ts:1:9047
+✖ slow preparation cannot launch beyond the configured schedule stop time (5.5233ms)
+  AssertionError [ERR_ASSERTION]: the configured deadline still applies after asynchronous preparation
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\ui\test\zaicodeContinuationEffects.test.ts:165:10)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+undefined
+V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\ui:
+ ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL  Command failed with exit code 1: node --import tsx --test test/zaicodeContinuationEffects.test.ts

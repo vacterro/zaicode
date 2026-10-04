@@ -1,0 +1,36 @@
+{
+  "base": "a2a5ffdf5f1e97770742efe2ab58d3a363dceace",
+  "at": "2026-10-04T00:27:43.2205000Z",
+  "subject": {
+    "packages/ui/src/v4/ConversationShareReadonlyTimeline.tsx": "ff52a692bbcce54d924766a9acdf296d3069cba85a0091ed6489fccefc25b5b3",
+    "packages/ui/src/v4/conversationTurnWorkSegments.ts": "b98c10fd08b005a7389023fb2318b56989afc20cabdb91d0a4a0031d3ab33d83",
+    "packages/ui/src/v4/conversationWorkDuration.ts": "8cea5a6a9c1f62f745881cce044eaf816911deb16055f5645091cd7aec0a2856",
+    "packages/ui/src/v4/ConversationTurnGroup.tsx": "c40f6ebc9563b9282221698cb3699f06c90a9817e63605a795e7f57e17ea546a"
+  },
+  "instruments": {
+    ".saipen/evidence/T-210-ui/verifier.cjs": "eccd050f10165a8ada4cfb82c40ddc3c319e5ec91ecaa13550e9d7ef623a9a17",
+    "zcode/packages/ui/test/zaicodeT210KnownDuration.test.ts": "0875bdb5c187f75c2209c0bd44243cb0ce122aa83386ab61511f72e2a175fe6c",
+    ".saipen/evidence/T-210-ui/serve.mjs": "4e7561f0db8afcaa3d0d96c22d2acff3432abf034a57fbab39391957561faa2c",
+    ".saipen/evidence/T-210-ui/harness.tsx": "45df420ef9955b84f67cd4f47c925f684af49c74dbc480f9ee0e1fd0e0c8763f"
+  },
+  "foreign": {
+    "README.md": "e952a7b7cfb5926c7b150c487d855580f97c1633d785c1b4683aa5f15c05313b",
+    "packages/desktop/src/main/zaicodeEngines.ts": "713df03fb95d148cb125ffd78fb62f03d9613c486c10a1ef01de0a6e49d5bc2d",
+    "packages/desktop/src/main/zaicodeWindowStarter.ts": "28547f158e591f7add94e2ad1e37e780da31e588a8731325b7ad9c6583a489af",
+    "packages/desktop/test/zaicodeT188ModelInventory.test.ts": "334ffb0fa092f288073e61f4716419aa757ae2f770dc8d2504040d80405b2902",
+    "packages/desktop/test/zaicodeWindowStarter.test.ts": "367246354dc2a75fd2789fa602651ddde228be686e5ff031ed9dee94d8d5e32d",
+    "packages/provider-node/scripts/sai-accounts-live-acceptance.ts": "751af46d38aa8a2b421f745d274536ab9af65ba259300922ee52974b9546dae8",
+    "packages/provider-node/src/index.ts": "9d33a9e595b390276f1f6e9ec9d77270fd5aeb0ae61b06509755ed6cc4c9dfd8",
+    "packages/provider-node/src/sai-accounts-source.ts": "607c4d146252b46dd0104736279a21618d70ad78551a5e350ab99d6cd21a3192",
+    "packages/provider-node/test/sai-accounts-source.test.ts": "02e414d8c2599a0b6dba2206b419b547c684a73a19e65e8ad0b626733ff7247c",
+    "packages/shared/src/zaicode-engines.ts": "a36c7d09f56d37113dab6edd7c11f581d2cf8a2868113ec81e719fabe1676d32",
+    "packages/ui/src/zaicode/ZaicodeLimitViews.tsx": "f38c89c39aacc8267d1c9f873259315f531b9c725456b551788bda975e8a84f1",
+    "packages/ui/src/zaicode/zaicodeSettingsDefaults.json": "5fa6e41db9d92f1060390bd0f11e653ea699a1ca8a27da0237483d378b782641",
+    "packages/ui/test/zaicodeSrc116WindowTruth.test.ts": "e072883c8003c7e8e7ca9a59a3933a02a1189433c1e87c14bf2458cc5158c034",
+    "packages/ui/test/zaicodeT136.test.ts": "189788b42677b5352e3b71c71bda698201e917658bd9a38ae560bc677a3770fe",
+    "packages/ui/test/zaicodeT143.test.ts": "b308e6b034a283f512df0bb839e96fcc75e40bf694b1a64f706a55509634e2d9",
+    "packages/ui/test/zaicodeT188WindowStart.test.ts": "2d2b9bae39c377ebc5c985fb3f56589ed4debd690ceff262c9cfa15c668f9edf",
+    "packages/ui/test/zaicodeWave63.test.ts": "9721a6650c5f92378db4e409523824a1fc0b2c9b2e1313d00628a66f0520ae24",
+    "specs/zaicode-t188-live-window-start.md": "f086c5e1bb88bcdcf5df1611de3133dfc58139e5b7553137adf663261b87e9a5"
+  }
+}

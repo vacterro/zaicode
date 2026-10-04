@@ -1,0 +1,1242 @@
+ WARN  Unsupported engine: wanted: {"node":"24.14.0"} (current: {"node":"v24.15.0","pnpm":"10.33.2"})
+
+> zcode-cli@0.16.9 lint V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli
+> turbo run lint
+
+• turbo 2.9.14
+ WARNING  No locally installed `turbo` found in your repository. Using globally installed version (2.9.14), which can cause unexpected behavior.
+
+Installing the version in your repository (^2.4.0) before calling `turbo` will result in more predictable behavior across environments.
+ WARNING  Unable to calculate transitive closures: Workspace 'packages/node-repl-host' not found in lockfile.
+
+   • Packages in scope: @zcode/adapters, @zcode/bootstrap, @zcode/browser-use-plugin, @zcode/cli, @zcode/contracts, @zcode/core, @zcode/dynamic-workflow, @zcode/dynamic-workflow-runtime, @zcode/i18n, @zcode/node-repl-host, @zcode/prompt-trajectory, @zcode/shared-types, @zcode/swift-bridge, @zcode/telemetry, @zcode/tui, @zcode/typescript, debug
+   • Running lint in 17 packages
+   • Remote caching disabled
+
+@zcode/node-repl-host:lint: cache miss, executing 665868b85200a02e
+@zcode/cli:lint: cache miss, executing 5c11326d013ace7b
+@zcode/i18n:lint: cache miss, executing eeabff9023d5063f
+@zcode/prompt-trajectory:lint: cache miss, executing 4e1408879e3eae16
+@zcode/bootstrap:lint: cache miss, executing b43fafb751e53661
+@zcode/tui:lint: cache miss, executing 90554bbb359e0b54
+@zcode/adapters:lint: cache miss, executing e65b4e57fccef41c
+debug:lint: cache miss, executing b2e6e740fcecaeee
+@zcode/core:lint: cache miss, executing 20b9bc03207d10a3
+@zcode/dynamic-workflow:lint: cache miss, executing 42357796288e31e4
+@zcode/prompt-trajectory:lint: 
+@zcode/prompt-trajectory:lint: > @zcode/prompt-trajectory@0.1.0 lint V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\tools\prompt-trajectory
+@zcode/prompt-trajectory:lint: > oxlint src scripts
+@zcode/prompt-trajectory:lint: 
+debug:lint: 
+debug:lint: > debug@0.1.0 lint V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\debug
+debug:lint: > oxlint src server scripts
+debug:lint: 
+@zcode/dynamic-workflow:lint: 
+@zcode/dynamic-workflow:lint: > @zcode/dynamic-workflow@0.1.0 lint V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\dynamic-workflow
+@zcode/dynamic-workflow:lint: > oxlint src
+@zcode/dynamic-workflow:lint: 
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint: > @zcode/bootstrap@0.1.0 lint V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\bootstrap
+@zcode/bootstrap:lint: > oxlint src
+@zcode/bootstrap:lint: 
+@zcode/adapters:lint: 
+@zcode/adapters:lint: > @zcode/adapters@0.1.0 lint V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\adapters
+@zcode/adapters:lint: > oxlint src
+@zcode/adapters:lint: 
+@zcode/i18n:lint: 
+@zcode/i18n:lint: > @zcode/i18n@0.1.0 lint V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\i18n
+@zcode/i18n:lint: > oxlint src
+@zcode/i18n:lint: 
+@zcode/cli:lint: 
+@zcode/cli:lint: > @zcode/cli@0.1.0 lint V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\cli
+@zcode/cli:lint: > oxlint src
+@zcode/cli:lint: 
+@zcode/node-repl-host:lint: 
+@zcode/node-repl-host:lint: > @zcode/node-repl-host@0.6.0 lint V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\node-repl-host
+@zcode/node-repl-host:lint: > oxlint src --no-ignore
+@zcode/node-repl-host:lint: 
+@zcode/prompt-trajectory:lint: Found 0 warnings and 0 errors.
+@zcode/prompt-trajectory:lint: Finished in 145ms on 11 files with 96 rules using 16 threads.
+debug:lint: 
+debug:lint:   x eslint(max-lines): File has too many lines (1368).
+debug:lint:       ,-[server/analyzer.ts:1504:2]
+debug:lint:  1503 |   return compareIsoAsc(right, left);
+debug:lint:  1504 | }
+debug:lint:       :   ^
+debug:lint:       `----
+debug:lint:   help: Maximum allowed is 400.
+debug:lint: 
+debug:lint:   x eslint(max-lines): File has too many lines (1483).
+debug:lint:       ,-[src/App.tsx:1600:2]
+debug:lint:  1599 |   return new Date(left ?? 0).getTime() - new Date(right ?? 0).getTime();
+debug:lint:  1600 | }
+debug:lint:       :   ^
+debug:lint:       `----
+debug:lint:   help: Maximum allowed is 400.
+debug:lint: 
+debug:lint: Found 0 warnings and 2 errors.
+debug:lint: Finished in 129ms on 11 files with 96 rules using 16 threads.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   x eslint(max-lines): File has too many lines (509).
+@zcode/adapters:lint:      ,-[src/config/file-config.adapter.ts:624:2]
+@zcode/adapters:lint:  623 |   return value instanceof Error && "code" in value;
+@zcode/adapters:lint:  624 | }
+@zcode/adapters:lint:      :   ^
+@zcode/adapters:lint:      `----
+@zcode/adapters:lint:   help: Maximum allowed is 400.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   x eslint(max-lines): File has too many lines (472).
+@zcode/adapters:lint:      ,-[src/storage/workspace-hook-trust-store.ts:568:2]
+@zcode/adapters:lint:  567 |   return new Promise((resolveDelay) => setTimeout(resolveDelay, ms));
+@zcode/adapters:lint:  568 | }
+@zcode/adapters:lint:      :   ^
+@zcode/adapters:lint:      `----
+@zcode/adapters:lint:   help: Maximum allowed is 400.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   x eslint(max-lines): File has too many lines (422).
+@zcode/adapters:lint:      ,-[src/storage/session-target.ts:457:2]
+@zcode/adapters:lint:  456 |   return Math.max(0, Math.ceil((endedAtMs - startedAtMs) / 1000));
+@zcode/adapters:lint:  457 | }
+@zcode/adapters:lint:      :   ^
+@zcode/adapters:lint:      `----
+@zcode/adapters:lint:   help: Maximum allowed is 400.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   x eslint(max-lines): File has too many lines (821).
+@zcode/adapters:lint:      ,-[src/storage/session-store/migrations.ts:930:112]
+@zcode/adapters:lint:  929 | import { OFFICIAL_GLM_SELECTION_MIGRATION_SQL } from "./migrations/0021-official-glm-selection.js";
+@zcode/adapters:lint:  930 | import { BACKFILLED_SESSION_REASONING_MIGRATION_SQL } from "./migrations/0022-backfilled-session-reasoning.js";
+@zcode/adapters:lint:      :                                                                                                                 ^
+@zcode/adapters:lint:      `----
+@zcode/adapters:lint:   help: Maximum allowed is 400.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   ! eslint(no-unsafe-finally): Unsafe `finally` block.
+@zcode/adapters:lint:     ,-[src/storage/session-store/migration-runner.ts:94:20]
+@zcode/adapters:lint:  93 |     } catch (error) {
+@zcode/adapters:lint:  94 |       if (!failed) throw error;
+@zcode/adapters:lint:     :                    ^^^^^^^^^^^^
+@zcode/adapters:lint:  95 |     }
+@zcode/adapters:lint:     `----
+@zcode/adapters:lint:   help: Control flow inside `try` or `catch` blocks will be overwritten by this statement.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   x eslint(max-lines): File has too many lines (435).
+@zcode/adapters:lint:      ,-[src/storage/index.ts:498:49]
+@zcode/adapters:lint:  497 | }
+@zcode/adapters:lint:  498 | export * from "./workspace-hook-trust-store.js";
+@zcode/adapters:lint:      :                                                  ^
+@zcode/adapters:lint:      `----
+@zcode/adapters:lint:   help: Maximum allowed is 400.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   ! unicorn(no-useless-fallback-in-spread): Empty fallbacks in spreads are unnecessary
+@zcode/adapters:lint:      ,-[src/model/runner-normalization.ts:297:5]
+@zcode/adapters:lint:  296 |     ...(response ? { response } : {}),
+@zcode/adapters:lint:  297 |     ...(responseBody ?? {}),
+@zcode/adapters:lint:      :     ^^^^^^^^^^^^^^^^^^^^^^^
+@zcode/adapters:lint:  298 |     ...(record.rawFinishReason === undefined ? {} : { rawFinishReason: record.rawFinishReason }),
+@zcode/adapters:lint:      `----
+@zcode/adapters:lint:   help: Spreading falsy values in object literals won't add any unexpected properties, so it's unnecessary to add an empty object as fallback.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   x eslint(max-lines): File has too many lines (704).
+@zcode/adapters:lint:      ,-[src/storage/session-store/repositories/usage.ts:745:2]
+@zcode/adapters:lint:  744 |   return value === undefined ? null : boolean(value);
+@zcode/adapters:lint:  745 | }
+@zcode/adapters:lint:      :   ^
+@zcode/adapters:lint:      `----
+@zcode/adapters:lint:   help: Maximum allowed is 400.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   x eslint(max-lines): File has too many lines (605).
+@zcode/adapters:lint:      ,-[src/model/runner-generate.ts:649:2]
+@zcode/adapters:lint:  648 |   );
+@zcode/adapters:lint:  649 | }
+@zcode/adapters:lint:      :   ^
+@zcode/adapters:lint:      `----
+@zcode/adapters:lint:   help: Maximum allowed is 400.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   x eslint(max-lines): File has too many lines (427).
+@zcode/adapters:lint:      ,-[src/model/runner-diagnostics.ts:468:2]
+@zcode/adapters:lint:  467 |   return new Error(String(error));
+@zcode/adapters:lint:  468 | }
+@zcode/adapters:lint:      :   ^
+@zcode/adapters:lint:      `----
+@zcode/adapters:lint:   help: Maximum allowed is 400.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   x eslint(max-lines): File has too many lines (424).
+@zcode/adapters:lint:      ,-[src/skills/index.ts:488:2]
+@zcode/adapters:lint:  487 |   }
+@zcode/adapters:lint:  488 | }
+@zcode/adapters:lint:      :   ^
+@zcode/adapters:lint:      `----
+@zcode/adapters:lint:   help: Maximum allowed is 400.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   x eslint(max-lines): File has too many lines (776).
+@zcode/adapters:lint:      ,-[src/model/runner-debug.ts:905:2]
+@zcode/adapters:lint:  904 |   };
+@zcode/adapters:lint:  905 | }
+@zcode/adapters:lint:      :   ^
+@zcode/adapters:lint:      `----
+@zcode/adapters:lint:   help: Maximum allowed is 400.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   x eslint(max-lines): File has too many lines (440).
+@zcode/adapters:lint:      ,-[src/model/transform.ts:513:2]
+@zcode/adapters:lint:  512 |   };
+@zcode/adapters:lint:  513 | }
+@zcode/adapters:lint:      :   ^
+@zcode/adapters:lint:      `----
+@zcode/adapters:lint:   help: Maximum allowed is 400.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   x eslint(max-lines): File has too many lines (1644).
+@zcode/adapters:lint:       ,-[src/fs/index.ts:1878:2]
+@zcode/adapters:lint:  1877 |   throw error;
+@zcode/adapters:lint:  1878 | }
+@zcode/adapters:lint:       :   ^
+@zcode/adapters:lint:       `----
+@zcode/adapters:lint:   help: Maximum allowed is 400.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   x eslint(max-lines): File has too many lines (408).
+@zcode/adapters:lint:      ,-[src/mcp/official-auth.ts:563:2]
+@zcode/adapters:lint:  562 |   }
+@zcode/adapters:lint:  563 | }
+@zcode/adapters:lint:      :   ^
+@zcode/adapters:lint:      `----
+@zcode/adapters:lint:   help: Maximum allowed is 400.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   x eslint(max-lines): File has too many lines (428).
+@zcode/adapters:lint:      ,-[src/mcp/pool.ts:464:2]
+@zcode/adapters:lint:  463 |     .join(",")}}`;
+@zcode/adapters:lint:  464 | }
+@zcode/adapters:lint:      :   ^
+@zcode/adapters:lint:      `----
+@zcode/adapters:lint:   help: Maximum allowed is 400.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   ! unicorn(no-useless-spread): Using a spread operator here creates a new array unnecessarily.
+@zcode/adapters:lint:      ,-[src/mcp/pool.ts:345:35]
+@zcode/adapters:lint:  344 |         leaseClosed = true;
+@zcode/adapters:lint:  345 |         for (const serverName of [...leased.keys()]) release(serverName);
+@zcode/adapters:lint:      :                                   ^^^
+@zcode/adapters:lint:  346 |       },
+@zcode/adapters:lint:      `----
+@zcode/adapters:lint:   help: `for…of` can iterate over iterable, it's unnecessary to convert to an array.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   ! unicorn(no-useless-spread): Using a spread operator here creates a new array unnecessarily.
+@zcode/adapters:lint:      ,-[src/mcp/pool.ts:356:35]
+@zcode/adapters:lint:  355 |         const configuredNames = new Set(Object.keys(servers));
+@zcode/adapters:lint:  356 |         for (const serverName of [...leased.keys()]) {
+@zcode/adapters:lint:      :                                   ^^^
+@zcode/adapters:lint:  357 |           if (!configuredNames.has(serverName)) release(serverName);
+@zcode/adapters:lint:      `----
+@zcode/adapters:lint:   help: `for…of` can iterate over iterable, it's unnecessary to convert to an array.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   ! unicorn(no-useless-fallback-in-spread): Empty fallbacks in spreads are unnecessary
+@zcode/adapters:lint:     ,-[src/plugins/official-marketplace.ts:79:5]
+@zcode/adapters:lint:  78 |   const merged = {
+@zcode/adapters:lint:  79 |     ...(bundledManifest ?? {}),
+@zcode/adapters:lint:     :     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+@zcode/adapters:lint:  80 |     ...(cdnManifest ?? {}),
+@zcode/adapters:lint:     `----
+@zcode/adapters:lint:   help: Spreading falsy values in object literals won't add any unexpected properties, so it's unnecessary to add an empty object as fallback.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   ! unicorn(no-useless-fallback-in-spread): Empty fallbacks in spreads are unnecessary
+@zcode/adapters:lint:     ,-[src/plugins/official-marketplace.ts:80:5]
+@zcode/adapters:lint:  79 |     ...(bundledManifest ?? {}),
+@zcode/adapters:lint:  80 |     ...(cdnManifest ?? {}),
+@zcode/adapters:lint:     :     ^^^^^^^^^^^^^^^^^^^^^^
+@zcode/adapters:lint:  81 |     name: ZCODE_OFFICIAL_PLUGIN_MARKETPLACE,
+@zcode/adapters:lint:     `----
+@zcode/adapters:lint:   help: Spreading falsy values in object literals won't add any unexpected properties, so it's unnecessary to add an empty object as fallback.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   x eslint(max-lines): File has too many lines (1518).
+@zcode/adapters:lint:       ,-[src/model/runner-stream.ts:1655:2]
+@zcode/adapters:lint:  1654 |   }
+@zcode/adapters:lint:  1655 | }
+@zcode/adapters:lint:       :   ^
+@zcode/adapters:lint:       `----
+@zcode/adapters:lint:   help: Maximum allowed is 400.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   x eslint(max-lines): File has too many lines (402).
+@zcode/adapters:lint:      ,-[src/plugins/mcp.ts:448:43]
+@zcode/adapters:lint:  447 | 
+@zcode/adapters:lint:  448 | class PluginVariableError extends Error {}
+@zcode/adapters:lint:      :                                            ^
+@zcode/adapters:lint:      `----
+@zcode/adapters:lint:   help: Maximum allowed is 400.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   ! unicorn(no-useless-fallback-in-spread): Empty fallbacks in spreads are unnecessary
+@zcode/adapters:lint:      ,-[src/config/config-merger.ts:160:35]
+@zcode/adapters:lint:  159 | ): PluginOptions {
+@zcode/adapters:lint:  160 |   const merged: PluginOptions = { ...(current ?? {}) };
+@zcode/adapters:lint:      :                                   ^^^^^^^^^^^^^^^^^^
+@zcode/adapters:lint:  161 |   for (const [pluginId, options] of Object.entries(next)) {
+@zcode/adapters:lint:      `----
+@zcode/adapters:lint:   help: Spreading falsy values in object literals won't add any unexpected properties, so it's unnecessary to add an empty object as fallback.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   ! unicorn(no-useless-fallback-in-spread): Empty fallbacks in spreads are unnecessary
+@zcode/adapters:lint:      ,-[src/config/config-merger.ts:163:7]
+@zcode/adapters:lint:  162 |     merged[pluginId] = {
+@zcode/adapters:lint:  163 |       ...(merged[pluginId] ?? {}),
+@zcode/adapters:lint:      :       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+@zcode/adapters:lint:  164 |       ...options,
+@zcode/adapters:lint:      `----
+@zcode/adapters:lint:   help: Spreading falsy values in object literals won't add any unexpected properties, so it's unnecessary to add an empty object as fallback.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   x eslint(max-lines): File has too many lines (458).
+@zcode/adapters:lint:      ,-[src/plugins/zip-source.ts:502:2]
+@zcode/adapters:lint:  501 |   }
+@zcode/adapters:lint:  502 | }
+@zcode/adapters:lint:      :   ^
+@zcode/adapters:lint:      `----
+@zcode/adapters:lint:   help: Maximum allowed is 400.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   x eslint(max-lines): File has too many lines (410).
+@zcode/adapters:lint:      ,-[src/mcp/oauth-interactive.ts:497:2]
+@zcode/adapters:lint:  496 |   });
+@zcode/adapters:lint:  497 | }
+@zcode/adapters:lint:      :   ^
+@zcode/adapters:lint:      `----
+@zcode/adapters:lint:   help: Maximum allowed is 400.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   x eslint(max-lines): File has too many lines (2480).
+@zcode/adapters:lint:       ,-[src/plugins/marketplace.ts:2724:2]
+@zcode/adapters:lint:  2723 |   }
+@zcode/adapters:lint:  2724 | }
+@zcode/adapters:lint:       :   ^
+@zcode/adapters:lint:       `----
+@zcode/adapters:lint:   help: Maximum allowed is 400.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   x eslint(max-lines): File has too many lines (878).
+@zcode/adapters:lint:      ,-[src/plugins/index.ts:991:2]
+@zcode/adapters:lint:  990 |   return config.enabledPlugins[id] ?? defaultEnabled;
+@zcode/adapters:lint:  991 | }
+@zcode/adapters:lint:      :   ^
+@zcode/adapters:lint:      `----
+@zcode/adapters:lint:   help: Maximum allowed is 400.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   ! eslint(no-unused-vars): Variable 'rootPath' is declared but never used. Unused variables should start with a '_'.
+@zcode/adapters:lint:      ,-[src/plugins/index.ts:863:16]
+@zcode/adapters:lint:  862 |   if (bundledRoots !== undefined) {
+@zcode/adapters:lint:  863 |     for (const rootPath of bundledRoots) {
+@zcode/adapters:lint:      :                ^^^^|^^^
+@zcode/dynamic-workflow:lint: Found 0 warnings and 0 errors.
+@zcode/dynamic-workflow:lint: Finished in 206ms on 90 files with 96 rules using 16 threads.
+@zcode/adapters:lint:      :                    `-- 'rootPath' is declared here
+@zcode/adapters:lint:  864 |       throwIfAborted(options);
+@zcode/adapters:lint:      `----
+@zcode/adapters:lint:   help: Consider removing this declaration.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   ! unicorn(no-useless-fallback-in-spread): Empty fallbacks in spreads are unnecessary
+@zcode/adapters:lint:      ,-[src/storage/session-store/repositories/session-inputs.ts:266:15]
+@zcode/adapters:lint:  265 |             metadata: {
+@zcode/adapters:lint:  266 |               ...(contextMessage.info.metadata ?? {}),
+@zcode/adapters:lint:      :               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+@zcode/adapters:lint:  267 |               sharedContextStatus: "attached",
+@zcode/adapters:lint:      `----
+@zcode/adapters:lint:   help: Spreading falsy values in object literals won't add any unexpected properties, so it's unnecessary to add an empty object as fallback.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   x eslint(max-lines): File has too many lines (1642).
+@zcode/adapters:lint:       ,-[src/mcp/index.ts:1950:2]
+@zcode/adapters:lint:  1949 |   return isRecord(error) && typeof error.code === "number";
+@zcode/adapters:lint:  1950 | }
+@zcode/adapters:lint:       :   ^
+@zcode/adapters:lint:       `----
+@zcode/adapters:lint:   help: Maximum allowed is 400.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   ! eslint(no-unused-vars): Type 'TraceContext' is imported but never used.
+@zcode/adapters:lint:     ,-[src/mcp/index.ts:36:3]
+@zcode/adapters:lint:  35 |   OfficialMcpTrustedOriginRegistry,
+@zcode/adapters:lint:  36 |   TraceContext,
+@zcode/adapters:lint:     :   ^^^^^^|^^^^^
+@zcode/adapters:lint:     :         `-- 'TraceContext' is imported here
+@zcode/adapters:lint:  37 | } from "@zcode/contracts";
+@zcode/adapters:lint:     `----
+@zcode/adapters:lint:   help: Consider removing this import.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   ! unicorn(no-useless-fallback-in-spread): Empty fallbacks in spreads are unnecessary
+@zcode/adapters:lint:       ,-[src/mcp/index.ts:1134:11]
+@zcode/adapters:lint:  1133 |           ...(mcpTransportPid != null ? { mcpTransportPid } : {}),
+@zcode/adapters:lint:  1134 |           ...(mcpProcessIdentity ?? {}),
+@zcode/adapters:lint:       :           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+@zcode/adapters:lint:  1135 |           ...(processExit
+@zcode/adapters:lint:       `----
+@zcode/adapters:lint:   help: Spreading falsy values in object literals won't add any unexpected properties, so it's unnecessary to add an empty object as fallback.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   ! unicorn(no-useless-fallback-in-spread): Empty fallbacks in spreads are unnecessary
+@zcode/adapters:lint:       ,-[src/mcp/index.ts:1169:9]
+@zcode/adapters:lint:  1168 |         mcpServerName: name,
+@zcode/adapters:lint:  1169 |         ...(mcpProcessIdentity ?? {}),
+@zcode/adapters:lint:       :         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+@zcode/adapters:lint:  1170 |         ...(mcpTransportPid != null ? { mcpTransportPid } : {}),
+@zcode/adapters:lint:       `----
+@zcode/adapters:lint:   help: Spreading falsy values in object literals won't add any unexpected properties, so it's unnecessary to add an empty object as fallback.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   ! unicorn(no-useless-spread): Using a spread operator here creates a new object unnecessarily.
+@zcode/adapters:lint:      ,-[src/mcp/oauth-refresh.ts:256:5]
+@zcode/adapters:lint:  255 |   const cached = await loadDiscoveryRecord(input.credentialStore, input.keyPrefix, {
+@zcode/adapters:lint:  256 |     ...(current.issuer ? { expectedIssuer: current.issuer } : {}),
+@zcode/adapters:lint:      :     ^^^
+@zcode/adapters:lint:  257 |   });
+@zcode/adapters:lint:      `----
+@zcode/adapters:lint:   help: This expression returns a new object. Spreading it into an object expression to create a new object is redundant.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   ! unicorn(no-useless-spread): Using a spread operator here creates a new object unnecessarily.
+@zcode/adapters:lint:      ,-[src/mcp/oauth-refresh.ts:261:7]
+@zcode/adapters:lint:  260 |     (await discoverOAuthServerInfo(input.serverUrl, {
+@zcode/adapters:lint:  261 |       ...(input.fetchFn ? { fetchFn: input.fetchFn } : {}),
+@zcode/adapters:lint:      :       ^^^
+@zcode/adapters:lint:  262 |     }));
+@zcode/adapters:lint:      `----
+@zcode/adapters:lint:   help: `input.fetchFn ? { fetchFn: input.fetchFn } : {}` returns a new object. Spreading it into an object expression to create a new object is redundant.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   x eslint(max-lines): File has too many lines (414).
+@zcode/adapters:lint:      ,-[src/browser/index.ts:444:2]
+@zcode/adapters:lint:  443 |   });
+@zcode/adapters:lint:  444 | }
+@zcode/adapters:lint:      :   ^
+@zcode/adapters:lint:      `----
+@zcode/adapters:lint:   help: Maximum allowed is 400.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   ! eslint(no-unused-vars): Variable 'unknownRecordSchema' is declared but never used. Unused variables should start with a '_'.
+@zcode/adapters:lint:    ,-[src/config/schema.ts:7:7]
+@zcode/adapters:lint:  6 | const stringRecordSchema = z.record(z.string(), z.string());
+@zcode/adapters:lint:  7 | const unknownRecordSchema = z.record(z.string(), z.unknown());
+@zcode/adapters:lint:    :       ^^^^^^^^^|^^^^^^^^^
+@zcode/adapters:lint:    :                `-- 'unknownRecordSchema' is declared here
+@zcode/adapters:lint:  8 | const positiveNumberSchema = z.number().finite().positive();
+@zcode/adapters:lint:    `----
+@zcode/adapters:lint:   help: Consider removing this declaration.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   ! unicorn(no-useless-spread): Using a spread operator here creates a new object unnecessarily.
+@zcode/adapters:lint:      ,-[src/model/runner.ts:99:9]
+@zcode/adapters:lint:   98 |       {
+@zcode/adapters:lint:   99 |         ...(options.logger ? { logger: options.logger } : {}),
+@zcode/adapters:lint:      :         ^^^
+@zcode/adapters:lint:  100 |       },
+@zcode/adapters:lint:      `----
+@zcode/adapters:lint:   help: `options.logger ? { logger: options.logger } : {}` returns a new object. Spreading it into an object expression to create a new object is redundant.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   x eslint(max-lines): File has too many lines (562).
+@zcode/adapters:lint:      ,-[src/model/failure-classifier.ts:633:2]
+@zcode/adapters:lint:  632 |   return match?.[1];
+@zcode/adapters:lint:  633 | }
+@zcode/adapters:lint:      :   ^
+@zcode/adapters:lint:      `----
+@zcode/adapters:lint:   help: Maximum allowed is 400.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   x eslint(max-lines): File has too many lines (439).
+@zcode/adapters:lint:      ,-[src/config/index.ts:491:30]
+@zcode/adapters:lint:  490 |   type ConfigResult,
+@zcode/adapters:lint:  491 | } from "./config-factory.js";
+@zcode/adapters:lint:      :                               ^
+@zcode/adapters:lint:      `----
+@zcode/adapters:lint:   help: Maximum allowed is 400.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   x eslint(max-lines): File has too many lines (914).
+@zcode/adapters:lint:       ,-[src/storage/session-store/sqlite-session-store.ts:1022:36]
+@zcode/adapters:lint:  1021 | 
+@zcode/adapters:lint:  1022 | export { getDefaultSessionDbPath };
+@zcode/adapters:lint:       :                                     ^
+@zcode/adapters:lint:       `----
+@zcode/adapters:lint:   help: Maximum allowed is 400.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   ! unicorn(no-useless-fallback-in-spread): Empty fallbacks in spreads are unnecessary
+@zcode/adapters:lint:      ,-[src/storage/session-store/sqlite-session-store.ts:566:13]
+@zcode/adapters:lint:  565 |           metadata: {
+@zcode/adapters:lint:  566 |             ...(contextMessage.info.metadata ?? {}),
+@zcode/adapters:lint:      :             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+@zcode/adapters:lint:  567 |             sharedContextStatus: input.status,
+@zcode/adapters:lint:      `----
+@zcode/adapters:lint:   help: Spreading falsy values in object literals won't add any unexpected properties, so it's unnecessary to add an empty object as fallback.
+@zcode/adapters:lint: 
+@zcode/adapters:lint: Found 18 warnings and 25 errors.
+@zcode/adapters:lint: Finished in 241ms on 202 files with 96 rules using 16 threads.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   ! eslint(no-unused-vars): Parameter 'token' is declared but never used. Unused parameters should start with a '_'.
+@zcode/bootstrap:lint:      ,-[src/mcp-config.ts:147:3]
+@zcode/bootstrap:lint:  146 |   socketPath: string,
+@zcode/bootstrap:lint:  147 |   token: string | undefined,
+@zcode/bootstrap:lint:      :   ^^|^^
+@zcode/bootstrap:lint:      :     `-- 'token' is declared here
+@zcode/bootstrap:lint:  148 | ): McpServerConfig {
+@zcode/bootstrap:lint:      `----
+@zcode/bootstrap:lint:   help: Consider removing this parameter.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   x eslint(max-lines): File has too many lines (503).
+@zcode/bootstrap:lint:      ,-[src/app/workspace-hook-review-controller.ts:607:2]
+@zcode/bootstrap:lint:  606 |   }
+@zcode/bootstrap:lint:  607 | }
+@zcode/bootstrap:lint:      :   ^
+@zcode/bootstrap:lint:      `----
+@zcode/bootstrap:lint:   help: Maximum allowed is 400.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   ! eslint(no-unused-vars): Type 'V4SessionRecordView' is imported but never used.
+@zcode/bootstrap:lint:     ,-[src/zcode-protocol-v4/commands/handlers/queue.ts:15:34]
+@zcode/bootstrap:lint:  14 | import { requireRecord } from "../record-access.js";
+@zcode/bootstrap:lint:  15 | import type { V4CommandCoreHost, V4SessionRecordView } from "../types.js";
+@zcode/bootstrap:lint:     :                                  ^^^^^^^^^|^^^^^^^^^
+@zcode/bootstrap:lint:     :                                           `-- 'V4SessionRecordView' is imported here
+@zcode/bootstrap:lint:  16 | import {
+@zcode/bootstrap:lint:     `----
+@zcode/bootstrap:lint:   help: Consider removing this import.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   ! eslint(no-unused-vars): Type 'BuiltInSubagentName' is imported but never used.
+@zcode/bootstrap:lint:     ,-[src/subagents.ts:16:8]
+@zcode/bootstrap:lint:  15 |   type BuiltInSubagentModelSelectionOverrides,
+@zcode/bootstrap:lint:  16 |   type BuiltInSubagentName,
+@zcode/bootstrap:lint:     :        ^^^^^^^^^|^^^^^^^^^
+@zcode/bootstrap:lint:     :                 `-- 'BuiltInSubagentName' is imported here
+@zcode/bootstrap:lint:  17 |   type PluginSubagentModelSelectionOverrides,
+@zcode/bootstrap:lint:     `----
+@zcode/bootstrap:lint:   help: Consider removing this import.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   ! eslint(no-unused-vars): Type 'LoggerFactory' is imported but never used.
+@zcode/bootstrap:lint:    ,-[src/startup-logging.ts:2:35]
+@zcode/bootstrap:lint:  1 | import { performance } from "node:perf_hooks";
+@zcode/bootstrap:lint:  2 | import type { LogContext, Logger, LoggerFactory, LogLevel } from "@zcode/contracts";
+@zcode/bootstrap:lint:    :                                   ^^^^^^|^^^^^^
+@zcode/bootstrap:lint:    :                                         `-- 'LoggerFactory' is imported here
+@zcode/bootstrap:lint:  3 | 
+@zcode/bootstrap:lint:    `----
+@zcode/bootstrap:lint:   help: Consider removing this import.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   ! eslint(no-unused-vars): Type 'LogLevel' is imported but never used.
+@zcode/bootstrap:lint:    ,-[src/startup-logging.ts:2:50]
+@zcode/bootstrap:lint:  1 | import { performance } from "node:perf_hooks";
+@zcode/bootstrap:lint:  2 | import type { LogContext, Logger, LoggerFactory, LogLevel } from "@zcode/contracts";
+@zcode/bootstrap:lint:    :                                                  ^^^^|^^^
+@zcode/bootstrap:lint:    :                                                      `-- 'LogLevel' is imported here
+@zcode/bootstrap:lint:  3 | 
+@zcode/bootstrap:lint:    `----
+@zcode/bootstrap:lint:   help: Consider removing this import.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   x eslint(max-lines): File has too many lines (1704).
+@zcode/bootstrap:lint:       ,-[src/zcode-protocol/v4-bridge.ts:1913:2]
+@zcode/bootstrap:lint:  1912 |   });
+@zcode/bootstrap:lint:  1913 | }
+@zcode/bootstrap:lint:       :  ^
+@zcode/bootstrap:lint:       `----
+@zcode/bootstrap:lint:   help: Maximum allowed is 400.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   ! unicorn(no-useless-spread): Using a spread operator here creates a new object unnecessarily.
+@zcode/bootstrap:lint:      ,-[src/zcode-protocol/v4-bridge.ts:153:13]
+@zcode/bootstrap:lint:  152 |           options: {
+@zcode/bootstrap:lint:  153 |             ...(reasoningLevel !== undefined ? { reasoningLevel } : {}),
+@zcode/bootstrap:lint:      :             ^^^
+@zcode/bootstrap:lint:  154 |           },
+@zcode/bootstrap:lint:      `----
+@zcode/bootstrap:lint:   help: This expression returns a new object. Spreading it into an object expression to create a new object is redundant.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   x eslint(max-lines): File has too many lines (456).
+@zcode/bootstrap:lint:      ,-[src/zcode-protocol/subagent-session-query.ts:494:2]
+@zcode/bootstrap:lint:  493 |   };
+@zcode/bootstrap:lint:  494 | }
+@zcode/bootstrap:lint:      :   ^
+@zcode/bootstrap:lint:      `----
+@zcode/bootstrap:lint:   help: Maximum allowed is 400.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   ! eslint(no-unsafe-finally): Unsafe `finally` block.
+@zcode/bootstrap:lint:      ,-[src/zcode-protocol/storage-startup.ts:144:21]
+@zcode/bootstrap:lint:  143 |     } catch (error) {
+@zcode/bootstrap:lint:  144 |       if (!failure) throw error;
+@zcode/bootstrap:lint:      :                     ^^^^^^^^^^^^
+@zcode/bootstrap:lint:  145 |     }
+@zcode/bootstrap:lint:      `----
+@zcode/bootstrap:lint:   help: Control flow inside `try` or `catch` blocks will be overwritten by this statement.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   x eslint(max-lines): File has too many lines (432).
+@zcode/bootstrap:lint:      ,-[src/zcode-protocol-v4/command-inbox.ts:505:2]
+@zcode/bootstrap:lint:  504 |   }
+@zcode/bootstrap:lint:  505 | }
+@zcode/bootstrap:lint:      :   ^
+@zcode/bootstrap:lint:      `----
+@zcode/bootstrap:lint:   help: Maximum allowed is 400.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   x eslint(max-lines): File has too many lines (1148).
+@zcode/bootstrap:lint:       ,-[src/app/create-app.ts:1292:2]
+@zcode/bootstrap:lint:  1291 |   }
+@zcode/bootstrap:lint:  1292 | }
+@zcode/bootstrap:lint:       :   ^
+@zcode/bootstrap:lint:       `----
+@zcode/bootstrap:lint:   help: Maximum allowed is 400.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   ! eslint(no-unused-vars): Type 'ZCodeSessionMode' is imported but never used.
+@zcode/bootstrap:lint:     ,-[src/zcode-protocol/server-types.ts:27:8]
+@zcode/bootstrap:lint:  26 |   type ZCodeProtocolTrace,
+@zcode/bootstrap:lint:  27 |   type ZCodeSessionMode,
+@zcode/bootstrap:lint:     :        ^^^^^^^^|^^^^^^^
+@zcode/bootstrap:lint:     :                `-- 'ZCodeSessionMode' is imported here
+@zcode/bootstrap:lint:  28 |   type ZCodeSessionPersistence,
+@zcode/bootstrap:lint:     `----
+@zcode/bootstrap:lint:   help: Consider removing this import.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   x eslint(max-lines): File has too many lines (1368).
+@zcode/bootstrap:lint:       ,-[src/zcode-protocol/session-mapper.ts:1530:2]
+@zcode/bootstrap:lint:  1529 |   }
+@zcode/bootstrap:lint:  1530 | }
+@zcode/bootstrap:lint:       :   ^
+@zcode/bootstrap:lint:       `----
+@zcode/bootstrap:lint:   help: Maximum allowed is 400.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   x eslint(max-lines): File has too many lines (408).
+@zcode/bootstrap:lint:      ,-[src/zcode-protocol-v4/commands/handlers/goal-compact.ts:500:88]
+@zcode/bootstrap:lint:  499 | 
+@zcode/bootstrap:lint:  500 | export const goalCompactHandlers = { compact, pauseGoal, resumeGoal, sendGoalCommand };
+@zcode/bootstrap:lint:      :                                                                                         ^
+@zcode/bootstrap:lint:      `----
+@zcode/bootstrap:lint:   help: Maximum allowed is 400.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   x eslint(max-lines): File has too many lines (557).
+@zcode/bootstrap:lint:      ,-[src/zcode-protocol/plugins.ts:600:2]
+@zcode/bootstrap:lint:  599 |   return getPluginStorageRoot(getCliStorageRoot(storageRoot));
+@zcode/bootstrap:lint:  600 | }
+@zcode/bootstrap:lint:      :   ^
+@zcode/bootstrap:lint:      `----
+@zcode/bootstrap:lint:   help: Maximum allowed is 400.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   x eslint(max-lines): File has too many lines (827).
+@zcode/bootstrap:lint:      ,-[src/zcode-protocol/server.ts:934:2]
+@zcode/bootstrap:lint:  933 |   }
+@zcode/bootstrap:lint:  934 | }
+@zcode/bootstrap:lint:      :   ^
+@zcode/bootstrap:lint:      `----
+@zcode/bootstrap:lint:   help: Maximum allowed is 400.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   x eslint(max-lines): File has too many lines (2767).
+@zcode/bootstrap:lint:       ,-[src/zcode-protocol-v4/v4-gateway.ts:3436:2]
+@zcode/bootstrap:lint:  3435 |   }
+@zcode/bootstrap:lint:  3436 | }
+@zcode/bootstrap:lint:       :   ^
+@zcode/bootstrap:lint:       `----
+@zcode/bootstrap:lint:   help: Maximum allowed is 400.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   ! unicorn(no-useless-spread): Using a spread operator here creates a new array unnecessarily.
+@zcode/bootstrap:lint:       ,-[src/zcode-protocol-v4/v4-gateway.ts:1054:42]
+@zcode/bootstrap:lint:  1053 |     let released = 0;
+@zcode/bootstrap:lint:  1054 |     for (const [childId, terminalAt] of [...this.detachedTerminalAt]) {
+@zcode/bootstrap:lint:       :                                          ^^^
+@zcode/bootstrap:lint:  1055 |       if (nowMs - terminalAt < graceMs) continue;
+@zcode/bootstrap:lint:       `----
+@zcode/bootstrap:lint:   help: `for…of` can iterate over iterable, it's unnecessary to convert to an array.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   ! unicorn(no-useless-spread): Using a spread operator here creates a new object unnecessarily.
+@zcode/bootstrap:lint:       ,-[src/zcode-protocol-v4/v4-gateway.ts:1625:7]
+@zcode/bootstrap:lint:  1624 |     const runs = await this.host.listDynamicWorkflowRuns(params.sessionId, {
+@zcode/bootstrap:lint:  1625 |       ...(params.limit === undefined ? {} : { limit: params.limit }),
+@zcode/bootstrap:lint:       :       ^^^
+@zcode/bootstrap:lint:  1626 |     });
+@zcode/bootstrap:lint:       `----
+@zcode/bootstrap:lint:   help: This expression returns a new object. Spreading it into an object expression to create a new object is redundant.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   ! unicorn(no-useless-spread): Using a spread operator here creates a new array unnecessarily.
+@zcode/bootstrap:lint:       ,-[src/zcode-protocol-v4/v4-gateway.ts:3236:27]
+@zcode/bootstrap:lint:  3235 |     if (!waiters) return;
+@zcode/bootstrap:lint:  3236 |     for (const waiter of [...waiters]) waiter.resolve();
+@zcode/bootstrap:lint:       :                           ^^^
+@zcode/bootstrap:lint:  3237 |   }
+@zcode/bootstrap:lint:       `----
+@zcode/bootstrap:lint:   help: `for…of` can iterate over iterable, it's unnecessary to convert to an array.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   ! unicorn(no-useless-spread): Using a spread operator here creates a new array unnecessarily.
+@zcode/bootstrap:lint:       ,-[src/zcode-protocol-v4/v4-gateway.ts:3244:27]
+@zcode/bootstrap:lint:  3243 |     if (!waiters) return;
+@zcode/bootstrap:lint:  3244 |     for (const waiter of [...waiters]) waiter.reject(error);
+@zcode/bootstrap:lint:       :                           ^^^
+@zcode/bootstrap:lint:  3245 |   }
+@zcode/bootstrap:lint:       `----
+@zcode/bootstrap:lint:   help: `for…of` can iterate over iterable, it's unnecessary to convert to an array.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   ! unicorn(no-useless-spread): Using a spread operator here creates a new array unnecessarily.
+@zcode/bootstrap:lint:       ,-[src/zcode-protocol-v4/v4-gateway.ts:3251:29]
+@zcode/bootstrap:lint:  3250 |     for (const waiters of byEvent.values()) {
+@zcode/bootstrap:lint:  3251 |       for (const waiter of [...waiters]) waiter.reject(error);
+@zcode/bootstrap:lint:       :                             ^^^
+@zcode/bootstrap:lint:  3252 |     }
+@zcode/bootstrap:lint:       `----
+@zcode/bootstrap:lint:   help: `for…of` can iterate over iterable, it's unnecessary to convert to an array.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   ! eslint(no-unused-vars): Parameter 'family' is declared but never used. Unused parameters should start with a '_'.
+@zcode/bootstrap:lint:      ,-[src/app/standalone-account-provider-runtime.ts:134:32]
+@zcode/bootstrap:lint:  133 |   const providers = new ProviderConfigMap(
+@zcode/bootstrap:lint:  134 |     configuredProviders.map(({ family, providerId }) => {
+@zcode/bootstrap:lint:      :                                ^^^|^^
+@zcode/bootstrap:lint:      :                                   `-- 'family' is declared here
+@zcode/bootstrap:lint:  135 |       const candidate = candidateByProviderId.get(providerId);
+@zcode/bootstrap:lint:      `----
+@zcode/bootstrap:lint:   help: Consider removing this parameter.
+@zcode/i18n:lint: Found 0 warnings and 0 errors.
+@zcode/i18n:lint: Finished in 191ms on 36 files with 96 rules using 16 threads.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   ! eslint(no-unused-vars): Parameter 'env' is declared but never used. Unused parameters should start with a '_'.
+@zcode/bootstrap:lint:      ,-[src/app/standalone-account-provider-runtime.ts:171:3]
+@zcode/bootstrap:lint:  170 |   credentialStore: Pick<SharedZCodeCredentialStore, "load" | "loadMany">,
+@zcode/bootstrap:lint:  171 |   env: Readonly<Record<string, string | undefined>>,
+@zcode/bootstrap:lint:      :   ^|^
+@zcode/bootstrap:lint:      :    `-- 'env' is declared here
+@zcode/bootstrap:lint:  172 | ): ProviderRuntimeHeadersPort {
+@zcode/bootstrap:lint:      `----
+@zcode/bootstrap:lint:   help: Consider removing this parameter.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   x eslint(max-lines): File has too many lines (654).
+@zcode/bootstrap:lint:      ,-[src/app/session-facade.ts:710:2]
+@zcode/bootstrap:lint:  709 |   }
+@zcode/bootstrap:lint:  710 | }
+@zcode/bootstrap:lint:      :   ^
+@zcode/bootstrap:lint:      `----
+@zcode/bootstrap:lint:   help: Maximum allowed is 400.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   x eslint(max-lines): File has too many lines (1669).
+@zcode/bootstrap:lint:       ,-[src/zcode-protocol-v4/transcript-hydration.ts:1953:2]
+@zcode/bootstrap:lint:  1952 |   return events;
+@zcode/bootstrap:lint:  1953 | }
+@zcode/bootstrap:lint:       :   ^
+@zcode/bootstrap:lint:       `----
+@zcode/bootstrap:lint:   help: Maximum allowed is 400.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   x eslint(max-lines): File has too many lines (4714).
+@zcode/bootstrap:lint:       ,-[src/zcode-protocol-v4/product-projection.ts:5460:2]
+@zcode/bootstrap:lint:  5459 |   return typeof value === "string" && value.length > 0 ? value : undefined;
+@zcode/bootstrap:lint:  5460 | }
+@zcode/bootstrap:lint:       :   ^
+@zcode/bootstrap:lint:       `----
+@zcode/bootstrap:lint:   help: Maximum allowed is 400.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   ! eslint(no-unused-vars): Function 'createScriptWorkflowFacade' is declared but never used.
+@zcode/bootstrap:lint:     ,-[src/app/script-workflow-methods.ts:57:10]
+@zcode/bootstrap:lint:  56 | 
+@zcode/bootstrap:lint:  57 | function createScriptWorkflowFacade(runtime: ScriptWorkflowRuntime): ScriptWorkflowFacade {
+@zcode/bootstrap:lint:     :          ^^^^^^^^^^^^^|^^^^^^^^^^^^
+@zcode/bootstrap:lint:     :                       `-- 'createScriptWorkflowFacade' is declared here
+@zcode/bootstrap:lint:  58 |   return {
+@zcode/bootstrap:lint:     `----
+@zcode/bootstrap:lint:   help: Consider removing this declaration.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   x eslint(max-lines): File has too many lines (591).
+@zcode/bootstrap:lint:      ,-[src/app/types.ts:754:37]
+@zcode/bootstrap:lint:  753 | 
+@zcode/bootstrap:lint:  754 | export type { WorkflowAgentRunner };
+@zcode/bootstrap:lint:      :                                      ^
+@zcode/bootstrap:lint:      `----
+@zcode/bootstrap:lint:   help: Maximum allowed is 400.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   x eslint(max-lines): File has too many lines (863).
+@zcode/bootstrap:lint:       ,-[src/zcode-protocol-v4/conversation-topic-publisher.ts:1070:2]
+@zcode/bootstrap:lint:  1069 |   }
+@zcode/bootstrap:lint:  1070 | }
+@zcode/bootstrap:lint:       :   ^
+@zcode/bootstrap:lint:       `----
+@zcode/bootstrap:lint:   help: Maximum allowed is 400.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   x eslint(max-lines): File has too many lines (584).
+@zcode/bootstrap:lint:      ,-[src/zcode-protocol/interaction-broker.ts:663:2]
+@zcode/bootstrap:lint:  662 |   return typeof value === "object" && value !== null && !Array.isArray(value);
+@zcode/bootstrap:lint:  663 | }
+@zcode/bootstrap:lint:      :   ^
+@zcode/bootstrap:lint:      `----
+@zcode/bootstrap:lint:   help: Maximum allowed is 400.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   x eslint(max-lines): File has too many lines (692).
+@zcode/bootstrap:lint:      ,-[src/zcode-protocol-v4/conversation-telemetry-facts.ts:748:2]
+@zcode/bootstrap:lint:  747 |   }
+@zcode/bootstrap:lint:  748 | }
+@zcode/bootstrap:lint:      :   ^
+@zcode/bootstrap:lint:      `----
+@zcode/bootstrap:lint:   help: Maximum allowed is 400.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   ! unicorn(no-useless-spread): Using a spread operator here creates a new object unnecessarily.
+@zcode/bootstrap:lint:      ,-[src/app/process-provider-registry-runtime.ts:118:15]
+@zcode/bootstrap:lint:  117 |             readLegacyCliPersonalProviderConfig({
+@zcode/bootstrap:lint:  118 |               ...(options.standalone?.legacyCliUserConfigFilePath
+@zcode/bootstrap:lint:      :               ^^^
+@zcode/bootstrap:lint:  119 |                 ? { filePath: options.standalone.legacyCliUserConfigFilePath }
+@zcode/bootstrap:lint:      `----
+@zcode/bootstrap:lint:   help: This expression returns a new object. Spreading it into an object expression to create a new object is redundant.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   ! eslint(no-unused-vars): Identifier 'resolveRegistryModelSelection' is imported but never used.
+@zcode/bootstrap:lint:     ,-[src/app/runtime-config.ts:19:3]
+@zcode/bootstrap:lint:  18 |   resolveRegistryOwnedModelSelection,
+@zcode/bootstrap:lint:  19 |   resolveRegistryModelSelection,
+@zcode/bootstrap:lint:     :   ^^^^^^^^^^^^^^|^^^^^^^^^^^^^^
+@zcode/bootstrap:lint:     :                 `-- 'resolveRegistryModelSelection' is imported here
+@zcode/bootstrap:lint:  20 |   type ResolvedRegistrySelection,
+@zcode/bootstrap:lint:     `----
+@zcode/bootstrap:lint:   help: Consider removing this import.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   ! unicorn(no-useless-fallback-in-spread): Empty fallbacks in spreads are unnecessary
+@zcode/bootstrap:lint:      ,-[src/app/runtime-config.ts:171:9]
+@zcode/bootstrap:lint:  170 |       builtInModelSelectionOverrides: {
+@zcode/bootstrap:lint:  171 |         ...(input.builtInSubagentModelSelectionOverrides ?? {}),
+@zcode/bootstrap:lint:      :         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+@zcode/bootstrap:lint:  172 |         ...runtimeBuiltInModelSelectionOverrides,
+@zcode/bootstrap:lint:      `----
+@zcode/bootstrap:lint:   help: Spreading falsy values in object literals won't add any unexpected properties, so it's unnecessary to add an empty object as fallback.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   x eslint(max-lines): File has too many lines (601).
+@zcode/bootstrap:lint:      ,-[src/app/bundled-plugins.ts:708:2]
+@zcode/bootstrap:lint:  707 |   return hashBytes(Buffer.from(text));
+@zcode/bootstrap:lint:  708 | }
+@zcode/bootstrap:lint:      :   ^
+@zcode/bootstrap:lint:      `----
+@zcode/bootstrap:lint:   help: Maximum allowed is 400.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   ! unicorn(no-useless-fallback-in-spread): Empty fallbacks in spreads are unnecessary
+@zcode/bootstrap:lint:      ,-[src/app/bundled-plugins.ts:424:11]
+@zcode/bootstrap:lint:  423 |           version: plugin.definition.version,
+@zcode/bootstrap:lint:  424 |           ...(plugin.definition.listing ?? {}),
+@zcode/bootstrap:lint:      :           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+@zcode/bootstrap:lint:  425 |         };
+@zcode/bootstrap:lint:      `----
+@zcode/bootstrap:lint:   help: Spreading falsy values in object literals won't add any unexpected properties, so it's unnecessary to add an empty object as fallback.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   ! unicorn(prefer-string-starts-ends-with): Prefer String#startsWith over a regex with a caret.
+@zcode/bootstrap:lint:      ,-[src/app/bundled-plugins.ts:679:7]
+@zcode/bootstrap:lint:  678 |   if (/(?:^|\/)dist\/mcp\/server\.js$/i.test(normalizedPath)) return 0o755;
+@zcode/bootstrap:lint:  679 |   if (/^hooks\//u.test(normalizedPath) && !/\.(json|md|txt)$/iu.test(normalizedPath)) {
+@zcode/bootstrap:lint:      :       ^^^^^^^^^^^^^^^^
+@zcode/bootstrap:lint:  680 |     return 0o755;
+@zcode/bootstrap:lint:      `----
+@zcode/bootstrap:lint:   help: Replace `/^hooks\//u.test(normalizedPath)` with `normalizedPath.startsWith('hooks/')`.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   x eslint(max-lines): File has too many lines (1280).
+@zcode/bootstrap:lint:       ,-[src/plugins.ts:1457:2]
+@zcode/bootstrap:lint:  1456 |   });
+@zcode/bootstrap:lint:  1457 | }
+@zcode/bootstrap:lint:       :   ^
+@zcode/bootstrap:lint:       `----
+@zcode/bootstrap:lint:   help: Maximum allowed is 400.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   ! eslint(no-unused-vars): Variable 'workingDirectory' is declared but never used. Unused variables should start with a '_'.
+@zcode/bootstrap:lint:      ,-[src/plugins.ts:512:44]
+@zcode/bootstrap:lint:  511 | ): Promise<ZCodeMarketplaceUpdateData> {
+@zcode/bootstrap:lint:  512 |   const { configResult, pluginStorageRoot, workingDirectory } = resolvePluginContext(options);
+@zcode/bootstrap:lint:      :                                            ^^^^^^^^|^^^^^^^
+@zcode/bootstrap:lint:      :                                                    `-- 'workingDirectory' is declared here
+@zcode/bootstrap:lint:  513 |   ensureDefaultPluginMarketplaces(pluginStorageRoot);
+@zcode/bootstrap:lint:      `----
+@zcode/bootstrap:lint:   help: Consider removing this declaration.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   x eslint(max-lines): File has too many lines (797).
+@zcode/bootstrap:lint:      ,-[src/zcode-protocol-v4/cold-event-merge.ts:906:2]
+@zcode/bootstrap:lint:  905 |   };
+@zcode/bootstrap:lint:  906 | }
+@zcode/bootstrap:lint:      :   ^
+@zcode/bootstrap:lint:      `----
+@zcode/bootstrap:lint:   help: Maximum allowed is 400.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint: Found 22 warnings and 20 errors.
+@zcode/bootstrap:lint: Finished in 244ms on 222 files with 96 rules using 16 threads.
+@zcode/tui:lint: 
+@zcode/tui:lint: > @zcode/tui@0.1.0 lint V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\tui
+@zcode/tui:lint: > oxlint src
+@zcode/tui:lint: 
+@zcode/cli:lint: 
+@zcode/cli:lint:   x eslint(max-lines): File has too many lines (514).
+@zcode/cli:lint:      ,-[src/run.ts:575:3]
+@zcode/cli:lint:  574 |   }
+@zcode/cli:lint:  575 | };
+@zcode/cli:lint:      :    ^
+@zcode/cli:lint:      `----
+@zcode/cli:lint:   help: Maximum allowed is 400.
+@zcode/cli:lint: 
+@zcode/cli:lint:   x eslint(max-lines): File has too many lines (540).
+@zcode/cli:lint:      ,-[src/prompt-command.ts:640:78]
+@zcode/cli:lint:  639 | }
+@zcode/cli:lint:  640 | import { createCliProviderRefreshReporter } from "./provider-runtime-env.js";
+@zcode/cli:lint:      :                                                                               ^
+@zcode/cli:lint:      `----
+@zcode/cli:lint:   help: Maximum allowed is 400.
+@zcode/cli:lint: 
+@zcode/cli:lint: Found 0 warnings and 2 errors.
+@zcode/cli:lint: Finished in 302ms on 81 files with 96 rules using 16 threads.
+debug:lint:  ELIFECYCLE  Command failed with exit code 1.
+@zcode/adapters:lint:  ELIFECYCLE  Command failed with exit code 1.
+@zcode/bootstrap:lint:  ELIFECYCLE  Command failed with exit code 1.
+@zcode/core:lint: 
+@zcode/core:lint: > @zcode/core@0.1.0 lint V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\core
+@zcode/core:lint: > oxlint src --no-ignore
+@zcode/core:lint: 
+@zcode/telemetry:lint: cache miss, executing f90ecefdb3ddf403
+@zcode/cli:lint:  ELIFECYCLE  Command failed with exit code 1.
+@zcode/browser-use-plugin:lint: cache miss, executing e124a237e530afe5
+@zcode/dynamic-workflow-runtime:lint: cache miss, executing 6b5d4d87c15a7116
+@zcode/node-repl-host:lint: 
+@zcode/node-repl-host:lint:   ! eslint(no-unused-vars): Type 'NodeReplCuaBroker' is imported but never used.
+@zcode/node-repl-host:lint:     ,-[src/server.ts:25:40]
+@zcode/node-repl-host:lint:  24 | } from "./cua-bridge.js";
+@zcode/node-repl-host:lint:  25 | import { createNodeReplCuaBroker, type NodeReplCuaBroker } from "./cua-broker.js";
+@zcode/node-repl-host:lint:     :                                        ^^^^^^^^|^^^^^^^^
+@zcode/node-repl-host:lint:     :                                                `-- 'NodeReplCuaBroker' is imported here
+@zcode/node-repl-host:lint:  26 | import {
+@zcode/node-repl-host:lint:     `----
+@zcode/node-repl-host:lint:   help: Consider removing this import.
+@zcode/node-repl-host:lint: 
+@zcode/node-repl-host:lint:   ! eslint(no-unused-vars): Type 'Server' is imported but never used.
+@zcode/node-repl-host:lint:    ,-[src/cua-broker.ts:3:29]
+@zcode/node-repl-host:lint:  2 | import { rm } from "node:fs/promises";
+@zcode/node-repl-host:lint:  3 | import { createServer, type Server, type Socket } from "node:net";
+@zcode/node-repl-host:lint:    :                             ^^^|^^
+@zcode/node-repl-host:lint:    :                                `-- 'Server' is imported here
+@zcode/node-repl-host:lint:  4 | import { tmpdir } from "node:os";
+@zcode/node-repl-host:lint:    `----
+@zcode/node-repl-host:lint:   help: Consider removing this import.
+@zcode/node-repl-host:lint: 
+@zcode/node-repl-host:lint: Found 2 warnings and 0 errors.
+@zcode/node-repl-host:lint: Finished in 140ms on 8 files with 96 rules using 16 threads.
+@zcode/tui:lint: Found 0 warnings and 0 errors.
+@zcode/tui:lint: Finished in 270ms on 91 files with 96 rules using 16 threads.
+@zcode/contracts:lint: cache miss, executing c332289036452905
+@zcode/core:lint: 
+@zcode/core:lint:   x eslint(max-lines): File has too many lines (473).
+@zcode/core:lint:      ,-[src/runtime/methods/model.ts:518:2]
+@zcode/core:lint:  517 |   };
+@zcode/core:lint:  518 | }
+@zcode/core:lint:      :   ^
+@zcode/core:lint:      `----
+@zcode/core:lint:   help: Maximum allowed is 400.
+@zcode/core:lint: 
+@zcode/core:lint:   x eslint(max-lines): File has too many lines (510).
+@zcode/core:lint:      ,-[src/agent/session-history-hydrator.ts:589:2]
+@zcode/core:lint:  588 |     : part.tool;
+@zcode/core:lint:  589 | }
+@zcode/core:lint:      :   ^
+@zcode/core:lint:      `----
+@zcode/core:lint:   help: Maximum allowed is 400.
+@zcode/core:lint: 
+@zcode/core:lint:   x eslint(max-lines): File has too many lines (412).
+@zcode/core:lint:      ,-[src/runtime/methods/resume.ts:453:2]
+@zcode/core:lint:  452 |   );
+@zcode/core:lint:  453 | }
+@zcode/core:lint:      :   ^
+@zcode/core:lint:      `----
+@zcode/core:lint:   help: Maximum allowed is 400.
+@zcode/core:lint: 
+@zcode/core:lint:   x eslint(max-lines): File has too many lines (590).
+@zcode/core:lint:      ,-[src/permission/service.ts:722:3]
+@zcode/core:lint:  721 |   allowMediumRiskInAutoMode: false,
+@zcode/core:lint:  722 | };
+@zcode/core:lint:      :    ^
+@zcode/core:lint:      `----
+@zcode/core:lint:   help: Maximum allowed is 400.
+@zcode/core:lint: 
+@zcode/core:lint:   x eslint(max-lines): File has too many lines (424).
+@zcode/core:lint:      ,-[src/hooks/runner.ts:462:2]
+@zcode/core:lint:  461 |   return new InMemoryHookRunner(options);
+@zcode/core:lint:  462 | }
+@zcode/core:lint:      :   ^
+@zcode/core:lint:      `----
+@zcode/core:lint:   help: Maximum allowed is 400.
+@zcode/core:lint: 
+@zcode/core:lint:   ! eslint(no-unused-vars): Type 'WorkflowGraphNode' is imported but never used.
+@zcode/core:lint:     ,-[src/workflow/expert/runtime-context.ts:10:8]
+@zcode/core:lint:   9 |   type WorkflowEvent,
+@zcode/core:lint:  10 |   type WorkflowGraphNode,
+@zcode/core:lint:     :        ^^^^^^^^|^^^^^^^^
+@zcode/core:lint:     :                `-- 'WorkflowGraphNode' is imported here
+@zcode/core:lint:  11 |   type WorkflowNodeStatus,
+@zcode/core:lint:     `----
+@zcode/core:lint:   help: Consider removing this import.
+@zcode/core:lint: 
+@zcode/core:lint:   x eslint(max-lines): File has too many lines (434).
+@zcode/core:lint:      ,-[src/runtime/methods/compact.ts:463:2]
+@zcode/core:lint:  462 |   }
+@zcode/core:lint:  463 | }
+@zcode/core:lint:      :  ^
+@zcode/core:lint:      `----
+@zcode/core:lint:   help: Maximum allowed is 400.
+@zcode/core:lint: 
+@zcode/core:lint:   ! eslint(no-unused-vars): Type 'ProviderContextUsageSnapshot' is imported but never used.
+@zcode/core:lint:     ,-[src/runtime/methods/compact.ts:32:15]
+@zcode/core:lint:  31 | import type { Model } from "../deps.js";
+@zcode/core:lint:  32 | import type { ProviderContextUsageSnapshot } from "../types.js";
+@zcode/core:lint:     :               ^^^^^^^^^^^^^^|^^^^^^^^^^^^^
+@zcode/core:lint:     :                             `-- 'ProviderContextUsageSnapshot' is imported here
+@zcode/core:lint:  33 | import type { AgentRuntimeInternal } from "../internal.js";
+@zcode/core:lint:     `----
+@zcode/core:lint:   help: Consider removing this import.
+@zcode/core:lint: 
+@zcode/core:lint:   x eslint(max-lines): File has too many lines (466).
+@zcode/core:lint:      ,-[src/runtime/methods/compact-persistence.ts:489:2]
+@zcode/core:lint:  488 |   };
+@zcode/core:lint:  489 | }
+@zcode/core:lint:      :   ^
+@zcode/core:lint:      `----
+@zcode/core:lint:   help: Maximum allowed is 400.
+@zcode/core:lint: 
+@zcode/core:lint:   ! eslint(no-unused-vars): Identifier 'emptyTokenUsageInfo' is imported but never used.
+@zcode/core:lint:     ,-[src/runtime/methods/compact-persistence.ts:25:3]
+@zcode/core:lint:  24 |   compactFailureReasonFromError,
+@zcode/core:lint:  25 |   emptyTokenUsageInfo,
+@zcode/core:lint:     :   ^^^^^^^^^|^^^^^^^^^
+@zcode/core:lint:     :            `-- 'emptyTokenUsageInfo' is imported here
+@zcode/core:lint:  26 |   isTurnCancellationError,
+@zcode/core:lint:     `----
+@zcode/core:lint:   help: Consider removing this import.
+@zcode/core:lint: 
+@zcode/core:lint:   x eslint(max-lines): File has too many lines (679).
+@zcode/core:lint:      ,-[src/runtime/methods/compact-active.ts:725:2]
+@zcode/core:lint:  724 |   return Math.min(desired, model.optionSpecs.maxOutputTokens.max);
+@zcode/core:lint:  725 | }
+@zcode/core:lint:      :   ^
+@zcode/core:lint:      `----
+@zcode/core:lint:   help: Maximum allowed is 400.
+@zcode/core:lint: 
+@zcode/core:lint:   ! eslint(no-unused-vars): Variable 'executionMaxOutputTokens' is declared but never used. Unused variables should start with a '_'.
+@zcode/core:lint:      ,-[src/runtime/methods/compact-active.ts:179:9]
+@zcode/core:lint:  178 |     });
+@zcode/core:lint:  179 |   const executionMaxOutputTokens = compactModel.optionSpecs.maxOutputTokens.max;
+@zcode/core:lint:      :         ^^^^^^^^^^^^|^^^^^^^^^^^
+@zcode/core:lint:      :                     `-- 'executionMaxOutputTokens' is declared here
+@zcode/core:lint:  180 |   // Active compact 会跨多个 await 保留这份成员浅快照；它依赖 RuntimeMessageEntry
+@zcode/core:lint:      `----
+@zcode/core:lint:   help: Consider removing this declaration.
+@zcode/core:lint: 
+@zcode/core:lint:   x eslint(max-lines): File has too many lines (467).
+@zcode/core:lint:      ,-[src/tool/handlers/read.ts:526:3]
+@zcode/core:lint:  525 |   },
+@zcode/core:lint:  526 | };
+@zcode/core:lint:      :    ^
+@zcode/core:lint:      `----
+@zcode/core:lint:   help: Maximum allowed is 400.
+@zcode/core:lint: 
+@zcode/core:lint:   x eslint(max-lines): File has too many lines (442).
+@zcode/core:lint:      ,-[src/runtime/methods/background.ts:484:2]
+@zcode/core:lint:  483 |   }
+@zcode/core:lint:  484 | }
+@zcode/core:lint:      :   ^
+@zcode/core:lint:      `----
+@zcode/core:lint:   help: Maximum allowed is 400.
+@zcode/core:lint: 
+@zcode/core:lint:   x eslint(max-lines): File has too many lines (412).
+@zcode/core:lint:      ,-[src/tool/handlers/read-session-context.ts:440:2]
+@zcode/core:lint:  439 |   return error instanceof Error ? error.message : String(error);
+@zcode/core:lint:  440 | }
+@zcode/core:lint:      :   ^
+@zcode/core:lint:      `----
+@zcode/core:lint:   help: Maximum allowed is 400.
+@zcode/core:lint: 
+@zcode/core:lint:   x eslint(max-lines): File has too many lines (446).
+@zcode/core:lint:      ,-[src/runtime/internal-turn-methods.ts:447:2]
+@zcode/core:lint:  446 |   rebuildProjection(): Promise<SessionProjection>;
+@zcode/core:lint:  447 | }
+@zcode/core:lint:      :   ^
+@zcode/core:lint:      `----
+@zcode/core:lint:   help: Maximum allowed is 400.
+@zcode/core:lint: 
+@zcode/core:lint:   x eslint(max-lines): File has too many lines (808).
+@zcode/core:lint:      ,-[src/runtime/methods/turn.ts:872:2]
+@zcode/core:lint:  871 |   this.messageHistory.addAttachment("referenced_session_context", reminderBody);
+@zcode/core:lint:  872 | }
+@zcode/core:lint:      :   ^
+@zcode/core:lint:      `----
+@zcode/core:lint:   help: Maximum allowed is 400.
+@zcode/core:lint: 
+@zcode/core:lint:   ! unicorn(no-useless-spread): Using a spread operator here creates a new object unnecessarily.
+@zcode/core:lint:      ,-[src/runtime/methods/turn.ts:269:9]
+@zcode/core:lint:  268 |       activeTurn = this.beginActiveTurn(turnId, turnTraceContext, "regular", true, {
+@zcode/core:lint:  269 |         ...(options?.inputId === undefined ? {} : { inputId: options.inputId }),
+@zcode/core:lint:      :         ^^^
+@zcode/core:lint:  270 |       });
+@zcode/core:lint:      `----
+@zcode/core:lint:   help: This expression returns a new object. Spreading it into an object expression to create a new object is redundant.
+@zcode/core:lint: 
+@zcode/core:lint:   x eslint(max-lines): File has too many lines (442).
+@zcode/core:lint:      ,-[src/runtime/methods/runtime-command-queue.ts:476:2]
+@zcode/core:lint:  475 |   return this.activeForegroundExecution?.foregroundExecutionId;
+@zcode/core:lint:  476 | }
+@zcode/core:lint:      :   ^
+@zcode/core:lint:      `----
+@zcode/core:lint:   help: Maximum allowed is 400.
+@zcode/core:lint: 
+@zcode/core:lint:   ! eslint(no-unused-vars): Variable 'NOOP_CALL' is declared but never used. Unused variables should start with a '_'.
+@zcode/core:lint:      ,-[src/telemetry/runtime-telemetry.ts:210:7]
+@zcode/core:lint:  209 | 
+@zcode/core:lint:  210 | const NOOP_CALL: ModelCallSpanWriter = {
+@zcode/core:lint:      :       ^^^^|^^^^
+@zcode/core:lint:      :           `-- 'NOOP_CALL' is declared here
+@zcode/core:lint:  211 |   ...NOOP_SCOPE,
+@zcode/core:lint:      `----
+@zcode/core:lint:   help: Consider removing this declaration.
+@zcode/core:lint: 
+@zcode/core:lint:   x eslint(max-lines): File has too many lines (501).
+@zcode/core:lint:      ,-[src/runtime/methods/turn-tools.ts:527:2]
+@zcode/core:lint:  526 |   });
+@zcode/core:lint:  527 | }
+@zcode/core:lint:      :   ^
+@zcode/core:lint:      `----
+@zcode/core:lint:   help: Maximum allowed is 400.
+@zcode/core:lint: 
+@zcode/core:lint:   ! eslint(no-unused-vars): Variable 'modelSelection' is declared but never used. Unused variables should start with a '_'.
+@zcode/core:lint:     ,-[src/runtime/methods/turn-tools.ts:59:9]
+@zcode/core:lint:  58 |   }
+@zcode/core:lint:  59 |   const modelSelection = { providerId: model.providerId, modelId: model.modelId };
+@zcode/core:lint:     :         ^^^^^^^|^^^^^^
+@zcode/core:lint:     :                `-- 'modelSelection' is declared here
+@zcode/core:lint:  60 |   const coreToolCalls: ToolCall[] = options.toolCalls.map((tc) => ({
+@zcode/core:lint:     `----
+@zcode/core:lint:   help: Consider removing this declaration.
+@zcode/core:lint: 
+@zcode/core:lint:   x eslint(max-lines): File has too many lines (1386).
+@zcode/core:lint:       ,-[src/runtime/methods/session-fork.ts:1487:2]
+@zcode/core:lint:  1486 |   return [compactedParentUserMessage, ...forkHistoryMessages];
+@zcode/core:lint:  1487 | }
+@zcode/core:lint:       :   ^
+@zcode/core:lint:       `----
+@zcode/core:lint:   help: Maximum allowed is 400.
+@zcode/core:lint: 
+@zcode/core:lint:   ! unicorn(no-useless-spread): Using a spread operator here creates a new object unnecessarily.
+@zcode/core:lint:      ,-[src/runtime/methods/session-fork.ts:103:13]
+@zcode/core:lint:  102 |           options: {
+@zcode/core:lint:  103 |             ...(reasoningLevel !== undefined ? { reasoningLevel } : {}),
+@zcode/core:lint:      :             ^^^
+@zcode/core:lint:  104 |           },
+@zcode/core:lint:      `----
+@zcode/core:lint:   help: This expression returns a new object. Spreading it into an object expression to create a new object is redundant.
+@zcode/core:lint: 
+@zcode/core:lint:   x eslint(max-lines): File has too many lines (1262).
+@zcode/core:lint:       ,-[src/runtime/methods/steering.ts:1403:2]
+@zcode/core:lint:  1402 |   return pendingInputs.length;
+@zcode/core:lint:  1403 | }
+@zcode/core:lint:       :   ^
+@zcode/core:lint:       `----
+@zcode/core:lint:   help: Maximum allowed is 400.
+@zcode/core:lint: 
+@zcode/core:lint:   x eslint(max-lines): File has too many lines (751).
+@zcode/core:lint:      ,-[src/runtime/methods/turn-model-step.ts:803:2]
+@zcode/core:lint:  802 |   return true;
+@zcode/core:lint:  803 | }
+@zcode/core:lint:      :   ^
+@zcode/core:lint:      `----
+@zcode/core:lint:   help: Maximum allowed is 400.
+@zcode/core:lint: 
+@zcode/core:lint:   x eslint(max-lines): File has too many lines (657).
+@zcode/core:lint:      ,-[src/runtime/methods/file-rewind.ts:717:2]
+@zcode/core:lint:  716 |   };
+@zcode/core:lint:  717 | }
+@zcode/core:lint:      :   ^
+@zcode/core:lint:      `----
+@zcode/core:lint:   help: Maximum allowed is 400.
+@zcode/core:lint: 
+@zcode/core:lint:   ! eslint(no-unused-vars): Variable 'firstOperation' is declared but never used. Unused variables should start with a '_'.
+@zcode/core:lint:      ,-[src/runtime/methods/file-rewind.ts:215:9]
+@zcode/core:lint:  214 | 
+@zcode/core:lint:  215 |   const firstOperation = plan.operations[0];
+@zcode/core:lint:      :         ^^^^^^^|^^^^^^
+@zcode/core:lint:      :                `-- 'firstOperation' is declared here
+@zcode/core:lint:  216 |   const lastOperation = plan.operations.at(-1);
+@zcode/core:lint:      `----
+@zcode/core:lint:   help: Consider removing this declaration.
+@zcode/core:lint: 
+@zcode/core:lint:   ! eslint(no-unused-vars): Variable 'GIT_LABEL' is declared but never used. Unused variables should start with a '_'.
+@zcode/core:lint:     ,-[src/context/sections/env-info.ts:17:7]
+@zcode/core:lint:  16 | // const OPERATING_SYSTEM_LABEL = "Operating system";
+@zcode/core:lint:  17 | const GIT_LABEL = "Git";
+@zcode/core:lint:     :       ^^^^|^^^^
+@zcode/core:lint:     :           `-- 'GIT_LABEL' is declared here
+@zcode/core:lint:  18 | const NOT_A_GIT_REPOSITORY = "not a git repository";
+@zcode/core:lint:     `----
+@zcode/core:lint:   help: Consider removing this declaration.
+@zcode/core:lint: 
+@zcode/core:lint:   ! eslint(no-unused-vars): Variable 'NOT_A_GIT_REPOSITORY' is declared but never used. Unused variables should start with a '_'.
+@zcode/core:lint:     ,-[src/context/sections/env-info.ts:18:7]
+@zcode/core:lint:  17 | const GIT_LABEL = "Git";
+@zcode/core:lint:  18 | const NOT_A_GIT_REPOSITORY = "not a git repository";
+@zcode/core:lint:     :       ^^^^^^^^^^|^^^^^^^^^
+@zcode/core:lint:     :                 `-- 'NOT_A_GIT_REPOSITORY' is declared here
+@zcode/core:lint:  19 | const YES_LABEL = "yes";
+@zcode/core:lint:     `----
+@zcode/core:lint:   help: Consider removing this declaration.
+@zcode/core:lint: 
+@zcode/core:lint:   x eslint(max-lines): File has too many lines (950).
+@zcode/core:lint:       ,-[src/tool/executor/background-tasks.ts:1162:2]
+@zcode/core:lint:  1161 |   return isDynamicWorkflowRunDispatchToolName(toolName) ? "workflow" : "bash";
+@zcode/core:lint:  1162 | }
+@zcode/core:lint:       :   ^
+@zcode/core:lint:       `----
+@zcode/core:lint:   help: Maximum allowed is 400.
+@zcode/core:lint: 
+@zcode/core:lint:   x eslint(max-lines): File has too many lines (590).
+@zcode/core:lint:      ,-[src/runtime/methods/events.ts:660:2]
+@zcode/core:lint:  659 |   }
+@zcode/core:lint:  660 | }
+@zcode/core:lint:      :   ^
+@zcode/core:lint:      `----
+@zcode/core:lint:   help: Maximum allowed is 400.
+@zcode/core:lint: 
+@zcode/core:lint:   x eslint(max-lines): File has too many lines (528).
+@zcode/core:lint:      ,-[src/tool/handlers/bash.ts:569:2]
+@zcode/core:lint:  568 |   };
+@zcode/core:lint:  569 | }
+@zcode/core:lint:      :   ^
+@zcode/core:lint:      `----
+@zcode/core:lint:   help: Maximum allowed is 400.
+@zcode/core:lint: 
+@zcode/core:lint:   x eslint(max-lines): File has too many lines (634).
+@zcode/core:lint:      ,-[src/tool/executor/call-runner.ts:702:2]
+@zcode/core:lint:  701 |   };
+@zcode/core:lint:  702 | }
+@zcode/core:lint:      :   ^
+@zcode/core:lint:      `----
+@zcode/core:lint:   help: Maximum allowed is 400.
+@zcode/core:lint: 
+@zcode/core:lint:   x eslint(max-lines): File has too many lines (415).
+@zcode/core:lint:      ,-[src/runtime/methods/target-completion-verification.ts:445:2]
+@zcode/core:lint:  444 |   return entries.slice(0, -1);
+@zcode/core:lint:  445 | }
+@zcode/core:lint:      :   ^
+@zcode/core:lint:      `----
+@zcode/core:lint:   help: Maximum allowed is 400.
+@zcode/core:lint: 
+@zcode/core:lint:   x eslint(max-lines): File has too many lines (408).
+@zcode/core:lint:      ,-[src/mcp/index.ts:476:2]
+@zcode/core:lint:  475 |   }
+@zcode/core:lint:  476 | }
+@zcode/core:lint:      :   ^
+@zcode/core:lint:      `----
+@zcode/core:lint:   help: Maximum allowed is 400.
+@zcode/core:lint: 
+@zcode/core:lint:   x eslint(max-lines): File has too many lines (496).
+@zcode/core:lint:      ,-[src/runtime/helpers/attachment-media-resolver.ts:512:2]
+@zcode/core:lint:  511 |   });
+@zcode/core:lint:  512 | }
+@zcode/core:lint:      :   ^
+@zcode/core:lint:      `----
+@zcode/core:lint:   help: Maximum allowed is 400.
+@zcode/core:lint: 
+@zcode/core:lint:   x eslint(max-lines): File has too many lines (575).
+@zcode/core:lint:      ,-[src/runtime/agent-runtime.ts:670:42]
+@zcode/core:lint:  669 | 
+@zcode/core:lint:  670 | installAgentRuntimeMethods(AgentRuntime);
+@zcode/core:lint:      :                                           ^
+@zcode/core:lint:      `----
+@zcode/core:lint:   help: Maximum allowed is 400.
+@zcode/core:lint: 
+@zcode/core:lint:   x eslint(max-lines): File has too many lines (540).
+@zcode/core:lint:      ,-[src/workflow/lifecycle.ts:590:2]
+@zcode/core:lint:  589 |   return [...new Set(values.filter((value) => value.length > 0))];
+@zcode/core:lint:  590 | }
+@zcode/core:lint:      :   ^
+@zcode/core:lint:      `----
+@zcode/core:lint:   help: Maximum allowed is 400.
+@zcode/core:lint: 
+@zcode/core:lint:   x eslint(max-lines): File has too many lines (404).
+@zcode/core:lint:      ,-[src/runtime/methods/usage-observability.ts:426:2]
+@zcode/core:lint:  425 |   return typeof value === "number" && Number.isFinite(value) ? Math.max(0, Math.trunc(value)) : 0;
+@zcode/core:lint:  426 | }
+@zcode/core:lint:      :   ^
+@zcode/core:lint:      `----
+@zcode/core:lint:   help: Maximum allowed is 400.
+@zcode/core:lint: 
+@zcode/core:lint:   x eslint(max-lines): File has too many lines (426).
+@zcode/core:lint:      ,-[src/agent/message-history.ts:526:2]
+@zcode/core:lint:  525 |   return new MessageHistoryImpl();
+@zcode/core:lint:  526 | }
+@zcode/core:lint:      :   ^
+@zcode/core:lint:      `----
+@zcode/core:lint:   help: Maximum allowed is 400.
+@zcode/core:lint: 
+@zcode/core:lint: Found 11 warnings and 30 errors.
+@zcode/core:lint: Finished in 257ms on 501 files with 96 rules using 16 threads.
+ ERROR  @zcode/adapters#lint: command (V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\adapters) V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/.tools/pnpm10/node_modules/.bin\pnpm.cmd run lint exited (1)
+
+ Tasks:    5 successful, 14 total
+Cached:    0 cached, 14 total
+  Time:    2.891s 
+Failed:    @zcode/adapters#lint
+
+ ERROR  run failed: command  exited (1)
+ ELIFECYCLE  Command failed with exit code 1.

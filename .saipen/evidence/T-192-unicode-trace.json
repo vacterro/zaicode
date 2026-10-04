@@ -1,0 +1,60 @@
+{
+  "schema": "t192-unicode-trace/1",
+  "at": "2026-10-03T15:21:58.723Z",
+  "scratch": "V:\\_TEMP_\\zaicode-unicode-trace-caRW0l",
+  "writes": [
+    {
+      "role": "app",
+      "data": "Write-Output ('BEFORE:'+'tere-привет-🌙')\r"
+    },
+    {
+      "role": "external",
+      "data": "Write-Output ('AFTER:'+'tere-привет-🌙')\r"
+    }
+  ],
+  "brokerExternalInputContainsEmoji": true,
+  "inputCodepoints": [
+    "57",
+    "72",
+    "69",
+    "74",
+    "65",
+    "2d",
+    "4f",
+    "75",
+    "74",
+    "70",
+    "75",
+    "74",
+    "20",
+    "28",
+    "27",
+    "41",
+    "46",
+    "54",
+    "45",
+    "52",
+    "3a",
+    "27",
+    "2b",
+    "27",
+    "74",
+    "65",
+    "72",
+    "65",
+    "2d",
+    "43f",
+    "440",
+    "438",
+    "432",
+    "435",
+    "442",
+    "2d",
+    "1f319",
+    "27",
+    "29",
+    "d"
+  ],
+  "originalShellPreservesEmoji": true,
+  "transferredShellPreservesEmoji": false
+}

@@ -1,0 +1,48 @@
+{
+  "schema": "t195-ui/1",
+  "checks": [
+    {
+      "name": "ZAICODE renders no successful historical plan card",
+      "pass": false
+    },
+    {
+      "name": "normal answer remains visible",
+      "pass": true
+    },
+    {
+      "name": "copy excludes hidden plan body",
+      "pass": false
+    },
+    {
+      "name": "upstream plan card still appears after rerender",
+      "pass": true
+    },
+    {
+      "name": "upstream copy retains its displayed plan",
+      "pass": true
+    },
+    {
+      "name": "switching back removes card without hook mismatch",
+      "pass": false
+    },
+    {
+      "name": "real plan failure remains visible",
+      "pass": false
+    },
+    {
+      "name": "failure does not render a success plan card",
+      "pass": false
+    },
+    {
+      "name": "narrow viewport preserves the normal answer",
+      "pass": true
+    },
+    {
+      "name": "no browser exceptions",
+      "pass": true
+    }
+  ],
+  "errors": [],
+  "pass": false,
+  "verifier": "cf3a0d8d69365de10547db32257b8143906e77f9d04fd90d3cceaf47356ac4f4"
+}

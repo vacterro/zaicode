@@ -1,0 +1,14 @@
+{
+  "requirements": {
+    "SRC-143:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "T-209 closed with verification evidence in LOG: verify -> PASS [target: T-209] conf: high -- Fresh chain on the stable tree: typecheck, lint, architecture:check --changed, package-local node --import tsx --test, build:zaicode and bundle:zaicode all exit 0 with empty sourceChanges, bundle t209-20261004-r2 built 07:04 carrying both this ticket's eight owned paths and T-212's closed lifecycle fix. Frozen packaged oracle 95856593 unchanged: 56/56 c",
+      "text": "WORKERS panel header toggles expanded/collapsed but the visible layout never changes; expanded must show the configured visible worker rows/terminals and collapsed must actually remove the worker body to the compact header with no dead blank region, without stopping active workers and restoring the same workers on expand; panel collapse, single-worker collapse and worker kill stay three distinct semantics.",
+      "verification": "the Work this request created reached its own verification gate; see the T-209 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-209"
+    }
+  },
+  "schema_version": 1
+}

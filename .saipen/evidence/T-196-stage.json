@@ -1,0 +1,23 @@
+{
+  "at": "2026-10-03T19:40:02.525Z",
+  "previousIndex": "3f2d19d12c578311b619f1e086d34a0447dae74b",
+  "paths": [
+    "apps/zcode-cli/.oxlintrc.json",
+    "apps/zcode-cli/packages/adapters/.oxlintrc.json",
+    "apps/zcode-cli/packages/bootstrap/.oxlintrc.json",
+    "apps/zcode-cli/packages/bootstrap/src/zcode-protocol-v4/product-projection-payloads.ts",
+    "apps/zcode-cli/packages/bootstrap/src/zcode-protocol-v4/product-projection.ts",
+    "apps/zcode-cli/packages/cli/.oxlintrc.json",
+    "apps/zcode-cli/packages/contracts/.oxlintrc.json",
+    "apps/zcode-cli/packages/core/.oxlintrc.json",
+    "apps/zcode-cli/packages/debug/.oxlintrc.json",
+    "apps/zcode-cli/packages/telemetry/.oxlintrc.json",
+    "scripts/cli-lint-budgets.test.mjs",
+    "scripts/fixtures/cli-lint-legacy-lengths.json",
+    "specs/zaicode-cli-lint-baseline.md"
+  ],
+  "projectionBlob": "517c53efadcdbc0daeb69f5f1a6b3710beed3c6b",
+  "excludedParentLine": "      ...(typeof payload.command === \"string\" ? { command: payload.command.slice(0, 1600) } : existing?.command ? { command: existing.command } : {}),",
+  "parentHunkKeptInWorkingTree": true,
+  "foreignSnapshot": "T196-foreign-live.json"
+}

@@ -2999,6 +2999,7 @@
   "settings.sidebar.group.zaicode": "ZAICODE",
   "zaicode.settings.autoRestart": "क्रैश के बाद पुनः प्रारंभ करें",
   "zaicode.fallback.switched": "{fromModel} की सीमा पूरी हो गई। अगला संदेश {toModel} पर जाएगा; कभी भी मॉडल मेन्यू से वापस बदलें।",
+  "zaicode.fallback.routeHold": "{fromModel} कोटा होल्ड पर है {until} तक। यह संदेश {toModel} पर जाएगा।",
   "zaicode.settings.autoRestartHint": "डिफ़ॉल्ट रूप से चालू। लॉन्चर क्रैश हुए ऐप को रीस्टार्ट करता है; डेस्कटॉप होस्ट क्रैश हुई विंडो को रीलोड करता है।",
   "zaicode.todo.title": "कार्य",
   "zaicode.todo.detach": "कार्य विंडो अलग करें",

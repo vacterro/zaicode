@@ -1,0 +1,43 @@
+{
+  "blocking_findings": {
+    "problem_count": 1,
+    "problems": [
+      {
+        "category": null,
+        "credential": false,
+        "detail": "STYLE.md declares style_contract ded-a828315f but its text hashes to ded-069a4c52 -- the contract changed and its marker did not, so every state carrying the old value would validate against a voice n",
+        "detail_hash": "98c06169921c8631",
+        "finding_key": "76b48f23558dce11",
+        "rule_id": "unclassified",
+        "severity": "problem",
+        "subject_id": null,
+        "subject_kind": "global",
+        "subject_ref": null
+      }
+    ],
+    "ruleset_fingerprint": "82e5e183ae8f0fd909be3fa3627f00489cacaab813d942186c832db02a05a1c1",
+    "ruleset_version": 1,
+    "status": "complete",
+    "warning_count": 29
+  },
+  "board_hash": "2c6298cf333a55e4",
+  "canonical_next_command": null,
+  "content_hash": "015d2836d401a98d",
+  "exit_code": 1,
+  "external_actions": [],
+  "gate": "core",
+  "install_fingerprint": "install-v1:48a8fff80871084ee04f1fc804398f483659b3d9c5dc73c49c5598dd65ea0107",
+  "install_home": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_SAIPEN",
+  "kind": "conformance_receipt",
+  "log_hash": "f436a0c4e52b90a1",
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "receipt_id": "receipt-d71b71cf3d9e",
+  "remediation_commands": [],
+  "schema_version": 2,
+  "source_head": "ab9866d4e25ba7258ca403631b22a1df44eeff9d",
+  "source_tree_fingerprint": "git-delta-v1:abf39da60ddb65d2ea3c9c851eb2162c63bc92f587499448e6a1af84c387d405",
+  "state_hash": "d5a077fe866fe524",
+  "timestamp_utc": "2026-10-02T23:50:02.459915Z",
+  "validator_protocol_version": "1",
+  "verdict": "FAIL"
+}

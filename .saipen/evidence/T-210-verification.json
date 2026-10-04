@@ -1,0 +1,23 @@
+{
+  "at": "2026-10-04T00:40:37.478Z",
+  "verifier": "383f70548f15187692ffc6340c0334611680358c34d24b3fd4bd25bd3eaf80d1",
+  "redSubject": "cbed2f4473d8295b7ad3d8857dc0e7b58bc68f9b93879ce1f136d171503718d2",
+  "greenSubject": "93ec1229bb67756c03081f2fa4dc04f9cc3be947f2b35cc600e5808869ee45df",
+  "totals": {
+    "tests": 1485,
+    "passed": 1483,
+    "failed": 0,
+    "skipped": 2
+  },
+  "browser": 32,
+  "inheritedT191": 31,
+  "owned": [
+    "packages/ui/src/v4/ConversationShareReadonlyTimeline.tsx",
+    "packages/ui/src/v4/ConversationTurnGroup.tsx",
+    "packages/ui/src/v4/conversationTurnWorkSegments.ts",
+    "packages/ui/src/v4/conversationWorkDuration.ts",
+    "packages/ui/test/zaicodeT210KnownDuration.test.ts",
+    "specs/zaicode-t210-known-work-duration.md"
+  ],
+  "foreignPreserved": 18
+}

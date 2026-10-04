@@ -1,0 +1,27 @@
+[
+  {
+    "path": "packages/ui/src/lib/taskNotificationPreferences.ts",
+    "copy": ".saipen\\evidence\\T-208-wiring-before\\taskNotificationPreferences.ts",
+    "sha256": "865df33e4738b24798e692f88eebdb13b6971704a38426c14ecb174605199577"
+  },
+  {
+    "path": "packages/ui/src/store/StoreProvider.tsx",
+    "copy": ".saipen\\evidence\\T-208-wiring-before\\StoreProvider.tsx",
+    "sha256": "1a7de4ba599aba3f8c11067c07b19d575f627ce2aac082abc6d22d142bd3c3b6"
+  },
+  {
+    "path": "packages/ui/src/SettingsPage.tsx",
+    "copy": ".saipen\\evidence\\T-208-wiring-before\\SettingsPage.tsx",
+    "sha256": "30c14fd08a608756df851b66c0373a77b96af6eb9aadaae2c8bfce09517eba46"
+  },
+  {
+    "path": "packages/ui/src/zaicode/zaicodePresetSections.ts",
+    "copy": ".saipen\\evidence\\T-208-wiring-before\\zaicodePresetSections.ts",
+    "sha256": "745db6a0b38c658360aeb98c0f60787ab7d779d6c571b120a51f8dc6d5e5a748"
+  },
+  {
+    "path": "packages/ui/src/zaicode/zaicodePresetRehydrate.ts",
+    "copy": ".saipen\\evidence\\T-208-wiring-before\\zaicodePresetRehydrate.ts",
+    "sha256": "cab88c650e9a74e1594b9869ceaaefc4b86c17278752043550b3c876145debaf"
+  }
+]

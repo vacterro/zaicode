@@ -1,0 +1,342 @@
+{
+  "at": "2026-10-04T04:08:13.525Z",
+  "executablePath": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\.release-work\\t209-20261004-r2\\win-unpacked\\ZAICODE.exe",
+  "profile": "V:\\_TEMP_\\zaicode-t209-OkgiH8",
+  "before": {
+    "appPid": 29052,
+    "rendererPid": 3020,
+    "workers": {
+      "A": {
+        "pid": 4088,
+        "marker": "8c0f8b41-7e13-4090-95ed-cd03e81110a7",
+        "startedAt": 1791086876946,
+        "count": 1,
+        "final": false
+      },
+      "B": {
+        "pid": 19064,
+        "marker": "eb0c7873-e148-4bb7-93e4-19e3fdcabf82",
+        "startedAt": 1791086881330,
+        "count": 1,
+        "final": false
+      }
+    }
+  },
+  "checks": [
+    {
+      "name": "positive: isolated packaged profile",
+      "pass": true
+    },
+    {
+      "name": "A positive: native output with one run identity",
+      "pass": true
+    },
+    {
+      "name": "B positive: native output with one run identity",
+      "pass": true
+    },
+    {
+      "name": "positive: split shows two terminals",
+      "pass": true
+    },
+    {
+      "name": "Tabs pointer click changes real layout",
+      "pass": true
+    },
+    {
+      "name": "Split pointer click restores both terminals",
+      "pass": true
+    },
+    {
+      "name": "bottom: configured dock visible",
+      "pass": true
+    },
+    {
+      "name": "bottom: collapse retains compact header",
+      "pass": true,
+      "detail": {
+        "x": 268,
+        "y": 872,
+        "width": 1008,
+        "height": 24
+      }
+    },
+    {
+      "name": "bottom: body actually disappears",
+      "pass": true
+    },
+    {
+      "name": "bottom: compact panel reclaims side width",
+      "pass": true
+    },
+    {
+      "name": "bottom collapsed: A original process continues",
+      "pass": true
+    },
+    {
+      "name": "bottom collapsed: B original process continues",
+      "pass": true
+    },
+    {
+      "name": "bottom collapsed: app and renderer survive",
+      "pass": true
+    },
+    {
+      "name": "bottom: original dock geometry restores",
+      "pass": true,
+      "detail": {
+        "expanded": {
+          "x": 268,
+          "y": 596,
+          "width": 1008,
+          "height": 300
+        },
+        "restored": {
+          "x": 268,
+          "y": 596,
+          "width": 1008,
+          "height": 300
+        }
+      }
+    },
+    {
+      "name": "bottom: same two terminal subtrees restore",
+      "pass": true
+    },
+    {
+      "name": "right: configured dock visible",
+      "pass": true
+    },
+    {
+      "name": "right: collapse retains compact header",
+      "pass": true,
+      "detail": {
+        "x": 268,
+        "y": 872,
+        "width": 1008,
+        "height": 24
+      }
+    },
+    {
+      "name": "right: body actually disappears",
+      "pass": true
+    },
+    {
+      "name": "right: compact panel reclaims side width",
+      "pass": true
+    },
+    {
+      "name": "right collapsed: A original process continues",
+      "pass": true
+    },
+    {
+      "name": "right collapsed: B original process continues",
+      "pass": true
+    },
+    {
+      "name": "right collapsed: app and renderer survive",
+      "pass": true
+    },
+    {
+      "name": "right: original dock geometry restores",
+      "pass": true,
+      "detail": {
+        "expanded": {
+          "x": 756,
+          "y": 4,
+          "width": 520,
+          "height": 892
+        },
+        "restored": {
+          "x": 756,
+          "y": 4,
+          "width": 520,
+          "height": 892
+        }
+      }
+    },
+    {
+      "name": "right: same two terminal subtrees restore",
+      "pass": true
+    },
+    {
+      "name": "left: configured dock visible",
+      "pass": true
+    },
+    {
+      "name": "left: collapse retains compact header",
+      "pass": true,
+      "detail": {
+        "x": 268,
+        "y": 872,
+        "width": 1008,
+        "height": 24
+      }
+    },
+    {
+      "name": "left: body actually disappears",
+      "pass": true
+    },
+    {
+      "name": "left: compact panel reclaims side width",
+      "pass": true
+    },
+    {
+      "name": "left collapsed: A original process continues",
+      "pass": true
+    },
+    {
+      "name": "left collapsed: B original process continues",
+      "pass": true
+    },
+    {
+      "name": "left collapsed: app and renderer survive",
+      "pass": true
+    },
+    {
+      "name": "left: original dock geometry restores",
+      "pass": true,
+      "detail": {
+        "expanded": {
+          "x": 268,
+          "y": 4,
+          "width": 520,
+          "height": 892
+        },
+        "restored": {
+          "x": 268,
+          "y": 4,
+          "width": 520,
+          "height": 892
+        }
+      }
+    },
+    {
+      "name": "left: same two terminal subtrees restore",
+      "pass": true
+    },
+    {
+      "name": "top: configured dock visible",
+      "pass": true
+    },
+    {
+      "name": "top: collapse retains compact header",
+      "pass": true,
+      "detail": {
+        "x": 268,
+        "y": 4,
+        "width": 1008,
+        "height": 24
+      }
+    },
+    {
+      "name": "top: body actually disappears",
+      "pass": true
+    },
+    {
+      "name": "top: compact panel reclaims side width",
+      "pass": true
+    },
+    {
+      "name": "top collapsed: A original process continues",
+      "pass": true
+    },
+    {
+      "name": "top collapsed: B original process continues",
+      "pass": true
+    },
+    {
+      "name": "top collapsed: app and renderer survive",
+      "pass": true
+    },
+    {
+      "name": "top: original dock geometry restores",
+      "pass": true,
+      "detail": {
+        "expanded": {
+          "x": 268,
+          "y": 4,
+          "width": 1008,
+          "height": 300
+        },
+        "restored": {
+          "x": 268,
+          "y": 4,
+          "width": 1008,
+          "height": 300
+        }
+      }
+    },
+    {
+      "name": "top: same two terminal subtrees restore",
+      "pass": true
+    },
+    {
+      "name": "native pointer resize changes expanded height",
+      "pass": true,
+      "detail": {
+        "x": 268,
+        "y": 530,
+        "width": 1008,
+        "height": 366
+      }
+    },
+    {
+      "name": "collapsed flag uses existing persistent owner",
+      "pass": true
+    },
+    {
+      "name": "collapse preserves resized expanded height",
+      "pass": true
+    },
+    {
+      "name": "single worker minimize leaves the other body expanded",
+      "pass": true
+    },
+    {
+      "name": "single worker restore retains original second terminal",
+      "pass": true
+    },
+    {
+      "name": "after minimize and restore: A original process continues",
+      "pass": true
+    },
+    {
+      "name": "after minimize and restore: B original process continues",
+      "pass": true
+    },
+    {
+      "name": "after minimize and restore: app and renderer survive",
+      "pass": true
+    },
+    {
+      "name": "unsent draft remains",
+      "pass": true
+    },
+    {
+      "name": "A final belongs to original native run",
+      "pass": true
+    },
+    {
+      "name": "B final belongs to original native run",
+      "pass": true
+    },
+    {
+      "name": "kill removes only its worker and native process",
+      "pass": true
+    },
+    {
+      "name": "kill retains both other final result terminals",
+      "pass": true
+    },
+    {
+      "name": "zero renderer exceptions",
+      "pass": true,
+      "detail": []
+    }
+  ],
+  "errors": [],
+  "pass": true,
+  "verifier": "9585659338314af5342dcbc6949c57722dfd32ebfdaeaf15da5030484d084ba0",
+  "asarSha256": "ebef9360e91679c52c589ef4bb22e8473f42b0d24ac563549c1110cdbe0170ae"
+}

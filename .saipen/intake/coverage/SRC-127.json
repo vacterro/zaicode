@@ -1,0 +1,23 @@
+{
+  "requirements": {
+    "SRC-127:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": ".saipen/evidence/T-192-verification.md",
+      "text": "Move an already running internal CLI worker into an ordinary external Windows PowerShell window in one direction, preserving the existing CLI process and mid-work state.",
+      "verification": ".saipen/evidence/T-192-packaged-release/receipt.json",
+      "work": "T-192"
+    },
+    "SRC-127:R002": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": ".saipen/evidence/T-192-verification.md",
+      "text": "After the live worker is extracted, allow ZAICODE to restart without terminating or duplicating that CLI worker.",
+      "verification": ".saipen/evidence/T-192-native-review-release/receipt.json",
+      "work": "T-192"
+    }
+  },
+  "schema_version": 1
+}

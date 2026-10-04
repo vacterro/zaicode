@@ -1,0 +1,102 @@
+✖ native exit retires controls before notification and fences captured xterm input (7.3824ms)
+✖ exit fences an already scheduled IME fallback without destroying final history (1.2371ms)
+✖ detach preserves live input but release fences captured control and pending IME (1.0605ms)
+✖ a startup acknowledgement arriving after exit cannot publish a new dead control (0.9785ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 0
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1206.7363
+
+✖ failing tests:
+
+test at test\zaicodeT212TerminalExit.test.ts:1:5792
+✖ native exit retires controls before notification and fences captured xterm input (7.3824ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + {
+  +   redraw: [Function: redraw],
+  +   write: [Function: write]
+  + }
+  - null
+  
+      at TestContext.<anonymous> (V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\ui\test\zaicodeT212TerminalExit.test.ts:127:12)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [Object],
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at test\zaicodeT212TerminalExit.test.ts:1:6572
+✖ exit fences an already scheduled IME fallback without destroying final history (1.2371ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+      'live IME',
+  +   'pending at exit'
+    ]
+  
+      at TestContext.<anonymous> (V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\ui\test\zaicodeT212TerminalExit.test.ts:142:12)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'live IME', 'pending at exit' ],
+    expected: [ 'live IME' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at test\zaicodeT212TerminalExit.test.ts:1:7001
+✖ detach preserves live input but release fences captured control and pending IME (1.0605ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+      'detached live',
+      'reattached live',
+  +   'stale release',
+  +   'pending at release'
+    ]
+  
+      at TestContext.<anonymous> (V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\ui\test\zaicodeT212TerminalExit.test.ts:158:12)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'detached live', 'reattached live', 'stale release', 'pending at release' ],
+    expected: [ 'detached live', 'reattached live' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at test\zaicodeT212TerminalExit.test.ts:1:7625
+✖ a startup acknowledgement arriving after exit cannot publish a new dead control (0.9785ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + {
+  +   redraw: [Function: redraw],
+  +   write: [Function: write]
+  + }
+  - null
+  
+      at TestContext.<anonymous> (V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\ui\test\zaicodeT212TerminalExit.test.ts:169:12)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [Object],
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

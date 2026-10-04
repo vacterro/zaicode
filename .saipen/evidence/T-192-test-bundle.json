@@ -1,0 +1,70 @@
+{
+  "schema": "t192-test-preview/1",
+  "at": "2026-10-03T14:59:52.194Z",
+  "source": "SRC-128",
+  "work": "T-193",
+  "featureWork": {
+    "id": "T-192",
+    "phase": "BUILD",
+    "verified": false,
+    "complete": false
+  },
+  "productHead": "d427471cdfa44349a0f7937d2463486cb152768b",
+  "sourceFingerprint": "f962e37447c1284359e5bebccfb2bdec20818cfdc587cef3e5e8ba61377d4b1b",
+  "installer": {
+    "path": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\dist-test-20261003-t192-pass3\\ZAICODE-3.14.0-win-x64_TEST.exe",
+    "bytes": 199645980,
+    "sha256": "be3c72f146027d92ce2b92f0f4da7c8f62fc80a13794121f9bf4c95dcace02cc"
+  },
+  "appAsar": {
+    "path": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\dist-test-20261003-t192-pass3\\win-unpacked\\resources\\app.asar",
+    "bytes": 364296561,
+    "sha256": "f8b1d17af416306dc596001d800e1c42b56b4af7cd0a6e133c4a2865d4eabae3"
+  },
+  "unpackedExecutable": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\dist-test-20261003-t192-pass3\\win-unpacked\\ZAICODE.exe",
+  "checks": {
+    "build": {
+      "exitCode": 0,
+      "receipt": ".saipen/evidence/T-192-build-pass3.json"
+    },
+    "bundle": {
+      "exitCode": 0,
+      "receipt": ".saipen/evidence/T-192-bundle-pass3.json"
+    },
+    "boot": {
+      "pass": true,
+      "receipt": "zcode/packages/desktop/dist-test-20261003-t192-pass3/boot-receipt.json"
+    },
+    "packaged": {
+      "pass": true,
+      "count": 5,
+      "receipt": ".saipen/evidence/T-192-packaged-final/receipt.json"
+    },
+    "native": {
+      "pass": true,
+      "count": 8,
+      "receipt": ".saipen/evidence/T-192-native-pass3/receipt.json"
+    },
+    "unicode": {
+      "pass": false,
+      "exitCode": 1,
+      "receipt": ".saipen/evidence/T-192-unicode-stop.json",
+      "log": ".saipen/evidence/T-192-unicode-stop.txt"
+    },
+    "latestFullGate": {
+      "pass": false,
+      "receipt": ".saipen/evidence/T-192-pre-push-pass5.json",
+      "rerunAfterFinalConsoleChanges": false
+    }
+  },
+  "preserved": {
+    "foreignFiles": 18,
+    "t188Paths": 12
+  },
+  "knownLimitations": [
+    "Emoji input is lost by the transferred PowerShell command reader. Cyrillic input is preserved by the current console bridge. The exact cause of the remaining emoji loss is unresolved.",
+    "Workers started by older builds are owned by the original app host and cannot be retroactively extracted.",
+    "The full mandatory gate is not green. This is a local test preview, not a verified release."
+  ],
+  "published": false
+}

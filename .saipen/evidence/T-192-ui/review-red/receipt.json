@@ -1,0 +1,88 @@
+{
+  "schema": "t192-ui/1",
+  "checks": [
+    {
+      "name": "success: original command typed once",
+      "pass": true
+    },
+    {
+      "name": "success: requests broker capability at creation",
+      "pass": false
+    },
+    {
+      "name": "moving worker retains its original PTY",
+      "pass": true
+    },
+    {
+      "name": "success: menu offers one-way PowerShell action",
+      "pass": false
+    },
+    {
+      "name": "failure: original command typed once",
+      "pass": true
+    },
+    {
+      "name": "failure: requests broker capability at creation",
+      "pass": false
+    },
+    {
+      "name": "failure: menu offers one-way PowerShell action",
+      "pass": false
+    },
+    {
+      "name": "missing: original command typed once",
+      "pass": true
+    },
+    {
+      "name": "missing: requests broker capability at creation",
+      "pass": false
+    },
+    {
+      "name": "missing: menu offers one-way PowerShell action",
+      "pass": false
+    },
+    {
+      "name": "exited: original command typed once",
+      "pass": true
+    },
+    {
+      "name": "exited: requests broker capability at creation",
+      "pass": false
+    },
+    {
+      "name": "exited: menu offers one-way PowerShell action",
+      "pass": false
+    },
+    {
+      "name": "nostart: original command typed once",
+      "pass": true
+    },
+    {
+      "name": "nostart: requests broker capability at creation",
+      "pass": false
+    },
+    {
+      "name": "nostart: menu offers one-way PowerShell action",
+      "pass": false
+    },
+    {
+      "name": "stale: original command typed once",
+      "pass": true
+    },
+    {
+      "name": "stale: requests broker capability at creation",
+      "pass": false
+    },
+    {
+      "name": "stale: menu offers one-way PowerShell action",
+      "pass": false
+    },
+    {
+      "name": "no uncaught browser errors",
+      "pass": true
+    }
+  ],
+  "errors": [],
+  "pass": false,
+  "verifier": "d17cba028440b122a03b2dd5bb1c3e92286e41d7cc6497551ec0575dff850cb2"
+}

@@ -1,0 +1,14 @@
+{
+  "at": "2026-10-04T04:40:26.198Z",
+  "verifier": "8eb7dcca361dd9497336e1554056607bd66c1c1ad28a6924c42ad0c147ffdc2f",
+  "runs": 3,
+  "packagedChecks": 10,
+  "rendererExceptions": 0,
+  "asar": "4f081d32f92d5ba21d32367b72597250392b76f483e1d00f7d586255598fcd7d",
+  "totals": {
+    "tests": 1491,
+    "passed": 1489,
+    "failed": 0,
+    "skipped": 2
+  }
+}

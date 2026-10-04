@@ -2999,6 +2999,7 @@
   "settings.sidebar.group.zaicode": "ZAICODE",
   "zaicode.settings.autoRestart": "Khởi động lại sau sự cố",
   "zaicode.fallback.switched": "{fromModel} đã chạm giới hạn. Tin nhắn tiếp theo sẽ gửi tới {toModel}; chuyển lại bất cứ lúc nào trong menu mô hình.",
+  "zaicode.fallback.routeHold": "{fromModel} đang bị giữ chỗ tạm theo hạn mức đến {until}. Tin nhắn này sẽ gửi tới {toModel}.",
   "zaicode.settings.autoRestartHint": "Bật mặc định. Trình khởi chạy khởi động lại ứng dụng bị treo; host nền tảng nạp lại cửa sổ bị treo.",
   "zaicode.todo.title": "Việc cần làm",
   "zaicode.todo.detach": "Tách cửa sổ Todo",

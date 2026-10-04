@@ -1,0 +1,18 @@
+{
+  "op_id": "scope-b337be84601b42a39556ac3bede4830d",
+  "paths": {
+    ".saipen/evidence/T-207-board-map.txt": "1eae32efc1600309d76a84aa144ceff874fe7c05437b1849b8795a8ef2f7885c",
+    ".saipen/evidence/T-207-zcode-status.txt": "c9e8cfde04f1c60fcb2536fe2f7d6b78fb86fc70e284a332924f4b3442554d9b",
+    "audit/ZAICODE \u2014 00 MASTER ROADMAP_20261004_0045.md": "a59c33196c7e44e4fd35cc4c0446b393b54bf9c50288040458292d4de051d58b",
+    "audit/ZAICODE \u2014 01 STATUS MATRIX_20261004_0045.md": "e4c085199e9273c7f5cafa37a8788860307547f8ee0cd98a09583e57497ae98d",
+    "audit/ZAICODE \u2014 02 WAVE 0 CLOSE T194_20261004_0045.md": "89d4cf99dbaa0978b8afdcb20c3dd0e159986a9e3df5b6f2551ba20888fc96e2",
+    "audit/ZAICODE \u2014 03 WAVE 1 P0 RUNTIME WORKERS_20261004_0045.md": "b6e549bf7cc3fe02b48b753a1a9d835429452175c9111e435e3d1a2fba7811e6"
+  },
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "project_lineage": "lineage-b0732ed2f98947b9a3c97bfe71427eca",
+  "recorded_at": "2026-10-04T04:26:59Z",
+  "schema_version": 2,
+  "source_head": "ab9866d4e25ba7258ca403631b22a1df44eeff9d",
+  "source_tree_fingerprint": "git-delta-v1:bcda8b9dc74240b5e96affbc399be28cef0b02af7a40159a85bdcb920f2b87cf",
+  "ticket": "T-207"
+}

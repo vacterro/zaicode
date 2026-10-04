@@ -1,0 +1,624 @@
+ WARN  Unsupported engine: wanted: {"node":"24.14.0"} (current: {"node":"v24.15.0","pnpm":"10.33.2"})
+
+> zcode-cli@0.16.9 lint V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli
+> turbo run lint "--force"
+
+• turbo 2.9.14
+ WARNING  No locally installed `turbo` found in your repository. Using globally installed version (2.9.14), which can cause unexpected behavior.
+
+Installing the version in your repository (^2.4.0) before calling `turbo` will result in more predictable behavior across environments.
+ WARNING  Unable to calculate transitive closures: Workspace 'packages/browser-use-plugin' not found in lockfile.
+
+   • Packages in scope: @zcode/adapters, @zcode/bootstrap, @zcode/browser-use-plugin, @zcode/cli, @zcode/contracts, @zcode/core, @zcode/dynamic-workflow, @zcode/dynamic-workflow-runtime, @zcode/i18n, @zcode/node-repl-host, @zcode/prompt-trajectory, @zcode/shared-types, @zcode/swift-bridge, @zcode/telemetry, @zcode/tui, @zcode/typescript, debug
+   • Running lint in 17 packages
+   • Remote caching disabled
+
+@zcode/core:lint: cache bypass, force executing 780135081dfa7578
+@zcode/i18n:lint: cache bypass, force executing eeabff9023d5063f
+@zcode/cli:lint: cache bypass, force executing a2a604e552ec7960
+@zcode/adapters:lint: cache bypass, force executing f29f90319eed7f4b
+@zcode/dynamic-workflow:lint: cache bypass, force executing 42357796288e31e4
+@zcode/telemetry:lint: cache bypass, force executing 00af1a62ad14dfdd
+@zcode/tui:lint: cache bypass, force executing 90554bbb359e0b54
+@zcode/bootstrap:lint: cache bypass, force executing 7487c61403ec223e
+@zcode/node-repl-host:lint: cache bypass, force executing 665868b85200a02e
+@zcode/prompt-trajectory:lint: cache bypass, force executing 4e1408879e3eae16
+@zcode/core:lint: 
+@zcode/core:lint: > @zcode/core@0.1.0 lint V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\core
+@zcode/core:lint: > oxlint src --no-ignore
+@zcode/core:lint: 
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint: > @zcode/bootstrap@0.1.0 lint V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\bootstrap
+@zcode/bootstrap:lint: > oxlint src
+@zcode/bootstrap:lint: 
+@zcode/dynamic-workflow:lint: 
+@zcode/dynamic-workflow:lint: > @zcode/dynamic-workflow@0.1.0 lint V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\dynamic-workflow
+@zcode/dynamic-workflow:lint: > oxlint src
+@zcode/dynamic-workflow:lint: 
+@zcode/i18n:lint: 
+@zcode/tui:lint: 
+@zcode/tui:lint: > @zcode/tui@0.1.0 lint V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\tui
+@zcode/i18n:lint: > @zcode/i18n@0.1.0 lint V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\i18n
+@zcode/i18n:lint: > oxlint src
+@zcode/tui:lint: > oxlint src
+@zcode/tui:lint: 
+@zcode/i18n:lint: 
+@zcode/node-repl-host:lint: 
+@zcode/node-repl-host:lint: > @zcode/node-repl-host@0.6.0 lint V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\node-repl-host
+@zcode/node-repl-host:lint: > oxlint src --no-ignore
+@zcode/node-repl-host:lint: 
+@zcode/cli:lint: 
+@zcode/cli:lint: > @zcode/cli@0.1.0 lint V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\cli
+@zcode/cli:lint: > oxlint src
+@zcode/cli:lint: 
+@zcode/prompt-trajectory:lint: 
+@zcode/prompt-trajectory:lint: > @zcode/prompt-trajectory@0.1.0 lint V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\tools\prompt-trajectory
+@zcode/prompt-trajectory:lint: > oxlint src scripts
+@zcode/prompt-trajectory:lint: 
+@zcode/adapters:lint: 
+@zcode/adapters:lint: > @zcode/adapters@0.1.0 lint V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\adapters
+@zcode/adapters:lint: > oxlint src
+@zcode/adapters:lint: 
+@zcode/telemetry:lint: 
+@zcode/telemetry:lint: > @zcode/telemetry@0.1.0 lint V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\telemetry
+@zcode/telemetry:lint: > oxlint src --no-ignore
+@zcode/telemetry:lint: 
+@zcode/tui:lint: Found 0 warnings and 0 errors.
+@zcode/tui:lint: Finished in 39ms on 91 files with 96 rules using 16 threads.
+@zcode/i18n:lint: Found 0 warnings and 0 errors.
+@zcode/i18n:lint: Finished in 46ms on 36 files with 96 rules using 16 threads.
+@zcode/node-repl-host:lint: 
+@zcode/node-repl-host:lint:   ! eslint(no-unused-vars): Type 'Server' is imported but never used.
+@zcode/node-repl-host:lint:    ,-[src/cua-broker.ts:3:29]
+@zcode/node-repl-host:lint:  2 | import { rm } from "node:fs/promises";
+@zcode/node-repl-host:lint:  3 | import { createServer, type Server, type Socket } from "node:net";
+@zcode/node-repl-host:lint:    :                             ^^^|^^
+@zcode/node-repl-host:lint:    :                                `-- 'Server' is imported here
+@zcode/node-repl-host:lint:  4 | import { tmpdir } from "node:os";
+@zcode/node-repl-host:lint:    `----
+@zcode/node-repl-host:lint:   help: Consider removing this import.
+@zcode/node-repl-host:lint: 
+@zcode/node-repl-host:lint:   ! eslint(no-unused-vars): Type 'NodeReplCuaBroker' is imported but never used.
+@zcode/node-repl-host:lint:     ,-[src/server.ts:25:40]
+@zcode/node-repl-host:lint:  24 | } from "./cua-bridge.js";
+@zcode/node-repl-host:lint:  25 | import { createNodeReplCuaBroker, type NodeReplCuaBroker } from "./cua-broker.js";
+@zcode/node-repl-host:lint:     :                                        ^^^^^^^^|^^^^^^^^
+@zcode/node-repl-host:lint:     :                                                `-- 'NodeReplCuaBroker' is imported here
+@zcode/node-repl-host:lint:  26 | import {
+@zcode/node-repl-host:lint:     `----
+@zcode/node-repl-host:lint:   help: Consider removing this import.
+@zcode/node-repl-host:lint: 
+@zcode/node-repl-host:lint: Found 2 warnings and 0 errors.
+@zcode/node-repl-host:lint: Finished in 46ms on 8 files with 96 rules using 16 threads.
+@zcode/dynamic-workflow:lint: Found 0 warnings and 0 errors.
+@zcode/dynamic-workflow:lint: Finished in 52ms on 90 files with 96 rules using 16 threads.
+@zcode/cli:lint: Found 0 warnings and 0 errors.
+@zcode/cli:lint: Finished in 48ms on 81 files with 96 rules using 16 threads.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   ! eslint(no-unused-vars): Function 'createScriptWorkflowFacade' is declared but never used.
+@zcode/bootstrap:lint:     ,-[src/app/script-workflow-methods.ts:57:10]
+@zcode/bootstrap:lint:  56 | 
+@zcode/bootstrap:lint:  57 | function createScriptWorkflowFacade(runtime: ScriptWorkflowRuntime): ScriptWorkflowFacade {
+@zcode/bootstrap:lint:     :          ^^^^^^^^^^^^^|^^^^^^^^^^^^
+@zcode/bootstrap:lint:     :                       `-- 'createScriptWorkflowFacade' is declared here
+@zcode/bootstrap:lint:  58 |   return {
+@zcode/bootstrap:lint:     `----
+@zcode/bootstrap:lint:   help: Consider removing this declaration.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   ! eslint(no-unused-vars): Identifier 'resolveRegistryModelSelection' is imported but never used.
+@zcode/bootstrap:lint:     ,-[src/app/runtime-config.ts:19:3]
+@zcode/bootstrap:lint:  18 |   resolveRegistryOwnedModelSelection,
+@zcode/bootstrap:lint:  19 |   resolveRegistryModelSelection,
+@zcode/bootstrap:lint:     :   ^^^^^^^^^^^^^^|^^^^^^^^^^^^^^
+@zcode/bootstrap:lint:     :                 `-- 'resolveRegistryModelSelection' is imported here
+@zcode/bootstrap:lint:  20 |   type ResolvedRegistrySelection,
+@zcode/bootstrap:lint:     `----
+@zcode/bootstrap:lint:   help: Consider removing this import.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   ! unicorn(no-useless-fallback-in-spread): Empty fallbacks in spreads are unnecessary
+@zcode/bootstrap:lint:      ,-[src/app/runtime-config.ts:171:9]
+@zcode/bootstrap:lint:  170 |       builtInModelSelectionOverrides: {
+@zcode/bootstrap:lint:  171 |         ...(input.builtInSubagentModelSelectionOverrides ?? {}),
+@zcode/bootstrap:lint:      :         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+@zcode/bootstrap:lint:  172 |         ...runtimeBuiltInModelSelectionOverrides,
+@zcode/bootstrap:lint:      `----
+@zcode/bootstrap:lint:   help: Spreading falsy values in object literals won't add any unexpected properties, so it's unnecessary to add an empty object as fallback.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   ! eslint(no-unused-vars): Parameter 'token' is declared but never used. Unused parameters should start with a '_'.
+@zcode/bootstrap:lint:      ,-[src/mcp-config.ts:147:3]
+@zcode/bootstrap:lint:  146 |   socketPath: string,
+@zcode/bootstrap:lint:  147 |   token: string | undefined,
+@zcode/bootstrap:lint:      :   ^^|^^
+@zcode/bootstrap:lint:      :     `-- 'token' is declared here
+@zcode/bootstrap:lint:  148 | ): McpServerConfig {
+@zcode/bootstrap:lint:      `----
+@zcode/bootstrap:lint:   help: Consider removing this parameter.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   ! eslint(no-unused-vars): Type 'LoggerFactory' is imported but never used.
+@zcode/bootstrap:lint:    ,-[src/startup-logging.ts:2:35]
+@zcode/bootstrap:lint:  1 | import { performance } from "node:perf_hooks";
+@zcode/bootstrap:lint:  2 | import type { LogContext, Logger, LoggerFactory, LogLevel } from "@zcode/contracts";
+@zcode/bootstrap:lint:    :                                   ^^^^^^|^^^^^^
+@zcode/bootstrap:lint:    :                                         `-- 'LoggerFactory' is imported here
+@zcode/bootstrap:lint:  3 | 
+@zcode/bootstrap:lint:    `----
+@zcode/bootstrap:lint:   help: Consider removing this import.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   ! eslint(no-unused-vars): Type 'LogLevel' is imported but never used.
+@zcode/bootstrap:lint:    ,-[src/startup-logging.ts:2:50]
+@zcode/bootstrap:lint:  1 | import { performance } from "node:perf_hooks";
+@zcode/bootstrap:lint:  2 | import type { LogContext, Logger, LoggerFactory, LogLevel } from "@zcode/contracts";
+@zcode/bootstrap:lint:    :                                                  ^^^^|^^^
+@zcode/bootstrap:lint:    :                                                      `-- 'LogLevel' is imported here
+@zcode/bootstrap:lint:  3 | 
+@zcode/bootstrap:lint:    `----
+@zcode/bootstrap:lint:   help: Consider removing this import.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   ! eslint(no-unused-vars): Type 'ZCodeSessionMode' is imported but never used.
+@zcode/bootstrap:lint:     ,-[src/zcode-protocol/server-types.ts:27:8]
+@zcode/bootstrap:lint:  26 |   type ZCodeProtocolTrace,
+@zcode/bootstrap:lint:  27 |   type ZCodeSessionMode,
+@zcode/bootstrap:lint:     :        ^^^^^^^^|^^^^^^^
+@zcode/bootstrap:lint:     :                `-- 'ZCodeSessionMode' is imported here
+@zcode/bootstrap:lint:  28 |   type ZCodeSessionPersistence,
+@zcode/bootstrap:lint:     `----
+@zcode/bootstrap:lint:   help: Consider removing this import.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   ! eslint(no-unused-vars): Type 'BuiltInSubagentName' is imported but never used.
+@zcode/bootstrap:lint:     ,-[src/subagents.ts:16:8]
+@zcode/bootstrap:lint:  15 |   type BuiltInSubagentModelSelectionOverrides,
+@zcode/bootstrap:lint:  16 |   type BuiltInSubagentName,
+@zcode/bootstrap:lint:     :        ^^^^^^^^^|^^^^^^^^^
+@zcode/bootstrap:lint:     :                 `-- 'BuiltInSubagentName' is imported here
+@zcode/bootstrap:lint:  17 |   type PluginSubagentModelSelectionOverrides,
+@zcode/bootstrap:lint:     `----
+@zcode/bootstrap:lint:   help: Consider removing this import.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   ! eslint(no-unused-vars): Variable 'workingDirectory' is declared but never used. Unused variables should start with a '_'.
+@zcode/bootstrap:lint:      ,-[src/plugins.ts:512:44]
+@zcode/bootstrap:lint:  511 | ): Promise<ZCodeMarketplaceUpdateData> {
+@zcode/bootstrap:lint:  512 |   const { configResult, pluginStorageRoot, workingDirectory } = resolvePluginContext(options);
+@zcode/bootstrap:lint:      :                                            ^^^^^^^^|^^^^^^^
+@zcode/bootstrap:lint:      :                                                    `-- 'workingDirectory' is declared here
+@zcode/bootstrap:lint:  513 |   ensureDefaultPluginMarketplaces(pluginStorageRoot);
+@zcode/bootstrap:lint:      `----
+@zcode/bootstrap:lint:   help: Consider removing this declaration.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   ! unicorn(no-useless-spread): Using a spread operator here creates a new object unnecessarily.
+@zcode/bootstrap:lint:      ,-[src/app/process-provider-registry-runtime.ts:118:15]
+@zcode/bootstrap:lint:  117 |             readLegacyCliPersonalProviderConfig({
+@zcode/bootstrap:lint:  118 |               ...(options.standalone?.legacyCliUserConfigFilePath
+@zcode/bootstrap:lint:      :               ^^^
+@zcode/bootstrap:lint:  119 |                 ? { filePath: options.standalone.legacyCliUserConfigFilePath }
+@zcode/bootstrap:lint:      `----
+@zcode/bootstrap:lint:   help: This expression returns a new object. Spreading it into an object expression to create a new object is redundant.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   ! eslint(no-unused-vars): Parameter 'family' is declared but never used. Unused parameters should start with a '_'.
+@zcode/bootstrap:lint:      ,-[src/app/standalone-account-provider-runtime.ts:134:32]
+@zcode/bootstrap:lint:  133 |   const providers = new ProviderConfigMap(
+@zcode/bootstrap:lint:  134 |     configuredProviders.map(({ family, providerId }) => {
+@zcode/bootstrap:lint:      :                                ^^^|^^
+@zcode/bootstrap:lint:      :                                   `-- 'family' is declared here
+@zcode/bootstrap:lint:  135 |       const candidate = candidateByProviderId.get(providerId);
+@zcode/bootstrap:lint:      `----
+@zcode/bootstrap:lint:   help: Consider removing this parameter.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   ! eslint(no-unused-vars): Parameter 'env' is declared but never used. Unused parameters should start with a '_'.
+@zcode/bootstrap:lint:      ,-[src/app/standalone-account-provider-runtime.ts:171:3]
+@zcode/bootstrap:lint:  170 |   credentialStore: Pick<SharedZCodeCredentialStore, "load" | "loadMany">,
+@zcode/bootstrap:lint:  171 |   env: Readonly<Record<string, string | undefined>>,
+@zcode/bootstrap:lint:      :   ^|^
+@zcode/bootstrap:lint:      :    `-- 'env' is declared here
+@zcode/bootstrap:lint:  172 | ): ProviderRuntimeHeadersPort {
+@zcode/bootstrap:lint:      `----
+@zcode/bootstrap:lint:   help: Consider removing this parameter.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   ! unicorn(no-useless-spread): Using a spread operator here creates a new array unnecessarily.
+@zcode/bootstrap:lint:       ,-[src/zcode-protocol-v4/v4-gateway.ts:1054:42]
+@zcode/bootstrap:lint:  1053 |     let released = 0;
+@zcode/bootstrap:lint:  1054 |     for (const [childId, terminalAt] of [...this.detachedTerminalAt]) {
+@zcode/bootstrap:lint:       :                                          ^^^
+@zcode/bootstrap:lint:  1055 |       if (nowMs - terminalAt < graceMs) continue;
+@zcode/bootstrap:lint:       `----
+@zcode/bootstrap:lint:   help: `for…of` can iterate over iterable, it's unnecessary to convert to an array.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   ! unicorn(no-useless-spread): Using a spread operator here creates a new object unnecessarily.
+@zcode/bootstrap:lint:       ,-[src/zcode-protocol-v4/v4-gateway.ts:1625:7]
+@zcode/bootstrap:lint:  1624 |     const runs = await this.host.listDynamicWorkflowRuns(params.sessionId, {
+@zcode/bootstrap:lint:  1625 |       ...(params.limit === undefined ? {} : { limit: params.limit }),
+@zcode/bootstrap:lint:       :       ^^^
+@zcode/bootstrap:lint:  1626 |     });
+@zcode/bootstrap:lint:       `----
+@zcode/bootstrap:lint:   help: This expression returns a new object. Spreading it into an object expression to create a new object is redundant.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   ! unicorn(no-useless-spread): Using a spread operator here creates a new array unnecessarily.
+@zcode/bootstrap:lint:       ,-[src/zcode-protocol-v4/v4-gateway.ts:3236:27]
+@zcode/bootstrap:lint:  3235 |     if (!waiters) return;
+@zcode/bootstrap:lint:  3236 |     for (const waiter of [...waiters]) waiter.resolve();
+@zcode/bootstrap:lint:       :                           ^^^
+@zcode/bootstrap:lint:  3237 |   }
+@zcode/bootstrap:lint:       `----
+@zcode/bootstrap:lint:   help: `for…of` can iterate over iterable, it's unnecessary to convert to an array.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   ! unicorn(no-useless-spread): Using a spread operator here creates a new array unnecessarily.
+@zcode/bootstrap:lint:       ,-[src/zcode-protocol-v4/v4-gateway.ts:3244:27]
+@zcode/bootstrap:lint:  3243 |     if (!waiters) return;
+@zcode/bootstrap:lint:  3244 |     for (const waiter of [...waiters]) waiter.reject(error);
+@zcode/bootstrap:lint:       :                           ^^^
+@zcode/bootstrap:lint:  3245 |   }
+@zcode/bootstrap:lint:       `----
+@zcode/bootstrap:lint:   help: `for…of` can iterate over iterable, it's unnecessary to convert to an array.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   ! unicorn(no-useless-spread): Using a spread operator here creates a new array unnecessarily.
+@zcode/bootstrap:lint:       ,-[src/zcode-protocol-v4/v4-gateway.ts:3251:29]
+@zcode/bootstrap:lint:  3250 |     for (const waiters of byEvent.values()) {
+@zcode/bootstrap:lint:  3251 |       for (const waiter of [...waiters]) waiter.reject(error);
+@zcode/bootstrap:lint:       :                             ^^^
+@zcode/bootstrap:lint:  3252 |     }
+@zcode/bootstrap:lint:       `----
+@zcode/bootstrap:lint:   help: `for…of` can iterate over iterable, it's unnecessary to convert to an array.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   ! unicorn(no-useless-spread): Using a spread operator here creates a new object unnecessarily.
+@zcode/bootstrap:lint:      ,-[src/zcode-protocol/v4-bridge.ts:153:13]
+@zcode/bootstrap:lint:  152 |           options: {
+@zcode/bootstrap:lint:  153 |             ...(reasoningLevel !== undefined ? { reasoningLevel } : {}),
+@zcode/bootstrap:lint:      :             ^^^
+@zcode/bootstrap:lint:  154 |           },
+@zcode/bootstrap:lint:      `----
+@zcode/bootstrap:lint:   help: This expression returns a new object. Spreading it into an object expression to create a new object is redundant.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   ! unicorn(no-useless-fallback-in-spread): Empty fallbacks in spreads are unnecessary
+@zcode/bootstrap:lint:      ,-[src/app/bundled-plugins.ts:424:11]
+@zcode/bootstrap:lint:  423 |           version: plugin.definition.version,
+@zcode/bootstrap:lint:  424 |           ...(plugin.definition.listing ?? {}),
+@zcode/bootstrap:lint:      :           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+@zcode/bootstrap:lint:  425 |         };
+@zcode/bootstrap:lint:      `----
+@zcode/bootstrap:lint:   help: Spreading falsy values in object literals won't add any unexpected properties, so it's unnecessary to add an empty object as fallback.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   ! unicorn(prefer-string-starts-ends-with): Prefer String#startsWith over a regex with a caret.
+@zcode/bootstrap:lint:      ,-[src/app/bundled-plugins.ts:679:7]
+@zcode/bootstrap:lint:  678 |   if (/(?:^|\/)dist\/mcp\/server\.js$/i.test(normalizedPath)) return 0o755;
+@zcode/bootstrap:lint:  679 |   if (/^hooks\//u.test(normalizedPath) && !/\.(json|md|txt)$/iu.test(normalizedPath)) {
+@zcode/bootstrap:lint:      :       ^^^^^^^^^^^^^^^^
+@zcode/bootstrap:lint:  680 |     return 0o755;
+@zcode/bootstrap:lint:      `----
+@zcode/bootstrap:lint:   help: Replace `/^hooks\//u.test(normalizedPath)` with `normalizedPath.startsWith('hooks/')`.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   ! eslint(no-unsafe-finally): Unsafe `finally` block.
+@zcode/bootstrap:lint:      ,-[src/zcode-protocol/storage-startup.ts:144:21]
+@zcode/bootstrap:lint:  143 |     } catch (error) {
+@zcode/bootstrap:lint:  144 |       if (!failure) throw error;
+@zcode/bootstrap:lint:      :                     ^^^^^^^^^^^^
+@zcode/bootstrap:lint:  145 |     }
+@zcode/bootstrap:lint:      `----
+@zcode/bootstrap:lint:   help: Control flow inside `try` or `catch` blocks will be overwritten by this statement.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint:   ! eslint(no-unused-vars): Type 'V4SessionRecordView' is imported but never used.
+@zcode/bootstrap:lint:     ,-[src/zcode-protocol-v4/commands/handlers/queue.ts:15:34]
+@zcode/bootstrap:lint:  14 | import { requireRecord } from "../record-access.js";
+@zcode/bootstrap:lint:  15 | import type { V4CommandCoreHost, V4SessionRecordView } from "../types.js";
+@zcode/bootstrap:lint:     :                                  ^^^^^^^^^|^^^^^^^^^
+@zcode/bootstrap:lint:     :                                           `-- 'V4SessionRecordView' is imported here
+@zcode/bootstrap:lint:  16 | import {
+@zcode/bootstrap:lint:     `----
+@zcode/bootstrap:lint:   help: Consider removing this import.
+@zcode/bootstrap:lint: 
+@zcode/bootstrap:lint: Found 22 warnings and 0 errors.
+@zcode/bootstrap:lint: Finished in 60ms on 223 files with 96 rules using 16 threads.
+@zcode/prompt-trajectory:lint: Found 0 warnings and 0 errors.
+@zcode/prompt-trajectory:lint: Finished in 25ms on 11 files with 96 rules using 16 threads.
+@zcode/telemetry:lint: Found 0 warnings and 0 errors.
+@zcode/telemetry:lint: Finished in 20ms on 10 files with 96 rules using 16 threads.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   ! unicorn(no-useless-spread): Using a spread operator here creates a new object unnecessarily.
+@zcode/adapters:lint:      ,-[src/model/runner.ts:99:9]
+@zcode/adapters:lint:   98 |       {
+@zcode/adapters:lint:   99 |         ...(options.logger ? { logger: options.logger } : {}),
+@zcode/adapters:lint:      :         ^^^
+@zcode/adapters:lint:  100 |       },
+@zcode/adapters:lint:      `----
+@zcode/adapters:lint:   help: `options.logger ? { logger: options.logger } : {}` returns a new object. Spreading it into an object expression to create a new object is redundant.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   ! unicorn(no-useless-fallback-in-spread): Empty fallbacks in spreads are unnecessary
+@zcode/adapters:lint:      ,-[src/model/runner-normalization.ts:297:5]
+@zcode/adapters:lint:  296 |     ...(response ? { response } : {}),
+@zcode/adapters:lint:  297 |     ...(responseBody ?? {}),
+@zcode/adapters:lint:      :     ^^^^^^^^^^^^^^^^^^^^^^^
+@zcode/adapters:lint:  298 |     ...(record.rawFinishReason === undefined ? {} : { rawFinishReason: record.rawFinishReason }),
+@zcode/adapters:lint:      `----
+@zcode/adapters:lint:   help: Spreading falsy values in object literals won't add any unexpected properties, so it's unnecessary to add an empty object as fallback.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   ! unicorn(no-useless-fallback-in-spread): Empty fallbacks in spreads are unnecessary
+@zcode/adapters:lint:      ,-[src/storage/session-store/repositories/session-inputs.ts:266:15]
+@zcode/adapters:lint:  265 |             metadata: {
+@zcode/adapters:lint:  266 |               ...(contextMessage.info.metadata ?? {}),
+@zcode/adapters:lint:      :               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+@zcode/adapters:lint:  267 |               sharedContextStatus: "attached",
+@zcode/adapters:lint:      `----
+@zcode/adapters:lint:   help: Spreading falsy values in object literals won't add any unexpected properties, so it's unnecessary to add an empty object as fallback.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   ! unicorn(no-useless-fallback-in-spread): Empty fallbacks in spreads are unnecessary
+@zcode/adapters:lint:       ,-[src/mcp/index.ts:1134:11]
+@zcode/adapters:lint:  1133 |           ...(mcpTransportPid != null ? { mcpTransportPid } : {}),
+@zcode/adapters:lint:  1134 |           ...(mcpProcessIdentity ?? {}),
+@zcode/adapters:lint:       :           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+@zcode/adapters:lint:  1135 |           ...(processExit
+@zcode/adapters:lint:       `----
+@zcode/adapters:lint:   help: Spreading falsy values in object literals won't add any unexpected properties, so it's unnecessary to add an empty object as fallback.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   ! unicorn(no-useless-fallback-in-spread): Empty fallbacks in spreads are unnecessary
+@zcode/adapters:lint:       ,-[src/mcp/index.ts:1169:9]
+@zcode/adapters:lint:  1168 |         mcpServerName: name,
+@zcode/adapters:lint:  1169 |         ...(mcpProcessIdentity ?? {}),
+@zcode/adapters:lint:       :         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+@zcode/adapters:lint:  1170 |         ...(mcpTransportPid != null ? { mcpTransportPid } : {}),
+@zcode/adapters:lint:       `----
+@zcode/adapters:lint:   help: Spreading falsy values in object literals won't add any unexpected properties, so it's unnecessary to add an empty object as fallback.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   ! eslint(no-unused-vars): Type 'TraceContext' is imported but never used.
+@zcode/adapters:lint:     ,-[src/mcp/index.ts:36:3]
+@zcode/adapters:lint:  35 |   OfficialMcpTrustedOriginRegistry,
+@zcode/adapters:lint:  36 |   TraceContext,
+@zcode/adapters:lint:     :   ^^^^^^|^^^^^
+@zcode/adapters:lint:     :         `-- 'TraceContext' is imported here
+@zcode/adapters:lint:  37 | } from "@zcode/contracts";
+@zcode/adapters:lint:     `----
+@zcode/adapters:lint:   help: Consider removing this import.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   ! unicorn(no-useless-fallback-in-spread): Empty fallbacks in spreads are unnecessary
+@zcode/adapters:lint:      ,-[src/storage/session-store/sqlite-session-store.ts:566:13]
+@zcode/adapters:lint:  565 |           metadata: {
+@zcode/adapters:lint:  566 |             ...(contextMessage.info.metadata ?? {}),
+@zcode/adapters:lint:      :             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+@zcode/adapters:lint:  567 |             sharedContextStatus: input.status,
+@zcode/adapters:lint:      `----
+@zcode/adapters:lint:   help: Spreading falsy values in object literals won't add any unexpected properties, so it's unnecessary to add an empty object as fallback.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   ! unicorn(no-useless-fallback-in-spread): Empty fallbacks in spreads are unnecessary
+@zcode/adapters:lint:     ,-[src/plugins/official-marketplace.ts:79:5]
+@zcode/adapters:lint:  78 |   const merged = {
+@zcode/adapters:lint:  79 |     ...(bundledManifest ?? {}),
+@zcode/adapters:lint:     :     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+@zcode/adapters:lint:  80 |     ...(cdnManifest ?? {}),
+@zcode/adapters:lint:     `----
+@zcode/adapters:lint:   help: Spreading falsy values in object literals won't add any unexpected properties, so it's unnecessary to add an empty object as fallback.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   ! unicorn(no-useless-fallback-in-spread): Empty fallbacks in spreads are unnecessary
+@zcode/adapters:lint:     ,-[src/plugins/official-marketplace.ts:80:5]
+@zcode/adapters:lint:  79 |     ...(bundledManifest ?? {}),
+@zcode/adapters:lint:  80 |     ...(cdnManifest ?? {}),
+@zcode/adapters:lint:     :     ^^^^^^^^^^^^^^^^^^^^^^
+@zcode/adapters:lint:  81 |     name: ZCODE_OFFICIAL_PLUGIN_MARKETPLACE,
+@zcode/adapters:lint:     `----
+@zcode/adapters:lint:   help: Spreading falsy values in object literals won't add any unexpected properties, so it's unnecessary to add an empty object as fallback.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   ! unicorn(no-useless-fallback-in-spread): Empty fallbacks in spreads are unnecessary
+@zcode/adapters:lint:      ,-[src/config/config-merger.ts:160:35]
+@zcode/adapters:lint:  159 | ): PluginOptions {
+@zcode/adapters:lint:  160 |   const merged: PluginOptions = { ...(current ?? {}) };
+@zcode/adapters:lint:      :                                   ^^^^^^^^^^^^^^^^^^
+@zcode/adapters:lint:  161 |   for (const [pluginId, options] of Object.entries(next)) {
+@zcode/adapters:lint:      `----
+@zcode/adapters:lint:   help: Spreading falsy values in object literals won't add any unexpected properties, so it's unnecessary to add an empty object as fallback.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   ! unicorn(no-useless-fallback-in-spread): Empty fallbacks in spreads are unnecessary
+@zcode/adapters:lint:      ,-[src/config/config-merger.ts:163:7]
+@zcode/adapters:lint:  162 |     merged[pluginId] = {
+@zcode/adapters:lint:  163 |       ...(merged[pluginId] ?? {}),
+@zcode/adapters:lint:      :       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+@zcode/adapters:lint:  164 |       ...options,
+@zcode/adapters:lint:      `----
+@zcode/adapters:lint:   help: Spreading falsy values in object literals won't add any unexpected properties, so it's unnecessary to add an empty object as fallback.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   ! eslint(no-unsafe-finally): Unsafe `finally` block.
+@zcode/adapters:lint:     ,-[src/storage/session-store/migration-runner.ts:94:20]
+@zcode/adapters:lint:  93 |     } catch (error) {
+@zcode/adapters:lint:  94 |       if (!failed) throw error;
+@zcode/adapters:lint:     :                    ^^^^^^^^^^^^
+@zcode/adapters:lint:  95 |     }
+@zcode/adapters:lint:     `----
+@zcode/adapters:lint:   help: Control flow inside `try` or `catch` blocks will be overwritten by this statement.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   ! unicorn(no-useless-spread): Using a spread operator here creates a new object unnecessarily.
+@zcode/adapters:lint:      ,-[src/mcp/oauth-refresh.ts:256:5]
+@zcode/adapters:lint:  255 |   const cached = await loadDiscoveryRecord(input.credentialStore, input.keyPrefix, {
+@zcode/adapters:lint:  256 |     ...(current.issuer ? { expectedIssuer: current.issuer } : {}),
+@zcode/adapters:lint:      :     ^^^
+@zcode/adapters:lint:  257 |   });
+@zcode/adapters:lint:      `----
+@zcode/adapters:lint:   help: This expression returns a new object. Spreading it into an object expression to create a new object is redundant.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   ! unicorn(no-useless-spread): Using a spread operator here creates a new object unnecessarily.
+@zcode/adapters:lint:      ,-[src/mcp/oauth-refresh.ts:261:7]
+@zcode/adapters:lint:  260 |     (await discoverOAuthServerInfo(input.serverUrl, {
+@zcode/adapters:lint:  261 |       ...(input.fetchFn ? { fetchFn: input.fetchFn } : {}),
+@zcode/adapters:lint:      :       ^^^
+@zcode/adapters:lint:  262 |     }));
+@zcode/adapters:lint:      `----
+@zcode/adapters:lint:   help: `input.fetchFn ? { fetchFn: input.fetchFn } : {}` returns a new object. Spreading it into an object expression to create a new object is redundant.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   ! unicorn(no-useless-spread): Using a spread operator here creates a new array unnecessarily.
+@zcode/adapters:lint:      ,-[src/mcp/pool.ts:345:35]
+@zcode/adapters:lint:  344 |         leaseClosed = true;
+@zcode/adapters:lint:  345 |         for (const serverName of [...leased.keys()]) release(serverName);
+@zcode/adapters:lint:      :                                   ^^^
+@zcode/adapters:lint:  346 |       },
+@zcode/adapters:lint:      `----
+@zcode/adapters:lint:   help: `for…of` can iterate over iterable, it's unnecessary to convert to an array.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   ! unicorn(no-useless-spread): Using a spread operator here creates a new array unnecessarily.
+@zcode/adapters:lint:      ,-[src/mcp/pool.ts:356:35]
+@zcode/adapters:lint:  355 |         const configuredNames = new Set(Object.keys(servers));
+@zcode/adapters:lint:  356 |         for (const serverName of [...leased.keys()]) {
+@zcode/adapters:lint:      :                                   ^^^
+@zcode/adapters:lint:  357 |           if (!configuredNames.has(serverName)) release(serverName);
+@zcode/adapters:lint:      `----
+@zcode/adapters:lint:   help: `for…of` can iterate over iterable, it's unnecessary to convert to an array.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   ! eslint(no-unused-vars): Variable 'unknownRecordSchema' is declared but never used. Unused variables should start with a '_'.
+@zcode/adapters:lint:    ,-[src/config/schema.ts:7:7]
+@zcode/adapters:lint:  6 | const stringRecordSchema = z.record(z.string(), z.string());
+@zcode/adapters:lint:  7 | const unknownRecordSchema = z.record(z.string(), z.unknown());
+@zcode/adapters:lint:    :       ^^^^^^^^^|^^^^^^^^^
+@zcode/adapters:lint:    :                `-- 'unknownRecordSchema' is declared here
+@zcode/adapters:lint:  8 | const positiveNumberSchema = z.number().finite().positive();
+@zcode/adapters:lint:    `----
+@zcode/adapters:lint:   help: Consider removing this declaration.
+@zcode/adapters:lint: 
+@zcode/adapters:lint:   ! eslint(no-unused-vars): Variable 'rootPath' is declared but never used. Unused variables should start with a '_'.
+@zcode/adapters:lint:      ,-[src/plugins/index.ts:863:16]
+@zcode/adapters:lint:  862 |   if (bundledRoots !== undefined) {
+@zcode/adapters:lint:  863 |     for (const rootPath of bundledRoots) {
+@zcode/adapters:lint:      :                ^^^^|^^^
+@zcode/adapters:lint:      :                    `-- 'rootPath' is declared here
+@zcode/adapters:lint:  864 |       throwIfAborted(options);
+@zcode/adapters:lint:      `----
+@zcode/adapters:lint:   help: Consider removing this declaration.
+@zcode/adapters:lint: 
+@zcode/adapters:lint: Found 18 warnings and 0 errors.
+@zcode/adapters:lint: Finished in 43ms on 202 files with 96 rules using 16 threads.
+@zcode/browser-use-plugin:lint: cache bypass, force executing e124a237e530afe5
+debug:lint: cache bypass, force executing 78c877767248e2e6
+@zcode/dynamic-workflow-runtime:lint: cache bypass, force executing 6b5d4d87c15a7116
+@zcode/contracts:lint: cache bypass, force executing 909be7b0bcfe1b6d
+@zcode/core:lint: 
+@zcode/core:lint:   ! unicorn(no-useless-spread): Using a spread operator here creates a new object unnecessarily.
+@zcode/core:lint:      ,-[src/runtime/methods/session-fork.ts:103:13]
+@zcode/core:lint:  102 |           options: {
+@zcode/core:lint:  103 |             ...(reasoningLevel !== undefined ? { reasoningLevel } : {}),
+@zcode/core:lint:      :             ^^^
+@zcode/core:lint:  104 |           },
+@zcode/core:lint:      `----
+@zcode/core:lint:   help: This expression returns a new object. Spreading it into an object expression to create a new object is redundant.
+@zcode/core:lint: 
+@zcode/core:lint:   ! eslint(no-unused-vars): Type 'WorkflowGraphNode' is imported but never used.
+@zcode/core:lint:     ,-[src/workflow/expert/runtime-context.ts:10:8]
+@zcode/core:lint:   9 |   type WorkflowEvent,
+@zcode/core:lint:  10 |   type WorkflowGraphNode,
+@zcode/core:lint:     :        ^^^^^^^^|^^^^^^^^
+@zcode/core:lint:     :                `-- 'WorkflowGraphNode' is imported here
+@zcode/core:lint:  11 |   type WorkflowNodeStatus,
+@zcode/core:lint:     `----
+@zcode/core:lint:   help: Consider removing this import.
+@zcode/core:lint: 
+@zcode/core:lint:   ! eslint(no-unused-vars): Variable 'firstOperation' is declared but never used. Unused variables should start with a '_'.
+@zcode/core:lint:      ,-[src/runtime/methods/file-rewind.ts:215:9]
+@zcode/core:lint:  214 | 
+@zcode/core:lint:  215 |   const firstOperation = plan.operations[0];
+@zcode/core:lint:      :         ^^^^^^^|^^^^^^
+@zcode/core:lint:      :                `-- 'firstOperation' is declared here
+@zcode/core:lint:  216 |   const lastOperation = plan.operations.at(-1);
+@zcode/core:lint:      `----
+@zcode/core:lint:   help: Consider removing this declaration.
+@zcode/core:lint: 
+@zcode/core:lint:   ! eslint(no-unused-vars): Variable 'NOOP_CALL' is declared but never used. Unused variables should start with a '_'.
+@zcode/core:lint:      ,-[src/telemetry/runtime-telemetry.ts:210:7]
+@zcode/core:lint:  209 | 
+@zcode/core:lint:  210 | const NOOP_CALL: ModelCallSpanWriter = {
+@zcode/core:lint:      :       ^^^^|^^^^
+@zcode/core:lint:      :           `-- 'NOOP_CALL' is declared here
+@zcode/core:lint:  211 |   ...NOOP_SCOPE,
+@zcode/core:lint:      `----
+@zcode/core:lint:   help: Consider removing this declaration.
+@zcode/core:lint: 
+@zcode/core:lint:   ! eslint(no-unused-vars): Type 'ProviderContextUsageSnapshot' is imported but never used.
+@zcode/core:lint:     ,-[src/runtime/methods/compact.ts:32:15]
+@zcode/core:lint:  31 | import type { Model } from "../deps.js";
+@zcode/core:lint:  32 | import type { ProviderContextUsageSnapshot } from "../types.js";
+@zcode/core:lint:     :               ^^^^^^^^^^^^^^|^^^^^^^^^^^^^
+@zcode/core:lint:     :                             `-- 'ProviderContextUsageSnapshot' is imported here
+@zcode/core:lint:  33 | import type { AgentRuntimeInternal } from "../internal.js";
+@zcode/core:lint:     `----
+@zcode/core:lint:   help: Consider removing this import.
+@zcode/core:lint: 
+@zcode/core:lint:   ! eslint(no-unused-vars): Variable 'executionMaxOutputTokens' is declared but never used. Unused variables should start with a '_'.
+@zcode/core:lint:      ,-[src/runtime/methods/compact-active.ts:179:9]
+@zcode/core:lint:  178 |     });
+@zcode/core:lint:  179 |   const executionMaxOutputTokens = compactModel.optionSpecs.maxOutputTokens.max;
+@zcode/core:lint:      :         ^^^^^^^^^^^^|^^^^^^^^^^^
+@zcode/core:lint:      :                     `-- 'executionMaxOutputTokens' is declared here
+@zcode/core:lint:  180 |   // Active compact 会跨多个 await 保留这份成员浅快照；它依赖 RuntimeMessageEntry
+@zcode/core:lint:      `----
+@zcode/core:lint:   help: Consider removing this declaration.
+@zcode/core:lint: 
+@zcode/core:lint:   ! eslint(no-unused-vars): Identifier 'emptyTokenUsageInfo' is imported but never used.
+@zcode/core:lint:     ,-[src/runtime/methods/compact-persistence.ts:25:3]
+@zcode/core:lint:  24 |   compactFailureReasonFromError,
+@zcode/core:lint:  25 |   emptyTokenUsageInfo,
+@zcode/core:lint:     :   ^^^^^^^^^|^^^^^^^^^
+@zcode/core:lint:     :            `-- 'emptyTokenUsageInfo' is imported here
+@zcode/core:lint:  26 |   isTurnCancellationError,
+@zcode/core:lint:     `----
+@zcode/core:lint:   help: Consider removing this import.
+@zcode/core:lint: 
+@zcode/core:lint:   ! unicorn(no-useless-spread): Using a spread operator here creates a new object unnecessarily.
+@zcode/core:lint:      ,-[src/runtime/methods/turn.ts:269:9]
+@zcode/core:lint:  268 |       activeTurn = this.beginActiveTurn(turnId, turnTraceContext, "regular", true, {
+@zcode/core:lint:  269 |         ...(options?.inputId === undefined ? {} : { inputId: options.inputId }),
+@zcode/core:lint:      :         ^^^
+@zcode/core:lint:  270 |       });
+@zcode/core:lint:      `----
+@zcode/core:lint:   help: This expression returns a new object. Spreading it into an object expression to create a new object is redundant.
+@zcode/core:lint: 
+@zcode/core:lint:   ! eslint(no-unused-vars): Variable 'modelSelection' is declared but never used. Unused variables should start with a '_'.
+@zcode/core:lint:     ,-[src/runtime/methods/turn-tools.ts:59:9]
+@zcode/core:lint:  58 |   }
+@zcode/core:lint:  59 |   const modelSelection = { providerId: model.providerId, modelId: model.modelId };
+@zcode/core:lint:     :         ^^^^^^^|^^^^^^
+@zcode/core:lint:     :                `-- 'modelSelection' is declared here
+@zcode/core:lint:  60 |   const coreToolCalls: ToolCall[] = options.toolCalls.map((tc) => ({
+@zcode/core:lint:     `----
+@zcode/core:lint:   help: Consider removing this declaration.
+@zcode/core:lint: 
+@zcode/core:lint:   ! eslint(no-unused-vars): Variable 'GIT_LABEL' is declared but never used. Unused variables should start with a '_'.
+@zcode/core:lint:     ,-[src/context/sections/env-info.ts:17:7]
+@zcode/core:lint:  16 | // const OPERATING_SYSTEM_LABEL = "Operating system";
+@zcode/core:lint:  17 | const GIT_LABEL = "Git";
+@zcode/core:lint:     :       ^^^^|^^^^
+@zcode/core:lint:     :           `-- 'GIT_LABEL' is declared here
+@zcode/core:lint:  18 | const NOT_A_GIT_REPOSITORY = "not a git repository";
+@zcode/core:lint:     `----
+@zcode/core:lint:   help: Consider removing this declaration.
+@zcode/core:lint: 
+@zcode/core:lint:   ! eslint(no-unused-vars): Variable 'NOT_A_GIT_REPOSITORY' is declared but never used. Unused variables should start with a '_'.
+@zcode/core:lint:     ,-[src/context/sections/env-info.ts:18:7]
+@zcode/core:lint:  17 | const GIT_LABEL = "Git";
+@zcode/core:lint:  18 | const NOT_A_GIT_REPOSITORY = "not a git repository";
+@zcode/core:lint:     :       ^^^^^^^^^^|^^^^^^^^^
+@zcode/core:lint:     :                 `-- 'NOT_A_GIT_REPOSITORY' is declared here
+@zcode/core:lint:  19 | const YES_LABEL = "yes";
+@zcode/core:lint:     `----
+@zcode/core:lint:   help: Consider removing this declaration.
+@zcode/core:lint: 
+@zcode/core:lint: Found 11 warnings and 0 errors.
+@zcode/core:lint: Finished in 127ms on 501 files with 96 rules using 16 threads.
+debug:lint: 
+debug:lint: > debug@0.1.0 lint V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\debug
+debug:lint: > oxlint src server scripts
+debug:lint: 
+@zcode/dynamic-workflow-runtime:lint: 
+@zcode/dynamic-workflow-runtime:lint: > @zcode/dynamic-workflow-runtime@0.1.0 lint V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\dynamic-workflow-runtime
+@zcode/dynamic-workflow-runtime:lint: > oxlint src
+@zcode/dynamic-workflow-runtime:lint: 
+@zcode/browser-use-plugin:lint: 
+@zcode/browser-use-plugin:lint: > @zcode/browser-use-plugin@0.5.1 lint V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\browser-use-plugin
+@zcode/browser-use-plugin:lint: > oxlint src --no-ignore
+@zcode/browser-use-plugin:lint: 
+@zcode/contracts:lint: 
+@zcode/contracts:lint: > @zcode/contracts@0.1.0 lint V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\apps\zcode-cli\packages\contracts
+@zcode/contracts:lint: > oxlint src
+@zcode/contracts:lint: 
+debug:lint: Found 0 warnings and 0 errors.
+debug:lint: Finished in 13ms on 11 files with 96 rules using 16 threads.
+@zcode/dynamic-workflow-runtime:lint: Found 0 warnings and 0 errors.
+@zcode/dynamic-workflow-runtime:lint: Finished in 12ms on 5 files with 96 rules using 16 threads.
+@zcode/browser-use-plugin:lint: Found 0 warnings and 0 errors.
+@zcode/browser-use-plugin:lint: Finished in 9ms on 1 file with 96 rules using 16 threads.
+@zcode/contracts:lint: Found 0 warnings and 0 errors.
+@zcode/contracts:lint: Finished in 15ms on 111 files with 96 rules using 16 threads.
+
+ Tasks:    14 successful, 14 total
+Cached:    0 cached, 14 total
+  Time:    1.011s 
+

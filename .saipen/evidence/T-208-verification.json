@@ -1,0 +1,14 @@
+{
+  "at": "2026-10-04T00:08:01.796Z",
+  "totals": {
+    "tests": 1482,
+    "pass": 1480,
+    "fail": 0,
+    "skipped": 2
+  },
+  "owned": 30,
+  "foreign": 18,
+  "packagedChecks": 32,
+  "verifier": "971b61a0fd09afe92e87cd46c9e4460eabdc387264c6db9ec6e24857f34c51a5",
+  "asar": "9118adca0e96653fedcae1fb6ecff33c52fcf8e563551e0b82baa7b22647cd94"
+}

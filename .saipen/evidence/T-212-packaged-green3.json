@@ -1,0 +1,17 @@
+{
+  "pass": false,
+  "checks": [
+    {
+      "name": "positive: isolated packaged profile",
+      "pass": true
+    },
+    {
+      "name": "A positive: native output with one run identity",
+      "pass": true
+    }
+  ],
+  "errors": [],
+  "error": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-zaicode-dispatch]').locator('[data-zaicode-dispatch-launcher=\"b\"]')\u001b[22m\n\n    at V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\.saipen\\evidence\\T-212-packaged.cjs:46:164",
+  "profile": "V:\\_TEMP_\\zaicode-t212-Lt7Q4u",
+  "executablePath": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\.release-work\\t212-20261004\\win-unpacked\\ZAICODE.exe"
+}

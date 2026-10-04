@@ -1,0 +1,12 @@
+{
+  "ok": false,
+  "code": "INCOMPLETE_TICKET",
+  "op_id": null,
+  "changed_files": [],
+  "recovery_required": false,
+  "message": "VERIFY -> REVIEW requires explicit verification evidence for ticket T-192 (got: VERIFY PASS conf: high. Final pinned subject b8dea41379f2ab7dab6fce899e08055fa5439ee659f44bf19b09185923dc0ca6: Unicode service2 PASS, native8 PASS, actual React UI35 PASS and independent UI35 PASS. Mandatory typecheck/build/full gate exit0; 1343 passed/2 skipped/0 failures, lint108 warnings/0errors, architecture0. Fresh DLL bundle exit0 and boot28 sections/0 browser errors. Frozen actual packaged oracle5 PASS: shipped factory and broker, real visible PowerShell, same CLI PID13060/counter5-to10 after forced packaged-host termination. All old failed passes retained. Source coverage SRC127 R001/R002 VERIFIED; all foreign18/T188 twelve paths unchanged.)",
+  "phase": "REVIEW",
+  "ticket": "T-192",
+  "canonical_next_command": "saipen checkpoint RUN T-192 \"verify -> PASS [target: T-192] conf: high -- <the command that ran and what it reported>\"",
+  "detail": "VERIFY -> REVIEW requires explicit verification evidence for ticket T-192 (got: VERIFY PASS conf: high. Final pinned subject b8dea41379f2ab7dab6fce899e08055fa5439ee659f44bf19b09185923dc0ca6: Unicode service2 PASS, native8 PASS, actual React UI35 PASS and independent UI35 PASS. Mandatory typecheck/build/full gate exit0; 1343 passed/2 skipped/0 failures, lint108 warnings/0errors, architecture0. Fresh DLL bundle exit0 and boot28 sections/0 browser errors. Frozen actual packaged oracle5 PASS: shipped factory and broker, real visible PowerShell, same CLI PID13060/counter5-to10 after forced packaged-host termination. All old failed passes retained. Source coverage SRC127 R001/R002 VERIFIED; all foreign18/T188 twelve paths unchanged.)"
+}

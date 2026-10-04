@@ -1,0 +1,5 @@
+{
+  "command": "pnpm10 verify:pre-push",
+  "exitCode": 1,
+  "at": "2026-10-03T13:22:42.3228625Z"
+}
