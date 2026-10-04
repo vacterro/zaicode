@@ -1,0 +1,65 @@
+{
+  "at": "2026-10-04T10:17:45.561Z",
+  "executablePath": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\dist-next\\win-unpacked\\ZAICODE.exe",
+  "profile": "V:\\_TEMP_\\zaicode-t199-mFkyDI",
+  "checks": [
+    {
+      "name": "the packaged app runs on an isolated profile",
+      "pass": true
+    },
+    {
+      "name": "the document declares the dark surface to Chromium",
+      "pass": false,
+      "detail": {
+        "scheme": "normal"
+      }
+    },
+    {
+      "name": "a Settings slider was found to look at",
+      "pass": true,
+      "detail": {
+        "section": "ZAICODE"
+      }
+    },
+    {
+      "name": "the slider is not a white slab on a dark theme",
+      "pass": false,
+      "detail": {
+        "width": 393,
+        "height": 17,
+        "pixels": 6681,
+        "mean": 0.409,
+        "max": 0.937,
+        "lightShare": 0.223
+      }
+    },
+    {
+      "name": "the slider carries the theme tint, not the browser default",
+      "pass": false,
+      "detail": {
+        "accent": "auto"
+      }
+    },
+    {
+      "name": "other native controls are not white either",
+      "pass": true,
+      "detail": {
+        "width": 13,
+        "height": 14,
+        "pixels": 182,
+        "mean": 0.363,
+        "max": 1,
+        "lightShare": 0.104
+      }
+    },
+    {
+      "name": "zero renderer exceptions while looking",
+      "pass": true,
+      "detail": []
+    }
+  ],
+  "errors": [],
+  "pass": false,
+  "verifier": "c20fb73d7a62c700b85bc0075faa77e6390072c44a2c9963bf9b97da93527173",
+  "asarSha256": "4ae64e6e8348d500058449ea59284dc6ee3b35331b12ad93c5a4a230acceec13"
+}

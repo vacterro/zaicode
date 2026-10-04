@@ -1,0 +1,13 @@
+{
+  "op_id": "scope-211e04030e3c4efe9c132e59ea08d429",
+  "paths": {
+    "zcode/packages/ui/test/zaicodeT199NativeControlTint.test.ts": "478a0e2aa30df93613675553552276c3b7e7e45e43ccd220d89ec4876ec73ce9"
+  },
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "project_lineage": "lineage-b0732ed2f98947b9a3c97bfe71427eca",
+  "recorded_at": "2026-10-04T10:31:12Z",
+  "schema_version": 2,
+  "source_head": "8f72880f21f3c0a104ad51821a48b7570eb8c6c4",
+  "source_tree_fingerprint": "git-delta-v1:bd6b7fde8ab6755dcbacfad60fad649fc87981443784d8203ca160519a47b834",
+  "ticket": "T-199"
+}
