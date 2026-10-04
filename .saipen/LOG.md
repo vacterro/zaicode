@@ -1159,3 +1159,9 @@
 - 04.10.26 11:35 [E-3625] [parent: E-3624] [agent: saipen-cli] [op: transition-2fdbaf6b35d544e7a62ed12ecdaf176f] DEC: goal_tickets 3->4
 - 04.10.26 11:35 [E-3626] [parent: E-3625] [T-198] [agent: saipen-cli] [op: transition-ab8f31a8918b4c3dab42f2b0b6701ecd] RUN: transition to SHIP -- closure in the default own_patch mode: a no-publish single-ticket closure; the product change is committed in the zcode repository as 211d1f9a
 - 04.10.26 11:35 [E-3627] [parent: E-3626] [T-198] [agent: saipen-cli] [op: finish-80ab4b60d6054f9489372289c4a9713a] DEC: ticket finished via SAIOPS -- completion (from SHIP)
+- 04.10.26 11:44 [E-3628] [parent: E-3627] [T-190] [agent: saipen-cli] [op: ticket-4b790158a870486ba53085d8605a1176] DEC: detail_ref: .saipen/recovery/log-detail/E-3628-c5a9b7f94341910b7305226c.json
+- 04.10.26 11:44 [E-3629] [parent: E-3628] [T-190] [agent: saipen-cli] [op: claim-d23c2cfadb20422d9074a399a8658907] DEC: claimed via SAIOPS -- owner saipen-cli
+- 04.10.26 11:44 [E-3630] [parent: E-3629] [T-190] [agent: saipen-cli] [op: transition-441ebe8c742c40ef959600bfeabbe181] RUN: transition to BUILD -- audit the vendor-limit path at HEAD rather than trusting the T-194 receipt
+- 04.10.26 11:44 [E-3631] [parent: E-3630] [T-190] [agent: saipen-cli] [op: transition-01e74c901f6645d9b45dc285c397836f] RUN: transition to VERIFY -- land the vendor-reset route fix and gate it
+- 04.10.26 11:45 [E-3632] [parent: E-3631] [T-190] [agent: saipen-cli] [op: transition-2da8d3f926424ac7a0dee1d3c9818927] RUN: transition to VERIFY -- the fix is verified; what remains is the live paid-vendor observation this ticket's own text requires and forbids fabricating
+- 04.10.26 11:45 [E-3633] [parent: E-3632] [T-190] [agent: saipen-cli] [op: ticket-0a768660184e4087945f6ff14432dc9c] DEC: ticket block via SAIOPS (active) -- structural_event: ticket-block-active -- detail_ref: .saipen/recovery/log-detail/E-3633-a753350f6822f80c03ae07c5.json
