@@ -337,6 +337,21 @@ function windowStartFor(
 }
 
 /**
+ * The one definition of "this window is full", and it is the number the surfaces
+ * actually RENDER: `ZaicodeLimitViews` prints `Math.round(remainingPercent)`.
+ *
+ * T-188: admission used to test the raw number instead, so a vendor reporting
+ * 99.8240 for a window it had barely touched was read as spent while the same
+ * window DISPLAYED "100%". Antigravity never reports a literal 100 again after
+ * the first bounded request, so that disagreement made every automatic starter
+ * unreachable on the one vendor that ships rolling windows -- the user watched a
+ * full window refuse to start. One rounding, one meaning.
+ */
+export function zaicodeWindowIsFull(window: Pick<ZaicodeLimitWindow, "remainingPercent">): boolean {
+  return window.remainingPercent === null || Math.round(window.remainingPercent) >= 100;
+}
+
+/**
  * Marks windows that have not started (SRC-048). A vendor that has seen no
  * request in the current window reports its reset as read time + the window's
  * length; read again five minutes later, it says the same "5 h" again. That is
@@ -371,9 +386,16 @@ export function markZaicodeWindowsStartingOnUse(
       window.resetsAt <= previous.at + durationMs + 5_000;
     // 旧缓存的本地锚点不是供应商启动证据；必须保留待启动状态让 admission 可达。
     const waitingFromCache = window.startsOnUse === true && !anchoredAfterStart;
+    // T-188: a ROLLING vendor (Antigravity) has no starts-on-use shape at all. It
+    // reports resetsAt = last real start + the window length, so a cycle nobody has
+    // touched still carries the PREVIOUS cycle's reset, already in the past.
+    // Neither looksIdle nor waitingFromCache can see that, which is how every
+    // automatic starter on that vendor became unreachable. A vendor reset that has
+    // passed while the window still reads full IS the untouched new cycle.
+    const rolledOverUntouched = window.resetsAt !== null && window.resetsAt <= readAt && zaicodeWindowIsFull(window);
     const idle =
-      (looksIdle || waitingFromCache) &&
-      !(window.remainingPercent !== null && window.remainingPercent < 100) &&
+      (looksIdle || waitingFromCache || rolledOverUntouched) &&
+      zaicodeWindowIsFull(window) &&
       !anchoredAfterStart;
     if (!idle) {
       if (window.startsOnUse === false && window.rollingFrom === undefined && !anchoredAfterStart) return window;
@@ -381,7 +403,7 @@ export function markZaicodeWindowsStartingOnUse(
       return {
         ...started,
         startsOnUse: false,
-        ...(anchoredAfterStart && window.remainingPercent === 100 ? { rollingFrom: previous!.at } : {}),
+        ...(anchoredAfterStart && zaicodeWindowIsFull(window) ? { rollingFrom: previous!.at } : {}),
       };
     }
     const { rollingFrom: _dropped, ...waiting } = window;
@@ -424,7 +446,7 @@ export function isZaicodeRealReset(window: ZaicodeLimitWindow, now: number): boo
  */
 export function zaicodeWindowShowsLiveCountdown(window: ZaicodeLimitWindow, now: number): boolean {
   if (!isZaicodeRealReset(window, now)) return false;
-  return window.remainingPercent === null || window.remainingPercent < 100 || isZaicodeRollingWindow(window);
+  return !zaicodeWindowIsFull(window) || isZaicodeRollingWindow(window);
 }
 
 // ---------------------------------------------------------------------------
