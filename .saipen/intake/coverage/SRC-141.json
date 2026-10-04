@@ -1,4 +1,14 @@
 {
-  "requirements": {},
+  "requirements": {
+    "SRC-141:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "T-207 closed with verification evidence in LOG: verify -> PASS [target: T-207] conf: high -- all 20 matrix items are dispositioned: (1) WORKERS expand/collapse has a real effect = T-209 DONE, packaged oracle .saipen/evidence/T-209-packaged.cjs; (2) 'Working for' never empty = T-210 DONE; (3) P0 presets must not restart = T-208 DONE, packaged oracle T-208-packaged.cjs; (4) settings order + collapsed by default = T-206 DONE on zcode 591f8356, T-2",
+      "text": "\u0425\u043e\u0440\u043e\u0448\u043e, \u043d\u0430\u0447\u043d\u0438 \u0441 v:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\audit\\ZAICODE \u2014 00 MASTER ROADMAP_20261004_0045.md \u0438 \u0434\u0430\u043b\u044c\u0448\u0435 \u043f\u0440\u043e\u0434\u043e\u043b\u0436\u0430\u0439 \u0434\u043e \u043a\u043e\u043d\u0446\u0430 \u043f\u043e\u0436\u0430\u043b\u0443\u0439\u0441\u0442\u0430 \u0432 \u0442\u043e\u0439 \u043f\u0430\u043f\u043a\u0435 \u0437\u0430\u043a\u0440\u044b\u0432\u0430\u0439 \u0432\u0441\u0451.",
+      "verification": "the Work this request created reached its own verification gate; see the T-207 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-207"
+    }
+  },
   "schema_version": 1
 }

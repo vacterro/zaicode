@@ -1,4 +1,14 @@
 {
-  "requirements": {},
+  "requirements": {
+    "SRC-146:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "T-213 closed with verification evidence in LOG: verify -> PASS [target: T-213] conf: high -- zcode 5409bf16 with the workspace checkpoint commit 54bcabf1; a bundle built from that committed state launches and passes 10/10 three times against one asar, the six gates exit 0 with empty sourceChanges, the suite is 1489 pass / 0 fail / 2 skipped, and .gitignore now keeps .release-work out of the tree (.saipen/evidence/T-213-packaged-green1.json, -gr",
+      "text": "Bring current state to a checkpoint, then build a working bundle for test",
+      "verification": "the Work this request created reached its own verification gate; see the T-213 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-213"
+    }
+  },
   "schema_version": 1
 }
