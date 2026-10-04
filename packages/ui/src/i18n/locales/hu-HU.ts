@@ -2576,6 +2576,7 @@ const messages: Record<string,string> = {
   "settings.modelProvider.advancedConfig": "Speciális beállítások",
   "settings.modelProvider.reasoning": "Gondolkodási beállítások",
   "settings.hooks.advanced": "Speciális",
+  "settings.sidebar.advanced": "Speciális",
   "settings.modelProvider.maxOutputTokens": "Max. kimeneti tokenek",
   "settings.modelProvider.inputModalities": "Bemeneti típusok",
   "settings.modelProvider.outputModalities": "Kimeneti típusok",

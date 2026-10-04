@@ -113,9 +113,7 @@ export function ZaicodeSettingsSection() {
       </section>
       <ZaicodeTypographySettings />
       <ZaicodeSaimailSettings />
-      <ZaicodeSplashSettings />
-      <SaiasuiSettings />
-      <section className="border border-border bg-card p-4 text-ui-xs text-foreground-subtle" data-zaicode-moved-settings>
+      <section className="border border-border bg-card p-4" data-zaicode-moved-settings>
         Sidebar layout, the home screen and window zones are in <strong className="font-normal text-foreground">Layout &amp; home</strong>;
         Ambience and Problip in <strong className="font-normal text-foreground">Sounds</strong>; the terminal font in{" "}
         <strong className="font-normal text-foreground">Workers &amp; terminal</strong>.
@@ -303,6 +301,18 @@ export function ZaicodeSettingsSection() {
       </section>
 
       {error ? <p className="text-ui-xs text-destructive">{error}</p> : null}
+
+      {/* 装饰性设置收进末尾的默认折叠块：用户打开 ZAICODE 分区是为了常用配置，
+          启动画面、小游戏和它们的下属项不该占住第一屏。 */}
+      <details className="rounded-xl border border-border bg-card" data-zaicode-advanced>
+        <summary className="cursor-pointer px-4 py-3 text-ui-base text-foreground-subtle hover:text-foreground">
+          {intl.formatMessage({ id: "settings.sidebar.advanced" })}
+        </summary>
+        <div className="flex flex-col gap-4 border-t border-border p-4">
+          <ZaicodeSplashSettings />
+          <SaiasuiSettings />
+        </div>
+      </details>
     </div>
   );
 }

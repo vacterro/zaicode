@@ -2576,6 +2576,7 @@ const messages: Record<string,string> = {
   "settings.modelProvider.advancedConfig": "Додаткові налаштування",
   "settings.modelProvider.reasoning": "Налаштування міркування",
   "settings.hooks.advanced": "Додатково",
+  "settings.sidebar.advanced": "Додатково",
   "settings.modelProvider.maxOutputTokens": "Макс. токенів виводу",
   "settings.modelProvider.inputModalities": "Типи вводу",
   "settings.modelProvider.outputModalities": "Типи виводу",

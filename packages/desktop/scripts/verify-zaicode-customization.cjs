@@ -65,7 +65,11 @@ async function checkCustomization(page, dir) {
 
   // The Sounds page, where the operator looks for the folder.
   const nav = page.locator("nav").filter({ hasText: "Keyboard Shortcuts" }).first();
-  await nav.locator("button", { hasText: /^Sounds$/ }).first().click({ timeout: 8000 });
+  const sounds = nav.locator("button", { hasText: /^Sounds$/ }).first();
+  // Sounds is a decorative section, so it now ships inside a collapsed <details> at the
+  // bottom of the ZAICODE group; open that fold the way a user would before clicking in.
+  await sounds.evaluate((node) => { const fold = node.closest("details"); if (fold) fold.open = true; });
+  await sounds.click({ timeout: 8000 });
   const strip = page.locator("[data-zaicode-custom-sounds]").first();
   await strip.waitFor({ timeout: 15_000 });
   assert.ok((await strip.innerText()).includes(path.join(dir, "sounds")), "the page names the folder");

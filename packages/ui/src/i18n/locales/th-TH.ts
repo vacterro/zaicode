@@ -2576,6 +2576,7 @@ const messages: Record<string,string> = {
   "settings.modelProvider.advancedConfig": "การตั้งค่าขั้นสูง",
   "settings.modelProvider.reasoning": "การตั้งค่าการคิด",
   "settings.hooks.advanced": "ขั้นสูง",
+  "settings.sidebar.advanced": "ขั้นสูง",
   "settings.modelProvider.maxOutputTokens": "โทเค็นผลลัพธ์สูงสุด",
   "settings.modelProvider.inputModalities": "ชนิดอินพุต",
   "settings.modelProvider.outputModalities": "ชนิดเอาต์พุต",

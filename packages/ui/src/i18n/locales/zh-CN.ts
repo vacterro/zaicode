@@ -2895,6 +2895,7 @@ const zhCN: Record<string, string> = {
   "settings.modelProvider.advancedConfig": "高级配置",
   "settings.modelProvider.reasoning": "推理设置",
   "settings.hooks.advanced": "高级",
+  "settings.sidebar.advanced": "高级",
   "settings.modelProvider.maxOutputTokens": "最大输出 Token",
   "settings.modelProvider.inputModalities": "输入类型",
   "settings.modelProvider.outputModalities": "输出类型",

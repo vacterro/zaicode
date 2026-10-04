@@ -2576,6 +2576,7 @@ const messages: Record<string,string> = {
   "settings.modelProvider.advancedConfig": "Setări avansate",
   "settings.modelProvider.reasoning": "Setări de raționament",
   "settings.hooks.advanced": "Avansat",
+  "settings.sidebar.advanced": "Avansat",
   "settings.modelProvider.maxOutputTokens": "Max. jetoane de ieșire",
   "settings.modelProvider.inputModalities": "Tipuri de intrare",
   "settings.modelProvider.outputModalities": "Tipuri de ieșire",

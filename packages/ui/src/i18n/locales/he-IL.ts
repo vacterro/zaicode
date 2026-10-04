@@ -2576,6 +2576,7 @@ const messages: Record<string,string> = {
   "settings.modelProvider.advancedConfig": "הגדרות מתקדמות",
   "settings.modelProvider.reasoning": "הגדרות חשיבה",
   "settings.hooks.advanced": "מתקדם",
+  "settings.sidebar.advanced": "מתקדם",
   "settings.modelProvider.maxOutputTokens": "מקסימום טוקני פלט",
   "settings.modelProvider.inputModalities": "סוגי קלט",
   "settings.modelProvider.outputModalities": "סוגי פלט",

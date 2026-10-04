@@ -2576,6 +2576,7 @@ const messages: Record<string,string> = {
   "settings.modelProvider.advancedConfig": "Ustawienia zaawansowane",
   "settings.modelProvider.reasoning": "Ustawienia rozumowania",
   "settings.hooks.advanced": "Zaawansowane",
+  "settings.sidebar.advanced": "Zaawansowane",
   "settings.modelProvider.maxOutputTokens": "Maks. tokeny wyjściowe",
   "settings.modelProvider.inputModalities": "Typy wejściowe",
   "settings.modelProvider.outputModalities": "Typy wyjściowe",

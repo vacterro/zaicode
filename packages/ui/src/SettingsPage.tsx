@@ -1399,6 +1399,44 @@ export function SettingsPage({
     !hasVisibleSettingsBreadcrumb ||
     (activeSection === "plugin" && pluginNavigationOrigin === "plugin-store");
 
+  const renderSettingsSectionButton = ({
+    id,
+    icon: Icon,
+    titleId,
+  }: (typeof settingsSections)[number]) => {
+    const isActive = activeSection === id;
+    const label = intl.formatMessage({ id: titleId });
+
+    return (
+      <SettingsSidebarButton
+        key={id}
+        icon={Icon}
+        label={label}
+        active={isActive}
+        aria-current={isActive ? "page" : undefined}
+        data-testid={testId(TID_SETTINGS_SECTION_NAV, id)}
+        onClick={() => {
+          runUserAction({
+            input: {
+              featureId: "settings.navigation",
+              action: "open_section",
+              trigger: "button",
+            },
+            operation: () => {
+              setPluginNavigationOrigin(undefined);
+              setSettingsSectionNavigationVersion((version) => version + 1);
+              setActiveSettingsSection(id);
+            },
+            completed: { resultSource: "local_commit", sectionId: id },
+            failureStage: "navigation_commit",
+          });
+        }}
+      >
+        <span className="truncate text-ui-base text-foreground">{label}</span>
+      </SettingsSidebarButton>
+    );
+  };
+
   return (
     <>
       <DesktopWindowFrame
@@ -1508,39 +1546,17 @@ export function SettingsPage({
                         >
                           {groupLabel}
                         </div>
-                        {group.sections.map(({ id, icon: Icon, titleId }) => {
-                          const isActive = activeSection === id;
-                          const label = intl.formatMessage({ id: titleId });
-
-                          return (
-                            <SettingsSidebarButton
-                              key={id}
-                              icon={Icon}
-                              label={label}
-                              active={isActive}
-                              aria-current={isActive ? "page" : undefined}
-                              data-testid={testId(TID_SETTINGS_SECTION_NAV, id)}
-                              onClick={() => {
-                                runUserAction({
-                                  input: {
-                                    featureId: "settings.navigation",
-                                    action: "open_section",
-                                    trigger: "button",
-                                  },
-                                  operation: () => {
-                                    setPluginNavigationOrigin(undefined);
-                                    setSettingsSectionNavigationVersion((version) => version + 1);
-                                    setActiveSettingsSection(id);
-                                  },
-                                  completed: { resultSource: "local_commit", sectionId: id },
-                                  failureStage: "navigation_commit",
-                                });
-                              }}
-                            >
-                              <span className="truncate text-ui-base text-foreground">{label}</span>
-                            </SettingsSidebarButton>
-                          );
-                        })}
+                        {group.sections.map(renderSettingsSectionButton)}
+                        {group.advancedSections.length > 0 ? (
+                          <details className="mt-1">
+                            <summary className="cursor-pointer px-2.5 py-1 text-ui-sm text-foreground-subtlest hover:text-foreground">
+                              {intl.formatMessage({ id: "settings.sidebar.advanced" })}
+                            </summary>
+                            <div className="mt-1 space-y-1">
+                              {group.advancedSections.map(renderSettingsSectionButton)}
+                            </div>
+                          </details>
+                        ) : null}
                       </div>
                     );
                   })}

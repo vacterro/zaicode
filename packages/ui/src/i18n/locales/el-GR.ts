@@ -2576,6 +2576,7 @@ const messages: Record<string,string> = {
   "settings.modelProvider.advancedConfig": "Προηγμένες ρυθμίσεις",
   "settings.modelProvider.reasoning": "Ρυθμίσεις συλλογισμού",
   "settings.hooks.advanced": "Προηγμένο",
+  "settings.sidebar.advanced": "Προηγμένο",
   "settings.modelProvider.maxOutputTokens": "Μέγιστα διακριτικά εξόδου",
   "settings.modelProvider.inputModalities": "Τύποι εισόδου",
   "settings.modelProvider.outputModalities": "Τύποι εξόδου",

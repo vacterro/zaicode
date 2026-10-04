@@ -2576,6 +2576,7 @@ const messages: Record<string,string> = {
   "settings.modelProvider.advancedConfig": "Pokročilé nastavenia",
   "settings.modelProvider.reasoning": "Nastavenia uvažovania",
   "settings.hooks.advanced": "Pokročilé",
+  "settings.sidebar.advanced": "Pokročilé",
   "settings.modelProvider.maxOutputTokens": "Maximálny počet výstupných tokenov",
   "settings.modelProvider.inputModalities": "Vstupné typy",
   "settings.modelProvider.outputModalities": "Výstupné typy",

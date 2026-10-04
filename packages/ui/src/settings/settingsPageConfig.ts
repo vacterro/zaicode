@@ -54,6 +54,11 @@ interface SettingsSectionDefinition {
   contentTitleId?: string;
   titleBadgeId?: string;
   groupId: SettingsSectionGroupId;
+  /**
+   * 低频设置：仍然一眼可达，但收进分组末尾默认折叠的「高级」块。
+   * 用户按重要性自上而下扫读，装饰性与可选集成不该占住第一屏。
+   */
+  advanced?: boolean;
 }
 
 const BASE_SETTINGS_SECTION_GROUPS: Array<{
@@ -137,41 +142,48 @@ const BASE_SETTINGS_SECTIONS: SettingsSectionDefinition[] = [
     titleId: "settings.zaicodeWorkers.title",
     groupId: "zaicode",
   },
+  // 以下 ZAICODE 分区是装饰与可选集成，不是日常配置：收进分组末尾的高级块。
   {
     id: "zaicodeSounds",
     icon: Volume2,
     titleId: "settings.zaicodeSounds.title",
     groupId: "zaicode",
+    advanced: true,
   },
   {
     id: "zaicodeNotifications",
     icon: Bell,
     titleId: "settings.zaicodeNotifications.title",
     groupId: "zaicode",
+    advanced: true,
   },
   {
     id: "zaicodeColors",
     icon: Palette,
     titleId: "settings.zaicodeColors.title",
     groupId: "zaicode",
+    advanced: true,
   },
   {
     id: "zaicodeLights",
     icon: Sparkle,
     titleId: "settings.zaicodeLights.title",
     groupId: "zaicode",
+    advanced: true,
   },
   {
     id: "zaicodeSessionText",
     icon: Type,
     titleId: "settings.zaicodeSessionText.title",
     groupId: "zaicode",
+    advanced: true,
   },
   {
     id: "zaicodeProtrail",
     icon: MousePointer2,
     titleId: "settings.zaicodeProtrail.title",
     groupId: "zaicode",
+    advanced: true,
   },
   {
     id: "zaicodeTimers",
@@ -288,8 +300,13 @@ export function createSettingsPageConfig({
   });
   const settingsSectionGroups = BASE_SETTINGS_SECTION_GROUPS.map((group) => ({
     ...group,
-    sections: settingsSections.filter((section) => section.groupId === group.id),
-  })).filter((group) => group.sections.length > 0);
+    sections: settingsSections.filter(
+      (section) => section.groupId === group.id && !section.advanced,
+    ),
+    advancedSections: settingsSections.filter(
+      (section) => section.groupId === group.id && section.advanced,
+    ),
+  })).filter((group) => group.sections.length > 0 || group.advancedSections.length > 0);
 
   return { settingsSectionGroups, settingsSections };
 }

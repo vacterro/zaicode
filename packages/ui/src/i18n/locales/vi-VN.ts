@@ -2576,6 +2576,7 @@ const messages: Record<string,string> = {
   "settings.modelProvider.advancedConfig": "Thiết lập nâng cao",
   "settings.modelProvider.reasoning": "Thiết lập suy luận",
   "settings.hooks.advanced": "Nâng cao",
+  "settings.sidebar.advanced": "Nâng cao",
   "settings.modelProvider.maxOutputTokens": "Token đầu ra tối đa",
   "settings.modelProvider.inputModalities": "Loại đầu vào",
   "settings.modelProvider.outputModalities": "Loại đầu ra",

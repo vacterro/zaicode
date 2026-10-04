@@ -2576,6 +2576,7 @@ const messages: Record<string,string> = {
   "settings.modelProvider.advancedConfig": "Gelişmiş ayarlar",
   "settings.modelProvider.reasoning": "Akıl yürütme ayarları",
   "settings.hooks.advanced": "Gelişmiş",
+  "settings.sidebar.advanced": "Gelişmiş",
   "settings.modelProvider.maxOutputTokens": "Maksimum çıktı token'ı",
   "settings.modelProvider.inputModalities": "Giriş türleri",
   "settings.modelProvider.outputModalities": "Çıktı türleri",

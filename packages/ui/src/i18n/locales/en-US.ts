@@ -3091,6 +3091,7 @@ const enUS: Record<string, string> = {
   "settings.modelProvider.advancedConfig": "Advanced settings",
   "settings.modelProvider.reasoning": "Reasoning settings",
   "settings.hooks.advanced": "Advanced",
+  "settings.sidebar.advanced": "Advanced",
   "settings.modelProvider.maxOutputTokens": "Max output tokens",
   "settings.modelProvider.inputModalities": "Input types",
   "settings.modelProvider.outputModalities": "Output types",

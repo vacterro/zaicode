@@ -2576,6 +2576,7 @@ const messages: Record<string,string> = {
   "settings.modelProvider.advancedConfig": "उन्नत सेटिंग्स",
   "settings.modelProvider.reasoning": "रीज़निंग सेटिंग्स",
   "settings.hooks.advanced": "उन्नत",
+  "settings.sidebar.advanced": "उन्नत",
   "settings.modelProvider.maxOutputTokens": "अधिकतम आउटपुट टोकन",
   "settings.modelProvider.inputModalities": "इनपुट प्रकार",
   "settings.modelProvider.outputModalities": "आउटपुट प्रकार",

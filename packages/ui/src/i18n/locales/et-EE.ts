@@ -2576,6 +2576,7 @@ const messages: Record<string,string> = {
   "settings.modelProvider.advancedConfig": "Täpsemad seaded",
   "settings.modelProvider.reasoning": "Mõtlemise seaded",
   "settings.hooks.advanced": "Täpsem",
+  "settings.sidebar.advanced": "Täpsem",
   "settings.modelProvider.maxOutputTokens": "Maksimaalne väljundmärkide arv",
   "settings.modelProvider.inputModalities": "Sisenditüübid",
   "settings.modelProvider.outputModalities": "Väljunditüübid",

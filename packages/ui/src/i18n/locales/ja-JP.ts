@@ -2576,6 +2576,7 @@ const messages: Record<string,string> = {
   "settings.modelProvider.advancedConfig": "詳細設定",
   "settings.modelProvider.reasoning": "推論設定",
   "settings.hooks.advanced": "詳細",
+  "settings.sidebar.advanced": "詳細",
   "settings.modelProvider.maxOutputTokens": "最大出力トークン",
   "settings.modelProvider.inputModalities": "入力形式",
   "settings.modelProvider.outputModalities": "出力形式",

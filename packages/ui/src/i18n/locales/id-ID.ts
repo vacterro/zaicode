@@ -2576,6 +2576,7 @@ const messages: Record<string,string> = {
   "settings.modelProvider.advancedConfig": "Pengaturan lanjutan",
   "settings.modelProvider.reasoning": "Pengaturan penalaran",
   "settings.hooks.advanced": "Lanjutan",
+  "settings.sidebar.advanced": "Lanjutan",
   "settings.modelProvider.maxOutputTokens": "Token keluaran maksimum",
   "settings.modelProvider.inputModalities": "Jenis masukan",
   "settings.modelProvider.outputModalities": "Jenis keluaran",

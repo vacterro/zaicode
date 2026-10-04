@@ -2576,6 +2576,7 @@ const messages: Record<string,string> = {
   "settings.modelProvider.advancedConfig": "고급 설정",
   "settings.modelProvider.reasoning": "추론 설정",
   "settings.hooks.advanced": "고급",
+  "settings.sidebar.advanced": "고급",
   "settings.modelProvider.maxOutputTokens": "최대 출력 토큰",
   "settings.modelProvider.inputModalities": "입력 유형",
   "settings.modelProvider.outputModalities": "출력 유형",

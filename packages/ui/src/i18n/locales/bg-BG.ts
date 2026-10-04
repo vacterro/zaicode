@@ -2576,6 +2576,7 @@ const messages: Record<string,string> = {
   "settings.modelProvider.advancedConfig": "Разширени настройки",
   "settings.modelProvider.reasoning": "Настройки за разсъждение",
   "settings.hooks.advanced": "Разширени",
+  "settings.sidebar.advanced": "Разширени",
   "settings.modelProvider.maxOutputTokens": "Максимални изходни токени",
   "settings.modelProvider.inputModalities": "Входни типове",
   "settings.modelProvider.outputModalities": "Изходни типове",

@@ -17,7 +17,7 @@ test("complete collected catalogs match all 32 languages and the DED voice", () 
   assert.deepEqual([...CLI_LOCALES], EXPECTED);
   assert.deepEqual(Object.keys(MESSAGES).sort(), [...EXPECTED].sort());
   const source = MESSAGES["en-US"];
-  assert.equal(Object.keys(source).length, 5880, "includes Unicode severity keys, 27 SAIASUI strings, four T-141 model controls and the T-167 quota-hold route line");
+  assert.equal(Object.keys(source).length, 5881, "includes Unicode severity keys, 27 SAIASUI strings, four T-141 model controls, the T-167 quota-hold route line and the T-206 advanced-settings fold");
   for (const locale of SUPPORTED_LOCALES) {
     assert.deepEqual(Object.keys(MESSAGES[locale]).sort(), Object.keys(source).sort(), locale);
     for (const [key, value] of Object.entries(source)) {

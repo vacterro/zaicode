@@ -193,6 +193,13 @@ async function main() {
     const broken = [];
     for (const [index, name] of entries.entries()) {
       if (!name || skip.test(name)) continue;
+      // Decorative sections now live in a collapsed <details> at the bottom of their
+      // group. A collapsed fold still enumerates its buttons, so an entry inside one is
+      // invisible until the fold is opened; open exactly that fold, the way a user would.
+      const entry = nav.locator("button").nth(index);
+      if (!(await entry.isVisible().catch(() => false))) {
+        await entry.evaluate((node) => { const fold = node.closest("details"); if (fold) fold.open = true; }).catch(() => {});
+      }
       try {
         await nav.locator("button").nth(index).click({ timeout: 8000 });
       } catch (error) {

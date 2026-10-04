@@ -2576,6 +2576,7 @@ const messages: Record<string,string> = {
   "settings.modelProvider.advancedConfig": "Napredne postavke",
   "settings.modelProvider.reasoning": "Postavke razmišljanja",
   "settings.hooks.advanced": "Napredno",
+  "settings.sidebar.advanced": "Napredno",
   "settings.modelProvider.maxOutputTokens": "Najviše izlaznih tokena",
   "settings.modelProvider.inputModalities": "Ulazne vrste",
   "settings.modelProvider.outputModalities": "Izlazne vrste",
