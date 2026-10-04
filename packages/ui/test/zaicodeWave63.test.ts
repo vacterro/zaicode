@@ -194,7 +194,7 @@ function win(patch: Partial<ZaicodeLimitWindow> & { key: string }): ZaicodeLimit
   };
 }
 
-test("resets: a reset one full window after the read is anchored, not slid", () => {
+test("resets: a reset one full window after the read stays pending without real start proof", () => {
   const marked = markZaicodeWindowsStartingOnUse(
     [
       win({ key: "five_hour", resetsAt: READ + 5 * HOUR - 40_000 }),
@@ -205,14 +205,13 @@ test("resets: a reset one full window after the read is anchored, not slid", () 
     READ,
   );
   assert.deepEqual(marked.map((window) => window.startsOnUse), [true, false, true, false]);
-  // T-143: the vendor still says "starts on first use", so ZAICODE runs the window itself,
-  // from 0% consumed, for its full length -- instead of printing a promise it never keeps.
-  assert.deepEqual(marked.map((window) => window.rollingFrom), [READ, undefined, READ, undefined]);
+  // A local timestamp cannot supply vendor-start proof or suppress starter admission.
+  assert.deepEqual(marked.map((window) => window.rollingFrom), [undefined, undefined, undefined, undefined]);
   assert.equal(marked[0]?.remainingPercent, 100);
-  assert.equal(marked[0]?.resetsAt, READ + 5 * HOUR);
-  assert.equal(formatZaicodeWindowReset(marked[0]!, READ + 60_000), "resets in 4h 59m");
+  assert.equal(marked[0]?.resetsAt, READ + 5 * HOUR - 40_000);
+  assert.equal(formatZaicodeWindowReset(marked[0]!, READ + 60_000), "starts on first use (5h window)");
   assert.equal(formatZaicodeWindowReset({ ...marked[1]!, gatedBy: "weekly" }, READ), "blocked by weekly");
-  assert.equal(isZaicodeRealReset(marked[0]!, READ), true, "a locally anchored window is a real coming refill");
+  assert.equal(isZaicodeRealReset(marked[0]!, READ), false, "a local read is not a real coming refill");
   assert.equal(isZaicodeRealReset(marked[1]!, READ), true);
 });
 
@@ -242,7 +241,7 @@ test("resets: the screenshot case -- a rolling Antigravity 5 h leads the title; 
   ] as const;
   const snapshot = (id: string, windows: ZaicodeLimitWindow[]): ZaicodeLimitSnapshot => ({
     accountId: id,
-    windows: markZaicodeWindowsStartingOnUse(windows, READ),
+    windows: markZaicodeWindowsStartingOnUse(windows, READ + 20_000, { at: READ, ok: true, detail: "real completion" }),
     plan: null,
     fetchedAt: READ,
     checkedAt: READ,
@@ -278,7 +277,7 @@ test("resets: a scheduled 'after the 5 h refill' job waits for the anchored refi
   const job = createZaicodeAutostartJob({ id: "j", projectPath: "P", engineId: "codex:1", trigger: "reset", window: "five_hour" }, READ);
   const snapshot: ZaicodeLimitSnapshot = {
     accountId: "codex:1",
-    windows: markZaicodeWindowsStartingOnUse([win({ key: "five_hour", resetsAt: READ + 5 * HOUR })], READ),
+    windows: markZaicodeWindowsStartingOnUse([win({ key: "five_hour", resetsAt: READ + 5 * HOUR })], READ + 20_000, { at: READ, ok: true, detail: "real completion" }),
     plan: null,
     fetchedAt: READ,
     checkedAt: READ,

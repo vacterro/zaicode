@@ -4,7 +4,6 @@ import {
   formatZaicodeWindowReset,
   isZaicodeWindowWaitingForFirstUse,
   markZaicodeWindowsStartingOnUse,
-  ZAICODE_WINDOW_START_COOLDOWN_MS,
   zaicodeIdleWindowToStart,
   zaicodeWindowShowsLiveCountdown,
   type ZaicodeEngineAccount,
@@ -48,19 +47,19 @@ function snapshot(windows: ZaicodeLimitWindow[]): ZaicodeLimitSnapshot {
 const account = { id: "agy", vendor: "antigravity", status: "ready" } as ZaicodeEngineAccount;
 const config = { keepWindowsRolling: true, hiddenAccounts: [] };
 
-test("a window persisted as waiting for first use heals on the next read", () => {
+test("a window persisted as waiting for first use remains startable without invented proof", () => {
   // The exact shape a pre-T-143 build wrote to zaicode-engines-cache.json: flagged as
   // unstarted, with nothing to count down, and a vendor reset that is no longer read+5h.
   const stale = [win({ key: "five_hour", startsOnUse: true, resetsAt: READ + 4 * HOUR })];
   const healed = markZaicodeWindowsStartingOnUse(stale, READ, null, stale);
 
-  assert.equal(healed[0]?.rollingFrom, READ);
-  assert.equal(healed[0]?.resetsAt, READ + 5 * HOUR);
-  assert.equal(isZaicodeWindowWaitingForFirstUse(healed[0]!), false);
-  assert.doesNotMatch(formatZaicodeWindowReset(healed[0]!, READ), /starts on first use/);
+  assert.equal(healed[0]?.rollingFrom, undefined);
+  assert.equal(healed[0]?.resetsAt, READ + 4 * HOUR);
+  assert.equal(isZaicodeWindowWaitingForFirstUse(healed[0]!), true);
+  assert.match(formatZaicodeWindowReset(healed[0]!, READ), /starts on first use/);
 });
 
-test("an expired anchor rolls forward instead of restarting at a full window", () => {
+test("an expired unproven anchor cannot invent the next vendor window", () => {
   const previous = [win({ key: "five_hour", startsOnUse: true, rollingFrom: READ })];
   const later = READ + 5 * HOUR + 10 * 60_000;
   // 5 h and 10 min later the window ZAICODE anchored has run out. The vendor still reports the
@@ -69,9 +68,9 @@ test("an expired anchor rolls forward instead of restarting at a full window", (
   const vendor = [win({ key: "five_hour", resetsAt: later + 5 * HOUR, remainingPercent: 100 })];
   const swept = markZaicodeWindowsStartingOnUse(vendor, later, null, previous);
 
-  assert.equal(swept[0]?.rollingFrom, READ + 5 * HOUR);
-  assert.equal(swept[0]?.resetsAt, READ + 10 * HOUR);
-  assert.ok((swept[0]?.resetsAt ?? 0) - later < 5 * HOUR, "the countdown must keep running, not restart");
+  assert.equal(swept[0]?.rollingFrom, undefined);
+  assert.equal(swept[0]?.resetsAt, later + 5 * HOUR);
+  assert.equal(zaicodeWindowShowsLiveCountdown(swept[0]!, later), false, "no countdown before the next real start");
 });
 
 test("a rolling window shows its countdown on the surfaces that skipped it at 100%", () => {
@@ -111,9 +110,9 @@ test("a start cooldown on one window does not hide a second pool's idle window",
   assert.equal(own?.key, "five_hour@gemini", "and the other way round");
 
   assert.equal(
-    zaicodeIdleWindowToStart({ account, snapshot: startedGemini, config, now: READ + ZAICODE_WINDOW_START_COOLDOWN_MS })
+    zaicodeIdleWindowToStart({ account, snapshot: startedGemini, config, now: READ + 5 * HOUR })
       ?.key,
     "five_hour@gemini",
-    "after the cooldown every idle pool is startable again",
+    "after its window duration an idle pool is startable again",
   );
 });

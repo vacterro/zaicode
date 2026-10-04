@@ -4,7 +4,7 @@ import { isZaicodeProductMode } from "@zcode/shared";
 import { cn } from "@/components/lib/utils.js";
 import { ZaicodeWorkersPanel } from "./ZaicodeWorkersPanel.js";
 import { ZAICODE_DOCK_LABEL, useZaicodeDockDrag } from "./zaicodePanelDock.js";
-import type { ZaicodeDockEdge } from "./zaicodeWorkerLayout.js";
+import { zaicodeWorkersDisplayDock, type ZaicodeDockEdge } from "./zaicodeWorkerLayout.js";
 import { useZaicodeWorkerPrefs } from "./zaicodeWorkerPrefs.js";
 
 /** Flex direction that puts the panel on its edge (the body stays the first child). */
@@ -26,16 +26,29 @@ const PREVIEW: Record<ZaicodeDockEdge, string> = {
  * The workspace body plus the WORKERS panel on its edge (SRC-046). Upstream
  * (not ZAICODE) it renders the body alone, unchanged.
  */
-export function ZaicodeWorkersDockFrame({ services, children }: { services: IServiceAccessor; children: ReactNode }) {
+export function ZaicodeWorkersDockFrame({
+  services,
+  children,
+}: {
+  services: IServiceAccessor;
+  children: ReactNode;
+}) {
   if (!isZaicodeProductMode()) return <>{children}</>;
   return <DockFrame services={services}>{children}</DockFrame>;
 }
 
 function DockFrame({ services, children }: { services: IServiceAccessor; children: ReactNode }) {
   const dock = useZaicodeWorkerPrefs((state) => state.panelDock);
+  const collapsed = useZaicodeWorkerPrefs((state) => state.panelCollapsed);
   const target = useZaicodeDockDrag((state) => state.target);
   return (
-    <div className={cn("relative flex min-h-0 min-w-0 flex-1", DOCK_FLEX[dock])} data-zaicode-workers-dock={dock}>
+    <div
+      className={cn(
+        "relative flex min-h-0 min-w-0 flex-1",
+        DOCK_FLEX[zaicodeWorkersDisplayDock(dock, collapsed)],
+      )}
+      data-zaicode-workers-dock={dock}
+    >
       {children}
       <ZaicodeWorkersPanel services={services} />
       {target ? (

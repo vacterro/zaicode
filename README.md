@@ -80,6 +80,40 @@ Autotroubleshoot: `install\Doctor.cmd`. Details: [docs/ZAICODE_INSTALL.md](https
 
 <img width="1440" height="860" alt="2026-09-25_182339" src="https://github.com/user-attachments/assets/7c9b723e-9610-4f5e-9463-7cc412621348" />
 
+### SAI Accounts is optional
+
+ZAICODE configures and uses its own accounts on its own. If the **SAI Accounts**
+control plane happens to be installed on this machine, ZAICODE asks it for shared
+accounts belonging to the providers ZAICODE actually implements, and adds the
+ones it recognises — no setting, no import step. If the plane is absent,
+stopped, broken or uninstalled, nothing here changes. **Nothing in this README
+requires anything else to be installed.**
+
+Four rules govern the optional federation:
+
+- **Your accounts stay yours.** A shared account is added alongside your own; it
+  never replaces one, and its canonical id lives in a namespace that cannot
+  collide with a ZAICODE provider id.
+- **Merge only on proven identity.** Two records collapse into one only when a
+  stable identity locator proves they are the same account. A matching display
+  name is never evidence; where identity cannot be proven, both records are
+  shown separately.
+- **Unavailable with a reason, never silently re-read.** A shared account is
+  read *through* the plane, which owns that identity. If the plane cannot
+  answer, the account reports `offline`, `auth_required` or `unavailable` — it
+  is never quietly re-read through a local path that belongs to a different
+  account.
+- **Local settings stay local.** Which providers an account is bound to, and
+  whether it is enabled here, are ZAICODE's own settings. Hiding or disabling an
+  account in the shared registry is a *global* action and a separate concept.
+
+The integration is read-only: the plane is asked for account metadata and
+nothing else, and no token, session cookie or credential blob is ever read,
+copied, exported or written. Today the plane publishes no accounts for
+ZAICODE's own providers, so the honest answer is an empty list — and the code
+that adds them the day it does is already there and already tested.
+
+
 
 ## Build
 

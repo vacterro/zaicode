@@ -15,9 +15,13 @@ export interface ZaicodeRect {
 export type ZaicodeSplitDirection = "row" | "column" | "grid";
 
 /** Fractions summing to 1; a wrong length (panes added / removed) resets to even. */
-export function normalizeZaicodeSplitSizes(sizes: readonly number[] | undefined, count: number): number[] {
+export function normalizeZaicodeSplitSizes(
+  sizes: readonly number[] | undefined,
+  count: number,
+): number[] {
   if (count <= 0) return [];
-  if (!sizes || sizes.length !== count || sizes.some((size) => !(size > 0))) return evenZaicodeSplitSizes(count);
+  if (!sizes || sizes.length !== count || sizes.some((size) => !(size > 0)))
+    return evenZaicodeSplitSizes(count);
   const total = sizes.reduce((sum, size) => sum + size, 0);
   return sizes.map((size) => size / total);
 }
@@ -62,7 +66,12 @@ export function layoutZaicodeSplit(
       const row = Math.floor(index / columns);
       const inRow = row === rows - 1 ? count - row * columns : columns;
       const column = index - row * columns;
-      rects.push({ x: (column / inRow) * 100, y: (row / rows) * 100, width: 100 / inRow, height: 100 / rows });
+      rects.push({
+        x: (column / inRow) * 100,
+        y: (row / rows) * 100,
+        width: 100 / inRow,
+        height: 100 / rows,
+      });
     }
     return rects;
   }
@@ -117,7 +126,10 @@ export function zaicodeSnapZoneAt(
 }
 
 /** Where a snap zone puts the window (the dock zone has no window rect). */
-export function zaicodeSnapZoneRect(zone: ZaicodeSnapZone, bounds: ZaicodeRect): ZaicodeRect | null {
+export function zaicodeSnapZoneRect(
+  zone: ZaicodeSnapZone,
+  bounds: ZaicodeRect,
+): ZaicodeRect | null {
   const halfW = Math.round(bounds.width / 2);
   const halfH = Math.round(bounds.height / 2);
   const { x, y, width, height } = bounds;
@@ -142,7 +154,12 @@ export function zaicodeSnapZoneRect(zone: ZaicodeSnapZone, bounds: ZaicodeRect):
 }
 
 /** The nearest candidate within `threshold` of either edge; 0 when none. */
-function magnetShift(start: number, end: number, candidates: readonly number[], threshold: number): number {
+function magnetShift(
+  start: number,
+  end: number,
+  candidates: readonly number[],
+  threshold: number,
+): number {
   let best = 0;
   let bestDistance = threshold + 1;
   for (const candidate of candidates) {
@@ -167,8 +184,16 @@ export function magnetZaicodeRect(
   bounds: ZaicodeRect,
   threshold: number,
 ): ZaicodeRect {
-  const xs = [bounds.x, bounds.x + bounds.width, ...others.flatMap((other) => [other.x, other.x + other.width])];
-  const ys = [bounds.y, bounds.y + bounds.height, ...others.flatMap((other) => [other.y, other.y + other.height])];
+  const xs = [
+    bounds.x,
+    bounds.x + bounds.width,
+    ...others.flatMap((other) => [other.x, other.x + other.width]),
+  ];
+  const ys = [
+    bounds.y,
+    bounds.y + bounds.height,
+    ...others.flatMap((other) => [other.y, other.y + other.height]),
+  ];
   return {
     ...rect,
     x: rect.x + magnetShift(rect.x, rect.x + rect.width, xs, threshold),
@@ -183,8 +208,14 @@ export function magnetZaicodeResize(
   bounds: ZaicodeRect,
   threshold: number,
 ): ZaicodeRect {
-  const xs = [bounds.x + bounds.width, ...others.flatMap((other) => [other.x, other.x + other.width])];
-  const ys = [bounds.y + bounds.height, ...others.flatMap((other) => [other.y, other.y + other.height])];
+  const xs = [
+    bounds.x + bounds.width,
+    ...others.flatMap((other) => [other.x, other.x + other.width]),
+  ];
+  const ys = [
+    bounds.y + bounds.height,
+    ...others.flatMap((other) => [other.y, other.y + other.height]),
+  ];
   const right = rect.x + rect.width;
   const bottom = rect.y + rect.height;
   const dx = magnetShift(right, right, xs, threshold);
@@ -196,12 +227,23 @@ export const ZAICODE_WORKER_WINDOW_MIN = { width: 360, height: 180 } as const;
 
 /** Keeps a window at least its minimum size and its title bar inside the work area. */
 export function clampZaicodeWindowRect(rect: ZaicodeRect, bounds: ZaicodeRect): ZaicodeRect {
-  const width = Math.min(Math.max(ZAICODE_WORKER_WINDOW_MIN.width, rect.width), Math.max(ZAICODE_WORKER_WINDOW_MIN.width, bounds.width));
-  const height = Math.min(Math.max(ZAICODE_WORKER_WINDOW_MIN.height, rect.height), Math.max(ZAICODE_WORKER_WINDOW_MIN.height, bounds.height));
+  const width = Math.min(
+    Math.max(ZAICODE_WORKER_WINDOW_MIN.width, rect.width),
+    Math.max(ZAICODE_WORKER_WINDOW_MIN.width, bounds.width),
+  );
+  const height = Math.min(
+    Math.max(ZAICODE_WORKER_WINDOW_MIN.height, rect.height),
+    Math.max(ZAICODE_WORKER_WINDOW_MIN.height, bounds.height),
+  );
   const x = Math.min(Math.max(bounds.x - width + 120, rect.x), bounds.x + bounds.width - 120);
   const y = Math.min(Math.max(bounds.y, rect.y), bounds.y + bounds.height - 28);
   // SRC-038: whole pixels only -- a terminal on a half pixel is drawn blurred.
-  return { x: Math.round(x), y: Math.round(y), width: Math.round(width), height: Math.round(height) };
+  return {
+    x: Math.round(x),
+    y: Math.round(y),
+    width: Math.round(width),
+    height: Math.round(height),
+  };
 }
 
 /** A new window: 55% x 50% of the work area, cascaded 28 px per window already open. */
@@ -218,6 +260,14 @@ export function cascadeZaicodeWindowRect(bounds: ZaicodeRect, openCount: number)
 /** Edge the WORKERS panel docks to (mirrors ZaicodeWorkersPanelDock). */
 export type ZaicodeDockEdge = "bottom" | "left" | "right" | "top";
 
+/** 收起侧栏时只保留底部紧凑标题，释放宽度；原 dock/尺寸仍由偏好保留。 */
+export function zaicodeWorkersDisplayDock(
+  dock: ZaicodeDockEdge,
+  collapsed: boolean,
+): ZaicodeDockEdge {
+  return collapsed && (dock === "left" || dock === "right") ? "bottom" : dock;
+}
+
 /** SRC-046: dragging the WORKERS title snaps the panel to the edge nearest the pointer. */
 export function zaicodeDockForPoint(bounds: ZaicodeRect, x: number, y: number): ZaicodeDockEdge {
   const width = Math.max(1, bounds.width);
@@ -232,6 +282,9 @@ export function zaicodeDockForPoint(bounds: ZaicodeRect, x: number, y: number): 
 }
 
 /** In a narrow side column a side-by-side split is useless: panes stack instead. */
-export function zaicodeEffectiveSplit(direction: ZaicodeSplitDirection, dock: ZaicodeDockEdge): ZaicodeSplitDirection {
+export function zaicodeEffectiveSplit(
+  direction: ZaicodeSplitDirection,
+  dock: ZaicodeDockEdge,
+): ZaicodeSplitDirection {
   return (dock === "left" || dock === "right") && direction === "row" ? "column" : direction;
 }

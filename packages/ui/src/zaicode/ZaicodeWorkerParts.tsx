@@ -1,6 +1,8 @@
 import { useEffect, useState, useSyncExternalStore, type ReactNode } from "react";
 import {
   AppWindow,
+  ChevronDown,
+  ChevronUp,
   Copy,
   Maximize2,
   Minimize2,
@@ -149,6 +151,19 @@ export function ZaicodeWorkerIconButton({
     >
       {children}
     </button>
+  );
+}
+
+/** 面板收起按钮只发出布局命令；不能复用单个 worker 的最小化或关闭命令。 */
+export function ZaicodeWorkersPanelCollapseButton({ collapsed, onToggle }: { collapsed: boolean; onToggle: () => void }) {
+  return (
+    <ZaicodeWorkerIconButton
+      title={collapsed ? "Expand the panel (same workers)" : "Collapse the panel (workers keep running)"}
+      pressed={collapsed}
+      onClick={onToggle}
+    >
+      {collapsed ? <ChevronUp className="size-3.5" /> : <ChevronDown className="size-3.5" />}
+    </ZaicodeWorkerIconButton>
   );
 }
 

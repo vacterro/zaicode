@@ -32,6 +32,8 @@ export interface SidePaneTerminalSessionEntry {
   term: XTerm;
   fitAddon: FitAddon;
   terminalId: string;
+  /** 原生退出后仍保留 xterm 历史；同一 entry 拒绝再向已消失的 PTY 输入。 */
+  exited?: boolean;
   cwd: string;
   /**
    * 该 terminal 所属的 workspaceKey（= workspaceIdentity?.trim() || workspacePath）。

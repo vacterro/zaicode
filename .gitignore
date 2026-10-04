@@ -3,7 +3,9 @@ dist/
 # zcode-server-cli 发行包 staging 输出，本地组装产物不入库。
 dist-release/
 # 已验证旧包的本地备份不是源码；保留字节但不进入 Git 或 lint 的枚举。
-/.release-work/
+# 打包器实际写在 packages/desktop/.release-work/，锚定根目录的 /.release-work/
+# 匹配不到它，6.7 GB 产物会以单个未跟踪条目出现在 git status 里。
+.release-work/
 # macOS CI 按架构隔离 electron-builder 输出目录，这些仍是构建产物。
 packages/desktop/dist-*/
 out/

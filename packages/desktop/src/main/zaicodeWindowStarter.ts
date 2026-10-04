@@ -54,15 +54,26 @@ export function codexWindowStartArgs(): string[] {
   ];
 }
 
-/** Headless Flash request: the vendor still charges its actual input/output tokens. */
-export function antigravityWindowStartArgs(): string[] {
+/** One sandboxed request using a model actually advertised for this quota pool. */
+export function antigravityWindowStartArgs(windowKey: string, inventory: string): string[] | null {
+  const pool = windowKey.split("@")[1] ?? "gemini";
+  const models = inventory.split(/\r?\n/).map((line) => line.trim().split(/\s+/)[0] ?? "");
+  // 模型版本会下架；直接采用 CLI 当前广告，不能用 Gemini 请求冒充 Claude/GPT 池启动。
+  const patterns = /gemini/i.test(pool)
+    ? [/^gemini-[\d.]+-flash-low$/, /^gemini-[\d.]+-flash-medium$/]
+    : /claude|gpt/i.test(pool)
+      ? [/^gpt-oss-[\w.-]+$/, /^claude-sonnet-[\w.-]+-low$/]
+      : [];
+  const model = patterns.map((pattern) => models.filter((name) => pattern.test(name)).sort((left, right) => right.localeCompare(left, "en", { numeric: true }))[0]).find(Boolean);
+  if (!model) return null;
+  const effort = /-(low|medium|high)$/.exec(model)?.[1] ?? "low";
   return [
     "-p",
     ZAICODE_WINDOW_START_PROMPT,
     "--model",
-    "gemini-3.5-flash-medium",
+    model,
     "--effort",
-    "low",
+    effort,
     "--sandbox",
     "--output-format",
     "json",
@@ -158,7 +169,7 @@ export function readAntigravityWindowStart(ok: boolean, stdout: string, error: s
     return { ok: false, detail: typeof payload.error === "string" ? firstLine(payload.error) : error || "Antigravity did not complete" };
   }
   const tokens = payload.usage?.total_tokens;
-  return { ok: true, detail: `started with one Flash request${typeof tokens === "number" ? ` (${tokens} tokens)` : ""}` };
+  return { ok: true, detail: `completed one bounded Antigravity request${typeof tokens === "number" ? ` (${tokens} tokens)` : ""}` };
 }
 
 /** The response body is never included on failure: it may contain provider diagnostics. */

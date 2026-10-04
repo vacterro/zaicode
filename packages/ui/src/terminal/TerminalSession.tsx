@@ -171,7 +171,10 @@ export function TerminalSession({
       return;
     }
 
-    const terminalId = terminalIdRef.current;
+    const entry = persistentKey ? sidePaneTerminalSessionRegistry.get(persistentKey) : undefined;
+    const terminalId = persistentKey
+      ? entry && !entry.exited ? entry.terminalId : undefined
+      : terminalIdRef.current;
     const pendingSize = pendingTerminalSizeRef.current;
     if (!terminalId || !pendingSize) {
       return;
@@ -210,7 +213,7 @@ export function TerminalSession({
           flushTerminalServiceResize();
         }
       });
-  }, [services.terminalService, sessionId]);
+  }, [persistentKey, services.terminalService, sessionId]);
 
   const queueTerminalServiceResize = useCallback(
     (size: TerminalSize) => {
@@ -574,6 +577,7 @@ export function TerminalSession({
       };
       entry.dispose = () => {
         ptyCancelled = true;
+        entry.exited = true;
         for (const d of registryDisposers) {
           try {
             d.dispose();
@@ -655,9 +659,19 @@ export function TerminalSession({
           // ZAICODE：worker 控制入口（自动回答信任提问、重绘），随 entry 注销。
           let initialInputSent = !initialInput;
           let initialInputAcknowledged = !initialInput;
+          // xterm 与 IME 订阅为保留历史而常驻；原生 PTY 退出/替换后必须在唯一 entry 上关闭输入授权。
+          const isCurrentTerminal = () =>
+            sidePaneTerminalSessionRegistry.get(persistentKey) === entry &&
+            entry.terminalId === id && !entry.exited;
+          const writeInput = (data: string) => {
+            if (!isCurrentTerminal()) return;
+            void services.terminalService.write({ id, data })
+              .catch((error: unknown) => logger.warn("[Terminal] persistent input failed:", error));
+          };
           const control = {
-            write: (input: string) => void services.terminalService.write({ id, data: input }),
+            write: writeInput,
             redraw: () => {
+              if (!isCurrentTerminal()) return;
               // 部分 TUI（如 Claude Code 的侧栏布局）在 reflow 后残留旧帧；改一列再改回，逼它整屏重绘。
               const cols = term.cols;
               const rows = term.rows;
@@ -665,7 +679,7 @@ export function TerminalSession({
               void services.terminalService
                 .resize({ id, cols: cols - 1, rows })
                 .then(() => new Promise((resolve) => window.setTimeout(resolve, 80)))
-                .then(() => services.terminalService.resize({ id, cols, rows }))
+                .then(() => { if (isCurrentTerminal()) return services.terminalService.resize({ id, cols, rows }); })
                 .catch((error: unknown) => logger.warn("[Terminal] redraw failed:", error));
             },
           };
@@ -678,10 +692,7 @@ export function TerminalSession({
                 ? {
                     extractToPowerShell: async () => {
                       // 移动/隐藏仅卸载组件，PTY 仍属 registry；组件的取消标志不能否定活着的 worker。
-                      if (
-                        sidePaneTerminalSessionRegistry.get(persistentKey) !== entry ||
-                        entry.terminalId !== id
-                      )
+                      if (!isCurrentTerminal())
                         throw new Error("Worker terminal is no longer current");
                       return services.terminalService.extractToPowerShell!({ id });
                     },
@@ -695,13 +706,13 @@ export function TerminalSession({
             const sendInitialInput = () => {
               // The worker may move between containers (remount) before its first
               // prompt: the PTY lives as long as its registry entry, not this effect.
-              if (initialInputSent || sidePaneTerminalSessionRegistry.get(persistentKey) !== entry)
+              if (initialInputSent || !isCurrentTerminal())
                 return;
               initialInputSent = true;
               void services.terminalService
                 .write({ id, data: `${initialInput}\r` })
                 .then(() => {
-                  if (sidePaneTerminalSessionRegistry.get(persistentKey) !== entry) return;
+                  if (!isCurrentTerminal()) return;
                   initialInputAcknowledged = true;
                   unregisterControl();
                   unregisterControl = publishControl();
@@ -720,6 +731,9 @@ export function TerminalSession({
           // exit 订阅（进 registry，与原路径对称：有 onExit 则回调，否则写退出提示）
           registryDisposers.push(
             services.terminalService.onDynamicExit(id)((exitCode) => {
+              // 先关闭原生输入并撤销按钮能力，再通知 Worker；保留最终输出与原 terminalId 供历史显示。
+              entry.exited = true;
+              unregisterControl();
               const exitHandler = exitHandlerRef.current;
               logger.info("[Terminal] persistent session exited", {
                 autoClose: Boolean(exitHandler),
@@ -769,7 +783,7 @@ export function TerminalSession({
                 inputFallbackKeydownCandidateRef.current = null;
               }
               markTerminalInputFallbackHandled(pendingInputFallbacksRef.current, data);
-              void services.terminalService.write({ id, data });
+              writeInput(data);
             }),
           );
 
@@ -799,7 +813,7 @@ export function TerminalSession({
                 );
                 // 不检查 ptyCancelled：订阅已随 entry 常驻（registryDisposers），
                 // ptyCancelled 是单次 effect 闭包变量，detach 后会变 true 导致 fallback 永久失效。
-                // release 时 entry.dispose 会移除本监听；PTY disposed 后 write 为 no-op，安全。
+                // release 会移除监听，但已排队的回调仍可能到达；writeInput 校验同一 entry 的原生生命周期。
                 const fallbackAction = resolveTerminalInputFallbackAction({
                   pending: pendingFallback,
                   textareaValue: textarea.value,
@@ -810,7 +824,7 @@ export function TerminalSession({
                     terminalId: id,
                     terminalTabId: sessionId,
                   });
-                  void services.terminalService.write({ id, data: insertedText });
+                  writeInput(insertedText);
                 }
                 if (fallbackAction.shouldClearTextarea) {
                   textarea.value = "";

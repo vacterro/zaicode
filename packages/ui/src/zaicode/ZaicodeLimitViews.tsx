@@ -174,13 +174,14 @@ export function ZaicodeAccountLimits({
   );
 }
 
-/** T-136: "window started by ZAICODE 12 min ago" / "window start failed 3 min ago: <why>". */
+/** Request completion is separate from the vendor-backed countdown above it. */
 export function describeZaicodeWindowStart(
   record: { at: number; ok: boolean; detail: string },
   now: number,
 ): string {
   const ago = `${formatZaicodeDuration(Math.max(0, now - record.at))} ago`;
-  return record.ok ? `window started by ZAICODE ${ago}` : `window start failed ${ago}: ${record.detail}`;
+  // CLI 完成只证明请求被接受；是否真的运行由供应商 quota/reset 决定。
+  return record.ok ? `window start request accepted ${ago}` : `window start failed ${ago}: ${record.detail}`;
 }
 
 /** FastPrompter "AI Usage Limits" panel: every visible account, grouped. */

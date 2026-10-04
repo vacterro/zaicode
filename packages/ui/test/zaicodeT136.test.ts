@@ -166,7 +166,7 @@ test("a start is not repeated inside its cooldown, a refused one waits an hour",
 });
 
 test("the limits panel says who started the window", () => {
-  assert.match(describeZaicodeWindowStart({ at: NOW - 12 * 60_000, ok: true, detail: "x" }, NOW), /^window started by ZAICODE 12m? ago|^window started by ZAICODE/);
+  assert.equal(describeZaicodeWindowStart({ at: NOW - 12 * 60_000, ok: true, detail: "x" }, NOW), "window start request accepted 12m ago");
   assert.match(describeZaicodeWindowStart({ at: NOW, ok: false, detail: "not logged in" }, NOW), /failed .*not logged in/);
 });
 

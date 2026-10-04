@@ -109,24 +109,25 @@ function idleWindow(readAt: number, key = "five_hour", at = 0): ZaicodeLimitWind
   };
 }
 
-test("an unstarted 5 h window starts at exactly 0% consumed and counts down", () => {
+test("an unstarted 5 h window stays pending until a real vendor-backed start", () => {
   const readAt = Date.parse("2026-10-01T09:00:00Z");
   const [window] = markZaicodeWindowsStartingOnUse([idleWindow(readAt)], readAt);
   assert.ok(window);
   assert.equal(window.startsOnUse, true, "the vendor still has not seen a request");
-  assert.equal(isZaicodeRollingWindow(window), true);
-  assert.equal(window.remainingPercent, 100, "the window opens at 0% consumption");
-  assert.equal(window.resetsAt, readAt + FIVE_HOURS, "and runs a full 5 h from the first read");
-  assert.equal(isZaicodeRealReset(window, readAt), true, "a real coming refill, so the timer counts it down");
+  assert.equal(isZaicodeRollingWindow(window), false);
+  assert.equal(window.remainingPercent, 100, "keep the vendor's full quota");
+  assert.equal(window.resetsAt, readAt + FIVE_HOURS, "retain vendor telemetry without promoting it to a refill");
+  assert.equal(isZaicodeRealReset(window, readAt), false, "a read is not a real start");
 });
 
 test("the countdown is anchored, not restarted by the next sweep", () => {
   const first = Date.parse("2026-10-01T09:00:00Z");
   const later = first + 4 * 60_000;
-  const [opened] = markZaicodeWindowsStartingOnUse([idleWindow(first)], first);
+  const receipt = { at: first, ok: true, detail: "real completion" };
+  const [opened] = markZaicodeWindowsStartingOnUse([idleWindow(first)], first + 20_000, receipt);
   assert.ok(opened);
-  const [swept] = markZaicodeWindowsStartingOnUse([idleWindow(later)], later, null, [opened]);
-  assert.equal(swept.resetsAt, first + FIVE_HOURS, "the vendor sliding its reset must not slide ours");
+  const [swept] = markZaicodeWindowsStartingOnUse([{ ...idleWindow(later), resetsAt: first + FIVE_HOURS }], later, receipt, [opened]);
+  assert.equal(swept.resetsAt, first + FIVE_HOURS, "the real vendor reset remains fixed");
   assert.equal(swept.rollingFrom, first);
 });
 
@@ -173,7 +174,7 @@ test("Antigravity keeps a bucket that has a reset time but no fraction yet", () 
 
 test("the title timer counts down a rolling 5 h window instead of standing still", () => {
   const readAt = Date.parse("2026-10-01T09:00:00Z");
-  const [window] = markZaicodeWindowsStartingOnUse([idleWindow(readAt)], readAt);
+  const [window] = markZaicodeWindowsStartingOnUse([idleWindow(readAt)], readAt + 20_000, { at: readAt, ok: true, detail: "real completion" });
   assert.ok(window);
   const rows = zaicodeResetRows(
     [{ id: "antigravity:default", short: "AG", label: "Antigravity", vendor: "antigravity" }],

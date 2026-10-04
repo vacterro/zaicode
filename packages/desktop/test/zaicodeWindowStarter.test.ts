@@ -64,10 +64,11 @@ test("codex exec: exit 0 started, anything else is a failure", () => {
 });
 
 test("Antigravity starts with one sandboxed low-effort Flash request", () => {
-  const args = antigravityWindowStartArgs();
+  const args = antigravityWindowStartArgs("five_hour@gemini_models", "gemini-3.8-flash-low\tFlash");
+  assert.ok(args);
   assert.equal(args[0], "-p");
   assert.equal(args[args.indexOf("--output-format") + 1], "json");
-  assert.equal(args[args.indexOf("--model") + 1], "gemini-3.5-flash-medium");
+  assert.equal(args[args.indexOf("--model") + 1], "gemini-3.8-flash-low");
   assert.equal(args[args.indexOf("--effort") + 1], "low");
   assert.ok(args.includes("--sandbox"));
   assert.ok(!args.includes("--dangerously-skip-permissions"));

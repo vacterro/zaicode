@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  ChevronDown,
   Columns3,
   Grid2x2,
   Maximize2,
@@ -23,21 +22,21 @@ import {
   normalizeZaicodeSplitSizes,
   resizeZaicodeSplit,
   zaicodeEffectiveSplit,
+  zaicodeWorkersDisplayDock,
 } from "./zaicodeWorkerLayout.js";
 import {
   ZAICODE_DOCK_BORDER,
   ZAICODE_DOCK_GROWTH,
-  ZAICODE_DOCK_HANDLE,
   ZAICODE_DOCK_ICON,
   ZAICODE_DOCK_LABEL,
   ZAICODE_DOCK_NEXT,
   ZaicodeWorkersDockMenuItems,
+  ZaicodeWorkersPanelResizeHandle,
   redrawZaicodeWorkers,
   setZaicodeWorkersDock,
   startZaicodeDockDrag,
 } from "./zaicodePanelDock.js";
 import {
-  hideZaicodeWorkersPanel,
   moveZaicodeWorker,
   openZaicodeShellWorker,
   raiseZaicodeWorker,
@@ -55,6 +54,7 @@ import {
   ZaicodeWorkerLabel,
   ZaicodeWorkerMenuItems,
   ZaicodeWorkerTerminal,
+  ZaicodeWorkersPanelCollapseButton,
   useZaicodeNow,
   zaicodeWorkerStatus,
 } from "./ZaicodeWorkerParts.js";
@@ -76,6 +76,8 @@ export function ZaicodeWorkersPanel({ services }: { services: IServiceAccessor }
   const now = useZaicodeNow(30_000, zaicodeAnyWorkerRunning(state.workers));
   const bodyRef = useRef<HTMLDivElement>(null);
   const dock = prefs.panelDock;
+  const collapsed = prefs.panelCollapsed;
+  const displayDock = zaicodeWorkersDisplayDock(dock, collapsed);
   const vertical = dock === "left" || dock === "right";
   const storedSize = vertical ? prefs.panelWidth : prefs.panelHeight;
   const minSize = vertical ? ZAICODE_WORKERS_PANEL_MIN_WIDTH : ZAICODE_WORKERS_PANEL_MIN;
@@ -173,9 +175,11 @@ export function ZaicodeWorkersPanel({ services }: { services: IServiceAccessor }
   const elsewhere = state.workers.length - panelWorkers.length;
   const DockIcon = ZAICODE_DOCK_ICON[dock];
   const visibleIds = panelWorkers
-    .filter((worker) => (layout === "tabs" ? worker.id === active?.id : solo ? worker.id === solo.id : true))
+    .filter((worker) => !collapsed && (layout === "tabs" ? worker.id === active?.id : solo ? worker.id === solo.id : true))
     .map((worker) => worker.id);
-  const frameStyle = vertical
+  const frameStyle = collapsed
+    ? { height: 24, minHeight: 24, maxHeight: 24 }
+    : vertical
     ? state.panelMaximized
       ? { width: "calc(100% - 160px)" }
       : { width: size, maxWidth: "calc(100% - 160px)", minWidth: minSize }
@@ -187,22 +191,15 @@ export function ZaicodeWorkersPanel({ services }: { services: IServiceAccessor }
     <div
       className={cn(
         "relative flex shrink-0 flex-col border-[var(--zaicode-highlight,var(--color-border-hover))] bg-background",
-        ZAICODE_DOCK_BORDER[dock],
+        ZAICODE_DOCK_BORDER[displayDock],
       )}
       style={frameStyle}
       data-zaicode-workers-panel={layout}
       data-zaicode-help="workers"
       data-zaicode-workers-panel-dock={dock}
+      data-zaicode-workers-panel-collapsed={String(collapsed)}
     >
-      <div
-        role="separator"
-        aria-orientation={vertical ? "vertical" : "horizontal"}
-        aria-label="Resize the WORKERS panel (double-click: maximize)"
-        title="Drag to resize · double-click: maximize / restore"
-        className={cn("absolute z-10 hover:bg-[var(--zaicode-highlight,var(--color-border-hover))]/40", ZAICODE_DOCK_HANDLE[dock])}
-        onPointerDown={beginSizeDrag}
-        onDoubleClick={() => setZaicodeWorkersPanelMaximized(!state.panelMaximized)}
-      />
+      <ZaicodeWorkersPanelResizeHandle dock={dock} collapsed={collapsed} onResize={beginSizeDrag} onMaximize={() => setZaicodeWorkersPanelMaximized(!state.panelMaximized)} />
       <div className="flex h-6 shrink-0 items-center gap-1 border-b border-border bg-card px-1.5 text-ui-xs">
         <ContextMenu>
           <ContextMenuTrigger asChild>
@@ -241,7 +238,11 @@ export function ZaicodeWorkersPanel({ services }: { services: IServiceAccessor }
                         : "border-transparent hover:border-border",
                       dragId && dragId !== worker.id && "border-dashed",
                     )}
-                    onClick={() => (layout === "split" && state.soloId ? soloZaicodeWorker(worker.id) : raiseZaicodeWorker(worker.id))}
+                    onClick={() => {
+                      if (collapsed) useZaicodeWorkerPrefs.getState().update({ panelCollapsed: false });
+                      if (layout === "split" && state.soloId) soloZaicodeWorker(worker.id);
+                      else raiseZaicodeWorker(worker.id);
+                    }}
                     onDragStart={(event) => {
                       setDragId(worker.id);
                       event.dataTransfer.effectAllowed = "move";
@@ -322,16 +323,18 @@ export function ZaicodeWorkersPanel({ services }: { services: IServiceAccessor }
           </ZaicodeWorkerIconButton>
           <ZaicodeWorkerIconButton
             title={state.panelMaximized ? "Restore the panel size" : "Maximize the panel"}
-            onClick={() => setZaicodeWorkersPanelMaximized(!state.panelMaximized)}
+            onClick={() => {
+              if (collapsed) useZaicodeWorkerPrefs.getState().update({ panelCollapsed: false });
+              setZaicodeWorkersPanelMaximized(!state.panelMaximized);
+            }}
           >
             {state.panelMaximized ? <Minimize2 className="size-3.5" /> : <Maximize2 className="size-3.5" />}
           </ZaicodeWorkerIconButton>
-          <ZaicodeWorkerIconButton title="Hide the panel (workers keep running)" onClick={hideZaicodeWorkersPanel}>
-            <ChevronDown className="size-3.5" />
-          </ZaicodeWorkerIconButton>
+          <ZaicodeWorkersPanelCollapseButton collapsed={collapsed} onToggle={() => useZaicodeWorkerPrefs.getState().update({ panelCollapsed: !collapsed })} />
         </span>
       </div>
-      <div ref={bodyRef} className="relative min-h-0 flex-1 overflow-hidden" data-zaicode-workers-body>
+      {/* 收起仅隐藏正文，保留 TerminalSession/PTY 身份；不能把标题点击变成整个终端子树卸载。 */}
+      <div ref={bodyRef} className={cn("relative min-h-0 flex-1 overflow-hidden", collapsed && "hidden")} data-zaicode-workers-body>
         {panelWorkers.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center gap-1 text-ui-xs text-foreground-subtle">
             <span>No worker is docked here.</span>

@@ -9,6 +9,7 @@ import { basename, delimiter, dirname, join, resolve } from "node:path";
 import {
   markZaicodeWindowsStartingOnUse,
   normalizeZaicodeEnginesConfig,
+  isZaicodeWindowWaitingForFirstUse,
   parseAntigravityUsage,
   parseClaudeUsageText,
   parseCodexRateLimits,
@@ -22,6 +23,7 @@ import {
   type ZaicodeEnginesState,
   type ZaicodeLimitSnapshot,
   type ZaicodeLimitWindow,
+  type ZaicodeWindowStartRecord,
   describeZaicodeResetOutcome,
   type ZaicodeResetConsumeResult,
   type ZaicodeResetCredits,
@@ -974,7 +976,12 @@ function persistCache(): void {
 function loadCache(): void {
   const cached = readJson(userDataFile(CACHE_FILE)) as { limits?: unknown; lastSweepAt?: unknown } | null;
   if (cached?.limits && typeof cached.limits === "object") {
-    limits = cached.limits as Record<string, ZaicodeLimitSnapshot>;
+    const saved = cached.limits as Record<string, ZaicodeLimitSnapshot>;
+    // 首次广播前撤掉旧缓存的虚构锚点，保留真实请求与供应商 reset 的匹配证据。
+    limits = Object.fromEntries(Object.entries(saved).filter(([, snapshot]) => Array.isArray(snapshot?.windows)).map(([id, snapshot]) => [id, {
+      ...snapshot,
+      windows: markZaicodeWindowsStartingOnUse(snapshot.windows, Date.now(), snapshot.windowStart, null, snapshot.windowStarts),
+    }]));
   }
   if (typeof cached?.lastSweepAt === "number") lastSweepAt = cached.lastSweepAt;
 }
@@ -996,6 +1003,7 @@ async function probeAccount(account: ZaicodeEngineAccount): Promise<void> {
         // SRC-116: a sign-in flap must not forget that this account's window was already
         // started, or the next sweep starts it again and the cooldown never means anything.
         ...(previous?.windowStart ? { windowStart: previous.windowStart } : {}),
+        ...(previous?.windowStarts ? { windowStarts: previous.windowStarts } : {}),
       },
     };
     return;
@@ -1026,7 +1034,7 @@ async function probeAccount(account: ZaicodeEngineAccount): Promise<void> {
     [account.id]: success
       ? {
           accountId: account.id,
-          windows: markZaicodeWindowsStartingOnUse(outcome.windows, now, previous?.windowStart, previous?.windows),
+          windows: markZaicodeWindowsStartingOnUse(outcome.windows, now, previous?.windowStart, previous?.windows, previous?.windowStarts),
           plan: outcome.plan,
           fetchedAt: now,
           checkedAt: now,
@@ -1034,6 +1042,7 @@ async function probeAccount(account: ZaicodeEngineAccount): Promise<void> {
           source: outcome.source,
           ...(outcome.resetCredits !== undefined ? { resetCredits: outcome.resetCredits } : {}),
           ...(previous?.windowStart ? { windowStart: previous.windowStart } : {}),
+          ...(previous?.windowStarts ? { windowStarts: previous.windowStarts } : {}),
         }
       : {
           accountId: account.id,
@@ -1047,11 +1056,12 @@ async function probeAccount(account: ZaicodeEngineAccount): Promise<void> {
           // A read that failed does not forget the credits the last good read found.
           ...(previous?.resetCredits !== undefined ? { resetCredits: previous.resetCredits } : {}),
           ...(previous?.windowStart ? { windowStart: previous.windowStart } : {}),
+          ...(previous?.windowStarts ? { windowStarts: previous.windowStarts } : {}),
         },
   };
   const idleWindow = zaicodeIdleWindowToStart({ account, snapshot: limits[account.id], config, now });
   if (idleWindow) {
-    void startIdleWindow(account, idleWindow.key);
+    void startIdleWindow(account, idleWindow);
   }
 }
 
@@ -1064,9 +1074,20 @@ const WINDOW_START_REREAD_MS = 20_000;
  * zaicodeWindowStarter.ts), records the attempt on the account's snapshot, then reads the
  * account again. One start per account at a time; the cooldown lives in the snapshot record.
  */
-async function startIdleWindow(account: ZaicodeEngineAccount, windowKey: string): Promise<void> {
+async function startIdleWindow(account: ZaicodeEngineAccount, window: ZaicodeLimitWindow): Promise<void> {
   if ((account.vendor !== "zcode" && !account.cli) || startingWindows.has(account.id)) return;
   startingWindows.add(account.id);
+  const startedAt = Date.now();
+  const windowKey = window.key;
+  const initial = limits[account.id];
+  const keys = (initial?.windows ?? []).filter((candidate) => candidate.group === window.group && candidate.gatedBy === null && isZaicodeWindowWaitingForFirstUse(candidate)).map((candidate) => candidate.key);
+  const pending: ZaicodeWindowStartRecord = { at: startedAt, ok: false, detail: "window start pending", windowKey };
+  if (initial) {
+    // 先持久化 admission；进程在请求后崩溃也不能在重启时立刻重发付费请求。
+    limits = { ...limits, [account.id]: { ...initial, windowStarts: { ...initial.windowStarts, ...Object.fromEntries(keys.map((key) => [key, { ...pending, windowKey: key }])) } } };
+    persistCache();
+    broadcast();
+  }
   let outcome: ZaicodeWindowStartOutcome;
   try {
     if (account.vendor === "claude") {
@@ -1084,18 +1105,18 @@ async function startIdleWindow(account: ZaicodeEngineAccount, windowKey: string)
       });
       outcome = readCodexWindowStart(result.ok, result.stdout, result.error);
     } else if (account.vendor === "antigravity") {
-      const result = await runCli(account.cli, antigravityWindowStartArgs(), {
-        cwd: probeDir(),
-        timeoutMs: AGY_TIMEOUT_MS,
-        env: probeEnv({
-          SSH_CONNECTION: null,
-          SSH_TTY: null,
-          AGY_CLI_INTERACTIVE_HEADLESS: null,
-          BROWSER: join(SYSTEM_ROOT, "System32", "where.exe"),
-          AGY_CLI_DISABLE_AUTO_UPDATE: "true",
-        }),
-      });
-      outcome = readAntigravityWindowStart(result.ok, result.stdout, result.error);
+      const options = {
+        cwd: probeDir(), timeoutMs: AGY_TIMEOUT_MS,
+        env: probeEnv({ SSH_CONNECTION: null, SSH_TTY: null, AGY_CLI_INTERACTIVE_HEADLESS: null, BROWSER: join(SYSTEM_ROOT, "System32", "where.exe"), AGY_CLI_DISABLE_AUTO_UPDATE: "true" }),
+      };
+      const inventory = await runCli(account.cli, ["models"], options);
+      const args = inventory.ok ? antigravityWindowStartArgs(windowKey, inventory.stdout) : null;
+      if (!args) {
+        outcome = { ok: false, detail: inventory.ok ? "auto-start unsupported: no advertised model for this quota pool" : "auto-start unavailable: model inventory read failed" };
+      } else {
+        const result = await runCli(account.cli, args, options);
+        outcome = readAntigravityWindowStart(result.ok, result.stdout, result.error);
+      }
     } else if (account.vendor === "zcode") {
       const entry = readZcodePlanEntries()[0];
       const request = entry ? zcodeWindowStartRequest(entry.baseUrl, entry.id) : null;
@@ -1115,7 +1136,12 @@ async function startIdleWindow(account: ZaicodeEngineAccount, windowKey: string)
   }
   const current = limits[account.id];
   if (current) {
-    limits = { ...limits, [account.id]: { ...current, windowStart: { at: Date.now(), ...outcome, windowKey } } };
+    const completed = { ...pending, ...outcome };
+    const windowStarts = { ...current.windowStarts };
+    for (const key of keys) {
+      if (windowStarts[key]?.at === startedAt) windowStarts[key] = { ...completed, windowKey: key };
+    }
+    limits = { ...limits, [account.id]: { ...current, ...((current.windowStart?.at ?? -Infinity) <= startedAt ? { windowStart: completed } : {}), windowStarts } };
     persistCache();
     broadcast();
   }

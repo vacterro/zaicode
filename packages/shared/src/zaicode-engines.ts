@@ -93,10 +93,8 @@ export interface ZaicodeLimitWindow {
    */
   startsOnUse?: boolean;
   /**
-   * T-143: the moment ZAICODE first saw this unstarted window. Antigravity and ZCode
-   * never confirm the start (no CLI request we can make moves their clock), so the
-   * window is presented as running from this moment: 0% consumed, counting down,
-   * anchored here so the countdown does not restart on every sweep.
+   * A successful start timestamp backed by the matching vendor reset. Legacy
+   * locally synthesized anchors are discarded on the next read without that proof.
    */
   rollingFrom?: number;
 }
@@ -120,6 +118,8 @@ export interface ZaicodeLimitSnapshot {
   resetCredits?: ZaicodeResetCredits | null;
   /** T-136: the last time ZAICODE started an idle window of this account with a tiny request. */
   windowStart?: ZaicodeWindowStartRecord | null;
+  /** Per-window attempts: another pool's result must not erase this pool's admission. */
+  windowStarts?: Record<string, ZaicodeWindowStartRecord>;
 }
 
 /** One start of an idle window (T-136): when, whether the vendor answered, in a few words. */
@@ -237,19 +237,22 @@ export function zaicodeIdleWindowToStart(params: {
   if (!ZAICODE_WINDOW_STARTER_VENDORS.includes(account.vendor)) return null;
   if (account.status !== "ready" || config.hiddenAccounts.includes(account.id)) return null;
   if (!snapshot || snapshot.error !== null) return null;
-  const last = snapshot.windowStart;
-  const wait = last?.ok ? ZAICODE_WINDOW_START_COOLDOWN_MS : last ? ZAICODE_WINDOW_START_RETRY_MS : 0;
-  const inCooldown = last !== null && last !== undefined && now - last.at < wait;
-  // A record written before window keys existed names no window, so it holds the whole account.
-  const holdsWindow = (key: string): boolean =>
-    inCooldown && (last?.windowKey === undefined || last.windowKey === key);
-  const idle = snapshot.windows.find(
+  const holdsWindow = (window: ZaicodeLimitWindow): boolean => {
+    const last = windowStartFor(window.key, snapshot.windowStart, snapshot.windowStarts);
+    if (!last) return false;
+    // 成功请求按真实窗口去重；15 分钟账户级冷却会在另一池刷新后反复花额度。
+    const wait = last.ok && last.windowKey
+      ? Math.max((window.durationMinutes ?? 0) * 60_000, ZAICODE_WINDOW_START_COOLDOWN_MS)
+      : last.ok ? ZAICODE_WINDOW_START_COOLDOWN_MS : ZAICODE_WINDOW_START_RETRY_MS;
+    return now - last.at < wait;
+  };
+  const idle = [...snapshot.windows].sort((left, right) => (left.durationMinutes ?? Infinity) - (right.durationMinutes ?? Infinity)).find(
     (window) =>
       !isZaicodeReserveWindow(window) &&
       isZaicodeWindowWaitingForFirstUse(window) &&
       window.gatedBy === null &&
       window.remainingPercent !== 0 &&
-      !holdsWindow(window.key),
+      !holdsWindow(window),
   );
   if (!idle) return null;
   // 主额度耗尽时不能为待命储备触发默认模型请求；储备只供支持它的模型使用。
@@ -324,24 +327,33 @@ function makeWindow(partial: Partial<ZaicodeLimitWindow> & { key: string }): Zai
 /** How close to "read time + one full window" a reset must be to count as not started. */
 export const ZAICODE_IDLE_WINDOW_TOLERANCE_MS = 3 * 60_000;
 
+function windowStartFor(
+  key: string,
+  latest?: ZaicodeWindowStartRecord | null,
+  starts?: Record<string, ZaicodeWindowStartRecord> | null,
+): ZaicodeWindowStartRecord | null {
+  const record = starts?.[key] ?? latest;
+  return record && Number.isFinite(record.at) && (!record.windowKey || record.windowKey === key) ? record : null;
+}
+
 /**
  * Marks windows that have not started (SRC-048). A vendor that has seen no
  * request in the current window reports its reset as read time + the window's
  * length; read again five minutes later, it says the same "5 h" again. That is
  * not a coming refill, it is a window that starts with the first request.
  *
- * T-143: the operator never wants to read "starts on first use" under a spinner that
- * then stands still. Such a window is anchored to the first read that saw it idle and
- * presented as a live window from 0% consumed, so the countdown runs and never slides.
+ * An idle read is not a successful start. Only a matching completion followed by
+ * the vendor's fixed reset can make a rounded-full window count down.
  */
 export function markZaicodeWindowsStartingOnUse(
   windows: readonly ZaicodeLimitWindow[],
   readAt: number,
   previousStart?: ZaicodeWindowStartRecord | null,
-  previousWindows?: readonly ZaicodeLimitWindow[] | null,
+  _previousWindows?: readonly ZaicodeLimitWindow[] | null,
+  previousStarts?: Record<string, ZaicodeWindowStartRecord> | null,
 ): ZaicodeLimitWindow[] {
-  const previousByKey = new Map((previousWindows ?? []).map((window) => [window.key, window]));
   return windows.map((window) => {
+    const previous = windowStartFor(window.key, previousStart, previousStarts);
     const minutes = window.durationMinutes;
     const looksIdle =
       window.resetsAt !== null &&
@@ -351,49 +363,35 @@ export function markZaicodeWindowsStartingOnUse(
     const durationMs = (minutes ?? 0) * 60_000;
     // 首次消费可能被供应商四舍五入成 0%；成功请求后的固定 reset 时间才证明窗口已启动。
     const anchoredAfterStart =
-      previousStart?.ok === true &&
+      previous?.ok === true &&
       window.resetsAt !== null &&
-      readAt - previousStart.at >= 10_000 &&
-      readAt - previousStart.at < durationMs &&
+      readAt - previous.at >= 10_000 &&
+      readAt - previous.at < durationMs &&
       window.resetsAt > readAt &&
-      window.resetsAt <= previousStart.at + durationMs + 5_000;
-    // SRC-116: a window persisted as "waiting for its first request" is unstarted by definition.
-    // A cache written before this anchor existed kept that shape forever (the account is only
-    // swept while visible and read without error), so the operator kept reading "starts on
-    // first use" under a countdown that never moved. Heal it on the first read that sees it.
-    const waitingFromCache = isZaicodeWindowWaitingForFirstUse(window);
+      window.resetsAt <= previous.at + durationMs + 5_000;
+    // 旧缓存的本地锚点不是供应商启动证据；必须保留待启动状态让 admission 可达。
+    const waitingFromCache = window.startsOnUse === true && !anchoredAfterStart;
     const idle =
       (looksIdle || waitingFromCache) &&
       !(window.remainingPercent !== null && window.remainingPercent < 100) &&
       !anchoredAfterStart;
     if (!idle) {
-      if (window.startsOnUse === false && window.rollingFrom === undefined) return window;
+      if (window.startsOnUse === false && window.rollingFrom === undefined && !anchoredAfterStart) return window;
       const { rollingFrom: _dropped, ...started } = window;
-      return { ...started, startsOnUse: false };
+      return {
+        ...started,
+        startsOnUse: false,
+        ...(anchoredAfterStart && window.remainingPercent === 100 ? { rollingFrom: previous!.at } : {}),
+      };
     }
-    // The anchor identifies a real window, so an expired one rolls forward in whole durations
-    // instead of restarting at a full window: re-anchoring to `readAt` is the "5 h again every
-    // 5 minutes" slide this function exists to kill.
-    const carried = previousByKey.get(window.key)?.rollingFrom;
-    const rollingFrom =
-      typeof carried === "number" && durationMs > 0
-        ? carried + Math.floor(Math.max(0, readAt - carried) / durationMs) * durationMs
-        : readAt;
-    return {
-      ...window,
-      startsOnUse: true,
-      rollingFrom,
-      // 起始即 0% 消费：第一次读到它就是这样，之后按锚点连续走。
-      remainingPercent: 100,
-      assumedFull: false,
-      resetsAt: durationMs > 0 ? rollingFrom + durationMs : window.resetsAt,
-    };
+    const { rollingFrom: _dropped, ...waiting } = window;
+    return { ...waiting, startsOnUse: true };
   });
 }
 
-/** T-143: an unstarted window ZAICODE keeps rolling itself has a real, local end time. */
+/** A rounded-full window with a vendor-backed start has a real coming reset. */
 export function isZaicodeRollingWindow(window: Pick<ZaicodeLimitWindow, "startsOnUse" | "rollingFrom">): boolean {
-  return window.startsOnUse === true && typeof window.rollingFrom === "number";
+  return typeof window.rollingFrom === "number";
 }
 
 /**

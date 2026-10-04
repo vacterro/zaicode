@@ -1,4 +1,5 @@
 import { ContextMenuItem } from "@/components/ui/context-menu.js";
+import { cn } from "@/components/lib/utils.js";
 import { PanelBottom, PanelLeft, PanelRight, PanelTop } from "lucide-react";
 import { create } from "zustand";
 import { terminalControl } from "@/terminal/terminalOutputTap.js";
@@ -41,6 +42,25 @@ export const ZAICODE_DOCK_GROWTH: Record<ZaicodeDockEdge, { axis: "x" | "y"; sig
   right: { axis: "x", sign: -1 },
   left: { axis: "x", sign: 1 },
 };
+
+/** 收起后的紧凑标题没有 resize 热区；手柄只投影父组件拥有的拖动/最大化命令。 */
+export function ZaicodeWorkersPanelResizeHandle({ dock, collapsed, onResize, onMaximize }: {
+  dock: ZaicodeDockEdge;
+  collapsed: boolean;
+  onResize: (event: React.PointerEvent) => void;
+  onMaximize: () => void;
+}) {
+  if (collapsed) return null;
+  return <div
+    role="separator"
+    aria-orientation={dock === "left" || dock === "right" ? "vertical" : "horizontal"}
+    aria-label="Resize the WORKERS panel (double-click: maximize)"
+    title="Drag to resize · double-click: maximize / restore"
+    className={cn("absolute z-10 hover:bg-[var(--zaicode-highlight,var(--color-border-hover))]/40", ZAICODE_DOCK_HANDLE[dock])}
+    onPointerDown={onResize}
+    onDoubleClick={onMaximize}
+  />;
+}
 const DRAG_THRESHOLD_PX = 6;
 
 export function setZaicodeWorkersDock(dock: ZaicodeDockEdge): void {

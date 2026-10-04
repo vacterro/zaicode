@@ -11,7 +11,12 @@ import { readZaicodeSetting } from "./zaicodeSettingsSnapshot.js";
 export type ZaicodeWorkerPlacement = "panel" | "window";
 export type ZaicodeWorkersPanelLayout = "split" | "tabs";
 export type ZaicodeWorkersSplit = "row" | "column" | "grid";
-export type ZaicodeWorkersTrayAnchor = "bottom-left" | "bottom-center" | "bottom-right" | "left" | "right";
+export type ZaicodeWorkersTrayAnchor =
+  | "bottom-left"
+  | "bottom-center"
+  | "bottom-right"
+  | "left"
+  | "right";
 export type ZaicodeWorkerFont = "terminus" | "profile" | "custom";
 /** Which edge of the workspace body the WORKERS panel docks to (SRC-046). */
 export type ZaicodeWorkersPanelDock = "bottom" | "left" | "right" | "top";
@@ -22,6 +27,8 @@ export interface ZaicodeWorkerPrefs {
   /** Where a newly started worker opens. */
   defaultPlacement: ZaicodeWorkerPlacement;
   panelLayout: ZaicodeWorkersPanelLayout;
+  /** Compact header only; worker runtime and stored expanded geometry are retained. */
+  panelCollapsed: boolean;
   splitDirection: ZaicodeWorkersSplit;
   /** Bottom panel height in CSS pixels. */
   panelHeight: number;
@@ -60,6 +67,7 @@ export interface ZaicodeWorkerPrefs {
 export const ZAICODE_WORKER_DEFAULT_PREFS: ZaicodeWorkerPrefs = {
   defaultPlacement: "panel",
   panelLayout: "split",
+  panelCollapsed: false,
   splitDirection: "row",
   panelHeight: 300,
   splitSizes: [],
@@ -87,20 +95,33 @@ const TERMINUS_FAMILY = '"Terminus (TTF) for Windows", "ZAICODE Terminus", Conso
 const STORAGE_KEY = "zaicode-workers-prefs-v1";
 
 const oneOf = <T extends string>(value: unknown, options: readonly T[], fallback: T): T =>
-  typeof value === "string" && (options as readonly string[]).includes(value) ? (value as T) : fallback;
+  typeof value === "string" && (options as readonly string[]).includes(value)
+    ? (value as T)
+    : fallback;
 
 export function normalizeZaicodeWorkerPrefs(raw: unknown): ZaicodeWorkerPrefs {
   const d = ZAICODE_WORKER_DEFAULT_PREFS;
-  const r = (raw && typeof raw === "object" ? raw : {}) as Partial<Record<keyof ZaicodeWorkerPrefs, unknown>>;
-  const flag = (value: unknown, fallback: boolean) => (typeof value === "boolean" ? value : fallback);
+  const r = (raw && typeof raw === "object" ? raw : {}) as Partial<
+    Record<keyof ZaicodeWorkerPrefs, unknown>
+  >;
+  const flag = (value: unknown, fallback: boolean) =>
+    typeof value === "boolean" ? value : fallback;
   const int = (value: unknown, min: number, max: number, fallback: number) =>
-    typeof value === "number" && Number.isFinite(value) ? Math.min(max, Math.max(min, Math.round(value))) : fallback;
+    typeof value === "number" && Number.isFinite(value)
+      ? Math.min(max, Math.max(min, Math.round(value)))
+      : fallback;
   const sizes = Array.isArray(r.splitSizes)
-    ? r.splitSizes.filter((value): value is number => typeof value === "number" && Number.isFinite(value) && value > 0).slice(0, 16)
+    ? r.splitSizes
+        .filter(
+          (value): value is number =>
+            typeof value === "number" && Number.isFinite(value) && value > 0,
+        )
+        .slice(0, 16)
     : [];
   return {
     defaultPlacement: oneOf(r.defaultPlacement, ["panel", "window"] as const, d.defaultPlacement),
     panelLayout: oneOf(r.panelLayout, ["split", "tabs"] as const, d.panelLayout),
+    panelCollapsed: flag(r.panelCollapsed, d.panelCollapsed),
     splitDirection: oneOf(r.splitDirection, ["row", "column", "grid"] as const, d.splitDirection),
     panelHeight: int(r.panelHeight, ZAICODE_WORKERS_PANEL_MIN, 4000, d.panelHeight),
     splitSizes: sizes,
@@ -159,9 +180,12 @@ export function readZaicodeWorkerPrefs(): ZaicodeWorkerPrefs {
 }
 
 /** The CSS font-family workers use, or undefined = the terminal profile's own font. */
-export function zaicodeWorkerFontFamily(prefs: Pick<ZaicodeWorkerPrefs, "font" | "customFont">): string | undefined {
+export function zaicodeWorkerFontFamily(
+  prefs: Pick<ZaicodeWorkerPrefs, "font" | "customFont">,
+): string | undefined {
   if (prefs.font === "terminus") return TERMINUS_FAMILY;
-  if (prefs.font === "custom" && prefs.customFont.trim()) return `${prefs.customFont.trim()}, monospace`;
+  if (prefs.font === "custom" && prefs.customFont.trim())
+    return `${prefs.customFont.trim()}, monospace`;
   return undefined;
 }
 
