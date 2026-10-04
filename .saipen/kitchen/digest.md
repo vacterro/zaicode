@@ -1,3 +1,4 @@
 done: T-199 native sliders follow the theme (zcode 9d6142da, slider near-white share 0.223 -> 0.000 measured in the packaged app, unit 2/2 with 2 mutants killed, oracle 7/7 twice, same verifier red on the pre-fix asar; SHIP blocked at RELEASE_FAILED STALE_PLAN)
-remaining: T-198, T-197 (2 actionable)
+remaining: none actionable (0)
 awaiting: operator decision on T-215/SRC-147 -- T-144 stale 29-path release scope refuses every local ship (release/Publish-Release.ps1 live 51cba333 vs reviewed 46b3e4a9)
+awaiting: operator answer for T-198 and T-197 -- both name their surface only through a screenshot this model cannot read; each ticket records the ranked candidates and the one word that unblocks it
