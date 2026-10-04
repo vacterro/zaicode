@@ -1178,3 +1178,4 @@
 - 04.10.26 12:00 [E-3644] [parent: E-3643] [agent: saipen-cli] [op: transition-dd6abe2d7df34cb5990fabcc2e5a20a9] DEC: goal_tickets 4->5
 - 04.10.26 12:01 [E-3645] [parent: E-3644] [T-190] [agent: saipen-cli] [op: transition-450ea394220947df81b6e2588a0f2c13] RUN: transition to SHIP -- Own patch at zcode 0e5ba34b (oracle) on bb9b6b89 (fix); nothing to publish from this workspace.
 - 04.10.26 12:01 [E-3646] [parent: E-3645] [T-190] [agent: saipen-cli] [op: finish-8ab6257b25e14a01b5d5ba18d4e4e6a1] DEC: ticket finished via SAIOPS -- completion (from SHIP)
+- 04.10.26 12:15 [E-3647] [parent: E-3646] [T-216] [agent: saipen-cli] [op: checkpoint-7e299935de224fc19f2916162bf07c32] DEC: detail_ref: .saipen/recovery/log-detail/E-3647-e4b0fb08446ff79504ea8963.json
