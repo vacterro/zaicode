@@ -23,6 +23,11 @@ export type ZaicodeClearMode = "session" | "new";
  * configured stays hidden behind a condition they have to rediscover.
  */
 export type ZaicodeActionView = "compact" | "full";
+/**
+ * SRC-135: who the auto-retry switch governs. `project` = only the project/session the
+ * composer it sits in; `global` = every ZAICODE session and project at once.
+ */
+export type ZaicodeAutoRetryScope = "project" | "global";
 
 export interface ZaicodeUiPrefs {
   // Home (empty draft) screen
@@ -47,6 +52,15 @@ export interface ZaicodeUiPrefs {
   autoRetry: boolean;
   autoRetryIntervalSec: number;
   autoRetryMaxAttempts: number;
+  /**
+   * SRC-135: whether the composer switch governs this project/session only or every
+   * ZAICODE session at once. "global" keeps the single switch that always existed;
+   * "project" is the one the operator asked for when a long handoff must not make
+   * every other workspace retry behind their back.
+   */
+  autoRetryScope: ZaicodeAutoRetryScope;
+  /** Per-project answers used only while the scope is "project"; kept when it goes back to "global". */
+  autoRetryProjects: Record<string, boolean>;
   /**
    * Auto-continue after a crash (SRC-044): sessions the dead process left
    * "running" in tasks-index, and goals that were still active, continue by
@@ -105,6 +119,8 @@ export const ZAICODE_UI_DEFAULT_PREFS: ZaicodeUiPrefs = {
   autoRetry: true,
   autoRetryIntervalSec: 60,
   autoRetryMaxAttempts: ZAICODE_AUTO_RETRY_DEFAULT_ATTEMPTS,
+  autoRetryScope: "global",
+  autoRetryProjects: {},
   resumeAfterCrash: true,
   resumeAfterCrashHours: 12,
   relaunchWorkersAfterCrash: true,
@@ -123,6 +139,16 @@ function int(value: unknown, min: number, max: number, fallback: number): number
   return typeof value === "number" && Number.isFinite(value)
     ? Math.min(max, Math.max(min, Math.round(value)))
     : fallback;
+}
+
+/** Keep only real boolean answers under string keys; the per-project map is user-writable. */
+function flags(value: unknown): Record<string, boolean> {
+  if (!value || typeof value !== "object") return {};
+  const out: Record<string, boolean> = {};
+  for (const [key, on] of Object.entries(value as Record<string, unknown>)) {
+    if (typeof on === "boolean") out[key] = on;
+  }
+  return out;
 }
 
 export function normalizeZaicodeUiPrefs(raw: unknown): ZaicodeUiPrefs {
@@ -154,6 +180,8 @@ export function normalizeZaicodeUiPrefs(raw: unknown): ZaicodeUiPrefs {
     autoRetry: flag(r.autoRetry, d.autoRetry),
     autoRetryIntervalSec: int(r.autoRetryIntervalSec, 10, 3600, d.autoRetryIntervalSec),
     autoRetryMaxAttempts: int(r.autoRetryMaxAttempts, 1, ZAICODE_AUTO_RETRY_HARD_CAP, d.autoRetryMaxAttempts),
+    autoRetryScope: r.autoRetryScope === "project" ? "project" : "global",
+    autoRetryProjects: flags(r.autoRetryProjects),
     resumeAfterCrash: flag(r.resumeAfterCrash, d.resumeAfterCrash),
     resumeAfterCrashHours: int(r.resumeAfterCrashHours, 1, 168, d.resumeAfterCrashHours),
     relaunchWorkersAfterCrash: flag(r.relaunchWorkersAfterCrash, d.relaunchWorkersAfterCrash),
@@ -222,4 +250,40 @@ export function isZaicodeCalm(prefs: Pick<ZaicodeUiPrefs, "noMotion" | "noDim" |
 /** Live preset apply (T-208): take the stored UI prefs without reloading the window. */
 export function reloadZaicodeUiPrefs(): void {
   useZaicodeUiPrefs.setState(load());
+}
+
+// ------------------------------------------------------------------ SRC-135 scope
+
+/**
+ * The auto-retry answer that actually applies to one project. `global` ignores the
+ * per-project answers entirely, so a project-only answer made earlier stays readable
+ * and takes effect again the moment the scope goes back to "project".
+ */
+export function zaicodeAutoRetryEnabled(
+  prefs: Pick<ZaicodeUiPrefs, "autoRetry" | "autoRetryScope" | "autoRetryProjects">,
+  projectKey: string,
+): boolean {
+  if (prefs.autoRetryScope === "global") return prefs.autoRetry;
+  const own = prefs.autoRetryProjects[projectKey];
+  return own === undefined ? prefs.autoRetry : own;
+}
+
+/** The patch the composer switch writes: a per-project answer, or the one global flag. */
+export function zaicodeAutoRetryPatch(
+  prefs: Pick<ZaicodeUiPrefs, "autoRetry" | "autoRetryScope" | "autoRetryProjects">,
+  projectKey: string,
+  next: boolean,
+): Partial<ZaicodeUiPrefs> {
+  if (prefs.autoRetryScope === "global") return { autoRetry: next };
+  return { autoRetryProjects: { ...prefs.autoRetryProjects, [projectKey]: next } };
+}
+
+/** The other scope, for the small switch beside the main toggle. */
+export function zaicodeAutoRetryScopeNext(scope: ZaicodeAutoRetryScope): ZaicodeAutoRetryScope {
+  return scope === "global" ? "project" : "global";
+}
+
+/** What the scope switch says; the tooltip spells out what each mode covers. */
+export function zaicodeAutoRetryScopeLabel(scope: ZaicodeAutoRetryScope): string {
+  return scope === "global" ? "Everywhere" : "This project";
 }

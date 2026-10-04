@@ -66,6 +66,7 @@ import {
 } from "@/ChatErrorBanner.js";
 import { ZaicodeAutoRetryNotice } from "@/zaicode/ZaicodeAutoRetryNotice.js";
 import { ZaicodeAutoGoalButton } from "@/zaicode/ZaicodeAutoGoalButton.js";
+import { ZaicodeAutoRetryButton } from "@/zaicode/ZaicodeAutoRetryButton.js";
 import {
   useZaicodeAutoGoal,
   withZaicodeAutoGoal,
@@ -2150,6 +2151,9 @@ function ConversationComposerImpl({
         {/* SRC-138: Auto-Goal belongs to the project, so it sits with the project-bound
             model controls and the send button rather than in the header. */}
         {isZaicodeProductMode() ? <ZaicodeAutoGoalButton workspaceKey={workspaceKey} /> : null}
+        {/* SRC-135: Auto retry next to the composer too — it decides whether a failed
+            turn is sent again, so the operator must be able to see it without Settings. */}
+        {isZaicodeProductMode() ? <ZaicodeAutoRetryButton projectKey={workspaceKey} /> : null}
         {/* SRC-051: "working for" mini on the chatbox, same read-out as the project row. */}
         {isZaicodeProductMode() && showStopControl ? (
           <ZaicodeComposerWorkingFor sessionId={sessionId} running />

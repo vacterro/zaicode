@@ -23,7 +23,7 @@ import {
   zaicodeRetryDelayMs,
   zaicodeRetryLimit,
 } from "./zaicodeRetryPolicy.js";
-import { useZaicodeUiPrefs } from "./zaicodeUiPrefs.js";
+import { useZaicodeUiPrefs, zaicodeAutoRetryEnabled } from "./zaicodeUiPrefs.js";
 
 /**
  * Background auto-retry (SRC-051; SRC-082 gave it a leash): it only works while the
@@ -98,7 +98,7 @@ export function useZaicodeTurnRetryWatch(): void {
       useZaicodeRetryLedger.getState().clear(brief.sessionId);
       const prefs = useZaicodeUiPrefs.getState();
       // The gate is asked again at the moment of sending, not only when the timer was set.
-      if (!zaicodeAutoSendAllowed(brief.sessionId, prefs.autoRetry) || isZaicodeQuotaWall(brief.sessionId)) return;
+      if (!zaicodeAutoSendAllowed(brief.sessionId, zaicodeAutoRetryEnabled(prefs, brief.projectKey)) || isZaicodeQuotaWall(brief.sessionId)) return;
       const current = useZaicodeSessionBriefs.getState().sessions.find((item) => item.sessionId === brief.sessionId);
       if (!current?.failed || current.running || current.waiting || isZaicodeAutoRetryLocal(current.sessionId)) return;
       if (inFlight.has(current.sessionId)) return;
@@ -142,6 +142,8 @@ export function useZaicodeTurnRetryWatch(): void {
     const sweep = () => {
       const prefs = useZaicodeUiPrefs.getState();
       const briefs = useZaicodeSessionBriefs.getState().sessions;
+      // SRC-135: the switch answers per project, so the gate needs each session's project.
+      const projectOf = new Map(briefs.map((brief) => [brief.sessionId, brief.projectKey]));
       for (const brief of briefs) {
         if (!brief.failed && !brief.running && !brief.waiting && !brief.interrupted && !brief.crashCut) {
           resetZaicodeAutoRetryAttempt(brief.sessionId);
@@ -152,7 +154,8 @@ export function useZaicodeTurnRetryWatch(): void {
         isProjectDisabled: (projectKey) => Boolean(useZaicodeHomeProjects.getState().rows[projectKey]?.disabled),
         attemptsOf: zaicodeAutoRetryAttempts,
         maxAttempts: zaicodeRetryLimit(prefs.autoRetryMaxAttempts),
-        mayAutoSend: (sessionId) => zaicodeAutoSendAllowed(sessionId, prefs.autoRetry),
+        mayAutoSend: (sessionId) =>
+          zaicodeAutoSendAllowed(sessionId, zaicodeAutoRetryEnabled(prefs, projectOf.get(sessionId) ?? "")),
         isQuotaWall: isZaicodeQuotaWall,
       });
       const failedIds = new Set(failedNow.map((brief) => brief.sessionId));
