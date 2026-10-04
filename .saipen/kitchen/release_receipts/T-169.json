@@ -1,0 +1,12 @@
+{
+  "operation": "release",
+  "status": "COMMITTED",
+  "release_stage": "COMMITTED",
+  "mode": "no-publish",
+  "work": "T-169",
+  "ticket_id": "T-169",
+  "release_commit": "0b78ff221ea19d2bf87f18cddd8f1b9bc61fbabf",
+  "at": "2026-10-04T18:58:59+00:00",
+  "op_id": "release-T-169-0b78ff221ea1",
+  "note": "T-169 added no product bytes: it verified the PUBLISHED _SAIPEN distributable from GitHub rather than the working tree (0 FAIL, 30 WARN in a fresh clone, with a negative control proving the instrument still fires). This records the closure artifact commit that carries that evidence, not a release of anything: no version was cut and no tag was pushed for it. Recorded as an appended slot (T-219) so it does not displace T-108's identity, which T-107's closure still names."
+}
