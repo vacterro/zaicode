@@ -46,7 +46,7 @@ import {
   zaicodePanelWorkers,
   zaicodeWorkerTitle,
 } from "./zaicodeWorkers.js";
-import { ZAICODE_WORKERS_PANEL_MIN, ZAICODE_WORKERS_PANEL_MIN_WIDTH, useZaicodeWorkerPrefs } from "./zaicodeWorkerPrefs.js";
+import { ZAICODE_WORKERS_PANEL_MIN, ZAICODE_WORKERS_PANEL_MIN_WIDTH, useZaicodePanelFollowsLastWorker, useZaicodeWorkerPrefs } from "./zaicodeWorkerPrefs.js";
 import { zaicodeAnyWorkerRunning } from "./zaicodeElapsed.js";
 import {
   ZaicodeWorkerHeaderButtons,
@@ -92,6 +92,10 @@ export function ZaicodeWorkersPanel({ services }: { services: IServiceAccessor }
   const active = panelWorkers.find((worker) => worker.id === state.activeId) ?? panelWorkers[0] ?? null;
 
   useEffect(() => setSize(storedSize), [storedSize]);
+
+  // SRC-134: the panel folds away with the last worker it held, instead of leaving an
+  // empty box the operator has to collapse by hand.
+  useZaicodePanelFollowsLastWorker(panelWorkers.length, collapsed);
 
   const sizes = useMemo(
     () => normalizeZaicodeSplitSizes(liveSizes ?? prefs.splitSizes, panelWorkers.length),

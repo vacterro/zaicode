@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { create } from "zustand";
 import { readZaicodeSetting } from "./zaicodeSettingsSnapshot.js";
 
@@ -192,4 +193,27 @@ export function zaicodeWorkerFontFamily(
 /** Live preset apply (T-208): take the stored worker prefs without reloading the window. */
 export function reloadZaicodeWorkerPrefs(): void {
   useZaicodeWorkerPrefs.setState(load());
+}
+
+/**
+ * SRC-134: whether the panel must fold itself. The rule is the transition, not the
+ * emptiness — a panel opened empty on purpose stays open, or Alt+W would look broken.
+ */
+export function zaicodePanelShouldAutoCollapse(wasCount: number, count: number, collapsed: boolean): boolean {
+  return wasCount > 0 && count === 0 && !collapsed;
+}
+
+/**
+ * The panel follows its last worker down: minimizing or closing the only worker used to
+ * leave an empty rectangle the operator had to collapse by hand.
+ */
+export function useZaicodePanelFollowsLastWorker(count: number, collapsed: boolean): void {
+  const was = useRef(count);
+  useEffect(() => {
+    const before = was.current;
+    was.current = count;
+    if (zaicodePanelShouldAutoCollapse(before, count, collapsed)) {
+      useZaicodeWorkerPrefs.getState().update({ panelCollapsed: true });
+    }
+  }, [count, collapsed]);
 }
