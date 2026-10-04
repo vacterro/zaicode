@@ -1,5 +1,5 @@
 /* oxlint-disable eslint(max-lines) */
-import { ArrowLeft, Gamepad2, HeartHandshake, Rocket, Settings2, Star, type LucideIcon } from "lucide-react";
+import { ArrowLeft, Gamepad2, HeartHandshake, Rocket, Search, Settings2, Star, X, type LucideIcon } from "lucide-react";
 import {
   useCallback,
   useEffect,
@@ -123,6 +123,7 @@ import {
   GeneralSectionContent,
   GeneralSectionHeader,
   resolveSettingsSectionForPlatform,
+  searchSettingsSections,
 } from "./settingsPageHelpers.js";
 import { AppearanceSectionContent } from "./settingsCodePreview.js";
 import type { SettingsSectionId } from "@/lib/settingsNavigation.js";
@@ -346,6 +347,49 @@ export function SettingsPage({
   const isLinuxDesktop = Boolean(isDesktop && !isMacDesktop && !isWindowsDesktop);
   const usesInlineWindowControls = Boolean(isWindowsDesktop || isLinuxDesktop);
   const platform = usePlatform();
+  // SRC-137: 三十多个分区靠扫读找不到。搜索按关键词筛分区，Enter 直接跳到第一个命中。
+  const [sectionQuery, setSectionQuery] = useState("");
+  const [searchFocused, setSearchFocused] = useState(false);
+  const [searchableSections, setSearchableSections] = useState<
+    ReadonlyArray<{ id: SettingsSectionId; title: string; keywords: readonly string[] }>
+  >([]);
+  // 命中藏在 T-206 的「高级」折叠里时必须自己展开，否则搜索等于没找到。
+  const [advancedRevealed, setAdvancedRevealed] = useState(false);
+  useEffect(() => {
+    setSearchableSections(
+      settingsSections.map((section) => ({
+        id: section.id,
+        title: intl.formatMessage({ id: section.titleId }),
+        keywords: section.keywords ?? [],
+      })),
+    );
+  }, [settingsSections, intl]);
+  const isSearching = sectionQuery.trim().length > 0;
+  const matchingSectionIds = useMemo(
+    () => new Set(searchSettingsSections(searchableSections, sectionQuery).map((entry) => entry.id)),
+    [searchableSections, sectionQuery],
+  );
+  const visibleSettingsSectionGroups = useMemo(
+    () =>
+      isSearching
+        ? settingsSectionGroups
+            .map((group) => ({
+              ...group,
+              sections: group.sections.filter((section) => matchingSectionIds.has(section.id)),
+              advancedSections: group.advancedSections.filter((section) =>
+                matchingSectionIds.has(section.id),
+              ),
+            }))
+            .filter((group) => group.sections.length > 0 || group.advancedSections.length > 0)
+        : settingsSectionGroups,
+    [settingsSectionGroups, matchingSectionIds, isSearching],
+  );
+  // 命中藏在 T-206 的「高级」折叠里时必须自己展开，否则搜索等于没找到。
+  useEffect(() => {
+    setAdvancedRevealed(
+      isSearching && visibleSettingsSectionGroups.some((group) => group.advancedSections.length > 0),
+    );
+  }, [isSearching, visibleSettingsSectionGroups]);
   const [activeSection, setActiveSection] = useState<SettingsSectionId>(() => {
     const initialSection = consumeInitialSettingsSection("general");
     const visibleInitialSection = resolveSettingsSectionForPlatform(
@@ -1523,8 +1567,52 @@ export function SettingsPage({
                 aria-label={intl.formatMessage({ id: "settings.navLabel" })}
                 className="flex-1 overflow-y-auto px-2 pb-3"
               >
+                {/* SRC-137: 搜索框紧贴分组上方，键入即筛分区；Enter 跳到第一个命中。 */}
+                <div className="relative px-1 pb-3">
+                  <Search
+                    className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-foreground-subtlest"
+                    aria-hidden="true"
+                  />
+                  <input
+                    type="search"
+                    value={sectionQuery}
+                    onChange={(event) => setSectionQuery(event.target.value)}
+                    onFocus={() => setSearchFocused(true)}
+                    onBlur={() => setSearchFocused(false)}
+                    onKeyDown={(event) => {
+                      if (event.key !== "Enter") return;
+                      event.preventDefault();
+                      const first = visibleSettingsSectionGroups
+                        .flatMap((group) => [...group.sections, ...group.advancedSections])[0];
+                      if (first) setActiveSettingsSection(first.id);
+                    }}
+                    placeholder={intl.formatMessage({ id: "settings.search.placeholder" })}
+                    aria-label={intl.formatMessage({ id: "settings.search.label" })}
+                    data-testid="settings-section-search"
+                    data-zaicode-settings-search={searchFocused ? "focused" : "idle"}
+                    className={cn(
+                      "h-8 w-full rounded-xl border border-border bg-surface pl-8 text-ui-base text-foreground outline-none placeholder:text-foreground-subtlest",
+                      searchFocused && "border-border-hover",
+                      sectionQuery && "pr-8",
+                    )}
+                  />
+                  {sectionQuery ? (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-sm"
+                      aria-label={intl.formatMessage({ id: "settings.search.clear" })}
+                      data-testid="settings-section-search-clear"
+                      className="absolute right-2 top-1/2 size-6 -translate-y-1/2 cursor-pointer text-foreground-subtlest hover:text-foreground"
+                      onClick={() => setSectionQuery("")}
+                    >
+                      <X className="size-3.5" />
+                    </Button>
+                  ) : null}
+                </div>
+
                 <div className="space-y-4">
-                  {settingsSectionGroups.map((group, groupIndex) => {
+                  {visibleSettingsSectionGroups.map((group, groupIndex) => {
                     const groupLabel = intl.formatMessage({
                       id: group.titleId,
                     });
@@ -1548,7 +1636,12 @@ export function SettingsPage({
                         </div>
                         {group.sections.map(renderSettingsSectionButton)}
                         {group.advancedSections.length > 0 ? (
-                          <details className="mt-1">
+                          <details
+                            className="mt-1"
+                            // 搜索期间强制展开；平时不接管 open，让 T-206 的折叠仍可手动收起。
+                            {...(isSearching ? { open: true } : {})}
+                            data-zaicode-settings-advanced={advancedRevealed ? "open" : "closed"}
+                          >
                             <summary className="cursor-pointer px-2.5 py-1 text-ui-sm text-foreground-subtlest hover:text-foreground">
                               {intl.formatMessage({ id: "settings.sidebar.advanced" })}
                             </summary>
@@ -1561,6 +1654,15 @@ export function SettingsPage({
                     );
                   })}
                 </div>
+
+                {isSearching && visibleSettingsSectionGroups.length === 0 ? (
+                  <p
+                    className="px-2.5 py-3 text-ui-sm text-foreground-subtlest"
+                    data-testid="settings-section-search-empty"
+                  >
+                    {intl.formatMessage({ id: "settings.search.noResults" })}
+                  </p>
+                ) : null}
 
                 {isZaicodeProductMode() ? (
                   // ZAICODE (SRC-049): the upstream profession wizard is off; the repository and support links take its place.

@@ -37,12 +37,13 @@ import { normalizeInterfaceMode, type InterfaceMode } from "@/lib/interfaceMode.
 import {
   createSettingsPageConfig,
   resolveSettingsSectionForPlatform,
+  searchSettingsSections,
   type SettingsSectionId,
 } from "@/settings/settingsPageConfig.js";
 
 export type { Locale, LocalePreference } from "@zcode/shared";
 export { type SettingsSectionId };
-export { createSettingsPageConfig, resolveSettingsSectionForPlatform };
+export { createSettingsPageConfig, resolveSettingsSectionForPlatform, searchSettingsSections };
 
 const TASK_AUTO_ARCHIVE_DAY_OPTIONS = [3, 7, 14, 30] as const;
 const ZCODE_INTERACTION_BEHAVIOR_OPTIONS: readonly ZCodeInteractionBehavior[] = ["queue", "guide"];
