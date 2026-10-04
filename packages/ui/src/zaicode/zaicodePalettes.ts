@@ -571,6 +571,12 @@ html.zaicode-fonts, html.zaicode-fonts body, html.zaicode-fonts * {
 html.zaicode-fonts body {
   color: var(--color-foreground);
 }
+/* Native sliders kept the browser's own light paint: a white rail and a white thumb over a
+   dark theme, which the eye reads as a hole in the panel (SRC-133). The accent tints both
+   the rail and the thumb, so the control belongs to the palette instead of the browser. */
+html.zaicode-fonts input[type="range"] {
+  accent-color: var(--zaicode-highlight, var(--color-accent));
+}
 html.zaicode-fonts pre, html.zaicode-fonts code, html.zaicode-fonts .font-mono, html.zaicode-fonts [data-diffs] {
   font-family: var(--font-mono) !important;
   font-variant-ligatures: var(--zaicode-code-ligatures);

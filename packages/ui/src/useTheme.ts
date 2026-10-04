@@ -40,6 +40,11 @@ function setThemeMetaContent(name: "theme-color" | "color-scheme", content: stri
 
 function syncBrowserThemeSurface(resolved: ResolvedTheme) {
   const root = document.documentElement;
+  // Chromium paints native controls (sliders, checkboxes, colour wells) from this alone,
+  // and the desktop app never carries the browser attribute below — left unset they arrive
+  // in their light appearance, a white rail on the dark theme (SRC-133).
+  root.style.colorScheme = resolved;
+  setThemeMetaContent("color-scheme", resolved);
   if (
     typeof root.hasAttribute !== "function" ||
     !root.hasAttribute(BROWSER_THEME_SURFACE_ATTRIBUTE)
@@ -50,8 +55,6 @@ function syncBrowserThemeSurface(resolved: ResolvedTheme) {
   // Electron 为 vibrancy 保持透明根背景，但普通浏览器需要从文档根和标准 meta
   // 获得页面主题。只切换 React 的 dark class 会让浏览器工具栏、原生控件和 overscroll 留在旧主题。
   root.setAttribute(BROWSER_THEME_SURFACE_ATTRIBUTE, resolved);
-  root.style.colorScheme = resolved;
-  setThemeMetaContent("color-scheme", resolved);
 
   const background = getComputedStyle(root).getPropertyValue("--color-background").trim();
   if (background) {
