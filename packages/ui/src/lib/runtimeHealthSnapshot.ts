@@ -12,6 +12,7 @@ import {
   formatRuntimeHealthSnapshot,
   listProviderQuotaCircuits,
   redactRuntimeHealthSnapshot,
+  type RuntimeHealthContinuationRun,
   type RuntimeHealthFallbackRoute,
   type RuntimeHealthQuotaCircuit,
   type RuntimeHealthQuotaWindow,
@@ -19,6 +20,7 @@ import {
 } from "@zcode/shared";
 import { readEventLoopLagMs, uiMemoryDiagnosticsRegistry } from "./memoryDiagnostics.js";
 import { readZaicodeEnginesState } from "@/zaicode/zaicodeEngines.js";
+import { readZaicodeAutostartJobs } from "@/zaicode/zaicodeAutostart.js";
 import { useZaicodeToasts } from "@/zaicode/zaicodeNotifications.js";
 import { zaicodeAutoRetryAttempts } from "@/zaicode/zaicodeAutoRetry.js";
 import { useZCodeSessionStore } from "@/store/zcodeSessionStore.js";
@@ -34,6 +36,7 @@ export interface RuntimeHealthSnapshotInput {
   readQuotaCircuits?: () => RuntimeHealthQuotaCircuit[];
   readQuotaWindows?: () => RuntimeHealthQuotaWindow[];
   readFallbackRoutes?: () => RuntimeHealthFallbackRoute[];
+  readContinuationRuns?: () => RuntimeHealthContinuationRun[];
   readCountersSummary?: () => Record<string, number>;
   notes?: string[];
 }
@@ -134,6 +137,36 @@ function collectFallbackRoutes(now: number): RuntimeHealthFallbackRoute[] {
 }
 
 /**
+ * The scheduler's own view of a run: which subscription it is on, the ones the vendor
+ * proved spent, and when it may move again. A quota circuit says a provider is fenced;
+ * this is the part that shows where the work went instead, and when it goes back.
+ */
+function collectLiveContinuationRuns(): RuntimeHealthContinuationRun[] {
+  const runs: RuntimeHealthContinuationRun[] = [];
+  for (const job of readZaicodeAutostartJobs()) {
+    for (const run of job.continuationRuns ?? []) {
+      runs.push({
+        projectPath: run.projectPath,
+        occurrence: run.occurrence,
+        state: run.state,
+        runnerId: run.runnerId,
+        blocked: run.blocked.map((entry) => ({
+          runnerId: entry.runnerId,
+          window: entry.window,
+          resetHint: entry.resetText,
+        })),
+        nextAt: isoOrNull(run.nextAt) ?? "",
+        ...(run.preferredReadyAt === undefined
+          ? {}
+          : { preferredReadyAt: isoOrNull(run.preferredReadyAt) ?? "" }),
+        ...(run.result ? { outcome: run.result } : {}),
+      });
+    }
+  }
+  return runs;
+}
+
+/**
  * Builds a snapshot from live renderer state.
  *
  * Every source is optional so a test (or a web session with no engine bridge) can supply
@@ -181,6 +214,7 @@ export function buildRuntimeHealthSnapshot(
     quotaCircuits: input.readQuotaCircuits?.() ?? collectLiveQuotaCircuits(now),
     quotaWindows: input.readQuotaWindows?.() ?? collectLiveQuotaWindows(),
     fallbackRoutes: input.readFallbackRoutes?.() ?? collectFallbackRoutes(now),
+    continuationRuns: input.readContinuationRuns?.() ?? collectLiveContinuationRuns(),
     notes: input.notes ?? [],
   };
 

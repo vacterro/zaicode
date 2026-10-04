@@ -44,6 +44,7 @@ function baseSnapshot(over: Partial<RuntimeHealthSnapshot> = {}): RuntimeHealthS
       },
     ],
     fallbackRoutes: [],
+    continuationRuns: [],
     notes: [],
     ...over,
   };
@@ -58,6 +59,59 @@ test("a snapshot keeps the fields a degradation report needs", () => {
   assert.equal(json.counters["sessionStore.workspaces"], 3);
   assert.equal(json.quotaCircuits[0]?.providerId, "glm");
   assert.equal(json.quotaWindows[0]?.remainingPercent, 42);
+});
+
+test("a continuation run carries the hand-off: the spent runner, the vendor's reset, and the way back", () => {
+  // 这就是 T-216 要人工观察并附上的那份产物。它必须能证明"换到了别处"和"按供应商的钟点回来"。
+  const run = baseSnapshot({
+    continuationRuns: [
+      {
+        projectPath: "V:/repo",
+        occurrence: "daily@09:00#3",
+        state: "waiting",
+        runnerId: "C2",
+        blocked: [
+          { runnerId: "C1", window: "five_hour", resetHint: "resets 7:40pm (Europe/Tallinn)" },
+        ],
+        nextAt: "2026-10-01T00:20:00.000Z",
+        preferredReadyAt: "2026-10-01T19:40:00.000Z",
+        outcome: "Runner C1 spent; continuing on C2",
+      },
+    ],
+  });
+  const parsed = JSON.parse(formatRuntimeHealthSnapshot(run)) as RuntimeHealthSnapshot;
+  const only = parsed.continuationRuns[0];
+  // 换到了哪儿：当前 runner 不是被封的那一个。
+  assert.equal(only.runnerId, "C2");
+  assert.equal(only.blocked[0]?.runnerId, "C1");
+  // 供应商自己的话没有被脱敏切掉（字段名刻意避开 "text"）。
+  assert.equal(only.blocked[0]?.resetHint, "resets 7:40pm (Europe/Tallinn)");
+  // 按供应商的钟点回来，而不是本地估算。
+  assert.equal(only.preferredReadyAt, "2026-10-01T19:40:00.000Z");
+  assert.ok((Date.parse(only.preferredReadyAt ?? "") - Date.parse(only.nextAt)) > 0);
+});
+
+test("a continuation run never exports the session it holds or the prompt it was given", () => {
+  const leaky = baseSnapshot({
+    continuationRuns: [
+      {
+        projectPath: "V:/repo",
+        occurrence: "daily@09:00#3",
+        state: "running",
+        runnerId: "C1",
+        blocked: [],
+        nextAt: "2026-10-01T00:00:00.000Z",
+        sessionId: "session-that-should-never-appear",
+        prompt: "the kick prompt, verbatim",
+      } as never,
+    ],
+  });
+  const json = formatRuntimeHealthSnapshot(leaky);
+  for (const secret of ["session-that-should-never-appear", "the kick prompt, verbatim"]) {
+    assert.equal(json.includes(secret), false, `leaked: ${secret}`);
+  }
+  const parsed = JSON.parse(json) as RuntimeHealthSnapshot;
+  assert.equal(parsed.continuationRuns[0]?.runnerId, "C1");
 });
 
 test("credential-shaped and message-shaped fields never survive redaction", () => {
