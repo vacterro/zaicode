@@ -53,14 +53,31 @@ export function resolveConversationTurnWorkDurationMs(
   isRunning: boolean,
 ): number | undefined {
   if (!header) return undefined;
-  if (header.activeMs !== undefined) return header.activeMs;
-  if (header.endedAt !== undefined) return Math.max(header.endedAt - header.startedAt, 0);
+  if (header.activeMs !== undefined) return validRecordedDuration(header.activeMs);
+  if (header.endedAt !== undefined) return elapsedWorkDuration(header.startedAt, header.endedAt);
   // UI 每秒传入 nowMs 只用于运行中“工作中 N 秒”；完成态缺少
   // activeMs/endedAt 时不能继续吃当前时钟，否则历史“已工作”会随时间增长。
   if (isRunning && options.nowMs !== undefined) {
-    return Math.max(options.nowMs - header.startedAt, 0);
+    return elapsedWorkDuration(header.startedAt, options.nowMs);
   }
   return undefined;
+}
+
+function validRecordedDuration(value: number): number | undefined {
+  return Number.isFinite(value) && value >= 0 ? value : undefined;
+}
+
+// 缺失/无效/未来的开始时间不是运行事实；不能用挂载时间或 clamp(0) 伪造已工作时长。
+function elapsedWorkDuration(startedAt: number | undefined, endedAt: number): number | undefined {
+  if (
+    startedAt === undefined ||
+    !Number.isFinite(startedAt) ||
+    startedAt <= 0 ||
+    !Number.isFinite(endedAt) ||
+    endedAt < startedAt
+  )
+    return undefined;
+  return endedAt - startedAt;
 }
 
 interface DraftVisualWorkSegment {
@@ -109,10 +126,10 @@ function resolveSegmentDurationMs(options: {
           (candidate) => candidate.triggerEntityId === options.triggerRow?.entityId,
         )
       : undefined) ?? options.header?.workSegments?.[options.segmentIndex];
-  if (fact?.activeMs !== undefined) return fact.activeMs;
-  if (fact?.endedAt !== undefined) return Math.max(0, fact.endedAt - fact.startedAt);
+  if (fact?.activeMs !== undefined) return validRecordedDuration(fact.activeMs);
+  if (fact?.endedAt !== undefined) return elapsedWorkDuration(fact.startedAt, fact.endedAt);
   if (fact && options.segmentRunning && options.nowMs !== undefined) {
-    return Math.max(0, options.nowMs - fact.startedAt);
+    return elapsedWorkDuration(fact.startedAt, options.nowMs);
   }
   if (options.segmentCount === 1) {
     return resolveConversationTurnWorkDurationMs(
@@ -125,9 +142,10 @@ function resolveSegmentDurationMs(options: {
   // guided row 的稳定时间边界恢复，避免刷新后又退回整个 turn 的单一工时。
   const startedAt = options.triggerRow?.createdAt ?? options.header?.startedAt;
   const endedAt = options.nextTriggerRow?.createdAt ?? options.header?.endedAt;
-  if (startedAt !== undefined && endedAt !== undefined) return Math.max(0, endedAt - startedAt);
+  if (startedAt !== undefined && endedAt !== undefined)
+    return elapsedWorkDuration(startedAt, endedAt);
   if (startedAt !== undefined && options.segmentRunning && options.nowMs !== undefined) {
-    return Math.max(0, options.nowMs - startedAt);
+    return elapsedWorkDuration(startedAt, options.nowMs);
   }
   return undefined;
 }
@@ -196,9 +214,13 @@ export function buildConversationTurnWorkSegments(options: {
       segmentDurationMs !== undefined &&
       options.nowMs !== undefined
     ) {
-      const fact = (segment.triggerRow?.entityId
-        ? options.header?.workSegments?.find((candidate) => candidate.triggerEntityId === segment.triggerRow?.entityId)
-        : undefined) ?? options.header?.workSegments?.[segmentIndex] ??
+      const fact =
+        (segment.triggerRow?.entityId
+          ? options.header?.workSegments?.find(
+              (candidate) => candidate.triggerEntityId === segment.triggerRow?.entityId,
+            )
+          : undefined) ??
+        options.header?.workSegments?.[segmentIndex] ??
         (visualDrafts.length === 1 ? options.header : undefined);
       if (fact?.activeMs === undefined && fact?.endedAt === undefined) {
         segmentWorkStatus.clockStartedAt = options.nowMs - segmentDurationMs;

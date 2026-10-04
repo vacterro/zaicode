@@ -83,7 +83,10 @@ import type {
   ConversationTurnRenderUnit,
   ConversationTurnWorkSegment,
 } from "@/v4/conversationTurnRenderUnits.js";
-import { formatConversationWorkDuration } from "@/v4/conversationWorkDuration.js";
+import {
+  formatConversationRunningLabel,
+  formatConversationWorkDuration,
+} from "@/v4/conversationWorkDuration.js";
 import { ConversationTurnRow, resolveAssistantCopyText } from "@/v4/ConversationTurnRow.js";
 import { ConversationHookDetailsAction } from "@/v4/ConversationHookDetailsAction.js";
 import { toolCallRowToLegacyNode } from "@/v4/toolCallRowAdapter.js";
@@ -568,8 +571,16 @@ function OffPeakTurnCards({
 function AssistantWorkDurationLabel({ segment }: { segment: ConversationTurnWorkSegment }) {
   const { intl, locale } = useZCodeIntl();
   const [now, setNow] = useState(Date.now);
-  const clockStartedAt =
+  const projectedStart =
     segment.workStatus?.state === "running" ? segment.workStatus.clockStartedAt : undefined;
+  // 只有已证实的开始时间能驱动展示时钟；异常恢复数据仍保持未知。
+  const clockStartedAt =
+    projectedStart !== undefined &&
+    Number.isFinite(projectedStart) &&
+    projectedStart > 0 &&
+    projectedStart <= Date.now()
+      ? projectedStart
+      : undefined;
   useEffect(() => {
     if (clockStartedAt === undefined) return;
     setNow(Date.now());
@@ -587,7 +598,7 @@ function AssistantWorkDurationLabel({ segment }: { segment: ConversationTurnWork
     segment.workStatus?.state === "interrupted"
       ? `${intl.formatMessage({ id: "chat.history.stopped" })}${durationLabel ? ` · ${durationLabel}` : ""}`
       : segment.workStatus?.state === "running"
-        ? intl.formatMessage({ id: "chat.history.workingFor" }, { duration: durationLabel ?? "" })
+        ? formatConversationRunningLabel(durationLabel, intl)
         : durationLabel
           ? intl.formatMessage({ id: "chat.history.workedFor" }, { duration: durationLabel })
           : intl.formatMessage({ id: "chat.history.worked" });

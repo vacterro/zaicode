@@ -18,7 +18,8 @@ export function formatConversationWorkDuration(
   intl: IntlInstance,
   locale: Locale,
 ): string | null {
-  if (durationMs === undefined) return null;
+  // 恢复/脱离的运行可能缺工时；NaN、无限值和负数不是可信时长，不能伪造 1 秒。
+  if (durationMs === undefined || !Number.isFinite(durationMs) || durationMs < 0) return null;
 
   const totalSeconds = Math.max(1, Math.round(durationMs / 1000));
   const days = Math.floor(totalSeconds / 86_400);
@@ -36,4 +37,14 @@ export function formatConversationWorkDuration(
   }
 
   return parts.slice(0, 2).join(" ");
+}
+
+/** 未知工时用已有的本地化 Working 文案，避免 chat/share 输出空的 Working for。 */
+export function formatConversationRunningLabel(
+  durationLabel: string | null,
+  intl: IntlInstance,
+): string {
+  return durationLabel
+    ? intl.formatMessage({ id: "chat.history.workingFor" }, { duration: durationLabel })
+    : intl.formatMessage({ id: "chat.toolCall.nodeRepl.processing" });
 }

@@ -62,7 +62,10 @@ import {
 } from "@/v4/conversationTurnRenderUnits.js";
 import type { AssistantWorkRow, ConversationTurnFlowItem } from "@/v4/conversationTurnFlowItems.js";
 import type { ConversationTurnWorkSegment } from "@/v4/conversationTurnWorkSegments.js";
-import { formatConversationWorkDuration } from "@/v4/conversationWorkDuration.js";
+import {
+  formatConversationRunningLabel,
+  formatConversationWorkDuration,
+} from "@/v4/conversationWorkDuration.js";
 import { normalizeConversationShareMarkdown } from "@/v4/conversationShareMarkdown.js";
 import { resolveToolCallIdentity } from "@/lib/toolIdentity.js";
 import {
@@ -794,7 +797,7 @@ function ReadonlyHistoryStatus({
     segment.workStatus?.state === "interrupted"
       ? intl.formatMessage({ id: "chat.history.stopped" })
       : segment.workStatus?.state === "running"
-        ? intl.formatMessage({ id: "chat.history.workingFor" }, { duration: duration ?? "" })
+        ? formatConversationRunningLabel(duration, intl)
         : duration
           ? intl.formatMessage({ id: "chat.history.workedFor" }, { duration })
           : labels.history;
