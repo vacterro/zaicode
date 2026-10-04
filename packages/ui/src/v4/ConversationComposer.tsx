@@ -65,6 +65,12 @@ import {
   shouldSuppressChatErrorBanner,
 } from "@/ChatErrorBanner.js";
 import { ZaicodeAutoRetryNotice } from "@/zaicode/ZaicodeAutoRetryNotice.js";
+import { ZaicodeAutoGoalButton } from "@/zaicode/ZaicodeAutoGoalButton.js";
+import {
+  useZaicodeAutoGoal,
+  withZaicodeAutoGoal,
+  zaicodeAutoGoalEnabled,
+} from "@/zaicode/zaicodeAutoGoal.js";
 import { ZaicodeComposerWorkingFor } from "@/zaicode/ZaicodeComposerWorkingFor.js";
 import type { ZaicodeAutoRetryState } from "@/zaicode/zaicodeAutoRetry.js";
 import { playZaicodeSound } from "@/zaicode/zaicodeSoundBus.js";
@@ -562,6 +568,8 @@ function ConversationComposerImpl({
   const draftScopeId = sessionId ?? V4_DRAFT_SCOPE_ROOT;
   const workspaceKey = workspaceIdentity?.trim() || workspacePath;
   const configPickerScopeKey = `${workspaceKey}\0${draftScopeId}`;
+  // SRC-138: Auto-Goal rides on the outgoing text, never on the visible editor.
+  const autoGoalOn = useZaicodeAutoGoal((state) => zaicodeAutoGoalEnabled(state, workspaceKey));
   const [text, setText] = useState("");
   const [pending, setPending] = useState(false);
   const [configPickerState, setConfigPickerState] = useState<{
@@ -1344,7 +1352,7 @@ function ConversationComposerImpl({
         // 里没有任何东西解析它），唯一作用是驱动一个已被产品裁掉的 chip，代价却是把一个
         // share URL 塞进发给模型的正文。模型侧内容由隐藏的 shared_context 消息经
         // inputIntent.sharedContextRefs 注入，与正文无关。
-        const promptText = serializeComposerPromptContexts(trimmed, {
+        const promptText = serializeComposerPromptContexts(withZaicodeAutoGoal(trimmed, autoGoalOn), {
           codeComments: currentCodeCommentContexts,
           conversationSelections: currentConversationSelections,
           webElements: currentWebElementContexts,
@@ -1477,6 +1485,7 @@ function ConversationComposerImpl({
     },
     [
       attachmentsApi,
+      autoGoalOn,
       conversationSelectionReferences,
       conversationTelemetry,
       draftConfig,
@@ -2138,6 +2147,9 @@ function ConversationComposerImpl({
             onSendCompressionCommand={onSendCompressionCommand}
           />
         </span>
+        {/* SRC-138: Auto-Goal belongs to the project, so it sits with the project-bound
+            model controls and the send button rather than in the header. */}
+        {isZaicodeProductMode() ? <ZaicodeAutoGoalButton workspaceKey={workspaceKey} /> : null}
         {/* SRC-051: "working for" mini on the chatbox, same read-out as the project row. */}
         {isZaicodeProductMode() && showStopControl ? (
           <ZaicodeComposerWorkingFor sessionId={sessionId} running />
