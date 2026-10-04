@@ -1,0 +1,12 @@
+{
+  "operation": "release",
+  "status": "COMMITTED",
+  "release_stage": "COMMITTED",
+  "mode": "no-publish",
+  "work": "T-219",
+  "ticket_id": "T-219",
+  "release_commit": "27e58c66141ed96dc0ca37daa94eb9ed5d024bd8",
+  "at": "2026-10-04T19:08:51+00:00",
+  "op_id": "release-T-219-27e58c66141e",
+  "note": "The implementation delta lives in the _SAIPEN repository, not this one: be1f3743 (closure._published_releases reads .saipen/kitchen/release_receipts/*.json; release_provenance.py grows write --slot and verify_all) and 36893a65 (the writer emits ticket_id beside work). This receipt names the commit in THIS repository that ships the ledger row, the DEC and the evidence for that change; no version was cut here and no tag was pushed. Publication of the engine change happened in _SAIPEN, per ship.md's rule that a delta in another repository names its carrying commit in the ticket's verify text."
+}
