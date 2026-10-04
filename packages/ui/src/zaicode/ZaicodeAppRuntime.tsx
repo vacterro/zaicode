@@ -76,6 +76,7 @@ import { projectNameOf } from "./zaicodeEngines.js";
 import { ensureZaicodeMotionStyles } from "./zaicodeMotionCss.js";
 import { useZaicodeCrashResume } from "./zaicodeCrashResume.js";
 import { useZaicodeTurnRetryWatch } from "./zaicodeTurnRetryWatch.js";
+import { useZaicodeUnseenDoneWatch } from "./zaicodeUnseenDone.js";
 import { startZaicodeWorkerRecording } from "./zaicodeWorkerRecovery.js";
 import { useZaicodeWorkerWatch } from "./zaicodeWorkerWatch.js";
 import { ZaicodeSaipeggleHost } from "./saipeggle/ZaicodeSaipeggleView.js";
@@ -383,6 +384,8 @@ function useZaicodeCrashSafety(): void {
   useZaicodeCrashResume();
   // SRC-051: failed turns retry in the background too — no walk into the project needed.
   useZaicodeTurnRetryWatch();
+  // SRC-131: a run that finished while the operator was elsewhere gets marked unseen.
+  useZaicodeUnseenDoneWatch();
 }
 
 /**

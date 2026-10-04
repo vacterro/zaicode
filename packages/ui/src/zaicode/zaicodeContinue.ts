@@ -443,6 +443,11 @@ export interface ZaicodeProjectContinueHandle {
   stop: (sessionId: string, expectedForegroundExecutionId?: string) => Promise<void>;
   /** Empties a session in place without opening it (CLEAR from the project row, SRC-049). */
   clear: (sessionId: string) => Promise<void>;
+  /**
+   * Stamps "finished while you looked elsewhere" on a session nobody has open
+   * (SRC-131); opening it clears the stamp again through the same field.
+   */
+  markUnread: (sessionId: string) => Promise<void>;
 }
 
 export interface ZaicodeContinueOptions {

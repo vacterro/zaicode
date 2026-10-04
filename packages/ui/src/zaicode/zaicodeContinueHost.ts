@@ -18,7 +18,7 @@ export function createZaicodeContinueHandle(target: {
   workspacePath: string;
   workspaceIdentity?: string;
   remoteSessionId?: string;
-  taskService: Pick<IZCodeTaskService, "resumeTask" | "createTask">;
+  taskService: Pick<IZCodeTaskService, "resumeTask" | "createTask" | "setTaskUnread">;
   agentService: Pick<IZCodeAgentService, "sendConversationCommandV4" | "helloConversationV4" | "initializeConversationV4">;
 }): ZaicodeProjectContinueHandle {
   const scope = {
@@ -103,6 +103,10 @@ export function createZaicodeContinueHandle(target: {
       await target.taskService.resumeTask({ ...scope, taskId: sessionId });
       await sendControl(createCommandEnvelope({ type: "clearConversation", sessionId, payload: {} }));
     },
+    markUnread: (sessionId) =>
+      target.taskService
+        .setTaskUnread({ ...scope, taskId: sessionId, unread: true })
+        .then(() => undefined),
     start: async (command, options) => {
       const task = await target.taskService.createTask({
         ...scope,
