@@ -1,0 +1,15 @@
+{
+  "pass": false,
+  "checks": [
+    {
+      "name": "positive: isolated packaged profile",
+      "pass": true
+    }
+  ],
+  "errors": [],
+  "error": "locator.waitFor: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('nav').filter({ hasText: 'Keyboard Shortcuts' }).first().locator('details').first() to be visible\u001b[22m\n\n    at V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\.saipen\\evidence\\T-206-packaged.cjs:39:16",
+  "profile": "V:\\_TEMP_\\zaicode-t206-4OVNTu",
+  "executablePath": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\.release-work\\t213-20261004\\win-unpacked\\ZAICODE.exe",
+  "verifier": "c9e21a4e6a3cf6a359cb421a27fcc20ed96a050f7a9dba5e67cd6a07f34bafaa",
+  "asarSha256": "3a26153f911200134063405de164b578a7e322cb9e1cdda477d26301d6b8de6b"
+}

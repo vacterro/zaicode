@@ -1,0 +1,52 @@
+{
+  "at": "2026-10-04T04:57:39.824Z",
+  "executablePath": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\.release-work\\t213-20261004\\win-unpacked\\ZAICODE.exe",
+  "profile": "V:\\_TEMP_\\zaicode-t212-xNJRlV",
+  "checks": [
+    {
+      "name": "positive: isolated packaged profile",
+      "pass": true
+    },
+    {
+      "name": "A positive: native output with one run identity",
+      "pass": true
+    },
+    {
+      "name": "B positive: native output with one run identity",
+      "pass": true
+    },
+    {
+      "name": "A positive: original native process receives typing",
+      "pass": true
+    },
+    {
+      "name": "B positive: original native process receives typing",
+      "pass": true
+    },
+    {
+      "name": "A positive: original run final identity retained",
+      "pass": true
+    },
+    {
+      "name": "A final history still visible after late input",
+      "pass": true
+    },
+    {
+      "name": "B positive: original run final identity retained",
+      "pass": true
+    },
+    {
+      "name": "B final history still visible after late input",
+      "pass": true
+    },
+    {
+      "name": "zero renderer exceptions after native exit and late input",
+      "pass": true,
+      "detail": []
+    }
+  ],
+  "errors": [],
+  "pass": true,
+  "verifier": "8eb7dcca361dd9497336e1554056607bd66c1c1ad28a6924c42ad0c147ffdc2f",
+  "asarSha256": "3a26153f911200134063405de164b578a7e322cb9e1cdda477d26301d6b8de6b"
+}

@@ -1,0 +1,16 @@
+{
+  "at": "2026-10-04T04:57:49.825Z",
+  "zcodeHead": "5409bf16fed2dcfa155869785e8513064ab5a224",
+  "wsHead": "54bcabf1f221fe5b6f2f5bf576d51ca86906e2a7",
+  "testBundle": "zcode/packages/desktop/.release-work/t213-20261004/win-unpacked/ZAICODE.exe",
+  "runs": 3,
+  "packagedChecks": 10,
+  "rendererExceptions": 0,
+  "asar": "3a26153f911200134063405de164b578a7e322cb9e1cdda477d26301d6b8de6b",
+  "totals": {
+    "tests": 1491,
+    "passed": 1489,
+    "failed": 0,
+    "skipped": 2
+  }
+}

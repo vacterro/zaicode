@@ -1,0 +1,15 @@
+{
+  "op_id": "scope-b9b8542536c54b46849e68d92d54849f",
+  "paths": {
+    "zcode/packages/ui/src/zaicode/ZaicodeUsageView.tsx": "98c8841ede65965502ec1457837140f772d5ea7fd010243242346beb0cb88a6a",
+    "zcode/packages/ui/src/zaicode/zaicodeUsage.ts": "51e52db7add54a9c8677e5c8356e76e3c39c95aa1fd4c804b0f4d325451e556e",
+    "zcode/packages/ui/src/zaicode/zaicodeUsageLabels.ts": "836d8a16c9489eec8eaeb62f8d6230c86af8ab02d255c8bae89ebf9ee3e3f400"
+  },
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "project_lineage": "lineage-b0732ed2f98947b9a3c97bfe71427eca",
+  "recorded_at": "2026-10-04T06:02:14Z",
+  "schema_version": 2,
+  "source_head": "54bcabf1f221fe5b6f2f5bf576d51ca86906e2a7",
+  "source_tree_fingerprint": "git-delta-v1:b5e9247b5666f48cb0d830a1240be217dfa8caa9bb4b5bbe8fcc6cda78a6323e",
+  "ticket": "T-205"
+}

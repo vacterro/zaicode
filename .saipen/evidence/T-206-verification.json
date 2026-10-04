@@ -1,0 +1,21 @@
+{
+  "at": "2026-10-04T05:32:17.670Z",
+  "packagedRed": {
+    "checks": 1,
+    "error": "locator.waitFor: Timeout 15000ms exceeded."
+  },
+  "packagedGreen": {
+    "runs": 2,
+    "checks": 13,
+    "rendererExceptions": 0
+  },
+  "asar": "5e2d595a7da3b0c4514edacf6f4df866c7188239879385abf98e37cf518f62dc",
+  "verifier": "c9e21a4e6a3cf6a359cb421a27fcc20ed96a050f7a9dba5e67cd6a07f34bafaa",
+  "bundle": "zcode/packages/desktop/.release-work/t206-20261004/win-unpacked/ZAICODE.exe",
+  "totals": {
+    "tests": 1494,
+    "passed": 1492,
+    "failed": 0,
+    "skipped": 2
+  }
+}

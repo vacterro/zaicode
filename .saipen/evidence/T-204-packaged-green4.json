@@ -1,0 +1,72 @@
+{
+  "at": "2026-10-04T06:53:54.074Z",
+  "executablePath": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\dist-next\\win-unpacked\\ZAICODE.exe",
+  "profile": "V:\\_TEMP_\\zaicode-t204-FwPeH0",
+  "checks": [
+    {
+      "name": "positive: isolated packaged profile",
+      "pass": true
+    },
+    {
+      "name": "the composer carries the Auto-Goal switch",
+      "pass": true
+    },
+    {
+      "name": "a project nobody turned off starts with the goal on",
+      "pass": true
+    },
+    {
+      "name": "the on state is announced pressed",
+      "pass": true
+    },
+    {
+      "name": "another project's off switch does not reach this one",
+      "pass": true
+    },
+    {
+      "name": "the title names the text it appends",
+      "pass": true
+    },
+    {
+      "name": "the operator text lands in the editor",
+      "pass": true
+    },
+    {
+      "name": "the editor never shows the goal the switch appends",
+      "pass": true
+    },
+    {
+      "name": "clicking the switch turns the goal off",
+      "pass": true
+    },
+    {
+      "name": "the off state is announced unpressed",
+      "pass": true
+    },
+    {
+      "name": "the title offers to write the goal by hand",
+      "pass": true
+    },
+    {
+      "name": "the half-typed handoff survives the toggle",
+      "pass": true
+    },
+    {
+      "name": "the off choice outlives a restart of the window",
+      "pass": true
+    },
+    {
+      "name": "turning it back on works",
+      "pass": true
+    },
+    {
+      "name": "zero renderer exceptions while driving the switch",
+      "pass": true,
+      "detail": []
+    }
+  ],
+  "errors": [],
+  "pass": true,
+  "verifier": "963f763b949f10a676c1a65c601f546b5ca61940a38977e71db31c9f82e81e89",
+  "asarSha256": "c4cdcdda1e6c3ee97435a5ec88e0f0a925908226fb203f14541a2a07b35b240e"
+}

@@ -1,0 +1,112 @@
+{
+  "at": "2026-10-04T05:32:04.852Z",
+  "executablePath": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\.release-work\\t206-20261004\\win-unpacked\\ZAICODE.exe",
+  "profile": "V:\\_TEMP_\\zaicode-t206-sKUXNA",
+  "checks": [
+    {
+      "name": "positive: isolated packaged profile",
+      "pass": true
+    },
+    {
+      "name": "advanced fold exists in the ZAICODE nav group",
+      "pass": true
+    },
+    {
+      "name": "advanced fold starts collapsed",
+      "pass": true
+    },
+    {
+      "name": "advanced fold summary is labelled Advanced",
+      "pass": true
+    },
+    {
+      "name": "every demoted section still sits inside the fold",
+      "pass": true,
+      "detail": [
+        "zaicode",
+        "zaicodeSidebar",
+        "zaicodeLayout",
+        "zaicodeEngines",
+        "zaicodeRouter",
+        "zaicodeWorkers",
+        "zaicodeTimers",
+        "zaicodeHelp",
+        "zaicodeSounds",
+        "zaicodeNotifications",
+        "zaicodeColors",
+        "zaicodeLights",
+        "zaicodeSessionText",
+        "zaicodeProtrail"
+      ]
+    },
+    {
+      "name": "every everyday section stays visible without expanding",
+      "pass": true,
+      "detail": [
+        "zaicode",
+        "zaicodeSidebar",
+        "zaicodeLayout",
+        "zaicodeEngines",
+        "zaicodeRouter",
+        "zaicodeWorkers",
+        "zaicodeTimers",
+        "zaicodeHelp",
+        "zaicodeSounds",
+        "zaicodeNotifications",
+        "zaicodeColors",
+        "zaicodeLights",
+        "zaicodeSessionText",
+        "zaicodeProtrail"
+      ]
+    },
+    {
+      "name": "the fold comes after the everyday ZAICODE sections",
+      "pass": true,
+      "detail": [
+        "zaicode",
+        "zaicodeSidebar",
+        "zaicodeLayout",
+        "zaicodeEngines",
+        "zaicodeRouter",
+        "zaicodeWorkers",
+        "zaicodeTimers",
+        "zaicodeHelp",
+        "zaicodeSounds",
+        "zaicodeNotifications",
+        "zaicodeColors",
+        "zaicodeLights",
+        "zaicodeSessionText",
+        "zaicodeProtrail"
+      ]
+    },
+    {
+      "name": "the fold opens on click",
+      "pass": true
+    },
+    {
+      "name": "the ZAICODE page carries its own advanced fold",
+      "pass": true
+    },
+    {
+      "name": "the ZAICODE page fold starts collapsed",
+      "pass": true
+    },
+    {
+      "name": "SAIASUI is hidden until the page fold is opened",
+      "pass": true
+    },
+    {
+      "name": "the ZAICODE page fold reveals SAIASUI",
+      "pass": true
+    },
+    {
+      "name": "zero renderer exceptions while walking settings",
+      "pass": true,
+      "detail": []
+    }
+  ],
+  "errors": [],
+  "pass": true,
+  "verifier": "c9e21a4e6a3cf6a359cb421a27fcc20ed96a050f7a9dba5e67cd6a07f34bafaa",
+  "asarSha256": "5e2d595a7da3b0c4514edacf6f4df866c7188239879385abf98e37cf518f62dc"
+}

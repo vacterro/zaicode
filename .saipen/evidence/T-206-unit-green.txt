@@ -1,0 +1,13 @@
+[WARN] The "pnpm" field in package.json is no longer read by pnpm. The following keys were ignored: "pnpm.overrides", "pnpm.patchedDependencies". See https://pnpm.io/settings for the new home of each setting.
+apps/zcode-cli                           |  WARN  Unsupported engine: wanted: {"node":"24.14.0"} (current: {"node":"v24.15.0","pnpm":"10.33.2"})
+✔ decorative ZAICODE sections fold into the advanced bucket at the bottom of the group (1.2917ms)
+✔ no group renders an advanced fold it never fills (0.1839ms)
+✔ the ZAICODE page folds SAIASUI and the splash instead of greeting the user with them (0.4625ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 717.3469

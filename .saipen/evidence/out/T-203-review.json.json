@@ -1,0 +1,105 @@
+{
+  "at": "2026-10-04T08:12:28.897Z",
+  "executablePath": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\dist-next\\win-unpacked\\ZAICODE.exe",
+  "profile": "V:\\_TEMP_\\zaicode-t203-wG37zl",
+  "checks": [
+    {
+      "name": "positive: isolated packaged profile",
+      "pass": true
+    },
+    {
+      "name": "settings carries a search box above the nav",
+      "pass": true
+    },
+    {
+      "name": "the nav offers the full section list before searching",
+      "pass": true,
+      "detail": 27
+    },
+    {
+      "name": "the Advanced fold starts closed",
+      "pass": true
+    },
+    {
+      "name": "\"font size\" narrows the nav to the sections that answer it",
+      "pass": true,
+      "detail": [
+        "appearance",
+        "zaicodeSessionText"
+      ]
+    },
+    {
+      "name": "\"font size\" finds Appearance",
+      "pass": true,
+      "detail": [
+        "appearance",
+        "zaicodeSessionText"
+      ]
+    },
+    {
+      "name": "adding a second word narrows rather than widens",
+      "pass": true,
+      "detail": {
+        "dark": 1,
+        "both": 1
+      }
+    },
+    {
+      "name": "a hit inside Advanced opens the fold by itself",
+      "pass": true
+    },
+    {
+      "name": "the hidden section is now reachable",
+      "pass": true,
+      "detail": [
+        "zaicodeColors"
+      ]
+    },
+    {
+      "name": "clearing the query leaves the fold as the operator left it",
+      "pass": true
+    },
+    {
+      "name": "clearing the query brings every section back",
+      "pass": true,
+      "detail": {
+        "before": 27,
+        "after": 27
+      }
+    },
+    {
+      "name": "an impossible word shows the no-match line",
+      "pass": true
+    },
+    {
+      "name": "and the nav is empty rather than stale",
+      "pass": true
+    },
+    {
+      "name": "Enter opens the first section that matched",
+      "pass": true,
+      "detail": "usage"
+    },
+    {
+      "name": "the clear button appears once the box has text",
+      "pass": true
+    },
+    {
+      "name": "clearing empties the box",
+      "pass": true
+    },
+    {
+      "name": "clearing brings the whole nav back",
+      "pass": true
+    },
+    {
+      "name": "zero renderer exceptions while driving the search",
+      "pass": true,
+      "detail": []
+    }
+  ],
+  "errors": [],
+  "pass": true,
+  "verifier": "28a2b9bfa53adbacdfe82d34afc75b73678c9a46f1fe4c1fdd0ba132457e4517",
+  "asarSha256": "7323da4c85be025ac496afc8ec2c739c38ac2130e1aebf64ac27caf1bc13187d"
+}

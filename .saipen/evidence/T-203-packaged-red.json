@@ -1,0 +1,15 @@
+{
+  "pass": false,
+  "checks": [
+    {
+      "name": "positive: isolated packaged profile",
+      "pass": true
+    }
+  ],
+  "errors": [],
+  "error": "locator.waitFor: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"settings-section-search\"]') to be visible\u001b[22m\n\n    at V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\.saipen\\evidence\\T-203-packaged.cjs:31:15",
+  "profile": "V:\\_TEMP_\\zaicode-t203-UtWBma",
+  "executablePath": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\dist-next\\win-unpacked\\ZAICODE.exe",
+  "verifier": "28a2b9bfa53adbacdfe82d34afc75b73678c9a46f1fe4c1fdd0ba132457e4517",
+  "asarSha256": "c36b00af10f31259c4252c0bb76ae083a39db93dd9241a93998fec0ccae85bb4"
+}

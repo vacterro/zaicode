@@ -1,0 +1,16 @@
+{
+  "op_id": "scope-1d34acefcae04e72bda30ee1852ba9eb",
+  "paths": {
+    "zcode/packages/ui/src/v4/ConversationComposer.tsx": "55c31b4964df335ac913b091a705c73d837bcfed38d76df68d393bf16372231e",
+    "zcode/packages/ui/src/zaicode/ZaicodeAutoGoalButton.tsx": "cb0625a6a06233a6968bd53cc3df844718f8448b947f42e2942fc417a23eebc9",
+    "zcode/packages/ui/src/zaicode/zaicodeAutoGoal.ts": "d5bc8e7772ad299e44f092086bfe06069fa88b0ce61633655243fdb09335a18f",
+    "zcode/packages/ui/test/zaicodeT204AutoGoal.test.ts": "ba9ade52b5efdb68b92a4bba7ea7271b4b7888777e57a26526e86cd56393ae59"
+  },
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "project_lineage": "lineage-b0732ed2f98947b9a3c97bfe71427eca",
+  "recorded_at": "2026-10-04T06:58:30Z",
+  "schema_version": 2,
+  "source_head": "54bcabf1f221fe5b6f2f5bf576d51ca86906e2a7",
+  "source_tree_fingerprint": "git-delta-v1:f452c4bfb812c7572b0cd7d218e21ca5717cd4f6a260e0d3ee2e2510b664a7fd",
+  "ticket": "T-204"
+}

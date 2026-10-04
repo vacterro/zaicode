@@ -1,0 +1,102 @@
+{
+  "at": "2026-10-04T05:56:35.295Z",
+  "executablePath": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\.release-work\\t205-20261004\\win-unpacked\\ZAICODE.exe",
+  "profile": "V:\\_TEMP_\\zaicode-t205-Z9tU7m",
+  "checks": [
+    {
+      "name": "positive: isolated packaged profile",
+      "pass": true
+    },
+    {
+      "name": "the usage panel opens from its footer tool",
+      "pass": true
+    },
+    {
+      "name": "the refresh switcher offers 10/5/3/2/1 seconds",
+      "pass": true,
+      "detail": [
+        "10",
+        "5",
+        "3",
+        "2",
+        "1"
+      ]
+    },
+    {
+      "name": "the refresh switcher starts at 10 seconds",
+      "pass": true
+    },
+    {
+      "name": "live reading is on by default",
+      "pass": true
+    },
+    {
+      "name": "the switcher is usable while live reading is on",
+      "pass": true
+    },
+    {
+      "name": "choosing 1 second sticks",
+      "pass": true
+    },
+    {
+      "name": "the live label no longer claims 10s",
+      "pass": true
+    },
+    {
+      "name": "turning live reading off disables the switcher",
+      "pass": true
+    },
+    {
+      "name": "the name column carries a drag handle",
+      "pass": true
+    },
+    {
+      "name": "the handle is a vertical separator",
+      "pass": true
+    },
+    {
+      "name": "the name column starts at its 34% share",
+      "pass": true,
+      "detail": 34
+    },
+    {
+      "name": "every body cell that declares a width matches the header",
+      "pass": true,
+      "detail": {
+        "cells": 0,
+        "widths": []
+      }
+    },
+    {
+      "name": "dragging the handle widens the name column",
+      "pass": true,
+      "detail": {
+        "before": 34,
+        "widened": 50
+      }
+    },
+    {
+      "name": "the widened column keeps the metric columns",
+      "pass": true,
+      "detail": 50
+    },
+    {
+      "name": "a drag past the table stops at the 70% ceiling",
+      "pass": true,
+      "detail": 70
+    },
+    {
+      "name": "a finished request prints no Done word",
+      "pass": true
+    },
+    {
+      "name": "zero renderer exceptions while driving the usage panel",
+      "pass": true,
+      "detail": []
+    }
+  ],
+  "errors": [],
+  "pass": true,
+  "verifier": "e7ba3e233e02ebc8e3103a9c07ee2cace187c318f18fd7be8d879df9c960ff51",
+  "asarSha256": "2abc10e41732588c81a8a16b36ba5b4a3d48323c9371aeae0b69e2310196a4d9"
+}

@@ -1,0 +1,99 @@
+[WARN] The "pnpm" field in package.json is no longer read by pnpm. The following keys were ignored: "pnpm.overrides", "pnpm.patchedDependencies". See https://pnpm.io/settings for the new home of each setting.
+
+> zcode@3.14.0 bundle:zaicode V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode
+> node scripts/bundle-zaicode.mjs "--" "--skip-build" "--skip-prepare"
+
+(node:6720) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+[WARN] The "pnpm" field in package.json is no longer read by pnpm. The following keys were ignored: "pnpm.overrides", "pnpm.patchedDependencies". See https://pnpm.io/settings for the new home of each setting.
+apps/zcode-cli                           |  WARN  Unsupported engine: wanted: {"node":"24.14.0"} (current: {"node":"v24.15.0","pnpm":"10.33.2"})
+
+> @zcode/desktop@ bundle V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\desktop
+> node scripts/bundle.mjs "--" "--os" "win" "--arch" "x64" "--" "--skip-build" "--skip-prepare"
+
+[bundle] target=win/x64
+[bundle] skipPrepare=true skipBuild=true
+[ci][timer] bundle:electron-builder start
+[bundle] > pnpm exec electron-builder --config electron-builder.config.js --win --x64
+(node:200) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+../../apps/zcode-cli                     |  WARN  Unsupported engine: wanted: {"node":"24.14.0"} (current: {"node":"v24.15.0","pnpm":"10.33.2"})
+  • electron-builder  version=26.8.1 os=10.0.19045
+  • loaded configuration  file=V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\desktop\electron-builder.config.js
+  • @electron/rebuild already used by electron-builder, please consider to remove excess dependency from devDependencies
+
+To ensure your native dependencies are always matched electron version, simply add script `"postinstall": "electron-builder install-app-deps" to your `package.json`
+[ci][timer] beforePack:restoreTargetNodePtyPrebuild start
+[beforePack] node-pty prebuild restore skipped for win32-x64
+[ci][timer] beforePack:restoreTargetNodePtyPrebuild end duration_ms=0
+[ci][timer] beforePack:patchNsisInstallSection start
+[ci][timer] beforePack:patchNsisInstallSection end duration_ms=0
+  • skipped dependencies rebuild  reason=npmRebuild is set to false
+  • packaging       platform=win32 arch=x64 electron=41.0.3 appOutDir=dist-next\win-unpacked
+  • packageManager not detected by file, falling back to environment detection  resolvedPackageManager=pnpm detected=V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\desktop
+  • packageManager not detected by file, falling back to environment detection  resolvedPackageManager=pnpm detected=V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\desktop
+  • detected workspace root for project using process environment  pm=pnpm config=undefined resolved=undefined projectDir=V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\desktop
+  • searching for node modules  pm=pnpm searchDir=V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\desktop
+(node:21912) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+  • dependency not found on disk  dependencies=["@radix-ui/react-primitive@2.1.4","@radix-ui/react-slot@1.2.4","marked@17.0.6","pngjs@5.0.0","commander@14.0.3","diff@8.0.4","fs-extra@11.3.4","immer@10.2.0","tslib@2.3.0","yargs@15.4.1","diff@8.0.3","@shikijs/types@3.23.0","zod@3.25.76","kleur@3.0.3","execa@9.6.1","open@11.0.0","commander@11.1.0","execa@5.1.1","get-stream@6.0.1","human-signals@2.1.0","is-stream@2.0.1","signal-exit@3.0.7","strip-final-newline@2.0.0","npm-run-path@4.0.1","wrap-ansi@7.0.0","ora@8.2.0","ts-morph@26.0.0","semver@6.3.1","tslib@2.3.0","y18n@4.0.3","yargs-parser@18.1.3","cliui@6.0.0","find-up@4.1.0","is-obj@3.0.0","human-signals@8.0.1","strip-final-newline@4.0.0","get-stream@9.0.1","npm-run-path@6.0.0","data-uri-to-buffer@4.0.1","ast-types@0.16.1","semver@6.3.1","wsl-utils@0.3.1","which@4.0.0","cookie@1.1.1","path-to-regexp@6.3.0","type-fest@5.5.0","strip-ansi@6.0.1","ansi-styles@4.3.0","chalk@5.6.2","log-symbols@6.0.0","emoji-regex@10.6.0","@ts-morph/common@0.27.0","semver@6.3.1","picomatch@2.3.2","ajv@8.18.0","@types/unist@2.0.11","locate-path@5.0.0","path-key@4.0.0","resolve-from@4.0.0","mimic-fn@2.1.0","onetime@7.0.0","lru-cache@5.1.1","json-schema-traverse@1.0.0","p-locate@4.1.0","brace-expansion@5.0.5","yallist@3.1.1","iconv-lite@0.7.2","escape-string-regexp@5.0.0","p-limit@2.3.0","balanced-match@4.0.4"]
+[bundle][heartbeat] electron-builder running elapsed_ms=30005 idle_ms=15281
+[bundle][heartbeat] electron-builder running elapsed_ms=60018 idle_ms=45294
+[bundle][heartbeat] electron-builder running elapsed_ms=90022 idle_ms=75298
+  • updating asar integrity executable resource  executablePath=dist-next\win-unpacked\ZAICODE.exe
+  • signing with signtool.exe  path=dist-next\win-unpacked\resources\tools\ugrep\ugrep.exe
+  • signing with signtool.exe  path=dist-next\win-unpacked\resources\tools\ripgrep\rg.exe
+[ci][timer] afterPack:zaicodeRouterModules start
+[ci][timer] afterPack:zaicodeRouterModules end duration_ms=978
+[ci][timer] afterPack:injectHoistedRuntimeModulesIntoAsar start
+[ci][timer] afterPack:scan-missing-runtime-modules start
+[ci][timer] afterPack:scan-missing-runtime-modules end duration_ms=618
+[afterPack] missing runtime modules count=22
+[ci][timer] afterPack:asar-extract start
+[bundle][heartbeat] electron-builder running elapsed_ms=120026 idle_ms=13026
+[ci][timer] afterPack:asar-extract end duration_ms=14619
+[ci][timer] afterPack:copy-runtime-modules start
+[ci][timer] afterPack:copy-runtime-modules end duration_ms=538
+[ci][timer] afterPack:asar-pack start
+[bundle][heartbeat] electron-builder running elapsed_ms=150033 idle_ms=27875
+[ci][timer] afterPack:asar-pack end duration_ms=29442
+[ci][timer] afterPack:injectHoistedRuntimeModulesIntoAsar end duration_ms=47782
+[ci][timer] afterPack:stripPackagedSourcemapReferences start
+[ci][timer] afterPack:sourcemap-cleanup:asar-extract start
+[ci][timer] afterPack:sourcemap-cleanup:asar-extract end duration_ms=6627
+[afterPack] stripped sourceMappingURL references=5643 files=5619 maps=375
+[ci][timer] afterPack:sourcemap-cleanup:asar-pack start
+[bundle][heartbeat] electron-builder running elapsed_ms=180036 idle_ms=15093
+[ci][timer] afterPack:sourcemap-cleanup:asar-pack end duration_ms=19513
+[afterPack] resources sourcemap cleanup references=949 files=949 maps=0
+[ci][timer] afterPack:stripPackagedSourcemapReferences end duration_ms=34001
+[ci][timer] afterPack:assertPackagedNativeResourcePolicy start
+[ci][timer] afterPack:assertPackagedNativeResourcePolicy end duration_ms=437
+[ci][timer] afterPack:assertPackagedNodePtyPrebuild start
+[ci][timer] afterPack:assertPackagedNodePtyPrebuild end duration_ms=0
+[ci][timer] afterPack:writeWindowsInstallManifest start
+[ci][timer] afterPack:writeWindowsInstallManifest end duration_ms=115
+  • signing with signtool.exe  path=dist-next\win-unpacked\ZAICODE.exe
+  • signing with signtool.exe  path=dist-next\win-unpacked\resources\app.asar.unpacked\node_modules\ssh2\util\pagent.exe
+  • signing with signtool.exe  path=dist-next\win-unpacked\resources\app.asar.unpacked\node_modules\node-pty\third_party\conpty\1.23.251008001\win10-x64\OpenConsole.exe
+  • signing with signtool.exe  path=dist-next\win-unpacked\resources\app.asar.unpacked\node_modules\node-pty\third_party\conpty\1.23.251008001\win10-arm64\OpenConsole.exe
+  • signing with signtool.exe  path=dist-next\win-unpacked\resources\app.asar.unpacked\node_modules\node-pty\prebuilds\win32-x64\winpty-agent.exe
+  • signing with signtool.exe  path=dist-next\win-unpacked\resources\app.asar.unpacked\node_modules\node-pty\prebuilds\win32-x64\conpty\OpenConsole.exe
+  • building        target=nsis file=dist-next\ZAICODE-3.14.0-win-x64_TEST.exe archs=x64 oneClick=false perMachine=false
+  • signing with signtool.exe  path=dist-next\win-unpacked\resources\elevate.exe
+[bundle][heartbeat] electron-builder running elapsed_ms=210038 idle_ms=20543
+  • signing with signtool.exe  path=dist-next\ZAICODE-3.14.0-win-x64_TEST.__uninstaller.exe
+  • signing with signtool.exe  path=dist-next\ZAICODE-3.14.0-win-x64_TEST.exe
+  • building block map  blockMapFile=dist-next\ZAICODE-3.14.0-win-x64_TEST.exe.blockmap
+[ci][timer] bundle:electron-builder end duration_ms=222527
+[ci][timer] bundle:verify-runtime-dependencies start
+[ci][timer] bundle:verify-runtime-dependencies end duration_ms=566
+[ci][timer] bundle:audit-bundle-size start
+[bundle] > C:\nodejs\node.exe V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\desktop\scripts\audit-bundle-size.mjs --artifact-path V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\desktop\dist-next\ZAICODE-3.14.0-win-x64_TEST.exe
+Artifact: V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\desktop\dist-next\ZAICODE-3.14.0-win-x64_TEST.exe
+Type: .exe
+Size: 190.4 MiB
+Limit: 500 MiB
+[ci][timer] bundle:audit-bundle-size end duration_ms=52
+[bundle:zaicode] boot gate: starting V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\desktop\dist-next\win-unpacked.verifying\ZAICODE.exe on a throw-away profile
+PASS packaged boot: shell mounted, 28 Settings sections opened, ProTrail drawing on 3 monitor(s), customization list live (0->1->2->0), no error card, 0 uncaught exceptions, 0 console errors -> V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\desktop\dist-next\boot-receipt.json

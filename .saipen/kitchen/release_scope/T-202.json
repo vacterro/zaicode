@@ -1,0 +1,13 @@
+{
+  "op_id": "scope-27a3ebbe52da45fcb9fe22f627ffa71a",
+  "paths": {
+    "zcode/packages/ui/test/zaicodeT202WorkersPanelControls.test.ts": "e7719abb1435a96c8c4091104226602568da5baede41f3a62cd12e0534ed1c7d"
+  },
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "project_lineage": "lineage-b0732ed2f98947b9a3c97bfe71427eca",
+  "recorded_at": "2026-10-04T08:48:53Z",
+  "schema_version": 2,
+  "source_head": "54bcabf1f221fe5b6f2f5bf576d51ca86906e2a7",
+  "source_tree_fingerprint": "git-delta-v1:9e52f5aa35f4d6d47b99b05caba7a87e734b4ebc785b0cd851edff9880312fb4",
+  "ticket": "T-202"
+}

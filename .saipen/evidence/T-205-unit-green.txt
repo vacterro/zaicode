@@ -1,0 +1,15 @@
+[WARN] The "pnpm" field in package.json is no longer read by pnpm. The following keys were ignored: "pnpm.overrides", "pnpm.patchedDependencies". See https://pnpm.io/settings for the new home of each setting.
+apps/zcode-cli                           |  WARN  Unsupported engine: wanted: {"node":"24.14.0"} (current: {"node":"v24.15.0","pnpm":"10.33.2"})
+✔ the live meter offers every refresh rate the user asked for, 10s still the default (1.0891ms)
+✔ the panel reads its timer from the chosen rate instead of a fixed 10s (0.1976ms)
+✔ dragging the name column widens it within the bounds the metrics need (0.1342ms)
+✔ the table hands its name column to a drag handle and to the row cells (0.1676ms)
+✔ a finished request no longer prints a status word under the model name (0.1853ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 197.7809

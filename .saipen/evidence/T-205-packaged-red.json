@@ -1,0 +1,19 @@
+{
+  "pass": false,
+  "checks": [
+    {
+      "name": "positive: isolated packaged profile",
+      "pass": true
+    },
+    {
+      "name": "the usage panel opens from its footer tool",
+      "pass": true
+    }
+  ],
+  "errors": [],
+  "error": "locator.waitFor: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-zaicode-usage=\"page\"]').locator('[data-zaicode-usage-refresh]') to be visible\u001b[22m\n\n    at V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\.saipen\\evidence\\T-205-packaged.cjs:44:18",
+  "profile": "V:\\_TEMP_\\zaicode-t205-Gxar6i",
+  "executablePath": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\.release-work\\t206-20261004\\win-unpacked\\ZAICODE.exe",
+  "verifier": "e7ba3e233e02ebc8e3103a9c07ee2cace187c318f18fd7be8d879df9c960ff51",
+  "asarSha256": "5e2d595a7da3b0c4514edacf6f4df866c7188239879385abf98e37cf518f62dc"
+}

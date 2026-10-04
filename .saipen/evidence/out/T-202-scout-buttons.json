@@ -1,0 +1,182 @@
+[
+  {
+    "i": 0,
+    "label": "PS · workers-project\nV:\\_TEMP_\\zaicode-t202-p2H7ly\\workers-p",
+    "rect": {
+      "x": 1295,
+      "y": 7,
+      "w": 163,
+      "h": 17
+    },
+    "visible": true,
+    "coveredBy": "SPAN.truncate text-foreground"
+  },
+  {
+    "i": 1,
+    "label": "Split: all docked workers side by side",
+    "rect": {
+      "x": 1390,
+      "y": 5.5,
+      "w": 20,
+      "h": 20
+    },
+    "visible": true,
+    "coveredBy": "svg.[object SVGAnimatedString]"
+  },
+  {
+    "i": 2,
+    "label": "Tabs: one worker at a time",
+    "rect": {
+      "x": 1410,
+      "y": 5.5,
+      "w": 20,
+      "h": 20
+    },
+    "visible": true,
+    "coveredBy": "svg.[object SVGAnimatedString]"
+  },
+  {
+    "i": 3,
+    "label": "Split direction: stacked (click to change)",
+    "rect": {
+      "x": 1430,
+      "y": 5.5,
+      "w": 20,
+      "h": 20
+    },
+    "visible": true,
+    "coveredBy": "svg.[object SVGAnimatedString]"
+  },
+  {
+    "i": 4,
+    "label": "Even: share the panel equally",
+    "rect": {
+      "x": 1450,
+      "y": 5.5,
+      "w": 20,
+      "h": 20
+    },
+    "visible": true,
+    "coveredBy": "svg.[object SVGAnimatedString]"
+  },
+  {
+    "i": 5,
+    "label": "Docked: Right side (vertical) · click: Left side (vertical) ",
+    "rect": {
+      "x": 1470,
+      "y": 5.5,
+      "w": 20,
+      "h": 20
+    },
+    "visible": true,
+    "coveredBy": "svg.[object SVGAnimatedString]"
+  },
+  {
+    "i": 6,
+    "label": "Redraw: repaint the workers' screens (fixes a garbled pictur",
+    "rect": {
+      "x": 1490,
+      "y": 5.5,
+      "w": 20,
+      "h": 20
+    },
+    "visible": true,
+    "coveredBy": "svg.[object SVGAnimatedString]"
+  },
+  {
+    "i": 7,
+    "label": "New shell in this project",
+    "rect": {
+      "x": 1510,
+      "y": 5.5,
+      "w": 20,
+      "h": 20
+    },
+    "visible": true,
+    "coveredBy": "path.[object SVGAnimatedString]"
+  },
+  {
+    "i": 8,
+    "label": "Workers settings",
+    "rect": {
+      "x": 1530,
+      "y": 5.5,
+      "w": 20,
+      "h": 20
+    },
+    "visible": true,
+    "coveredBy": "svg.[object SVGAnimatedString]"
+  },
+  {
+    "i": 9,
+    "label": "Maximize the panel",
+    "rect": {
+      "x": 1550,
+      "y": 5.5,
+      "w": 20,
+      "h": 20
+    },
+    "visible": true,
+    "coveredBy": "svg.[object SVGAnimatedString]"
+  },
+  {
+    "i": 10,
+    "label": "Collapse the panel (workers keep running)",
+    "rect": {
+      "x": 1570,
+      "y": 5.5,
+      "w": 20,
+      "h": 20
+    },
+    "visible": true,
+    "coveredBy": "svg.[object SVGAnimatedString]"
+  },
+  {
+    "i": 11,
+    "label": "Own window (snappable; drag it to the bottom edge to dock ba",
+    "rect": {
+      "x": 1511,
+      "y": 28.5,
+      "w": 20,
+      "h": 20
+    },
+    "visible": true,
+    "coveredBy": "svg.[object SVGAnimatedString]"
+  },
+  {
+    "i": 12,
+    "label": "Fill the panel with this one",
+    "rect": {
+      "x": 1531,
+      "y": 28.5,
+      "w": 20,
+      "h": 20
+    },
+    "visible": true,
+    "coveredBy": "svg.[object SVGAnimatedString]"
+  },
+  {
+    "i": 13,
+    "label": "Minimize to a chip (keeps running)",
+    "rect": {
+      "x": 1551,
+      "y": 28.5,
+      "w": 20,
+      "h": 20
+    },
+    "visible": true,
+    "coveredBy": "path.[object SVGAnimatedString]"
+  },
+  {
+    "i": 14,
+    "label": "Stop this worker and close it",
+    "rect": {
+      "x": 1571,
+      "y": 28.5,
+      "w": 20,
+      "h": 20
+    },
+    "visible": true,
+    "coveredBy": "path.[object SVGAnimatedString]"
+  }
+]

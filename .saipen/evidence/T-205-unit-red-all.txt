@@ -1,0 +1,30 @@
+[WARN] The "pnpm" field in package.json is no longer read by pnpm. The following keys were ignored: "pnpm.overrides", "pnpm.patchedDependencies". See https://pnpm.io/settings for the new home of each setting.
+apps/zcode-cli                           |  WARN  Unsupported engine: wanted: {"node":"24.14.0"} (current: {"node":"v24.15.0","pnpm":"10.33.2"})
+V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\ui\test\zaicodeT205UsageLiveRefresh.test.ts:7
+  ZAICODE_USAGE_DEFAULT_REFRESH_SECONDS,
+  ^
+SyntaxError: The requested module '../src/zaicode/zaicodeUsage.js' does not provide an export named 'ZAICODE_USAGE_DEFAULT_REFRESH_SECONDS'
+    at #asyncInstantiate (node:internal/modules/esm/module_job:326:21)
+    at async ModuleJob.run (node:internal/modules/esm/module_job:429:5)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v24.15.0
+✖ test\zaicodeT205UsageLiveRefresh.test.ts (186.0992ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 192.1576
+
+✖ failing tests:
+
+test at test\zaicodeT205UsageLiveRefresh.test.ts:1:1
+✖ test\zaicodeT205UsageLiveRefresh.test.ts (186.0992ms)
+  'test failed'
+undefined
+V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\ui:
+ ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL  Command failed with exit code 1: node --import tsx --test test/zaicodeT205UsageLiveRefresh.test.ts

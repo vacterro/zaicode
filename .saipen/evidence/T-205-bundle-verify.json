@@ -1,0 +1,22 @@
+{
+  "kind": "bundle",
+  "at": "2026-10-04T05:52:04.151Z",
+  "command": [
+    "pnpm",
+    "bundle:zaicode",
+    "--",
+    "--skip-build",
+    "--skip-prepare"
+  ],
+  "exit": 0,
+  "sourceChanges": [],
+  "subject": {
+    "packages/ui/src/zaicode/ZaicodeUsageView.tsx": "98c8841ede65965502ec1457837140f772d5ea7fd010243242346beb0cb88a6a",
+    "packages/ui/src/zaicode/zaicodeUsage.ts": "d9fd65aa29ef366c9cbb7505d56600be8bb8333e53b1a282130d41fecfbf1e22",
+    "packages/ui/src/zaicode/zaicodeUsageLabels.ts": "e501c57e6c81061151f4c07b3843afc26780b771ec35751be8e1e563fdd22e63",
+    "packages/ui/test/zaicodeT205UsageLiveRefresh.test.ts": "b1f3311121bc9dea4b178d15074a46ca19736855e0040a8a75dcc80d815e26b5",
+    "packages/ui/test/zaicodeUsageLabels.test.ts": "e3478bed4f4bd3474fd798d5254a149f8ea3bf951846e7dcda184d983842d954"
+  },
+  "log": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\.saipen\\evidence\\T-205-bundle-verify.txt",
+  "logSha256": "b6b07926480b0a03a49a6c24a8d0715c7d860105d1d0c2d8059472e7f3d039e3"
+}

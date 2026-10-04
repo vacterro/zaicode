@@ -1,0 +1,15 @@
+{
+  "pass": false,
+  "checks": [
+    {
+      "name": "positive: isolated packaged profile",
+      "pass": true
+    }
+  ],
+  "errors": [],
+  "error": "locator.waitFor: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"zaicode-auto-goal\"]') to be visible\u001b[22m\n\n    at V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\.saipen\\evidence\\T-204-packaged.cjs:44:18",
+  "profile": "V:\\_TEMP_\\zaicode-t204-Bvi8N2",
+  "executablePath": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\dist-next\\win-unpacked\\ZAICODE.exe",
+  "verifier": "963f763b949f10a676c1a65c601f546b5ca61940a38977e71db31c9f82e81e89",
+  "asarSha256": "7fc369280c03269269f830765a42d5c7eab5da3e917009ce3d5ce32e81283261"
+}

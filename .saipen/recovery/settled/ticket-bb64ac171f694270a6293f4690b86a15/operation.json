@@ -1,0 +1,78 @@
+{
+  "op_id": "ticket-bb64ac171f694270a6293f4690b86a15",
+  "operation": "ticket_move",
+  "created_at": "2026-10-04T06:58:50Z",
+  "agent": "saipen-cli",
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "project_lineage": "lineage-b0732ed2f98947b9a3c97bfe71427eca",
+  "semantic_payload_hash": "3d288b0009dae8d7",
+  "preconditions": {
+    ".saipen/STATE.md": "4d7cae11457138ec",
+    ".saipen/BOARD.md": "946022bb42757bfd",
+    ".saipen/LOG.md": "1163574550b26720"
+  },
+  "read_preconditions": {
+    ".saipen/logs": "delete-tree-sha256:43d12d8769b98884f0cb928a20e21ea9056fe43cc34ee36abdbed9bc38d1d455"
+  },
+  "verification_policy": "core_fast",
+  "status": "COMMITTED",
+  "progress_index": 7,
+  "targets": [
+    {
+      "path": ".saipen/recovery/log-detail/E-3405-4bd8397a0d64628780d42e58.LOG.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "4bd8397a0d646287",
+      "applied": true
+    },
+    {
+      "path": ".saipen/recovery/log-detail/E-3405-4bd8397a0d64628780d42e58.json",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "df97e8a7f34afa28",
+      "applied": true
+    },
+    {
+      "path": ".saipen/LOG.md",
+      "role": "log",
+      "action": "write",
+      "before_hash": "1163574550b26720",
+      "after_hash": "82ac6d9c7dfac734",
+      "applied": true
+    },
+    {
+      "path": ".saipen/recovery/board-compaction/T-204/T-204-e7aea49c49fb66dba4bc1c46.BOARD.md",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "e7aea49c49fb66db",
+      "applied": true
+    },
+    {
+      "path": ".saipen/recovery/board-compaction/T-204/T-204-e7aea49c49fb66dba4bc1c46.json",
+      "role": "generic",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "33121bc9d01d7daa",
+      "applied": true
+    },
+    {
+      "path": ".saipen/BOARD.md",
+      "role": "board",
+      "action": "write",
+      "before_hash": "946022bb42757bfd",
+      "after_hash": "0485ba0f8aa9451f",
+      "applied": true
+    },
+    {
+      "path": ".saipen/STATE.md",
+      "role": "state",
+      "action": "write",
+      "before_hash": "4d7cae11457138ec",
+      "after_hash": "58939bfcead268b7",
+      "applied": true
+    }
+  ]
+}

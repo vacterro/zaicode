@@ -1,0 +1,866 @@
+[WARN] The "pnpm" field in package.json is no longer read by pnpm. The following keys were ignored: "pnpm.overrides", "pnpm.patchedDependencies". See https://pnpm.io/settings for the new home of each setting.
+apps/zcode-cli                           |  WARN  Unsupported engine: wanted: {"node":"24.14.0"} (current: {"node":"v24.15.0","pnpm":"10.33.2"})
+✔ the live meter offers every refresh rate the user asked for, 10s still the default (1.1026ms)
+✖ the panel reads its timer from the chosen rate instead of a fixed 10s (2.5657ms)
+✔ dragging the name column widens it within the bounds the metrics need (0.1457ms)
+✖ the table hands its name column to a drag handle and to the row cells (0.5973ms)
+✖ a finished request no longer prints a status word under the model name (0.4236ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 2
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 195.474
+
+✖ failing tests:
+
+test at test\zaicodeT205UsageLiveRefresh.test.ts:1:773
+✖ the panel reads its timer from the chosen rate instead of a fixed 10s (2.5657ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /setTimeout\(\(\) => void read\(\), refreshSeconds \* 1000\)/. Input:
+  
+  'import { useEffect, useState, type ComponentProps } from "react";\r\n' +
+    'import { normalizeZaicodeRouterConnections, normalizeZaicodeRouterNodes } from "@zcode/shared";\r\n' +
+    'import { Button } from "@/components/ui/button.js";\r\n' +
+    'import { cn } from "@/components/lib/utils.js";\r\n' +
+    'import { getZaicodeRouterBridge, useZaicodeRouter } from "./zaicodeRouter.js";\r\n' +
+    'import {\r\n' +
+    '  buildZaicodeUsageLabels,\r\n' +
+    '  displayZaicodeUsageBreakdown,\r\n' +
+    '  zaicodeUsageDisplayName,\r\n' +
+    '  zaicodeUsageStatus,\r\n' +
+    '} from "./zaicodeUsageLabels.js";\r\n' +
+    'import {\r\n' +
+    '  normalizeZaicodeUsage,\r\n' +
+    '  normalizeZaicodeUsageChart,\r\n' +
+    '  openZaicodeUsage,\r\n' +
+    '  toggleZaicodeUsageSidebar,\r\n' +
+    '  useZaicodeUsage,\r\n' +
+    '  ZAICODE_USAGE_PERIODS,\r\n' +
+    '  type UsageCount,\r\n' +
+    '} from "./zaicodeUsage.js";\r\n' +
+    '\r\n' +
+    'const number = (value: number) => value.toLocaleString(undefined, { maximumFractionDigits: 0 });\r\n' +
+    'const cost = (value: number) => `$${value.toFixed(4)}`;\r\n' +
+    '\r\n' +
+    'function UsageChoice({\r\n' +
+    '  selected,\r\n' +
+    '  ...props\r\n' +
+    '}: ComponentProps<typeof Button> & { selected: boolean }) {\r\n' +
+    '  return (\r\n' +
+    '    <Button\r\n' +
+    '      {...props}\r\n' +
+    '      variant="ghost"\r\n' +
+    '      size="sm"\r\n' +
+    '      className={cn(\r\n' +
+    '        "border text-ui-xs",\r\n' +
+    '        selected\r\n' +
+    '          ? "border-border-hover bg-selected text-foreground"\r\n' +
+    '          : "border-transparent text-foreground-subtle",\r\n' +
+    '        props.className,\r\n' +
+    '      )}\r\n' +
+    '    />\r\n' +
+    '  );\r\n' +
+    '}\r\n' +
+    '\r\n' +
+    'export function ZaicodeUsageView({ sidebar = false }: { sidebar?: boolean }) {\r\n' +
+    '  const period = useZaicodeUsage((state) => state.period);\r\n' +
+    '  const [revision, setRevision] = useState(0);\r\n' +
+    '  const [auto, setAuto] = useState(true);\r\n' +
+    '  const [loading, setLoading] = useState(false);\r\n' +
+    '  const [error, setError] = useState("");\r\n' +
+    '  const [updatedAt, setUpdatedAt] = useState(0);\r\n' +
+    '  const [data, setData] = useState<ReturnType<typeof normalizeZaicodeUsage> | null>(null);\r\n' +
+    '  const [chart, setChart] = useState<ReturnType<typeof normalizeZaicodeUsageChart>>([]);\r\n' +
+    '  const [metric, setMetric] = useState<"tokens" | "cost">("tokens");\r\n' +
+    '  const [tab, setTab] = useState<"recent" | "models" | "providers" | "accounts">("recent");\r\n' +
+    '  const [labels, setLabels] = useState(() => {\r\n' +
+    '    const router = useZaicodeRouter.getState();\r\n' +
+    '    return buildZaicodeUsageLabels(router.nodes, router.connections);\r\n' +
+    '  });\r\n' +
+    '\r\n' +
+    '  useEffect(() => {\r\n' +
+    '    let disposed = false;\r\n' +
+    '    const bridge = getZaicodeRouterBridge();\r\n' +
+    '    if (!bridge?.callZaicodeRouter) return;\r\n' +
+    '    // Names are metadata: read once per view, separately from the live metrics.\r\n' +
+    '    void Promise.allSettled([\r\n' +
+    '      bridge.callZaicodeRouter({ method: "GET", path: "/api/provider-nodes" }),\r\n' +
+    '      bridge.callZaicodeRouter({ method: "GET", path: "/api/providers" }),\r\n' +
+    '    ]).then(([nodes, connections]) => {\r\n' +
+    '      if (disposed) return;\r\n' +
+    '      const router = useZaicodeRouter.getState();\r\n' +
+    '      setLabels(\r\n' +
+    '        buildZaicodeUsageLabels(\r\n' +
+    '          nodes.status === "fulfilled" && nodes.value.ok\r\n' +
+    '            ? normalizeZaicodeRouterNodes(nodes.value.data)\r\n' +
+    '            : router.nodes,\r\n' +
+    '          connections.status === "fulfilled" && connections.value.ok\r\n' +
+    '            ? normalizeZaicodeRouterConnections(connections.value.data)\r\n' +
+    '            : router.connections,\r\n' +
+    '        ),\r\n' +
+    '      );\r\n' +
+    '    });\r\n' +
+    '    return () => {\r\n' +
+    '      disposed = true;\r\n' +
+    '    };\r\n' +
+    '  }, []);\r\n' +
+    '\r\n' +
+    '  useEffect(() => {\r\n' +
+    '    let disposed = false;\r\n' +
+    '    let timer: ReturnType<typeof setTimeout> | undefined;\r\n' +
+    '    let inFlight = false;\r\n' +
+    '    const read = async () => {\r\n' +
+    '      if (disposed || inFlight || document.visibilityState === "hidden") return;\r\n' +
+    '      clearTimeout(timer);\r\n' +
+    '      inFlight = true;\r\n' +
+    '      setLoading(true);\r\n' +
+    '      try {\r\n' +
+    '        const bridge = getZaicodeRouterBridge();\r\n' +
+    '        if (!bridge?.callZaicodeRouter)\r\n' +
+    '          throw new Error("Usage requires the ZAICODE desktop connection to 9router.");\r\n' +
+    '        const [stats, trend] = await Promise.all([\r\n' +
+    '          bridge.callZaicodeRouter({ method: "GET", path: `/api/usage/stats?period=${period}` }),\r\n' +
+    '          bridge.callZaicodeRouter({\r\n' +
+    '            method: "GET",\r\n' +
+    '            path: `/api/usage/chart?period=${period === "all" ? "60d" : period}`,\r\n' +
+    '          }),\r\n' +
+    '        ]);\r\n' +
+    '        if (disposed) return;\r\n' +
+    '        if (!stats.ok) throw new Error(stats.message || "9router usage is unavailable.");\r\n' +
+    '        setData(normalizeZaicodeUsage(stats.data));\r\n' +
+    '        setChart(trend.ok ? normalizeZaicodeUsageChart(trend.data) : []);\r\n' +
+    '        setError(trend.ok ? "" : `Trend unavailable: ${trend.message}`);\r\n' +
+    '        setUpdatedAt(Date.now());\r\n' +
+    '      } catch (failure) {\r\n' +
+    '        if (!disposed) setError(failure instanceof Error ? failure.message : String(failure));\r\n' +
+    '      } finally {\r\n' +
+    '        inFlight = false;\r\n' +
+    '        if (!disposed) {\r\n' +
+    '          setLoading(false);\r\n' +
+    '          if (auto) timer = setTimeout(() => void read(), 10_000);\r\n' +
+    '        }\r\n' +
+    '      }\r\n' +
+    '    };\r\n' +
+    '    const visible = () => {\r\n' +
+    '      if (auto && document.visibilityState === "visible") void read();\r\n' +
+    '    };\r\n' +
+    '    void read();\r\n' +
+    '    document.addEventListener("visibilitychange", visible);\r\n' +
+    '    return () => {\r\n' +
+    '      disposed = true;\r\n' +
+    '      clearTimeout(timer);\r\n' +
+    '      document.removeEventListener("visibilitychange", visible);\r\n' +
+    '    };\r\n' +
+    '  }, [auto, period, revision]);\r\n' +
+    '\r\n' +
+    '  const totals = data?.totals;\r\n' +
+    '  const values = chart.map((row) => row[metric]);\r\n' +
+    '  const peak = Math.max(1, ...values);\r\n' +
+    '  const points = values\r\n' +
+    '    .map(\r\n' +
+    '      (value, index) =>\r\n' +
+    '        `${(index * 600) / Math.max(1, values.length - 1)},${110 - (value * 100) / peak}`,\r\n' +
+    '    )\r\n' +
+    '    .join(" ");\r\n' +
+    '  const rows: UsageCount[] = data\r\n' +
+    '    ? tab === "recent"\r\n' +
+    '      ? data.recent\r\n' +
+    '      : displayZaicodeUsageBreakdown(data[tab], tab, labels)\r\n' +
+    '    : [];\r\n' +
+    '\r\n' +
+    '  return (\r\n' +
+    '    <section\r\n' +
+    '      data-zaicode-help="usage"\r\n' +
+    '      className="flex h-full min-h-0 min-w-0 flex-1 flex-col bg-background text-foreground"\r\n' +
+    '      data-zaicode-usage={sidebar ? "sidebar" : "page"}\r\n' +
+    '      aria-label="9router Usage"\r\n' +
+    '    >\r\n' +
+    '      <header className="flex shrink-0 flex-wrap items-center gap-1 border-b border-border p-2">\r\n' +
+    '        <strong className="mr-auto">9router Usage</strong>\r\n' +
+    '        <Button\r\n' +
+    '          size="sm"\r\n' +
+    '          variant="ghost"\r\n' +
+    '          onClick={() => (sidebar ? openZaicodeUsage("page") : toggleZaicodeUsageSidebar())}\r\n' +
+    '        >\r\n' +
+    '          {sidebar ? "Full page" : "Sidebar"}\r\n' +
+    '        </Button>\r\n' +
+    '        <Button size="sm" variant="ghost" onClick={() => openZaicodeUsage("closed")}>\r\n' +
+    '          Close\r\n' +
+    '        </Button>\r\n' +
+    '      </header>\r\n' +
+    '      <div className="min-h-0 flex-1 overflow-y-auto p-2">\r\n' +
+    '        <p className="mb-2 text-ui-xs text-foreground-subtle">\r\n' +
+    '          All traffic through this 9router, including ZAICODE and other clients.\r\n' +
+    '        </p>\r\n' +
+    '        <div className="mb-2 flex flex-wrap items-center gap-1" aria-label="Usage period">\r\n' +
+    '          {ZAICODE_USAGE_PERIODS.map((value) => (\r\n' +
+    '            <UsageChoice\r\n' +
+    '              key={value}\r\n' +
+    '              selected={period === value}\r\n' +
+    '              aria-pressed={period === value}\r\n' +
+    '              onClick={() => useZaicodeUsage.setState({ period: value })}\r\n' +
+    '            >\r\n' +
+    '              {value === "today" ? "Today" : value === "all" ? "All" : value.toUpperCase()}\r\n' +
+    '            </UsageChoice>\r\n' +
+    '          ))}\r\n' +
+    '          <Button\r\n' +
+    '            size="sm"\r\n' +
+    '            variant="outline"\r\n' +
+    '            disabled={loading}\r\n' +
+    '            onClick={() => setRevision((value) => value + 1)}\r\n' +
+    '          >\r\n' +
+    '            Refresh\r\n' +
+    '          </Button>\r\n' +
+    '          <label className="flex items-center gap-1 text-ui-xs">\r\n' +
+    '            <input\r\n' +
+    '              type="checkbox"\r\n' +
+    '              checked={auto}\r\n' +
+    '              onChange={(event) => setAuto(event.target.checked)}\r\n' +
+    '            />\r\n' +
+    '            Live · 10s\r\n' +
+    '          </label>\r\n' +
+    '        </div>\r\n' +
+    '        <p className="mb-2 text-ui-xs" aria-live="polite">\r\n' +
+    '          {loading\r\n' +
+    '            ? "Reading usage…"\r\n' +
+    '            : updatedAt\r\n' +
+    '              ? `Updated ${new Date(updatedAt).toLocaleTimeString()}`\r\n' +
+    '              : "Waiting for 9router"}\r\n' +
+    '        </p>\r\n' +
+    '        {error ? (\r\n' +
+    '          <p role="alert" className="mb-2 border border-destructive p-2 text-destructive">\r\n' +
+    '            {error}\r\n' +
+    '            {updatedAt ? " · Showing the last successful reading." : ""}\r\n' +
+    '          </p>\r\n' +
+    '        ) : null}\r\n' +
+    '        <div\r\n' +
+    '          className={cn("mb-3 grid gap-1", sidebar ? "grid-cols-2" : "grid-cols-2 lg:grid-cols-5")}\r\n' +
+    '        >\r\n' +
+    '          {(\r\n' +
+    '            [\r\n' +
+    '              ["Requests", totals?.requests],\r\n' +
+    '              ["Input tokens", totals?.input],\r\n' +
+    '              ["Cached tokens", totals?.cached],\r\n' +
+    '              ["Output tokens", totals?.output],\r\n' +
+    '              ["Estimated cost", totals?.cost],\r\n' +
+    '            ] as const\r\n' +
+    '          ).map(([label, value]) => (\r\n' +
+    '            <div key={label} className="min-w-0 border border-border p-2">\r\n' +
+    '              <span className="block text-ui-xs text-foreground-subtle">{label}</span>\r\n' +
+    '              <strong className="break-all tabular-nums">\r\n' +
+    '                {value === undefined\r\n' +
+    '                  ? "—"\r\n' +
+    '                  : label === "Estimated cost"\r\n' +
+    '                    ? cost(value)\r\n' +
+    '                    : number(value)}\r\n' +
+    '              </strong>\r\n' +
+    '            </div>\r\n' +
+    '          ))}\r\n' +
+    '        </div>\r\n' +
+    '        <p className="mb-2 text-ui-xs text-foreground-subtle">Cost is an estimate, not a bill.</p>\r\n' +
+    '        {data?.active.length ? (\r\n' +
+    '          <div className="mb-3 border border-border p-2">\r\n' +
+    '            <strong className="text-ui-xs">Active requests</strong>\r\n' +
+    '            {data.active.map((row, index) => (\r\n' +
+    '              <p key={index} className="truncate text-ui-xs">\r\n' +
+    '                {zaicodeUsageDisplayName(row.name, "models", labels)} · {row.requests} running\r\n' +
+    '              </p>\r\n' +
+    '            ))}\r\n' +
+    '          </div>\r\n' +
+    '        ) : null}\r\n' +
+    '        <div className="mb-3 border border-border p-2">\r\n' +
+    '          <div className="flex gap-1">\r\n' +
+    '            <UsageChoice\r\n' +
+    '              selected={metric === "tokens"}\r\n' +
+    '              aria-pressed={metric === "tokens"}\r\n' +
+    '              onClick={() => setMetric("tokens")}\r\n' +
+    '            >\r\n' +
+    '              Tokens\r\n' +
+    '            </UsageChoice>\r\n' +
+    '            <UsageChoice\r\n' +
+    '              selected={metric === "cost"}\r\n' +
+    '          '... 5186 more characters
+  
+      at TestContext.<anonymous> (V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\ui\test\zaicodeT205UsageLiveRefresh.test.ts:30:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'import { useEffect, useState, type ComponentProps } from "react";\r\nimport { normalizeZaicodeRouterConnections, normalizeZaicodeRouterNodes } from "@zcode/shared";\r\nimport { Button } from "@/components/ui/button.js";\r\nimport { cn } from "@/components/lib/utils.js";\r\nimport { getZaicodeRouterBridge, useZaicodeRouter } from "./zaicodeRouter.js";\r\nimport {\r\n  buildZaicodeUsageLabels,\r\n  displayZaicodeUsageBreakdown,\r\n  zaicodeUsageDisplayName,\r\n  zaicodeUsageStatus,\r\n} from "./zaicodeUsageLabels.js";\r\nimport {\r\n  normalizeZaicodeUsage,\r\n  normalizeZaicodeUsageChart,\r\n  openZaicodeUsage,\r\n  toggleZaicodeUsageSidebar,\r\n  useZaicodeUsage,\r\n  ZAICODE_USAGE_PERIODS,\r\n  type UsageCount,\r\n} from "./zaicodeUsage.js";\r\n\r\nconst number = (value: number) => value.toLocaleString(undefined, { maximumFractionDigits: 0 });\r\nconst cost = (value: number) => `$${value.toFixed(4)}`;\r\n\r\nfunction UsageChoice({\r\n  selected,\r\n  ...props\r\n}: ComponentProps<typeof Button> & { selected: boolean }) {\r\n  return (\r\n    <Button\r\n      {...props}\r\n      variant="ghost"\r\n      size="sm"\r\n      className={cn(\r\n        "border text-ui-xs",\r\n        selected\r\n          ? "border-border-hover bg-selected text-foreground"\r\n          : "border-transparent text-foreground-subtle",\r\n        props.className,\r\n      )}\r\n    />\r\n  );\r\n}\r\n\r\nexport function ZaicodeUsageView({ sidebar = false }: { sidebar?: boolean }) {\r\n  const period = useZaicodeUsage((state) => state.period);\r\n  const [revision, setRevision] = useState(0);\r\n  const [auto, setAuto] = useState(true);\r\n  const [loading, setLoading] = useState(false);\r\n  const [error, setError] = useState("");\r\n  const [updatedAt, setUpdatedAt] = useState(0);\r\n  const [data, setData] = useState<ReturnType<typeof normalizeZaicodeUsage> | null>(null);\r\n  const [chart, setChart] = useState<ReturnType<typeof normalizeZaicodeUsageChart>>([]);\r\n  const [metric, setMetric] = useState<"tokens" | "cost">("tokens");\r\n  const [tab, setTab] = useState<"recent" | "models" | "providers" | "accounts">("recent");\r\n  const [labels, setLabels] = useState(() => {\r\n    const router = useZaicodeRouter.getState();\r\n    return buildZaicodeUsageLabels(router.nodes, router.connections);\r\n  });\r\n\r\n  useEffect(() => {\r\n    let disposed = false;\r\n    const bridge = getZaicodeRouterBridge();\r\n    if (!bridge?.callZaicodeRouter) return;\r\n    // Names are metadata: read once per view, separately from the live metrics.\r\n    void Promise.allSettled([\r\n      bridge.callZaicodeRouter({ method: "GET", path: "/api/provider-nodes" }),\r\n      bridge.callZaicodeRouter({ method: "GET", path: "/api/providers" }),\r\n    ]).then(([nodes, connections]) => {\r\n      if (disposed) return;\r\n      const router = useZaicodeRouter.getState();\r\n      setLabels(\r\n        buildZaicodeUsageLabels(\r\n          nodes.status === "fulfilled" && nodes.value.ok\r\n            ? normalizeZaicodeRouterNodes(nodes.value.data)\r\n            : router.nodes,\r\n          connections.status === "fulfilled" && connections.value.ok\r\n            ? normalizeZaicodeRouterConnections(connections.value.data)\r\n            : router.connections,\r\n        ),\r\n      );\r\n    });\r\n    return () => {\r\n      disposed = true;\r\n    };\r\n  }, []);\r\n\r\n  useEffect(() => {\r\n    let disposed = false;\r\n    let timer: ReturnType<typeof setTimeout> | undefined;\r\n    let inFlight = false;\r\n    const read = async () => {\r\n      if (disposed || inFlight || document.visibilityState === "hidden") return;\r\n      clearTimeout(timer);\r\n      inFlight = true;\r\n      setLoading(true);\r\n      try {\r\n        const bridge = getZaicodeRouterBridge();\r\n        if (!bridge?.callZaicodeRouter)\r\n          throw new Error("Usage requires the ZAICODE desktop connection to 9router.");\r\n        const [stats, trend] = await Promise.all([\r\n          bridge.callZaicodeRouter({ method: "GET", path: `/api/usage/stats?period=${period}` }),\r\n          bridge.callZaicodeRouter({\r\n            method: "GET",\r\n            path: `/api/usage/chart?period=${period === "all" ? "60d" : period}`,\r\n          }),\r\n        ]);\r\n        if (disposed) return;\r\n        if (!stats.ok) throw new Error(stats.message || "9router usage is unavailable.");\r\n        setData(normalizeZaicodeUsage(stats.data));\r\n        setChart(trend.ok ? normalizeZaicodeUsageChart(trend.data) : []);\r\n        setError(trend.ok ? "" : `Trend unavailable: ${trend.message}`);\r\n        setUpdatedAt(Date.now());\r\n      } catch (failure) {\r\n        if (!disposed) setError(failure instanceof Error ? failure.message : String(failure));\r\n      } finally {\r\n        inFlight = false;\r\n        if (!disposed) {\r\n          setLoading(false);\r\n          if (auto) timer = setTimeout(() => void read(), 10_000);\r\n        }\r\n      }\r\n    };\r\n    const visible = () => {\r\n      if (auto && document.visibilityState === "visible") void read();\r\n    };\r\n    void read();\r\n    document.addEventListener("visibilitychange", visible);\r\n    return () => {\r\n      disposed = true;\r\n      clearTimeout(timer);\r\n      document.removeEventListener("visibilitychange", visible);\r\n    };\r\n  }, [auto, period, revision]);\r\n\r\n  const totals = data?.totals;\r\n  const values = chart.map((row) => row[metric]);\r\n  const peak = Math.max(1, ...values);\r\n  const points = values\r\n    .map(\r\n      (value, index) =>\r\n        `${(index * 600) / Math.max(1, values.length - 1)},${110 - (value * 100) / peak}`,\r\n    )\r\n    .join(" ");\r\n  const rows: UsageCount[] = data\r\n    ? tab === "recent"\r\n      ? data.recent\r\n      : displayZaicodeUsageBreakdown(data[tab], tab, labels)\r\n    : [];\r\n\r\n  return (\r\n    <section\r\n      data-zaicode-help="usage"\r\n      className="flex h-full min-h-0 min-w-0 flex-1 flex-col bg-background text-foreground"\r\n      data-zaicode-usage={sidebar ? "sidebar" : "page"}\r\n      aria-label="9router Usage"\r\n    >\r\n      <header className="flex shrink-0 flex-wrap items-center gap-1 border-b border-border p-2">\r\n        <strong className="mr-auto">9router Usage</strong>\r\n        <Button\r\n          size="sm"\r\n          variant="ghost"\r\n          onClick={() => (sidebar ? openZaicodeUsage("page") : toggleZaicodeUsageSidebar())}\r\n        >\r\n          {sidebar ? "Full page" : "Sidebar"}\r\n        </Button>\r\n        <Button size="sm" variant="ghost" onClick={() => openZaicodeUsage("closed")}>\r\n          Close\r\n        </Button>\r\n      </header>\r\n      <div className="min-h-0 flex-1 overflow-y-auto p-2">\r\n        <p className="mb-2 text-ui-xs text-foreground-subtle">\r\n          All traffic through this 9router, including ZAICODE and other clients.\r\n        </p>\r\n        <div className="mb-2 flex flex-wrap items-center gap-1" aria-label="Usage period">\r\n          {ZAICODE_USAGE_PERIODS.map((value) => (\r\n            <UsageChoice\r\n              key={value}\r\n              selected={period === value}\r\n              aria-pressed={period === value}\r\n              onClick={() => useZaicodeUsage.setState({ period: value })}\r\n            >\r\n              {value === "today" ? "Today" : value === "all" ? "All" : value.toUpperCase()}\r\n            </UsageChoice>\r\n          ))}\r\n          <Button\r\n            size="sm"\r\n            variant="outline"\r\n            disabled={loading}\r\n            onClick={() => setRevision((value) => value + 1)}\r\n          >\r\n            Refresh\r\n          </Button>\r\n          <label className="flex items-center gap-1 text-ui-xs">\r\n            <input\r\n              type="checkbox"\r\n              checked={auto}\r\n              onChange={(event) => setAuto(event.target.checked)}\r\n            />\r\n            Live · 10s\r\n          </label>\r\n        </div>\r\n        <p className="mb-2 text-ui-xs" aria-live="polite">\r\n          {loading\r\n            ? "Reading usage…"\r\n            : updatedAt\r\n              ? `Updated ${new Date(updatedAt).toLocaleTimeString()}`\r\n              : "Waiting for 9router"}\r\n        </p>\r\n        {error ? (\r\n          <p role="alert" className="mb-2 border border-destructive p-2 text-destructive">\r\n            {error}\r\n            {updatedAt ? " · Showing the last successful reading." : ""}\r\n          </p>\r\n        ) : null}\r\n        <div\r\n          className={cn("mb-3 grid gap-1", sidebar ? "grid-cols-2" : "grid-cols-2 lg:grid-cols-5")}\r\n        >\r\n          {(\r\n            [\r\n              ["Requests", totals?.requests],\r\n              ["Input tokens", totals?.input],\r\n              ["Cached tokens", totals?.cached],\r\n              ["Output tokens", totals?.output],\r\n              ["Estimated cost", totals?.cost],\r\n            ] as const\r\n          ).map(([label, value]) => (\r\n            <div key={label} className="min-w-0 border border-border p-2">\r\n              <span className="block text-ui-xs text-foreground-subtle">{label}</span>\r\n              <strong className="break-all tabular-nums">\r\n                {value === undefined\r\n                  ? "—"\r\n                  : label === "Estimated cost"\r\n                    ? cost(value)\r\n                    : number(value)}\r\n              </strong>\r\n            </div>\r\n          ))}\r\n        </div>\r\n        <p className="mb-2 text-ui-xs text-foreground-subtle">Cost is an estimate, not a bill.</p>\r\n        {data?.active.length ? (\r\n          <div className="mb-3 border border-border p-2">\r\n            <strong className="text-ui-xs">Active requests</strong>\r\n            {data.active.map((row, index) => (\r\n              <p key={index} className="truncate text-ui-xs">\r\n                {zaicodeUsageDisplayName(row.name, "models", labels)} · {row.requests} running\r\n              </p>\r\n            ))}\r\n          </div>\r\n        ) : null}\r\n        <div className="mb-3 border border-border p-2">\r\n          <div className="flex gap-1">\r\n            <UsageChoice\r\n              selected={metric === "tokens"}\r\n              aria-pressed={metric === "tokens"}\r\n              onClick={() => setMetric("tokens")}\r\n            >\r\n              Tokens\r\n            </UsageChoice>\r\n            <UsageChoice\r\n              selected={metric === "cost"}\r\n          '... 5186 more characters,
+    expected: /setTimeout\(\(\) => void read\(\), refreshSeconds \* 1000\)/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at test\zaicodeT205UsageLiveRefresh.test.ts:1:1809
+✖ the table hands its name column to a drag handle and to the row cells (0.5973ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /data-zaicode-usage-column-resize/. Input:
+  
+  'import { useEffect, useState, type ComponentProps } from "react";\r\n' +
+    'import { normalizeZaicodeRouterConnections, normalizeZaicodeRouterNodes } from "@zcode/shared";\r\n' +
+    'import { Button } from "@/components/ui/button.js";\r\n' +
+    'import { cn } from "@/components/lib/utils.js";\r\n' +
+    'import { getZaicodeRouterBridge, useZaicodeRouter } from "./zaicodeRouter.js";\r\n' +
+    'import {\r\n' +
+    '  buildZaicodeUsageLabels,\r\n' +
+    '  displayZaicodeUsageBreakdown,\r\n' +
+    '  zaicodeUsageDisplayName,\r\n' +
+    '  zaicodeUsageStatus,\r\n' +
+    '} from "./zaicodeUsageLabels.js";\r\n' +
+    'import {\r\n' +
+    '  normalizeZaicodeUsage,\r\n' +
+    '  normalizeZaicodeUsageChart,\r\n' +
+    '  openZaicodeUsage,\r\n' +
+    '  toggleZaicodeUsageSidebar,\r\n' +
+    '  useZaicodeUsage,\r\n' +
+    '  ZAICODE_USAGE_PERIODS,\r\n' +
+    '  type UsageCount,\r\n' +
+    '} from "./zaicodeUsage.js";\r\n' +
+    '\r\n' +
+    'const number = (value: number) => value.toLocaleString(undefined, { maximumFractionDigits: 0 });\r\n' +
+    'const cost = (value: number) => `$${value.toFixed(4)}`;\r\n' +
+    '\r\n' +
+    'function UsageChoice({\r\n' +
+    '  selected,\r\n' +
+    '  ...props\r\n' +
+    '}: ComponentProps<typeof Button> & { selected: boolean }) {\r\n' +
+    '  return (\r\n' +
+    '    <Button\r\n' +
+    '      {...props}\r\n' +
+    '      variant="ghost"\r\n' +
+    '      size="sm"\r\n' +
+    '      className={cn(\r\n' +
+    '        "border text-ui-xs",\r\n' +
+    '        selected\r\n' +
+    '          ? "border-border-hover bg-selected text-foreground"\r\n' +
+    '          : "border-transparent text-foreground-subtle",\r\n' +
+    '        props.className,\r\n' +
+    '      )}\r\n' +
+    '    />\r\n' +
+    '  );\r\n' +
+    '}\r\n' +
+    '\r\n' +
+    'export function ZaicodeUsageView({ sidebar = false }: { sidebar?: boolean }) {\r\n' +
+    '  const period = useZaicodeUsage((state) => state.period);\r\n' +
+    '  const [revision, setRevision] = useState(0);\r\n' +
+    '  const [auto, setAuto] = useState(true);\r\n' +
+    '  const [loading, setLoading] = useState(false);\r\n' +
+    '  const [error, setError] = useState("");\r\n' +
+    '  const [updatedAt, setUpdatedAt] = useState(0);\r\n' +
+    '  const [data, setData] = useState<ReturnType<typeof normalizeZaicodeUsage> | null>(null);\r\n' +
+    '  const [chart, setChart] = useState<ReturnType<typeof normalizeZaicodeUsageChart>>([]);\r\n' +
+    '  const [metric, setMetric] = useState<"tokens" | "cost">("tokens");\r\n' +
+    '  const [tab, setTab] = useState<"recent" | "models" | "providers" | "accounts">("recent");\r\n' +
+    '  const [labels, setLabels] = useState(() => {\r\n' +
+    '    const router = useZaicodeRouter.getState();\r\n' +
+    '    return buildZaicodeUsageLabels(router.nodes, router.connections);\r\n' +
+    '  });\r\n' +
+    '\r\n' +
+    '  useEffect(() => {\r\n' +
+    '    let disposed = false;\r\n' +
+    '    const bridge = getZaicodeRouterBridge();\r\n' +
+    '    if (!bridge?.callZaicodeRouter) return;\r\n' +
+    '    // Names are metadata: read once per view, separately from the live metrics.\r\n' +
+    '    void Promise.allSettled([\r\n' +
+    '      bridge.callZaicodeRouter({ method: "GET", path: "/api/provider-nodes" }),\r\n' +
+    '      bridge.callZaicodeRouter({ method: "GET", path: "/api/providers" }),\r\n' +
+    '    ]).then(([nodes, connections]) => {\r\n' +
+    '      if (disposed) return;\r\n' +
+    '      const router = useZaicodeRouter.getState();\r\n' +
+    '      setLabels(\r\n' +
+    '        buildZaicodeUsageLabels(\r\n' +
+    '          nodes.status === "fulfilled" && nodes.value.ok\r\n' +
+    '            ? normalizeZaicodeRouterNodes(nodes.value.data)\r\n' +
+    '            : router.nodes,\r\n' +
+    '          connections.status === "fulfilled" && connections.value.ok\r\n' +
+    '            ? normalizeZaicodeRouterConnections(connections.value.data)\r\n' +
+    '            : router.connections,\r\n' +
+    '        ),\r\n' +
+    '      );\r\n' +
+    '    });\r\n' +
+    '    return () => {\r\n' +
+    '      disposed = true;\r\n' +
+    '    };\r\n' +
+    '  }, []);\r\n' +
+    '\r\n' +
+    '  useEffect(() => {\r\n' +
+    '    let disposed = false;\r\n' +
+    '    let timer: ReturnType<typeof setTimeout> | undefined;\r\n' +
+    '    let inFlight = false;\r\n' +
+    '    const read = async () => {\r\n' +
+    '      if (disposed || inFlight || document.visibilityState === "hidden") return;\r\n' +
+    '      clearTimeout(timer);\r\n' +
+    '      inFlight = true;\r\n' +
+    '      setLoading(true);\r\n' +
+    '      try {\r\n' +
+    '        const bridge = getZaicodeRouterBridge();\r\n' +
+    '        if (!bridge?.callZaicodeRouter)\r\n' +
+    '          throw new Error("Usage requires the ZAICODE desktop connection to 9router.");\r\n' +
+    '        const [stats, trend] = await Promise.all([\r\n' +
+    '          bridge.callZaicodeRouter({ method: "GET", path: `/api/usage/stats?period=${period}` }),\r\n' +
+    '          bridge.callZaicodeRouter({\r\n' +
+    '            method: "GET",\r\n' +
+    '            path: `/api/usage/chart?period=${period === "all" ? "60d" : period}`,\r\n' +
+    '          }),\r\n' +
+    '        ]);\r\n' +
+    '        if (disposed) return;\r\n' +
+    '        if (!stats.ok) throw new Error(stats.message || "9router usage is unavailable.");\r\n' +
+    '        setData(normalizeZaicodeUsage(stats.data));\r\n' +
+    '        setChart(trend.ok ? normalizeZaicodeUsageChart(trend.data) : []);\r\n' +
+    '        setError(trend.ok ? "" : `Trend unavailable: ${trend.message}`);\r\n' +
+    '        setUpdatedAt(Date.now());\r\n' +
+    '      } catch (failure) {\r\n' +
+    '        if (!disposed) setError(failure instanceof Error ? failure.message : String(failure));\r\n' +
+    '      } finally {\r\n' +
+    '        inFlight = false;\r\n' +
+    '        if (!disposed) {\r\n' +
+    '          setLoading(false);\r\n' +
+    '          if (auto) timer = setTimeout(() => void read(), 10_000);\r\n' +
+    '        }\r\n' +
+    '      }\r\n' +
+    '    };\r\n' +
+    '    const visible = () => {\r\n' +
+    '      if (auto && document.visibilityState === "visible") void read();\r\n' +
+    '    };\r\n' +
+    '    void read();\r\n' +
+    '    document.addEventListener("visibilitychange", visible);\r\n' +
+    '    return () => {\r\n' +
+    '      disposed = true;\r\n' +
+    '      clearTimeout(timer);\r\n' +
+    '      document.removeEventListener("visibilitychange", visible);\r\n' +
+    '    };\r\n' +
+    '  }, [auto, period, revision]);\r\n' +
+    '\r\n' +
+    '  const totals = data?.totals;\r\n' +
+    '  const values = chart.map((row) => row[metric]);\r\n' +
+    '  const peak = Math.max(1, ...values);\r\n' +
+    '  const points = values\r\n' +
+    '    .map(\r\n' +
+    '      (value, index) =>\r\n' +
+    '        `${(index * 600) / Math.max(1, values.length - 1)},${110 - (value * 100) / peak}`,\r\n' +
+    '    )\r\n' +
+    '    .join(" ");\r\n' +
+    '  const rows: UsageCount[] = data\r\n' +
+    '    ? tab === "recent"\r\n' +
+    '      ? data.recent\r\n' +
+    '      : displayZaicodeUsageBreakdown(data[tab], tab, labels)\r\n' +
+    '    : [];\r\n' +
+    '\r\n' +
+    '  return (\r\n' +
+    '    <section\r\n' +
+    '      data-zaicode-help="usage"\r\n' +
+    '      className="flex h-full min-h-0 min-w-0 flex-1 flex-col bg-background text-foreground"\r\n' +
+    '      data-zaicode-usage={sidebar ? "sidebar" : "page"}\r\n' +
+    '      aria-label="9router Usage"\r\n' +
+    '    >\r\n' +
+    '      <header className="flex shrink-0 flex-wrap items-center gap-1 border-b border-border p-2">\r\n' +
+    '        <strong className="mr-auto">9router Usage</strong>\r\n' +
+    '        <Button\r\n' +
+    '          size="sm"\r\n' +
+    '          variant="ghost"\r\n' +
+    '          onClick={() => (sidebar ? openZaicodeUsage("page") : toggleZaicodeUsageSidebar())}\r\n' +
+    '        >\r\n' +
+    '          {sidebar ? "Full page" : "Sidebar"}\r\n' +
+    '        </Button>\r\n' +
+    '        <Button size="sm" variant="ghost" onClick={() => openZaicodeUsage("closed")}>\r\n' +
+    '          Close\r\n' +
+    '        </Button>\r\n' +
+    '      </header>\r\n' +
+    '      <div className="min-h-0 flex-1 overflow-y-auto p-2">\r\n' +
+    '        <p className="mb-2 text-ui-xs text-foreground-subtle">\r\n' +
+    '          All traffic through this 9router, including ZAICODE and other clients.\r\n' +
+    '        </p>\r\n' +
+    '        <div className="mb-2 flex flex-wrap items-center gap-1" aria-label="Usage period">\r\n' +
+    '          {ZAICODE_USAGE_PERIODS.map((value) => (\r\n' +
+    '            <UsageChoice\r\n' +
+    '              key={value}\r\n' +
+    '              selected={period === value}\r\n' +
+    '              aria-pressed={period === value}\r\n' +
+    '              onClick={() => useZaicodeUsage.setState({ period: value })}\r\n' +
+    '            >\r\n' +
+    '              {value === "today" ? "Today" : value === "all" ? "All" : value.toUpperCase()}\r\n' +
+    '            </UsageChoice>\r\n' +
+    '          ))}\r\n' +
+    '          <Button\r\n' +
+    '            size="sm"\r\n' +
+    '            variant="outline"\r\n' +
+    '            disabled={loading}\r\n' +
+    '            onClick={() => setRevision((value) => value + 1)}\r\n' +
+    '          >\r\n' +
+    '            Refresh\r\n' +
+    '          </Button>\r\n' +
+    '          <label className="flex items-center gap-1 text-ui-xs">\r\n' +
+    '            <input\r\n' +
+    '              type="checkbox"\r\n' +
+    '              checked={auto}\r\n' +
+    '              onChange={(event) => setAuto(event.target.checked)}\r\n' +
+    '            />\r\n' +
+    '            Live · 10s\r\n' +
+    '          </label>\r\n' +
+    '        </div>\r\n' +
+    '        <p className="mb-2 text-ui-xs" aria-live="polite">\r\n' +
+    '          {loading\r\n' +
+    '            ? "Reading usage…"\r\n' +
+    '            : updatedAt\r\n' +
+    '              ? `Updated ${new Date(updatedAt).toLocaleTimeString()}`\r\n' +
+    '              : "Waiting for 9router"}\r\n' +
+    '        </p>\r\n' +
+    '        {error ? (\r\n' +
+    '          <p role="alert" className="mb-2 border border-destructive p-2 text-destructive">\r\n' +
+    '            {error}\r\n' +
+    '            {updatedAt ? " · Showing the last successful reading." : ""}\r\n' +
+    '          </p>\r\n' +
+    '        ) : null}\r\n' +
+    '        <div\r\n' +
+    '          className={cn("mb-3 grid gap-1", sidebar ? "grid-cols-2" : "grid-cols-2 lg:grid-cols-5")}\r\n' +
+    '        >\r\n' +
+    '          {(\r\n' +
+    '            [\r\n' +
+    '              ["Requests", totals?.requests],\r\n' +
+    '              ["Input tokens", totals?.input],\r\n' +
+    '              ["Cached tokens", totals?.cached],\r\n' +
+    '              ["Output tokens", totals?.output],\r\n' +
+    '              ["Estimated cost", totals?.cost],\r\n' +
+    '            ] as const\r\n' +
+    '          ).map(([label, value]) => (\r\n' +
+    '            <div key={label} className="min-w-0 border border-border p-2">\r\n' +
+    '              <span className="block text-ui-xs text-foreground-subtle">{label}</span>\r\n' +
+    '              <strong className="break-all tabular-nums">\r\n' +
+    '                {value === undefined\r\n' +
+    '                  ? "—"\r\n' +
+    '                  : label === "Estimated cost"\r\n' +
+    '                    ? cost(value)\r\n' +
+    '                    : number(value)}\r\n' +
+    '              </strong>\r\n' +
+    '            </div>\r\n' +
+    '          ))}\r\n' +
+    '        </div>\r\n' +
+    '        <p className="mb-2 text-ui-xs text-foreground-subtle">Cost is an estimate, not a bill.</p>\r\n' +
+    '        {data?.active.length ? (\r\n' +
+    '          <div className="mb-3 border border-border p-2">\r\n' +
+    '            <strong className="text-ui-xs">Active requests</strong>\r\n' +
+    '            {data.active.map((row, index) => (\r\n' +
+    '              <p key={index} className="truncate text-ui-xs">\r\n' +
+    '                {zaicodeUsageDisplayName(row.name, "models", labels)} · {row.requests} running\r\n' +
+    '              </p>\r\n' +
+    '            ))}\r\n' +
+    '          </div>\r\n' +
+    '        ) : null}\r\n' +
+    '        <div className="mb-3 border border-border p-2">\r\n' +
+    '          <div className="flex gap-1">\r\n' +
+    '            <UsageChoice\r\n' +
+    '              selected={metric === "tokens"}\r\n' +
+    '              aria-pressed={metric === "tokens"}\r\n' +
+    '              onClick={() => setMetric("tokens")}\r\n' +
+    '            >\r\n' +
+    '              Tokens\r\n' +
+    '            </UsageChoice>\r\n' +
+    '            <UsageChoice\r\n' +
+    '              selected={metric === "cost"}\r\n' +
+    '          '... 5186 more characters
+  
+      at TestContext.<anonymous> (V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\ui\test\zaicodeT205UsageLiveRefresh.test.ts:50:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'import { useEffect, useState, type ComponentProps } from "react";\r\nimport { normalizeZaicodeRouterConnections, normalizeZaicodeRouterNodes } from "@zcode/shared";\r\nimport { Button } from "@/components/ui/button.js";\r\nimport { cn } from "@/components/lib/utils.js";\r\nimport { getZaicodeRouterBridge, useZaicodeRouter } from "./zaicodeRouter.js";\r\nimport {\r\n  buildZaicodeUsageLabels,\r\n  displayZaicodeUsageBreakdown,\r\n  zaicodeUsageDisplayName,\r\n  zaicodeUsageStatus,\r\n} from "./zaicodeUsageLabels.js";\r\nimport {\r\n  normalizeZaicodeUsage,\r\n  normalizeZaicodeUsageChart,\r\n  openZaicodeUsage,\r\n  toggleZaicodeUsageSidebar,\r\n  useZaicodeUsage,\r\n  ZAICODE_USAGE_PERIODS,\r\n  type UsageCount,\r\n} from "./zaicodeUsage.js";\r\n\r\nconst number = (value: number) => value.toLocaleString(undefined, { maximumFractionDigits: 0 });\r\nconst cost = (value: number) => `$${value.toFixed(4)}`;\r\n\r\nfunction UsageChoice({\r\n  selected,\r\n  ...props\r\n}: ComponentProps<typeof Button> & { selected: boolean }) {\r\n  return (\r\n    <Button\r\n      {...props}\r\n      variant="ghost"\r\n      size="sm"\r\n      className={cn(\r\n        "border text-ui-xs",\r\n        selected\r\n          ? "border-border-hover bg-selected text-foreground"\r\n          : "border-transparent text-foreground-subtle",\r\n        props.className,\r\n      )}\r\n    />\r\n  );\r\n}\r\n\r\nexport function ZaicodeUsageView({ sidebar = false }: { sidebar?: boolean }) {\r\n  const period = useZaicodeUsage((state) => state.period);\r\n  const [revision, setRevision] = useState(0);\r\n  const [auto, setAuto] = useState(true);\r\n  const [loading, setLoading] = useState(false);\r\n  const [error, setError] = useState("");\r\n  const [updatedAt, setUpdatedAt] = useState(0);\r\n  const [data, setData] = useState<ReturnType<typeof normalizeZaicodeUsage> | null>(null);\r\n  const [chart, setChart] = useState<ReturnType<typeof normalizeZaicodeUsageChart>>([]);\r\n  const [metric, setMetric] = useState<"tokens" | "cost">("tokens");\r\n  const [tab, setTab] = useState<"recent" | "models" | "providers" | "accounts">("recent");\r\n  const [labels, setLabels] = useState(() => {\r\n    const router = useZaicodeRouter.getState();\r\n    return buildZaicodeUsageLabels(router.nodes, router.connections);\r\n  });\r\n\r\n  useEffect(() => {\r\n    let disposed = false;\r\n    const bridge = getZaicodeRouterBridge();\r\n    if (!bridge?.callZaicodeRouter) return;\r\n    // Names are metadata: read once per view, separately from the live metrics.\r\n    void Promise.allSettled([\r\n      bridge.callZaicodeRouter({ method: "GET", path: "/api/provider-nodes" }),\r\n      bridge.callZaicodeRouter({ method: "GET", path: "/api/providers" }),\r\n    ]).then(([nodes, connections]) => {\r\n      if (disposed) return;\r\n      const router = useZaicodeRouter.getState();\r\n      setLabels(\r\n        buildZaicodeUsageLabels(\r\n          nodes.status === "fulfilled" && nodes.value.ok\r\n            ? normalizeZaicodeRouterNodes(nodes.value.data)\r\n            : router.nodes,\r\n          connections.status === "fulfilled" && connections.value.ok\r\n            ? normalizeZaicodeRouterConnections(connections.value.data)\r\n            : router.connections,\r\n        ),\r\n      );\r\n    });\r\n    return () => {\r\n      disposed = true;\r\n    };\r\n  }, []);\r\n\r\n  useEffect(() => {\r\n    let disposed = false;\r\n    let timer: ReturnType<typeof setTimeout> | undefined;\r\n    let inFlight = false;\r\n    const read = async () => {\r\n      if (disposed || inFlight || document.visibilityState === "hidden") return;\r\n      clearTimeout(timer);\r\n      inFlight = true;\r\n      setLoading(true);\r\n      try {\r\n        const bridge = getZaicodeRouterBridge();\r\n        if (!bridge?.callZaicodeRouter)\r\n          throw new Error("Usage requires the ZAICODE desktop connection to 9router.");\r\n        const [stats, trend] = await Promise.all([\r\n          bridge.callZaicodeRouter({ method: "GET", path: `/api/usage/stats?period=${period}` }),\r\n          bridge.callZaicodeRouter({\r\n            method: "GET",\r\n            path: `/api/usage/chart?period=${period === "all" ? "60d" : period}`,\r\n          }),\r\n        ]);\r\n        if (disposed) return;\r\n        if (!stats.ok) throw new Error(stats.message || "9router usage is unavailable.");\r\n        setData(normalizeZaicodeUsage(stats.data));\r\n        setChart(trend.ok ? normalizeZaicodeUsageChart(trend.data) : []);\r\n        setError(trend.ok ? "" : `Trend unavailable: ${trend.message}`);\r\n        setUpdatedAt(Date.now());\r\n      } catch (failure) {\r\n        if (!disposed) setError(failure instanceof Error ? failure.message : String(failure));\r\n      } finally {\r\n        inFlight = false;\r\n        if (!disposed) {\r\n          setLoading(false);\r\n          if (auto) timer = setTimeout(() => void read(), 10_000);\r\n        }\r\n      }\r\n    };\r\n    const visible = () => {\r\n      if (auto && document.visibilityState === "visible") void read();\r\n    };\r\n    void read();\r\n    document.addEventListener("visibilitychange", visible);\r\n    return () => {\r\n      disposed = true;\r\n      clearTimeout(timer);\r\n      document.removeEventListener("visibilitychange", visible);\r\n    };\r\n  }, [auto, period, revision]);\r\n\r\n  const totals = data?.totals;\r\n  const values = chart.map((row) => row[metric]);\r\n  const peak = Math.max(1, ...values);\r\n  const points = values\r\n    .map(\r\n      (value, index) =>\r\n        `${(index * 600) / Math.max(1, values.length - 1)},${110 - (value * 100) / peak}`,\r\n    )\r\n    .join(" ");\r\n  const rows: UsageCount[] = data\r\n    ? tab === "recent"\r\n      ? data.recent\r\n      : displayZaicodeUsageBreakdown(data[tab], tab, labels)\r\n    : [];\r\n\r\n  return (\r\n    <section\r\n      data-zaicode-help="usage"\r\n      className="flex h-full min-h-0 min-w-0 flex-1 flex-col bg-background text-foreground"\r\n      data-zaicode-usage={sidebar ? "sidebar" : "page"}\r\n      aria-label="9router Usage"\r\n    >\r\n      <header className="flex shrink-0 flex-wrap items-center gap-1 border-b border-border p-2">\r\n        <strong className="mr-auto">9router Usage</strong>\r\n        <Button\r\n          size="sm"\r\n          variant="ghost"\r\n          onClick={() => (sidebar ? openZaicodeUsage("page") : toggleZaicodeUsageSidebar())}\r\n        >\r\n          {sidebar ? "Full page" : "Sidebar"}\r\n        </Button>\r\n        <Button size="sm" variant="ghost" onClick={() => openZaicodeUsage("closed")}>\r\n          Close\r\n        </Button>\r\n      </header>\r\n      <div className="min-h-0 flex-1 overflow-y-auto p-2">\r\n        <p className="mb-2 text-ui-xs text-foreground-subtle">\r\n          All traffic through this 9router, including ZAICODE and other clients.\r\n        </p>\r\n        <div className="mb-2 flex flex-wrap items-center gap-1" aria-label="Usage period">\r\n          {ZAICODE_USAGE_PERIODS.map((value) => (\r\n            <UsageChoice\r\n              key={value}\r\n              selected={period === value}\r\n              aria-pressed={period === value}\r\n              onClick={() => useZaicodeUsage.setState({ period: value })}\r\n            >\r\n              {value === "today" ? "Today" : value === "all" ? "All" : value.toUpperCase()}\r\n            </UsageChoice>\r\n          ))}\r\n          <Button\r\n            size="sm"\r\n            variant="outline"\r\n            disabled={loading}\r\n            onClick={() => setRevision((value) => value + 1)}\r\n          >\r\n            Refresh\r\n          </Button>\r\n          <label className="flex items-center gap-1 text-ui-xs">\r\n            <input\r\n              type="checkbox"\r\n              checked={auto}\r\n              onChange={(event) => setAuto(event.target.checked)}\r\n            />\r\n            Live · 10s\r\n          </label>\r\n        </div>\r\n        <p className="mb-2 text-ui-xs" aria-live="polite">\r\n          {loading\r\n            ? "Reading usage…"\r\n            : updatedAt\r\n              ? `Updated ${new Date(updatedAt).toLocaleTimeString()}`\r\n              : "Waiting for 9router"}\r\n        </p>\r\n        {error ? (\r\n          <p role="alert" className="mb-2 border border-destructive p-2 text-destructive">\r\n            {error}\r\n            {updatedAt ? " · Showing the last successful reading." : ""}\r\n          </p>\r\n        ) : null}\r\n        <div\r\n          className={cn("mb-3 grid gap-1", sidebar ? "grid-cols-2" : "grid-cols-2 lg:grid-cols-5")}\r\n        >\r\n          {(\r\n            [\r\n              ["Requests", totals?.requests],\r\n              ["Input tokens", totals?.input],\r\n              ["Cached tokens", totals?.cached],\r\n              ["Output tokens", totals?.output],\r\n              ["Estimated cost", totals?.cost],\r\n            ] as const\r\n          ).map(([label, value]) => (\r\n            <div key={label} className="min-w-0 border border-border p-2">\r\n              <span className="block text-ui-xs text-foreground-subtle">{label}</span>\r\n              <strong className="break-all tabular-nums">\r\n                {value === undefined\r\n                  ? "—"\r\n                  : label === "Estimated cost"\r\n                    ? cost(value)\r\n                    : number(value)}\r\n              </strong>\r\n            </div>\r\n          ))}\r\n        </div>\r\n        <p className="mb-2 text-ui-xs text-foreground-subtle">Cost is an estimate, not a bill.</p>\r\n        {data?.active.length ? (\r\n          <div className="mb-3 border border-border p-2">\r\n            <strong className="text-ui-xs">Active requests</strong>\r\n            {data.active.map((row, index) => (\r\n              <p key={index} className="truncate text-ui-xs">\r\n                {zaicodeUsageDisplayName(row.name, "models", labels)} · {row.requests} running\r\n              </p>\r\n            ))}\r\n          </div>\r\n        ) : null}\r\n        <div className="mb-3 border border-border p-2">\r\n          <div className="flex gap-1">\r\n            <UsageChoice\r\n              selected={metric === "tokens"}\r\n              aria-pressed={metric === "tokens"}\r\n              onClick={() => setMetric("tokens")}\r\n            >\r\n              Tokens\r\n            </UsageChoice>\r\n            <UsageChoice\r\n              selected={metric === "cost"}\r\n          '... 5186 more characters,
+    expected: /data-zaicode-usage-column-resize/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at test\zaicodeT205UsageLiveRefresh.test.ts:1:2318
+✖ a finished request no longer prints a status word under the model name (0.4236ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /const status =\s*tab === "recent" && data/. Input:
+  
+  'import { useEffect, useState, type ComponentProps } from "react";\r\n' +
+    'import { normalizeZaicodeRouterConnections, normalizeZaicodeRouterNodes } from "@zcode/shared";\r\n' +
+    'import { Button } from "@/components/ui/button.js";\r\n' +
+    'import { cn } from "@/components/lib/utils.js";\r\n' +
+    'import { getZaicodeRouterBridge, useZaicodeRouter } from "./zaicodeRouter.js";\r\n' +
+    'import {\r\n' +
+    '  buildZaicodeUsageLabels,\r\n' +
+    '  displayZaicodeUsageBreakdown,\r\n' +
+    '  zaicodeUsageDisplayName,\r\n' +
+    '  zaicodeUsageStatus,\r\n' +
+    '} from "./zaicodeUsageLabels.js";\r\n' +
+    'import {\r\n' +
+    '  normalizeZaicodeUsage,\r\n' +
+    '  normalizeZaicodeUsageChart,\r\n' +
+    '  openZaicodeUsage,\r\n' +
+    '  toggleZaicodeUsageSidebar,\r\n' +
+    '  useZaicodeUsage,\r\n' +
+    '  ZAICODE_USAGE_PERIODS,\r\n' +
+    '  type UsageCount,\r\n' +
+    '} from "./zaicodeUsage.js";\r\n' +
+    '\r\n' +
+    'const number = (value: number) => value.toLocaleString(undefined, { maximumFractionDigits: 0 });\r\n' +
+    'const cost = (value: number) => `$${value.toFixed(4)}`;\r\n' +
+    '\r\n' +
+    'function UsageChoice({\r\n' +
+    '  selected,\r\n' +
+    '  ...props\r\n' +
+    '}: ComponentProps<typeof Button> & { selected: boolean }) {\r\n' +
+    '  return (\r\n' +
+    '    <Button\r\n' +
+    '      {...props}\r\n' +
+    '      variant="ghost"\r\n' +
+    '      size="sm"\r\n' +
+    '      className={cn(\r\n' +
+    '        "border text-ui-xs",\r\n' +
+    '        selected\r\n' +
+    '          ? "border-border-hover bg-selected text-foreground"\r\n' +
+    '          : "border-transparent text-foreground-subtle",\r\n' +
+    '        props.className,\r\n' +
+    '      )}\r\n' +
+    '    />\r\n' +
+    '  );\r\n' +
+    '}\r\n' +
+    '\r\n' +
+    'export function ZaicodeUsageView({ sidebar = false }: { sidebar?: boolean }) {\r\n' +
+    '  const period = useZaicodeUsage((state) => state.period);\r\n' +
+    '  const [revision, setRevision] = useState(0);\r\n' +
+    '  const [auto, setAuto] = useState(true);\r\n' +
+    '  const [loading, setLoading] = useState(false);\r\n' +
+    '  const [error, setError] = useState("");\r\n' +
+    '  const [updatedAt, setUpdatedAt] = useState(0);\r\n' +
+    '  const [data, setData] = useState<ReturnType<typeof normalizeZaicodeUsage> | null>(null);\r\n' +
+    '  const [chart, setChart] = useState<ReturnType<typeof normalizeZaicodeUsageChart>>([]);\r\n' +
+    '  const [metric, setMetric] = useState<"tokens" | "cost">("tokens");\r\n' +
+    '  const [tab, setTab] = useState<"recent" | "models" | "providers" | "accounts">("recent");\r\n' +
+    '  const [labels, setLabels] = useState(() => {\r\n' +
+    '    const router = useZaicodeRouter.getState();\r\n' +
+    '    return buildZaicodeUsageLabels(router.nodes, router.connections);\r\n' +
+    '  });\r\n' +
+    '\r\n' +
+    '  useEffect(() => {\r\n' +
+    '    let disposed = false;\r\n' +
+    '    const bridge = getZaicodeRouterBridge();\r\n' +
+    '    if (!bridge?.callZaicodeRouter) return;\r\n' +
+    '    // Names are metadata: read once per view, separately from the live metrics.\r\n' +
+    '    void Promise.allSettled([\r\n' +
+    '      bridge.callZaicodeRouter({ method: "GET", path: "/api/provider-nodes" }),\r\n' +
+    '      bridge.callZaicodeRouter({ method: "GET", path: "/api/providers" }),\r\n' +
+    '    ]).then(([nodes, connections]) => {\r\n' +
+    '      if (disposed) return;\r\n' +
+    '      const router = useZaicodeRouter.getState();\r\n' +
+    '      setLabels(\r\n' +
+    '        buildZaicodeUsageLabels(\r\n' +
+    '          nodes.status === "fulfilled" && nodes.value.ok\r\n' +
+    '            ? normalizeZaicodeRouterNodes(nodes.value.data)\r\n' +
+    '            : router.nodes,\r\n' +
+    '          connections.status === "fulfilled" && connections.value.ok\r\n' +
+    '            ? normalizeZaicodeRouterConnections(connections.value.data)\r\n' +
+    '            : router.connections,\r\n' +
+    '        ),\r\n' +
+    '      );\r\n' +
+    '    });\r\n' +
+    '    return () => {\r\n' +
+    '      disposed = true;\r\n' +
+    '    };\r\n' +
+    '  }, []);\r\n' +
+    '\r\n' +
+    '  useEffect(() => {\r\n' +
+    '    let disposed = false;\r\n' +
+    '    let timer: ReturnType<typeof setTimeout> | undefined;\r\n' +
+    '    let inFlight = false;\r\n' +
+    '    const read = async () => {\r\n' +
+    '      if (disposed || inFlight || document.visibilityState === "hidden") return;\r\n' +
+    '      clearTimeout(timer);\r\n' +
+    '      inFlight = true;\r\n' +
+    '      setLoading(true);\r\n' +
+    '      try {\r\n' +
+    '        const bridge = getZaicodeRouterBridge();\r\n' +
+    '        if (!bridge?.callZaicodeRouter)\r\n' +
+    '          throw new Error("Usage requires the ZAICODE desktop connection to 9router.");\r\n' +
+    '        const [stats, trend] = await Promise.all([\r\n' +
+    '          bridge.callZaicodeRouter({ method: "GET", path: `/api/usage/stats?period=${period}` }),\r\n' +
+    '          bridge.callZaicodeRouter({\r\n' +
+    '            method: "GET",\r\n' +
+    '            path: `/api/usage/chart?period=${period === "all" ? "60d" : period}`,\r\n' +
+    '          }),\r\n' +
+    '        ]);\r\n' +
+    '        if (disposed) return;\r\n' +
+    '        if (!stats.ok) throw new Error(stats.message || "9router usage is unavailable.");\r\n' +
+    '        setData(normalizeZaicodeUsage(stats.data));\r\n' +
+    '        setChart(trend.ok ? normalizeZaicodeUsageChart(trend.data) : []);\r\n' +
+    '        setError(trend.ok ? "" : `Trend unavailable: ${trend.message}`);\r\n' +
+    '        setUpdatedAt(Date.now());\r\n' +
+    '      } catch (failure) {\r\n' +
+    '        if (!disposed) setError(failure instanceof Error ? failure.message : String(failure));\r\n' +
+    '      } finally {\r\n' +
+    '        inFlight = false;\r\n' +
+    '        if (!disposed) {\r\n' +
+    '          setLoading(false);\r\n' +
+    '          if (auto) timer = setTimeout(() => void read(), 10_000);\r\n' +
+    '        }\r\n' +
+    '      }\r\n' +
+    '    };\r\n' +
+    '    const visible = () => {\r\n' +
+    '      if (auto && document.visibilityState === "visible") void read();\r\n' +
+    '    };\r\n' +
+    '    void read();\r\n' +
+    '    document.addEventListener("visibilitychange", visible);\r\n' +
+    '    return () => {\r\n' +
+    '      disposed = true;\r\n' +
+    '      clearTimeout(timer);\r\n' +
+    '      document.removeEventListener("visibilitychange", visible);\r\n' +
+    '    };\r\n' +
+    '  }, [auto, period, revision]);\r\n' +
+    '\r\n' +
+    '  const totals = data?.totals;\r\n' +
+    '  const values = chart.map((row) => row[metric]);\r\n' +
+    '  const peak = Math.max(1, ...values);\r\n' +
+    '  const points = values\r\n' +
+    '    .map(\r\n' +
+    '      (value, index) =>\r\n' +
+    '        `${(index * 600) / Math.max(1, values.length - 1)},${110 - (value * 100) / peak}`,\r\n' +
+    '    )\r\n' +
+    '    .join(" ");\r\n' +
+    '  const rows: UsageCount[] = data\r\n' +
+    '    ? tab === "recent"\r\n' +
+    '      ? data.recent\r\n' +
+    '      : displayZaicodeUsageBreakdown(data[tab], tab, labels)\r\n' +
+    '    : [];\r\n' +
+    '\r\n' +
+    '  return (\r\n' +
+    '    <section\r\n' +
+    '      data-zaicode-help="usage"\r\n' +
+    '      className="flex h-full min-h-0 min-w-0 flex-1 flex-col bg-background text-foreground"\r\n' +
+    '      data-zaicode-usage={sidebar ? "sidebar" : "page"}\r\n' +
+    '      aria-label="9router Usage"\r\n' +
+    '    >\r\n' +
+    '      <header className="flex shrink-0 flex-wrap items-center gap-1 border-b border-border p-2">\r\n' +
+    '        <strong className="mr-auto">9router Usage</strong>\r\n' +
+    '        <Button\r\n' +
+    '          size="sm"\r\n' +
+    '          variant="ghost"\r\n' +
+    '          onClick={() => (sidebar ? openZaicodeUsage("page") : toggleZaicodeUsageSidebar())}\r\n' +
+    '        >\r\n' +
+    '          {sidebar ? "Full page" : "Sidebar"}\r\n' +
+    '        </Button>\r\n' +
+    '        <Button size="sm" variant="ghost" onClick={() => openZaicodeUsage("closed")}>\r\n' +
+    '          Close\r\n' +
+    '        </Button>\r\n' +
+    '      </header>\r\n' +
+    '      <div className="min-h-0 flex-1 overflow-y-auto p-2">\r\n' +
+    '        <p className="mb-2 text-ui-xs text-foreground-subtle">\r\n' +
+    '          All traffic through this 9router, including ZAICODE and other clients.\r\n' +
+    '        </p>\r\n' +
+    '        <div className="mb-2 flex flex-wrap items-center gap-1" aria-label="Usage period">\r\n' +
+    '          {ZAICODE_USAGE_PERIODS.map((value) => (\r\n' +
+    '            <UsageChoice\r\n' +
+    '              key={value}\r\n' +
+    '              selected={period === value}\r\n' +
+    '              aria-pressed={period === value}\r\n' +
+    '              onClick={() => useZaicodeUsage.setState({ period: value })}\r\n' +
+    '            >\r\n' +
+    '              {value === "today" ? "Today" : value === "all" ? "All" : value.toUpperCase()}\r\n' +
+    '            </UsageChoice>\r\n' +
+    '          ))}\r\n' +
+    '          <Button\r\n' +
+    '            size="sm"\r\n' +
+    '            variant="outline"\r\n' +
+    '            disabled={loading}\r\n' +
+    '            onClick={() => setRevision((value) => value + 1)}\r\n' +
+    '          >\r\n' +
+    '            Refresh\r\n' +
+    '          </Button>\r\n' +
+    '          <label className="flex items-center gap-1 text-ui-xs">\r\n' +
+    '            <input\r\n' +
+    '              type="checkbox"\r\n' +
+    '              checked={auto}\r\n' +
+    '              onChange={(event) => setAuto(event.target.checked)}\r\n' +
+    '            />\r\n' +
+    '            Live · 10s\r\n' +
+    '          </label>\r\n' +
+    '        </div>\r\n' +
+    '        <p className="mb-2 text-ui-xs" aria-live="polite">\r\n' +
+    '          {loading\r\n' +
+    '            ? "Reading usage…"\r\n' +
+    '            : updatedAt\r\n' +
+    '              ? `Updated ${new Date(updatedAt).toLocaleTimeString()}`\r\n' +
+    '              : "Waiting for 9router"}\r\n' +
+    '        </p>\r\n' +
+    '        {error ? (\r\n' +
+    '          <p role="alert" className="mb-2 border border-destructive p-2 text-destructive">\r\n' +
+    '            {error}\r\n' +
+    '            {updatedAt ? " · Showing the last successful reading." : ""}\r\n' +
+    '          </p>\r\n' +
+    '        ) : null}\r\n' +
+    '        <div\r\n' +
+    '          className={cn("mb-3 grid gap-1", sidebar ? "grid-cols-2" : "grid-cols-2 lg:grid-cols-5")}\r\n' +
+    '        >\r\n' +
+    '          {(\r\n' +
+    '            [\r\n' +
+    '              ["Requests", totals?.requests],\r\n' +
+    '              ["Input tokens", totals?.input],\r\n' +
+    '              ["Cached tokens", totals?.cached],\r\n' +
+    '              ["Output tokens", totals?.output],\r\n' +
+    '              ["Estimated cost", totals?.cost],\r\n' +
+    '            ] as const\r\n' +
+    '          ).map(([label, value]) => (\r\n' +
+    '            <div key={label} className="min-w-0 border border-border p-2">\r\n' +
+    '              <span className="block text-ui-xs text-foreground-subtle">{label}</span>\r\n' +
+    '              <strong className="break-all tabular-nums">\r\n' +
+    '                {value === undefined\r\n' +
+    '                  ? "—"\r\n' +
+    '                  : label === "Estimated cost"\r\n' +
+    '                    ? cost(value)\r\n' +
+    '                    : number(value)}\r\n' +
+    '              </strong>\r\n' +
+    '            </div>\r\n' +
+    '          ))}\r\n' +
+    '        </div>\r\n' +
+    '        <p className="mb-2 text-ui-xs text-foreground-subtle">Cost is an estimate, not a bill.</p>\r\n' +
+    '        {data?.active.length ? (\r\n' +
+    '          <div className="mb-3 border border-border p-2">\r\n' +
+    '            <strong className="text-ui-xs">Active requests</strong>\r\n' +
+    '            {data.active.map((row, index) => (\r\n' +
+    '              <p key={index} className="truncate text-ui-xs">\r\n' +
+    '                {zaicodeUsageDisplayName(row.name, "models", labels)} · {row.requests} running\r\n' +
+    '              </p>\r\n' +
+    '            ))}\r\n' +
+    '          </div>\r\n' +
+    '        ) : null}\r\n' +
+    '        <div className="mb-3 border border-border p-2">\r\n' +
+    '          <div className="flex gap-1">\r\n' +
+    '            <UsageChoice\r\n' +
+    '              selected={metric === "tokens"}\r\n' +
+    '              aria-pressed={metric === "tokens"}\r\n' +
+    '              onClick={() => setMetric("tokens")}\r\n' +
+    '            >\r\n' +
+    '              Tokens\r\n' +
+    '            </UsageChoice>\r\n' +
+    '            <UsageChoice\r\n' +
+    '              selected={metric === "cost"}\r\n' +
+    '          '... 5186 more characters
+  
+      at TestContext.<anonymous> (V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\ui\test\zaicodeT205UsageLiveRefresh.test.ts:65:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'import { useEffect, useState, type ComponentProps } from "react";\r\nimport { normalizeZaicodeRouterConnections, normalizeZaicodeRouterNodes } from "@zcode/shared";\r\nimport { Button } from "@/components/ui/button.js";\r\nimport { cn } from "@/components/lib/utils.js";\r\nimport { getZaicodeRouterBridge, useZaicodeRouter } from "./zaicodeRouter.js";\r\nimport {\r\n  buildZaicodeUsageLabels,\r\n  displayZaicodeUsageBreakdown,\r\n  zaicodeUsageDisplayName,\r\n  zaicodeUsageStatus,\r\n} from "./zaicodeUsageLabels.js";\r\nimport {\r\n  normalizeZaicodeUsage,\r\n  normalizeZaicodeUsageChart,\r\n  openZaicodeUsage,\r\n  toggleZaicodeUsageSidebar,\r\n  useZaicodeUsage,\r\n  ZAICODE_USAGE_PERIODS,\r\n  type UsageCount,\r\n} from "./zaicodeUsage.js";\r\n\r\nconst number = (value: number) => value.toLocaleString(undefined, { maximumFractionDigits: 0 });\r\nconst cost = (value: number) => `$${value.toFixed(4)}`;\r\n\r\nfunction UsageChoice({\r\n  selected,\r\n  ...props\r\n}: ComponentProps<typeof Button> & { selected: boolean }) {\r\n  return (\r\n    <Button\r\n      {...props}\r\n      variant="ghost"\r\n      size="sm"\r\n      className={cn(\r\n        "border text-ui-xs",\r\n        selected\r\n          ? "border-border-hover bg-selected text-foreground"\r\n          : "border-transparent text-foreground-subtle",\r\n        props.className,\r\n      )}\r\n    />\r\n  );\r\n}\r\n\r\nexport function ZaicodeUsageView({ sidebar = false }: { sidebar?: boolean }) {\r\n  const period = useZaicodeUsage((state) => state.period);\r\n  const [revision, setRevision] = useState(0);\r\n  const [auto, setAuto] = useState(true);\r\n  const [loading, setLoading] = useState(false);\r\n  const [error, setError] = useState("");\r\n  const [updatedAt, setUpdatedAt] = useState(0);\r\n  const [data, setData] = useState<ReturnType<typeof normalizeZaicodeUsage> | null>(null);\r\n  const [chart, setChart] = useState<ReturnType<typeof normalizeZaicodeUsageChart>>([]);\r\n  const [metric, setMetric] = useState<"tokens" | "cost">("tokens");\r\n  const [tab, setTab] = useState<"recent" | "models" | "providers" | "accounts">("recent");\r\n  const [labels, setLabels] = useState(() => {\r\n    const router = useZaicodeRouter.getState();\r\n    return buildZaicodeUsageLabels(router.nodes, router.connections);\r\n  });\r\n\r\n  useEffect(() => {\r\n    let disposed = false;\r\n    const bridge = getZaicodeRouterBridge();\r\n    if (!bridge?.callZaicodeRouter) return;\r\n    // Names are metadata: read once per view, separately from the live metrics.\r\n    void Promise.allSettled([\r\n      bridge.callZaicodeRouter({ method: "GET", path: "/api/provider-nodes" }),\r\n      bridge.callZaicodeRouter({ method: "GET", path: "/api/providers" }),\r\n    ]).then(([nodes, connections]) => {\r\n      if (disposed) return;\r\n      const router = useZaicodeRouter.getState();\r\n      setLabels(\r\n        buildZaicodeUsageLabels(\r\n          nodes.status === "fulfilled" && nodes.value.ok\r\n            ? normalizeZaicodeRouterNodes(nodes.value.data)\r\n            : router.nodes,\r\n          connections.status === "fulfilled" && connections.value.ok\r\n            ? normalizeZaicodeRouterConnections(connections.value.data)\r\n            : router.connections,\r\n        ),\r\n      );\r\n    });\r\n    return () => {\r\n      disposed = true;\r\n    };\r\n  }, []);\r\n\r\n  useEffect(() => {\r\n    let disposed = false;\r\n    let timer: ReturnType<typeof setTimeout> | undefined;\r\n    let inFlight = false;\r\n    const read = async () => {\r\n      if (disposed || inFlight || document.visibilityState === "hidden") return;\r\n      clearTimeout(timer);\r\n      inFlight = true;\r\n      setLoading(true);\r\n      try {\r\n        const bridge = getZaicodeRouterBridge();\r\n        if (!bridge?.callZaicodeRouter)\r\n          throw new Error("Usage requires the ZAICODE desktop connection to 9router.");\r\n        const [stats, trend] = await Promise.all([\r\n          bridge.callZaicodeRouter({ method: "GET", path: `/api/usage/stats?period=${period}` }),\r\n          bridge.callZaicodeRouter({\r\n            method: "GET",\r\n            path: `/api/usage/chart?period=${period === "all" ? "60d" : period}`,\r\n          }),\r\n        ]);\r\n        if (disposed) return;\r\n        if (!stats.ok) throw new Error(stats.message || "9router usage is unavailable.");\r\n        setData(normalizeZaicodeUsage(stats.data));\r\n        setChart(trend.ok ? normalizeZaicodeUsageChart(trend.data) : []);\r\n        setError(trend.ok ? "" : `Trend unavailable: ${trend.message}`);\r\n        setUpdatedAt(Date.now());\r\n      } catch (failure) {\r\n        if (!disposed) setError(failure instanceof Error ? failure.message : String(failure));\r\n      } finally {\r\n        inFlight = false;\r\n        if (!disposed) {\r\n          setLoading(false);\r\n          if (auto) timer = setTimeout(() => void read(), 10_000);\r\n        }\r\n      }\r\n    };\r\n    const visible = () => {\r\n      if (auto && document.visibilityState === "visible") void read();\r\n    };\r\n    void read();\r\n    document.addEventListener("visibilitychange", visible);\r\n    return () => {\r\n      disposed = true;\r\n      clearTimeout(timer);\r\n      document.removeEventListener("visibilitychange", visible);\r\n    };\r\n  }, [auto, period, revision]);\r\n\r\n  const totals = data?.totals;\r\n  const values = chart.map((row) => row[metric]);\r\n  const peak = Math.max(1, ...values);\r\n  const points = values\r\n    .map(\r\n      (value, index) =>\r\n        `${(index * 600) / Math.max(1, values.length - 1)},${110 - (value * 100) / peak}`,\r\n    )\r\n    .join(" ");\r\n  const rows: UsageCount[] = data\r\n    ? tab === "recent"\r\n      ? data.recent\r\n      : displayZaicodeUsageBreakdown(data[tab], tab, labels)\r\n    : [];\r\n\r\n  return (\r\n    <section\r\n      data-zaicode-help="usage"\r\n      className="flex h-full min-h-0 min-w-0 flex-1 flex-col bg-background text-foreground"\r\n      data-zaicode-usage={sidebar ? "sidebar" : "page"}\r\n      aria-label="9router Usage"\r\n    >\r\n      <header className="flex shrink-0 flex-wrap items-center gap-1 border-b border-border p-2">\r\n        <strong className="mr-auto">9router Usage</strong>\r\n        <Button\r\n          size="sm"\r\n          variant="ghost"\r\n          onClick={() => (sidebar ? openZaicodeUsage("page") : toggleZaicodeUsageSidebar())}\r\n        >\r\n          {sidebar ? "Full page" : "Sidebar"}\r\n        </Button>\r\n        <Button size="sm" variant="ghost" onClick={() => openZaicodeUsage("closed")}>\r\n          Close\r\n        </Button>\r\n      </header>\r\n      <div className="min-h-0 flex-1 overflow-y-auto p-2">\r\n        <p className="mb-2 text-ui-xs text-foreground-subtle">\r\n          All traffic through this 9router, including ZAICODE and other clients.\r\n        </p>\r\n        <div className="mb-2 flex flex-wrap items-center gap-1" aria-label="Usage period">\r\n          {ZAICODE_USAGE_PERIODS.map((value) => (\r\n            <UsageChoice\r\n              key={value}\r\n              selected={period === value}\r\n              aria-pressed={period === value}\r\n              onClick={() => useZaicodeUsage.setState({ period: value })}\r\n            >\r\n              {value === "today" ? "Today" : value === "all" ? "All" : value.toUpperCase()}\r\n            </UsageChoice>\r\n          ))}\r\n          <Button\r\n            size="sm"\r\n            variant="outline"\r\n            disabled={loading}\r\n            onClick={() => setRevision((value) => value + 1)}\r\n          >\r\n            Refresh\r\n          </Button>\r\n          <label className="flex items-center gap-1 text-ui-xs">\r\n            <input\r\n              type="checkbox"\r\n              checked={auto}\r\n              onChange={(event) => setAuto(event.target.checked)}\r\n            />\r\n            Live · 10s\r\n          </label>\r\n        </div>\r\n        <p className="mb-2 text-ui-xs" aria-live="polite">\r\n          {loading\r\n            ? "Reading usage…"\r\n            : updatedAt\r\n              ? `Updated ${new Date(updatedAt).toLocaleTimeString()}`\r\n              : "Waiting for 9router"}\r\n        </p>\r\n        {error ? (\r\n          <p role="alert" className="mb-2 border border-destructive p-2 text-destructive">\r\n            {error}\r\n            {updatedAt ? " · Showing the last successful reading." : ""}\r\n          </p>\r\n        ) : null}\r\n        <div\r\n          className={cn("mb-3 grid gap-1", sidebar ? "grid-cols-2" : "grid-cols-2 lg:grid-cols-5")}\r\n        >\r\n          {(\r\n            [\r\n              ["Requests", totals?.requests],\r\n              ["Input tokens", totals?.input],\r\n              ["Cached tokens", totals?.cached],\r\n              ["Output tokens", totals?.output],\r\n              ["Estimated cost", totals?.cost],\r\n            ] as const\r\n          ).map(([label, value]) => (\r\n            <div key={label} className="min-w-0 border border-border p-2">\r\n              <span className="block text-ui-xs text-foreground-subtle">{label}</span>\r\n              <strong className="break-all tabular-nums">\r\n                {value === undefined\r\n                  ? "—"\r\n                  : label === "Estimated cost"\r\n                    ? cost(value)\r\n                    : number(value)}\r\n              </strong>\r\n            </div>\r\n          ))}\r\n        </div>\r\n        <p className="mb-2 text-ui-xs text-foreground-subtle">Cost is an estimate, not a bill.</p>\r\n        {data?.active.length ? (\r\n          <div className="mb-3 border border-border p-2">\r\n            <strong className="text-ui-xs">Active requests</strong>\r\n            {data.active.map((row, index) => (\r\n              <p key={index} className="truncate text-ui-xs">\r\n                {zaicodeUsageDisplayName(row.name, "models", labels)} · {row.requests} running\r\n              </p>\r\n            ))}\r\n          </div>\r\n        ) : null}\r\n        <div className="mb-3 border border-border p-2">\r\n          <div className="flex gap-1">\r\n            <UsageChoice\r\n              selected={metric === "tokens"}\r\n              aria-pressed={metric === "tokens"}\r\n              onClick={() => setMetric("tokens")}\r\n            >\r\n              Tokens\r\n            </UsageChoice>\r\n            <UsageChoice\r\n              selected={metric === "cost"}\r\n          '... 5186 more characters,
+    expected: /const status =\s*tab === "recent" && data/,
+    operator: 'match',
+    diff: 'simple'
+  }
+undefined
+V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\ui:
+ ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL  Command failed with exit code 1: node --import tsx --test test/zaicodeT205UsageLiveRefresh.test.ts

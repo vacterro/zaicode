@@ -1,0 +1,13 @@
+{
+  "op_id": "scope-f84f245f7460471ebe6df5216f555378",
+  "paths": {
+    "zcode/packages/ui/test/zaicodeT201AutoRetryScope.test.ts": "003f7550acd9c1922d7489074aea8fb2d7113933919f7a591e21b4cee1a91f24"
+  },
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "project_lineage": "lineage-b0732ed2f98947b9a3c97bfe71427eca",
+  "recorded_at": "2026-10-04T09:19:22Z",
+  "schema_version": 2,
+  "source_head": "54bcabf1f221fe5b6f2f5bf576d51ca86906e2a7",
+  "source_tree_fingerprint": "git-delta-v1:fe6b28ef86246037158b116fab78ec0d0a261c32bbfef6db7f18ee5d471cd6f7",
+  "ticket": "T-201"
+}

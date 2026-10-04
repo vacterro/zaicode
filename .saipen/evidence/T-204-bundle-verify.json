@@ -1,0 +1,16 @@
+{
+  "kind": "bundle",
+  "at": "2026-10-04T06:53:34.649Z",
+  "command": [
+    "pnpm",
+    "bundle:zaicode",
+    "--",
+    "--skip-build",
+    "--skip-prepare"
+  ],
+  "exit": 0,
+  "sourceChanges": [],
+  "subject": {},
+  "log": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\.saipen\\evidence\\T-204-bundle-verify.txt",
+  "logSha256": "b52d400053664fb341cf94b97170df0b07172e5dad18d7be8d96f2f31e84718e"
+}

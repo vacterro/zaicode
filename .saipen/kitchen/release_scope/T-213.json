@@ -1,0 +1,13 @@
+{
+  "op_id": "scope-d65b8a86bfb048fd99f60416f71e1fc0",
+  "paths": {
+    "zcode/.gitignore": "77434674bf09b9d6abfb08a2d18b0bd66f2f9f5547fb7dba20379467248aa93c"
+  },
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "project_lineage": "lineage-b0732ed2f98947b9a3c97bfe71427eca",
+  "recorded_at": "2026-10-04T04:58:08Z",
+  "schema_version": 2,
+  "source_head": "54bcabf1f221fe5b6f2f5bf576d51ca86906e2a7",
+  "source_tree_fingerprint": "git-delta-v1:9b90a0bf06ebabfc11709b27ae941d14b71c4a1ecf62583e19829ced2ec1c938",
+  "ticket": "T-213"
+}

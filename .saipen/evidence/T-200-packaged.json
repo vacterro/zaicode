@@ -1,0 +1,89 @@
+{
+  "at": "2026-10-04T10:09:54.848Z",
+  "executablePath": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\dist-next\\win-unpacked\\ZAICODE.exe",
+  "profile": "V:\\_TEMP_\\zaicode-t200-bAZ8j3",
+  "checks": [
+    {
+      "name": "the packaged app runs on an isolated profile",
+      "pass": true
+    },
+    {
+      "name": "Alt+W opens the WORKERS panel expanded",
+      "pass": true,
+      "detail": {
+        "collapsed": "false"
+      }
+    },
+    {
+      "name": "an empty panel opened on purpose is left expanded",
+      "pass": true,
+      "detail": {
+        "collapsed": "false"
+      }
+    },
+    {
+      "name": "the worker shows in the panel without folding it",
+      "pass": true,
+      "detail": {
+        "tabs": 1,
+        "collapsed": "false"
+      }
+    },
+    {
+      "name": "the panel folds itself when its last worker is gone",
+      "pass": true,
+      "detail": {
+        "collapsed": "true",
+        "chips": 1
+      }
+    },
+    {
+      "name": "the fold is stored, so it survives a reload",
+      "pass": true,
+      "detail": {
+        "panelCollapsed": true
+      }
+    },
+    {
+      "name": "the worker itself is parked, not killed",
+      "pass": true,
+      "detail": {
+        "chips": 1
+      }
+    },
+    {
+      "name": "the chip brings the worker back into the panel",
+      "pass": true,
+      "detail": {
+        "chips": 0,
+        "tabs": 1
+      }
+    },
+    {
+      "name": "the panel is usable again",
+      "pass": true,
+      "detail": {
+        "collapsed": "false"
+      }
+    },
+    {
+      "name": "a reloaded empty panel is not folded for having no worker",
+      "pass": true,
+      "detail": {
+        "collapsed": "false",
+        "tabs": 0,
+        "chips": 0,
+        "workers": 0
+      }
+    },
+    {
+      "name": "zero renderer exceptions while driving the panel",
+      "pass": true,
+      "detail": []
+    }
+  ],
+  "errors": [],
+  "pass": true,
+  "verifier": "223f30c3c61a03126ad524de7206caf9dd93fd129ecd4228240d363ca99aacdf",
+  "asarSha256": "4ae64e6e8348d500058449ea59284dc6ee3b35331b12ad93c5a4a230acceec13"
+}
