@@ -36,6 +36,8 @@ import {
   zaicodeUpcomingSchedules,
 } from "./zaicodeScheduler.js";
 import { useZaicodeStore } from "./zaicodeStore.js";
+import { useZaicodeUiPrefs } from "./zaicodeUiPrefs.js";
+import { pickZaicodeSchedulerEligibleAccounts } from "./zaicodeSchedulerEligibility.js";
 import { ZAICODE_SLOT_GROUPS } from "./zaicodeSidebarPrefs.js";
 import { ZaicodeMomentField, ZaicodeTimeField } from "./ZaicodeTimeFields.js";
 import { formatZaicodeClockMinute, parseZaicodeClockText } from "./zaicodeClockText.js";
@@ -129,8 +131,10 @@ interface RunnerOption {
 function useRunnerOptions(agents: readonly ZaicodeAgentDefinition[]) {
   const models = useModelSelectionServiceView(readZaicodeQueueServices()?.modelSelection);
   const engines = useZaicodeEngines();
-  const accounts = engines.accounts.filter(
-    (account) => account.status !== "cli-missing" && !isZaicodeMetricsOnlyAccount(account),
+  const prefs = useZaicodeUiPrefs((state) => state.schedulerIneligible);
+  const accounts = pickZaicodeSchedulerEligibleAccounts(
+    engines.accounts.filter((account) => account.status !== "cli-missing" && !isZaicodeMetricsOnlyAccount(account)),
+    { schedulerIneligible: prefs },
   );
   const runners: RunnerOption[] = [
     {

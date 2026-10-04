@@ -245,7 +245,7 @@ export function ZaicodeLimitMeter({ useWindowsCaptionSpacing = false }: { useWin
                 footer={
                   <>
                     Click: Engines settings · Ctrl+Click: Bars / Dots / Stacked · Shift+Click: read all now · Right-click:
-                    what the meter shows
+                    what the meter shows · Ctrl+Click an account: may the Scheduler route work there
                     {filtered > 0 ? ` · ${filtered} hidden from the meter` : ""}
                     {hiddenAvailable.length > 0 ? (
                       <span className="block text-foreground-subtle">

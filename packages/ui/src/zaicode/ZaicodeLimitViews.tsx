@@ -18,6 +18,8 @@ import {
 } from "./zaicodeEngines.js";
 import { readZaicodeFresh, useZaicodeFreshVersion, useZaicodeNotifySettings } from "./zaicodeNotifications.js";
 import { zaicodeGlowHandlers, zaicodeGlowStyle } from "./zaicodeGlow.js";
+import { useZaicodeUiPrefs } from "./zaicodeUiPrefs.js";
+import { zaicodeSchedulerEligible, zaicodeSchedulerEligibilityPatch } from "./zaicodeSchedulerEligibility.js";
 import { ZaicodeResetCreditButton, expiryLabel } from "./ZaicodeResetCreditsSection.js";
 import { zaicodeResetCreditRows } from "./zaicodeResetCredits.js";
 
@@ -101,20 +103,41 @@ export function ZaicodeAccountLimits({
 }) {
   useZaicodeFreshVersion();
   const glow = useZaicodeNotifySettings().glow;
+  // SRC-132: Ctrl+Click answers "may the Scheduler route work here?" -- never "is
+  // this account usable?". The quota rows below stay exactly as they are.
+  const answers = useZaicodeUiPrefs((state) => state.schedulerIneligible);
+  const eligible = zaicodeSchedulerEligible({ schedulerIneligible: answers }, account.id);
   const windows = snapshot ? effectiveZaicodeWindows(snapshot.windows, now) : [];
   const updated = snapshot?.fetchedAt ? `${formatZaicodeDuration(now - snapshot.fetchedAt)} ago` : null;
   // T-130: a Codex account with reset credits says so here, with the button, right under the windows they would refill.
   const credits = zaicodeResetCreditRows([account], { [account.id]: snapshot }, now)[0] ?? null;
   return (
-    <div className="flex flex-col gap-0.5" data-zaicode-account-limits={account.id}>
+    <div
+      className="flex flex-col gap-0.5"
+      data-zaicode-account-limits={account.id}
+      data-zaicode-scheduler-eligible={eligible ? "yes" : "no"}
+      title={
+        eligible
+          ? "Ctrl+Click: do not schedule work here (the account stays usable by hand)"
+          : "Ctrl+Click: let the Scheduler route work here again"
+      }
+      onClick={(event) => {
+        if (!event.ctrlKey && !event.metaKey) return;
+        event.preventDefault();
+        event.stopPropagation();
+        const store = useZaicodeUiPrefs.getState();
+        store.update(zaicodeSchedulerEligibilityPatch({ schedulerIneligible: answers }, account.id));
+      }}
+    >
       <div className="flex items-baseline gap-1.5">
-        <span className="font-semibold" style={{ color: zaicodeVendorColor(account.vendor) }}>
+        <span className={cn("font-semibold", !eligible && "opacity-50 line-through")} style={{ color: zaicodeVendorColor(account.vendor) }}>
           {account.label}
         </span>
         {snapshot?.plan ? <span className="text-foreground-subtle">({snapshot.plan})</span> : null}
         <span className="text-foreground-subtlest">
           [{probing ? "reading…" : updated ? `updated ${updated}` : account.short}]
         </span>
+        {!eligible ? <span className="text-foreground-subtlest">· not scheduled</span> : null}
       </div>
       {account.status !== "ready" && account.status !== "no-plan" ? (
         <div className="pl-2 text-[color:var(--zaicode-warn,#c9a227)]">{account.statusDetail}</div>

@@ -62,6 +62,11 @@ export interface ZaicodeUiPrefs {
   /** Per-project answers used only while the scope is "project"; kept when it goes back to "global". */
   autoRetryProjects: Record<string, boolean>;
   /**
+   * SRC-132: accounts the operator Ctrl+Clicked off the Scheduler's route list.
+   * Only the Scheduler reads this -- the account itself stays usable by hand.
+   */
+  schedulerIneligible: Record<string, boolean>;
+  /**
    * Auto-continue after a crash (SRC-044): sessions the dead process left
    * "running" in tasks-index, and goals that were still active, continue by
    * themselves once ZAICODE is back.
@@ -121,6 +126,7 @@ export const ZAICODE_UI_DEFAULT_PREFS: ZaicodeUiPrefs = {
   autoRetryMaxAttempts: ZAICODE_AUTO_RETRY_DEFAULT_ATTEMPTS,
   autoRetryScope: "global",
   autoRetryProjects: {},
+  schedulerIneligible: {},
   resumeAfterCrash: true,
   resumeAfterCrashHours: 12,
   relaunchWorkersAfterCrash: true,
@@ -182,6 +188,7 @@ export function normalizeZaicodeUiPrefs(raw: unknown): ZaicodeUiPrefs {
     autoRetryMaxAttempts: int(r.autoRetryMaxAttempts, 1, ZAICODE_AUTO_RETRY_HARD_CAP, d.autoRetryMaxAttempts),
     autoRetryScope: r.autoRetryScope === "project" ? "project" : "global",
     autoRetryProjects: flags(r.autoRetryProjects),
+    schedulerIneligible: flags(r.schedulerIneligible),
     resumeAfterCrash: flag(r.resumeAfterCrash, d.resumeAfterCrash),
     resumeAfterCrashHours: int(r.resumeAfterCrashHours, 1, 168, d.resumeAfterCrashHours),
     relaunchWorkersAfterCrash: flag(r.relaunchWorkersAfterCrash, d.relaunchWorkersAfterCrash),
