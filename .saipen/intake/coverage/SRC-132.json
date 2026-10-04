@@ -1,4 +1,14 @@
 {
-  "requirements": {},
+  "requirements": {
+    "SRC-132:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "T-198 closed with verification evidence in LOG: verify -> PASS [target: T-198] conf: high -- zcode 211d1f9a. Focused: node --import tsx --test test/zaicodeT198SchedulerEligibility.test.ts = 5 pass / 0 fail (Ctrl+Click removes an account from the scheduler list and a second one puts it back by deleting the key; one account's answer never touches another's; only an explicit true excludes; the answer round-trips through normalizeZaicodeUiPrefs so ",
+      "text": "\u042f \u0431\u044b \u0445\u043e\u0442\u0435\u043b \u0432\u043a\u043b\u044e\u0447\u0430\u0442\u044c-\u0432\u044b\u043a\u043b\u044e\u0447\u0438\u0442\u044c Ctrl + CLick \u043e\u0442\u0441\u044e\u0434\u0430 \u0435\u0441\u043b\u0438 \u043a\u043b\u0438\u043a\u0430\u044e \u043e\u0442\u0441\u044e\u0434\u0430 \u043d\u0430 \u044d\u0442\u0438 \u043f\u043e\u0434\u043f\u0438\u0441\u043a\u0438 \u0433\u043e\u0442\u043e\u0432\u043d\u043e\u0441\u0442\u044c Workers \u0437\u0430\u043f\u043b\u0430\u043d\u0438\u0440\u043e\u0432\u0430\u043d\u043d\u044b\u0435, \u0442\u0438\u043f\u043e \u0442\u043e\u0433\u043b \u043a\u0430\u043a \u0442\u0430\u043c \u0432 Workers \u0432 Scheduler. !(file:///V:/___VAC/_PIC/_Clipboard_stuff/clipboard_20261003_223036_97d6b114.png)",
+      "verification": "the Work this request created reached its own verification gate; see the T-198 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-198"
+    }
+  },
   "schema_version": 1
 }
