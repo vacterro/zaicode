@@ -89,7 +89,10 @@ test("Usage grouping sums every metric while keeping distinct readable identitie
 });
 
 test("Usage turns router statuses into readable outcomes without raw error codes", () => {
-  assert.equal(zaicodeUsageStatus("ok"), "Done");
+  // A finished request carries no word: it said the same thing under every model.
+  assert.equal(zaicodeUsageStatus("ok"), "");
+  assert.equal(zaicodeUsageStatus("success"), "");
+  assert.equal(zaicodeUsageStatus("completed"), "");
   assert.equal(zaicodeUsageStatus("FAILED"), "Failed");
   assert.equal(zaicodeUsageStatus("streaming"), "Running");
   assert.equal(zaicodeUsageStatus("request-39321ca3-0516-4ad0-a4c0-f28d572a8852"), "Unknown");

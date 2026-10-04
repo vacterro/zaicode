@@ -1,4 +1,5 @@
-import { useEffect, useState, type ComponentProps } from "react";
+/* eslint-disable max-lines -- The 9router usage page reads as one panel: the live meter, its refresh rate, the trend and the breakdown table all poll the same snapshot. Splitting the table alone would leave the refresh state here and the rows in a sibling file. */
+import { useCallback, useEffect, useRef, useState, type ComponentProps } from "react";
 import { normalizeZaicodeRouterConnections, normalizeZaicodeRouterNodes } from "@zcode/shared";
 import { Button } from "@/components/ui/button.js";
 import { cn } from "@/components/lib/utils.js";
@@ -15,8 +16,12 @@ import {
   openZaicodeUsage,
   toggleZaicodeUsageSidebar,
   useZaicodeUsage,
+  zaicodeUsageNameColumnPercent,
+  ZAICODE_USAGE_DEFAULT_REFRESH_SECONDS,
   ZAICODE_USAGE_PERIODS,
+  ZAICODE_USAGE_REFRESH_SECONDS,
   type UsageCount,
+  type ZaicodeUsageRefreshSeconds,
 } from "./zaicodeUsage.js";
 
 const number = (value: number) => value.toLocaleString(undefined, { maximumFractionDigits: 0 });
@@ -46,6 +51,12 @@ export function ZaicodeUsageView({ sidebar = false }: { sidebar?: boolean }) {
   const period = useZaicodeUsage((state) => state.period);
   const [revision, setRevision] = useState(0);
   const [auto, setAuto] = useState(true);
+  const [refreshSeconds, setRefreshSeconds] = useState<ZaicodeUsageRefreshSeconds>(
+    ZAICODE_USAGE_DEFAULT_REFRESH_SECONDS,
+  );
+  // The model name is the column a long model ID hides in; the user drags it wider.
+  const [nameColumnPercent, setNameColumnPercent] = useState(34);
+  const tableRef = useRef<HTMLTableElement>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [updatedAt, setUpdatedAt] = useState(0);
@@ -117,7 +128,7 @@ export function ZaicodeUsageView({ sidebar = false }: { sidebar?: boolean }) {
         inFlight = false;
         if (!disposed) {
           setLoading(false);
-          if (auto) timer = setTimeout(() => void read(), 10_000);
+          if (auto) timer = setTimeout(() => void read(), refreshSeconds * 1000);
         }
       }
     };
@@ -131,7 +142,21 @@ export function ZaicodeUsageView({ sidebar = false }: { sidebar?: boolean }) {
       clearTimeout(timer);
       document.removeEventListener("visibilitychange", visible);
     };
-  }, [auto, period, revision]);
+  }, [auto, period, refreshSeconds, revision]);
+
+  const resizeNameColumn = useCallback((clientX: number) => {
+    const table = tableRef.current;
+    if (!table) return;
+    const box = table.getBoundingClientRect();
+    setNameColumnPercent((current) =>
+      zaicodeUsageNameColumnPercent({
+        clientX,
+        tableLeft: box.left,
+        tableWidth: box.width,
+        current,
+      }),
+    );
+  }, []);
 
   const totals = data?.totals;
   const values = chart.map((row) => row[metric]);
@@ -197,7 +222,26 @@ export function ZaicodeUsageView({ sidebar = false }: { sidebar?: boolean }) {
               checked={auto}
               onChange={(event) => setAuto(event.target.checked)}
             />
-            Live · 10s
+            Live ·
+            <select
+              aria-label="Live refresh interval"
+              data-zaicode-usage-refresh
+              className="border border-border bg-background text-ui-xs"
+              disabled={!auto}
+              value={refreshSeconds}
+              onChange={(event) => {
+                const next = Number(event.target.value);
+                if ((ZAICODE_USAGE_REFRESH_SECONDS as readonly number[]).includes(next)) {
+                  setRefreshSeconds(next as ZaicodeUsageRefreshSeconds);
+                }
+              }}
+            >
+              {ZAICODE_USAGE_REFRESH_SECONDS.map((seconds) => (
+                <option key={seconds} value={seconds}>
+                  {seconds}s
+                </option>
+              ))}
+            </select>
           </label>
         </div>
         <p className="mb-2 text-ui-xs" aria-live="polite">
@@ -296,13 +340,32 @@ export function ZaicodeUsageView({ sidebar = false }: { sidebar?: boolean }) {
           ))}
         </div>
         <div className="max-w-full overflow-x-auto border border-border" role="tabpanel">
-          <table className="w-full table-fixed text-left text-ui-xs tabular-nums">
+          <table ref={tableRef} className="w-full table-fixed text-left text-ui-xs tabular-nums">
             <thead className="bg-surface text-foreground-subtle">
               <tr>
                 <th
-                  className={cn("px-2 py-1 font-normal", tab === "recent" ? "w-[34%]" : "w-[29%]")}
+                  className="relative px-2 py-1 font-normal"
+                  style={{ width: `${nameColumnPercent}%` }}
                 >
                   {tab === "recent" ? "Model" : "Name"}
+                  {/* The name column is the one a long model ID hides in, so it is the one
+                      the user drags. Pointer capture keeps the drag on this handle. */}
+                  <span
+                    role="separator"
+                    aria-orientation="vertical"
+                    aria-label="Resize name column"
+                    data-zaicode-usage-column-resize
+                    className="absolute inset-y-0 right-0 w-1.5 cursor-col-resize touch-none select-none hover:bg-[var(--color-brand)]"
+                    onPointerDown={(event) => {
+                      event.preventDefault();
+                      event.currentTarget.setPointerCapture(event.pointerId);
+                    }}
+                    onPointerMove={(event) => {
+                      if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+                        resizeNameColumn(event.clientX);
+                      }
+                    }}
+                  />
                 </th>
                 <th
                   className={cn("px-1 py-1 text-right font-normal", tab === "recent" && "w-[18%]")}
@@ -318,9 +381,16 @@ export function ZaicodeUsageView({ sidebar = false }: { sidebar?: boolean }) {
               </tr>
             </thead>
             <tbody>
-              {rows.map((row, index) => (
+              {rows.map((row, index) => {
+                // Success says nothing; only a row that failed or is still running needs a
+                // word under the name, so an empty status renders no line at all.
+                const status =
+                  tab === "recent" && data
+                    ? zaicodeUsageStatus(data.recent[index]?.status ?? "")
+                    : "";
+                return (
                 <tr key={`${row.name}:${index}`} className="border-t border-border">
-                  <td className="px-2 py-1">
+                  <td className="px-2 py-1" style={{ width: `${nameColumnPercent}%` }}>
                     <span
                       className="block truncate"
                       title={
@@ -333,10 +403,8 @@ export function ZaicodeUsageView({ sidebar = false }: { sidebar?: boolean }) {
                         ? zaicodeUsageDisplayName(row.name, "models", labels)
                         : row.name}
                     </span>
-                    {tab === "recent" && data ? (
-                      <span className="block text-foreground-subtle">
-                        {zaicodeUsageStatus(data.recent[index]?.status ?? "")}
-                      </span>
+                    {status ? (
+                      <span className="block text-foreground-subtle">{status}</span>
                     ) : null}
                   </td>
                   <td className="break-all px-1 py-1 text-right text-foreground-subtle">
@@ -353,7 +421,8 @@ export function ZaicodeUsageView({ sidebar = false }: { sidebar?: boolean }) {
                     <td className="break-all px-1 py-1 text-right">{cost(row.cost)}</td>
                   ) : null}
                 </tr>
-              ))}
+                );
+              })}
               {!rows.length ? (
                 <tr>
                   <td className="p-2" colSpan={6}>

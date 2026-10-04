@@ -4,6 +4,30 @@ export const ZAICODE_USAGE_PERIODS = ["today", "24h", "7d", "30d", "60d", "all"]
 export type ZaicodeUsagePeriod = (typeof ZAICODE_USAGE_PERIODS)[number];
 export type ZaicodeUsageMode = "closed" | "page" | "sidebar";
 
+/** Live meter refresh choices, in seconds. 10s keeps the default gentle; 1s is the floor a user who watches a token stream can ask for. */
+export const ZAICODE_USAGE_REFRESH_SECONDS = [10, 5, 3, 2, 1] as const;
+export type ZaicodeUsageRefreshSeconds = (typeof ZAICODE_USAGE_REFRESH_SECONDS)[number];
+export const ZAICODE_USAGE_DEFAULT_REFRESH_SECONDS: ZaicodeUsageRefreshSeconds = 10;
+
+/** The name column is draggable between these shares of the table width; below 12% nothing fits, above 70% the metric columns do not. */
+export const ZAICODE_USAGE_NAME_COLUMN_MIN_PERCENT = 12;
+export const ZAICODE_USAGE_NAME_COLUMN_MAX_PERCENT = 70;
+
+/** Pointer x -> the name column's share of the table, clamped. A table of zero width keeps the current width rather than jumping to a clamp edge. */
+export function zaicodeUsageNameColumnPercent(params: {
+  clientX: number;
+  tableLeft: number;
+  tableWidth: number;
+  current: number;
+}): number {
+  if (!(params.tableWidth > 0)) return params.current;
+  const share = Math.round(((params.clientX - params.tableLeft) / params.tableWidth) * 100);
+  return Math.max(
+    ZAICODE_USAGE_NAME_COLUMN_MIN_PERCENT,
+    Math.min(ZAICODE_USAGE_NAME_COLUMN_MAX_PERCENT, share),
+  );
+}
+
 export const useZaicodeUsage = create<{
   mode: ZaicodeUsageMode;
   period: ZaicodeUsagePeriod;

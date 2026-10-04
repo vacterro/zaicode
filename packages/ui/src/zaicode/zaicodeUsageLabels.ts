@@ -80,10 +80,12 @@ export function displayZaicodeUsageBreakdown(
 
 export function zaicodeUsageStatus(status: string): string {
   switch (status.toLowerCase()) {
+    // Success carries no word: almost every finished request reads the same, so the label
+    // only repeated a constant under each model. Failures and live rows still need naming.
     case "ok":
     case "success":
     case "completed":
-      return "Done";
+      return "";
     case "error":
     case "failed":
       return "Failed";
