@@ -107,3 +107,8 @@ export const useZaicodeComposerPrefs = create<ZaicodeComposerPrefsState>((set, g
     reset: () => persist(ZAICODE_COMPOSER_DEFAULT_PREFS),
   };
 });
+
+/** Live preset apply (T-208): take the stored composer prefs without reloading the window. */
+export function reloadZaicodeComposerPrefs(): void {
+  useZaicodeComposerPrefs.setState(load());
+}

@@ -35,8 +35,7 @@ import { ZaicodePresetImportPreview } from "./ZaicodePresetImportPreview.js";
 /**
  * Presets for one Settings page (T-125), the panel inside the menu: save what the page is set to now under a
  * name, switch between saved sets with a click, export one as a file (own sound files travel inside it) and
- * import a file somebody sent. Applying always leaves a way back: one Undo per page, and it survives the
- * window reload some pages need.
+ * import a file somebody sent. Applying always leaves a way back: one Undo per page, applied live.
  *
  * Every destructive click (replace a preset, delete it, reset the page) asks twice: the first click arms the
  * button for a few seconds. No dialogs, nothing to dismiss.
@@ -187,7 +186,7 @@ export function ZaicodePresetsPanel({
   const say = (tone: Say["tone"], text: string, file?: string) => setMessage(file ? { tone, text, file } : { tone, text });
   const full = () => say("warn", `${title} already has ${ZAICODE_PRESETS_MAX_PER_SECTION} presets: delete one first.`);
   const saidOutcome = (done: string, outcome: ApplyOutcome) => {
-    // A reloading page says it itself once it is back; this window is going away.
+    // Presets update the existing window; report the outcome beside the control that applied it.
     if (outcome.live) say(outcome.missing.length > 0 ? "warn" : "ok", describeOutcome(done, outcome));
   };
 

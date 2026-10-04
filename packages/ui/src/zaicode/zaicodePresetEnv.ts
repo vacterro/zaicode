@@ -1,20 +1,19 @@
-import { storeZaicodeOwnSound, readZaicodeOwnSound, reloadZaicodeSoundSettings } from "./zaicodeSoundEvents.js";
-import { reloadZaicodeAudio } from "./zaicodeAudio.js";
-import { reloadZaicodeSoundPickerPrefs } from "./ZaicodeSoundPicker.js";
+import { storeZaicodeOwnSound, readZaicodeOwnSound } from "./zaicodeSoundEvents.js";
 import { readZaicodeSetting } from "./zaicodeSettingsSnapshot.js";
 import { pruneUnusedBlobs, toArrayBuffer, type PresetSoundSource } from "./zaicodePresetAssets.js";
 import type { PresetEnv } from "./zaicodePresetApply.js";
 import { zaicodePresetBlobStore } from "./zaicodePresetBlobs.js";
 import { setZaicodePresetUndo, usedBlobDigests, useZaicodePresets } from "./zaicodePresetStore.js";
-import { markPresetReopen } from "./zaicodePresetReopen.js";
+import { rehydrateZaicodePresetSection } from "./zaicodePresetRehydrate.js";
 import { zaicodeCustomizationSoundSource } from "./zaicodeCustomSounds.js";
 
 /**
  * The real environment of the preset system (T-125): this window's storage, its own sounds, the way new
  * values reach what is open. zaicodePresetApply.ts does the work against it; tests pass memory ones.
  *
- * Where a page cannot take new values while it is open (nearly every store reads storage once at start, like
- * a profile switch), the window reloads and comes back to the same Settings page, saying what was done.
+ * Since T-208 every section takes new values live: each store owns a `reload...` hook and
+ * zaicodePresetRehydrate.ts routes a section to its stores, so applying a preset never reloads the window
+ * (a reload used to interrupt whatever projects, sessions or workers the operator had open).
  */
 
 /** Own files of the Sounds table: `custom:<event id>`, in IndexedDB, one per event. */
@@ -45,22 +44,7 @@ export const zaicodePresetEnv: PresetEnv = {
     get: (section) => useZaicodePresets.getState().undos[section] ?? null,
     set: (section, undo) => void setZaicodePresetUndo(section, undo),
   },
-  rehydrate: (section) => {
-    // The Sounds page is the one that can show new values without a reload: three small stores, one event each.
-    if (section !== "zaicodeSounds") return false;
-    reloadZaicodeSoundSettings();
-    reloadZaicodeAudio();
-    reloadZaicodeSoundPickerPrefs();
-    return true;
-  },
-  reload: (section, note) => {
-    try {
-      markPresetReopen(sessionStorage, { section, note });
-    } catch {
-      // Without the mark the window still reloads; the person opens the page again.
-    }
-    window.location.reload();
-  },
+  rehydrate: (section) => rehydrateZaicodePresetSection(section),
   now: () => new Date().toISOString(),
   app: "ZAICODE",
 };

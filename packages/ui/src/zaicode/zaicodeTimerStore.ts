@@ -304,3 +304,23 @@ uiMemoryDiagnosticsRegistry.register("zaicodeTimers", () => {
     missedAlarms: state.missed.length,
   };
 });
+
+/** Live preset apply (T-208): take the stored timer prefs without reloading the window. */
+export function reloadZaicodeTimerPrefs(): void {
+  const prefs = load();
+  const current = useZaicodeTimers.getState();
+  // 启动 loader 会把倒计时置 idle；复用设置命令，只更新偏好并保留运行身份与报警。
+  current.setTemp(prefs.temp);
+  current.setClock(prefs.clock);
+  current.setProductivity((timer) => ({
+    ...prefs.productivity,
+    state: timer.state,
+    phase: timer.phase,
+    remaining: timer.state === "idle" && !timer.alarmPending
+      ? (timer.phase === "break" ? prefs.productivity.breakSeconds : prefs.productivity.workSeconds)
+      : timer.remaining,
+    completedCycles: timer.completedCycles,
+    alarmPending: timer.alarmPending,
+    alarmPhase: timer.alarmPhase,
+  }));
+}

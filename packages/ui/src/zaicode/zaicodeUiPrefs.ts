@@ -218,3 +218,8 @@ export function zaicodeCalmClasses(prefs: Pick<ZaicodeUiPrefs, "noMotion" | "noD
 export function isZaicodeCalm(prefs: Pick<ZaicodeUiPrefs, "noMotion" | "noDim" | "noHoverPopups">): boolean {
   return prefs.noMotion && prefs.noDim && prefs.noHoverPopups;
 }
+
+/** Live preset apply (T-208): take the stored UI prefs without reloading the window. */
+export function reloadZaicodeUiPrefs(): void {
+  useZaicodeUiPrefs.setState(load());
+}

@@ -198,3 +198,10 @@ function subscribe(listener: () => void): () => void {
 export function useZaicodeFancyZones(): ZaicodeFancyZonesSettings {
   return useSyncExternalStore(subscribe, readZaicodeFancyZonesSettings, readZaicodeFancyZonesSettings);
 }
+
+/** Live preset apply (T-208): re-read the stored zone settings without reloading the window. */
+export function reloadZaicodeFancyZones(): void {
+  cachedSettings = null;
+  readZaicodeFancyZonesSettings();
+  if (typeof window !== "undefined") window.dispatchEvent(new Event(CHANGE_EVENT));
+}

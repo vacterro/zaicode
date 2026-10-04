@@ -659,3 +659,10 @@ export const useZaicodeRunningSessions = create<ZaicodeRunningState>((set, get) 
     if (!sameSessions(get().sessions, sessions)) set({ sessions });
   },
 }));
+
+/** Live preset apply (T-208): take the stored sidebar prefs without reloading the window. */
+export function reloadZaicodeSidebarPrefs(): void {
+  const next = load();
+  useZaicodeSidebarPrefs.setState(next);
+  applyTitleAlign(next);
+}

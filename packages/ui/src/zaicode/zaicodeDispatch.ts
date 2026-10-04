@@ -130,3 +130,8 @@ export function pickZaicodeDispatchProject(
 export function zaicodeDispatchTitle(short: string, projectName: string): string {
   return `${short} ${projectName} | ZAICODE`;
 }
+
+/** Live preset apply (T-208): take the stored dispatch prefs without reloading the window. */
+export function reloadZaicodeDispatchPrefs(): void {
+  useZaicodeDispatch.setState(load());
+}

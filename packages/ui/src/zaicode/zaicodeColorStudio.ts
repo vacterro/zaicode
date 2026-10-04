@@ -292,3 +292,10 @@ export function importZaicodePalette(json: string): { slug: string } | { error: 
   const slug = createZaicodeCustomPalette(base.slug, cleanLabel(value.label, "Imported theme"), cleanTokens(tokens, base.tokens));
   return slug ? { slug } : { error: `At most ${MAX_CUSTOMS} own themes.` };
 }
+
+/** Live preset apply (T-208): re-read the stored studio without reloading the window. */
+export function reloadZaicodeColorStudio(): void {
+  cached = null;
+  readZaicodeColorStudio();
+  if (typeof window !== "undefined") window.dispatchEvent(new Event(ZAICODE_COLOR_STUDIO_EVENT));
+}

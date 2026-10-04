@@ -149,3 +149,8 @@ export const useZaicodeDiamondPrefs = create<ZaicodeDiamondPrefsState>((set, get
 export function useZaicodeDiamondColor(model: string | null | undefined): string | null {
   return useZaicodeDiamondPrefs((state) => zaicodeDiamondColor(model, state));
 }
+
+/** Live preset apply (T-208): take the stored diamond colours without reloading the window. */
+export function reloadZaicodeDiamondColors(): void {
+  useZaicodeDiamondPrefs.setState(load());
+}

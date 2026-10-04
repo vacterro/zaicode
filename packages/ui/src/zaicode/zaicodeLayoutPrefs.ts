@@ -438,3 +438,8 @@ export function useZaicodeNavLabel(id: ZaicodeNavItemId, fallback: string): stri
     useZaicodeLayout((state) => state.navItems.find((item) => item.id === id)?.label) || fallback
   );
 }
+
+/** Live preset apply (T-208): take the stored layout without reloading the window. */
+export function reloadZaicodeLayoutPrefs(): void {
+  useZaicodeLayout.setState(load());
+}

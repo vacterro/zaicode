@@ -45,3 +45,28 @@ export function persistTaskNotificationEnabled(enabled: boolean): void {
 export function persistTaskNotificationSoundEnabled(enabled: boolean): void {
   persistStoredBoolean(TASK_NOTIFICATION_SOUND_ENABLED_STORAGE_KEY, enabled);
 }
+
+const CHANGE_EVENT = "task-notification-preferences-changed";
+
+export interface TaskNotificationPreferences {
+  notificationEnabled: boolean;
+  notificationSoundEnabled: boolean;
+}
+
+/** Notify existing owners after an external settings write, without rewriting storage. */
+export function reloadTaskNotificationPreferences(): void {
+  if (typeof window !== "undefined") window.dispatchEvent(new Event(CHANGE_EVENT));
+}
+
+export function subscribeTaskNotificationPreferences(
+  listener: (preferences: TaskNotificationPreferences) => void,
+): () => void {
+  const refresh = () => listener({
+    notificationEnabled: isTaskNotificationEnabled(),
+    notificationSoundEnabled: isTaskNotificationSoundPreferenceEnabled(),
+  });
+  if (typeof window === "undefined") return () => {};
+  window.addEventListener(CHANGE_EVENT, refresh);
+  refresh();
+  return () => window.removeEventListener(CHANGE_EVENT, refresh);
+}

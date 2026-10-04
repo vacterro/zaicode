@@ -28,7 +28,6 @@ const env: PresetEnv = {
   blobs: memoryBlobStore(),
   undo: { get: () => null, set: () => undefined },
   rehydrate: () => true,
-  reload: () => undefined,
   now: () => "2026-09-29T12:00:00.000Z",
 };
 const prune = async () => undefined;
@@ -119,7 +118,8 @@ test("U4 the reopen mark survives one reload for a page with presets and nothing
 test("U5 wiring: the title row of every page with presets holds the menu, and the runtime reopens the page after a reload", () => {
   const page = read("SettingsPage.tsx");
   assert.match(page, /import \{ ZaicodePresetsMenu \} from "@\/settings\/ZaicodePresetsMenu\.js"/);
-  assert.match(page, /isZaicodePresetSection\(activeSection\) \? \(\s*<ZaicodePresetsMenu section=\{activeSection\} \/>/);
+  assert.match(page, /zaicodePresetSectionForSettings\(activeSection, isZaicodeProductMode\(\)\)/);
+  assert.match(page, /<ZaicodePresetsMenu section=\{activePresetSection\}/);
   const menuAt = page.indexOf("<ZaicodePresetsMenu section=");
   assert.ok(menuAt > 0 && menuAt < page.indexOf("<GeneralSectionHeader"), "in the title row, above the page content");
   const runtime = read("zaicode/ZaicodeAppRuntime.tsx");
@@ -132,10 +132,12 @@ test("U5 wiring: the title row of every page with presets holds the menu, and th
   assert.match(hook, /\[tabCount\]\);/, "a new tab restarts the wait");
 });
 
-test("U6 wiring: only Sounds takes a preset without a reload, through its three stores; everything else reloads and leaves a mark", () => {
+test("U6 wiring: all preset sections refresh their stores without renderer reload authority", () => {
   const environment = read("zaicode/zaicodePresetEnv.ts");
-  assert.match(environment, /if \(section !== "zaicodeSounds"\) return false;\s*reloadZaicodeSoundSettings\(\);\s*reloadZaicodeAudio\(\);\s*reloadZaicodeSoundPickerPrefs\(\);\s*return true;/);
-  assert.match(environment, /markPresetReopen\(sessionStorage, \{ section, note \}\);[\s\S]*window\.location\.reload\(\);/, "the mark is left before the reload, not after");
+  assert.match(environment, /rehydrate:\s*\(section\) => rehydrateZaicodePresetSection\(section\)/);
+  assert.doesNotMatch(environment, /markPresetReopen|window\.location\.reload/);
+  const dispatcher = read("zaicode/zaicodePresetRehydrate.ts");
+  assert.match(dispatcher, /zaicodeSounds:\s*\[reloadZaicodeSoundSettings, reloadZaicodeAudio, reloadZaicodeSoundPickerPrefs\]/);
   assert.match(environment, /localStorage\.removeItem\(key\)/, "an unset value removes the key: the release default returns");
   const model = read("zaicode/zaicodeSoundSettingsModel.ts");
   assert.match(model, /export function reloadZaicodeSoundSettings\(\): void \{\s*cached = null;[\s\S]*?dispatchEvent\(new Event\(CHANGE_EVENT\)\)/);

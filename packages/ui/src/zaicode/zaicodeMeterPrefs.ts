@@ -241,3 +241,11 @@ export function zaicodeAvailabilityTint(levelColor: string | null, strength: num
   if (!levelColor || strength <= 0) return undefined;
   return `color-mix(in srgb, ${levelColor} ${Math.min(ZAICODE_METER_TINT_MAX, strength)}%, transparent)`;
 }
+
+/** Live preset apply (T-208): re-read both meter keys without reloading the window. */
+export function reloadZaicodeMeterPrefs(): void {
+  useZaicodeMeterPrefs.setState(load());
+  styleCache = null;
+  readMeterStyle();
+  if (typeof window !== "undefined") window.dispatchEvent(new Event(STYLE_EVENT));
+}

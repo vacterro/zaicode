@@ -164,3 +164,8 @@ export function zaicodeWorkerFontFamily(prefs: Pick<ZaicodeWorkerPrefs, "font" |
   if (prefs.font === "custom" && prefs.customFont.trim()) return `${prefs.customFont.trim()}, monospace`;
   return undefined;
 }
+
+/** Live preset apply (T-208): take the stored worker prefs without reloading the window. */
+export function reloadZaicodeWorkerPrefs(): void {
+  useZaicodeWorkerPrefs.setState(load());
+}

@@ -48,10 +48,8 @@ export interface PresetEnv {
   sources: readonly PresetSoundSource[];
   blobs: PresetBlobStore;
   undo: { get(section: ZaicodePresetSectionId): PresetUndo | null; set(section: ZaicodePresetSectionId, undo: PresetUndo | null): void };
-  /** Puts the new values in front of the open window without a reload; false = this section needs the window reloaded. */
-  rehydrate(section: ZaicodePresetSectionId): boolean;
-  /** Reloads the window and comes back to this Settings page, saying `note` (what was just done) when it is there. */
-  reload(section: ZaicodePresetSectionId, note: string): void;
+  /** Refreshes this section's existing stores in place; failures propagate without restarting the runtime. */
+  rehydrate(section: ZaicodePresetSectionId): void;
   now(): string;
   /** "ZAICODE 0.0.1", written into exported files for the person reading them. */
   app?: string;
@@ -64,7 +62,7 @@ export interface ApplyOutcome {
   restored: string[];
   /** Own sounds the preset names that could not be put in place: those events stay silent until a sound is picked. */
   missing: string[];
-  /** The new values are on screen already (false: the window is reloading). */
+  /** The new values are on screen already. Presets never reload the renderer. */
   live: boolean;
 }
 
@@ -99,7 +97,6 @@ async function put(
   settings: Record<string, PresetValue>,
   assets: readonly PresetAssetRef[],
   label: string,
-  done: string,
 ): Promise<ApplyOutcome> {
   const target = section(id);
   // Undo has to bring back a sound the preset is about to overwrite even when the current settings do not use it:
@@ -123,20 +120,20 @@ async function put(
     env.undo.set(id, null);
     throw error;
   }
-  const live = env.rehydrate(id);
-  if (!live) env.reload(id, done);
-  return { changed, restored: sounds.restored, missing: sounds.missing, live };
+  // 旧的 false → reload 分支会中断 worker 和草稿；刷新只能通知现有设置所有者。
+  env.rehydrate(id);
+  return { changed, restored: sounds.restored, missing: sounds.missing, live: true };
 }
 
 /** Puts a preset in place. The state it replaces is kept for Undo. */
 export function applyPreset(env: PresetEnv, preset: ZaicodePreset): Promise<ApplyOutcome> {
-  return put(env, preset.section, preset.settings, preset.assets, preset.name, `Applied “${preset.name}”`);
+  return put(env, preset.section, preset.settings, preset.assets, preset.name);
 }
 
 /** Every setting of the page back to the release default (its keys removed). Undoable like an apply. */
 export function resetSection(env: PresetEnv, id: ZaicodePresetSectionId): Promise<ApplyOutcome> {
   const blank: Record<string, PresetValue> = Object.fromEntries(section(id).keys.map((key) => [key, null]));
-  return put(env, id, blank, [], "the release defaults", "Reset to the release defaults");
+  return put(env, id, blank, [], "the release defaults");
 }
 
 /** Puts back what the last apply or reset replaced. Null when there is nothing to undo. */
@@ -148,9 +145,8 @@ export async function undoLastApply(env: PresetEnv, id: ZaicodePresetSectionId):
   const changed = presetChanges(section(id), settings, env.read);
   applyPresetSettings(section(id), settings, env.write, env.read);
   env.undo.set(id, null);
-  const live = env.rehydrate(id);
-  if (!live) env.reload(id, `Undid “${undo.label}”`);
-  return { changed, restored: sounds.restored, missing: sounds.missing, live };
+  env.rehydrate(id);
+  return { changed, restored: sounds.restored, missing: sounds.missing, live: true };
 }
 
 /** What was done, in one line for the person: the sounds put in place and the ones that could not be. */

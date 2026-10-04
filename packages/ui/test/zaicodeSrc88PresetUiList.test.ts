@@ -19,7 +19,6 @@ const env: PresetEnv = {
   blobs: memoryBlobStore(),
   undo: { get: () => null, set: () => undefined },
   rehydrate: () => true,
-  reload: () => undefined,
   now: () => "2026-09-29T12:00:00.000Z",
 };
 const prune = async () => undefined;

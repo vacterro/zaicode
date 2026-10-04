@@ -286,3 +286,8 @@ export const useZaicodeHomePrefs = create<ZaicodeHomePrefsState>((set, get) => {
 export function readZaicodeHomePrefs(): ZaicodeHomePrefs {
   return useZaicodeHomePrefs.getState();
 }
+
+/** Live preset apply (T-208): take the stored home prefs without reloading the window. */
+export function reloadZaicodeHomePrefs(): void {
+  useZaicodeHomePrefs.setState(load());
+}

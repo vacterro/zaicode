@@ -454,3 +454,11 @@ if (typeof window !== "undefined") {
     window.dispatchEvent(new Event(CHANGE_EVENT));
   });
 }
+
+/** Live preset apply (T-208): re-read the appearance settings and re-apply them without a reload. */
+export function reloadZaicodeAppearance(): void {
+  cached = null;
+  readZaicodeAppearance();
+  if (typeof window !== "undefined") window.dispatchEvent(new Event(CHANGE_EVENT));
+  applyZaicodeAppearance();
+}

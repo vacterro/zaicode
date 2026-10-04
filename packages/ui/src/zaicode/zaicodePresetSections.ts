@@ -65,7 +65,18 @@ export const ZAICODE_PRESET_SECTIONS: readonly ZaicodePresetSection[] = [
     ],
   },
   { id: "zaicodeProtrail", title: "ProTrail", keys: ["zaicode-protrail-v1"] },
-  { id: "zaicodeTimers", title: "Timers", keys: ["zaicode-timer-prefs-v1"] },
+  {
+    id: "zaicodeTimers",
+    title: "Timers",
+    keys: ["zaicode-timer-prefs-v1"],
+    // 该 key 混有本机调度与计数；预设只迁移偏好，不能移植或重置运行事实。
+    local: {
+      "zaicode-timer-prefs-v1": [
+        "intervalRules", "missed", "productivity.completedCycles", "productivity.state",
+        "productivity.phase", "productivity.remaining", "productivity.alarmPending", "productivity.alarmPhase",
+      ],
+    },
+  },
   { id: "zaicodeHotkeys", title: "Hotkeys", keys: ["zaicode-hotkeys-v1"] },
   // `groups` maps this machine's project paths to slots: not a look, and not for anyone else's eyes.
   { id: "zaicodeSidebar", title: "Sidebar", keys: ["zaicode-sidebar-prefs-v1"], local: { "zaicode-sidebar-prefs-v1": ["groups"] } },
@@ -94,4 +105,11 @@ export function zaicodePresetSection(id: string): ZaicodePresetSection | undefin
 
 export function isZaicodePresetSection(id: string): id is ZaicodePresetSectionId {
   return BY_ID.has(id);
+}
+
+/** The merged Shortcuts page still owns ZAICODE Hotkeys presets. */
+export function zaicodePresetSectionForSettings(id: string, zaicodeMode: boolean): ZaicodePresetSectionId | undefined {
+  // Hotkeys 已并入 shortcuts；按页面别名匹配，否则菜单失去入口。
+  if (zaicodeMode && id === "shortcuts") return "zaicodeHotkeys";
+  return isZaicodePresetSection(id) ? id : undefined;
 }

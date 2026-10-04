@@ -50,3 +50,8 @@ export const useZaicodeProtrail = create<ProtrailStore>((set, get) => {
     resetAll: () => persist(protrailDefaults()),
   };
 });
+
+/** Live preset apply (T-208): take the stored ProTrail config without reloading the window. */
+export function reloadZaicodeProtrail(): void {
+  useZaicodeProtrail.setState({ config: load() });
+}

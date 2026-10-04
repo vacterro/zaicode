@@ -424,3 +424,10 @@ export function runZaicodeHotkeyAction(id: string): boolean {
   handler();
   return true;
 }
+
+/** Live preset apply (T-208): re-read the stored bindings without reloading the window. */
+export function reloadZaicodeHotkeys(): void {
+  cached = null;
+  readZaicodeHotkeySettings();
+  if (typeof window !== "undefined") window.dispatchEvent(new Event(CHANGE_EVENT));
+}

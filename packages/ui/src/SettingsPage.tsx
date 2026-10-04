@@ -71,7 +71,7 @@ import { ZaicodeSettingsSection } from "@/settings/ZaicodeSettingsSection.js";
 import { ZaicodeEnginesSettings } from "@/settings/ZaicodeEnginesSettings.js";
 import { ZaicodeSoundSettings } from "@/settings/ZaicodeSoundSettings.js";
 import { ZaicodePresetsMenu } from "@/settings/ZaicodePresetsMenu.js";
-import { isZaicodePresetSection } from "@/zaicode/zaicodePresetSections.js";
+import { zaicodePresetSectionForSettings } from "@/zaicode/zaicodePresetSections.js";
 import { ZaicodeLayoutSettings } from "@/settings/ZaicodeLayoutSettings.js";
 import { ZaicodeWorkersSettings } from "@/settings/ZaicodeWorkersSettings.js";
 import { ZaicodeRouterSettings } from "@/settings/ZaicodeRouterSettings.js";
@@ -1373,6 +1373,7 @@ export function SettingsPage({
     [setCodePreviewSettings],
   );
   const activeSectionMeta = settingsSections.find((section) => section.id === activeSection);
+  const activePresetSection = zaicodePresetSectionForSettings(activeSection, isZaicodeProductMode());
   // 灰度裁决异步到达：sections 列表可能在挂载后变化（如 computerUse 区被灰度移除）。
   // 若用户正停留在被移除的 section，回落到第一个可见区，避免整页 return null。
   useEffect(() => {
@@ -1741,8 +1742,8 @@ export function SettingsPage({
                               />
                             ) : null}
                           </div>
-                          {isZaicodePresetSection(activeSection) ? (
-                            <ZaicodePresetsMenu section={activeSection} />
+                          {activePresetSection ? (
+                            <ZaicodePresetsMenu section={activePresetSection} />
                           ) : null}
                         </div>
                         {activeSection === "general" ? (

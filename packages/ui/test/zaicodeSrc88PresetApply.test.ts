@@ -46,7 +46,7 @@ function machine(sounds: Record<string, OwnSound> = {}, options: { live?: Zaicod
       return id;
     },
   };
-  const env: PresetEnv = {
+  const env: PresetEnv & { reload: (id: ZaicodePresetSectionId, note: string) => void } = {
     read: (key) => storage.get(key) ?? null,
     write: (key, value) => void (value === null ? storage.delete(key) : storage.set(key, value)),
     sources: [source],
@@ -116,16 +116,17 @@ test("A2 a preset shared through a file plays the same on another machine, own s
   assert.deepEqual(b.reloads, [], "Sounds is put in front of the open window: no reload");
 });
 
-test("A3 a page that cannot be rehydrated in place reloads the window, once, after the settings are written", async () => {
+test("A3 a refresh return value never authorizes a renderer reload after settings are written", async () => {
   const a = machine();
   a.storage.set("zaicode-palette", "gray-amber");
   const { preset } = await saveCurrentPreset(a.env, "zaicodeColors", "Amber");
   a.storage.set("zaicode-palette", "blue");
   const outcome = await applyPreset(a.env, preset);
   assert.equal(a.storage.get("zaicode-palette"), "gray-amber");
-  assert.equal(outcome.live, false);
-  assert.deepEqual(a.reloads, ["zaicodeColors"]);
-  assert.deepEqual(a.notes, ["Applied “Amber”"], "the window is told what to say once it is back");
+  assert.equal(outcome.live, true);
+  assert.deepEqual(a.rehydrated, ["zaicodeColors"]);
+  assert.deepEqual(a.reloads, []);
+  assert.deepEqual(a.notes, []);
 });
 
 test("A4 Undo puts back the settings AND the own sound that an apply replaced", async () => {

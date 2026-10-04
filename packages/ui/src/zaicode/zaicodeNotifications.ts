@@ -513,3 +513,10 @@ uiMemoryDiagnosticsRegistry.register("zaicodeNotifications", () => ({
   toasts: useZaicodeToasts.getState().toasts.length,
   freshMarks: fresh.size,
 }));
+
+/** Live preset apply (T-208): re-read the stored settings without reloading the window. */
+export function reloadZaicodeNotifySettings(): void {
+  cached = null;
+  readZaicodeNotifySettings();
+  if (typeof window !== "undefined") window.dispatchEvent(new Event(CHANGE_EVENT));
+}

@@ -7,6 +7,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useRef,
   useSyncExternalStore,
   type ReactNode,
@@ -14,6 +15,7 @@ import {
 import { useStore } from "zustand";
 import type { IBroadcastService } from "@zcode/services";
 import { createZCodeStore, type ZCodeStore, type ZCodeState } from "./index.js";
+import { subscribeTaskNotificationPreferences } from "../lib/taskNotificationPreferences.js";
 
 // 导出 Context 供测试直接注入已构造的 store 实例（如跨窗口广播抑制用例）。
 const StoreContext = createContext<ZCodeStore | null>(null);
@@ -35,7 +37,11 @@ export function StoreProvider({
     });
   }
 
-  return <StoreContext.Provider value={storeRef.current}>{children}</StoreContext.Provider>;
+  const store = storeRef.current;
+  // 预设直接写存储；既有 App 订阅缓存标志，必须通知原 store，不能重建它。
+  useEffect(() => subscribeTaskNotificationPreferences(preferences => store.setState(preferences)), [store]);
+
+  return <StoreContext.Provider value={store}>{children}</StoreContext.Provider>;
 }
 
 /**
