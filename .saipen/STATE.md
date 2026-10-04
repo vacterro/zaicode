@@ -1,8 +1,8 @@
 ---
 phase: DONE
 task: none
-next_action: "saipen audit status"
-blocker: "WAIT_USER: audit/ holds 7 non-layer entries SAIPEN never captured and refuses to delete. Operator must archive or delete them."
+next_action: "saipen continue"
+blocker: none
 agent: saipen-cli
 saipen_version: 8
 schema_version: 3
