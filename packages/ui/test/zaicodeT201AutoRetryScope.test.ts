@@ -13,6 +13,7 @@ import {
 } from "../src/zaicode/zaicodeUiPrefs.js";
 import { TooltipProvider } from "../src/components/ui/tooltip.js";
 import { ZaicodeAutoRetryButton } from "../src/zaicode/ZaicodeAutoRetryButton.js";
+import { zaicodeEffectiveAutoRetryFor } from "../src/zaicode/zaicodeRetryPolicy.js";
 
 // Server rendering always shows a store's initial snapshot, so the markup case is the
 // shipped default: auto retry on, every project. The off case is the packaged oracle's
@@ -41,16 +42,18 @@ test("SRC-135: stored prefs that are not the two answers fall back instead of po
   assert.equal(empty.autoRetry, ZAICODE_UI_DEFAULT_PREFS.autoRetry);
 });
 
-test("SRC-135: global reach ignores every per-project answer; project reach keeps them apart", () => {
+// T-217 REQ-006 supersedes T-201's global-reach exception: edit scope does not erase overrides.
+test("T-217: session/project overrides remain effective while editing the global default", () => {
   const global = prefs({ autoRetry: true, autoRetryProjects: { p1: false } });
-  assert.equal(zaicodeAutoRetryEnabled(global, "p1"), true, "a stale project answer must not leak into global");
+  assert.equal(zaicodeAutoRetryEnabled(global, "p1"), false, "an explicit project override remains effective");
 
   const scoped = prefs({ autoRetry: true, autoRetryScope: "project", autoRetryProjects: { p1: false } });
   assert.equal(zaicodeAutoRetryEnabled(scoped, "p1"), false, "the project's own answer wins");
   assert.equal(zaicodeAutoRetryEnabled(scoped, "p2"), true, "a project with no own answer takes the global one");
 
   assert.equal(zaicodeAutoRetryScopeNext("global"), "project");
-  assert.equal(zaicodeAutoRetryScopeNext("project"), "global");
+  assert.equal(zaicodeAutoRetryScopeNext("project"), "session");
+  assert.equal(zaicodeAutoRetryScopeNext("session"), "global");
 });
 
 test("SRC-135: the switch writes the answer its scope says, without losing other projects", () => {
@@ -63,28 +66,28 @@ test("SRC-135: the switch writes the answer its scope says, without losing other
   assert.deepEqual(patch.autoRetryProjects, { p1: false, p2: false });
 });
 
-test("SRC-135: the composer button carries both switches and lights the lit one only", () => {
+test("T-217: the composer button shows the effective gate, including the Auto master", () => {
   const html = buttonHtml();
   assert.match(html, /data-testid="zaicode-auto-retry"/);
-  assert.match(html, /data-zaicode-auto-retry="on"/);
-  assert.match(html, /aria-pressed="true"/);
-  assert.match(html, /bg-selected/);
+  const effective = zaicodeEffectiveAutoRetryFor("p1");
+  assert.ok(html.includes(`data-zaicode-auto-retry="${effective.enabled ? "on" : "off"}"`));
+  assert.ok(html.includes(`aria-pressed="${effective.enabled}"`));
   assert.match(html, /data-testid="zaicode-auto-retry-scope"/);
-  assert.match(html, /Everywhere/);
+  assert.match(html, /Global default/);
 
   // The highlight must hang off the answer, not be baked into the class list.
   const source = readFileSync(new URL("../src/zaicode/ZaicodeAutoRetryButton.tsx", import.meta.url), "utf8");
   assert.match(source, /cn\("cursor-pointer", enabled && "bg-selected text-foreground"\)/);
-  assert.match(source, /onClick=\{\(\) => update\(zaicodeAutoRetryPatch\(prefs, projectKey, !enabled\)\)\}/);
-  assert.match(source, /autoRetryScope: zaicodeAutoRetryScopeNext\(prefs\.autoRetryScope\)/);
+  assert.match(source, /zaicodeAutoRetryPatch\(prefs, projectKey, !effective\.preference, sessionId\)/);
+  assert.match(source, /zaicodeAutoRetryScopeNext\(prefs\.autoRetryScope\)/);
 });
 
 test("SRC-135: the retry watcher asks the gate with the project's answer, not the raw flag", () => {
   const watch = readFileSync(new URL("../src/zaicode/zaicodeTurnRetryWatch.ts", import.meta.url), "utf8");
   assert.doesNotMatch(watch, /prefs\.autoRetry\b/, "the watcher must not read the bare global flag again");
-  assert.match(watch, /zaicodeAutoRetryEnabled\(prefs, brief\.projectKey\)/);
-  assert.match(watch, /zaicodeAutoRetryEnabled\(prefs, projectOf\.get\(sessionId\)/);
+  assert.match(watch, /zaicodeEffectiveAutoRetryFor\(brief\.projectKey, brief\.sessionId\)/);
+  assert.match(watch, /zaicodeEffectiveAutoRetryFor\(projectOf\.get\(sessionId\)/);
 
   const composer = readFileSync(new URL("../src/v4/ConversationComposer.tsx", import.meta.url), "utf8");
-  assert.match(composer, /<ZaicodeAutoRetryButton projectKey=\{workspaceKey\} \/>/);
+  assert.match(composer, /<ZaicodeAutoRetryButton projectKey=\{workspaceKey\} sessionId=\{sessionId\} \/>/);
 });

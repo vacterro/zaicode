@@ -4,7 +4,6 @@ import { ZAICODE_AUTO_RETRY_HARD_CAP, useZaicodeUiPrefs } from "@/zaicode/zaicod
 /** SRC-051: what ZAICODE does when a turn fails (limit, network, provider). */
 export function ZaicodeRetrySettings() {
   const autoRetry = useZaicodeUiPrefs((state) => state.autoRetry);
-  const scope = useZaicodeUiPrefs((state) => state.autoRetryScope);
   const intervalSec = useZaicodeUiPrefs((state) => state.autoRetryIntervalSec);
   const maxAttempts = useZaicodeUiPrefs((state) => state.autoRetryMaxAttempts);
   const update = useZaicodeUiPrefs((state) => state.update);
@@ -22,12 +21,8 @@ export function ZaicodeRetrySettings() {
       <ZaicodePrefCheck
         checked={autoRetry}
         onChange={(value) => update({ autoRetry: value })}
-        label="Retry failed turns automatically"
-        hint={
-          scope === "global"
-            ? "Needs the sidebar Auto ON. Its unfinished goal again, else SAIPEN's cc (continue outside SAIPEN)"
-            : "The answer for projects with no own one — the switch by the composer decides per project. Needs the sidebar Auto ON"
-        }
+        label="Auto retry · global default"
+        hint="Session and project overrides take precedence. The composer shows the effective state, including Auto and session auto-continue."
       />
       <ZaicodePrefStepper
         label="First retry after"

@@ -14,6 +14,7 @@ interface DesktopTopOverlayActionButtonProps {
   side?: ComponentProps<typeof ControlHintTooltip>["side"];
   buttonClassName?: string;
   testId?: string;
+  expanded?: boolean;
 }
 
 export function DesktopTopOverlayActionButton({
@@ -27,6 +28,7 @@ export function DesktopTopOverlayActionButton({
   side = "bottom",
   buttonClassName,
   testId,
+  expanded,
 }: DesktopTopOverlayActionButtonProps) {
   return (
     <ControlHintTooltip title={title} shortcut={shortcut} side={side}>
@@ -39,6 +41,8 @@ export function DesktopTopOverlayActionButton({
         className={cn("[app-region:no-drag] transition-colors", buttonClassName)}
         data-testid={testId}
         aria-label={ariaLabel}
+        aria-expanded={expanded}
+        aria-controls={expanded === undefined ? undefined : "sidebar"}
         disabled={disabled}
         // 顶部浮层的新建任务入口会复用带可选 provider 参数的业务函数。
         // 如果直接交给 React onClick，MouseEvent 会被当成 provider 传下去，并在日志 IPC 克隆时抛错。

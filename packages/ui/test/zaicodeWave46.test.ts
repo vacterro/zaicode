@@ -83,6 +83,7 @@ test("app side of zero setup: an empty model list gets SAIRoute -> router, SAIFR
     },
     zcode: {
       getZaicodeRouterHost: async () => host,
+      getZaicodeSubscriptionProxy: async () => ({ url: "http://127.0.0.1:20200", token: "fixture-proxy-key" }),
       getZaicodeFreeScanInfo: async () => ({ lastScanAt: null }),
       bootstrapZaicodeRouter: async (options: unknown) => {
         asked.push(options);
@@ -123,7 +124,7 @@ test("app side of zero setup: an empty model list gets SAIRoute -> router, SAIFR
   assert.deepEqual(created, [
     {
       providerName: "SAIRoute",
-      initialConfig: { access: { type: "api-key", apiKey: "sk-zaicode" }, api: { type: "openai-chat-completions", baseUrl: "http://127.0.0.1:20138/v1" } },
+      initialConfig: { access: { type: "api-key", apiKey: "fixture-proxy-key" }, api: { type: "openai-chat-completions", baseUrl: "http://127.0.0.1:20200/router/v1" } },
     },
   ]);
   assert.deepEqual(models, ["p1/SAIFREN", "p1/SAIOPP"]);

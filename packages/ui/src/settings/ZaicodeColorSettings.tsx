@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { cn } from "@/components/lib/utils.js";
-import { setZaicodePalette, useZaicodeAppearance } from "@/zaicode/zaicodeAppearance.js";
+import { setZaicodePalette, setZaicodePresentation, useZaicodeAppearance } from "@/zaicode/zaicodeAppearance.js";
+import { ZAICODE_PRESENTATIONS } from "@/zaicode/zaicodePresentation.js";
 import { generateZaicodePalette, type ZaicodeColorAdjust } from "@/zaicode/zaicodeColorMath.js";
 import {
   ZAICODE_COLOR_VARIABLES,
@@ -46,7 +47,7 @@ function readLiveVariable(name: string): string {
 }
 
 export function ZaicodeColorSettings() {
-  const { palette: activeSlug } = useZaicodeAppearance();
+  const { palette: activeSlug, presentation } = useZaicodeAppearance();
   const studio = useZaicodeColorStudio();
   const active = findAnyZaicodePalette(activeSlug);
   const own = active && isZaicodeCustomPalette(active.slug) ? (active as ZaicodeCustomPalette) : null;
@@ -84,6 +85,11 @@ export function ZaicodeColorSettings() {
 
   return (
     <div className="flex flex-col gap-3 text-ui-xs" data-zaicode-color-studio>
+      <StudioSection title="Interface style" hint="Presentation changes independently of theme colors.">
+        <div role="radiogroup" aria-label="Interface style" className="flex flex-wrap gap-1">
+          {ZAICODE_PRESENTATIONS.map((preset) => <button key={preset.id} type="button" role="radio" aria-checked={presentation === preset.id} title={preset.hint} data-zaicode-style-preset={preset.id} className={cn(studioButton, presentation === preset.id && "bg-selected")} onClick={() => setZaicodePresentation(preset.id)}>{preset.label}</button>)}
+        </div>
+      </StudioSection>
       <StudioSection
         title="Color Studio"
         hint="Theme, then your own colours, then whole-palette shifts, then single-colour overrides — the later step wins. Changes apply live."

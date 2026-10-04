@@ -15,6 +15,7 @@ import {
   zaicodeEffectiveColorVariables,
 } from "./zaicodeColorStudio.js";
 import { ZAICODE_BEVEL_CSS } from "./zaicodeBevels.js";
+import { normalizeZaicodePresentation, ZAICODE_PRESENTATION_CSS, type ZaicodePresentation } from "./zaicodePresentation.js";
 
 /**
  * ZAICODE appearance preferences (per machine, renderer-local):
@@ -31,6 +32,7 @@ const CRISP_KEY = "zaicode-crisp";
 const SIZE_KEY = "zaicode-size";
 const BEVELS_KEY = "zaicode-bevels";
 const BEVEL_ROWS_KEY = "zaicode-bevel-rows";
+const PRESENTATION_KEY = "zaicode-presentation";
 const FONT_KEY = "zaicode-font-settings";
 const LIST_LABEL_WIDTH_KEY = "zaicode-list-label-width";
 const STYLE_ID = "zaicode-appearance-style";
@@ -78,6 +80,7 @@ export interface ZaicodeAppearance {
   compact: boolean;
   bevels: boolean;
   bevelRows: boolean;
+  presentation: ZaicodePresentation;
   typography: ZaicodeTypography;
   listLabelWidth: number;
 }
@@ -213,6 +216,7 @@ export function readZaicodeAppearance(): ZaicodeAppearance {
     compact: zaicodeCompactLook(normalizeSize(safeGet(SIZE_KEY)), screenArea()),
     bevels: safeGet(BEVELS_KEY) !== "0",
     bevelRows: safeGet(BEVEL_ROWS_KEY) !== "0",
+    presentation: normalizeZaicodePresentation(safeGet(PRESENTATION_KEY), safeGet(BEVELS_KEY) !== "0"),
     typography: readTypography(),
     listLabelWidth: Number.isFinite(storedWidth) && storedWidth >= 64 && storedWidth <= 220
       ? storedWidth
@@ -247,6 +251,7 @@ function update(next: ZaicodeAppearance): void {
   safeSet(SIZE_KEY, next.size);
   safeSet(BEVELS_KEY, next.bevels ? "1" : "0");
   safeSet(BEVEL_ROWS_KEY, next.bevelRows ? "1" : "0");
+  safeSet(PRESENTATION_KEY, next.presentation);
   safeSet(FONT_KEY, JSON.stringify(next.typography));
   safeSet(LIST_LABEL_WIDTH_KEY, String(next.listLabelWidth));
   applyZaicodeAppearance();
@@ -322,7 +327,11 @@ function onScaleChange(): void {
 }
 
 export function setZaicodeBevels(bevels: boolean): void {
-  update({ ...readZaicodeAppearance(), bevels });
+  update({ ...readZaicodeAppearance(), bevels, presentation: bevels ? "classic" : "simple-boxes" });
+}
+
+export function setZaicodePresentation(presentation: ZaicodePresentation): void {
+  update({ ...readZaicodeAppearance(), presentation, bevels: presentation === "classic" });
 }
 
 export function setZaicodeBevelRows(bevelRows: boolean): void {
@@ -389,7 +398,7 @@ export function applyZaicodeAppearance(): void {
   const enabled = isZaicodeProductMode();
   if (enabled) ensurePixelIconFilter();
   if (enabled) watchScale();
-  const { palette: slug, crisp, bevels, bevelRows, typography } = readZaicodeAppearance();
+  const { palette: slug, crisp, bevels, bevelRows, typography, presentation } = readZaicodeAppearance();
   // Color Studio cascade: palette (built-in or own) -> adjusters -> single-colour overrides.
   const palette = enabled ? findAnyZaicodePalette(slug) : null;
   const studio = readZaicodeColorStudio();
@@ -403,13 +412,15 @@ export function applyZaicodeAppearance(): void {
   const entries = enabled ? Object.entries(zaicodeEffectiveColorVariables(palette, studio)) : [];
   const variables = entries.map(([name, value]) => `  ${name}: ${value};`).join("\n");
   // html.zaicode-palette (元素+类) 的优先级高于 .theme-zai-dark，覆盖上游 token 不需要 !important。
-  style.textContent = `${entries.length > 0 ? `html.zaicode-palette {\n${variables}\n}\n` : ""}${ZAICODE_CRISP_CSS}${ZAICODE_BEVEL_CSS}${ZAICODE_COMPACT_CSS}`;
+  style.textContent = `${entries.length > 0 ? `html.zaicode-palette {\n${variables}\n}\n` : ""}${ZAICODE_CRISP_CSS}${ZAICODE_BEVEL_CSS}${ZAICODE_COMPACT_CSS}${ZAICODE_PRESENTATION_CSS}`;
 
   root.classList.toggle("zaicode-palette", entries.length > 0);
   root.classList.toggle("zaicode-crisp", enabled && crisp);
   root.classList.toggle("zaicode-compact", enabled && readZaicodeAppearance().compact);
   root.classList.toggle("zaicode-bevels", enabled && bevels);
   root.classList.toggle("zaicode-bevel-rows", enabled && bevels && bevelRows);
+  if (enabled) root.dataset.zaicodeStyle = presentation;
+  else delete root.dataset.zaicodeStyle;
   root.classList.toggle("zaicode-fonts", enabled);
   if (enabled) {
     root.style.setProperty("--zaicode-list-label-width", `${readZaicodeAppearance().listLabelWidth}px`);

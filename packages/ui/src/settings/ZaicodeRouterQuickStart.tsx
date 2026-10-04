@@ -17,6 +17,7 @@ import {
   type ZaicodeRouterSetupStep,
 } from "@/zaicode/zaicodeRouterSetup.js";
 import { runZaicodeRouterSetup } from "@/zaicode/useZaicodeRouterAutoSetup.js";
+import { ZaicodeRouterStatus } from "@/zaicode/ZaicodeRouterStatus.js";
 
 /**
  * Router -> Overview, top: SAIFREN without setup (SRC-035, T-46). What runs,
@@ -27,7 +28,7 @@ import { runZaicodeRouterSetup } from "@/zaicode/useZaicodeRouterAutoSetup.js";
 
 const MODES: readonly { value: ZaicodeRouterMode; label: string; hint: string }[] = [
   { value: "auto", label: "Auto", hint: "Your 9router when this machine has one, else ZAICODE's own" },
-  { value: "shared", label: "My 9router", hint: "The 9router you run yourself (port 20128); ZAICODE never starts or stops it on its own" },
+  { value: "shared", label: "My 9router", hint: "Preferred local 9router; bounded silent recovery, then internal fallback" },
   { value: "isolated", label: "ZAICODE's own", hint: "A private 9router run by ZAICODE (own data folder and port), nothing to install" },
 ];
 
@@ -105,7 +106,7 @@ export function ZaicodeRouterQuickStart() {
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     void refreshZaicodeRouterHost();
-    const timer = window.setInterval(() => setNow(Date.now()), 60_000);
+    const timer = window.setInterval(() => { setNow(Date.now()); void refreshZaicodeRouterHost(); }, 15_000);
     return () => window.clearInterval(timer);
   }, []);
   const host = state.host;
@@ -124,6 +125,7 @@ export function ZaicodeRouterQuickStart() {
   };
   return (
     <section className="flex flex-col gap-2 border border-[var(--zaicode-highlight,var(--color-border))] bg-card p-3 text-ui-xs" data-zaicode-router-quickstart>
+      <ZaicodeRouterStatus />
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0">
           <h2 className="text-ui-lg text-foreground">{ZAICODE_FREE_POOL} · free AI, nothing to set up</h2>

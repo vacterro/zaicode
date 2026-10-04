@@ -27,7 +27,7 @@ export type ZaicodeActionView = "compact" | "full";
  * SRC-135: who the auto-retry switch governs. `project` = only the project/session the
  * composer it sits in; `global` = every ZAICODE session and project at once.
  */
-export type ZaicodeAutoRetryScope = "project" | "global";
+export type ZaicodeAutoRetryScope = "session" | "project" | "global";
 
 export interface ZaicodeUiPrefs {
   // Home (empty draft) screen
@@ -59,8 +59,9 @@ export interface ZaicodeUiPrefs {
    * every other workspace retry behind their back.
    */
   autoRetryScope: ZaicodeAutoRetryScope;
-  /** Per-project answers used only while the scope is "project"; kept when it goes back to "global". */
+  /** Effective overrides always apply; scope selects which preference the control edits. */
   autoRetryProjects: Record<string, boolean>;
+  autoRetrySessions: Record<string, boolean>;
   /**
    * SRC-132: accounts the operator Ctrl+Clicked off the Scheduler's route list.
    * Only the Scheduler reads this -- the account itself stays usable by hand.
@@ -126,6 +127,7 @@ export const ZAICODE_UI_DEFAULT_PREFS: ZaicodeUiPrefs = {
   autoRetryMaxAttempts: ZAICODE_AUTO_RETRY_DEFAULT_ATTEMPTS,
   autoRetryScope: "global",
   autoRetryProjects: {},
+  autoRetrySessions: {},
   schedulerIneligible: {},
   resumeAfterCrash: true,
   resumeAfterCrashHours: 12,
@@ -186,8 +188,9 @@ export function normalizeZaicodeUiPrefs(raw: unknown): ZaicodeUiPrefs {
     autoRetry: flag(r.autoRetry, d.autoRetry),
     autoRetryIntervalSec: int(r.autoRetryIntervalSec, 10, 3600, d.autoRetryIntervalSec),
     autoRetryMaxAttempts: int(r.autoRetryMaxAttempts, 1, ZAICODE_AUTO_RETRY_HARD_CAP, d.autoRetryMaxAttempts),
-    autoRetryScope: r.autoRetryScope === "project" ? "project" : "global",
+    autoRetryScope: r.autoRetryScope === "session" ? "session" : r.autoRetryScope === "project" ? "project" : "global",
     autoRetryProjects: flags(r.autoRetryProjects),
+    autoRetrySessions: flags(r.autoRetrySessions),
     schedulerIneligible: flags(r.schedulerIneligible),
     resumeAfterCrash: flag(r.resumeAfterCrash, d.resumeAfterCrash),
     resumeAfterCrashHours: int(r.resumeAfterCrashHours, 1, 168, d.resumeAfterCrashHours),
@@ -262,35 +265,37 @@ export function reloadZaicodeUiPrefs(): void {
 // ------------------------------------------------------------------ SRC-135 scope
 
 /**
- * The auto-retry answer that actually applies to one project. `global` ignores the
- * per-project answers entirely, so a project-only answer made earlier stays readable
- * and takes effect again the moment the scope goes back to "project".
+ * 编辑范围不改变继承规则；当前会话 > 项目 > 全局，不能把全局 ON 冒充有效 ON。
  */
 export function zaicodeAutoRetryEnabled(
-  prefs: Pick<ZaicodeUiPrefs, "autoRetry" | "autoRetryScope" | "autoRetryProjects">,
+  prefs: Pick<ZaicodeUiPrefs, "autoRetry" | "autoRetryScope" | "autoRetryProjects"> & Partial<Pick<ZaicodeUiPrefs, "autoRetrySessions">>,
   projectKey: string,
+  sessionId?: string | null,
 ): boolean {
-  if (prefs.autoRetryScope === "global") return prefs.autoRetry;
+  const session = sessionId ? prefs.autoRetrySessions?.[sessionId] : undefined;
+  if (session !== undefined) return session;
   const own = prefs.autoRetryProjects[projectKey];
   return own === undefined ? prefs.autoRetry : own;
 }
 
 /** The patch the composer switch writes: a per-project answer, or the one global flag. */
 export function zaicodeAutoRetryPatch(
-  prefs: Pick<ZaicodeUiPrefs, "autoRetry" | "autoRetryScope" | "autoRetryProjects">,
+  prefs: Pick<ZaicodeUiPrefs, "autoRetry" | "autoRetryScope" | "autoRetryProjects"> & Partial<Pick<ZaicodeUiPrefs, "autoRetrySessions">>,
   projectKey: string,
   next: boolean,
+  sessionId?: string | null,
 ): Partial<ZaicodeUiPrefs> {
   if (prefs.autoRetryScope === "global") return { autoRetry: next };
+  if (prefs.autoRetryScope === "session") return sessionId ? { autoRetrySessions: { ...prefs.autoRetrySessions, [sessionId]: next } } : {};
   return { autoRetryProjects: { ...prefs.autoRetryProjects, [projectKey]: next } };
 }
 
 /** The other scope, for the small switch beside the main toggle. */
 export function zaicodeAutoRetryScopeNext(scope: ZaicodeAutoRetryScope): ZaicodeAutoRetryScope {
-  return scope === "global" ? "project" : "global";
+  return scope === "global" ? "project" : scope === "project" ? "session" : "global";
 }
 
 /** What the scope switch says; the tooltip spells out what each mode covers. */
 export function zaicodeAutoRetryScopeLabel(scope: ZaicodeAutoRetryScope): string {
-  return scope === "global" ? "Everywhere" : "This project";
+  return scope === "global" ? "Global default" : scope === "project" ? "This project" : "This session";
 }

@@ -5,9 +5,12 @@ import { useZaicodeActions } from "./zaicodeActions.js";
 import { useZaicodeUsage } from "./zaicodeUsage.js";
 import { ZaicodeUsageView } from "./ZaicodeUsageView.js";
 import { ZaicodeSaipenSidePane } from "./ZaicodeSaipenSidePane.js";
+import { useZaicodeSidebarPrefs } from "./zaicodeSidebarPrefs.js";
+import { cn } from "@/components/lib/utils.js";
 
 /** Inspectors also work over a centered draft, before a workspace pane is visible. */
 export function ZaicodeGlobalSidebars() {
+  const swapped = useZaicodeSidebarPrefs((state) => state.sidebarsSwapped);
   const target = useZaicodeActions((state) => state.saipenSidebar);
   const setTarget = useZaicodeActions((state) => state.setSaipenSidebar);
   const workspaceOpener = useZaicodeActions((state) => state.openSaipen);
@@ -16,7 +19,7 @@ export function ZaicodeGlobalSidebars() {
   if (!target && !usage) return null;
   return createPortal(
     <aside
-      className="fixed right-0 top-10 bottom-0 z-40 flex min-h-0 flex-col border-l border-border bg-background text-foreground shadow-lg"
+      className={cn("fixed top-10 bottom-0 z-40 flex min-h-0 flex-col border-border bg-background text-foreground shadow-lg", swapped ? "left-0 border-r" : "right-0 border-l")}
       style={{ width: usage && usageMode === "page" ? "100%" : "min(480px,50vw)" }}
       aria-label={usage ? `9router Usage ${usageMode}` : "SAIPEN sidebar"}
     >

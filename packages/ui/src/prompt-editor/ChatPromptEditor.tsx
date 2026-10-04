@@ -439,13 +439,6 @@ export function ChatPromptEditor({
         {/* T-133: the strip speaks about "this project"; a draft with no project picked has none to init or start. */}
         {showSaipenControls && workspacePath.trim() ? (
           <>
-            {/* SRC-112: the SubSaipen OUTBOX, above the strip: it renders nothing on a project with no subSaipens. */}
-            <ZaicodeSubOutboxChip
-              workspacePath={workspacePath}
-              workspaceIdentity={workspaceIdentity}
-              disabled={disabled || submitDisabled || submitting || hasEditorText}
-              onCommand={sendProjectCommand}
-            />
             <ZaicodeSaipenControls
               workspacePath={workspacePath}
               workspaceIdentity={workspaceIdentity}
@@ -487,6 +480,9 @@ export function ChatPromptEditor({
             className="ml-auto flex shrink-0 items-center justify-end gap-1.5"
             data-composer-trailing-actions
           >
+            {showSaipenControls && workspacePath.trim() ? (
+              <ZaicodeSubOutboxChip workspacePath={workspacePath} workspaceIdentity={workspaceIdentity} disabled={disabled || submitDisabled || submitting || hasEditorText} onCommand={sendProjectCommand} />
+            ) : null}
             {onCancel && cancelLabel ? (
               <ControlHintTooltip title={cancelLabel} shortcut="Esc">
                 <Button

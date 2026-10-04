@@ -21,6 +21,8 @@ export interface ZaicodeRouterHostInfo {
   lastError: string | null;
   startedAt: number | null;
   logFile: string | null;
+  supervisor?: { status: string; route: "preferred" | "fallback"; failure: string | null; attempts: number; pendingRecovery: boolean };
+  effectiveUrl?: string;
 }
 
 export interface ZaicodeRouterSetupStep {
@@ -47,6 +49,7 @@ export interface ZaicodeFreeScanResult {
 }
 
 interface ZaicodeRouterSetupBridge {
+  getZaicodeSubscriptionProxy?(): Promise<{ url: string; token: string } | null>;
   getZaicodeRouterHost?(): Promise<ZaicodeRouterHostInfo>;
   setZaicodeRouterMode?(mode: ZaicodeRouterMode): Promise<ZaicodeRouterHostInfo>;
   bootstrapZaicodeRouter?(options: { needKey: boolean }): Promise<ZaicodeRouterBootstrapResult>;
@@ -91,6 +94,19 @@ export async function refreshZaicodeRouterHost(): Promise<ZaicodeRouterHostInfo 
   const scan = await bridge.getZaicodeFreeScanInfo?.().catch(() => null);
   useZaicodeRouterSetup.setState({ host, ...(scan ? { lastScanAt: scan.lastScanAt } : {}) });
   return host;
+}
+
+/** Fresh host observations, rather than a persisted route intent, own the operator's status. */
+export function zaicodeRouterSupervisorLabel(host: ZaicodeRouterHostInfo): string | null {
+  const state = host.supervisor;
+  if (!state) return null;
+  if (state.route === "fallback" && state.failure === null && host.running) return `${state.status === "fallback-active" ? "Internal fallback active" : "Internal fallback unavailable"} · preferred router recovered, waiting for stable health and a continuation boundary`;
+  if (state.route === "preferred" && state.failure === null && !host.running) return "Checking preferred router";
+  return state.status === "fallback-active" ? "Preferred router unavailable · internal fallback active"
+    : state.status === "recovering" ? `Preferred router recovering · attempt ${state.attempts}/10`
+    : state.status === "restored" ? "Preferred router restored"
+    : state.status === "unavailable" ? "Preferred router unavailable · internal fallback unavailable"
+    : state.status === "preferred-unavailable" ? "Preferred router unavailable" : "Preferred router healthy";
 }
 
 export async function setZaicodeRouterModeFromUi(mode: ZaicodeRouterMode): Promise<void> {

@@ -19,11 +19,13 @@ import {
 import {
   isZaicodeQuotaWall,
   useZaicodeRetryLedger,
-  zaicodeAutoSendAllowed,
   zaicodeRetryDelayMs,
   zaicodeRetryLimit,
 } from "./zaicodeRetryPolicy.js";
-import { useZaicodeUiPrefs, zaicodeAutoRetryEnabled } from "./zaicodeUiPrefs.js";
+import { useZaicodeUiPrefs } from "./zaicodeUiPrefs.js";
+import { zaicodeEffectiveAutoRetryFor } from "./zaicodeRetryPolicy.js";
+import { useZaicodeAuditStore } from "./zaicodeAuditStore.js";
+import { useZaicodeAutoContinue } from "./zaicodeAutoContinue.js";
 
 /**
  * Background auto-retry (SRC-051; SRC-082 gave it a leash): it only works while the
@@ -98,7 +100,7 @@ export function useZaicodeTurnRetryWatch(): void {
       useZaicodeRetryLedger.getState().clear(brief.sessionId);
       const prefs = useZaicodeUiPrefs.getState();
       // The gate is asked again at the moment of sending, not only when the timer was set.
-      if (!zaicodeAutoSendAllowed(brief.sessionId, zaicodeAutoRetryEnabled(prefs, brief.projectKey)) || isZaicodeQuotaWall(brief.sessionId)) return;
+      if (!zaicodeEffectiveAutoRetryFor(brief.projectKey, brief.sessionId).enabled || isZaicodeQuotaWall(brief.sessionId)) return;
       const current = useZaicodeSessionBriefs.getState().sessions.find((item) => item.sessionId === brief.sessionId);
       if (!current?.failed || current.running || current.waiting || isZaicodeAutoRetryLocal(current.sessionId)) return;
       if (inFlight.has(current.sessionId)) return;
@@ -155,7 +157,7 @@ export function useZaicodeTurnRetryWatch(): void {
         attemptsOf: zaicodeAutoRetryAttempts,
         maxAttempts: zaicodeRetryLimit(prefs.autoRetryMaxAttempts),
         mayAutoSend: (sessionId) =>
-          zaicodeAutoSendAllowed(sessionId, zaicodeAutoRetryEnabled(prefs, projectOf.get(sessionId) ?? "")),
+          zaicodeEffectiveAutoRetryFor(projectOf.get(sessionId) ?? "", sessionId).enabled,
         isQuotaWall: isZaicodeQuotaWall,
       });
       const failedIds = new Set(failedNow.map((brief) => brief.sessionId));
@@ -180,10 +182,18 @@ export function useZaicodeTurnRetryWatch(): void {
     };
 
     const unsubscribe = useZaicodeSessionBriefs.subscribe(sweep);
+    const unsubscribePrefs = useZaicodeUiPrefs.subscribe(sweep);
+    const unsubscribeAuto = useZaicodeAuditStore.subscribe(sweep);
+    const unsubscribeSession = useZaicodeAutoContinue.subscribe(sweep);
+    const unsubscribeHalt = useZaicodeRetryLedger.subscribe((state, previous) => { if (state.halted !== previous.halted) sweep(); });
     const interval = window.setInterval(sweep, SWEEP_MS);
     sweep();
     return () => {
       unsubscribe();
+      unsubscribePrefs();
+      unsubscribeAuto();
+      unsubscribeSession();
+      unsubscribeHalt();
       window.clearInterval(interval);
       for (const sessionId of [...watches.keys()]) clearWatch(sessionId);
     };

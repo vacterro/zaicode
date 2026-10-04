@@ -40,6 +40,8 @@ export interface ZaicodeSubscriptionProxyOptions {
   holdMs?: number;
   /** Biggest request body accepted (a long conversation is megabytes). */
   maxBodyBytes?: number;
+  /** Host-owned boundary: one immutable upstream for the whole inference stream. */
+  route?(): Promise<{ url: string; key: string; fallback: boolean } | null>;
 }
 
 /** The priority writes that put one account in front of its vendor's others, or null when it is not there. */
@@ -228,14 +230,29 @@ export class ZaicodeSubscriptionProxy {
       response.end('{"ok":true}');
       return;
     }
+    const generic = /^\/router\/v1\/(chat\/completions|responses|models)(\?.*)?$/.test(request.url ?? "");
     const target = parseZaicodeSubscriptionPath(request.url ?? "");
-    if (!target) return sendError(response, 404, "Not a ZAICODE account path (/acct/<account>/v1/...)");
+    if (!target && !generic) return sendError(response, 404, "Not a ZAICODE inference path");
     const auth = request.headers.authorization ?? "";
     const given = auth.toLowerCase().startsWith("bearer ") ? auth.slice(7).trim() : "";
     if (!sameSecret(given, this.#options.token)) return sendError(response, 401, "Wrong key for the ZAICODE account proxy");
     const body = await readBody(request, this.#options.maxBodyBytes ?? 64 * 1_048_576);
-    const key = await this.#options.routerKey();
+    const route = this.#options.route ? await this.#options.route() : null;
+    if (this.#options.route && !route) return sendError(response, 503, "Preferred router unavailable; internal fallback unavailable");
+    if (request.aborted || response.destroyed) return;
+    const key = route?.key ?? await this.#options.routerKey();
     if (!key) return sendError(response, 503, "9router has no ZAICODE key yet: open Settings -> Router and run Autotroubleshoot");
+    const url = route?.url ?? this.#options.routerUrl();
+    if (generic || route?.fallback) {
+      let outgoing = body;
+      if (route?.fallback && request.method === "POST") {
+        const parsed = JSON.parse(body.toString("utf8")) as Record<string, unknown>;
+        outgoing = Buffer.from(JSON.stringify({ ...parsed, model: "SAIFREN" }));
+      }
+      this.#forward(request, response, target?.rest ?? request.url!.replace(/^\/router/, ""), outgoing, key, () => {}, url);
+      return;
+    }
+    if (!target) return;
 
     let vendor = this.#vendorOf.get(target.connectionId) ?? null;
     if (!vendor) {
@@ -270,11 +287,11 @@ export class ZaicodeSubscriptionProxy {
     } catch {
       // same: forward anyway
     }
-    this.#forward(request, response, target.rest, withRoutedModel(body, vendor), key, done);
+    this.#forward(request, response, target.rest, withRoutedModel(body, vendor), key, done, url);
   }
 
-  #forward(request: IncomingMessage, response: ServerResponse, path: string, body: Buffer, key: string, done: () => void): void {
-    const url = new URL(path, `${this.#options.routerUrl().replace(/\/+$/, "")}/`);
+  #forward(request: IncomingMessage, response: ServerResponse, path: string, body: Buffer, key: string, done: () => void, routerUrl: string): void {
+    const url = new URL(path, `${routerUrl.replace(/\/+$/, "")}/`);
     const headers: Record<string, string | string[]> = {};
     for (const [name, value] of Object.entries(request.headers)) {
       if (value !== undefined && !HOP_HEADERS.has(name)) headers[name] = value;

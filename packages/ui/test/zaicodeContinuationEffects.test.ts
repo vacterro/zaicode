@@ -52,7 +52,12 @@ function fixture() {
         sessions = [{ sessionId: "owned-session", projectKey: target.key, workspacePath: target.path, title: "owned", running: true, waiting: false, failed: false, interrupted: false, manuallyStopped: false, crashCut: false, updatedAt: START, model: "SAIFREN", unreadAt: null, goalStatus: "active", goalObjective: "cc all", foregroundExecutionId: "execution-one", foregroundStartedAt: START + 61_000 }];
         return "owned-session";
       },
-      send: async () => { throw new Error("Unexpected second input"); },
+      send: async (sessionId, _command, options) => {
+        assert.equal(sessionId, "owned-session", "continuation must reuse canonical MAIN");
+        assert.equal(options?.canDispatch?.(), true);
+        pool.push(options!);
+        sessions = [{ sessionId, projectKey: target.key, workspacePath: target.path, title: "owned", running: true, waiting: false, failed: false, interrupted: false, manuallyStopped: false, crashCut: false, updatedAt: START, model: "SAIFREN", unreadAt: null, goalStatus: "active", goalObjective: "cc all", foregroundExecutionId: "execution-one", foregroundStartedAt: jobs[0]!.continuationRuns[0]!.launchedAt }];
+      },
       stop: async (id, execution) => { assert.equal(id, "owned-session"); assert.equal(execution, "execution-one"); stops.push(id); sessions = []; },
       clear: async () => undefined,
     }),
@@ -104,6 +109,41 @@ test("restart reuses the persisted worker lease and terminal identity; completio
   await tickZaicodeContinuations(f.store, true, START + 3000, f.runtime);
   assert.equal(f.run().state, "complete");
   assert.equal(f.launches.length, 2);
+});
+
+test("MAIN survives repeated pool/worker replacement, missing old briefs, restart and recovery without a second session", async () => {
+  const f = fixture();
+  await tickZaicodeContinuations(f.store, true, START, f.runtime);
+  recordZaicodeContinuationWorkerLimit(f.store, f.worker(), { line: "Usage limit reached", window: "five_hour", resetText: null }, START + 1000);
+  await tickZaicodeContinuations(f.store, true, START + 61_000, f.runtime);
+  assert.equal(f.run().sessionId, "owned-session");
+  f.limits.C1 = quota("C1", START + 62_000);
+  await tickZaicodeContinuations(f.store, true, START + 62_000, f.runtime);
+  await tickZaicodeContinuations(f.store, true, START + 122_000, f.runtime);
+  assert.equal(f.run().runnerId, "C1");
+  assert.equal(f.run().sessionId, "owned-session");
+  const lease = f.run().lease;
+  f.crash();
+  await tickZaicodeContinuations(f.store, true, START + 123_000, f.runtime);
+  assert.equal(f.run().workerId, `zaicode-worker:${lease}`);
+  assert.equal(f.run().generation, 2);
+  assert.equal(f.launches.length, 3, "missing historical session cannot suppress owned worker recovery");
+  for (let round = 0; round < 3; round++) {
+    const now = START + 124_000 + round * 180_000;
+    recordZaicodeContinuationWorkerLimit(f.store, f.worker(), { line: "Usage limit reached", window: "five_hour", resetText: null }, now);
+    await tickZaicodeContinuations(f.store, true, now + 60_000, f.runtime);
+    assert.equal(f.run().sessionId, "owned-session");
+    assert.equal(f.run().runnerId, "pool:route/SAIFREN");
+    f.limits.C1 = quota("C1", now + 61_000);
+    await tickZaicodeContinuations(f.store, true, now + 61_000, f.runtime);
+    await tickZaicodeContinuations(f.store, true, now + 121_000, f.runtime);
+    assert.equal(f.run().runnerId, "C1");
+    assert.equal(f.run().sessionId, "owned-session");
+    f.crash();
+    await tickZaicodeContinuations(f.store, true, now + 122_000, f.runtime);
+    assert.equal(f.run().generation, 2);
+  }
+  assert.equal(f.pool.length, 4);
 });
 
 test("pause and project disable block real effects; active occurrences are never evicted or duplicated", async () => {

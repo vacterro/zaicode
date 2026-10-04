@@ -26,6 +26,7 @@ export function ComposerPastedTextEditor({
   describe,
   onCancel,
   onSave,
+  onRestore,
 }: {
   open: boolean;
   filename: string;
@@ -38,6 +39,7 @@ export function ComposerPastedTextEditor({
   describe: (meta: { chars: number; lines: number; bytes: number }) => string;
   onCancel: () => void;
   onSave: (text: string) => void;
+  onRestore?: (text: string) => void;
 }) {
   const [draft, setDraft] = useState(text);
   // Reopening must show the payload as it is NOW, not the last edit.
@@ -64,6 +66,7 @@ export function ComposerPastedTextEditor({
         </DialogHeader>
         <textarea
           data-composer-pasted-text-editor="true"
+          aria-label={title}
           spellCheck={false}
           value={draft}
           onChange={(event) => setDraft(event.target.value)}
@@ -73,6 +76,7 @@ export function ComposerPastedTextEditor({
           {describe(pastedTextMetadata(draft))}
         </p>
         <DialogFooter>
+          {onRestore ? <Button type="button" variant="outline" disabled={saving} data-composer-pasted-text-restore onClick={() => onRestore(draft)}>Restore to composer</Button> : null}
           <Button type="button" variant="ghost" disabled={saving} onClick={onCancel}>
             {cancelLabel}
           </Button>

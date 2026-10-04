@@ -20,6 +20,9 @@ export interface ZaicodeRouterProcessOptions {
   logFile: string;
   /** Extra environment (ELECTRON_RUN_AS_NODE=1 for ZAICODE's own executable). */
   env?: NodeJS.ProcessEnv;
+  /** Router host owns recovery when false; never run two recovery owners. */
+  autoRestart?: boolean;
+  startWaitMs?: number;
 }
 
 const HEALTH_TIMEOUT_MS = 3000;
@@ -61,6 +64,8 @@ export class ZaicodeRouterProcess {
   #child: ChildProcess | null = null;
   #stopping = false;
   #timer: NodeJS.Timeout | null = null;
+  #starting: Promise<boolean> | null = null;
+  #generation = 0;
   restarts = 0;
   lastError: string | null = null;
   startedAt: number | null = null;
@@ -79,23 +84,39 @@ export class ZaicodeRouterProcess {
 
   /** Starts it (or adopts one already answering on its private port) and waits until it answers. */
   async start(): Promise<boolean> {
+    if (this.#starting) return this.#starting;
+    const generation = ++this.#generation;
+    this.#stopping = false;
+    const starting = this.#start(generation).finally(() => { if (this.#starting === starting) this.#starting = null; });
+    this.#starting = starting;
+    return starting;
+  }
+
+  async #start(generation: number): Promise<boolean> {
     if (this.#timer) clearTimeout(this.#timer);
     this.#timer = null;
-    this.#stopping = false;
     ensureZaicodeRouterCredential(this.options.dataDir);
-    if (await isZaicodeRouterHealthy(this.url)) return true;
+    const healthy = await isZaicodeRouterHealthy(this.url);
+    // stop 可能发生在健康请求挂起期间；迟到的 start 不得在退出/换模式后再生进程。
+    if (this.#stopping || generation !== this.#generation) return false;
+    if (healthy) return true;
     // Already starting (another caller got here first): wait for the same process, never a second one.
     if (!this.running) this.#spawn();
-    const deadline = Date.now() + START_WAIT_MS;
-    while (Date.now() < deadline && this.running) {
-      if (await isZaicodeRouterHealthy(this.url)) return true;
+    const deadline = Date.now() + (this.options.startWaitMs ?? START_WAIT_MS);
+    while (Date.now() < deadline && this.running && generation === this.#generation && !this.#stopping) {
+      const ready = await isZaicodeRouterHealthy(this.url);
+      if (generation !== this.#generation || this.#stopping) return false;
+      if (ready) return true;
       await new Promise((resolve) => setTimeout(resolve, 300));
     }
+    if (generation !== this.#generation || this.#stopping) return false;
     return isZaicodeRouterHealthy(this.url);
   }
 
   /** Clean stop: no restart follows. */
   stop(): void {
+    this.#generation++;
+    this.#starting = null;
     this.#stopping = true;
     if (this.#timer) clearTimeout(this.#timer);
     this.#timer = null;
@@ -106,7 +127,9 @@ export class ZaicodeRouterProcess {
 
   async restart(): Promise<boolean> {
     this.stop();
+    const generation = this.#generation;
     await new Promise((resolve) => setTimeout(resolve, 300));
+    if (generation !== this.#generation) return false;
     this.restarts = 0;
     return this.start();
   }
@@ -146,14 +169,19 @@ export class ZaicodeRouterProcess {
     this.lastError = null;
     const child = this.#child;
     child.on("error", (error) => {
+      if (this.#child !== child) return;
       this.lastError = error.message;
     });
     child.on("exit", (code) => {
-      if (this.#child === child) this.#child = null;
+      // 被替换进程的迟到 exit 不能安排新进程再重启，否则出现重叠 owner。
+      if (this.#child !== child) return;
+      this.#child = null;
       if (this.#stopping) return;
       // It died on its own: back it comes, a little later each time (1 s, 2 s, 4 s … 60 s).
       this.lastError = `9router stopped (exit ${code ?? "signal"})`;
       this.restarts += 1;
+      // 主机监督器持有预算时不再自启；独立使用此适配器也最多恢复十次。
+      if (this.options.autoRestart === false || this.restarts > 10) return;
       const delay = Math.min(MAX_BACKOFF_MS, 500 * 2 ** Math.min(this.restarts, 7));
       this.#timer = setTimeout(() => void this.start(), delay);
     });

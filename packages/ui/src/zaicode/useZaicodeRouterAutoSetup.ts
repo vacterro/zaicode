@@ -94,24 +94,27 @@ async function raiseLegacyPoolLimits(service: ProviderSettingsService, providerI
 /** The app-side link: the SAIRoute provider exists, points at the router, lists both pools. */
 async function ensureRouterProvider(service: ProviderSettingsService, result: ZaicodeRouterBootstrapResult): Promise<ZaicodeRouterSetupStep> {
   const url = result.host.url;
+  const proxy = await getZaicodeRouterSetupBridge()?.getZaicodeSubscriptionProxy?.();
+  if (!proxy) return { id: "app", label: "Model list", status: "failed", detail: "Continuity inference proxy unavailable" };
+  const inferenceUrl = `${proxy.url}/router`;
+  const accessKey = proxy.token;
   const providers = projectProviderSettingsViewToFormProviders(await service.getView());
   let provider = findZaicodeRouterProvider(providers, url);
-  const apiConfig = { type: "openai-chat-completions", baseUrl: `${url}/v1` } as const;
+  const apiConfig = { type: "openai-chat-completions", baseUrl: `${inferenceUrl}/v1` } as const;
   let created = false;
   if (!provider) {
-    if (!result.apiKey) return { id: "app", label: "Model list", status: "failed", detail: "no key from the router to create SAIRoute" };
     const made = await service.createPersonalProvider({
       providerName: ROUTER_PROVIDER_NAME,
-      initialConfig: { access: { type: "api-key", apiKey: result.apiKey }, api: { ...apiConfig } },
+      initialConfig: { access: { type: "api-key", apiKey: accessKey }, api: { ...apiConfig } },
     });
     provider = projectProviderSettingsViewToFormProviders(await service.getView()).find((entry) => entry.providerId === made.providerId) ?? null;
     created = true;
-  } else if (portOf(baseUrlOf(provider)) !== portOf(url) && result.apiKey) {
+  } else if (baseUrlOf(provider).replace(/\/+$/, "") !== apiConfig.baseUrl) {
     // The router moved (shared <-> isolated): same provider, new address and key.
     const { builtinModelIds: _builtin, personalModelIds: _models, ...fields } = provider.personalConfig as Record<string, unknown>;
     await service.savePersonalProviderOverlay(provider.providerId, {
       ...structuredClone(fields),
-      access: { type: "api-key", apiKey: result.apiKey },
+      access: { type: "api-key", apiKey: accessKey },
       api: { ...(fields.api as object | undefined), ...apiConfig },
     } as never);
   }
@@ -154,7 +157,8 @@ export async function runZaicodeRouterSetup(service: ProviderSettingsService, ki
     const host = await refreshZaicodeRouterHost();
     const providers = projectProviderSettingsViewToFormProviders(await service.getView());
     const existing = findZaicodeRouterProvider(providers, host?.url ?? null);
-    const needKey = kind === "troubleshoot" || !existing || portOf(baseUrlOf(existing)) !== portOf(host?.url);
+    const throughProxy = existing && /\/router\/v1\/?$/.test(baseUrlOf(existing));
+    const needKey = kind === "troubleshoot" || !existing || (!throughProxy && portOf(baseUrlOf(existing)) !== portOf(host?.url));
     const result =
       kind === "troubleshoot" ? await bridge.troubleshootZaicodeRouter!() : await bridge.bootstrapZaicodeRouter!({ needKey });
     let appStep: ZaicodeRouterSetupStep;
@@ -194,6 +198,9 @@ export function useZaicodeRouterAutoSetup(): void {
     started = true;
     let timer: number | null = null;
     let disposed = false;
+    // 状态只投影主进程的 supervisor；不能只在 Settings 打开时才知道路由已回退。
+    void refreshZaicodeRouterHost().catch(() => null);
+    const statusTimer = window.setInterval(() => void refreshZaicodeRouterHost().catch(() => null), 15_000);
     setZaicodeSubscriptionService(providerSettingsService);
     // Subscription accounts as models (SRC-061): after the router is up, then with every health check.
     const syncAccounts = (force: boolean) =>
@@ -209,6 +216,7 @@ export function useZaicodeRouterAutoSetup(): void {
     });
     return () => {
       disposed = true;
+      window.clearInterval(statusTimer);
       if (timer !== null) window.clearInterval(timer);
       setZaicodeSubscriptionService(null);
       started = false;

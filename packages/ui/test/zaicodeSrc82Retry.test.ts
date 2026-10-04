@@ -110,12 +110,12 @@ test("the ledger shows what is scheduled and one halt stops every automatic send
 
 test("wiring: the chat countdown, the background host and the crash resume all ask the policy; the sidebar shows the ledger", () => {
   const retry = source("zaicode/zaicodeAutoRetry.ts");
-  assert.match(retry, /zaicodeMayAutoSend\(/);
+  assert.match(retry, /zaicodeEffectiveAutoRetry\(/);
   assert.match(retry, /zaicodeRetryDelayMs\(/);
   assert.match(retry, /zaicodeRetryLimit\(/);
   assert.match(retry, /blockedBy === null/);
   const watch = source("zaicode/zaicodeTurnRetryWatch.ts");
-  assert.match(watch, /zaicodeAutoSendAllowed\(brief\.sessionId/, "asked again at the moment of sending");
+  assert.match(watch, /zaicodeEffectiveAutoRetryFor\(brief\.projectKey, brief\.sessionId\)/, "the same effective policy is asked again at the moment of sending");
   assert.match(watch, /isZaicodeQuotaWall\(brief\.sessionId\)/);
   assert.doesNotMatch(watch, /if \(!prefs\.autoRetry\) return;/, "the old switch-only early out is gone");
   const crash = source("zaicode/zaicodeCrashResume.ts");

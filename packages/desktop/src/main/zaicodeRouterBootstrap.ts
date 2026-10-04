@@ -8,9 +8,9 @@ import {
   isZaicodeRouterHealthy,
   restartZaicodeRouterHost,
   startZaicodeRouterHost,
+  acquireZaicodeRouterRoute,
   type ZaicodeRouterHostStatus,
 } from "./zaicodeRouterHost.js";
-import { startZaicodeRouter } from "./zaicodeRouter.js";
 import {
   addZaicodeFreeKeyProvider,
   applyZaicodeTokenSaverDefaults,
@@ -43,7 +43,6 @@ const KEY_FILE = "zaicode-router-key.json";
 const SCAN_FILE = "zaicode-free-scan.json";
 const TOKEN_SAVER_FILE = "zaicode-token-saver.json";
 const FETCH_TIMEOUT_MS = 20_000;
-const SHARED_START_WAIT_MS = 20_000;
 
 function readJson<T>(name: string, fallback: T): T {
   try {
@@ -97,15 +96,6 @@ function scanMemory(): ZaicodeFreeScanMemory {
   };
 }
 
-async function waitHealthy(url: string, ms: number): Promise<boolean> {
-  const deadline = Date.now() + ms;
-  while (Date.now() < deadline) {
-    if (await isZaicodeRouterHealthy(url)) return true;
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-  }
-  return false;
-}
-
 /**
  * Router up, SAIFREN filled, (optionally) ZAICODE's key, first token. The
  * operator's own 9router (shared) is only topped up, never rebuilt.
@@ -134,11 +124,8 @@ async function runBootstrap(options: { needKey: boolean }): Promise<ZaicodeRoute
   const steps: ZaicodeSetupStep[] = [];
   const host = await startZaicodeRouterHost();
   if (host.mode === "shared" && !(await isZaicodeRouterHealthy(host.url))) {
-    // The operator's own 9router is down: start it the way its tray does ("Start 9router"), then wait for it.
-    startZaicodeRouter();
-    if (await waitHealthy(host.url, SHARED_START_WAIT_MS)) {
-      steps.push({ id: "router:start", label: "Router", status: "fixed", detail: "your 9router was not running: started it" });
-    }
+    const route = await acquireZaicodeRouterRoute();
+    if (route?.fallback) return { ok: true, host: getZaicodeRouterHostStatus(), apiKey: route.key, firstToken: null, steps: [{ id: "router:fallback", label: "Router", status: "fixed", detail: "Preferred router unavailable; internal SAIFREN fallback active" }] };
   }
   if (!(await isZaicodeRouterHealthy(host.url))) {
     steps.push({ id: "router", label: "Router", status: "failed", detail: host.lastError ?? `9router does not answer at ${host.url}` });
@@ -196,8 +183,8 @@ export async function troubleshootZaicodeRouter(): Promise<ZaicodeRouterBootstra
     if (host.mode === "isolated") {
       host = await restartZaicodeRouterHost();
     } else {
-      startZaicodeRouter();
-      await waitHealthy(host.url, SHARED_START_WAIT_MS);
+      const route = await acquireZaicodeRouterRoute();
+      if (route?.fallback) return bootstrapZaicodeRouter({ needKey: true });
     }
     const up = await isZaicodeRouterHealthy(host.url);
     steps.push({ id: "router", label: "Router", status: up ? "fixed" : "failed", detail: up ? `started, answers at ${host.url}` : host.lastError ?? `does not answer at ${host.url}` });

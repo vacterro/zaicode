@@ -55,6 +55,7 @@ export function zaicodeRouterCliToken(): string | null {
 }
 
 export function zaicodeRouterBaseUrl(): string {
+  if (target) return target.url.replace(/\/+$/, "");
   if (process.env.ZAICODE_ROUTER_URL) return process.env.ZAICODE_ROUTER_URL.replace(/\/+$/, "");
   return (target?.url ?? ZAICODE_ROUTER_DEFAULT_URL).replace(/\/+$/, "");
 }
@@ -81,12 +82,22 @@ export async function callZaicodeRouter(call: ZaicodeRouterCall): Promise<Zaicod
  * Never exposed over IPC: it reaches routes the renderer must not.
  */
 export async function callZaicodeRouterInternal(call: ZaicodeRouterCall): Promise<ZaicodeRouterResponse> {
-  const token = zaicodeRouterCliToken();
+  return callZaicodeRouterAt(call, { url: zaicodeRouterBaseUrl(), dataDir: zaicodeRouterDataDir() });
+}
+
+/** Explicit target for isolated fallback provisioning; never changes preferred management state. */
+export async function callZaicodeRouterAt(call: ZaicodeRouterCall, route: { url: string; dataDir: string }): Promise<ZaicodeRouterResponse> {
+  let token: string | null = null;
+  try {
+    const { readFile } = await import("node:fs/promises");
+    const [machine, secret] = await Promise.all([readFile(join(route.dataDir, "machine-id"), "utf8"), readFile(join(route.dataDir, "auth", "cli-secret"), "utf8")]);
+    token = createHash("sha256").update(machine.trim() + CLI_SALT + secret.trim()).digest("hex").slice(0, 16);
+  } catch { /* Never fabricate a credential. */ }
   const isTest = call.path.endsWith("/test");
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), isTest ? TEST_TIMEOUT_MS : REQUEST_TIMEOUT_MS);
   try {
-    const response = await fetch(`${zaicodeRouterBaseUrl()}${call.path}`, {
+    const response = await fetch(`${route.url}${call.path}`, {
       method: call.method,
       headers: {
         ...(token ? { "x-9r-cli-token": token } : {}),
@@ -117,7 +128,7 @@ export async function callZaicodeRouterInternal(call: ZaicodeRouterCall): Promis
       data: null,
       message: aborted
         ? "9router did not answer in time"
-        : `9router is not reachable at ${zaicodeRouterBaseUrl()} (${error instanceof Error ? error.message : String(error)})`,
+        : `9router is not reachable at ${route.url} (${error instanceof Error ? error.message : String(error)})`,
     };
   } finally {
     clearTimeout(timer);

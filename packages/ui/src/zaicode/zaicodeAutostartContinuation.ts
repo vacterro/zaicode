@@ -65,6 +65,8 @@ export function recordZaicodeContinuationWorkerLimit(store: ZaicodeContinuationS
 }
 
 function currentSession(run: ZaicodeContinuationRun, runtime: ZaicodeContinuationRuntime): ZaicodeSessionBrief | undefined {
+  // canonical MAIN 指针跨 worker 保留，但旧会话快照不能冒充当前订阅执行的状态。
+  if (!run.runnerId.startsWith("pool:")) return undefined;
   return runtime.sessions().find((session) => session.sessionId === run.sessionId && session.projectKey === run.workspaceKey);
 }
 
@@ -143,7 +145,7 @@ export async function tickZaicodeContinuations(store: ZaicodeContinuationStore, 
         continue;
       }
       const stopAt = zaicodeScheduleStopAt(job.stopAt, run.startedAt ?? run.launchedAt);
-      if (run.state === "running" && run.sessionId && !session && !(stopAt !== null && now >= stopAt)) continue;
+      if (run.state === "running" && !run.workerId && run.sessionId && !session && !(stopAt !== null && now >= stopAt)) continue;
       if (run.state === "running" && run.workerId && !worker && !(stopAt !== null && now >= stopAt)) {
         // 进程丢失只能重放已持久化的终端 lease；仍有 PTY 控制权时不得双启。
         if (run.workerId !== `zaicode-worker:${run.lease}` || runtime.terminal(run.workerId)) continue;
@@ -169,7 +171,8 @@ export async function tickZaicodeContinuations(store: ZaicodeContinuationStore, 
       if (!admitted?.enabled || !admitted.continuation.enabled || !(store.canDispatch?.() ?? true) || runtime.disabled(run.workspaceKey)) continue;
       const sameLease = run.state === "launching" || (run.state === "failed" && run.runnerId === decision.runnerId);
       const generation = sameLease && run.generation ? run.generation + 1 : undefined;
-      run = { ...run, runnerId: decision.runnerId, lease: sameLease ? run.lease : createUuid(), state: "launching", workerId: undefined, generation: undefined, sessionId: sameLease ? run.sessionId : undefined, foregroundExecutionId: undefined, preferredReadyAt: undefined, launchedAt: sameLease ? run.launchedAt : now, result: "Launching selected runner" };
+      // 模型/worker lease 替换不能丢掉 canonical MAIN 会话身份。
+      run = { ...run, runnerId: decision.runnerId, lease: sameLease ? run.lease : createUuid(), state: "launching", workerId: undefined, generation: undefined, sessionId: run.sessionId, foregroundExecutionId: undefined, preferredReadyAt: undefined, launchedAt: sameLease ? run.launchedAt : now, result: "Launching selected runner" };
       persist(store, job.id, run);
       const canDispatch = () => {
         const latest = store.read().find((value) => value.id === job.id);

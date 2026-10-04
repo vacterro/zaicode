@@ -6,6 +6,7 @@ import { toast } from "@/components/ui/toast.js";
 import { useZaicodeAuditStore } from "./zaicodeAuditStore.js";
 import { zaicodeOutboxCollectGuard } from "./zaicodeSubOutbox.js";
 import { useZaicodeSubOutbox } from "./useZaicodeSubOutbox.js";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover.js";
 
 /**
  * SRC-112: the SubSaipen OUTBOX, in one row above the composer.
@@ -62,11 +63,12 @@ export function ZaicodeSubOutboxChip({
   );
 
   return (
+    <Popover open={open} onOpenChange={setOpen}>
     <div
-      className={cn("flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1", className)}
+      className={cn("flex min-w-0 shrink-0 items-center gap-1", className)}
       data-zaicode-sub-outbox={counts.ready}
     >
-      <button
+      <PopoverTrigger asChild><button
         type="button"
         className="flex h-6 min-w-0 shrink-0 items-center gap-1.5 border border-border px-2 text-ui-xs text-foreground hover:bg-hover"
         title={[
@@ -79,12 +81,12 @@ export function ZaicodeSubOutboxChip({
           .filter(Boolean)
           .join("\n")}
         aria-expanded={open}
-        onClick={() => setOpen((value) => !value)}
+        aria-label={`OUTBOX: ${label || "No waiting packages"}`}
         data-zaicode-sub-outbox-toggle
       >
         <Inbox className="size-3 shrink-0" />
-        <span className="truncate tabular-nums">{label || "OUTBOX"}</span>
-      </button>
+        <span className="truncate tabular-nums">{counts.ready || counts.blocked || counts.draft || "OUTBOX"}</span>
+      </button></PopoverTrigger>
       {counts.ready > 0 ? (
         <button
           type="button"
@@ -107,7 +109,7 @@ export function ZaicodeSubOutboxChip({
         </button>
       ) : null}
       {open ? (
-        <div className="flex min-w-0 basis-full flex-col gap-0.5 text-ui-xs text-foreground-subtlest">
+        <PopoverContent side="top" align="end" className="max-w-[min(420px,90vw)]"><div className="flex min-w-0 flex-col gap-0.5 text-ui-xs text-foreground-subtlest">
           {listed.length === 0 ? (
             <span>No package is waiting. A subSaipen writes its OUTBOX when it finishes.</span>
           ) : (
@@ -120,8 +122,9 @@ export function ZaicodeSubOutboxChip({
               </span>
             ))
           )}
-        </div>
+        </div></PopoverContent>
       ) : null}
     </div>
+    </Popover>
   );
 }

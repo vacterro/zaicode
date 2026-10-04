@@ -1,12 +1,10 @@
 import { useEffect, useState } from "react";
 import { RotateCw, X } from "lucide-react";
 import type { ZaicodeAutoRetryState } from "./zaicodeAutoRetry.js";
-import { useZaicodeUiPrefs } from "./zaicodeUiPrefs.js";
+import { ZaicodeAutoRetryButton } from "./ZaicodeAutoRetryButton.js";
 
 /** One line under the error banner: when the next automatic retry happens, and how to stop it. */
 export function ZaicodeAutoRetryNotice({ state }: { state: ZaicodeAutoRetryState }) {
-  const autoRetry = useZaicodeUiPrefs((prefs) => prefs.autoRetry);
-  const update = useZaicodeUiPrefs((prefs) => prefs.update);
   const [now, setNow] = useState(() => Date.now());
   // SRC-070 (D): the notice is closable in every state it can be in. Closing
   // it stops the retry behind it, so the source event is not silenced -- the
@@ -54,7 +52,7 @@ export function ZaicodeAutoRetryNotice({ state }: { state: ZaicodeAutoRetryState
         <span className="text-destructive">
           Auto-retry gave up after {state.maxAttempts} attempts.
         </span>
-      ) : !autoRetry ? (
+      ) : !state.effectiveEnabled ? (
         <span>Auto-retry is off.</span>
       ) : (
         <span>Auto-retry stopped for this error.</span>
@@ -81,14 +79,7 @@ export function ZaicodeAutoRetryNotice({ state }: { state: ZaicodeAutoRetryState
             Stop auto-retry
           </button>
         ) : null}
-        <button
-          type="button"
-          className="border border-border px-1.5 hover:bg-hover hover:text-foreground"
-          onClick={() => update({ autoRetry: !autoRetry })}
-          title="Auto-retry after errors, for every session. It also needs the sidebar Auto ON (Settings -> Workers)"
-        >
-          {autoRetry ? "Auto: on" : "Auto: off"}
-        </button>
+        <ZaicodeAutoRetryButton projectKey={state.projectKey ?? ""} sessionId={state.sessionId} />
         <button
           type="button"
           className="flex size-6 items-center justify-center border border-border hover:bg-hover hover:text-foreground"

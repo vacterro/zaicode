@@ -86,7 +86,7 @@ import { ZaicodeIcon } from "@/zaicode/zaicodeIconSlots.js";
 import { ZaicodeEngineBar } from "@/zaicode/ZaicodeEngineBar.js";
 import { reconcileZaicodeLiveRuns, useZaicodeLiveRuns, zaicodeLiveRunIdsIn } from "@/zaicode/zaicodeLiveRuns.js";
 import { ZaicodeAudioDirector } from "@/zaicode/ZaicodeAudioPanels.js";
-import { useZaicodeArchiveUndo, useZaicodeArchiveUndoShortcut } from "@/zaicode/zaicodeArchiveUndo.js";
+import { useZaicodeArchiveUndoShortcut } from "@/zaicode/zaicodeArchiveUndo.js";
 import {
   orderZaicodeProjectSections,
   projectLiveOf,
@@ -721,15 +721,6 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
   // SRC-081: a minute tick, so a session that went quiet leaves the "working" list by itself.
   const zaicodeStallNow = useZaicodeGatedNow(() => 60_000);
   useZaicodeArchiveUndoShortcut(zaicodeMode);
-  const zaicodeArchiveNotice = useZaicodeArchiveUndo((state) => state.notice);
-  const zaicodeArchiveNoticeUndoable = useZaicodeArchiveUndo((state) => state.noticeUndoable);
-  const undoZaicodeArchive = useZaicodeArchiveUndo((state) => state.undo);
-  const clearZaicodeArchiveNotice = useZaicodeArchiveUndo((state) => state.clearNotice);
-  useEffect(() => {
-    if (!zaicodeArchiveNotice) return;
-    const timer = window.setTimeout(clearZaicodeArchiveNotice, 8000);
-    return () => window.clearTimeout(timer);
-  }, [clearZaicodeArchiveNotice, zaicodeArchiveNotice]);
   const zaicodeProjectLive = useMemo(() => {
     const byKey = new Map<string, ZaicodeProjectLive>();
     const all: ZaicodeRunningSession[] = [];
@@ -2157,24 +2148,6 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
             </div>
           </div>
 
-          {zaicodeMode && zaicodeArchiveNotice ? (
-            <div
-              role="status"
-              className="mx-2 flex items-center gap-2 border border-border bg-card px-2 py-1 text-ui-xs text-foreground-subtle"
-              data-zaicode-archive-notice
-            >
-              <span className="min-w-0 flex-1">{zaicodeArchiveNotice}</span>
-              {zaicodeArchiveNoticeUndoable ? (
-                <button
-                  type="button"
-                  className="shrink-0 border border-[var(--zaicode-highlight,var(--color-border-hover))] px-1.5 text-foreground hover:bg-hover"
-                  onClick={() => void undoZaicodeArchive()}
-                >
-                  Undo
-                </button>
-              ) : null}
-            </div>
-          ) : null}
           <WorkspaceSidebarFooter
             className="pr-3"
             theme={theme}

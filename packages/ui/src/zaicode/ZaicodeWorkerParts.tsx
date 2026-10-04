@@ -42,6 +42,7 @@ import { useZaicodeWorkerPrefs, zaicodeWorkerFontFamily } from "./zaicodeWorkerP
 import { zaicodeVendorColor } from "./ZaicodeLimitViews.js";
 import { terminalControl, onTerminalControlChange } from "@/terminal/terminalOutputTap.js";
 import { extractZaicodeWorker } from "./zaicodeWorkerExtraction.js";
+import { ZaicodeWorkerQuotaMeters } from "./ZaicodeWorkerQuotaMeters.js";
 
 /** Shared pieces of the WORKERS panel, worker windows, the tray and the sidebar list. */
 
@@ -95,6 +96,7 @@ export function ZaicodeWorkerLabel({
         {worker.short}
       </span>
       <span className="truncate text-foreground">{worker.projectName}</span>
+      {worker.kind === "worker" ? <ZaicodeWorkerQuotaMeters accountId={worker.accountId} now={now} /> : null}
       {showAge ? (
         <span className="shrink-0 text-foreground-subtlest">
           {formatZaicodeDuration(zaicodeWorkerElapsedMs(worker, now))}

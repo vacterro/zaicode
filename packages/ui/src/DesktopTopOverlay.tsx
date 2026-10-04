@@ -1,6 +1,7 @@
 import { isZaicodeProductMode, type IPlatformService, type UpdateStatePayload } from "@zcode/shared";
 import { ZaicodeRunningMeter } from "@/zaicode/ZaicodeSidebarHeaderTools.js";
 import { ZaicodeHeaderToolbar } from "@/zaicode/ZaicodeHeaderToolbar.js";
+import { useZaicodeSidebarPrefs } from "@/zaicode/zaicodeSidebarPrefs.js";
 import { cn } from "@/components/lib/utils.js";
 import {
   ArrowLeftIcon,
@@ -8,6 +9,8 @@ import {
   MessageCirclePlus,
   PanelLeftClose,
   PanelLeftOpen,
+  PanelRightClose,
+  PanelRightOpen,
 } from "lucide-react";
 import { useZCodeIntl } from "@/i18n/IntlProvider.js";
 import { UpdateStatusButton } from "@/UpdateStatusButton.js";
@@ -81,7 +84,9 @@ export function DesktopTopOverlay({
 }: DesktopTopOverlayProps) {
   const zaicodeToolbar = isZaicodeProductMode() && isSidebarVisible && !hideTaskNavigationButtons;
   const { intl } = useZCodeIntl();
-  const SidebarToggleIcon = isSidebarVisible ? PanelLeftClose : PanelLeftOpen;
+  const swapped = useZaicodeSidebarPrefs((state) => state.sidebarsSwapped);
+  const sidebarRight = isZaicodeProductMode() && swapped;
+  const SidebarToggleIcon = sidebarRight ? (isSidebarVisible ? PanelRightClose : PanelRightOpen) : (isSidebarVisible ? PanelLeftClose : PanelLeftOpen);
   const isLinuxDesktop = Boolean(isDesktop && !isMacDesktop && !isWindowsDesktop);
   const usesCustomCaptionArea = isWindowsDesktop || isLinuxDesktop;
   const toggleSidebarTitle = intl.formatMessage({
@@ -100,18 +105,20 @@ export function DesktopTopOverlay({
   const windowsTopOverlayPaddingStyle = isWindowsDesktop
     ? {
         ...createWindowsCaptionControlsStyle(windowsWindowControlsRightPaddingPx),
-        paddingRight: zaicodeToolbar ? "0px" : WINDOWS_CAPTION_CONTROLS_RIGHT_INSET_VAR,
+        paddingRight: (zaicodeToolbar && !sidebarRight) || (sidebarRight && !isSidebarVisible) ? "0px" : WINDOWS_CAPTION_CONTROLS_RIGHT_INSET_VAR,
       }
     : undefined;
   const topOverlayWidthStyle = isSidebarVisible
-    ? { width: "var(--workspace-sidebar-panel-width)" }
+    ? { width: sidebarRight && isWindowsDesktop ? `max(var(--workspace-sidebar-panel-width), calc(${WINDOWS_CAPTION_CONTROLS_RIGHT_INSET_VAR} + 80px))` : "var(--workspace-sidebar-panel-width)" }
     : undefined;
 
   return (
     <div
-      style={topOverlayWidthStyle}
+      style={{ ...(isWindowsDesktop ? createWindowsCaptionControlsStyle(windowsWindowControlsRightPaddingPx) : {}), ...topOverlayWidthStyle, ...(sidebarRight && isWindowsDesktop && !isSidebarVisible ? { right: WINDOWS_CAPTION_CONTROLS_RIGHT_INSET_VAR } : {}) }}
+      data-zaicode-sidebar-controls={sidebarRight ? "right" : "left"}
       className={cn(
-        "@container/topoverlayer pointer-events-none absolute h-14 flex left-0 top-0 z-20 w-fit",
+        "@container/topoverlayer pointer-events-none absolute h-14 flex top-0 z-20 w-fit",
+        sidebarRight ? "right-0" : "left-0",
         // Windows/Linux 主面板新增 4px 留白及 1px 边框，左侧工具组需同步偏移才能对齐 Header 中心线。
         usesCustomCaptionArea && "top-1 mt-px",
       )}
@@ -147,6 +154,8 @@ export function DesktopTopOverlay({
               title={toggleSidebarTitle}
               shortcut={toggleSidebarShortcutLabel}
               ariaLabel={toggleSidebarTitle}
+              testId="desktop-sidebar-toggle"
+              expanded={isSidebarVisible}
               buttonClassName="group relative overflow-hidden rounded-lg"
               onClick={onToggleSidebar}
             >
@@ -165,6 +174,8 @@ export function DesktopTopOverlay({
               title={toggleSidebarTitle}
               shortcut={toggleSidebarShortcutLabel}
               ariaLabel={toggleSidebarTitle}
+              testId="desktop-sidebar-toggle"
+              expanded={isSidebarVisible}
               onClick={onToggleSidebar}
             >
               <SidebarToggleIcon className="size-4" />

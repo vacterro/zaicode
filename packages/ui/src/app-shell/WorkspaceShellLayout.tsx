@@ -32,6 +32,8 @@ import { usePaneSessionPersistence } from "@/v4/usePaneSessionPersistence.js";
 import { requestV4ComposerDraftWorkspaceTransfer } from "@/v4/composer/composerDraftWorkspaceTransfer.js";
 import { ChatEmptyWorkspacePreviewMenu } from "@/ChatEmptyState.js";
 import { DesktopTopOverlay } from "@/DesktopTopOverlay.js";
+import { ZaicodeArchiveNotice } from "@/zaicode/ZaicodeArchiveNotice.js";
+import { ZaicodeRouterStatus } from "@/zaicode/ZaicodeRouterStatus.js";
 import { DesktopWindowFrame } from "@/DesktopWindowFrame.js";
 import { WorkspacePluginPreview } from "@/WorkspacePluginPreview.js";
 import { isZaicodeProductMode } from "@zcode/shared";
@@ -1790,6 +1792,8 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
                 />
               </ScopedErrorBoundary>
             ) : null}
+            {isWorkspaceVisible && isZaicodeProductMode() ? <ZaicodeArchiveNotice /> : null}
+            {isWorkspaceVisible && isZaicodeProductMode() ? <ZaicodeRouterStatus compact /> : null}
             <div className="min-h-0 flex-1 overflow-hidden">
               {workspaceMainView === "automations" ? (
                 <main

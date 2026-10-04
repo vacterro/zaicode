@@ -2153,7 +2153,7 @@ function ConversationComposerImpl({
         {isZaicodeProductMode() ? <ZaicodeAutoGoalButton workspaceKey={workspaceKey} /> : null}
         {/* SRC-135: Auto retry next to the composer too — it decides whether a failed
             turn is sent again, so the operator must be able to see it without Settings. */}
-        {isZaicodeProductMode() ? <ZaicodeAutoRetryButton projectKey={workspaceKey} /> : null}
+        {isZaicodeProductMode() ? <ZaicodeAutoRetryButton projectKey={workspaceKey} sessionId={sessionId} /> : null}
         {/* SRC-051: "working for" mini on the chatbox, same read-out as the project row. */}
         {isZaicodeProductMode() && showStopControl ? (
           <ZaicodeComposerWorkingFor sessionId={sessionId} running />
@@ -2504,6 +2504,14 @@ function ConversationComposerImpl({
           )
         }
         onCancel={() => setPastedTextEdit(null)}
+        onRestore={text.trim() ? undefined : (restored) => {
+          const target = pastedTextEdit;
+          const editor = inputApiRef.current;
+          if (!target || !editor) return;
+          editor.setText(restored);
+          attachmentsApi.removeAttachment(target.id);
+          setPastedTextEdit(null);
+        }}
         onSave={(text) => {
           const target = pastedTextEdit;
           if (!target) return;
@@ -2511,7 +2519,8 @@ function ConversationComposerImpl({
           void attachmentsApi
             .updatePastedText(target.id, text)
             .then((ok) => {
-              setPastedTextEdit(null);
+              // 写入失败时保留编辑内容，不能把未保存的草稿当成功关闭。
+              if (ok) setPastedTextEdit(null);
               toast(
                 ok
                   ? intl.formatMessage({ id: "chat.attachments.pastedText.saved" })

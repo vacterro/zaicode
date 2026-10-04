@@ -12,7 +12,8 @@ import {
   clearZaicodeQuotaWall,
   markZaicodeQuotaWall,
   useZaicodeRetryLedger,
-  zaicodeMayAutoSend,
+  zaicodeEffectiveAutoRetry,
+  zaicodeEffectiveAutoRetryFor,
   zaicodeRetryClassOf,
   zaicodeRetryDelayMs,
   zaicodeRetryLimit,
@@ -136,6 +137,9 @@ export function zaicodeAutoRetryPaneClaims(state: {
 }
 
 export interface ZaicodeAutoRetryState {
+  projectKey?: string;
+  sessionId?: string | null;
+  effectiveEnabled?: boolean;
   /** Epoch ms of the next automatic attempt, null when none is scheduled. */
   nextAt: number | null;
   attempts: number;
@@ -182,6 +186,7 @@ export function isZaicodeAutoRetryStopped(errorKey: string | null | undefined): 
 }
 
 export function useZaicodeAutoRetry(params: {
+  projectKey?: string;
   enabled: boolean;
   /** A different usable route is selected; Retry aligns it before sending. */
   quotaFallbackReady?: boolean;
@@ -194,7 +199,7 @@ export function useZaicodeAutoRetry(params: {
   edit: (target: ConversationRowTarget, text: string) => Promise<unknown>;
 }): ZaicodeAutoRetryState {
   const { enabled, sessionId, error, errorKey, phase, rows } = params;
-  const autoRetry = useZaicodeUiPrefs((state) => state.autoRetry);
+  const prefs = useZaicodeUiPrefs();
   const intervalSec = useZaicodeUiPrefs((state) => state.autoRetryIntervalSec);
   const maxAttempts = zaicodeRetryLimit(useZaicodeUiPrefs((state) => state.autoRetryMaxAttempts));
   const masterOn = useZaicodeAuditStore((state) => state.smartMode);
@@ -216,7 +221,8 @@ export function useZaicodeAutoRetry(params: {
     if (sessionId && quotaWall) markZaicodeQuotaWall(sessionId);
     else if (sessionId && params.quotaFallbackReady) clearZaicodeQuotaWall(sessionId);
   }, [quotaWall, sessionId, errorKey, params.quotaFallbackReady]);
-  const mayAutoSend = zaicodeMayAutoSend({ mode: sessionMode, masterOn, featureOn: autoRetry });
+  const effective = zaicodeEffectiveAutoRetry(prefs, params.projectKey ?? "", sessionId, { masterOn, sessionMode, halted });
+  const mayAutoSend = effective.enabled;
   const blockedBy: ZaicodeAutoRetryState["blockedBy"] = quotaWall
     ? "quota"
     : sessionMode === "off" || (!masterOn && sessionMode !== "on")
@@ -240,6 +246,7 @@ export function useZaicodeAutoRetry(params: {
       const current = actionRef.current;
       const id = runRef.current.sessionId;
       if (!current || !id) return;
+      if (counted && !zaicodeEffectiveAutoRetryFor(runRef.current.projectKey ?? "", id).enabled) return;
       if (counted) bumpZaicodeAutoRetryAttempt(id);
       setNextAt(null);
       forceRender((value) => value + 1);
@@ -316,7 +323,10 @@ export function useZaicodeAutoRetry(params: {
   }, [armed, actionKey, errorKey, intervalSec, run, sessionId]);
 
   return {
-    nextAt,
+    projectKey: params.projectKey,
+    sessionId,
+    effectiveEnabled: mayAutoSend,
+    nextAt: armed ? nextAt : null,
     attempts,
     maxAttempts,
     exhausted,

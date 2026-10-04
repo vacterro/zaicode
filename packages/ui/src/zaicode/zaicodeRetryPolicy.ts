@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { useZaicodeAuditStore } from "./zaicodeAuditStore.js";
 import { zaicodeAutoContinueModeFor, type ZaicodeAutoContinueMode } from "./zaicodeAutoContinue.js";
-import { ZAICODE_AUTO_RETRY_DEFAULT_ATTEMPTS, ZAICODE_AUTO_RETRY_HARD_CAP } from "./zaicodeUiPrefs.js";
+import { ZAICODE_AUTO_RETRY_DEFAULT_ATTEMPTS, ZAICODE_AUTO_RETRY_HARD_CAP, zaicodeAutoRetryEnabled, useZaicodeUiPrefs, type ZaicodeUiPrefs } from "./zaicodeUiPrefs.js";
 
 export { ZAICODE_AUTO_RETRY_DEFAULT_ATTEMPTS, ZAICODE_AUTO_RETRY_HARD_CAP };
 
@@ -79,6 +79,18 @@ export function zaicodeMasterAutoOn(): boolean {
 export function zaicodeAutoSendAllowed(sessionId: string, featureOn: boolean): boolean {
   if (useZaicodeRetryLedger.getState().halted) return false;
   return zaicodeMayAutoSend({ mode: zaicodeAutoContinueModeFor(sessionId), masterOn: zaicodeMasterAutoOn(), featureOn });
+}
+
+/** Single effective projection for every retry owner and representation. */
+export function zaicodeEffectiveAutoRetry(prefs: ZaicodeUiPrefs, projectKey: string, sessionId: string | null | undefined, gate: { masterOn: boolean; sessionMode?: ZaicodeAutoContinueMode; halted: boolean }) {
+  const preference = zaicodeAutoRetryEnabled(prefs, projectKey, sessionId);
+  const source = sessionId && prefs.autoRetrySessions?.[sessionId] !== undefined ? "session" : prefs.autoRetryProjects[projectKey] !== undefined ? "project" : "global";
+  const reason = gate.halted ? "All retries stopped" : gate.sessionMode === "off" ? "Session auto-continue is off" : !preference ? `${source} retry preference is off` : !gate.masterOn && gate.sessionMode !== "on" ? "Auto is off" : null;
+  return { enabled: reason === null, preference, source, reason };
+}
+
+export function zaicodeEffectiveAutoRetryFor(projectKey: string, sessionId?: string | null): ReturnType<typeof zaicodeEffectiveAutoRetry> {
+  return zaicodeEffectiveAutoRetry(useZaicodeUiPrefs.getState(), projectKey, sessionId, { masterOn: zaicodeMasterAutoOn(), sessionMode: sessionId ? zaicodeAutoContinueModeFor(sessionId) : undefined, halted: useZaicodeRetryLedger.getState().halted });
 }
 
 // ---------------------------------------------------------------- quota memory

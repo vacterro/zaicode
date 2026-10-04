@@ -883,8 +883,8 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
     ? (taskItems.find((task) => task.taskId === zaicodeMainSessionId) ?? null)
     : null;
   const zaicodeMainTask = zaicodeProjectIsMain ? zaicodeMainListed : null;
-  // MAIN 也列为有名字的会话；项目标题与会话入口不再互相隐藏。
-  const zaicodeChildTasks = taskItems;
+  // MAIN 模式下项目行就是主会话；重复列成子行会把同一工作伪装成孤儿会话。
+  const zaicodeChildTasks = useMemo(() => zaicodeProjectIsMain ? taskItems.filter((task) => task.taskId !== zaicodeMainSessionId) : taskItems, [taskItems, zaicodeProjectIsMain, zaicodeMainSessionId]);
   // Settings -> Sidebar (SRC-049): when session rows are listed at all - every
   // helper, only the ones working, or working + waiting for the operator.
   const zaicodeSessionsCondition = useZaicodeSidebarPrefs((state) => state.sessionsCondition);

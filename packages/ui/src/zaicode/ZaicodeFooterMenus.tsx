@@ -29,11 +29,13 @@ import { Input } from "@/components/ui/input.js";
 import { useZCodeIntl } from "@/i18n/IntlProvider.js";
 import { ZAICODE_PROFILE_ICON_SLOTS, ZaicodeIcon } from "./zaicodeIconSlots.js";
 import { ZAICODE_PALETTES, ZAICODE_PALETTE_NONE } from "./zaicodePalettes.js";
+import { ZAICODE_PRESENTATIONS, type ZaicodePresentation } from "./zaicodePresentation.js";
 import { useZaicodeColorStudio } from "./zaicodeColorStudio.js";
 import { openZaicodeHelp, openZaicodeSettings } from "./zaicodeActions.js";
 import {
   setZaicodeBevelRows,
   setZaicodeBevels,
+  setZaicodePresentation,
   setZaicodePalette,
   useZaicodeAppearance,
 } from "./zaicodeAppearance.js";
@@ -307,11 +309,15 @@ export function ZaicodePaletteMenuSub() {
 /** The palette lines themselves, shared by the footer sub-menu and the header Theme button (SRC-051). */
 export function ZaicodePaletteMenuContent() {
   const { intl } = useZCodeIntl();
-  const { palette, bevels, bevelRows } = useZaicodeAppearance();
+  const { palette, bevels, bevelRows, presentation } = useZaicodeAppearance();
   const { customs } = useZaicodeColorStudio();
   return (
     <>
       <ZaicodeScreenMenuItems />
+      <DropdownMenuLabel>Interface style</DropdownMenuLabel>
+      <DropdownMenuRadioGroup value={presentation} onValueChange={(value) => setZaicodePresentation(value as ZaicodePresentation)}>
+        {ZAICODE_PRESENTATIONS.map((preset) => <DropdownMenuRadioItem key={preset.id} value={preset.id} title={preset.hint}>{preset.label}</DropdownMenuRadioItem>)}
+      </DropdownMenuRadioGroup>
       <DropdownMenuSeparator />
       <DropdownMenuCheckboxItem
         checked={bevels}

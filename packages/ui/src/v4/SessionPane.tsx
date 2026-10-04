@@ -4281,6 +4281,7 @@ export function SessionPane({
     ) && !providerQuotaCircuit(draftConfig.modelSelection.providerId, Date.now())
   );
   const zaicodeAutoRetry = useZaicodeAutoRetry({
+    projectKey: workspaceKey,
     enabled: isZaicodeProductMode() && !readOnly && !selectionSideChat,
     quotaFallbackReady: zaicodeQuotaFallbackReady,
     sessionId,

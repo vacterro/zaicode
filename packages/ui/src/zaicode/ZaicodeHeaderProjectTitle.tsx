@@ -4,6 +4,7 @@ import { ZAICODE_CODE_FONT_OPTIONS, ZAICODE_UI_FONT_OPTIONS } from "./zaicodeApp
 import { zaicodeProjectColor } from "./ZaicodeGroupedRowDecor.js";
 import { ZaicodePrefCheck, ZaicodePrefSegment, ZaicodePrefStepper, ZaicodeRightClickSettings } from "./ZaicodePrefControls.js";
 import { readZaicodeSetting } from "./zaicodeSettingsSnapshot.js";
+import { useZaicodeSidebarPrefs } from "./zaicodeSidebarPrefs.js";
 
 /**
  * The project's name in big letters in the title bar (SRC-044): the header
@@ -188,6 +189,7 @@ export function ZaicodeHeaderProjectTitle({
   placement: ZaicodeHeaderTitleAlign;
 }) {
   const prefs = useZaicodeHeaderTitle();
+  const sidebarRight = useZaicodeSidebarPrefs((state) => state.sidebarsSwapped);
   if (!prefs.showProject || !projectName || prefs.align !== placement) return null;
   const family = zaicodeHeaderTitleFamily(prefs);
   const color =
@@ -237,8 +239,8 @@ export function ZaicodeHeaderProjectTitle({
       style={{
         // A collapsed sidebar leaves the toolbar `w-fit` from x=0, so the free
         // band starts after it, not at the 4px collapsed width.
-        left: "var(--zaicode-top-overlay-width, var(--workspace-sidebar-panel-width, 0px))",
-        right: "var(--windows-caption-controls-right-inset, 136px)",
+        left: sidebarRight ? "8px" : "var(--zaicode-top-overlay-width, var(--workspace-sidebar-panel-width, 0px))",
+        right: sidebarRight ? "max(var(--zaicode-top-overlay-width, var(--workspace-sidebar-panel-width, 0px)), var(--windows-caption-controls-right-inset, 136px))" : "var(--windows-caption-controls-right-inset, 136px)",
       }}
       data-zaicode-header-project-center=""
     >

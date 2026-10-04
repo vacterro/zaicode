@@ -39,7 +39,7 @@ test("F2 a centred header title yields the band when the toolbar owns it", () =>
   // The `start` placement is untouched: nothing the operator could read is lost.
   assert.match(text, /if \(placement === "start"\) return title;/);
   // The free band still starts after the sidebar when it is open.
-  assert.match(text, /left: "var\(--zaicode-top-overlay-width, var\(--workspace-sidebar-panel-width, 0px\)\)"/);
+  assert.match(text, /left: sidebarRight \? "8px" : "var\(--zaicode-top-overlay-width, var\(--workspace-sidebar-panel-width, 0px\)\)"/);
 });
 
 test("F3 the overlay band variable is defined for both sidebar states", () => {
@@ -64,11 +64,14 @@ test("F5 the top overlay never drops its width ceiling", () => {
   const text = source("src/DesktopTopOverlay.tsx");
   // The overlay is `w-fit` and must be pinned to the sidebar column when that
   // column exists, otherwise its buttons spill into the content column.
-  assert.match(text, /const topOverlayWidthStyle = isSidebarVisible\s*\? \{ width: "var\(--workspace-sidebar-panel-width\)" \}/);
+  assert.match(text, /const topOverlayWidthStyle = isSidebarVisible/);
+  assert.match(text, /width: sidebarRight && isWindowsDesktop/);
+  assert.ok(text.includes(': "var(--workspace-sidebar-panel-width)"'), "the left sidebar still owns its column width");
   assert.match(text, /zaicodeToolbar && "min-w-0 flex-1"/);
   // The caption inset is a reservation, never a silent drop for a ZAICODE bar:
   // the toolbar is only as wide as the sidebar, so the buttons sit left of it.
-  assert.match(text, /paddingRight: zaicodeToolbar \? "0px" : WINDOWS_CAPTION_CONTROLS_RIGHT_INSET_VAR/);
+  assert.match(text, /paddingRight: \(zaicodeToolbar && !sidebarRight\)/);
+  assert.ok(text.includes("createWindowsCaptionControlsStyle(windowsWindowControlsRightPaddingPx) : {}), ...topOverlayWidthStyle"), "the relocated overlay owns its caption variable, not only a child");
 });
 
 test("F6 the row gauge strip never paints over the row it decorates", () => {
