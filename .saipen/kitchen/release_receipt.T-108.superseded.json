@@ -1,0 +1,11 @@
+{
+  "operation": "release",
+  "status": "COMMITTED",
+  "release_stage": "COMMITTED",
+  "mode": "no-publish",
+  "work": "T-108",
+  "release_commit": "046a5fb443525bba5b291d5f9a37ef5984acba6f",
+  "at": "2026-09-28T23:31:24+00:00",
+  "op_id": "release-T-108-046a5fb44352",
+  "note": "Wave 1 runtime stability: ProTrail startup convergence, crew one-submit dispatch, frozen elapsed, closable notice, honest git outcomes, layout ownership. Committed and pushed to origin/zaicode; no release was requested or cut for this bug-fix wave, so this records a no-publish release rather than claiming a publication that did not happen."
+}

@@ -3,9 +3,9 @@
   "status": "COMMITTED",
   "release_stage": "COMMITTED",
   "mode": "no-publish",
-  "work": "T-108",
-  "release_commit": "046a5fb443525bba5b291d5f9a37ef5984acba6f",
-  "at": "2026-09-28T23:31:24+00:00",
-  "op_id": "release-T-108-046a5fb44352",
-  "note": "Wave 1 runtime stability: ProTrail startup convergence, crew one-submit dispatch, frozen elapsed, closable notice, honest git outcomes, layout ownership. Committed and pushed to origin/zaicode; no release was requested or cut for this bug-fix wave, so this records a no-publish release rather than claiming a publication that did not happen."
+  "work": "T-169",
+  "release_commit": "0b78ff221ea19d2bf87f18cddd8f1b9bc61fbabf",
+  "at": "2026-10-04T18:11:18+00:00",
+  "op_id": "release-T-169-0b78ff221ea1",
+  "note": "T-169 verification-only closure. No implementation bytes exist in this repository for this ticket: the product fix lives in the SAIPEN engine repository and is already published on refs/heads/main at 445d2478257f03c57026a6b97a8291caa97ab865, carried by a157e654 (make a clean clone read the same record as this checkout), f0a637b2 (register the refusal the clean clone needed) and 9daae7d9 (ship the archived source receipts a fresh clone needs), all three ancestors of the published branch and inside no tag. What this commit carries is the verification record: a fresh git clone --no-hardlinks of the published remote validates exit 0 with 0 FAIL, a negative control reddens the gate on the exact historical class, and the clone is restored byte-exact. No release was requested and none was cut, so this is a no-publish receipt, not a claim that a publication happened here. Supersedes the T-108 receipt of 2026-09-28 (release_commit 046a5fb443525bba5b291d5f9a37ef5984acba6f, Wave 1 runtime stability), preserved beside it as .saipen/kitchen/release_receipt.T-108.superseded.json."
 }
