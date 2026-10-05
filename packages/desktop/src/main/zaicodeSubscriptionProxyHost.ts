@@ -6,6 +6,7 @@ import { readZaicodeRouterApiKey } from "./zaicodeRouterBootstrap.js";
 import { callZaicodeRouterInternal, zaicodeRouterBaseUrl } from "./zaicodeRouterTransport.js";
 import { ZaicodeSubscriptionProxy } from "./zaicodeSubscriptionProxy.js";
 import { acquireZaicodeRouterRoute } from "./zaicodeRouterHost.js";
+import { getZaicodeRuntimeIdentity } from "./zaicodeRuntimeIdentityHost.js";
 
 /**
  * Main-process side of the account proxy (SRC-061): started on first use, one
@@ -54,6 +55,7 @@ export async function getZaicodeSubscriptionProxy(): Promise<{ url: string; toke
         call: callZaicodeRouterInternal,
         token: proxyToken(),
         route: acquireZaicodeRouterRoute,
+        runtimeIdentity: getZaicodeRuntimeIdentity,
       });
       await proxy.listen(PREFERRED_PORT);
       return proxy;

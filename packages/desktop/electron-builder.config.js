@@ -594,6 +594,7 @@ export default {
     }
   },
   extraResources: [
+    { from: "out/metadata/build-meta.json", to: "build-meta.json" },
     { from: resolve(workspaceRoot, noticesFileName), to: noticesFileName },
     ...(targetPlatform.os === "darwin"
       ? [

@@ -42,6 +42,8 @@ export interface ZaicodeSubscriptionProxyOptions {
   maxBodyBytes?: number;
   /** Host-owned boundary: one immutable upstream for the whole inference stream. */
   route?(): Promise<{ url: string; key: string; fallback: boolean } | null>;
+  /** Read-only packaged identity; uses the existing proxy bearer-token boundary. */
+  runtimeIdentity?(): Promise<unknown>;
 }
 
 /** The priority writes that put one account in front of its vendor's others, or null when it is not there. */
@@ -228,6 +230,20 @@ export class ZaicodeSubscriptionProxy {
     if (request.url === "/health") {
       response.writeHead(200, { "content-type": "application/json" });
       response.end('{"ok":true}');
+      return;
+    }
+    if (request.url === "/runtime-identity") {
+      const auth = request.headers.authorization ?? "";
+      const given = auth.toLowerCase().startsWith("bearer ") ? auth.slice(7).trim() : "";
+      if (!sameSecret(given, this.#options.token))
+        return sendError(response, 401, "Wrong key for the ZAICODE account proxy");
+      if (request.method !== "GET")
+        return sendError(response, 405, "Runtime identity is read-only");
+      if (!this.#options.runtimeIdentity)
+        return sendError(response, 503, "Runtime identity unavailable");
+      const identity = await this.#options.runtimeIdentity();
+      response.writeHead(200, { "content-type": "application/json", "cache-control": "no-store" });
+      response.end(JSON.stringify(identity));
       return;
     }
     const generic = /^\/router\/v1\/(chat\/completions|responses|models)(\?.*)?$/.test(request.url ?? "");

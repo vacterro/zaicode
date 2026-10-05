@@ -12,6 +12,7 @@ import {
   ZCODE_PRODUCT_FLAVOR,
 } from "@zcode/shared";
 import { createCustomAboutDialogHtml } from "./aboutWindow.js";
+import { getZaicodeRuntimeIdentity } from "./zaicodeRuntimeIdentityHost.js";
 
 interface DesktopBuildMetadata {
   appVersion?: string;
@@ -259,6 +260,8 @@ export async function showAboutDialog(
     appVersion: app.getVersion(),
     buildMetadata: readBuildMetadata(),
   });
+  const runtimeIdentity =
+    ZCODE_PRODUCT_FLAVOR === "zaicode" ? await getZaicodeRuntimeIdentity() : null;
   const aboutMessages = getAboutMessages(locale);
   // 之前只有 macOS 使用自绘 About，Windows/Linux 仍走原生 message box。
   // 问题原因：各平台原生消息框的排版、图标和按钮样式差异很大，无法复用 macOS 参考样式。
@@ -266,11 +269,11 @@ export async function showAboutDialog(
   const iconPath = resolveAboutIconPath(app.isPackaged);
   const aboutWindow = new BrowserWindow({
     width: ABOUT_WINDOW_WIDTH,
-    height: ABOUT_WINDOW_HEIGHT,
+    height: runtimeIdentity ? 490 : ABOUT_WINDOW_HEIGHT,
     parent: parentWindow && !parentWindow.isDestroyed() ? parentWindow : undefined,
     modal: Boolean(parentWindow && !parentWindow.isDestroyed()),
     frame: false,
-    transparent: true,
+    transparent: !runtimeIdentity,
     resizable: false,
     minimizable: false,
     maximizable: false,
@@ -293,6 +296,15 @@ export async function showAboutDialog(
       createCustomAboutDialogHtml({
         applicationName: ABOUT_APPLICATION_NAME,
         appVersion: snapshot.appVersion,
+        identityLines: runtimeIdentity
+          ? [
+              `Source: ${runtimeIdentity.sourceRevision}`,
+              `Built: ${runtimeIdentity.buildTimestamp}`,
+              `Channel: ${runtimeIdentity.updateChannel}`,
+              `Package: ${runtimeIdentity.runtimePackageIdentity}`,
+              `Source parity: ${runtimeIdentity.source.status}`,
+            ]
+          : undefined,
         copyright: formatAboutCopyright(undefined, locale),
         optimizationLine: formatAboutOptimizationLine(snapshot, locale),
         versionLabel: aboutMessages.versionLabel,

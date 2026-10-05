@@ -1,4 +1,5 @@
-import { execSync } from "node:child_process";
+import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { resolve } from "node:path";
@@ -66,16 +67,66 @@ function resolveInstalledPackageVersion(packageName, fallbackVersion) {
   }
 }
 
-function resolveCommitId() {
+const SOURCE_ROOTS = [
+  "packages",
+  "apps",
+  "scripts",
+  "spec",
+  "specs",
+  "config",
+  "patches",
+  "package.json",
+  "pnpm-lock.yaml",
+  "architecture-policy.yaml",
+];
+
+export function collectSourceIdentity(root = workspaceDir) {
   try {
-    return execSync("git rev-parse --short=8 HEAD", {
-      cwd: workspaceDir,
-      stdio: ["ignore", "pipe", "ignore"],
-    })
+    const git = (args) =>
+      execFileSync("git", args, {
+        cwd: root,
+        stdio: ["ignore", "pipe", "ignore"],
+        maxBuffer: 32 * 1024 * 1024,
+      });
+    const sourceRevision = git(["rev-parse", "HEAD"]).toString().trim();
+    const status = git([
+      "status",
+      "--porcelain",
+      "--untracked-files=normal",
+      "--",
+      ...SOURCE_ROOTS,
+    ]).toString();
+    const files = git([
+      "ls-files",
+      "-z",
+      "--cached",
+      "--others",
+      "--exclude-standard",
+      "--",
+      ...SOURCE_ROOTS,
+    ])
       .toString()
-      .trim();
+      .split("\0")
+      .filter(Boolean);
+    const hash = createHash("sha256");
+    hash.update(sourceRevision);
+    for (const name of [...new Set(files)].sort()) {
+      hash.update(`\0${name}\0`);
+      const filePath = resolve(root, name);
+      hash.update(
+        existsSync(filePath)
+          ? createHash("sha256").update(readFileSync(filePath)).digest("hex")
+          : "ABSENT",
+      );
+    }
+    return {
+      sourceRevision,
+      sourceFingerprint: hash.digest("hex"),
+      workingTreeDirty: Boolean(status.trim()),
+    };
   } catch {
-    return process.env.ZCODE_COMMIT ?? "unknown";
+    // Git 不可用不代表干净构建；未知出处必须随包保留，不能伪造 HEAD。
+    return { sourceRevision: "unknown", sourceFingerprint: "unknown", workingTreeDirty: null };
   }
 }
 
@@ -83,10 +134,24 @@ export function collectBuildMetadata() {
   const rootPackageJson = readJson(resolve(workspaceDir, "package.json"));
   const desktopPackageJson = readJson(resolve(desktopDir, "package.json"));
 
+  const source = collectSourceIdentity();
+  const buildTime = new Date().toISOString();
+  const requestedChannel = process.env.ZAICODE_BUILD_CHANNEL || "local";
+  const updateChannel = ["local", "stable", "test", "development"].includes(requestedChannel)
+    ? requestedChannel
+    : "unknown";
   return {
     appVersion: normalizeVersion(rootPackageJson.version),
-    buildCommitId: resolveCommitId(),
-    buildTime: new Date().toISOString(),
+    buildCommitId:
+      source.sourceRevision === "unknown" ? "unknown" : source.sourceRevision.slice(0, 8),
+    ...source,
+    buildTime,
+    updateChannel,
+    runtimePackageIdentity: `zaicode-${createHash("sha256")
+      .update(
+        JSON.stringify({ ...source, buildTime, updateChannel, version: rootPackageJson.version }),
+      )
+      .digest("hex")}`,
     electronBuilderVersion: resolveInstalledPackageVersion(
       "electron-builder",
       desktopPackageJson.devDependencies?.["electron-builder"],

@@ -17,6 +17,8 @@ interface CustomAboutDialogHtmlInput {
   tagline?: string;
   /** Where the source lives. A rebrand nobody can find the source of is a dead end. */
   repository?: string;
+  /** Immutable runtime/build facts, including explicit source skew. */
+  identityLines?: string[];
 }
 
 function escapeHtml(value: string): string {
@@ -163,6 +165,16 @@ export function createCustomAboutDialogHtml(input: CustomAboutDialogHtmlInput): 
       }
 
 
+      .runtime-identity {
+        font-size: 10px;
+        line-height: 1.3;
+        overflow-wrap: anywhere;
+        user-select: text;
+        -webkit-app-region: no-drag;
+      }
+      body.has-runtime-identity .about-window { height: 100%; }
+      body.has-runtime-identity .content { overflow-y: auto; }
+
       .ok-button {
         width: 100%;
         height: 36px;
@@ -204,9 +216,39 @@ export function createCustomAboutDialogHtml(input: CustomAboutDialogHtmlInput): 
           color: #a1a1a6;
         }
       }
+      /* ZAICODE diagnostics share the Golden Default palette, not the upstream About theme. */
+      body.has-runtime-identity {
+        --background: #1A1810; --surface: #332E22; --surfaceRaised: #3D372A;
+        --borderDark: #100E08; --bevelLight: #75663D;
+        --textPrimary: #D4C89A; --textSecondary: #9C9371;
+        background: var(--background); color: var(--textPrimary);
+      }
+      body.has-runtime-identity * {
+        font-family: Verdana, sans-serif !important;
+        -webkit-font-smoothing: none !important;
+        text-rendering: optimizeSpeed !important;
+        border-radius: 0 !important; box-shadow: none !important;
+      }
+      body.has-runtime-identity .about-card {
+        padding: 12px; background: var(--surfaceRaised); color: var(--textPrimary);
+        border: 2px solid;
+        border-color: var(--bevelLight) var(--borderDark) var(--borderDark) var(--bevelLight);
+      }
+      body.has-runtime-identity .title { margin-top: 8px; font-size: 14px; }
+      body.has-runtime-identity .meta { margin-top: 8px; gap: 8px; font-size: 12px; color: var(--textPrimary); }
+      body.has-runtime-identity .tagline, body.has-runtime-identity .repository { color: var(--textSecondary); }
+      body.has-runtime-identity .app-icon { background: var(--surface); border: 0; }
+      body.has-runtime-identity .ok-button {
+        background: var(--surface); color: var(--textPrimary); font-size: 12px;
+        border: 2px solid;
+        border-color: var(--bevelLight) var(--borderDark) var(--borderDark) var(--bevelLight);
+      }
+      body.has-runtime-identity .ok-button:focus-visible { outline: 1px dotted var(--textPrimary); outline-offset: -4px; }
+      body.has-runtime-identity .ok-button:active { border-color: var(--borderDark) var(--bevelLight) var(--bevelLight) var(--borderDark); }
+
     </style>
   </head>
-  <body>
+  <body${input.identityLines?.length ? ' class="has-runtime-identity"' : ""}>
     <main class="about-window" aria-label="${escapeHtml(input.applicationName)} About Window">
       <section class="about-card" role="dialog" aria-modal="true" aria-labelledby="about-title">
         <div class="content">
@@ -246,6 +288,7 @@ export function createCustomAboutDialogHtml(input: CustomAboutDialogHtmlInput): 
             ${input.optimizationLine ? `<div>${escapeHtml(input.optimizationLine)}</div>` : ""}
             <div>${escapeHtml(input.copyright)}</div>
             ${input.repository ? `<div class="repository">${escapeHtml(input.repository)}</div>` : ""}
+            ${input.identityLines?.length ? `<div class="runtime-identity">${input.identityLines.map((line) => `<div>${escapeHtml(line)}</div>`).join("")}</div>` : ""}
           </div>
         </div>
         <div class="spacer"></div>
