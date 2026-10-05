@@ -11,13 +11,18 @@
  *
  * Both fixtures below are read out of the live cache the running app wrote at
  * 2026-10-04T20:04:48Z (`zaicode-engines-cache.json`, source `agy -p /usage`).
+ *
+ * Nothing here imports anything the pre-fix commit lacked, on purpose: this file
+ * is the SAME verifier run against 0cda0488 and against the fix, so it carries the
+ * red and the green of one regression pair rather than a suite that cannot even
+ * load on the subject it is meant to convict. The new `zaicodeWindowIsFull`
+ * export is pinned separately in zaicodeWindowIsFull.test.ts.
  */
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
   markZaicodeWindowsStartingOnUse,
   zaicodeIdleWindowToStart,
-  zaicodeWindowIsFull,
   zaicodeWindowShowsLiveCountdown,
   type ZaicodeLimitWindow,
   type ZaicodeLimitSnapshot,
@@ -50,13 +55,6 @@ function snapshot(windows: ZaicodeLimitWindow[]): ZaicodeLimitSnapshot {
 }
 const account = { id: "antigravity:default", vendor: "antigravity" as const, status: "ready" as const };
 const config = { keepWindowsRolling: true, hiddenAccounts: [] };
-
-test("fullness is the rounded number the UI prints, not the vendor's raw fraction", () => {
-  assert.equal(Math.round(VENDOR_TOUCHED_BUT_DISPLAYED_FULL), 100, "the engine tile rendered this window as 100%");
-  assert.equal(zaicodeWindowIsFull(window(VENDOR_TOUCHED_BUT_DISPLAYED_FULL, NOW)), true);
-  assert.equal(zaicodeWindowIsFull(window(VENDOR_SPENT, NOW)), false);
-  assert.equal(zaicodeWindowIsFull(window(null, NOW)), true, "an unread percentage is not evidence of spend");
-});
 
 test("a rolled-over window the vendor still reports as full is admitted for a real starter", () => {
   // The rolling shape: the vendor's reset has passed and nothing has been spent
