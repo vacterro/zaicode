@@ -27,7 +27,7 @@
      write that field name next to a concrete id anywhere in this file. -->
 
 ## DOING
-- [/] T-166 [P1] Live Antigravity acceptance of the rolling-window truth: the anchor, the reset and the countdown have only been proven against fixtures | verify: with a signed-in Antigravity account on origin/zaicode 7a7e8466, SAIHOME and the topbar clock show the same live countdown for a supported auto-rolled plan, the anchor survives a sweep and a restart, and the window never sits on 'starts at first use' after a supported plan has been rolled | needs: T-188
+- [/] T-166 [P1] Live Antigravity acceptance of the rolling-window truth: the anchor, the reset and the countdown have only been proven against fixtures | verify: with a signed-in Antigravity account on origin/zaicode 7a7e8466, SAIHOME and the topbar clock show the same live countdown for a supported auto-rolled plan, the anchor survives a sweep and a restart, and the window never sits on 'starts at first use' after a supported plan has been rolled | needs: T-188 | owner: saipen-cli | claim_time: 2026-10-05T00:48:32Z
 
 ## TODO
 
