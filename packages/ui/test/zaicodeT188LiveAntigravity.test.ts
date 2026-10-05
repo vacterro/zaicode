@@ -1,11 +1,13 @@
 /**
- * T-188: C5 against the LIVE Antigravity account, not a fixture.
+ * T-188: supplementary cache diagnostics from the live Antigravity profile.
  *
  * The frozen nine-case oracle (test/zaicodeT188WindowStart.test.ts) proves the
- * behaviour on hand-built windows. This file replays the SAME product functions
+ * behaviour on hand-built windows. This file replays product functions
  * over the bytes the running app actually wrote to
  * %APPDATA%/ZAICODE/zaicode-engines-cache.json, so the acceptance reads the
- * vendor's own numbers rather than the test's.
+ * persisted numbers rather than the test's. It does not initiate a starter,
+ * observe either rendered UI surface, or observe a restart. Its results cannot
+ * satisfy C5's frozen packaged before/start/sweeps/restart acceptance.
  *
  * It skips -- never fabricates -- when the live cache is absent, unreadable, or
  * carries a vendor error: a missing account is "not proven", never "passed".
@@ -27,7 +29,12 @@ import {
   type ZaicodeWindowStartRecord,
 } from "@zcode/shared";
 
-const CACHE = join(homedir(), "AppData", "Roaming", "ZAICODE", "zaicode-engines-cache.json");
+/**
+ * ZAICODE_LIVE_CACHE is the deliberate-red seam: it points the same assertions at a
+ * doctored copy of the cache for diagnostic negative controls. That is not the
+ * required pre-fix implementation differential. Unset, it reads the real profile.
+ */
+const CACHE = process.env.ZAICODE_LIVE_CACHE ?? join(homedir(), "AppData", "Roaming", "ZAICODE", "zaicode-engines-cache.json");
 
 interface LiveCache {
   lastSweepAt?: number;
@@ -120,25 +127,14 @@ test("the live idle-window admission returns a window that owes no fabricated co
   if (idle) assert.equal(zaicodeWindowShowsLiveCountdown(idle, readAt), false, `${idle.key} was admitted with a fabricated countdown`);
 });
 
-test("SAIHOME and the topbar render the same live countdown string for every window", (t) => {
+test("cached windows format vendor reset text through the shared formatter", (t) => {
   const snapshot = antigravity();
   if (!snapshot) return t.skip("no vendor-backed Antigravity snapshot in the live cache");
   const now = Date.now();
-  // ZaicodeEngineBar (topbar) ticks on useZaicodeClock(30_000), ZaicodeEnginesSettings
-  // (SAIHOME) on useZaicodeClock(15_000); both render the SAME snapshot through
-  // effectiveZaicodeWindows + formatZaicodeWindowReset, so at one instant the two
-  // surfaces must produce byte-identical text. A tick between them moves both by the
-  // same clock, never into disagreement.
-  const home = effectiveZaicodeWindows(snapshot.windows, now);
-  const topbar = effectiveZaicodeWindows(snapshot.windows, now);
-  assert.ok(home.length > 0, "the live account exposed no window to render");
-  assert.deepEqual(
-    home.map((w) => [w.key, w.remainingPercent, formatZaicodeWindowReset(w, now)]),
-    topbar.map((w) => [w.key, w.remainingPercent, formatZaicodeWindowReset(w, now)]),
-  );
-  // The countdown each surface shows must come from the vendor's own resetsAt, never
-  // from an elapsed-fill invented by the clock.
-  for (const window of home) {
+  // 两次调用同一纯函数不能证明两个视图一致；真正的 UI 比较由冻结的包内测试负责。
+  const windows = effectiveZaicodeWindows(snapshot.windows, now);
+  assert.ok(windows.length > 0, "the live account exposed no window to format");
+  for (const window of windows) {
     const text = formatZaicodeWindowReset(window, now);
     if (isZaicodeWindowWaitingForFirstUse(window)) {
       assert.match(text, /^starts on first use/, `${window.key} renders "${text}" while waiting for first use`);

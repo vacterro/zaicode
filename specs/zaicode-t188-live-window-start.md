@@ -64,3 +64,9 @@ acceptance uses an isolated application profile with the existing OS credential
 vault, proves an actual minimal starter, repeats vendor sweeps, restarts the app,
 and checks SAIHOME/topbar against the same reset. Full repository gates, production
 build and packaged boot are required before publication.
+
+Cache replay tests are supplementary diagnostics. They do not initiate a live
+starter, observe the two rendered UI surfaces, or prove persistence across an
+observed restart. A consumed window, even when displayed as rounded 100%, is
+not an idle admission precondition. Passing cache diagnostics cannot replace
+the unchanged packaged before/start/sweeps/restart acceptance.
