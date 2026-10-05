@@ -446,7 +446,12 @@ export function isZaicodeRealReset(window: ZaicodeLimitWindow, now: number): boo
  */
 export function zaicodeWindowShowsLiveCountdown(window: ZaicodeLimitWindow, now: number): boolean {
   if (!isZaicodeRealReset(window, now)) return false;
-  return !zaicodeWindowIsFull(window) || isZaicodeRollingWindow(window);
+  // The RAW figure on purpose, and deliberately not zaicodeWindowIsFull. Admission rounds
+  // because it decides whether a cycle may be started again; this decides whether a reset
+  // the vendor itself reported may be shown. Antigravity reports 99.9487 for a window it
+  // has barely touched: that IS a vendor-backed window with a real future reset, and
+  // rounding it to 100 here would delete a truthful countdown from the topbar and SAIHOME.
+  return window.remainingPercent === null || window.remainingPercent < 100 || isZaicodeRollingWindow(window);
 }
 
 // ---------------------------------------------------------------------------
