@@ -69,6 +69,14 @@ internal static class ZaicodeLauncher
         ZaicodeSplash.Show(workspace, version, settingsDirectory);
         ZaicodeSplash.SetStatus("Checking for a new build...");
         if (!preview) ApplyStagedBuild(workspace);
+        string runtimeSkew = DescribeRuntimeSkew(workspace, executable);
+        if (!string.IsNullOrEmpty(runtimeSkew))
+        {
+            Log(runtimeSkew);
+            ZaicodeSplash.Close();
+            MessageBox.Show(runtimeSkew + "\n\nSource/package parity is not verified. Do not assume local source fixes are active. Run REBUILD, then relaunch after the build finishes.\nThis launch will use the package shown above.",
+                "ZAICODE source/runtime mismatch", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        }
         if (!File.Exists(executable))
         {
             ZaicodeSplash.Close();
@@ -369,7 +377,7 @@ internal static class ZaicodeLauncher
         PruneAsideBuilds(workspace);
         if (!StagedBuildReady(workspace)) return;
         string liveExe = Path.Combine(live, "ZAICODE.exe");
-        if (File.Exists(liveExe) && File.GetLastWriteTimeUtc(liveExe) >= File.GetLastWriteTimeUtc(stagedExe))
+        if (File.Exists(liveExe) && !StagedBuildIsNewer(stagedExe, liveExe))
         {
             Log("Staged build is not newer than live build; leaving it in place");
             return;
@@ -396,6 +404,79 @@ internal static class ZaicodeLauncher
                 try { Directory.Move(previous, live); } catch { /* keep logging only */ }
             }
         }
+    }
+
+    private static Dictionary<string, object> ReadBuildIdentity(string executable)
+    {
+        try
+        {
+            string metadata = Path.Combine(Path.GetDirectoryName(executable), @"resources\build-meta.json");
+            return new JavaScriptSerializer().Deserialize<Dictionary<string, object>>(File.ReadAllText(metadata));
+        }
+        catch { return null; }
+    }
+
+    private static string IdentityValue(Dictionary<string, object> identity, string key)
+    {
+        object value;
+        return identity != null && identity.TryGetValue(key, out value) ? Convert.ToString(value) : "";
+    }
+
+    private static bool StagedBuildIsNewer(string stagedExe, string liveExe)
+    {
+        var staged = ReadBuildIdentity(stagedExe);
+        var live = ReadBuildIdentity(liveExe);
+        string stagedId = IdentityValue(staged, "runtimePackageIdentity");
+        string liveId = IdentityValue(live, "runtimePackageIdentity");
+        if (!string.IsNullOrEmpty(stagedId) && stagedId == liveId) return false;
+        DateTimeOffset stagedAt, liveAt;
+        if (!string.IsNullOrEmpty(stagedId) && string.IsNullOrEmpty(liveId) &&
+            DateTimeOffset.TryParse(IdentityValue(staged, "buildTime"), out stagedAt))
+        {
+            Log("Promoting verified-identity staged build over legacy live package");
+            return true;
+        }
+        if (DateTimeOffset.TryParse(IdentityValue(staged, "buildTime"), out stagedAt) &&
+            DateTimeOffset.TryParse(IdentityValue(live, "buildTime"), out liveAt)) return stagedAt > liveAt;
+        // Legacy packages have no immutable metadata sidecar: compatibility is explicit in the log.
+        Log("Legacy staged-build comparison: metadata unavailable; using executable timestamps");
+        return File.GetLastWriteTimeUtc(stagedExe) > File.GetLastWriteTimeUtc(liveExe);
+    }
+
+    private static string GitIdentity(string source, string arguments)
+    {
+        using (var process = new Process())
+        {
+            process.StartInfo = new ProcessStartInfo("git", arguments) {
+                WorkingDirectory = source, UseShellExecute = false, CreateNoWindow = true,
+                RedirectStandardOutput = true, RedirectStandardError = true
+            };
+            process.Start();
+            // 管道必须同时读；先等退出会被大量脏文件的输出堵住，误报 Git 不可用。
+            var output = process.StandardOutput.ReadToEndAsync();
+            var errors = process.StandardError.ReadToEndAsync();
+            if (!process.WaitForExit(3000)) { process.Kill(); throw new IOException("Git identity probe timed out"); }
+            if (process.ExitCode != 0) throw new IOException("Git identity probe failed: " + errors.Result.Trim());
+            return output.Result.Trim();
+        }
+    }
+
+    private static string DescribeRuntimeSkew(string workspace, string executable)
+    {
+        string source = Path.Combine(workspace, "zcode");
+        if (!Directory.Exists(Path.Combine(source, ".git")) && !File.Exists(Path.Combine(source, ".git"))) return "";
+        try
+        {
+            string head = GitIdentity(source, "rev-parse HEAD");
+            var metadata = ReadBuildIdentity(executable);
+            string revision = IdentityValue(metadata, "sourceRevision");
+            string dirty = GitIdentity(source, "status --porcelain --untracked-files=normal -- packages apps scripts spec specs config patches package.json pnpm-lock.yaml architecture-policy.yaml");
+            if (head == revision && string.IsNullOrEmpty(dirty) && IdentityValue(metadata, "workingTreeDirty") != "True") return "";
+            return "SOURCE_RUNTIME_SKEW\nExecutable: " + executable + "\nPackage revision: " +
+                (string.IsNullOrEmpty(revision) ? "unknown (legacy package)" : revision) +
+                "\nLocal source: " + head + (string.IsNullOrEmpty(dirty) ? "" : " (dirty)");
+        }
+        catch (Exception error) { return "SOURCE_PARITY_UNAVAILABLE\nExecutable: " + executable + "\n" + error.Message; }
     }
 
     private static bool BuildExecutableInUse(string path)
