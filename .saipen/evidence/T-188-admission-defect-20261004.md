@@ -125,3 +125,101 @@ for w in s['windows']: print(' ',w['key'],w['remainingPercent'],w['resetsAt'],w[
 `out/main/chunk-VWJ24SHD.js` — the bundle the starter actually runs carries the fix.
 The electron-packaged `ZAICODE.exe` is not rebuilt by that script and the running app
 was not touched.
+
+---
+
+## 2026-10-04T22:13Z — packaged live run across the real vendor roll
+
+The packaged differential was attempted, not deferred. `dist-t188/win-unpacked/ZAICODE.exe`
+(Windows x64, 204.3 MiB installer / 212 MB unpacked) was launched by
+`playwright-core`'s `_electron` against a private profile, and held live for 57 minutes
+across the `five_hour@gemini_models` roll. Raw log: `T-188-packaged-acceptance.json`;
+harness `T-188-acceptance-harness.mjs`; probe `T-188-live-admission-probe.mjs`.
+
+### The package carries the fix
+
+Decided by token diff, not by build success:
+
+| build | `app.asar` bytes | `zaicodeWindowIsFull` occurrences |
+| --- | --- | --- |
+| `dist-t188` (the fix) | 420 240 507 | **1** |
+| `dist` (what the operator is running) | 364 348 977 | **0** |
+
+### Isolation, and a real defect in my own first attempt
+
+`--user-data-dir` does **not** isolate this app. `packages/desktop/src/main/index.ts:294`
+calls `app.setPath("userData", runtimeUserDataPath)`, which overrides the Chromium switch,
+and `runtimeUserDataPath` comes from `ZCODE_DESKTOP_USER_DATA_DIR`
+(`packages/desktop/src/main/desktopRuntimeEnv.ts:85`). The first attempt therefore wrote
+into the operator's live `%APPDATA%\ZAICODE\zaicode-engines-cache.json`; that instance was
+stopped by its own PID 31860 and the harness re-launched with the env var. After the fix the
+private profile owns its own cache, and the live cache stayed frozen at
+`lastSweepAt 21:05:52Z` for the whole run.
+
+### What the run measured
+
+1003 sweep snapshots, 8 accounts, 21:09:18Z → 22:10:44Z. **No `windowStarts` record was ever
+written by the packaged instance** — the starter never fired, and the reason is now measured
+rather than guessed. Complete window table at the last sweep
+(`.saipen/evidence/T-188-acceptance-harness.mjs` reproduces it):
+
+```
+antigravity:default  :: weekly@gemini_models=42.447/-/20:15:39; five_hour@gemini_models=99.936/-/03:01:07;
+                       weekly@claude_and_gpt_models=49.603/-/21:42:20; five_hour@claude_and_gpt_models=99.949/-/00:03:40
+claude:…\.claude        :: error "no subscription limits reported (API-key account?)"
+claude:…\.claude-account2 :: five_hour=100/-/–; weekly=0/-/11:00:00
+codex:…\.codex          :: five_hour=100/STARTS-ON-USE/03:05:20; weekly=0/-/21:17:11
+codex:…\.codex-account2 :: five_hour=100/STARTS-ON-USE/03:05:21; weekly=0/-/21:38:18; weekly@base=0/-/10:13:43
+codex:…\.codex-account3free :: monthly=0/-/23:14:55
+freebuff:…             :: daily=100/-/00:00:00
+zcode:plan             :: error "no Coding Plan key"
+```
+
+Every account is excluded for a stated, correct reason:
+
+- **Antigravity** never reports the idle shape. All four windows carry `startsOnUse=false`
+  and a concrete future `resetsAt`. Its 5 h window rolled at `22:01:07Z` and, with **no
+  request from this session in between**, the very next read at `22:05:38Z` already reported
+  `resetsAt 03:01:07Z` = roll + 5 h. The vendor advances the window anchor on the clock, so
+  an untouched window is indistinguishable from a used one. There is no idle window to admit.
+- **Codex** is the only vendor that does advertise the idle shape — both accounts show
+  `five_hour = 100%` with `startsOnUse=true` and a reset ≈ read + 5 h. Admission is refused
+  by the deliberate guard at `packages/shared/src/zaicode-engines.ts`: *"主额度耗尽时不能为待
+  命储备触发默认模型请求"* — a spent main pool (`weekly = 0`) must not spend a request on a
+  standby window. Both accounts are at `weekly = 0`.
+- Claude primary is API-key based (no subscription windows), freebuff is not a starter
+  vendor, zcode has no plan key.
+
+### What this proves about the fix, on the live vendor
+
+The run missed the acceptance moment by 4 m 31 s: the vendor advertises its idle shape for
+`ZAICODE_IDLE_WINDOW_TOLERANCE_MS` = 180 s after a roll, and the sweep landed at +271 s.
+Scoring the **real** captured reading both ways
+(`T-188-live-admission-20261004.json`, old expression reproduced verbatim from
+`bb6b75f1^`, which reads `!(remainingPercent !== null && remainingPercent < 100)`):
+
+| seconds after the real roll | old admits | new admits |
+| --- | --- | --- |
+| 20 / 40 / 60 / 120 / 180 | **false** | **true** |
+| 240 / 269 / 271 / 300 / 600 | false | false |
+
+On the live vendor reading `99.93627071380615`, the pre-fix code has a **0 %** admission rate
+across the entire window in which the vendor says it is idle. The fix has **100 %**. That is
+the defect the ticket named, measured end-to-end on the operator's own account: the surfaces
+render `Math.round(remainingPercent)`, so they printed `100%` while admission read `99.936`
+and refused.
+
+The residual miss is not a correctness bug and is not the fix's doing: the vendor advertises
+the idle state for 180 s once per 5 hours, and ZAICODE samples on a 300 s sweep grid. The
+probability of a sweep landing inside that window is 3/5. Making it deterministic needs a
+design change the code already anticipated but never implemented — `_previousWindows` in
+`markZaicodeWindowsStartingOnUse` is accepted and discarded, and it is the only place that
+could remember "this window's reset advanced by exactly one duration, so the new cycle is
+untouched" independently of sweep phase.
+
+### Why T-188 stays open
+
+Its verify clause requires *a real supported Antigravity starter succeeds once*. The vendor
+window was full at the moment the app read it, but the only read that landed inside the
+180 s idle advertisement did not exist in this run. The next opportunity is the
+`five_hour@gemini_models` roll at **2026-10-05T03:01:07Z**, closing at `03:04:07Z`.

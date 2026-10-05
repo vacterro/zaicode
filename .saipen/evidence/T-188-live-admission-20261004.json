@@ -1,0 +1,64 @@
+{
+  "readAt": "2026-10-04T22:05:38.573Z",
+  "roll": "2026-10-04T22:01:07.000Z",
+  "liveReading": {
+    "key": "five_hour@gemini_models",
+    "remainingPercent": 99.93627071380615,
+    "resetsAt": "2026-10-05T03:01:07.000Z"
+  },
+  "oldAdmitsAtThisReading": false,
+  "newAdmitsAtThisReading": false,
+  "admittedKey": null,
+  "sweepOffsets": [
+    {
+      "secondsAfterRoll": 20,
+      "oldAdmits": false,
+      "newAdmits": true
+    },
+    {
+      "secondsAfterRoll": 40,
+      "oldAdmits": false,
+      "newAdmits": true
+    },
+    {
+      "secondsAfterRoll": 60,
+      "oldAdmits": false,
+      "newAdmits": true
+    },
+    {
+      "secondsAfterRoll": 120,
+      "oldAdmits": false,
+      "newAdmits": true
+    },
+    {
+      "secondsAfterRoll": 180,
+      "oldAdmits": false,
+      "newAdmits": true
+    },
+    {
+      "secondsAfterRoll": 240,
+      "oldAdmits": false,
+      "newAdmits": false
+    },
+    {
+      "secondsAfterRoll": 269,
+      "oldAdmits": false,
+      "newAdmits": false
+    },
+    {
+      "secondsAfterRoll": 271,
+      "oldAdmits": false,
+      "newAdmits": false
+    },
+    {
+      "secondsAfterRoll": 300,
+      "oldAdmits": false,
+      "newAdmits": false
+    },
+    {
+      "secondsAfterRoll": 600,
+      "oldAdmits": false,
+      "newAdmits": false
+    }
+  ]
+}
