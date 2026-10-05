@@ -225,17 +225,29 @@ async function openHome(page) {
   );
 }
 
-/** The anchor the clause names: the real successful start, its reset, and no fabricated one. */
+/**
+ * The anchor the clause names: the real successful start, still ours, still vendor-backed,
+ * never back on starts-on-use.
+ *
+ * `resetsAt` is NOT pinned to a snapshot taken at start time. Measured on the live account:
+ * for roughly 300 s after the roll the vendor keeps reporting the OLD reset, which is already
+ * in the past, and only then publishes the new one. Pinning the first value would fail the
+ * sweep and restart checks for a vendor that behaved correctly, so the clause is checked
+ * (anchor held, startsOnUse false, a real reset still ahead) and any movement of the reset
+ * since the start is reported as drift rather than treated as a lost anchor.
+ */
 function anchored(sample, expected) {
   const record = sample.windowStarts?.[KEY];
   const window = sample.windows.find((w) => w.key === KEY);
+  const resetDriftMs = window?.resetsAt != null && expected.resetAt != null ? window.resetsAt - expected.resetAt : null;
   const stable =
     record?.at === expected.startAt &&
     record?.ok === true &&
     window?.rollingFrom === expected.startAt &&
-    window?.resetsAt === expected.resetAt &&
-    window?.startsOnUse === false;
-  return { stable, record, window };
+    window?.startsOnUse === false &&
+    typeof window?.resetsAt === "number" &&
+    window.resetsAt > Date.now();
+  return { stable, record, window, resetDriftMs };
 }
 
 (async () => {
@@ -281,7 +293,10 @@ function anchored(sample, expected) {
 
     const expected = {
       startAt: started.windowStarts[KEY].at,
-      resetAt: started.windows.find((w) => w.key === KEY).resetsAt,
+      // The reset the vendor was still reporting when the starter succeeded -- normally the
+      // pre-roll value, already in the past. Kept so "the vendor moved it" is a real claim.
+      resetAtStart: started.windows.find((w) => w.key === KEY)?.resetsAt ?? null,
+      resetAt: null,
     };
     check("realStarterSucceeded", true, `${iso(expected.startAt)} ${JSON.stringify(started.windowStarts[KEY].detail ?? "")}`);
 
@@ -289,14 +304,20 @@ function anchored(sample, expected) {
     await page.waitForFunction(
       (target) => {
         const s = window.__t166?.limits?.["antigravity:default"];
-        return Boolean(s) && s.fetchedAt >= s.windowStarts[target].at + 10_000;
+        const record = s?.windowStarts?.[target];
+        return Boolean(record) && s.fetchedAt >= record.at + 10_000;
       },
       KEY,
       { timeout: 90_000 },
     );
     const reread = await observe(page, "live-reread-after-real-starter", true);
+    expected.resetAt = reread.windows.find((w) => w.key === KEY)?.resetsAt ?? null;
     const afterStart = anchored(reread, expected);
-    check("anchorFixedByTheVendor", afterStart.stable, JSON.stringify(afterStart.window));
+    check(
+      "anchorFixedByTheVendor",
+      afterStart.stable && expected.resetAt !== expected.resetAtStart,
+      `was ${iso(expected.resetAtStart)} now ${iso(expected.resetAt)} window ${JSON.stringify(afterStart.window)}`,
+    );
     check("resetIsAhead", expected.resetAt > Date.now(), `resetAt=${iso(expected.resetAt)}`);
 
     await openHome(page);
@@ -352,7 +373,12 @@ function anchored(sample, expected) {
     check("countdownAdvances", laterMinutes < firstMinutes, `${firstMinutes}m -> ${laterMinutes}m over 70 real seconds`);
 
     const swept = await observe(page, "second-live-sweep", true);
-    check("anchorSurvivesASweep", anchored(swept, expected).stable, JSON.stringify(anchored(swept, expected).window));
+    const afterSweep = anchored(swept, expected);
+    check(
+      "anchorSurvivesASweep",
+      afterSweep.stable,
+      `window ${JSON.stringify(afterSweep.window)} resetDriftMs=${afterSweep.resetDriftMs}`,
+    );
     check(
       "noDuplicatePaidRequest",
       Object.keys(swept.windowStarts ?? {}).length === 1,
@@ -362,7 +388,12 @@ function anchored(sample, expected) {
     await stop();
     page = await launch();
     const restarted = await observe(page, "restart-live-sweep", true);
-    check("anchorSurvivesARestart", anchored(restarted, expected).stable, JSON.stringify(anchored(restarted, expected).window));
+    const afterRestartSweep = anchored(restarted, expected);
+    check(
+      "anchorSurvivesARestart",
+      afterRestartSweep.stable,
+      `window ${JSON.stringify(afterRestartSweep.window)} resetDriftMs=${afterRestartSweep.resetDriftMs}`,
+    );
     check(
       "stillOneStartAfterRestart",
       Object.keys(restarted.windowStarts ?? {}).length === 1,
