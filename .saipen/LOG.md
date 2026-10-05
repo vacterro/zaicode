@@ -1271,3 +1271,4 @@
 - 04.10.26 22:16 [E-3737] [parent: E-3736] [T-188] [agent: saipen-cli] [op: checkpoint-5e0e4cdee7cc4534b2d6cbe50deb5c4e] DEC: detail_ref: .saipen/recovery/log-detail/E-3737-412dc732d4e7131e47dffee9.json
 - 05.10.26 00:14 [E-3738] [parent: E-3737] [T-188] [agent: saipen-cli] [op: ticket-4099b9b46af1454598e4c3f63d493a4f] DEC: ticket unblock via SAIOPS -- Packaged differential was executed and measured; the previous blocker text is now factually superseded. Re-blocking immediately with the measured reason and the armed follow-up.
 - 05.10.26 00:14 [E-3739] [parent: E-3738] [T-188] [agent: saipen-cli] [op: ticket-491af564c168450ca2b7bf9c490fcd23] DEC: detail_ref: .saipen/recovery/log-detail/E-3739-39891425386e661e73dfea82.json
+- 05.10.26 00:18 [E-3740] [parent: E-3739] [T-188] [agent: saipen-cli] [op: checkpoint-2c7104162d604dd79ae68ba46a650407] RUN: detail_ref: .saipen/recovery/log-detail/E-3740-3e284d7e79c093a2b9d60fee.json

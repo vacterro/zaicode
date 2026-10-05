@@ -1,0 +1,19 @@
+{
+  "readAt": "2026-10-05T00:05:39.000Z",
+  "successfulStartAt": "2026-10-05T00:05:09.691Z",
+  "reading": {
+    "key": "five_hour@claude_and_gpt_models",
+    "remainingPercent": 99.94872212409973,
+    "renderedPercent": 100,
+    "resetsAt": "2026-10-05T00:03:40.000Z",
+    "secondsSinceReset": 119
+  },
+  "oldAdmits": false,
+  "newAdmits": true,
+  "newAdmittedKey": "five_hour@claude_and_gpt_models",
+  "whyOldRefused": [
+    "raw 99.94872212409973 < 100 so the pre-fix guard !(remainingPercent < 100) is false",
+    "pre-fix has no rolled-over clause, and this vendor never sets startsOnUse, so looksIdle was the only path and it needs |resetsAt - (readAt + 5h)| <= 180000",
+    "here that difference is 18119 s"
+  ]
+}

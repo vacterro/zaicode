@@ -1,0 +1,52 @@
+restart pid=18744 profile=V:/_TEMP_/zaicode-t188-restart
+{
+  "schema": "zaicode-t188-restart-proof/1",
+  "at": "2026-10-05T00:20:14.336Z",
+  "pid": 18744,
+  "profile": "V:/_TEMP_/zaicode-t188-restart",
+  "copiedFrom": "V:/_TEMP_/zaicode-t188-armed",
+  "beforeRestart": {
+    "checkedAt": 1791159016510,
+    "error": null,
+    "source": "agy -p /usage",
+    "windowStarts": {
+      "five_hour@claude_and_gpt_models": {
+        "at": 1791158709691,
+        "ok": true,
+        "detail": "completed one bounded Antigravity request (14162 tokens)",
+        "windowKey": "five_hour@claude_and_gpt_models"
+      }
+    },
+    "window": {
+      "key": "five_hour@claude_and_gpt_models",
+      "remainingPercent": 99.94872212409973,
+      "resetsAt": 1791176620000,
+      "rollingFrom": 1791158709691,
+      "startsOnUse": false
+    }
+  },
+  "afterRestart": {
+    "checkedAt": 1791159554003,
+    "error": null,
+    "source": "agy -p /usage",
+    "windowStarts": {
+      "five_hour@claude_and_gpt_models": {
+        "at": 1791158709691,
+        "ok": true,
+        "detail": "completed one bounded Antigravity request (14162 tokens)",
+        "windowKey": "five_hour@claude_and_gpt_models"
+      }
+    },
+    "window": {
+      "key": "five_hour@claude_and_gpt_models",
+      "remainingPercent": 99.94872212409973,
+      "resetsAt": 1791176620000,
+      "rollingFrom": 1791158709691,
+      "startsOnUse": false
+    }
+  },
+  "startRecordSurvived": true,
+  "rollingFromSurvived": true,
+  "liveResetSurvived": true,
+  "startsAfterRestart": 1
+}

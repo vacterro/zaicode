@@ -223,3 +223,78 @@ Its verify clause requires *a real supported Antigravity starter succeeds once*.
 window was full at the moment the app read it, but the only read that landed inside the
 180 s idle advertisement did not exist in this run. The next opportunity is the
 `five_hour@gemini_models` roll at **2026-10-05T03:01:07Z**, closing at `03:04:07Z`.
+
+---
+
+## 2026-10-05T00:05Z — the acceptance actually passed
+
+The armed isolated instance (profile `V:/_TEMP_/zaicode-t188-armed`, same packaged
+`dist-t188` exe) fired a real starter at `2026-10-05T00:05:09.691Z`:
+
+```
+windowStarts["five_hour@claude_and_gpt_models"] = {
+  at:     1791158709691,                    // 2026-10-05T00:05:09.691Z
+  ok:     true,
+  detail: "completed one bounded Antigravity request (14162 tokens)"
+}
+```
+
+`ok: true` is written only when the vendor's own `agy` JSON reported SUCCESS. The reading
+that enabled it, read out of the same cache, is the one this ticket is about:
+
+| | value |
+| --- | --- |
+| `remainingPercent` (raw) | `99.94872212409973` |
+| what every surface renders | `100%` |
+| `resetsAt` | `2026-10-05T00:03:40Z`, i.e. 119 s in the past |
+| vendor shape | anchored and rolled over, no request since |
+
+Both defects are load-bearing. Scoring **this exact reading** old vs new
+(`T-188-live-red-green-20261005.json`, old expression verbatim from `bb6b75f1^`):
+
+- **old admits: `false`.** `99.9487 < 100` fails the pre-fix guard outright; and with no
+  `rolledOverUntouched` clause and a vendor that never sets `startsOnUse`, `looksIdle` was the
+  only remaining path, needing `|resetsAt − (readAt + 5 h)| ≤ 180 000` — here that
+  difference is **18 119 s**.
+- **new admits: `true`**, `newAdmittedKey = "five_hour@claude_and_gpt_models"`.
+
+That is the ticket's regression clause met on live vendor data, not on a fixture.
+
+### The anchor survives, and is not re-spent
+
+After the start the window carries `rollingFrom = 1791158709691` and
+`resetsAt = 2026-10-05T05:03:40Z` = start + 5 h. Across every recorded sweep after the start
+(`T-188-packaged-acceptance-20261005.json`, 191 antigravity states): the start record is
+present in all of them, `rollingFrom` is identical in all of them, `resetsAt` has exactly one
+distinct value, and `windowStarts` holds exactly **one** key. No duplicate paid request.
+
+Restart, proven on a copy of the profile so the armed instance's phase for the 03:01:07Z roll
+stayed intact (`T-188-restart-proof-20261005.txt`, a fresh packaged launch against
+`V:/_TEMP_/zaicode-t188-restart`):
+
+```
+startRecordSurvived : true
+rollingFromSurvived : true
+liveResetSurvived   : true
+startsAfterRestart  : 1
+```
+
+The instance re-read the vendor live after restart (`source: "agy -p /usage"`, `error: null`)
+and still refused to send a second request against an already-started window.
+
+### Verdict against the ticket's verify clause
+
+> *a real supported Antigravity starter succeeds once, live reset and start anchor survive
+> multiple sweeps and app restart*
+
+| requirement | evidence |
+| --- | --- |
+| a real supported starter succeeds once | `ok: true`, 14162 tokens, `2026-10-05T00:05:09.691Z` |
+| live reset survives multiple sweeps | one distinct `resetsAt` `05:03:40Z` across 191 states |
+| start anchor survives multiple sweeps | `rollingFrom` identical in 191/191 |
+| survives app restart | fresh packaged launch, all three `true`, 1 start |
+| must fail on the old commit | `oldAdmits: false` on this exact reading |
+| must pass on the fix | `newAdmits: true`, and it did pass in the packaged app |
+
+The earlier 21:09Z–22:27Z run missed this by 4 m 31 s purely because of sweep phase; the fix
+was already carried, and the second window proved it without any code change.
