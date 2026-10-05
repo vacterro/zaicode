@@ -1,0 +1,33 @@
+✖ the live Antigravity snapshot is vendor-backed and error-free (2.3788ms)
+✔ a live vendor window that has started shows a live countdown and is not re-startable (0.6514ms)
+✔ the live idle-window admission returns a window that owes no fabricated countdown (0.5103ms)
+✔ cached windows format vendor reset text through the shared formatter (15.4887ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 3
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 709.517
+
+✖ failing tests:
+
+test at test\zaicodeT188LiveAntigravity.test.ts:1:1339
+✖ the live Antigravity snapshot is vendor-backed and error-free (2.3788ms)
+  AssertionError [ERR_ASSERTION]: weekly@gemini_models was assumed full, not read from the vendor
+  
+  true !== false
+  
+      at TestContext.<anonymous> (V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\ui\test\zaicodeT188LiveAntigravity.test.ts:92:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.start (node:internal/test_runner/test:1096:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:385:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
