@@ -1,0 +1,43 @@
+{
+  "blocking_findings": {
+    "problem_count": 1,
+    "problems": [
+      {
+        "category": null,
+        "credential": false,
+        "detail": "closure provenance does not resolve: T-169: implementation source 'release:0b78ff221ea19d2bf87f18cddd8f1b9bc61fbabf' cannot be resolved to a durable published release; no COMMITTED release receipt nam",
+        "detail_hash": "fa02e96f87f71186",
+        "finding_key": "76b48f23558dce11",
+        "rule_id": "unclassified",
+        "severity": "problem",
+        "subject_id": null,
+        "subject_kind": "global",
+        "subject_ref": null
+      }
+    ],
+    "ruleset_fingerprint": "82e5e183ae8f0fd909be3fa3627f00489cacaab813d942186c832db02a05a1c1",
+    "ruleset_version": 1,
+    "status": "complete",
+    "warning_count": 28
+  },
+  "board_hash": "c1595ad486cb75b5",
+  "canonical_next_command": null,
+  "content_hash": "09866086b695c131",
+  "exit_code": 1,
+  "external_actions": [],
+  "gate": "core",
+  "install_fingerprint": "install-v1:3dad33163e5e2b15750998475c96687a222d489340857f7a709e9539f81237b8",
+  "install_home": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_SAIPEN",
+  "kind": "conformance_receipt",
+  "log_hash": "55da312aa94b9dfc",
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "receipt_id": "receipt-56a75832cb90",
+  "remediation_commands": [],
+  "schema_version": 2,
+  "source_head": "3181c1d4df854a985e9111824fc3cbbf47e867fe",
+  "source_tree_fingerprint": "git-delta-v1:719c2c3d5e4ef795f3bc8494e21507ab1c5e102d20c2a82268f02c86c433cdd3",
+  "state_hash": "575a93598921e0ca",
+  "timestamp_utc": "2026-10-04T18:34:58.981837Z",
+  "validator_protocol_version": "1",
+  "verdict": "FAIL"
+}

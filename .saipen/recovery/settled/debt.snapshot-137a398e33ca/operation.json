@@ -1,0 +1,26 @@
+{
+  "op_id": "debt.snapshot-137a398e33ca",
+  "operation": "debt.snapshot",
+  "created_at": "2026-10-05T22:33:12Z",
+  "agent": "saipen-cli",
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "project_lineage": "lineage-b0732ed2f98947b9a3c97bfe71427eca",
+  "semantic_payload_hash": "fb86d5c0703a3278",
+  "preconditions": {
+    ".saipen/recovery/conformance/debt/DEBT-000232.json": ""
+  },
+  "read_preconditions": {},
+  "verification_policy": "none",
+  "status": "COMMITTED",
+  "progress_index": 1,
+  "targets": [
+    {
+      "path": ".saipen/recovery/conformance/debt/DEBT-000232.json",
+      "role": "report",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "e48fe4495132b826",
+      "applied": true
+    }
+  ]
+}

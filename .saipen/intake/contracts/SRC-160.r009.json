@@ -1,0 +1,54 @@
+{
+  "clauses": {
+    "SRC-160:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "[CORE-001 P1] Malformed nested persistence must fail closed instead of normalizing to defaults: zaicodeAgentRepo.rowToDefinition (tool_policy_json, model_selection) and zaicodeJobRepo.rowToJob (delegation_json, actual_model_selection) currently turn unparsable JSON into undefined/{} before outer validation, so a damaged restrictive tool policy silently becomes the unrestricted yolo default."
+    },
+    "SRC-160:R002": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "[CORE-002 P1] Auto Goal continuation budget must survive restart: zaicodeGoalSupervisor keeps intents/seq/continuations in a module-local Map, so observeZaicodeGoalFromBrief re-registers with continuations 0 and ZAICODE_GOAL_MAX_CONTINUATIONS=20 is spent again after each reload."
+    },
+    "SRC-160:R003": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "[CORE-003 P1] Delegation admission must be atomic and scoped to the current parent run: delegateZaicodeJobFromRun counts via repo.listChildren then creates separately, so concurrent requests both pass maxChildrenPerParent; children carry no runId while the shared contract documents the budget per run."
+    },
+    "SRC-160:R004": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "[CORE-004 P1] Audit cancel/retry must not swallow a failed runtime stop: zaicodeAuditService.cancel/retry call jobService.cancel(...).catch(noop) then set cancelled or enqueue a replacement wave while the queue service still refuses retry for cancel_stop_failed."
+    },
+    "SRC-160:R005": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "[CORE-005 P1] Save All must not ship nested session/ephemeral state: captureZaicodeSettingsSnapshot raw-copies mixed families, and the checked-in zaicodeSettingsDefaults.json carries autoRetrySessions sess_ ids and autostart firedEvents/lastRunAt/lastResult."
+    },
+    "SRC-160:R006": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "[CORE-006 P2] The shared job transition matrix must be authoritative: claimForDispatch claims blocked rows directly (blocked->running is not in the table) and resume/claim leave previous finished_at/session_id/actual_model_selection visible on the new attempt."
+    },
+    "SRC-160:R007": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "[W2-001 P1] A dead queue lease must recover without a fresh restart: shutdown/restart inside the two-minute heartbeat window left running rows stranded, so host shutdown must release its own leases and a bounded reaper must reclaim stale rows after startup."
+    },
+    "SRC-160:R008": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "[W2-002 P1] Retry safety state must survive renderer reload for the same live session: attempts, Stop-this-error, Stop-all and quota walls were module-local Maps, so a reload gave a fresh hard cap and dropped operator stops."
+    },
+    "SRC-160:R009": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "[W2-003 P1] Scheduler stop-at-time must confirm stop before forgetting a run: stopZaicodeSessionRun returns true for a missing handle or a rejected stop, forget() runs before the stop attempt, and cancellation errors are swallowed before a false success notification."
+    }
+  },
+  "derived_at": "2026-10-06T18:17:41Z",
+  "derived_from": "SRC-160",
+  "interpretation_revision": 9,
+  "schema_version": 1,
+  "source_sha256": "10f0983dc998f14d7a4c6a980877f108181eaaf0f57eedcb2c4ef539072d99ca"
+}

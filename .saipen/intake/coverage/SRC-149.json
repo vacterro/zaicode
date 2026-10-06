@@ -1,0 +1,14 @@
+{
+  "requirements": {
+    "SRC-149:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "T-218 closed with verification evidence in LOG: review -> PASS [target: T-218] conf: high -- immutable committed source 522f5a5a, production ZAICODE identity and installer matched; sanitized verification evidence and checksum read back; no credentials, personal profile or unfinished T-217 edits in publication scope; notes explicitly retain open clean-VM/live-vendor acceptances and unsigned installer. DEC: SHIP.",
+      "text": "\u0417\u0430\u043a\u0438\u043d\u044c \u043d\u0430 \u0433\u0438\u0442\u0445\u0430\u0431 \u0442\u0435\u043a\u0443\u0449\u0443\u044e \u0421\u0422\u0410\u0411\u0418\u041b\u0414\u042c\u041d\u0423\u042e \u0432\u0435\u0440\u0441\u0438\u044e \u0434\u043b\u044f \u0442\u0435\u0441\u0442\u0430 \u0434\u043b\u044f \u043d\u0430\u0440\u043e\u0434\u0430 \u043f\u043e\u0436\u0430\u043b\u0443\u0439\u0441\u0442\u0430.",
+      "verification": "the Work this request created reached its own verification gate; see the T-218 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-218"
+    }
+  },
+  "schema_version": 1
+}

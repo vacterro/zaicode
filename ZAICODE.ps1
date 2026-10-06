@@ -32,13 +32,32 @@ function Test-AutoRestartEnabled {
   }
 }
 
+function Read-BuildIdentity([string]$path) {
+  try { Get-Content -LiteralPath (Join-Path (Split-Path -Parent $path) 'resources\build-meta.json') -Raw | ConvertFrom-Json }
+  catch { return $null }
+}
+
+function Test-StagedBuildNewer([string]$stagedExe, [string]$liveExe) {
+  $stagedIdentity = Read-BuildIdentity $stagedExe
+  $liveIdentity = Read-BuildIdentity $liveExe
+  if ($stagedIdentity.runtimePackageIdentity -and $stagedIdentity.runtimePackageIdentity -eq $liveIdentity.runtimePackageIdentity) { return $false }
+  $stagedAt = [datetimeoffset]::MinValue
+  $liveAt = [datetimeoffset]::MinValue
+  if ([datetimeoffset]::TryParse([string]$stagedIdentity.buildTime, [ref]$stagedAt)) {
+    if (-not $liveIdentity.runtimePackageIdentity) { return $true }
+    if ([datetimeoffset]::TryParse([string]$liveIdentity.buildTime, [ref]$liveAt)) { return $stagedAt -gt $liveAt }
+  }
+  Write-LauncherLog 'Legacy staged-build comparison: metadata unavailable; using executable timestamps'
+  return (Get-Item -LiteralPath $stagedExe).LastWriteTimeUtc -gt (Get-Item -LiteralPath $liveExe).LastWriteTimeUtc
+}
+
 function Apply-StagedBuild {
   $staged = Join-Path $workspace 'zcode\packages\desktop\dist-next\win-unpacked'
   $live = Join-Path $workspace 'zcode\packages\desktop\dist\win-unpacked'
   $stagedExe = Join-Path $staged 'ZAICODE.exe'
   if (-not (Test-Path -LiteralPath $stagedExe -PathType Leaf)) { return }
   $liveExe = Join-Path $live 'ZAICODE.exe'
-  if ((Test-Path -LiteralPath $liveExe) -and (Get-Item -LiteralPath $liveExe).LastWriteTimeUtc -ge (Get-Item -LiteralPath $stagedExe).LastWriteTimeUtc) {
+  if ((Test-Path -LiteralPath $liveExe) -and -not (Test-StagedBuildNewer $stagedExe $liveExe)) {
     Write-LauncherLog "Staged build is not newer than live build; leaving it in place"
     return
   }
@@ -69,6 +88,20 @@ if (-not (Test-Path -LiteralPath $executable -PathType Leaf)) {
   exit 2
 }
 
+# Read-only parity diagnostics share the compiled launcher's implementation when available.
+try {
+  $launcher = Join-Path $workspace 'ZAICODE.exe'
+  $type = [Reflection.Assembly]::LoadFrom($launcher).GetType('ZaicodeLauncher')
+  $probe = $type.GetMethod('DescribeRuntimeSkew', [Reflection.BindingFlags]'Static,NonPublic')
+  $warning = if ($probe) { [string]$probe.Invoke($null, @([string]$workspace,[string]$executable)) } else { 'SOURCE_PARITY_UNAVAILABLE: root launcher needs rebuilding for runtime diagnostics.' }
+  if ($warning) {
+    Write-LauncherLog $warning
+    Add-Type -AssemblyName System.Windows.Forms
+    [System.Windows.Forms.MessageBox]::Show("$warning`n`nDo not assume source fixes are active. Run REBUILD and relaunch.", 'ZAICODE source/runtime mismatch') | Out-Null
+  }
+} catch { Write-LauncherLog "SOURCE_PARITY_UNAVAILABLE: $($_.Exception.Message)" }
+
+$env:ZAICODE_INSTALL_ROOT = $workspace
 $env:ZCODE_ZAICODE_MODE = '1'
 # An inherited TZ (agent shells set TZ=UTC) would move every ZAICODE clock by the zone offset.
 Remove-Item Env:TZ -ErrorAction SilentlyContinue

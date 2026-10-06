@@ -1,0 +1,57 @@
+{
+  "blocking_findings": {
+    "problem_count": 2,
+    "problems": [
+      {
+        "category": null,
+        "credential": false,
+        "detail": "no current-cycle VERIFY boundary; reverify: no current-tree PASS re-verification receipt",
+        "detail_hash": "186e51123c0cc004",
+        "finding_key": "8608bcc9f592a8f1",
+        "rule_id": "work_closure_evidence",
+        "severity": "problem",
+        "subject_id": "T-113",
+        "subject_kind": "work",
+        "subject_ref": null
+      },
+      {
+        "category": null,
+        "credential": false,
+        "detail": "subsaipen [sub-write-boundary] -- saihunt OUTBOX references a main-project canonical path; a SubSaipen writes only inside its own home -- a package may not target .saipen/BOARD.md|STATE.md|LOG.md (red",
+        "detail_hash": "b3df18e5abf0c452",
+        "finding_key": "76b48f23558dce11",
+        "rule_id": "unclassified",
+        "severity": "problem",
+        "subject_id": null,
+        "subject_kind": "global",
+        "subject_ref": null
+      }
+    ],
+    "ruleset_fingerprint": "82e5e183ae8f0fd909be3fa3627f00489cacaab813d942186c832db02a05a1c1",
+    "ruleset_version": 1,
+    "status": "complete",
+    "warning_count": 29
+  },
+  "board_hash": "f7046f59d557d726",
+  "canonical_next_command": "saipen work reverify T-113",
+  "content_hash": "523fa3780a9c93ef",
+  "exit_code": 1,
+  "external_actions": [],
+  "gate": "core",
+  "install_fingerprint": "install-v1:f5c6a6241f81f6cde548732dff0937637dde3f2c05e7a75f0bb9fa907b0d1eb0",
+  "install_home": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_SAIPEN",
+  "kind": "conformance_receipt",
+  "log_hash": "e738637ed50d3c99",
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "receipt_id": "receipt-8333b9c4f3e9",
+  "remediation_commands": [
+    "saipen work reverify T-113"
+  ],
+  "schema_version": 2,
+  "source_head": "4e2135523fda59b7f055667dd0fbd4a6fd039f3c",
+  "source_tree_fingerprint": "git-delta-v1:3a3ed3bc6f202ec7c67fa17ca076a505378d5beabaa5315b5ceada2e6f611a20",
+  "state_hash": "a2ae0b9f43ef8ca1",
+  "timestamp_utc": "2026-10-06T07:47:59.175896Z",
+  "validator_protocol_version": "1",
+  "verdict": "FAIL"
+}

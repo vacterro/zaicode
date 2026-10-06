@@ -1,0 +1,14 @@
+{
+  "clauses": {
+    "SRC-151:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "\u2022 \u0414\u043e \u0441\u0438\u0445 \u043f\u043e\u0440 \u043d\u0435\u0442 \u0444\u043e\u043b\u0431\u0435\u043a\u0430 \u043d\u043e\u0440\u043c\u0430\u043b\u044c\u043d\u043e\u0433\u043e ![](media/001_clipboard_20261005_021327_245012af.png)"
+    }
+  },
+  "derived_at": "2026-10-05T01:31:27Z",
+  "derived_from": "SRC-151",
+  "interpretation_revision": 1,
+  "schema_version": 1,
+  "source_sha256": "04e376c8edac885970da8b17767ed64f2bdc0f8856dd77c0430b3e389a863871"
+}

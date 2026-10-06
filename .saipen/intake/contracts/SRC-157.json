@@ -1,0 +1,14 @@
+{
+  "clauses": {
+    "SRC-157:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "C:/Program Files/Git/goal cc all"
+    }
+  },
+  "derived_at": "2026-10-05T23:27:40Z",
+  "derived_from": "SRC-157",
+  "interpretation_revision": 1,
+  "schema_version": 1,
+  "source_sha256": "11bfd023e2b8c2b036350dca212b914222f3468f1390e66b85e6efe022f722ca"
+}

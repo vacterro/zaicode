@@ -1,0 +1,224 @@
+{
+  "at": "2026-10-06T23:19:04.951Z",
+  "executablePath": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\dist-next\\win-unpacked\\ZAICODE.exe",
+  "profile": "V:\\_TEMP_\\zaicode-t250-RrAlA8",
+  "checks": [
+    {
+      "name": "every click flips the Auto retry button",
+      "pass": true,
+      "detail": {
+        "states": [
+          "off",
+          "on",
+          "off",
+          "on",
+          "off"
+        ],
+        "labels": [
+          "Auto retry off · global retry preference is off",
+          "Auto retry on — a failed turn is sent again by itself",
+          "Auto retry off · project retry preference is off",
+          "Auto retry on — a failed turn is sent again by itself",
+          "Auto retry off · project retry preference is off"
+        ]
+      }
+    },
+    {
+      "name": "right-click opens the Auto retry panel",
+      "pass": true
+    },
+    {
+      "name": "the panel offers no app-menu mode that could kill the right button",
+      "pass": true
+    },
+    {
+      "name": "right-click still opens the panel the second time",
+      "pass": true
+    },
+    {
+      "name": "composer + shares its row with trailing controls at 959px",
+      "pass": true,
+      "detail": {
+        "toolbar": {
+          "top": 613.390625,
+          "height": 28,
+          "width": 621
+        },
+        "leading": {
+          "top": 613.390625,
+          "bottom": 641.390625,
+          "width": 162
+        },
+        "trailing": {
+          "top": 613.390625,
+          "bottom": 641.390625,
+          "width": 383
+        },
+        "firstTrailingTop": 613.390625
+      }
+    },
+    {
+      "name": "composer + shares its row with trailing controls at 820px",
+      "pass": true,
+      "detail": {
+        "toolbar": {
+          "top": 613.390625,
+          "height": 28,
+          "width": 482
+        },
+        "leading": {
+          "top": 613.390625,
+          "bottom": 641.390625,
+          "width": 60
+        },
+        "trailing": {
+          "top": 613.390625,
+          "bottom": 641.390625,
+          "width": 383
+        },
+        "firstTrailingTop": 613.390625
+      }
+    },
+    {
+      "name": "composer + shares its row with trailing controls at 700px",
+      "pass": true,
+      "detail": {
+        "toolbar": {
+          "top": 613.390625,
+          "height": 28,
+          "width": 626
+        },
+        "leading": {
+          "top": 613.390625,
+          "bottom": 641.390625,
+          "width": 60
+        },
+        "trailing": {
+          "top": 613.390625,
+          "bottom": 641.390625,
+          "width": 264
+        },
+        "firstTrailingTop": 613.390625
+      }
+    },
+    {
+      "name": "composer + shares its row with trailing controls at 600px",
+      "pass": true,
+      "detail": {
+        "toolbar": {
+          "top": 621.390625,
+          "height": 28,
+          "width": 526
+        },
+        "leading": {
+          "top": 621.390625,
+          "bottom": 649.390625,
+          "width": 60
+        },
+        "trailing": {
+          "top": 621.390625,
+          "bottom": 649.390625,
+          "width": 264
+        },
+        "firstTrailingTop": 621.390625
+      }
+    },
+    {
+      "name": "no row tooltip lingers after the pointer leaves the row",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "limits card renders",
+      "pass": true,
+      "detail": {
+        "height": 614.5,
+        "width": 418,
+        "accounts": [
+          {
+            "id": "claude:v:\\_temp_\\zaicode-t250-rrala8\\.claude",
+            "rows": []
+          },
+          {
+            "id": "codex:v:\\_temp_\\zaicode-t250-rrala8\\.codex",
+            "rows": []
+          },
+          {
+            "id": "antigravity:default",
+            "rows": [
+              "Gemini weekly",
+              "Gemini 5h",
+              "Claude & GPT weekly",
+              "Claude & GPT 5h"
+            ]
+          },
+          {
+            "id": "zcode:plan",
+            "rows": []
+          },
+          {
+            "id": "antigravity:shared:antigravity:windows-user:1f17624fa8051f44",
+            "rows": [
+              "Gemini weekly",
+              "Gemini 5h",
+              "Claude & GPT weekly",
+              "Claude & GPT 5h"
+            ]
+          },
+          {
+            "id": "antigravity:shared:antigravity:windows-user:407fdf8621212585",
+            "rows": [
+              "Gemini weekly",
+              "Gemini 5h",
+              "Claude & GPT weekly",
+              "Claude & GPT 5h"
+            ]
+          },
+          {
+            "id": "antigravity:shared:antigravity:windows-user:86e40a6e56585c5f",
+            "rows": [
+              "Gemini weekly",
+              "Gemini 5h",
+              "Claude & GPT weekly",
+              "Claude & GPT 5h"
+            ]
+          },
+          {
+            "id": "claude:shared:claude:profile-dir:09ff6b999c422747",
+            "rows": []
+          },
+          {
+            "id": "claude:shared:claude:profile-dir:e46c08e5c03f7c99",
+            "rows": []
+          },
+          {
+            "id": "codex:shared:codex:profile-dir:ff7e3619f84e4e05",
+            "rows": []
+          },
+          {
+            "id": "codex:shared:codex:profile-dir:5c5ef150033ae3d8",
+            "rows": []
+          }
+        ]
+      }
+    },
+    {
+      "name": "no account shows two rows with the same label",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "side pane handle visible (pane open) for the double-click probe",
+      "pass": false,
+      "detail": "pane closed in a fresh profile: not driven"
+    },
+    {
+      "name": "zero renderer exceptions",
+      "pass": true,
+      "detail": []
+    }
+  ],
+  "errors": [],
+  "pass": false,
+  "asarSha256": "a37a646a489a14539ea4b03016ae463210d12b105ebbfcc4c06dac18e82be624"
+}

@@ -1,0 +1,20 @@
+{
+  "externalization_event": {
+    "event_id": "E-3905",
+    "operation_id": "ticket-18535cfe451249bbba647751269b916a",
+    "reason": "new BOARD record exceeds the live cap; canonical writer externalized detail"
+  },
+  "lossless": true,
+  "metadata_path": ".saipen/recovery/board-compaction/T-237/T-237-0cbfd9c253eebe4f76679c44.json",
+  "operation": "board_legacy_compaction",
+  "original_record_bytes": 1295,
+  "original_record_path": ".saipen/recovery/board-compaction/T-237/T-237-0cbfd9c253eebe4f76679c44.BOARD.md",
+  "original_record_sha256": "0cbfd9c253eebe4f76679c442c78c92c288d5b16f92848e9d40eaa6fe19d94ca",
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "project_lineage": "lineage-b0732ed2f98947b9a3c97bfe71427eca",
+  "schema_version": 1,
+  "source": ".saipen/BOARD.md",
+  "status": "COMMITTED",
+  "supersedes_detail_ref": "",
+  "ticket_id": "T-237"
+}

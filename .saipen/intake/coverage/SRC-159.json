@@ -1,0 +1,14 @@
+{
+  "requirements": {
+    "SRC-159:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "T-238 closed with verification evidence in LOG: verify -> PASS [target: T-238] conf: high -- REBUILD.cmd exit 0 (typecheck gate + scripts/bundle-zaicode.mjs + electron-builder 41.0.3 win x64); staged bundle: zcode/packages/desktop/dist-next/win-unpacked/ZAICODE.exe 212.5M, app.asar 420282771 bytes sha256 1aab34a3208fa5b541a3bdbf5c1b811da2a7e66ecc03432c7165e6dece90f2de, installer ZAICODE-3.14.0-win-x64_TEST.exe 204.3M sha256 73d1cfb5d292b476e590",
+      "text": "Build a normal ZAICODE Windows test bundle (packaged Electron build + one-click launcher) from the current working tree for operator acceptance",
+      "verification": "the Work this request created reached its own verification gate; see the T-238 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-238"
+    }
+  },
+  "schema_version": 1
+}

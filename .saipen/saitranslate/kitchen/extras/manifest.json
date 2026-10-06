@@ -19,7 +19,7 @@
         "saiasui.seed": "{mode} · Seed {seed}",
         "saiasui.complete": "SAIASUI! · Run complete",
         "saiasui.result": "Score {score} · Max combo {combo}× · Hits {hits}",
-        "saiasui.retryHint": "Esc returns to New task. Click empty space to start a new seed.",
+        "saiasui.retryHint": "Press R or Space to play again, Esc returns to work.",
         "saiasui.return": "Return to work",
         "saiasui.offer": "Play SAIASUI! (Esc dismisses)",
         "saiasui.hit": "Hit {target}",
@@ -31,7 +31,7 @@
         "saiasui.tainted": "Custom · not a record"
       },
       "file": "zcode/packages/ui/src/i18n/locales/saiasui.ts",
-      "source_digest": "37e0bb868a2f153ed7f7dd1469a02a479a49aa1e03fa509be610d9d8a303c1ba"
+      "source_digest": "fa2cb6a045a268862fe7f2f6c86caba7bfaaf5d2efe0ef9f2e3c6c0832392a38"
     },
     {
       "catalog": {
@@ -87,7 +87,7 @@
         "tray.menu.quit": "Quit"
       },
       "file": "zcode/packages/shared/src/desktopMenu.ts",
-      "source_digest": "62f8a87d15a4ace41a05b06db7f1e98f2c376f08083739fe62d8dcd2cfcd1dbc"
+      "source_digest": "0ca74bbe9780f946283d06ce55c17d751e39ec1c85892ccbc9a98654c7239838"
     },
     {
       "catalog": {
@@ -123,7 +123,7 @@
         "aux.skill.writing-skills": "Use when creating new skills, editing existing skills, or verifying skills work before deployment."
       },
       "file": "zcode/packages/ui/src/lib/builtinSkillI18n.ts",
-      "source_digest": "653c2fc5ca132cca6636aa938cadce3335a6fed719b4693596e5ee70dc6ec8e3"
+      "source_digest": "5ec476f06284c283e3526a9a02366a4f567ab3819d958d822ae826d6a4300278"
     }
   ]
 }

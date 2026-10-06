@@ -1,0 +1,86 @@
+{
+  "requirements": {
+    "SRC-154:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "UNKNOWN",
+      "evidence": null,
+      "text": "Vertical sidebar mode: buttons stay the same as horizontal and must adapt to the vertical layout. Screenshot local-only and unreadable; derived from text plus code trace.",
+      "verification": null,
+      "work": "T-224"
+    },
+    "SRC-154:R002": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "UNKNOWN",
+      "evidence": null,
+      "text": "Composer jitters left-right and looks constantly blurred. Not visible on screenshot; repair the continuous jitter and blur.",
+      "verification": null,
+      "work": "T-224"
+    },
+    "SRC-154:R003": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "UNKNOWN",
+      "evidence": null,
+      "text": "Right SAIPEN sidebar needs a Ctrl+Alt+B switch: Always everywhere vs per project. Everywhere keeps the open state open always; per project opens and persists state individually per session.",
+      "verification": null,
+      "work": "T-224"
+    },
+    "SRC-154:R004": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "UNKNOWN",
+      "evidence": null,
+      "text": "Large pasted text arriving as a file must be editable in place; a control that can only remove it is not acceptable.",
+      "verification": null,
+      "work": "T-224"
+    },
+    "SRC-154:R005": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "UNKNOWN",
+      "evidence": null,
+      "text": "Auto Retry right click must open its settings. Deterministic ON/OFF contract already built under T-220; this clause adds the right-click-to-settings path.",
+      "verification": null,
+      "work": "T-224"
+    },
+    "SRC-154:R006": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "DUPLICATE",
+      "evidence": "SRC-153:R002",
+      "text": "Auto Goal smarter repeat of SRC-153 R002. Owned by T-222.",
+      "verification": null,
+      "work": "T-224"
+    },
+    "SRC-154:R007": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "DUPLICATE",
+      "evidence": "SRC-153:R003",
+      "text": "Auto supervises goal cc all until done repeat of SRC-153 R003. Owned by T-222.",
+      "verification": null,
+      "work": "T-224"
+    },
+    "SRC-154:R008": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "DUPLICATE",
+      "evidence": "SRC-153:R004",
+      "text": "ProTrail Save all repeat of SRC-153 R004. Owned by T-223.",
+      "verification": null,
+      "work": "T-224"
+    },
+    "SRC-154:R009": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "DUPLICATE",
+      "evidence": "SRC-153:R005",
+      "text": "Reconnecting indicator repeat of SRC-153 R005. Built under T-220.",
+      "verification": null,
+      "work": "T-224"
+    }
+  },
+  "schema_version": 1
+}

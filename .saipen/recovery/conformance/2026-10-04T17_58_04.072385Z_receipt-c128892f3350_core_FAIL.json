@@ -1,0 +1,57 @@
+{
+  "blocking_findings": {
+    "problem_count": 2,
+    "problems": [
+      {
+        "category": null,
+        "credential": false,
+        "detail": "no current-cycle VERIFY boundary; reverify: no current-tree PASS re-verification receipt",
+        "detail_hash": "186e51123c0cc004",
+        "finding_key": "8608bcc9f592a8f1",
+        "rule_id": "work_closure_evidence",
+        "severity": "problem",
+        "subject_id": "T-113",
+        "subject_kind": "work",
+        "subject_ref": null
+      },
+      {
+        "category": null,
+        "credential": false,
+        "detail": "cross-doc drift [root-file-set] -- file(s) at the repository root that the closed set does not name: ['scen1612.log', 'unit1612.log']. Both orphans removed alongside this check arrived that way, on a `git add -A` in a commit about something else, and neither was referenced by any document or tool -- so no other check here could ever see them. A deliberate new root file is a one-line addition to ROOT_ALLOWED in tools/validate.py; a scratch file belongs in .gitignore, which this check honours. Likely writer (HOST_HOOK_RUNS_PAYLOAD): host hook(s) C:\\Users\\vac34\\.claude\\settings.json PostToolUse/Read; C:\\Users\\vac34\\.claude\\settings.json PreToolUse/Grep|Glob; C:\\Users\\vac34\\.claude\\settings.json SessionStart/startup; C:\\Users\\vac34\\.claude\\settings.json SessionStart/resume and 3 more -- invoke the hook script or its executable directly (for example the `.cmd` path, or `<tool>.exe hook-augment`) instead of `cmd.exe /c`; under Git Bash a single-slash switch becomes a path, cmd.exe starts interactive and runs the hook payload -- text the agent read -- as commands",
+        "detail_hash": "5485d18aa29fcad5",
+        "finding_key": "4141c15153e33942",
+        "rule_id": "cross_doc_drift",
+        "severity": "problem",
+        "subject_id": null,
+        "subject_kind": "global",
+        "subject_ref": null
+      }
+    ],
+    "ruleset_fingerprint": "82e5e183ae8f0fd909be3fa3627f00489cacaab813d942186c832db02a05a1c1",
+    "ruleset_version": 1,
+    "status": "complete",
+    "warning_count": 28
+  },
+  "board_hash": "deb2f6d7c0f495c6",
+  "canonical_next_command": "saipen work reverify T-113",
+  "content_hash": "39bddf212623ee6e",
+  "exit_code": 1,
+  "external_actions": [],
+  "gate": "core",
+  "install_fingerprint": "install-v1:3dad33163e5e2b15750998475c96687a222d489340857f7a709e9539f81237b8",
+  "install_home": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_SAIPEN",
+  "kind": "conformance_receipt",
+  "log_hash": "28c621bddb96b9b3",
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "receipt_id": "receipt-c128892f3350",
+  "remediation_commands": [
+    "saipen work reverify T-113"
+  ],
+  "schema_version": 2,
+  "source_head": "9e1e0d9e045fbdc505a6a2edd6658b67f41d2692",
+  "source_tree_fingerprint": "git-delta-v1:719c2c3d5e4ef795f3bc8494e21507ab1c5e102d20c2a82268f02c86c433cdd3",
+  "state_hash": "112286ab59383bbe",
+  "timestamp_utc": "2026-10-04T17:58:04.072385Z",
+  "validator_protocol_version": "1",
+  "verdict": "FAIL"
+}

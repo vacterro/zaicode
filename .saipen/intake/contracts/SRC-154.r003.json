@@ -1,0 +1,24 @@
+{
+  "clauses": {
+    "SRC-154:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Vertical sidebar mode: buttons stay the same as horizontal and must adapt to the vertical layout. Screenshot local-only and unreadable; derived from text plus code trace."
+    },
+    "SRC-154:R002": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Composer jitters left-right and looks constantly blurred. Not visible on screenshot; repair the continuous jitter and blur."
+    },
+    "SRC-154:R003": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Right SAIPEN sidebar needs a Ctrl+Alt+B switch: Always everywhere vs per project. Everywhere keeps the open state open always; per project opens and persists state individually per session."
+    }
+  },
+  "derived_at": "2026-10-05T18:42:49Z",
+  "derived_from": "SRC-154",
+  "interpretation_revision": 3,
+  "schema_version": 1,
+  "source_sha256": "869327b8230a84491d61ebe12f99fa01d77da96f3cb0405f46b7cc962cbef1bf"
+}

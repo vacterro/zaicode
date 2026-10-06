@@ -1,0 +1,14 @@
+{
+  "requirements": {
+    "SRC-158:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "T-233 closed with verification evidence in LOG: verify -> PASS [target: T-233] conf: high -- python .saipen/saitranslate/kitchen/_verify_restamp.py --project-root . exited 0 over the 30 staged restamps (every staged marker satisfies freshness.digest_marker_matches against 783b916d4bee01ac, every differing byte inside the marker digest) and its --red-control exited 0 catching all 4 mutations; saipen outbox check saitranslate returned OUTBOX_VALI",
+      "text": "ee",
+      "verification": "the Work this request created reached its own verification gate; see the T-233 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-233"
+    }
+  },
+  "schema_version": 1
+}

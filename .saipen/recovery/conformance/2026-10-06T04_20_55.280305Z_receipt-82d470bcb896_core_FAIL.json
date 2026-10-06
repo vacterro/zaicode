@@ -1,0 +1,81 @@
+{
+  "blocking_findings": {
+    "problem_count": 4,
+    "problems": [
+      {
+        "category": null,
+        "credential": false,
+        "detail": "execution_intent: goal with goal_waves=0/goal_tickets=22 is the tripped safety valve (caps 3/20), but next_action='PHASE SCOUT T-232' -- RFC \u00a7 2.4 requires next_action: WAIT: safety valve reached (N w",
+        "detail_hash": "850c310df7206abe",
+        "finding_key": "76b48f23558dce11",
+        "rule_id": "unclassified",
+        "severity": "problem",
+        "subject_id": null,
+        "subject_kind": "global",
+        "subject_ref": null
+      },
+      {
+        "category": null,
+        "credential": false,
+        "detail": "tripped goal safety valve must name the canonical resume key -- the \u00a7 1.2 safety-valve form under execution_intent: goal ends `-- run 'cc' to continue`; `saipen goal` is the create/pivot command, neve",
+        "detail_hash": "db725c30a4d7d2ec",
+        "finding_key": "76b48f23558dce11",
+        "rule_id": "unclassified",
+        "severity": "problem",
+        "subject_id": null,
+        "subject_kind": "global",
+        "subject_ref": null
+      },
+      {
+        "category": null,
+        "credential": false,
+        "detail": "no current-cycle VERIFY boundary; reverify: no current-tree PASS re-verification receipt",
+        "detail_hash": "186e51123c0cc004",
+        "finding_key": "8608bcc9f592a8f1",
+        "rule_id": "work_closure_evidence",
+        "severity": "problem",
+        "subject_id": "T-113",
+        "subject_kind": "work",
+        "subject_ref": null
+      },
+      {
+        "category": null,
+        "credential": false,
+        "detail": "subsaipen [sub-write-boundary] -- saihunt OUTBOX references a main-project canonical path; a SubSaipen writes only inside its own home -- a package may not target .saipen/BOARD.md|STATE.md|LOG.md (red",
+        "detail_hash": "b3df18e5abf0c452",
+        "finding_key": "76b48f23558dce11",
+        "rule_id": "unclassified",
+        "severity": "problem",
+        "subject_id": null,
+        "subject_kind": "global",
+        "subject_ref": null
+      }
+    ],
+    "ruleset_fingerprint": "82e5e183ae8f0fd909be3fa3627f00489cacaab813d942186c832db02a05a1c1",
+    "ruleset_version": 1,
+    "status": "complete",
+    "warning_count": 28
+  },
+  "board_hash": "06be09b876b0057d",
+  "canonical_next_command": "saipen work reverify T-113",
+  "content_hash": "6ddd93c4d97fcf54",
+  "exit_code": 1,
+  "external_actions": [],
+  "gate": "core",
+  "install_fingerprint": "install-v1:caa655e251ab0364e48c5b21fc5cf5192cd75d86a3d6019775201598e0baa039",
+  "install_home": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_SAIPEN",
+  "kind": "conformance_receipt",
+  "log_hash": "bc675a71218fc129",
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "receipt_id": "receipt-82d470bcb896",
+  "remediation_commands": [
+    "saipen work reverify T-113"
+  ],
+  "schema_version": 2,
+  "source_head": "4e2135523fda59b7f055667dd0fbd4a6fd039f3c",
+  "source_tree_fingerprint": "git-delta-v1:b8b71aa559096c378e3e5c24240debae3c41a6d5e3f6030d344825d572054961",
+  "state_hash": "ac2215567259b3c2",
+  "timestamp_utc": "2026-10-06T04:20:55.280305Z",
+  "validator_protocol_version": "1",
+  "verdict": "FAIL"
+}

@@ -1,8 +1,8 @@
 {
   "op_id": "scope-e5a81d114751453593e3279766bfeab4",
   "paths": {
-    "zcode/scripts/zaicode-soak-verdict.mjs": "1bcfafc5af08ccd738992f14e48409b76a7cf7cb0db8c5e7524e740756353d2f",
-    "zcode/scripts/zaicode-soak-window.test.mjs": "360726cc3069e38b632ae4880c59f3d7aba0508503ee8062631b3f5c88dea9c2",
+    "zcode/scripts/zaicode-soak-verdict.mjs": "3eb40b128fc67f551d29f7e9eace6c68385d68ddccfb77c02941fa6999b97552",
+    "zcode/scripts/zaicode-soak-window.test.mjs": "e9bb862d2f846d363f61ed1d0851f2d5296d17b4eb52429fbe3a938dd0b7f778",
     "zcode/scripts/zaicode-soak.mjs": "ee38bcee46af58d620a38ede34de33309eabf12d73afa47894644c53834c8104"
   },
   "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",

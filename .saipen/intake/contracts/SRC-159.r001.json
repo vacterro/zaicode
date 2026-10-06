@@ -1,0 +1,14 @@
+{
+  "clauses": {
+    "SRC-159:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Build a normal ZAICODE Windows test bundle (packaged Electron build + one-click launcher) from the current working tree for operator acceptance"
+    }
+  },
+  "derived_at": "2026-10-06T08:04:39Z",
+  "derived_from": "SRC-159",
+  "interpretation_revision": 1,
+  "schema_version": 1,
+  "source_sha256": "853ab8ee71806c6d8b2226038d9e7f648769c6d003e76a24eaf2da57cdc71fad"
+}

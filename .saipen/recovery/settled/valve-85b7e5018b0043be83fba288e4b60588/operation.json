@@ -1,0 +1,38 @@
+{
+  "op_id": "valve-85b7e5018b0043be83fba288e4b60588",
+  "operation": "valve",
+  "created_at": "2026-10-06T04:24:07Z",
+  "agent": "saipen-cli",
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "project_lineage": "lineage-b0732ed2f98947b9a3c97bfe71427eca",
+  "semantic_payload_hash": "3b1f1f4f3b5e94d1",
+  "preconditions": {
+    ".saipen/STATE.md": "559dbf3b77d6a95e",
+    ".saipen/LOG.md": "6e216be9cd2a5b06"
+  },
+  "read_preconditions": {
+    ".saipen/BOARD.md": "fb98abe27790fc10",
+    ".saipen/logs": "delete-tree-sha256:43d12d8769b98884f0cb928a20e21ea9056fe43cc34ee36abdbed9bc38d1d455"
+  },
+  "verification_policy": "core_fast",
+  "status": "COMMITTED",
+  "progress_index": 2,
+  "targets": [
+    {
+      "path": ".saipen/LOG.md",
+      "role": "log",
+      "action": "write",
+      "before_hash": "6e216be9cd2a5b06",
+      "after_hash": "9cc576bf28a3b83a",
+      "applied": true
+    },
+    {
+      "path": ".saipen/STATE.md",
+      "role": "state",
+      "action": "write",
+      "before_hash": "559dbf3b77d6a95e",
+      "after_hash": "de4ecb7885413b1a",
+      "applied": true
+    }
+  ]
+}

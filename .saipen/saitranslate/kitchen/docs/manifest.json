@@ -2,11 +2,13 @@
   "docs": [
     {
       "file": "README.md",
-      "source_digest": "cef836e3981d4b63b8ab79f4d74c2fa687be9243fca24913dd182d7729b2dba8",
+      "source_digest": "bd6f11eb13a88f1e49cdff5c9937caca7409d70c4f86a1e074c096fa737845b3",
       "parts": [
         "# ZAICODE",
-        "\r\n\r\n",
-        "<div align=\"center\">\r\n  <img src=\"https://raw.githubusercontent.com/vacterro/zaicode/zaicode/packages/ui/src/assets/zaicode-working.png\" alt=\"ZAICODE\" width=\"96\" height=\"96\" />\r\n</div>\r\n<p align=\"center\">\r\n  <img src=\"https://img.shields.io/badge/version-0.0.1-c9a227\" alt=\"version 0.0.1\" />\r\n  <img src=\"https://img.shields.io/badge/platform-Windows-3b3527\" alt=\"Windows\" />\r\n  <img src=\"https://img.shields.io/badge/license-Apache--2.0-3b3527\" alt=\"Apache-2.0\" />\r\n</p>\r\n<p align=\"center\">\r\n  ZAICODE · <a href=\"https://github.com/vacterro/zaicode/blob/zaicode/README.zcode.md\">ZCode (简体中文)</a> · <a href=\"https://github.com/vacterro/zaicode/blob/zaicode/README.en.md\">ZCode (English)</a>\r\n</p>",
+        "\r\n\n",
+        "**v0.0.2**",
+        "\n\r\n",
+        "<div align=\"center\">\r\n  <img src=\"https://raw.githubusercontent.com/vacterro/zaicode/zaicode/packages/ui/src/assets/zaicode-working.png\" alt=\"ZAICODE\" width=\"96\" height=\"96\" />\r\n</div>\r\n<p align=\"center\">\r\n  <img src=\"https://img.shields.io/badge/version-0.0.2-c9a227\" alt=\"version 0.0.2\" />\r\n  <img src=\"https://img.shields.io/badge/platform-Windows-3b3527\" alt=\"Windows\" />\r\n  <img src=\"https://img.shields.io/badge/license-Apache--2.0-3b3527\" alt=\"Apache-2.0\" />\r\n</p>\r\n<p align=\"center\">\r\n  ZAICODE · <a href=\"https://github.com/vacterro/zaicode/blob/zaicode/README.zcode.md\">ZCode (简体中文)</a> · <a href=\"https://github.com/vacterro/zaicode/blob/zaicode/README.en.md\">ZCode (English)</a>\r\n</p>",
         "\r\n\r\n",
         "<img width=\"1440\" height=\"860\" alt=\"ZAICODE hero — Do your best.\" src=\"docs/screenshots/01-do-your-best.png\" />",
         "\r\n\r\n",
@@ -74,8 +76,8 @@
           "tokens": []
         },
         {
-          "key": "docs.README_md.p0006",
-          "index": 6,
+          "key": "docs.README_md.p0008",
+          "index": 8,
           "value": "ZAICODE is an operator workbench for running many AI coding agents at once over\r\nmany projects, without babysitting them. It is a modified build of\r\n[ZCode]({protected0}) (desktop app, browser UI and agent\r\nCLI) with a product layer on top: every project is driven by the\r\n[SAIPEN]({protected1}) protocol, work is started, continued\r\nand scheduled from one window, and the subscription CLIs you already pay for\r\n(Claude Code, Codex, Antigravity) run as docked workers next to the in-app\r\nagents.",
           "tokens": [
             "https://github.com/zai-org/ZCode",
@@ -83,40 +85,40 @@
           ]
         },
         {
-          "key": "docs.README_md.p0008",
-          "index": 8,
-          "value": "**0.0.1** is the first tagged snapshot: a personal, Windows-first build that is\r\nused daily.",
-          "tokens": []
-        },
-        {
           "key": "docs.README_md.p0010",
           "index": 10,
-          "value": "## Install in one click",
+          "value": "**0.0.1** is the first tagged snapshot: a personal, Windows-first build that is\r\nused daily.",
           "tokens": []
         },
         {
           "key": "docs.README_md.p0012",
           "index": 12,
+          "value": "## Install in one click",
+          "tokens": []
+        },
+        {
+          "key": "docs.README_md.p0014",
+          "index": 14,
           "value": "1. Download **[ZAICODE-Setup.exe]({protected0})**.\r\n2. Double-click it and press **INSTALL**.",
           "tokens": [
             "https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe"
           ]
         },
         {
-          "key": "docs.README_md.p0014",
-          "index": 14,
-          "value": "That is all. Setup brings what the machine lacks (Git, Node.js, Python, as private\r\ncopies: no administrator rights), fetches ZAICODE, SAIPEN and SAIMAIL from GitHub,\r\nbuilds the app on the machine and puts a ZAICODE shortcut on the desktop. The first\r\nrun takes 15-30 minutes; the window shows every step.",
-          "tokens": []
-        },
-        {
           "key": "docs.README_md.p0016",
           "index": 16,
-          "value": "Free models work at once: ZAICODE starts its own router and fills the **SAIFREN**\r\npool from keyless free tiers, so a task typed into New task gets an answer with no\r\nkey, no account and no setting. Claude Code, Codex and Antigravity subscriptions are\r\noptional and can be signed in any time.",
+          "value": "That is all. Setup brings what the machine lacks (Git, Node.js, Python, as private\r\ncopies: no administrator rights), fetches ZAICODE, SAIPEN and SAIMAIL from GitHub,\r\nbuilds the app on the machine and puts a ZAICODE shortcut on the desktop. The first\r\nrun takes 15-30 minutes; the window shows every step.",
           "tokens": []
         },
         {
           "key": "docs.README_md.p0018",
           "index": 18,
+          "value": "Free models work at once: ZAICODE starts its own router and fills the **SAIFREN**\r\npool from keyless free tiers, so a task typed into New task gets an answer with no\r\nkey, no account and no setting. Claude Code, Codex and Antigravity subscriptions are\r\noptional and can be signed in any time.",
+          "tokens": []
+        },
+        {
+          "key": "docs.README_md.p0020",
+          "index": 20,
           "value": "**One whole, four parts.** The workspace (launcher, installer), the app, SAIPEN and\r\nSAIMAIL are four repositories. Each updates on its own: *Settings -> ZAICODE ->\r\nUpdates* shows every part, updates it by hand or by itself (checked a few minutes\r\nafter the start and every six hours). A new app build is prepared while ZAICODE runs\r\nand starts with the next start; your own edits in a clone are never overwritten.\r\nFrom a terminal: {protected0}.\r\nAutotroubleshoot: {protected1}. Details: [docs/ZAICODE_INSTALL.md](docs/ZAICODE_INSTALL.md).",
           "tokens": [
             "`install\\Update-ZAICODE.ps1 [-Component saipen] [-Check]`",
@@ -124,42 +126,42 @@
           ]
         },
         {
-          "key": "docs.README_md.p0020",
-          "index": 20,
+          "key": "docs.README_md.p0022",
+          "index": 22,
           "value": "## Interface tour",
-          "tokens": []
-        },
-        {
-          "key": "docs.README_md.p0024",
-          "index": 24,
-          "value": "## What it adds to ZCode",
           "tokens": []
         },
         {
           "key": "docs.README_md.p0026",
           "index": 26,
+          "value": "## What it adds to ZCode",
+          "tokens": []
+        },
+        {
+          "key": "docs.README_md.p0028",
+          "index": 28,
           "value": "- **Projects with a MAIN session.** Each project has one MAIN session (START,\r\n  {protected0}) and helper sessions (subSaipens: WIKI, TEST, AUDIT, …). The\r\n  default sidebar view shows the project row as its MAIN; ▶ continues MAIN\r\n  instead of opening another session. CONTINUE ALL, DONE and CLEAR ALL DONE\r\n  sweep every project; a session cut off mid-turn shows INTERRUPTED, never DONE.\r\n- **Crash safety.** Sessions a dead process cut off and goals still active\r\n  continue by themselves after a restart; running workers start again. Agents\r\n  inside ZAICODE cannot kill ZAICODE by process name.\r\n- **Workers.** Subscription CLIs run in terminals docked to any edge of the\r\n  window (or in their own snapping windows). First-run \"Trust this folder?\"\r\n  questions are answered; a worker that hits its usage limit is reported and,\r\n  by setting, closed or restarted after the reset.\r\n- **Limits and resets.** Quota meters per account and pool, a title-bar timer\r\n  for the nearest reset with the full list of coming resets on hover.\r\n- **SCHEDULER.** Prompts that start by themselves: at a time, daily, every N\r\n  minutes or when a quota window refills; in one project or a whole sidebar\r\n  section, worst projects (most blocked / open SAIPEN tickets) first. Conditions\r\n  can stop stopgap work (free-pool sessions, weaker workers) first, run only on\r\n  idle projects, or continue only marked sessions. Prompts have no practical\r\n  length limit.\r\n- **Routing.** A bundled 9router (MIT) gives zero-setup pools: SAIFREN\r\n  (keyless free tiers) and SAIOPP (your subscriptions).\r\n- **SAIHOME, timers, sounds, highlights.** An operator home with statistics,\r\n  FastPrompter-style timers and alarms, per-action sounds and a Win95 dark\r\n  golden, pixel-crisp interface.",
           "tokens": [
             "`/goal cc all`"
           ]
         },
         {
-          "key": "docs.README_md.p0028",
-          "index": 28,
+          "key": "docs.README_md.p0030",
+          "index": 30,
           "value": "## Build",
           "tokens": []
         },
         {
-          "key": "docs.README_md.p0030",
-          "index": 30,
+          "key": "docs.README_md.p0032",
+          "index": 32,
           "value": "Requirements: Windows 10/11, Git, Node.js **24.14.0**, pnpm **10.33.2**\r\n([mise.toml]({protected0}) is the source of truth).",
           "tokens": [
             "https://github.com/vacterro/zaicode/blob/zaicode/mise.toml"
           ]
         },
         {
-          "key": "docs.README_md.p0034",
-          "index": 34,
+          "key": "docs.README_md.p0036",
+          "index": 36,
           "value": "The packaged app always starts in ZAICODE mode. While an older ZAICODE runs,\r\nthe bundler stages the new build in {protected0}; the root\r\nlauncher (branch {protected1}, {protected2}) swaps it in on the next start.\r\nThe crisp bitmap Verdana variant used by the UI is not part of this repository;\r\nwithout it the interface falls back to the system Verdana.",
           "tokens": [
             "`packages/desktop/dist-next`",
@@ -168,8 +170,8 @@
           ]
         },
         {
-          "key": "docs.README_md.p0036",
-          "index": 36,
+          "key": "docs.README_md.p0038",
+          "index": 38,
           "value": "Checks: {protected0}, {protected1}, and the ZAICODE tests, for example\r\n{protected2} from {protected3}.",
           "tokens": [
             "`pnpm typecheck`",
@@ -179,14 +181,14 @@
           ]
         },
         {
-          "key": "docs.README_md.p0038",
-          "index": 38,
+          "key": "docs.README_md.p0040",
+          "index": 40,
           "value": "## Repository layout",
           "tokens": []
         },
         {
-          "key": "docs.README_md.p0040",
-          "index": 40,
+          "key": "docs.README_md.p0042",
+          "index": 42,
           "value": "| Branch      | Contents                                                                 |\n| ----------- | ------------------------------------------------------------------------ |\n| {protected0}    | the canonical workspace: launcher, installer ({protected1}), product docs ({protected2}, {protected3}), SAIPEN state and CHANGELOG |\n| {protected4}   | the canonical app source: upstream ZCode history plus the ZAICODE product layer used for builds and updates |",
           "tokens": [
             "`master`",
@@ -197,8 +199,8 @@
           ]
         },
         {
-          "key": "docs.README_md.p0042",
-          "index": 42,
+          "key": "docs.README_md.p0044",
+          "index": 44,
           "value": "Legacy or automation-created refs may still appear temporarily, but they are not\ncanonical product branches. New workspace work belongs on {protected0}; app-source\nwork belongs on {protected1}.",
           "tokens": [
             "`master`",
@@ -206,8 +208,8 @@
           ]
         },
         {
-          "key": "docs.README_md.p0044",
-          "index": 44,
+          "key": "docs.README_md.p0046",
+          "index": 46,
           "value": "ZAICODE-owned app code lives mostly in {protected0},\n{protected1}, {protected2} and\n{protected3} on the {protected4} branch. The workspace\ndocumentation and launcher{protected5} tooling live on {protected6}.",
           "tokens": [
             "`packages/ui/src/zaicode/`",
@@ -220,14 +222,14 @@
           ]
         },
         {
-          "key": "docs.README_md.p0046",
-          "index": 46,
+          "key": "docs.README_md.p0048",
+          "index": 48,
           "value": "## Upstream and license",
           "tokens": []
         },
         {
-          "key": "docs.README_md.p0048",
-          "index": 48,
+          "key": "docs.README_md.p0050",
+          "index": 50,
           "value": "ZAICODE is derived from ZCode by Z.ai and is distributed under the same\r\n[Apache License 2.0]({protected0}); upstream notices are kept in\r\n[NOTICE.md]({protected1}) and [THIRD-PARTY-NOTICES.md]({protected2}).\r\nFiles were modified by the ZAICODE author. ZAICODE is an independent project,\r\nnot affiliated with or endorsed by Z.ai. The original ZCode README is kept as\r\n[README.zcode.md]({protected3}) and [README.en.md]({protected4}).",
           "tokens": [
             "https://github.com/vacterro/zaicode/blob/zaicode/LICENSE",
@@ -238,20 +240,20 @@
           ]
         },
         {
-          "key": "docs.README_md.p0052",
-          "index": 52,
-          "value": "## Project network",
-          "tokens": []
-        },
-        {
           "key": "docs.README_md.p0054",
           "index": 54,
-          "value": "This repository is part of the broader **SAIPEN / vacterro** project ecosystem.",
+          "value": "## Project network",
           "tokens": []
         },
         {
           "key": "docs.README_md.p0056",
           "index": 56,
+          "value": "This repository is part of the broader **SAIPEN / vacterro** project ecosystem.",
+          "tokens": []
+        },
+        {
+          "key": "docs.README_md.p0058",
+          "index": 58,
           "value": "[**Author hub**]({protected0}) · [**SAIPEN HQ**]({protected1}) · [**SAIPEN Core**]({protected2}) · [**ZAICODE**]({protected3}) · [**FastPrompter**]({protected4}) · [**SAIPEN Community**]({protected5})",
           "tokens": [
             "https://github.com/vacterro",
@@ -263,8 +265,8 @@
           ]
         },
         {
-          "key": "docs.README_md.p0058",
-          "index": 58,
+          "key": "docs.README_md.p0060",
+          "index": 60,
           "value": "For reproducible bugs and durable feature requests, use [this repository's GitHub Issues]({protected0}). Use Discord for quick discussion, screenshots, and cross-project feedback.",
           "tokens": [
             "https://github.com/vacterro/zaicode/issues"

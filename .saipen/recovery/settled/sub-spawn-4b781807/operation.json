@@ -1,0 +1,69 @@
+{
+  "op_id": "sub-spawn-4b781807",
+  "operation": "sub_spawn",
+  "created_at": "2026-10-05T23:38:31Z",
+  "agent": "saipen-cli",
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "project_lineage": "lineage-b0732ed2f98947b9a3c97bfe71427eca",
+  "semantic_payload_hash": "d131737d036ca6f2",
+  "preconditions": {
+    ".saipen/extensions/subs/saiwiki/STATE.md": "",
+    ".saipen/extensions/subs/saiwiki/BOARD.md": "",
+    ".saipen/extensions/subs/saiwiki/LOG.md": "",
+    ".saipen/extensions/subs/saiwiki/kitchen/OUTBOX.md": "",
+    ".saipen/extensions/subs/MANIFEST.md": "6ec85324b6be492c"
+  },
+  "read_preconditions": {
+    "V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_SAIPEN/extensions/subs": "tree-sha256:8c576796442cecb9e9ee40d680fbf32e72649913e76392763a5867fd130e9a0b",
+    "V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_SAIPEN/extensions/subs/TEMPLATE/STATE.md": "3c9f0f2f2e6a2549",
+    "V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_SAIPEN/extensions/subs/TEMPLATE/BOARD.md": "2f404b252fd85214",
+    "V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_SAIPEN/extensions/subs/TEMPLATE/LOG.md": "c99f90eaabc29aee",
+    "V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_SAIPEN/extensions/subs/TEMPLATE/kitchen/OUTBOX.md": "02feec7cb8582577",
+    "V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_SAIPEN/extensions/subs/saiwiki.md": "a10b94acf2356fc9"
+  },
+  "verification_policy": "sub_lifecycle",
+  "status": "COMMITTED",
+  "progress_index": 5,
+  "targets": [
+    {
+      "path": ".saipen/extensions/subs/saiwiki/STATE.md",
+      "role": "state",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "0c0c5d342a4d16e4",
+      "applied": true
+    },
+    {
+      "path": ".saipen/extensions/subs/saiwiki/BOARD.md",
+      "role": "board",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "2f404b252fd85214",
+      "applied": true
+    },
+    {
+      "path": ".saipen/extensions/subs/saiwiki/LOG.md",
+      "role": "log",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "c99f90eaabc29aee",
+      "applied": true
+    },
+    {
+      "path": ".saipen/extensions/subs/saiwiki/kitchen/OUTBOX.md",
+      "role": "report",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "02feec7cb8582577",
+      "applied": true
+    },
+    {
+      "path": ".saipen/extensions/subs/MANIFEST.md",
+      "role": "manifest",
+      "action": "write",
+      "before_hash": "6ec85324b6be492c",
+      "after_hash": "97560892592382e4",
+      "applied": true
+    }
+  ]
+}

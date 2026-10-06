@@ -1,0 +1,149 @@
+{
+  "requirements": {
+    "SRC-160:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "BLOCKED",
+      "evidence": ".saipen/evidence/T-240-src161/REQ-004-audit1-dispositions.md row 1 STILL_PRESENT",
+      "text": "[CORE-001 P1] Malformed nested persistence must fail closed instead of normalizing to defaults: zaicodeAgentRepo.rowToDefinition (tool_policy_json, model_selection) and zaicodeJobRepo.rowToJob (delegation_json, actual_model_selection) currently turn unparsable JSON into undefined/{} before outer validation, so a damaged restrictive tool policy silently becomes the unrestricted yolo default.",
+      "verification": null,
+      "work": "T-241"
+    },
+    "SRC-160:R002": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "BLOCKED",
+      "evidence": ".saipen/evidence/T-240-src161/REQ-004-audit1-dispositions.md row 2 STILL_PRESENT",
+      "text": "[CORE-002 P1] Auto Goal continuation budget must survive restart: zaicodeGoalSupervisor keeps intents/seq/continuations in a module-local Map, so observeZaicodeGoalFromBrief re-registers with continuations 0 and ZAICODE_GOAL_MAX_CONTINUATIONS=20 is spent again after each reload.",
+      "verification": null,
+      "work": "T-242"
+    },
+    "SRC-160:R003": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "IMPLEMENTED",
+      "evidence": ".saipen/evidence/T-243-src160/verification.md",
+      "text": "[CORE-003 P1] Delegation admission must be atomic and scoped to the current parent run: delegateZaicodeJobFromRun counts via repo.listChildren then creates separately, so concurrent requests both pass maxChildrenPerParent; children carry no runId while the shared contract documents the budget per run.",
+      "verification": ".saipen/evidence/T-243-src160/verification.md",
+      "work": "T-243"
+    },
+    "SRC-160:R004": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "IMPLEMENTED",
+      "evidence": ".saipen/evidence/T-244-src160/verification.md",
+      "text": "[CORE-004 P1] Audit cancel/retry must not swallow a failed runtime stop: zaicodeAuditService.cancel/retry call jobService.cancel(...).catch(noop) then set cancelled or enqueue a replacement wave while the queue service still refuses retry for cancel_stop_failed.",
+      "verification": ".saipen/evidence/T-244-src160/verification.md",
+      "work": "T-244"
+    },
+    "SRC-160:R005": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "IMPLEMENTED",
+      "evidence": ".saipen/evidence/T-245-src160/scout.md",
+      "text": "[CORE-005 P1] Save All must not ship nested session/ephemeral state: captureZaicodeSettingsSnapshot raw-copies mixed families, and the checked-in zaicodeSettingsDefaults.json carries autoRetrySessions sess_ ids and autostart firedEvents/lastRunAt/lastResult.",
+      "verification": ".saipen/evidence/T-245-src160/verification.md",
+      "work": "T-245"
+    },
+    "SRC-160:R006": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "DEFERRED",
+      "evidence": ".saipen/evidence/T-240-src161/REQ-004-audit1-dispositions.md row 6 STILL_PRESENT P2; deliberately unticketed per REQ-004 (ticket only for still-present P1); belongs with T-241 and T-247, same file and transaction discipline",
+      "text": "[CORE-006 P2] The shared job transition matrix must be authoritative: claimForDispatch claims blocked rows directly (blocked->running is not in the table) and resume/claim leave previous finished_at/session_id/actual_model_selection visible on the new attempt.",
+      "verification": null,
+      "work": "T-239"
+    },
+    "SRC-160:R007": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "IMPLEMENTED",
+      "evidence": ".saipen/evidence/T-240-src161/REQ-004-audit1-dispositions.md row 7 ALREADY_FIXED; zcode/packages/services/src/zaicode/zaicodeJobService.ts dispose() graceful lease release and bounded heartbeat reaper; zcode/packages/services/src/zaicode/zaicodeJobRepo.ts releaseRunningForHost",
+      "text": "[W2-001 P1] A dead queue lease must recover without a fresh restart: shutdown/restart inside the two-minute heartbeat window left running rows stranded, so host shutdown must release its own leases and a bounded reaper must reclaim stale rows after startup.",
+      "verification": "zcode pnpm run test exit 0, 118/1275/105/252/45/9/11 with 0 failures; covers packages/services/test/zaicodeJobs.test.ts shutdown-release and recurring-reaper controls",
+      "work": "T-239"
+    },
+    "SRC-160:R008": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "IMPLEMENTED",
+      "evidence": ".saipen/evidence/T-240-src161/REQ-004-audit1-dispositions.md row 8 ALREADY_FIXED; zcode/packages/ui/src/zaicode/zaicodeRetrySafety.ts persists attempts, stopped errors, Stop-all and quota walls to localStorage zaicode-retry-safety-v1",
+      "text": "[W2-002 P1] Retry safety state must survive renderer reload for the same live session: attempts, Stop-this-error, Stop-all and quota walls were module-local Maps, so a reload gave a fresh hard cap and dropped operator stops.",
+      "verification": "zcode pnpm run test exit 0; packages/ui/test/zaicodeSrc161RetrySafetyReload.test.ts hydrates fresh modules against pre-seeded storage",
+      "work": "T-239"
+    },
+    "SRC-160:R009": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "IMPLEMENTED",
+      "evidence": ".saipen/evidence/T-246-src160/verification.md",
+      "text": "[W2-003 P1] Scheduler stop-at-time must confirm stop before forgetting a run: stopZaicodeSessionRun returns true for a missing handle or a rejected stop, forget() runs before the stop attempt, and cancellation errors are swallowed before a false success notification.",
+      "verification": ".saipen/evidence/T-246-src160/verification.md",
+      "work": "T-246"
+    },
+    "SRC-160:R010": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "IMPLEMENTED",
+      "evidence": ".saipen/evidence/T-247-src160/verification.md",
+      "text": "[W2-004 P1] Delegation spool requests must be run-scoped and crash-recoverable: dirFor keys only on parentJobId, scan submits with the current runId, .json->.taken->result has no recovery, and dispose() fences nothing.",
+      "verification": ".saipen/evidence/T-247-src160/verification.md",
+      "work": "T-247"
+    },
+    "SRC-160:R011": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "DEFERRED",
+      "evidence": ".saipen/evidence/T-240-src161/REQ-004-audit1-dispositions.md row 11 STILL_PRESENT P2; deliberately unticketed per REQ-004; same repo-init lifecycle as the job repo repair",
+      "text": "[W2-005 P2] Repository initialization must be fenced against close(): ensureReady can be parked in await mkdir while close() nulls state, after which the pending initializer reopens a DatabaseSync post-shutdown.",
+      "verification": null,
+      "work": "T-239"
+    },
+    "SRC-160:R012": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "DEFERRED",
+      "evidence": ".saipen/evidence/T-248-src160/verification.md",
+      "text": "[PERF-001 P1] The active queue poll must not load the whole durable history: zaicodeJobRepo.list has no limit/cursor, ZaicodeWorkspace polls every 3s while a job is active, and SAIHOME lists every workspace.",
+      "verification": ".saipen/evidence/T-248-src160/verification.md",
+      "work": "T-248"
+    },
+    "SRC-160:R013": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "DEFERRED",
+      "evidence": ".saipen/evidence/T-249-src160/verification.md -- repair landed and ticket T-249 closed own_patch (single-flight + generation commit guard + Promise.all reads, 6-case suite with red control); NOT terminal: SRC-160 PERF-002 still owes two VERIFY bullets the agent did not perform -- the 60s instrumented RPC/emission/React-commit run on a packaged build is OPERATOR REQUIRED, and merging the four reads into one composite RPC is owned by T-248 (PERF-001) because it changes the jobs.list payload contract",
+      "text": "[PERF-002 P1] Workspace refresh must be single-flight and generation-safe: refresh awaits five reads serially with no coalescing or stale-commit guard, so an old pass can overwrite a newer snapshot.",
+      "verification": null,
+      "work": "T-249"
+    },
+    "SRC-160:R014": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "DEFERRED",
+      "evidence": ".saipen/evidence/T-240-src161/REQ-004-audit1-dispositions.md row 14 STILL_PRESENT P2; deliberately unticketed per REQ-004; bounded aggregate waste, no correctness impact",
+      "text": "[PERF-003 P2] Unchanged SAIHOME statistics must not rescan raw events: getHomeStats recomputes meta/buckets/breakdown over the full table on every feed refresh with no cache or generation.",
+      "verification": null,
+      "work": "T-239"
+    },
+    "SRC-160:R015": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "DEFERRED",
+      "evidence": ".saipen/evidence/T-240-src161/REQ-004-audit1-dispositions.md row 15 STILL_PRESENT P2; deliberately unticketed per REQ-004; bounded renderer waste, no correctness impact",
+      "text": "[PERF-004 P2] Pixel snap must react only to relevant geometry: a document-wide MutationObserver runs observeShell() synchronously per mutation batch plus a 1500ms heartbeat, scanning selectors and forcing layout reads.",
+      "verification": null,
+      "work": "T-239"
+    },
+    "SRC-160:R016": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "DEFERRED",
+      "evidence": ".saipen/evidence/T-240-src161/REQ-004-audit1-dispositions.md row 16 STILL_PRESENT P2; deliberately unticketed per REQ-004; renderer memory drift, durable INSERT OR IGNORE keeps correctness",
+      "text": "[PERF-005 P2] Renderer worker dedupe memory must be bounded: recorderMemory.recorded grows one id per terminal worker for the whole renderer lifetime although durable INSERT OR IGNORE already dedupes.",
+      "verification": null,
+      "work": "T-239"
+    }
+  },
+  "schema_version": 1
+}

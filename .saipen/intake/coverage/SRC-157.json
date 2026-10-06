@@ -1,0 +1,14 @@
+{
+  "requirements": {
+    "SRC-157:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "T-227 closed with verification evidence in LOG: verify -> PASS [target: T-227] conf: high -- red control on the untouched sources: 7 pass / 2 red in packages/ui/test/zaicodeT223SaveAllCoverage.test.ts, the behavioural one returning 0 icon profiles while the release default was seeded through the bundled JSON the accessor reads. Green after three read-site repairs (zaicodeIconSlots.tsx:310, side pane :47 and :57) plus the two new gate tests: foc",
+      "text": "C:/Program Files/Git/goal cc all",
+      "verification": "the Work this request created reached its own verification gate; see the T-227 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-227"
+    }
+  },
+  "schema_version": 1
+}

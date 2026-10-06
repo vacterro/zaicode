@@ -1,0 +1,60 @@
+{
+  "op_id": "sub-disposition-295d49be",
+  "operation": "sub_disposition",
+  "created_at": "2026-10-05T23:30:32Z",
+  "agent": "saipen-cli",
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "project_lineage": "lineage-b0732ed2f98947b9a3c97bfe71427eca",
+  "semantic_payload_hash": "b82fe3fa27b5eca0",
+  "preconditions": {
+    ".saipen/LOG.md": "ddb0dac9fcf652f4",
+    ".saipen/STATE.md": "530d03d89082fe66",
+    ".saipen/extensions/subs/saihunt/kitchen/OUTBOX.md": "5452159fd85b93cd"
+  },
+  "read_preconditions": {
+    ".": "source-identity-v1:1e1f7740b6e923b254ee5150e97d9b1a9f626e4e10a965eebb6118c16df1a587",
+    ".saipen/BOARD.md": "20bc0c184b2128f4",
+    ".saipen/logs/LOG-001.md": "9d77443ef6269f79",
+    ".saipen/logs/LOG-002.md": "de23495e9525a297",
+    ".saipen/logs/LOG-003.md": "d1f1dde8a9f6331d"
+  },
+  "verification_policy": "sub_disposition",
+  "status": "COMMITTED",
+  "progress_index": 3,
+  "targets": [
+    {
+      "path": ".saipen/LOG.md",
+      "role": "log",
+      "action": "write",
+      "before_hash": "ddb0dac9fcf652f4",
+      "after_hash": "c52522eb3db9a07f",
+      "applied": true
+    },
+    {
+      "path": ".saipen/STATE.md",
+      "role": "state",
+      "action": "write",
+      "before_hash": "530d03d89082fe66",
+      "after_hash": "54c9f7b74568634b",
+      "applied": true
+    },
+    {
+      "path": ".saipen/extensions/subs/saihunt/kitchen/OUTBOX.md",
+      "role": "report",
+      "action": "write",
+      "before_hash": "5452159fd85b93cd",
+      "after_hash": "6a044d98c295be2f",
+      "applied": true
+    }
+  ],
+  "receipt_metadata": {
+    "operation": "sub_disposition",
+    "status": "COMMITTED",
+    "package_identity": "sha256:0ecaf1cc8b7b8a0f0b397e69824621e4ff7bdf3b429bb4d9f679c612d9a85418",
+    "producer": "saihunt",
+    "package": "HUNT-002",
+    "ticket_id": "T-228",
+    "source_head": "4e2135523fda59b7f055667dd0fbd4a6fd039f3c",
+    "source_tree_fingerprint": "git-delta-v1:0446f0eb77a4ffcad66ce348a76820f17de6204e085340be3f232ad39d26bc5c"
+  }
+}
