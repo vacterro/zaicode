@@ -335,7 +335,7 @@ test("hard bevels: raised controls, sunken fields and pressed states, strong eno
   assert.match(ZAICODE_BEVEL_CSS, /html\.zaicode-bevels button,/);
   assert.match(ZAICODE_BEVEL_CSS, /html\.zaicode-bevels textarea,/);
   assert.match(ZAICODE_BEVEL_CSS, /html\.zaicode-bevels button:active,/);
-  assert.match(ZAICODE_BEVEL_CSS, /html\.zaicode-bevels\.zaicode-bevel-rows li\[data-testid\^="task-item-"\]\.bg-selected/);
+  assert.match(ZAICODE_BEVEL_CSS, /html\.zaicode-bevels\.zaicode-bevel-rows\[data-zaicode-style\] li\[data-testid\^="task-item-"\]\.bg-selected/);
   assert.match(ZAICODE_BEVEL_CSS, /box-shadow: inset -1px -1px 0 0 var\(--zaicode-bevel-dark, #100e08\).*!important/);
   assert.ok(ZAICODE_PROFILE_KEYS.includes("zaicode-bevels") && ZAICODE_PROFILE_KEYS.includes("zaicode-bevel-rows"));
   // The bevel replaces the upstream focus ring (a box-shadow): keyboard focus is a dotted outline instead.

@@ -13,6 +13,7 @@ import {
   type ZaicodeArchiveBatch,
 } from "@/zaicode/zaicodeArchiveUndo.js";
 import { ZaicodeWorkingIcon } from "@/zaicode/ZaicodeWorkingIcon.js";
+import { useZaicodePresenceProject, zaicodePresenceOverridesWorking } from "@/zaicode/zaicodeConnectionPresence.js";
 import { ZaicodeTestsIndicator } from "@/zaicode/ZaicodeTestsIndicator.js";
 import { ZaicodeProjectMainGlyph } from "@/zaicode/ZaicodeProjectMainGlyph.js";
 import { ZaicodeTodoMiniGauge } from "@/v4/ZaicodeTodoGauge.js";
@@ -1487,6 +1488,10 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
   const zaicodeWorkingModel = taskItems.find((task) => zaicodeLiveRunIds.includes(task.taskId) || zaicodeSessionWorking(task, zaicodeStallNow))?.model;
   const zaicodeWaitingModel = taskItems.find((task) => Boolean(task.pendingInteraction) || getTaskListAttention(task) !== null)?.model;
   const zaicodeProjectWaitingLight = useZaicodeHighlight("projectWaiting", zaicodeWaitingCount > 0, undefined, zaicodeWaitingModel);
+  // Fresh REQ-005: the row reads the same connection presence as the composer mini.
+  // Router-level truth (reconnecting / fallback / offline) replaces the ordinary
+  // working readout instead of animating beside it.
+  const zaicodePresence = useZaicodePresenceProject(zaicodeRunningCount > 0);
   const zaicodeProjectWorkingLight = useZaicodeHighlight("projectWorking", zaicodeRunningCount > 0, undefined, zaicodeWorkingModel);
   const zaicodeProjectLight = zaicodeProjectWaitingLight ?? zaicodeProjectWorkingLight;
   const readinessTint = zaicodeRuntime && zaicodeSaipen ? buildReadinessTint(zaicodeRuntime) : null;
@@ -1523,12 +1528,13 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
       {zaicodeLiveIndicator && zaicodeRunningCount > 0 ? (
         <span
           className="flex items-center gap-0.5"
-          title={`${zaicodeRunningCount} session(s) working${zaicodeWorkingSince > 0 ? ` for ${formatZaicodeDuration(Date.now() - zaicodeWorkingSince)}` : ""}`}
+          title={zaicodePresenceOverridesWorking(zaicodePresence) && zaicodePresence.label ? `${zaicodeRunningCount} session(s) ${zaicodePresence.label} — ${zaicodePresence.detail ?? "connection state"}` : `${zaicodeRunningCount} session(s) working${zaicodeWorkingSince > 0 ? ` for ${formatZaicodeDuration(Date.now() - zaicodeWorkingSince)}` : ""}`}
           data-zaicode-project-working={zaicodeRunningCount}
+          data-zaicode-presence={zaicodePresence.kind}
         >
           {!zaicodeMainGlyphWorking ? <ZaicodeWorkingIcon model={zaicodeWorkingModel} className="size-3.5" /> : null}
           {zaicodeRunningCount > 1 ? zaicodeRunningCount : null}
-          {zaicodeWorkingSince > 0 ? formatZaicodeDuration(Date.now() - zaicodeWorkingSince) : null}
+          {zaicodePresenceOverridesWorking(zaicodePresence) && zaicodePresence.label ? zaicodePresence.label : zaicodeWorkingSince > 0 ? formatZaicodeDuration(Date.now() - zaicodeWorkingSince) : null}
         </span>
       ) : null}
       {zaicodeLiveIndicator && zaicodeStalledTasks.length > 0 ? (

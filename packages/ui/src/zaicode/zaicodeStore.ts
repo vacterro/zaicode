@@ -103,8 +103,102 @@ function describeError(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
 
+// T-248 / SRC-160:R012 — 活跃轮询窗口：3 秒一次的全量读取不能随终结历史无限增长。
+// 读取本身会带回窗口之外仍未终结的行，所以队列里在跑/待跑的任务一条都不会被截掉。
+const ZAICODE_ACTIVE_POLL_JOB_LIMIT = 200;
+
 export const useZaicodeStore = create<ZaicodeStoreState>((set, get) => {
   let autoRunQuery = 0;
+  // T-249 / SRC-160:R013 — 队列事实有三个重叠读取源：挂载 effect、3 秒轮询、每次
+  // runAction。同一时刻只跑一趟读取；期间到达的调用合并成一趟后续读取并各自等待
+  // 满足自己请求的那一趟，所以改完数据的调用看到的仍是改完之后的快照。提交前若已有
+  // 更新的请求（包括切换工作区），这一趟的快照直接丢弃，由新请求的那一趟覆盖。
+  let passGeneration = 0;
+  let passCommit = 0;
+  let passRunning = false;
+  let passPending: { services: ZaicodeServices; workspace: ZaicodeWorkspaceContext } | null =
+    null;
+  const passWaiters: { generation: number; resolve: () => void }[] = [];
+
+  const settlePassWaiters = () => {
+    while (true) {
+      const next = passWaiters[0];
+      if (!next || next.generation > passCommit) return;
+      passWaiters.shift();
+      next.resolve();
+    }
+  };
+
+  const runRefreshPass = async (
+    services: ZaicodeServices,
+    workspace: ZaicodeWorkspaceContext,
+    generation: number,
+  ): Promise<void> => {
+    set({ loading: true });
+    try {
+      const [agentsResult, jobsResult, templates, maxConcurrency] = await Promise.all([
+        services.agents.list(),
+        services.jobs.list({
+          workspaceKey: workspace.workspaceKey,
+          limit: ZAICODE_ACTIVE_POLL_JOB_LIMIT,
+        }),
+        services.agents.listTemplates(),
+        services.jobs.getMaxConcurrency(),
+        // refreshAutoRun 自带 generation 护栏，放进同一趟读取，轮询不再多跑一个来回。
+        get().refreshAutoRun(services),
+      ]);
+      // 已被更新的请求取代（含工作区已切换）：丢弃旧快照，让新请求提交。
+      if (generation !== passGeneration) return;
+      set({
+        agents: agentsResult.agents,
+        agentDiagnostics: agentsResult.diagnostics,
+        jobs: jobsResult.jobs,
+        jobDiagnostics: jobsResult.diagnostics,
+        templates,
+        maxConcurrency,
+        loading: false,
+        error: null,
+      });
+    } catch (error) {
+      logger.error("[zaicode] 加载失败", { error: describeError(error) });
+      if (generation !== passGeneration) return;
+      set({ loading: false, error: describeError(error) });
+    }
+  };
+
+  const drainRefreshPasses = async (): Promise<void> => {
+    while (passPending) {
+      const request = passPending;
+      passPending = null;
+      const generation = passGeneration;
+      await runRefreshPass(request.services, request.workspace, generation);
+      if (generation > passCommit) passCommit = generation;
+      settlePassWaiters();
+    }
+    passRunning = false;
+  };
+
+  const requestRefresh = (
+    services: ZaicodeServices,
+    workspace: ZaicodeWorkspaceContext,
+  ): Promise<void> => {
+    const generation = ++passGeneration;
+    passPending = { services, workspace };
+    if (!passRunning) {
+      passRunning = true;
+      void drainRefreshPasses().catch((error: unknown) => {
+        passRunning = false;
+        logger.error("[zaicode] 队列读取调度失败", { error: describeError(error) });
+        passCommit = Math.max(passCommit, generation);
+        settlePassWaiters();
+      });
+    }
+    return new Promise<void>((resolve) => {
+      passWaiters.push({ generation, resolve });
+      settlePassWaiters();
+    });
+  };
+
   const runAction = async <T>(
     services: ZaicodeServices,
     workspace: ZaicodeWorkspaceContext,
@@ -161,29 +255,7 @@ export const useZaicodeStore = create<ZaicodeStoreState>((set, get) => {
       }
     },
 
-    refresh: async (services, workspace) => {
-      set({ loading: true });
-      try {
-        const agentsResult = await services.agents.list();
-        const jobsResult = await services.jobs.list({ workspaceKey: workspace.workspaceKey });
-        const templates = await services.agents.listTemplates();
-        const maxConcurrency = await services.jobs.getMaxConcurrency();
-        await get().refreshAutoRun(services);
-        set({
-          agents: agentsResult.agents,
-          agentDiagnostics: agentsResult.diagnostics,
-          jobs: jobsResult.jobs,
-          jobDiagnostics: jobsResult.diagnostics,
-          templates,
-          maxConcurrency,
-          loading: false,
-          error: null,
-        });
-      } catch (error) {
-        logger.error("[zaicode] 加载失败", { error: describeError(error) });
-        set({ loading: false, error: describeError(error) });
-      }
-    },
+    refresh: (services, workspace) => requestRefresh(services, workspace),
 
     createAgent: async (services, workspace, input) => {
       // SRC-038: a new agent without a pool takes the default model for new tasks, so it runs at once.

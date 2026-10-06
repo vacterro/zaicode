@@ -32,8 +32,260 @@ export const ZAICODE_ENGINE_VENDOR_LABELS: Record<ZaicodeEngineVendor, string> =
  */
 export const ZAICODE_METRICS_ONLY_VENDORS: readonly ZaicodeEngineVendor[] = ["freebuff"];
 
-export function isZaicodeMetricsOnlyAccount(account: Pick<ZaicodeEngineAccount, "vendor">): boolean {
-  return ZAICODE_METRICS_ONLY_VENDORS.includes(account.vendor);
+/** Button code per vendor: A1 = Claude, C1 = Codex, AG / ZC / FB for the single-login ones. */
+export const ZAICODE_ENGINE_VENDOR_SHORTS: Readonly<Record<ZaicodeEngineVendor, string>> = Object.freeze({
+  claude: "A",
+  codex: "C",
+  antigravity: "AG",
+  zcode: "ZC",
+  freebuff: "FB",
+});
+
+/**
+ * Vendors whose CLI takes a per-account home directory (CLAUDE_CONFIG_DIR /
+ * CODEX_HOME), so one vendor can hold several accounts and a shared profile
+ * directory is launchable here.
+ *
+ * The others keep exactly one local identity. A second row for them would
+ * launch the very same single install under a second name, which is the
+ * "old mechanic that confuses it" (SRC-151:R007), so a shared record for one
+ * of these is shown and measured but never started.
+ */
+export const ZAICODE_MULTI_HOME_VENDORS: readonly ZaicodeEngineVendor[] = ["claude", "codex"];
+
+/** Home directory name an operator's own second account gets (`~/.claude-account2`). */
+export const ZAICODE_VENDOR_HOME_PREFIXES: Readonly<Record<string, string>> = Object.freeze({
+  claude: ".claude-account",
+  codex: ".codex-account",
+});
+
+/**
+ * SAI Accounts origin (SRC-151:R007). Absent = local discovery only, which is
+ * what every machine without the control plane keeps seeing.
+ *
+ * The plane owns the canonical `accountId` and the global lifecycle state;
+ * ZAICODE keeps the local half (config overlay, entitlement, presentation).
+ * The two id namespaces differ, so a shared id can never pose as a ZAICODE
+ * provider id.
+ */
+export interface ZaicodeSharedOrigin {
+  /** Canonical id in the plane's own namespace. */
+  accountId: string;
+  /** The locator that proved the match: a profile directory, a windows user or a context label. */
+  locator: string;
+}
+
+export function isZaicodeMetricsOnlyAccount(
+  account: Pick<ZaicodeEngineAccount, "vendor"> &
+    Partial<Pick<ZaicodeEngineAccount, "home" | "shared" | "planeOnly">>,
+): boolean {
+  if (ZAICODE_METRICS_ONLY_VENDORS.includes(account.vendor)) return true;
+  // SRC-161:REQ-001: the question is "did the plane INVENT this row?", not "does
+  // this row know the plane?". A locally discovered account the plane merely
+  // enriched still IS the local install and keeps every local launch fact --
+  // marking it metrics-only for carrying a plane id is how a working
+  // Antigravity login would quietly stop being offered as a worker.
+  // A vendor that cannot keep several local logins still gets the same treatment
+  // for its plane-only rows: a second name for the same single install.
+  return account.planeOnly === true && !ZAICODE_MULTI_HOME_VENDORS.includes(account.vendor);
+}
+
+/**
+ * The one merge key for the federation: provider + locator, case-folded.
+ *
+ * An empty provider or an empty locator returns "" -- that is "cannot be
+ * proven", and it must never become a key: a key built from "" would collapse
+ * every locator-less account into a single row. A display name is never a key
+ * either; two subscriptions may answer to the same name.
+ */
+export function zaicodeSharedIdentityKey(providerId: string, locator: string): string {
+  const provider = (providerId ?? "").trim().toLowerCase();
+  const value = (locator ?? "").trim().toLowerCase();
+  if (!provider || !value) return "";
+  return `${provider}|${value}`;
+}
+
+/** One shared record, already reduced to what a merge needs. */
+export interface ZaicodeSharedAccountInput {
+  accountId: string;
+  providerId: string;
+  displayName: string;
+  /** Locator exactly as the plane gave it; "" when it has none. */
+  locator: string;
+  /** Absolute existing profile directory this locator names; null when it names no local path. */
+  home: string | null;
+}
+
+function normalizeSharedLocator(value: string): string {
+  return (value ?? "")
+    .trim()
+    .replace(/\//g, "\\")
+    .replace(/\\+$/, "")
+    .toLowerCase();
+}
+
+/** The next free A<n> / C<n>, or the vendor's single fixed code when it takes no homes. */
+function nextSharedShort(vendor: ZaicodeEngineVendor, existing: readonly ZaicodeEngineAccount[]): string {
+  const letters = ZAICODE_ENGINE_VENDOR_SHORTS[vendor];
+  if (!ZAICODE_MULTI_HOME_VENDORS.includes(vendor)) return letters;
+  const pattern = new RegExp(`^${letters}(\\d+)$`);
+  let highest = 0;
+  for (const account of existing) {
+    if (account.vendor !== vendor) continue;
+    const hit = pattern.exec(account.short);
+    if (hit?.[1]) highest = Math.max(highest, Number(hit[1]));
+  }
+  return `${letters}${highest + 1}`;
+}
+
+function sharedAccountRow(
+  vendor: ZaicodeEngineVendor,
+  origin: ZaicodeSharedOrigin,
+  entry: ZaicodeSharedAccountInput,
+  existing: readonly ZaicodeEngineAccount[],
+): ZaicodeEngineAccount {
+  const launchable = entry.home !== null && ZAICODE_MULTI_HOME_VENDORS.includes(vendor);
+  const label = entry.displayName.trim();
+  return {
+    // The plane's id inside a namespace of its own: it can collide with nothing.
+    id: `${vendor}:shared:${origin.accountId}`,
+    vendor,
+    short: nextSharedShort(vendor, existing),
+    label: label || `${ZAICODE_ENGINE_VENDOR_LABELS[vendor]} (SAI)`,
+    source: launchable ? entry.home! : `SAI Accounts · ${origin.locator || "no locator"}`,
+    home: launchable ? entry.home : null,
+    isDefaultHome: false,
+    // The plane already filtered to ENABLED and not hidden, so this identity is
+    // live by the plane's own judgement; ZAICODE does not second-guess it with a
+    // second login check. Same CLI as the local row -- the vendor ships one.
+    cli: existing.find((account) => account.vendor === vendor)?.cli ?? null,
+    status: "ready",
+    statusDetail: "",
+    fixCommand: null,
+    shared: origin,
+    // The plane made this row up: nothing local backs it, so it is measured and
+    // shown but never offered as a worker (SRC-161:REQ-001).
+    planeOnly: true,
+  };
+}
+
+/**
+ * Fold the shared registry into the locally discovered accounts (SRC-151:R007).
+ *
+ * STANDALONE -- no control plane, `shared` is empty -- returns the local list
+ * untouched, byte for byte. FEDERATED -- a shared record whose locator names an
+ * already discovered home IS that account: the local row gains the plane's id
+ * and is read through the plane afterwards, so there is one row, not two.
+ * HYBRID -- a record that matches nothing becomes its own row: launchable when
+ * its vendor keeps several homes and the locator is a real directory here,
+ * otherwise measured through the plane and never started.
+ */
+export function mergeZaicodeSharedAccounts(
+  accounts: readonly ZaicodeEngineAccount[],
+  shared: readonly ZaicodeSharedAccountInput[],
+): ZaicodeEngineAccount[] {
+  const merged: ZaicodeEngineAccount[] = accounts.map((account) => ({ ...account }));
+  // Keyed by vendor too (SRC-162): a locator only ever identifies an account of its own vendor,
+  // so an OS user name shared by two vendors' records can never fold one into the other.
+  const locators = new Map<string, number>();
+  const at = (vendor: string, locator: string) => `${vendor}|${normalizeSharedLocator(locator)}`;
+  merged.forEach((account, index) => {
+    if (account.home) {
+      locators.set(at(account.vendor, account.home), index);
+      return;
+    }
+    // SRC-162: a home-less row that reads the running OS user's own credential store (local
+    // Antigravity) IS the plane's `windows_user` record for that same user -- the plane names
+    // it by the user ("vac34"), never by the credential target, so without this alias the one
+    // subscription still showed twice: "Antigravity" and "Antigravity 1" with equal numbers.
+    if (account.osUser) locators.set(at(account.vendor, account.osUser), index);
+    // An account with no home directory has no directory to be identified by:
+    // Antigravity's whole non-secret identity IS its credential target name
+    // ("gemini:antigravity"), ZCode's is its config entry. Without this the
+    // plane's own record for that same install could never match, so it became
+    // its own row and one subscription read as two -- the generic "Antigravity"
+    // beside the plane's own name (SRC-161:REQ-001). Only home-less accounts
+    // are indexed here: for the multi-home vendors the directory already is the
+    // identity, and their `source` is a display path rather than a locator.
+    if (normalizeSharedLocator(account.source)) locators.set(at(account.vendor, account.source), index);
+  });
+  const claimed = new Set<string>();
+  for (const entry of shared) {
+    const vendor = ZAICODE_ENGINE_VENDORS.find((id) => id === entry.providerId.trim().toLowerCase());
+    if (!vendor) continue; // a provider ZAICODE has no engine for
+    const key = zaicodeSharedIdentityKey(entry.providerId, entry.locator);
+    if (!key || claimed.has(key)) continue; // cannot be proven, or the plane sent it twice
+    claimed.add(key);
+    const origin: ZaicodeSharedOrigin = { accountId: entry.accountId.trim(), locator: entry.locator.trim() };
+    const index = locators.get(at(vendor, entry.locator));
+    if (index !== undefined && !merged[index]!.shared) {
+      merged[index] = { ...merged[index]!, shared: origin };
+      continue;
+    }
+    merged.push(sharedAccountRow(vendor, origin, entry, merged));
+    if (entry.home !== null) locators.set(at(vendor, entry.home), merged.length - 1);
+  }
+  return merged;
+}
+
+/**
+ * Antigravity's `/usage` lists its two independent pools in a fixed order (parseAntigravityUsage
+ * reads the names: "Gemini Models", then "Claude and GPT models"). The shared-account plane keeps
+ * only that order as `pool_index`.
+ */
+const ANTIGRAVITY_POOL_ORDER = ["Gemini", "Claude & GPT"] as const;
+
+/**
+ * Short display name of a quota pool id ("gemini" -> "Gemini"); "" for the account's only pool.
+ * A numeric id is the plane's pool index: index 0 of a single-pool vendor names nothing, an
+ * Antigravity index maps to its known pool, any other index reads "Pool N".
+ */
+export function zaicodeQuotaPoolLabel(group: string, vendor?: string): string {
+  const id = group.trim();
+  if (!id) return "";
+  if (/^\d+$/.test(id)) {
+    const index = Number(id);
+    if (vendor === "antigravity") return ANTIGRAVITY_POOL_ORDER[index] ?? `Pool ${index + 1}`;
+    return index === 0 ? "" : `Pool ${index + 1}`;
+  }
+  if (/gemini/i.test(id)) return "Gemini";
+  if (/claude|gpt/i.test(id)) return "Claude & GPT";
+  return id.replace(/[_-]+/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+/** One plane window -> the window shape every ZAICODE surface already reads. */
+export function zaicodeWindowFromShared(input: {
+  readonly kind: string;
+  readonly label: string;
+  readonly remainingFraction: number;
+  readonly resetTime: string | null;
+  readonly quotaBucket: string;
+}, vendor?: string): ZaicodeLimitWindow {
+  const kind = input.kind.trim() || "window";
+  const group = input.quotaBucket.trim();
+  const parsed = input.resetTime ? Date.parse(input.resetTime) : Number.NaN;
+  const resetsAt = Number.isFinite(parsed) ? parsed : null;
+  const base = input.label.trim() || zaicodeWindowLabel(kind);
+  const pool = zaicodeQuotaPoolLabel(group, vendor);
+  return {
+    key: group ? `${kind}@${group}` : kind,
+    // SRC-162: two pools of one account (Antigravity: Gemini vs Claude & GPT) both arrive as
+    // "weekly" / "5h"; without the pool in the label the card read as duplicated rows.
+    label: pool && !base.toLowerCase().includes(pool.toLowerCase()) ? `${pool} ${base}` : base,
+    group,
+    groupLabel: pool,
+    remainingPercent: Math.max(0, Math.min(100, input.remainingFraction * 100)),
+    resetsAt,
+    durationMinutes: WINDOW_MINUTES[kind] ?? null,
+    gatedBy: null,
+    assumedFull: false,
+    startsOnUse: false,
+  };
+}
+
+/** Minutes a known window lasts, or null when the key is not one of the known ones. */
+export function zaicodeWindowMinutes(key: string): number | null {
+  return WINDOW_MINUTES[key] ?? null;
 }
 
 /** Why an account can or cannot work right now; `ready` is the only launchable state. */
@@ -53,6 +305,11 @@ export interface ZaicodeEngineAccount {
   home: string | null;
   /** True when `home` is the vendor's default account and the env override must be cleared. */
   isDefaultHome: boolean;
+  /**
+   * The OS account whose own credential store this home-less row reads (local Antigravity).
+   * The shared-account plane names that same identity by the user, so it is a merge alias.
+   */
+  osUser?: string;
   /** Resolved executable (or script for ZCode) used to launch workers; null when not installed. */
   cli: string | null;
   status: ZaicodeEngineStatus;
@@ -66,6 +323,19 @@ export interface ZaicodeEngineAccount {
   optional?: boolean;
   /** Exact command that fixes the state, shown before it runs (login / install). */
   fixCommand: string | null;
+  /**
+   * SAI Accounts owns this identity when it is present (SRC-151:R007). Absent
+   * means local discovery only, which is every machine without the control
+   * plane -- nothing about the account changes there.
+   */
+  shared?: ZaicodeSharedOrigin;
+  /**
+   * SRC-161:REQ-001: the plane invented this row -- no local discovery backs it.
+   * Distinct from `shared`: a plane record that FOLDS into a locally discovered
+   * account carries `shared` but not this, because the row still IS that
+   * account and must keep its local launch facts.
+   */
+  planeOnly?: boolean;
 }
 
 export interface ZaicodeLimitWindow {

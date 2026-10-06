@@ -69,7 +69,7 @@ export const ZAICODE_HOTKEY_ACTIONS: readonly ZaicodeHotkeyAction[] = [
   { id: "sounds.mute", group: "Sounds", scope: "app", label: "Mute / unmute all sounds", hint: "Master mute of the Sounds table", defaults: ["Alt+M", ""] },
   { id: "sounds.stop", group: "Sounds", scope: "app", label: "Stop playing sounds", hint: "Stops everything that is playing right now", defaults: ["Alt+.", ""] },
   // Interface
-  { id: "ui.usageSidebar", group: "Interface", scope: "app", label: "Usage sidebar", hint: "Show or hide 9router Usage beside the chat", defaults: ["Ctrl+Alt+B", ""] },
+  { id: "ui.usageSidebar", group: "Interface", scope: "app", label: "Usage sidebar", hint: "Show or hide 9router Usage beside the chat", defaults: ["", ""] },
   { id: "ui.home", group: "Interface", scope: "app", label: "SAIHOME", hint: "Opens the operator home (clock, limits, projects, agents, statistics)", defaults: ["Alt+H", ""] },
   { id: "ui.settings", group: "Interface", scope: "app", label: "Settings", hint: "Opens Settings", defaults: ["", ""] },
   { id: "ui.help", group: "Interface", scope: "app", label: "Help", hint: "Opens ZAICODE Help", defaults: ["F1", ""] },
@@ -256,6 +256,38 @@ export function zaicodeAccelerator(binding: string): string | null {
 
 const STORAGE_KEY = "zaicode-hotkeys-v1";
 const CHANGE_EVENT = "zaicode-hotkeys-changed";
+/**
+ * T-226 / SRC-156: the old default bound the Usage sidebar to Ctrl+Alt+B, the
+ * historical side-pane key. The capture-phase dispatcher consumes a matching
+ * ZAICODE action before the upstream listener sees it, so the SAIPEN side pane
+ * could not be toggled with its own key. This one-shot marker moves a stored
+ * OLD DEFAULT off the key exactly once; a deliberate rebinding afterwards is
+ * respected, and the key now falls through to the upstream pane toggle (the
+ * Always-everywhere / per-project visibility policy rides on it).
+ */
+const SIDE_PANE_KEY_REV = "zaicode-hotkeys-sidepane-rev";
+const SIDE_PANE_KEY_REVALUE = "1";
+
+function migrateStoredSidePaneHotkey(raw: string | null): string | null {
+  try {
+    if (typeof localStorage === "undefined") return raw;
+    if (localStorage.getItem(SIDE_PANE_KEY_REV) === SIDE_PANE_KEY_REVALUE) return raw;
+    localStorage.setItem(SIDE_PANE_KEY_REV, SIDE_PANE_KEY_REVALUE);
+    if (!raw) return raw;
+    const parsed = JSON.parse(raw) as { bindings?: Record<string, unknown> } | null;
+    const bindings = parsed?.bindings;
+    const usage = bindings?.["ui.usageSidebar"];
+    if (!bindings || !Array.isArray(usage) || usage[0] !== "Ctrl+Alt+B") return raw;
+    const next = JSON.stringify({
+      ...parsed,
+      bindings: { ...bindings, "ui.usageSidebar": ["", String(usage[1] ?? "")] },
+    });
+    localStorage.setItem(STORAGE_KEY, next);
+    return next;
+  } catch {
+    return raw;
+  }
+}
 
 export function defaultZaicodeHotkeySettings(): ZaicodeHotkeySettings {
   const bindings: Record<string, [string, string]> = {};
@@ -284,7 +316,8 @@ let cached: ZaicodeHotkeySettings | null = null;
 export function readZaicodeHotkeySettings(): ZaicodeHotkeySettings {
   if (cached) return cached;
   try {
-    cached = normalizeZaicodeHotkeySettings(JSON.parse(readZaicodeSetting(STORAGE_KEY) ?? "null"));
+    const stored = migrateStoredSidePaneHotkey(readZaicodeSetting(STORAGE_KEY));
+    cached = normalizeZaicodeHotkeySettings(JSON.parse(stored ?? "null"));
   } catch {
     cached = defaultZaicodeHotkeySettings();
   }
@@ -394,10 +427,7 @@ export function findZaicodeHotkeyConflicts(settings: ZaicodeHotkeySettings): Zai
   const conflicts: ZaicodeHotkeyConflict[] = [];
   for (const [binding, actions] of byBinding) {
     const unique = [...new Set(actions)];
-    // Usage deliberately owns the old side-pane key in ZAICODE. The capture-phase
-    // dispatcher stops this event before the upstream listener; other assignments still conflict.
-    const usageOwnsSidePane = binding === "Ctrl+Alt+B" && unique.length === 1 && unique[0] === "ui.usageSidebar" && upstream.get(binding) === "toggleSidePane";
-    const shadowed = usageOwnsSidePane ? null : upstream.get(binding) ?? null;
+    const shadowed = upstream.get(binding) ?? null;
     if (unique.length > 1 || shadowed) conflicts.push({ binding, actions: unique, upstream: shadowed });
   }
   return conflicts;

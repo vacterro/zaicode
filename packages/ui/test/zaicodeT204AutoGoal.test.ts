@@ -39,10 +39,8 @@ test("the mode is per project, off only where the operator turned it off", () =>
 });
 
 test("the composer appends the goal to the outgoing text, never to the editor or the history", () => {
-  assert.match(
-    composer,
-    /serializeComposerPromptContexts\(withZaicodeAutoGoal\(trimmed, autoGoalOn\)/,
-  );
+  assert.match(composer, /const goalText = withZaicodeAutoGoal\(trimmed, autoGoalOn\)/);
+  assert.match(composer, /serializeComposerPromptContexts\(goalText, \{/);
   // History and the editor keep the operator's own words: the goal is added after both.
   assert.match(composer, /appendPromptHistoryEntry\(promptHistoryBeforeSend, trimmed\)/);
   assert.doesNotMatch(composer, /updateComposerContent\(\{ text: promptText \}\)/);
@@ -54,7 +52,7 @@ test("the composer appends the goal to the outgoing text, never to the editor or
 });
 
 test("the composer carries the switch and keys it to the project", () => {
-  assert.match(composer, /<ZaicodeAutoGoalButton workspaceKey=\{workspaceKey\} \/>/);
+  assert.match(composer, /<ZaicodeAutoGoalButton workspaceKey=\{workspaceKey\} sessionId=\{sessionId\} \/>/);
   assert.match(composer, /useZaicodeAutoGoal\(\(state\) => zaicodeAutoGoalEnabled\(state, workspaceKey\)\)/);
   // On is highlighted and announced pressed; off is neither.
   assert.match(button, /enabled \? "on" : "off"/);

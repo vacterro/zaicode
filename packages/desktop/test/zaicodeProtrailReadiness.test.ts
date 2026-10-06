@@ -63,6 +63,10 @@ function harness(platform = "linux") {
   runInNewContext(compiled, {
     exports, require: (id: string) => { assert.ok(id in ports, id); return ports[id]; },
     process: { platform, env: {} }, setTimeout, clearTimeout,
+    // This harness asserts feed ordering, never elapsed time, so the z-order
+    // heartbeat (SRC-151:R003) is stubbed out instead of left running.
+    setInterval: (() => ({ unref() {} })) as unknown as typeof setInterval,
+    clearInterval: (() => {}) as unknown as typeof clearInterval,
   });
   exports.registerZaicodeProtrailGlobalIpc();
   const sender = new Contents();

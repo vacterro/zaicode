@@ -1,7 +1,8 @@
 import bundled from "./zaicodeSettingsDefaults.json" with { type: "json" };
 
-/** Only durable ZAICODE preferences belong in a release snapshot. */
-const SETTING_KEYS = [
+/** Only durable ZAICODE preferences belong in a release snapshot.
+ * T-223: exported so the Save All coverage test pins the allowlist. */
+export const ZAICODE_SAVE_ALL_SETTING_KEYS = [
   "zaicode-ui-prefs-v1",
   "zaicode-sidebar-prefs-v1",
   // Wave 4: virtual folders and pins are organization metadata about a
@@ -41,6 +42,28 @@ const SETTING_KEYS = [
   "zaicode-lights-presets-v1",
   "zaicode-composer-prefs-v1",
   "zaicode-saiasui-settings-v1",
+  "zaicode-protrail-v1",
+  // T-226: the durable families the T-223 audit named but the first allowlist
+  // missed; each one's store reads through readZaicodeSetting, so the snapshot
+  // default actually lands (the other named families read raw localStorage and
+  // would be dead entries until their readers move to readZaicodeSetting).
+  "zaicode-auto-continue-v1",
+  "zaicode-auto-goal-v1",
+  "zaicode-autostart-v1",
+  "zaicode-change-floaters-v1",
+  "zaicode-dispatch-prefs-v1",
+  "zaicode-engine-bar-v1",
+  "zaicode-header-title-v1",
+  "zaicode-home-v1",
+  "zaicode-icon-profiles-v1",
+  "zaicode-size",
+  "zaicode-presentation",
+  "zaicode-active-engine",
+  "zaicode-scheduler-marks-v1",
+  "zaicode-session-text-v1",
+  "zaicode-session-text-presets-v1",
+  "zaicode-saipeggle-v1",
+  "zaicode-presets-v1",
 ] as const;
 
 type Snapshot = { version: 1; settings: Record<string, string>; cueAudio: Record<string, string> };
@@ -118,10 +141,99 @@ function asDataUrl(blob: Blob): Promise<string> {
   });
 }
 
+/**
+ * T-245 / SRC-160:R005: a release snapshot carries durable preferences only. Some
+ * allowlisted families also hold state about one session or one run — per-session
+ * overrides, already-fired markers, run history, the operator's last click. The names
+ * below are that whole class; per family, the ones it actually holds.
+ */
+const ZAICODE_SNAPSHOT_EPHEMERAL_NAMES: readonly string[] = [
+  "autoRetrySessions",
+  "schedulerIneligible",
+  "firedEvents",
+  "lastRunAt",
+  "lastResult",
+  "runs",
+  "lastFired",
+  "lastFiredMinute",
+  "lastProject",
+  "lastView",
+];
+
+/** A family absent here ships verbatim — but only after the session scan passes it. */
+const ZAICODE_SNAPSHOT_EPHEMERAL_FIELDS: Record<string, readonly string[]> = {
+  "zaicode-ui-prefs-v1": ["autoRetrySessions", "schedulerIneligible"],
+  "zaicode-autostart-v1": ["firedEvents", "lastRunAt", "lastResult", "runs"],
+  "zaicode-timer-prefs-v1": ["lastFired", "lastFiredMinute"],
+  "zaicode-dispatch-prefs-v1": ["lastProject"],
+  "zaicode-home-v1": ["lastView"],
+  // A preset bundles other families' payloads, so it carries their volatile fields too.
+  "zaicode-presets-v1": [...ZAICODE_SNAPSHOT_EPHEMERAL_NAMES],
+};
+
+/** `sess_<uuid>` is one session's key wherever it turns up. */
+const ZAICODE_SNAPSHOT_SESSION_KEY = /^sess_/;
+
+/** Remove `fields` from `value` at every depth; arrays are mapped, scalars untouched. */
+function stripEphemeralFields(value: unknown, fields: readonly string[]): unknown {
+  if (Array.isArray(value)) return value.map((row) => stripEphemeralFields(row, fields));
+  if (!value || typeof value !== "object") return value;
+  const out: Record<string, unknown> = {};
+  for (const [key, child] of Object.entries(value as Record<string, unknown>)) {
+    if (fields.includes(key)) continue;
+    out[key] = stripEphemeralFields(child, fields);
+  }
+  return out;
+}
+
+/** Path of the first session key or volatile field left anywhere, or null when clean. */
+function findEphemeralPayload(value: unknown, path: string): string | null {
+  if (Array.isArray(value)) {
+    for (const [index, row] of value.entries()) {
+      const found = findEphemeralPayload(row, `${path}[${index}]`);
+      if (found) return found;
+    }
+    return null;
+  }
+  if (!value || typeof value !== "object") return null;
+  for (const [key, child] of Object.entries(value as Record<string, unknown>)) {
+    if (ZAICODE_SNAPSHOT_SESSION_KEY.test(key) || ZAICODE_SNAPSHOT_EPHEMERAL_NAMES.includes(key)) {
+      return `${path}.${key}`;
+    }
+    const found = findEphemeralPayload(child, `${path}.${key}`);
+    if (found) return found;
+  }
+  return null;
+}
+
+/**
+ * What a family actually contributes to the snapshot. Its declared volatile fields are
+ * stripped first; a family that still carries session state after that is REFUSED — left
+ * out with a warning — instead of shipped. A family the table does not know is refused the
+ * same way, so a new session-scoped field fails closed rather than becoming a factory
+ * default; the shipped-defaults regression test walks every family so this stays visible.
+ */
+function projectZaicodeSnapshotFamily(key: string, value: string): string | null {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(value);
+  } catch {
+    return value; // Not JSON: it cannot carry a nested session key.
+  }
+  const fields = ZAICODE_SNAPSHOT_EPHEMERAL_FIELDS[key];
+  const projected = fields ? stripEphemeralFields(parsed, fields) : parsed;
+  const leftover = findEphemeralPayload(projected, key);
+  if (leftover) {
+    console.warn(`[zaicode] Save All refused ${key}: it carries session state (${leftover}).`);
+    return null;
+  }
+  return fields ? JSON.stringify(projected) : value;
+}
+
 export async function captureZaicodeSettingsSnapshot(): Promise<string> {
   const settings: Record<string, string> = {};
   const cueAudio: Record<string, string> = {};
-  for (const key of SETTING_KEYS) {
+  for (const key of ZAICODE_SAVE_ALL_SETTING_KEYS) {
     const value = readZaicodeSetting(key);
     if (value === null) continue;
     if (key === "zaicode-audio-v1") {
@@ -136,7 +248,8 @@ export async function captureZaicodeSettingsSnapshot(): Promise<string> {
         // Skip malformed settings; the corresponding feature already falls back.
       }
     } else {
-      settings[key] = value;
+      const projected = projectZaicodeSnapshotFamily(key, value);
+      if (projected !== null) settings[key] = projected;
     }
   }
   const cues = settings["zaicode-cues-v1"];

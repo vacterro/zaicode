@@ -252,6 +252,7 @@ export function ZaicodeSessionActionStrip() {
       >
         <ZaicodeRightClickSettings
           title="CONTINUE ALL — what it will do"
+          preferenceKey="sessionActions"
           panel={<pre className="whitespace-pre-wrap text-foreground">{planTooltip(plan)}</pre>}
           className="col-span-2 flex w-full min-w-0 @min-[360px]/workspace-sidebar:col-span-1"
         >
@@ -301,6 +302,7 @@ OFF means nothing acts by itself: no retry of a failed turn, no resume after a c
         </button>
         <ZaicodeRightClickSettings
           title="Finished, not seen yet"
+      preferenceKey="sessionActions"
           align="end"
           panel={
             done.length === 0 && interrupted.length === 0 ? (

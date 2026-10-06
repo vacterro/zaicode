@@ -30,6 +30,23 @@ const { DatabaseSync } = require("node:sqlite") as typeof import("node:sqlite");
 type DatabaseSyncInstance = InstanceType<typeof DatabaseSync>;
 
 const TERMINAL_SQL = "'completed','failed','cancelled'";
+// T-248 / SRC-160:R012 — 与 migration 0007 的 idx_zaicode_jobs_open 部分索引逐字一致：
+// 有界读取补取"窗口之外仍未终结"的行，必须命中该索引，否则每个 3 秒 tick 都要扫全史。
+// 两份列表漂移不会被静默忽略：用例断言这条语句的查询计划命中该索引。
+const OPEN_STATUS_SQL = "'draft','queued','ready','running','waiting','blocked'";
+
+// T-243 / SRC-160:R003 — 普通创建与委托子任务共用同一份列/参数清单：原子保留只是给
+// 同一个 INSERT 加一个 WHERE，两条写路径不可能在列上悄悄漂移。
+const JOB_INSERT_COLUMNS = `job_id, workspace_key, workspace_path, workspace_identity, agent_id, title,
+          instructions, status, priority, sort_order, created_at, updated_at, queued_at,
+          started_at, finished_at, result_summary, error, session_id, run_id, attempt,
+          host_id, heartbeat_at, parent_job_id, retry_of_job_id, delegated_from_run_id,
+          delegation_json, actual_model_selection`;
+const JOB_INSERT_VALUES = `@id, @workspaceKey, @workspacePath, @workspaceIdentity, @agentId, @title,
+          @instructions, @status, @priority, @sortOrder, @createdAt, @updatedAt, @queuedAt,
+          @startedAt, @finishedAt, @resultSummary, @error, @sessionId, @runId, @attempt,
+          @hostId, @heartbeatAt, @parentJobId, @retryOfJobId, @delegatedFromRunId,
+          @delegationJson, @actualModelSelection`;
 
 interface ZaicodeJobRow {
   job_id: string;
@@ -56,6 +73,7 @@ interface ZaicodeJobRow {
   heartbeat_at: number | null;
   parent_job_id: string | null;
   retry_of_job_id: string | null;
+  delegated_from_run_id: string | null;
   delegation_json: string | null;
   actual_model_selection: string | null;
 }
@@ -97,6 +115,7 @@ function rowToJob(row: ZaicodeJobRow): { job: ZaicodeJob } | { diagnostic: Zaico
     heartbeatAt: row.heartbeat_at ?? undefined,
     parentJobId: row.parent_job_id ?? undefined,
     retryOfJobId: row.retry_of_job_id ?? undefined,
+    delegatedFromRunId: row.delegated_from_run_id ?? undefined,
     delegation: delegation.success ? delegation.data : undefined,
     actualModelSelection: actual.success ? actual.data : undefined,
   };
@@ -111,6 +130,41 @@ function rowToJob(row: ZaicodeJobRow): { job: ZaicodeJob } | { diagnostic: Zaico
     };
   }
   return { job: parsed.data };
+}
+
+/** 行序由调用方给出（有界读取是按同一次排序取出的），这里只做反序列化分流。 */
+function toListResult(rows: ZaicodeJobRow[]): ZaicodeJobListResult {
+  const jobs: ZaicodeJob[] = [];
+  const diagnostics: ZaicodeJobDiagnostic[] = [];
+  for (const row of rows) {
+    const result = rowToJob(row);
+    if ("job" in result) jobs.push(result.job);
+    else diagnostics.push(result.diagnostic);
+  }
+  return { jobs, diagnostics };
+}
+
+/**
+ * T-248 / SRC-160:R010 — 有界读取的两条语句本身是性能契约（第一条必须由
+ * idx_zaicode_jobs_recent 满足，不允许 TEMP B-TREE）。导出它们，让用例直接对
+ * 生产执行的同一段 SQL 做 EXPLAIN QUERY PLAN，而不是另抄一份各自漂移。
+ */
+export function zaicodeJobBoundedReadSql(conditions: string[]): {
+  recent: string;
+  olderActive: string;
+} {
+  const where = conditions.length > 0 ? ` WHERE ${conditions.join(" AND ")}` : "";
+  return {
+    recent: `SELECT * FROM zaicode_jobs${where}
+         ORDER BY created_at DESC, sort_order DESC
+         LIMIT @limit`,
+    olderActive: `SELECT * FROM zaicode_jobs WHERE ${[
+      ...conditions,
+      "(created_at < @windowStart OR (created_at = @windowStart AND sort_order < @windowSort))",
+      `status IN (${OPEN_STATUS_SQL})`,
+    ].join(" AND ")}
+         ORDER BY created_at DESC, sort_order DESC`,
+  };
 }
 
 function serializeModelSelection(selection: ModelSelection | undefined): string | null {
@@ -188,7 +242,7 @@ export class ZaicodeJobRepo {
 
   async list(filter: ZaicodeJobListFilter = {}): Promise<ZaicodeJobListResult> {
     const conditions: string[] = [];
-    const params: Record<string, string> = {};
+    const params: Record<string, string | number> = {};
     if (filter.workspaceKey) {
       conditions.push("workspace_key = @workspaceKey");
       params.workspaceKey = filter.workspaceKey;
@@ -202,20 +256,43 @@ export class ZaicodeJobRepo {
       params.agentId = filter.agentId;
     }
     const where = conditions.length > 0 ? ` WHERE ${conditions.join(" AND ")}` : "";
-    const rows = this.getDatabase()
-      .prepare(
-        `SELECT * FROM zaicode_jobs${where}
-         ORDER BY created_at ASC, sort_order ASC`,
-      )
-      .all(params) as unknown as ZaicodeJobRow[];
-    const jobs: ZaicodeJob[] = [];
-    const diagnostics: ZaicodeJobDiagnostic[] = [];
-    for (const row of rows) {
-      const result = rowToJob(row);
-      if ("job" in result) jobs.push(result.job);
-      else diagnostics.push(result.diagnostic);
+    const database = this.getDatabase();
+    const limit = filter.limit;
+
+    // T-248 / SRC-160:R010 — 活跃轮询必须有界：先取最新的 limit 行，idx_zaicode_jobs_recent
+    // 直接满足这条排序，LIMIT 让扫描提前结束。窗口填满时再补一次窗口之外仍未终结的行，
+    // 仍在跑的任务无论多旧都留在队列里，被截断的只是终结历史。省略 limit 的调用全量读取，
+    // 语义与从前逐字一致。
+    if (typeof limit !== "number" || !Number.isFinite(limit) || limit < 1) {
+      const rows = database
+        .prepare(
+          `SELECT * FROM zaicode_jobs${where}
+           ORDER BY created_at ASC, sort_order ASC`,
+        )
+        .all(params) as unknown as ZaicodeJobRow[];
+      return toListResult(rows);
     }
-    return { jobs, diagnostics };
+
+    const bounded = Math.floor(limit);
+    const boundedSql = zaicodeJobBoundedReadSql(conditions);
+    const recentRows = database
+      .prepare(boundedSql.recent)
+      .all({ ...params, limit: bounded }) as unknown as ZaicodeJobRow[];
+    // 窗口没填满就是全部匹配行：反过来即原先的升序结果。
+    if (recentRows.length < bounded) return toListResult([...recentRows].reverse());
+
+    const edge = recentRows[recentRows.length - 1];
+    if (!edge) return toListResult([...recentRows].reverse());
+    const olderRows = database
+      .prepare(boundedSql.olderActive)
+      .all({ ...params, windowStart: edge.created_at, windowSort: edge.sort_order }) as unknown as ZaicodeJobRow[];
+
+    const merged = new Map<string, ZaicodeJobRow>();
+    for (const row of [...recentRows, ...olderRows]) merged.set(row.job_id, row);
+    const ordered = [...merged.values()].sort(
+      (a, b) => a.created_at - b.created_at || a.sort_order - b.sort_order,
+    );
+    return toListResult(ordered);
   }
 
   async get(jobId: string): Promise<ZaicodeJob | null> {
@@ -235,6 +312,21 @@ export class ZaicodeJobRepo {
       const result = rowToJob(row);
       return "job" in result ? [result.job] : [];
     });
+  }
+
+  /**
+   * T-243 / SRC-160:R003 — 一次父运行已经创建了多少 helper。配额按委托运行计，
+   * 不按父任务行计：同一条行换成新 runId 重跑时从零起算，编排探针子任务
+   * （只有 parent_job_id、没有委托运行）永不计入。命中 idx_zaicode_jobs_delegation。
+   */
+  countDelegatedChildren(parentJobId: string, delegatingRunId: string): number {
+    const row = this.getDatabase()
+      .prepare(
+        `SELECT COUNT(*) AS count FROM zaicode_jobs
+         WHERE parent_job_id = ? AND delegated_from_run_id = ?`,
+      )
+      .get(parentJobId, delegatingRunId) as { count: number };
+    return row.count;
   }
 
   nextSortOrder(workspaceKey: string): number {
@@ -278,51 +370,64 @@ export class ZaicodeJobRepo {
   // ---- 写入 ----
 
   async create(job: ZaicodeJob): Promise<void> {
-    const validated = zaicodeJobSchema.parse(job);
-    this.getDatabase()
-      .prepare(
-        `INSERT INTO zaicode_jobs (
-          job_id, workspace_key, workspace_path, workspace_identity, agent_id, title,
-          instructions, status, priority, sort_order, created_at, updated_at, queued_at,
-          started_at, finished_at, result_summary, error, session_id, run_id, attempt,
-          host_id, heartbeat_at, parent_job_id, retry_of_job_id, delegation_json,
-          actual_model_selection
-        ) VALUES (
-          @id, @workspaceKey, @workspacePath, @workspaceIdentity, @agentId, @title,
-          @instructions, @status, @priority, @sortOrder, @createdAt, @updatedAt, @queuedAt,
-          @startedAt, @finishedAt, @resultSummary, @error, @sessionId, @runId, @attempt,
-          @hostId, @heartbeatAt, @parentJobId, @retryOfJobId, @delegationJson,
-          @actualModelSelection
-        )`,
-      )
-      .run({
-        id: validated.id,
-        workspaceKey: validated.workspaceKey,
-        workspacePath: validated.workspacePath,
-        workspaceIdentity: validated.workspaceIdentity ?? null,
-        agentId: validated.agentId,
-        title: validated.title,
-        instructions: validated.instructions,
-        status: validated.status,
-        priority: validated.priority,
-        sortOrder: validated.sortOrder,
-        createdAt: validated.createdAt,
-        updatedAt: validated.updatedAt,
-        queuedAt: validated.queuedAt ?? null,
-        startedAt: validated.startedAt ?? null,
-        finishedAt: validated.finishedAt ?? null,
-        resultSummary: validated.resultSummary ?? null,
-        error: validated.error ?? null,
-        sessionId: validated.sessionId ?? null,
-        runId: validated.runId ?? null,
-        attempt: validated.attempt,
-        hostId: validated.hostId ?? null,
-        heartbeatAt: validated.heartbeatAt ?? null,
-        parentJobId: validated.parentJobId ?? null,
-        retryOfJobId: validated.retryOfJobId ?? null,
-        delegationJson: validated.delegation ? JSON.stringify(validated.delegation) : null,
-        actualModelSelection: serializeModelSelection(validated.actualModelSelection),
-      });
+    this.insertJob(zaicodeJobSchema.parse(job));
+  }
+
+  /**
+   * T-243 / SRC-160:R003 — 委托子任务的"配额保留 + 落库"是**一条语句**：配额判定
+   * 写进 INSERT ... SELECT 的 WHERE，所以两个并发请求不可能都看到 count = max - 1。
+   * 返回 false 表示该运行的配额已满，且没有行被写入；调用方按 budget_exhausted 上报，
+   * 绝不静默超发，也不需要另开事务。
+   */
+  async createDelegatedChild(job: ZaicodeJob, maxPerRun: number): Promise<boolean> {
+    return this.insertJob(zaicodeJobSchema.parse(job), maxPerRun) > 0;
+  }
+
+  private insertJob(job: ZaicodeJob, maxPerRun?: number): number {
+    const params = {
+      id: job.id,
+      workspaceKey: job.workspaceKey,
+      workspacePath: job.workspacePath,
+      workspaceIdentity: job.workspaceIdentity ?? null,
+      agentId: job.agentId,
+      title: job.title,
+      instructions: job.instructions,
+      status: job.status,
+      priority: job.priority,
+      sortOrder: job.sortOrder,
+      createdAt: job.createdAt,
+      updatedAt: job.updatedAt,
+      queuedAt: job.queuedAt ?? null,
+      startedAt: job.startedAt ?? null,
+      finishedAt: job.finishedAt ?? null,
+      resultSummary: job.resultSummary ?? null,
+      error: job.error ?? null,
+      sessionId: job.sessionId ?? null,
+      runId: job.runId ?? null,
+      attempt: job.attempt,
+      hostId: job.hostId ?? null,
+      heartbeatAt: job.heartbeatAt ?? null,
+      parentJobId: job.parentJobId ?? null,
+      retryOfJobId: job.retryOfJobId ?? null,
+      delegatedFromRunId: job.delegatedFromRunId ?? null,
+      delegationJson: job.delegation ? JSON.stringify(job.delegation) : null,
+      actualModelSelection: serializeModelSelection(job.actualModelSelection),
+    };
+    const db = this.getDatabase();
+    const info =
+      maxPerRun === undefined
+        ? db
+            .prepare(`INSERT INTO zaicode_jobs (${JOB_INSERT_COLUMNS}) VALUES (${JOB_INSERT_VALUES})`)
+            .run(params)
+        : db
+            .prepare(
+              `INSERT INTO zaicode_jobs (${JOB_INSERT_COLUMNS})
+               SELECT ${JOB_INSERT_VALUES}
+               WHERE (SELECT COUNT(*) FROM zaicode_jobs
+                      WHERE parent_job_id = @parentJobId AND delegated_from_run_id = @delegatedFromRunId) < @maxPerRun`,
+            )
+            .run({ ...params, maxPerRun });
+    return Number(info.changes);
   }
 
   /** 只允许编辑未执行的可见字段；running/终态行拒绝改写。 */
@@ -527,6 +632,24 @@ export class ZaicodeJobRepo {
          WHERE status = 'running' AND (heartbeat_at IS NULL OR heartbeat_at <= @threshold)`,
       )
       .run({ now, threshold: now - staleMs });
+    return Number(result.changes);
+  }
+
+  /**
+   * 主动释放本 host 的 running 租约（优雅退出）：进程知道自己要走了，就不该把一个
+   * 新鲜心跳留给下一次启动去信任——2 分钟过期窗口内重启的经典漏洞（SRC-161:W2-001）。
+   * 只碰自己的 host_id，不碰别人的行；结果未知时不伪造 success/failure，统一 blocked。
+   */
+  releaseRunningForHost(hostId: string, now: number, reason: string): number {
+    const result = this.getDatabase()
+      .prepare(
+        `UPDATE zaicode_jobs SET
+          status = 'blocked',
+          error = CASE WHEN error IS NULL THEN @reason ELSE error END,
+          updated_at = @now, host_id = NULL, heartbeat_at = NULL
+         WHERE status = 'running' AND host_id = @hostId`,
+      )
+      .run({ hostId, now, reason });
     return Number(result.changes);
   }
 

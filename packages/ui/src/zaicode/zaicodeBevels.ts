@@ -11,6 +11,9 @@
  *
  * Specificity: pixel mode clears every shadow with `html.zaicode-crisp *`
  * (0,1,1) !important; every rule here is at least (0,1,2) !important.
+ * The list-row rules additionally carry [data-zaicode-style], so the explicit
+ * rows toggle outranks the presentation preset shadow kill (same source order
+ * would otherwise win the tie for role=button rows under non-classic styles).
  */
 
 const HI = "var(--zaicode-bevel-light, var(--color-border-hover, #75663d))";
@@ -25,7 +28,7 @@ export const ZAICODE_BEVEL_SUNKEN = `inset 1px 1px 0 0 ${LO}, inset -1px -1px 0 
 /** Raised controls. */
 const RAISED = [
   "button",
-  '[role="button"]',
+  '[role="button"]:not([data-testid^="workspace-item-"])',
   '[data-slot="tabs-trigger"]',
   '[data-slot="select-trigger"]',
   '[data-slot="dropdown-menu-trigger"]',
@@ -37,7 +40,7 @@ const RAISED = [
 /** Pressed, on, selected: the same control sunk in. */
 const PRESSED = [
   "button:active",
-  '[role="button"]:active',
+  '[role="button"]:active:not([data-testid^="workspace-item-"])',
   'button[aria-pressed="true"]',
   'button[aria-checked="true"]',
   'button[aria-selected="true"]',
@@ -74,14 +77,20 @@ const FLOATING = [
   '[role="tooltip"]',
 ].map((selector) => `html.zaicode-bevels ${selector}`);
 
-/** Sidebar rows (sub-option "list rows"): raised like FastPrompter's list; the open one sunken. */
+/**
+ * Sidebar rows (sub-option "list rows"): raised like FastPrompter's list; the
+ * open one sunken. The generic raised/pressed rules above exclude the same row
+ * prefix, so this sub-toggle owns the rows in every presentation: OFF is flat
+ * (under Classic the generic role=button bevel used to keep them raised, which
+ * is why the toggle looked dead) and ON outranks the presentation shadow kill.
+ */
 const ROWS = [
   '[data-testid^="workspace-item-"]',
   'li[data-testid^="task-item-"]',
-].map((selector) => `html.zaicode-bevels.zaicode-bevel-rows ${selector}`);
+].map((selector) => `html.zaicode-bevels.zaicode-bevel-rows[data-zaicode-style] ${selector}`);
 const ROWS_OPEN = [
   'li[data-testid^="task-item-"].bg-selected',
-].map((selector) => `html.zaicode-bevels.zaicode-bevel-rows ${selector}`);
+].map((selector) => `html.zaicode-bevels.zaicode-bevel-rows[data-zaicode-style] ${selector}`);
 
 export const ZAICODE_BEVEL_CSS = `
 /* 项目选择必须独立于会话标题的亮色和 raised bevel，整行保持可见的内框。 */
@@ -99,7 +108,7 @@ ${PRESSED.join(",\n")},
 ${ROWS_OPEN.join(",\n")} {
   box-shadow: ${ZAICODE_BEVEL_SUNKEN} !important;
 }
-html.zaicode-bevels.zaicode-bevel-rows [data-testid^="workspace-item-"][data-zaicode-project-selected] {
+html.zaicode-bevels.zaicode-bevel-rows[data-zaicode-style] [data-testid^="workspace-item-"][data-zaicode-project-selected] {
   box-shadow: ${ZAICODE_BEVEL_SUNKEN} !important;
 }
 /* The one sanctioned movement: a pressed button's label shifts 1 px (saipen UI). */

@@ -27,6 +27,7 @@ import { execFile } from "node:child_process";
 import { accessSync, constants, existsSync } from "node:fs";
 import { delimiter, join } from "node:path";
 import { promisify } from "node:util";
+import { zaicodeSharedIdentityKey } from "@zcode/shared";
 
 const execFileAsync = promisify(execFile);
 
@@ -191,14 +192,11 @@ function locatorOf(entry: Record<string, unknown>): string {
  * 合并键，大小写不敏感。空串意味着"无法证明"。
  *
  * 空定位符永远不能产生键：没有可比较身份的账号不是同一个账号，而用 "" 造出来的键会把
- * 所有无定位符的账号塌成一条。
+ * 所有无定位符的账号塌成一条。规则本体住在 @zcode/shared 的
+ * `zaicodeSharedIdentityKey` 里——消费者（引擎发现）按同一条规则合并，这里是同一个函数，
+ * 不是第二份拷贝。
  */
-export function saiAccountsIdentityKey(providerId: string, locator: string): string {
-  const provider = (providerId ?? "").trim().toLowerCase();
-  const value = (locator ?? "").trim().toLowerCase();
-  if (!provider || !value) return "";
-  return `${provider}|${value}`;
-}
+export const saiAccountsIdentityKey = zaicodeSharedIdentityKey;
 
 /**
  * 控制面在共享注册表里拥有、且处于启用且未隐藏状态的账号。

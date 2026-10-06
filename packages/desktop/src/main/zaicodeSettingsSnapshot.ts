@@ -1,6 +1,7 @@
 import { app } from "electron";
 import { existsSync, mkdirSync, renameSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
+import { validateZaicodeSettingsSnapshotShape } from "./zaicodeSettingsSnapshotShape.js";
 
 /**
  * ZAICODE dev "Save all settings": the renderer sends a snapshot of every
@@ -51,8 +52,11 @@ export function saveZaicodeSettingsSnapshot(json: string): {
   } catch {
     return { ok: false, message: "Snapshot is not valid JSON.", sourcePath: null, backupPath: null };
   }
-  if (!parsed || typeof parsed !== "object") {
-    return { ok: false, message: "Snapshot must be an object.", sourcePath: null, backupPath: null };
+  // T-229 (F6): a renderer-supplied snapshot is written into the shipped defaults,
+  // so the shape the reader depends on is enforced before anything is written.
+  const shape = validateZaicodeSettingsSnapshotShape(parsed);
+  if (!shape.ok) {
+    return { ok: false, message: shape.reason, sourcePath: null, backupPath: null };
   }
   const content = `${JSON.stringify(parsed, null, 2)}\n`;
   let backupPath: string | null = join(app.getPath("userData"), "zaicode-settings-snapshot.json");

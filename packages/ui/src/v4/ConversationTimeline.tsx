@@ -35,6 +35,10 @@ import { ConversationTurnGroup } from "@/v4/ConversationTurnGroup.js";
 import { ConversationPendingGuideList } from "@/v4/ConversationPendingGuideList.js";
 import type { AssistantFeedbackHandler } from "@/v4/ConversationRowView.js";
 import { ConversationTurnNavigator } from "@/v4/ConversationTurnNavigator.js";
+// SRC-139 + SRC-161:REQ-009: the paired latest-message / latest-answer strip. It reads
+// the same render units and jumps through the same scrollToQuery anchor as the turn
+// navigator, so there is one way to address a row, and nothing new is stored to go stale.
+import { ConversationTurnNavStrip } from "@/v4/ConversationTurnNavStrip.js";
 import { syncConversationShareSelectionPanelLayout } from "@/v4/conversationShareSelectionPanelLayout.js";
 import type { ConversationRowRenderContext } from "@/v4/conversationRowContext.js";
 import { splitConversationTimelineLiveTail } from "@/v4/conversationTimelineLiveTail.js";
@@ -1362,6 +1366,10 @@ function ConversationTimelineImpl({
     };
   }, [scrollToQuery, scrollToQueryActionRef]);
 
+  // SRC-139: the latest-answer bar reads the scrolling element at click time, never at
+  // render time -- a captured ref value would be the one from the render that drew it.
+  const getTimelineScrollRoot = useCallback(() => scrollRef.current, []);
+
   useEffect(
     () => () => {
       if (turnNavigatorJumpFrameRef.current !== null) {
@@ -1731,6 +1739,20 @@ function ConversationTimelineImpl({
             {loadingOlder ? "Loading earlier messages…" : "Load earlier messages"}
           </button>
         </div>
+      ) : null}
+      {/* SRC-161:REQ-009: a real layout lane, not an overlay. It is `shrink-0` in the
+          timeline's own column and sits directly above the scrolling viewport, so it owns
+          its geometry: the scroller below starts exactly where the strip ends and nothing
+          can be covered. It keeps SRC-139's source of truth (the render units) and its
+          anchor (scrollToQuery -`[data-row-id="<rowId>"]`); only the geometry strategy
+          changed. */}
+      {isZaicodeProductMode() ? (
+        <ConversationTurnNavStrip
+          units={renderUnits}
+          getScrollRoot={getTimelineScrollRoot}
+          onJumpToRow={scrollToQuery}
+          className={cn("mx-auto", contentWidthClassName, summaryPanelInlineOffsetClassName)}
+        />
       ) : null}
       <div
         ref={scrollRef}

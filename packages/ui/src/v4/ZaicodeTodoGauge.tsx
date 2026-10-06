@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { PlanState } from "@zcode/shared/zcode-protocol-v4";
-import type { ZaicodeJob } from "@zcode/shared";
+import { zaicodeLayerClass, type ZaicodeJob } from "@zcode/shared";
 import { cn } from "@/components/lib/utils.js";
 import { toggleZaicodeTodoDock } from "./ZaicodeTodoDock.js";
 import { useZaicodeSaipen } from "@/zaicode/zaicodeSaipen.js";
@@ -12,12 +12,14 @@ import {
   type ZaicodeTodoItem,
 } from "@/zaicode/zaicodeTodoProgress.js";
 import { playZaicodeSound } from "@/zaicode/zaicodeSoundBus.js";
-import { zaicodeDevicePx } from "@/zaicode/zaicodePixelSnap.js";
+import { ZaicodeAnchoredCard } from "@/zaicode/ZaicodeAnchoredCard.js";
 
 type PlanItem = PlanState["items"][number];
 
 interface HoverState {
   index: number;
+  /** SRC-161:REQ-003: the cell itself, so the card re-reads it and closes on detach. */
+  el: HTMLElement;
   rect: DOMRect;
 }
 
@@ -45,7 +47,11 @@ export function ZaicodeTodoCells({
           <li
             key={index}
             onMouseEnter={(event) =>
-              setHover({ index, rect: event.currentTarget.getBoundingClientRect() })
+              setHover({
+                index,
+                el: event.currentTarget,
+                rect: event.currentTarget.getBoundingClientRect(),
+              })
             }
             className={cn(
               "min-w-0 flex-1 border",
@@ -58,37 +64,32 @@ export function ZaicodeTodoCells({
         ))}
       </ol>
       {hover && hovered
-        ? createPortal(
-            <div
-              role="tooltip"
-              className="pointer-events-none fixed z-[200] max-w-80 border border-[var(--zaicode-highlight,var(--color-border))] bg-tooltip px-2 py-1.5 text-ui-xs text-tooltip-foreground shadow-md"
-              // 像素字体无抗锯齿：单元格宽度是小数，居中点落在半像素上，整个提示框文字发虚（SRC-048）。
-              // 所以位置对齐到整设备像素。
-              style={{
-                left: zaicodeDevicePx(
-                  Math.max(8, Math.min(hover.rect.left + hover.rect.width / 2 - 160, window.innerWidth - 328)),
-                ),
-                bottom: zaicodeDevicePx(window.innerHeight - hover.rect.top + 6),
-              }}
-            >
-              <div className="mb-0.5 flex items-center gap-2 tabular-nums">
-                <span
-                  className={cn(
-                    "inline-block size-2 border",
-                    ZAICODE_TODO_CELL_CLASS[hovered.status],
-                  )}
-                />
-                <strong className="font-normal">
-                  {hover.index + 1}/{items.length} · {ZAICODE_TODO_STATUS_LABEL[hovered.status]}
-                </strong>
-                <span className="ml-auto text-tooltip-tag-foreground">
-                  {done}/{items.length} done
-                </span>
-              </div>
-              <div className="whitespace-pre-wrap break-words">{hovered.content}</div>
-            </div>,
-            document.body,
-          )
+        ? (
+          <ZaicodeAnchoredCard
+            anchor={hover.rect}
+            anchorEl={hover.el}
+            width={Math.min(320, Math.max(160, hover.rect.width))}
+            side="top"
+            ariaLabel={`Todo ${hover.index + 1} of ${items.length}`}
+            className="px-2 py-1.5"
+          >
+            <div className="mb-0.5 flex items-center gap-2 tabular-nums">
+              <span
+                className={cn(
+                  "inline-block size-2 border",
+                  ZAICODE_TODO_CELL_CLASS[hovered.status],
+                )}
+              />
+              <strong className="font-normal">
+                {hover.index + 1}/{items.length} · {ZAICODE_TODO_STATUS_LABEL[hovered.status]}
+              </strong>
+              <span className="ml-auto text-tooltip-tag-foreground">
+                {done}/{items.length} done
+              </span>
+            </div>
+            <div className="whitespace-pre-wrap break-words">{hovered.content}</div>
+          </ZaicodeAnchoredCard>
+        )
         : null}
     </>
   );
@@ -376,7 +377,7 @@ function ZaicodeTodoColumn({
       onClick={toggleZaicodeTodoDock}
       title={`Todo ${done}/${items.length} — click to show / hide the list`}
       aria-label={`Todo ${done}/${items.length}: show or hide the todo list`}
-      className="fixed z-40 flex flex-col border border-[var(--zaicode-bevel-dark,#000)] bg-black p-[2px]"
+      className={cn("fixed flex flex-col border border-[var(--zaicode-bevel-dark,#000)] bg-black p-[2px]", zaicodeLayerClass("gauge"))}
       style={{ left: box.left, top: box.top, width: COLUMN_WIDTH, height: box.height }}
     >
       <span className="flex min-h-0 w-full flex-1 flex-col-reverse gap-px">

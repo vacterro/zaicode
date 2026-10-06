@@ -12,12 +12,16 @@ import {
   isZaicodeQuotaWall,
   markZaicodeQuotaWall,
   useZaicodeRetryLedger,
-  zaicodeAutoSendAllowed,
-  zaicodeMayAutoSend,
+  zaicodeAutoRetryAllowedFor,
+  zaicodeEffectiveAutoRetry,
   zaicodeRetryClassOf,
   zaicodeRetryDelayMs,
   zaicodeRetryLimit,
+  type ZaicodeAutoRetryPrefs,
 } from "../src/zaicode/zaicodeRetryPolicy.js";
+import { useZaicodeAuditStore } from "../src/zaicode/zaicodeAuditStore.js";
+import { planZaicodeCrashResume } from "../src/zaicode/zaicodeCrashResume.js";
+import { useZaicodeUiPrefs } from "../src/zaicode/zaicodeUiPrefs.js";
 import { pickZaicodeBackgroundRetrySessions } from "../src/zaicode/zaicodeTurnRetryWatch.js";
 import { normalizeZaicodeUiPrefs } from "../src/zaicode/zaicodeUiPrefs.js";
 import type { ZaicodeSessionBrief } from "../src/zaicode/zaicodeContinue.js";
@@ -56,18 +60,40 @@ test("the count is capped no matter what the setting says, and the wait doubles"
   assert.equal(normalizeZaicodeUiPrefs({}).autoRetryMaxAttempts, 5);
 });
 
-test("who may send by itself: a session's Off wins, On lets it, otherwise Auto AND the switch", () => {
-  const cases: [Parameters<typeof zaicodeMayAutoSend>[0], boolean][] = [
-    [{ mode: "off", masterOn: true, featureOn: true }, false],
-    [{ mode: "on", masterOn: false, featureOn: false }, true],
-    [{ mode: "default", masterOn: false, featureOn: true }, false],
-    [{ mode: "default", masterOn: true, featureOn: false }, false],
-    [{ mode: "default", masterOn: true, featureOn: true }, true],
-    [{ mode: undefined, masterOn: false, featureOn: true }, false],
-  ];
-  for (const [input, expected] of cases) assert.equal(zaicodeMayAutoSend(input), expected, JSON.stringify(input));
+test("who may send by itself: one effective projection, and the operator's explicit OFF wins", () => {
+  // T-231/T-234: the two-gate split brain (zaicodeMayAutoSend let a session's On win even with
+  // the feature off, and ignored per-project retry OFF) is gone. There is one answer, and every
+  // autonomous-send owner asks it.
+  const prefs: ZaicodeAutoRetryPrefs = {
+    autoRetry: true,
+    autoRetryScope: "global",
+    autoRetryProjects: {},
+    autoRetrySessions: {},
+  };
+  const at = (
+    patch: Partial<ZaicodeAutoRetryPrefs>,
+    gate: { masterOn?: boolean; sessionMode?: "on" | "off" | "default"; halted?: boolean } = {},
+  ) =>
+    zaicodeEffectiveAutoRetry({ ...prefs, ...patch }, "p", "s", {
+      masterOn: true,
+      halted: false,
+      ...gate,
+    });
+  assert.equal(at({}, { sessionMode: "off" }).enabled, false, "a session's own Off wins over everything");
+  assert.equal(at({}, { sessionMode: "on" }).enabled, true, "an explicit On skips the Auto master");
+  assert.equal(at({}, { masterOn: false, sessionMode: "on" }).enabled, true);
+  assert.equal(at({}, { masterOn: false }).enabled, false, "nobody says On and Auto is off");
+  assert.equal(at({ autoRetry: false }).enabled, false, "the retry preference is off");
+  assert.equal(
+    at({ autoRetry: false, autoRetryProjects: { p: true } }, { masterOn: false, sessionMode: "on" }).enabled,
+    true,
+    "an explicit per-project retry ON is honoured even when the global flag is off",
+  );
+  assert.equal(at({ autoRetry: true, autoRetrySessions: { s: false } }).enabled, false, "a session override wins over the project/global");
+  assert.equal(at({}, { halted: true }).enabled, false, "the stop-all button stops every automatic send");
   // Nothing is loaded in this process: the sidebar Auto reads OFF, so nothing goes out.
-  assert.equal(zaicodeAutoSendAllowed("s-1", true), false);
+  assert.equal(zaicodeAutoRetryAllowedFor("p", "s-1", true), false);
+  assert.equal(zaicodeAutoRetryAllowedFor("p", "s-1", false), false, "the feature's own switch still gates");
 });
 
 const brief = (patch: Partial<ZaicodeSessionBrief>): ZaicodeSessionBrief => ({
@@ -98,14 +124,26 @@ test("the ledger shows what is scheduled and one halt stops every automatic send
   const ledger = useZaicodeRetryLedger.getState();
   ledger.clearAll();
   ledger.resume();
+  // This case is about the ledger, so pin the retry gates it is not about: the preference store
+  // hydrates from the shipped snapshot, and a red here would say nothing about the halt.
+  useZaicodeUiPrefs.setState({ autoRetry: true, autoRetryScope: "global", autoRetryProjects: {}, autoRetrySessions: {} });
   ledger.set({ sessionId: "x", title: "PHASE SCOUT", nextAt: 10, attempt: 2, source: "background" });
   assert.equal(Object.keys(useZaicodeRetryLedger.getState().pending).length, 1);
   useZaicodeRetryLedger.getState().halt();
   assert.deepEqual(useZaicodeRetryLedger.getState().pending, {});
   assert.equal(useZaicodeRetryLedger.getState().halted, true);
-  assert.equal(zaicodeAutoSendAllowed("x", true), false, "halted: not even a session set to On sends");
+  // A session whose own auto-continue is On, with the Auto master already on: the halt still
+  // stops it, because the halt is part of the one effective projection, not a separate gate.
+  useZaicodeAuditStore.setState({ smartMode: true });
+  assert.equal(
+    zaicodeAutoRetryAllowedFor("p", "x", true),
+    false,
+    "halted: not even a session set to On sends",
+  );
   useZaicodeRetryLedger.getState().resume();
   assert.equal(useZaicodeRetryLedger.getState().halted, false);
+  assert.equal(zaicodeAutoRetryAllowedFor("p", "x", true), true, "resuming the ledger lets automatic sends through again");
+  useZaicodeAuditStore.setState({ smartMode: false });
 });
 
 test("wiring: the chat countdown, the background host and the crash resume all ask the policy; the sidebar shows the ledger", () => {
@@ -119,8 +157,60 @@ test("wiring: the chat countdown, the background host and the crash resume all a
   assert.match(watch, /isZaicodeQuotaWall\(brief\.sessionId\)/);
   assert.doesNotMatch(watch, /if \(!prefs\.autoRetry\) return;/, "the old switch-only early out is gone");
   const crash = source("zaicode/zaicodeCrashResume.ts");
-  assert.match(crash, /masterOn: zaicodeMasterAutoOn\(\)/);
+  assert.match(
+    crash,
+    /zaicodeAutoRetryAllowedFor\(session\.projectKey, sessionId, prefs\.resumeAfterCrash\)/,
+    "the crash resume asks the same effective policy as the queue and the countdown",
+  );
+  assert.doesNotMatch(crash, /zaicodeMayAutoSend\(/, "the old second gate is gone");
   assert.doesNotMatch(crash, /zaicodeAutoContinueAllowed\(/);
+  assert.doesNotMatch(source("zaicode/zaicodeRetryPolicy.ts"), /export function zaicodeMayAutoSend/, "one authority, not two");
   assert.match(source("zaicode/ZaicodeSessionActionStrip.tsx"), /<ZaicodeRetryLedgerChip \/>/);
   assert.match(source("zaicode/ZaicodeAutoRetryNotice.tsx"), /data-zaicode-retry-blocked="quota"/);
+});
+
+test("the crash resume is gated by the same effective policy: global OFF, project ON, and the stop-all", () => {
+  const now = 1_700_000_000_000;
+  const cut = brief({ sessionId: "a", projectKey: "p", crashCut: true, updatedAt: now - 60_000 });
+  const sessions = [cut];
+  // What the hook passes: the canonical gate, feature switch = resumeAfterCrash.
+  const allowed = (sessionId: string, session: typeof cut) =>
+    zaicodeAutoRetryAllowedFor(session.projectKey, sessionId, true);
+  const plan = () => planZaicodeCrashResume(sessions, () => null, now, 12, allowed).map((step) => step.sessionId);
+  const savedPrefs = useZaicodeUiPrefs.getState();
+  const savedMaster = useZaicodeAuditStore.getState().smartMode;
+  try {
+    useZaicodeAuditStore.setState({ smartMode: true });
+    // Auto Retry turned off globally: a crash resume is an automatic send, so it does not go.
+    useZaicodeUiPrefs.setState({ autoRetry: false, autoRetryScope: "global", autoRetryProjects: {}, autoRetrySessions: {} });
+    assert.deepEqual(plan(), [], "a global retry OFF stops the crash resume");
+    // The project's own explicit ON wins over the global flag (the same inheritance the UI shows).
+    useZaicodeUiPrefs.setState({ autoRetryScope: "project", autoRetryProjects: { p: true } });
+    assert.deepEqual(plan(), ["a"], "an explicit per-project retry ON is honoured");
+    // A session-level OFF still wins over it, and the sidebar's stop-all stops everything.
+    useZaicodeUiPrefs.setState({ autoRetrySessions: { a: false } });
+    assert.deepEqual(plan(), [], "a session-level OFF is honoured");
+    useZaicodeUiPrefs.setState({ autoRetrySessions: {} });
+    useZaicodeRetryLedger.getState().halt();
+    assert.deepEqual(plan(), [], "the stop-all button stops a crash resume too");
+    useZaicodeRetryLedger.getState().resume();
+    assert.deepEqual(plan(), ["a"], "and resuming lets it through again");
+    // The feature's own switch still gates it.
+    assert.deepEqual(
+      planZaicodeCrashResume(sessions, () => null, now, 12, (id, session) =>
+        zaicodeAutoRetryAllowedFor(session.projectKey, id, false),
+      ),
+      [],
+      "resumeAfterCrash off means no crash resume",
+    );
+  } finally {
+    useZaicodeUiPrefs.setState({
+      autoRetry: savedPrefs.autoRetry,
+      autoRetryScope: savedPrefs.autoRetryScope,
+      autoRetryProjects: savedPrefs.autoRetryProjects,
+      autoRetrySessions: savedPrefs.autoRetrySessions,
+    });
+    useZaicodeAuditStore.setState({ smartMode: savedMaster });
+    useZaicodeRetryLedger.getState().resume();
+  }
 });

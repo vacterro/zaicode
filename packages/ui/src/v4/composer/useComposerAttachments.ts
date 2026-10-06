@@ -1052,6 +1052,12 @@ export function useComposerAttachments(
     async (id: string, text: string): Promise<boolean> => {
       const item = readComposerAttachmentScope(scopeKey).find((candidate) => candidate.id === id);
       if (!item || item.sourceKind !== "clipboard-text") return false;
+      // T-224 / SRC-154:R004: a sent attachment is history, not a draft. It left
+      // the composer through adoptSentAttachments; rewriting its bytes or its ref
+      // in place would silently change what was already sent. Restored
+      // session-owned refs carry no text, so the editor cannot open them either —
+      // this guard is the second lock on the same door.
+      if (item.adopted || item.referenceOwnership === "session") return false;
       const edited = applyPastedTextEdit(item, text);
       let localPath = item.localPath;
       if (item.localPath) {
@@ -1059,13 +1065,16 @@ export function useComposerAttachments(
           text,
           filename: createClipboardTextAttachmentFilenameForDate(),
         });
-        if (written) {
-          localPath = written.localPath;
-        } else {
+        if (!written) {
+          // The ref points at the file: reporting success while the file still
+          // holds the old bytes would send text nobody can see. Stay untouched
+          // so the dialog keeps the draft open instead of closing on a lie.
           setAttachmentError(
             intl.formatMessage({ id: "chat.attachments.pastedText.writeFailed" }, { message: "no temp text host" }),
           );
+          return false;
         }
+        localPath = written.localPath;
       }
       const target = targetsRef.current.get(scopeKey);
       const zeroCopy = localPath !== undefined && target !== undefined && !isRemoteAttachmentTarget(target);

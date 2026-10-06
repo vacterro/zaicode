@@ -2151,7 +2151,7 @@ async function disposeHostResources(reason: string): Promise<HostShutdownResult>
     activeServices = null;
     setZaicodeJobExecutor(null);
   setZaicodeChildFinishedListener(null);
-  zaicodeDelegationSpool?.dispose();
+  await zaicodeDelegationSpool?.dispose();
     // Registry 是全部远端 connection 的唯一 owner；释放失败不能阻塞本地服务继续收口。
     const shutdownResult = await runHostShutdownPhases(
       [
@@ -2217,7 +2217,7 @@ function disposeHostResourcesBestEffort(reason: string): void {
 
   setZaicodeJobExecutor(null);
   setZaicodeChildFinishedListener(null);
-  zaicodeDelegationSpool?.dispose();
+  void zaicodeDelegationSpool?.dispose();
   if (activeServices) {
     try {
       disposeServiceResources(activeServices);
@@ -2864,14 +2864,25 @@ parentPort.on("message", async (e: Electron.MessageEvent) => {
             activeServices = initializedServices;
             activeHostApiNetworkTransport = hostApiNetworkTransport;
             // ZAICODE 队列执行器只能在服务就绪后装配；目标解析复用 automation 的远端/本地裁决。
-            // T-10: one delegation channel per host; helpers' outcomes land in their parent's folder.
-            zaicodeDelegationSpool?.dispose();
+            // T-10 / T-247: one delegation channel per host, one request folder per RUN of a job;
+            // helpers' outcomes land in the folder of the run that asked for them.
+            void zaicodeDelegationSpool?.dispose();
             zaicodeDelegationSpool = new ZaicodeDelegationSpool(
               join(getZCodeDataRootDir(), "delegation"),
               (message, error) => logger.warn(message, error),
             );
             const delegationSpool = zaicodeDelegationSpool;
             setZaicodeChildFinishedListener((child) => void delegationSpool.reportChild(child));
+            // A request claimed by a run that never came back has no folder anyone will open
+            // again: name it explicitly once, here, instead of leaving it claimed forever.
+            void delegationSpool
+              .sweepOrphans()
+              .then((failed) => {
+                if (failed > 0) {
+                  logger.warn(`ZAICODE delegation: ${failed} claimed request(s) from earlier runs were failed explicitly`);
+                }
+              })
+              .catch((error) => logger.warn("ZAICODE delegation orphan sweep failed", error));
             setZaicodeJobExecutor(
               createZaicodeJobExecutor({
                 delegationSpool,

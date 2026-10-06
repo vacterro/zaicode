@@ -20,9 +20,9 @@ import {
   TID_V4_QUEUE_RESUME,
   testId,
 } from "@zcode/shared";
-import type { QueueState } from "@zcode/shared/zcode-protocol-v4";
+import type { AttachmentRef, QueueState } from "@zcode/shared/zcode-protocol-v4";
 import { isZaicodeProductMode } from "@zcode/shared";
-import { ArrowUpFromLine, GripVertical, PencilIcon, Trash2Icon } from "lucide-react";
+import { ArrowUpFromLine, GripVertical, PaperclipIcon, PencilIcon, Trash2Icon } from "lucide-react";
 import { ControlHintTooltip } from "@/ControlHintTooltip.js";
 import { Button } from "@/components/ui/button.js";
 import { cn } from "@/components/lib/utils.js";
@@ -121,6 +121,40 @@ interface QueueRowProps {
   onSendNow?: (queueItemId: string) => void;
 }
 
+/**
+ * SRC-151:R006: the queued row printed only `item.text`, so a send that carried a file
+ * read exactly like one that did not -- "goal cc all" with a screenshot glued to it, and
+ * nothing on the row to say so. The refs were never lost: the intent carries them
+ * (queueItemSchema extends conversationInputIntentSchema), the projection keeps them, and
+ * edit-restore already hands them back to the composer. Only this row dropped them.
+ *
+ * A count plus the file names in the title, not one chip per file: the row is a single
+ * truncating line between a drag handle and three buttons, so inline names would fight the
+ * text for the same pixels. "Attachments" is an existing message in all 32 locales, so this
+ * adds no new copy to translate.
+ */
+export function QueueAttachmentBadge({
+  attachments,
+  label,
+}: {
+  attachments: readonly AttachmentRef[];
+  label: string;
+}) {
+  if (attachments.length === 0) return null;
+  return (
+    <span
+      data-v4-queue-item-attachments="true"
+      data-attachment-count={attachments.length}
+      title={attachments.map((attachment) => attachment.fileName).join(", ")}
+      aria-label={label}
+      className="flex shrink-0 items-center gap-1 text-ui-sm text-foreground-subtlest"
+    >
+      <PaperclipIcon aria-hidden="true" className="size-3.5 shrink-0" />
+      <span className="tabular-nums">{attachments.length}</span>
+    </span>
+  );
+}
+
 const QueueRow = memo(function QueueRow({
   item,
   index,
@@ -198,6 +232,10 @@ const QueueRow = memo(function QueueRow({
           <GripVertical className="size-4" />
         </Button>
       </ControlHintTooltip>
+      <QueueAttachmentBadge
+        attachments={item.attachments}
+        label={intl.formatMessage({ id: "chat.composer.attachment" })}
+      />
       <span
         className={cn(
           "flex min-w-0 flex-1 items-center gap-2 truncate text-ui-base text-foreground",

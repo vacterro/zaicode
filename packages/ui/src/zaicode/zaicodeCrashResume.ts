@@ -11,8 +11,7 @@ import {
   type ZaicodeSessionBrief,
 } from "./zaicodeContinue.js";
 import { zaicodeContinueHandleFor } from "./zaicodeContinueHost.js";
-import { zaicodeAutoContinueModeFor } from "./zaicodeAutoContinue.js";
-import { zaicodeMasterAutoOn, zaicodeMayAutoSend } from "./zaicodeRetryPolicy.js";
+import { zaicodeAutoRetryAllowedFor } from "./zaicodeRetryPolicy.js";
 import { useZaicodeUiPrefs } from "./zaicodeUiPrefs.js";
 import { relaunchZaicodeWorkersAfterCrash } from "./zaicodeWorkerRecovery.js";
 
@@ -56,14 +55,18 @@ export function planZaicodeCrashResume(
    * session's own Default / On / Off, may this session continue itself? A
    * session that says no is not a candidate at all, whatever the global
    * switch says; a session that says yes still has to pass every rule above.
+   *
+   * The second argument is the session's own brief, so the caller can scope the
+   * decision to the project the session belongs to (the retry preference is
+   * per-project): a pre-Wave-2 caller that only needs the id may ignore it.
    */
-  allowed: (sessionId: string) => boolean = () => true,
+  allowed: (sessionId: string, session: ZaicodeSessionBrief) => boolean = () => true,
 ): ZaicodeCrashResumeStep[] {
   const oldest = now - maxAgeHours * 3_600_000;
   return sessions
     .filter((session) => session.crashCut && !session.running && !session.waiting && session.updatedAt >= oldest)
     .filter((session) => !project(session.projectKey)?.disabled)
-    .filter((session) => allowed(session.sessionId))
+    .filter((session) => allowed(session.sessionId, session))
     .sort((left, right) => left.updatedAt - right.updatedAt)
     .map((session) => {
       const unfinishedGoal = session.goalObjective && (session.goalStatus === "active" || session.goalStatus === "paused");
@@ -148,13 +151,12 @@ export function useZaicodeCrashResume(): void {
         projectFacts,
         Date.now(),
         prefs.resumeAfterCrashHours,
-        // SRC-082: the sidebar's Auto is the master here too; only a session that says On skips it.
-        (sessionId) =>
-          zaicodeMayAutoSend({
-            mode: zaicodeAutoContinueModeFor(sessionId),
-            masterOn: zaicodeMasterAutoOn(),
-            featureOn: prefs.resumeAfterCrash,
-          }),
+        // SRC-082 / T-231: the crash resume is an autonomous send like any other, so it asks
+        // the ONE effective retry projection -- the sidebar's Auto master, this session's own
+        // mode and the project/session/global retry preference -- instead of its own second
+        // gate. An operator's explicit retry OFF for this project, or the sidebar's stop-all,
+        // now stops a crash resume too; before, only the session's own On could not be stopped.
+        (sessionId, session) => zaicodeAutoRetryAllowedFor(session.projectKey, sessionId, prefs.resumeAfterCrash),
       );
     };
     const first = window.setTimeout(() => {

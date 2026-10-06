@@ -20,7 +20,12 @@ export interface ZaicodeDelegationPolicy {
   parentRoles: readonly ZaicodeAgentRole[];
   /** Roles a child may have. Never "coordinator": a coordinator child could not delegate anyway. */
   childRoles: readonly ZaicodeAgentRole[];
-  /** Children one parent run may create in total. */
+  /**
+   * Children one parent run may create in total. Scoped to the run, not the row
+   * (T-243 / SRC-160:R003): the durable count groups by the delegating run id, and
+   * the reservation is atomic in the store, so a re-run of the same row starts at
+   * zero and parallel requests cannot together exceed this number.
+   */
   maxChildrenPerParent: number;
 }
 

@@ -129,6 +129,7 @@ export * from "./zaicode-free-catalog.js";
 export * from "./zaicode-runtime-snapshot.js";
 export * from "./zaicode-projects.js";
 export * from "./zaicode-stats.js";
+export * from "./zaicode-tooltip.js";
 export * from "./zaicode-subscription-models.js";
 export * from "./zaicode-topology.js";
 export * from "./zaicode-splash.js";

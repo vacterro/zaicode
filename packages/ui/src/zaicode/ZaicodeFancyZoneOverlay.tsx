@@ -12,6 +12,7 @@ import {
 import { readZaicodeLastPointer } from "./useZaicodeFancyZonesHotkey.js";
 import { zaicodeDigitOf, zaicodeKeyIs } from "./zaicodeKeys.js";
 import { matchZaicodeHotkey } from "./zaicodeHotkeys.js";
+import { zaicodeLayerClass } from "@zcode/shared";
 
 interface ZaicodeFancyZoneOverlayProps {
   open: boolean;
@@ -137,7 +138,7 @@ export function ZaicodeFancyZoneOverlay({ open, onClose }: ZaicodeFancyZoneOverl
   return (
     <div
       ref={panelRef}
-      className="fixed z-[210] select-none border border-[var(--zaicode-highlight,var(--color-border-hover))] bg-card font-mono text-ui-xs shadow-2xl"
+      className={cn("fixed select-none border border-[var(--zaicode-highlight,var(--color-border-hover))] bg-card font-mono text-ui-xs shadow-2xl", zaicodeLayerClass("overlay"))}
       style={{ left: position.left, top: position.top, width: WIDTH, height: HEIGHT }}
       data-zaicode-fancyzones-picker={page.id}
       data-zaicode-help="zones"

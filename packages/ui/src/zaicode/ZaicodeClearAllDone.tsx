@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react";
 import { BrushCleaning } from "lucide-react";
 import { cn } from "@/components/lib/utils.js";
-import { useConfirmDialogStore } from "@/store/confirmDialogStore.js";
 import { toast } from "@/components/ui/toast.js";
 import { useZaicodeHomeProjects } from "./home/ZaicodeHomeFleet.js";
 import { archiveZaicodeSessions } from "./zaicodeArchiveUndo.js";
@@ -78,13 +77,10 @@ export function ZaicodeClearAllDoneButton() {
 
   const run = async () => {
     if (busy || count === 0) return;
-    // The app's own confirmation (T-128), not the operating system's: the list of what changes is in the dialog, in words.
-    const confirmed = await useConfirmDialogStore.getState().requestConfirmation({
-      title: "CLEAR ALL DONE",
-      description: describe(plan).replace(/^ {2}/gm, "• "),
-      confirmLabel: `Clear ${count}`,
-    });
-    if (!confirmed) return;
+    // SRC-161:REQ-005 (T-240): this one action runs on the first click. What it will
+    // do is already on the button's own tooltip, and one Ctrl+Z brings the archive
+    // back, so a dialog here was a second gate on a reversible tidy-up. Every other
+    // confirmation in the app is untouched.
     setBusy(true);
     playZaicodeSound("ui.toggle");
     try {

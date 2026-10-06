@@ -3,6 +3,8 @@ import { createPortal } from "react-dom";
 import type { ConversationStatusPanelPlanModel } from "./conversationStatusPanelModel.js";
 import { useZCodeIntl } from "@/i18n/IntlProvider.js";
 import { ZaicodeIcon } from "@/zaicode/zaicodeIconSlots.js";
+import { cn } from "@/components/lib/utils.js";
+import { zaicodeLayerClass } from "@zcode/shared";
 
 const STORAGE_KEY = "zaicode-todo-window";
 const TOGGLE_EVENT = "zaicode-todo-window-toggle";
@@ -122,7 +124,7 @@ export function ZaicodeTodoDock({ plan }: { plan: ConversationStatusPanelPlanMod
         createPortal(
           <aside
             aria-label={label("title")}
-            className="fixed z-[90] flex max-h-[min(70vh,34rem)] w-80 max-w-[min(calc(100vw-2rem),20rem)] flex-col border border-border bg-card text-foreground shadow-md"
+            className={cn("fixed flex max-h-[min(70vh,34rem)] w-80 max-w-[min(calc(100vw-2rem),20rem)] flex-col border border-border bg-card text-foreground shadow-md", zaicodeLayerClass("dock"))}
             style={
               state.docked
                 ? { right: 16, top: 64, width: "min(20rem, calc(100vw - 2rem))" }

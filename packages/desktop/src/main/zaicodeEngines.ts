@@ -4,10 +4,11 @@ import { spawn, type ChildProcess } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, readdirSync, renameSync, statSync, unlinkSync, writeFileSync } from "node:fs";
 import { request as httpsRequest } from "node:https";
-import { homedir } from "node:os";
-import { basename, delimiter, dirname, join, resolve } from "node:path";
+import { homedir, userInfo } from "node:os";
+import { basename, delimiter, dirname, isAbsolute, join, resolve } from "node:path";
 import {
   markZaicodeWindowsStartingOnUse,
+  mergeZaicodeSharedAccounts,
   normalizeZaicodeEnginesConfig,
   isZaicodeWindowWaitingForFirstUse,
   parseAntigravityUsage,
@@ -18,16 +19,21 @@ import {
   parseZcodeQuota,
   zaicodeBottleneck,
   zaicodeIdleWindowToStart,
+  zaicodeWindowFromShared,
+  ZAICODE_ENGINE_VENDORS,
+  ZAICODE_VENDOR_HOME_PREFIXES,
   type ZaicodeEngineAccount,
   type ZaicodeEnginesConfig,
   type ZaicodeEnginesState,
   type ZaicodeLimitSnapshot,
   type ZaicodeLimitWindow,
+  type ZaicodeSharedAccountInput,
   type ZaicodeWindowStartRecord,
   describeZaicodeResetOutcome,
   type ZaicodeResetConsumeResult,
   type ZaicodeResetCredits,
 } from "@zcode/shared";
+import { listSharedAccounts, nodeSaiAccountsHost, probeSharedAccount, resolveSaiAccountsEngine } from "@zcode/provider-node";
 import { codexRpcCall, consumeCodexResetCredit, type CodexRpcOptions } from "./zaicodeCodexRpc.js";
 import { setWindowsDesktopTrayLimits } from "./desktopTray.js";
 import {
@@ -457,6 +463,16 @@ async function agyCredentialPresent(): Promise<boolean> {
   return present;
 }
 
+/** The running OS user, as the shared-account plane names a `windows_user` context (SRC-162). */
+function osUserAlias(): { osUser?: string } {
+  try {
+    const name = userInfo().username.trim();
+    return name ? { osUser: name } : {};
+  } catch {
+    return {};
+  }
+}
+
 async function discoverAntigravity(): Promise<ZaicodeEngineAccount[]> {
   const cli = resolveAgyCli();
   const account: ZaicodeEngineAccount = {
@@ -467,6 +483,7 @@ async function discoverAntigravity(): Promise<ZaicodeEngineAccount[]> {
     source: "gemini:antigravity",
     home: null,
     isDefaultHome: true,
+    ...osUserAlias(),
     cli,
     status: "ready",
     statusDetail: "",
@@ -584,9 +601,67 @@ function discoverFreebuff(config: ZaicodeEnginesConfig): ZaicodeEngineAccount[] 
   ];
 }
 
+/**
+ * The shared registry (SRC-151:R007), read once per sweep under the adapter's own
+ * 4 s bound.
+ *
+ * STANDALONE costs nothing: `resolveSaiAccountsEngine` finds no control plane and
+ * the call returns [] without spawning a process, so a machine that never heard of
+ * SAI Accounts keeps exactly the list it had. FEDERATED costs one `sai-accounts
+ * list`. Only `list` is ever invoked -- the plane has no write verb for consumers.
+ */
+async function discoverSharedAccounts(): Promise<ZaicodeSharedAccountInput[]> {
+  if (!resolveSaiAccountsEngine()) return [];
+  const shared = await listSharedAccounts(nodeSaiAccountsHost, ZAICODE_ENGINE_VENDORS);
+  return shared.map((account) => {
+    // Only an absolute path can be a local home. A bare `windows_user` or a
+    // `context_label` is a locator ZAICODE can compare identities by, not a folder
+    // it may launch a CLI in.
+    const absolute = isAbsolute(account.locator) ? account.locator : "";
+    return {
+      accountId: account.accountId,
+      providerId: account.providerId,
+      displayName: account.displayName,
+      locator: account.locator,
+      home: absolute && isDirectory(absolute) ? resolve(absolute) : null,
+    };
+  });
+}
+
 async function discoverAccounts(config: ZaicodeEnginesConfig): Promise<ZaicodeEngineAccount[]> {
   const antigravity = await discoverAntigravity();
-  return [...discoverClaude(), ...discoverCodex(), ...antigravity, ...discoverZcode(config), ...discoverFreebuff(config)];
+  const local = [
+    ...discoverClaude(),
+    ...discoverCodex(),
+    ...antigravity,
+    ...discoverZcode(config),
+    ...discoverFreebuff(config),
+  ];
+  return mergeZaicodeSharedAccounts(local, await discoverSharedAccounts());
+}
+
+/**
+ * A shared identity's quota, read from the plane that owns it -- the second plane
+ * verb, and the last one this consumer may use.
+ *
+ * The plane's typed envelope is read before its exit code: it reports "this account
+ * is not signed in" with a non-zero exit and that is a known state of ONE account,
+ * not an outage of the whole plane (see `probeSharedAccount`).
+ */
+/** The plane read nothing because it cannot read quota for this provider at all. */
+export function isZaicodeSharedQuotaUnsupported(outcome: Pick<ProbeOutcome, "windows" | "error">): boolean {
+  return outcome.windows.length === 0 && (outcome.error ?? "").startsWith("unsupported:");
+}
+
+async function probeShared(account: ZaicodeEngineAccount): Promise<ProbeOutcome> {
+  const source = "sai-accounts usage";
+  const shared = account.shared;
+  if (!shared) return { windows: [], plan: null, error: "account is not shared", source };
+  const result = await probeSharedAccount(nodeSaiAccountsHost, shared.accountId);
+  if (result.state === "ok") {
+    return { windows: result.windows.map((window) => zaicodeWindowFromShared(window, account.vendor)), plan: null, error: null, source };
+  }
+  return { windows: [], plan: null, error: `${result.state}: ${result.detail || "no reading"}`, source };
 }
 
 // ---------------------------------------------------------------------------
@@ -1012,16 +1087,28 @@ async function probeAccount(account: ZaicodeEngineAccount): Promise<void> {
   broadcast();
   let outcome: ProbeOutcome;
   try {
-    outcome =
+    // A shared identity is read from the plane that owns it; the vendor CLI would
+    // answer about whatever this machine happens to be logged into, which is the
+    // old mechanic this merge exists to stop (SRC-151:R007).
+    const probeLocal = () =>
       account.vendor === "claude"
-        ? await probeClaude(account)
+        ? probeClaude(account)
         : account.vendor === "codex"
-          ? await probeCodex(account)
+          ? probeCodex(account)
           : account.vendor === "antigravity"
-            ? await probeAntigravity(account)
+            ? probeAntigravity(account)
             : account.vendor === "freebuff"
-              ? await probeFreebuff()
-              : await probeZcode(config);
+              ? probeFreebuff()
+              : probeZcode(config);
+    outcome = account.shared ? await probeShared(account) : await probeLocal();
+    // SRC-162: the plane answers "provider_does_not_support_quota" for Claude and Codex. A
+    // merged row that also has its own local home is then read through that home -- the
+    // home IS the identity, so this is not the "whatever this machine is logged into" read
+    // R007 forbids. Before, such a row kept showing its last numbers forever under a
+    // "last read failed: unsupported" line.
+    if (account.shared && account.home && isZaicodeSharedQuotaUnsupported(outcome)) {
+      outcome = await probeLocal();
+    }
   } catch (error) {
     outcome = { windows: [], plan: null, error: error instanceof Error ? error.message : String(error), source: "" };
   }
@@ -1313,10 +1400,10 @@ export async function setZaicodeStartWithWindows(enabled: boolean): Promise<{ en
   return getZaicodeStartWithWindows();
 }
 
-/** Creates the next free `~/.claude-accountN` / `~/.codex-accountN` home for a second login. */
+/** Creates the next free `~/.claude-accountN` home for a second login, for any vendor that keeps homes. */
 export function prepareZaicodeEngineAccountHome(vendor: string): { ok: boolean; home: string; message: string } {
-  const prefix = vendor === "codex" ? ".codex-account" : vendor === "claude" ? ".claude-account" : "";
-  if (!prefix) return { ok: false, home: "", message: "Only Claude and Codex keep several accounts." };
+  const prefix = ZAICODE_VENDOR_HOME_PREFIXES[(vendor ?? "").trim().toLowerCase()] ?? "";
+  if (!prefix) return { ok: false, home: "", message: "This subscription keeps one account." };
   for (let index = 2; index < 20; index += 1) {
     const dir = join(home(), `${prefix}${index}`);
     const empty = !existsSync(dir) || (isDirectory(dir) && readdirSync(dir).length === 0);

@@ -212,7 +212,9 @@ export function protrailDefaults(): ProtrailConfig {
       particleAmount: 8,
       elementTint: 0.65,
       holdEnabled: true,
-      holdWakeEnabled: true,
+      // T-223: factory Motion Wake default OFF; explicit user choice and the
+      // Save All snapshot both outrank this via readZaicodeSetting + normalize.
+      holdWakeEnabled: false,
       holdIntensity: 1,
       holdWakeDensity: 1,
       holdWakeLifetimeMs: 800,

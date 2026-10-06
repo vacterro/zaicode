@@ -23,6 +23,7 @@ export function ZaicodeActionViewToggle({ className }: { className?: string }) {
   return (
     <ZaicodeRightClickSettings
       title="Compact / Full"
+      preferenceKey="actionView"
       hint="Compact keeps every button and menu line conditional exactly as you set it (only while working, only while idle, only on hover). Full shows all of them at once. A button you unticked stays hidden in both."
       panel={
         <span className="block max-w-[260px] text-ui-sm">

@@ -140,6 +140,7 @@ test("the Autopilot projection reads host state and refuses a stale read after a
 
 test("a full queue refresh cannot overwrite a confirmed Autopilot toggle with an older read", async () => {
   let resolveOld!: (value: boolean) => void;
+  let resolveTrailing!: (value: boolean) => void;
   let readStarted!: () => void;
   const started = new Promise<void>((resolve) => {
     readStarted = resolve;
@@ -147,13 +148,24 @@ test("a full queue refresh cannot overwrite a confirmed Autopilot toggle with an
   let calls = 0;
   const services = {
     jobs: {
-      getAutoRun: () =>
-        ++calls === 1
-          ? new Promise<boolean>((resolve) => {
-              resolveOld = resolve;
-              readStarted();
-            })
-          : Promise.resolve(false),
+      // T-249 made refresh single-flight: the second read belongs to the trailing
+      // pass, so it is held too -- that is what lets the stale read be answered
+      // while no newer pass has committed yet.
+      getAutoRun: () => {
+        calls += 1;
+        if (calls === 1) {
+          return new Promise<boolean>((resolve) => {
+            resolveOld = resolve;
+            readStarted();
+          });
+        }
+        if (calls === 2) {
+          return new Promise<boolean>((resolve) => {
+            resolveTrailing = resolve;
+          });
+        }
+        return Promise.resolve(false);
+      },
       setAutoRun: async () => {},
       list: async () => ({ jobs: [], diagnostics: [] }),
       getMaxConcurrency: async () => 1,
@@ -165,8 +177,25 @@ test("a full queue refresh cannot overwrite a confirmed Autopilot toggle with an
   const store = useZaicodeStore.getState();
   const pending = store.refresh(services, workspace);
   await started;
-  await store.setAutoRun(services, workspace, false);
+  // The toggle's own refresh is the trailing pass and only starts once this pass
+  // is released, so start it, let the toggle be confirmed, and then answer the
+  // held older read: the claim under test is the stale-read guard, not the
+  // scheduling order.
+  const toggle = store.setAutoRun(services, workspace, false);
+  await new Promise<void>((resolve) => setTimeout(resolve, 0));
+  assert.equal(useZaicodeStore.getState().autoRun, false, "the toggle is confirmed first");
+
   resolveOld(true);
+  await new Promise<void>((resolve) => setTimeout(resolve, 0));
+  assert.equal(
+    useZaicodeStore.getState().autoRun,
+    false,
+    "an older read answering `true` after the toggle cannot resurrect Autopilot",
+  );
+
+  assert.ok(resolveTrailing, "the trailing pass asked the host for the Autopilot setting");
+  resolveTrailing(false);
+  await toggle;
   await pending;
   assert.equal(useZaicodeStore.getState().autoRun, false);
 });

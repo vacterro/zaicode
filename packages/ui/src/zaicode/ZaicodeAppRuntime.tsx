@@ -75,6 +75,7 @@ import {
 import { projectNameOf } from "./zaicodeEngines.js";
 import { ensureZaicodeMotionStyles } from "./zaicodeMotionCss.js";
 import { useZaicodeCrashResume } from "./zaicodeCrashResume.js";
+import { useZaicodeGoalContinuation } from "./zaicodeGoalContinuation.js";
 import { useZaicodeTurnRetryWatch } from "./zaicodeTurnRetryWatch.js";
 import { useZaicodeUnseenDoneWatch } from "./zaicodeUnseenDone.js";
 import { startZaicodeWorkerRecording } from "./zaicodeWorkerRecovery.js";
@@ -386,6 +387,8 @@ function useZaicodeCrashSafety(): void {
   useZaicodeTurnRetryWatch();
   // SRC-131: a run that finished while the operator was elsewhere gets marked unseen.
   useZaicodeUnseenDoneWatch();
+  // T-234: an open Auto Goal that ended its turn is continued by ONE owner, here.
+  useZaicodeGoalContinuation();
 }
 
 /**

@@ -1,7 +1,14 @@
 import { useCallback, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { Mail } from "lucide-react";
-import type { IPlatformService } from "@zcode/shared";
+import {
+  zaicodeAnchorBox,
+  zaicodeTooltipCornerPlacement,
+  zaicodeTooltipPixel,
+  type IPlatformService,
+  type ZaicodeTooltipAnchor,
+  type ZaicodeTooltipViewport,
+} from "@zcode/shared";
 import { usePlatform } from "@/hooks/usePlatform.js";
 import { cn } from "@/components/lib/utils.js";
 import { zaicodeDevicePx } from "./zaicodePixelSnap.js";
@@ -90,18 +97,35 @@ function LetterRow({
   );
 }
 
+const ZERO_VIEWPORT: ZaicodeTooltipViewport = { width: 0, height: 0 };
+const ZERO_ANCHOR: ZaicodeTooltipAnchor = { left: 0, top: 0, right: 0, bottom: 0, width: 0, height: 0 };
+
 export function ZaicodeSaimailReaderPopover({
   desk,
   currentTask,
-  anchor,
+  anchorEl,
   onClose,
 }: {
   desk: ZaicodeSaimailSnapshot;
   currentTask: string | null;
-  anchor: DOMRect;
+  /**
+   * The trigger element (SRC-161:REQ-003). Passed as an element rather than a
+   * rect so the panel can be re-measured: it follows the envelope when the
+   * window moves, and renders nothing at all once the envelope is gone.
+   */
+  anchorEl: HTMLElement;
   onClose: () => void;
 }) {
   const platform: IPlatformService | undefined = usePlatform();
+  // Re-read the trigger on every move/resize instead of trusting the rect that
+  // was true at click time. This single source is also the anchor contract's
+  // gate: no box on the trigger means no panel, never a panel in the corner.
+  const [anchor, setAnchor] = useState<ZaicodeTooltipAnchor | null>(() =>
+    typeof window === "undefined" ? null : zaicodeAnchorBox(anchorEl.getBoundingClientRect()),
+  );
+  const [viewport, setViewport] = useState<ZaicodeTooltipViewport>(() =>
+    typeof window === "undefined" ? ZERO_VIEWPORT : { width: window.innerWidth, height: window.innerHeight },
+  );
   const [readLetters, setReadLetters] = useState<
     { envelopeId: string; from: string; kind: string; topic: string | null; receivedAt: string | null }[] | null
   >(null);
@@ -113,6 +137,30 @@ export function ZaicodeSaimailReaderPopover({
   useEffect(() => {
     setCapability(Boolean(platform?.openZaicodeSaimailLetter && platform?.listZaicodeSaimailReadLetters));
   }, [platform]);
+
+  // A panel is fixed to the viewport, so both the trigger and the window are
+  // re-read on every pass; the trigger wins, because it can move without the
+  // window changing at all (a scrolling header, a resized sidebar).
+  useEffect(() => {
+    const measure = () => {
+      setAnchor(zaicodeAnchorBox(anchorEl.getBoundingClientRect()));
+      setViewport({ width: window.innerWidth, height: window.innerHeight });
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    window.addEventListener("scroll", measure, true);
+    return () => {
+      window.removeEventListener("resize", measure);
+      window.removeEventListener("scroll", measure, true);
+    };
+  }, [anchorEl]);
+
+  const placement = zaicodeTooltipCornerPlacement(
+    anchor ?? ZERO_ANCHOR,
+    { width: PANEL_WIDTH, height: 0 },
+    viewport,
+    "end",
+  );
 
   const loadRead = useCallback(async () => {
     if (!platform?.listZaicodeSaimailReadLetters) return;
@@ -192,18 +240,24 @@ export function ZaicodeSaimailReaderPopover({
     .filter(([envelopeId]) => !stillListed.has(envelopeId))
     .map(([envelopeId, result]) => ({ envelopeId, result }));
 
+  // The anchor contract, enforced: a trigger with no box (detached, hidden, not
+  // laid out yet) produces no panel at all. Before this the corner clamp drew
+  // the reader at the 8px margin -- the top-left corner in the report.
+  if (!placement) return null;
+
   return createPortal(
     <div className="fixed inset-0 z-[190]" onClick={close}>
       <div
         role="dialog"
         aria-label="SAIMAIL letters"
-        className="absolute flex max-h-[70vh] w-[var(--reader-w)] flex-col overflow-auto border border-[var(--zaicode-highlight,var(--color-border))] bg-tooltip text-ui-xs text-tooltip-foreground shadow-md"
+        className="absolute flex w-[var(--reader-w)] flex-col overflow-auto border border-[var(--zaicode-highlight,var(--color-border))] bg-tooltip text-ui-xs text-tooltip-foreground shadow-md"
         style={{
           ["--reader-w" as string]: `${PANEL_WIDTH}px`,
-          left: zaicodeDevicePx(
-            Math.max(8, Math.min(anchor.right - PANEL_WIDTH, window.innerWidth - PANEL_WIDTH - 8)),
-          ),
-          top: zaicodeDevicePx(Math.min(anchor.bottom + 6, window.innerHeight - 96)),
+          left: zaicodeDevicePx(placement.left, window.devicePixelRatio || 1),
+          top: zaicodeDevicePx(placement.top, window.devicePixelRatio || 1),
+          // Capped by the room on the side it actually landed on, and it flips
+          // when the corner it wanted has none (SRC-161:REQ-003).
+          maxHeight: `${Math.floor(placement.maxHeight)}px`,
         }}
         data-zaicode-saimail-reader="open"
         onClick={(event) => event.stopPropagation()}

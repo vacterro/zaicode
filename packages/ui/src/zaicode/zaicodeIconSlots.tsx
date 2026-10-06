@@ -307,7 +307,7 @@ const MAX_PROFILES = 12;
 
 export function readZaicodeIconProfiles(): ZaicodeIconProfile[] {
   try {
-    const raw = localStorage.getItem(PROFILES_KEY);
+    const raw = readZaicodeSetting(PROFILES_KEY);
     const parsed: unknown = raw ? JSON.parse(raw) : [];
     if (!Array.isArray(parsed)) return [];
     const out: ZaicodeIconProfile[] = [];

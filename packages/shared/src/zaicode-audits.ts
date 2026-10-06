@@ -96,6 +96,13 @@ export interface ZaicodeAuditCampaign {
    * `cancelled`. `work()` is the only transition out of `planned`.
    */
   status: "planned" | "running" | "complete" | "blocked" | "cancelled";
+  /**
+   * SRC-151:R008: the campaign is `planned` because the global "generate the next
+   * wave by itself" switch is off, not because nobody pressed Start. Only this
+   * flag lets the switch turning back on release the campaign on its own; a
+   * campaign planned by hand keeps waiting for its own Continue.
+   */
+  autoAdvanceHeld?: boolean;
   createdAt: string;
   updatedAt: string;
   /** Archived list entry; report files remain available on disk. */

@@ -59,9 +59,13 @@ type ResizablePanelProps = PanelProps;
 /*  ResizableHandle                                                    */
 /* ------------------------------------------------------------------ */
 
-function ResizableHandle({ className, ...props }: SeparatorProps) {
+function ResizableHandle({ className, disableDoubleClick = true, ...props }: SeparatorProps) {
   return (
     <Separator
+      // ZAICODE (SRC-162): react-resizable-panels v4 resets the neighbouring panel to its
+      // defaultSize on a double-click of the separator, which throws away the width the user
+      // dragged out. A panel edge only resizes by dragging; a caller may opt back in explicitly.
+      disableDoubleClick={disableDoubleClick}
       // react-resizable-panels 的 Separator 不会暴露 data-orientation，
       // 实际输出的是 aria-orientation，而且方向和 PanelGroup 相反。
       // 之前写的 data-[orientation=...] 一直没有命中，所以 w-px / h-px 看起来“没生效”。

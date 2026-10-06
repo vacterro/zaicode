@@ -99,6 +99,7 @@ export function ZaicodeFooterTools({ settingsButton }: { settingsButton: ReactNo
   return (
     <ZaicodeRightClickSettings
       title="Footer"
+      preferenceKey="footer"
       hint="The profile (avatar and name, or the avatar alone) and the buttons next to it, in your order. Settings -> Sidebar has the same list."
       panel={<ZaicodeFooterEditor />}
       side="top"

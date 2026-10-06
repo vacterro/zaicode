@@ -113,7 +113,7 @@ export function ZaicodeAccountLimits({
   const credits = zaicodeResetCreditRows([account], { [account.id]: snapshot }, now)[0] ?? null;
   return (
     <div
-      className="flex flex-col gap-0.5"
+      className={cn("flex flex-col", compact ? "gap-0 leading-[1.2]" : "gap-0.5")}
       data-zaicode-account-limits={account.id}
       data-zaicode-scheduler-eligible={eligible ? "yes" : "no"}
       title={
@@ -154,7 +154,7 @@ export function ZaicodeAccountLimits({
         return (
           <div
             key={window.key}
-            className={cn("grid items-center gap-2 pl-2", compact ? "grid-cols-[88px_60px_34px_1fr]" : "grid-cols-[120px_80px_40px_1fr]")}
+            className={cn("grid items-center pl-2", compact ? "grid-cols-[124px_52px_34px_1fr] gap-x-1.5" : "grid-cols-[120px_80px_40px_1fr] gap-2")}
             style={fresh ? zaicodeGlowStyle(fresh, now, glow) : undefined}
             data-zaicode-fresh={fresh ? "true" : undefined}
             title={fresh ? `${fresh.label}: click to mark it seen` : undefined}
@@ -222,10 +222,16 @@ export function ZaicodeLimitsPanel({
   footer?: React.ReactNode;
 }) {
   return (
-    <div className="flex w-[420px] flex-col gap-2 text-ui-xs" data-zaicode-limits-panel>
-      <div className="flex items-baseline gap-2">
-        <span className="font-semibold text-foreground">AI Usage Limits</span>
-        <span className="text-foreground-subtlest">
+    // SRC-161:REQ-007: the panel used to be a fixed 420px column with 8px gaps
+    // and default line-height, inside a card whose height ceiling it could not
+    // see. It now fills the card (which is itself clamped to the window), uses
+    // 4px section gaps and tight leading, and inherits the card's max-height and
+    // internal scrolling, so a long account list scrolls instead of towering.
+    // SRC-162: tighter still -- the operator asked for the minimum line height and no voids.
+    <div className="flex w-full min-w-0 flex-col gap-0.5 text-ui-xs leading-[1.2]" data-zaicode-limits-panel>
+      <div className="flex min-w-0 items-baseline gap-2">
+        <span className="shrink-0 font-semibold text-foreground">AI Usage Limits</span>
+        <span className="min-w-0 truncate text-foreground-subtlest">
           {accounts.length} engines · reading quota never spends quota
         </span>
       </div>
@@ -233,16 +239,17 @@ export function ZaicodeLimitsPanel({
         <div className="text-foreground-subtle">No Claude / Codex / Antigravity / ZCode account found yet.</div>
       ) : null}
       {accounts.map((account) => (
-        <div key={account.id} className="border-t border-border/60 pt-1.5">
+        <div key={account.id} className="border-t border-border/60 pt-0.5">
           <ZaicodeAccountLimits
             account={account}
             snapshot={limits[account.id]}
             now={now}
             probing={probing.includes(account.id)}
+            compact
           />
         </div>
       ))}
-      {footer ? <div className="border-t border-border/60 pt-1.5 text-foreground-subtlest">{footer}</div> : null}
+      {footer ? <div className="border-t border-border/60 pt-1 text-foreground-subtlest">{footer}</div> : null}
     </div>
   );
 }

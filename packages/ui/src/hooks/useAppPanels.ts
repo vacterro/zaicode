@@ -14,6 +14,12 @@ import {
   saveTaskSidePaneMemoryState,
 } from "@/lib/taskSidePaneMemory.js";
 import {
+  persistedSidePaneCollapsedFor,
+  setZaicodeSidePaneVisibility,
+  sidePaneVisibilityOwnerKey,
+} from "@/zaicode/zaicodeSidePaneVisibility.js";
+import { useZaicodeUiPrefs } from "@/zaicode/zaicodeUiPrefs.js";
+import {
   closeSidePaneTab,
   closeSidePaneTabForParent,
   closeVisibleOtherSidePaneTabs,
@@ -129,6 +135,37 @@ function createTerminalSidePaneTitle(
   }
 }
 
+// T-224 / SRC-154:R003 — the persisted side-pane visibility policy. The toggle
+// and the reveal paths write the operator's answer into the existing UI prefs
+// (durable across restart); every read below consults it first and falls back
+// to the in-memory answer, so a fresh owner still opens a pane that has real
+// content. Reads go through getState(): the hook re-resolves on workspace and
+// owner switches, and the settings UI owns the live display.
+function persistedSidePaneCollapsed(owner: {
+  sessionId: string | null;
+  workspaceKey: string;
+}): boolean | undefined {
+  const prefs = useZaicodeUiPrefs.getState().sidePaneVisibility;
+  return persistedSidePaneCollapsedFor(prefs, sidePaneVisibilityOwnerKey(owner));
+}
+
+function persistSidePaneVisible(
+  owner: { sessionId: string | null; workspaceKey: string },
+  visible: boolean,
+): void {
+  const store = useZaicodeUiPrefs.getState();
+  store.update({
+    sidePaneVisibility: {
+      ...store.sidePaneVisibility,
+      ...setZaicodeSidePaneVisibility(
+        store.sidePaneVisibility,
+        sidePaneVisibilityOwnerKey(owner),
+        visible,
+      ),
+    },
+  });
+}
+
 export function useAppPanels(options: {
   workspaceAbsPath: string;
   workspaceIdentity?: string;
@@ -198,6 +235,10 @@ export function useAppPanels(options: {
   );
   const [isSidePaneCollapsed, setIsSidePaneCollapsed] = useState(
     getSidePaneCollapsedPreference(initialSidePaneMemoryState, sidePaneOwnerId) ??
+      persistedSidePaneCollapsed({
+        sessionId: sidePaneOwnerId,
+        workspaceKey: activeWorkspaceKey,
+      }) ??
       initialSidePaneMemoryState.isSidePaneCollapsed,
   );
   // 交互说明：侧栏显隐按钮放在 App 外层，而不是 Sidebar 内部。
@@ -235,6 +276,13 @@ export function useAppPanels(options: {
       activeSidePaneMemoryKeyRef.current,
       sidePaneOwnerIdRef.current,
       false,
+    );
+    persistSidePaneVisible(
+      {
+        sessionId: sidePaneOwnerIdRef.current,
+        workspaceKey: activeWorkspaceKeyRef.current,
+      },
+      true,
     );
   }, []);
 
@@ -282,6 +330,10 @@ export function useAppPanels(options: {
     commitSidePaneState(() => restored.sidePaneState);
     setIsSidePaneCollapsed(
       getSidePaneCollapsedPreference(restored, sidePaneOwnerIdRef.current) ??
+        persistedSidePaneCollapsed({
+          sessionId: sidePaneOwnerIdRef.current,
+          workspaceKey: activeWorkspaceKeyRef.current,
+        }) ??
         restored.isSidePaneCollapsed,
     );
   }, [commitSidePaneState, sidePaneMemoryKey]);
@@ -324,10 +376,15 @@ export function useAppPanels(options: {
       const preferredTabId =
         activeTabByOwnerRef.current.get(scopeKey) ??
         (activeTaskId ? lastActiveSubagentTabByRootRef.current.get(activeTaskId) : undefined);
-      const collapsedPreference = getSidePaneCollapsedPreference(
-        readTaskSidePaneMemoryState(activeSidePaneMemoryKeyRef.current),
-        sidePaneOwnerId,
-      );
+      const collapsedPreference =
+        getSidePaneCollapsedPreference(
+          readTaskSidePaneMemoryState(activeSidePaneMemoryKeyRef.current),
+          sidePaneOwnerId,
+        ) ??
+        persistedSidePaneCollapsed({
+          sessionId: sidePaneOwnerId,
+          workspaceKey: activeWorkspaceKey,
+        });
       const resolved = resolveSidePaneScopeState(
         current,
         { workspaceKey: activeWorkspaceKey, ownerTaskId: sidePaneOwnerId },
@@ -1262,6 +1319,13 @@ export function useAppPanels(options: {
         activeSidePaneMemoryKeyRef.current,
         sidePaneOwnerIdRef.current,
         nextCollapsed,
+      );
+      persistSidePaneVisible(
+        {
+          sessionId: sidePaneOwnerIdRef.current,
+          workspaceKey: activeWorkspaceKeyRef.current,
+        },
+        !nextCollapsed,
       );
       latestSidePaneMemoryRef.current = {
         ...latestSidePaneMemoryRef.current,

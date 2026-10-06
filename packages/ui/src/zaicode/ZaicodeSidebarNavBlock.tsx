@@ -161,8 +161,10 @@ export function ZaicodeSidebarNavBlock({
   return (
     <ZaicodeRightClickSettings
       title="Menu lines"
+      preferenceKey="sidebarNav"
       hint="Which lines this menu shows and in what order. Search also lives in the header as an icon."
-      panel={<ZaicodeNavItemsEditor />}
+      panel={<ZaicodeNavItemsEditor /
+>}
       className="flex w-full"
     >
       <div

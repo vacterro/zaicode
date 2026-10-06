@@ -2,6 +2,7 @@ import { useState, type ReactNode } from "react";
 import { cn } from "@/components/lib/utils.js";
 import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover.js";
 import { isZaicodeComboClick, nextZaicodeCombo } from "./zaicodeCombo.js";
+import { type ZaicodeRightClickPrefKey } from "./zaicodeUiPrefs.js";
 
 /**
  * Small, dense controls shared by the ZAICODE right-click settings panels
@@ -12,6 +13,12 @@ import { isZaicodeComboClick, nextZaicodeCombo } from "./zaicodeCombo.js";
 /**
  * Wraps a control so that a RIGHT click opens its settings panel next to it,
  * while a left click keeps doing whatever the control does.
+ *
+ * SRC-151:R011 — this is the ONE place the rule lives: "right-click a button,
+ * get the settings for that button". Every control that owns settings wraps
+ * itself here, so the behaviour, the panel chrome and the affordance are
+ * identical everywhere instead of re-implemented per button. `preferenceKey`
+ * names the control in the DOM (`data-zaicode-rightclick`).
  */
 export function ZaicodeRightClickSettings({
   title,
@@ -21,6 +28,7 @@ export function ZaicodeRightClickSettings({
   side = "bottom",
   align = "start",
   className,
+  preferenceKey,
 }: {
   title: string;
   hint?: string;
@@ -31,6 +39,8 @@ export function ZaicodeRightClickSettings({
   side?: "top" | "right" | "bottom" | "left";
   align?: "start" | "center" | "end";
   className?: string;
+  /** Which registered control this is (ZAICODE_RIGHT_CLICK_CONTROLS). */
+  preferenceKey?: ZaicodeRightClickPrefKey;
 }) {
   const [open, setOpen] = useState(false);
   return (
@@ -38,7 +48,11 @@ export function ZaicodeRightClickSettings({
       <PopoverAnchor asChild>
         <div
           className={cn("inline-flex", className)}
+          data-zaicode-rightclick={preferenceKey}
           onContextMenu={(event) => {
+            // SRC-162: a right-click on a settings-owning control always opens its panel. The
+            // old "opens the app menu" choice pointed at a menu a button does not have in the
+            // packaged app, so picking it left the right button dead on that control.
             event.preventDefault();
             event.stopPropagation();
             setOpen(true);

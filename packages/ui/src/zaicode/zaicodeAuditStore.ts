@@ -26,6 +26,8 @@ interface ZaicodeAuditStoreState {
   smartMode: boolean;
   maxCycles: number;
   runId: string | null;
+  /** SRC-151:R008: the global "generate the next wave by itself" switch. */
+  autoWaves: boolean;
   loading: boolean;
   error: string | null;
   refresh: (audits: IZaicodeAuditService) => Promise<void>;
@@ -38,6 +40,8 @@ interface ZaicodeAuditStoreState {
   /** Hand the exact combined artifact to the next implementation task. */
   fixWithSaipen: (audits: IZaicodeAuditService, campaignId: string) => Promise<void>;
   setSmartMode: (audits: IZaicodeAuditService, enabled: boolean) => Promise<void>;
+  /** SRC-151:R008: turn automatic wave generation on or off for every audit. */
+  setAutoWaves: (audits: IZaicodeAuditService, enabled: boolean) => Promise<void>;
   setMaxCycles: (audits: IZaicodeAuditService, maxCycles: number) => Promise<void>;
   campaignsFor: (workspacePath: string) => ZaicodeAuditCampaign[];
   activeCountFor: (workspacePath: string) => number;
@@ -146,6 +150,7 @@ export const useZaicodeAuditStore = create<ZaicodeAuditStoreState>((set, get) =>
     smartMode: false,
     maxCycles: 10,
     runId: null,
+    autoWaves: true,
     loading: false,
     error: null,
 
@@ -163,6 +168,7 @@ export const useZaicodeAuditStore = create<ZaicodeAuditStoreState>((set, get) =>
           smartMode: state.smartMode,
           maxCycles: state.maxCycles,
           runId: state.runId,
+          autoWaves: state.autoWaves !== false,
           loading: false,
           error: null,
         });
@@ -180,6 +186,7 @@ export const useZaicodeAuditStore = create<ZaicodeAuditStoreState>((set, get) =>
     archive: (audits, campaignId) => after(audits, () => audits.archive(campaignId)),
     fixWithSaipen: (audits, campaignId) => after(audits, () => audits.fixWithSaipen(campaignId)),
     setSmartMode: (audits, enabled) => after(audits, () => audits.setSmartMode(enabled)),
+    setAutoWaves: (audits, enabled) => after(audits, () => audits.setAutoWaves(enabled)),
     setMaxCycles: (audits, maxCycles) => after(audits, () => audits.setSmartMaxCycles(maxCycles)),
 
     campaignsFor: (workspacePath) =>

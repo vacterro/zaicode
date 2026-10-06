@@ -4297,6 +4297,7 @@ export function SessionPane({
   useZaicodeQueueAutoResume({
     enabled: isZaicodeProductMode() && !readOnly && !selectionSideChat,
     sessionId,
+    projectKey: workspaceKey,
     queueItems: snapshot?.queue.items.length ?? 0,
     autoDrain: snapshot?.queue.autoDrain ?? true,
     pauseReason: snapshot?.queue.pauseReason ?? null,

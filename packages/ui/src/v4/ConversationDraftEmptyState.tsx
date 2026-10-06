@@ -219,6 +219,7 @@ export function ConversationDraftEmptyState({ className }: { className?: string 
       ) : (
         <ZaicodeRightClickSettings
           title="New task screen"
+          preferenceKey="greeting"
           hint="Greeting, hours, empty marker and SAIMAIL line"
           panel={<ZaicodeGreetingSettingsPanel />}
           className="group/home min-h-6 w-full flex-col items-center gap-6"

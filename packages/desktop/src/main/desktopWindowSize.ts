@@ -33,6 +33,55 @@ type WindowSizePersistenceTarget = Pick<
   "getNormalBounds" | "isDestroyed" | "isMaximized" | "on"
 >;
 
+type MaximizeGeometryTarget = Pick<
+  BrowserWindow,
+  "getBounds" | "getNormalBounds" | "isDestroyed" | "on" | "setBounds"
+>;
+
+function sameRect(a: Rectangle, b: Rectangle): boolean {
+  return a.x === b.x && a.y === b.y && a.width === b.width && a.height === b.height;
+}
+
+/**
+ * SRC-151:R004: "when I maximize the window it maximizes like this".
+ *
+ * The window is frameless on Windows (`frame: false`, the native title bar is
+ * replaced by renderer-drawn controls), and a frameless maximized window is
+ * given the monitor rather than the work area, with the invisible resize border
+ * still on top of it: the operator's captures are 1930x1080 on a 1920x1080
+ * screen and 960x1080 for the half-width restore rect -- both 48 px taller than
+ * the work area, so the window sits over the taskbar and hangs off both sides.
+ *
+ * Native maximize still decides *whether* the window is maximized -- this only
+ * corrects the rectangle it produced, and only when that rectangle actually
+ * disagrees with the work area, so an already-correct window is never touched
+ * and the operator's own maximize gesture stays the one that runs. Windows
+ * records the corrected rectangle as the restore rect, so the pre-maximize
+ * bounds are put back on unmaximize.
+ */
+export function attachNativeMaximizeGeometry(
+  win: MaximizeGeometryTarget,
+  workAreaFor: (bounds: Rectangle) => Rectangle,
+): void {
+  let restore: Rectangle | null = null;
+
+  win.on("maximize", () => {
+    if (win.isDestroyed()) return;
+    const bounds = win.getBounds();
+    const workArea = workAreaFor(bounds);
+    if (sameRect(bounds, workArea)) return;
+    restore = win.getNormalBounds();
+    win.setBounds(workArea);
+  });
+
+  win.on("unmaximize", () => {
+    if (win.isDestroyed() || !restore) return;
+    const back = restore;
+    restore = null;
+    win.setBounds(back);
+  });
+}
+
 export function attachDesktopWindowSizePersistence(
   win: WindowSizePersistenceTarget,
   save: (state: DesktopWindowSize) => Promise<void>,

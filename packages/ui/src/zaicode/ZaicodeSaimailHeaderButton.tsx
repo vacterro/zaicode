@@ -1,6 +1,4 @@
 import { useState } from "react";
-import { createPortal } from "react-dom";
-import { zaicodeDevicePx } from "./zaicodePixelSnap.js";
 import { Mail } from "lucide-react";
 import { cn } from "@/components/lib/utils.js";
 import { Button } from "@/components/ui/button.js";
@@ -10,6 +8,7 @@ import { useTabStore } from "@/store/TabStoreProvider.js";
 import { WINDOWS_CAPTION_CONTROL_CLASS } from "@/windowCaptionControls.js";
 import { useZaicodeSaipen } from "@/zaicode/zaicodeSaipen.js";
 import { useZaicodeSaimailDesk } from "@/zaicode/zaicodeSaimail.js";
+import { ZaicodeAnchoredCard } from "@/zaicode/ZaicodeAnchoredCard.js";
 import { ZaicodeSaimailReaderPopover } from "@/zaicode/ZaicodeSaimailReaderPopover.js";
 import { ZaicodeSaimailSettingsPanel } from "@/zaicode/ZaicodeHomeScreen.js";
 import { ZaicodeRightClickSettings } from "@/zaicode/ZaicodePrefControls.js";
@@ -43,8 +42,11 @@ export function ZaicodeSaimailHeaderButton({
   const currentTask = saipen?.task ?? null;
   const { mailbox, desk } = useZaicodeSaimailDesk(currentTask);
   const openSettingsTab = useTabStore((state) => state.openSettingsTab);
-  const [rect, setRect] = useState<DOMRect | null>(null);
-  const [readerAnchor, setReaderAnchor] = useState<DOMRect | null>(null);
+  // SRC-161:REQ-003: keep the trigger ELEMENT, never a rect snapshot. A snapshot
+  // goes stale on scroll/resize and reports a zero box after detach; the element
+  // is re-read every pass and yields "no box" instead of a card at the origin.
+  const [previewEl, setPreviewEl] = useState<HTMLElement | null>(null);
+  const [readerEl, setReaderEl] = useState<HTMLElement | null>(null);
   const prefs = useZaicodeUiPrefs();
   const unread = desk?.unread.length ?? 0;
   const ready = Boolean(mailbox && desk);
@@ -65,7 +67,7 @@ export function ZaicodeSaimailHeaderButton({
         "replace",
       );
   };
-  const show = (element: HTMLElement) => setRect(element.getBoundingClientRect());
+  const show = (element: HTMLElement) => setPreviewEl(element);
 
   const label = !mailbox
     ? "SAIMAIL is off. Click to set up your mailbox."
@@ -75,7 +77,7 @@ export function ZaicodeSaimailHeaderButton({
 
   return (
     <>
-      <ZaicodeRightClickSettings title="SAIMAIL envelope" hint="Choose what the envelope shows and does" panel={<ZaicodeSaimailSettingsPanel onOpenSettings={openSettings} />} align="end">
+      <ZaicodeRightClickSettings title="SAIMAIL envelope" preferenceKey="saimail" hint="Choose what the envelope shows and does" panel={<ZaicodeSaimailSettingsPanel onOpenSettings={openSettings} />} align="end">
       <Button
         type="button"
         variant="ghost"
@@ -95,19 +97,20 @@ export function ZaicodeSaimailHeaderButton({
             prefs.saimailUnreadRing && "border border-[var(--zaicode-highlight,var(--color-warning))] text-[var(--zaicode-highlight,var(--color-warning))] hover:text-[var(--zaicode-highlight,var(--color-warning))]",
         )}
         onMouseEnter={(event) => { if (prefs.saimailHoverPreview) show(event.currentTarget); }}
-        onMouseLeave={() => setRect(null)}
+        onMouseLeave={() => setPreviewEl(null)}
         onFocus={(event) => { if (prefs.saimailHoverPreview) show(event.currentTarget); }}
-        onBlur={() => setRect(null)}
-        onContextMenu={() => setRect(null)}
+        onBlur={() => setPreviewEl(null)}
+        onContextMenu={() => setPreviewEl(null)}
         onClick={(event) => {
-          setRect(null);
+          setPreviewEl(null);
           playZaicodeSound("saimail.open");
           if (ready && prefs.saimailClick === "reader") {
-            // Read the rect NOW: React clears event.currentTarget once the handler returns, and the
-            // updater below runs later -- reading it there was "Cannot read properties of null
-            // (reading 'getBoundingClientRect')" the moment the mailbox was opened (SRC-085).
-            const anchor = event.currentTarget.getBoundingClientRect();
-            setReaderAnchor((current) => (current ? null : anchor));
+            // Hold the element NOW: React clears event.currentTarget once the handler
+            // returns, and the updater below runs later -- reading it there was the
+            // crash the moment the mailbox was opened (SRC-085). The reader measures
+            // this element itself on every pass (SRC-161:REQ-003).
+            const trigger = event.currentTarget;
+            setReaderEl((current) => (current ? null : trigger));
           } else if (ready && prefs.saimailClick === "brief") draftBrief();
           else openSettings();
         }}
@@ -119,27 +122,23 @@ export function ZaicodeSaimailHeaderButton({
         ) : null}
       </Button>
       </ZaicodeRightClickSettings>
-      {readerAnchor && desk && ready ? (
+      {readerEl && desk && ready ? (
         <ZaicodeSaimailReaderPopover
           desk={desk}
           currentTask={currentTask}
-          anchor={readerAnchor}
-          onClose={() => setReaderAnchor(null)}
+          anchorEl={readerEl}
+          onClose={() => setReaderEl(null)}
         />
       ) : null}
-      {rect && prefs.saimailHoverPreview
-        ? createPortal(
-            <div
-              role="tooltip"
-              className="pointer-events-none fixed z-[200] border border-[var(--zaicode-highlight,var(--color-border))] bg-tooltip text-ui-xs text-tooltip-foreground shadow-md"
-              style={{
-                width: PANEL_WIDTH,
-                left: zaicodeDevicePx(
-                  Math.max(8, Math.min(rect.right - PANEL_WIDTH, window.innerWidth - PANEL_WIDTH - 8)),
-                ),
-                top: zaicodeDevicePx(rect.bottom + 6),
-              }}
-            >
+      {previewEl && prefs.saimailHoverPreview
+        ? (
+          <ZaicodeAnchoredCard
+            anchor={previewEl.getBoundingClientRect()}
+            anchorEl={previewEl}
+            width={PANEL_WIDTH}
+            side="bottom"
+            ariaLabel="SAIMAIL mailbox preview"
+          >
               <div className="flex items-center gap-2 border-b border-[var(--zaicode-bevel-dark,var(--color-border))] px-2 py-1">
                 <Mail className="size-3" />
                 <strong className="font-normal">SAIMAIL{desk ? ` · ${desk.seat}` : ""}</strong>
@@ -203,9 +202,8 @@ export function ZaicodeSaimailHeaderButton({
                   ? "Headers only. Open a letter to read it."
                   : "Local agent post office. Click: Settings -> ZAICODE -> SAIMAIL."}
               </div>
-            </div>,
-            document.body,
-          )
+          </ZaicodeAnchoredCard>
+        )
         : null}
     </>
   );

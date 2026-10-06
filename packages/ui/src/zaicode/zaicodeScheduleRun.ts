@@ -258,13 +258,24 @@ export async function continueZaicodeMarked(job: Pick<ZaicodeAutostartJob, "prom
   return outcome;
 }
 
-/** Stop time for a run that is a session (not a queue job). Returns false when it is a queue job. */
-export async function stopZaicodeSessionRun(run: ZaicodeScheduledRun): Promise<boolean> {
-  if (!run.jobId.startsWith("session:")) return false;
+/** What one stop attempt did: a queue job is not ours, and a rejected stop is not a stop. */
+export type ZaicodeStopOutcome = "not-session" | "stopped" | "rejected";
+
+/** Stop time for a run that is a session (not a queue job). */
+export async function stopZaicodeSessionRun(run: ZaicodeScheduledRun): Promise<ZaicodeStopOutcome> {
+  if (!run.jobId.startsWith("session:")) return "not-session";
   const project = readZaicodeKnownProjects().find((candidate) => candidate.key === run.workspaceKey);
   const handle = project ? zaicodeContinueHandleFor(project) : null;
-  await handle?.stop(run.jobId.slice("session:".length)).catch(() => undefined);
-  return true;
+  // No handle means the project is not connected: nothing was stopped, so this is a
+  // rejection and the run stays tracked. A rejected stop has to be reported as such
+  // (W2-003): the caller must not forget a run the host never confirmed ended.
+  if (!handle) return "rejected";
+  try {
+    await handle.stop(run.jobId.slice("session:".length));
+    return "stopped";
+  } catch {
+    return "rejected";
+  }
 }
 
 /** Existing queue/session stop rules, called by the single autostart timer. */
@@ -272,12 +283,36 @@ export async function applyZaicodeScheduleStopRules(jobs: readonly ZaicodeAutost
   for (const job of jobs) {
     const due = zaicodeRunsToStop(job, now, zaicodeScheduleStopAt);
     if (due.length === 0) continue;
-    forget(job.id, due);
+    const stopped: string[] = [];
+    const pending: string[] = [];
     for (const jobId of due) {
       const run = job.runs.find((candidate) => candidate.jobId === jobId);
-      if (run && (await stopZaicodeSessionRun(run))) continue;
-      await services?.jobs.cancel(jobId).catch(() => undefined);
+      const outcome = run ? await stopZaicodeSessionRun(run) : "not-session";
+      if (outcome === "stopped") {
+        stopped.push(jobId);
+        continue;
+      }
+      if (outcome === "rejected") {
+        pending.push(jobId);
+        continue;
+      }
+      // A queue job: the queue service is the only owner of cancelling it.
+      const cancelled = (await services?.jobs.cancel(jobId).then(
+        () => true,
+        () => false,
+      )) ?? false;
+      if (cancelled) stopped.push(jobId);
+      else pending.push(jobId);
     }
-    notifyZaicode("autostart.fire", { header: "Scheduler", title: `Stopped at ${job.stopAt}: ${job.name || "schedule"}`, body: `${due.length} run(s) ended by the stop time`, key: `autostart-stop:${job.id}` });
+    // Only a confirmed stop forgets a run: a run that stays in job.runs is due again on
+    // the next tick, which is the retry. Nothing is reported as ended before it is.
+    if (stopped.length > 0) forget(job.id, stopped);
+    if (stopped.length === 0) continue;
+    notifyZaicode("autostart.fire", {
+      header: "Scheduler",
+      title: `Stopped at ${job.stopAt}: ${job.name || "schedule"}`,
+      body: `${stopped.length} run(s) ended by the stop time${pending.length > 0 ? `; ${pending.length} still stopping` : ""}`,
+      key: `autostart-stop:${job.id}`,
+    });
   }
 }

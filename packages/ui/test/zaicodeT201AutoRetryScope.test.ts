@@ -66,6 +66,9 @@ test("SRC-135: the switch writes the answer its scope says, without losing other
   assert.deepEqual(patch.autoRetryProjects, { p1: false, p2: false });
 });
 
+// Fresh REQ-001 supersedes the T-217 editing-scope button: the primary switch toggles
+// the EFFECTIVE answer (session > project > global) and the pill names the effective
+// scope explicitly, so a hidden project override can never hide behind "Global default".
 test("T-217: the composer button shows the effective gate, including the Auto master", () => {
   const html = buttonHtml();
   assert.match(html, /data-testid="zaicode-auto-retry"/);
@@ -73,13 +76,13 @@ test("T-217: the composer button shows the effective gate, including the Auto ma
   assert.ok(html.includes(`data-zaicode-auto-retry="${effective.enabled ? "on" : "off"}"`));
   assert.ok(html.includes(`aria-pressed="${effective.enabled}"`));
   assert.match(html, /data-testid="zaicode-auto-retry-scope"/);
-  assert.match(html, /Global default/);
+  assert.match(html, /Inherited: Global (ON|OFF)/);
 
   // The highlight must hang off the answer, not be baked into the class list.
   const source = readFileSync(new URL("../src/zaicode/ZaicodeAutoRetryButton.tsx", import.meta.url), "utf8");
-  assert.match(source, /cn\("cursor-pointer", enabled && "bg-selected text-foreground"\)/);
-  assert.match(source, /zaicodeAutoRetryPatch\(prefs, projectKey, !effective\.preference, sessionId\)/);
-  assert.match(source, /zaicodeAutoRetryScopeNext\(prefs\.autoRetryScope\)/);
+  assert.match(source, /cn\("cursor-pointer", enabled && "bg-selected text-foreground"/);
+  assert.match(source, /zaicodeAutoRetryToggle\(prefs, projectKey, sessionId, effective\)/);
+  assert.doesNotMatch(source, /zaicodeAutoRetryScopeNext/, "fresh REQ-001: the pill is a readout, not a scope switch");
 });
 
 test("SRC-135: the retry watcher asks the gate with the project's answer, not the raw flag", () => {

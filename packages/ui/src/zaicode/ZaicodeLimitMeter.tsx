@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
 import {
   effectiveZaicodeWindows,
   zaicodeBottleneck,
@@ -40,7 +39,7 @@ import { endZaicodeGlowsInUse, zaicodeGlowHandlers, zaicodeGlowStyle } from "./z
 import { playZaicodeSound } from "./zaicodeSoundBus.js";
 import { useZaicodePreparedMeters } from "./ZaicodeSchedulerBits.js";
 import { withZaicodeHighlight } from "./zaicodeHighlights.js";
-import { zaicodeDevicePx } from "./zaicodePixelSnap.js";
+import { ZaicodeAnchoredCard } from "./ZaicodeAnchoredCard.js";
 
 /**
  * AI Limit meter in the title bar (FastPrompter's header meter): one reading
@@ -53,6 +52,9 @@ import { zaicodeDevicePx } from "./zaicodePixelSnap.js";
 export { setZaicodeLimitMeterStyle, useZaicodeLimitMeterStyle, type ZaicodeLimitMeterStyle };
 
 const MAX_SHOWN = 9;
+
+/** Natural width of the meter card. The anchored card clamps it to the viewport. */
+const METER_CARD_WIDTH = 436;
 
 /** The short and the long window of an account (5h over weekly), for the stacked style. */
 function stackedPair(snapshot: ZaicodeLimitSnapshot | undefined, now: number): [number | null, number | null] {
@@ -163,7 +165,9 @@ export function ZaicodeLimitMeter({ useWindowsCaptionSpacing = false }: { useWin
   const now = useZaicodeClock(30_000);
   const openSettingsTab = useTabStore((state) => state.openSettingsTab);
   const buttonRef = useRef<HTMLButtonElement>(null);
-  const [rect, setRect] = useState<DOMRect | null>(null);
+  // SRC-161:REQ-003: the trigger, not a snapshot of it. The card re-reads this
+  // on every move/resize and closes when the button is gone.
+  const [hoverEl, setHoverEl] = useState<HTMLElement | null>(null);
   const all = visibleZaicodeAccounts(engines);
   if (all.length === 0) return null;
   const hiddenInEngines = engines.accounts.filter((account) => engines.config.hiddenAccounts.includes(account.id));
@@ -179,8 +183,10 @@ export function ZaicodeLimitMeter({ useWindowsCaptionSpacing = false }: { useWin
   return (
     <ZaicodeRightClickSettings
       title="AI limit meter"
+      preferenceKey="meter"
       hint="Which engines the meter shows and how. Per-engine hide here affects the meter only."
-      panel={<ZaicodeMeterSettingsPanel />}
+      panel={<ZaicodeMeterSettingsPanel /
+>}
       align="end"
     >
       <button
@@ -195,9 +201,9 @@ export function ZaicodeLimitMeter({ useWindowsCaptionSpacing = false }: { useWin
         aria-label={`AI limits: ${accounts
           .map((account) => zaicodeReadingTitle(account, engines.limits[account.id], now).split("\n")[1])
           .join("; ")}`}
-        onMouseEnter={() => setRect(buttonRef.current?.getBoundingClientRect() ?? null)}
-        onMouseLeave={() => setRect(null)}
-        onContextMenu={() => setRect(null)}
+        onMouseEnter={() => setHoverEl(buttonRef.current)}
+        onMouseLeave={() => setHoverEl(null)}
+        onContextMenu={() => setHoverEl(null)}
         onClick={(event) => {
           if (event.ctrlKey || event.metaKey) {
             const next = ZAICODE_LIMIT_METER_STYLES[(ZAICODE_LIMIT_METER_STYLES.indexOf(style) + 1) % ZAICODE_LIMIT_METER_STYLES.length]!;
@@ -228,15 +234,15 @@ export function ZaicodeLimitMeter({ useWindowsCaptionSpacing = false }: { useWin
         {overflow > 0 ? <span className="text-[9px] text-foreground-subtlest">+{overflow}</span> : null}
         {engines.sweeping ? <span className="size-1 animate-pulse bg-[#c9a227]" aria-hidden="true" /> : null}
       </button>
-      {rect
-        ? createPortal(
-            <div
-              className="pointer-events-none fixed z-[200] border border-[var(--zaicode-highlight,var(--color-border))] bg-tooltip p-2 text-tooltip-foreground shadow-md"
-              style={{
-                top: zaicodeDevicePx(rect.bottom + 4),
-                left: zaicodeDevicePx(Math.max(8, Math.min(rect.right - 436, window.innerWidth - 444))),
-              }}
-            >
+{hoverEl ? (
+        <ZaicodeAnchoredCard
+          anchor={hoverEl.getBoundingClientRect()}
+          anchorEl={hoverEl}
+          width={METER_CARD_WIDTH}
+          side="bottom"
+          ariaLabel="AI limits"
+          className="p-2"
+        >
               <ZaicodeLimitsPanel
                 accounts={all}
                 limits={engines.limits}
@@ -261,10 +267,8 @@ export function ZaicodeLimitMeter({ useWindowsCaptionSpacing = false }: { useWin
                   </>
                 }
               />
-            </div>,
-            document.body,
-          )
-        : null}
+        </ZaicodeAnchoredCard>
+      ) : null}
     </ZaicodeRightClickSettings>
   );
 }

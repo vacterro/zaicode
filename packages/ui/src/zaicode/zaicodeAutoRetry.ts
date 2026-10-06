@@ -18,6 +18,7 @@ import {
   zaicodeRetryDelayMs,
   zaicodeRetryLimit,
 } from "./zaicodeRetryPolicy.js";
+import { currentZaicodeRetrySafety, writeZaicodeRetrySafety } from "./zaicodeRetrySafety.js";
 import { useZaicodeUiPrefs } from "./zaicodeUiPrefs.js";
 
 /**
@@ -85,8 +86,12 @@ export function pickZaicodeAutoRetryAction(rows: readonly RowLike[]): ZaicodeAut
   return null;
 }
 
-/** Attempts per session survive pane remounts; reset when a turn completes cleanly. */
-const attemptsBySession = new Map<string, number>();
+/**
+ * Attempts per session survive pane remounts, and survive a renderer reload too (SRC-161:W2-002:
+ * a reload used to hand out a fresh budget, so a crash loop could retry for ever in blocks of
+ * eight). Reset when a turn completes cleanly.
+ */
+const attemptsBySession = new Map<string, number>(Object.entries(currentZaicodeRetrySafety().attempts));
 
 /** Sessions whose open pane is in charge of the retry; the background host stands down for them. */
 const localPanes = new Set<string>();
@@ -97,10 +102,12 @@ export function zaicodeAutoRetryAttempts(sessionId: string): number {
 
 export function bumpZaicodeAutoRetryAttempt(sessionId: string): void {
   attemptsBySession.set(sessionId, (attemptsBySession.get(sessionId) ?? 0) + 1);
+  writeZaicodeRetrySafety({ attempts: Object.fromEntries(attemptsBySession) });
 }
 
 export function resetZaicodeAutoRetryAttempt(sessionId: string): void {
-  attemptsBySession.delete(sessionId);
+  if (!attemptsBySession.delete(sessionId)) return;
+  writeZaicodeRetrySafety({ attempts: Object.fromEntries(attemptsBySession) });
 }
 
 /** True while an open pane is in charge of the session's retry (zaicodeAutoRetryPaneClaims). */
@@ -168,7 +175,7 @@ export interface ZaicodeAutoRetryState {
  * the next genuinely new error arms the retry again, and the source event
  * itself is not suppressed.
  */
-const stoppedErrorKeys = new Set<string>();
+const stoppedErrorKeys = new Set<string>(currentZaicodeRetrySafety().stoppedErrors);
 const STOPPED_KEY_LIMIT = 40;
 
 /** Stops the background retry for one error, from anywhere in the app. */
@@ -179,6 +186,8 @@ export function stopZaicodeAutoRetryForError(errorKey: string | null | undefined
     if (stoppedErrorKeys.size <= STOPPED_KEY_LIMIT) break;
     stoppedErrorKeys.delete(key);
   }
+  // The operator closed this error; a reload must not reopen it.
+  writeZaicodeRetrySafety({ stoppedErrors: [...stoppedErrorKeys] });
 }
 
 export function isZaicodeAutoRetryStopped(errorKey: string | null | undefined): boolean {
@@ -223,11 +232,12 @@ export function useZaicodeAutoRetry(params: {
   }, [quotaWall, sessionId, errorKey, params.quotaFallbackReady]);
   const effective = zaicodeEffectiveAutoRetry(prefs, params.projectKey ?? "", sessionId, { masterOn, sessionMode, halted });
   const mayAutoSend = effective.enabled;
+  // The banner reads the same block the button shows (SRC-162): one projection, one answer.
   const blockedBy: ZaicodeAutoRetryState["blockedBy"] = quotaWall
     ? "quota"
-    : sessionMode === "off" || (!masterOn && sessionMode !== "on")
+    : effective.block === "session-off" || effective.block === "master-off"
       ? "auto-off"
-      : !mayAutoSend || halted
+      : effective.block !== null
         ? "switch-off"
         : null;
   const actionRef = useRef(action);

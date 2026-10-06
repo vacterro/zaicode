@@ -300,6 +300,30 @@ export function ZaicodeAuditPanel({ services, workspace }: ZaicodeAuditPanelProp
           </p>
         </section>
 
+        {/*
+          SRC-151:R008. Its own row, above the automatic-audits block and outside it,
+          because it governs BOTH: an audit the operator started by hand and one
+          smart mode started itself. Burying it under "automatic audits" is what
+          made it unfindable in the first place.
+        */}
+        <section className="border-t border-border px-3 py-2" aria-label="Wave generation" data-zaicode-audit-waves>
+          <div className="flex flex-wrap items-center gap-2">
+            <ListChecks className="size-3 text-foreground-subtle" />
+            <span className="font-medium text-foreground">Generate the next wave by itself</span>
+            <Switch
+              checked={store.autoWaves}
+              aria-label="Generate the next A3 wave by itself"
+              onCheckedChange={(enabled) => void store.setAutoWaves(audits, enabled)}
+            />
+            <span className="text-foreground-subtlest">{store.autoWaves ? "on" : "off — nothing starts itself"}</span>
+          </div>
+          <p className="mt-1 text-foreground-subtlest">
+            {store.autoWaves
+              ? "A validated wave starts the next one on its own, all the way to 3/3. This is the default and what every running audit is doing right now."
+              : "Off means off for the automatic path too: Auto Continue never opens an audit on its own, not even the first wave. An audit you start by hand runs its first wave, then waits for Continue after each wave. Turn this back on and every waiting audit picks up where it stopped."}
+          </p>
+        </section>
+
         {history.length > 0 ? (
           <section className="border-t border-border" aria-label="Finished audits">
             <div className="px-3 pt-2 font-medium text-foreground">Finished</div>

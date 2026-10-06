@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { useZaicodeAuditStore } from "./zaicodeAuditStore.js";
 import { zaicodeAutoContinueModeFor, type ZaicodeAutoContinueMode } from "./zaicodeAutoContinue.js";
 import { ZAICODE_AUTO_RETRY_DEFAULT_ATTEMPTS, ZAICODE_AUTO_RETRY_HARD_CAP, zaicodeAutoRetryEnabled, useZaicodeUiPrefs, type ZaicodeUiPrefs } from "./zaicodeUiPrefs.js";
+import { currentZaicodeRetrySafety, writeZaicodeRetrySafety } from "./zaicodeRetrySafety.js";
 
 export { ZAICODE_AUTO_RETRY_DEFAULT_ATTEMPTS, ZAICODE_AUTO_RETRY_HARD_CAP };
 
@@ -10,11 +11,12 @@ export { ZAICODE_AUTO_RETRY_DEFAULT_ATTEMPTS, ZAICODE_AUTO_RETRY_HARD_CAP };
  * watch it, even with auto continue off. That is a hole."
  *
  * One policy for every automatic send that answers a failure (the open chat's
- * countdown, the background retry host, the crash resume). It answers four
- * questions the three of them used to answer differently or not at all:
+ * countdown, the background retry host, the queue auto-resume, the crash resume). It
+ * answers four questions the three of them used to answer differently or not at all:
  *
- *   MAY it send?     the session's own switch, the sidebar Auto master and the
- *                    feature's own switch (zaicodeMayAutoSend);
+ *   MAY it send?     the one effective retry projection (zaicodeEffectiveAutoRetry:
+ *                    the project/session/global retry preference, the sidebar Auto
+ *                    master, the session's own mode and the stop-all ledger);
  *   SHOULD it?       a quota / usage-limit error is a wall, not a hiccup: it
  *                    waits for the reset instead of being asked again every
  *                    minute (zaicodeRetryClassOf, the quota memory);
@@ -22,6 +24,12 @@ export { ZAICODE_AUTO_RETRY_DEFAULT_ATTEMPTS, ZAICODE_AUTO_RETRY_HARD_CAP };
  *   HOW MANY?        a hard cap no setting can raise (ZAICODE_AUTO_RETRY_HARD_CAP);
  *   AND WHO SEES IT? every scheduled retry is in the ledger the sidebar shows,
  *                    with one button that stops them all.
+ *
+ * There is exactly one answer to "may it send", and it is the conservative one: an
+ * operator's explicit OFF (project, session or the stop-all button) wins over any
+ * session that says On. The old second gate (zaicodeMayAutoSend / zaicodeAutoSendAllowed)
+ * answered the same question differently and was deleted with the queue and crash-resume
+ * owners that still asked it -- two authorities answering one question was the defect.
  */
 
 /** Backoff never waits longer than this between two attempts. */
@@ -54,39 +62,94 @@ export function zaicodeRetryClassOf(error: { code?: string | null; message?: str
   return QUOTA_MESSAGE.test(message) ? "quota" : "transient";
 }
 
-/**
- * The per-session switch, the sidebar Auto master and the feature's own switch.
- * An explicit per-session Off always wins; an explicit On lets the session
- * continue itself (the rule zaicodeAutoContinueAllowed always had); otherwise
- * it needs the master AND the feature.
- */
-export function zaicodeMayAutoSend(input: {
-  mode: ZaicodeAutoContinueMode | undefined;
-  masterOn: boolean;
-  featureOn: boolean;
-}): boolean {
-  if (input.mode === "off") return false;
-  if (input.mode === "on") return true;
-  return input.masterOn && input.featureOn;
-}
-
 /** The sidebar's Auto ON/OFF, read outside React. Unknown yet (not loaded) reads as OFF: safe. */
 export function zaicodeMasterAutoOn(): boolean {
   return useZaicodeAuditStore.getState().smartMode === true;
 }
 
-/** The whole gate for one session, outside React. */
-export function zaicodeAutoSendAllowed(sessionId: string, featureOn: boolean): boolean {
-  if (useZaicodeRetryLedger.getState().halted) return false;
-  return zaicodeMayAutoSend({ mode: zaicodeAutoContinueModeFor(sessionId), masterOn: zaicodeMasterAutoOn(), featureOn });
+/**
+ * The canonical gate for one autonomous sender outside React: the effective retry
+ * projection claim for this session ANDed with the feature's own switch (e.g.
+ * `resumeAfterCrash` for the crash resume, the caller's `enabled` for the queue).
+ * Every autonomous-send owner asks this, so what the Auto Retry surface says and what
+ * actually goes out cannot disagree.
+ */
+export function zaicodeAutoRetryAllowedFor(
+  projectKey: string,
+  sessionId: string | null | undefined,
+  featureOn: boolean,
+): boolean {
+  if (!featureOn) return false;
+  return zaicodeEffectiveAutoRetryFor(projectKey, sessionId).enabled;
 }
 
 /** Single effective projection for every retry owner and representation. */
-export function zaicodeEffectiveAutoRetry(prefs: ZaicodeUiPrefs, projectKey: string, sessionId: string | null | undefined, gate: { masterOn: boolean; sessionMode?: ZaicodeAutoContinueMode; halted: boolean }) {
+export type ZaicodeAutoRetryPrefs = Pick<ZaicodeUiPrefs, "autoRetry" | "autoRetryScope" | "autoRetryProjects"> &
+  Partial<Pick<ZaicodeUiPrefs, "autoRetrySessions">>;
+
+/** Which gate holds the effective answer OFF; null while it is ON. */
+export type ZaicodeAutoRetryBlock = "halted" | "session-off" | "preference-off" | "master-off";
+
+export function zaicodeEffectiveAutoRetry(prefs: ZaicodeAutoRetryPrefs, projectKey: string, sessionId: string | null | undefined, gate: { masterOn: boolean; sessionMode?: ZaicodeAutoContinueMode; halted: boolean }) {
   const preference = zaicodeAutoRetryEnabled(prefs, projectKey, sessionId);
-  const source = sessionId && prefs.autoRetrySessions?.[sessionId] !== undefined ? "session" : prefs.autoRetryProjects[projectKey] !== undefined ? "project" : "global";
-  const reason = gate.halted ? "All retries stopped" : gate.sessionMode === "off" ? "Session auto-continue is off" : !preference ? `${source} retry preference is off` : !gate.masterOn && gate.sessionMode !== "on" ? "Auto is off" : null;
-  return { enabled: reason === null, preference, source, reason };
+  const source: "session" | "project" | "global" = sessionId && prefs.autoRetrySessions?.[sessionId] !== undefined ? "session" : prefs.autoRetryProjects[projectKey] !== undefined ? "project" : "global";
+  // SRC-162: an explicit project or session retry ON is the operator's own answer for this place,
+  // exactly like a session set to auto-continue On, so it does not wait for the sidebar Auto
+  // master. Only the inherited global default follows the master. Before this, a click on the
+  // composer button while Auto was OFF flipped a preference the master then hid, so the button
+  // read "off" whatever the operator did.
+  const explicitOn = source !== "global";
+  const block: ZaicodeAutoRetryBlock | null = gate.halted
+    ? "halted"
+    : gate.sessionMode === "off"
+      ? "session-off"
+      : !preference
+        ? "preference-off"
+        : !gate.masterOn && gate.sessionMode !== "on" && !explicitOn
+          ? "master-off"
+          : null;
+  // Every reason names the surface that owns it (SRC-161:REQ-002).
+  const reason = block === "halted" ? "All retries stopped" : block === "session-off" ? "Session auto-continue is off" : block === "preference-off" ? `${source} retry preference is off` : block === "master-off" ? "Sidebar Auto is off" : null;
+  return { enabled: block === null, preference, source, reason, block, halted: gate.halted, sessionOff: gate.sessionMode === "off" };
+}
+
+/**
+ * What one click on the composer's Auto retry button does (SRC-162: "auto retry works badly and
+ * unpredictably"). The click always flips the EFFECTIVE answer, so the button's look changes on
+ * every click:
+ * - ON -> OFF writes OFF into the scope that owns the answer;
+ * - OFF -> ON lifts whatever holds it off: the stop-all, a session auto-continue Off, and writes an
+ *   explicit ON (a project override when the answer was only inherited, so the sidebar Auto master
+ *   no longer hides it).
+ */
+export function zaicodeAutoRetryToggle(
+  prefs: ZaicodeAutoRetryPrefs,
+  projectKey: string,
+  sessionId: string | null | undefined,
+  effective: Pick<ReturnType<typeof zaicodeEffectiveAutoRetry>, "enabled" | "source" | "halted" | "sessionOff">,
+): { patch: Partial<ZaicodeUiPrefs>; resumeHalt: boolean; clearSessionOff: boolean; next: boolean } {
+  if (effective.enabled) {
+    return { patch: zaicodeScopedRetryPatch(prefs, projectKey, sessionId, effective.source, false), resumeHalt: false, clearSessionOff: false, next: false };
+  }
+  const scope = effective.source === "global" ? "project" : effective.source;
+  return {
+    patch: zaicodeScopedRetryPatch(prefs, projectKey, sessionId, scope, true),
+    resumeHalt: effective.halted,
+    clearSessionOff: effective.sessionOff && Boolean(sessionId),
+    next: true,
+  };
+}
+
+function zaicodeScopedRetryPatch(
+  prefs: ZaicodeAutoRetryPrefs,
+  projectKey: string,
+  sessionId: string | null | undefined,
+  scope: "session" | "project" | "global",
+  value: boolean,
+): Partial<ZaicodeUiPrefs> {
+  if (scope === "session" && sessionId) return { autoRetrySessions: { ...prefs.autoRetrySessions, [sessionId]: value } };
+  if (scope === "project" || scope === "session") return { autoRetryProjects: { ...prefs.autoRetryProjects, [projectKey]: value } };
+  return { autoRetry: value };
 }
 
 export function zaicodeEffectiveAutoRetryFor(projectKey: string, sessionId?: string | null): ReturnType<typeof zaicodeEffectiveAutoRetry> {
@@ -95,11 +158,16 @@ export function zaicodeEffectiveAutoRetryFor(projectKey: string, sessionId?: str
 
 // ---------------------------------------------------------------- quota memory
 
-const quotaWalls = new Map<string, number>();
+// Hydrated from the durable safety record: a reload must not ask an account the operator just
+// watched hit its limit (SRC-161:W2-002). Stale entries fall out on first read.
+const quotaWalls = new Map<string, number>(
+  Object.entries(currentZaicodeRetrySafety().quotaWalls).filter(([, at]) => Date.now() - at <= QUOTA_MEMORY_MS),
+);
 
 /** A pane saw a quota error on this session: nobody retries it blindly for a while. */
 export function markZaicodeQuotaWall(sessionId: string, now = Date.now()): void {
   quotaWalls.set(sessionId, now);
+  writeZaicodeRetrySafety({ quotaWalls: Object.fromEntries(quotaWalls) });
   for (const [id, at] of quotaWalls) {
     if (quotaWalls.size <= 200) break;
     if (now - at > QUOTA_MEMORY_MS) quotaWalls.delete(id);
@@ -117,7 +185,8 @@ export function isZaicodeQuotaWall(sessionId: string, now = Date.now()): boolean
 }
 
 export function clearZaicodeQuotaWall(sessionId: string): void {
-  quotaWalls.delete(sessionId);
+  if (!quotaWalls.delete(sessionId)) return;
+  writeZaicodeRetrySafety({ quotaWalls: Object.fromEntries(quotaWalls) });
 }
 
 // ---------------------------------------------------------------- the ledger
@@ -146,9 +215,17 @@ interface ZaicodeRetryLedgerState {
 /** Everything scheduled to knock by itself, so the sidebar can show it and stop it. */
 export const useZaicodeRetryLedger = create<ZaicodeRetryLedgerState>((set, get) => ({
   pending: {},
-  halted: false,
-  halt: () => set({ pending: {}, halted: true }),
-  resume: () => set({ halted: false }),
+  // The stop-all is the operator's own instruction; a renderer reload does not undo it. The
+  // ledger chip shows it with one click to allow again, so it is never a silent dead end.
+  halted: currentZaicodeRetrySafety().halted,
+  halt: () => {
+    writeZaicodeRetrySafety({ halted: true });
+    set({ pending: {}, halted: true });
+  },
+  resume: () => {
+    writeZaicodeRetrySafety({ halted: false });
+    set({ halted: false });
+  },
   set: (entry) => {
     const current = get().pending[entry.sessionId];
     if (current && current.nextAt === entry.nextAt && current.attempt === entry.attempt && current.source === entry.source) return;

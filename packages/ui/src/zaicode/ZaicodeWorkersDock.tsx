@@ -28,6 +28,7 @@ import {
 } from "./zaicodeWorkers.js";
 import { useZaicodeWorkerPrefs, type ZaicodeWorkersTrayAnchor } from "./zaicodeWorkerPrefs.js";
 import { zaicodeAnyWorkerRunning } from "./zaicodeElapsed.js";
+import { zaicodeLayerClass } from "@zcode/shared";
 import {
   ZaicodeWorkerHeaderButtons,
   ZaicodeWorkerLabel,
@@ -259,7 +260,7 @@ function WorkerTray({ workers, now }: { workers: readonly ZaicodeWorker[]; now: 
   const vertical = anchor === "left" || anchor === "right";
   return (
     <div
-      className={cn("fixed z-40 flex gap-1", TRAY_SIZE, TRAY_POSITION[anchor])}
+      className={cn("fixed flex gap-1", zaicodeLayerClass("tray"), TRAY_SIZE, TRAY_POSITION[anchor])}
       data-zaicode-workers-tray={anchor}
       data-zaicode-help="workers"
     >
@@ -332,7 +333,12 @@ export function ZaicodeWorkersDock({ services }: { services: IServiceAccessor })
       ))}
       {preview ? (
         <div
-          className="pointer-events-none fixed z-[48] border-2 border-[var(--zaicode-highlight,var(--color-border-hover))] bg-[var(--zaicode-highlight,var(--color-border-hover))]/15"
+          className={cn(
+            "pointer-events-none fixed border-2 border-[var(--zaicode-highlight,var(--color-border-hover))] bg-[var(--zaicode-highlight,var(--color-border-hover))]/15",
+            // This is the dock's landing zone, drawn at the dock's own band so a
+            // preview can never land under the tray it was dragged out of.
+            zaicodeLayerClass("dock"),
+          )}
           style={{ left: preview.x, top: preview.y, width: preview.width, height: preview.height }}
           data-zaicode-snap-preview={zone ?? undefined}
         >

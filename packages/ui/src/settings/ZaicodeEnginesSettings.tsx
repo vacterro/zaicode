@@ -4,6 +4,8 @@ import { CalendarClock, ExternalLink, Eye, EyeOff, Play, RefreshCw, UserPlus, Wr
 import {
   isZaicodeMetricsOnlyAccount,
   ZAICODE_ENGINE_INTERVAL_CHOICES,
+  ZAICODE_ENGINE_VENDOR_LABELS,
+  ZAICODE_MULTI_HOME_VENDORS,
   formatZaicodeDuration,
   type ZaicodeEngineAccount,
 } from "@zcode/shared";
@@ -73,6 +75,23 @@ function fixCwd(account: ZaicodeEngineAccount): string {
   return readZaicodeCurrentWorkspace()?.path ?? account.home ?? "C:\\";
 }
 
+/**
+ * How a second account of a vendor is signed in, per vendor (SRC-151:R007).
+ *
+ * This used to be a `vendor === "claude" ? ... : ...` ternary over a hardcoded
+ * `"claude" | "codex"` parameter, which is why the page offered exactly two
+ * buttons no matter what ZAICODE knew. The set of vendors that keep several
+ * accounts now comes from ZAICODE_MULTI_HOME_VENDORS; a vendor added there needs
+ * one entry here and nothing else.
+ */
+const ADD_ACCOUNT_COMMANDS: Readonly<
+  Record<string, (home: string, cli: string) => string>
+> = Object.freeze({
+  claude: (home, cli) => `$env:CLAUDE_CONFIG_DIR = ${psQuote(home)}; & ${psQuote(cli)} auth login`,
+  codex: (home) =>
+    `$env:CODEX_HOME = ${psQuote(home)}; Remove-Item Env:OPENAI_API_KEY -ErrorAction SilentlyContinue; codex login`,
+});
+
 export function ZaicodeEnginesSettings() {
   const engines = useZaicodeEngines();
   const activeEngine = useZaicodeActiveEngine();
@@ -94,7 +113,12 @@ export function ZaicodeEnginesSettings() {
   const broken = engines.accounts.filter((account) => account.status !== "ready" && account.fixCommand);
   const hidden = new Set(engines.config.hiddenAccounts);
 
-  const addAccount = async (vendor: "claude" | "codex") => {
+  const addAccount = async (vendor: string) => {
+    const buildCommand = ADD_ACCOUNT_COMMANDS[vendor];
+    if (!buildCommand) {
+      toast("This subscription keeps one account.");
+      return;
+    }
     const bridge = getZaicodeEnginesBridge();
     const result = await bridge?.prepareZaicodeEngineAccountHome?.(vendor);
     if (!result?.ok) {
@@ -103,11 +127,11 @@ export function ZaicodeEnginesSettings() {
     }
     const template = engines.accounts.find((account) => account.vendor === vendor && account.cli);
     const cli = template?.cli ?? vendor;
-    const command =
-      vendor === "claude"
-        ? `$env:CLAUDE_CONFIG_DIR = ${psQuote(result.home)}; & ${psQuote(cli)} auth login`
-        : `$env:CODEX_HOME = ${psQuote(result.home)}; Remove-Item Env:OPENAI_API_KEY -ErrorAction SilentlyContinue; codex login`;
-    runZaicodeFixCommand({ title: `Add ${vendor} account`, command, cwd: result.home });
+    runZaicodeFixCommand({
+      title: `Add ${vendor} account`,
+      command: buildCommand(result.home, cli),
+      cwd: result.home,
+    });
     toast(`${result.message}. The new account appears after sign-in (Read all now).`);
   };
 
@@ -221,15 +245,13 @@ export function ZaicodeEnginesSettings() {
       <section className="border border-border bg-card p-4" data-zaicode-engine-accounts>
         <div className="flex items-center justify-between gap-2">
           <h2 className="text-ui-lg text-foreground">Subscriptions</h2>
-          <div className="flex gap-2">
-            <Button size="sm" variant="outline" onClick={() => void addAccount("claude")}>
-              <UserPlus className="size-3.5" />
-              Add Claude account
-            </Button>
-            <Button size="sm" variant="outline" onClick={() => void addAccount("codex")}>
-              <UserPlus className="size-3.5" />
-              Add Codex account
-            </Button>
+          <div className="flex flex-wrap gap-2">
+            {ZAICODE_MULTI_HOME_VENDORS.map((vendor) => (
+              <Button key={vendor} size="sm" variant="outline" onClick={() => void addAccount(vendor)}>
+                <UserPlus className="size-3.5" />
+                Add {ZAICODE_ENGINE_VENDOR_LABELS[vendor]} account
+              </Button>
+            ))}
           </div>
         </div>
         <div className="mt-3 flex flex-col gap-2">

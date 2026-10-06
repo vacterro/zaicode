@@ -46,7 +46,8 @@ export function ZaicodeAutoRetryNotice({ state }: { state: ZaicodeAutoRetryState
         </span>
       ) : state.blockedBy === "auto-off" ? (
         <span data-zaicode-retry-blocked="auto-off">
-          Auto is OFF: nothing retries by itself. Retry now, or turn Auto ON in the sidebar.
+          Auto retry is off here: nothing retries by itself. Retry now, or click the retry switch to
+          turn it on for this project.
         </span>
       ) : state.exhausted ? (
         <span className="text-destructive">

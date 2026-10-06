@@ -26,6 +26,7 @@ export function ZaicodeComposerCompactToggle() {
   return (
     <ZaicodeRightClickSettings
       title="Message box"
+      preferenceKey="composer"
       hint="What the SAIPEN strip shows. Left click on this button: compact ↔ full."
       side="top"
       align="end"

@@ -93,12 +93,17 @@ test("U6 closing a running worker asks (in the app's dialog, red button); an end
   assert.match(parts, /request && !\(await useConfirmDialogStore\.getState\(\)\.requestConfirmation\(request\)\)\) return;/, "a declined question stops the close");
 });
 
-test("U7 Clear all done, a plan reset and the Session text import ask in the app's own dialog, before anything happens", () => {
+test("U7 Clear all done runs on the first click; a plan reset and the Session text import ask in the app's own dialog, before anything happens", () => {
   const clear = source("zaicode/ZaicodeClearAllDone.tsx");
-  const clearAsk = clear.indexOf("requestConfirmation({");
-  assert.ok(clearAsk > 0 && clear.indexOf("archiveZaicodeSessions(byProject)") > clearAsk, "the list of what changes is asked before anything is archived");
-  assert.match(clear, /title: "CLEAR ALL DONE"/);
-  assert.ok(clear.indexOf("if (!confirmed) return;") > clearAsk && clear.indexOf("if (!confirmed) return;") < clear.indexOf("archiveZaicodeSessions(byProject)"), "a declined dialog stops it");
+  // SRC-161:REQ-005 supersedes the T-128 dialog for this one action: it is reversible
+  // (one Ctrl+Z restores the archive) and its own tooltip lists what it will do, so it
+  // runs on the first click. No other confirmation is weakened -- the two below still
+  // ask, and a behavioural test pins the first-click run.
+  assert.equal(clear.indexOf("requestConfirmation("), -1, "CLEAR ALL DONE asks nothing");
+  assert.equal(clear.indexOf("confirmDialogStore"), -1, "the confirmation store is not even imported");
+  const runStart = clear.indexOf("const run = async () => {");
+  assert.ok(runStart > 0 && clear.indexOf("archiveZaicodeSessions(byProject)") > runStart, "the tidy-up runs inside the click handler itself");
+  assert.ok(clear.includes("CLEAR ALL DONE") && clear.includes("${describe(plan)}"), "what it will do stays on the button's own tooltip");
   const resets = source("zaicode/ZaicodeCodingPlanResets.tsx");
   const resetAsk = resets.indexOf("requestConfirmation({");
   assert.ok(resetAsk > 0 && resets.indexOf("await resets.reset(kind)") > resetAsk, "a reset is asked for before it is spent");

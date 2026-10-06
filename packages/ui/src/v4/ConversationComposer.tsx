@@ -54,6 +54,7 @@ import {
   ArrowUpIcon,
   ClipboardPenLineIcon,
   InfoIcon,
+  PencilIcon,
   RotateCcwIcon,
   SquareIcon,
   XIcon,
@@ -72,6 +73,12 @@ import {
   withZaicodeAutoGoal,
   zaicodeAutoGoalEnabled,
 } from "@/zaicode/zaicodeAutoGoal.js";
+import {
+  registerZaicodeGoalIntent,
+  stopZaicodeGoalIntents,
+  useZaicodeGoalObservationFeed,
+  zaicodeGoalObjectiveOf,
+} from "@/zaicode/zaicodeGoalSupervisor.js";
 import { ZaicodeComposerWorkingFor } from "@/zaicode/ZaicodeComposerWorkingFor.js";
 import type { ZaicodeAutoRetryState } from "@/zaicode/zaicodeAutoRetry.js";
 import { playZaicodeSound } from "@/zaicode/zaicodeSoundBus.js";
@@ -571,6 +578,7 @@ function ConversationComposerImpl({
   const configPickerScopeKey = `${workspaceKey}\0${draftScopeId}`;
   // SRC-138: Auto-Goal rides on the outgoing text, never on the visible editor.
   const autoGoalOn = useZaicodeAutoGoal((state) => zaicodeAutoGoalEnabled(state, workspaceKey));
+  useZaicodeGoalObservationFeed(workspaceKey, autoGoalOn);
   const [text, setText] = useState("");
   const [pending, setPending] = useState(false);
   const [configPickerState, setConfigPickerState] = useState<{
@@ -1353,7 +1361,14 @@ function ConversationComposerImpl({
         // 里没有任何东西解析它），唯一作用是驱动一个已被产品裁掉的 chip，代价却是把一个
         // share URL 塞进发给模型的正文。模型侧内容由隐藏的 shared_context 消息经
         // inputIntent.sharedContextRefs 注入，与正文无关。
-        const promptText = serializeComposerPromptContexts(withZaicodeAutoGoal(trimmed, autoGoalOn), {
+        const goalText = withZaicodeAutoGoal(trimmed, autoGoalOn);
+        // T-222: one logical goal intent per submitted prompt. Idempotent:
+        // retries and resubmits return the same intent instead of forking one.
+        if (autoGoalOn) {
+          const objective = zaicodeGoalObjectiveOf(goalText);
+          if (objective) registerZaicodeGoalIntent({ projectKey: workspaceKey, sessionId: sessionId ?? null, objective, fresh: true });
+        }
+        const promptText = serializeComposerPromptContexts(goalText, {
           codeComments: currentCodeCommentContexts,
           conversationSelections: currentConversationSelections,
           webElements: currentWebElementContexts,
@@ -1595,6 +1610,8 @@ function ConversationComposerImpl({
   }, [heldQueueConfirmation, submit]);
 
   const handleStopClick = useCallback(() => {
+    // T-222: explicit STOP outranks Auto Goal -- no owner resurrects this goal.
+    stopZaicodeGoalIntents(workspaceKey, sessionId ?? null);
     runUserAction({
       input: { featureId: "conversation.composer.message", action: "stop", trigger: "button" },
       operation: onStop,
@@ -2021,6 +2038,31 @@ function ConversationComposerImpl({
                       <RotateCcwIcon className="size-3" />
                     </button>
                   ) : null}
+                  {isPastedTextAttachment ? (
+                    <button
+                      type="button"
+                      data-composer-attachment-edit={attachment.id}
+                      aria-label={intl.formatMessage({
+                        id: "chat.attachments.pastedText.edit",
+                      })}
+                      title={intl.formatMessage({
+                        id: "chat.attachments.pastedText.edit",
+                      })}
+                      className="absolute bottom-0.5 right-0.5 z-20 size-3.5 rounded-full bg-primary p-0 text-primary-foreground opacity-0 transition-opacity hover:bg-primary/80 hover:text-primary-foreground group-hover:opacity-100 focus-visible:opacity-100 [@media(hover:none)]:opacity-100"
+                      onPointerDown={(event) => event.stopPropagation()}
+                      onClick={(event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        setPastedTextEdit({
+                          id: attachment.id,
+                          text: attachment.text ?? "",
+                          filename: attachment.filename,
+                        });
+                      }}
+                    >
+                      <PencilIcon className="size-2.5" />
+                    </button>
+                  ) : null}
                   <Button
                     type="button"
                     variant="ghost"
@@ -2150,7 +2192,7 @@ function ConversationComposerImpl({
         </span>
         {/* SRC-138: Auto-Goal belongs to the project, so it sits with the project-bound
             model controls and the send button rather than in the header. */}
-        {isZaicodeProductMode() ? <ZaicodeAutoGoalButton workspaceKey={workspaceKey} /> : null}
+        {isZaicodeProductMode() ? <ZaicodeAutoGoalButton workspaceKey={workspaceKey} sessionId={sessionId} /> : null}
         {/* SRC-135: Auto retry next to the composer too — it decides whether a failed
             turn is sent again, so the operator must be able to see it without Settings. */}
         {isZaicodeProductMode() ? <ZaicodeAutoRetryButton projectKey={workspaceKey} sessionId={sessionId} /> : null}

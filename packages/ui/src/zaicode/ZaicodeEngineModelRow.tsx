@@ -41,13 +41,13 @@ export function ZaicodeEngineModelRow({
       {group ? (
         <ZaicodeRightClickSettings
           title="Which models show here"
+      preferenceKey="engines"
           hint="Choose up to eight models, including subscriptions. The rest stay in the model picker."
           className="w-full"
           panel={
             <div
               className="flex max-h-80 flex-col gap-1 overflow-y-auto"
-              data-zaicode-engine-bar-pools
-            >
+              data-zaicode-engine-bar-pools>
               {options.map((option) => {
                 const shown = pools.some(
                   (pool) => zaicodeEngineBarModelKey(pool) === zaicodeEngineBarModelKey(option),

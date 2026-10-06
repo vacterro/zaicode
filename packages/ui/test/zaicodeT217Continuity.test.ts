@@ -12,7 +12,8 @@ test("REQ-006: effective retry matrix survives reload and edit-scope changes", (
     const expected = session ?? project ?? global;
     const effective = zaicodeEffectiveAutoRetry(prefs, "p", "s", { masterOn, halted: false });
     assert.equal(effective.preference, expected, JSON.stringify({ global, project, session, scope }));
-    assert.equal(effective.enabled, expected && masterOn);
+    // SRC-162: an explicit project/session ON is its own answer; only the inherited global follows the master.
+    assert.equal(effective.enabled, expected && (masterOn || session !== undefined || project !== undefined));
     assert.equal(effective.source, session !== undefined ? "session" : project !== undefined ? "project" : "global");
     assert.equal(zaicodeEffectiveAutoRetry(prefs, "p", "s", { masterOn: true, halted: true }).enabled, false);
     assert.equal(zaicodeEffectiveAutoRetry(prefs, "p", "s", { masterOn: true, halted: false, sessionMode: "off" }).enabled, false);

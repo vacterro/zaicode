@@ -29,6 +29,7 @@ export function ZaicodeSlotsToggle() {
   return (
     <ZaicodeRightClickSettings
       title="SLOTS"
+      preferenceKey="sidebarSections"
       hint="Priority groups for projects. Drag a project onto one in another slot, right-click a project to pick its slot, Ctrl+click to send it down."
       panel={
         <>
@@ -150,6 +151,7 @@ export function ZaicodeLiveToggle() {
   return (
     <ZaicodeRightClickSettings
       title="LIVE"
+      preferenceKey="sidebarSections"
       hint="Projects where something is happening right now come first."
       panel={
         <>

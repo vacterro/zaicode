@@ -2,6 +2,7 @@ import {
   cloneElement,
   isValidElement,
   useCallback,
+  useEffect,
   useRef,
   useState,
   type ComponentProps,
@@ -71,6 +72,13 @@ export function controlHintContentClassName(hasDescription: boolean, className?:
     className,
     "pointer-events-none select-none",
   );
+}
+
+/** A trigger is an anchor only while it is in the document and has a box to point at. */
+export function controlHintTriggerHasBox(trigger: Pick<HTMLElement, "isConnected" | "getBoundingClientRect">): boolean {
+  if (!trigger.isConnected) return false;
+  const box = trigger.getBoundingClientRect();
+  return box.width > 0 && box.height > 0;
 }
 
 /** True only when the complete title is already readable on the actual control. */
@@ -151,6 +159,13 @@ export function ControlHintTooltip({
   );
   const handleOpenChange = useCallback(
     (next: boolean) => {
+      // SRC-162: a trigger without a box (display:none hover-only row actions, a detached node)
+      // is no anchor; Radix would place the card at the window's top-left corner.
+      if (next && triggerElement.current && !controlHintTriggerHasBox(triggerElement.current)) {
+        setHintOpen(false);
+        onOpenChange?.(false);
+        return;
+      }
       // 可见完整标签的原样复读不解释任何事；图标、快捷键和说明仍保留提示。
       const repeated =
         next &&
@@ -166,6 +181,23 @@ export function ControlHintTooltip({
     },
     [description, shortcut, title, open, onOpenChange],
   );
+  // SRC-162: an open hint whose trigger loses its box (the row's hover-only actions go
+  // display:none when the pointer leaves the row, a list re-renders it away) closes at once,
+  // instead of being re-placed against a zero rect in the top-left corner.
+  const effectiveOpen = open ?? hintOpen;
+  useEffect(() => {
+    const element = triggerElement.current;
+    if (!effectiveOpen || !element) return undefined;
+    const check = () => {
+      if (!controlHintTriggerHasBox(element)) {
+        setHintOpen(false);
+        onOpenChange?.(false);
+      }
+    };
+    const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(check);
+    observer?.observe(element);
+    return () => observer?.disconnect();
+  }, [effectiveOpen, onOpenChange]);
   const trigger = isTriggerElement ? (
     cloneElement(children, {
       // 以前额外包一层 span，Radix Tooltip/Select/Popover 多层 asChild 组合时，
@@ -183,7 +215,7 @@ export function ControlHintTooltip({
   // 会把 Radix 上下文树放大到消息数量级；共享 Provider 统一放在 Root。
   const tooltip = (
     <Tooltip
-      open={open ?? hintOpen}
+      open={effectiveOpen}
       onOpenChange={handleOpenChange}
       // SRC-051: with instant-open tooltips, hoverable content let pointer jitter
       // between the trigger and the popped card close/reopen it in a loop (the
@@ -196,6 +228,8 @@ export function ControlHintTooltip({
         side={side}
         sideOffset={sideOffset}
         collisionPadding={8}
+        // SRC-162: never paint a hint against a trigger that is clipped away or gone.
+        hideWhenDetached
         className={controlHintContentClassName(Boolean(description), className)}
       >
         {description ? (

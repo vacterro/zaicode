@@ -1,3 +1,7 @@
+/* eslint-disable max-lines -- SRC-161:W2-001 put two recovery statements into the owner that arms
+   them: the shutdown lease release in dispose(), and the bounded stale-running reaper on the
+   heartbeat this service already runs. This file held exactly the 400 logical-line ceiling before
+   them, and keeping them beside the host-owned execution truth beats an eleven-line module. */
 import { randomUUID } from "node:crypto";
 import {
   ZAICODE_JOB_CONCURRENCY_DEFAULT,
@@ -99,6 +103,18 @@ export class ZaicodeJobService implements IZaicodeJobService {
       clearInterval(this.heartbeatTimer);
       this.heartbeatTimer = null;
     }
+    // A process that is shutting down knows its own leases are dead. Releasing them here closes
+    // the fast-restart hole SRC-161:W2-001 names: shutdown stops the terminal-event owner before
+    // the runtime dies, so nothing writes a terminal outcome, and a lease that is still under
+    // the two-minute stale window would otherwise be trusted by the next start forever. The
+    // outcome is unknown, so the row becomes truthfully recoverable (`blocked`), never a
+    // manufactured success or failure.
+    try {
+      const released = this.deps.repo.releaseRunningForHost(this.hostId, this.now(), "interrupted_by_shutdown");
+      if (released > 0) this.log(`ZAICODE 队列在退出时释放了 ${released} 个 running 任务 -> blocked`);
+    } catch (error) {
+      this.log("ZAICODE 队列退出释放失败", error);
+    }
   }
 
   private startHeartbeat(): void {
@@ -106,6 +122,11 @@ export class ZaicodeJobService implements IZaicodeJobService {
     this.heartbeatTimer = setInterval(() => {
       try {
         this.deps.repo.heartbeat(this.hostId, this.now());
+        // Bounded reaper on the heartbeat this service already owns: startup reconcile alone left a
+        // crashed/ungraceful host's row `running` (and holding a concurrency slot) until the next
+        // start, which never comes if the app stays up (SRC-161:W2-001). Same owner, same timer,
+        // same method as startup -- no second scheduler and no second copy of the reaper.
+        void this.reconcileStaleRuns().catch((error: unknown) => this.log("ZAICODE 队列回收失败", error));
       } catch (error) {
         this.log("ZAICODE 队列心跳写入失败", error);
       }
@@ -125,9 +146,18 @@ export class ZaicodeJobService implements IZaicodeJobService {
 
   async create(input: ZaicodeJobCreateInput): Promise<ZaicodeJob> {
     await this.deps.repo.ensureReady();
+    const job = this.buildJob(input);
+    await this.deps.repo.create(job);
+    this.emitChanged();
+    // 子任务由 delegateToChild 显式 pump；这里只处理顶层入队。
+    if (job.status === "queued" && !input.parentJobId) this.autoPump(job.workspaceKey);
+    return job;
+  }
+
+  private buildJob(input: ZaicodeJobCreateInput, delegatedFromRunId?: string): ZaicodeJob {
     const now = this.now();
     const status = input.status ?? "queued";
-    const job = zaicodeJobSchema.parse({
+    return zaicodeJobSchema.parse({
       id: `zaicode-job:${randomUUID()}`,
       workspaceKey: input.workspaceKey,
       workspacePath: input.workspacePath,
@@ -144,13 +174,26 @@ export class ZaicodeJobService implements IZaicodeJobService {
       attempt: 0,
       parentJobId: input.parentJobId,
       retryOfJobId: input.retryOfJobId,
+      delegatedFromRunId,
       // 只允许顶层任务带委托：子任务委托一律拒绝，深度恒为 1。
       delegation: input.parentJobId ? undefined : input.delegation,
     });
-    await this.deps.repo.create(job);
+  }
+
+  /**
+   * T-243 / SRC-160:R003 — 委托子任务的唯一写路径：委托运行和"这一运行还剩几个 helper"
+   * 的配额判定随行一起进同一条 SQL（见 ZaicodeJobRepo.createDelegatedChild）。
+   * 返回 null 表示配额已满且没有行写入；调用方按 budget_exhausted 上报，绝不超发。
+   */
+  private async createDelegatedChild(
+    input: ZaicodeJobCreateInput,
+    delegatingRunId: string,
+    maxPerRun: number,
+  ): Promise<ZaicodeJob | null> {
+    await this.deps.repo.ensureReady();
+    const job = this.buildJob(input, delegatingRunId);
+    if (!(await this.deps.repo.createDelegatedChild(job, maxPerRun))) return null;
     this.emitChanged();
-    // 子任务由 delegateToChild 显式 pump；这里只处理顶层入队。
-    if (status === "queued" && !input.parentJobId) this.autoPump(job.workspaceKey);
     return job;
   }
 
@@ -438,7 +481,8 @@ export class ZaicodeJobService implements IZaicodeJobService {
         repo: this.deps.repo,
         getAgent: this.deps.getAgent,
         listAgents: this.deps.listAgents,
-        create: (job) => this.create(job),
+        createChild: (job, delegatingRunId, maxPerRun) =>
+          this.createDelegatedChild(job, delegatingRunId, maxPerRun),
         pump: (workspaceKey) => this.pump(workspaceKey).then(() => undefined),
         now: () => this.now(),
       },

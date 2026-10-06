@@ -1,5 +1,10 @@
 import { create } from "zustand";
 import { readZaicodeSetting } from "./zaicodeSettingsSnapshot.js";
+import {
+  ZAICODE_SIDE_PANE_VISIBILITY_DEFAULT,
+  normalizeZaicodeSidePaneVisibility,
+  type ZaicodeSidePaneVisibilityPrefs,
+} from "./zaicodeSidePaneVisibility.js";
 
 /**
  * ZAICODE interface preferences that are not layout or audio: the home
@@ -83,6 +88,19 @@ export interface ZaicodeUiPrefs {
    * shows all of them at once.
    */
   actionView: ZaicodeActionView;
+  /**
+   * SRC-151:R011: right-click a control that owns settings. `true` opens that
+   * control's own settings panel; `false` leaves right-click to the app menu
+   * for that control. Default true everywhere, so the rule the user asked for
+   * is what happens without anyone visiting a setting first.
+   */
+  rightClickSettings: Record<string, boolean>;
+  /**
+   * T-224 / SRC-154:R003: how the right SAIPEN/task side pane (Ctrl+Alt+B)
+   * remembers visibility - one answer everywhere, or one per project/session.
+   * Persisted with the rest of the UI prefs, never only in memory.
+   */
+  sidePaneVisibility: ZaicodeSidePaneVisibilityPrefs;
   // Calm interface: less visual noise, nothing moves
   /** No animations or transitions anywhere (fades, slides, spinners). */
   noMotion: boolean;
@@ -134,6 +152,8 @@ export const ZAICODE_UI_DEFAULT_PREFS: ZaicodeUiPrefs = {
   relaunchWorkersAfterCrash: true,
   clearMode: "session",
   actionView: "compact",
+  rightClickSettings: {},
+  sidePaneVisibility: { ...ZAICODE_SIDE_PANE_VISIBILITY_DEFAULT },
   noMotion: false,
   noDim: false,
   noHoverPopups: false,
@@ -142,6 +162,8 @@ export const ZAICODE_UI_DEFAULT_PREFS: ZaicodeUiPrefs = {
 };
 
 const STORAGE_KEY = "zaicode-ui-prefs-v1";
+/** Fresh REQ-001: persistence verification reads the same key the store writes. */
+export const ZAICODE_UI_PREFS_STORAGE_KEY = STORAGE_KEY;
 
 function int(value: unknown, min: number, max: number, fallback: number): number {
   return typeof value === "number" && Number.isFinite(value)
@@ -197,6 +219,8 @@ export function normalizeZaicodeUiPrefs(raw: unknown): ZaicodeUiPrefs {
     relaunchWorkersAfterCrash: flag(r.relaunchWorkersAfterCrash, d.relaunchWorkersAfterCrash),
     clearMode: r.clearMode === "new" ? "new" : "session",
     actionView: r.actionView === "full" ? "full" : "compact",
+    rightClickSettings: flags(r.rightClickSettings),
+    sidePaneVisibility: normalizeZaicodeSidePaneVisibility(r.sidePaneVisibility),
     noMotion: flag(r.noMotion, d.noMotion),
     noDim: flag(r.noDim, d.noDim),
     noHoverPopups: flag(r.noHoverPopups, d.noHoverPopups),
@@ -290,6 +314,54 @@ export function zaicodeAutoRetryPatch(
   return { autoRetryProjects: { ...prefs.autoRetryProjects, [projectKey]: next } };
 }
 
+/**
+ * Fresh REQ-001: the scope that actually decides the effective answer.
+ * session override > project override > global. The primary control must
+ * write here, never to an unrelated editing scope.
+ */
+export function zaicodeAutoRetryEffectiveScope(
+  prefs: Pick<ZaicodeUiPrefs, "autoRetryProjects"> & Partial<Pick<ZaicodeUiPrefs, "autoRetrySessions">>,
+  projectKey: string,
+  sessionId?: string | null,
+): "session" | "project" | "global" {
+  if (sessionId && prefs.autoRetrySessions?.[sessionId] !== undefined) return "session";
+  if (prefs.autoRetryProjects[projectKey] !== undefined) return "project";
+  return "global";
+}
+
+/**
+ * Fresh REQ-001: the patch the primary switch writes. Click OFF always turns
+ * the effective answer ON and vice versa, because it edits the scope that
+ * currently owns the effective value instead of a hidden editing scope.
+ */
+export function zaicodeAutoRetryEffectivePatch(
+  prefs: Pick<ZaicodeUiPrefs, "autoRetry" | "autoRetryProjects"> & Partial<Pick<ZaicodeUiPrefs, "autoRetrySessions">>,
+  projectKey: string,
+  next: boolean,
+  sessionId?: string | null,
+): Partial<ZaicodeUiPrefs> {
+  const scope = zaicodeAutoRetryEffectiveScope(prefs, projectKey, sessionId);
+  if (scope === "session" && sessionId) return { autoRetrySessions: { ...prefs.autoRetrySessions, [sessionId]: next } };
+  if (scope === "project") return { autoRetryProjects: { ...prefs.autoRetryProjects, [projectKey]: next } };
+  return { autoRetry: next };
+}
+
+/**
+ * Fresh REQ-001: explicit effective-scope label. Inheritance is spelled out
+ * so the UI never shows a bare "Global default" while a hidden project or
+ * session override controls the actual behavior.
+ */
+export function zaicodeAutoRetryEffectiveLabel(
+  prefs: Pick<ZaicodeUiPrefs, "autoRetry" | "autoRetryProjects"> & Partial<Pick<ZaicodeUiPrefs, "autoRetrySessions">>,
+  projectKey: string,
+  sessionId?: string | null,
+): string {
+  const scope = zaicodeAutoRetryEffectiveScope(prefs, projectKey, sessionId);
+  if (scope === "session") return "This session";
+  if (scope === "project") return "This project";
+  return prefs.autoRetry ? "Inherited: Global ON" : "Inherited: Global OFF";
+}
+
 /** The other scope, for the small switch beside the main toggle. */
 export function zaicodeAutoRetryScopeNext(scope: ZaicodeAutoRetryScope): ZaicodeAutoRetryScope {
   return scope === "global" ? "project" : scope === "project" ? "session" : "global";
@@ -298,4 +370,56 @@ export function zaicodeAutoRetryScopeNext(scope: ZaicodeAutoRetryScope): Zaicode
 /** What the scope switch says; the tooltip spells out what each mode covers. */
 export function zaicodeAutoRetryScopeLabel(scope: ZaicodeAutoRetryScope): string {
   return scope === "global" ? "Global default" : scope === "project" ? "This project" : "This session";
+}
+
+/**
+ * SRC-151:R011 — the controls that own a settings panel and therefore answer to
+ * a right-click. Named here so the rule has one list, not one string literal
+ * per call site.
+ */
+export const ZAICODE_RIGHT_CLICK_CONTROLS = Object.freeze({
+  /** Title bar: back / forward / search / new task / settings. */
+  header: "Header buttons",
+  /** The message box strip's compact button. */
+  composer: "Message box parts",
+  /** Title bar limit meters. */
+  meter: "Limit meters",
+  /** Sidebar Compact / Full. */
+  actionView: "Compact / Full",
+  /** Sidebar nav block. */
+  sidebarNav: "Sidebar",
+  /** SAIMAIL envelope. */
+  saimail: "SAIMAIL envelope",
+  /** Title bar clock. */
+  clock: "Clock",
+  /** Footer tools. */
+  footer: "Footer tools",
+  /** Title bar project title. */
+  projectTitle: "Project title",
+  /** Per-session action strip. */
+  sessionActions: "Session actions",
+  /** Auto retry button by the composer. */
+  retry: "Auto retry",
+  /** Engine/model row. */
+  engines: "Engines",
+  /** The composer's model buttons. */
+  modelButtons: "Model buttons",
+  /** The empty new-task screen. */
+  greeting: "New task screen",
+  /** Sidebar section headers. */
+  sidebarSections: "Sidebar sections",
+} as const);
+
+export type ZaicodeRightClickPrefKey = keyof typeof ZAICODE_RIGHT_CLICK_CONTROLS;
+
+/**
+ * A right-click on a registered control always opens its settings (SRC-162). The per-control
+ * "app menu" choice is gone: buttons own no menu in the packaged app, so it only ever killed the
+ * right button. `rightClickSettings` stays readable so an old prefs file still loads.
+ */
+export function rightClickOpensSettings(
+  _prefs: Pick<ZaicodeUiPrefs, "rightClickSettings">,
+  _key: ZaicodeRightClickPrefKey | undefined,
+): boolean {
+  return true;
 }

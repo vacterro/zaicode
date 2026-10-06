@@ -84,7 +84,12 @@ import {
 import { useZCodeIntl } from "@/i18n/IntlProvider.js";
 import { ZaicodeIcon } from "@/zaicode/zaicodeIconSlots.js";
 import { ZaicodeEngineBar } from "@/zaicode/ZaicodeEngineBar.js";
-import { reconcileZaicodeLiveRuns, useZaicodeLiveRuns, zaicodeLiveRunIdsIn } from "@/zaicode/zaicodeLiveRuns.js";
+import {
+  ZAICODE_LIVE_RUN_RECONCILE_MS,
+  reconcileZaicodeLiveRuns,
+  useZaicodeLiveRuns,
+  zaicodeLiveRunIdsIn,
+} from "@/zaicode/zaicodeLiveRuns.js";
 import { ZaicodeAudioDirector } from "@/zaicode/ZaicodeAudioPanels.js";
 import { useZaicodeArchiveUndoShortcut } from "@/zaicode/zaicodeArchiveUndo.js";
 import {
@@ -712,10 +717,21 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
   const zaicodeMode = isZaicodeProductMode();
   const zaicodePrefs = useZaicodeSidebarPrefs();
   const zaicodeLiveRuns = useZaicodeLiveRuns((state) => state.runs);
+  const zaicodeHasLiveRunHints = Object.keys(zaicodeLiveRuns).length > 0;
   useEffect(() => {
-    if (zaicodeMode)
-      reconcileZaicodeLiveRuns(workspaceTaskLists.groups.flatMap((group) => group.items));
-  }, [workspaceTaskLists.groups, zaicodeMode]);
+    if (!zaicodeMode) return undefined;
+    const tasks = workspaceTaskLists.groups.flatMap((group) => group.items);
+    reconcileZaicodeLiveRuns(tasks);
+    if (!zaicodeHasLiveRunHints) return undefined;
+    // SRC-162: the hint's grace window has to expire on the clock, not only when the index of
+    // that project happens to push again. A project nobody had open kept "working" for as long
+    // as its index stayed quiet, and only opening it revealed the run had ended long ago.
+    const timer = window.setInterval(
+      () => reconcileZaicodeLiveRuns(tasks),
+      ZAICODE_LIVE_RUN_RECONCILE_MS,
+    );
+    return () => window.clearInterval(timer);
+  }, [workspaceTaskLists.groups, zaicodeMode, zaicodeHasLiveRunHints]);
   const zaicodeStoredTodos = useZaicodeTodoProgress((state) => state.bySession);
   const publishZaicodeRunningSessions = useZaicodeRunningSessions((state) => state.publish);
   // SRC-081: a minute tick, so a session that went quiet leaves the "working" list by itself.

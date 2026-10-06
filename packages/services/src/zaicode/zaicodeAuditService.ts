@@ -76,6 +76,12 @@ interface SmartSettings {
   smartMode: boolean;
   maxCycles: number;
   runId: string | null;
+  /**
+   * SRC-151:R008: the global "generate the next wave by itself" switch. Absent
+   * means ON, so every campaign that exists today keeps advancing exactly as
+   * before and only an operator who turns it off sees a different behaviour.
+   */
+  autoWaves: boolean;
 }
 
 function sha256Of(text: string): string {
@@ -201,6 +207,7 @@ export class ZaicodeAuditService implements IZaicodeAuditService {
       smartMode: raw?.smartMode === true,
       maxCycles,
       runId: typeof raw?.runId === "string" && raw.runId ? raw.runId : null,
+      autoWaves: (raw as { autoWaves?: unknown } | null)?.autoWaves !== false,
     };
   }
 
@@ -286,6 +293,24 @@ export class ZaicodeAuditService implements IZaicodeAuditService {
    * adopting it if it does, creating it if it does not. Either way exactly one
    * Core goes out.
    */
+  /**
+   * T-244 / SRC-160:R004: a rejected cancel is the queue saying the runtime stop really
+   * failed — it keeps the worker's handle and writes `cancel_stop_failed` on the row, and
+   * `ZaicodeJobService.retry` refuses that row for exactly that reason. Treating such a
+   * refusal as "stopped" would move the campaign on (or launch the next wave) over a live
+   * worker, so the wave keeps its job id and records why nothing happened; the caller
+   * stays where it is.
+   */
+  private async stopWaveJob(jobId: string, state: ZaicodeAuditCampaign["waves"][number]): Promise<boolean> {
+    try {
+      await this.deps.jobService.cancel(jobId);
+      return true;
+    } catch (error) {
+      state.rejectReason = `the running task could not be stopped: ${error instanceof Error ? error.message : String(error)}`;
+      return false;
+    }
+  }
+
   private async enqueueWave(campaign: ZaicodeAuditCampaign, waveIndex: number): Promise<void> {
     const state = campaign.waves[waveIndex];
     const wave = state ? zaicodeAuditQuick3Wave(state.waveId) : null;
@@ -420,7 +445,15 @@ export class ZaicodeAuditService implements IZaicodeAuditService {
   private async reconcileCampaign(campaign: ZaicodeAuditCampaign): Promise<void> {
     if (campaign.status === "complete" || campaign.status === "cancelled") return;
     // Generate-first: a planned campaign waits in the review queue until work().
-    if (campaign.status === "planned") return;
+    // The one exception is a campaign the global wave switch parked (R008): the
+    // switch going back on releases it. A campaign the operator planned by hand
+    // has no hold flag, so it still waits for their own Continue.
+    if (campaign.status === "planned") {
+      if (!campaign.autoAdvanceHeld || !this.readSmartSettings().autoWaves) return;
+      campaign.autoAdvanceHeld = false;
+      campaign.status = "running";
+      this.saveCampaign(campaign);
+    }
     const state = campaign.waves[campaign.currentWaveIndex];
     if (!state) return;
     if (!state.jobId) {
@@ -473,6 +506,19 @@ export class ZaicodeAuditService implements IZaicodeAuditService {
       const nextIndex = campaign.currentWaveIndex + 1;
       if (nextIndex < campaign.waves.length) {
         campaign.waves[nextIndex]!.status = "pending";
+        // SRC-151:R008: this is the one place a wave is generated without being
+        // asked for. With the global switch off the campaign parks as `planned`
+        // -- the state that already means "waiting in the review queue" -- so the
+        // card's own Continue is what starts the next wave, and nothing else
+        // changes: the finished artifact stays exactly as validated.
+        if (!this.readSmartSettings().autoWaves) {
+          campaign.currentWaveIndex = nextIndex;
+          campaign.autoAdvanceHeld = true;
+          campaign.status = "planned";
+          this.saveCampaign(campaign);
+          return;
+        }
+        campaign.autoAdvanceHeld = false;
         this.saveCampaign(campaign);
         await this.enqueueWave(campaign, nextIndex);
         return;
@@ -519,6 +565,7 @@ export class ZaicodeAuditService implements IZaicodeAuditService {
     smartMode: boolean;
     maxCycles: number;
     runId: string | null;
+    autoWaves: boolean;
     auditor: ZaicodeAuditorView | null;
   }> {
     await this.reconcileAll();
@@ -653,7 +700,10 @@ export class ZaicodeAuditService implements IZaicodeAuditService {
       if (!campaign || campaign.status !== "blocked") return campaign;
       const state = campaign.waves[campaign.currentWaveIndex];
       if (!state) return campaign;
-      if (state.jobId) await this.deps.jobService.cancel(state.jobId).catch(() => undefined);
+      if (state.jobId && !(await this.stopWaveJob(state.jobId, state))) {
+        this.saveCampaign(campaign);
+        return this.findCampaign(campaignId) ?? campaign;
+      }
       state.status = "pending";
       state.jobId = null;
       state.rejectReason = null;
@@ -669,7 +719,12 @@ export class ZaicodeAuditService implements IZaicodeAuditService {
       const campaign = this.findCampaign(campaignId);
       if (!campaign || campaign.status === "complete" || campaign.status === "cancelled") return campaign;
       const state = campaign.waves[campaign.currentWaveIndex];
-      if (state?.jobId) await this.deps.jobService.cancel(state.jobId).catch(() => undefined);
+      if (state?.jobId && !(await this.stopWaveJob(state.jobId, state))) {
+        // The worker would not stop, so the work is still going: the campaign is not
+        // cancelled and nothing new is launched.
+        this.saveCampaign(campaign);
+        return this.findCampaign(campaignId) ?? campaign;
+      }
       campaign.status = "cancelled";
       this.saveCampaign(campaign);
       return campaign;
@@ -802,6 +857,18 @@ export class ZaicodeAuditService implements IZaicodeAuditService {
     return { smartMode: enabled };
   }
 
+  /**
+   * The global wave switch (SRC-151:R008). Off, a validated wave does not create
+   * the next one: the campaign parks in the review queue with `autoAdvanceHeld`
+   * and only the operator's own Continue starts wave 2. Turning it back on
+   * releases every held campaign on the next reconcile, so the switch is a
+   * switch and not a latch nobody can undo.
+   */
+  async setAutoWaves(enabled: boolean): Promise<{ autoWaves: boolean }> {
+    ZaicodeAuditService.writeJsonAtomic(this.settingsPath(), { ...this.readSmartSettings(), autoWaves: enabled });
+    return { autoWaves: enabled };
+  }
+
   async setSmartMaxCycles(maxCycles: number): Promise<{ maxCycles: number }> {
     if (!Number.isInteger(maxCycles) || maxCycles < 1 || maxCycles > 10) {
       throw new Error("automatic audit cycles must be between 1 and 10");
@@ -819,6 +886,12 @@ export class ZaicodeAuditService implements IZaicodeAuditService {
     if (this.smartSweepRunning) return { started: [] };
     const settings = this.readSmartSettings();
     if (!settings.smartMode) return { started: [] };
+    // Fresh E2 (SRC-153 R013): the global wave switch gates automatic ADMISSION,
+    // not just wave progression. Disabled means Auto Continue / Continue All
+    // create zero automatic campaigns and resume zero planned ones -- not even
+    // the first wave. Manual admission (panel start/generate/Continue, /a3)
+    // never passes through here and is unaffected; running work is untouched.
+    if (!settings.autoWaves) return { started: [] };
     if (!settings.runId) {
       await this.setSmartMode(false);
       await this.setSmartMode(true);

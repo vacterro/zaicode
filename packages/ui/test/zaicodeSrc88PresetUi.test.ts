@@ -1,3 +1,7 @@
+// First, before any module that reaches the preset store: an empty shelf, so U3's "empty page" is
+// empty. The store snapshots storage (or the bundled default, which is a live-machine capture) once,
+// when it is first imported, and a server render shows that snapshot.
+import "./support/presetStorageEmpty.js";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";

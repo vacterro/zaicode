@@ -47,6 +47,15 @@ const OVERLAY_FAST_RETRIES = 20;
 const HELPER_RETRY_SLOW_MS = 30_000;
 /** How long an overlay page gets to answer a health probe. */
 const PROBE_TIMEOUT_MS = 1500;
+/**
+ * SRC-151:R003: "ProTrail sometimes goes behind every program, and restarting
+ * cures it." Windows keeps the topmost flag but loses the topmost *position*
+ * whenever another topmost window claims the band. Nothing here re-asserted it
+ * once the overlays converged, so the loss was permanent until a restart rebuilt
+ * the windows. Re-asserting is a native call that changes nothing on screen while
+ * the z-order is intact, so it costs nothing to keep doing.
+ */
+const RESTACK_MS = 2000;
 /** A reader is watched this long after "ready"; four cursor moves with no event from it make it silent. */
 const READER_WATCH_MS = 15_000;
 const READER_WATCH_STEP_MS = 500;
@@ -77,6 +86,7 @@ let flushTimer: ReturnType<typeof setTimeout> | null = null;
 let screenHooked = false;
 let overlayRetryTimer: ReturnType<typeof setTimeout> | null = null;
 let overlayRetries = 0;
+let restackTimer: ReturnType<typeof setInterval> | null = null;
 let helperRetryTimer: ReturnType<typeof setTimeout> | null = null;
 let readerWatchTimer: ReturnType<typeof setTimeout> | null = null;
 /** Which window is on a monitor now and since when: a rebuilt overlay is a new life with a clean record. */
@@ -151,6 +161,7 @@ function start(): void {
   log(`starting the desktop-wide mode for ${wanted.size} window${wanted.size === 1 ? "" : "s"}, ${screen.getAllDisplays().length} display(s)`);
   hookScreen(true);
   syncOverlays();
+  scheduleRestack();
   startInput(generation);
   health.start();
 }
@@ -162,6 +173,7 @@ function stop(): void {
   if (overlayRetryTimer) clearTimeout(overlayRetryTimer);
   overlayRetryTimer = null;
   overlayRetries = 0;
+  stopRestack();
   if (helperRetryTimer) clearTimeout(helperRetryTimer);
   helperRetryTimer = null;
   if (readerWatchTimer) clearTimeout(readerWatchTimer);
@@ -529,12 +541,53 @@ const health = createOverlayHealth({
   log,
 });
 
+/**
+ * Re-assert the whole z-order policy on one overlay. SRC-151:R003: ProTrail "sometimes
+ * goes behind everything and restarting fixes it" — Windows drops a topmost window's
+ * position whenever another topmost window claims the band (Explorer restart, a UAC
+ * prompt, a fullscreen app, another always-on-top tool). The flag survives in the
+ * window, the position does not, and nothing here ever re-asserted it: the only timer
+ * in this module stops once the overlays converge, which is exactly when the loss
+ * becomes permanent. Every place that shows, moves or shows-again an overlay ends here.
+ */
+function restackOverlay(win: BrowserWindow): void {
+  if (win.isDestroyed() || !readyOverlays.has(win)) return;
+  win.setAlwaysOnTop(true, "screen-saver");
+  win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
+}
+
+/** Idempotent: a lost z-order is the normal case, so this runs on every pass. */
+function restackOverlays(): void {
+  for (const win of overlays.values()) restackOverlay(win);
+}
+
+/**
+ * Heartbeat that repairs a dropped topmost position. Native, cheap (one call per
+ * overlay), and unref'd so it can never keep a process alive. It is a repair of an
+ * OS-owned property, not a poll of user data: nothing on screen changes while the
+ * z-order is intact.
+ */
+function scheduleRestack(): void {
+  if (restackTimer || wanted.size === 0) return;
+  restackTimer = setInterval(() => {
+    if (wanted.size === 0) return;
+    restackOverlays();
+  }, RESTACK_MS);
+  (restackTimer as { unref?: () => void }).unref?.();
+}
+
+function stopRestack(): void {
+  if (!restackTimer) return;
+  clearInterval(restackTimer);
+  restackTimer = null;
+}
+
 /** Show the overlay once its document is loaded. Idempotent: a reload must reveal it again. */
 function revealOverlay(win: BrowserWindow): void {
   if (win.isDestroyed() || !readyOverlays.has(win) || win.isVisible()) return;
   win.setBounds(overlayBounds.get(win) ?? win.getBounds());
   win.showInactive();
-  win.setAlwaysOnTop(true, "screen-saver");
+  restackOverlay(win);
 }
 
 function createOverlay(display: Display): BrowserWindow {

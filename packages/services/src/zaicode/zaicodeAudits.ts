@@ -20,6 +20,8 @@ export interface IZaicodeAuditService {
     smartMode: boolean;
     maxCycles: number;
     runId: string | null;
+    /** SRC-151:R008: global "generate the next wave by itself" switch; true unless turned off. */
+    autoWaves: boolean;
     auditor: ZaicodeAuditorView | null;
   }>;
   /** A project's newest campaign, or null. */
@@ -50,6 +52,12 @@ export interface IZaicodeAuditService {
   fixWithSaipen(campaignId: string): Promise<ZaicodeAuditCampaign | null>;
   /** Smart mode: empty board + nothing running -> the project starts an A3 campaign itself. */
   setSmartMode(enabled: boolean): Promise<{ smartMode: boolean }>;
+  /**
+   * SRC-151:R008: the global wave switch. Off, a validated wave does not generate
+   * the next one — the campaign parks in the review queue and only the
+   * operator's Continue starts it. On again releases every held campaign.
+   */
+  setAutoWaves(enabled: boolean): Promise<{ autoWaves: boolean }>;
   /** Maximum number of automatic campaigns per project in one run (1..10). */
   setSmartMaxCycles(maxCycles: number): Promise<{ maxCycles: number }>;
   /** The projects smart mode may audit (pushed by the renderer, which owns the fleet). */

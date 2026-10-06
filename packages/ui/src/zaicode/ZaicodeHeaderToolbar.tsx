@@ -87,8 +87,10 @@ export function ZaicodeHeaderToolbar(props: ZaicodeHeaderToolbarProps) {
     <>
       <ZaicodeRightClickSettings
         title="Header buttons"
+        preferenceKey="header"
         hint="Pick the buttons for this row and their order. The working meter sits on the right. Buttons that do not fit move into ⋯."
-        panel={<ZaicodeHeaderToolsEditor />}
+        panel={<ZaicodeHeaderToolsEditor /
+>}
         className="flex min-w-0 flex-1"
       >
         {/* SRC-035: a narrow sidebar used to cut the last icons off; they now move into ⋯ instead. */}

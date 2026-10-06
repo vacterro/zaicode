@@ -450,10 +450,18 @@ export function ChatPromptEditor({
         ) : null}
         <div
           ref={toolbarRef}
-          className={cn("group/toolbar flex items-end gap-3", zaicodeTightShell && "gap-2")}
+          className={cn("group/toolbar flex flex-wrap items-end gap-3", zaicodeTightShell && "gap-2")}
         >
-          <div className="flex min-w-0 flex-1 items-center" data-composer-leading-actions>
-            <div className="flex shrink-0 items-center gap-1" data-composer-leading-content>
+          {/* SRC-161:REQ-008 (T-240): no flex-1 here. The leading cluster is the
+              first wrap candidate, and when everything inside it has collapsed the
+              attachment `+` is all that is left: growing that cluster made the wrap
+              a full-width blank strip with the `+` at its left edge. Hugging its
+              content keeps the free space where it belongs — the trailing cluster
+              already claims it with ml-auto. */}
+          <div className="flex min-w-0 items-center" data-composer-leading-actions>
+            {/* SRC-151:R002 — 内容可换行而不是撑出容器压到右侧按钮上：阶梯用尽仍
+                放不下时，宁可把控件排到第二行，也不让两组按钮重叠。 */}
+            <div className="flex min-w-0 flex-wrap items-center gap-1" data-composer-leading-content>
               {hasActionMenu ? (
                 <ChatPromptActionMenu
                   actionMenuTitle={actionMenuTitle}
@@ -476,8 +484,12 @@ export function ChatPromptEditor({
               ) : null}
             </div>
           </div>
+          {/* SRC-162: the trailing cluster takes the rest of the line (flex-1, basis 0) and
+              wraps its own buttons right-aligned. As one shrink-0 block it jumped to a new line
+              whole whenever it did not fit, which left the attachment `+` alone on a blank
+              full-width row above it. */}
           <div
-            className="ml-auto flex shrink-0 items-center justify-end gap-1.5"
+            className="ml-auto flex min-w-0 flex-1 flex-wrap items-center justify-end gap-1.5"
             data-composer-trailing-actions
           >
             {showSaipenControls && workspacePath.trim() ? (

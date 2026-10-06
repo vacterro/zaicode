@@ -296,7 +296,9 @@ export function ZaicodeTopbarClock({
   return (
     <ZaicodeRightClickSettings
       title="Title-bar clock"
-      panel={<ZaicodeClockSettingsPanel />}
+      preferenceKey="clock"
+      panel={<ZaicodeClockSettingsPanel /
+>}
       align="end"
     >
       <button

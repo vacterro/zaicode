@@ -126,8 +126,17 @@ export function ZaicodeAuditCampaignCard({
         ) : null}
         <span className="ml-auto flex items-center gap-1">
           {campaign.status === "planned" ? (
-            <button type="button" className="flex items-center gap-1 border border-border px-1.5 py-px hover:bg-hover" data-zaicode-sound="audit.start" onClick={() => onWork(campaign.campaignId)}>
-              <Play className="size-3" /> Start
+            /* SRC-151:R008: a campaign held by the global wave switch is `planned` with an
+               earlier wave already finished, so it is not being started -- it is being
+               continued. Same button, honest label. */
+            <button
+              type="button"
+              className="flex items-center gap-1 border border-border px-1.5 py-px hover:bg-hover"
+              data-zaicode-sound="audit.start"
+              title={campaign.autoAdvanceHeld ? "Start the next wave of this audit now" : "Start this audit now"}
+              onClick={() => onWork(campaign.campaignId)}
+            >
+              <Play className="size-3" /> {campaign.autoAdvanceHeld ? "Continue" : "Start"}
             </button>
           ) : null}
           {currentWave?.reportFile ? (

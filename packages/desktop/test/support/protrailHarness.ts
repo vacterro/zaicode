@@ -34,7 +34,7 @@ export const THREE_DISPLAYS: FakeDisplay[] = [-1920, 0, 1920].map((x, id) => ({ 
 export function fakeClock() {
   let now = 1_000_000;
   let seq = 0;
-  const jobs = new Map<number, { at: number; fn: () => void }>();
+  const jobs = new Map<number, { at: number; fn: () => void; every?: number }>();
   const flush = () => new Promise<void>((resolve) => setImmediate(resolve));
   return {
     now: () => now,
@@ -46,7 +46,18 @@ export function fakeClock() {
     clearTimeout(id: number) {
       jobs.delete(id);
     },
-    pending: () => jobs.size,
+    // SRC-151:R003: the z-order repair is an interval, not a retry.
+    setInterval(fn: () => void, ms = 0) {
+      const id = ++seq;
+      jobs.set(id, { at: now + ms, fn, every: Math.max(1, ms) });
+      return id;
+    },
+    clearInterval(id: number) {
+      jobs.delete(id);
+    },
+    /** One-shot work: retries and health passes. An interval is counted apart. */
+    pending: () => [...jobs.values()].filter((job) => !job.every).length,
+    intervals: () => [...jobs.values()].filter((job) => job.every).length,
     async advance(ms: number) {
       const target = now + ms;
       for (;;) {
@@ -56,6 +67,7 @@ export function fakeClock() {
         now = due[1].at;
         due[1].fn();
         await flush();
+        if (due[1].every) jobs.set(due[0], { at: now + due[1].every, fn: due[1].fn, every: due[1].every });
       }
       now = target;
       // Two turns: a promise callback that starts a fake process, and the process's own first answer.
@@ -233,6 +245,8 @@ export function createProtrailHarness(options: HarnessOptions = {}) {
     process: { platform, env: {} },
     setTimeout: clock.setTimeout,
     clearTimeout: clock.clearTimeout,
+    setInterval: clock.setInterval,
+    clearInterval: clock.clearInterval,
     Date: { now: clock.now },
   });
   exports.registerZaicodeProtrailGlobalIpc({ log: (message) => logs.push(message) });

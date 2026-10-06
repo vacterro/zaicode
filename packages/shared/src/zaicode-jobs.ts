@@ -111,6 +111,12 @@ export const zaicodeJobSchema = z
     heartbeatAt: z.number().optional(),
     parentJobId: z.string().trim().min(1).optional(),
     retryOfJobId: z.string().trim().min(1).optional(),
+    /**
+     * T-243 / SRC-160:R003 — 委托出这个 helper 的父运行 id。它把"每个父运行多少个
+     * helper"的配额锚定到一次运行而不是一条父任务行：同一行重跑（runId 变了）从零
+     * 起算，配额也不会计入别的运行。只有委托路径会写它；普通任务与编排探针子任务没有。
+     */
+    delegatedFromRunId: z.string().trim().min(1).optional(),
     delegation: zaicodeJobDelegationSchema.optional(),
     actualModelSelection: modelSelectionSchema.optional(),
   })
@@ -146,6 +152,15 @@ export interface ZaicodeJobListFilter {
   workspaceKey?: string;
   status?: ZaicodeJobStatus;
   agentId?: string;
+  /**
+   * T-248 / SRC-160:R010 — bounded read: at most this many rows, taken as the
+   * NEWEST ones in the list's own order (created_at, sort_order), returned in
+   * that same ascending order, so a bounded result is a suffix of the unbounded
+   * one. Rows that are not yet terminal are never dropped by the window: the
+   * repository adds the ones older than it, so live status counts stay exact.
+   * Omitted (the default) reads every matching row, unchanged.
+   */
+  limit?: number;
 }
 
 /** 损坏/不可解释的持久化任务行：保留诊断，不当作正常任务使用。 */

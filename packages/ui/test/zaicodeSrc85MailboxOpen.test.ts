@@ -20,10 +20,16 @@ function tsxFiles(dir: string): string[] {
   return out;
 }
 
-test("the envelope reads its rectangle before it sets state, never inside the updater", () => {
+test("the envelope reads its anchor before it sets state, never inside the updater", () => {
   const button = readFileSync(join(SRC, "zaicode/ZaicodeSaimailHeaderButton.tsx"), "utf8").replace(/\r\n/g, "\n");
-  assert.match(button, /const anchor = event\.currentTarget\.getBoundingClientRect\(\);\s*setReaderAnchor\(\(current\) => \(current \? null : anchor\)\);/);
-  assert.doesNotMatch(button, /setReaderAnchor\(\(current\) => \([^)]*event\.currentTarget/);
+  // SRC-161:REQ-003 changed WHAT is held: the trigger element instead of a rect
+  // snapshot, because a snapshot goes stale on scroll and reports a zero box
+  // after detach. The SRC-085 rule it must still satisfy is the same one -- the
+  // element is captured before the updater runs, and the updater never touches
+  // the synthetic event.
+  assert.match(button, /const trigger = event\.currentTarget;\s*\n\s*setReaderEl\(\(current\) => \(current \? null : trigger\)\);/);
+  assert.doesNotMatch(button, /setReaderEl\(\(current\) => \([^)]*event\.currentTarget/);
+  assert.match(button, /anchorEl=\{readerEl\}/, "the reader measures the live element, not a stored rect");
 });
 
 test("no component reads a synthetic event's currentTarget inside a state updater", () => {

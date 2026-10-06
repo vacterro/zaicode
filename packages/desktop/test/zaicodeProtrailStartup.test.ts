@@ -23,7 +23,7 @@ import { healthPort } from "./support/protrailPorts.js";
 function clock() {
   let now = 0;
   let seq = 0;
-  const jobs = new Map<number, { at: number; fn: () => void }>();
+  const jobs = new Map<number, { at: number; fn: () => void; every?: number }>();
   const flush = () => new Promise<void>((resolve) => setImmediate(resolve));
   return {
     setTimeout(fn: () => void, ms = 0) {
@@ -34,7 +34,17 @@ function clock() {
     clearTimeout(id: number) {
       jobs.delete(id);
     },
-    pending: () => jobs.size,
+    // SRC-151:R003: the z-order repair is an interval, not a retry, so the clock needs one.
+    setInterval(fn: () => void, ms = 0) {
+      const id = ++seq;
+      jobs.set(id, { at: now + ms, fn, every: Math.max(1, ms) });
+      return id;
+    },
+    clearInterval(id: number) {
+      jobs.delete(id);
+    },
+    pending: () => [...jobs.values()].filter((job) => !job.every).length,
+    intervals: () => [...jobs.values()].filter((job) => job.every).length,
     async advance(ms: number) {
       const target = now + ms;
       for (;;) {
@@ -46,6 +56,9 @@ function clock() {
         now = due[1].at;
         due[1].fn();
         await flush();
+        // Re-arm inside the loop: an interval that fires repeatedly must keep firing
+        // across one advance, and the reschedule is by id so the sort stays honest.
+        if (due[1].every) jobs.set(due[0], { at: now + due[1].every, fn: due[1].fn, every: due[1].every });
       }
       now = target;
       await flush();
@@ -65,6 +78,10 @@ class Contents extends EventEmitter {
     assert.equal(channel, PlatformChannels.ZaicodeProtrailOverlayFeed);
     this.feeds.push(JSON.parse(JSON.stringify(feed)));
   }
+  /** A loaded overlay page answers its probe; an answerless one is rebuilt by the health pass. */
+  executeJavaScript() {
+    return Promise.resolve({ configured: true, enabled: true, width: 1920, height: 1080, frames: true });
+  }
 }
 
 class Overlay extends EventEmitter {
@@ -72,14 +89,18 @@ class Overlay extends EventEmitter {
   destroyed = false;
   visible = false;
   shown = 0;
+  /** SRC-151:R003: the z-order the OS is holding for this window, and every ask made of it. */
+  topmost = false;
+  topmostAsks: (false | string)[] = [];
+  acrossWorkspaces = false;
   constructor(readonly options: { type?: string }) { super(); harnessWindows.push(this); }
   isDestroyed() { return this.destroyed; }
   isVisible() { return this.visible && !this.destroyed; }
   getBounds() { return { x: 0, y: 0, width: 1920, height: 1080 }; }
   destroy() { this.destroyed = true; this.emit("closed"); }
   setIgnoreMouseEvents() {}
-  setAlwaysOnTop() {}
-  setVisibleOnAllWorkspaces() {}
+  setAlwaysOnTop(flag: boolean, level?: string) { this.topmost = flag; this.topmostAsks.push(flag ? (level ?? "") : false); }
+  setVisibleOnAllWorkspaces() { this.acrossWorkspaces = true; }
   setBounds() {}
   showInactive() { this.visible = true; this.shown += 1; }
   loadFile() {}
@@ -117,6 +138,8 @@ function harness(platform = "linux", initialDisplays: typeof THREE_DISPLAYS = TH
     process: { platform, env: {} },
     setTimeout: time.setTimeout,
     clearTimeout: time.clearTimeout,
+    setInterval: time.setInterval,
+    clearInterval: time.clearInterval,
   });
   exports.registerZaicodeProtrailGlobalIpc();
   const setHandler = handlers.get(PlatformChannels.SetZaicodeProtrailGlobal)!;
@@ -221,7 +244,49 @@ test("A6 a healthy overlay set costs nothing: the reconcile is a no-op", async (
   // T-129: a slow health pass (one probe per overlay every few seconds) now watches a healthy set, so one
   // timer is armed on purpose; what must not be armed is a reconcile retry.
   assert.equal(h.time.pending(), 1, "only the slow health pass is armed once the overlays are there: no reconcile retry");
+  assert.equal(h.time.intervals(), 1, "and the only interval is the z-order repair (SRC-151:R003)");
   for (const [index, win] of h.live().entries()) {
     assert.equal(win.webContents.feeds.length, before[index]! + 1, "only the new config is broadcast");
   }
+});
+
+test("B1 ProTrail keeps its place: a z-order the shell drops is re-asserted without a restart", async () => {
+  const h = harness();
+  h.configure({ color: "red" });
+  await h.loadAll();
+  for (const win of h.live()) {
+    assert.equal(win.topmost, true, "an overlay is on top before anything takes it");
+    assert.equal(win.acrossWorkspaces, true, "and on every workspace, fullscreen included");
+  }
+  const settled = h.live().map((win) => win.topmostAsks.length);
+
+  // What Windows does when another topmost window claims the band: the flag is
+  // still set, the window is still there, and it is simply behind everything.
+  for (const win of h.live()) win.topmost = false;
+  assert.ok(
+    h.live().every((win) => !win.topmost),
+    "the loss reproduces: every overlay is behind the desktop now",
+  );
+
+  await h.time.advance(2500);
+  for (const [index, win] of h.live().entries()) {
+    assert.equal(win.topmost, true, "the trail comes back on its own, no Settings visit and no restart");
+    assert.equal(win.topmostAsks.length > settled[index]!, true, "and it was re-asked, not merely re-created");
+    assert.equal(win.topmostAsks.at(-1), "screen-saver", "re-asserted at the level it was created at");
+    assert.equal(win.isDestroyed(), false, "the repair never rebuilds a window: rebuilding is what lost the config");
+  }
+
+  // The heartbeat must be cheap and quiet: one ask per overlay per tick, no
+  // stacking, and nothing the operator can see changes while the z-order is intact.
+  const before = h.live().map((win) => win.topmostAsks.length);
+  const status = h.status();
+  await h.time.advance(2000);
+  for (const [index, win] of h.live().entries()) {
+    assert.equal(win.topmostAsks.length, before[index]! + 1, "exactly one re-assert per overlay per tick");
+  }
+  assert.deepEqual(h.status(), status, "and the reported state is untouched: this is a repair, not an event");
+
+  // Switching the mode off leaves no armed timer behind.
+  h.configure(null);
+  assert.equal(h.time.intervals(), 0, "no heartbeat survives the overlays it was repairing");
 });

@@ -9,6 +9,11 @@ import { ZaicodeComposerPartsPanel } from "@/zaicode/ZaicodeComposerPartsPanel.j
 import { ZaicodeHeaderTitleSettingsPanel } from "@/zaicode/ZaicodeHeaderProjectTitle.js";
 import { ZaicodePrefCheck, ZaicodePrefSegment } from "@/zaicode/ZaicodePrefControls.js";
 import { isZaicodeCalm, useZaicodeUiPrefs, type ZaicodeClearMode } from "@/zaicode/zaicodeUiPrefs.js";
+import {
+  ZAICODE_SIDE_PANE_VISIBILITY_LABELS,
+  ZAICODE_SIDE_PANE_VISIBILITY_MODES,
+  type ZaicodeSidePaneVisibilityMode,
+} from "@/zaicode/zaicodeSidePaneVisibility.js";
 
 /**
  * Settings -> Layout & home: SAIHOME (the operator home), what the sidebar
@@ -88,6 +93,7 @@ export function ZaicodeLayoutSettings() {
   const noHoverPopups = useZaicodeUiPrefs((state) => state.noHoverPopups);
   const calm = { noMotion, noDim, noHoverPopups };
   const updateUiPrefs = useZaicodeUiPrefs((state) => state.update);
+  const sidePaneVisibility = useZaicodeUiPrefs((state) => state.sidePaneVisibility);
   return (
     <div className="flex flex-col gap-4" data-zaicode-layout-settings>
       <Block
@@ -165,6 +171,24 @@ export function ZaicodeLayoutSettings() {
             { value: "new", label: "Open a new session", hint: "Leaves this session as it is and starts an empty one in the same project" },
           ]}
         />
+      </Block>
+      <Block
+        title="SAIPEN side pane (Ctrl+Alt+B)"
+        hint="The right-side pane with the SAIPEN, browser and task tabs. Ctrl+Alt+B opens and closes it. Either that answer is one for everywhere, or each project and session remembers its own and gets it back when you return."
+        testId="side-pane-memory"
+      >
+        <div className="max-w-[480px]">
+          <ZaicodePrefSegment<ZaicodeSidePaneVisibilityMode>
+            label="When you switch project or session, the side pane…"
+            value={sidePaneVisibility.mode}
+            onChange={(mode) => updateUiPrefs({ sidePaneVisibility: { ...sidePaneVisibility, mode } })}
+            options={ZAICODE_SIDE_PANE_VISIBILITY_MODES.map((mode) => ({
+              value: mode,
+              label: ZAICODE_SIDE_PANE_VISIBILITY_LABELS[mode].label,
+              hint: ZAICODE_SIDE_PANE_VISIBILITY_LABELS[mode].hint,
+            }))}
+          />
+        </div>
       </Block>
       <ZaicodeFancyZonesSettings />
     </div>

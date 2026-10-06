@@ -27,7 +27,7 @@ const VIEWPORTS = [
 test("F1 the workers tray is capped on every anchor, not only the side ones", () => {
   const text = source("src/zaicode/ZaicodeWorkersDock.tsx");
   assert.match(text, /const TRAY_SIZE = "max-h-\[70vh\] max-w-\[70vw\] overflow-auto"/);
-  const tray = text.match(/className=\{cn\("fixed z-40 flex gap-1", TRAY_SIZE, TRAY_POSITION\[anchor\]\)\}/);
+  const tray = text.match(/className=\{cn\("fixed flex gap-1", zaicodeLayerClass\("tray"\), TRAY_SIZE, TRAY_POSITION\[anchor\]\)\}/);
   assert.ok(tray, "the size cap is not conditional on the anchor");
   assert.equal(text.includes('vertical && "max-h-[70vh] overflow-y-auto"'), false, "a 768px window had no cap at all");
 });

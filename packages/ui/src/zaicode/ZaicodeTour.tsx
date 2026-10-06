@@ -3,6 +3,12 @@ import { createPortal } from "react-dom";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { openZaicodeHelp } from "./zaicodeActions.js";
 import { zaicodeDevicePx } from "./zaicodePixelSnap.js";
+import {
+  zaicodeAnchorBox,
+  ZAICODE_TOOLTIP_GAP,
+  ZAICODE_TOOLTIP_MARGIN,
+  type ZaicodeTooltipAnchor,
+} from "@zcode/shared";
 
 /**
  * "Play": a guided walk over the real screen. Each step outlines the actual
@@ -75,12 +81,15 @@ function findTarget(selector: string): HTMLElement | null {
 
 export function ZaicodeTour({ onClose }: { onClose: () => void }) {
   const [index, setIndex] = useState(0);
-  const [rect, setRect] = useState<DOMRect | null>(null);
+  // SRC-161:REQ-003: a target that is present but has no box (an empty inline
+  // node keeps client rects while measuring 0x0) is treated as no target at
+  // all, so the card falls back to its centred position instead of the corner.
+  const [rect, setRect] = useState<ZaicodeTooltipAnchor | null>(null);
   const step = ZAICODE_TOUR_STEPS[index]!;
   const last = index === ZAICODE_TOUR_STEPS.length - 1;
 
   useLayoutEffect(() => {
-    const measure = () => setRect(findTarget(step.target)?.getBoundingClientRect() ?? null);
+    const measure = () => setRect(zaicodeAnchorBox(findTarget(step.target)?.getBoundingClientRect()));
     measure();
     window.addEventListener("resize", measure);
     return () => window.removeEventListener("resize", measure);
@@ -101,10 +110,23 @@ export function ZaicodeTour({ onClose }: { onClose: () => void }) {
 
   // The card sits below the target when there is room, otherwise above it; centred when the target is hidden.
   const cardWidth = 340;
+  const cardHeight = 172;
   const cardStyle: React.CSSProperties = rect
     ? {
-        left: zaicodeDevicePx(Math.max(8, Math.min(window.innerWidth - cardWidth - 8, rect.left))),
-        top: zaicodeDevicePx(rect.bottom + 180 < window.innerHeight ? rect.bottom + 8 : Math.max(8, rect.top - 172)),
+        // Same three rules as every other anchored surface (SRC-161:REQ-003):
+        // clamp to the viewport, keep the shared margin, flip when there is no
+        // room below. The card can only get here with a real anchor box.
+        left: zaicodeDevicePx(
+          Math.min(
+            Math.max(ZAICODE_TOOLTIP_MARGIN, rect.left),
+            Math.max(ZAICODE_TOOLTIP_MARGIN, window.innerWidth - cardWidth - ZAICODE_TOOLTIP_MARGIN),
+          ),
+        ),
+        top: zaicodeDevicePx(
+          rect.bottom + cardHeight + ZAICODE_TOOLTIP_GAP < window.innerHeight
+            ? rect.bottom + ZAICODE_TOOLTIP_GAP
+            : Math.max(ZAICODE_TOOLTIP_MARGIN, rect.top - cardHeight - ZAICODE_TOOLTIP_GAP),
+        ),
         width: cardWidth,
       }
     : { left: "50%", top: "40%", width: cardWidth, transform: "translateX(-50%)" };

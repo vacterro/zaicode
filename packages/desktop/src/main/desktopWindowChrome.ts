@@ -35,6 +35,7 @@ import { holdZaicodeMainWindow, zaicodeSplashHolds } from "./zaicodeSplash.js";
 import {
   MIN_DESKTOP_WINDOW_HEIGHT,
   MIN_DESKTOP_WINDOW_WIDTH,
+  attachNativeMaximizeGeometry,
   resolveDesktopWindowSize,
   type DesktopWindowSize,
 } from "./desktopWindowSize.js";
@@ -618,6 +619,11 @@ export function createBrowserWindow(options: {
   });
   win.on("maximize", () => syncDesktopWindowChromeState(win));
   win.on("unmaximize", () => syncDesktopWindowChromeState(win));
+  // SRC-151:R004: only Windows draws this window frameless, and only Windows gives a
+  // frameless maximized window the monitor instead of the work area.
+  if (process.platform === "win32") {
+    attachNativeMaximizeGeometry(win, (bounds) => screen.getDisplayMatching(bounds).workArea);
+  }
   attachWindowsWindowRepaint(win);
   const pendingWebviewCodingPlanGuestFlags: boolean[] = [];
 

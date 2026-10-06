@@ -11,6 +11,8 @@ import { ZaicodeAgentService } from "../src/zaicode/zaicodeAgentService.js";
 import { ZaicodeJobRepo } from "../src/zaicode/zaicodeJobRepo.js";
 import { ZaicodeJobService } from "../src/zaicode/zaicodeJobService.js";
 import type { ZaicodeJobExecutor } from "../src/zaicode/zaicodeJobs.js";
+import { runTasksDatabaseMigrations } from "../src/session/tasksDatabase/migrations.js";
+import { ZAICODE_SCHEMA } from "../src/session/tasksDatabase/zaicode-v4.js";
 
 interface Harness {
   dir: string;
@@ -558,5 +560,120 @@ test("ZAICODE job queue: autopilot starts queued work and refills freed slots", 
     assert.equal((await harness.jobService.get(third.id))?.status, "queued");
   } finally {
     await harness.dispose();
+  }
+});
+
+test("ZAICODE job queue: graceful shutdown releases this host's lease as recoverable, never as a result (SRC-161:W2-001)", async () => {
+  let now = 5_000_000;
+  const harness = await createHarness({ now: () => now });
+  try {
+    const agent = await seedAgent(harness);
+    const job = await createJob(harness, agent.id);
+    const running = await harness.jobService.dispatch(job.id);
+    assert.equal(running?.status, "running");
+    assert.ok(running?.hostId, "a running row records its lease owner");
+
+    // Shutdown: the terminal-event owner stops before the runtime dies, so no outcome is ever
+    // written. The lease must not be left for the next start to trust.
+    harness.jobService.dispose();
+    const released = await harness.jobRepo.get(job.id);
+    assert.equal(released?.status, "blocked", "recoverable, not a manufactured verdict");
+    assert.equal(released?.error, "interrupted_by_shutdown");
+    assert.equal(released?.hostId, undefined, "the lease is given up, not kept");
+    assert.notEqual(released?.status, "completed");
+    assert.notEqual(released?.status, "failed");
+
+    // The released row is resumable exactly like a restart-reclaimed one — no special case.
+    const resumed = await harness.jobService.resume(job.id);
+    assert.equal(resumed?.status, "queued");
+    const redispatch = await harness.jobService.dispatch(job.id);
+    assert.equal(redispatch?.status, "running");
+    assert.equal(redispatch?.attempt, 2);
+  } finally {
+    await harness.dispose();
+  }
+});
+
+test("ZAICODE job queue: shutdown releases only its own leases; a foreign stale lease is reclaimed by staleness (SRC-161:W2-001)", async () => {
+  let now = 5_000_000;
+  const harness = await createHarness({ now: () => now });
+  try {
+    const agent = await seedAgent(harness);
+    const mine = await createJob(harness, agent.id, { title: "mine" });
+    const theirs = await createJob(harness, agent.id, { title: "theirs" });
+    const runningMine = await harness.jobService.dispatch(mine.id);
+    assert.equal(runningMine?.status, "running");
+
+    // Another host (a previous process, or a second window) holds this lease and its heartbeat
+    // is already stale.
+    const staleAt = now - ZAICODE_JOB_HEARTBEAT_STALE_MS - 1;
+    const claimed = await harness.jobRepo.claimForDispatch({
+      jobId: theirs.id,
+      runId: "foreign-run",
+      hostId: "foreign-host",
+      now: staleAt,
+    });
+    assert.equal(claimed?.status, "running");
+
+    harness.jobService.dispose();
+    const afterShutdownMine = await harness.jobRepo.get(mine.id);
+    const afterShutdownTheirs = await harness.jobRepo.get(theirs.id);
+    assert.equal(afterShutdownMine?.error, "interrupted_by_shutdown");
+    assert.equal(afterShutdownTheirs?.status, "running", "another host's lease is not ours to break");
+
+    // Red control for the release predicate: the same UPDATE scoped to a host that owns
+    // nothing must change nothing.
+    assert.equal(harness.jobRepo.releaseRunningForHost("no-such-host", now, "interrupted_by_shutdown"), 0);
+    assert.equal((await harness.jobRepo.get(theirs.id))?.status, "running");
+
+    // Staleness — the path the periodic reaper runs — is what recovers the foreign lease, and it
+    // reports a different truth than our own shutdown.
+    assert.equal(harness.jobRepo.reclaimStaleRunning(now, ZAICODE_JOB_HEARTBEAT_STALE_MS), 1);
+    const reclaimed = await harness.jobRepo.get(theirs.id);
+    assert.equal(reclaimed?.status, "blocked");
+    assert.equal(reclaimed?.error, "interrupted_by_restart");
+  } finally {
+    await harness.dispose();
+  }
+});
+
+/**
+ * T-243 / SRC-160:R003 — the delegating-run column arrives over a queue table that
+ * already holds rows, which is the only path that matters for an install that has
+ * been running: the fresh-database case would hide a broken upgrade. The legacy row
+ * keeps its data and simply has no delegating run.
+ */
+test("T-243: the delegating-run column and its index arrive by migration over an existing queue", async () => {
+  const dir = await mkdtemp(join(tmpdir(), "zaicode-delegation-migration-"));
+  const dbPath = join(dir, "tasks-index.sqlite");
+  const db = new DatabaseSync(dbPath);
+  try {
+    db.exec(ZAICODE_SCHEMA);
+    db.prepare(
+      `INSERT INTO zaicode_jobs (
+        job_id, workspace_key, workspace_path, agent_id, title, instructions, status,
+        priority, sort_order, created_at, updated_at, attempt, parent_job_id
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    ).run("legacy-child", "ws", "C:\\ws", "agent-1", "Legacy helper", "Do it.", "completed", 0, 0, 10, 11, 0, "legacy-parent");
+
+    runTasksDatabaseMigrations(db);
+
+    const columns = db.prepare("PRAGMA table_info(zaicode_jobs)").all() as Array<{ name: string }>;
+    assert.ok(columns.some((column) => column.name === "delegated_from_run_id"));
+    const indexes = db
+      .prepare("SELECT name FROM sqlite_master WHERE type='index' AND tbl_name='zaicode_jobs'")
+      .all() as Array<{ name: string }>;
+    assert.ok(indexes.some((index) => index.name === "idx_zaicode_jobs_delegation"));
+    const ledger = db
+      .prepare("SELECT id FROM tasks_schema_migration WHERE id = '0008_zaicode_delegation'")
+      .get();
+    assert.ok(ledger, "the migration is recorded, so the ALTER is never replayed");
+    const row = db
+      .prepare("SELECT delegated_from_run_id FROM zaicode_jobs WHERE job_id = 'legacy-child'")
+      .get() as { delegated_from_run_id: string | null };
+    assert.equal(row.delegated_from_run_id, null, "a pre-T-243 child keeps its data and has no delegating run");
+  } finally {
+    db.close();
+    await rm(dir, { recursive: true, force: true });
   }
 });

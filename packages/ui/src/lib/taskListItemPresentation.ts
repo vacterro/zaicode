@@ -1,9 +1,11 @@
 import type { ZCodeTaskMeta } from "@zcode/shared";
 import type { TaskListRowActivity } from "@/v4/taskListRowActivity.js";
+import { zaicodeActivityStalled, zaicodeSessionLastHeard } from "@/zaicode/zaicodeStall.js";
 
 export function deriveTaskLeadingIndicator(
   task: ZCodeTaskMeta,
   activity: TaskListRowActivity | null,
+  now: number = Date.now(),
 ): "error" | "unread" | "loading" | "none" {
   if (activity?.phase === "error") {
     return "error";
@@ -21,7 +23,16 @@ export function deriveTaskLeadingIndicator(
     return "unread";
   }
 
-  if ((activity?.sessionEnded !== true && (activity?.phase === "prewarming" || activity?.phase === "running")) || activity?.hasBackgroundWork) {
+  // ZAICODE (SRC-081): 转圈是「此刻在干活」的断言，只有最近有真实事件推进
+  // lastActivityAt 才成立。后台工作记录写着自己 running、但两小时没有任何事件，
+  // 与前台流挂死是同一件事——圆点不能永远转下去。
+  const claimsRunning =
+    (activity?.sessionEnded !== true && (activity?.phase === "prewarming" || activity?.phase === "running")) ||
+    activity?.hasBackgroundWork === true;
+  if (
+    claimsRunning &&
+    !zaicodeActivityStalled(activity, activity?.lastActivityAt ?? zaicodeSessionLastHeard(task), now)
+  ) {
     return "loading";
   }
 

@@ -59,18 +59,47 @@ export function clearZaicodeLiveRunsIn(workspacePath: string): void {
   if (Object.keys(next).length !== Object.keys(runs).length) useZaicodeLiveRuns.setState({ runs: next });
 }
 
-export function reconcileZaicodeLiveRuns(tasks: readonly ZCodeTaskMeta[]): void {
+/**
+ * The sessions-index is a conflated low-frequency projection, so a claim can briefly sit
+ * ahead of it — that is the entire reason this hint exists (SRC-048). But it is a *hint*,
+ * never a claim that outlives the evidence: while the index has not been heard from at or
+ * after the claim, the hint is trusted only for this long, and then it expires. A dead
+ * runtime that never advances the session again therefore cannot pin the row as working
+ * until the next app restart (SRC-161:REQ-006).
+ */
+export const ZAICODE_LIVE_RUN_INDEX_GRACE_MS = 60 * 1000;
+
+/** How often the sidebar re-asks reconcileZaicodeLiveRuns while any hint is held (SRC-162). */
+export const ZAICODE_LIVE_RUN_RECONCILE_MS = 15 * 1000;
+
+export function reconcileZaicodeLiveRuns(
+  tasks: readonly ZCodeTaskMeta[],
+  now: number = Date.now(),
+): void {
   const { runs } = useZaicodeLiveRuns.getState();
-  let next = runs;
-  for (const task of tasks) {
-    const run = runs[task.taskId];
-    const activity = getTaskListRowActivity(task);
-    if (!run || !activity || isTaskListRowActive(task) || activity.lastActivityAt < run.since)
-      continue;
-    if (next === runs) next = { ...runs };
-    delete next[task.taskId];
+  if (Object.keys(runs).length === 0) return;
+  // An empty projection is "nothing observed", not "observed absent": never let a transient
+  // empty list wipe every hint.
+  if (tasks.length === 0) return;
+  const byId = new Map(tasks.map((task) => [task.taskId, task]));
+  let next: Record<string, ZaicodeLiveRun> | null = null;
+  for (const [sessionId, run] of Object.entries(runs)) {
+    const task = byId.get(sessionId);
+    const activity = task ? getTaskListRowActivity(task) : null;
+    // Once the index has been heard from for this session (lastActivityAt at or after the
+    // claim) it decides alone — agreement keeps the row working on the index's own evidence,
+    // disagreement clears the hint at once. Requiring `lastActivityAt < run.since` to *keep*
+    // the hint, as this did before, made "the runtime died right after the chat claimed a
+    // run" an unbounded exemption: nothing ever moved that timestamp again.
+    const keep =
+      activity && activity.lastActivityAt >= run.since
+        ? task !== undefined && isTaskListRowActive(task)
+        : now - run.since <= ZAICODE_LIVE_RUN_INDEX_GRACE_MS;
+    if (keep) continue;
+    next ??= { ...runs };
+    delete next[sessionId];
   }
-  if (next !== runs) useZaicodeLiveRuns.setState({ runs: next });
+  if (next) useZaicodeLiveRuns.setState({ runs: next });
 }
 
 /** Releasing a view lease must not publish a false stop. */

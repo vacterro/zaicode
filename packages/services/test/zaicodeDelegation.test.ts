@@ -54,6 +54,7 @@ async function harness() {
   return {
     dir,
     jobs,
+    jobRepo,
     finished,
     coordinator,
     tester,
@@ -144,6 +145,85 @@ test("a running coordinator delegates a linked child; depth, budget, roles and r
   }
 });
 
+/**
+ * T-243 / SRC-160:R003 — the helper budget is per RUN and its reservation is atomic.
+ * Six requests from one parent run race; exactly three helpers may exist, every
+ * refusal is `budget_exhausted`, and each child records the run that asked for it.
+ */
+test("T-243: six concurrent requests from one run create exactly the budget and refuse the rest", async () => {
+  const h = await harness();
+  try {
+    const parent = await h.startParent();
+    const runId = parent.runId!;
+    const results = await Promise.all(
+      Array.from({ length: 6 }, (_, index) =>
+        h.jobs.delegateFromRun({
+          parentJobId: parent.id,
+          runId,
+          request: { role: "tester", title: `Helper ${index}`, instructions: "Do the part." },
+        }),
+      ),
+    );
+    const created = results.filter((result) => result.ok);
+    const refused = results.filter((result) => !result.ok);
+    assert.equal(created.length, ZAICODE_DELEGATION_DEFAULT_POLICY.maxChildrenPerParent);
+    assert.equal(refused.length, 3);
+    assert.deepEqual([...new Set(refused.map((result) => (result.ok ? "ok" : result.reason)))], [
+      "budget_exhausted",
+    ]);
+    const children = await h.jobRepo.listChildren(parent.id);
+    assert.equal(children.length, ZAICODE_DELEGATION_DEFAULT_POLICY.maxChildrenPerParent);
+    assert.deepEqual([...new Set(children.map((child) => child.delegatedFromRunId))], [runId]);
+  } finally {
+    await h.dispose();
+  }
+});
+
+/**
+ * The same store fact, read directly: the durable count groups by the delegating run,
+ * so a new run of the same parent row starts at zero — the pre-T-243 count was the
+ * row's whole child history, which quietly handed a re-run fewer helpers than the
+ * contract promises. A child with a parent link and no delegating run (the
+ * orchestration probe) is never counted.
+ */
+test("T-243: the durable budget is scoped to the delegating run, not the parent row", async () => {
+  const h = await harness();
+  try {
+    const parent = await h.startParent();
+    const runId = parent.runId!;
+    const probe = await h.jobs.create({
+      workspaceKey: parent.workspaceKey,
+      workspacePath: parent.workspacePath,
+      agentId: h.tester.id,
+      title: "Orchestration probe",
+      instructions: "Linked, but not delegated by a run.",
+      parentJobId: parent.id,
+    });
+    assert.equal(probe.parentJobId, parent.id);
+    assert.equal(probe.delegatedFromRunId, undefined);
+    assert.equal(h.jobRepo.countDelegatedChildren(parent.id, runId), 0, "a probe child consumes no budget");
+
+    for (const title of ["One", "Two", "Three"]) {
+      const ok = await h.jobs.delegateFromRun({
+        parentJobId: parent.id,
+        runId,
+        request: { role: "tester", title, instructions: "Do it." },
+      });
+      assert.equal(ok.ok, true);
+      if (ok.ok) assert.equal(ok.child.delegatedFromRunId, runId, "the child carries the run that asked");
+    }
+    assert.equal(h.jobRepo.countDelegatedChildren(parent.id, runId), 3);
+    assert.equal(h.jobRepo.countDelegatedChildren(parent.id, "an-earlier-run"), 0, "another run's budget is its own");
+    assert.equal(
+      (await h.jobRepo.listChildren(parent.id)).length,
+      4,
+      "the probe child is still a child",
+    );
+  } finally {
+    await h.dispose();
+  }
+});
+
 test("only coordinator jobs may delegate, and only while running", async () => {
   const h = await harness();
   try {
@@ -208,7 +288,8 @@ test("a helper's final state reaches the parent's folder through the spool", asy
     assert.equal(outcome.childJobId, child.id);
     assert.equal(outcome.status, "completed");
   } finally {
-    spool.dispose();
+    // T-247: dispose() now fences in-flight scans, so it has to be awaited.
+    await spool.dispose();
     await h.dispose();
   }
 });

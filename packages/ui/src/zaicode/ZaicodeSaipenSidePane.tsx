@@ -20,6 +20,7 @@ import {
   type ZaicodeTicketOrder,
 } from "./zaicodeSaipenDetail.js";
 import { useZaicodeRunningSessions } from "./zaicodeSidebarPrefs.js";
+import { readZaicodeSetting } from "./zaicodeSettingsSnapshot.js";
 
 /**
  * SAIPEN live protocol view for the right side pane: STATE, BOARD and LOG of
@@ -44,7 +45,7 @@ const LOG_ORDER_KEY = "zaicode-saipen-log-order-v1";
 
 function readLogOrder(): ZaicodeLogOrder {
   try {
-    return localStorage.getItem(LOG_ORDER_KEY) === "newest-first" ? "newest-first" : "oldest-first";
+    return readZaicodeSetting(LOG_ORDER_KEY) === "newest-first" ? "newest-first" : "oldest-first";
   } catch {
     return "oldest-first";
   }
@@ -54,7 +55,7 @@ const TICKET_ORDER_KEY = "zaicode-saipen-ticket-order-v1";
 
 function readTicketOrder(): ZaicodeTicketOrder {
   try {
-    return localStorage.getItem(TICKET_ORDER_KEY) === "board" ? "board" : "number";
+    return readZaicodeSetting(TICKET_ORDER_KEY) === "board" ? "board" : "number";
   } catch {
     return "number";
   }
