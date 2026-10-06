@@ -23,6 +23,7 @@ import {
 import type { AttachmentRef, QueueState } from "@zcode/shared/zcode-protocol-v4";
 import { isZaicodeProductMode } from "@zcode/shared";
 import { ArrowUpFromLine, GripVertical, PaperclipIcon, PencilIcon, Trash2Icon } from "lucide-react";
+import { splitZaicodeAutoGoal } from "@/zaicode/zaicodeAutoGoal.js";
 import { ControlHintTooltip } from "@/ControlHintTooltip.js";
 import { Button } from "@/components/ui/button.js";
 import { cn } from "@/components/lib/utils.js";
@@ -168,6 +169,8 @@ const QueueRow = memo(function QueueRow({
   const dispatchLocked = item.dispatch.state !== "queued";
   const rowLocked = dispatchLocked || editPending;
   const isCompact = item.kind === "compact";
+  // SRC-163 (SRC-151:R006): the Auto-Goal suffix is not the queued prompt; show it as a mark.
+  const queueGoal = splitZaicodeAutoGoal(item.text);
   const {
     attributes,
     isDragging,
@@ -243,7 +246,12 @@ const QueueRow = memo(function QueueRow({
         )}
         title={item.text}
       >
-        <span className="truncate">{isCompact ? "/compact" : item.text}</span>
+        <span className="truncate">{isCompact ? "/compact" : queueGoal.body || (queueGoal.goal ? "" : item.text)}</span>
+        {queueGoal.goal ? (
+          <span data-zaicode-auto-goal-chip="true" className="shrink-0 text-ui-xs text-foreground-subtlest">
+            goal cc all
+          </span>
+        ) : null}
       </span>
       {onSendNow ? (
         <Button

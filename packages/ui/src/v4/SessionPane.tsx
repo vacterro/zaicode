@@ -149,6 +149,7 @@ import {
 } from "@/zaicode/zaicodeDefaultModel.js";
 import { useZaicodeAutoSessionTitle } from "@/zaicode/zaicodeAutoTitle.js";
 import { useZaicodeAutoRetry } from "@/zaicode/zaicodeAutoRetry.js";
+import { splitZaicodeAutoGoal } from "@/zaicode/zaicodeAutoGoal.js";
 import { useZaicodeQueueAutoResume } from "@/zaicode/zaicodeQueueAutoResume.js";
 import { zaicodeRunClock } from "@/zaicode/zaicodeRunClock.js";
 import { zaicodeRetryClassOf } from "@/zaicode/zaicodeRetryPolicy.js";
@@ -3373,7 +3374,8 @@ export function SessionPane({
           sessionId,
           workspaceKey,
           inputKind: restoreTarget.inputKind,
-          text: restoreTarget.text,
+          // SRC-163: the composer appends the Auto-Goal again on send; never show its suffix.
+          text: isZaicodeProductMode() ? splitZaicodeAutoGoal(restoreTarget.text).body : restoreTarget.text,
           attachments: restoreTarget.attachments,
           config: restoreTarget.config,
         });

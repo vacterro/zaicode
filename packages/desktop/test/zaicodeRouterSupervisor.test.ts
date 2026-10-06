@@ -94,3 +94,20 @@ test("quota and model failure behind a healthy API leave preferred ownership int
   assert.equal(h.attempts(), 0);
   assert.equal(h.supervisor.state.failure, null);
 });
+
+test("SRC-163: on the fallback the operator's own router is still restarted every few minutes, silently", async () => {
+  const { ZAICODE_ROUTER_FALLBACK_RECOVER_MS } = await import("../src/main/zaicodeRouterSupervisor.js");
+  const h = harness();
+  assert.equal(await h.supervisor.boundary(), "fallback");
+  assert.equal(h.attempts(), 10);
+  h.advance(30_000);
+  await h.supervisor.tick();
+  assert.equal(h.attempts(), 10, "the first fallback probe only arms the slow restart clock");
+  h.advance(ZAICODE_ROUTER_FALLBACK_RECOVER_MS);
+  await h.supervisor.tick();
+  assert.equal(h.attempts(), 11, "one silent restart after the interval");
+  h.advance(30_000);
+  await h.supervisor.tick();
+  assert.equal(h.attempts(), 11, "never more often than the interval");
+  assert.equal(h.supervisor.state.route, "fallback", "a restart never switches the route by itself");
+});

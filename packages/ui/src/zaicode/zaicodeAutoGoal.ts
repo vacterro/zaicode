@@ -80,3 +80,19 @@ export function withZaicodeAutoGoal(text: string, enabled: boolean): string {
   if (/(^|\s)\/goal\b/.test(body)) return text;
   return body ? `${body}\n${ZAICODE_AUTO_GOAL_SUFFIX}` : ZAICODE_AUTO_GOAL_SUFFIX;
 }
+
+/**
+ * The prompt as the operator should read it again (SRC-163 / SRC-151:R006). Auto-Goal is
+ * meant to be invisible, but the suffix travels inside the message body, so every surface
+ * that shows a sent or queued prompt -- the transcript bubble, the queue row, the inline
+ * edit draft -- strips the trailing goal line it appended and says "goal" instead. A queued
+ * screenshot with no text used to read as a bare "/goal cc all".
+ */
+export function splitZaicodeAutoGoal(text: string): { body: string; goal: boolean } {
+  const trimmed = text.replace(/\s+$/, "");
+  if (trimmed === ZAICODE_AUTO_GOAL_SUFFIX) return { body: "", goal: true };
+  const tail = `
+${ZAICODE_AUTO_GOAL_SUFFIX}`;
+  if (trimmed.endsWith(tail)) return { body: trimmed.slice(0, -tail.length), goal: true };
+  return { body: text, goal: false };
+}

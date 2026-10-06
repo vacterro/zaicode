@@ -24,6 +24,12 @@ interface Ports {
 const PROBE_MS = 30_000;
 const COOLDOWN_MS = 60_000;
 const RESET_BUDGET_MS = 10 * 60_000;
+/**
+ * SRC-163 (SRC-151:R014): while work runs on the fallback, the operator's own router is still
+ * restarted now and then, silently. Ten failed restarts used to be the last attempt for the
+ * life of the app: a router that crashed at night stayed dead until someone restarted ZAICODE.
+ */
+export const ZAICODE_ROUTER_FALLBACK_RECOVER_MS = 5 * 60_000;
 const initial = (): RouterSupervisorState => ({ version: 1, route: "preferred", status: "preferred", failure: null, attempts: 0, nextAttemptAt: 0, lastProbeAt: 0, healthyProbes: 0, cooldownUntil: 0, healthySince: null, pendingRecovery: false });
 
 export class ZaicodeRouterSupervisor {
@@ -32,6 +38,7 @@ export class ZaicodeRouterSupervisor {
   #tail: Promise<void> = Promise.resolve();
   #fallbackReady = false;
   #fallbackLastAttempt = -Infinity;
+  #fallbackRecoverAt: number | null = null;
   constructor(private readonly ports: Ports, saved?: RouterSupervisorState) {
     this.#state = saved?.version === 1 ? { ...initial(), ...saved, attempts: Math.min(10, Math.max(0, Math.floor(saved.attempts || 0))) } : initial();
     // 进程重启后不能把旧健康观测当作现在仍健康；预算和回退驻留时间保留。
@@ -86,6 +93,13 @@ export class ZaicodeRouterSupervisor {
     await this.#save({ failure: health, lastProbeAt: now, healthyProbes: 0, healthySince: null, pendingRecovery: true, status: this.#state.route === "fallback" ? this.#state.status : "preferred-unavailable" });
     if (this.#state.route === "fallback") {
       await this.#ensureFallback();
+      if (this.#fallbackRecoverAt === null) this.#fallbackRecoverAt = now + ZAICODE_ROUTER_FALLBACK_RECOVER_MS;
+      else if (now >= this.#fallbackRecoverAt) {
+        this.#fallbackRecoverAt = now + ZAICODE_ROUTER_FALLBACK_RECOVER_MS;
+        // No budget is spent and no route changes here: a router that comes back is picked up
+        // by the healthy probes and the boundary's own cooldown rule.
+        await this.ports.recover().catch(() => undefined);
+      }
       return;
     }
     if (this.#state.attempts < 10) {

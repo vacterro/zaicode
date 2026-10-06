@@ -124,6 +124,7 @@ import { ConversationHookDetailsAction } from "@/v4/ConversationHookDetailsActio
 import { formatModelChangeLabel } from "@/v4/composer/modelTriggerDisplay.js";
 import { formatMessageTimeLabel } from "@/v4/messageTimeLabel.js";
 import { parseConversationShareContext } from "@/lib/conversationShareContext.js";
+import { splitZaicodeAutoGoal, withZaicodeAutoGoal } from "@/zaicode/zaicodeAutoGoal.js";
 
 function RowShell({
   rowId,
@@ -875,6 +876,12 @@ const UserInputRowView = memo(function UserInputRowView({
     () => parseConversationShareContext(parsedPrompt.visibleContent),
     [parsedPrompt.visibleContent],
   );
+  // SRC-163 (SRC-151:R006): the Auto-Goal suffix rides in the body but is not the operator's
+  // text; show the prompt without it and mark the goal instead.
+  const zaicodeGoal = useMemo(
+    () => splitZaicodeAutoGoal(parsedShareContext.visibleContent),
+    [parsedShareContext.visibleContent],
+  );
   const [editing, setEditing] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [draft, setDraft] = useState(row.text);
@@ -907,7 +914,7 @@ const UserInputRowView = memo(function UserInputRowView({
       : intl.formatMessage({
           id: `chat.edit.resetConversationAndFiles.${editWorkspaceRewindAvailability?.reason ?? "noFiles"}`,
         });
-  const visibleText = parsedShareContext.visibleContent;
+  const visibleText = zaicodeGoal.body;
   const codeCommentContexts = parsedPrompt.codeComments;
   const webElementContexts = parsedPrompt.webElements;
   const pptxElementReferences = parsedPrompt.pptxElements;
@@ -924,7 +931,7 @@ const UserInputRowView = memo(function UserInputRowView({
     ) ?? false;
   const hasVisibleText = visibleText.trim().length > 0;
   // nudge 轮整条都是引擎文本：正文为空但气泡仍要画，里面只有那一枚披露。
-  const hasBubble = hasVisibleText || epilogue !== undefined;
+  const hasBubble = hasVisibleText || epilogue !== undefined || zaicodeGoal.goal;
   const hasContextReferences =
     codeCommentContexts.length > 0 ||
     webElementContexts.length > 0 ||
@@ -941,7 +948,7 @@ const UserInputRowView = memo(function UserInputRowView({
 
   useEffect(() => {
     if (!editing) {
-      setDraft(parsedShareContext.visibleContent);
+      setDraft(zaicodeGoal.body);
       setEditAttachments([...(row.attachments ?? [])]);
       setEditAttachmentIndices((row.attachments ?? []).map((_, index) => index));
       setEditPromptContexts(parsedPrompt);
@@ -965,20 +972,20 @@ const UserInputRowView = memo(function UserInputRowView({
   const handleOpenEdit = useCallback(() => {
     // v4 迁移时把 user query 编辑误接成“直接读取主 composer 提交”，
     // 主 composer 为空时点击只会 warn。这里恢复旧行内编辑态。
-    setDraft(parsedShareContext.visibleContent);
+    setDraft(zaicodeGoal.body);
     setEditAttachments([...(row.attachments ?? [])]);
     setEditAttachmentIndices((row.attachments ?? []).map((_, index) => index));
     setEditPromptContexts(parsedPrompt);
     setEditing(true);
-  }, [parsedPrompt, parsedShareContext, row.attachments]);
+  }, [parsedPrompt, zaicodeGoal, row.attachments]);
 
   const handleCancelEdit = useCallback(() => {
-    setDraft(parsedShareContext.visibleContent);
+    setDraft(zaicodeGoal.body);
     setEditAttachments([...(row.attachments ?? [])]);
     setEditAttachmentIndices((row.attachments ?? []).map((_, index) => index));
     setEditPromptContexts(parsedPrompt);
     setEditing(false);
-  }, [parsedPrompt, parsedShareContext, row.attachments]);
+  }, [parsedPrompt, zaicodeGoal, row.attachments]);
 
   const handleRemoveEditAttachment = useCallback((index: number) => {
     setEditAttachments((current) => current.filter((_, itemIndex) => itemIndex !== index));
@@ -994,7 +1001,10 @@ const UserInputRowView = memo(function UserInputRowView({
         const result = await onEdit(
           { rowId: row.rowId, entityId: row.entityId! },
           // 不再回写 share URL 尾块：它没有任何消费者，编辑历史消息时顺手清掉。
-          serializeComposerPromptContexts(nextText, editPromptContexts),
+          serializeComposerPromptContexts(
+            zaicodeGoal.goal ? withZaicodeAutoGoal(nextText, true) : nextText,
+            editPromptContexts,
+          ),
           // 省略空数组会让 CLI 按 attachments 缺省语义恢复 canonical 原附件，
           // 因此 edit 必须始终提交当前完整列表，显式 [] 才能表达“删除全部”。
           editAttachments,
@@ -1019,7 +1029,7 @@ const UserInputRowView = memo(function UserInputRowView({
         setSubmitting(false);
       }
     },
-    [editAttachments, editContextCount, editPromptContexts, onEdit, row.entityId, row.rowId],
+    [editAttachments, editContextCount, editPromptContexts, onEdit, row.entityId, row.rowId, zaicodeGoal.goal],
   );
   const rewindWorkspaceDisabled = submitting || editWorkspaceRewindAvailability?.enabled !== true;
   const rewindWorkspaceButton = (
@@ -1263,6 +1273,15 @@ const UserInputRowView = memo(function UserInputRowView({
             </ConversationUserInputBody>
           ) : null}
           {epilogue === undefined ? null : <ConversationUserInputEpilogue text={epilogue} />}
+          {zaicodeGoal.goal ? (
+            <span
+              data-zaicode-auto-goal-chip="true"
+              className="self-end text-ui-xs text-foreground-subtlest"
+              title="Auto-Goal: /goal cc all was sent with this prompt"
+            >
+              goal cc all
+            </span>
+          ) : null}
         </div>
       ) : null}
       {status ? (
