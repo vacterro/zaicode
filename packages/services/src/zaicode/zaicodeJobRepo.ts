@@ -18,6 +18,7 @@ import {
   type ZaicodeJobDiagnostic,
   type ZaicodeJobListFilter,
   type ZaicodeJobListResult,
+  type ZaicodeHomeQueueOverview,
   type ZaicodeJobTerminalStatus,
   type ZaicodeJobStatus,
 } from "@zcode/shared";
@@ -269,6 +270,83 @@ export class ZaicodeJobRepo {
   }
 
   // ---- 读取 ----
+
+  // T-254 — 首页不读取终结历史的 JSON；原始状态计数和窗口必须处于同一只读快照，
+  // 否则另一连接恰好完成任务时会混出“已完成计数 + 仍运行卡片”。事务内部不能 await。
+  async getHomeOverview(params: {
+    dayStart: number;
+    now: number;
+    recentLimit: number;
+  }): Promise<ZaicodeHomeQueueOverview> {
+    const database = this.getDatabase();
+    database.exec("BEGIN");
+    try {
+      const recent = database
+        .prepare(`SELECT * FROM zaicode_jobs
+        ORDER BY created_at DESC, sort_order DESC, job_id DESC LIMIT @limit`)
+        .all({ limit: params.recentLimit }) as unknown as ZaicodeJobRow[];
+      const open = database
+        .prepare(`SELECT * FROM zaicode_jobs INDEXED BY idx_zaicode_jobs_open
+        WHERE status IN (${OPEN_STATUS_SQL})`)
+        .all() as unknown as ZaicodeJobRow[];
+      const outcomes = database
+        .prepare(`SELECT
+        COALESCE(SUM(CASE WHEN status='completed' AND finished_at>=@dayStart THEN 1 ELSE 0 END),0) AS doneToday,
+        COALESCE(SUM(CASE WHEN status='failed' AND finished_at>=@dayStart THEN 1 ELSE 0 END),0) AS failedToday,
+        COALESCE(SUM(CASE WHEN status='completed' AND finished_at>@rollingStart THEN 1 ELSE 0 END),0) AS doneLast24h
+        FROM zaicode_jobs WHERE status IN ('completed','failed')
+          AND finished_at>=@earliest AND finished_at<=@latestFinite`)
+        .get({
+          dayStart: params.dayStart,
+          rollingStart: params.now - 86_400_000,
+          earliest: Math.min(params.dayStart, params.now - 86_400_000),
+          // SQLite 的 TEXT/BLOB 排在数值之后；有限上界同时排除松散类型和 Infinity 损坏。
+          latestFinite: Number.MAX_VALUE,
+        }) as {
+        doneToday: number;
+        failedToday: number;
+        doneLast24h: number;
+      };
+      const counts = {
+        running: 0,
+        ready: 0,
+        waiting: 0,
+        blocked: 0,
+        doneToday: outcomes.doneToday,
+        failedToday: outcomes.failedToday,
+      };
+      for (const row of open) {
+        if (row.status === "running") counts.running += 1;
+        else if (row.status === "queued" || row.status === "ready") counts.ready += 1;
+        else if (row.status === "waiting" || row.status === "draft") counts.waiting += 1;
+        else if (row.status === "blocked") counts.blocked += 1;
+      }
+      const merged = new Map<string, ZaicodeJobRow>();
+      for (const row of [...recent, ...open]) merged.set(row.job_id, row);
+      const ordered = [...merged.values()].sort(
+        (a, b) =>
+          a.created_at - b.created_at ||
+          a.sort_order - b.sort_order ||
+          Buffer.compare(Buffer.from(a.job_id), Buffer.from(b.job_id)),
+      );
+      const result = toListResult(ordered);
+      database.exec("COMMIT");
+      return {
+        ...result,
+        counts,
+        doneLast24h: outcomes.doneLast24h,
+        dayStart: params.dayStart,
+        capturedAt: params.now,
+      };
+    } catch (error) {
+      try {
+        if (database.isTransaction) database.exec("ROLLBACK");
+      } catch {
+        /* 保留原始读取异常。 */
+      }
+      throw error;
+    }
+  }
 
   async list(filter: ZaicodeJobListFilter = {}): Promise<ZaicodeJobListResult> {
     const conditions: string[] = [];

@@ -45,7 +45,6 @@ import { refreshZaicodeHome, useZaicodeHomeFeed, useZaicodeHomeFeedRefresh } fro
 import {
   zaicodeHomeActionItems,
   zaicodeHomeLimitRows,
-  zaicodeHomeQueueCounts,
   zaicodeHomeRouting,
   zaicodeStartOfToday,
   type ZaicodeHomeTruth,
@@ -151,7 +150,6 @@ export function ZaicodeHomePage({
   onOpenProject: (workspacePath: string, workspaceIdentity?: string) => void;
   onNewTask: () => void;
 }) {
-  useZaicodeHomeFeedRefresh();
   const prefs = useZaicodeHomePrefs();
   const [editing, setEditing] = useState(false);
   // SRC-061: drag a card by its title onto another card to move it.
@@ -160,6 +158,7 @@ export function ZaicodeHomePage({
   const [drop, setDrop] = useState<{ id: string; where: "before" | "after" } | null>(null);
   const [showAllLimits, setShowAllLimits] = useState(false);
   const now = useZaicodeClock(30_000);
+  useZaicodeHomeFeedRefresh(zaicodeStartOfToday(now));
   const projects = useZaicodeHomeProjectInputs();
   const projectRows = Object.values(useZaicodeHomeProjects((state) => state.rows)).filter((row) => projects.some((project) => project.key === row.key));
   const engines = useZaicodeEngines();
@@ -209,7 +208,8 @@ export function ZaicodeHomePage({
     statsError: feed.stats.error,
     statsEventCount: stats?.eventCount ?? null,
   });
-  const queue = zaicodeHomeQueueCounts(feed.jobs.value, zaicodeStartOfToday(now));
+  const overview = feed.jobs.value;
+  const queue = overview?.dayStart === zaicodeStartOfToday(now) ? overview.counts : null;
   const nextResetRow = limits.rows
     .filter((row) => row.nextResetAt !== null)
     .sort((left, right) => left.nextResetAt! - right.nextResetAt!)[0];
@@ -246,8 +246,8 @@ export function ZaicodeHomePage({
               queue,
               today: {
                 tokens: stats ? stats.periods.today.tokens : null,
-                jobsDone: stats ? stats.periods.today.jobsDone : null,
-                jobsFailed: stats ? stats.periods.today.jobsFailed : null,
+                jobsDone: queue?.doneToday ?? null,
+                jobsFailed: queue?.failedToday ?? null,
                 agentMs: stats ? stats.periods.today.agentMs : null,
                 truth: statsTruth,
               },
@@ -276,7 +276,7 @@ export function ZaicodeHomePage({
           />
         );
       case "agents":
-        return <ZaicodeHomeAgents sessions={sessions} waiting={waiting} workers={workers} jobs={feed.jobs.value} now={now} />;
+        return <ZaicodeHomeAgents sessions={sessions} waiting={waiting} workers={workers} overview={overview} now={now} />;
       case "streak":
         return stats && stats.eventCount > 0 ? <ZaicodeHomeStreak stats={stats} /> : null;
       case "routing":

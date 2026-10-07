@@ -3,11 +3,16 @@ import { create } from "zustand";
 import type { IServiceAccessor } from "@zcode/services";
 import { useOptionalBaseWorkspaceServices } from "@/hooks/useWorkspaceServices.js";
 import { logger } from "@/logger.js";
-import type { ZaicodeHomeStats, ZaicodeJob, ZaicodeStatsActivity } from "@zcode/shared";
+import type {
+  ZaicodeHomeStats,
+  ZaicodeHomeQueueOverview,
+  ZaicodeStatsActivity,
+} from "@zcode/shared";
 import { useZaicodeWorkers } from "../zaicodeWorkers.js";
 import { refreshZaicodeRouterHost } from "../zaicodeRouterSetup.js";
 import { useZaicodeRouter } from "../zaicodeRouter.js";
 import { readZaicodeHomePrefs } from "./zaicodeHomePrefs.js";
+import { zaicodeStartOfToday } from "./zaicodeHomeModel.js";
 import { ZaicodeWorkerStatsRecorder } from "./zaicodeWorkerStatsRecorder.js";
 export { zaicodeWorkerSession } from "./zaicodeWorkerStatsRecorder.js";
 
@@ -24,7 +29,7 @@ interface ZaicodeHomeFeedState {
   stats: Feed<ZaicodeHomeStats | null>;
   activity: Feed<ZaicodeStatsActivity[]>;
   /** Every workspace's queue rows (the queue service owns them). */
-  jobs: Feed<ZaicodeJob[] | null>;
+  jobs: Feed<ZaicodeHomeQueueOverview | null>;
   refreshing: boolean;
   lastRefreshAt: number | null;
 }
@@ -116,10 +121,10 @@ export function refreshZaicodeHome(): Promise<void> {
     if (jobService) {
       tasks.push(
         jobService
-          .list({})
+          .getHomeOverview(zaicodeStartOfToday(now))
           .then((result) =>
             useZaicodeHomeFeed.setState({
-              jobs: { value: result.jobs, readAt: Date.now(), error: null },
+              jobs: { value: result, readAt: Date.now(), error: null },
             }),
           )
           .catch((error: unknown) =>
@@ -153,14 +158,15 @@ export function refreshZaicodeHome(): Promise<void> {
  * hidden. The page brings its own base services: SAIHOME is the first view
  * after a start, so it must not wait for another component to publish them.
  */
-export function useZaicodeHomeFeedRefresh(): void {
+export function useZaicodeHomeFeedRefresh(dayStart: number): void {
   const baseServices = useOptionalBaseWorkspaceServices();
   useEffect(() => {
     if (baseServices) publishZaicodeHomeServices(baseServices);
   }, [baseServices]);
   useEffect(() => {
     if (baseServices) void refreshZaicodeHome();
-  }, [baseServices]);
+    // T-254 — 午夜变化复用现有刷新；失败仍由原定时器重试，不能形成立即重试循环。
+  }, [baseServices, dayStart]);
   useEffect(() => {
     let timer: number | null = null;
     const schedule = () => {

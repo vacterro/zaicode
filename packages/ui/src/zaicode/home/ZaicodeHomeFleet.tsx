@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { create } from "zustand";
-import { formatZaicodeDuration, type ZaicodeJob, type ZaicodeProjectRuntimeState } from "@zcode/shared";
+import { formatZaicodeDuration, type ZaicodeHomeQueueOverview, type ZaicodeProjectRuntimeState } from "@zcode/shared";
 import { cn } from "@/components/lib/utils.js";
 import { useTabStore } from "@/store/TabStoreProvider.js";
 import { isWorkspaceTab } from "@/store/tabStore.js";
@@ -284,22 +284,22 @@ export function ZaicodeHomeAgents({
   sessions,
   waiting,
   workers,
-  jobs,
+  overview,
   now,
 }: {
   sessions: readonly ZaicodeRunningSession[];
   waiting: readonly ZaicodeSessionRef[];
   workers: readonly ZaicodeWorker[];
-  jobs: readonly ZaicodeJob[] | null;
+  overview: ZaicodeHomeQueueOverview | null;
   now: number;
 }) {
   const runningWorkers = workers.filter((worker) => worker.exitCode === null && worker.kind === "worker");
-  const runningJobs = (jobs ?? []).filter((job) => job.status === "running");
-  const blockedJobs = (jobs ?? []).filter((job) => job.status === "blocked").length;
-  const readyJobs = (jobs ?? []).filter((job) => job.status === "queued" || job.status === "ready").length;
-  const recent = (jobs ?? []).filter((job) => job.status === "completed" && job.finishedAt !== undefined && now - job.finishedAt < 86_400_000).length;
+  const runningJobs = (overview?.jobs ?? []).filter((job) => job.status === "running");
+  const blockedJobs = overview?.counts.blocked ?? 0;
+  const readyJobs = overview?.counts.ready ?? 0;
+  const recent = overview?.doneLast24h ?? 0;
   const summary = [
-    `${sessions.length + runningWorkers.length + runningJobs.length} running`,
+    `${sessions.length + runningWorkers.length + (overview?.counts.running ?? 0)} running`,
     waiting.length ? `${waiting.length} waiting` : "",
     readyJobs ? `${readyJobs} queued` : "",
     blockedJobs ? `${blockedJobs} blocked` : "",
@@ -311,7 +311,7 @@ export function ZaicodeHomeAgents({
   return (
     <ZaicodeHomeCard title="Agents" widget="agents" right={summary} onOpen={() => void openZaicodeWorkspaceView()} openLabel="Open the ZAICODE workspace">
       {empty ? (
-        <span className="text-foreground-subtle">Nothing runs right now.</span>
+        <span className="text-foreground-subtle">{overview?.diagnostics.length ? "Queue data needs attention." : "Nothing runs right now."}</span>
       ) : (
         <ul className="flex max-h-[260px] flex-col gap-0.5 overflow-y-auto">
           {waiting.map((session) => (

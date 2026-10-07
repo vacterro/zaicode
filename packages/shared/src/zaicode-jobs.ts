@@ -175,6 +175,26 @@ export interface ZaicodeJobListResult {
   diagnostics: ZaicodeJobDiagnostic[];
 }
 
+/** SAIHOME counts are durable status/time facts, not a count of a truncated job window. */
+export interface ZaicodeHomeQueueCounts {
+  running: number;
+  ready: number;
+  waiting: number;
+  blocked: number;
+  doneToday: number;
+  failedToday: number;
+}
+
+/** T-254: one local-host queue overview; current work plus a bounded recent tail. */
+export interface ZaicodeHomeQueueOverview extends ZaicodeJobListResult {
+  /** Durable status/time facts; malformed selected metadata is reported in diagnostics. */
+  counts: ZaicodeHomeQueueCounts;
+  /** Completed strictly within the preceding 24 hours at host capturedAt. */
+  doneLast24h: number;
+  dayStart: number;
+  capturedAt: number;
+}
+
 /**
  * Hit and go (SRC-038): an agent's task that is empty runs this -- continue
  * the SAIPEN board until only human work is left.
@@ -183,9 +203,39 @@ export const ZAICODE_HIT_AND_GO_PROMPT = "/goal cc all";
 
 /** Bare SAIPEN shortcuts (and their Cyrillic twins) that are commands, not task text. */
 const ZAICODE_BARE_SHORTCUTS = new Set([
-  "cc", "ccc", "сс", "ссс", "sss", "st", "tt", "hh", "aa", "аа", "zz", "gg", "ff", "xx", "vv", "qq", "qqq",
-  "ee", "еее", "ее", "pp", "рр", "хх", "dd", "sc", "saipen", "saipen continue",
-  "saiwiki", "saitranslate", "saitest", "saihunt", "saipen clean", "saipen crew",
+  "cc",
+  "ccc",
+  "сс",
+  "ссс",
+  "sss",
+  "st",
+  "tt",
+  "hh",
+  "aa",
+  "аа",
+  "zz",
+  "gg",
+  "ff",
+  "xx",
+  "vv",
+  "qq",
+  "qqq",
+  "ee",
+  "еее",
+  "ее",
+  "pp",
+  "рр",
+  "хх",
+  "dd",
+  "sc",
+  "saipen",
+  "saipen continue",
+  "saiwiki",
+  "saitranslate",
+  "saitest",
+  "saihunt",
+  "saipen clean",
+  "saipen crew",
 ]);
 
 /**

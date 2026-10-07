@@ -19,6 +19,7 @@ import {
   type ZaicodeJobCreateInput,
   type ZaicodeJobListFilter,
   type ZaicodeJobListResult,
+  type ZaicodeHomeQueueOverview,
   type ZaicodeJobUpdatePatch,
   type ZaicodeDelegationPolicy,
 } from "@zcode/shared";
@@ -160,6 +161,23 @@ export class ZaicodeJobService implements IZaicodeJobService {
   async list(filter: ZaicodeJobListFilter = {}): Promise<ZaicodeJobListResult> {
     await this.ensureRepoReady();
     return this.deps.repo.list(filter);
+  }
+
+  async getHomeOverview(dayStart: number, recentLimit = 20): Promise<ZaicodeHomeQueueOverview> {
+    await this.ensureRepoReady();
+    const now = this.now();
+    if (
+      !Number.isFinite(dayStart) ||
+      dayStart < 0 ||
+      dayStart > now ||
+      now - dayStart > 26 * 3_600_000
+    ) {
+      throw new Error("Invalid home dayStart: expected local midnight within the last 26 hours.");
+    }
+    const limit = Number.isFinite(recentLimit)
+      ? Math.min(200, Math.max(1, Math.trunc(recentLimit)))
+      : 20;
+    return this.deps.repo.getHomeOverview({ dayStart, now, recentLimit: limit });
   }
 
   async get(jobId: string): Promise<ZaicodeJob | null> {

@@ -6,6 +6,7 @@ import type {
   ZaicodeJobCreateInput,
   ZaicodeJobListFilter,
   ZaicodeJobListResult,
+  ZaicodeHomeQueueOverview,
   ZaicodeJobUpdatePatch,
   ZaicodeDelegationPolicy,
   ZaicodeDelegationRefusal,
@@ -47,6 +48,8 @@ export interface ZaicodeJobRunOutcomeInput {
 export interface IZaicodeJobService {
   /** 按过滤条件列出任务；损坏的持久化行以 diagnostics 返回。 */
   list(filter?: ZaicodeJobListFilter): Promise<ZaicodeJobListResult>;
+  /** Local SAIHOME: exact aggregate counts plus all open jobs and a bounded recent tail. */
+  getHomeOverview(dayStart: number, recentLimit?: number): Promise<ZaicodeHomeQueueOverview>;
   get(jobId: string): Promise<ZaicodeJob | null>;
   /** 创建即入队（默认 queued；draft 表示尚未准入）；不自动派发。 */
   create(input: ZaicodeJobCreateInput): Promise<ZaicodeJob>;

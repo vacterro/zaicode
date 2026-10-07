@@ -28,6 +28,7 @@ function createUnavailableZaicodeAgentService(): IZaicodeAgentService {
 function createUnavailableZaicodeJobService(): IZaicodeJobService {
   return {
     list: rejectZaicodeRemoteCall,
+    getHomeOverview: rejectZaicodeRemoteCall,
     get: rejectZaicodeRemoteCall,
     create: rejectZaicodeRemoteCall,
     update: rejectZaicodeRemoteCall,
