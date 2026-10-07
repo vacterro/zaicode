@@ -1,0 +1,554 @@
+{
+  "at": "2026-10-07T02:52:17.629Z",
+  "driver": "surface-drive.cjs (T-251: SRC-151 items whose acceptance is visible/runtime)",
+  "executablePath": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\dist-next\\win-unpacked\\ZAICODE.exe",
+  "profile": "V:\\_TEMP_\\zaicode-t251s-970Psb",
+  "checks": [
+    {
+      "name": "R038: a project click lands on a usable surface (session pane or live draft), never a dead window",
+      "pass": true,
+      "detail": {
+        "paneSessionId": "draft",
+        "composerVisible": true,
+        "activeElement": "v4-composer-input"
+      }
+    },
+    {
+      "name": "the composer admitted a submission (precondition for the surface items)",
+      "pass": true,
+      "detail": {
+        "options": 2
+      }
+    },
+    {
+      "name": "a real session row exists for the surface items (turn answered)",
+      "pass": true
+    },
+    {
+      "name": "R017: the sidebar toggle both hides the pane and brings it back on the next click",
+      "pass": true,
+      "detail": {
+        "HIDDEN_PX": 40,
+        "before": {
+          "togglePresent": true,
+          "ariaExpanded": "true",
+          "paneFound": true,
+          "paneWidth": 264
+        },
+        "afterFirst": {
+          "togglePresent": true,
+          "ariaExpanded": "false",
+          "paneFound": true,
+          "paneWidth": 4
+        },
+        "afterSecond": {
+          "togglePresent": true,
+          "ariaExpanded": "true",
+          "paneFound": true,
+          "paneWidth": 264
+        }
+      }
+    },
+    {
+      "name": "R016: the archive notice keeps its own bounded row and never covers the sidebar",
+      "pass": true,
+      "detail": {
+        "notice": {
+          "left": 269,
+          "top": 53,
+          "width": 1006,
+          "height": 32
+        },
+        "sidebar": {
+          "left": 0,
+          "right": 264,
+          "width": 264
+        },
+        "overlapsSidebar": false,
+        "position": "relative",
+        "text": "Archived 1 session in hunt-project — Ctrl+Z restoresUndo×"
+      }
+    },
+    {
+      "name": "R027: the low-priority extras are folded by default (SAIASUI does not greet the operator)",
+      "pass": true,
+      "detail": {
+        "settingsOpen": 1,
+        "settingsLineFound": 1,
+        "foldStates": [
+          "closed"
+        ],
+        "saiasuiVisible": false,
+        "topRows": [
+          "General",
+          "Appearance",
+          "Model settings",
+          "Browser Use",
+          "Keyboard Shortcuts",
+          "ZAICODE"
+        ],
+        "sections": 32
+      }
+    },
+    {
+      "name": "R022: the presentation picker offers the non-bevel variants and switching one really repaints",
+      "pass": true,
+      "detail": {
+        "presets": [
+          "classic",
+          "simple-boxes",
+          "flat",
+          "minimal"
+        ],
+        "repaint": {
+          "classic": {
+            "root": "classic",
+            "boxShadow": "rgb(16, 14, 8) 1px 1px 0px 0px inset, rgb(117, 102, 61) -1px -1px 0px 0px inset, color(srgb 0.0627451 0.054902 0.0313726 / 0.6) 2px 2px 0px 0px inset, color(srgb 0.458824 0.4 0.239216 / 0.55) -2px -2px 0px 0px inset",
+            "borderRadius": "0px"
+          },
+          "flat": {
+            "root": "flat",
+            "boxShadow": "none",
+            "borderRadius": "0px"
+          },
+          "restored": {
+            "root": "classic",
+            "boxShadow": "rgb(16, 14, 8) 1px 1px 0px 0px inset, rgb(117, 102, 61) -1px -1px 0px 0px inset, color(srgb 0.0627451 0.054902 0.0313726 / 0.6) 2px 2px 0px 0px inset, color(srgb 0.458824 0.4 0.239216 / 0.55) -2px -2px 0px 0px inset",
+            "borderRadius": "0px"
+          }
+        },
+        "presetsSection": {
+          "index": 15,
+          "id": "settings-section-nav-zaicodeColors",
+          "presets": 4,
+          "ranges": 4
+        },
+        "walked": [
+          {
+            "index": 0,
+            "id": "settings-section-nav-general",
+            "presets": 0,
+            "ranges": 0
+          },
+          {
+            "index": 1,
+            "id": "settings-section-nav-appearance",
+            "presets": 0,
+            "ranges": 0
+          },
+          {
+            "index": 2,
+            "id": "settings-section-nav-modelProvider",
+            "presets": 0,
+            "ranges": 0
+          },
+          {
+            "index": 3,
+            "id": "settings-section-nav-browser",
+            "presets": 0,
+            "ranges": 0
+          },
+          {
+            "index": 4,
+            "id": "settings-section-nav-shortcuts",
+            "presets": 0,
+            "ranges": 0
+          },
+          {
+            "index": 5,
+            "id": "settings-section-nav-zaicode",
+            "presets": 0,
+            "ranges": 37
+          },
+          {
+            "index": 6,
+            "id": "settings-section-nav-zaicodeSidebar",
+            "presets": 0,
+            "ranges": 0
+          },
+          {
+            "index": 7,
+            "id": "settings-section-nav-zaicodeLayout",
+            "presets": 0,
+            "ranges": 0
+          },
+          {
+            "index": 8,
+            "id": "settings-section-nav-zaicodeEngines",
+            "presets": 0,
+            "ranges": 0
+          },
+          {
+            "index": 9,
+            "id": "settings-section-nav-zaicodeRouter",
+            "presets": 0,
+            "ranges": 0
+          },
+          {
+            "index": 10,
+            "id": "settings-section-nav-zaicodeWorkers",
+            "presets": 0,
+            "ranges": 0
+          },
+          {
+            "index": 11,
+            "id": "settings-section-nav-zaicodeTimers",
+            "presets": 0,
+            "ranges": 0
+          },
+          {
+            "index": 12,
+            "id": "settings-section-nav-zaicodeHelp",
+            "presets": 0,
+            "ranges": 0
+          },
+          {
+            "index": 13,
+            "id": "settings-section-nav-zaicodeSounds",
+            "presets": 0,
+            "ranges": 109
+          },
+          {
+            "index": 14,
+            "id": "settings-section-nav-zaicodeNotifications",
+            "presets": 0,
+            "ranges": 0
+          },
+          {
+            "index": 15,
+            "id": "settings-section-nav-zaicodeColors",
+            "presets": 4,
+            "ranges": 4
+          }
+        ]
+      }
+    },
+    {
+      "name": "R034: range sliders take the palette tint and a dark color-scheme, never a white native control",
+      "pass": true,
+      "detail": {
+        "rangeCount": 37,
+        "accentColor": "rgb(240, 208, 96)",
+        "colorScheme": "dark",
+        "rootColorScheme": "dark"
+      }
+    },
+    {
+      "name": "R030: the settings search filters the section list and Enter jumps into the hit",
+      "pass": true,
+      "detail": {
+        "searchPresent": 1,
+        "searchBefore": 27,
+        "searchAfter": 1,
+        "jumped": "Usage stats"
+      }
+    },
+    {
+      "name": "R028: the usage meter offers 10/5/3/2/1s live refresh, keeps a resizable name column and has no bare Done word",
+      "pass": true,
+      "detail": {
+        "viewPresent": true,
+        "usageMode": "page",
+        "refreshLabel": "Live refresh interval",
+        "options": [
+          "10",
+          "5",
+          "3",
+          "2",
+          "1"
+        ],
+        "resizeHandle": true,
+        "doneCells": 0
+      }
+    },
+    {
+      "name": "R031: the WORKERS panel controls react (layout flip and collapse flip both take effect)",
+      "pass": true,
+      "detail": {
+        "workersOpen": true,
+        "workersLineFound": 1,
+        "leftSettingsForWorkers": true,
+        "pressErrors": {},
+        "beforeAttrs": {
+          "layout": "split",
+          "collapsed": "false",
+          "buttons": 11,
+          "onScreen": [
+            "Split: all docked workers side by side",
+            "Tabs: one worker at a time",
+            "Split direction: stacked (click to chang",
+            "Even: share the panel equally",
+            "Docked: Right side (vertical) · click: L",
+            "Redraw: repaint the workers' screens (fi",
+            "New shell in this project",
+            "Workers settings",
+            "Maximize the panel",
+            "Collapse the panel (workers keep running",
+            "open a shell in this project"
+          ],
+          "covered": [],
+          "outside": [],
+          "unlabelled": [],
+          "box": {
+            "l": 827,
+            "t": 4,
+            "w": 449,
+            "h": 952
+          },
+          "viewport": {
+            "w": 1280,
+            "h": 960
+          }
+        },
+        "afterAttrs": {
+          "layout": "split",
+          "collapsed": "false",
+          "buttons": 11,
+          "onScreen": [
+            "Split: all docked workers side by side",
+            "Tabs: one worker at a time",
+            "Split direction: stacked (click to chang",
+            "Even: share the panel equally",
+            "Docked: Right side (vertical) · click: L",
+            "Redraw: repaint the workers' screens (fi",
+            "New shell in this project",
+            "Workers settings",
+            "Restore the panel size",
+            "Collapse the panel (workers keep running",
+            "open a shell in this project"
+          ],
+          "covered": [],
+          "outside": [],
+          "unlabelled": [],
+          "box": {
+            "l": 428,
+            "t": 4,
+            "w": 848,
+            "h": 952
+          },
+          "viewport": {
+            "w": 1280,
+            "h": 960
+          }
+        },
+        "tabsFlip": "tabs",
+        "collapseFlip": "true",
+        "maximizeBack": "false",
+        "overlapProbe": {
+          "viewport": {
+            "w": 1280,
+            "h": 960
+          },
+          "panel": {
+            "tag": "DIV",
+            "label": "WORKERS0 runningNo worker is docked here.Double-click an eng",
+            "rect": {
+              "l": 428,
+              "t": 4,
+              "w": 848,
+              "h": 952
+            },
+            "z": "auto",
+            "position": "relative",
+            "pointerEvents": "auto",
+            "appRegion": "none",
+            "path": [
+              "div[workers-panel]",
+              "div",
+              "div",
+              "div",
+              "div",
+              "div",
+              "div"
+            ]
+          },
+          "reachable": 11,
+          "unreachable": [],
+          "usageTool": {
+            "button": {
+              "tag": "BUTTON",
+              "label": "9router Usage · right-click: sidebar",
+              "rect": {
+                "l": 190,
+                "t": 914,
+                "w": 28,
+                "h": 28
+              },
+              "z": "auto",
+              "position": "static",
+              "pointerEvents": "auto",
+              "appRegion": "no-drag",
+              "path": [
+                "button",
+                "div",
+                "div",
+                "div",
+                "div",
+                "footer",
+                "div"
+              ]
+            },
+            "hit": {
+              "tag": "BUTTON",
+              "label": "9router Usage · right-click: sidebar",
+              "rect": {
+                "l": 190,
+                "t": 914,
+                "w": 28,
+                "h": 28
+              },
+              "z": "auto",
+              "position": "static",
+              "pointerEvents": "auto",
+              "appRegion": "no-drag",
+              "path": [
+                "button",
+                "div",
+                "div",
+                "div",
+                "div",
+                "footer",
+                "div"
+              ]
+            }
+          },
+          "dragRegions": [
+            {
+              "tag": "HTML",
+              "label": "ZAICODE\n    \n      html,\n      body,\n      #root {\n        m",
+              "rect": {
+                "l": 0,
+                "t": 0,
+                "w": 1280,
+                "h": 960
+              },
+              "z": "auto",
+              "position": "static",
+              "pointerEvents": "auto",
+              "appRegion": "none",
+              "path": [
+                "html"
+              ]
+            },
+            {
+              "tag": "HEAD",
+              "label": "ZAICODE\n    \n      html,\n      body,\n      #root {\n        m",
+              "rect": {
+                "l": 0,
+                "t": 0,
+                "w": 0,
+                "h": 0
+              },
+              "z": "auto",
+              "position": "static",
+              "pointerEvents": "auto",
+              "appRegion": "none",
+              "path": [
+                "head",
+                "html"
+              ]
+            },
+            {
+              "tag": "META",
+              "label": "",
+              "rect": {
+                "l": 0,
+                "t": 0,
+                "w": 0,
+                "h": 0
+              },
+              "z": "auto",
+              "position": "static",
+              "pointerEvents": "auto",
+              "appRegion": "none",
+              "path": [
+                "meta",
+                "head",
+                "html"
+              ]
+            },
+            {
+              "tag": "META",
+              "label": "",
+              "rect": {
+                "l": 0,
+                "t": 0,
+                "w": 0,
+                "h": 0
+              },
+              "z": "auto",
+              "position": "static",
+              "pointerEvents": "auto",
+              "appRegion": "none",
+              "path": [
+                "meta",
+                "head",
+                "html"
+              ]
+            },
+            {
+              "tag": "TITLE",
+              "label": "ZAICODE",
+              "rect": {
+                "l": 0,
+                "t": 0,
+                "w": 0,
+                "h": 0
+              },
+              "z": "auto",
+              "position": "static",
+              "pointerEvents": "auto",
+              "appRegion": "none",
+              "path": [
+                "title",
+                "head",
+                "html"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "R004: a maximized window lands inside the display work area (not over the taskbar or off-screen)",
+      "pass": true,
+      "detail": {
+        "before": {
+          "x": -1920,
+          "y": 0,
+          "width": 1920,
+          "height": 1080
+        },
+        "after": {
+          "x": -1920,
+          "y": 0,
+          "width": 1920,
+          "height": 1080
+        },
+        "work": {
+          "x": -1920,
+          "y": 0,
+          "width": 1920,
+          "height": 1080
+        },
+        "fits": true,
+        "restored": {
+          "x": -1920,
+          "y": 0,
+          "width": 1920,
+          "height": 1080
+        }
+      }
+    },
+    {
+      "name": "zero renderer exceptions",
+      "pass": true,
+      "detail": []
+    }
+  ],
+  "errors": [],
+  "stage": "done",
+  "asarSha256": "a9e6ef6f9ec66b2751a0f246add3d4562803e312e953eaee7c88c75df7f4489e",
+  "asarBytes": 420337911,
+  "pass": true
+}

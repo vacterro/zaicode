@@ -1,0 +1,71 @@
+{
+  "at": "2026-10-06T23:47:15.687Z",
+  "executablePath": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\dist-next\\win-unpacked\\ZAICODE.exe",
+  "profile": "V:\\_TEMP_\\zaicode-t251-tvCTkA",
+  "checks": [
+    {
+      "name": "send button enabled with text in the editor",
+      "pass": false,
+      "detail": null
+    },
+    {
+      "name": "send click",
+      "pass": false,
+      "detail": "TimeoutError: locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByTestId('chat-send-button').first()\u001b[22m\n"
+    },
+    {
+      "name": "the prompt became a sent user message",
+      "pass": false
+    },
+    {
+      "name": "a real SAIFREN turn completes",
+      "pass": false
+    },
+    {
+      "name": "R006: the sent bubble does not show the Auto-Goal suffix",
+      "pass": false,
+      "detail": ""
+    },
+    {
+      "name": "R009/SRC-162: latest user and assistant chips both exist",
+      "pass": false,
+      "detail": null
+    },
+    {
+      "name": "R009: the nav strip does not overlap the header",
+      "pass": false,
+      "detail": null
+    },
+    {
+      "name": "R020: after ZAICODE, one click on the same session/project brings the conversation back",
+      "pass": false
+    },
+    {
+      "name": "R020: after SAIHOME, one click on the same session/project brings the conversation back",
+      "pass": false
+    },
+    {
+      "name": "R020: SCHEDULER nav button present",
+      "pass": null
+    },
+    {
+      "name": "sidebar rows after the finished turn (diagnostic)",
+      "pass": null,
+      "detail": [
+        {
+          "id": "workspace-item-V:\\_TEMP_\\zaicode-t251-tvCTkA\\hunt-project",
+          "text": "hunt-project◇",
+          "attrs": [
+            "data-state=open"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "zero renderer exceptions",
+      "pass": true,
+      "detail": []
+    }
+  ],
+  "errors": []
+}

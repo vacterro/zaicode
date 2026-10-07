@@ -1,0 +1,384 @@
+{
+  "at": "2026-10-07T01:11:20.667Z",
+  "driver": "hunt-drive.cjs (T-251 repaired: canonical composer bridge, bounded admission, authority-bound turn proof)",
+  "executablePath": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\dist-next\\win-unpacked\\ZAICODE.exe",
+  "profile": "V:\\_TEMP_\\zaicode-t251-7CTtWi",
+  "prompt": "Reply with exactly the word ZUBR and nothing else.",
+  "checks": [
+    {
+      "name": "the v4 composer exposes its canonical E2E bridge",
+      "pass": true,
+      "detail": "ready"
+    },
+    {
+      "name": "the probe prompt landed in the composer's own Lexical state",
+      "pass": true
+    },
+    {
+      "name": "the composer reached send-ready admission within 120s (no force, no sleep proof)",
+      "pass": true,
+      "detail": {
+        "composerText": "Reply with exactly the word ZUBR and nothing else.",
+        "composerPresent": true,
+        "lexicalBridgeReady": true,
+        "sendButton": {
+          "disabled": false,
+          "ariaDisabled": null,
+          "ariaLabel": "Send",
+          "pointerEvents": "auto",
+          "opacity": "1"
+        },
+        "modelConfig": {
+          "data-testid": "v4-model-config",
+          "data-source": "composer",
+          "data-provider": "new-provider",
+          "data-model": "SAIFREN",
+          "data-thought": "enabled",
+          "data-thought-levels": "",
+          "data-mode": "yolo",
+          "data-plan-enabled": "false",
+          "data-usage-used": "",
+          "data-usage-max": ""
+        },
+        "modelTrigger": {
+          "present": true,
+          "value": "custom:new-provider:SAIFREN",
+          "label": "SAIRoute/SAIFREN",
+          "title": "SAIRoute/SAIFREN",
+          "ariaLabel": "SAIRoute/SAIFREN"
+        },
+        "sessionTitle": null,
+        "transcriptRows": 0,
+        "bannerText": [
+          "Other 6s SAIFREN is ready Free models, nothing to set up: write a task in New task and press Enter. Ready",
+          "Other 5s Today 14 free models added to SAIFREN kilo/inclusionai/ling-3.1-flash (Kilo Gateway (free)), kilo/stepfun/step-3.7-flash:free (Kilo Gateway (free)), kilo/nvidia/nemotron-3-ultra-550b-a55b:free (Kilo Gateway (free)), kilo/dots-studio/dots-3-note-preview:free (Kilo Gateway (free)), kilo/poolside/laguna-s-2.1:free (Kilo Gateway (free)), kilo/inclusionai/ling-3.0-flash-sante:free (Kilo Gateway (free)), +8 more New free model"
+        ],
+        "visibleConfigControls": 3,
+        "preConditions": [],
+        "modelPick": {
+          "valueBefore": "",
+          "options": 2,
+          "chosen": "chat-model-select-item-custom:new-provider:SAIFREN"
+        }
+      }
+    },
+    {
+      "name": "the sent prompt produced a real user anchor",
+      "pass": true
+    },
+    {
+      "name": "a settled assistant answer carries the sentinel",
+      "pass": true,
+      "detail": {
+        "answerRowId": "4"
+      }
+    },
+    {
+      "name": "the exact sent prompt sits in the user bubble of its own row",
+      "pass": true,
+      "detail": {
+        "rowId": "2",
+        "bubbleText": "Reply with exactly the word ZUBR and nothing else.",
+        "bubbleWholeText": "Reply with exactly the word ZUBR and nothing else. goal cc all"
+      }
+    },
+    {
+      "name": "R006: the Auto-Goal mark is a chip, not part of the operator's prompt text",
+      "pass": true,
+      "detail": {
+        "operatorText": "Reply with exactly the word ZUBR and nothing else.",
+        "wholeBubble": "Reply with exactly the word ZUBR and nothing else. goal cc all",
+        "goalChip": "goal cc all"
+      }
+    },
+    {
+      "name": "the answer is a distinct, later row of the same timeline (same turn, same session)",
+      "pass": true,
+      "detail": {
+        "userRowId": "2",
+        "answerRowId": "4",
+        "userIdentity": "msg_muxevr06_3eefe210-6a80-4ea8-bd7e-df1d27723801",
+        "answerIdentity": "msg_muxevr0q_3c8e5872-26e1-4555-95fc-b924eb526fd7",
+        "bubbleText": "Reply with exactly the word ZUBR and nothing else.",
+        "bubbleWholeText": "Reply with exactly the word ZUBR and nothing else. goal cc all",
+        "goalChipText": "goal cc all",
+        "bubbleMatchesPrompt": true,
+        "answerCarriesSentinel": true,
+        "answerRowIsNotAUserRow": true,
+        "answerRowIsLaterInTheSameTimeline": true,
+        "bothChipsFromOneStrip": true,
+        "sessionId": "sess_05a47104-ec37-4ac4-97d7-13ceccd4fbff",
+        "sessionPanePresent": true,
+        "sessionTitlePresent": true,
+        "sessionTitleAttr": "Reply with exactly the word ZUBR and nothing else. /goal ...",
+        "sessionTitle": null,
+        "transcriptRows": 2
+      }
+    },
+    {
+      "name": "both anchors, the promoted session id and the title projection are non-null",
+      "pass": true,
+      "detail": {
+        "sessionId": "sess_05a47104-ec37-4ac4-97d7-13ceccd4fbff",
+        "sessionTitle": null,
+        "sessionTitleAttr": "Reply with exactly the word ZUBR and nothing else. /goal ...",
+        "userIdentity": "msg_muxevr06_3eefe210-6a80-4ea8-bd7e-df1d27723801",
+        "answerIdentity": "msg_muxevr0q_3c8e5872-26e1-4555-95fc-b924eb526fd7"
+      }
+    },
+    {
+      "name": "R006: the sent bubble never shows the Auto-Goal suffix as operator text",
+      "pass": true,
+      "detail": "Reply with exactly the word ZUBR and nothing else."
+    },
+    {
+      "name": "R009: latest-user and latest-answer controls both exist",
+      "pass": true,
+      "detail": {
+        "strip": {
+          "top": 53,
+          "bottom": 77,
+          "height": 24
+        },
+        "scrollRoot": {
+          "top": 77,
+          "bottom": 1055,
+          "height": 978
+        },
+        "header": {
+          "top": 5,
+          "bottom": 53,
+          "height": 48
+        },
+        "latestUser": true,
+        "latestAnswer": true
+      }
+    },
+    {
+      "name": "R009: the nav strip sits below the header and above the transcript it labels",
+      "pass": true,
+      "detail": {
+        "strip": {
+          "top": 53,
+          "bottom": 77,
+          "height": 24
+        },
+        "scrollRoot": {
+          "top": 77,
+          "bottom": 1055,
+          "height": 978
+        },
+        "header": {
+          "top": 5,
+          "bottom": 53,
+          "height": 48
+        },
+        "latestUser": true,
+        "latestAnswer": true
+      }
+    },
+    {
+      "name": "R020: one click on the same project/session after ZAICODE restores the exact conversation",
+      "pass": true,
+      "detail": {
+        "clicked": "workspace-item",
+        "restored": true,
+        "sessionIdBefore": "sess_05a47104-ec37-4ac4-97d7-13ceccd4fbff",
+        "sessionIdAfter": "sess_05a47104-ec37-4ac4-97d7-13ceccd4fbff",
+        "titleBefore": null,
+        "titleAfter": null,
+        "rows": 2
+      }
+    },
+    {
+      "name": "R020: one click on the same project/session after SAIHOME restores the exact conversation",
+      "pass": true,
+      "detail": {
+        "clicked": "workspace-item",
+        "restored": true,
+        "sessionIdBefore": "sess_05a47104-ec37-4ac4-97d7-13ceccd4fbff",
+        "sessionIdAfter": "sess_05a47104-ec37-4ac4-97d7-13ceccd4fbff",
+        "titleBefore": null,
+        "titleAfter": null,
+        "rows": 2
+      }
+    },
+    {
+      "name": "the transcript survives a navigation away and back (same row ids, same session id, no lost rows)",
+      "pass": true,
+      "detail": {
+        "sessionId": "sess_05a47104-ec37-4ac4-97d7-13ceccd4fbff",
+        "userRowIdBefore": "2",
+        "userRowIdAfter": "2",
+        "answerRowIdBefore": "4",
+        "answerRowIdAfter": "4",
+        "rows": 2
+      }
+    },
+    {
+      "name": "R036: the composer is send-ready for the unseen-completion turn",
+      "pass": true,
+      "detail": {
+        "composerText": "Reply with exactly the word BOBR and nothing else.",
+        "composerPresent": true,
+        "lexicalBridgeReady": true,
+        "sendButton": {
+          "disabled": false,
+          "ariaDisabled": null,
+          "ariaLabel": "Send",
+          "pointerEvents": "auto",
+          "opacity": "1"
+        },
+        "modelConfig": {
+          "data-testid": "v4-model-config",
+          "data-source": "composer",
+          "data-provider": "new-provider",
+          "data-model": "SAIFREN",
+          "data-thought": "enabled",
+          "data-thought-levels": "",
+          "data-mode": "yolo",
+          "data-plan-enabled": "false",
+          "data-usage-used": "42298",
+          "data-usage-max": "1000000"
+        },
+        "modelTrigger": {
+          "present": true,
+          "value": "custom:new-provider:SAIFREN",
+          "label": "SAIRoute/SAIFREN",
+          "title": "SAIRoute/SAIFREN",
+          "ariaLabel": "SAIRoute/SAIFREN"
+        },
+        "sessionTitle": null,
+        "transcriptRows": 2,
+        "bannerText": [
+          "Agents 3s Task completed Task: Reply with exactly the word ZUBR and nothing else. /goal ... Turn finished Open"
+        ],
+        "visibleConfigControls": 3,
+        "preConditions": []
+      }
+    },
+    {
+      "name": "R036: the second turn is really in the transcript before the operator leaves",
+      "pass": true,
+      "detail": {
+        "rowsBefore": 1,
+        "rowsAfter": 2
+      }
+    },
+    {
+      "name": "R036: the operator really left the session (another project is the open scope)",
+      "pass": true,
+      "detail": {
+        "before": "sess_05a47104-ec37-4ac4-97d7-13ceccd4fbff",
+        "after": {
+          "sessionId": "draft",
+          "badge": null,
+          "badgeTitle": null
+        }
+      }
+    },
+    {
+      "name": "R036: a run that finished while the operator was elsewhere shows the completed-unseen marker",
+      "pass": true,
+      "detail": {
+        "scope": {
+          "sessionId": "draft",
+          "badge": null,
+          "badgeTitle": null
+        },
+        "survey": [
+          {
+            "id": "workspace-item-V:\\_TEMP_\\zaicode-t251-7CTtWi\\hunt-project",
+            "text": "hunt-project◇",
+            "unseen": false,
+            "glyph": null
+          },
+          {
+            "id": "task-item-sess_05a47104-ec37-4ac4-97d7-13ceccd4fbff",
+            "text": "Side session / sub-worker · SAIFRENReply with exactly the wo",
+            "unseen": true,
+            "glyph": null
+          },
+          {
+            "id": "workspace-item-V:\\_TEMP_\\zaicode-t251-7CTtWi\\hunt-idle",
+            "text": "hunt-idle◇",
+            "unseen": false,
+            "glyph": null
+          }
+        ]
+      }
+    },
+    {
+      "name": "R036: only the finished session carries the marker; the idle project does not look identical",
+      "pass": true,
+      "detail": {
+        "finished": [
+          {
+            "id": "task-item-sess_05a47104-ec37-4ac4-97d7-13ceccd4fbff",
+            "text": "Side session / sub-worker · SAIFRENReply with exactly the wo",
+            "unseen": true,
+            "glyph": null
+          }
+        ],
+        "expectedSessionId": "sess_05a47104-ec37-4ac4-97d7-13ceccd4fbff",
+        "survey": [
+          {
+            "id": "workspace-item-V:\\_TEMP_\\zaicode-t251-7CTtWi\\hunt-project",
+            "text": "hunt-project◇",
+            "unseen": false,
+            "glyph": null
+          },
+          {
+            "id": "task-item-sess_05a47104-ec37-4ac4-97d7-13ceccd4fbff",
+            "text": "Side session / sub-worker · SAIFRENReply with exactly the wo",
+            "unseen": true,
+            "glyph": null
+          },
+          {
+            "id": "workspace-item-V:\\_TEMP_\\zaicode-t251-7CTtWi\\hunt-idle",
+            "text": "hunt-idle◇",
+            "unseen": false,
+            "glyph": null
+          }
+        ]
+      }
+    },
+    {
+      "name": "R020: one click on the same project/session after R036 open restores the exact conversation",
+      "pass": true,
+      "detail": {
+        "clicked": "workspace-item",
+        "restored": true,
+        "sessionIdBefore": "sess_05a47104-ec37-4ac4-97d7-13ceccd4fbff",
+        "sessionIdAfter": "sess_05a47104-ec37-4ac4-97d7-13ceccd4fbff",
+        "titleBefore": null,
+        "titleAfter": null,
+        "rows": 4
+      }
+    },
+    {
+      "name": "R036: opening that exact project clears the unseen marker",
+      "pass": true,
+      "detail": {
+        "markerWasShown": true,
+        "cleared": true,
+        "remaining": 0
+      }
+    },
+    {
+      "name": "R036: control -- no unseen marker existed before the turn",
+      "pass": true,
+      "detail": 0
+    },
+    {
+      "name": "zero renderer exceptions",
+      "pass": true,
+      "detail": []
+    }
+  ],
+  "errors": [],
+  "stage": "done",
+  "asarSha256": "a9e6ef6f9ec66b2751a0f246add3d4562803e312e953eaee7c88c75df7f4489e",
+  "asarBytes": 420337911,
+  "pass": true
+}
