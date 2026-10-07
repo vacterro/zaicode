@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/vacterro/zaicode/zaicode/packages/ui/src/assets/zaicode-working.png" alt="ZAICODE" width="96" height="96">
+<img src="docs/screenshots/zaicode-banner.webp" alt="ZAICODE — Windows operator workbench" width="100%">
 
 # ZAICODE
 
