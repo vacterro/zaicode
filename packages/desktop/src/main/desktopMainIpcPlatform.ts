@@ -40,6 +40,7 @@ import {
   bootstrapZaicodeRouter,
   readZaicodeFreeScanInfo,
   scanZaicodeFreeModelsNow,
+  checkZaicodeRouterModelsNow,
   troubleshootZaicodeRouter,
 } from "./zaicodeRouterBootstrap.js";
 import { getZaicodeSubscriptionProxy } from "./zaicodeSubscriptionProxyHost.js";
@@ -631,6 +632,7 @@ export function registerPlatformIpcHandlers(options: {
   );
   ipcMain.handle(PlatformChannels.TroubleshootZaicodeRouter, () => troubleshootZaicodeRouter());
   ipcMain.handle(PlatformChannels.ScanZaicodeFreeModels, () => scanZaicodeFreeModelsNow());
+  ipcMain.handle(PlatformChannels.CheckZaicodeRouterModels, () => checkZaicodeRouterModelsNow());
   ipcMain.handle(PlatformChannels.GetZaicodeFreeScanInfo, () => readZaicodeFreeScanInfo());
   ipcMain.handle(PlatformChannels.GetZaicodeSubscriptionProxy, () => getZaicodeSubscriptionProxy());
   ipcMain.handle(PlatformChannels.AddZaicodeFreeKey, (_event, input: unknown) => {

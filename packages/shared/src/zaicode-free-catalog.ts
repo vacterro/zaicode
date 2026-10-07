@@ -160,11 +160,14 @@ export function findZaicodeFreeProvider(id: string): ZaicodeFreeProvider | undef
   return ZAICODE_FREE_PROVIDERS.find((provider) => provider.id === id);
 }
 
-const NON_CHAT = /whisper|tts|embed|bge-|stable-diffusion|guard|safety|lyria|image|vision-only|rerank|moderation|audio|speech/i;
+const NON_CHAT =
+  /whisper|tts|embed|bge-|stable-diffusion|guard|safety|lyria|image|vision-only|rerank|moderation|audio|speech/i;
 
 function priceIsZero(value: unknown): boolean {
   if (value === undefined || value === null) return false;
-  const number = typeof value === "string" ? Number(value) : typeof value === "number" ? value : Number.NaN;
+  if (typeof value === "string" && !value.trim()) return false;
+  const number =
+    typeof value === "string" ? Number(value) : typeof value === "number" ? value : Number.NaN;
   return Number.isFinite(number) && number === 0;
 }
 
@@ -180,19 +183,31 @@ function priceIsZero(value: unknown): boolean {
  */
 export function zaicodeFreeModelsFromListing(providerId: string, listing: unknown): string[] {
   const root = listing as { data?: unknown } | unknown[] | null;
-  const rows = Array.isArray(root) ? root : Array.isArray((root as { data?: unknown } | null)?.data) ? ((root as { data: unknown[] }).data) : [];
+  const rows = Array.isArray(root)
+    ? root
+    : Array.isArray((root as { data?: unknown } | null)?.data)
+      ? (root as { data: unknown[] }).data
+      : [];
   const ids: string[] = [];
   for (const row of rows) {
     if (!row || typeof row !== "object") continue;
     const record = row as Record<string, unknown>;
-    const id = typeof record.id === "string" ? record.id : typeof record.name === "string" ? record.name : null;
+    const id =
+      typeof record.id === "string"
+        ? record.id
+        : typeof record.name === "string"
+          ? record.name
+          : null;
     if (!id || NON_CHAT.test(id)) continue;
     const pricing = (record.pricing ?? {}) as Record<string, unknown>;
     let free: boolean;
     switch (providerId) {
       case "kilo":
       case "openrouter":
-        free = id.endsWith(":free") || id.endsWith("/free") || (priceIsZero(pricing.prompt) && priceIsZero(pricing.completion));
+        free =
+          id.endsWith(":free") ||
+          id.endsWith("/free") ||
+          (priceIsZero(pricing.prompt) && priceIsZero(pricing.completion));
         break;
       case "pollinations":
         free = record.tier === "anonymous";
@@ -203,8 +218,16 @@ export function zaicodeFreeModelsFromListing(providerId: string, listing: unknow
       case "opencode":
         free = /-free\b/.test(id);
         break;
-      default:
+      case "gemini":
+      case "groq":
+      case "nvidia":
+      case "cerebras":
+      case "mistral":
         free = true;
+        break;
+      default:
+        // 未知供应商的 free 名称不能证明免费，必须有公开的零输入/输出价格。
+        free = priceIsZero(pricing.prompt) && priceIsZero(pricing.completion);
     }
     if (free && !ids.includes(id)) ids.push(id);
   }
@@ -212,7 +235,10 @@ export function zaicodeFreeModelsFromListing(providerId: string, listing: unknow
 }
 
 /** `<prefix>/<model>` as 9router addresses it. */
-export function zaicodePoolModelId(provider: Pick<ZaicodeFreeProvider, "prefix">, modelId: string): string {
+export function zaicodePoolModelId(
+  provider: Pick<ZaicodeFreeProvider, "prefix">,
+  modelId: string,
+): string {
   return `${provider.prefix}/${modelId}`;
 }
 
@@ -252,11 +278,17 @@ function sameUrl(left: string | null | undefined, right: string): boolean {
  * starter models (appended after the operator's own, never reordered or
  * removed). Running the plan twice does nothing the second time.
  */
-export function planZaicodeFreePool(input: ZaicodeFreePoolPlanInput, providers: readonly ZaicodeFreeProvider[] = ZAICODE_FREE_PROVIDERS): ZaicodeFreePoolStep[] {
+export function planZaicodeFreePool(
+  input: ZaicodeFreePoolPlanInput,
+  providers: readonly ZaicodeFreeProvider[] = ZAICODE_FREE_PROVIDERS,
+): ZaicodeFreePoolStep[] {
   const steps: ZaicodeFreePoolStep[] = [];
   const wanted: string[] = [];
   for (const provider of providers.filter((candidate) => candidate.keyless)) {
-    const node = input.nodes.find((candidate) => candidate.prefix === provider.prefix || sameUrl(candidate.baseUrl, provider.baseUrl));
+    const node = input.nodes.find(
+      (candidate) =>
+        candidate.prefix === provider.prefix || sameUrl(candidate.baseUrl, provider.baseUrl),
+    );
     if (!node) {
       steps.push({ kind: "create-node", provider });
       steps.push({ kind: "create-connection", provider, nodeId: null });

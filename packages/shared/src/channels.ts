@@ -514,6 +514,7 @@ export const PlatformChannels = {
   BootstrapZaicodeRouter: "zaicode:router-bootstrap",
   TroubleshootZaicodeRouter: "zaicode:router-troubleshoot",
   ScanZaicodeFreeModels: "zaicode:router-scan-free",
+  CheckZaicodeRouterModels: "zaicode:router-check-models",
   GetZaicodeFreeScanInfo: "zaicode:router-scan-info",
   AddZaicodeFreeKey: "zaicode:router-add-free-key",
   GetZaicodeSubscriptionProxy: "zaicode:account-proxy",

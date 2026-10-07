@@ -4,13 +4,19 @@ import { Button } from "@/components/ui/button.js";
 import { toast } from "@/components/ui/toast.js";
 import { usePlatform } from "@/hooks/usePlatform.js";
 import { useServices } from "@/hooks/useServices.js";
-import { ZAICODE_FREE_POOL, ZAICODE_FREE_PROVIDERS, ZAICODE_OWN_POOL, formatZaicodeDuration } from "@zcode/shared";
+import {
+  ZAICODE_FREE_POOL,
+  ZAICODE_FREE_PROVIDERS,
+  ZAICODE_OWN_POOL,
+  formatZaicodeDuration,
+} from "@zcode/shared";
 import { getZaicodeRouterBridge, useZaicodeRouter } from "@/zaicode/zaicodeRouter.js";
 import {
   addZaicodeFreeKeyFromUi,
   describeZaicodeFreeModelsAdded,
   refreshZaicodeRouterHost,
   scanZaicodeFreeModelsFromUi,
+  checkZaicodeRouterModelsFromUi,
   setZaicodeRouterModeFromUi,
   useZaicodeRouterSetup,
   type ZaicodeRouterMode,
@@ -27,9 +33,21 @@ import { ZaicodeRouterStatus } from "@/zaicode/ZaicodeRouterStatus.js";
  */
 
 const MODES: readonly { value: ZaicodeRouterMode; label: string; hint: string }[] = [
-  { value: "auto", label: "Auto", hint: "Your 9router when this machine has one, else ZAICODE's own" },
-  { value: "shared", label: "My 9router", hint: "Preferred local 9router; bounded silent recovery, then internal fallback" },
-  { value: "isolated", label: "ZAICODE's own", hint: "A private 9router run by ZAICODE (own data folder and port), nothing to install" },
+  {
+    value: "auto",
+    label: "Auto",
+    hint: "Your 9router when this machine has one, else ZAICODE's own",
+  },
+  {
+    value: "shared",
+    label: "My 9router",
+    hint: "Preferred local 9router; bounded silent recovery, then internal fallback",
+  },
+  {
+    value: "isolated",
+    label: "ZAICODE's own",
+    hint: "A private 9router run by ZAICODE (own data folder and port), nothing to install",
+  },
 ];
 
 const STEP_MARK: Record<ZaicodeRouterSetupStep["status"], { mark: string; className: string }> = {
@@ -77,7 +95,11 @@ function FreeKeyRow({ providerId }: { providerId: string }) {
           {provider.blurb}
         </span>
         {provider.keyUrl ? (
-          <button type="button" className="shrink-0 underline text-foreground-subtle" onClick={() => platform.openExternal(provider.keyUrl!)}>
+          <button
+            type="button"
+            className="shrink-0 underline text-foreground-subtle"
+            onClick={() => platform.openExternal(provider.keyUrl!)}
+          >
             get free key
           </button>
         ) : null}
@@ -91,7 +113,13 @@ function FreeKeyRow({ providerId }: { providerId: string }) {
             if (event.key === "Enter" && key.trim()) void add();
           }}
         />
-        <Button size="sm" variant="ghost" className="h-5 px-1" disabled={!key.trim() || busy === "key"} onClick={() => void add()}>
+        <Button
+          size="sm"
+          variant="ghost"
+          className="h-5 px-1"
+          disabled={!key.trim() || busy === "key"}
+          onClick={() => void add()}
+        >
           Add
         </Button>
       </span>
@@ -106,7 +134,10 @@ export function ZaicodeRouterQuickStart() {
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     void refreshZaicodeRouterHost();
-    const timer = window.setInterval(() => { setNow(Date.now()); void refreshZaicodeRouterHost(); }, 15_000);
+    const timer = window.setInterval(() => {
+      setNow(Date.now());
+      void refreshZaicodeRouterHost();
+    }, 15_000);
     return () => window.clearInterval(timer);
   }, []);
   const host = state.host;
@@ -115,30 +146,75 @@ export function ZaicodeRouterQuickStart() {
   const troubleshoot = async () => {
     const result = await runZaicodeRouterSetup(providerSettingsService, "troubleshoot");
     void refreshRouter();
-    toast(result?.ok ? `${ZAICODE_FREE_POOL} works: ${result.firstToken?.detail ?? "ok"}` : "Some steps need you: see the list");
+    toast(
+      result?.ok
+        ? `${ZAICODE_FREE_POOL} works: ${result.firstToken?.detail ?? "ok"}`
+        : "Some steps need you: see the list",
+    );
   };
   const scan = async () => {
     const result = await scanZaicodeFreeModelsFromUi();
     const card = result ? describeZaicodeFreeModelsAdded(result.added) : null;
-    toast(result ? [card?.title ?? "Free model scan complete", `${result.checked} models checked`, result.removed.length ? `${result.removed.length} unavailable models removed` : "", result.errors.length ? `${result.errors.length} provider errors` : ""].filter(Boolean).join(" · ") : "Scan unavailable");
+    toast(
+      result
+        ? [
+            card?.title ?? "Model scan complete",
+            `${result.checked} provider listings checked`,
+            result.removed.length ? `${result.removed.length} unsupported models removed` : "",
+            result.errors.length ? `${result.errors.length} provider errors` : "",
+          ]
+            .filter(Boolean)
+            .join(" · ")
+        : "Scan unavailable",
+    );
     void refreshRouter();
   };
+  const check = async () => {
+    const result = await checkZaicodeRouterModelsFromUi().catch((error) => {
+      toast(String(error));
+      return null;
+    });
+    if (result)
+      toast(
+        `${result.checked} live provider listings · 0 generated tokens · generation and quota not tested`,
+      );
+  };
+  const providerChecks =
+    state.check && state.check.checkedAt >= (state.scan?.lastScanAt ?? 0)
+      ? state.check.providers
+      : (state.scan?.providers ?? []);
   return (
-    <section className="flex flex-col gap-2 border border-[var(--zaicode-highlight,var(--color-border))] bg-card p-3 text-ui-xs" data-zaicode-router-quickstart>
+    <section
+      className="flex flex-col gap-2 border border-[var(--zaicode-highlight,var(--color-border))] bg-card p-3 text-ui-xs"
+      data-zaicode-router-quickstart
+    >
       <ZaicodeRouterStatus />
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0">
-          <h2 className="text-ui-lg text-foreground">{ZAICODE_FREE_POOL} · free AI, nothing to set up</h2>
+          <h2 className="text-ui-lg text-foreground">
+            {ZAICODE_FREE_POOL} · free AI, nothing to set up
+          </h2>
           <p className="max-w-[680px] text-foreground-subtle">
-            ZAICODE keeps a router with free models ready: open ZAICODE, write a task, press Enter. {ZAICODE_FREE_POOL} holds the free ones (no
-            account needed for the first ones, more with free keys below); {ZAICODE_OWN_POOL} holds your own best (subscriptions, paid keys).
+            ZAICODE keeps a router with free models ready: open ZAICODE, write a task, press Enter.{" "}
+            {ZAICODE_FREE_POOL} holds the free ones (no account needed for the first ones, more with
+            free keys below); {ZAICODE_OWN_POOL} holds your own best (subscriptions, paid keys).
           </p>
         </div>
         <div className="flex shrink-0 flex-col items-end gap-1">
-          <Button size="sm" variant="secondary" disabled={state.busy !== null} onClick={() => void troubleshoot()} data-zaicode-autotroubleshoot>
-            {state.busy === "troubleshoot" || state.busy === "setup" ? "Checking…" : "Autotroubleshoot"}
+          <Button
+            size="sm"
+            variant="secondary"
+            disabled={state.busy !== null}
+            onClick={() => void troubleshoot()}
+            data-zaicode-autotroubleshoot
+          >
+            {state.busy === "troubleshoot" || state.busy === "setup"
+              ? "Checking…"
+              : "Autotroubleshoot"}
           </Button>
-          <span className="text-foreground-subtlest">checks and repairs everything, step by step</span>
+          <span className="text-foreground-subtlest">
+            checks and repairs everything, step by step
+          </span>
         </div>
       </div>
 
@@ -153,19 +229,35 @@ export function ZaicodeRouterQuickStart() {
               disabled={state.busy !== null}
               className={cn(
                 "border px-1.5 leading-4",
-                host?.requestedMode === mode.value ? "border-[var(--zaicode-highlight,var(--color-border-hover))] bg-selected text-foreground" : "border-border text-foreground-subtle hover:bg-hover",
+                host?.requestedMode === mode.value
+                  ? "border-[var(--zaicode-highlight,var(--color-border-hover))] bg-selected text-foreground"
+                  : "border-border text-foreground-subtle hover:bg-hover",
               )}
-              onClick={() => void setZaicodeRouterModeFromUi(mode.value).then(() => runZaicodeRouterSetup(providerSettingsService, "setup")).then(() => refreshRouter())}
+              onClick={() =>
+                void setZaicodeRouterModeFromUi(mode.value)
+                  .then(() => runZaicodeRouterSetup(providerSettingsService, "setup"))
+                  .then(() => refreshRouter())
+              }
             >
               {mode.label}
             </button>
           ))}
           <span className="text-foreground-subtlest">
-            {host ? `${host.mode === "isolated" ? "ZAICODE's own" : "yours"} · ${host.url}${host.managed ? (host.running ? " · running" : " · stopped") : ""}${host.restarts > 0 ? ` · restarted ${host.restarts}×` : ""}` : "…"}
+            {host
+              ? `${host.mode === "isolated" ? "ZAICODE's own" : "yours"} · ${host.url}${host.managed ? (host.running ? " · running" : " · stopped") : ""}${host.restarts > 0 ? ` · restarted ${host.restarts}×` : ""}`
+              : "…"}
           </span>
         </span>
         <span className="text-foreground-subtle">First token</span>
-        <span className={cn(last?.firstToken ? (last.firstToken.ok ? "text-[var(--color-success)]" : "text-destructive") : "text-foreground-subtlest")}>
+        <span
+          className={cn(
+            last?.firstToken
+              ? last.firstToken.ok
+                ? "text-[var(--color-success)]"
+                : "text-destructive"
+              : "text-foreground-subtlest",
+          )}
+        >
           {last?.firstToken
             ? last.firstToken.ok
               ? `${ZAICODE_FREE_POOL} answered ${last.firstToken.detail.replace(/^answered /, "")}${last.firstToken.servedBy ? ` (${last.firstToken.servedBy})` : ""}`
@@ -175,44 +267,119 @@ export function ZaicodeRouterQuickStart() {
         <span className="text-foreground-subtle">Free scan</span>
         <span className="flex flex-wrap items-center gap-2">
           <span className="text-foreground-subtlest">
-            {state.lastScanAt ? `last ${formatZaicodeDuration(now - state.lastScanAt)} ago · hourly` : "not yet · runs hourly"}
+            {state.lastScanAt
+              ? `last ${formatZaicodeDuration(now - state.lastScanAt)} ago · hourly`
+              : "not yet · runs hourly"}
           </span>
-          <Button size="sm" variant="ghost" className="h-5 px-1" disabled={state.busy !== null} onClick={() => void scan()}>
-            {state.busy === "scan" ? "Scanning…" : "Scan now"}
+          <Button
+            size="sm"
+            variant="ghost"
+            className="h-5 px-1"
+            disabled={state.busy !== null}
+            onClick={() => void scan()}
+          >
+            {state.busy === "scan" ? "Scanning…" : "Add models"}
           </Button>
+          <Button
+            size="sm"
+            variant="secondary"
+            className="h-5 px-1"
+            disabled={state.busy !== null}
+            onClick={() => void check()}
+            data-zaicode-router-model-check
+          >
+            {state.busy === "check" ? "Checking…" : "Check"}
+          </Button>
+          <span className="text-foreground-subtlest">Metadata only · 0 generated tokens</span>
           {state.scan && state.scan.added.length > 0 ? (
-            <span className="text-foreground">added: {state.scan.added.map((entry) => entry.id).join(", ")}</span>
+            <span className="text-foreground">
+              added: {state.scan.added.map((entry) => entry.id).join(", ")}
+            </span>
           ) : null}
           {state.scan && state.scan.removed.length > 0 ? (
             <span className="text-destructive">removed: {state.scan.removed.join(", ")}</span>
           ) : null}
           {state.scan && state.scan.errors.length > 0 ? (
-            <span className="text-destructive" title={state.scan.errors.join("\n")}>{state.scan.errors.length} scan errors</span>
+            <span className="text-destructive" title={state.scan.errors.join("\n")}>
+              {state.scan.errors.length} scan errors
+            </span>
           ) : null}
         </span>
       </div>
 
+      {providerChecks.length > 0 ? (
+        <details className="border-t border-border/60 pt-1" data-zaicode-router-model-checks>
+          <summary className="cursor-pointer text-foreground">
+            Provider listings (
+            {providerChecks.filter((provider) => provider.status === "reachable").length} live /{" "}
+            {providerChecks.length} total)
+          </summary>
+          <p className="py-1 text-foreground-subtle">
+            Checks metadata availability. Generation and remaining quota are not tested. Errors and
+            static catalogues never confirm a model is dead.
+          </p>
+          <ul className="max-h-60 overflow-auto">
+            {providerChecks.map((provider) => (
+              <li
+                key={provider.provider}
+                className="flex flex-wrap gap-x-2 border-b border-border/40 py-1"
+                title={provider.detail}
+              >
+                <span className="text-foreground">
+                  {provider.name} ({provider.prefix})
+                </span>
+                <span
+                  className={
+                    provider.status === "unavailable"
+                      ? "text-destructive"
+                      : "text-foreground-subtle"
+                  }
+                >
+                  {provider.status}
+                </span>
+                <span className="text-foreground-subtlest">
+                  {provider.models} models · {provider.free} free
+                  {provider.ms !== null ? ` · ${provider.ms} ms` : ""}
+                </span>
+                <span className="min-w-0 break-words text-foreground-subtle">
+                  {provider.detail}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </details>
+      ) : null}
+
       {steps.length > 0 ? (
         <div className="border-t border-border/60 pt-1">
-          <span className="text-foreground-subtle">{state.lastKind === "troubleshoot" ? "Autotroubleshoot" : "Start-up check"}</span>
+          <span className="text-foreground-subtle">
+            {state.lastKind === "troubleshoot" ? "Autotroubleshoot" : "Start-up check"}
+          </span>
           <StepList steps={steps} />
         </div>
       ) : null}
 
       <div className="border-t border-border/60 pt-1">
-        <span className="text-foreground-subtle">More free models: one free key each (no card), pasted once</span>
+        <span className="text-foreground-subtle">
+          More free models: one free key each (no card), pasted once
+        </span>
         {ZAICODE_FREE_PROVIDERS.filter((provider) => !provider.keyless).map((provider) => (
           <FreeKeyRow key={provider.id} providerId={provider.id} />
         ))}
       </div>
 
       <div className="border-t border-border/60 pt-1 text-foreground-subtle">
-        {ZAICODE_OWN_POOL}: your subscriptions (Claude, Codex, Gemini CLI, Cline, Kiro…) sign in once in{" "}
-        <button type="button" className="underline" onClick={() => void getZaicodeRouterBridge()?.openZaicodeRouterDashboard?.("providers")}>
+        {ZAICODE_OWN_POOL}: your subscriptions (Claude, Codex, Gemini CLI, Cline, Kiro…) sign in
+        once in{" "}
+        <button
+          type="button"
+          className="underline"
+          onClick={() => void getZaicodeRouterBridge()?.openZaicodeRouterDashboard?.("providers")}
+        >
           the router's Providers page
         </button>{" "}
-        (OAuth, no key to copy), then put the models you trust most into {ZAICODE_OWN_POOL} under Pools; they also appear under
-        “Subscriptions as models”.
+        (OAuth, no key to copy), then put the models you trust most into {ZAICODE_OWN_POOL} under
+        Pools; they also appear under “Subscriptions as models”.
       </div>
     </section>
   );

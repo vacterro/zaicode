@@ -21,7 +21,13 @@ export interface ZaicodeRouterHostInfo {
   lastError: string | null;
   startedAt: number | null;
   logFile: string | null;
-  supervisor?: { status: string; route: "preferred" | "fallback"; failure: string | null; attempts: number; pendingRecovery: boolean };
+  supervisor?: {
+    status: string;
+    route: "preferred" | "fallback";
+    failure: string | null;
+    attempts: number;
+    pendingRecovery: boolean;
+  };
   effectiveUrl?: string;
 }
 
@@ -46,6 +52,26 @@ export interface ZaicodeFreeScanResult {
   checked: number;
   errors: string[];
   lastScanAt: number;
+  providers?: ZaicodeProviderModelCheck[];
+}
+
+export interface ZaicodeProviderModelCheck {
+  provider: string;
+  prefix: string;
+  name: string;
+  status: "reachable" | "catalogue-only" | "unavailable" | "needs-connection";
+  models: number;
+  free: number;
+  ms: number | null;
+  detail: string;
+}
+
+export interface ZaicodeModelCheckResult {
+  providers: ZaicodeProviderModelCheck[];
+  checked: number;
+  errors: string[];
+  checkedAt: number;
+  tokensGenerated: 0;
 }
 
 interface ZaicodeRouterSetupBridge {
@@ -55,8 +81,12 @@ interface ZaicodeRouterSetupBridge {
   bootstrapZaicodeRouter?(options: { needKey: boolean }): Promise<ZaicodeRouterBootstrapResult>;
   troubleshootZaicodeRouter?(): Promise<ZaicodeRouterBootstrapResult>;
   scanZaicodeFreeModels?(): Promise<ZaicodeFreeScanResult>;
+  checkZaicodeRouterModels?(): Promise<ZaicodeModelCheckResult>;
   getZaicodeFreeScanInfo?(): Promise<{ lastScanAt: number | null }>;
-  addZaicodeFreeKey?(input: { providerId: string; apiKey: string }): Promise<{ ok: boolean; message: string; added: number }>;
+  addZaicodeFreeKey?(input: {
+    providerId: string;
+    apiKey: string;
+  }): Promise<{ ok: boolean; message: string; added: number }>;
 }
 
 export function getZaicodeRouterSetupBridge(): ZaicodeRouterSetupBridge | null {
@@ -70,8 +100,9 @@ interface ZaicodeRouterSetupState {
   /** Last bootstrap / Autotroubleshoot result, newest first in `steps`. */
   last: ZaicodeRouterBootstrapResult | null;
   lastKind: "setup" | "troubleshoot" | null;
-  busy: "setup" | "troubleshoot" | "scan" | "mode" | "key" | null;
+  busy: "setup" | "troubleshoot" | "scan" | "check" | "mode" | "key" | null;
   scan: ZaicodeFreeScanResult | null;
+  check: ZaicodeModelCheckResult | null;
   lastScanAt: number | null;
   /** App-side step (the SAIRoute provider in the model list), set by the auto setup. */
   appStep: ZaicodeRouterSetupStep | null;
@@ -83,6 +114,7 @@ export const useZaicodeRouterSetup = create<ZaicodeRouterSetupState>(() => ({
   lastKind: null,
   busy: null,
   scan: null,
+  check: null,
   lastScanAt: null,
   appStep: null,
 }));
@@ -100,13 +132,21 @@ export async function refreshZaicodeRouterHost(): Promise<ZaicodeRouterHostInfo 
 export function zaicodeRouterSupervisorLabel(host: ZaicodeRouterHostInfo): string | null {
   const state = host.supervisor;
   if (!state) return null;
-  if (state.route === "fallback" && state.failure === null && host.running) return `${state.status === "fallback-active" ? "Internal fallback active" : "Internal fallback unavailable"} · preferred router recovered, waiting for stable health and a continuation boundary`;
-  if (state.route === "preferred" && state.failure === null && !host.running) return "Checking preferred router";
-  return state.status === "fallback-active" ? "Preferred router unavailable · internal fallback active"
-    : state.status === "recovering" ? `Preferred router recovering · attempt ${state.attempts}/10`
-    : state.status === "restored" ? "Preferred router restored"
-    : state.status === "unavailable" ? "Preferred router unavailable · internal fallback unavailable"
-    : state.status === "preferred-unavailable" ? "Preferred router unavailable" : "Preferred router healthy";
+  if (state.route === "fallback" && state.failure === null && host.running)
+    return `${state.status === "fallback-active" ? "Internal fallback active" : "Internal fallback unavailable"} · preferred router recovered, waiting for stable health and a continuation boundary`;
+  if (state.route === "preferred" && state.failure === null && !host.running)
+    return "Checking preferred router";
+  return state.status === "fallback-active"
+    ? "Preferred router unavailable · internal fallback active"
+    : state.status === "recovering"
+      ? `Preferred router recovering · attempt ${state.attempts}/10`
+      : state.status === "restored"
+        ? "Preferred router restored"
+        : state.status === "unavailable"
+          ? "Preferred router unavailable · internal fallback unavailable"
+          : state.status === "preferred-unavailable"
+            ? "Preferred router unavailable"
+            : "Preferred router healthy";
 }
 
 export async function setZaicodeRouterModeFromUi(mode: ZaicodeRouterMode): Promise<void> {
@@ -133,9 +173,23 @@ export async function scanZaicodeFreeModelsFromUi(): Promise<ZaicodeFreeScanResu
   }
 }
 
+export async function checkZaicodeRouterModelsFromUi(): Promise<ZaicodeModelCheckResult | null> {
+  const bridge = getZaicodeRouterSetupBridge();
+  if (!bridge?.checkZaicodeRouterModels) return null;
+  useZaicodeRouterSetup.setState({ busy: "check" });
+  try {
+    const check = await bridge.checkZaicodeRouterModels();
+    useZaicodeRouterSetup.setState({ check });
+    return check;
+  } finally {
+    useZaicodeRouterSetup.setState({ busy: null });
+  }
+}
+
 export async function addZaicodeFreeKeyFromUi(providerId: string, apiKey: string) {
   const bridge = getZaicodeRouterSetupBridge();
-  if (!bridge?.addZaicodeFreeKey) return { ok: false, message: "Only in the desktop app.", added: 0 };
+  if (!bridge?.addZaicodeFreeKey)
+    return { ok: false, message: "Only in the desktop app.", added: 0 };
   useZaicodeRouterSetup.setState({ busy: "key" });
   try {
     return await bridge.addZaicodeFreeKey({ providerId, apiKey });
@@ -147,11 +201,16 @@ export async function addZaicodeFreeKeyFromUi(providerId: string, apiKey: string
 }
 
 /** "Today free model X added to SAIFREN" (one card for a batch). */
-export function describeZaicodeFreeModelsAdded(added: readonly { id: string; provider: string }[]): { title: string; body: string } | null {
+export function describeZaicodeFreeModelsAdded(
+  added: readonly { id: string; provider: string }[],
+): { title: string; body: string } | null {
   if (added.length === 0) return null;
   const first = added[0]!;
   return {
-    title: added.length === 1 ? `Today free model ${first.id} added to SAIFREN` : `Today ${added.length} free models added to SAIFREN`,
+    title:
+      added.length === 1
+        ? `Today free model ${first.id} added to SAIFREN`
+        : `Today ${added.length} free models added to SAIFREN`,
     body: added
       .slice(0, 6)
       .map((entry) => `${entry.id} (${entry.provider})`)
@@ -184,6 +243,7 @@ export function zaicodePoolModelConfig() {
  * A value the operator typed (anything else) is theirs and stays.
  */
 export function zaicodePoolNeedsRaise(personalConfig: unknown): boolean {
-  const properties = (personalConfig as { properties?: { contextWindow?: unknown } } | null)?.properties;
+  const properties = (personalConfig as { properties?: { contextWindow?: unknown } } | null)
+    ?.properties;
   return properties?.contextWindow === LEGACY_POOL_CONTEXT_WINDOW;
 }

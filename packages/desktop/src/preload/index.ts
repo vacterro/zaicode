@@ -886,6 +886,7 @@ contextBridge.exposeInMainWorld("zcode", {
   bootstrapZaicodeRouter: (options: { needKey: boolean }) => ipcRenderer.invoke(PlatformChannels.BootstrapZaicodeRouter, options),
   troubleshootZaicodeRouter: () => ipcRenderer.invoke(PlatformChannels.TroubleshootZaicodeRouter),
   scanZaicodeFreeModels: () => ipcRenderer.invoke(PlatformChannels.ScanZaicodeFreeModels),
+  checkZaicodeRouterModels: () => ipcRenderer.invoke(PlatformChannels.CheckZaicodeRouterModels),
   getZaicodeFreeScanInfo: () => ipcRenderer.invoke(PlatformChannels.GetZaicodeFreeScanInfo),
   addZaicodeFreeKey: (input: { providerId: string; apiKey: string }) => ipcRenderer.invoke(PlatformChannels.AddZaicodeFreeKey, input),
   getZaicodeSubscriptionProxy: (): Promise<{ url: string; token: string } | null> =>
