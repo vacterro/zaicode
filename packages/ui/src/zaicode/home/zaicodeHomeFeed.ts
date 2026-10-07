@@ -2,11 +2,14 @@ import { useEffect } from "react";
 import { create } from "zustand";
 import type { IServiceAccessor } from "@zcode/services";
 import { useOptionalBaseWorkspaceServices } from "@/hooks/useWorkspaceServices.js";
-import type { ZaicodeHomeStats, ZaicodeJob, ZaicodeStatsActivity, ZaicodeStatsWorkerSession } from "@zcode/shared";
-import { useZaicodeWorkers, type ZaicodeWorker } from "../zaicodeWorkers.js";
+import { logger } from "@/logger.js";
+import type { ZaicodeHomeStats, ZaicodeJob, ZaicodeStatsActivity } from "@zcode/shared";
+import { useZaicodeWorkers } from "../zaicodeWorkers.js";
 import { refreshZaicodeRouterHost } from "../zaicodeRouterSetup.js";
 import { useZaicodeRouter } from "../zaicodeRouter.js";
 import { readZaicodeHomePrefs } from "./zaicodeHomePrefs.js";
+import { ZaicodeWorkerStatsRecorder } from "./zaicodeWorkerStatsRecorder.js";
+export { zaicodeWorkerSession } from "./zaicodeWorkerStatsRecorder.js";
 
 /**
  * SAIHOME's one feed (T-56). Every widget reads this store; only this module
@@ -41,6 +44,8 @@ let accessor: IServiceAccessor | null = null;
 /** The base (local) services; SAIHOME statistics never go to a remote host. */
 export function publishZaicodeHomeServices(next: IServiceAccessor | null): void {
   accessor = next;
+  // T-253 — 服务恢复时，已消失的 worker 不会再产生数组更新，必须从现有发布入口重试 pending。
+  void flushWorkerStatistics();
 }
 
 /** The same base (local host) services, for work that must not depend on a mounted sidebar row. */
@@ -67,41 +72,74 @@ export function refreshZaicodeHome(): Promise<void> {
   if (inflight) return inflight;
   inflight = (async () => {
     useZaicodeHomeFeed.setState({ refreshing: true });
+    const workerFlush = flushWorkerStatistics();
     const prefs = readZaicodeHomePrefs();
     const statsService = accessor?.zaicodeStatsService;
     const jobService = accessor?.zaicodeJobService;
     const now = Date.now();
-    const tasks: Promise<void>[] = [];
+    const tasks: Promise<void>[] = [workerFlush];
     if (statsService) {
       tasks.push(
-        statsService
-          .getHomeStats({ timeZone: localTimeZone(), weekStartsOn: prefs.weekStartsOn, streakMeasure: prefs.streakMeasure, gridDays: prefs.gridDays })
-          .then((value) => useZaicodeHomeFeed.setState({ stats: { value, readAt: Date.now(), error: null } }))
+        workerFlush
+          .then(() =>
+            statsService.getHomeStats({
+              timeZone: localTimeZone(),
+              weekStartsOn: prefs.weekStartsOn,
+              streakMeasure: prefs.streakMeasure,
+              gridDays: prefs.gridDays,
+            }),
+          )
+          .then((value) =>
+            useZaicodeHomeFeed.setState({ stats: { value, readAt: Date.now(), error: null } }),
+          )
           .catch((error: unknown) =>
-            useZaicodeHomeFeed.setState((state) => ({ stats: { ...state.stats, error: message(error) } })),
+            useZaicodeHomeFeed.setState((state) => ({
+              stats: { ...state.stats, error: message(error) },
+            })),
           ),
-        statsService
-          .getRecentActivity(12)
-          .then((value) => useZaicodeHomeFeed.setState({ activity: { value, readAt: Date.now(), error: null } }))
+        workerFlush
+          .then(() => statsService.getRecentActivity(12))
+          .then((value) =>
+            useZaicodeHomeFeed.setState({ activity: { value, readAt: Date.now(), error: null } }),
+          )
           .catch((error: unknown) =>
-            useZaicodeHomeFeed.setState((state) => ({ activity: { ...state.activity, error: message(error) } })),
+            useZaicodeHomeFeed.setState((state) => ({
+              activity: { ...state.activity, error: message(error) },
+            })),
           ),
       );
     } else {
-      useZaicodeHomeFeed.setState((state) => ({ stats: { ...state.stats, error: "statistics need the local desktop host" } }));
+      useZaicodeHomeFeed.setState((state) => ({
+        stats: { ...state.stats, error: "statistics need the local desktop host" },
+      }));
     }
     if (jobService) {
       tasks.push(
         jobService
           .list({})
-          .then((result) => useZaicodeHomeFeed.setState({ jobs: { value: result.jobs, readAt: Date.now(), error: null } }))
+          .then((result) =>
+            useZaicodeHomeFeed.setState({
+              jobs: { value: result.jobs, readAt: Date.now(), error: null },
+            }),
+          )
           .catch((error: unknown) =>
-            useZaicodeHomeFeed.setState((state) => ({ jobs: { ...state.jobs, error: message(error) } })),
+            useZaicodeHomeFeed.setState((state) => ({
+              jobs: { ...state.jobs, error: message(error) },
+            })),
           ),
       );
     }
-    tasks.push(refreshZaicodeRouterHost().then(() => undefined).catch(() => undefined));
-    tasks.push(useZaicodeRouter.getState().refresh().catch(() => undefined));
+    tasks.push(
+      refreshZaicodeRouterHost()
+        .then(() => undefined)
+        .catch(() => undefined),
+    );
+    tasks.push(
+      useZaicodeRouter
+        .getState()
+        .refresh()
+        .catch(() => undefined),
+    );
     await Promise.all(tasks);
     useZaicodeHomeFeed.setState({ refreshing: false, lastRefreshAt: now });
   })().finally(() => {
@@ -143,21 +181,6 @@ export function useZaicodeHomeFeedRefresh(): void {
   }, []);
 }
 
-/** A worker's finished session, or null while it runs / when it is not a subscription worker. */
-export function zaicodeWorkerSession(worker: ZaicodeWorker, endedAt: number | null): ZaicodeStatsWorkerSession | null {
-  if (worker.kind !== "worker") return null;
-  const end = worker.endedAt ?? endedAt;
-  if (end === null) return null;
-  return {
-    id: worker.id,
-    startedAt: worker.startedAt,
-    endedAt: end,
-    project: worker.projectPath,
-    engine: worker.short,
-    exitCode: worker.exitCode,
-  };
-}
-
 /**
  * Records every subscription worker session when it ends or is closed
  * (mount once, app-wide). The service ignores an id it already has, so a
@@ -165,32 +188,27 @@ export function zaicodeWorkerSession(worker: ZaicodeWorker, endedAt: number | nu
  */
 export function useZaicodeWorkerStatsRecorder(): void {
   const workers = useZaicodeWorkers().workers;
+  const baseServices = useOptionalBaseWorkspaceServices();
   useEffect(() => {
-    const seen = recorderMemory;
-    const now = Date.now();
-    const finished: ZaicodeStatsWorkerSession[] = [];
-    const present = new Set<string>();
-    for (const worker of workers) {
-      present.add(worker.id);
-      seen.running.set(worker.id, worker);
-      if (worker.exitCode !== null && !seen.recorded.has(worker.id)) {
-        const session = zaicodeWorkerSession(worker, now);
-        if (session) finished.push(session);
-        seen.recorded.add(worker.id);
-      }
-    }
-    // Closed while still running: the session ends now ("stopped").
-    for (const [id, worker] of seen.running) {
-      if (present.has(id)) continue;
-      seen.running.delete(id);
-      if (seen.recorded.has(id)) continue;
-      seen.recorded.add(id);
-      const session = zaicodeWorkerSession(worker, now);
-      if (session) finished.push(session);
-    }
-    const service = accessor?.zaicodeStatsService;
-    if (finished.length > 0 && service) void service.recordWorkerSessions(finished).catch(() => undefined);
-  }, [workers]);
+    workerRecorder.observe(workers, Date.now());
+    publishZaicodeHomeServices(baseServices);
+  }, [workers, baseServices]);
 }
 
-const recorderMemory = { running: new Map<string, ZaicodeWorker>(), recorded: new Set<string>() };
+const workerRecorder = new ZaicodeWorkerStatsRecorder();
+let lastRecordingError: string | null = null;
+
+async function flushWorkerStatistics(): Promise<void> {
+  try {
+    const service = accessor?.zaicodeStatsService;
+    await workerRecorder.flush(
+      service ? (sessions) => service.recordWorkerSessions(sessions) : undefined,
+    );
+    if (service) lastRecordingError = null;
+  } catch (error) {
+    const detail = message(error);
+    if (detail !== lastRecordingError)
+      logger.warn("ZAICODE worker statistics delivery pending:", detail);
+    lastRecordingError = detail;
+  }
+}
