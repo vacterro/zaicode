@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { readZaicodeSetting } from "./zaicodeSettingsSnapshot.js";
+import { normalizeTranscriptView, type TranscriptView } from "@/lib/transcriptView.js";
 import {
   ZAICODE_SIDE_PANE_VISIBILITY_DEFAULT,
   normalizeZaicodeSidePaneVisibility,
@@ -88,6 +89,7 @@ export interface ZaicodeUiPrefs {
    * shows all of them at once.
    */
   actionView: ZaicodeActionView;
+  transcriptView: TranscriptView;
   /**
    * SRC-151:R011: right-click a control that owns settings. `true` opens that
    * control's own settings panel; `false` leaves right-click to the app menu
@@ -152,6 +154,7 @@ export const ZAICODE_UI_DEFAULT_PREFS: ZaicodeUiPrefs = {
   relaunchWorkersAfterCrash: true,
   clearMode: "session",
   actionView: "compact",
+  transcriptView: "compact",
   rightClickSettings: {},
   sidePaneVisibility: { ...ZAICODE_SIDE_PANE_VISIBILITY_DEFAULT },
   noMotion: false,
@@ -183,8 +186,11 @@ function flags(value: unknown): Record<string, boolean> {
 
 export function normalizeZaicodeUiPrefs(raw: unknown): ZaicodeUiPrefs {
   const d = ZAICODE_UI_DEFAULT_PREFS;
-  const r = (raw && typeof raw === "object" ? raw : {}) as Partial<Record<keyof ZaicodeUiPrefs, unknown>>;
-  const flag = (value: unknown, fallback: boolean) => (typeof value === "boolean" ? value : fallback);
+  const r = (raw && typeof raw === "object" ? raw : {}) as Partial<
+    Record<keyof ZaicodeUiPrefs, unknown>
+  >;
+  const flag = (value: unknown, fallback: boolean) =>
+    typeof value === "boolean" ? value : fallback;
   const from = int(r.greetingFromHour, 0, 23, d.greetingFromHour);
   const to = int(r.greetingToHour, 1, 24, d.greetingToHour);
   const homeCurrent = typeof r.homeRev === "number" && r.homeRev >= HOME_REV;
@@ -198,7 +204,9 @@ export function normalizeZaicodeUiPrefs(raw: unknown): ZaicodeUiPrefs {
     greetingToHour: to,
     showEmptyMarker: homeCurrent ? flag(r.showEmptyMarker, d.showEmptyMarker) : d.showEmptyMarker,
     saimailOnHome: flag(r.saimailOnHome, d.saimailOnHome),
-    saimailHomeShowEmpty: homeCurrent ? flag(r.saimailHomeShowEmpty, d.saimailHomeShowEmpty) : d.saimailHomeShowEmpty,
+    saimailHomeShowEmpty: homeCurrent
+      ? flag(r.saimailHomeShowEmpty, d.saimailHomeShowEmpty)
+      : d.saimailHomeShowEmpty,
     saimailShowCount: flag(r.saimailShowCount, d.saimailShowCount),
     saimailUnreadRing: flag(r.saimailUnreadRing, d.saimailUnreadRing),
     saimailHoverPreview: flag(r.saimailHoverPreview, d.saimailHoverPreview),
@@ -209,8 +217,18 @@ export function normalizeZaicodeUiPrefs(raw: unknown): ZaicodeUiPrefs {
         : d.saimailClick,
     autoRetry: flag(r.autoRetry, d.autoRetry),
     autoRetryIntervalSec: int(r.autoRetryIntervalSec, 10, 3600, d.autoRetryIntervalSec),
-    autoRetryMaxAttempts: int(r.autoRetryMaxAttempts, 1, ZAICODE_AUTO_RETRY_HARD_CAP, d.autoRetryMaxAttempts),
-    autoRetryScope: r.autoRetryScope === "session" ? "session" : r.autoRetryScope === "project" ? "project" : "global",
+    autoRetryMaxAttempts: int(
+      r.autoRetryMaxAttempts,
+      1,
+      ZAICODE_AUTO_RETRY_HARD_CAP,
+      d.autoRetryMaxAttempts,
+    ),
+    autoRetryScope:
+      r.autoRetryScope === "session"
+        ? "session"
+        : r.autoRetryScope === "project"
+          ? "project"
+          : "global",
     autoRetryProjects: flags(r.autoRetryProjects),
     autoRetrySessions: flags(r.autoRetrySessions),
     schedulerIneligible: flags(r.schedulerIneligible),
@@ -219,6 +237,7 @@ export function normalizeZaicodeUiPrefs(raw: unknown): ZaicodeUiPrefs {
     relaunchWorkersAfterCrash: flag(r.relaunchWorkersAfterCrash, d.relaunchWorkersAfterCrash),
     clearMode: r.clearMode === "new" ? "new" : "session",
     actionView: r.actionView === "full" ? "full" : "compact",
+    transcriptView: normalizeTranscriptView(r.transcriptView),
     rightClickSettings: flags(r.rightClickSettings),
     sidePaneVisibility: normalizeZaicodeSidePaneVisibility(r.sidePaneVisibility),
     noMotion: flag(r.noMotion, d.noMotion),
@@ -263,12 +282,20 @@ export function isZaicodeGreetingHour(hour: number, from: number, to: number): b
 }
 
 /** Fills `{name}` and `{time}` in a custom greeting. */
-export function formatZaicodeGreeting(template: string, values: { name: string; time: string }): string {
-  return template.replace(/\{name\}/g, values.name).replace(/\{time\}/g, values.time).trim();
+export function formatZaicodeGreeting(
+  template: string,
+  values: { name: string; time: string },
+): string {
+  return template
+    .replace(/\{name\}/g, values.name)
+    .replace(/\{time\}/g, values.time)
+    .trim();
 }
 
 /** The <html> classes the calm-interface switches map to (CSS in zaicodePalettes.ts). */
-export function zaicodeCalmClasses(prefs: Pick<ZaicodeUiPrefs, "noMotion" | "noDim" | "noHoverPopups">): Record<string, boolean> {
+export function zaicodeCalmClasses(
+  prefs: Pick<ZaicodeUiPrefs, "noMotion" | "noDim" | "noHoverPopups">,
+): Record<string, boolean> {
   return {
     "zaicode-no-motion": prefs.noMotion,
     "zaicode-no-dim": prefs.noDim,
@@ -277,7 +304,9 @@ export function zaicodeCalmClasses(prefs: Pick<ZaicodeUiPrefs, "noMotion" | "noD
 }
 
 /** One switch for all three (the hotkey and the master checkbox). */
-export function isZaicodeCalm(prefs: Pick<ZaicodeUiPrefs, "noMotion" | "noDim" | "noHoverPopups">): boolean {
+export function isZaicodeCalm(
+  prefs: Pick<ZaicodeUiPrefs, "noMotion" | "noDim" | "noHoverPopups">,
+): boolean {
   return prefs.noMotion && prefs.noDim && prefs.noHoverPopups;
 }
 
@@ -292,7 +321,8 @@ export function reloadZaicodeUiPrefs(): void {
  * 编辑范围不改变继承规则；当前会话 > 项目 > 全局，不能把全局 ON 冒充有效 ON。
  */
 export function zaicodeAutoRetryEnabled(
-  prefs: Pick<ZaicodeUiPrefs, "autoRetry" | "autoRetryScope" | "autoRetryProjects"> & Partial<Pick<ZaicodeUiPrefs, "autoRetrySessions">>,
+  prefs: Pick<ZaicodeUiPrefs, "autoRetry" | "autoRetryScope" | "autoRetryProjects"> &
+    Partial<Pick<ZaicodeUiPrefs, "autoRetrySessions">>,
   projectKey: string,
   sessionId?: string | null,
 ): boolean {
@@ -304,13 +334,17 @@ export function zaicodeAutoRetryEnabled(
 
 /** The patch the composer switch writes: a per-project answer, or the one global flag. */
 export function zaicodeAutoRetryPatch(
-  prefs: Pick<ZaicodeUiPrefs, "autoRetry" | "autoRetryScope" | "autoRetryProjects"> & Partial<Pick<ZaicodeUiPrefs, "autoRetrySessions">>,
+  prefs: Pick<ZaicodeUiPrefs, "autoRetry" | "autoRetryScope" | "autoRetryProjects"> &
+    Partial<Pick<ZaicodeUiPrefs, "autoRetrySessions">>,
   projectKey: string,
   next: boolean,
   sessionId?: string | null,
 ): Partial<ZaicodeUiPrefs> {
   if (prefs.autoRetryScope === "global") return { autoRetry: next };
-  if (prefs.autoRetryScope === "session") return sessionId ? { autoRetrySessions: { ...prefs.autoRetrySessions, [sessionId]: next } } : {};
+  if (prefs.autoRetryScope === "session")
+    return sessionId
+      ? { autoRetrySessions: { ...prefs.autoRetrySessions, [sessionId]: next } }
+      : {};
   return { autoRetryProjects: { ...prefs.autoRetryProjects, [projectKey]: next } };
 }
 
@@ -320,7 +354,8 @@ export function zaicodeAutoRetryPatch(
  * write here, never to an unrelated editing scope.
  */
 export function zaicodeAutoRetryEffectiveScope(
-  prefs: Pick<ZaicodeUiPrefs, "autoRetryProjects"> & Partial<Pick<ZaicodeUiPrefs, "autoRetrySessions">>,
+  prefs: Pick<ZaicodeUiPrefs, "autoRetryProjects"> &
+    Partial<Pick<ZaicodeUiPrefs, "autoRetrySessions">>,
   projectKey: string,
   sessionId?: string | null,
 ): "session" | "project" | "global" {
@@ -335,14 +370,17 @@ export function zaicodeAutoRetryEffectiveScope(
  * currently owns the effective value instead of a hidden editing scope.
  */
 export function zaicodeAutoRetryEffectivePatch(
-  prefs: Pick<ZaicodeUiPrefs, "autoRetry" | "autoRetryProjects"> & Partial<Pick<ZaicodeUiPrefs, "autoRetrySessions">>,
+  prefs: Pick<ZaicodeUiPrefs, "autoRetry" | "autoRetryProjects"> &
+    Partial<Pick<ZaicodeUiPrefs, "autoRetrySessions">>,
   projectKey: string,
   next: boolean,
   sessionId?: string | null,
 ): Partial<ZaicodeUiPrefs> {
   const scope = zaicodeAutoRetryEffectiveScope(prefs, projectKey, sessionId);
-  if (scope === "session" && sessionId) return { autoRetrySessions: { ...prefs.autoRetrySessions, [sessionId]: next } };
-  if (scope === "project") return { autoRetryProjects: { ...prefs.autoRetryProjects, [projectKey]: next } };
+  if (scope === "session" && sessionId)
+    return { autoRetrySessions: { ...prefs.autoRetrySessions, [sessionId]: next } };
+  if (scope === "project")
+    return { autoRetryProjects: { ...prefs.autoRetryProjects, [projectKey]: next } };
   return { autoRetry: next };
 }
 
@@ -352,7 +390,8 @@ export function zaicodeAutoRetryEffectivePatch(
  * session override controls the actual behavior.
  */
 export function zaicodeAutoRetryEffectiveLabel(
-  prefs: Pick<ZaicodeUiPrefs, "autoRetry" | "autoRetryProjects"> & Partial<Pick<ZaicodeUiPrefs, "autoRetrySessions">>,
+  prefs: Pick<ZaicodeUiPrefs, "autoRetry" | "autoRetryProjects"> &
+    Partial<Pick<ZaicodeUiPrefs, "autoRetrySessions">>,
   projectKey: string,
   sessionId?: string | null,
 ): string {
@@ -369,7 +408,11 @@ export function zaicodeAutoRetryScopeNext(scope: ZaicodeAutoRetryScope): Zaicode
 
 /** What the scope switch says; the tooltip spells out what each mode covers. */
 export function zaicodeAutoRetryScopeLabel(scope: ZaicodeAutoRetryScope): string {
-  return scope === "global" ? "Global default" : scope === "project" ? "This project" : "This session";
+  return scope === "global"
+    ? "Global default"
+    : scope === "project"
+      ? "This project"
+      : "This session";
 }
 
 /**

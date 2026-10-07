@@ -1029,7 +1029,15 @@ const UserInputRowView = memo(function UserInputRowView({
         setSubmitting(false);
       }
     },
-    [editAttachments, editContextCount, editPromptContexts, onEdit, row.entityId, row.rowId, zaicodeGoal.goal],
+    [
+      editAttachments,
+      editContextCount,
+      editPromptContexts,
+      onEdit,
+      row.entityId,
+      row.rowId,
+      zaicodeGoal.goal,
+    ],
   );
   const rewindWorkspaceDisabled = submitting || editWorkspaceRewindAvailability?.enabled !== true;
   const rewindWorkspaceButton = (
@@ -2106,9 +2114,11 @@ function ConversationRowViewImpl({
           hideActions={hideAssistantActions}
           deferActions={deferAssistantActions}
           copyText={assistantCopyText}
-          previewCards={assistantPreviewCards}
+          previewCards={context.transcriptView === "only-text" ? undefined : assistantPreviewCards}
           previewCardsAutoOpenKey={assistantPreviewCardsAutoOpenKey}
-          codeCommentCards={assistantCodeCommentCards}
+          codeCommentCards={
+            context.transcriptView === "only-text" ? undefined : assistantCodeCommentCards
+          }
           codeCommentProjectionEnabled={assistantCodeCommentProjectionEnabled}
         />
       );

@@ -676,17 +676,21 @@ function ConversationWorkSegmentFlow({
     setHistoryOpen(segment.assistantHistoryDefaultOpen);
   }, [segment.assistantHistoryDefaultOpen, segment.key]);
 
-  const shouldShowHistoryStatus = segment.workStatus !== undefined;
+  const onlyText = context.transcriptView === "only-text";
+  const shouldShowHistoryStatus = !onlyText && segment.workStatus !== undefined;
   const firstAssistantFlowItemIndex = segment.flowItems.findIndex(
     (item) => item.kind !== "userInput",
   );
   let historyChunkIndex = 0;
-  const open = segment.assistantHistoryDefaultOpen ? true : historyOpen;
+  const expandedView = context.transcriptView === "full" || onlyText;
+  const open = expandedView || segment.assistantHistoryDefaultOpen || historyOpen;
 
   return (
     <Collapsible
       open={open}
-      onOpenChange={segment.assistantHistoryDefaultOpen ? undefined : setHistoryOpen}
+      onOpenChange={
+        expandedView || segment.assistantHistoryDefaultOpen ? undefined : setHistoryOpen
+      }
       // 外层 flex gap 不属于 Radix 测量的 content 高度，收起到 0 后会在
       // display:none 的最后一帧再少 20px。普通兄弟用外边距保持原盒模型，history
       // 的间距则放进动画层。
@@ -1431,7 +1435,7 @@ function ConversationTurnGroupImpl({
             />
           )}
           {/* 完成卡：这一轮消化的那条 run 做了什么、花了多少，紧跟最后一段正文。 */}
-          {workflowTurnCompletion === undefined ? null : (
+          {context.transcriptView === "only-text" || workflowTurnCompletion === undefined ? null : (
             <ConversationWorkflowCompletion
               completion={workflowTurnCompletion}
               context={context}
@@ -1439,16 +1443,18 @@ function ConversationTurnGroupImpl({
             />
           )}
           {/* 轮尾摘要：这一轮留下在跑的 run，排在完成卡之后、其余轮尾块之前。 */}
-          <ConversationWorkflowDigests
-            context={context}
-            digests={workflowTurnDigests}
-            turnKey={unit.key}
-          />
+          {context.transcriptView !== "only-text" ? (
+            <ConversationWorkflowDigests
+              context={context}
+              digests={workflowTurnDigests}
+              turnKey={unit.key}
+            />
+          ) : null}
           {/* CronCreate/CronUpdate 工具本身仍按普通工具行展示；成功卡片属于整轮
               完成后的结果摘要，必须等回复结束再跟随最终 assistant 正文收尾。 */}
           <CronAutomationTurnCards cards={cronAutomationTurnCards} context={context} />
           <OffPeakTurnCards cards={offPeakTurnCards} context={context} />
-          {!isOfficeMode && unit.header?.fileChanges ? (
+          {context.transcriptView !== "only-text" && !isOfficeMode && unit.header?.fileChanges ? (
             <ConversationFileSummaryPanel header={unit.header} context={context} />
           ) : null}
           {unit.browserTurnEndRows.length > 0 ? (

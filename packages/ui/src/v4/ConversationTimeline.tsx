@@ -39,6 +39,9 @@ import { ConversationTurnNavigator } from "@/v4/ConversationTurnNavigator.js";
 // the same render units and jumps through the same scrollToQuery anchor as the turn
 // navigator, so there is one way to address a row, and nothing new is stored to go stale.
 import { ConversationTurnNavStrip } from "@/v4/ConversationTurnNavStrip.js";
+import { useZaicodeUiPrefs } from "@/zaicode/zaicodeUiPrefs.js";
+import { TranscriptViewContext, projectTranscriptRows } from "@/lib/transcriptView.js";
+import { ConversationTranscriptControl } from "@/v4/ConversationTranscriptControl.js";
 import { syncConversationShareSelectionPanelLayout } from "@/v4/conversationShareSelectionPanelLayout.js";
 import type { ConversationRowRenderContext } from "@/v4/conversationRowContext.js";
 import { splitConversationTimelineLiveTail } from "@/v4/conversationTimelineLiveTail.js";
@@ -360,7 +363,7 @@ function ConversationTimelineImpl({
   totalCount,
   sessionKey,
   scrollMemoryKey = null,
-  rowContext,
+  rowContext: suppliedRowContext,
   onFork,
   onRetry,
   onFeedbackChange,
@@ -393,6 +396,31 @@ function ConversationTimelineImpl({
   hideTurnNavigator = false,
 }: ConversationTimelineProps) {
   const { intl } = useZCodeIntl();
+  const preferredTranscriptView = useZaicodeUiPrefs((state) => state.transcriptView);
+  const updateUiPrefs = useZaicodeUiPrefs((state) => state.update);
+  const transcriptView = isZaicodeProductMode() ? preferredTranscriptView : "compact";
+  const rowContext = useMemo(
+    () =>
+      transcriptView === "compact"
+        ? suppliedRowContext
+        : {
+            ...suppliedRowContext,
+            transcriptView,
+            messageStreamShowReasoning: transcriptView === "full",
+            messageStreamShowTodos: transcriptView === "full",
+          },
+    [suppliedRowContext, transcriptView],
+  );
+  const transcriptRows = useMemo(
+    () => projectTranscriptRows(rows, transcriptView),
+    [rows, transcriptView],
+  );
+  const failedToolNames =
+    transcriptView === "only-text"
+      ? rows.flatMap((row) =>
+          row.kind === "toolCall" && row.status === "error" ? [row.toolName] : [],
+        )
+      : [];
   const scrollRef = useRef<HTMLDivElement>(null);
   const headerSlotRef = useRef<HTMLDivElement>(null);
   // headerSlot 高度参与虚拟窗口换算（scrollMargin），必须随内容与宽度变化实时跟进，
@@ -420,11 +448,11 @@ function ConversationTimelineImpl({
   }, [hasHeaderSlot]);
   const renderUnits = useMemo(
     () =>
-      buildConversationTurnRenderUnits(rows, {
+      buildConversationTurnRenderUnits(transcriptRows, {
         nowMs: Date.now(),
         sessionPhase,
       }),
-    [rows, sessionPhase],
+    [transcriptRows, sessionPhase],
   );
   const { virtualizedUnits, liveUnit, liveUnitIndex } = useMemo(
     () => splitConversationTimelineLiveTail(renderUnits),
@@ -723,6 +751,11 @@ function ConversationTimelineImpl({
     // 渲染窗口整体偏移一个 header 高度，用户滚到的区域会是空白。
     scrollMargin: headerSlotHeight,
   });
+  useLayoutEffect(() => {
+    // 视图切换改变未挂载历史行的高度，不能继续复用上一模式的虚拟测高。
+    heightCacheRef.current?.clear();
+    virtualizer.measure();
+  }, [transcriptView, virtualizer]);
   virtualizer.shouldAdjustScrollPositionOnItemSizeChange = (item) => {
     return shouldAdjustVirtualizerForItemSizeChange({
       suppressAdjustment: suppressVirtualizerAdjustmentDuringRestoreRef.current,
@@ -1409,7 +1442,7 @@ function ConversationTimelineImpl({
   useConversationTimelineFind({
     rootRef: scrollRef,
     renderUnits,
-    rows,
+    rows: transcriptRows,
     mountedRowsKey,
     canLoadOlder,
     loadingOlder,
@@ -1693,7 +1726,22 @@ function ConversationTimelineImpl({
   // raw projection row 与按 turn 合并后的 render unit 不是同一计量单位；
   // 分开暴露才能让恢复/分页验证不再把可见 unit 误当成持久 row。
   return (
-    <div ref={timelineRootRef} className="relative flex min-h-0 flex-1 flex-col">
+    <div
+      ref={timelineRootRef}
+      data-transcript-view={transcriptView}
+      className="relative flex min-h-0 flex-1 flex-col"
+    >
+      {isZaicodeProductMode() ? (
+        <ConversationTranscriptControl
+          view={transcriptView}
+          onChange={(view) => updateUiPrefs({ transcriptView: view })}
+        />
+      ) : null}
+      {failedToolNames.length > 0 ? (
+        <div role="alert" className="shrink-0 px-3 py-1 text-ui-xs text-destructive">
+          Tool failed: {failedToolNames.join(", ")}. Select Full for details.
+        </div>
+      ) : null}
       {selectionActions ? (
         <ConversationSelectionTooltip
           rootRef={scrollRef}
@@ -1826,124 +1874,126 @@ function ConversationTimelineImpl({
               data-v4-timeline-message-layer="true"
               className="relative w-full flex-1 [mask-repeat:no-repeat] [-webkit-mask-repeat:no-repeat]"
             >
-              {/*
-               * headerSlot 必须落在被 mask 的消息层内、并套用与实时消息列相同的宽度类：
-               * 放在消息层之外会既比正文宽、又从 sticky composer 下方透出来。
-               */}
-              {headerSlot ? (
+              <TranscriptViewContext.Provider value={transcriptView}>
+                {/*
+                 * headerSlot 必须落在被 mask 的消息层内、并套用与实时消息列相同的宽度类：
+                 * 放在消息层之外会既比正文宽、又从 sticky composer 下方透出来。
+                 */}
+                {headerSlot ? (
+                  <div
+                    ref={headerSlotRef}
+                    data-v4-timeline-header-slot="true"
+                    data-v4-timeline-content-column="true"
+                    className={cn(
+                      "relative mx-auto w-full shrink-0",
+                      contentWidthClassName,
+                      summaryPanelInlineOffsetClassName,
+                    )}
+                  >
+                    {headerSlot}
+                  </div>
+                ) : null}
                 <div
-                  ref={headerSlotRef}
-                  data-v4-timeline-header-slot="true"
+                  ref={virtualHistoryRef}
+                  data-v4-timeline-virtual-history="true"
                   data-v4-timeline-content-column="true"
                   className={cn(
-                    "relative mx-auto w-full shrink-0",
-                    contentWidthClassName,
-                    summaryPanelInlineOffsetClassName,
-                  )}
-                >
-                  {headerSlot}
-                </div>
-              ) : null}
-              <div
-                ref={virtualHistoryRef}
-                data-v4-timeline-virtual-history="true"
-                data-v4-timeline-content-column="true"
-                className={cn(
-                  // 默认（< 1280px）过渡 width/max-width/transform，让 w-full ↔ max-w-4xl
-                  // 的中等宽度切换平滑；≥1280px 触发的面板让位（max-w-6xl + 168px 左移）
-                  // 用 @min-[1280px] 降级为只过渡 transform，避免大范围跳变叠加位移抖动。
-                  "relative mx-auto w-full shrink-0 transition-[width,max-width,transform] duration-150 ease-out @min-[1280px]/conversation:transition-[transform]",
-                  contentWidthClassName,
-                  summaryPanelInlineOffsetClassName,
-                )}
-                style={{ height: totalSize }}
-              >
-                {virtualRows.map((virtualRow) => {
-                  const unit = virtualizedUnits[virtualRow.index];
-                  if (!unit) return null;
-                  return (
-                    <div
-                      key={`${virtualRow.key}:${rowContext.logEpoch ?? ""}`}
-                      ref={virtualizer.measureElement}
-                      data-index={virtualRow.index}
-                      data-v4-turn-unit="true"
-                      data-turn-id={unit.turnId}
-                      // virtual history 的子项通过 absolute 定位，父级 padding 不会缩小
-                      // 它们的 containing block；正文响应式内边距必须落在 turn wrapper 自身。
-                      className="absolute left-0 top-0 w-full"
-                      // ZAICODE (SRC-038): measured row heights are fractional; a pixel font on a
-                      // half-pixel row is blurred, so rows start on whole pixels there.
-                      style={{
-                        transform: `translateY(${
-                          zaicodeWholePixelRows
-                            ? Math.round(virtualRow.start - headerSlotHeight)
-                            : virtualRow.start - headerSlotHeight
-                        }px)`,
-                      }}
-                    >
-                      <ConversationTurnGroup
-                        unit={unit}
-                        apiRetry={null}
-                        context={rowContext}
-                        onFork={onFork}
-                        onRetry={onRetry}
-                        onFeedbackChange={onFeedbackChange}
-                        onEdit={onEdit}
-                        shareSelection={shareSelection}
-                      />
-                    </div>
-                  );
-                })}
-              </div>
-              {liveUnit !== null && liveUnitIndex !== null ? (
-                <div
-                  key={`${liveUnit.key}:${rowContext.logEpoch ?? ""}`}
-                  ref={liveTailRef}
-                  data-index={liveUnitIndex}
-                  data-v4-running-live-tail="true"
-                  data-v4-turn-unit="true"
-                  data-turn-id={liveUnit.turnId}
-                  data-v4-timeline-content-column="true"
-                  className={cn(
-                    // ≥1280px 面板让位时降级为只过渡 transform，避免大范围跳变叠加位移抖动。
+                    // 默认（< 1280px）过渡 width/max-width/transform，让 w-full ↔ max-w-4xl
+                    // 的中等宽度切换平滑；≥1280px 触发的面板让位（max-w-6xl + 168px 左移）
+                    // 用 @min-[1280px] 降级为只过渡 transform，避免大范围跳变叠加位移抖动。
                     "relative mx-auto w-full shrink-0 transition-[width,max-width,transform] duration-150 ease-out @min-[1280px]/conversation:transition-[transform]",
                     contentWidthClassName,
                     summaryPanelInlineOffsetClassName,
                   )}
+                  style={{ height: totalSize }}
                 >
-                  <ConversationTurnGroup
-                    unit={liveUnit}
-                    apiRetry={apiRetry}
-                    context={rowContext}
-                    onFork={onFork}
-                    onRetry={onRetry}
-                    onFeedbackChange={onFeedbackChange}
-                    onEdit={onEdit}
-                    shareSelection={shareSelection}
-                  />
+                  {virtualRows.map((virtualRow) => {
+                    const unit = virtualizedUnits[virtualRow.index];
+                    if (!unit) return null;
+                    return (
+                      <div
+                        key={`${virtualRow.key}:${rowContext.logEpoch ?? ""}`}
+                        ref={virtualizer.measureElement}
+                        data-index={virtualRow.index}
+                        data-v4-turn-unit="true"
+                        data-turn-id={unit.turnId}
+                        // virtual history 的子项通过 absolute 定位，父级 padding 不会缩小
+                        // 它们的 containing block；正文响应式内边距必须落在 turn wrapper 自身。
+                        className="absolute left-0 top-0 w-full"
+                        // ZAICODE (SRC-038): measured row heights are fractional; a pixel font on a
+                        // half-pixel row is blurred, so rows start on whole pixels there.
+                        style={{
+                          transform: `translateY(${
+                            zaicodeWholePixelRows
+                              ? Math.round(virtualRow.start - headerSlotHeight)
+                              : virtualRow.start - headerSlotHeight
+                          }px)`,
+                        }}
+                      >
+                        <ConversationTurnGroup
+                          unit={unit}
+                          apiRetry={null}
+                          context={rowContext}
+                          onFork={onFork}
+                          onRetry={onRetry}
+                          onFeedbackChange={onFeedbackChange}
+                          onEdit={onEdit}
+                          shareSelection={shareSelection}
+                        />
+                      </div>
+                    );
+                  })}
                 </div>
-              ) : null}
-              {pendingGuides.length > 0 ? (
-                <div
-                  data-v4-timeline-content-column="true"
-                  className={cn(
-                    "relative mx-auto w-full shrink-0",
-                    contentWidthClassName,
-                    summaryPanelInlineOffsetClassName,
-                  )}
-                >
-                  <ConversationPendingGuideList
-                    context={rowContext}
-                    items={pendingGuides}
-                    turnId={
-                      liveUnit?.turnId ??
-                      rows.at(-1)?.productTurnId ??
-                      rows.at(-1)?.turnId ??
-                      "pending-guide"
-                    }
-                  />
-                </div>
-              ) : null}
+                {liveUnit !== null && liveUnitIndex !== null ? (
+                  <div
+                    key={`${liveUnit.key}:${rowContext.logEpoch ?? ""}`}
+                    ref={liveTailRef}
+                    data-index={liveUnitIndex}
+                    data-v4-running-live-tail="true"
+                    data-v4-turn-unit="true"
+                    data-turn-id={liveUnit.turnId}
+                    data-v4-timeline-content-column="true"
+                    className={cn(
+                      // ≥1280px 面板让位时降级为只过渡 transform，避免大范围跳变叠加位移抖动。
+                      "relative mx-auto w-full shrink-0 transition-[width,max-width,transform] duration-150 ease-out @min-[1280px]/conversation:transition-[transform]",
+                      contentWidthClassName,
+                      summaryPanelInlineOffsetClassName,
+                    )}
+                  >
+                    <ConversationTurnGroup
+                      unit={liveUnit}
+                      apiRetry={apiRetry}
+                      context={rowContext}
+                      onFork={onFork}
+                      onRetry={onRetry}
+                      onFeedbackChange={onFeedbackChange}
+                      onEdit={onEdit}
+                      shareSelection={shareSelection}
+                    />
+                  </div>
+                ) : null}
+                {pendingGuides.length > 0 ? (
+                  <div
+                    data-v4-timeline-content-column="true"
+                    className={cn(
+                      "relative mx-auto w-full shrink-0",
+                      contentWidthClassName,
+                      summaryPanelInlineOffsetClassName,
+                    )}
+                  >
+                    <ConversationPendingGuideList
+                      context={rowContext}
+                      items={pendingGuides}
+                      turnId={
+                        liveUnit?.turnId ??
+                        rows.at(-1)?.productTurnId ??
+                        rows.at(-1)?.turnId ??
+                        "pending-guide"
+                      }
+                    />
+                  </div>
+                ) : null}
+              </TranscriptViewContext.Provider>
             </div>
           )}
           {bottomDock ? (

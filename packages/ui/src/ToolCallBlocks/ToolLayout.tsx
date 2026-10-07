@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/tooltip.js";
 import { ToolSummaryRow, type ToolSummaryAction } from "@/ToolCallBlocks/ToolSummaryRow.js";
 import { uiMemoryDiagnosticsRegistry } from "@/lib/memoryDiagnostics.js";
+import { useExpandedTranscript } from "@/lib/transcriptView.js";
 
 const toolLayoutOpenState = new Map<string, boolean>();
 // 内存诊断计数器：该表按 toolId 只增不减，先落日志。
@@ -104,12 +105,14 @@ function ToolLayoutComponent({
   summaryAction,
 }: ToolLayoutProps) {
   const { intl } = useZCodeIntl();
+  const transcriptExpanded = useExpandedTranscript();
   const resolvedPersistOpenKey = persistOpenKey ?? toolId;
   const [isOpen, setIsOpen] = useState(
     () => toolLayoutOpenState.get(resolvedPersistOpenKey) ?? false,
   );
   const hasSummaryAction = summaryAction !== undefined;
-  const isExpanded = !hasSummaryAction && (forceOpen || (canToggle && isOpen));
+  const isExpanded =
+    !hasSummaryAction && (transcriptExpanded || forceOpen || (canToggle && isOpen));
   const [shouldRenderContent, setShouldRenderContent] = useState(isExpanded);
   const [isFailureTooltipCopied, setIsFailureTooltipCopied] = useState(false);
   const failureTooltipCopyResetRef = useRef<number | null>(null);
@@ -303,9 +306,9 @@ function ToolLayoutComponent({
 
   return (
     <Collapsible
-      open={!hasSummaryAction && (forceOpen || (canToggle && isOpen))}
+      open={isExpanded}
       onOpenChange={(open) => {
-        if (hasSummaryAction || forceOpen) {
+        if (hasSummaryAction || forceOpen || transcriptExpanded) {
           return;
         }
         toolLayoutOpenState.set(resolvedPersistOpenKey, open);
@@ -319,7 +322,7 @@ function ToolLayoutComponent({
       <ToolSummaryRow
         action={summaryAction}
         animateContent={animateSummaryContent}
-        canToggle={canToggle}
+        canToggle={canToggle && !transcriptExpanded}
         contentKey={resolvedSummaryContentKey}
         contentRefreshVersion={summaryContentRefreshVersion}
         diffCount={shouldShowDiffCount ? diffCount : undefined}

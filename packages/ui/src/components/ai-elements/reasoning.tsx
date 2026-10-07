@@ -13,6 +13,7 @@ import { TID_CHAT_REASONING_CONTENT, TID_CHAT_REASONING_TRIGGER } from "@zcode/s
 import { BrainIcon, ChevronRightIcon } from "lucide-react";
 import { useZCodeIntl } from "@/i18n/IntlProvider.js";
 import { QueuedSummaryContent } from "@/ToolCallBlocks/QueuedSummaryContent.js";
+import { useExpandedTranscript } from "@/lib/transcriptView.js";
 import type { ComponentProps, CSSProperties, ReactNode } from "react";
 import {
   EMPTY_SCROLL_MASK_STATE,
@@ -99,12 +100,15 @@ export const Reasoning = memo(
     children,
     ...props
   }: ReasoningProps) => {
-    const isOpenControlled = open !== undefined;
-    const [isOpen, setIsOpen] = useControllableState<boolean>({
+    const transcriptExpanded = useExpandedTranscript();
+    const isOpenControlled = open !== undefined || transcriptExpanded;
+    const [preferredOpen, setIsOpen] = useControllableState<boolean>({
       defaultProp: defaultOpen,
       onChange: onOpenChange,
       prop: open,
     });
+    // Full 只覆盖呈现，不写回用户在 Compact 中选择的折叠状态。
+    const isOpen = transcriptExpanded || preferredOpen;
     const [duration, setDuration] = useControllableState<number | undefined>({
       defaultProp: undefined,
       prop: durationProp,
@@ -117,13 +121,14 @@ export const Reasoning = memo(
     const [shouldRenderContent, setShouldRenderContent] = useState(() => isOpen);
     const handleOpenChange = useCallback(
       (nextOpen: boolean) => {
+        if (transcriptExpanded) return;
         userInteractedRef.current = true;
         if (nextOpen) {
           setShouldRenderContent(true);
         }
         setIsOpen(nextOpen);
       },
-      [setIsOpen],
+      [setIsOpen, transcriptExpanded],
     );
 
     useEffect(() => {

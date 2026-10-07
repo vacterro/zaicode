@@ -34,6 +34,7 @@ export type ConversationFileChangesState = Exclude<
 >;
 
 export interface ConversationRowRenderContext {
+  transcriptView?: import("@/lib/transcriptView.js").TranscriptView;
   logEpoch?: string;
   workspacePath: string;
   /** 当前 workspace Host 的用户 Home，用于解析 Assistant 输出中的 ~/ 路径。 */
