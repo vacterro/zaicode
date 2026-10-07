@@ -111,6 +111,7 @@ export class ZaicodeAgentRepo {
   private db: DatabaseSyncInstance | null = null;
   private dbPath: string | null = null;
   private initializePromise: Promise<void> | null = null;
+  private initializationGeneration = 0;
   private readonly resolvedDbPath: string | null;
 
   constructor(
@@ -128,8 +129,9 @@ export class ZaicodeAgentRepo {
     const path = this.resolveDbPath();
     if (this.dbPath && this.dbPath !== path) this.close();
     if (!this.initializePromise) {
-      this.initializePromise = this.initialize(path).catch((error) => {
-        this.close();
+      const generation = this.initializationGeneration;
+      this.initializePromise = this.initialize(path, generation).catch((error) => {
+        if (generation === this.initializationGeneration) this.close();
         throw error;
       });
     }
@@ -137,6 +139,7 @@ export class ZaicodeAgentRepo {
   }
 
   close(options?: { throwOnError?: boolean }): void {
+    this.initializationGeneration += 1;
     let closeError: unknown;
     try {
       this.db?.close();
@@ -149,8 +152,11 @@ export class ZaicodeAgentRepo {
     if (options?.throwOnError && closeError) throw closeError;
   }
 
-  private async initialize(path: string): Promise<void> {
+  private async initialize(path: string, generation: number): Promise<void> {
     await mkdir(dirname(path), { recursive: true });
+    // T-252 / W2-005 — close 使旧 await 失效；旧初始化不得打开句柄或关闭新初始化。
+    if (generation !== this.initializationGeneration)
+      throw new Error("ZaicodeAgentRepo initialization_cancelled: closed during startup");
     if (!this.db) {
       this.db = new DatabaseSync(path);
       this.dbPath = path;

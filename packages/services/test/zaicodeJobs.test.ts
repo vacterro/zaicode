@@ -474,31 +474,49 @@ test("ZAICODE job queue: jobs are isolated per workspace and executor failures a
 test("cancellation before the executor responds stops its late session exactly once", async () => {
   let resolveStarted!: (value: { sessionId: string; stop: () => Promise<void> }) => void;
   let entered!: () => void;
-  const starting = new Promise<void>((resolve) => { entered = resolve; });
+  const starting = new Promise<void>((resolve) => {
+    entered = resolve;
+  });
   let stops = 0;
-  const harness = await createHarness({ executor: async () => {
-    entered();
-    return new Promise((resolve) => { resolveStarted = resolve; });
-  } });
+  const harness = await createHarness({
+    executor: async () => {
+      entered();
+      return new Promise((resolve) => {
+        resolveStarted = resolve;
+      });
+    },
+  });
   try {
     const agent = await seedAgent(harness);
     const job = await createJob(harness, agent.id);
     const dispatch = harness.jobService.dispatch(job.id);
     await starting;
     assert.equal((await harness.jobService.cancel(job.id))?.status, "cancelled");
-    resolveStarted({ sessionId: "late-session", stop: async () => { stops += 1; } });
+    resolveStarted({
+      sessionId: "late-session",
+      stop: async () => {
+        stops += 1;
+      },
+    });
     assert.equal((await dispatch)?.status, "cancelled");
     assert.equal(stops, 1);
     assert.equal((await harness.jobService.get(job.id))?.sessionId, undefined);
-  } finally { await harness.dispose(); }
+  } finally {
+    await harness.dispose();
+  }
 });
 
 test("a failed runtime stop is reported and the same cancel can retry it", async () => {
   let stops = 0;
-  const harness = await createHarness({ executor: async () => ({ sessionId: "session", stop: async () => {
-    stops += 1;
-    if (stops === 1) throw new Error("stop transport unavailable");
-  } }) });
+  const harness = await createHarness({
+    executor: async () => ({
+      sessionId: "session",
+      stop: async () => {
+        stops += 1;
+        if (stops === 1) throw new Error("stop transport unavailable");
+      },
+    }),
+  });
   try {
     const agent = await seedAgent(harness);
     const job = await createJob(harness, agent.id);
@@ -511,25 +529,46 @@ test("a failed runtime stop is reported and the same cancel can retry it", async
     assert.equal((await harness.jobService.cancel(job.id))?.status, "cancelled");
     assert.equal((await harness.jobService.get(job.id))?.error, undefined);
     assert.equal(stops, 2);
-  } finally { await harness.dispose(); }
+  } finally {
+    await harness.dispose();
+  }
 });
 
 test("a new attempt cannot start while cancellation is still waiting for the runtime", async () => {
   let release!: () => void;
   let entered!: () => void;
-  const stopping = new Promise<void>((resolve) => { entered = resolve; });
-  const gate = new Promise<void>((resolve) => { release = resolve; });
-  const harness = await createHarness({ executor: async () => ({ sessionId: "session", stop: async () => { entered(); await gate; } }) });
+  const stopping = new Promise<void>((resolve) => {
+    entered = resolve;
+  });
+  const gate = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  const harness = await createHarness({
+    executor: async () => ({
+      sessionId: "session",
+      stop: async () => {
+        entered();
+        await gate;
+      },
+    }),
+  });
   try {
     const agent = await seedAgent(harness);
     const job = await createJob(harness, agent.id);
     await harness.jobService.dispatch(job.id);
     const cancel = harness.jobService.cancel(job.id);
     await stopping;
-    try { await assert.rejects(harness.jobService.retry(job.id), /Retry cancellation/); }
-    finally { release(); await cancel; }
+    try {
+      await assert.rejects(harness.jobService.retry(job.id), /Retry cancellation/);
+    } finally {
+      release();
+      await cancel;
+    }
     assert.equal((await harness.jobService.retry(job.id)).retryOfJobId, job.id);
-  } finally { release(); await harness.dispose(); }
+  } finally {
+    release();
+    await harness.dispose();
+  }
 });
 
 test("ZAICODE job queue: autopilot starts queued work and refills freed slots", async () => {
@@ -583,12 +622,24 @@ test("ZAICODE job queue: graceful shutdown releases this host's lease as recover
     assert.notEqual(released?.status, "completed");
     assert.notEqual(released?.status, "failed");
 
-    // The released row is resumable exactly like a restart-reclaimed one — no special case.
-    const resumed = await harness.jobService.resume(job.id);
-    assert.equal(resumed?.status, "queued");
-    const redispatch = await harness.jobService.dispatch(job.id);
-    assert.equal(redispatch?.status, "running");
-    assert.equal(redispatch?.attempt, 2);
+    // T-252：真正重启是新 service/host；复用已 dispose 实例会让旧 await 续体复活心跳与 SQLite。
+    const restarted = new ZaicodeJobService({
+      repo: harness.jobRepo,
+      getAgent: (id) => harness.agentService.get(id),
+      getExecutor: () => async () => ({ sessionId: "restarted-session" }),
+      now: () => now,
+    });
+    try {
+      await restarted.ensureReady();
+      const resumed = await restarted.resume(job.id);
+      assert.equal(resumed?.status, "queued");
+      const redispatch = await restarted.dispatch(job.id);
+      assert.equal(redispatch?.status, "running");
+      assert.equal(redispatch?.attempt, 2);
+      assert.notEqual(redispatch?.hostId, running?.hostId);
+    } finally {
+      restarted.dispose();
+    }
   } finally {
     await harness.dispose();
   }
@@ -619,11 +670,18 @@ test("ZAICODE job queue: shutdown releases only its own leases; a foreign stale 
     const afterShutdownMine = await harness.jobRepo.get(mine.id);
     const afterShutdownTheirs = await harness.jobRepo.get(theirs.id);
     assert.equal(afterShutdownMine?.error, "interrupted_by_shutdown");
-    assert.equal(afterShutdownTheirs?.status, "running", "another host's lease is not ours to break");
+    assert.equal(
+      afterShutdownTheirs?.status,
+      "running",
+      "another host's lease is not ours to break",
+    );
 
     // Red control for the release predicate: the same UPDATE scoped to a host that owns
     // nothing must change nothing.
-    assert.equal(harness.jobRepo.releaseRunningForHost("no-such-host", now, "interrupted_by_shutdown"), 0);
+    assert.equal(
+      harness.jobRepo.releaseRunningForHost("no-such-host", now, "interrupted_by_shutdown"),
+      0,
+    );
     assert.equal((await harness.jobRepo.get(theirs.id))?.status, "running");
 
     // Staleness — the path the periodic reaper runs — is what recovers the foreign lease, and it
@@ -654,7 +712,21 @@ test("T-243: the delegating-run column and its index arrive by migration over an
         job_id, workspace_key, workspace_path, agent_id, title, instructions, status,
         priority, sort_order, created_at, updated_at, attempt, parent_job_id
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    ).run("legacy-child", "ws", "C:\\ws", "agent-1", "Legacy helper", "Do it.", "completed", 0, 0, 10, 11, 0, "legacy-parent");
+    ).run(
+      "legacy-child",
+      "ws",
+      "C:\\ws",
+      "agent-1",
+      "Legacy helper",
+      "Do it.",
+      "completed",
+      0,
+      0,
+      10,
+      11,
+      0,
+      "legacy-parent",
+    );
 
     runTasksDatabaseMigrations(db);
 
@@ -671,7 +743,11 @@ test("T-243: the delegating-run column and its index arrive by migration over an
     const row = db
       .prepare("SELECT delegated_from_run_id FROM zaicode_jobs WHERE job_id = 'legacy-child'")
       .get() as { delegated_from_run_id: string | null };
-    assert.equal(row.delegated_from_run_id, null, "a pre-T-243 child keeps its data and has no delegating run");
+    assert.equal(
+      row.delegated_from_run_id,
+      null,
+      "a pre-T-243 child keeps its data and has no delegating run",
+    );
   } finally {
     db.close();
     await rm(dir, { recursive: true, force: true });

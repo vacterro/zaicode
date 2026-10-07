@@ -7,6 +7,8 @@ import { mkdir } from "node:fs/promises";
 import { createRequire } from "node:module";
 import { dirname } from "node:path";
 import {
+  canTransitionZaicodeJob,
+  ZAICODE_JOB_STATUSES,
   isZaicodeJobTerminal,
   modelSelectionSchema,
   zaicodeJobDelegationSchema,
@@ -17,6 +19,7 @@ import {
   type ZaicodeJobListFilter,
   type ZaicodeJobListResult,
   type ZaicodeJobTerminalStatus,
+  type ZaicodeJobStatus,
 } from "@zcode/shared";
 import { getTasksIndexDatabasePath } from "#src/paths.js";
 import { runTasksDatabaseMigrations } from "#src/session/tasksDatabase/migrations.js";
@@ -31,6 +34,19 @@ const { DatabaseSync } = require("node:sqlite") as typeof import("node:sqlite");
 type DatabaseSyncInstance = InstanceType<typeof DatabaseSync>;
 
 const TERMINAL_SQL = "'completed','failed','cancelled'";
+// T-252 / CORE-006 — SQL 原子写入也必须读取 shared 迁移表；waiting 的恢复属于原运行，不能认领新 attempt。
+function transitionSourcesSql(
+  to: ZaicodeJobStatus,
+  candidates: readonly ZaicodeJobStatus[] = ZAICODE_JOB_STATUSES,
+): string {
+  const sources = candidates.filter((from) => canTransitionZaicodeJob(from, to));
+  return sources.length ? sources.map((status) => `'${status}'`).join(",") : "NULL";
+}
+const CLAIM_SQL = transitionSourcesSql("running", ["queued", "ready"]);
+const BLOCK_BEFORE_DISPATCH_SQL = transitionSourcesSql("blocked", ["queued", "ready"]);
+const BLOCK_RUN_SQL = transitionSourcesSql("blocked", ["running"]);
+const RESUME_SQL = transitionSourcesSql("queued", ["blocked"]);
+const CANCEL_SQL = transitionSourcesSql("cancelled");
 // T-248 / SRC-160:R012 — 与 migration 0007 的 idx_zaicode_jobs_open 部分索引逐字一致：
 // 有界读取补取"窗口之外仍未终结"的行，必须命中该索引，否则每个 3 秒 tick 都要扫全史。
 // 两份列表漂移不会被静默忽略：用例断言这条语句的查询计划命中该索引。
@@ -190,6 +206,7 @@ export class ZaicodeJobRepo {
   private db: DatabaseSyncInstance | null = null;
   private dbPath: string | null = null;
   private initializePromise: Promise<void> | null = null;
+  private initializationGeneration = 0;
   private readonly resolvedDbPath: string | null;
 
   constructor(
@@ -207,8 +224,9 @@ export class ZaicodeJobRepo {
     const path = this.resolveDbPath();
     if (this.dbPath && this.dbPath !== path) this.close();
     if (!this.initializePromise) {
-      this.initializePromise = this.initialize(path).catch((error) => {
-        this.close();
+      const generation = this.initializationGeneration;
+      this.initializePromise = this.initialize(path, generation).catch((error) => {
+        if (generation === this.initializationGeneration) this.close();
         throw error;
       });
     }
@@ -216,6 +234,7 @@ export class ZaicodeJobRepo {
   }
 
   close(options?: { throwOnError?: boolean }): void {
+    this.initializationGeneration += 1;
     let closeError: unknown;
     try {
       this.db?.close();
@@ -228,8 +247,11 @@ export class ZaicodeJobRepo {
     if (options?.throwOnError && closeError) throw closeError;
   }
 
-  private async initialize(path: string): Promise<void> {
+  private async initialize(path: string, generation: number): Promise<void> {
     await mkdir(dirname(path), { recursive: true });
+    // T-252 / W2-005 — close 是代际屏障；旧 mkdir 续体不能打开数据库，也不能清理新一代初始化。
+    if (generation !== this.initializationGeneration)
+      throw new Error("ZaicodeJobRepo initialization_cancelled: closed during startup");
     if (!this.db) {
       this.db = new DatabaseSync(path);
       this.dbPath = path;
@@ -291,13 +313,11 @@ export class ZaicodeJobRepo {
 
     const edge = recentRows[recentRows.length - 1];
     if (!edge) return toListResult([...recentRows].reverse());
-    const olderRows = database
-      .prepare(boundedSql.olderActive)
-      .all({
-        ...params,
-        windowStart: edge.created_at,
-        windowSort: edge.sort_order,
-      }) as unknown as ZaicodeJobRow[];
+    const olderRows = database.prepare(boundedSql.olderActive).all({
+      ...params,
+      windowStart: edge.created_at,
+      windowSort: edge.sort_order,
+    }) as unknown as ZaicodeJobRow[];
 
     const merged = new Map<string, ZaicodeJobRow>();
     for (const row of [...recentRows, ...olderRows]) merged.set(row.job_id, row);
@@ -469,7 +489,7 @@ export class ZaicodeJobRepo {
     return this.get(jobId);
   }
 
-  /** 原子认领并进入 running：queued/ready/blocked 之外的状态一律拒绝（single-flight）。 */
+  /** 原子认领新运行：仅 shared 允许的 queued/ready；blocked 必须先 Resume（single-flight）。 */
   async claimForDispatch(params: {
     jobId: string;
     runId: string;
@@ -484,10 +504,14 @@ export class ZaicodeJobRepo {
           host_id = @hostId,
           heartbeat_at = @now,
           started_at = @now,
+          finished_at = NULL,
+          session_id = NULL,
+          actual_model_selection = NULL,
+          result_summary = NULL,
           attempt = attempt + 1,
           error = NULL,
           updated_at = @now
-         WHERE job_id = @jobId AND status IN ('queued','ready','blocked')`,
+         WHERE job_id = @jobId AND status IN (${CLAIM_SQL})`,
       )
       .run(params);
     if (Number(result.changes) === 0) return null;
@@ -543,7 +567,7 @@ export class ZaicodeJobRepo {
           updated_at = @now,
           host_id = NULL,
           heartbeat_at = NULL
-         WHERE job_id = @jobId AND status = 'running'
+         WHERE job_id = @jobId AND status IN (${transitionSourcesSql(params.status, ["running"])})
            AND run_id = @runId AND attempt = @attempt`,
       )
       .run({
@@ -568,7 +592,7 @@ export class ZaicodeJobRepo {
     this.getDatabase()
       .prepare(
         `UPDATE zaicode_jobs SET status = 'blocked', error = @error, updated_at = @now
-         WHERE job_id = @jobId AND status IN ('queued','ready')`,
+         WHERE job_id = @jobId AND status IN (${BLOCK_BEFORE_DISPATCH_SQL})`,
       )
       .run({ jobId, error, now });
     return this.get(jobId);
@@ -586,7 +610,7 @@ export class ZaicodeJobRepo {
         `UPDATE zaicode_jobs SET
           status = 'blocked', error = @error, finished_at = @now, updated_at = @now,
           host_id = NULL, heartbeat_at = NULL
-         WHERE job_id = @jobId AND status = 'running'
+         WHERE job_id = @jobId AND status IN (${BLOCK_RUN_SQL})
            AND run_id = @runId AND attempt = @attempt`,
       )
       .run(params);
@@ -600,7 +624,7 @@ export class ZaicodeJobRepo {
         `UPDATE zaicode_jobs SET
           status = 'cancelled', finished_at = @now, updated_at = @now,
           host_id = NULL, heartbeat_at = NULL
-         WHERE job_id = @jobId AND status NOT IN (${TERMINAL_SQL})`,
+         WHERE job_id = @jobId AND status IN (${CANCEL_SQL})`,
       )
       .run({ jobId, now });
     return { job: await this.get(jobId), applied: Number(result.changes) > 0 };
@@ -615,13 +639,16 @@ export class ZaicodeJobRepo {
       .run({ jobId, error, now });
   }
 
-  /** 恢复 blocked 任务到队列（不重置 attempt/run 历史，供审计）。 */
+  /** 恢复后只投影本次队列事实；保留 attempt/run 标识供陈旧写入判定，旧会话仍由上游历史持有。 */
   async resumeBlocked(jobId: string, now: number): Promise<ZaicodeJob | null> {
     this.getDatabase()
       .prepare(
         `UPDATE zaicode_jobs SET
-          status = 'queued', updated_at = @now, host_id = NULL, heartbeat_at = NULL
-         WHERE job_id = @jobId AND status = 'blocked'`,
+          status = 'queued', queued_at = @now, updated_at = @now,
+          started_at = NULL, finished_at = NULL, session_id = NULL,
+          actual_model_selection = NULL, result_summary = NULL, error = NULL,
+          host_id = NULL, heartbeat_at = NULL
+         WHERE job_id = @jobId AND status IN (${RESUME_SQL})`,
       )
       .run({ jobId, now });
     return this.get(jobId);
@@ -645,7 +672,7 @@ export class ZaicodeJobRepo {
           status = 'blocked',
           error = CASE WHEN error IS NULL THEN 'interrupted_by_restart' ELSE error END,
           updated_at = @now, host_id = NULL, heartbeat_at = NULL
-         WHERE status = 'running' AND (heartbeat_at IS NULL OR heartbeat_at <= @threshold)`,
+         WHERE status IN (${BLOCK_RUN_SQL}) AND (heartbeat_at IS NULL OR heartbeat_at <= @threshold)`,
       )
       .run({ now, threshold: now - staleMs });
     return Number(result.changes);
@@ -663,7 +690,7 @@ export class ZaicodeJobRepo {
           status = 'blocked',
           error = CASE WHEN error IS NULL THEN @reason ELSE error END,
           updated_at = @now, host_id = NULL, heartbeat_at = NULL
-         WHERE status = 'running' AND host_id = @hostId`,
+         WHERE status IN (${BLOCK_RUN_SQL}) AND host_id = @hostId`,
       )
       .run({ hostId, now, reason });
     return Number(result.changes);

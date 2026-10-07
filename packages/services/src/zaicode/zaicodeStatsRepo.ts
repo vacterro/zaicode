@@ -1,10 +1,17 @@
 import { mkdir } from "node:fs/promises";
 import { createRequire } from "node:module";
 import { dirname } from "node:path";
-import { ZAICODE_STATS_BUCKET_MS, type ZaicodeStatsBreakdownInput, type ZaicodeStatsBucket } from "@zcode/shared";
+import {
+  ZAICODE_STATS_BUCKET_MS,
+  type ZaicodeStatsBreakdownInput,
+  type ZaicodeStatsBucket,
+} from "@zcode/shared";
 import { getTasksIndexDatabasePath } from "#src/paths.js";
 import { runTasksDatabaseMigrations } from "#src/session/tasksDatabase/migrations.js";
-import { isTasksStorageMigrated, isTasksStoragePrepared } from "#src/session/tasksDatabase/prepared.js";
+import {
+  isTasksStorageMigrated,
+  isTasksStoragePrepared,
+} from "#src/session/tasksDatabase/prepared.js";
 
 // Same loading as the job repo: node:sqlite through require survives the desktop bundler.
 const require = createRequire(import.meta.url);
@@ -40,7 +47,8 @@ export interface ZaicodeStatsEventRow {
 /** Cursor row that marks "Clear local statistics": nothing older is read again. */
 export const ZAICODE_STATS_CLEARED_CURSOR = "cleared";
 
-const num = (value: unknown): number => (typeof value === "number" && Number.isFinite(value) ? value : Number(value) || 0);
+const num = (value: unknown): number =>
+  typeof value === "number" && Number.isFinite(value) ? value : Number(value) || 0;
 
 /**
  * SAIHOME statistics storage (T-56): its own tables in tasks-index.sqlite,
@@ -50,6 +58,7 @@ const num = (value: unknown): number => (typeof value === "number" && Number.isF
 export class ZaicodeStatsRepo {
   private db: DatabaseSyncInstance | null = null;
   private initializePromise: Promise<void> | null = null;
+  private initializationGeneration = 0;
   private readonly resolvedDbPath: string | null;
 
   constructor(dbPath?: string) {
@@ -58,8 +67,12 @@ export class ZaicodeStatsRepo {
 
   async ensureReady(): Promise<void> {
     if (!this.initializePromise) {
-      this.initializePromise = this.initialize(this.resolvedDbPath ?? getTasksIndexDatabasePath()).catch((error) => {
-        this.close();
+      const generation = this.initializationGeneration;
+      this.initializePromise = this.initialize(
+        this.resolvedDbPath ?? getTasksIndexDatabasePath(),
+        generation,
+      ).catch((error) => {
+        if (generation === this.initializationGeneration) this.close();
         throw error;
       });
     }
@@ -67,6 +80,7 @@ export class ZaicodeStatsRepo {
   }
 
   close(): void {
+    this.initializationGeneration += 1;
     try {
       this.db?.close();
     } catch {
@@ -76,8 +90,11 @@ export class ZaicodeStatsRepo {
     this.initializePromise = null;
   }
 
-  private async initialize(path: string): Promise<void> {
+  private async initialize(path: string, generation: number): Promise<void> {
     await mkdir(dirname(path), { recursive: true });
+    // T-252 / W2-005 — 与 agent/job 同一屏障，已取消的初始化不能在退出后恢复 SQLite。
+    if (generation !== this.initializationGeneration)
+      throw new Error("ZaicodeStatsRepo initialization_cancelled: closed during startup");
     if (!this.db) {
       this.db = new DatabaseSync(path);
       this.db.exec("PRAGMA busy_timeout = 5000");
@@ -142,7 +159,9 @@ export class ZaicodeStatsRepo {
   }
 
   getCursor(source: string): number {
-    const row = this.database.prepare("SELECT cursor FROM zaicode_stats_cursor WHERE source = ?").get(source);
+    const row = this.database
+      .prepare("SELECT cursor FROM zaicode_stats_cursor WHERE source = ?")
+      .get(source);
     return row ? num(row.cursor) : 0;
   }
 
@@ -214,7 +233,12 @@ export class ZaicodeStatsRepo {
          GROUP BY provider, model ORDER BY tokens DESC LIMIT 20`,
       )
       .all()
-      .map((row) => ({ provider: String(row.provider), model: String(row.model), tokens: num(row.tokens), requests: num(row.requests) }));
+      .map((row) => ({
+        provider: String(row.provider),
+        model: String(row.model),
+        tokens: num(row.tokens),
+        requests: num(row.requests),
+      }));
     const projects = db
       .prepare(
         `SELECT project, COALESCE(SUM(total_tokens), 0) AS tokens,
@@ -223,23 +247,38 @@ export class ZaicodeStatsRepo {
          GROUP BY project ORDER BY tokens DESC, events DESC LIMIT 30`,
       )
       .all()
-      .map((row) => ({ project: String(row.project), tokens: num(row.tokens), requests: num(row.requests), events: num(row.events) }));
+      .map((row) => ({
+        project: String(row.project),
+        tokens: num(row.tokens),
+        requests: num(row.requests),
+        events: num(row.events),
+      }));
     const longest = db
-      .prepare(`SELECT MAX(duration_ms) AS longest FROM zaicode_stats_events WHERE kind IN ('job.finished', 'worker.session')`)
+      .prepare(
+        `SELECT MAX(duration_ms) AS longest FROM zaicode_stats_events WHERE kind IN ('job.finished', 'worker.session')`,
+      )
       .get();
     const longestRunMs = longest && longest.longest !== null ? num(longest.longest) : null;
     return { models, projects, longestRunMs };
   }
 
-  meta(): { eventCount: number; firstEventAt: number | null; lastEventAt: number | null; lastRecordedAt: number | null } {
+  meta(): {
+    eventCount: number;
+    firstEventAt: number | null;
+    lastEventAt: number | null;
+    lastRecordedAt: number | null;
+  } {
     const row = this.database
-      .prepare("SELECT COUNT(*) AS n, MIN(at) AS first, MAX(at) AS last, MAX(recorded_at) AS recorded FROM zaicode_stats_events")
+      .prepare(
+        "SELECT COUNT(*) AS n, MIN(at) AS first, MAX(at) AS last, MAX(recorded_at) AS recorded FROM zaicode_stats_events",
+      )
       .get();
     return {
       eventCount: num(row?.n),
       firstEventAt: row?.first === null || row?.first === undefined ? null : num(row.first),
       lastEventAt: row?.last === null || row?.last === undefined ? null : num(row.last),
-      lastRecordedAt: row?.recorded === null || row?.recorded === undefined ? null : num(row.recorded),
+      lastRecordedAt:
+        row?.recorded === null || row?.recorded === undefined ? null : num(row.recorded),
     };
   }
 

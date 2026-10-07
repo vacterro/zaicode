@@ -72,8 +72,21 @@ export class ZaicodeJobService implements IZaicodeJobService {
   private readonly hostId = randomUUID();
   private readonly runningHandles = new Map<string, RunningHandle>();
   private heartbeatTimer: ReturnType<typeof setInterval> | null = null;
+  private disposed = false;
 
   constructor(private readonly deps: ZaicodeJobServiceDeps) {}
+
+  // T-252 / W2-005 — dispose 后旧 startup/autopump 的 await 续体不能发起新 repo 初始化。
+  private assertActive(): void {
+    if (this.disposed)
+      throw new Error("ZaicodeJobService service_disposed: create a fresh service after shutdown");
+  }
+
+  private async ensureRepoReady(): Promise<void> {
+    this.assertActive();
+    await this.deps.repo.ensureReady();
+    this.assertActive();
+  }
 
   private now(): number {
     return this.deps.now?.() ?? Date.now();
@@ -93,12 +106,15 @@ export class ZaicodeJobService implements IZaicodeJobService {
 
   /** 装配入口：迁移就绪、回收陈旧 running、启动执行心跳。 */
   async ensureReady(): Promise<void> {
-    await this.deps.repo.ensureReady();
+    await this.ensureRepoReady();
     await this.reconcileStaleRuns();
+    this.assertActive();
     this.startHeartbeat();
   }
 
   dispose(): void {
+    if (this.disposed) return;
+    this.disposed = true;
     if (this.heartbeatTimer) {
       clearInterval(this.heartbeatTimer);
       this.heartbeatTimer = null;
@@ -110,8 +126,13 @@ export class ZaicodeJobService implements IZaicodeJobService {
     // outcome is unknown, so the row becomes truthfully recoverable (`blocked`), never a
     // manufactured success or failure.
     try {
-      const released = this.deps.repo.releaseRunningForHost(this.hostId, this.now(), "interrupted_by_shutdown");
-      if (released > 0) this.log(`ZAICODE 队列在退出时释放了 ${released} 个 running 任务 -> blocked`);
+      const released = this.deps.repo.releaseRunningForHost(
+        this.hostId,
+        this.now(),
+        "interrupted_by_shutdown",
+      );
+      if (released > 0)
+        this.log(`ZAICODE 队列在退出时释放了 ${released} 个 running 任务 -> blocked`);
     } catch (error) {
       this.log("ZAICODE 队列退出释放失败", error);
     }
@@ -126,7 +147,9 @@ export class ZaicodeJobService implements IZaicodeJobService {
         // crashed/ungraceful host's row `running` (and holding a concurrency slot) until the next
         // start, which never comes if the app stays up (SRC-161:W2-001). Same owner, same timer,
         // same method as startup -- no second scheduler and no second copy of the reaper.
-        void this.reconcileStaleRuns().catch((error: unknown) => this.log("ZAICODE 队列回收失败", error));
+        void this.reconcileStaleRuns().catch((error: unknown) =>
+          this.log("ZAICODE 队列回收失败", error),
+        );
       } catch (error) {
         this.log("ZAICODE 队列心跳写入失败", error);
       }
@@ -135,17 +158,17 @@ export class ZaicodeJobService implements IZaicodeJobService {
   }
 
   async list(filter: ZaicodeJobListFilter = {}): Promise<ZaicodeJobListResult> {
-    await this.deps.repo.ensureReady();
+    await this.ensureRepoReady();
     return this.deps.repo.list(filter);
   }
 
   async get(jobId: string): Promise<ZaicodeJob | null> {
-    await this.deps.repo.ensureReady();
+    await this.ensureRepoReady();
     return this.deps.repo.get(jobId);
   }
 
   async create(input: ZaicodeJobCreateInput): Promise<ZaicodeJob> {
-    await this.deps.repo.ensureReady();
+    await this.ensureRepoReady();
     const job = this.buildJob(input);
     await this.deps.repo.create(job);
     this.emitChanged();
@@ -190,7 +213,7 @@ export class ZaicodeJobService implements IZaicodeJobService {
     delegatingRunId: string,
     maxPerRun: number,
   ): Promise<ZaicodeJob | null> {
-    await this.deps.repo.ensureReady();
+    await this.ensureRepoReady();
     const job = this.buildJob(input, delegatingRunId);
     if (!(await this.deps.repo.createDelegatedChild(job, maxPerRun))) return null;
     this.emitChanged();
@@ -208,33 +231,33 @@ export class ZaicodeJobService implements IZaicodeJobService {
   }
 
   async getAutoRun(): Promise<boolean> {
-    await this.deps.repo.ensureReady();
+    await this.ensureRepoReady();
     return this.deps.repo.getSetting(AUTO_RUN_SETTING_KEY) !== "0";
   }
 
   async setAutoRun(enabled: boolean): Promise<boolean> {
-    await this.deps.repo.ensureReady();
+    await this.ensureRepoReady();
     this.deps.repo.setSetting(AUTO_RUN_SETTING_KEY, enabled ? "1" : "0", this.now());
     this.emitChanged();
     return enabled;
   }
 
   async update(jobId: string, patch: ZaicodeJobUpdatePatch): Promise<ZaicodeJob | null> {
-    await this.deps.repo.ensureReady();
+    await this.ensureRepoReady();
     const job = await this.deps.repo.updateEditable(jobId, patch, this.now());
     if (job) this.emitChanged();
     return job;
   }
 
   async reorder(jobId: string, direction: "up" | "down"): Promise<boolean> {
-    await this.deps.repo.ensureReady();
+    await this.ensureRepoReady();
     const applied = await this.deps.repo.swapOrder(jobId, direction, this.now());
     if (applied) this.emitChanged();
     return applied;
   }
 
   async dispatch(jobId: string): Promise<ZaicodeJob | null> {
-    await this.deps.repo.ensureReady();
+    await this.ensureRepoReady();
     const current = await this.deps.repo.get(jobId);
     if (!current) throw new Error(`ZAICODE 任务不存在: ${jobId}`);
     if (isZaicodeJobTerminal(current.status)) return current;
@@ -295,7 +318,15 @@ export class ZaicodeJobService implements IZaicodeJobService {
       return this.deps.repo.get(jobId);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      if (await retainZaicodeCancellationFailure(this.deps.repo, this.runningHandles.has(jobId), jobId, message, this.now())) {
+      if (
+        await retainZaicodeCancellationFailure(
+          this.deps.repo,
+          this.runningHandles.has(jobId),
+          jobId,
+          message,
+          this.now(),
+        )
+      ) {
         this.emitChanged();
         return this.deps.repo.get(jobId);
       }
@@ -314,7 +345,7 @@ export class ZaicodeJobService implements IZaicodeJobService {
   }
 
   async pump(workspaceKey: string): Promise<ZaicodeJob[]> {
-    await this.deps.repo.ensureReady();
+    await this.ensureRepoReady();
     // A project the operator switched off is invisible to automatic work; its jobs wait.
     if (isZaicodeWorkspaceDisabled(await this.getDisabledWorkspaces(), workspaceKey)) return [];
     const limit = await this.getMaxConcurrency();
@@ -332,17 +363,26 @@ export class ZaicodeJobService implements IZaicodeJobService {
   }
 
   async cancel(jobId: string): Promise<ZaicodeJob | null> {
+    this.assertActive();
     return cancelZaicodeJob({
-      repo: this.deps.repo, handles: this.runningHandles, jobId,
-      now: () => this.now(), emitChanged: () => this.emitChanged(), log: (message, error) => this.log(message, error),
+      repo: this.deps.repo,
+      handles: this.runningHandles,
+      jobId,
+      now: () => this.now(),
+      emitChanged: () => this.emitChanged(),
+      log: (message, error) => this.log(message, error),
     });
   }
 
   async retry(jobId: string): Promise<ZaicodeJob> {
-    await this.deps.repo.ensureReady();
+    await this.ensureRepoReady();
     const current = await this.deps.repo.get(jobId);
     if (!current) throw new Error(`ZAICODE 任务不存在: ${jobId}`);
-    if ((current.status === "cancelled" && this.runningHandles.has(jobId)) || current.error?.startsWith("cancel_stop_failed:")) throw new Error("Retry cancellation before starting another attempt.");
+    if (
+      (current.status === "cancelled" && this.runningHandles.has(jobId)) ||
+      current.error?.startsWith("cancel_stop_failed:")
+    )
+      throw new Error("Retry cancellation before starting another attempt.");
     if (!isZaicodeJobTerminal(current.status) && current.status !== "blocked") {
       throw new Error(`仅终态或 blocked 任务可重试: ${current.status}`);
     }
@@ -363,7 +403,7 @@ export class ZaicodeJobService implements IZaicodeJobService {
   }
 
   async resume(jobId: string): Promise<ZaicodeJob | null> {
-    await this.deps.repo.ensureReady();
+    await this.ensureRepoReady();
     const job = await this.deps.repo.resumeBlocked(jobId, this.now());
     if (job && job.status === "queued") {
       this.emitChanged();
@@ -373,9 +413,10 @@ export class ZaicodeJobService implements IZaicodeJobService {
   }
 
   async remove(jobId: string): Promise<boolean> {
-    await this.deps.repo.ensureReady();
+    await this.ensureRepoReady();
     const current = await this.deps.repo.get(jobId);
-    if (this.runningHandles.has(jobId) || current?.error?.startsWith("cancel_stop_failed:")) throw new Error("Retry cancellation before removing this task.");
+    if (this.runningHandles.has(jobId) || current?.error?.startsWith("cancel_stop_failed:"))
+      throw new Error("Retry cancellation before removing this task.");
     const removed = await this.deps.repo.remove(jobId);
     if (removed) {
       this.emitChanged();
@@ -384,7 +425,7 @@ export class ZaicodeJobService implements IZaicodeJobService {
   }
 
   async reconcileStaleRuns(): Promise<number> {
-    await this.deps.repo.ensureReady();
+    await this.ensureRepoReady();
     const reclaimed = this.deps.repo.reclaimStaleRunning(this.now(), HEARTBEAT_STALE_MS);
     if (reclaimed > 0) {
       this.log(`ZAICODE 队列回收了 ${reclaimed} 个无心跳 running 任务 -> blocked`);
@@ -394,13 +435,23 @@ export class ZaicodeJobService implements IZaicodeJobService {
   }
 
   async getDisabledWorkspaces(): Promise<string[]> {
-    await this.deps.repo.ensureReady();
-    return normalizeZaicodeDisabledWorkspaces(this.deps.repo.getSetting(ZAICODE_DISABLED_WORKSPACES_SETTING_KEY));
+    await this.ensureRepoReady();
+    return normalizeZaicodeDisabledWorkspaces(
+      this.deps.repo.getSetting(ZAICODE_DISABLED_WORKSPACES_SETTING_KEY),
+    );
   }
 
   async setWorkspaceDisabled(workspaceKey: string, disabled: boolean): Promise<string[]> {
-    const next = setZaicodeWorkspaceDisabledIn(await this.getDisabledWorkspaces(), workspaceKey, disabled);
-    this.deps.repo.setSetting(ZAICODE_DISABLED_WORKSPACES_SETTING_KEY, JSON.stringify(next), this.now());
+    const next = setZaicodeWorkspaceDisabledIn(
+      await this.getDisabledWorkspaces(),
+      workspaceKey,
+      disabled,
+    );
+    this.deps.repo.setSetting(
+      ZAICODE_DISABLED_WORKSPACES_SETTING_KEY,
+      JSON.stringify(next),
+      this.now(),
+    );
     this.emitChanged();
     // Switching a project back on lets its waiting jobs run (when Autopilot is on).
     if (!disabled) this.autoPump(workspaceKey);
@@ -408,6 +459,7 @@ export class ZaicodeJobService implements IZaicodeJobService {
   }
 
   async getMaxConcurrency(): Promise<number> {
+    await this.ensureRepoReady();
     const raw = this.deps.repo.getSetting(MAX_CONCURRENCY_SETTING_KEY);
     const parsed = raw ? Number.parseInt(raw, 10) : Number.NaN;
     if (!Number.isFinite(parsed) || parsed < 1) return ZAICODE_JOB_CONCURRENCY_DEFAULT;
@@ -415,6 +467,7 @@ export class ZaicodeJobService implements IZaicodeJobService {
   }
 
   async setMaxConcurrency(value: number): Promise<number> {
+    await this.ensureRepoReady();
     const clamped = Math.min(
       Math.max(Math.trunc(Number.isFinite(value) ? value : ZAICODE_JOB_CONCURRENCY_DEFAULT), 1),
       ZAICODE_JOB_CONCURRENCY_MAX,
@@ -429,7 +482,7 @@ export class ZaicodeJobService implements IZaicodeJobService {
    * 成功完成后，顶层 Coordinator 任务的有界委托在此入队一个子任务。
    */
   async reportRunOutcome(input: ZaicodeJobRunOutcomeInput): Promise<ZaicodeJob | null> {
-    await this.deps.repo.ensureReady();
+    await this.ensureRepoReady();
     const write = await this.deps.repo.markTerminal({
       jobId: input.jobId,
       runId: input.runId,
@@ -464,18 +517,23 @@ export class ZaicodeJobService implements IZaicodeJobService {
   }
 
   async getDelegationPolicy(): Promise<ZaicodeDelegationPolicy> {
-    await this.deps.repo.ensureReady();
+    await this.ensureRepoReady();
     return readZaicodeDelegationPolicy(this.deps.repo);
   }
 
   async setDelegationPolicy(policy: ZaicodeDelegationPolicy): Promise<ZaicodeDelegationPolicy> {
-    await this.deps.repo.ensureReady();
+    await this.ensureRepoReady();
     return writeZaicodeDelegationPolicy(this.deps.repo, policy, this.now());
   }
 
   /** 运行时委托（T-10）：裁决与创建见 zaicodeJobDelegation.ts；runId 即令牌。 */
-  async delegateFromRun(input: { parentJobId: string; runId: string; request: unknown }): Promise<ZaicodeDelegationResult> {
-    await this.deps.repo.ensureReady();
+  async delegateFromRun(input: {
+    parentJobId: string;
+    runId: string;
+    request: unknown;
+  }): Promise<ZaicodeDelegationResult> {
+    await this.ensureRepoReady();
+    this.assertActive();
     return delegateZaicodeJobFromRun(
       {
         repo: this.deps.repo,
