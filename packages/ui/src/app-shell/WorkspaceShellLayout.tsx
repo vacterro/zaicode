@@ -2160,6 +2160,10 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
             }
             aria-valuenow={Math.round(workspaceSidebarPanelWidthPx)}
             data-testid="resizable-handle"
+            title="Double-click to reset sidebar width"
+            onDoubleClick={() =>
+              applyWorkspaceSidebarWidth(WORKSPACE_SIDEBAR_DEFAULT_WIDTH_PX, { persist: true })
+            }
             onKeyDown={handleWorkspaceSidebarResizeKeyDown}
             onPointerCancel={(event) => finishWorkspaceSidebarResize(event, true)}
             onPointerDown={handleWorkspaceSidebarResizeStart}
