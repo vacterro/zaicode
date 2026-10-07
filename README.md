@@ -1,30 +1,27 @@
+<div align="center">
+
+<img src="https://raw.githubusercontent.com/vacterro/zaicode/zaicode/packages/ui/src/assets/zaicode-working.png" alt="ZAICODE" width="96" height="96">
+
 # ZAICODE
 
-<div align="center">
-  <img src="https://raw.githubusercontent.com/vacterro/zaicode/zaicode/packages/ui/src/assets/zaicode-working.png" alt="ZAICODE" width="96" height="96" />
+**Windows operator workbench for running many AI coding agents across many projects without babysitting each session.**
+
+[![Version](https://img.shields.io/badge/version-0.0.1-D4B86A?style=flat-square)](VERSION)
+![Platform](https://img.shields.io/badge/platform-Windows-0078D4?style=flat-square)
+[![License](https://img.shields.io/badge/license-Apache--2.0-6B5A2B?style=flat-square)](https://github.com/vacterro/zaicode/blob/zaicode/LICENSE)
+![Protocol](https://img.shields.io/badge/project%20state-SAIPEN-332E22?style=flat-square)
+
+[**Install ZAICODE**](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe) · [Install guide](docs/ZAICODE_INSTALL.md) · [UI contract](UI.md) · [SAIPEN](https://github.com/vacterro/saipen)
+
+ZAICODE · [ZCode 简体中文](https://github.com/vacterro/zaicode/blob/zaicode/README.zcode.md) · [ZCode English](https://github.com/vacterro/zaicode/blob/zaicode/README.en.md)
+
+<img width="1440" height="860" alt="ZAICODE hero — Do your best." src="docs/screenshots/01-do-your-best.png">
+
 </div>
-<p align="center">
-  <img src="https://img.shields.io/badge/version-0.0.1-c9a227" alt="version 0.0.1" />
-  <img src="https://img.shields.io/badge/platform-Windows-3b3527" alt="Windows" />
-  <img src="https://img.shields.io/badge/license-Apache--2.0-3b3527" alt="Apache-2.0" />
-</p>
-<p align="center">
-  ZAICODE · <a href="https://github.com/vacterro/zaicode/blob/zaicode/README.zcode.md">ZCode (简体中文)</a> · <a href="https://github.com/vacterro/zaicode/blob/zaicode/README.en.md">ZCode (English)</a>
-</p>
 
-<img width="1440" height="860" alt="ZAICODE hero — Do your best." src="docs/screenshots/01-do-your-best.png" />
+ZAICODE is a modified build of [ZCode](https://github.com/zai-org/ZCode) with a Windows-first operator layer on top: SAIPEN-driven project continuation, scheduled work, quota-aware routing, and docked subscription CLIs such as Claude Code, Codex, and Antigravity.
 
-ZAICODE is an operator workbench for running many AI coding agents at once over
-many projects, without babysitting them. It is a modified build of
-[ZCode](https://github.com/zai-org/ZCode) (desktop app, browser UI and agent
-CLI) with a product layer on top: every project is driven by the
-[SAIPEN](https://github.com/vacterro/saipen) protocol, work is started, continued
-and scheduled from one window, and the subscription CLIs you already pay for
-(Claude Code, Codex, Antigravity) run as docked workers next to the in-app
-agents.
-
-**0.0.1** is the first tagged snapshot: a personal, Windows-first build that is
-used daily.
+**0.0.1** is the first tagged snapshot and the current public workspace version.
 
 ## Install in one click
 
