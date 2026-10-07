@@ -24,6 +24,7 @@ import {
   isTasksStorageMigrated,
   isTasksStoragePrepared,
 } from "#src/session/tasksDatabase/prepared.js";
+import { readZaicodePersistedJson } from "./zaicodePersistedJson.js";
 
 const require = createRequire(import.meta.url);
 const { DatabaseSync } = require("node:sqlite") as typeof import("node:sqlite");
@@ -78,18 +79,25 @@ interface ZaicodeJobRow {
   actual_model_selection: string | null;
 }
 
-function parseJson(value: string | null): unknown {
-  if (!value) return undefined;
-  try {
-    return JSON.parse(value);
-  } catch {
-    return undefined;
-  }
-}
-
 function rowToJob(row: ZaicodeJobRow): { job: ZaicodeJob } | { diagnostic: ZaicodeJobDiagnostic } {
-  const delegation = zaicodeJobDelegationSchema.safeParse(parseJson(row.delegation_json));
-  const actual = modelSelectionSchema.safeParse(parseJson(row.actual_model_selection));
+  const delegation = readZaicodePersistedJson(
+    "delegation_json",
+    row.delegation_json,
+    zaicodeJobDelegationSchema,
+  );
+  if ("malformed" in delegation) {
+    return {
+      diagnostic: { jobId: row.job_id, code: "invalid-job", message: delegation.malformed },
+    };
+  }
+  const actual = readZaicodePersistedJson(
+    "actual_model_selection",
+    row.actual_model_selection,
+    modelSelectionSchema,
+  );
+  if ("malformed" in actual) {
+    return { diagnostic: { jobId: row.job_id, code: "invalid-job", message: actual.malformed } };
+  }
   const candidate = {
     id: row.job_id,
     workspaceKey: row.workspace_key,
@@ -116,8 +124,8 @@ function rowToJob(row: ZaicodeJobRow): { job: ZaicodeJob } | { diagnostic: Zaico
     parentJobId: row.parent_job_id ?? undefined,
     retryOfJobId: row.retry_of_job_id ?? undefined,
     delegatedFromRunId: row.delegated_from_run_id ?? undefined,
-    delegation: delegation.success ? delegation.data : undefined,
-    actualModelSelection: actual.success ? actual.data : undefined,
+    delegation: delegation.value,
+    actualModelSelection: actual.value,
   };
   const parsed = zaicodeJobSchema.safeParse(candidate);
   if (!parsed.success) {
@@ -285,7 +293,11 @@ export class ZaicodeJobRepo {
     if (!edge) return toListResult([...recentRows].reverse());
     const olderRows = database
       .prepare(boundedSql.olderActive)
-      .all({ ...params, windowStart: edge.created_at, windowSort: edge.sort_order }) as unknown as ZaicodeJobRow[];
+      .all({
+        ...params,
+        windowStart: edge.created_at,
+        windowSort: edge.sort_order,
+      }) as unknown as ZaicodeJobRow[];
 
     const merged = new Map<string, ZaicodeJobRow>();
     for (const row of [...recentRows, ...olderRows]) merged.set(row.job_id, row);
@@ -417,7 +429,9 @@ export class ZaicodeJobRepo {
     const info =
       maxPerRun === undefined
         ? db
-            .prepare(`INSERT INTO zaicode_jobs (${JOB_INSERT_COLUMNS}) VALUES (${JOB_INSERT_VALUES})`)
+            .prepare(
+              `INSERT INTO zaicode_jobs (${JOB_INSERT_COLUMNS}) VALUES (${JOB_INSERT_VALUES})`,
+            )
             .run(params)
         : db
             .prepare(
@@ -594,9 +608,11 @@ export class ZaicodeJobRepo {
 
   /** A cancelled intent can still have a runtime whose stop failed; retain that failure for UI retry. */
   async setCancellationStopError(jobId: string, error: string | null, now: number): Promise<void> {
-    this.getDatabase().prepare(
-      "UPDATE zaicode_jobs SET error = @error, updated_at = @now WHERE job_id = @jobId AND status = 'cancelled'",
-    ).run({ jobId, error, now });
+    this.getDatabase()
+      .prepare(
+        "UPDATE zaicode_jobs SET error = @error, updated_at = @now WHERE job_id = @jobId AND status = 'cancelled'",
+      )
+      .run({ jobId, error, now });
   }
 
   /** 恢复 blocked 任务到队列（不重置 attempt/run 历史，供审计）。 */

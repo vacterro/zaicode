@@ -11,7 +11,6 @@ import {
   type ZaicodeAgentDefinition,
   type ZaicodeAgentDiagnostic,
   type ZaicodeAgentListResult,
-  type ZaicodeAgentToolPolicy,
 } from "@zcode/shared";
 import { getTasksIndexDatabasePath } from "#src/paths.js";
 import { runTasksDatabaseMigrations } from "#src/session/tasksDatabase/migrations.js";
@@ -19,6 +18,7 @@ import {
   isTasksStorageMigrated,
   isTasksStoragePrepared,
 } from "#src/session/tasksDatabase/prepared.js";
+import { readZaicodePersistedJson } from "./zaicodePersistedJson.js";
 
 const require = createRequire(import.meta.url);
 const { DatabaseSync } = require("node:sqlite") as typeof import("node:sqlite");
@@ -41,39 +41,48 @@ interface ZaicodeAgentRow {
   updated_at: number;
 }
 
-function parseJson(value: string | null): unknown {
-  if (!value) return undefined;
-  try {
-    return JSON.parse(value);
-  } catch {
-    return undefined;
-  }
-}
-
-function readModelSelection(value: string | null): ZaicodeAgentDefinition["modelSelection"] {
-  const parsed = modelSelectionSchema.safeParse(parseJson(value));
-  return parsed.success ? parsed.data : undefined;
-}
-
-function readToolPolicy(value: string): ZaicodeAgentToolPolicy {
-  const parsed = zaicodeAgentToolPolicySchema.safeParse(parseJson(value) ?? {});
-  return parsed.success ? parsed.data : {};
-}
-
 function rowToDefinition(
   row: ZaicodeAgentRow,
 ): { definition: ZaicodeAgentDefinition } | { diagnostic: ZaicodeAgentDiagnostic } {
+  const modelSelection = readZaicodePersistedJson(
+    "model_selection",
+    row.model_selection,
+    modelSelectionSchema,
+  );
+  if ("malformed" in modelSelection) {
+    return {
+      diagnostic: {
+        agentId: row.agent_id,
+        code: "invalid-definition",
+        message: modelSelection.malformed,
+      },
+    };
+  }
+  const toolPolicy = readZaicodePersistedJson(
+    "tool_policy_json",
+    row.tool_policy_json,
+    zaicodeAgentToolPolicySchema,
+  );
+  if ("malformed" in toolPolicy) {
+    return {
+      diagnostic: {
+        agentId: row.agent_id,
+        code: "invalid-definition",
+        message: toolPolicy.malformed,
+      },
+    };
+  }
   const candidate = {
     id: row.agent_id,
     name: row.name,
     role: row.role,
     instructions: row.instructions,
     enabled: row.enabled === 1,
-    modelSelection: readModelSelection(row.model_selection),
+    modelSelection: modelSelection.value,
     providerRef: row.provider_ref ?? undefined,
     modelRef: row.model_ref ?? undefined,
     reasoningEffort: row.reasoning_effort ?? undefined,
-    toolPolicy: readToolPolicy(row.tool_policy_json),
+    toolPolicy: toolPolicy.value ?? {},
     backend: row.backend,
     templateId: row.template_id ?? undefined,
     createdAt: row.created_at,
