@@ -59,6 +59,17 @@ test("new source and changed tracked bytes change fingerprint even without chang
   );
 });
 
+test("a build that rewrites a tracked file with other line endings leaves the tree clean", () => {
+  const { cwd, git } = fixture();
+  writeFileSync(join(cwd, "packages", "types.d.ts"), "export type A = 1;\r\nexport type B = 2;\r\n");
+  git("-c", "core.autocrlf=false", "add", "packages/types.d.ts");
+  git("-c", "user.name=Identity Test", "-c", "user.email=identity@example.invalid", "commit", "--quiet", "-m", "types");
+  writeFileSync(join(cwd, "packages", "types.d.ts"), "export type A = 1;\nexport type B = 2;\n");
+  assert.equal(collectSourceIdentity(cwd).workingTreeDirty, false, "the installed launcher would warn on every start");
+  writeFileSync(join(cwd, "packages", "types.d.ts"), "export type A = 3;\nexport type B = 2;\n");
+  assert.equal(collectSourceIdentity(cwd).workingTreeDirty, true);
+});
+
 test("Git absence never manufactures clean source provenance", () => {
   const cwd = mkdtempSync(join(tmpdir(), "zaicode-no-git-"));
   const identity = collectSourceIdentity(cwd);

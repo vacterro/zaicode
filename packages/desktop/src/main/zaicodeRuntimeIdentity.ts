@@ -155,9 +155,11 @@ export async function readZaicodeRuntimeIdentity(
       ).stdout;
     try {
       const revision = (await git(["rev-parse", "HEAD"])).trim();
+      // 与构建元数据同一口径：只有换行符不同的已跟踪文件不算源码改动。
       const dirty = Boolean(
         (
-          await git(["status", "--porcelain", "--untracked-files=normal", "--", ...SOURCE_ROOTS])
+          (await git(["diff", "--ignore-cr-at-eol", "--name-only", "HEAD", "--", ...SOURCE_ROOTS])) +
+          (await git(["ls-files", "--others", "--exclude-standard", "--", ...SOURCE_ROOTS]))
         ).trim(),
       );
       let newer = false;

@@ -89,13 +89,11 @@ export function collectSourceIdentity(root = workspaceDir) {
         maxBuffer: 32 * 1024 * 1024,
       });
     const sourceRevision = git(["rev-parse", "HEAD"]).toString().trim();
-    const status = git([
-      "status",
-      "--porcelain",
-      "--untracked-files=normal",
-      "--",
-      ...SOURCE_ROOTS,
-    ]).toString();
+    // 按内容判断：构建以另一种换行符重写已跟踪文件（MinGit 默认 CRLF 检出）不是源码改动，
+    // 否则安装版启动器每次启动都会弹出源码/运行时不一致警告。
+    const status =
+      git(["diff", "--ignore-cr-at-eol", "--name-only", "HEAD", "--", ...SOURCE_ROOTS]).toString() +
+      git(["ls-files", "--others", "--exclude-standard", "--", ...SOURCE_ROOTS]).toString();
     const files = git([
       "ls-files",
       "-z",
