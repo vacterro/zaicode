@@ -1,0 +1,21 @@
+{
+  "source": "C:/Users/vac34/AppData/Roaming/ZAICODE/zaicode-engines-cache.json",
+  "capturedAt": "2026-10-07T20:49:02.1298356Z",
+  "sourceSha256": "C19826A0FD29C05E3B97D1571948B6617710EAA90799D60522A3F91C6AC4B3DE",
+  "accountId": "codex:c:\\users\\vac34\\.codex",
+  "fetchedAt": 1791406106851,
+  "fiveHour": [
+    {
+      "key": "five_hour",
+      "resetsAt": 1791416751000,
+      "startsOnUse": false,
+      "rollingFrom": null
+    }
+  ],
+  "lastStart": {
+    "at": 1791398761585,
+    "ok": true,
+    "detail": "started with one low-effort codex exec",
+    "windowKey": "five_hour"
+  }
+}

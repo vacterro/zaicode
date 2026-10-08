@@ -1,0 +1,44 @@
+{
+  "op_id": "source.requirement_add-53319634fb234786b8e7b55963fd1d93",
+  "operation": "source.requirement_add",
+  "created_at": "2026-10-07T08:59:13Z",
+  "agent": "saipen-cli",
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "project_lineage": "lineage-b0732ed2f98947b9a3c97bfe71427eca",
+  "semantic_payload_hash": "0552b1470442448b",
+  "preconditions": {
+    ".saipen/intake/contracts/SRC-169.json": "7ee057cd36939380",
+    ".saipen/intake/contracts/SRC-169.r002.json": "",
+    ".saipen/intake/coverage/SRC-169.json": "4ffed3eb3635016f"
+  },
+  "read_preconditions": {},
+  "verification_policy": "core_fast",
+  "status": "COMMITTED",
+  "progress_index": 3,
+  "targets": [
+    {
+      "path": ".saipen/intake/contracts/SRC-169.json",
+      "role": "contract",
+      "action": "write",
+      "before_hash": "7ee057cd36939380",
+      "after_hash": "e882b8dff6beb7e3",
+      "applied": true
+    },
+    {
+      "path": ".saipen/intake/contracts/SRC-169.r002.json",
+      "role": "contract_revision",
+      "action": "write",
+      "before_hash": "",
+      "after_hash": "e882b8dff6beb7e3",
+      "applied": true
+    },
+    {
+      "path": ".saipen/intake/coverage/SRC-169.json",
+      "role": "coverage",
+      "action": "write",
+      "before_hash": "4ffed3eb3635016f",
+      "after_hash": "b6d4aa96431ab495",
+      "applied": true
+    }
+  ]
+}

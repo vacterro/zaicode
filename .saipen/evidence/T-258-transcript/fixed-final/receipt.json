@@ -1,0 +1,365 @@
+{
+  "ticket": "T-258",
+  "executablePath": "V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/packages/desktop/dist-t258/win-unpacked/ZAICODE.exe",
+  "profile": "V:\\_TEMP_\\zaicode-t258-profile-9MnmDn",
+  "checks": [
+    {
+      "name": "app owns isolated profile",
+      "pass": true,
+      "detail": "V:\\_TEMP_\\zaicode-t258-profile-9MnmDn"
+    },
+    {
+      "name": "composer remains reachable",
+      "pass": true
+    },
+    {
+      "name": "visible named three-choice Transcript control",
+      "pass": true
+    },
+    {
+      "name": "actual fixture run reaches final narrative",
+      "pass": true,
+      "detail": [
+        {
+          "url": "/v1/chat/completions",
+          "n": 1,
+          "model": "SAIFREN",
+          "stream": true,
+          "toolNames": [
+            "Agent",
+            "AskUserQuestion",
+            "Bash",
+            "CronCreate",
+            "CronDelete",
+            "CronList",
+            "CronUpdate",
+            "Edit",
+            "EnterPlanMode",
+            "ExitPlanMode",
+            "Read",
+            "Skill",
+            "TaskOutput",
+            "TaskStop",
+            "TodoRead",
+            "TodoWrite",
+            "WebFetch",
+            "Write",
+            "AmendWorkflow",
+            "CreateWorkflow",
+            "EvalWorkflowSnippet",
+            "GetWorkflowRun",
+            "ListModels",
+            "ListSavedWorkflows",
+            "ListWorkflowRuns",
+            "OffPeakCreate",
+            "OffPeakList",
+            "ReadSessionContext",
+            "ResolveWorkflowQuestion",
+            "ResumeWorkflowRun",
+            "SaveWorkflow",
+            "SendMessage",
+            "mcp__node_repl__js"
+          ]
+        },
+        {
+          "url": "/v1/chat/completions",
+          "n": 2,
+          "model": "SAIFREN",
+          "stream": true,
+          "toolNames": [
+            "Agent",
+            "AskUserQuestion",
+            "Bash",
+            "CronCreate",
+            "CronDelete",
+            "CronList",
+            "CronUpdate",
+            "Edit",
+            "EnterPlanMode",
+            "ExitPlanMode",
+            "Read",
+            "Skill",
+            "TaskOutput",
+            "TaskStop",
+            "TodoRead",
+            "TodoWrite",
+            "WebFetch",
+            "Write",
+            "AmendWorkflow",
+            "CreateWorkflow",
+            "EvalWorkflowSnippet",
+            "GetWorkflowRun",
+            "ListModels",
+            "ListSavedWorkflows",
+            "ListWorkflowRuns",
+            "OffPeakCreate",
+            "OffPeakList",
+            "ReadSessionContext",
+            "ResolveWorkflowQuestion",
+            "ResumeWorkflowRun",
+            "SaveWorkflow",
+            "SendMessage",
+            "mcp__node_repl__js"
+          ]
+        },
+        {
+          "url": "/v1/chat/completions",
+          "n": 3,
+          "model": "SAIFREN",
+          "stream": true,
+          "toolNames": [
+            "Agent",
+            "AskUserQuestion",
+            "Bash",
+            "CronCreate",
+            "CronDelete",
+            "CronList",
+            "CronUpdate",
+            "Edit",
+            "EnterPlanMode",
+            "ExitPlanMode",
+            "Read",
+            "Skill",
+            "TaskOutput",
+            "TaskStop",
+            "TodoRead",
+            "TodoWrite",
+            "WebFetch",
+            "Write",
+            "AmendWorkflow",
+            "CreateWorkflow",
+            "EvalWorkflowSnippet",
+            "GetWorkflowRun",
+            "ListModels",
+            "ListSavedWorkflows",
+            "ListWorkflowRuns",
+            "OffPeakCreate",
+            "OffPeakList",
+            "ReadSessionContext",
+            "ResolveWorkflowQuestion",
+            "ResumeWorkflowRun",
+            "SaveWorkflow",
+            "SendMessage",
+            "mcp__node_repl__js"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Full reveals intermediate and final narrative in order",
+      "pass": true,
+      "detail": "T258 user narrative.\nCopy\nEdit\nWorked for 5s\nThought\n·\na few seconds\nT258 thought detail marker.\n\nT258 before tool narrative.\n\nTerminal\n$\nprintf \"\\\\x54\\\\x32\\\\x35\\\\x38\\\\x20\\\\x74\\\\x6f\\\\x6f\\\\x6c\\\\x20\\\\x64\\\\x65\\\\x74\\\\x61\\\\x69\\\\x6c\\\\x20\\\\x6d\\\\x61\\\\x72\\\\x6b\\\\x65\\\\x72\"; exit 17\nExit code 17\nT258 tool detail marker\nRead\nmissing-transcript-file.txt\nV:/_TEMP_/zaicode-t258-profile-9MnmDn/\nFailed\nThought\n·\na few seconds\nT258 thought detail marker.\n\nT258 final narrative.\n\nWorked for 5s\nCopy\nLike\nDislike\nFork\n12:08 PM"
+    },
+    {
+      "name": "Full exposes actual shell output",
+      "pass": true,
+      "detail": "T258 user narrative.\nCopy\nEdit\nWorked for 5s\nThought\n·\na few seconds\nT258 thought detail marker.\n\nT258 before tool narrative.\n\nTerminal\n$\nprintf \"\\\\x54\\\\x32\\\\x35\\\\x38\\\\x20\\\\x74\\\\x6f\\\\x6f\\\\x6c\\\\x20\\\\x64\\\\x65\\\\x74\\\\x61\\\\x69\\\\x6c\\\\x20\\\\x6d\\\\x61\\\\x72\\\\x6b\\\\x65\\\\x72\"; exit 17\nExit code 17\nT258 tool detail marker\nRead\nmissing-transcript-file.txt\nV:/_TEMP_/zaicode-t258-profile-9MnmDn/\nFailed\nThought\n·\na few seconds\nT258 thought detail marker.\n\nT258 final narrative.\n\nWorked for 5s\nCopy\nLike\nDislike\nFork\n12:08 PM"
+    },
+    {
+      "name": "Full exposes actual reasoning detail",
+      "pass": true,
+      "detail": "T258 user narrative.\nCopy\nEdit\nWorked for 5s\nThought\n·\na few seconds\nT258 thought detail marker.\n\nT258 before tool narrative.\n\nTerminal\n$\nprintf \"\\\\x54\\\\x32\\\\x35\\\\x38\\\\x20\\\\x74\\\\x6f\\\\x6f\\\\x6c\\\\x20\\\\x64\\\\x65\\\\x74\\\\x61\\\\x69\\\\x6c\\\\x20\\\\x6d\\\\x61\\\\x72\\\\x6b\\\\x65\\\\x72\"; exit 17\nExit code 17\nT258 tool detail marker\nRead\nmissing-transcript-file.txt\nV:/_TEMP_/zaicode-t258-profile-9MnmDn/\nFailed\nThought\n·\na few seconds\nT258 thought detail marker.\n\nT258 final narrative.\n\nWorked for 5s\nCopy\nLike\nDislike\nFork\n12:08 PM"
+    },
+    {
+      "name": "Only text retains all narrative in original order",
+      "pass": true,
+      "detail": "T258 user narrative.\nCopy\nEdit\n\nT258 before tool narrative.\n\nT258 final narrative.\n\nCopy\nLike\nDislike\nFork\n12:08 PM"
+    },
+    {
+      "name": "Only text hides thoughts and shell detail",
+      "pass": true,
+      "detail": "T258 user narrative.\nCopy\nEdit\n\nT258 before tool narrative.\n\nT258 final narrative.\n\nCopy\nLike\nDislike\nFork\n12:08 PM"
+    },
+    {
+      "name": "Only text retains essential failed-tool alert",
+      "pass": true
+    },
+    {
+      "name": "mode is written by preference owner",
+      "pass": true
+    },
+    {
+      "name": "Only text applies to new streamed rows",
+      "pass": true,
+      "detail": "T258 user narrative.\nCopy\n\nT258 before tool narrative.\n\nT258 final narrative.\n\nCopy\nLike\nDislike\nFork\n12:08 PM\nT258 streaming user.\nCopy\nEdit\n\nT258 streamed start. T258 streamed end.\n\nCopy\nLike\nDislike\nFork\n12:08 PM"
+    },
+    {
+      "name": "Compact is keyboard selectable",
+      "pass": true
+    },
+    {
+      "name": "Compact restores closed disclosure after Full",
+      "pass": true,
+      "detail": "T258 user narrative.\nCopy\nWorked for 5s\n\nT258 final narrative.\n\nWorked for 5s\nCopy\nLike\nDislike\nFork\n12:08 PM\nT258 streaming user.\nCopy\nEdit\nWorked for 1s\n\nT258 streamed start. T258 streamed end.\n\nWorked for 1s\nCopy\nLike\nDislike\nFork\n12:08 PM"
+    },
+    {
+      "name": "640px button reachable: compact",
+      "pass": true,
+      "detail": {
+        "hit": true,
+        "x": 79,
+        "right": 150,
+        "viewport": 640
+      }
+    },
+    {
+      "name": "640px button reachable: full",
+      "pass": true,
+      "detail": {
+        "hit": true,
+        "x": 154,
+        "right": 191,
+        "viewport": 640
+      }
+    },
+    {
+      "name": "640px button reachable: only-text",
+      "pass": true,
+      "detail": {
+        "hit": true,
+        "x": 195,
+        "right": 261,
+        "viewport": 640
+      }
+    },
+    {
+      "name": "preference survives actual renderer reload",
+      "pass": true
+    },
+    {
+      "name": "zero renderer and fixture errors",
+      "pass": true,
+      "detail": []
+    }
+  ],
+  "pass": true,
+  "errors": [],
+  "requests": [
+    {
+      "url": "/v1/chat/completions",
+      "n": 1,
+      "model": "SAIFREN",
+      "stream": true,
+      "toolNames": [
+        "Agent",
+        "AskUserQuestion",
+        "Bash",
+        "CronCreate",
+        "CronDelete",
+        "CronList",
+        "CronUpdate",
+        "Edit",
+        "EnterPlanMode",
+        "ExitPlanMode",
+        "Read",
+        "Skill",
+        "TaskOutput",
+        "TaskStop",
+        "TodoRead",
+        "TodoWrite",
+        "WebFetch",
+        "Write",
+        "AmendWorkflow",
+        "CreateWorkflow",
+        "EvalWorkflowSnippet",
+        "GetWorkflowRun",
+        "ListModels",
+        "ListSavedWorkflows",
+        "ListWorkflowRuns",
+        "OffPeakCreate",
+        "OffPeakList",
+        "ReadSessionContext",
+        "ResolveWorkflowQuestion",
+        "ResumeWorkflowRun",
+        "SaveWorkflow",
+        "SendMessage",
+        "mcp__node_repl__js"
+      ]
+    },
+    {
+      "url": "/v1/chat/completions",
+      "n": 2,
+      "model": "SAIFREN",
+      "stream": true,
+      "toolNames": [
+        "Agent",
+        "AskUserQuestion",
+        "Bash",
+        "CronCreate",
+        "CronDelete",
+        "CronList",
+        "CronUpdate",
+        "Edit",
+        "EnterPlanMode",
+        "ExitPlanMode",
+        "Read",
+        "Skill",
+        "TaskOutput",
+        "TaskStop",
+        "TodoRead",
+        "TodoWrite",
+        "WebFetch",
+        "Write",
+        "AmendWorkflow",
+        "CreateWorkflow",
+        "EvalWorkflowSnippet",
+        "GetWorkflowRun",
+        "ListModels",
+        "ListSavedWorkflows",
+        "ListWorkflowRuns",
+        "OffPeakCreate",
+        "OffPeakList",
+        "ReadSessionContext",
+        "ResolveWorkflowQuestion",
+        "ResumeWorkflowRun",
+        "SaveWorkflow",
+        "SendMessage",
+        "mcp__node_repl__js"
+      ]
+    },
+    {
+      "url": "/v1/chat/completions",
+      "n": 3,
+      "model": "SAIFREN",
+      "stream": true,
+      "toolNames": [
+        "Agent",
+        "AskUserQuestion",
+        "Bash",
+        "CronCreate",
+        "CronDelete",
+        "CronList",
+        "CronUpdate",
+        "Edit",
+        "EnterPlanMode",
+        "ExitPlanMode",
+        "Read",
+        "Skill",
+        "TaskOutput",
+        "TaskStop",
+        "TodoRead",
+        "TodoWrite",
+        "WebFetch",
+        "Write",
+        "AmendWorkflow",
+        "CreateWorkflow",
+        "EvalWorkflowSnippet",
+        "GetWorkflowRun",
+        "ListModels",
+        "ListSavedWorkflows",
+        "ListWorkflowRuns",
+        "OffPeakCreate",
+        "OffPeakList",
+        "ReadSessionContext",
+        "ResolveWorkflowQuestion",
+        "ResumeWorkflowRun",
+        "SaveWorkflow",
+        "SendMessage",
+        "mcp__node_repl__js"
+      ]
+    }
+  ],
+  "paidVendorRequests": 0,
+  "asarSha256": "801bf625821888f35446a6af8c48d16d53c7c93db31ec62c6f7ceb3f5e978d9d",
+  "verifierSha256": "06570866df24653d1afcf23ff921e2a385f406f9436b440f0a880c2e650c2a37"
+}

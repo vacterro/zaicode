@@ -1,0 +1,698 @@
+{
+  "ticket": "T-267",
+  "executablePath": "V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/packages/desktop/dist-t267/win-unpacked/ZAICODE.exe",
+  "profile": "V:\\_TEMP_\\zaicode-t267-profile-sQSz7e",
+  "checks": [
+    {
+      "name": "isolated app profile",
+      "pass": true
+    },
+    {
+      "name": "both real discovered accounts offered",
+      "pass": true
+    },
+    {
+      "name": "history visible as history before launch",
+      "pass": true
+    }
+  ],
+  "fixture": "Persisted configuration/history only; actual worker dispatch, vendor-limit detection, handoff and status use normal app owners. CLI stubs send no network requests.",
+  "console": [
+    "warning: MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 zcode:settings-changed listeners added. Use emitter.setMaxListeners() to increase limit\n    at _addListener (node:electron/js2c/sandbox_bundle:2:43268)\n    at IpcRenderer.addListener (node:electron/js2c/sandbox_bundle:2:46156)\n    at Object.onSettingsChanged (<anonymous>:65:261466)",
+    "warning: MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 zcode:settings-changed listeners added. Use emitter.setMaxListeners() to increase limit\n    at _addListener (node:electron/js2c/sandbox_bundle:2:43268)\n    at IpcRenderer.addListener (node:electron/js2c/sandbox_bundle:2:46156)\n    at Object.onSettingsChanged (<anonymous>:65:261466)"
+  ],
+  "hooks": [
+    {
+      "type": "div",
+      "tag": 5,
+      "refs": []
+    },
+    {
+      "tag": 11,
+      "refs": []
+    },
+    {
+      "tag": 11,
+      "refs": []
+    },
+    {
+      "tag": 11,
+      "refs": []
+    },
+    {
+      "tag": 11,
+      "refs": [
+        {
+          "value": "object"
+        },
+        {
+          "value": "object"
+        },
+        {
+          "value": "number"
+        }
+      ]
+    },
+    {
+      "type": "_f",
+      "tag": 0,
+      "refs": []
+    },
+    {
+      "tag": 10,
+      "refs": []
+    },
+    {
+      "type": "o",
+      "tag": 0,
+      "refs": []
+    },
+    {
+      "tag": 10,
+      "refs": []
+    },
+    {
+      "type": "o",
+      "tag": 0,
+      "refs": []
+    },
+    {
+      "tag": 10,
+      "refs": []
+    },
+    {
+      "type": "o",
+      "tag": 0,
+      "refs": []
+    },
+    {
+      "type": "Fi",
+      "tag": 0,
+      "refs": []
+    },
+    {
+      "type": "oWe",
+      "tag": 0,
+      "refs": [
+        {
+          "value": "boolean"
+        },
+        {
+          "value": "function"
+        }
+      ]
+    },
+    {
+      "tag": 10,
+      "refs": []
+    },
+    {
+      "type": "o",
+      "tag": 0,
+      "refs": []
+    },
+    {
+      "type": "CGe",
+      "tag": 0,
+      "refs": [
+        {
+          "value": "undefined"
+        }
+      ]
+    },
+    {
+      "type": "gf",
+      "tag": 0,
+      "refs": []
+    },
+    {
+      "type": "mm",
+      "tag": 0,
+      "refs": [
+        {
+          "node": "DIV",
+          "sameElement": true,
+          "connected": true
+        },
+        {
+          "value": "object"
+        },
+        {
+          "value": "object"
+        },
+        {
+          "value": "undefined"
+        },
+        {
+          "value": "boolean"
+        },
+        {
+          "value": "number"
+        },
+        {
+          "value": "null"
+        },
+        {
+          "value": "boolean"
+        },
+        {
+          "value": "object"
+        },
+        {
+          "value": "object"
+        },
+        {
+          "value": "null"
+        },
+        {
+          "value": "boolean"
+        },
+        {
+          "value": "number"
+        },
+        {
+          "value": "string"
+        },
+        {
+          "value": "function"
+        },
+        {
+          "value": "function"
+        },
+        {
+          "value": "undefined"
+        },
+        {
+          "value": "object"
+        },
+        {
+          "value": "null"
+        },
+        {
+          "value": "object"
+        },
+        {
+          "value": "object"
+        }
+      ]
+    },
+    {
+      "type": "div",
+      "tag": 5,
+      "refs": []
+    },
+    {
+      "type": "section",
+      "tag": 5,
+      "refs": []
+    },
+    {
+      "type": "trt",
+      "tag": 0,
+      "refs": []
+    },
+    {
+      "type": "div",
+      "tag": 5,
+      "refs": []
+    },
+    {
+      "type": "div",
+      "tag": 5,
+      "refs": []
+    },
+    {
+      "tag": 7,
+      "refs": []
+    },
+    {
+      "type": "div",
+      "tag": 5,
+      "refs": []
+    },
+    {
+      "type": "div",
+      "tag": 5,
+      "refs": []
+    },
+    {
+      "type": "h7n",
+      "tag": 0,
+      "refs": [
+        {
+          "node": "DIV",
+          "sameElement": false,
+          "connected": true
+        },
+        {
+          "value": "number"
+        }
+      ]
+    },
+    {
+      "type": "div",
+      "tag": 5,
+      "refs": []
+    },
+    {
+      "type": "y7n",
+      "tag": 0,
+      "refs": []
+    },
+    {
+      "type": "v7n",
+      "tag": 0,
+      "refs": []
+    },
+    {
+      "type": "div",
+      "tag": 5,
+      "refs": []
+    },
+    {
+      "type": "div",
+      "tag": 5,
+      "refs": []
+    },
+    {
+      "type": "div",
+      "tag": 5,
+      "refs": []
+    },
+    {
+      "type": "div",
+      "tag": 5,
+      "refs": []
+    },
+    {
+      "type": "",
+      "tag": 15,
+      "refs": []
+    },
+    {
+      "type": "",
+      "tag": 15,
+      "refs": [
+        {
+          "value": "number"
+        },
+        {
+          "value": "object"
+        },
+        {
+          "value": "object"
+        },
+        {
+          "value": "boolean"
+        },
+        {
+          "value": "null"
+        },
+        {
+          "value": "function"
+        },
+        {
+          "node": "DIV",
+          "sameElement": false,
+          "connected": true
+        },
+        {
+          "node": "DIV",
+          "sameElement": false,
+          "connected": true
+        },
+        {
+          "node": "DIV",
+          "sameElement": false,
+          "connected": true
+        },
+        {
+          "value": "object"
+        },
+        {
+          "value": "null"
+        },
+        {
+          "value": "boolean"
+        },
+        {
+          "value": "null"
+        },
+        {
+          "value": "number"
+        }
+      ]
+    },
+    {
+      "type": "Xxr",
+      "tag": 15,
+      "refs": []
+    },
+    {
+      "type": "L1",
+      "tag": 1,
+      "refs": []
+    },
+    {
+      "tag": 10,
+      "refs": []
+    },
+    {
+      "type": "ox",
+      "tag": 0,
+      "refs": []
+    },
+    {
+      "tag": 10,
+      "refs": []
+    },
+    {
+      "type": "_Ot",
+      "tag": 0,
+      "refs": []
+    },
+    {
+      "type": "div",
+      "tag": 5,
+      "refs": []
+    },
+    {
+      "type": "yUr",
+      "tag": 0,
+      "refs": []
+    },
+    {
+      "type": "VUr",
+      "tag": 0,
+      "refs": []
+    },
+    {
+      "tag": 7,
+      "refs": []
+    },
+    {
+      "type": "div",
+      "tag": 5,
+      "refs": []
+    },
+    {
+      "type": "U9",
+      "tag": 0,
+      "refs": []
+    },
+    {
+      "type": "LGr",
+      "tag": 0,
+      "refs": []
+    },
+    {
+      "tag": 7,
+      "refs": []
+    },
+    {
+      "tag": 10,
+      "refs": []
+    },
+    {
+      "type": "KNt",
+      "tag": 0,
+      "refs": [
+        {
+          "value": "string"
+        },
+        {
+          "value": "number"
+        },
+        {
+          "value": "null"
+        },
+        {
+          "value": "null"
+        },
+        {
+          "value": "object"
+        },
+        {
+          "value": "number"
+        },
+        {
+          "value": "null"
+        },
+        {
+          "value": "null"
+        },
+        {
+          "value": "object"
+        }
+      ]
+    },
+    {
+      "tag": 10,
+      "refs": []
+    },
+    {
+      "type": "Qjn",
+      "tag": 0,
+      "refs": []
+    },
+    {
+      "tag": 10,
+      "refs": []
+    },
+    {
+      "type": "bfn",
+      "tag": 0,
+      "refs": []
+    },
+    {
+      "type": "AGr",
+      "tag": 0,
+      "refs": []
+    },
+    {
+      "tag": 10,
+      "refs": []
+    },
+    {
+      "type": "Est",
+      "tag": 0,
+      "refs": [
+        {
+          "value": "function"
+        }
+      ]
+    }
+  ],
+  "pass": false,
+  "error": "Error: Bounded ref diagnostic",
+  "stage": "dispatch",
+  "dom": {
+    "terminals": [
+      "<div class=\"min-h-0 flex-1\"><div class=\"terminal-xterm-shell h-full min-h-0 w-full overflow-hidden\" data-state=\"closed\" data-slot=\"context-menu-trigger\"></div></div><footer data-zaicode-worker-duration=\"end\" class=\"shrink-0 truncate border-t border-border px-1 py-0.5 text-ui-xs text-foreground-subtlest\">running 0m</footer>"
+    ],
+    "xterms": 0,
+    "body": "Command palette\n\nSearch and run commands available in this workspace.\n\nSAIHOME\nZAICODE\nSCHEDULER\n1 · 9h 40m\nWORKERS\nCONTINUE ALL\nAuto OFF\nDONE\n0\nWORKERS\n1/1\nA1\nproject\n5h\nnow\n◆\nProjects\n1\nMAIN0\n·1\nproject\nA1\nvacuum34\nZAICODE\nAgents & tasks\nScheduler\nAudits\nHit & go\n0\nAutopilot: on\nParallel 0/1\n-\n+\nTeams\nTour\nGuide\n1 Agents\n0 (0 on)\n->\n2 Tasks\n0 waiting · 0 running\n->\n3 Results\n0 done\nAutopilot: new tasks start automatically\nReady-made teams\nOne click adds the agents; edit or remove any of them later.\nHide\nSolo\nAdd team\nOne agent does a task end to end. The cheapest way to start.\nImplementer (SAIFREN)\nBuilder + Reviewer\nAdd team\nHow the operator works: a SAIPEN builder on the deep pool, a reviewer on the free pool checks every result.\nBuilder (SAIOPP) · Reviewer (SAIFREN)\nSAIPEN crew\nAdd team\nCoordinator splits the work, Builder implements, Tester proves it, Auditor reviews. For long goals.\nCoordinator (SAIOPP) · Builder (SAIOPP) · Tester (SAIFREN) · Auditor (SAIFREN)\nResearch → Build\nAdd team\nA researcher reads docs and code first, an implementer builds from its notes.\nResearcher (SAIFREN) · Implementer (SAIOPP)\nScheduler\n\nPrompts that start by themselves: at a time, every day, every N minutes, or the moment a subscription's quota refills — in one project or in every project of a sidebar section. Empty prompt = /goal cc all: finish the SAIPEN board. SAIPEN guards the work and calls you when it needs you. A limit meter with a prompt waiting for its reset glows.\n\nNew schedule\nKeep the computer awake while work runs\nNEXT UP\nin 9h 40m\nQuota continuation fixture\nfixture objective · project · A1 Claude 1 (CLI worker) · every day at 23:59\nPRESETS\n+ Every 5h reset → /goal cc all here\n+ Every 5h reset → /goal cc all in MAIN0\n+ Every night 02:00 → /goal cc all in MAIN0, stop 07:00\n+ Every 2 hours → cc here\n+ Every morning 08:00 → saiwiki\n+ Weekly reset → saihunt\nrunning · A1 Claude 1 (CLI worker)\nNext: ready · in 9h 40m\nWhere\nProject\nSection\nproject\nWho\nSTART in ZAICODE (in-app, in each project's MAIN)\nA1 Claude 1 (CLI worker)\nA2 Claude 2 (CLI worker)\nC1 Codex 1 (CLI worker)\nZC ZCode (CLI worker)\nA3 Claude 1 (CLI worker)\nA4 Claude 2 (CLI worker)\nC2 Codex 1 (CLI worker)\nC3 Codex 2 (CLI worker)\nWhen\nEvery reset\nNext reset\nDaily\nEvery N min\nOnce at\nstop at\nBefore\nnothing\nstop the stopgap\nstop everything\nonly when idle\nContinue automatically when a subscription reaches its limit\n\nPreferred: A1 Claude 1 (CLI worker). Fallbacks run in the order below.\n\nHandoff delay  min\nReturn after fresh quota recovery\n1. A2 Claude 2 (CLI worker)\n↑\nRemove\nAdd a subscription or in-app model, including SAIFREN\nC1 Codex 1 (CLI worker)\nZC ZCode (CLI worker)\nA3 Claude 1 (CLI worker)\nA4 Claude 2 (CLI worker)\nC2 Codex 1 (CLI worker)\nC3 Codex 2 (CLI worker)\n\nV:\\_TEMP_\\zaicode-t267-profile-sQSz7e\\project: running · A1 Claude 1 (CLI worker) · Continuing on claude:v:\\_temp_\\zaicode-t267-profile-sqsz7e\\.claude\n\ndelay\ns\ncatch-up\nmin\nwait for quota\nfixture objective · project · A1 Claude 1 (CLI worker) · every day at 23:59\nWORKERS\n1 running\nA1\nproject\n5h\nnow\nA1\nproject\n5h\nnow\nrunning 0m\n0"
+  },
+  "errors": [],
+  "requests": [
+    {
+      "method": "GET",
+      "path": "/api/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/combos"
+    },
+    {
+      "method": "POST",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/settings"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/settings"
+    },
+    {
+      "method": "GET",
+      "path": "/api/keys"
+    },
+    {
+      "method": "POST",
+      "path": "/api/keys"
+    },
+    {
+      "method": "GET",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/combos"
+    },
+    {
+      "method": "GET",
+      "path": "/api/models"
+    },
+    {
+      "method": "GET",
+      "path": "/api/models"
+    },
+    {
+      "method": "GET",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/combos"
+    },
+    {
+      "method": "GET",
+      "path": "/api/version"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/models"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/combos"
+    },
+    {
+      "method": "GET",
+      "path": "/api/models"
+    },
+    {
+      "method": "GET",
+      "path": "/api/settings"
+    },
+    {
+      "method": "GET",
+      "path": "/api/usage/stats?period=today"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/combos"
+    },
+    {
+      "method": "POST",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/keys"
+    },
+    {
+      "method": "POST",
+      "path": "/api/keys"
+    },
+    {
+      "method": "GET",
+      "path": "/api/version"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/models"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/combos"
+    },
+    {
+      "method": "GET",
+      "path": "/api/models"
+    },
+    {
+      "method": "GET",
+      "path": "/api/settings"
+    },
+    {
+      "method": "GET",
+      "path": "/api/usage/stats?period=today"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health"
+    }
+  ],
+  "dispatches": [],
+  "asarSha256": "abfc2e327adb1c5dbde7619fa9689830093457231f3fc2592a9eb0cfffd4e405",
+  "verifierSha256": "bbebff6b470de023025c561b2d58eda5ba07421153b6ae20c95a1f3b01f8ea18"
+}

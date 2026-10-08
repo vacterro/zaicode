@@ -1,0 +1,55 @@
+Command palette
+
+Search and run commands available in this workspace.
+
+SAIHOME
+ZAICODE
+SCHEDULER
+off
+WORKERS
+CONTINUE ALL
+Auto OFF
+DONE
+0
+SAIFREN
+SAIOPP
+SAIRoute / SAIFREN
+A1
+C1
+AG
+◆
+Projects
+1
+continuity-project
+vacuum34
+Sun 4 Oct · 20:16:11 · Evening
+AG ↺ 1h 06m
+AG
+
+Do your best.
+
+New task screen
+continuity-project
+not initialized
+SAIPEN
+master
+
+
+
+
+Ask ZAICODE anything, @ to add context, / for commands or capabilities
+SIDE · → MAIN
+INIT SAIPEN
+CLEAR
+No .saipen/ in this project — SAIPEN memory not initialized.
+Add context
+1
+COLLECT
+SAIFREN
+SAIOPP
+Auto-Goal off — write /goal cc all yourself
+Auto retry off · project retry preference is off
+This session
+Inherit
+Send
+0

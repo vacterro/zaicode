@@ -1,0 +1,68 @@
+Command palette
+
+Search and run commands available in this workspace.
+
+SAIHOME
+ZAICODE
+SCHEDULER
+off
+WORKERS
+CONTINUE ALL
+Auto OFF
+DONE
+0
+SAIOPP
+SAIFREN
+SAIRoute / SAIFREN
+◆
+Projects
+1
+MAIN0
+·1
+transcript-fixture
+
+T258 user narrative.
+
+now
+vacuum34
+TRANSCRIPT-FIXTURE
+T258 user narrative.
+Wed 7 Oct · 11:54:16 · Morning
+AG ↺ 10m 21s
+A2
+A3
+C2
+C3
+T258 user narrative.
+T258 streamed start. T258 streamed end.
+T258 user narrative.
+Copy
+Edit
+Worked for 2s
+
+T258 streamed start. T258 streamed end.
+
+Worked for 2s
+Copy
+Like
+Dislike
+Fork
+11:53 AM
+
+
+
+
+Ask for follow-up changes
+◇ MAIN?
+INIT SAIPEN
+CLEAR
+No .saipen/ in this project — SAIPEN memory not initialized.
+Add context
+Full access
+SAIFREN
+SAIOPP
+Auto-Goal off — write /goal cc all yourself
+Auto retry off · global retry preference is off
+Inherited: Global OFF
+Send
+0

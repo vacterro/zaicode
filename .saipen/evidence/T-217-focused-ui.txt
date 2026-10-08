@@ -1,0 +1,38 @@
+✔ a usage limit is a wall, an empty answer is a hiccup (1.3515ms)
+✔ the count is capped no matter what the setting says, and the wait doubles (0.9745ms)
+✔ who may send by itself: a session's Off wins, On lets it, otherwise Auto AND the switch (0.2683ms)
+✔ the background host picks nothing that the switches forbid or that hit a quota wall (0.3443ms)
+✔ a quota wall is remembered for half an hour, then one probe may go out (0.2185ms)
+✔ the ledger shows what is scheduled and one halt stops every automatic send (0.3198ms)
+✔ wiring: the chat countdown, the background host and the crash resume all ask the policy; the sidebar shows the ledger (0.9472ms)
+✔ SRC-135: stored prefs that are not the two answers fall back instead of poisoning the switch (2.0083ms)
+✔ T-217: session/project overrides remain effective while editing the global default (0.4215ms)
+✔ SRC-135: the switch writes the answer its scope says, without losing other projects (0.2242ms)
+✔ T-217: the composer button shows the effective gate, including the Auto master (27.2545ms)
+✔ SRC-135: the retry watcher asks the gate with the project's answer, not the raw flag (0.9785ms)
+✔ REQ-006: effective retry matrix survives reload and edit-scope changes (3.3758ms)
+✔ REQ-006: session editing cannot alter a project without a session; inherit restores its parent (1.0988ms)
+✔ REQ-009: worker meters distinguish 5h/weekly, zero, unknown, stale and unproven reset (1.0045ms)
+✔ REQ-010: preserves Classic and migrates the old bevel preference (0.2463ms)
+✔ F1 the workers tray is capped on every anchor, not only the side ones (1.5787ms)
+✔ F2 a centred header title yields the band when the toolbar owns it (0.336ms)
+✔ F3 the overlay band variable is defined for both sidebar states (0.6738ms)
+✔ F4 no floating surface may be laid out without a ceiling on a 768px-tall window (1.1823ms)
+✔ F5 the top overlay never drops its width ceiling (0.4063ms)
+✔ F6 the row gauge strip never paints over the row it decorates (0.7561ms)
+✔ F7 the sidebar, content and side pane still fit at 1366x768 (0.5691ms)
+✔ F8 the docked todo dock is clamped to the viewport (0.2319ms)
+✔ free pool plan: an empty router gets every keyless provider and SAIFREN; a complete one gets nothing (2.4852ms)
+✔ free pool plan: the operator's own node for the same URL is reused, missing starters are appended (0.3624ms)
+✔ free models from each provider's own list; paid and non-chat models are never picked (0.7117ms)
+✔ new free models: not in the pool and not removed by the operator (0.2157ms)
+✔ the notice says what was added: 'Today free model X added to SAIFREN' (0.432ms)
+✔ app side of zero setup: an empty model list gets SAIRoute -> router, SAIFREN + SAIOPP, SAIFREN as default (75.4641ms)
+ℹ tests 30
+ℹ suites 0
+ℹ pass 30
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2212.0014

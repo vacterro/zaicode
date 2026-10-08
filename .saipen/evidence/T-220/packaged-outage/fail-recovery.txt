@@ -1,0 +1,78 @@
+Command palette
+
+Search and run commands available in this workspace.
+
+SAIHOME
+ZAICODE
+SCHEDULER
+off
+WORKERS
+CONTINUE ALL
+Auto OFF
+DONE
+0
+SAIFREN
+SAIOPP
+SAIRoute / SAIFREN
+A1
+C1
+AG
+◆
+Projects
+1
+continuity-project
+
+Reply only with LOCAL_CONTINUITY_A_ANSWER. CONTINUITY_A
+Reply only with LOCAL_CONTINUITY_A_ANSWER. CONTINUITY_A
+
+now
+vacuum34
+CONTINUITY-PROJECT
+Reply only with LOCAL_CONTINUITY_A_ANSWER. CONTINUITY_A
+Mon 5 Oct · 05:30:24 · Morning
+AG ↺ 30m 42s
+AG
+Preferred router unavailable · internal fallback active
+Reply only with LOCAL_CONTINUITY_A_ANSWER. CONTINUITY_A
+Copy
+Worked for 1s
+
+LOCAL_CONTINUITY_A_ANSWER
+
+Worked for 1s
+Copy
+Like
+Dislike
+Fork
+05:26 AM
+Reply only with LOCAL_CONTINUITY_B_ANSWER. CONTINUITY_B
+Copy
+Edit
+Worked for 1m 43s
+
+LOCAL_CONTINUITY_A_ANSWER
+
+Worked for 1m 43s
+Copy
+Like
+Dislike
+Fork
+05:28 AM
+
+
+
+
+Ask for follow-up changes
+◇ MAIN?
+INIT SAIPEN
+CLEAR
+No .saipen/ in this project — SAIPEN memory not initialized.
+Add context
+Full access
+SAIFREN
+SAIOPP
+Auto-Goal off — write /goal cc all yourself
+Auto retry off · Auto is off
+Global default
+Send
+0

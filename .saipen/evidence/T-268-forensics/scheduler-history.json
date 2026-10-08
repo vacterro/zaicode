@@ -1,0 +1,143 @@
+{
+  "source": "C:\\Users\\vac34\\AppData\\Roaming\\ZAICODE\\session\\Local Storage\\leveldb",
+  "capturedAt": "2026-10-07T19:26:51.064941+00:00",
+  "records": [
+    {
+      "sequence": 47749,
+      "file": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\.saipen\\evidence\\T-268-forensics\\leveldb-copy\\005829.ldb",
+      "origin": "file://",
+      "key": "zaicode-disabled-projects-v1",
+      "value": [
+        "V:\\___VAC\\__K\\__CODE\\__MAIN__\\ProTrail",
+        "V:\\___VAC\\__K\\__CODE\\_ANDROID\\ProBlipAndroid",
+        "V:\\___VAC\\__K\\__CODE\\_PY\\_SAIPENVIEW",
+        "V:\\___VAC\\__K\\__CODE\\_PY\\_SAIMASTER",
+        "V:\\___VAC\\__K\\__CONFIG\\_FFS",
+        "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_SAIPAL",
+        "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_SAIRELAY",
+        "V:\\___VAC\\__K\\__CODE\\_PY\\_LIMISAW",
+        "V:\\___VAC\\__K\\__CODE\\_PY\\_9router_extra",
+        "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\__SAIMAIL__",
+        "V:\\---SAILEARN---",
+        "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_SAIPEN",
+        "V:\\___VAC\\__K\\__CODE\\_TAMPERMONKEY\\_WIN95THEME\\Wintage",
+        "V:\\___VAC\\__K\\__CODE\\_HTML\\_SAI_WEBSITE",
+        "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE",
+        "V:\\___VAC\\__K\\__CODE\\_PY\\_AUDAPACK"
+      ]
+    },
+    {
+      "sequence": 48512,
+      "file": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\.saipen\\evidence\\T-268-forensics\\leveldb-copy\\005829.ldb",
+      "origin": "file://",
+      "key": "zaicode-autostart-v1",
+      "value": [
+        {
+          "id": "e5c4c0b9-cdf1-42f4-af8c-d70e11ca0c2d",
+          "name": "SAIPEN",
+          "enabled": true,
+          "engineId": "claude:c:\\users\\vac34\\.claude",
+          "trigger": "everyReset",
+          "lastRunAt": "2026-10-07T13:40:09.967000+00:00",
+          "lastResult": "project switched off",
+          "firedEvents": [
+            "reset:five_hour:1791289740000",
+            "reset:five_hour:1791380340000"
+          ],
+          "runs": 0,
+          "continuationRuns": []
+        },
+        {
+          "id": "f28f1174-5969-4b93-8209-6405db6aa3c2",
+          "name": "ZAICODE",
+          "enabled": true,
+          "engineId": "codex:c:\\users\\vac34\\.codex",
+          "trigger": "everyReset",
+          "lastRunAt": "2026-10-07T13:45:40.781000+00:00",
+          "lastResult": "project switched off",
+          "firedEvents": [
+            "reset:five_hour:1791380666000"
+          ],
+          "runs": 0,
+          "continuationRuns": []
+        }
+      ]
+    },
+    {
+      "sequence": 49113,
+      "file": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\.saipen\\evidence\\T-268-forensics\\leveldb-copy\\005834.ldb",
+      "origin": "file://",
+      "key": "zaicode-autostart-v1",
+      "value": [
+        {
+          "id": "e5c4c0b9-cdf1-42f4-af8c-d70e11ca0c2d",
+          "name": "SAIPEN",
+          "enabled": true,
+          "engineId": "claude:c:\\users\\vac34\\.claude",
+          "trigger": "everyReset",
+          "lastRunAt": "2026-10-07T18:40:09.952000+00:00",
+          "lastResult": "project switched off",
+          "firedEvents": [
+            "reset:five_hour:1791289740000",
+            "reset:five_hour:1791380340000",
+            "reset:five_hour:1791398340000"
+          ],
+          "runs": 0,
+          "continuationRuns": []
+        },
+        {
+          "id": "f28f1174-5969-4b93-8209-6405db6aa3c2",
+          "name": "ZAICODE",
+          "enabled": true,
+          "engineId": "codex:c:\\users\\vac34\\.codex",
+          "trigger": "everyReset",
+          "lastRunAt": "2026-10-07T13:45:40.781000+00:00",
+          "lastResult": "project switched off",
+          "firedEvents": [
+            "reset:five_hour:1791380666000"
+          ],
+          "runs": 0,
+          "continuationRuns": []
+        }
+      ]
+    },
+    {
+      "sequence": 49169,
+      "file": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\.saipen\\evidence\\T-268-forensics\\leveldb-copy\\005833.log",
+      "origin": "file://",
+      "key": "zaicode-autostart-v1",
+      "value": [
+        {
+          "id": "e5c4c0b9-cdf1-42f4-af8c-d70e11ca0c2d",
+          "name": "SAIPEN",
+          "enabled": true,
+          "engineId": "claude:c:\\users\\vac34\\.claude",
+          "trigger": "everyReset",
+          "lastRunAt": "2026-10-07T18:40:09.952000+00:00",
+          "lastResult": "project switched off",
+          "firedEvents": [
+            "reset:five_hour:1791289740000",
+            "reset:five_hour:1791380340000",
+            "reset:five_hour:1791398340000"
+          ],
+          "runs": 0,
+          "continuationRuns": []
+        },
+        {
+          "id": "f28f1174-5969-4b93-8209-6405db6aa3c2",
+          "name": "ZAICODE",
+          "enabled": true,
+          "engineId": "codex:c:\\users\\vac34\\.codex",
+          "trigger": "everyReset",
+          "lastRunAt": "2026-10-07T13:45:40.781000+00:00",
+          "lastResult": "project switched off",
+          "firedEvents": [
+            "reset:five_hour:1791380666000"
+          ],
+          "runs": 0,
+          "continuationRuns": []
+        }
+      ]
+    }
+  ]
+}

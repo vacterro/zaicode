@@ -1,0 +1,23 @@
+{
+  "requirements": {
+    "SRC-170:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "UNKNOWN",
+      "evidence": null,
+      "text": "Fix scheduler Continue after quota/account transition: selected worker, actual resume target and visible status/last-run identity remain truthful and fresh",
+      "verification": null,
+      "work": "T-267"
+    },
+    "SRC-170:R002": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "UNKNOWN",
+      "evidence": null,
+      "text": "Inspect adjacent scheduler target switches, queue state and completion races and repair confirmed defects under regression proof",
+      "verification": null,
+      "work": "T-267"
+    }
+  },
+  "schema_version": 1
+}

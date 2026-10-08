@@ -1,0 +1,151 @@
+{
+  "schema": 1,
+  "reason": "STOP_HANDBACK",
+  "facts": {
+    "phase": "SCOUT",
+    "task": "T-251",
+    "next_action": "PHASE SCOUT T-251",
+    "blocker": "none",
+    "agent": "saipen-cli",
+    "saipen_version": 8,
+    "schema_version": 3,
+    "style_contract": "ded-069a4c52",
+    "saipen_home": "V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_SAIPEN",
+    "mode": "full",
+    "transition_from": "DONE",
+    "updated": "2026-10-06T23:56:55Z",
+    "last_event": 4082,
+    "goal_ingress": "goal-0f1e92d1031c9389",
+    "execution_intent": "goal",
+    "goal_waves": 0,
+    "goal_tickets": 9,
+    "validation": "STALE_FAIL",
+    "completed": [
+      "T-169",
+      "T-188",
+      "T-190",
+      "T-193",
+      "T-197",
+      "T-198",
+      "T-199",
+      "T-200",
+      "T-201",
+      "T-202",
+      "T-203",
+      "T-204",
+      "T-205",
+      "T-206",
+      "T-207",
+      "T-211",
+      "T-213",
+      "T-214",
+      "T-217",
+      "T-218",
+      "T-219",
+      "T-222",
+      "T-223",
+      "T-227",
+      "T-228",
+      "T-229",
+      "T-230",
+      "T-231",
+      "T-232",
+      "T-233",
+      "T-234",
+      "T-235",
+      "T-236",
+      "T-237",
+      "T-238",
+      "T-243",
+      "T-244",
+      "T-245",
+      "T-246",
+      "T-247",
+      "T-248",
+      "T-249",
+      "T-250"
+    ],
+    "automation": {},
+    "operator_due": false,
+    "blockers": [
+      {
+        "ticket": "T-242",
+        "blocker": "ACTIVE_DEPENDENCY:T-251 -- USER_PRIORITY: SRC-163 asks for the SAIHUNT over the SRC-151 bundle right after SRC-162"
+      },
+      {
+        "ticket": "T-239",
+        "blocker": "BLOCKED_BY_AUDIT_CLAUSES: SRC-160 is now normalized into 16 contract requirements (R001..R016, .saipen/intake/coverage/SRC-160.json): 2 IMPLEMENTED (R007 W2-001, R008 W2-002 -- this wave released..."
+      },
+      {
+        "ticket": "T-240",
+        "blocker": "MANUAL_PENDING: machine-complete VERIFY (typecheck 0; lint 0 errors; architecture:check 0 violations; pnpm test exit 0 -> 118/1275/105/252/45/9/11, 0 failures) but packaged/manual acceptance was NOT performed here -- no Windows package was built or inspected and the Electron shell cannot be driven from this seat. Operator checklist (limits-card density, composer plus-row, latest user/assistant nav, tooltip anchoring, Auto Retry right-click flow, real-run liveness) is itemised in .saipen/evidence/T-240-src161/verification.md"
+      },
+      {
+        "ticket": "T-226",
+        "blocker": "MANUAL_PENDING: machine-complete (full ui 1213/1213, repo pnpm test EXIT=0, typecheck 0, arch 0, red-control proven) but the screenshots are model-unreadable and the Electron shell cannot be driven from here; operator visual checklist for the three fixes is in .saipen/evidence/T-226-verification.md"
+      },
+      {
+        "ticket": "T-225",
+        "blocker": "MANUAL_PENDING: machine-complete VERIFY (ui1202PASS type0 arch0, RED-then-GREEN pair); operator visual checklist pending, evidence T-225-SRC-155"
+      },
+      {
+        "ticket": "T-224",
+        "blocker": "MANUAL_PENDING: machine-complete VERIFY (ui1196PASS type0 arch0, oracle pair 9red/46green); operator visual checklist pending, evidence T-224-SRC-154-R001-R005"
+      },
+      {
+        "ticket": "T-220",
+        "blocker": "OPERATOR_REQUIRED"
+      },
+      {
+        "ticket": "T-166",
+        "blocker": "EXTERNAL_VENDOR_CLOCK: preserved runner bash PID 18220 is armed for launch 2026-10-05T02:25:00Z and the real vendor roll 03:01:07Z; acceptance deadline 03:41:07Z. Current adac42dc dist-t166 package exists; receipt has not been produced. Do not duplicate runner, spend extra paid requests or fabricate an earlier reset. Resume when .saipen/evidence/T-166-live/20261005/receipt.json exists; inspect actual ok/checks/failures and process exit before verification."
+      },
+      {
+        "ticket": "T-221",
+        "blocker": "TARGET_FREE_CONTINUATION: SRC-152 is /goal cc all, not an independent implementation objective. Existing T-166 continuation was executed and its armed live acceptance retained; this candidate must not duplicate T-166 or T-220 or manufacture success. Reconcile after actual work evidence exists; no new implementation requested."
+      },
+      {
+        "ticket": "T-216",
+        "blocker": "EXTERNAL_PAID_RESOURCE: needs a real paid subscription actually exhausted by its vendor. No agent can produce that -- it costs the operator money and takes real wall-clock time until the vendor..."
+      },
+      {
+        "ticket": "T-215",
+        "blocker": "OPERATOR_REQUIRED: this ticket records a decision only the operator can take -- how to resolve T-144's stale 29-path release scope (.saipen/kitchen/release_scope/T-144.json, stale in at least 8 paths) that makes stage SOURCE_COVERAGE refuse every saipen ship. There is no agent-side work here that would not be release authority exercised on someone else's behalf. Options put to the operator: (a) review those 8 files and re-bind T-144's scope to current content, (b) retire or retarget SRC-110..113 so the release train stops naming T-144, (c) accept that no local ship completes until a committed release receipt exists. Until one is recorded, T-215 cannot enter SCOUT."
+      },
+      {
+        "ticket": "T-187",
+        "blocker": "ACTIVE_DEPENDENCY:T-166 -- Continuation audit found eligible live Antigravity acceptance: signed-in account-A is proven by the fresh read-only vendor probe. Finish T-166 before returning to board and release audit."
+      },
+      {
+        "ticket": "T-176",
+        "blocker": "OPERATOR_REQUIRED after PHASE 0 isolation proof (.saipen/evidence/T-176-phase0.md). The installed Antigravity CLI 1.2.14 holds exactly ONE credential per Windows logon context: cmdkey /list shows..."
+      },
+      {
+        "ticket": "T-154",
+        "blocker": "DESTRUCTIVE_ON_THE_HOST: the two engines are V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_SAIPEN (the one bin/saipen.cmd runs, confirmed by reading the shim) and..."
+      },
+      {
+        "ticket": "T-153",
+        "blocker": "TARGET_FILE_COLLISION: the first of the sixteen repairs is saipen/CORE.md, which git reports as 'M', and 14 files under saipen/ are dirty in the same 1956-file tree. These repairs rewrite the rules this session executes under -- CORE.md §1.2, BOOT.md step 7, RFC §1.10 -- so applying them mid-run would change the protocol under the agent holding the seat. Same prerequisite as T-149 and T-150."
+      },
+      {
+        "ticket": "T-144",
+        "blocker": "FRESH_MACHINE_ACCEPTANCE_UNAVAILABLE: SRC-110:R003 -- prove ZAICODE-Setup-<version>.exe installs, launches and completes a first task on a genuinely clean Windows machine with no Git, npm, pnpm,..."
+      },
+      {
+        "ticket": "T-94",
+        "blocker": "RELEASE_AUTHORITY_PENDING: verified and human-accepted, but closure is unrecordable until a committed release receipt names d359a2a9. Tried this turn and refused with VALIDATION_FAILED -- implementation source 'release:d359a2a9e44d082fb842602bdbefd13c4358c583' cannot be resolved to a durable published release. Scope is bound at 34 reviewed paths; the next root release carries d359a2a9 in its history and unblocks it."
+      },
+      {
+        "ticket": "T-9",
+        "blocker": "RELEASE_AUTHORITY_PENDING: actual isolated UI/runtime VERIFY and REVIEW PASS; inherited closure rejected VALIDATION_FAILED because no COMMITTED receipt names published product e9091481; waits for T-141 root release after external protocol-maintainer inventory repair; proof .saipen/evidence/T-9-queue/README.md"
+      }
+    ],
+    "evidence": [],
+    "test_groups": [],
+    "response_reason": "stop",
+    "operator_action": "NONE"
+  },
+  "delivery": "STATUS: SCOUT T-251\nRESULT: Peatatud operaatori soovil; 43 lõpetatud; 18 blokeeritud (OPERATOR_REQUIRED 1)\nNEXT EXACT ACTION: PHASE SCOUT T-251\nVALIDATION: STALE_FAIL",
+  "event": 4082
+}

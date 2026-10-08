@@ -1,0 +1,231 @@
+{
+  "ticket": "T-262",
+  "executablePath": "V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/packages/desktop/dist-t258/win-unpacked/ZAICODE.exe",
+  "profile": "V:\\_TEMP_\\zaicode-t262-profile-65xeGY",
+  "checks": [
+    {
+      "name": "app owns isolated profile",
+      "pass": true
+    },
+    {
+      "name": "visible explicit zero-token Check",
+      "pass": false
+    }
+  ],
+  "pass": false,
+  "error": "Error: visible explicit zero-token Check",
+  "stage": "settings",
+  "errors": [],
+  "requests": [
+    {
+      "method": "GET",
+      "path": "/api/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/combos"
+    },
+    {
+      "method": "POST",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "POST",
+      "path": "/api/providers"
+    },
+    {
+      "method": "POST",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "POST",
+      "path": "/api/providers"
+    },
+    {
+      "method": "POST",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "POST",
+      "path": "/api/providers"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/combos/free"
+    },
+    {
+      "method": "GET",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/combos"
+    },
+    {
+      "method": "GET",
+      "path": "/api/settings"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/settings"
+    },
+    {
+      "method": "GET",
+      "path": "/api/keys"
+    },
+    {
+      "method": "POST",
+      "path": "/api/keys"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/chat/completions"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/combos"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/combos"
+    },
+    {
+      "method": "GET",
+      "path": "/api/keys"
+    },
+    {
+      "method": "GET",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/combos"
+    },
+    {
+      "method": "GET",
+      "path": "/api/version"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/models"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/combos"
+    },
+    {
+      "method": "GET",
+      "path": "/api/models"
+    },
+    {
+      "method": "GET",
+      "path": "/api/settings"
+    },
+    {
+      "method": "GET",
+      "path": "/api/usage/stats?period=today"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/version"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/combos"
+    },
+    {
+      "method": "GET",
+      "path": "/api/models"
+    },
+    {
+      "method": "GET",
+      "path": "/api/settings"
+    },
+    {
+      "method": "GET",
+      "path": "/api/usage/stats?period=today"
+    }
+  ],
+  "asarSha256": "801bf625821888f35446a6af8c48d16d53c7c93db31ec62c6f7ceb3f5e978d9d",
+  "verifierSha256": "f4db8f70b1f34f7ef687b496ca17139828f8274079109d06a6da56923cd772e4"
+}

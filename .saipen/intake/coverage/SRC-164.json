@@ -1,0 +1,14 @@
+{
+  "requirements": {
+    "SRC-164:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "T-252 closed with verification evidence in LOG: verify -> PASS [target: T-252] conf: high -- controlled 23-case regression and focused 50-case suites pass; all original implementations give 14 red assertions, isolated controls 2/8/2/3 restore exact SHA256. Typecheck exit 0; verify:pre-push exit 0, 1928/1928 passed, cancelled 0, lint 0 errors with 166 existing warnings, architecture 0 violations. Scope and limitations .saipen/evidence/T-252-stab",
+      "text": "\u0425\u043e\u0440\u043e\u0448\u043e, \u0421\u043e\u043b, \u043f\u0440\u043e\u0434\u043e\u043b\u0436\u0438 \u043f\u043e\u0436\u0430\u043b\u0443\u0439\u0441\u0442\u0430 \u0443\u043a\u0440\u0435\u043f\u0430\u043b\u044f\u0442\u044c ZAICODE - \u043d\u0443\u0436\u043d\u043e \u0438\u0437\u0431\u0430\u0432\u0438\u0442\u044c\u0441\u044f \u043e\u0442 \u0431\u0430\u0433\u043e\u0432, \u0443\u043b\u0443\u0447\u0448\u0438\u0442\u044c \u0441\u0442\u0430\u0431\u0438\u043b\u044c\u043d\u043e\u0441\u0442\u044c \u0432 \u043e\u0441\u043d\u043e\u0432\u043d\u043e\u043c \u0438 \u0443\u043b\u0443\u0447\u0448\u0438\u0442\u044c \u043e\u0441\u043d\u043e\u0432\u043d\u043e\u0439 User Experience. /goal cc all",
+      "verification": "the Work this request created reached its own verification gate; see the T-252 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-252"
+    }
+  },
+  "schema_version": 1
+}

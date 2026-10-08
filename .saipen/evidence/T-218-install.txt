@@ -1,0 +1,22 @@
+apps/zcode-cli                           |  WARN  Unsupported engine: wanted: {"node":"24.14.0"} (current: {"node":"v24.15.0","pnpm":"10.33.2"})
+Scope: all 33 workspace projects
+Lockfile is up to date, resolution step is skipped
+Packages: +1881
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Progress: resolved 0, reused 1, downloaded 0, added 0
+Progress: resolved 0, reused 1735, downloaded 0, added 66
+Progress: resolved 0, reused 1735, downloaded 0, added 233
+Progress: resolved 0, reused 1735, downloaded 0, added 466
+Progress: resolved 0, reused 1735, downloaded 0, added 735
+Progress: resolved 0, reused 1735, downloaded 0, added 1128
+Progress: resolved 0, reused 1735, downloaded 0, added 1571
+Progress: resolved 0, reused 1735, downloaded 0, added 1665
+Progress: resolved 0, reused 1735, downloaded 0, added 1762
+Progress: resolved 0, reused 1735, downloaded 0, added 1881, done
+
+. prepare$ husky
+. prepare: Done
+packages/desktop postinstall$ node scripts/node-pty-rebuild.mjs
+packages/desktop postinstall: [node-pty] skip electron-rebuild (windows-prebuild-available): V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/.saipen/kitchen/t218-stable/node_modules/node-pty/prebuilds/win32-x64/pty.node
+packages/desktop postinstall: Done
+Done in 10.9s using pnpm v10.33.2

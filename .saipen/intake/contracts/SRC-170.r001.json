@@ -1,0 +1,14 @@
+{
+  "clauses": {
+    "SRC-170:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Fix scheduler Continue after quota/account transition: selected worker, actual resume target and visible status/last-run identity remain truthful and fresh"
+    }
+  },
+  "derived_at": "2026-10-07T10:01:34Z",
+  "derived_from": "SRC-170",
+  "interpretation_revision": 1,
+  "schema_version": 1,
+  "source_sha256": "0f0d6878b97dfdece65f7a40a9e2d485bf03c44612ba2511da0b890ad4e46513"
+}

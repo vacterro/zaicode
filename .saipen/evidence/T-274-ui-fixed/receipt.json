@@ -1,0 +1,46 @@
+{
+  "original": false,
+  "checks": [
+    {
+      "name": "pool pointer reorder persisted through router write and readback",
+      "pass": true
+    },
+    {
+      "name": "pool font is at least the UI base size",
+      "pass": true
+    },
+    {
+      "name": "pool keyboard reorder",
+      "pass": true
+    },
+    {
+      "name": "fallback pointer reorder",
+      "pass": true
+    },
+    {
+      "name": "Dispatch pointer reorder keeps launcher edits interactive",
+      "pass": true
+    },
+    {
+      "name": "queue drag uses the existing adjacent reorder owner",
+      "pass": true
+    },
+    {
+      "name": "Full retains real inner scrolling without fading output",
+      "pass": true
+    },
+    {
+      "name": "Full without scroll exposes the entire real output height",
+      "pass": true
+    },
+    {
+      "name": "unbounded streaming keeps the latest output",
+      "pass": true
+    },
+    {
+      "name": "transparent modal preserves input blocking",
+      "pass": true
+    }
+  ],
+  "errors": []
+}

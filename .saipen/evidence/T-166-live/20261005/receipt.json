@@ -1,0 +1,4684 @@
+{
+  "schema": "zaicode-t166-live/2",
+  "at": "2026-10-05T02:41:54.577Z",
+  "executablePath": "V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/packages/desktop/dist-t166/win-unpacked/ZAICODE.exe",
+  "profile": "V:/_TEMP_/zaicode-t166",
+  "targetKey": "five_hour@gemini_models",
+  "rollAt": "2026-10-05T03:01:07.000Z",
+  "playwrightVersion": "playwright-core",
+  "checks": {
+    "isolatedPackagedShell": true,
+    "liveVendorQuota": true,
+    "noStartBeforeRoll": true
+  },
+  "failures": [
+    "harness: page.evaluate: Target page, context or browser has been closed"
+  ],
+  "observations": [
+    {
+      "at": "2026-10-05T02:25:23.549Z",
+      "lastSweepAt": null,
+      "source": "agy -p /usage",
+      "error": null,
+      "fetchedAt": "2026-10-05T02:25:23.500Z",
+      "windowStart": null,
+      "windowStarts": null,
+      "windows": [
+        {
+          "key": "weekly@gemini_models",
+          "remainingPercent": 34.598639607429504,
+          "resetsAt": 1791663339000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T20:15:39.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@gemini_models",
+          "remainingPercent": 52.84168720245361,
+          "resetsAt": 1791169267000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T03:01:07.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "weekly@claude_and_gpt_models",
+          "remainingPercent": 49.577561020851135,
+          "resetsAt": 1791668540000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T21:42:20.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@claude_and_gpt_models",
+          "remainingPercent": 99.94872212409973,
+          "resetsAt": 1791176620000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T05:03:40.000Z",
+          "rollingFromIso": null
+        }
+      ],
+      "label": "first-live-sweep",
+      "rendered": {
+        "at": 1791167123547,
+        "topbar": "Monday, 5 October 2026 · 05:25:23 · week 41\nTime zone: Europe/Tallinn (EEST)\nNo timer set\nNext reset: Antigravity Gemini 5h in 35m 43s\n\nClick: Timers · Shift+Click: Temp Timer +15m · Ctrl+Click: work / break start-pause · Right-click: what to show",
+        "tile": "Antigravity (Antigravity) · gemini:antigravity\nAntigravity: 50% Claude & GPT weekly\n  Gemini weekly: 35% resets Sat 23:15\n  Gemini 5h: 53% resets in 36m\n  Claude & GPT weekly: 50% resets Sun 00:42\n  Claude & GPT 5h: 100% resets in 2h 38m\n\nClick: select subscription model in this chat · Right-click: workers and settings",
+        "surfaces": {
+          "home": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n35%\n— resets Sat 23:15\nGemini 5h\n53%\n— resets in 36m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 38m",
+          "engineBar": "SAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG",
+          "limitsPanel": ""
+        },
+        "windowStarts": null,
+        "windows": [
+          {
+            "key": "weekly@gemini_models",
+            "label": "Gemini weekly",
+            "remainingPercent": 34.598639607429504,
+            "resetsAt": 1791663339000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@gemini_models",
+            "label": "Gemini 5h",
+            "remainingPercent": 52.84168720245361,
+            "resetsAt": 1791169267000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "weekly@claude_and_gpt_models",
+            "label": "Claude & GPT weekly",
+            "remainingPercent": 49.577561020851135,
+            "resetsAt": 1791668540000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@claude_and_gpt_models",
+            "label": "Claude & GPT 5h",
+            "remainingPercent": 99.94872212409973,
+            "resetsAt": 1791176620000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          }
+        ],
+        "rendered_": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n35%\n— resets Sat 23:15\nGemini 5h\n53%\n— resets in 36m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 38m\nSAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG"
+      }
+    },
+    {
+      "at": "2026-10-05T02:25:46.298Z",
+      "lastSweepAt": "2026-10-05T02:25:25.682Z",
+      "source": "agy -p /usage",
+      "error": null,
+      "fetchedAt": "2026-10-05T02:25:46.281Z",
+      "windowStart": null,
+      "windowStarts": null,
+      "windows": [
+        {
+          "key": "weekly@gemini_models",
+          "remainingPercent": 34.598639607429504,
+          "resetsAt": 1791663339000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T20:15:39.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@gemini_models",
+          "remainingPercent": 52.84168720245361,
+          "resetsAt": 1791169267000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T03:01:07.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "weekly@claude_and_gpt_models",
+          "remainingPercent": 49.577561020851135,
+          "resetsAt": 1791668540000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T21:42:20.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@claude_and_gpt_models",
+          "remainingPercent": 99.94872212409973,
+          "resetsAt": 1791176620000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T05:03:40.000Z",
+          "rollingFromIso": null
+        }
+      ],
+      "label": "poll",
+      "rendered": {
+        "at": 1791167146297,
+        "topbar": "Monday, 5 October 2026 · 05:25:45 · week 41\nTime zone: Europe/Tallinn (EEST)\nNo timer set\nNext reset: Antigravity Gemini 5h in 35m 21s\n\nClick: Timers · Shift+Click: Temp Timer +15m · Ctrl+Click: work / break start-pause · Right-click: what to show",
+        "tile": "Antigravity (Antigravity) · gemini:antigravity\nAntigravity: 50% Claude & GPT weekly\n  Gemini weekly: 35% resets Sat 23:15\n  Gemini 5h: 53% resets in 36m\n  Claude & GPT weekly: 50% resets Sun 00:42\n  Claude & GPT 5h: 100% resets in 2h 38m\n\nClick: select subscription model in this chat · Right-click: workers and settings",
+        "surfaces": {
+          "home": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n35%\n— resets Sat 23:15\nGemini 5h\n53%\n— resets in 36m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 38m",
+          "engineBar": "SAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG",
+          "limitsPanel": ""
+        },
+        "windowStarts": null,
+        "windows": [
+          {
+            "key": "weekly@gemini_models",
+            "label": "Gemini weekly",
+            "remainingPercent": 34.598639607429504,
+            "resetsAt": 1791663339000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@gemini_models",
+            "label": "Gemini 5h",
+            "remainingPercent": 52.84168720245361,
+            "resetsAt": 1791169267000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "weekly@claude_and_gpt_models",
+            "label": "Claude & GPT weekly",
+            "remainingPercent": 49.577561020851135,
+            "resetsAt": 1791668540000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@claude_and_gpt_models",
+            "label": "Claude & GPT 5h",
+            "remainingPercent": 99.94872212409973,
+            "resetsAt": 1791176620000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          }
+        ],
+        "rendered_": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n35%\n— resets Sat 23:15\nGemini 5h\n53%\n— resets in 36m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 38m\nSAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG"
+      }
+    },
+    {
+      "at": "2026-10-05T02:26:08.755Z",
+      "lastSweepAt": "2026-10-05T02:25:25.682Z",
+      "source": "agy -p /usage",
+      "error": null,
+      "fetchedAt": "2026-10-05T02:26:08.733Z",
+      "windowStart": null,
+      "windowStarts": null,
+      "windows": [
+        {
+          "key": "weekly@gemini_models",
+          "remainingPercent": 34.598639607429504,
+          "resetsAt": 1791663339000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T20:15:39.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@gemini_models",
+          "remainingPercent": 52.84168720245361,
+          "resetsAt": 1791169267000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T03:01:07.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "weekly@claude_and_gpt_models",
+          "remainingPercent": 49.577561020851135,
+          "resetsAt": 1791668540000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T21:42:20.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@claude_and_gpt_models",
+          "remainingPercent": 99.94872212409973,
+          "resetsAt": 1791176620000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T05:03:40.000Z",
+          "rollingFromIso": null
+        }
+      ],
+      "label": "poll",
+      "rendered": {
+        "at": 1791167168754,
+        "topbar": "Monday, 5 October 2026 · 05:26:08 · week 41\nTime zone: Europe/Tallinn (EEST)\nNo timer set\nNext reset: Antigravity Gemini 5h in 34m 58s\n\nClick: Timers · Shift+Click: Temp Timer +15m · Ctrl+Click: work / break start-pause · Right-click: what to show",
+        "tile": "Antigravity (Antigravity) · gemini:antigravity\nAntigravity: 50% Claude & GPT weekly\n  Gemini weekly: 35% resets Sat 23:15\n  Gemini 5h: 53% resets in 35m\n  Claude & GPT weekly: 50% resets Sun 00:42\n  Claude & GPT 5h: 100% resets in 2h 38m\n\nClick: select subscription model in this chat · Right-click: workers and settings",
+        "surfaces": {
+          "home": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n35%\n— resets Sat 23:15\nGemini 5h\n53%\n— resets in 35m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 38m",
+          "engineBar": "SAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG",
+          "limitsPanel": ""
+        },
+        "windowStarts": null,
+        "windows": [
+          {
+            "key": "weekly@gemini_models",
+            "label": "Gemini weekly",
+            "remainingPercent": 34.598639607429504,
+            "resetsAt": 1791663339000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@gemini_models",
+            "label": "Gemini 5h",
+            "remainingPercent": 52.84168720245361,
+            "resetsAt": 1791169267000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "weekly@claude_and_gpt_models",
+            "label": "Claude & GPT weekly",
+            "remainingPercent": 49.577561020851135,
+            "resetsAt": 1791668540000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@claude_and_gpt_models",
+            "label": "Claude & GPT 5h",
+            "remainingPercent": 99.94872212409973,
+            "resetsAt": 1791176620000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          }
+        ],
+        "rendered_": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n35%\n— resets Sat 23:15\nGemini 5h\n53%\n— resets in 35m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 38m\nSAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG"
+      }
+    },
+    {
+      "at": "2026-10-05T02:26:31.152Z",
+      "lastSweepAt": "2026-10-05T02:25:25.682Z",
+      "source": "agy -p /usage",
+      "error": null,
+      "fetchedAt": "2026-10-05T02:26:31.130Z",
+      "windowStart": null,
+      "windowStarts": null,
+      "windows": [
+        {
+          "key": "weekly@gemini_models",
+          "remainingPercent": 34.598639607429504,
+          "resetsAt": 1791663339000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T20:15:39.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@gemini_models",
+          "remainingPercent": 52.84168720245361,
+          "resetsAt": 1791169267000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T03:01:07.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "weekly@claude_and_gpt_models",
+          "remainingPercent": 49.577561020851135,
+          "resetsAt": 1791668540000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T21:42:20.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@claude_and_gpt_models",
+          "remainingPercent": 99.94872212409973,
+          "resetsAt": 1791176620000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T05:03:40.000Z",
+          "rollingFromIso": null
+        }
+      ],
+      "label": "poll",
+      "rendered": {
+        "at": 1791167191150,
+        "topbar": "Monday, 5 October 2026 · 05:26:30 · week 41\nTime zone: Europe/Tallinn (EEST)\nNo timer set\nNext reset: Antigravity Gemini 5h in 34m 36s\n\nClick: Timers · Shift+Click: Temp Timer +15m · Ctrl+Click: work / break start-pause · Right-click: what to show",
+        "tile": "Antigravity (Antigravity) · gemini:antigravity\nAntigravity: 50% Claude & GPT weekly\n  Gemini weekly: 35% resets Sat 23:15\n  Gemini 5h: 53% resets in 35m\n  Claude & GPT weekly: 50% resets Sun 00:42\n  Claude & GPT 5h: 100% resets in 2h 37m\n\nClick: select subscription model in this chat · Right-click: workers and settings",
+        "surfaces": {
+          "home": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n35%\n— resets Sat 23:15\nGemini 5h\n53%\n— resets in 35m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 37m",
+          "engineBar": "SAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG",
+          "limitsPanel": ""
+        },
+        "windowStarts": null,
+        "windows": [
+          {
+            "key": "weekly@gemini_models",
+            "label": "Gemini weekly",
+            "remainingPercent": 34.598639607429504,
+            "resetsAt": 1791663339000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@gemini_models",
+            "label": "Gemini 5h",
+            "remainingPercent": 52.84168720245361,
+            "resetsAt": 1791169267000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "weekly@claude_and_gpt_models",
+            "label": "Claude & GPT weekly",
+            "remainingPercent": 49.577561020851135,
+            "resetsAt": 1791668540000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@claude_and_gpt_models",
+            "label": "Claude & GPT 5h",
+            "remainingPercent": 99.94872212409973,
+            "resetsAt": 1791176620000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          }
+        ],
+        "rendered_": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n35%\n— resets Sat 23:15\nGemini 5h\n53%\n— resets in 35m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 37m\nSAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG"
+      }
+    },
+    {
+      "at": "2026-10-05T02:26:58.966Z",
+      "lastSweepAt": "2026-10-05T02:25:25.682Z",
+      "source": "agy -p /usage",
+      "error": null,
+      "fetchedAt": "2026-10-05T02:26:58.946Z",
+      "windowStart": null,
+      "windowStarts": null,
+      "windows": [
+        {
+          "key": "weekly@gemini_models",
+          "remainingPercent": 34.535953402519226,
+          "resetsAt": 1791663339000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T20:15:39.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@gemini_models",
+          "remainingPercent": 52.4655818939209,
+          "resetsAt": 1791169267000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T03:01:07.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "weekly@claude_and_gpt_models",
+          "remainingPercent": 49.577561020851135,
+          "resetsAt": 1791668540000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T21:42:20.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@claude_and_gpt_models",
+          "remainingPercent": 99.94872212409973,
+          "resetsAt": 1791176620000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T05:03:40.000Z",
+          "rollingFromIso": null
+        }
+      ],
+      "label": "poll",
+      "rendered": {
+        "at": 1791167218965,
+        "topbar": "Monday, 5 October 2026 · 05:26:58 · week 41\nTime zone: Europe/Tallinn (EEST)\nNo timer set\nNext reset: Antigravity Gemini 5h in 34m 08s\n\nClick: Timers · Shift+Click: Temp Timer +15m · Ctrl+Click: work / break start-pause · Right-click: what to show",
+        "tile": "Antigravity (Antigravity) · gemini:antigravity\nAntigravity: 50% Claude & GPT weekly\n  Gemini weekly: 35% resets Sat 23:15\n  Gemini 5h: 52% resets in 34m\n  Claude & GPT weekly: 50% resets Sun 00:42\n  Claude & GPT 5h: 100% resets in 2h 37m\n\nClick: select subscription model in this chat · Right-click: workers and settings",
+        "surfaces": {
+          "home": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n35%\n— resets Sat 23:15\nGemini 5h\n52%\n— resets in 34m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 37m",
+          "engineBar": "SAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG",
+          "limitsPanel": ""
+        },
+        "windowStarts": null,
+        "windows": [
+          {
+            "key": "weekly@gemini_models",
+            "label": "Gemini weekly",
+            "remainingPercent": 34.535953402519226,
+            "resetsAt": 1791663339000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@gemini_models",
+            "label": "Gemini 5h",
+            "remainingPercent": 52.4655818939209,
+            "resetsAt": 1791169267000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "weekly@claude_and_gpt_models",
+            "label": "Claude & GPT weekly",
+            "remainingPercent": 49.577561020851135,
+            "resetsAt": 1791668540000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@claude_and_gpt_models",
+            "label": "Claude & GPT 5h",
+            "remainingPercent": 99.94872212409973,
+            "resetsAt": 1791176620000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          }
+        ],
+        "rendered_": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n35%\n— resets Sat 23:15\nGemini 5h\n52%\n— resets in 34m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 37m\nSAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG"
+      }
+    },
+    {
+      "at": "2026-10-05T02:27:21.290Z",
+      "lastSweepAt": "2026-10-05T02:25:25.682Z",
+      "source": "agy -p /usage",
+      "error": null,
+      "fetchedAt": "2026-10-05T02:27:21.271Z",
+      "windowStart": null,
+      "windowStarts": null,
+      "windows": [
+        {
+          "key": "weekly@gemini_models",
+          "remainingPercent": 34.49984788894653,
+          "resetsAt": 1791663339000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T20:15:39.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@gemini_models",
+          "remainingPercent": 52.24893093109131,
+          "resetsAt": 1791169267000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T03:01:07.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "weekly@claude_and_gpt_models",
+          "remainingPercent": 49.577561020851135,
+          "resetsAt": 1791668540000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T21:42:20.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@claude_and_gpt_models",
+          "remainingPercent": 99.94872212409973,
+          "resetsAt": 1791176620000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T05:03:40.000Z",
+          "rollingFromIso": null
+        }
+      ],
+      "label": "poll",
+      "rendered": {
+        "at": 1791167241288,
+        "topbar": "Monday, 5 October 2026 · 05:27:20 · week 41\nTime zone: Europe/Tallinn (EEST)\nNo timer set\nNext reset: Antigravity Gemini 5h in 33m 46s\n\nClick: Timers · Shift+Click: Temp Timer +15m · Ctrl+Click: work / break start-pause · Right-click: what to show",
+        "tile": "Antigravity (Antigravity) · gemini:antigravity\nAntigravity: 50% Claude & GPT weekly\n  Gemini weekly: 34% resets Sat 23:15\n  Gemini 5h: 52% resets in 34m\n  Claude & GPT weekly: 50% resets Sun 00:42\n  Claude & GPT 5h: 100% resets in 2h 36m\n\nClick: select subscription model in this chat · Right-click: workers and settings",
+        "surfaces": {
+          "home": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n34%\n— resets Sat 23:15\nGemini 5h\n52%\n— resets in 34m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 36m",
+          "engineBar": "SAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG",
+          "limitsPanel": ""
+        },
+        "windowStarts": null,
+        "windows": [
+          {
+            "key": "weekly@gemini_models",
+            "label": "Gemini weekly",
+            "remainingPercent": 34.49984788894653,
+            "resetsAt": 1791663339000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@gemini_models",
+            "label": "Gemini 5h",
+            "remainingPercent": 52.24893093109131,
+            "resetsAt": 1791169267000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "weekly@claude_and_gpt_models",
+            "label": "Claude & GPT weekly",
+            "remainingPercent": 49.577561020851135,
+            "resetsAt": 1791668540000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@claude_and_gpt_models",
+            "label": "Claude & GPT 5h",
+            "remainingPercent": 99.94872212409973,
+            "resetsAt": 1791176620000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          }
+        ],
+        "rendered_": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n34%\n— resets Sat 23:15\nGemini 5h\n52%\n— resets in 34m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 36m\nSAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG"
+      }
+    },
+    {
+      "at": "2026-10-05T02:27:43.616Z",
+      "lastSweepAt": "2026-10-05T02:25:25.682Z",
+      "source": "agy -p /usage",
+      "error": null,
+      "fetchedAt": "2026-10-05T02:27:43.598Z",
+      "windowStart": null,
+      "windowStarts": null,
+      "windows": [
+        {
+          "key": "weekly@gemini_models",
+          "remainingPercent": 34.46030020713806,
+          "resetsAt": 1791663339000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T20:15:39.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@gemini_models",
+          "remainingPercent": 52.011650800704956,
+          "resetsAt": 1791169267000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T03:01:07.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "weekly@claude_and_gpt_models",
+          "remainingPercent": 49.577561020851135,
+          "resetsAt": 1791668540000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T21:42:20.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@claude_and_gpt_models",
+          "remainingPercent": 99.94872212409973,
+          "resetsAt": 1791176620000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T05:03:40.000Z",
+          "rollingFromIso": null
+        }
+      ],
+      "label": "poll",
+      "rendered": {
+        "at": 1791167263615,
+        "topbar": "Monday, 5 October 2026 · 05:27:43 · week 41\nTime zone: Europe/Tallinn (EEST)\nNo timer set\nNext reset: Antigravity Gemini 5h in 33m 23s\n\nClick: Timers · Shift+Click: Temp Timer +15m · Ctrl+Click: work / break start-pause · Right-click: what to show",
+        "tile": "Antigravity (Antigravity) · gemini:antigravity\nAntigravity: 50% Claude & GPT weekly\n  Gemini weekly: 34% resets Sat 23:15\n  Gemini 5h: 52% resets in 34m\n  Claude & GPT weekly: 50% resets Sun 00:42\n  Claude & GPT 5h: 100% resets in 2h 36m\n\nClick: select subscription model in this chat · Right-click: workers and settings",
+        "surfaces": {
+          "home": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n34%\n— resets Sat 23:15\nGemini 5h\n52%\n— resets in 34m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 36m",
+          "engineBar": "SAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG",
+          "limitsPanel": ""
+        },
+        "windowStarts": null,
+        "windows": [
+          {
+            "key": "weekly@gemini_models",
+            "label": "Gemini weekly",
+            "remainingPercent": 34.46030020713806,
+            "resetsAt": 1791663339000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@gemini_models",
+            "label": "Gemini 5h",
+            "remainingPercent": 52.011650800704956,
+            "resetsAt": 1791169267000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "weekly@claude_and_gpt_models",
+            "label": "Claude & GPT weekly",
+            "remainingPercent": 49.577561020851135,
+            "resetsAt": 1791668540000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@claude_and_gpt_models",
+            "label": "Claude & GPT 5h",
+            "remainingPercent": 99.94872212409973,
+            "resetsAt": 1791176620000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          }
+        ],
+        "rendered_": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n34%\n— resets Sat 23:15\nGemini 5h\n52%\n— resets in 34m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 36m\nSAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG"
+      }
+    },
+    {
+      "at": "2026-10-05T02:28:06.166Z",
+      "lastSweepAt": "2026-10-05T02:25:25.682Z",
+      "source": "agy -p /usage",
+      "error": null,
+      "fetchedAt": "2026-10-05T02:28:06.144Z",
+      "windowStart": null,
+      "windowStarts": null,
+      "windows": [
+        {
+          "key": "weekly@gemini_models",
+          "remainingPercent": 34.409353137016296,
+          "resetsAt": 1791663339000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T20:15:39.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@gemini_models",
+          "remainingPercent": 51.705968379974365,
+          "resetsAt": 1791169267000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T03:01:07.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "weekly@claude_and_gpt_models",
+          "remainingPercent": 49.577561020851135,
+          "resetsAt": 1791668540000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T21:42:20.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@claude_and_gpt_models",
+          "remainingPercent": 99.94872212409973,
+          "resetsAt": 1791176620000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T05:03:40.000Z",
+          "rollingFromIso": null
+        }
+      ],
+      "label": "poll",
+      "rendered": {
+        "at": 1791167286165,
+        "topbar": "Monday, 5 October 2026 · 05:28:05 · week 41\nTime zone: Europe/Tallinn (EEST)\nNo timer set\nNext reset: Antigravity Gemini 5h in 33m 01s\n\nClick: Timers · Shift+Click: Temp Timer +15m · Ctrl+Click: work / break start-pause · Right-click: what to show",
+        "tile": "Antigravity (Antigravity) · gemini:antigravity\nAntigravity: 50% Claude & GPT weekly\n  Gemini weekly: 34% resets Sat 23:15\n  Gemini 5h: 52% resets in 33m\n  Claude & GPT weekly: 50% resets Sun 00:42\n  Claude & GPT 5h: 100% resets in 2h 36m\n\nClick: select subscription model in this chat · Right-click: workers and settings",
+        "surfaces": {
+          "home": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n34%\n— resets Sat 23:15\nGemini 5h\n52%\n— resets in 33m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 36m",
+          "engineBar": "SAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG",
+          "limitsPanel": ""
+        },
+        "windowStarts": null,
+        "windows": [
+          {
+            "key": "weekly@gemini_models",
+            "label": "Gemini weekly",
+            "remainingPercent": 34.409353137016296,
+            "resetsAt": 1791663339000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@gemini_models",
+            "label": "Gemini 5h",
+            "remainingPercent": 51.705968379974365,
+            "resetsAt": 1791169267000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "weekly@claude_and_gpt_models",
+            "label": "Claude & GPT weekly",
+            "remainingPercent": 49.577561020851135,
+            "resetsAt": 1791668540000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@claude_and_gpt_models",
+            "label": "Claude & GPT 5h",
+            "remainingPercent": 99.94872212409973,
+            "resetsAt": 1791176620000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          }
+        ],
+        "rendered_": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n34%\n— resets Sat 23:15\nGemini 5h\n52%\n— resets in 33m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 36m\nSAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG"
+      }
+    },
+    {
+      "at": "2026-10-05T02:28:28.514Z",
+      "lastSweepAt": "2026-10-05T02:25:25.682Z",
+      "source": "agy -p /usage",
+      "error": null,
+      "fetchedAt": "2026-10-05T02:28:28.495Z",
+      "windowStart": null,
+      "windowStarts": null,
+      "windows": [
+        {
+          "key": "weekly@gemini_models",
+          "remainingPercent": 34.36764478683472,
+          "resetsAt": 1791663339000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T20:15:39.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@gemini_models",
+          "remainingPercent": 51.45571231842041,
+          "resetsAt": 1791169267000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T03:01:07.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "weekly@claude_and_gpt_models",
+          "remainingPercent": 49.577561020851135,
+          "resetsAt": 1791668540000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T21:42:20.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@claude_and_gpt_models",
+          "remainingPercent": 99.94872212409973,
+          "resetsAt": 1791176620000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T05:03:40.000Z",
+          "rollingFromIso": null
+        }
+      ],
+      "label": "poll",
+      "rendered": {
+        "at": 1791167308513,
+        "topbar": "Monday, 5 October 2026 · 05:28:28 · week 41\nTime zone: Europe/Tallinn (EEST)\nNo timer set\nNext reset: Antigravity Gemini 5h in 32m 38s\n\nClick: Timers · Shift+Click: Temp Timer +15m · Ctrl+Click: work / break start-pause · Right-click: what to show",
+        "tile": "Antigravity (Antigravity) · gemini:antigravity\nAntigravity: 50% Claude & GPT weekly\n  Gemini weekly: 34% resets Sat 23:15\n  Gemini 5h: 51% resets in 33m\n  Claude & GPT weekly: 50% resets Sun 00:42\n  Claude & GPT 5h: 100% resets in 2h 35m\n\nClick: select subscription model in this chat · Right-click: workers and settings",
+        "surfaces": {
+          "home": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n34%\n— resets Sat 23:15\nGemini 5h\n51%\n— resets in 33m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 35m",
+          "engineBar": "SAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG",
+          "limitsPanel": ""
+        },
+        "windowStarts": null,
+        "windows": [
+          {
+            "key": "weekly@gemini_models",
+            "label": "Gemini weekly",
+            "remainingPercent": 34.36764478683472,
+            "resetsAt": 1791663339000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@gemini_models",
+            "label": "Gemini 5h",
+            "remainingPercent": 51.45571231842041,
+            "resetsAt": 1791169267000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "weekly@claude_and_gpt_models",
+            "label": "Claude & GPT weekly",
+            "remainingPercent": 49.577561020851135,
+            "resetsAt": 1791668540000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@claude_and_gpt_models",
+            "label": "Claude & GPT 5h",
+            "remainingPercent": 99.94872212409973,
+            "resetsAt": 1791176620000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          }
+        ],
+        "rendered_": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n34%\n— resets Sat 23:15\nGemini 5h\n51%\n— resets in 33m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 35m\nSAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG"
+      }
+    },
+    {
+      "at": "2026-10-05T02:28:50.995Z",
+      "lastSweepAt": "2026-10-05T02:25:25.682Z",
+      "source": "agy -p /usage",
+      "error": null,
+      "fetchedAt": "2026-10-05T02:28:50.979Z",
+      "windowStart": null,
+      "windowStarts": null,
+      "windows": [
+        {
+          "key": "weekly@gemini_models",
+          "remainingPercent": 34.32624340057373,
+          "resetsAt": 1791663339000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T20:15:39.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@gemini_models",
+          "remainingPercent": 51.20730996131897,
+          "resetsAt": 1791169267000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T03:01:07.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "weekly@claude_and_gpt_models",
+          "remainingPercent": 49.577561020851135,
+          "resetsAt": 1791668540000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T21:42:20.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@claude_and_gpt_models",
+          "remainingPercent": 99.94872212409973,
+          "resetsAt": 1791176620000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T05:03:40.000Z",
+          "rollingFromIso": null
+        }
+      ],
+      "label": "poll",
+      "rendered": {
+        "at": 1791167330995,
+        "topbar": "Monday, 5 October 2026 · 05:28:50 · week 41\nTime zone: Europe/Tallinn (EEST)\nNo timer set\nNext reset: Antigravity Gemini 5h in 32m 16s\n\nClick: Timers · Shift+Click: Temp Timer +15m · Ctrl+Click: work / break start-pause · Right-click: what to show",
+        "tile": "Antigravity (Antigravity) · gemini:antigravity\nAntigravity: 50% Claude & GPT weekly\n  Gemini weekly: 34% resets Sat 23:15\n  Gemini 5h: 51% resets in 32m\n  Claude & GPT weekly: 50% resets Sun 00:42\n  Claude & GPT 5h: 100% resets in 2h 35m\n\nClick: select subscription model in this chat · Right-click: workers and settings",
+        "surfaces": {
+          "home": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n34%\n— resets Sat 23:15\nGemini 5h\n51%\n— resets in 32m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 35m",
+          "engineBar": "SAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG",
+          "limitsPanel": ""
+        },
+        "windowStarts": null,
+        "windows": [
+          {
+            "key": "weekly@gemini_models",
+            "label": "Gemini weekly",
+            "remainingPercent": 34.32624340057373,
+            "resetsAt": 1791663339000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@gemini_models",
+            "label": "Gemini 5h",
+            "remainingPercent": 51.20730996131897,
+            "resetsAt": 1791169267000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "weekly@claude_and_gpt_models",
+            "label": "Claude & GPT weekly",
+            "remainingPercent": 49.577561020851135,
+            "resetsAt": 1791668540000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@claude_and_gpt_models",
+            "label": "Claude & GPT 5h",
+            "remainingPercent": 99.94872212409973,
+            "resetsAt": 1791176620000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          }
+        ],
+        "rendered_": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n34%\n— resets Sat 23:15\nGemini 5h\n51%\n— resets in 32m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 35m\nSAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG"
+      }
+    },
+    {
+      "at": "2026-10-05T02:29:13.294Z",
+      "lastSweepAt": "2026-10-05T02:25:25.682Z",
+      "source": "agy -p /usage",
+      "error": null,
+      "fetchedAt": "2026-10-05T02:29:13.277Z",
+      "windowStart": null,
+      "windowStarts": null,
+      "windows": [
+        {
+          "key": "weekly@gemini_models",
+          "remainingPercent": 34.28356647491455,
+          "resetsAt": 1791663339000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T20:15:39.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@gemini_models",
+          "remainingPercent": 50.951242446899414,
+          "resetsAt": 1791169267000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T03:01:07.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "weekly@claude_and_gpt_models",
+          "remainingPercent": 49.577561020851135,
+          "resetsAt": 1791668540000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T21:42:20.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@claude_and_gpt_models",
+          "remainingPercent": 99.94872212409973,
+          "resetsAt": 1791176620000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T05:03:40.000Z",
+          "rollingFromIso": null
+        }
+      ],
+      "label": "poll",
+      "rendered": {
+        "at": 1791167353294,
+        "topbar": "Monday, 5 October 2026 · 05:29:12 · week 41\nTime zone: Europe/Tallinn (EEST)\nNo timer set\nNext reset: Antigravity Gemini 5h in 31m 54s\n\nClick: Timers · Shift+Click: Temp Timer +15m · Ctrl+Click: work / break start-pause · Right-click: what to show",
+        "tile": "Antigravity (Antigravity) · gemini:antigravity\nAntigravity: 50% Claude & GPT weekly\n  Gemini weekly: 34% resets Sat 23:15\n  Gemini 5h: 51% resets in 32m\n  Claude & GPT weekly: 50% resets Sun 00:42\n  Claude & GPT 5h: 100% resets in 2h 35m\n\nClick: select subscription model in this chat · Right-click: workers and settings",
+        "surfaces": {
+          "home": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n34%\n— resets Sat 23:15\nGemini 5h\n51%\n— resets in 32m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 35m",
+          "engineBar": "SAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG",
+          "limitsPanel": ""
+        },
+        "windowStarts": null,
+        "windows": [
+          {
+            "key": "weekly@gemini_models",
+            "label": "Gemini weekly",
+            "remainingPercent": 34.28356647491455,
+            "resetsAt": 1791663339000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@gemini_models",
+            "label": "Gemini 5h",
+            "remainingPercent": 50.951242446899414,
+            "resetsAt": 1791169267000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "weekly@claude_and_gpt_models",
+            "label": "Claude & GPT weekly",
+            "remainingPercent": 49.577561020851135,
+            "resetsAt": 1791668540000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@claude_and_gpt_models",
+            "label": "Claude & GPT 5h",
+            "remainingPercent": 99.94872212409973,
+            "resetsAt": 1791176620000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          }
+        ],
+        "rendered_": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n34%\n— resets Sat 23:15\nGemini 5h\n51%\n— resets in 32m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 35m\nSAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG"
+      }
+    },
+    {
+      "at": "2026-10-05T02:29:35.878Z",
+      "lastSweepAt": "2026-10-05T02:25:25.682Z",
+      "source": "agy -p /usage",
+      "error": null,
+      "fetchedAt": "2026-10-05T02:29:35.855Z",
+      "windowStart": null,
+      "windowStarts": null,
+      "windows": [
+        {
+          "key": "weekly@gemini_models",
+          "remainingPercent": 34.24726724624634,
+          "resetsAt": 1791663339000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T20:15:39.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@gemini_models",
+          "remainingPercent": 50.73344111442566,
+          "resetsAt": 1791169267000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T03:01:07.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "weekly@claude_and_gpt_models",
+          "remainingPercent": 49.577561020851135,
+          "resetsAt": 1791668540000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T21:42:20.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@claude_and_gpt_models",
+          "remainingPercent": 99.94872212409973,
+          "resetsAt": 1791176620000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T05:03:40.000Z",
+          "rollingFromIso": null
+        }
+      ],
+      "label": "poll",
+      "rendered": {
+        "at": 1791167375877,
+        "topbar": "Monday, 5 October 2026 · 05:29:35 · week 41\nTime zone: Europe/Tallinn (EEST)\nNo timer set\nNext reset: Antigravity Gemini 5h in 31m 31s\n\nClick: Timers · Shift+Click: Temp Timer +15m · Ctrl+Click: work / break start-pause · Right-click: what to show",
+        "tile": "Antigravity (Antigravity) · gemini:antigravity\nAntigravity: 50% Claude & GPT weekly\n  Gemini weekly: 34% resets Sat 23:15\n  Gemini 5h: 51% resets in 32m\n  Claude & GPT weekly: 50% resets Sun 00:42\n  Claude & GPT 5h: 100% resets in 2h 34m\n\nClick: select subscription model in this chat · Right-click: workers and settings",
+        "surfaces": {
+          "home": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n34%\n— resets Sat 23:15\nGemini 5h\n51%\n— resets in 32m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 34m",
+          "engineBar": "SAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG",
+          "limitsPanel": ""
+        },
+        "windowStarts": null,
+        "windows": [
+          {
+            "key": "weekly@gemini_models",
+            "label": "Gemini weekly",
+            "remainingPercent": 34.24726724624634,
+            "resetsAt": 1791663339000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@gemini_models",
+            "label": "Gemini 5h",
+            "remainingPercent": 50.73344111442566,
+            "resetsAt": 1791169267000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "weekly@claude_and_gpt_models",
+            "label": "Claude & GPT weekly",
+            "remainingPercent": 49.577561020851135,
+            "resetsAt": 1791668540000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@claude_and_gpt_models",
+            "label": "Claude & GPT 5h",
+            "remainingPercent": 99.94872212409973,
+            "resetsAt": 1791176620000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          }
+        ],
+        "rendered_": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n34%\n— resets Sat 23:15\nGemini 5h\n51%\n— resets in 32m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 34m\nSAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG"
+      }
+    },
+    {
+      "at": "2026-10-05T02:29:58.244Z",
+      "lastSweepAt": "2026-10-05T02:25:25.682Z",
+      "source": "agy -p /usage",
+      "error": null,
+      "fetchedAt": "2026-10-05T02:29:58.227Z",
+      "windowStart": null,
+      "windowStarts": null,
+      "windows": [
+        {
+          "key": "weekly@gemini_models",
+          "remainingPercent": 34.23713445663452,
+          "resetsAt": 1791663339000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T20:15:39.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@gemini_models",
+          "remainingPercent": 50.67263841629028,
+          "resetsAt": 1791169267000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T03:01:07.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "weekly@claude_and_gpt_models",
+          "remainingPercent": 49.577561020851135,
+          "resetsAt": 1791668540000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T21:42:20.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@claude_and_gpt_models",
+          "remainingPercent": 99.94872212409973,
+          "resetsAt": 1791176620000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T05:03:40.000Z",
+          "rollingFromIso": null
+        }
+      ],
+      "label": "poll",
+      "rendered": {
+        "at": 1791167398244,
+        "topbar": "Monday, 5 October 2026 · 05:29:57 · week 41\nTime zone: Europe/Tallinn (EEST)\nNo timer set\nNext reset: Antigravity Gemini 5h in 31m 09s\n\nClick: Timers · Shift+Click: Temp Timer +15m · Ctrl+Click: work / break start-pause · Right-click: what to show",
+        "tile": "Antigravity (Antigravity) · gemini:antigravity\nAntigravity: 50% Claude & GPT weekly\n  Gemini weekly: 34% resets Sat 23:15\n  Gemini 5h: 51% resets in 31m\n  Claude & GPT weekly: 50% resets Sun 00:42\n  Claude & GPT 5h: 100% resets in 2h 34m\n\nClick: select subscription model in this chat · Right-click: workers and settings",
+        "surfaces": {
+          "home": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n34%\n— resets Sat 23:15\nGemini 5h\n51%\n— resets in 31m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 34m",
+          "engineBar": "SAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG",
+          "limitsPanel": ""
+        },
+        "windowStarts": null,
+        "windows": [
+          {
+            "key": "weekly@gemini_models",
+            "label": "Gemini weekly",
+            "remainingPercent": 34.23713445663452,
+            "resetsAt": 1791663339000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@gemini_models",
+            "label": "Gemini 5h",
+            "remainingPercent": 50.67263841629028,
+            "resetsAt": 1791169267000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "weekly@claude_and_gpt_models",
+            "label": "Claude & GPT weekly",
+            "remainingPercent": 49.577561020851135,
+            "resetsAt": 1791668540000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@claude_and_gpt_models",
+            "label": "Claude & GPT 5h",
+            "remainingPercent": 99.94872212409973,
+            "resetsAt": 1791176620000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          }
+        ],
+        "rendered_": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n34%\n— resets Sat 23:15\nGemini 5h\n51%\n— resets in 31m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 34m\nSAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG"
+      }
+    },
+    {
+      "at": "2026-10-05T02:30:20.616Z",
+      "lastSweepAt": "2026-10-05T02:25:25.682Z",
+      "source": "agy -p /usage",
+      "error": null,
+      "fetchedAt": "2026-10-05T02:30:20.596Z",
+      "windowStart": null,
+      "windowStarts": null,
+      "windows": [
+        {
+          "key": "weekly@gemini_models",
+          "remainingPercent": 34.166938066482544,
+          "resetsAt": 1791663339000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T20:15:39.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@gemini_models",
+          "remainingPercent": 50.25147199630737,
+          "resetsAt": 1791169267000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T03:01:07.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "weekly@claude_and_gpt_models",
+          "remainingPercent": 49.577561020851135,
+          "resetsAt": 1791668540000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T21:42:20.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@claude_and_gpt_models",
+          "remainingPercent": 99.94872212409973,
+          "resetsAt": 1791176620000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T05:03:40.000Z",
+          "rollingFromIso": null
+        }
+      ],
+      "label": "poll",
+      "rendered": {
+        "at": 1791167420616,
+        "topbar": "Monday, 5 October 2026 · 05:30:20 · week 41\nTime zone: Europe/Tallinn (EEST)\nNo timer set\nNext reset: Antigravity Gemini 5h in 30m 46s\n\nClick: Timers · Shift+Click: Temp Timer +15m · Ctrl+Click: work / break start-pause · Right-click: what to show",
+        "tile": "Antigravity (Antigravity) · gemini:antigravity\nAntigravity: 50% Claude & GPT weekly\n  Gemini weekly: 34% resets Sat 23:15\n  Gemini 5h: 50% resets in 31m\n  Claude & GPT weekly: 50% resets Sun 00:42\n  Claude & GPT 5h: 100% resets in 2h 33m\n\nClick: select subscription model in this chat · Right-click: workers and settings",
+        "surfaces": {
+          "home": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n34%\n— resets Sat 23:15\nGemini 5h\n50%\n— resets in 31m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 33m",
+          "engineBar": "SAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG",
+          "limitsPanel": ""
+        },
+        "windowStarts": null,
+        "windows": [
+          {
+            "key": "weekly@gemini_models",
+            "label": "Gemini weekly",
+            "remainingPercent": 34.166938066482544,
+            "resetsAt": 1791663339000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@gemini_models",
+            "label": "Gemini 5h",
+            "remainingPercent": 50.25147199630737,
+            "resetsAt": 1791169267000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "weekly@claude_and_gpt_models",
+            "label": "Claude & GPT weekly",
+            "remainingPercent": 49.577561020851135,
+            "resetsAt": 1791668540000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@claude_and_gpt_models",
+            "label": "Claude & GPT 5h",
+            "remainingPercent": 99.94872212409973,
+            "resetsAt": 1791176620000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          }
+        ],
+        "rendered_": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n34%\n— resets Sat 23:15\nGemini 5h\n50%\n— resets in 31m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 33m\nSAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG"
+      }
+    },
+    {
+      "at": "2026-10-05T02:30:42.970Z",
+      "lastSweepAt": "2026-10-05T02:25:25.682Z",
+      "source": "agy -p /usage",
+      "error": null,
+      "fetchedAt": "2026-10-05T02:30:42.952Z",
+      "windowStart": null,
+      "windowStarts": null,
+      "windows": [
+        {
+          "key": "weekly@gemini_models",
+          "remainingPercent": 34.13588106632233,
+          "resetsAt": 1791663339000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T20:15:39.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@gemini_models",
+          "remainingPercent": 50.06512999534607,
+          "resetsAt": 1791169267000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T03:01:07.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "weekly@claude_and_gpt_models",
+          "remainingPercent": 49.577561020851135,
+          "resetsAt": 1791668540000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T21:42:20.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@claude_and_gpt_models",
+          "remainingPercent": 99.94872212409973,
+          "resetsAt": 1791176620000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T05:03:40.000Z",
+          "rollingFromIso": null
+        }
+      ],
+      "label": "poll",
+      "rendered": {
+        "at": 1791167442969,
+        "topbar": "Monday, 5 October 2026 · 05:30:42 · week 41\nTime zone: Europe/Tallinn (EEST)\nNo timer set\nNext reset: Antigravity Gemini 5h in 30m 24s\n\nClick: Timers · Shift+Click: Temp Timer +15m · Ctrl+Click: work / break start-pause · Right-click: what to show",
+        "tile": "Antigravity (Antigravity) · gemini:antigravity\nAntigravity: 50% Claude & GPT weekly\n  Gemini weekly: 34% resets Sat 23:15\n  Gemini 5h: 50% resets in 31m\n  Claude & GPT weekly: 50% resets Sun 00:42\n  Claude & GPT 5h: 100% resets in 2h 33m\n\nClick: select subscription model in this chat · Right-click: workers and settings",
+        "surfaces": {
+          "home": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n34%\n— resets Sat 23:15\nGemini 5h\n50%\n— resets in 31m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 33m",
+          "engineBar": "SAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG",
+          "limitsPanel": ""
+        },
+        "windowStarts": null,
+        "windows": [
+          {
+            "key": "weekly@gemini_models",
+            "label": "Gemini weekly",
+            "remainingPercent": 34.13588106632233,
+            "resetsAt": 1791663339000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@gemini_models",
+            "label": "Gemini 5h",
+            "remainingPercent": 50.06512999534607,
+            "resetsAt": 1791169267000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "weekly@claude_and_gpt_models",
+            "label": "Claude & GPT weekly",
+            "remainingPercent": 49.577561020851135,
+            "resetsAt": 1791668540000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@claude_and_gpt_models",
+            "label": "Claude & GPT 5h",
+            "remainingPercent": 99.94872212409973,
+            "resetsAt": 1791176620000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          }
+        ],
+        "rendered_": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n34%\n— resets Sat 23:15\nGemini 5h\n50%\n— resets in 31m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 33m\nSAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG"
+      }
+    },
+    {
+      "at": "2026-10-05T02:31:05.290Z",
+      "lastSweepAt": "2026-10-05T02:25:25.682Z",
+      "source": "agy -p /usage",
+      "error": null,
+      "fetchedAt": "2026-10-05T02:31:05.275Z",
+      "windowStart": null,
+      "windowStarts": null,
+      "windows": [
+        {
+          "key": "weekly@gemini_models",
+          "remainingPercent": 34.11267399787903,
+          "resetsAt": 1791663339000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T20:15:39.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@gemini_models",
+          "remainingPercent": 49.92587864398956,
+          "resetsAt": 1791169267000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T03:01:07.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "weekly@claude_and_gpt_models",
+          "remainingPercent": 49.577561020851135,
+          "resetsAt": 1791668540000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T21:42:20.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@claude_and_gpt_models",
+          "remainingPercent": 99.94872212409973,
+          "resetsAt": 1791176620000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T05:03:40.000Z",
+          "rollingFromIso": null
+        }
+      ],
+      "label": "poll",
+      "rendered": {
+        "at": 1791167465289,
+        "topbar": "Monday, 5 October 2026 · 05:31:04 · week 41\nTime zone: Europe/Tallinn (EEST)\nNo timer set\nNext reset: Antigravity Gemini 5h in 30m 02s\n\nClick: Timers · Shift+Click: Temp Timer +15m · Ctrl+Click: work / break start-pause · Right-click: what to show",
+        "tile": "Antigravity (Antigravity) · gemini:antigravity\nAntigravity: 50% Claude & GPT weekly\n  Gemini weekly: 34% resets Sat 23:15\n  Gemini 5h: 50% resets in 30m\n  Claude & GPT weekly: 50% resets Sun 00:42\n  Claude & GPT 5h: 100% resets in 2h 33m\n\nClick: select subscription model in this chat · Right-click: workers and settings",
+        "surfaces": {
+          "home": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n34%\n— resets Sat 23:15\nGemini 5h\n50%\n— resets in 30m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 33m",
+          "engineBar": "SAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG",
+          "limitsPanel": ""
+        },
+        "windowStarts": null,
+        "windows": [
+          {
+            "key": "weekly@gemini_models",
+            "label": "Gemini weekly",
+            "remainingPercent": 34.11267399787903,
+            "resetsAt": 1791663339000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@gemini_models",
+            "label": "Gemini 5h",
+            "remainingPercent": 49.92587864398956,
+            "resetsAt": 1791169267000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "weekly@claude_and_gpt_models",
+            "label": "Claude & GPT weekly",
+            "remainingPercent": 49.577561020851135,
+            "resetsAt": 1791668540000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@claude_and_gpt_models",
+            "label": "Claude & GPT 5h",
+            "remainingPercent": 99.94872212409973,
+            "resetsAt": 1791176620000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          }
+        ],
+        "rendered_": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n34%\n— resets Sat 23:15\nGemini 5h\n50%\n— resets in 30m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 33m\nSAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG"
+      }
+    },
+    {
+      "at": "2026-10-05T02:31:27.552Z",
+      "lastSweepAt": "2026-10-05T02:25:25.682Z",
+      "source": "agy -p /usage",
+      "error": null,
+      "fetchedAt": "2026-10-05T02:31:27.536Z",
+      "windowStart": null,
+      "windowStarts": null,
+      "windows": [
+        {
+          "key": "weekly@gemini_models",
+          "remainingPercent": 34.11267399787903,
+          "resetsAt": 1791663339000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T20:15:39.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@gemini_models",
+          "remainingPercent": 49.92587864398956,
+          "resetsAt": 1791169267000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T03:01:07.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "weekly@claude_and_gpt_models",
+          "remainingPercent": 49.577561020851135,
+          "resetsAt": 1791668540000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T21:42:20.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@claude_and_gpt_models",
+          "remainingPercent": 99.94872212409973,
+          "resetsAt": 1791176620000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T05:03:40.000Z",
+          "rollingFromIso": null
+        }
+      ],
+      "label": "poll",
+      "rendered": {
+        "at": 1791167487551,
+        "topbar": "Monday, 5 October 2026 · 05:31:27 · week 41\nTime zone: Europe/Tallinn (EEST)\nNo timer set\nNext reset: Antigravity Gemini 5h in 29m 39s\n\nClick: Timers · Shift+Click: Temp Timer +15m · Ctrl+Click: work / break start-pause · Right-click: what to show",
+        "tile": "Antigravity (Antigravity) · gemini:antigravity\nAntigravity: 50% Claude & GPT weekly\n  Gemini weekly: 34% resets Sat 23:15\n  Gemini 5h: 50% resets in 30m\n  Claude & GPT weekly: 50% resets Sun 00:42\n  Claude & GPT 5h: 100% resets in 2h 32m\n\nClick: select subscription model in this chat · Right-click: workers and settings",
+        "surfaces": {
+          "home": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n34%\n— resets Sat 23:15\nGemini 5h\n50%\n— resets in 30m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 32m",
+          "engineBar": "SAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG",
+          "limitsPanel": ""
+        },
+        "windowStarts": null,
+        "windows": [
+          {
+            "key": "weekly@gemini_models",
+            "label": "Gemini weekly",
+            "remainingPercent": 34.11267399787903,
+            "resetsAt": 1791663339000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@gemini_models",
+            "label": "Gemini 5h",
+            "remainingPercent": 49.92587864398956,
+            "resetsAt": 1791169267000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "weekly@claude_and_gpt_models",
+            "label": "Claude & GPT weekly",
+            "remainingPercent": 49.577561020851135,
+            "resetsAt": 1791668540000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@claude_and_gpt_models",
+            "label": "Claude & GPT 5h",
+            "remainingPercent": 99.94872212409973,
+            "resetsAt": 1791176620000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          }
+        ],
+        "rendered_": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n34%\n— resets Sat 23:15\nGemini 5h\n50%\n— resets in 30m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 32m\nSAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG"
+      }
+    },
+    {
+      "at": "2026-10-05T02:31:49.854Z",
+      "lastSweepAt": "2026-10-05T02:25:25.682Z",
+      "source": "agy -p /usage",
+      "error": null,
+      "fetchedAt": "2026-10-05T02:31:49.837Z",
+      "windowStart": null,
+      "windowStarts": null,
+      "windows": [
+        {
+          "key": "weekly@gemini_models",
+          "remainingPercent": 34.025612473487854,
+          "resetsAt": 1791663339000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T20:15:39.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@gemini_models",
+          "remainingPercent": 49.403539299964905,
+          "resetsAt": 1791169267000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T03:01:07.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "weekly@claude_and_gpt_models",
+          "remainingPercent": 49.577561020851135,
+          "resetsAt": 1791668540000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T21:42:20.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@claude_and_gpt_models",
+          "remainingPercent": 99.94872212409973,
+          "resetsAt": 1791176620000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T05:03:40.000Z",
+          "rollingFromIso": null
+        }
+      ],
+      "label": "poll",
+      "rendered": {
+        "at": 1791167509852,
+        "topbar": "Monday, 5 October 2026 · 05:31:49 · week 41\nTime zone: Europe/Tallinn (EEST)\nNo timer set\nNext reset: Antigravity Gemini 5h in 29m 17s\n\nClick: Timers · Shift+Click: Temp Timer +15m · Ctrl+Click: work / break start-pause · Right-click: what to show",
+        "tile": "Antigravity (Antigravity) · gemini:antigravity\nAntigravity: 50% Claude & GPT weekly\n  Gemini weekly: 34% resets Sat 23:15\n  Gemini 5h: 49% resets in 30m\n  Claude & GPT weekly: 50% resets Sun 00:42\n  Claude & GPT 5h: 100% resets in 2h 32m\n\nClick: select subscription model in this chat · Right-click: workers and settings",
+        "surfaces": {
+          "home": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n34%\n— resets Sat 23:15\nGemini 5h\n49%\n— resets in 30m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 32m",
+          "engineBar": "SAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG",
+          "limitsPanel": ""
+        },
+        "windowStarts": null,
+        "windows": [
+          {
+            "key": "weekly@gemini_models",
+            "label": "Gemini weekly",
+            "remainingPercent": 34.025612473487854,
+            "resetsAt": 1791663339000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@gemini_models",
+            "label": "Gemini 5h",
+            "remainingPercent": 49.403539299964905,
+            "resetsAt": 1791169267000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "weekly@claude_and_gpt_models",
+            "label": "Claude & GPT weekly",
+            "remainingPercent": 49.577561020851135,
+            "resetsAt": 1791668540000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@claude_and_gpt_models",
+            "label": "Claude & GPT 5h",
+            "remainingPercent": 99.94872212409973,
+            "resetsAt": 1791176620000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          }
+        ],
+        "rendered_": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n34%\n— resets Sat 23:15\nGemini 5h\n49%\n— resets in 30m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 32m\nSAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG"
+      }
+    },
+    {
+      "at": "2026-10-05T02:32:12.182Z",
+      "lastSweepAt": "2026-10-05T02:25:25.682Z",
+      "source": "agy -p /usage",
+      "error": null,
+      "fetchedAt": "2026-10-05T02:32:12.169Z",
+      "windowStart": null,
+      "windowStarts": null,
+      "windows": [
+        {
+          "key": "weekly@gemini_models",
+          "remainingPercent": 33.97664427757263,
+          "resetsAt": 1791663339000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T20:15:39.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@gemini_models",
+          "remainingPercent": 49.1097092628479,
+          "resetsAt": 1791169267000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T03:01:07.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "weekly@claude_and_gpt_models",
+          "remainingPercent": 49.577561020851135,
+          "resetsAt": 1791668540000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T21:42:20.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@claude_and_gpt_models",
+          "remainingPercent": 99.94872212409973,
+          "resetsAt": 1791176620000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T05:03:40.000Z",
+          "rollingFromIso": null
+        }
+      ],
+      "label": "poll",
+      "rendered": {
+        "at": 1791167532181,
+        "topbar": "Monday, 5 October 2026 · 05:32:11 · week 41\nTime zone: Europe/Tallinn (EEST)\nNo timer set\nNext reset: Antigravity Gemini 5h in 28m 55s\n\nClick: Timers · Shift+Click: Temp Timer +15m · Ctrl+Click: work / break start-pause · Right-click: what to show",
+        "tile": "Antigravity (Antigravity) · gemini:antigravity\nAntigravity: 50% Claude & GPT weekly\n  Gemini weekly: 34% resets Sat 23:15\n  Gemini 5h: 49% resets in 29m\n  Claude & GPT weekly: 50% resets Sun 00:42\n  Claude & GPT 5h: 100% resets in 2h 32m\n\nClick: select subscription model in this chat · Right-click: workers and settings",
+        "surfaces": {
+          "home": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n34%\n— resets Sat 23:15\nGemini 5h\n49%\n— resets in 29m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 32m",
+          "engineBar": "SAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG",
+          "limitsPanel": ""
+        },
+        "windowStarts": null,
+        "windows": [
+          {
+            "key": "weekly@gemini_models",
+            "label": "Gemini weekly",
+            "remainingPercent": 33.97664427757263,
+            "resetsAt": 1791663339000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@gemini_models",
+            "label": "Gemini 5h",
+            "remainingPercent": 49.1097092628479,
+            "resetsAt": 1791169267000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "weekly@claude_and_gpt_models",
+            "label": "Claude & GPT weekly",
+            "remainingPercent": 49.577561020851135,
+            "resetsAt": 1791668540000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@claude_and_gpt_models",
+            "label": "Claude & GPT 5h",
+            "remainingPercent": 99.94872212409973,
+            "resetsAt": 1791176620000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          }
+        ],
+        "rendered_": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n34%\n— resets Sat 23:15\nGemini 5h\n49%\n— resets in 29m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 32m\nSAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG"
+      }
+    },
+    {
+      "at": "2026-10-05T02:32:34.495Z",
+      "lastSweepAt": "2026-10-05T02:25:25.682Z",
+      "source": "agy -p /usage",
+      "error": null,
+      "fetchedAt": "2026-10-05T02:32:34.473Z",
+      "windowStart": null,
+      "windowStarts": null,
+      "windows": [
+        {
+          "key": "weekly@gemini_models",
+          "remainingPercent": 33.957719802856445,
+          "resetsAt": 1791663339000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T20:15:39.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@gemini_models",
+          "remainingPercent": 48.99615943431854,
+          "resetsAt": 1791169267000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T03:01:07.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "weekly@claude_and_gpt_models",
+          "remainingPercent": 49.577561020851135,
+          "resetsAt": 1791668540000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T21:42:20.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@claude_and_gpt_models",
+          "remainingPercent": 99.94872212409973,
+          "resetsAt": 1791176620000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T05:03:40.000Z",
+          "rollingFromIso": null
+        }
+      ],
+      "label": "poll",
+      "rendered": {
+        "at": 1791167554494,
+        "topbar": "Monday, 5 October 2026 · 05:32:34 · week 41\nTime zone: Europe/Tallinn (EEST)\nNo timer set\nNext reset: Antigravity Gemini 5h in 28m 32s\n\nClick: Timers · Shift+Click: Temp Timer +15m · Ctrl+Click: work / break start-pause · Right-click: what to show",
+        "tile": "Antigravity (Antigravity) · gemini:antigravity\nAntigravity: 50% Claude & GPT weekly\n  Gemini weekly: 34% resets Sat 23:15\n  Gemini 5h: 49% resets in 29m\n  Claude & GPT weekly: 50% resets Sun 00:42\n  Claude & GPT 5h: 100% resets in 2h 31m\n\nClick: select subscription model in this chat · Right-click: workers and settings",
+        "surfaces": {
+          "home": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n34%\n— resets Sat 23:15\nGemini 5h\n49%\n— resets in 29m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 31m",
+          "engineBar": "SAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG",
+          "limitsPanel": ""
+        },
+        "windowStarts": null,
+        "windows": [
+          {
+            "key": "weekly@gemini_models",
+            "label": "Gemini weekly",
+            "remainingPercent": 33.957719802856445,
+            "resetsAt": 1791663339000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@gemini_models",
+            "label": "Gemini 5h",
+            "remainingPercent": 48.99615943431854,
+            "resetsAt": 1791169267000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "weekly@claude_and_gpt_models",
+            "label": "Claude & GPT weekly",
+            "remainingPercent": 49.577561020851135,
+            "resetsAt": 1791668540000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@claude_and_gpt_models",
+            "label": "Claude & GPT 5h",
+            "remainingPercent": 99.94872212409973,
+            "resetsAt": 1791176620000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          }
+        ],
+        "rendered_": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n34%\n— resets Sat 23:15\nGemini 5h\n49%\n— resets in 29m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 31m\nSAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG"
+      }
+    },
+    {
+      "at": "2026-10-05T02:32:58.363Z",
+      "lastSweepAt": "2026-10-05T02:25:25.682Z",
+      "source": "agy -p /usage",
+      "error": null,
+      "fetchedAt": "2026-10-05T02:32:58.343Z",
+      "windowStart": null,
+      "windowStarts": null,
+      "windows": [
+        {
+          "key": "weekly@gemini_models",
+          "remainingPercent": 33.88715982437134,
+          "resetsAt": 1791663339000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T20:15:39.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@gemini_models",
+          "remainingPercent": 48.57281148433685,
+          "resetsAt": 1791169267000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T03:01:07.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "weekly@claude_and_gpt_models",
+          "remainingPercent": 49.577561020851135,
+          "resetsAt": 1791668540000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T21:42:20.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@claude_and_gpt_models",
+          "remainingPercent": 99.94872212409973,
+          "resetsAt": 1791176620000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T05:03:40.000Z",
+          "rollingFromIso": null
+        }
+      ],
+      "label": "poll",
+      "rendered": {
+        "at": 1791167578362,
+        "topbar": "Monday, 5 October 2026 · 05:32:58 · week 41\nTime zone: Europe/Tallinn (EEST)\nNo timer set\nNext reset: Antigravity Gemini 5h in 28m 08s\n\nClick: Timers · Shift+Click: Temp Timer +15m · Ctrl+Click: work / break start-pause · Right-click: what to show",
+        "tile": "Antigravity (Antigravity) · gemini:antigravity\nAntigravity: 50% Claude & GPT weekly\n  Gemini weekly: 34% resets Sat 23:15\n  Gemini 5h: 49% resets in 28m\n  Claude & GPT weekly: 50% resets Sun 00:42\n  Claude & GPT 5h: 100% resets in 2h 31m\n\nClick: select subscription model in this chat · Right-click: workers and settings",
+        "surfaces": {
+          "home": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n34%\n— resets Sat 23:15\nGemini 5h\n49%\n— resets in 28m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 31m",
+          "engineBar": "SAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG",
+          "limitsPanel": ""
+        },
+        "windowStarts": null,
+        "windows": [
+          {
+            "key": "weekly@gemini_models",
+            "label": "Gemini weekly",
+            "remainingPercent": 33.88715982437134,
+            "resetsAt": 1791663339000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@gemini_models",
+            "label": "Gemini 5h",
+            "remainingPercent": 48.57281148433685,
+            "resetsAt": 1791169267000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "weekly@claude_and_gpt_models",
+            "label": "Claude & GPT weekly",
+            "remainingPercent": 49.577561020851135,
+            "resetsAt": 1791668540000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@claude_and_gpt_models",
+            "label": "Claude & GPT 5h",
+            "remainingPercent": 99.94872212409973,
+            "resetsAt": 1791176620000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          }
+        ],
+        "rendered_": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n34%\n— resets Sat 23:15\nGemini 5h\n49%\n— resets in 28m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 31m\nSAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG"
+      }
+    },
+    {
+      "at": "2026-10-05T02:33:20.849Z",
+      "lastSweepAt": "2026-10-05T02:25:25.682Z",
+      "source": "agy -p /usage",
+      "error": null,
+      "fetchedAt": "2026-10-05T02:33:20.599Z",
+      "windowStart": null,
+      "windowStarts": null,
+      "windows": [
+        {
+          "key": "weekly@gemini_models",
+          "remainingPercent": 33.84906053543091,
+          "resetsAt": 1791663339000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T20:15:39.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@gemini_models",
+          "remainingPercent": 48.34420084953308,
+          "resetsAt": 1791169267000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T03:01:07.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "weekly@claude_and_gpt_models",
+          "remainingPercent": 49.577561020851135,
+          "resetsAt": 1791668540000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T21:42:20.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@claude_and_gpt_models",
+          "remainingPercent": 99.94872212409973,
+          "resetsAt": 1791176620000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T05:03:40.000Z",
+          "rollingFromIso": null
+        }
+      ],
+      "label": "poll",
+      "rendered": {
+        "at": 1791167600846,
+        "topbar": "Monday, 5 October 2026 · 05:33:20 · week 41\nTime zone: Europe/Tallinn (EEST)\nNo timer set\nNext reset: Antigravity Gemini 5h in 27m 46s\n\nClick: Timers · Shift+Click: Temp Timer +15m · Ctrl+Click: work / break start-pause · Right-click: what to show",
+        "tile": "Antigravity (Antigravity) · gemini:antigravity\nAntigravity: 50% Claude & GPT weekly\n  Gemini weekly: 34% resets Sat 23:15\n  Gemini 5h: 48% resets in 28m\n  Claude & GPT weekly: 50% resets Sun 00:42\n  Claude & GPT 5h: 100% resets in 2h 30m\n\nClick: select subscription model in this chat · Right-click: workers and settings",
+        "surfaces": {
+          "home": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n34%\n— resets Sat 23:15\nGemini 5h\n48%\n— resets in 28m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 30m",
+          "engineBar": "SAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG",
+          "limitsPanel": ""
+        },
+        "windowStarts": null,
+        "windows": [
+          {
+            "key": "weekly@gemini_models",
+            "label": "Gemini weekly",
+            "remainingPercent": 33.84906053543091,
+            "resetsAt": 1791663339000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@gemini_models",
+            "label": "Gemini 5h",
+            "remainingPercent": 48.34420084953308,
+            "resetsAt": 1791169267000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "weekly@claude_and_gpt_models",
+            "label": "Claude & GPT weekly",
+            "remainingPercent": 49.577561020851135,
+            "resetsAt": 1791668540000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@claude_and_gpt_models",
+            "label": "Claude & GPT 5h",
+            "remainingPercent": 99.94872212409973,
+            "resetsAt": 1791176620000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          }
+        ],
+        "rendered_": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n34%\n— resets Sat 23:15\nGemini 5h\n48%\n— resets in 28m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 30m\nSAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG"
+      }
+    },
+    {
+      "at": "2026-10-05T02:33:43.270Z",
+      "lastSweepAt": "2026-10-05T02:25:25.682Z",
+      "source": "agy -p /usage",
+      "error": null,
+      "fetchedAt": "2026-10-05T02:33:43.252Z",
+      "windowStart": null,
+      "windowStarts": null,
+      "windows": [
+        {
+          "key": "weekly@gemini_models",
+          "remainingPercent": 33.80276560783386,
+          "resetsAt": 1791663339000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T20:15:39.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@gemini_models",
+          "remainingPercent": 48.06644022464752,
+          "resetsAt": 1791169267000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T03:01:07.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "weekly@claude_and_gpt_models",
+          "remainingPercent": 49.577561020851135,
+          "resetsAt": 1791668540000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T21:42:20.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@claude_and_gpt_models",
+          "remainingPercent": 99.94872212409973,
+          "resetsAt": 1791176620000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T05:03:40.000Z",
+          "rollingFromIso": null
+        }
+      ],
+      "label": "poll",
+      "rendered": {
+        "at": 1791167623269,
+        "topbar": "Monday, 5 October 2026 · 05:33:42 · week 41\nTime zone: Europe/Tallinn (EEST)\nNo timer set\nNext reset: Antigravity Gemini 5h in 27m 24s\n\nClick: Timers · Shift+Click: Temp Timer +15m · Ctrl+Click: work / break start-pause · Right-click: what to show",
+        "tile": "Antigravity (Antigravity) · gemini:antigravity\nAntigravity: 50% Claude & GPT weekly\n  Gemini weekly: 34% resets Sat 23:15\n  Gemini 5h: 48% resets in 28m\n  Claude & GPT weekly: 50% resets Sun 00:42\n  Claude & GPT 5h: 100% resets in 2h 30m\n\nClick: select subscription model in this chat · Right-click: workers and settings",
+        "surfaces": {
+          "home": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n34%\n— resets Sat 23:15\nGemini 5h\n48%\n— resets in 28m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 30m",
+          "engineBar": "SAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG",
+          "limitsPanel": ""
+        },
+        "windowStarts": null,
+        "windows": [
+          {
+            "key": "weekly@gemini_models",
+            "label": "Gemini weekly",
+            "remainingPercent": 33.80276560783386,
+            "resetsAt": 1791663339000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@gemini_models",
+            "label": "Gemini 5h",
+            "remainingPercent": 48.06644022464752,
+            "resetsAt": 1791169267000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "weekly@claude_and_gpt_models",
+            "label": "Claude & GPT weekly",
+            "remainingPercent": 49.577561020851135,
+            "resetsAt": 1791668540000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@claude_and_gpt_models",
+            "label": "Claude & GPT 5h",
+            "remainingPercent": 99.94872212409973,
+            "resetsAt": 1791176620000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          }
+        ],
+        "rendered_": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n34%\n— resets Sat 23:15\nGemini 5h\n48%\n— resets in 28m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 30m\nSAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG"
+      }
+    },
+    {
+      "at": "2026-10-05T02:34:05.565Z",
+      "lastSweepAt": "2026-10-05T02:25:25.682Z",
+      "source": "agy -p /usage",
+      "error": null,
+      "fetchedAt": "2026-10-05T02:34:05.548Z",
+      "windowStart": null,
+      "windowStarts": null,
+      "windows": [
+        {
+          "key": "weekly@gemini_models",
+          "remainingPercent": 33.727726340293884,
+          "resetsAt": 1791663339000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T20:15:39.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@gemini_models",
+          "remainingPercent": 47.61621057987213,
+          "resetsAt": 1791169267000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T03:01:07.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "weekly@claude_and_gpt_models",
+          "remainingPercent": 49.577561020851135,
+          "resetsAt": 1791668540000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T21:42:20.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@claude_and_gpt_models",
+          "remainingPercent": 99.94872212409973,
+          "resetsAt": 1791176620000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T05:03:40.000Z",
+          "rollingFromIso": null
+        }
+      ],
+      "label": "poll",
+      "rendered": {
+        "at": 1791167645564,
+        "topbar": "Monday, 5 October 2026 · 05:34:05 · week 41\nTime zone: Europe/Tallinn (EEST)\nNo timer set\nNext reset: Antigravity Gemini 5h in 27m 01s\n\nClick: Timers · Shift+Click: Temp Timer +15m · Ctrl+Click: work / break start-pause · Right-click: what to show",
+        "tile": "Antigravity (Antigravity) · gemini:antigravity\nAntigravity: 50% Claude & GPT weekly\n  Gemini weekly: 34% resets Sat 23:15\n  Gemini 5h: 48% resets in 27m\n  Claude & GPT weekly: 50% resets Sun 00:42\n  Claude & GPT 5h: 100% resets in 2h 30m\n\nClick: select subscription model in this chat · Right-click: workers and settings",
+        "surfaces": {
+          "home": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n34%\n— resets Sat 23:15\nGemini 5h\n48%\n— resets in 27m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 30m",
+          "engineBar": "SAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG",
+          "limitsPanel": ""
+        },
+        "windowStarts": null,
+        "windows": [
+          {
+            "key": "weekly@gemini_models",
+            "label": "Gemini weekly",
+            "remainingPercent": 33.727726340293884,
+            "resetsAt": 1791663339000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@gemini_models",
+            "label": "Gemini 5h",
+            "remainingPercent": 47.61621057987213,
+            "resetsAt": 1791169267000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "weekly@claude_and_gpt_models",
+            "label": "Claude & GPT weekly",
+            "remainingPercent": 49.577561020851135,
+            "resetsAt": 1791668540000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@claude_and_gpt_models",
+            "label": "Claude & GPT 5h",
+            "remainingPercent": 99.94872212409973,
+            "resetsAt": 1791176620000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          }
+        ],
+        "rendered_": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n34%\n— resets Sat 23:15\nGemini 5h\n48%\n— resets in 27m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 30m\nSAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG"
+      }
+    },
+    {
+      "at": "2026-10-05T02:34:27.960Z",
+      "lastSweepAt": "2026-10-05T02:25:25.682Z",
+      "source": "agy -p /usage",
+      "error": null,
+      "fetchedAt": "2026-10-05T02:34:27.942Z",
+      "windowStart": null,
+      "windowStarts": null,
+      "windows": [
+        {
+          "key": "weekly@gemini_models",
+          "remainingPercent": 33.669859170913696,
+          "resetsAt": 1791663339000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T20:15:39.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@gemini_models",
+          "remainingPercent": 47.26899862289429,
+          "resetsAt": 1791169267000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T03:01:07.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "weekly@claude_and_gpt_models",
+          "remainingPercent": 49.577561020851135,
+          "resetsAt": 1791668540000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T21:42:20.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@claude_and_gpt_models",
+          "remainingPercent": 99.94872212409973,
+          "resetsAt": 1791176620000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T05:03:40.000Z",
+          "rollingFromIso": null
+        }
+      ],
+      "label": "poll",
+      "rendered": {
+        "at": 1791167667960,
+        "topbar": "Monday, 5 October 2026 · 05:34:27 · week 41\nTime zone: Europe/Tallinn (EEST)\nNo timer set\nNext reset: Antigravity Gemini 5h in 26m 39s\n\nClick: Timers · Shift+Click: Temp Timer +15m · Ctrl+Click: work / break start-pause · Right-click: what to show",
+        "tile": "Antigravity (Antigravity) · gemini:antigravity\nAntigravity: 50% Claude & GPT weekly\n  Gemini weekly: 34% resets Sat 23:15\n  Gemini 5h: 47% resets in 27m\n  Claude & GPT weekly: 50% resets Sun 00:42\n  Claude & GPT 5h: 100% resets in 2h 29m\n\nClick: select subscription model in this chat · Right-click: workers and settings",
+        "surfaces": {
+          "home": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n34%\n— resets Sat 23:15\nGemini 5h\n47%\n— resets in 27m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 29m",
+          "engineBar": "SAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG",
+          "limitsPanel": ""
+        },
+        "windowStarts": null,
+        "windows": [
+          {
+            "key": "weekly@gemini_models",
+            "label": "Gemini weekly",
+            "remainingPercent": 33.669859170913696,
+            "resetsAt": 1791663339000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@gemini_models",
+            "label": "Gemini 5h",
+            "remainingPercent": 47.26899862289429,
+            "resetsAt": 1791169267000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "weekly@claude_and_gpt_models",
+            "label": "Claude & GPT weekly",
+            "remainingPercent": 49.577561020851135,
+            "resetsAt": 1791668540000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@claude_and_gpt_models",
+            "label": "Claude & GPT 5h",
+            "remainingPercent": 99.94872212409973,
+            "resetsAt": 1791176620000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          }
+        ],
+        "rendered_": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n34%\n— resets Sat 23:15\nGemini 5h\n47%\n— resets in 27m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 29m\nSAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG"
+      }
+    },
+    {
+      "at": "2026-10-05T02:34:50.366Z",
+      "lastSweepAt": "2026-10-05T02:25:25.682Z",
+      "source": "agy -p /usage",
+      "error": null,
+      "fetchedAt": "2026-10-05T02:34:50.339Z",
+      "windowStart": null,
+      "windowStarts": null,
+      "windows": [
+        {
+          "key": "weekly@gemini_models",
+          "remainingPercent": 33.61783027648926,
+          "resetsAt": 1791663339000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T20:15:39.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@gemini_models",
+          "remainingPercent": 46.956831216812134,
+          "resetsAt": 1791169267000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T03:01:07.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "weekly@claude_and_gpt_models",
+          "remainingPercent": 49.577561020851135,
+          "resetsAt": 1791668540000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T21:42:20.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@claude_and_gpt_models",
+          "remainingPercent": 99.94872212409973,
+          "resetsAt": 1791176620000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T05:03:40.000Z",
+          "rollingFromIso": null
+        }
+      ],
+      "label": "poll",
+      "rendered": {
+        "at": 1791167690365,
+        "topbar": "Monday, 5 October 2026 · 05:34:49 · week 41\nTime zone: Europe/Tallinn (EEST)\nNo timer set\nNext reset: Antigravity Gemini 5h in 26m 17s\n\nClick: Timers · Shift+Click: Temp Timer +15m · Ctrl+Click: work / break start-pause · Right-click: what to show",
+        "tile": "Antigravity (Antigravity) · gemini:antigravity\nAntigravity: 50% Claude & GPT weekly\n  Gemini weekly: 34% resets Sat 23:15\n  Gemini 5h: 47% resets in 26m\n  Claude & GPT weekly: 50% resets Sun 00:42\n  Claude & GPT 5h: 100% resets in 2h 29m\n\nClick: select subscription model in this chat · Right-click: workers and settings",
+        "surfaces": {
+          "home": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n34%\n— resets Sat 23:15\nGemini 5h\n47%\n— resets in 27m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 29m",
+          "engineBar": "SAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG",
+          "limitsPanel": ""
+        },
+        "windowStarts": null,
+        "windows": [
+          {
+            "key": "weekly@gemini_models",
+            "label": "Gemini weekly",
+            "remainingPercent": 33.61783027648926,
+            "resetsAt": 1791663339000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@gemini_models",
+            "label": "Gemini 5h",
+            "remainingPercent": 46.956831216812134,
+            "resetsAt": 1791169267000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "weekly@claude_and_gpt_models",
+            "label": "Claude & GPT weekly",
+            "remainingPercent": 49.577561020851135,
+            "resetsAt": 1791668540000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@claude_and_gpt_models",
+            "label": "Claude & GPT 5h",
+            "remainingPercent": 99.94872212409973,
+            "resetsAt": 1791176620000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          }
+        ],
+        "rendered_": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n34%\n— resets Sat 23:15\nGemini 5h\n47%\n— resets in 27m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 29m\nSAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG"
+      }
+    },
+    {
+      "at": "2026-10-05T02:35:12.790Z",
+      "lastSweepAt": "2026-10-05T02:25:25.682Z",
+      "source": "agy -p /usage",
+      "error": null,
+      "fetchedAt": "2026-10-05T02:35:12.769Z",
+      "windowStart": null,
+      "windowStarts": null,
+      "windows": [
+        {
+          "key": "weekly@gemini_models",
+          "remainingPercent": 33.55502188205719,
+          "resetsAt": 1791663339000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T20:15:39.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@gemini_models",
+          "remainingPercent": 46.57998979091644,
+          "resetsAt": 1791169267000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T03:01:07.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "weekly@claude_and_gpt_models",
+          "remainingPercent": 49.577561020851135,
+          "resetsAt": 1791668540000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T21:42:20.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@claude_and_gpt_models",
+          "remainingPercent": 99.94872212409973,
+          "resetsAt": 1791176620000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T05:03:40.000Z",
+          "rollingFromIso": null
+        }
+      ],
+      "label": "poll",
+      "rendered": {
+        "at": 1791167712790,
+        "topbar": "Monday, 5 October 2026 · 05:35:12 · week 41\nTime zone: Europe/Tallinn (EEST)\nNo timer set\nNext reset: Antigravity Gemini 5h in 25m 54s\n\nClick: Timers · Shift+Click: Temp Timer +15m · Ctrl+Click: work / break start-pause · Right-click: what to show",
+        "tile": "Antigravity (Antigravity) · gemini:antigravity\nAntigravity: 50% Claude & GPT weekly\n  Gemini weekly: 34% resets Sat 23:15\n  Gemini 5h: 47% resets in 26m\n  Claude & GPT weekly: 50% resets Sun 00:42\n  Claude & GPT 5h: 100% resets in 2h 29m\n\nClick: select subscription model in this chat · Right-click: workers and settings",
+        "surfaces": {
+          "home": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n34%\n— resets Sat 23:15\nGemini 5h\n47%\n— resets in 26m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 29m",
+          "engineBar": "SAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG",
+          "limitsPanel": ""
+        },
+        "windowStarts": null,
+        "windows": [
+          {
+            "key": "weekly@gemini_models",
+            "label": "Gemini weekly",
+            "remainingPercent": 33.55502188205719,
+            "resetsAt": 1791663339000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@gemini_models",
+            "label": "Gemini 5h",
+            "remainingPercent": 46.57998979091644,
+            "resetsAt": 1791169267000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "weekly@claude_and_gpt_models",
+            "label": "Claude & GPT weekly",
+            "remainingPercent": 49.577561020851135,
+            "resetsAt": 1791668540000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@claude_and_gpt_models",
+            "label": "Claude & GPT 5h",
+            "remainingPercent": 99.94872212409973,
+            "resetsAt": 1791176620000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          }
+        ],
+        "rendered_": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n34%\n— resets Sat 23:15\nGemini 5h\n47%\n— resets in 26m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 29m\nSAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG"
+      }
+    },
+    {
+      "at": "2026-10-05T02:35:35.914Z",
+      "lastSweepAt": "2026-10-05T02:25:25.682Z",
+      "source": "agy -p /usage",
+      "error": null,
+      "fetchedAt": "2026-10-05T02:35:35.889Z",
+      "windowStart": null,
+      "windowStarts": null,
+      "windows": [
+        {
+          "key": "weekly@gemini_models",
+          "remainingPercent": 33.49565267562866,
+          "resetsAt": 1791663339000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T20:15:39.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@gemini_models",
+          "remainingPercent": 46.22375965118408,
+          "resetsAt": 1791169267000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T03:01:07.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "weekly@claude_and_gpt_models",
+          "remainingPercent": 49.577561020851135,
+          "resetsAt": 1791668540000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T21:42:20.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@claude_and_gpt_models",
+          "remainingPercent": 99.94872212409973,
+          "resetsAt": 1791176620000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T05:03:40.000Z",
+          "rollingFromIso": null
+        }
+      ],
+      "label": "poll",
+      "rendered": {
+        "at": 1791167735910,
+        "topbar": "Monday, 5 October 2026 · 05:35:35 · week 41\nTime zone: Europe/Tallinn (EEST)\nNo timer set\nNext reset: Antigravity Gemini 5h in 25m 31s\n\nClick: Timers · Shift+Click: Temp Timer +15m · Ctrl+Click: work / break start-pause · Right-click: what to show",
+        "tile": "Antigravity (Antigravity) · gemini:antigravity\nAntigravity: 50% Claude & GPT weekly\n  Gemini weekly: 33% resets Sat 23:15\n  Gemini 5h: 46% resets in 26m\n  Claude & GPT weekly: 50% resets Sun 00:42\n  Claude & GPT 5h: 100% resets in 2h 28m\n\nClick: select subscription model in this chat · Right-click: workers and settings",
+        "surfaces": {
+          "home": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n33%\n— resets Sat 23:15\nGemini 5h\n46%\n— resets in 26m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 28m",
+          "engineBar": "SAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG",
+          "limitsPanel": ""
+        },
+        "windowStarts": null,
+        "windows": [
+          {
+            "key": "weekly@gemini_models",
+            "label": "Gemini weekly",
+            "remainingPercent": 33.49565267562866,
+            "resetsAt": 1791663339000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@gemini_models",
+            "label": "Gemini 5h",
+            "remainingPercent": 46.22375965118408,
+            "resetsAt": 1791169267000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "weekly@claude_and_gpt_models",
+            "label": "Claude & GPT weekly",
+            "remainingPercent": 49.577561020851135,
+            "resetsAt": 1791668540000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@claude_and_gpt_models",
+            "label": "Claude & GPT 5h",
+            "remainingPercent": 99.94872212409973,
+            "resetsAt": 1791176620000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          }
+        ],
+        "rendered_": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n33%\n— resets Sat 23:15\nGemini 5h\n46%\n— resets in 26m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 28m\nSAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG"
+      }
+    },
+    {
+      "at": "2026-10-05T02:35:58.341Z",
+      "lastSweepAt": "2026-10-05T02:25:25.682Z",
+      "source": "agy -p /usage",
+      "error": null,
+      "fetchedAt": "2026-10-05T02:35:58.317Z",
+      "windowStart": null,
+      "windowStarts": null,
+      "windows": [
+        {
+          "key": "weekly@gemini_models",
+          "remainingPercent": 33.4198534488678,
+          "resetsAt": 1791663339000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T20:15:39.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@gemini_models",
+          "remainingPercent": 45.768970251083374,
+          "resetsAt": 1791169267000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T03:01:07.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "weekly@claude_and_gpt_models",
+          "remainingPercent": 49.577561020851135,
+          "resetsAt": 1791668540000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T21:42:20.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@claude_and_gpt_models",
+          "remainingPercent": 99.94872212409973,
+          "resetsAt": 1791176620000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T05:03:40.000Z",
+          "rollingFromIso": null
+        }
+      ],
+      "label": "poll",
+      "rendered": {
+        "at": 1791167758339,
+        "topbar": "Monday, 5 October 2026 · 05:35:57 · week 41\nTime zone: Europe/Tallinn (EEST)\nNo timer set\nNext reset: Antigravity Gemini 5h in 25m 09s\n\nClick: Timers · Shift+Click: Temp Timer +15m · Ctrl+Click: work / break start-pause · Right-click: what to show",
+        "tile": "Antigravity (Antigravity) · gemini:antigravity\nAntigravity: 50% Claude & GPT weekly\n  Gemini weekly: 33% resets Sat 23:15\n  Gemini 5h: 46% resets in 25m\n  Claude & GPT weekly: 50% resets Sun 00:42\n  Claude & GPT 5h: 100% resets in 2h 28m\n\nClick: select subscription model in this chat · Right-click: workers and settings",
+        "surfaces": {
+          "home": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n33%\n— resets Sat 23:15\nGemini 5h\n46%\n— resets in 25m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 28m",
+          "engineBar": "SAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG",
+          "limitsPanel": ""
+        },
+        "windowStarts": null,
+        "windows": [
+          {
+            "key": "weekly@gemini_models",
+            "label": "Gemini weekly",
+            "remainingPercent": 33.4198534488678,
+            "resetsAt": 1791663339000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@gemini_models",
+            "label": "Gemini 5h",
+            "remainingPercent": 45.768970251083374,
+            "resetsAt": 1791169267000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "weekly@claude_and_gpt_models",
+            "label": "Claude & GPT weekly",
+            "remainingPercent": 49.577561020851135,
+            "resetsAt": 1791668540000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@claude_and_gpt_models",
+            "label": "Claude & GPT 5h",
+            "remainingPercent": 99.94872212409973,
+            "resetsAt": 1791176620000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          }
+        ],
+        "rendered_": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n33%\n— resets Sat 23:15\nGemini 5h\n46%\n— resets in 25m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 28m\nSAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG"
+      }
+    },
+    {
+      "at": "2026-10-05T02:36:20.811Z",
+      "lastSweepAt": "2026-10-05T02:25:25.682Z",
+      "source": "agy -p /usage",
+      "error": null,
+      "fetchedAt": "2026-10-05T02:36:20.791Z",
+      "windowStart": null,
+      "windowStarts": null,
+      "windows": [
+        {
+          "key": "weekly@gemini_models",
+          "remainingPercent": 33.37266743183136,
+          "resetsAt": 1791663339000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T20:15:39.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@gemini_models",
+          "remainingPercent": 45.48583924770355,
+          "resetsAt": 1791169267000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T03:01:07.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "weekly@claude_and_gpt_models",
+          "remainingPercent": 49.577561020851135,
+          "resetsAt": 1791668540000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T21:42:20.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@claude_and_gpt_models",
+          "remainingPercent": 99.94872212409973,
+          "resetsAt": 1791176620000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T05:03:40.000Z",
+          "rollingFromIso": null
+        }
+      ],
+      "label": "poll",
+      "rendered": {
+        "at": 1791167780810,
+        "topbar": "Monday, 5 October 2026 · 05:36:20 · week 41\nTime zone: Europe/Tallinn (EEST)\nNo timer set\nNext reset: Antigravity Gemini 5h in 24m 46s\n\nClick: Timers · Shift+Click: Temp Timer +15m · Ctrl+Click: work / break start-pause · Right-click: what to show",
+        "tile": "Antigravity (Antigravity) · gemini:antigravity\nAntigravity: 50% Claude & GPT weekly\n  Gemini weekly: 33% resets Sat 23:15\n  Gemini 5h: 45% resets in 25m\n  Claude & GPT weekly: 50% resets Sun 00:42\n  Claude & GPT 5h: 100% resets in 2h 27m\n\nClick: select subscription model in this chat · Right-click: workers and settings",
+        "surfaces": {
+          "home": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n33%\n— resets Sat 23:15\nGemini 5h\n45%\n— resets in 25m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 27m",
+          "engineBar": "SAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG",
+          "limitsPanel": ""
+        },
+        "windowStarts": null,
+        "windows": [
+          {
+            "key": "weekly@gemini_models",
+            "label": "Gemini weekly",
+            "remainingPercent": 33.37266743183136,
+            "resetsAt": 1791663339000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@gemini_models",
+            "label": "Gemini 5h",
+            "remainingPercent": 45.48583924770355,
+            "resetsAt": 1791169267000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "weekly@claude_and_gpt_models",
+            "label": "Claude & GPT weekly",
+            "remainingPercent": 49.577561020851135,
+            "resetsAt": 1791668540000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@claude_and_gpt_models",
+            "label": "Claude & GPT 5h",
+            "remainingPercent": 99.94872212409973,
+            "resetsAt": 1791176620000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          }
+        ],
+        "rendered_": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n33%\n— resets Sat 23:15\nGemini 5h\n45%\n— resets in 25m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 27m\nSAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG"
+      }
+    },
+    {
+      "at": "2026-10-05T02:36:43.229Z",
+      "lastSweepAt": "2026-10-05T02:25:25.682Z",
+      "source": "agy -p /usage",
+      "error": null,
+      "fetchedAt": "2026-10-05T02:36:43.209Z",
+      "windowStart": null,
+      "windowStarts": null,
+      "windows": [
+        {
+          "key": "weekly@gemini_models",
+          "remainingPercent": 33.32051932811737,
+          "resetsAt": 1791663339000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T20:15:39.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@gemini_models",
+          "remainingPercent": 45.17297148704529,
+          "resetsAt": 1791169267000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T03:01:07.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "weekly@claude_and_gpt_models",
+          "remainingPercent": 49.577561020851135,
+          "resetsAt": 1791668540000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T21:42:20.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@claude_and_gpt_models",
+          "remainingPercent": 99.94872212409973,
+          "resetsAt": 1791176620000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T05:03:40.000Z",
+          "rollingFromIso": null
+        }
+      ],
+      "label": "poll",
+      "rendered": {
+        "at": 1791167803229,
+        "topbar": "Monday, 5 October 2026 · 05:36:42 · week 41\nTime zone: Europe/Tallinn (EEST)\nNo timer set\nNext reset: Antigravity Gemini 5h in 24m 24s\n\nClick: Timers · Shift+Click: Temp Timer +15m · Ctrl+Click: work / break start-pause · Right-click: what to show",
+        "tile": "Antigravity (Antigravity) · gemini:antigravity\nAntigravity: 50% Claude & GPT weekly\n  Gemini weekly: 33% resets Sat 23:15\n  Gemini 5h: 45% resets in 25m\n  Claude & GPT weekly: 50% resets Sun 00:42\n  Claude & GPT 5h: 100% resets in 2h 27m\n\nClick: select subscription model in this chat · Right-click: workers and settings",
+        "surfaces": {
+          "home": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n33%\n— resets Sat 23:15\nGemini 5h\n45%\n— resets in 25m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 27m",
+          "engineBar": "SAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG",
+          "limitsPanel": ""
+        },
+        "windowStarts": null,
+        "windows": [
+          {
+            "key": "weekly@gemini_models",
+            "label": "Gemini weekly",
+            "remainingPercent": 33.32051932811737,
+            "resetsAt": 1791663339000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@gemini_models",
+            "label": "Gemini 5h",
+            "remainingPercent": 45.17297148704529,
+            "resetsAt": 1791169267000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "weekly@claude_and_gpt_models",
+            "label": "Claude & GPT weekly",
+            "remainingPercent": 49.577561020851135,
+            "resetsAt": 1791668540000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@claude_and_gpt_models",
+            "label": "Claude & GPT 5h",
+            "remainingPercent": 99.94872212409973,
+            "resetsAt": 1791176620000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          }
+        ],
+        "rendered_": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n33%\n— resets Sat 23:15\nGemini 5h\n45%\n— resets in 25m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 27m\nSAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG"
+      }
+    },
+    {
+      "at": "2026-10-05T02:37:05.571Z",
+      "lastSweepAt": "2026-10-05T02:25:25.682Z",
+      "source": "agy -p /usage",
+      "error": null,
+      "fetchedAt": "2026-10-05T02:37:05.557Z",
+      "windowStart": null,
+      "windowStarts": null,
+      "windows": [
+        {
+          "key": "weekly@gemini_models",
+          "remainingPercent": 33.250778913497925,
+          "resetsAt": 1791663339000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T20:15:39.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@gemini_models",
+          "remainingPercent": 44.7545200586319,
+          "resetsAt": 1791169267000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T03:01:07.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "weekly@claude_and_gpt_models",
+          "remainingPercent": 49.577561020851135,
+          "resetsAt": 1791668540000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T21:42:20.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@claude_and_gpt_models",
+          "remainingPercent": 99.94872212409973,
+          "resetsAt": 1791176620000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T05:03:40.000Z",
+          "rollingFromIso": null
+        }
+      ],
+      "label": "poll",
+      "rendered": {
+        "at": 1791167825571,
+        "topbar": "Monday, 5 October 2026 · 05:37:05 · week 41\nTime zone: Europe/Tallinn (EEST)\nNo timer set\nNext reset: Antigravity Gemini 5h in 24m 01s\n\nClick: Timers · Shift+Click: Temp Timer +15m · Ctrl+Click: work / break start-pause · Right-click: what to show",
+        "tile": "Antigravity (Antigravity) · gemini:antigravity\nAntigravity: 50% Claude & GPT weekly\n  Gemini weekly: 33% resets Sat 23:15\n  Gemini 5h: 45% resets in 24m\n  Claude & GPT weekly: 50% resets Sun 00:42\n  Claude & GPT 5h: 100% resets in 2h 27m\n\nClick: select subscription model in this chat · Right-click: workers and settings",
+        "surfaces": {
+          "home": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n33%\n— resets Sat 23:15\nGemini 5h\n45%\n— resets in 24m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 27m",
+          "engineBar": "SAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG",
+          "limitsPanel": ""
+        },
+        "windowStarts": null,
+        "windows": [
+          {
+            "key": "weekly@gemini_models",
+            "label": "Gemini weekly",
+            "remainingPercent": 33.250778913497925,
+            "resetsAt": 1791663339000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@gemini_models",
+            "label": "Gemini 5h",
+            "remainingPercent": 44.7545200586319,
+            "resetsAt": 1791169267000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "weekly@claude_and_gpt_models",
+            "label": "Claude & GPT weekly",
+            "remainingPercent": 49.577561020851135,
+            "resetsAt": 1791668540000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@claude_and_gpt_models",
+            "label": "Claude & GPT 5h",
+            "remainingPercent": 99.94872212409973,
+            "resetsAt": 1791176620000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          }
+        ],
+        "rendered_": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n33%\n— resets Sat 23:15\nGemini 5h\n45%\n— resets in 24m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 27m\nSAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG"
+      }
+    },
+    {
+      "at": "2026-10-05T02:37:27.936Z",
+      "lastSweepAt": "2026-10-05T02:25:25.682Z",
+      "source": "agy -p /usage",
+      "error": null,
+      "fetchedAt": "2026-10-05T02:37:27.911Z",
+      "windowStart": null,
+      "windowStarts": null,
+      "windows": [
+        {
+          "key": "weekly@gemini_models",
+          "remainingPercent": 33.20057988166809,
+          "resetsAt": 1791663339000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T20:15:39.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@gemini_models",
+          "remainingPercent": 44.45334076881409,
+          "resetsAt": 1791169267000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T03:01:07.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "weekly@claude_and_gpt_models",
+          "remainingPercent": 49.577561020851135,
+          "resetsAt": 1791668540000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T21:42:20.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@claude_and_gpt_models",
+          "remainingPercent": 99.94872212409973,
+          "resetsAt": 1791176620000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T05:03:40.000Z",
+          "rollingFromIso": null
+        }
+      ],
+      "label": "poll",
+      "rendered": {
+        "at": 1791167847934,
+        "topbar": "Monday, 5 October 2026 · 05:37:27 · week 41\nTime zone: Europe/Tallinn (EEST)\nNo timer set\nNext reset: Antigravity Gemini 5h in 23m 39s\n\nClick: Timers · Shift+Click: Temp Timer +15m · Ctrl+Click: work / break start-pause · Right-click: what to show",
+        "tile": "Antigravity (Antigravity) · gemini:antigravity\nAntigravity: 50% Claude & GPT weekly\n  Gemini weekly: 33% resets Sat 23:15\n  Gemini 5h: 44% resets in 24m\n  Claude & GPT weekly: 50% resets Sun 00:42\n  Claude & GPT 5h: 100% resets in 2h 26m\n\nClick: select subscription model in this chat · Right-click: workers and settings",
+        "surfaces": {
+          "home": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n33%\n— resets Sat 23:15\nGemini 5h\n44%\n— resets in 24m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 26m",
+          "engineBar": "SAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG",
+          "limitsPanel": ""
+        },
+        "windowStarts": null,
+        "windows": [
+          {
+            "key": "weekly@gemini_models",
+            "label": "Gemini weekly",
+            "remainingPercent": 33.20057988166809,
+            "resetsAt": 1791663339000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@gemini_models",
+            "label": "Gemini 5h",
+            "remainingPercent": 44.45334076881409,
+            "resetsAt": 1791169267000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "weekly@claude_and_gpt_models",
+            "label": "Claude & GPT weekly",
+            "remainingPercent": 49.577561020851135,
+            "resetsAt": 1791668540000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@claude_and_gpt_models",
+            "label": "Claude & GPT 5h",
+            "remainingPercent": 99.94872212409973,
+            "resetsAt": 1791176620000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          }
+        ],
+        "rendered_": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n33%\n— resets Sat 23:15\nGemini 5h\n44%\n— resets in 24m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 26m\nSAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG"
+      }
+    },
+    {
+      "at": "2026-10-05T02:37:50.271Z",
+      "lastSweepAt": "2026-10-05T02:25:25.682Z",
+      "source": "agy -p /usage",
+      "error": null,
+      "fetchedAt": "2026-10-05T02:37:50.251Z",
+      "windowStart": null,
+      "windowStarts": null,
+      "windows": [
+        {
+          "key": "weekly@gemini_models",
+          "remainingPercent": 33.149561285972595,
+          "resetsAt": 1791663339000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T20:15:39.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@gemini_models",
+          "remainingPercent": 44.14721131324768,
+          "resetsAt": 1791169267000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T03:01:07.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "weekly@claude_and_gpt_models",
+          "remainingPercent": 49.577561020851135,
+          "resetsAt": 1791668540000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T21:42:20.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@claude_and_gpt_models",
+          "remainingPercent": 99.94872212409973,
+          "resetsAt": 1791176620000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T05:03:40.000Z",
+          "rollingFromIso": null
+        }
+      ],
+      "label": "poll",
+      "rendered": {
+        "at": 1791167870270,
+        "topbar": "Monday, 5 October 2026 · 05:37:49 · week 41\nTime zone: Europe/Tallinn (EEST)\nNo timer set\nNext reset: Antigravity Gemini 5h in 23m 17s\n\nClick: Timers · Shift+Click: Temp Timer +15m · Ctrl+Click: work / break start-pause · Right-click: what to show",
+        "tile": "Antigravity (Antigravity) · gemini:antigravity\nAntigravity: 50% Claude & GPT weekly\n  Gemini weekly: 33% resets Sat 23:15\n  Gemini 5h: 44% resets in 24m\n  Claude & GPT weekly: 50% resets Sun 00:42\n  Claude & GPT 5h: 100% resets in 2h 26m\n\nClick: select subscription model in this chat · Right-click: workers and settings",
+        "surfaces": {
+          "home": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n33%\n— resets Sat 23:15\nGemini 5h\n44%\n— resets in 24m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 26m",
+          "engineBar": "SAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG",
+          "limitsPanel": ""
+        },
+        "windowStarts": null,
+        "windows": [
+          {
+            "key": "weekly@gemini_models",
+            "label": "Gemini weekly",
+            "remainingPercent": 33.149561285972595,
+            "resetsAt": 1791663339000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@gemini_models",
+            "label": "Gemini 5h",
+            "remainingPercent": 44.14721131324768,
+            "resetsAt": 1791169267000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "weekly@claude_and_gpt_models",
+            "label": "Claude & GPT weekly",
+            "remainingPercent": 49.577561020851135,
+            "resetsAt": 1791668540000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@claude_and_gpt_models",
+            "label": "Claude & GPT 5h",
+            "remainingPercent": 99.94872212409973,
+            "resetsAt": 1791176620000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          }
+        ],
+        "rendered_": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n33%\n— resets Sat 23:15\nGemini 5h\n44%\n— resets in 24m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 26m\nSAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG"
+      }
+    },
+    {
+      "at": "2026-10-05T02:38:12.582Z",
+      "lastSweepAt": "2026-10-05T02:25:25.682Z",
+      "source": "agy -p /usage",
+      "error": null,
+      "fetchedAt": "2026-10-05T02:38:12.561Z",
+      "windowStart": null,
+      "windowStarts": null,
+      "windows": [
+        {
+          "key": "weekly@gemini_models",
+          "remainingPercent": 33.06916058063507,
+          "resetsAt": 1791663339000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T20:15:39.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@gemini_models",
+          "remainingPercent": 43.66480112075806,
+          "resetsAt": 1791169267000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T03:01:07.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "weekly@claude_and_gpt_models",
+          "remainingPercent": 49.577561020851135,
+          "resetsAt": 1791668540000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T21:42:20.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@claude_and_gpt_models",
+          "remainingPercent": 99.94872212409973,
+          "resetsAt": 1791176620000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T05:03:40.000Z",
+          "rollingFromIso": null
+        }
+      ],
+      "label": "poll",
+      "rendered": {
+        "at": 1791167892581,
+        "topbar": "Monday, 5 October 2026 · 05:38:12 · week 41\nTime zone: Europe/Tallinn (EEST)\nNo timer set\nNext reset: Antigravity Gemini 5h in 22m 54s\n\nClick: Timers · Shift+Click: Temp Timer +15m · Ctrl+Click: work / break start-pause · Right-click: what to show",
+        "tile": "Antigravity (Antigravity) · gemini:antigravity\nAntigravity: 50% Claude & GPT weekly\n  Gemini weekly: 33% resets Sat 23:15\n  Gemini 5h: 44% resets in 23m\n  Claude & GPT weekly: 50% resets Sun 00:42\n  Claude & GPT 5h: 100% resets in 2h 26m\n\nClick: select subscription model in this chat · Right-click: workers and settings",
+        "surfaces": {
+          "home": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n33%\n— resets Sat 23:15\nGemini 5h\n44%\n— resets in 23m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 26m",
+          "engineBar": "SAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG",
+          "limitsPanel": ""
+        },
+        "windowStarts": null,
+        "windows": [
+          {
+            "key": "weekly@gemini_models",
+            "label": "Gemini weekly",
+            "remainingPercent": 33.06916058063507,
+            "resetsAt": 1791663339000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@gemini_models",
+            "label": "Gemini 5h",
+            "remainingPercent": 43.66480112075806,
+            "resetsAt": 1791169267000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "weekly@claude_and_gpt_models",
+            "label": "Claude & GPT weekly",
+            "remainingPercent": 49.577561020851135,
+            "resetsAt": 1791668540000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@claude_and_gpt_models",
+            "label": "Claude & GPT 5h",
+            "remainingPercent": 99.94872212409973,
+            "resetsAt": 1791176620000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          }
+        ],
+        "rendered_": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n33%\n— resets Sat 23:15\nGemini 5h\n44%\n— resets in 23m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 26m\nSAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG"
+      }
+    },
+    {
+      "at": "2026-10-05T02:38:34.944Z",
+      "lastSweepAt": "2026-10-05T02:25:25.682Z",
+      "source": "agy -p /usage",
+      "error": null,
+      "fetchedAt": "2026-10-05T02:38:34.928Z",
+      "windowStart": null,
+      "windowStarts": null,
+      "windows": [
+        {
+          "key": "weekly@gemini_models",
+          "remainingPercent": 33.05027782917023,
+          "resetsAt": 1791663339000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T20:15:39.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@gemini_models",
+          "remainingPercent": 43.55151057243347,
+          "resetsAt": 1791169267000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T03:01:07.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "weekly@claude_and_gpt_models",
+          "remainingPercent": 49.577561020851135,
+          "resetsAt": 1791668540000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T21:42:20.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@claude_and_gpt_models",
+          "remainingPercent": 99.94872212409973,
+          "resetsAt": 1791176620000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T05:03:40.000Z",
+          "rollingFromIso": null
+        }
+      ],
+      "label": "poll",
+      "rendered": {
+        "at": 1791167914943,
+        "topbar": "Monday, 5 October 2026 · 05:38:34 · week 41\nTime zone: Europe/Tallinn (EEST)\nNo timer set\nNext reset: Antigravity Gemini 5h in 22m 32s\n\nClick: Timers · Shift+Click: Temp Timer +15m · Ctrl+Click: work / break start-pause · Right-click: what to show",
+        "tile": "Antigravity (Antigravity) · gemini:antigravity\nAntigravity: 50% Claude & GPT weekly\n  Gemini weekly: 33% resets Sat 23:15\n  Gemini 5h: 44% resets in 23m\n  Claude & GPT weekly: 50% resets Sun 00:42\n  Claude & GPT 5h: 100% resets in 2h 25m\n\nClick: select subscription model in this chat · Right-click: workers and settings",
+        "surfaces": {
+          "home": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n33%\n— resets Sat 23:15\nGemini 5h\n44%\n— resets in 23m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 25m",
+          "engineBar": "SAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG",
+          "limitsPanel": ""
+        },
+        "windowStarts": null,
+        "windows": [
+          {
+            "key": "weekly@gemini_models",
+            "label": "Gemini weekly",
+            "remainingPercent": 33.05027782917023,
+            "resetsAt": 1791663339000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@gemini_models",
+            "label": "Gemini 5h",
+            "remainingPercent": 43.55151057243347,
+            "resetsAt": 1791169267000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "weekly@claude_and_gpt_models",
+            "label": "Claude & GPT weekly",
+            "remainingPercent": 49.577561020851135,
+            "resetsAt": 1791668540000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@claude_and_gpt_models",
+            "label": "Claude & GPT 5h",
+            "remainingPercent": 99.94872212409973,
+            "resetsAt": 1791176620000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          }
+        ],
+        "rendered_": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n33%\n— resets Sat 23:15\nGemini 5h\n44%\n— resets in 23m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 25m\nSAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG"
+      }
+    },
+    {
+      "at": "2026-10-05T02:38:57.283Z",
+      "lastSweepAt": "2026-10-05T02:25:25.682Z",
+      "source": "agy -p /usage",
+      "error": null,
+      "fetchedAt": "2026-10-05T02:38:57.266Z",
+      "windowStart": null,
+      "windowStarts": null,
+      "windows": [
+        {
+          "key": "weekly@gemini_models",
+          "remainingPercent": 33.05027782917023,
+          "resetsAt": 1791663339000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T20:15:39.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@gemini_models",
+          "remainingPercent": 43.55151057243347,
+          "resetsAt": 1791169267000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T03:01:07.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "weekly@claude_and_gpt_models",
+          "remainingPercent": 49.577561020851135,
+          "resetsAt": 1791668540000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T21:42:20.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@claude_and_gpt_models",
+          "remainingPercent": 99.94872212409973,
+          "resetsAt": 1791176620000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T05:03:40.000Z",
+          "rollingFromIso": null
+        }
+      ],
+      "label": "poll",
+      "rendered": {
+        "at": 1791167937283,
+        "topbar": "Monday, 5 October 2026 · 05:38:56 · week 41\nTime zone: Europe/Tallinn (EEST)\nNo timer set\nNext reset: Antigravity Gemini 5h in 22m 10s\n\nClick: Timers · Shift+Click: Temp Timer +15m · Ctrl+Click: work / break start-pause · Right-click: what to show",
+        "tile": "Antigravity (Antigravity) · gemini:antigravity\nAntigravity: 50% Claude & GPT weekly\n  Gemini weekly: 33% resets Sat 23:15\n  Gemini 5h: 44% resets in 22m\n  Claude & GPT weekly: 50% resets Sun 00:42\n  Claude & GPT 5h: 100% resets in 2h 25m\n\nClick: select subscription model in this chat · Right-click: workers and settings",
+        "surfaces": {
+          "home": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n33%\n— resets Sat 23:15\nGemini 5h\n44%\n— resets in 22m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 25m",
+          "engineBar": "SAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG",
+          "limitsPanel": ""
+        },
+        "windowStarts": null,
+        "windows": [
+          {
+            "key": "weekly@gemini_models",
+            "label": "Gemini weekly",
+            "remainingPercent": 33.05027782917023,
+            "resetsAt": 1791663339000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@gemini_models",
+            "label": "Gemini 5h",
+            "remainingPercent": 43.55151057243347,
+            "resetsAt": 1791169267000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "weekly@claude_and_gpt_models",
+            "label": "Claude & GPT weekly",
+            "remainingPercent": 49.577561020851135,
+            "resetsAt": 1791668540000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@claude_and_gpt_models",
+            "label": "Claude & GPT 5h",
+            "remainingPercent": 99.94872212409973,
+            "resetsAt": 1791176620000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          }
+        ],
+        "rendered_": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n33%\n— resets Sat 23:15\nGemini 5h\n44%\n— resets in 22m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 25m\nSAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG"
+      }
+    },
+    {
+      "at": "2026-10-05T02:39:19.607Z",
+      "lastSweepAt": "2026-10-05T02:25:25.682Z",
+      "source": "agy -p /usage",
+      "error": null,
+      "fetchedAt": "2026-10-05T02:39:19.573Z",
+      "windowStart": null,
+      "windowStarts": null,
+      "windows": [
+        {
+          "key": "weekly@gemini_models",
+          "remainingPercent": 33.05027782917023,
+          "resetsAt": 1791663339000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T20:15:39.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@gemini_models",
+          "remainingPercent": 43.55151057243347,
+          "resetsAt": 1791169267000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T03:01:07.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "weekly@claude_and_gpt_models",
+          "remainingPercent": 49.577561020851135,
+          "resetsAt": 1791668540000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T21:42:20.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@claude_and_gpt_models",
+          "remainingPercent": 99.94872212409973,
+          "resetsAt": 1791176620000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T05:03:40.000Z",
+          "rollingFromIso": null
+        }
+      ],
+      "label": "poll",
+      "rendered": {
+        "at": 1791167959606,
+        "topbar": "Monday, 5 October 2026 · 05:39:19 · week 41\nTime zone: Europe/Tallinn (EEST)\nNo timer set\nNext reset: Antigravity Gemini 5h in 21m 47s\n\nClick: Timers · Shift+Click: Temp Timer +15m · Ctrl+Click: work / break start-pause · Right-click: what to show",
+        "tile": "Antigravity (Antigravity) · gemini:antigravity\nAntigravity: 50% Claude & GPT weekly\n  Gemini weekly: 33% resets Sat 23:15\n  Gemini 5h: 44% resets in 22m\n  Claude & GPT weekly: 50% resets Sun 00:42\n  Claude & GPT 5h: 100% resets in 2h 25m\n\nClick: select subscription model in this chat · Right-click: workers and settings",
+        "surfaces": {
+          "home": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n33%\n— resets Sat 23:15\nGemini 5h\n44%\n— resets in 22m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 25m",
+          "engineBar": "SAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG",
+          "limitsPanel": ""
+        },
+        "windowStarts": null,
+        "windows": [
+          {
+            "key": "weekly@gemini_models",
+            "label": "Gemini weekly",
+            "remainingPercent": 33.05027782917023,
+            "resetsAt": 1791663339000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@gemini_models",
+            "label": "Gemini 5h",
+            "remainingPercent": 43.55151057243347,
+            "resetsAt": 1791169267000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "weekly@claude_and_gpt_models",
+            "label": "Claude & GPT weekly",
+            "remainingPercent": 49.577561020851135,
+            "resetsAt": 1791668540000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@claude_and_gpt_models",
+            "label": "Claude & GPT 5h",
+            "remainingPercent": 99.94872212409973,
+            "resetsAt": 1791176620000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          }
+        ],
+        "rendered_": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n33%\n— resets Sat 23:15\nGemini 5h\n44%\n— resets in 22m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 25m\nSAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG"
+      }
+    },
+    {
+      "at": "2026-10-05T02:39:42.235Z",
+      "lastSweepAt": "2026-10-05T02:25:25.682Z",
+      "source": "agy -p /usage",
+      "error": null,
+      "fetchedAt": "2026-10-05T02:39:42.219Z",
+      "windowStart": null,
+      "windowStarts": null,
+      "windows": [
+        {
+          "key": "weekly@gemini_models",
+          "remainingPercent": 33.05027782917023,
+          "resetsAt": 1791663339000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T20:15:39.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@gemini_models",
+          "remainingPercent": 43.55151057243347,
+          "resetsAt": 1791169267000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T03:01:07.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "weekly@claude_and_gpt_models",
+          "remainingPercent": 49.577561020851135,
+          "resetsAt": 1791668540000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T21:42:20.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@claude_and_gpt_models",
+          "remainingPercent": 99.94872212409973,
+          "resetsAt": 1791176620000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T05:03:40.000Z",
+          "rollingFromIso": null
+        }
+      ],
+      "label": "poll",
+      "rendered": {
+        "at": 1791167982234,
+        "topbar": "Monday, 5 October 2026 · 05:39:41 · week 41\nTime zone: Europe/Tallinn (EEST)\nNo timer set\nNext reset: Antigravity Gemini 5h in 21m 25s\n\nClick: Timers · Shift+Click: Temp Timer +15m · Ctrl+Click: work / break start-pause · Right-click: what to show",
+        "tile": "Antigravity (Antigravity) · gemini:antigravity\nAntigravity: 50% Claude & GPT weekly\n  Gemini weekly: 33% resets Sat 23:15\n  Gemini 5h: 44% resets in 22m\n  Claude & GPT weekly: 50% resets Sun 00:42\n  Claude & GPT 5h: 100% resets in 2h 24m\n\nClick: select subscription model in this chat · Right-click: workers and settings",
+        "surfaces": {
+          "home": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n33%\n— resets Sat 23:15\nGemini 5h\n44%\n— resets in 22m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 24m",
+          "engineBar": "SAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG",
+          "limitsPanel": ""
+        },
+        "windowStarts": null,
+        "windows": [
+          {
+            "key": "weekly@gemini_models",
+            "label": "Gemini weekly",
+            "remainingPercent": 33.05027782917023,
+            "resetsAt": 1791663339000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@gemini_models",
+            "label": "Gemini 5h",
+            "remainingPercent": 43.55151057243347,
+            "resetsAt": 1791169267000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "weekly@claude_and_gpt_models",
+            "label": "Claude & GPT weekly",
+            "remainingPercent": 49.577561020851135,
+            "resetsAt": 1791668540000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@claude_and_gpt_models",
+            "label": "Claude & GPT 5h",
+            "remainingPercent": 99.94872212409973,
+            "resetsAt": 1791176620000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          }
+        ],
+        "rendered_": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n33%\n— resets Sat 23:15\nGemini 5h\n44%\n— resets in 22m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 24m\nSAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG"
+      }
+    },
+    {
+      "at": "2026-10-05T02:40:04.460Z",
+      "lastSweepAt": "2026-10-05T02:25:25.682Z",
+      "source": "agy -p /usage",
+      "error": null,
+      "fetchedAt": "2026-10-05T02:40:04.443Z",
+      "windowStart": null,
+      "windowStarts": null,
+      "windows": [
+        {
+          "key": "weekly@gemini_models",
+          "remainingPercent": 33.05027782917023,
+          "resetsAt": 1791663339000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T20:15:39.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@gemini_models",
+          "remainingPercent": 43.55151057243347,
+          "resetsAt": 1791169267000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T03:01:07.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "weekly@claude_and_gpt_models",
+          "remainingPercent": 49.577561020851135,
+          "resetsAt": 1791668540000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T21:42:20.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@claude_and_gpt_models",
+          "remainingPercent": 99.94872212409973,
+          "resetsAt": 1791176620000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T05:03:40.000Z",
+          "rollingFromIso": null
+        }
+      ],
+      "label": "poll",
+      "rendered": {
+        "at": 1791168004460,
+        "topbar": "Monday, 5 October 2026 · 05:40:04 · week 41\nTime zone: Europe/Tallinn (EEST)\nNo timer set\nNext reset: Antigravity Gemini 5h in 21m 02s\n\nClick: Timers · Shift+Click: Temp Timer +15m · Ctrl+Click: work / break start-pause · Right-click: what to show",
+        "tile": "Antigravity (Antigravity) · gemini:antigravity\nAntigravity: 50% Claude & GPT weekly\n  Gemini weekly: 33% resets Sat 23:15\n  Gemini 5h: 44% resets in 21m\n  Claude & GPT weekly: 50% resets Sun 00:42\n  Claude & GPT 5h: 100% resets in 2h 24m\n\nClick: select subscription model in this chat · Right-click: workers and settings",
+        "surfaces": {
+          "home": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n33%\n— resets Sat 23:15\nGemini 5h\n44%\n— resets in 21m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 24m",
+          "engineBar": "SAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG",
+          "limitsPanel": ""
+        },
+        "windowStarts": null,
+        "windows": [
+          {
+            "key": "weekly@gemini_models",
+            "label": "Gemini weekly",
+            "remainingPercent": 33.05027782917023,
+            "resetsAt": 1791663339000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@gemini_models",
+            "label": "Gemini 5h",
+            "remainingPercent": 43.55151057243347,
+            "resetsAt": 1791169267000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "weekly@claude_and_gpt_models",
+            "label": "Claude & GPT weekly",
+            "remainingPercent": 49.577561020851135,
+            "resetsAt": 1791668540000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@claude_and_gpt_models",
+            "label": "Claude & GPT 5h",
+            "remainingPercent": 99.94872212409973,
+            "resetsAt": 1791176620000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          }
+        ],
+        "rendered_": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n33%\n— resets Sat 23:15\nGemini 5h\n44%\n— resets in 21m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 24m\nSAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG"
+      }
+    },
+    {
+      "at": "2026-10-05T02:40:26.899Z",
+      "lastSweepAt": "2026-10-05T02:25:25.682Z",
+      "source": "agy -p /usage",
+      "error": null,
+      "fetchedAt": "2026-10-05T02:40:26.877Z",
+      "windowStart": null,
+      "windowStarts": null,
+      "windows": [
+        {
+          "key": "weekly@gemini_models",
+          "remainingPercent": 33.05027782917023,
+          "resetsAt": 1791663339000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T20:15:39.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@gemini_models",
+          "remainingPercent": 43.55151057243347,
+          "resetsAt": 1791169267000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T03:01:07.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "weekly@claude_and_gpt_models",
+          "remainingPercent": 49.577561020851135,
+          "resetsAt": 1791668540000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T21:42:20.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@claude_and_gpt_models",
+          "remainingPercent": 99.94872212409973,
+          "resetsAt": 1791176620000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T05:03:40.000Z",
+          "rollingFromIso": null
+        }
+      ],
+      "label": "poll",
+      "rendered": {
+        "at": 1791168026898,
+        "topbar": "Monday, 5 October 2026 · 05:40:26 · week 41\nTime zone: Europe/Tallinn (EEST)\nNo timer set\nNext reset: Antigravity Gemini 5h in 20m 40s\n\nClick: Timers · Shift+Click: Temp Timer +15m · Ctrl+Click: work / break start-pause · Right-click: what to show",
+        "tile": "Antigravity (Antigravity) · gemini:antigravity\nAntigravity: 50% Claude & GPT weekly\n  Gemini weekly: 33% resets Sat 23:15\n  Gemini 5h: 44% resets in 21m\n  Claude & GPT weekly: 50% resets Sun 00:42\n  Claude & GPT 5h: 100% resets in 2h 23m\n\nClick: select subscription model in this chat · Right-click: workers and settings",
+        "surfaces": {
+          "home": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n33%\n— resets Sat 23:15\nGemini 5h\n44%\n— resets in 21m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 23m",
+          "engineBar": "SAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG",
+          "limitsPanel": ""
+        },
+        "windowStarts": null,
+        "windows": [
+          {
+            "key": "weekly@gemini_models",
+            "label": "Gemini weekly",
+            "remainingPercent": 33.05027782917023,
+            "resetsAt": 1791663339000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@gemini_models",
+            "label": "Gemini 5h",
+            "remainingPercent": 43.55151057243347,
+            "resetsAt": 1791169267000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "weekly@claude_and_gpt_models",
+            "label": "Claude & GPT weekly",
+            "remainingPercent": 49.577561020851135,
+            "resetsAt": 1791668540000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@claude_and_gpt_models",
+            "label": "Claude & GPT 5h",
+            "remainingPercent": 99.94872212409973,
+            "resetsAt": 1791176620000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          }
+        ],
+        "rendered_": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n33%\n— resets Sat 23:15\nGemini 5h\n44%\n— resets in 21m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 23m\nSAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG"
+      }
+    },
+    {
+      "at": "2026-10-05T02:40:49.521Z",
+      "lastSweepAt": "2026-10-05T02:25:25.682Z",
+      "source": "agy -p /usage",
+      "error": null,
+      "fetchedAt": "2026-10-05T02:40:49.500Z",
+      "windowStart": null,
+      "windowStarts": null,
+      "windows": [
+        {
+          "key": "weekly@gemini_models",
+          "remainingPercent": 33.05027782917023,
+          "resetsAt": 1791663339000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T20:15:39.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@gemini_models",
+          "remainingPercent": 43.55151057243347,
+          "resetsAt": 1791169267000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T03:01:07.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "weekly@claude_and_gpt_models",
+          "remainingPercent": 49.577561020851135,
+          "resetsAt": 1791668540000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T21:42:20.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@claude_and_gpt_models",
+          "remainingPercent": 99.94872212409973,
+          "resetsAt": 1791176620000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T05:03:40.000Z",
+          "rollingFromIso": null
+        }
+      ],
+      "label": "poll",
+      "rendered": {
+        "at": 1791168049520,
+        "topbar": "Monday, 5 October 2026 · 05:40:49 · week 41\nTime zone: Europe/Tallinn (EEST)\nNo timer set\nNext reset: Antigravity Gemini 5h in 20m 17s\n\nClick: Timers · Shift+Click: Temp Timer +15m · Ctrl+Click: work / break start-pause · Right-click: what to show",
+        "tile": "Antigravity (Antigravity) · gemini:antigravity\nAntigravity: 50% Claude & GPT weekly\n  Gemini weekly: 33% resets Sat 23:15\n  Gemini 5h: 44% resets in 21m\n  Claude & GPT weekly: 50% resets Sun 00:42\n  Claude & GPT 5h: 100% resets in 2h 23m\n\nClick: select subscription model in this chat · Right-click: workers and settings",
+        "surfaces": {
+          "home": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n33%\n— resets Sat 23:15\nGemini 5h\n44%\n— resets in 21m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 23m",
+          "engineBar": "SAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG",
+          "limitsPanel": ""
+        },
+        "windowStarts": null,
+        "windows": [
+          {
+            "key": "weekly@gemini_models",
+            "label": "Gemini weekly",
+            "remainingPercent": 33.05027782917023,
+            "resetsAt": 1791663339000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@gemini_models",
+            "label": "Gemini 5h",
+            "remainingPercent": 43.55151057243347,
+            "resetsAt": 1791169267000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "weekly@claude_and_gpt_models",
+            "label": "Claude & GPT weekly",
+            "remainingPercent": 49.577561020851135,
+            "resetsAt": 1791668540000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@claude_and_gpt_models",
+            "label": "Claude & GPT 5h",
+            "remainingPercent": 99.94872212409973,
+            "resetsAt": 1791176620000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          }
+        ],
+        "rendered_": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n33%\n— resets Sat 23:15\nGemini 5h\n44%\n— resets in 21m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 23m\nSAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG"
+      }
+    },
+    {
+      "at": "2026-10-05T02:41:11.870Z",
+      "lastSweepAt": "2026-10-05T02:25:25.682Z",
+      "source": "agy -p /usage",
+      "error": null,
+      "fetchedAt": "2026-10-05T02:41:11.847Z",
+      "windowStart": null,
+      "windowStarts": null,
+      "windows": [
+        {
+          "key": "weekly@gemini_models",
+          "remainingPercent": 33.05027782917023,
+          "resetsAt": 1791663339000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T20:15:39.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@gemini_models",
+          "remainingPercent": 43.55151057243347,
+          "resetsAt": 1791169267000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T03:01:07.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "weekly@claude_and_gpt_models",
+          "remainingPercent": 49.577561020851135,
+          "resetsAt": 1791668540000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T21:42:20.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@claude_and_gpt_models",
+          "remainingPercent": 99.94872212409973,
+          "resetsAt": 1791176620000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T05:03:40.000Z",
+          "rollingFromIso": null
+        }
+      ],
+      "label": "poll",
+      "rendered": {
+        "at": 1791168071867,
+        "topbar": "Monday, 5 October 2026 · 05:41:11 · week 41\nTime zone: Europe/Tallinn (EEST)\nNo timer set\nNext reset: Antigravity Gemini 5h in 19m 55s\n\nClick: Timers · Shift+Click: Temp Timer +15m · Ctrl+Click: work / break start-pause · Right-click: what to show",
+        "tile": "Antigravity (Antigravity) · gemini:antigravity\nAntigravity: 50% Claude & GPT weekly\n  Gemini weekly: 33% resets Sat 23:15\n  Gemini 5h: 44% resets in 20m\n  Claude & GPT weekly: 50% resets Sun 00:42\n  Claude & GPT 5h: 100% resets in 2h 23m\n\nClick: select subscription model in this chat · Right-click: workers and settings",
+        "surfaces": {
+          "home": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n33%\n— resets Sat 23:15\nGemini 5h\n44%\n— resets in 20m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 23m",
+          "engineBar": "SAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG",
+          "limitsPanel": ""
+        },
+        "windowStarts": null,
+        "windows": [
+          {
+            "key": "weekly@gemini_models",
+            "label": "Gemini weekly",
+            "remainingPercent": 33.05027782917023,
+            "resetsAt": 1791663339000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@gemini_models",
+            "label": "Gemini 5h",
+            "remainingPercent": 43.55151057243347,
+            "resetsAt": 1791169267000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "weekly@claude_and_gpt_models",
+            "label": "Claude & GPT weekly",
+            "remainingPercent": 49.577561020851135,
+            "resetsAt": 1791668540000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@claude_and_gpt_models",
+            "label": "Claude & GPT 5h",
+            "remainingPercent": 99.94872212409973,
+            "resetsAt": 1791176620000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          }
+        ],
+        "rendered_": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n33%\n— resets Sat 23:15\nGemini 5h\n44%\n— resets in 20m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 23m\nSAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG"
+      }
+    },
+    {
+      "at": "2026-10-05T02:41:34.410Z",
+      "lastSweepAt": "2026-10-05T02:25:25.682Z",
+      "source": "agy -p /usage",
+      "error": null,
+      "fetchedAt": "2026-10-05T02:41:34.389Z",
+      "windowStart": null,
+      "windowStarts": null,
+      "windows": [
+        {
+          "key": "weekly@gemini_models",
+          "remainingPercent": 33.05027782917023,
+          "resetsAt": 1791663339000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T20:15:39.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@gemini_models",
+          "remainingPercent": 43.55151057243347,
+          "resetsAt": 1791169267000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "gemini_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T03:01:07.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "weekly@claude_and_gpt_models",
+          "remainingPercent": 49.577561020851135,
+          "resetsAt": 1791668540000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 10080,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-10T21:42:20.000Z",
+          "rollingFromIso": null
+        },
+        {
+          "key": "five_hour@claude_and_gpt_models",
+          "remainingPercent": 99.94872212409973,
+          "resetsAt": 1791176620000,
+          "rollingFrom": null,
+          "startsOnUse": false,
+          "durationMinutes": 300,
+          "group": "claude_and_gpt_models",
+          "gatedBy": null,
+          "resetsAtIso": "2026-10-05T05:03:40.000Z",
+          "rollingFromIso": null
+        }
+      ],
+      "label": "poll",
+      "rendered": {
+        "at": 1791168094408,
+        "topbar": "Monday, 5 October 2026 · 05:41:34 · week 41\nTime zone: Europe/Tallinn (EEST)\nNo timer set\nNext reset: Antigravity Gemini 5h in 19m 32s\n\nClick: Timers · Shift+Click: Temp Timer +15m · Ctrl+Click: work / break start-pause · Right-click: what to show",
+        "tile": "Antigravity (Antigravity) · gemini:antigravity\nAntigravity: 50% Claude & GPT weekly\n  Gemini weekly: 33% resets Sat 23:15\n  Gemini 5h: 44% resets in 20m\n  Claude & GPT weekly: 50% resets Sun 00:42\n  Claude & GPT 5h: 100% resets in 2h 22m\n\nClick: select subscription model in this chat · Right-click: workers and settings",
+        "surfaces": {
+          "home": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n33%\n— resets Sat 23:15\nGemini 5h\n44%\n— resets in 20m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 22m",
+          "engineBar": "SAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG",
+          "limitsPanel": ""
+        },
+        "windowStarts": null,
+        "windows": [
+          {
+            "key": "weekly@gemini_models",
+            "label": "Gemini weekly",
+            "remainingPercent": 33.05027782917023,
+            "resetsAt": 1791663339000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@gemini_models",
+            "label": "Gemini 5h",
+            "remainingPercent": 43.55151057243347,
+            "resetsAt": 1791169267000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "weekly@claude_and_gpt_models",
+            "label": "Claude & GPT weekly",
+            "remainingPercent": 49.577561020851135,
+            "resetsAt": 1791668540000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          },
+          {
+            "key": "five_hour@claude_and_gpt_models",
+            "label": "Claude & GPT 5h",
+            "remainingPercent": 99.94872212409973,
+            "resetsAt": 1791176620000,
+            "rollingFrom": null,
+            "startsOnUse": false
+          }
+        ],
+        "rendered_": "AI LIMITS\nshow all (+2)\nAntigravity\n[updated now ago]\nGemini weekly\n33%\n— resets Sat 23:15\nGemini 5h\n44%\n— resets in 20m\nClaude & GPT weekly\n50%\n— resets Sun 00:42\nClaude & GPT 5h\n100%\n— resets in 2h 22m\nSAIFREN\nSAIOPP\nSAIRoute / SAIFREN\nA1\nC1\nAG"
+      }
+    }
+  ],
+  "ok": false
+}

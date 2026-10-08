@@ -1,0 +1,19 @@
+{
+  "controls": [
+    {
+      "name": "agent",
+      "file": "packages/services/src/zaicode/zaicodeAgentRepo.ts",
+      "failures": 14,
+      "repairedSha256": "04e1a412ea610426bda77a5bc1972eb3cbc242412c439359f69f3fd027301646",
+      "originalSha256": "8edf30904054696303c6b638d608c719b4fd2d7e1c05bbc457de7ee85e01c0d2"
+    },
+    {
+      "name": "job",
+      "file": "packages/services/src/zaicode/zaicodeJobRepo.ts",
+      "failures": 11,
+      "repairedSha256": "712ddfe46d01e096ee8fcf6e7d1d3adeff7a391c0acb13e24810608fc1b5fa0a",
+      "originalSha256": "b0fc043412ee79171ce6ce4888d2f002795d8459bc5bbc4f467f615aec0853d7"
+    }
+  ],
+  "restored": true
+}

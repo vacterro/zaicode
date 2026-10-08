@@ -1,0 +1,9 @@
+NOW=2026-10-04T12:32:37Z lastSweep=2026-10-04T12:31:04Z
+claude:c:\users\vac34\.claude-account2|checked=12:31:02Z|err=None|five_hour=100.00%@none; weekly=0.00%@46.4h
+codex:c:\users\vac34\.codex|checked=12:31:00Z|err=None|five_hour=100.00%@2.2h; weekly=6.00%@128.7h
+claude:c:\users\vac34\.claude|checked=10:59:13Z|err=no subscription limits reported (API-key account?)|five_hour=86.00%@-96.9h; weekly=72.00%@49.4h
+codex:c:\users\vac34\.codex-account3free|checked=13:05:00Z|err=None|monthly=0.00%@490.7h
+codex:c:\users\vac34\.codex-account2|checked=12:31:01Z|err=None|five_hour=100.00%@1.3h; weekly=15.00%@129.1h; weekly@base_model_inference=0.00%@93.7h
+zcode:plan|checked=12:31:02Z|err=None|five_hour=100.00%@none; weekly=0.00%@77.1h
+antigravity:default|checked=12:31:04Z|err=None|weekly@gemini_models=72.08%@151.7h; five_hour@gemini_models=99.82%@4.5h; weekly@claude_and_gpt_models=49.65%@153.2h; five_hour@claude_and_gpt_models=99.95%@0.8h
+freebuff:8858a5f6-a8dc-41b6-826d-a2bfc00710e9|checked=12:31:03Z|err=None|daily=0.00%@8.5h

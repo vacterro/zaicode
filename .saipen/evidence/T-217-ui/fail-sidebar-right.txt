@@ -1,0 +1,58 @@
+Command palette
+
+Search and run commands available in this workspace.
+
+SAIHOME
+ZAICODE
+WORKERS
+CONTINUE ALL
+Auto OFF
+DONE
+0
+SAIFREN
+SAIOPP
+SAIRoute / SAIFREN
+A1
+C1
+◆
+SLOTS
+No open projects
+vacuum34
+Sun 4 Oct · 18:46:09 · Evening
+AI —
+
+Do your best.
+
+New task screen
+Select project
+not initialized
+SAIPEN
+
+
+
+
+Ask ZAICODE anything, @ to add context, / for commands or capabilities
+◇ MAIN?
+INIT SAIPEN
+CLEAR
+No .saipen/ in this project — SAIPEN memory not initialized.
+Add context
+Full access
+SAIFREN
+SAIOPP
+Auto-Goal on — /goal cc all is appended to every prompt
+Auto retry off · Auto is off
+Global default
+Send
+0
+Other
+18s
+SAIFREN is ready
+Free models, nothing to set up: write a task in New task and press Enter.
+Ready
+Other
+14s
+Today 17 free models added to SAIFREN
+kilo/stealth/space-bunny-alpha (Kilo Gateway (free)), kilo/inclusionai/ling-3.1-flash (Kilo Gateway (free)), kilo/stepfun/step-3.7-flash:free (Kilo Gateway (free)), kilo/nvidia/nemotron-3-ultra-550b-a55b:free (Kilo Gateway (free)), kilo/dots-studio/dots-3-note-preview:free (Kilo Gateway (free)), kilo/poolside/laguna-s-2.1:free (Kilo Gateway (free)), +11 more
+New free model
+Dismiss all

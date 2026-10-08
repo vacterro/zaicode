@@ -1,0 +1,68 @@
+Command palette
+
+Search and run commands available in this workspace.
+
+SAIHOME
+ZAICODE
+WORKERS
+CONTINUE ALL
+Auto OFF
+DONE
+0
+SAIFREN
+SAIOPP
+SAIRoute / SAIFREN
+A1
+C1
+AG
+◆
+Projects
+1
+continuity-project
+
+Fixture answer
+Fixture answer
+
+now
+vacuum34
+CONTINUITY-PROJECT
+Fixture answer
+Sun 4 Oct · 19:14:17 · Evening
+AG ↺ 46m 49s
+AG
+Changes
++4
+-0
+Fixture continuity A
+Copy
+Edit
+Worked for 1s
+
+Fixture answer.
+
+Worked for 1s
+Copy
+Like
+Dislike
+Fork
+07:13 PM
+
+
+
+
+Ask for follow-up changes
+◇ MAIN?
+INIT SAIPEN
+CLEAR
+No .saipen/ in this project — SAIPEN memory not initialized.
+Add context
+Full access
+1
+COLLECT
+SAIFREN
+SAIOPP
+Auto-Goal off — write /goal cc all yourself
+Auto retry off · Auto is off
+Global default
+Send
+0

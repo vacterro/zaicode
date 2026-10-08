@@ -1,0 +1,91 @@
+{
+  "ticket": "T-257",
+  "profile": "V:\\_TEMP_\\zaicode-t257-profile-x7zGpx",
+  "executable": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\dist-t254\\win-unpacked\\ZAICODE.exe",
+  "checks": [
+    {
+      "name": "left: separator follows stored placement",
+      "pass": true,
+      "detail": {
+        "x": 420,
+        "y": 0,
+        "width": 4,
+        "height": 960
+      }
+    },
+    {
+      "name": "left: normal drag still widens the sidebar",
+      "pass": true,
+      "detail": 500
+    },
+    {
+      "name": "left: double-click restores actual width and aria to default 264",
+      "pass": false,
+      "detail": {
+        "reset": 500,
+        "aria": "500"
+      }
+    },
+    {
+      "name": "left: reset persists the existing pixel preference",
+      "pass": false,
+      "detail": "500"
+    },
+    {
+      "name": "left: reset survives reload",
+      "pass": false,
+      "detail": 500
+    },
+    {
+      "name": "left: rail double-click restores default 264",
+      "pass": false,
+      "detail": 52
+    },
+    {
+      "name": "right: separator follows stored placement",
+      "pass": true,
+      "detail": {
+        "x": 856,
+        "y": 0,
+        "width": 4,
+        "height": 960
+      }
+    },
+    {
+      "name": "right: normal drag still widens the sidebar",
+      "pass": true,
+      "detail": 500
+    },
+    {
+      "name": "right: double-click restores actual width and aria to default 264",
+      "pass": false,
+      "detail": {
+        "reset": 500,
+        "aria": "500"
+      }
+    },
+    {
+      "name": "right: reset persists the existing pixel preference",
+      "pass": false,
+      "detail": "500"
+    },
+    {
+      "name": "right: reset survives reload",
+      "pass": false,
+      "detail": 500
+    },
+    {
+      "name": "right: rail double-click restores default 264",
+      "pass": false,
+      "detail": 52
+    },
+    {
+      "name": "zero renderer exceptions",
+      "pass": true,
+      "detail": []
+    }
+  ],
+  "pass": false,
+  "errors": [],
+  "asarSha256": "8e9700525fec603393c8ae3070e94db0b5558b05d63cc26dcd27c54db4024091"
+}

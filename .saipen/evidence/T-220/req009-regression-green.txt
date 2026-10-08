@@ -1,0 +1,18 @@
+[WARN] The "pnpm" field in package.json is no longer read by pnpm. The following keys were ignored: "pnpm.overrides", "pnpm.patchedDependencies". See https://pnpm.io/settings for the new home of each setting.
+apps/zcode-cli                           |  WARN  Unsupported engine: wanted: {"node":"24.14.0"} (current: {"node":"v24.15.0","pnpm":"10.33.2"})
+✔ R009: the ladder collapses the leading rung when a wrapped child overflows its own cluster (0.9964ms)
+✔ R009: the media/010 control population keeps its collapse handles (0.1773ms)
+✔ R009: narrowing past the rungs still wraps instead of clipping or overlapping (0.1691ms)
+✔ T-220: the fit ladder measures the whole row, not only the leading cluster (0.6828ms)
+✔ T-220: the ladder clears its own state before measuring, so a wider window restores labels (0.1306ms)
+✔ T-220: the trailing cluster has collapse rungs of its own (0.2129ms)
+✔ T-220: an exhausted ladder wraps the row instead of overlapping the trailing buttons (0.1199ms)
+✔ T-220: the send and cancel controls are never collapse rungs (0.1216ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 167.9248

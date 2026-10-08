@@ -1,0 +1,228 @@
+{
+  "ticket": "T-268",
+  "executablePath": "V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/packages/desktop/dist-next/win-unpacked/ZAICODE.exe",
+  "profile": "V:\\_TEMP_\\zaicode-t268-h9zIuS",
+  "checks": [
+    {
+      "name": "isolated profile",
+      "pass": true
+    },
+    {
+      "name": "pointer near default snaps to persisted 264px",
+      "pass": true,
+      "detail": "264"
+    }
+  ],
+  "pass": false,
+  "stage": "state-toggle",
+  "error": "TimeoutError: locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Open SAIPEN STATE, BOARD and LOG', exact: true }).filter({ visible: true }).first()\u001b[22m\n\u001b[2m    - locator resolved to <button type=\"button\" data-zaicode-readiness=\"pending\" aria-label=\"Open SAIPEN STATE, BOARD and LOG\" class=\"shrink-0 border border-border px-1 leading-5 tabular-nums text-foreground\" title=\"T-001 BUILD: 1 open ticket(s); nothing is running now↵NEXT: fixture↵LAST: - fixture\">…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <div class=\"min-h-0 flex-1 overflow-y-auto\">…</div> from <aside aria-label=\"SAIPEN sidebar\" class=\"fixed top-10 bottom-0 z-40 flex min-h-0 flex-col border-border bg-background text-foreground shadow-lg right-0 border-l\">…</aside> subtree intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <div class=\"min-h-0 flex-1 overflow-y-auto\">…</div> from <aside aria-label=\"SAIPEN sidebar\" class=\"fixed top-10 bottom-0 z-40 flex min-h-0 flex-col border-border bg-background text-foreground shadow-lg right-0 border-l\">…</aside> subtree intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    58 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - <div class=\"min-h-0 flex-1 overflow-y-auto\">…</div> from <aside aria-label=\"SAIPEN sidebar\" class=\"fixed top-10 bottom-0 z-40 flex min-h-0 flex-col border-border bg-background text-foreground shadow-lg right-0 border-l\">…</aside> subtree intercepts pointer events\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n",
+  "errors": [],
+  "requests": [
+    {
+      "method": "GET",
+      "path": "/api/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/combos"
+    },
+    {
+      "method": "POST",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/settings"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/settings"
+    },
+    {
+      "method": "GET",
+      "path": "/api/keys"
+    },
+    {
+      "method": "POST",
+      "path": "/api/keys"
+    },
+    {
+      "method": "GET",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/combos"
+    },
+    {
+      "method": "GET",
+      "path": "/api/models"
+    },
+    {
+      "method": "GET",
+      "path": "/api/models"
+    },
+    {
+      "method": "GET",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/combos"
+    },
+    {
+      "method": "GET",
+      "path": "/api/version"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/models"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/combos"
+    },
+    {
+      "method": "GET",
+      "path": "/api/models"
+    },
+    {
+      "method": "GET",
+      "path": "/api/settings"
+    },
+    {
+      "method": "GET",
+      "path": "/api/usage/stats?period=today"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/combos"
+    },
+    {
+      "method": "POST",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/keys"
+    },
+    {
+      "method": "POST",
+      "path": "/api/keys"
+    },
+    {
+      "method": "GET",
+      "path": "/api/version"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/models"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/combos"
+    },
+    {
+      "method": "GET",
+      "path": "/api/models"
+    },
+    {
+      "method": "GET",
+      "path": "/api/settings"
+    },
+    {
+      "method": "GET",
+      "path": "/api/usage/stats?period=today"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health"
+    }
+  ],
+  "verifierSha256": "0a4abd1239010cffb74f29963dd6f11f07cffb033ee886127abd8c9be754cb72",
+  "asarSha256": "8b50adcb818827eba259a56355f6c8394f6601861ee70d3203719a8e338a8eba"
+}

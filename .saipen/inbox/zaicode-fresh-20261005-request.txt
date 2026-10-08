@@ -1,0 +1,499 @@
+ZAICODE
+
+ROLE
+Implementation / integration / verification agent.
+
+INPUTS
+Use together:
+
+1. Current ZAICODE project state from:
+   _ZAICODE_05.10.26-T04-13-11.zip
+
+2. Fresh user audit/context bundle:
+   ZAICODE (Day 05 Oct - 02-13)_bundle_20261005_041305.zip
+
+Treat the fresh bundle as NEW DELTA.
+It is not represented by the current intake, which ends at SRC-149.
+
+Do not silently merge it into an old ticket.
+Register it through normal SAIPEN intake as the next source receipt and preserve
+all screenshots and requirement ordering.
+
+IMPORTANT DISCOVERY BEFORE IMPLEMENTATION
+
+The previous continuity bundle was already implemented as T-217.
+
+Known T-217 evidence:
+- implementation commit: dfacb62d
+- finished: 2026-10-04 17:47
+- 12 previous requirements dispositioned
+- router supervisor / fail-open fallback implemented
+- effective Auto Retry truth implemented
+- MAIN canonical row implemented
+- archive notice placement implemented
+- sidebar toggle / side migration implemented
+- pasted-text draft editor implemented
+- current-session navigation implemented
+- COLLECT relocation implemented
+- worker 5h/weekly meters implemented
+- presentation presets implemented
+- full gate: 1567 tests, 0 failures
+- packaged UI receipt: 14/14
+- paid vendor requests: 0
+
+However the public/test build published by T-218 predates T-217.
+
+T-218 facts:
+- published at 2026-10-04 14:57
+- source: 522f5a5a
+- publication explicitly recorded "no T-217 edits published"
+
+Therefore the user's fresh live screenshots may have been produced by a stale
+runtime that does not contain T-217.
+
+DO NOT REIMPLEMENT T-217 UNTIL RUNTIME IDENTITY IS PROVEN.
+
+PHASE 0 — RUNTIME/SOURCE PARITY, P0
+
+Establish exactly what executable the user's normal ZAICODE launch path starts.
+
+Determine and record:
+- executable path;
+- installed/package version;
+- source revision/build revision embedded in the executable;
+- packaged app revision;
+- current source HEAD/revision;
+- whether T-217 / dfacb62d is contained in the running executable;
+- launcher/update-channel source;
+- whether REBUILD/normal launcher can accidentally continue launching an older
+  installed package after source advances.
+
+If the runtime cannot currently expose its source/build identity, add a durable
+identity mechanism.
+
+At minimum ZAICODE must make these visible/queryable:
+- ZAICODE version;
+- build/source revision;
+- build timestamp;
+- update channel;
+- runtime package identity.
+
+Prefer exposing it in About/diagnostics and a machine-readable runtime endpoint.
+
+Add a stale-runtime diagnostic:
+if a development/local source tree is newer than the packaged runtime expected
+by the normal developer launch path, make that state obvious.
+
+Do not silently claim that current source fixes are active in an older executable.
+
+PHASE 1 — REPRODUCE REQ-001 ON THE CURRENT BUILD
+
+Fresh bundle REQ-001:
+user still sees:
+
+Cannot connect to API: connect ECONNREFUSED 127.0.0.1:46442
+
+and reports that normal fallback still does not happen.
+
+This overlaps old T-217 REQ-002.
+
+First build/package the CURRENT source containing T-217 and launch that exact
+artifact in an isolated but realistic profile.
+
+Reproduce the real user path, not only unit helpers:
+
+1. Start ZAICODE normally.
+2. Configure/use the user-local 9router path the product actually uses.
+3. Begin a real autonomous/local test workload using a safe non-paid route.
+4. Kill the local 9router process or make its actual API endpoint refuse
+   connections.
+5. Observe the SAME renderer/desktop/API path that can produce:
+   ECONNREFUSED 127.0.0.1:<port>
+6. Verify the supervisor receives this failure.
+7. Verify bounded restart attempts occur.
+8. Verify recovery if the router restarts.
+9. If recovery budget is exhausted, verify fail-open internal fallback.
+10. Verify the SAME project/session/objective continues.
+11. Verify UI truthfully reports recovery/fallback state.
+12. Verify no endless ECONNREFUSED loop remains.
+13. Restore 9router and verify safe return at a continuation boundary.
+
+CRITICAL:
+A helper-level router test is insufficient.
+
+T-217 already has tests such as:
+- local process death vs unhealthy API;
+- attempt-four recovery;
+- ten failures fail open;
+- restart during fallback;
+- flapping;
+- fallback unavailable.
+
+The fresh screenshot proves that the user-visible route must now be covered
+end-to-end.
+
+If current packaged T-217 reproduces the ECONNREFUSED failure without fallback:
+REOPEN the router continuity defect as a regression and repair the missing
+integration path.
+
+Likely investigation boundary:
+renderer -> desktop API -> local host/proxy -> 9router supervisor -> route
+fallback.
+
+Look specifically for an API/client path that can emit the connection error
+before the supervisor/fallback resolver gains ownership of the failure.
+
+If current packaged T-217 does NOT reproduce and fallback works correctly:
+do not rewrite it.
+Classify the screenshot as STALE_RUNTIME / DEPLOYMENT_SKEW and fix the
+build/update/launcher mechanism that allowed the obsolete runtime to remain in
+normal use.
+
+ACCEPTANCE FOR PHASE 0/1
+
+One of these outcomes must be proven:
+
+A. SOURCE REGRESSION
+Current T-217+ packaged runtime reproduces the user's outage and is repaired
+with an end-to-end regression test.
+
+OR
+
+B. STALE RUNTIME
+Current T-217+ runtime survives the outage correctly and evidence proves the
+user-visible failure came from an older executable. In that case fix runtime
+identity/update/launch parity so this confusion cannot recur.
+
+Do not close REQ-001 merely from old T-217 unit tests.
+
+PHASE 2 — FRESH BUNDLE GROUP 1
+
+After runtime parity is established, reconcile and implement the remaining fresh
+top-level requirements.
+
+REQ-002 — RESPONSIVE COMPOSER
+
+The composer currently cannot fit all enabled controls at some widths.
+
+Make the composer responsive rather than clipping or overlapping controls.
+
+Requirements:
+- no control overlap;
+- no controls outside the usable client area;
+- prompt editor retains useful width;
+- primary actions remain directly reachable;
+- secondary actions may collapse into a compact overflow/menu at narrow width;
+- rows may reflow only when doing so is clearer than horizontal clipping;
+- attachments, COLLECT, worker/model controls and send controls must coexist;
+- respect sidebar left/right placement and rail/full modes;
+- resize live without requiring reload.
+
+Test several practical widths including narrow 1366-class and 1920x1080 layouts.
+
+REQ-003 — PROTRAIL Z-ORDER RECOVERY
+
+ProTrail can occasionally fall behind all other applications and only recover
+after restart.
+
+Find the real window ownership/z-order defect.
+
+Do not blindly force permanent always-on-top unless that is the configured
+policy.
+
+Required behavior:
+- ProTrail obeys its selected topmost/overlay policy;
+- activating ZAICODE/ProTrail restores the intended z-order;
+- minimize/restore does not strand it behind unrelated windows;
+- monitor change does not lose ownership;
+- ZAICODE restart must not be the normal recovery mechanism.
+
+Add a deterministic recovery path and regression coverage where technically
+possible.
+
+REQ-004 — MAXIMIZE / RESTORE GEOMETRY
+
+The main window can enter a visually "maximized" state while occupying only part
+of the available screen/client area.
+
+Investigate:
+- Electron maximize/unmaximize state;
+- persisted normal bounds;
+- monitor/workArea selection;
+- DPI scaling;
+- renderer viewport resize;
+- sidebar/layout cached dimensions;
+- maximize after moving between monitors.
+
+Rules:
+- maximized means the full current monitor work area;
+- never restore stale normal bounds while the native window remains maximized;
+- renderer must consume the complete current client rectangle;
+- moving between monitors must not preserve impossible old geometry;
+- invalid/off-screen persisted bounds must be normalized safely.
+
+Test maximize -> restore -> maximize, restart while maximized, monitor movement,
+and common DPI/work-area changes.
+
+REQ-005 — AUTHORITATIVE WORKING/LIVENESS STATE
+
+The UI can still show a project/session as Working after execution has ended.
+
+Create one authoritative effective liveness projection.
+
+Do not infer "working" merely from:
+- a stale timer;
+- an old worker assignment;
+- queued metadata;
+- the existence of a terminal;
+- an unfinished visual animation.
+
+Distinguish at least where product concepts support it:
+- queued;
+- starting;
+- running agent;
+- running tests;
+- waiting/retry;
+- waiting for reset;
+- interrupted;
+- completed;
+- idle.
+
+Completion/terminal exit/worker release must converge the sidebar and session UI
+quickly.
+
+App restart must reconcile stale "working" state from real persisted/runtime
+truth.
+
+Add regression coverage for:
+- normal completion;
+- worker crash;
+- terminal disappears;
+- scheduled continuation;
+- app restart after completion;
+- tests finish before agent state refresh;
+- stale heartbeat.
+
+REQ-006 — QUEUE SUMMARY MUST PRESERVE USER PAYLOAD
+
+With per-project Auto-Goal enabled, a queued row can show only "goal cc all"
+while hiding the actual submitted attachment/payload.
+
+This is misleading.
+
+The queue representation must describe what the user actually queued.
+
+Show:
+- prompt excerpt when present;
+- attachment indicator/count;
+- useful filename/type for file-backed long text;
+- Auto-Goal badge/state separately.
+
+The invisible Auto-Goal augmentation must not replace the visible summary of the
+real user payload.
+
+For a long-text attachment plus Auto-Goal, the queue row must visibly indicate
+that the attachment exists before execution.
+
+REQ-007 — REAL-TIME ACCOUNT SYSTEM INTEGRATION
+
+ZAICODE must stop behaving like it owns a stale private snapshot of accounts.
+
+Reconcile with the newer account system used by SAITULS Accounts.
+
+Build one clear integration boundary/source of truth.
+
+Required:
+- detect account changes without ZAICODE restart where practical;
+- multiple accounts of the same vendor;
+- correct account/vendor identity;
+- new/removed account convergence;
+- sign-in/manual account management entry points where supported;
+- Codex and Claude must not be privileged by hard-coded UI assumptions;
+- subscription worker choices must follow current account availability;
+- stale accounts must disappear or be marked unavailable rather than silently
+  reused;
+- active work must not jump accounts accidentally during a registry refresh.
+
+If SAITULS exposes an account registry/API/file/mailbox contract, integrate that
+contract rather than scraping its UI.
+
+Add multi-account tests.
+
+REQ-008 — GLOBAL A3 AUDIT ENABLE/DISABLE
+
+Add a clear global Audit automation switch.
+
+Purpose:
+allow the operator to disable automatic A3 audit generation/consumption used by
+Auto Continue / Continue All when there is no normal actionable work.
+
+Requirements:
+- visible Audit surface/settings;
+- global Enabled / Disabled truth;
+- persisted;
+- default behavior documented;
+- disabling automatic audits does not destroy existing audit artifacts;
+- manual audit actions remain available unless explicitly disabled separately;
+- scheduler/continue logic consults the same authoritative preference;
+- no hidden audit generation while globally disabled.
+
+REQ-009 — CONTROL COLLISION
+
+Buttons can overlap each other.
+
+Fix layout contracts rather than individual pixel offsets.
+
+Interactive controls must:
+- own predictable minimum hit areas;
+- never visually overlap;
+- never cover another control's hit target;
+- reflow/collapse deterministically;
+- remain keyboard accessible.
+
+Audit the same control-strip component wherever reused.
+
+REQ-010 — TOOLTIP POSITIONING
+
+Tooltips can appear in the upper-left corner instead of next to their anchor.
+
+Treat this as an anchoring/lifecycle bug.
+
+Investigate stale/destroyed anchor rectangles, portal lifecycle and delayed
+tooltip opens during layout changes.
+
+Rules:
+- no tooltip at viewport origin unless its anchor really lives there;
+- close/cancel when the anchor disappears;
+- recompute after sidebar/layout movement;
+- prevent delayed timers from opening an orphan tooltip.
+
+REQ-011 — RIGHT-CLICK SETTINGS CONTRACT
+
+For controls that have configurable behavior, right click should consistently
+provide access to that control's settings/context configuration.
+
+Do not add meaningless context menus to every button.
+
+Create a reusable interaction contract:
+- normal click = primary action;
+- right click = relevant configuration/context action when available;
+- optional configurable alternate/third behavior where the product already
+  supports it.
+
+Apply first to the control family shown by the bundle screenshot, then reuse the
+same mechanism on equivalent configurable controls.
+
+Do not break standard text/context-menu behavior in editors and input fields.
+
+REQ-012 — TOOLTIP SIZE BOUNDS
+
+Huge paragraph-sized tooltips that obscure the workspace are unacceptable.
+
+Define a tooltip content policy:
+- concise immediate hint;
+- sensible max width;
+- sensible max height;
+- wrapping;
+- no screen-sized floating prose;
+- long explanatory content moves to Help/details/settings documentation.
+
+Keep essential shortcut/state information visible.
+
+OLD REQUIREMENTS IN THE SAME BUNDLE
+
+REQ-013 onward includes older backlog material.
+
+Do not blindly create duplicates.
+
+Reconcile every old requirement against:
+- T-190;
+- T-197..T-217;
+- their evidence;
+- current source behavior.
+
+In particular:
+- old router continuity maps to T-217 but fresh REQ-001 is new live evidence;
+- MAIN orphan-session behavior maps to T-217;
+- cleanup popup maps to T-217;
+- sidebar toggle/side migration maps to T-217;
+- Auto Retry state truth maps to T-217;
+- pasted-text editing maps to T-217;
+- navigation restoration maps to T-217;
+- worker 5h/weekly meters map to T-217;
+- non-beveled presentation presets map to T-217;
+- COLLECT relocation maps to T-217;
+- vendor-limit Scheduler continuation maps primarily to T-190/T-217.
+
+Preserve those implementations unless current-build reproduction proves a
+regression.
+
+Do not reopen checked-off requirements from the bundle.
+
+SAIPEN / CURRENT WORK SAFETY
+
+The supplied project state currently has T-166 active.
+
+Do not destroy or overwrite its work.
+
+Before switching focus:
+- checkpoint current work;
+- preserve dirty/unpublished changes;
+- use normal SAIPEN ownership/transition rules.
+
+Fresh REQ-001 is P0 because it can waste an unattended autonomous run.
+It may preempt lower-severity work only after the current slice is safely
+checkpointed.
+
+VERIFICATION
+
+For the fresh bundle:
+- create a disposition ledger for every requirement;
+- NEW / DUPLICATE / REGRESSION / ALREADY_IMPLEMENTED / USER_CHECKED_OFF /
+  BLOCKED;
+- bind implementation evidence to the correct fresh requirement;
+- do not cite an old ticket as proof if the fresh screenshot contradicts it.
+
+Run:
+- focused regression tests;
+- full relevant test suite;
+- typecheck;
+- lint;
+- architecture checks;
+- production package/build gate.
+
+For UI defects use the packaged executable, not only renderer/unit tests.
+
+For runtime/version issues verify the exact executable launched through the
+user's normal launcher.
+
+FINAL ACCEPTANCE
+
+The first wave is complete only when:
+
+1. The running ZAICODE build can identify its source revision.
+2. Source/runtime skew is detectable.
+3. The fresh ECONNREFUSED fallback report is reproduced or conclusively
+   explained by stale runtime.
+4. A current build cannot silently spend an unattended night retrying a dead
+   localhost router.
+5. Composer controls remain usable at narrow widths.
+6. ProTrail can recover correct z-order without restart.
+7. maximize/restore fills the correct monitor work area.
+8. Working state reflects real execution state.
+9. queued attachments remain visible in queue summaries.
+10. account changes converge through the current account system.
+11. automatic A3 audits have a global explicit enable/disable.
+12. buttons do not overlap.
+13. tooltips remain anchored and bounded.
+14. configurable controls have consistent right-click configuration behavior.
+15. old T-217 functionality remains green.
+
+NON_GOALS
+
+- Do not rewrite the T-217 router supervisor merely because an older binary
+  cannot use it.
+- Do not fabricate live paid-vendor quota evidence.
+- Do not create duplicate SAIPEN tickets for already-completed bundle items.
+- Do not make ProTrail permanently topmost unless its configured policy says so.
+- Do not solve responsive layout with arbitrary one-off pixel patches.
+- Do not duplicate SAITULS account state into another independent stale store.

@@ -1,0 +1,190 @@
+{
+  "ticket": "T-254",
+  "executablePath": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\dist-t254\\win-unpacked\\ZAICODE.exe",
+  "profile": "V:\\_TEMP_\\zaicode-t254-profile-4kDckh",
+  "fixtureRows": 500021,
+  "checks": [
+    {
+      "name": "same packaged count oracle rejects a real wrong fixture",
+      "pass": true,
+      "detail": {
+        "channel": "zaicode-jobs",
+        "elapsedMs": 24.80000001192093,
+        "responseBytes": 7685,
+        "rows": 26,
+        "diagnostics": 0,
+        "counts": {
+          "running": 0,
+          "ready": 2,
+          "waiting": 2,
+          "blocked": 2,
+          "doneToday": 12,
+          "failedToday": 3
+        },
+        "doneLast24h": 12,
+        "dayStart": 1791320400000,
+        "capturedAt": 1791350929130,
+        "openIds": [
+          "old-blocked",
+          "old-draft",
+          "old-queued",
+          "old-ready",
+          "old-running",
+          "old-waiting"
+        ]
+      }
+    },
+    {
+      "name": "same packaged count oracle accepts restored good fixture",
+      "pass": true
+    }
+  ],
+  "seed": {
+    "rows": 500021,
+    "path": "V:\\_TEMP_\\zaicode-t254-profile-4kDckh\\.zaicode\\v2\\tasks-index.sqlite"
+  },
+  "pass": false,
+  "stage": "60s observation",
+  "error": "TimeoutError: locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-zaicode-saihome]').getByRole('button', { name: 'Refresh', exact: true })\u001b[22m\n\u001b[2m    - locator resolved to <button type=\"button\" title=\"Last refresh 8:29:18 AM\" class=\"flex items-center gap-1 border border-border px-1.5 text-foreground-subtle hover:text-foreground\">…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <span class=\"min-w-0 flex-1 truncate text-foreground-subtle\">Other</span> from <div data-zaicode-toast-host=\"true\" data-zaicode-help=\"notifications\" class=\"pointer-events-none fixed z-[9998] flex gap-1.5 top-14 right-3 flex-col items-end\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <span class=\"min-w-0 flex-1 truncate text-foreground-subtle\">Other</span> from <div data-zaicode-toast-host=\"true\" data-zaicode-help=\"notifications\" class=\"pointer-events-none fixed z-[9998] flex gap-1.5 top-14 right-3 flex-col items-end\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    59 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - <span class=\"min-w-0 flex-1 truncate text-foreground-subtle\">Other</span> from <div data-zaicode-toast-host=\"true\" data-zaicode-help=\"notifications\" class=\"pointer-events-none fixed z-[9998] flex gap-1.5 top-14 right-3 flex-col items-end\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n",
+  "pageErrors": [],
+  "metrics": {
+    "calls": {
+      "credential.load": 6,
+      "provider-settings.getView": 5,
+      "provider-settings.addPersonalModel": 2,
+      "zcode-agent.subscribeSessionsIndexV4": 1,
+      "zaicode-jobs.getAutoRun": 5,
+      "zaicode-jobs.getHomeOverview": 4,
+      "zaicode-stats.getHomeStats": 4,
+      "zaicode-stats.getRecentActivity": 4,
+      "file.readTextFile": 4,
+      "off-peak-task.list": 2,
+      "zaicode-audits.publishProjects": 1,
+      "zaicode-audits.smartSweep": 1,
+      "zaicode-audits.getState": 1
+    },
+    "jobLists": [
+      {
+        "channel": "off-peak-task",
+        "workspaceFilter": false,
+        "bounded": false
+      },
+      {
+        "channel": "off-peak-task",
+        "workspaceFilter": false,
+        "bounded": false
+      }
+    ],
+    "overviews": [
+      {
+        "channel": "zaicode-jobs",
+        "elapsedMs": 21,
+        "responseBytes": 7685,
+        "rows": 26,
+        "diagnostics": 0,
+        "counts": {
+          "running": 1,
+          "ready": 2,
+          "waiting": 2,
+          "blocked": 1,
+          "doneToday": 12,
+          "failedToday": 3
+        },
+        "doneLast24h": 12,
+        "dayStart": 1791320400000,
+        "capturedAt": 1791350943640,
+        "openIds": [
+          "old-blocked",
+          "old-draft",
+          "old-queued",
+          "old-ready",
+          "old-running",
+          "old-waiting"
+        ]
+      },
+      {
+        "channel": "zaicode-jobs",
+        "elapsedMs": 18,
+        "responseBytes": 7685,
+        "rows": 26,
+        "diagnostics": 0,
+        "counts": {
+          "running": 1,
+          "ready": 2,
+          "waiting": 2,
+          "blocked": 1,
+          "doneToday": 12,
+          "failedToday": 3
+        },
+        "doneLast24h": 12,
+        "dayStart": 1791320400000,
+        "capturedAt": 1791350958652,
+        "openIds": [
+          "old-blocked",
+          "old-draft",
+          "old-queued",
+          "old-ready",
+          "old-running",
+          "old-waiting"
+        ]
+      },
+      {
+        "channel": "zaicode-jobs",
+        "elapsedMs": 15.5,
+        "responseBytes": 7685,
+        "rows": 26,
+        "diagnostics": 0,
+        "counts": {
+          "running": 1,
+          "ready": 2,
+          "waiting": 2,
+          "blocked": 1,
+          "doneToday": 12,
+          "failedToday": 3
+        },
+        "doneLast24h": 12,
+        "dayStart": 1791320400000,
+        "capturedAt": 1791350973653,
+        "openIds": [
+          "old-blocked",
+          "old-draft",
+          "old-queued",
+          "old-ready",
+          "old-running",
+          "old-waiting"
+        ]
+      },
+      {
+        "channel": "zaicode-jobs",
+        "elapsedMs": 21.400000005960464,
+        "responseBytes": 7685,
+        "rows": 26,
+        "diagnostics": 0,
+        "counts": {
+          "running": 1,
+          "ready": 2,
+          "waiting": 2,
+          "blocked": 1,
+          "doneToday": 12,
+          "failedToday": 3
+        },
+        "doneLast24h": 12,
+        "dayStart": 1791320400000,
+        "capturedAt": 1791350988657,
+        "openIds": [
+          "old-blocked",
+          "old-draft",
+          "old-queued",
+          "old-ready",
+          "old-running",
+          "old-waiting"
+        ]
+      }
+    ],
+    "errors": [],
+    "rootCommits": 340,
+    "homeRootCommits": 340,
+    "manualRefreshes": 0
+  },
+  "asarSha256": "c5902f3997d56ce055d533cdd7fb536cddee8e1cba30cd35256e55784c360ece"
+}

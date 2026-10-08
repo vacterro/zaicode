@@ -1,0 +1,55 @@
+{
+  "original": true,
+  "checks": [
+    {
+      "name": "pool pointer reorder persisted through router write and readback",
+      "pass": false,
+      "error": "Expected values to be strictly equal:\n\n0 !== 3\n"
+    },
+    {
+      "name": "pool font is at least the UI base size",
+      "pass": false,
+      "error": "font 10"
+    },
+    {
+      "name": "pool keyboard reorder",
+      "pass": false,
+      "error": "locator.focus: Timeout 7000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-zaicode-router-pools] [data-model-provider-model-id]').first()\u001b[22m\n"
+    },
+    {
+      "name": "fallback pointer reorder",
+      "pass": false,
+      "error": "Expected values to be strictly equal:\n\n0 !== 3\n"
+    },
+    {
+      "name": "Dispatch pointer reorder keeps launcher edits interactive",
+      "pass": false,
+      "error": "locator.getAttribute: Timeout 7000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-zaicode-dispatch-settings] [data-model-provider-model-id]').first()\u001b[22m\n"
+    },
+    {
+      "name": "queue drag uses the existing adjacent reorder owner",
+      "pass": false,
+      "error": "Expected values to be strictly equal:\n\n0 !== 3\n"
+    },
+    {
+      "name": "Full retains real inner scrolling without fading output",
+      "pass": false,
+      "error": "Expected values to be strictly equal:\n+ actual - expected\n\n+ 'linear-gradient(rgba(0, 0, 0, 0) 0px, rgb(0, 0, 0) 24px, rgb(0, 0, 0) 100%)'\n- 'none'\n"
+    },
+    {
+      "name": "Full without scroll exposes the entire real output height",
+      "pass": false,
+      "error": "locator.click: Timeout 7000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-transcript-choice=\"full-unbounded\"]')\u001b[22m\n"
+    },
+    {
+      "name": "unbounded streaming keeps the latest output",
+      "pass": true
+    },
+    {
+      "name": "transparent modal preserves input blocking",
+      "pass": false,
+      "error": "Expected values to be strictly equal:\n+ actual - expected\n\n+ 'oklab(0 0 0 / 0.6)'\n- 'rgba(0, 0, 0, 0)'\n"
+    }
+  ],
+  "errors": []
+}

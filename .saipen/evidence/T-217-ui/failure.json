@@ -1,0 +1,19 @@
+{
+  "stage": "archive",
+  "error": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-zaicode-archive-notice]').getByRole('button', { name: 'Undo archive', exact: true })\u001b[22m\n\u001b[2m    - locator resolved to <button type=\"button\" aria-label=\"Undo archive\" class=\"shrink-0 border border-border px-2 hover:bg-hover\">Undo</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <span class=\"min-w-0 flex-1 truncate text-foreground-subtle\">Agents</span> from <div data-zaicode-toast-host=\"true\" data-zaicode-help=\"notifications\" class=\"pointer-events-none fixed z-[9998] flex gap-1.5 top-14 right-3 flex-col items-end\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <span class=\"min-w-0 flex-1 truncate text-foreground-subtle\">Agents</span> from <div data-zaicode-toast-host=\"true\" data-zaicode-help=\"notifications\" class=\"pointer-events-none fixed z-[9998] flex gap-1.5 top-14 right-3 flex-col items-end\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    15 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - <span class=\"min-w-0 flex-1 truncate text-foreground-subtle\">Agents</span> from <div data-zaicode-toast-host=\"true\" data-zaicode-help=\"notifications\" class=\"pointer-events-none fixed z-[9998] flex gap-1.5 top-14 right-3 flex-col items-end\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m  - element was detached from the DOM, retrying\u001b[22m\n\n    at run (V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\.saipen\\kitchen\\T-217-packaged-ui.cjs:120:448)",
+  "profile": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\.saipen\\evidence\\T-217-ui\\profile-QOhTSI",
+  "checks": {
+    "leftToggle": true,
+    "rightToggle": true,
+    "narrowAndRail": true,
+    "presentation": true,
+    "bothSideDirections": true,
+    "pasteEditRestore": true,
+    "collectDisabledWithText": true,
+    "collectNarrowRow": true,
+    "currentSessionNavigation": true,
+    "retryCountdownScopeTruth": true,
+    "canonicalMAIN": true
+  },
+  "pageErrors": []
+}

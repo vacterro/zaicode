@@ -1,0 +1,26 @@
+[
+  {
+    "pass": 1,
+    "events": 5000,
+    "cursor": 10000,
+    "newestStored": false
+  },
+  {
+    "pass": 2,
+    "events": 5000,
+    "cursor": 10000,
+    "newestStored": false
+  },
+  {
+    "pass": 3,
+    "events": 5000,
+    "cursor": 10000,
+    "newestStored": false
+  },
+  {
+    "pass": 4,
+    "events": 5000,
+    "cursor": 10000,
+    "newestStored": false
+  }
+]

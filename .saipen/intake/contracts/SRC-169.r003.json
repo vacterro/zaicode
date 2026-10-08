@@ -1,0 +1,24 @@
+{
+  "clauses": {
+    "SRC-169:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Model maintainer discovers current models across all providers, appends newly verified free models such as exo-free to SAIFREN, retires genuinely unsupported models, revives available models and prioritizes free availability from trustworthy provider catalogues."
+    },
+    "SRC-169:R002": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Add an explicit responsiveness Check using model listings or metadata/health endpoints without generating tokens; make the checked capability and limitations visible."
+    },
+    "SRC-169:R003": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Allow model order changes by dragging and persist the order in the actual router combos while preserving external changes."
+    }
+  },
+  "derived_at": "2026-10-07T08:59:16Z",
+  "derived_from": "SRC-169",
+  "interpretation_revision": 3,
+  "schema_version": 1,
+  "source_sha256": "3d3065a227e07e627a4b6a61c697d5d1daeb96b6fc82289004e911916c59793c"
+}

@@ -1,0 +1,82 @@
+{
+  "ticket": "T-254",
+  "at": "2026-10-07T05:53:20.591Z",
+  "dayStart": 1791320400000,
+  "now": 1791352381577,
+  "measurements": [
+    {
+      "terminalRows": 100000,
+      "fullRows": 100021,
+      "fullMs": 1030.54,
+      "overviewRows": 26,
+      "overviewMs": 1.13,
+      "indexBuildMs": 197.09,
+      "counts": {
+        "running": 1,
+        "ready": 2,
+        "waiting": 2,
+        "blocked": 1,
+        "doneToday": 12,
+        "failedToday": 3
+      },
+      "doneLast24h": 12,
+      "oldJobFetchable": true,
+      "actualReads": [
+        {
+          "sql": "SELECT * FROM zaicode_jobs\n        ORDER BY created_at DESC, sort_order DESC, job_id DESC LIMIT @limit",
+          "rows": 20
+        },
+        {
+          "sql": "SELECT * FROM zaicode_jobs INDEXED BY idx_zaicode_jobs_open\n        WHERE status IN ('draft','queued','ready','running','waiting','blocked')",
+          "rows": 6
+        },
+        {
+          "sql": "SELECT\n        COALESCE(SUM(CASE WHEN status='completed' AND finished_at>=@dayStart THEN 1 ELSE 0 END),0) AS doneToday,\n        COALESCE(SUM(CASE WHEN status='failed' AND finished_at>=@dayStart THEN 1 ELSE 0 END),0) AS failedToday,\n        COALESCE(SUM(CASE WHEN status='completed' AND finished_at>@rollingStart THEN 1 ELSE 0 END),0) AS doneLast24h\n        FROM zaicode_jobs WHERE status IN ('completed','failed')\n          AND finished_at>=@earliest AND finished_at<=@latestFinite",
+          "rows": 1
+        }
+      ],
+      "plans": [
+        "SCAN zaicode_jobs USING INDEX idx_zaicode_jobs_home_recent",
+        "SCAN zaicode_jobs USING INDEX idx_zaicode_jobs_open",
+        "SEARCH zaicode_jobs USING COVERING INDEX idx_zaicode_jobs_home_finished (status=? AND finished_at>? AND finished_at<?)"
+      ]
+    },
+    {
+      "terminalRows": 500000,
+      "fullRows": 500021,
+      "fullMs": 7370.14,
+      "overviewRows": 26,
+      "overviewMs": 1.44,
+      "indexBuildMs": 790.85,
+      "counts": {
+        "running": 1,
+        "ready": 2,
+        "waiting": 2,
+        "blocked": 1,
+        "doneToday": 12,
+        "failedToday": 3
+      },
+      "doneLast24h": 12,
+      "oldJobFetchable": true,
+      "actualReads": [
+        {
+          "sql": "SELECT * FROM zaicode_jobs\n        ORDER BY created_at DESC, sort_order DESC, job_id DESC LIMIT @limit",
+          "rows": 20
+        },
+        {
+          "sql": "SELECT * FROM zaicode_jobs INDEXED BY idx_zaicode_jobs_open\n        WHERE status IN ('draft','queued','ready','running','waiting','blocked')",
+          "rows": 6
+        },
+        {
+          "sql": "SELECT\n        COALESCE(SUM(CASE WHEN status='completed' AND finished_at>=@dayStart THEN 1 ELSE 0 END),0) AS doneToday,\n        COALESCE(SUM(CASE WHEN status='failed' AND finished_at>=@dayStart THEN 1 ELSE 0 END),0) AS failedToday,\n        COALESCE(SUM(CASE WHEN status='completed' AND finished_at>@rollingStart THEN 1 ELSE 0 END),0) AS doneLast24h\n        FROM zaicode_jobs WHERE status IN ('completed','failed')\n          AND finished_at>=@earliest AND finished_at<=@latestFinite",
+          "rows": 1
+        }
+      ],
+      "plans": [
+        "SCAN zaicode_jobs USING INDEX idx_zaicode_jobs_home_recent",
+        "SCAN zaicode_jobs USING INDEX idx_zaicode_jobs_open",
+        "SEARCH zaicode_jobs USING COVERING INDEX idx_zaicode_jobs_home_finished (status=? AND finished_at>? AND finished_at<?)"
+      ]
+    }
+  ]
+}

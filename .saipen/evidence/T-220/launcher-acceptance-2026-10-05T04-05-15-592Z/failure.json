@@ -1,0 +1,39 @@
+{
+  "stage": "control-run",
+  "error": "AssertionError [ERR_ASSERTION]: older staged metadata must not be promoted:\n2026-10-05 04:05:22Z Crisp fonts: no zaicode-fonts.json next to the app; skipped\r\n2026-10-05 04:05:25Z Normal exit\r\n\n    at main (V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\.saipen\\evidence\\T-220\\launcher-gate-acceptance.cjs:200:10)",
+  "checks": {
+    "launcherBytes": 43008,
+    "acceptance": {
+      "code": 0,
+      "dialogs": [
+        {
+          "pid": 480,
+          "title": "ZAICODE source/runtime mismatch"
+        }
+      ],
+      "dismissed": 1,
+      "launcherLog": "2026-10-05 04:05:17Z Applied staged build from dist-next\r\n2026-10-05 04:05:17Z SOURCE_RUNTIME_SKEW\nExecutable: V:\\_TEMP_\\t220-launcher-wxwSJc\\acceptance\\zcode\\packages\\desktop\\dist\\win-unpacked\\ZAICODE.exe\nPackage revision: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\nLocal source: e0d658779c1ff86723b36bdd414d479d850071df (dirty)\r\n2026-10-05 04:05:17Z Crisp fonts: no zaicode-fonts.json next to the app; skipped\r\n2026-10-05 04:05:21Z Normal exit\r\n",
+      "appWindows": [
+        {
+          "pid": 36412,
+          "title": "T220 STUB APP"
+        }
+      ],
+      "started": "2026-10-05T04:05:17.9435290Z|36412|V:\\_TEMP_\\t220-launcher-wxwSJc\\acceptance\\zcode\\packages\\desktop\\dist\\win-unpacked\\"
+    },
+    "promoted": "{\"appVersion\":\"3.14.0\",\"sourceRevision\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"runtimePackageIdentity\":\"staged-package\",\"buildTime\":\"2026-10-05T01:00:00Z\",\"workingTreeDirty\":true,\"updateChannel\":\"test\"}",
+    "control": {
+      "code": 0,
+      "dialogs": [],
+      "dismissed": 0,
+      "launcherLog": "2026-10-05 04:05:22Z Crisp fonts: no zaicode-fonts.json next to the app; skipped\r\n2026-10-05 04:05:25Z Normal exit\r\n",
+      "appWindows": [
+        {
+          "pid": 3976,
+          "title": "T220 STUB APP"
+        }
+      ],
+      "started": "2026-10-05T04:05:22.7205864Z|3976|V:\\_TEMP_\\t220-launcher-wxwSJc\\control\\zcode\\packages\\desktop\\dist\\win-unpacked\\"
+    }
+  }
+}

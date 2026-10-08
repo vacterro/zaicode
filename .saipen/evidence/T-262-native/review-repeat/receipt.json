@@ -1,0 +1,275 @@
+{
+  "ticket": "T-262",
+  "executablePath": "V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/packages/desktop/dist-t262/win-unpacked/ZAICODE.exe",
+  "profile": "V:\\_TEMP_\\zaicode-t262-profile-5U9dyU",
+  "checks": [
+    {
+      "name": "app owns isolated profile",
+      "pass": true
+    },
+    {
+      "name": "visible explicit zero-token Check",
+      "pass": true
+    },
+    {
+      "name": "visible Add models action",
+      "pass": true
+    },
+    {
+      "name": "Check leaves combos untouched",
+      "pass": true
+    },
+    {
+      "name": "Check only sends GET metadata requests",
+      "pass": true,
+      "detail": [
+        {
+          "method": "GET",
+          "path": "/api/provider-nodes"
+        },
+        {
+          "method": "GET",
+          "path": "/api/combos"
+        },
+        {
+          "method": "GET",
+          "path": "/api/providers"
+        },
+        {
+          "method": "GET",
+          "path": "/api/models"
+        },
+        {
+          "method": "GET",
+          "path": "/api/providers/acme-key/models"
+        }
+      ]
+    },
+    {
+      "name": "Check displays zero tokens and scope",
+      "pass": true
+    },
+    {
+      "name": "Check covers provider outside starter list",
+      "pass": true
+    },
+    {
+      "name": "new free model appended",
+      "pass": true
+    },
+    {
+      "name": "paid free suffix kept out of SAIFREN",
+      "pass": true
+    },
+    {
+      "name": "late external ordering preserved",
+      "pass": true,
+      "detail": [
+        "external/first",
+        "manual/second",
+        "manual/first"
+      ]
+    },
+    {
+      "name": "paid supported model becomes selectable",
+      "pass": true
+    },
+    {
+      "name": "native OpenCode free discovered without zen node",
+      "pass": true
+    },
+    {
+      "name": "second Add models is idempotent",
+      "pass": true
+    },
+    {
+      "name": "Check/Add models generate zero inference requests",
+      "pass": true,
+      "detail": [
+        {
+          "method": "POST",
+          "path": "/api/models/custom"
+        },
+        {
+          "method": "POST",
+          "path": "/api/models/custom"
+        },
+        {
+          "method": "PUT",
+          "path": "/api/combos/free"
+        }
+      ]
+    },
+    {
+      "name": "zero renderer and fixture errors",
+      "pass": true,
+      "detail": []
+    }
+  ],
+  "pass": true,
+  "errors": [],
+  "requests": [
+    {
+      "method": "GET",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/combos"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/models"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers/acme-key/models"
+    },
+    {
+      "method": "GET",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/combos"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/models"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers/acme-key/models"
+    },
+    {
+      "method": "GET",
+      "path": "/api/models"
+    },
+    {
+      "method": "POST",
+      "path": "/api/models/custom"
+    },
+    {
+      "method": "POST",
+      "path": "/api/models/custom"
+    },
+    {
+      "method": "GET",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/combos"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/combos/free"
+    },
+    {
+      "method": "GET",
+      "path": "/api/version"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/combos"
+    },
+    {
+      "method": "GET",
+      "path": "/api/models"
+    },
+    {
+      "method": "GET",
+      "path": "/api/settings"
+    },
+    {
+      "method": "GET",
+      "path": "/api/usage/stats?period=today"
+    },
+    {
+      "method": "GET",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/combos"
+    },
+    {
+      "method": "GET",
+      "path": "/api/models"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers/acme-key/models"
+    },
+    {
+      "method": "GET",
+      "path": "/api/models"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/combos"
+    },
+    {
+      "method": "GET",
+      "path": "/api/version"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/combos"
+    },
+    {
+      "method": "GET",
+      "path": "/api/models"
+    },
+    {
+      "method": "GET",
+      "path": "/api/settings"
+    },
+    {
+      "method": "GET",
+      "path": "/api/usage/stats?period=today"
+    }
+  ],
+  "asarSha256": "323ad3bb507bb967733c46a47adaaa8f94b4c1c0485f345d697c87a5a0bd78d4",
+  "verifierSha256": "f4db8f70b1f34f7ef687b496ca17139828f8274079109d06a6da56923cd772e4"
+}

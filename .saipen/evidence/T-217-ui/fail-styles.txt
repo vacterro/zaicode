@@ -1,0 +1,420 @@
+Command palette
+
+Search and run commands available in this workspace.
+
+SAIHOME
+ZAICODE
+WORKERS
+CONTINUE ALL
+Auto OFF
+DONE
+0
+SAIFREN
+SAIOPP
+SAIRoute / SAIFREN
+A1
+C1
+AG
+◆
+No open projects
+vacuum34
+Sun 4 Oct · 19:04:04 · Evening
+AG ↺ 57m 02s
+AG
+
+Do your best.
+
+New task screen
+Select project
+not initialized
+SAIPEN
+
+
+
+
+Ask ZAICODE anything, @ to add context, / for commands or capabilities
+◇ MAIN?
+INIT SAIPEN
+CLEAR
+No .saipen/ in this project — SAIPEN memory not initialized.
+Add context
+Full access
+SAIFREN
+SAIOPP
+Auto-Goal on — /goal cc all is appended to every prompt
+Auto retry off · Auto is off
+Global default
+Send
+0
+Back to workspace
+Basics
+General
+Appearance
+Model settings
+Browser Use
+Keyboard Shortcuts
+ZAICODE
+ZAICODE
+Sidebar
+Layout & home
+Engines & limits
+Router (9router)
+Workers & terminal
+Timers
+Help
+Advanced
+Agent capabilities
+Memory
+Subagents
+Plugins
+MCP Servers
+Skills
+Commands
+Hooks
+Data and statistics
+Usage stats
+ZAICODE on GitHub
+SAIPEGGLE
+Support Developer
+Discord SAIPEN COMMUNITY
+vacuum34
+Sidebar
+Presets
+Layout, text and icons
+
+Swap the sidebars, adjust text and icons, or drag the project sidebar fully closed for the compact project rail. Changes apply immediately.
+
+Swap left and right sidebars
+Text size
+11px
+12px
+13px
+14px
+Icons
+Small
+Normal
+Large
+Project ON / OFF style
+
+A switched-off project must be obvious without colour alone. Choose the project-name face, weight, underline, size, colour and opacity; the OFF badge remains as the textual state marker.
+
+Project font
+Interface
+Verdana
+Terminus
+Consolas
+Project size
+10px
+11px
+12px
+13px
+14px
+16px
+18px
+Bold project names
+Underline project names
+ON
+Opacity
+35%
+55%
+75%
+100%
+OFF
+Opacity
+35%
+55%
+75%
+100%
+Header buttons
+
+The row at the top of the sidebar. Tick what shows, drag to order. Right-click the row itself for the same list.
+
+Usage
+always
+working
+idle
+hover
+Menu toggle
+always
+working
+idle
+hover
+New task
+always
+working
+idle
+hover
+Mute sounds
+always
+working
+idle
+hover
+Working meter
+always
+working
+idle
+hover
+WORKERS
+always
+working
+idle
+hover
+Theme
+always
+working
+idle
+hover
+Focus next session
+always
+working
+idle
+hover
+SAIHOME
+always
+working
+idle
+hover
+Back
+always
+working
+idle
+hover
+Forward
+always
+working
+idle
+hover
+Session arrows ‹ ›
+always
+working
+idle
+hover
+Search
+always
+working
+idle
+hover
+Timers
+always
+working
+idle
+hover
+Help
+always
+working
+idle
+hover
+Dispatch
+always
+working
+idle
+hover
+Settings
+always
+working
+idle
+hover
+Tick = shown · drag or ▲▼ = order · icon = your own · when = the moments it shows
+Defaults
+Footer
+
+The row at the bottom of the sidebar: the profile (avatar and name, or the avatar alone) and the buttons next to it. Right-click the row for the same list.
+
+Profile
+Avatar and name
+Avatar only
+Problip
+always
+working
+idle
+hover
+ProTrail
+always
+working
+idle
+hover
+SAIHOME
+always
+working
+idle
+hover
+Focus next session
+always
+working
+idle
+hover
+Timers
+always
+working
+idle
+hover
+Help
+always
+working
+idle
+hover
+Mute sounds
+always
+working
+idle
+hover
+Theme
+always
+working
+idle
+hover
+WORKERS
+always
+working
+idle
+hover
+Dispatch
+always
+working
+idle
+hover
+Settings
+always
+working
+idle
+hover
+Usage
+always
+working
+idle
+hover
+Tick = shown · drag or ▲▼ = order · icon = your own · when = the moments it shows
+Defaults
+Menu
+
+The lines under the header (New task, ZAICODE, …). Right-click the menu for the same list; the header's menu button hides the whole block.
+
+SAIHOME
+always
+working
+idle
+hover
+ZAICODE
+always
+working
+idle
+hover
+SCHEDULER
+always
+working
+idle
+hover
+WORKERS
+always
+working
+idle
+hover
+New task
+always
+working
+idle
+hover
+Search
+always
+working
+idle
+hover
+Plugin Marketplace
+always
+working
+idle
+hover
+Timers
+always
+working
+idle
+hover
+Help
+always
+working
+idle
+hover
+Settings
+always
+working
+idle
+hover
+Tick = shown · drag or ▲▼ = order · icon = your own · when = the moments it shows · double-click = rename
+Defaults
+Show the menu block on start
+Project list
+
+How projects sit in the sidebar: tight or airy rows, priority slots, working projects first, and the row stands for its MAIN session (SRC-044).
+
+Compact rows (tight, no empty vertical space)
+Priority slots: group projects as MAIN0 / MAIN1 / SIDE0 … SIDE3
+A project row IS its MAIN session (click opens MAIN, helpers list below)
+Working projects first
+Title position
+Project names
+_ZAICODE
+Session titles
+PHASE BUILD T-49
+Slot headers
+
+Every block header with its own accent colour (empty = the theme's highlight), the tint for MAIN slots, counts and folding.
+
+LIVE
+theme
+MAIN0
+theme
+MAIN1
+theme
+SIDE0
+theme
+SIDE1
+theme
+SIDE2
+theme
+SIDE3
+theme
+Tint MAIN slot headers
+Show project counts
+Hide empty slots
+Header name position
+Left
+Center
+Right
+LIVE
+
+Projects with a running session: where they float, what counts as live, and how idle projects look next to them.
+
+Working icon + running count on the project row
+A session waiting for you (question / permission) counts as LIVE
+Dim projects with nothing running
+LIVE order
+Most recently active
+Closest to done
+Furthest from done
+Stay LIVE for
+No hold
+30s
+2m
+10m
+1h
+Remain in position
+SRC-060: a project that has been live keeps its LIVE rank when the work finishes, instead of jumping back down to its old place. Turn the hold above off for a finite grace period.
+LIVE placement
+Top of its own slot
+One LIVE group above every slot
+Project freshness
+
+How long since anything last happened in a project: nothing, a small dot before the name, or the name itself tinted (green fresh, yellow this week, grey stale).
+
+Show freshness
+Off
+Dot
+Tint
+Sessions under a project
+
+When helper sessions are listed below a project row at all - a condition, not just on/off.
+
+List sessions
+Always
+Only working
+Working + waiting

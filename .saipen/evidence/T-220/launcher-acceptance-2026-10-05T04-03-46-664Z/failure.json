@@ -1,0 +1,44 @@
+{
+  "stage": "control-run",
+  "error": "AssertionError [ERR_ASSERTION]: a clean matching source must not report skew:\n2026-10-05 04:03:53Z SOURCE_RUNTIME_SKEW\nExecutable: V:\\_TEMP_\\t220-launcher-Elxam6\\control\\zcode\\packages\\desktop\\dist\\win-unpacked\\ZAICODE.exe\nPackage revision: e227821f9f26f6aeb59a2795318ddf18c7b1126c\nLocal source: e227821f9f26f6aeb59a2795318ddf18c7b1126c (dirty)\r\n2026-10-05 04:03:54Z Crisp fonts: no zaicode-fonts.json next to the app; skipped\r\n2026-10-05 04:03:57Z Normal exit\r\n\n    at main (V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\.saipen\\evidence\\T-220\\launcher-gate-acceptance.cjs:192:10)",
+  "checks": {
+    "launcherBytes": 43008,
+    "acceptance": {
+      "code": 0,
+      "dialogs": [
+        {
+          "pid": 33840,
+          "title": "ZAICODE source/runtime mismatch"
+        }
+      ],
+      "dismissed": 1,
+      "launcherLog": "2026-10-05 04:03:47Z Applied staged build from dist-next\r\n2026-10-05 04:03:47Z SOURCE_RUNTIME_SKEW\nExecutable: V:\\_TEMP_\\t220-launcher-Elxam6\\acceptance\\zcode\\packages\\desktop\\dist\\win-unpacked\\ZAICODE.exe\nPackage revision: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\nLocal source: b48c34d1f9c4ed77162ad5883f4c09fe0171a45f (dirty)\r\n2026-10-05 04:03:49Z Crisp fonts: no zaicode-fonts.json next to the app; skipped\r\n2026-10-05 04:03:52Z Normal exit\r\n",
+      "appWindows": [
+        {
+          "pid": 5184,
+          "title": "T220 STUB APP"
+        }
+      ],
+      "started": "2026-10-05T04:03:49.0443348Z|5184|V:\\_TEMP_\\t220-launcher-Elxam6\\acceptance\\zcode\\packages\\desktop\\dist\\win-unpacked\\"
+    },
+    "promoted": "{\"appVersion\":\"3.14.0\",\"sourceRevision\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"runtimePackageIdentity\":\"staged-package\",\"buildTime\":\"2026-10-05T01:00:00Z\",\"workingTreeDirty\":true,\"updateChannel\":\"test\"}",
+    "control": {
+      "code": 0,
+      "dialogs": [
+        {
+          "pid": 35276,
+          "title": "ZAICODE source/runtime mismatch"
+        }
+      ],
+      "dismissed": 1,
+      "launcherLog": "2026-10-05 04:03:53Z SOURCE_RUNTIME_SKEW\nExecutable: V:\\_TEMP_\\t220-launcher-Elxam6\\control\\zcode\\packages\\desktop\\dist\\win-unpacked\\ZAICODE.exe\nPackage revision: e227821f9f26f6aeb59a2795318ddf18c7b1126c\nLocal source: e227821f9f26f6aeb59a2795318ddf18c7b1126c (dirty)\r\n2026-10-05 04:03:54Z Crisp fonts: no zaicode-fonts.json next to the app; skipped\r\n2026-10-05 04:03:57Z Normal exit\r\n",
+      "appWindows": [
+        {
+          "pid": 33276,
+          "title": "T220 STUB APP"
+        }
+      ],
+      "started": "2026-10-05T04:03:54.3911767Z|33276|V:\\_TEMP_\\t220-launcher-Elxam6\\control\\zcode\\packages\\desktop\\dist\\win-unpacked\\"
+    }
+  }
+}

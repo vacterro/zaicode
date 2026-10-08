@@ -1,0 +1,26 @@
+{
+  "stage": "acceptance-run",
+  "error": "AssertionError [ERR_ASSERTION]: the replaced live build was kept aside\n    at main (V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\.saipen\\evidence\\T-220\\launcher-gate-acceptance.cjs:174:10)",
+  "checks": {
+    "launcherBytes": 43008,
+    "acceptance": {
+      "code": 0,
+      "dialogs": [
+        {
+          "pid": 10152,
+          "title": "ZAICODE source/runtime mismatch"
+        }
+      ],
+      "dismissed": 1,
+      "launcherLog": "2026-10-05 04:03:32Z Applied staged build from dist-next\r\n2026-10-05 04:03:32Z SOURCE_RUNTIME_SKEW\nExecutable: V:\\_TEMP_\\t220-launcher-5u87tq\\acceptance\\zcode\\packages\\desktop\\dist\\win-unpacked\\ZAICODE.exe\nPackage revision: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\nLocal source: 14442c37b4c1c9df73ec1a01fdf54e2e85d703c3 (dirty)\r\n2026-10-05 04:03:33Z Crisp fonts: no zaicode-fonts.json next to the app; skipped\r\n2026-10-05 04:03:36Z Normal exit\r\n",
+      "appWindows": [
+        {
+          "pid": 26104,
+          "title": "T220 STUB APP"
+        }
+      ],
+      "started": "2026-10-05T04:03:33.3082557Z|26104|V:\\_TEMP_\\t220-launcher-5u87tq\\acceptance\\zcode\\packages\\desktop\\dist\\win-unpacked\\"
+    },
+    "promoted": "{\"appVersion\":\"3.14.0\",\"sourceRevision\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"runtimePackageIdentity\":\"staged-package\",\"buildTime\":\"2026-10-05T01:00:00Z\",\"workingTreeDirty\":true,\"updateChannel\":\"test\"}"
+  }
+}

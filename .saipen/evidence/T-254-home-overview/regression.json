@@ -1,0 +1,31 @@
+{
+  "ticket": "T-254",
+  "verifier": "e5f6570b097a5ff6686c27dd964a41712386365508cc3234be6d821bd9a83fd8",
+  "fixedSubject": "90b5aa469090765300deff77b72d076511995b95ad4b2a29db7dd5a364e5cffc",
+  "controls": [
+    {
+      "label": "unfixed-full-read-and-v8-registry",
+      "exit": 1,
+      "pass": 3,
+      "fail": 7,
+      "subject": "a030487daa485e861ff5039b226f12475e4df439f03902b591758a6650efce22"
+    },
+    {
+      "label": "fixed",
+      "exit": 0,
+      "pass": 10,
+      "fail": 0,
+      "subject": "90b5aa469090765300deff77b72d076511995b95ad4b2a29db7dd5a364e5cffc"
+    }
+  ],
+  "restoration": [
+    {
+      "path": "packages/services/src/zaicode/zaicodeJobRepo.ts",
+      "sha256": "4ed004393db4d62ff789fda06934e1b620e407ac517d7a29b3058ff7c8aba4b7"
+    },
+    {
+      "path": "packages/services/src/session/tasksDatabase/migrations.ts",
+      "sha256": "27d7abf3a45953eab29ab6be711a180ad46e5e8bb05cb9a39f558a593f83d54e"
+    }
+  ]
+}

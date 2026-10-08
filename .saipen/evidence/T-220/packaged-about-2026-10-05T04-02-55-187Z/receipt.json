@@ -1,0 +1,52 @@
+{
+  "ok": true,
+  "stage": "done",
+  "profile": "V:/_TEMP_/t220-about-XwrO2r",
+  "exe": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\dist-t220\\win-unpacked\\ZAICODE.exe",
+  "sidecar": {
+    "appVersion": "3.14.0",
+    "buildCommitId": "adac42dc",
+    "sourceRevision": "adac42dce6835e518705a8c58ce00c4059a174f9",
+    "sourceFingerprint": "adfa1167475e36239979fa4991e4648991757a17e262cb6c49886f3e6e6e55db",
+    "workingTreeDirty": true,
+    "buildTime": "2026-10-05T02:20:00.485Z",
+    "updateChannel": "test",
+    "runtimePackageIdentity": "zaicode-1527f11a34667d15bce9b3902ad3be8aa2c7f91a2e6b919ad434a00e1dbe4305",
+    "electronBuilderVersion": "26.8.1"
+  },
+  "checks": {
+    "missingAuth": {
+      "status": 401,
+      "body": "{\"error\":{\"message\":\"Wrong key for the ZAICODE account proxy\",\"type\":\"authentication_error\"}}"
+    },
+    "wrongAuth": {
+      "status": 401,
+      "body": "{\"error\":{\"message\":\"Wrong key for the ZAICODE account proxy\",\"type\":\"authentication_error\"}}"
+    },
+    "identity": {
+      "executablePath": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\dist-t220\\win-unpacked\\ZAICODE.exe",
+      "resourcesPath": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\dist-t220\\win-unpacked\\resources",
+      "packaged": true,
+      "schemaVersion": 1,
+      "version": "3.14.0",
+      "sourceRevision": "adac42dce6835e518705a8c58ce00c4059a174f9",
+      "buildTimestamp": "2026-10-05T02:20:00.485Z",
+      "updateChannel": "test",
+      "runtimePackageIdentity": "zaicode-1527f11a34667d15bce9b3902ad3be8aa2c7f91a2e6b919ad434a00e1dbe4305",
+      "sourceFingerprint": "adfa1167475e36239979fa4991e4648991757a17e262cb6c49886f3e6e6e55db",
+      "workingTreeDirty": true,
+      "source": {
+        "status": "SOURCE_DIRTY",
+        "revision": "adac42dce6835e518705a8c58ce00c4059a174f9",
+        "dirty": true
+      }
+    },
+    "readOnly": {
+      "inferenceCalls": 0,
+      "sidecarUnchanged": true
+    },
+    "aboutText": "ZAICODE\nversion 3.14.0\n\nCoding agents on your projects, in your own subscriptions.\n\nZAICODE, built on ZCode. Copyright © 2026 vacterro.\ngithub.com/vacterro/zaicode\nSource: adac42dce6835e518705a8c58ce00c4059a174f9\nBuilt: 2026-10-05T02:20:00.485Z\nChannel: test\nPackage: zaicode-1527f11a34667d15bce9b3902ad3be8aa2c7f91a2e6b919ad434a00e1dbe4305\nSource parity: SOURCE_DIRTY\nOK",
+    "aboutSourceParity": "SOURCE_DIRTY"
+  },
+  "paidVendorRequests": 0
+}

@@ -1,0 +1,107 @@
+{
+  "ok": false,
+  "code": "CONFORMANCE_UNHEALTHY",
+  "structural_gate": "pass",
+  "validator": {
+    "path": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_SAIPEN\\tools\\validate.py",
+    "launched": true,
+    "exit_code": 1,
+    "summary": "md is 1767 lines / 555 KB, past the ~300 line / ~64 KB soft cap -- seal it into .saipen/logs/LOG-<NNN>.md at the next checkpoint (RFC § 1.2, phases/clean.md)\nWARN [producer-package-stale]: .saipen/extensions/subs/saihunt/kitchen/OUTBOX.md [HUNT-004] carries source_head '4e2135523fda59b7f055667dd0fbd4a6fd039f3c' but current source_head is 'd7e7ce3f7326b5e37ddc54baf33c5dffe276cd42' -- package is stale and MUST NOT be collected -- reported under `--gate core`, where this producer is not being consumed; it FAILs under `--gate collect:saihunt` and blocks nothing else\nWARN [producer-package-stale]: .saipen/extensions/subs/saihunt/kitchen/OUTBOX.md [HUNT-004] carries source_tree_fingerprint 'git-delta-v1:f413c6fb489b6f016ce446022a0bfa2c943c1b7bc4bf46389c991f2ee078f8d9' but the current tree computes 'git-delta-v1:8d0cf1794891681fca215ba55926a4fbda239bec06be1200f0fc5c3c0a54d60c' -- the tree changed since the package was produced (same HEAD or not), so it is stale and MUST NOT be collected (PROTOCOL.md § 6, T-543) -- reported under `--gate core`, where this producer is not being consumed; it FAILs under `--gate collect:saihunt` and blocks nothing else\nWARN [producer-package-stale]: ... and 6 more like the above\nWARN [future-gate-unindexed]: 11 future-gate document(s) are not indexed; run `saipen future refresh` (unindexed is truthful, never READY)\nWARN [subsaipen-uncollected]: 3 subSaipen OUTBOX entr(y/ies) sit at `status: ready` -- that is a finding waiting on `saipen sub collect`, visible only when someone runs it (extensions/subs/PROTOCOL.md § 4)\nWARN [translation-stale]: 32 locale README(s) carry a source digest that no longer matches README.md's normalised content (ar, bg, cs, da, de, ded, el, es, et, fi, fr, he, hi, hr, hu, id, it, ja, ko, nl, no, pl, pt, ro, ru, sk, sv, th, tr, uk, vi, zh) -- the English prose moved and the translation did not follow. Version strings are normalised out, so a badge bump can never cause this\nValidation FAILED: 3 problem(s), 21 warning(s)"
+  },
+  "conformance_status": {
+    "status": "CURRENT_FAIL",
+    "gate": "core",
+    "reason": "canonical validator reports FAIL for the current checkpoint",
+    "receipt": {
+      "blocking_findings": {
+        "problem_count": 3,
+        "problems": [
+          {
+            "category": null,
+            "credential": false,
+            "detail": "SRC-151",
+            "detail_hash": "596c01f885e73b2c",
+            "finding_key": "67bb1c845b187359",
+            "rule_id": "source_receipt_active_invalid",
+            "severity": "problem",
+            "subject_id": "SRC-151",
+            "subject_kind": "source",
+            "subject_ref": null
+          },
+          {
+            "category": null,
+            "credential": false,
+            "detail": "no current-cycle VERIFY boundary; reverify: no current-tree PASS re-verification receipt",
+            "detail_hash": "186e51123c0cc004",
+            "finding_key": "8608bcc9f592a8f1",
+            "rule_id": "work_closure_evidence",
+            "severity": "problem",
+            "subject_id": "T-113",
+            "subject_kind": "work",
+            "subject_ref": null
+          },
+          {
+            "category": null,
+            "credential": false,
+            "detail": "subsaipen [sub-write-boundary] -- saihunt OUTBOX references a main-project canonical path; a SubSaipen writes only inside its own home -- a package may not target .saipen/BOARD.md|STATE.md|LOG.md (red",
+            "detail_hash": "b3df18e5abf0c452",
+            "finding_key": "76b48f23558dce11",
+            "rule_id": "unclassified",
+            "severity": "problem",
+            "subject_id": null,
+            "subject_kind": "global",
+            "subject_ref": null
+          }
+        ],
+        "ruleset_fingerprint": "82e5e183ae8f0fd909be3fa3627f00489cacaab813d942186c832db02a05a1c1",
+        "ruleset_version": 1,
+        "status": "complete",
+        "warning_count": 21
+      },
+      "board_hash": "22b84f9d1e09111b",
+      "canonical_next_command": "saipen work reverify T-113",
+      "content_hash": "f856a64f03d51216",
+      "exit_code": 1,
+      "external_actions": [],
+      "gate": "core",
+      "install_fingerprint": "install-v1:3d00713c6bd274d30f121d02f5207210a2c8a4d932a35932381a3318b3d3c760",
+      "install_home": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_SAIPEN",
+      "kind": "conformance_receipt",
+      "log_hash": "b283878c65ba1524",
+      "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+      "receipt_id": "receipt-bacd50fb4b71",
+      "remediation_commands": [
+        "saipen work reverify T-113"
+      ],
+      "schema_version": 2,
+      "source_head": "d7e7ce3f7326b5e37ddc54baf33c5dffe276cd42",
+      "source_tree_fingerprint": "git-delta-v1:8d0cf1794891681fca215ba55926a4fbda239bec06be1200f0fc5c3c0a54d60c",
+      "state_hash": "8d52d7f0aad5b5ff",
+      "timestamp_utc": "2026-10-07T10:34:17.036213Z",
+      "validator_protocol_version": "1",
+      "verdict": "FAIL"
+    },
+    "validator": {
+      "validator_path": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_SAIPEN\\tools\\validate.py",
+      "validator_protocol_version": "1",
+      "project_protocol_version": "8",
+      "gate": "core",
+      "source_head": "d7e7ce3f7326b5e37ddc54baf33c5dffe276cd42",
+      "source_tree_fingerprint": "git-delta-v1:8d0cf1794891681fca215ba55926a4fbda239bec06be1200f0fc5c3c0a54d60c"
+    }
+  },
+  "install_identity": {
+    "running_home": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_SAIPEN",
+    "install_fingerprint": "install-v1:3d00713c6bd274d30f121d02f5207210a2c8a4d932a35932381a3318b3d3c760",
+    "mismatch": null
+  },
+  "reason": "canonical validator reports FAIL for the current checkpoint",
+  "detail": "conformance is CURRENT_FAIL: canonical validator reports FAIL for the current checkpoint",
+  "canonical_next_command": "saipen work reverify T-113",
+  "repair_status": "REPAIR_AVAILABLE",
+  "diagnostic": null,
+  "terminal": false,
+  "remediation_commands": [
+    "saipen work reverify T-113"
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "clauses": {
+    "SRC-169:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Model maintainer discovers current models across all providers, appends newly verified free models such as exo-free to SAIFREN, retires genuinely unsupported models, revives available models and prioritizes free availability from trustworthy provider catalogues."
+    }
+  },
+  "derived_at": "2026-10-07T08:58:34Z",
+  "derived_from": "SRC-169",
+  "interpretation_revision": 1,
+  "schema_version": 1,
+  "source_sha256": "3d3065a227e07e627a4b6a61c697d5d1daeb96b6fc82289004e911916c59793c"
+}

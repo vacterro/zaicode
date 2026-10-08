@@ -1,0 +1,21 @@
+{
+  "command": "node --import tsx --test --test-reporter=spec packages/ui/test/zaicodeT253WorkerStatsRecorder.test.ts",
+  "verifierSha256": "dd047daef4116c5ce1b6c3c47c9ac1a4a4b38e8eb9629485bdcb94ca9873201b",
+  "preSubjectSha256": "6248c836a51359714d79962cbf158b6db04b7e46365ecb79f1533a373d1fc116",
+  "postSubjectSha256": "b6a8ec96ed79d17e3bcd07fa2802cd8f84d9b77f4cb0ed452f9a20dd40193d16",
+  "failures": 8,
+  "knownGood": 4,
+  "restored": true,
+  "sources": [
+    {
+      "name": "zaicodeHomeFeed.ts",
+      "preSha256": "426c205f2f6d26a6d469b55a0b759bb30069dbf0ace4c1720336e5c72d50b811",
+      "postSha256": "db5706122697ac1849d06360038334fe3c0384074f9beeeb14c7a02461c6f327"
+    },
+    {
+      "name": "zaicodeWorkerStatsRecorder.ts",
+      "preSha256": "b2b976c06fbb502bb907e73f59cef551e7633222e5e988a011483ae262aa21d2",
+      "postSha256": "969b566cdb0d705cfcb3f37dc25623763d3a61956e435407a4c1f3eba34a9fba"
+    }
+  ]
+}

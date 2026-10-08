@@ -1,0 +1,51 @@
+{
+  "agent": "saipen-cli",
+  "created_at": "2026-10-04T20:35:44Z",
+  "evidence_class": "executed",
+  "findings_digest": "173577fcc6ebee36ca5ac7105b66d4307355ca8cfbae370a46a7fb9cadfd324b",
+  "gate": "core",
+  "integrity_digest": "fc0e1d64caa4ee11",
+  "journal_op_id": "reverify.0385b5bf65e0",
+  "original_closure": {
+    "claim_time": "2026-09-30T15:09:19Z",
+    "closure_mode": "own_patch",
+    "owner": "claude-code-local-verify",
+    "source_receipts": "SRC-075"
+  },
+  "own_problem_keys": [
+    "8608bcc9f592a8f1"
+  ],
+  "problem_count": 1,
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "project_lineage": "lineage-b0732ed2f98947b9a3c97bfe71427eca",
+  "receipt_id": "RV-000096",
+  "ruleset_fingerprint": "82e5e183ae8f0fd909be3fa3627f00489cacaab813d942186c832db02a05a1c1",
+  "ruleset_version": 1,
+  "schema_version": 1,
+  "source_head": "208bdf76113c24df10f19f2fb42bf81e27f11f5c",
+  "source_tree_fingerprint": "git-delta-v1:180ba1bd7e3ae9da8710bb35688d15e70f24a8a53d53cded8ed7e26bc8e98cb2",
+  "verdict": "PASS_WITH_CARRIED_DEBT",
+  "verification": [
+    {
+      "command": "python V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_SAIPEN/tools/release_provenance.py --project-root . verify",
+      "cwd": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE",
+      "duration_ms": 152,
+      "executed": true,
+      "exit_code": 0,
+      "output_bytes": 59,
+      "output_digest": "03dc914972f4d788",
+      "result": "PASS"
+    }
+  ],
+  "verification_contract": {
+    "commands": [
+      "python V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_SAIPEN/tools/release_provenance.py --project-root . verify"
+    ],
+    "findings_digest": "173577fcc6ebee36ca5ac7105b66d4307355ca8cfbae370a46a7fb9cadfd324b",
+    "gate": "core"
+  },
+  "verification_contract_digest": "adb61af271aca071",
+  "verifier": "saipen-cli",
+  "warning_count": 28,
+  "work": "T-113"
+}

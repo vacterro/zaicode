@@ -1,0 +1,14 @@
+{
+  "requirements": {
+    "SRC-165:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "disposition": "VERIFIED",
+      "evidence": "T-257 closed with verification evidence in LOG: verify -> PASS [target: T-257] conf: high -- node run.js playwright-test-zaicode-t257.js on dist-t257: 13/13 actual pointer/geometry/persistence checks; typecheck and full repository gate pass (1950 collected, two existing skips), bundle/boot gate pass. Receipt .saipen/evidence/T-257-sidebar-reset/fixed/receipt.json.",
+      "text": "[Image #1] \u041f\u0443\u0441\u0442\u044c \u0434\u0432\u043e\u0439\u043d\u043e\u0439 \u0449\u0451\u043b\u043a \u043f\u043e \u0433\u0440\u0430\u043d\u0438\u0446\u0435 \u0437\u0430 \u043a\u043e\u0442\u043e\u0440\u0443\u044e \u0442\u044f\u043d\u0443\u0442\u044c \u0431\u0443\u0434\u0435\u0442 \u0432\u043e\u0437\u0432\u0440\u0430\u0449\u0430\u0442\u044c\u044c \u0432 \u0434\u0435\u0444\u043e\u043b\u0442\u043d\u043e\u0435 \u0441\u043e\u0441\u0442\u043e\u044f\u043d\u0438\u0435 \u043f\u043e \u0448\u0438\u0440\u0438\u043d\u0435 sidebar.\n\n\u0415\u0441\u043b\u0438 \u0443\u043b\u0443\u0447\u0448\u0435\u043d\u0438\u044f \u0443\u0436\u0435 \u0435\u0441\u0442\u044c \u0442\u043e\u0433\u0434\u0430 \u0437\u0430\u0431\u0438\u043b\u0434\u0438 \u0431\u0430\u043d\u0434\u043b \u0434\u043b\u044f \u0442\u0435\u0441\u0442\u0430 \u043f\u043e\u0436\u0430\u043b\u0443\u0439\u0441\u0442\u0430.",
+      "verification": "the Work this request created reached its own verification gate; see the T-257 VERIFY cycle in .saipen/LOG.md",
+      "work": "T-257"
+    }
+  },
+  "schema_version": 1
+}

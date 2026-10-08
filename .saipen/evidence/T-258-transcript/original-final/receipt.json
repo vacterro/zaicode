@@ -1,0 +1,28 @@
+{
+  "ticket": "T-258",
+  "executablePath": "V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/packages/desktop/dist-t257/win-unpacked/ZAICODE.exe",
+  "profile": "V:\\_TEMP_\\zaicode-t258-profile-WYLgr9",
+  "checks": [
+    {
+      "name": "app owns isolated profile",
+      "pass": true,
+      "detail": "V:\\_TEMP_\\zaicode-t258-profile-WYLgr9"
+    },
+    {
+      "name": "composer remains reachable",
+      "pass": true
+    },
+    {
+      "name": "visible named three-choice Transcript control",
+      "pass": false
+    }
+  ],
+  "pass": false,
+  "error": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"chat-send-button\"]:visible,[data-testid=\"v4-composer-send\"]:visible').first()\u001b[22m\n\u001b[2m    - locator resolved to <button disabled type=\"submit\" aria-label=\"Send\" data-size=\"icon-md\" data-state=\"closed\" data-variant=\"default\" data-slot=\"tooltip-trigger\" data-testid=\"v4-composer-send\" class=\"group/button inline-flex items-center justify-center border border-transparent bg-clip-padding whitespace-nowrap transition-colors outline-none select-none disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-2 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/5…>…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not enabled\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not enabled\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    55 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is not enabled\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\n    at send (C:\\Users\\vac34\\.agents\\skills\\playwright-skill\\.temp-execution-1791364024339.js:96:115)\n    at async C:\\Users\\vac34\\.agents\\skills\\playwright-skill\\.temp-execution-1791364024339.js:132:5",
+  "stage": "fixture-run",
+  "errors": [],
+  "requests": [],
+  "paidVendorRequests": 0,
+  "asarSha256": "6efc255022568d7975620825257f37419072d4f317c8a2b250ba37eba0b2422c",
+  "verifierSha256": "06570866df24653d1afcf23ff921e2a385f406f9436b440f0a880c2e650c2a37"
+}

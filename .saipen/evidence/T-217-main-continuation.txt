@@ -1,0 +1,28 @@
+✔ actual continuation executor persists one dispatch, delays vendor limit handoff and routes the exact SAIFREN model (10.1851ms)
+✔ restart reuses the persisted worker lease and terminal identity; completion consumes no later runner (1.3099ms)
+✔ MAIN survives repeated pool/worker replacement, missing old briefs, restart and recovery without a second session (3.4688ms)
+✔ pause and project disable block real effects; active occurrences are never evicted or duplicated (1.2656ms)
+✔ a later operator execution prevents the scheduled return from stopping or relaunching it (0.9107ms)
+✔ overlapping ticks cannot launch two workers while the first effect is pending (21.0321ms)
+✔ slow preparation cannot launch beyond the configured schedule stop time (2.7455ms)
+✔ T-190 oracle: real vendor bytes are recognized as that vendor's limit, and nobody else's (2.0186ms)
+✔ T-190 oracle: the detected signal blocks only the exact owned lease and is persisted first (7.0685ms)
+✔ T-190 oracle: the handoff waits the delay, prefers the next selected subscription, and never claims a recovery it did not read (1.5997ms)
+✔ T-190 oracle: with every subscription spent the chain reaches the in-app pool on the same lease (1.8355ms)
+✔ T-190 oracle: an unchanged reading is not a recovery -- the work waits for the vendor's reset (1.4698ms)
+✔ T-190 oracle: the work resumes on the vendor's reset, after the recovery delay, and only then (1.1036ms)
+✔ T-190 oracle: the composer half holds the SAME route to the SAME vendor clock, and says so (23.5165ms)
+✔ T-190 oracle: without a vendor reset the hold stays an estimate, and is labelled one (0.3968ms)
+✔ T-190: the vendor's own reset is read off the snapshot, for that provider only (1.2247ms)
+✔ T-190: no proven reset is null -- never a guessed one (0.2223ms)
+✔ T-190: with a vendor reset the route holds until the vendor's clock, not a local estimate (0.3755ms)
+✔ T-190: without a vendor reset the estimate still caps at six hours and still says so (0.2487ms)
+✔ T-190: a weekly plan resets at its real time, well past the estimate ceiling (0.1755ms)
+ℹ tests 20
+ℹ suites 0
+ℹ pass 20
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2229.0001

@@ -1,0 +1,48 @@
+{
+  "verifierSha256": "8d7af062311d6830208fcdfcf92366c8b09108e6627bd2c54f1903286656d96f",
+  "controls": [
+    {
+      "name": "all",
+      "failures": 14
+    },
+    {
+      "name": "zaicodeAgentRepo.ts",
+      "failures": 2
+    },
+    {
+      "name": "zaicodeJobRepo.ts",
+      "failures": 8
+    },
+    {
+      "name": "zaicodeStatsRepo.ts",
+      "failures": 2
+    },
+    {
+      "name": "zaicodeJobService.ts",
+      "failures": 3
+    }
+  ],
+  "sources": [
+    {
+      "file": "packages/services/src/zaicode/zaicodeAgentRepo.ts",
+      "originalSha256": "04e1a412ea610426bda77a5bc1972eb3cbc242412c439359f69f3fd027301646",
+      "repairedSha256": "a31e9cd49368b871acf4b2c839fc957bd5be7ceb89d9d767a1e091fb656eac1f"
+    },
+    {
+      "file": "packages/services/src/zaicode/zaicodeJobRepo.ts",
+      "originalSha256": "712ddfe46d01e096ee8fcf6e7d1d3adeff7a391c0acb13e24810608fc1b5fa0a",
+      "repairedSha256": "25d2b6b06bfa50479408a216bc3572ae6cd00c2137ee31524a1757ca5e620c74"
+    },
+    {
+      "file": "packages/services/src/zaicode/zaicodeStatsRepo.ts",
+      "originalSha256": "fd0863f3df210393fe9fa7d3ce0cb0f22923cbeca7bd5ac64cb35b52d7c1d83e",
+      "repairedSha256": "bdf3e7f617a2dd274152026c85d883c54a305344c541ba71466cf855f578c294"
+    },
+    {
+      "file": "packages/services/src/zaicode/zaicodeJobService.ts",
+      "originalSha256": "2123fd0a02f00b76dc633e3fdd02d70cbd6d99397898b512c2939a05a3a4772b",
+      "repairedSha256": "32f658dff6d0538645c11dd30147e6b98d5cd6563a47c5d3e59f5d40a367a130"
+    }
+  ],
+  "restored": true
+}

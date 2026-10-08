@@ -1,0 +1,16 @@
+{
+  "ok": true,
+  "backend": "real ZaicodeStatsService and SQLite",
+  "firstBatchSizes": [
+    200,
+    200,
+    50
+  ],
+  "durableBurstRows": 450,
+  "replayRows": 450,
+  "replayBytesUnchanged": true,
+  "normalRows": 12,
+  "normalBytesEquivalent": true,
+  "normalSha256": "3c842faf57b8198d3247c590eb0f4fcfe35f8b4e439c71d036ca079d5f6d6461",
+  "acknowledgedHistoryAfterDisappearance": 0
+}

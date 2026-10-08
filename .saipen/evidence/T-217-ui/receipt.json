@@ -1,0 +1,23 @@
+{
+  "ok": true,
+  "executablePath": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\dist-t217\\win-unpacked\\ZAICODE.exe",
+  "profile": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\.saipen\\evidence\\T-217-ui\\profile-pBnWng",
+  "checks": {
+    "leftToggle": true,
+    "rightToggle": true,
+    "narrowAndRail": true,
+    "presentation": true,
+    "bothSideDirections": true,
+    "pasteEditRestore": true,
+    "collectDisabledWithText": true,
+    "collectNarrowRow": true,
+    "currentSessionNavigation": true,
+    "retryCountdownScopeTruth": true,
+    "canonicalMAIN": true,
+    "archiveUndo": true,
+    "restartSideAndStyle": true,
+    "noPageErrors": true
+  },
+  "fixtureRequests": 8,
+  "paidVendorRequests": 0
+}

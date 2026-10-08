@@ -1,0 +1,254 @@
+{
+  "ticket": "T-267",
+  "executablePath": "V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/packages/desktop/dist-t262/win-unpacked/ZAICODE.exe",
+  "profile": "V:\\_TEMP_\\zaicode-t267-profile-uuJiOB",
+  "checks": [
+    {
+      "name": "isolated app profile",
+      "pass": true
+    },
+    {
+      "name": "both real discovered accounts offered",
+      "pass": true
+    },
+    {
+      "name": "history visible as history before launch",
+      "pass": true
+    },
+    {
+      "name": "normal Run now dispatched the A1 fixture CLI",
+      "pass": false,
+      "detail": []
+    }
+  ],
+  "fixture": "Persisted configuration/history only; actual worker dispatch, vendor-limit detection, handoff and status use normal app owners. CLI stubs send no network requests.",
+  "console": [
+    "warning: MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 zcode:settings-changed listeners added. Use emitter.setMaxListeners() to increase limit\n    at _addListener (node:electron/js2c/sandbox_bundle:2:43268)\n    at IpcRenderer.addListener (node:electron/js2c/sandbox_bundle:2:46156)\n    at Object.onSettingsChanged (<anonymous>:65:261466)",
+    "warning: MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 zcode:settings-changed listeners added. Use emitter.setMaxListeners() to increase limit\n    at _addListener (node:electron/js2c/sandbox_bundle:2:43268)\n    at IpcRenderer.addListener (node:electron/js2c/sandbox_bundle:2:46156)\n    at Object.onSettingsChanged (<anonymous>:65:261466)"
+  ],
+  "pass": false,
+  "error": "Error: normal Run now dispatched the A1 fixture CLI",
+  "stage": "dispatch",
+  "errors": [],
+  "requests": [
+    {
+      "method": "GET",
+      "path": "/api/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/combos"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "POST",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/settings"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/settings"
+    },
+    {
+      "method": "GET",
+      "path": "/api/keys"
+    },
+    {
+      "method": "POST",
+      "path": "/api/keys"
+    },
+    {
+      "method": "GET",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/combos"
+    },
+    {
+      "method": "GET",
+      "path": "/api/models"
+    },
+    {
+      "method": "GET",
+      "path": "/api/models"
+    },
+    {
+      "method": "GET",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/combos"
+    },
+    {
+      "method": "GET",
+      "path": "/api/version"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/models"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/combos"
+    },
+    {
+      "method": "GET",
+      "path": "/api/models"
+    },
+    {
+      "method": "GET",
+      "path": "/api/settings"
+    },
+    {
+      "method": "GET",
+      "path": "/api/usage/stats?period=today"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/combos"
+    },
+    {
+      "method": "POST",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/keys"
+    },
+    {
+      "method": "POST",
+      "path": "/api/keys"
+    },
+    {
+      "method": "GET",
+      "path": "/api/version"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/models"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/combos"
+    },
+    {
+      "method": "GET",
+      "path": "/api/models"
+    },
+    {
+      "method": "GET",
+      "path": "/api/settings"
+    },
+    {
+      "method": "GET",
+      "path": "/api/usage/stats?period=today"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health"
+    }
+  ],
+  "dispatches": [],
+  "asarSha256": "323ad3bb507bb967733c46a47adaaa8f94b4c1c0485f345d697c87a5a0bd78d4",
+  "verifierSha256": "f31ab47fee62263d6095a2d86906d8932e9d8eb2de7f18a37d1fa0990e9efdf0"
+}

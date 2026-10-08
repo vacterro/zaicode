@@ -1,0 +1,13 @@
+{
+  "oracle": "592e5081ff1f885a35e90cb9e792323e4e436143a4101b8a89a8356fda6940f9",
+  "originalSubject": "53831ecf8aea2fcb168083bd3754d782d7c59d2c396218636cde600ceb01c469",
+  "scope": [
+    "packages/shared/src/zaicode-engines.ts",
+    "packages/shared/src/zaicode-schedule-continuation.ts",
+    "packages/ui/src/zaicode/zaicodeAutostartContinuation.ts",
+    "packages/ui/src/zaicode/zaicodeScheduler.ts",
+    "packages/ui/src/zaicode/ZaicodeSchedulerPanel.tsx",
+    "packages/ui/src/zaicode/ZaicodeScheduleContinuation.tsx"
+  ],
+  "baseline": "e5389320"
+}

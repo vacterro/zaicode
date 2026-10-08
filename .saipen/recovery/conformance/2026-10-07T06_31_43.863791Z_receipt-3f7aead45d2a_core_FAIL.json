@@ -1,0 +1,69 @@
+{
+  "blocking_findings": {
+    "problem_count": 3,
+    "problems": [
+      {
+        "category": null,
+        "credential": false,
+        "detail": "SRC-151",
+        "detail_hash": "596c01f885e73b2c",
+        "finding_key": "67bb1c845b187359",
+        "rule_id": "source_receipt_active_invalid",
+        "severity": "problem",
+        "subject_id": "SRC-151",
+        "subject_kind": "source",
+        "subject_ref": null
+      },
+      {
+        "category": null,
+        "credential": false,
+        "detail": "no current-cycle VERIFY boundary; reverify: no current-tree PASS re-verification receipt",
+        "detail_hash": "186e51123c0cc004",
+        "finding_key": "8608bcc9f592a8f1",
+        "rule_id": "work_closure_evidence",
+        "severity": "problem",
+        "subject_id": "T-113",
+        "subject_kind": "work",
+        "subject_ref": null
+      },
+      {
+        "category": null,
+        "credential": false,
+        "detail": "subsaipen [sub-write-boundary] -- saihunt OUTBOX references a main-project canonical path; a SubSaipen writes only inside its own home -- a package may not target .saipen/BOARD.md|STATE.md|LOG.md (red",
+        "detail_hash": "b3df18e5abf0c452",
+        "finding_key": "76b48f23558dce11",
+        "rule_id": "unclassified",
+        "severity": "problem",
+        "subject_id": null,
+        "subject_kind": "global",
+        "subject_ref": null
+      }
+    ],
+    "ruleset_fingerprint": "82e5e183ae8f0fd909be3fa3627f00489cacaab813d942186c832db02a05a1c1",
+    "ruleset_version": 1,
+    "status": "complete",
+    "warning_count": 20
+  },
+  "board_hash": "a7560d0733bd481c",
+  "canonical_next_command": "saipen work reverify T-113",
+  "content_hash": "c7a55718c9f199e3",
+  "exit_code": 1,
+  "external_actions": [],
+  "gate": "core",
+  "install_fingerprint": "install-v1:b604c666e3d99a070dcb902d2c96389bce9fb84f027755c5c5eca98285b52367",
+  "install_home": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_SAIPEN",
+  "kind": "conformance_receipt",
+  "log_hash": "51b9ce7410473324",
+  "project_identity": "v:\\___vac\\__k\\__code\\_ai_stuff_agentic\\_zaicode",
+  "receipt_id": "receipt-3f7aead45d2a",
+  "remediation_commands": [
+    "saipen work reverify T-113"
+  ],
+  "schema_version": 2,
+  "source_head": "d7e7ce3f7326b5e37ddc54baf33c5dffe276cd42",
+  "source_tree_fingerprint": "git-delta-v1:db80d6c261d5454228eac19ddb2c4ae1f921fc1f30c49ecf9266a8186f8ad8f4",
+  "state_hash": "05e4a482e36ae6a1",
+  "timestamp_utc": "2026-10-07T06:31:43.863791Z",
+  "validator_protocol_version": "1",
+  "verdict": "FAIL"
+}

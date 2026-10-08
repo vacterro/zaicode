@@ -1,0 +1,9 @@
+{
+  "oracle": "5401897a82e1906cfcf5480c0fd10d5a58b8ba59c54dac8929a31e75e5a11831",
+  "originalSubject": "52fcb64f8489418496ab23c37e5e0e524c5502236ce92b2526594fab2d827fd1",
+  "fixedSubject": "4b92a7cf57c578f50bdad20300e5e1902ecac89e70fa7b042ab8056845c85639",
+  "originalExit": 1,
+  "fixedExit": 0,
+  "scope": "packages/desktop/src/main/zaicodeRouterSetup.ts",
+  "unchangedDependencies": true
+}

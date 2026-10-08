@@ -1,0 +1,180 @@
+{
+  "ticket": "T-254",
+  "executablePath": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\dist-t254\\win-unpacked\\ZAICODE.exe",
+  "profile": "V:\\_TEMP_\\zaicode-t254-profile-0cELoR",
+  "fixtureRows": 500021,
+  "checks": [
+    {
+      "name": "same packaged count oracle rejects a real wrong fixture",
+      "pass": true,
+      "detail": {
+        "channel": "zaicode-jobs",
+        "elapsedMs": 21.399999976158142,
+        "responseBytes": 7685,
+        "rows": 26,
+        "diagnostics": 0,
+        "counts": {
+          "running": 0,
+          "ready": 2,
+          "waiting": 2,
+          "blocked": 2,
+          "doneToday": 12,
+          "failedToday": 3
+        },
+        "doneLast24h": 12,
+        "dayStart": 1791320400000,
+        "capturedAt": 1791351348864,
+        "openIds": [
+          "old-blocked",
+          "old-draft",
+          "old-queued",
+          "old-ready",
+          "old-running",
+          "old-waiting"
+        ]
+      }
+    },
+    {
+      "name": "same packaged count oracle accepts restored good fixture",
+      "pass": true
+    },
+    {
+      "name": "Now displays all 12 durable completions today despite ingestion backlog",
+      "pass": false,
+      "detail": "NOW\nWORKING\nidle\nQUEUE\n1 run · 2 ready\nTODAY\n0 tok · 0 done\nNEXT RESET\nnone pending\nNEXT START\nnothing armed\nHEALTH\nall clear"
+    }
+  ],
+  "seed": {
+    "rows": 500021,
+    "path": "V:\\_TEMP_\\zaicode-t254-profile-0cELoR\\.zaicode\\v2\\tasks-index.sqlite"
+  },
+  "startupErrors": [],
+  "pass": false,
+  "stage": "known-bad fixture control",
+  "error": "Error: HOME_TODAY_MISMATCH: authoritative overview has 12 doneToday but Now does not display it",
+  "pageErrors": [],
+  "metrics": {
+    "calls": {
+      "coding-plan-subscription.getDynamicWorkflowClientConfig": 1,
+      "setting.get": 6,
+      "model-selection.getView": 2,
+      "provider-settings.getView": 4,
+      "oauth.restoreCachedSessionState": 1,
+      "zaicode-jobs.getDisabledWorkspaces": 1,
+      "zaicode-jobs.getAutoRun": 1,
+      "zaicode-audits.publishProjects": 1,
+      "credential.load": 2,
+      "provider-settings.refresh": 2,
+      "oauth.getActiveProvider": 1,
+      "zaicode-audits.smartSweep": 1,
+      "zcode-agent.syncAppRuntimePreferences": 1,
+      "zaicode-audits.getState": 2,
+      "file.ensureConversationWorkspace": 1,
+      "window-controller.subscribeControllerV4": 2,
+      "window-controller.listTaskList": 2,
+      "file.readTextFile": 1,
+      "zaicode-jobs.getHomeOverview": 3,
+      "zcode-agent.helloConversationV4": 1,
+      "off-peak-task.list": 1,
+      "git.refresh": 1,
+      "settings-sync.getFirstRunPromptState": 1,
+      "zaicode-stats.getHomeStats": 3,
+      "zaicode-stats.getRecentActivity": 3,
+      "zcode-agent.initializeConversationV4": 1,
+      "zcode-agent.subscribeSessionsIndexV4": 1,
+      "setting.update": 1
+    },
+    "jobLists": [
+      {
+        "channel": "off-peak-task",
+        "workspaceFilter": false,
+        "bounded": false
+      }
+    ],
+    "overviews": [
+      {
+        "channel": "zaicode-jobs",
+        "elapsedMs": 87.40000000596046,
+        "responseBytes": 7685,
+        "rows": 26,
+        "diagnostics": 0,
+        "counts": {
+          "running": 1,
+          "ready": 2,
+          "waiting": 2,
+          "blocked": 1,
+          "doneToday": 12,
+          "failedToday": 3
+        },
+        "doneLast24h": 12,
+        "dayStart": 1791320400000,
+        "capturedAt": 1791351348356,
+        "openIds": [
+          "old-blocked",
+          "old-draft",
+          "old-queued",
+          "old-ready",
+          "old-running",
+          "old-waiting"
+        ]
+      },
+      {
+        "channel": "zaicode-jobs",
+        "elapsedMs": 21.399999976158142,
+        "responseBytes": 7685,
+        "rows": 26,
+        "diagnostics": 0,
+        "counts": {
+          "running": 0,
+          "ready": 2,
+          "waiting": 2,
+          "blocked": 2,
+          "doneToday": 12,
+          "failedToday": 3
+        },
+        "doneLast24h": 12,
+        "dayStart": 1791320400000,
+        "capturedAt": 1791351348864,
+        "openIds": [
+          "old-blocked",
+          "old-draft",
+          "old-queued",
+          "old-ready",
+          "old-running",
+          "old-waiting"
+        ]
+      },
+      {
+        "channel": "zaicode-jobs",
+        "elapsedMs": 28,
+        "responseBytes": 7685,
+        "rows": 26,
+        "diagnostics": 0,
+        "counts": {
+          "running": 1,
+          "ready": 2,
+          "waiting": 2,
+          "blocked": 1,
+          "doneToday": 12,
+          "failedToday": 3
+        },
+        "doneLast24h": 12,
+        "dayStart": 1791320400000,
+        "capturedAt": 1791351349150,
+        "openIds": [
+          "old-blocked",
+          "old-draft",
+          "old-queued",
+          "old-ready",
+          "old-running",
+          "old-waiting"
+        ]
+      }
+    ],
+    "errors": [],
+    "rootCommits": 66,
+    "homeRootCommits": 52,
+    "manualRefreshes": 0
+  },
+  "asarSha256": "c5902f3997d56ce055d533cdd7fb536cddee8e1cba30cd35256e55784c360ece"
+}

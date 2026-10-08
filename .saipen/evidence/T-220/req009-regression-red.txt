@@ -1,0 +1,110 @@
+[WARN] The "pnpm" field in package.json is no longer read by pnpm. The following keys were ignored: "pnpm.overrides", "pnpm.patchedDependencies". See https://pnpm.io/settings for the new home of each setting.
+apps/zcode-cli                           |  WARN  Unsupported engine: wanted: {"node":"24.14.0"} (current: {"node":"v24.15.0","pnpm":"10.33.2"})
+✖ R009: the ladder collapses the leading rung when a wrapped child overflows its own cluster (1.8647ms)
+✔ R009: the media/010 control population keeps its collapse handles (0.1744ms)
+✔ R009: narrowing past the rungs still wraps instead of clipping or overlapping (0.1044ms)
+✖ T-220: the fit ladder measures the whole row, not only the leading cluster (2.5102ms)
+✔ T-220: the ladder clears its own state before measuring, so a wider window restores labels (0.253ms)
+✔ T-220: the trailing cluster has collapse rungs of its own (0.2973ms)
+✔ T-220: an exhausted ladder wraps the row instead of overlapping the trailing buttons (0.161ms)
+✔ T-220: the send and cancel controls are never collapse rungs (0.1702ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 6
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 200.0768
+
+✖ failing tests:
+
+test at test\zaicodeComposerReq009StripExtent.test.ts:1:503
+✖ R009: the ladder collapses the leading rung when a wrapped child overflows its own cluster (1.8647ms)
+  AssertionError [ERR_ASSERTION]: cluster width is measured as the furthest child edge, not the box width
+      at TestContext.<anonymous> (V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\ui\test\zaicodeComposerReq009StripExtent.test.ts:22:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.start (node:internal/test_runner/test:1096:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:385:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'import { useLayoutEffect, useRef } from "react";\n\n/** 仅拥有 DOM 布局投影；权限、Plan 和 CUA 业务状态仍由原有 hooks 管理。 */\nfunction fitComposerToolbar(root: HTMLElement) {\n  const available = root.querySelector<HTMLElement>("[data-composer-leading-actions]");\n  const content = root.querySelector<HTMLElement>("[data-composer-leading-content]");\n  if (!available || !content) return;\n  const controls = Array.from(\n    root.querySelectorAll<HTMLElement>("[data-composer-collapse-priority]"),\n  ).sort(\n    (a, b) =>\n      Number(a.dataset.composerCollapsePriority) - Number(b.dataset.composerCollapsePriority),\n  );\n  if (!controls.length) return;\n  // 每次从完整布局测量，避免各按钮独立 observer 互相抢空间，也覆盖语言与异步入口变化。\n  delete root.dataset.composerModelIcon;\n  root.style.removeProperty("--composer-model-max-width");\n  delete root.dataset.composerProviderCompact;\n  for (const control of controls) delete control.dataset.composerCompact;\n  const prefixLine = root.querySelector<HTMLElement>(".composer-provider-prefix")?.parentElement;\n  if (prefixLine && prefixLine.scrollWidth > prefixLine.clientWidth) {\n    root.dataset.composerProviderCompact = "true";\n  }\n  const fits = () =>\n    content.getBoundingClientRect().width <= available.getBoundingClientRect().width;\n  for (const control of controls) {\n    if (fits()) return;\n    control.dataset.composerCompact = "true";\n    if (control.dataset.composerCollapsePriority === "0" && !fits()) {\n      root.dataset.composerProviderCompact = "true";\n    }\n  }\n  if (!fits()) {\n    const model = root.querySelector<HTMLElement>(".composer-model-trigger");\n    if (!model) return;\n    const trailing = root.querySelector<HTMLElement>("[data-composer-trailing-actions]");\n    const gap = Number.parseFloat(getComputedStyle(root).columnGap) || 12;\n    const overflow = Math.max(\n      content.getBoundingClientRect().width - available.getBoundingClientRect().width,\n      trailing\n        ? content.getBoundingClientRect().width +\n            trailing.getBoundingClientRect().width +\n            gap -\n            root.getBoundingClientRect().width\n        : 0,\n    );\n    const modelWidth = Math.max(28, model.getBoundingClientRect().width - overflow);\n    // 收起左侧文案后，剩余空间必须让给同一行的模型与发送按钮，不能靠换行掩盖溢出。\n    if (modelWidth < 80) root.dataset.composerModelIcon = "true";\n    else root.style.setProperty("--composer-model-max-width", `${modelWidth}px`);\n  }\n}\n\n',
+    expected: /const extent = \(element: HTMLElement\) => \{/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at test\zaicodeComposerStripFit.test.ts:1:562
+✖ T-220: the fit ladder measures the whole row, not only the leading cluster (2.5102ms)
+  AssertionError [ERR_ASSERTION]: The input was expected to not match the regular expression /data-composer-leading-actions/. Input:
+  
+  'import { useLayoutEffect, useRef } from "react";\n' +
+    '\n' +
+    '/** 仅拥有 DOM 布局投影；权限、Plan 和 CUA 业务状态仍由原有 hooks 管理。 */\n' +
+    'function fitComposerToolbar(root: HTMLElement) {\n' +
+    '  const available = root.querySelector<HTMLElement>("[data-composer-leading-actions]");\n' +
+    '  const content = root.querySelector<HTMLElement>("[data-composer-leading-content]");\n' +
+    '  if (!available || !content) return;\n' +
+    '  const controls = Array.from(\n' +
+    '    root.querySelectorAll<HTMLElement>("[data-composer-collapse-priority]"),\n' +
+    '  ).sort(\n' +
+    '    (a, b) =>\n' +
+    '      Number(a.dataset.composerCollapsePriority) - Number(b.dataset.composerCollapsePriority),\n' +
+    '  );\n' +
+    '  if (!controls.length) return;\n' +
+    '  // 每次从完整布局测量，避免各按钮独立 observer 互相抢空间，也覆盖语言与异步入口变化。\n' +
+    '  delete root.dataset.composerModelIcon;\n' +
+    '  root.style.removeProperty("--composer-model-max-width");\n' +
+    '  delete root.dataset.composerProviderCompact;\n' +
+    '  for (const control of controls) delete control.dataset.composerCompact;\n' +
+    '  const prefixLine = root.querySelector<HTMLElement>(".composer-provider-prefix")?.parentElement;\n' +
+    '  if (prefixLine && prefixLine.scrollWidth > prefixLine.clientWidth) {\n' +
+    '    root.dataset.composerProviderCompact = "true";\n' +
+    '  }\n' +
+    '  const fits = () =>\n' +
+    '    content.getBoundingClientRect().width <= available.getBoundingClientRect().width;\n' +
+    '  for (const control of controls) {\n' +
+    '    if (fits()) return;\n' +
+    '    control.dataset.composerCompact = "true";\n' +
+    '    if (control.dataset.composerCollapsePriority === "0" && !fits()) {\n' +
+    '      root.dataset.composerProviderCompact = "true";\n' +
+    '    }\n' +
+    '  }\n' +
+    '  if (!fits()) {\n' +
+    '    const model = root.querySelector<HTMLElement>(".composer-model-trigger");\n' +
+    '    if (!model) return;\n' +
+    '    const trailing = root.querySelector<HTMLElement>("[data-composer-trailing-actions]");\n' +
+    '    const gap = Number.parseFloat(getComputedStyle(root).columnGap) || 12;\n' +
+    '    const overflow = Math.max(\n' +
+    '      content.getBoundingClientRect().width - available.getBoundingClientRect().width,\n' +
+    '      trailing\n' +
+    '        ? content.getBoundingClientRect().width +\n' +
+    '            trailing.getBoundingClientRect().width +\n' +
+    '            gap -\n' +
+    '            root.getBoundingClientRect().width\n' +
+    '        : 0,\n' +
+    '    );\n' +
+    '    const modelWidth = Math.max(28, model.getBoundingClientRect().width - overflow);\n' +
+    '    // 收起左侧文案后，剩余空间必须让给同一行的模型与发送按钮，不能靠换行掩盖溢出。\n' +
+    '    if (modelWidth < 80) root.dataset.composerModelIcon = "true";\n' +
+    '    else root.style.setProperty("--composer-model-max-width", `${modelWidth}px`);\n' +
+    '  }\n' +
+    '}\n' +
+    '\n'
+  
+      at TestContext.<anonymous> (V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\ui\test\zaicodeComposerStripFit.test.ts:25:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.start (node:internal/test_runner/test:1096:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:385:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'import { useLayoutEffect, useRef } from "react";\n\n/** 仅拥有 DOM 布局投影；权限、Plan 和 CUA 业务状态仍由原有 hooks 管理。 */\nfunction fitComposerToolbar(root: HTMLElement) {\n  const available = root.querySelector<HTMLElement>("[data-composer-leading-actions]");\n  const content = root.querySelector<HTMLElement>("[data-composer-leading-content]");\n  if (!available || !content) return;\n  const controls = Array.from(\n    root.querySelectorAll<HTMLElement>("[data-composer-collapse-priority]"),\n  ).sort(\n    (a, b) =>\n      Number(a.dataset.composerCollapsePriority) - Number(b.dataset.composerCollapsePriority),\n  );\n  if (!controls.length) return;\n  // 每次从完整布局测量，避免各按钮独立 observer 互相抢空间，也覆盖语言与异步入口变化。\n  delete root.dataset.composerModelIcon;\n  root.style.removeProperty("--composer-model-max-width");\n  delete root.dataset.composerProviderCompact;\n  for (const control of controls) delete control.dataset.composerCompact;\n  const prefixLine = root.querySelector<HTMLElement>(".composer-provider-prefix")?.parentElement;\n  if (prefixLine && prefixLine.scrollWidth > prefixLine.clientWidth) {\n    root.dataset.composerProviderCompact = "true";\n  }\n  const fits = () =>\n    content.getBoundingClientRect().width <= available.getBoundingClientRect().width;\n  for (const control of controls) {\n    if (fits()) return;\n    control.dataset.composerCompact = "true";\n    if (control.dataset.composerCollapsePriority === "0" && !fits()) {\n      root.dataset.composerProviderCompact = "true";\n    }\n  }\n  if (!fits()) {\n    const model = root.querySelector<HTMLElement>(".composer-model-trigger");\n    if (!model) return;\n    const trailing = root.querySelector<HTMLElement>("[data-composer-trailing-actions]");\n    const gap = Number.parseFloat(getComputedStyle(root).columnGap) || 12;\n    const overflow = Math.max(\n      content.getBoundingClientRect().width - available.getBoundingClientRect().width,\n      trailing\n        ? content.getBoundingClientRect().width +\n            trailing.getBoundingClientRect().width +\n            gap -\n            root.getBoundingClientRect().width\n        : 0,\n    );\n    const modelWidth = Math.max(28, model.getBoundingClientRect().width - overflow);\n    // 收起左侧文案后，剩余空间必须让给同一行的模型与发送按钮，不能靠换行掩盖溢出。\n    if (modelWidth < 80) root.dataset.composerModelIcon = "true";\n    else root.style.setProperty("--composer-model-max-width", `${modelWidth}px`);\n  }\n}\n\n',
+    expected: /data-composer-leading-actions/,
+    operator: 'doesNotMatch',
+    diff: 'simple'
+  }
+undefined
+V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\ui:
+ ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL  Command failed with exit code 1: node --import tsx --test test/zaicodeComposerReq009StripExtent.test.ts test/zaicodeComposerStripFit.test.ts

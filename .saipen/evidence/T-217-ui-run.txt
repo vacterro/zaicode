@@ -1,0 +1,1 @@
+PASS {"leftToggle":true,"rightToggle":true,"narrowAndRail":true,"presentation":true,"bothSideDirections":true,"pasteEditRestore":true,"collectDisabledWithText":true,"collectNarrowRow":true,"currentSessionNavigation":true,"retryCountdownScopeTruth":true,"canonicalMAIN":true,"archiveUndo":true,"restartSideAndStyle":true,"noPageErrors":true}

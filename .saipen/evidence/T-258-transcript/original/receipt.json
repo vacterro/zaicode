@@ -1,0 +1,99 @@
+{
+  "ticket": "T-258",
+  "executablePath": "V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/packages/desktop/dist-t257/win-unpacked/ZAICODE.exe",
+  "profile": "V:\\_TEMP_\\zaicode-t258-profile-dE1h6Z",
+  "checks": [
+    {
+      "name": "app owns isolated profile",
+      "pass": true,
+      "detail": "V:\\_TEMP_\\zaicode-t258-profile-dE1h6Z"
+    },
+    {
+      "name": "composer remains reachable",
+      "pass": true
+    },
+    {
+      "name": "visible named three-choice Transcript control",
+      "pass": false
+    }
+  ],
+  "pass": false,
+  "error": "locator.waitFor: Timeout 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByText('T258 final narrative.').first() to be visible\u001b[22m\n\n    at C:\\Users\\vac34\\.agents\\skills\\playwright-skill\\.temp-execution-1791363189904.js:115:77",
+  "stage": "fixture-run",
+  "errors": [
+    "fixture: Error: No shell tool in fixture request: []"
+  ],
+  "requests": [
+    {
+      "url": "/v1/chat/completions",
+      "n": 1,
+      "model": "SAIFREN",
+      "stream": false,
+      "toolNames": []
+    },
+    {
+      "url": "/v1/chat/completions",
+      "n": 2,
+      "model": "kilo/kilo-auto/free",
+      "stream": false,
+      "toolNames": []
+    },
+    {
+      "url": "/v1/chat/completions",
+      "n": 3,
+      "model": "pol/openai-fast",
+      "stream": false,
+      "toolNames": []
+    },
+    {
+      "url": "/v1/chat/completions",
+      "n": 4,
+      "model": "SAIFREN",
+      "stream": true,
+      "toolNames": [
+        "Agent",
+        "AskUserQuestion",
+        "Bash",
+        "CronCreate",
+        "CronDelete",
+        "CronList",
+        "CronUpdate",
+        "Edit",
+        "EnterPlanMode",
+        "ExitPlanMode",
+        "Read",
+        "Skill",
+        "TaskOutput",
+        "TaskStop",
+        "TodoRead",
+        "TodoWrite",
+        "WebFetch",
+        "Write",
+        "AmendWorkflow",
+        "CreateWorkflow",
+        "EvalWorkflowSnippet",
+        "GetWorkflowRun",
+        "ListModels",
+        "ListSavedWorkflows",
+        "ListWorkflowRuns",
+        "OffPeakCreate",
+        "OffPeakList",
+        "ReadSessionContext",
+        "ResolveWorkflowQuestion",
+        "ResumeWorkflowRun",
+        "SaveWorkflow",
+        "SendMessage",
+        "mcp__node_repl__js"
+      ]
+    },
+    {
+      "url": "/v1/chat/completions",
+      "n": 5,
+      "model": "SAIFREN",
+      "toolNames": []
+    }
+  ],
+  "paidVendorRequests": 0,
+  "asarSha256": "6efc255022568d7975620825257f37419072d4f317c8a2b250ba37eba0b2422c",
+  "verifierSha256": "1b273adb0c9d7b6b661ff9db3f71ca8d1d5e139022db32457564f90428ca93d9"
+}

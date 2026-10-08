@@ -1,0 +1,235 @@
+{
+  "ticket": "T-267",
+  "executablePath": "V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/packages/desktop/dist-t262/win-unpacked/ZAICODE.exe",
+  "profile": "V:\\_TEMP_\\zaicode-t267-profile-oJKmXx",
+  "checks": [
+    {
+      "name": "isolated app profile",
+      "pass": true
+    },
+    {
+      "name": "both real discovered accounts offered",
+      "pass": true
+    },
+    {
+      "name": "history visible as history before launch",
+      "pass": true
+    }
+  ],
+  "fixture": "Persisted configuration/history only; actual worker dispatch, vendor-limit detection, handoff and status use normal app owners. CLI stubs send no network requests.",
+  "console": [
+    "warning: MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 zcode:settings-changed listeners added. Use emitter.setMaxListeners() to increase limit\n    at _addListener (node:electron/js2c/sandbox_bundle:2:43268)\n    at IpcRenderer.addListener (node:electron/js2c/sandbox_bundle:2:46156)\n    at Object.onSettingsChanged (<anonymous>:65:261466)",
+    "warning: MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 zcode:settings-changed listeners added. Use emitter.setMaxListeners() to increase limit\n    at _addListener (node:electron/js2c/sandbox_bundle:2:43268)\n    at IpcRenderer.addListener (node:electron/js2c/sandbox_bundle:2:46156)\n    at Object.onSettingsChanged (<anonymous>:65:261466)"
+  ],
+  "hooks": [],
+  "pass": false,
+  "error": "Error: Bounded ref diagnostic",
+  "stage": "dispatch",
+  "dom": {
+    "terminals": [],
+    "xterms": 0,
+    "body": "Command palette\n\nSearch and run commands available in this workspace.\n\nSAIHOME\nZAICODE\nSCHEDULER\n1 · 9h 44m\nWORKERS\nCONTINUE ALL\nAuto OFF\nDONE\n0\n◆\nProjects\n1\nMAIN0\n·1\nproject\nvacuum34\nWed 7 Oct · 14:15:39 · Day\nAG ↺ 28m 53s\nA1\nA2\nA3\nA4\nC2\nC3\nZAICODE\nAgents & tasks\nScheduler\nAudits\nHit & go\n0\nAutopilot: on\nParallel 0/1\n-\n+\nTeams\nTour\nGuide\n1 Agents\n0 (0 on)\n->\n2 Tasks\n0 waiting · 0 running\n->\n3 Results\n0 done\nAutopilot: new tasks start automatically\nReady-made teams\nOne click adds the agents; edit or remove any of them later.\nHide\nSolo\nAdd team\nOne agent does a task end to end. The cheapest way to start.\nImplementer (SAIFREN)\nBuilder + Reviewer\nAdd team\nHow the operator works: a SAIPEN builder on the deep pool, a reviewer on the free pool checks every result.\nBuilder (SAIOPP) · Reviewer (SAIFREN)\nSAIPEN crew\nAdd team\nCoordinator splits the work, Builder implements, Tester proves it, Auditor reviews. For long goals.\nCoordinator (SAIOPP) · Builder (SAIOPP) · Tester (SAIFREN) · Auditor (SAIFREN)\nResearch → Build\nAdd team\nA researcher reads docs and code first, an implementer builds from its notes.\nResearcher (SAIFREN) · Implementer (SAIOPP)\nScheduler\n\nPrompts that start by themselves: at a time, every day, every N minutes, or the moment a subscription's quota refills — in one project or in every project of a sidebar section. Empty prompt = /goal cc all: finish the SAIPEN board. SAIPEN guards the work and calls you when it needs you. A limit meter with a prompt waiting for its reset glows.\n\nNew schedule\nKeep the computer awake while work runs\nNEXT UP\nin 9h 43m\nQuota continuation fixture\nfixture objective · project · A1 Claude 1 (CLI worker) · every day at 23:59\nPRESETS\n+ Every 5h reset → /goal cc all here\n+ Every 5h reset → /goal cc all in MAIN0\n+ Every night 02:00 → /goal cc all in MAIN0, stop 07:00\n+ Every 2 hours → cc here\n+ Every morning 08:00 → saiwiki\n+ Weekly reset → saihunt\nready · in 9h 43m\nWhere\nProject\nSection\nproject\nWho\nSTART in ZAICODE (in-app, in each project's MAIN)\nA1 Claude 1 (CLI worker)\nA2 Claude 2 (CLI worker)\nC1 Codex 1 (CLI worker)\nZC ZCode (CLI worker)\nA3 Claude 1 (CLI worker)\nA4 Claude 2 (CLI worker)\nC2 Codex 1 (CLI worker)\nC3 Codex 2 (CLI worker)\nWhen\nEvery reset\nNext reset\nDaily\nEvery N min\nOnce at\nstop at\nBefore\nnothing\nstop the stopgap\nstop everything\nonly when idle\nContinue automatically when a subscription reaches its limit\n\nPreferred: A1 Claude 1 (CLI worker). Fallbacks run in the order below.\n\nHandoff delay  min\nReturn after fresh quota recovery\n1. A2 Claude 2 (CLI worker)\n↑\nRemove\nAdd a subscription or in-app model, including SAIFREN\nC1 Codex 1 (CLI worker)\nZC ZCode (CLI worker)\nA3 Claude 1 (CLI worker)\nA4 Claude 2 (CLI worker)\nC2 Codex 1 (CLI worker)\nC3 Codex 2 (CLI worker)\n\nV:\\_TEMP_\\zaicode-t267-profile-oJKmXx\\project: Pending eligible runner · A1 Claude 1 (CLI worker)\n\ndelay\ns\ncatch-up\nmin\nwait for quota\nfixture objective · project · A1 Claude 1 (CLI worker) · every day at 23:59 · last: starting…\n0"
+  },
+  "errors": [],
+  "requests": [
+    {
+      "method": "GET",
+      "path": "/api/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/combos"
+    },
+    {
+      "method": "POST",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/settings"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/settings"
+    },
+    {
+      "method": "GET",
+      "path": "/api/keys"
+    },
+    {
+      "method": "POST",
+      "path": "/api/keys"
+    },
+    {
+      "method": "GET",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/combos"
+    },
+    {
+      "method": "GET",
+      "path": "/api/models"
+    },
+    {
+      "method": "GET",
+      "path": "/api/models"
+    },
+    {
+      "method": "GET",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/combos"
+    },
+    {
+      "method": "GET",
+      "path": "/api/version"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/models"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/combos"
+    },
+    {
+      "method": "GET",
+      "path": "/api/models"
+    },
+    {
+      "method": "GET",
+      "path": "/api/settings"
+    },
+    {
+      "method": "GET",
+      "path": "/api/usage/stats?period=today"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/combos"
+    },
+    {
+      "method": "POST",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/keys"
+    },
+    {
+      "method": "POST",
+      "path": "/api/keys"
+    },
+    {
+      "method": "GET",
+      "path": "/api/version"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/models"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/combos"
+    },
+    {
+      "method": "GET",
+      "path": "/api/models"
+    },
+    {
+      "method": "GET",
+      "path": "/api/settings"
+    },
+    {
+      "method": "GET",
+      "path": "/api/usage/stats?period=today"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health"
+    }
+  ],
+  "dispatches": [],
+  "asarSha256": "323ad3bb507bb967733c46a47adaaa8f94b4c1c0485f345d697c87a5a0bd78d4",
+  "verifierSha256": "00041519beaad1fc9bf1caa9de6fac8c53ea40640c34a102c2ce2c426a1052a2"
+}

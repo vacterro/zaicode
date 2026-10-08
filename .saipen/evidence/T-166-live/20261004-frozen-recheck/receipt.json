@@ -1,0 +1,61 @@
+{
+  "schema": "zaicode-t166-live/1",
+  "executablePath": "V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/packages/desktop/dist/win-unpacked/ZAICODE.exe",
+  "targetKey": "five_hour@claude_and_gpt_models",
+  "profile": "V:\\_TEMP_\\zaicode-t166-udslff",
+  "playwrightVersion": "1.62.1",
+  "at": "2026-10-04T13:28:46.746Z",
+  "checks": {
+    "isolatedPackagedShell": true,
+    "liveQuota": true
+  },
+  "observations": [
+    {
+      "label": "first-live-sweep",
+      "at": 1791120525158,
+      "snapshot": {
+        "fetchedAt": 1791120525087,
+        "error": null,
+        "windows": [
+          {
+            "key": "weekly@gemini_models",
+            "remainingPercent": 72.0828652381897,
+            "resetsAt": 1791663339000,
+            "startsOnUse": false,
+            "durationMinutes": 10080
+          },
+          {
+            "key": "five_hour@gemini_models",
+            "remainingPercent": 99.82404112815857,
+            "resetsAt": 1791133267000,
+            "startsOnUse": false,
+            "durationMinutes": 300
+          },
+          {
+            "key": "weekly@claude_and_gpt_models",
+            "remainingPercent": 49.628838896751404,
+            "resetsAt": 1791668540000,
+            "startsOnUse": false,
+            "durationMinutes": 10080
+          },
+          {
+            "key": "five_hour@claude_and_gpt_models",
+            "remainingPercent": 99.94856119155884,
+            "resetsAt": 1791138150000,
+            "startsOnUse": false,
+            "durationMinutes": 300
+          }
+        ],
+        "windowStart": null,
+        "windowStarts": {}
+      },
+      "topbar": "Sunday, 4 October 2026 · 16:28:44 · week 40\nTime zone: Europe/Tallinn (EEST)\nNo timer set\nNext reset: Antigravity Gemini 5h in 3h 32m\n\nClick: Timers · Shift+Click: Temp Timer +15m · Ctrl+Click: work / break start-pause · Right-click: what to show",
+      "tile": "Antigravity (Antigravity) · gemini:antigravity\nAntigravity: 72% Gemini weekly\n  Gemini weekly: 72% resets Sat 23:15\n  Gemini 5h: 100% resets in 3h 32m\n  Claude & GPT weekly: 50% resets Sun 00:42\n  Claude & GPT 5h: 100% resets in 4h 54m\n\nClick: select subscription model in this chat · Right-click: workers and settings"
+    },
+    {
+      "failure": "the selected pool has an actual idle window to start"
+    }
+  ],
+  "errors": [],
+  "ok": false
+}

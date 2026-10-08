@@ -1,0 +1,486 @@
+[
+  {
+    "requirement_id": "REQ-001",
+    "operation": "normalize",
+    "result": {
+      "ok": true,
+      "code": "REQUIREMENT_ADDED",
+      "receipt": "SRC-151",
+      "rid": "SRC-151:R001",
+      "revision": 1
+    }
+  },
+  {
+    "requirement_id": "REQ-002",
+    "operation": "normalize",
+    "result": {
+      "ok": true,
+      "code": "REQUIREMENT_ADDED",
+      "receipt": "SRC-151",
+      "rid": "SRC-151:R002",
+      "revision": 2
+    }
+  },
+  {
+    "requirement_id": "REQ-003",
+    "operation": "normalize",
+    "result": {
+      "ok": true,
+      "code": "REQUIREMENT_ADDED",
+      "receipt": "SRC-151",
+      "rid": "SRC-151:R003",
+      "revision": 3
+    }
+  },
+  {
+    "requirement_id": "REQ-004",
+    "operation": "normalize",
+    "result": {
+      "ok": true,
+      "code": "REQUIREMENT_ADDED",
+      "receipt": "SRC-151",
+      "rid": "SRC-151:R004",
+      "revision": 4
+    }
+  },
+  {
+    "requirement_id": "REQ-005",
+    "operation": "normalize",
+    "result": {
+      "ok": true,
+      "code": "REQUIREMENT_ADDED",
+      "receipt": "SRC-151",
+      "rid": "SRC-151:R005",
+      "revision": 5
+    }
+  },
+  {
+    "requirement_id": "REQ-006",
+    "operation": "normalize",
+    "result": {
+      "ok": true,
+      "code": "REQUIREMENT_ADDED",
+      "receipt": "SRC-151",
+      "rid": "SRC-151:R006",
+      "revision": 6
+    }
+  },
+  {
+    "requirement_id": "REQ-007",
+    "operation": "normalize",
+    "result": {
+      "ok": true,
+      "code": "REQUIREMENT_ADDED",
+      "receipt": "SRC-151",
+      "rid": "SRC-151:R007",
+      "revision": 7
+    }
+  },
+  {
+    "requirement_id": "REQ-008",
+    "operation": "normalize",
+    "result": {
+      "ok": true,
+      "code": "REQUIREMENT_ADDED",
+      "receipt": "SRC-151",
+      "rid": "SRC-151:R008",
+      "revision": 8
+    }
+  },
+  {
+    "requirement_id": "REQ-009",
+    "operation": "normalize",
+    "result": {
+      "ok": true,
+      "code": "REQUIREMENT_ADDED",
+      "receipt": "SRC-151",
+      "rid": "SRC-151:R009",
+      "revision": 9
+    }
+  },
+  {
+    "requirement_id": "REQ-010",
+    "operation": "normalize",
+    "result": {
+      "ok": true,
+      "code": "REQUIREMENT_ADDED",
+      "receipt": "SRC-151",
+      "rid": "SRC-151:R010",
+      "revision": 10
+    }
+  },
+  {
+    "requirement_id": "REQ-011",
+    "operation": "normalize",
+    "result": {
+      "ok": true,
+      "code": "REQUIREMENT_ADDED",
+      "receipt": "SRC-151",
+      "rid": "SRC-151:R011",
+      "revision": 11
+    }
+  },
+  {
+    "requirement_id": "REQ-012",
+    "operation": "normalize",
+    "result": {
+      "ok": true,
+      "code": "REQUIREMENT_ADDED",
+      "receipt": "SRC-151",
+      "rid": "SRC-151:R012",
+      "revision": 12
+    }
+  },
+  {
+    "requirement_id": "REQ-013",
+    "operation": "normalize",
+    "result": {
+      "ok": true,
+      "code": "REQUIREMENT_ADDED",
+      "receipt": "SRC-151",
+      "rid": "SRC-151:R013",
+      "revision": 13
+    }
+  },
+  {
+    "requirement_id": "REQ-014",
+    "operation": "normalize",
+    "result": {
+      "ok": true,
+      "code": "REQUIREMENT_ADDED",
+      "receipt": "SRC-151",
+      "rid": "SRC-151:R014",
+      "revision": 14
+    }
+  },
+  {
+    "requirement_id": "REQ-015",
+    "operation": "normalize",
+    "result": {
+      "ok": true,
+      "code": "REQUIREMENT_ADDED",
+      "receipt": "SRC-151",
+      "rid": "SRC-151:R015",
+      "revision": 15
+    }
+  },
+  {
+    "requirement_id": "REQ-016",
+    "operation": "normalize",
+    "result": {
+      "ok": true,
+      "code": "REQUIREMENT_ADDED",
+      "receipt": "SRC-151",
+      "rid": "SRC-151:R016",
+      "revision": 16
+    }
+  },
+  {
+    "requirement_id": "REQ-017",
+    "operation": "normalize",
+    "result": {
+      "ok": true,
+      "code": "REQUIREMENT_ADDED",
+      "receipt": "SRC-151",
+      "rid": "SRC-151:R017",
+      "revision": 17
+    }
+  },
+  {
+    "requirement_id": "REQ-018",
+    "operation": "normalize",
+    "result": {
+      "ok": true,
+      "code": "REQUIREMENT_ADDED",
+      "receipt": "SRC-151",
+      "rid": "SRC-151:R018",
+      "revision": 18
+    }
+  },
+  {
+    "requirement_id": "REQ-019",
+    "operation": "normalize",
+    "result": {
+      "ok": true,
+      "code": "REQUIREMENT_ADDED",
+      "receipt": "SRC-151",
+      "rid": "SRC-151:R019",
+      "revision": 19
+    }
+  },
+  {
+    "requirement_id": "REQ-020",
+    "operation": "normalize",
+    "result": {
+      "ok": true,
+      "code": "REQUIREMENT_ADDED",
+      "receipt": "SRC-151",
+      "rid": "SRC-151:R020",
+      "revision": 20
+    }
+  },
+  {
+    "requirement_id": "REQ-021",
+    "operation": "normalize",
+    "result": {
+      "ok": true,
+      "code": "REQUIREMENT_ADDED",
+      "receipt": "SRC-151",
+      "rid": "SRC-151:R021",
+      "revision": 21
+    }
+  },
+  {
+    "requirement_id": "REQ-022",
+    "operation": "normalize",
+    "result": {
+      "ok": true,
+      "code": "REQUIREMENT_ADDED",
+      "receipt": "SRC-151",
+      "rid": "SRC-151:R022",
+      "revision": 22
+    }
+  },
+  {
+    "requirement_id": "REQ-023",
+    "operation": "normalize",
+    "result": {
+      "ok": true,
+      "code": "REQUIREMENT_ADDED",
+      "receipt": "SRC-151",
+      "rid": "SRC-151:R023",
+      "revision": 23
+    }
+  },
+  {
+    "requirement_id": "REQ-024",
+    "operation": "normalize",
+    "result": {
+      "ok": true,
+      "code": "REQUIREMENT_ADDED",
+      "receipt": "SRC-151",
+      "rid": "SRC-151:R024",
+      "revision": 24
+    }
+  },
+  {
+    "requirement_id": "REQ-025",
+    "operation": "normalize",
+    "result": {
+      "ok": true,
+      "code": "REQUIREMENT_ADDED",
+      "receipt": "SRC-151",
+      "rid": "SRC-151:R025",
+      "revision": 25
+    }
+  },
+  {
+    "requirement_id": "REQ-026",
+    "operation": "normalize",
+    "result": {
+      "ok": true,
+      "code": "REQUIREMENT_ADDED",
+      "receipt": "SRC-151",
+      "rid": "SRC-151:R026",
+      "revision": 26
+    }
+  },
+  {
+    "requirement_id": "REQ-027",
+    "operation": "normalize",
+    "result": {
+      "ok": true,
+      "code": "REQUIREMENT_ADDED",
+      "receipt": "SRC-151",
+      "rid": "SRC-151:R027",
+      "revision": 27
+    }
+  },
+  {
+    "requirement_id": "REQ-028",
+    "operation": "normalize",
+    "result": {
+      "ok": true,
+      "code": "REQUIREMENT_ADDED",
+      "receipt": "SRC-151",
+      "rid": "SRC-151:R028",
+      "revision": 28
+    }
+  },
+  {
+    "requirement_id": "REQ-029",
+    "operation": "normalize",
+    "result": {
+      "ok": true,
+      "code": "REQUIREMENT_ADDED",
+      "receipt": "SRC-151",
+      "rid": "SRC-151:R029",
+      "revision": 29
+    }
+  },
+  {
+    "requirement_id": "REQ-030",
+    "operation": "normalize",
+    "result": {
+      "ok": true,
+      "code": "REQUIREMENT_ADDED",
+      "receipt": "SRC-151",
+      "rid": "SRC-151:R030",
+      "revision": 30
+    }
+  },
+  {
+    "requirement_id": "REQ-031",
+    "operation": "normalize",
+    "result": {
+      "ok": true,
+      "code": "REQUIREMENT_ADDED",
+      "receipt": "SRC-151",
+      "rid": "SRC-151:R031",
+      "revision": 31
+    }
+  },
+  {
+    "requirement_id": "REQ-032",
+    "operation": "normalize",
+    "result": {
+      "ok": true,
+      "code": "REQUIREMENT_ADDED",
+      "receipt": "SRC-151",
+      "rid": "SRC-151:R032",
+      "revision": 32
+    }
+  },
+  {
+    "requirement_id": "REQ-033",
+    "operation": "normalize",
+    "result": {
+      "ok": true,
+      "code": "REQUIREMENT_ADDED",
+      "receipt": "SRC-151",
+      "rid": "SRC-151:R033",
+      "revision": 33
+    }
+  },
+  {
+    "requirement_id": "REQ-034",
+    "operation": "normalize",
+    "result": {
+      "ok": true,
+      "code": "REQUIREMENT_ADDED",
+      "receipt": "SRC-151",
+      "rid": "SRC-151:R034",
+      "revision": 34
+    }
+  },
+  {
+    "requirement_id": "REQ-035",
+    "operation": "normalize",
+    "result": {
+      "ok": true,
+      "code": "REQUIREMENT_ADDED",
+      "receipt": "SRC-151",
+      "rid": "SRC-151:R035",
+      "revision": 35
+    }
+  },
+  {
+    "requirement_id": "REQ-036",
+    "operation": "normalize",
+    "result": {
+      "ok": true,
+      "code": "REQUIREMENT_ADDED",
+      "receipt": "SRC-151",
+      "rid": "SRC-151:R036",
+      "revision": 36
+    }
+  },
+  {
+    "requirement_id": "REQ-037",
+    "operation": "normalize",
+    "result": {
+      "ok": true,
+      "code": "REQUIREMENT_ADDED",
+      "receipt": "SRC-151",
+      "rid": "SRC-151:R037",
+      "revision": 37
+    }
+  },
+  {
+    "requirement_id": "REQ-038",
+    "operation": "normalize",
+    "result": {
+      "ok": true,
+      "code": "REQUIREMENT_ADDED",
+      "receipt": "SRC-151",
+      "rid": "SRC-151:R038",
+      "revision": 38
+    }
+  },
+  {
+    "requirement_id": "REQ-039",
+    "operation": "normalize",
+    "result": {
+      "ok": true,
+      "code": "REQUIREMENT_ADDED",
+      "receipt": "SRC-151",
+      "rid": "SRC-151:R039",
+      "revision": 39
+    }
+  },
+  {
+    "requirement_id": "REQ-040",
+    "operation": "normalize",
+    "result": {
+      "ok": true,
+      "code": "REQUIREMENT_ADDED",
+      "receipt": "SRC-151",
+      "rid": "SRC-151:R040",
+      "revision": 40
+    }
+  },
+  {
+    "requirement_id": "REQ-041",
+    "operation": "normalize",
+    "result": {
+      "ok": true,
+      "code": "REQUIREMENT_ADDED",
+      "receipt": "SRC-151",
+      "rid": "SRC-151:R041",
+      "revision": 41
+    }
+  },
+  {
+    "requirement_id": "USER-CHECKED-OFF-L056",
+    "operation": "normalize",
+    "result": {
+      "ok": true,
+      "code": "REQUIREMENT_ADDED",
+      "receipt": "SRC-151",
+      "rid": "SRC-151:R042",
+      "revision": 42
+    }
+  },
+  {
+    "requirement_id": "USER-CHECKED-OFF-L086",
+    "operation": "normalize",
+    "result": {
+      "ok": true,
+      "code": "REQUIREMENT_ADDED",
+      "receipt": "SRC-151",
+      "rid": "SRC-151:R043",
+      "revision": 43
+    }
+  },
+  {
+    "requirement_id": "USER-CHECKED-OFF-L095",
+    "operation": "normalize",
+    "result": {
+      "ok": true,
+      "code": "REQUIREMENT_ADDED",
+      "receipt": "SRC-151",
+      "rid": "SRC-151:R044",
+      "revision": 44
+    }
+  }
+]

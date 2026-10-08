@@ -1,0 +1,58 @@
+{
+  "at": "2026-10-04T14:56:24.304Z",
+  "digestMatches": true,
+  "remote": {
+    "refs/heads/zaicode": "522f5a5a17f5e448ae010199291812fcf5c55c25",
+    "refs/tags/test-20261004-522f5a5a^{}": "522f5a5a17f5e448ae010199291812fcf5c55c25"
+  },
+  "release": {
+    "assets": [
+      {
+        "apiUrl": "https://api.github.com/repos/vacterro/zaicode/releases/assets/610021697",
+        "contentType": "text/plain; charset=utf-8",
+        "createdAt": "2026-10-04T14:49:34Z",
+        "digest": "sha256:b06a07f27126f3f238a8e1025190b500169dd8008630555780760b17267d647f",
+        "downloadCount": 0,
+        "id": "RA_kwDOUrJv4c4kXDFB",
+        "label": "",
+        "name": "SHA256SUMS.txt",
+        "size": 93,
+        "state": "uploaded",
+        "updatedAt": "2026-10-04T14:49:34Z",
+        "url": "https://github.com/vacterro/zaicode/releases/download/test-20261004-522f5a5a/SHA256SUMS.txt"
+      },
+      {
+        "apiUrl": "https://api.github.com/repos/vacterro/zaicode/releases/assets/610021699",
+        "contentType": "application/json",
+        "createdAt": "2026-10-04T14:49:34Z",
+        "digest": "sha256:273407464036ef73976ea20ac49152ab9ee73406ffa0bf30dbc3c487ff138010",
+        "downloadCount": 0,
+        "id": "RA_kwDOUrJv4c4kXDFD",
+        "label": "",
+        "name": "verification.json",
+        "size": 2377,
+        "state": "uploaded",
+        "updatedAt": "2026-10-04T14:49:34Z",
+        "url": "https://github.com/vacterro/zaicode/releases/download/test-20261004-522f5a5a/verification.json"
+      },
+      {
+        "apiUrl": "https://api.github.com/repos/vacterro/zaicode/releases/assets/610021695",
+        "contentType": "application/octet-stream",
+        "createdAt": "2026-10-04T14:49:34Z",
+        "digest": "sha256:f81027fb548fd082dbd4f55903b1418f4ba673b67d61450dc5b10d59524101d2",
+        "downloadCount": 0,
+        "id": "RA_kwDOUrJv4c4kXDE_",
+        "label": "",
+        "name": "ZAICODE-3.14.0-win-x64.exe",
+        "size": 198553478,
+        "state": "uploaded",
+        "updatedAt": "2026-10-04T14:55:18Z",
+        "url": "https://github.com/vacterro/zaicode/releases/download/test-20261004-522f5a5a/ZAICODE-3.14.0-win-x64.exe"
+      }
+    ],
+    "isDraft": false,
+    "isPrerelease": true,
+    "tagName": "test-20261004-522f5a5a",
+    "url": "https://github.com/vacterro/zaicode/releases/tag/test-20261004-522f5a5a"
+  }
+}

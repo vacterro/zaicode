@@ -1,0 +1,319 @@
+{
+  "schema_version": 6,
+  "created_at": "2026-10-05T19:53:36",
+  "app_version": "0.8.72",
+  "category": "Code",
+  "silo_title": "ZAICODE (Evening 05 Oct - 19:47)",
+  "text_included": true,
+  "media_only": false,
+  "portable_paths": true,
+  "attachments_included": false,
+  "index_member": "silo.index.json",
+  "index_schema_version": 4,
+  "requirement_count": 17,
+  "group_count": 2,
+  "scoped_media_count": 15,
+  "unscoped_media_count": 0,
+  "bundle_kind": "selection_bundle",
+  "scope": "selection",
+  "bundle_status": "complete",
+  "index_status": "full",
+  "canonical_source": "fast_Пока_что_очень.md",
+  "warnings": [],
+  "omitted_local_refs": [],
+  "privacy": {
+    "local_refs_rewritten": 15,
+    "local_refs_omitted": 0,
+    "residual_paths_redacted": 0
+  },
+  "capabilities": {
+    "portable_markdown": true,
+    "structured_requirements": true,
+    "reverse_media_links": true,
+    "member_hashes": true,
+    "recursive_silo_media": true,
+    "share_safe_paths": true,
+    "detached_media_blocks": true,
+    "media_evidence": true,
+    "degraded_index_fallback": true
+  },
+  "source": {
+    "kind": "selection",
+    "silo_title": "ZAICODE (Evening 05 Oct - 19:47)",
+    "category": "Code",
+    "line_start": 3,
+    "line_end": 36
+  },
+  "build": {
+    "app_version": "0.8.72",
+    "source_revision": "4d6a59d08e761a02bd2504b64b721ade910b09ef",
+    "channel": "development",
+    "working_tree_dirty": true
+  },
+  "items": [
+    {
+      "member": "media/001_clipboard_20261005_194659_a8dd4995.png",
+      "display_name": "clipboard_20261005_194659_a8dd4995.png",
+      "media_type": "image",
+      "size": 2432,
+      "added_at": "2026-10-05T19:46:59",
+      "added_source": "filename_stamp",
+      "origin": "inline",
+      "status": "included",
+      "linked_requirements": [
+        "REQ-001"
+      ],
+      "width": null,
+      "height": null,
+      "sha256": "09d7adc558c4ef6c972014b68e702cc6ec64edfaacc94dee19dab466421f1656"
+    },
+    {
+      "member": "media/002_clipboard_20261005_194506_ba049648.png",
+      "display_name": "clipboard_20261005_194506_ba049648.png",
+      "media_type": "image",
+      "size": 10000,
+      "added_at": "2026-10-05T19:45:06",
+      "added_source": "filename_stamp",
+      "origin": "inline",
+      "status": "included",
+      "linked_requirements": [
+        "REQ-002"
+      ],
+      "width": null,
+      "height": null,
+      "sha256": "1938d903b07cc01c7512b8e837d8cd769a664faff1a24c2a262be1d9a07d8dbb"
+    },
+    {
+      "member": "media/003_clipboard_20261005_021327_245012af.png",
+      "display_name": "clipboard_20261005_021327_245012af.png",
+      "media_type": "image",
+      "size": 10264,
+      "added_at": "2026-10-05T02:13:27",
+      "added_source": "filename_stamp",
+      "origin": "inline",
+      "status": "included",
+      "linked_requirements": [
+        "REQ-006"
+      ],
+      "width": null,
+      "height": null,
+      "sha256": "62202d74041a13d73d3effa68a84263b070c1c568f51848f4686a0916cc4b3e3"
+    },
+    {
+      "member": "media/004_clipboard_20261005_001158_916a165b.png",
+      "display_name": "clipboard_20261005_001158_916a165b.png",
+      "media_type": "image",
+      "size": 6854,
+      "added_at": "2026-10-05T00:11:58",
+      "added_source": "filename_stamp",
+      "origin": "inline",
+      "status": "included",
+      "linked_requirements": [
+        "REQ-007"
+      ],
+      "width": null,
+      "height": null,
+      "sha256": "c5217c1030c59865bf6eba4f38013d116bb0da7ec23786423aac05a4284c7c62"
+    },
+    {
+      "member": "media/005_clipboard_20261004_201704_126aea3e.png",
+      "display_name": "clipboard_20261004_201704_126aea3e.png",
+      "media_type": "image",
+      "size": 40482,
+      "added_at": "2026-10-04T20:17:04",
+      "added_source": "filename_stamp",
+      "origin": "inline",
+      "status": "included",
+      "linked_requirements": [
+        "REQ-009"
+      ],
+      "width": null,
+      "height": null,
+      "sha256": "fc746eaa3f08882fbc64c108b9498cfefd87e469f70ffcf8d1b83a5276e95377"
+    },
+    {
+      "member": "media/006_clipboard_20261004_201606_bcb06d39.png",
+      "display_name": "clipboard_20261004_201606_bcb06d39.png",
+      "media_type": "image",
+      "size": 49040,
+      "added_at": "2026-10-04T20:16:06",
+      "added_source": "filename_stamp",
+      "origin": "inline",
+      "status": "included",
+      "linked_requirements": [
+        "REQ-009"
+      ],
+      "width": null,
+      "height": null,
+      "sha256": "ed093007cc640b0aa7bf6e1808c96b3da51c61f8b0e1077630498ad434a0e19f"
+    },
+    {
+      "member": "media/007_clipboard_20261004_233630_193397e8.png",
+      "display_name": "clipboard_20261004_233630_193397e8.png",
+      "media_type": "image",
+      "size": 39836,
+      "added_at": "2026-10-04T23:36:30",
+      "added_source": "filename_stamp",
+      "origin": "inline",
+      "status": "included",
+      "linked_requirements": [
+        "REQ-009"
+      ],
+      "width": null,
+      "height": null,
+      "sha256": "316ceb51ced230d86b0b3fb98527745d3d71d415e5f1040a11d6ce98caaba68e"
+    },
+    {
+      "member": "media/008_clipboard_20261004_184012_f4829648.png",
+      "display_name": "clipboard_20261004_184012_f4829648.png",
+      "media_type": "image",
+      "size": 28991,
+      "added_at": "2026-10-04T18:40:12",
+      "added_source": "filename_stamp",
+      "origin": "inline",
+      "status": "included",
+      "linked_requirements": [
+        "REQ-010"
+      ],
+      "width": null,
+      "height": null,
+      "sha256": "dbaf0898195c0775e7f3efb0967a0ba4f27f0202f4bda47485b54b76700bf18a"
+    },
+    {
+      "member": "media/009_clipboard_20261004_181959_a300c5bb.png",
+      "display_name": "clipboard_20261004_181959_a300c5bb.png",
+      "media_type": "image",
+      "size": 2183,
+      "added_at": "2026-10-04T18:19:59",
+      "added_source": "filename_stamp",
+      "origin": "inline",
+      "status": "included",
+      "linked_requirements": [
+        "REQ-011"
+      ],
+      "width": null,
+      "height": null,
+      "sha256": "f8da4b86c0083cfd6436dc8a937453cb08379ac2efbc6a744ad97588ab221402"
+    },
+    {
+      "member": "media/010_clipboard_20261004_182041_197b0fe1.png",
+      "display_name": "clipboard_20261004_182041_197b0fe1.png",
+      "media_type": "image",
+      "size": 4130,
+      "added_at": "2026-10-04T18:20:41",
+      "added_source": "filename_stamp",
+      "origin": "inline",
+      "status": "included",
+      "linked_requirements": [
+        "REQ-011"
+      ],
+      "width": null,
+      "height": null,
+      "sha256": "b1a6d217e91ae2a5871a97b07977304708dd758c93f195c712d6e3c9afbc39e1"
+    },
+    {
+      "member": "media/011_clipboard_20261004_181625_42c3f7c2.png",
+      "display_name": "clipboard_20261004_181625_42c3f7c2.png",
+      "media_type": "image",
+      "size": 47665,
+      "added_at": "2026-10-04T18:16:25",
+      "added_source": "filename_stamp",
+      "origin": "inline",
+      "status": "included",
+      "linked_requirements": [
+        "REQ-012"
+      ],
+      "width": null,
+      "height": null,
+      "sha256": "f4299202a8f75a2b35cec996f4a6d39edffe4aa9092bf0497583a714b0d5086b"
+    },
+    {
+      "member": "media/012_clipboard_20261004_174154_55be341c.png",
+      "display_name": "clipboard_20261004_174154_55be341c.png",
+      "media_type": "image",
+      "size": 3119,
+      "added_at": "2026-10-04T17:41:54",
+      "added_source": "filename_stamp",
+      "origin": "inline",
+      "status": "included",
+      "linked_requirements": [
+        "REQ-014"
+      ],
+      "width": null,
+      "height": null,
+      "sha256": "c0d7fc690f17e002f460aa2fe7b87537f5cbf52f38fe3528ae5448591ffb454f"
+    },
+    {
+      "member": "media/013_clipboard_20261004_174024_4b027ca7.png",
+      "display_name": "clipboard_20261004_174024_4b027ca7.png",
+      "media_type": "image",
+      "size": 3605,
+      "added_at": "2026-10-04T17:40:24",
+      "added_source": "filename_stamp",
+      "origin": "inline",
+      "status": "included",
+      "linked_requirements": [
+        "REQ-015"
+      ],
+      "width": null,
+      "height": null,
+      "sha256": "a361a012c7fa9d693030103057ae55f8ed9284cd1007b9248e92c8e704fa383a"
+    },
+    {
+      "member": "media/014_clipboard_20261004_170234_1bc7317c.png",
+      "display_name": "clipboard_20261004_170234_1bc7317c.png",
+      "media_type": "image",
+      "size": 1064,
+      "added_at": "2026-10-04T17:02:34",
+      "added_source": "filename_stamp",
+      "origin": "inline",
+      "status": "included",
+      "linked_requirements": [
+        "REQ-016"
+      ],
+      "width": null,
+      "height": null,
+      "sha256": "372e85afb483c9dd83f02b1ab56dbe03e4ae0fc3012bf4ce4895060dee5ce915"
+    },
+    {
+      "member": "media/015_clipboard_20261004_165948_96738f62.png",
+      "display_name": "clipboard_20261004_165948_96738f62.png",
+      "media_type": "image",
+      "size": 13967,
+      "added_at": "2026-10-04T16:59:48",
+      "added_source": "filename_stamp",
+      "origin": "inline",
+      "status": "included",
+      "linked_requirements": [
+        "REQ-017"
+      ],
+      "width": null,
+      "height": null,
+      "sha256": "ee3ae9b7b232c6548bf0091c4cc0b9c3009c234781a296223e2421deb71b5d66"
+    }
+  ],
+  "included": 15,
+  "missing": 0,
+  "producer": "FastPrompter",
+  "hashes": {
+    "media/001_clipboard_20261005_194659_a8dd4995.png": "09d7adc558c4ef6c972014b68e702cc6ec64edfaacc94dee19dab466421f1656",
+    "media/002_clipboard_20261005_194506_ba049648.png": "1938d903b07cc01c7512b8e837d8cd769a664faff1a24c2a262be1d9a07d8dbb",
+    "media/003_clipboard_20261005_021327_245012af.png": "62202d74041a13d73d3effa68a84263b070c1c568f51848f4686a0916cc4b3e3",
+    "media/004_clipboard_20261005_001158_916a165b.png": "c5217c1030c59865bf6eba4f38013d116bb0da7ec23786423aac05a4284c7c62",
+    "media/005_clipboard_20261004_201704_126aea3e.png": "fc746eaa3f08882fbc64c108b9498cfefd87e469f70ffcf8d1b83a5276e95377",
+    "media/006_clipboard_20261004_201606_bcb06d39.png": "ed093007cc640b0aa7bf6e1808c96b3da51c61f8b0e1077630498ad434a0e19f",
+    "media/007_clipboard_20261004_233630_193397e8.png": "316ceb51ced230d86b0b3fb98527745d3d71d415e5f1040a11d6ce98caaba68e",
+    "media/008_clipboard_20261004_184012_f4829648.png": "dbaf0898195c0775e7f3efb0967a0ba4f27f0202f4bda47485b54b76700bf18a",
+    "media/009_clipboard_20261004_181959_a300c5bb.png": "f8da4b86c0083cfd6436dc8a937453cb08379ac2efbc6a744ad97588ab221402",
+    "media/010_clipboard_20261004_182041_197b0fe1.png": "b1a6d217e91ae2a5871a97b07977304708dd758c93f195c712d6e3c9afbc39e1",
+    "media/011_clipboard_20261004_181625_42c3f7c2.png": "f4299202a8f75a2b35cec996f4a6d39edffe4aa9092bf0497583a714b0d5086b",
+    "media/012_clipboard_20261004_174154_55be341c.png": "c0d7fc690f17e002f460aa2fe7b87537f5cbf52f38fe3528ae5448591ffb454f",
+    "media/013_clipboard_20261004_174024_4b027ca7.png": "a361a012c7fa9d693030103057ae55f8ed9284cd1007b9248e92c8e704fa383a",
+    "media/014_clipboard_20261004_170234_1bc7317c.png": "372e85afb483c9dd83f02b1ab56dbe03e4ae0fc3012bf4ce4895060dee5ce915",
+    "media/015_clipboard_20261004_165948_96738f62.png": "ee3ae9b7b232c6548bf0091c4cc0b9c3009c234781a296223e2421deb71b5d66",
+    "fast_Пока_что_очень.md": "9db59bcdc1d4bf93922af8194364434871a1d08970e4a896d227aeb5358f3daa",
+    "silo.index.json": "555330ed891d9b70ba3111e3ca1f58b1f3e3c9f2fb183df132c3101f9ea2724a",
+    "README.txt": "6eba2e24e604184891522c012fcf355b2b9d117b58705c6870a5bf8330f3f23e"
+  },
+  "content_fingerprint": "9147ef165ee5c8758977d781097d1c8f6c648ac74c074d8386416fee97d27128"
+}

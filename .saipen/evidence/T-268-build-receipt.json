@@ -1,0 +1,29 @@
+{
+  "ticket": "T-268",
+  "builtAt": "2026-10-07T20:56:11.5307182Z",
+  "command": "pnpm bundle:zaicode --skip-prepare",
+  "exitCode": 0,
+  "delivery": "dist-next; live production preserved; applied by root launcher on next start",
+  "files": [
+    {
+      "path": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\dist-next\\win-unpacked\\resources\\app.asar",
+      "bytes": 420357774,
+      "sha256": "F022AE667282A4380EF5D832D5A74D51949743575AA2CCFA8D629654E7DC1C06"
+    },
+    {
+      "path": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\dist-next\\win-unpacked\\ZAICODE.exe",
+      "bytes": 222852096,
+      "sha256": "282E25DE736F11BE4B1FB557EFF0362790798A31EDF0FA11142A78284C0B9051"
+    },
+    {
+      "path": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\dist-next\\ZAICODE-3.14.0-win-x64_TEST.exe",
+      "bytes": 214201855,
+      "sha256": "F73D152B01B4AD624C6814760C220C17E18073D54EA0C91A21943893372E1443"
+    },
+    {
+      "path": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\dist-next\\boot-receipt.json",
+      "bytes": 1320,
+      "sha256": "C7255AEBC6F8F7430AB5BFEBAC3627F253E0F556CEB4A41AC57C87903B13B6CD"
+    }
+  ]
+}

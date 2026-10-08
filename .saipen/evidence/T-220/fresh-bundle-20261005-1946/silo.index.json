@@ -1,0 +1,394 @@
+{
+  "schema_version": 4,
+  "parser_status": "full",
+  "source_member": "fast_Пока_что_очень.md",
+  "requirements": [
+    {
+      "id": "REQ-001",
+      "source_order": 1,
+      "group_id": "GROUP-001",
+      "line_start": 1,
+      "line_end": 1,
+      "text": "• Пока что очень непредсказуемо себя ведёт эта кнопка auto retry нажимается но не переключается. Нужно проще и предскауземее чтобы работало точно. ![](media/001_clipboard_20261005_194659_a8dd4995.png)",
+      "plain_text": "Пока что очень непредсказуемо себя ведёт эта кнопка auto retry нажимается но не переключается. Нужно проще и предскауземее чтобы работало точно.",
+      "media": [
+        "media/001_clipboard_20261005_194659_a8dd4995.png"
+      ]
+    },
+    {
+      "id": "REQ-002",
+      "source_order": 2,
+      "group_id": "GROUP-001",
+      "line_start": 3,
+      "line_end": 3,
+      "text": "• Нужно учитывать такие приколы тоже, пусть auto goal будет умнее ненмого ![](media/002_clipboard_20261005_194506_ba049648.png)",
+      "plain_text": "Нужно учитывать такие приколы тоже, пусть auto goal будет умнее ненмого",
+      "media": [
+        "media/002_clipboard_20261005_194506_ba049648.png"
+      ]
+    },
+    {
+      "id": "REQ-003",
+      "source_order": 3,
+      "group_id": "GROUP-001",
+      "line_start": 5,
+      "line_end": 5,
+      "text": "• По идее Auto получается просто следит так чтобы goal cc all везде был выполнен до конца.",
+      "plain_text": "По идее Auto получается просто следит так чтобы goal cc all везде был выполнен до конца.",
+      "media": []
+    },
+    {
+      "id": "REQ-004",
+      "source_order": 4,
+      "group_id": "GROUP-001",
+      "line_start": 7,
+      "line_end": 7,
+      "text": "• ProTrail тоже должен сохраняться кнопкой Save all в кнопке ZAICODE для разработчика для следующего билда и все другие тоже. Тоесть вот то состояние которое щас фиксирую всё должно также сохраняться нормально всё до единого, ProTrail motion wake OFF по умолчанию",
+      "plain_text": "ProTrail тоже должен сохраняться кнопкой Save all в кнопке ZAICODE для разработчика для следующего билда и все другие тоже. Тоесть вот то состояние которое щас фиксирую всё должно также сохраняться нормально всё до единого, ProTrail motion wake OFF по умолчанию",
+      "media": []
+    },
+    {
+      "id": "REQ-005",
+      "source_order": 5,
+      "group_id": "GROUP-001",
+      "line_start": 9,
+      "line_end": 9,
+      "text": "• Нужен индикатор что сессия оборвалассь связь с API и сейчас пытается переподключиться вместо ложного \"работает щас\". ",
+      "plain_text": "Нужен индикатор что сессия оборвалассь связь с API и сейчас пытается переподключиться вместо ложного \"работает щас\".",
+      "media": []
+    },
+    {
+      "id": "REQ-006",
+      "source_order": 6,
+      "group_id": "GROUP-002",
+      "line_start": 12,
+      "line_end": 12,
+      "text": "• До сих пор нет фолбека нормального ![](media/003_clipboard_20261005_021327_245012af.png)",
+      "plain_text": "До сих пор нет фолбека нормального",
+      "media": [
+        "media/003_clipboard_20261005_021327_245012af.png"
+      ]
+    },
+    {
+      "id": "REQ-007",
+      "source_order": 7,
+      "group_id": "GROUP-002",
+      "line_start": 14,
+      "line_end": 14,
+      "text": "• Здесь composer не вмещается все элементы нужные нужно исправить пусть динамически будет тогда нормально ![](media/004_clipboard_20261005_001158_916a165b.png)",
+      "plain_text": "Здесь composer не вмещается все элементы нужные нужно исправить пусть динамически будет тогда нормально",
+      "media": [
+        "media/004_clipboard_20261005_001158_916a165b.png"
+      ]
+    },
+    {
+      "id": "REQ-008",
+      "source_order": 8,
+      "group_id": "GROUP-002",
+      "line_start": 16,
+      "line_end": 16,
+      "text": "• Бывает еще ProTrail иногда уходит на самый задний план за всеми программами будто и лечится перезапуском.",
+      "plain_text": "Бывает еще ProTrail иногда уходит на самый задний план за всеми программами будто и лечится перезапуском.",
+      "media": []
+    },
+    {
+      "id": "REQ-009",
+      "source_order": 9,
+      "group_id": "GROUP-002",
+      "line_start": 18,
+      "line_end": 18,
+      "text": "• Может быть такой баг когда максимизирую окно а оно вот так максимизируется ![](media/005_clipboard_20261004_201704_126aea3e.png) ![](media/006_clipboard_20261004_201606_bcb06d39.png) ![](media/007_clipboard_20261004_233630_193397e8.png)",
+      "plain_text": "Может быть такой баг когда максимизирую окно а оно вот так максимизируется",
+      "media": [
+        "media/005_clipboard_20261004_201704_126aea3e.png",
+        "media/006_clipboard_20261004_201606_bcb06d39.png",
+        "media/007_clipboard_20261004_233630_193397e8.png"
+      ]
+    },
+    {
+      "id": "REQ-010",
+      "source_order": 10,
+      "group_id": "GROUP-002",
+      "line_start": 20,
+      "line_end": 20,
+      "text": "• всё еще показывает что \"работает\" но на самом деле уже закончил работу ![](media/008_clipboard_20261004_184012_f4829648.png)",
+      "plain_text": "всё еще показывает что \"работает\" но на самом деле уже закончил работу",
+      "media": [
+        "media/008_clipboard_20261004_184012_f4829648.png"
+      ]
+    },
+    {
+      "id": "REQ-011",
+      "source_order": 11,
+      "group_id": "GROUP-002",
+      "line_start": 22,
+      "line_end": 22,
+      "text": "• Здесь когда авто goal cc all включен и отправляю это ![](media/009_clipboard_20261004_181959_a300c5bb.png) в queued строке пишется только goal cc all где нет даже ![](media/010_clipboard_20261004_182041_197b0fe1.png) индикатора что там файл вложен - это нужно решить",
+      "plain_text": "Здесь когда авто goal cc all включен и отправляю это в queued строке пишется только goal cc all где нет даже индикатора что там файл вложен - это нужно решить",
+      "media": [
+        "media/009_clipboard_20261004_181959_a300c5bb.png",
+        "media/010_clipboard_20261004_182041_197b0fe1.png"
+      ]
+    },
+    {
+      "id": "REQ-012",
+      "source_order": 12,
+      "group_id": "GROUP-002",
+      "line_start": 24,
+      "line_end": 24,
+      "text": "• ZAICODE должен поддерживать полноценную поддержку нового аккаунтной системы в real time желательно чтобы всё подстраивалось очевидно и надёжно. Я вот зашёл во второй гугл аккаунт к примеру в SAITULS Accounts, а ZAICODE еще видимо старую имеет механику что путает. ![](media/011_clipboard_20261004_181625_42c3f7c2.png) - даже нет зайтии в другие подписки вручную и несколько аккаунтов одного вендора тока Codex и Claude вижу и всё, нужно в общем это решить грамотно.",
+      "plain_text": "ZAICODE должен поддерживать полноценную поддержку нового аккаунтной системы в real time желательно чтобы всё подстраивалось очевидно и надёжно. Я вот зашёл во второй гугл аккаунт к примеру в SAITULS Accounts, а ZAICODE еще видимо старую имеет механику что путает. - даже нет зайтии в другие подписки вручную и несколько аккаунтов одного вендора тока Codex и Claude вижу и всё, нужно в общем это решить грамотно.",
+      "media": [
+        "media/011_clipboard_20261004_181625_42c3f7c2.png"
+      ]
+    },
+    {
+      "id": "REQ-013",
+      "source_order": 13,
+      "group_id": "GROUP-002",
+      "line_start": 26,
+      "line_end": 26,
+      "text": "• ZAICODE нужно сделать A3 audit wave вообще глобально переключаемым toggleable чтобы если юзер не хочет чтобы auto conitnue/continue all чтобы они генерировались автоматически и это должн быть очевидно, тоесть скажем вкладка Audit в ZAICODE глобальная enabled disabled.",
+      "plain_text": "ZAICODE нужно сделать A3 audit wave вообще глобально переключаемым toggleable чтобы если юзер не хочет чтобы auto conitnue/continue all чтобы они генерировались автоматически и это должн быть очевидно, тоесть скажем вкладка Audit в ZAICODE глобальная enabled disabled.",
+      "media": []
+    },
+    {
+      "id": "REQ-014",
+      "source_order": 14,
+      "group_id": "GROUP-002",
+      "line_start": 28,
+      "line_end": 28,
+      "text": "• Кнопки могут налезать на друг друга ![](media/012_clipboard_20261004_174154_55be341c.png)",
+      "plain_text": "Кнопки могут налезать на друг друга",
+      "media": [
+        "media/012_clipboard_20261004_174154_55be341c.png"
+      ]
+    },
+    {
+      "id": "REQ-015",
+      "source_order": 15,
+      "group_id": "GROUP-002",
+      "line_start": 30,
+      "line_end": 30,
+      "text": "• Тултипы могут спавниться влевом верхнем углу вместо нормального положения ![](media/013_clipboard_20261004_174024_4b027ca7.png)",
+      "plain_text": "Тултипы могут спавниться влевом верхнем углу вместо нормального положения",
+      "media": [
+        "media/013_clipboard_20261004_174024_4b027ca7.png"
+      ]
+    },
+    {
+      "id": "REQ-016",
+      "source_order": 16,
+      "group_id": "GROUP-002",
+      "line_start": 32,
+      "line_end": 32,
+      "text": "• Правая кнопка здесь должна открывать настройки этих кнопок ![](media/014_clipboard_20261004_170234_1bc7317c.png) - вообще нужно везде такое приложить правило где юзер ожидает на правую кнопку настройки данной кнопки где это в большей части реализовано везде в ZAICODE. Тоесть должен быть тоггл правой кнопкой на 3 функцию режима или показывать как щас или вот так как хотел бы.",
+      "plain_text": "Правая кнопка здесь должна открывать настройки этих кнопок - вообще нужно везде такое приложить правило где юзер ожидает на правую кнопку настройки данной кнопки где это в большей части реализовано везде в ZAICODE. Тоесть должен быть тоггл правой кнопкой на 3 функцию режима или показывать как щас или вот так как хотел бы.",
+      "media": [
+        "media/014_clipboard_20261004_170234_1bc7317c.png"
+      ]
+    },
+    {
+      "id": "REQ-017",
+      "source_order": 17,
+      "group_id": "GROUP-002",
+      "line_start": 34,
+      "line_end": 34,
+      "text": "• Такие вот гигантские тултипы вообще недопустимы ![](media/015_clipboard_20261004_165948_96738f62.png)",
+      "plain_text": "Такие вот гигантские тултипы вообще недопустимы",
+      "media": [
+        "media/015_clipboard_20261004_165948_96738f62.png"
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "id": "GROUP-001",
+      "source_order": 1,
+      "line_start": 1,
+      "line_end": 10,
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-002",
+        "REQ-003",
+        "REQ-004",
+        "REQ-005"
+      ],
+      "first_requirement_preview": "Пока что очень непредсказуемо себя ведёт эта кнопка auto retry нажимается но не "
+    },
+    {
+      "id": "GROUP-002",
+      "source_order": 2,
+      "line_start": 12,
+      "line_end": 34,
+      "requirement_ids": [
+        "REQ-006",
+        "REQ-007",
+        "REQ-008",
+        "REQ-009",
+        "REQ-010",
+        "REQ-011",
+        "REQ-012",
+        "REQ-013",
+        "REQ-014",
+        "REQ-015",
+        "REQ-016",
+        "REQ-017"
+      ],
+      "first_requirement_preview": "До сих пор нет фолбека нормального"
+    }
+  ],
+  "media_evidence": [
+    {
+      "member": "media/001_clipboard_20261005_194659_a8dd4995.png",
+      "source_line_start": 1,
+      "source_line_end": 1,
+      "association": "direct",
+      "requirement_ids": [
+        "REQ-001"
+      ],
+      "group_id": "GROUP-001"
+    },
+    {
+      "member": "media/002_clipboard_20261005_194506_ba049648.png",
+      "source_line_start": 3,
+      "source_line_end": 3,
+      "association": "direct",
+      "requirement_ids": [
+        "REQ-002"
+      ],
+      "group_id": "GROUP-001"
+    },
+    {
+      "member": "media/003_clipboard_20261005_021327_245012af.png",
+      "source_line_start": 12,
+      "source_line_end": 12,
+      "association": "direct",
+      "requirement_ids": [
+        "REQ-006"
+      ],
+      "group_id": "GROUP-002"
+    },
+    {
+      "member": "media/004_clipboard_20261005_001158_916a165b.png",
+      "source_line_start": 14,
+      "source_line_end": 14,
+      "association": "direct",
+      "requirement_ids": [
+        "REQ-007"
+      ],
+      "group_id": "GROUP-002"
+    },
+    {
+      "member": "media/005_clipboard_20261004_201704_126aea3e.png",
+      "source_line_start": 18,
+      "source_line_end": 18,
+      "association": "direct",
+      "requirement_ids": [
+        "REQ-009"
+      ],
+      "group_id": "GROUP-002"
+    },
+    {
+      "member": "media/006_clipboard_20261004_201606_bcb06d39.png",
+      "source_line_start": 18,
+      "source_line_end": 18,
+      "association": "direct",
+      "requirement_ids": [
+        "REQ-009"
+      ],
+      "group_id": "GROUP-002"
+    },
+    {
+      "member": "media/007_clipboard_20261004_233630_193397e8.png",
+      "source_line_start": 18,
+      "source_line_end": 18,
+      "association": "direct",
+      "requirement_ids": [
+        "REQ-009"
+      ],
+      "group_id": "GROUP-002"
+    },
+    {
+      "member": "media/008_clipboard_20261004_184012_f4829648.png",
+      "source_line_start": 20,
+      "source_line_end": 20,
+      "association": "direct",
+      "requirement_ids": [
+        "REQ-010"
+      ],
+      "group_id": "GROUP-002"
+    },
+    {
+      "member": "media/009_clipboard_20261004_181959_a300c5bb.png",
+      "source_line_start": 22,
+      "source_line_end": 22,
+      "association": "direct",
+      "requirement_ids": [
+        "REQ-011"
+      ],
+      "group_id": "GROUP-002"
+    },
+    {
+      "member": "media/010_clipboard_20261004_182041_197b0fe1.png",
+      "source_line_start": 22,
+      "source_line_end": 22,
+      "association": "direct",
+      "requirement_ids": [
+        "REQ-011"
+      ],
+      "group_id": "GROUP-002"
+    },
+    {
+      "member": "media/011_clipboard_20261004_181625_42c3f7c2.png",
+      "source_line_start": 24,
+      "source_line_end": 24,
+      "association": "direct",
+      "requirement_ids": [
+        "REQ-012"
+      ],
+      "group_id": "GROUP-002"
+    },
+    {
+      "member": "media/012_clipboard_20261004_174154_55be341c.png",
+      "source_line_start": 28,
+      "source_line_end": 28,
+      "association": "direct",
+      "requirement_ids": [
+        "REQ-014"
+      ],
+      "group_id": "GROUP-002"
+    },
+    {
+      "member": "media/013_clipboard_20261004_174024_4b027ca7.png",
+      "source_line_start": 30,
+      "source_line_end": 30,
+      "association": "direct",
+      "requirement_ids": [
+        "REQ-015"
+      ],
+      "group_id": "GROUP-002"
+    },
+    {
+      "member": "media/014_clipboard_20261004_170234_1bc7317c.png",
+      "source_line_start": 32,
+      "source_line_end": 32,
+      "association": "direct",
+      "requirement_ids": [
+        "REQ-016"
+      ],
+      "group_id": "GROUP-002"
+    },
+    {
+      "member": "media/015_clipboard_20261004_165948_96738f62.png",
+      "source_line_start": 34,
+      "source_line_end": 34,
+      "association": "direct",
+      "requirement_ids": [
+        "REQ-017"
+      ],
+      "group_id": "GROUP-002"
+    }
+  ],
+  "unscoped_media": []
+}

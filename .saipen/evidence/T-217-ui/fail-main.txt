@@ -1,0 +1,82 @@
+Command palette
+
+Search and run commands available in this workspace.
+
+SAIHOME
+ZAICODE
+SCHEDULER
+off
+WORKERS
+CONTINUE ALL
+1
+Auto OFF
+DONE
+0
+SAIFREN
+SAIOPP
+SAIRoute / SAIFREN
+A1
+C1
+AG
+◆
+Projects
+1
+continuity-project
+vacuum34
+CONTINUITY-PROJECT
+Fixture answer
+Sun 4 Oct · 20:10:10 · Evening
+AG ↺ 1h 12m
+AG
+Fixture continuity A
+Copy
+Worked for 1s
+
+Fixture answer.
+
+Worked for 1s
+Copy
+Like
+Dislike
+Fork
+08:09 PM
+saipen collect wiki
+Copy
+Worked for 1s
+Worked for 1s
+Fixture retry failure
+Copy
+Edit
+Worked for 1s
+Worked for 1s
+Fixture rejected the model request.
+Show details
+Copy
+Report issue
+Auto is OFF: nothing retries by itself. Retry now, or turn Auto ON in the sidebar.
+Retry now
+Stop auto-retry
+Auto retry off · session retry preference is off
+This session
+Inherit
+
+
+
+
+Ask for follow-up changes
+◇ MAIN?
+INIT SAIPEN
+CLEAR
+No .saipen/ in this project — SAIPEN memory not initialized.
+Add context
+Full access
+1
+COLLECT
+SAIFREN
+SAIOPP
+Auto-Goal off — write /goal cc all yourself
+Auto retry off · session retry preference is off
+This session
+Inherit
+Send
+0

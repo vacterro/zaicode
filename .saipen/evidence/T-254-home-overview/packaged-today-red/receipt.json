@@ -1,0 +1,17 @@
+{
+  "ticket": "T-254",
+  "executablePath": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\dist-t254\\win-unpacked\\ZAICODE.exe",
+  "profile": "V:\\_TEMP_\\zaicode-t254-profile-yDtQTK",
+  "fixtureRows": 500021,
+  "checks": [],
+  "seed": {
+    "rows": 500021,
+    "path": "V:\\_TEMP_\\zaicode-t254-profile-yDtQTK\\.zaicode\\v2\\tasks-index.sqlite"
+  },
+  "pass": false,
+  "stage": "boot",
+  "error": "Error: browserContext.addInitScript: Target page, context or browser has been closed",
+  "pageErrors": [],
+  "metrics": null,
+  "asarSha256": "c5902f3997d56ce055d533cdd7fb536cddee8e1cba30cd35256e55784c360ece"
+}

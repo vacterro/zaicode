@@ -1,0 +1,511 @@
+{
+  "ticket": "T-268",
+  "executablePath": "V:/___VAC/__K/__CODE/_AI_STUFF_AGENTIC/_ZAICODE/zcode/node_modules/electron/dist/electron.exe",
+  "profile": "V:\\_TEMP_\\zaicode-t268-xe7ZoZ",
+  "checks": [
+    {
+      "name": "isolated profile",
+      "pass": true
+    },
+    {
+      "name": "pointer near default snaps to persisted 264px",
+      "pass": true,
+      "detail": "264"
+    },
+    {
+      "name": "second STATE click closes draft inspector",
+      "pass": true
+    },
+    {
+      "name": "OFF project switch persists",
+      "pass": true,
+      "detail": [
+        "V:\\_TEMP_\\zaicode-t268-xe7ZoZ\\scheduler-fixture"
+      ]
+    },
+    {
+      "name": "OFF admission is visible in schedule status",
+      "pass": true
+    },
+    {
+      "name": "automatic tick leaves blocked occurrence unconsumed",
+      "pass": true,
+      "detail": {
+        "id": "native-off",
+        "name": "Native OFF",
+        "enabled": true,
+        "projectPath": "V:\\_TEMP_\\zaicode-t268-xe7ZoZ\\scheduler-fixture",
+        "engineId": "fixture:missing",
+        "trigger": "at",
+        "at": 1791406373882,
+        "catchUpSeconds": 900,
+        "createdAt": 1791406373882,
+        "firedEvents": [],
+        "lastRunAt": null,
+        "continuation": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "name": "enabling within catch-up admits exactly one attempt",
+      "pass": true,
+      "detail": {
+        "name": "Native OFF",
+        "enabled": false,
+        "targetKind": "project",
+        "section": "MAIN0",
+        "watchEngineId": "",
+        "stopAt": "",
+        "runs": [],
+        "trigger": "at",
+        "at": 1791406373882,
+        "dailyTime": "08:00",
+        "intervalMinutes": 60,
+        "window": "five_hour",
+        "prompt": "",
+        "beforeRun": "none",
+        "onlyWhenIdle": false,
+        "order": "problems",
+        "onlyMarked": false,
+        "safetyDelaySeconds": 60,
+        "catchUpSeconds": 900,
+        "requireQuota": true,
+        "firedEvents": [
+          "at:1791406373882"
+        ],
+        "lastRunAt": 1791406406380,
+        "lastResult": "10/7/2026, 11:53:26 PM · engine not found",
+        "createdAt": 1791406373882,
+        "id": "native-off",
+        "projectPath": "V:\\_TEMP_\\zaicode-t268-xe7ZoZ\\scheduler-fixture",
+        "engineId": "fixture:missing",
+        "continuation": {
+          "enabled": false,
+          "runnerIds": [],
+          "delayMinutes": 1,
+          "returnToPreferred": true,
+          "recoveryDelayMinutes": 1
+        },
+        "continuationRuns": []
+      }
+    },
+    {
+      "name": "following tick cannot duplicate attempt",
+      "pass": true,
+      "detail": [
+        "at:1791406373882"
+      ]
+    },
+    {
+      "name": "selected A2 actually receives the native scheduled worker lease",
+      "pass": true,
+      "detail": [
+        {
+          "workspaceKey": "V:\\_TEMP_\\zaicode-t268-xe7ZoZ\\scheduler-fixture",
+          "projectPath": "V:\\_TEMP_\\zaicode-t268-xe7ZoZ\\scheduler-fixture",
+          "occurrence": "reset:fixture%3AA2:five_hour:1791406427083",
+          "runnerId": "fixture:A2",
+          "lease": "375b6dc0-a11b-4bcd-9455-a13818465c07",
+          "state": "running",
+          "workerId": "zaicode-worker:375b6dc0-a11b-4bcd-9455-a13818465c07",
+          "generation": 1,
+          "blocked": [],
+          "nextAt": 1791406434932,
+          "launchedAt": 1791406434932,
+          "startedAt": 1791406434932,
+          "result": "Continuing on fixture:A2"
+        }
+      ]
+    },
+    {
+      "name": "advanced quota snapshot dispatches the previous real reset exactly once",
+      "pass": true,
+      "detail": [
+        "reset:fixture%3AA2:five_hour:1791406427083"
+      ]
+    },
+    {
+      "name": "visible activity follows the actual A2 worker",
+      "pass": true
+    },
+    {
+      "name": "no inference fixture requests",
+      "pass": true
+    },
+    {
+      "name": "no renderer errors",
+      "pass": true,
+      "detail": []
+    }
+  ],
+  "pass": true,
+  "errors": [],
+  "requests": [
+    {
+      "method": "GET",
+      "path": "/api/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/combos"
+    },
+    {
+      "method": "POST",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/settings"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/settings"
+    },
+    {
+      "method": "GET",
+      "path": "/api/keys"
+    },
+    {
+      "method": "POST",
+      "path": "/api/keys"
+    },
+    {
+      "method": "GET",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/combos"
+    },
+    {
+      "method": "GET",
+      "path": "/api/models"
+    },
+    {
+      "method": "GET",
+      "path": "/api/version"
+    },
+    {
+      "method": "GET",
+      "path": "/api/models"
+    },
+    {
+      "method": "GET",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/combos"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/models"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/combos"
+    },
+    {
+      "method": "GET",
+      "path": "/api/models"
+    },
+    {
+      "method": "GET",
+      "path": "/api/settings"
+    },
+    {
+      "method": "GET",
+      "path": "/api/usage/stats?period=today"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/combos"
+    },
+    {
+      "method": "POST",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/keys"
+    },
+    {
+      "method": "POST",
+      "path": "/api/keys"
+    },
+    {
+      "method": "GET",
+      "path": "/api/version"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/models"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/combos"
+    },
+    {
+      "method": "GET",
+      "path": "/api/models"
+    },
+    {
+      "method": "GET",
+      "path": "/api/settings"
+    },
+    {
+      "method": "GET",
+      "path": "/api/usage/stats?period=today"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/combos"
+    },
+    {
+      "method": "POST",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/keys"
+    },
+    {
+      "method": "POST",
+      "path": "/api/keys"
+    },
+    {
+      "method": "GET",
+      "path": "/api/version"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/models"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/combos"
+    },
+    {
+      "method": "GET",
+      "path": "/api/models"
+    },
+    {
+      "method": "GET",
+      "path": "/api/settings"
+    },
+    {
+      "method": "GET",
+      "path": "/api/usage/stats?period=today"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/combos"
+    },
+    {
+      "method": "POST",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/keys"
+    },
+    {
+      "method": "POST",
+      "path": "/api/keys"
+    },
+    {
+      "method": "GET",
+      "path": "/api/version"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/models"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/provider-nodes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/combos"
+    },
+    {
+      "method": "GET",
+      "path": "/api/models"
+    },
+    {
+      "method": "GET",
+      "path": "/api/settings"
+    },
+    {
+      "method": "GET",
+      "path": "/api/usage/stats?period=today"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers"
+    }
+  ],
+  "verifierSha256": "38a69911d1d13acfdb0d630405da9b9de531accab9e7bf86f8f015e726da3406"
+}

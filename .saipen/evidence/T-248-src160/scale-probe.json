@@ -1,0 +1,39 @@
+{
+  "ticket": "T-248",
+  "requirement": "SRC-160:R012",
+  "audit": "PERF-001",
+  "date": "2026-10-06T20:10:20.499Z",
+  "windowLimit": 200,
+  "measurements": [
+    {
+      "jobs": 100000,
+      "fullRows": 100001,
+      "fullMs": 784.22,
+      "boundedRows": 201,
+      "boundedMs": 1.54,
+      "boundedPlan": "SEARCH zaicode_jobs USING INDEX idx_zaicode_jobs_recent (workspace_key=?)",
+      "fullPlan": "SEARCH zaicode_jobs USING INDEX idx_zaicode_jobs_recent (workspace_key=?)",
+      "oldJobFetchable": true,
+      "activeJobPresent": true,
+      "indexBuildMs": 96.33,
+      "boundedSubsetOfFull": true,
+      "everyOpenJobKept": true,
+      "windowOnlyRowsAreNewest": true
+    },
+    {
+      "jobs": 500000,
+      "fullRows": 500001,
+      "fullMs": 4899.57,
+      "boundedRows": 201,
+      "boundedMs": 2.35,
+      "boundedPlan": "SEARCH zaicode_jobs USING INDEX idx_zaicode_jobs_recent (workspace_key=?)",
+      "fullPlan": "SEARCH zaicode_jobs USING INDEX idx_zaicode_jobs_recent (workspace_key=?)",
+      "oldJobFetchable": true,
+      "activeJobPresent": true,
+      "indexBuildMs": 555.96,
+      "boundedSubsetOfFull": true,
+      "everyOpenJobKept": true,
+      "windowOnlyRowsAreNewest": true
+    }
+  ]
+}

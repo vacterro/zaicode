@@ -1,0 +1,24 @@
+[
+  {
+    "scenario": "stale-batch",
+    "inserted": 1,
+    "floor": 200,
+    "rows": 1,
+    "bugConfirmed": true
+  },
+  {
+    "scenario": "floor-write-failure",
+    "error": "Error: fixture floor failure",
+    "rows": 0,
+    "cursor": 0,
+    "bugConfirmed": true
+  },
+  {
+    "scenario": "post-commit-writer",
+    "writerFloor": 0,
+    "inserted": 1,
+    "rows": 1,
+    "floor": 200,
+    "bugConfirmed": true
+  }
+]

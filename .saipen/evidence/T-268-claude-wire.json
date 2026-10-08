@@ -1,0 +1,20 @@
+{
+  "pass": true,
+  "exit": 0,
+  "requests": [
+    {
+      "path": "/v1/messages?beta=true",
+      "max_tokens": 8,
+      "tools": 0,
+      "model": "claude-haiku-5-5"
+    }
+  ],
+  "outcome": {
+    "ok": true,
+    "detail": "started with one haiku request (10 in / 1 out tokens)"
+  },
+  "stdout": "{\"duration_api_ms\":15,\"stop_reason\":\"end_turn\",\"session_id\":\"4e8a0bbc-311c-4ca9-bc6c-fea7adcc9105\",\"total_cost_usd\":0.0000015,\"usage\":{\"input_tokens\":10,\"cache_creation_input_tokens\":0,\"cache_read_input_tokens\":0,\"output_tokens\":1,\"output_tokens_details\":{\"thinking_tokens\":0},\"server_tool_use\":{\"web_search_requests\":0,\"web_fetch_requests\":0},\"service_tier\":\"standard\",\"cache_creation\":{\"ephemeral_1h_input_tokens\":0,\"ephemeral_5m_input_tokens\":0},\"inference_geo\":\"\",\"iterations\":[],\"speed\":\"standard\",\"fallback_credit\":null},\"modelUsage\":{\"claude-haiku-5-5\":{\"inputTokens\":10,\"outputTokens\":1,\"cacheReadInputTokens\":0,\"cacheCreationInputTokens\":0,\"webSearchRequests\":0,\"costUSD\":0.0000015,\"contextWindow\":1000000,\"maxOutputTokens\":128000,\"thinkingTokens\":0,\"canonicalModel\":\"claude-haiku-5-5\",\"provider\":\"firstParty\",\"costBasis\":\"list\"}},\"permission_denials\":[],\"terminal_reason\":\"completed\",\"fast_mode_state\":\"off\",\"fast_mode_disabled_reason\":\"sdk_opt_in_required\",\"subagent_stats\":{\"spawned\":0,\"requested\":{\"background\":0,\"foreground\":0,\"unset\":0},\"started_in_background\":0,\"max_depth\":0,\"spawned_by_subagents\":0,\"completed\":0,\"failed\":0,\"killed\":{\"parent\":0,\"user\":0,\"system\":0},\"refused\":{\"depth_limit\":0,\"concurrency_limit\":0,\"budget\":0},\"by_type\":{}},\"safety_stops\":0,\"is_error\":false,\"num_turns\":1,\"subtype\":\"success\",\"api_error_status\":null,\"result\":\"ok\",\"ttft_ms\":54,\"type\":\"result\",\"duration_ms\":59,\"uuid\":\"4deb2d39-230e-4761-9b97-62fdf7d201ae\",\"ttft_stream_ms\":53,\"time_to_request_ms\":45,\"first_content_frame_ms\":53,\"queued_turn_count\":0,\"result_index\":0}\n",
+  "stderr": "We're changing auto mode to no longer charge for classifier requests in Claude Code. However, this session isn't eligible because your requests go through 127.0.0.1:20121, which isn't compatible with this update. Nothing breaks: auto mode keeps working, and its classifier requests are billed as before. To fix it and access the new version of auto mode, ask your gateway to implement: https://code.claude.com/docs/en/auto-mode-classifier-billing\n",
+  "fixtureOnly": true,
+  "noVendorInference": true
+}

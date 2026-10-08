@@ -1,0 +1,479 @@
+{
+  "ticket": "T-254",
+  "executablePath": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\dist-t254\\win-unpacked\\ZAICODE.exe",
+  "profile": "V:\\_TEMP_\\zaicode-t254-profile-nuTFU1",
+  "fixtureRows": 500021,
+  "checks": [
+    {
+      "name": "same packaged count oracle rejects a real wrong fixture",
+      "pass": true,
+      "detail": {
+        "channel": "zaicode-jobs",
+        "elapsedMs": 30.69999998807907,
+        "responseBytes": 7685,
+        "rows": 26,
+        "diagnostics": 0,
+        "counts": {
+          "running": 0,
+          "ready": 2,
+          "waiting": 2,
+          "blocked": 2,
+          "doneToday": 12,
+          "failedToday": 3
+        },
+        "doneLast24h": 12,
+        "dayStart": 1791320400000,
+        "capturedAt": 1791352398162,
+        "openIds": [
+          "old-blocked",
+          "old-draft",
+          "old-queued",
+          "old-ready",
+          "old-running",
+          "old-waiting"
+        ]
+      }
+    },
+    {
+      "name": "same packaged count oracle accepts restored good fixture",
+      "pass": true
+    },
+    {
+      "name": "Now displays all 12 durable completions today despite ingestion backlog",
+      "pass": true,
+      "detail": "NOW\nWORKING\nidle\nQUEUE\n1 run · 2 ready\nTODAY\n0 tok · 12 done\nNEXT RESET\nnone pending\nNEXT START\nnothing armed\nHEALTH\nall clear"
+    },
+    {
+      "name": "actual observation lasted at least 60 seconds",
+      "pass": true,
+      "detail": 60140
+    },
+    {
+      "name": "existing automatic refreshes reached native overview RPC",
+      "pass": true,
+      "detail": 5
+    },
+    {
+      "name": "every 500k overview returns 26 rows and exact day/live facts",
+      "pass": true,
+      "detail": [
+        {
+          "channel": "zaicode-jobs",
+          "elapsedMs": 26.100000023841858,
+          "responseBytes": 7685,
+          "rows": 26,
+          "diagnostics": 0,
+          "counts": {
+            "running": 1,
+            "ready": 2,
+            "waiting": 2,
+            "blocked": 1,
+            "doneToday": 12,
+            "failedToday": 3
+          },
+          "doneLast24h": 12,
+          "dayStart": 1791320400000,
+          "capturedAt": 1791352411956,
+          "openIds": [
+            "old-blocked",
+            "old-draft",
+            "old-queued",
+            "old-ready",
+            "old-running",
+            "old-waiting"
+          ]
+        },
+        {
+          "channel": "zaicode-jobs",
+          "elapsedMs": 23.599999994039536,
+          "responseBytes": 7685,
+          "rows": 26,
+          "diagnostics": 0,
+          "counts": {
+            "running": 1,
+            "ready": 2,
+            "waiting": 2,
+            "blocked": 1,
+            "doneToday": 12,
+            "failedToday": 3
+          },
+          "doneLast24h": 12,
+          "dayStart": 1791320400000,
+          "capturedAt": 1791352426971,
+          "openIds": [
+            "old-blocked",
+            "old-draft",
+            "old-queued",
+            "old-ready",
+            "old-running",
+            "old-waiting"
+          ]
+        },
+        {
+          "channel": "zaicode-jobs",
+          "elapsedMs": 20.700000017881393,
+          "responseBytes": 7685,
+          "rows": 26,
+          "diagnostics": 0,
+          "counts": {
+            "running": 1,
+            "ready": 2,
+            "waiting": 2,
+            "blocked": 1,
+            "doneToday": 12,
+            "failedToday": 3
+          },
+          "doneLast24h": 12,
+          "dayStart": 1791320400000,
+          "capturedAt": 1791352428717,
+          "openIds": [
+            "old-blocked",
+            "old-draft",
+            "old-queued",
+            "old-ready",
+            "old-running",
+            "old-waiting"
+          ]
+        },
+        {
+          "channel": "zaicode-jobs",
+          "elapsedMs": 25.299999982118607,
+          "responseBytes": 7685,
+          "rows": 26,
+          "diagnostics": 0,
+          "counts": {
+            "running": 1,
+            "ready": 2,
+            "waiting": 2,
+            "blocked": 1,
+            "doneToday": 12,
+            "failedToday": 3
+          },
+          "doneLast24h": 12,
+          "dayStart": 1791320400000,
+          "capturedAt": 1791352441972,
+          "openIds": [
+            "old-blocked",
+            "old-draft",
+            "old-queued",
+            "old-ready",
+            "old-running",
+            "old-waiting"
+          ]
+        },
+        {
+          "channel": "zaicode-jobs",
+          "elapsedMs": 24,
+          "responseBytes": 7685,
+          "rows": 26,
+          "diagnostics": 0,
+          "counts": {
+            "running": 1,
+            "ready": 2,
+            "waiting": 2,
+            "blocked": 1,
+            "doneToday": 12,
+            "failedToday": 3
+          },
+          "doneLast24h": 12,
+          "dayStart": 1791320400000,
+          "capturedAt": 1791352456984,
+          "openIds": [
+            "old-blocked",
+            "old-draft",
+            "old-queued",
+            "old-ready",
+            "old-running",
+            "old-waiting"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "every oldest active job survives RPC transfer",
+      "pass": true,
+      "detail": [
+        [
+          "old-blocked",
+          "old-draft",
+          "old-queued",
+          "old-ready",
+          "old-running",
+          "old-waiting"
+        ],
+        [
+          "old-blocked",
+          "old-draft",
+          "old-queued",
+          "old-ready",
+          "old-running",
+          "old-waiting"
+        ],
+        [
+          "old-blocked",
+          "old-draft",
+          "old-queued",
+          "old-ready",
+          "old-running",
+          "old-waiting"
+        ],
+        [
+          "old-blocked",
+          "old-draft",
+          "old-queued",
+          "old-ready",
+          "old-running",
+          "old-waiting"
+        ],
+        [
+          "old-blocked",
+          "old-draft",
+          "old-queued",
+          "old-ready",
+          "old-running",
+          "old-waiting"
+        ]
+      ]
+    },
+    {
+      "name": "home makes no full job-list RPC",
+      "pass": true,
+      "detail": {
+        "calls": {
+          "zaicode-jobs.getAutoRun": 5,
+          "provider-settings.getView": 6,
+          "provider-settings.createPersonalProvider": 1,
+          "credential.load": 6,
+          "provider-settings.addPersonalModel": 2,
+          "zcode-agent.subscribeSessionsIndexV4": 1,
+          "zaicode-jobs.getHomeOverview": 5,
+          "zaicode-stats.getHomeStats": 5,
+          "zaicode-stats.getRecentActivity": 5,
+          "file.readTextFile": 4,
+          "off-peak-task.list": 2,
+          "zaicode-audits.publishProjects": 1,
+          "zaicode-audits.smartSweep": 1,
+          "zaicode-audits.getState": 1
+        },
+        "jobLists": [
+          {
+            "channel": "off-peak-task",
+            "workspaceFilter": false,
+            "bounded": false
+          },
+          {
+            "channel": "off-peak-task",
+            "workspaceFilter": false,
+            "bounded": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "production React root commits are observed with home mounted",
+      "pass": true,
+      "detail": {
+        "root": 311,
+        "home": 311
+      }
+    },
+    {
+      "name": "core home queue/today/fleet projections are visible",
+      "pass": true,
+      "detail": {
+        "now": "NOW\nWORKING\nidle\nQUEUE\n1 run · 2 ready\nTODAY\n0 tok · 12 done\nNEXT RESET\nA2 2h 45m\nNEXT START\nnothing armed\nHEALTH\nall clear",
+        "home": "SAIHOME\nTODAY\n0\nYDAY\n0\nWEEK\n0\nMONTH\n0\nALL\n0\nEVERYTHING\nMINIMAL\nOPERATOR\nSTATS\nFACTORY\nCUSTOM\nEdit layout\nRefresh\nNew task\nCLOCK\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n08:54:18\nWednesday, 7 October 2026 · EEST\nNOW\nWORKING\nidle\nQUEUE\n1 run · 2 ready\nTODAY\n0 tok · 12 done\nNEXT RESET\nA2 2h 45m\nNEXT START\nnothing armed\nHEALTH\nall clear\nTOKENS & WORK\nmeasured\nTODAY\n0\n0 req · 0 done\nYESTERDAY\n0\n0 req · 0 done\nWEEK\n0\n0 req · 5000 done\nMONTH\n0\n0 req · 5000 done\nALL TIME\n0\n0 req · 5000 done\ntoday\nweek\nmonth\nall\nin 0 · out 0 · cache 0\nagents 0s · model 0s\n0 done · 0 failed · 0 worker session(s)\nLocal only. Tokens: in-app model requests (agent usage store). CLI workers report no token counts.\nAI LIMITS\nshow all (+6)\nAntigravity\n[updated 1m ago]\nGemini weekly\n37%\n— resets Tue 06:27\nGemini 5h\n25%\n— resets in 3h 10m\nClaude & GPT weekly\n0%\n— resets Tue 06:31\nClaude & GPT 5h\n0%\n— blocked by Claude & GPT weekly\nClaude 1\n(subscription)\n[updated 1m ago]\n5h\n10%\n— resets in 2h 45m\nweekly\n59%\n— resets Tue 16:59\nCodex 1\n(plus)\n[updated 1m ago]\n5h\n24%\n— resets in 2h 50m\nweekly\n88%\n— resets Wed 06:44\nCodex 2\n(plus)\n[updated 1m ago]\n5h\n30%\n— resets in 2h 51m\nweekly\n89%\n— resets Wed 06:45\nGPT Reserve weekly\n0%\n— resets in 28h 19m\nSCHEDULER\nNothing armed: plan a prompt for the next quota reset\nPROJECTS\n0 project(s)\nNo project open yet: add one from the sidebar (Open folder).\nAGENTS\n1 running · 2 queued · 1 blocked · 12 done 24h\n⚙\nFixture running\nACTIVITY\nstreak 0d · longest 1d · 1 active day(s)\nMeasure\nActivity\nTokens\nTasks done\nRuns\nRuntime\n2026-10-07: 0 tokens · 0 requests · 0 turns · 0 tasks done · 0 worker sessions · runtime 0s\nROUTING\nisolated (auto)\nRouter healthy\nSAIFREN 18 · SAIOPP 0 · providers 3/3 · scan 1m ago\nNUMBERS\nhover a line for its formula\nCurrent / longest streak\n0d / 1d\nTokens today vs yesterday\nnot enough data\nLast 7 days vs the 7 before\nnot enough data\nQueue run success\n100%\nModel request failures\nnot enough data\nCache share\nnot enough data\nTasks per 1M tokens\nnot enough data\nRecovered runs\n0\nAverage run\n0s\nLongest autonomous run\n—\nPeak hour\nnot enough data\nBusiest day\nnot enough data\nMost used model\nnot enough data\nMost active project\nt254-probe\nRECENT\n0m ago\nfree model added · Today 14 free models added to SAIFREN\n1m ago\nSAIFREN ready · SAIFREN is ready\n2d 0h ago\nrun done · t254-probe\n2d 0h ago\nrun done · t254-probe\n2d 0h ago\nrun done · t254-probe\n2d 0h ago\nrun done · t254-probe\n2d 0h ago\nrun done · t254-probe\n2d 0h ago\nrun done · t254-probe\n2d 0h ago\nrun done · t254-probe\n2d 0h ago\nrun done · t254-probe\n2d 0h ago\nrun done · t254-probe\n2d 0h ago\nrun done · t254-probe"
+      }
+    },
+    {
+      "name": "manual refresh remains usable",
+      "pass": true,
+      "detail": 1
+    },
+    {
+      "name": "zero renderer and observer/RPC errors",
+      "pass": true,
+      "detail": {
+        "pageErrors": [],
+        "observer": []
+      }
+    }
+  ],
+  "seed": {
+    "rows": 500021,
+    "path": "V:\\_TEMP_\\zaicode-t254-profile-nuTFU1\\.zaicode\\v2\\tasks-index.sqlite"
+  },
+  "startupErrors": [],
+  "observationMs": 60140,
+  "metrics": {
+    "calls": {
+      "zaicode-jobs.getAutoRun": 5,
+      "provider-settings.getView": 6,
+      "provider-settings.createPersonalProvider": 1,
+      "credential.load": 6,
+      "provider-settings.addPersonalModel": 2,
+      "zcode-agent.subscribeSessionsIndexV4": 1,
+      "zaicode-jobs.getHomeOverview": 5,
+      "zaicode-stats.getHomeStats": 5,
+      "zaicode-stats.getRecentActivity": 5,
+      "file.readTextFile": 4,
+      "off-peak-task.list": 2,
+      "zaicode-audits.publishProjects": 1,
+      "zaicode-audits.smartSweep": 1,
+      "zaicode-audits.getState": 1
+    },
+    "jobLists": [
+      {
+        "channel": "off-peak-task",
+        "workspaceFilter": false,
+        "bounded": false
+      },
+      {
+        "channel": "off-peak-task",
+        "workspaceFilter": false,
+        "bounded": false
+      }
+    ],
+    "overviews": [
+      {
+        "channel": "zaicode-jobs",
+        "elapsedMs": 26.100000023841858,
+        "responseBytes": 7685,
+        "rows": 26,
+        "diagnostics": 0,
+        "counts": {
+          "running": 1,
+          "ready": 2,
+          "waiting": 2,
+          "blocked": 1,
+          "doneToday": 12,
+          "failedToday": 3
+        },
+        "doneLast24h": 12,
+        "dayStart": 1791320400000,
+        "capturedAt": 1791352411956,
+        "openIds": [
+          "old-blocked",
+          "old-draft",
+          "old-queued",
+          "old-ready",
+          "old-running",
+          "old-waiting"
+        ]
+      },
+      {
+        "channel": "zaicode-jobs",
+        "elapsedMs": 23.599999994039536,
+        "responseBytes": 7685,
+        "rows": 26,
+        "diagnostics": 0,
+        "counts": {
+          "running": 1,
+          "ready": 2,
+          "waiting": 2,
+          "blocked": 1,
+          "doneToday": 12,
+          "failedToday": 3
+        },
+        "doneLast24h": 12,
+        "dayStart": 1791320400000,
+        "capturedAt": 1791352426971,
+        "openIds": [
+          "old-blocked",
+          "old-draft",
+          "old-queued",
+          "old-ready",
+          "old-running",
+          "old-waiting"
+        ]
+      },
+      {
+        "channel": "zaicode-jobs",
+        "elapsedMs": 20.700000017881393,
+        "responseBytes": 7685,
+        "rows": 26,
+        "diagnostics": 0,
+        "counts": {
+          "running": 1,
+          "ready": 2,
+          "waiting": 2,
+          "blocked": 1,
+          "doneToday": 12,
+          "failedToday": 3
+        },
+        "doneLast24h": 12,
+        "dayStart": 1791320400000,
+        "capturedAt": 1791352428717,
+        "openIds": [
+          "old-blocked",
+          "old-draft",
+          "old-queued",
+          "old-ready",
+          "old-running",
+          "old-waiting"
+        ]
+      },
+      {
+        "channel": "zaicode-jobs",
+        "elapsedMs": 25.299999982118607,
+        "responseBytes": 7685,
+        "rows": 26,
+        "diagnostics": 0,
+        "counts": {
+          "running": 1,
+          "ready": 2,
+          "waiting": 2,
+          "blocked": 1,
+          "doneToday": 12,
+          "failedToday": 3
+        },
+        "doneLast24h": 12,
+        "dayStart": 1791320400000,
+        "capturedAt": 1791352441972,
+        "openIds": [
+          "old-blocked",
+          "old-draft",
+          "old-queued",
+          "old-ready",
+          "old-running",
+          "old-waiting"
+        ]
+      },
+      {
+        "channel": "zaicode-jobs",
+        "elapsedMs": 24,
+        "responseBytes": 7685,
+        "rows": 26,
+        "diagnostics": 0,
+        "counts": {
+          "running": 1,
+          "ready": 2,
+          "waiting": 2,
+          "blocked": 1,
+          "doneToday": 12,
+          "failedToday": 3
+        },
+        "doneLast24h": 12,
+        "dayStart": 1791320400000,
+        "capturedAt": 1791352456984,
+        "openIds": [
+          "old-blocked",
+          "old-draft",
+          "old-queued",
+          "old-ready",
+          "old-running",
+          "old-waiting"
+        ]
+      }
+    ],
+    "errors": [],
+    "rootCommits": 311,
+    "homeRootCommits": 311,
+    "manualRefreshes": 1
+  },
+  "dom": "SAIHOME\nTODAY\n0\nYDAY\n0\nWEEK\n0\nMONTH\n0\nALL\n0\nEVERYTHING\nMINIMAL\nOPERATOR\nSTATS\nFACTORY\nCUSTOM\nEdit layout\nRefresh\nNew task\nCLOCK\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n08:54:18\nWednesday, 7 October 2026 · EEST\nNOW\nWORKING\nidle\nQUEUE\n1 run · 2 ready\nTODAY\n0 tok · 12 done\nNEXT RESET\nA2 2h 45m\nNEXT START\nnothing armed\nHEALTH\nall clear\nTOKENS & WORK\nmeasured\nTODAY\n0\n0 req · 0 done\nYESTERDAY\n0\n0 req · 0 done\nWEEK\n0\n0 req · 5000 done\nMONTH\n0\n0 req · 5000 done\nALL TIME\n0\n0 req · 5000 done\ntoday\nweek\nmonth\nall\nin 0 · out 0 · cache 0\nagents 0s · model 0s\n0 done · 0 failed · 0 worker session(s)\nLocal only. Tokens: in-app model requests (agent usage store). CLI workers report no token counts.\nAI LIMITS\nshow all (+6)\nAntigravity\n[updated 1m ago]\nGemini weekly\n37%\n— resets Tue 06:27\nGemini 5h\n25%\n— resets in 3h 10m\nClaude & GPT weekly\n0%\n— resets Tue 06:31\nClaude & GPT 5h\n0%\n— blocked by Claude & GPT weekly\nClaude 1\n(subscription)\n[updated 1m ago]\n5h\n10%\n— resets in 2h 45m\nweekly\n59%\n— resets Tue 16:59\nCodex 1\n(plus)\n[updated 1m ago]\n5h\n24%\n— resets in 2h 50m\nweekly\n88%\n— resets Wed 06:44\nCodex 2\n(plus)\n[updated 1m ago]\n5h\n30%\n— resets in 2h 51m\nweekly\n89%\n— resets Wed 06:45\nGPT Reserve weekly\n0%\n— resets in 28h 19m\nSCHEDULER\nNothing armed: plan a prompt for the next quota reset\nPROJECTS\n0 project(s)\nNo project open yet: add one from the sidebar (Open folder).\nAGENTS\n1 running · 2 queued · 1 blocked · 12 done 24h\n⚙\nFixture running\nACTIVITY\nstreak 0d · longest 1d · 1 active day(s)\nMeasure\nActivity\nTokens\nTasks done\nRuns\nRuntime\n2026-10-07: 0 tokens · 0 requests · 0 turns · 0 tasks done · 0 worker sessions · runtime 0s\nROUTING\nisolated (auto)\nRouter healthy\nSAIFREN 18 · SAIOPP 0 · providers 3/3 · scan 1m ago\nNUMBERS\nhover a line for its formula\nCurrent / longest streak\n0d / 1d\nTokens today vs yesterday\nnot enough data\nLast 7 days vs the 7 before\nnot enough data\nQueue run success\n100%\nModel request failures\nnot enough data\nCache share\nnot enough data\nTasks per 1M tokens\nnot enough data\nRecovered runs\n0\nAverage run\n0s\nLongest autonomous run\n—\nPeak hour\nnot enough data\nBusiest day\nnot enough data\nMost used model\nnot enough data\nMost active project\nt254-probe\nRECENT\n0m ago\nfree model added · Today 14 free models added to SAIFREN\n1m ago\nSAIFREN ready · SAIFREN is ready\n2d 0h ago\nrun done · t254-probe\n2d 0h ago\nrun done · t254-probe\n2d 0h ago\nrun done · t254-probe\n2d 0h ago\nrun done · t254-probe\n2d 0h ago\nrun done · t254-probe\n2d 0h ago\nrun done · t254-probe\n2d 0h ago\nrun done · t254-probe\n2d 0h ago\nrun done · t254-probe\n2d 0h ago\nrun done · t254-probe\n2d 0h ago\nrun done · t254-probe",
+  "nowDom": "NOW\nWORKING\nidle\nQUEUE\n1 run · 2 ready\nTODAY\n0 tok · 12 done\nNEXT RESET\nA2 2h 45m\nNEXT START\nnothing armed\nHEALTH\nall clear",
+  "pageErrors": [],
+  "pass": true,
+  "asarSha256": "8e9700525fec603393c8ae3070e94db0b5558b05d63cc26dcd27c54db4024091"
+}

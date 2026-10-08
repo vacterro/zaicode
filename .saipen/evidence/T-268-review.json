@@ -1,0 +1,46 @@
+{
+  "ticket": "T-268",
+  "pass": true,
+  "checks": [
+    {
+      "name": "T-268 final subject matches frozen comparison",
+      "pass": true
+    },
+    {
+      "name": "T-268 oracle unchanged",
+      "pass": true
+    },
+    {
+      "name": "T-268 ui independent tests pass",
+      "pass": true
+    },
+    {
+      "name": "T-268 desktop independent tests pass",
+      "pass": true
+    },
+    {
+      "name": "T-267 final subject matches frozen comparison",
+      "pass": true
+    },
+    {
+      "name": "T-267 oracle unchanged",
+      "pass": true
+    },
+    {
+      "name": "T-267 ui independent tests pass",
+      "pass": true
+    },
+    {
+      "name": "packaged native 13 checks pass",
+      "pass": true
+    },
+    {
+      "name": "packaged native binds current ASAR",
+      "pass": true
+    },
+    {
+      "name": "packaged native binds unchanged verifier",
+      "pass": true
+    }
+  ]
+}

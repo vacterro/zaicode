@@ -1,0 +1,35 @@
+{
+  "ticket": "T-268",
+  "oracle": "41ba687ccd37641ca9000d81d321157c5e650f240fa40841e0cd9a84cfc57eb0",
+  "originalSubject": "3e2de886f8bbd20500386f2b1053b30b9bcfbb913234486c5abc01f254f7daef",
+  "fixedSubject": "a04cccf0f040ae20f8d0c73ef32456a78345957c08f8a803d404a406260350c3",
+  "red": [
+    1,
+    1
+  ],
+  "green": [
+    0,
+    0
+  ],
+  "scope": [
+    "packages/shared/src/zaicode-engines.ts",
+    "packages/ui/src/zaicode/zaicodeAutostart.ts",
+    "packages/ui/src/zaicode/ZaicodeSchedulerPanel.tsx",
+    "packages/ui/src/zaicode/zaicodeSidebarWidth.ts",
+    "packages/ui/src/zaicode/zaicodeActions.ts",
+    "packages/ui/src/lib/workspaceSidePane.ts",
+    "packages/ui/src/hooks/useAppPanels.ts",
+    "packages/ui/src/App.tsx",
+    "packages/ui/src/app-shell/types.ts",
+    "packages/ui/src/app-shell/WorkspaceShellLayout.tsx",
+    "packages/desktop/src/main/zaicodeWindowStarter.ts",
+    "packages/desktop/src/main/zaicodeEngines.ts"
+  ],
+  "tests": [
+    "packages/ui/test/zaicodeSchedulerAdmission.test.ts",
+    "packages/ui/test/zaicodeWindowPoolAdmission.test.ts",
+    "packages/ui/test/zaicodeSchedulerResetBoundary.test.ts",
+    "packages/ui/test/zaicodeSaipenToggle.test.ts",
+    "packages/desktop/test/zaicodeBoundedWindowStart.test.ts"
+  ]
+}

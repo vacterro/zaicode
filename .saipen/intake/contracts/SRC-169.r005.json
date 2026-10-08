@@ -1,0 +1,34 @@
+{
+  "clauses": {
+    "SRC-169:R001": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Model maintainer discovers current models across all providers, appends newly verified free models such as exo-free to SAIFREN, retires genuinely unsupported models, revives available models and prioritizes free availability from trustworthy provider catalogues."
+    },
+    "SRC-169:R002": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Add an explicit responsiveness Check using model listings or metadata/health endpoints without generating tokens; make the checked capability and limitations visible."
+    },
+    "SRC-169:R003": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Allow model order changes by dragging and persist the order in the actual router combos while preserving external changes."
+    },
+    "SRC-169:R004": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Provide the full local 9router provider catalogue and connection functionality shown in the supplied screenshot, preserving API-key/OAuth onboarding and available provider options."
+    },
+    "SRC-169:R005": {
+      "actionable": true,
+      "class": "requirement",
+      "text": "Keep ZAICODE fully live-synchronized with the installed local router; when none is installed, provide equivalent internal-router behavior without losing connections, models or settings."
+    }
+  },
+  "derived_at": "2026-10-07T08:59:22Z",
+  "derived_from": "SRC-169",
+  "interpretation_revision": 5,
+  "schema_version": 1,
+  "source_sha256": "3d3065a227e07e627a4b6a61c697d5d1daeb96b6fc82289004e911916c59793c"
+}

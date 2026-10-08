@@ -1,0 +1,905 @@
+{
+ "schema_version": 1,
+ "work": "T-220",
+ "request_receipt": "SRC-150",
+ "bundle_receipt": "SRC-151",
+ "status": "PROVISIONAL_INTAKE_NOT_ACCEPTANCE",
+ "bundle_source_sha256": "04e376c8edac885970da8b17767ed64f2bdc0f8856dd77c0430b3e389a863871",
+ "indexed_requirements": 41,
+ "raw_source_clauses": 44,
+ "screenshots_preserved": 34,
+ "blockers": [],
+ "requirements": [
+  {
+   "requirement_id": "REQ-001",
+   "clause_id": "R001",
+   "source_order": 1,
+   "group_id": "GROUP-001",
+   "line_start": 3,
+   "line_end": 3,
+   "text": "• До сих пор нет фолбека нормального ![](media/001_clipboard_20261005_021327_245012af.png)",
+   "media": [
+    "media/001_clipboard_20261005_021327_245012af.png"
+   ],
+   "disposition": "VERIFIED",
+   "reason": "Packaged desktop outage scenario executed on dist-t220 with ok:true (ECONNREFUSED, 10 bounded recovery attempts, internal fallback UI + fallback inference CONTINUITY_B, safe return to preferred, same session/objective, 0 paid vendor requests). Remaining limitation carried from the receipt: the original screenshot runtime stays unattributed.",
+   "historical_work": [],
+   "implementation_evidence": [
+    ".saipen/evidence/T-220/packaged-outage-2026-10-05T03-09-17-171Z/receipt.json"
+   ],
+   "current_verification": "MACHINE_GATES_PASS; receipt ok:true (.saipen/evidence/T-220/packaged-outage-2026-10-05T03-09-17-171Z/receipt.json); MANUAL_PENDING for screenshot attribution only",
+   "class": "requirement"
+  },
+  {
+   "requirement_id": "REQ-002",
+   "clause_id": "R002",
+   "source_order": 2,
+   "group_id": "GROUP-001",
+   "line_start": 5,
+   "line_end": 5,
+   "text": "• Здесь composer не вмещается все элементы нужные нужно исправить пусть динамически будет тогда нормально ![](media/002_clipboard_20261005_001158_916a165b.png)",
+   "media": [
+    "media/002_clipboard_20261005_001158_916a165b.png"
+   ],
+   "disposition": "BUILT",
+   "reason": "The composer strip measured only its left column against its left container, so a wide trailing cluster read as 'always fits' and the ladder walked to its end still overflowed. Now the whole row is the available width (leading + trailing + gap), the final rungs narrow the model name and then its icon, and the row wraps rather than silently dropping a button (UI.md Predictability #1/#2).",
+   "historical_work": [],
+   "implementation_evidence": [
+    "zcode/packages/ui/src/prompt-editor/useComposerToolbarFit.ts",
+    "zcode/packages/ui/test/zaicodeComposerStripFit.test.ts"
+   ],
+   "current_verification": "MACHINE_GATES_PASS; MANUAL_PENDING",
+   "class": "requirement"
+  },
+  {
+   "requirement_id": "REQ-003",
+   "clause_id": "R003",
+   "source_order": 3,
+   "group_id": "GROUP-001",
+   "line_start": 7,
+   "line_end": 7,
+   "text": "• Бывает еще ProTrail иногда уходит на самый задний план за всеми программами будто и лечится перезапуском.",
+   "media": [],
+   "disposition": "BUILT",
+   "reason": "ProTrail re-asserted its bring-to-front policy, but the re-assert was issued against the window's own stale z-order rather than the policy's owner, so a competing raise immediately undid it. The re-assert now names the policy owner explicitly.",
+   "historical_work": [],
+   "implementation_evidence": [
+    "zcode/packages/desktop/src/main/zaicodeProtrailGlobal.ts",
+    "zcode/packages/desktop/test/zaicodeProtrailReadiness.test.ts",
+    "zcode/packages/desktop/test/zaicodeProtrailStartup.test.ts",
+    "zcode/packages/desktop/test/support/protrailHarness.ts"
+   ],
+   "current_verification": "MACHINE_GATES_PASS; MANUAL_PENDING",
+   "class": "requirement"
+  },
+  {
+   "requirement_id": "REQ-004",
+   "clause_id": "R004",
+   "source_order": 4,
+   "group_id": "GROUP-001",
+   "line_start": 9,
+   "line_end": 9,
+   "text": "• Может быть такой баг когда максимизирую окно а оно вот так максимизируется ![](media/003_clipboard_20261004_201704_126aea3e.png) ![](media/004_clipboard_20261004_201606_bcb06d39.png) ![](media/005_clipboard_20261004_233630_193397e8.png)",
+   "media": [
+    "media/003_clipboard_20261004_201704_126aea3e.png",
+    "media/004_clipboard_20261004_201606_bcb06d39.png",
+    "media/005_clipboard_20261004_233630_193397e8.png"
+   ],
+   "disposition": "BUILT",
+   "reason": "A maximized window was sized to the full monitor bounds instead of the Windows work area, so the title bar slid under the taskbar. Native maximize now uses the work area and the restore geometry the user had is preserved across the round trip.",
+   "historical_work": [],
+   "implementation_evidence": [
+    "zcode/packages/desktop/src/main/desktopWindowSize.ts",
+    "zcode/packages/desktop/src/main/desktopWindowChrome.ts",
+    "zcode/packages/desktop/test/desktopWindowSize.test.ts"
+   ],
+   "current_verification": "MACHINE_GATES_PASS; MANUAL_PENDING",
+   "class": "requirement"
+  },
+  {
+   "requirement_id": "REQ-005",
+   "clause_id": "R005",
+   "source_order": 5,
+   "group_id": "GROUP-001",
+   "line_start": 11,
+   "line_end": 11,
+   "text": "• всё еще показывает что \"работает\" но на самом деле уже закончил работу ![](media/006_clipboard_20261004_184012_f4829648.png)",
+   "media": [
+    "media/006_clipboard_20261004_184012_f4829648.png"
+   ],
+   "disposition": "BUILT",
+   "reason": "The stall detector's guard was a constant that was always true, so every running job was reported as live regardless of its last progress timestamp. The guard now compares against the real last-progress time and a genuinely silent job stalls.",
+   "historical_work": [],
+   "implementation_evidence": [
+    "zcode/packages/ui/src/zaicode/zaicodeStall.ts",
+    "zcode/packages/ui/test/zaicodeSrc81Stall.test.ts"
+   ],
+   "current_verification": "MACHINE_GATES_PASS; MANUAL_PENDING",
+   "class": "requirement"
+  },
+  {
+   "requirement_id": "REQ-006",
+   "clause_id": "R006",
+   "source_order": 6,
+   "group_id": "GROUP-001",
+   "line_start": 13,
+   "line_end": 13,
+   "text": "• Здесь когда авто goal cc all включен и отправляю это ![](media/007_clipboard_20261004_181959_a300c5bb.png) в queued строке пишется только goal cc all где нет даже ![](media/008_clipboard_20261004_182041_197b0fe1.png) индикатора что там файл вложен - это нужно решить",
+   "media": [
+    "media/007_clipboard_20261004_181959_a300c5bb.png",
+    "media/008_clipboard_20261004_182041_197b0fe1.png"
+   ],
+   "disposition": "BUILT",
+   "reason": "A queued row listed the job and its status but dropped the attachments it was going to send, so the queue was not a truthful picture of what was pending. The row now shows them.",
+   "historical_work": [],
+   "implementation_evidence": [
+    "zcode/packages/ui/src/v4/ConversationQueuePanel.tsx",
+    "zcode/packages/ui/test/zaicodeT220QueueAttachments.test.ts"
+   ],
+   "current_verification": "MACHINE_GATES_PASS; MANUAL_PENDING",
+   "class": "requirement"
+  },
+  {
+   "requirement_id": "REQ-007",
+   "clause_id": "R007",
+   "source_order": 7,
+   "group_id": "GROUP-001",
+   "line_start": 15,
+   "line_end": 15,
+   "text": "• ZAICODE должен поддерживать полноценную поддержку нового аккаунтной системы в real time желательно чтобы всё подстраивалось очевидно и надёжно. Я вот зашёл во второй гугл аккаунт к примеру в SAITULS Accounts, а ZAICODE еще видимо старую имеет механику что путает. ![](media/009_clipboard_20261004_181625_42c3f7c2.png) - даже нет зайтии в другие подписки вручную и несколько аккаунтов одного вендора тока Codex и Claude вижу и всё, нужно в общем это решить грамотно.",
+   "media": [
+    "media/009_clipboard_20261004_181625_42c3f7c2.png"
+   ],
+   "disposition": "BUILT",
+   "reason": "SAI Accounts were absent from provider discovery and could only be added by hand, one at a time. Now they are wired into discovery and the manual add is table-driven rather than one bespoke row per vendor.",
+   "historical_work": [],
+   "implementation_evidence": [
+    "zcode/packages/provider-node/src/sai-accounts-source.ts",
+    "zcode/packages/shared/src/zaicode-engines.ts",
+    "zcode/packages/ui/src/settings/ZaicodeEnginesSettings.tsx",
+    "zcode/packages/ui/test/zaicodeT220SharedAccounts.test.ts"
+   ],
+   "current_verification": "MACHINE_GATES_PASS; MANUAL_PENDING",
+   "class": "requirement"
+  },
+  {
+   "requirement_id": "REQ-008",
+   "clause_id": "R008",
+   "source_order": 8,
+   "group_id": "GROUP-001",
+   "line_start": 17,
+   "line_end": 17,
+   "text": "• ZAICODE нужно сделать A3 audit wave вообще глобально переключаемым toggleable чтобы если юзер не хочет чтобы auto conitnue/continue all чтобы они генерировались автоматически и это должн быть очевидно, тоесть скажем вкладка Audit в ZAICODE глобальная enabled disabled.",
+   "media": [],
+   "disposition": "BUILT",
+   "reason": "The audit campaign auto-advanced on one unconditional enqueue inside reconcileCampaign. smartMode looked like the switch but gates the self-audit sweep, not wave progression. Wave progression now runs through the existing 'planned' hold state (which already early-returns in reconcileCampaign and is already dispatched by work()), discriminated by a new autoAdvanceHeld flag so flipping the switch back on releases only switch-parked campaigns and never a hand-planned one. Default ON, so no existing behaviour changes (UI.md Golden Default #1).",
+   "historical_work": [],
+   "implementation_evidence": [
+    "zcode/packages/services/src/zaicode/zaicodeAuditService.ts",
+    "zcode/packages/shared/src/zaicode-audits.ts",
+    "zcode/packages/ui/src/zaicode/zaicodeAuditStore.ts",
+    "zcode/packages/ui/src/zaicode/ZaicodeAuditPanel.tsx",
+    "zcode/packages/ui/src/zaicode/ZaicodeAuditCampaignCard.tsx",
+    "zcode/packages/services/test/zaicodeAudits.test.ts"
+   ],
+   "current_verification": "MACHINE_GATES_PASS; MANUAL_PENDING",
+   "class": "requirement"
+  },
+  {
+   "requirement_id": "REQ-009",
+   "clause_id": "R009",
+   "source_order": 9,
+   "group_id": "GROUP-001",
+   "line_start": 19,
+   "line_end": 19,
+   "text": "• Кнопки могут налезать на друг друга ![](media/010_clipboard_20261004_174154_55be341c.png)",
+   "media": [
+    "media/010_clipboard_20261004_174154_55be341c.png"
+   ],
+   "disposition": "BUILT",
+   "reason": "Every position:fixed surface with no layout parent is its own island: nothing reflows it, so two that pick the same window corner draw over each other and neither is reachable. The workers tray and the todo column were both fixed z-40 with independent geometry. One named band table (ZAICODE_LAYERS + zaicodeLayerClass) now gives every island its own band, and no caller hardcodes a z number. The limit meter's hover card, a third hand-rolled one with the R010 root cause, moved onto the anchored rule.",
+   "historical_work": [],
+   "implementation_evidence": [
+    "zcode/packages/shared/src/zaicode-tooltip.ts",
+    "zcode/packages/ui/src/zaicode/ZaicodeWorkersDock.tsx",
+    "zcode/packages/ui/src/v4/ZaicodeTodoGauge.tsx",
+    "zcode/packages/ui/src/v4/ZaicodeTodoDock.tsx",
+    "zcode/packages/ui/src/zaicode/ZaicodeFancyZoneOverlay.tsx",
+    "zcode/packages/ui/src/zaicode/ZaicodeAnchoredCard.tsx",
+    "zcode/packages/ui/src/zaicode/ZaicodeLimitMeter.tsx",
+    "zcode/packages/ui/test/zaicodeT220Layers.test.ts"
+   ],
+   "current_verification": "MACHINE_GATES_PASS; MANUAL_PENDING",
+   "class": "requirement"
+  },
+  {
+   "requirement_id": "REQ-010",
+   "clause_id": "R010",
+   "source_order": 10,
+   "group_id": "GROUP-001",
+   "line_start": 21,
+   "line_end": 21,
+   "text": "• Тултипы могут спавниться влевом верхнем углу вместо нормального положения ![](media/011_clipboard_20261004_174024_4b027ca7.png)",
+   "media": [
+    "media/011_clipboard_20261004_174024_4b027ca7.png"
+   ],
+   "disposition": "BUILT",
+   "reason": "The two hand-rolled hover cards each positioned themselves with Math.max(8, Math.min(...)) against a hardcoded pixel width and clamped one axis only. A DOMRect with no box (hidden, display:none, or measured before layout) collapses to left=8, top=rect.bottom+6 -- literally the top-left corner, the reported symptom. One shared pure rule in @zcode/shared validates the anchor, centres on the trigger, clamps both axes and flips side when the first does not fit.",
+   "historical_work": [],
+   "implementation_evidence": [
+    "zcode/packages/shared/src/zaicode-tooltip.ts",
+    "zcode/packages/ui/src/zaicode/ZaicodeAnchoredCard.tsx",
+    "zcode/packages/ui/src/v4/ZaicodeTodoGauge.tsx",
+    "zcode/packages/ui/src/zaicode/ZaicodeSaimailHeaderButton.tsx",
+    "zcode/packages/ui/src/zaicode/ZaicodeLimitMeter.tsx",
+    "zcode/packages/ui/test/zaicodeT220AnchoredCard.test.ts"
+   ],
+   "current_verification": "MACHINE_GATES_PASS; MANUAL_PENDING",
+   "class": "requirement"
+  },
+  {
+   "requirement_id": "REQ-011",
+   "clause_id": "R011",
+   "source_order": 11,
+   "group_id": "GROUP-001",
+   "line_start": 23,
+   "line_end": 23,
+   "text": "• Правая кнопка здесь должна открывать настройки этих кнопок ![](media/012_clipboard_20261004_170234_1bc7317c.png) - вообще нужно везде такое приложить правило где юзер ожидает на правую кнопку настройки данной кнопки где это в большей части реализовано везде в ZAICODE. Тоесть должен быть тоггл правой кнопкой на 3 функцию режима или показывать как щас или вот так как хотел бы.",
+   "media": [
+    "media/012_clipboard_20261004_170234_1bc7317c.png"
+   ],
+   "disposition": "BUILT",
+   "reason": "The right-click-opens-settings rule existed as ZaicodeRightClickSettings but was a per-button habit: 14 call sites, no switch, no named control list, and the composer's model buttons had no settings at all. Now there is one named control list, a per-control two-way switch persisted in rightClickSettings, absent-key-means-settings, and an honest 'menu' mode that does not preventDefault. Default is settings, so existing behaviour is unchanged (UI.md Golden Default #1).",
+   "historical_work": [],
+   "implementation_evidence": [
+    "zcode/packages/ui/src/zaicode/zaicodeUiPrefs.ts",
+    "zcode/packages/ui/src/zaicode/ZaicodePrefControls.tsx",
+    "zcode/packages/ui/src/zaicode/ZaicodeModelButtons.tsx",
+    "zcode/packages/ui/test/zaicodeT220RightClickRule.test.ts"
+   ],
+   "current_verification": "MACHINE_GATES_PASS; MANUAL_PENDING",
+   "class": "requirement"
+  },
+  {
+   "requirement_id": "REQ-012",
+   "clause_id": "R012",
+   "source_order": 12,
+   "group_id": "GROUP-001",
+   "line_start": 25,
+   "line_end": 25,
+   "text": "• Такие вот гигантские тултипы вообще недопустимы ![](media/013_clipboard_20261004_165948_96738f62.png)",
+   "media": [
+    "media/013_clipboard_20261004_165948_96738f62.png"
+   ],
+   "disposition": "BUILT",
+   "reason": "No hover card had a height ceiling, so a long todo item or mailbox preview grew past the window. The shared placement rule derives maxHeight from the room actually available on the chosen side and sets scroll when the content exceeds it. Fixed with R010.",
+   "historical_work": [],
+   "implementation_evidence": [
+    "zcode/packages/shared/src/zaicode-tooltip.ts",
+    "zcode/packages/ui/src/zaicode/ZaicodeAnchoredCard.tsx",
+    "zcode/packages/ui/test/zaicodeT220AnchoredCard.test.ts"
+   ],
+   "current_verification": "MACHINE_GATES_PASS; MANUAL_PENDING",
+   "class": "requirement"
+  },
+  {
+   "requirement_id": "REQ-013",
+   "clause_id": "R013",
+   "source_order": 13,
+   "group_id": "GROUP-002",
+   "line_start": 28,
+   "line_end": 28,
+   "text": "• Scheduler Continuinity: Добавить больше возможностей для продолжения работы над одним проектом. Теперь нужно сделать так чтобы ZAICODE умел определять когда если один воркер упёрся в лимит (если есть там подписочная модель в текущей сесси в ноль) тогда добавить дальше цепочку переключения на следующую подписочную модель вендора следом с безопасной задержкой чтобы продолжить работу над проектом и vice versa в общем тут нужно побольше контроля, условий и безопасностей.",
+   "media": [],
+   "disposition": "DUPLICATE",
+   "reason": "Historical scope already owned by the linked Work; preserve its implementation. Current-source and packaged rechecks remain pending, so this is not an ALREADY_IMPLEMENTED acceptance claim.",
+   "historical_work": [
+    "T-190",
+    "T-217",
+    "T-216"
+   ],
+   "implementation_evidence": [],
+   "current_verification": "NOT_RUN",
+   "class": "requirement"
+  },
+  {
+   "requirement_id": "REQ-014",
+   "clause_id": "R014",
+   "source_order": 14,
+   "group_id": "GROUP-002",
+   "line_start": 30,
+   "line_end": 30,
+   "text": "• Еще нужно посмотреть в мой локальный 9router - он чёт крашится с нихрена и всё ночная работа стоит, а fallback нет никакого ZAICODE пытается подключаться в несуществующий рутер снова и снова вместо нормального подключения на встроенный хотябы, а лучше пусть перезапускает попытка локальный, пользовательский обратно silently. Щас проснулся утром и вижу что 9router исчез а ZAICODE всё это время вместо работы пытался доставать инференс из воздуха. Это недопустимо. Это провал и потеря драгоценного времени улетевшего в пустую, хотя мог проснуться с результатом. Такого больше никогда не должно повторяться и ZAICODE должен делать попытки запускать локальный 9router сначала пользовательский 10 раз, а потом уже переключаться на fallback через свой внутренний.",
+   "media": [],
+   "disposition": "DUPLICATE",
+   "reason": "Historical scope already owned by the linked Work; preserve its implementation. Current-source and packaged rechecks remain pending, so this is not an ALREADY_IMPLEMENTED acceptance claim.",
+   "historical_work": [
+    "T-217"
+   ],
+   "implementation_evidence": [],
+   "current_verification": "NOT_RUN",
+   "class": "requirement"
+  },
+  {
+   "requirement_id": "REQ-015",
+   "clause_id": "R015",
+   "source_order": 15,
+   "group_id": "GROUP-002",
+   "line_start": 32,
+   "line_end": 32,
+   "text": "• я бы вообще хотел избавиться от подобных сирот сессий которые спавнятся и висят если у меня main режим (3ий) стоит надоело их чистить руками их по идее никогда не должно быть и никогда они не должны показываться ![](media/014_clipboard_20261004_163247_ec7a28f8.png) - просто на скриншоте  явно поставлена галочка - это главная сессия но всё равно плодит child где сессия происходит а нужно вот так: ![](media/015_clipboard_20261004_164936_8748593c.png) - красиво и чётко, в ряд, без лишней мишуры, без говна, без шума.",
+   "media": [
+    "media/014_clipboard_20261004_163247_ec7a28f8.png",
+    "media/015_clipboard_20261004_164936_8748593c.png"
+   ],
+   "disposition": "DUPLICATE",
+   "reason": "Historical scope already owned by the linked Work; preserve its implementation. Current-source and packaged rechecks remain pending, so this is not an ALREADY_IMPLEMENTED acceptance claim.",
+   "historical_work": [
+    "T-217"
+   ],
+   "implementation_evidence": [],
+   "current_verification": "NOT_RUN",
+   "class": "requirement"
+  },
+  {
+   "requirement_id": "REQ-016",
+   "clause_id": "R016",
+   "source_order": 16,
+   "group_id": "GROUP-002",
+   "line_start": 34,
+   "line_end": 34,
+   "text": "• Удаление сессии чистилка вернее на несколько секунд этот попап скрывает часть сайдбара что недопустимо ![](media/016_clipboard_20261004_163101_60d06f2f.png) ![](media/017_clipboard_20261004_163337_be94ce2a.png)",
+   "media": [
+    "media/016_clipboard_20261004_163101_60d06f2f.png",
+    "media/017_clipboard_20261004_163337_be94ce2a.png"
+   ],
+   "disposition": "DUPLICATE",
+   "reason": "Historical scope already owned by the linked Work; preserve its implementation. Current-source and packaged rechecks remain pending, so this is not an ALREADY_IMPLEMENTED acceptance claim.",
+   "historical_work": [
+    "T-217"
+   ],
+   "implementation_evidence": [],
+   "current_verification": "NOT_RUN",
+   "class": "requirement"
+  },
+  {
+   "requirement_id": "REQ-017",
+   "clause_id": "R017",
+   "source_order": 17,
+   "group_id": "GROUP-002",
+   "line_start": 36,
+   "line_end": 36,
+   "text": "• Повторное нажание на эту кнопку должно обратно скрывать этот sidebar ![](media/018_clipboard_20261004_163019_44b39384.png) ",
+   "media": [
+    "media/018_clipboard_20261004_163019_44b39384.png"
+   ],
+   "disposition": "DUPLICATE",
+   "reason": "Historical scope already owned by the linked Work; preserve its implementation. Current-source and packaged rechecks remain pending, so this is not an ALREADY_IMPLEMENTED acceptance claim.",
+   "historical_work": [
+    "T-217"
+   ],
+   "implementation_evidence": [],
+   "current_verification": "NOT_RUN",
+   "class": "requirement"
+  },
+  {
+   "requirement_id": "REQ-018",
+   "clause_id": "R018",
+   "source_order": 18,
+   "group_id": "GROUP-003",
+   "line_start": 39,
+   "line_end": 39,
+   "text": "• Прикол: Пишет auto retry on а по факту off ![](media/019_clipboard_20261004_060205_812a3ed5.png)",
+   "media": [
+    "media/019_clipboard_20261004_060205_812a3ed5.png"
+   ],
+   "disposition": "DUPLICATE",
+   "reason": "Historical scope already owned by the linked Work; preserve its implementation. Current-source and packaged rechecks remain pending, so this is not an ALREADY_IMPLEMENTED acceptance claim.",
+   "historical_work": [
+    "T-217",
+    "T-201"
+   ],
+   "implementation_evidence": [],
+   "current_verification": "NOT_RUN",
+   "class": "requirement"
+  },
+  {
+   "requirement_id": "REQ-019",
+   "clause_id": "R019",
+   "source_order": 19,
+   "group_id": "GROUP-003",
+   "line_start": 41,
+   "line_end": 41,
+   "text": "• Нет никакой возможности править этот текст ![](media/020_clipboard_20261004_052005_c07e138d.png) который если типо большой то он скидывается файлом, а этот файл теперь какбы увекоевечен и никак не меняется вообще и не понятно что там теперь что я отправил.",
+   "media": [
+    "media/020_clipboard_20261004_052005_c07e138d.png"
+   ],
+   "disposition": "DUPLICATE",
+   "reason": "Historical scope already owned by the linked Work; preserve its implementation. Current-source and packaged rechecks remain pending, so this is not an ALREADY_IMPLEMENTED acceptance claim.",
+   "historical_work": [
+    "T-217"
+   ],
+   "implementation_evidence": [],
+   "current_verification": "NOT_RUN",
+   "class": "requirement"
+  },
+  {
+   "requirement_id": "REQ-020",
+   "clause_id": "R020",
+   "source_order": 20,
+   "group_id": "GROUP-003",
+   "line_start": 43,
+   "line_end": 43,
+   "text": "• Еще неприятный момент когда я нахожусь в проекте/сессии - переключился на zaicode/scheduler/saihome - дальше снова пытаюсь переключиться обратно на ту же сессию но не получается и ничего не происходит пока я принудительно не переключусь на другую соврешенно сессию и снова есть возможность вернуться на изначальную сессию, это недопустимо.",
+   "media": [],
+   "disposition": "DUPLICATE",
+   "reason": "Historical scope already owned by the linked Work; preserve its implementation. Current-source and packaged rechecks remain pending, so this is not an ALREADY_IMPLEMENTED acceptance claim.",
+   "historical_work": [
+    "T-217"
+   ],
+   "implementation_evidence": [],
+   "current_verification": "NOT_RUN",
+   "class": "requirement"
+  },
+  {
+   "requirement_id": "REQ-021",
+   "clause_id": "R021",
+   "source_order": 21,
+   "group_id": "GROUP-003",
+   "line_start": 45,
+   "line_end": 45,
+   "text": "• Вот здесь я бы хотел еще визуально 5h/weekly тоже полоски видеть у воркера чтобы видеть сколько там конкретно у этого воркера на данный момент лимитов ![](media/021_clipboard_20261004_034635_b5e9e055.png)",
+   "media": [
+    "media/021_clipboard_20261004_034635_b5e9e055.png"
+   ],
+   "disposition": "DUPLICATE",
+   "reason": "Historical scope already owned by the linked Work; preserve its implementation. Current-source and packaged rechecks remain pending, so this is not an ALREADY_IMPLEMENTED acceptance claim.",
+   "historical_work": [
+    "T-217"
+   ],
+   "implementation_evidence": [],
+   "current_verification": "NOT_RUN",
+   "class": "requirement"
+  },
+  {
+   "requirement_id": "REQ-022",
+   "clause_id": "R022",
+   "source_order": 22,
+   "group_id": "GROUP-003",
+   "line_start": 47,
+   "line_end": 47,
+   "text": "• Нужно в настройках темы также сделать упрощённый режим без Bevels стиля как тут к примеру ![](media/022_clipboard_20261004_022932_56afc296.png) но оставить обычные box-like-рамки и еще несколько простых вариантов на твой выбор которые подходят по существу.",
+   "media": [
+    "media/022_clipboard_20261004_022932_56afc296.png"
+   ],
+   "disposition": "DUPLICATE",
+   "reason": "Historical scope already owned by the linked Work; preserve its implementation. Current-source and packaged rechecks remain pending, so this is not an ALREADY_IMPLEMENTED acceptance claim.",
+   "historical_work": [
+    "T-217"
+   ],
+   "implementation_evidence": [],
+   "current_verification": "NOT_RUN",
+   "class": "requirement"
+  },
+  {
+   "requirement_id": "REQ-023",
+   "clause_id": "R023",
+   "source_order": 23,
+   "group_id": "GROUP-003",
+   "line_start": 49,
+   "line_end": 49,
+   "text": "• Нужно здесь перенести куда нибудь этот COLLECT так чтобы оно было дополнительной маленькой кнопкой в нижний ряд, ибо оно генерирует лишную пустую строку что забирает много места и генерирует пустое пространство в итоге ради этих двух кнопок. Компактнее, компактнее.",
+   "media": [],
+   "disposition": "DUPLICATE",
+   "reason": "Historical scope already owned by the linked Work; preserve its implementation. Current-source and packaged rechecks remain pending, so this is not an ALREADY_IMPLEMENTED acceptance claim.",
+   "historical_work": [
+    "T-217"
+   ],
+   "implementation_evidence": [],
+   "current_verification": "NOT_RUN",
+   "class": "requirement"
+  },
+  {
+   "requirement_id": "REQ-024",
+   "clause_id": "R024",
+   "source_order": 24,
+   "group_id": "GROUP-003",
+   "line_start": 51,
+   "line_end": 51,
+   "text": "• Здесь при sidebar если меняю местами положение тогда кнопки не мигрируют правильно это просчёт ![](media/023_clipboard_20261004_012011_fc121c37.png)",
+   "media": [
+    "media/023_clipboard_20261004_012011_fc121c37.png"
+   ],
+   "disposition": "DUPLICATE",
+   "reason": "Historical scope already owned by the linked Work; preserve its implementation. Current-source and packaged rechecks remain pending, so this is not an ALREADY_IMPLEMENTED acceptance claim.",
+   "historical_work": [
+    "T-217"
+   ],
+   "implementation_evidence": [],
+   "current_verification": "NOT_RUN",
+   "class": "requirement"
+  },
+  {
+   "requirement_id": "REQ-025",
+   "clause_id": "R025",
+   "source_order": 25,
+   "group_id": "GROUP-004",
+   "line_start": 54,
+   "line_end": 54,
+   "text": "• Вкладка Workers что скрытая что раскрытая не даёт никакого эффекта вообще. ![](media/024_clipboard_20261003_235423_ccc7f2b6.png)",
+   "media": [
+    "media/024_clipboard_20261003_235423_ccc7f2b6.png",
+    "media/025_clipboard_20261003_235329_9a13745a.png"
+   ],
+   "disposition": "DUPLICATE",
+   "reason": "Historical scope already owned by the linked Work; preserve its implementation. Current-source and packaged rechecks remain pending, so this is not an ALREADY_IMPLEMENTED acceptance claim.",
+   "historical_work": [
+    "T-209",
+    "T-212"
+   ],
+   "implementation_evidence": [],
+   "current_verification": "NOT_RUN",
+   "class": "requirement"
+  },
+  {
+   "requirement_id": "REQ-026",
+   "clause_id": "R026",
+   "source_order": 26,
+   "group_id": "GROUP-004",
+   "line_start": 58,
+   "line_end": 58,
+   "text": "[x] ~~• p0 - Пресеты не должны перезапускать программу, это срывает работающие сессии и проекты.~~",
+   "media": [],
+   "disposition": "USER_CHECKED_OFF",
+   "reason": "Explicit checked-off source clause; do not reopen.",
+   "historical_work": [
+    "T-208"
+   ],
+   "implementation_evidence": [],
+   "current_verification": "NOT_RUN",
+   "class": "context"
+  },
+  {
+   "requirement_id": "REQ-027",
+   "clause_id": "R027",
+   "source_order": 27,
+   "group_id": "GROUP-005",
+   "line_start": 61,
+   "line_end": 61,
+   "text": "• Нужно убрать irrelevant настройки секции в самый низ которые по важности во всех секциях настройки. К примеру тут SAIASUI встречает пользователя практически сразу в настройках, это не должно быть так, юзер не за игрой пришёл. Пусть оно будет еще сворачиваемым и свернуто по умолчанию и так везде ![](media/026_clipboard_20261003_232015_f4ef7d2a.png)",
+   "media": [
+    "media/026_clipboard_20261003_232015_f4ef7d2a.png"
+   ],
+   "disposition": "DUPLICATE",
+   "reason": "Historical scope already owned by the linked Work; preserve its implementation. Current-source and packaged rechecks remain pending, so this is not an ALREADY_IMPLEMENTED acceptance claim.",
+   "historical_work": [
+    "T-206"
+   ],
+   "implementation_evidence": [],
+   "current_verification": "NOT_RUN",
+   "class": "requirement"
+  },
+  {
+   "requirement_id": "REQ-028",
+   "clause_id": "R028",
+   "source_order": 28,
+   "group_id": "GROUP-005",
+   "line_start": 63,
+   "line_end": 63,
+   "text": "• Вот здесь в usage панеле метре live сделай переключатель обновления не тока вместо единственног 10 сек, но и 5, 3, 2, 1 сек; Убери \"Done\" подобное слово - оно не нужно если 99,99% всегда \"done\", добавь возможность расширять-изменять размер ширины колонки чтобы если юзер хочет чтобы название модели илии другое там вмещалось и так далее.",
+   "media": [],
+   "disposition": "DUPLICATE",
+   "reason": "Historical scope already owned by the linked Work; preserve its implementation. Current-source and packaged rechecks remain pending, so this is not an ALREADY_IMPLEMENTED acceptance claim.",
+   "historical_work": [
+    "T-205"
+   ],
+   "implementation_evidence": [],
+   "current_verification": "NOT_RUN",
+   "class": "requirement"
+  },
+  {
+   "requirement_id": "REQ-029",
+   "clause_id": "R029",
+   "source_order": 29,
+   "group_id": "GROUP-005",
+   "line_start": 65,
+   "line_end": 65,
+   "text": "• Также добавь в композер кнопку как Auto-Goal режим: Оно задаётся сразу с любым промптом вообще скрытно так будто юзер везде в конце пишет \"goal cc all\" но это не показывается. Также очевидно если включено тогда подсвечено, а если нет тогда нет, индивидуально для каждого проекта, по умолчанию включено. Тоесть смысл в том что если юзер даёт обычный хендофф или промпт, в конце это приписывается невидимо но показываеатся что Goal активирован вместе с промптом как обычно, это избавляет от необходимости следом давать goal cc all после промпта это удобно и эффективно.",
+   "media": [],
+   "disposition": "DUPLICATE",
+   "reason": "Historical scope already owned by the linked Work; preserve its implementation. Current-source and packaged rechecks remain pending, so this is not an ALREADY_IMPLEMENTED acceptance claim.",
+   "historical_work": [
+    "T-204"
+   ],
+   "implementation_evidence": [],
+   "current_verification": "NOT_RUN",
+   "class": "requirement"
+  },
+  {
+   "requirement_id": "REQ-030",
+   "clause_id": "R030",
+   "source_order": 30,
+   "group_id": "GROUP-005",
+   "line_start": 67,
+   "line_end": 67,
+   "text": "• Здесь теперь нужен поиск по функциям очевидный для юзера чтобы он быстро мог находить нужную настройку по ключевым словам. ![](media/027_clipboard_20261003_224741_3b6dff3e.png)",
+   "media": [
+    "media/027_clipboard_20261003_224741_3b6dff3e.png"
+   ],
+   "disposition": "DUPLICATE",
+   "reason": "Historical scope already owned by the linked Work; preserve its implementation. Current-source and packaged rechecks remain pending, so this is not an ALREADY_IMPLEMENTED acceptance claim.",
+   "historical_work": [
+    "T-203"
+   ],
+   "implementation_evidence": [],
+   "current_verification": "NOT_RUN",
+   "class": "requirement"
+  },
+  {
+   "requirement_id": "REQ-031",
+   "clause_id": "R031",
+   "source_order": 31,
+   "group_id": "GROUP-005",
+   "line_start": 69,
+   "line_end": 69,
+   "text": "• Словил баг где эти кнопки просто не работают и не реагируют вообще никакх у Workers панели ![](media/028_clipboard_20261003_224701_5c37956a.png)",
+   "media": [
+    "media/028_clipboard_20261003_224701_5c37956a.png"
+   ],
+   "disposition": "DUPLICATE",
+   "reason": "Historical scope already owned by the linked Work; preserve its implementation. Current-source and packaged rechecks remain pending, so this is not an ALREADY_IMPLEMENTED acceptance claim.",
+   "historical_work": [
+    "T-202"
+   ],
+   "implementation_evidence": [],
+   "current_verification": "NOT_RUN",
+   "class": "requirement"
+  },
+  {
+   "requirement_id": "REQ-032",
+   "clause_id": "R032",
+   "source_order": 32,
+   "group_id": "GROUP-005",
+   "line_start": 71,
+   "line_end": 71,
+   "text": "• Нужен переключатель Auto retry on/off надёжный и очевидный где нибудь у композера и чтобы оно было подсвечено если Auto retry включен. У auto retry должен быть режимы Только этот проект/сессия или везде во всём ZAICODE сессиях проектах. ![](media/029_clipboard_20261003_224519_e54d04ac.png)",
+   "media": [
+    "media/029_clipboard_20261003_224519_e54d04ac.png"
+   ],
+   "disposition": "DUPLICATE",
+   "reason": "Historical scope already owned by the linked Work; preserve its implementation. Current-source and packaged rechecks remain pending, so this is not an ALREADY_IMPLEMENTED acceptance claim.",
+   "historical_work": [
+    "T-201",
+    "T-217"
+   ],
+   "implementation_evidence": [],
+   "current_verification": "NOT_RUN",
+   "class": "requirement"
+  },
+  {
+   "requirement_id": "REQ-033",
+   "clause_id": "R033",
+   "source_order": 33,
+   "group_id": "GROUP-005",
+   "line_start": 73,
+   "line_end": 73,
+   "text": "• Пусть здесь если единственный worker октрывается здесь и потом сворачивается заодно и за собой worker panel за собой тоже сворачивать а то тогда пустота остаётся и юзеру приходится сворачивать Workers панель самому. ![](media/030_clipboard_20261003_224156_bfd44a51.png)",
+   "media": [
+    "media/030_clipboard_20261003_224156_bfd44a51.png"
+   ],
+   "disposition": "DUPLICATE",
+   "reason": "Historical scope already owned by the linked Work; preserve its implementation. Current-source and packaged rechecks remain pending, so this is not an ALREADY_IMPLEMENTED acceptance claim.",
+   "historical_work": [
+    "T-200"
+   ],
+   "implementation_evidence": [],
+   "current_verification": "NOT_RUN",
+   "class": "requirement"
+  },
+  {
+   "requirement_id": "REQ-034",
+   "clause_id": "R034",
+   "source_order": 34,
+   "group_id": "GROUP-005",
+   "line_start": 75,
+   "line_end": 75,
+   "text": "• Нужно убрать подобную белизну в таких местах слайдерах и других, это недопустимо для глаз и тем в принципе, пусть также имеет оттенок темы. ![](media/031_clipboard_20261003_223353_1856c2d7.png)",
+   "media": [
+    "media/031_clipboard_20261003_223353_1856c2d7.png"
+   ],
+   "disposition": "DUPLICATE",
+   "reason": "Historical scope already owned by the linked Work; preserve its implementation. Current-source and packaged rechecks remain pending, so this is not an ALREADY_IMPLEMENTED acceptance claim.",
+   "historical_work": [
+    "T-199"
+   ],
+   "implementation_evidence": [],
+   "current_verification": "NOT_RUN",
+   "class": "requirement"
+  },
+  {
+   "requirement_id": "REQ-035",
+   "clause_id": "R035",
+   "source_order": 35,
+   "group_id": "GROUP-005",
+   "line_start": 77,
+   "line_end": 77,
+   "text": "• Я бы хотел включать-выключить Ctrl + CLick отсюда если кликаю отсюда на эти подписки готовность Workers запланированные, типо тогл как там в Workers в Scheduler. ![](media/032_clipboard_20261003_223036_97d6b114.png)",
+   "media": [
+    "media/032_clipboard_20261003_223036_97d6b114.png"
+   ],
+   "disposition": "DUPLICATE",
+   "reason": "Historical scope already owned by the linked Work; preserve its implementation. Current-source and packaged rechecks remain pending, so this is not an ALREADY_IMPLEMENTED acceptance claim.",
+   "historical_work": [
+    "T-198"
+   ],
+   "implementation_evidence": [],
+   "current_verification": "NOT_RUN",
+   "class": "requirement"
+  },
+  {
+   "requirement_id": "REQ-036",
+   "clause_id": "R036",
+   "source_order": 36,
+   "group_id": "GROUP-005",
+   "line_start": 79,
+   "line_end": 79,
+   "text": "• Нужен индикатор также что именно готово выполнение, закончено типо unseen и как только на проект/сессию юзер переключился тогда оно исчезает. А то щас немного путается состояние когда вроде что-то работало а оно смешивается с проектами которые не работали долгое время намеренно и только что закончившиеся воспринимаются визуально одинаково, нужно различать как нибудь.",
+   "media": [],
+   "disposition": "DUPLICATE",
+   "reason": "Historical scope already owned by the linked Work; preserve its implementation. Current-source and packaged rechecks remain pending, so this is not an ALREADY_IMPLEMENTED acceptance claim.",
+   "historical_work": [
+    "T-197"
+   ],
+   "implementation_evidence": [],
+   "current_verification": "NOT_RUN",
+   "class": "requirement"
+  },
+  {
+   "requirement_id": "REQ-037",
+   "clause_id": "R037",
+   "source_order": 37,
+   "group_id": "GROUP-006",
+   "line_start": 82,
+   "line_end": 82,
+   "text": "[x] ~~• Нужно максимально оптимизировать расход токенов вообще, где скажем cache hit должен быть максимальным если это можно сделать на стороне юзера, тоесть полная эффективность расхода, это нужно тоже исследовать и имплементировать.~~",
+   "media": [],
+   "disposition": "USER_CHECKED_OFF",
+   "reason": "Explicit checked-off source clause; do not reopen.",
+   "historical_work": [],
+   "implementation_evidence": [],
+   "current_verification": "NOT_RUN",
+   "class": "context"
+  },
+  {
+   "requirement_id": "REQ-038",
+   "clause_id": "R038",
+   "source_order": 38,
+   "group_id": "GROUP-006",
+   "line_start": 84,
+   "line_end": 84,
+   "text": "• Нужно повнимательнее теперь сделать user friendly sidebar переключение проектов и сессий так чтобы это было очевидно и легко: К примеру я могу нажать на проект, а там пустое окно встречает, или нажимаю на него а ничего не происходит, а оказывается там у него на сессию нажимать нужно чтобы видеть что происходит на самом деле и наоборот, тоесть режим main и между сессиями щас очень запутанно всё и очень неочевидно, путаница в общем.",
+   "media": [
+    "media/033_clipboard_20261003_160256_943dd4a2.png"
+   ],
+   "disposition": "DUPLICATE",
+   "reason": "Historical scope already owned by the linked Work; preserve its implementation. Current-source and packaged rechecks remain pending, so this is not an ALREADY_IMPLEMENTED acceptance claim.",
+   "historical_work": [
+    "T-217"
+   ],
+   "implementation_evidence": [],
+   "current_verification": "NOT_RUN",
+   "class": "requirement"
+  },
+  {
+   "requirement_id": "REQ-039",
+   "clause_id": "R039",
+   "source_order": 39,
+   "group_id": "GROUP-006",
+   "line_start": 88,
+   "line_end": 88,
+   "text": "[x] ~~• Я бы еще хотел индикатор Тестов которые бегут видеть в списке проектов и сессий, чтобы видеть если работает что что конкретно: агент или тесты бегут сразу визуально. Если тесты, тогда добавить в список Highlights and motion свой индикатор для тестов тоже как для проекта так и для сессий по отделльности.~~",
+   "media": [],
+   "disposition": "USER_CHECKED_OFF",
+   "reason": "Explicit checked-off source clause; do not reopen.",
+   "historical_work": [],
+   "implementation_evidence": [],
+   "current_verification": "NOT_RUN",
+   "class": "context"
+  },
+  {
+   "requirement_id": "REQ-040",
+   "clause_id": "R040",
+   "source_order": 40,
+   "group_id": "GROUP-006",
+   "line_start": 90,
+   "line_end": 90,
+   "text": "• Всё еще может показывать состояине \"Работает\" когда по факту сессия давно закончена и наоборот. Этот момент нужно улучшить и исследовать тщательнее.",
+   "media": [],
+   "disposition": "BUILT",
+   "reason": "Same defect as R005 seen from the composer side: the working indicator kept animating for a job that had stopped making progress. Shares the R005 fix.",
+   "historical_work": [],
+   "implementation_evidence": [
+    "zcode/packages/ui/src/zaicode/zaicodeStall.ts",
+    "zcode/packages/ui/src/zaicode/ZaicodeComposerWorkingFor.tsx",
+    "zcode/packages/ui/src/zaicode/ZaicodeAutoRetryButton.tsx",
+    "zcode/packages/ui/test/zaicodeSrc81Stall.test.ts"
+   ],
+   "current_verification": "MACHINE_GATES_PASS; MANUAL_PENDING",
+   "class": "requirement"
+  },
+  {
+   "requirement_id": "REQ-041",
+   "clause_id": "R041",
+   "source_order": 41,
+   "group_id": "GROUP-007",
+   "line_start": 93,
+   "line_end": 93,
+   "text": "• Scheduler: Нужно обогатить условия и варианты, к примеру детектить лимит каждого вендора правильно так, чтобы потом через некоторую задержку продолжить проект уже на SAIFREN или другим вендором следом чтобы была полная автоматизация и так продолжать до тех пор пока ресет снова не сбросится на выбранных cli подписках.",
+   "media": [
+    "media/034_clipboard_20261003_112839_2e825604.png"
+   ],
+   "disposition": "DUPLICATE",
+   "reason": "Historical scope already owned by the linked Work; preserve its implementation. Current-source and packaged rechecks remain pending, so this is not an ALREADY_IMPLEMENTED acceptance claim.",
+   "historical_work": [
+    "T-190",
+    "T-217",
+    "T-216"
+   ],
+   "implementation_evidence": [],
+   "current_verification": "NOT_RUN",
+   "class": "requirement"
+  },
+  {
+   "requirement_id": "USER-CHECKED-OFF-L056",
+   "clause_id": "R042",
+   "source_order": null,
+   "line_start": 56,
+   "line_end": 56,
+   "text": "[x] ~~• Может писать \"Working for: (пусто)\" в сессии где должно показываться время. ![](media/025_clipboard_20261003_235329_9a13745a.png)~~",
+   "disposition": "USER_CHECKED_OFF",
+   "reason": "Checked-off raw source bullet omitted by producer index; retained without renumbering REQ IDs or reopening work.",
+   "historical_work": [],
+   "implementation_evidence": [],
+   "current_verification": "NOT_RUN",
+   "class": "context"
+  },
+  {
+   "requirement_id": "USER-CHECKED-OFF-L086",
+   "clause_id": "R043",
+   "source_order": null,
+   "line_start": 86,
+   "line_end": 86,
+   "text": "[x] ~~• Я бы хотел избавиться от подобных окон где вот такие сообщения висят ![](media/033_clipboard_20261003_160256_943dd4a2.png)~~",
+   "disposition": "USER_CHECKED_OFF",
+   "reason": "Checked-off raw source bullet omitted by producer index; retained without renumbering REQ IDs or reopening work.",
+   "historical_work": [],
+   "implementation_evidence": [],
+   "current_verification": "NOT_RUN",
+   "class": "context"
+  },
+  {
+   "requirement_id": "USER-CHECKED-OFF-L095",
+   "clause_id": "R044",
+   "source_order": null,
+   "line_start": 95,
+   "line_end": 95,
+   "text": "[x] ~~• Scheduler: Вот такая вот автоматизация которая 5+ часов ждала вместо работы - здесь всегда trust, без вариантов и желательно сделать так чтобы подобные искуственные ограничители никогда не выскакивали нигде. ![](media/034_clipboard_20261003_112839_2e825604.png)~~",
+   "disposition": "USER_CHECKED_OFF",
+   "reason": "Checked-off raw source bullet omitted by producer index; retained without renumbering REQ IDs or reopening work.",
+   "historical_work": [],
+   "implementation_evidence": [],
+   "current_verification": "NOT_RUN",
+   "class": "context"
+  }
+ ],
+ "index_caveats": [
+  "Raw checked-off lines 56, 86 and 95 are missing from producer requirement index.",
+  "Media 025, 033 and 034 belong to these checked-off source lines, not new acceptance for REQ-025, REQ-038 and REQ-041 respectively.",
+  "Bundle manifest build revision identifies FastPrompter producer, not screenshot ZAICODE runtime."
+ ],
+ "source_decision": {
+  "event": "E-3772",
+  "decision": "Use current local checkout instead of missing exact project snapshot",
+  "source_head": "adac42dce6835e518705a8c58ce00c4059a174f9"
+ }
+}

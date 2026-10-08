@@ -1,0 +1,99 @@
+{
+  "capturedAt": "2026-10-05T01:34:26.295Z",
+  "sourceHead": "adac42dce6835e518705a8c58ce00c4059a174f9",
+  "packages": [
+    {
+      "name": "dist",
+      "executablePath": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\dist\\win-unpacked\\ZAICODE.exe",
+      "metadataName": "out/metadata/build-meta.json",
+      "metadata": {
+        "appVersion": "3.14.0",
+        "buildCommitId": "d662d516",
+        "buildTime": "2026-10-04T10:21:59.602Z",
+        "electronBuilderVersion": "26.8.1"
+      },
+      "packageVersion": "3.14.0",
+      "containsT217": false,
+      "mainSha256": "b22ac9000948c5358a07d93f9fd04ef1504b34dd499542ead4fa0b70ea6f328d",
+      "supervisorMarkers": {
+        "persistedSupervisorFile": false,
+        "sharedRecoveryLog": false
+      },
+      "executableMtime": "2026-10-04T10:26:44.813Z",
+      "asarMtime": "2026-10-04T10:26:30.903Z",
+      "asarSha256": "e7546e1acfcfaabe9bd6bb350d6e5fcdbdc9f4c606f3fc8ab81e4bfb23f7b606",
+      "updateConfig": "provider: generic\nuseMultipleRangeRequest: false\nurl: http://localhost:8081\nupdaterCacheDirName: '@zcodedesktop-updater'\n"
+    },
+    {
+      "name": "dist-t217",
+      "executablePath": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\dist-t217\\win-unpacked\\ZAICODE.exe",
+      "metadataName": "out/metadata/build-meta.json",
+      "metadata": {
+        "appVersion": "3.14.0",
+        "buildCommitId": "522f5a5a",
+        "buildTime": "2026-10-04T17:28:41.035Z",
+        "electronBuilderVersion": "26.8.1"
+      },
+      "packageVersion": "3.14.0",
+      "containsT217": false,
+      "mainSha256": "8d566db1c73d164859bb72609407a0439e10c4c1a738a880146872177d4b8dfe",
+      "supervisorMarkers": {
+        "persistedSupervisorFile": true,
+        "sharedRecoveryLog": true
+      },
+      "executableMtime": "2026-10-04T17:31:38.894Z",
+      "asarMtime": "2026-10-04T17:31:33.931Z",
+      "asarSha256": "277090f41e2a57a7cbd6f6bbd9ff4664b179c1a8c47f68da08ca69a1a8a5f4d7",
+      "updateConfig": "provider: generic\nuseMultipleRangeRequest: false\nurl: http://localhost:8081\nupdaterCacheDirName: '@zcodedesktop-updater'\n"
+    },
+    {
+      "name": "dist-t166",
+      "executablePath": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\dist-t166\\win-unpacked\\ZAICODE.exe",
+      "metadataName": "out/metadata/build-meta.json",
+      "metadata": {
+        "appVersion": "3.14.0",
+        "buildCommitId": "adac42dc",
+        "buildTime": "2026-10-05T01:00:47.526Z",
+        "electronBuilderVersion": "26.8.1"
+      },
+      "packageVersion": "3.14.0",
+      "containsT217": true,
+      "mainSha256": "d5a1c17a58837b39b6da3ef4db81fe65dff63ac64c4928930707e9e1ddbf90be",
+      "supervisorMarkers": {
+        "persistedSupervisorFile": true,
+        "sharedRecoveryLog": true
+      },
+      "executableMtime": "2026-10-05T01:02:59.101Z",
+      "asarMtime": "2026-10-05T01:02:54.751Z",
+      "asarSha256": "ad825ec2ed3db5c3184484ec4f30e9aa0c4a64f2cd7b6118f74ed9a577c794ec",
+      "updateConfig": "provider: generic\nuseMultipleRangeRequest: false\nurl: http://localhost:8081\nupdaterCacheDirName: '@zcodedesktop-updater'\n"
+    },
+    {
+      "name": "dist-t188",
+      "executablePath": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\dist-t188\\win-unpacked\\ZAICODE.exe",
+      "metadataName": "out/metadata/build-meta.json",
+      "metadata": {
+        "appVersion": "3.14.0",
+        "buildCommitId": "bb6b75f1",
+        "buildTime": "2026-10-04T20:55:07.839Z",
+        "electronBuilderVersion": "26.8.1"
+      },
+      "packageVersion": "3.14.0",
+      "containsT217": true,
+      "mainSha256": "b9cde0800392d5ceb75eff9b66998208a24b41934a3f7c4f675153097e9d7fd4",
+      "supervisorMarkers": {
+        "persistedSupervisorFile": true,
+        "sharedRecoveryLog": true
+      },
+      "executableMtime": "2026-10-04T20:59:44.165Z",
+      "asarMtime": "2026-10-04T20:59:36.061Z",
+      "asarSha256": "de15dede785395683da1366e02266c020cc8942d333518bf01ed71a48462f64f",
+      "updateConfig": "provider: generic\nuseMultipleRangeRequest: false\nurl: http://localhost:8081\nupdaterCacheDirName: '@zcodedesktop-updater'\n"
+    }
+  ],
+  "limitations": [
+    "Read-only on-disk package evidence; live process path observed separately.",
+    "No router outage exercised; screenshot runtime attribution remains unproven.",
+    "Metadata records a commit label, not a signed exact source-tree attestation."
+  ]
+}

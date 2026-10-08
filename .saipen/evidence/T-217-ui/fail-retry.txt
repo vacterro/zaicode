@@ -1,0 +1,76 @@
+Command palette
+
+Search and run commands available in this workspace.
+
+SAIHOME
+ZAICODE
+SCHEDULER
+off
+WORKERS
+CONTINUE ALL
+Auto ON
+DONE
+0
+SAIFREN
+SAIOPP
+SAIRoute / SAIFREN
+A1
+C1
+AG
+◆
+Projects
+1
+continuity-project
+1m
+
+Fixture answer
+Fixture answer
+
+now
+vacuum34
+CONTINUITY-PROJECT
+Fixture answer
+Sun 4 Oct · 20:02:26 · Evening
+AG ↺ 1h 20m
+AG
+Fixture continuity A
+Copy
+Worked for 1s
+
+Fixture answer.
+
+Worked for 1s
+Copy
+Like
+Dislike
+Fork
+08:01 PM
+saipen collect wiki
+Copy
+Edit
+Working for 45s
+Working for 45s
+Reconnecting... 5/10
+Fixture retry failure
+Steer
+
+
+
+
+Keep typing to queue follow-up changes
+◇ MAIN?
+INIT SAIPEN
+CLEAR
+No .saipen/ in this project — SAIPEN memory not initialized.
+Add context
+Full access
+1
+COLLECT
+SAIFREN
+SAIOPP
+Auto-Goal off — write /goal cc all yourself
+Auto retry on — a failed turn is sent again by itself
+Global default
+0m
+Stop
+1

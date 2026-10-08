@@ -1,0 +1,53 @@
+{
+  "stage": "project",
+  "error": "locator.waitFor: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByTestId('conversation-new-task') to be visible\u001b[22m\n\n    at main (V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\.saipen\\evidence\\T-220\\packaged-runtime-outage.cjs:172:53)",
+  "profile": "V:/_TEMP_/t220-outage-UFrvAK",
+  "checks": {
+    "packagedIdentity": {
+      "executablePath": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\dist-t220\\win-unpacked\\ZAICODE.exe",
+      "resourcesPath": "V:\\___VAC\\__K\\__CODE\\_AI_STUFF_AGENTIC\\_ZAICODE\\zcode\\packages\\desktop\\dist-t220\\win-unpacked\\resources",
+      "packaged": true,
+      "schemaVersion": 1,
+      "version": "3.14.0",
+      "sourceRevision": "adac42dce6835e518705a8c58ce00c4059a174f9",
+      "buildTimestamp": "2026-10-05T02:20:00.485Z",
+      "updateChannel": "test",
+      "runtimePackageIdentity": "zaicode-1527f11a34667d15bce9b3902ad3be8aa2c7f91a2e6b919ad434a00e1dbe4305",
+      "sourceFingerprint": "adfa1167475e36239979fa4991e4648991757a17e262cb6c49886f3e6e6e55db",
+      "workingTreeDirty": true,
+      "source": {
+        "status": "SOURCE_DIRTY",
+        "revision": "adac42dce6835e518705a8c58ce00c4059a174f9",
+        "dirty": true
+      }
+    }
+  },
+  "observations": [],
+  "inference": [
+    {
+      "at": "2026-10-05T02:55:55.430Z",
+      "marker": "BOOT",
+      "stream": false,
+      "model": "fixture",
+      "hasObjective": false,
+      "messageMarkers": []
+    },
+    {
+      "at": "2026-10-05T02:55:57.692Z",
+      "marker": "BOOT",
+      "stream": false,
+      "model": "kilo-auto/free",
+      "hasObjective": false,
+      "messageMarkers": []
+    },
+    {
+      "at": "2026-10-05T02:55:57.701Z",
+      "marker": "BOOT",
+      "stream": false,
+      "model": "openai-fast",
+      "hasObjective": false,
+      "messageMarkers": []
+    }
+  ],
+  "errors": []
+}
