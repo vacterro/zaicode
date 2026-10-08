@@ -396,6 +396,7 @@ export function applyZaicodeAppearance(): void {
   if (typeof document === "undefined") return;
   const root = document.documentElement;
   const enabled = isZaicodeProductMode();
+  root.classList.toggle("zaicode-product", enabled);
   if (enabled) ensurePixelIconFilter();
   if (enabled) watchScale();
   const { palette: slug, crisp, bevels, bevelRows, typography, presentation } = readZaicodeAppearance();

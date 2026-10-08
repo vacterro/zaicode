@@ -71,16 +71,18 @@ function SortableProviderModelRow({
   modelId,
   children,
   isLast,
+  label,
 }: {
   modelId: string;
   children: ReactNode;
   isLast: boolean;
+  label?: string;
 }) {
   const { intl } = useZCodeIntl();
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: modelId,
   });
-  const dragLabel = intl.formatMessage({
+  const dragLabel = label ?? intl.formatMessage({
     id: "settings.modelProvider.reorderModel",
   });
   return (
@@ -110,12 +112,16 @@ export function SortableProviderModelList({
   modelIds,
   sortableModelIds,
   onReorder,
+  onMove,
   renderModel,
+  dragLabel,
 }: {
   modelIds: readonly string[];
   sortableModelIds?: readonly string[];
   onReorder?: (modelIds: string[]) => void;
+  onMove?: (activeId: string, targetId: string) => void;
   renderModel: (modelId: string, index: number) => ReactNode;
+  dragLabel?: string;
 }) {
   const sensors = useSensors(
     useSensor(ModelRowPointerSensor, { activationConstraint: { distance: 6 } }),
@@ -126,8 +132,8 @@ export function SortableProviderModelList({
   const content = modelIds.map((modelId, index) => {
     const row = renderModel(modelId, index);
     const isLast = index === modelIds.length - 1;
-    return onReorder && sortableSet.has(modelId) ? (
-      <SortableProviderModelRow key={modelId} modelId={modelId} isLast={isLast}>
+    return (onReorder || onMove) && sortableSet.has(modelId) ? (
+      <SortableProviderModelRow key={modelId} modelId={modelId} isLast={isLast} label={dragLabel}>
         {row}
       </SortableProviderModelRow>
     ) : (
@@ -136,7 +142,7 @@ export function SortableProviderModelList({
       </div>
     );
   });
-  if (!onReorder) return content;
+  if (!onReorder && !onMove) return content;
 
   return (
     <DndContext
@@ -144,7 +150,12 @@ export function SortableProviderModelList({
       collisionDetection={closestCenter}
       onDragEnd={(event: DragEndEvent) => {
         if (!event.over) return;
-        onReorder(
+        if (event.active.id === event.over.id) return;
+        if (onMove) {
+          onMove(String(event.active.id), String(event.over.id));
+          return;
+        }
+        onReorder?.(
           resolveReorderedModelIds({
             activeModelId: String(event.active.id),
             overModelId: String(event.over.id),

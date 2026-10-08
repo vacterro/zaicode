@@ -318,6 +318,7 @@ function ToolLayoutComponent({
         setIsOpen(open);
       }}
       className="w-full flex flex-col"
+      data-transcript-tool-details="true"
     >
       <ToolSummaryRow
         action={summaryAction}

@@ -682,7 +682,7 @@ function ConversationWorkSegmentFlow({
     (item) => item.kind !== "userInput",
   );
   let historyChunkIndex = 0;
-  const expandedView = context.transcriptView === "full" || onlyText;
+  const expandedView = context.transcriptView === "full" || context.transcriptView === "full-unbounded" || onlyText;
   const open = expandedView || segment.assistantHistoryDefaultOpen || historyOpen;
 
   return (

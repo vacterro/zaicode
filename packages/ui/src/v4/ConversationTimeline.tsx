@@ -40,7 +40,7 @@ import { ConversationTurnNavigator } from "@/v4/ConversationTurnNavigator.js";
 // navigator, so there is one way to address a row, and nothing new is stored to go stale.
 import { ConversationTurnNavStrip } from "@/v4/ConversationTurnNavStrip.js";
 import { useZaicodeUiPrefs } from "@/zaicode/zaicodeUiPrefs.js";
-import { TranscriptViewContext, projectTranscriptRows } from "@/lib/transcriptView.js";
+import { TranscriptViewContext, isExpandedTranscriptView, projectTranscriptRows } from "@/lib/transcriptView.js";
 import { ConversationTranscriptControl } from "@/v4/ConversationTranscriptControl.js";
 import { syncConversationShareSelectionPanelLayout } from "@/v4/conversationShareSelectionPanelLayout.js";
 import type { ConversationRowRenderContext } from "@/v4/conversationRowContext.js";
@@ -406,8 +406,8 @@ function ConversationTimelineImpl({
         : {
             ...suppliedRowContext,
             transcriptView,
-            messageStreamShowReasoning: transcriptView === "full",
-            messageStreamShowTodos: transcriptView === "full",
+            messageStreamShowReasoning: isExpandedTranscriptView(transcriptView),
+            messageStreamShowTodos: isExpandedTranscriptView(transcriptView),
           },
     [suppliedRowContext, transcriptView],
   );

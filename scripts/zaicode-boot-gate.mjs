@@ -1,5 +1,5 @@
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, readdirSync, renameSync, rmSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 
 /**
@@ -53,6 +53,8 @@ export function runBootGate({
     }
   }
   const executable = hidden ? resolve(verifying, "ZAICODE.exe") : builtExe;
+  // 安装器的 app 检查只看 exe 是否存在；启动失败的现役构建留下标记，直到某次构建通过启动门禁。
+  const failedMarker = resolve(parent, "boot-failed.json");
   // Windows still holds the folder for a moment after Electron quits (scanners, handles): retry the move.
   const move = (from, to) => {
     for (let attempt = 1; ; attempt++) {
@@ -76,6 +78,7 @@ export function runBootGate({
     result = { status: null, error };
   }
   if (result.status === 0) {
+    rmSync(failedMarker, { force: true });
     if (hidden) {
       try {
         move(verifying, builtDir);
@@ -90,6 +93,11 @@ export function runBootGate({
   }
 
   if (!staged) {
+    try {
+      writeFileSync(failedMarker, JSON.stringify({ executable: builtExe, failedAt: now().toISOString(), screenshots: outDir }, null, 2));
+    } catch (error) {
+      log.warn(`[bundle:zaicode] could not record the failed boot (${error.message}).`);
+    }
     log.error(
       "[bundle:zaicode] boot gate FAILED on the live build: do not start it; screenshots are in .zaicode/smoke/boot.",
     );

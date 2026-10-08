@@ -1,6 +1,8 @@
 import { useState } from "react";
+import { GripVertical } from "lucide-react";
 import { Button } from "@/components/ui/button.js";
 import { ZaicodePrefSegment } from "@/zaicode/ZaicodePrefControls.js";
+import { SortableProviderModelList } from "./model-provider-section/SortableProviderModelList.js";
 import {
   ZAICODE_DISPATCH_DEFAULT_LAUNCHERS,
   useZaicodeDispatch,
@@ -50,8 +52,10 @@ export function ZaicodeDispatchSettings() {
         ]}
       />
       <div className="flex flex-col gap-1">
-        {prefs.launchers.map((launcher, index) => (
-          <div key={launcher.id} className="grid grid-cols-[4rem_7rem_1fr_auto] items-center gap-1">
+        <SortableProviderModelList modelIds={prefs.launchers.map((launcher) => launcher.id)} dragLabel="Drag to reorder launchers" onReorder={(ids) => prefs.update({ launchers: ids.map((id) => prefs.launchers.find((launcher) => launcher.id === id)!) })} renderModel={(_id, index) => {
+          const launcher = prefs.launchers[index]!;
+          return <div className="grid grid-cols-[1rem_4rem_7rem_1fr_auto] items-center gap-1 py-1">
+            <GripVertical className="size-4 text-foreground-subtle" aria-hidden="true" />
             <input className={inputClass} value={launcher.short} maxLength={4} aria-label="Tile text" onChange={(event) => replace(index, { short: event.target.value })} />
             <input className={inputClass} value={launcher.label} aria-label="Name" onChange={(event) => replace(index, { label: event.target.value })} />
             <input
@@ -79,8 +83,8 @@ export function ZaicodeDispatchSettings() {
                 ✕
               </Button>
             </span>
-          </div>
-        ))}
+          </div>;
+        }} />
         <div className="grid grid-cols-[4rem_7rem_1fr_auto] items-center gap-1 border-t border-border pt-1">
           <input className={inputClass} value={draft.short} maxLength={4} placeholder="GM" onChange={(event) => setDraft({ ...draft, short: event.target.value })} />
           <input className={inputClass} value={draft.label} placeholder="Gemini" onChange={(event) => setDraft({ ...draft, label: event.target.value })} />

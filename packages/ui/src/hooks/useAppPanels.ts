@@ -41,6 +41,7 @@ import {
   openWorkflowArtifactSidePane,
   activateDeveloperToolsSidePane,
   activateSaipenSidePane,
+  toggleSaipenSidePane,
   openBrowserSidePane,
   openOrActivateBrowserSidePaneByUrl,
   findBrowserSidePaneTabByUrl,
@@ -855,6 +856,18 @@ export function useAppPanels(options: {
     });
   }, [commitOpenedSidePaneState, revealSidePaneForCurrentOwner, workspaceAbsPath]);
 
+  const handleToggleSaipenTab = useCallback(() => {
+    commitOpenedSidePaneState((current) => {
+      const active = getActiveSidePaneTab(current);
+      const collapsed = latestSidePaneMemoryRef.current.isSidePaneCollapsed;
+      const closing = !collapsed && active?.type === "saipen" && sidePaneOwnerKey(active.ownerTaskId) === sidePaneOwnerKey(sidePaneOwnerIdRef.current);
+      const next = toggleSaipenSidePane(current, sidePaneOwnerIdRef.current, collapsed);
+      if (closing) syncSidePaneCollapsedWithTabs(next);
+      else revealSidePaneForCurrentOwner();
+      return next;
+    });
+  }, [commitOpenedSidePaneState, revealSidePaneForCurrentOwner, syncSidePaneCollapsedWithTabs]);
+
   const handleOpenTerminalTab = useCallback(() => {
     if (isOfficeMode) return;
     revealSidePaneForCurrentOwner();
@@ -1664,6 +1677,7 @@ export function useAppPanels(options: {
     handleOpenWhiteboard,
     handleOpenDeveloperTools,
     handleOpenSaipenTab,
+    handleToggleSaipenTab,
     handleOpenTerminalTab,
     handleOpenModelTrajectory,
     handleOpenSubagentSession,

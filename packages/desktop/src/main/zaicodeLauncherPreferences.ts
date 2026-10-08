@@ -1,6 +1,8 @@
 import { app } from "electron";
 import { mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
+import { initZaicodeSaimailWorkspace } from "./zaicodeSaimailInit.js";
+import { runZaicodeSaimailPostAction } from "./zaicodeSaimailPost.js";
 import {
   ZAICODE_SAIMAIL_DESK_ENV,
   DEFAULT_ZAICODE_SPLASH_OPTIONS,
@@ -189,4 +191,23 @@ export function zaicodeSaimailDeskPath(): string {
 
 export function effectiveZaicodeSaimailWorkspace(): string | null {
   return externalSaimailWorkspace ?? readZaicodeLauncherPreferences().saimailWorkspace;
+}
+
+/** Fresh suite installs get their own mailbox; an explicit setting, including null, wins. */
+export async function initializeZaicodeSaimailForFreshSuite(): Promise<{ ok: boolean; message: string }> {
+  if (externalSaimailWorkspace) return { ok: true, message: "Using the configured SAIMAIL workspace." };
+  try {
+    const stored: unknown = JSON.parse(readFileSync(preferencesPath(), "utf8"));
+    if (stored && typeof stored === "object" && Object.hasOwn(stored, "saimailWorkspace")) {
+      return { ok: true, message: "Keeping the existing SAIMAIL setting." };
+    }
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== "ENOENT") return { ok: false, message: "The launcher preferences could not be read; SAIMAIL settings were kept." };
+  }
+  const workspace = join(app.getPath("userData"), "saimail", "operator");
+  const result = await initZaicodeSaimailWorkspace(workspace);
+  if (!result.ok) return result;
+  const pairing = await runZaicodeSaimailPostAction({ action: "pair", operatorPath: workspace, deskPath: zaicodeSaimailDeskPath() });
+  if (pairing.ok) setZaicodeSaimailWorkspace(workspace);
+  return { ok: pairing.ok, message: pairing.message };
 }

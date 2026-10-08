@@ -135,13 +135,18 @@ export function collectBuildMetadata() {
   const desktopPackageJson = readJson(resolve(desktopDir, "package.json"));
 
   const source = collectSourceIdentity();
+  // ZAICODE 与上游 ZCode 版本分离；安装包和 About 复用同一个发行版本来源。
+  const zaicodeVersionFile = resolve(workspaceDir, "ZAICODE_VERSION");
+  const appVersion = process.env.ZCODE_ZAICODE_IDENTITY === "1" && existsSync(zaicodeVersionFile)
+    ? normalizeVersion(readFileSync(zaicodeVersionFile, "utf8").trim())
+    : normalizeVersion(rootPackageJson.version);
   const buildTime = new Date().toISOString();
   const requestedChannel = process.env.ZAICODE_BUILD_CHANNEL || "local";
   const updateChannel = ["local", "stable", "test", "development"].includes(requestedChannel)
     ? requestedChannel
     : "unknown";
   return {
-    appVersion: normalizeVersion(rootPackageJson.version),
+    appVersion,
     buildCommitId:
       source.sourceRevision === "unknown" ? "unknown" : source.sourceRevision.slice(0, 8),
     ...source,
@@ -149,7 +154,7 @@ export function collectBuildMetadata() {
     updateChannel,
     runtimePackageIdentity: `zaicode-${createHash("sha256")
       .update(
-        JSON.stringify({ ...source, buildTime, updateChannel, version: rootPackageJson.version }),
+        JSON.stringify({ ...source, buildTime, updateChannel, version: appVersion }),
       )
       .digest("hex")}`,
     electronBuilderVersion: resolveInstalledPackageVersion(

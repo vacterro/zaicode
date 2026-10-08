@@ -207,3 +207,83 @@ test("slow preparation cannot launch beyond the configured schedule stop time", 
   await tickZaicodeContinuations(f.store, true, deadline.getTime() + 1, f.runtime);
   assert.equal(f.run().state, "stopped");
 });
+
+test("changing runner and prompt during preparation cancels old admission and the next attempt uses the new account", async () => {
+  const f = fixture();
+  let release!: () => void;
+  const deferred = new Promise<void>((resolve) => { release = resolve; });
+  const original = f.runtime.launch;
+  f.runtime.launch = async (params) => {
+    await deferred;
+    if (!params.canDispatch?.()) return { ok: false, message: "Configuration changed" };
+    return original(params);
+  };
+  const first = tickZaicodeContinuations(f.store, true, START, f.runtime);
+  while (f.run().state !== "launching") await new Promise((resolve) => setImmediate(resolve));
+  f.patch({ engineId: "C2", prompt: "new objective" });
+  f.limits.C2 = quota("C2", START);
+  release();
+  await first;
+  assert.equal(f.launches.length, 0, "stale account must never be admitted");
+  await tickZaicodeContinuations(f.store, true, START + 16_000, f.runtime);
+  assert.equal(f.worker().accountId, "C2");
+  assert.equal(f.worker().prompt, "new objective");
+  assert.equal(f.run().result, "Continuing on C2");
+});
+
+test("a stop while launch acknowledgement is pending cannot be overwritten back to running", async () => {
+  const f = fixture();
+  let release!: () => void;
+  const deferred = new Promise<void>((resolve) => { release = resolve; });
+  const original = f.runtime.launch;
+  f.runtime.launch = async (params) => { const launched = await original(params); await deferred; return launched; };
+  const first = tickZaicodeContinuations(f.store, true, START, f.runtime);
+  while (!f.worker()) await new Promise((resolve) => setImmediate(resolve));
+  f.patch({ continuationRuns: [{ ...f.run(), state: "stopped", result: "Operator stopped" }] });
+  release();
+  await first;
+  assert.equal(f.run().state, "stopped");
+  assert.equal(f.run().result, "Operator stopped");
+  assert.equal(f.worker(), undefined, "cancelled lease cannot leave an orphan worker");
+});
+
+test("retargeting during preparation cancels the old project and cannot restart it on the next tick", async () => {
+  const f = fixture();
+  let release!: () => void;
+  const deferred = new Promise<void>((resolve) => { release = resolve; });
+  const original = f.runtime.launch;
+  f.runtime.launch = async (params) => {
+    await deferred;
+    if (!params.canDispatch?.()) return { ok: false, message: "Target changed" };
+    return original(params);
+  };
+  const first = tickZaicodeContinuations(f.store, true, START, f.runtime);
+  while (f.run().state !== "launching") await new Promise((resolve) => setImmediate(resolve));
+  f.patch({ projectPath: "C:/new-project" });
+  release(); await first;
+  await tickZaicodeContinuations(f.store, true, START + 16_000, f.runtime);
+  assert.equal(f.launches.length, 0, "the old project is no longer an admitted target");
+  assert.equal(f.run().state, "stopped");
+});
+
+test("an account excluded while preparation is pending cannot dispatch and an eligible fallback can take over", async () => {
+  const f = fixture();
+  let release!: () => void;
+  const deferred = new Promise<void>((resolve) => { release = resolve; });
+  const originalLaunch = f.runtime.launch, originalEngines = f.runtime.engines;
+  let excluded = false;
+  f.runtime.engines = () => { const state = originalEngines(); return { ...state, accounts: state.accounts.filter((value) => !excluded || value.id !== "C1") }; };
+  f.runtime.launch = async (params) => {
+    await deferred;
+    if (!params.canDispatch?.()) return { ok: false, message: "Account excluded" };
+    return originalLaunch(params);
+  };
+  const first = tickZaicodeContinuations(f.store, true, START, f.runtime);
+  while (f.run().state !== "launching") await new Promise((resolve) => setImmediate(resolve));
+  excluded = true;
+  f.limits.C2 = quota("C2", START);
+  release(); await first;
+  assert.equal(f.launches.length, 0);
+  await tickZaicodeContinuations(f.store, true, START + 16_000, f.runtime);
+  assert.equal(f.worker().accountId, "C2");
+});

@@ -1,14 +1,16 @@
 import { createContext, useContext } from "react";
 import type { ConversationRow } from "@zcode/shared/zcode-protocol-v4";
 
-export type TranscriptView = "compact" | "full" | "only-text";
+export type TranscriptView = "compact" | "full" | "full-unbounded" | "only-text";
 
 export function normalizeTranscriptView(value: unknown): TranscriptView {
-  return value === "full" || value === "only-text" ? value : "compact";
+  return value === "full" || value === "full-unbounded" || value === "only-text" ? value : "compact";
 }
 
 export const TranscriptViewContext = createContext<TranscriptView>("compact");
-export const useExpandedTranscript = () => useContext(TranscriptViewContext) === "full";
+export const isExpandedTranscriptView = (view: TranscriptView | undefined) => view === "full" || view === "full-unbounded";
+export const useExpandedTranscript = () => isExpandedTranscriptView(useContext(TranscriptViewContext));
+export const useUnboundedTranscript = () => useContext(TranscriptViewContext) === "full-unbounded";
 
 export function projectTranscriptRows(
   rows: readonly ConversationRow[],

@@ -33,9 +33,11 @@ import {
   ZAICODE_SCHEDULE_PRESETS,
   describeZaicodeSchedule,
   zaicodeScheduleWaitsForAutopilot,
+  zaicodeScheduleActivity,
   zaicodeUpcomingSchedules,
 } from "./zaicodeScheduler.js";
 import { useZaicodeStore } from "./zaicodeStore.js";
+import { useZaicodeDisabledProjects } from "./zaicodeProjectSwitch.js";
 import { useZaicodeUiPrefs } from "./zaicodeUiPrefs.js";
 import { pickZaicodeSchedulerEligibleAccounts } from "./zaicodeSchedulerEligibility.js";
 import { ZAICODE_SLOT_GROUPS } from "./zaicodeSidebarPrefs.js";
@@ -61,6 +63,7 @@ export const ZAICODE_SCHEDULE_STATE_TEXT: Record<string, string> = {
   "waiting-time": "ready",
   "waiting-reset": "ready · waits for reset",
   "waiting-quota": "waits for quota",
+  "waiting-project": "blocked",
   due: "firing",
   missed: "missed",
   done: "done",
@@ -347,9 +350,12 @@ export function ZaicodeScheduleRow({
   runners: RunnerOption[];
   watch: RunnerOption[];
 }) {
+  useZaicodeDisabledProjects();
   const decision = decideZaicodeAutostartJob(job, now);
   const autopilot = useZaicodeStore((state) => state.autoRun);
   const paused = zaicodeScheduleWaitsForAutopilot(decision, autopilot);
+  const activity = zaicodeScheduleActivity(job, (id) => runners.find((runner) => runner.id === id)?.label ?? id);
+  const resultIsActive = job.continuationRuns.some((run) => !["complete", "stopped"].includes(run.state) && run.result === job.lastResult);
   const update = (patch: Partial<ZaicodeAutostartJob>) => updateZaicodeAutostartJob(job.id, patch);
   const projectKnown = projects.some((project) => project.path === job.projectPath);
   const watchesOwnEngine =
@@ -369,12 +375,13 @@ export function ZaicodeScheduleRow({
           defaultValue={job.name}
           onBlur={(event) => update({ name: event.target.value })}
         />
+        {activity ? <span className="border border-border px-1 text-foreground" title={activity.title} data-zaicode-schedule-activity>{activity.text}</span> : null}
         <span
           className={cn(
             "border px-1",
             decision.state === "due" && !paused
               ? "border-[#4f9a2f] text-[#7fc35a]"
-              : decision.state === "missed" || decision.state === "invalid"
+              : decision.state === "missed" || decision.state === "invalid" || decision.state === "waiting-project"
                 ? "border-[#c8502a] text-[#e07a55]"
                 : job.enabled
                   ? "border-[var(--zaicode-highlight,var(--color-border-hover))] text-foreground"
@@ -382,8 +389,10 @@ export function ZaicodeScheduleRow({
           )}
           title={paused ? "Enable Autopilot to run this schedule automatically" : decision.reason}
         >
+          Next: {""}
           {paused
             ? "paused · Autopilot OFF"
+            : decision.state === "waiting-project" ? `blocked · ${decision.reason}`
             : (ZAICODE_SCHEDULE_STATE_TEXT[decision.state] ?? decision.state)}
           {decision.dueAt && decision.dueAt > now
             ? ` · ${paused ? "planned " : ""}in ${formatZaicodeDuration(decision.dueAt - now)}`
@@ -394,7 +403,7 @@ export function ZaicodeScheduleRow({
           size="sm"
           variant="outline"
           title="Run now (test it; does not use up the scheduled moment)"
-          onClick={() => runZaicodeAutostartNow(job.id)}
+          onClick={() => { void runZaicodeAutostartNow(job.id); }}
         >
           <Play className="size-3.5" />
         </Button>
@@ -598,7 +607,7 @@ export function ZaicodeScheduleRow({
           job,
           runners.find((runner) => runner.id === job.engineId)?.label ?? job.engineId,
         )}
-        {job.lastResult ? ` · last: ${job.lastResult}` : ""}
+        {job.lastResult && !resultIsActive ? <div data-zaicode-schedule-result>Last recorded result: {job.lastResult}</div> : null}
       </div>
     </div>
   );

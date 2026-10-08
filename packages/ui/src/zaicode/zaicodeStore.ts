@@ -87,6 +87,12 @@ interface ZaicodeStoreState {
     jobId: string,
     direction: "up" | "down",
   ) => Promise<void>;
+  reorderJobTo: (
+    services: ZaicodeServices,
+    workspace: ZaicodeWorkspaceContext,
+    jobId: string,
+    targetId: string,
+  ) => Promise<void>;
   setMaxConcurrency: (
     services: ZaicodeServices,
     workspace: ZaicodeWorkspaceContext,
@@ -347,6 +353,24 @@ export const useZaicodeStore = create<ZaicodeStoreState>((set, get) => {
 
     reorderJob: async (services, workspace, jobId, direction) => {
       await runAction(services, workspace, () => services.jobs.reorder(jobId, direction));
+    },
+
+    reorderJobTo: async (services, workspace, jobId, targetId) => {
+      const movable = get().jobs
+        .filter((job) => ["draft", "queued", "ready", "blocked"].includes(job.status))
+        .sort((a, b) => b.priority - a.priority || a.sortOrder - b.sortOrder || a.createdAt - b.createdAt);
+      const from = movable.findIndex((job) => job.id === jobId);
+      const to = movable.findIndex((job) => job.id === targetId);
+      if (from < 0 || to < 0 || from === to) return;
+      // 优先级属于调度语义；拖动仅修改同优先级任务的已有顺序，不偷偷修改优先级。
+      if (movable[from]!.priority !== movable[to]!.priority) {
+        throw new Error("Drag within the same priority; change Priority to move between priority groups.");
+      }
+      await runAction(services, workspace, async () => {
+        for (let at = 0; at < Math.abs(to - from); at++) {
+          if (!await services.jobs.reorder(jobId, to < from ? "up" : "down")) break;
+        }
+      });
     },
 
     setMaxConcurrency: async (services, workspace, value) => {

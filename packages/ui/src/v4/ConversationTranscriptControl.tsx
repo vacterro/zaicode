@@ -4,6 +4,7 @@ import { cn } from "@/components/lib/utils.js";
 const MODES = [
   ["compact", "Compact", "Normal summaries and manual detail disclosure"],
   ["full", "Full", "Expand loaded tool, thought and work details"],
+  ["full-unbounded", "Full without scroll", "Expand every loaded detail without inner output scrollbars"],
   ["only-text", "Only text", "User and assistant messages, with essential errors and controls"],
 ] as const;
 

@@ -331,6 +331,7 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
   handleOpenWhiteboard,
   handleOpenDeveloperTools,
   handleOpenSaipenTab,
+  handleToggleSaipenTab,
   handleOpenTerminalTab,
   handleToggleGit,
   handleOpenGitReview,
@@ -693,6 +694,7 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
           resizeSession.startWidthPx,
           event.clientX - resizeSession.startX,
           isZaicodeProductMode() && useZaicodeSidebarPrefs.getState().sidebarsSwapped,
+          isZaicodeProductMode(),
         ),
         resizeSession.containerWidthPx,
       );
@@ -824,6 +826,9 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
       )?.localWorkspacePath,
     [workspaceAbsPath, workspaceIdentity, workspaceTabs],
   );
+  const sidebarsSwappedPreference = useZaicodeSidebarPrefs((s) => s.sidebarsSwapped);
+  const sidebarsSwapped = isZaicodeProductMode() && sidebarsSwappedPreference;
+  const globalSaipenVisible = useZaicodeActions((state) => state.saipenSidebar !== null);
   const workspaceShellSplitStyle = useMemo(
     () =>
       ({
@@ -839,9 +844,14 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
         "--workspace-sidebar-width": `${workspaceSidebarPanelWidthPx}px`,
         "--workspace-panel-radius": `${workspacePanelRadiusPx}px`,
         "--workspace-resize-handle-inset": `${workspaceResizeHandleInsetPx}px`,
+        // 草稿检查器是 body portal；必须预留其宽度，否则遮住 STATE 按钮，无法再次点击关闭。
+        paddingLeft: globalSaipenVisible && sidebarsSwapped ? "min(480px, 50vw)" : undefined,
+        paddingRight: globalSaipenVisible && !sidebarsSwapped ? "min(480px, 50vw)" : undefined,
       }) as CSSProperties,
     [
       collapsedSidebarWidthPx,
+      globalSaipenVisible,
+      sidebarsSwapped,
       isSidebarPanelVisible,
       workspacePanelRadiusPx,
       workspaceResizeHandleInsetPx,
@@ -896,11 +906,11 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
   }, [onWorkspaceMainViewChange]);
   const usageMode = useZaicodeUsage((state) => state.mode);
   useEffect(() => {
-    if (!isZaicodeProductMode() || !isWorkspaceVisible || !handleOpenSaipenTab) return;
+    if (!isZaicodeProductMode() || !isWorkspaceVisible || !handleToggleSaipenTab) return;
     const open = (target?: { workspacePath: string; workspaceIdentity?: string | undefined }) => {
       if (!activeTaskId) return false;
       if (target && buildTaskWorkspaceKey(target.workspacePath, target.workspaceIdentity) !== workspaceKey) return false;
-      handleOpenSaipenTab();
+      handleToggleSaipenTab();
       return true;
     };
     useZaicodeActions.getState().setOpenSaipen(open);
@@ -909,7 +919,7 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
         useZaicodeActions.getState().setOpenSaipen(null);
       }
     };
-  }, [activeTaskId, handleOpenSaipenTab, isWorkspaceVisible, workspaceKey]);
+  }, [activeTaskId, handleToggleSaipenTab, isWorkspaceVisible, workspaceKey]);
   // ZAICODE (SRC-038): the home-screen SCHEDULER card and other surfaces open the ZAICODE view.
   useEffect(() => {
     if (!isZaicodeProductMode()) return;
@@ -1587,8 +1597,6 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
       });
     }
   }, [activeTaskId, workspaceKey]);
-  const sidebarsSwappedPreference = useZaicodeSidebarPrefs((s) => s.sidebarsSwapped);
-  const sidebarsSwapped = isZaicodeProductMode() && sidebarsSwappedPreference;
   const renderSidePanePanel = () => (
     <AnimatedSidePanePanel
       resizeHandleAfter={sidebarsSwapped}

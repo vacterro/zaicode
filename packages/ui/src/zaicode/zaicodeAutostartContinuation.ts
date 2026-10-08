@@ -7,11 +7,14 @@ import { zaicodeContinueHandleFor } from "./zaicodeContinueHost.js";
 import { zaicodeCommandForPrompt } from "./zaicodeScheduleRun.js";
 import { isZaicodeProjectDisabled } from "./zaicodeProjectSwitch.js";
 import type { ZaicodeServices } from "./zaicodeServices.js";
-import type { ZaicodeKnownProject } from "./zaicodeScheduler.js";
+import { readZaicodeKnownProjects, zaicodeScheduleTargets, type ZaicodeKnownProject } from "./zaicodeScheduler.js";
 import type { ZaicodeWorkerLimitSignal } from "./zaicodeWorkerSignals.js";
 import { resolveZaicodeDefaultSelection } from "./zaicodeDefaultModel.js";
 import { terminalControl } from "@/terminal/terminalOutputTap.js";
 import { useZaicodeMainSessions, zaicodeMainSessionIdOf, zaicodeMainSessionKey } from "./zaicodeMainSession.js";
+import { pickZaicodeSchedulerEligibleAccounts } from "./zaicodeSchedulerEligibility.js";
+import { useZaicodeUiPrefs } from "./zaicodeUiPrefs.js";
+import { useZaicodeSidebarPrefs } from "./zaicodeSidebarPrefs.js";
 
 const QUOTA_REFRESH_MS = 30_000;
 const RETRY_MS = 15_000;
@@ -26,7 +29,10 @@ export interface ZaicodeContinuationStore {
 }
 
 const liveRuntime = {
-  engines: readZaicodeEnginesState,
+  engines: () => {
+    const engines = readZaicodeEnginesState();
+    return { ...engines, accounts: pickZaicodeSchedulerEligibleAccounts(engines.accounts, useZaicodeUiPrefs.getState()) };
+  },
   refresh: refreshZaicodeEngineLimits,
   workers: readZaicodeWorkers,
   launch: launchZaicodeWorker,
@@ -37,8 +43,22 @@ const liveRuntime = {
   terminal: terminalControl,
   main: (target: { path: string; identity?: string }) => zaicodeMainSessionIdOf(useZaicodeMainSessions.getState().byWorkspace, zaicodeMainSessionKey(target.path, target.identity)),
   setMain: (target: { path: string; identity?: string }, sessionId: string) => useZaicodeMainSessions.getState().setMain(zaicodeMainSessionKey(target.path, target.identity), sessionId),
+  targets: (job: ZaicodeContinuingJob) => {
+    const prefs = useZaicodeSidebarPrefs.getState();
+    return zaicodeScheduleTargets(job, readZaicodeKnownProjects(), prefs.groups, prefs.defaultSlot);
+  },
 };
-export type ZaicodeContinuationRuntime = typeof liveRuntime;
+export type ZaicodeContinuationRuntime = Omit<typeof liveRuntime, "targets"> & Partial<Pick<typeof liveRuntime, "targets">>;
+
+function dispatchConfiguration(job: ZaicodeContinuingJob): string {
+  return JSON.stringify([job.engineId, job.prompt, job.targetKind, job.projectPath, job.section, job.onlyMarked, job.onlyWhenIdle, job.beforeRun, job.continuation]);
+}
+
+function targetSelected(job: ZaicodeContinuingJob, run: ZaicodeContinuationRun, runtime: ZaicodeContinuationRuntime): boolean {
+  return runtime.targets
+    ? runtime.targets(job).some((target) => target.path.toLowerCase() === run.projectPath.toLowerCase() && (target.identity ?? "") === (run.workspaceIdentity ?? ""))
+    : job.targetKind !== "project" || job.projectPath.toLowerCase() === run.projectPath.toLowerCase();
+}
 
 function persist(store: ZaicodeContinuationStore, jobId: string, run: ZaicodeContinuationRun): void {
   const job = store.read().find((value) => value.id === jobId);
@@ -118,6 +138,7 @@ export async function tickZaicodeContinuations(store: ZaicodeContinuationStore, 
     try {
       const job = store.read().find((value) => value.id === initialJob.id);
       if (!job) continue;
+      const configuration = dispatchConfiguration(job);
       const current = job.continuationRuns.find((value) => value.workspaceKey === initialRun.workspaceKey && value.occurrence === initialRun.occurrence);
       if (!current) continue;
       run = current;
@@ -144,6 +165,12 @@ export async function tickZaicodeContinuations(store: ZaicodeContinuationStore, 
         persist(store, job.id, { ...run, state: "stopped", result: "Run failed; no subscription-limit evidence" });
         continue;
       }
+      const selectedTarget = targetSelected(job, run, runtime);
+      if (!selectedTarget && run.state !== "running") {
+        await stopOwned(run, runtime);
+        persist(store, job.id, { ...run, state: "stopped", result: "Project is no longer a schedule target" });
+        continue;
+      }
       const stopAt = zaicodeScheduleStopAt(job.stopAt, run.startedAt ?? run.launchedAt);
       if (run.state === "running" && !run.workerId && run.sessionId && !session && !(stopAt !== null && now >= stopAt)) continue;
       if (run.state === "running" && run.workerId && !worker && !(stopAt !== null && now >= stopAt)) {
@@ -153,7 +180,7 @@ export async function tickZaicodeContinuations(store: ZaicodeContinuationStore, 
         persist(store, job.id, run);
       }
       const engines = runtime.engines();
-      const decision = decideZaicodeContinuation({ job, run, accounts: engines.accounts, limits: engines.limits, availablePools: new Set(selections.keys()), now, autopilot: autopilot && (store.canDispatch?.() ?? true), enabled: job.enabled, projectDisabled: runtime.disabled(run.workspaceKey), stopDue: stopAt !== null && now >= stopAt });
+      const decision = decideZaicodeContinuation({ job, run, accounts: engines.accounts, limits: engines.limits, availablePools: new Set(selections.keys()), now, autopilot: autopilot && (store.canDispatch?.() ?? true), enabled: job.enabled, projectDisabled: runtime.disabled(run.workspaceKey) || !selectedTarget, stopDue: stopAt !== null && now >= stopAt });
       if (decision.action === "none" || decision.action === "wait") continue;
       if (decision.action === "arm-return" || decision.action === "cancel-return") {
         persist(store, job.id, { ...run, preferredReadyAt: decision.action === "arm-return" ? decision.at : undefined });
@@ -169,6 +196,7 @@ export async function tickZaicodeContinuations(store: ZaicodeContinuationStore, 
       if (decision.action === "switch") await stopOwned(run, runtime);
       const admitted = store.read().find((value) => value.id === job.id);
       if (!admitted?.enabled || !admitted.continuation.enabled || !(store.canDispatch?.() ?? true) || runtime.disabled(run.workspaceKey)) continue;
+      if (dispatchConfiguration(admitted) !== configuration) continue;
       const sameLease = run.state === "launching" || (run.state === "failed" && run.runnerId === decision.runnerId);
       const generation = sameLease && run.generation ? run.generation + 1 : undefined;
       // 模型/worker lease 替换不能丢掉 canonical MAIN 会话身份。
@@ -179,7 +207,8 @@ export async function tickZaicodeContinuations(store: ZaicodeContinuationStore, 
         const owned = latest?.continuationRuns.find((value) => value.workspaceKey === run.workspaceKey && value.occurrence === run.occurrence);
         // 提示文件/会话准备跨过停止时刻后，必须在真正派发前重新验证最新停止规则。
         const deadline = latest ? zaicodeScheduleStopAt(latest.stopAt, run.startedAt ?? run.launchedAt) : null;
-        return Boolean(latest?.enabled && latest.continuation.enabled && !latest.onlyMarked && owned?.lease === run.lease && owned.state === "launching" && (deadline === null || Date.now() < deadline) && (store.canDispatch?.() ?? true) && !runtime.disabled(run.workspaceKey));
+        const accountEligible = run.runnerId.startsWith("pool:") || runtime.engines().accounts.some((account) => account.id === run.runnerId && account.status === "ready" && account.cli);
+        return Boolean(latest?.enabled && latest.continuation.enabled && dispatchConfiguration(latest) === configuration && targetSelected(latest, run, runtime) && accountEligible && !latest.onlyMarked && owned?.lease === run.lease && owned.state === "launching" && (deadline === null || Date.now() < deadline) && (store.canDispatch?.() ?? true) && !runtime.disabled(run.workspaceKey));
       };
       if (decision.runnerId.startsWith("pool:")) {
         const target = { key: run.workspaceKey, path: run.projectPath, identity: run.workspaceIdentity };
@@ -204,6 +233,13 @@ export async function tickZaicodeContinuations(store: ZaicodeContinuationStore, 
         if (!launched.ok || !launched.worker) throw new Error(launched.message);
         run = { ...run, generation: launched.worker.generation };
       }
+      const acknowledged = store.read().find((value) => value.id === job.id)?.continuationRuns.find((value) => value.workspaceKey === run.workspaceKey && value.occurrence === run.occurrence);
+      // 异步启动确认只更新自己的活 lease，不能复活已停止/删除的任务或覆盖更新后的状态。
+      if (!acknowledged || acknowledged.lease !== run.lease || ["complete", "stopped"].includes(acknowledged.state)) {
+        await stopOwned(run, runtime);
+        continue;
+      }
+      if (acknowledged.state !== "launching") continue;
       persist(store, job.id, { ...run, state: "running", result: `Continuing on ${run.runnerId}` });
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);

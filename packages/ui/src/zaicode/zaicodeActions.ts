@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { resolveWorkspaceKey } from "@zcode/shared";
 import type { SettingsSectionId } from "@/lib/settingsNavigation.js";
 import { setPendingSettingsSection } from "@/lib/settingsNavigation.js";
 
@@ -57,6 +58,11 @@ export function openZaicodeHomeView(): boolean {
 export function openZaicodeSaipenView(workspacePath?: string, workspaceIdentity?: string): boolean {
   const state = useZaicodeActions.getState();
   const target = workspacePath ? { workspacePath, workspaceIdentity } : undefined;
+  // 草稿变成对话后 opener 可能已注册；先关闭当前可见的同项目检查器，不能另开一个。
+  if (target && state.saipenSidebar && resolveWorkspaceKey(state.saipenSidebar) === resolveWorkspaceKey(target)) {
+    state.setSaipenSidebar(null);
+    return true;
+  }
   if (state.openSaipen?.(target)) {
     state.setSaipenSidebar(null);
     return true;

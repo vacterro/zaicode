@@ -68,7 +68,8 @@ export function chooseZaicodeContinuationRunner(input: {
     const account = input.accounts.find((item) => item.id === id);
     if (!account || account.status !== "ready" || !account.cli || account.vendor === "freebuff") return false;
     const blocked = input.run.blocked.find((limit) => limit.runnerId === id);
-    return zaicodeContinuationHasQuota(input.limits[id], input.now, blocked?.observedAt);
+    const snapshot = input.limits[id];
+    return snapshot?.accountId === id && zaicodeContinuationHasQuota(snapshot, input.now, blocked?.observedAt);
   }) ?? null;
 }
 

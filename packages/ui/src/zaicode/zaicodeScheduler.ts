@@ -3,6 +3,7 @@ import {
   zaicodeAutostartWatchedEngine,
   type ZaicodeAutostartDecision,
   type ZaicodeAutostartJob,
+  type ZaicodeContinuingJob,
 } from "@zcode/shared";
 import { create } from "zustand";
 
@@ -89,6 +90,19 @@ export interface ZaicodeScheduleNext {
   job: ZaicodeAutostartJob;
   decision: ZaicodeAutostartDecision;
   autopilotRequired?: boolean;
+}
+
+/** Active execution is independent of the preferred runner and the next scheduled moment. */
+export function zaicodeScheduleActivity(
+  job: Pick<ZaicodeContinuingJob, "continuationRuns">,
+  label: (id: string) => string,
+): { text: string; title: string } | null {
+  const active = job.continuationRuns.filter((run) => !["complete", "stopped"].includes(run.state));
+  if (active.length === 0) return null;
+  return {
+    text: active.length === 1 ? `${active[0]!.state} · ${label(active[0]!.runnerId)}` : `${active.length} active projects`,
+    title: active.map((run) => `${run.projectPath}: ${run.state} · ${label(run.runnerId)} · ${run.result}`).join("\n"),
+  };
 }
 
 /** The planned moment is not an unattended-launch promise while the host gate is off. */

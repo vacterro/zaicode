@@ -46,6 +46,7 @@ import {
 import type { UtilityProcess as ElectronUtilityProcess } from "electron";
 import { spawn } from "node:child_process";
 import { join, resolve } from "node:path";
+import { existsSync } from "node:fs";
 import { homedir, hostname } from "node:os";
 import {
   createCredentialService,
@@ -251,6 +252,7 @@ import { mainMemoryDiagnosticsRegistry } from "./mainMemoryDiagnostics.js";
 import {
   applyZaicodeSaimailEnvironment,
   readZaicodeLauncherPreferences,
+  initializeZaicodeSaimailForFreshSuite,
 } from "./zaicodeLauncherPreferences.js";
 import { applyZaicodePixelExactSwitches, ensureZaicodeCrispFonts, zaicodePixelExactAtStart } from "./zaicodeCrispFonts.js";
 import { startZaicodeEngines } from "./zaicodeEngines.js";
@@ -1914,6 +1916,11 @@ app.whenReady().then(async () => {
   if (ZCODE_PRODUCT_FLAVOR === "zaicode" || process.env.ZCODE_ZAICODE_MODE === "1") {
     // SRC-048: the picture first; the main window stays hidden until it is ready.
     showZaicodeSplash();
+    // 套件安装的首次启动使用自己的应用数据目录，不能给其他用户目录生成信箱。
+    if (process.env.ZAICODE_INSTALL_ROOT && existsSync(join(process.env.ZAICODE_INSTALL_ROOT, "install", "ownership.json"))) {
+      const mail = await initializeZaicodeSaimailForFreshSuite();
+      if (!mail.ok) logger.warn(`SAIMAIL first-run setup: ${mail.message}`);
+    }
     startZaicodeEngines();
     // Zero-setup router (T-46): the operator's 9router, or ZAICODE's own isolated one, up before the first task.
     void startZaicodeRouterHost();

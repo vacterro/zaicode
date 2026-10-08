@@ -22,6 +22,7 @@ import {
   type ZaicodeJobPrimaryAction,
 } from "@/zaicode/zaicodeStatus.js";
 import { ZaicodeQueueTodometer } from "@/v4/ZaicodeTodoGauge.js";
+import { SortableProviderModelList } from "@/settings/model-provider-section/SortableProviderModelList.js";
 
 type QueueFilter = "all" | ZaicodeJobGroup;
 const FILTERS: readonly QueueFilter[] = ["all", "active", "attention", "done"];
@@ -49,6 +50,7 @@ export interface ZaicodeQueuePanelProps {
   onResume: (jobId: string) => void;
   onRemove: (jobId: string) => void;
   onMove: (jobId: string, direction: "up" | "down") => void;
+  onMoveTo?: (jobId: string, targetId: string) => void;
 }
 
 function formatTime(value: number | undefined): string {
@@ -88,6 +90,7 @@ export function ZaicodeQueuePanel({
   onResume,
   onRemove,
   onMove,
+  onMoveTo,
   workspacePath,
 }: ZaicodeQueuePanelProps) {
   const { intl } = useZCodeIntl();
@@ -301,7 +304,8 @@ export function ZaicodeQueuePanel({
           </div>
         ) : (
           <div className="flex flex-col gap-1">
-            {visibleJobs.map((job) => {
+            <SortableProviderModelList modelIds={visibleJobs.map((job) => job.id)} sortableModelIds={visibleJobs.filter((job) => ["draft", "queued", "ready", "blocked"].includes(job.status)).map((job) => job.id)} onMove={busy ? undefined : onMoveTo} dragLabel="Drag to reorder jobs within the same priority" renderModel={(_id, index) => {
+              const job = visibleJobs[index]!;
               const agent = agents.find((candidate) => candidate.id === job.agentId);
               const selected = selectedJobId === job.id;
               const active = isJobActive(job.status);
@@ -309,7 +313,6 @@ export function ZaicodeQueuePanel({
               const PrimaryIcon = primary ? PRIMARY_ICON[primary] : null;
               return (
                 <div
-                  key={job.id}
                   role="button"
                   tabIndex={0}
                   onClick={() => onSelectJob(job.id)}
@@ -410,7 +413,7 @@ export function ZaicodeQueuePanel({
                   </div>
                 </div>
               );
-            })}
+            }} />
           </div>
         )}
       </div>

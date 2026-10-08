@@ -1,4 +1,5 @@
 import { useEffect, useSyncExternalStore } from "react";
+import { logger } from "../logger.js";
 import { completeNewModelSelection } from "@zcode/provider";
 import { notifyZaicode } from "./zaicodeNotifications.js";
 import {
@@ -120,11 +121,27 @@ export function decideZaicodeAutostartJob(
   now: number = Date.now(),
 ): ZaicodeAutostartDecision {
   const engine = zaicodeAutostartWatchedEngine(job);
-  return evaluateZaicodeAutostartJob(
+  const decision = evaluateZaicodeAutostartJob(
     (job as ZaicodeAutostartJob).continuation?.enabled ? { ...job, requireQuota: false } : job,
     engine ? readZaicodeEnginesState().limits[engine] : undefined,
     now,
   );
+  if (["disabled", "done", "invalid", "missed"].includes(decision.state)) return decision;
+  const { resolved, targets } = scheduleAdmission(job);
+  // 项目 OFF 是执行门；不能显示 ready，也不能消耗本次 reset。
+  if (targets.length === 0) return {
+    ...decision,
+    state: "waiting-project",
+    reason: resolved.length ? "project switched off" : `no project in ${job.section}`,
+  };
+  return decision;
+}
+
+function scheduleAdmission(job: import("@zcode/shared").ZaicodeAutostartJob) {
+  const prefs = useZaicodeSidebarPrefs.getState();
+  const resolved = zaicodeScheduleTargets(job, readZaicodeKnownProjects(), prefs.groups, prefs.defaultSlot);
+  const targets = resolved.filter((target) => !isZaicodeProjectDisabled(resolveWorkspaceKey({ workspacePath: target.path, workspaceIdentity: target.identity })));
+  return { resolved, targets };
 }
 
 /** Engine id of the in-app agent: START (`/goal cc all`) in the project's MAIN session (a fresh one only without MAIN). */
@@ -211,20 +228,7 @@ async function fire(
       ? [...job.firedEvents, decision.eventId].slice(-40)
       : job.firedEvents;
   const onceDone = job.trigger === "at" && !manual && !job.continuation.enabled ? { enabled: false } : {};
-  const prefs = useZaicodeSidebarPrefs.getState();
-  const resolved = zaicodeScheduleTargets(
-    job,
-    readZaicodeKnownProjects(),
-    prefs.groups,
-    prefs.defaultSlot,
-  );
-  // Projects switched off (Shift+Click) are invisible to automatic work.
-  const targets = resolved.filter(
-    (target) =>
-      !isZaicodeProjectDisabled(
-        resolveWorkspaceKey({ workspacePath: target.path, workspaceIdentity: target.identity }),
-      ),
-  );
+  const { resolved, targets } = scheduleAdmission(job);
   const where =
     job.targetKind === "section"
       ? `${job.section} (${targets.length})`
@@ -232,11 +236,9 @@ async function fire(
   if (targets.length === 0) {
     const reason = resolved.length > 0 ? "project switched off" : `no project in ${job.section}`;
     updateZaicodeAutostartJob(job.id, {
-      firedEvents,
-      lastRunAt: now,
-      lastResult: reason,
-      ...onceDone,
+      lastResult: `${new Date(now).toLocaleString()} · ${reason}`,
     });
+    logger.lifecycle.info("[ZAICODE scheduler] blocked", { scheduleId: job.id, eventId: decision.eventId, reason, manual });
     return;
   }
   updateZaicodeAutostartJob(job.id, {
@@ -245,6 +247,7 @@ async function fire(
     lastResult: "starting…",
     ...onceDone,
   });
+  logger.lifecycle.info("[ZAICODE scheduler] dispatch", { scheduleId: job.id, eventId: decision.eventId, engineId: job.engineId, targetCount: targets.length, manual });
   const announce = (title: string, body: string) => {
     playZaicodeSound("autostart.fire");
     notifyZaicode("autostart.fire", {
@@ -260,6 +263,7 @@ async function fire(
       lastResult: `${new Date(now).toLocaleString()} · ${lastResult}`,
       ...(runs.length > 0 ? { runs: [...(current?.runs ?? []), ...runs].slice(-20) } : {}),
     });
+    logger.lifecycle.info("[ZAICODE scheduler] result", { scheduleId: job.id, eventId: decision.eventId, runCount: runs.length });
   };
 
   const isAgent = job.engineId.startsWith(ZAICODE_AUTOSTART_AGENT_PREFIX);
@@ -363,9 +367,9 @@ async function fire(
     );
 }
 
-export function runZaicodeAutostartNow(id: string): void {
+export async function runZaicodeAutostartNow(id: string): Promise<void> {
   const job = readZaicodeAutostartJobs().find((candidate) => candidate.id === id);
-  if (job) void fire(job, decideZaicodeAutostartJob(job), true);
+  if (job) await fire(job, decideZaicodeAutostartJob(job), true);
 }
 
 let running = false;
@@ -382,6 +386,7 @@ export function useZaicodeAutostartRunner(): void {
       }
     });
     const announcedMissed = new Set<string>();
+    const observedStates = new Map<string, string>();
     let ticking = false;
     const tick = async () => {
       if (ticking) return;
@@ -391,10 +396,15 @@ export function useZaicodeAutostartRunner(): void {
         const autopilot = await useZaicodeStore.getState().refreshAutoRun(queueServices);
         const now = Date.now();
         for (const job of readZaicodeAutostartJobs()) {
-          if (!autopilot || !job.enabled) continue;
           const decision = decideZaicodeAutostartJob(job, now);
+          const state = `${autopilot}:${decision.state}:${decision.eventId}:${job.engineId}`;
+          if (observedStates.get(job.id) !== state) {
+            observedStates.set(job.id, state);
+            logger.lifecycle.info("[ZAICODE scheduler] admission", { scheduleId: job.id, engineId: job.engineId, state: decision.state, eventId: decision.eventId, reason: decision.reason, autopilot });
+          }
+          if (!autopilot || !job.enabled) continue;
           if (decision.state === "due") {
-            void fire(job, decision, false);
+            await fire(job, decision, false);
           } else if (
             decision.state === "missed" &&
             decision.eventId &&

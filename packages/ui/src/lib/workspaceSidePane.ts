@@ -1611,6 +1611,19 @@ export function activateSaipenSidePane(
   return activateSidePaneTab(current, createSaipenSidePaneTab());
 }
 
+/** STATE 按钮是 toggle；折叠面板应先展开，普通 Add 仍保持仅打开。 */
+export function toggleSaipenSidePane(
+  current: WorkspaceSidePaneState | null,
+  ownerTaskId?: string | null,
+  collapsed = false,
+): WorkspaceSidePaneState | null {
+  const active = getActiveSidePaneTab(current);
+  if (!collapsed && active?.type === "saipen" && sidePaneOwnerKey(active.ownerTaskId) === sidePaneOwnerKey(ownerTaskId)) {
+    return closeSidePaneTabForParent(current, active.id, ownerTaskId ?? null);
+  }
+  return activateSaipenSidePane(current);
+}
+
 export function openTerminalSidePane(
   current: WorkspaceSidePaneState | null,
   options: { title: string; cwd?: string; remoteSessionId?: string | null },

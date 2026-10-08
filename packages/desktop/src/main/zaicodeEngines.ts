@@ -11,6 +11,7 @@ import {
   mergeZaicodeSharedAccounts,
   normalizeZaicodeEnginesConfig,
   isZaicodeWindowWaitingForFirstUse,
+  isZaicodeMetricsOnlyAccount,
   parseAntigravityUsage,
   parseClaudeUsageText,
   parseCodexRateLimits,
@@ -36,15 +37,19 @@ import {
 import { listSharedAccounts, nodeSaiAccountsHost, probeSharedAccount, resolveSaiAccountsEngine } from "@zcode/provider-node";
 import { codexRpcCall, consumeCodexResetCredit, type CodexRpcOptions } from "./zaicodeCodexRpc.js";
 import { setWindowsDesktopTrayLimits } from "./desktopTray.js";
+import { logger } from "./logger.js";
 import {
   antigravityWindowStartArgs,
   claudeWindowStartArgs,
+  claudeWindowStartEnv,
   codexWindowStartArgs,
   readAntigravityWindowStart,
   readClaudeWindowStart,
   readCodexWindowStart,
   readZcodeWindowStart,
   zcodeWindowStartRequest,
+  ZAICODE_WINDOW_START_SCHEMA,
+  ZAICODE_WINDOW_START_INSTRUCTIONS,
   type ZaicodeWindowStartOutcome,
 } from "./zaicodeWindowStarter.js";
 
@@ -1162,7 +1167,7 @@ const WINDOW_START_REREAD_MS = 20_000;
  * account again. One start per account at a time; the cooldown lives in the snapshot record.
  */
 async function startIdleWindow(account: ZaicodeEngineAccount, window: ZaicodeLimitWindow): Promise<void> {
-  if ((account.vendor !== "zcode" && !account.cli) || startingWindows.has(account.id)) return;
+  if (isZaicodeMetricsOnlyAccount(account) || (account.vendor !== "zcode" && !account.cli) || startingWindows.has(account.id)) return;
   startingWindows.add(account.id);
   const startedAt = Date.now();
   const windowKey = window.key;
@@ -1181,12 +1186,17 @@ async function startIdleWindow(account: ZaicodeEngineAccount, window: ZaicodeLim
       const result = await runCli(account.cli, claudeWindowStartArgs(), {
         cwd: probeDir(),
         timeoutMs: CLAUDE_TIMEOUT_MS,
-        env: probeEnv({ CLAUDE_CONFIG_DIR: account.isDefaultHome ? null : account.home }),
+        env: probeEnv({ CLAUDE_CONFIG_DIR: account.isDefaultHome ? null : account.home, ...claudeWindowStartEnv() }),
       });
       outcome = readClaudeWindowStart(result.ok, result.stdout, result.error);
     } else if (account.vendor === "codex" && account.home) {
-      const result = await runCli(account.cli, codexWindowStartArgs(), {
-        cwd: probeDir(),
+      const cwd = probeDir();
+      const schemaPath = join(cwd, "window-start-schema.json");
+      const instructionsPath = join(cwd, "window-start-instructions.txt");
+      writeFileSync(schemaPath, ZAICODE_WINDOW_START_SCHEMA, "utf8");
+      writeFileSync(instructionsPath, ZAICODE_WINDOW_START_INSTRUCTIONS, "utf8");
+      const result = await runCli(account.cli, codexWindowStartArgs(schemaPath, instructionsPath), {
+        cwd,
         timeoutMs: CODEX_WINDOW_START_TIMEOUT_MS,
         env: probeEnv({ CODEX_HOME: account.home, OPENAI_API_KEY: null, CODEX_API_KEY: null, CODEX_ACCESS_TOKEN: null }),
       });
@@ -1232,7 +1242,7 @@ async function startIdleWindow(account: ZaicodeEngineAccount, window: ZaicodeLim
     persistCache();
     broadcast();
   }
-  console.info(`[ZAICODE] window start ${account.label}: ${outcome.ok ? "ok" : "failed"} -- ${outcome.detail}`);
+  logger.info("[ZAICODE] window start", { accountId: account.id, windowKey, ok: outcome.ok, elapsedMs: Date.now() - startedAt });
   const timer = setTimeout(() => void refreshZaicodeEngines(account.id), WINDOW_START_REREAD_MS);
   timer.unref?.();
 }

@@ -240,6 +240,7 @@ export interface WorkspaceShellLayoutProps extends Omit<AppProps, "baseFeedbackS
   handleOpenDeveloperTools: () => void;
   /** ZAICODE：SAIPEN 协议实时面板。 */
   handleOpenSaipenTab?: () => void;
+  handleToggleSaipenTab?: () => void;
   handleOpenTerminalTab: () => void;
   handleToggleGit: () => void;
   handleOpenGitReview: (sourceId?: GitChangeSourceId) => void;

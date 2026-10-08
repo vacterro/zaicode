@@ -10,6 +10,7 @@ import {
   type ZaicodeRouterCombo,
 } from "@zcode/shared";
 import { useZaicodeRouter, zaicodeRouterChange } from "@/zaicode/zaicodeRouter.js";
+import { SortableProviderModelList } from "./model-provider-section/SortableProviderModelList.js";
 
 /**
  * Router -> Pools: 9router combos, the pools ZAICODE runs on. Order is the
@@ -33,6 +34,7 @@ function saveModels(combo: ZaicodeRouterCombo, models: string[]) {
 
 function PoolCard({ combo, modelIds }: { combo: ZaicodeRouterCombo; modelIds: readonly string[] }) {
   const settings = useZaicodeRouter((state) => state.settings);
+  const busy = useZaicodeRouter((state) => state.busy);
   const [open, setOpen] = useState(false);
   const [adding, setAdding] = useState("");
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -119,36 +121,36 @@ function PoolCard({ combo, modelIds }: { combo: ZaicodeRouterCombo; modelIds: re
         </div>
       ) : (
         <>
-          <ol className="flex max-h-[320px] flex-col overflow-y-auto border border-border">
-            {combo.models.map((model, index) => (
-              <li key={model} className="flex items-center gap-1 border-b border-border/40 px-1 last:border-b-0">
+          <div className="flex max-h-[320px] flex-col overflow-y-auto border border-border" aria-label={`${combo.name} models`}>
+            <SortableProviderModelList modelIds={combo.models} onReorder={busy ? undefined : (models) => void saveModels(combo, models)} renderModel={(model, index) => (
+              <div className="flex items-center gap-1 px-2 py-1">
                 <span className="w-7 shrink-0 text-right tabular-nums text-foreground-subtlest">{index + 1}.</span>
                 <span className="min-w-0 flex-1 truncate font-mono text-foreground" title={model}>
                   {model}
                 </span>
-                <Button size="sm" variant="ghost" className="h-5 px-1" disabled={index === 0} onClick={() => void saveModels(combo, moveZaicodeComboModel(combo.models, model, -index))} title="To the top">
+                <Button size="sm" variant="ghost" className="h-6 px-2" disabled={!!busy || index === 0} onClick={() => void saveModels(combo, moveZaicodeComboModel(combo.models, model, -index))} title="To the top">
                   ⤒
                 </Button>
-                <Button size="sm" variant="ghost" className="h-5 px-1" disabled={index === 0} onClick={() => void saveModels(combo, moveZaicodeComboModel(combo.models, model, -1))} title="Up">
+                <Button size="sm" variant="ghost" className="h-6 px-2" disabled={!!busy || index === 0} onClick={() => void saveModels(combo, moveZaicodeComboModel(combo.models, model, -1))} title="Up">
                   ↑
                 </Button>
                 <Button
                   size="sm"
                   variant="ghost"
-                  className="h-5 px-1"
-                  disabled={index === combo.models.length - 1}
+                  className="h-6 px-2"
+                  disabled={!!busy || index === combo.models.length - 1}
                   onClick={() => void saveModels(combo, moveZaicodeComboModel(combo.models, model, 1))}
                   title="Down"
                 >
                   ↓
                 </Button>
-                <Button size="sm" variant="ghost" className="h-5 px-1" onClick={() => void saveModels(combo, combo.models.filter((item) => item !== model))} title="Remove from this pool">
+                <Button size="sm" variant="ghost" className="h-6 px-2" disabled={!!busy} onClick={() => void saveModels(combo, combo.models.filter((item) => item !== model))} title="Remove from this pool">
                   ✕
                 </Button>
-              </li>
-            ))}
-            {combo.models.length === 0 ? <li className="px-2 py-1 text-foreground-subtlest">Empty: add a model below.</li> : null}
-          </ol>
+              </div>
+            )} />
+            {combo.models.length === 0 ? <div className="px-2 py-1 text-foreground-subtlest">Empty: add a model below.</div> : null}
+          </div>
           <div className="flex items-center gap-1">
             <input
               className={`${inputClass} flex-1 font-mono`}
@@ -192,7 +194,7 @@ export function ZaicodeRouterPools() {
     });
   };
   return (
-    <section className="flex flex-col gap-2 border border-border bg-card p-3 text-ui-xs" data-zaicode-router-pools>
+    <section className="flex flex-col gap-2 border border-border bg-card p-3 text-ui-base" data-zaicode-router-pools>
       <div>
         <h2 className="text-ui-lg text-foreground">Pools</h2>
         <p className="mt-0.5 max-w-[640px] text-foreground-subtle">

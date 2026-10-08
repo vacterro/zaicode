@@ -85,6 +85,8 @@ async function main() {
     ZAICODE_UPDATES: "off",
   };
   delete env.TZ;
+  // 从 Electron 宿主继承时 ZAICODE.exe 会以纯 Node 运行并立即退出，启动门禁误判为构建损坏。
+  delete env.ELECTRON_RUN_AS_NODE;
   // A boot gate must not inherit the operator's mailbox, router or agent state.
   delete env.SAIMAIL_WORKSPACE;
   // Vendor-specific home/auth variables override HOME and would leak real accounts into this profile.

@@ -110,6 +110,7 @@ function Fade() {
       aria-hidden
       className="pointer-events-none absolute inset-x-0 bottom-0 h-[28%]"
       style={{ background: "linear-gradient(to bottom, transparent, var(--color-panel))" }}
+      data-zaicode-content-fade
     />
   );
 }

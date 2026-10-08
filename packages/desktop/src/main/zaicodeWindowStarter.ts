@@ -9,10 +9,26 @@
  */
 
 export const ZAICODE_WINDOW_START_PROMPT = "Reply with the single word: ok";
+export const ZAICODE_WINDOW_START_SCHEMA = JSON.stringify({
+  type: "object", properties: { ok: { type: "boolean", enum: [true] } },
+  required: ["ok"], additionalProperties: false,
+});
+export const ZAICODE_WINDOW_START_INSTRUCTIONS = 'Return {"ok":true}. Do not use tools or explain.';
+
+/** 仅首用探针覆盖这些变量；不改变正常 worker 的输出/思考预算。 */
+export function claudeWindowStartEnv(): Record<string, string> {
+  return {
+    // 1 token 会触发 CLI 的长度续写重试；8 仍硬限短答并给终止 token 留空间。
+    CLAUDE_CODE_MAX_OUTPUT_TOKENS: "8",
+    MAX_THINKING_TOKENS: "0",
+    CLAUDE_CODE_MAX_RETRIES: "0",
+    CLAUDE_CODE_DISABLE_TERMINAL_TITLE: "1",
+  };
+}
 
 /**
  * `claude -p` with no tools, no MCP, no user hooks (only project settings, and the probe folder has
- * none). Measured 2026-09-30 on a Max account: 701 input and 48 output tokens, answer "ok".
+ * none). Output is capped separately in claudeWindowStartEnv, with no failed-API retries.
  */
 export function claudeWindowStartArgs(): string[] {
   return [
@@ -28,6 +44,8 @@ export function claudeWindowStartArgs(): string[] {
     "--setting-sources",
     "project",
     "--no-session-persistence",
+    "--max-budget-usd",
+    "0.005",
     "--output-format",
     "json",
   ];
@@ -39,7 +57,7 @@ export function claudeWindowStartArgs(): string[] {
  * tokens (Codex's own instructions and tool list, mostly cached) and 5 output tokens; the CLI has no
  * smaller request.
  */
-export function codexWindowStartArgs(): string[] {
+export function codexWindowStartArgs(schemaPath?: string, instructionsPath?: string): string[] {
   return [
     "exec",
     "--skip-git-repo-check",
@@ -50,6 +68,12 @@ export function codexWindowStartArgs(): string[] {
     "read-only",
     "-c",
     "model_reasoning_effort=low",
+    "-c",
+    "model_verbosity=low",
+    "-c",
+    "model_reasoning_summary=none",
+    ...(schemaPath ? ["--output-schema", schemaPath] : []),
+    ...(instructionsPath ? ["-c", `model_instructions_file=${JSON.stringify(instructionsPath)}`] : []),
     ZAICODE_WINDOW_START_PROMPT,
   ];
 }
@@ -75,6 +99,11 @@ export function antigravityWindowStartArgs(windowKey: string, inventory: string)
     "--effort",
     effort,
     "--sandbox",
+    "--disable-slash-commands",
+    "--json-schema",
+    ZAICODE_WINDOW_START_SCHEMA,
+    "--print-timeout",
+    "30s",
     "--output-format",
     "json",
   ];

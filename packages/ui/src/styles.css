@@ -63,6 +63,54 @@ body {
   overflow: hidden;
 }
 
+/* ZAICODE 中渐隐遮挡正文；统一关闭滚动掩膜和弹窗遮黑，保留模态命中层。 */
+.zaicode-product [class*="mask-image"],
+.zaicode-product [style*="mask"],
+.zaicode-product [data-scroll-mask] {
+  mask-image: none !important;
+  -webkit-mask-image: none !important;
+}
+
+.zaicode-product [data-slot="dialog-overlay"],
+.zaicode-product [data-slot="alert-dialog-overlay"],
+.zaicode-product [data-zaicode-scrim],
+.zaicode-product [class*="fixed"][class*="inset-0"][class*="bg-black"],
+.zaicode-product [class*="absolute"][class*="inset-0"][class*="bg-black"],
+.zaicode-product [class*="fixed"][class*="inset-0"][class*="bg-foreground/"] {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.zaicode-product [class*="pointer-events-none"][class*="bg-gradient-to-"],
+.zaicode-product [class*="from-transparent"][class*="to-[var(--attachment-bg)]"],
+.zaicode-product [data-zaicode-content-fade] {
+  background-image: none !important;
+}
+
+/* 真正 Full 按内容高度显示工具输出；正文保留外层会话滚动与高度测量。 */
+[data-transcript-view="full-unbounded"] [data-transcript-tool-details] [class*="max-h-"],
+[data-transcript-view="full-unbounded"] [data-transcript-tool-details] [style*="max-height"],
+[data-transcript-view="full-unbounded"] [data-transcript-tool-details] [class*="overflow-auto"],
+[data-transcript-view="full-unbounded"] [data-transcript-tool-details] [class*="overflow-y-"],
+[data-transcript-view="full-unbounded"] [data-reasoning-scroll-mask] {
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+[data-transcript-view="full-unbounded"] [data-transcript-tool-details] pre,
+[data-transcript-view="full-unbounded"] [data-transcript-tool-details] pre code {
+  white-space: pre-wrap !important;
+  overflow-wrap: anywhere;
+}
+
+[data-transcript-view="full-unbounded"] [data-transcript-tool-details] .truncate {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  overflow-wrap: anywhere;
+}
+
 /* 中文模板描述按单字断行会拆开“简报”等词组，并把标点挤到下一行。
  * Chromium 支持时启用短语级换行；其它环境保留正常断行，避免 keep-all 在窄屏产生溢出。 */
 .text-wrap-phrase {

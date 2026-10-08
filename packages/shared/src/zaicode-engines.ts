@@ -350,6 +350,8 @@ export interface ZaicodeLimitWindow {
   remainingPercent: number | null;
   /** Epoch milliseconds of the vendor's reset time, or null. */
   resetsAt: number | null;
+  /** Last observed real vendor refill, retained when a probe advances the reset. */
+  lastResetAt?: number;
   durationMinutes: number | null;
   /** Label of the longer window in the same pool that makes this one unusable right now. */
   gatedBy: string | null;
@@ -497,7 +499,7 @@ export const ZAICODE_WINDOW_START_RETRY_MS = 60 * 60_000;
  * {@link zaicodeShouldStartIdleWindow} is the boolean form of it.
  */
 export function zaicodeIdleWindowToStart(params: {
-  account: Pick<ZaicodeEngineAccount, "id" | "vendor" | "status">;
+  account: Pick<ZaicodeEngineAccount, "id" | "vendor" | "status"> & Partial<Pick<ZaicodeEngineAccount, "planeOnly">>;
   snapshot: ZaicodeLimitSnapshot | undefined;
   config: Pick<ZaicodeEnginesConfig, "keepWindowsRolling" | "hiddenAccounts">;
   now: number;
@@ -505,6 +507,7 @@ export function zaicodeIdleWindowToStart(params: {
   const { account, snapshot, config, now } = params;
   if (!config.keepWindowsRolling) return null;
   if (!ZAICODE_WINDOW_STARTER_VENDORS.includes(account.vendor)) return null;
+  if (isZaicodeMetricsOnlyAccount(account)) return null;
   if (account.status !== "ready" || config.hiddenAccounts.includes(account.id)) return null;
   if (!snapshot || snapshot.error !== null) return null;
   const holdsWindow = (window: ZaicodeLimitWindow): boolean => {
@@ -516,24 +519,23 @@ export function zaicodeIdleWindowToStart(params: {
       : last.ok ? ZAICODE_WINDOW_START_COOLDOWN_MS : ZAICODE_WINDOW_START_RETRY_MS;
     return now - last.at < wait;
   };
+  // 跨池的周额度耗尽不能阻止另一池启动；先应用同池门，才能跳过耗尽池选择可用池。
+  const windows = effectiveZaicodeWindows(snapshot.windows, now);
   const idle = [...snapshot.windows].sort((left, right) => (left.durationMinutes ?? Infinity) - (right.durationMinutes ?? Infinity)).find(
     (window) =>
       !isZaicodeReserveWindow(window) &&
       isZaicodeWindowWaitingForFirstUse(window) &&
       window.gatedBy === null &&
       window.remainingPercent !== 0 &&
-      !holdsWindow(window),
+      !holdsWindow(window) &&
+      !windows.some((other) => other.group === window.group && !isZaicodeReserveWindow(other) && !isScopedZaicodeWindow(other) && other.remainingPercent === 0),
   );
   if (!idle) return null;
-  // 主额度耗尽时不能为待命储备触发默认模型请求；储备只供支持它的模型使用。
-  if (effectiveZaicodeWindows(snapshot.windows, now).some(
-    (window) => !isZaicodeReserveWindow(window) && !isScopedZaicodeWindow(window) && window.remainingPercent === 0,
-  )) return null;
   return idle;
 }
 
 export function zaicodeShouldStartIdleWindow(params: {
-  account: Pick<ZaicodeEngineAccount, "id" | "vendor" | "status">;
+  account: Pick<ZaicodeEngineAccount, "id" | "vendor" | "status"> & Partial<Pick<ZaicodeEngineAccount, "planeOnly">>;
   snapshot: ZaicodeLimitSnapshot | undefined;
   config: Pick<ZaicodeEnginesConfig, "keepWindowsRolling" | "hiddenAccounts">;
   now: number;
@@ -634,10 +636,10 @@ export function markZaicodeWindowsStartingOnUse(
   windows: readonly ZaicodeLimitWindow[],
   readAt: number,
   previousStart?: ZaicodeWindowStartRecord | null,
-  _previousWindows?: readonly ZaicodeLimitWindow[] | null,
+  previousWindows?: readonly ZaicodeLimitWindow[] | null,
   previousStarts?: Record<string, ZaicodeWindowStartRecord> | null,
 ): ZaicodeLimitWindow[] {
-  return windows.map((window) => {
+  const marked = windows.map((window) => {
     const previous = windowStartFor(window.key, previousStart, previousStarts);
     const minutes = window.durationMinutes;
     const looksIdle =
@@ -678,6 +680,15 @@ export function markZaicodeWindowsStartingOnUse(
     }
     const { rollingFrom: _dropped, ...waiting } = window;
     return { ...waiting, startsOnUse: true };
+  });
+  return marked.map((window) => {
+    const previous = previousWindows?.find((candidate) => candidate.key === window.key && candidate.group === window.group);
+    const observed = previous && !isZaicodeWindowWaitingForFirstUse(previous) ? previous.resetsAt : null;
+    const boundaries = [window.lastResetAt, previous?.lastResetAt, observed].filter(
+      (value): value is number => typeof value === "number" && Number.isFinite(value) && value > 0 && value <= readAt,
+    );
+    if (boundaries.length === 0) return window;
+    return { ...window, lastResetAt: Math.max(...boundaries) };
   });
 }
 
@@ -1436,6 +1447,7 @@ export type ZaicodeAutostartState =
   | "waiting-time"
   | "waiting-reset"
   | "waiting-quota"
+  | "waiting-project"
   | "due"
   | "missed"
   | "done"
@@ -1554,21 +1566,26 @@ export function evaluateZaicodeAutostartJob(
     }
     case "reset":
     case "everyReset": {
-      if (job.trigger === "reset" && job.firedEvents.some((id) => id.startsWith("reset:"))) {
+      const prefix = `reset:${encodeURIComponent(zaicodeAutostartWatchedEngine(job) ?? "none")}:${job.window}:`;
+      if (job.trigger === "reset" && job.firedEvents.some((id) => id.startsWith(prefix))) {
         return { state: "done", dueAt: null, eventId: "", reason: "ran after a refill" };
       }
       const window = snapshot?.windows.find((candidate) => candidate.key === job.window)
         ?? snapshot?.windows.find((candidate) => candidate.key.startsWith(`${job.window}@`));
-      if (!window || window.resetsAt === null) {
+      const lastReset = snapshot?.accountId === zaicodeAutostartWatchedEngine(job) ? window?.lastResetAt : undefined;
+      const pendingReset = typeof lastReset === "number" && Number.isFinite(lastReset) && lastReset > 0 && lastReset <= now && !job.firedEvents.includes(`${prefix}${lastReset}`)
+        ? lastReset : null;
+      if (!window || (window.resetsAt === null && pendingReset === null)) {
         return { state: "waiting-reset", dueAt: null, eventId: "", reason: "reset time not known yet" };
       }
       // SRC-048: an untouched window reports "read time + 5 h" on every read; waiting for it never ends.
       // T-143: unless ZAICODE is rolling it locally, which gives it a real end time.
-      if (isZaicodeWindowWaitingForFirstUse(window)) {
+      if (pendingReset === null && isZaicodeWindowWaitingForFirstUse(window)) {
         return { state: "waiting-reset", dueAt: null, eventId: "", reason: "window not started: it starts on first use" };
       }
-      const dueAt = window.resetsAt + Math.max(0, job.safetyDelaySeconds) * 1000;
-      const eventId = `reset:${job.window}:${window.resetsAt}`;
+      const resetAt = pendingReset ?? window.resetsAt!;
+      const dueAt = resetAt + Math.max(0, job.safetyDelaySeconds) * 1000;
+      const eventId = `${prefix}${resetAt}`;
       if (now < dueAt) return { state: "waiting-reset", dueAt, eventId, reason: "waiting for refill" };
       if (job.firedEvents.includes(eventId)) {
         return { state: "waiting-reset", dueAt: null, eventId, reason: "waiting for the next refill" };
@@ -1586,8 +1603,9 @@ export function evaluateZaicodeAutostartJob(
  * null when it runs on an in-app pool or an agent and watches nothing.
  */
 export function zaicodeAutostartWatchedEngine(job: Pick<ZaicodeAutostartJob, "engineId" | "watchEngineId">): string | null {
-  if (job.watchEngineId) return job.watchEngineId;
-  return job.engineId.startsWith("pool:") || job.engineId.startsWith("agent:") ? null : job.engineId;
+  return job.engineId.startsWith("pool:") || job.engineId.startsWith("agent:")
+    ? job.watchEngineId || null
+    : job.engineId;
 }
 
 /** "HH:MM" of a stop rule -> the stop moment for a run that started at `startedAt` (same or next day). */
@@ -1654,7 +1672,12 @@ export function normalizeZaicodeAutostartJobs(raw: unknown): ZaicodeAutostartJob
           typeof job.catchUpSeconds === "number" ? Math.min(86_400, Math.max(60, job.catchUpSeconds)) : 900,
         requireQuota: job.requireQuota !== false,
         firedEvents: Array.isArray(job.firedEvents)
-          ? job.firedEvents.filter((id): id is string => typeof id === "string").slice(-40)
+          ? job.firedEvents.filter((id): id is string => typeof id === "string").slice(-40).map((id) => {
+            // 旧事件按当时实际 Watch 归属迁移，不能把 A1 历史误认作新选择的 A2。
+            const legacy = /^reset:([^:]+):(\d+)$/.exec(id);
+            const oldWatch = job.watchEngineId || zaicodeAutostartWatchedEngine(job as ZaicodeAutostartJob) || "none";
+            return legacy ? `reset:${encodeURIComponent(oldWatch)}:${legacy[1]}:${legacy[2]}` : id;
+          })
           : [],
         lastRunAt: typeof job.lastRunAt === "number" ? job.lastRunAt : null,
         lastResult: typeof job.lastResult === "string" ? job.lastResult.slice(0, 300) : "",

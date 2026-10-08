@@ -342,6 +342,9 @@ export function ZaicodeWorkspace({
               onMove={(jobId, direction) =>
                 withBusy(() => store.reorderJob(ctx, workspace, jobId, direction))
               }
+              onMoveTo={(jobId, targetId) =>
+                withBusy(() => store.reorderJobTo(ctx, workspace, jobId, targetId))
+              }
             />
           </main>
           <aside

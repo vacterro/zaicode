@@ -107,6 +107,21 @@ test("a live build that cannot start is left untouched but fails the bundle loud
   }
 });
 
+test("a live build that cannot start leaves a marker the installer reads until a build starts again", () => {
+  const { root, repoRoot } = repo("dist");
+  const marker = join(repoRoot, "packages", "desktop", "dist", "boot-failed.json");
+  try {
+    runBootGate({ repoRoot, distName: "dist", isWin: true, env: {}, smoke: () => ({ status: 1 }), log: quiet });
+    assert.ok(existsSync(marker), "the next install or Autotroubleshoot run must not report this build as working");
+    assert.equal(JSON.parse(readFileSync(marker, "utf8")).executable.endsWith("ZAICODE.exe"), true);
+    const result = runBootGate({ repoRoot, distName: "dist", isWin: true, env: {}, smoke: () => ({ status: 0 }), log: quiet });
+    assert.deepEqual(result, { ok: true, action: "passed" });
+    assert.equal(existsSync(marker), false, "a build that starts clears the marker");
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
 test("a smoke that times out or is killed (no status) counts as a failure, never as a pass", () => {
   const { root, repoRoot } = repo("dist-next");
   try {
