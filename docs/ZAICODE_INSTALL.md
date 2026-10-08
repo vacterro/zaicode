@@ -188,17 +188,26 @@ unknown part name is refused. No network.
 
 ## Building the release
 
-1. Build the app with the release version: `pnpm bundle:zaicode` in `zcode\`
-   (`zcode\ZAICODE_VERSION` names it; the upstream ZCode version in
-   `package.json` stays separate).
-2. Make a clean source install somewhere new (it provides the private Git,
-   Node.js and Python and fresh clones of SAIPEN and SAIMAIL):
+The payload is made only from published commits, so every installed clone is
+clean and updates from GitHub like a source install.
+
+1. Push the app (`zaicode`) and the workspace release commit. The workspace
+   installs track `master`; until `master` carries the release commit,
+   installs report the workspace as ahead and leave it alone.
+2. Make a clean source install somewhere new (private Git, Node.js and Python,
+   fresh clones of SAIPEN and SAIMAIL):
    `install\Install-ZAICODE.ps1 -InstallDir D:\zc-boot -PortableTools -NoShortcut -NoStartMenu -NoRegistration`.
-3. `node install/build-suite.mjs --bootstrap-root D:\zc-boot --app-dir zcode\packages\desktop\dist\win-unpacked`
-   writes `.zaicode\release\<version>\ZAICODE-Suite-<version>-win-x64.zip`
-   and its `.sha256`. Machine state (install records, logs, SAIPEN memory,
-   mail) is refused, never packed.
-4. `set ZAICODE_SUITE_PAYLOAD=<that zip>` and
+   For a release commit not yet on `master`, fast-forward its root clone to it
+   and rebuild the launcher (`tools\launcher\build.cmd`).
+3. Build the app there from the published source: `pnpm bundle:zaicode` in
+   `D:\zc-boot\zcode` (`ZAICODE_VERSION` names it; the upstream ZCode version
+   stays separate).
+4. `node install/build-suite.mjs --bootstrap-root D:\zc-boot` writes
+   `.zaicodeelease\<version>\ZAICODE-Suite-<version>-win-x64.zip` and its
+   `.sha256`. It refuses a clone with content edits, an app or companion commit
+   that is not on GitHub, an app built from another commit, and any install
+   record or protocol memory.
+5. `set ZAICODE_SUITE_PAYLOAD=<that zip>` and
    `set ZAICODE_SETUP_OUTPUT=<...>\ZAICODE-Setup-<version>.exe`, then
    `install\setup\build.cmd`. Setup checks the payload's SHA-256 before it
    unpacks anything.
