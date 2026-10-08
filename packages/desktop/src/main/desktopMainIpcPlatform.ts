@@ -101,6 +101,7 @@ import {
   setZaicodeStartWithWindows,
 } from "./zaicodeEngines.js";
 import { writeZaicodePromptFile } from "./zaicodePromptFiles.js";
+import { listZaicodeSystemFonts } from "./zaicodeSystemFonts.js";
 import { saveZaicodeSettingsSnapshot } from "./zaicodeSettingsSnapshot.js";
 import { setZaicodeGlobalHotkeys } from "./zaicodeGlobalHotkeys.js";
 import { registerZaicodeProtrailGlobalIpc } from "./zaicodeProtrailGlobal.js";
@@ -609,6 +610,7 @@ export function registerPlatformIpcHandlers(options: {
     if (typeof text !== "string") throw new TypeError("Expected prompt text");
     return writeZaicodePromptFile(text);
   });
+  ipcMain.handle(PlatformChannels.ListZaicodeSystemFonts, () => listZaicodeSystemFonts());
   ipcMain.handle(PlatformChannels.CallZaicodeRouter, (_event, call: unknown) =>
     callZaicodeRouter(call as ZaicodeRouterCall),
   );

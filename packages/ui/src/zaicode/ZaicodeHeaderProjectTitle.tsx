@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { cn } from "@/components/lib/utils.js";
 import { ZAICODE_CODE_FONT_OPTIONS, ZAICODE_UI_FONT_OPTIONS } from "./zaicodeAppearance.js";
+import { ZaicodeFontSelect, useZaicodeSystemFonts, zaicodeFontNeedsTypedName } from "./ZaicodeFontSelect.js";
 import { zaicodeProjectColor } from "./ZaicodeGroupedRowDecor.js";
 import { ZaicodePrefCheck, ZaicodePrefSegment, ZaicodePrefStepper, ZaicodeRightClickSettings } from "./ZaicodePrefControls.js";
 import { readZaicodeSetting } from "./zaicodeSettingsSnapshot.js";
@@ -95,12 +96,14 @@ export const useZaicodeHeaderTitle = create<ZaicodeHeaderTitlePrefs & { update: 
 
 /** CSS font-family for the chosen face; empty = the interface font. */
 export function zaicodeHeaderTitleFamily(prefs: Pick<ZaicodeHeaderTitlePrefs, "font" | "customFont">): string {
-  if (prefs.font === "custom") return prefs.customFont.trim() ? `${prefs.customFont.trim()}, sans-serif` : "";
+  // Quoted: an installed family such as "Terminus (TTF) for Windows" is not a valid bare CSS name.
+  if (prefs.font === "custom") return prefs.customFont.trim() ? `${JSON.stringify(prefs.customFont.trim())}, sans-serif` : "";
   return FONT_OPTIONS.find((option) => option.id === prefs.font)?.family ?? "";
 }
 
 export function ZaicodeHeaderTitleSettingsPanel() {
   const prefs = useZaicodeHeaderTitle();
+  const installed = useZaicodeSystemFonts();
   return (
     <div className="flex max-w-[480px] flex-col gap-1.5 text-ui-xs" data-zaicode-header-title-settings>
       <ZaicodePrefCheck checked={prefs.showProject} onChange={(showProject) => prefs.update({ showProject })} label="Project name in the title bar" />
@@ -115,19 +118,15 @@ export function ZaicodeHeaderTitleSettingsPanel() {
       />
       <label className="flex items-center justify-between gap-2">
         <span className="text-foreground-subtle">Font</span>
-        <select
+        <ZaicodeFontSelect
           className="min-w-0 border border-border bg-background px-1 py-0.5 text-foreground"
-          value={prefs.font}
-          onChange={(event) => prefs.update({ font: event.target.value })}
-        >
-          {FONT_OPTIONS.map((option) => (
-            <option key={option.id} value={option.id}>
-              {option.label}
-            </option>
-          ))}
-        </select>
+          presets={FONT_OPTIONS}
+          id={prefs.font}
+          custom={prefs.customFont}
+          onChange={(choice) => prefs.update({ font: choice.id, ...(choice.custom !== undefined ? { customFont: choice.custom } : {}) })}
+        />
       </label>
-      {prefs.font === "custom" ? (
+      {zaicodeFontNeedsTypedName(prefs.font, prefs.customFont, installed) ? (
         <input
           className="border border-border bg-background px-1 py-0.5 text-foreground"
           value={prefs.customFont}

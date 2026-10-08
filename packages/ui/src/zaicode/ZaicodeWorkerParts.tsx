@@ -84,7 +84,7 @@ export function ZaicodeWorkerLabel({
   className?: string;
 }) {
   return (
-    <span className={cn("flex min-w-0 items-center gap-1.5", className)}>
+    <span className={cn("flex min-w-0 items-center gap-1.5 overflow-hidden", className)}>
       <span
         className="inline-block size-2 shrink-0 border border-black/60"
         style={{ background: zaicodeWorkerTone(worker) }}
@@ -98,7 +98,7 @@ export function ZaicodeWorkerLabel({
       <span className="truncate text-foreground">{worker.projectName}</span>
       {worker.kind === "worker" ? <ZaicodeWorkerQuotaMeters accountId={worker.accountId} now={now} /> : null}
       {showAge ? (
-        <span className="shrink-0 text-foreground-subtlest">
+        <span className="min-w-0 shrink truncate text-foreground-subtlest">
           {formatZaicodeDuration(zaicodeWorkerElapsedMs(worker, now))}
           {worker.exitCode !== null
             ? ` · ${worker.exitCode === 0 ? "done" : `exit ${worker.exitCode}`}`

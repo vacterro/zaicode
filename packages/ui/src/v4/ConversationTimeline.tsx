@@ -1731,11 +1731,39 @@ function ConversationTimelineImpl({
       data-transcript-view={transcriptView}
       className="relative flex min-h-0 flex-1 flex-col"
     >
+      {/* ZAICODE: one row above the scroller carries every transcript control: the view
+          choice, loading earlier messages and the two jump chips, spread evenly. The right
+          end stays free for the status dock (todo gauge, changes), which publishes its width
+          as --zaicode-status-lane and sits at this row's height. */}
       {isZaicodeProductMode() ? (
-        <ConversationTranscriptControl
-          view={transcriptView}
-          onChange={(view) => updateUiPrefs({ transcriptView: view })}
-        />
+        <div
+          data-zaicode-transcript-row="true"
+          className="flex min-h-10 shrink-0 items-center justify-evenly gap-x-3 border-b border-border py-1 pl-3 text-ui-xs"
+          style={{ paddingRight: "calc(var(--zaicode-status-lane, 0px) + 0.75rem)" }}
+        >
+          <ConversationTranscriptControl
+            view={transcriptView}
+            onChange={(view) => updateUiPrefs({ transcriptView: view })}
+          />
+          {canLoadOlder && onLoadOlder ? (
+            <button
+              type="button"
+              className="shrink-0 border border-border px-2 py-1 text-foreground-subtle hover:bg-hover hover:text-foreground disabled:opacity-50"
+              disabled={loadingOlder}
+              onClick={() => {
+                commitFollowing(false);
+                void onLoadOlder();
+              }}
+            >
+              {loadingOlder ? "Loading earlier messages…" : "Load earlier messages"}
+            </button>
+          ) : null}
+          <ConversationTurnNavStrip
+            units={renderUnits}
+            getScrollRoot={getTimelineScrollRoot}
+            onJumpToRow={scrollToQuery}
+          />
+        </div>
       ) : null}
       {failedToolNames.length > 0 ? (
         <div role="alert" className="shrink-0 px-3 py-1 text-ui-xs text-destructive">
@@ -1773,35 +1801,6 @@ function ConversationTimelineImpl({
           onJumpToQuery={scrollToQuery}
         />
       )}
-      {isZaicodeProductMode() && canLoadOlder && onLoadOlder ? (
-        <div className="flex shrink-0 justify-center border-b border-border px-2 py-1">
-          <button
-            type="button"
-            className="text-ui-xs text-foreground-subtle hover:text-foreground disabled:opacity-50"
-            disabled={loadingOlder}
-            onClick={() => {
-              commitFollowing(false);
-              void onLoadOlder();
-            }}
-          >
-            {loadingOlder ? "Loading earlier messages…" : "Load earlier messages"}
-          </button>
-        </div>
-      ) : null}
-      {/* SRC-161:REQ-009: a real layout lane, not an overlay. It is `shrink-0` in the
-          timeline's own column and sits directly above the scrolling viewport, so it owns
-          its geometry: the scroller below starts exactly where the strip ends and nothing
-          can be covered. It keeps SRC-139's source of truth (the render units) and its
-          anchor (scrollToQuery -`[data-row-id="<rowId>"]`); only the geometry strategy
-          changed. */}
-      {isZaicodeProductMode() ? (
-        <ConversationTurnNavStrip
-          units={renderUnits}
-          getScrollRoot={getTimelineScrollRoot}
-          onJumpToRow={scrollToQuery}
-          className={cn("mx-auto", contentWidthClassName, summaryPanelInlineOffsetClassName)}
-        />
-      ) : null}
       <div
         ref={scrollRef}
         data-testid={TID_V4_TIMELINE}

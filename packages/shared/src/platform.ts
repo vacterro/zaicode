@@ -1009,6 +1009,8 @@ export interface IPlatformService {
   launchZaicodeExternalWorker?(params: { cwd: string; command: string; title: string }): Promise<{ ok: boolean; message: string }>;
   /** ZAICODE (SRC-046): a prompt too long for a CLI command line, written to a file the worker reads. */
   writeZaicodePromptFile?(text: string): Promise<{ ok: boolean; path: string; message: string }>;
+  /** ZAICODE: the font families installed on this machine, for every font picker. */
+  listZaicodeSystemFonts?(): Promise<string[]>;
   prepareZaicodeEngineAccountHome?(vendor: string): Promise<{ ok: boolean; home: string; message: string }>;
   getZaicodeStartWithWindows?(): Promise<{ enabled: boolean; command: string }>;
   setZaicodeStartWithWindows?(enabled: boolean): Promise<{ enabled: boolean; command: string }>;

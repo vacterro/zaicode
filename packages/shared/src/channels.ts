@@ -490,6 +490,8 @@ export const PlatformChannels = {
   /** Renderer → Main：open a worker CLI in its own PowerShell window */
   LaunchZaicodeExternalWorker: "zaicode:launch-external-worker",
   WriteZaicodePromptFile: "zaicode:write-prompt-file",
+  /** Renderer → Main：every font family installed on this Windows machine */
+  ListZaicodeSystemFonts: "zaicode:list-system-fonts",
   /** Renderer → Main：create the next free account home for a second Claude/Codex login */
   PrepareZaicodeEngineAccountHome: "zaicode:prepare-engine-account-home",
   /** Renderer → Main：register ZAICODE global hotkeys (Electron globalShortcut) */

@@ -20,7 +20,8 @@ export function ConversationTranscriptControl({
       role="group"
       aria-label="Transcript view"
       data-transcript-control="true"
-      className="flex shrink-0 flex-wrap items-center gap-1 border-b border-border px-3 py-1 text-ui-xs"
+      // 只是一组按钮：所在的那一行（时间线顶部）负责边框、间距与均匀分布。
+      className="flex shrink-0 flex-wrap items-center gap-1 text-ui-xs"
     >
       <span className="mr-1 text-foreground-subtle">Transcript</span>
       {MODES.map(([mode, label, hint]) => (

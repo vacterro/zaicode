@@ -64,7 +64,7 @@ export function ZaicodeSidebarWorkers() {
             <ContextMenuTrigger asChild>
               <div
                 className={cn(
-                  "group flex min-w-0 items-center gap-1 border px-1",
+                  "group relative flex min-w-0 items-center gap-1 overflow-hidden border px-1",
                   worker.id === state.focusedId && shown
                     ? "border-[var(--zaicode-highlight,var(--color-border-hover))]"
                     : "border-transparent hover:border-border",
@@ -76,9 +76,11 @@ export function ZaicodeSidebarWorkers() {
                 <button type="button" className="flex min-w-0 flex-1 text-left" onClick={() => focusZaicodeWorker(worker.id)}>
                   <ZaicodeWorkerLabel worker={worker} now={now} className={cn(!shown && "opacity-70")} />
                 </button>
-                {/* Always laid out, only shown on hover / keyboard focus: a button that appears
-                    must not change the row's height or the label's width (the row jumped). */}
-                <span className="invisible flex group-focus-within:visible group-hover:visible">
+                {/* Shown on hover / keyboard focus over the row's right end. Laid over the label,
+                    not beside it: a reserved strip took the room the meters and the age need, so
+                    the narrow sidebar painted them past the row's frame. Neither the row's height
+                    nor the label's width changes when the buttons appear. */}
+                <span className="invisible absolute inset-y-0 right-0 flex items-center bg-[var(--color-sidebar,var(--color-background))] group-focus-within:visible group-hover:visible">
                   <ZaicodeWorkerHeaderButtons worker={worker} />
                 </span>
               </div>

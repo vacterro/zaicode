@@ -9,6 +9,7 @@ import {
   setZaicodeTypography,
   useZaicodeAppearance,
 } from "@/zaicode/zaicodeAppearance.js";
+import { ZaicodeFontSelect, useZaicodeSystemFonts, zaicodeFontNeedsTypedName } from "@/zaicode/ZaicodeFontSelect.js";
 
 export function ZaicodeTypographySettings() {
   const { intl } = useZCodeIntl();
@@ -18,6 +19,7 @@ export function ZaicodeTypographySettings() {
   const uiSize = useZCodeStore((state) => state.uiFontSizePx);
   const setUiSize = useZCodeStore((state) => state.setUiFontSizePx);
   const label = (id: string) => intl.formatMessage({ id: `zaicode.font.${id}` });
+  const installed = useZaicodeSystemFonts();
 
   return (
     <section className="border border-border bg-card p-4" aria-label={label("title")}>
@@ -42,33 +44,29 @@ export function ZaicodeTypographySettings() {
       <div className="mt-3 grid gap-3 md:grid-cols-2">
         <label className="flex min-w-0 flex-col gap-1 text-ui-xs">
           <span>{label("codeFamily")}</span>
-          <select
+          <ZaicodeFontSelect
             className="w-full border border-border bg-background p-2 text-foreground"
-            value={typography.codeFont}
-            onChange={(event) => setZaicodeTypography({ codeFont: event.target.value })}
-          >
-            {ZAICODE_CODE_FONT_OPTIONS.map((option) => (
-              <option key={option.id} value={option.id}>
-                {option.label}
-              </option>
-            ))}
-          </select>
+            presets={ZAICODE_CODE_FONT_OPTIONS}
+            id={typography.codeFont}
+            custom={typography.customCodeFont}
+            onChange={(choice) =>
+              setZaicodeTypography({ codeFont: choice.id, ...(choice.custom !== undefined ? { customCodeFont: choice.custom } : {}) })
+            }
+          />
         </label>
         <label className="flex min-w-0 flex-col gap-1 text-ui-xs">
           <span>{label("uiFamily")}</span>
-          <select
+          <ZaicodeFontSelect
             className="w-full border border-border bg-background p-2 text-foreground"
-            value={typography.uiFont}
-            onChange={(event) => setZaicodeTypography({ uiFont: event.target.value })}
-          >
-            {ZAICODE_UI_FONT_OPTIONS.map((option) => (
-              <option key={option.id} value={option.id}>
-                {option.label}
-              </option>
-            ))}
-          </select>
+            presets={ZAICODE_UI_FONT_OPTIONS}
+            id={typography.uiFont}
+            custom={typography.customUiFont}
+            onChange={(choice) =>
+              setZaicodeTypography({ uiFont: choice.id, ...(choice.custom !== undefined ? { customUiFont: choice.custom } : {}) })
+            }
+          />
         </label>
-        {typography.codeFont === "custom" ? (
+        {zaicodeFontNeedsTypedName(typography.codeFont, typography.customCodeFont, installed) ? (
           <label className="flex flex-col gap-1 text-ui-xs">
             <span>{label("customCode")}</span>
             <input
@@ -79,7 +77,7 @@ export function ZaicodeTypographySettings() {
             />
           </label>
         ) : null}
-        {typography.uiFont === "custom" ? (
+        {zaicodeFontNeedsTypedName(typography.uiFont, typography.customUiFont, installed) ? (
           <label className="flex flex-col gap-1 text-ui-xs">
             <span>{label("customUi")}</span>
             <input

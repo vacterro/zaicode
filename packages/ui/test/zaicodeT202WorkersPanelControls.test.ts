@@ -60,7 +60,8 @@ test("the panel header row is never made unclickable", () => {
   assert.doesNotMatch(row, /pointer-events-none|invisible|opacity-0/);
   // The sidebar's per-row buttons are hover-revealed on purpose; the panel's header must not be.
   assert.doesNotMatch(panel, /className="[^"]*invisible[^"]*"[^>]*>\s*<ZaicodeWorkerHeaderButtons/);
-  assert.match(sidebar, /invisible flex group-focus-within:visible group-hover:visible/);
+  // T-277: revealed over the row's right end, so they never take the label's room.
+  assert.match(sidebar, /invisible absolute inset-y-0 right-0 flex items-center[^"]*group-focus-within:visible group-hover:visible/);
 });
 
 test("stopping a running worker asks first; a finished one does not", () => {

@@ -70,7 +70,7 @@ export function ConversationTurnNavStrip({
   const label = (anchor: ConversationLatestAnswer) =>
     intl.formatMessage({ id: "chat.turnNavigator.jumpToQuery" }, { index: anchor.unitIndex + 1 });
   const chipClass = cn(
-    "pointer-events-auto flex min-w-0 max-w-[46%] cursor-pointer items-center gap-1 rounded-full",
+    "pointer-events-auto flex min-w-0 max-w-[24%] cursor-pointer items-center gap-1 rounded-full",
     "border border-border bg-card px-2 py-0.5 text-ui-xs text-foreground-subtle shadow-sm",
     "hover:bg-card-selected hover:text-foreground",
   );
@@ -79,7 +79,9 @@ export function ConversationTurnNavStrip({
     <div
       data-testid={CONVERSATION_TURN_NAV_TESTID}
       data-v4-turn-nav-strip="true"
-      className={cn("relative z-20 flex h-6 w-full shrink-0 items-center gap-2 px-2", className)}
+      // ZAICODE 把两枚芯片放进 Transcript 那一行：contents 让它们成为该行的直接子项，
+      // 与其余按钮一起均匀分布；行本身仍是滚动视口上方的真实布局带。
+      className={cn("contents", className)}
     >
       {user ? (
         <button
@@ -89,9 +91,7 @@ export function ConversationTurnNavStrip({
           data-v4-latest-user-identity={user.identity}
           aria-label={label(user)}
           title={user.preview}
-          // mr-auto keeps the operator's own message on its own side even when the
-          // answer chip is absent, so a single chip still reads as "that side".
-          className={cn(chipClass, "mr-auto")}
+          className={chipClass}
           onClick={() => jump(user)}
         >
           <UserIcon className="size-3 shrink-0" />
@@ -106,7 +106,7 @@ export function ConversationTurnNavStrip({
           data-v4-latest-answer-identity={assistant.identity}
           aria-label={label(assistant)}
           title={assistant.preview}
-          className={cn(chipClass, "ml-auto")}
+          className={chipClass}
           onClick={() => jump(assistant)}
         >
           <BotIcon className="size-3 shrink-0" />

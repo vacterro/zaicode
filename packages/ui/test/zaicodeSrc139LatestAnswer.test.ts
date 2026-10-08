@@ -109,20 +109,25 @@ test("SRC-139: the bar derives from the render units and jumps by row id, not by
   assert.equal(timeline.match(/from "@\/v4\/ConversationTurnNavStrip\.js"/g)?.length, 1, "one import");
 });
 
-test("SRC-161:REQ-009: the chips live in a real layout lane, not an overlay", () => {
+test("SRC-161:REQ-009 + T-277: the chips live in the transcript row, a real layout lane, not an overlay", () => {
   const strip = source("v4/ConversationTurnNavStrip.tsx");
   // The superseded strategy was a zero-height sticky overlay; REQ-009 rejects it because
   // an overlay can only paint over its neighbours, never reserve room from them.
   assert.doesNotMatch(strip, /h-0/, "the strip owns its height");
   assert.doesNotMatch(strip, /sticky top-0 pointer-events-none/, "no zero-geometry overlay");
-  assert.match(strip, /"relative z-20 flex h-6 w-full shrink-0 items-center gap-2 px-2"/, "one constant-height lane");
+  // T-277: the strip lends its chips to the transcript row (display: contents), so they are
+  // spread with the row's other controls; the row is the lane that owns the height.
+  assert.match(strip, /className=\{cn\("contents", className\)\}/);
   assert.match(strip, /data-v4-turn-nav-strip="true"/);
-  // A lane with real height can be neither pointer-transparent nor click-through for the
-  // chips: each chip is its own target.
-  assert.match(strip, /pointer-events-auto flex min-w-0 max-w-\[46%\]/);
+  // Each chip is its own target and truncates instead of pushing the row's other controls.
+  assert.match(strip, /pointer-events-auto flex min-w-0 max-w-\[24%\]/);
 
   const timeline = source("v4/ConversationTimeline.tsx");
+  const rowIndex = timeline.indexOf('data-zaicode-transcript-row="true"');
   const stripIndex = timeline.indexOf("<ConversationTurnNavStrip");
+  const rowEnd = timeline.indexOf("</div>", stripIndex);
+  assert.equal(rowIndex > 0 && rowIndex < stripIndex && stripIndex < rowEnd, true, "the chips are items of the transcript row");
+  assert.match(timeline.slice(rowIndex, rowEnd), /flex min-h-10 shrink-0 items-center justify-evenly/, "a constant lane that spreads its controls");
   const scrollIndex = timeline.indexOf('ref={scrollRef}');
   const dockIndex = timeline.indexOf('data-v4-composer-dock="true"');
   const layerIndex = timeline.indexOf('data-v4-timeline-message-layer="true"', scrollIndex);
@@ -135,7 +140,7 @@ test("SRC-161:REQ-009: the chips live in a real layout lane, not an overlay", ()
   assert.equal(timeline.match(/<ConversationTurnNavStrip/g)?.length, 1, "exactly one strip in the timeline");
   assert.equal(timeline.match(/from "@\/v4\/ConversationTurnNavStrip\.js"/g)?.length, 1, "one import");
   // Product mode only: the classic ZAICODE timeline is untouched.
-  assert.match(timeline, /\{isZaicodeProductMode\(\) \? \(\s*<ConversationTurnNavStrip/);
+  assert.match(timeline, /\{isZaicodeProductMode\(\) \? \(\s*<div\s+data-zaicode-transcript-row="true"/);
 });
 test("SRC-139 + REQ-009: the accessible name reuses the navigator's jump key (no locale sweep)", () => {
   const strip = source("v4/ConversationTurnNavStrip.tsx");

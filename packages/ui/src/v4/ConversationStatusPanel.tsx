@@ -1,6 +1,7 @@
 /* oxlint-disable eslint(max-lines) -- 状态面板同时维护收起态摘要、展开态分区、菜单策略和宽度自适应，同文件能保证两种形态共享同一内容优先级。 */
 import { useIsOfficeMode } from "@/hooks/useInterfaceMode.js";
 import { isZaicodeProductMode } from "@zcode/shared";
+import { useZaicodeStatusLane } from "@/v4/zaicodeStatusLane.js";
 import { ZaicodeChangeCounter } from "@/zaicode/ZaicodeChangeCounter.js";
 import { ZaicodeTodoDock } from "./ZaicodeTodoDock.js";
 import {
@@ -1868,6 +1869,10 @@ function ConversationStatusPanelImpl({
     observer.observe(element);
     return () => observer.disconnect();
   }, [model]);
+  // ZAICODE: the dock sits at the transcript row's height and tells the row how much of
+  // its right end to leave free, so the row's controls never run under the gauge.
+  const statusLaneRef = useZaicodeStatusLane();
+  const dockTop = isZaicodeProductMode() ? "pt-1" : "pt-4";
 
   // `model.hasContent` 只认**活的**内容（模型手上的投影都是活状态），所以「只剩历史」的
   // 会话会连整个胶囊一起消失——而那正是重启后打开一条旧对话的样子，run 目录的入口于是又没了。
@@ -1888,7 +1893,7 @@ function ConversationStatusPanelImpl({
     !canRenderAgents
   ) {
     return (
-      <div className="pointer-events-none absolute right-4 top-0 z-20 pt-4">
+      <div ref={statusLaneRef} className={cn("pointer-events-none absolute right-4 top-0 z-20", dockTop)}>
         <ZaicodeTodoDock plan={model.plan} />
       </div>
     );
@@ -1896,8 +1901,10 @@ function ConversationStatusPanelImpl({
 
   return (
     <div
+      ref={statusLaneRef}
       className={cn(
-        "pointer-events-none absolute top-0 z-20 pt-4",
+        "pointer-events-none absolute top-0 z-20",
+        dockTop,
         // 旧 ChatView 的 inline 面板直接钉在右侧，正文列通过独立 translate 让位。
         // v4 若继续用 inset-x-0 + justify-end，会让面板容器宽铺满并改变宽屏下的横向对齐。
         layoutMode === "inline"
