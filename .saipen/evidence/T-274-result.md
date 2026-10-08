@@ -55,6 +55,39 @@ normal installer for first testers).
 | Uninstall -All (new code) on a fresh bundled install | 20328 files, folder, registry entry and shortcut gone, nothing left |
 | Setup GUI screenshots | splash 906x323 titled 0.0.3; window 1140x640, logo clear |
 
+## Release build (after SHIP review)
+
+Published: app `zaicode` 2d3e438f, workspace `saipen-live` 968a832d,
+`release-0.0.3` ff095452 (saipen-live merged with origin/master; the operator's
+README presentation kept). `master` is not pushed: fast-forward it to
+`release-0.0.3` when publishing.
+
+Artifact (local, gitignored): `.zaicode/release/0.0.3/ZAICODE-Setup-0.0.3.exe`,
+710215168 bytes, SHA-256 c1f76327ea84124f2ed3f3e87c77aadcc927a0021b776530538f935810a94caa.
+Payload zip SHA-256 bd8c867da6933915ef429ce46a1c556d563268076a2d974197affb5f5987b28d.
+Built from clean published clones: workspace ff095452, app 2d3e438f
+(workingTreeDirty false), SAIPEN 55f278cd, SAIMAIL b1599f6c.
+
+Defects the release E2E found after review, each fixed, tested and pushed:
+- payload left out the SAIPEN/SAIMAIL repositories' tracked .saipen and mixed
+  the local tree with the bootstrap history (installs would never update);
+- installed launcher opened "source/runtime mismatch" on every start
+  (line-ending-only rewrites counted as dirty; PATH git missing on clean
+  machines): parity test old red / new green, identity test red then green;
+- Autotroubleshoot (Doctor.cmd) stopped at once on PowerShell 5.1 (empty
+  $PSScriptRoot in advanced-script param defaults) and checked default
+  shortcuts instead of the recorded ones;
+- tracked workspace .claude files were never owned, so a full uninstall left
+  them and the workspace history.
+
+Final E2E with the release Setup (PATH = System32, ELECTRON_RUN_AS_NODE=1):
+install 17/17 OK in 3.9 min; installed clones without content edits; app,
+SAIPEN, SAIMAIL "up to date", workspace "ahead" until master is published;
+Doctor.cmd 17 OK; launcher opens the ZAICODE window with no dialog; packaged
+boot and free-model checks PASS (earlier final build); `Uninstall -All`
+removed 26534 files, history, registry entry and shortcut.
+Suite test 24 PASS; pre-push 1995 tests, 0 failures.
+
 ## Not proven here
 
 - Clean Windows 10 and Windows 11 VMs: not available; the isolated PATH run on
@@ -62,7 +95,4 @@ normal installer for first testers).
 - MAX_PATH machine: this machine has LongPathsEnabled=1; the guard is code-read
   plus arithmetic (longest payload path 203 characters).
 - Unsigned exe: SmartScreen "More info -> Run anyway" is documented, not avoided.
-- The candidate payload was built from the local working tree; the release
-  payload must be rebuilt after the product and workspace are pushed, so the
-  bundled clones match their GitHub history (see release steps in
-  docs/ZAICODE_INSTALL.md).
+- A full uninstall takes 3-5 minutes (it hashes every recorded file).
