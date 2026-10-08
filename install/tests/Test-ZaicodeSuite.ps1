@@ -46,6 +46,8 @@ Check (-not ($paths | Where-Object { $_ -like '.saipen\*' -or $_ -like '*.saimai
 Put 'saipen\protocol.py' 'user modified protocol'
 Put 'saipen\my-notes.txt' 'foreign data'
 Put 'saipen\.saipen\STATE.md' 'user state'
+Put 'ZAICODE\launcher.log' 'written after install'
+Put 'projects\mine.txt' 'a project'
 $before = Get-ZaicodeSuiteBaseline $layout
 Put 'zcode\app.js' 'installer update'
 $null = Write-ZaicodeSuiteOwnership $layout $options $before
@@ -71,7 +73,9 @@ $result = Remove-ZaicodeSuiteComponents $fixture @('saipen')
 Check ($result.remaining.Count -eq 0 -and -not (Here '.tools')) 'last component removes shared runtime'
 Check ((Get-Content -LiteralPath (Join-Path $fixture 'saipen\protocol.py') -Raw) -eq 'user modified protocol' -and (Here 'saipen\my-notes.txt')) 'modified and foreign files preserved'
 Check ((Here 'saipen\.git\HEAD') -and $result.keptHistory -contains 'saipen\.git') 'a clone the person worked in keeps its whole history'
-Check (-not (Here 'README.md') -and -not (Here '.claude') -and -not (Here '.git') -and -not (Here 'install')) 'workspace files, its history, install records and logs go with the last part'
+Check (-not (Here 'README.md') -and -not (Here '.claude') -and -not (Here 'install')) 'workspace files, install records and logs go with the last part'
+Check ((Here '.git\HEAD') -and $result.keptHistory -contains '.git') 'the workspace history stays while the person keeps files beside it'
+Check ((Here 'ZAICODE\launcher.log') -and (Here 'projects\mine.txt')) 'files written after the install survive, even under a ZAICODE-named folder'
 Check ((Here 'saipen\.saipen\STATE.md') -and (Here '.saipen\STATE.md') -and (Here 'saimail\.saimail-workspace\mail.json')) 'mail and protocol state survive whole suite removal'
 Check (-not (Here 'saimail\.saipen')) 'the SAIMAIL clone''s own tracked .saipen goes with it'
 $refused = $false

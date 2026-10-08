@@ -11,7 +11,7 @@
 #>
 [CmdletBinding()]
 param(
-  [string]$InstallDir = (Split-Path -Parent $PSScriptRoot),
+  [string]$InstallDir = '',
   [switch]$Repair,
   [switch]$Json,
   [string]$JsonOut = '',
@@ -26,6 +26,8 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+# Windows PowerShell 5.1 has no $PSScriptRoot inside param() defaults: the install is this script's parent folder.
+if (-not $InstallDir) { $InstallDir = Split-Path -Parent $PSScriptRoot }
 . (Join-Path $PSScriptRoot 'ZaicodeInstallLib.ps1')
 . (Join-Path $PSScriptRoot 'ZaicodeChecks.ps1')
 
@@ -36,6 +38,11 @@ $ownershipBefore = if ($Repair -and $ownership) { Get-ZaicodeSuiteBaseline $layo
 $options = [pscustomobject]@{
   ShortcutDir = $ShortcutDir; NoStartMenu = [bool]$NoStartMenu; NoShortcut = [bool]$NoShortcut; PortableTools = [bool]$PortableTools
   ZaicodeRepo = $ZaicodeRepo; SaipenRepo = $SaipenRepo; SaimailRepo = $SaimailRepo
+}
+# Without explicit choices, check the shortcuts this install made, not the defaults.
+if ($ownership) {
+  $recorded = Get-ZaicodeSuiteOwnershipOptions $ownership
+  foreach ($name in @('ShortcutDir', 'NoStartMenu', 'NoShortcut')) { if (-not $PSBoundParameters.ContainsKey($name)) { $options.$name = $recorded.$name } }
 }
 $log = Start-ZaicodeLog $layout.Logs 'doctor'
 $mode = 'check only'
