@@ -59,13 +59,15 @@ function Get-ZaicodeSuiteOwnershipOptions($State) {
   }
 }
 
-# User data the suite never claims, wherever it sits: protocol memory, mail, profiles, logins.
-$script:ZaicodeSuiteDataNames = @('.saipen', '.saimail-workspace', 'mail', 'userData', '.claude', '.codex')
+# User data the suite never claims, wherever it sits: mail, profiles, logins. Protocol memory is
+# the person's at the root; inside the SAIPEN and SAIMAIL clones .saipen is tracked repository
+# content, and anything a person adds there later is foreign to the install baseline anyway.
+$script:ZaicodeSuiteDataNames = @('.saimail-workspace', 'mail', 'userData', '.claude', '.codex')
 # Records the installer and updater rewrite; they are removed with the last part, never hashed.
 $script:ZaicodeSuiteMachineState = @('install\ownership.json', 'install\install-report.json', 'install\install-state.json', 'install\update-state.json', 'install\payload-pending.json', 'install\ownership-pending.json')
 
 function Test-ZaicodeSuiteDataDir([string]$Relative, [string]$Name) {
-  return ($script:ZaicodeSuiteDataNames -contains $Name) -or $Relative -eq 'install\logs' -or $Relative -eq '.zaicode'
+  return ($script:ZaicodeSuiteDataNames -contains $Name) -or $Relative -in @('.saipen', 'install\logs', '.zaicode')
 }
 
 # Which part a path belongs to; everything outside the three programs is the shared workspace.

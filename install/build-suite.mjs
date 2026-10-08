@@ -1,22 +1,38 @@
-// Build a reviewable suite payload; this never publishes or writes to the running install.
+// Build the suite payload from a clean source install whose clones sit on published commits.
+// Every bundled file is a tracked file of its clone, so the installed clones are clean and update
+// from GitHub like any source install. This never publishes or writes to the running install.
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 
-const root = resolve(import.meta.dirname, "..");
-const option = (name) => process.argv[process.argv.indexOf(name) + 1];
-if (!process.argv.includes("--bootstrap-root") || !process.argv.includes("--app-dir")) throw new Error("Usage: node install/build-suite.mjs --bootstrap-root CLEAN_SOURCE_INSTALL --app-dir WIN_UNPACKED");
+const option = (name) => (process.argv.includes(name) ? process.argv[process.argv.indexOf(name) + 1] : undefined);
+if (!option("--bootstrap-root")) throw new Error("Usage: node install/build-suite.mjs --bootstrap-root CLEAN_SOURCE_INSTALL [--app-dir WIN_UNPACKED]");
 const bootstrap = resolve(option("--bootstrap-root"));
-const app = resolve(option("--app-dir"));
-const version = readFileSync(join(root, "VERSION"), "utf8").trim();
-const release = join(root, ".zaicode", "release", version);
+const app = resolve(option("--app-dir") ?? join(bootstrap, "zcode", "packages", "desktop", "dist", "win-unpacked"));
+const version = readFileSync(join(bootstrap, "VERSION"), "utf8").trim();
+const release = join(resolve(import.meta.dirname, ".."), ".zaicode", "release", version);
 mkdirSync(release, { recursive: true });
 const stage = mkdtempSync(join(release, "payload-"));
 const git = join(bootstrap, ".tools", "git", "cmd", "git.exe");
 const python = join(bootstrap, ".tools", "python", "tools", "python.exe");
-const files = (dir) => execFileSync(git, ["-C", dir, "ls-files", "-z"], { encoding: "utf8", maxBuffer: 256 * 1024 * 1024 }).split("\0").filter(Boolean);
-const excluded = (path) => /(^|\/)(\.saipen|\.saimail-workspace|stats|customization|mail|__pycache__|\.pytest_cache)(\/|$)/.test(path);
+const gitText = (dir, args) => execFileSync(git, ["-C", dir, ...args], { encoding: "utf8", maxBuffer: 256 * 1024 * 1024 });
+const clones = { workspace: bootstrap, zcode: join(bootstrap, "zcode"), saipen: join(bootstrap, "saipen"), saimail: join(bootstrap, "saimail") };
+
+// A clone with content edits or an unpublished product commit would install as "local changes" and never update.
+const commits = {};
+for (const [name, dir] of Object.entries(clones)) {
+  try {
+    execFileSync(git, ["-C", dir, "diff", "--quiet", "--ignore-cr-at-eol", "HEAD"]);
+  } catch {
+    throw new Error(`${name} clone has local edits: ${dir}`);
+  }
+  commits[name] = gitText(dir, ["rev-parse", "HEAD"]).trim();
+  const published = gitText(dir, ["branch", "-r", "--contains", "HEAD"]).trim();
+  if (!published && name !== "workspace") throw new Error(`${name} HEAD ${commits[name]} is not on its remote yet: push it first`);
+  if (!published) console.warn(`[suite] workspace ${commits[name].slice(0, 8)} is not on origin/master yet: installs report the workspace as ahead until it is published`);
+}
+
 function copy(from, relative) {
   if (!existsSync(from)) throw new Error(`Missing suite input: ${from}`);
   const to = resolve(stage, relative);
@@ -24,35 +40,32 @@ function copy(from, relative) {
   mkdirSync(dirname(to), { recursive: true });
   cpSync(from, to, { recursive: true, dereference: false });
 }
-function snapshot(from, prefix, paths) {
-  for (const file of paths) if (!excluded(file) && existsSync(join(from, file))) copy(join(from, file), join(prefix, file));
+function snapshot(from, prefix) {
+  for (const file of gitText(from, ["ls-files", "-z"]).split("\0").filter(Boolean)) {
+    const source = join(from, file);
+    // Paths outside a sparse checkout are not on disk; the copied .git keeps them out of status too.
+    if (!existsSync(source) || lstatSync(source).isSymbolicLink() || lstatSync(source).isDirectory()) continue;
+    copy(source, join(prefix, file));
+  }
+  copy(join(from, ".git"), join(prefix, ".git"));
 }
-snapshot(root, "", files(root).filter((file) => /^(install\/|tools\/launcher\/|VERSION$|README\.md$|UI\.md$|CHANGELOG\.md$|\.gitignore$|\.gitattributes$|ZAICODE\.(cmd|ps1)$)/.test(file)));
-// New release files and the user's approved artwork are not necessarily committed in a candidate build.
-for (const file of ["ZaicodeSuite.ps1", "Uninstall-ZAICODE.ps1", "setup/assets/launch.jpg", "setup/assets/background.jpg"]) copy(join(root, "install", file), join("install", file));
-for (const file of ["install-state.json", "install-report.json", "update-state.json", "ownership.json"]) {
-  if (existsSync(join(stage, "install", file))) throw new Error(`Machine state was included in suite inputs: ${file}`);
-}
-copy(join(bootstrap, ".git"), ".git");
-snapshot(join(root, "zcode"), "zcode", files(join(root, "zcode")));
-copy(join(root, "zcode", "ZAICODE_VERSION"), "zcode/ZAICODE_VERSION");
-copy(join(bootstrap, "zcode", ".git"), "zcode/.git");
-for (const name of ["saipen", "saimail"]) {
-  snapshot(join(bootstrap, name), name, files(join(bootstrap, name)));
-  copy(join(bootstrap, name, ".git"), `${name}/.git`);
+snapshot(clones.workspace, "");
+for (const name of ["zcode", "saipen", "saimail"]) snapshot(clones[name], name);
+for (const file of ["install/install-state.json", "install/install-report.json", "install/update-state.json", "install/ownership.json", ".saipen/STATE.md"]) {
+  if (existsSync(join(stage, file))) throw new Error(`Machine state or protocol memory was included in suite inputs: ${file}`);
 }
 copy(app, "zcode/packages/desktop/dist/win-unpacked");
 copy(join(bootstrap, "ZAICODE.exe"), "ZAICODE.exe");
 for (const name of ["git", "node", "python"]) copy(join(bootstrap, ".tools", name), `.tools/${name}`);
 const wheels = join(stage, ".tools", "wheels");
 mkdirSync(wheels, { recursive: true });
-execFileSync(python, ["-m", "pip", "wheel", `${join(bootstrap, "saimail")}[crypto]`, "--wheel-dir", wheels], { stdio: "inherit", windowsHide: true });
+execFileSync(python, ["-m", "pip", "wheel", `${clones.saimail}[crypto]`, "--wheel-dir", wheels], { stdio: "inherit", windowsHide: true });
 const appMeta = JSON.parse(readFileSync(join(app, "resources", "build-meta.json"), "utf8"));
 if (appMeta.appVersion !== version) throw new Error(`App ${appMeta.appVersion} does not match suite ${version}`);
+if (!commits.zcode.startsWith(appMeta.buildCommitId)) throw new Error(`App was built from ${appMeta.buildCommitId}, the bundled source is ${commits.zcode}`);
 const meta = {
   schema: 1, version, target: "windows-x64", bundledAt: new Date().toISOString(), app: appMeta,
-  companions: Object.fromEntries(["saipen", "saimail"].map((name) => [name, execFileSync(git, ["-C", join(bootstrap, name), "rev-parse", "HEAD"], { encoding: "utf8" }).trim()])),
-  sourceSnapshot: "candidate; workspace changes are included; publish only after review and release gates",
+  commits, companions: { saipen: commits.saipen, saimail: commits.saimail },
 };
 writeFileSync(join(stage, "install", "payload-meta.json"), JSON.stringify(meta, null, 2));
 const zip = join(release, `ZAICODE-Suite-${version}-win-x64.zip`);

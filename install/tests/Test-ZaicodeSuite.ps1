@@ -29,9 +29,9 @@ Remove-Item -LiteralPath (Join-Path $fixture 'zcode') -Recurse -Force
 $program = @('zcode\app.js', 'zcode\src\logs\route.js', 'zcode\.git\HEAD', 'zcode\.git\refs\heads\zaicode', 'zcode\.git\objects\pack.fixture',
   'zcode\packages\desktop\dist\win-unpacked\ZAICODE.exe', 'saipen\protocol.py', 'saipen\.git\HEAD', 'saipen\.git\refs\heads\main', 'saimail\post.py',
   '.venv\python.fixture', '.tools\python\runtime.fixture', 'tools\launcher\build.cmd', 'ZAICODE.exe', 'SAIPEN.cmd', 'SAIMAIL.cmd',
-  'Uninstall-ZAICODE.cmd', 'install\ZaicodeSuite.ps1', 'README.md', '.git\HEAD')
+  'Uninstall-ZAICODE.cmd', 'install\ZaicodeSuite.ps1', 'README.md', '.git\HEAD', 'saimail\.saipen\STATE.md')
 foreach ($relative in $program) { Put $relative }
-Put 'saipen\.saipen\STATE.md' 'user state'
+Put '.saipen\STATE.md' 'workspace protocol memory'
 Put 'saimail\.saimail-workspace\mail.json' 'user mail'
 Put 'install\logs\install.log' 'log'
 Put 'install\install-state.json' '{}'
@@ -39,11 +39,13 @@ $state = Write-ZaicodeSuiteOwnership $layout $options
 $paths = @($state.files | ForEach-Object { $_.path })
 Check ($paths.Count -eq $program.Count) 'manifest holds exactly the installed program files'
 Check ($paths -contains 'zcode\src\logs\route.js') 'a program folder named logs is owned like any other'
-Check (-not ($paths | Where-Object { $_ -like '*.saipen*' -or $_ -like '*.saimail-workspace*' -or $_ -like 'install\logs*' -or $_ -eq 'install\install-state.json' })) 'manifest excludes protocol state, mailbox, logs and install records'
+Check ($paths -contains 'saimail\.saipen\STATE.md') 'a clone''s tracked .saipen is repository content and owned'
+Check (-not ($paths | Where-Object { $_ -like '.saipen\*' -or $_ -like '*.saimail-workspace*' -or $_ -like 'install\logs*' -or $_ -eq 'install\install-state.json' })) 'manifest excludes protocol state, mailbox, logs and install records'
 
 # The person works in SAIPEN; an update rewrites the app; the launcher later swaps a staged build in.
 Put 'saipen\protocol.py' 'user modified protocol'
 Put 'saipen\my-notes.txt' 'foreign data'
+Put 'saipen\.saipen\STATE.md' 'user state'
 $before = Get-ZaicodeSuiteBaseline $layout
 Put 'zcode\app.js' 'installer update'
 $null = Write-ZaicodeSuiteOwnership $layout $options $before
@@ -70,7 +72,8 @@ Check ($result.remaining.Count -eq 0 -and -not (Here '.tools')) 'last component 
 Check ((Get-Content -LiteralPath (Join-Path $fixture 'saipen\protocol.py') -Raw) -eq 'user modified protocol' -and (Here 'saipen\my-notes.txt')) 'modified and foreign files preserved'
 Check ((Here 'saipen\.git\HEAD') -and $result.keptHistory -contains 'saipen\.git') 'a clone the person worked in keeps its whole history'
 Check (-not (Here 'README.md') -and -not (Here '.git') -and -not (Here 'install')) 'workspace files, its history, install records and logs go with the last part'
-Check ((Here 'saipen\.saipen\STATE.md') -and (Here 'saimail\.saimail-workspace\mail.json')) 'mail and state survive whole suite removal'
+Check ((Here 'saipen\.saipen\STATE.md') -and (Here '.saipen\STATE.md') -and (Here 'saimail\.saimail-workspace\mail.json')) 'mail and protocol state survive whole suite removal'
+Check (-not (Here 'saimail\.saipen')) 'the SAIMAIL clone''s own tracked .saipen goes with it'
 $refused = $false
 try { $null = Remove-ZaicodeSuiteComponents $fixture @('zaicode', 'saipen', 'saimail') } catch { $refused = $true }
 Check ($refused -and (Here 'saimail\.saimail-workspace\mail.json')) 'repeated uninstall is refused without touching anything'
