@@ -70,9 +70,11 @@ internal static class ZaicodeLauncher
         ZaicodeSplash.SetStatus("Checking for a new build...");
         if (!preview) ApplyStagedBuild(workspace);
         string runtimeSkew = DescribeRuntimeSkew(workspace, executable);
-        if (!string.IsNullOrEmpty(runtimeSkew))
+        if (!string.IsNullOrEmpty(runtimeSkew)) Log(runtimeSkew);
+        // An installed ZAICODE updates and rebuilds through its own updater; a source-parity note is a
+        // developer's tool and would stop every start of a tester's copy behind a modal box.
+        if (!string.IsNullOrEmpty(runtimeSkew) && !IsManagedInstall(workspace))
         {
-            Log(runtimeSkew);
             ZaicodeSplash.Close();
             MessageBox.Show(runtimeSkew + "\n\nSource/package parity is not verified. Do not assume local source fixes are active. Run REBUILD, then relaunch after the build finishes.\nThis launch will use the package shown above.",
                 "ZAICODE source/runtime mismatch", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -446,11 +448,23 @@ internal static class ZaicodeLauncher
         return File.GetLastWriteTimeUtc(stagedExe) > File.GetLastWriteTimeUtc(liveExe);
     }
 
+    internal static bool IsManagedInstall(string workspace)
+    {
+        return File.Exists(Path.Combine(workspace, @"install\install-state.json"));
+    }
+
+    // The installer's private Git first: a tester's machine often has none on PATH.
+    private static string ResolveGit(string source)
+    {
+        string portable = Path.Combine(Path.GetDirectoryName(Path.GetFullPath(source)), @".tools\git\cmd\git.exe");
+        return File.Exists(portable) ? portable : "git";
+    }
+
     private static string GitIdentity(string source, string arguments)
     {
         using (var process = new Process())
         {
-            process.StartInfo = new ProcessStartInfo("git", arguments) {
+            process.StartInfo = new ProcessStartInfo(ResolveGit(source), arguments) {
                 WorkingDirectory = source, UseShellExecute = false, CreateNoWindow = true,
                 RedirectStandardOutput = true, RedirectStandardError = true
             };
@@ -473,7 +487,10 @@ internal static class ZaicodeLauncher
             string head = GitIdentity(source, "rev-parse HEAD");
             var metadata = ReadBuildIdentity(executable);
             string revision = IdentityValue(metadata, "sourceRevision");
-            string dirty = GitIdentity(source, "status --porcelain --untracked-files=normal -- packages apps scripts spec specs config patches package.json pnpm-lock.yaml architecture-policy.yaml");
+            const string roots = "-- packages apps scripts spec specs config patches package.json pnpm-lock.yaml architecture-policy.yaml";
+            // Content, not stat: a build that rewrites a tracked file with other line endings changed nothing.
+            string dirty = GitIdentity(source, "diff --ignore-cr-at-eol --name-only HEAD " + roots) +
+                GitIdentity(source, "ls-files --others --exclude-standard " + roots);
             if (head == revision && string.IsNullOrEmpty(dirty) && IdentityValue(metadata, "workingTreeDirty") != "True") return "";
             return "SOURCE_RUNTIME_SKEW\nExecutable: " + executable + "\nPackage revision: " +
                 (string.IsNullOrEmpty(revision) ? "unknown (legacy package)" : revision) +
