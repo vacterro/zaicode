@@ -45,6 +45,9 @@ if (-not $InstallDir) { $InstallDir = Split-Path -Parent $here }
 . (Join-Path $here 'ZaicodeInstallLib.ps1')
 
 $layout = Get-ZaicodeLayout $InstallDir
+$null = Assert-ZaicodeSuiteRoot $layout.Root
+$ownership = Read-ZaicodeSuiteOwnership $layout.Root
+$ownershipBefore = if (-not $Check -and $ownership) { Get-ZaicodeSuiteBaseline $layout } else { $null }
 $script:ZaicodeQuiet = [bool]$Json
 $log = Start-ZaicodeLog $layout.Logs $(if ($Check) { 'update-check' } else { 'update' })
 
@@ -62,6 +65,7 @@ foreach ($name in $names) {
   if (@('all', 'workspace', 'app', 'saipen', 'saimail') -notcontains $name) { throw "Unknown component '$name' (all, workspace, app, saipen, saimail)" }
 }
 $wanted = if (-not $names -or $names -contains 'all') { @('workspace', 'app', 'saipen', 'saimail') } else { $names }
+if ($ownership) { $wanted = @($wanted | Where-Object { $_ -eq 'workspace' -or $ownership.components -contains $(if ($_ -eq 'app') { 'zaicode' } else { $_ }) }) }
 $started = Get-Date
 $records = @()
 foreach ($part in (Get-ZaicodeComponents $layout $options)) {
@@ -77,6 +81,11 @@ foreach ($part in (Get-ZaicodeComponents $layout $options)) {
   }
   $last = $records[-1]
   Write-ZaicodeLog ('{0,-10} {1,-14} {2}' -f $last.id, $last.status, $last.detail) $(if ($last.status -eq 'failed') { 'Red' } elseif ($last.status -in @('updated', 'available')) { 'Cyan' } else { 'Gray' })
+}
+
+if (-not $Check -and $ownership) {
+  try { $null = Write-ZaicodeSuiteOwnership $layout (Get-ZaicodeSuiteOwnershipOptions $ownership) $ownershipBefore -KeepSelection }
+  catch { $records += [pscustomobject]@{ id = 'ownership'; title = 'Uninstaller ownership'; status = 'failed'; detail = $_.Exception.Message } }
 }
 
 $summary = [ordered]@{

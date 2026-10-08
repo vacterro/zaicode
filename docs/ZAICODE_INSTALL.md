@@ -8,15 +8,32 @@ run it, wait, and a ZAICODE shortcut is on the desktop.
 
 ## One click
 
-- **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)**:
-  download, double-click, press **INSTALL**. The window (gold on dark, the
-  SAIPEN banner) shows every step as it runs, the time so far and the log on
-  demand; at the end **START ZAICODE**, or **TRY AGAIN** / **Autotroubleshoot**
-  / **Open log** when a step did not finish. Pointed at an existing ZAICODE
-  folder the button reads **UPDATE**: the same run updates and repairs. The
-  exe carries the install scripts and needs nothing next to it; it is built by
-  `install\setup\build.cmd` (the .NET Framework compiler every Windows 10/11
-  has).
+Supported: Windows 10 and 11, x64. No administrator rights.
+
+- **ZAICODE-Setup-0.0.3.exe** (the release asset on
+  [GitHub Releases](https://github.com/vacterro/zaicode/releases)): the whole
+  suite in one file. It carries the built app, SAIPEN, SAIMAIL and private
+  copies of Git, Node.js and Python, so nothing is downloaded or built: it
+  unpacks into an empty folder (default `%USERPROFILE%\ZAICODE`), installs
+  SAIMAIL from bundled wheels and is done in a few minutes. Windows may show
+  "Windows protected your PC" for an unsigned download: **More info -> Run
+  anyway**.
+- **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)**
+  (small, the fallback): the same window without the bundled suite. It fetches
+  ZAICODE, SAIPEN and SAIMAIL from GitHub and builds the app on the machine,
+  which takes 15-30 minutes the first time.
+
+Double-click, press **INSTALL**. Setup shows its picture for two seconds, then
+the installer window: an ordinary window you can move and minimize while you
+keep working. It shows every step as it runs, the time so far and the log on
+demand; at the end **START ZAICODE**, or **TRY AGAIN** / **Autotroubleshoot**
+/ **Open log** when a step did not finish. Pointed at an existing ZAICODE
+folder the button reads **UPDATE**: the same run updates and repairs. A
+missing SAIPEN, SAIMAIL client or router fails the install visibly instead of
+leaving a half-working app. The exe carries the install scripts and needs
+nothing next to it; it is built by `install\setup\build.cmd` (the .NET
+Framework compiler every Windows 10/11 has), and the full suite payload by
+`node install/build-suite.mjs` (see "Building the release").
 - `install\Setup-ZAICODE.cmd` (double-click): the same install in a console.
 - From nothing, in PowerShell:
 
@@ -118,6 +135,25 @@ optional is missing), INFO (needs you: a login), FAIL. Logs are in
 `install\logs\`; the last install's summary is `install\install-report.json`.
 In the app, Router -> Autotroubleshoot repairs the running router and pools.
 
+## Uninstall: the whole suite or one part
+
+**Uninstall-ZAICODE.cmd** in the install folder, or Windows **Settings -> Apps
+-> Installed apps -> ZAICODE + SAIPEN + SAIMAIL -> Uninstall**, opens one
+window with three checkboxes: ZAICODE, SAIPEN, SAIMAIL. ZAICODE alone is
+ticked; **Select whole suite** ticks all three. Keep SAIPEN and SAIMAIL on the
+machine by leaving them unticked.
+
+- Only files this setup installed and that are still unchanged are removed
+  (each one is recorded with its SHA-256 in `install\ownership.json`). Your
+  projects, mail, SAIPEN memory (`.saipen\`), logins and every file you edited
+  stay.
+- Shared runtimes (`.tools\`) stay while any part remains; the last part takes
+  them along.
+- A running ZAICODE, SAIPEN or SAIMAIL process stops the removal before
+  anything is deleted: close it and press **Remove selected** again.
+- From a terminal: `powershell -File install\Uninstall-ZAICODE.ps1 -Component saipen,saimail`
+  or `-All`.
+
 ## Options
 
 | Parameter | Default | |
@@ -138,8 +174,31 @@ recorded for another lockfile, a leftover build folder deeper than MAX_PATH),
 asserts the doctor reports and repairs every one, then starts the shortcut's
 target with an isolated profile and stops exactly the process tree it started.
 
+`install\tests\Test-ZaicodeSuite.ps1` proves the component uninstaller on a
+throw-away folder: ZAICODE alone, then SAIMAIL, then SAIPEN; companions and
+shared runtimes survive until the last part; edited program files, mail and
+SAIPEN memory survive the whole suite; a forged path outside the folder is
+refused before anything is deleted.
+
 `install\tests\Test-ZaicodeUpdate.ps1` builds four throw-away repositories on
 disk and an install of their clones, then proves that a check changes nothing,
 that one part updates alone with its follow-up (SAIPEN launcher, root
 launcher), that overlapping local edits and local commits are kept, and that an
 unknown part name is refused. No network.
+
+## Building the release
+
+1. Build the app with the release version: `pnpm bundle:zaicode` in `zcode\`
+   (`zcode\ZAICODE_VERSION` names it; the upstream ZCode version in
+   `package.json` stays separate).
+2. Make a clean source install somewhere new (it provides the private Git,
+   Node.js and Python and fresh clones of SAIPEN and SAIMAIL):
+   `install\Install-ZAICODE.ps1 -InstallDir D:\zc-boot -PortableTools -NoShortcut -NoStartMenu -NoRegistration`.
+3. `node install/build-suite.mjs --bootstrap-root D:\zc-boot --app-dir zcode\packages\desktop\dist\win-unpacked`
+   writes `.zaicode\release\<version>\ZAICODE-Suite-<version>-win-x64.zip`
+   and its `.sha256`. Machine state (install records, logs, SAIPEN memory,
+   mail) is refused, never packed.
+4. `set ZAICODE_SUITE_PAYLOAD=<that zip>` and
+   `set ZAICODE_SETUP_OUTPUT=<...>\ZAICODE-Setup-<version>.exe`, then
+   `install\setup\build.cmd`. Setup checks the payload's SHA-256 before it
+   unpacks anything.

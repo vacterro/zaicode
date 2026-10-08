@@ -19,14 +19,21 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading.Tasks;
 using System.Web.Script.Serialization;
 using System.Windows.Forms;
 
 internal static class ZaicodeSetup
 {
+    internal static readonly string Version = ReadVersion();
+    private static string ReadVersion()
+    {
+        using (Stream source = Assembly.GetExecutingAssembly().GetManifestResourceStream("VERSION"))
+        using (var reader = new StreamReader(source)) return reader.ReadToEnd().Trim();
+    }
     internal static readonly string[] Scripts =
     {
-        "Install-ZAICODE.ps1", "ZaicodeInstallLib.ps1", "ZaicodeChecks.ps1", "ZAICODE-Doctor.ps1", "Update-ZAICODE.ps1",
+        "Install-ZAICODE.ps1", "ZaicodeInstallLib.ps1", "ZaicodeChecks.ps1", "ZAICODE-Doctor.ps1", "Update-ZAICODE.ps1", "ZaicodeSuite.ps1", "Uninstall-ZAICODE.ps1",
     };
 
     [DllImport("user32.dll")]
@@ -47,13 +54,13 @@ internal static class ZaicodeSetup
         string scripts = UnpackScripts();
         try
         {
-            if (quiet) return RunConsole(scripts, passThrough);
+            if (quiet) { UnpackPayload(scripts, () => false); return RunConsole(scripts, passThrough); }
             try { SetProcessDPIAware(); } catch { /* older Windows: scaled by the system */ }
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            var window = new SetupForm(scripts, passThrough, auto);
-            Application.Run(window);
-            return window.ExitCode;
+            var context = new SetupContext(scripts, passThrough, auto);
+            Application.Run(context);
+            return context.ExitCode;
         }
         finally
         {
@@ -77,6 +84,33 @@ internal static class ZaicodeSetup
         return folder;
     }
 
+    internal static void UnpackPayload(string folder, Func<bool> cancelled)
+    {
+        using (Stream payload = Assembly.GetExecutingAssembly().GetManifestResourceStream("suite.zip"))
+        {
+            if (payload != null)
+            {
+                string file = Path.Combine(folder, "suite.zip");
+                if (!File.Exists(file))
+                {
+                    using (FileStream target = File.Create(file + ".tmp"))
+                    {
+                        byte[] buffer = new byte[81920]; int count;
+                        while ((count = payload.Read(buffer, 0, buffer.Length)) > 0)
+                        {
+                            if (cancelled()) throw new OperationCanceledException();
+                            target.Write(buffer, 0, count);
+                        }
+                    }
+                    File.Move(file + ".tmp", file);
+                }
+                Environment.SetEnvironmentVariable("ZAICODE_SUITE_PAYLOAD", file);
+                using (Stream checksum = Assembly.GetExecutingAssembly().GetManifestResourceStream("suite.sha256"))
+                using (var reader = new StreamReader(checksum)) Environment.SetEnvironmentVariable("ZAICODE_SUITE_SHA256", reader.ReadToEnd().Trim());
+            }
+        }
+    }
+
     internal static Image LoadBanner()
     {
         using (Stream source = Assembly.GetExecutingAssembly().GetManifestResourceStream("banner.png"))
@@ -86,6 +120,17 @@ internal static class ZaicodeSetup
             source.CopyTo(copy);
             copy.Position = 0;
             return Image.FromStream(copy);
+        }
+    }
+
+    internal static readonly bool HasPayload = Assembly.GetExecutingAssembly().GetManifestResourceInfo("suite.zip") != null;
+
+    internal static Image LoadArtwork(string name)
+    {
+        using (Stream source = Assembly.GetExecutingAssembly().GetManifestResourceStream(name))
+        {
+            if (source == null) return null;
+            using (Image original = Image.FromStream(source)) return new Bitmap(original);
         }
     }
 
@@ -114,6 +159,61 @@ internal static class ZaicodeSetup
     }
 }
 
+internal sealed class SetupContext : ApplicationContext
+{
+    private readonly Form splash;
+    private readonly Timer delay;
+    public int ExitCode { get; private set; }
+    public SetupContext(string scripts, List<string> args, bool auto)
+    {
+        splash = new SetupLaunchForm();
+        MainForm = splash;
+        delay = new Timer { Interval = 2000 };
+        delay.Tick += (sender, eventArgs) =>
+        {
+            delay.Stop(); delay.Dispose();
+            bool activate = splash.ContainsFocus;
+            FormWindowState previousState = splash.WindowState;
+            var setup = new SetupForm(scripts, args, auto, !activate);
+            setup.WindowState = previousState;
+            setup.FormClosed += (s, e) => { ExitCode = setup.ExitCode; ExitThread(); };
+            MainForm = setup;
+            splash.Hide(); splash.Dispose();
+            setup.Show();
+        };
+        splash.Shown += (sender, eventArgs) => delay.Start();
+        splash.FormClosed += (sender, eventArgs) => { if (MainForm == splash) { delay.Stop(); delay.Dispose(); ExitThread(); } };
+        splash.Show();
+    }
+}
+
+internal sealed class SetupLaunchForm : Form
+{
+    private readonly Image artwork = ZaicodeSetup.LoadArtwork("launch.jpg");
+    public SetupLaunchForm()
+    {
+        Text = "ZAICODE Setup " + ZaicodeSetup.Version;
+        ClientSize = new Size(900, 298);
+        StartPosition = FormStartPosition.CenterScreen;
+        FormBorderStyle = FormBorderStyle.FixedSingle;
+        MaximizeBox = false;
+        DoubleBuffered = true;
+        BackColor = Color.FromArgb(0x1A, 0x18, 0x10);
+    }
+    protected override void OnPaint(PaintEventArgs e)
+    {
+        base.OnPaint(e);
+        if (artwork != null) e.Graphics.DrawImage(artwork, ClientRectangle);
+        // 原图版本号不是产品版本；用实际发行号覆盖，不修改用户图片文件。
+        var label = new Rectangle(ClientSize.Width - 150, 6, 145, 26);
+        using (var fill = new SolidBrush(BackColor)) e.Graphics.FillRectangle(fill, label);
+        e.Graphics.TextRenderingHint = TextRenderingHint.SingleBitPerPixelGridFit;
+        using (var font = new Font("Verdana", 12, FontStyle.Regular, GraphicsUnit.Pixel))
+        using (var ink = new SolidBrush(Color.FromArgb(0xD4, 0xC8, 0x9A))) e.Graphics.DrawString("ZAICODE " + ZaicodeSetup.Version, font, ink, label);
+    }
+    protected override void Dispose(bool disposing) { if (disposing && artwork != null) artwork.Dispose(); base.Dispose(disposing); }
+}
+
 /// <summary>One installer step as the window draws it.</summary>
 internal sealed class SetupStep
 {
@@ -127,15 +227,15 @@ internal sealed class SetupForm : Form
 {
     // The ZAICODE palette: the launcher splash's colours (tools\launcher\ZaicodeLauncher.cs).
     private static readonly Color Background = Color.FromArgb(0x1A, 0x18, 0x10);
-    private static readonly Color Surface = Color.FromArgb(0x24, 0x21, 0x16);
-    private static readonly Color Line = Color.FromArgb(0x4A, 0x43, 0x2A);
-    private static readonly Color Gold = Color.FromArgb(0xE8, 0xC0, 0x4A);
-    private static readonly Color GoldDark = Color.FromArgb(0x8A, 0x6A, 0x10);
+    private static readonly Color Surface = Color.FromArgb(0x33, 0x2E, 0x22);
+    private static readonly Color Line = Color.FromArgb(0x75, 0x66, 0x3D);
+    private static readonly Color Gold = Color.FromArgb(0xF0, 0xD0, 0x60);
+    private static readonly Color GoldDark = Color.FromArgb(0x5A, 0x50, 0x40);
     private static readonly Color Ink = Color.FromArgb(0xD4, 0xC8, 0x9A);
     private static readonly Color Dim = Color.FromArgb(0x9C, 0x93, 0x71);
-    private static readonly Color Good = Color.FromArgb(0x9C, 0xC8, 0x5A);
-    private static readonly Color Warn = Color.FromArgb(0xE8, 0x9A, 0x3A);
-    private static readonly Color Bad = Color.FromArgb(0xE0, 0x5A, 0x4A);
+    private static readonly Color Good = Color.FromArgb(0x4A, 0x7A, 0x20);
+    private static readonly Color Warn = Color.FromArgb(0x7A, 0x7A, 0x20);
+    private static readonly Color Bad = Color.FromArgb(0xD6, 0x64, 0x64);
 
     private enum Page { Welcome, Running, Finished }
 
@@ -144,6 +244,9 @@ internal sealed class SetupForm : Form
     private readonly bool autoStart;
     private readonly float scale;
     private readonly Image banner;
+    private readonly Image background;
+    private readonly bool withoutActivation;
+    private Point panelOffset;
     private readonly Font font;
     private readonly Font bold;
     private readonly Font big;
@@ -164,7 +267,8 @@ internal sealed class SetupForm : Form
     private string logFile = "";
     private string launcher = "";
     private bool succeeded;
-    private int spinner;
+    private volatile bool cancelPreparation;
+    private string focusedSpot;
     private readonly List<HotSpot> spots = new List<HotSpot>();
     private HotSpot hover;
 
@@ -182,31 +286,35 @@ internal sealed class SetupForm : Form
     [DllImport("user32.dll")] private static extern bool ReleaseCapture();
     [DllImport("user32.dll")] private static extern IntPtr SendMessage(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam);
 
-    public SetupForm(string scripts, List<string> passThrough, bool autoStart)
+    protected override bool ShowWithoutActivation { get { return withoutActivation; } }
+
+    public SetupForm(string scripts, List<string> passThrough, bool autoStart, bool withoutActivation = false)
     {
         this.scripts = scripts;
         this.passThrough = new List<string>(passThrough);
         this.autoStart = autoStart;
+        this.withoutActivation = withoutActivation;
         using (Graphics g = CreateGraphics()) scale = Math.Max(1f, (float)Math.Round(g.DpiX / 96f * 2) / 2);
         installDir = TakeOption("-InstallDir") ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "ZAICODE");
         if (TakeSwitch("-NoShortcut")) desktopShortcut = false;
         if (TakeSwitch("-NoStartMenu")) startMenu = false;
-        banner = ZaicodeSetup.LoadBanner();
+        banner = null;
+        background = ZaicodeSetup.LoadArtwork("background.jpg");
         font = new Font("Verdana", S(11), FontStyle.Regular, GraphicsUnit.Pixel);
         bold = new Font("Verdana", S(11), FontStyle.Bold, GraphicsUnit.Pixel);
         big = new Font("Verdana", S(16), FontStyle.Bold, GraphicsUnit.Pixel);
         title = new Font("Verdana", S(13), FontStyle.Bold, GraphicsUnit.Pixel);
-        symbols = new Font("Segoe UI Symbol", S(12), FontStyle.Bold, GraphicsUnit.Pixel);
+        symbols = new Font("Verdana", S(11), FontStyle.Bold, GraphicsUnit.Pixel);
 
         Text = "ZAICODE Setup";
         FormBorderStyle = FormBorderStyle.None;
         StartPosition = FormStartPosition.CenterScreen;
         BackColor = Background;
         DoubleBuffered = true;
-        ClientSize = new Size(S(600), S(600));
+        ClientSize = new Size(Math.Min(S(1140), Screen.PrimaryScreen.WorkingArea.Width - S(32)), Math.Min(S(640), Screen.PrimaryScreen.WorkingArea.Height - S(32)));
         try { Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath); } catch { /* default icon */ }
-        tick.Interval = 120;
-        tick.Tick += (sender, args) => { spinner++; Invalidate(); };
+        tick.Interval = 1000;
+        tick.Tick += (sender, args) => Invalidate();
         MouseDown += OnMouseDownDrag;
         MouseMove += (sender, args) => { HotSpot at = SpotAt(args.Location); if (at != hover) { hover = at; Cursor = at != null ? Cursors.Hand : Cursors.Default; Invalidate(); } };
         MouseClick += (sender, args) => { HotSpot at = SpotAt(args.Location); if (at != null && args.Button == MouseButtons.Left) at.Click(); };
@@ -214,12 +322,25 @@ internal sealed class SetupForm : Form
         KeyDown += (sender, args) =>
         {
             if (args.KeyCode == Keys.Escape) CloseOrCancel();
-            if (args.KeyCode == Keys.Enter && page == Page.Welcome) StartInstall();
+            if (args.KeyCode == Keys.Tab && spots.Count > 0)
+            {
+                int at = spots.FindIndex(spot => spot.Id == focusedSpot);
+                focusedSpot = spots[(at + (args.Shift ? spots.Count - 1 : 1)) % spots.Count].Id;
+                args.Handled = true; args.SuppressKeyPress = true; Invalidate();
+            }
+            if (args.KeyCode == Keys.Enter || args.KeyCode == Keys.Space)
+            {
+                HotSpot selected = spots.Find(spot => spot.Id == focusedSpot);
+                if (selected != null) selected.Click();
+                else if (args.KeyCode == Keys.Enter && page == Page.Welcome) StartInstall();
+                args.Handled = true; args.SuppressKeyPress = true;
+            }
         };
         Shown += (sender, args) => { if (this.autoStart) StartInstall(); };
     }
 
     private int S(int value) { return (int)Math.Round(value * scale); }
+    protected override bool IsInputKey(Keys keyData) { return (keyData & Keys.KeyCode) == Keys.Tab || base.IsInputKey(keyData); }
 
     private string TakeOption(string name)
     {
@@ -261,6 +382,7 @@ internal sealed class SetupForm : Form
         if (page != Page.Running) { Close(); return; }
         if (MessageBox.Show(this, "Stop the installation? What is already installed stays; running Setup again continues from there.", "ZAICODE Setup", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes) return;
         KillProcessTree();
+        cancelPreparation = true;
         Finish(false, "Stopped. Run Setup again to continue.");
     }
 
@@ -277,9 +399,25 @@ internal sealed class SetupForm : Form
         succeeded = false;
         page = Page.Running;
         showLog = false;
+        cancelPreparation = false;
         var args = new List<string>(passThrough) { "-InstallDir", installDir };
         if (!desktopShortcut) args.Add("-NoShortcut");
         if (!startMenu) args.Add("-NoStartMenu");
+        clock.Restart(); tick.Start(); Invalidate();
+        Task.Factory.StartNew(() =>
+        {
+            try
+            {
+                ZaicodeSetup.UnpackPayload(scripts, () => cancelPreparation);
+                if (!IsDisposed && !cancelPreparation) BeginInvoke((Action)(() => { if (page == Page.Running) StartProcess(args); }));
+            }
+            catch (OperationCanceledException) { }
+            catch (Exception error) { if (!IsDisposed) BeginInvoke((Action)(() => Finish(false, "Preparing the installer failed: " + error.Message))); }
+        });
+    }
+
+    private void StartProcess(List<string> args)
+    {
         var info = new ProcessStartInfo("powershell.exe", ZaicodeSetup.PowerShellArguments(scripts, args))
         {
             UseShellExecute = false,
@@ -290,6 +428,7 @@ internal sealed class SetupForm : Form
             StandardErrorEncoding = Encoding.UTF8,
         };
         info.EnvironmentVariables["ZAICODE_SETUP_PROGRESS"] = "1";
+        info.EnvironmentVariables["ZAICODE_SETUP_SOURCE"] = Application.ExecutablePath;
         process = new Process { StartInfo = info, EnableRaisingEvents = true };
         process.OutputDataReceived += (sender, e) => { if (e.Data != null) BeginInvoke((Action)(() => OnLine(e.Data))); };
         process.ErrorDataReceived += (sender, e) => { if (e.Data != null) BeginInvoke((Action)(() => AppendLog(e.Data))); };
@@ -457,22 +596,38 @@ internal sealed class SetupForm : Form
         g.TextRenderingHint = TextRenderingHint.SingleBitPerPixelGridFit;
         spots.Clear();
         Size box = ClientSize;
+        if (background != null)
+        {
+            // Keep the artwork's proportions: its logo sits on the left, the panel takes the empty right side.
+            int artHeight = box.Height - S(34);
+            g.DrawImage(background, new Rectangle(0, S(34), artHeight * background.Width / background.Height, artHeight));
+        }
         using (var border = new Pen(Line)) g.DrawRectangle(border, 0, 0, box.Width - 1, box.Height - 1);
+        panelOffset = Point.Empty;
         DrawChrome(g, box);
-        if (page == Page.Welcome) DrawWelcome(g, box);
-        else DrawProgress(g, box);
+        int width = Math.Min(S(500), box.Width - S(32));
+        int height = box.Height - S(50);
+        panelOffset = new Point(box.Width - width - S(16), S(38));
+        g.TranslateTransform(panelOffset.X, panelOffset.Y);
+        using (var fill = new SolidBrush(Background)) g.FillRectangle(fill, 0, 0, width, height);
+        DrawBevel(g, new Rectangle(0, 0, width, height), false);
+        if (page == Page.Welcome) DrawWelcome(g, new Size(width, height));
+        else DrawProgress(g, new Size(width, height));
     }
 
     private void DrawChrome(Graphics g, Size box)
     {
+        using (var fill = new SolidBrush(Surface)) g.FillRectangle(fill, 2, 2, box.Width - 4, S(32));
+        DrawAt(g, "ZAICODE Setup " + ZaicodeSetup.Version, bold, Ink, S(10), S(10));
         var close = new Rectangle(box.Width - S(34), S(6), S(26), S(22));
         var minimize = new Rectangle(box.Width - S(62), S(6), S(26), S(22));
         AddSpot(close, "close", CloseOrCancel, false, "x");
         AddSpot(minimize, "min", () => WindowState = FormWindowState.Minimized, false, "_");
         foreach (HotSpot spot in new[] { spots[spots.Count - 2], spots[spots.Count - 1] })
         {
-            if (spot == hover) using (var fill = new SolidBrush(spot.Id == "close" ? Color.FromArgb(0x6A, 0x24, 0x1C) : Surface)) g.FillRectangle(fill, spot.Bounds);
-            DrawCentered(g, spot.Label == "x" ? "\u2715" : "\u2013", symbols, Ink, spot.Bounds);
+            using (var fill = new SolidBrush(Surface)) g.FillRectangle(fill, spot.Bounds);
+            DrawBevel(g, spot.Bounds, false);
+            DrawCentered(g, spot.Label == "x" ? "x" : "_", symbols, Ink, spot.Bounds);
         }
     }
 
@@ -511,20 +666,16 @@ internal sealed class SetupForm : Form
         var install = new Rectangle((box.Width - S(260)) / 2, y, S(260), S(46));
         DrawButton(g, install, existing ? "UPDATE" : "INSTALL", StartInstall, true, big);
         y = install.Bottom + S(14);
-        DrawCentered(g, "No administrator rights needed. The first run builds the app here (about 15-30 min).", font, Dim, new Rectangle(0, y, box.Width, S(16)));
+        DrawCentered(g, ZaicodeSetup.HasPayload ? "No administrator rights. Everything is bundled: a few minutes." : "No administrator rights. The app is built here (15-30 min).", font, Dim, new Rectangle(0, y, box.Width, S(16)));
     }
 
     private void DrawProgress(Graphics g, Size box)
     {
         int left = S(24), right = box.Width - S(24);
         int y = S(34);
-        if (banner != null)
         {
-            int w = S(banner.Width) / 2, h = S(banner.Height) / 2;
-            g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-            g.PixelOffsetMode = PixelOffsetMode.Half;
-            g.DrawImage(banner, new Rectangle(left, y, w, h));
-            int tx = left + w + S(18);
+            int h = S(112);
+            int tx = left;
             Color headColor = page == Page.Finished ? (succeeded ? Good : Bad) : Gold;
             DrawClipped(g, page == Page.Finished ? (succeeded ? "ZAICODE is ready" : "Not finished yet") : phase, title, headColor, new Rectangle(tx, y + S(6), right - tx, S(22)));
             DrawAt(g, Elapsed(), font, Dim, tx, y + S(32));
@@ -541,7 +692,7 @@ internal sealed class SetupForm : Form
             if (ratio > 0)
             {
                 var filled = new Rectangle(bar.X, bar.Y, Math.Max(1, (int)(bar.Width * ratio)), bar.Height);
-                using (var fill = new LinearGradientBrush(bar, Gold, GoldDark, LinearGradientMode.Vertical)) g.FillRectangle(fill, filled);
+                using (var fill = new SolidBrush(Gold)) g.FillRectangle(fill, filled);
             }
             using (var pen = new Pen(Line)) g.DrawRectangle(pen, bar);
             DrawAt(g, string.Format("{0} / {1}", done, Math.Max(steps.Count, done)), font, Dim, tx, bar.Bottom + S(6));
@@ -577,7 +728,7 @@ internal sealed class SetupForm : Form
     {
         if (steps.Count == 0)
         {
-            DrawCentered(g, "Getting the installer ready" + new string('.', 1 + spinner / 4 % 3), font, Dim, area);
+            DrawCentered(g, "Preparing the installer...", font, Dim, area);
             return;
         }
         int row = Math.Max(S(16), Math.Min(S(22), area.Height / steps.Count));
@@ -592,7 +743,7 @@ internal sealed class SetupForm : Form
             // While a step runs its "problem" text (what the check found missing) reads like an error: say what happens.
             string detail = step.Status == "OK" ? ""
                 : step.Status == "FIXED" ? "set up"
-                : step.Status == "REPAIRING" ? "setting up" + new string('.', 1 + spinner / 3 % 3)
+                : step.Status == "REPAIRING" ? "setting up..."
                 : step.Status == "CHECKING" ? "checking"
                 : step.Detail;
             DrawClipped(g, detail, font, step.Status == "FAIL" ? Bad : Dim, new Rectangle(area.X + S(22) + titleWidth + S(8), y + (row - S(14)) / 2, area.Right - area.X - S(22) - titleWidth - S(8), S(16)));
@@ -605,16 +756,16 @@ internal sealed class SetupForm : Form
     {
         switch (status)
         {
-            case "OK": color = Good; return "\u2713";
-            case "FIXED": color = Gold; return "\u2713";
+            case "OK": color = Good; return "OK";
+            case "FIXED": color = Gold; return "OK";
             case "WARN": color = Warn; return "!";
             case "INFO": color = Dim; return "i";
-            case "FAIL": color = Bad; return "\u2717";
+            case "FAIL": color = Bad; return "X";
             case "CHECKING":
             case "REPAIRING":
                 // A pulsing arrow: the quarter-circle glyphs render as odd pictures in some fonts.
-                color = spinner % 4 < 2 ? Gold : GoldDark;
-                return "\u25B6";
+                color = Gold;
+                return ">";
             default: color = Line; return "\u00B7";
         }
     }
@@ -659,24 +810,43 @@ internal sealed class SetupForm : Form
         bool over = spot == hover || (hover != null && hover.Id == spot.Id && hover.Bounds == spot.Bounds);
         if (primary)
         {
-            using (var fill = new LinearGradientBrush(bounds, over ? Color.FromArgb(0xF6, 0xD2, 0x5C) : Gold, GoldDark, LinearGradientMode.Vertical)) g.FillRectangle(fill, bounds);
-            using (var pen = new Pen(Color.FromArgb(0x5A, 0x44, 0x08))) g.DrawRectangle(pen, bounds.X, bounds.Y, bounds.Width - 1, bounds.Height - 1);
-            DrawCentered(g, label, face ?? bold, Color.FromArgb(0x10, 0x0E, 0x06), bounds);
+            using (var fill = new SolidBrush(over ? Surface : Color.FromArgb(0x3D, 0x37, 0x2A))) g.FillRectangle(fill, bounds);
+            DrawBevel(g, bounds, false);
+            DrawCentered(g, label, face ?? bold, Gold, bounds);
         }
         else
         {
             using (var fill = new SolidBrush(over ? Line : Surface)) g.FillRectangle(fill, bounds);
-            using (var pen = new Pen(Line)) g.DrawRectangle(pen, bounds.X, bounds.Y, bounds.Width - 1, bounds.Height - 1);
+            DrawBevel(g, bounds, false);
             DrawCentered(g, label, face ?? font, Ink, bounds);
+        }
+        if (spot.Id == focusedSpot)
+        {
+            var focusBounds = bounds; focusBounds.Inflate(-S(4), -S(4));
+            using (var pen = new Pen(Gold)) { pen.DashStyle = DashStyle.Dot; g.DrawRectangle(pen, focusBounds); }
         }
     }
 
     private HotSpot AddSpot(Rectangle bounds, string id, Action click, bool primary, string label)
     {
+        bounds.Offset(panelOffset);
         var spot = new HotSpot { Bounds = bounds, Id = id, Click = click, Primary = primary, Label = label };
         if (hover != null && hover.Id == id && hover.Bounds == bounds) hover = spot;
         spots.Add(spot);
         return spot;
+    }
+
+    private static void DrawBevel(Graphics g, Rectangle box, bool sunken)
+    {
+        Color dark = Color.FromArgb(0x10, 0x0E, 0x08);
+        using (var lightPen = new Pen(sunken ? dark : Line, 2))
+        using (var darkPen = new Pen(sunken ? Line : dark, 2))
+        {
+            g.DrawLine(lightPen, box.Left + 1, box.Bottom - 1, box.Left + 1, box.Top + 1);
+            g.DrawLine(lightPen, box.Left + 1, box.Top + 1, box.Right - 1, box.Top + 1);
+            g.DrawLine(darkPen, box.Right - 1, box.Top + 1, box.Right - 1, box.Bottom - 1);
+            g.DrawLine(darkPen, box.Right - 1, box.Bottom - 1, box.Left + 1, box.Bottom - 1);
+        }
     }
 
     private static void DrawAt(Graphics g, string text, Font face, Color color, float x, float y)
@@ -703,8 +873,10 @@ internal sealed class SetupForm : Form
     {
         if (disposing)
         {
+            cancelPreparation = true;
             tick.Dispose();
             if (banner != null) banner.Dispose();
+            if (background != null) background.Dispose();
             font.Dispose();
             bold.Dispose();
             big.Dispose();

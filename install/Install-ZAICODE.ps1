@@ -28,7 +28,10 @@ param(
   [string]$ShortcutDir = [Environment]::GetFolderPath('Desktop'),
   [switch]$NoStartMenu,
   [switch]$NoShortcut,
+  [switch]$NoRegistration,
   [switch]$PortableTools,
+  [string]$PayloadZip = $env:ZAICODE_SUITE_PAYLOAD,
+  [string]$PayloadSha256 = $env:ZAICODE_SUITE_SHA256,
   [int]$AddClaudeAccounts = 0,
   [int]$AddCodexAccounts = 0,
   [switch]$Launch,
@@ -47,7 +50,7 @@ if (-not $here) {
   $here = Join-Path $env:TEMP ('zaicode-setup-' + [guid]::NewGuid().ToString('N').Substring(0, 8))
   New-Item -ItemType Directory -Force -Path $here | Out-Null
   [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
-  foreach ($name in @('ZaicodeInstallLib.ps1', 'ZaicodeChecks.ps1')) {
+  foreach ($name in @('ZaicodeInstallLib.ps1', 'ZaicodeChecks.ps1', 'ZaicodeSuite.ps1', 'Uninstall-ZAICODE.ps1')) {
     Invoke-WebRequest -UseBasicParsing -Uri "$LibraryBaseUrl/$name" -OutFile (Join-Path $here $name)
   }
 }
@@ -56,22 +59,27 @@ if (-not $here) {
 
 $layout = Get-ZaicodeLayout $InstallDir
 $options = [pscustomobject]@{
-  ShortcutDir = $ShortcutDir; NoStartMenu = [bool]$NoStartMenu; NoShortcut = [bool]$NoShortcut; PortableTools = [bool]$PortableTools
+  ShortcutDir = $ShortcutDir; NoStartMenu = [bool]$NoStartMenu; NoShortcut = [bool]$NoShortcut; NoRegistration = [bool]$NoRegistration; PortableTools = [bool]$PortableTools
   ZaicodeRepo = $ZaicodeRepo; SaipenRepo = $SaipenRepo; SaimailRepo = $SaimailRepo
 }
+$null = Assert-ZaicodeSuiteRoot $layout.Root
+if ((Test-Path -LiteralPath (Join-Path $layout.Root '.saipen\STATE.md')) -and -not (Test-Path -LiteralPath $layout.State)) { throw 'This is an active development workspace. Choose a separate installation folder.' }
 $log = Start-ZaicodeLog $layout.Logs 'install'
 $started = Get-Date
 
 Write-ZaicodeLog '============================================================' 'White'
+
+$ownershipBefore = Get-ZaicodeSuiteInstallBaseline $layout
+$bundled = Install-ZaicodeSuitePayload $layout $PayloadZip $PayloadSha256
 Write-ZaicodeLog ' ZAICODE install: ZAICODE + SAIPEN + SAIMAIL' 'White'
 Write-ZaicodeLog " into $($layout.Root)" 'White'
-Write-ZaicodeLog ' This takes a while the first time (the app is built here). Nothing to click.' 'White'
+Write-ZaicodeLog $(if ($bundled) { ' Bundled application and private runtimes. Nothing else to install.' } else { ' Source fallback: the app is built here. Nothing else to click.' }) 'White'
 Write-ZaicodeLog '============================================================' 'White'
 
 # An existing install is updated first: every clone fast-forwards (local edits are kept).
 $changed = @{}
 $git = Find-ZaicodeGit $layout
-if ($git -and (Test-ZaicodeRepo $git $layout.Root)) {
+if (-not $bundled -and $git -and (Test-ZaicodeRepo $git $layout.Root)) {
   Write-ZaicodeLog 'Updating the existing install from GitHub' 'White'
   Write-ZaicodeProgress @{ type = 'phase'; id = 'update'; title = 'Updating from GitHub' }
   try { $changed = Update-ZaicodeClones $layout $options $git } catch { Write-ZaicodeLog "update skipped: $($_.Exception.Message)" 'Yellow' }
@@ -108,6 +116,17 @@ foreach ($account in $accounts) {
 foreach ($entry in $added) { Write-ZaicodeLog ('  new {0} home {1}: {2}' -f $entry.Vendor, $entry.Home, (Get-ZaicodeLoginCommand $entry.Vendor $entry.Home)) 'Cyan' }
 
 $failed = @($results | Where-Object { $_.Status -eq 'FAIL' })
+if ($failed.Count -eq 0) {
+  try {
+    Install-ZaicodeSuiteEntryPoints $layout $here
+    $null = Write-ZaicodeSuiteOwnership $layout $options $ownershipBefore
+    Write-ZaicodeInstallState $layout $options
+    foreach ($name in @('payload-pending.json', 'ownership-pending.json')) {
+      $pending = Get-ZaicodeOwnedPath $layout.Root "install\$name"
+      if (Test-Path -LiteralPath $pending) { Remove-Item -LiteralPath $pending -Force }
+    }
+  } catch { $results += [pscustomobject]@{ Id = 'suite-uninstaller'; Title = 'Suite uninstaller'; Status = 'FAIL'; Error = $_.Exception.Message }; $failed = @($results | Where-Object { $_.Status -eq 'FAIL' }) }
+}
 $report = [ordered]@{
   installDir = $layout.Root
   startedAt = $started.ToString('o')
@@ -121,7 +140,6 @@ $report = [ordered]@{
 New-Item -ItemType Directory -Force -Path (Split-Path $layout.Report) | Out-Null
 $report | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $layout.Report -Encoding UTF8
 # What was installed from where: lets the app (Settings -> Updates) and Update-ZAICODE.ps1 update each part alone.
-if ($failed.Count -eq 0) { try { Write-ZaicodeInstallState $layout $options } catch { Write-ZaicodeLog "install state not written: $($_.Exception.Message)" 'Yellow' } }
 Write-ZaicodeProgress @{ type = 'done'; ok = ($failed.Count -eq 0); minutes = $report.minutes; log = $log; launcher = $layout.Launcher; failed = @($failed | ForEach-Object { $_.Title }) }
 
 Write-ZaicodeLog '' 'White'

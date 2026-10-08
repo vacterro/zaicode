@@ -91,7 +91,7 @@ try {
     'VERSION' = "0.0.1`n"
     'tools\launcher\build.cmd' = "@echo off`r`necho built> `"%~dp0..\..\launcher-built.txt`"`r`n"
   }
-  foreach ($name in @('Update-ZAICODE.ps1', 'ZaicodeInstallLib.ps1', 'ZaicodeChecks.ps1', 'Install-ZAICODE.ps1')) {
+  foreach ($name in @('Update-ZAICODE.ps1', 'ZaicodeInstallLib.ps1', 'ZaicodeChecks.ps1', 'Install-ZAICODE.ps1', 'ZaicodeSuite.ps1', 'Uninstall-ZAICODE.ps1')) {
     $wsFiles["install\$name"] = [IO.File]::ReadAllText((Join-Path $source $name))
   }
   $wsFiles['.gitignore'] = "/zcode/`n/saipen/`n/saimail/`n/install/logs/`n/install/install-state.json`n/install/update-state.json`n/launcher-built.txt`n"

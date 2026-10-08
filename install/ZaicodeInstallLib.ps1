@@ -3,8 +3,12 @@
 # Dot-source it; it defines functions and the install layout, runs nothing.
 
 Set-StrictMode -Version 2
+. (Join-Path $PSScriptRoot 'ZaicodeSuite.ps1')
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
+# Set by an Electron host (an editor's terminal, an agent app): the app build's boot check
+# and every ZAICODE.exe started from here would run as plain Node and exit at once.
+Remove-Item Env:ELECTRON_RUN_AS_NODE -ErrorAction SilentlyContinue
 try {
   [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
 } catch { }
@@ -349,7 +353,8 @@ function Get-ZaicodeComponentVersion($Layout, [string]$Id) {
   switch ($Id) {
     'workspace' { $file = Join-Path $Layout.Root 'VERSION'; if (Test-Path -LiteralPath $file) { return (Get-Content -LiteralPath $file -Raw).Trim() } }
     'app' {
-      # The app carries the upstream ZCode version it is built on; its own identity is the commit.
+      $release = Join-Path $Layout.Zcode 'ZAICODE_VERSION'
+      if (Test-Path -LiteralPath $release) { return (Get-Content -LiteralPath $release -Raw).Trim() }
       $file = Join-Path $Layout.Zcode 'package.json'
       if (Test-Path -LiteralPath $file) { try { return 'ZCode ' + [string]((Get-Content -LiteralPath $file -Raw | ConvertFrom-Json).version) } catch { } }
     }
@@ -573,9 +578,21 @@ function Get-ZaicodeSaimailVersion($Layout) {
   return 'unknown'
 }
 
-function Install-ZaicodeSaimail($Layout, [string]$Python) {
+function Install-ZaicodeSaimail($Layout, [string]$Python, [switch]$Offline) {
+  if (-not $Offline) {
+    $metaFile = Join-Path $Layout.Root 'install\payload-meta.json'
+    if ((Test-Path -LiteralPath $metaFile) -and (Test-Path -LiteralPath (Join-Path $Layout.Tools 'wheels'))) {
+      $meta = Get-Content -LiteralPath $metaFile -Raw | ConvertFrom-Json
+      $git = Find-ZaicodeGit $Layout
+      if ($git -and (Get-ZaicodeHead $git $Layout.Saimail) -eq $meta.companions.saimail) { $Offline = $true }
+    }
+  }
   if (-not (Test-Path -LiteralPath $Layout.VenvPython)) {
     Invoke-ZaicodeCommand -File $Python -Arguments @('-m', 'venv', $Layout.Venv) | Out-Null
+  }
+  if ($Offline) {
+    Invoke-ZaicodeCommand -File $Layout.VenvPython -Arguments @('-m', 'pip', 'install', '--quiet', '--no-index', '--find-links', (Join-Path $Layout.Tools 'wheels'), 'saimail[crypto]') | Out-Null
+    return
   }
   Invoke-ZaicodeCommand -File $Layout.VenvPython -Arguments @('-m', 'pip', 'install', '--quiet', '--upgrade', 'pip') -AllowFailure | Out-Null
   Invoke-ZaicodeCommand -File $Layout.VenvPython -Arguments @('-m', 'pip', 'install', '--quiet', '-e', "$($Layout.Saimail)[crypto]") | Out-Null
@@ -601,6 +618,7 @@ function Get-ZaicodeLockHash($Layout) {
 }
 
 function Install-ZaicodeModules($Layout, [string]$Node) {
+  if (-not (Test-Path -LiteralPath (Get-ZaicodePnpm $Layout))) { Install-ZaicodePnpm $Layout $Node | Out-Null }
   Invoke-ZaicodeCommand -File (Get-ZaicodePnpm $Layout) -Arguments @('install', '--frozen-lockfile') -WorkingDirectory $Layout.Zcode -Environment @{ PATH = (Get-ZaicodePath $Layout $Node); CI = '1' } | Out-Null
   Set-Content -LiteralPath (Get-ZaicodeLockMarker $Layout) -Value (Get-ZaicodeLockHash $Layout) -Encoding ASCII
 }

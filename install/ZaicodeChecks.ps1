@@ -16,8 +16,8 @@ $script:ZaicodeCheckList = @(
   @{ Id = 'saipen';          Title = 'SAIPEN';                               Level = 'FAIL' },
   @{ Id = 'saipen-launcher'; Title = 'SAIPEN launcher';                      Level = 'FAIL' },
   @{ Id = 'saimail';         Title = 'SAIMAIL';                              Level = 'FAIL' },
-  @{ Id = 'saimail-cli';     Title = 'saimail-local (SAIMAIL panels)';       Level = 'WARN' },
-  @{ Id = 'router';          Title = '9router package (zero-setup SAIFREN)'; Level = 'WARN' },
+  @{ Id = 'saimail-cli';     Title = 'saimail-local (SAIMAIL panels)';       Level = 'FAIL' },
+  @{ Id = 'router';          Title = '9router package (zero-setup SAIFREN)'; Level = 'FAIL' },
   @{ Id = 'modules';         Title = 'App dependencies (pnpm install)';      Level = 'FAIL' },
   @{ Id = 'app';             Title = 'ZAICODE app build';                    Level = 'FAIL' },
   @{ Id = 'staged-build';    Title = 'Staged build swap';                    Level = 'WARN' },
@@ -60,10 +60,14 @@ function Test-ZaicodeFileLocked([string]$Path) {
 }
 
 # Deletes a build folder whose deepest files pass MAX_PATH (the bundled router's Next output).
-function Remove-ZaicodeLongPathDir([string]$Path) {
+function Remove-ZaicodeLongPathDir([string]$Path, [string]$InstallRoot) {
+  $root = Assert-ZaicodeSuiteRoot $InstallRoot
+  $full = [IO.Path]::GetFullPath($Path)
+  $allowed = Get-ZaicodeOwnedPath $root 'zcode\packages\desktop\dist\win-unpacked.previous'
+  if ($full -ne $allowed) { throw 'Only the previous application build in this installation can be removed.' }
+  $Path = $allowed
   if (-not (Test-Path -LiteralPath $Path)) { return }
-  Invoke-ZaicodeCommand -File $env:ComSpec -Arguments @('/d', '/c', 'rd', '/s', '/q', "\\?\$Path") -AllowFailure | Out-Null
-  if (Test-Path -LiteralPath $Path) { Move-Item -LiteralPath $Path -Destination ("$Path.stale-" + (Get-Date -Format 'yyyyMMddHHmmss')) }
+  Remove-Item -LiteralPath $Path -Recurse -Force -ErrorAction Stop
 }
 
 function Get-ZaicodeShortcutList($Ctx) {
@@ -88,6 +92,7 @@ function Test-ZaicodeCheck([string]$Id, $Ctx) {
       if (-not (Find-ZaicodePython $layout)) { return 'Python 3.11 or newer is not installed' }
     }
     'pnpm' {
+      if (Test-Path -LiteralPath (Join-Path $layout.Root 'install\payload-meta.json')) { return $null }
       if (-not (Test-Path -LiteralPath (Get-ZaicodePnpm $layout))) { return 'the pinned pnpm is not in .tools' }
     }
     'workspace' {
@@ -118,9 +123,11 @@ function Test-ZaicodeCheck([string]$Id, $Ctx) {
       if ($probe.Code -ne 0) { return 'saimail-local does not start' }
     }
     'router' {
+      if (Test-Path -LiteralPath (Join-Path (Split-Path $layout.AppExe) 'resources\router\9router\app\server.js')) { return $null }
       if (-not (Test-Path -LiteralPath (Join-Path $layout.RouterDir 'node_modules\9router\app'))) { return 'not in .tools (the app works; SAIFREN then needs an existing 9router)' }
     }
     'modules' {
+      if ((Test-Path -LiteralPath (Join-Path $layout.Root 'install\payload-meta.json')) -and (Test-Path -LiteralPath $layout.AppExe)) { return $null }
       if (-not (Test-Path -LiteralPath (Join-Path $layout.Zcode 'node_modules\.modules.yaml'))) { return 'node_modules is missing' }
       $marker = Get-ZaicodeLockMarker $layout
       if (-not (Test-Path -LiteralPath $marker)) { return 'no record of which pnpm-lock.yaml node_modules came from' }
@@ -128,6 +135,10 @@ function Test-ZaicodeCheck([string]$Id, $Ctx) {
     }
     'app' {
       if (-not (Test-Path -LiteralPath $layout.AppExe) -and -not (Test-Path -LiteralPath $layout.StagedExe)) { return 'no built ZAICODE.exe' }
+      # The bundle's boot gate leaves this when the live build did not start; a newer build replaces it.
+      $bootFailed = Join-Path (Split-Path (Split-Path $layout.AppExe)) 'boot-failed.json'
+      if ((Test-Path -LiteralPath $bootFailed) -and (Test-Path -LiteralPath $layout.AppExe) -and
+          (Get-Item -LiteralPath $bootFailed).LastWriteTimeUtc -ge (Get-Item -LiteralPath $layout.AppExe).LastWriteTimeUtc) { return 'the last app build did not start (boot check failed)' }
     }
     'staged-build' {
       $previous = Join-Path $layout.Zcode 'packages\desktop\dist\win-unpacked.previous'
@@ -177,11 +188,11 @@ function Repair-ZaicodeCheck([string]$Id, $Ctx) {
     'saipen' { Sync-ZaicodeRepo -Git (Resolve-ZaicodeGit $Ctx) -Url $options.SaipenRepo -Branch 'main' -Dir $layout.Saipen }
     'saipen-launcher' { Set-ZaicodeSaipenLauncher $layout (Resolve-ZaicodePython $Ctx) }
     'saimail' {
-      Sync-ZaicodeRepo -Git (Resolve-ZaicodeGit $Ctx) -Url $options.SaimailRepo -Branch 'main' -Dir $layout.Saimail
+      if (-not (Test-ZaicodeRepo (Resolve-ZaicodeGit $Ctx) $layout.Saimail)) { Sync-ZaicodeRepo -Git (Resolve-ZaicodeGit $Ctx) -Url $options.SaimailRepo -Branch 'main' -Dir $layout.Saimail }
       Install-ZaicodeSaimail $layout (Resolve-ZaicodePython $Ctx)
     }
     'saimail-cli' {
-      Sync-ZaicodeRepo -Git (Resolve-ZaicodeGit $Ctx) -Url $options.SaimailRepo -Branch 'main' -Dir $layout.Saimail
+      if (-not (Test-ZaicodeRepo (Resolve-ZaicodeGit $Ctx) $layout.Saimail)) { Sync-ZaicodeRepo -Git (Resolve-ZaicodeGit $Ctx) -Url $options.SaimailRepo -Branch 'main' -Dir $layout.Saimail }
       if (-not (Test-ZaicodeSaimailShipsCli $layout)) { throw 'the published SAIMAIL has no saimail-local to install' }
       Install-ZaicodeSaimail $layout (Resolve-ZaicodePython $Ctx)
     }
@@ -190,11 +201,11 @@ function Repair-ZaicodeCheck([string]$Id, $Ctx) {
     'app' { Build-ZaicodeApp $layout (Resolve-ZaicodeNode $Ctx) }
     'staged-build' {
       $dist = Join-Path $layout.Zcode 'packages\desktop\dist\win-unpacked'
-      Remove-ZaicodeLongPathDir "$dist.previous"
+      Remove-ZaicodeLongPathDir "$dist.previous" $layout.Root
       if ((Test-Path -LiteralPath $layout.StagedExe) -and -not (Test-ZaicodeFileLocked $layout.AppExe)) {
         if (Test-Path -LiteralPath $dist) { Move-Item -LiteralPath $dist -Destination "$dist.previous" }
         Move-Item -LiteralPath (Split-Path $layout.StagedExe) -Destination $dist
-        Remove-ZaicodeLongPathDir "$dist.previous"
+        Remove-ZaicodeLongPathDir "$dist.previous" $layout.Root
       }
     }
     'launcher' { Build-ZaicodeLauncher $layout }
@@ -209,9 +220,16 @@ function Repair-ZaicodeCheck([string]$Id, $Ctx) {
 
 # Runs the checks in order; with -Repair a failing check is repaired and tested again.
 function Invoke-ZaicodeChecks($Layout, $Options, [switch]$Repair, [string[]]$Only = @()) {
+  $ownership = Read-ZaicodeSuiteOwnership (Assert-ZaicodeSuiteRoot $Layout.Root)
+  $removedChecks = @()
+  if ($ownership) {
+    if ($ownership.components -notcontains 'zaicode') { $removedChecks += @('app-source', 'router', 'modules', 'app', 'staged-build', 'launcher', 'shortcut', 'accounts') }
+    if ($ownership.components -notcontains 'saipen') { $removedChecks += @('saipen', 'saipen-launcher') }
+    if ($ownership.components -notcontains 'saimail') { $removedChecks += @('saimail', 'saimail-cli') }
+  }
   $ctx = New-ZaicodeContext $Layout $Options
   $results = @()
-  $selected = @($script:ZaicodeCheckList | Where-Object { $Only.Count -eq 0 -or $Only -contains $_.Id })
+  $selected = @($script:ZaicodeCheckList | Where-Object { $removedChecks -notcontains $_.Id -and ($Only.Count -eq 0 -or $Only -contains $_.Id) })
   Write-ZaicodeProgress @{ type = 'plan'; checks = @($selected | ForEach-Object { @{ id = $_.Id; title = $_.Title } }) }
   foreach ($check in $selected) {
     $started = Get-Date

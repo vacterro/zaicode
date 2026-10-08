@@ -108,6 +108,9 @@ internal static class ZaicodeLauncher
         // A TZ inherited from an agent shell (TZ=UTC) moves every ZAICODE clock by the zone
         // offset: Chromium fixes its zone at start, so the variable must never reach the app.
         Environment.SetEnvironmentVariable("TZ", null);
+        // Inherited from an Electron host (an editor's terminal, an agent app), it makes
+        // ZAICODE.exe run as plain Node: the app exits at once and no window ever shows.
+        Environment.SetEnvironmentVariable("ELECTRON_RUN_AS_NODE", null);
         if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("SAIPEN_HOME")))
         {
             // The installer's own SAIPEN clone first (install\Install-ZAICODE.ps1), then the scheduled source.

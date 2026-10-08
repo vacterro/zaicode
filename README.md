@@ -1,12 +1,12 @@
 # ZAICODE
 
-**v0.0.2**
+**v0.0.3**
 
 <div align="center">
   <img src="https://raw.githubusercontent.com/vacterro/zaicode/zaicode/packages/ui/src/assets/zaicode-working.png" alt="ZAICODE" width="96" height="96" />
 </div>
 <p align="center">
-  <img src="https://img.shields.io/badge/version-0.0.2-c9a227" alt="version 0.0.2" />
+  <img src="https://img.shields.io/badge/version-0.0.3-c9a227" alt="version 0.0.3" />
   <img src="https://img.shields.io/badge/platform-Windows-3b3527" alt="Windows" />
   <img src="https://img.shields.io/badge/license-Apache--2.0-3b3527" alt="Apache-2.0" />
 </p>
@@ -30,13 +30,23 @@ used daily.
 
 ## Install in one click
 
-1. Download **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)**.
+1. Download **ZAICODE-Setup-0.0.3.exe** from [Releases](https://github.com/vacterro/zaicode/releases)
+   (Windows 10/11 x64).
 2. Double-click it and press **INSTALL**.
 
-That is all. Setup brings what the machine lacks (Git, Node.js, Python, as private
-copies: no administrator rights), fetches ZAICODE, SAIPEN and SAIMAIL from GitHub,
-builds the app on the machine and puts a ZAICODE shortcut on the desktop. The first
-run takes 15-30 minutes; the window shows every step.
+That is all. The release Setup carries the whole suite: the built app, SAIPEN, SAIMAIL
+and private copies of Git, Node.js and Python. Nothing is downloaded or built and no
+administrator rights are needed; a few minutes later a ZAICODE shortcut is on the
+desktop. The installer is an ordinary window you can move or minimize while it works.
+Windows may warn about an unsigned download: **More info -> Run anyway**.
+
+The small [ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)
+is the fallback: it fetches everything from GitHub and builds the app on the machine
+(15-30 minutes the first time).
+
+**Uninstall** with `Uninstall-ZAICODE.cmd` in the install folder or from Windows
+*Installed apps*: remove ZAICODE alone, SAIPEN or SAIMAIL, or the whole suite. Your
+projects, mail, SAIPEN memory, logins and edited files always stay.
 
 Free models work at once: ZAICODE starts its own router and fills the **SAIFREN**
 pool from keyless free tiers, so a task typed into New task gets an answer with no

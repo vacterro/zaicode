@@ -4,7 +4,27 @@ All notable ZAICODE releases. Versions follow semantic versioning. Tags
 `vX.Y.Z` identify the workspace on `master`; each entry records the separate
 application commit on `zaicode`. The upstream framework version is independent.
 
-## Unreleased
+## 0.0.3 — 2026-10-08
+
+### Install
+- **ZAICODE-Setup-0.0.3.exe** carries the whole suite: the built app (zaicode `71771e1d`),
+  SAIPEN, SAIMAIL and private Git, Node.js and Python. It unpacks into an empty folder in a
+  few minutes with no download, no build and no administrator rights, after checking the
+  payload SHA-256, the free space and the path length. The small `ZAICODE-Setup.exe` stays
+  the source fallback.
+- Uninstall from `Uninstall-ZAICODE.cmd` or Windows Installed apps: ZAICODE alone, SAIPEN,
+  SAIMAIL or the whole suite. Only unchanged installed files go; projects, mail, SAIPEN
+  memory, logins and edited files stay.
+- Setup shows the launch art for two seconds, then a movable, minimizable installer window
+  over the background art.
+- An inherited `ELECTRON_RUN_AS_NODE` (editor terminals, agent apps) no longer stops the
+  launcher or the build check from starting ZAICODE; a build that failed its boot check is
+  reported by the next install or Autotroubleshoot run instead of passing as installed.
+
+### Changed
+- Router pools, scheduler fallbacks, Dispatch launchers and queued jobs reorder by drag;
+  pool rows use the base font. Transcript adds "Full without scroll". No fade masks or
+  darkened modal backdrops.
 
 ### Added
 - SAI Accounts federation — the control plane is OPTIONAL, and ZAICODE is complete

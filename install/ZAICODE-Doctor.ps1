@@ -30,6 +30,9 @@ $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'ZaicodeChecks.ps1')
 
 $layout = Get-ZaicodeLayout $InstallDir
+$null = Assert-ZaicodeSuiteRoot $layout.Root
+$ownership = Read-ZaicodeSuiteOwnership $layout.Root
+$ownershipBefore = if ($Repair -and $ownership) { Get-ZaicodeSuiteBaseline $layout } else { $null }
 $options = [pscustomobject]@{
   ShortcutDir = $ShortcutDir; NoStartMenu = [bool]$NoStartMenu; NoShortcut = [bool]$NoShortcut; PortableTools = [bool]$PortableTools
   ZaicodeRepo = $ZaicodeRepo; SaipenRepo = $SaipenRepo; SaimailRepo = $SaimailRepo
@@ -40,6 +43,12 @@ if ($Repair) { $mode = 'check and repair' }
 Write-ZaicodeLog "ZAICODE Autotroubleshoot ($mode): $($layout.Root)" 'White'
 
 $results = @(Invoke-ZaicodeChecks $layout $options -Repair:$Repair -Only $Only)
+if ($Repair -and $ownership) {
+  try {
+    Install-ZaicodeSuiteEntryPoints $layout $PSScriptRoot $ownership.components
+    $null = Write-ZaicodeSuiteOwnership $layout (Get-ZaicodeSuiteOwnershipOptions $ownership) $ownershipBefore -KeepSelection
+  } catch { $results += [pscustomobject]@{ Id = 'ownership'; Status = 'FAIL'; Error = $_.Exception.Message } }
+}
 $failed = @($results | Where-Object { $_.Status -eq 'FAIL' })
 if ($Json) { $results | ConvertTo-Json -Depth 4 }
 if ($JsonOut) { ConvertTo-Json -InputObject $results -Depth 4 | Set-Content -LiteralPath $JsonOut -Encoding UTF8 }
