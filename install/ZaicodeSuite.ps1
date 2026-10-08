@@ -59,10 +59,11 @@ function Get-ZaicodeSuiteOwnershipOptions($State) {
   }
 }
 
-# User data the suite never claims, wherever it sits: mail, profiles, logins. Protocol memory is
+# User data the suite never claims, wherever it sits: mail and app profiles. Protocol memory is
 # the person's at the root; inside the SAIPEN and SAIMAIL clones .saipen is tracked repository
-# content, and anything a person adds there later is foreign to the install baseline anyway.
-$script:ZaicodeSuiteDataNames = @('.saimail-workspace', 'mail', 'userData', '.claude', '.codex')
+# content. Anything a person adds later (an agent's .claude folder too) is foreign to the install
+# baseline and stays without a name rule.
+$script:ZaicodeSuiteDataNames = @('.saimail-workspace', 'mail', 'userData')
 # Records the installer and updater rewrite; they are removed with the last part, never hashed.
 $script:ZaicodeSuiteMachineState = @('install\ownership.json', 'install\install-report.json', 'install\install-state.json', 'install\update-state.json', 'install\payload-pending.json', 'install\ownership-pending.json')
 
