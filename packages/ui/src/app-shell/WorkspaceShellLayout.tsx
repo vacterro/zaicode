@@ -66,6 +66,8 @@ import { ZaicodeWorkspace } from "@/zaicode/ZaicodeWorkspace.js";
 import { useZaicodeActions } from "@/zaicode/zaicodeActions.js";
 import { useZaicodeUsage } from "@/zaicode/zaicodeUsage.js";
 import { ZaicodeUsageView } from "@/zaicode/ZaicodeUsageView.js";
+import { ZaicodeResizableInspector } from "@/zaicode/ZaicodeResizableInspector.js";
+import { useZaicodeUsagePanelWidth } from "@/zaicode/zaicodeUsagePanelWidth.js";
 import { ZaicodeHomePage } from "@/zaicode/home/ZaicodeHomePage.js";
 import { useZaicodeHomePrefs } from "@/zaicode/home/zaicodeHomePrefs.js";
 import { ZaicodeWorkersDockFrame } from "@/zaicode/ZaicodeWorkersDockFrame.js";
@@ -828,7 +830,8 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
   );
   const sidebarsSwappedPreference = useZaicodeSidebarPrefs((s) => s.sidebarsSwapped);
   const sidebarsSwapped = isZaicodeProductMode() && sidebarsSwappedPreference;
-  const globalSaipenVisible = useZaicodeActions((state) => state.saipenSidebar !== null);
+  const globalSaipenVisible = useZaicodeActions((state) => state.saipenSidebar !== null && state.openSaipen === null);
+  const [globalInspectorWidth] = useZaicodeUsagePanelWidth();
   const workspaceShellSplitStyle = useMemo(
     () =>
       ({
@@ -845,12 +848,13 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
         "--workspace-panel-radius": `${workspacePanelRadiusPx}px`,
         "--workspace-resize-handle-inset": `${workspaceResizeHandleInsetPx}px`,
         // 草稿检查器是 body portal；必须预留其宽度，否则遮住 STATE 按钮，无法再次点击关闭。
-        paddingLeft: globalSaipenVisible && sidebarsSwapped ? "min(480px, 50vw)" : undefined,
-        paddingRight: globalSaipenVisible && !sidebarsSwapped ? "min(480px, 50vw)" : undefined,
+        paddingLeft: globalSaipenVisible && sidebarsSwapped ? `min(${globalInspectorWidth}px, 50vw)` : undefined,
+        paddingRight: globalSaipenVisible && !sidebarsSwapped ? `min(${globalInspectorWidth}px, 50vw)` : undefined,
       }) as CSSProperties,
     [
       collapsedSidebarWidthPx,
       globalSaipenVisible,
+      globalInspectorWidth,
       sidebarsSwapped,
       isSidebarPanelVisible,
       workspacePanelRadiusPx,
@@ -906,20 +910,24 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
   }, [onWorkspaceMainViewChange]);
   const usageMode = useZaicodeUsage((state) => state.mode);
   useEffect(() => {
-    if (!isZaicodeProductMode() || !isWorkspaceVisible || !handleToggleSaipenTab) return;
+    if (!isZaicodeProductMode() || !isWorkspaceVisible || !activeTaskId || !handleToggleSaipenTab) return;
     const open = (target?: { workspacePath: string; workspaceIdentity?: string | undefined }) => {
-      if (!activeTaskId) return false;
       if (target && buildTaskWorkspaceKey(target.workspacePath, target.workspaceIdentity) !== workspaceKey) return false;
       handleToggleSaipenTab();
       return true;
     };
-    useZaicodeActions.getState().setOpenSaipen(open);
+    const actions = useZaicodeActions.getState();
+    const draftBoard = actions.saipenSidebar;
+    actions.setOpenSaipen(open);
+    if (draftBoard && buildTaskWorkspaceKey(draftBoard.workspacePath, draftBoard.workspaceIdentity) === workspaceKey) {
+      handleOpenSaipenTab?.();
+    }
     return () => {
       if (useZaicodeActions.getState().openSaipen === open) {
         useZaicodeActions.getState().setOpenSaipen(null);
       }
     };
-  }, [activeTaskId, handleToggleSaipenTab, isWorkspaceVisible, workspaceKey]);
+  }, [activeTaskId, handleOpenSaipenTab, handleToggleSaipenTab, isWorkspaceVisible, workspaceKey]);
   // ZAICODE (SRC-038): the home-screen SCHEDULER card and other surfaces open the ZAICODE view.
   useEffect(() => {
     if (!isZaicodeProductMode()) return;
@@ -2214,10 +2222,7 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
                     切换时卸载 Guest；截图请求期间由上层临时展开真实面板承载可合成的 WebContents。 */}
               </ResizablePanelGroup>
               {isWorkspaceVisible && usageMode === "sidebar" ? (
-                <aside
-                  className="min-h-0 min-w-0 shrink-0 border-l border-border"
-                  style={{ width: "min(420px,40vw)" }}
-                >
+                <ZaicodeResizableInspector label="9router Usage sidebar">
                   <ScopedErrorBoundary
                     scope="zaicode-usage-sidebar"
                     resetKeys={workspaceOnlyResetKeys}
@@ -2226,7 +2231,7 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
                   >
                     <ZaicodeUsageView sidebar />
                   </ScopedErrorBoundary>
-                </aside>
+                </ZaicodeResizableInspector>
               ) : null}
             </div>
           </ZaicodeWorkersDockFrame>
