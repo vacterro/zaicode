@@ -20,3 +20,15 @@ test("a collapsed STATE inspector is revealed and the generic Add action stays o
   assert.equal(pane.getActiveSidePaneTab(toggle(opened, true))?.type, "saipen");
   assert.equal(pane.activateSaipenSidePane(opened).tabs.length, 1);
 });
+
+test("a workspace Board opened by a draft or another session still toggles for the current session", () => {
+  for (const ownerTaskId of [null, "previous-session"]) {
+    const opened = pane.stampSidePaneTabsOwnership(pane.activateSaipenSidePane(null), { ownerTaskId, workspaceKey: "project" });
+    assert.equal(pane.toggleSaipenSidePane(opened, "current-session"), null, "shared Board closes for the visible workspace");
+    const withGit = pane.stampSidePaneTabsOwnership(pane.activateSaipenSidePane(pane.activateGitSidePane(null)), { ownerTaskId, workspaceKey: "project" });
+    const closed = pane.toggleSaipenSidePane(withGit, "current-session");
+    assert.equal(closed?.tabs.length, 1, "other shared tabs stay intact");
+    assert.equal(pane.getActiveSidePaneTab(closed)?.type, "git");
+    assert.equal(pane.getActiveSidePaneTab(pane.toggleSaipenSidePane(opened, "current-session", true))?.type, "saipen", "a collapsed Board opens first");
+  }
+});

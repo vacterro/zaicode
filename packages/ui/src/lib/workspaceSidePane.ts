@@ -1618,7 +1618,8 @@ export function toggleSaipenSidePane(
   collapsed = false,
 ): WorkspaceSidePaneState | null {
   const active = getActiveSidePaneTab(current);
-  if (!collapsed && active?.type === "saipen" && sidePaneOwnerKey(active.ownerTaskId) === sidePaneOwnerKey(ownerTaskId)) {
+  // SAIPEN 是 workspace 共享面板；草稿或旧会话的 owner 标记不能阻止当前会话关闭它。
+  if (!collapsed && active?.type === "saipen") {
     return closeSidePaneTabForParent(current, active.id, ownerTaskId ?? null);
   }
   return activateSaipenSidePane(current);

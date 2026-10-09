@@ -40,7 +40,8 @@ export const useZaicodeActions = create<ZaicodeActionsState>((set) => ({
   openZaicodeHome: null,
   setOpenZaicodeHome: (openZaicodeHome) => set({ openZaicodeHome }),
   openSaipen: null,
-  setOpenSaipen: (openSaipen) => set({ openSaipen }),
+  // 聊天接管 Board 后必须移除草稿 portal，否则旧项目与当前项目会同时显示。
+  setOpenSaipen: (openSaipen) => set(openSaipen ? { openSaipen, saipenSidebar: null } : { openSaipen }),
   saipenSidebar: null,
   setSaipenSidebar: (saipenSidebar) => set({ saipenSidebar }),
   mainView: "chat",
@@ -58,12 +59,12 @@ export function openZaicodeHomeView(): boolean {
 export function openZaicodeSaipenView(workspacePath?: string, workspaceIdentity?: string): boolean {
   const state = useZaicodeActions.getState();
   const target = workspacePath ? { workspacePath, workspaceIdentity } : undefined;
-  // 草稿变成对话后 opener 可能已注册；先关闭当前可见的同项目检查器，不能另开一个。
-  if (target && state.saipenSidebar && resolveWorkspaceKey(state.saipenSidebar) === resolveWorkspaceKey(target)) {
+  if (state.openSaipen) {
     state.setSaipenSidebar(null);
-    return true;
+    return state.openSaipen(target);
   }
-  if (state.openSaipen?.(target)) {
+  // 只有没有聊天面板的草稿才由全局检查器处理。
+  if (target && state.saipenSidebar && resolveWorkspaceKey(state.saipenSidebar) === resolveWorkspaceKey(target)) {
     state.setSaipenSidebar(null);
     return true;
   }

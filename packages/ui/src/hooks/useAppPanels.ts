@@ -88,6 +88,7 @@ import { shouldOpenWorkflowArtifactInBrowser } from "@/lib/workflowArtifactOpen.
 import { useWhiteboardStore } from "@/store/whiteboardStore.js";
 import { useModelTrajectoryOpenBridge } from "@/hooks/useModelTrajectoryOpenBridge.js";
 import { useServices } from "@/hooks/useServices.js";
+import { useZaicodeActions } from "@/zaicode/zaicodeActions.js";
 import { useIsOfficeMode } from "@/hooks/useInterfaceMode.js";
 import { clearSelectionSideChat } from "@/lib/selectionSideChatRuntime.js";
 import { clearConversationSelectionReferenceScope } from "@/lib/conversationSelectionReference.js";
@@ -857,10 +858,18 @@ export function useAppPanels(options: {
   }, [commitOpenedSidePaneState, revealSidePaneForCurrentOwner, workspaceAbsPath]);
 
   const handleToggleSaipenTab = useCallback(() => {
+    // Сначала закрываем глобальную SAIPEN‑sidebar (T-270, SRC-173): если она
+    // открыта — повторное нажатие кнопки должно убирать её обратно, а не
+    // открывать дублирующую вкладку в side pane.
+    const actions = useZaicodeActions.getState();
+    if (actions.saipenSidebar !== null && actions.openSaipen === null) {
+      actions.setSaipenSidebar(null);
+      return;
+    }
     commitOpenedSidePaneState((current) => {
       const active = getActiveSidePaneTab(current);
       const collapsed = latestSidePaneMemoryRef.current.isSidePaneCollapsed;
-      const closing = !collapsed && active?.type === "saipen" && sidePaneOwnerKey(active.ownerTaskId) === sidePaneOwnerKey(sidePaneOwnerIdRef.current);
+      const closing = !collapsed && active?.type === "saipen";
       const next = toggleSaipenSidePane(current, sidePaneOwnerIdRef.current, collapsed);
       if (closing) syncSidePaneCollapsedWithTabs(next);
       else revealSidePaneForCurrentOwner();
