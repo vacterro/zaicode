@@ -24,6 +24,7 @@ import {
   refreshZaicodeEngineLimits,
   updateZaicodeEnginesConfig,
   useZaicodeActiveEngine,
+  useZaicodeResetRefresh,
   useZaicodeEngines,
   launchableZaicodeAccounts,
   zaicodeRemainingColor,
@@ -56,6 +57,9 @@ export function ZaicodeEngineBar() {
   const selectedModel = useZaicodeDefaultModel();
   const activeEngine = useZaicodeActiveEngine();
   const engines = useZaicodeEngines();
+  // T-266: refresh quota the instant a window resets so both limit meters (title
+  // bar and this sidebar) repaint instead of lagging the 30s poll with spent data.
+  useZaicodeResetRefresh();
   const workers = useZaicodeWorkers().workers;
   const openSettingsTab = useTabStore((state) => state.openSettingsTab);
   const now = useZaicodeClock(30_000);

@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useSyncExternalStore } from "react";
 import {
   normalizeZaicodeEnginesConfig,
@@ -98,6 +99,46 @@ export async function refreshZaicodeEngineLimits(accountId?: string): Promise<vo
   accept(await bridge.refreshZaicodeEngines(accountId));
 }
 
+export const ZAICODE_RESET_REFRESH_SOON = 24 * 60 * 60_000;
+
+/** Earliest reset time still in the future across every engine snapshot, or
+ * null when every window is past its reset or there is no live data yet.
+ * Exported for the T-266 regression test; the hook is the production caller. */
+export function earliestPendingReset(state: ZaicodeEnginesState, now: number): number | null {
+  let soonest: number | null = null;
+  for (const snapshot of Object.values(state.limits)) {
+    if (!snapshot || snapshot.error || snapshot.windows.length === 0) continue;
+    for (const window of snapshot.windows) {
+      if (window.resetsAt !== null && window.resetsAt > now && window.resetsAt <= now + ZAICODE_RESET_REFRESH_SOON) {
+        if (soonest === null || window.resetsAt < soonest) soonest = window.resetsAt;
+      }
+    }
+  }
+  return soonest;
+}
+
+/**
+ * T-266: the title-bar and sidebar limit meters share one engine snapshot and
+ * only repaint on a 30s poll or an on-demand read. A quota window that ends
+ * therefore keeps showing the spent/old reading for up to the next poll, so
+ * the second meter lags the first. This watches every snapshot's window reset
+ * time and triggers an exact quota refresh the moment the soonest reset arrives,
+ * then reschedules for the next upcoming reset -- so both meters repaint
+ * immediately on a reset instead of waiting on the coarse tick. Mount once.
+ */
+export function useZaicodeResetRefresh(): void {
+  const state = useZaicodeEngines();
+  useEffect(() => {
+    const target = earliestPendingReset(state, Date.now());
+    if (target === null) return;
+    const delay = Math.max(0, target - Date.now());
+    const id = window.setTimeout(() => {
+      void refreshZaicodeEngineLimits().catch(() => undefined);
+    }, delay);
+    return () => window.clearTimeout(id);
+  }, [state]);
+}
+
 export async function updateZaicodeEnginesConfig(patch: Partial<ZaicodeEnginesConfig>): Promise<void> {
   const bridge = getZaicodeEnginesBridge();
   if (!bridge?.setZaicodeEnginesConfig) return;
@@ -110,8 +151,8 @@ export function visibleZaicodeAccounts(current: ZaicodeEnginesState = state): Za
 
 /**
  * Accounts that can run work: visible, not metrics-only (Freebuff is measured,
- * never launched -- SRC-043). Engine tiles, Dispatch, the project menu and the
- * Scheduler list only these; meters, the clock and SAIHOME show all visible ones.
+ * never launched -- SRC-043). Worker Dispatch and project menus use these;
+ * subscription tiles and quota watches may also use router-backed measured accounts.
  */
 export function launchableZaicodeAccounts(current: ZaicodeEnginesState = state): ZaicodeEngineAccount[] {
   return visibleZaicodeAccounts(current).filter((account) => !isZaicodeMetricsOnlyAccount(account));
@@ -257,6 +298,16 @@ const YOLO_ARGS: Record<string, string> = {
 };
 
 /**
+ * REQ-003: the vendor CLI's supported unattended flag, or null when the
+ * vendor has none (freebuff is measured-only and has no CLI at all).
+ * A null here with YOLO on is a deterministic preflight refusal, never a
+ * worker that hangs on an interactive prompt.
+ */
+export function zaicodeWorkerYoloArgs(vendor: ZaicodeEngineAccount["vendor"]): string | null {
+  return YOLO_ARGS[vendor] ?? null;
+}
+
+/**
  * The PowerShell line that starts `account`'s CLI as an interactive worker
  * in `projectPath`, seeded with `prompt`. Account selection is by the
  * vendor's own home variable, set for this console only; secondary Codex
@@ -272,7 +323,8 @@ export function buildZaicodeWorkerCommand(
   // The command is typed into the worker shell and ends with Enter: a line break
   // inside the prompt would press Enter halfway through the quoted string.
   const prompt = options.prompt.replace(/\s*[\r\n]+\s*/g, " ").trim();
-  const yolo = options.yolo ? ` ${YOLO_ARGS[account.vendor] ?? ""}` : "";
+  const args = zaicodeWorkerYoloArgs(account.vendor);
+  const yolo = options.yolo && args ? ` ${args}` : "";
   const parts: string[] = [`Set-Location -LiteralPath ${psQuote(projectPath)}`];
   switch (account.vendor) {
     case "claude": {
@@ -290,7 +342,9 @@ export function buildZaicodeWorkerCommand(
       if (!account.isDefaultHome) {
         parts.push("Remove-Item Env:OPENAI_API_KEY,Env:CODEX_API_KEY,Env:CODEX_ACCESS_TOKEN -ErrorAction SilentlyContinue");
       }
-      parts.push(`& ${psQuote(account.cli)}${yolo}${prompt ? ` ${psQuote(prompt)}` : ""}`);
+      const standalone = account.cliCapabilities?.noDaemon ? " --no-daemon" : "";
+      const hooks = options.yolo && account.cliCapabilities?.hookTrustBypass ? " --dangerously-bypass-hook-trust" : "";
+      parts.push(`& ${psQuote(account.cli)}${yolo}${standalone}${hooks}${prompt ? ` ${psQuote(prompt)}` : ""}`);
       break;
     }
     case "antigravity": {
