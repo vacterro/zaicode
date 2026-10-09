@@ -810,6 +810,14 @@ export default {
     installerIcon: "build/icon_installer.ico",
     uninstallerIcon: "build/icon_installer.ico",
     installerHeaderIcon: "build/icon_installer.ico",
+    // T-275 (SRC-178): installer background image — the user's beautiful
+    // Gemini-generated picture, Win95-style. Shown behind the NSIS wizard
+    // controls while a background install task runs (non-blocking UX).
+    installBackground: {
+      target: "build/zaicode-splash/installer-bg.jpg",
+      width: 512,
+      height: 384,
+    },
   },
   detectUpdateChannel: false,
   publish: {
