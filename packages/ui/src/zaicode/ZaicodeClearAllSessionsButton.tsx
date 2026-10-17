@@ -19,14 +19,15 @@ import {
 } from "@/v4/workspaceConnectionRegistry.js";
 
 /**
- * CLEAR ALL SESSIONS Button (PART 2 & 6).
+ * CLEAR ALL SESSIONS Button (PART 2, 3, 6).
  *
- * Compact label: CLEAR ALL.
+ * Dual-action cleanup control:
+ * - LEFT CLICK: Clear idle sessions without interrupting running agents.
+ * - RIGHT CLICK (or Shift+Click / ContextMenu key): Open confirmed full cleanup.
+ *
  * Tooltip:
- *   Clears completed and unfinished sessions.
- *   Running work will be stopped.
- *   Does not delete project source files or SAIPEN tasks.
- *   Does not continue old sessions.
+ *   Left-click: Clear idle sessions
+ *   Right-click: Clear all sessions, including running
  */
 export function ZaicodeClearAllSessionsButton() {
   const sessions = useZaicodeSessionBriefs((state) => state.sessions);
@@ -37,19 +38,8 @@ export function ZaicodeClearAllSessionsButton() {
   const plan = useMemo(() => planZaicodeClearAllSessions(sessions), [sessions]);
   const count = plan.totalCount;
 
-  const run = async () => {
+  const executeCleanup = async (policy: "IDLE_ONLY" | "ALL_SESSIONS") => {
     if (inFlight.current || busy || count === 0) return;
-
-    if (plan.runningCount > 0 || count > 0) {
-      const confirmed = await confirmDialog({
-        title: "Clear All Sessions",
-        description:
-          "Clears completed and unfinished sessions. Running work will be stopped. Does not delete project source files or SAIPEN tasks. Does not continue old sessions.",
-        confirmLabel: "Clear All Sessions",
-        confirmVariant: "destructive",
-      });
-      if (!confirmed) return;
-    }
 
     inFlight.current = true;
     setBusy(true);
@@ -61,10 +51,12 @@ export function ZaicodeClearAllSessionsButton() {
         workspaces: plan.workspaces,
         taskService: localServices?.zcodeTaskService,
         fallbackSessions: sessions,
+        policy,
       });
 
       const result = await runZaicodeClearAllSessions({
         plan: authoritativePlan,
+        policy,
         taskService: localServices?.zcodeTaskService,
         sessionDataLayer: {
           invalidateSession: (sessionId: string) => {
@@ -84,6 +76,51 @@ export function ZaicodeClearAllSessionsButton() {
     }
   };
 
+  const handleFullCleanPrompt = async () => {
+    if (inFlight.current || busy || count === 0) return;
+
+    const confirmed = await confirmDialog({
+      title: "Clear All Sessions",
+      description:
+        `Clears all sessions, including running sessions and their queued commands.\n\n` +
+        `• Total sessions: ${plan.totalCount}\n` +
+        `• Running sessions: ${plan.runningCount}\n` +
+        `• Queued/waiting sessions: ${plan.waitingCount}\n` +
+        `• Idle sessions: ${plan.idleCount}\n\n` +
+        `Running work will be stopped. Project source files and SAIPEN tasks will be preserved.`,
+      confirmLabel: "Clear Everything",
+      confirmVariant: "destructive",
+    });
+
+    if (!confirmed) return;
+    await executeCleanup("ALL_SESSIONS");
+  };
+
+  const handleClick = (e: React.MouseEvent) => {
+    if (e.button !== 0) return;
+    if (e.shiftKey || e.altKey) {
+      e.preventDefault();
+      e.stopPropagation();
+      void handleFullCleanPrompt();
+      return;
+    }
+    void executeCleanup("IDLE_ONLY");
+  };
+
+  const handleContextMenu = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    void handleFullCleanPrompt();
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "ContextMenu" || (e.shiftKey && (e.key === "Enter" || e.key === " "))) {
+      e.preventDefault();
+      e.stopPropagation();
+      void handleFullCleanPrompt();
+    }
+  };
+
   return (
     <button
       type="button"
@@ -94,10 +131,18 @@ export function ZaicodeClearAllSessionsButton() {
           : "border-border text-foreground-subtlest",
       )}
       disabled={busy || count === 0}
-      title={`CLEAR ALL SESSIONS — Clears completed and unfinished sessions.\n${describeZaicodeClearAllSessions(plan)}`}
-      onClick={() => void run()}
+      title={
+        `CLEAR ALL SESSIONS\n` +
+        `Left-click: Clear idle sessions (${plan.idleCount})\n` +
+        `Right-click: Clear all sessions, including running (${plan.totalCount})\n\n` +
+        describeZaicodeClearAllSessions(plan)
+      }
+      onClick={handleClick}
+      onContextMenu={handleContextMenu}
+      onKeyDown={handleKeyDown}
       data-zaicode-clear-all-sessions={count}
       data-zaicode-clear-all-running={plan.runningCount}
+      data-zaicode-clear-all-idle={plan.idleCount}
       data-zaicode-clear-all-busy={busy ? 1 : 0}
     >
       <BrushCleaning className="size-3.5" />
