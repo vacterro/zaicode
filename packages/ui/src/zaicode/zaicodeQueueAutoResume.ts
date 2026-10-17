@@ -11,7 +11,12 @@ import {
 } from "./zaicodeRetryPolicy.js";
 import { useZaicodeUiPrefs } from "./zaicodeUiPrefs.js";
 import { isZaicodeAutoRetryStoppedForSession } from "./zaicodeAutoRetry.js";
-import { currentZaicodeRetrySafety, writeZaicodeRetrySafety } from "./zaicodeRetrySafety.js";
+import {
+  currentZaicodeRetrySafety,
+  writeZaicodeRetrySafety,
+  type ZaicodeQueueRetryEpisode,
+} from "./zaicodeRetrySafety.js";
+import { isZaicodeCleanupInProgress } from "./zaicodeCleanupFence.js";
 
 /**
  * SRC-081: "The queue was paused because the response failed: none of the promised
@@ -25,13 +30,67 @@ import { currentZaicodeRetrySafety, writeZaicodeRetrySafety } from "./zaicodeRet
  * after a usage-limit wall, visible in the sidebar ledger, and one click there stops it.
  * A queue the operator paused by pressing Stop is never resumed here, and an operator who
  * turned retry off for this project or session is never resumed behind their back.
+ *
+ * T-360: Retry episodes are tracked explicitly per (sessionId, queueHeadId).
+ * setAutoDrain(true) is only permission to drain, not proof that promotion succeeded;
+ * therefore autoDrain === true does NOT clear the retry budget. An episode is only
+ * cleared when the queue truly drains (queueItems === 0), when the queue head item
+ * changes, or when the operator explicitly resumes.
  */
 
+const episodesBySession = new Map<string, ZaicodeQueueRetryEpisode>(
+  Object.entries(currentZaicodeRetrySafety().queueEpisodes ?? {}),
+);
+
 /** Resumes per session in a row; a queue that drains (or a clean finish) starts the count again. */
-const resumesBySession = new Map<string, number>(Object.entries(currentZaicodeRetrySafety().queueResumes));
+const resumesBySession = new Map<string, number>(
+  Object.entries(currentZaicodeRetrySafety().queueResumes),
+);
 
 export function zaicodeQueueResumeAttempts(sessionId: string): number {
-  return resumesBySession.get(sessionId) ?? 0;
+  const fromEpisode = episodesBySession.get(sessionId)?.attempts;
+  if (fromEpisode !== undefined) return fromEpisode;
+  const fromResumes = resumesBySession.get(sessionId);
+  if (fromResumes !== undefined) return fromResumes;
+  const safety = currentZaicodeRetrySafety();
+  return safety.queueEpisodes?.[sessionId]?.attempts ?? safety.queueResumes[sessionId] ?? 0;
+}
+
+export function recordZaicodeQueueResumeAttempt(
+  sessionId: string,
+  params: {
+    projectKey?: string;
+    queueHeadId?: string;
+    attempts?: number;
+    pauseReasonCode?: string | null;
+  } = {},
+): number {
+  const currentAttempts = zaicodeQueueResumeAttempts(sessionId);
+  const nextAttempts = params.attempts ?? currentAttempts + 1;
+  const episode: ZaicodeQueueRetryEpisode = {
+    sessionId,
+    projectKey: params.projectKey,
+    queueHeadId: params.queueHeadId ?? "unknown",
+    attempts: nextAttempts,
+    lastReasonCode: params.pauseReasonCode ?? null,
+    lastAttemptAt: Date.now(),
+  };
+  episodesBySession.set(sessionId, episode);
+  resumesBySession.set(sessionId, nextAttempts);
+  writeZaicodeRetrySafety({
+    queueResumes: Object.fromEntries(resumesBySession),
+    queueEpisodes: Object.fromEntries(episodesBySession),
+  });
+  return nextAttempts;
+}
+
+export function resetZaicodeQueueResume(sessionId: string): void {
+  episodesBySession.delete(sessionId);
+  resumesBySession.delete(sessionId);
+  writeZaicodeRetrySafety({
+    queueResumes: Object.fromEntries(resumesBySession),
+    queueEpisodes: Object.fromEntries(episodesBySession),
+  });
 }
 
 export interface ZaicodeQueueResumeFacts {
@@ -51,7 +110,48 @@ export interface ZaicodeQueueResumeFacts {
   maxAttempts: number;
 }
 
-import { isZaicodeCleanupInProgress } from "./zaicodeCleanupFence.js";
+export type QueuePauseClassification =
+  | "transient"
+  | "wait_for_condition"
+  | "permanent"
+  | "operator_required"
+  | "unknown";
+
+export const PERMANENT_REASON_CODES = new Set([
+  "operator_stopped",
+  "guard.recognizedContinueSaipenValve",
+  "guard.recognizedContinueAuthorizationExpired",
+  "guard.recognizedContinuePlanMode",
+  "guard.recognizedContinueWithoutGoal",
+  "guard.recognizedContinueGoalComplete",
+  "guard.recognizedContinueBudgetExhausted",
+  "guard.recognizedContinueNoOwner",
+  "guard.recognizedContinueSaipenRefused",
+  "emptyObjective",
+]);
+
+export const OPERATOR_REQUIRED_REASON_CODES = new Set([
+  "operator_paused",
+  "guard.recognizedContinueSaipenOperator",
+]);
+
+export const WAIT_FOR_CONDITION_REASON_CODES = new Set([
+  "quota_wall",
+  "quota_exceeded",
+  "rate_limit",
+  "resource_exhausted",
+  "host_reconnecting",
+]);
+
+export const TRANSIENT_REASON_CODES = new Set([
+  "promotion_failed",
+  "guard.recognizedContinueSessionBusy",
+  "guard.recognizedContinueResumeFailed",
+  "guard.recognizedContinueRouterUnavailable",
+  "transport_disconnect",
+  "network_error",
+  "temporary_unavailable",
+]);
 
 export const NON_RECOVERABLE_QUEUE_REASONS = new Set([
   "stopped",
@@ -59,26 +159,59 @@ export const NON_RECOVERABLE_QUEUE_REASONS = new Set([
 ]);
 
 export const NON_RECOVERABLE_REASON_CODES = new Set([
-  "operator_paused",
-  "operator_stopped",
-  "guard.recognizedContinueSaipenOperator",
-  "guard.recognizedContinueSaipenValve",
-  "guard.recognizedContinueAuthorizationExpired",
-  "guard.recognizedContinuePlanMode",
-  "guard.recognizedContinueBudgetExhausted",
-  "guard.recognizedContinueWithoutGoal",
-  "guard.recognizedContinueGoalComplete",
+  ...PERMANENT_REASON_CODES,
+  ...OPERATOR_REQUIRED_REASON_CODES,
 ]);
+
+export function classifyQueuePause(facts: {
+  pauseReason?: string | null;
+  pauseOrigin?: "user" | "system" | string | null;
+  pauseReasonCode?: string | null;
+  quotaWall?: boolean;
+}): QueuePauseClassification {
+  if (facts.quotaWall) return "wait_for_condition";
+  if (facts.pauseReason === "stopped" || facts.pauseReasonCode === "operator_stopped") return "permanent";
+  if (facts.pauseOrigin === "user" || facts.pauseReason === "manual" || facts.pauseReasonCode === "operator_paused") return "operator_required";
+
+  const code = facts.pauseReasonCode;
+  if (!code) {
+    if (facts.pauseReason === "error" || facts.pauseReason === "system_error" || facts.pauseOrigin === "system") {
+      return "transient";
+    }
+    return "unknown";
+  }
+
+  if (OPERATOR_REQUIRED_REASON_CODES.has(code)) return "operator_required";
+  if (PERMANENT_REASON_CODES.has(code)) return "permanent";
+  if (WAIT_FOR_CONDITION_REASON_CODES.has(code)) return "wait_for_condition";
+  if (TRANSIENT_REASON_CODES.has(code)) return "transient";
+
+  if (code.startsWith("validation.") || code.startsWith("auth.") || code.startsWith("security.")) {
+    return "permanent";
+  }
+  if (code.startsWith("guard.")) {
+    return "permanent";
+  }
+
+  if (facts.pauseReason === "error" || facts.pauseReason === "system_error" || facts.pauseOrigin === "system") {
+    return "transient";
+  }
+
+  return "unknown";
+}
 
 export function isQueuePauseRecoverable(facts: {
   pauseReason?: string | null;
   pauseOrigin?: "user" | "system" | string | null;
   pauseReasonCode?: string | null;
+  quotaWall?: boolean;
 }): boolean {
-  if (facts.pauseOrigin === "user") return false;
-  if (facts.pauseReason && NON_RECOVERABLE_QUEUE_REASONS.has(facts.pauseReason)) return false;
-  if (facts.pauseReasonCode && NON_RECOVERABLE_REASON_CODES.has(facts.pauseReasonCode)) return false;
-  return facts.pauseReason === "error" || facts.pauseReason === "system_error" || facts.pauseOrigin === "system";
+  if (facts.pauseReason !== "error" && facts.pauseReason !== "system_error") {
+    if (facts.pauseReason === "stopped" || facts.pauseReason === "manual") {
+      return false;
+    }
+  }
+  return classifyQueuePause(facts) === "transient";
 }
 
 /** Pure: should an error-paused queue resume by itself now? */
@@ -86,7 +219,6 @@ export function zaicodeQueueMayAutoResume(facts: ZaicodeQueueResumeFacts): boole
   if (isZaicodeCleanupInProgress()) return false;
   if (!facts.hasSession || facts.queueItems === 0 || facts.autoDrain) return false;
   if (!isQueuePauseRecoverable(facts)) return false;
-  if (facts.pauseReason !== "error" && facts.pauseReason !== "system_error" && facts.pauseOrigin !== "system") return false;
   if (facts.phase === "running" || facts.phase === "prewarming") return false;
   if (facts.quotaWall || !facts.mayAutoSend) return false;
   return facts.attempts < facts.maxAttempts;
@@ -94,17 +226,6 @@ export function zaicodeQueueMayAutoResume(facts: ZaicodeQueueResumeFacts): boole
 
 /**
  * The one gate this owner asks before it resumes an error-paused queue.
- *
- * SRC-081 put the queue under "the same leash as every automatic retry
- * (zaicodeRetryPolicy)". The other three automatic-send owners -- the open chat's
- * countdown, the background retry host and the crash resume -- ask
- * zaicodeEffectiveAutoRetry. This owner asked zaicodeMayAutoSend instead, which
- * answers a different question: a session whose own auto-continue is explicitly On
- * was allowed to resume the queue while the Auto Retry surface reported "off" from
- * the project/session/global retry preference, and an explicit per-project retry ON
- * was ignored because that gate only saw the global flag. Two answers to one
- * question is the defect; this is the single answer, and it is the conservative one
- * -- the operator's explicit OFF wins.
  */
 export function zaicodeQueueAutoSendAllowed(input: {
   enabled: boolean;
@@ -161,13 +282,33 @@ export function useZaicodeQueueAutoResume(params: {
   const sessionMode = useZaicodeAutoContinue((state) => (sessionId ? state.modes[sessionId] : undefined));
   const halted = useZaicodeRetryLedger((state) => state.halted);
 
-  // A drained queue or a clean finish starts the count again.
+  // Episode lifecycle management:
+  // A truly drained queue (queueItems === 0 && phase !== null) clears the episode.
+  // A queue head item replacement (queueItemId !== episode.queueHeadId) resets the episode for the new item.
+  // CRITICAL: autoDrain === true does NOT clear the episode; setAutoDrain(true) is only permission to drain.
   useEffect(() => {
-    // T-240：首帧到达前的默认空队列不是事实，不能清掉刚恢复的持久预算。
-    if (sessionId && phase !== null && (autoDrain || queueItems === 0) && resumesBySession.delete(sessionId)) {
-      writeZaicodeRetrySafety({ queueResumes: Object.fromEntries(resumesBySession) });
+    if (!sessionId || phase === null) return;
+    if (queueItems === 0) {
+      if (episodesBySession.has(sessionId) || resumesBySession.has(sessionId)) {
+        episodesBySession.delete(sessionId);
+        resumesBySession.delete(sessionId);
+        writeZaicodeRetrySafety({
+          queueResumes: Object.fromEntries(resumesBySession),
+          queueEpisodes: Object.fromEntries(episodesBySession),
+        });
+      }
+    } else if (queueItemId) {
+      const current = episodesBySession.get(sessionId);
+      if (current && current.queueHeadId !== queueItemId) {
+        episodesBySession.delete(sessionId);
+        resumesBySession.delete(sessionId);
+        writeZaicodeRetrySafety({
+          queueResumes: Object.fromEntries(resumesBySession),
+          queueEpisodes: Object.fromEntries(episodesBySession),
+        });
+      }
     }
-  }, [autoDrain, phase, queueItems, sessionId]);
+  }, [phase, queueItemId, queueItems, sessionId]);
 
   const attempts = sessionId ? zaicodeQueueResumeAttempts(sessionId) : 0;
   const allowed = zaicodeQueueMayAutoResume({
@@ -195,19 +336,22 @@ export function useZaicodeQueueAutoResume(params: {
 
   useEffect(() => {
     if (!allowed || !sessionId) return undefined;
-    // T-302: one nominal interval, no 2^attempts ladder (a queued resume waited as long
-    // as a turn retry's sixth attempt).
     const delay = zaicodeRetryDelayMs(Math.min(intervalSec, 20));
     const at = Date.now() + delay;
     useZaicodeRetryLedger.getState().set({ sessionId, title: "queued message", nextAt: at, attempt: attempts + 1, source: "chat" });
     const timer = window.setTimeout(() => {
-      // T-240：停止错误或 stop-all 可能晚于排队；发送前必须重新读取同一个权限所有者。
       if (isZaicodeAutoRetryStoppedForSession(sessionId) || !zaicodeQueueAutoSendAllowed({
         enabled, halted: useZaicodeRetryLedger.getState().halted, projectKey, sessionId,
         prefs: useZaicodeUiPrefs.getState(), sessionMode: zaicodeAutoContinueModeFor(sessionId),
       })) return;
-      resumesBySession.set(sessionId, (resumesBySession.get(sessionId) ?? 0) + 1);
-      writeZaicodeRetrySafety({ queueResumes: Object.fromEntries(resumesBySession) });
+
+      const nextAttempts = recordZaicodeQueueResumeAttempt(sessionId, {
+        projectKey,
+        queueHeadId: queueItemId ?? "unknown",
+        attempts: attempts + 1,
+        pauseReasonCode,
+      });
+
       useZaicodeRetryLedger.getState().clear(sessionId);
       logger.info("[zaicode] queue auto-resume", {
         sessionId,
@@ -217,7 +361,7 @@ export function useZaicodeQueueAutoResume(params: {
         originatingCommand: originatingCommand ?? null,
         hostAcknowledgement: "pending_resume",
         recoveryEligibility: true,
-        attempt: attempts + 1,
+        attempt: nextAttempts,
       });
       void Promise.resolve(resume()).catch((error: unknown) =>
         logger.warn("[zaicode] queue auto-resume failed", { error: error instanceof Error ? error.message : String(error) }),

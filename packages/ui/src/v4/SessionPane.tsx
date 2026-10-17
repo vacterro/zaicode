@@ -153,7 +153,7 @@ import {
 import { useZaicodeAutoSessionTitle } from "@/zaicode/zaicodeAutoTitle.js";
 import { useZaicodeAutoRetry } from "@/zaicode/zaicodeAutoRetry.js";
 import { splitZaicodeAutoGoal } from "@/zaicode/zaicodeAutoGoal.js";
-import { useZaicodeQueueAutoResume } from "@/zaicode/zaicodeQueueAutoResume.js";
+import { useZaicodeQueueAutoResume, resetZaicodeQueueResume } from "@/zaicode/zaicodeQueueAutoResume.js";
 import { zaicodeRunClock } from "@/zaicode/zaicodeRunClock.js";
 import { zaicodeRetryClassOf } from "@/zaicode/zaicodeRetryPolicy.js";
 import { buildZaicodeA3Command } from "@/zaicode/zaicodeA3.js";
@@ -3546,6 +3546,7 @@ export function SessionPane({
     if (!sessionId || !current || current.queue.autoDrain || current.queue.items.length === 0) {
       return;
     }
+    resetZaicodeQueueResume(sessionId);
     const ack = await dispatchCommand(
       "setAutoDrain",
       { autoDrain: true },

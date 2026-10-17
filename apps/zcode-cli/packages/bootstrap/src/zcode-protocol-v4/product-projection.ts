@@ -3726,23 +3726,64 @@ export class ProductProjection {
   private onQueueAutoDrainChanged(event: SessionEvent): ConversationDelta[] {
     const payload = (event.payload ?? {}) as Partial<QueueAutoDrainChangedPayload>;
     const autoDrain = payload.autoDrain ?? true;
-    if (
-      this.snapshot.queue.autoDrain === autoDrain &&
-      (autoDrain || this.snapshot.queue.pauseReason === (payload.pauseReason ?? (payload.pauseOrigin === "system" ? "error" : "manual")))
-    ) {
-      return [];
-    }
-    const queue = { ...this.snapshot.queue, autoDrain };
+
     if (autoDrain) {
+      if (this.snapshot.queue.autoDrain === true) {
+        return [];
+      }
+      const queue = { ...this.snapshot.queue, autoDrain: true };
       delete queue.pauseReason;
       delete queue.pauseOrigin;
       delete queue.pauseReasonCode;
-    } else {
-      queue.pauseReason = payload.pauseReason ?? (payload.pauseOrigin === "system" ? "error" : "manual");
-      queue.pauseOrigin = payload.pauseOrigin ?? "user";
-      if (payload.pauseReasonCode ?? payload.reasonCode) {
-        queue.pauseReasonCode = payload.pauseReasonCode ?? payload.reasonCode;
+      return [
+        {
+          op: "state.updated",
+          patch: this.queuePatch(queue),
+        },
+      ];
+    }
+
+    const incomingOrigin: "user" | "system" =
+      payload.pauseOrigin ??
+      (payload.pauseReason === "error" || payload.pauseReason === "system_error" ? "system" : "user");
+    const incomingReason: "stopped" | "manual" | "error" | "system_error" =
+      payload.pauseReason ?? (incomingOrigin === "system" ? "error" : "manual");
+    const incomingReasonCode: string | undefined =
+      payload.pauseReasonCode ?? payload.reasonCode ?? undefined;
+
+    if (this.snapshot.queue.autoDrain === false) {
+      const currentOrigin = this.snapshot.queue.pauseOrigin ?? "user";
+      const currentReason = this.snapshot.queue.pauseReason;
+      const currentReasonCode = this.snapshot.queue.pauseReasonCode;
+
+      const isCurrentOperator = currentOrigin === "user" || currentReason === "stopped" || currentReason === "manual";
+      const isCurrentSaipen = currentReasonCode?.startsWith("guard.recognizedContinueSaipen");
+      const isIncomingOperator = incomingOrigin === "user" || incomingReason === "stopped" || incomingReason === "manual";
+      const isIncomingSaipen = incomingReasonCode?.startsWith("guard.recognizedContinueSaipen");
+
+      if (isCurrentOperator && !isIncomingOperator) {
+        return [];
       }
+      if (isCurrentSaipen && !isIncomingOperator && !isIncomingSaipen) {
+        return [];
+      }
+
+      const isNoOp =
+        currentReason === incomingReason &&
+        currentOrigin === incomingOrigin &&
+        (currentReasonCode ?? undefined) === incomingReasonCode;
+      if (isNoOp) {
+        return [];
+      }
+    }
+
+    const queue = { ...this.snapshot.queue, autoDrain: false };
+    queue.pauseReason = incomingReason;
+    queue.pauseOrigin = incomingOrigin;
+    if (incomingReasonCode) {
+      queue.pauseReasonCode = incomingReasonCode;
+    } else {
+      delete queue.pauseReasonCode;
     }
     return [
       {

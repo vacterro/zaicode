@@ -27,18 +27,31 @@ const STOPPED_LIMIT = 40;
 /** Quota walls, same ceiling as the live map. */
 const WALL_LIMIT = 200;
 
+export interface ZaicodeQueueRetryEpisode {
+  sessionId: string;
+  projectKey?: string;
+  queueHeadId: string;
+  attempts: number;
+  lastReasonCode?: string | null;
+  lastAttemptAt?: number;
+}
+
 export interface ZaicodeRetrySafetyRecord {
   /** The sidebar's stop-all: no automatic send goes out until the operator allows it again. */
   halted: boolean;
   /** Attempts already spent per session, so a reload does not hand out a fresh budget. */
   attempts: Record<string, number>;
+  /** Error-paused queue resumes have a distinct budget, retained across renderer reload. */
+  queueResumes: Record<string, number>;
+  /** Explicit retry episodes for error-paused queue heads, retained across reload. */
+  queueEpisodes?: Record<string, ZaicodeQueueRetryEpisode>;
   /** Errors the operator closed: their retry stays off after the reload. */
   stoppedErrors: string[];
   /** Session -> epoch ms of the quota wall, so a reload does not ask an exhausted account again. */
   quotaWalls: Record<string, number>;
 }
 
-const EMPTY: ZaicodeRetrySafetyRecord = { halted: false, attempts: {}, stoppedErrors: [], quotaWalls: {} };
+const EMPTY: ZaicodeRetrySafetyRecord = { halted: false, attempts: {}, queueResumes: {}, stoppedErrors: [], quotaWalls: {} };
 
 function bounded<T>(entries: [string, T][], limit: number): Record<string, T> {
   return Object.fromEntries(entries.slice(Math.max(0, entries.length - limit)));
@@ -56,6 +69,14 @@ export function readZaicodeRetrySafety(): ZaicodeRetrySafetyRecord {
   try {
     const parsed = JSON.parse(raw) as Partial<ZaicodeRetrySafetyRecord>;
     const attempts = parsed.attempts && typeof parsed.attempts === "object" ? parsed.attempts : {};
+    const queueResumes = parsed.queueResumes && typeof parsed.queueResumes === "object" ? parsed.queueResumes : {};
+    const rawEpisodes = parsed.queueEpisodes && typeof parsed.queueEpisodes === "object" ? parsed.queueEpisodes : {};
+    const queueEpisodes: Record<string, ZaicodeQueueRetryEpisode> = {};
+    for (const [k, v] of Object.entries(rawEpisodes)) {
+      if (v && typeof v === "object" && typeof (v as any).queueHeadId === "string" && typeof (v as any).attempts === "number") {
+        queueEpisodes[k] = v as ZaicodeQueueRetryEpisode;
+      }
+    }
     const walls = parsed.quotaWalls && typeof parsed.quotaWalls === "object" ? parsed.quotaWalls : {};
     return {
       halted: parsed.halted === true,
@@ -64,6 +85,12 @@ export function readZaicodeRetrySafety(): ZaicodeRetrySafetyRecord {
           .filter(([, value]) => typeof value === "number" && Number.isFinite(value) && value > 0)
           .slice(-ATTEMPT_LIMIT),
       ),
+      queueResumes: Object.fromEntries(
+        Object.entries(queueResumes)
+          .filter(([, value]) => typeof value === "number" && Number.isFinite(value) && value > 0)
+          .slice(-ATTEMPT_LIMIT),
+      ),
+      queueEpisodes: bounded(Object.entries(queueEpisodes), ATTEMPT_LIMIT),
       stoppedErrors: Array.isArray(parsed.stoppedErrors)
         ? parsed.stoppedErrors.filter((key): key is string => typeof key === "string" && key.length > 0).slice(-STOPPED_LIMIT)
         : [],
@@ -90,6 +117,10 @@ export function currentZaicodeRetrySafety(): ZaicodeRetrySafetyRecord {
 export function writeZaicodeRetrySafety(patch: Partial<ZaicodeRetrySafetyRecord>): void {
   const next: ZaicodeRetrySafetyRecord = { ...currentZaicodeRetrySafety(), ...patch };
   next.attempts = bounded(Object.entries(next.attempts), ATTEMPT_LIMIT);
+  next.queueResumes = bounded(Object.entries(next.queueResumes), ATTEMPT_LIMIT);
+  if (next.queueEpisodes) {
+    next.queueEpisodes = bounded(Object.entries(next.queueEpisodes), ATTEMPT_LIMIT);
+  }
   next.quotaWalls = bounded(Object.entries(next.quotaWalls), WALL_LIMIT);
   next.stoppedErrors = next.stoppedErrors.slice(-STOPPED_LIMIT);
   cache = next;
@@ -102,7 +133,7 @@ export function writeZaicodeRetrySafety(patch: Partial<ZaicodeRetrySafetyRecord>
 
 /** Forgets everything: the operator re-enabled the senders, or a test needs a clean sheet. */
 export function clearZaicodeRetrySafety(): void {
-  cache = { ...EMPTY, attempts: {}, stoppedErrors: [], quotaWalls: {} };
+  cache = { ...EMPTY, attempts: {}, queueResumes: {}, stoppedErrors: [], quotaWalls: {} };
   try {
     localStorage.removeItem(ZAICODE_RETRY_SAFETY_STORAGE_KEY);
   } catch {

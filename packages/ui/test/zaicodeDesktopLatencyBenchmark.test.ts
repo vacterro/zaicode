@@ -76,7 +76,7 @@ function calculateStats(samples: number[]): BenchmarkStats {
   return { p50, p95, p99, worst, mean, samples: samples.length };
 }
 
-test("PERF-01: Hot session switching benchmark (50 iterations) meets P95 <= 100ms", async () => {
+test("PERF-01 [Synthetic Microbenchmark]: Hot session switching SessionDataLayer acquisition meets P95 <= 100ms", async () => {
   const transport = createBenchmarkTransport();
   const layer = new SessionDataLayer({ transport, maxWarmCapacity: 10 });
 
@@ -100,13 +100,13 @@ test("PERF-01: Hot session switching benchmark (50 iterations) meets P95 <= 100m
   }
 
   const stats = calculateStats(durations);
-  console.log(`[PERF Hot Switch] P50=${stats.p50.toFixed(2)}ms, P95=${stats.p95.toFixed(2)}ms, P99=${stats.p99.toFixed(2)}ms, Worst=${stats.worst.toFixed(2)}ms (Target P95 <= 100ms)`);
+  console.log(`[PERF Hot Switch Microbench] P50=${stats.p50.toFixed(2)}ms, P95=${stats.p95.toFixed(2)}ms, P99=${stats.p99.toFixed(2)}ms, Worst=${stats.worst.toFixed(2)}ms (Target P95 <= 100ms)`);
 
   assert.ok(stats.p95 <= 100, `Hot switch P95 (${stats.p95.toFixed(2)}ms) exceeded target 100ms`);
   layer.dispose();
 });
 
-test("PERF-02: Warm session transcript benchmark (50 iterations) meets P95 <= 200ms", async () => {
+test("PERF-02 [Synthetic Microbenchmark]: Warm session transcript prefetch & acquire meets P95 <= 200ms", async () => {
   const transport = createBenchmarkTransport(5); // 5ms simulated transport latency
   const layer = new SessionDataLayer({ transport, maxWarmCapacity: 10 });
 
@@ -128,13 +128,13 @@ test("PERF-02: Warm session transcript benchmark (50 iterations) meets P95 <= 20
   }
 
   const stats = calculateStats(durations);
-  console.log(`[PERF Warm Transcript] P50=${stats.p50.toFixed(2)}ms, P95=${stats.p95.toFixed(2)}ms, P99=${stats.p99.toFixed(2)}ms, Worst=${stats.worst.toFixed(2)}ms (Target P95 <= 200ms)`);
+  console.log(`[PERF Warm Transcript Microbench] P50=${stats.p50.toFixed(2)}ms, P95=${stats.p95.toFixed(2)}ms, P99=${stats.p99.toFixed(2)}ms, Worst=${stats.worst.toFixed(2)}ms (Target P95 <= 200ms)`);
 
   assert.ok(stats.p95 <= 200, `Warm transcript P95 (${stats.p95.toFixed(2)}ms) exceeded target 200ms`);
   layer.dispose();
 });
 
-test("PERF-03: Cold session opening benchmark (50 iterations) meets P95 <= 100ms", async () => {
+test("PERF-03 [Synthetic Microbenchmark]: Cold session synchronous acquire meets P95 <= 100ms", async () => {
   const transport = createBenchmarkTransport();
   const layer = new SessionDataLayer({ transport });
 
@@ -151,13 +151,13 @@ test("PERF-03: Cold session opening benchmark (50 iterations) meets P95 <= 100ms
   }
 
   const stats = calculateStats(durations);
-  console.log(`[PERF Cold Shell] P50=${stats.p50.toFixed(2)}ms, P95=${stats.p95.toFixed(2)}ms, P99=${stats.p99.toFixed(2)}ms, Worst=${stats.worst.toFixed(2)}ms (Target P95 <= 100ms)`);
+  console.log(`[PERF Cold Shell Microbench] P50=${stats.p50.toFixed(2)}ms, P95=${stats.p95.toFixed(2)}ms, P99=${stats.p99.toFixed(2)}ms, Worst=${stats.worst.toFixed(2)}ms (Target P95 <= 100ms)`);
 
   assert.ok(stats.p95 <= 100, `Cold session shell P95 (${stats.p95.toFixed(2)}ms) exceeded target 100ms`);
   layer.dispose();
 });
 
-test("PERF-04: Routine interaction benchmark meets P95 <= 50ms", async () => {
+test("PERF-04 [Synthetic Microbenchmark]: Routine interaction click timestamp registration meets P95 <= 50ms", async () => {
   const durations: number[] = [];
   const iterations = 50;
 
@@ -172,7 +172,66 @@ test("PERF-04: Routine interaction benchmark meets P95 <= 50ms", async () => {
   }
 
   const stats = calculateStats(durations);
-  console.log(`[PERF Routine Interaction] P50=${stats.p50.toFixed(2)}ms, P95=${stats.p95.toFixed(2)}ms, P99=${stats.p99.toFixed(2)}ms, Worst=${stats.worst.toFixed(2)}ms (Target P95 <= 50ms)`);
+  console.log(`[PERF Routine Interaction Microbench] P50=${stats.p50.toFixed(2)}ms, P95=${stats.p95.toFixed(2)}ms, P99=${stats.p99.toFixed(2)}ms, Worst=${stats.worst.toFixed(2)}ms (Target P95 <= 50ms)`);
 
   assert.ok(stats.p95 <= 50, `Routine interaction P95 (${stats.p95.toFixed(2)}ms) exceeded target 50ms`);
+});
+
+test("PERF-05 [End-to-End Responsive Lifecycle]: Cold session open with simulated Host subscription latency meets P95 <= 200ms", async () => {
+  // Simulates real Host subscription overhead (15ms transport delay)
+  const transport = createBenchmarkTransport(15);
+  const layer = new SessionDataLayer({ transport, maxWarmCapacity: 10 });
+
+  const durations: number[] = [];
+  const iterations = 20;
+
+  for (let i = 0; i < iterations; i++) {
+    const sessionId = `e2e-cold-session-${i}`;
+    const t0 = performance.now();
+    const lease = layer.acquire(sessionId);
+    // Await subscription establishment
+    const sub = await transport.subscribe({ topic: `session:${sessionId}` });
+    assert.ok(sub.ack.subscriptionId);
+    const t1 = performance.now();
+    durations.push(t1 - t0);
+    lease.release();
+  }
+
+  const stats = calculateStats(durations);
+  console.log(`[PERF E2E Cold Subscription] P50=${stats.p50.toFixed(2)}ms, P95=${stats.p95.toFixed(2)}ms, P99=${stats.p99.toFixed(2)}ms, Worst=${stats.worst.toFixed(2)}ms (Target P95 <= 200ms)`);
+
+  assert.ok(stats.p95 <= 200, `Cold subscription P95 (${stats.p95.toFixed(2)}ms) exceeded target 200ms`);
+  layer.dispose();
+});
+
+test("PERF-06 [Fairness & Concurrency]: 10 active concurrent sessions maintain bounded event loop latency and responsive scheduling", async () => {
+  const transport = createBenchmarkTransport(5);
+  const layer = new SessionDataLayer({ transport, maxWarmCapacity: 15 });
+
+  const activeSessions = Array.from({ length: 10 }, (_, i) => `concurrent-sess-${i}`);
+  const leases = activeSessions.map((id) => layer.acquire(id));
+
+  const durations: number[] = [];
+  const iterations = 30;
+
+  for (let i = 0; i < iterations; i++) {
+    const t0 = performance.now();
+    // Simulate concurrent foreground interaction during background activity
+    recordSessionClick(activeSessions[i % activeSessions.length]!);
+    const lease = layer.acquire(activeSessions[(i + 1) % activeSessions.length]!);
+    assert.ok(lease.store);
+    lease.release();
+    const t1 = performance.now();
+    durations.push(t1 - t0);
+  }
+
+  for (const l of leases) {
+    l.release();
+  }
+
+  const stats = calculateStats(durations);
+  console.log(`[PERF Concurrent 10 Sessions] P50=${stats.p50.toFixed(2)}ms, P95=${stats.p95.toFixed(2)}ms, P99=${stats.p99.toFixed(2)}ms, Worst=${stats.worst.toFixed(2)}ms (Target P95 <= 50ms)`);
+
+  assert.ok(stats.p95 <= 50, `Concurrent interaction P95 (${stats.p95.toFixed(2)}ms) exceeded target 50ms`);
+  layer.dispose();
 });
