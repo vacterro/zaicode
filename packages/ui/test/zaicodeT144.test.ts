@@ -161,7 +161,7 @@ test("SRC-112: the chip is mounted above the SAIPEN strip, Collect sends the col
   assert.match(editor, /<ZaicodeSubOutboxChip/);
   assert.equal(editor.split(/<ZaicodeSubOutboxChip/g).length - 1, 1);
   // One sender for both, so a command goes out the same way either way.
-  assert.equal(editor.split(/onCommand=\{sendProjectCommand\}/g).length - 1, 2);
+  assert.equal(editor.split(/onCommand=\{handleProjectCommand\}/g).length - 1, 2);
   const strip = sourceOf("../src/prompt-editor/ZaicodeSaipenControls.tsx");
   assert.equal(strip.includes("ZaicodeSubOutboxChip"), false);
 });
