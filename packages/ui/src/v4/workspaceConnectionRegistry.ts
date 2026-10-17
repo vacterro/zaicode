@@ -262,3 +262,23 @@ export function acquireWorkspaceConnection(
     },
   };
 }
+
+/**
+ * Clean Slate cross-layer invalidation: Invalidate a session projection and cancel its prefetch
+ * across all active workspace connection layers without disturbing unrelated live sessions.
+ */
+export function invalidateSessionAcrossWorkspaceConnections(sessionId: string): void {
+  for (const entry of registry.values()) {
+    entry.layer.invalidateSession(sessionId);
+  }
+}
+
+/**
+ * Clean Slate cross-layer warm pool clearing: Discards unheld warm projections across all registered layers.
+ */
+export function clearWarmPoolAcrossWorkspaceConnections(): void {
+  for (const entry of registry.values()) {
+    entry.layer.clearWarmPool();
+  }
+}
+

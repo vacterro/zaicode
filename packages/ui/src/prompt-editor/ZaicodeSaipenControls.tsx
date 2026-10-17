@@ -1,18 +1,22 @@
+/* oxlint-disable eslint(max-lines) -- saipen controls bar wiring */
 import { openZaicodeSaipenView } from "@/zaicode/zaicodeActions.js";
 import { Button } from "@/components/ui/button.js";
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import {
   ZAICODE_SAIPEN_START_COMMAND,
-  hasZaicodePendingCommand,
+  useZaicodeAfterClear,
   useZaicodeClearSession,
   useZaicodeFreshSession,
   useZaicodeOpenSession,
-  useZaicodePendingCommand,
   useZaicodeSaipen,
 } from "@/zaicode/zaicodeSaipen.js";
-import { useZaicodeProjectRuntime, zaicodeSaipenHeadline } from "@/zaicode/zaicodeProjectRuntime.js";
+import {
+  useZaicodeProjectRuntime,
+  zaicodeSaipenHeadline,
+} from "@/zaicode/zaicodeProjectRuntime.js";
 import {
   ZAICODE_SAIPEN_MODES,
+  resolveZaicodeModeAction,
   useZaicodeMainSessionId,
   useZaicodeMainSessions,
   zaicodeMainSessionKey,
@@ -20,7 +24,7 @@ import {
 import { useZaicodeRunningSessions } from "@/zaicode/zaicodeSidebarPrefs.js";
 import { useZaicodeActiveEngine, useZaicodeEngines } from "@/zaicode/zaicodeEngines.js";
 import { routeZaicodeSubscriptionPrompt } from "@/zaicode/zaicodeSubscriptionRoute.js";
-import { useZaicodeSessionRoles, zaicodeRoleForCommand } from "@/zaicode/zaicodeSessionRoles.js";
+import { useZaicodeSessionRoles } from "@/zaicode/zaicodeSessionRoles.js";
 import { useZaicodeUiPrefs } from "@/zaicode/zaicodeUiPrefs.js";
 import { registerZaicodeHotkeyHandler } from "@/zaicode/zaicodeHotkeys.js";
 import { useZaicodeComposerPrefs } from "@/zaicode/zaicodeComposerPrefs.js";
@@ -29,19 +33,24 @@ import {
   ZaicodeSaipenCompactRow,
   ZaicodeSaipenLine,
   ZaicodeSaipenModesRow,
+  ZaicodeSaipenSlotBadge,
 } from "./ZaicodeSaipenCompact.js";
+import { useZaicodeModeCommands } from "./useZaicodeModeCommands.js";
+import { planZaicodeStart, zaicodeStartCopy } from "./zaicodeStartPlan.js";
 
 /**
  * ZAICODE SAIPEN strip above the composer toolbar.
  *
- * Every project has one MAIN session (the "iron slot"): START runs
- * `/goal cc all` (continue and close every ticket that needs no human) in a
- * FRESH session and makes it MAIN; STEP sends one `cc` here; CLEAR empties
- * this session in place (Settings can switch it to "open a new session"). Other sessions are side slots: while MAIN is working,
- * the subSaipens that are safe to run next to it (WIKI, TRANSL, TEST, AUDIT)
- * are highlighted there, so parallel work is one click away. The phase chip
- * is tinted by board state (red blocked, gold working, green done). Projects
- * without `.saipen/` get a one-click INIT.
+ * Every project has one MAIN session (the "iron slot"): START sends
+ * `/goal cc all` (continue and close every ticket that needs no human) in the
+ * session that has focus -- a plain click never opens a new one; Shift+click
+ * empties that session first and sends the goal once the clear is done; STEP
+ * sends one `cc` here; CLEAR empties this session in place (Settings can switch
+ * it to "open a new session"). Other sessions are side slots: while MAIN is
+ * working, the subSaipens that are safe to run next to it (WIKI, TRANSL, TEST,
+ * HUNT) are highlighted on Shift, so helper work stays separate from Core. The phase
+ * chip is tinted by board state (red blocked, gold working, green done).
+ * Projects without `.saipen/` get a one-click INIT.
  */
 export function ZaicodeSaipenControls({
   workspacePath,
@@ -49,12 +58,18 @@ export function ZaicodeSaipenControls({
   sessionId,
   disabled,
   onCommand,
+  onDirectCommand,
+  queueCount,
+  endActions,
 }: {
   workspacePath: string;
   workspaceIdentity?: string;
   sessionId?: string | null;
   disabled: boolean;
-  onCommand: (command: string) => void;
+  onCommand: (command: string) => boolean | void;
+  onDirectCommand?: (command: string) => Promise<boolean | void> | boolean | void;
+  queueCount?: number;
+  endActions?: ReactNode;
 }) {
   const saipen = useZaicodeSaipen(workspacePath, workspaceIdentity);
   const composer = useZaicodeComposerPrefs();
@@ -69,27 +84,31 @@ export function ZaicodeSaipenControls({
   const mainWorking = useZaicodeRunningSessions((state) =>
     mainId ? state.sessions.some((session) => session.sessionId === mainId) : false,
   );
-  // 项目行 START：新草稿挂载后，一旦可提交就发送排队的命令（只消费一次）。
-  const hasPending = useZaicodePendingCommand((state) =>
-    hasZaicodePendingCommand(state, workspacePath),
-  );
-  const takePending = useZaicodePendingCommand((state) => state.take);
   const openFreshSession = useZaicodeFreshSession((state) => state.open);
-  useEffect(() => {
-    if (!hasPending || disabled || sessionId) return;
-    const command = takePending(workspacePath);
-    if (command) onCommand(command);
-  }, [disabled, hasPending, onCommand, sessionId, takePending, workspacePath]);
+  const { shiftPressed, runMode } = useZaicodeModeCommands({
+    workspacePath,
+    workspaceIdentity,
+    sessionId,
+    mainId,
+    mainKey,
+    mainWorking,
+    disabled,
+    onCommand,
+    onDirectCommand,
+    queueCount,
+  });
   // START 从草稿发出后，草稿一旦变成真实会话，就成为本项目的 MAIN。
-  const armRole = useZaicodeSessionRoles((state) => state.arm);
   const claimRoleIfArmed = useZaicodeSessionRoles((state) => state.claimIfArmed);
   useEffect(() => {
-    if (sessionId) claimIfArmed(mainKey, sessionId);
-    if (sessionId) claimRoleIfArmed(mainKey, sessionId);
+    if (sessionId) {
+      claimIfArmed(mainKey, sessionId);
+      claimRoleIfArmed(mainKey, sessionId);
+    }
   }, [claimIfArmed, claimRoleIfArmed, mainKey, sessionId]);
 
   const activeEngineId = useZaicodeActiveEngine();
-  const engineAccount = useZaicodeEngines().accounts.find((account) => account.id === activeEngineId) ?? null;
+  const engineAccount =
+    useZaicodeEngines().accounts.find((account) => account.id === activeEngineId) ?? null;
   const isMain = Boolean(sessionId) && sessionId === mainId;
   const isSideSlot = Boolean(mainId) && !isMain;
   const parallelHint = mainWorking && isSideSlot;
@@ -102,36 +121,40 @@ export function ZaicodeSaipenControls({
     }
     onCommand(command);
   };
+  // T-318 Shift+START: the pane arms the goal once the in-place clear is
+  // acknowledged; this composer is the one that submits it, like any command.
+  const afterClear = useZaicodeAfterClear((state) => state.request);
+  const takeAfterClear = useZaicodeAfterClear((state) => state.take);
+  useEffect(() => {
+    if (!afterClear || disabled || !sessionId || afterClear.sessionId !== sessionId) return;
+    const command = takeAfterClear(sessionId);
+    if (command) sendWork(command);
+  }, [afterClear, disabled, sendWork, sessionId, takeAfterClear]);
   const start = (event?: { shiftKey: boolean }) => {
-    // Shift 明确指定当前会话；不能走新 MAIN 或订阅 worker 的分支。
-    if (event?.shiftKey) {
-      if (!disabled) sendWork(ZAICODE_SAIPEN_START_COMMAND);
-      return;
-    }
+    const plan = planZaicodeStart({
+      shiftKey: Boolean(event?.shiftKey),
+      disabled,
+      sessionId: sessionId ?? null,
+      engineAccount,
+    });
     // A subscription engine picked on the sidebar: START runs its CLI as a worker in this project.
-    if (engineAccount) {
+    if (plan.kind === "worker" && engineAccount) {
       routeZaicodeSubscriptionPrompt(engineAccount, workspacePath);
       return;
     }
-    // START 永远在新会话里跑目标，并把那个会话设为 MAIN。
-    armMain(mainKey);
-    if (sessionId) openFreshSession(workspacePath, workspaceIdentity, ZAICODE_SAIPEN_START_COMMAND);
-    else onCommand(ZAICODE_SAIPEN_START_COMMAND);
+    if (plan.kind === "send") {
+      sendWork(ZAICODE_SAIPEN_START_COMMAND);
+      return;
+    }
+    if (plan.kind === "clearThenSend" && sessionId) {
+      // Shift: wipe THIS session in place (never a new one), then let the pane
+      // hand the goal back to this composer once the clear is acknowledged.
+      requestClear(sessionId, ZAICODE_SAIPEN_START_COMMAND);
+    }
   };
-  const runMode = (command: string) => {
-    // The helper's session keeps its role icon even after it is renamed.
-    const role = zaicodeRoleForCommand(command);
-    if (role) armRole(mainKey, role);
-    // 侧槽的空草稿里直接跑子角色；已有会话或 MAIN 里则另开一个新会话，互不打扰。
-    if (!sessionId && !isMainDraftCandidate()) onCommand(command);
-    else openFreshSession(workspacePath, workspaceIdentity, command);
-  };
-  /** A draft in a project without MAIN is where MAIN will be born: keep it for START. */
-  function isMainDraftCandidate(): boolean {
-    return !sessionId && !mainId;
-  }
   const buttonClass =
     "h-6 shrink-0 border border-border bg-selected px-3 text-ui-xs text-foreground hover:bg-hover";
+  const startCopy = zaicodeStartCopy(engineAccount);
 
   const clearMode = useZaicodeUiPrefs((state) => state.clearMode);
   const requestClear = useZaicodeClearSession((state) => state.clear);
@@ -152,7 +175,11 @@ export function ZaicodeSaipenControls({
       disabled={!sessionId}
       onClick={clear}
       data-zaicode-sound="saipen.clear"
-      aria-label={clearMode === "new" ? "Clear: start over in a new empty session" : "Clear: empty this session"}
+      aria-label={
+        clearMode === "new"
+          ? "Clear: start over in a new empty session"
+          : "Clear: empty this session"
+      }
       title={clearTitle}
       className={buttonClass}
     >
@@ -167,7 +194,8 @@ export function ZaicodeSaipenControls({
   useEffect(() => {
     const onFocusIn = (event: FocusEvent) => {
       const host = stripRef.current?.parentElement;
-      if (host && event.target instanceof Node && host.contains(event.target)) setFocusTick((tick) => tick + 1);
+      if (host && event.target instanceof Node && host.contains(event.target))
+        setFocusTick((tick) => tick + 1);
     };
     document.addEventListener("focusin", onFocusIn);
     return () => document.removeEventListener("focusin", onFocusIn);
@@ -186,51 +214,29 @@ export function ZaicodeSaipenControls({
     return () => unregister.forEach((dispose) => dispose());
   }, [focusTick]);
 
-  const slotBadge = isMain ? (
-    <span
-      className="shrink-0 border border-[var(--zaicode-highlight,var(--color-warning))] px-1 text-[var(--zaicode-highlight,var(--color-warning))]"
-      title="MAIN session of this project: the work starts and is planned here. Side sessions run helpers in parallel."
-      data-zaicode-slot="main"
-    >
-      ◆ MAIN
-    </span>
-  ) : isSideSlot ? (
-    <button
-      type="button"
-      className="shrink-0 border border-border px-1 text-foreground-subtle hover:bg-hover hover:text-foreground"
-      title={`Side slot. ${mainWorking ? "The MAIN session is working right now." : "The MAIN session is idle."} Click to open MAIN.`}
-      onClick={() => mainId && openSession(workspacePath, workspaceIdentity, mainId)}
-      data-zaicode-slot="side"
-    >
-      {mainWorking ? "SIDE · MAIN working →" : "SIDE · → MAIN"}
-    </button>
-  ) : (
-    <span
-      className="shrink-0 border border-dashed border-border px-1 text-foreground-subtlest"
-      title="This project has no MAIN session yet. START (or the first STEP) makes this session MAIN."
-      data-zaicode-slot="none"
-    >
-      ◇ MAIN?
-    </span>
-  );
+  const slotBadge = <ZaicodeSaipenSlotBadge
+    isMain={isMain} isSideSlot={isSideSlot} mainWorking={mainWorking}
+    onOpenMain={() => mainId && openSession(workspacePath, workspaceIdentity, mainId)}
+  />;
 
-  const orderedModes = parallelHint
-    ? [...ZAICODE_SAIPEN_MODES].sort((left, right) => Number(right.parallel) - Number(left.parallel))
-    : ZAICODE_SAIPEN_MODES;
+  const orderedModes = ZAICODE_SAIPEN_MODES;
   const modesRow = (
     <ZaicodeSaipenModesRow
       modes={orderedModes}
       parallelHint={parallelHint}
       mainWorking={mainWorking}
-      runsHere={!sessionId && !isMainDraftCandidate()}
       onMode={runMode}
+      shiftPressed={shiftPressed}
     />
   );
 
   if (!saipen) {
     return (
-      <div ref={stripRef} className="flex min-w-0 flex-col gap-1 border-t border-border pt-2 text-ui-xs">
-        <div className="flex min-w-0 items-center gap-2">
+      <div
+        ref={stripRef}
+        className="flex min-w-0 flex-col gap-1 border-t border-border pt-2 text-ui-xs"
+      >
+        <div className="flex min-w-0 flex-wrap items-center gap-1">
           {slotBadge}
           <Button
             type="button"
@@ -244,6 +250,7 @@ export function ZaicodeSaipenControls({
             INIT SAIPEN
           </Button>
           {clearButton}
+          {endActions}
           <span className="min-w-0 truncate text-foreground-subtlest">
             No .saipen/ in this project — SAIPEN memory not initialized.
           </span>
@@ -287,9 +294,7 @@ export function ZaicodeSaipenControls({
         <ZaicodeSaipenCompactRow
           slot={composer.showSlot ? (isMain ? "main" : isSideSlot ? "side" : "none") : null}
           start={{
-            label: engineAccount
-              ? `START with ${engineAccount.short} (worker) · Shift+click: /goal cc all in current session`
-              : `START — ${ZAICODE_SAIPEN_START_COMMAND} in a fresh MAIN session · Shift+click: current session`,
+            label: startCopy.compact,
             disabled: sessionId ? false : disabled,
             onClick: start,
           }}
@@ -297,17 +302,19 @@ export function ZaicodeSaipenControls({
           clear={{ label: clearTitle, disabled: !sessionId, onClick: clear }}
           modes={
             composer.compactModes
-              ? orderedModes.map((mode) => ({
-                  label: mode.label,
-                  hint: mode.hint,
-                  command: mode.command,
-                  role: zaicodeRoleForCommand(mode.command),
-                  highlighted: mode.parallel && (parallelHint || mainWorking),
-                  dimmed: parallelHint && !mode.parallel,
-                }))
+              ? orderedModes.map((mode) => {
+                  const action = resolveZaicodeModeAction(mode, shiftPressed);
+                  return {
+                    ...mode,
+                    highlighted: action.parallel && (parallelHint || mainWorking),
+                    dimmed: parallelHint && !action.parallel,
+                  };
+                })
               : null
           }
           onMode={runMode}
+          shiftPressed={shiftPressed}
+          endActions={endActions}
           blocker={headline.blocker ?? null}
           chip={
             composer.compactPhase
@@ -333,47 +340,41 @@ export function ZaicodeSaipenControls({
       className="flex min-w-0 flex-col gap-1.5 border-t border-border pt-2 text-ui-xs"
       data-zaicode-saipen-strip
     >
-      <div className="flex min-w-0 flex-col gap-1">
-        {/* SRC-035: a narrow composer wraps these buttons instead of cutting them off. */}
-        <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
-          {composer.showSlot ? slotBadge : null}
-          <Button
-            type="button"
-            size="sm"
-            variant="secondary"
-            disabled={sessionId ? false : disabled}
-            onClick={start}
-            data-zaicode-sound="saipen.start"
-            aria-label={
-              engineAccount
-                ? `Start ${engineAccount.label} as a worker · Shift+click: goal in current session`
-                : "Start SAIPEN goal in a fresh MAIN session · Shift+click: goal in current session"
-            }
-            title={
-              engineAccount
-                ? `START with ${engineAccount.short} ${engineAccount.label}: its CLI starts as a worker. Shift+click: ${ZAICODE_SAIPEN_START_COMMAND} in current session.`
-                : `${ZAICODE_SAIPEN_START_COMMAND} — fresh MAIN session. Shift+click: current session.`
-            }
-            className={buttonClass}
-          >
-            START{engineAccount ? <span className="ml-1 text-[var(--zaicode-highlight,var(--color-warning))]">▸{engineAccount.short}</span> : null}
-          </Button>
-          <Button
-            type="button"
-            size="sm"
-            variant="secondary"
-            disabled={disabled}
-            onClick={() => sendWork("cc")}
-            data-zaicode-sound="saipen.step"
-            aria-label="Send cc — one SAIPEN continuation step"
-            title="cc — one saipen continue step in this session"
-            className={buttonClass}
-          >
-            STEP
-          </Button>
-          {clearButton}
-          <span className="ml-auto" />
-          {composer.showPhase ? (
+      <div className="flex min-w-0 flex-wrap items-center gap-1">
+        {composer.showSlot ? slotBadge : null}
+        <Button
+          type="button"
+          size="sm"
+          variant="secondary"
+          disabled={sessionId ? false : disabled}
+          onClick={start}
+          data-zaicode-sound="saipen.start"
+          aria-label={startCopy.aria}
+          title={startCopy.title}
+          className={buttonClass}
+        >
+          START
+          {engineAccount ? (
+            <span className="ml-1 text-[var(--zaicode-highlight,var(--color-warning))]">
+              ▸{engineAccount.short}
+            </span>
+          ) : null}
+        </Button>
+        <Button
+          type="button"
+          size="sm"
+          variant="secondary"
+          disabled={disabled}
+          onClick={() => sendWork("cc")}
+          data-zaicode-sound="saipen.step"
+          aria-label="Send cc — one SAIPEN continuation step"
+          title="cc — one saipen continue step in this session"
+          className={buttonClass}
+        >
+          STEP
+        </Button>
+        {clearButton}
+        {composer.showPhase ? (
           <button
             type="button"
             onClick={() => openZaicodeSaipenView(workspacePath, workspaceIdentity)}
@@ -383,7 +384,9 @@ export function ZaicodeSaipenControls({
             data-zaicode-readiness={runtime?.verdict.state}
             title={[
               runtime ? `${runtime.verdict.label}: ${runtime.verdict.reason}` : null,
-              runtime?.snapshot.protocol?.source === "files" ? "SAIPEN projection unavailable: read from the files" : null,
+              runtime?.snapshot.protocol?.source === "files"
+                ? "SAIPEN projection unavailable: read from the files"
+                : null,
               saipen.updated ? `STATE updated ${saipen.updated}` : null,
             ]
               .filter(Boolean)
@@ -391,22 +394,25 @@ export function ZaicodeSaipenControls({
           >
             {where}
           </button>
-          ) : null}
-          {composer.showBoard && ticketTotal > 0 ? (
-            <span
-              className="shrink-0 tabular-nums text-foreground-subtlest"
-              title={`Board: ${saipen.counts.done} done, ${saipen.counts.doing} doing, ${saipen.counts.todo} todo, ${saipen.counts.blocked} blocked`}
-            >
-              {saipen.counts.done}/{ticketTotal}
-            </span>
-          ) : null}
-          <ZaicodeComposerCompactToggle />
-        </div>
-        {composer.showModes ? modesRow : null}
+        ) : null}
+        {composer.showBoard && ticketTotal > 0 ? (
+          <span
+            className="shrink-0 tabular-nums text-foreground-subtlest"
+            title={`Board: ${saipen.counts.done} done, ${saipen.counts.doing} doing, ${saipen.counts.todo} todo, ${saipen.counts.blocked} blocked`}
+          >
+            {saipen.counts.done}/{ticketTotal}
+          </span>
+        ) : null}
+        <ZaicodeComposerCompactToggle />
+        {endActions}
       </div>
+      {composer.showModes ? modesRow : null}
 
       {composer.showEngineRoute && engineAccount && !sessionId ? (
-        <span className="min-w-0 truncate text-[var(--zaicode-highlight,var(--color-warning))]" data-zaicode-engine-route>
+        <span
+          className="min-w-0 truncate text-[var(--zaicode-highlight,var(--color-warning))]"
+          data-zaicode-engine-route
+        >
           New prompts and START go to {engineAccount.short} {engineAccount.label}
           {" as a worker"} · pick a pool on the sidebar for the in-app agent
         </span>
@@ -421,7 +427,11 @@ export function ZaicodeSaipenControls({
         <div className="flex min-w-0 flex-col gap-0.5 border-t border-border/40 pt-1 text-foreground-subtlest">
           {composer.showNext ? nextLine : null}
           {composer.showThen && headline.nextTicket ? (
-            <ZaicodeSaipenLine label="THEN" tag={headline.nextTicket.id} text={headline.nextTicket.title} />
+            <ZaicodeSaipenLine
+              label="THEN"
+              tag={headline.nextTicket.id}
+              text={headline.nextTicket.title}
+            />
           ) : null}
           {composer.showLast ? (
             <ZaicodeSaipenLine

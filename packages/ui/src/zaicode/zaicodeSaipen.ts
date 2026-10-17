@@ -1,7 +1,11 @@
+/* oxlint-disable eslint(max-lines) -- saipen state, pending commands and fresh session coordinator */
 import { useCallback, useEffect, useState } from "react";
 import { create } from "zustand";
-import type { ZaicodeSaipenProjection } from "@zcode/shared";
+import { resolveWorkspaceKey, type ZaicodeSaipenProjection } from "@zcode/shared";
 import { useWorkspaceServices } from "@/hooks/useWorkspaceServices.js";
+import { toast, type ToastOptions } from "@/components/ui/toast.js";
+import { zaicodeMainKeyForm, type ZaicodeModeAction } from "./zaicodeMainSession.js";
+import { formatIntentFeedback, useZaicodeActionIntents } from "./zaicodeActionIntent.js";
 import {
   describeZaicodeSaipenReadError,
   isZaicodeSaipenMissingFileError,
@@ -115,7 +119,10 @@ class SaipenPoller {
 
   /** SAIPEN's own projection for the read model; the desktop main process runs and caches it. */
   private async askProjection(snapshot: ZaicodeSaipenSnapshot) {
-    const bridge = (typeof window === "undefined" ? undefined : (window as unknown as { zcode?: ProjectionBridge }).zcode);
+    const bridge =
+      typeof window === "undefined"
+        ? undefined
+        : (window as unknown as { zcode?: ProjectionBridge }).zcode;
     if (!bridge?.getZaicodeSaipenProjection) return;
     this.askedAt = Date.now();
     const projectPath = this.root.replace(/[\\/]\.saipen$/, "");
@@ -165,7 +172,10 @@ class SaipenPoller {
           },
         });
         if (this.snapshot) void this.askProjection(this.snapshot);
-      } else if (this.snapshot && zaicodeSaipenNeedsRecheck(this.snapshot.projection, this.askedAt, Date.now())) {
+      } else if (
+        this.snapshot &&
+        zaicodeSaipenNeedsRecheck(this.snapshot.projection, this.askedAt, Date.now())
+      ) {
         void this.askProjection(this.snapshot);
       }
     } catch (error) {
@@ -201,11 +211,20 @@ class SaipenPoller {
   }
 }
 
+/** Cache key for the shared per-project poller (T-289: identity-scoped). */
+export function zaicodeSaipenPollerKey(workspacePath: string, workspaceIdentity?: string): string {
+  return resolveWorkspaceKey({ workspacePath, workspaceIdentity });
+}
+
 const pollers = new Map<string, SaipenPoller>();
 
-function acquirePoller(workspacePath: string, fileService: FileService): SaipenPoller {
+function acquirePoller(
+  workspacePath: string,
+  fileService: FileService,
+  workspaceIdentity?: string,
+): SaipenPoller {
   const root = `${workspacePath.replace(/[\\/]+$/, "")}/.saipen`;
-  const key = root.toLowerCase();
+  const key = zaicodeSaipenPollerKey(workspacePath, workspaceIdentity);
   let poller = pollers.get(key);
   if (!poller) {
     poller = new SaipenPoller(root, fileService);
@@ -226,7 +245,7 @@ export function useZaicodeSaipen(
       setSnapshot(null);
       return;
     }
-    const poller = acquirePoller(workspacePath, fileService);
+    const poller = acquirePoller(workspacePath, fileService, workspaceIdentity);
     const unsubscribe = poller.subscribe(setSnapshot);
     return () => {
       unsubscribe();
@@ -234,7 +253,7 @@ export function useZaicodeSaipen(
         for (const [key, value] of pollers) if (value === poller) pollers.delete(key);
       }
     };
-  }, [fileService, workspacePath]);
+  }, [fileService, workspacePath, workspaceIdentity]);
 
   return snapshot;
 }
@@ -251,7 +270,7 @@ export function useZaicodeSaipenRefresh(
   const { fileService } = useWorkspaceServices(workspacePath, undefined, workspaceIdentity);
   return useCallback(() => {
     if (!workspacePath) return;
-    acquirePoller(workspacePath, fileService).recheck();
+    acquirePoller(workspacePath, fileService, workspaceIdentity).recheck();
   }, [fileService, workspacePath]);
 }
 
@@ -260,72 +279,413 @@ export function useZaicodeSaipenRefresh(
  * row START button: open a fresh chat, then send `cc`). The SAIPEN strip in
  * that composer consumes it once the composer can submit.
  */
-interface ZaicodePendingCommandState {
-  byWorkspace: Record<string, string>;
-  queue: (workspacePath: string, command: string) => void;
-  take: (workspacePath: string) => string | null;
+interface PendingTarget {
+  workspaceIdentity?: string;
+  /** null means a fresh draft, never an arbitrary existing session. */
+  sessionId?: string | null;
 }
 
-function workspaceCommandKey(workspacePath: string): string {
-  return workspacePath.replace(/[\\/]+$/, "").toLowerCase();
+export interface ZaicodePendingCommandItem {
+  command: string;
+  action?: ZaicodeModeAction;
+  intentId?: string | null;
+}
+
+interface ZaicodePendingCommandState {
+  byWorkspace: Record<string, ZaicodePendingCommandItem[]>;
+  queue: (
+    workspacePath: string,
+    command: string,
+    target?: PendingTarget,
+    action?: ZaicodeModeAction,
+    intentId?: string | null,
+  ) => void;
+  take: (
+    workspacePath: string,
+    target?: PendingTarget,
+  ) => ZaicodePendingCommandItem | null;
+  peek: (
+    workspacePath: string,
+    target?: PendingTarget,
+  ) => ZaicodePendingCommandItem | null;
+  restore: (
+    workspacePath: string,
+    item: ZaicodePendingCommandItem,
+    target?: PendingTarget,
+  ) => void;
+  removeByIntent: (
+    workspacePath: string,
+    intentId: string,
+    target?: PendingTarget,
+  ) => boolean;
+}
+
+function workspaceCommandKey(workspacePath: string, target?: PendingTarget): string {
+  return JSON.stringify([
+    zaicodeMainKeyForm(target?.workspaceIdentity?.trim() || workspacePath),
+    target?.sessionId ?? null,
+  ]);
 }
 
 export const useZaicodePendingCommand = create<ZaicodePendingCommandState>((set, get) => ({
   byWorkspace: {},
-  queue: (workspacePath, command) =>
+  queue: (workspacePath, command, target, action, intentId) =>
     set((state) => ({
-      byWorkspace: { ...state.byWorkspace, [workspaceCommandKey(workspacePath)]: command },
+      byWorkspace: {
+        ...state.byWorkspace,
+        [workspaceCommandKey(workspacePath, target)]: [
+          ...(state.byWorkspace[workspaceCommandKey(workspacePath, target)] ?? []),
+          { command, ...(action ? { action } : {}), ...(intentId ? { intentId } : {}) },
+        ],
+      },
     })),
-  take: (workspacePath) => {
-    const key = workspaceCommandKey(workspacePath);
-    const command = get().byWorkspace[key] ?? null;
-    if (command) {
-      const next = { ...get().byWorkspace };
-      delete next[key];
-      set({ byWorkspace: next });
+  take: (workspacePath, target) => {
+    const key = workspaceCommandKey(workspacePath, target);
+    const entries = get().byWorkspace[key] ?? [];
+    let validIndex = -1;
+    for (let i = 0; i < entries.length; i++) {
+      const item = entries[i];
+      if (!item) continue;
+      if (item.intentId) {
+        const intent = useZaicodeActionIntents.getState().intents[item.intentId];
+        if (intent && (intent.state === "REJECTED" || intent.state === "CANCELLED")) {
+          continue;
+        }
+      }
+      validIndex = i;
+      break;
     }
+    if (validIndex === -1) {
+      if (entries.length > 0) {
+        const next = { ...get().byWorkspace };
+        delete next[key];
+        set({ byWorkspace: next });
+      }
+      return null;
+    }
+    const command = entries[validIndex] ?? null;
+    const nextEntries = entries.filter((_, idx) => idx !== validIndex);
+    const next = { ...get().byWorkspace };
+    if (nextEntries.length > 0) next[key] = nextEntries;
+    else delete next[key];
+    set({ byWorkspace: next });
     return command;
+  },
+  peek: (workspacePath, target) => {
+    const key = workspaceCommandKey(workspacePath, target);
+    const entries = get().byWorkspace[key] ?? [];
+    for (const item of entries) {
+      if (item.intentId) {
+        const intent = useZaicodeActionIntents.getState().intents[item.intentId];
+        if (intent && (intent.state === "REJECTED" || intent.state === "CANCELLED")) {
+          continue;
+        }
+      }
+      return item;
+    }
+    return null;
+  },
+  restore: (workspacePath, item, target) => {
+    const key = workspaceCommandKey(workspacePath, target);
+    set((state) => ({
+      byWorkspace: {
+        ...state.byWorkspace,
+        [key]: [item, ...(state.byWorkspace[key] ?? [])],
+      },
+    }));
+  },
+  removeByIntent: (workspacePath, intentId, target) => {
+    const key = workspaceCommandKey(workspacePath, target);
+    const entries = get().byWorkspace[key] ?? [];
+    const filtered = entries.filter((e) => e.intentId !== intentId);
+    if (filtered.length !== entries.length) {
+      const next = { ...get().byWorkspace };
+      if (filtered.length > 0) next[key] = filtered;
+      else delete next[key];
+      set({ byWorkspace: next });
+      return true;
+    }
+    return false;
   },
 }));
 
 export function hasZaicodePendingCommand(
   state: ZaicodePendingCommandState,
   workspacePath: string,
+  target?: PendingTarget,
 ): boolean {
-  return Boolean(state.byWorkspace[workspaceCommandKey(workspacePath)]);
+  return Boolean(state.byWorkspace[workspaceCommandKey(workspacePath, target)]?.length);
 }
 
 /**
- * Request for a brand-new session in a project (START from the composer of a
- * running session, CLEAR, the sidebar project START). The shell layout owns
- * draft creation, so the request is published here and consumed there once;
- * an optional command is queued for the fresh composer to send.
+ * Request for a brand-new session in a project (CLEAR in "open a new session"
+ * mode, the helper-mode buttons of the strip, the sidebar project START). The
+ * shell layout owns draft creation, so the request is published here and
+ * consumed there once; an optional command is queued for the fresh composer to
+ * send. The composer's own START button does NOT come through here any more: a
+ * plain click sends the goal in the session that has focus (T-318).
  */
 export interface ZaicodeFreshSessionRequest {
   id: number;
   workspacePath: string;
   workspaceIdentity?: string;
   command: string | null;
+  action?: ZaicodeModeAction;
+  originSessionId?: string | null;
+  intentId?: string | null;
+  generation?: number;
+  destination?: "main" | "helper";
+}
+
+export interface ZaicodeSessionCreationAck {
+  sessionId: string;
+  requestId?: number;
+  intentId?: string | null;
+  workspacePath?: string;
+  workspaceIdentity?: string;
+  destination?: "main" | "helper";
+  generation?: number;
 }
 
 interface ZaicodeFreshSessionState {
   request: ZaicodeFreshSessionRequest | null;
-  open: (workspacePath: string, workspaceIdentity: string | undefined, command: string | null) => void;
+  queue: ZaicodeFreshSessionRequest[];
+  currentId: number | null;
+  generationCounter: number;
+  open: (
+    workspacePath: string,
+    workspaceIdentity: string | undefined,
+    command: string | null,
+    action?: ZaicodeModeAction,
+    originSessionId?: string | null,
+    intentId?: string | null,
+  ) => void;
   consume: (id: number) => void;
+  confirmSession: (ack: string | ZaicodeSessionCreationAck) => boolean;
+  advance: (timedOut?: boolean) => void;
+  reset: () => void;
 }
 
-export const useZaicodeFreshSession = create<ZaicodeFreshSessionState>((set, get) => ({
-  request: null,
-  open: (workspacePath, workspaceIdentity, command) => {
-    if (command) useZaicodePendingCommand.getState().queue(workspacePath, command);
+function safeToast(message: string, options?: ToastOptions): void {
+  if (typeof document !== "undefined") {
+    try {
+      toast(message, options);
+    } catch {
+      // Ignore in non-DOM or test environment
+    }
+  }
+}
+
+export const useZaicodeFreshSession = create<ZaicodeFreshSessionState>((set, get) => {
+  let safetyTimer: ReturnType<typeof setTimeout> | null = null;
+  const confirmedSessionIds = new Set<string>();
+
+  const clearSafetyTimer = () => {
+    if (safetyTimer !== null) {
+      clearTimeout(safetyTimer);
+      safetyTimer = null;
+    }
+  };
+
+  const advanceNext = (timedOut = false) => {
+    clearSafetyTimer();
+    const state = get();
+    if (timedOut && state.currentId !== null) {
+      const timedOutReq = state.queue.find((r) => r.id === state.currentId);
+      if (timedOutReq?.intentId) {
+        const intent = useZaicodeActionIntents.getState().intents[timedOutReq.intentId];
+        if (intent && (intent.state === "CREATED" || intent.state === "ADMISSION_PENDING")) {
+          const rejected = useZaicodeActionIntents.getState().transitionState(intent.id, "REJECTED", {
+            rejectionReason: "Helper session creation timed out",
+          });
+          if (rejected) safeToast(formatIntentFeedback(rejected), { variant: "warning" });
+          useZaicodeActionIntents.getState().advanceHelperQueue(intent.id);
+        }
+        useZaicodePendingCommand.getState().removeByIntent(
+          timedOutReq.workspacePath,
+          timedOutReq.intentId,
+          { workspaceIdentity: timedOutReq.workspaceIdentity },
+        );
+      } else {
+        const helperIntent = useZaicodeActionIntents.getState().peekHelperQueue();
+        if (helperIntent && (helperIntent.state === "CREATED" || helperIntent.state === "ADMISSION_PENDING")) {
+          const rejected = useZaicodeActionIntents.getState().transitionState(helperIntent.id, "REJECTED", {
+            rejectionReason: "Helper session creation timed out",
+          });
+          if (rejected) safeToast(formatIntentFeedback(rejected), { variant: "warning" });
+          useZaicodeActionIntents.getState().advanceHelperQueue(helperIntent.id);
+        }
+        if (timedOutReq?.command) {
+          useZaicodePendingCommand.getState().take(timedOutReq.workspacePath, { workspaceIdentity: timedOutReq.workspaceIdentity });
+        }
+      }
+    }
+
+    const remaining = state.queue.filter((r) => r.id !== state.currentId);
+    const nextReq = remaining[0] ?? null;
     set({
-      request: { id: (get().request?.id ?? 0) + 1, workspacePath, workspaceIdentity, command },
+      queue: remaining,
+      currentId: nextReq ? nextReq.id : null,
+      request: nextReq,
     });
-  },
-  consume: (id) => {
-    if (get().request?.id === id) set({ request: null });
-  },
-}));
+    if (nextReq) {
+      safetyTimer = setTimeout(() => {
+        if (get().currentId === nextReq.id) {
+          advanceNext(true);
+        }
+      }, 10_000);
+    }
+  };
+
+  return {
+    request: null,
+    queue: [],
+    currentId: null,
+    generationCounter: 0,
+    open: (workspacePath, workspaceIdentity, command, action, originSessionId, intentId) => {
+      const state = get();
+      const lastId =
+        state.queue.length > 0
+          ? (state.queue.at(-1)?.id ?? 0)
+          : (state.currentId ?? state.request?.id ?? 0);
+      const nextId = lastId + 1;
+      const nextGeneration = (state.generationCounter ?? 0) + 1;
+      const newReq: ZaicodeFreshSessionRequest = {
+        id: nextId,
+        workspacePath,
+        workspaceIdentity,
+        command,
+        ...(action ? { action } : {}),
+        originSessionId: originSessionId ?? null,
+        intentId: intentId ?? null,
+        generation: nextGeneration,
+        destination: action?.ownership === "main" ? "main" : "helper",
+      };
+
+      if (command) {
+        useZaicodePendingCommand
+          .getState()
+          .queue(workspacePath, command, { workspaceIdentity }, action, intentId);
+      }
+
+      const nextQueue = [...state.queue, newReq];
+
+      if (state.currentId === null && state.request === null) {
+        set({
+          queue: nextQueue,
+          currentId: nextId,
+          request: newReq,
+          generationCounter: nextGeneration,
+        });
+        clearSafetyTimer();
+        safetyTimer = setTimeout(() => {
+          if (get().currentId === nextId) {
+            advanceNext(true);
+          }
+        }, 10_000);
+      } else {
+        set({
+          queue: nextQueue,
+          generationCounter: nextGeneration,
+        });
+      }
+    },
+    consume: (id) => {
+      const state = get();
+      if (state.request?.id === id) {
+        set({ request: null });
+      }
+    },
+    confirmSession: (ack) => {
+      const state = get();
+      if (!state.currentId) return false;
+      const currentReq = state.queue.find((r) => r.id === state.currentId);
+      if (!currentReq) return false;
+
+      // 1. Generic session-mount confirmation is rejected for helper requests.
+      // Helper requests require an authoritative creation ACK with matching intentId/requestId.
+      if (typeof ack === "string") {
+        if (currentReq.intentId || currentReq.action?.ownership === "helper") {
+          return false;
+        }
+        if (currentReq.originSessionId && currentReq.originSessionId === ack) {
+          return false;
+        }
+        if (confirmedSessionIds.has(ack)) return false;
+        confirmedSessionIds.add(ack);
+        advanceNext(false);
+        return true;
+      }
+
+      // 2. Authoritative creation ACK validation
+      const { sessionId, requestId, intentId, workspacePath, workspaceIdentity, generation } = ack;
+      if (!sessionId) return false;
+
+      // Unrelated origin session cannot confirm helper
+      if (currentReq.originSessionId && currentReq.originSessionId === sessionId) {
+        return false;
+      }
+
+      // Delayed ACK must not confirm next request
+      if (requestId !== undefined && requestId !== currentReq.id) {
+        return false;
+      }
+
+      // IntentId must match
+      if (currentReq.intentId) {
+        if (!intentId || currentReq.intentId !== intentId) {
+          return false;
+        }
+      }
+
+      // Generation must match if provided
+      if (generation !== undefined && currentReq.generation !== undefined && generation !== currentReq.generation) {
+        return false;
+      }
+
+      // Workspace match
+      if (workspaceIdentity && currentReq.workspaceIdentity && workspaceIdentity !== currentReq.workspaceIdentity) {
+        return false;
+      }
+      if (workspacePath && currentReq.workspacePath) {
+        const keyA = zaicodeMainKeyForm(currentReq.workspaceIdentity?.trim() || currentReq.workspacePath);
+        const keyB = zaicodeMainKeyForm(workspaceIdentity?.trim() || workspacePath);
+        if (keyA !== keyB) return false;
+      }
+
+      if (confirmedSessionIds.has(sessionId)) return false;
+      confirmedSessionIds.add(sessionId);
+
+      // Advance action intents for helper
+      const targetIntentId = currentReq?.intentId ?? intentId;
+      const helperIntent = targetIntentId
+        ? useZaicodeActionIntents.getState().intents[targetIntentId]
+        : useZaicodeActionIntents.getState().peekHelperQueue();
+      if (helperIntent) {
+        useZaicodeActionIntents.getState().transitionState(helperIntent.id, "RUNNING", {
+          targetSessionId: sessionId,
+        });
+        useZaicodeActionIntents.getState().advanceHelperQueue(helperIntent.id);
+      }
+
+      advanceNext(false);
+      return true;
+    },
+    advance: (timedOut = true) => {
+      advanceNext(timedOut);
+    },
+    reset: () => {
+      clearSafetyTimer();
+      confirmedSessionIds.clear();
+      set({
+        request: null,
+        queue: [],
+        currentId: null,
+        generationCounter: 0,
+      });
+    },
+  };
+});
 
 /**
  * CLEAR in place: the composer strip asks the session pane that shows
@@ -335,19 +695,56 @@ export const useZaicodeFreshSession = create<ZaicodeFreshSessionState>((set, get
 export interface ZaicodeClearSessionRequest {
   id: number;
   sessionId: string;
+  /**
+   * T-318: Shift+START clears the session and THEN sends the goal in it. The
+   * clear is an async dispatch owned by the pane, so the command rides along
+   * and is handed to the composer only after the clear is acknowledged --
+   * sending it up front would race the goal against the wipe.
+   */
+  after?: string;
 }
 
 interface ZaicodeClearSessionState {
   request: ZaicodeClearSessionRequest | null;
-  clear: (sessionId: string) => void;
+  clear: (sessionId: string, after?: string) => void;
   consume: (id: number) => void;
 }
 
 export const useZaicodeClearSession = create<ZaicodeClearSessionState>((set, get) => ({
   request: null,
-  clear: (sessionId) => set({ request: { id: (get().request?.id ?? 0) + 1, sessionId } }),
+  clear: (sessionId, after) =>
+    set({ request: { id: (get().request?.id ?? 0) + 1, sessionId, after } }),
   consume: (id) => {
     if (get().request?.id === id) set({ request: null });
+  },
+}));
+
+/**
+ * The follow-up of a CLEAR-then-run (T-318), armed by the session pane once the
+ * clear is acknowledged and consumed by the composer that owns `sessionId`:
+ * only the composer knows how a command is normally submitted here (plan mode,
+ * attachments, the Auto-Goal suffix, queue disposition), so the pane never
+ * sends it itself.
+ */
+export interface ZaicodeAfterClearRequest {
+  sessionId: string;
+  command: string;
+}
+
+interface ZaicodeAfterClearState {
+  request: ZaicodeAfterClearRequest | null;
+  arm: (sessionId: string, command: string) => void;
+  take: (sessionId: string) => string | null;
+}
+
+export const useZaicodeAfterClear = create<ZaicodeAfterClearState>((set, get) => ({
+  request: null,
+  arm: (sessionId, command) => set({ request: { sessionId, command } }),
+  take: (sessionId) => {
+    const current = get().request;
+    if (!current || current.sessionId !== sessionId) return null;
+    set({ request: null });
+    return current.command;
   },
 }));
 
