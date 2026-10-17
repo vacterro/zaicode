@@ -335,8 +335,8 @@ export class AgentRuntime {
 }
 
 export interface AgentRuntime {
+  getExecutionLiveness(workIds: readonly string[]): Promise<import("@zcode/shared").ExecutionLivenessSnapshot>;
   lastPermissionGrantId?: string;
-  beginShutdown(): void;
   closeBrowserSession(): Promise<void>;
   updateConfig(
     patch: Pick<AgentRuntimeConfig, "mode" | "planEnabled" | "language" | "outputStyle">,
@@ -461,8 +461,13 @@ export interface AgentRuntime {
    * 清空全部排队输入（active turn 内存项 + held 投影残留），返回丢弃条数。
    */
   clearAllPendingInputs(traceContext: TraceContext): Promise<number>;
-  /** v4 setAutoDrain：翻转 queue autoDrain 授权位（会话级）。 */
-  setQueueAutoDrain(options: { autoDrain: boolean; traceContext?: TraceContext }): Promise<void>;
+  setQueueAutoDrain(options: {
+    autoDrain: boolean;
+    traceContext?: TraceContext;
+    pauseReason?: "stopped" | "manual" | "error" | "system_error";
+    pauseOrigin?: "user" | "system";
+    pauseReasonCode?: string;
+  }): Promise<void>;
   /** 暂停队列外层 FIFO 已消费到空，恢复后续 running queue 的行内 drain。 */
   completeExternalQueueDrain(): void;
   /** v4 setFollowupMode：翻转 followup 路由模式（queue/guide，会话级）。 */

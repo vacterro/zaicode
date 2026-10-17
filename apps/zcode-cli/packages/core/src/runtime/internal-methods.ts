@@ -217,7 +217,13 @@ export interface AgentRuntimeCoreMethods {
     beforePendingInputId: string | null;
     traceContext: TraceContext;
   }): Promise<boolean>;
-  setQueueAutoDrain(options: { autoDrain: boolean; traceContext: TraceContext }): Promise<void>;
+  setQueueAutoDrain(options: {
+    autoDrain: boolean;
+    traceContext: TraceContext;
+    pauseReason?: "stopped" | "manual" | "error" | "system_error";
+    pauseOrigin?: "user" | "system";
+    pauseReasonCode?: string;
+  }): Promise<void>;
   completeExternalQueueDrain(): void;
   setFollowupMode(options: { mode: "queue" | "guide"; traceContext: TraceContext }): Promise<void>;
   emitModelSelected(options: {

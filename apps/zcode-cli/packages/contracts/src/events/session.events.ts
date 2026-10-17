@@ -520,6 +520,10 @@ export interface TurnSteerDispatchChangedPayload {
 
 export interface QueueAutoDrainChangedPayload {
   autoDrain: boolean;
+  pauseReason?: "stopped" | "manual" | "error" | "system_error";
+  pauseOrigin?: "user" | "system";
+  pauseReasonCode?: string;
+  reasonCode?: string;
 }
 
 export interface FollowupModeChangedPayload {

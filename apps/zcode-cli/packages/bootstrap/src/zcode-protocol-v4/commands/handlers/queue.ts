@@ -9,6 +9,7 @@ import type {
   CommandResult,
 } from "@zcode/shared/zcode-protocol-v4";
 import { mapAttachmentRefsToTurnAttachments } from "../attachment-refs.js";
+import { admitRecognizedContinue, isRecognizedContinueCommand } from "../continue-command.js";
 import { inputIntentMetadataFromQueueItem } from "../input-intent.js";
 import { startPromptTurn } from "../prompt-turn.js";
 import { requireRecord } from "../record-access.js";
@@ -134,7 +135,11 @@ async function setAutoDrain(
 ): Promise<CommandResult | undefined> {
   const payload = envelope.payload as CommandPayloadMap["setAutoDrain"];
   const record = requireRecord(host, envelope.sessionId);
-  await record.app.setQueueAutoDrain(payload.autoDrain);
+  await record.app.setQueueAutoDrain(payload.autoDrain, {
+    pauseReason: payload.autoDrain ? undefined : "manual",
+    pauseOrigin: payload.autoDrain ? undefined : "user",
+    pauseReasonCode: payload.autoDrain ? undefined : "operator_paused",
+  });
   if (payload.autoDrain) {
     // 不能只翻授权位：idle 暂停队列没有 active turn 可替它启动队首。复用 CLI
     // 权威 ready hook，busy 时只武装，idle 时立即按 sendQueuedNow 原子路径提升。
@@ -242,6 +247,18 @@ async function sendQueuedNow(
         objective: objective!,
       });
       leaseReleaseOwnedByBackground = goalContinuationWillStart;
+    } else if (
+      queueItem.kind === "sendText" &&
+      isRecognizedContinueCommand(queueItem.text, queueItem.attachments)
+    ) {
+      // T-284: a queued bare `cc` promotes into the mechanical continuation
+      // (or a refusal that keeps the item queued), never into a model turn.
+      const intent = inputIntentMetadataFromQueueItem(queueItem, queueItem.text);
+      await admitRecognizedContinue(host, record, {
+        inputId: queueItem.sourceCommandId,
+        intent,
+        operatorText: queueItem.text,
+      });
     } else {
       const intent = inputIntentMetadataFromQueueItem(queueItem, queueItem.text);
       const started = await startPromptTurn(host, record, {

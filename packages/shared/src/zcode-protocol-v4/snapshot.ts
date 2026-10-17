@@ -15,7 +15,10 @@ import { timestampSchema } from "./core.js";
 import { conversationRowSchema } from "./rows.js";
 import { toolCallDisplaySchema } from "./toolDisplay.js";
 
-import { workspaceHookReviewRequestPayloadSchema } from "./workspace-hook-review.js";
+import {
+  workspaceHookReviewRequestPayloadSchema,
+  workspaceHookReviewRequestPayloadObjectSchema,
+} from "./workspace-hook-review.js";
 import { workflowRunsStateSchema } from "./workflow-runs.js";
 import { sessionConfigStateSchema, sessionModelTransitionSchema } from "./session-config.js";
 export {
@@ -219,7 +222,9 @@ export const queueStateSchema = z.object({
   // stop 后 = false（暂停队列）；setAutoDrain 恢复。
   autoDrain: z.boolean(),
   // additive：旧快照缺省时 UI 使用通用暂停文案；Stop/TurnError 可显示原因文案。
-  pauseReason: z.enum(["stopped", "manual", "error"]).optional(),
+  pauseReason: z.enum(["stopped", "manual", "error", "system_error"]).optional(),
+  pauseOrigin: z.enum(["user", "system"]).optional(),
+  pauseReasonCode: z.string().optional(),
 });
 export type QueueState = z.infer<typeof queueStateSchema>;
 
@@ -317,7 +322,7 @@ export const pendingInteractionSchema = z
     payload: z.discriminatedUnion("kind", [
       permissionRequestPayloadSchema,
       userInputRequestPayloadSchema,
-      workspaceHookReviewRequestPayloadSchema,
+      workspaceHookReviewRequestPayloadObjectSchema,
     ]),
   })
   .superRefine((interaction, context) => {

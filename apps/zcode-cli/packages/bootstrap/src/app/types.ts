@@ -701,8 +701,15 @@ export interface ZCodeApp {
   ): Promise<boolean>;
   /** v4 heldQueueDisposition=clearQueueAndSend：清空全部排队输入，返回丢弃条数。 */
   clearQueueItems(options?: { traceContext?: TraceContext }): Promise<number>;
-  /** v4 setAutoDrain：翻转 queue autoDrain 授权位（会话级配置）。 */
-  setQueueAutoDrain(autoDrain: boolean, options?: { traceContext?: TraceContext }): Promise<void>;
+  setQueueAutoDrain(
+    autoDrain: boolean,
+    options?: {
+      traceContext?: TraceContext;
+      pauseReason?: "stopped" | "manual" | "error" | "system_error";
+      pauseOrigin?: "user" | "system";
+      pauseReasonCode?: string;
+    },
+  ): Promise<void>;
   /** 暂停队列已由 CLI 外层消费到空：恢复 core 对后续 running queue 的行内 drain。 */
   completeExternalQueueDrain(): void;
   /** v4 setFollowupMode：翻转 followup 路由模式（queue/guide，会话级配置）。 */

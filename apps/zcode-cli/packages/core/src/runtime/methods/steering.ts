@@ -1017,6 +1017,9 @@ export async function setQueueAutoDrain(
   options: {
     autoDrain: boolean;
     traceContext: TraceContext;
+    pauseReason?: "stopped" | "manual" | "error" | "system_error";
+    pauseOrigin?: "user" | "system";
+    pauseReasonCode?: string;
   },
 ): Promise<void> {
   // false -> true 表示用户从暂停队列恢复。旧暂停项只存在于事件投影，不在新
@@ -1031,7 +1034,12 @@ export async function setQueueAutoDrain(
   const event = createSessionEvent(
     SessionEventType.QueueAutoDrainChanged,
     this.sessionId,
-    { autoDrain: options.autoDrain },
+    {
+      autoDrain: options.autoDrain,
+      ...(options.pauseReason ? { pauseReason: options.pauseReason } : {}),
+      ...(options.pauseOrigin ? { pauseOrigin: options.pauseOrigin } : {}),
+      ...(options.pauseReasonCode ? { pauseReasonCode: options.pauseReasonCode, reasonCode: options.pauseReasonCode } : {}),
+    },
     { traceId: options.traceContext.traceId },
   );
   await this.appendEvent(event, options.traceContext);

@@ -57,22 +57,26 @@ export const integratedTerminalShellSelectionSchema = z.discriminatedUnion("mode
 ]);
 const providerFamilyDomainSchema = z.enum(["zai", "bigmodel"]);
 
+const makePartialRecord = <K extends z.ZodTypeAny, V extends z.ZodTypeAny>(key: K, value: V) =>
+  typeof (z as { partialRecord?: (k: K, v: V) => z.ZodTypeAny }).partialRecord === "function"
+    ? (z as unknown as { partialRecord: (k: K, v: V) => z.ZodTypeAny }).partialRecord(key, value)
+    : (z as any).record(key, value.optional());
+
 export const postUpdateReleaseNotesPayloadSchema = z.object({
   version: nonEmptyStringSchema,
   title: nonEmptyStringSchema,
   markdown: nonEmptyStringSchema,
   releaseDate: nonEmptyStringSchema.optional(),
-  releaseNotesByLocale: z
-    .partialRecord(
-      localeSchema,
-      z.object({ title: nonEmptyStringSchema, markdown: nonEmptyStringSchema }),
-    )
-    .optional(),
+  releaseNotesByLocale: makePartialRecord(
+    localeSchema,
+    z.object({ title: nonEmptyStringSchema, markdown: nonEmptyStringSchema }),
+  ).optional(),
 });
 
-const skippedElectronUpdateVersionsSchema = z
-  .partialRecord(electronReleaseChannelSchema, nonEmptyStringSchema)
-  .default({});
+const skippedElectronUpdateVersionsSchema = makePartialRecord(
+  electronReleaseChannelSchema,
+  nonEmptyStringSchema,
+).default({});
 
 const remoteWorkspaceTargetSchema = z.discriminatedUnion("kind", [
   z.object({
@@ -554,10 +558,10 @@ export const appSettingsPatchSchema = z.object({
   dataBaseDir: z.string().trim().min(1).optional(),
   pendingPostUpdateReleaseNotes: postUpdateReleaseNotesPayloadSchema.optional(),
   receivePreviewUpdates: z.boolean().optional(),
-  autoDownloadAndInstallUpdates: z.boolean().optional(),
-  skippedElectronUpdateVersions: z
-    .partialRecord(electronReleaseChannelSchema, nonEmptyStringSchema)
-    .optional(),
+  skippedElectronUpdateVersions: makePartialRecord(
+    electronReleaseChannelSchema,
+    nonEmptyStringSchema,
+  ).optional(),
   settingsSyncFirstRunPromptHandled: z.boolean().optional(),
   zcodeEndpointOrigin: zcodeEndpointOriginSchema.optional(),
 });

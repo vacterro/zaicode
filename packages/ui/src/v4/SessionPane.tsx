@@ -46,6 +46,7 @@ import type {
   SessionModelTransition,
   V4ConversationFileChangesResult,
 } from "@zcode/shared/zcode-protocol-v4";
+import { isRecognizedContinueCommand } from "@zcode/shared/zcode-protocol-v4";
 import { logger } from "@/logger.js";
 import {
   getConversationShareErrorDetails,
@@ -90,6 +91,7 @@ import {
 import { useWorkflowRunJournalSummaries } from "@/hooks/useWorkflowRunJournalSummaries.js";
 import { usePlanIdentitySnapshot } from "@/hooks/usePlanIdentitySnapshot.js";
 import { useBaseWorkspaceServices } from "@/hooks/useWorkspaceServices.js";
+import { useZaicodeSessionDriftCopy } from "@/zaicode/useZaicodeSessionDriftCopy.js";
 import { useWorkspaceHomePath } from "@/hooks/useWorkspaceHomePath.js";
 import { prepareWorkspaceWithZCodeSessionService } from "@/hooks/useWorkspacePrepare.js";
 import {
@@ -141,7 +143,8 @@ import { SaiasuiHost } from "@/zaicode/saiasui/SaiasuiHost.js";
 import { ConversationDraftSuggestedPromptsContainer } from "@/v4/ConversationDraftSuggestedPromptsContainer.js";
 import { ConversationHeader, type PaneWorkspaceBadge } from "@/v4/ConversationHeader.js";
 import { ConversationQueuePanel } from "@/v4/ConversationQueuePanel.js";
-import { useZaicodeClearSession, useZaicodeSaipen } from "@/zaicode/zaicodeSaipen.js";
+import { describeQueueRefusal, classifyQueueActionAck, queueActionNeedsReport, queuePauseKinds } from "@/v4/queueActionOutcome.js";
+import { useZaicodeAfterClear, useZaicodeClearSession, useZaicodeSaipen } from "@/zaicode/zaicodeSaipen.js";
 import { ZaicodeWhereAmI } from "@/zaicode/ZaicodeWhereAmI.js";
 import {
   adoptZaicodeComposerModel,
@@ -159,7 +162,10 @@ import { ConversationQuotaBanner } from "@/v4/ConversationQuotaBanner.js";
 import { PendingCommandRecoveryBanner } from "@/v4/PendingCommandRecoveryBanner.js";
 import { WorkspaceHookPendingBanner } from "@/v4/WorkspaceHookPendingBanner.js";
 import { ConversationStatusPanel } from "@/v4/ConversationStatusPanel.js";
-import { SessionSubscriptionErrorPanel } from "@/v4/SessionSubscriptionErrorPanel.js";
+import {
+  resolveConversationSubscriptionSurface,
+  SessionSubscriptionErrorPanel,
+} from "@/v4/SessionSubscriptionErrorPanel.js";
 import { ConversationTimeline } from "@/v4/ConversationTimeline.js";
 import { ConversationShareImportNotice } from "@/v4/ConversationShareImportNotice.js";
 import { ConversationShareConfirmationDock } from "@/v4/ConversationShareConfirmationDock.js";
@@ -397,6 +403,26 @@ export interface SessionPaneProps {
   searchResultHighlightRequest?: ChatSearchResultHighlightRequest | null;
   onSearchResultHighlightDone?: (requestId: number) => void;
 }
+export class CommandRejectionError extends Error {
+  readonly code?: string;
+  readonly reasonCode?: string;
+  readonly ackStatus: string;
+  readonly commandId?: string;
+
+  constructor(
+    ack: { status: string; reasonCode?: string; message?: string; commandId?: string },
+    defaultMessage: string,
+  ) {
+    const msg = ack.message || ack.reasonCode || defaultMessage;
+    super(msg);
+    this.name = "CommandRejectionError";
+    this.code = ack.reasonCode;
+    this.reasonCode = ack.reasonCode;
+    this.ackStatus = ack.status;
+    this.commandId = ack.commandId;
+  }
+}
+
 function createSessionErrorKey(
   sessionId: string | null | undefined,
   error: SessionErrorInfo,
@@ -410,7 +436,8 @@ function createSessionErrorKey(
     error.detail ?? "",
   ].join(":");
 }
-
+const EMPTY_CONVERSATION_ROWS: ConversationSnapshot["rows"]["window"] = [];
+const EMPTY_PENDING_GUIDES: never[] = [];
 const EMPTY_ZAICODE_RETRY_ROWS: ConversationSnapshot["rows"]["window"] = [];
 const EMPTY_SUBAGENT_PROJECTION: NonNullable<ConversationSnapshot["subagents"]> = {
   revision: 0,
@@ -630,7 +657,24 @@ export function SessionPane({
   // Wave 3 C: the agent-action cues watch this session's projection and
   // emit through the Sounds table. No cue exists outside that table.
   useZaicodeActionCues(lease?.store);
-  const snapshot = state.snapshot;
+  const rawSnapshot = state.snapshot;
+  const isCurrentSessionLease = Boolean(lease && (sessionId ? lease.sessionId === sessionId : true));
+  const warmSnapshot = useMemo(() => {
+    if (!sessionId) return null;
+    return layer.getWarmSnapshot(sessionId);
+  }, [layer, sessionId]);
+  const snapshot =
+    isCurrentSessionLease && (sessionId ? rawSnapshot?.sessionId === sessionId : true)
+      ? rawSnapshot
+      : sessionId && warmSnapshot?.sessionId === sessionId
+        ? warmSnapshot
+        : null;
+  const sessionCopyTarget = useMemo(() => sessionId ? {
+    sessionId, workspacePath,
+    ...(workspaceIdentity ? { workspaceIdentity } : {}),
+    ...(remoteSessionId ? { remoteSessionId } : {}),
+  } : null, [sessionId, workspacePath, workspaceIdentity, remoteSessionId]);
+  const sessionCopyAction = useZaicodeSessionDriftCopy(sessionCopyTarget, Boolean(snapshot && snapshot.sessionId === sessionId));
   useEffect(() => {
     const title = saipen?.nextAction?.trim();
     if (
@@ -1166,6 +1210,11 @@ export function SessionPane({
     sessionId: string;
     workspaceKey: string;
   } | null>(null);
+  // T-301: 正在等待 sendQueuedNow / resume ACK 的队列项。CLI promoton 持有
+  // reservation，重复点击只会撞 guard.queueItemReserved；锁住按钮，ACK 回来后即清。
+  const [pendingSendNowQueueItemId, setPendingSendNowQueueItemId] = useState<string | null>(null);
+  const pendingSendNowQueueItemIdRef = useRef(pendingSendNowQueueItemId);
+  pendingSendNowQueueItemIdRef.current = pendingSendNowQueueItemId;
   const queueEditOperationRef = useRef(queueEditOperation);
   queueEditOperationRef.current = queueEditOperation;
   const [composerRestoreRequest, setComposerRestoreRequest] =
@@ -1367,10 +1416,12 @@ export function SessionPane({
     () => createComposerSubmissionConfig(draftConfigRef.current, modelSelectionView),
     [draftConfigRef, modelSelectionView],
   );
-  const composerSubmissionReady = useMemo(
-    () => createComposerSubmissionConfig(draftConfig, modelSelectionView) !== null,
-    [draftConfig, modelSelectionView],
-  );
+  const composerSubmissionReady = useMemo(() => {
+    if (sessionId !== null && (!sessionLeaseReady || state.status !== "live")) {
+      return false;
+    }
+    return createComposerSubmissionConfig(draftConfig, modelSelectionView) !== null;
+  }, [draftConfig, modelSelectionView, sessionLeaseReady, sessionId, state.status]);
   const codingPlanUpgradeDialog = useOptionalCodingPlanUpgradeDialog();
   const openSettingsTab = useOptionalTabStore((state) => state.openSettingsTab);
   const promoteGroupedDraftTask = useZCodeSessionStore((state) => state.promoteGroupedDraftTask);
@@ -2265,6 +2316,7 @@ export function SessionPane({
 
   const rowContext = useMemo<ConversationRowRenderContext>(
     () => ({
+      readMessageHostNow: layer.readHostNow,
       workspacePath,
       workspaceHomePath,
       workspaceIdentity,
@@ -2323,6 +2375,7 @@ export function SessionPane({
       readAttachmentRange: attachmentReadRange,
     }),
     [
+      layer,
       workspacePath,
       workspaceHomePath,
       workspaceIdentity,
@@ -2646,6 +2699,8 @@ export function SessionPane({
         contextAttachmentCount,
       });
 
+      const isMechanicalContinue = isRecognizedContinueCommand(text, readyAttachments);
+
       // `/plan` 首版只消费纯文本。必须在 provider readiness 和任何 command admission 之前
       // 拒绝附件/context，否则原始 `/plan ...` 会退化成普通 prompt，既绕过产品边界又清空草稿。
       if (slashCommand?.kind === "unsupportedPlanShortcut") {
@@ -2660,7 +2715,7 @@ export function SessionPane({
         if (!slashCommand.task) return "sent" as const;
       }
 
-      if (!(await ensureDraftModelReadyForSend())) {
+      if (!isMechanicalContinue && !(await ensureDraftModelReadyForSend())) {
         return "blocked" as const;
       }
 
@@ -2706,11 +2761,20 @@ export function SessionPane({
         return "blocked" as const;
       }
       if (!submission) {
-        logger.warn("[v4-pane] Submission 缺少完整模型或模式配置");
-        return "blocked" as const;
+        if (isMechanicalContinue) {
+          submission = {
+            modelSelection: draftConfigRef.current.modelSelection ?? { providerId: "default", modelId: "default" },
+            mode: (draftConfigRef.current.mode as any) ?? "yolo",
+            planEnabled: false,
+          };
+        } else {
+          logger.warn("[v4-pane] Submission 缺少完整模型或模式配置");
+          return "blocked" as const;
+        }
       }
       const currentRoutingMode = snapshotRef.current?.inputRouting.mode;
       if (
+        !isMechanicalContinue &&
         currentRoutingMode === "choice" &&
         !heldQueueDisposition &&
         (slashCommand === null || slashCommand.kind === "sendGoalCommand")
@@ -2719,7 +2783,7 @@ export function SessionPane({
         // resumeGoal 等控制命令也不应被发送消息确认框截获。
         return "confirmationRequired" as const;
       }
-      if (slashCommand === null || slashCommand.kind === "sendGoalCommand") {
+      if (!isMechanicalContinue && (slashCommand === null || slashCommand.kind === "sendGoalCommand")) {
         const original = submission.modelSelection;
         const chosen = await recommendStartPlan(original);
         if (!chosen) return "blocked" as const;
@@ -2848,7 +2912,7 @@ export function SessionPane({
           null,
         );
         if (createAck.status !== "accepted") {
-          throw new Error(createAck.reasonCode ?? "createSession 被拒绝");
+          throw new CommandRejectionError(createAck, "createSession 被拒绝");
         }
         const createResult = createAck.result;
         if (!createResult || createResult.type !== "createSession") {
@@ -2901,7 +2965,7 @@ export function SessionPane({
             logger.warn(
               `[v4-draft-prewarm] 预热会话首发未 accepted（${ack.reasonCode ?? ack.status}），禁止自动重发`,
             );
-            throw new Error(ack.reasonCode ?? "预热会话首发未 accepted");
+            throw new CommandRejectionError(ack, "预热会话首发未 accepted");
           } catch (error) {
             if (isProviderNotReadyError(error)) throw error;
             if (readyAttachments.length > 0) throw error;
@@ -2962,7 +3026,7 @@ export function SessionPane({
           null,
         );
         if (createAck.status !== "accepted") {
-          throw new Error(createAck.reasonCode ?? "createSession 被拒绝");
+          throw new CommandRejectionError(createAck, "createSession 被拒绝");
         }
         const createResult = createAck.result;
         if (!createResult || createResult.type !== "createSession") {
@@ -2983,7 +3047,7 @@ export function SessionPane({
           options?.telemetrySeed,
         );
         if (sendAck.status !== "accepted") {
-          throw new Error(sendAck.reasonCode ?? "sendText 被拒绝");
+          throw new CommandRejectionError(sendAck, "sendText 被拒绝");
         }
         handleDraftSessionCreated(
           newSessionId,
@@ -3021,7 +3085,7 @@ export function SessionPane({
         return "confirmationRequired" as const;
       }
       if (ack.status !== "accepted") {
-        throw new Error(ack.reasonCode ?? "sendText 被拒绝");
+        throw new CommandRejectionError(ack, "sendText 被拒绝");
       }
       if (heldQueueDisposition === "clearQueueAndSend") {
         settleCurrentQueueInputs(sessionId);
@@ -3119,16 +3183,34 @@ export function SessionPane({
       } catch (error) {
         const detail = error instanceof Error ? error.message : String(error);
         const runtimeModelUnavailable = detail.includes("provider.notInRegistry");
+        const rejectionReasonCode =
+          error instanceof CommandRejectionError
+            ? error.reasonCode
+            : error && typeof error === "object" && "reasonCode" in error && typeof (error as any).reasonCode === "string"
+              ? (error as any).reasonCode
+              : undefined;
+
+        const code =
+          rejectionReasonCode ??
+          (runtimeModelUnavailable ? "ZCODE_RUNTIME_MODEL_UNAVAILABLE" : "SEND_FAILED");
+
+        // When an authoritative rejection code or message is available, show that actionable
+        // message instead of masking it behind generic chat.error.sendFailed.
+        const message =
+          rejectionReasonCode && error instanceof Error && error.message
+            ? error.message
+            : runtimeModelUnavailable
+              ? detail
+              : intl.formatMessage({ id: "chat.error.sendFailed" });
+
         // 首发前 switchModelConfig 失败只会抛回 Composer；Composer 为了保留草稿
         // 仅写日志，不会生成 snapshot.control.lastError，用户看到的结果就是“点击没反应”。
         // 这里把 admission 前失败收口为 pane-local 错误横幅，不改变 desktop continuous 或
         // Web remote replayable 的发送/恢复语义，草稿仍由 Composer 原路径保留。
         setSendSubmissionError({
-          code: runtimeModelUnavailable ? "ZCODE_RUNTIME_MODEL_UNAVAILABLE" : "SEND_FAILED",
-          message: runtimeModelUnavailable
-            ? detail
-            : intl.formatMessage({ id: "chat.error.sendFailed" }),
-          detail,
+          code,
+          message,
+          detail: detail !== message ? detail : undefined,
           ...(sessionId ? { taskId: sessionId } : {}),
         });
         throw error;
@@ -3388,22 +3470,57 @@ export function SessionPane({
     [clearQueueEditOperation, dispatchCommand, intl, sessionId, workspaceKey],
   );
 
+  // T-301: a refused Queue action used to die in logger.warn — the button looked
+  // successful and the queued item never moved. Every refusal now names its guard
+  // (the SAIPEN authority gate included) exactly once, and a repeated click cannot
+  // mint a second dispatch while the first ACK is still out.
+  const reportQueueActionRefusal = useCallback(
+    (actionLabel: string, ack: { status: string; reasonCode?: string | null; message?: string | null }) => {
+      const outcome = classifyQueueActionAck(ack);
+      if (!queueActionNeedsReport(outcome)) return;
+      // T-295: the boundary's own diagnostic survives to the log next to the code,
+      // so a refusal is diagnosable without the UI string.
+      logger.warn(
+        `[v4-pane] queue ${actionLabel} refused: ${ack.status} ${outcome.reasonCode}${
+          outcome.detail ? ` -- ${outcome.detail}` : ""
+        }`,
+      );
+      toast(
+        intl.formatMessage(
+          { id: "chat.queue.actionBlocked" },
+          // T-295: the operator is told what the boundary actually said (the
+          // launcher's own diagnostic), never only the opaque guard code that
+          // used to replace the real reason.
+          { action: actionLabel, reason: describeQueueRefusal(outcome) },
+        ),
+      );
+    },
+    [intl, toast],
+  );
+
   const handleSendQueuedNow = useCallback(
     (queueItemId: string) => {
       const current = snapshotRef.current;
       if (!sessionId || current === null) return;
+      // 重复点击没有第二次机会：CLI 已持有 promotion reservation，第二次只会被
+      // guard.queueItemReserved 拒绝。锁住直到这次 ACK 回来。
+      if (pendingSendNowQueueItemIdRef.current !== null) return;
+      setPendingSendNowQueueItemId(queueItemId);
       // 用户明确点击“立即发送”时，视觉意图等价于点击“滚动到底部”；command 的
       // reserve/stop/promote 生命周期仍由 CLI 裁决，不把滚动状态混入协议。
       focusTimelineToLatest();
-      void dispatchCommand("sendQueuedNow", { queueItemId }, sessionId, current.revision).then(
-        (ack) => {
-          if (ack.status !== "accepted" && ack.status !== "noop") {
-            logger.warn(`[v4-pane] sendQueuedNow 被拒绝: ${ack.status} ${ack.reasonCode ?? ""}`);
+      const label = intl.formatMessage({ id: "chat.queue.sendNow" });
+      void dispatchCommand("sendQueuedNow", { queueItemId }, sessionId, current.revision)
+        .then((ack) => {
+          reportQueueActionRefusal(label, ack);
+        })
+        .finally(() => {
+          if (pendingSendNowQueueItemIdRef.current === queueItemId) {
+            setPendingSendNowQueueItemId(null);
           }
-        },
-      );
+        });
     },
-    [dispatchCommand, focusTimelineToLatest, sessionId],
+    [dispatchCommand, focusTimelineToLatest, intl, reportQueueActionRefusal, sessionId],
   );
 
   const handleReorderQueueItem = useCallback(
@@ -3435,10 +3552,8 @@ export function SessionPane({
       sessionId,
       current.revision,
     );
-    if (ack.status !== "accepted" && ack.status !== "noop") {
-      logger.warn(`[v4-pane] 恢复暂停队列被拒绝: ${ack.status} ${ack.reasonCode ?? ""}`);
-    }
-  }, [dispatchCommand, sessionId]);
+    reportQueueActionRefusal(intl.formatMessage({ id: "chat.queue.resume" }), ack);
+  }, [dispatchCommand, intl, reportQueueActionRefusal, sessionId]);
 
   // 配置面 CAS 命令的 stale 重试。模型→思考深度→模式连续操作时，前一条命令的
   // revision bump 可能尚未回流到本地投影，直接用本地 revision 会被 CAS 判 stale。
@@ -3801,9 +3916,11 @@ export function SessionPane({
   // ZAICODE CLEAR (in place): the composer strip asks this pane to empty its session.
   const zaicodeClearRequest = useZaicodeClearSession((state) => state.request);
   const consumeZaicodeClear = useZaicodeClearSession((state) => state.consume);
+  const armZaicodeAfterClear = useZaicodeAfterClear((state) => state.arm);
   useEffect(() => {
     if (!zaicodeClearRequest || readOnly || !sessionId) return;
     if (zaicodeClearRequest.sessionId !== sessionId) return;
+    const after = zaicodeClearRequest.after;
     consumeZaicodeClear(zaicodeClearRequest.id);
     logger.info("[zaicode] CLEAR: emptying the session in place", { sessionId });
     void dispatchCommand("clearConversation", {}, sessionId)
@@ -3813,23 +3930,30 @@ export function SessionPane({
             `[zaicode] clearConversation rejected: ${ack.status} ${ack.reasonCode ?? ""}`,
           );
           toast(`CLEAR failed: ${ack.message ?? ack.reasonCode ?? ack.status}`);
+          return;
+        }
+        // T-318: only a cleared session gets the follow-up goal; a refused clear
+        // must not fire the command into a session the operator asked to wipe.
+        if (after) {
+          logger.info("[zaicode] CLEAR done: handing the follow-up command to the composer", {
+            sessionId,
+          });
+          armZaicodeAfterClear(sessionId, after);
         }
       })
       .catch((error) => {
         logger.warn(`[zaicode] clearConversation failed: ${String(error)}`);
         toast(`CLEAR failed: ${String(error)}`);
       });
-  }, [consumeZaicodeClear, dispatchCommand, readOnly, sessionId, zaicodeClearRequest]);
+  }, [armZaicodeAfterClear, consumeZaicodeClear, dispatchCommand, readOnly, sessionId, zaicodeClearRequest]);
 
   const handleResumeGoal = useCallback(() => {
     const current = snapshotRef.current;
     if (!sessionId || !current?.availability.resumeGoal.allowed) return;
     void dispatchCommand("resumeGoal", {}, sessionId, current.revision).then((ack) => {
-      if (ack.status !== "accepted" && ack.status !== "noop") {
-        logger.warn(`[v4-pane] resumeGoal 被拒绝: ${ack.status} ${ack.reasonCode ?? ""}`);
-      }
+      reportQueueActionRefusal(intl.formatMessage({ id: "chat.queue.resume" }), ack);
     });
-  }, [dispatchCommand, sessionId]);
+  }, [dispatchCommand, intl, reportQueueActionRefusal, sessionId]);
 
   // composer parity：Esc → stop（旧 useChatViewEffects「Escape 停止生成」语义保真：
   // 事件路径含 dialog / defaultPrevented 时跳过；mention/slash 面板打开时 Lexical 已
@@ -3915,28 +4039,37 @@ export function SessionPane({
   const queueEditActiveForCurrentComposer =
     queueEditOperation?.sessionId === sessionId && queueEditOperation.workspaceKey === workspaceKey;
   const errored = sessionId !== null && state.status === "error";
+  // T-294 (SRC-207)：订阅失效不等于投影失效。手里还有一份已落地的权威投影时，正文区
+  // 保留历史正文 + 断开横幅；只有连 last-good 都没有时才整屏换成错误面板。
+  const subscriptionSurface = resolveConversationSubscriptionSurface({
+    status: state.status,
+    snapshot,
+    // 是否可信由 store 的「已应用过权威投影」事实裁决，不用行数启发式：
+    // 合法空投影必须可信，未验证的非空投影必须不可信。
+    projectionVerified: state.projectionVerified,
+  });
+  const subscriptionDiagnostics = lease?.store.getSubscriptionDiagnostics() ?? null;
   useSessionSubscriptionErrorTelemetry({
     supervisor: conversationTelemetry,
     sessionId,
     lastError: state.lastError,
     visible: errored && telemetryVisible && conversationTelemetryForegroundEnabled,
   });
+  const isDraft = sessionId === null;
+  const authoritativeSessionReady = Boolean(
+    !isDraft && sessionLeaseReady && state.status === "live",
+  );
   // retry 的产品裁决属于行级权威投影。这里仅提供命令能力，入口是否展示
   // 完全读取 row.actions.canRetry，禁止再用 pane phase 形成第二套 guard。
-  const retryActionsEnabled = !readOnly && !selectionSideChat && Boolean(sessionId);
+  // 在 warm 快照但 live 订阅尚未建立时保持禁用，防止非权威命令落空。
+  const retryActionsEnabled = !readOnly && !selectionSideChat && authoritativeSessionReady;
   // fork 可用性完全由 row.actions.canFork（CLI stable resolver 投影）裁决；pane 只提供命令回调。
-  const forkActionsEnabled = !readOnly && !selectionSideChat && Boolean(sessionId);
+  const forkActionsEnabled = !readOnly && !selectionSideChat && authoritativeSessionReady;
   // editUserQuery 已由 command 层防御 latest real user query，并在 running
   // 提交时先 stop barrier 再 rewind/rerun；UI 不应再用 completed gate 把入口整轮隐藏。
-  const editActionsEnabled = !readOnly && !selectionSideChat && Boolean(sessionId);
-  const isDraft = sessionId === null;
-  // 滚动恢复必须使用与 sessionId 匹配的 lease projection。切换 session 的 render 与
-  // passive effect 不在同一时刻，旧 lease 的 rows 若提前交给 timeline，会让新记忆按旧
-  // 内容高度 clamp，后续目标 rows 到达时也无法区分这次临时落点。
-  const timelineSnapshot =
-    !isDraft && (lease === null || sessionLeaseReady) && snapshot?.sessionId === sessionId
-      ? snapshot
-      : null;
+  const editActionsEnabled = !readOnly && !selectionSideChat && authoritativeSessionReady;
+  // 滚动恢复必须使用与 sessionId 匹配的 projection（支持 warmSnapshot 与 live 统一派生）。
+  const timelineSnapshot = !isDraft && snapshot?.sessionId === sessionId ? snapshot : null;
   const shareHandoverContext =
     snapshot?.sharedContextImport && "contextId" in snapshot.sharedContextImport
       ? snapshot.sharedContextImport
@@ -4303,10 +4436,24 @@ export function SessionPane({
     queueItems: snapshot?.queue.items.length ?? 0,
     autoDrain: snapshot?.queue.autoDrain ?? true,
     pauseReason: snapshot?.queue.pauseReason ?? null,
+    pauseOrigin: snapshot?.queue.pauseOrigin ?? null,
+    pauseReasonCode: snapshot?.queue.pauseReasonCode ?? null,
+    queueItemId: snapshot?.queue.items[0]?.queueItemId ?? null,
+    originatingCommand: snapshot?.queue.items[0]?.kind ?? null,
     phase: snapshot?.control.phase ?? null,
     quotaWall: Boolean(controlLastError && zaicodeRetryClassOf(controlLastError) === "quota" && !zaicodeQuotaFallbackReady),
     resume: handleResumeQueue,
   });
+  // T-301: queue scheduling and the session's own authority are two different
+  // pauses. The queue banner only ever spoke about the first one, so a
+  // SAIPEN-paused session showed a working "Continue" that changed nothing.
+  const sendNowAvailability = snapshot?.availability.sendQueuedNow;
+  const sendNowBlockedReason =
+    sendNowAvailability && !sendNowAvailability.allowed ? sendNowAvailability.reasonCode : null;
+  const sessionPausedForQueue = queuePauseKinds({
+    autoDrain: snapshot?.queue.autoDrain ?? true,
+    goalStatus: snapshot?.goal?.status ?? null,
+  }).sessionPaused;
   useEffect(() => {
     setSendSubmissionError(null);
   }, [sessionId]);
@@ -4740,6 +4887,8 @@ export function SessionPane({
       autoFocusEnabled={focused}
       disabled={
         connecting ||
+        // 订阅失效时输入需要当前权威状态：保留只读历史，但不再接受新输入。
+        errored ||
         draftRuntimeRebuilding ||
         queueEditActiveForCurrentComposer ||
         quotaBanner.state.blocksSubmit
@@ -4889,6 +5038,9 @@ export function SessionPane({
             queueEditActiveForCurrentComposer ? queueEditOperation.queueItemId : null
           }
           onSendNow={handleSendQueuedNow}
+          sendNowBlockedReason={sendNowBlockedReason}
+          sessionPaused={sessionPausedForQueue}
+          sendNowPendingQueueItemId={pendingSendNowQueueItemId}
           onMoveItem={handleReorderQueueItem}
           onResume={handleResumeQueue}
         />
@@ -5086,15 +5238,27 @@ export function SessionPane({
           </div>
         ) : null}
 
-        {errored ? (
+        {sessionId !== null && subscriptionSurface === "fault-panel" ? (
           <SessionSubscriptionErrorPanel
             error={state.lastError ?? intl.formatMessage({ id: "chat.error.connectionLost" })}
             sessionId={sessionId}
             workspacePath={workspacePath}
             onReconnect={handleRetrySubscribe}
+            diagnostics={subscriptionDiagnostics}
           />
         ) : (
-          <SessionPluginReferenceIconBoundary
+          <>
+            {sessionId !== null && subscriptionSurface === "fault-banner" ? (
+              <SessionSubscriptionErrorPanel
+                variant="banner"
+                error={state.lastError ?? intl.formatMessage({ id: "chat.error.connectionLost" })}
+                sessionId={sessionId}
+                workspacePath={workspacePath}
+                onReconnect={handleRetrySubscribe}
+                diagnostics={subscriptionDiagnostics}
+              />
+            ) : null}
+            <SessionPluginReferenceIconBoundary
             enabled={pluginReferenceIconsEnabled}
             remoteSessionId={remoteSessionId}
             sessionId={sessionId}
@@ -5102,11 +5266,12 @@ export function SessionPane({
             workspacePath={workspacePath}
           >
             <ConversationTimeline
+              sessionCopyAction={sessionCopyAction}
               scrollToBottomActionRef={timelineScrollToBottomRef}
               scrollToQueryActionRef={timelineScrollToQueryRef}
               selectionPanelLayoutContainerRef={conversationLayoutContainerRef}
-              rows={timelineSnapshot?.rows.window ?? []}
-              pendingGuides={timelineSnapshot ? pendingGuideProjection?.pendingGuides : []}
+              rows={timelineSnapshot?.rows.window ?? EMPTY_CONVERSATION_ROWS}
+              pendingGuides={timelineSnapshot ? (pendingGuideProjection?.pendingGuides ?? EMPTY_PENDING_GUIDES) : EMPTY_PENDING_GUIDES}
               apiRetry={timelineSnapshot?.control.apiRetry ?? null}
               totalCount={timelineSnapshot?.rows.totalCount ?? 0}
               sessionKey={sessionId ?? "draft"}
@@ -5197,6 +5362,7 @@ export function SessionPane({
               }
             />
           </SessionPluginReferenceIconBoundary>
+          </>
         )}
       </div>
     </div>

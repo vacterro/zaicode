@@ -25,6 +25,7 @@ import type {
   PermissionDeniedPayload,
   PermissionRequestedPayload,
   PermissionResolvedPayload,
+  QueueAutoDrainChangedPayload,
   SessionEvent,
   SessionForkedPayload,
   SessionInputPromotedPayload,
@@ -3723,19 +3724,25 @@ export class ProductProjection {
   // setAutoDrain：queue.autoDrain 授权位翻转。autoDrain 影响 held 派生
   // （heldQueueInputRequiresChoice）与 A 区可用性 → 走 queuePatch 统一重算。
   private onQueueAutoDrainChanged(event: SessionEvent): ConversationDelta[] {
-    const payload = event.payload as { autoDrain?: boolean };
+    const payload = (event.payload ?? {}) as Partial<QueueAutoDrainChangedPayload>;
     const autoDrain = payload.autoDrain ?? true;
     if (
       this.snapshot.queue.autoDrain === autoDrain &&
-      (autoDrain || this.snapshot.queue.pauseReason === "manual")
+      (autoDrain || this.snapshot.queue.pauseReason === (payload.pauseReason ?? (payload.pauseOrigin === "system" ? "error" : "manual")))
     ) {
       return [];
     }
     const queue = { ...this.snapshot.queue, autoDrain };
     if (autoDrain) {
       delete queue.pauseReason;
+      delete queue.pauseOrigin;
+      delete queue.pauseReasonCode;
     } else {
-      queue.pauseReason = "manual";
+      queue.pauseReason = payload.pauseReason ?? (payload.pauseOrigin === "system" ? "error" : "manual");
+      queue.pauseOrigin = payload.pauseOrigin ?? "user";
+      if (payload.pauseReasonCode ?? payload.reasonCode) {
+        queue.pauseReasonCode = payload.pauseReasonCode ?? payload.reasonCode;
+      }
     }
     return [
       {

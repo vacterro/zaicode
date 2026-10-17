@@ -1,12 +1,4 @@
-import {
-  closestCenter,
-  DndContext,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-  type Modifier,
-} from "@dnd-kit/core";
+import { closestCenter, DndContext, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
 import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { memo, useCallback, useMemo, useState, type CSSProperties } from "react";
@@ -18,6 +10,7 @@ import {
   TID_V4_QUEUE_ITEM_SEND_NOW,
   TID_V4_QUEUE_PAUSED_BANNER,
   TID_V4_QUEUE_RESUME,
+  TID_V4_SESSION_PAUSED_NOTE,
   testId,
 } from "@zcode/shared";
 import type { AttachmentRef, QueueState } from "@zcode/shared/zcode-protocol-v4";
@@ -29,6 +22,7 @@ import { Button } from "@/components/ui/button.js";
 import { cn } from "@/components/lib/utils.js";
 import { useZCodeIntl } from "@/i18n/IntlProvider.js";
 import { runUserAction, runUserActionAsync } from "@/lib/userActionTelemetry.js";
+import { resolveV4QueueReorderAnchor, restrictQueueDragToPanel } from "./queueDragOrder.js";
 
 interface ConversationQueuePanelProps {
   queue: QueueState;
@@ -44,72 +38,21 @@ interface ConversationQueuePanelProps {
   onMoveItem?: (queueItemId: string, beforeQueueItemId: string | null) => void;
   /** 暂停队列恢复：CLI setAutoDrain(true)，idle 立即消费、busy 仅武装。 */
   onResume?: () => Promise<void> | void;
+  /**
+   * sendQueuedNow 的 availability（snapshot.availability.sendQueuedNow）。会话未运行时
+   * CLI promotion 只能拒绝；带上 reasonCode 让按钮显式解释为什么不能点，而不是点了
+   * 无声无息（T-301）。
+   */
+  sendNowBlockedReason?: string | null;
+  /** 会话自身被暂停（goalStatus=paused）：继续队列调度不等于恢复会话授权。 */
+  sessionPaused?: boolean;
+  /** 正在等待 sendQueuedNow ACK 的项；ACK 未回时不可重复派发。 */
+  sendNowPendingQueueItemId?: string | null;
 }
 
 type QueueItem = QueueState["items"][number];
 
-interface V4QueueReorderAnchor {
-  beforeQueueItemId: string | null;
-  queueItemId: string;
-}
 
-function resolveV4QueueReorderAnchor(
-  items: readonly QueueItem[],
-  activeQueueItemId: string,
-  overQueueItemId: string,
-): V4QueueReorderAnchor | null {
-  if (activeQueueItemId === overQueueItemId) {
-    return null;
-  }
-
-  const fromIndex = items.findIndex((item) => item.queueItemId === activeQueueItemId);
-  const overIndex = items.findIndex((item) => item.queueItemId === overQueueItemId);
-  if (fromIndex < 0 || overIndex < 0) {
-    return null;
-  }
-
-  if (fromIndex < overIndex) {
-    const itemsAfterRemoval = items.filter((item) => item.queueItemId !== activeQueueItemId);
-    const overIndexAfterRemoval = itemsAfterRemoval.findIndex(
-      (item) => item.queueItemId === overQueueItemId,
-    );
-    const nextItem = itemsAfterRemoval[overIndexAfterRemoval + 1];
-    return {
-      beforeQueueItemId: nextItem?.queueItemId ?? null,
-      queueItemId: activeQueueItemId,
-    };
-  }
-
-  return {
-    beforeQueueItemId: overQueueItemId,
-    queueItemId: activeQueueItemId,
-  };
-}
-
-const restrictQueueDragToPanel: Modifier = ({
-  transform,
-  draggingNodeRect,
-  activeNodeRect,
-  containerNodeRect,
-  windowRect,
-}) => {
-  const nodeRect = draggingNodeRect ?? activeNodeRect;
-  const boundaryRect = containerNodeRect ?? windowRect;
-  if (!nodeRect || !boundaryRect) {
-    return {
-      ...transform,
-      x: 0,
-    };
-  }
-
-  const minY = boundaryRect.top - nodeRect.top;
-  const maxY = boundaryRect.bottom - nodeRect.bottom;
-  return {
-    ...transform,
-    x: 0,
-    y: Math.min(Math.max(transform.y, minY), maxY),
-  };
-};
 
 interface QueueRowProps {
   item: QueueItem;
@@ -120,6 +63,10 @@ interface QueueRowProps {
   onEditItem?: (queueItemId: string) => Promise<void> | void;
   editPending: boolean;
   onSendNow?: (queueItemId: string) => void;
+  /** 非空 = availability 拒绝，直接发送此刻只会被 CLI 拒绝。 */
+  sendNowBlockedReason?: string | null;
+  /** 该项的 sendQueuedNow ACK 还在途中，重复点击只会撞 CLI reservation。 */
+  sendNowPending?: boolean;
 }
 
 /**
@@ -165,10 +112,13 @@ const QueueRow = memo(function QueueRow({
   onEditItem,
   onSendNow,
   editPending,
+  sendNowBlockedReason,
+  sendNowPending = false,
 }: QueueRowProps) {
   const dispatchLocked = item.dispatch.state !== "queued";
-  const rowLocked = dispatchLocked || editPending;
+  const rowLocked = dispatchLocked || editPending || sendNowPending;
   const isCompact = item.kind === "compact";
+  const sendNowLabel = intl.formatMessage({ id: isCompact ? "chat.queue.runNow" : "chat.queue.sendNow" });
   // SRC-163 (SRC-151:R006): the Auto-Goal suffix is not the queued prompt; show it as a mark.
   const queueGoal = splitZaicodeAutoGoal(item.text);
   const {
@@ -254,30 +204,36 @@ const QueueRow = memo(function QueueRow({
         ) : null}
       </span>
       {onSendNow ? (
-        <Button
-          type="button"
-          variant="secondary"
-          size="default"
-          data-icon="inline-start"
-          data-testid={testId(TID_V4_QUEUE_ITEM_SEND_NOW, item.queueItemId)}
-          data-queue-item-id={item.queueItemId}
-          disabled={rowLocked}
-          onClick={() =>
-            runUserAction({
-              input: {
-                featureId: "conversation.queue.item",
-                action: "send_now",
-                trigger: "button",
-              },
-              operation: () => onSendNow(item.queueItemId),
-              completed: { resultSource: "optimistic_projection" },
-              failureStage: "queue_send_now",
-            })
-          }
+        <ControlHintTooltip
+          title={sendNowBlockedReason
+            ? intl.formatMessage({ id: "chat.queue.actionBlocked" }, { action: sendNowLabel, reason: sendNowBlockedReason })
+            : sendNowLabel}
         >
-          <ArrowUpFromLine className="size-3.5" />
-          {intl.formatMessage({ id: isCompact ? "chat.queue.runNow" : "chat.queue.sendNow" })}
-        </Button>
+          <Button
+            type="button"
+            variant="secondary"
+            size="default"
+            data-icon="inline-start"
+            data-testid={testId(TID_V4_QUEUE_ITEM_SEND_NOW, item.queueItemId)}
+            data-queue-item-id={item.queueItemId}
+            disabled={rowLocked || Boolean(sendNowBlockedReason)}
+            onClick={() =>
+              runUserAction({
+                input: {
+                  featureId: "conversation.queue.item",
+                  action: "send_now",
+                  trigger: "button",
+                },
+                operation: () => onSendNow(item.queueItemId),
+                completed: { resultSource: "optimistic_projection" },
+                failureStage: "queue_send_now",
+              })
+            }
+          >
+            <ArrowUpFromLine className="size-3.5" />
+            {sendNowLabel}
+          </Button>
+        </ControlHintTooltip>
       ) : null}
       {onEditItem && !isCompact ? (
         <ControlHintTooltip title={intl.formatMessage({ id: "chat.queue.edit" })}>
@@ -327,6 +283,9 @@ function ConversationQueuePanelImpl({
   onSendNow,
   onMoveItem,
   onResume,
+  sendNowBlockedReason = null,
+  sessionPaused = false,
+  sendNowPendingQueueItemId = null,
 }: ConversationQueuePanelProps) {
   const { intl } = useZCodeIntl();
   const [resumePending, setResumePending] = useState(false);
@@ -372,6 +331,7 @@ function ConversationQueuePanelImpl({
       data-testid={TID_V4_QUEUE}
       data-queue-count={queue.items.length}
       data-queue-auto-drain={queue.autoDrain ? "true" : "false"}
+      data-queue-session-paused={sessionPaused ? "true" : "false"}
       className={cn(
         "relative z-0 w-full border border-border bg-surface p-1",
         isZaicodeProductMode()
@@ -382,6 +342,9 @@ function ConversationQueuePanelImpl({
       {!queue.autoDrain ? (
         <div
           data-testid={TID_V4_QUEUE_PAUSED_BANNER}
+          data-pause-reason={queue.pauseReason}
+          data-pause-origin={queue.pauseOrigin}
+          data-pause-reason-code={queue.pauseReasonCode}
           className="mb-1 flex min-h-10 items-center gap-3 rounded-xl border border-border/70 bg-surface-raised px-3 py-2 text-ui-base text-foreground"
         >
           <span className="min-w-0 flex-1">
@@ -389,10 +352,11 @@ function ConversationQueuePanelImpl({
               id:
                 queue.pauseReason === "stopped"
                   ? "chat.queue.paused.stopped"
-                  : queue.pauseReason === "error"
+                  : queue.pauseReason === "error" || queue.pauseReason === "system_error"
                     ? "chat.queue.paused.error"
                     : "chat.queue.paused.generic",
             })}
+            {queue.pauseReasonCode ? ` (${queue.pauseReasonCode})` : ""}
           </span>
           {onResume ? (
             <Button
@@ -408,6 +372,11 @@ function ConversationQueuePanelImpl({
               {intl.formatMessage({ id: "chat.queue.resume" })}
             </Button>
           ) : null}
+        </div>
+      ) : null}
+      {sessionPaused ? (
+        <div data-testid={TID_V4_SESSION_PAUSED_NOTE} className="mb-1 rounded-xl border border-border/70 bg-surface-raised px-3 py-2 text-ui-sm text-foreground-subtle">
+          {intl.formatMessage({ id: "chat.queue.sessionPausedNote" })}
         </div>
       ) : null}
       <DndContext
@@ -428,6 +397,8 @@ function ConversationQueuePanelImpl({
                 onDeleteItem={onDeleteItem}
                 onEditItem={onEditItem}
                 onSendNow={onSendNow}
+                sendNowBlockedReason={sendNowBlockedReason}
+                sendNowPending={sendNowPendingQueueItemId === item.queueItemId}
                 editPending={pendingEditQueueItemId === item.queueItemId}
               />
             ))}

@@ -354,6 +354,9 @@ export function createInputFacade(deps: CreateInputFacadeDeps): InputFacade {
       await deps.runtime.setQueueAutoDrain({
         autoDrain,
         traceContext: options?.traceContext ?? deps.traceContext,
+        pauseReason: options?.pauseReason,
+        pauseOrigin: options?.pauseOrigin,
+        pauseReasonCode: options?.pauseReasonCode,
       });
     },
     completeExternalQueueDrain: () => {

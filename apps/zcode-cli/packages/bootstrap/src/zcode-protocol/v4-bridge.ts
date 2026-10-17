@@ -1,3 +1,4 @@
+import { readSessionExecutionLiveness, normalizeStoredTitleSource, sessionUsageSeedFromRuntimeContextUsage } from "./session-observation.js";
 import { readBackgroundBashOutputFromOwner } from "./background-work-owner.js";
 // v4 网关 binder。
 // 定位：ConversationV4Gateway 是域无关的通道运行时，本文件把它绑到协议服务器上下文：
@@ -12,7 +13,6 @@ import { readBackgroundBashOutputFromOwner } from "./background-work-owner.js";
 import {
   isConversationRealUserTurnStarter,
   parseRemoteWorkspaceIdentity,
-  type ZCodeSessionContextUsage,
   type ZCodeWorkspaceRef,
 } from "@zcode/shared";
 import { createExternalTurnFaultError } from "@zcode/core";
@@ -24,10 +24,11 @@ import {
   type ConversationInputIntent,
   type V4ConversationFileChangesResult,
   type V4ConversationFileRewindPreviewResult,
-  type SessionSummary,
 } from "@zcode/shared/zcode-protocol-v4";
 import { V4CommandExecutor } from "../zcode-protocol-v4/commands/executor.js";
+import { runSaipenContinueLauncher } from "../zcode-protocol-v4/commands/continue-owner.js";
 import { V4QueuePromotionLeaseUnavailableError } from "../zcode-protocol-v4/commands/handlers/queue.js";
+import { V4RecognizedContinueRejectedError } from "../zcode-protocol-v4/commands/continue-command.js";
 import { V4CapabilityUnsupportedError } from "../zcode-protocol-v4/commands/handlers/interaction-background.js";
 import {
   buildColdFileChangeSummaries,
@@ -41,7 +42,6 @@ import { lookupGlobalCreateSessionCommand } from "../zcode-protocol-v4/create-se
 import type { V4CommandCoreHost } from "../zcode-protocol-v4/commands/types.js";
 import type {
   ConversationRowTargetResolution,
-  SessionUsageSeed,
 } from "../zcode-protocol-v4/product-projection.js";
 import { PersistentCommandIndex } from "../zcode-protocol-v4/persistent-command-index.js";
 import { queueItemIdForCommand } from "../zcode-protocol-v4/command-inbox.js";
@@ -102,32 +102,6 @@ import type {
   ZCodeProtocolSessionRecord,
 } from "./server-types.js";
 import { createProtocolLogger } from "./server-types.js";
-
-function normalizeStoredTitleSource(
-  source: string | undefined,
-): NonNullable<SessionSummary["titleSource"]> {
-  if (source === "custom") return "custom";
-  if (source === "default") return "default";
-  return "generated";
-}
-
-function sessionUsageSeedFromRuntimeContextUsage(
-  contextUsage: ZCodeSessionContextUsage | undefined,
-  contextWindowOverride?: number,
-): SessionUsageSeed | null {
-  if (!contextUsage || contextUsage.used <= 0) {
-    return null;
-  }
-  return {
-    contextWindow: {
-      usedTokens: contextUsage.used,
-      maxTokens: contextWindowOverride ?? null,
-      autoCompactThresholdTokens: null,
-      ...(contextUsage.cache ? { cache: contextUsage.cache } : {}),
-      ...(contextUsage.breakdown ? { breakdown: contextUsage.breakdown } : {}),
-    },
-  };
-}
 
 const STABLE_FORK_MODES = new Set<CollaborationMode>(["plan", "build", "edit", "yolo", "auto"]);
 
@@ -662,12 +636,29 @@ export function createConversationV4Gateway(
         scheduleAutoDrainRetry(record);
         return;
       }
-      // 自动提升失败不能继续越过该 FIFO barrier；重新暂停并保留原项，交用户重试。
-      await record.app.setQueueAutoDrain(false);
-      context.logger?.warn("v4 auto-drain failed and queue was paused", {
-        error: error instanceof Error ? error.message : String(error),
-        queueItemId: head.queueItemId,
+      // 自动提升失败不能继续越过该 FIFO barrier；以系统错误原因暂停，绝不标记为 manual
+      const reasonCode =
+        error instanceof V4RecognizedContinueRejectedError
+          ? error.reasonCode
+          : error instanceof Error
+            ? error.name || "promotion_failed"
+            : "promotion_failed";
+      await record.app.setQueueAutoDrain(false, {
+        pauseReason: "error",
+        pauseOrigin: "system",
+        pauseReasonCode: reasonCode,
+      });
+      context.logger?.warn("v4 auto-drain failed and queue was suspended", {
         sessionId: record.app.sessionId,
+        queueItemId: head.queueItemId,
+        origin: "system",
+        pauseOrigin: "system",
+        pauseReason: "error",
+        reasonCode,
+        originatingCommand: head.kind,
+        hostAcknowledgement: "refused",
+        recoveryEligibility: !reasonCode.startsWith("guard.recognizedContinueSaipen") && reasonCode !== "guard.recognizedContinueAuthorizationExpired",
+        error: error instanceof Error ? error.message : String(error),
       });
     }
   };
@@ -996,8 +987,7 @@ export function createConversationV4Gateway(
       context.v4Gateway?.isLatestRetryAssistantRow(sessionId, rowId) ?? null,
     isLatestEditableUserRow: (sessionId, rowId) =>
       context.v4Gateway?.isLatestEditableUserRow(sessionId, rowId) ?? null,
-    getTurnIdForRow: (sessionId, rowId) =>
-      context.v4Gateway?.getTurnIdForRow(sessionId, rowId) ?? null,
+    getTurnIdForRow: (sessionId, rowId) => context.v4Gateway?.getTurnIdForRow(sessionId, rowId) ?? null,
     // restoreWarning 时序自愈探针：App 的模型视图直接来自进程 Registry。
     hasUsableRuntimeModelTarget: (record) => record.app.listModels().length > 0,
     getTurnRewindAnchor: (sessionId, rowId) =>
@@ -1066,8 +1056,17 @@ export function createConversationV4Gateway(
       });
     },
     // ── 过渡钩子──────────────────────────────
-    ensureModelReady: (record) =>
-      ensureSessionModelAvailableForNextTurn(context, record as ZCodeProtocolSessionRecord),
+    // T-295: the trusted SAIPEN project boundary. The canonical launcher is the
+    // authority for a project-domain `cc`; running it here keeps that decision
+    // out of the model's hands and passes the child environment through
+    // untouched (a launch-time SAIPEN_TASK_* carrier stays the launcher's to read).
+    // `operatorText` is the operator's own submitted token, forwarded only by the
+    // real-user admission branch: the boundary declares it as the SAIPEN_TASK_FILE
+    // carrier when the session launched with none, which is what lets SAIPEN verify
+    // the valve reset instead of accepting bare CLI spelling. The file sits at its
+    // frozen inherited `max-lines` cap, so the delegation stays ONE counted line.
+    continueSaipenProject: (record, operatorText) => runSaipenContinueLauncher(record.workspace.workspacePath, { operatorText }),
+    ensureModelReady: (record) => ensureSessionModelAvailableForNextTurn(context, record as ZCodeProtocolSessionRecord),
     // 切模型前确认目标 Provider 已存在于当前 Environment Registry。普通模型命令只提交
     // Selection；Provider 事实始终由 Worker 自己的 Registry 解释。
     ensureProviderAvailable: async (sessionId, providerId) => {
@@ -1545,6 +1544,7 @@ export function createConversationV4Gateway(
         ? null
         : record.workspace.workspaceKey;
     },
+    getSessionExecutionLiveness: (sessionId, workIds) => readSessionExecutionLiveness(context, sessionId, workIds),
     getSessionIndexMeta: (sessionId) => {
       const record = context.sessions.get(sessionId);
       if (!record) return null;
