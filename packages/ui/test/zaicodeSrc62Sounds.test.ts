@@ -62,5 +62,5 @@ test("interface sounds choke each other; agent, engine and mail sounds always mi
 
 test("the project row that opens MAIN speaks with its own voice, not the orchestra's 'expand'", () => {
   const row = readFileSync(join(import.meta.dirname, "..", "src", "WorkspaceSidebarItem.tsx"), "utf8");
-  assert.match(row, /playZaicodeSound\("sidebar\.project"\);\s*onSelectTask\(tab\.workspacePath, decision\.sessionId/);
+  assert.match(row, /playZaicodeSound\("sidebar\.project"\);\s*(?:recordSessionClick\(decision\.sessionId\);\s*)?onSelectTask\(tab\.workspacePath, decision\.sessionId/);
 });
