@@ -160,6 +160,12 @@ import {
   adoptZaicodeComposerModel,
   subscribeZaicodeComposerModel,
 } from "@/zaicode/zaicodeDefaultModel.js";
+import {
+  describeZaicodeEffortSwitchPhase,
+  zaicodeEffortSwitchPhase,
+  zaicodeEffortSwitchPlan,
+  zaicodeLiveSwitchAckIsCurrent,
+} from "@/zaicode/zaicodeLiveConfigSwitch.js";
 import { useZaicodeAutoSessionTitle } from "@/zaicode/zaicodeAutoTitle.js";
 import { useZaicodeAutoRetry } from "@/zaicode/zaicodeAutoRetry.js";
 import {
@@ -1219,6 +1225,31 @@ export function SessionPane({
     requestedModel: null,
     status: "idle",
   });
+  // T-396: the thought picker used to be draft-only, so a live Effort change never
+  // reached the runtime. Its request is tracked separately from the model switch: the
+  // same-model thought path is a different command outcome and a different strip line.
+  const [liveEffortSwitch, setLiveEffortSwitch] = useState<{
+    /** The session the request belongs to: a new session must not inherit the old strip. */
+    sessionId: string | null;
+    requested: string | null;
+    acknowledged: boolean;
+    unsupported: boolean;
+    error: string | null;
+  }>({ sessionId: null, requested: null, acknowledged: false, unsupported: false, error: null });
+  // A late ACK belongs to an older request; only the newest one may rewrite the strip.
+  const liveEffortSwitchSeqRef = useRef(0);
+  // T-396: the model picked a moment ago is not in the projection yet. An Effort pick
+  // that arrives in that gap must target the pending model, not the snapshot's old one,
+  // or the thought command would silently revert the model switch.
+  const liveModelSwitchTargetRef = useRef<{
+    sessionId: string;
+    provider: string;
+    model: string;
+    /** Settles when the model switch has its ACK; never rejects. */
+    settled: Promise<boolean>;
+  } | null>(null);
+  // A late model-switch ACK must not repaint the strip of a newer switch.
+  const liveModelSwitchSeqRef = useRef(0);
   const timelineScrollToBottomRef = useRef<(() => void) | null>(null);
   const timelineScrollToQueryRef = useRef<
     ((target: { unitIndex: number; rowId: number }) => void) | null
@@ -3802,17 +3833,54 @@ export function SessionPane({
         toast(`START now runs ${model} in the app (the sidebar subscription engine was released).`);
       }
       if (sessionId && !readOnly) {
+        // T-396: a model switch supersedes any outstanding Effort request -- the level
+        // was picked for the old model and the new model has its own scale.
+        liveEffortSwitchSeqRef.current += 1;
+        setLiveEffortSwitch({
+          sessionId: null,
+          requested: null,
+          acknowledged: false,
+          unsupported: false,
+          error: null,
+        });
         setLiveHotSwitchState({
           requestedProvider: resolvedProvider,
           requestedModel: model,
           status: "switching",
         });
-        void dispatchConfigCas("switchModelConfig", {
+        const switchFlight = dispatchConfigCas("switchModelConfig", {
           provider: resolvedProvider,
           model,
           thought: draftConfigRef.current.thought ?? "",
-        })
+        });
+        const switchSeq = ++liveModelSwitchSeqRef.current;
+        // Clear the pending target only when it is still THIS switch. A slow first switch
+        // settling after a second one must not erase the newer target (the Effort pick
+        // would then fall back to the stale snapshot model).
+        const settleSwitchTarget = (ok: boolean): boolean => {
+          const current = liveModelSwitchTargetRef.current;
+          if (
+            switchSeq === liveModelSwitchSeqRef.current &&
+            current?.sessionId === sessionId &&
+            current.provider === resolvedProvider &&
+            current.model === model
+          ) {
+            liveModelSwitchTargetRef.current = null;
+          }
+          return ok;
+        };
+        liveModelSwitchTargetRef.current = {
+          sessionId,
+          provider: resolvedProvider,
+          model,
+          settled: switchFlight.then(
+            (ack) => settleSwitchTarget(Boolean(ack && ["accepted", "noop", "duplicate"].includes(ack.status))),
+            () => settleSwitchTarget(false),
+          ),
+        };
+        void switchFlight
           .then((ack) => {
+            if (!zaicodeLiveSwitchAckIsCurrent(switchSeq, liveModelSwitchSeqRef.current)) return;
             if (ack && ["accepted", "noop", "duplicate"].includes(ack.status)) {
               setLiveHotSwitchState((prev) => ({
                 ...prev,
@@ -3837,6 +3905,8 @@ export function SessionPane({
             }
           })
           .catch((err) => {
+            settleSwitchTarget(false);
+            if (!zaicodeLiveSwitchAckIsCurrent(switchSeq, liveModelSwitchSeqRef.current)) return;
             setLiveHotSwitchState((prev) => ({
               ...prev,
               status: "failed",
@@ -3848,12 +3918,151 @@ export function SessionPane({
     [dispatchConfigCas, draftConfigRef, handleDraftSelectModel, readOnly, sessionId],
   );
 
+  // T-396: a live Effort change is a command against the session, not only a draft edit.
+  // The plan decides whether the runtime needs to hear about it; the strip is then read
+  // from the projection, so an accepted ACK alone never renders as "applied".
   const handleSelectThought = useCallback(
     (thought: string, _modelContext: { provider: string; model: string }) => {
       handleDraftSelectThought(thought);
+      // Only this session's projection may name the provider/model to switch: a stale
+      // snapshot from the previous session would send another session's model identity.
+      // A model switch still in flight outranks the projection -- the projection has not
+      // caught up yet, and naming the old model here would revert that switch.
+      const projected = snapshotRef.current;
+      const projectedConfig = projected?.sessionId === sessionId ? projected.config : undefined;
+      const pendingModel =
+        liveModelSwitchTargetRef.current?.sessionId === sessionId
+          ? liveModelSwitchTargetRef.current
+          : null;
+      const targetProvider = pendingModel?.provider ?? projectedConfig?.provider ?? null;
+      const targetModel = pendingModel?.model ?? projectedConfig?.model ?? null;
+      // While the model switch is in flight its ACK is the authoritative outcome; the
+      // level it carries is still the pre-switch one, so a pending thought command must
+      // wait for that ACK before it can name the right model identity.
+      const plan = zaicodeEffortSwitchPlan({
+        sessionId,
+        readOnly,
+        thought,
+        liveProvider: targetProvider,
+        liveModel: targetModel,
+        pinnedThought: pendingModel ? null : (projectedConfig?.thought ?? null),
+        supportedThoughtLevels: pendingModel ? [] : (projectedConfig?.thoughtLevels ?? []),
+      });
+      if (plan.kind === "draft") return;
+      if (plan.kind === "unsupported") {
+        setLiveEffortSwitch((prev) => ({
+          ...prev,
+          sessionId,
+          requested: plan.thought,
+          acknowledged: false,
+          unsupported: true,
+          error: null,
+        }));
+        return;
+      }
+      const seq = ++liveEffortSwitchSeqRef.current;
+      setLiveEffortSwitch({
+        sessionId,
+        requested: plan.thought,
+        acknowledged: false,
+        unsupported: false,
+        error: null,
+      });
+      // Same barrier as sendText: a send queued right after the pick must not reach the
+      // runtime before the switch does, or it would run the old level one last time.
+      // An in-flight model switch is awaited rather than barrier-ordered, because that
+      // switch does not ride the barrier. If it was rejected, the thought must not be
+      // sent against the rejected model: that would turn an Effort pick into a model
+      // switch the operator never got.
+      void configCommandBarrier
+        .enqueue(async () => {
+          if (pendingModel) {
+            const applied = await pendingModel.settled;
+            if (!applied) {
+              if (zaicodeLiveSwitchAckIsCurrent(seq, liveEffortSwitchSeqRef.current)) {
+                setLiveEffortSwitch((prev) => ({
+                  ...prev,
+                  acknowledged: true,
+                  error: "the model switch it belongs to was rejected",
+                }));
+              }
+              return null;
+            }
+          }
+          return dispatchConfigCas("switchModelConfig", {
+            provider: targetProvider ?? "",
+            model: targetModel ?? "",
+            thought: plan.thought,
+          });
+        })
+        .then((ack) => {
+          if (!ack) return;
+          if (!zaicodeLiveSwitchAckIsCurrent(seq, liveEffortSwitchSeqRef.current)) return;
+          if (ack && ["accepted", "noop", "duplicate"].includes(ack.status)) {
+            setLiveEffortSwitch((prev) => ({ ...prev, acknowledged: true, error: null }));
+            return;
+          }
+          setLiveEffortSwitch((prev) => ({
+            ...prev,
+            acknowledged: true,
+            error: ack?.reasonCode ?? ack?.status ?? "rejected",
+          }));
+        })
+        .catch((err) => {
+          if (!zaicodeLiveSwitchAckIsCurrent(seq, liveEffortSwitchSeqRef.current)) return;
+          setLiveEffortSwitch((prev) => ({
+            ...prev,
+            acknowledged: true,
+            error: err instanceof Error ? err.message : String(err),
+          }));
+        });
     },
-    [handleDraftSelectThought],
+    [configCommandBarrier, dispatchConfigCas, handleDraftSelectThought, readOnly, sessionId],
   );
+
+  // T-396: the pending model target and the effort strip are only valid for the session
+  // that set them. A previous session's "APPLIED"/"REJECTED" must not sit over a new one.
+  useEffect(() => {
+    if (liveModelSwitchTargetRef.current?.sessionId !== sessionId) {
+      liveModelSwitchTargetRef.current = null;
+    }
+    liveEffortSwitchSeqRef.current += 1;
+    setLiveEffortSwitch((prev) =>
+      prev.sessionId === sessionId || prev.requested === null
+        ? prev
+        : { sessionId: null, requested: null, acknowledged: false, unsupported: false, error: null },
+    );
+  }, [sessionId]);
+
+  // T-396: once the projection carries the requested level the switch is proven, so the
+  // strip collapses after a brief confirmation instead of reserving space forever.
+  // A rejection stays until the next pick, exactly like the model-switch strip.
+  useEffect(() => {
+    const requested = liveEffortSwitch.requested?.trim();
+    if (!requested || liveEffortSwitch.error || liveEffortSwitch.unsupported) return;
+    if (snapshot?.sessionId !== sessionId || snapshot.config.thought.trim() !== requested) return;
+    const timer = setTimeout(() => {
+      setLiveEffortSwitch((prev) =>
+        prev.requested?.trim() === requested
+          ? {
+              sessionId: prev.sessionId,
+              requested: null,
+              acknowledged: false,
+              unsupported: false,
+              error: null,
+            }
+          : prev,
+      );
+    }, 2600);
+    return () => clearTimeout(timer);
+  }, [
+    liveEffortSwitch.error,
+    liveEffortSwitch.requested,
+    liveEffortSwitch.unsupported,
+    sessionId,
+    snapshot?.config.thought,
+    snapshot?.sessionId,
+  ]);
 
   useEffect(() => {
     if (!isZaicodeProductMode() || !focused || readOnly) return;
@@ -5243,6 +5452,43 @@ export function SessionPane({
         }
         return null;
       })() : null}
+      {isZaicodeProductMode() && sessionId && snapshot?.config?.model && liveEffortSwitch.sessionId === sessionId
+        ? (() => {
+            // T-396: runtime truth, not the ACK. `APPLIED` needs the projection's
+            // effective thought; a stale ACK never rewrites a newer request.
+            const phase = zaicodeEffortSwitchPhase({
+              requested: liveEffortSwitch.requested,
+              unsupported: liveEffortSwitch.unsupported,
+              acknowledged: liveEffortSwitch.acknowledged,
+              error: liveEffortSwitch.error,
+              effectiveThought: snapshot.config.thought,
+            });
+            if (!phase) return null;
+            const executing =
+              snapshot.control.phase === "running" ||
+              (snapshot.control.activeWorks?.length ?? 0) > 0;
+            const line = describeZaicodeEffortSwitchPhase(phase, {
+              requested: liveEffortSwitch.requested ?? "",
+              effectiveThought: snapshot.config.thought,
+              executing,
+              error: liveEffortSwitch.error,
+            });
+            return (
+              <div
+                data-zaicode-live-effort={phase.toLowerCase()}
+                data-zaicode-live-effort-effective={snapshot.config.thought}
+                aria-live="polite"
+                className={
+                  phase === "REJECTED"
+                    ? "mx-2 mb-1.5 px-2 py-1 text-ui-caption border border-destructive/50 bg-destructive/10 select-text"
+                    : "mx-2 mb-1 px-2 py-0.5 text-ui-caption text-foreground-subtle select-text"
+                }
+              >
+                {line}
+              </div>
+            );
+          })()
+        : null}
       {composerNode}
       {/* 办公模式显示主动任务推荐；编程模式保留原有小型场景入口。ZAICODE 主屏不展示推荐 prompt。 */}
       {!isZaicodeProductMode() &&
