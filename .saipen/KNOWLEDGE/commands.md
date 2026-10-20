@@ -153,3 +153,37 @@ ZAICODE install, updates and the free path (added 2026-09-30, T-134):
 | FREE on a fresh profile (packaged app) | `node packages/desktop/scripts/verify-zaicode-free.cjs <ZAICODE.exe> [--router-package DIR] [--out DIR]` from `zcode/` |
 | Updates controller tests | `node --import tsx --test test/zaicodeUpdates.test.ts` from `packages/desktop` |
 | T-134 UI tests | `node --import tsx --test test/zaicodeT134Control.test.ts` from `packages/ui` (in the `zaicode*` glob) |
+
+Measured verification cost (added 2026-10-21, T-401; Windows/Git Bash, node 24.15,
+pnpm 10.33.2, warm `tsc -b` build cache, zcode @ a71be526 + T-401 working tree):
+
+| Purpose | Command (cwd) | Wall clock | Result |
+|---------|---------------|-----------|--------|
+| Full typecheck (13 projects, incremental) | `pnpm typecheck` (zcode/) | 15.6 s | exit 0 |
+| UI typecheck only | `pnpm exec tsc -b packages/ui` (zcode/) | 13.9 s | exit 0 |
+| Full UI suite (2104 tests) | `node --import tsx --test "test/*.test.ts"` (zcode/packages/ui) | 48.8 s | 2100 pass / 0 fail / 4 skipped |
+| Full services suite (333) | `pnpm --filter @zcode/services exec node --import tsx --test --test-concurrency=4 "test/*.test.ts"` (zcode/) | 35.2 s | 333 pass |
+| Bootstrap suite (111) | `pnpm --dir apps/zcode-cli/packages/bootstrap exec node --import tsx --test "test/*.test.ts"` (zcode/) | 7.1 s | 111 pass |
+| Full lint | `pnpm lint` (zcode/) | 2.2-2.5 s | 91 warnings + 9 errors (pre-existing max-lines) |
+| One focused UI test file | `node --import tsx --test test/zaicodeT337AutoScope.test.ts` (packages/ui) | 1.4 s | 5 pass |
+| One focused UI test file (red baseline) | same | 1.0 s | 5 pass |
+| 9 neighbour UI test files | `node --import tsx --test test/<9 files>` (packages/ui) | 12.4 s | 73 pass |
+
+Verification strategy that follows from these numbers: a focused file is ~1.4 s,
+the neighbour group ~12 s, the whole UI suite ~49 s, every package together ~92 s.
+So RED/GREEN during implementation is a focused file; a wave checkpoint runs the
+touched package's neighbours; the full UI+services+bootstrap trio runs once per
+integrated checkpoint; `pnpm typecheck` is warm-cheap (15 s) and belongs to every
+checkpoint. Reuse a suite result only while the tree and the command are unchanged.
+
+Lint caveat: `pnpm lint` is NOT green on a clean a71be526. Nine `eslint(max-lines)`
+errors exist in files untouched by T-401 (packages/ui/src/ChatErrorBanner.tsx 415,
+packages/ui/src/zaicode/ZaicodeQueuePanel.tsx 417,
+packages/ui/src/zaicode/ZaicodeAppRuntime.tsx 402,
+packages/shared/src/zaicode-router-circuit-breaker.ts 635,
+packages/shared/src/zaicodeSessionHealth.ts 435,
+apps/zcode-cli/packages/bootstrap/src/app/types.ts 599,
+apps/zcode-cli/packages/core/src/runtime/agent-runtime.ts 581,
+apps/zcode-cli/packages/adapters/src/model/runner-stream.ts 1534).
+That blocks `pnpm verify:pre-push` independently of any ticket; `oxlint <changed
+files>` stays the honest per-wave gate until it is repaired.
