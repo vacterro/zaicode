@@ -848,6 +848,9 @@ export async function editPendingInputById(
     traceContext: TraceContext;
   },
 ): Promise<boolean> {
+  // T-394: 权威可编辑性判定在 Core，不在 React。reserved/promoting 的项已经归属某次
+  // dispatch（提升在途），此时改文本会与该 dispatch 抢同一份 payload，必须拒绝。
+  if (this.pendingInputReservations.has(options.pendingInputId)) return false;
   const activeTurn = this.activeTurn;
   const pendingInput = activeTurn?.pendingInputs.find((item) => item.id === options.pendingInputId);
   if (!activeTurn || !pendingInput) {

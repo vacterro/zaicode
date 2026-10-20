@@ -22,5 +22,8 @@ test("R006: the Auto-Goal suffix never shows as the queued or sent prompt", () =
   assert.match(row, /const visibleText = zaicodeGoal\.body;/);
   assert.match(row, /zaicodeGoal\.goal \? withZaicodeAutoGoal\(nextText, true\) : nextText/, "an edit keeps the goal it was sent with");
   const pane = src("v4/SessionPane.tsx");
-  assert.match(pane, /splitZaicodeAutoGoal\(restoreTarget\.text\)\.body/, "a queue edit does not put the suffix in the editor");
+  assert.doesNotMatch(pane, /restoreTarget/, "the delete-then-restore queue edit is gone");
+  assert.doesNotMatch(pane, /splitZaicodeAutoGoal/, "the pane no longer rebuilds queued text");
+  assert.match(queue, /setDraft\(queueDraftBody\)/, "the inline editor seeds from the prompt body");
+  assert.match(queue, /withZaicodeAutoGoal\(draft, true\)/, "a suffix-bearing prompt keeps its suffix");
 });

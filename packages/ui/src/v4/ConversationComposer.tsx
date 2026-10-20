@@ -69,6 +69,7 @@ import { ZaicodeAutoRetryNotice } from "@/zaicode/ZaicodeAutoRetryNotice.js";
 import { ZaicodeAutoGoalButton } from "@/zaicode/ZaicodeAutoGoalButton.js";
 import { ZaicodeAutoRetryButton } from "@/zaicode/ZaicodeAutoRetryButton.js";
 import {
+  classifyOutgoingInput,
   useZaicodeAutoGoal,
   withZaicodeAutoGoal,
   zaicodeAutoGoalEnabled,
@@ -105,7 +106,7 @@ import {
   ChatMediaAttachmentPreviewDialog,
   type ChatMediaAttachmentPreviewTarget,
 } from "@/ChatMediaAttachmentPreviewDialog.js";
-import type { LexicalChatInputHandle } from "@/LexicalChatInput.js";
+import type { LexicalChatInputHandle, LexicalSendReadiness } from "@/LexicalChatInput.js";
 import { ChatPromptEditor } from "@/prompt-editor/ChatPromptEditor.js";
 import { usePromptEditorDragState } from "@/prompt-editor/usePromptEditorDragState.js";
 import { useZCodeIntl } from "@/i18n/IntlProvider.js";
@@ -290,13 +291,26 @@ function applyExternalTextInsertRequestToComposer({
   if (!inputApi) {
     return appliedRequestId;
   }
-  if (request.mode === "prepend-if-missing" && request.mention) {
-    if (!inputApi.prependMentionIfMissing(request.mention)) {
+  if (request.mode === "prepend-if-missing") {
+    if (request.mention) {
+      if (!inputApi.prependMentionIfMissing(request.mention)) {
+        return request.requestId;
+      }
+      // Bug 原因：安装完成后若回放点击时保存的旧 prompt，会覆盖用户安装期间的编辑。
+      // 节点级前置保留编辑器当前的 mention 与段落结构，再从编辑器读取 canonical 草稿。
+      updateText(inputApi.getMarkdown());
+      scheduleDraftPersist();
+      requestFocus();
       return request.requestId;
     }
-    // Bug 原因：安装完成后若回放点击时保存的旧 prompt，会覆盖用户安装期间的编辑。
-    // 节点级前置保留编辑器当前的 mention 与段落结构，再从编辑器读取 canonical 草稿。
-    updateText(inputApi.getMarkdown());
+    const currentMarkdown = inputApi.getMarkdown().trim();
+    if (currentMarkdown.includes(request.text.trim())) {
+      requestFocus();
+      return request.requestId;
+    }
+    const nextText = currentMarkdown ? `${request.text}\n\n${currentMarkdown}` : request.text;
+    inputApi.setText(nextText);
+    updateText(nextText);
     scheduleDraftPersist();
     requestFocus();
     return request.requestId;
@@ -312,63 +326,6 @@ function applyExternalTextInsertRequestToComposer({
     inputApi.setText(request.text);
   }
   updateText(request.text);
-  scheduleDraftPersist();
-  requestFocus();
-  return request.requestId;
-}
-
-export interface ComposerRestoreRequest {
-  requestId: number;
-  sessionId: string;
-  workspaceKey: string;
-  inputKind: "sendText" | "sendGoalCommand";
-  text: string;
-  attachments: readonly AttachmentRef[];
-  config?: Pick<V4ComposerDraft, "mode" | "planEnabled" | "modelSelection">;
-}
-
-function applyComposerRestoreRequestToComposer({
-  appliedRequestId,
-  currentSessionId,
-  currentWorkspaceKey,
-  hasDraftContent,
-  inputApi,
-  request,
-  requestFocus,
-  restoreSessionOwnedAttachments,
-  restoreDraftConfig,
-  scheduleDraftPersist,
-  updateText,
-}: {
-  appliedRequestId: number | null;
-  currentSessionId: string | null;
-  currentWorkspaceKey: string;
-  hasDraftContent: boolean;
-  inputApi: Pick<LexicalChatInputHandle, "setText"> | null;
-  request: ComposerRestoreRequest | null | undefined;
-  requestFocus: () => void;
-  restoreSessionOwnedAttachments: (attachments: readonly AttachmentRef[]) => boolean;
-  restoreDraftConfig?: (config: NonNullable<ComposerRestoreRequest["config"]>) => void;
-  scheduleDraftPersist: () => void;
-  updateText: (text: string) => void;
-}): number | null {
-  if (!request || request.requestId === appliedRequestId) {
-    return appliedRequestId;
-  }
-  if (
-    request.sessionId !== currentSessionId ||
-    request.workspaceKey !== currentWorkspaceKey ||
-    hasDraftContent ||
-    !inputApi
-  ) {
-    return appliedRequestId;
-  }
-  if (!restoreSessionOwnedAttachments(request.attachments)) {
-    return appliedRequestId;
-  }
-  inputApi.setText(request.text);
-  updateText(request.text);
-  if (request.config) restoreDraftConfig?.(request.config);
   scheduleDraftPersist();
   requestFocus();
   return request.requestId;
@@ -445,6 +402,8 @@ interface ConversationComposerProps {
   onTextChange?: (text: string) => void;
   /** queue 撤回 admission 读取的完整 composer 占用态；附件包含上传中状态。 */
   onDraftStateChange?: (state: { hasContent: boolean; busy: boolean }) => void;
+  /** Empty-composer ArrowUp: host pulls the newest editable queued message back; true = handled. */
+  onEmptyArrowUp?: () => boolean;
   onStop: () => void;
   /** 目录选中模型（providerId/modelId）；thought/revision 由宿主从最新投影补齐。 */
   onSelectModel: (
@@ -490,12 +449,6 @@ interface ConversationComposerProps {
    */
   externalTextInsertRequest?: ExternalTextInsertRequest | null;
   onExternalTextInsertApplied?: (requestId: number) => void;
-  /**
-   * 队列“编辑”在 delete ACK 后把完整未来意图取回输入框。
-   * requestId + session/workspace binding 保证幂等且不会串写其他 task。
-   */
-  composerRestoreRequest?: ComposerRestoreRequest | null;
-  onComposerRestoreApplied?: (requestId: number) => void;
   /** 副屏会话不提供 goal 能力；协议层仍会拒绝直接调用。 */
   suppressGoalCommands?: boolean;
   /** App 层本地斜杠命令（如 `/side`），由 SessionPane 按门禁组装后透传。 */
@@ -542,6 +495,7 @@ function ConversationComposerImpl({
   onSendText,
   onTextChange,
   onDraftStateChange,
+  onEmptyArrowUp,
   onStop,
   onSelectModel,
   onSelectThought,
@@ -560,8 +514,6 @@ function ConversationComposerImpl({
   listenAddToChatEvents = true,
   externalTextInsertRequest = null,
   onExternalTextInsertApplied,
-  composerRestoreRequest = null,
-  onComposerRestoreApplied,
   suppressGoalCommands = false,
   appSlashCommands,
   onDropTargetControllerChange,
@@ -732,6 +684,7 @@ function ConversationComposerImpl({
     text: string;
     filename: string;
   } | null>(null);
+  const pastedDraftsRef = useRef<Map<string, string>>(new Map());
   const [pastedTextSaving, setPastedTextSaving] = useState(false);
   const [attachmentPreviewIndex, setAttachmentPreviewIndex] = useState(0);
   const [attachmentPreviewOpen, setAttachmentPreviewOpen] = useState(false);
@@ -855,7 +808,6 @@ function ConversationComposerImpl({
   const sendTriggerRef = useRef<"button" | "shortcut">("shortcut");
   // 修饰键点击先于 form submit；这里只保存这一拍的 delivery 反转意图，submit 消费后清零。
   const reversePointerDeliveryRef = useRef(false);
-  const appliedComposerRestoreRequestRef = useRef<number | null>(null);
   const appliedExternalTextInsertRequestRef = useRef<number | null>(null);
   // 决策入参经 ref 读取，避免把 autoFocusEnabled/disabled/viewport 灌进 scope effect 依赖，
   // 触发多余的草稿重恢复（disabled 变化本不应重放草稿）。
@@ -903,70 +855,13 @@ function ConversationComposerImpl({
     clearContexts: clearCodeCommentContexts,
     getContexts: getCodeCommentContexts,
   } = useCodeCommentContexts({
-    // queue 撤回等待 ACK 时 composer 处于 disabled；与网页上下文保持同一写入门禁。
+    // 输入被禁用时不接入外部上下文：与网页上下文保持同一写入门禁。
     listenAddToChatEvents: listenAddToChatEvents && !disabled,
     onContextRemoved: handleCodeCommentRemoved,
     requestFocus: requestComposerFocus,
     scopeKey: `${workspaceKey}\0${draftScopeId}`,
   });
 
-  useEffect(() => {
-    if (!composerRestoreRequest) return;
-    const applyRequest = () => {
-      const nextAppliedRequestId = applyComposerRestoreRequestToComposer({
-        appliedRequestId: appliedComposerRestoreRequestRef.current,
-        currentSessionId: sessionId,
-        currentWorkspaceKey: workspaceKey,
-        hasDraftContent:
-          textRef.current.length > 0 ||
-          attachmentsApi.attachments.length > 0 ||
-          codeCommentContexts.length > 0 ||
-          webElementContexts.length > 0 ||
-          pptxElementReferences.length > 0 ||
-          conversationSelectionReferences.length > 0,
-        inputApi: inputApiRef.current,
-        request: composerRestoreRequest,
-        requestFocus: requestComposerFocus,
-        restoreSessionOwnedAttachments: attachmentsApi.restoreSessionOwnedAttachments,
-        // 撤回项携带独立 Submission 配置；沿用草稿 owner，一次恢复且保留已处理授权标记。
-        restoreDraftConfig: (config) =>
-          replaceComposerDraft({
-            ...ownerDraftRef.current.draft,
-            ...config,
-            text: composerRestoreRequest.text,
-            editorStateJson: undefined,
-            mention: undefined,
-          }),
-        scheduleDraftPersist,
-        updateText,
-      });
-      const appliedNow =
-        nextAppliedRequestId === composerRestoreRequest.requestId &&
-        appliedComposerRestoreRequestRef.current !== composerRestoreRequest.requestId;
-      appliedComposerRestoreRequestRef.current = nextAppliedRequestId;
-      if (appliedNow) onComposerRestoreApplied?.(composerRestoreRequest.requestId);
-      return nextAppliedRequestId === composerRestoreRequest.requestId;
-    };
-    if (applyRequest()) return;
-    if (typeof requestAnimationFrame !== "function") return;
-    const frame = requestAnimationFrame(applyRequest);
-    return () => cancelAnimationFrame(frame);
-  }, [
-    attachmentsApi.attachments.length,
-    attachmentsApi.restoreSessionOwnedAttachments,
-    codeCommentContexts.length,
-    composerRestoreRequest,
-    conversationSelectionReferences.length,
-    onComposerRestoreApplied,
-    replaceComposerDraft,
-    requestComposerFocus,
-    scheduleDraftPersist,
-    sessionId,
-    updateText,
-    webElementContexts.length,
-    pptxElementReferences.length,
-    workspaceKey,
-  ]);
 
   // scope 切换：先落旧 scope 草稿，再恢复新 scope（editorStateJson 优先，退纯文本）。
   useEffect(() => {
@@ -1148,6 +1043,7 @@ function ConversationComposerImpl({
     isZaicodeProductMode() && snapshot ? sessionId : null,
     workspacePath,
     Boolean(snapshot && ((snapshot.control.sessionEnded !== true && ["running", "prewarming"].includes(snapshot.control.phase)) || snapshot.backgroundWorks.some((work) => work.status === "running"))),
+    snapshot?.revision,
   );
   const modifiedEnterReversesDelivery = modifiedEnterSubmits && canStop;
   const hasText = text.trim().length > 0;
@@ -1185,6 +1081,31 @@ function ConversationComposerImpl({
     routingAllowsSend &&
     attachmentsReady &&
     submissionReady;
+  const sendReadiness: LexicalSendReadiness =
+    disabled
+      ? "disabled"
+      : pending
+        ? "submitting"
+        : !attachmentsReady
+          ? "attachments_not_ready"
+          : !routingAllowsSend
+            ? "routing_rejected"
+            : !hasDraftToSubmit &&
+              !(
+                hasCodeCommentContexts ||
+                hasAttachments ||
+                hasWebElementContexts ||
+                hasPptxElementReferences ||
+                hasConversationSelectionReferences
+              )
+              ? "empty"
+              : !submissionReady
+                ? "not_submittable"
+                : "ready";
+  // Enter 键位仍表示发送、但提交被挡住时：不插换行、不静默丢弃，报确切原因。
+  const handleSubmitBlocked = useCallback((reason: string) => {
+    toast(reason, { variant: "warning" as const });
+  }, []);
   // 旧 UI 状态机：streaming + 空草稿 → Stop；有草稿 → 发送键（入队）。
   const showStopControl = canStop && !hasDraftToSubmit;
 
@@ -1361,10 +1282,15 @@ function ConversationComposerImpl({
         // 里没有任何东西解析它），唯一作用是驱动一个已被产品裁掉的 chip，代价却是把一个
         // share URL 塞进发给模型的正文。模型侧内容由隐藏的 shared_context 消息经
         // inputIntent.sharedContextRefs 注入，与正文无关。
+        const classification = classifyOutgoingInput(trimmed);
+        if (classification.isStop) {
+          stopZaicodeGoalIntents(workspaceKey, sessionId ?? null);
+        }
         const goalText = withZaicodeAutoGoal(trimmed, autoGoalOn);
         // T-222: one logical goal intent per submitted prompt. Idempotent:
         // retries and resubmits return the same intent instead of forking one.
-        if (autoGoalOn) {
+        // T-310: ineligible control commands never register an automatic goal intent.
+        if (autoGoalOn && classification.eligibleForAutoGoal) {
           const objective = zaicodeGoalObjectiveOf(goalText);
           if (objective) registerZaicodeGoalIntent({ projectKey: workspaceKey, sessionId: sessionId ?? null, objective, fresh: true });
         }
@@ -1889,7 +1815,7 @@ function ConversationComposerImpl({
                           ? () => {
                               setPastedTextEdit({
                                 id: attachment.id,
-                                text: attachment.text ?? "",
+                                text: pastedDraftsRef.current.get(attachment.id) ?? attachment.text ?? "",
                                 filename: attachment.filename,
                               });
                             }
@@ -1979,9 +1905,9 @@ function ConversationComposerImpl({
                       <div className="min-w-0 max-w-56 flex-1">
                         <span
                           className="block truncate text-ui-base font-medium text-foreground"
-                          title={intl.formatMessage({ id: "chat.attachments.clipboardText" })}
+                          title={attachment.filename}
                         >
-                          {intl.formatMessage({ id: "chat.attachments.clipboardText" })}
+                          {attachment.filename}
                         </span>
                         <span
                           className="block truncate text-ui-sm font-normal text-foreground-subtle"
@@ -2164,10 +2090,10 @@ function ConversationComposerImpl({
       }),
     [onSelectModel],
   );
-  const submitControlNode = useMemo(
+  const submitControlsNode = useMemo(
     () => (
-      <div className="flex min-w-0 items-center gap-1">
-        <span className="flex min-w-0 shrink items-center gap-1 overflow-hidden empty:hidden">
+      <div className="flex min-w-0 flex-wrap items-center gap-1" data-zaicode-submit-controls={isZaicodeProductMode() || undefined}>
+        <span className="flex min-w-0 shrink items-center gap-1 overflow-hidden empty:hidden" data-zaicode-model-controls={isZaicodeProductMode() || undefined}>
           <V4ComposerModelControls
             workspacePath={workspacePath}
             workspaceIdentity={workspaceIdentity}
@@ -2200,6 +2126,44 @@ function ConversationComposerImpl({
         {isZaicodeProductMode() && showStopControl ? (
           <ZaicodeComposerWorkingFor sessionId={sessionId} running />
         ) : null}
+      </div>
+    ),
+    [
+      activeConfigPicker,
+      composerPhase,
+      composerUsage,
+      disabled,
+      draftConfig,
+      draftMode,
+      handleConfigPickerOpenChange,
+      mode,
+      handleSelectModelTrace,
+      modelSelectionReload,
+      modelSelectionState,
+      modelSelectionView,
+      onSelectThought,
+      onRecoverCustomModelSelection,
+      onSendCompressionCommand,
+      onSwitchMode,
+      provider,
+      sessionId,
+      workspaceIdentity,
+      workspacePath,
+    ],
+  );
+
+  // T-298: the primary Stop/Send action is anchored to the rightmost stable
+  // position of the composer. It is a sibling of the model/retry cluster
+  // (never its last child), and the toolbar pushes it right with margin, so
+  // controls appearing, disappearing, growing or shrinking to its left cannot
+  // shift it. Send and Stop share the same fixed footprint, so switching
+  // between them never moves the button's centre.
+  const primaryActionNode = useMemo(
+    () => (
+      <div
+        className="flex size-8 shrink-0 items-center justify-center"
+        data-zaicode-primary-action-slot="true"
+      >
         {showStopControl ? (
           <ControlHintTooltip title={stopTooltipTitle} shortcut="Esc">
             <Button
@@ -2209,6 +2173,7 @@ function ConversationComposerImpl({
               onClick={handleStopClick}
               data-testid={TID_V4_STOP}
               aria-label={stopTooltipTitle}
+              className="size-8 shrink-0"
             >
               <SquareIcon className="size-4 fill-current" />
               <span className="sr-only">{stopTooltipTitle}</span>
@@ -2228,7 +2193,7 @@ function ConversationComposerImpl({
               onClick={handleSendButtonClick}
               data-testid={TID_V4_COMPOSER_SEND}
               aria-label={resolvedSendTooltipTitle}
-              className="cursor-pointer gap-1 rounded-lg bg-brand text-ui-base text-foreground-inverse hover:bg-brand/80"
+              className="size-8 shrink-0 cursor-pointer gap-1 rounded-lg bg-brand text-ui-base text-foreground-inverse hover:bg-brand/80"
             >
               {pending ? <Spinner className="size-4" /> : <ArrowUpIcon className="size-4" />}
               <span className="sr-only">{resolvedSendTooltipTitle}</span>
@@ -2239,37 +2204,15 @@ function ConversationComposerImpl({
     ),
     [
       canSend,
-      activeConfigPicker,
-      composerPhase,
-      composerUsage,
-      disabled,
-      draftConfig,
-      draftMode,
       handleStopClick,
       handleSendButtonClick,
-      handleConfigPickerOpenChange,
-      mode,
-      handleSelectModelTrace,
-      modelSelectionReload,
-      modelSelectionState,
-      modelSelectionView,
-      onSelectThought,
-      onRecoverCustomModelSelection,
-      onSendCompressionCommand,
-      onSwitchMode,
-      pending,
-      provider,
       modifierTooltip,
+      pending,
       resolvedSendTooltipShortcut,
       resolvedSendTooltipTitle,
       sendTooltipOpen,
-      sendShortcut,
-      sendTooltipTitle,
-      sessionId,
       showStopControl,
       stopTooltipTitle,
-      workspaceIdentity,
-      workspacePath,
     ],
   );
 
@@ -2321,6 +2264,18 @@ function ConversationComposerImpl({
       workspacePath,
     ],
   );
+  const handleDirectCommand = useCallback(
+    async (command: string): Promise<boolean> => {
+      try {
+        const sendResult = await onSendText(command);
+        return sendResult === "sent";
+      } catch (error) {
+        logger.warn("[ConversationComposer] direct command failed", error);
+        return false;
+      }
+    },
+    [onSendText],
+  );
   const isBlockedByInteraction = blockingRequestId !== null;
 
   // v4 pendingInteractions 是 bottom dock 阻塞态；composer 必须保留挂载，
@@ -2342,7 +2297,7 @@ function ConversationComposerImpl({
       style={isBlockedByInteraction ? { display: "none" } : undefined}
       className={cn(
         "chat-composer-region z-20 w-full shrink-0 @container/composer",
-        centered && "max-w-2xl",
+        centered && !isZaicodeProductMode() && "max-w-2xl",
       )}
     >
       {/* 旧 ChatViewComposer 同款隐藏 file input（web/无 native picker 平台回退）。 */}
@@ -2399,6 +2354,8 @@ function ConversationComposerImpl({
           disabled={disabled || mode === "reject"}
           submitting={pending}
           submitDisabled={pending || !routingAllowsSend || !attachmentsReady || !submissionReady}
+          sendReadiness={sendReadiness}
+          onSubmitBlocked={handleSubmitBlocked}
           allowSubmitWhenEmpty={
             // 发送按钮已把代码评论视为可发送上下文，但这里曾漏掉同一状态，
             // 导致空文本仅附代码评论时 Enter 被编辑器判为空，必须改点发送按钮。
@@ -2420,6 +2377,7 @@ function ConversationComposerImpl({
           inputTestId={TID_V4_COMPOSER_INPUT}
           inputApiRef={inputApiRef}
           promptHistory={promptHistory}
+          onEmptyArrowUp={onEmptyArrowUp}
           // 命令目录必须完整来自 CLI workspace slash catalog；UI 只在
           // secondary pane 按产品能力隐藏 goal，不再追加任何内建命令或别名。
           excludedSlashCommandNames={suppressGoalCommands ? ["goal"] : undefined}
@@ -2427,11 +2385,14 @@ function ConversationComposerImpl({
           enableMentionPanel
           showSaipenControls={isZaicodeProductMode()}
           leadingActions={leadingActionsNode}
-          submitControl={submitControlNode}
+          submitControl={submitControlsNode}
+          primaryAction={primaryActionNode}
           className="p-0"
           onChange={handleEditorChange}
           onFocus={handleEditorFocus}
           onSubmit={handleEditorSubmit}
+          onDirectCommand={handleDirectCommand}
+          queueCount={snapshot?.queue.items.length}
           onWhiteboardMentionSelected={attachmentsApi.handleWhiteboardMentionSelected}
           onPaste={attachmentsApi.handlePaste}
         />
@@ -2529,7 +2490,11 @@ function ConversationComposerImpl({
       <ComposerPastedTextEditor
         open={pastedTextEdit !== null}
         filename={pastedTextEdit?.filename ?? ""}
-        text={pastedTextEdit?.text ?? ""}
+        text={
+          pastedTextEdit
+            ? (pastedDraftsRef.current.get(pastedTextEdit.id) ?? pastedTextEdit.text)
+            : ""
+        }
         saving={pastedTextSaving}
         title={intl.formatMessage({ id: "chat.attachments.pastedText.title" })}
         hint={intl.formatMessage({ id: "chat.attachments.pastedText.hint" })}
@@ -2545,11 +2510,28 @@ function ConversationComposerImpl({
             },
           )
         }
-        onCancel={() => setPastedTextEdit(null)}
+        onCancel={() => {
+          if (pastedTextEdit) pastedDraftsRef.current.delete(pastedTextEdit.id);
+          setPastedTextEdit(null);
+        }}
+        onCollapse={(draft) => {
+          if (pastedTextEdit) pastedDraftsRef.current.set(pastedTextEdit.id, draft);
+          setPastedTextEdit(null);
+        }}
+        onRemove={() => {
+          const target = pastedTextEdit;
+          if (!target) return;
+          pastedDraftsRef.current.delete(target.id);
+          attachmentsApi.removeAttachment(target.id);
+          setPastedTextEdit(null);
+        }}
+        collapseLabel="Collapse"
+        removeLabel={intl.formatMessage({ id: "chat.attachments.remove" })}
         onRestore={text.trim() ? undefined : (restored) => {
           const target = pastedTextEdit;
           const editor = inputApiRef.current;
           if (!target || !editor) return;
+          pastedDraftsRef.current.delete(target.id);
           editor.setText(restored);
           attachmentsApi.removeAttachment(target.id);
           setPastedTextEdit(null);
@@ -2562,7 +2544,10 @@ function ConversationComposerImpl({
             .updatePastedText(target.id, text)
             .then((ok) => {
               // 写入失败时保留编辑内容，不能把未保存的草稿当成功关闭。
-              if (ok) setPastedTextEdit(null);
+              if (ok) {
+                pastedDraftsRef.current.delete(target.id);
+                setPastedTextEdit(null);
+              }
               toast(
                 ok
                   ? intl.formatMessage({ id: "chat.attachments.pastedText.saved" })

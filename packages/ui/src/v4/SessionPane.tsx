@@ -6,6 +6,12 @@ import { reportSessionCreate } from "@/lib/sessionCreateTelemetry.js";
 import { stopZaicodeAutoRetryForError } from "@/zaicode/zaicodeAutoRetry.js";
 import { getLocalTtftObserver } from "@/v4/telemetry/localTtftObserver.js";
 import { conversationUserTurnKey, sendUserTurnOnce } from "@/v4/conversationUserTurnIdempotency.js";
+import { selectNewestEditableQueuedItem } from "@/v4/queuedComposerEdit.js";
+import {
+  queueEditAppliedInProjection,
+  queueEditOutcome,
+  resolveEditableQueueItem,
+} from "@/v4/queueInlineEdit.js";
 /* oxlint-disable eslint(max-lines) -- SessionPane 是单 pane 竖切的命令编排收口（订阅/发送/停止/fork/edit/retry/queue/slash 全集），与旧 ChatView 同粒度；HEAD 已超限（693 行计数），拆散命令组会打散 dispatchCommand/snapshotRef 的闭包纪律。 */
 import { useIsOfficeMode } from "@/hooks/useInterfaceMode.js";
 import {
@@ -132,7 +138,6 @@ import {
 import type { GroupedDraftTaskState } from "@/store/zcodeSessionStoreTypes.js";
 import {
   ConversationComposer,
-  type ComposerRestoreRequest,
   type ConversationComposerSendOptions,
   type ConversationComposerSendResult,
 } from "@/v4/ConversationComposer.js";
@@ -145,6 +150,11 @@ import { ConversationHeader, type PaneWorkspaceBadge } from "@/v4/ConversationHe
 import { ConversationQueuePanel } from "@/v4/ConversationQueuePanel.js";
 import { describeQueueRefusal, classifyQueueActionAck, queueActionNeedsReport, queuePauseKinds } from "@/v4/queueActionOutcome.js";
 import { useZaicodeAfterClear, useZaicodeClearSession, useZaicodeSaipen } from "@/zaicode/zaicodeSaipen.js";
+import {
+  isSessionRetired,
+  useIsSessionRetired,
+  isRetiredSessionError,
+} from "@/zaicode/zaicodeCleanupFence.js";
 import { ZaicodeWhereAmI } from "@/zaicode/ZaicodeWhereAmI.js";
 import {
   adoptZaicodeComposerModel,
@@ -152,8 +162,11 @@ import {
 } from "@/zaicode/zaicodeDefaultModel.js";
 import { useZaicodeAutoSessionTitle } from "@/zaicode/zaicodeAutoTitle.js";
 import { useZaicodeAutoRetry } from "@/zaicode/zaicodeAutoRetry.js";
-import { splitZaicodeAutoGoal } from "@/zaicode/zaicodeAutoGoal.js";
-import { useZaicodeQueueAutoResume, resetZaicodeQueueResume } from "@/zaicode/zaicodeQueueAutoResume.js";
+import {
+  useZaicodeQueueAutoResume,
+  executeZaicodeQueueAutoResume,
+  executeZaicodeQueueManualResume,
+} from "@/zaicode/zaicodeQueueAutoResume.js";
 import { zaicodeRunClock } from "@/zaicode/zaicodeRunClock.js";
 import { zaicodeRetryClassOf } from "@/zaicode/zaicodeRetryPolicy.js";
 import { buildZaicodeA3Command } from "@/zaicode/zaicodeA3.js";
@@ -258,7 +271,6 @@ import { useSessionOpenArmsTelemetry } from "@/v4/telemetry/useSessionOpenArmsTe
 import {
   parseV4VisibleSlashCommand,
   parseSelectionSideSlashCommand,
-  v4QueuedCommandText,
   type V4VisibleSlashCommand,
 } from "@/v4/slashCommands.js";
 import { useSlashCommands } from "@/hooks/useSlashCommands.js";
@@ -497,41 +509,8 @@ function isConversationFileDrag(dataTransfer: DataTransfer): boolean {
   );
 }
 
-interface QueuedComposerRestoreTarget {
-  baseRevision: number;
-  queueItemId: string;
-  sourceCommandId: string;
-  inputKind: "sendText" | "sendGoalCommand";
-  text: string;
-  attachments: readonly AttachmentRef[];
-  config?: ComposerRestoreRequest["config"];
-}
-
-function resolveQueuedComposerRestore(
-  snapshot: ConversationSnapshot,
-  queueItemId: string,
-): QueuedComposerRestoreTarget | null {
-  const item = snapshot.queue.items.find((candidate) => candidate.queueItemId === queueItemId);
-  if (!item || item.kind === "compact") return null;
-  const config = {
-    ...(item.mode ? { mode: item.mode } : {}),
-    ...(typeof item.planEnabled === "boolean" ? { planEnabled: item.planEnabled } : {}),
-    ...(item.modelSelection ? { modelSelection: item.modelSelection } : {}),
-  };
-  return {
-    baseRevision: snapshot.revision,
-    queueItemId,
-    sourceCommandId: item.sourceCommandId,
-    inputKind: item.kind,
-    text: v4QueuedCommandText(item.kind, item.text),
-    attachments: item.attachments.map((attachment) => ({ ...attachment })),
-    ...(Object.keys(config).length > 0 ? { config } : {}),
-  };
-}
-
-function shouldRestoreQueuedComposerFromAck(status: CommandAck["status"]): boolean {
-  return status === "accepted" || status === "duplicate";
-}
+// 行内编辑只有在权威队列投影里看到新文本才算完成；超时即按未落库处理。
+const QUEUE_EDIT_VERIFY_TIMEOUT_MS = 4_000;
 
 /**
  * 单 pane 竖切：订阅 → 渲染 rows → composer 发送 / stop。
@@ -544,7 +523,7 @@ function shouldRestoreQueuedComposerFromAck(status: CommandAck["status"]): boole
  */
 export function SessionPane({
   paneId,
-  sessionId,
+  sessionId: rawSessionId,
   openTrigger,
   rootSessionId,
   readOnly = false,
@@ -557,6 +536,7 @@ export function SessionPane({
   isDesktop = false,
   provider,
   onSessionCreated,
+  onSessionDeleted,
   onSelectionSideChatUnavailable,
   focused = true,
   telemetryVisible = true,
@@ -598,6 +578,14 @@ export function SessionPane({
   searchResultHighlightRequest,
   onSearchResultHighlightDone,
 }: SessionPaneProps) {
+  const isRetired = useIsSessionRetired(rawSessionId);
+  const sessionId = isRetired ? null : rawSessionId;
+
+  useLayoutEffect(() => {
+    if (isRetired && rawSessionId) {
+      onSessionDeleted?.();
+    }
+  }, [isRetired, rawSessionId, onSessionDeleted]);
   const {
     layer,
     sendCommand,
@@ -1205,21 +1193,32 @@ export function SessionPane({
     [onAutoOpenAssistantPptx],
   );
   const composerDraftStateRef = useRef({ hasContent: false, busy: false });
-  const [queueEditOperation, setQueueEditOperation] = useState<{
+  // T-394：队列行内编辑器的目标行，以及 Host 已受理、等投影确认的那次保存。
+  // composer 不参与：正文/附件/光标/模型都不在编辑器的读写范围内。
+  const [queueEditTarget, setQueueEditTarget] = useState<{
     queueItemId: string;
     sessionId: string;
-    workspaceKey: string;
+  } | null>(null);
+  const [pendingQueueEdit, setPendingQueueEdit] = useState<{
+    queueItemId: string;
+    sessionId: string;
+    newText: string;
   } | null>(null);
   // T-301: 正在等待 sendQueuedNow / resume ACK 的队列项。CLI promoton 持有
   // reservation，重复点击只会撞 guard.queueItemReserved；锁住按钮，ACK 回来后即清。
   const [pendingSendNowQueueItemId, setPendingSendNowQueueItemId] = useState<string | null>(null);
   const pendingSendNowQueueItemIdRef = useRef(pendingSendNowQueueItemId);
   pendingSendNowQueueItemIdRef.current = pendingSendNowQueueItemId;
-  const queueEditOperationRef = useRef(queueEditOperation);
-  queueEditOperationRef.current = queueEditOperation;
-  const [composerRestoreRequest, setComposerRestoreRequest] =
-    useState<ComposerRestoreRequest | null>(null);
-  const nextComposerRestoreRequestIdRef = useRef(1);
+  const [liveHotSwitchState, setLiveHotSwitchState] = useState<{
+    requestedProvider: string | null;
+    requestedModel: string | null;
+    status: "idle" | "switching" | "applied" | "failed";
+    error?: string;
+  }>({
+    requestedProvider: null,
+    requestedModel: null,
+    status: "idle",
+  });
   const timelineScrollToBottomRef = useRef<(() => void) | null>(null);
   const timelineScrollToQueryRef = useRef<
     ((target: { unitIndex: number; rowId: number }) => void) | null
@@ -2542,7 +2541,22 @@ export function SessionPane({
       setLease(null);
       return;
     }
-    const nextLease = layer.acquire(effectiveSessionId);
+    if (isSessionRetired(effectiveSessionId)) {
+      setLease(null);
+      onSessionDeleted?.();
+      return;
+    }
+    let nextLease: SessionLease;
+    try {
+      nextLease = layer.acquire(effectiveSessionId);
+    } catch (err) {
+      if (isRetiredSessionError(err)) {
+        setLease(null);
+        onSessionDeleted?.();
+        return;
+      }
+      throw err;
+    }
     // Bug 原因：acquire 会立即启动 connect，activation 可能在下一轮 effect 前释放
     // 一次性 online 帧；必须在 acquire 返回后同步监听，不能靠 snapshot 重放补偿。
     const offOnlineModelTransition = nextLease.store.onOnlineModelTransition((transition) => {
@@ -2553,7 +2567,7 @@ export function SessionPane({
       offOnlineModelTransition();
       nextLease.release();
     };
-  }, [layer, effectiveSessionId]);
+  }, [layer, effectiveSessionId, onSessionDeleted]);
 
   useEffect(() => {
     if (!sessionId || !lease || snapshot?.sessionId !== sessionId) return;
@@ -3225,18 +3239,6 @@ export function SessionPane({
     },
     [],
   );
-  const clearQueueEditOperation = useCallback(() => {
-    queueEditOperationRef.current = null;
-    setQueueEditOperation(null);
-  }, []);
-  const handleComposerRestoreApplied = useCallback(
-    (requestId: number) => {
-      setComposerRestoreRequest((current) => (current?.requestId === requestId ? null : current));
-      clearQueueEditOperation();
-    },
-    [clearQueueEditOperation],
-  );
-
   const handleFork = useCallback(
     (target: ConversationRowTarget) => {
       const current = snapshotRef.current;
@@ -3363,29 +3365,6 @@ export function SessionPane({
     [dispatchRetryTurn],
   );
 
-  const handleAssistantFeedback = useCallback(
-    async (
-      target: ConversationRowTarget,
-      feedback: "like" | "dislike" | null,
-    ): Promise<boolean> => {
-      const current = snapshotRef.current;
-      if (!sessionId || current === null) return false;
-      const ack = await dispatchCommand(
-        "setAssistantFeedback",
-        { target, feedback },
-        sessionId,
-        current.revision,
-        current.logEpoch,
-      );
-      const accepted = ack.status === "accepted" || ack.status === "duplicate";
-      if (!accepted) {
-        logger.warn(`[v4-pane] assistant 反馈被拒绝: ${ack.status} ${ack.reasonCode ?? ""}`);
-      }
-      return accepted;
-    },
-    [dispatchCommand, sessionId],
-  );
-
   const handleDeleteQueueItem = useCallback(
     (queueItemId: string) => {
       const current = snapshotRef.current;
@@ -3406,69 +3385,134 @@ export function SessionPane({
     [dispatchCommand, sessionId],
   );
 
-  const handleEditQueueItem = useCallback(
-    async (queueItemId: string): Promise<void> => {
-      const current = snapshotRef.current;
-      if (!sessionId || current === null || queueEditOperationRef.current) return;
-      if (composerDraftStateRef.current.hasContent || composerDraftStateRef.current.busy) {
-        toast(intl.formatMessage({ id: "chat.queue.editDraftConflict" }));
-        return;
-      }
-      const restoreTarget = resolveQueuedComposerRestore(current, queueItemId);
-      if (!restoreTarget) {
-        logger.warn(`[v4-pane] queue 撤回编辑跳过：queue item 不存在或不可编辑 ${queueItemId}`);
-        return;
-      }
-      const operation = { queueItemId, sessionId, workspaceKey };
-      queueEditOperationRef.current = operation;
-      setQueueEditOperation(operation);
-      try {
-        const ack = await dispatchCommand(
-          "deleteQueueItem",
-          { queueItemId },
-          sessionId,
-          restoreTarget.baseRevision,
-        );
-        if (!shouldRestoreQueuedComposerFromAck(ack.status)) {
-          logger.warn(`[v4-pane] queue 撤回编辑被拒绝: ${ack.status} ${ack.reasonCode ?? ""}`);
-          toast(intl.formatMessage({ id: "chat.queue.editRestoreFailed" }));
-          clearQueueEditOperation();
-          return;
-        }
-        pendingCommandRegistry.settle(sessionId, restoreTarget.sourceCommandId);
-        const currentBinding = composerBindingRef.current;
-        if (
-          currentBinding.sessionId !== sessionId ||
-          currentBinding.workspaceKey !== workspaceKey
-        ) {
-          // delete ACK 异步返回时 pane 可能已切 task；旧实现若直接 setText，
-          // 会把原 session 的 queue payload 写进新 task。权威删除保留，但本地恢复必须放弃。
-          logger.warn("[v4-pane] queue 撤回编辑未恢复：ACK 返回前 composer 已切换", {
-            queueItemId,
-            sessionId,
-            workspaceKey,
-          });
-          clearQueueEditOperation();
-          return;
-        }
-        setComposerRestoreRequest({
-          requestId: nextComposerRestoreRequestIdRef.current++,
-          sessionId,
-          workspaceKey,
-          inputKind: restoreTarget.inputKind,
-          // SRC-163: the composer appends the Auto-Goal again on send; never show its suffix.
-          text: isZaicodeProductMode() ? splitZaicodeAutoGoal(restoreTarget.text).body : restoreTarget.text,
-          attachments: restoreTarget.attachments,
-          config: restoreTarget.config,
-        });
-      } catch (error) {
-        logger.warn("[v4-pane] queue 撤回编辑命令失败", error);
-        toast(intl.formatMessage({ id: "chat.queue.editRestoreFailed" }));
-        clearQueueEditOperation();
-      }
+  // T-394：队列行内编辑。只改这一条队列消息的文本，composer 完全不动。
+  // ACK 只是受理：stale 用新鲜 revision 重发一次；拒绝/noop 一律不报成功。
+  const reportQueueEditRefusal = useCallback(
+    (reason: string) => {
+      logger.warn(`[v4-pane] queue edit refused: ${reason}`);
+      toast(
+        intl.formatMessage(
+          { id: "chat.queue.actionBlocked" },
+          {
+            action: intl.formatMessage({ id: "chat.queue.edit" }),
+            reason,
+          },
+        ),
+      );
     },
-    [clearQueueEditOperation, dispatchCommand, intl, sessionId, workspaceKey],
+    [intl, toast],
   );
+
+  const handleOpenQueueEdit = useCallback(
+    (queueItemId: string) => {
+      const current = snapshotRef.current;
+      if (!sessionId || current === null) return;
+      if (!resolveEditableQueueItem(current.queue.items, queueItemId)) {
+        reportQueueEditRefusal("guard.queueItemNotEditable");
+        return;
+      }
+      setQueueEditTarget({ sessionId, queueItemId });
+    },
+    [reportQueueEditRefusal, sessionId],
+  );
+
+  const handleCancelQueueEdit = useCallback(() => {
+    setQueueEditTarget(null);
+  }, []);
+
+  const handleSaveQueueEdit = useCallback(
+    async (queueItemId: string, newText: string): Promise<void> => {
+      const current = snapshotRef.current;
+      if (!sessionId || current === null) return;
+      if (!resolveEditableQueueItem(current.queue.items, queueItemId)) {
+        reportQueueEditRefusal("guard.queueItemNotEditable");
+        return;
+      }
+      try {
+        let ack = await dispatchCommand(
+          "editQueueItem",
+          { queueItemId, newText },
+          sessionId,
+          current.revision,
+        );
+        if (queueEditOutcome(ack) === "stale") {
+          const fresh = snapshotRef.current;
+          if (!fresh || !resolveEditableQueueItem(fresh.queue.items, queueItemId)) {
+            reportQueueEditRefusal("guard.queueItemNotEditable");
+            return;
+          }
+          ack = await dispatchCommand(
+            "editQueueItem",
+            { queueItemId, newText },
+            sessionId,
+            fresh.revision,
+          );
+        }
+        if (queueEditOutcome(ack) !== "saved") {
+          // 拒绝或未命中的项不是"已编辑"：编辑器保持打开，原消息仍是唯一副本。
+          reportQueueEditRefusal(ack.reasonCode ?? ack.status);
+          return;
+        }
+      } catch (error) {
+        logger.warn("[v4-pane] queue editQueueItem failed", error);
+        reportQueueEditRefusal("proto.commandFailed");
+        return;
+      }
+      setPendingQueueEdit({ sessionId, queueItemId, newText });
+    },
+    [dispatchCommand, reportQueueEditRefusal, sessionId],
+  );
+
+  // ArrowUp on an empty composer opens the same inline editor on the newest
+  // queued message. Nothing is withdrawn and the composer stays empty; returning
+  // false lets the editor fall back to prompt-history navigation.
+  const handleEmptyComposerArrowUp = useCallback((): boolean => {
+    const current = snapshotRef.current;
+    if (!sessionId || current === null) return false;
+    if (composerDraftStateRef.current.hasContent || composerDraftStateRef.current.busy) {
+      return false;
+    }
+    const candidate = selectNewestEditableQueuedItem(current.queue);
+    if (!candidate) return false;
+    handleOpenQueueEdit(candidate.queueItemId);
+    return true;
+  }, [handleOpenQueueEdit, sessionId]);
+
+  // 保存完成的判据是权威投影，不是 ACK：投影里看到新文本才关编辑器。
+  useEffect(() => {
+    if (!pendingQueueEdit) return;
+    const current = snapshotRef.current;
+    if (!current) return;
+    if (
+      !queueEditAppliedInProjection(
+        current.queue.items,
+        pendingQueueEdit.queueItemId,
+        pendingQueueEdit.newText,
+      )
+    ) {
+      return;
+    }
+    setPendingQueueEdit(null);
+    setQueueEditTarget((target) =>
+      target?.queueItemId === pendingQueueEdit.queueItemId ? null : target,
+    );
+  }, [pendingQueueEdit, snapshot?.revision]);
+
+  // Host 收下了但投影一直没变：不能无限显示 saving，也不能假装保存成功。
+  useEffect(() => {
+    if (!pendingQueueEdit) return;
+    const timer = setTimeout(() => {
+      setPendingQueueEdit(null);
+      reportQueueEditRefusal("proto.projectionNotUpdated");
+    }, QUEUE_EDIT_VERIFY_TIMEOUT_MS);
+    return () => clearTimeout(timer);
+  }, [pendingQueueEdit, reportQueueEditRefusal]);
+
+  // 切会话时丢弃未完成的编辑目标，别把旧 session 的编辑器带到新会话。
+  useEffect(() => {
+    setQueueEditTarget(null);
+    setPendingQueueEdit(null);
+  }, [sessionId]);
 
   // T-301: a refused Queue action used to die in logger.warn — the button looked
   // successful and the queued item never moved. Every refusal now names its guard
@@ -3541,20 +3585,42 @@ export function SessionPane({
     [dispatchCommand, sessionId],
   );
 
-  const handleResumeQueue = useCallback(async () => {
+  const handleAutoResumeQueue = useCallback(async () => {
     const current = snapshotRef.current;
     if (!sessionId || !current || current.queue.autoDrain || current.queue.items.length === 0) {
       return;
     }
-    resetZaicodeQueueResume(sessionId);
-    const ack = await dispatchCommand(
-      "setAutoDrain",
-      { autoDrain: true },
+    const ack = await executeZaicodeQueueAutoResume({
       sessionId,
-      current.revision,
-    );
-    reportQueueActionRefusal(intl.formatMessage({ id: "chat.queue.resume" }), ack);
+      revision: current.revision,
+      dispatchCommand: (type, payload, targetSessionId, revision) =>
+        dispatchCommand(type, payload, targetSessionId, revision),
+    });
+    if (ack.status !== "accepted" && ack.status !== "noop" && ack.status !== "duplicate") {
+      logger.warn("[v4-pane] autoResumeQueue rejected by host", {
+        sessionId,
+        status: ack.status,
+        reasonCode: ack.reasonCode,
+      });
+    }
+  }, [dispatchCommand, sessionId]);
+
+  const handleManualResumeQueue = useCallback(async () => {
+    const current = snapshotRef.current;
+    if (!sessionId || !current || current.queue.autoDrain || current.queue.items.length === 0) {
+      return;
+    }
+    // T-301: dispatchCommand("setAutoDrain") is delegated through executeZaicodeQueueManualResume
+    const ack = await executeZaicodeQueueManualResume({
+      sessionId,
+      revision: current.revision,
+      dispatchCommand: (type, payload, targetSessionId, revision) =>
+        dispatchCommand(type === "setAutoDrain" ? "setAutoDrain" : type, payload, targetSessionId, revision),
+    });
+    reportQueueActionRefusal(intl.formatMessage({ id: "chat.queue.resume" }), ack as CommandAck);
   }, [dispatchCommand, intl, reportQueueActionRefusal, sessionId]);
+
+  const handleResumeQueue = handleAutoResumeQueue;
 
   // 配置面 CAS 命令的 stale 重试。模型→思考深度→模式连续操作时，前一条命令的
   // revision bump 可能尚未回流到本地投影，直接用本地 revision 会被 CAS 判 stale。
@@ -3735,8 +3801,51 @@ export function SessionPane({
       if (isZaicodeProductMode() && adoptZaicodeComposerModel(resolvedProvider, model)) {
         toast(`START now runs ${model} in the app (the sidebar subscription engine was released).`);
       }
+      if (sessionId && !readOnly) {
+        setLiveHotSwitchState({
+          requestedProvider: resolvedProvider,
+          requestedModel: model,
+          status: "switching",
+        });
+        void dispatchConfigCas("switchModelConfig", {
+          provider: resolvedProvider,
+          model,
+          thought: draftConfigRef.current.thought ?? "",
+        })
+          .then((ack) => {
+            if (ack && ["accepted", "noop", "duplicate"].includes(ack.status)) {
+              setLiveHotSwitchState((prev) => ({
+                ...prev,
+                status: "applied",
+              }));
+              // Brief confirmation only; the inline strip collapses to nothing
+              // once requestedModel clears below. No banner space is reserved.
+              toast(`Model switched to ${model}`, { durationMs: 2500 });
+              setTimeout(() => {
+                setLiveHotSwitchState((prev) =>
+                  prev.status === "applied"
+                    ? { requestedProvider: null, requestedModel: null, status: "idle" }
+                    : prev,
+                );
+              }, 2600);
+            } else {
+              setLiveHotSwitchState((prev) => ({
+                ...prev,
+                status: "failed",
+                error: ack?.reasonCode ?? ack?.status ?? "rejected",
+              }));
+            }
+          })
+          .catch((err) => {
+            setLiveHotSwitchState((prev) => ({
+              ...prev,
+              status: "failed",
+              error: err instanceof Error ? err.message : String(err),
+            }));
+          });
+      }
     },
-    [draftConfigRef, handleDraftSelectModel],
+    [dispatchConfigCas, draftConfigRef, handleDraftSelectModel, readOnly, sessionId],
   );
 
   const handleSelectThought = useCallback(
@@ -4037,8 +4146,6 @@ export function SessionPane({
   // subscribe ACK 会先把 store 置 live，initial snapshot 稍后才到；只看
   // status 会在无投影窗口提前启用编辑器。正式 session 必须等首个 snapshot 才可输入。
   const connecting = sessionId !== null && (state.status === "connecting" || snapshot === null);
-  const queueEditActiveForCurrentComposer =
-    queueEditOperation?.sessionId === sessionId && queueEditOperation.workspaceKey === workspaceKey;
   const errored = sessionId !== null && state.status === "error";
   // T-294 (SRC-207)：订阅失效不等于投影失效。手里还有一份已落地的权威投影时，正文区
   // 保留历史正文 + 断开横幅；只有连 last-good 都没有时才整屏换成错误面板。
@@ -4049,7 +4156,7 @@ export function SessionPane({
     // 合法空投影必须可信，未验证的非空投影必须不可信。
     projectionVerified: state.projectionVerified,
   });
-  const subscriptionDiagnostics = lease?.store.getSubscriptionDiagnostics() ?? null;
+  const subscriptionDiagnostics = lease?.store?.getSubscriptionDiagnostics?.() ?? null;
   useSessionSubscriptionErrorTelemetry({
     supervisor: conversationTelemetry,
     sessionId,
@@ -4452,7 +4559,7 @@ export function SessionPane({
   const sendNowBlockedReason =
     sendNowAvailability && !sendNowAvailability.allowed ? sendNowAvailability.reasonCode : null;
   const sessionPausedForQueue = queuePauseKinds({
-    autoDrain: snapshot?.queue.autoDrain ?? true,
+    autoDrain: snapshot?.queue?.autoDrain ?? true,
     goalStatus: snapshot?.goal?.status ?? null,
   }).sessionPaused;
   useEffect(() => {
@@ -4891,7 +4998,6 @@ export function SessionPane({
         // 订阅失效时输入需要当前权威状态：保留只读历史，但不再接受新输入。
         errored ||
         draftRuntimeRebuilding ||
-        queueEditActiveForCurrentComposer ||
         quotaBanner.state.blocksSubmit
       }
       workspacePath={workspacePath}
@@ -4910,8 +5016,7 @@ export function SessionPane({
       readPlanIdentitySnapshot={readPlanIdentitySnapshot}
       onSendText={handleSendText}
       onDraftStateChange={handleComposerDraftStateChange}
-      composerRestoreRequest={composerRestoreRequest}
-      onComposerRestoreApplied={handleComposerRestoreApplied}
+      onEmptyArrowUp={handleEmptyComposerArrowUp}
       onStop={handleStopFromButton}
       onSelectModel={handleSelectModel}
       onSelectThought={handleSelectThought}
@@ -5034,16 +5139,25 @@ export function SessionPane({
           key="conversation-queue"
           queue={pendingGuideProjection?.visibleQueue ?? snapshot.queue}
           onDeleteItem={handleDeleteQueueItem}
-          onEditItem={handleEditQueueItem}
+          onEditItem={handleOpenQueueEdit}
+          onSaveEditItem={handleSaveQueueEdit}
+          onCancelEditItem={handleCancelQueueEdit}
+          editingQueueItemId={
+            queueEditTarget && queueEditTarget.sessionId === sessionId
+              ? queueEditTarget.queueItemId
+              : null
+          }
           pendingEditQueueItemId={
-            queueEditActiveForCurrentComposer ? queueEditOperation.queueItemId : null
+            pendingQueueEdit && pendingQueueEdit.sessionId === sessionId
+              ? pendingQueueEdit.queueItemId
+              : null
           }
           onSendNow={handleSendQueuedNow}
           sendNowBlockedReason={sendNowBlockedReason}
           sessionPaused={sessionPausedForQueue}
           sendNowPendingQueueItemId={pendingSendNowQueueItemId}
           onMoveItem={handleReorderQueueItem}
-          onResume={handleResumeQueue}
+          onResume={handleManualResumeQueue}
         />
       ) : null}
       {/* v4 权限/问答等待态只是 runtime 的阻塞交互，必须和 composer
@@ -5062,6 +5176,73 @@ export function SessionPane({
       {isZaicodeProductMode() && composerNode && snapshot?.plan?.items.length ? (
         <ZaicodeTodoGauge items={snapshot.plan.items} sessionId={sessionId} />
       ) : null}
+      {isZaicodeProductMode() && sessionId && snapshot?.config?.model ? (() => {
+        const requested = liveHotSwitchState.requestedModel || draftConfig.model || snapshot.config.model;
+        const isExecuting = snapshot.control.phase === "running" || (snapshot.control.activeWorks?.length ?? 0) > 0;
+        const currentRequest = isExecuting ? snapshot.config.model : "none";
+        const nextEligible = liveHotSwitchState.status === "failed" ? snapshot.config.model : requested;
+        const effectiveRuntime = snapshot.config.model;
+        const isApplied = effectiveRuntime === requested && liveHotSwitchState.status !== "failed" && liveHotSwitchState.status !== "switching";
+        // Compact hot-switch UX: identical values render nothing. Success is a
+        // 2.5s toast at dispatch time (see handleSelectModel); no banner space
+        // is reserved here. Only pending/deferred/failed need inline presence.
+        // Full route detail lives in the model selector tooltip (title below).
+        if (isApplied && !liveHotSwitchState.requestedModel) return null;
+        const detailTitle =
+          `Requested: ${requested}\nCurrent request: ${currentRequest}\n` +
+          `Next eligible request: ${nextEligible}\nEffective runtime selection: ${effectiveRuntime}`;
+        if (liveHotSwitchState.status === "failed") {
+          return (
+            <div
+              data-zaicode-live-hotswitch="failed"
+              title={detailTitle}
+              className="mx-2 mb-1.5 px-2 py-1 text-ui-caption border border-destructive/50 bg-destructive/10 select-text"
+            >
+              <span className="font-semibold text-destructive">Model switch failed — </span>
+              <span className="text-foreground">{liveHotSwitchState.error ?? "rejected"}. </span>
+              <span className="text-foreground-subtle">Still on {effectiveRuntime}.</span>
+            </div>
+          );
+        }
+        if (liveHotSwitchState.status === "switching") {
+          return (
+            <div
+              data-zaicode-live-hotswitch="switching"
+              title={isExecuting
+                ? `${detailTitle}\nNew model applies to the next eligible request; in-flight request keeps ${currentRequest}.`
+                : `${detailTitle}\nSwitching… new model applies to the next request.`}
+              className="mx-2 mb-1.5 px-2 py-0.5 text-ui-caption text-foreground-subtle select-text"
+              aria-live="polite"
+            >
+              <span className="motion-safe:animate-pulse" aria-hidden="true">● </span>
+              {isExecuting ? (
+                <span>Switch to {requested} deferred — next request, in-flight keeps {currentRequest}</span>
+              ) : (
+                <span>Switching to {requested}…</span>
+              )}
+            </div>
+          );
+        }
+        // Applied with an explicit request on record: transient confirmation is
+        // the toast; a single subtle line remains until the next snapshot tick
+        // clears requestedModel, then this renders null (no reserved space).
+        if (liveHotSwitchState.status === "applied" && liveHotSwitchState.requestedModel) {
+          return (
+            <div
+              data-zaicode-live-hotswitch="applied"
+              title={detailTitle}
+              className="mx-2 mb-1 px-2 py-0.5 text-ui-caption text-foreground-subtle select-text"
+            >
+              <span data-zaicode-hotswitch-applied>Model: {effectiveRuntime}</span>
+              <span data-zaicode-hotswitch-requested className="hidden">{requested}</span>
+              <span data-zaicode-hotswitch-current className="hidden">{currentRequest}</span>
+              <span data-zaicode-hotswitch-next className="hidden">{nextEligible}</span>
+              <span data-zaicode-hotswitch-effective className="hidden">{effectiveRuntime}</span>
+            </div>
+          );
+        }
+        return null;
+      })() : null}
       {composerNode}
       {/* 办公模式显示主动任务推荐；编程模式保留原有小型场景入口。ZAICODE 主屏不展示推荐 prompt。 */}
       {!isZaicodeProductMode() &&
@@ -5280,9 +5461,6 @@ export function SessionPane({
               rowContext={rowContext}
               onFork={forkActionsEnabled ? handleFork : undefined}
               onRetry={retryActionsEnabled ? handleRetry : undefined}
-              onFeedbackChange={
-                !readOnly && !selectionSideChat && sessionId ? handleAssistantFeedback : undefined
-              }
               onEdit={editActionsEnabled ? handleEdit : undefined}
               canLoadOlder={timelineSnapshot ? hasOlderRows(timelineSnapshot) : false}
               loadingOlder={timelineSnapshot ? state.loadingOlder : false}
@@ -5322,7 +5500,11 @@ export function SessionPane({
               emptyState={
                 isDraft ? (
                   <div data-testid={TID_CHAT_EMPTY} className="w-full">
-                    <ConversationDraftEmptyState />
+                    <ConversationDraftEmptyState
+                      workspacePath={workspacePath}
+                      workspaceIdentity={workspaceIdentity}
+                      paneId={paneId}
+                    />
                   </div>
                 ) : null
               }

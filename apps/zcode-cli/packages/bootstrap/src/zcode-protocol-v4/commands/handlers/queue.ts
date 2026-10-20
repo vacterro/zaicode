@@ -13,7 +13,7 @@ import { admitRecognizedContinue, isRecognizedContinueCommand } from "../continu
 import { inputIntentMetadataFromQueueItem } from "../input-intent.js";
 import { startPromptTurn } from "../prompt-turn.js";
 import { requireRecord } from "../record-access.js";
-import type { V4CommandCoreHost, V4SessionRecordView } from "../types.js";
+import type { V4CommandCoreHost } from "../types.js";
 import {
   applyGoalCommand,
   parseGoalObjectiveFromCommandText,
@@ -69,6 +69,15 @@ export class V4QueuePromotionLeaseUnavailableError extends Error {
   }
 }
 
+/** T-394: 编辑撞上 reserved/promoting——该项已经归属一次 dispatch，不能再改文本。 */
+class V4QueueItemEditReservedError extends Error {
+  readonly reasonCode = "guard.queueItemReserved";
+  constructor(queueItemId: string) {
+    super(`v4 queue item is reserved for another dispatch: ${queueItemId}`);
+    this.name = "V4QueueItemEditReservedError";
+  }
+}
+
 async function deleteQueueItem(
   host: V4CommandCoreHost,
   envelope: CommandEnvelope,
@@ -96,18 +105,32 @@ async function editQueueItem(
   const payload = envelope.payload as CommandPayloadMap["editQueueItem"];
   const record = requireRecord(host, envelope.sessionId);
   const queueItem = host.getQueueItem?.(record.app.sessionId, payload.queueItemId) ?? null;
-  if (queueItem?.kind === "compact") {
-    // compact 是 typed maintenance intent；允许改文本会把它伪装成普通输入，
-    // 但 commandKind 仍是 compact，消费时产生与 UI 文案不一致的压缩副作用。
-    throw new V4QueueItemNotEditableError(payload.queueItemId);
-  }
-  // core reducer 同 id 原地更新（保位）；未命中 = noop + warn（同 delete 的竞态语义）。
-  const edited = await record.app.editQueueItem(payload.queueItemId, payload.newText);
-  if (!edited) {
+  if (queueItem === null) {
+    // T-394: 未命中的项不是"已编辑"。旧实现返回 undefined，gateway 记 accepted，
+    // 客户端于是把一条根本没被改过的排队消息显示成改好了。
     host.logger?.warn?.("v4 editQueueItem missed", {
       queueItemId: payload.queueItemId,
       sessionId: record.app.sessionId,
     });
+    throw new V4CommandNoopError("queue.itemMissing");
+  }
+  if (queueItem.kind === "compact") {
+    // compact 是 typed maintenance intent；允许改文本会把它伪装成普通输入，
+    // 但 commandKind 仍是 compact，消费时产生与 UI 文案不一致的压缩副作用。
+    throw new V4QueueItemNotEditableError(payload.queueItemId);
+  }
+  if (queueItem.dispatch.state !== "queued") {
+    // reserved/promoting：该项已经归属一次 dispatch，改文本会与那次提升竞态。
+    throw new V4QueueItemEditReservedError(payload.queueItemId);
+  }
+  // core reducer 同 id 原地更新（保位）；Core 拒绝 = 权威没改，必须如实上报。
+  const edited = await record.app.editQueueItem(payload.queueItemId, payload.newText);
+  if (!edited) {
+    host.logger?.warn?.("v4 editQueueItem refused", {
+      queueItemId: payload.queueItemId,
+      sessionId: record.app.sessionId,
+    });
+    throw new V4QueueItemNotEditableError(payload.queueItemId);
   }
   return undefined;
 }

@@ -1,12 +1,16 @@
+/* oxlint-disable eslint(max-lines) -- queue 面板同时持有行内编辑草稿、拖拽排序和提升按钮的准入状态，拆分会把同一条队列行的状态机拆到两个文件。 */
 import { closestCenter, DndContext, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
 import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { memo, useCallback, useMemo, useState, type CSSProperties } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import {
   TID_V4_QUEUE,
   TID_V4_QUEUE_ITEM,
   TID_V4_QUEUE_ITEM_DELETE,
   TID_V4_QUEUE_ITEM_EDIT,
+  TID_V4_QUEUE_ITEM_EDIT_CANCEL,
+  TID_V4_QUEUE_ITEM_EDIT_INPUT,
+  TID_V4_QUEUE_ITEM_EDIT_SAVE,
   TID_V4_QUEUE_ITEM_SEND_NOW,
   TID_V4_QUEUE_PAUSED_BANNER,
   TID_V4_QUEUE_RESUME,
@@ -16,7 +20,7 @@ import {
 import type { AttachmentRef, QueueState } from "@zcode/shared/zcode-protocol-v4";
 import { isZaicodeProductMode } from "@zcode/shared";
 import { ArrowUpFromLine, GripVertical, PaperclipIcon, PencilIcon, Trash2Icon } from "lucide-react";
-import { splitZaicodeAutoGoal } from "@/zaicode/zaicodeAutoGoal.js";
+import { splitZaicodeAutoGoal, withZaicodeAutoGoal } from "@/zaicode/zaicodeAutoGoal.js";
 import { ControlHintTooltip } from "@/ControlHintTooltip.js";
 import { Button } from "@/components/ui/button.js";
 import { cn } from "@/components/lib/utils.js";
@@ -28,9 +32,15 @@ interface ConversationQueuePanelProps {
   queue: QueueState;
   /** 删除队列项（deleteQueueItem command）。 */
   onDeleteItem?: (queueItemId: string) => void;
-  /** 撤回队列项到发起端 composer；权威删除成功后才恢复草稿。 */
-  onEditItem?: (queueItemId: string) => Promise<void> | void;
-  /** 正在等待 delete ACK / composer restore 的目标项；仅锁该 row。 */
+  /** 打开该排队项的行内编辑器（就地改文本；composer 不动）。 */
+  onEditItem?: (queueItemId: string) => void;
+  /** 保存行内编辑（editQueueItem command）。 */
+  onSaveEditItem?: (queueItemId: string, newText: string) => Promise<void> | void;
+  /** 放弃行内编辑（排队内容原样保留）。 */
+  onCancelEditItem?: (queueItemId: string) => void;
+  /** 当前打开行内编辑器的项；null = 没有打开的编辑器。 */
+  editingQueueItemId?: string | null;
+  /** 正在等待 edit ACK / 投影核对的目标项；仅锁该 row。 */
   pendingEditQueueItemId?: string | null;
   /** 立即发送队列项（sendQueuedNow command，stop 当前 + 消费该项）。 */
   onSendNow?: (queueItemId: string) => void;
@@ -60,7 +70,11 @@ interface QueueRowProps {
   intl: ReturnType<typeof useZCodeIntl>["intl"];
   sortable: boolean;
   onDeleteItem?: (queueItemId: string) => void;
-  onEditItem?: (queueItemId: string) => Promise<void> | void;
+  onEditItem?: (queueItemId: string) => void;
+  onSaveEdit?: (queueItemId: string, newText: string) => Promise<void> | void;
+  onCancelEdit?: (queueItemId: string) => void;
+  /** 该行正在显示行内编辑器。 */
+  editing: boolean;
   editPending: boolean;
   onSendNow?: (queueItemId: string) => void;
   /** 非空 = availability 拒绝，直接发送此刻只会被 CLI 拒绝。 */
@@ -111,6 +125,9 @@ const QueueRow = memo(function QueueRow({
   onDeleteItem,
   onEditItem,
   onSendNow,
+  onSaveEdit,
+  onCancelEdit,
+  editing,
   editPending,
   sendNowBlockedReason,
   sendNowPending = false,
@@ -121,6 +138,35 @@ const QueueRow = memo(function QueueRow({
   const sendNowLabel = intl.formatMessage({ id: isCompact ? "chat.queue.runNow" : "chat.queue.sendNow" });
   // SRC-163 (SRC-151:R006): the Auto-Goal suffix is not the queued prompt; show it as a mark.
   const queueGoal = splitZaicodeAutoGoal(item.text);
+  // T-394: the inline editor keeps its own draft. The draft is seeded once per
+  // editing session and survives a refused save, so the operator never loses
+  // what they typed because the Host declined the mutation. The invisible
+  // Auto-Goal suffix stays out of the editor and rides along again on save.
+  const queueDraftBody = isZaicodeProductMode() ? queueGoal.body : item.text;
+  const [draft, setDraft] = useState(queueDraftBody);
+  const [saving, setSaving] = useState(false);
+  const editingStartedRef = useRef(false);
+  useEffect(() => {
+    if (editing && !editingStartedRef.current) {
+      editingStartedRef.current = true;
+      setDraft(queueDraftBody);
+    }
+    if (!editing) editingStartedRef.current = false;
+  }, [editing, queueDraftBody]);
+  const handleSaveEdit = useCallback(() => {
+    if (saving || !onSaveEdit) return;
+    const nextText =
+      isZaicodeProductMode() && queueGoal.goal ? withZaicodeAutoGoal(draft, true) : draft;
+    if (nextText === item.text) {
+      // Nothing changed: closing the editor is not a mutation.
+      onCancelEdit?.(item.queueItemId);
+      return;
+    }
+    setSaving(true);
+    void Promise.resolve(onSaveEdit(item.queueItemId, nextText)).finally(() => {
+      setSaving(false);
+    });
+  }, [draft, item.queueItemId, item.text, onCancelEdit, onSaveEdit, queueGoal.goal, saving]);
   const {
     attributes,
     isDragging,
@@ -152,6 +198,60 @@ const QueueRow = memo(function QueueRow({
     }),
     [isDragging, transition, transform],
   );
+  // T-394: the editing row replaces its text with the editor. The composer is
+  // a different surface entirely and is never touched by this flow.
+  if (editing) {
+    return (
+      <li
+        ref={setNodeRef}
+        data-testid={testId(TID_V4_QUEUE_ITEM, item.queueItemId)}
+        data-queue-item-id={item.queueItemId}
+        data-index={index}
+        data-kind={item.kind}
+        data-dispatch-state={item.dispatch.state}
+        data-edit-pending={editPending ? "true" : "false"}
+        data-queue-item-editing="true"
+        className={cn(
+          "relative flex items-start gap-2 rounded-xl px-1.5 py-1 pr-1",
+          editPending ? "opacity-60" : null,
+        )}
+        style={style}
+      >
+        <textarea
+          data-testid={testId(TID_V4_QUEUE_ITEM_EDIT_INPUT, item.queueItemId)}
+          data-queue-item-id={item.queueItemId}
+          value={draft}
+          rows={2}
+          autoFocus
+          onChange={(event) => setDraft(event.target.value)}
+          className="min-h-10 min-w-0 flex-1 resize-y rounded-lg border border-border bg-surface-raised px-2 py-1 text-ui-base text-foreground outline-none"
+        />
+        <div className="flex shrink-0 items-center gap-1">
+          <Button
+            type="button"
+            size="sm"
+            data-testid={testId(TID_V4_QUEUE_ITEM_EDIT_SAVE, item.queueItemId)}
+            data-queue-item-id={item.queueItemId}
+            disabled={saving || editPending || dispatchLocked}
+            onClick={handleSaveEdit}
+          >
+            {intl.formatMessage({ id: "common.save" })}
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            data-testid={testId(TID_V4_QUEUE_ITEM_EDIT_CANCEL, item.queueItemId)}
+            data-queue-item-id={item.queueItemId}
+            disabled={saving}
+            onClick={() => onCancelEdit?.(item.queueItemId)}
+          >
+            {intl.formatMessage({ id: "common.cancel" })}
+          </Button>
+        </div>
+      </li>
+    );
+  }
   return (
     <li
       ref={setNodeRef}
@@ -279,6 +379,9 @@ function ConversationQueuePanelImpl({
   queue,
   onDeleteItem,
   onEditItem,
+  onSaveEditItem,
+  onCancelEditItem,
+  editingQueueItemId = null,
   pendingEditQueueItemId = null,
   onSendNow,
   onMoveItem,
@@ -396,6 +499,9 @@ function ConversationQueuePanelImpl({
                 sortable={Boolean(onMoveItem)}
                 onDeleteItem={onDeleteItem}
                 onEditItem={onEditItem}
+                onSaveEdit={onSaveEditItem}
+                onCancelEdit={onCancelEditItem}
+                editing={editingQueueItemId === item.queueItemId}
                 onSendNow={onSendNow}
                 sendNowBlockedReason={sendNowBlockedReason}
                 sendNowPending={sendNowPendingQueueItemId === item.queueItemId}

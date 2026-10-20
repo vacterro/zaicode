@@ -585,7 +585,14 @@ export const TID_V4_QUEUE = "v4-queue";
 export const TID_V4_QUEUE_PAUSED_BANNER = "v4-queue-paused-banner";
 /** v4 暂停队列继续自动消费按钮 */
 export const TID_V4_QUEUE_RESUME = "v4-queue-resume";
+/** v4 会话自身暂停提示：继续队列调度不等于恢复会话授权 */
+export const TID_V4_SESSION_PAUSED_NOTE = "v4-session-paused-note";
 /** v4 queue 项行内编辑输入框（动态后缀为 queueItemId） */
+export const TID_V4_QUEUE_ITEM_EDIT_INPUT = "v4-queue-item-edit-input";
+/** v4 queue 项行内编辑保存按钮（动态后缀为 queueItemId） */
+export const TID_V4_QUEUE_ITEM_EDIT_SAVE = "v4-queue-item-edit-save";
+/** v4 queue 项行内编辑取消按钮（动态后缀为 queueItemId） */
+export const TID_V4_QUEUE_ITEM_EDIT_CANCEL = "v4-queue-item-edit-cancel";
 /** v4 queue 项（动态后缀为 queueItemId） */
 export const TID_V4_QUEUE_ITEM = "v4-queue-item";
 /** v4 queue 项删除按钮（动态后缀为 queueItemId） */
