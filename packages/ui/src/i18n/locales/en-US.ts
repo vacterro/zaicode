@@ -6778,6 +6778,22 @@ const enUS: Record<string, string> = {
   "settings.modelProvider.enableAllModels": "Enable all",
   "settings.modelProvider.disableAllModels": "Disable all",
   "settings.modelProvider.enableOnlyModel": "Enable only…",
+  "chat.queue.actionBlocked": "{action} was not applied: {reason}",
+  "chat.queue.sessionPausedNote": "The session is paused. Continuing the queue does not resume the session — the paused continuation still needs its authorization.",
+  "chat.transcript.title": "Transcript",
+  "chat.transcript.user": "User",
+  "chat.transcript.assistant": "Agent",
+  "chat.transcript.thoughts": "Thoughts",
+  "chat.transcript.tools": "Tools",
+  "chat.transcript.showSection": "Show {section}",
+  "chat.transcript.scrollSection": "Scroll {section}",
+  "chat.transcript.scroll": "Scroll",
+  "chat.transcript.scrollHint": "Limit this section's height and scroll its content. Off shows all loaded content.",
+  "chat.transcript.scrollDisabled": "Show this section to change its scroll setting.",
+  "chat.transcript.expand": "Expand details",
+  "chat.transcript.expandHint": "Keep thoughts and tool details expanded.",
+  "chat.transcript.filters": "Transcript filters",
+  "chat.transcript.filter": "Filter",
 };
 
 export default enUS;

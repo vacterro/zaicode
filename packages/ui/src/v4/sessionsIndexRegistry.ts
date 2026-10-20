@@ -10,6 +10,7 @@ import { remoteAgentServiceGeneration } from "@/lib/remoteAgentServiceGeneration
 import { findRemoteWorkspaceSessionIdForAgentService } from "@/store/remoteWorkspaceSessionStore.js";
 import { createAgentSessionsIndexTransport } from "@/v4/agentSessionsIndexTransport.js";
 import { SessionsIndexStore } from "@/v4/sessionsIndexStore.js";
+import { subscribeSessionRetirement } from "@/zaicode/zaicodeCleanupFence.js";
 
 /** 注册表需要的 agentService 窄面（= transport 的依赖面，便于测试注入）。 */
 export type SessionsIndexAgentService = Pick<
@@ -172,3 +173,13 @@ export function releaseSessionsIndex(
     if (registry.get(entryKey) === entry) registry.delete(entryKey);
   }
 }
+
+subscribeSessionRetirement((retiredIds) => {
+  for (const entry of registry.values()) {
+    for (const id of retiredIds) {
+      if (entry.store.hasSession(id)) {
+        entry.store.removeSession(id);
+      }
+    }
+  }
+});

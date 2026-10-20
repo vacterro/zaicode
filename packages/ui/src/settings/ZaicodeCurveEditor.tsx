@@ -1,5 +1,6 @@
 import { useRef, useState, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
 import { cn } from "@/components/lib/utils.js";
+import { Checkbox } from "@/components/ui/checkbox.js";
 import { ZaicodePrefSegment } from "@/zaicode/ZaicodePrefControls.js";
 import {
   ZAICODE_CURVE_PRESETS,
@@ -41,11 +42,10 @@ export function ZaicodeLightsSlider({
   return (
     <label className="grid grid-cols-[16px_88px_1fr_64px] items-center gap-2">
       {own ? (
-        <input
-          type="checkbox"
+        <Checkbox
           checked={own.on}
           title={own.on ? "Own value: untick to follow the common one" : "Follows the common value: tick for its own"}
-          onChange={(event) => own.onToggle(event.target.checked)}
+          onCheckedChange={(val) => own.onToggle(Boolean(val))}
         />
       ) : (
         <span />

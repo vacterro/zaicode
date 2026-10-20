@@ -65,7 +65,7 @@ function writeJson(name: string, value: unknown): void {
 
 async function ensureKey(url: string): Promise<{ key: string; created: boolean }> {
   const stored = readJson<Record<string, string>>(KEY_FILE, {});
-  const result = await ensureZaicodeRouterKey(callZaicodeRouterInternal, stored[url] ?? null);
+  const result = await ensureZaicodeRouterKey(callZaicodeRouterInternal, stored[url] ?? null, url);
   if (result.created) writeJson(KEY_FILE, { ...stored, [url]: result.key });
   return result;
 }

@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/components/lib/utils.js";
 import { Button } from "@/components/ui/button.js";
+import { Checkbox } from "@/components/ui/checkbox.js";
 import { Switch } from "@/components/ui/switch.js";
 import { toast } from "@/components/ui/toast.js";
 import { ZaicodeSoundPicker } from "@/zaicode/ZaicodeSoundPicker.js";
@@ -273,11 +274,10 @@ function SoundRow({
       <span className={cn("truncate", row.enabled ? "text-foreground" : "text-foreground-subtlest")} title={event.hint}>
         {event.label}
       </span>
-      <input
-        type="checkbox"
+      <Checkbox
         className="mx-auto"
         checked={row.enabled}
-        onChange={(change) => setZaicodeSoundEvent(event.id, { enabled: change.target.checked })}
+        onCheckedChange={(val) => setZaicodeSoundEvent(event.id, { enabled: Boolean(val) })}
         aria-label={`${event.label} on`}
       />
       {row.soundMode === "pool" ? (

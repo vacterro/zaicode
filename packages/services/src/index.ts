@@ -248,7 +248,18 @@ export {
   type ZaicodeJobRunOutcomeInput,
 } from "./zaicode/zaicodeJobs.js";
 export { IZaicodeStatsService } from "./zaicode/zaicodeStats.js";
+export { IZaicodeOptimizationService } from "./zaicode/zaicodeOptimization.js";
 export { IZaicodeAuditService } from "./zaicode/zaicodeAudits.js";
+// 只能导出 descriptor 和类型。renderer 会以 value import 读 descriptor 的 channelName，
+// 因此根入口的每个 value 导出都会进浏览器包：实现模块（Audit Loop 编排、验收门禁、
+// SAIPEN 归属查询）依赖 node:fs / node:child_process 与 ./paths.js 的 homedir()，
+// 一旦从这里 value 导出，模块初始化就抛错并让整个应用黑屏。
+// 实现、常量与工厂由 host 侧从 @zcode/services/node 引入（见 node.ts）。
+export { IZaicodeAuditLoopService } from "./zaicode/zaicodeAuditLoops.js";
+export type {
+  ZaicodeSaipenOwnershipDeps,
+  ParsedBoardDoingTicket,
+} from "./zaicode/zaicodeSaipenOwnership.js";
 
 // Skills service — ISkillsService is both a type (interface) and value (descriptor)
 export { ISkillsService } from "./skills/skills.js";

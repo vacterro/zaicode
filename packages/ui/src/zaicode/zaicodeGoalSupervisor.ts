@@ -72,76 +72,17 @@ const intents = new Map<string, ZaicodeGoalIntent>();
 let seq = 0;
 
 /**
- * T-242 (SRC-160 R002): the SPENT continuations are the one fact that has to
- * survive a renderer reload.
- *
- * The intent table above is process-local on purpose: a reload must not
- * resurrect an intent, and the turn-end evidence must not come back with it.
- * The BUDGET is different. It is the operator's protection against a goal being
- * continued for ever, and it used to live only in the table -- so a reload of
- * the same window handed the same objective a brand-new 20, and the goal could
- * be continued again indefinitely, one reload at a time.
- *
- * The ledger below is that budget's durable home: deterministic intent id ->
- * continuations already spent. It is deliberately NOT in the release-snapshot
- * allowlist (zaicodeSettingsSnapshot): this is runtime bookkeeping, not an
- * operator preference, so a profile restore legitimately starts from a fresh
- * budget.
- *
- * ponytail: localStorage + JSON, capped with the intent table. Upgrade path when
- * a second process has to share the budget: move it beside the session state on
- * the host.
+ * T-282: the durable goal records moved to zaicodeGoalLedgers (budget + handback),
+ * and this file re-exports them so their callers keep one import site.
  */
-const GOAL_BUDGET_STORAGE_KEY = "zaicode-goal-budget-v1";
-
-function goalBudgetStore(): Storage | null {
-  // Storage can be disabled by policy: a read or a write that throws must never
-  // decide a continuation.
-  try {
-    return typeof localStorage === "undefined" ? null : localStorage;
-  } catch {
-    return null;
-  }
-}
-
-function readGoalBudgetLedger(): Record<string, number> {
-  const store = goalBudgetStore();
-  if (!store) return {};
-  try {
-    const raw = store.getItem(GOAL_BUDGET_STORAGE_KEY);
-    if (!raw) return {};
-    const parsed: unknown = JSON.parse(raw);
-    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return {};
-    const ledger: Record<string, number> = {};
-    for (const [id, spent] of Object.entries(parsed as Record<string, unknown>)) {
-      if (typeof spent === "number" && Number.isFinite(spent) && spent > 0) ledger[id] = spent;
-    }
-    return ledger;
-  } catch {
-    return {};
-  }
-}
-
-/** Spent continuations recorded on disk for this intent (0 when nothing is known). */
-export function spentZaicodeGoalContinuations(intentId: string): number {
-  return readGoalBudgetLedger()[intentId] ?? 0;
-}
-
-/** Persist one intent's spent budget; 0 clears the entry. */
-function writeZaicodeGoalContinuationLedger(intentId: string, spent: number): void {
-  const store = goalBudgetStore();
-  if (!store || !intentId) return;
-  try {
-    const ledger = readGoalBudgetLedger();
-    if (spent > 0) ledger[intentId] = spent;
-    else delete ledger[intentId];
-    const ids = Object.keys(ledger);
-    for (const stale of ids.slice(0, Math.max(0, ids.length - MAX_INTENTS))) delete ledger[stale];
-    store.setItem(GOAL_BUDGET_STORAGE_KEY, JSON.stringify(ledger));
-  } catch {
-    // A full or disabled store costs durability, never the continuation in hand.
-  }
-}
+export {
+  clearZaicodeGoalHandback,
+  noteZaicodeGoalHandback,
+  spentZaicodeGoalContinuations,
+  zaicodeGoalHandback,
+  zaicodeGoalHandbackKind,
+  zaicodeGoalHandbackStands,
+} from "./zaicodeGoalLedgers.js";
 
 /** Deterministic id: project + session + objective, so a resubmit cannot fork one. */
 export function zaicodeGoalIntentId(projectKey: string, sessionId: string | null, objective: string): string {
@@ -201,7 +142,11 @@ export function registerZaicodeGoalIntent(input: {
   // spent, so a reload can never hand the same objective a second full budget.
   const continuations = input.fresh ? 0 : spentZaicodeGoalContinuations(intentId);
   if (input.fresh) writeZaicodeGoalContinuationLedger(intentId, 0);
+  // T-282: a new human instruction is a qualifying change -- the old wall is gone.
+  if (input.fresh) clearZaicodeGoalHandback(intentId);
   const intent: ZaicodeGoalIntent = { intentId, projectKey, sessionId, objective, seq, outcome: "active", continuations, stopped: false };
+  sawRunning.delete(intentId);
+  restoredGoals.delete(intentId);
   intents.set(intentId, intent);
   bumpGoalVersion();
   for (const key of intents.keys()) {
@@ -355,6 +300,8 @@ export function stopZaicodeGoalIntents(projectKey: string, sessionId?: string | 
     if (sessionId && intent.sessionId !== sessionId && intent.sessionId !== null) continue;
     if (isZaicodeGoalTerminal(intent.outcome)) continue;
     intents.set(id, { ...intent, outcome: "stopped", stopped: true });
+    // T-282: the operator's stop is a human decision, so it clears the wall too.
+    clearZaicodeGoalHandback(id);
     bumpGoalVersion();
     stoppedCount += 1;
   }
@@ -391,6 +338,14 @@ export function describeZaicodeGoalState(autoGoalEnabled: boolean, intent: Zaico
 }
 
 import { useSyncExternalStore } from "react";
+
+// The durable goal records (T-242 budget, T-282 handback) are read and written here.
+import {
+  clearZaicodeGoalHandback,
+  resetZaicodeGoalLedgersForTest,
+  spentZaicodeGoalContinuations,
+  writeZaicodeGoalContinuationLedger,
+} from "./zaicodeGoalLedgers.js";
 
 /** Extract the goal objective the outgoing prompt actually carries. */
 export function zaicodeGoalObjectiveOf(text: string, fallback = "cc all"): string | null {
@@ -477,12 +432,29 @@ export function observeZaicodeGoalFromBrief(
   const objective = brief.goalObjective.trim();
   const intentId = zaicodeGoalIntentId(brief.projectKey, brief.sessionId, objective);
   let intent = zaicodeGoalIntentById(intentId);
+  // 草稿首发尚无 sessionId；绑定真实会话而不是复制第二个目标监督器。
+  if (!intent) {
+    const draft = [...intents.values()].find((candidate) => candidate.projectKey === brief.projectKey &&
+      candidate.sessionId === null && candidate.objective === objective && !isZaicodeGoalTerminal(candidate.outcome));
+    if (draft) {
+      intents.delete(draft.intentId);
+      writeZaicodeGoalContinuationLedger(draft.intentId, 0);
+      writeZaicodeGoalContinuationLedger(intentId, draft.continuations);
+      if (sawRunning.delete(draft.intentId)) sawRunning.add(intentId);
+      restoredGoals.delete(draft.intentId);
+      intent = { ...draft, intentId, sessionId: brief.sessionId };
+      intents.set(intentId, intent);
+      bumpGoalVersion();
+    }
+  }
   if (!intent && autoGoalOn && !brief.manuallyStopped) {
     intent = registerZaicodeGoalIntent({
       projectKey: brief.projectKey,
       sessionId: brief.sessionId,
       objective,
     }).intent;
+    // 重开项目时没有本进程的 running 证据，但已持久化的 active 目标仍有一次恢复机会。
+    if (brief.goalStatus === "active" && !brief.running && !brief.waiting) restoredGoals.add(intentId);
   }
   if (!intent) return null;
   return observeZaicodeGoalIntent(intentId, mapBriefToGoalObservation(brief));
@@ -527,13 +499,11 @@ export function useZaicodeGoalObservationFeed(projectKey: string, autoGoalOn: bo
 export function resetZaicodeGoalIntentsForTest(): void {
   intents.clear();
   sawRunning.clear();
+  restoredGoals.clear();
   seq = 0;
-  // T-242: tests assert on spent budget, so reset the ledger too -- otherwise one
-  // test's spent continuations bleed into the next through the durable store.
-  const store = goalBudgetStore();
-  if (store) {
-    try { store.removeItem(GOAL_BUDGET_STORAGE_KEY); } catch { /* storage may be disabled */ }
-  }
+  // T-242/T-282: tests assert on the spent budget and on the handback record, so the
+  // durable half is reset too -- otherwise one test's records bleed into the next.
+  resetZaicodeGoalLedgersForTest();
   bumpGoalVersion();
 }
 
@@ -541,13 +511,17 @@ export function resetZaicodeGoalIntentsForTest(): void {
 
 /**
  * Intents this process has watched running. A goal is only continued after a real
- * turn of its own ended: a fresh boot, a folded brief that was never observed
- * working, or an idle session nobody started is not a turn end, so nothing is sent.
- * Process-local on purpose -- a window reload drops it, which is what keeps a
- * restart from continuing every idle session (the crash resume owns that path, and
- * it only takes what it can prove was cut off).
+ * turn of its own ended. Process-local: a reload drops this evidence. Restored
+ * active objectives use the separate one-shot opportunity below; idle sessions
+ * without an active goal do not become new work.
  */
 const sawRunning = new Set<string>();
+const restoredGoals = new Set<string>();
+
+/** One boot-time opportunity from an authoritative open goal, distinct from a new submission. */
+export function zaicodeGoalRestoredOpportunity(intentId: string): boolean {
+  return restoredGoals.has(intentId);
+}
 
 /** The session brief was seen working: arm (or re-arm) its next continuation. */
 export function noteZaicodeGoalSawRunning(intentId: string): void {
@@ -562,6 +536,7 @@ export function zaicodeGoalSawRunning(intentId: string): boolean {
 /** Spend the evidence at the claim: one turn end buys exactly one continuation. */
 export function spendZaicodeGoalSawRunning(intentId: string): void {
   sawRunning.delete(intentId);
+  restoredGoals.delete(intentId);
 }
 
 /** What the owner asks before it spends one continuation. */
@@ -580,8 +555,15 @@ export interface ZaicodeGoalContinuationFacts {
   failed: boolean;
   /** SAIPEN still reports this session's goal as active. */
   goalOpen: boolean;
+  /**
+   * T-282: a blocker or completion handback was already delivered for this
+   * objective and the authority published no new state since. The wall stands.
+   */
+  handbackStands: boolean;
   /** This owner watched the session run since the goal was submitted. */
   sawRunning: boolean;
+  /** An existing idle active goal was restored from the persisted session index. */
+  restored?: boolean;
   /** A previous continuation send is still unaccounted for. */
   pending: boolean;
 }
@@ -606,10 +588,22 @@ export function zaicodeGoalContinuationAllowed(facts: ZaicodeGoalContinuationFac
   if (facts.waiting) return { allowed: false, reason: "the session waits for your answer" };
   if (facts.failed) return { allowed: false, reason: "the last turn failed: the retry watch owns it" };
   if (!facts.goalOpen) return { allowed: false, reason: "the goal is not open" };
+  if (facts.handbackStands) {
+    return { allowed: false, reason: "the handback for this objective still stands: nothing new was published" };
+  }
   if (facts.pending) return { allowed: false, reason: "a continuation is already in flight" };
-  if (!facts.sawRunning) return { allowed: false, reason: "no turn has ended since this goal was submitted" };
+  if (!facts.sawRunning && !facts.restored) return { allowed: false, reason: "no turn has ended since this goal was submitted" };
+  if (facts.restored && !facts.sawRunning) return { allowed: true, reason: "the persisted goal is open after project restoration" };
   return { allowed: true, reason: "the goal is open and its turn has ended" };
 }
 
 /** Re-export the preserved text contract so one import covers both halves. */
-export { ZAICODE_AUTO_GOAL_SUFFIX, withZaicodeAutoGoal } from "./zaicodeAutoGoal.js";
+export {
+  ZAICODE_AUTO_GOAL_SUFFIX,
+  classifyOutgoingInput,
+  isEligibleForAutoGoal,
+  isStopCommand,
+  withZaicodeAutoGoal,
+  type OutgoingInputCategory,
+  type OutgoingInputClassification,
+} from "./zaicodeAutoGoal.js";

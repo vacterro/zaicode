@@ -419,7 +419,8 @@ export function applyZaicodeAppearance(): void {
   root.classList.toggle("zaicode-crisp", enabled && crisp);
   root.classList.toggle("zaicode-compact", enabled && readZaicodeAppearance().compact);
   root.classList.toggle("zaicode-bevels", enabled && bevels);
-  root.classList.toggle("zaicode-bevel-rows", enabled && bevels && bevelRows);
+  // 行边框是独立偏好；Simple Boxes 关闭普通按钮 bevels 时不能把行开关一起架空。
+  root.classList.toggle("zaicode-bevel-rows", enabled && bevelRows);
   if (enabled) root.dataset.zaicodeStyle = presentation;
   else delete root.dataset.zaicodeStyle;
   root.classList.toggle("zaicode-fonts", enabled);

@@ -1,5 +1,5 @@
+import { openProviderQuotaCircuit, recordRouteFailure, recordUnattributedFailure } from "@zcode/shared";
 import { ModelErrorCode, ModelFailureReason, type Logger } from "@zcode/contracts";
-import { openProviderQuotaCircuit } from "@zcode/shared";
 import { isProviderBusinessError } from "./model-execution.js";
 import { findProviderBusinessError, type ClassifiedModelFailure } from "./failure-classifier.js";
 import { readMappedAiSdkProviderBusinessError } from "./failure-ai-sdk-provider-error.js";
@@ -25,6 +25,15 @@ const RELIABLE_ATTRIBUTION_CONTEXT_KEYS = [
   "retryable",
   "source",
   "statusCode",
+  "upstreamModelId",
+  "upstreamProviderId",
+  "upstreamConnectionId",
+  "routerRequestId",
+  "comboId",
+  "comboName",
+  "timeoutStage",
+  "candidateTried",
+  "fallbackReason",
 ] as const;
 
 /**
@@ -50,6 +59,65 @@ function noteProviderQuotaCircuit(
     reason: failure.message.slice(0, 120),
     retryAfterMs: context.retryAfterMs ?? failure.retryAfterMs ?? null,
   });
+}
+
+function noteRouterRouteFailure(
+  providerId: string | undefined,
+  failure: ClassifiedModelFailure,
+  context: Record<string, unknown>,
+): void {
+  const routerUrl = typeof context.routerUrl === "string" ? context.routerUrl : undefined;
+  const routerInstanceId = typeof context.routerInstanceId === "string" ? context.routerInstanceId : undefined;
+  const comboId =
+    (typeof context.comboId === "string" && context.comboId) ||
+    (typeof context.comboName === "string" && context.comboName) ||
+    undefined;
+  const upstreamModelId =
+    typeof context.upstreamModelId === "string" && context.upstreamModelId.trim()
+      ? context.upstreamModelId.trim()
+      : undefined;
+  const upstreamConnectionId =
+    typeof context.upstreamConnectionId === "string" ? context.upstreamConnectionId : undefined;
+
+  // When upstream model identity is unavailable:
+  // - Record an unattributed failure with raw safe error evidence.
+  // - Do NOT penalize a fabricated "unknown" model.
+  // - Do NOT quarantine an entire combo.
+  // - Show the diagnostic limitation ("UPSTREAM_IDENTITY_UNAVAILABLE").
+  if (!upstreamModelId) {
+    recordUnattributedFailure({
+      comboId: comboId || providerId || "unattributed",
+      routerUrl,
+      routerInstanceId,
+      reason: failure.reason,
+      rawSafeErrorEvidence: failure.message.slice(0, 500),
+      error: {
+        statusCode: typeof context.statusCode === "number" ? context.statusCode : failure.statusCode,
+        code: typeof context.providerCode === "string" ? context.providerCode : failure.code,
+        providerCode: typeof context.providerCode === "string" ? context.providerCode : undefined,
+        message: failure.message,
+        retryAfterMs: typeof context.retryAfterMs === "number" ? context.retryAfterMs : failure.retryAfterMs,
+      },
+    });
+    return;
+  }
+
+  recordRouteFailure(
+    {
+      routerUrl,
+      routerInstanceId,
+      comboId: comboId || providerId || "default",
+      modelId: upstreamModelId,
+      connectionId: upstreamConnectionId,
+    },
+    {
+      statusCode: typeof context.statusCode === "number" ? context.statusCode : failure.statusCode,
+      code: typeof context.providerCode === "string" ? context.providerCode : failure.code,
+      providerCode: typeof context.providerCode === "string" ? context.providerCode : undefined,
+      message: failure.message,
+      retryAfterMs: typeof context.retryAfterMs === "number" ? context.retryAfterMs : failure.retryAfterMs,
+    },
+  );
 }
 
 export class TerminalStreamChunkError extends Error {
@@ -165,6 +233,7 @@ export function toAdapterError(
   };
 
   noteProviderQuotaCircuit(statusContext.providerId, failure, normalizedContext);
+  noteRouterRouteFailure(statusContext.providerId, failure, normalizedContext);
 
   if (error instanceof AiSdkModelAdapterError) {
     // 已有 adapter error 的因果归因可能来自更接近失败现场的可靠证据；
@@ -302,5 +371,14 @@ function providerBusinessErrorContext(error: unknown): Record<string, unknown> |
     providerRequestId: error.providerRequestId,
     responseBodySummary: error.responseBodySummary,
     responseStatus: error.responseStatus,
+    upstreamModelId: error.upstreamModelId,
+    upstreamProviderId: error.upstreamProviderId,
+    upstreamConnectionId: error.upstreamConnectionId,
+    routerRequestId: error.routerRequestId,
+    comboId: error.comboId,
+    comboName: error.comboName,
+    timeoutStage: error.timeoutStage,
+    candidateTried: error.candidateTried,
+    fallbackReason: error.fallbackReason,
   };
 }

@@ -7,16 +7,16 @@ import { normalizeZaicodePresentation, ZAICODE_PRESENTATIONS } from "../src/zaic
 import type { ZaicodeLimitSnapshot, ZaicodeLimitWindow } from "@zcode/shared";
 
 test("REQ-006: effective retry matrix survives reload and edit-scope changes", () => {
-  for (const global of [false, true]) for (const project of [undefined, false, true]) for (const session of [undefined, false, true]) for (const scope of ["global", "project", "session"] as ZaicodeAutoRetryScope[]) for (const masterOn of [false, true]) {
+  for (const global of [false, true]) for (const project of [undefined, false, true]) for (const session of [undefined, false, true]) for (const scope of ["global", "project", "session"] as ZaicodeAutoRetryScope[]) {
     const prefs = normalizeZaicodeUiPrefs(JSON.parse(JSON.stringify({ ...ZAICODE_UI_DEFAULT_PREFS, autoRetry: global, autoRetryScope: scope, autoRetryProjects: project === undefined ? {} : { p: project }, autoRetrySessions: session === undefined ? {} : { s: session } })));
     const expected = session ?? project ?? global;
-    const effective = zaicodeEffectiveAutoRetry(prefs, "p", "s", { masterOn, halted: false });
+    const effective = zaicodeEffectiveAutoRetry(prefs, "p", "s", { halted: false });
     assert.equal(effective.preference, expected, JSON.stringify({ global, project, session, scope }));
-    // SRC-162: an explicit project/session ON is its own answer; only the inherited global follows the master.
-    assert.equal(effective.enabled, expected && (masterOn || session !== undefined || project !== undefined));
+    // SRC-183: retry inheritance does not depend on Audits mode.
+    assert.equal(effective.enabled, expected);
     assert.equal(effective.source, session !== undefined ? "session" : project !== undefined ? "project" : "global");
-    assert.equal(zaicodeEffectiveAutoRetry(prefs, "p", "s", { masterOn: true, halted: true }).enabled, false);
-    assert.equal(zaicodeEffectiveAutoRetry(prefs, "p", "s", { masterOn: true, halted: false, sessionMode: "off" }).enabled, false);
+    assert.equal(zaicodeEffectiveAutoRetry(prefs, "p", "s", { halted: true }).enabled, false);
+    assert.equal(zaicodeEffectiveAutoRetry(prefs, "p", "s", { halted: false, sessionMode: "off" }).enabled, false);
   }
 });
 
@@ -25,8 +25,8 @@ test("REQ-006: session editing cannot alter a project without a session; inherit
   assert.deepEqual(zaicodeAutoRetryPatch(prefs, "p", true), {});
   const patch = zaicodeAutoRetryPatch(prefs, "p", true, "s");
   assert.deepEqual(patch, { autoRetrySessions: { s: true } });
-  assert.equal(zaicodeEffectiveAutoRetry({ ...prefs, ...patch }, "p", "s", { masterOn: true, halted: false }).enabled, true);
-  assert.equal(zaicodeEffectiveAutoRetry(prefs, "p", "s", { masterOn: true, halted: false }).enabled, false);
+  assert.equal(zaicodeEffectiveAutoRetry({ ...prefs, ...patch }, "p", "s", { halted: false }).enabled, true);
+  assert.equal(zaicodeEffectiveAutoRetry(prefs, "p", "s", { halted: false }).enabled, false);
 });
 
 const now = 100_000_000;

@@ -4,6 +4,8 @@ import { homedir } from "node:os";
 import { join } from "node:path";
 import type { ZaicodeStatsWorkerSession } from "@zcode/shared";
 import type { ZaicodeStatsEventRow } from "./zaicodeStatsRepo.js";
+import { readZaicodeUsagePage } from "./zaicodeStatsAgentPages.js";
+import { ZAICODE_STATS_PAGE_SIZE, type ZaicodeStatsPage, type ZaicodeStatsScan } from "./zaicodeStatsScan.js";
 
 const require = createRequire(import.meta.url);
 const { DatabaseSync } = require("node:sqlite") as typeof import("node:sqlite");
@@ -21,9 +23,7 @@ type DatabaseSyncInstance = InstanceType<typeof DatabaseSync>;
  */
 
 /** Re-read this far behind the cursor: a row completed a moment late is still picked up. */
-export const ZAICODE_STATS_OVERLAP_MS = 5 * 60_000;
-const PAGE = 5000;
-const MAX_PAGES = 40;
+export { ZAICODE_STATS_OVERLAP_MS } from "./zaicodeStatsScan.js";
 
 /** The agent CLI's session store (same rule as the CLI: ZCODE_SESSION_DB_PATH, else ~/.zcode/cli/db/db.sqlite). */
 export function resolveZaicodeAgentDbPath(env: NodeJS.ProcessEnv = process.env): string {
@@ -32,9 +32,7 @@ export function resolveZaicodeAgentDbPath(env: NodeJS.ProcessEnv = process.env):
 }
 
 export interface ZaicodeAgentDbRead {
-  rows: ZaicodeStatsEventRow[];
-  /** Highest completion time read (the next cursor). */
-  cursor: number;
+  pages: ZaicodeStatsPage[];
   state: "fresh" | "unavailable";
   detail: string;
 }
@@ -55,106 +53,62 @@ const num = (value: unknown): number | null => (value === null || value === unde
 const text = (value: unknown): string | null => (typeof value === "string" && value ? value : null);
 
 /**
- * Model requests and turns that ended after `since` (terminal rows only: a
- * running request has no final token count yet). A missing file or a schema
- * without the expected columns is "unavailable", never an error.
+ * One independent, bounded completion/key page per terminal usage stream.
+ * A missing or unsupported source is unavailable; its durable scan stays put.
  */
-export function readZaicodeAgentDb(path: string, since: number): ZaicodeAgentDbRead {
-  if (!existsSync(path)) return { rows: [], cursor: since, state: "unavailable", detail: "agent usage store not found" };
+export function readZaicodeAgentDb(path: string, scans: { model: ZaicodeStatsScan; turn: ZaicodeStatsScan }): ZaicodeAgentDbRead {
+  if (!existsSync(path)) return { pages: [], state: "unavailable", detail: "agent usage store not found" };
   let db: DatabaseSyncInstance | null = null;
   try {
     db = new DatabaseSync(path, { readOnly: true });
     db.exec("PRAGMA busy_timeout = 2000");
+    db.exec("BEGIN");
     if (!hasColumns(db, "model_usage", MODEL_COLUMNS)) {
-      return { rows: [], cursor: since, state: "unavailable", detail: "agent usage store has no model_usage table this build understands" };
+      return { pages: [], state: "unavailable", detail: "agent usage store has no model_usage table this build understands" };
     }
     const hasSession = hasColumns(db, "session", ["id", "directory"]);
-    const rows: ZaicodeStatsEventRow[] = [];
-    let cursor = since;
-    const models = db.prepare(
-      `SELECT m.*, ${hasSession ? "s.directory" : "NULL"} AS project_dir,
-         COALESCE(m.completed_at, m.started_at) AS ended
-       FROM model_usage m ${hasSession ? "LEFT JOIN session s ON s.id = m.session_id" : ""}
-       WHERE m.status != 'running' AND COALESCE(m.completed_at, m.started_at) > ?
-       ORDER BY ended ASC LIMIT ${PAGE}`,
-    );
-    for (let page = 0, from = since; page < MAX_PAGES; page += 1) {
-      const batch = models.all(from);
-      for (const row of batch) {
-        const ended = Number(row.ended);
-        cursor = Math.max(cursor, ended);
-        const measured = row.status === "completed";
-        rows.push({
-          id: `model:${String(row.id)}`,
+    const pages: ZaicodeStatsPage[] = [];
+    for (const [table, scan] of [["model_usage", scans.model], ["turn_usage", scans.turn]] as const) {
+      if (table === "turn_usage" && !hasColumns(db, table, TURN_COLUMNS)) continue;
+      const { batch, until } = readZaicodeUsagePage(db, table, scan, hasSession);
+      const rows: ZaicodeStatsEventRow[] = batch.map(row => {
+        const model = table === "model_usage";
+        const measured = model && row.status === "completed";
+        return {
+          id: model ? `model:${String(row.id)}` : `turn:${String(row.session_id)}:${String(row.turn_id)}`,
           source: "agent-db",
-          kind: "model.request",
+          kind: model ? "model.request" : "turn",
           at: Number(row.started_at),
           startedAt: Number(row.started_at),
           durationMs: num(row.duration_ms),
           project: text(row.project_dir),
           sessionId: text(row.session_id),
           jobId: null,
-          agent: text(row.agent),
+          agent: model ? text(row.agent) : null,
           engine: null,
-          provider: text(row.provider_id),
-          model: text(row.model_id),
+          provider: model ? text(row.provider_id) : null,
+          model: model ? text(row.model_id) : null,
           // A request that failed or was cancelled reports no usage: 0 is what the provider billed as far as ZAICODE can know.
-          inputTokens: measured ? num(row.input_tokens) : 0,
-          outputTokens: measured ? num(row.output_tokens) : 0,
-          cacheReadTokens: measured ? num(row.cache_read_input_tokens) : 0,
-          cacheWriteTokens: measured ? num(row.cache_creation_input_tokens) : 0,
-          reasoningTokens: measured ? num(row.reasoning_tokens) : 0,
-          totalTokens: measured ? num(row.computed_total_tokens) : 0,
+          inputTokens: !model ? null : measured ? num(row.input_tokens) : 0,
+          outputTokens: !model ? null : measured ? num(row.output_tokens) : 0,
+          cacheReadTokens: !model ? null : measured ? num(row.cache_read_input_tokens) : 0,
+          cacheWriteTokens: !model ? null : measured ? num(row.cache_creation_input_tokens) : 0,
+          reasoningTokens: !model ? null : measured ? num(row.reasoning_tokens) : 0,
+          totalTokens: !model ? null : measured ? num(row.computed_total_tokens) : 0,
           result: text(row.status),
-          failure: text(row.error_type),
+          failure: model ? text(row.error_type) : null,
           retryOf: null,
-        });
-      }
-      if (batch.length < PAGE) break;
-      from = Number(batch[batch.length - 1]!.ended);
+        };
+      });
+      const last = batch.at(-1);
+      pages.push({ scan, until, rows, complete: batch.length < ZAICODE_STATS_PAGE_SIZE,
+        at: last ? Number(last.ended) : scan.at,
+        id: last ? String(table === "model_usage" ? last.id : last.session_id) : scan.id,
+        key: last && table === "turn_usage" ? String(last.turn_id) : scan.key });
     }
-    if (hasColumns(db, "turn_usage", TURN_COLUMNS)) {
-      const turns = db
-        .prepare(
-          `SELECT t.session_id, t.turn_id, t.status, t.started_at, t.duration_ms,
-             ${hasSession ? "s.directory" : "NULL"} AS project_dir,
-             COALESCE(t.completed_at, t.started_at) AS ended
-           FROM turn_usage t ${hasSession ? "LEFT JOIN session s ON s.id = t.session_id" : ""}
-           WHERE t.status != 'running' AND COALESCE(t.completed_at, t.started_at) > ?
-           ORDER BY ended ASC LIMIT ${PAGE * MAX_PAGES}`,
-        )
-        .all(since);
-      for (const row of turns) {
-        cursor = Math.max(cursor, Number(row.ended));
-        rows.push({
-          id: `turn:${String(row.session_id)}:${String(row.turn_id)}`,
-          source: "agent-db",
-          kind: "turn",
-          at: Number(row.started_at),
-          startedAt: Number(row.started_at),
-          durationMs: num(row.duration_ms),
-          project: text(row.project_dir),
-          sessionId: text(row.session_id),
-          jobId: null,
-          agent: null,
-          engine: null,
-          provider: null,
-          model: null,
-          inputTokens: null,
-          outputTokens: null,
-          cacheReadTokens: null,
-          cacheWriteTokens: null,
-          reasoningTokens: null,
-          totalTokens: null,
-          result: text(row.status),
-          failure: null,
-          retryOf: null,
-        });
-      }
-    }
-    return { rows, cursor, state: "fresh", detail: `${rows.length} new record(s)` };
+    return { pages, state: "fresh", detail: `${pages.reduce((n, page) => n + page.rows.length, 0)} record(s) read${pages.some(page => !page.complete) ? "; scan in progress" : ""}` };
   } catch (error) {
-    return { rows: [], cursor: since, state: "unavailable", detail: error instanceof Error ? error.message : String(error) };
+    return { pages: [], state: "unavailable", detail: error instanceof Error ? error.message : String(error) };
   } finally {
     try {
       db?.close();

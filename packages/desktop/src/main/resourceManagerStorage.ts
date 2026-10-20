@@ -25,6 +25,8 @@ const rootsResolver = createStorageRootsResolver({ getHomeDir: homedir, getDataB
 
 function getService(): IStorageService {
   if (service) return service;
+  // Main 的 Host 进程采样不具备 session/root owner 的 inactive 证明（ZAICODE/ZCode 仍共享 CLI 数据）。
+  // 未接入能覆盖该根的 runtime provider 时，StorageService 将活跃度视为 unknown，保护所有 transcript。
   service = createStorageService({
     roots: rootsResolver,
     scanRunner: createStorageScanWorkerRunner(),

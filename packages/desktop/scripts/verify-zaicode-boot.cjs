@@ -11,7 +11,7 @@
 // Wave 3 shipped a window that opened on "This section ran into a problem"
 // (a const read before its declaration); 765 unit tests and tsc were green
 // because nothing rendered the shell. This script renders it. It then makes sure the desktop-wide
-// ProTrail (on by default) comes up on every monitor by itself and really draws (verify-zaicode-protrail.cjs).
+// ProTrail respects saved settings, then independently proves saved Off and On startup/restart profiles.
 //
 // On success it writes a receipt beside the build (default: next to
 // win-unpacked). bundle-zaicode.mjs refuses to leave a staged build that has
@@ -22,7 +22,8 @@ const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
 const { _electron } = require("playwright-core");
-const { checkProtrail } = require("./verify-zaicode-protrail.cjs");
+const { checkProtrail, readExpectedProtrail } = require("./verify-zaicode-protrail.cjs");
+const { checkProtrailProfiles } = require("./verify-zaicode-protrail-profiles.cjs");
 const { checkCustomization } = require("./verify-zaicode-customization.cjs");
 const { checkWorkflowControls, chooseLocale } = require("./verify-zaicode-workflows.cjs");
 
@@ -32,32 +33,43 @@ function option(name) {
   const at = process.argv.indexOf(name);
   return at >= 0 ? process.argv[at + 1] : undefined;
 }
-const positional = process.argv.slice(2).filter((arg, index, all) => !arg.startsWith("--") && !all[index - 1]?.startsWith("--"));
+const positional = process.argv
+  .slice(2)
+  .filter((arg, index, all) => !arg.startsWith("--") && !all[index - 1]?.startsWith("--"));
 const executablePath = path.resolve(
   positional[0] ?? path.resolve(__dirname, "../dist-next/win-unpacked/ZAICODE.exe"),
 );
 const outDir = option("--out") ?? process.env.ZAICODE_BOOT_OUT_DIR;
-const receiptPath = option("--receipt") ?? path.join(path.dirname(path.dirname(executablePath)), "boot-receipt.json");
+const receiptPath =
+  option("--receipt") ?? path.join(path.dirname(path.dirname(executablePath)), "boot-receipt.json");
 const tempBase = path.join(process.env.LOCALAPPDATA ?? os.tmpdir(), "Temp");
 fs.mkdirSync(tempBase, { recursive: true });
 const profile = fs.mkdtempSync(path.join(tempBase, "zaicode-boot-"));
 // Windows 凭据库不随 HOME 隔离；启动前禁用测试 profile 的付费窗口启动，避免 smoke 消耗真实账号额度。
-fs.writeFileSync(path.join(profile, "zaicode-engines.json"), JSON.stringify({ keepWindowsRolling: false }));
+fs.writeFileSync(
+  path.join(profile, "zaicode-engines.json"),
+  JSON.stringify({ keepWindowsRolling: false }),
+);
 const customizationDir = path.join(profile, "customization");
 if (outDir) fs.mkdirSync(outDir, { recursive: true });
 
 /** Text the two error boundaries render (en-US and zh-CN locale files). */
 const BOUNDARY_TEXT = /ran into a problem|出了点问题/i;
 /** Console errors that mean the code itself is broken, not the environment. */
-const FATAL_CONSOLE = /before initialization|is not defined|Cannot read properties of (undefined|null)|is not a function|Maximum update depth/i;
+const FATAL_CONSOLE =
+  /before initialization|is not defined|Cannot read properties of (undefined|null)|is not a function|Maximum update depth/i;
 
 /** Kills only the process tree this script started, never by image name. */
 function killTree(pid) {
   if (!pid) return;
   try {
-    execFileSync(path.join(process.env.SystemRoot ?? "C:\\Windows", "System32", "taskkill.exe"), ["/PID", String(pid), "/T", "/F"], {
-      stdio: "ignore",
-    });
+    execFileSync(
+      path.join(process.env.SystemRoot ?? "C:\\Windows", "System32", "taskkill.exe"),
+      ["/PID", String(pid), "/T", "/F"],
+      {
+        stdio: "ignore",
+      },
+    );
   } catch {
     // already gone
   }
@@ -91,7 +103,10 @@ async function main() {
   delete env.SAIMAIL_WORKSPACE;
   // Vendor-specific home/auth variables override HOME and would leak real accounts into this profile.
   for (const key of Object.keys(env)) {
-    if (/^(CLAUDE|CODEX|ANTHROPIC|OPENAI|GEMINI|GOOGLE_API|AI_AGENT|ZCODE_ZAICODE_PREVIEW)/i.test(key)) delete env[key];
+    if (
+      /^(CLAUDE|CODEX|ANTHROPIC|OPENAI|GEMINI|GOOGLE_API|AI_AGENT|ZCODE_ZAICODE_PREVIEW)/i.test(key)
+    )
+      delete env[key];
   }
   delete env.ZAICODE_INSTALL_ROOT;
 
@@ -112,6 +127,7 @@ async function main() {
     app = await _electron.launch({
       executablePath,
       args: [`--user-data-dir=${profile}`],
+      cwd: profile,
       env,
       timeout: 90_000,
     });
@@ -119,9 +135,19 @@ async function main() {
     child = app.process();
     pid = child.pid;
     const actualUserData = await app.evaluate(({ app }) => app.getPath("userData"));
-    assert.equal(path.resolve(actualUserData), path.resolve(profile), "boot uses its own test profile");
-    const bootEnginesConfig = JSON.parse(fs.readFileSync(path.join(actualUserData, "zaicode-engines.json"), "utf8"));
-    assert.equal(bootEnginesConfig.keepWindowsRolling, false, "the launched boot profile disables automatic vendor window starts");
+    assert.equal(
+      path.resolve(actualUserData),
+      path.resolve(profile),
+      "boot uses its own test profile",
+    );
+    const bootEnginesConfig = JSON.parse(
+      fs.readFileSync(path.join(actualUserData, "zaicode-engines.json"), "utf8"),
+    );
+    assert.equal(
+      bootEnginesConfig.keepWindowsRolling,
+      false,
+      "the launched boot profile disables automatic vendor window starts",
+    );
     checks.vendorWindowStartsDisabled = true;
     app.on("window", watch);
     for (const window of app.windows()) watch(window);
@@ -129,7 +155,9 @@ async function main() {
     const deadline = Date.now() + 60_000;
     let page;
     while (!page && Date.now() < deadline) {
-      page = app.windows().find((window) => !window.isClosed() && window.url().includes("/out/renderer/index.html"));
+      page = app
+        .windows()
+        .find((window) => !window.isClosed() && window.url().includes("/out/renderer/index.html"));
       if (!page) await sleep(500);
     }
     assert.ok(page, "the packaged app opens its main window");
@@ -150,7 +178,9 @@ async function main() {
       .waitForFunction(
         () =>
           document.querySelector('[data-workspace-shell="true"]') ||
-          [...document.querySelectorAll('[role="alert"]')].some((node) => /ran into a problem|出了点问题/i.test(node.textContent ?? "")),
+          [...document.querySelectorAll('[role="alert"]')].some((node) =>
+            /ran into a problem|出了点问题/i.test(node.textContent ?? ""),
+          ),
         null,
         { timeout: 60_000 },
       )
@@ -158,12 +188,18 @@ async function main() {
     // Later renders (data arriving, effects) can still throw; look again after they settle.
     await sleep(3000);
 
-    const boundaries = await page.$$eval('[role="alert"]', (nodes) => nodes.map((node) => (node.textContent ?? "").trim().slice(0, 400)));
+    const boundaries = await page.$$eval('[role="alert"]', (nodes) =>
+      nodes.map((node) => (node.textContent ?? "").trim().slice(0, 400)),
+    );
     const shown = boundaries.filter((text) => BOUNDARY_TEXT.test(text));
     assert.deepEqual(shown, [], `an error card is on screen: ${shown.join(" | ")}`);
     checks.noErrorCard = true;
 
-    assert.equal(await page.locator('[data-workspace-shell="true"]').count(), 1, "the workspace shell is mounted");
+    assert.equal(
+      await page.locator('[data-workspace-shell="true"]').count(),
+      1,
+      "the workspace shell is mounted",
+    );
     checks.workspaceShell = true;
     assert.ok((await page.locator("#sidebar").count()) >= 1, "the sidebar panel is mounted");
     checks.sidebar = true;
@@ -177,8 +213,14 @@ async function main() {
     // A narrow window must still hold the shell (the Wave 1 overlap class).
     await page.setViewportSize({ width: 640, height: 540 });
     await sleep(500);
-    assert.equal(await page.locator('[data-workspace-shell="true"]').count(), 1, "the shell survives a 640x540 window");
-    const narrowBoundaries = (await page.$$eval('[role="alert"]', (nodes) => nodes.map((node) => node.textContent ?? ""))).filter((text) => BOUNDARY_TEXT.test(text));
+    assert.equal(
+      await page.locator('[data-workspace-shell="true"]').count(),
+      1,
+      "the shell survives a 640x540 window",
+    );
+    const narrowBoundaries = (
+      await page.$$eval('[role="alert"]', (nodes) => nodes.map((node) => node.textContent ?? ""))
+    ).filter((text) => BOUNDARY_TEXT.test(text));
     assert.deepEqual(narrowBoundaries, [], "no error card after resizing");
     checks.narrowWindow = true;
 
@@ -188,7 +230,11 @@ async function main() {
     await page.locator("button[aria-label='Settings']").first().click({ timeout: 10_000 });
     const nav = page.locator("nav").filter({ hasText: "Keyboard Shortcuts" }).first();
     await nav.waitFor({ timeout: 15_000 });
-    const entries = await nav.locator("button").evaluateAll((nodes) => nodes.map((node) => (node.textContent ?? "").trim().replace(/\s+/g, " ")));
+    const entries = await nav
+      .locator("button")
+      .evaluateAll((nodes) =>
+        nodes.map((node) => (node.textContent ?? "").trim().replace(/\s+/g, " ")),
+      );
     // Links that leave the app (the browser must never open from a gate) and the way back.
     const skip = /back to workspace|on github|support developer|discord saipen community/i;
     const visited = [];
@@ -200,60 +246,146 @@ async function main() {
       // invisible until the fold is opened; open exactly that fold, the way a user would.
       const entry = nav.locator("button").nth(index);
       if (!(await entry.isVisible().catch(() => false))) {
-        await entry.evaluate((node) => { const fold = node.closest("details"); if (fold) fold.open = true; }).catch(() => {});
+        await entry
+          .evaluate((node) => {
+            const fold = node.closest("details");
+            if (fold) fold.open = true;
+          })
+          .catch(() => {});
       }
       try {
         await nav.locator("button").nth(index).click({ timeout: 8000 });
       } catch (error) {
-        console.log(`note: could not open Settings > ${name} (${String(error.message ?? error).split("\n")[0]})`);
+        console.log(
+          `note: could not open Settings > ${name} (${String(error.message ?? error).split("\n")[0]})`,
+        );
         continue;
       }
       await sleep(600);
       visited.push(name);
-      const cards = (await page.$$eval('[role="alert"]', (nodes) => nodes.map((node) => (node.textContent ?? "").trim().slice(0, 300)))).filter((text) => BOUNDARY_TEXT.test(text));
+      const cards = (
+        await page.$$eval('[role="alert"]', (nodes) =>
+          nodes.map((node) => (node.textContent ?? "").trim().slice(0, 300)),
+        )
+      ).filter((text) => BOUNDARY_TEXT.test(text));
       if (cards.length) broken.push(`${name}: ${cards[0]}`);
     }
-    assert.deepEqual(broken, [], `Settings sections that render an error card: ${broken.join(" || ")}`);
-    assert.ok(visited.length >= 15, `the Settings walk reached its sections (visited ${visited.length}: ${visited.join(", ")})`);
+    assert.deepEqual(
+      broken,
+      [],
+      `Settings sections that render an error card: ${broken.join(" || ")}`,
+    );
+    assert.ok(
+      visited.length >= 15,
+      `the Settings walk reached its sections (visited ${visited.length}: ${visited.join(", ")})`,
+    );
     checks.settingsSections = visited.length;
-    assert.deepEqual(pageErrors, [], `uncaught renderer exceptions while walking Settings: ${pageErrors.join(" || ")}`);
+    assert.deepEqual(
+      pageErrors,
+      [],
+      `uncaught renderer exceptions while walking Settings: ${pageErrors.join(" || ")}`,
+    );
     const fatalWalk = consoleErrors.filter((text) => FATAL_CONSOLE.test(text));
-    assert.deepEqual(fatalWalk, [], `fatal renderer console errors while walking Settings: ${fatalWalk.join(" || ")}`);
+    assert.deepEqual(
+      fatalWalk,
+      [],
+      `fatal renderer console errors while walking Settings: ${fatalWalk.join(" || ")}`,
+    );
     if (outDir) await page.screenshot({ path: path.join(outDir, "boot.png") });
 
-    // ProTrail (T-129): on by default, it must come up on every monitor by itself and really draw.
-    const protrail = await checkProtrail(app);
+    // 保存的 Off 不是启动失败；期望值来自产品自身的设置读取与规范化规则。
+    // T-129 的每屏实际绘制仍由下方独立 On 启动场景强制验证。
+    const expectedProtrail = readExpectedProtrail(
+      await page.evaluate(() => localStorage.getItem("zaicode-protrail-v1")),
+    );
+    const protrail = await checkProtrail(app, { page, expectedConfig: expectedProtrail });
     checks.protrail = protrail;
-    assert.deepEqual(pageErrors, [], `uncaught renderer exceptions after ProTrail came up: ${pageErrors.join(" || ")}`);
+    assert.deepEqual(
+      pageErrors,
+      [],
+      `uncaught renderer exceptions after ProTrail came up: ${pageErrors.join(" || ")}`,
+    );
 
     // The customization folder (T-126): a file dropped in from outside shows up on the Sounds page by itself.
     checks.customization = await checkCustomization(page, customizationDir);
-    assert.deepEqual(pageErrors, [], `uncaught renderer exceptions after the customization check: ${pageErrors.join(" || ")}`);
+    assert.deepEqual(
+      pageErrors,
+      [],
+      `uncaught renderer exceptions after the customization check: ${pageErrors.join(" || ")}`,
+    );
     const fatalCustomization = consoleErrors.filter((text) => FATAL_CONSOLE.test(text));
-    assert.deepEqual(fatalCustomization, [], `fatal renderer console errors after the customization check: ${fatalCustomization.join(" || ")}`);
+    assert.deepEqual(
+      fatalCustomization,
+      [],
+      `fatal renderer console errors after the customization check: ${fatalCustomization.join(" || ")}`,
+    );
 
     checks.workflowControls = await checkWorkflowControls(page, app, profile);
     await chooseLocale(page, "ru-RU", "Русский");
     await app.close();
-    app = await _electron.launch({ executablePath, args: [`--user-data-dir=${profile}`], env, timeout: 90_000 });
-    child = app.process(); pid = child.pid;
+    app = await _electron.launch({
+      executablePath,
+      args: [`--user-data-dir=${profile}`],
+      cwd: profile,
+      env,
+      timeout: 90_000,
+    });
+    child = app.process();
+    pid = child.pid;
     app.on("window", watch);
     let restarted;
     const restartDeadline = Date.now() + 60_000;
     while (!restarted && Date.now() < restartDeadline) {
-      restarted = app.windows().find((window) => !window.isClosed() && window.url().includes("/out/renderer/index.html"));
+      restarted = app
+        .windows()
+        .find((window) => !window.isClosed() && window.url().includes("/out/renderer/index.html"));
       if (!restarted) await sleep(500);
     }
     assert.ok(restarted, "the same isolated profile restarts");
     watch(restarted);
-    await restarted.waitForFunction(() => document.documentElement.lang === "ru-RU" && document.querySelector('[data-workspace-shell="true"]'), null, { timeout: 90_000 });
+    await restarted.waitForFunction(
+      () =>
+        document.documentElement.lang === "ru-RU" &&
+        document.querySelector('[data-workspace-shell="true"]'),
+      null,
+      { timeout: 90_000 },
+    );
     // Settings is the durable owner; a fresh renderer may hydrate from it before its local cache exists.
     await restarted.getByTestId("task-settings-button").filter({ visible: true }).click();
     await restarted.getByTestId("settings-section-nav-general").click();
-    assert.match(await restarted.getByTestId("settings-locale-select-trigger").innerText(), /Русский/, "the explicit Russian preference, rather than System, persists across an application restart");
+    assert.match(
+      await restarted.getByTestId("settings-locale-select-trigger").innerText(),
+      /Русский/,
+      "the explicit Russian preference, rather than System, persists across an application restart",
+    );
     checks.localeRestart = "ru-RU";
     assert.deepEqual(pageErrors, [], "no renderer errors during workflow checks or restart");
-    assert.deepEqual(consoleErrors.filter((text) => FATAL_CONSOLE.test(text)), [], "no fatal console errors during workflow checks or restart");
+    assert.deepEqual(
+      consoleErrors.filter((text) => FATAL_CONSOLE.test(text)),
+      [],
+      "no fatal console errors during workflow checks or restart",
+    );
+
+    await app.close();
+    app = null;
+    checks.protrailProfiles = await checkProtrailProfiles({
+      executablePath,
+      tempBase,
+      baseEnv: env,
+      outDir,
+      watch,
+      closeApp: async (ownedApp) => {
+        const ownedChild = ownedApp.process();
+        await Promise.race([ownedApp.close().catch(() => undefined), sleep(15_000)]);
+        if (ownedChild.exitCode === null) killTree(ownedChild.pid);
+      },
+    });
+    assert.deepEqual(pageErrors, [], "no renderer errors in either saved ProTrail startup profile");
+    assert.deepEqual(
+      consoleErrors.filter((text) => FATAL_CONSOLE.test(text)),
+      [],
+      "no fatal console errors in either ProTrail profile",
+    );
 
     const asar = path.join(path.dirname(executablePath), "resources", "app.asar");
     const receipt = {
@@ -268,13 +400,19 @@ async function main() {
       consoleErrorCount: consoleErrors.length,
     };
     fs.writeFileSync(receiptPath, `${JSON.stringify(receipt, null, 2)}\n`);
-    const trail = checks.protrail?.skipped ? `ProTrail skipped (${checks.protrail.skipped})` : `ProTrail drawing on ${checks.protrail?.monitors} monitor(s)`;
-    console.log(`PASS packaged boot: shell mounted, ${checks.settingsSections} Settings sections opened, ${trail}, customization list live (${checks.customization.count.join("->")}), no error card, ${pageErrors.length} uncaught exceptions, ${consoleErrors.length} console errors -> ${receiptPath}`);
-    if (consoleErrors.length) console.log(`console errors (informational):\n  ${consoleErrors.slice(0, 8).join("\n  ")}`);
+    const trail = `ProTrail saved OFF/ON profiles verified across restart; ${checks.protrailProfiles[1].startup[0].monitors} monitor(s)`;
+    console.log(
+      `PASS packaged boot: shell mounted, ${checks.settingsSections} Settings sections opened, ${trail}, customization list live (${checks.customization.count.join("->")}), no error card, ${pageErrors.length} uncaught exceptions, ${consoleErrors.length} console errors -> ${receiptPath}`,
+    );
+    if (consoleErrors.length)
+      console.log(`console errors (informational):\n  ${consoleErrors.slice(0, 8).join("\n  ")}`);
   } catch (error) {
     if (outDir && app) {
       const page = app.windows().find((window) => !window.isClosed());
-      if (page) await page.screenshot({ path: path.join(outDir, "boot-failed.png") }).catch(() => undefined);
+      if (page)
+        await page
+          .screenshot({ path: path.join(outDir, "boot-failed.png") })
+          .catch(() => undefined);
     }
     try {
       fs.rmSync(receiptPath, { force: true });
@@ -282,8 +420,10 @@ async function main() {
       // nothing to remove
     }
     console.error(`FAIL packaged boot: ${error?.message ?? error}`);
-    if (pageErrors.length) console.error(`uncaught exceptions:\n  ${pageErrors.slice(0, 5).join("\n  ")}`);
-    if (consoleErrors.length) console.error(`console errors:\n  ${consoleErrors.slice(0, 8).join("\n  ")}`);
+    if (pageErrors.length)
+      console.error(`uncaught exceptions:\n  ${pageErrors.slice(0, 5).join("\n  ")}`);
+    if (consoleErrors.length)
+      console.error(`console errors:\n  ${consoleErrors.slice(0, 8).join("\n  ")}`);
     process.exitCode = 1;
   } finally {
     if (app) {

@@ -3,14 +3,17 @@ import { existsSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { delimiter, join } from "node:path";
 import { after, before, test } from "node:test";
-import { ZAICODE_FREE_POOL, ZAICODE_OWN_POOL } from "@zcode/shared";
+import { ZAICODE_FREE_POOL, ZAICODE_OWN_POOL, ZAICODE_KEYLESS_API_KEY } from "@zcode/shared";
 import {
   addZaicodeFreeKeyProvider,
   ensureZaicodeFreePool,
   ensureZaicodeRouterKey,
+  findZaicodeRouterKey,
+  proposeZaicodeRouterKeyCleanup,
   probeZaicodeRouterModel,
   readZaicodeRouterState,
   scanZaicodeFreeModels,
+  type ZaicodeRouterCaller,
 } from "../src/main/zaicodeRouterSetup.js";
 import { callZaicodeRouterInternal, setZaicodeRouterTarget } from "../src/main/zaicodeRouterTransport.js";
 import { ZaicodeRouterProcess, isZaicodeRouterHealthy } from "../src/main/zaicodeRouterProcess.js";
@@ -151,4 +154,142 @@ test("Autotroubleshoot repairs: a stopped router is started again, a deleted poo
   assert.ok(repaired.steps.some((step) => step.id === "pool:free" && step.status === "fixed"));
   const probe = await probeZaicodeRouterModel(URL, apiKey, ZAICODE_FREE_POOL);
   assert.ok(probe.ok, `first token after the repair: ${probe.detail}`);
+});
+
+/**
+ * REQ-014: one stable ZAICODE router credential (T-279). Fake 9router key
+ * listings, so these run with no router on the machine: lookup never
+ * creates, concurrent acquisition shares one creation, failures stay
+ * explicit, and cleanup proposals carry no secret material.
+ */
+function fakeKeyCaller(
+  entries: unknown[],
+  options?: { failList?: string; failCreate?: string; delayMs?: number },
+): { call: ZaicodeRouterCaller; posts: () => number } {
+  let posts = 0;
+  const call: ZaicodeRouterCaller = async (request) => {
+    if (request.method === "GET" && request.path === "/api/keys") {
+      if (options?.failList)
+        return { ok: false, status: 500, message: options.failList, data: null };
+      if (options?.delayMs) await new Promise((done) => setTimeout(done, options.delayMs));
+      return { ok: true, status: 200, message: "", data: { keys: entries } };
+    }
+    if (request.method === "POST" && request.path === "/api/keys") {
+      posts += 1;
+      if (options?.failCreate)
+        return { ok: false, status: 500, message: options.failCreate, data: null };
+      return { ok: true, status: 200, message: "", data: { key: `sk-fake-${posts}` } };
+    }
+    throw new Error(`unexpected ${request.method} ${request.path}`);
+  };
+  return { call, posts: () => posts };
+}
+
+test("loopback router acquisition uses no client keys and changes only API-key authentication", async () => {
+  const calls: { method: string; path: string; body?: unknown }[] = [];
+  let requiresKey = true;
+  const call: ZaicodeRouterCaller = async (request) => {
+    calls.push(request);
+    if (request.method === "GET" && request.path === "/api/settings")
+      return { ok: true, status: 200, message: "", data: { requireApiKey: requiresKey, requireLogin: true } };
+    if (request.method === "PATCH" && request.path === "/api/settings") {
+      assert.deepEqual(request.body, { requireApiKey: false });
+      requiresKey = false;
+      return { ok: true, status: 200, message: "", data: {} };
+    }
+    throw new Error(`client-key route must not be called: ${request.method} ${request.path}`);
+  };
+  for (const url of ["http://127.0.0.1:20128", "http://localhost:20138", "http://[::1]:20138"]) {
+    assert.deepEqual(await ensureZaicodeRouterKey(call, null, url), { key: ZAICODE_KEYLESS_API_KEY, created: false });
+  }
+  assert.equal(calls.filter((request) => request.method === "PATCH").length, 1);
+  assert.ok(calls.every((request) => request.path === "/api/settings"));
+});
+
+test("loopback setup failures cannot create a fallback key or weaken remote authentication", async () => {
+  const unavailable: ZaicodeRouterCaller = async () => ({ ok: false, status: 503, data: null, message: "offline" });
+  await assert.rejects(ensureZaicodeRouterKey(unavailable, null, "http://127.0.0.1:20128"), /offline/);
+  const remote = fakeKeyCaller([]);
+  assert.equal((await ensureZaicodeRouterKey(remote.call, null, "https://router.example")).created, true);
+  assert.equal(remote.posts(), 1);
+});
+
+test("independent router callers never share a newly created credential", async () => {
+  const first = fakeKeyCaller([], { delayMs: 10 });
+  const second = fakeKeyCaller([], { delayMs: 10 });
+  await Promise.all([ensureZaicodeRouterKey(first.call, null), ensureZaicodeRouterKey(second.call, null)]);
+  assert.equal(first.posts(), 1);
+  assert.equal(second.posts(), 1);
+});
+
+test("separate stored credentials at the same remote endpoint cannot be coalesced", async () => {
+  const first = fakeKeyCaller([{ key: "sk-first", isActive: true }], { delayMs: 10 });
+  const second = fakeKeyCaller([{ key: "sk-second", isActive: true }], { delayMs: 10 });
+  const results = await Promise.all([
+    ensureZaicodeRouterKey(first.call, "sk-first", "https://router.example"),
+    ensureZaicodeRouterKey(second.call, "sk-second", "https://router.example"),
+  ]);
+  assert.deepEqual(results.map((entry) => entry.key), ["sk-first", "sk-second"]);
+  assert.equal(first.posts() + second.posts(), 0);
+});
+
+test("lookup reuses an active stored key and never creates; inactive or revoked stored keys fall to one controlled creation", async () => {
+  const stored = "sk-live-1";
+  const reuse = fakeKeyCaller([{ id: "k1", name: "ZAICODE", key: stored, isActive: true }]);
+  assert.deepEqual(await ensureZaicodeRouterKey(reuse.call, stored), {
+    key: stored,
+    created: false,
+  });
+  assert.equal(reuse.posts(), 0);
+  for (const dead of [
+    [{ id: "k1", name: "ZAICODE", key: stored, isActive: false }],
+    [{ id: "k1", name: "ZAICODE", key: stored, revoked: true }],
+    [{ id: "k1", name: "ZAICODE", key: stored, active: false }],
+    [],
+  ]) {
+    const fake = fakeKeyCaller(dead);
+    const result = await ensureZaicodeRouterKey(fake.call, stored);
+    assert.equal(result.created, true);
+    assert.equal(fake.posts(), 1);
+  }
+});
+
+test("masked listings without full key material create once and say so; ZAICODE-named entries are reported, never adopted or deleted", async () => {
+  const entries = [
+    { id: "k1", name: "ZAICODE", keyPrefix: "sk-abc", isActive: true },
+    { id: "k2", name: "ZAICODE", keyPrefix: "sk-def", isActive: true },
+    { id: "k3", name: "operator", keyPrefix: "sk-xyz", isActive: true },
+  ];
+  assert.equal(findZaicodeRouterKey(entries, "sk-abc-full"), false);
+  const fake = fakeKeyCaller(entries);
+  const result = await ensureZaicodeRouterKey(fake.call, "sk-abc-full");
+  assert.equal(result.created, true);
+  assert.equal(fake.posts(), 1);
+  const proposal = proposeZaicodeRouterKeyCleanup(entries);
+  assert.equal(proposal.total, 3);
+  assert.equal(proposal.duplicateNamed, 1);
+  assert.deepEqual(
+    proposal.zaicodeNamed.map((entry) => entry.id),
+    ["k1", "k2"],
+  );
+  assert.ok(!JSON.stringify(proposal).includes("sk-"));
+});
+
+test("concurrent reads for one slot share a single acquisition; list and create failures stay explicit with no stuck gate", async () => {
+  const fake = fakeKeyCaller([], { delayMs: 20 });
+  const [first, second, third] = await Promise.all([
+    ensureZaicodeRouterKey(fake.call, null),
+    ensureZaicodeRouterKey(fake.call, null),
+    ensureZaicodeRouterKey(fake.call, null),
+  ]);
+  assert.equal(first.key, second.key);
+  assert.equal(second.key, third.key);
+  assert.equal(fake.posts(), 1);
+  const failing = fakeKeyCaller([], { failList: "router down" });
+  await assert.rejects(ensureZaicodeRouterKey(failing.call, "sk-x"), /router down/);
+  assert.equal(failing.posts(), 0);
+  const refused = fakeKeyCaller([], { failCreate: "quota" });
+  await assert.rejects(ensureZaicodeRouterKey(refused.call, null), /quota/);
+  const retry = await ensureZaicodeRouterKey(fakeKeyCaller([]).call, "sk-retry-slot");
+  assert.equal(retry.created, true);
 });

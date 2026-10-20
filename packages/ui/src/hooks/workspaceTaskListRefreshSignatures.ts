@@ -1,4 +1,5 @@
 import type { ZCodeTaskMeta } from "@zcode/shared";
+import { areTaskListItemsEquivalent as taskItemsEquivalent } from "@/v4/taskListItemStabilization.js";
 
 type WorkspaceTaskListVersionEntry = readonly [workspaceKey: string, version: number];
 
@@ -31,20 +32,8 @@ export function areTaskListItemsEquivalent(left: ZCodeTaskMeta[], right: ZCodeTa
     return false;
   }
 
-  return left.every((leftTask, index) => {
-    const rightTask = right[index];
-    return Boolean(
-      rightTask &&
-      leftTask.taskId === rightTask.taskId &&
-      leftTask.title === rightTask.title &&
-      leftTask.updatedAt === rightTask.updatedAt &&
-      leftTask.createdAt === rightTask.createdAt &&
-      leftTask.status === rightTask.status &&
-      leftTask.unreadAt === rightTask.unreadAt &&
-      leftTask.provider === rightTask.provider &&
-      leftTask.model === rightTask.model,
-    );
-  });
+  // 租约和 ownership denial 不推进 progress 时间；忽略 activity 会吞掉真实 heartbeat。
+  return left.every((leftTask, index) => taskItemsEquivalent(leftTask, right[index]!));
 }
 
 interface PendingWorkspaceTaskQuery {

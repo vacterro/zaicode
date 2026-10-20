@@ -30,6 +30,7 @@ async function unsubscribeIgnoringFailure(
  * 最新 proxy，旧 proxy 的监听先同步解除，避免新旧 Store 竞争同一 topic ownership。
  */
 export class ReplaceableConversationTransport implements ConversationTransport {
+  readonly readHostNow = (): number | null => this.current.readHostNow?.() ?? null;
   private readonly frameListeners = new Set<FrameListener>();
   private readonly assemblyFaultListeners = new Set<AssemblyFaultListener>();
   private readonly runtimeRestartListeners = new Set<RuntimeRestartListener>();

@@ -18,6 +18,10 @@ import {
   type TopicFrameDeliveryKind,
 } from "@zcode/shared/zcode-protocol-v4";
 import { logger } from "@/logger.js";
+import {
+  SubscriptionDiagnostics,
+  type SubscriptionDiagnosticsSnapshot,
+} from "@/v4/subscriptionDiagnostics.js";
 import type { ConversationTurnNavigatorHydrationResult } from "@/v4/conversationTurnNavigatorHelpers.js";
 import type { ConversationTransport } from "@/v4/transport.js";
 import { uiMemoryDiagnosticsRegistry } from "@/lib/memoryDiagnostics.js";
@@ -34,6 +38,12 @@ import { retainConversationTail, ZAICODE_AUTO_LEADING_TURN_ROWS } from "./conver
  * 所以这里按 sessionsIndexStore 的既定模式做有界退避。
  */
 const RUNTIME_RECYCLE_RETRY_DELAYS_MS = [250, 1_000, 3_000] as const;
+
+/**
+ * 一个 recovery episode 内允许的换代重连次数。
+ * 计数跨越多次 subscription 替换：ACK 成功不算恢复成功，只有权威帧应用才算。
+ */
+const RECOVERY_RECONNECT_ATTEMPT_LIMIT = 3;
 
 /**
  * accepted ACK 后等待权威输入投影的宽限期。
@@ -81,10 +91,10 @@ function hasAcceptedInputProjection(
 ): boolean {
   if (!snapshot) return false;
   if (snapshot.queue.items.some((item) => item.sourceCommandId === commandId)) return true;
-  return snapshot.rows.window.some(
-    (row) =>
-      row.kind === "userInput" && row.origin === "realUser" && row.sourceCommandId === commandId,
-  );
+  return snapshot.rows.window.some((row) => {
+    const candidate = row as { sourceCommandId?: string; rootSourceCommandId?: string };
+    return candidate.sourceCommandId === commandId || candidate.rootSourceCommandId === commandId;
+  });
 }
 
 export type ConversationStoreStatus =
@@ -109,6 +119,15 @@ export interface ConversationStoreState {
   snapshot: ConversationSnapshot | null;
   subscriptionId: string | null;
   lastError: string | null;
+  /**
+   * 本 topic 是否至少应用过一帧权威投影（快照或衔接合法的 delta）。
+   *
+   * 这是「这份投影是真相」的持久事实，与 status 无关，也不随订阅换代清零：
+   * 订阅失效只让「这是实时真相」这句话失效，不让已经落地的历史变成伪造。
+   * 判定能不能继续展示会话正文必须用它，不能只看 `rows.window.length > 0`
+   * ——合法空投影（真实空会话）会被误判成不可信，未验证的非空投影会被误判成可信。
+   */
+  projectionVerified: boolean;
   /** 首次 conversation subscribe 的低频 Host/CLI timing；不进入 snapshot 事实。 */
   openTiming?: ConversationOpenTiming;
   /** Renderer 首帧 timing；与 snapshot 一起通知，避免 UI 读取到半更新的诊断状态。 */
@@ -143,6 +162,7 @@ const INITIAL_STATE: ConversationStoreState = {
   snapshot: null,
   subscriptionId: null,
   lastError: null,
+  projectionVerified: false,
   rendererTiming: undefined,
   optimisticCommands: [],
   loadingOlder: false,
@@ -314,6 +334,22 @@ export class ConversationProjectionStore {
   private readonly offRuntimeLifecycle: (() => void) | null = null;
   private runtimeRecycleRetryTimer: ReturnType<typeof setTimeout> | null = null;
   private runtimeRecycleRetryAttempt = 0;
+  /**
+   * 整个 recovery episode 共享的有界预算（不随 subscribe ACK 归还）。
+   * 归还只有一条路：权威帧真正应用（markProjectionHealthy）。
+   */
+  private recoveryReconnectAttempts = 0;
+  /**
+   * 预算耗尽后的终态原因。非空时停止一切自动 recovery 动作——
+   * 终止失败是稳定态，只能由用户重连（connect）或权威帧自证健康来解除。
+   */
+  private recoveryTerminalReason: string | null = null;
+  /**
+   * 首个失败与可复制诊断引用的唯一记录点。生产构建会压制 logger.warn，
+   * 所以恢复链路的关键事实必须经 logger.lifecycle 走 host 落盘，并同时留在
+   * 这里供错误面板展示。
+   */
+  private readonly diagnostics: SubscriptionDiagnostics;
   private sessionOpenRendererTiming: SessionOpenRendererTiming = {};
   private initialSubscribeAckAt: number | null = null;
   private planQueryInFlight = false;
@@ -336,10 +372,16 @@ export class ConversationProjectionStore {
     readonly topic: string,
     private readonly transport: ConversationTransport,
   ) {
+    this.diagnostics = new SubscriptionDiagnostics(topic);
     liveProjectionStores.add(this);
     this.offAssemblyFault = transport.onAssemblyFault((fault) => {
       if (fault.topic === this.topic) {
-        this.handleAssemblyFault(fault.subscriptionId, fault.deliveryKind);
+        this.handleAssemblyFault(fault.subscriptionId, fault.deliveryKind, {
+          reasonCode: fault.reasonCode,
+          logicalFrameOrdinal: fault.logicalFrameOrdinal,
+          logicalFrameId: fault.logicalFrameId,
+          schemaIssue: fault.schemaIssue,
+        });
       }
     });
     // runtime 换代（CLI 进程换代）按 sessionsIndexStore 的约定优先走 lifecycle：dispose
@@ -369,6 +411,11 @@ export class ConversationProjectionStore {
 
   getState(): ConversationStoreState {
     return this.state;
+  }
+
+  /** 错误面板用的只读诊断快照：类别、首个底层原因、可复制诊断 id。 */
+  getSubscriptionDiagnostics(): SubscriptionDiagnosticsSnapshot {
+    return this.diagnostics.snapshot();
   }
 
   releaseHistory(): void {
@@ -412,11 +459,13 @@ export class ConversationProjectionStore {
     if (this.closed) return;
     const generation = ++this.generation;
     this.discardRecovery();
+    this.diagnostics.noteGeneration(generation);
     const snapshot = options.forceSnapshot ? null : this.state.snapshot;
     const connectStartedAt = options.rendererPrepareStartedAt ?? monotonicNow();
     const subscribeStartedAt = monotonicNow();
     logger.lifecycle.info("v4 conversation store connect started", {
       event: "v4.conversation.store.connect.started",
+      diagnosticId: this.diagnostics.diagnosticId,
       generation,
       hasBase: Boolean(snapshot),
       module: "ui.v4.conversation_projection_store",
@@ -455,6 +504,12 @@ export class ConversationProjectionStore {
       // 会原子替换整个投影，旧恢复流已无意义；否则其迟到失败会把 live 的新订阅打成 error。
       this.discardRecovery();
       this.runtimeRecycleRetryAttempt = 0;
+      // 预算不在这里归还：ACK 只说明订阅被接受，不说明 initial/resume 帧会合法到达，
+      // 更不说明它衔接得上。每次换代 ACK 都补满预算，会把「有界重连」变成
+      // 「ACK 成功 → 帧永远不来 → 再换代」的无限循环。归还点只有一个：
+      // markProjectionHealthy()（权威帧真正应用）。
+      // connect 是用户重连/显式重试的唯一入口，它解除上一轮终止态。
+      this.recoveryTerminalReason = null;
       this.initialSubscribeAckAt = monotonicNow();
       this.setState({
         status: "live",
@@ -475,6 +530,7 @@ export class ConversationProjectionStore {
       logger.lifecycle.info("v4 conversation store connect completed", {
         durationMs: roundedDuration(subscribeStartedAt, monotonicNow()),
         event: "v4.conversation.store.connect.completed",
+        diagnosticId: this.diagnostics.diagnosticId,
         generation,
         logEpoch: result.ack.logEpoch,
         mode: result.ack.mode,
@@ -520,6 +576,7 @@ export class ConversationProjectionStore {
         topic: this.topic,
       });
       logger.warn(`[v4-store] subscribe ${this.topic} 失败: ${message}`);
+      this.diagnostics.noteTerminalReason(message);
       this.setState({ status: "error", lastError: message });
     } finally {
       this.connectInFlight -= 1;
@@ -604,7 +661,7 @@ export class ConversationProjectionStore {
 
   /** row command/query 的 epoch/entity authority 失效，复用 same-sub recovery 收敛。 */
   recoverFromStaleAuthority(): void {
-    this.requestRecovery();
+    this.requestRecovery(false, "stale-authority");
   }
 
   /** SessionDataLayer 帧路由入口。 */
@@ -619,6 +676,23 @@ export class ConversationProjectionStore {
       this.awaitingInitial?.subscriptionId === frame.subscriptionId ? this.awaitingInitial : null;
     const deliveryKind = delivery?.deliveryKind ?? "online";
     const frameReceivedAt = monotonicNow();
+    const firstFrame = this.diagnostics.framesSeen === 0;
+    this.diagnostics.noteFrame(delivery?.deliveryKind ?? null);    if (firstFrame) {
+      // 首个 logical frame 是「initial 是否到达」的唯一证据；必须有生产可见的落盘记录。
+      logger.lifecycle.info("v4 conversation store first logical frame", {
+        event: "v4.conversation.store.frame.first",
+        deliveryKind,
+        diagnosticId: this.diagnostics.diagnosticId,
+        frameKind: frame.payload.kind,
+        fromSeq: frame.fromSeq,
+        generation: this.generation,
+        module: "ui.v4.conversation_projection_store",
+        status: "completed",
+        subscriptionId: frame.subscriptionId,
+        toSeq: frame.toSeq,
+        topic: this.topic,
+      });
+    }
     // RPC 时序无法证明帧用途。只有 publisher 标记的 initial 才消费
     // awaitingInitial；recovery 必须优先清除此状态，避免 recovery gap 被误判为
     // original subscribe gap 而换新 subId。迟到 online duplicate 不得消费任何闸门。
@@ -643,7 +717,15 @@ export class ConversationProjectionStore {
     if (frame.payload.kind === "deltas" && !this.subscriptionHasAppliedBase) {
       // ACK(snapshot) 不构成 applied base；initial 丢失后即便数值 fromSeq 恰好
       // 对上旧 projection，也不能把新 epoch delta 拼到旧状态。
-      this.requestRecovery(deliveryKind === "recovery");
+      this.diagnostics.noteFault("fault.subscription.initialFrameMissing", {
+        deliveryKind,
+        generation: this.generation,
+        subscriptionId: frame.subscriptionId,
+        frameKind: frame.payload.kind,
+        fromSeq: frame.fromSeq,
+        toSeq: frame.toSeq,
+      });
+      this.requestRecovery(deliveryKind === "recovery", "delta-without-applied-base");
       return;
     }
     this.applyFrame(frame, {
@@ -677,11 +759,15 @@ export class ConversationProjectionStore {
           isZaicodeProductMode() && !this.retainingHistory
             ? retainConversationTail(frame.payload.snapshot)
             : frame.payload.snapshot,
+        // 权威投影已经落地过：此后订阅失效只降级「实时性」，不隐藏已经看到的历史。
+        projectionVerified: true,
         planDirectoryRevision: this.state.planDirectoryRevision + 1,
         // snapshot 整体替换后 real-user query 集合可能已变，终态缓存必须失效。
         turnNavigatorDirectoryRevision: this.state.turnNavigatorDirectoryRevision + 1,
       });
       this.subscriptionHasAppliedBase = true;
+      // 权威快照落地 = 这一次订阅真的健康；只有此刻才归还 recovery 预算。
+      this.markProjectionHealthy();
       this.reconcileOptimistic(frame.payload.snapshot);
       this.reconcileAcceptedInputProjection(frame.payload.snapshot);
       // initial 丢失时，publisher 允许完整 online snapshot 建立首个
@@ -719,15 +805,39 @@ export class ConversationProjectionStore {
       // 规则 2：断档不猜。状态本身仍是 seq=current.seq 时刻的一致投影（这帧没碰它），
       // 所以 base 仍合法——重订阅让服务端裁决续传或全量；若断档发生在 subscribe 的
       // resume 续传帧上（服务端已裁决过一次仍不衔接），丢 base 强制 snapshot 防循环。
-      logger.warn(
-        `[v4-store] ${this.topic} 帧断档 fromSeq=${frame.fromSeq} local=${current?.seq ?? "none"}，重订阅`,
-      );
+      const gapDeliveryKind = context.recovery
+        ? "recovery"
+        : context.online
+          ? "online"
+          : "initial";
+      this.diagnostics.noteFault("fault.subscription.frameGap", {
+        deliveryKind: gapDeliveryKind,
+        generation: this.generation,
+        subscriptionId: frame.subscriptionId,
+        frameKind: frame.payload.kind,
+        fromSeq: frame.fromSeq,
+        toSeq: frame.toSeq,
+      });
+      // 生产渲染器压制 logger.warn，恢复链路的断档事实必须走 lifecycle 才落盘。
+      logger.lifecycle.warn("v4 conversation store frame gap", {
+        event: "v4.conversation.store.frame.gap",
+        diagnosticId: this.diagnostics.diagnosticId,
+        deliveryKind: gapDeliveryKind,
+        fromSeq: frame.fromSeq,
+        generation: this.generation,
+        localSeq: current?.seq ?? null,
+        module: "ui.v4.conversation_projection_store",
+        status: "retrying",
+        subscriptionId: frame.subscriptionId,
+        toSeq: frame.toSeq,
+        topic: this.topic,
+      });
       if (context.subscribeMode !== null) {
         // fresh subscribe 的 resume initial 仍断档，换代订阅强制 snapshot；active
         // subscription 的 online/recovery gap 则保持 same-sub。
         void this.connect({ forceSnapshot: true });
       } else {
-        this.requestRecovery(context.recovery);
+        this.requestRecovery(context.recovery, "frame-gap");
       }
       return;
     }
@@ -747,6 +857,7 @@ export class ConversationProjectionStore {
     );
     this.setState({
       snapshot: next,
+      projectionVerified: true,
       // row.removed 已给出权威裁剪边界，可以同步删掉缓存目录中的旧分支计划；
       // 完整 query 继续负责补回 wire tail 之外、但仍属于当前分支的早期计划。
       ...(removedFromRowId === null
@@ -766,6 +877,8 @@ export class ConversationProjectionStore {
         : {}),
     });
     this.subscriptionHasAppliedBase = true;
+    // 衔接合法的 delta 落地 = 同样证明订阅健康；归还 recovery 预算。
+    this.markProjectionHealthy();
     this.reconcileOptimistic(next);
     this.reconcileAcceptedInputProjection(next);
     this.observeModelTransition(next, context.online);
@@ -785,7 +898,16 @@ export class ConversationProjectionStore {
   }
 
   /** physical assembly fault：旧 projection 保持可见，active sub 上 single-flight 恢复。 */
-  handleAssemblyFault(subscriptionId: string, deliveryKind?: TopicFrameDeliveryKind): void {
+  handleAssemblyFault(
+    subscriptionId: string,
+    deliveryKind?: TopicFrameDeliveryKind,
+    detail?: {
+      reasonCode?: string;
+      logicalFrameOrdinal?: number;
+      logicalFrameId?: string;
+      schemaIssue?: string;
+    },
+  ): void {
     if (this.closed || subscriptionId !== this.state.subscriptionId) return;
     if (
       this.awaitingInitial?.subscriptionId === subscriptionId &&
@@ -793,6 +915,13 @@ export class ConversationProjectionStore {
     ) {
       this.awaitingInitial = null;
     }
+    this.diagnostics.noteFault(detail?.reasonCode ?? "fault.subscription.assemblyFaultUnknown", {
+      deliveryKind: deliveryKind ?? null,
+      generation: this.generation,
+      subscriptionId,
+      logicalFrameOrdinal: detail?.logicalFrameOrdinal ?? null,
+      schemaIssue: detail?.schemaIssue ?? null,
+    });
     // 缺失/伪 deliveryKind 会以 undefined typed fault 到达；若 recovery 已在途，
     // 必须 fail closed/升级，不能把坏 recovery 当普通 burst 后永远等待。
     const recoveryFault =
@@ -801,12 +930,25 @@ export class ConversationProjectionStore {
       this.recovery.postRecoveryGapPending ||= this.recovery.validFrameSeen;
       return;
     }
-    this.requestRecovery(recoveryFault);
+    this.requestRecovery(recoveryFault, "assembly-fault");
   }
 
-  private requestRecovery(recoveryEvent = false): void {
+  private requestRecovery(recoveryEvent = false, trigger = "unspecified"): void {
     if (this.closed) return;
+    // 终止失败是稳定态：不再自动 resync/fresh subscribe，等用户重连或权威帧自证健康。
+    // 没有这一条，watchdog/assembly fault 会在 error 之后继续驱动恢复风暴。
+    if (this.recoveryTerminalReason !== null) return;
     const subscriptionId = this.state.subscriptionId;
+    this.diagnostics.noteRecoveryAttempt();
+    logger.lifecycle.warn("v4 conversation store recovery requested", {
+      event: "v4.conversation.store.recovery.requested",
+      diagnosticId: this.diagnostics.diagnosticId,
+      generation: this.generation,
+      recoveryEvent,
+      subscriptionId,
+      topic: this.topic,
+      trigger,
+    });
     if (!subscriptionId) {
       void this.connect({ forceSnapshot: true });
       return;
@@ -815,7 +957,7 @@ export class ConversationProjectionStore {
     if (existing) {
       if (!recoveryEvent) return;
       if (existing.forceSnapshot) {
-        this.failRecovery("fault.subscription.recoveryFailed");
+        this.reconnectAfterFailedRecovery("fault.subscription.recoveryFailed");
         return;
       }
       // recovery logical/fault 可早于 ACK Promise continuation；记住升级意图，
@@ -825,7 +967,7 @@ export class ConversationProjectionStore {
         return;
       }
       if (existing.ackMode === "resume") this.issueRecovery(existing, true);
-      else this.failRecovery("fault.subscription.recoveryFailed");
+      else this.reconnectAfterFailedRecovery("fault.subscription.recoveryFailed");
       return;
     }
     const recovery = {
@@ -881,7 +1023,17 @@ export class ConversationProjectionStore {
         this.clearRecoveryDeadline(recovery);
         this.recovery = null;
         const message = error instanceof Error ? error.message : String(error);
-        logger.warn(`[v4-store] resync ${this.topic} 失败: ${message}`);
+        // 生产渲染器压制 logger.warn：resync 失败是恢复链路的真实边界，必须落盘。
+        logger.lifecycle.warn("v4 conversation store resync failed", {
+          event: "v4.conversation.store.recovery.resync_failed",
+          diagnosticId: this.diagnostics.diagnosticId,
+          errorMessage: message,
+          generation: this.generation,
+          module: "ui.v4.conversation_projection_store",
+          status: "failed",
+          subscriptionId: recovery.subscriptionId,
+          topic: this.topic,
+        });
         if (message.includes("fault.subscription.notOwned")) {
           // 线上事件：notOwned 表示某一层已不认这份 subscription
           // ownership（scope 换代静默驱逐、错位 unsubscribe 等状态分歧），是确定性失效
@@ -891,6 +1043,8 @@ export class ConversationProjectionStore {
           void this.connect();
           return;
         }
+        // 传输层的错误在这里可见：诊断必须同时记下它，否则面板只剩一个无因的错误码。
+        this.diagnostics.noteTerminalReason(message);
         this.setState({ status: "error", lastError: message });
       });
   }
@@ -909,7 +1063,7 @@ export class ConversationProjectionStore {
       if (!recovery.forceSnapshot && recovery.ackMode === "resume") {
         this.issueRecovery(recovery, true);
       } else {
-        this.failRecovery("fault.subscription.recoveryFailed");
+        this.reconnectAfterFailedRecovery("fault.subscription.recoveryFailed");
       }
       return;
     }
@@ -927,7 +1081,7 @@ export class ConversationProjectionStore {
       recovery.frameDeadline = null;
       if (this.closed || this.recovery !== recovery || recovery.validFrameSeen) return;
       if (!recovery.forceSnapshot) this.issueRecovery(recovery, true);
-      else this.failRecovery("fault.subscription.recoveryFrameTimedOut");
+      else this.reconnectAfterFailedRecovery("fault.subscription.recoveryFrameTimedOut");
     }, PROTOCOL_V4_LIMITS.logicalFrameAssemblyTimeoutMs);
   }
 
@@ -944,10 +1098,62 @@ export class ConversationProjectionStore {
     this.recovery = null;
   }
 
-  private failRecovery(reasonCode: string): void {
-    if (!this.recovery) return;
+  /**
+   * 权威帧（快照落地或衔接合法的 delta）真正应用：这是 recovery 唯一的健康边界，
+   * 也是预算唯一的归还点。它同时解除终止失败态——此后投影确已被权威状态证明有效。
+   */
+  private markProjectionHealthy(): void {
+    this.recoveryReconnectAttempts = 0;
+    this.recoveryTerminalReason = null;
+    this.diagnostics.noteHealthy();
+  }
+
+  private reconnectAfterFailedRecovery(reasonCode: string): void {
+    if (this.closed) return;
     this.discardRecovery();
-    logger.warn(`[v4-store] ${this.topic} recovery fail-closed: ${reasonCode}`);
+    if (this.recoveryReconnectAttempts < RECOVERY_RECONNECT_ATTEMPT_LIMIT) {
+      this.recoveryReconnectAttempts += 1;
+      logger.lifecycle.warn("v4 conversation store recovery fallback to fresh connect", {
+        event: "v4.conversation.store.recovery.reconnect_fallback",
+        diagnosticId: this.diagnostics.diagnosticId,
+        reasonCode,
+        attempt: this.recoveryReconnectAttempts,
+        topic: this.topic,
+      });
+      void this.connect({ forceSnapshot: true });
+      return;
+    }
+    this.failRecovery(reasonCode);
+  }
+
+  /**
+   * 终止失败：一次真实、稳定、可观测的转移。
+   *
+   * 旧实现先 discardRecovery() 再 failRecovery()，而 failRecovery 以
+   * `if (!this.recovery) return` 开头——终态分支必然 no-op，store 永远停在
+   * connecting/live，用户看不到任何原因。清理与失败转移现在是两件事：
+   * 这里不再要求存在活跃 recovery 对象，并且 snapshot（last-good）原样保留。
+   */
+  private failRecovery(reasonCode: string): void {
+    this.discardRecovery();
+    this.recoveryTerminalReason = reasonCode;
+    // 作废在途 subscribe 的 ACK：ACK 不能声称健康，否则它在 error 之后把 store 拉回 live，
+    // 再把这个终态藏起来。
+    this.generation += 1;
+    this.diagnostics.noteTerminal();
+    this.diagnostics.noteTerminalReason(reasonCode);
+    // 生产渲染器压制 logger.warn：终止转移必须走 lifecycle，否则线上只剩一个无因的错误码。
+    logger.lifecycle.error("v4 conversation store recovery fail-closed", {
+      event: "v4.conversation.store.recovery.fail_closed",
+      diagnosticId: this.diagnostics.diagnosticId,
+      firstCause: this.diagnostics.snapshot().firstCause,
+      faultCategory: this.diagnostics.snapshot().faultCategory,
+      generation: this.generation,
+      reasonCode,
+      status: "failed",
+      topic: this.topic,
+    });
+    if (this.state.status === "error" && this.state.lastError === reasonCode) return;
     this.setState({ status: "error", lastError: reasonCode });
   }
 
@@ -1259,11 +1465,16 @@ export class ConversationProjectionStore {
         this.settleCommand(commandId);
         return;
       }
-      logger.warn("[v4-store] accepted input projection silent, trigger same-sub recovery", {
+      logger.lifecycle.warn("v4 conversation store accepted input projection silent", {
+        event: "v4.conversation.store.accepted_input.silent",
         commandId,
+        diagnosticId: this.diagnostics.diagnosticId,
+        generation: this.generation,
+        module: "ui.v4.conversation_projection_store",
+        status: "retrying",
         topic: this.topic,
       });
-      this.requestRecovery();
+      this.requestRecovery(false, "accepted-input-projection-watchdog");
     }, ACCEPTED_INPUT_PROJECTION_GRACE_MS);
     this.acceptedInputProjectionTimers.set(commandId, timer);
   }

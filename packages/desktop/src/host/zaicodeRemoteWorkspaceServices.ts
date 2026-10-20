@@ -50,6 +50,9 @@ function createUnavailableZaicodeJobService(): IZaicodeJobService {
     setDelegationPolicy: rejectZaicodeRemoteCall,
     getDisabledWorkspaces: rejectZaicodeRemoteCall,
     setWorkspaceDisabled: rejectZaicodeRemoteCall,
+    getGlobalConcurrency: rejectZaicodeRemoteCall,
+    setGlobalConcurrency: rejectZaicodeRemoteCall,
+    pumpAll: rejectZaicodeRemoteCall,
   };
 }
 

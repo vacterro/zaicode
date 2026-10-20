@@ -15,7 +15,15 @@ export type SessionOpenTrigger =
   | "selection"
   | "split"
   | "pane";
-type SessionOpenStatus = "success" | "failed" | "timeout";
+type SessionOpenStatus =
+  | "success"
+  | "failed"
+  | "timeout"
+  | "SLOW_OPEN_WARNING"
+  | "OPEN_TIMEOUT_THRESHOLD_EXCEEDED"
+  | "EVENTUAL_SUCCESS"
+  | "FINAL_FAILURE"
+  | "USER_CANCELLED";
 type SessionOpenProcessState = "spawned" | "reused";
 type SessionOpenRuntimeState = "cold" | "warm";
 
@@ -32,6 +40,11 @@ export interface SessionOpenIdentity {
 }
 
 interface SessionOpenTimingFields {
+  clickToShellMs?: number;
+  clickToFirstMessageMs?: number;
+  clickToInteractiveMs?: number;
+  clickToAuthoritativeMs?: number;
+  clickToHistoryMs?: number;
   rendererPrepareMs?: number;
   hostPrepareMs?: number;
   providerRegistrySyncMs?: number;
@@ -112,6 +125,28 @@ function buildSessionOpenStartArmsPayload(identity: SessionOpenIdentity): ArmsCu
   };
 }
 
+const clickTimestamps = new Map<string, number>();
+
+export function recordSessionClick(sessionId: string): void {
+  if (sessionId) {
+    clickTimestamps.set(sessionId, typeof performance !== "undefined" ? performance.now() : Date.now());
+  }
+}
+
+export function getSessionClickStartedAt(sessionId: string | null | undefined): number | undefined {
+  if (!sessionId) return undefined;
+  const time = clickTimestamps.get(sessionId);
+  const now = typeof performance !== "undefined" ? performance.now() : Date.now();
+  if (time && now - time < 120_000) {
+    return time;
+  }
+  return undefined;
+}
+
+export function clearSessionClick(sessionId: string): void {
+  clickTimestamps.delete(sessionId);
+}
+
 function buildSessionOpenResultArmsPayload(
   identity: SessionOpenIdentity & SessionOpenResultFields,
 ): ArmsCustomEventPayload {
@@ -121,6 +156,11 @@ function buildSessionOpenResultArmsPayload(
     error_phase: identity.errorPhase,
     error_code: identity.errorCode,
     total_ms: roundedNonNegative(identity.totalMs),
+    click_to_shell_ms: roundedNonNegative(identity.clickToShellMs),
+    click_to_first_message_ms: roundedNonNegative(identity.clickToFirstMessageMs),
+    click_to_interactive_ms: roundedNonNegative(identity.clickToInteractiveMs),
+    click_to_authoritative_ms: roundedNonNegative(identity.clickToAuthoritativeMs),
+    click_to_history_ms: roundedNonNegative(identity.clickToHistoryMs),
     renderer_prepare_ms: roundedNonNegative(identity.rendererPrepareMs),
     host_prepare_ms: roundedNonNegative(identity.hostPrepareMs),
     provider_registry_sync_ms: roundedNonNegative(identity.providerRegistrySyncMs),

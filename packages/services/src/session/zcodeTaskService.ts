@@ -65,6 +65,13 @@ export interface ZCodeArchivedTaskDeletionResult {
   failedTaskIds: string[];
 }
 
+/** 同一 workspace 的批量任务删除结果；每个去重后的目标恰好属于一种结果。 */
+export interface ZCodeTaskBatchDeletionResult {
+  deletedTaskIds: string[];
+  skippedTaskIds: string[];
+  failedTaskIds: string[];
+}
+
 /** 一次模型请求里出现的消息内容片段（文本 / 工具调用 / 工具结果 / 其他原始结构）。 */
 export type ZCodeModelTrajectoryContentPart =
   | { kind: "text"; text: string }
@@ -636,6 +643,13 @@ export interface IZCodeTaskService {
     workspacePath: string;
     workspaceIdentity?: string;
   }): Promise<void>;
+
+  /** 批量将已持久化 task 标记为列表不可见；批次结束后统一通知列表，避免全量重读风暴。 */
+  deleteTasks(params: {
+    workspacePath: string;
+    workspaceIdentity?: string;
+    taskIds: string[];
+  }): Promise<ZCodeTaskBatchDeletionResult>;
 
   /** 仅删除写入时仍归档的任务；已恢复、已删除或不存在时返回 false，不清理 CLI 会话。 */
   deleteArchivedTask(params: {

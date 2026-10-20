@@ -4,7 +4,12 @@
 // 不进冻结的 sessions-index schema；这里平行拉取 unreadAt map，列表构建时 join。
 import type { IZCodeTaskService } from "@zcode/services";
 import type { ZCodeTaskMeta } from "@zcode/shared";
-import { buildTaskEntityKey } from "@/lib/taskQueryCache.js";
+import {
+  buildTaskEntityKey,
+  buildTaskWorkspaceKey,
+  type CachedTaskListResult,
+  type TaskListMembershipSnapshot,
+} from "@/lib/taskQueryCache.js";
 
 interface TaskListMembershipScope {
   workspacePath: string;
@@ -18,6 +23,7 @@ type TaskListMembershipService = Pick<
   Partial<Pick<IZCodeTaskService, "listDeletedTaskIds">>;
 
 interface TaskListMembershipSets {
+  membershipByWorkspaceKey: Map<string, Omit<TaskListMembershipSnapshot, "version" | "serviceId">>;
   /** tasks-index 三个持久分区（active/pinned/archived）的完整 task 行并集。 */
   taskIndexItems: ZCodeTaskMeta[];
   pinnedIds: Set<string>;
@@ -203,7 +209,7 @@ export async function fetchTaskListMembershipSets(params: {
     archivedListResults,
     activeListResults,
     pinnedMetaListResults,
-    deletedIdLists,
+    deletedIdResults,
   ] = await Promise.all([
     listOrEmpty(() => params.service.listPinnedTaskIds()),
     Promise.all(
@@ -225,8 +231,8 @@ export async function fetchTaskListMembershipSets(params: {
     Promise.all(
       params.scopes.map((scope) =>
         params.service.listDeletedTaskIds
-          ? listOrEmpty(() => params.service.listDeletedTaskIds!(scopeParams(scope)))
-          : Promise.resolve([]),
+          ? listWithAvailability(() => params.service.listDeletedTaskIds!(scopeParams(scope)))
+          : Promise.resolve({ items: [] as string[], available: false }),
       ),
     ),
   ]);
@@ -236,13 +242,27 @@ export async function fetchTaskListMembershipSets(params: {
   if (
     activeListResults.some((result) => !result.available) ||
     archivedListResults.some((result) => !result.available) ||
-    pinnedMetaListResults.some((result) => !result.available)
+    pinnedMetaListResults.some((result) => !result.available) ||
+    deletedIdResults.some((result) => !result.available)
   ) {
     throw new Error("tasks-index task 行读取不完整");
   }
   const archivedLists = archivedListResults.map((result) => result.items);
   const activeLists = activeListResults.map((result) => result.items);
   const pinnedMetaLists = pinnedMetaListResults.map((result) => result.items);
+  const deletedIdLists = deletedIdResults.map((result) => result.items);
+  // tombstone 读取失败不是权威空集；完整成功的分区快照按 workspace 与行一起缓存，
+  // B 的差量刷新不得覆盖 A 的删除证据，远端相同 taskId 也不得串项目。
+  const membershipByWorkspaceKey = new Map(
+    params.scopes.map((scope, index) => [
+      buildTaskWorkspaceKey(scope.workspacePath, scope.workspaceIdentity),
+      {
+        pinnedIds: pinnedMetaLists[index]!.map((task) => task.taskId).sort(),
+        archivedIds: archivedLists[index]!.map((task) => task.taskId).sort(),
+        deletedIds: [...deletedIdLists[index]!].sort(),
+      },
+    ] as const),
+  );
   const unreadAtByTaskId = new Map<string, number>();
   const terminalStatusByTaskId: TaskListMembershipSets["terminalStatusByTaskId"] = new Map();
   const titleOverrideByTaskId = new Map<string, string>();
@@ -262,6 +282,7 @@ export async function fetchTaskListMembershipSets(params: {
   collectCronAutomationIds(cronAutomationIdByTaskId, activeLists.flat());
   collectCronAutomationIds(cronAutomationIdByTaskId, pinnedMetaLists.flat());
   return {
+    membershipByWorkspaceKey,
     // 持久 task 行存在性必须由 tasks-index 决定。之前这里只保留 membership
     // 集合并丢弃已经读取到的 task meta，迫使所有列表从 sessions-index 反向枚举行。
     taskIndexItems: mergeTaskIndexItems([
@@ -292,7 +313,7 @@ const MEMBERSHIP_CACHE_MAX_KEYS = 8;
 const membershipServiceIds = new WeakMap<TaskListMembershipService, number>();
 let nextMembershipServiceId = 1;
 
-function membershipServiceIdOf(service: TaskListMembershipService): number {
+export function membershipServiceIdOf(service: TaskListMembershipService): number {
   let id = membershipServiceIds.get(service);
   if (id === undefined) {
     id = nextMembershipServiceId++;
@@ -317,7 +338,12 @@ export function fetchTaskListMembershipSetsForEndpointsCached(params: {
   membershipPromiseByCacheKey.set(fullCacheKey, promise);
   // 辅助集合可按空集降级，但 task 行分区读取不完整会 reject；不缓存失败，
   // 避免一次短暂 RPC 异常被当前 version 粘住。
-  promise.catch(() => membershipPromiseByCacheKey.delete(fullCacheKey));
+  promise.catch(() => {
+    // 被逐出的旧请求迟到失败，不得删掉同 key 的新请求。
+    if (membershipPromiseByCacheKey.get(fullCacheKey) === promise) {
+      membershipPromiseByCacheKey.delete(fullCacheKey);
+    }
+  });
   while (membershipPromiseByCacheKey.size > MEMBERSHIP_CACHE_MAX_KEYS) {
     const oldestKey = membershipPromiseByCacheKey.keys().next().value;
     if (oldestKey === undefined) {
@@ -348,6 +374,7 @@ async function fetchTaskListMembershipSetsForEndpoints(
       ),
   );
   const merged: TaskListMembershipSets = {
+    membershipByWorkspaceKey: new Map(),
     taskIndexItems: [],
     pinnedIds: new Set<string>(),
     archivedIds: new Set<string>(),
@@ -359,6 +386,9 @@ async function fetchTaskListMembershipSetsForEndpoints(
   };
   const taskIndexItemByEntityKey = new Map<string, ZCodeTaskMeta>();
   for (const result of results) {
+    for (const [key, membership] of result.membershipByWorkspaceKey) {
+      merged.membershipByWorkspaceKey.set(key, membership);
+    }
     for (const task of result.taskIndexItems) {
       taskIndexItemByEntityKey.set(buildTaskEntityKey(task), task);
     }
@@ -380,4 +410,34 @@ async function fetchTaskListMembershipSetsForEndpoints(
   }
   merged.taskIndexItems = [...taskIndexItemByEntityKey.values()];
   return merged;
+}
+
+/** 只读既有 query cache。无当前端点/版本证据时保留旧排除，但禁止自动派工。 */
+export function readWorkspaceTaskMembership(params: {
+  resultsByQueryKey: Readonly<Record<string, CachedTaskListResult>>;
+  workspaceKey: string;
+  version: number;
+  service?: TaskListMembershipService;
+}) {
+  const serviceId = params.service ? membershipServiceIdOf(params.service) : undefined;
+  const snapshots = Object.values(params.resultsByQueryKey)
+    .filter((result) => result.descriptor.workspaceKeys.includes(params.workspaceKey))
+    .flatMap((result) => result.membership ? [result.membership] : []);
+  const current = snapshots.find((snapshot) =>
+    snapshot.version === params.version && snapshot.serviceId === serviceId,
+  );
+  // tombstone 是不可逆的删除证据；端点断连/缓存分页切换不撤销已知排除。
+  const deletedIds = new Set(snapshots.flatMap((snapshot) => [...snapshot.deletedIds]));
+  const latest = current ?? snapshots.reduce<TaskListMembershipSnapshot | undefined>(
+    (best, snapshot) => !best || snapshot.version > best.version ? snapshot : best, undefined,
+  );
+  const pinnedIds = new Set(latest?.pinnedIds ?? []);
+  const archivedIds = new Set(latest?.archivedIds ?? []);
+  return {
+    ready: Boolean(current),
+    deletedIds,
+    pinnedIds,
+    archivedIds,
+    excludedIds: new Set([...deletedIds, ...pinnedIds, ...archivedIds]),
+  };
 }

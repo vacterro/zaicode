@@ -213,6 +213,10 @@ export function useV4Conversation(): V4ConversationContextValue {
   return ctx;
 }
 
+export function useOptionalV4Conversation(): V4ConversationContextValue | null {
+  return useContext(V4ConversationContext);
+}
+
 /**
  * 有没有会话上下文可用。给那些**可以**在没有会话的宿主里渲染的组件（静态渲染、回放、
  * 转录里的完成卡）决定要不要挂上取数的那一层——挂了就得有上下文，没有就画冷态。

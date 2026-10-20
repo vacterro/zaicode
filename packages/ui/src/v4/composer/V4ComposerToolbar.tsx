@@ -41,6 +41,7 @@ import type {
 import { ModelConfigSelect, type ModelSelectGroup } from "@/ModelConfigSelect.js";
 import { ZaicodeModelButtons } from "@/zaicode/ZaicodeModelButtons.js";
 import { zaicodeToolbarModelButtons } from "@/zaicode/zaicodeModelButtonsModel.js";
+import { useZaicodeComposerModelButtonsPrefs } from "@/zaicode/zaicodeComposerModelButtonsPrefs.js";
 import { Button } from "@/components/ui/button.js";
 import { cn } from "@/components/lib/utils.js";
 import { ChatContextUsage } from "@/chat-input-toolbar/display.js";
@@ -982,9 +983,21 @@ function V4ComposerModelControlsImpl({
   const modelMenuVisible = modelSelectGroups.length > 0 || showManageModelsAction;
   const providerSubmenuClassName = undefined;
   // T-136: a few models -> one button each; the dropdown shrinks to a menu button (Manage models, Ctrl+M).
-  const zaicodeModelButtons = useMemo(
+  const composerModelButtonPrefs = useZaicodeComposerModelButtonsPrefs();
+  const eligibleModelButtons = useMemo(
     () => zaicodeToolbarModelButtons(modelSelectGroups),
     [modelSelectGroups],
+  );
+  const zaicodeModelButtons = useMemo(
+    () =>
+      eligibleModelButtons
+        ? zaicodeToolbarModelButtons(
+            modelSelectGroups,
+            composerModelButtonPrefs,
+            normalizedModelValue,
+          )
+        : null,
+    [eligibleModelButtons, modelSelectGroups, composerModelButtonPrefs, normalizedModelValue],
   );
   useToolbarShortcutBindings({
     hasAnyOption: Boolean(modelOption) || Boolean(thoughtOption),
@@ -1060,9 +1073,11 @@ function V4ComposerModelControlsImpl({
         {zaicodeModelButtons ? (
           <ZaicodeModelButtons
             buttons={zaicodeModelButtons}
+            allEligibleButtons={eligibleModelButtons ?? undefined}
             value={normalizedModelValue}
             disabled={disabled || recoveryPending || modelSelectionState.status !== "ready"}
             onSelect={handleModelValueChange}
+            onManageModels={handleOpenModelProviderSettings}
           />
         ) : null}
         <ModelConfigSelect

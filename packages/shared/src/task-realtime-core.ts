@@ -339,7 +339,7 @@ const taskRespondElicitationOwnerCommandRequestSchema = taskOwnerCommandBaseSche
     content: z.record(z.string(), z.unknown()).optional(),
   })
   .strict();
-const taskRespondWorkspaceHookReviewOwnerCommandRequestSchema = taskOwnerCommandBaseSchema
+const taskRespondWorkspaceHookReviewOwnerCommandRequestObjectSchema = taskOwnerCommandBaseSchema
   .extend({
     type: z.literal("respond_workspace_hook_review"),
     remoteSessionId: nonEmptyString.optional(),
@@ -350,8 +350,9 @@ const taskRespondWorkspaceHookReviewOwnerCommandRequestSchema = taskOwnerCommand
     interactionId: nonEmptyString,
     decision: workspaceHookReviewDecisionSchema,
   })
-  .strict()
-  .superRefine((command, context) => {
+  .strict();
+const taskRespondWorkspaceHookReviewOwnerCommandRequestSchema =
+  taskRespondWorkspaceHookReviewOwnerCommandRequestObjectSchema.superRefine((command, context) => {
     if (command.remoteSessionId && !command.workspaceIdentity) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
@@ -411,7 +412,7 @@ export const taskOwnerCommandRequestSchema = z
     taskStopGenerationOwnerCommandRequestSchema,
     taskRespondPermissionOwnerCommandRequestSchema,
     taskRespondElicitationOwnerCommandRequestSchema,
-    taskRespondWorkspaceHookReviewOwnerCommandRequestSchema,
+    taskRespondWorkspaceHookReviewOwnerCommandRequestObjectSchema,
     taskEnqueueCommandOwnerCommandRequestSchema,
     taskPromoteCommandOwnerCommandRequestSchema,
     taskCancelCommandOwnerCommandRequestSchema,
@@ -436,7 +437,7 @@ export const taskOwnerCommandDeliverySchema = z
         requesterHostId: nonEmptyString,
       })
       .strict(),
-    taskRespondWorkspaceHookReviewOwnerCommandRequestSchema
+    taskRespondWorkspaceHookReviewOwnerCommandRequestObjectSchema
       .extend({
         requesterHostId: nonEmptyString,
       })

@@ -70,6 +70,7 @@ import {
 } from "@zcode/services/node";
 import { createHostResourceUsageResponder } from "./hostResourceUsage.js";
 import { createZaicodeJobExecutor } from "./zaicodeRunDispatch.js";
+import { createZaicodeAuditLoopAdmission } from "./zaicodeAuditLoopAdmission.js";
 import { ZaicodeDelegationSpool } from "./zaicodeDelegationSpool.js";
 import {
   assertBoundSessionDispatchable,
@@ -1919,6 +1920,26 @@ function createControllerRoutedTaskService(
           await route(params, { kind: "delete" });
         };
       }
+      if (property === "deleteTasks") {
+        return async (params: Parameters<IZCodeTaskService["deleteTasks"]>[0]) => {
+          if (params.taskIds.length === 0) {
+            return { deletedTaskIds: [], skippedTaskIds: [], failedTaskIds: [] };
+          }
+          if (typeof (base as any).deleteTasks === "function") {
+            return (base as any).deleteTasks(params);
+          }
+          const result = { deletedTaskIds: [] as string[], skippedTaskIds: [] as string[], failedTaskIds: [] as string[] };
+          for (const taskId of params.taskIds) {
+            try {
+              await route({ ...params, taskId }, { kind: "delete" });
+              result.deletedTaskIds.push(taskId);
+            } catch {
+              result.failedTaskIds.push(taskId);
+            }
+          }
+          return result;
+        };
+      }
       if (property === "deleteArchivedTasks") {
         return async (params: Parameters<IZCodeTaskService["deleteArchivedTasks"]>[0]) => {
           if (params.taskIds.length === 0) {
@@ -2883,9 +2904,18 @@ parentPort.on("message", async (e: Electron.MessageEvent) => {
                 }
               })
               .catch((error) => logger.warn("ZAICODE delegation orphan sweep failed", error));
+            const admitAuditLoop = createZaicodeAuditLoopAdmission({
+              resolveServices: (request) =>
+                resolveAutomationTargetServices({
+                  workspacePath: request.workspacePath,
+                  ...(request.workspaceIdentity ? { workspaceIdentity: request.workspaceIdentity } : {}),
+                }),
+              logWarn: (message, error) => logger.warn(message, error),
+            });
             setZaicodeJobExecutor(
               createZaicodeJobExecutor({
                 delegationSpool,
+                onTerminalOutcome: admitAuditLoop,
                 resolveServices: (request) =>
                   resolveAutomationTargetServices({
                     workspacePath: request.workspacePath,

@@ -17,8 +17,11 @@
 import { $getPromptMarkdown } from "@/mentions/promptSerialization.js";
 import { PromptClipboardPlugin } from "@/mentions/PromptClipboardPlugin.js";
 import {
+  describeComposerSendBlocker,
+  resolveComposerEnterIntent,
   resolveComposerKeyAction,
   shouldBareEnterFallThroughToNewline,
+  type ComposerSendReadiness,
 } from "@/shortcuts/composerShortcuts.js";
 import { useEffectiveShortcutBindings } from "@/shortcuts/useShortcutBindings.js";
 import { isZaicodeProductMode } from "@zcode/shared";
@@ -510,19 +513,24 @@ function selectAfterPromptMentionById(mentionId: string): boolean {
 function KeyboardPlugin({
   onSubmit,
   onModifiedSubmit,
+  onSubmitBlocked,
   disabled,
   submitDisabled,
+  sendReadiness,
   allowSubmitWhenEmpty,
   enterSubmits,
 }: {
   onSubmit: (text: string) => LexicalSubmitResult;
   onModifiedSubmit?: (text: string) => LexicalSubmitResult;
+  onSubmitBlocked?: (reason: string) => void;
   disabled?: boolean;
   submitDisabled?: boolean;
+  sendReadiness?: LexicalSendReadiness;
   allowSubmitWhenEmpty?: boolean;
   enterSubmits: boolean;
 }) {
   const [editor] = useLexicalComposerContext();
+  const lastBlockedNoticeRef = useRef({ at: 0, reason: "" });
   // 作用域改绑层：读生效表的 composer 命令切片；ref 透传避免按键监听重挂。
   const effectiveShortcutBindings = useEffectiveShortcutBindings();
   const composerEffectiveRef = useRef({
@@ -535,6 +543,14 @@ function KeyboardPlugin({
   };
 
   useEffect(() => {
+    const reportBlockedEnter = () => {
+      const reason = describeComposerSendBlocker(sendReadiness);
+      const previous = lastBlockedNoticeRef.current;
+      const at = Date.now();
+      if (previous.reason === reason && at - previous.at < 1500) return;
+      lastBlockedNoticeRef.current = { at, reason };
+      onSubmitBlocked?.(reason);
+    };
     const unregisterEnter = editor.registerCommand(
       KEY_ENTER_COMMAND,
       (event: KeyboardEvent | null) => {
@@ -564,12 +580,22 @@ function KeyboardPlugin({
           const modifiedScopedEnter = event.shiftKey || event.ctrlKey || event.metaKey;
           // 反转投递开启时带修饰组合让位主链（Ctrl+Enter = 反向 delivery，交付语义比键位更具体）
           if (!(modifiedScopedEnter && onModifiedSubmit)) {
-            // 与主链裸 Enter 等价的门禁：无修饰组合受 submitDisabled / 手机视口 enterSubmits；
-            // 带修饰组合不受视口门禁（与主链 onModifiedSubmit 路径一致）。
-            if (submitDisabled || (!modifiedScopedEnter && !enterSubmits)) {
+            const intent = resolveComposerEnterIntent({
+              modified: modifiedScopedEnter,
+              submitDisabled: submitDisabled ?? false,
+              enterSubmits,
+              bareEnterIsSend: true,
+              readiness: sendReadiness,
+            });
+            if (intent === "newline") {
               return false;
             }
             event.preventDefault();
+            if (intent === "blocked") {
+              // Enter 仍是"发送"，只是当前不可提交：不能插换行，草稿原样保留。
+              reportBlockedEnter();
+              return true;
+            }
             if (
               shouldSubmitLexicalEnter({
                 allowSubmitWhenEmpty,
@@ -622,14 +648,26 @@ function KeyboardPlugin({
           return false;
         }
 
-        // 当前请求进行中时，输入框仍允许继续编辑草稿，但此时不能再次提交。
-        // 之前把状态直接映射成 disabled，导致输入和联想面板一起失效；如果只去掉 disabled，
-        // Enter 又会误触发 submit 并清空草稿。这里在 submitDisabled 时把 Enter 退回给 Lexical 处理换行。
-        if (submitDisabled || !enterSubmits) {
+        // Enter 在此已是用户键位表里的"发送"（上面的改绑检查已放行换行分支）。
+        // 提交被暂时阻止时不能退回 Lexical 插换行：那会让操作员以为消息发不出去
+        // 是因为换行，同时消息也没有入队。阻止换行、保留草稿、报告确切原因。
+        const intent = resolveComposerEnterIntent({
+          modified: false,
+          submitDisabled: submitDisabled ?? false,
+          enterSubmits,
+          bareEnterIsSend: true,
+          readiness: sendReadiness,
+        });
+        if (intent === "newline") {
           return false;
         }
 
         event.preventDefault();
+
+        if (intent === "blocked") {
+          reportBlockedEnter();
+          return true;
+        }
 
         if (
           shouldSubmitLexicalEnter({
@@ -797,6 +835,8 @@ function KeyboardPlugin({
     enterSubmits,
     onModifiedSubmit,
     onSubmit,
+    onSubmitBlocked,
+    sendReadiness,
     submitDisabled,
   ]);
 
@@ -986,9 +1026,11 @@ function E2ELexicalInputBridgePlugin({ inputTestId }: { inputTestId?: string }) 
 function PromptHistoryPlugin({
   entries,
   disabled,
+  onEmptyArrowUp,
 }: {
   entries: readonly string[];
   disabled?: boolean;
+  onEmptyArrowUp?: () => boolean;
 }) {
   const [editor] = useLexicalComposerContext();
   const historyIndexRef = useRef<number | null>(null);
@@ -1077,6 +1119,17 @@ function PromptHistoryPlugin({
         return false;
       }
 
+      // 空输入优先撤回最新可编辑的队列消息；队列没有候选时回落到历史导航。
+      if (
+        direction === "up" &&
+        currentIndex === null &&
+        text.length === 0 &&
+        onEmptyArrowUp?.()
+      ) {
+        event.preventDefault();
+        return true;
+      }
+
       const result = navigatePromptHistory(entries, currentIndex, direction);
       if (!result.shouldHandle) {
         return false;
@@ -1086,7 +1139,7 @@ function PromptHistoryPlugin({
       applyHistoryEntry(result.nextIndex, result.nextValue);
       return true;
     },
-    [applyHistoryEntry, disabled, editor, entries],
+    [applyHistoryEntry, disabled, editor, entries, onEmptyArrowUp],
   );
 
   useEffect(() => {
@@ -1309,10 +1362,15 @@ function EditorApiPlugin({
   return null;
 }
 
+export type LexicalSendReadiness = ComposerSendReadiness;
+
 interface LexicalChatInputProps {
   placeholder?: string;
   disabled?: boolean;
   submitDisabled?: boolean;
+  sendReadiness?: LexicalSendReadiness;
+  /** Called when Enter means Send but submission is temporarily blocked. */
+  onSubmitBlocked?: (reason: string) => void;
   allowSubmitWhenEmpty?: boolean;
   enterSubmits?: boolean;
   onSubmit: (text: string) => LexicalSubmitResult;
@@ -1328,6 +1386,8 @@ interface LexicalChatInputProps {
   inputTestId?: string;
   editorApiRef?: React.MutableRefObject<LexicalChatInputHandle | null>;
   promptHistory?: readonly string[];
+  /** Empty-composer ArrowUp: pull the newest editable queued message back; true = handled. */
+  onEmptyArrowUp?: () => boolean;
   compactPlaceholder?: boolean;
   onWhiteboardMentionSelected?: (boardId: string) => void | Promise<void>;
   onPaste?: (event: ChatComposerPasteEvent) => void;
@@ -1346,6 +1406,8 @@ export function LexicalChatInput({
   placeholder,
   disabled = false,
   submitDisabled = false,
+  sendReadiness,
+  onSubmitBlocked,
   allowSubmitWhenEmpty = false,
   enterSubmits = true,
   onSubmit,
@@ -1360,6 +1422,7 @@ export function LexicalChatInput({
   inputTestId,
   editorApiRef,
   promptHistory = [],
+  onEmptyArrowUp,
   compactPlaceholder = false,
   onWhiteboardMentionSelected,
   onPaste,
@@ -1479,7 +1542,7 @@ export function LexicalChatInput({
   );
 
   return (
-    <div className="relative flex-1">
+    <div className="relative flex-1" data-send-readiness={sendReadiness ?? (submitDisabled ? "submit_blocked" : "ready")}>
       <LexicalComposer initialConfig={initialConfig}>
         <div className="relative">
           <PlainTextPlugin contentEditable={contentEditable} ErrorBoundary={LexicalErrorBoundary} />
@@ -1489,12 +1552,18 @@ export function LexicalChatInput({
           <KeyboardPlugin
             onSubmit={handleSubmit}
             onModifiedSubmit={onModifiedSubmit}
+            onSubmitBlocked={onSubmitBlocked}
             disabled={disabled}
-            submitDisabled={submitDisabled}
+            submitDisabled={sendReadiness ? sendReadiness !== "ready" : submitDisabled}
+            sendReadiness={sendReadiness}
             allowSubmitWhenEmpty={allowSubmitWhenEmpty}
             enterSubmits={enterSubmits}
           />
-          <PromptHistoryPlugin entries={promptHistory} disabled={disabled} />
+          <PromptHistoryPlugin
+            entries={promptHistory}
+            disabled={disabled}
+            onEmptyArrowUp={onEmptyArrowUp}
+          />
           <EditablePlugin editable={!disabled} />
           <E2ELexicalInputBridgePlugin inputTestId={inputTestId} />
           <EditorApiPlugin editorApiRef={editorApiRef} />

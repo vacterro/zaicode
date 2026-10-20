@@ -1,4 +1,5 @@
 import type { ZCodeTaskMeta } from "@zcode/shared";
+import { executionLivenessFresh, executionLivenessRunning } from "@zcode/shared";
 import type {
   PendingInteractionSummary,
   SessionSummary,
@@ -14,6 +15,9 @@ export interface TaskListRowActivity {
   phase: SessionSummary["phase"];
   lastActivityAt: number;
   hasBackgroundWork: boolean;
+  executionLiveness?: SessionSummary["executionLiveness"];
+  /** Local arrival time of this specific owner observation, never a UI-generated heartbeat. */
+  livenessReceivedAt?: number;
   sessionEnded?: boolean;
   foregroundExecutionId?: string;
   foregroundStartedAt?: number;
@@ -52,7 +56,10 @@ export function getTaskListRowActivity(task: ZCodeTaskMeta): TaskListRowActivity
 /** 只采信 sessions-index 的实时 phase；tasks-index 残留 status=running 不能置顶历史任务。 */
 function isTaskListRowRunning(task: ZCodeTaskMeta): boolean {
   const activity = getTaskListRowActivity(task);
-  return activity?.sessionEnded !== true && (activity?.phase === "prewarming" || activity?.phase === "running");
+  return (
+    activity?.sessionEnded !== true &&
+    (activity?.phase === "prewarming" || activity?.phase === "running")
+  );
 }
 
 /**
@@ -63,8 +70,17 @@ function isTaskListRowRunning(task: ZCodeTaskMeta): boolean {
  * 都落在按 updatedAt 排序的非运行层，随进度事件互相换位。后台 bash / 分离子代理同理。
  * 转圈图标仍只认 phase（isTaskListRowRunning），这里只决定排序层。
  */
-export function isTaskListRowActive(task: ZCodeTaskMeta): boolean {
-  return isTaskListRowRunning(task) || getTaskListRowActivity(task)?.hasBackgroundWork === true;
+export function isTaskListRowActive(task: ZCodeTaskMeta, now = Date.now()): boolean {
+  const activity = getTaskListRowActivity(task);
+  const active = isTaskListRowRunning(task) || activity?.hasBackgroundWork === true;
+  const proof = activity?.executionLiveness;
+  // 所有运行态消费者读同一租约；不能让 continue/cleanup 仍把失效 owner 当运行中。
+  return (
+    active &&
+    (!proof ||
+      (executionLivenessRunning(proof) &&
+        executionLivenessFresh(proof, activity.livenessReceivedAt, now)))
+  );
 }
 
 export function getTaskListAttention(

@@ -14,6 +14,8 @@ import {
   openZaicodeUsage,
   toggleZaicodeUsageSidebar,
   useZaicodeUsage,
+  zaicodeUsageLeftClickTarget,
+  zaicodeUsageRightClickTarget,
 } from "../src/zaicode/zaicodeUsage.js";
 import {
   openProviderQuotaCircuit,
@@ -110,6 +112,15 @@ test("Usage shows the router's totals and external clients without retaining req
     120,
   );
   assert.equal(normalizeZaicodeUsage({ totalRequests: Infinity, totalCost: -1 }).totals.cost, 0);
+});
+
+test("REQ-013: left click targets the sidebar, right click targets the full page", () => {
+  assert.equal(zaicodeUsageLeftClickTarget("closed"), "sidebar");
+  assert.equal(zaicodeUsageLeftClickTarget("page"), "sidebar");
+  assert.equal(zaicodeUsageLeftClickTarget("sidebar"), "closed");
+  assert.equal(zaicodeUsageRightClickTarget("closed"), "page");
+  assert.equal(zaicodeUsageRightClickTarget("sidebar"), "page");
+  assert.equal(zaicodeUsageRightClickTarget("page"), "closed");
 });
 
 test("Usage page, sidebar and close are explicit modes; the sidebar shortcut toggles it", () => {
@@ -219,7 +230,10 @@ test("Phase opens the visible workspace inspector or a sidebar for the exact dra
   openZaicodeSaipenView("V:/active-project");
   assert.equal(opened, 1);
   assert.equal(useZaicodeActions.getState().saipenSidebar, null);
-  openZaicodeSaipenView("V:/other-project");
+  assert.equal(openZaicodeSaipenView("V:/other-project"), false);
   assert.equal(opened, 1, "another project's chip never opens the active project's files");
-  assert.equal(useZaicodeActions.getState().saipenSidebar?.workspacePath, "V:/other-project");
+  assert.equal(useZaicodeActions.getState().saipenSidebar, null, "SRC-191: a chat cannot gain a second global Board");
+  useZaicodeActions.getState().setOpenSaipen(null);
+  assert.equal(openZaicodeSaipenView("V:/other-project"), true);
+  assert.equal(useZaicodeActions.getState().saipenSidebar?.workspacePath, "V:/other-project", "a draft still opens its own inspector");
 });

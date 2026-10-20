@@ -101,3 +101,21 @@ export function zaicodeMomentOf(day: ZaicodeDayParts, minute: number): number {
 export function zaicodeMinuteOf(date: Date): number {
   return date.getHours() * 60 + date.getMinutes();
 }
+
+/** Minute of the day -> hour and minute, both in range (a wrapped minute stays wrapped). */
+export function zaicodeClockParts(minute: number): { hour: number; minute: number } {
+  const safe = ((Math.trunc(minute) % ZAICODE_MINUTES_PER_DAY) + ZAICODE_MINUTES_PER_DAY) % ZAICODE_MINUTES_PER_DAY;
+  return { hour: Math.floor(safe / 60), minute: safe % 60 };
+}
+
+/** The picker's minute dial: twelve stops five minutes apart cover the common cases. */
+export const ZAICODE_PICKER_MINUTE_STEP = 5;
+export const ZAICODE_PICKER_MINUTE_STOPS: readonly number[] = Array.from(
+  { length: 60 / ZAICODE_PICKER_MINUTE_STEP },
+  (_unused, index) => index * ZAICODE_PICKER_MINUTE_STEP,
+);
+/** The picker's hour dial: all 24 hours, so 00:00 and 23:59 are one click each. */
+export const ZAICODE_PICKER_HOUR_STOPS: readonly number[] = Array.from(
+  { length: 24 },
+  (_unused, index) => index,
+);

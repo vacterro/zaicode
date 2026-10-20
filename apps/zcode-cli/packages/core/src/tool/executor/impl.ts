@@ -12,12 +12,18 @@ import type {
   ToolExecutorDeps,
   ToolExecutorOptions,
 } from "./types.js";
+import {
+  applyRepeatedFailureHint,
+  DefaultRepeatedToolFailureDetector,
+} from "../repeated-failure.js";
 
 export class ToolExecutorImpl implements ToolExecutor {
   private readonly deps: ToolExecutorDeps;
   private readonly backgroundTasks: BackgroundTaskTracker;
 
   constructor(options: ToolExecutorOptions) {
+    const repeatedToolFailureDetector =
+      options.repeatedToolFailureDetector ?? new DefaultRepeatedToolFailureDetector();
     this.deps = {
       agentTelemetry: options.agentTelemetry,
       agentTelemetryActorKind: options.agentTelemetryActorKind,
@@ -81,15 +87,24 @@ export class ToolExecutorImpl implements ToolExecutor {
       getMode: options.getMode ?? (() => options.mode ?? "build"),
       maxConcurrency: options.maxConcurrency ?? 10,
       hookRunner: options.hookRunner,
+      repeatedToolFailureDetector,
     };
     this.backgroundTasks = new BackgroundTaskTracker(this.deps);
   }
 
-  execute(
+  async execute(
     toolCall: ExecutableToolCall,
     options?: ToolExecuteOptions,
   ): Promise<ToolExecutionResult> {
-    return executeToolCall(this.deps, this.backgroundTasks, toolCall, options);
+    const result = await executeToolCall(this.deps, this.backgroundTasks, toolCall, options);
+    if (result.success === false)
+      return applyRepeatedFailureHint(
+        this.deps.repeatedToolFailureDetector,
+        result,
+        this.deps.getWorkspaceRoot(),
+      );
+    this.deps.repeatedToolFailureDetector?.recordSuccess(result.toolName);
+    return result;
   }
 
   trackExternalBackgroundTask(

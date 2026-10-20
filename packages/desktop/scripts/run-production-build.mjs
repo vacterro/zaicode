@@ -49,8 +49,8 @@ export function createDesktopProductionBuildPlan({ cwd, baseEnv = process.env })
       label: "desktop production bundles",
       parallel: [
         {
-          command: "pnpm",
-          args: ["exec", "tsup"],
+          command: process.execPath,
+          args: [resolve(cwd, "scripts/build-desktop-bundles.mjs")],
           cwd,
           env,
         },

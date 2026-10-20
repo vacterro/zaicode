@@ -76,7 +76,7 @@ export type RequestWorkspaceHookReviewTarget = z.infer<
   typeof requestWorkspaceHookReviewTargetSchema
 >;
 
-export const workspaceHookReviewRequestPayloadSchema = z
+export const workspaceHookReviewRequestPayloadObjectSchema = z
   .object({
     kind: z.literal("workspaceHookReview"),
     reviewFlowId: nonEmptyStringSchema,
@@ -136,8 +136,10 @@ export const workspaceHookReviewRequestPayloadSchema = z
     ),
     warningCode: z.literal("workspace_hooks_execute_code"),
   })
-  .strict()
-  .superRefine((request, context) => {
+  .strict();
+
+export const workspaceHookReviewRequestPayloadSchema =
+  workspaceHookReviewRequestPayloadObjectSchema.superRefine((request, context) => {
     if (request.deadlineAt < request.createdAt) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
@@ -199,7 +201,7 @@ export type PresentWorkspaceHookReviewRequest = z.infer<
 function addDuplicateItemIssue(
   values: readonly string[],
   context: z.RefinementCtx,
-  path: PropertyKey[],
+  path: (string | number)[],
 ): void {
   if (new Set(values).size === values.length) return;
   context.addIssue({

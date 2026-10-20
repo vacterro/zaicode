@@ -123,9 +123,7 @@ function modelSelectionWithOptionFallback(
     modelId: selection.modelId,
     ...(reasoningLevel !== undefined
       ? {
-          options: {
-            ...(reasoningLevel !== undefined ? { reasoningLevel } : {}),
-          },
+          options: (reasoningLevel !== undefined ? { reasoningLevel } : {}),
         }
       : {}),
   };
@@ -640,9 +638,11 @@ export function createConversationV4Gateway(
       const reasonCode =
         error instanceof V4RecognizedContinueRejectedError
           ? error.reasonCode
-          : error instanceof Error
-            ? error.name || "promotion_failed"
-            : "promotion_failed";
+          : error && typeof error === "object" && "reasonCode" in error && typeof (error as any).reasonCode === "string"
+            ? (error as any).reasonCode
+            : error instanceof Error
+              ? (error.name && error.name !== "Error" ? error.name : "promotion_failed")
+              : "promotion_failed";
       await record.app.setQueueAutoDrain(false, {
         pauseReason: "error",
         pauseOrigin: "system",

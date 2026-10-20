@@ -15,6 +15,11 @@ export interface TopicWireAssemblyFault {
   logicalFrameOrdinal: number;
   topic: string;
   subscriptionId: string;
+  /**
+   * schema 失败的脱敏摘要：issue code、字段路径、期望/实际类型类别。
+   * 只描述形状，不含被拒载荷的任何值——诊断不能变成泄漏通道。
+   */
+  schemaIssue?: string;
 }
 
 export type TopicWireAssemblyEvent<F> =
@@ -59,6 +64,35 @@ type ValidatedFragmentWire = FragmentWireCandidate & {
   dataBase64: string;
 };
 
+/**
+ * 把一条 Zod issue 压缩成不含载荷值的形状摘要。
+ * 只保留 code / path / 键名 / 期望与实际类型类别——这些字段不足以重建被拒数据，
+ * 但足以定位「哪个字段、什么形状、谁写错了」。
+ */
+export function summarizeSchemaIssue(issue: {
+  code?: string;
+  path?: readonly PropertyKey[];
+  expected?: unknown;
+  received?: unknown;
+  keys?: readonly string[];
+} = {}): string {
+  const path = (issue.path ?? []).map((segment) => String(segment)).join(".");
+  const typeCategory = (value: unknown): string => {
+    if (value === null || value === undefined) return "undefined";
+    if (Array.isArray(value)) return "array";
+    return typeof value;
+  };
+  return [
+    `code=${issue.code ?? "unknown"}`,
+    `path=${path || "<root>"}`,
+    // unrecognized_keys 没有期望/实际值，只有键名；键名是字段路径元数据（诊断必需），
+    // 不是取值，拼进摘要不会泄露被拒数据。
+    ...(issue.keys?.length ? [`keys=${issue.keys.join(",")}`] : []),
+    `expected=${typeCategory(issue.expected)}`,
+    `actual=${typeCategory(issue.received)}`,
+  ].join(" ");
+}
+
 const COMPLETE_WIRE_KEYS = new Set([
   "wireVersion",
   "kind",
@@ -69,8 +103,7 @@ const COMPLETE_WIRE_KEYS = new Set([
   "subscriptionId",
   "frame",
 ]);
-const FRAGMENT_WIRE_KEYS = new Set([
-  "wireVersion",
+const FRAGMENT_WIRE_KEYS = new Set([  "wireVersion",
   "kind",
   "deliveryKind",
   "logicalFrameId",
@@ -289,7 +322,11 @@ export class TopicWireFrameAssembler<F> {
       const parsed = this.frameSchema.safeParse(wire.frame);
       if (!parsed.success) {
         this.settle(key, wire);
-        events.push(this.fault(wire, "proto.frameAssemblyInvalidPayload"));
+        events.push(
+          this.fault(wire, "proto.frameAssemblyInvalidPayload", {
+            schemaIssue: summarizeSchemaIssue(parsed.error.issues[0]),
+          }),
+        );
         return events;
       }
       this.settle(key, wire);
@@ -460,7 +497,11 @@ export class TopicWireFrameAssembler<F> {
     const parsed = this.frameSchema.safeParse(value);
     if (!parsed.success) {
       this.settle(key, assembly);
-      events.push(this.fault(assembly, "proto.frameAssemblyInvalidPayload"));
+      events.push(
+        this.fault(assembly, "proto.frameAssemblyInvalidPayload", {
+          schemaIssue: summarizeSchemaIssue(parsed.error.issues[0]),
+        }),
+      );
       return events;
     }
     this.settle(key, assembly);
@@ -556,6 +597,7 @@ export class TopicWireFrameAssembler<F> {
       subscriptionId: string;
     },
     reasonCode: string,
+    extra: { schemaIssue?: string } = {},
   ): TopicWireAssemblyEvent<F> {
     const deliveryKind = parseDeliveryKind(source.deliveryKind);
     return {
@@ -567,6 +609,7 @@ export class TopicWireFrameAssembler<F> {
         logicalFrameOrdinal: source.logicalFrameOrdinal,
         topic: source.topic,
         subscriptionId: source.subscriptionId,
+        ...extra,
       },
     };
   }

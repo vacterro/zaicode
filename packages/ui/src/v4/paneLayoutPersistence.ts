@@ -13,6 +13,7 @@ import {
   type PaneWorkspaceScope,
   type SplitDirection,
 } from "@/v4/paneLayoutTree.js";
+import { isSessionRetired } from "@/zaicode/zaicodeCleanupFence.js";
 
 const PANE_LAYOUT_STORAGE_KEY = "zcode-v4-pane-layout:v2";
 /** 旧版单值分屏的 key（只读迁移，不再写入）。 */
@@ -109,7 +110,7 @@ function sanitizeScope(raw: unknown): PaneWorkspaceScope | null {
  * 叶子数 ≤ 上限、每个非 primary 叶子有合法绑定。恢复出的 session 绑定补
  * restoredUnvalidated（等 sessions-index 验证）；focusedPaneId 不在树中回 primary。
  */
-function sanitizePersistedPaneLayout(raw: unknown): PaneLayoutSnapshot | null {
+export function sanitizePersistedPaneLayout(raw: unknown): PaneLayoutSnapshot | null {
   if (typeof raw !== "object" || raw === null) {
     return null;
   }
@@ -144,8 +145,10 @@ function sanitizePersistedPaneLayout(raw: unknown): PaneLayoutSnapshot | null {
       return null;
     }
     const rawSessionId = (rawBinding as Partial<PersistedBindingV2>).sessionId;
-    const sessionId =
+    const candidateSessionId =
       typeof rawSessionId === "string" && rawSessionId.length > 0 ? rawSessionId : null;
+    const sessionId =
+      candidateSessionId && !isSessionRetired(candidateSessionId) ? candidateSessionId : null;
     panes[paneId] = {
       workspaceScope: scope,
       sessionId,

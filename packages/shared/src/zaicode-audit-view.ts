@@ -98,24 +98,32 @@ export function zaicodeAuditTotalMs(campaign: ZaicodeAuditCampaign, now: number)
   return end === null ? null : Math.max(0, end - started);
 }
 
-export type ZaicodeAuditIdleLevel = "ok" | "quiet" | "stalled";
+export type ZaicodeAuditIdleLevel = "ok" | "quiet" | "stalled" | "unknown";
 
 /** A running wave that has not shown a sign of life for this long reads "quiet" / "stalled". */
 export const ZAICODE_AUDIT_QUIET_MS = 3 * 60_000;
 export const ZAICODE_AUDIT_STALLED_MS = 10 * 60_000;
 
 /**
- * AUDAPACK's idle watchdog, as a read-out: how long the running wave's job has
- * been silent. Null when nothing runs or there is no sign of life to go by.
+ * AUDAPACK's idle watchdog, as a read-out: how long the running wave itself has
+ * been silent. Null when nothing runs.
+ *
+ * `heartbeatAt` is deliberately not consulted. It is the host's execution lease
+ * (`repo.heartbeat(hostId, now)` renews every running row of that host every
+ * 30s), so a wave whose model went silent for an hour would still read "0s ago".
+ * When the wave's own activity is unknown the answer is `unknown`, never zero
+ * and never the lease.
  */
 export function zaicodeAuditIdle(
   campaign: ZaicodeAuditCampaign,
   now: number,
-): { idleMs: number; level: ZaicodeAuditIdleLevel } | null {
+): { idleMs: number | null; level: ZaicodeAuditIdleLevel } | null {
   const live = campaign.live;
   if (campaign.status !== "running" || !live || live.status !== "running") return null;
-  const last = live.heartbeatAt ?? live.startedAt;
-  if (last === null) return null;
+  // Anything that is not a real timestamp is unknown, not a fresh zero: a
+  // missing or NaN activity must never render as "0s ago".
+  const last = live.lastActivityAt;
+  if (typeof last !== "number" || !Number.isFinite(last)) return { idleMs: null, level: "unknown" };
   const idleMs = Math.max(0, now - last);
   return {
     idleMs,

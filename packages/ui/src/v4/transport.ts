@@ -46,6 +46,8 @@ import type { AttachmentUploadOptions } from "@/v4/attachmentUploadTransaction.j
  * 每条连接各配一个 SessionDataLayer。
  */
 export interface ConversationTransport {
+  /** Accepted Host UTC plus monotonic elapsed time; absent/unavailable never means renderer time. */
+  readHostNow?(): number | null;
   /** v4/conversation/subscribe。connectionId 由传输实现补齐，不进 UI 层。 */
   subscribe(params: SubscribeParams): Promise<V4ConversationSubscribeResult>;
   /** store 写入 ACK subscriptionId 后激活，并按原序释放 ACK 前 notification。 */
@@ -134,6 +136,14 @@ export interface ConversationTransport {
       subscriptionId: string;
       reasonCode?: string;
       deliveryKind?: TopicFrameDeliveryKind;
+      /**
+       * assembler 的 ordinal/logicalFrameId 事实。缺失不表示没有失败，只表示这次
+       * fault 在拿到 wire 元数据之前就被拒绝；诊断必须如实记录成 unknown。
+       */
+      logicalFrameOrdinal?: number;
+      logicalFrameId?: string;
+      /** schema 失败的脱敏摘要（issue code / 路径 / 类型类别），不含载荷值。 */
+      schemaIssue?: string;
     }) => void,
   ): () => void;
   /** CLI runtime 或承载 proxy 换代；transport 已先清 ownership/barrier/assembler。 */

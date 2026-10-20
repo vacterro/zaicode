@@ -14,6 +14,7 @@ import test from "node:test";
 import {
   isZaicodeMetricsOnlyAccount,
   mergeZaicodeSharedAccounts,
+  zaicodeAccountInitials,
   zaicodeSharedIdentityKey,
   zaicodeWindowFromShared,
   ZAICODE_ENGINES_DEFAULT_CONFIG,
@@ -175,7 +176,7 @@ test("只有一家 CLI 的厂家：第二行可见、可计量，但绝不冒充
   const row = merged[merged.length - 1]!;
   assert.equal(row.vendor, "antigravity");
   assert.equal(row.home, null, "agy 只有一套本地登录，给它一个假 home 才是那个会骗人的旧机制");
-  assert.equal(row.short, "AG");
+  assert.equal(row.short, "GA", "REQ-011: plane initials replace the shared bare code; REQ-010 distinctness holds");
   assert.equal(row.shared?.accountId, "sai-google-2");
   assert.equal(isZaicodeMetricsOnlyAccount(row), true);
   assert.equal(isZaicodeMetricsOnlyAccount(LOCAL[2]!), false, "本机的 Antigravity 仍然是可启动的");
@@ -319,4 +320,38 @@ test("SRC-162: 定位符只在同一厂家内识别账号", () => {
   ]);
   assert.equal(merged.find((entry) => entry.vendor === "antigravity")!.shared, undefined, "Codex 记录不能并进 Antigravity 行");
   assert.equal(merged.length, LOCAL.length + 1);
+});
+
+test("REQ-011: initials come from the plane displayName", () => {
+  assert.equal(zaicodeAccountInitials("Ivan Petrov"), "IP");
+  assert.equal(zaicodeAccountInitials("Vac"), "VA");
+  assert.equal(zaicodeAccountInitials("vac34@gmail.com"), "VA");
+  assert.equal(zaicodeAccountInitials("Google account 2"), "GA");
+  assert.equal(zaicodeAccountInitials("  "), "");
+  assert.equal(zaicodeAccountInitials("A"), "A");
+});
+
+test("REQ-011: fold-in keeps local facts but takes the plane initials as badge", () => {
+  const identity = LOCAL[2]!;
+  const merged = mergeZaicodeSharedAccounts(LOCAL, [
+    shared({ accountId: "sai-ag-1", providerId: "antigravity", displayName: "Ivan Petrov", locator: identity.source, home: null }),
+  ]);
+  assert.equal(merged.length, LOCAL.length);
+  const row = merged[2]!;
+  assert.equal(row.id, "antigravity:default");
+  assert.equal(row.label, "Antigravity", "本地展示名仍然不被覆盖");
+  assert.equal(row.short, "IP");
+  assert.equal(row.cli, "agy.exe");
+});
+
+test("REQ-011: same initials twice number on; multi-home vendors keep ordinals", () => {
+  const merged = mergeZaicodeSharedAccounts(LOCAL, [
+    shared({ accountId: "sai-ag-1", providerId: "antigravity", displayName: "Ivan Petrov", locator: "user-one", home: null }),
+    shared({ accountId: "sai-ag-2", providerId: "antigravity", displayName: "Igor Pavlov", locator: "user-two", home: null }),
+    shared({ accountId: "sai-codex-9", providerId: "codex", displayName: "Vac", locator: "vac34", home: null }),
+  ]);
+  const shorts = merged.filter((entry) => entry.vendor === "antigravity").map((entry) => entry.short);
+  assert.deepEqual(shorts, ["AG", "IP", "IP2"], "local row keeps AG; plane rows take initials, numbered on collision");
+  const codex = merged.filter((entry) => entry.vendor === "codex").map((entry) => entry.short);
+  assert.ok(codex.every((short) => /^C\d+$/.test(short)), `codex keeps home ordinals, got ${codex.join(",")}`);
 });

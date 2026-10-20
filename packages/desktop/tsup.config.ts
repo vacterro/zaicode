@@ -1,10 +1,26 @@
-import { pickProductEndpointEnv } from "@zcode/shared/zcodeEndpoint";
 import { readFileSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { defineConfig } from "tsup";
 import { getBuildMetadata } from "./scripts/build-metadata.mjs";
 import { resolveDesktopProductFlavor } from "./scripts/desktop-product-identity.mjs";
+
+function pickProductEndpointEnv(
+  env: Record<string, string | undefined>,
+): Record<string, string> {
+  const keys = [
+    "ZCODE_BASE_URL",
+    "ZCODE_ENDPOINT_ORIGIN",
+    "BIGMODEL_API_BASE_URL",
+    "ZAI_OAUTH_ORIGIN",
+    "ZAI_BUSINESS_BASE_URL",
+    "ZAI_OAUTH_CLIENT_ID",
+    "ZAI_OAUTH_APP_ID",
+  ];
+  return Object.fromEntries(
+    keys.flatMap((key) => (env[key]?.trim() ? [[key, env[key]!.trim()]] : [])),
+  );
+}
 // tsup 会先打包配置文件；动态加载构建工具，避免其 import.meta.dirname 被重定位到 desktop。
 const { loadBuiltinProviderConfig } = await import(
   pathToFileURL(resolve(import.meta.dirname, "../../scripts/builtin-provider-config.mjs")).href

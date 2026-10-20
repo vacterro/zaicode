@@ -3,6 +3,7 @@ import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 import { cn } from "@/components/lib/utils.js";
 import { Button } from "@/components/ui/button.js";
 import { useZCodeIntl } from "@/i18n/IntlProvider.js";
+import { useTranscriptSectionsView } from "@/lib/transcriptView.js";
 
 const COLLAPSED_USER_INPUT_CONTENT_MAX_HEIGHT_PX = 120;
 const USER_INPUT_CONTENT_OVERFLOW_TOLERANCE_PX = 1;
@@ -31,6 +32,9 @@ export function ConversationUserInputBody({
   rowId: number;
 }) {
   const { intl } = useZCodeIntl();
+  const sections = useTranscriptSectionsView();
+  const customViewport = sections !== null;
+  const scrolling = sections?.sections.user.scroll === true;
   const contentRef = useRef<HTMLDivElement | null>(null);
   const animationFrameRef = useRef<number | null>(null);
   const [contentScrollHeight, setContentScrollHeight] = useState(
@@ -47,6 +51,7 @@ export function ConversationUserInputBody({
   }, [contentText, rowId]);
 
   useEffect(() => {
+    if (customViewport) return;
     const content = contentRef.current;
     if (!content) {
       setExpandable(false);
@@ -96,26 +101,37 @@ export function ConversationUserInputBody({
       }
       animationFrameRef.current = null;
     };
-  }, [contentText, expanded, rowId]);
+  }, [contentText, expanded, rowId, customViewport]);
 
-  const resolvedMaxHeight = resolveUserInputContentMaxHeight(expanded, contentScrollHeight);
+  const resolvedMaxHeight = customViewport
+    ? scrolling
+      ? `${COLLAPSED_USER_INPUT_CONTENT_MAX_HEIGHT_PX}px`
+      : undefined
+    : resolveUserInputContentMaxHeight(expanded, contentScrollHeight);
 
   return (
     <div data-conversation-selectable="true" className="relative min-w-0 flex-1">
       <div
         ref={contentRef}
         data-v4-user-input-collapsible-content="true"
+        data-transcript-section="user"
+        data-transcript-scroll={scrolling ? "on" : "off"}
         style={{ maxHeight: resolvedMaxHeight }}
         className={cn(
-          "min-w-0 overflow-hidden whitespace-pre-wrap break-words transition-[max-height] duration-300 ease-out motion-reduce:transition-none",
-          !expanded && expandable
+          "min-w-0 whitespace-pre-wrap break-words",
+          customViewport
+            ? scrolling
+              ? "overflow-y-auto"
+              : "overflow-visible"
+            : "overflow-hidden transition-[max-height] duration-300 ease-out motion-reduce:transition-none",
+          !customViewport && !expanded && expandable
             ? "[mask-image:linear-gradient(to_bottom,black_0%,black_70%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black_0%,black_70%,transparent_100%)]"
             : "",
         )}
       >
         {children}
       </div>
-      {expandable ? (
+      {!customViewport && expandable ? (
         <div
           className={cn(
             "flex items-center justify-center",

@@ -61,7 +61,10 @@ test("R011: 合成器的模型按钮也遵守规则", () => {
   const model = read("zaicode/ZaicodeModelButtons.tsx");
   assert.ok(model.includes("<ZaicodeRightClickSettings"), "模型按钮包进共享封装");
   assert.ok(model.includes('preferenceKey="modelButtons"'));
-  assert.ok(model.includes("ZAICODE_MODEL_BUTTONS_MAX"), "面板说的是这条规则自己的阈值");
+  // 当前规则按按钮控制可见性；旧 MAX 阈值已退出产品，不能要求恢复死引用。
+  assert.ok(model.includes("data-zaicode-composer-model-buttons-panel"));
+  assert.ok(model.includes("data-zaicode-composer-model-buttons-list"));
+  assert.ok(model.includes("prefs.toggleButton(button.value, checked)"), "面板调用自己的可见性写入者");
   // 面板包装不能破坏左键选择与原有标记。
   assert.ok(model.includes('data-zaicode-model-buttons={buttons.length}'), "原有测试钩子保留");
   assert.ok(model.includes("onSelect(button.value)"), "左键仍然选择模型");

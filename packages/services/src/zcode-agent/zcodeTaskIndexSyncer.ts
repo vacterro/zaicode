@@ -167,6 +167,13 @@ export interface ZCodeTaskIndexSyncer {
    * 手机 host command queue 只能以这个事件作为继续发送下一条的边界。
    */
   onSessionReadyEvent: Event<ZCodeTaskIndexReadyEvent>;
+  /**
+   * T-398: the sessions-index's own lastActivityAt for one session, or null when
+   * this workspace has no live projection for it. Audit supervision reads the
+   * WAVE's activity here. It must never fall back to the queue's `heartbeat_at`,
+   * which is the host's lease and renews for every running row on one timer.
+   */
+  getSessionActivityAt(target: ZCodeAgentSessionTarget): number | null;
   /** 释放所有 v4 订阅和 workspace emitter；不关闭注入的 taskIndexRepo。 */
   disposeAll(): void;
 }
@@ -1777,6 +1784,15 @@ export function createZCodeTaskIndexSyncer(
     onSessionTerminalEvent: terminalEventEmitter.event,
 
     onSessionReadyEvent: readyEventEmitter.event,
+
+    getSessionActivityAt(target: ZCodeAgentSessionTarget): number | null {
+      if (!target.sessionId || !target.workspacePath) return null;
+      const summary = workspaceIngests
+        .get(resolveWorkspaceKey(target))
+        ?.summaries.get(target.sessionId);
+      const at = summary?.lastActivityAt;
+      return typeof at === "number" && Number.isFinite(at) && at > 0 ? at : null;
+    },
 
     disposeAll(): void {
       disposed = true;

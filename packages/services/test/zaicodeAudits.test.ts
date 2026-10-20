@@ -5,6 +5,7 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
+import { zaicodeAuditIdle } from "@zcode/shared";
 import { ZaicodeAgentRepo } from "../src/zaicode/zaicodeAgentRepo.js";
 import { ZaicodeAgentService } from "../src/zaicode/zaicodeAgentService.js";
 import { ZaicodeJobRepo } from "../src/zaicode/zaicodeJobRepo.js";
@@ -26,6 +27,72 @@ import type { ZaicodeJobExecutor } from "../src/zaicode/zaicodeJobs.js";
 const sha256 = (text: string) => createHash("sha256").update(text, "utf8").digest("hex");
 
 const WS = { workspaceKey: "ws-1", workspacePath: "C:\\proj\\_ZAICODE", projectName: "_ZAICODE" };
+
+test("T-337: project AUTO overrides survive reopen and preserve peers, defaults and run identity", async () => {
+  const h = await createHarness(null);
+  try {
+    await h.audits.setSmartMode(true);
+    const runId = (await h.audits.getState()).runId;
+    await h.audits.setProjectAutoSettings("host-A/project", { smartMode: false, autoAudits: false, maxCycles: 2 });
+    await h.audits.setProjectAutoSettings("host-B/project", { smartMode: true });
+    await h.audits.setAutoAudits(false);
+    const reopened = new ZaicodeAuditService({ jobService: h.jobService, agentService: h.agentService, rootDir: () => h.auditRoot });
+    const state = await reopened.getState();
+    assert.equal(state.smartMode, true);
+    assert.equal(state.autoAudits, false);
+    assert.equal(state.runId, runId);
+    assert.deepEqual(state.autoProjects, {
+      "host-A/project": { smartMode: false, autoAudits: false, maxCycles: 2 },
+      "host-B/project": { smartMode: true },
+    });
+    await reopened.setProjectAutoSettings("host-A/project", null);
+    assert.deepEqual((await h.audits.getState()).autoProjects, { "host-B/project": { smartMode: true } });
+    await assert.rejects(() => reopened.setProjectAutoSettings(" ", { smartMode: true }), /project/i);
+  } finally { await h.dispose(); }
+});
+
+test("T-337: global OFF admits only an enabled project, including its A3 override", async () => {
+  const h = await createHarness(null, undefined, () => "## TODO\n\n## DONE\n");
+  try {
+    const peer = { ...WS, workspaceKey: "ws-2", workspacePath: "C:\\proj\\peer" };
+    await h.audits.publishProjects([{ ...peer, noWorkConfirmed: true }, { ...WS, noWorkConfirmed: true }]);
+    await h.audits.setAutoAudits(false);
+    await h.audits.setProjectAutoSettings(WS.workspaceKey, { smartMode: true, autoAudits: true });
+    assert.deepEqual((await h.audits.smartSweep()).started, [WS.workspacePath]);
+    assert.equal((await h.audits.getState()).smartMode, false, "project-only admission never enables the global default");
+    assert.deepEqual((await h.audits.smartSweep()).started, [], "accepted work cannot start twice");
+  } finally { await h.dispose(); }
+});
+
+test("T-337: global ON respects an OFF project while admitting its enabled peer", async () => {
+  const h = await createHarness(null, undefined, () => "## TODO\n\n## DONE\n");
+  try {
+    const peer = { ...WS, workspaceKey: "ws-2", workspacePath: "C:\\proj\\peer" };
+    await h.audits.publishProjects([{ ...WS, noWorkConfirmed: true }, { ...peer, noWorkConfirmed: true }]);
+    await h.audits.setSmartMode(true);
+    await h.audits.setProjectAutoSettings(WS.workspaceKey, { smartMode: false });
+    assert.deepEqual((await h.audits.smartSweep()).started, [peer.workspacePath]);
+  } finally { await h.dispose(); }
+});
+
+test("T-337: disabling a project during queue inspection rejects stale automatic admission", async () => {
+  const h = await createHarness(null, undefined, () => "## TODO\n\n## DONE\n");
+  try {
+    await h.audits.publishProjects([{ ...WS, noWorkConfirmed: true }]);
+    await h.audits.setSmartMode(true);
+    const originalList = h.jobService.list.bind(h.jobService);
+    let inspected = false;
+    h.jobService.list = async (input) => {
+      if (!inspected) {
+        inspected = true;
+        await h.audits.setProjectAutoSettings(WS.workspaceKey, { smartMode: false });
+      }
+      return originalList(input);
+    };
+    assert.deepEqual((await h.audits.smartSweep()).started, []);
+    assert.equal((await originalList({})).jobs.length, 0);
+  } finally { await h.dispose(); }
+});
 
 /** What the prompt tells the auditor, as the auditor reads it back. */
 interface WaveCtx {
@@ -673,11 +740,61 @@ test("SRC-060: getState says who audits, on which model, and where the running w
     assert.ok(running.live, "the running wave's job is read out");
     assert.equal(running.live!.jobId, running.waves[0]!.jobId);
     assert.equal(running.live!.agentName, state.auditor!.name);
+    // T-398: no host projection was supplied here, so the wave's own activity is
+    // unknown -- and must stay unknown instead of borrowing the host's lease.
+    assert.equal(
+      running.live!.lastActivityAt,
+      null,
+      "getState never substitutes the host heartbeat for the wave's own activity",
+    );
     // `live` is a view of the queue, never written into campaign.json.
     const stored = JSON.parse(
       await readFile(join(h.auditRoot, campaign!.campaignId, "campaign.json"), "utf8"),
     ) as Record<string, unknown>;
     assert.equal("live" in stored, false);
+  } finally {
+    await h.dispose();
+  }
+});
+
+test("T-398: getState reads the wave's activity from the session projection, not the host lease", async () => {
+  const h = await createHarness(() => null);
+  try {
+    const campaign = await h.audits.start(WS);
+    await settle();
+    const running = (await h.audits.getState()).campaigns.find(
+      (entry) => entry.campaignId === campaign!.campaignId,
+    )!;
+    const waveSession = running.live!.sessionId;
+    assert.ok(waveSession, "the dispatched wave attached a session");
+    // A projection that answers for this session and declines every other one:
+    // the service must ask per-session, and it must prefer this answer over
+    // `job.heartbeatAt`, which the harness's own heartbeat timer keeps fresh.
+    const seen: string[] = [];
+    const activityAt = Date.now() - 42 * 60_000;
+    const audits = new ZaicodeAuditService({
+      jobService: h.jobService,
+      agentService: h.agentService,
+      rootDir: () => h.auditRoot,
+      sessionActivityAt: (target) => {
+        seen.push(target.sessionId);
+        return target.sessionId === waveSession ? activityAt : null;
+      },
+    });
+    const live = (await audits.getState()).campaigns.find(
+      (entry) => entry.campaignId === campaign!.campaignId,
+    )!.live!;
+    assert.deepEqual(seen, [waveSession], "the projection is asked for the wave's own session");
+    assert.equal(live.lastActivityAt, activityAt);
+    assert.ok(
+      live.heartbeatAt !== null && live.heartbeatAt! > activityAt,
+      "the host lease is fresher than the wave -- that is exactly the trap",
+    );
+    const idle = zaicodeAuditIdle(
+      { ...running, live },
+      Date.now(),
+    );
+    assert.equal(idle!.level, "stalled", "42 minutes of silence reads as stalled despite a fresh lease");
   } finally {
     await h.dispose();
   }
@@ -1088,4 +1205,79 @@ test("E2: re-enabling the switch resumes automatic admission without duplicates"
   } finally {
     await h.dispose();
   }
+});
+
+test("AUTO audit opt-out persists independently and manual audits still complete all three waves", async () => {
+  const h = await createHarness(allValid());
+  try {
+    assert.equal((await h.audits.getState()).autoAudits, true, "existing profiles keep their policy");
+    await h.audits.setSmartMode(true);
+    await h.audits.setAutoAudits(false);
+    const reopened = new ZaicodeAuditService({ jobService: h.jobService, agentService: h.agentService, rootDir: () => h.auditRoot });
+    const state = await reopened.getState();
+    assert.equal(state.smartMode, true, "ordinary AUTO remains enabled");
+    assert.equal(state.autoAudits, false, "audit opt-out survives reopening");
+    assert.equal(state.autoWaves, true, "manual wave policy is independent");
+    const manual = await reopened.start(WS);
+    const completed = await drive(h, manual!.campaignId);
+    assert.equal(completed.status, "complete");
+    assert.equal(completed.waves.filter((wave) => wave.status === "complete").length, 3);
+    await reopened.setAutoAudits(true);
+    assert.equal((await h.audits.getState()).autoAudits, true);
+  } finally { await h.dispose(); }
+});
+
+test("AUTO audit opt-out admits no campaigns and re-enabling starts exactly one", async () => {
+  const h = await createHarness(allValid(), undefined, () => "## DOING\n\n## TODO\n\n## DONE\n\n## BLOCKED\n");
+  try {
+    await h.audits.publishProjects([{ ...WS, noWorkConfirmed: true }]);
+    await h.audits.setSmartMode(true);
+    await h.audits.setAutoAudits(false);
+    assert.deepEqual((await h.audits.smartSweep()).started, []);
+    assert.equal((await h.jobService.list({})).jobs.length, 0);
+    assert.equal((await h.audits.getState()).campaigns.length, 0);
+    await h.audits.setAutoAudits(true);
+    assert.deepEqual((await h.audits.smartSweep()).started, [WS.workspacePath]);
+    assert.deepEqual((await h.audits.smartSweep()).started, []);
+    assert.equal((await h.audits.getState()).campaigns.length, 1);
+  } finally { await h.dispose(); }
+});
+
+test("AUTO audit opt-out leaves a previously planned automatic campaign waiting", async () => {
+  const h = await createHarness(allValid(), undefined, () => "## DOING\n\n## TODO\n\n## DONE\n\n## BLOCKED\n");
+  try {
+    await h.audits.setSmartMode(true);
+    const planned = await h.audits.generate(WS, (await h.audits.getState()).runId!);
+    await h.audits.publishProjects([{ ...WS, noWorkConfirmed: true }]);
+    await h.audits.setAutoAudits(false);
+    await h.audits.smartSweep();
+    assert.equal((await h.audits.getCampaign(planned!.campaignId))!.status, "planned");
+    assert.equal((await h.jobService.list({})).jobs.length, 0);
+    await h.audits.setAutoAudits(true);
+    await h.audits.smartSweep();
+    assert.equal((await h.audits.getState()).campaigns.length, 1);
+    assert.equal((await h.audits.getCampaign(planned!.campaignId))!.status, "running");
+  } finally { await h.dispose(); }
+});
+
+test("AUTO audit opt-out during a pending sweep read prevents later admission", async () => {
+  const h = await createHarness(allValid(), undefined, () => "## DOING\n\n## TODO\n\n## DONE\n\n## BLOCKED\n");
+  const originalList = h.jobService.list.bind(h.jobService);
+  const entered = Promise.withResolvers<void>();
+  const released = Promise.withResolvers<void>();
+  try {
+    h.jobService.list = async (input) => {
+      if (input.status === "running") { entered.resolve(); await released.promise; }
+      return originalList(input);
+    };
+    await h.audits.setSmartMode(true);
+    await h.audits.publishProjects([{ ...WS, noWorkConfirmed: true }]);
+    const sweep = h.audits.smartSweep();
+    await entered.promise;
+    await h.audits.setAutoAudits(false);
+    released.resolve();
+    assert.deepEqual((await sweep).started, []);
+    assert.equal((await h.audits.getState()).campaigns.length, 0);
+    assert.equal((await originalList({})).jobs.length, 0);
+  } finally { released.resolve(); h.jobService.list = originalList; await h.dispose(); }
 });

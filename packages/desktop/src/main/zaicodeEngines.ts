@@ -7,6 +7,8 @@ import { request as httpsRequest } from "node:https";
 import { homedir, userInfo } from "node:os";
 import { basename, delimiter, dirname, isAbsolute, join, resolve } from "node:path";
 import {
+  beginZaicodeWindowStarts,
+  completeZaicodeWindowStarts,
   markZaicodeWindowsStartingOnUse,
   mergeZaicodeSharedAccounts,
   normalizeZaicodeEnginesConfig,
@@ -29,7 +31,6 @@ import {
   type ZaicodeLimitSnapshot,
   type ZaicodeLimitWindow,
   type ZaicodeSharedAccountInput,
-  type ZaicodeWindowStartRecord,
   describeZaicodeResetOutcome,
   type ZaicodeResetConsumeResult,
   type ZaicodeResetCredits,
@@ -38,6 +39,7 @@ import { listSharedAccounts, nodeSaiAccountsHost, probeSharedAccount, resolveSai
 import { codexRpcCall, consumeCodexResetCredit, type CodexRpcOptions } from "./zaicodeCodexRpc.js";
 import { setWindowsDesktopTrayLimits } from "./desktopTray.js";
 import { logger } from "./logger.js";
+import { zaicodeCodexCliCapabilities } from "./zaicodeCodexCliCapabilities.js";
 import {
   antigravityWindowStartArgs,
   claudeWindowStartArgs,
@@ -633,6 +635,8 @@ async function discoverSharedAccounts(): Promise<ZaicodeSharedAccountInput[]> {
   });
 }
 
+const codexCliHelp = new Map<string, Promise<ReturnType<typeof zaicodeCodexCliCapabilities>>>();
+
 async function discoverAccounts(config: ZaicodeEnginesConfig): Promise<ZaicodeEngineAccount[]> {
   const antigravity = await discoverAntigravity();
   const local = [
@@ -642,7 +646,21 @@ async function discoverAccounts(config: ZaicodeEnginesConfig): Promise<ZaicodeEn
     ...discoverZcode(config),
     ...discoverFreebuff(config),
   ];
-  return mergeZaicodeSharedAccounts(local, await discoverSharedAccounts());
+  const accounts = mergeZaicodeSharedAccounts(local, await discoverSharedAccounts());
+  const codex = accounts.find((account) => account.vendor === "codex" && account.cli);
+  if (codex?.cli) {
+    const cli = codex.cli;
+    let capabilities = codexCliHelp.get(cli);
+    if (!capabilities) {
+      // 共享 daemon 的 feature 冲突会弹菜单；只用本机 CLI 明确支持的非 daemon 参数。
+      capabilities = runCli(cli, ["--help"], { env: process.env, timeoutMs: 5000 })
+        .then((result) => zaicodeCodexCliCapabilities(result.ok ? result.stdout : ""));
+      codexCliHelp.set(cli, capabilities);
+    }
+    const flags = await capabilities;
+    for (const account of accounts) if (account.vendor === "codex") account.cliCapabilities = flags;
+  }
+  return accounts;
 }
 
 /**
@@ -1173,10 +1191,9 @@ async function startIdleWindow(account: ZaicodeEngineAccount, window: ZaicodeLim
   const windowKey = window.key;
   const initial = limits[account.id];
   const keys = (initial?.windows ?? []).filter((candidate) => candidate.group === window.group && candidate.gatedBy === null && isZaicodeWindowWaitingForFirstUse(candidate)).map((candidate) => candidate.key);
-  const pending: ZaicodeWindowStartRecord = { at: startedAt, ok: false, detail: "window start pending", windowKey };
   if (initial) {
     // 先持久化 admission；进程在请求后崩溃也不能在重启时立刻重发付费请求。
-    limits = { ...limits, [account.id]: { ...initial, windowStarts: { ...initial.windowStarts, ...Object.fromEntries(keys.map((key) => [key, { ...pending, windowKey: key }])) } } };
+    limits = { ...limits, [account.id]: beginZaicodeWindowStarts(initial, keys, startedAt) };
     persistCache();
     broadcast();
   }
@@ -1233,12 +1250,7 @@ async function startIdleWindow(account: ZaicodeEngineAccount, window: ZaicodeLim
   }
   const current = limits[account.id];
   if (current) {
-    const completed = { ...pending, ...outcome };
-    const windowStarts = { ...current.windowStarts };
-    for (const key of keys) {
-      if (windowStarts[key]?.at === startedAt) windowStarts[key] = { ...completed, windowKey: key };
-    }
-    limits = { ...limits, [account.id]: { ...current, ...((current.windowStart?.at ?? -Infinity) <= startedAt ? { windowStart: completed } : {}), windowStarts } };
+    limits = { ...limits, [account.id]: completeZaicodeWindowStarts(current, keys, startedAt, outcome) };
     persistCache();
     broadcast();
   }

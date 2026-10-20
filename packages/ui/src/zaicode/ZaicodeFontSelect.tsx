@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import type { IPlatformService } from "@zcode/shared";
+import { usePlatform } from "../hooks/usePlatform.js";
 
 /**
  * Every font picker offers the curated faces first and then each font family installed on
@@ -19,40 +21,43 @@ export interface ZaicodeFontChoice {
   custom?: string;
 }
 
-let pending: Promise<string[]> | null = null;
+// T-278：字体由注入的平台提供；同一平台共享请求，换平台不能复用旧窗口的结果。
+const pending = new WeakMap<IPlatformService, Promise<string[]>>();
 
-export function loadZaicodeSystemFonts(): Promise<string[]> {
-  const bridge =
-    typeof window === "undefined"
-      ? undefined
-      : (window as unknown as { zcode?: { listZaicodeSystemFonts?: () => Promise<string[]> } }).zcode;
-  if (!bridge?.listZaicodeSystemFonts) return Promise.resolve([]);
-  pending ??= bridge
-    .listZaicodeSystemFonts()
+export function loadZaicodeSystemFonts(platform: IPlatformService): Promise<string[]> {
+  const list = platform.listZaicodeSystemFonts;
+  if (!list) return Promise.resolve([]);
+  const cached = pending.get(platform);
+  if (cached) return cached;
+  const request = Promise.resolve()
+    .then(() => list.call(platform))
     .then((fonts) => {
       const names = Array.isArray(fonts) ? fonts.filter((name): name is string => typeof name === "string" && name.length > 0) : [];
-      if (names.length === 0) pending = null;
+      if (names.length === 0) pending.delete(platform);
       return names;
     })
     .catch(() => {
-      pending = null;
+      pending.delete(platform);
       return [];
     });
-  return pending;
+  pending.set(platform, request);
+  return request;
 }
 
 export function useZaicodeSystemFonts(): string[] {
-  const [fonts, setFonts] = useState<string[]>([]);
+  const platform = usePlatform();
+  const [state, setState] = useState<{ platform: IPlatformService; fonts: string[] }>(() => ({ platform, fonts: [] }));
   useEffect(() => {
     let live = true;
-    void loadZaicodeSystemFonts().then((names) => {
-      if (live) setFonts(names);
+    void loadZaicodeSystemFonts(platform).then((fonts) => {
+      if (live) setState({ platform, fonts });
     });
     return () => {
       live = false;
     };
-  }, []);
-  return fonts;
+  }, [platform]);
+  // 旧平台异步返回或 effect 尚未清理时，也不能让其字体在新 provider 下闪现。
+  return state.platform === platform ? state.fonts : [];
 }
 
 /** The select's value for a stored choice: an installed family shows as itself. */

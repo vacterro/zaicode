@@ -61,6 +61,7 @@
     "packages/ui/src/components/ai-elements",
     ".agents/skills",
     "packages/formal-proof",
+    "packages/services/src/zaicode/optimaizr",
     "apps/zcode-cli",
     "docs/electron"
   ]

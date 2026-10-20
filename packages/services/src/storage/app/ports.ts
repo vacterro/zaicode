@@ -36,6 +36,7 @@ export interface VolumeProbePort {
 }
 
 export interface StorageDeleteResult {
+  skippedCount?: number;
   deletedCount: number;
   freedBytes: number;
   failures: StoragePathError[];
@@ -46,6 +47,9 @@ export interface FsCleanerPort {
   deleteFiles(
     rootPath: string,
     targets: StorageCleanCandidate[],
-    options: { keepDirectories: string[] },
+    options: {
+      keepDirectories: string[];
+      canDelete?: (candidate: StorageCleanCandidate) => Promise<boolean>;
+    },
   ): Promise<StorageDeleteResult>;
 }

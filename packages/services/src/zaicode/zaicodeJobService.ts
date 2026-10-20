@@ -6,6 +6,9 @@ import { randomUUID } from "node:crypto";
 import {
   ZAICODE_JOB_CONCURRENCY_DEFAULT,
   ZAICODE_JOB_CONCURRENCY_MAX,
+  ZAICODE_JOB_GLOBAL_CONCURRENCY_DEFAULT,
+  ZAICODE_JOB_GLOBAL_CONCURRENCY_MAX,
+  ZAICODE_GLOBAL_CONCURRENCY_SETTING_KEY,
   ZAICODE_JOB_HEARTBEAT_STALE_MS as HEARTBEAT_STALE_MS,
   ZAICODE_DISABLED_WORKSPACES_SETTING_KEY,
   isZaicodeJobTerminal,
@@ -52,6 +55,10 @@ interface ZaicodeJobServiceDeps {
   onChildFinished?: (child: ZaicodeJob) => void;
   /** host 注入的真实执行器；未装配时派发落入 blocked，不假装开始。 */
   getExecutor: () => ZaicodeJobExecutor | null;
+  /** Optional dispatch predicate / fence; false holds job in queued state. */
+  canDispatch?: (job: ZaicodeJob) => boolean | Promise<boolean>;
+  /** Optional batch capacity resolver; provides batch-level workerCapacity. */
+  getBatchCapacity?: (batchId: string) => Promise<number | null | undefined> | number | null | undefined;
   now?: () => number;
   logger?: { warn(message: string, error?: unknown): void };
   onJobsChanged?: () => void;
@@ -74,8 +81,30 @@ export class ZaicodeJobService implements IZaicodeJobService {
   private readonly runningHandles = new Map<string, RunningHandle>();
   private heartbeatTimer: ReturnType<typeof setInterval> | null = null;
   private disposed = false;
+  private dispatchFilter: ((job: ZaicodeJob) => boolean | Promise<boolean>) | null = null;
+  private batchCapacityResolver: ((batchId: string) => Promise<number | null | undefined> | number | null | undefined) | null = null;
 
   constructor(private readonly deps: ZaicodeJobServiceDeps) {}
+
+  setDispatchFilter(filter: ((job: ZaicodeJob) => boolean | Promise<boolean>) | null): void {
+    this.dispatchFilter = filter;
+  }
+
+  setBatchCapacityResolver(
+    resolver: ((batchId: string) => Promise<number | null | undefined> | number | null | undefined) | null,
+  ): void {
+    this.batchCapacityResolver = resolver;
+  }
+
+  private async isDispatchAllowed(job: ZaicodeJob): Promise<boolean> {
+    if (this.deps.canDispatch && !(await this.deps.canDispatch(job))) {
+      return false;
+    }
+    if (this.dispatchFilter && !(await this.dispatchFilter(job))) {
+      return false;
+    }
+    return true;
+  }
 
   // T-252 / W2-005 — dispose 后旧 startup/autopump 的 await 续体不能发起新 repo 初始化。
   private assertActive(): void {
@@ -218,6 +247,7 @@ export class ZaicodeJobService implements IZaicodeJobService {
       delegatedFromRunId,
       // 只允许顶层任务带委托：子任务委托一律拒绝，深度恒为 1。
       delegation: input.parentJobId ? undefined : input.delegation,
+      auditMetadata: input.auditMetadata,
     });
   }
 
@@ -279,6 +309,9 @@ export class ZaicodeJobService implements IZaicodeJobService {
     const current = await this.deps.repo.get(jobId);
     if (!current) throw new Error(`ZAICODE 任务不存在: ${jobId}`);
     if (isZaicodeJobTerminal(current.status)) return current;
+    if (!(await this.isDispatchAllowed(current))) {
+      return current;
+    }
 
     const agent = await this.deps.getAgent(current.agentId);
     if (!agent || !agent.enabled) {
@@ -289,15 +322,31 @@ export class ZaicodeJobService implements IZaicodeJobService {
       );
     }
 
+    const globalLimit = await this.getGlobalConcurrency();
+    const workspaceLimit = await this.getMaxConcurrency();
+    let batchLimit: number | null | undefined;
+    const batchId = current.auditMetadata?.batchId;
+    if (batchId) {
+      if (this.batchCapacityResolver) {
+        batchLimit = await this.batchCapacityResolver(batchId);
+      } else if (this.deps.getBatchCapacity) {
+        batchLimit = await this.deps.getBatchCapacity(batchId);
+      }
+    }
+
     const runId = randomUUID();
     const claimed = await this.deps.repo.claimForDispatch({
       jobId,
       runId,
       hostId: this.hostId,
       now: this.now(),
+      maxGlobalConcurrency: globalLimit,
+      maxWorkspaceConcurrency: workspaceLimit,
+      maxBatchConcurrency: batchLimit ?? undefined,
+      batchId: batchId ?? undefined,
     });
     if (!claimed) {
-      // 已有派发者抢到或状态已变化：返回当前事实，不产生第二次执行。
+      // 已有派发者抢到、并发容量已满或状态已变化：返回当前事实，不产生第二次执行。
       return this.deps.repo.get(jobId);
     }
 
@@ -366,16 +415,63 @@ export class ZaicodeJobService implements IZaicodeJobService {
     await this.ensureRepoReady();
     // A project the operator switched off is invisible to automatic work; its jobs wait.
     if (isZaicodeWorkspaceDisabled(await this.getDisabledWorkspaces(), workspaceKey)) return [];
+    const globalLimit = await this.getGlobalConcurrency();
+    if (this.deps.repo.countRunning() >= globalLimit) return [];
     const limit = await this.getMaxConcurrency();
     const dispatched: ZaicodeJob[] = [];
     let guard = limit * 2 + 8;
     for (;;) {
+      if (this.deps.repo.countRunning() >= globalLimit) break;
       if (this.deps.repo.countRunning(workspaceKey) >= limit) break;
       if (guard-- <= 0) break;
-      const [next] = this.deps.repo.listEligible(workspaceKey, 1);
-      if (!next) break;
-      const job = await this.dispatch(next.id);
-      if (job?.status === "running") dispatched.push(job);
+      const candidates = this.deps.repo.listEligible(workspaceKey, 5);
+      if (candidates.length === 0) break;
+      let dispatchedThisRound = false;
+      for (const next of candidates) {
+        if (this.deps.repo.countRunning() >= globalLimit) break;
+        if (this.deps.repo.countRunning(workspaceKey) >= limit) break;
+        if (!(await this.isDispatchAllowed(next))) continue;
+        const job = await this.dispatch(next.id);
+        if (job?.status === "running") {
+          dispatched.push(job);
+          dispatchedThisRound = true;
+          break;
+        }
+      }
+      if (!dispatchedThisRound) break;
+    }
+    return dispatched;
+  }
+
+  async pumpAll(): Promise<ZaicodeJob[]> {
+    await this.ensureRepoReady();
+    const globalLimit = await this.getGlobalConcurrency();
+    const disabled = await this.getDisabledWorkspaces();
+    const workspaces = this.deps.repo.listEligibleWorkspaces();
+    const dispatched: ZaicodeJob[] = [];
+    let dispatchedAny = true;
+    let guard = globalLimit * 4 + 16;
+    while (dispatchedAny && guard-- > 0) {
+      dispatchedAny = false;
+      if (this.deps.repo.countRunning() >= globalLimit) break;
+      for (const workspaceKey of workspaces) {
+        if (this.deps.repo.countRunning() >= globalLimit) break;
+        if (isZaicodeWorkspaceDisabled(disabled, workspaceKey)) continue;
+        const workspaceLimit = await this.getMaxConcurrency();
+        if (this.deps.repo.countRunning(workspaceKey) >= workspaceLimit) continue;
+        const candidates = this.deps.repo.listEligible(workspaceKey, 5);
+        for (const next of candidates) {
+          if (this.deps.repo.countRunning() >= globalLimit) break;
+          if (this.deps.repo.countRunning(workspaceKey) >= workspaceLimit) break;
+          if (!(await this.isDispatchAllowed(next))) continue;
+          const job = await this.dispatch(next.id);
+          if (job?.status === "running") {
+            dispatched.push(job);
+            dispatchedAny = true;
+            break;
+          }
+        }
+      }
     }
     return dispatched;
   }
@@ -491,6 +587,28 @@ export class ZaicodeJobService implements IZaicodeJobService {
       ZAICODE_JOB_CONCURRENCY_MAX,
     );
     this.deps.repo.setSetting(MAX_CONCURRENCY_SETTING_KEY, String(clamped), this.now());
+    this.emitChanged();
+    return clamped;
+  }
+
+  async getGlobalConcurrency(): Promise<number> {
+    await this.ensureRepoReady();
+    const raw = this.deps.repo.getSetting(ZAICODE_GLOBAL_CONCURRENCY_SETTING_KEY);
+    const parsed = raw ? Number.parseInt(raw, 10) : Number.NaN;
+    if (!Number.isFinite(parsed) || parsed < 1) return ZAICODE_JOB_GLOBAL_CONCURRENCY_DEFAULT;
+    return Math.min(parsed, ZAICODE_JOB_GLOBAL_CONCURRENCY_MAX);
+  }
+
+  async setGlobalConcurrency(value: number): Promise<number> {
+    await this.ensureRepoReady();
+    const clamped = Math.min(
+      Math.max(
+        Math.trunc(Number.isFinite(value) ? value : ZAICODE_JOB_GLOBAL_CONCURRENCY_DEFAULT),
+        1,
+      ),
+      ZAICODE_JOB_GLOBAL_CONCURRENCY_MAX,
+    );
+    this.deps.repo.setSetting(ZAICODE_GLOBAL_CONCURRENCY_SETTING_KEY, String(clamped), this.now());
     this.emitChanged();
     return clamped;
   }

@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { cn } from "@/components/lib/utils.js";
+import { Checkbox } from "@/components/ui/checkbox.js";
 import { setZaicodePalette, setZaicodePresentation, useZaicodeAppearance } from "@/zaicode/zaicodeAppearance.js";
 import { ZAICODE_PRESENTATIONS } from "@/zaicode/zaicodePresentation.js";
 import { generateZaicodePalette, type ZaicodeColorAdjust } from "@/zaicode/zaicodeColorMath.js";
@@ -211,8 +212,8 @@ export function ZaicodeColorSettings() {
           <span className="mx-1 h-4 border-l border-border" />
           <span className="text-foreground-subtle">From one colour</span>
           <input type="color" aria-label="Seed colour" className="h-5 w-7 border border-border p-0" value={seed.toLowerCase()} onChange={(event) => setSeed(event.target.value)} />
-          <label className="flex items-center gap-1 text-foreground">
-            <input type="checkbox" checked={seedDark} onChange={(event) => setSeedDark(event.target.checked)} />
+          <label className="flex items-center gap-1 text-foreground cursor-pointer select-none">
+            <Checkbox checked={seedDark} onCheckedChange={(val) => setSeedDark(Boolean(val))} />
             dark
           </label>
           <button

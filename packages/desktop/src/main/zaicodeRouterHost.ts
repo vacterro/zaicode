@@ -8,6 +8,7 @@ import { ZaicodeRouterProcess, zaicodeRouterServerScript, isZaicodeRouterHealthy
 import { ZaicodeRouterSupervisor, type RouterSupervisorState } from "./zaicodeRouterSupervisor.js";
 import { ZaicodeRouterHealthProbe, localRouterListenerPid } from "./zaicodeRouterHealth.js";
 import { ensureZaicodeFreePool, ensureZaicodeRouterKey } from "./zaicodeRouterSetup.js";
+import { ZaicodeRouteHealthStorage } from "@zcode/services/node";
 
 export { isZaicodeRouterHealthy } from "./zaicodeRouterProcess.js";
 
@@ -91,7 +92,7 @@ async function ensureInternalFallback(): Promise<boolean> {
       const pool = await ensureZaicodeFreePool(call);
       if (generation !== supervisorGeneration) return false;
       if (pool.steps.some((step) => step.status === "failed")) return false;
-      const key = (await ensureZaicodeRouterKey(call, null)).key;
+      const key = (await ensureZaicodeRouterKey(call, null, route.url)).key;
       if (generation !== supervisorGeneration) return false;
       fallbackKey = key;
     }
@@ -157,7 +158,7 @@ export async function acquireZaicodeRouterRoute(): Promise<{ url: string; key: s
   if (selected === "fallback") return fallbackKey ? { url: internalFallbackTarget().url, key: fallbackKey, fallback: true } : null;
   const target = currentTarget();
   if (!await isZaicodeRouterHealthy(target.url)) return null;
-  if (preferredKey?.url !== target.url) preferredKey = { url: target.url, key: (await ensureZaicodeRouterKey((call) => callZaicodeRouterAt(call, target), null)).key };
+  if (preferredKey?.url !== target.url) preferredKey = { url: target.url, key: (await ensureZaicodeRouterKey((call) => callZaicodeRouterAt(call, target), null, target.url)).key };
   return { url: target.url, key: preferredKey.key, fallback: false };
 }
 
@@ -254,6 +255,12 @@ export async function startZaicodeRouterHost(): Promise<ZaicodeRouterHostStatus>
   const config = readZaicodeRouterHostConfig();
   const target = currentTarget(config);
   setZaicodeRouterTarget({ url: target.url, dataDir: target.dataDir });
+  try {
+    const storage = new ZaicodeRouteHealthStorage(target.dataDir);
+    storage.loadSnapshot("default");
+  } catch {
+    // Non-fatal: start without previous route health if unreadable
+  }
   if (target.mode === "shared") {
     await ensureSupervisor();
     await supervisor?.tick();
@@ -291,6 +298,14 @@ export async function restartZaicodeRouterHost(): Promise<ZaicodeRouterHostStatu
 
 /** Stops ZAICODE's own router (never the operator's shared one). */
 export function stopZaicodeRouterHost(): void {
+  try {
+    const config = readZaicodeRouterHostConfig();
+    const target = currentTarget(config);
+    const storage = new ZaicodeRouteHealthStorage(target.dataDir);
+    storage.saveSnapshot("default");
+  } catch {
+    // Non-fatal: shutdown proceeds even if snapshot write fails
+  }
   supervisorGeneration++;
   supervisor = null;
   supervisorStarting = null;
@@ -299,6 +314,17 @@ export function stopZaicodeRouterHost(): void {
   processHandle?.stop();
   fallbackStarting = null;
   fallbackKey = null;
+}
+
+export function persistZaicodeRouteHealth(namespace = "default"): { success: boolean; filePath?: string; error?: string } {
+  try {
+    const config = readZaicodeRouterHostConfig();
+    const target = currentTarget(config);
+    const storage = new ZaicodeRouteHealthStorage(target.dataDir);
+    return storage.saveSnapshot(namespace);
+  } catch (err) {
+    return { success: false, error: err instanceof Error ? err.message : String(err) };
+  }
 }
 
 export async function setZaicodeRouterMode(mode: ZaicodeRouterMode): Promise<ZaicodeRouterHostStatus> {

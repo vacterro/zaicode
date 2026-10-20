@@ -28,6 +28,7 @@ import {
   updateZaicodeAutostartJob,
   useZaicodeAutostartJobs,
   readZaicodeQueueServices,
+  zaicodeScheduleEnableKey,
 } from "./zaicodeAutostart.js";
 import {
   ZAICODE_SCHEDULE_PRESETS,
@@ -37,9 +38,11 @@ import {
   zaicodeUpcomingSchedules,
 } from "./zaicodeScheduler.js";
 import { useZaicodeStore } from "./zaicodeStore.js";
-import { useZaicodeDisabledProjects } from "./zaicodeProjectSwitch.js";
+import { useZaicodeDisabledProjects, isZaicodeProjectDisabled, setZaicodeProjectDisabled } from "./zaicodeProjectSwitch.js";
 import { useZaicodeUiPrefs } from "./zaicodeUiPrefs.js";
 import { pickZaicodeSchedulerEligibleAccounts } from "./zaicodeSchedulerEligibility.js";
+import { useZaicodeSubscriptions } from "./zaicodeSubscriptionSync.js";
+import { zaicodePoolSubscription, zaicodeSchedulerWatchNote } from "./zaicodeSubscriptionSelection.js";
 import { ZAICODE_SLOT_GROUPS } from "./zaicodeSidebarPrefs.js";
 import { ZaicodeMomentField, ZaicodeTimeField } from "./ZaicodeTimeFields.js";
 import { formatZaicodeClockMinute, parseZaicodeClockText } from "./zaicodeClockText.js";
@@ -129,16 +132,24 @@ function useNow(stepMs: number): number {
 interface RunnerOption {
   id: string;
   label: string;
+  /**
+   * REQ-005: the subscription a pool: runner bills (null for every other
+   * runner). Execution target, subscription account, model and watch target
+   * stay four separate facts; the row renders each from its own source.
+   */
+  subscription?: { label: string; vendor: string; engineId: string | null };
 }
 
 function useRunnerOptions(agents: readonly ZaicodeAgentDefinition[]) {
   const models = useModelSelectionServiceView(readZaicodeQueueServices()?.modelSelection);
   const engines = useZaicodeEngines();
+  const subscriptions = useZaicodeSubscriptions();
   const prefs = useZaicodeUiPrefs((state) => state.schedulerIneligible);
   const accounts = pickZaicodeSchedulerEligibleAccounts(
     engines.accounts.filter((account) => account.status !== "cli-missing" && !isZaicodeMetricsOnlyAccount(account)),
     { schedulerIneligible: prefs },
   );
+  const watchedAccounts = pickZaicodeSchedulerEligibleAccounts(engines.accounts, { schedulerIneligible: prefs });
   const runners: RunnerOption[] = [
     {
       id: ZAICODE_AUTOSTART_INAPP_ENGINE,
@@ -154,13 +165,31 @@ function useRunnerOptions(agents: readonly ZaicodeAgentDefinition[]) {
       id: account.id,
       label: `${account.short} ${account.label} (CLI worker)`,
     })),
-    ...(models.state.status === "ready" ? models.state.view.providers.flatMap((provider) => provider.models.map((model) => ({ id: `pool:${provider.providerId}/${model.modelId}`, label: `${provider.providerName || provider.providerId} · ${model.modelId} (in-app)` }))) : []),
+    ...(models.state.status === "ready"
+      ? models.state.view.providers.flatMap((provider) =>
+          provider.models.map((model) => {
+            const subscription = zaicodePoolSubscription(
+              provider.providerId,
+              subscriptions.accounts,
+              subscriptions.providerAccount,
+              engines.accounts,
+            );
+            return {
+              id: `pool:${provider.providerId}/${model.modelId}`,
+              label: subscription
+                ? `${provider.providerName || provider.providerId} · ${model.modelId} (in-app, ${subscription.label} subscription)`
+                : `${provider.providerName || provider.providerId} · ${model.modelId} (in-app)`,
+              ...(subscription ? { subscription } : {}),
+            };
+          }),
+        )
+      : []),
   ];
-  const watch: RunnerOption[] = accounts.map((account) => ({
+  const watch: RunnerOption[] = watchedAccounts.map((account) => ({
     id: account.id,
     label: `${account.short} ${account.label}`,
   }));
-  return { runners, watch, accounts };
+  return { runners, watch, accounts, watchedAccounts };
 }
 
 /** Countdown text for a schedule's next moment. */
@@ -184,10 +213,10 @@ export function ZaicodeSchedulerPanel({
   const autopilot = useZaicodeStore((state) => state.autoRun);
   const projects = useProjects();
   const now = useNow(5000);
-  const { runners, watch, accounts } = useRunnerOptions(agents);
+  const { runners, watch, accounts, watchedAccounts } = useRunnerOptions(agents);
   const { settings, update } = useSettings();
   const current = readZaicodeCurrentWorkspace()?.path ?? projects[0]?.path ?? "";
-  const firstReady = accounts.find((account) => account.status === "ready")?.id ?? "";
+  const firstReady = watchedAccounts.find((account) => account.status === "ready")?.id ?? "";
   const upcoming = zaicodeUpcomingSchedules(
     jobs,
     (job) => decideZaicodeAutostartJob(job, now),
@@ -199,11 +228,11 @@ export function ZaicodeSchedulerPanel({
   // the queue (hit-and-go agent) and watches that subscription's window.
   const addPreset = (preset: (typeof ZAICODE_SCHEDULE_PRESETS)[number]) => {
     const section = preset.patch.targetKind === "section";
-    const ownEngine = Boolean(preset.needsEngine && firstReady && !section);
+    const ownEngine = Boolean(preset.needsEngine && firstReady && accounts.some((account) => account.id === firstReady) && !section);
     addZaicodeAutostartJob({
       projectPath: current,
       engineId: ownEngine ? firstReady : ZAICODE_AUTOSTART_INAPP_ENGINE,
-      ...(preset.needsEngine && firstReady && section ? { watchEngineId: firstReady } : {}),
+      ...(preset.needsEngine && firstReady && !ownEngine ? { watchEngineId: firstReady } : {}),
       ...preset.patch,
     });
   };
@@ -358,9 +387,40 @@ export function ZaicodeScheduleRow({
   const resultIsActive = job.continuationRuns.some((run) => !["complete", "stopped"].includes(run.state) && run.result === job.lastResult);
   const update = (patch: Partial<ZaicodeAutostartJob>) => updateZaicodeAutostartJob(job.id, patch);
   const projectKnown = projects.some((project) => project.path === job.projectPath);
+  // T-319: a schedule blocked only because its project is OFF offers to switch
+  // that one project back on. A section schedule can name several switched-off
+  // projects, so it keeps the explanation instead of a bulk switch.
+  const [enabling, setEnabling] = useState(false);
+  const [enableError, setEnableError] = useState("");
+  const enableKey =
+    decision.state === "waiting-project" && decision.reason === "project switched off"
+      ? zaicodeScheduleEnableKey(job)
+      : null;
+  const enableProject = () => {
+    if (!enableKey || enabling) return;
+    setEnabling(true);
+    setEnableError("");
+    // The mutator mirrors the queue service's authoritative list; the row
+    // recomputes its decision from that mirror, so nothing is fired by hand.
+    void setZaicodeProjectDisabled(enableKey, false)
+      .then(() => {
+        if (isZaicodeProjectDisabled(enableKey)) {
+          setEnableError("The queue service did not confirm the project is on.");
+        }
+      })
+      .catch((error: unknown) => setEnableError(String(error)))
+      .finally(() => setEnabling(false));
+  };
   const watchesOwnEngine =
     !job.engineId.startsWith("pool:") && !job.engineId.startsWith(ZAICODE_AUTOSTART_AGENT_PREFIX);
   const resetTrigger = job.trigger === "reset" || job.trigger === "everyReset";
+  // REQ-005: the subscription this run bills (pool: runners only), kept apart
+  // from the execution target (Who) and the reset-watch target (Watch).
+  const backing = runners.find((runner) => runner.id === job.engineId)?.subscription ?? null;
+  const watchNote =
+    resetTrigger && !watchesOwnEngine
+      ? zaicodeSchedulerWatchNote(backing, job.watchEngineId, (id) => watch.find((entry) => entry.id === id)?.label ?? null)
+      : null;
   const select = "max-w-[240px] border border-border bg-background px-1 py-0.5 text-foreground";
   return (
     <div
@@ -398,6 +458,23 @@ export function ZaicodeScheduleRow({
             ? ` · ${paused ? "planned " : ""}in ${formatZaicodeDuration(decision.dueAt - now)}`
             : ""}
         </span>
+        {enableKey ? (
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={enabling}
+            data-zaicode-schedule-enable-project={enabling ? "pending" : "ready"}
+            title="Switch this project back on. The schedule still fires at its own next moment -- enabling it never runs it now."
+            onClick={enableProject}
+          >
+            {enabling ? "Enabling…" : "Enable project"}
+          </Button>
+        ) : null}
+        {enableError ? (
+          <span role="alert" className="text-ui-xs text-destructive">
+            {enableError}
+          </span>
+        ) : null}
         <span className="flex-1" />
         <Button
           size="sm"
@@ -469,6 +546,11 @@ export function ZaicodeScheduleRow({
             </option>
           ))}
         </select>
+        {backing ? (
+          <span title={`This run bills the ${backing.label} subscription (${backing.vendor}); Who above is only the execution target and model.`}>
+            Subscription: {backing.label}
+          </span>
+        ) : null}
         {!watchesOwnEngine ? (
           <>
             <span title="The subscription whose quota the reset triggers watch (and that must have quota to start)">
@@ -531,7 +613,29 @@ export function ZaicodeScheduleRow({
             onChange={(window) => update({ window, firedEvents: [] })}
           />
         ) : null}
-        {resetTrigger && !watchesOwnEngine && !job.watchEngineId ? (
+        {resetTrigger ? (
+          <label className="flex items-center gap-1" title="Optional initial start time before recurring refills">
+            <span>start at</span>
+            <ZaicodeMomentField
+              value={job.initialAt}
+              onChange={(initialAt) => update({ initialAt })}
+            />
+            {job.initialAt !== null ? (
+              <button
+                type="button"
+                className="px-1 hover:text-foreground"
+                title="Clear initial start time"
+                onClick={() => update({ initialAt: null })}
+              >
+                ×
+              </button>
+            ) : null}
+          </label>
+        ) : null}
+        {resetTrigger && !watchesOwnEngine && watchNote ? (
+          <span className={watchNote.tone === "same" ? "text-foreground-subtlest" : "text-[#e07a55]"}>{watchNote.text}</span>
+        ) : null}
+        {resetTrigger && !watchesOwnEngine && !watchNote && !job.watchEngineId ? (
           <span className="text-[#e07a55]">pick the subscription to watch</span>
         ) : null}
         <label

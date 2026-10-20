@@ -1,6 +1,28 @@
 import type { ZaicodeRouterConnection, ZaicodeRouterNode } from "@zcode/shared";
 import type { UsageCount } from "./zaicodeUsage.js";
 
+const compactCount = new Intl.NumberFormat("en-US", { notation: "compact", maximumSignificantDigits: 3 });
+const shortUsd = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 0, maximumFractionDigits: 2 });
+
+/** 长数字挤成多行无法比较；统一压到三位有效数字，精确值留在 title。 */
+export function formatZaicodeUsageCount(value: number | undefined): string {
+  if (value === undefined || !Number.isFinite(value) || value < 0) return "—";
+  return value < 999.5 ? String(Math.round(value)) : compactCount.format(value);
+}
+
+/** 未记录/零费用只显示破折号；真实微小费用仍明确表示为非零。 */
+export function formatZaicodeUsageCost(value: number | undefined): string {
+  if (value === undefined || !Number.isFinite(value) || value <= 0) return "—";
+  if (value < 0.01) return "<$0.01";
+  if (value >= 999.5) return `$${compactCount.format(value)}`;
+  const rounded = value >= 100 ? Math.round(value) : value >= 10 ? Math.round(value * 10) / 10 : value;
+  return shortUsd.format(rounded);
+}
+
+export function formatZaicodeUsageExactCount(value: number): string {
+  return value.toLocaleString(undefined, { maximumFractionDigits: 0 });
+}
+
 export interface ZaicodeUsageLabels {
   providers: ReadonlyMap<string, string>;
   accounts: ReadonlyMap<string, string>;

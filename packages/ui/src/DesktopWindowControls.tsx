@@ -65,9 +65,12 @@ export function DesktopWindowControls() {
           data-maximized={id === "maximize" ? maximized : undefined}
           className={`text-foreground [app-region:no-drag] ${id === "close" ? "hover:bg-destructive hover:text-destructive-foreground" : "hover:bg-hover hover:text-foreground"}`}
           aria-label={intl.formatMessage({ id: label })}
-          onClick={() => {
+          onClick={(event) => {
             void platform
-              .executeDesktopCommand(command)
+              .executeDesktopCommand(
+                command,
+                id === "close" ? { shiftKey: Boolean(event.shiftKey) } : undefined,
+              )
               .catch((error) => logger.warn("执行窗口操作失败", { command, error }));
           }}
         >

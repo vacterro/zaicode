@@ -1,5 +1,11 @@
 import { isOfficialGlmAccountProviderId } from "@zcode/provider";
-import { pickZaicodeFallbackPool, providerQuotaCircuit } from "@zcode/shared";
+import {
+  pickZaicodeFallbackPool,
+  providerQuotaCircuit,
+  getRouteHealth,
+  selectNextEligibleComboModel,
+  type RouteHealthState,
+} from "@zcode/shared";
 
 /**
  * ZAICODE model fallback: official GLM providers (`account:zai-*` /
@@ -23,6 +29,40 @@ interface FallbackView {
     readonly providerId: string;
     readonly models: readonly { readonly modelId: string }[];
   }[];
+}
+
+/**
+ * Picks the next eligible model within a 9router combo or advances to another eligible route
+ * using the router-aware circuit breaker.
+ */
+export function pickZaicodeRouterComboFailover(params: {
+  comboId: string;
+  comboModels: readonly string[];
+  currentModelId?: string;
+  routerUrl?: string;
+  now?: number;
+}): {
+  modelId: string | null;
+  state: RouteHealthState;
+  reason: string;
+  allInCooldown: boolean;
+  earliestProbeAt: number | null;
+} {
+  const selection = selectNextEligibleComboModel({
+    models: params.comboModels,
+    comboId: params.comboId,
+    routerUrl: params.routerUrl,
+    currentModelId: params.currentModelId,
+    now: params.now,
+  });
+
+  return {
+    modelId: selection.selectedModelId,
+    state: selection.state,
+    reason: selection.reason,
+    allInCooldown: selection.allInCooldown,
+    earliestProbeAt: selection.earliestProbeAt,
+  };
 }
 
 /**
@@ -53,11 +93,18 @@ export function pickZaicodeFallbackModel(
         provider.models.some((model) => model.modelId === preferred.modelId),
     )
   ) {
-    return { providerId: preferred.providerId, modelId: preferred.modelId };
+    const health = getRouteHealth({ comboId: preferred.providerId, modelId: preferred.modelId }, now);
+    if (health.state !== "QUARANTINED" && health.state !== "PERMANENTLY_INVALID" && health.state !== "COOLDOWN") {
+      return { providerId: preferred.providerId, modelId: preferred.modelId };
+    }
   }
   for (const provider of providers) {
-    const model = provider.models[0];
+    const model = provider.models.find((m) => {
+      const h = getRouteHealth({ comboId: provider.providerId, modelId: m.modelId }, now);
+      return h.state !== "QUARANTINED" && h.state !== "PERMANENTLY_INVALID" && h.state !== "COOLDOWN";
+    }) ?? provider.models[0];
     if (model) return { providerId: provider.providerId, modelId: model.modelId };
   }
   return null;
 }
+

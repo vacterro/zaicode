@@ -126,7 +126,7 @@ export function createBroadcastService(
       // 请求已超时但 Main 稍后授予 reservation 时，必须用原 key/token 主动释放；
       // 否则已经没有组件持有该 lease，只能等 TTL 才能让其他窗口继续争抢。
       if (pending.timedOut) {
-        if (claimResult.data.status === "acquired") {
+        if (claimResult.data.status === "acquired" && claimResult.data.claimToken) {
           postClaimControl(HostResponseTypes.BroadcastClaimRelease, {
             key: pending.key,
             token: claimResult.data.claimToken,
@@ -135,14 +135,18 @@ export function createBroadcastService(
         return;
       }
       if (claimResult.data.status === "acquired") {
-        pending.resolve({
-          status: "acquired",
-          lease: { key: pending.key, token: claimResult.data.claimToken },
-        });
+        if (claimResult.data.claimToken) {
+          pending.resolve({
+            status: "acquired",
+            lease: { key: pending.key, token: claimResult.data.claimToken },
+          });
+        } else {
+          pending.resolve({ status: "unavailable" });
+        }
         return;
       }
       if (claimResult.data.status === "busy") {
-        pending.resolve({ status: "busy", retryAfterMs: claimResult.data.retryAfterMs });
+        pending.resolve({ status: "busy", retryAfterMs: claimResult.data.retryAfterMs ?? 0 });
         return;
       }
       pending.resolve({ status: "committed" });

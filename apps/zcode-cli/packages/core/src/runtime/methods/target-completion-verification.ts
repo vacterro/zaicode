@@ -27,6 +27,7 @@ import { isStartPlanBusyStreamRecoveryFailure } from "./streaming-recovery.js";
 import { recordModelUsageFact } from "./usage-observability.js";
 import { runTargetCompletionVerificationWithTelemetry } from "./target-completion-verification-telemetry.js";
 import { saipenGoalVerdict } from "./saipen-goal-verdict.js";
+import { applyGoalCompletionVerdict } from "./target-completion-application.js";
 
 export interface TargetCompletionVerificationResult {
   target: SessionGoal;
@@ -62,31 +63,13 @@ export async function verifyActiveTargetCompletionForContinuation(
       traceContext: input.traceContext,
     });
 
-    if (!verification.passed) {
-      return {
-        target: input.target,
-        verification,
-      };
-    }
-
-    const previousTarget = await this.readSessionTargetForContext(input.traceContext);
-    const completedTarget =
-      (await this.sessionStore!.updateTargetStatus({
-        sessionID: this.sessionId,
-        status: "complete",
-      })) ?? input.target;
-    await this.recordTargetChanged({
-      action: "status_updated",
-      previousTarget,
-      source: "runtime",
-      target: completedTarget,
+    // SAIHANDOFF F-01 (Q1): completing the goal -- or parking it on a blocked
+    // verdict -- belongs to the applied-disposition owner, never to `passed` alone.
+    return applyGoalCompletionVerdict.call(this, {
+      target: input.target,
       traceContext: input.traceContext,
-    });
-
-    return {
-      target: completedTarget,
       verification,
-    };
+    });
   };
   return runTargetCompletionVerificationWithTelemetry(this, input, execute);
 }
@@ -137,6 +120,8 @@ async function verifyTargetCompletion(
   const saipenVerification = await saipenGoalVerdict({
     workspaceRoot: this.workspaceRoot,
     objective: input.target.objective,
+    // The receipt names the goal it was decided for, so one verdict stays bound to one target.
+    goalId: input.target.targetID,
   });
   if (saipenVerification) {
     await this.appendEvent(

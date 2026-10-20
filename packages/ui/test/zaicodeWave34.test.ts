@@ -31,10 +31,21 @@ test("a letter counts as opened once, when it leaves the unread folder", () => {
 });
 
 test("helper roles come from the launch command, never from a word inside a title", () => {
-  for (const mode of ZAICODE_SAIPEN_MODES) assert.ok(zaicodeRoleForCommand(mode.command), mode.command);
+  for (const mode of ZAICODE_SAIPEN_MODES) {
+    assert.equal(zaicodeRoleForCommand(mode.defaultAction.command), null);
+    if (mode.shiftAction) assert.equal(zaicodeRoleForCommand(mode.shiftAction.command), mode.shiftAction.role);
+  }
+  assert.equal(zaicodeRoleForCommand("hh"), null);
+  assert.equal(zaicodeRoleForCommand("qq"), null);
+  assert.equal(zaicodeRoleForCommand("tt"), null);
+  assert.equal(zaicodeRoleForCommand("saipen translate"), null);
   assert.equal(zaicodeRoleFromTitle("saiwiki"), "WIKI");
-  assert.equal(zaicodeRoleFromTitle("saipen clean"), "CLEAN");
-  assert.equal(zaicodeRoleFromTitle("aa"), "AUDIT");
+  assert.equal(zaicodeRoleFromTitle("saitranslate"), "TRANSL");
+  assert.equal(zaicodeRoleFromTitle("saitest"), "TEST");
+  assert.equal(zaicodeRoleFromTitle("saihunt"), "HUNT");
+  assert.equal(zaicodeRoleFromTitle("saipen clean"), null);
+  assert.equal(zaicodeRoleFromTitle("aa"), null);
+  assert.equal(zaicodeRoleFromTitle("sc"), null);
   assert.equal(zaicodeRoleFromTitle("Fix the test runner"), null);
   assert.equal(zaicodeRoleFromTitle("PHASE SCOUT T-194"), null);
   assert.equal(zaicodeRoleFromTitle("clean up wiki links"), null);

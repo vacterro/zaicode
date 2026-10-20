@@ -89,7 +89,8 @@ test("SRC-135: the retry watcher asks the gate with the project's answer, not th
   const watch = readFileSync(new URL("../src/zaicode/zaicodeTurnRetryWatch.ts", import.meta.url), "utf8");
   assert.doesNotMatch(watch, /prefs\.autoRetry\b/, "the watcher must not read the bare global flag again");
   assert.match(watch, /zaicodeEffectiveAutoRetryFor\(brief\.projectKey, brief\.sessionId\)/);
-  assert.match(watch, /zaicodeEffectiveAutoRetryFor\(projectOf\.get\(sessionId\)/);
+  // SRC-185：同一 brief 索引还负责接纳观察；项目偏好仍交给唯一重试策略。
+  assert.match(watch, /zaicodeEffectiveAutoRetryFor\(brief\.projectKey, sessionId\)/);
 
   const composer = readFileSync(new URL("../src/v4/ConversationComposer.tsx", import.meta.url), "utf8");
   assert.match(composer, /<ZaicodeAutoRetryButton projectKey=\{workspaceKey\} sessionId=\{sessionId\} \/>/);

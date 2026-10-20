@@ -4943,29 +4943,30 @@ export function createZCodeAgentService(
       // conversation 冷订阅会在 CLI 内部直接恢复历史 Session 并立即发布首帧。
       // 若 Account Config 尚未到达，首帧会先按缺少 Account Overlay 的 Registry 解析；这里只建立
       // Account Config 顺序屏障，不提升模型执行权限。ZCode Built-in / Personal 仍由 Worker 维护。
-      const providerRegistryStartedAt = performance.now();
-      await ensureAccountProviderConfigSynced({
-        client,
-        reason: "conversation_subscribe",
-        workspace: params,
-      });
-      const providerRegistrySyncMs = Math.max(
-        0,
-        Math.round(performance.now() - providerRegistryStartedAt),
-      );
-      const connection = resolveV4Connection(params);
-      const topic = conversationTopic(params.sessionId);
-      const taskMetaStartedAt = performance.now();
-      const resumeThoughtLevel = await automationTaskIndexRepo
-        .getTaskMeta({
-          workspacePath: params.workspacePath,
-          workspaceIdentity: params.workspaceIdentity,
-          taskId: params.sessionId,
-        })
-        .then((meta) => meta?.thoughtLevel?.trim() || undefined)
-        .catch((error) => {
-          // desktop-continuous 的 V4 冷订阅绕过 task adapter，旧 session 没有
-          // Agent durable selection 时也就丢了 task-local thought。索引读取失败仍允许只读恢复。
+      // 与 SQLite 任务元数据并行读取，削减冷订阅在重 I/O 磁盘上的串行等待。
+      let providerRegistrySyncMs = 0;
+      let taskMetaReadMs = 0;
+      const syncTask = (async () => {
+        const start = performance.now();
+        await ensureAccountProviderConfigSynced({
+          client,
+          reason: "conversation_subscribe",
+          workspace: params,
+        });
+        providerRegistrySyncMs = Math.max(0, Math.round(performance.now() - start));
+      })();
+      const metaTask = (async () => {
+        const start = performance.now();
+        try {
+          const meta = await automationTaskIndexRepo.getTaskMeta({
+            workspacePath: params.workspacePath,
+            workspaceIdentity: params.workspaceIdentity,
+            taskId: params.sessionId,
+          });
+          taskMetaReadMs = Math.max(0, Math.round(performance.now() - start));
+          return meta?.thoughtLevel?.trim() || undefined;
+        } catch (error) {
+          taskMetaReadMs = Math.max(0, Math.round(performance.now() - start));
           logger.warn(undefined, "读取 V4 cold resume thought hint 失败，继续无 hint 订阅", {
             error: error instanceof Error ? error.message : String(error),
             event: "v4.conversation.subscribe.resume_thought_hint_failed",
@@ -4975,8 +4976,11 @@ export function createZCodeAgentService(
             workspacePath: params.workspacePath,
           });
           return undefined;
-        });
-      const taskMetaReadMs = Math.max(0, Math.round(performance.now() - taskMetaStartedAt));
+        }
+      })();
+      const [, resumeThoughtLevel] = await Promise.all([syncTask, metaTask]);
+      const connection = resolveV4Connection(params);
+      const topic = conversationTopic(params.sessionId);
       const cliRequestStartedAt = performance.now();
       const result = await client.request(
         V4_METHODS.conversationSubscribe,

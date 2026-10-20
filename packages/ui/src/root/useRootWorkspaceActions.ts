@@ -31,6 +31,7 @@ import type { WorkbenchNewTaskTarget } from "@/v4/workbenchNewTaskTarget.js";
 import { useWorkbenchGroupStore } from "@/v4/workbenchGroupStore.js";
 import { persistV4ComposerDraft, V4_DRAFT_SCOPE_ROOT } from "@/v4/composer/composerDraftStore.js";
 import { playZaicodeSound } from "@/zaicode/zaicodeSoundBus.js";
+import { useZaicodeActions } from "@/zaicode/zaicodeActions.js";
 
 interface OpenRemoteConnectionPreference {
   preferredKind?: RemoteTarget["kind"];
@@ -246,6 +247,8 @@ export function useRootWorkspaceActions({
       // group / paneLayout 中继续拆一个 draft；目标 workspace 取 focused pane。
       useWorkbenchGroupStore.getState().deactivateActiveGroup();
       usePaneLayoutStore.getState().resetToPrimaryPane();
+      // 桌面快捷键绕过 shell 的新建按钮；验证目标后通过现有视图所有者退出 SAIHOME。
+      useZaicodeActions.getState().openChat?.();
       playZaicodeSound("session.new");
       useZCodeSessionStore
         .getState()

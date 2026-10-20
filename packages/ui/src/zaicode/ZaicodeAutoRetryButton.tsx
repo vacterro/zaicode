@@ -17,9 +17,8 @@ import {
   useZaicodeRetryLedger,
 } from "./zaicodeRetryPolicy.js";
 import { useZaicodeAutoContinue } from "./zaicodeAutoContinue.js";
-import { useZaicodeAuditStore } from "./zaicodeAuditStore.js";
 import { ZaicodeRightClickSettings } from "./ZaicodePrefControls.js";
-import { openZaicodeSettings, openZaicodeWorkspaceView } from "./zaicodeActions.js";
+import { openZaicodeSettings } from "./zaicodeActions.js";
 
 /**
  * Fresh REQ-001: one predictable interaction contract (was SRC-135/T-201/T-217).
@@ -45,10 +44,9 @@ export function zaicodeAutoRetryTitle(effective: ReturnType<typeof zaicodeEffect
 export function ZaicodeAutoRetryButton({ projectKey, sessionId }: { projectKey: string; sessionId?: string | null }) {
   const prefs = useZaicodeUiPrefs();
   const update = useZaicodeUiPrefs((state) => state.update);
-  const masterOn = useZaicodeAuditStore((state) => state.smartMode);
   const sessionMode = useZaicodeAutoContinue((state) => sessionId ? state.modes[sessionId] : undefined);
   const halted = useZaicodeRetryLedger((state) => state.halted);
-  const effective = zaicodeEffectiveAutoRetry(prefs, projectKey, sessionId, { masterOn, sessionMode, halted });
+  const effective = zaicodeEffectiveAutoRetry(prefs, projectKey, sessionId, { sessionMode, halted });
   const enabled = effective.enabled;
   const effectiveScope = zaicodeAutoRetryEffectiveScope(prefs, projectKey, sessionId);
   const effectiveLabel = zaicodeAutoRetryEffectiveLabel(prefs, projectKey, sessionId);
@@ -65,8 +63,7 @@ export function ZaicodeAutoRetryButton({ projectKey, sessionId }: { projectKey: 
     setPending(true);
     setFailed(false);
     const snapshot = { autoRetry: prefs.autoRetry, autoRetryProjects: prefs.autoRetryProjects, autoRetrySessions: prefs.autoRetrySessions };
-    // SRC-162: flip the EFFECTIVE answer, not the bare preference. Flipping the preference while
-    // the sidebar Auto (or the stop-all) held the answer off left the button "off" on every click.
+    // SRC-162：点击切换实际状态；停用所有重试时，不能只改偏好而留下按钮 OFF。
     const toggle = zaicodeAutoRetryToggle(prefs, projectKey, sessionId, effective);
     const next = toggle.next;
     try {
@@ -112,7 +109,7 @@ export function ZaicodeAutoRetryButton({ projectKey, sessionId }: { projectKey: 
         title="Auto retry"
         preferenceKey="retry"
         hint="Left-click turns Auto retry on or off here; the label beside it says which scope owns the answer. Right-click opens this panel."
-        panel={<ZaicodeAutoRetryPanel effectiveLabel={effectiveLabel} preference={effective.preference} masterOn={masterOn} />}
+        panel={<ZaicodeAutoRetryPanel effectiveLabel={effectiveLabel} preference={effective.preference} />}
         side="top"
       >
       <ControlHintTooltip title={title}>
@@ -152,42 +149,22 @@ export function ZaicodeAutoRetryButton({ projectKey, sessionId }: { projectKey: 
   );
 }
 
-/**
- * The Auto retry settings panel body. Exported so the reachability contract (the route to the
- * gate this button does not own) is testable without a DOM.
- *
- * The effective answer is ANDed with the sidebar's Auto, which this button neither owns nor can
- * write: without naming that owner and leading to it, the button reads as a stuck
- * "Auto retry off · Sidebar Auto is off" that no click changes (SRC-161:REQ-002).
- */
+/** The retry preference's own settings route; Audits Auto has no retry authority. */
 export function ZaicodeAutoRetryPanel({
   effectiveLabel,
   preference,
-  masterOn,
 }: {
   effectiveLabel: string;
   preference: boolean;
-  masterOn: boolean;
 }) {
   return (
     <div className="flex max-w-[260px] flex-col items-start gap-1 text-ui-sm">
       <span>
         Effective now: {effectiveLabel} ({preference ? "ON" : "OFF"}). Inherit clears the override.
       </span>
-      {masterOn ? null : (
-        <span data-zaicode-auto-retry-master-off className="text-foreground-subtle">
-          Sidebar Auto is off, so the inherited global default does not send by itself. A click on
-          the button turns retry ON for this project anyway; or turn Auto on in Audits.
-        </span>
-      )}
       <Button type="button" variant="ghost" size="sm" className="px-1 text-ui-xs" onClick={() => openZaicodeSettings("zaicodeWorkers")}>
         Open retry settings
       </Button>
-      {masterOn ? null : (
-        <Button type="button" variant="ghost" size="sm" className="px-1 text-ui-xs" onClick={() => openZaicodeWorkspaceView()}>
-          Open Audits (sidebar Auto)
-        </Button>
-      )}
     </div>
   );
 }

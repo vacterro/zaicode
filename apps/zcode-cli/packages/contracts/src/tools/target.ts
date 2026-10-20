@@ -5,6 +5,8 @@
 import { z } from "zod";
 import type { SessionId } from "../interfaces/shared.js";
 import { toToolJsonSchema } from "./json-schema.js";
+import { GoalCompletionDisposition, GoalCompletionDispositionSchema } from "./goal-completion-disposition.js";
+import { GoalCompletionEvidenceReceiptSchema } from "./goal-completion-evidence.js";
 
 export const GoalStatus = {
   Active: "active",
@@ -105,6 +107,20 @@ export const GoalCompletionVerificationOutputSchema = z
     nextAction: z.string().optional(),
     passed: z.boolean(),
     reason: z.string(),
+    /**
+     * SAIHANDOFF F-01 (Q1): optional so a legacy producer -- and the model
+     * verifier, which returns only the three original fields -- still validates.
+     * A missing value is resolved by `goalCompletionDispositionOf` with the
+     * meaning `passed` alone used to carry.
+     */
+    disposition: GoalCompletionDispositionSchema.optional(),
+    /**
+     * SAIHANDOFF F-05 (Q5): what the verdict read, recorded as a checkable
+     * artifact. Optional because the model verifier has no board to cite; the
+     * SAIPEN-governed producer always attaches one, including to the UNVERIFIED
+     * verdict it reports when its own evidence is insufficient.
+     */
+    evidence: GoalCompletionEvidenceReceiptSchema.optional(),
   })
   .strict();
 
@@ -315,10 +331,12 @@ export function parseGoalCompletionVerificationText(
 
 export function failedGoalCompletionVerification(
   reason: string,
+  disposition: GoalCompletionDisposition = GoalCompletionDisposition.InvalidOrUnverified,
 ): GoalCompletionVerificationOutput {
   // 这个兜底表示 verifier 自身失败，不是模型给出的下一步。
   // 若写入 nextAction，UI 会把内部控制文案当成下一轮迭代标题展示。
   return {
+    disposition,
     passed: false,
     reason,
   };

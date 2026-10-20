@@ -18,6 +18,8 @@
     "./workspaceFileSearch": "./src/workspaceFileSearch.ts",
     "./workspaceFileEntriesCodec": "./src/workspaceFileEntriesCodec.ts",
     "./zcode-protocol-v4": "./src/zcode-protocol-v4/index.ts",
+    "./goal-completion-disposition": "./src/goal-completion-disposition.ts",
+    "./goal-completion-evidence": "./src/goal-completion-evidence.ts",
     "./zaicode-audit-quick3": "./src/zaicode-audit-quick3.ts",
     "./zaicode-audit-validate": "./src/zaicode-audit-validate.ts",
     "./zaicode-audit-campaign": "./src/zaicode-audit-campaign.ts",

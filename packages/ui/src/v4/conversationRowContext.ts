@@ -34,6 +34,8 @@ export type ConversationFileChangesState = Exclude<
 >;
 
 export interface ConversationRowRenderContext {
+  /** Same current Host clock for both message roles; optional for detached/read-only snapshots. */
+  readMessageHostNow?: () => number | null;
   transcriptView?: import("@/lib/transcriptView.js").TranscriptView;
   logEpoch?: string;
   workspacePath: string;

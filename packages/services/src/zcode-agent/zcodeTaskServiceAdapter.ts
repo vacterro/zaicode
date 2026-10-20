@@ -115,6 +115,7 @@ import type {
   ZCodeWorkspaceEventSubscriptionParams,
   IZCodeTaskService,
   ZCodeArchivedTaskDeletionResult,
+  ZCodeTaskBatchDeletionResult,
   ZCodeTaskReadyOutcome,
   ZCodeTaskTerminalOutcome,
 } from "../session/zcodeTaskService.js";
@@ -2825,6 +2826,38 @@ export function createZCodeTaskServiceAdapter(
       // 立即移除缓存并换代 deleted tombstone join，避免重启或 live upsert 后复活。
       // 同时携带 meta，让桌面/远控的重复订阅能按同一事件去重 membership bump。
       emitWorkspaceTaskListChanged(params, meta, "task_deleted");
+    },
+
+    async deleteTasks(params): Promise<ZCodeTaskBatchDeletionResult> {
+      const result: ZCodeTaskBatchDeletionResult = {
+        deletedTaskIds: [],
+        skippedTaskIds: [],
+        failedTaskIds: [],
+      };
+      const taskIds = [...new Set(params.taskIds)];
+      if (taskIds.length === 0) return result;
+      for (const taskId of taskIds) {
+        const target = {
+          workspacePath: params.workspacePath,
+          workspaceIdentity: params.workspaceIdentity,
+          taskId,
+        };
+        try {
+          setOverlay(target, { deleted: true });
+          await updateIndexedTaskState(target, { deleted: true });
+          clearLiveToolProjection(target);
+          clearStreamingToolInputCache(target);
+          result.deletedTaskIds.push(taskId);
+        } catch (error) {
+          result.failedTaskIds.push(taskId);
+          logger.warn(undefined, "[TaskDeletion] 批次目标删除失败", { ...target, error });
+        }
+      }
+      if (result.deletedTaskIds.length > 0) {
+        // 批次完成只发一次 workspace 事件，驱动观察端换代 deleted membership，避免全量重读风暴。
+        emitWorkspaceTaskListChanged(params, undefined, "task_deleted");
+      }
+      return result;
     },
 
     async deleteArchivedTask(params): Promise<boolean> {

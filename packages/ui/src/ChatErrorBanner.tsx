@@ -12,6 +12,8 @@ import {
   TID_CHAT_ERROR_DETAILS_BUTTON,
   TID_CHAT_ERROR_BANNER,
   TID_CHAT_ERROR_HOOK_ICON,
+  formatRouterDiagnosticText,
+  generateRouterDiagnosticReceipt,
   isZaicodeProductMode,
 } from "@zcode/shared";
 import { AnchorIcon, CopyIcon, InfoIcon, RocketIcon, SettingsIcon, X } from "lucide-react";
@@ -135,6 +137,41 @@ export function ChatErrorBanner({
   const localizedErrorMessage = resolveChatErrorBannerDisplayMessage(error, intl);
   const modelConfigMissing = isModelConfigMissingError(error);
   const hookBlocked = error.code === "fault.runtime.hookBlocked";
+  const isRouterFailure = Boolean(
+    error.attribution?.comboId ||
+    error.attribution?.upstreamModelId ||
+    error.attribution?.providerErrorCode === "gateway_timeout" ||
+    error.code === "gateway_timeout" ||
+    error.attribution?.reason === "timeout",
+  );
+  const routerReceipt = isRouterFailure
+    ? generateRouterDiagnosticReceipt({
+        sessionId: error.taskId,
+        comboId: error.attribution?.comboId ?? error.attribution?.providerId ?? "SAIFREN",
+        comboName: error.attribution?.comboName,
+        attemptedModelId:
+          error.attribution?.upstreamModelId ??
+          (error.attribution?.modelId !== error.attribution?.providerId
+            ? error.attribution?.modelId
+            : undefined),
+        upstreamProvider: error.attribution?.upstreamProviderId,
+        upstreamConnectionId: error.attribution?.upstreamConnectionId,
+        attempt: error.attribution?.attempt,
+        statusCode: error.attribution?.statusCode,
+        providerErrorCode: error.attribution?.providerErrorCode ?? error.code,
+        providerErrorMessage:
+          error.attribution?.providerErrorMessage ?? error.message,
+        timeoutStage: error.attribution?.timeoutStage,
+        retryAfterMs: error.attribution?.retryAfterMs,
+        streamedContent: error.attribution?.streamedContent,
+        decision: error.attribution?.retryable
+          ? "temporary cooldown / retry"
+          : "failover / stop",
+        nextCandidate: null,
+        nextAction: error.attribution?.retryable ? "waiting" : "stopped",
+      })
+    : null;
+
   if (shouldSuppressChatErrorBanner(error)) {
     return null;
   }
@@ -174,6 +211,7 @@ export function ChatErrorBanner({
           message: localizedErrorMessage,
           detail: error.detail,
           traceId: error.traceId,
+          error,
           formatMessage: (id: string, values?: Record<string, string>) =>
             intl.formatMessage({ id }, values),
         }),
@@ -212,6 +250,16 @@ export function ChatErrorBanner({
           )}
           <div className="min-w-0 truncate font-medium">{localizedErrorMessage}</div>
         </div>
+
+        {routerReceipt ? (
+          <div className="w-full text-xs text-foreground-subtle flex flex-wrap gap-x-4 gap-y-1 mt-1 border-t border-border/50 pt-1">
+            <span><strong>Combo:</strong> {routerReceipt.combo.name || routerReceipt.combo.id}</span>
+            <span><strong>Failed upstream:</strong> {routerReceipt.attemptedRoute.modelId}</span>
+            <span><strong>Failure:</strong> {routerReceipt.failure.code} ({routerReceipt.failure.classification})</span>
+            <span><strong>Decision:</strong> {routerReceipt.decision.decisionText}</span>
+            <span><strong>Next action:</strong> {routerReceipt.decision.action}</span>
+          </div>
+        ) : null}
 
         {modelConfigMissing ? (
           <>
@@ -343,13 +391,50 @@ function buildErrorCopyText({
   message,
   detail,
   traceId,
+  error,
   formatMessage,
 }: {
   message: string;
   detail?: string;
   traceId?: string;
+  error?: ZCodeUiError;
   formatMessage: (id: string, values?: Record<string, string>) => string;
 }) {
+  const isRouter = Boolean(
+    error?.attribution?.comboId ||
+    error?.attribution?.upstreamModelId ||
+    error?.attribution?.providerErrorCode === "gateway_timeout" ||
+    error?.code === "gateway_timeout" ||
+    error?.attribution?.reason === "timeout",
+  );
+  const routerReceipt = isRouter
+    ? generateRouterDiagnosticReceipt({
+        sessionId: error?.taskId,
+        comboId: error?.attribution?.comboId ?? error?.attribution?.providerId ?? "SAIFREN",
+        comboName: error?.attribution?.comboName,
+        attemptedModelId:
+          error?.attribution?.upstreamModelId ??
+          (error?.attribution?.modelId !== error?.attribution?.providerId
+            ? error?.attribution?.modelId
+            : undefined),
+        upstreamProvider: error?.attribution?.upstreamProviderId,
+        upstreamConnectionId: error?.attribution?.upstreamConnectionId,
+        attempt: error?.attribution?.attempt,
+        statusCode: error?.attribution?.statusCode,
+        providerErrorCode: error?.attribution?.providerErrorCode ?? error?.code,
+        providerErrorMessage:
+          error?.attribution?.providerErrorMessage ?? error?.message,
+        timeoutStage: error?.attribution?.timeoutStage,
+        retryAfterMs: error?.attribution?.retryAfterMs,
+        streamedContent: error?.attribution?.streamedContent,
+        decision: error?.attribution?.retryable
+          ? "temporary cooldown / retry"
+          : "failover / stop",
+        nextCandidate: null,
+        nextAction: error?.attribution?.retryable ? "waiting" : "stopped",
+      })
+    : null;
+
   return [
     formatMessage("feedback.submit.template.section.copyErrorHeading"),
     "",
@@ -359,6 +444,15 @@ function buildErrorCopyText({
     traceId ? formatMessage("feedback.submit.template.section.errorTraceId", { traceId }) : null,
     detail
       ? ["", formatMessage("feedback.submit.template.section.errorDetail"), detail].join("\n")
+      : null,
+    routerReceipt
+      ? [
+          "",
+          "--- 9router Diagnostic Receipt ---",
+          formatRouterDiagnosticText(routerReceipt),
+          "",
+          JSON.stringify(routerReceipt, null, 2),
+        ].join("\n")
       : null,
   ]
     .filter((line): line is string => line != null)

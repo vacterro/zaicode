@@ -1,4 +1,5 @@
 import type { ZCodeTaskMeta } from "@zcode/shared";
+import { executionLivenessFresh, executionLivenessRunning } from "@zcode/shared";
 import {
   getTaskListRowActivity,
   isTaskListRowActive,
@@ -8,49 +9,19 @@ import {
 /**
  * SRC-081: "I left AUDAPACK for the night; it says it is still working, but it is not."
  *
- * A session the feed calls active (a turn in flight, or background work attached) whose last
- * activity is hours old is not working: its provider stream hung, its background job forgot to
- * report, or its process died without a word. It kept counting as working, with a clock
- * running all night, and every "is anything still going" answer (the row's working badge,
- * the header meter, the ambience) said yes.
- *
- * Such a session is STALLED: still listed, still one click from opening, but no longer counted
- * as working, and the row says so instead of showing a clock that lies.
- *
- * Liveness is evidence, never a recorded claim. The one piece of evidence the client has is
- * `lastActivityAt` (= the runtime's `record.updatedAt`): every real progress event of the turn
- * *or* of an attached background job advances it, because background bash output, subagent
- * progress and dynamic-workflow run events all ride the session event stream
- * (see server-operations.ts: a non-configuration SessionEvent bumps record.updatedAt).
- * So "hasBackgroundWork === true" is a claim the session made in the past, and the clock since
- * the last real event is what decides whether that claim is still supported. Silence longer
- * than the window means the claim is no longer supported — the session did not necessarily
- * die, but nothing on the wire proves it is alive, and pretending otherwise is the bug.
+ * T-240: runtime-owned executionLiveness is authoritative whenever present. Quiet work can
+ * run for hours without transcript progress. Only a fresh positive worker/foreground lease
+ * keeps it working; an expired, orphaned or unconfirmed owner remains recoverable.
+ * lastActivityAt and the age windows below serve older hosts without that wire contract.
  */
 
-/** No activity for this long while a turn is in flight is a stall, not a long tool call. */
+/** Legacy hosts only: maximum unsupported foreground silence. */
 export const ZAICODE_STALL_MS = 45 * 60 * 1000;
 
 /**
- * Same judgement for a session whose only claim is attached background work. A detached job
- * is legitimately quieter than a foreground tool call (a compile, a test run, a workflow can
- * go a long time between progress events), so it gets a longer window — but a *bounded* one.
- * A session that keeps working keeps advancing lastActivityAt and never reaches this window,
- * however many hours it runs; only a job that has said nothing at all is treated as unproven.
- * This is deliberately not a "running for > N minutes => dead" rule: total runtime is
- * irrelevant here, only the gap since the last proved-alive moment.
- *
- * Why five hours and not two: the accepted operator contract is that a quiet background test
- * still counts as working after five hours (zaicodeEfficientAutomation.test.ts, "quiet live
- * background tests are working after five hours"), and the real zombie this repair was opened
- * for read "TEST 5h 16m" in the sidebar. The window therefore has to sit inside that gap: a
- * silent job stays live through the fifth hour and stops being counted as working after it.
- * A shorter window would reap the legitimate case the operator already accepted; an unbounded
- * one is the defect ("attached background work" was permanent immunity).
- *
- * Ceiling: with no heartbeat field in backgroundWorkSummarySchema this is the best available
- * evidence. Upgrading the protocol with a runtime-emitted per-work heartbeat would replace the
- * window with a live signal; a UI-side fake heartbeat must not be invented instead.
+ * Legacy hosts only: bounded background silence preserves their existing compatibility.
+ * Current runtime leases bypass this heuristic; neither mounting a view nor a UI timer can
+ * renew them. Do not treat this five-hour fallback as proof that a worker exited.
  */
 export const ZAICODE_BACKGROUND_STALL_MS = 5 * 60 * 60 * 1000;
 
@@ -66,7 +37,9 @@ export function zaicodeSessionStallWindowMs(
   activity: TaskListRowActivity | null,
   baseMs: number = ZAICODE_STALL_MS,
 ): number {
-  return activity?.hasBackgroundWork === true ? Math.max(baseMs, ZAICODE_BACKGROUND_STALL_MS) : baseMs;
+  return activity?.hasBackgroundWork === true
+    ? Math.max(baseMs, ZAICODE_BACKGROUND_STALL_MS)
+    : baseMs;
 }
 
 /**
@@ -79,6 +52,13 @@ export function zaicodeActivityStalled(
   now: number,
   stallMs: number = ZAICODE_STALL_MS,
 ): boolean {
+  if (activity?.executionLiveness) {
+    const proof = activity.executionLiveness;
+    return (
+      !executionLivenessRunning(proof) ||
+      !executionLivenessFresh(proof, activity.livenessReceivedAt, now)
+    );
+  }
   if (!(lastHeardAt > 0)) return false;
   // 证据是「runtime 明确说这个会话已经收口」，不是「载荷里带 sessionEnded 字段」——
   // sessions-index 的 schema 里它是必填布尔，每个真实摘要都带，所以拿「字段存在」当豁免
@@ -93,12 +73,32 @@ export function zaicodeActivityStalled(
   return now - lastHeardAt > zaicodeSessionStallWindowMs(activity, stallMs);
 }
 
-export function zaicodeSessionStalled(task: ZCodeTaskMeta, now: number, stallMs: number = ZAICODE_STALL_MS): boolean {
+export function zaicodeSessionStalled(
+  task: ZCodeTaskMeta,
+  now: number,
+  stallMs: number = ZAICODE_STALL_MS,
+): boolean {
+  const activity = getTaskListRowActivity(task);
+  const proof = activity?.executionLiveness;
+  if (proof) {
+    const claimed =
+      activity.phase === "running" ||
+      activity.phase === "prewarming" ||
+      activity.hasBackgroundWork ||
+      proof.orphaned ||
+      proof.unconfirmed;
+    return claimed && zaicodeActivityStalled(activity, zaicodeSessionLastHeard(task), now, stallMs);
+  }
   if (!isTaskListRowActive(task)) return false;
-  return zaicodeActivityStalled(getTaskListRowActivity(task), zaicodeSessionLastHeard(task), now, stallMs);
+  return zaicodeActivityStalled(
+    getTaskListRowActivity(task),
+    zaicodeSessionLastHeard(task),
+    now,
+    stallMs,
+  );
 }
 
 /** Working for real: active in the feed AND heard from lately. */
 export function zaicodeSessionWorking(task: ZCodeTaskMeta, now: number): boolean {
-  return isTaskListRowActive(task) && !zaicodeSessionStalled(task, now);
+  return isTaskListRowActive(task, now) && !zaicodeSessionStalled(task, now);
 }

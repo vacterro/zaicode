@@ -11,7 +11,7 @@ import {
   type ZaicodeRouterConnection,
   type ZaicodeStatsSourceState,
 } from "@zcode/shared";
-import { isZaicodeEngineShown, type ZaicodeMeterPrefs } from "../zaicodeMeterPrefs.js";
+import { isZaicodeEngineShown, orderZaicodeAccounts, type ZaicodeMeterPrefs } from "../zaicodeMeterPrefs.js";
 import type { ZaicodeRouterHostInfo } from "../zaicodeRouterSetup.js";
 import type { ZaicodeRouterStatus } from "../zaicodeRouter.js";
 
@@ -48,13 +48,14 @@ export function zaicodeHomeLimitRows(input: {
   accounts: readonly ZaicodeEngineAccount[];
   hiddenAccounts: readonly string[];
   limits: Record<string, ZaicodeLimitSnapshot>;
-  meterPrefs: Pick<ZaicodeMeterPrefs, "hideZeroUsage" | "onlyUsable5h" | "filterMeter" | "filterTiles" | "meterHidden">;
+  meterPrefs: Pick<ZaicodeMeterPrefs, "hideZeroUsage" | "onlyUsable5h" | "filterMeter" | "filterTiles" | "meterHidden" | "accountOrder">;
   showAll: boolean;
   now: number;
 }): { rows: ZaicodeHomeLimitRow[]; filtered: number } {
   const rows: ZaicodeHomeLimitRow[] = [];
   let filtered = 0;
-  for (const account of input.accounts) {
+  // Operator order is presentation only: every rule below still decides per account.
+  for (const account of orderZaicodeAccounts(input.accounts, input.meterPrefs.accountOrder ?? [])) {
     if (input.hiddenAccounts.includes(account.id)) continue;
     const snapshot = input.limits[account.id];
     // T-134: a login never set up on this machine is an offer, not a problem (no "needs you", no red HEALTH).

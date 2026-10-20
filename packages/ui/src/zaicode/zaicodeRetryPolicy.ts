@@ -1,5 +1,4 @@
 import { create } from "zustand";
-import { useZaicodeAuditStore } from "./zaicodeAuditStore.js";
 import { zaicodeAutoContinueModeFor, type ZaicodeAutoContinueMode } from "./zaicodeAutoContinue.js";
 import { ZAICODE_AUTO_RETRY_DEFAULT_ATTEMPTS, ZAICODE_AUTO_RETRY_HARD_CAP, zaicodeAutoRetryEnabled, useZaicodeUiPrefs, type ZaicodeUiPrefs } from "./zaicodeUiPrefs.js";
 import { currentZaicodeRetrySafety, writeZaicodeRetrySafety } from "./zaicodeRetrySafety.js";
@@ -15,12 +14,13 @@ export { ZAICODE_AUTO_RETRY_DEFAULT_ATTEMPTS, ZAICODE_AUTO_RETRY_HARD_CAP };
  * answers four questions the three of them used to answer differently or not at all:
  *
  *   MAY it send?     the one effective retry projection (zaicodeEffectiveAutoRetry:
- *                    the project/session/global retry preference, the sidebar Auto
- *                    master, the session's own mode and the stop-all ledger);
+ *                    the project/session/global retry preference, the session's
+ *                    own mode and the stop-all ledger);
  *   SHOULD it?       a quota / usage-limit error is a wall, not a hiccup: it
  *                    waits for the reset instead of being asked again every
  *                    minute (zaicodeRetryClassOf, the quota memory);
- *   HOW OFTEN?       backoff, never a flat interval (zaicodeRetryDelayMs);
+ *   HOW OFTEN?       one fixed nominal interval (zaicodeRetryDelayMs), never a
+ *                    doubling ladder (T-302);
  *   HOW MANY?        a hard cap no setting can raise (ZAICODE_AUTO_RETRY_HARD_CAP);
  *   AND WHO SEES IT? every scheduled retry is in the ledger the sidebar shows,
  *                    with one button that stops them all.
@@ -32,7 +32,7 @@ export { ZAICODE_AUTO_RETRY_DEFAULT_ATTEMPTS, ZAICODE_AUTO_RETRY_HARD_CAP };
  * owners that still asked it -- two authorities answering one question was the defect.
  */
 
-/** Backoff never waits longer than this between two attempts. */
+/** No automatic retry ever waits longer than this between two attempts. */
 const BACKOFF_CEILING_SEC = 1800;
 /** A quota wall is remembered this long; after it, one probe may go out. */
 const QUOTA_MEMORY_MS = 30 * 60 * 1000;
@@ -41,31 +41,48 @@ export function zaicodeRetryLimit(preferred: number): number {
   return Math.max(1, Math.min(ZAICODE_AUTO_RETRY_HARD_CAP, Math.round(preferred)));
 }
 
-/** interval, 2x, 4x, 8x ... capped: attempt 0 waits the interval itself. */
-export function zaicodeRetryDelayMs(intervalSec: number, attemptsDone: number): number {
-  const factor = 2 ** Math.min(Math.max(0, attemptsDone), 6);
-  return Math.min(BACKOFF_CEILING_SEC, Math.max(1, intervalSec) * factor) * 1000;
+/**
+ * SRC-082 doubled the wait every attempt (2^attempts, ceiling 1800s). T-302 is the
+ * operator's verdict on that in production: "Auto-retry in 952 s · attempt 6/8" --
+ * attempt 6 waited 32x the nominal interval, so one flaky model earned half an hour
+ * of silence per knock and the countdown never stopped climbing. The interval is the
+ * interval, whatever the attempt number: one nominal delay, no attempt multiplier,
+ * no ladder. The ceiling is not a rung; it caps any wait this policy can schedule.
+ */
+export function zaicodeRetryDelayMs(intervalSec: number): number {
+  return Math.min(BACKOFF_CEILING_SEC, Math.max(1, intervalSec)) * 1000;
 }
 
 export type ZaicodeRetryClass = "transient" | "quota";
 
-/** GLM business codes 1308-1321: quota, plan and account boundaries. */
-const QUOTA_CODE = /^13(?:0[89]|1[0-9]|2[01])$/;
+/** GLM business codes 1308-1321 (except 1312 which is provider_overloaded): quota, plan and account boundaries. */
+const QUOTA_CODE = /^13(?:0[89]|1[013-9]|2[01])$/;
 const QUOTA_MESSAGE = /usage limit|limit reached|quota|insufficient (?:balance|credit)|out of credit|额度|用量/i;
 
-export function zaicodeRetryClassOf(error: { code?: string | null; message?: string | null }): ZaicodeRetryClass {
+export function zaicodeRetryClassOf(error: {
+  code?: string | null;
+  message?: string | null;
+  failureReason?: string | null;
+}): ZaicodeRetryClass {
   const code = (error.code ?? "").trim();
   const message = error.message ?? "";
+  const reason = (error.failureReason ?? "").trim();
+  if (
+    reason === "provider_overloaded" ||
+    reason === "provider_overloaded_transient" ||
+    code === "1312" ||
+    code === "no_capacity" ||
+    /\bat capacity\b|model is at capacity|provider_overloaded/i.test(message)
+  ) {
+    return "transient";
+  }
   if (QUOTA_CODE.test(code) || /QUOTA|USAGE_LIMIT/i.test(code)) return "quota";
   // "[1308][Usage limit reached ..." arrives with a wrapper code and the business code in the text.
-  if (/\[13(?:0[89]|1[0-9]|2[01])\]/.test(message)) return "quota";
+  if (/\[13(?:0[89]|1[013-9]|2[01])\]/.test(message)) return "quota";
   return QUOTA_MESSAGE.test(message) ? "quota" : "transient";
 }
 
-/** The sidebar's Auto ON/OFF, read outside React. Unknown yet (not loaded) reads as OFF: safe. */
-export function zaicodeMasterAutoOn(): boolean {
-  return useZaicodeAuditStore.getState().smartMode === true;
-}
+import { isZaicodeCleanupInProgress, isSessionRetired } from "./zaicodeCleanupFence.js";
 
 /**
  * The canonical gate for one autonomous sender outside React: the effective retry
@@ -79,7 +96,7 @@ export function zaicodeAutoRetryAllowedFor(
   sessionId: string | null | undefined,
   featureOn: boolean,
 ): boolean {
-  if (!featureOn) return false;
+  if (!featureOn || isZaicodeCleanupInProgress() || isSessionRetired(sessionId)) return false;
   return zaicodeEffectiveAutoRetryFor(projectKey, sessionId).enabled;
 }
 
@@ -88,28 +105,21 @@ export type ZaicodeAutoRetryPrefs = Pick<ZaicodeUiPrefs, "autoRetry" | "autoRetr
   Partial<Pick<ZaicodeUiPrefs, "autoRetrySessions">>;
 
 /** Which gate holds the effective answer OFF; null while it is ON. */
-export type ZaicodeAutoRetryBlock = "halted" | "session-off" | "preference-off" | "master-off";
+export type ZaicodeAutoRetryBlock = "halted" | "session-off" | "preference-off";
 
-export function zaicodeEffectiveAutoRetry(prefs: ZaicodeAutoRetryPrefs, projectKey: string, sessionId: string | null | undefined, gate: { masterOn: boolean; sessionMode?: ZaicodeAutoContinueMode; halted: boolean }) {
+export function zaicodeEffectiveAutoRetry(prefs: ZaicodeAutoRetryPrefs, projectKey: string, sessionId: string | null | undefined, gate: { sessionMode?: ZaicodeAutoContinueMode; halted: boolean }) {
   const preference = zaicodeAutoRetryEnabled(prefs, projectKey, sessionId);
   const source: "session" | "project" | "global" = sessionId && prefs.autoRetrySessions?.[sessionId] !== undefined ? "session" : prefs.autoRetryProjects[projectKey] !== undefined ? "project" : "global";
-  // SRC-162: an explicit project or session retry ON is the operator's own answer for this place,
-  // exactly like a session set to auto-continue On, so it does not wait for the sidebar Auto
-  // master. Only the inherited global default follows the master. Before this, a click on the
-  // composer button while Auto was OFF flipped a preference the master then hid, so the button
-  // read "off" whatever the operator did.
-  const explicitOn = source !== "global";
+  // SRC-183：审计 Auto 只控制审计任务，不能把继承的重试 ON 偷偷改成 OFF。
   const block: ZaicodeAutoRetryBlock | null = gate.halted
     ? "halted"
     : gate.sessionMode === "off"
       ? "session-off"
       : !preference
         ? "preference-off"
-        : !gate.masterOn && gate.sessionMode !== "on" && !explicitOn
-          ? "master-off"
-          : null;
+        : null;
   // Every reason names the surface that owns it (SRC-161:REQ-002).
-  const reason = block === "halted" ? "All retries stopped" : block === "session-off" ? "Session auto-continue is off" : block === "preference-off" ? `${source} retry preference is off` : block === "master-off" ? "Sidebar Auto is off" : null;
+  const reason = block === "halted" ? "All retries stopped" : block === "session-off" ? "Session auto-continue is off" : block === "preference-off" ? `${source} retry preference is off` : null;
   return { enabled: block === null, preference, source, reason, block, halted: gate.halted, sessionOff: gate.sessionMode === "off" };
 }
 
@@ -119,8 +129,7 @@ export function zaicodeEffectiveAutoRetry(prefs: ZaicodeAutoRetryPrefs, projectK
  * every click:
  * - ON -> OFF writes OFF into the scope that owns the answer;
  * - OFF -> ON lifts whatever holds it off: the stop-all, a session auto-continue Off, and writes an
- *   explicit ON (a project override when the answer was only inherited, so the sidebar Auto master
- *   no longer hides it).
+ *   explicit ON (a project override when the answer was only inherited).
  */
 export function zaicodeAutoRetryToggle(
   prefs: ZaicodeAutoRetryPrefs,
@@ -153,7 +162,7 @@ function zaicodeScopedRetryPatch(
 }
 
 export function zaicodeEffectiveAutoRetryFor(projectKey: string, sessionId?: string | null): ReturnType<typeof zaicodeEffectiveAutoRetry> {
-  return zaicodeEffectiveAutoRetry(useZaicodeUiPrefs.getState(), projectKey, sessionId, { masterOn: zaicodeMasterAutoOn(), sessionMode: sessionId ? zaicodeAutoContinueModeFor(sessionId) : undefined, halted: useZaicodeRetryLedger.getState().halted });
+  return zaicodeEffectiveAutoRetry(useZaicodeUiPrefs.getState(), projectKey, sessionId, { sessionMode: sessionId ? zaicodeAutoContinueModeFor(sessionId) : undefined, halted: useZaicodeRetryLedger.getState().halted });
 }
 
 // ---------------------------------------------------------------- quota memory
@@ -198,7 +207,8 @@ export interface ZaicodePendingRetry {
   nextAt: number;
   /** The attempt that will go out (1-based). */
   attempt: number;
-  source: "chat" | "background" | "crash";
+  source: "chat" | "background" | "crash" | "worker";
+  reason?: string;
 }
 
 interface ZaicodeRetryLedgerState {

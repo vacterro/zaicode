@@ -17,7 +17,12 @@ import { setZaicodeSoundSettings, useZaicodeSoundSettings } from "./zaicodeSound
 import { useZaicodeTimers } from "./zaicodeTimerStore.js";
 import { toggleZaicodeWorkersDock, useZaicodeWorkers } from "./zaicodeWorkers.js";
 import { ZaicodeIcon } from "./zaicodeIconSlots.js";
-import { openZaicodeUsage, toggleZaicodeUsageSidebar, useZaicodeUsage } from "./zaicodeUsage.js";
+import {
+  openZaicodeUsage,
+  useZaicodeUsage,
+  zaicodeUsageLeftClickTarget,
+  zaicodeUsageRightClickTarget,
+} from "./zaicodeUsage.js";
 
 /**
  * The icon buttons the sidebar header and the sidebar footer share (SRC-062:
@@ -119,14 +124,14 @@ export function useZaicodeCommonTools(
           <ZaicodeTopButton
             key={id}
             side={side}
-            title="9router Usage · right-click: sidebar"
+            title="9router Usage · right-click: full page"
             shortcut={hint("ui.usageSidebar")}
             pressed={usageMode !== "closed"}
-            onClick={() => openZaicodeUsage(usageMode === "page" ? "closed" : "page")}
+            onClick={() => openZaicodeUsage(zaicodeUsageLeftClickTarget(usageMode))}
             onContextMenu={(event) => {
               event.preventDefault();
               event.stopPropagation();
-              toggleZaicodeUsageSidebar();
+              openZaicodeUsage(zaicodeUsageRightClickTarget(usageMode));
             }}
           >
             <ZaicodeIcon slot="tool.usage" />

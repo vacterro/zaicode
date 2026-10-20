@@ -2,7 +2,7 @@ import { X } from "lucide-react";
 import { createPortal } from "react-dom";
 import { ScopedErrorBoundary } from "@/ErrorBoundary.js";
 import { useZaicodeActions } from "./zaicodeActions.js";
-import { useZaicodeUsage } from "./zaicodeUsage.js";
+import { useZaicodeUsage, zaicodeUsageSurface } from "./zaicodeUsage.js";
 import { ZaicodeUsageView } from "./ZaicodeUsageView.js";
 import { ZaicodeSaipenSidePane } from "./ZaicodeSaipenSidePane.js";
 import { useZaicodeSidebarPrefs } from "./zaicodeSidebarPrefs.js";
@@ -16,7 +16,10 @@ export function ZaicodeGlobalSidebars() {
   const workspaceOpener = useZaicodeActions((state) => state.openSaipen);
   const target = workspaceOpener ? null : storedTarget;
   const usageMode = useZaicodeUsage((state) => state.mode);
-  const usage = usageMode !== "closed" && !workspaceOpener;
+  // T-319: the exact complement of the workspace layout's condition -- this
+  // portal draws a reading only while no visible workspace owns its panes.
+  // 只有 global 分支属于 portal；!= none 会把 workspace 的 page/sidebar 也重复挂载。
+  const usage = zaicodeUsageSurface(usageMode, Boolean(workspaceOpener)) === "global";
   const fullPage = usage && usageMode === "page";
   if (!target && !usage) return null;
   return createPortal(

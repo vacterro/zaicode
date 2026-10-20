@@ -29,6 +29,24 @@ import {
 import type { ZaicodeDelegationSpool } from "./zaicodeDelegationSpool.js";
 import { watchProviderQuotaCircuit } from "./hostProviderQuotaCircuit.js";
 
+/**
+ * What the host knows when a job really ends. It is produced only from the
+ * runtime's own terminal callback, which is why it is safe to admit audit work
+ * from it and unsafe to admit it from anything a model writes.
+ */
+export interface ZaicodeTerminalOutcomeEvent {
+  jobId: string;
+  workspaceKey: string;
+  workspacePath: string;
+  agentId: string;
+  /** The runtime session (task id) that ran the job, when it started. */
+  sessionId: string | null;
+  /** The task identity this completion belongs to. */
+  taskId: string;
+  outcome: string;
+  title: string;
+}
+
 interface ZaicodeRunDispatchDeps {
   /** 与 automation 相同的目标解析：远端 workspace 走远端 host，本地走 activeServices。 */
   resolveServices: (request: {
@@ -38,6 +56,12 @@ interface ZaicodeRunDispatchDeps {
   logWarn: (message: string, error?: unknown) => void;
   /** Runtime delegation channel (T-10); absent = no agent-initiated delegation. */
   delegationSpool?: ZaicodeDelegationSpool;
+  /**
+   * Called once, after a terminal outcome was durably written. The audit loop
+   * admits from this and nothing else; a host that omits it simply runs no
+   * automatic audits.
+   */
+  onTerminalOutcome?: (event: ZaicodeTerminalOutcomeEvent) => void;
 }
 
 /** 任务正文 = agent 指令 + 分隔线 + 任务标题与指令；不在队列层改写 agent 人格。 */
@@ -247,6 +271,20 @@ export function createZaicodeJobExecutor(deps: ZaicodeRunDispatchDeps): ZaicodeJ
             attempt,
             outcome: result.outcome,
             ...(result.error ? { error: result.error } : {}),
+          })
+          .then(() => {
+            // 终态已持久化之后才通知审计层：队列里的终态才是准入证据，
+            // 运行时的回调不是。审计层失败也绝不回写队列。
+            deps.onTerminalOutcome?.({
+              jobId: job.id,
+              workspaceKey: job.workspaceKey,
+              workspacePath: job.workspacePath,
+              agentId: agent.id,
+              sessionId: taskId,
+              taskId: job.id,
+              outcome: result.outcome,
+              title: job.title,
+            });
           })
           .catch((error: unknown) => {
             deps.logWarn(`ZAICODE 终态回写失败: job=${job.id}`, error);

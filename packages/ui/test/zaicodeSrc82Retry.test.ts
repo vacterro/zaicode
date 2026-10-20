@@ -47,16 +47,18 @@ test("a usage limit is a wall, an empty answer is a hiccup", () => {
   assert.equal(isZaicodeManualRetryableError({ code: "MODEL_CONFIG_MISSING", message: "" }), false);
 });
 
-test("the count is capped no matter what the setting says, and the wait doubles", () => {
-  assert.equal(ZAICODE_AUTO_RETRY_HARD_CAP, 8);
-  assert.equal(zaicodeRetryLimit(1000), 8);
-  assert.equal(zaicodeRetryLimit(100), 8);
+test("the count is capped no matter what the setting says, and the wait is one interval", () => {
+  // T-302: the cap is 50 (not SRC-082's 8), and the doubling ladder is gone: the
+  // interval is the interval whatever the attempt number.
+  assert.equal(ZAICODE_AUTO_RETRY_HARD_CAP, 50);
+  assert.equal(zaicodeRetryLimit(1000), 50);
+  assert.equal(zaicodeRetryLimit(100), 50);
   assert.equal(zaicodeRetryLimit(3), 3);
   assert.equal(zaicodeRetryLimit(0), 1);
-  assert.deepEqual([0, 1, 2, 3].map((attempts) => zaicodeRetryDelayMs(60, attempts) / 1000), [60, 120, 240, 480]);
-  assert.equal(zaicodeRetryDelayMs(60, 40) / 1000, 1800, "never longer than half an hour between two attempts");
+  assert.equal(zaicodeRetryDelayMs(60) / 1000, 60);
+  assert.equal(zaicodeRetryDelayMs(3600) / 1000, 1800, "never longer than half an hour between two attempts");
   // A saved 100 (the old default) is clamped on load, and the new default is small.
-  assert.equal(normalizeZaicodeUiPrefs({ autoRetryMaxAttempts: 100 }).autoRetryMaxAttempts, 8);
+  assert.equal(normalizeZaicodeUiPrefs({ autoRetryMaxAttempts: 100 }).autoRetryMaxAttempts, 50);
   assert.equal(normalizeZaicodeUiPrefs({}).autoRetryMaxAttempts, 5);
 });
 
@@ -72,27 +74,26 @@ test("who may send by itself: one effective projection, and the operator's expli
   };
   const at = (
     patch: Partial<ZaicodeAutoRetryPrefs>,
-    gate: { masterOn?: boolean; sessionMode?: "on" | "off" | "default"; halted?: boolean } = {},
+    gate: { sessionMode?: "on" | "off" | "default"; halted?: boolean } = {},
   ) =>
     zaicodeEffectiveAutoRetry({ ...prefs, ...patch }, "p", "s", {
-      masterOn: true,
       halted: false,
       ...gate,
     });
   assert.equal(at({}, { sessionMode: "off" }).enabled, false, "a session's own Off wins over everything");
-  assert.equal(at({}, { sessionMode: "on" }).enabled, true, "an explicit On skips the Auto master");
-  assert.equal(at({}, { masterOn: false, sessionMode: "on" }).enabled, true);
-  assert.equal(at({}, { masterOn: false }).enabled, false, "nobody says On and Auto is off");
+  assert.equal(at({}, { sessionMode: "on" }).enabled, true);
+  assert.equal(at({}).enabled, true, "Global ON admits retry independently of Audits Auto");
   assert.equal(at({ autoRetry: false }).enabled, false, "the retry preference is off");
   assert.equal(
-    at({ autoRetry: false, autoRetryProjects: { p: true } }, { masterOn: false, sessionMode: "on" }).enabled,
+    at({ autoRetry: false, autoRetryProjects: { p: true } }, { sessionMode: "on" }).enabled,
     true,
     "an explicit per-project retry ON is honoured even when the global flag is off",
   );
   assert.equal(at({ autoRetry: true, autoRetrySessions: { s: false } }).enabled, false, "a session override wins over the project/global");
   assert.equal(at({}, { halted: true }).enabled, false, "the stop-all button stops every automatic send");
-  // Nothing is loaded in this process: the sidebar Auto reads OFF, so nothing goes out.
-  assert.equal(zaicodeAutoRetryAllowedFor("p", "s-1", true), false);
+  useZaicodeUiPrefs.setState({ autoRetry: true, autoRetryProjects: {}, autoRetrySessions: {} });
+  useZaicodeRetryLedger.getState().resume();
+  assert.equal(zaicodeAutoRetryAllowedFor("p", "s-1", true), true);
   assert.equal(zaicodeAutoRetryAllowedFor("p", "s-1", false), false, "the feature's own switch still gates");
 });
 

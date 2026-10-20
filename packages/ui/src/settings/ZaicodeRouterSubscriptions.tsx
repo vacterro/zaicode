@@ -3,7 +3,7 @@ import { RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button.js";
 import { toast } from "@/components/ui/toast.js";
 import { useModelProviders } from "@/hooks/useModelProviders.js";
-import { setZaicodeDefaultModel } from "@/zaicode/zaicodeDefaultModel.js";
+import { setZaicodeDefaultModel, useZaicodeDefaultModel } from "@/zaicode/zaicodeDefaultModel.js";
 import { readZaicodeCurrentWorkspace } from "@/zaicode/zaicodeEngines.js";
 import { getZaicodeRouterBridge, useZaicodeRouter } from "@/zaicode/zaicodeRouter.js";
 import { ZaicodeReadinessBar, type ZaicodeReadinessView } from "@/zaicode/ZaicodeReadinessBar.js";
@@ -28,6 +28,13 @@ export function ZaicodeRouterSubscriptions() {
   const workspacePath = readZaicodeCurrentWorkspace()?.path ?? "";
   const { modelProviders } = useModelProviders({ workspacePath });
   const [open, setOpen] = useState<string | null>(null);
+  // REQ-009: the visible default selection, live from the established
+  // default-model state (same key the composer and new sessions read).
+  const currentDefault = useZaicodeDefaultModel();
+  const makeDefault = (providerId: string, modelId: string, accountLabel: string) => {
+    setZaicodeDefaultModel({ providerId, modelId });
+    toast(`${accountLabel} / ${modelId} is the default for new sessions`);
+  };
 
   useEffect(() => {
     void refreshZaicodeSubscriptionReadiness();
@@ -126,23 +133,36 @@ export function ZaicodeRouterSubscriptions() {
             </div>
             {open === account.connectionId && provider ? (
               <div className="flex max-h-[220px] flex-col overflow-y-auto">
-                {models.map((model) => (
-                  <div key={model.modelId} className="flex items-center gap-2 border-b border-border/40 px-1 last:border-b-0">
-                    <span className="min-w-0 flex-1 truncate font-mono text-foreground">{model.modelId}</span>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="h-5 px-1"
-                      title="Make it the default for new sessions (START)"
-                      onClick={() => {
-                        setZaicodeDefaultModel({ providerId: provider.providerId, modelId: model.modelId });
-                        toast(`${account.label} / ${model.modelId} is the default for new sessions`);
+                {models.map((model) => {
+                  const isDefault =
+                    currentDefault?.providerId === provider.providerId &&
+                    currentDefault?.modelId === model.modelId;
+                  return (
+                    <div
+                      key={model.modelId}
+                      className="flex items-center gap-2 border-b border-border/40 px-1 last:border-b-0"
+                      title={isDefault ? `Default for new sessions (START) — via ${account.label}` : `Right-click: default for new sessions (START) — via ${account.label}`}
+                      onContextMenu={(event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        makeDefault(provider.providerId, model.modelId, account.label);
                       }}
                     >
-                      Default
-                    </Button>
-                  </div>
-                ))}
+                      <span className="min-w-0 flex-1 truncate font-mono text-foreground">{model.modelId}</span>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-5 px-1"
+                        aria-pressed={isDefault}
+                        data-default-model={isDefault ? "true" : undefined}
+                        title={isDefault ? `Default for new sessions (START) — via ${account.label}` : "Make it the default for new sessions (START)"}
+                        onClick={() => makeDefault(provider.providerId, model.modelId, account.label)}
+                      >
+                        {isDefault ? "✓ Default" : "Default"}
+                      </Button>
+                    </div>
+                  );
+                })}
               </div>
             ) : null}
           </div>

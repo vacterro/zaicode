@@ -141,8 +141,8 @@ function createTerminalSidePaneTitle(
 // and the reveal paths write the operator's answer into the existing UI prefs
 // (durable across restart); every read below consults it first and falls back
 // to the in-memory answer, so a fresh owner still opens a pane that has real
-// content. Reads go through getState(): the hook re-resolves on workspace and
-// owner switches, and the settings UI owns the live display.
+// content. Workspace restores read a fresh snapshot; the current owner also
+// subscribes to its selected answer so changing mode reprojects immediately.
 function persistedSidePaneCollapsed(owner: {
   sessionId: string | null;
   workspaceKey: string;
@@ -166,6 +166,23 @@ function persistSidePaneVisible(
       ),
     },
   });
+}
+
+function restoreRememberedSidePaneContent(
+  current: WorkspaceSidePaneState | null,
+  scope: { workspaceKey: string; ownerTaskId: string | null },
+  persistedCollapsed: boolean | undefined,
+): WorkspaceSidePaneState | null {
+  // 重启会清空模块内的 tabs，但保留“展开”偏好；只恢复布尔值仍会被空内容规则折叠。
+  // 仅明确记住展开的有效 workspace 补回只读 SAIPEN tab；已有可见内容及偏好均不改写。
+  if (
+    persistedCollapsed !== false ||
+    !scope.workspaceKey.trim() ||
+    (current && getVisibleSidePaneTabs(current.tabs, scope).length > 0)
+  ) {
+    return current;
+  }
+  return stampSidePaneTabsOwnership(activateSaipenSidePane(current), scope);
 }
 
 export function useAppPanels(options: {
@@ -213,6 +230,13 @@ export function useAppPanels(options: {
   } = options;
   const supportsEmbeddedBrowser = explicitSupportsEmbeddedBrowser ?? Boolean(isDesktop);
   const activeWorkspaceKey = workspaceIdentity?.trim() || workspaceAbsPath;
+  // 已选持久化 scope 的答案必须胜过旧 owner 内存；订阅标量也覆盖设置中直接切换模式。
+  const persistedCollapsedPreference = useZaicodeUiPrefs((state) =>
+    persistedSidePaneCollapsedFor(
+      state.sidePaneVisibility,
+      sidePaneVisibilityOwnerKey({ sessionId: sidePaneOwnerId, workspaceKey: activeWorkspaceKey }),
+    ),
+  );
   const { zcodeAgentService, zcodeSessionService } = useServices();
   const isOfficeMode = useIsOfficeMode();
   const sidePaneMemoryKey = useMemo(
@@ -224,7 +248,17 @@ export function useAppPanels(options: {
       }),
     [activeTaskId, workspaceAbsPath, workspaceIdentity],
   );
-  const initialSidePaneMemoryState = readTaskSidePaneMemoryState(sidePaneMemoryKey);
+  const [initialSidePaneMemoryState] = useState(() => {
+    const memory = readTaskSidePaneMemoryState(sidePaneMemoryKey);
+    return {
+      ...memory,
+      sidePaneState: restoreRememberedSidePaneContent(
+        memory.sidePaneState,
+        { workspaceKey: activeWorkspaceKey, ownerTaskId: sidePaneOwnerId },
+        persistedCollapsedPreference,
+      ),
+    };
+  });
 
   // 修复说明：之前终端区域被固定写死在 <main> 底部，页面一进入就会直接挂载 Terminal，
   // 不仅默认占用高度，还会立刻创建终端会话。这里改成显式开关，默认关闭，
@@ -236,11 +270,8 @@ export function useAppPanels(options: {
     initialSidePaneMemoryState.sidePaneState,
   );
   const [isSidePaneCollapsed, setIsSidePaneCollapsed] = useState(
-    getSidePaneCollapsedPreference(initialSidePaneMemoryState, sidePaneOwnerId) ??
-      persistedSidePaneCollapsed({
-        sessionId: sidePaneOwnerId,
-        workspaceKey: activeWorkspaceKey,
-      }) ??
+    persistedCollapsedPreference ??
+      getSidePaneCollapsedPreference(initialSidePaneMemoryState, sidePaneOwnerId) ??
       initialSidePaneMemoryState.isSidePaneCollapsed,
   );
   // 交互说明：侧栏显隐按钮放在 App 外层，而不是 Sidebar 内部。
@@ -328,14 +359,21 @@ export function useAppPanels(options: {
     // 同一 workspace 内切换 task 不应该影响 side pane，所以 key 已经不再按 task 维度切分。
     saveTaskSidePaneMemoryState(previousKey, latestSidePaneMemoryRef.current);
     const restored = readTaskSidePaneMemoryState(sidePaneMemoryKey);
+    const persistedCollapsed = persistedSidePaneCollapsed({
+      sessionId: sidePaneOwnerIdRef.current,
+      workspaceKey: activeWorkspaceKeyRef.current,
+    });
     activeSidePaneMemoryKeyRef.current = sidePaneMemoryKey;
-    commitSidePaneState(() => restored.sidePaneState);
+    commitSidePaneState(() =>
+      restoreRememberedSidePaneContent(
+        restored.sidePaneState,
+        { workspaceKey: activeWorkspaceKeyRef.current, ownerTaskId: sidePaneOwnerIdRef.current },
+        persistedCollapsed,
+      ),
+    );
     setIsSidePaneCollapsed(
-      getSidePaneCollapsedPreference(restored, sidePaneOwnerIdRef.current) ??
-        persistedSidePaneCollapsed({
-          sessionId: sidePaneOwnerIdRef.current,
-          workspaceKey: activeWorkspaceKeyRef.current,
-        }) ??
+      persistedCollapsed ??
+        getSidePaneCollapsedPreference(restored, sidePaneOwnerIdRef.current) ??
         restored.isSidePaneCollapsed,
     );
   }, [commitSidePaneState, sidePaneMemoryKey]);
@@ -379,16 +417,17 @@ export function useAppPanels(options: {
         activeTabByOwnerRef.current.get(scopeKey) ??
         (activeTaskId ? lastActiveSubagentTabByRootRef.current.get(activeTaskId) : undefined);
       const collapsedPreference =
+        persistedCollapsedPreference ??
         getSidePaneCollapsedPreference(
           readTaskSidePaneMemoryState(activeSidePaneMemoryKeyRef.current),
           sidePaneOwnerId,
-        ) ??
-        persistedSidePaneCollapsed({
-          sessionId: sidePaneOwnerId,
-          workspaceKey: activeWorkspaceKey,
-        });
+        );
       const resolved = resolveSidePaneScopeState(
-        current,
+        restoreRememberedSidePaneContent(
+          current,
+          { workspaceKey: activeWorkspaceKey, ownerTaskId: sidePaneOwnerId },
+          persistedCollapsedPreference,
+        ),
         { workspaceKey: activeWorkspaceKey, ownerTaskId: sidePaneOwnerId },
         preferredTabId,
         collapsedPreference,
@@ -404,7 +443,7 @@ export function useAppPanels(options: {
       });
       return resolved.sidePaneState;
     });
-  }, [activeTaskId, activeWorkspaceKey, commitSidePaneState, sidePaneOwnerId]);
+  }, [activeTaskId, activeWorkspaceKey, commitSidePaneState, persistedCollapsedPreference, sidePaneOwnerId]);
 
   const handleOpenCodeViewer = useCallback(
     (source: CodeViewerSource) => {
@@ -1333,31 +1372,29 @@ export function useAppPanels(options: {
   }, []);
 
   const handleToggleSidePaneCollapse = useCallback(() => {
-    setIsSidePaneCollapsed((collapsed) => {
-      const nextCollapsed = !collapsed;
-      // tabs 按 workspace 复用，但顶部收起是用户对当前对话的明确选择；
-      // 记录 owner 偏好，避免切换对话后 scope 解析又被可见 tab 自动展开覆盖。
-      saveTaskSidePaneCollapsedPreference(
-        activeSidePaneMemoryKeyRef.current,
-        sidePaneOwnerIdRef.current,
-        nextCollapsed,
-      );
-      persistSidePaneVisible(
-        {
-          sessionId: sidePaneOwnerIdRef.current,
-          workspaceKey: activeWorkspaceKeyRef.current,
-        },
-        !nextCollapsed,
-      );
-      latestSidePaneMemoryRef.current = {
-        ...latestSidePaneMemoryRef.current,
-        isSidePaneCollapsed: nextCollapsed,
-      };
-      logger.info(
-        `[App] ${nextCollapsed ? "收起" : "展开"}右侧面板 workspace=${workspaceAbsPath} tabs=${sidePaneState?.tabs.length ?? 0}`,
-      );
-      return nextCollapsed;
-    });
+    // updater 可能在 React render 中重放；其中写偏好会通知其他组件并产生跨 render 更新。
+    // 与其他 pane 命令共用 canonical ref，先提交本次选择，再在事件路径写持久化 scope。
+    const nextCollapsed = !latestSidePaneMemoryRef.current.isSidePaneCollapsed;
+    latestSidePaneMemoryRef.current = {
+      ...latestSidePaneMemoryRef.current,
+      isSidePaneCollapsed: nextCollapsed,
+    };
+    saveTaskSidePaneCollapsedPreference(
+      activeSidePaneMemoryKeyRef.current,
+      sidePaneOwnerIdRef.current,
+      nextCollapsed,
+    );
+    setIsSidePaneCollapsed(nextCollapsed);
+    persistSidePaneVisible(
+      {
+        sessionId: sidePaneOwnerIdRef.current,
+        workspaceKey: activeWorkspaceKeyRef.current,
+      },
+      !nextCollapsed,
+    );
+    logger.info(
+      `[App] ${nextCollapsed ? "收起" : "展开"}右侧面板 workspace=${workspaceAbsPath} tabs=${sidePaneState?.tabs.length ?? 0}`,
+    );
   }, [sidePaneState, workspaceAbsPath]);
 
   const handleCloseCodeViewer = useCallback(() => {

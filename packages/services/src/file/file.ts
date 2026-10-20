@@ -77,6 +77,45 @@ export interface IFileService {
     transform: "sync-gitignore" | "reset-defaults";
   }): Promise<{ content: string }>;
   writeWorkspaceFileSearchIgnore(params: { rootPath: string; content: string }): Promise<void>;
+  /** Write a UTF-8 text file, creating parent directories as needed. */
+  writeTextFile(params: { path: string; content: string }): Promise<void>;
+  /**
+   * 流式 SHA-256：Host 侧分块读取，内存占用与文件大小无关。
+   * 证据校验和复核包导出都依赖它，不能在 Renderer 里整文件读入。
+   */
+  sha256File(params: { path: string }): Promise<{ sha256: string; size: number }>;
+  /**
+   * 原子写文本：先写同目录临时文件再 rename。overwrite=false 时拒绝覆盖已存在文件，
+   * 用于不可变证据的提交（防止半写文件被当成已保存）。
+   */
+  writeTextFileAtomic(params: {
+    path: string;
+    content: string;
+    overwrite?: boolean;
+  }): Promise<{ path: string; size: number }>;
+  /** 字节级复制（复核包携带真实证据副本，不做文本解码）。 */
+  copyFile(params: {
+    from: string;
+    to: string;
+    overwrite?: boolean;
+  }): Promise<{ path: string; size: number }>;
+  /** Host 侧流式打包 ZIP；先写临时文件再 rename，避免半成品被当成完整包。 */
+  createZipArchive(params: {
+    outPath: string;
+    entries: ReadonlyArray<{ name: string; path: string }>;
+  }): Promise<{ path: string; size: number; entries: number }>;
+  /**
+   * 删除单个文件（证据显式删除用）。
+   * 只删普通文件：不递归目录，拒绝相对路径，缺失文件只报告不报错。
+   * 删除不可逆，调用方必须先拿到操作者确认。
+   */
+  deleteFiles(params: {
+    paths: string[];
+  }): Promise<{
+    deleted: string[];
+    missing: string[];
+    failed: { path: string; error: string }[];
+  }>;
 }
 
 export const IFileService = createServiceDescriptor<IFileService>(ServiceChannels.File);

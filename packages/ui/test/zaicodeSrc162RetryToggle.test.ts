@@ -9,7 +9,7 @@ import type { ZaicodeAutoContinueMode } from "../src/zaicode/zaicodeAutoContinue
 // off forever". The button flipped the bare preference while the sidebar Auto master (or the
 // stop-all, or a session Off) held the effective answer off, so no click changed what it showed.
 
-type Gate = { masterOn: boolean; sessionMode?: ZaicodeAutoContinueMode; halted: boolean };
+type Gate = { sessionMode?: ZaicodeAutoContinueMode; halted: boolean };
 
 function click(prefs: ZaicodeUiPrefs, gate: Gate): { prefs: ZaicodeUiPrefs; gate: Gate } {
   const effective = zaicodeEffectiveAutoRetry(prefs, "p", "s", gate);
@@ -33,10 +33,8 @@ test("SRC-162: every click flips the effective answer, whatever held it off", ()
     { autoRetry: true, autoRetrySessions: { s: false } },
   ];
   const gates: Gate[] = [];
-  for (const masterOn of [false, true]) {
-    for (const halted of [false, true]) {
-      for (const sessionMode of [undefined, "on", "off"] as const) gates.push({ masterOn, halted, sessionMode });
-    }
+  for (const halted of [false, true]) {
+    for (const sessionMode of [undefined, "on", "off"] as const) gates.push({ halted, sessionMode });
   }
   for (const preference of preferences) {
     for (const gate of gates) {
@@ -52,20 +50,20 @@ test("SRC-162: every click flips the effective answer, whatever held it off", ()
   }
 });
 
-test("SRC-162: an explicit project ON is not hidden by the sidebar Auto master; the inherited global is", () => {
+test("SRC-183: project and inherited Global ON both admit retry", () => {
   const base = { ...ZAICODE_UI_DEFAULT_PREFS, autoRetry: true };
-  const off = { masterOn: false, halted: false };
-  assert.equal(zaicodeEffectiveAutoRetry(base, "p", "s", off).block, "master-off");
+  const off = { halted: false };
+  assert.equal(zaicodeEffectiveAutoRetry(base, "p", "s", off).block, null);
   const pinned = { ...base, autoRetryProjects: { p: true } };
   assert.equal(zaicodeEffectiveAutoRetry(pinned, "p", "s", off).enabled, true);
-  assert.equal(zaicodeEffectiveAutoRetry(pinned, "other", "s", off).enabled, false, "other projects keep inheriting");
+  assert.equal(zaicodeEffectiveAutoRetry(pinned, "other", "s", off).enabled, true, "other projects inherit Global ON");
   assert.equal(zaicodeEffectiveAutoRetry(pinned, "p", "s", { ...off, halted: true }).enabled, false, "stop-all still wins");
   assert.equal(zaicodeEffectiveAutoRetry(pinned, "p", "s", { ...off, sessionMode: "off" }).enabled, false, "a session Off still wins");
 });
 
 test("SRC-162: turning ON while only inherited writes a project override, never the global flag", () => {
-  const prefs = { ...ZAICODE_UI_DEFAULT_PREFS, autoRetry: true };
-  const effective = zaicodeEffectiveAutoRetry(prefs, "p", "s", { masterOn: false, halted: false });
+  const prefs = { ...ZAICODE_UI_DEFAULT_PREFS, autoRetry: false };
+  const effective = zaicodeEffectiveAutoRetry(prefs, "p", "s", { halted: false });
   const toggle = zaicodeAutoRetryToggle(prefs, "p", "s", effective);
   assert.deepEqual(toggle.patch, { autoRetryProjects: { p: true } });
   assert.equal(toggle.next, true);
@@ -73,8 +71,8 @@ test("SRC-162: turning ON while only inherited writes a project override, never 
 
 test("SRC-162: the pane banner and the button read one block", () => {
   const pane = readFileSync(new URL("../src/zaicode/zaicodeAutoRetry.ts", import.meta.url), "utf8");
-  assert.match(pane, /effective\.block === "session-off" \|\| effective\.block === "master-off"/);
-  assert.doesNotMatch(pane, /\(!masterOn && sessionMode !== "on"\)/, "no second derivation of the master gate");
+  assert.match(pane, /effective\.block === "session-off"/);
+  assert.doesNotMatch(pane, /masterOn|master-off/, "Audits has no retry authority");
 });
 
 test("SRC-162: a double-click on a panel edge never snaps the panel back to its default size", () => {
@@ -122,7 +120,10 @@ test("SRC-162: a live-run hint expires on the clock even while the project's ind
   assert.equal(live.useZaicodeLiveRuns.getState().runs["s-quiet"], undefined, "after it, the hint is gone");
   assert.ok(live.ZAICODE_LIVE_RUN_RECONCILE_MS < live.ZAICODE_LIVE_RUN_INDEX_GRACE_MS);
   const sidebar = readFileSync(new URL("../src/WorkspaceSidebar.tsx", import.meta.url), "utf8");
-  assert.match(sidebar, /window\.setInterval\(\s*\(\) => reconcileZaicodeLiveRuns\(tasks\),\s*ZAICODE_LIVE_RUN_RECONCILE_MS,/);
+  // T-295B: reconciliation now receives the committed/live union (selectReconcileRows)
+  // so a live terminal clears a stale committed hint; the clock-driven expiry is preserved.
+  assert.match(sidebar, /window\.setInterval\([\s\S]*?reconcileZaicodeLiveRuns\([\s\S]*?ZAICODE_LIVE_RUN_RECONCILE_MS,/);
+  assert.match(sidebar, /selectReconcileRows\(/);
 });
 
 test("SRC-162: the composer + never sits alone on a blank row", () => {

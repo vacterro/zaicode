@@ -9,6 +9,7 @@ import {
   PlatformChannels,
   type AppSettings,
   type DesktopCommandId,
+  type DesktopCommandOptions,
   type Locale,
   resolveRuntimeZCodeEndpointOrigin,
   ZCODE_ENV,
@@ -476,6 +477,8 @@ async function resolveCurrentZCodeEndpointOrigin(settingService: {
 
 export async function executeDesktopCommand(options: {
   command: DesktopCommandId;
+  commandOptions?: DesktopCommandOptions;
+  onShiftClose?: (targetWindow: BrowserWindow) => void;
   fetchHelpConfig?: () => Promise<unknown>;
   senderWindow?: BrowserWindow | null;
   logger: {
@@ -499,7 +502,7 @@ export async function executeDesktopCommand(options: {
 }) {
   const targetWindow = resolveTargetWindow(options.senderWindow);
   options.logger.info(
-    `[desktop-command] execute ${options.command} windowId=${targetWindow?.id ?? "<none>"}`,
+    `[desktop-command] execute ${options.command} windowId=${targetWindow?.id ?? "<none>"} shiftKey=${options.commandOptions?.shiftKey ?? false}`,
   );
 
   switch (options.command) {
@@ -513,6 +516,9 @@ export async function executeDesktopCommand(options: {
       targetWindow?.webContents.send(PlatformChannels.CloseActiveContextRequest);
       return;
     case DesktopCommandIds.CloseWindow:
+      if (options.commandOptions?.shiftKey && targetWindow) {
+        options.onShiftClose?.(targetWindow);
+      }
       targetWindow?.close();
       return;
     case DesktopCommandIds.MinimizeWindow:

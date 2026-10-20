@@ -135,7 +135,7 @@ const CODE_TO_KEY: Record<string, string> = {
   PrintScreen: "PrintScreen",
 };
 
-const NAMED_KEYS = new Set([...Object.values(CODE_TO_KEY)]);
+const NAMED_KEYS = new Set(Object.values(CODE_TO_KEY));
 
 export function normalizeZaicodeKeyName(raw: string): string | null {
   const key = raw.trim();

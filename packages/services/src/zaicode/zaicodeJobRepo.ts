@@ -13,7 +13,9 @@ import {
   modelSelectionSchema,
   zaicodeJobDelegationSchema,
   zaicodeJobSchema,
+  zaicodeJobAuditMetadataSchema,
   type ModelSelection,
+  type ZaicodeJobAuditMetadata,
   type ZaicodeJob,
   type ZaicodeJobDiagnostic,
   type ZaicodeJobListFilter,
@@ -59,12 +61,12 @@ const JOB_INSERT_COLUMNS = `job_id, workspace_key, workspace_path, workspace_ide
           instructions, status, priority, sort_order, created_at, updated_at, queued_at,
           started_at, finished_at, result_summary, error, session_id, run_id, attempt,
           host_id, heartbeat_at, parent_job_id, retry_of_job_id, delegated_from_run_id,
-          delegation_json, actual_model_selection`;
+          delegation_json, actual_model_selection, audit_metadata_json`;
 const JOB_INSERT_VALUES = `@id, @workspaceKey, @workspacePath, @workspaceIdentity, @agentId, @title,
           @instructions, @status, @priority, @sortOrder, @createdAt, @updatedAt, @queuedAt,
           @startedAt, @finishedAt, @resultSummary, @error, @sessionId, @runId, @attempt,
           @hostId, @heartbeatAt, @parentJobId, @retryOfJobId, @delegatedFromRunId,
-          @delegationJson, @actualModelSelection`;
+          @delegationJson, @actualModelSelection, @auditMetadataJson`;
 
 interface ZaicodeJobRow {
   job_id: string;
@@ -94,6 +96,19 @@ interface ZaicodeJobRow {
   delegated_from_run_id: string | null;
   delegation_json: string | null;
   actual_model_selection: string | null;
+  audit_metadata_json: string | null;
+}
+
+function extractAuditMetadataFromTitle(title: string): ZaicodeJobAuditMetadata | undefined {
+  const match = /\[([a-zA-Z0-9_-]+)#(\d+)\]/.exec(title);
+  const campaignId = match?.[1];
+  const attemptStr = match?.[2];
+  if (!campaignId || !attemptStr) return undefined;
+  return {
+    campaignId,
+    waveId: "core",
+    attempt: parseInt(attemptStr, 10) || 0,
+  };
 }
 
 function rowToJob(row: ZaicodeJobRow): { job: ZaicodeJob } | { diagnostic: ZaicodeJobDiagnostic } {
@@ -114,6 +129,14 @@ function rowToJob(row: ZaicodeJobRow): { job: ZaicodeJob } | { diagnostic: Zaico
   );
   if ("malformed" in actual) {
     return { diagnostic: { jobId: row.job_id, code: "invalid-job", message: actual.malformed } };
+  }
+  const auditMeta = readZaicodePersistedJson(
+    "audit_metadata_json",
+    row.audit_metadata_json,
+    zaicodeJobAuditMetadataSchema,
+  );
+  if ("malformed" in auditMeta) {
+    return { diagnostic: { jobId: row.job_id, code: "invalid-job", message: auditMeta.malformed } };
   }
   const candidate = {
     id: row.job_id,
@@ -143,6 +166,7 @@ function rowToJob(row: ZaicodeJobRow): { job: ZaicodeJob } | { diagnostic: Zaico
     delegatedFromRunId: row.delegated_from_run_id ?? undefined,
     delegation: delegation.value,
     actualModelSelection: actual.value,
+    auditMetadata: auditMeta.value ?? extractAuditMetadataFromTitle(row.title),
   };
   const parsed = zaicodeJobSchema.safeParse(candidate);
   if (!parsed.success) {
@@ -477,6 +501,17 @@ export class ZaicodeJobRepo {
     });
   }
 
+  listEligibleWorkspaces(): string[] {
+    const rows = this.getDatabase()
+      .prepare(
+        `SELECT DISTINCT workspace_key FROM zaicode_jobs
+         WHERE status IN ('queued','ready')
+         ORDER BY priority DESC, created_at ASC`,
+      )
+      .all() as { workspace_key: string }[];
+    return rows.map((r) => r.workspace_key);
+  }
+
   // ---- 写入 ----
 
   async create(job: ZaicodeJob): Promise<void> {
@@ -522,6 +557,7 @@ export class ZaicodeJobRepo {
       delegatedFromRunId: job.delegatedFromRunId ?? null,
       delegationJson: job.delegation ? JSON.stringify(job.delegation) : null,
       actualModelSelection: serializeModelSelection(job.actualModelSelection),
+      auditMetadataJson: job.auditMetadata ? JSON.stringify(job.auditMetadata) : null,
     };
     const db = this.getDatabase();
     const info =
@@ -567,13 +603,28 @@ export class ZaicodeJobRepo {
     return this.get(jobId);
   }
 
-  /** 原子认领新运行：仅 shared 允许的 queued/ready；blocked 必须先 Resume（single-flight）。 */
+  /** 原子认领新运行：仅 shared 允许的 queued/ready；blocked 必须先 Resume（single-flight）。
+   * 同时原子检查全局、工作区及批次容量上限，杜绝超发竞争。 */
   async claimForDispatch(params: {
     jobId: string;
     runId: string;
     hostId: string;
     now: number;
+    maxGlobalConcurrency?: number;
+    maxWorkspaceConcurrency?: number;
+    maxBatchConcurrency?: number;
+    batchId?: string;
   }): Promise<ZaicodeJob | null> {
+    const runParams = {
+      jobId: params.jobId,
+      runId: params.runId,
+      hostId: params.hostId,
+      now: params.now,
+      maxGlobalConcurrency: params.maxGlobalConcurrency ?? null,
+      maxWorkspaceConcurrency: params.maxWorkspaceConcurrency ?? null,
+      maxBatchConcurrency: params.maxBatchConcurrency ?? null,
+      batchId: params.batchId ?? null,
+    };
     const result = this.getDatabase()
       .prepare(
         `UPDATE zaicode_jobs SET
@@ -589,9 +640,13 @@ export class ZaicodeJobRepo {
           attempt = attempt + 1,
           error = NULL,
           updated_at = @now
-         WHERE job_id = @jobId AND status IN (${CLAIM_SQL})`,
+         WHERE job_id = @jobId 
+           AND status IN (${CLAIM_SQL})
+           AND (@maxGlobalConcurrency IS NULL OR (SELECT COUNT(*) FROM zaicode_jobs WHERE status = 'running') < @maxGlobalConcurrency)
+           AND (@maxWorkspaceConcurrency IS NULL OR (SELECT COUNT(*) FROM zaicode_jobs other WHERE other.status = 'running' AND other.workspace_key = zaicode_jobs.workspace_key) < @maxWorkspaceConcurrency)
+           AND (@maxBatchConcurrency IS NULL OR @batchId IS NULL OR (SELECT COUNT(*) FROM zaicode_jobs other WHERE other.status = 'running' AND json_extract(other.audit_metadata_json, '$.batchId') = @batchId) < @maxBatchConcurrency)`,
       )
-      .run(params);
+      .run(runParams);
     if (Number(result.changes) === 0) return null;
     return this.get(params.jobId);
   }

@@ -8,6 +8,7 @@ import {
 import { classifyModelFailure, inspectProviderFailure } from "./failure-classifier.js";
 import type { ClassifiedModelFailure } from "./failure-classifier.js";
 import { getResponseHeaders, unwrapRetryError } from "./failure-inspection.js";
+import { recordRouteSuccess } from "@zcode/shared";
 import { offPeakTicketExpiredMessage, resolveOffPeakFailureDecision } from "./offpeak-retry.js";
 import { AiSdkModelAdapterError } from "./errors.js";
 import { resolveAnthropicRequestMetadataUserId } from "./anthropic-request-metadata.js";
@@ -317,6 +318,22 @@ export async function runGenerateText(input: {
         },
         statusPublishOptions(input, admission),
       );
+
+      recordRouteSuccess({
+        comboId: (responseHeaders["x-combo-id"] ?? responseHeaders["X-Combo-Id"]) || resolved.providerId,
+        modelId:
+          (responseHeaders["x-router-upstream-model"] ??
+            responseHeaders["X-Router-Upstream-Model"] ??
+            responseHeaders["x-upstream-model"] ??
+            responseHeaders["X-Upstream-Model"] ??
+            responseHeaders["x-upstream-model-id"]) ||
+          resolved.modelId,
+        connectionId:
+          responseHeaders["x-router-upstream-provider"] ??
+          responseHeaders["X-Router-Upstream-Provider"] ??
+          responseHeaders["x-upstream-connection-id"] ??
+          responseHeaders["X-Upstream-Connection-Id"],
+      });
 
       return {
         text,

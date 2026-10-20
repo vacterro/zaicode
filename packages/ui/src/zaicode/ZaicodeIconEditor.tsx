@@ -1,5 +1,6 @@
 import { useRef, useState, type ChangeEvent } from "react";
 import { Button } from "@/components/ui/button.js";
+import { Checkbox } from "@/components/ui/checkbox.js";
 import { Input } from "@/components/ui/input.js";
 import { useZCodeIntl } from "@/i18n/IntlProvider.js";
 import { toast } from "@/components/ui/toast.js";
@@ -58,8 +59,8 @@ function BadgeDesigner({ slot, onClose }: { slot: ZaicodeIconSlot; onClose: () =
         to
         <input type="color" value={to} onChange={(event) => setTo(event.target.value)} className="size-5 border border-border bg-card" disabled={!gradient} />
       </label>
-      <label className="flex items-center gap-1 text-foreground-subtle">
-        <input type="checkbox" checked={gradient} onChange={(event) => setGradient(event.target.checked)} />
+      <label className="flex items-center gap-1 text-foreground-subtle cursor-pointer select-none">
+        <Checkbox checked={gradient} onCheckedChange={(val) => setGradient(Boolean(val))} />
         gradient
       </label>
       <label className="flex items-center gap-1 text-foreground-subtle">

@@ -24,6 +24,7 @@ import {
   zaicodeUpcomingSchedules,
 } from "../src/zaicode/zaicodeScheduler.js";
 import { ZAICODE_NAV_ITEMS, normalizeZaicodeLayoutList } from "../src/zaicode/zaicodeLayoutPrefs.js";
+import { orderZaicodeLimitWindows } from "../src/zaicode/ZaicodeLimitViews.js";
 
 const NOW = new Date(2026, 8, 25, 10, 0, 0).getTime();
 
@@ -177,4 +178,17 @@ test("presets are valid schedules; SCHEDULER sits right after ZAICODE even for a
   assert.deepEqual(menu.slice(0, 4).map((entry) => entry.id), ["saihome", "newTask", "zaicode", "scheduler"]);
   assert.equal(menu.find((entry) => entry.id === "scheduler")!.visible, true);
   assert.equal(menu.some((entry) => (entry.id as string) === "automations"), false, "the upstream Automations line is gone");
+});
+
+test("REQ-004: 5h reads before weekly, other windows keep source order", () => {
+  const window = (key: string) => ({ key }) as { key: string };
+  assert.deepEqual(
+    orderZaicodeLimitWindows([window("weekly"), window("monthly"), window("five_hour"), window("spend_limit")]).map((entry) => entry.key),
+    ["five_hour", "weekly", "monthly", "spend_limit"],
+  );
+  assert.deepEqual(
+    orderZaicodeLimitWindows([window("weekly_team"), window("five_hour")]).map((entry) => entry.key),
+    ["five_hour", "weekly_team"],
+  );
+  assert.deepEqual(orderZaicodeLimitWindows([]), []);
 });

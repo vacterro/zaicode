@@ -134,3 +134,107 @@ test("T-360: ProductProjection preserves SAIPEN guard pause over generic system 
   assert.equal(deltas.length, 0, "generic system error cannot overwrite SAIPEN refusal code");
   assert.equal(projection.getSnapshot().queue.pauseReasonCode, "guard.recognizedContinueSaipenPreconditionUnmet");
 });
+
+test("T-361: ProductProjection 8-part sequence regression suite", () => {
+  const sessionId = "sess-pause-proj-3";
+  const projection = new ProductProjection(sessionId, "epoch-1");
+
+  // 1. Explicit operator Stop
+  const deltas1 = projection.applyEvent(
+    makeQueueAutoDrainEvent(sessionId, 1, {
+      autoDrain: false,
+      pauseReason: "stopped",
+      pauseOrigin: "user",
+      pauseReasonCode: "operator_stopped",
+    }),
+  );
+  assert.equal(deltas1.length, 1);
+  assert.equal(projection.getSnapshot().queue.pauseReason, "stopped");
+  assert.equal(projection.getSnapshot().queue.pauseOrigin, "user");
+  assert.equal(projection.getSnapshot().queue.pauseReasonCode, "operator_stopped");
+
+  // 2. A subsequent system promotion failure: cannot erase operator Stop
+  const deltas2 = projection.applyEvent(
+    makeQueueAutoDrainEvent(sessionId, 2, {
+      autoDrain: false,
+      pauseReason: "error",
+      pauseOrigin: "system",
+      pauseReasonCode: "promotion_failed",
+    }),
+  );
+  assert.equal(deltas2.length, 0, "subsequent system promotion failure cannot erase operator Stop");
+  assert.equal(projection.getSnapshot().queue.pauseReason, "stopped");
+
+  // 3. Replayed old pause event: completely idempotent
+  const deltas3 = projection.applyEvent(
+    makeQueueAutoDrainEvent(sessionId, 3, {
+      autoDrain: false,
+      pauseReason: "stopped",
+      pauseOrigin: "user",
+      pauseReasonCode: "operator_stopped",
+    }),
+  );
+  assert.equal(deltas3.length, 0, "replayed identical pause produces no deltas");
+
+  // 4. An explicit user Resume: clears all pause metadata
+  const deltas4 = projection.applyEvent(
+    makeQueueAutoDrainEvent(sessionId, 4, {
+      autoDrain: true,
+    }),
+  );
+  assert.equal(deltas4.length, 1);
+  assert.equal(projection.getSnapshot().queue.autoDrain, true);
+  assert.equal(projection.getSnapshot().queue.pauseReason, undefined);
+  assert.equal(projection.getSnapshot().queue.pauseOrigin, undefined);
+  assert.equal(projection.getSnapshot().queue.pauseReasonCode, undefined);
+
+  // 5. Delayed failure event after Resume: correctly applies new pause state
+  const deltas5 = projection.applyEvent(
+    makeQueueAutoDrainEvent(sessionId, 5, {
+      autoDrain: false,
+      pauseReason: "error",
+      pauseOrigin: "system",
+      pauseReasonCode: "guard.recognizedContinueSaipenRefusal",
+    }),
+  );
+  assert.equal(deltas5.length, 1);
+  assert.equal(projection.getSnapshot().queue.autoDrain, false);
+  assert.equal(projection.getSnapshot().queue.pauseReasonCode, "guard.recognizedContinueSaipenRefusal");
+
+  // 6. SAIPEN refusal followed by transport failure: SAIPEN refusal preserved
+  const deltas6 = projection.applyEvent(
+    makeQueueAutoDrainEvent(sessionId, 6, {
+      autoDrain: false,
+      pauseReason: "error",
+      pauseOrigin: "system",
+      pauseReasonCode: "transport_disconnect",
+    }),
+  );
+  assert.equal(deltas6.length, 0, "transport failure cannot overwrite SAIPEN refusal");
+  assert.equal(projection.getSnapshot().queue.pauseReasonCode, "guard.recognizedContinueSaipenRefusal");
+
+  // 7. Same-origin reason-code replacement: operator replaces manual pause code
+  const deltas7 = projection.applyEvent(
+    makeQueueAutoDrainEvent(sessionId, 7, {
+      autoDrain: false,
+      pauseReason: "manual",
+      pauseOrigin: "user",
+      pauseReasonCode: "operator_paused_alternative",
+    }),
+  );
+  assert.equal(deltas7.length, 1);
+  assert.equal(projection.getSnapshot().queue.pauseReasonCode, "operator_paused_alternative");
+
+  // 8. Unknown and malformed reason codes: handles gracefully without crashing
+  const deltas8 = projection.applyEvent(
+    makeQueueAutoDrainEvent(sessionId, 8, {
+      autoDrain: false,
+      pauseReason: "manual",
+      pauseOrigin: "user",
+      pauseReasonCode: "   ", // whitespace only
+    }),
+  );
+  // Malformed empty reason code deletes pauseReasonCode cleanly
+  assert.equal(deltas8.length, 1);
+  assert.equal(projection.getSnapshot().queue.pauseReasonCode, undefined);
+});

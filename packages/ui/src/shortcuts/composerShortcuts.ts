@@ -51,3 +51,60 @@ export function resolveComposerKeyAction(
 export function shouldBareEnterFallThroughToNewline(effective: ComposerEffectiveBindings): boolean {
   return !effective.composerSend.includes("Enter");
 }
+
+/** Why the send button/Enter submission is unavailable right now. */
+export type ComposerSendReadiness =
+  | "ready"
+  | "disabled"
+  | "submit_blocked"
+  | "submitting"
+  | "attachments_not_ready"
+  | "routing_rejected"
+  | "empty"
+  | "not_submittable";
+
+/**
+ * Enter has two independent meanings that must not be conflated:
+ *
+ * - ENTER_IS_NEWLINE_BY_USER_BINDING: the user bound Enter to newline (or the
+ *   mobile viewport policy says so). Lexical inserts a newline.
+ * - ENTER_IS_SEND_BUT_SUBMISSION_BLOCKED: Enter still means Send, but sending
+ *   is temporarily impossible. Inserting a newline here is a lie: the draft
+ *   grows and the message is not queued either. The caller must prevent the
+ *   newline and report the exact blocker instead.
+ */
+export type ComposerEnterIntent = "newline" | "send" | "blocked";
+
+export function resolveComposerEnterIntent(input: {
+  modified: boolean;
+  submitDisabled: boolean;
+  enterSubmits: boolean;
+  bareEnterIsSend: boolean;
+  readiness?: ComposerSendReadiness;
+}): ComposerEnterIntent {
+  if (!input.modified && !input.bareEnterIsSend) return "newline";
+  if (!input.modified && !input.enterSubmits) return "newline";
+  if (input.readiness === "empty" && !input.modified) return "newline";
+  if (input.submitDisabled || (input.readiness !== undefined && input.readiness !== "ready"))
+    return "blocked";
+  return "send";
+}
+
+export function describeComposerSendBlocker(readiness?: ComposerSendReadiness): string {
+  switch (readiness) {
+    case "disabled":
+      return "The composer is disabled for this session.";
+    case "submitting":
+      return "A message is already being submitted.";
+    case "attachments_not_ready":
+      return "Attachments are still being prepared.";
+    case "routing_rejected":
+      return "This session's routing does not accept messages right now.";
+    case "not_submittable":
+      return "The current message cannot be submitted yet.";
+    case "submit_blocked":
+      return "Sending is blocked for this session right now.";
+    default:
+      return "Sending is blocked right now. The draft was kept.";
+  }
+}

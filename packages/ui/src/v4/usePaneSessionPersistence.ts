@@ -7,6 +7,7 @@
 // 入口保持草稿，不消费上一次运行留下的 session 绑定。
 import { useEffect, useRef } from "react";
 import { isRendererReloadNavigation } from "@/lib/rendererNavigation.js";
+import { isSessionRetired } from "@/zaicode/zaicodeCleanupFence.js";
 
 const STORAGE_PREFIX = "zcode-v4-last-session:v1:";
 
@@ -16,7 +17,12 @@ function storageKey(workspaceKey: string): string {
 
 function readPersistedPaneSession(workspaceKey: string): string | null {
   try {
-    return localStorage.getItem(storageKey(workspaceKey));
+    const value = localStorage.getItem(storageKey(workspaceKey));
+    if (value && isSessionRetired(value)) {
+      localStorage.removeItem(storageKey(workspaceKey));
+      return null;
+    }
+    return value;
   } catch {
     return null;
   }
@@ -105,6 +111,10 @@ export function usePaneSessionPersistence({
     }
     const stored = readPersistedPaneSession(workspaceKey);
     if (stored) {
+      if (isSessionRetired(stored)) {
+        persistPaneSession(workspaceKey, null);
+        return;
+      }
       pendingRestoreRef.current = { workspaceKey, sessionId: stored };
       selectSessionRef.current(stored);
     }

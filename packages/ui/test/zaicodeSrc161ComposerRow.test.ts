@@ -29,8 +29,11 @@ const src = (path: string) =>
 test("SRC-161:REQ-008 a row that still shares one line reports its real overflow", () => {
   assert.equal(
     composerRowOverflowPx({ leadingExtent: 28, trailingExtent: 240, width: 400, gap: 12, sameRow: true }),
-    0,
-    "one row with room to spare does not overflow",
+    -120,
+    // T-303: the measurement is SIGNED slack. A row with room to spare used to read
+    // 0, which made the release threshold (slack >= HYSTERESIS_PX) unreachable and a
+    // collapsed rung stayed collapsed until the next reload.
+    "one row with room to spare reports negative slack, not a clamped zero",
   );
   assert.equal(
     composerRowOverflowPx({ leadingExtent: 200, trailingExtent: 300, width: 400, gap: 12, sameRow: true }),

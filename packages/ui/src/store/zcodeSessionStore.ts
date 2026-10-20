@@ -12,6 +12,7 @@ import { createNavigationSlice } from "./zcodeSessionStoreNavigation.js";
 import { createTaskSlice } from "./zcodeSessionStoreTaskSlice.js";
 import { createWorkspaceSlice } from "./zcodeSessionStoreWorkspaceSlice.js";
 import { uiMemoryDiagnosticsRegistry } from "@/lib/memoryDiagnostics.js";
+import { subscribeSessionRetirement } from "@/zaicode/zaicodeCleanupFence.js";
 
 export const useZCodeSessionStore = create<ZCodeSessionStoreState>()((set, get) => ({
   workspaces: {},
@@ -69,4 +70,60 @@ uiMemoryDiagnosticsRegistry.register("sessionStore", () => {
     taskUi,
     cachedTasks,
   };
+});
+
+subscribeSessionRetirement((retiredIds) => {
+  const current = useZCodeSessionStore.getState();
+  const retiredSet = new Set(retiredIds);
+  let changed = false;
+  const nextWorkspaces = { ...current.workspaces };
+
+  for (const [key, ws] of Object.entries(current.workspaces)) {
+    let wsChanged = false;
+    let nextActiveTaskId = ws.activeTaskId;
+    let nextDraftRuntime = ws.draftRuntime;
+    let nextTaskRuntime = ws.taskRuntimeByTaskId;
+    let nextTaskUi = ws.taskUiByTaskId;
+    let nextOptimistic = ws.optimisticTaskListByTaskId;
+
+    if (ws.activeTaskId && retiredSet.has(ws.activeTaskId)) {
+      nextActiveTaskId = null;
+      nextDraftRuntime = { status: "idle", error: null };
+      wsChanged = true;
+    }
+
+    for (const id of retiredIds) {
+      if (nextTaskRuntime && nextTaskRuntime[id]) {
+        const { [id]: _, ...rest } = nextTaskRuntime;
+        nextTaskRuntime = rest;
+        wsChanged = true;
+      }
+      if (nextTaskUi && nextTaskUi[id]) {
+        const { [id]: _, ...rest } = nextTaskUi;
+        nextTaskUi = rest;
+        wsChanged = true;
+      }
+      if (nextOptimistic && nextOptimistic[id]) {
+        const { [id]: _, ...rest } = nextOptimistic;
+        nextOptimistic = rest;
+        wsChanged = true;
+      }
+    }
+
+    if (wsChanged) {
+      nextWorkspaces[key] = {
+        ...ws,
+        activeTaskId: nextActiveTaskId,
+        draftRuntime: nextDraftRuntime,
+        taskRuntimeByTaskId: nextTaskRuntime,
+        taskUiByTaskId: nextTaskUi,
+        optimisticTaskListByTaskId: nextOptimistic,
+      };
+      changed = true;
+    }
+  }
+
+  if (changed) {
+    useZCodeSessionStore.setState({ workspaces: nextWorkspaces });
+  }
 });

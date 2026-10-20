@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CheckCheck, FastForward } from "lucide-react";
+import { resolveZaicodeAutoPolicy } from "@zcode/shared";
 import { useOptionalBaseWorkspaceServices } from "@/hooks/useWorkspaceServices.js";
 import { cn } from "@/components/lib/utils.js";
 import { toast } from "@/components/ui/toast.js";
@@ -28,6 +29,7 @@ import { zaicodeContinueHandleFor } from "./zaicodeContinueHost.js";
 import { resolveZaicodeServices } from "./zaicodeServices.js";
 import { useZaicodeAuditStore } from "./zaicodeAuditStore.js";
 import { ZaicodeRetryLedgerChip } from "./ZaicodeRetryLedgerChip.js";
+import { ZaicodeSidebarAutoButton } from "./ZaicodeAutoSettings.js";
 
 /**
  * Two big sidebar buttons (SRC-043):
@@ -59,7 +61,10 @@ function sessionLine(session: ZaicodeSessionBrief): string {
   return `${project} · ${session.title}`;
 }
 
-export function ZaicodeSessionActionStrip() {
+export function ZaicodeSessionActionStrip({ workspaceKey = "", projectName = "" }: {
+  workspaceKey?: string;
+  projectName?: string;
+}) {
   const accessor = useOptionalBaseWorkspaceServices();
   const audits = accessor ? (resolveZaicodeServices(accessor)?.audits ?? null) : null;
   const auto = useZaicodeAuditStore();
@@ -69,8 +74,6 @@ export function ZaicodeSessionActionStrip() {
   const activeTaskId = useZaicodeSessionNav((state) => state.activeTaskId);
   const [running, setRunning] = useState(false);
   const autoBusy = useRef(false);
-  const autoEnabled = useRef(auto.smartMode);
-  const autoSwitchPending = useRef(false);
   const autoSignature = useRef("");
   const autoRetryAt = useRef(0);
   const autoRetryOnly = useRef<ZaicodeContinueStep[] | null>(null);
@@ -79,10 +82,6 @@ export function ZaicodeSessionActionStrip() {
     if (audits) void auto.refresh(audits);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- refresh is a stable store action
   }, [audits]);
-
-  useEffect(() => {
-    if (!autoSwitchPending.current) autoEnabled.current = auto.smartMode;
-  }, [auto.smartMode]);
 
   const plan = useMemo(
     () =>
@@ -116,15 +115,16 @@ export function ZaicodeSessionActionStrip() {
   // Auto advances a changed project once. The next board or session update
   // arms the next pass; an unchanged snapshot cannot flood a cold host.
   useEffect(() => {
-    if (!auto.smartMode) {
+    if (!projects.some((project) => resolveZaicodeAutoPolicy(auto, project.key).smartMode)) {
       autoSignature.current = "";
       autoRetryAt.current = 0;
       autoRetryOnly.current = null;
       return;
     }
     const tick = async () => {
-      if (!autoEnabled.current || autoBusy.current || Date.now() < autoRetryAt.current) return;
-      const steps = plan.steps.filter((step) => step.autoEligible);
+      if (useZaicodeAuditStore.getState().policySaving || autoBusy.current || Date.now() < autoRetryAt.current) return;
+      const steps = plan.steps.filter((step) => step.autoEligible &&
+        resolveZaicodeAutoPolicy(useZaicodeAuditStore.getState(), step.projectKey).smartMode);
       if (steps.length === 0) return;
       const signature = JSON.stringify([
         auto.runId,
@@ -143,13 +143,18 @@ export function ZaicodeSessionActionStrip() {
       autoSignature.current = signature;
       autoBusy.current = true;
       try {
+        const suspended: ZaicodeContinueStep[] = [];
         const outcome = await runZaicodeContinuePlan(
           { steps: autoRetryOnly.current ?? steps, skipped: plan.skipped },
           resolveHandle,
           // 关闭 Auto 或停用项目时，已排队的后续步骤也不能继续发送。
-          (step) =>
-            autoEnabled.current &&
-            !useZaicodeHomeProjects.getState().rows[step.projectKey]?.disabled,
+          (step) => {
+            const current = useZaicodeAuditStore.getState();
+            // 设置仍在确认时保留未发送步骤；成功或失败后不能吞掉其他项目的续跑。
+            if (current.policySaving) { suspended.push(step); return false; }
+            return resolveZaicodeAutoPolicy(current, step.projectKey).smartMode &&
+              !useZaicodeHomeProjects.getState().rows[step.projectKey]?.disabled;
+          },
         );
         for (const started of outcome.started) {
           const project = projects.find((candidate) => candidate.key === started.projectKey);
@@ -159,14 +164,14 @@ export function ZaicodeSessionActionStrip() {
               .setMain(zaicodeMainSessionKey(project.path, project.identity), started.sessionId);
         }
         if (outcome.failed.length > 0) {
-          autoRetryOnly.current = outcome.failedSteps;
+          autoRetryOnly.current = [...outcome.failedSteps, ...suspended];
           autoRetryAt.current = Date.now() + 60_000;
           toast(`Auto could not continue:\n${outcome.failed.join("\n")}`, {
             variant: "warning",
             durationMs: 10_000,
           });
         } else {
-          autoRetryOnly.current = null;
+          autoRetryOnly.current = suspended.length ? suspended : null;
           autoRetryAt.current = 0;
         }
       } catch (error) {
@@ -183,7 +188,7 @@ export function ZaicodeSessionActionStrip() {
     void tick();
     const timer = window.setInterval(() => void tick(), 15_000);
     return () => window.clearInterval(timer);
-  }, [auto.smartMode, auto.runId, plan, projects, rows, sessions, resolveHandle]);
+  }, [auto.smartMode, auto.autoProjects, auto.policySaving, auto.runId, plan, projects, rows, sessions, resolveHandle]);
 
   const continueAll = async () => {
     if (running || plan.steps.length === 0) return;
@@ -238,7 +243,7 @@ export function ZaicodeSessionActionStrip() {
   }, []);
 
   const big =
-    "flex h-8 min-w-0 items-center justify-center gap-1.5 border px-2 text-ui-sm font-semibold disabled:cursor-default disabled:opacity-45";
+    "flex min-h-9 h-auto min-w-0 items-center justify-center gap-1.5 border px-2 py-1 text-ui-sm font-semibold leading-tight disabled:cursor-default disabled:opacity-45";
   const count = (value: number) => <span className="tabular-nums">{value}</span>;
 
   return (
@@ -246,7 +251,7 @@ export function ZaicodeSessionActionStrip() {
       {/* The verdicts CONTINUE ALL needs (SAIPEN open tickets, MAIN, switched off), shared with SAIHOME. */}
       <ZaicodeHomeProjectProbes projects={projects} />
       <div
-        className="grid grid-cols-2 gap-1 px-2 pb-1.5 @min-[360px]/workspace-sidebar:grid-cols-[minmax(0,1fr)_auto_auto]"
+        className="grid grid-cols-2 gap-1 px-2 pb-1.5 @min-[400px]/workspace-sidebar:grid-cols-[minmax(0,1fr)_auto_auto]"
         data-zaicode-session-actions=""
         data-zaicode-help="continue"
       >
@@ -254,7 +259,7 @@ export function ZaicodeSessionActionStrip() {
           title="CONTINUE ALL — what it will do"
           preferenceKey="sessionActions"
           panel={<pre className="whitespace-pre-wrap text-foreground">{planTooltip(plan)}</pre>}
-          className="col-span-2 flex w-full min-w-0 @min-[360px]/workspace-sidebar:col-span-1"
+          className="col-span-2 flex w-full min-w-0 @min-[400px]/workspace-sidebar:col-span-1"
         >
           <button
             type="button"
@@ -275,31 +280,12 @@ export function ZaicodeSessionActionStrip() {
             {plan.steps.length > 0 ? count(plan.steps.length) : null}
           </button>
         </ZaicodeRightClickSettings>
-        <button
-          type="button"
-          className={cn(
-            big,
-            auto.smartMode
-              ? "border-[var(--zaicode-highlight,var(--color-border-hover))] bg-selected text-foreground"
-              : "border-border text-foreground-subtle",
-          )}
-          aria-pressed={auto.smartMode}
-          disabled={!audits}
-          title={`Auto: continue open project work, wait for SAIPEN to report DONE, then run A3 audits and implement findings. Maximum ${auto.maxCycles} audit cycles per project; change it in Audits.
-OFF means nothing acts by itself: no retry of a failed turn, no resume after a crash (a session set to Auto-continue: On excepted).`}
-          onClick={() => {
-            if (audits && !autoSwitchPending.current) {
-              autoSwitchPending.current = true;
-              autoEnabled.current = !auto.smartMode;
-              void auto.setSmartMode(audits, !auto.smartMode).finally(() => {
-                autoSwitchPending.current = false;
-                autoEnabled.current = useZaicodeAuditStore.getState().smartMode;
-              });
-            }
-          }}
-        >
-          Auto {auto.smartMode ? "ON" : "OFF"}
-        </button>
+        <ZaicodeSidebarAutoButton
+          audits={audits}
+          className={big}
+          workspaceKey={workspaceKey}
+          projectName={projects.find((project) => project.key === workspaceKey)?.name ?? projectName}
+        />
         <ZaicodeRightClickSettings
           title="Finished, not seen yet"
       preferenceKey="sessionActions"

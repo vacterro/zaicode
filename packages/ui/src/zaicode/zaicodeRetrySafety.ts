@@ -29,11 +29,16 @@ const WALL_LIMIT = 200;
 
 export interface ZaicodeQueueRetryEpisode {
   sessionId: string;
+  workspaceIdentity?: string;
   projectKey?: string;
   queueHeadId: string;
+  episodeId?: string;
   attempts: number;
   lastReasonCode?: string | null;
   lastAttemptAt?: number;
+  lastOutcome?: "pending" | "accepted" | "rejected" | "refused";
+  retryEligible?: boolean;
+  operatorStopped?: boolean;
 }
 
 export interface ZaicodeRetrySafetyRecord {

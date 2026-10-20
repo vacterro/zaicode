@@ -24,6 +24,7 @@ import type { GoalCompletionVerificationOutput } from "../tools/target.js";
 import type { PermissionOptionsPolicy, PermissionUpdate } from "./permission.port.js";
 import type { ToolResultDisplayPayload } from "../tools/tool-result-metadata.js";
 import type { ModelSelection } from "../model/model.js";
+import type { ResponseContractAdmission } from "@zcode/shared/zcode-protocol-v4";
 
 // -----------------------------------------------
 // Collaboration Mode and Risk Level
@@ -277,6 +278,71 @@ export type TurnSteerSource = "plan_approval_feedback" | "workflow_refine_feedba
  */
 export type TurnSteerDeliveryMode = "guide" | "queue";
 
+/**
+ * T-283 (SAIHANDOFF F-03): the AUTHORIZATION classification of an admitted input.
+ *
+ * Display classification (how a row is drawn) is a different axis and lives in
+ * `MessageAnchorOrigin`. This vocabulary answers one question only: may this
+ * input be counted as an operator decision? Unknown/legacy provenance is its own
+ * value and NEVER grants human authority implicitly.
+ */
+export const INPUT_PROVENANCE_ORIGINS = [
+  /** A genuine human submission that arrived on the operator ingress. */
+  "real_user",
+  /** The runtime produced this input to keep its own work going. */
+  "agent_runtime",
+  /** Content imported from outside this session (shared context). */
+  "import",
+  /** Runtime/policy notices and background automation. */
+  "system",
+  /** Legacy or unrecognized provenance: no authority may be inferred. */
+  "unknown",
+] as const;
+export type InputProvenanceOrigin = (typeof INPUT_PROVENANCE_ORIGINS)[number];
+
+/** Producer classification: which route admitted this input. */
+export const INPUT_PROVENANCE_SOURCES = [
+  "operator_ingress",
+  "goal_autocontinuation",
+  "retry",
+  "queue_promotion",
+  "shared_context_import",
+  "background_automation",
+  "synthetic_notice",
+  "unknown",
+] as const;
+export type InputProvenanceSource = (typeof INPUT_PROVENANCE_SOURCES)[number];
+
+/**
+ * T-283: stable provenance for an admitted input, carried through command
+ * envelope, host admission, queue, runtime execution, persistence, projection
+ * and hydration. It extends the pre-existing `provenance` record (sourceCommandId
+ * / queueItemId / clientId, already preserved by the queue and retry paths)
+ * rather than introducing a parallel schema.
+ *
+ * `humanAuthored` is derived at admission from the ingress, never copied from a
+ * wire field: the transport may only REMOVE human authority, never assert it.
+ * Absent means unknown and is never treated as human authorization.
+ */
+export interface TurnInputProvenance {
+  /** The command this input was rebuilt from (edit/retry/queue/continuation root). */
+  sourceCommandId: string;
+  queueItemId?: string;
+  clientId?: string;
+  /** Authorization classification. Absent = unknown, never human. */
+  origin?: InputProvenanceOrigin;
+  /** Producer classification. */
+  source?: InputProvenanceSource;
+  /** Authorization fact. True only for a genuine operator submission. */
+  humanAuthored?: boolean;
+  /** The human goal intent this input traces back to (continuations only). */
+  originalUserIntentId?: string;
+  /** Associated supervised goal identity, when the input belongs to one. */
+  goalIntentId?: string;
+  /** Producer or execution identity behind the command. */
+  producerId?: string;
+}
+
 /** 协议无关的输入 intent metadata；bootstrap v4 在事件边界组装为 ConversationInputIntent。 */
 export interface TurnInputIntentMetadata {
   planEnabled?: boolean;
@@ -307,12 +373,20 @@ export interface TurnInputIntentMetadata {
     kind: "shared_context_import";
     context_id: string;
   }>;
-  /** edit/retry 重建的新 command 对原始 canonical input cause 的稳定追溯。 */
-  provenance?: {
-    sourceCommandId: string;
-    queueItemId?: string;
-    clientId?: string;
-  };
+  /**
+   * T-283: provenance of this admitted input -- both the stable trace back to
+   * the original canonical input cause (edit/retry) AND the authoritative
+   * authorization classification (`origin` / `source` / `humanAuthored`).
+   */
+  provenance?: TurnInputProvenance;
+  /**
+   * T-286 (SAIHANDOFF F-06): the response contract that governed this session --
+   * the STYLE/EXECUTION identity that was read, the language and structure rules
+   * it declares, and what the host can actually machine-check about the reply.
+   * An unreadable or self-contradicting contract is reported here as a bounded
+   * limitation; it is never silence and never an assumed language.
+   */
+  responseContract?: ResponseContractAdmission;
 }
 
 /** queue 内保留尚未 resolve 的附件描述；消费时与普通 turn 使用同一 resolver。 */

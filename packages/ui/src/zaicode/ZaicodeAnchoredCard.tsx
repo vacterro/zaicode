@@ -1,4 +1,11 @@
-import { useEffect, useState, type ReactNode } from "react";
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type HTMLAttributes,
+  type ReactNode,
+} from "react";
 import { createPortal } from "react-dom";
 import {
   ZAICODE_TOOLTIP_MARGIN,
@@ -9,6 +16,7 @@ import {
   type ZaicodeTooltipSide,
 } from "@zcode/shared";
 import { cn } from "@/components/lib/utils.js";
+import { zaicodeAnchoredCardFrame } from "./zaicodeAnchoredCardFrame.js";
 
 /**
  * The one hover card in ZAICODE that is not Radix (SRC-151:R010 + R012).
@@ -32,6 +40,8 @@ export function ZaicodeAnchoredCard({
   children,
   className,
   ariaLabel,
+  interactive = false,
+  interaction,
 }: {
   /** The trigger's rect, read at the moment the card opened. */
   anchor: ZaicodeTooltipAnchor | null;
@@ -46,12 +56,19 @@ export function ZaicodeAnchoredCard({
   children: ReactNode;
   className?: string;
   ariaLabel?: string;
+  interactive?: boolean;
+  interaction?: Pick<
+    HTMLAttributes<HTMLDivElement>,
+    "onMouseEnter" | "onMouseLeave" | "onFocusCapture" | "onBlurCapture" | "onKeyDown"
+  >;
 }) {
   const [viewport, setViewport] = useState(() => ({
     width: typeof window === "undefined" ? 0 : window.innerWidth,
     height: typeof window === "undefined" ? 0 : window.innerHeight,
   }));
   const [live, setLive] = useState<ZaicodeTooltipAnchor | null>(anchor);
+  const cardRef = useRef<HTMLDivElement | null>(null);
+  const [height, setHeight] = useState<number | null>(null);
   const ratio = typeof window === "undefined" ? 1 : window.devicePixelRatio || 1;
 
   // A card is fixed to the viewport, so a resize has to re-place it or it
@@ -85,9 +102,23 @@ export function ZaicodeAnchoredCard({
     };
   }, [anchorEl]);
 
+  // 上方浮层必须用真实内容高度定位；传 0 会把短 TODO 卡片推到窗口顶端。
+  useLayoutEffect(() => {
+    const card = cardRef.current;
+    if (!card) return;
+    const measure = () => {
+      const next = card.scrollHeight + card.offsetHeight - card.clientHeight;
+      setHeight((current) => (current === next ? current : next));
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(card);
+    return () => observer.disconnect();
+  }, [children, width, viewport.width, viewport.height]);
+
   const placement = zaicodeTooltipPlacement(
     (anchorEl ? live : anchor) ?? { left: 0, top: 0, right: 0, bottom: 0, width: 0, height: 0 },
-    { width, height: 0 },
+    { width, height: height ?? 0 },
     viewport,
     side,
   );
@@ -98,16 +129,22 @@ export function ZaicodeAnchoredCard({
   // 436px lane on a 380px window, so the box the placement had already kept
   // inside the viewport overflowed it again on the right.
   const renderedWidth = Math.max(0, Math.min(width, viewport.width - ZAICODE_TOOLTIP_MARGIN * 2));
+  // T-278: unmeasured frame is hidden and uncapped; measured frame is capped by
+  // the room its side really has (see zaicodeAnchoredCardFrame).
+  const frame = zaicodeAnchoredCardFrame(height, placement);
 
   return createPortal(
     <div
-      role="tooltip"
+      ref={cardRef}
+      {...interaction}
+      role={interactive ? "dialog" : "tooltip"}
       aria-label={ariaLabel}
       data-zaicode-anchored-card={placement.side}
       className={cn(
         // SRC-162: a card painted under the page ("Do your best." showed through the limits
         // card) is unreadable; it stacks with the other hover layers.
         "pointer-events-none fixed z-50 overflow-y-auto border border-[var(--zaicode-highlight,var(--color-border))] bg-tooltip text-ui-xs text-tooltip-foreground shadow-md",
+        interactive && "pointer-events-auto",
         className,
       )}
       style={{
@@ -115,7 +152,8 @@ export function ZaicodeAnchoredCard({
         top: zaicodeTooltipPixel(placement.top, ratio),
         width: renderedWidth,
         // Height is the point of R012: whatever room this side has, never more.
-        maxHeight: Math.floor(placement.maxHeight),
+        maxHeight: frame.maxHeight,
+        visibility: frame.visibility,
       }}
     >
       {children}

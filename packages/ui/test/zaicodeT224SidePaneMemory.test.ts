@@ -219,15 +219,11 @@ test("R003: the settings surface names both modes in plain words", () => {
   );
 });
 
-test("R003: the toggle and the restores all go through the persisted policy", () => {
+test("R003: visibility writes use one existing settings owner", () => {
   const panels = readFileSync(join(import.meta.dirname, "../src/hooks/useAppPanels.ts"), "utf8");
   assert.match(panels, /persistSidePaneVisible\(/, "writes go through one helper");
-  assert.match(panels, /persistedSidePaneCollapsed\(/, "reads go through one helper");
-  assert.equal(
-    (panels.match(/persistedSidePaneCollapsed\(/g) ?? []).length >= 3,
-    true,
-    "init, workspace switch and owner switch all consult the policy",
-  );
+  // Read precedence is exercised by the mounted owner in e2e/zaicodeSidePaneVisibility.e2e.cjs.
+  // Counting wrapper calls rejects the scalar subscription and cannot prove restoration behavior.
   assert.match(panels, /sidePaneVisibilityOwnerKey/, "the canonical owner key is used, not a new id");
   assert.doesNotMatch(panels, /localStorage\.setItem\("side-pane/, "no second store beside the settings mechanism");
 });

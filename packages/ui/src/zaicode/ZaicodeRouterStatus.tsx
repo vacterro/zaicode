@@ -4,7 +4,8 @@ import { useZaicodeRouterSetup, zaicodeRouterSupervisorLabel } from "./zaicodeRo
 export function ZaicodeRouterStatus({ compact = false }: { compact?: boolean }) {
   const host = useZaicodeRouterSetup((value) => value.host);
   const state = host?.supervisor;
-  if (!state || (compact && state.status === "preferred")) return null;
+  // 已恢复的健康状态不需要常驻占一行；故障与恢复中的状态仍由同一投影显示。
+  if (!state || (compact && (state.status === "preferred" || state.status === "restored"))) return null;
   const label = zaicodeRouterSupervisorLabel(host);
   return <div role="status" data-zaicode-router-supervisor={state.status} title={state.failure ?? label ?? undefined} className={`${compact ? "shrink-0 truncate border-b border-border px-2 py-1 text-ui-xs " : ""}${state.status === "unavailable" ? "text-destructive" : "text-foreground-subtle"}`}>{label}</div>;
 }

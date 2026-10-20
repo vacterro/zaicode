@@ -37,6 +37,7 @@ const OK: ZaicodeGoalContinuationFacts = {
   waiting: false,
   failed: false,
   goalOpen: true,
+  handbackStands: false,
   sawRunning: true,
   pending: false,
 };

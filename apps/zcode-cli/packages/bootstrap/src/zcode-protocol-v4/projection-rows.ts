@@ -6,6 +6,7 @@ import type {
   GoalStatus,
   SyntheticUserMessageSource,
   ToolResultPayload,
+  TurnInputIntentMetadata,
   TurnResultType,
   TurnStartedPayload,
 } from "@zcode/contracts";
@@ -16,7 +17,11 @@ import type {
   TurnHeaderRow,
   UserInputRow,
 } from "@zcode/shared/zcode-protocol-v4";
-import { PROTOCOL_V4_LIMITS } from "@zcode/shared/zcode-protocol-v4";
+import {
+  PROTOCOL_V4_LIMITS,
+  inputProvenanceRowOrigin,
+  inputProvenanceTurnHeaderOrigin,
+} from "@zcode/shared/zcode-protocol-v4";
 
 interface RowBaseInput {
   rowId: number;
@@ -25,10 +30,13 @@ interface RowBaseInput {
   createdAtSeq: number;
 }
 
-// inputSource → turnHeader.origin。
+// T-283: admitted provenance → turnHeader.origin, then legacy inputSource.
 function mapTurnHeaderOrigin(
   source: SyntheticUserMessageSource | undefined,
+  provenance: TurnInputIntentMetadata["provenance"],
 ): TurnHeaderRow["origin"] {
+  const admitted = inputProvenanceTurnHeaderOrigin(provenance);
+  if (admitted !== undefined) return admitted;
   switch (source) {
     case "background_task":
       return "backgroundResult";
@@ -41,10 +49,13 @@ function mapTurnHeaderOrigin(
   }
 }
 
-// inputSource → userInput.origin。
+// T-283: admitted provenance → userInput.origin, then legacy inputSource.
 function mapUserInputOrigin(
   source: SyntheticUserMessageSource | undefined,
+  provenance: TurnInputIntentMetadata["provenance"],
 ): UserInputRow["origin"] {
+  const admitted = inputProvenanceRowOrigin(provenance);
+  if (admitted !== undefined) return admitted;
   switch (source) {
     case "background_task":
       return "backgroundResult";
@@ -67,7 +78,7 @@ export function buildTurnHeaderRow(base: RowBaseInput, payload: TurnStartedPaylo
   return {
     ...base,
     kind: "turnHeader",
-    origin: mapTurnHeaderOrigin(payload.inputSource),
+    origin: mapTurnHeaderOrigin(payload.inputSource, payload.intent?.provenance),
     executionKind: payload.executionKind ?? "agent",
     ...(payload.originMeta ? { originMeta: payload.originMeta } : {}),
     state: "running",
@@ -93,7 +104,7 @@ export function buildUserInputRow(base: RowBaseInput, payload: TurnStartedPayloa
     ...base,
     kind: "userInput",
     text: payload.input,
-    origin: mapUserInputOrigin(payload.inputSource),
+    origin: mapUserInputOrigin(payload.inputSource, payload.intent?.provenance),
     ...(sourceCommandId ? { sourceCommandId } : {}),
     ...(rootSourceCommandId ? { rootSourceCommandId } : {}),
     ...(payload.intent?.clientId ? { clientId: payload.intent.clientId } : {}),

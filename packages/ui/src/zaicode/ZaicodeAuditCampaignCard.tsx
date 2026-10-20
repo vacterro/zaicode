@@ -39,7 +39,12 @@ const STEP_MARK: Record<ZaicodeAuditStepState, string> = {
   cancelled: "–",
 };
 
-const IDLE_CLASS = { ok: "text-green-300", quiet: "text-yellow-300", stalled: "text-red-300" } as const;
+const IDLE_CLASS = {
+  ok: "text-green-300",
+  quiet: "text-yellow-300",
+  stalled: "text-red-300",
+  unknown: "text-foreground-subtlest",
+} as const;
 
 export function ZaicodeAuditCampaignCard({
   campaign,
@@ -230,8 +235,10 @@ export function ZaicodeAuditCampaignCard({
           {live?.model ? <span>Model: {live.model}</span> : null}
           {live && live.attempt > 1 ? <span>Attempt {live.attempt}</span> : null}
           {idle ? (
-            <span className={IDLE_CLASS[idle.level]} title="Time since the running wave last showed a sign of life">
-              Last sign of life {formatZaicodeAuditElapsed(idle.idleMs)} ago
+            <span className={IDLE_CLASS[idle.level]} title="Time since the running wave itself last showed a sign of life (the host lease is not used)">
+              {idle.level === "unknown"
+                ? "Last sign of life unknown — no session activity reported yet"
+                : `Last sign of life ${formatZaicodeAuditElapsed(idle.idleMs!)} ago`}
               {idle.level === "stalled" ? " — looks stuck: open the session or cancel" : idle.level === "quiet" ? " — quiet" : ""}
             </span>
           ) : null}

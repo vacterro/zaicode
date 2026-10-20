@@ -5,6 +5,34 @@ type DateTimeFormatterKind = "time" | "monthDayTime" | "yearMonthDayTime";
 const MESSAGE_TIME_LABEL_CACHE_LIMIT = 4_000;
 const messageTimeLabelCache = new Map<string, string>();
 const dateTimeFormatterCache = new Map<string, Intl.DateTimeFormat>();
+const relativeTimeFormatterCache = new Map<string, Intl.RelativeTimeFormat>();
+
+/** 消息年龄必须从持久化时间推导；重新挂载不能把历史消息变成“刚刚”。 */
+export function formatMessageElapsedLabel(
+  timestamp: number,
+  locale: string,
+  nowTimestamp = Date.now(),
+): string | null {
+  if (!Number.isFinite(timestamp) || timestamp <= 0 || !Number.isFinite(nowTimestamp)) return null;
+  if (Number.isNaN(new Date(timestamp).getTime()) || Number.isNaN(new Date(nowTimestamp).getTime()))
+    return null;
+  const language = locale === "ded" ? "ru-RU" : locale;
+  let formatter = relativeTimeFormatterCache.get(language);
+  if (!formatter) {
+    formatter = new Intl.RelativeTimeFormat(language, { numeric: "auto", style: "short" });
+    relativeTimeFormatterCache.set(language, formatter);
+  }
+  const age = Math.max(0, nowTimestamp - timestamp);
+  const [unit, size]: [Intl.RelativeTimeFormatUnit, number] =
+    age < 60_000
+      ? ["second", 1_000]
+      : age < 3_600_000
+        ? ["minute", 60_000]
+        : age < 86_400_000
+          ? ["hour", 3_600_000]
+          : ["day", 86_400_000];
+  return formatter.format(-Math.floor(age / size), unit);
+}
 
 function isSameDay(left: Date, right: Date): boolean {
   return (
@@ -24,7 +52,7 @@ function getDateTimeFormatter(locale: string, kind: DateTimeFormatterKind): Intl
   if (cached) return cached;
 
   const formatter = new Intl.DateTimeFormat(
-    locale,
+    locale === "ded" ? "ru-RU" : locale,
     kind === "time"
       ? { hour: "2-digit", minute: "2-digit" }
       : kind === "monthDayTime"

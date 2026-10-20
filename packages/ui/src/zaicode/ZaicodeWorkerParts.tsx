@@ -364,6 +364,7 @@ export function ZaicodeWorkerTerminal({
           isWindowsDesktop={isWindows}
           initialInput={worker.command || undefined}
           externalizable={worker.kind === "worker"}
+          suppressDynamicColorQueries={isWindows && worker.kind === "worker" && worker.vendor === "codex"}
           onShellLabelChange={() => undefined}
           onExit={(_sessionId, exitCode) => markZaicodeWorkerExited(worker.id, exitCode)}
           onOpenBrowserUrl={(url) => window.open(url, "_blank", "noopener")}

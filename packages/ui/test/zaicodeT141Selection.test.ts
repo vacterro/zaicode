@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { buildPoolGroups } from "../src/zaicode/zaicodeRoutingModel.js";
 import { normalizeZaicodeEngineBarPrefs, zaicodeEngineBarModels } from "../src/zaicode/zaicodeEngineBarPrefs.js";
-import { resolveZaicodeSubscriptionGroup } from "../src/zaicode/zaicodeSubscriptionSelection.js";
+import { resolveZaicodeSubscriptionGroup, zaicodePoolSubscription, zaicodeSchedulerWatchNote } from "../src/zaicode/zaicodeSubscriptionSelection.js";
 import type { ZaicodeSubscriptionAccount } from "@zcode/shared";
 
 const groups = buildPoolGroups([
@@ -50,4 +50,37 @@ test("sidebar commands reach only the current workspace composer and retain the 
   release(); releaseHidden();
   assert.equal(requestZaicodeComposerModel({ providerId: "account-a", modelId: "model", reasoningLevel: "gone" }), false);
   assert.equal(resolveZaicodeDefaultSelection(view)?.options?.reasoningLevel, "medium");
+});
+
+test("REQ-005: pool runners name the subscription they bill; engine linkage never guesses", () => {
+  const engines = [
+    { id: "cli-1", vendor: "codex", label: "Codex 1" },
+    { id: "cli-2", vendor: "codex", label: "Codex 2" },
+  ];
+  assert.deepEqual(zaicodePoolSubscription("account-a", accounts, providerAccount, engines), {
+    label: "Codex 1",
+    vendor: "codex",
+    engineId: "cli-1",
+  });
+  assert.equal(zaicodePoolSubscription("router", accounts, providerAccount, engines), null);
+  assert.equal(zaicodePoolSubscription("ghost", accounts, providerAccount, engines), null);
+  // Same vendor, no label twin: linked engine stays null instead of borrowing another account's quota.
+  assert.deepEqual(zaicodePoolSubscription("account-b", accounts, providerAccount, [{ id: "cli-x", vendor: "codex", label: "Other" }]), {
+    label: "Codex 2",
+    vendor: "codex",
+    engineId: null,
+  });
+});
+
+test("REQ-005: watch notes separate same-subscription, missing, unwatchable and mismatched", () => {
+  const backing = { label: "Codex 1", vendor: "codex", engineId: "cli-1" };
+  const labels = (id: string) => (id === "cli-1" ? "C1 Codex 1" : id === "cli-2" ? "C2 Codex 2" : null);
+  assert.equal(zaicodeSchedulerWatchNote(null, "", labels), null);
+  assert.equal(zaicodeSchedulerWatchNote(backing, "cli-1", labels)?.tone, "same");
+  assert.equal(zaicodeSchedulerWatchNote(backing, "", labels)?.tone, "missing");
+  const mismatch = zaicodeSchedulerWatchNote(backing, "cli-2", labels);
+  assert.equal(mismatch?.tone, "mismatch");
+  assert.ok(mismatch?.text.includes("Codex 1") && mismatch?.text.includes("C2 Codex 2"));
+  const unwatchable = zaicodeSchedulerWatchNote({ label: "Codex 2", vendor: "codex", engineId: null }, "cli-1", labels);
+  assert.equal(unwatchable?.tone, "unwatchable");
 });

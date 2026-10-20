@@ -27,6 +27,10 @@ export function ComposerPastedTextEditor({
   onCancel,
   onSave,
   onRestore,
+  onCollapse,
+  onRemove,
+  collapseLabel,
+  removeLabel,
 }: {
   open: boolean;
   filename: string;
@@ -40,6 +44,10 @@ export function ComposerPastedTextEditor({
   onCancel: () => void;
   onSave: (text: string) => void;
   onRestore?: (text: string) => void;
+  onCollapse?: (draft: string) => void;
+  onRemove?: () => void;
+  collapseLabel?: string;
+  removeLabel?: string;
 }) {
   const [draft, setDraft] = useState(text);
   // Reopening must show the payload as it is NOW, not the last edit.
@@ -75,19 +83,61 @@ export function ComposerPastedTextEditor({
         <p className="text-ui-sm text-foreground-subtle" data-composer-pasted-text-meta="true">
           {describe(pastedTextMetadata(draft))}
         </p>
-        <DialogFooter>
-          {onRestore ? <Button type="button" variant="outline" disabled={saving} data-composer-pasted-text-restore onClick={() => onRestore(draft)}>Restore to composer</Button> : null}
-          <Button type="button" variant="ghost" disabled={saving} onClick={onCancel}>
-            {cancelLabel}
-          </Button>
-          <Button
-            type="button"
-            data-composer-pasted-text-save="true"
-            disabled={saving || draft === text}
-            onClick={() => onSave(draft)}
-          >
-            {saveLabel}
-          </Button>
+        <DialogFooter className="flex items-center justify-between gap-2 sm:justify-between">
+          <div className="flex items-center gap-2">
+            {onRemove ? (
+              <Button
+                type="button"
+                variant="destructive"
+                disabled={saving}
+                data-composer-pasted-text-remove="true"
+                onClick={onRemove}
+              >
+                {removeLabel ?? "Remove"}
+              </Button>
+            ) : null}
+            {onRestore ? (
+              <Button
+                type="button"
+                variant="outline"
+                disabled={saving}
+                data-composer-pasted-text-restore
+                onClick={() => onRestore(draft)}
+              >
+                Restore to composer
+              </Button>
+            ) : null}
+          </div>
+          <div className="flex items-center gap-2">
+            {onCollapse ? (
+              <Button
+                type="button"
+                variant="outline"
+                disabled={saving}
+                data-composer-pasted-text-collapse="true"
+                onClick={() => onCollapse(draft)}
+              >
+                {collapseLabel ?? "Collapse"}
+              </Button>
+            ) : null}
+            <Button
+              type="button"
+              variant="ghost"
+              disabled={saving}
+              data-composer-pasted-text-cancel="true"
+              onClick={onCancel}
+            >
+              {cancelLabel}
+            </Button>
+            <Button
+              type="button"
+              data-composer-pasted-text-save="true"
+              disabled={saving || draft === text}
+              onClick={() => onSave(draft)}
+            >
+              {saveLabel}
+            </Button>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>

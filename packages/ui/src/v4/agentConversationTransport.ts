@@ -34,7 +34,13 @@ import {
   type V4ConversationResyncResult,
 } from "@zcode/shared/zcode-protocol-v4";
 import type { ConversationTransport } from "@/v4/transport.js";
-import { ensureAgentV4ConnectionHandshake } from "@/v4/agentV4ConnectionHandshake.js";
+import {
+  ensureAgentV4ConnectionHandshake,
+  getAgentV4HostClockSample,
+  readV4HostClock,
+  refreshAgentV4HostClock,
+  type V4HostClockSample,
+} from "@/v4/agentV4ConnectionHandshake.js";
 import { createWorkflowRunTransportMethods } from "@/v4/agentConversationTransportWorkflowRuns.js";
 import { createAckActivationBarrier } from "@/v4/ackActivationBarrier.js";
 import { createTopicWireDecoder } from "@/v4/topicWireDecoder.js";
@@ -120,8 +126,31 @@ export function createAgentConversationTransport(
         calibrationFlight = undefined;
       });
   };
+  let hostClock: V4HostClockSample | null | undefined;
+  let hostClockGeneration = 0;
+  let hostRuntimeAvailable = true;
+  let hostClockRenewal: { generation: number; promise: Promise<void> } | null = null;
+  const renewHostClock = () => {
+    if (!hostRuntimeAvailable || hostClockRenewal?.generation === hostClockGeneration) return;
+    const generation = hostClockGeneration;
+    hostClock = null;
+    // 旧 proxy 的只读 RPC 可能永久 pending；新 runtime 代不等旧代，也不接受其迟到结果。
+    const promise = refreshAgentV4HostClock(agentService).then((sample) => {
+      if (hostRuntimeAvailable && generation === hostClockGeneration) hostClock = sample;
+    }).catch(() => {}).finally(() => {
+      if (hostClockRenewal?.promise === promise) hostClockRenewal = null;
+    });
+    hostClockRenewal = { generation, promise };
+  };
+  const observeHostClockAvailability = (available: boolean) => {
+    hostClockGeneration++;
+    hostRuntimeAvailable = available;
+    hostClock = null;
+    if (available) renewHostClock();
+  };
   const ensureHandshake = async () => {
     const hello = await ensureAgentV4ConnectionHandshake(agentService);
+    if (hostClock === null && hostRuntimeAvailable) renewHostClock();
     calibrate();
     return hello;
   };
@@ -134,6 +163,11 @@ export function createAgentConversationTransport(
       subscriptionId: string;
       reasonCode?: string;
       deliveryKind?: TopicFrameDeliveryKind;
+      // assembler 已经产出这两个事实；此处只是别再丢掉它们——没有 ordinal 的诊断
+      // 无法定位是哪一帧失败。
+      logicalFrameOrdinal?: number;
+      logicalFrameId?: string;
+      schemaIssue?: string;
     }) => void
   >();
   const runtimeRestartListeners = new Set<
@@ -184,6 +218,7 @@ export function createAgentConversationTransport(
     return bytes;
   };
   return {
+    readHostNow: () => readV4HostClock(hostClock === undefined ? getAgentV4HostClockSample(agentService) : hostClock),
     async subscribe(params: SubscribeParams): Promise<V4ConversationSubscribeResult> {
       const sessionId = parseConversationTopic(params.topic);
       if (!sessionId) {
@@ -584,6 +619,7 @@ export function createAgentConversationTransport(
         if (!target.workspaceIdentity?.trim())
           getLocalTtftObserver()?.interrupt(target.workspacePath);
         runtimeGeneration += 1;
+        observeHostClockAvailability(true);
         // runtime generation 可复用 subId/ordinal；ownership 与 assembler 必须原子失效。
         barrier.clear();
         decoder.clear();
@@ -605,6 +641,7 @@ export function createAgentConversationTransport(
             runtimeLifecycleUpstream ??=
               agentService.onAgentRuntimeLifecycle?.((event) => {
                 if (event.workspaceKey !== targetWorkspaceKey) return;
+                observeHostClockAvailability(event.state === "available");
                 if (event.state === "unavailable" && !target.workspaceIdentity?.trim())
                   getLocalTtftObserver()?.interrupt(target.workspacePath);
                 // 只转发、不动 runtimeGeneration/barrier/decoder/topicBySubscriptionId：那是

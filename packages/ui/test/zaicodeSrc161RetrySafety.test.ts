@@ -2,7 +2,9 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   bumpZaicodeAutoRetryAttempt,
+  clearZaicodeAutoRetryStoppedForSession,
   isZaicodeAutoRetryStopped,
+  isZaicodeAutoRetryStoppedForSession,
   resetZaicodeAutoRetryAttempt,
   stopZaicodeAutoRetryForError,
   zaicodeAutoRetryAttempts,
@@ -18,6 +20,8 @@ import {
   clearZaicodeRetrySafety,
   readZaicodeRetrySafety,
 } from "../src/zaicode/zaicodeRetrySafety.js";
+import { pickZaicodeBackgroundRetrySessions } from "../src/zaicode/zaicodeTurnRetryWatch.js";
+import type { ZaicodeSessionBrief } from "../src/zaicode/zaicodeContinue.js";
 
 // SRC-161:W2-002 — every way the operator stops the automatic senders must reach the durable
 // record, not just module memory. These cases watch the record the way the next renderer will.
@@ -62,6 +66,31 @@ test("W2-002: the attempt budget and the closed errors are recorded as they happ
   // No error key means nothing to record; an empty key must never enter the record.
   stopZaicodeAutoRetryForError(null);
   assert.deepEqual(readZaicodeRetrySafety().stoppedErrors, ["err-1"]);
+});
+
+test("T-240: a persisted stopped failure denies background work without blocking another session or a new accepted attempt", () => {
+  const a = "stop-episode-a", b = "stop-episode-b";
+  const key = `${a}:LOCAL_TRANSIENT:100:failed`;
+  stopZaicodeAutoRetryForError(key);
+  assert.equal(isZaicodeAutoRetryStoppedForSession(a), true);
+  assert.equal(isZaicodeAutoRetryStoppedForSession(b), false);
+  const briefs = [a, b].map((sessionId) => ({
+    sessionId, projectKey: "p", failed: true, running: false, waiting: false,
+  })) as ZaicodeSessionBrief[];
+  const options = {
+    isLocal: () => false, isProjectDisabled: () => false, attemptsOf: () => 0,
+    maxAttempts: 2, isStopped: isZaicodeAutoRetryStoppedForSession,
+  };
+  assert.deepEqual(pickZaicodeBackgroundRetrySessions(briefs, options).map((brief) => brief.sessionId), [b]);
+  clearZaicodeAutoRetryStoppedForSession(a);
+  assert.equal(isZaicodeAutoRetryStopped(key), false);
+  assert.equal(readZaicodeRetrySafety().stoppedErrors.includes(key), false);
+  assert.deepEqual(pickZaicodeBackgroundRetrySessions(briefs, options).map((brief) => brief.sessionId), [a, b]);
+  stopZaicodeAutoRetryForError(`${a}:LOCAL_TRANSIENT:200:next failure`);
+  resetZaicodeAutoRetryAttempt(b);
+  assert.equal(isZaicodeAutoRetryStoppedForSession(a), true, "another session finishing cannot authorize this one");
+  resetZaicodeAutoRetryAttempt(a);
+  assert.equal(isZaicodeAutoRetryStoppedForSession(a), false, "a clean finish retires the previous failed episode");
 });
 
 test("W2-002: a quota wall is recorded and lifted in the same record", () => {

@@ -55,11 +55,35 @@ export const conversationInputIntentSchema = z
     steer: conversationInputSteerSchema,
     dispatch: conversationInputDispatchSchema,
     admittedAt: timestampSchema,
+    // T-283 (SAIHANDOFF F-03): the authorization provenance of this admitted
+    // input, recorded by admission and reconstructed verbatim by hydration. The
+    // DISPLAY axis stays on the row (`userInput.origin` / `turnHeader.origin`),
+    // which is why `origin` here is `agent_runtime`/`unknown` rather than
+    // `realUser`. Absent = a pre-T-283 command: unknown authority, never human.
     provenance: z
       .object({
         sourceCommandId: z.string().min(1),
         queueItemId: z.string().min(1).optional(),
         clientId: z.string().min(1).optional(),
+        origin: z
+          .enum(["real_user", "agent_runtime", "import", "system", "unknown"])
+          .optional(),
+        source: z
+          .enum([
+            "operator_ingress",
+            "goal_autocontinuation",
+            "retry",
+            "queue_promotion",
+            "shared_context_import",
+            "background_automation",
+            "synthetic_notice",
+            "unknown",
+          ])
+          .optional(),
+        humanAuthored: z.boolean().optional(),
+        originalUserIntentId: z.string().min(1).optional(),
+        goalIntentId: z.string().min(1).optional(),
+        producerId: z.string().min(1).optional(),
       })
       .strict()
       .optional(),

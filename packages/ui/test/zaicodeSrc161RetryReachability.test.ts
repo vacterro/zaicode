@@ -38,20 +38,15 @@ test("REQ-002 / SRC-162: no choice can leave the Auto retry right button dead", 
 
 test("REQ-002: the composer tooltip is exactly the effective answer, never a re-derived string", () => {
   const prefs = { ...ZAICODE_UI_DEFAULT_PREFS, autoRetry: true };
-  const at = (gate: { masterOn: boolean; sessionMode?: "on" | "off"; halted: boolean }) =>
+  const at = (gate: { sessionMode?: "on" | "off"; halted: boolean }) =>
     zaicodeEffectiveAutoRetry(prefs, "p1", null, gate);
 
   assert.equal(
-    zaicodeAutoRetryTitle(at({ masterOn: true, halted: false })),
+    zaicodeAutoRetryTitle(at({ halted: false })),
     "Auto retry on — a failed turn is sent again by itself",
   );
-  // The phrase the operator reported as pinned now names the surface that owns the gate.
   assert.equal(
-    zaicodeAutoRetryTitle(at({ masterOn: false, halted: false })),
-    "Auto retry off · Sidebar Auto is off",
-  );
-  assert.equal(
-    zaicodeAutoRetryTitle(at({ masterOn: true, halted: true })),
+    zaicodeAutoRetryTitle(at({ halted: true })),
     "Auto retry off · All retries stopped",
   );
 
@@ -62,38 +57,26 @@ test("REQ-002: the composer tooltip is exactly the effective answer, never a re-
   assert.ok(html.includes(`aria-label="${expected}"`),
     `rendered aria-label must be the projection title: ${expected}`);
 });
-test("REQ-002: with the sidebar Auto off, the panel names the owner and leads to it", () => {
-  const off = render(
-    createElement(ZaicodeAutoRetryPanel, { effectiveLabel: "Global ON", preference: true, masterOn: false }),
-  );
-  assert.match(off, /data-zaicode-auto-retry-master-off/, "the reason is visible in the panel, not only the tooltip");
-  assert.match(off, /turn Auto on in Audits/);
-  assert.match(off, /turns retry ON for this project/, "SRC-162: the button itself is a way out");
-  assert.match(off, /Open Audits \(sidebar Auto\)/);
-  assert.match(off, /Open retry settings/);
-
-  const on = render(
-    createElement(ZaicodeAutoRetryPanel, { effectiveLabel: "Global ON", preference: true, masterOn: true }),
-  );
-  assert.doesNotMatch(on, /data-zaicode-auto-retry-master-off/);
-  assert.doesNotMatch(on, /Open Audits/);
-  assert.match(on, /Open retry settings/, "the settings route is always there");
+test("SRC-183: the panel leads to retry settings without a misleading Audits gate", () => {
+  const html = render(createElement(ZaicodeAutoRetryPanel, { effectiveLabel: "Global ON", preference: true }));
+  assert.match(html, /Global ON/);
+  assert.match(html, /Open retry settings/);
+  assert.doesNotMatch(html, /Sidebar Auto|Open Audits|retry-master-off/);
 });
 
 test("REQ-002: every reason names the surface that owns it", () => {
   const prefs = { ...ZAICODE_UI_DEFAULT_PREFS, autoRetry: true };
-  const at = (gate: { masterOn: boolean; sessionMode?: "on" | "off"; halted: boolean }) =>
+  const at = (gate: { sessionMode?: "on" | "off"; halted: boolean }) =>
     zaicodeEffectiveAutoRetry(prefs, "p1", "s1", gate);
 
-  assert.equal(at({ masterOn: true, halted: false }).reason, null);
-  assert.equal(at({ masterOn: false, halted: false }).reason, "Sidebar Auto is off");
-  assert.equal(at({ masterOn: true, halted: true }).reason, "All retries stopped");
+  assert.equal(at({ halted: false }).reason, null);
+  assert.equal(at({ halted: true }).reason, "All retries stopped");
   assert.equal(
-    at({ masterOn: true, sessionMode: "off", halted: false }).reason,
+    at({ sessionMode: "off", halted: false }).reason,
     "Session auto-continue is off",
   );
   assert.equal(
-    zaicodeEffectiveAutoRetry({ ...prefs, autoRetry: false }, "p1", null, { masterOn: true, halted: false }).reason,
+    zaicodeEffectiveAutoRetry({ ...prefs, autoRetry: false }, "p1", null, { halted: false }).reason,
     "global retry preference is off",
   );
 });

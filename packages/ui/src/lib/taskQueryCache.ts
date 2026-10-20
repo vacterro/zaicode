@@ -10,6 +10,15 @@ export type TaskEntityKey = string;
 export type TaskListCacheKey = string;
 export type TaskListQueryKind = ZCodeTaskListKind | "workspace";
 
+/** 与 workspace 行同一事务提交的负向归属；版本和服务身份决定自动化能否使用。 */
+export interface TaskListMembershipSnapshot {
+  version: number;
+  serviceId: number;
+  pinnedIds: readonly string[];
+  archivedIds: readonly string[];
+  deletedIds: readonly string[];
+}
+
 export interface TaskListCacheDescriptor {
   kind: TaskListQueryKind;
   sortBy: ZCodeTaskListSortBy;
@@ -21,6 +30,7 @@ export interface TaskListCacheDescriptor {
 
 export interface CachedTaskListResult {
   taskKeys: TaskEntityKey[];
+  membership?: TaskListMembershipSnapshot;
   /** workspace 分页前的完整未读成员；其它列表查询可省略。 */
   unreadTaskKeys?: TaskEntityKey[];
   searchSnippetsByTaskKey?: Record<TaskEntityKey, string>;

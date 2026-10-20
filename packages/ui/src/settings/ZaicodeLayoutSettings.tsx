@@ -1,14 +1,28 @@
 import type { ReactNode } from "react";
-import { FolderOpen, MessageSquare, TextAlignCenter, TextAlignEnd, TextAlignStart } from "lucide-react";
+import {
+  FolderOpen,
+  MessageSquare,
+  TextAlignCenter,
+  TextAlignEnd,
+  TextAlignStart,
+} from "lucide-react";
 import { cn } from "@/components/lib/utils.js";
 import { ZaicodeGreetingSettingsPanel } from "@/zaicode/ZaicodeHomeScreen.js";
 import { ZaicodeHomeSettingsPanel } from "@/zaicode/home/ZaicodeHomeSettings.js";
-import { useZaicodeSidebarPrefs, type ZaicodeSlotLabelAlign } from "@/zaicode/zaicodeSidebarPrefs.js";
+import {
+  useZaicodeSidebarPrefs,
+  type ZaicodeSlotLabelAlign,
+} from "@/zaicode/zaicodeSidebarPrefs.js";
 import { ZaicodeFancyZonesSettings } from "./ZaicodeFancyZonesSettings.js";
 import { ZaicodeComposerPartsPanel } from "@/zaicode/ZaicodeComposerPartsPanel.js";
 import { ZaicodeHeaderTitleSettingsPanel } from "@/zaicode/ZaicodeHeaderProjectTitle.js";
 import { ZaicodePrefCheck, ZaicodePrefSegment } from "@/zaicode/ZaicodePrefControls.js";
-import { isZaicodeCalm, useZaicodeUiPrefs, type ZaicodeClearMode } from "@/zaicode/zaicodeUiPrefs.js";
+import {
+  isZaicodeCalm,
+  useZaicodeUiPrefs,
+  type ZaicodeClearMode,
+} from "@/zaicode/zaicodeUiPrefs.js";
+import { ZaicodeSaipenStatusSettingsPanel } from "@/zaicode/ZaicodeSaipenStatusSettings.js";
 import {
   ZAICODE_SIDE_PANE_VISIBILITY_LABELS,
   ZAICODE_SIDE_PANE_VISIBILITY_MODES,
@@ -22,9 +36,22 @@ import {
  * with a right-click on the thing itself.
  */
 
-function Block({ title, hint, children, testId }: { title: string; hint: string; children: ReactNode; testId?: string }) {
+function Block({
+  title,
+  hint,
+  children,
+  testId,
+}: {
+  title: string;
+  hint: string;
+  children: ReactNode;
+  testId?: string;
+}) {
   return (
-    <section className="flex flex-col gap-2 border border-border bg-card p-4 text-ui-xs" data-zaicode-layout-block={testId}>
+    <section
+      className="flex flex-col gap-2 border border-border bg-card p-4 text-ui-xs"
+      data-zaicode-layout-block={testId}
+    >
       <div>
         <h2 className="text-ui-lg text-foreground">{title}</h2>
         <p className="mt-1 max-w-[580px] text-foreground-subtle">{hint}</p>
@@ -34,7 +61,11 @@ function Block({ title, hint, children, testId }: { title: string; hint: string;
   );
 }
 
-const ALIGNS: readonly { value: ZaicodeSlotLabelAlign; label: string; Icon: typeof TextAlignStart }[] = [
+const ALIGNS: readonly {
+  value: ZaicodeSlotLabelAlign;
+  label: string;
+  Icon: typeof TextAlignStart;
+}[] = [
   { value: "left", label: "Left", Icon: TextAlignStart },
   { value: "center", label: "Middle", Icon: TextAlignCenter },
   { value: "right", label: "Right", Icon: TextAlignEnd },
@@ -46,8 +77,20 @@ export function ZaicodeTitleAlignPicker() {
   const sessionAlign = useZaicodeSidebarPrefs((state) => state.sessionTitleAlign);
   const update = useZaicodeSidebarPrefs((state) => state.update);
   const rows = [
-    { key: "projectTitleAlign", label: "Project names", sample: "_ZAICODE", Icon: FolderOpen, value: projectAlign },
-    { key: "sessionTitleAlign", label: "Session titles", sample: "PHASE BUILD T-49", Icon: MessageSquare, value: sessionAlign },
+    {
+      key: "projectTitleAlign",
+      label: "Project names",
+      sample: "_ZAICODE",
+      Icon: FolderOpen,
+      value: projectAlign,
+    },
+    {
+      key: "sessionTitleAlign",
+      label: "Session titles",
+      sample: "PHASE BUILD T-49",
+      Icon: MessageSquare,
+      value: sessionAlign,
+    },
   ] as const;
   return (
     <div className="flex flex-col gap-2" data-zaicode-title-align>
@@ -103,9 +146,12 @@ export function ZaicodeLayoutSettings() {
       >
         <ZaicodeHomeSettingsPanel />
       </Block>
-      <section className="border border-border bg-card p-4 text-ui-xs text-foreground-subtle" data-zaicode-moved-sidebar>
-        Everything sidebar - header buttons, the menu, the project list, slots, LIVE, text and
-        icon size - is in <strong className="font-normal text-foreground">Sidebar</strong>.
+      <section
+        className="border border-border bg-card p-4 text-ui-xs text-foreground-subtle"
+        data-zaicode-moved-sidebar
+      >
+        Everything sidebar - header buttons, the menu, the project list, slots, LIVE, text and icon
+        size - is in <strong className="font-normal text-foreground">Sidebar</strong>.
       </section>
       <Block
         title="Title bar"
@@ -167,10 +213,27 @@ export function ZaicodeLayoutSettings() {
           value={clearMode}
           onChange={(value) => updateUiPrefs({ clearMode: value })}
           options={[
-            { value: "session", label: "Empty this session", hint: "Stops the running turn, drops the goal and the queue; the session stays where it is" },
-            { value: "new", label: "Open a new session", hint: "Leaves this session as it is and starts an empty one in the same project" },
+            {
+              value: "session",
+              label: "Empty this session",
+              hint: "Stops the running turn, drops the goal and the queue; the session stays where it is",
+            },
+            {
+              value: "new",
+              label: "Open a new session",
+              hint: "Leaves this session as it is and starts an empty one in the same project",
+            },
           ]}
         />
+      </Block>
+      <Block
+        title="SAIPEN live status strip"
+        hint="The status row at the top of every session: NEXT EXACT ACTION, RESULT, phase and ticket. Off hides it completely — the eye button on the strip hides it the same way, and this is where you turn it back on. The font size is this strip's only; the rest of the interface keeps its own."
+        testId="saipen-status"
+      >
+        <div className="max-w-[480px]">
+          <ZaicodeSaipenStatusSettingsPanel />
+        </div>
       </Block>
       <Block
         title="SAIPEN side pane (Ctrl+Alt+B)"
@@ -181,7 +244,9 @@ export function ZaicodeLayoutSettings() {
           <ZaicodePrefSegment<ZaicodeSidePaneVisibilityMode>
             label="When you switch project or session, the side pane…"
             value={sidePaneVisibility.mode}
-            onChange={(mode) => updateUiPrefs({ sidePaneVisibility: { ...sidePaneVisibility, mode } })}
+            onChange={(mode) =>
+              updateUiPrefs({ sidePaneVisibility: { ...sidePaneVisibility, mode } })
+            }
             options={ZAICODE_SIDE_PANE_VISIBILITY_MODES.map((mode) => ({
               value: mode,
               label: ZAICODE_SIDE_PANE_VISIBILITY_LABELS[mode].label,

@@ -40,6 +40,44 @@ const createSessionRequestedConfigSchema = z.object({
 });
 
 // ── 命令 payload 全集 ──
+
+export const RECOGNIZED_CONTINUE_COMMAND_TEXT = "cc";
+
+/**
+ * Exact-token recognition. Trimmed and case-insensitive, but the WHOLE input
+ * must be the token: "cc me the file", "/cc", "cc all" and "acc" stay prose.
+ * Attachments make it model work, never a bare command.
+ */
+export function isRecognizedContinueCommand(
+  text: string,
+  attachments?: readonly unknown[] | undefined,
+): boolean {
+  if (attachments !== undefined && attachments.length > 0) return false;
+  // 协议声明的西里尔双生快捷键同属命令，不能落入普通模型输入。
+  const token = text.trim().toLowerCase();
+  return token === RECOGNIZED_CONTINUE_COMMAND_TEXT || token === "сс";
+}
+
+/**
+ * T-283 (SAIHANDOFF F-03): the provenance a producer may DECLARE for an input.
+ *
+ * Carried additively on the existing input commands so the model-compatible
+ * transport stays exactly as it was. The shape deliberately has NO authority
+ * field: admission derives `humanAuthored` from the ingress, and this claim may
+ * only ever REMOVE human authority (it names a non-human producer or import).
+ * Values are opaque strings on purpose -- admission owns the closed vocabulary,
+ * so an unrecognized declaration is classified `unknown`, never promoted, and a
+ * provenance typo can never reject an otherwise valid input command.
+ */
+export const inputProvenanceClaimSchema = z.object({
+  origin: z.string().min(1).max(64).optional(),
+  source: z.string().min(1).max(64).optional(),
+  originalUserIntentId: z.string().min(1).max(512).optional(),
+  goalIntentId: z.string().min(1).max(512).optional(),
+  producerId: z.string().min(1).max(256).optional(),
+});
+export type InputProvenanceClaim = z.infer<typeof inputProvenanceClaimSchema>;
+
 export const commandPayloadSchemas = {
   // firstInput 缺省 → phase=draft 空会话；携带 → 直接 turnHeader+userInput rows。
   createSession: z.object({
@@ -81,6 +119,8 @@ export const commandPayloadSchemas = {
     .object({
       text: z.string(),
       attachments: z.array(attachmentRefSchema).optional(),
+      // 自动恢复只能占用空闲位；CLI 必须拒绝 busy/held，而不能静默入队。
+      idleOnly: z.boolean().optional(),
       // Desktop Cmd/Ctrl+Enter 只覆盖本次 busy input，不改 session followupMode。
       // startNow 由 CLI 原子抢占当前 turn，不经过 queue admission。
       requestedDelivery: z.enum(["startNow", "queue", "guide"]).optional(),
@@ -103,6 +143,8 @@ export const commandPayloadSchemas = {
       automationId: z.string().min(1).optional(),
       offPeakTaskId: z.string().min(1).optional(),
       offPeakRunType: z.enum(["init", "resume"]).optional(),
+      // T-283: producer-declared provenance. Absent = operator ingress.
+      inputProvenance: inputProvenanceClaimSchema.optional(),
       // 定时任务会话的后续用户输入也必须保持 turn-scoped 工具面隔离；不能借用
       // automationId，否则会把普通用户输入误标成一次 automation 派发。
       toolAllowlist: z.array(z.string().min(1)).optional(),
@@ -132,7 +174,10 @@ export const commandPayloadSchemas = {
     }),
   sendGoalCommand: z.object({
     text: z.string(),
+    idleOnly: z.boolean().optional(),
     displayText: z.string().optional(),
+    // T-283: producer-declared provenance. Absent = operator ingress.
+    inputProvenance: inputProvenanceClaimSchema.optional(),
     modelSelection: modelSelectionSchema.optional(),
     mode: submissionModeSchema.optional(),
     planEnabled: z.boolean().optional(),

@@ -305,6 +305,11 @@ async function prepareNodeBinaries() {
 }
 
 function buildServerBundle() {
+  const targetServerBundle = join(releaseDir, "server", "zcode-server.cjs");
+  if (existsSync(targetServerBundle)) {
+    console.log("  [skip] mock-cdn server/zcode-server.cjs already exists");
+    return;
+  }
   console.log("==> Building server bundle");
 
   try {
@@ -342,10 +347,14 @@ function runBootstrapServerRemoteBuild() {
 
 function copyServerBundle() {
   const serverDir = join(releaseDir, "server");
+  const targetServerBundle = join(serverDir, "zcode-server.cjs");
+  if (existsSync(targetServerBundle)) {
+    return;
+  }
   mkdirSync(serverDir, { recursive: true });
   copyFileSync(
     join(rootDir, "packages/server/dist/remote/zcode-server.cjs"),
-    join(serverDir, "zcode-server.cjs"),
+    targetServerBundle,
   );
   console.log("  [ok] mock-cdn server/zcode-server.cjs");
 }
@@ -496,6 +505,13 @@ function stageRemoteOfficialPlugins(glmDir) {
 // 不必再为每个平台准备一份内嵌 node 的 SEA 二进制。zcode.cjs 跨平台同一份，逐平台只是放进各自的
 // glm/<platform> 组件目录，保持现有 manifest 组件结构不变。
 function stageRemoteAgentBundles() {
+  const allGlmExist = remotePlatforms.every((platformKey) =>
+    existsSync(join(releaseDir, "glm", platformKey, "zcode.cjs")),
+  );
+  if (allGlmExist) {
+    console.log("  [skip] mock-cdn glm/* already exists");
+    return;
+  }
   console.log("==> Building zcode-cli bundle for remote agents");
   // 复用桌面同款构建脚本（turbo build:desktop-agent --filter=@zcode/cli），命中缓存时几乎瞬时。
   runCommand(process.execPath, [join(rootDir, "scripts/build-desktop-agent-cli.mjs")], {

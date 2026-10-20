@@ -24,19 +24,22 @@ test("W2-002: a fresh renderer hydrates every stop the previous one recorded", a
     JSON.stringify({
       halted: true,
       attempts: { "sess-a": 5 },
+      queueResumes: { "sess-a": 2 },
       stoppedErrors: ["err-closed"],
       quotaWalls: { "sess-a": Date.now() },
     }),
   );
 
-  const [{ zaicodeAutoRetryAttempts, isZaicodeAutoRetryStopped }, { useZaicodeRetryLedger, isZaicodeQuotaWall }] =
+  const [{ zaicodeAutoRetryAttempts, isZaicodeAutoRetryStopped }, { useZaicodeRetryLedger, isZaicodeQuotaWall }, { zaicodeQueueResumeAttempts }] =
     await Promise.all([
       import("../src/zaicode/zaicodeAutoRetry.js"),
       import("../src/zaicode/zaicodeRetryPolicy.js"),
+      import("../src/zaicode/zaicodeQueueAutoResume.js"),
     ]);
 
   assert.equal(useZaicodeRetryLedger.getState().halted, true, "stop-all survives the reload");
   assert.equal(zaicodeAutoRetryAttempts("sess-a"), 5, "the budget is not refreshed by a reload");
+  assert.equal(zaicodeQueueResumeAttempts("sess-a"), 2, "the distinct queue budget is restored too");
   assert.equal(isZaicodeAutoRetryStopped("err-closed"), true, "a closed error stays closed");
   assert.equal(isZaicodeQuotaWall("sess-a", Date.now()), true, "the quota wall is remembered");
 });
@@ -47,6 +50,7 @@ test("W2-002: an unreadable record degrades to the safe empty one, never to a cr
   assert.deepEqual(readZaicodeRetrySafety(), {
     halted: false,
     attempts: {},
+    queueResumes: {},
     stoppedErrors: [],
     quotaWalls: {},
   });

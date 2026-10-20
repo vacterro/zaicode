@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import {
   zaicodeTooltipPlacement,
+  zaicodeTooltipPreferredSide,
   zaicodeTooltipPixel,
   ZAICODE_TOOLTIP_GAP,
   ZAICODE_TOOLTIP_MARGIN,
@@ -104,4 +105,12 @@ test("两个手写的 role=tooltip 卡片都已经走共享锚定组件", () => 
   const card = src("zaicode/ZaicodeAnchoredCard.tsx");
   assert.ok(card.includes("zaicodeTooltipPlacement("), "组件复用共享的放置规则");
   assert.ok(card.includes("maxHeight"), "高度上限是卡片的一部分");
+});
+test("REQ-001: the card opens below whenever a readable card fits there", () => {
+  assert.equal(zaicodeTooltipPreferredSide(700, 724, 900), "bottom");
+  assert.equal(zaicodeTooltipPreferredSide(100, 124, 900), "bottom");
+  assert.equal(zaicodeTooltipPreferredSide(438, 462, 900), "bottom");
+  assert.equal(zaicodeTooltipPreferredSide(850, 874, 900), "top");
+  assert.equal(zaicodeTooltipPreferredSide(Number.NaN, 100, 900), "top");
+  assert.equal(zaicodeTooltipPreferredSide(100, 124, 0), "top");
 });

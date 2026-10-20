@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import { create } from "zustand";
 import { logger } from "@/logger.js";
 import { matchZaicodeHotkey } from "./zaicodeHotkeys.js";
@@ -28,6 +28,29 @@ export interface ZaicodeArchiveBatch {
   count: number;
   label: string;
   restore: () => Promise<void>;
+  /**
+   * Exactly which sessions this batch put away, when the caller can name them.
+   * CLEAR ALL DONE reads these to report per-item results; the batch's undo
+   * restore is unchanged either way.
+   */
+  archivedIds?: readonly string[];
+  /** Sessions the handler declined (for example still running under it). */
+  skippedIds?: readonly string[];
+  /** Sessions the handler tried and could not archive, with the reason each one gave. */
+  failedIds?: readonly { sessionId: string; reason: string }[];
+}
+
+/**
+ * CLEAR ALL DONE's accountable archive result: a project whose handler is not
+ * registered, or whose handler threw, is REPORTED rather than silently skipped,
+ * because a silently dropped request looks exactly like a finished one.
+ */
+export interface ZaicodeArchiveOutcome {
+  archived: { projectKey: string; sessionId: string }[];
+  /** No handler for this project key: the row is unmounted, read-only or not a ZAICODE row. */
+  unregistered: { projectKey: string; sessionIds: string[] }[];
+  failed: { projectKey: string; sessionIds: string[]; reason: string }[];
+  skipped: { projectKey: string; sessionIds: string[] }[];
 }
 
 const MAX_ENTRIES = 50;
@@ -92,8 +115,12 @@ const archiveAllHandlers = new Map<string, ArchiveAllHandler>();
 
 export function registerZaicodeArchiveAll(key: string, handler: ArchiveAllHandler): () => void {
   archiveAllHandlers.set(key, handler);
+  publishArchiveHandles();
   return () => {
-    if (archiveAllHandlers.get(key) === handler) archiveAllHandlers.delete(key);
+    if (archiveAllHandlers.get(key) === handler) {
+      archiveAllHandlers.delete(key);
+      publishArchiveHandles();
+    }
   };
 }
 
@@ -103,22 +130,64 @@ const archiveSomeHandlers = new Map<string, ArchiveSomeHandler>();
 
 export function registerZaicodeArchiveSome(key: string, handler: ArchiveSomeHandler): () => void {
   archiveSomeHandlers.set(key, handler);
+  publishArchiveHandles();
   return () => {
-    if (archiveSomeHandlers.get(key) === handler) archiveSomeHandlers.delete(key);
+    if (archiveSomeHandlers.get(key) === handler) {
+      archiveSomeHandlers.delete(key);
+      publishArchiveHandles();
+    }
   };
 }
 
-/** Archives `taskIds` per project key; one Ctrl+Z restores all of them. Returns how many went. */
-export async function archiveZaicodeSessions(byProject: ReadonlyMap<string, readonly string[]>): Promise<number> {
+let archiveHandlesVersion = 0;
+const archiveHandleListeners = new Set<() => void>();
+function publishArchiveHandles(): void {
+  archiveHandlesVersion += 1;
+  for (const listener of archiveHandleListeners) listener();
+}
+
+/** Archives `taskIds` per project key; one Ctrl+Z restores all of them. */
+export async function archiveZaicodeSessions(byProject: ReadonlyMap<string, readonly string[]>): Promise<ZaicodeArchiveOutcome> {
+  const outcome: ZaicodeArchiveOutcome = { archived: [], unregistered: [], failed: [], skipped: [] };
   const batches: ZaicodeArchiveBatch[] = [];
   for (const [key, ids] of byProject) {
     const handler = archiveSomeHandlers.get(key);
-    if (!handler || ids.length === 0) continue;
+    // The requested work is not silently dropped: the caller reports it as
+    // unavailable, and the counter keeps showing it as still actionable.
+    if (!handler) {
+      if (ids.length > 0) outcome.unregistered.push({ projectKey: key, sessionIds: [...ids] });
+      continue;
+    }
+    if (ids.length === 0) continue;
     try {
       const batch = await handler(ids);
-      if (batch && batch.count > 0) batches.push(batch);
+      const done = batch && batch.count > 0;
+      if (done) batches.push(batch);
+      const archivedIds = batch?.archivedIds ? [...batch.archivedIds] : done ? [] : [];
+      for (const sessionId of archivedIds) outcome.archived.push({ projectKey: key, sessionId });
+      for (const failure of batch?.failedIds ?? []) {
+        outcome.failed.push({ projectKey: key, sessionIds: [failure.sessionId], reason: failure.reason });
+      }
+      const accounted = new Set([
+        ...archivedIds,
+        ...(batch?.failedIds ?? []).map((failure) => failure.sessionId),
+      ]);
+      const declined = batch?.skippedIds
+        ? [...batch.skippedIds]
+        : done || batch?.archivedIds
+          ? ids.filter((sessionId) => !accounted.has(sessionId))
+          : [...ids];
+      if (declined.length > 0) outcome.skipped.push({ projectKey: key, sessionIds: declined });
+      if (!done && declined.length === 0 && accounted.size === 0 && ids.length > 0) {
+        outcome.skipped.push({ projectKey: key, sessionIds: [...ids] });
+      }
     } catch (error) {
       logger.error("[zaicode-archive-undo] archive some: project failed", { error });
+      outcome.failed.push({
+        projectKey: key,
+        sessionIds: [...ids],
+        reason: error instanceof Error ? error.message : String(error),
+      });
     }
   }
   const total = batches.reduce((sum, batch) => sum + batch.count, 0);
@@ -131,7 +200,27 @@ export async function archiveZaicodeSessions(byProject: ReadonlyMap<string, read
       },
     });
   }
-  return total;
+  return outcome;
+}
+
+/** Whether a project's archive-some handler is registered right now (CLEAR ALL DONE pre-check). */
+export function hasZaicodeArchiveSomeHandler(projectKey: string): boolean {
+  return archiveSomeHandlers.has(projectKey);
+}
+
+/**
+ * Re-renders when an archive handler mounts or unmounts, so the button stops
+ * advertising work whose project row is not there (like useZaicodeContinueHandlesVersion).
+ */
+export function useZaicodeArchiveHandlesVersion(): number {
+  return useSyncExternalStore(
+    (listener) => {
+      archiveHandleListeners.add(listener);
+      return () => archiveHandleListeners.delete(listener);
+    },
+    () => archiveHandlesVersion,
+    () => archiveHandlesVersion,
+  );
 }
 
 /** Pushes one undo entry for a finished batch (no-op when nothing was archived). */

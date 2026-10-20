@@ -114,6 +114,10 @@ export function ZaicodeQueuePanel({
     done: 0,
   };
   for (const job of jobs) counts[jobStatusGroup(job.status)] += 1;
+  const runningCount = jobs.filter((j) => j.status === "running").length;
+  const queuedCount = jobs.filter(
+    (j) => j.status === "queued" || j.status === "ready" || j.status === "waiting",
+  ).length;
   const visibleJobs = sortJobsForDisplay(
     jobs.filter((job) => filter === "all" || jobStatusGroup(job.status) === filter),
   );
@@ -167,6 +171,13 @@ export function ZaicodeQueuePanel({
               <span className="tabular-nums text-foreground-subtle">{counts[value]}</span>
             </Button>
           ))}
+        </div>
+        <div className="hidden items-center gap-1.5 font-mono text-[10px] sm:flex text-foreground-subtle">
+          <span className={runningCount > 0 ? "text-blue-400 font-semibold" : ""}>
+            {runningCount} active worker{runningCount === 1 ? "" : "s"}
+          </span>
+          <span>·</span>
+          <span>{queuedCount} queued</span>
         </div>
         <Button
           size="sm"
@@ -326,10 +337,16 @@ export function ZaicodeQueuePanel({
                 >
                   <Badge
                     variant={jobStatusBadgeVariant(job.status)}
-                    className="shrink-0"
+                    className={cn(
+                      "shrink-0 font-mono text-[10px] uppercase",
+                      job.status === "running" && "bg-blue-600 text-white animate-pulse border-blue-400",
+                      (job.status === "queued" || job.status === "ready") && "bg-secondary text-foreground-subtle border-border",
+                      job.status === "completed" && "bg-green-950/40 text-green-300 border-green-700/60",
+                      (job.status === "failed" || job.status === "blocked") && "bg-red-950/40 text-red-300 border-red-700/60",
+                    )}
                     title={t(jobStatusHelpId(job.status))}
                   >
-                    {t(jobStatusLabelId(job.status))}
+                    {job.status === "running" ? "● Running" : t(jobStatusLabelId(job.status))}
                   </Badge>
                   <div className="flex min-w-0 flex-1 flex-col">
                     <span className="truncate text-ui-base text-foreground">

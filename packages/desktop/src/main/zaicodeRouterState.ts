@@ -57,6 +57,6 @@ export async function setPoolModels(
   pool: RouterCombo,
   models: string[],
 ): Promise<void> {
-  const saved = await call({ method: "PUT", path: `/api/combos/${pool.id}`, body: { models } });
+  const saved = await call({ method: "PUT", path: `/api/combos/${pool.id}`, body: { models }, baselineModels: pool.models });
   if (!saved.ok) throw new Error(`${pool.name}: ${saved.message}`);
 }

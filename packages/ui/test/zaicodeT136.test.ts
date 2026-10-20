@@ -211,3 +211,18 @@ test("inside the dropdown a small provider shows buttons, a big one keeps its su
   assert.equal(zaicodeGroupAsButtons(group("Codex", ["gpt"], 2)), false);
   assert.equal(zaicodeGroupAsButtons(group("Empty", [])), false);
 });
+
+test("REQ-006: identical model names from two accounts gain their owner, unique names stay short", () => {
+  globals.__ZAICODE_PRODUCT_MODE__ = true;
+  const buttons = zaicodeToolbarModelButtons([group("Codex 1", ["gpt-5"]), group("Codex 2", ["gpt-5"])]);
+  assert.deepEqual(
+    buttons?.map((button) => button.label),
+    ["gpt-5 (Codex 1)", "gpt-5 (Codex 2)"],
+  );
+  assert.equal(buttons?.[0]?.title, "Codex 1 · gpt-5");
+  const mixed = zaicodeToolbarModelButtons([group("Codex 1", ["gpt-5"]), group("Claude 1", ["gpt-5", "opus"])]);
+  assert.deepEqual(
+    mixed?.map((button) => button.label),
+    ["gpt-5 (Codex 1)", "gpt-5 (Claude 1)", "opus"],
+  );
+});

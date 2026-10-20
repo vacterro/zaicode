@@ -13,8 +13,12 @@ import {
  * retry after a failed model turn. Renderer-local (per machine), applied live.
  */
 
-/** Whatever the settings say, an automatic retry gives up after this many attempts (SRC-082). */
-export const ZAICODE_AUTO_RETRY_HARD_CAP = 8;
+/**
+ * Whatever the settings say, an automatic retry gives up after this many attempts.
+ * T-302 raised it from 8 to 50 (SRC-082 stopped a flaky model at eight knocks while
+ * the interval stayed flat since; the ceiling now matches a whole failure sequence).
+ */
+export const ZAICODE_AUTO_RETRY_HARD_CAP = 50;
 /** What the "Give up after" setting starts from. */
 export const ZAICODE_AUTO_RETRY_DEFAULT_ATTEMPTS = 5;
 
@@ -29,15 +33,32 @@ export type ZaicodeClearMode = "session" | "new";
  * configured stays hidden behind a condition they have to rediscover.
  */
 export type ZaicodeActionView = "compact" | "full";
+/** Live status strip shape: one row, the full panel, the slim bar, or nothing at all. */
+export type ZaicodeSaipenStatusView = "off" | "compact" | "expanded" | "collapsed";
 /**
  * SRC-135: who the auto-retry switch governs. `project` = only the project/session the
  * composer it sits in; `global` = every ZAICODE session and project at once.
  */
 export type ZaicodeAutoRetryScope = "session" | "project" | "global";
 
+/**
+ * Router Failure Management mode (SRC-269 Section 8).
+ * observe_only: Diagnostics without router mutation.
+ * local_exclusion: ZAICODE uses supported model-specific routing while preserving 9router's original combo.
+ * managed_sync: Synchronize eligible route configuration with 9router through supported authenticated APIs.
+ */
+export type ZaicodeRouterFailureMode = "observe_only" | "local_exclusion" | "managed_sync";
+
 export interface ZaicodeUiPrefs {
+  routerFailureMode: ZaicodeRouterFailureMode;
   // Home (empty draft) screen
   showGreeting: boolean;
+  showNewTaskGreeting: boolean;
+  showNewTaskHints: boolean;
+  showNewHandoffAction: boolean;
+  showGoalCcAllAction: boolean;
+  newHandoffTemplate: string;
+  goalCcAllTemplate: string;
   greetingMode: ZaicodeGreetingMode;
   /** Custom greeting; `{name}` = active profile name, `{time}` = the time-of-day greeting. */
   greetingText: string;
@@ -90,6 +111,12 @@ export interface ZaicodeUiPrefs {
    */
   actionView: ZaicodeActionView;
   transcriptView: TranscriptView;
+  saipenStatusView: ZaicodeSaipenStatusView;
+  /**
+   * The live status strip's own font size in px (its classes are all em-based,
+   * so this one number scales the whole strip). The app-wide font stays as is.
+   */
+  saipenStatusFontSize: number;
   /**
    * SRC-151:R011: right-click a control that owns settings. `true` opens that
    * control's own settings panel; `false` leaves right-click to the app menu
@@ -129,7 +156,14 @@ const HOME_REV = 2;
 const SAIMAIL_REV = 1;
 
 export const ZAICODE_UI_DEFAULT_PREFS: ZaicodeUiPrefs = {
+  routerFailureMode: "local_exclusion",
   showGreeting: true,
+  showNewTaskGreeting: true,
+  showNewTaskHints: true,
+  showNewHandoffAction: true,
+  showGoalCcAllAction: true,
+  newHandoffTemplate: "SAIHANDOFF - \n\nMISSION:\n\n",
+  goalCcAllTemplate: "/goal cc all",
   greetingMode: "time",
   greetingText: "{time}, {name}",
   greetingFromHour: 0,
@@ -155,6 +189,8 @@ export const ZAICODE_UI_DEFAULT_PREFS: ZaicodeUiPrefs = {
   clearMode: "session",
   actionView: "compact",
   transcriptView: "compact",
+  saipenStatusView: "compact",
+  saipenStatusFontSize: 11,
   rightClickSettings: {},
   sidePaneVisibility: { ...ZAICODE_SIDE_PANE_VISIBILITY_DEFAULT },
   noMotion: false,
@@ -196,7 +232,15 @@ export function normalizeZaicodeUiPrefs(raw: unknown): ZaicodeUiPrefs {
   const homeCurrent = typeof r.homeRev === "number" && r.homeRev >= HOME_REV;
   const saimailCurrent = typeof r.saimailRev === "number" && r.saimailRev >= SAIMAIL_REV;
   return {
-    showGreeting: flag(r.showGreeting, d.showGreeting),
+    showGreeting: flag(r.showGreeting ?? r.showNewTaskGreeting, d.showGreeting),
+    showNewTaskGreeting: flag(r.showNewTaskGreeting ?? r.showGreeting, d.showNewTaskGreeting),
+    showNewTaskHints: flag(r.showNewTaskHints, d.showNewTaskHints),
+    showNewHandoffAction: flag(r.showNewHandoffAction, d.showNewHandoffAction),
+    showGoalCcAllAction: flag(r.showGoalCcAllAction, d.showGoalCcAllAction),
+    newHandoffTemplate:
+      typeof r.newHandoffTemplate === "string" ? r.newHandoffTemplate : d.newHandoffTemplate,
+    goalCcAllTemplate:
+      typeof r.goalCcAllTemplate === "string" ? r.goalCcAllTemplate : d.goalCcAllTemplate,
     greetingMode: r.greetingMode === "custom" ? "custom" : "time",
     greetingText:
       typeof r.greetingText === "string" ? r.greetingText.slice(0, 200) : d.greetingText,
@@ -238,11 +282,26 @@ export function normalizeZaicodeUiPrefs(raw: unknown): ZaicodeUiPrefs {
     clearMode: r.clearMode === "new" ? "new" : "session",
     actionView: r.actionView === "full" ? "full" : "compact",
     transcriptView: normalizeTranscriptView(r.transcriptView),
+    saipenStatusView:
+      r.saipenStatusView === "collapsed"
+        ? "collapsed"
+        : r.saipenStatusView === "expanded"
+          ? "expanded"
+          : r.saipenStatusView === "off"
+            ? "off"
+            : "compact",
+    saipenStatusFontSize: int(r.saipenStatusFontSize, 8, 20, d.saipenStatusFontSize),
     rightClickSettings: flags(r.rightClickSettings),
     sidePaneVisibility: normalizeZaicodeSidePaneVisibility(r.sidePaneVisibility),
     noMotion: flag(r.noMotion, d.noMotion),
     noDim: flag(r.noDim, d.noDim),
     noHoverPopups: flag(r.noHoverPopups, d.noHoverPopups),
+    routerFailureMode:
+      r.routerFailureMode === "observe_only"
+        ? "observe_only"
+        : r.routerFailureMode === "managed_sync"
+          ? "managed_sync"
+          : "local_exclusion",
     homeRev: HOME_REV,
     saimailRev: SAIMAIL_REV,
   };
@@ -449,8 +508,14 @@ export const ZAICODE_RIGHT_CLICK_CONTROLS = Object.freeze({
   modelButtons: "Model buttons",
   /** The empty new-task screen. */
   greeting: "New task screen",
+  /** NEW HANDOFF action button. */
+  newHandoffAction: "New Handoff action",
+  /** GOAL CC ALL action button. */
+  goalCcAllAction: "Goal CC All action",
   /** Sidebar section headers. */
   sidebarSections: "Sidebar sections",
+  /** The SAIPEN live status strip above the transcript. */
+  statusStrip: "SAIPEN status strip",
 } as const);
 
 export type ZaicodeRightClickPrefKey = keyof typeof ZAICODE_RIGHT_CLICK_CONTROLS;

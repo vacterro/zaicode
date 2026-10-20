@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import {
   projectZaicodeConnectionState,
+  zaicodePresenceIndicator,
   zaicodePresenceOverridesWorking,
 } from "../src/zaicode/zaicodeConnectionPresence.js";
 
@@ -115,4 +116,81 @@ test("fresh REQ-005: composer mini and sidebar row read the same projector", () 
   assert.match(sidebar, /useZaicodePresenceProject\(zaicodeRunningCount > 0\)/);
   assert.match(sidebar, /zaicodePresenceOverridesWorking\(zaicodePresence\)/);
   assert.match(sidebar, /data-zaicode-presence=\{zaicodePresence\.kind\}/);
+});
+
+// T-298: the project-row presence must stay a compact indicator so the project
+// name keeps the row's space.
+
+test("T-298: a global retry halt is a halt, never a model or transport failure", () => {
+  const halted = projectZaicodeConnectionState({ running: true, halted: true });
+  assert.equal(halted.kind, "halted");
+  assert.equal(halted.label, "Retries stopped");
+  assert.equal(zaicodePresenceOverridesWorking(halted), true);
+  // The detail must never read as the connection, router or model being down.
+  assert.match(halted.detail!, /Automatic retries were stopped/);
+  assert.doesNotMatch(halted.detail!, /connection|router|model|API/i);
+  // A halt without a supervisor failure is not the offline state either.
+  assert.notEqual(halted.kind, "offline");
+});
+
+test("T-298: every exceptional presence maps to a compact glyph and at most a very short readout", () => {
+  assert.deepEqual(zaicodePresenceIndicator(projectZaicodeConnectionState({ running: true })), {
+    glyph: "none",
+    short: "",
+  });
+  assert.deepEqual(zaicodePresenceIndicator(projectZaicodeConnectionState({ running: false })), {
+    glyph: "none",
+    short: "",
+  });
+  assert.deepEqual(
+    zaicodePresenceIndicator(
+      projectZaicodeConnectionState({ running: true, supervisorStatus: "recovering", supervisorAttempts: 3 }),
+    ),
+    { glyph: "refresh", short: "3/10" },
+  );
+  for (const input of [
+    { running: true, pendingRetry: true },
+    { running: true, quotaWall: true },
+  ]) {
+    assert.equal(zaicodePresenceIndicator(projectZaicodeConnectionState(input)).glyph, "clock");
+    assert.equal(zaicodePresenceIndicator(projectZaicodeConnectionState(input)).short, "");
+  }
+  assert.deepEqual(
+    zaicodePresenceIndicator(
+      projectZaicodeConnectionState({ running: true, supervisorRoute: "fallback", supervisorStatus: "fallback-active" }),
+    ),
+    { glyph: "cloud", short: "" },
+  );
+  assert.deepEqual(zaicodePresenceIndicator(projectZaicodeConnectionState({ running: true, halted: true })), {
+    glyph: "halt",
+    short: "",
+  });
+  assert.deepEqual(zaicodePresenceIndicator(projectZaicodeConnectionState({ running: true, supervisorStatus: "unavailable" })), {
+    glyph: "alert",
+    short: "",
+  });
+  // No compact indicator may ever carry a full label: the zone is name-width.
+  for (const input of [
+    { running: true, halted: true },
+    { running: true, pendingRetry: true },
+    { running: true, quotaWall: true },
+    { running: true, supervisorStatus: "unavailable" },
+    { running: true, supervisorStatus: "recovering", supervisorAttempts: 3 },
+  ]) {
+    const presence = projectZaicodeConnectionState(input);
+    const indicator = zaicodePresenceIndicator(presence);
+    assert.ok(!indicator.short.includes(presence.label!), "short readout must not repeat the label");
+    assert.ok(indicator.short.length <= 5, `short readout stays tiny (saw "${indicator.short}")`);
+  }
+});
+
+test("T-298: the sidebar row draws the compact indicator, never the raw label", () => {
+  const sidebar = readFileSync(new URL("../src/WorkspaceSidebarItem.tsx", import.meta.url), "utf8");
+  assert.match(sidebar, /zaicodePresenceIndicator\(presence\)/);
+  assert.match(sidebar, /<ZaicodeRowPresenceIndicator presence=\{zaicodePresence\} \/>/);
+  // The full label stays available for hover and accessible names.
+  assert.match(sidebar, /aria-label=\{presence\.label \?\? "Connection state"\}/);
+  assert.match(sidebar, /data-zaicode-presence-indicator=\{presence\.kind\}/);
+  // Negative control: the row status zone must not render the label as text.
+  assert.doesNotMatch(sidebar, /\? zaicodePresence\.label :/);
 });

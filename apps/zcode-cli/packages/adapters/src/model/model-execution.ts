@@ -103,6 +103,15 @@ export interface ProviderBusinessErrorOptions {
   responseHeaders?: Record<string, string>;
   responseStatus?: number;
   statusCode?: number;
+  upstreamModelId?: string;
+  upstreamProviderId?: string;
+  upstreamConnectionId?: string;
+  routerRequestId?: string;
+  comboId?: string;
+  comboName?: string;
+  timeoutStage?: string;
+  candidateTried?: boolean;
+  fallbackReason?: string;
 }
 
 export class ProviderBusinessError extends Error {
@@ -117,6 +126,15 @@ export class ProviderBusinessError extends Error {
   readonly responseHeaders?: Record<string, string>;
   readonly responseStatus?: number;
   readonly statusCode?: number;
+  readonly upstreamModelId?: string;
+  readonly upstreamProviderId?: string;
+  readonly upstreamConnectionId?: string;
+  readonly routerRequestId?: string;
+  readonly comboId?: string;
+  readonly comboName?: string;
+  readonly timeoutStage?: string;
+  readonly candidateTried?: boolean;
+  readonly fallbackReason?: string;
 
   constructor(options: ProviderBusinessErrorOptions) {
     const providerMessage =
@@ -132,6 +150,15 @@ export class ProviderBusinessError extends Error {
     this.responseHeaders = options.responseHeaders;
     this.responseStatus = options.responseStatus;
     this.statusCode = options.statusCode;
+    this.upstreamModelId = options.upstreamModelId;
+    this.upstreamProviderId = options.upstreamProviderId;
+    this.upstreamConnectionId = options.upstreamConnectionId;
+    this.routerRequestId = options.routerRequestId;
+    this.comboId = options.comboId;
+    this.comboName = options.comboName;
+    this.timeoutStage = options.timeoutStage;
+    this.candidateTried = options.candidateTried;
+    this.fallbackReason = options.fallbackReason;
   }
 }
 
@@ -544,6 +571,7 @@ async function detectProviderBusinessError(
     return undefined;
   }
 
+  const headersRecord = responseHeadersToRecord(response.headers);
   return new ProviderBusinessError({
     providerCode: failure.providerCode,
     providerId: options.providerId,
@@ -553,9 +581,33 @@ async function detectProviderBusinessError(
     responseBodySummary: failure.responseBodySummary,
     // fetch 层的 ProviderBusinessError 会绕过 APICallError；
     // 不保留响应头会导致 retry-after/retry-after-ms 在重试计算前丢失。
-    responseHeaders: responseHeadersToRecord(response.headers),
+    responseHeaders: headersRecord,
     responseStatus: response.status,
     statusCode: failure.statusCode,
+    upstreamModelId:
+      failure.upstreamModelId ??
+      readHeaderCaseInsensitive(headersRecord, "x-router-upstream-model") ??
+      readHeaderCaseInsensitive(headersRecord, "x-upstream-model") ??
+      readHeaderCaseInsensitive(headersRecord, "x-upstream-model-id"),
+    upstreamProviderId:
+      failure.upstreamProviderId ??
+      readHeaderCaseInsensitive(headersRecord, "x-router-upstream-provider") ??
+      readHeaderCaseInsensitive(headersRecord, "x-upstream-provider") ??
+      readHeaderCaseInsensitive(headersRecord, "x-upstream-provider-id"),
+    upstreamConnectionId:
+      failure.upstreamConnectionId ??
+      readHeaderCaseInsensitive(headersRecord, "x-upstream-connection-id"),
+    routerRequestId:
+      failure.routerRequestId ??
+      readHeaderCaseInsensitive(headersRecord, "x-router-request-id") ??
+      readHeaderCaseInsensitive(headersRecord, "x-request-id"),
+    comboId:
+      failure.comboId ?? readHeaderCaseInsensitive(headersRecord, "x-combo-id"),
+    comboName:
+      failure.comboName ?? readHeaderCaseInsensitive(headersRecord, "x-combo-name"),
+    timeoutStage: failure.timeoutStage,
+    candidateTried: failure.candidateTried,
+    fallbackReason: failure.fallbackReason,
   });
 }
 
@@ -567,6 +619,15 @@ export function readProviderBusinessFailureFromBody(body: unknown):
       providerRequestId?: string;
       responseBodySummary: Record<string, unknown>;
       statusCode?: number;
+      upstreamModelId?: string;
+      upstreamProviderId?: string;
+      upstreamConnectionId?: string;
+      routerRequestId?: string;
+      comboId?: string;
+      comboName?: string;
+      timeoutStage?: string;
+      candidateTried?: boolean;
+      fallbackReason?: string;
     }
   | undefined {
   const record = asRecord(body);
@@ -598,6 +659,15 @@ export function readProviderBusinessFailureFromBody(body: unknown):
     providerRequestId: readProviderRequestId(record),
     responseBodySummary: summarizeProviderBusinessBody(record),
     statusCode: providerCodeToStatusCode(providerCode),
+    upstreamModelId: readUpstreamModelId(record),
+    upstreamProviderId: readUpstreamProviderId(record),
+    upstreamConnectionId: readUpstreamConnectionId(record),
+    routerRequestId: readRouterRequestId(record),
+    comboId: readComboId(record),
+    comboName: readComboName(record),
+    timeoutStage: readTimeoutStage(record),
+    candidateTried: readCandidateTried(record),
+    fallbackReason: readFallbackReason(record),
   };
 }
 
@@ -827,6 +897,30 @@ function emitProviderBusinessSseFrame(
         responseHeaders,
         responseStatus,
         statusCode: failure.statusCode,
+        upstreamModelId:
+          failure.upstreamModelId ??
+          readHeaderCaseInsensitive(responseHeaders, "x-router-upstream-model") ??
+          readHeaderCaseInsensitive(responseHeaders, "x-upstream-model") ??
+          readHeaderCaseInsensitive(responseHeaders, "x-upstream-model-id"),
+        upstreamProviderId:
+          failure.upstreamProviderId ??
+          readHeaderCaseInsensitive(responseHeaders, "x-router-upstream-provider") ??
+          readHeaderCaseInsensitive(responseHeaders, "x-upstream-provider") ??
+          readHeaderCaseInsensitive(responseHeaders, "x-upstream-provider-id"),
+        upstreamConnectionId:
+          failure.upstreamConnectionId ??
+          readHeaderCaseInsensitive(responseHeaders, "x-upstream-connection-id"),
+        routerRequestId:
+          failure.routerRequestId ??
+          readHeaderCaseInsensitive(responseHeaders, "x-router-request-id") ??
+          readHeaderCaseInsensitive(responseHeaders, "x-request-id"),
+        comboId:
+          failure.comboId ?? readHeaderCaseInsensitive(responseHeaders, "x-combo-id"),
+        comboName:
+          failure.comboName ?? readHeaderCaseInsensitive(responseHeaders, "x-combo-name"),
+        timeoutStage: failure.timeoutStage,
+        candidateTried: failure.candidateTried,
+        fallbackReason: failure.fallbackReason,
       }),
     );
     markFailed();
@@ -844,6 +938,15 @@ function detectProviderBusinessSseFrameFailure(frame: string):
       providerRequestId?: string;
       responseBodySummary: Record<string, unknown>;
       statusCode?: number;
+      upstreamModelId?: string;
+      upstreamProviderId?: string;
+      upstreamConnectionId?: string;
+      routerRequestId?: string;
+      comboId?: string;
+      comboName?: string;
+      timeoutStage?: string;
+      candidateTried?: boolean;
+      fallbackReason?: string;
     }
   | undefined {
   const sse = readSseFrame(frame);
@@ -1023,6 +1126,114 @@ function normalizeProviderId(value: unknown): string | undefined {
   return normalized.length > MAX_PROVIDER_MESSAGE_CHARS
     ? `${normalized.slice(0, MAX_PROVIDER_MESSAGE_CHARS)}...`
     : normalized;
+}
+
+function readUpstreamModelId(record: Record<string, unknown>): string | undefined {
+  const errorRecord = asRecord(record.error);
+  return (
+    normalizeProviderId(record.upstream_model) ??
+    normalizeProviderId(record.upstream_model_id) ??
+    normalizeProviderId(record.upstreamModelId) ??
+    normalizeProviderId(errorRecord?.upstream_model) ??
+    normalizeProviderId(errorRecord?.upstream_model_id) ??
+    normalizeProviderId(errorRecord?.upstreamModelId)
+  );
+}
+
+function readUpstreamProviderId(record: Record<string, unknown>): string | undefined {
+  const errorRecord = asRecord(record.error);
+  return (
+    normalizeProviderId(record.upstream_provider) ??
+    normalizeProviderId(record.upstream_provider_id) ??
+    normalizeProviderId(record.upstreamProviderId) ??
+    normalizeProviderId(errorRecord?.upstream_provider) ??
+    normalizeProviderId(errorRecord?.upstream_provider_id) ??
+    normalizeProviderId(errorRecord?.upstreamProviderId)
+  );
+}
+
+function readUpstreamConnectionId(record: Record<string, unknown>): string | undefined {
+  const errorRecord = asRecord(record.error);
+  return (
+    normalizeProviderId(record.upstream_connection_id) ??
+    normalizeProviderId(record.upstreamConnectionId) ??
+    normalizeProviderId(errorRecord?.upstream_connection_id) ??
+    normalizeProviderId(errorRecord?.upstreamConnectionId)
+  );
+}
+
+function readRouterRequestId(record: Record<string, unknown>): string | undefined {
+  const errorRecord = asRecord(record.error);
+  return (
+    normalizeProviderId(record.router_request_id) ??
+    normalizeProviderId(record.routerRequestId) ??
+    normalizeProviderId(errorRecord?.router_request_id) ??
+    normalizeProviderId(errorRecord?.routerRequestId)
+  );
+}
+
+function readComboId(record: Record<string, unknown>): string | undefined {
+  const errorRecord = asRecord(record.error);
+  return (
+    normalizeProviderId(record.combo_id) ??
+    normalizeProviderId(record.comboId) ??
+    normalizeProviderId(errorRecord?.combo_id) ??
+    normalizeProviderId(errorRecord?.comboId)
+  );
+}
+
+function readComboName(record: Record<string, unknown>): string | undefined {
+  const errorRecord = asRecord(record.error);
+  return (
+    normalizeProviderId(record.combo_name) ??
+    normalizeProviderId(record.comboName) ??
+    normalizeProviderId(errorRecord?.combo_name) ??
+    normalizeProviderId(errorRecord?.comboName)
+  );
+}
+
+function readTimeoutStage(record: Record<string, unknown>): string | undefined {
+  const errorRecord = asRecord(record.error);
+  return (
+    normalizeProviderId(record.timeout_stage) ??
+    normalizeProviderId(record.timeoutStage) ??
+    normalizeProviderId(errorRecord?.timeout_stage) ??
+    normalizeProviderId(errorRecord?.timeoutStage)
+  );
+}
+
+function readCandidateTried(record: Record<string, unknown>): boolean | undefined {
+  const errorRecord = asRecord(record.error);
+  if (typeof record.candidate_tried === "boolean") return record.candidate_tried;
+  if (typeof record.candidateTried === "boolean") return record.candidateTried;
+  if (typeof errorRecord?.candidate_tried === "boolean") return errorRecord.candidate_tried;
+  if (typeof errorRecord?.candidateTried === "boolean") return errorRecord.candidateTried;
+  return undefined;
+}
+
+function readFallbackReason(record: Record<string, unknown>): string | undefined {
+  const errorRecord = asRecord(record.error);
+  return (
+    normalizeProviderId(record.fallback_reason) ??
+    normalizeProviderId(record.fallbackReason) ??
+    normalizeProviderId(errorRecord?.fallback_reason) ??
+    normalizeProviderId(errorRecord?.fallbackReason)
+  );
+}
+
+function readHeaderCaseInsensitive(
+  headers: Record<string, string> | undefined,
+  name: string,
+): string | undefined {
+  if (!headers) return undefined;
+  const target = name.toLowerCase();
+  for (const [key, value] of Object.entries(headers)) {
+    if (key.toLowerCase() === target) {
+      const trimmed = value.trim();
+      return trimmed.length > 0 ? trimmed : undefined;
+    }
+  }
+  return undefined;
 }
 
 function summarizeProviderBusinessBody(record: Record<string, unknown>): Record<string, unknown> {

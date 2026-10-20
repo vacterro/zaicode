@@ -1,7 +1,16 @@
 import { create } from "zustand";
-import type { IZaicodeAuditService } from "@zcode/services";
-import type { ZaicodeAuditCampaign, ZaicodeAuditorView } from "@zcode/shared";
-import { zaicodeAuditCampaignIsActive } from "@zcode/shared";
+import type { IZaicodeAuditService, IZaicodeJobService } from "@zcode/services";
+import type {
+  ZaicodeAuditBatch,
+  ZaicodeAuditBatchAdmissionResult,
+  ZaicodeAuditBatchModelPolicy,
+  ZaicodeAuditCampaign,
+  ZaicodeAuditWorker,
+  ZaicodeAuditorView,
+  ZaicodeAutoPolicy,
+  ZaicodeAutoProjects,
+} from "@zcode/shared";
+import { ZAICODE_JOB_GLOBAL_CONCURRENCY_DEFAULT, zaicodeAuditCampaignIsActive } from "@zcode/shared";
 import { logger } from "@/logger.js";
 import { playZaicodeSound } from "./zaicodeSoundBus.js";
 import { uiMemoryDiagnosticsRegistry } from "@/lib/memoryDiagnostics.js";
@@ -19,18 +28,54 @@ export interface ZaicodeAuditProject {
   projectName: string;
 }
 
+export type ZaicodeAuditSyncState =
+  | "LOADING"
+  | "CURRENT"
+  | "STALE"
+  | "PARTIAL"
+  | "HOST_UNAVAILABLE"
+  | "RECONCILING";
+
 interface ZaicodeAuditStoreState {
   campaigns: ZaicodeAuditCampaign[];
+  batches: ZaicodeAuditBatch[];
+  activeWorkers: ZaicodeAuditWorker[];
+  globalConcurrency: number;
   /** SRC-060: the agent that runs audit waves (null until the first audit makes one). */
   auditor: ZaicodeAuditorView | null;
   smartMode: boolean;
+  autoProjects: ZaicodeAutoProjects;
+  policySaving: boolean;
+  autoAudits: boolean;
   maxCycles: number;
   runId: string | null;
   /** SRC-151:R008: the global "generate the next wave by itself" switch. */
   autoWaves: boolean;
   loading: boolean;
+  syncState: ZaicodeAuditSyncState;
+  generation: number;
   error: string | null;
-  refresh: (audits: IZaicodeAuditService) => Promise<void>;
+  refresh: (audits: IZaicodeAuditService, jobs?: IZaicodeJobService) => Promise<void>;
+  createBatch: (
+    audits: IZaicodeAuditService,
+    input: {
+      requestId?: string;
+      projects: ZaicodeAuditProject[];
+      planOnly?: boolean;
+      autoWaves?: boolean;
+      workerCapacity?: number;
+      modelPolicy?: ZaicodeAuditBatchModelPolicy;
+    },
+  ) => Promise<ZaicodeAuditBatchAdmissionResult | null>;
+  pauseBatch: (audits: IZaicodeAuditService, batchId: string) => Promise<ZaicodeAuditBatch | null>;
+  resumeBatch: (audits: IZaicodeAuditService, batchId: string) => Promise<ZaicodeAuditBatch | null>;
+  stopBatch: (audits: IZaicodeAuditService, batchId: string) => Promise<ZaicodeAuditBatch | null>;
+  retryBatch: (
+    audits: IZaicodeAuditService,
+    batchId: string,
+    mode?: "all_failed" | "blocked_only",
+  ) => Promise<ZaicodeAuditBatch | null>;
+  setGlobalConcurrency: (jobs: IZaicodeJobService, limit: number) => Promise<void>;
   generate: (audits: IZaicodeAuditService, project: ZaicodeAuditProject) => Promise<void>;
   work: (audits: IZaicodeAuditService, campaignId: string) => Promise<void>;
   start: (audits: IZaicodeAuditService, project: ZaicodeAuditProject) => Promise<void>;
@@ -40,6 +85,8 @@ interface ZaicodeAuditStoreState {
   /** Hand the exact combined artifact to the next implementation task. */
   fixWithSaipen: (audits: IZaicodeAuditService, campaignId: string) => Promise<void>;
   setSmartMode: (audits: IZaicodeAuditService, enabled: boolean) => Promise<void>;
+  setProjectAutoSettings: (audits: IZaicodeAuditService, workspaceKey: string, patch: Partial<ZaicodeAutoPolicy> | null) => Promise<void>;
+  setAutoAudits: (audits: IZaicodeAuditService, enabled: boolean) => Promise<void>;
   /** SRC-151:R008: turn automatic wave generation on or off for every audit. */
   setAutoWaves: (audits: IZaicodeAuditService, enabled: boolean) => Promise<void>;
   setMaxCycles: (audits: IZaicodeAuditService, maxCycles: number) => Promise<void>;
@@ -130,64 +177,215 @@ function describeError(error: unknown): string {
 }
 
 export const useZaicodeAuditStore = create<ZaicodeAuditStoreState>((set, get) => {
-  const after = async (
+  const after = async <T>(
     audits: IZaicodeAuditService,
-    action: () => Promise<unknown>,
-  ): Promise<void> => {
+    action: () => Promise<T>,
+  ): Promise<T> => {
     try {
-      await action();
+      const result = await action();
       await get().refresh(audits);
+      return result;
     } catch (error) {
       logger.error("[zaicode-audits] action failed", { error: describeError(error) });
       set({ error: describeError(error) });
+      throw error;
     }
   };
 
   let lastSeen: ZaicodeAuditCampaign[] | null = null;
+  let currentGeneration = 0;
+  let inFlightRefresh: Promise<void> | null = null;
+  let lastTrustedSnapshot: {
+    campaigns: ZaicodeAuditCampaign[];
+    batches: ZaicodeAuditBatch[];
+    activeWorkers: ZaicodeAuditWorker[];
+    globalConcurrency: number;
+    auditor: ZaicodeAuditorView | null;
+    smartMode: boolean;
+    autoProjects: ZaicodeAutoProjects;
+    autoAudits: boolean;
+    maxCycles: number;
+    runId: string | null;
+    autoWaves: boolean;
+  } | null = null;
+
+  const policyAfter = async <T>(audits: IZaicodeAuditService, action: () => Promise<T>): Promise<T | undefined> => {
+    if (get().policySaving) return undefined;
+    set({ policySaving: true });
+    try { return await after(audits, action); } finally { set({ policySaving: false }); }
+  };
   return {
     campaigns: [],
+    batches: [],
+    activeWorkers: [],
+    globalConcurrency: ZAICODE_JOB_GLOBAL_CONCURRENCY_DEFAULT,
     auditor: null,
     smartMode: false,
+    autoProjects: {},
+    policySaving: false,
+    autoAudits: true,
     maxCycles: 10,
     runId: null,
     autoWaves: true,
     loading: false,
+    syncState: "LOADING",
+    generation: 0,
     error: null,
 
-    refresh: async (audits) => {
-      set({ loading: true });
+    refresh: async (audits, jobs) => {
+      if (inFlightRefresh) {
+        return inFlightRefresh;
+      }
+      const thisGen = ++currentGeneration;
+      const executeRefresh = async () => {
+        set({ loading: true });
+        try {
+          const [stateRes, batchesRes, workersRes, jobsRes] = await Promise.allSettled([
+            audits.getState(),
+            audits.listBatches(),
+            audits.getActiveWorkers(),
+            jobs
+              ? jobs.getGlobalConcurrency()
+              : Promise.resolve(get().globalConcurrency),
+          ]);
+
+          if (thisGen < currentGeneration) {
+            return;
+          }
+
+          if (stateRes.status === "rejected") {
+            const err = describeError(stateRes.reason);
+            logger.error("[zaicode-audits] host unavailable", { error: err });
+            set({
+              loading: false,
+              syncState: lastTrustedSnapshot ? "STALE" : "HOST_UNAVAILABLE",
+              error: `Host unavailable: ${err}`,
+            });
+            return;
+          }
+
+          const state = stateRes.value;
+          const batchesFailed = batchesRes.status === "rejected";
+          const workersFailed = workersRes.status === "rejected";
+
+          if (batchesFailed || workersFailed) {
+            const failedReason = batchesFailed
+              ? (batchesRes as PromiseRejectedResult).reason
+              : (workersRes as PromiseRejectedResult).reason;
+            const err = describeError(failedReason);
+            logger.warn("[zaicode-audits] partial refresh failure", { error: err });
+            const batches = !batchesFailed
+              ? batchesRes.value
+              : (lastTrustedSnapshot?.batches ?? get().batches);
+            const activeWorkers = !workersFailed
+              ? workersRes.value
+              : (lastTrustedSnapshot?.activeWorkers ?? get().activeWorkers);
+            const globalConcurrency =
+              jobsRes.status === "fulfilled" ? jobsRes.value : get().globalConcurrency;
+
+            lastSeen = boundZaicodeAuditCampaigns(state.campaigns);
+            set({
+              campaigns: lastSeen,
+              batches,
+              activeWorkers,
+              globalConcurrency,
+              auditor: state.auditor ?? null,
+              smartMode: state.smartMode,
+              autoProjects: state.autoProjects ?? {},
+              autoAudits: state.autoAudits !== false,
+              maxCycles: state.maxCycles,
+              runId: state.runId,
+              autoWaves: state.autoWaves !== false,
+              loading: false,
+              syncState: "PARTIAL",
+              error: `Partial update: ${err}`,
+              generation: thisGen,
+            });
+            return;
+          }
+
+          for (const cue of zaicodeAuditTransitions(lastSeen, state.campaigns)) playZaicodeSound(cue);
+          lastSeen = boundZaicodeAuditCampaigns(state.campaigns);
+          const batches = batchesRes.value;
+          const activeWorkers = workersRes.value;
+          const globalConcurrency =
+            jobsRes.status === "fulfilled" ? jobsRes.value : get().globalConcurrency;
+
+          lastTrustedSnapshot = {
+            campaigns: lastSeen,
+            batches,
+            activeWorkers,
+            globalConcurrency,
+            auditor: state.auditor ?? null,
+            smartMode: state.smartMode,
+            autoProjects: state.autoProjects ?? {},
+            autoAudits: state.autoAudits !== false,
+            maxCycles: state.maxCycles,
+            runId: state.runId,
+            autoWaves: state.autoWaves !== false,
+          };
+
+          set({
+            ...lastTrustedSnapshot,
+            loading: false,
+            syncState: "CURRENT",
+            error: null,
+            generation: thisGen,
+          });
+        } catch (error) {
+          const err = describeError(error);
+          logger.error("[zaicode-audits] refresh failed", { error: err });
+          set({
+            loading: false,
+            syncState: lastTrustedSnapshot ? "STALE" : "HOST_UNAVAILABLE",
+            error: err,
+          });
+        }
+      };
+
+      inFlightRefresh = executeRefresh().finally(() => {
+        inFlightRefresh = null;
+      });
+      return inFlightRefresh;
+    },
+
+    createBatch: async (audits, input) => {
       try {
-        const state = await audits.getState();
-        for (const cue of zaicodeAuditTransitions(lastSeen, state.campaigns)) playZaicodeSound(cue);
-        // SRC-116: the sound-cue memory kept the whole untrimmed list, so it leaked exactly like
-        // the mirror it compared against. It holds the same bounded slice now.
-        lastSeen = boundZaicodeAuditCampaigns(state.campaigns);
-        set({
-          campaigns: lastSeen,
-          auditor: state.auditor ?? null,
-          smartMode: state.smartMode,
-          maxCycles: state.maxCycles,
-          runId: state.runId,
-          autoWaves: state.autoWaves !== false,
-          loading: false,
-          error: null,
-        });
+        const result = await audits.createBatch(input);
+        await get().refresh(audits);
+        return result;
       } catch (error) {
-        logger.error("[zaicode-audits] refresh failed", { error: describeError(error) });
-        set({ loading: false, error: describeError(error) });
+        logger.error("[zaicode-audits] createBatch failed", { error: describeError(error) });
+        set({ error: describeError(error) });
+        return null;
+      }
+    },
+    pauseBatch: (audits, batchId) => after(audits, () => audits.pauseBatch(batchId)),
+    resumeBatch: (audits, batchId) => after(audits, () => audits.resumeBatch(batchId)),
+    stopBatch: (audits, batchId) => after(audits, () => audits.stopBatch(batchId)),
+    retryBatch: (audits, batchId, mode) => after(audits, () => audits.retryBatch(batchId, mode)),
+    setGlobalConcurrency: async (jobs, limit) => {
+      try {
+        const clamped = await jobs.setGlobalConcurrency(limit);
+        set({ globalConcurrency: clamped });
+      } catch (error) {
+        logger.error("[zaicode-audits] setGlobalConcurrency failed", { error: describeError(error) });
+        set({ error: describeError(error) });
       }
     },
 
-    generate: (audits, project) => after(audits, () => audits.generate(project)),
-    work: (audits, campaignId) => after(audits, () => audits.work(campaignId)),
-    start: (audits, project) => after(audits, () => audits.start(project)),
-    retry: (audits, campaignId) => after(audits, () => audits.retry(campaignId)),
-    cancel: (audits, campaignId) => after(audits, () => audits.cancel(campaignId)),
-    archive: (audits, campaignId) => after(audits, () => audits.archive(campaignId)),
-    fixWithSaipen: (audits, campaignId) => after(audits, () => audits.fixWithSaipen(campaignId)),
-    setSmartMode: (audits, enabled) => after(audits, () => audits.setSmartMode(enabled)),
-    setAutoWaves: (audits, enabled) => after(audits, () => audits.setAutoWaves(enabled)),
-    setMaxCycles: (audits, maxCycles) => after(audits, () => audits.setSmartMaxCycles(maxCycles)),
+    generate: async (audits, project) => { await after(audits, () => audits.generate(project)); },
+    work: async (audits, campaignId) => { await after(audits, () => audits.work(campaignId)); },
+    start: async (audits, project) => { await after(audits, () => audits.start(project)); },
+    retry: async (audits, campaignId) => { await after(audits, () => audits.retry(campaignId)); },
+    cancel: async (audits, campaignId) => { await after(audits, () => audits.cancel(campaignId)); },
+    archive: async (audits, campaignId) => { await after(audits, () => audits.archive(campaignId)); },
+    fixWithSaipen: async (audits, campaignId) => { await after(audits, () => audits.fixWithSaipen(campaignId)); },
+    setSmartMode: async (audits, enabled) => { await policyAfter(audits, () => audits.setSmartMode(enabled)); },
+    setProjectAutoSettings: async (audits, key, patch) => { await policyAfter(audits, () => audits.setProjectAutoSettings(key, patch)); },
+    setAutoAudits: async (audits, enabled) => { await policyAfter(audits, () => audits.setAutoAudits(enabled)); },
+    setAutoWaves: async (audits, enabled) => { await after(audits, () => audits.setAutoWaves(enabled)); },
+    setMaxCycles: async (audits, maxCycles) => { await policyAfter(audits, () => audits.setSmartMaxCycles(maxCycles)); },
 
     campaignsFor: (workspacePath) =>
       get()

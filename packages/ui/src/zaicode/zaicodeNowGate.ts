@@ -18,7 +18,10 @@ export const ZAICODE_SECOND_GRANULARITY_MS = 3_600_000;
  * countdown under an hour does, because formatZaicodeRemaining shows seconds
  * from 59m59s down.
  */
-export function zaicodeNowStepMs(input: { showSeconds: boolean; secondTargets: readonly number[] }, now: number): number {
+export function zaicodeNowStepMs(
+  input: { showSeconds: boolean; secondTargets: readonly number[] },
+  now: number,
+): number {
   if (input.showSeconds) return ZAICODE_NOW_STEP_SECOND_MS;
   for (const target of input.secondTargets) {
     if (target - now < ZAICODE_SECOND_GRANULARITY_MS) return ZAICODE_NOW_STEP_SECOND_MS;
@@ -27,8 +30,15 @@ export function zaicodeNowStepMs(input: { showSeconds: boolean; secondTargets: r
 }
 
 /** Pure: did the display bucket move between two reads? */
-export function zaicodeNowBucketChanged(previousNow: number, nextNow: number, stepMs: number): boolean {
-  return Math.trunc(nextNow / stepMs) !== Math.trunc(previousNow / stepMs);
+export function zaicodeNowBucketChanged(
+  previousNow: number,
+  nextNow: number,
+  stepMs: number,
+  originMs = 0,
+): boolean {
+  return (
+    Math.trunc((previousNow - originMs) / stepMs) !== Math.trunc((nextNow - originMs) / stepMs)
+  );
 }
 
 /**
@@ -36,19 +46,39 @@ export function zaicodeNowBucketChanged(previousNow: number, nextNow: number, st
  * every tick with the freshest clock reading; keep it cheap and read live state
  * through store getters, never stale closures.
  */
-export function useZaicodeGatedNow(getStepMs: (now: number) => number): number {
-  const [now, setNow] = useState(() => Date.now());
+const wallClockNow = () => Date.now();
+function readClock(reader: () => number | null): number | null {
+  const value = reader();
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+export function useZaicodeGatedNow(getStepMs: (now: number) => number, originMs?: number): number;
+export function useZaicodeGatedNow(getStepMs: (now: number) => number, originMs: number, reader: () => number | null): number | null;
+export function useZaicodeGatedNow(
+  getStepMs: (now: number) => number,
+  originMs = 0,
+  reader: () => number | null = wallClockNow,
+): number | null {
+  const [now, setNow] = useState(() => readClock(reader));
+  const readerRef = useRef(reader);
+  const sourceChanged = readerRef.current !== reader;
+  readerRef.current = reader;
   const stepRef = useRef(getStepMs);
   stepRef.current = getStepMs;
+  // 消息年龄的分钟边界属于发送时间，不能被墙上时钟的整分钟延迟近一分钟。
+  const originRef = useRef(originMs);
+  originRef.current = originMs;
   useEffect(() => {
+    setNow(readClock(reader));
     const timer = window.setInterval(() => {
       setNow((previous) => {
-        const next = Date.now();
+        const next = readClock(readerRef.current);
+        if (previous === null || next === null) return next;
         const step = stepRef.current(next);
-        return zaicodeNowBucketChanged(previous, next, step) ? next : previous;
+        return zaicodeNowBucketChanged(previous, next, step, originRef.current) ? next : previous;
       });
     }, ZAICODE_NOW_STEP_SECOND_MS);
     return () => window.clearInterval(timer);
-  }, []);
-  return now;
+  }, [reader]);
+  return sourceChanged ? readClock(reader) : now;
 }

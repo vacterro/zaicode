@@ -3,12 +3,17 @@ import type {
   ModelStreamingPayload,
   SessionEvent,
   SyntheticUserMessageSource,
-  TurnAttachmentMeta,
   TurnInputIntentMetadata,
   TurnStartedPayload,
   WorkflowLaunchMeta,
 } from "@zcode/contracts";
 import { SessionEventType } from "@zcode/contracts";
+import {
+  inputProvenanceRowOrigin,
+  inputProvenanceTurnHeaderOrigin,
+} from "@zcode/shared/zcode-protocol-v4";
+import { normalizeAttachments, type CanonicalTurnAttachment } from "./event-normalizer-attachments.js";
+export type { CanonicalTurnAttachment } from "./event-normalizer-attachments.js";
 
 type CanonicalConversationVisibility = "visible" | "modelOnly" | "stateOnly";
 type CanonicalConversationOrigin =
@@ -93,14 +98,6 @@ export interface CanonicalUserIntentFact extends CanonicalConversationFactBase {
     queueItemId?: string;
     clientId?: string;
   };
-}
-
-export interface CanonicalTurnAttachment {
-  ref?: string;
-  fileName: string;
-  mime: string;
-  bytes: number;
-  previewRef?: string;
 }
 
 export interface CanonicalModelStream {
@@ -218,7 +215,11 @@ function normalizeTurnStarted(
   ids: { runtimeTurnId: string; productTurnId: string },
 ): CanonicalUserIntentFact {
   const transcriptMessageId = payload.messageId ? String(payload.messageId) : null;
-  const origin = userInputOrigin(payload.inputSource);
+  // T-283 (SAIHANDOFF F-03): the admitted input's own provenance is the
+  // authoritative origin; the legacy synthetic-source mapping is only the
+  // fallback for inputs that carry none.
+  const inputProvenance = payload.intent?.provenance;
+  const origin = userInputOrigin(payload.inputSource, inputProvenance);
   // live 使用 runtime turnId、cold 使用 hydrate-turn-N；即使二者指向
   // 同一条持久 user message，过去仍生成不同 productTurnId，导致行分组与命令边界
   // 在恢复前后漂移。真实用户轮以持久 user messageId 作为稳定 product turn 身份；
@@ -252,7 +253,7 @@ function normalizeTurnStarted(
     intentKind: payload.intent?.kind === "sendGoalCommand" ? "sendGoalCommand" : "sendText",
     turnNumber: payload.turnNumber,
     executionKind: payload.executionKind ?? "agent",
-    turnHeaderOrigin: turnHeaderOrigin(payload.inputSource),
+    turnHeaderOrigin: turnHeaderOrigin(payload.inputSource, inputProvenance),
     ...(payload.originMeta ? { originMeta: payload.originMeta } : {}),
     ...(payload.workflowLaunch ? { workflowLaunch: payload.workflowLaunch } : {}),
     ...(payload.epilogueStart === undefined ? {} : { epilogueStart: payload.epilogueStart }),
@@ -377,28 +378,12 @@ function runtimeTurnIdOf(event: SessionEvent): string {
   return "turn-unknown";
 }
 
-function normalizeAttachments(payload: TurnStartedPayload): {
-  attachments?: readonly CanonicalTurnAttachment[];
-} {
-  if (payload.intent?.attachmentRefs && payload.intent.attachmentRefs.length > 0) {
-    return { attachments: payload.intent.attachmentRefs.map((attachment) => ({ ...attachment })) };
-  }
-  if (!payload.attachments || payload.attachments.length === 0) return {};
-  return { attachments: payload.attachments.map(normalizeAttachment) };
-}
-
-function normalizeAttachment(attachment: TurnAttachmentMeta): CanonicalTurnAttachment {
-  return {
-    ...(attachment.ref ? { ref: attachment.ref } : {}),
-    fileName: attachment.fileName,
-    mime: attachment.mime,
-    bytes: attachment.bytes,
-  };
-}
-
 function turnHeaderOrigin(
   source: SyntheticUserMessageSource | undefined,
+  provenance: TurnInputIntentMetadata["provenance"],
 ): CanonicalUserIntentFact["turnHeaderOrigin"] {
+  const admitted = inputProvenanceTurnHeaderOrigin(provenance);
+  if (admitted !== undefined) return admitted;
   switch (source) {
     case "background_task":
       return "backgroundResult";
@@ -416,7 +401,10 @@ function turnHeaderOrigin(
 
 function userInputOrigin(
   source: SyntheticUserMessageSource | undefined,
+  provenance: TurnInputIntentMetadata["provenance"],
 ): CanonicalUserIntentFact["origin"] {
+  const admitted = inputProvenanceRowOrigin(provenance);
+  if (admitted !== undefined) return admitted;
   switch (source) {
     case "background_task":
       return "backgroundResult";

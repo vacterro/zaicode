@@ -138,7 +138,7 @@ test("T-242: the in-flight mark and the turn-end evidence stay process-local; on
   assert.equal(
     reloaded.zaicodeGoalContinuationAllowed({
       autoGoalOn: true, halted: false, projectDisabled: false, running: false, waiting: false,
-      failed: false, goalOpen: true, sawRunning: reloaded.zaicodeGoalSawRunning(hydrated.intentId), pending: false,
+      failed: false, goalOpen: true, handbackStands: false, sawRunning: reloaded.zaicodeGoalSawRunning(hydrated.intentId), pending: false,
     }).allowed,
     false,
     "a reloaded renderer cannot send a continuation it never watched run",

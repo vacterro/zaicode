@@ -178,7 +178,7 @@ export function buildRuntimeHealthSnapshot(
   const now = input.now ?? Date.now();
   const eventLoopLagMs = input.readEventLoopLagMs?.();
   const counters: Record<string, number> = {
-    ...(input.readCountersSummary?.() ?? {}),
+    ...input.readCountersSummary?.(),
     ...collectHotCacheSummary(),
     ...collectPendingRetries(),
   };

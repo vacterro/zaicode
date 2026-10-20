@@ -5,8 +5,6 @@ import {
   normalizePath,
   trimTrailingSeparator,
   resolveIconName,
-  getIconPalette,
-  getIconLabel,
   buildInlineSvgDataUrl,
 } from "@/lib/fileDisplayHelpers.js";
 

@@ -1,9 +1,17 @@
 import { useMemo, useState } from "react";
 import { cn } from "@/components/lib/utils.js";
 import { Button } from "@/components/ui/button.js";
+import { Checkbox } from "@/components/ui/checkbox.js";
 import { toast } from "@/components/ui/toast.js";
 import { isZaicodeRouterErrorRecent, suggestZaicodeProviderPrefix, type ZaicodeRouterConnection } from "@zcode/shared";
-import { useZaicodeRouter, zaicodeRouterCall, zaicodeRouterChange } from "@/zaicode/zaicodeRouter.js";
+import { getZaicodeRouterBridge, useZaicodeRouter, zaicodeRouterChange } from "@/zaicode/zaicodeRouter.js";
+import { buildZaicodeRouterConnectionEdit } from "@/zaicode/zaicodeRouterConnectionEdit.js";
+import {
+  createProviderSubmission,
+  createZaicodeProviderWithKey,
+  type ZaicodeProviderCreateResult,
+} from "@/zaicode/zaicodeRouterProviderCreate.js";
+import { ZaicodeRouterProviderCatalogue } from "./ZaicodeRouterProviderCatalogue.js";
 
 /**
  * Router -> Providers & keys: every 9router connection with its state, a
@@ -41,38 +49,54 @@ function statusTitle(connection: ZaicodeRouterConnection): string {
 
 function AddProviderForm() {
   const nodes = useZaicodeRouter((state) => state.nodes);
+  const refresh = useZaicodeRouter((state) => state.refresh);
   const [type, setType] = useState<NodeType>("openai-compatible");
   const [name, setName] = useState("");
   const [prefix, setPrefix] = useState("");
   const [baseUrl, setBaseUrl] = useState("");
   const [apiType, setApiType] = useState<"chat" | "responses">("chat");
   const [apiKey, setApiKey] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [partial, setPartial] = useState<{ nodeId: string; message: string } | null>(null);
+  const submission = useMemo(() => createProviderSubmission(), []);
   const taken = nodes.map((node) => node.prefix);
   const effectivePrefix = prefix.trim() || suggestZaicodeProviderPrefix(name, taken);
-  const canAdd = name.trim() && baseUrl.trim() && apiKey.trim();
+  const canAdd = Boolean(name.trim() && baseUrl.trim() && apiKey.trim()) && !busy;
 
-  const add = async () => {
-    const created = await zaicodeRouterCall<{ node?: { id?: string } }>({
-      method: "POST",
-      path: "/api/provider-nodes",
-      body: { type, name: name.trim(), prefix: effectivePrefix, baseUrl: baseUrl.trim(), ...(type === "openai-compatible" ? { apiType } : {}) },
-    });
-    const nodeId = created.data?.node?.id;
-    if (!created.ok || !nodeId) {
-      toast(`Provider not added: ${created.message || "9router returned no node"}`);
-      return;
-    }
-    const connected = await zaicodeRouterChange("Adding key", {
-      method: "POST",
-      path: "/api/providers",
-      body: { provider: nodeId, apiKey: apiKey.trim(), name: name.trim() },
-    });
-    toast(connected.ok ? `${name.trim()} added as ${effectivePrefix}/…` : `Key not saved: ${connected.message}`);
-    if (connected.ok) {
+  const finish = (result: ZaicodeProviderCreateResult | null, displayName: string, displayPrefix: string) => {
+    if (result === null) return;
+    if (result.kind === "created") {
+      setPartial(null);
       setName("");
       setPrefix("");
       setBaseUrl("");
       setApiKey("");
+      toast(result.reusedNode ? `${displayName} key saved on the existing provider node` : `${displayName} added as ${displayPrefix}/…`);
+    } else if (result.kind === "node-failed") {
+      toast(`Provider not added: ${result.message}`);
+    } else {
+      setPartial({ nodeId: result.nodeId, message: result.message });
+      toast(`Provider node saved, but the key was not: ${result.message}. Press Add provider again to retry only the key step.`);
+    }
+  };
+
+  const add = async () => {
+    await refresh();
+    const latest = useZaicodeRouter.getState().nodes;
+    const displayName = name.trim();
+    const displayPrefix = prefix.trim() || suggestZaicodeProviderPrefix(displayName, latest.map((node) => node.prefix));
+    setBusy(true);
+    try {
+      const result = await submission.run(() =>
+        createZaicodeProviderWithKey(
+          (call) => zaicodeRouterChange("Adding provider", call).then((response) => response),
+          latest,
+          { type, name: displayName, prefix: displayPrefix, baseUrl: baseUrl.trim(), apiType, apiKey: apiKey.trim() },
+        ),
+      );
+      finish(result, displayName, displayPrefix);
+    } finally {
+      setBusy(false);
     }
   };
 
@@ -125,8 +149,9 @@ function AddProviderForm() {
         <span className="text-foreground-subtle">API key</span>
         <input className={`${inputClass} font-mono`} type="password" autoComplete="off" value={apiKey} onChange={(event) => setApiKey(event.target.value)} />
       </div>
+      {partial ? <p role="alert" className="text-error">Key pending on node {partial.nodeId}: {partial.message}</p> : null}
       <Button size="sm" variant="secondary" className="self-start" disabled={!canAdd} onClick={() => void add()}>
-        Add provider
+        {busy ? "Adding…" : partial ? "Retry key step" : "Add provider"}
       </Button>
     </div>
   );
@@ -186,6 +211,7 @@ export function ZaicodeRouterProviders() {
   const [filter, setFilter] = useState("");
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [testing, setTesting] = useState<string | null>(null);
+  const [editing, setEditing] = useState<{ id: string; name: string; baseUrl: string } | null>(null);
   const shown = useMemo(() => {
     const needle = filter.trim().toLowerCase();
     return [...connections]
@@ -201,61 +227,142 @@ export function ZaicodeRouterProviders() {
     toast(result.ok && valid ? `${connection.name}: works` : `${connection.name}: ${(result.data as { error?: string } | null)?.error ?? result.message ?? "failed"}`);
   };
 
+  const saveEdit = async () => {
+    if (!editing) return;
+    const connection = connections.find((item) => item.id === editing.id);
+    if (!connection) {
+      setEditing(null);
+      return;
+    }
+    const call = buildZaicodeRouterConnectionEdit(connection, editing);
+    if (!call) {
+      toast("Nothing changed.");
+      setEditing(null);
+      return;
+    }
+    const savedName = editing.name.trim() || connection.name;
+    const result = await zaicodeRouterChange("Saving", call);
+    toast(result.ok ? `${savedName} updated` : `Not saved: ${result.message}`);
+    if (result.ok) setEditing(null);
+  };
+
+  // The sign-in itself lives in 9router's own dashboard (D-8: ZAICODE never
+  // runs OAuth flows through its proxy); this only opens that page there.
+  const openSignIn = async () => {
+    const report = await getZaicodeRouterBridge()?.openZaicodeRouterDashboard?.("providers");
+    if (!report || !report.ok) toast("Could not open the router page: " + (report?.message ?? "no desktop bridge"));
+  };
+
   return (
     <section className="flex flex-col gap-2 border border-border bg-card p-3 text-ui-xs" data-zaicode-router-providers>
+      <ZaicodeRouterProviderCatalogue />
+      <details>
+        <summary className="cursor-pointer text-foreground-subtle">Quick connection controls</summary>
+        <div className="mt-2 flex flex-col gap-2">
       <div className="flex items-center gap-2">
         <h2 className="text-ui-lg text-foreground">Providers &amp; keys</h2>
         <span className="text-foreground-subtlest">{connections.length} connections{busy ? ` · ${busy}…` : ""}</span>
         <input className={`${inputClass} ml-auto w-48`} placeholder="Filter…" value={filter} onChange={(event) => setFilter(event.target.value)} />
       </div>
-      <p className="text-foreground-subtle">
-        OAuth subscriptions (Claude Code, Codex, Antigravity, …) are connected in the 9router dashboard (their login runs in the browser); they then show
-        here and their models can join a pool.
-      </p>
       <div className="flex max-h-[360px] flex-col overflow-y-auto border border-border">
         {shown.map((connection) => (
-          <div key={connection.id} className="flex items-center gap-2 border-b border-border/50 px-1.5 py-0.5 last:border-b-0">
-            <input
-              type="checkbox"
+          <div key={connection.id} className="flex flex-wrap items-center gap-2 border-b border-border/50 px-1.5 py-0.5 last:border-b-0">
+            <Checkbox
               checked={connection.isActive}
               title={connection.isActive ? "On: 9router routes to it" : "Off: 9router skips it"}
-              onChange={(event) =>
-                void zaicodeRouterChange("Saving", { method: "PUT", path: `/api/providers/${connection.id}`, body: { isActive: event.target.checked } })
+              onCheckedChange={(val) =>
+                void zaicodeRouterChange("Saving", { method: "PUT", path: `/api/providers/${connection.id}`, body: { isActive: Boolean(val) } })
               }
             />
-            <span className={cn("min-w-0 flex-1 truncate", statusTone(connection))} title={statusTitle(connection)}>
-              {connection.name}
-            </span>
-            <span className="w-40 shrink-0 truncate text-foreground-subtlest" title={connection.baseUrl ?? connection.provider}>
-              {connection.prefix ? `${connection.prefix}/…` : connection.provider}
-            </span>
-            <span className="w-14 shrink-0 text-foreground-subtlest">{connection.authType ?? ""}</span>
-            <Button size="sm" variant="ghost" className="h-5 px-1" disabled={testing === connection.id} onClick={() => void test(connection)}>
-              {testing === connection.id ? "…" : "Test"}
-            </Button>
-            {confirmDelete === connection.id ? (
-              <span className="flex items-center gap-1">
+            {editing?.id === connection.id ? (
+              <>
+                <label className="flex items-center gap-1 text-foreground-subtlest">
+                  Name
+                  <input
+                    className={`${inputClass} w-40`}
+                    value={editing.name}
+                    onChange={(event) => setEditing({ ...editing, name: event.target.value })}
+                  />
+                </label>
+                <label className="flex items-center gap-1 text-foreground-subtlest">
+                  Base URL
+                  <input
+                    className={`${inputClass} w-56 font-mono`}
+                    value={editing.baseUrl}
+                    onChange={(event) => setEditing({ ...editing, baseUrl: event.target.value })}
+                  />
+                </label>
                 <Button
                   size="sm"
                   variant="secondary"
                   className="h-5 px-1"
-                  onClick={() => {
-                    setConfirmDelete(null);
-                    void zaicodeRouterChange("Removing", { method: "DELETE", path: `/api/providers/${connection.id}` }).then((result) =>
-                      toast(result.ok ? `${connection.name} removed` : result.message),
-                    );
-                  }}
+                  disabled={busy !== null}
+                  title={busy ? `Waiting for: ${busy}` : "Save the changed fields to 9router"}
+                  onClick={() => void saveEdit()}
                 >
-                  Remove
+                  Save
                 </Button>
-                <Button size="sm" variant="ghost" className="h-5 px-1" onClick={() => setConfirmDelete(null)}>
-                  Keep
+                <Button size="sm" variant="ghost" className="h-5 px-1" onClick={() => setEditing(null)}>
+                  Cancel
                 </Button>
-              </span>
+              </>
             ) : (
-              <Button size="sm" variant="ghost" className="h-5 px-1" onClick={() => setConfirmDelete(connection.id)} title="Remove this connection from 9router">
-                ✕
-              </Button>
+              <>
+                <span className={cn("min-w-0 flex-1 truncate", statusTone(connection))} title={statusTitle(connection)}>
+                  {connection.name}
+                </span>
+                <span className="w-40 shrink-0 truncate text-foreground-subtlest" title={connection.baseUrl ?? connection.provider}>
+                  {connection.prefix ? `${connection.prefix}/…` : connection.provider}
+                </span>
+                <span className="w-14 shrink-0 text-foreground-subtlest">{connection.authType ?? ""}</span>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="h-5 px-1"
+                  title={`Edit the name or base URL of ${connection.name}`}
+                  onClick={() => setEditing({ id: connection.id, name: connection.name, baseUrl: connection.baseUrl ?? "" })}
+                >
+                  Edit
+                </Button>
+                {connection.authType === "oauth" ? (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-5 px-1"
+                    title="Open the 9router dashboard to manage this account's sign-in"
+                    onClick={() => void openSignIn()}
+                  >
+                    Sign-in
+                  </Button>
+                ) : null}
+                <Button size="sm" variant="ghost" className="h-5 px-1" disabled={testing === connection.id} onClick={() => void test(connection)}>
+                  {testing === connection.id ? "…" : "Test"}
+                </Button>
+                {confirmDelete === connection.id ? (
+                  <span className="flex items-center gap-1">
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      className="h-5 px-1"
+                      onClick={() => {
+                        setConfirmDelete(null);
+                        void zaicodeRouterChange("Removing", { method: "DELETE", path: `/api/providers/${connection.id}` }).then((result) =>
+                          toast(result.ok ? `${connection.name} removed` : result.message),
+                        );
+                      }}
+                    >
+                      Remove
+                    </Button>
+                    <Button size="sm" variant="ghost" className="h-5 px-1" onClick={() => setConfirmDelete(null)}>
+                      Keep
+                    </Button>
+                  </span>
+                ) : (
+                  <Button size="sm" variant="ghost" className="h-5 px-1" onClick={() => setConfirmDelete(connection.id)} title="Remove this connection from 9router">
+                    ✕
+                  </Button>
+                )}
+              </>
             )}
           </div>
         ))}
@@ -263,6 +370,8 @@ export function ZaicodeRouterProviders() {
       </div>
       <AddProviderForm />
       <AddKeyForm />
+        </div>
+      </details>
     </section>
   );
 }

@@ -58,7 +58,17 @@ test("the row shows the mark, a switched-off row does not, and planned A3 badges
   const row = readFileSync(join(import.meta.dirname, "..", "src", "WorkspaceSidebarItem.tsx"), "utf8");
   assert.ok(row.includes("{zaicodeDoneMark && !zaicodeProjectOff ? ("));
   assert.ok(row.includes('useZaicodeWorkspaceTab.getState().setTab("audits")'), "the offer opens the audit centre");
-  assert.ok(row.includes("zaicodeAuditProgress && (zaicodeAuditRunning || !zaicodeProjectOff)"));
+  // T-288 (SRC-201): the chip's visibility rule moved out of the row into
+  // ZaicodeAuditProgressChip, which now also takes the operator's showMarks answer.
+  // Same SRC-062 contract, one owner -- so the oracle reads it where it lives, and
+  // still checks that the row wires the new answer through.
+  const chip = readFileSync(
+    join(import.meta.dirname, "..", "src", "zaicode", "ZaicodeAuditProgressChip.tsx"),
+    "utf8",
+  );
+  assert.ok(chip.includes("!running && projectOff"), "a switched-off row shows no quiet audit state");
+  assert.ok(chip.includes("showMarks"), "the operator's display switch is part of the rule");
+  assert.ok(row.includes("showMarks={zaicodeShowAuditMarks}"), "the row passes that answer to the chip");
   const badge = readFileSync(join(import.meta.dirname, "..", "src", "zaicode", "ZaicodeProjectDoneBadge.tsx"), "utf8");
   assert.ok(badge.includes("event.stopPropagation()"), "a click on the mark never opens the project row");
 });

@@ -9,10 +9,7 @@ import { isZaicodeProductMode } from "@zcode/shared";
 import type { AssistantCodeCommentCard } from "@/lib/assistantCodeComment.js";
 import { extractPlanToolCallContent } from "@/lib/planToolCall.js";
 import { ConversationRowView } from "@/v4/ConversationRowView.js";
-import type {
-  AssistantFeedbackHandler,
-  EditWorkspaceRewindAvailability,
-} from "@/v4/ConversationRowView.js";
+import type { EditWorkspaceRewindAvailability } from "@/v4/ConversationRowView.js";
 import type { ConversationRowRenderContext } from "@/v4/conversationRowContext.js";
 import type { ConversationTurnRenderUnit } from "@/v4/conversationTurnRenderUnits.js";
 import { toolCallRowToLegacyNode } from "@/v4/toolCallRowAdapter.js";
@@ -22,7 +19,6 @@ interface ConversationTurnRowProps {
   context: ConversationRowRenderContext;
   onFork?: (target: ConversationRowTarget) => void;
   onRetry?: (target: ConversationRowTarget) => void;
-  onFeedbackChange?: AssistantFeedbackHandler;
   onEdit?: (
     target: ConversationRowTarget,
     newText: string,
@@ -46,7 +42,6 @@ export function ConversationTurnRow({
   context,
   onFork,
   onRetry,
-  onFeedbackChange,
   onEdit,
   editWorkspaceRewindAvailability,
   hideAssistantActions,
@@ -65,7 +60,6 @@ export function ConversationTurnRow({
       context={context}
       onFork={onFork}
       onRetry={onRetry}
-      onFeedbackChange={onFeedbackChange}
       onEdit={onEdit}
       editWorkspaceRewindAvailability={editWorkspaceRewindAvailability}
       hideAssistantActions={hideAssistantActions}

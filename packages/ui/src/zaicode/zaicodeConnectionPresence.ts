@@ -28,6 +28,7 @@ export type ZaicodePresenceKind =
   | "waiting-retry"
   | "waiting-quota"
   | "offline"
+  | "halted"
   | "idle";
 
 export interface ZaicodePresenceInput {
@@ -114,8 +115,10 @@ export function projectZaicodeConnectionState(input: ZaicodePresenceInput): Zaic
     };
   }
   if (input.halted) {
+    // A global retry halt is an operator decision, not a connection failure:
+    // it must never read as the model or the transport being down.
     return {
-      kind: "offline",
+      kind: "halted",
       label: "Retries stopped",
       detail: "Automatic retries were stopped; nothing will go out by itself.",
     };
@@ -126,6 +129,49 @@ export function projectZaicodeConnectionState(input: ZaicodePresenceInput): Zaic
 /** True when the surface must not render the ordinary "Working" state. */
 export function zaicodePresenceOverridesWorking(presence: ZaicodePresence): boolean {
   return presence.kind !== "working" && presence.kind !== "idle";
+}
+
+/**
+ * Compact zone rendering for a presence. High-density rows (the sidebar
+ * project row) keep the project name dominant: an exceptional state draws a
+ * recognizable glyph plus at most a very short readout instead of the full
+ * label. The label stays available for tooltips and accessible names.
+ */
+export type ZaicodePresenceGlyph =
+  | "refresh"
+  | "cloud"
+  | "halt"
+  | "clock"
+  | "alert"
+  | "none";
+
+export interface ZaicodePresenceIndicator {
+  glyph: ZaicodePresenceGlyph;
+  /** Very short zone text; "" when the glyph alone carries the state. */
+  short: string;
+}
+
+export function zaicodePresenceIndicator(
+  presence: ZaicodePresence,
+): ZaicodePresenceIndicator {
+  switch (presence.kind) {
+    case "reconnecting": {
+      const attempts = /attempt (\d+)\/(\d+)/.exec(presence.label ?? "");
+      return { glyph: "refresh", short: attempts ? `${attempts[1]}/${attempts[2]}` : "" };
+    }
+    case "fallback-active":
+      return { glyph: "cloud", short: "" };
+    case "waiting-retry":
+      return { glyph: "clock", short: "" };
+    case "waiting-quota":
+      return { glyph: "clock", short: "" };
+    case "halted":
+      return { glyph: "halt", short: "" };
+    case "offline":
+      return { glyph: "alert", short: "" };
+    default:
+      return { glyph: "none", short: "" };
+  }
 }
 
 /** Snapshot the router supervisor fields the projector reads. */

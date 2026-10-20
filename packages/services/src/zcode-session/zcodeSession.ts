@@ -61,6 +61,8 @@ export interface ZCodeSessionListParams extends ZCodeSessionWorkspaceTarget {
 }
 
 export interface ZCodeSessionReadParams extends ZCodeTaskTarget {
+  /** Forensic observation must not restore empty imported history from another source. */
+  repairImportedHistory?: boolean;
   deliveryKind?: ZCodeDeliveryKind;
   messageLimit?: number;
   afterSeq?: number;

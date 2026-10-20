@@ -13,7 +13,7 @@ import { TID_CHAT_REASONING_CONTENT, TID_CHAT_REASONING_TRIGGER } from "@zcode/s
 import { BrainIcon, ChevronRightIcon } from "lucide-react";
 import { useZCodeIntl } from "@/i18n/IntlProvider.js";
 import { QueuedSummaryContent } from "@/ToolCallBlocks/QueuedSummaryContent.js";
-import { useExpandedTranscript } from "@/lib/transcriptView.js";
+import { useExpandedTranscript, useUnboundedTranscript } from "@/lib/transcriptView.js";
 import type { ComponentProps, CSSProperties, ReactNode } from "react";
 import {
   EMPTY_SCROLL_MASK_STATE,
@@ -432,6 +432,7 @@ export type ReasoningContentProps = ComponentProps<typeof CollapsibleContent> & 
 export const ReasoningContent = memo(
   ({ className, children, forceMount, variant = "default", ...props }: ReasoningContentProps) => {
     const { isOpen, shouldRenderContent } = useReasoning();
+    const unbounded = useUnboundedTranscript("thoughts");
     const shouldRenderChildren = isOpen || shouldRenderContent || Boolean(forceMount);
     const scrollRef = useRef<HTMLDivElement | null>(null);
     const contentRef = useRef<HTMLDivElement | null>(null);
@@ -549,13 +550,16 @@ export const ReasoningContent = memo(
             <div
               ref={scrollRef}
               className={cn(
-                "max-h-60 space-y-2 overflow-auto text-ui-base text-foreground-subtlest",
+                "space-y-2 text-ui-base text-foreground-subtlest",
+                unbounded ? "overflow-visible" : "max-h-60 overflow-auto",
                 // CUA Group 已提供清晰的父级边界；子思考继续显示左导线与缩进会形成重复层级。
                 variant === "default" && "ml-2 border-border border-l pl-3.5",
               )}
               data-reasoning-scroll-mask={scrollMaskData}
+              data-transcript-section="thoughts"
+              data-transcript-scroll={unbounded ? "off" : "on"}
               onScroll={handleScroll}
-              style={scrollMaskStyle}
+              style={unbounded ? undefined : scrollMaskStyle}
             >
               {/* 思考块之前打开时把 Radix content 一起按需挂载并强制 forceMount，
                   content 首帧已经是 open 状态，高度动画来不及从 closed 状态过渡，看起来像突然展开。

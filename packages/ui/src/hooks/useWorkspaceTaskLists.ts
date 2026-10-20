@@ -35,7 +35,11 @@ import {
 import { shouldRefetchTaskListMembershipForWorkspaceEvent } from "@/lib/taskListRefreshPolicy.js";
 import { syncTaskUnreadFromStatusWorkspaceEvent } from "@/lib/taskStatusUnreadSync.js";
 import type { ZCodeTaskMeta } from "@zcode/shared";
-import { fetchTaskListMembershipSetsForEndpointsCached } from "@/lib/taskListMembershipSets.js";
+import {
+  fetchTaskListMembershipSetsForEndpointsCached,
+  membershipServiceIdOf,
+  readWorkspaceTaskMembership,
+} from "@/lib/taskListMembershipSets.js";
 import { buildTaskListResult } from "@/v4/buildTaskListResultFromSessions.js";
 import {
   bumpTaskListMembershipVersionForWorkspaceEvent,
@@ -106,7 +110,13 @@ async function buildWorkspaceGroupsFromSessions(params: {
   sortBy: "created" | "updated";
   /** 差量更新：membership 只随 membershipVersion 变化，按版本缓存避免每次内容帧都重拉。 */
   membershipCacheKey: string;
-}): Promise<Map<string, WorkspaceTaskListGroupResult>> {
+}): Promise<{
+  groups: Map<string, WorkspaceTaskListGroupResult>;
+  pinnedIds: Set<string>;
+  archivedIds: Set<string>;
+  deletedIds: Set<string>;
+  membershipByWorkspaceKey: Awaited<ReturnType<typeof fetchTaskListMembershipSetsForEndpointsCached>>["membershipByWorkspaceKey"];
+}> {
   const {
     taskIndexItems,
     pinnedIds,
@@ -116,6 +126,7 @@ async function buildWorkspaceGroupsFromSessions(params: {
     terminalStatusByTaskId,
     titleOverrideByTaskId,
     cronAutomationIdByTaskId,
+    membershipByWorkspaceKey,
   } = await fetchTaskListMembershipSetsForEndpointsCached({
     cacheKey: params.membershipCacheKey,
     endpoints: [{ service: params.service, scopes: params.scopes }],
@@ -156,7 +167,7 @@ async function buildWorkspaceGroupsFromSessions(params: {
         .map((task) => buildTaskEntityKey(task)),
     });
   }
-  return map;
+  return { groups: map, pinnedIds, archivedIds, deletedIds, membershipByWorkspaceKey };
 }
 
 /**
@@ -399,13 +410,24 @@ export function useWorkspaceTaskLists(params: {
     useWorkspaceSessionsIndexItems(sessionsIndexScopes);
   // pin/archive 归属版本：mutation（本端乐观或它端事件）后 bump，驱动权威 re-filter。
   const membershipVersion = useTaskListMembershipVersion();
+  const membershipByWorkspaceKey = useMemo(() => new Map(queryConfigs.map((config) => {
+    const shard = endpointShards.find((candidate) => candidate.configs.some((entry) => entry.queryKey === config.queryKey));
+    return [config.workspaceKey, readWorkspaceTaskMembership({
+      resultsByQueryKey, workspaceKey: config.workspaceKey, version: membershipVersion,
+      service: shard?.services.zcodeTaskService,
+    })] as const;
+  })), [endpointShards, membershipVersion, queryConfigs, resultsByQueryKey]);
   const [loading, setLoading] = useState<Record<string, boolean>>({});
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   // 冷启动时先只查当前 workspace（避免与模型 readState 抢资源）；之后当前 workspace 变 stale
   // 与其它 stale workspace 一起刷新，否则运行中的当前项目会饿死其它项目的列表（T-136）。
   const pendingConfigs = useMemo(
-    () => selectPendingWorkspaceTaskQueries(queryConfigs, resultsByQueryKey, activeWorkspaceKey),
-    [activeWorkspaceKey, queryConfigs, resultsByQueryKey],
+    () => selectPendingWorkspaceTaskQueries(queryConfigs, Object.fromEntries(queryConfigs.map((config) => {
+      const result = resultsByQueryKey[config.queryKey];
+      return [config.queryKey, result && !membershipByWorkspaceKey.get(config.workspaceKey)?.ready
+        ? { ...result, stale: true } : result];
+    })), activeWorkspaceKey),
+    [activeWorkspaceKey, membershipByWorkspaceKey, queryConfigs, resultsByQueryKey],
   );
   const sessionsIndexRevision = useMemo(
     () =>
@@ -521,7 +543,10 @@ export function useWorkspaceTaskLists(params: {
 
             // 本机和 remote shard 都以各自 endpoint 的 tasks-index 行为集合，
             // 再用同 endpoint/workspace 的 sessions-index activity/detail enrich。
-            const groupByWorkspaceKey = await buildWorkspaceGroupsFromSessions({
+            const {
+              groups: groupByWorkspaceKey,
+              membershipByWorkspaceKey: shardMembership,
+            } = await buildWorkspaceGroupsFromSessions({
               service: shard.services.zcodeTaskService,
               scopes: shardConfigs.map((config) => config.scope),
               sessions: sessionsForRequest,
@@ -542,6 +567,11 @@ export function useWorkspaceTaskLists(params: {
               };
               const visibleItems = group.items.slice(0, config.visibleLimit);
               return {
+                membership: {
+                  ...shardMembership.get(config.workspaceKey)!,
+                  version: membershipVersion,
+                  serviceId: membershipServiceIdOf(shard.services.zcodeTaskService),
+                },
                 queryKey: config.queryKey,
                 descriptor: config.descriptor,
                 items: visibleItems,
@@ -736,9 +766,24 @@ export function useWorkspaceTaskLists(params: {
     taskUnreadOverlayByEntityKey,
   ]);
 
+  const excludedIds = useMemo(() => {
+    const combined = new Set<string>();
+    for (const membership of membershipByWorkspaceKey.values()) {
+      for (const id of membership.excludedIds) combined.add(id);
+    }
+    return combined;
+  }, [membershipByWorkspaceKey]);
+
   return {
     groups,
     loadingByWorkspaceKey: loading,
     refresh,
+    // T-294: live sessions-index items for every subscribed workspace (shared
+    // subscription, no extra polling). The sidebar unions them with committed
+    // group rows when deriving running state, so a background project that
+    // resumed after its last cache commit still reads as running.
+    sessionsIndexItems,
+    excludedIds,
+    membershipByWorkspaceKey,
   };
 }

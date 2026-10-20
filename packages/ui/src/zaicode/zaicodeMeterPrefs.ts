@@ -36,6 +36,13 @@ export interface ZaicodeMeterPrefs {
   showLabels: boolean;
   /** Engines hidden from the title bar meter only (still on the sidebar). */
   meterHidden: string[];
+  /**
+   * Operator-defined account order (account ids, first = leftmost/topmost).
+   * Presentation only: quota arithmetic, routing eligibility and reset
+   * watches never read it. Ids absent here keep discovery order after the
+   * listed ones; unknown ids are ignored.
+   */
+  accountOrder: string[];
   /** Background tint of the sidebar tiles by availability, 0..60 (% of the level colour). */
   availabilityTint: number;
 }
@@ -49,6 +56,7 @@ export const ZAICODE_METER_DEFAULT_PREFS: ZaicodeMeterPrefs = {
   vendorTint: false,
   showLabels: false,
   meterHidden: [],
+  accountOrder: [],
   availabilityTint: 18,
 };
 
@@ -73,6 +81,9 @@ export function normalizeZaicodeMeterPrefs(raw: unknown): ZaicodeMeterPrefs {
     showLabels: flag(r.showLabels, d.showLabels),
     meterHidden: Array.isArray(r.meterHidden)
       ? [...new Set(r.meterHidden.filter((id): id is string => typeof id === "string"))].slice(0, 64)
+      : [],
+    accountOrder: Array.isArray(r.accountOrder)
+      ? [...new Set(r.accountOrder.filter((id): id is string => typeof id === "string" && id.length > 0))].slice(0, 256)
       : [],
     availabilityTint: tint,
   };
@@ -111,6 +122,23 @@ export const useZaicodeMeterPrefs = create<ZaicodeMeterPrefsState>((set, get) =>
 }));
 
 // ---------------------------------------------------------------------------
+/**
+ * Accounts in operator order: listed ids first (in listed order), everything
+ * else after in its current relative order. Unknown ids change nothing.
+ */
+export function orderZaicodeAccounts<T extends { id: string }>(accounts: readonly T[], order: readonly string[]): T[] {
+  if (order.length === 0) return [...accounts];
+  const rank = new Map(order.map((id, index) => [id, index]));
+  return [...accounts]
+    .map((account, index) => ({ account, index }))
+    .sort((left, right) => {
+      const lrank = rank.get(left.account.id) ?? Number.POSITIVE_INFINITY;
+      const rrank = rank.get(right.account.id) ?? Number.POSITIVE_INFINITY;
+      return lrank !== rrank ? lrank - rrank : left.index - right.index;
+    })
+    .map((entry) => entry.account);
+}
+
 // Title bar meter style (its own key since T-34; Ctrl+Click on the meter cycles it)
 // ---------------------------------------------------------------------------
 

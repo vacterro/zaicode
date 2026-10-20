@@ -385,10 +385,11 @@ export function createZCodeSessionService({
 
     async readSession(params: ZCodeSessionReadParams) {
       const startedAt = Date.now();
-      const snapshot = await repairEmptyImportedClaudeSession(
-        withApiRetryRuntime(await agentService.readSession(params)),
-        params,
-      );
+      const captured = withApiRetryRuntime(await agentService.readSession(params));
+      // 取证导出只能观察存活记录；普通 read 保留原有修复策略，显式 false 不得重建导入历史。
+      const snapshot = params.repairImportedHistory === false
+        ? captured
+        : await repairEmptyImportedClaudeSession(captured, params);
       logger.info(undefined, "[zcode-session-service] readSession 历史快照读取完成", {
         deliveryKind: params.deliveryKind,
         durationMs: Date.now() - startedAt,

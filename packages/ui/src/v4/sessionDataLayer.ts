@@ -1,3 +1,4 @@
+/* oxlint-disable eslint(max-lines) */
 // SessionDataLayer（纯数据层）。
 // Map<topic, SessionStore>，不知道「显示」这回事；生命周期 = 引用计数：
 // 有 pane 引用 → 订阅；归零 → 延迟退订（keep-warm，防拖拽/切 pane 抖动）。
@@ -13,8 +14,15 @@ import type {
   CommandsQueryResult,
   ConversationSnapshot,
 } from "@zcode/shared/zcode-protocol-v4";
-import { isZaicodeCleanupInProgress, isSessionRetired } from "@/zaicode/zaicodeCleanupFence.js";
+import {
+  isZaicodeCleanupInProgress,
+  isSessionRetired,
+  RetiredSessionError,
+  isRetiredSessionError,
+} from "@/zaicode/zaicodeCleanupFence.js";
 import { adaptivePrefetchCoordinator } from "@/v4/adaptivePrefetchCoordinator.js";
+
+export { RetiredSessionError, isRetiredSessionError };
 
 /** pane 持有的租约；release 幂等。 */
 export interface SessionLease {
@@ -113,7 +121,7 @@ export class SessionDataLayer {
       throw new Error("SessionDataLayer 已释放，不能再 acquire");
     }
     if (isSessionRetired(sessionId)) {
-      throw new Error(`Cannot acquire retired session: ${sessionId}`);
+      throw new RetiredSessionError(sessionId);
     }
     const topic = conversationTopic(sessionId);
     const startedAt = monotonicNow();
@@ -358,7 +366,7 @@ export class SessionDataLayer {
 
   clearWarmPool(): void {
     this.clearPrefetches();
-    for (const [topic, entry] of [...this.entries.entries()]) {
+    for (const [topic, entry] of Array.from(this.entries.entries())) {
       if (entry.paneRefCount === 0) {
         if (entry.keepWarmTimer !== null) {
           clearTimeout(entry.keepWarmTimer);

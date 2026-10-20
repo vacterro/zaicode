@@ -279,7 +279,11 @@ export function ZaicodeEnginesSettings() {
                         : "border-border",
                     )}
                     style={{ color: zaicodeVendorColor(account.vendor) }}
-                    title={activeEngine === account.id ? "START uses this engine. Click to go back to the in-app pool." : "Use for START"}
+                    title={
+                      activeEngine === account.id
+                        ? "START runs this account's CLI as a worker (explicit worker path). Click to go back to the in-app pool. In-app requests pick the account in the model menu instead: 9router fill-first puts it first, round-robin makes it a hint."
+                        : "Use for START (runs this account's CLI as a worker)"
+                    }
                     onClick={() => setZaicodeActiveEngine(activeEngine === account.id ? null : account.id)}
                   >
                     {account.short}

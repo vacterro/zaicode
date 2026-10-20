@@ -9,7 +9,6 @@ import {
   normalizeZaicodeEnginesConfig,
   providerQuotaCircuit,
   resetProviderQuotaCircuits,
-  type ZaicodeContinuingJob,
   type ZaicodeEngineAccount,
   type ZaicodeLimitSnapshot,
 } from "@zcode/shared";

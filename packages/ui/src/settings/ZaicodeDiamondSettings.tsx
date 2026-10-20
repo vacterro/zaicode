@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { cn } from "@/components/lib/utils.js";
+import { Checkbox } from "@/components/ui/checkbox.js";
 import {
   ZAICODE_DIAMOND_DEFAULT_OTHER,
   ZAICODE_DIAMOND_DEFAULT_SAIOPP,
@@ -45,8 +46,8 @@ export function ZaicodeDiamondSettings() {
       }
     >
       <div className="flex flex-col gap-1.5" data-zaicode-diamond-settings>
-        <label className="flex items-center gap-1.5 text-foreground">
-          <input type="checkbox" checked={prefs.byModel} onChange={(event) => prefs.update({ byModel: event.target.checked })} />
+        <label className="flex items-center gap-1.5 text-foreground cursor-pointer select-none">
+          <Checkbox checked={prefs.byModel} onCheckedChange={(val) => prefs.update({ byModel: Boolean(val) })} />
           Colour diamonds by the chat's model (off: gold MAIN, grey side sessions)
         </label>
         <div className={cn("grid grid-cols-[120px_auto_auto] items-center gap-x-2 gap-y-1", !prefs.byModel && "opacity-50")}>

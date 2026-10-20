@@ -216,7 +216,7 @@ const modeForSeedFile = (filePath, sourceMode) => {
 
   const normalizedPath = toPosixPath(filePath);
   if (/(?:^|\/)dist\/mcp\/server\.js$/i.test(normalizedPath)) return 0o755;
-  if (/^hooks\//u.test(normalizedPath) && !/\.(json|md|txt)$/iu.test(normalizedPath)) {
+  if (normalizedPath.startsWith('hooks/') && !/\.(json|md|txt)$/iu.test(normalizedPath)) {
     return 0o755;
   }
 

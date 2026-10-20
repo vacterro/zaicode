@@ -5,6 +5,7 @@ import { useZCodeIntl } from "@/i18n/IntlProvider.js";
 import { ZaicodeIcon } from "@/zaicode/zaicodeIconSlots.js";
 import { cn } from "@/components/lib/utils.js";
 import { zaicodeLayerClass } from "@zcode/shared";
+import { readZaicodeSetting } from "@/zaicode/zaicodeSettingsSnapshot.js";
 
 const STORAGE_KEY = "zaicode-todo-window";
 const TOGGLE_EVENT = "zaicode-todo-window-toggle";
@@ -25,7 +26,7 @@ function readWindowState(): TodoWindowState {
   const fallback = { open: false, docked: true, x: 80, y: 80 };
   try {
     const value = JSON.parse(
-      localStorage.getItem(STORAGE_KEY) ?? "null",
+      readZaicodeSetting(STORAGE_KEY) ?? "null",
     ) as Partial<TodoWindowState> | null;
     if (!value || typeof value !== "object") return fallback;
     return {
@@ -85,7 +86,8 @@ export function ZaicodeTodoDock({ plan }: { plan: ConversationStatusPanelPlanMod
   const beginDrag = (event: PointerEvent<HTMLElement>) => {
     if ((event.target as HTMLElement).closest("button")) return;
     const rect = event.currentTarget.parentElement?.getBoundingClientRect();
-    const origin = state.docked && rect ? { x: rect.left, y: rect.top } : { x: state.x, y: state.y };
+    const origin =
+      state.docked && rect ? { x: rect.left, y: rect.top } : { x: state.x, y: state.y };
     if (state.docked) setState((current) => ({ ...current, docked: false, ...origin }));
     event.currentTarget.setPointerCapture(event.pointerId);
     setDragStart({ pointerX: event.clientX, pointerY: event.clientY, ...origin });
@@ -124,7 +126,10 @@ export function ZaicodeTodoDock({ plan }: { plan: ConversationStatusPanelPlanMod
         createPortal(
           <aside
             aria-label={label("title")}
-            className={cn("fixed flex max-h-[min(70vh,34rem)] w-80 max-w-[min(calc(100vw-2rem),20rem)] flex-col border border-border bg-card text-foreground shadow-md", zaicodeLayerClass("dock"))}
+            className={cn(
+              "fixed flex max-h-[min(70vh,34rem)] w-80 max-w-[min(calc(100vw-2rem),20rem)] flex-col border border-border bg-card text-foreground shadow-md",
+              zaicodeLayerClass("dock"),
+            )}
             style={
               state.docked
                 ? { right: 16, top: 64, width: "min(20rem, calc(100vw - 2rem))" }

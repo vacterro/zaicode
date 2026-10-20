@@ -31,12 +31,16 @@ export const ZAICODE_SAVE_ALL_SETTING_KEYS = [
   "zaicode-layout-v1",
   "zaicode-hotkeys-v1",
   "zaicode-notifications-v1",
+  "zaicode-notification-sound",
+  "zaicode-notification-custom-sound-name",
   "zaicode-timer-prefs-v1",
   "zaicode-sound-picker-v1",
   "zaicode-color-studio-v1",
   "zaicode-avatar-uploads",
   "zaicode-saipen-log-order-v1",
   "zaicode-saipen-ticket-order-v1",
+  "zaicode-saipen-pane-open-v1",
+  "zaicode-todo-window",
   "zaicode-lights-v1",
   "zaicode-model-appearance-v1",
   "zaicode-lights-presets-v1",
@@ -49,10 +53,11 @@ export const ZAICODE_SAVE_ALL_SETTING_KEYS = [
   // would be dead entries until their readers move to readZaicodeSetting).
   "zaicode-auto-continue-v1",
   "zaicode-auto-goal-v1",
-  "zaicode-autostart-v1",
+  // 用户调度任务属于本机运行配置，不能成为其他安装的出厂设置。
   "zaicode-change-floaters-v1",
   "zaicode-dispatch-prefs-v1",
   "zaicode-engine-bar-v1",
+  "zaicode-composer-model-buttons-v1",
   "zaicode-header-title-v1",
   "zaicode-home-v1",
   "zaicode-icon-profiles-v1",
@@ -80,7 +85,7 @@ export function readZaicodeSetting(key: string): string | null {
     // Bundled defaults remain usable without browser storage.
   }
   return Object.prototype.hasOwnProperty.call(defaults.settings, key)
-    ? defaults.settings[key] ?? null
+    ? (defaults.settings[key] ?? null)
     : null;
 }
 
@@ -154,6 +159,10 @@ const ZAICODE_SNAPSHOT_EPHEMERAL_NAMES: readonly string[] = [
   "lastRunAt",
   "lastResult",
   "runs",
+  "continuationRuns",
+  "zaicode-autostart-v1",
+  "intervalRules",
+  "missed",
   "lastFired",
   "lastFiredMinute",
   "lastProject",
@@ -163,31 +172,62 @@ const ZAICODE_SNAPSHOT_EPHEMERAL_NAMES: readonly string[] = [
 /** A family absent here ships verbatim — but only after the session scan passes it. */
 const ZAICODE_SNAPSHOT_EPHEMERAL_FIELDS: Record<string, readonly string[]> = {
   "zaicode-ui-prefs-v1": ["autoRetrySessions", "schedulerIneligible"],
-  "zaicode-autostart-v1": ["firedEvents", "lastRunAt", "lastResult", "runs"],
-  "zaicode-timer-prefs-v1": ["lastFired", "lastFiredMinute"],
+  "zaicode-timer-prefs-v1": ["intervalRules", "missed", "lastFired", "lastFiredMinute"],
   "zaicode-dispatch-prefs-v1": ["lastProject"],
   "zaicode-home-v1": ["lastView"],
   // A preset bundles other families' payloads, so it carries their volatile fields too.
   "zaicode-presets-v1": [...ZAICODE_SNAPSHOT_EPHEMERAL_NAMES],
+  "zaicode-profiles": [...ZAICODE_SNAPSHOT_EPHEMERAL_NAMES],
 };
 
 /** `sess_<uuid>` is one session's key wherever it turns up. */
-const ZAICODE_SNAPSHOT_SESSION_KEY = /^sess_/;
+const ZAICODE_SNAPSHOT_SESSION_KEY = /^sess_|^sessionIds?$/;
+const ZAICODE_SNAPSHOT_SESSION_VALUE = /\bsess_[\w-]+/;
 
 /** Remove `fields` from `value` at every depth; arrays are mapped, scalars untouched. */
 function stripEphemeralFields(value: unknown, fields: readonly string[]): unknown {
-  if (Array.isArray(value)) return value.map((row) => stripEphemeralFields(row, fields));
-  if (!value || typeof value !== "object") return value;
-  const out: Record<string, unknown> = {};
-  for (const [key, child] of Object.entries(value as Record<string, unknown>)) {
-    if (fields.includes(key)) continue;
-    out[key] = stripEphemeralFields(child, fields);
+  // 预设把各设置族保存为 JSON 字符串；同一投影必须进入这些字符串，不能把历史执行再次打包。
+  if (typeof value === "string" && /^[\s]*[[{]/.test(value)) {
+    try {
+      const parsed: unknown = JSON.parse(value);
+      const projected = stripEphemeralFields(parsed, fields);
+      return projected === parsed ? value : JSON.stringify(projected);
+    } catch {
+      return value;
+    }
   }
-  return out;
+  if (Array.isArray(value)) {
+    const projected = value.map((row) => stripEphemeralFields(row, fields));
+    return projected.every((row, index) => row === value[index]) ? value : projected;
+  }
+  if (!value || typeof value !== "object") return value;
+  const entries: [string, unknown][] = [];
+  let changed = false;
+  for (const [key, child] of Object.entries(value as Record<string, unknown>)) {
+    if (fields.includes(key)) {
+      changed = true;
+      continue;
+    }
+    const projected = stripEphemeralFields(child, fields);
+    if (projected !== child) changed = true;
+    entries.push([key, projected]);
+  }
+  return changed ? Object.fromEntries(entries) : value;
 }
 
 /** Path of the first session key or volatile field left anywhere, or null when clean. */
 function findEphemeralPayload(value: unknown, path: string): string | null {
+  if (typeof value === "string") {
+    if (ZAICODE_SNAPSHOT_SESSION_VALUE.test(value)) return path;
+    if (/^[\s]*[[{]/.test(value)) {
+      try {
+        return findEphemeralPayload(JSON.parse(value), path);
+      } catch {
+        return null;
+      }
+    }
+    return null;
+  }
   if (Array.isArray(value)) {
     for (const [index, row] of value.entries()) {
       const found = findEphemeralPayload(row, `${path}[${index}]`);
@@ -198,7 +238,7 @@ function findEphemeralPayload(value: unknown, path: string): string | null {
   if (!value || typeof value !== "object") return null;
   for (const [key, child] of Object.entries(value as Record<string, unknown>)) {
     if (ZAICODE_SNAPSHOT_SESSION_KEY.test(key) || ZAICODE_SNAPSHOT_EPHEMERAL_NAMES.includes(key)) {
-      return `${path}.${key}`;
+      return `${path}.${key.startsWith("sess_") ? "[session-key]" : key}`;
     }
     const found = findEphemeralPayload(child, `${path}.${key}`);
     if (found) return found;
@@ -218,7 +258,10 @@ function projectZaicodeSnapshotFamily(key: string, value: string): string | null
   try {
     parsed = JSON.parse(value);
   } catch {
-    return value; // Not JSON: it cannot carry a nested session key.
+    // 历史会话标识也可能直接放在标量值里；已声明的结构化设置损坏时不发布其原始内容。
+    return ZAICODE_SNAPSHOT_EPHEMERAL_FIELDS[key] || findEphemeralPayload(value, key)
+      ? null
+      : value;
   }
   const fields = ZAICODE_SNAPSHOT_EPHEMERAL_FIELDS[key];
   const projected = fields ? stripEphemeralFields(parsed, fields) : parsed;
@@ -227,7 +270,7 @@ function projectZaicodeSnapshotFamily(key: string, value: string): string | null
     console.warn(`[zaicode] Save All refused ${key}: it carries session state (${leftover}).`);
     return null;
   }
-  return fields ? JSON.stringify(projected) : value;
+  return projected === parsed ? value : JSON.stringify(projected);
 }
 
 export async function captureZaicodeSettingsSnapshot(): Promise<string> {
@@ -243,7 +286,8 @@ export async function captureZaicodeSettingsSnapshot(): Promise<string> {
         if (audio.problip && typeof audio.problip === "object") {
           audio.problip = { ...audio.problip, running: false };
         }
-        settings[key] = JSON.stringify(audio);
+        const projected = projectZaicodeSnapshotFamily(key, JSON.stringify(audio));
+        if (projected !== null) settings[key] = projected;
       } catch {
         // Skip malformed settings; the corresponding feature already falls back.
       }
@@ -265,7 +309,8 @@ export async function captureZaicodeSettingsSnapshot(): Promise<string> {
       if (setting.sound !== "custom") continue;
       const blob = await readAudioBlob(LEGACY_CUE_AUDIO_DB, event);
       const sound = blob ? await asDataUrl(blob) : readBundledZaicodeCueAudio(event);
-      if (!sound) throw new Error(`Custom sound for ${event} is missing; choose a new file before saving.`);
+      if (!sound)
+        throw new Error(`Custom sound for ${event} is missing; choose a new file before saving.`);
       cueAudio[event] = sound;
     }
   }
@@ -274,7 +319,9 @@ export async function captureZaicodeSettingsSnapshot(): Promise<string> {
   if (soundEvents) {
     let rows: Record<string, { sound?: unknown }> = {};
     try {
-      const parsed = JSON.parse(soundEvents) as { events?: Record<string, { sound?: unknown }> } | null;
+      const parsed = JSON.parse(soundEvents) as {
+        events?: Record<string, { sound?: unknown }>;
+      } | null;
       rows = parsed?.events ?? {};
     } catch {
       delete settings["zaicode-sound-events-v1"];
@@ -285,10 +332,20 @@ export async function captureZaicodeSettingsSnapshot(): Promise<string> {
       const blob = await readZaicodeCustomSoundBlob(sound);
       const data = blob ? await asDataUrl(blob) : readBundledZaicodeCustomSound(sound);
       if (!data) {
-        throw new Error(`Own sound for ${sound.slice("custom:".length)} is missing; choose the file again before saving.`);
+        throw new Error(
+          `Own sound for ${sound.slice("custom:".length)} is missing; choose the file again before saving.`,
+        );
       }
       cueAudio[sound] = data;
     }
+  }
+  // 自定义通知音与选择一起发布，不能只保存文件名而让新安装静音。
+  if (settings["zaicode-notification-sound"] === "custom") {
+    const blob = await readAudioBlob("zaicode-notification-audio", "custom");
+    const data = blob ? await asDataUrl(blob) : readBundledZaicodeCueAudio("notification.custom");
+    if (!data)
+      throw new Error("Custom notification sound is missing; choose the file again before saving.");
+    cueAudio["notification.custom"] = data;
   }
   return JSON.stringify({ version: 1, settings, cueAudio } satisfies Snapshot);
 }

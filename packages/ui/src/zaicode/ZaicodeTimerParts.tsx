@@ -1,6 +1,7 @@
 import { formatZaicodeTimeOfDay } from "@zcode/shared";
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import { cn } from "@/components/lib/utils.js";
+import { Checkbox } from "@/components/ui/checkbox.js";
 import { ZaicodeSoundPicker } from "./ZaicodeSoundPicker.js";
 import { ZaicodeTimeField } from "./ZaicodeTimeFields.js";
 import { playZaicodeSoundFile } from "./zaicodeSoundEvents.js";
@@ -41,8 +42,8 @@ export const timerInputClass = "min-w-0 border border-border bg-background px-1 
 
 export function TimerCheck({ checked, onChange, label, title }: { checked: boolean; onChange: (checked: boolean) => void; label: string; title?: string }) {
   return (
-    <label className="flex items-center gap-1.5 text-foreground" title={title}>
-      <input type="checkbox" checked={checked} onChange={(event) => onChange(event.target.checked)} />
+    <label className="flex items-center gap-1.5 text-foreground cursor-pointer select-none" title={title}>
+      <Checkbox checked={checked} onCheckedChange={(val) => onChange(Boolean(val))} />
       {label}
     </label>
   );
@@ -197,21 +198,22 @@ function PoolRow({
   // All day is its own switch: 00:00 is an ordinary time (midnight), never "all day" in disguise.
   return (
     <>
-      <input type="checkbox" checked={rule.enabled} onChange={(event) => onChange({ enabled: event.target.checked })} />
+      <Checkbox checked={rule.enabled} onCheckedChange={(val) => onChange({ enabled: Boolean(val) })} aria-label="Enable rule" />
       <ZaicodeSoundPicker value={rule.sound} onChange={(sound) => onChange({ sound })} previewVolume={rule.volume ?? timerVolume} />
-      <input
-        type="checkbox"
+      <Checkbox
         className="justify-self-center"
         checked={rule.allDay}
         title="All day: this row may play at any time"
-        onChange={(event) =>
+        aria-label="All day"
+        onCheckedChange={(val) => {
+          const checked = Boolean(val);
           onChange(
             // An empty window (From = To) would never play: unticking All starts from 09:00–18:00.
-            !event.target.checked && rule.startMinute === rule.endMinute
+            !checked && rule.startMinute === rule.endMinute
               ? { allDay: false, startMinute: 9 * 60, endMinute: 18 * 60 }
-              : { allDay: event.target.checked },
-          )
-        }
+              : { allDay: checked },
+          );
+        }}
       />
       <ZaicodeTimeField minute={rule.startMinute} disabled={rule.allDay} ariaLabel="Plays from" onChange={(startMinute) => onChange({ startMinute })} />
       <ZaicodeTimeField minute={rule.endMinute} disabled={rule.allDay} ariaLabel="Plays until" onChange={(endMinute) => onChange({ endMinute })} />

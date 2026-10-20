@@ -7,7 +7,6 @@ import type {
 } from "@zcode/shared/zcode-protocol-v4";
 import { logger } from "@/logger.js";
 import { useZaicodeAutoContinue } from "./zaicodeAutoContinue.js";
-import { useZaicodeAuditStore } from "./zaicodeAuditStore.js";
 import {
   clearZaicodeQuotaWall,
   markZaicodeQuotaWall,
@@ -24,9 +23,9 @@ import { useZaicodeUiPrefs } from "./zaicodeUiPrefs.js";
 /**
  * ZAICODE auto-retry: when a turn ends in an error (e.g. "The model returned
  * no content", a dropped connection), the session retries on its own after N
- * seconds (default 60, doubling each time), and gives up after M attempts (at
- * most ZAICODE_AUTO_RETRY_HARD_CAP). It only runs while the sidebar's Auto is
- * ON (or this session's own auto-continue is On) and never on a quota wall
+ * seconds (default 60, the same every attempt since T-302), and gives up after
+ * M attempts (at most ZAICODE_AUTO_RETRY_HARD_CAP). It follows the effective retry
+ * preference and session/stop-all controls, and never retries a quota wall blindly
  * (SRC-082). The composer banner shows the countdown with "Retry now" and
  * "Stop auto-retry".
  */
@@ -58,30 +57,32 @@ export function isZaicodeAutoRetryableError(
 
 type RowLike = Pick<ConversationRow, "rowId" | "kind"> & {
   entityId?: string;
+  origin?: string;
   actions?: { canRetry?: true; canEdit?: true };
   text?: string;
 };
 
 /**
- * What to re-run: the latest row the CLI marks retryable (retryTurn), else the
- * latest editable user input re-sent with its own text (editUserQuery).
+ * Retry the current user input: its admitted answer, else the editable input.
+ * A previous answered input is never a substitute for the latest failed one.
  */
 export function pickZaicodeAutoRetryAction(rows: readonly RowLike[]): ZaicodeAutoRetryAction | null {
-  for (let index = rows.length - 1; index >= 0; index -= 1) {
+  const latestUser = rows.findLastIndex((row) => row.kind === "userInput" &&
+    (row.origin === undefined || row.origin === "realUser"));
+  // T-240：旧答案仍可手动 Retry，但自动重试不能跨过更新的失败请求回放旧问题。
+  for (let index = rows.length - 1; index >= Math.max(0, latestUser); index -= 1) {
     const row = rows[index]!;
     if (row.actions?.canRetry && row.entityId) {
       return { kind: "retry", target: { rowId: row.rowId, entityId: row.entityId } };
     }
   }
-  for (let index = rows.length - 1; index >= 0; index -= 1) {
-    const row = rows[index]!;
-    if (row.kind === "userInput" && row.actions?.canEdit && row.entityId && row.text?.trim()) {
-      return {
-        kind: "edit",
-        target: { rowId: row.rowId, entityId: row.entityId },
-        text: row.text,
-      };
-    }
+  const row = rows[latestUser];
+  if (row?.actions?.canEdit && row.entityId && row.text?.trim()) {
+    return {
+      kind: "edit",
+      target: { rowId: row.rowId, entityId: row.entityId },
+      text: row.text,
+    };
   }
   return null;
 }
@@ -106,8 +107,10 @@ export function bumpZaicodeAutoRetryAttempt(sessionId: string): void {
 }
 
 export function resetZaicodeAutoRetryAttempt(sessionId: string): void {
-  if (!attemptsBySession.delete(sessionId)) return;
-  writeZaicodeRetrySafety({ attempts: Object.fromEntries(attemptsBySession) });
+  if (attemptsBySession.delete(sessionId)) {
+    writeZaicodeRetrySafety({ attempts: Object.fromEntries(attemptsBySession) });
+  }
+  clearZaicodeAutoRetryStoppedForSession(sessionId);
 }
 
 /** True while an open pane is in charge of the session's retry (zaicodeAutoRetryPaneClaims). */
@@ -158,8 +161,8 @@ export interface ZaicodeAutoRetryState {
   /** The retry for this error is running and can be stopped. */
   armed: boolean;
   /**
-   * Why nothing is scheduled although a retry by hand is possible: the sidebar Auto is OFF
-   * (or this session's auto-continue is Off), the retry switch is off, or the error is a
+   * Why nothing is scheduled although a retry by hand is possible: this session's
+   * auto-continue is Off, the retry switch/stop-all is off, or the error is a
    * quota wall that only the reset lifts. null = nothing blocks it.
    */
   blockedBy: "auto-off" | "switch-off" | "quota" | null;
@@ -194,6 +197,24 @@ export function isZaicodeAutoRetryStopped(errorKey: string | null | undefined): 
   return Boolean(errorKey) && stoppedErrorKeys.has(errorKey!);
 }
 
+/** Background summaries omit error details, but the session still owns the stopped failure. */
+export function isZaicodeAutoRetryStoppedForSession(sessionId: string): boolean {
+  const prefix = `${sessionId}:`;
+  return [...stoppedErrorKeys].some((key) => key.startsWith(prefix));
+}
+
+/** A new accepted attempt or clean finish retires this session's previous failure. */
+export function clearZaicodeAutoRetryStoppedForSession(sessionId: string): void {
+  let changed = false;
+  for (const key of stoppedErrorKeys) {
+    if (key.startsWith(`${sessionId}:`)) {
+      stoppedErrorKeys.delete(key);
+      changed = true;
+    }
+  }
+  if (changed) writeZaicodeRetrySafety({ stoppedErrors: [...stoppedErrorKeys] });
+}
+
 export function useZaicodeAutoRetry(params: {
   projectKey?: string;
   enabled: boolean;
@@ -211,7 +232,6 @@ export function useZaicodeAutoRetry(params: {
   const prefs = useZaicodeUiPrefs();
   const intervalSec = useZaicodeUiPrefs((state) => state.autoRetryIntervalSec);
   const maxAttempts = zaicodeRetryLimit(useZaicodeUiPrefs((state) => state.autoRetryMaxAttempts));
-  const masterOn = useZaicodeAuditStore((state) => state.smartMode);
   const sessionMode = useZaicodeAutoContinue((state) => (sessionId ? state.modes[sessionId] : undefined));
   const halted = useZaicodeRetryLedger((state) => state.halted);
   const [nextAt, setNextAt] = useState<number | null>(null);
@@ -227,15 +247,15 @@ export function useZaicodeAutoRetry(params: {
   );
   const quotaWall = Boolean(error && zaicodeRetryClassOf(error) === "quota" && !params.quotaFallbackReady);
   useEffect(() => {
-    if (sessionId && quotaWall) markZaicodeQuotaWall(sessionId);
+    if (sessionId && quotaWall) markZaicodeQuotaWall(sessionId, error?.at);
     else if (sessionId && params.quotaFallbackReady) clearZaicodeQuotaWall(sessionId);
-  }, [quotaWall, sessionId, errorKey, params.quotaFallbackReady]);
-  const effective = zaicodeEffectiveAutoRetry(prefs, params.projectKey ?? "", sessionId, { masterOn, sessionMode, halted });
+  }, [quotaWall, sessionId, errorKey, error?.at, params.quotaFallbackReady]);
+  const effective = zaicodeEffectiveAutoRetry(prefs, params.projectKey ?? "", sessionId, { sessionMode, halted });
   const mayAutoSend = effective.enabled;
   // The banner reads the same block the button shows (SRC-162): one projection, one answer.
   const blockedBy: ZaicodeAutoRetryState["blockedBy"] = quotaWall
     ? "quota"
-    : effective.block === "session-off" || effective.block === "master-off"
+    : effective.block === "session-off"
       ? "auto-off"
       : effective.block !== null
         ? "switch-off"
@@ -245,10 +265,21 @@ export function useZaicodeAutoRetry(params: {
   const actionKey = action ? `${action.kind}:${action.target.rowId}:${action.target.entityId}` : null;
   const busy = phase === "running" || phase === "prewarming";
   const attempts = sessionId ? zaicodeAutoRetryAttempts(sessionId) : 0;
+  // T-240/W2-002：reload 不能用空的 React state 覆盖已落盘的「停止本次错误」。
+  const stoppedThisError = Boolean(errorKey) &&
+    (stoppedKey === errorKey || isZaicodeAutoRetryStopped(errorKey) ||
+      Boolean(sessionId && isZaicodeAutoRetryStoppedForSession(sessionId)));
+
+  useEffect(() => {
+    if (sessionId && busy) clearZaicodeAutoRetryStoppedForSession(sessionId);
+  }, [busy, sessionId]);
 
   // A clean finish resets the budget.
   useEffect(() => {
-    if (sessionId && !error && phase === "completedSuccess") resetZaicodeAutoRetryAttempt(sessionId);
+    if (sessionId && !error && phase === "completedSuccess") {
+      resetZaicodeAutoRetryAttempt(sessionId);
+      clearZaicodeQuotaWall(sessionId);
+    }
   }, [error, phase, sessionId]);
 
   const run = useCallback(
@@ -257,6 +288,7 @@ export function useZaicodeAutoRetry(params: {
       const id = runRef.current.sessionId;
       if (!current || !id) return;
       if (counted && !zaicodeEffectiveAutoRetryFor(runRef.current.projectKey ?? "", id).enabled) return;
+      if (counted && isZaicodeAutoRetryStoppedForSession(id)) return;
       if (counted) bumpZaicodeAutoRetryAttempt(id);
       setNextAt(null);
       forceRender((value) => value + 1);
@@ -285,7 +317,7 @@ export function useZaicodeAutoRetry(params: {
     Boolean(sessionId && error && errorKey && actionKey) &&
     !busy &&
     !exhausted &&
-    stoppedKey !== errorKey;
+    !stoppedThisError;
 
   // The pane claims the session only while it is really in charge of it
   // (zaicodeAutoRetryPaneClaims); otherwise the background retry host (SRC-051)
@@ -296,7 +328,7 @@ export function useZaicodeAutoRetry(params: {
     hasError: Boolean(error),
     retryable: Boolean(error && blockedBy === null && isZaicodeAutoRetryableError(error, params.quotaFallbackReady)),
     armed,
-    stoppedThisError: Boolean(errorKey) && stoppedKey === errorKey,
+    stoppedThisError,
   });
   useEffect(() => {
     if (!sessionId || !claims) return undefined;
@@ -311,7 +343,12 @@ export function useZaicodeAutoRetry(params: {
       setNextAt(null);
       return;
     }
-    const delay = zaicodeRetryDelayMs(intervalSec, zaicodeAutoRetryAttempts(sessionId ?? ""));
+    // T-302: the same nominal interval at attempt 1 and at attempt 49 -- no 2^attempts ladder.
+    // SRC-269: honor trustworthy Retry-After over local nominal estimates when supplied.
+    const retryAfter = error?.attribution?.retryAfterMs;
+    const delay = typeof retryAfter === "number" && retryAfter > 0
+      ? Math.min(retryAfter, 3_600_000)
+      : zaicodeRetryDelayMs(intervalSec);
     const at = Date.now() + delay;
     setNextAt(at);
     // Every scheduled knock is in the ledger the sidebar shows (and can stop).

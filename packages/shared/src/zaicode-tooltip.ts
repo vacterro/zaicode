@@ -81,6 +81,28 @@ export function zaicodeAnchorBox(
  * (nothing measured) -- the card then gets the room available on its side,
  * which is what stops the unbounded growth in R012.
  */
+/**
+ * REQ-001: context-appropriate opening side for cards whose natural height is
+ * not known yet. A top-opening card with unknown height fills the whole room
+ * above the trigger, which detaches it from a low trigger; a bottom-opening
+ * card always starts at the trigger. So: open below whenever the room below
+ * fits a readable card, else take whichever side is taller. Non-finite input
+ * keeps the historical top default.
+ */
+export const ZAICODE_TOOLTIP_MIN_USEFUL_HEIGHT = 120;
+
+export function zaicodeTooltipPreferredSide(
+  anchorTop: number,
+  anchorBottom: number,
+  viewportHeight: number,
+): ZaicodeTooltipSide {
+  if (!Number.isFinite(anchorTop) || !Number.isFinite(anchorBottom) || !(viewportHeight > 0))
+    return "top";
+  const below = viewportHeight - anchorBottom;
+  if (below >= ZAICODE_TOOLTIP_MIN_USEFUL_HEIGHT) return "bottom";
+  return below >= anchorTop ? "bottom" : "top";
+}
+
 export function zaicodeTooltipPlacement(
   anchor: ZaicodeTooltipAnchor,
   size: ZaicodeTooltipSize,

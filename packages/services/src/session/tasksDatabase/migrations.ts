@@ -14,6 +14,8 @@ import { ZAICODE_STATS_MIGRATION_SQL } from "#src/session/tasksDatabase/zaicode-
 import { ZAICODE_JOB_QUERY_MIGRATION_SQL } from "#src/session/tasksDatabase/zaicode-job-query-v7.js";
 import { ZAICODE_DELEGATION_MIGRATION_SQL } from "#src/session/tasksDatabase/zaicode-delegation-v8.js";
 import { ZAICODE_HOME_QUERY_MIGRATION_SQL } from "#src/session/tasksDatabase/zaicode-home-query-v9.js";
+import { ZAICODE_STATS_PROGRESS_MIGRATION_SQL } from "#src/session/tasksDatabase/zaicode-stats-progress-v10.js";
+import { ZAICODE_AUDIT_METADATA_MIGRATION_SQL } from "#src/session/tasksDatabase/zaicode-audit-metadata-v11.js";
 
 // 冻结历史列声明，不能以实时 Repo/schema 代替，否则新版构建会改变已应用 checksum。
 const columns = [
@@ -94,6 +96,14 @@ const definitions = [
     id: "0009_zaicode_home_query",
     checksumInput: [ZAICODE_HOME_QUERY_MIGRATION_SQL],
   },
+  {
+    id: "0010_zaicode_stats_progress",
+    checksumInput: [ZAICODE_STATS_PROGRESS_MIGRATION_SQL],
+  },
+  {
+    id: "0011_zaicode_audit_metadata",
+    checksumInput: [ZAICODE_AUDIT_METADATA_MIGRATION_SQL],
+  },
 ] as const;
 
 export function runTasksDatabaseMigrations(
@@ -152,7 +162,9 @@ export function runTasksDatabaseMigrations(
       else if (migration.id === "0007_zaicode_job_query") db.exec(ZAICODE_JOB_QUERY_MIGRATION_SQL);
       else if (migration.id === "0008_zaicode_delegation")
         db.exec(ZAICODE_DELEGATION_MIGRATION_SQL);
-      else db.exec(ZAICODE_HOME_QUERY_MIGRATION_SQL);
+      else if (migration.id === "0009_zaicode_home_query") db.exec(ZAICODE_HOME_QUERY_MIGRATION_SQL);
+      else if (migration.id === "0010_zaicode_stats_progress") db.exec(ZAICODE_STATS_PROGRESS_MIGRATION_SQL);
+      else db.exec(ZAICODE_AUDIT_METADATA_MIGRATION_SQL);
       migrationFacts.executedCount++;
       db.prepare("INSERT INTO tasks_schema_migration VALUES(?,?,?)").run(
         migration.id,

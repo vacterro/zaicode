@@ -33,6 +33,8 @@ export * from "./sessions-index.js";
 export * from "./sessions-index-workflow-activity.js";
 export * from "./workspace-config.js";
 export * from "./command.js";
+export * from "./input-provenance.js";
+export * from "./response-contract.js";
 export * from "./workflow-run-settings-command.js";
 export * from "./shared-context-ref.js";
 export * from "./shared-context-import.js";

@@ -12,7 +12,7 @@ const processErrorKindSchema = z.enum(["uncaughtException", "unhandledRejection"
 export const zcodeProcessDiagnosticSchema = z
   .object({
     version: z.literal(1),
-    errorId: z.uuid(),
+    errorId: z.string().uuid(),
     kind: processErrorKindSchema,
     origin: processErrorKindSchema,
     name: z.string().min(1).max(ZCODE_PROCESS_DIAGNOSTIC_NAME_MAX_CHARS),

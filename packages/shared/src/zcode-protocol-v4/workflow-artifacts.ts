@@ -257,11 +257,12 @@ export const v4ConversationWorkflowRunArtifactReadResultSchema = z
       context.addIssue({
         code: "too_big",
         maximum: PROTOCOL_V4_LIMITS.attachmentChunkMaxBytes,
+        type: "string",
         origin: "string",
         inclusive: true,
         message: "workflow artifact read chunk exceeds decoded byte limit",
         path: ["dataBase64"],
-      });
+      } as any);
     }
     if (value.nextOffset !== null && value.nextOffset > value.totalBytes) {
       context.addIssue({

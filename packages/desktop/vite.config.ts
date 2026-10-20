@@ -4,7 +4,37 @@ import { dirname, extname, isAbsolute, resolve } from "node:path";
 import { defineConfig, loadEnv, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
-import { resolveZCodeEndpointOrigin, pickProductEndpointEnv } from "@zcode/shared/zcodeEndpoint";
+function pickProductEndpointEnv(env: Record<string, string | undefined>): Record<string, string> {
+  const keys = [
+    "ZCODE_BASE_URL",
+    "ZCODE_ENDPOINT_ORIGIN",
+    "BIGMODEL_API_BASE_URL",
+    "ZAI_OAUTH_ORIGIN",
+    "ZAI_BUSINESS_BASE_URL",
+    "ZAI_OAUTH_CLIENT_ID",
+    "ZAI_OAUTH_APP_ID",
+  ];
+  return Object.fromEntries(
+    keys.flatMap((key) => (env[key]?.trim() ? [[key, env[key]!.trim()]] : [])),
+  );
+}
+
+function resolveZCodeEndpointOrigin(options?: {
+  env?: string;
+  envBaseOrigin?: string | null;
+  overrideOrigin?: string | null;
+}): string {
+  const origin = options?.overrideOrigin?.trim() || options?.envBaseOrigin?.trim();
+  if (origin) {
+    try {
+      const parsed = new URL(origin);
+      return parsed.origin;
+    } catch {
+      // fallback
+    }
+  }
+  return "https://zcode.z.ai";
+}
 import { pdfJsCMapsPlugin } from "../ui/vite/pdfJsCMapsPlugin.js";
 import { getBuildMetadata } from "./scripts/build-metadata.mjs";
 import { resolveDesktopProductFlavor } from "./scripts/desktop-product-identity.mjs";

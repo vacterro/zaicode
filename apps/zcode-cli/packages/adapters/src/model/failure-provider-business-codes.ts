@@ -49,6 +49,12 @@ const RETRYABLE_OVERLOAD_MAPPING: ProviderBusinessCodeMapping = {
   retryReason: ModelRetryReasonValue.ProviderOverloaded,
   retryable: true,
 };
+const RETRYABLE_TIMEOUT_MAPPING: ProviderBusinessCodeMapping = {
+  code: ModelErrorCode.ModelRequestTimeout,
+  reason: ModelFailureReasonValue.Timeout,
+  retryReason: ModelRetryReasonValue.Timeout,
+  retryable: true,
+};
 
 const PROVIDER_BUSINESS_CODE_MAPPINGS = new Map<string, ProviderBusinessCodeMapping>([
   [
@@ -325,6 +331,17 @@ for (const code of ["engine_overloaded_error", "overloaded_error"]) {
   PROVIDER_BUSINESS_CODE_MAPPINGS.set(code, RETRYABLE_OVERLOAD_MAPPING);
 }
 
+for (const code of [
+  "gateway_timeout",
+  "gateway_time_out",
+  "timeout",
+  "request_timeout",
+  "504",
+  "408",
+]) {
+  PROVIDER_BUSINESS_CODE_MAPPINGS.set(code, RETRYABLE_TIMEOUT_MAPPING);
+}
+
 export function getProviderBusinessCodeMapping(
   providerCode: string,
 ): ProviderBusinessCodeMapping | undefined {
@@ -359,6 +376,17 @@ export function isRetryableProviderBusinessTimeoutFailure(
   providerCode: string | undefined,
   statusCode?: number,
 ): boolean {
+  if (providerCode) {
+    const normalized = providerCode.toLowerCase();
+    if (
+      normalized === "gateway_timeout" ||
+      normalized === "gateway_time_out" ||
+      normalized === "timeout" ||
+      normalized === "request_timeout"
+    ) {
+      return true;
+    }
+  }
   // AI SDK/SSE error chunk 可能把底层 headers/body timeout 包进 ProviderBusinessError.providerCode。
   // 这类错误没有真正的 provider 业务语义，必须保留普通 timeout 的可重试语义。
   return isTimeoutFailure(

@@ -21,6 +21,7 @@ export interface ZaicodeModelButton {
   value: string;
   label: string;
   title: string;
+  owner?: string;
 }
 
 function hasConnectionChoice(group: ModelSelectGroup): boolean {
@@ -37,9 +38,30 @@ export function zaicodeGroupAsButtons(group: ModelSelectGroup): boolean {
   );
 }
 
+/** Filters eligible buttons according to user visibility preferences while preserving selected model. */
+export function zaicodeFilterVisibleModelButtons(
+  buttons: readonly ZaicodeModelButton[],
+  prefs?: { hiddenButtons: string[] | null } | null,
+  selectedValue?: string,
+): ZaicodeModelButton[] {
+  if (!prefs?.hiddenButtons || prefs.hiddenButtons.length === 0) {
+    return [...buttons];
+  }
+  const hidden = new Set(prefs.hiddenButtons);
+  return buttons.filter((button) => {
+    // Preserve selected model visibility
+    if (selectedValue && button.value === selectedValue) {
+      return true;
+    }
+    return !hidden.has(button.value);
+  });
+}
+
 /** The toolbar buttons when the whole choice is small, or null to keep the dropdown. */
 export function zaicodeToolbarModelButtons(
   groups: readonly ModelSelectGroup[],
+  prefs?: { hiddenButtons: string[] | null } | null,
+  selectedValue?: string,
 ): ZaicodeModelButton[] | null {
   if (!isZaicodeProductMode()) return null;
   if (groups.some(hasConnectionChoice)) return null;
@@ -48,8 +70,21 @@ export function zaicodeToolbarModelButtons(
       value: item.value,
       label: item.name,
       title: `${group.label} · ${item.name}`,
+      owner: group.label,
     })),
   );
   if (buttons.length === 0 || buttons.length > ZAICODE_MODEL_BUTTONS_MAX) return null;
-  return buttons;
+  // REQ-006: two accounts serving the same model name must not render two
+  // identical buttons. Only the colliding labels gain their owner; unique
+  // names stay short.
+  const seen = new Map<string, number>();
+  for (const button of buttons) seen.set(button.label, (seen.get(button.label) ?? 0) + 1);
+  const eligible = buttons.map(({ owner, ...button }) => ({
+    ...button,
+    owner,
+    label: (seen.get(button.label) ?? 0) > 1 ? `${button.label} (${owner})` : button.label,
+  }));
+  if (!prefs) return eligible;
+  const visible = zaicodeFilterVisibleModelButtons(eligible, prefs, selectedValue);
+  return visible.length > 0 ? visible : null;
 }

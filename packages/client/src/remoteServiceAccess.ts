@@ -42,6 +42,7 @@ import {
   IZaicodeAgentService,
   IZaicodeJobService,
   IZaicodeStatsService,
+  IZaicodeOptimizationService,
   IZaicodeAuditService,
   type IServiceAccessor,
 } from "@zcode/services";
@@ -98,6 +99,7 @@ export class RemoteServiceAccess implements IServiceAccessor {
   readonly zaicodeAgentService?: IZaicodeAgentService;
   readonly zaicodeJobService?: IZaicodeJobService;
   readonly zaicodeStatsService?: IZaicodeStatsService;
+  readonly zaicodeOptimizationService?: IZaicodeOptimizationService;
   readonly zaicodeAuditService?: IZaicodeAuditService;
 
   constructor(channelClient: IChannelClient) {
@@ -231,6 +233,9 @@ export class RemoteServiceAccess implements IServiceAccessor {
     );
     this.zaicodeStatsService = ProxyChannel.toService<IZaicodeStatsService>(
       channelClient.getChannel(IZaicodeStatsService.channelName),
+    );
+    this.zaicodeOptimizationService = ProxyChannel.toService<IZaicodeOptimizationService>(
+      channelClient.getChannel(IZaicodeOptimizationService.channelName),
     );
     this.zaicodeAuditService = ProxyChannel.toService<IZaicodeAuditService>(
       channelClient.getChannel(IZaicodeAuditService.channelName),

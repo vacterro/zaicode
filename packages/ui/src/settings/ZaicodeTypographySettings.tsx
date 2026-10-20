@@ -1,6 +1,7 @@
 import { useZCodeStore } from "@/store/StoreProvider.js";
 import { useZCodeIntl } from "@/i18n/IntlProvider.js";
 import { Button } from "@/components/ui/button.js";
+import { Checkbox } from "@/components/ui/checkbox.js";
 import {
   ZAICODE_CODE_FONT_OPTIONS,
   ZAICODE_UI_FONT_OPTIONS,
@@ -162,27 +163,24 @@ export function ZaicodeTypographySettings() {
         </label>
       </div>
       <div className="mt-3 flex flex-wrap gap-4 text-ui-xs">
-        <label className="flex items-center gap-2">
-          <input
-            type="checkbox"
+        <label className="flex items-center gap-2 cursor-pointer select-none">
+          <Checkbox
             checked={code.wrapLongLines}
-            onChange={(event) => setCode({ wrapLongLines: event.target.checked })}
+            onCheckedChange={(val) => setCode({ wrapLongLines: Boolean(val) })}
           />
           {label("wrap")}
         </label>
-        <label className="flex items-center gap-2">
-          <input
-            type="checkbox"
+        <label className="flex items-center gap-2 cursor-pointer select-none">
+          <Checkbox
             checked={code.showLineNumbers}
-            onChange={(event) => setCode({ showLineNumbers: event.target.checked })}
+            onCheckedChange={(val) => setCode({ showLineNumbers: Boolean(val) })}
           />
           {label("numbers")}
         </label>
-        <label className="flex items-center gap-2">
-          <input
-            type="checkbox"
+        <label className="flex items-center gap-2 cursor-pointer select-none">
+          <Checkbox
             checked={typography.ligatures}
-            onChange={(event) => setZaicodeTypography({ ligatures: event.target.checked })}
+            onCheckedChange={(val) => setZaicodeTypography({ ligatures: Boolean(val) })}
           />
           {label("ligatures")}
         </label>

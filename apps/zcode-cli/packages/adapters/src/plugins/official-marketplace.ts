@@ -76,8 +76,8 @@ function rebuildOfficialMarketplaceSync(storageRoot: string): Record<string, unk
   // 否则应用启动时的 seed 会覆盖 CDN 目录，或 CDN 刷新会覆盖内置目录。同名时以
   // 可刷新的 CDN 市场条目为准，但只过滤合并目录，不删除应用内置缓存。
   const merged = {
-    ...(bundledManifest ?? {}),
-    ...(cdnManifest ?? {}),
+    ...bundledManifest,
+    ...cdnManifest,
     name: ZCODE_OFFICIAL_PLUGIN_MARKETPLACE,
     plugins: [...cdnPlugins, ...bundledPlugins],
   };

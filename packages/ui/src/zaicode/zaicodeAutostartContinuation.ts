@@ -1,5 +1,5 @@
 import { completeNewModelSelection } from "@zcode/provider";
-import { createUuid, decideZaicodeContinuation, markZaicodeContinuationLimit, zaicodeScheduleStopAt, type ZaicodeContinuingJob, type ZaicodeContinuationRun } from "@zcode/shared";
+import { createUuid, decideZaicodeContinuation, markZaicodeContinuationCapacityRetry, markZaicodeContinuationLimit, zaicodeScheduleStopAt, type ZaicodeContinuingJob, type ZaicodeContinuationRun } from "@zcode/shared";
 import { readZaicodeEnginesState, refreshZaicodeEngineLimits } from "./zaicodeEngines.js";
 import { launchZaicodeWorker, readZaicodeWorkers, removeZaicodeWorker, type ZaicodeWorker } from "./zaicodeWorkers.js";
 import { useZaicodeSessionBriefs, type ZaicodeSessionBrief } from "./zaicodeContinue.js";
@@ -8,13 +8,15 @@ import { zaicodeCommandForPrompt } from "./zaicodeScheduleRun.js";
 import { isZaicodeProjectDisabled } from "./zaicodeProjectSwitch.js";
 import type { ZaicodeServices } from "./zaicodeServices.js";
 import { readZaicodeKnownProjects, zaicodeScheduleTargets, type ZaicodeKnownProject } from "./zaicodeScheduler.js";
-import type { ZaicodeWorkerLimitSignal } from "./zaicodeWorkerSignals.js";
+import type { ZaicodeWorkerCapacitySignal, ZaicodeWorkerLimitSignal } from "./zaicodeWorkerSignals.js";
 import { resolveZaicodeDefaultSelection } from "./zaicodeDefaultModel.js";
 import { terminalControl } from "@/terminal/terminalOutputTap.js";
 import { useZaicodeMainSessions, zaicodeMainSessionIdOf, zaicodeMainSessionKey } from "./zaicodeMainSession.js";
 import { pickZaicodeSchedulerEligibleAccounts } from "./zaicodeSchedulerEligibility.js";
 import { useZaicodeUiPrefs } from "./zaicodeUiPrefs.js";
 import { useZaicodeSidebarPrefs } from "./zaicodeSidebarPrefs.js";
+import { zaicodeAutoRetryAllowedFor } from "./zaicodeRetryPolicy.js";
+import { isZaicodeCleanupInProgress } from "./zaicodeCleanupFence.js";
 
 const QUOTA_REFRESH_MS = 30_000;
 const RETRY_MS = 15_000;
@@ -70,7 +72,7 @@ export function beginZaicodeContinuation(job: ZaicodeContinuingJob, targets: rea
   const active = job.continuationRuns.filter((run) => !["complete", "stopped"].includes(run.state));
   const terminal = job.continuationRuns.filter((run) => ["complete", "stopped"].includes(run.state)).slice(-32);
   const existing = [...terminal, ...active];
-  return [...existing, ...targets.filter((target) => !existing.some((run) => run.workspaceKey === target.key && (run.occurrence === occurrence || !["complete", "stopped"].includes(run.state)))).slice(0, Math.max(0, 128 - existing.length)).map((target): ZaicodeContinuationRun => ({ workspaceKey: target.key, projectPath: target.path, ...(target.identity ? { workspaceIdentity: target.identity } : {}), occurrence, runnerId: job.engineId, lease: createUuid(), state: "pending", blocked: [], nextAt: now, launchedAt: now, startedAt: now, result: "Pending eligible runner" }))];
+  return [...existing, ...targets.filter((target) => !existing.some((run) => run.workspaceKey === target.key && (run.occurrence === occurrence || !["complete", "stopped"].includes(run.state)))).slice(0, Math.max(0, 128 - existing.length)).map((target): ZaicodeContinuationRun => ({ workspaceKey: target.key, projectPath: target.path, ...(target.identity ? { workspaceIdentity: target.identity } : {}), occurrence, runnerId: job.engineId, primaryRunnerId: job.engineId, lease: createUuid(), state: "pending", blocked: [], nextAt: now, launchedAt: now, startedAt: now, result: "Pending eligible runner" }))];
 }
 
 /** Persist the limit before stopping anything. Exact worker identity and generation own this transition. */
@@ -78,7 +80,39 @@ export function recordZaicodeContinuationWorkerLimit(store: ZaicodeContinuationS
   for (const job of store.read()) {
     const run = job.continuationRuns.find((value) => value.workerId === worker.id && value.generation === worker.generation && value.runnerId === worker.accountId && value.state === "running");
     if (!run || !job.continuation.enabled) continue;
-    persist(store, job.id, markZaicodeContinuationLimit(run, signal, now, job.continuation.delayMinutes));
+    persist(store, job.id, markZaicodeContinuationLimit(run, signal, now, job.continuation.delayMinutes, { primaryRunnerId: job.engineId, fallbackRunnerIds: job.continuation.runnerIds }));
+    return true;
+  }
+  return false;
+}
+
+/** Persist the capacity retry before terminal typing or restart. Exact worker identity and generation own this transition. */
+export function recordZaicodeContinuationWorkerCapacity(
+  store: ZaicodeContinuationStore,
+  worker: ZaicodeWorker,
+  signal: ZaicodeWorkerCapacitySignal,
+  delayMs: number,
+  now = Date.now(),
+): boolean {
+  for (const job of store.read()) {
+    const run = job.continuationRuns.find(
+      (value) =>
+        value.workerId === worker.id &&
+        value.generation === worker.generation &&
+        value.runnerId === worker.accountId &&
+        (value.state === "running" || value.state === "waiting-retry"),
+    );
+    if (!run || !job.continuation.enabled) continue;
+    persist(
+      store,
+      job.id,
+      markZaicodeContinuationCapacityRetry(run, {
+        failureClass: signal.kind,
+        delayMs,
+        now,
+        owner: "worker-watch",
+      }),
+    );
     return true;
   }
   return false;
@@ -111,6 +145,7 @@ async function stopOwned(run: ZaicodeContinuationRun, runtime: ZaicodeContinuati
 
 /** One serialized target lane. Replay carries the same terminal/command lease, never a second launch. */
 export async function tickZaicodeContinuations(store: ZaicodeContinuationStore, autopilot: boolean, now = Date.now(), runtime: ZaicodeContinuationRuntime = liveRuntime): Promise<void> {
+  if (isZaicodeCleanupInProgress()) return;
   const jobs = store.read();
   if (!jobs.some((job) => job.continuationRuns.some((run) => !["complete", "stopped"].includes(run.state)))) return;
   if (autopilot && now - lastQuotaRefreshAt >= QUOTA_REFRESH_MS) {
@@ -161,7 +196,26 @@ export async function tickZaicodeContinuations(store: ZaicodeContinuationStore, 
         persist(store, job.id, { ...run, state: "stopped", result: "Session stopped or taken over" });
         continue;
       }
+      if (run.state === "waiting-retry") {
+        if (now >= run.nextAt) {
+          if (worker && worker.exitCode === null) {
+            persist(store, job.id, { ...run, state: "running", result: `Retried on ${run.runnerId}` });
+            continue;
+          }
+          if (session && !session.failed && session.running) {
+            persist(store, job.id, { ...run, state: "running", result: `Resumed session on ${run.runnerId}` });
+            continue;
+          }
+        }
+        continue;
+      }
       if (run.state === "running" && ((worker && worker.exitCode !== null) || session?.failed)) {
+        const attempts = run.recovery?.attempts ?? 0;
+        if (session?.failed && attempts < 50 && zaicodeAutoRetryAllowedFor(run.workspaceKey, session.sessionId, true)) {
+          run = markZaicodeContinuationCapacityRetry(run, { delayMs: 60_000, now, owner: "session-retry" });
+          persist(store, job.id, run);
+          continue;
+        }
         persist(store, job.id, { ...run, state: "stopped", result: "Run failed; no subscription-limit evidence" });
         continue;
       }
@@ -182,6 +236,13 @@ export async function tickZaicodeContinuations(store: ZaicodeContinuationStore, 
       const engines = runtime.engines();
       const decision = decideZaicodeContinuation({ job, run, accounts: engines.accounts, limits: engines.limits, availablePools: new Set(selections.keys()), now, autopilot: autopilot && (store.canDispatch?.() ?? true), enabled: job.enabled, projectDisabled: runtime.disabled(run.workspaceKey) || !selectedTarget, stopDue: stopAt !== null && now >= stopAt });
       if (decision.action === "none" || decision.action === "wait") continue;
+      if (decision.action === "wait-primary-reset") {
+        if (run.state !== "waiting-primary-reset" || run.result !== "WAIT_PRIMARY_RESET") {
+          run = { ...run, state: "waiting-primary-reset", result: "WAIT_PRIMARY_RESET" };
+          persist(store, job.id, run);
+        }
+        continue;
+      }
       if (decision.action === "arm-return" || decision.action === "cancel-return") {
         persist(store, job.id, { ...run, preferredReadyAt: decision.action === "arm-return" ? decision.at : undefined });
         continue;
@@ -200,7 +261,7 @@ export async function tickZaicodeContinuations(store: ZaicodeContinuationStore, 
       const sameLease = run.state === "launching" || (run.state === "failed" && run.runnerId === decision.runnerId);
       const generation = sameLease && run.generation ? run.generation + 1 : undefined;
       // 模型/worker lease 替换不能丢掉 canonical MAIN 会话身份。
-      run = { ...run, runnerId: decision.runnerId, lease: sameLease ? run.lease : createUuid(), state: "launching", workerId: undefined, generation: undefined, sessionId: run.sessionId, foregroundExecutionId: undefined, preferredReadyAt: undefined, launchedAt: sameLease ? run.launchedAt : now, result: "Launching selected runner" };
+      run = { ...run, runnerId: decision.runnerId, lease: sameLease ? run.lease : createUuid(), state: "launching", workerId: undefined, generation: undefined, sessionId: run.sessionId, foregroundExecutionId: undefined, preferredReadyAt: undefined, launchedAt: sameLease ? run.launchedAt : now, blocked: run.blocked.filter((limit) => limit.runnerId !== decision.runnerId), result: "Launching selected runner" };
       persist(store, job.id, run);
       const canDispatch = () => {
         const latest = store.read().find((value) => value.id === job.id);

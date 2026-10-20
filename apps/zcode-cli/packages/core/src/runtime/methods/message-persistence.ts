@@ -24,6 +24,11 @@ import {
   buildSyntheticUserNoticeSemantics,
 } from "./synthetic-notice-metadata.js";
 import { buildPersistedConversationInputIntent } from "./input-intent-persistence.js";
+import {
+  inputProvenanceHumanAuthored,
+  inputProvenanceRowOrigin,
+  inputProvenanceSemanticsOrigin,
+} from "@zcode/shared/zcode-protocol-v4";
 import { buildProjectionAnchor, mapSyntheticSourceToAnchorOrigin } from "./projection-anchor.js";
 
 export async function persistUserPrompt(
@@ -65,6 +70,15 @@ export async function persistUserPrompt(
     options?.intent,
     "drained",
   );
+  // T-283 (SAIHANDOFF F-03): the model-compatible user transport no longer
+  // decides authority. A host-generated continuation (`origin: agent_runtime`,
+  // `source: goal_autocontinuation`) is persisted as such and the authorization
+  // fact rides along on the intent metadata, so a cold restore reproduces the
+  // same classification instead of a fresh human decision.
+  const provenance = options?.intent?.provenance;
+  const semanticsOrigin = inputProvenanceSemanticsOrigin(provenance) ?? "real_user";
+  const anchorOrigin = inputProvenanceRowOrigin(provenance) ?? "realUser";
+  const humanAuthored = inputProvenanceHumanAuthored(provenance);
   const message: Parameters<SessionStorePort["saveMessage"]>[0] = {
     id: messageID,
     sessionID: this.sessionId,
@@ -76,15 +90,16 @@ export async function persistUserPrompt(
     modelSelection: this.getSessionModelSelection(),
     contextSnapshot: buildPersistedContextSnapshot(this.config.envInfo),
     semantics: {
-      origin: "real_user",
+      origin: semanticsOrigin,
       kind: "user_prompt",
+      source: provenance?.source ?? "operator_ingress",
       uiVisibility: "visible",
       providerVisibility: "visible",
       transcriptVisibility: "visible",
     },
     anchor: buildProjectionAnchor(
       traceContext,
-      "realUser",
+      anchorOrigin,
       options?.intent?.sourceCommandId ?? options?.sourceCommandId,
     ),
     system: this.config.systemPrompt,
@@ -103,6 +118,24 @@ export async function persistUserPrompt(
             ...(conversationInputIntent ? { conversationInputIntent } : {}),
             ...((options?.intent?.clientId ?? options?.clientId)
               ? { inputClientId: options?.intent?.clientId ?? options?.clientId }
+              : {}),
+            // T-283: the authoritative authorization classification, durably on
+            // the message so the row can be judged without re-deriving intent.
+            ...(provenance
+              ? {
+                  inputProvenance: {
+                    ...(provenance.origin ? { origin: provenance.origin } : {}),
+                    ...(provenance.source ? { source: provenance.source } : {}),
+                    ...(provenance.humanAuthored !== undefined
+                      ? { humanAuthored: provenance.humanAuthored }
+                      : { humanAuthored }),
+                    ...(provenance.originalUserIntentId
+                      ? { originalUserIntentId: provenance.originalUserIntentId }
+                      : {}),
+                    ...(provenance.goalIntentId ? { goalIntentId: provenance.goalIntentId } : {}),
+                    ...(provenance.producerId ? { producerId: provenance.producerId } : {}),
+                  },
+                }
               : {}),
             ...(options?.executionKind ? { executionKind: options.executionKind } : {}),
             ...(options?.epilogueStart === undefined

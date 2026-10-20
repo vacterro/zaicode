@@ -28,7 +28,17 @@ import {
   zaicodeIsStopgapModel,
   zaicodeProblemScore,
 } from "../src/zaicode/zaicodeScheduleRun.js";
-import { planZaicodeClearAllDone } from "../src/zaicode/ZaicodeClearAllDone.js";
+import {
+  formatZaicodeClearDoneRun,
+  planZaicodeClearAllDone,
+  runZaicodeClearAllDone,
+  splitZaicodeClearDonePlan,
+} from "../src/zaicode/ZaicodeClearAllDone.js";
+import {
+  archiveZaicodeSessions,
+  registerZaicodeArchiveSome,
+  useZaicodeArchiveUndo,
+} from "../src/zaicode/zaicodeArchiveUndo.js";
 import {
   ZAICODE_NAV_ITEMS,
   normalizeZaicodeLayoutList,
@@ -642,4 +652,336 @@ test("menu lines keep the operator's names; title bar prefs clamp", () => {
   assert.equal(title.color, "project");
   assert.equal(title.font, "verdana");
   assert.equal(normalizeZaicodeHeaderTitlePrefs(null).showProject, true);
+});
+
+// --- CLEAR ALL DONE: requested vs completed (T-299) -----------------------------------
+
+/**
+ * The button's number is what CAN run; the run's report is what DID. Every
+ * scenario here fails on the old behaviour, where the counter showed the plan
+ * (archive + resume), a missing handler was skipped in silence, a rejected
+ * send was swallowed, and the toast reported two aggregates with no failures.
+ */
+function emptyOutcome(): ZaicodeArchiveOutcome {
+  return { archived: [], unregistered: [], failed: [], skipped: [] };
+}
+function clearDoneSessions(): ZaicodeSessionBrief[] {
+  return [
+    ...Array.from({ length: 120 }, (_, index) =>
+      brief({ sessionId: `done-${index}`, projectKey: "a", unreadAt: index }),
+    ),
+    ...Array.from({ length: 42 }, (_, index) =>
+      brief({ sessionId: `cut-${index}`, projectKey: "b", interrupted: true }),
+    ),
+    brief({ sessionId: "main", projectKey: "a" }),
+    brief({ sessionId: "run", projectKey: "a", running: true }),
+    brief({ sessionId: "ask", projectKey: "a", waiting: true }),
+  ];
+}
+function makePlan(sessions: ZaicodeSessionBrief[]): ZaicodeClearDonePlan {
+  return planZaicodeClearAllDone(sessions, new Set(["main"]), () => true);
+}
+function outcomeOf(plan: ZaicodeClearDonePlan): ZaicodeArchiveOutcome {
+  return {
+    ...emptyOutcome(),
+    archived: plan.archive.map((entry) => ({ projectKey: entry.projectKey, sessionId: entry.sessionId })),
+  };
+}
+
+test("CLEAR ALL DONE A: 162 eligible sessions, every operation successful -- requested and completed are reported apart", async () => {
+  const sessions = clearDoneSessions();
+  const plan = makePlan(sessions);
+  assert.equal(plan.archive.length, 120);
+  assert.equal(plan.resume.length, 42);
+  let sends = 0;
+  const result = await runZaicodeClearAllDone({
+    plan,
+    archive: async () => outcomeOf(plan),
+    send: async () => {
+      sends += 1;
+    },
+    remaining: () => ({ archive: [], resume: [] }),
+  });
+  assert.equal(sends, 42, "one continuation per cut-off session");
+  assert.equal(result.requestedArchive, 120);
+  assert.equal(result.requestedResume, 42);
+  assert.equal(result.archived, 120);
+  assert.equal(result.accepted, 42);
+  assert.equal(result.skipped, 0);
+  assert.equal(result.failed, 0);
+  assert.equal(result.remainingArchive + result.remainingResume, 0);
+  const summary = formatZaicodeClearDoneRun(result);
+  assert.match(summary, /Archived: 120/);
+  assert.match(summary, /Continuation accepted: 42/);
+  assert.match(summary, /Skipped: 0/);
+  assert.match(summary, /Failed: 0/);
+  assert.match(summary, /Nothing left to clear/);
+});
+
+test("CLEAR ALL DONE B: a partially successful archive is split into archived / failed / skipped", async () => {
+  const plan = makePlan([
+    brief({ sessionId: "d1", projectKey: "a", unreadAt: 1 }),
+    brief({ sessionId: "d2", projectKey: "a", unreadAt: 2 }),
+    brief({ sessionId: "d3", projectKey: "a", unreadAt: 3 }),
+    brief({ sessionId: "d4", projectKey: "b", unreadAt: 4 }),
+    brief({ sessionId: "c1", projectKey: "a", interrupted: true }),
+  ]);
+  const result = await runZaicodeClearAllDone({
+    plan,
+    archive: async () => ({
+      ...emptyOutcome(),
+      archived: [
+        { projectKey: "a", sessionId: "d1" },
+        { projectKey: "a", sessionId: "d2" },
+        { projectKey: "b", sessionId: "d4" },
+      ],
+      failed: [{ projectKey: "a", sessionIds: ["d3"], reason: "session-store write failed" }],
+    }),
+    send: async () => {
+      throw new Error("host refused");
+    },
+    remaining: () => ({ archive: [], resume: [] }),
+  });
+  assert.equal(result.archived, 3);
+  assert.equal(result.failed, 2, "the failed archive and the rejected send are both counted as failed");
+  assert.ok(result.problems.some((line) => line.includes("d3") && line.includes("session-store write failed")));
+  assert.ok(result.problems.some((line) => line.includes("c1") && line.includes("host refused")));
+});
+
+test("CLEAR ALL DONE C: a project with no archive handler is never counted and never silently dropped", async () => {
+  const whole = makePlan([
+    brief({ sessionId: "d1", projectKey: "a", unreadAt: 1 }),
+    brief({ sessionId: "d2", projectKey: "collapse", unreadAt: 2 }),
+  ]);
+  const split = splitZaicodeClearDonePlan(
+    whole,
+    (key) => key === "a",
+    () => true,
+  );
+  assert.deepEqual(
+    split.runnable.archive.map((entry) => entry.sessionId),
+    ["d1"],
+  );
+  assert.deepEqual(
+    split.blocked.archive.map((entry) => entry.sessionId),
+    ["d2"],
+  );
+  assert.ok(split.why.some((line) => line.includes("d2") && /no connection right now/.test(line)));
+  const result = await runZaicodeClearAllDone({
+    plan: split.runnable,
+    archive: async () => outcomeOf(split.runnable),
+    send: async () => undefined,
+    remaining: () => ({ archive: [], resume: [] }),
+  });
+  assert.equal(result.failed, 0);
+  assert.equal(result.archived, 1, "the unmounted project's session was not requested as done");
+});
+
+test("CLEAR ALL DONE D: a continuation whose project handle is gone fails loudly instead of being skipped", async () => {
+  const whole = makePlan([
+    brief({ sessionId: "c1", projectKey: "a", interrupted: true }),
+    brief({ sessionId: "c2", projectKey: "b", interrupted: true }),
+  ]);
+  const split = splitZaicodeClearDonePlan(
+    whole,
+    () => true,
+    (key) => key === "a",
+  );
+  assert.deepEqual(
+    split.runnable.resume.map((entry) => entry.sessionId),
+    ["c1"],
+  );
+  assert.deepEqual(
+    split.blocked.resume.map((entry) => entry.sessionId),
+    ["c2"],
+  );
+  let sent = 0;
+  const result = await runZaicodeClearAllDone({
+    plan: whole,
+    archive: async () => emptyOutcome(),
+    send: async (entry) => {
+      if (entry.projectKey === "b") throw new Error("its project row disconnected before the send");
+      sent += 1;
+    },
+    remaining: () => ({ archive: [], resume: [] }),
+  });
+  assert.equal(sent, 1);
+  assert.equal(result.accepted, 1);
+  assert.equal(result.failed, 1);
+  assert.ok(result.problems.some((line) => line.includes("c2") && line.includes("disconnected")));
+});
+
+test("CLEAR ALL DONE E: a rejected continuation is a failure, and those sessions stay actionable", async () => {
+  const plan = makePlan([
+    brief({ sessionId: "c1", projectKey: "a", interrupted: true }),
+    brief({ sessionId: "c2", projectKey: "a", interrupted: true }),
+    brief({ sessionId: "c3", projectKey: "a", interrupted: true }),
+  ]);
+  const sends: string[] = [];
+  const result = await runZaicodeClearAllDone({
+    plan,
+    archive: async () => emptyOutcome(),
+    send: async (entry) => {
+      sends.push(entry.sessionId);
+      if (entry.sessionId !== "c1") throw new Error("quota exhausted");
+    },
+    remaining: () =>
+      planZaicodeClearAllDone(
+        [
+          brief({ sessionId: "c2", projectKey: "a", interrupted: true }),
+          brief({ sessionId: "c3", projectKey: "a", interrupted: true }),
+        ],
+        new Set<string>(),
+        () => true,
+      ),
+  });
+  assert.deepEqual(sends, ["c1", "c2", "c3"]);
+  assert.equal(result.accepted, 1);
+  assert.equal(result.failed, 2);
+  assert.equal(result.remainingResume, 2, "the two rejections stay on the counter");
+  const summary = formatZaicodeClearDoneRun(result);
+  assert.match(summary, /Continuation accepted: 1/);
+  assert.match(summary, /Failed: 2/);
+  assert.match(summary, /Still actionable: 2/);
+});
+
+test("CLEAR ALL DONE F: collapsed or unmounted project rows are not advertised as executable work", () => {
+  const whole = makePlan([
+    brief({ sessionId: "d1", projectKey: "a", unreadAt: 1 }),
+    brief({ sessionId: "c1", projectKey: "a", interrupted: true }),
+    brief({ sessionId: "d2", projectKey: "collapsed", unreadAt: 2 }),
+    brief({ sessionId: "c2", projectKey: "collapsed", interrupted: true }),
+  ]);
+  const split = splitZaicodeClearDonePlan(
+    whole,
+    (key) => key === "a",
+    (key) => key === "a",
+  );
+  assert.equal(split.runnable.archive.length + split.runnable.resume.length, 2, "only the mounted row counts");
+  assert.equal(split.blocked.archive.length + split.blocked.resume.length, 2);
+  assert.ok(split.why.some((line) => line.includes("d2")));
+  assert.ok(split.why.some((line) => line.includes("c2")));
+});
+
+test("CLEAR ALL DONE G: the counter follows the reconciled session list, never an assumed zero", async () => {
+  const plan = makePlan([brief({ sessionId: "d1", projectKey: "a", unreadAt: 1 })]);
+  const stale = await runZaicodeClearAllDone({
+    plan,
+    archive: async () => outcomeOf(plan),
+    send: async () => undefined,
+    remaining: () => makePlan([brief({ sessionId: "d1", projectKey: "a", unreadAt: 1 })]),
+  });
+  assert.equal(stale.archived, 1);
+  assert.equal(stale.remainingArchive, 1, "a stale index keeps the session visible");
+  assert.match(formatZaicodeClearDoneRun(stale), /Still actionable: 1/);
+  const fresh = await runZaicodeClearAllDone({
+    plan,
+    archive: async () => outcomeOf(plan),
+    send: async () => undefined,
+    remaining: () => ({ archive: [], resume: [] }),
+  });
+  assert.equal(fresh.remainingArchive + fresh.remainingResume, 0);
+  assert.match(formatZaicodeClearDoneRun(fresh), /Nothing left to clear/);
+});
+
+test("CLEAR ALL DONE H: several projects with mixed results are reported per project", async () => {
+  const sessions = [
+    brief({ sessionId: "a1", projectKey: "a", unreadAt: 1 }),
+    brief({ sessionId: "a2", projectKey: "a", unreadAt: 2 }),
+    brief({ sessionId: "a3", projectKey: "a", unreadAt: 3 }),
+    brief({ sessionId: "b1", projectKey: "b", unreadAt: 4 }),
+    brief({ sessionId: "b2", projectKey: "b", unreadAt: 5 }),
+    brief({ sessionId: "ac", projectKey: "a", interrupted: true }),
+    brief({ sessionId: "bc", projectKey: "b", interrupted: true }),
+  ];
+  const plan = makePlan(sessions);
+  const result = await runZaicodeClearAllDone({
+    plan,
+    archive: async (byProject) => {
+      assert.equal(byProject.get("a")?.length, 3, "one project entry per project, each session once");
+      assert.equal(byProject.get("b")?.length, 2);
+      return {
+        ...emptyOutcome(),
+        archived: [
+          { projectKey: "a", sessionId: "a1" },
+          { projectKey: "a", sessionId: "a2" },
+          { projectKey: "b", sessionId: "b1" },
+          { projectKey: "b", sessionId: "b2" },
+        ],
+        failed: [{ projectKey: "a", sessionIds: ["a3"], reason: "read-only workspace" }],
+      };
+    },
+    send: async (entry) => {
+      if (entry.projectKey === "b") throw new Error("remote host unreachable");
+    },
+    remaining: () => makePlan(sessions),
+  });
+  assert.equal(result.archived, 4);
+  assert.equal(result.accepted, 1);
+  assert.equal(result.failed, 2);
+  assert.equal(result.remainingArchive + result.remainingResume, 7, "nothing was claimed as done");
+  assert.ok(result.problems.some((line) => line.includes("a3") && line.includes("read-only")));
+  assert.ok(result.problems.some((line) => line.includes("bc") && line.includes("remote host unreachable")));
+});
+
+test("CLEAR ALL DONE I + L: one run dispatches each continuation once, and the commands keep their identity", async () => {
+  const plan = makePlan([
+    brief({ sessionId: "c1", projectKey: "a", interrupted: true }),
+    brief({ sessionId: "c2", projectKey: "a", interrupted: true, goalStatus: "active", goalObjective: "saiwiki" }),
+  ]);
+  const dispatched: { sessionId: string; command: ZaicodeClearDonePlan["resume"][number]["command"] }[] = [];
+  const result = await runZaicodeClearAllDone({
+    plan,
+    archive: async () => emptyOutcome(),
+    send: async (entry) => {
+      dispatched.push({ sessionId: entry.sessionId, command: entry.command });
+    },
+    remaining: () => ({ archive: [], resume: [] }),
+  });
+  assert.equal(dispatched.length, 2, "each cut-off session gets exactly one continuation");
+  assert.deepEqual(
+    dispatched.map((entry) =>
+      `${entry.sessionId}:${entry.command.kind === "goal" ? `goal ${entry.command.objective}` : entry.command.text}`,
+    ),
+    ["c1:cc", "c2:goal saiwiki"],
+    "the original command identity is preserved",
+  );
+  assert.equal(result.accepted, 2);
+});
+
+test("CLEAR ALL DONE J: the archive batch is restorable with one Ctrl+Z after a clear", async () => {
+  let restored = 0;
+  const unregister = registerZaicodeArchiveSome("proj-j", async (taskIds) => ({
+    count: taskIds.length,
+    label: `${taskIds.length} finished sessions`,
+    archivedIds: [...taskIds],
+    restore: async () => {
+      restored += taskIds.length;
+    },
+  }));
+  try {
+    const outcome = await archiveZaicodeSessions(new Map([["proj-j", ["j1", "j2"]]]));
+    assert.equal(outcome.archived.length, 2);
+    assert.equal(outcome.failed.length, 0);
+    const undo = useZaicodeArchiveUndo.getState();
+    assert.equal(undo.entries.length, 1, "one batch, one undo entry");
+    const ok = await useZaicodeArchiveUndo.getState().undo();
+    assert.equal(ok, true);
+    assert.equal(restored, 2, "Ctrl+Z brings both sessions back");
+    assert.equal(useZaicodeArchiveUndo.getState().entries.length, 0);
+  } finally {
+    unregister();
+  }
+});
+
+test("CLEAR ALL DONE K: MAIN, running and waiting sessions are never planned as work", () => {
+  const plan = makePlan(clearDoneSessions());
+  const planned = [
+    ...plan.archive.map((entry) => entry.sessionId),
+    ...plan.resume.map((entry) => entry.sessionId),
+  ];
+  assert.ok(!planned.includes("main"));
+  assert.ok(!planned.includes("run"));
+  assert.ok(!planned.includes("ask"));
+  assert.equal(planned.length, 162, "everything else is accounted for");
 });

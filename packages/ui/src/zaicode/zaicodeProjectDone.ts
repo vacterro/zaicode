@@ -37,6 +37,13 @@ export function zaicodeProjectDoneMark(input: {
   campaigns: readonly ZaicodeDoneCampaignFacts[];
   /** Epoch ms of the project's last SAIPEN checkpoint (STATE `updated`), 0 when unknown. */
   stateUpdatedAt: number;
+  /**
+   * T-288 (SRC-201): whether the row may offer a new A3 audit. A display answer,
+   * so it arrives as an input instead of a hidden global read: `false` keeps the
+   * DONE mark and its clean-board truth and drops only the audit offer in it.
+   * Omitted (or true) is the behaviour every existing caller already had.
+   */
+  showA3Offer?: boolean;
 }): ZaicodeProjectDoneMark | null {
   if (input.verdict?.state !== "done") return null;
   if (input.parked > 0) return null;
@@ -49,12 +56,15 @@ export function zaicodeProjectDoneMark(input: {
     if (Number.isFinite(at) && (lastAuditAt === null || at > lastAuditAt)) lastAuditAt = at;
   }
   const changedSinceAudit = lastAuditAt === null || input.stateUpdatedAt > lastAuditAt;
-  const offerA3 = !auditing && changedSinceAudit;
+  const markWanted = input.showA3Offer !== false;
+  const offerA3 = markWanted && !auditing && changedSinceAudit;
   const done = input.board ? `${input.board.done} ticket(s) closed, none open, none blocked or parked` : "every ticket closed";
-  const title = auditing
-    ? `SAIPEN: done and clean (${done}). An A3 audit is already planned or running.`
-    : offerA3
-      ? `SAIPEN: done and clean (${done}). Click to plan an A3 audit wave: three independent auditors look for what was missed${lastAuditAt ? " since the last audit" : ""}.`
-      : `SAIPEN: done and clean (${done}). Audited after the last change; nothing new to audit.`;
+  const title = !markWanted
+    ? `SAIPEN: done and clean (${done}).`
+    : auditing
+      ? `SAIPEN: done and clean (${done}). An A3 audit is already planned or running.`
+      : offerA3
+        ? `SAIPEN: done and clean (${done}). Click to plan an A3 audit wave: three independent auditors look for what was missed${lastAuditAt ? " since the last audit" : ""}.`
+        : `SAIPEN: done and clean (${done}). Audited after the last change; nothing new to audit.`;
   return { offerA3, lastAuditAt, title };
 }

@@ -24,6 +24,7 @@ import {
   type PaneSplitSide,
   type PaneWorkspaceScope,
 } from "@/v4/paneLayoutTree.js";
+import { isSessionRetired, subscribeSessionRetirement } from "@/zaicode/zaicodeCleanupFence.js";
 
 const WORKBENCH_GROUP_STORAGE_KEY = "zcode-v4-session-workbench-groups:v1";
 
@@ -70,6 +71,7 @@ interface WorkbenchGroupStore extends WorkbenchGroupSnapshot {
   bindPaneSession: (groupId: string, paneId: string, sessionId: string) => void;
   setSplitRatio: (groupId: string, splitId: string, ratio: number) => void;
   isSessionGrouped: (scope: PaneWorkspaceScope, sessionId: string | null | undefined) => boolean;
+  reconcileRetiredSession: (sessionId: string) => void;
   getActiveContext: () => WorkbenchSessionBinding | null;
   deactivateActiveGroup: () => void;
   resetWorkbenchGroups: () => void;
@@ -533,6 +535,9 @@ function sanitizeBinding(value: unknown): WorkbenchSessionBinding | null {
     // 普通 session binding 没有 readOnly 标记，不受影响。
     return null;
   }
+  if (isSessionRetired(value.sessionId)) {
+    return null;
+  }
   const workspaceScope = sanitizeWorkspaceScope(value.workspaceScope);
   return workspaceScope
     ? {
@@ -543,6 +548,54 @@ function sanitizeBinding(value: unknown): WorkbenchSessionBinding | null {
         restoredUnvalidated: true,
       }
     : null;
+}
+
+export function reconcileRetiredSessionInGroups(
+  snapshot: WorkbenchGroupSnapshot,
+  retiredSessionId: string,
+): WorkbenchGroupSnapshot {
+  let nextGroups: Record<string, WorkbenchGroup> = { ...snapshot.groups };
+  let changed = false;
+
+  for (const [groupId, group] of Object.entries(snapshot.groups)) {
+    if (group.primaryBinding.sessionId === retiredSessionId) {
+      delete nextGroups[groupId];
+      changed = true;
+      continue;
+    }
+    const matchingPaneIds = Object.entries(group.panes)
+      .filter(([_, binding]) => binding.sessionId === retiredSessionId)
+      .map(([paneId]) => paneId);
+
+    if (matchingPaneIds.length > 0) {
+      let currentGroup: WorkbenchGroup | null = group;
+      for (const paneId of matchingPaneIds) {
+        if (!currentGroup) break;
+        currentGroup = closeWorkbenchGroupPane(currentGroup, paneId);
+      }
+      if (currentGroup) {
+        nextGroups[groupId] = currentGroup;
+      } else {
+        delete nextGroups[groupId];
+      }
+      changed = true;
+    }
+  }
+
+  if (!changed) {
+    return snapshot;
+  }
+
+  const activeGroupId =
+    snapshot.activeGroupId && nextGroups[snapshot.activeGroupId]
+      ? snapshot.activeGroupId
+      : null;
+
+  return {
+    activeGroupId,
+    groups: nextGroups,
+    sessionIndex: rebuildSessionIndex(nextGroups),
+  };
 }
 
 function sanitizeWorkbenchGroup(value: unknown): WorkbenchGroup | null {
@@ -831,6 +884,10 @@ export const useWorkbenchGroupStore = create<WorkbenchGroupStore>()((set, get) =
     set((state) => (state.activeGroupId === null ? state : { ...state, activeGroupId: null }));
   },
 
+  reconcileRetiredSession: (sessionId: string) => {
+    set((state) => reconcileRetiredSessionInGroups(state, sessionId));
+  },
+
   resetWorkbenchGroups: () => {
     set(INITIAL_WORKBENCH_GROUP_STATE);
   },
@@ -839,5 +896,12 @@ export const useWorkbenchGroupStore = create<WorkbenchGroupStore>()((set, get) =
 useWorkbenchGroupStore.subscribe((state) => {
   if (workbenchGroupsEnabled()) {
     persistWorkbenchGroups(state);
+  }
+});
+
+subscribeSessionRetirement((retiredIds) => {
+  const store = useWorkbenchGroupStore.getState();
+  for (const id of retiredIds) {
+    store.reconcileRetiredSession(id);
   }
 });

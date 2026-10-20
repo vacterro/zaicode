@@ -20,6 +20,8 @@ export interface ZaicodeRouterCall {
   /** Path + optional query, e.g. `/api/usage/stats?period=today`. */
   path: string;
   body?: unknown;
+  /** Observed models for a desktop-admitted intent; never forwarded as HTTP data. */
+  baselineModels?: string[];
 }
 
 export interface ZaicodeRouterResponse<T = unknown> {
@@ -37,6 +39,9 @@ const ID = "[A-Za-z0-9_.:-]{1,160}";
  * app: no shutdown/update/database routes, no OAuth flows, no tunnel.
  */
 const ALLOWED: readonly { method: ZaicodeRouterMethod; pattern: RegExp }[] = [
+  // Desktop-owned model-list history; these routes never reach 9router.
+  { method: "GET", pattern: /^\/zaicode\/recovery$/ },
+  { method: "POST", pattern: /^\/zaicode\/recovery\/(snapshot|restore)$/ },
   { method: "GET", pattern: /^\/api\/health$/ },
   { method: "GET", pattern: /^\/api\/version$/ },
   { method: "GET", pattern: /^\/api\/providers$/ },
@@ -79,6 +84,9 @@ export function isZaicodeRouterCallAllowed(call: ZaicodeRouterCall): boolean {
   if (call.path.includes("..") || call.path.includes("//")) return false;
   if (!ALLOWED.some((rule) => rule.method === call.method && rule.pattern.test(call.path)))
     return false;
+  if (call.baselineModels !== undefined &&
+      (call.method !== "PUT" || !new RegExp(`^/api/combos/${ID}$`).test(call.path) ||
+       !Array.isArray(call.baselineModels) || !call.baselineModels.every((id) => typeof id === "string"))) return false;
   if (call.method === "PATCH" && call.path === "/api/settings") {
     const body = call.body;
     if (!body || typeof body !== "object" || Array.isArray(body)) return false;
@@ -332,6 +340,46 @@ export function moveZaicodeComboModel(
   next.splice(index, 1);
   next.splice(target, 0, model);
   return next;
+}
+
+/** Rebase a list intent without resurrecting externally deleted baseline rows. */
+export function rebaseZaicodeRouterModels(
+  baseline: readonly string[],
+  desired: readonly string[],
+  current: readonly string[],
+): string[] | null {
+  const base = new Set(baseline);
+  const wanted = new Set(desired);
+  const live = new Set(current);
+  if (base.size !== baseline.length || wanted.size !== desired.length || live.size !== current.length) return null;
+  const common = new Set(baseline.filter((id) => wanted.has(id) && live.has(id)));
+  const originalOrder = baseline.filter((id) => common.has(id));
+  const wantedOrder = desired.filter((id) => common.has(id));
+  const liveOrder = current.filter((id) => common.has(id));
+  const same = (left: readonly string[], right: readonly string[]) =>
+    left.length === right.length && left.every((id, index) => id === right[index]);
+  const reordered = !same(originalOrder, wantedOrder);
+  // 两边对同一组模型给出不同顺序时，不能用最后写入者悄悄覆盖另一边。
+  if (reordered && !same(originalOrder, liveOrder) && !same(wantedOrder, liveOrder)) return null;
+  let index = 0;
+  const models = current.filter((id) => !base.has(id) || wanted.has(id)).map((id) =>
+    reordered && common.has(id) ? wantedOrder[index++]! : id,
+  );
+  return [...new Set([...models, ...desired.filter((id) => !base.has(id) && !live.has(id))])];
+}
+
+export interface ZaicodeRouterSnapshotInfo {
+  id: string;
+  createdAt: string;
+  label: string;
+  kind: "automatic" | "preset";
+  pools: number;
+  models: number;
+}
+
+export interface ZaicodeRouterHistory {
+  snapshots: ZaicodeRouterSnapshotInfo[];
+  unreadable: number;
 }
 
 /**

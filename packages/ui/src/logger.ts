@@ -37,9 +37,16 @@ const consoleFns: Record<LogLevel, (...args: unknown[]) => void> = {
   error: console.error,
 };
 
-function isLoggerLevelEnabled(_level: LogLevel): boolean {
-  // 生产构建下 renderer 所有日志级别都禁用；暴露 guard 让调用方在构造重 payload 前退出。
-  return !isRendererProductionBuild() && !isRendererLoggingDisabled();
+export function isLoggerLevelEnabled(level: LogLevel): boolean {
+  if (isRendererLoggingDisabled()) {
+    return false;
+  }
+  // 生产构建下错误级别必须保留（console.error + 桌面端 bridge IPC 落盘），
+  // 避免渲染层崩溃被完全静默吞掉无法排查；debug/info/warn 生产保持 no-op。
+  if (level === "error") {
+    return true;
+  }
+  return !isRendererProductionBuild();
 }
 
 function log(level: LogLevel, ...args: unknown[]) {

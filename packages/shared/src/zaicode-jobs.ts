@@ -71,6 +71,11 @@ export const ZAICODE_JOB_DEFAULT_PRIORITY = 0;
 export const ZAICODE_JOB_CONCURRENCY_DEFAULT = 1;
 export const ZAICODE_JOB_CONCURRENCY_MAX = 4;
 
+/** 全局工作者并发上限：跨工作区总并发预算（Quick3 工厂支持多项目并行审计）。 */
+export const ZAICODE_JOB_GLOBAL_CONCURRENCY_DEFAULT = 4;
+export const ZAICODE_JOB_GLOBAL_CONCURRENCY_MAX = 16;
+export const ZAICODE_GLOBAL_CONCURRENCY_SETTING_KEY = "max_global_worker_capacity";
+
 /** 执行租约心跳：超过该时长无心跳的 running 行视为所属进程已死，启动时可回收。 */
 export const ZAICODE_JOB_HEARTBEAT_STALE_MS = 2 * 60_000;
 
@@ -83,6 +88,18 @@ export const zaicodeJobDelegationSchema = z
   .strict();
 
 export type ZaicodeJobDelegation = z.infer<typeof zaicodeJobDelegationSchema>;
+
+export const zaicodeJobAuditMetadataSchema = z
+  .object({
+    campaignId: z.string().trim().min(1),
+    batchId: z.string().trim().min(1).nullable().optional(),
+    waveId: z.string().trim().min(1),
+    attempt: z.number().int().nonnegative(),
+    generation: z.number().int().nonnegative().optional(),
+  })
+  .strict();
+
+export type ZaicodeJobAuditMetadata = z.infer<typeof zaicodeJobAuditMetadataSchema>;
 
 export const zaicodeJobSchema = z
   .object({
@@ -119,6 +136,7 @@ export const zaicodeJobSchema = z
     delegatedFromRunId: z.string().trim().min(1).optional(),
     delegation: zaicodeJobDelegationSchema.optional(),
     actualModelSelection: modelSelectionSchema.optional(),
+    auditMetadata: zaicodeJobAuditMetadataSchema.optional(),
   })
   .strict();
 
@@ -140,6 +158,7 @@ export interface ZaicodeJobCreateInput {
   delegation?: ZaicodeJobDelegation;
   /** 重试血缘：指向被重试的原任务行。 */
   retryOfJobId?: string;
+  auditMetadata?: ZaicodeJobAuditMetadata;
 }
 
 export interface ZaicodeJobUpdatePatch {

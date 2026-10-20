@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { resolveWorkspaceKey } from "@zcode/shared";
+import { resolveWorkspaceKey, resolveZaicodeAutoPolicy } from "@zcode/shared";
 import { Inbox } from "lucide-react";
 import { cn } from "@/components/lib/utils.js";
 import { toast } from "@/components/ui/toast.js";
@@ -36,10 +36,10 @@ export function ZaicodeSubOutboxChip({
   className?: string;
 }) {
   const outbox = useZaicodeSubOutbox(workspacePath, workspaceIdentity);
-  const auto = useZaicodeAuditStore((state) => state.smartMode);
+  const workspaceKey = resolveWorkspaceKey({ workspacePath, workspaceIdentity });
+  const auto = useZaicodeAuditStore((state) => !state.policySaving && resolveZaicodeAutoPolicy(state, workspaceKey).smartMode);
   const [open, setOpen] = useState(false);
   const producers = outbox?.producers ?? [];
-  const workspaceKey = resolveWorkspaceKey({ workspacePath, workspaceIdentity });
 
   useEffect(() => {
     if (!auto || disabled || !outbox || outbox.readError) return;

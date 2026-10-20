@@ -15,6 +15,7 @@ import { cn } from "@/components/lib/utils.js";
 import { openZaicodeWorkspaceView } from "../zaicodeActions.js";
 import { projectNameOf } from "../zaicodeEngines.js";
 import { ZaicodeHomeCard, ZaicodeTruthValue } from "./ZaicodeHomeCards.js";
+import { ZaicodeUsageScope } from "./ZaicodeScopePanel.js";
 import { formatZaicodePercent, formatZaicodeRatio, formatZaicodeRuntime, type ZaicodeHomeTruth } from "./zaicodeHomeModel.js";
 import { useZaicodeHomePrefs } from "./zaicodeHomePrefs.js";
 import type { ZaicodeHomeJournalEvent } from "./zaicodeHomeJournal.js";
@@ -151,6 +152,7 @@ export function ZaicodeHomeStats({ stats, error }: { stats: ZaicodeHomeStats | n
           {period.jobsDone} done · {period.jobsFailed} failed · {period.workerSessions} worker session(s)
         </span>
       </div>
+      <ZaicodeUsageScope />
       <span className="text-[10px] text-foreground-subtlest" title={stats.sources.map((source) => `${source.label}: ${source.state} — ${source.detail}`).join("\n")}>
         Local only. Tokens: in-app model requests (agent usage store). CLI workers report no token counts
         {stats.coverage.unmeasuredMs > 0 ? ` (${formatZaicodeRuntime(stats.coverage.unmeasuredMs)} unmeasured)` : ""}.
@@ -349,7 +351,7 @@ export function ZaicodeHomeActivity({ lines, now }: { lines: readonly ZaicodeHom
       <ul className="flex flex-col gap-0.5">
         {lines.slice(0, 12).map((line) => (
           <li key={line.key} className="flex min-w-0 gap-2" title={line.detail || undefined}>
-            <span className="w-[64px] shrink-0 tabular-nums text-foreground-subtlest">{formatZaicodeDuration(Math.max(0, now - line.at))} ago</span>
+            <span className="min-w-[64px] shrink-0 whitespace-nowrap tabular-nums text-foreground-subtlest">{formatZaicodeDuration(Math.max(0, now - line.at))} ago</span>
             <span className={cn("min-w-0 flex-1 truncate", line.bad ? "text-destructive" : "text-foreground")}>{line.text}</span>
             {line.duration !== null ? <span className="shrink-0 tabular-nums text-foreground-subtlest">{formatZaicodeRuntime(line.duration)}</span> : null}
           </li>

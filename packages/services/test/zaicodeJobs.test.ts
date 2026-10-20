@@ -462,7 +462,10 @@ test("ZAICODE job queue: jobs are isolated per workspace and executor failures a
     const foreignJobs = await harness.jobService.list({ workspaceKey: "ws-key-2" });
     assert.equal(foreignJobs.jobs[0]?.status, "queued");
 
-    const exploding = await createJob(harness, agent.id, { title: "explode" });
+    const exploding = await createJob(harness, agent.id, {
+      title: "explode",
+      workspaceKey: "ws-key-3",
+    });
     const failed = await harness.jobService.dispatch(exploding.id);
     assert.equal(failed?.status, "failed");
     assert.match(failed?.error ?? "", /dispatch_failed: executor exploded/);
@@ -599,6 +602,66 @@ test("ZAICODE job queue: autopilot starts queued work and refills freed slots", 
     assert.equal((await harness.jobService.get(third.id))?.status, "queued");
   } finally {
     await harness.dispose();
+  }
+});
+
+test("T-240: service heartbeat preserves a quiet six-hour worker and cannot revive its terminal result", async (t) => {
+  t.mock.timers.enable({ apis: ["setInterval"] });
+  let now = 5_000_000;
+  const harness = await createHarness({ now: () => now });
+  try {
+    const agent = await seedAgent(harness);
+    const job = await createJob(harness, agent.id);
+    const running = await harness.jobService.dispatch(job.id);
+    assert.equal(running?.status, "running");
+    const startedAt = running!.startedAt;
+    now += 6 * 60 * 60 * 1000;
+    // 真正触发 service 注册的周期入口；不手动替它写 heartbeat 或调用 reaper。
+    t.mock.timers.tick(30_000);
+    await new Promise<void>((resolve) => setImmediate(resolve));
+    const alive = await harness.jobRepo.get(job.id);
+    assert.equal(alive?.status, "running");
+    assert.equal(alive?.startedAt, startedAt);
+    assert.equal(alive?.heartbeatAt, now);
+    await harness.jobService.reportRunOutcome({
+      jobId: job.id, runId: running!.runId!, attempt: running!.attempt, outcome: "succeeded",
+    });
+    now += ZAICODE_JOB_HEARTBEAT_STALE_MS + 1;
+    t.mock.timers.tick(60_000);
+    await new Promise<void>((resolve) => setImmediate(resolve));
+    assert.equal((await harness.jobRepo.get(job.id))?.status, "completed");
+    assert.equal(await harness.jobService.reconcileStaleRuns(), 0);
+  } finally {
+    await harness.dispose();
+    t.mock.timers.reset();
+  }
+});
+
+test("T-240: fresh orphan from a dead host is recovered by the periodic reaper after fast restart", async (t) => {
+  t.mock.timers.enable({ apis: ["setInterval"] });
+  let now = 5_000_000;
+  const harness = await createHarness({ now: () => now });
+  try {
+    const agent = await seedAgent(harness);
+    const job = await createJob(harness, agent.id);
+    // 上一个 host 没来得及释放，但租约仍新鲜；当前 host 不能伪造旧主人的心跳。
+    await harness.jobRepo.claimForDispatch({ jobId: job.id, runId: "dead-host-run", hostId: "dead-host", now });
+    now += 1_000;
+    assert.equal(await harness.jobService.reconcileStaleRuns(), 0);
+    assert.equal((await harness.jobRepo.get(job.id))?.status, "running");
+    now += ZAICODE_JOB_HEARTBEAT_STALE_MS + 1;
+    t.mock.timers.tick(30_000);
+    await new Promise<void>((resolve) => setImmediate(resolve));
+    const recovered = await harness.jobRepo.get(job.id);
+    assert.equal(recovered?.status, "blocked");
+    assert.equal(recovered?.error, "interrupted_by_restart");
+    assert.equal(recovered?.hostId, undefined);
+    assert.equal(recovered?.heartbeatAt, undefined);
+    assert.equal(await harness.jobService.reconcileStaleRuns(), 0);
+    assert.equal(harness.executorCalls.length, 0, "reconciliation never launches replacement work");
+  } finally {
+    await harness.dispose();
+    t.mock.timers.reset();
   }
 });
 

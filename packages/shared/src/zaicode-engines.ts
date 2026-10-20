@@ -124,10 +124,55 @@ function normalizeSharedLocator(value: string): string {
     .toLowerCase();
 }
 
-/** The next free A<n> / C<n>, or the vendor's single fixed code when it takes no homes. */
+/**
+ * REQ-011: initials from a SAI plane displayName ("Ivan Petrov" -> "IP",
+ * "Vac" -> "VA", "vac34@gmail.com" -> "VA"). One-word names take the first
+ * two alphanumerics; multi-word names take the first letters of the first
+ * two words. "" = no usable name, the caller falls back to numbering.
+ */
+export function zaicodeAccountInitials(displayName: string): string {
+  const words = (displayName ?? "").trim().split(/\s+/).filter(Boolean);
+  if (words.length === 0) return "";
+  if (words.length === 1) return words[0]!.replace(/[^A-Za-z0-9]/g, "").slice(0, 2).toUpperCase();
+  const first = (word: string): string => (/[A-Za-z0-9]/.exec(word)?.[0] ?? "").toUpperCase();
+  return `${first(words[0]!)}${first(words[1]!)}`;
+}
+
+/** A short no other row of this vendor uses yet; appends 2, 3, ... on collision. */
+function uniqueVendorShort(vendor: ZaicodeEngineVendor, base: string, existing: readonly ZaicodeEngineAccount[]): string {
+  const taken = new Set(existing.filter((account) => account.vendor === vendor).map((account) => account.short));
+  if (!taken.has(base)) return base;
+  let n = 2;
+  while (taken.has(`${base}${n}`)) n += 1;
+  return `${base}${n}`;
+}
+
+/**
+ * REQ-011: the badge for a plane-named row of a single-identity vendor.
+ * Multi-home vendors (claude/codex) keep their home-bound A<n>/C<n> ordinals;
+ * the others showed the same bare code for every account (AG, AG, ...), so a
+ * plane displayName becomes initials there ("Google account 2" -> "GA").
+ */
+function planeShort(vendor: ZaicodeEngineVendor, displayName: string, existing: readonly ZaicodeEngineAccount[]): string | null {
+  if (ZAICODE_MULTI_HOME_VENDORS.includes(vendor)) return null;
+  const initials = zaicodeAccountInitials(displayName);
+  if (!initials) return null;
+  return uniqueVendorShort(vendor, initials, existing);
+}
+
+/** The next free short: A<n> / C<n> for multi-home vendors; REQ-010: other
+ * vendors keep the bare code for a single row, then number on (AG, AG2). */
 function nextSharedShort(vendor: ZaicodeEngineVendor, existing: readonly ZaicodeEngineAccount[]): string {
   const letters = ZAICODE_ENGINE_VENDOR_SHORTS[vendor];
-  if (!ZAICODE_MULTI_HOME_VENDORS.includes(vendor)) return letters;
+  const same = existing.filter((account) => account.vendor === vendor).map((account) => account.short);
+  if (!ZAICODE_MULTI_HOME_VENDORS.includes(vendor)) {
+    if (!same.includes(letters)) return letters;
+    const numbered = same
+      .map((short) => /^.*?(\d+)$/.exec(short)?.[1])
+      .filter((hit): hit is string => hit !== undefined)
+      .map(Number);
+    return `${letters}${Math.max(1, ...numbered) + 1}`;
+  }
   const pattern = new RegExp(`^${letters}(\\d+)$`);
   let highest = 0;
   for (const account of existing) {
@@ -146,11 +191,12 @@ function sharedAccountRow(
 ): ZaicodeEngineAccount {
   const launchable = entry.home !== null && ZAICODE_MULTI_HOME_VENDORS.includes(vendor);
   const label = entry.displayName.trim();
+  const named = planeShort(vendor, label, existing);
   return {
     // The plane's id inside a namespace of its own: it can collide with nothing.
     id: `${vendor}:shared:${origin.accountId}`,
     vendor,
-    short: nextSharedShort(vendor, existing),
+    short: named ?? nextSharedShort(vendor, existing),
     label: label || `${ZAICODE_ENGINE_VENDOR_LABELS[vendor]} (SAI)`,
     source: launchable ? entry.home! : `SAI Accounts · ${origin.locator || "no locator"}`,
     home: launchable ? entry.home : null,
@@ -219,7 +265,11 @@ export function mergeZaicodeSharedAccounts(
     const origin: ZaicodeSharedOrigin = { accountId: entry.accountId.trim(), locator: entry.locator.trim() };
     const index = locators.get(at(vendor, entry.locator));
     if (index !== undefined && !merged[index]!.shared) {
-      merged[index] = { ...merged[index]!, shared: origin };
+      // REQ-011: the plane names the same install -- its initials become the
+      // badge so two same-vendor logins stop reading as one. The local label,
+      // home, CLI and status stay exactly as discovered (T220 keeps them).
+      const named = planeShort(vendor, entry.displayName, merged.filter((_, other) => other !== index));
+      merged[index] = { ...merged[index]!, shared: origin, ...(named ? { short: named } : {}) };
       continue;
     }
     merged.push(sharedAccountRow(vendor, origin, entry, merged));
@@ -312,6 +362,8 @@ export interface ZaicodeEngineAccount {
   osUser?: string;
   /** Resolved executable (or script for ZCode) used to launch workers; null when not installed. */
   cli: string | null;
+  /** Read-only help from the installed CLI; absent on older cached discoveries. */
+  cliCapabilities?: { noDaemon: boolean; hookTrustBypass: boolean };
   status: ZaicodeEngineStatus;
   /** One human sentence: what is wrong and what fixes it. Empty when ready. */
   statusDetail: string;
@@ -513,11 +565,7 @@ export function zaicodeIdleWindowToStart(params: {
   const holdsWindow = (window: ZaicodeLimitWindow): boolean => {
     const last = windowStartFor(window.key, snapshot.windowStart, snapshot.windowStarts);
     if (!last) return false;
-    // 成功请求按真实窗口去重；15 分钟账户级冷却会在另一池刷新后反复花额度。
-    const wait = last.ok && last.windowKey
-      ? Math.max((window.durationMinutes ?? 0) * 60_000, ZAICODE_WINDOW_START_COOLDOWN_MS)
-      : last.ok ? ZAICODE_WINDOW_START_COOLDOWN_MS : ZAICODE_WINDOW_START_RETRY_MS;
-    return now - last.at < wait;
+    return now - last.at < zaicodeWindowStartCooldownMs(last, window);
   };
   // 跨池的周额度耗尽不能阻止另一池启动；先应用同池门，才能跳过耗尽池选择可用池。
   const windows = effectiveZaicodeWindows(snapshot.windows, now);
@@ -541,6 +589,112 @@ export function zaicodeShouldStartIdleWindow(params: {
   now: number;
 }): boolean {
   return zaicodeIdleWindowToStart(params) !== null;
+}
+
+/**
+ * T-397: where one window's automatic start stands, as one value the UI can render
+ * and the starter can decide on. "Full" is NOT "started": a full window whose reset
+ * the vendor has not stated yet has never run, and an accepted request is not a
+ * running window until a later quota read shows the vendor's own reset.
+ */
+export type ZaicodeWindowStartPhase =
+  | "NOT_STARTED"
+  | "START_REQUESTED"
+  | "START_CONFIRMED"
+  | "START_UNVERIFIED"
+  | "START_FAILED"
+  | "COOLDOWN"
+  | "UNSUPPORTED";
+
+/** How long the pending record may sit before it is judged a start that never answered. */
+export const ZAICODE_WINDOW_START_PENDING_MS = 5 * 60_000;
+
+/** The cooldown this record imposes on its window; the window length once it succeeded. */
+export function zaicodeWindowStartCooldownMs(
+  record: Pick<ZaicodeWindowStartRecord, "ok" | "windowKey">,
+  window: Pick<ZaicodeLimitWindow, "durationMinutes">,
+): number {
+  // 成功请求按真实窗口去重；15 分钟账户级冷却会在另一池刷新后反复花额度。
+  return record.ok && record.windowKey
+    ? Math.max((window.durationMinutes ?? 0) * 60_000, ZAICODE_WINDOW_START_COOLDOWN_MS)
+    : record.ok ? ZAICODE_WINDOW_START_COOLDOWN_MS : ZAICODE_WINDOW_START_RETRY_MS;
+}
+
+/**
+ * The phase of one window, from the account, the last read and the recorded attempt.
+ * `config`/`now` only matter for the cooldown and pending windows; everything else
+ * comes from what the vendor said and what ZAICODE recorded.
+ */
+export function zaicodeWindowStartPhase(params: {
+  account: Pick<ZaicodeEngineAccount, "id" | "vendor" | "status"> & Partial<Pick<ZaicodeEngineAccount, "planeOnly">>;
+  snapshot: ZaicodeLimitSnapshot | undefined;
+  window: ZaicodeLimitWindow;
+  config: Pick<ZaicodeEnginesConfig, "keepWindowsRolling" | "hiddenAccounts">;
+  now: number;
+}): ZaicodeWindowStartPhase {
+  const { account, snapshot, window, config, now } = params;
+  if (window.rollingFrom !== undefined || !isZaicodeWindowWaitingForFirstUse(window)) return "START_CONFIRMED";
+  if (!config.keepWindowsRolling) return "UNSUPPORTED";
+  if (!ZAICODE_WINDOW_STARTER_VENDORS.includes(account.vendor)) return "UNSUPPORTED";
+  if (isZaicodeMetricsOnlyAccount(account) || account.status !== "ready" || config.hiddenAccounts.includes(account.id)) {
+    return "UNSUPPORTED";
+  }
+  const record = windowStartFor(window.key, snapshot?.windowStart, snapshot?.windowStarts);
+  if (!record) return "NOT_STARTED";
+  const pending = record.detail === ZAICODE_WINDOW_START_PENDING_DETAIL;
+  const elapsed = now - record.at;
+  if (pending) return elapsed < ZAICODE_WINDOW_START_PENDING_MS ? "START_REQUESTED" : "START_UNVERIFIED";
+  if (!record.ok) {
+    return elapsed < ZAICODE_WINDOW_START_RETRY_MS ? "START_FAILED" : "NOT_STARTED";
+  }
+  if (elapsed < zaicodeWindowStartCooldownMs(record, window)) return "COOLDOWN";
+  // The request was accepted and nothing ever confirmed it: the window still reads
+  // untouched past its own cooldown. That is unverified, not a running window.
+  return "START_UNVERIFIED";
+}
+
+/** The one pending detail string; the starter writes it, the phase reads it. */
+export const ZAICODE_WINDOW_START_PENDING_DETAIL = "window start pending";
+
+/**
+ * T-397: persist the attempt BEFORE the request goes out, so a crash right after
+ * the paid call cannot make the next start look like a first use.
+ */
+export function beginZaicodeWindowStarts(
+  snapshot: ZaicodeLimitSnapshot,
+  keys: readonly string[],
+  at: number,
+): ZaicodeLimitSnapshot {
+  const windowStarts = { ...snapshot.windowStarts };
+  for (const key of keys) {
+    windowStarts[key] = { at, ok: false, detail: ZAICODE_WINDOW_START_PENDING_DETAIL, windowKey: key };
+  }
+  return { ...snapshot, windowStarts };
+}
+
+/**
+ * T-397: complete only the attempts this run opened. A late answer for an older
+ * attempt must not overwrite a newer one, and keys opened by another pool stay put.
+ */
+export function completeZaicodeWindowStarts(
+  snapshot: ZaicodeLimitSnapshot,
+  keys: readonly string[],
+  startedAt: number,
+  outcome: { ok: boolean; detail: string },
+): ZaicodeLimitSnapshot {
+  if (keys.length === 0) return snapshot;
+  const windowStarts = { ...snapshot.windowStarts };
+  for (const key of keys) {
+    if (windowStarts[key]?.at !== startedAt) continue;
+    windowStarts[key] = { ...windowStarts[key]!, ...outcome, windowKey: key };
+  }
+  return {
+    ...snapshot,
+    windowStarts,
+    ...((snapshot.windowStart?.at ?? -Infinity) <= startedAt
+      ? { windowStart: { at: startedAt, ...outcome, windowKey: keys[0] } }
+      : {}),
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -599,7 +753,7 @@ function makeWindow(partial: Partial<ZaicodeLimitWindow> & { key: string }): Zai
 /** How close to "read time + one full window" a reset must be to count as not started. */
 export const ZAICODE_IDLE_WINDOW_TOLERANCE_MS = 3 * 60_000;
 
-function windowStartFor(
+export function windowStartFor(
   key: string,
   latest?: ZaicodeWindowStartRecord | null,
   starts?: Record<string, ZaicodeWindowStartRecord> | null,
@@ -665,8 +819,23 @@ export function markZaicodeWindowsStartingOnUse(
     // automatic starter on that vendor became unreachable. A vendor reset that has
     // passed while the window still reads full IS the untouched new cycle.
     const rolledOverUntouched = window.resetsAt !== null && window.resetsAt <= readAt && zaicodeWindowIsFull(window);
+    // T-397: a FULL window with NO reset at all cannot be a refill that already
+    // happened nor a window that already ran -- there is nothing to reset. Claude
+    // answers "Current session: 0% used" without a reset line exactly while its
+    // five-hour window waits for the first request. Requiring a known length keeps
+    // this to real time windows (never a spend cap), and requiring a stated
+    // percentage keeps a vendor that said nothing from being read as "fresh".
+    const unresolvedResetFull =
+      window.resetsAt === null &&
+      minutes !== null &&
+      minutes > 0 &&
+      window.remainingPercent !== null &&
+      // A spend cap and a per-model scoped limit only bound part of the account:
+      // neither may be turned into a paid start just because it reads full.
+      !isScopedZaicodeWindow(window) &&
+      zaicodeWindowIsFull(window);
     const idle =
-      (looksIdle || waitingFromCache || rolledOverUntouched) &&
+      (looksIdle || waitingFromCache || rolledOverUntouched || unresolvedResetFull) &&
       zaicodeWindowIsFull(window) &&
       !anchoredAfterStart;
     if (!idle) {
@@ -984,8 +1153,7 @@ export function parseAntigravityUsage(payload: unknown): ZaicodeLimitWindow[] {
       const remaining =
         fraction !== null && Number.isFinite(fraction) && fraction >= 0 && fraction <= 1 ? fraction * 100 : null;
       const resetTime = epochMs(bucket.reset_time);
-      // T-143: a bucket with a reset time but no fraction is a window at 0% consumed,
-      // not a bucket to hide. Antigravity omits the fraction until the first request.
+      // 仅有 reset 时间不能证明额度为 100%；保留窗口，但未报告的比例必须未知。
       if (remaining === null && !disabled && resetTime === null) continue;
       const shortGroup = /gemini/i.test(label) ? "Gemini" : /claude|gpt/i.test(label) ? "Claude & GPT" : label;
       windows.push(
@@ -994,7 +1162,7 @@ export function parseAntigravityUsage(payload: unknown): ZaicodeLimitWindow[] {
           label: `${shortGroup} ${zaicodeWindowLabel(key)}`,
           group: groupId,
           groupLabel: label,
-          remainingPercent: disabled ? 0 : (remaining ?? 100),
+          remainingPercent: disabled ? 0 : remaining,
           resetsAt: resetTime,
           durationMinutes: WINDOW_MINUTES[key] ?? null,
         }),
@@ -1408,6 +1576,8 @@ export interface ZaicodeAutostartJob {
   /** Queue runs this schedule started (newest last, at most 20). */
   runs: ZaicodeScheduledRun[];
   trigger: ZaicodeAutostartTrigger;
+  /** Optional initial start time (epoch ms) before recurring triggers take over. */
+  initialAt: number | null;
   /** Epoch ms for `at`. */
   at: number | null;
   /** "HH:MM" local time for `daily`. */
@@ -1475,6 +1645,7 @@ export function createZaicodeAutostartJob(
     stopAt: "",
     runs: [],
     trigger: "reset",
+    initialAt: null,
     at: null,
     dailyTime: "08:00",
     intervalMinutes: 60,
@@ -1566,14 +1737,23 @@ export function evaluateZaicodeAutostartJob(
     }
     case "reset":
     case "everyReset": {
+      if (job.initialAt !== null) {
+        const initialEventId = `initial:${job.initialAt}`;
+        if (!job.firedEvents.includes(initialEventId)) {
+          if (now < job.initialAt) {
+            return { state: "waiting-time", dueAt: job.initialAt, eventId: initialEventId, reason: "waiting for initial start time" };
+          }
+          return quotaGate(job.initialAt, initialEventId);
+        }
+      }
       const prefix = `reset:${encodeURIComponent(zaicodeAutostartWatchedEngine(job) ?? "none")}:${job.window}:`;
-      if (job.trigger === "reset" && job.firedEvents.some((id) => id.startsWith(prefix))) {
+      if (job.trigger === "reset" && (job.firedEvents.some((id) => id.startsWith(prefix)) || (job.initialAt !== null && job.firedEvents.includes(`initial:${job.initialAt}`)))) {
         return { state: "done", dueAt: null, eventId: "", reason: "ran after a refill" };
       }
       const window = snapshot?.windows.find((candidate) => candidate.key === job.window)
         ?? snapshot?.windows.find((candidate) => candidate.key.startsWith(`${job.window}@`));
       const lastReset = snapshot?.accountId === zaicodeAutostartWatchedEngine(job) ? window?.lastResetAt : undefined;
-      const pendingReset = typeof lastReset === "number" && Number.isFinite(lastReset) && lastReset > 0 && lastReset <= now && !job.firedEvents.includes(`${prefix}${lastReset}`)
+      const pendingReset = typeof lastReset === "number" && Number.isFinite(lastReset) && lastReset > 0 && lastReset <= now && !job.firedEvents.includes(`${prefix}${lastReset}`) && (job.initialAt === null || lastReset > job.initialAt)
         ? lastReset : null;
       if (!window || (window.resetsAt === null && pendingReset === null)) {
         return { state: "waiting-reset", dueAt: null, eventId: "", reason: "reset time not known yet" };
@@ -1584,6 +1764,9 @@ export function evaluateZaicodeAutostartJob(
         return { state: "waiting-reset", dueAt: null, eventId: "", reason: "window not started: it starts on first use" };
       }
       const resetAt = pendingReset ?? window.resetsAt!;
+      if (job.initialAt !== null && resetAt <= job.initialAt) {
+        return { state: "waiting-reset", dueAt: null, eventId: "", reason: "waiting for the next refill" };
+      }
       const dueAt = resetAt + Math.max(0, job.safetyDelaySeconds) * 1000;
       const eventId = `${prefix}${resetAt}`;
       if (now < dueAt) return { state: "waiting-reset", dueAt, eventId, reason: "waiting for refill" };
@@ -1656,6 +1839,7 @@ export function normalizeZaicodeAutostartJobs(raw: unknown): ZaicodeAutostartJob
         stopAt: typeof job.stopAt === "string" && /^\d{1,2}:\d{2}$/.test(job.stopAt.trim()) ? job.stopAt.trim() : "",
         runs: normalizeScheduledRuns(job.runs),
         trigger: triggers.includes(job.trigger as ZaicodeAutostartTrigger) ? job.trigger : "reset",
+        initialAt: typeof job.initialAt === "number" && Number.isFinite(job.initialAt) ? job.initialAt : null,
         at: typeof job.at === "number" && Number.isFinite(job.at) ? job.at : null,
         dailyTime: typeof job.dailyTime === "string" ? job.dailyTime : "08:00",
         intervalMinutes:

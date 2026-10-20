@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ChevronDown, ChevronUp, GripVertical, Pencil } from "lucide-react";
 import { cn } from "@/components/lib/utils.js";
+import { Checkbox } from "@/components/ui/checkbox.js";
 import { ZaicodeIcon, setZaicodeIconOverride, useZaicodeIconOverrides, type ZaicodeIconSlot } from "./zaicodeIconSlots.js";
 import {
   ZAICODE_LAYOUT_LABEL_MAX,
@@ -173,12 +174,11 @@ export function ZaicodeLayoutListEditor<T extends string>({
             title={def.hint}
           >
             <GripVertical className="size-3 shrink-0 cursor-grab text-foreground-subtlest" />
-            <input
-              type="checkbox"
+            <Checkbox
               checked={entry.visible}
               aria-label={`Show ${def.label}`}
-              onChange={(event) =>
-                onChange(list.map((item) => (item.id === entry.id ? { ...item, visible: event.target.checked } : item)))
+              onCheckedChange={(val) =>
+                onChange(list.map((item) => (item.id === entry.id ? { ...item, visible: Boolean(val) } : item)))
               }
             />
             {slot ? (

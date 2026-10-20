@@ -5,7 +5,6 @@ import { test } from "node:test";
 import {
   createSettingsPageConfig,
   searchSettingsSections,
-  type SettingsSectionId,
 } from "../src/settings/settingsPageConfig.js";
 
 const read = (name: string) =>

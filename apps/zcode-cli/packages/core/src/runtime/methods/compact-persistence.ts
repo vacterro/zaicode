@@ -22,7 +22,6 @@ import {
   defaultCompactPhaseForTrigger,
   defaultCompactReasonForTrigger,
   compactFailureReasonFromError,
-  emptyTokenUsageInfo,
   isTurnCancellationError,
 } from "../helpers/index.js";
 import type { CompactTimelineContext } from "../types.js";

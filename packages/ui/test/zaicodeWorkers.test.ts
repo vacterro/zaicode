@@ -1,7 +1,17 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import type { ZaicodeEngineAccount } from "@zcode/shared";
-import { buildZaicodeWorkerCommand, projectNameOf, psQuote } from "../src/zaicode/zaicodeEngines.js";
+import { buildZaicodeWorkerCommand, projectNameOf, psQuote, zaicodeWorkerYoloArgs } from "../src/zaicode/zaicodeEngines.js";
+
+test("supported unattended Codex worker flags avoid daemon and hook-trust menus", () => {
+  const command = buildZaicodeWorkerCommand(account({ vendor: "codex", cliCapabilities: { noDaemon: true, hookTrustBypass: true } }), "V:/Project", { prompt: "cc", yolo: true })!;
+  assert.ok(command.includes("--no-daemon"));
+  assert.ok(command.includes("--dangerously-bypass-hook-trust"));
+  assert.ok(command.includes("--dangerously-bypass-approvals-and-sandbox"));
+  const older = buildZaicodeWorkerCommand(account({ vendor: "codex" }), "V:/Project", { prompt: "cc", yolo: true })!;
+  assert.ok(!older.includes("--no-daemon"));
+  assert.ok(!older.includes("--dangerously-bypass-hook-trust"));
+});
 
 const account = (patch: Partial<ZaicodeEngineAccount>): ZaicodeEngineAccount => ({
   id: "x",
@@ -68,4 +78,19 @@ test("quotes survive apostrophes; a missing CLI launches nothing", () => {
   const multiline = buildZaicodeWorkerCommand(account({}), "V:\\P", { prompt: "first line\r\n  second line\n", yolo: false });
   assert.ok(multiline && !/[\r\n]/.test(multiline), "a typed command never carries a line break");
   assert.ok(multiline?.includes("'first line second line'"), multiline ?? "");
+});
+
+test("REQ-003: unattended flags are explicit per vendor; measured-only vendors refuse YOLO", () => {
+  assert.equal(zaicodeWorkerYoloArgs("claude"), "--dangerously-skip-permissions");
+  assert.equal(zaicodeWorkerYoloArgs("codex"), "--dangerously-bypass-approvals-and-sandbox");
+  assert.equal(zaicodeWorkerYoloArgs("antigravity"), "--dangerously-skip-permissions");
+  assert.equal(zaicodeWorkerYoloArgs("zcode"), "--mode yolo");
+  assert.equal(zaicodeWorkerYoloArgs("freebuff"), null, "measured-only: no CLI, no flag, preflight refuses");
+  // A vendor without a flag never gets a half-built command: yolo simply adds nothing.
+  const bare = buildZaicodeWorkerCommand(
+    account({ vendor: "freebuff", cli: "C:\\fb.exe", home: null }),
+    "V:\\P",
+    { prompt: "go", yolo: true },
+  );
+  assert.equal(bare, null, "freebuff has no worker command shape at all");
 });

@@ -147,7 +147,21 @@ export function ZaicodeRouterSettings() {
   });
   useEffect(() => {
     useZaicodeRouter.getState().requestTab(null);
-    void refresh();
+    let reading = false;
+    const update = () => {
+      if (reading || document.visibilityState === "hidden") return;
+      reading = true;
+      void refresh().finally(() => { reading = false; });
+    };
+    update();
+    const timer = window.setInterval(update, 3000);
+    window.addEventListener("focus", update);
+    document.addEventListener("visibilitychange", update);
+    return () => {
+      window.clearInterval(timer);
+      window.removeEventListener("focus", update);
+      document.removeEventListener("visibilitychange", update);
+    };
   }, [refresh]);
   const tabs: { id: Tab; label: string }[] = [
     { id: "overview", label: "Overview" },

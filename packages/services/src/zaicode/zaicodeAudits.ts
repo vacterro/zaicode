@@ -1,5 +1,15 @@
 import { ServiceChannels } from "@zcode/shared";
-import type { ZaicodeAuditCampaign, ZaicodeAuditorView, ZaicodeAuditsReport } from "@zcode/shared";
+import type {
+  ZaicodeAuditBatch,
+  ZaicodeAuditBatchAdmissionResult,
+  ZaicodeAuditBatchModelPolicy,
+  ZaicodeAuditCampaign,
+  ZaicodeAuditWorker,
+  ZaicodeAuditorView,
+  ZaicodeAuditsReport,
+  ZaicodeAutoPolicy,
+  ZaicodeAutoProjects,
+} from "@zcode/shared";
 import { createServiceDescriptor } from "../descriptors.js";
 
 /**
@@ -18,6 +28,9 @@ export interface IZaicodeAuditService {
   getState(): Promise<{
     campaigns: ZaicodeAuditCampaign[];
     smartMode: boolean;
+    autoProjects: ZaicodeAutoProjects;
+    /** SRC-193: admit automatic A3 audits independently of ordinary AUTO continuation. */
+    autoAudits: boolean;
     maxCycles: number;
     runId: string | null;
     /** SRC-151:R008: global "generate the next wave by itself" switch; true unless turned off. */
@@ -50,8 +63,11 @@ export interface IZaicodeAuditService {
    * leaves the read-only audit artifacts untouched. Refuses before 3/3.
    */
   fixWithSaipen(campaignId: string): Promise<ZaicodeAuditCampaign | null>;
-  /** Smart mode: empty board + nothing running -> the project starts an A3 campaign itself. */
+  /** AUTO: continue project work; automatic A3 admission also requires autoAudits. */
   setSmartMode(enabled: boolean): Promise<{ smartMode: boolean }>;
+  /** Partial project policy; null restores global inheritance for only this identity. */
+  setProjectAutoSettings(workspaceKey: string, patch: Partial<ZaicodeAutoPolicy> | null): Promise<{ autoProjects: ZaicodeAutoProjects }>;
+  setAutoAudits(enabled: boolean): Promise<{ autoAudits: boolean }>;
   /**
    * SRC-151:R008: the global wave switch. Off, a validated wave does not generate
    * the next one — the campaign parks in the review queue and only the
@@ -64,6 +80,24 @@ export interface IZaicodeAuditService {
   publishProjects(projects: { workspaceKey: string; workspacePath: string; projectName: string; disabled?: boolean; runningSessions?: number; noWorkConfirmed?: boolean }[]): Promise<void>;
   /** Run every project's smart self-audit decision once (the caller owns the clock). */
   smartSweep(): Promise<ZaicodeAuditsReport>;
+  /** First-class multi-project Quick3 batch execution with capacity governance. */
+  createBatch(input: {
+    requestId?: string;
+    projects: { workspaceKey: string; workspacePath: string; projectName: string }[];
+    planOnly?: boolean;
+    autoWaves?: boolean;
+    workerCapacity?: number;
+    modelPolicy?: ZaicodeAuditBatchModelPolicy;
+    postAuditPolicy?: "REPORTS_ONLY" | "FIX_WITH_SAIPEN";
+    requestProvenance?: "operator_ui" | "auto" | "api";
+  }): Promise<ZaicodeAuditBatchAdmissionResult>;
+  getBatch(batchId: string): Promise<ZaicodeAuditBatch | null>;
+  listBatches(): Promise<ZaicodeAuditBatch[]>;
+  pauseBatch(batchId: string, actionId?: string): Promise<ZaicodeAuditBatch | null>;
+  resumeBatch(batchId: string, actionId?: string): Promise<ZaicodeAuditBatch | null>;
+  stopBatch(batchId: string, actionId?: string): Promise<ZaicodeAuditBatch | null>;
+  retryBatch(batchId: string, mode?: "all_failed" | "blocked_only", actionId?: string): Promise<ZaicodeAuditBatch | null>;
+  getActiveWorkers(): Promise<ZaicodeAuditWorker[]>;
   dispose(): void;
 }
 

@@ -17,6 +17,7 @@ import {
   invalidateSessionAcrossWorkspaceConnections,
   clearWarmPoolAcrossWorkspaceConnections,
 } from "@/v4/workspaceConnectionRegistry.js";
+import { useZCodeSessionStore } from "@/store/zcodeSessionStore.js";
 
 /**
  * CLEAR ALL SESSIONS Button (PART 2, 3, 6).
@@ -65,6 +66,21 @@ export function ZaicodeClearAllSessionsButton() {
           clearWarmPool: () => {
             clearWarmPoolAcrossWorkspaceConnections();
           },
+        },
+        onDeselectActiveSession: () => {
+          useZCodeSessionStore.setState((state) => {
+            const nextWorkspaces = { ...state.workspaces };
+            for (const [key, ws] of Object.entries(nextWorkspaces)) {
+              if (ws.activeTaskId) {
+                nextWorkspaces[key] = {
+                  ...ws,
+                  activeTaskId: null,
+                  draftRuntime: { status: "idle", error: null },
+                };
+              }
+            }
+            return { workspaces: nextWorkspaces };
+          });
         },
         remaining: () => useZaicodeSessionBriefs.getState().sessions,
       });

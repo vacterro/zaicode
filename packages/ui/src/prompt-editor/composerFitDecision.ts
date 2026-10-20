@@ -74,12 +74,16 @@ export function composerRowOverflowPx(args: {
   gap: number;
   sameRow: boolean;
 }): number {
-  const sideBySide = quantizeFitPx(
-    Math.max(0, args.leadingExtent + args.trailingExtent + args.gap - args.width),
-  );
+  // SIGNED slack, not a clamped-to-zero shortfall (T-303). The release side of
+  // resolveComposerCompactCount asks whether the full layout fits with
+  // HYSTERESIS_PX to spare — a measurement that can never go below 0 makes that
+  // question unanswerable, so a collapsed rung stayed collapsed for the rest of
+  // the session. Room to spare is a negative overflow and it is the answer.
+  const sideBySide = quantizeFitPx(args.leadingExtent + args.trailingExtent + args.gap - args.width);
   if (args.sameRow) return sideBySide;
   // Already wrapped: report the smallest positive overflow, so every rung from here
-  // reads "does not fit" and no rung is ever satisfied by the broken row.
+  // reads "does not fit" and no rung is ever satisfied by the broken row. This
+  // branch is the only place the measurement clamps, and it clamps up.
   return Math.max(sideBySide, COMPOSER_WRAPPED_ROW_OVERFLOW_PX);
 }
 

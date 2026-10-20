@@ -51,6 +51,7 @@ import type {
   DesktopZoomState,
   DesktopWindowChromeState,
   DesktopCommandId,
+  DesktopCommandOptions,
   DesktopTitleBarTheme,
   EmbeddedBrowserOpenUrlRequest,
   Locale,
@@ -311,6 +312,8 @@ contextBridge.exposeInMainWorld("zcode", {
   /** 通过 main process 的原生另存为对话框明确落盘 */
   saveFile: (payload: SaveFileRequest): Promise<SaveFileResult> =>
     ipcRenderer.invoke(PlatformChannels.SaveFile, payload),
+  writeClipboardText: (text: string): Promise<void> =>
+    ipcRenderer.invoke(PlatformChannels.WriteClipboardText, text),
   /** 将当前页面的 print 媒体版面导出为 PDF（Chromium 打印引擎，矢量文本） */
   printPageToPdf: (): Promise<PrintPageToPdfResult> =>
     ipcRenderer.invoke(PlatformChannels.PrintToPdf),
@@ -950,8 +953,11 @@ contextBridge.exposeInMainWorld("zcode", {
       options,
     }),
   /** 执行桌面窗口级命令 */
-  executeDesktopCommand: (command: DesktopCommandId) =>
-    ipcRenderer.invoke(PlatformChannels.ExecuteDesktopCommand, command),
+  executeDesktopCommand: (command: DesktopCommandId, options?: DesktopCommandOptions) =>
+    ipcRenderer.invoke(
+      PlatformChannels.ExecuteDesktopCommand,
+      options ? { command, options } : command,
+    ),
   /** 同步应用菜单语言 */
   setApplicationLocale: (locale: Locale) =>
     ipcRenderer.invoke(PlatformChannels.SetApplicationLocale, locale),

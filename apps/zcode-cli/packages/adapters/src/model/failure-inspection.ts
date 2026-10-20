@@ -163,23 +163,39 @@ export function isAbortFailure(error: unknown, abortSignal?: AbortSignal): boole
 }
 
 export function isTimeoutFailure(error: unknown, code?: string, statusCode?: number): boolean {
-  if (statusCode === 408) {
+  if (statusCode === 408 || statusCode === 504) {
     return true;
   }
 
-  const normalizedCode = code?.toUpperCase();
+  const record = asRecord(error);
+  const effectiveCode =
+    code ?? stringProperty(record, "providerCode") ?? stringProperty(record, "code");
+  const normalizedCode = effectiveCode?.toUpperCase();
   if (
     normalizedCode === "ETIMEDOUT" ||
     normalizedCode === "ETIMEOUT" ||
     normalizedCode === "UND_ERR_CONNECT_TIMEOUT" ||
     normalizedCode === "UND_ERR_HEADERS_TIMEOUT" ||
-    normalizedCode === "UND_ERR_BODY_TIMEOUT"
+    normalizedCode === "UND_ERR_BODY_TIMEOUT" ||
+    normalizedCode === "GATEWAY_TIMEOUT" ||
+    normalizedCode === "GATEWAY_TIME_OUT" ||
+    normalizedCode === "REQUEST_TIMEOUT" ||
+    normalizedCode === "TIMEOUT"
   ) {
     return true;
   }
 
-  const name = stringProperty(asRecord(error), "name")?.toLowerCase();
-  return name === "timeouterror" || name === "timeout_error";
+  const name = stringProperty(record, "name")?.toLowerCase();
+  if (name === "timeouterror" || name === "timeout_error") {
+    return true;
+  }
+
+  const cause = record.cause;
+  if (cause && cause !== error && isTimeoutFailure(cause)) {
+    return true;
+  }
+
+  return false;
 }
 
 export function isContextExceededFailure(error: unknown): boolean {

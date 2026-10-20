@@ -13,6 +13,7 @@ import {
   createChatComposerPathAttachment,
   createClipboardTextAttachmentFilenameForDate,
   createClipboardTextPathComposerAttachment,
+  deriveTextAttachmentFilename,
   applyPastedTextEdit,
   formatAttachmentSize,
   revokeChatComposerAttachment,
@@ -766,7 +767,7 @@ export function useComposerAttachments(
         try {
           const attachment = await platform.createTempTextAttachment?.({
             text,
-            filename: createClipboardTextAttachmentFilenameForDate(),
+            filename: createClipboardTextAttachmentFilenameForDate(new Date(), text),
           });
           if (!attachment) throw new Error("当前平台不支持临时文本附件");
           addPreparedAttachments([createClipboardTextPathComposerAttachment(text, attachment)]);
@@ -1058,12 +1059,14 @@ export function useComposerAttachments(
       // session-owned refs carry no text, so the editor cannot open them either —
       // this guard is the second lock on the same door.
       if (item.adopted || item.referenceOwnership === "session") return false;
-      const edited = applyPastedTextEdit(item, text);
+      const nextFilename = deriveTextAttachmentFilename(text);
+      const editedBase = applyPastedTextEdit(item, text);
+      const edited = { ...editedBase, filename: nextFilename };
       let localPath = item.localPath;
       if (item.localPath) {
         const written = await platform.createTempTextAttachment?.({
           text,
-          filename: createClipboardTextAttachmentFilenameForDate(),
+          filename: createClipboardTextAttachmentFilenameForDate(new Date(), text),
         });
         if (!written) {
           // The ref points at the file: reporting success while the file still
@@ -1081,7 +1084,7 @@ export function useComposerAttachments(
       const ref = zeroCopy && localPath
         ? { ref: localPath, fileName: edited.filename, mime: edited.mimeType, bytes: edited.sizeBytes }
         : undefined;
-      updateItem(scopeKey, id, (current) => ({
+      updateItem(scopeKey, id, (_current) => ({
         ...edited,
         localPath,
         uploadStatus: ref ? "ready" : target?.sessionId ? "queued" : "waitingSession",

@@ -51,6 +51,8 @@ export function ZaicodeEmptyMarker() {
  * for people who do not right-click.
  */
 export function ZaicodeHomeSettingsLink() {
+  const prefs = useZaicodeUiPrefs();
+  if (!prefs.showNewTaskHints) return null;
   return (
     <button
       type="button"
@@ -129,9 +131,34 @@ export function ZaicodeGreetingSettingsPanel() {
         label={'Show the faint "Empty" marker'}
       />
       <ZaicodePrefCheck
+        checked={prefs.showNewTaskGreeting}
+        onChange={(showNewTaskGreeting) =>
+          prefs.update({ showNewTaskGreeting, showGreeting: showNewTaskGreeting })
+        }
+        label="Show greeting message"
+      />
+      <ZaicodePrefCheck
+        checked={prefs.showNewTaskHints}
+        onChange={(showNewTaskHints) => prefs.update({ showNewTaskHints })}
+        label="Show hints and helper links"
+      />
+      <ZaicodePrefCheck
         checked={prefs.saimailOnHome}
         onChange={(saimailOnHome) => prefs.update({ saimailOnHome })}
         label="Show SAIMAIL on this screen"
+      />
+      <ZaicodePrefHeading>QUICK ACTIONS</ZaicodePrefHeading>
+      <ZaicodePrefCheck
+        checked={prefs.showNewHandoffAction}
+        onChange={(showNewHandoffAction) => prefs.update({ showNewHandoffAction })}
+        label="Show NEW HANDOFF action button"
+        hint="Pre-fills handoff structure for operator review (does not auto-submit)"
+      />
+      <ZaicodePrefCheck
+        checked={prefs.showGoalCcAllAction}
+        onChange={(showGoalCcAllAction) => prefs.update({ showGoalCcAllAction })}
+        label="Show GOAL CC ALL action button"
+        hint="Pre-fills /goal cc all for operator review (does not auto-submit)"
       />
     </>
   );

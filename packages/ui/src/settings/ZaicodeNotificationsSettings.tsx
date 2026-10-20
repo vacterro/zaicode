@@ -1,4 +1,5 @@
 import { cn } from "@/components/lib/utils.js";
+import { Checkbox } from "@/components/ui/checkbox.js";
 import { Switch } from "@/components/ui/switch.js";
 import {
   markZaicodeFresh,
@@ -108,8 +109,8 @@ export function ZaicodeNotificationsSettings() {
             <ZaicodeTimeField minute={settings.quietFrom} disabled={!settings.quietEnabled} ariaLabel="Quiet from" onChange={(quietFrom) => setZaicodeNotifySettings({ quietFrom })} />
             <span className="text-foreground-subtle">to</span>
             <ZaicodeTimeField minute={settings.quietTo} disabled={!settings.quietEnabled} ariaLabel="Quiet until" onChange={(quietTo) => setZaicodeNotifySettings({ quietTo })} />
-            <label className="flex items-center gap-1 text-foreground">
-              <input type="checkbox" disabled={!settings.quietEnabled} checked={settings.quietSounds} onChange={(event) => setZaicodeNotifySettings({ quietSounds: event.target.checked })} />
+            <label className="flex items-center gap-1.5 text-foreground cursor-pointer select-none">
+              <Checkbox disabled={!settings.quietEnabled} checked={settings.quietSounds} onCheckedChange={(val) => setZaicodeNotifySettings({ quietSounds: Boolean(val) })} />
               also mute sounds
             </label>
           </div>
@@ -138,12 +139,11 @@ export function ZaicodeNotificationsSettings() {
           </div>
           <span className="text-foreground-subtle">Windows</span>
           <div className="flex flex-wrap items-center gap-2">
-            <label className="flex items-center gap-1 text-foreground" title="Off: Windows notifications only while ZAICODE is in the background">
-              <input
-                type="checkbox"
+            <label className="flex items-center gap-1.5 text-foreground cursor-pointer select-none" title="Off: Windows notifications only while ZAICODE is in the background">
+              <Checkbox
                 disabled={settings.delivery === "windows" || settings.delivery === "in-app"}
                 checked={settings.delivery === "windows" || settings.systemWhenFocused}
-                onChange={(event) => setZaicodeNotifySettings({ systemWhenFocused: event.target.checked })}
+                onCheckedChange={(val) => setZaicodeNotifySettings({ systemWhenFocused: Boolean(val) })}
               />
               also while ZAICODE is in front
             </label>
@@ -167,15 +167,15 @@ export function ZaicodeNotificationsSettings() {
           <span className="text-foreground-subtle">Glow ends</span>
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1" data-zaicode-glow-rules>
             {GLOW_RULES.map((rule) => (
-              <label key={rule.key} className="flex items-center gap-1 text-foreground" title={rule.hint}>
-                <input type="checkbox" checked={settings.glow[rule.key]} onChange={(event) => setZaicodeNotifySettings({ glow: { ...settings.glow, [rule.key]: event.target.checked } })} />
+              <label key={rule.key} className="flex items-center gap-1.5 text-foreground cursor-pointer select-none" title={rule.hint}>
+                <Checkbox checked={settings.glow[rule.key]} onCheckedChange={(val) => setZaicodeNotifySettings({ glow: { ...settings.glow, [rule.key]: Boolean(val) } })} />
                 {rule.label}
               </label>
             ))}
           </div>
           <span className="text-foreground-subtle">Glow look</span>
-          <label className="flex items-center gap-1 text-foreground" title="The glow gets fainter as it ages; off = full strength until it ends">
-            <input type="checkbox" checked={settings.glow.fade} onChange={(event) => setZaicodeNotifySettings({ glow: { ...settings.glow, fade: event.target.checked } })} />
+          <label className="flex items-center gap-1.5 text-foreground cursor-pointer select-none" title="The glow gets fainter as it ages; off = full strength until it ends">
+            <Checkbox checked={settings.glow.fade} onCheckedChange={(val) => setZaicodeNotifySettings({ glow: { ...settings.glow, fade: Boolean(val) } })} />
             fade out as it ages
           </label>
         </div>
@@ -220,12 +220,12 @@ function GroupRows({ group, settings }: { group: string; settings: ZaicodeNotify
               <span className="shrink-0 text-foreground">{scenario.label}</span>
               <span className="min-w-0 truncate text-[10px] text-foreground-subtlest">{scenario.hint}</span>
             </span>
-            <input type="checkbox" className="mx-auto" checked={row.toast} onChange={(event) => setZaicodeNotifyScenario(scenario.id, { toast: event.target.checked })} />
-            <input type="checkbox" className="mx-auto" checked={row.system} onChange={(event) => setZaicodeNotifyScenario(scenario.id, { system: event.target.checked })} />
+            <Checkbox className="mx-auto" checked={row.toast} onCheckedChange={(val) => setZaicodeNotifyScenario(scenario.id, { toast: Boolean(val) })} />
+            <Checkbox className="mx-auto" checked={row.system} onCheckedChange={(val) => setZaicodeNotifyScenario(scenario.id, { system: Boolean(val) })} />
             <input type="number" min={0} max={600} className={cn(inputClass, "mx-auto")} value={row.seconds} disabled={!row.toast} onChange={(event) => setZaicodeNotifyScenario(scenario.id, { seconds: Number(event.target.value) || 0 })} />
             {scenario.canHighlight ? (
               <>
-                <input type="checkbox" className="mx-auto" checked={row.highlight} onChange={(event) => setZaicodeNotifyScenario(scenario.id, { highlight: event.target.checked })} />
+                <Checkbox className="mx-auto" checked={row.highlight} onCheckedChange={(val) => setZaicodeNotifyScenario(scenario.id, { highlight: Boolean(val) })} />
                 <input type="number" min={0} max={240} className={cn(inputClass, "mx-auto")} value={row.highlightMinutes} disabled={!row.highlight} onChange={(event) => setZaicodeNotifyScenario(scenario.id, { highlightMinutes: Number(event.target.value) || 0 })} />
               </>
             ) : (

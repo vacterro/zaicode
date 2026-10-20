@@ -265,9 +265,7 @@ export async function executeTurnCommand(
           options?.inputId,
         );
       }
-      activeTurn = this.beginActiveTurn(turnId, turnTraceContext, "regular", true, {
-        ...(options?.inputId === undefined ? {} : { inputId: options.inputId }),
-      });
+      activeTurn = this.beginActiveTurn(turnId, turnTraceContext, "regular", true, (options?.inputId === undefined ? {} : { inputId: options.inputId }));
       this.logger?.info("Turn started", {
         ...traceContextToLogContext(turnTraceContext),
         event: "turn.started",

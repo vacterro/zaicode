@@ -1,4 +1,10 @@
-import { zaicodeScheduleStopAt, type ZaicodeAutostartJob, type ZaicodeScheduleBeforeRun, type ZaicodeScheduleOrder, type ZaicodeScheduledRun } from "@zcode/shared";
+import {
+  zaicodeScheduleStopAt,
+  type ZaicodeAutostartJob,
+  type ZaicodeScheduleBeforeRun,
+  type ZaicodeScheduleOrder,
+  type ZaicodeScheduledRun,
+} from "@zcode/shared";
 import type { ZaicodeServices } from "./zaicodeServices.js";
 import { zaicodeRunsToStop } from "./zaicodeScheduler.js";
 import { notifyZaicode } from "./zaicodeNotifications.js";
@@ -14,7 +20,11 @@ import {
   type ZaicodeContinueOptions,
 } from "./zaicodeContinue.js";
 import { zaicodeContinueHandleFor } from "./zaicodeContinueHost.js";
-import { useZaicodeMainSessions, zaicodeMainSessionIdOf, zaicodeMainSessionKey } from "./zaicodeMainSession.js";
+import {
+  useZaicodeMainSessions,
+  zaicodeMainSessionIdOf,
+  zaicodeMainSessionKey,
+} from "./zaicodeMainSession.js";
 import { readZaicodeKnownProjects, type ZaicodeKnownProject } from "./zaicodeScheduler.js";
 import { zaicodeMarkedSessionsIn } from "./zaicodeSchedulerMarks.js";
 import { readZaicodeWorkers, removeZaicodeWorker, type ZaicodeWorker } from "./zaicodeWorkers.js";
@@ -33,14 +43,18 @@ import { readZaicodeWorkers, removeZaicodeWorker, type ZaicodeWorker } from "./z
 // ---------------------------------------------------------------- pure rules
 
 /** Blocked tickets weigh triple: they need the most attention. Unknown = -1 (last). */
-export function zaicodeProblemScore(row: Pick<ZaicodeHomeProjectRow, "openTickets" | "blockedTickets"> | null | undefined): number {
+export function zaicodeProblemScore(
+  row: Pick<ZaicodeHomeProjectRow, "openTickets" | "blockedTickets"> | null | undefined,
+): number {
   if (!row || row.openTickets === null || row.blockedTickets === null) return -1;
   return row.blockedTickets * 3 + row.openTickets;
 }
 
 export function orderZaicodeScheduleTargets(
   targets: readonly ZaicodeKnownProject[],
-  rows: Readonly<Record<string, Pick<ZaicodeHomeProjectRow, "openTickets" | "blockedTickets"> | undefined>>,
+  rows: Readonly<
+    Record<string, Pick<ZaicodeHomeProjectRow, "openTickets" | "blockedTickets"> | undefined>
+  >,
   order: ZaicodeScheduleOrder,
 ): ZaicodeKnownProject[] {
   if (order === "list") return [...targets];
@@ -52,7 +66,10 @@ export function orderZaicodeScheduleTargets(
       score: zaicodeProblemScore(rows[target.key]),
       blocked: rows[target.key]?.blockedTickets ?? -1,
     }))
-    .sort((left, right) => right.score - left.score || right.blocked - left.blocked || left.index - right.index)
+    .sort(
+      (left, right) =>
+        right.score - left.score || right.blocked - left.blocked || left.index - right.index,
+    )
     .map((entry) => entry.target);
 }
 
@@ -88,8 +105,14 @@ export function planZaicodeBeforeRun(input: {
   mode: ZaicodeScheduleBeforeRun;
   runnerRank: number;
   targets: readonly Pick<ZaicodeKnownProject, "key" | "path">[];
-  sessions: readonly Pick<ZaicodeSessionBrief, "sessionId" | "title" | "projectKey" | "running" | "model">[];
-  workers: readonly Pick<ZaicodeWorker, "id" | "kind" | "vendor" | "exitCode" | "projectPath" | "short" | "projectName">[];
+  sessions: readonly Pick<
+    ZaicodeSessionBrief,
+    "sessionId" | "title" | "projectKey" | "running" | "model"
+  >[];
+  workers: readonly Pick<
+    ZaicodeWorker,
+    "id" | "kind" | "vendor" | "exitCode" | "projectPath" | "short" | "projectName"
+  >[];
 }): ZaicodeBeforeRunPlan {
   if (input.mode === "none") return { sessions: [], workers: [] };
   const keys = new Set(input.targets.map((target) => target.key));
@@ -97,8 +120,17 @@ export function planZaicodeBeforeRun(input: {
   const all = input.mode === "stopAll";
   return {
     sessions: input.sessions
-      .filter((session) => session.running && keys.has(session.projectKey) && (all || zaicodeIsStopgapModel(session.model)))
-      .map((session) => ({ projectKey: session.projectKey, sessionId: session.sessionId, title: session.title })),
+      .filter(
+        (session) =>
+          session.running &&
+          keys.has(session.projectKey) &&
+          (all || zaicodeIsStopgapModel(session.model)),
+      )
+      .map((session) => ({
+        projectKey: session.projectKey,
+        sessionId: session.sessionId,
+        title: session.title,
+      })),
     workers: input.workers
       .filter(
         (worker) =>
@@ -154,16 +186,22 @@ export async function clearZaicodeBeforeRun(
     removeZaicodeWorker(worker.id);
     lines.push(`closed ${worker.title}`);
   }
-  if (lines.length > 0) await new Promise((resolve) => window.setTimeout(resolve, SETTLE_AFTER_STOP_MS));
+  if (lines.length > 0)
+    await new Promise((resolve) => window.setTimeout(resolve, SETTLE_AFTER_STOP_MS));
   return lines;
 }
 
 /** Nothing runs in the project: no running session, no live CLI worker. */
 export function zaicodeTargetIdle(target: ZaicodeKnownProject): boolean {
   const path = target.path.toLowerCase();
-  const sessionBusy = briefs().some((session) => session.projectKey === target.key && session.running);
+  const sessionBusy = briefs().some(
+    (session) => session.projectKey === target.key && session.running,
+  );
   const workerBusy = readZaicodeWorkers().workers.some(
-    (worker) => worker.kind === "worker" && worker.exitCode === null && worker.projectPath.toLowerCase() === path,
+    (worker) =>
+      worker.kind === "worker" &&
+      worker.exitCode === null &&
+      worker.projectPath.toLowerCase() === path,
   );
   return !sessionBusy && !workerBusy;
 }
@@ -178,7 +216,12 @@ export interface ZaicodeScheduleSessionOutcome {
 }
 
 /** START in MAIN: continue MAIN (or a cut-off session), a fresh MAIN only when nothing can continue. */
-export async function startZaicodeInMain(job: Pick<ZaicodeAutostartJob, "prompt">, targets: readonly ZaicodeKnownProject[], now: number, options?: ZaicodeContinueOptions): Promise<ZaicodeScheduleSessionOutcome> {
+export async function startZaicodeInMain(
+  job: Pick<ZaicodeAutostartJob, "prompt">,
+  targets: readonly ZaicodeKnownProject[],
+  now: number,
+  options?: ZaicodeContinueOptions,
+): Promise<ZaicodeScheduleSessionOutcome> {
   const outcome: ZaicodeScheduleSessionOutcome = { lines: [], runs: [] };
   const command = zaicodeCommandForPrompt(job.prompt);
   for (const target of targets) {
@@ -189,7 +232,10 @@ export async function startZaicodeInMain(job: Pick<ZaicodeAutostartJob, "prompt"
     }
     const mainKey = zaicodeMainSessionKey(target.path, target.identity);
     const mainId = zaicodeMainSessionIdOf(useZaicodeMainSessions.getState().byWorkspace, mainKey);
-    const decision = decideZaicodeProjectStart(mainId, briefs().filter((session) => session.projectKey === target.key));
+    const decision = decideZaicodeProjectStart(
+      mainId,
+      briefs().filter((session) => session.projectKey === target.key),
+    );
     try {
       if (decision.action === "open") {
         outcome.lines.push(`${target.name}: skipped, ${decision.why}`);
@@ -204,32 +250,33 @@ export async function startZaicodeInMain(job: Pick<ZaicodeAutostartJob, "prompt"
       }
       // A schedule's own prompt wins over the session's old goal; empty prompt = what START decided.
       const send = job.prompt.trim() ? command : decision.command;
-      const sent = await handle.send(decision.sessionId, send, options).then(
-        () => true,
-        () => false,
-      );
-      if (!sent && !decision.makeMain) {
-        // MAIN was deleted or archived: forget it and give the project a fresh MAIN instead.
-        useZaicodeMainSessions.getState().clearMain(mainKey);
-        const sessionId = await handle.start(command, options);
-        useZaicodeMainSessions.getState().setMain(mainKey, sessionId);
-        outcome.runs.push({ jobId: `session:${sessionId}`, workspaceKey: target.key, at: now });
-        outcome.lines.push(`${target.name}: MAIN gone, new MAIN → ${describeZaicodeContinueCommand(command)}`);
-        continue;
-      }
-      if (!sent) throw new Error(`could not continue ${decision.sessionId}`);
+      // ACK 丢失时命令可能已被 Host 接受；发送失败不能证明 MAIN 已删除并再启动一个。
+      await handle.send(decision.sessionId, send, options);
       if (decision.makeMain) useZaicodeMainSessions.getState().setMain(mainKey, decision.sessionId);
-      outcome.runs.push({ jobId: `session:${decision.sessionId}`, workspaceKey: target.key, at: now });
-      outcome.lines.push(`${target.name}: ${decision.why} → ${describeZaicodeContinueCommand(send)}`);
+      outcome.runs.push({
+        jobId: `session:${decision.sessionId}`,
+        workspaceKey: target.key,
+        at: now,
+      });
+      outcome.lines.push(
+        `${target.name}: ${decision.why} → ${describeZaicodeContinueCommand(send)}`,
+      );
     } catch (error) {
-      outcome.lines.push(`${target.name}: failed, ${error instanceof Error ? error.message : String(error)}`);
+      outcome.lines.push(
+        `${target.name}: failed, ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
   return outcome;
 }
 
 /** "Only marked sessions": continue exactly the marked ones in the targets, nothing new. */
-export async function continueZaicodeMarked(job: Pick<ZaicodeAutostartJob, "prompt">, targets: readonly ZaicodeKnownProject[], now: number, options?: ZaicodeContinueOptions): Promise<ZaicodeScheduleSessionOutcome> {
+export async function continueZaicodeMarked(
+  job: Pick<ZaicodeAutostartJob, "prompt">,
+  targets: readonly ZaicodeKnownProject[],
+  now: number,
+  options?: ZaicodeContinueOptions,
+): Promise<ZaicodeScheduleSessionOutcome> {
   const outcome: ZaicodeScheduleSessionOutcome = { lines: [], runs: [] };
   const known = briefs();
   for (const target of targets) {
@@ -240,18 +287,30 @@ export async function continueZaicodeMarked(job: Pick<ZaicodeAutostartJob, "prom
         outcome.lines.push(`${target.name}: project not connected`);
         break;
       }
-      const decision = brief ? decideZaicodeSessionContinue(brief, zaicodeHomeRows()[target.key]?.hasSaipen ?? true) : null;
+      const decision = brief
+        ? decideZaicodeSessionContinue(brief, zaicodeHomeRows()[target.key]?.hasSaipen ?? true)
+        : null;
       if (decision && decision.action !== "send") {
         outcome.lines.push(`${brief?.title ?? mark.sessionId}: skipped, ${decision.why}`);
         continue;
       }
-      const command = job.prompt.trim() ? zaicodeCommandForPrompt(job.prompt) : decision?.command ?? zaicodeCommandForPrompt("");
+      const command = job.prompt.trim()
+        ? zaicodeCommandForPrompt(job.prompt)
+        : (decision?.command ?? zaicodeCommandForPrompt(""));
       try {
         await handle.send(mark.sessionId, command, options);
-        outcome.runs.push({ jobId: `session:${mark.sessionId}`, workspaceKey: target.key, at: now });
-        outcome.lines.push(`${brief?.title ?? mark.sessionId} → ${describeZaicodeContinueCommand(command)}`);
+        outcome.runs.push({
+          jobId: `session:${mark.sessionId}`,
+          workspaceKey: target.key,
+          at: now,
+        });
+        outcome.lines.push(
+          `${brief?.title ?? mark.sessionId} → ${describeZaicodeContinueCommand(command)}`,
+        );
       } catch (error) {
-        outcome.lines.push(`${brief?.title ?? mark.sessionId}: failed, ${error instanceof Error ? error.message : String(error)}`);
+        outcome.lines.push(
+          `${brief?.title ?? mark.sessionId}: failed, ${error instanceof Error ? error.message : String(error)}`,
+        );
       }
     }
   }
@@ -264,7 +323,9 @@ export type ZaicodeStopOutcome = "not-session" | "stopped" | "rejected";
 /** Stop time for a run that is a session (not a queue job). */
 export async function stopZaicodeSessionRun(run: ZaicodeScheduledRun): Promise<ZaicodeStopOutcome> {
   if (!run.jobId.startsWith("session:")) return "not-session";
-  const project = readZaicodeKnownProjects().find((candidate) => candidate.key === run.workspaceKey);
+  const project = readZaicodeKnownProjects().find(
+    (candidate) => candidate.key === run.workspaceKey,
+  );
   const handle = project ? zaicodeContinueHandleFor(project) : null;
   // No handle means the project is not connected: nothing was stopped, so this is a
   // rejection and the run stays tracked. A rejected stop has to be reported as such
@@ -279,7 +340,12 @@ export async function stopZaicodeSessionRun(run: ZaicodeScheduledRun): Promise<Z
 }
 
 /** Existing queue/session stop rules, called by the single autostart timer. */
-export async function applyZaicodeScheduleStopRules(jobs: readonly ZaicodeAutostartJob[], services: ZaicodeServices | null, forget: (id: string, runs: string[]) => void, now: number): Promise<void> {
+export async function applyZaicodeScheduleStopRules(
+  jobs: readonly ZaicodeAutostartJob[],
+  services: ZaicodeServices | null,
+  forget: (id: string, runs: string[]) => void,
+  now: number,
+): Promise<void> {
   for (const job of jobs) {
     const due = zaicodeRunsToStop(job, now, zaicodeScheduleStopAt);
     if (due.length === 0) continue;
@@ -297,10 +363,11 @@ export async function applyZaicodeScheduleStopRules(jobs: readonly ZaicodeAutost
         continue;
       }
       // A queue job: the queue service is the only owner of cancelling it.
-      const cancelled = (await services?.jobs.cancel(jobId).then(
-        () => true,
-        () => false,
-      )) ?? false;
+      const cancelled =
+        (await services?.jobs.cancel(jobId).then(
+          () => true,
+          () => false,
+        )) ?? false;
       if (cancelled) stopped.push(jobId);
       else pending.push(jobId);
     }

@@ -33,15 +33,16 @@ import { useZCodeIntl } from "@/i18n/IntlProvider.js";
 import { logger } from "@/logger.js";
 import { ConversationTurnGroup } from "@/v4/ConversationTurnGroup.js";
 import { ConversationPendingGuideList } from "@/v4/ConversationPendingGuideList.js";
-import type { AssistantFeedbackHandler } from "@/v4/ConversationRowView.js";
 import { ConversationTurnNavigator } from "@/v4/ConversationTurnNavigator.js";
 // SRC-139 + SRC-161:REQ-009: the paired latest-message / latest-answer strip. It reads
 // the same render units and jumps through the same scrollToQuery anchor as the turn
 // navigator, so there is one way to address a row, and nothing new is stored to go stale.
 import { ConversationTurnNavStrip } from "@/v4/ConversationTurnNavStrip.js";
 import { useZaicodeUiPrefs } from "@/zaicode/zaicodeUiPrefs.js";
-import { TranscriptViewContext, isExpandedTranscriptView, projectTranscriptRows } from "@/lib/transcriptView.js";
+import { TranscriptViewContext, isExpandedTranscriptView, isSectionsTranscriptView, isUnboundedTranscriptView, projectTranscriptRows, resolveTranscriptSections, transcriptViewName } from "@/lib/transcriptView.js";
 import { ConversationTranscriptControl } from "@/v4/ConversationTranscriptControl.js";
+import { ZaicodeSaipenLiveStatusStrip } from "@/zaicode/ZaicodeSaipenLiveStatusStrip.js";
+import type { ConversationSessionCopyAction } from "@/v4/ConversationSessionCopyButton.js";
 import { syncConversationShareSelectionPanelLayout } from "@/v4/conversationShareSelectionPanelLayout.js";
 import type { ConversationRowRenderContext } from "@/v4/conversationRowContext.js";
 import { splitConversationTimelineLiveTail } from "@/v4/conversationTimelineLiveTail.js";
@@ -253,6 +254,7 @@ function getUnitHeightCacheKey(unit: ConversationTurnRenderUnit | undefined): st
 }
 
 interface ConversationTimelineProps {
+  sessionCopyAction?: ConversationSessionCopyAction;
   rows: readonly ConversationRow[];
   /** CLI 权威 queue 中等待 model-step 注入的 guide；只改变 renderer 落位。 */
   pendingGuides?: readonly QueueItem[];
@@ -271,7 +273,6 @@ interface ConversationTimelineProps {
   rowContext: ConversationRowRenderContext;
   onFork?: (target: ConversationRowTarget) => void;
   onRetry?: (target: ConversationRowTarget) => void;
-  onFeedbackChange?: AssistantFeedbackHandler;
   onEdit?: (
     target: ConversationRowTarget,
     newText: string,
@@ -357,6 +358,7 @@ interface ConversationTimelineProps {
  * 保持稳定引用；跟随态存 ref（每帧变化不触发渲染），仅「回到底部」可见性走 state。
  */
 function ConversationTimelineImpl({
+  sessionCopyAction,
   rows,
   pendingGuides = EMPTY_PENDING_GUIDES,
   apiRetry = null,
@@ -366,7 +368,6 @@ function ConversationTimelineImpl({
   rowContext: suppliedRowContext,
   onFork,
   onRetry,
-  onFeedbackChange,
   onEdit,
   canLoadOlder = false,
   loadingOlder = false,
@@ -398,7 +399,12 @@ function ConversationTimelineImpl({
   const { intl } = useZCodeIntl();
   const preferredTranscriptView = useZaicodeUiPrefs((state) => state.transcriptView);
   const updateUiPrefs = useZaicodeUiPrefs((state) => state.update);
-  const transcriptView = isZaicodeProductMode() ? preferredTranscriptView : "compact";
+  const transcriptView = useMemo(
+    () => isZaicodeProductMode()
+      ? resolveTranscriptSections(preferredTranscriptView, Boolean(suppliedRowContext.messageStreamShowReasoning))
+      : "compact" as const,
+    [preferredTranscriptView, suppliedRowContext.messageStreamShowReasoning],
+  );
   const rowContext = useMemo(
     () =>
       transcriptView === "compact"
@@ -406,17 +412,19 @@ function ConversationTimelineImpl({
         : {
             ...suppliedRowContext,
             transcriptView,
-            messageStreamShowReasoning: isExpandedTranscriptView(transcriptView),
-            messageStreamShowTodos: isExpandedTranscriptView(transcriptView),
+            messageStreamShowReasoning: isSectionsTranscriptView(transcriptView) ? transcriptView.sections.thoughts.visible : isExpandedTranscriptView(transcriptView),
+            messageStreamShowTodos: isSectionsTranscriptView(transcriptView)
+              ? transcriptView.sections.tools.visible && (transcriptView.expanded || (preferredTranscriptView === "compact" && Boolean(suppliedRowContext.messageStreamShowTodos)))
+              : isExpandedTranscriptView(transcriptView),
           },
-    [suppliedRowContext, transcriptView],
+    [suppliedRowContext, transcriptView, preferredTranscriptView],
   );
   const transcriptRows = useMemo(
     () => projectTranscriptRows(rows, transcriptView),
     [rows, transcriptView],
   );
   const failedToolNames =
-    transcriptView === "only-text"
+    (isSectionsTranscriptView(transcriptView) && !transcriptView.sections.tools.visible)
       ? rows.flatMap((row) =>
           row.kind === "toolCall" && row.status === "error" ? [row.toolName] : [],
         )
@@ -755,7 +763,18 @@ function ConversationTimelineImpl({
     // 视图切换改变未挂载历史行的高度，不能继续复用上一模式的虚拟测高。
     heightCacheRef.current?.clear();
     virtualizer.measure();
-  }, [transcriptView, virtualizer]);
+    // 未变化的挂载行不会重新触发 ref / ResizeObserver；只清缓存会把长正文
+    // 排到 72px 估计槽里。复用真实测高并同步回填，滚动中也不能跳过这次布局测量。
+    const mountedRows = virtualHistoryRef.current?.querySelectorAll<HTMLElement>(
+      ":scope > [data-v4-turn-unit][data-index]",
+    );
+    for (const element of mountedRows ?? []) {
+      const index = Number(element.dataset.index);
+      if (Number.isInteger(index) && index >= 0 && index < virtualizedUnitsRef.current.length) {
+        virtualizer.resizeItem(index, measureElement(element, undefined));
+      }
+    }
+  }, [transcriptView, virtualizer, measureElement]);
   virtualizer.shouldAdjustScrollPositionOnItemSizeChange = (item) => {
     return shouldAdjustVirtualizerForItemSizeChange({
       suppressAdjustment: suppressVirtualizerAdjustmentDuringRestoreRef.current,
@@ -1728,7 +1747,8 @@ function ConversationTimelineImpl({
   return (
     <div
       ref={timelineRootRef}
-      data-transcript-view={transcriptView}
+      data-transcript-view={transcriptViewName(transcriptView)}
+      data-transcript-scroll-tools={isUnboundedTranscriptView(transcriptView, "tools") ? "off" : "on"}
       className="relative flex min-h-0 flex-1 flex-col"
     >
       {/* ZAICODE: one row above the scroller carries every transcript control: the view
@@ -1738,24 +1758,30 @@ function ConversationTimelineImpl({
       {isZaicodeProductMode() ? (
         <div
           data-zaicode-transcript-row="true"
-          className="flex min-h-10 shrink-0 items-center justify-evenly gap-x-3 border-b border-border py-1 pl-3 text-ui-xs"
+          className="@container/transcript flex min-h-10 shrink-0 items-center justify-evenly gap-x-1 border-b border-border py-1 pl-3 text-ui-xs"
           style={{ paddingRight: "calc(var(--zaicode-status-lane, 0px) + 0.75rem)" }}
         >
           <ConversationTranscriptControl
             view={transcriptView}
+            intl={intl}
             onChange={(view) => updateUiPrefs({ transcriptView: view })}
+            sessionCopyAction={sessionCopyAction}
           />
           {canLoadOlder && onLoadOlder ? (
             <button
               type="button"
-              className="shrink-0 border border-border px-2 py-1 text-foreground-subtle hover:bg-hover hover:text-foreground disabled:opacity-50"
+              // 历史入口必须能与窄屏模式选择器及两枚跳转芯片一起收缩；只省略可见文字，不裁掉按钮。
+              className="min-w-6 max-w-[25%] shrink border border-border px-2 py-1 text-foreground-subtle hover:bg-hover hover:text-foreground disabled:opacity-50"
+              title="Load earlier messages from this conversation"
               disabled={loadingOlder}
               onClick={() => {
                 commitFollowing(false);
                 void onLoadOlder();
               }}
             >
-              {loadingOlder ? "Loading earlier messages…" : "Load earlier messages"}
+              <span className="block truncate">
+                {loadingOlder ? "Loading earlier messages…" : "Load earlier messages"}
+              </span>
             </button>
           ) : null}
           <ConversationTurnNavStrip
@@ -1764,6 +1790,13 @@ function ConversationTimelineImpl({
             onJumpToRow={scrollToQuery}
           />
         </div>
+      ) : null}
+      {isZaicodeProductMode() ? (
+        <ZaicodeSaipenLiveStatusStrip
+          workspacePath={rowContext.workspacePath}
+          workspaceIdentity={rowContext.workspaceIdentity}
+          inSubagentDrilldown={rowContext.inSubagentDrilldown}
+        />
       ) : null}
       {failedToolNames.length > 0 ? (
         <div role="alert" className="shrink-0 px-3 py-1 text-ui-xs text-destructive">
@@ -1850,6 +1883,8 @@ function ConversationTimelineImpl({
               : centeredEmptyLayout
                 ? "flex min-h-full flex-col items-center justify-center gap-4 px-4"
                 : "flex min-h-full flex-col",
+            // 草稿与正式会话共享 8px 输入边距，避免切换后输入框宽度跳变。
+            centeredEmptyLayout && zaicodeWholePixelRows && "px-2",
           )}
           // session 切到 draft 时内容高度骤降，Chrome 会把子树里的
           // sticky composer 选作原生 scroll anchor，并在切回后覆盖 layout/RAF 恢复值。
@@ -1935,7 +1970,6 @@ function ConversationTimelineImpl({
                           context={rowContext}
                           onFork={onFork}
                           onRetry={onRetry}
-                          onFeedbackChange={onFeedbackChange}
                           onEdit={onEdit}
                           shareSelection={shareSelection}
                         />
@@ -1965,7 +1999,6 @@ function ConversationTimelineImpl({
                       context={rowContext}
                       onFork={onFork}
                       onRetry={onRetry}
-                      onFeedbackChange={onFeedbackChange}
                       onEdit={onEdit}
                       shareSelection={shareSelection}
                     />
@@ -2016,8 +2049,18 @@ function ConversationTimelineImpl({
                   // 同 virtual history/live tail，恢复宽度过渡避免硬跳。
                   // ≥1280px 面板让位时降级为只过渡 transform，避免大范围跳变叠加位移抖动。
                   "pointer-events-auto relative z-10 w-full shrink-0 transition-[width,max-width,transform] duration-150 ease-out @min-[1280px]/conversation:transition-[transform]",
+                  // T-303: the dock used to take the full panel width only while no
+                  // status panel had content and fall back to the conversation-column
+                  // width as soon as one did, so the same composer changed width,
+                  // horizontal position and toolbar space when switching projects.
+                  // ConversationStatusPanel is an absolutely positioned overlay: it
+                  // never occupies flex space, so panel content is not evidence the
+                  // column got narrower. The composer therefore shares the
+                  // conversation column in every panel state, and the only space it
+                  // yields is the inline offset below, which the message column takes
+                  // with it so the two stay aligned.
                   contentWidthClassName,
-                  !centeredEmptyLayout && "px-4 pb-4",
+                  !centeredEmptyLayout && (zaicodeWholePixelRows ? "px-2 pb-2" : "px-4 pb-4"),
                   !centeredEmptyLayout && summaryPanelInlineOffsetClassName,
                 )}
               >

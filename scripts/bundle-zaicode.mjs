@@ -69,10 +69,23 @@ await run(
 );
 
 // A build that cannot start must never be left where the launcher swaps it in.
+const distName = bundleEnv.ZCODE_DESKTOP_DIST_DIR || "dist";
 const gate = runBootGate({
   repoRoot,
-  distName: bundleEnv.ZCODE_DESKTOP_DIST_DIR || "dist",
+  distName,
   isWin,
   env: zaicodeEnv,
 });
 if (!gate.ok) process.exit(1);
+// 打包命令退出 0 不等于产出了可运行的构建：目标目录没有 exe 时启动器会继续跑旧包，
+// 而操作者会以为源码改动已经生效。这里必须显式失败，不能只报告 "done"。
+if (isWin) {
+  const builtExe = resolve(repoRoot, "packages/desktop", distName, "win-unpacked", "ZAICODE.exe");
+  if (!existsSync(builtExe)) {
+    console.error(
+      `[bundle:zaicode] bundle reported success but ${builtExe} does not exist: ` +
+        "the launcher will keep running the previous build.",
+    );
+    process.exit(1);
+  }
+}

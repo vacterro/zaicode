@@ -23,6 +23,7 @@ import type {
   ConversationRowTarget,
 } from "@zcode/shared/zcode-protocol-v4";
 import type { ZCodeApp } from "../../app/types.js";
+import type { SaipenContinueAnswer } from "./continue-owner.js";
 import type { V4InteractionRegistry } from "../interaction-registry.js";
 import type {
   ConversationEditTarget,
@@ -194,6 +195,25 @@ export interface V4CommandCoreHost {
   interactions?: V4InteractionRegistry;
 
   // ── 过渡期钩子（legacy 兼容窗口）─────────────────────────
+  /**
+   * T-295: the trusted SAIPEN project continuation boundary for a recognized
+   * `cc`/STEP when the project, and not the session goal, owns the command.
+   * The host runs the canonical launcher (`saipen continue --json`) in the
+   * session's project root and returns ITS disposition verbatim; the command
+   * layer never invents one. The child environment is inherited unchanged, so a
+   * carrier the session was launched with (`SAIPEN_TASK_SHA256`,
+   * `SAIPEN_TASK_FILE`) is the launcher's to read and nothing here writes one.
+   * `operatorText` is the operator's own submitted bytes, declared by the trusted
+   * ingress as the `SAIPEN_TASK_FILE` carrier when the session carries none -- it
+   * is what SAIPEN digests before it will spend its bounded goal authority, so it
+   * must come from a real operator submission and never from model output.
+   * Optional: a host without it refuses with `guard.recognizedContinueNoOwner`
+   * rather than answering from model memory.
+   */
+  continueSaipenProject?(
+    record: V4SessionRecordView,
+    operatorText?: string,
+  ): Promise<SaipenContinueAnswer>;
   /**
    * turn 开跑前的模型就绪检查（凭据/catalog 解析）。
    * 现由旧协议 binder 实现（ensureSessionModelAvailableForNextTurn）；

@@ -5,13 +5,13 @@ import type {
   KeyboardEvent as ReactKeyboardEvent,
   PointerEvent as ReactPointerEvent,
 } from "react";
-import type { PanelImperativeHandle } from "react-resizable-panels";
+
 
 import { TID_APP_HEADER } from "@zcode/shared";
 // 保活：workspace tab 真正关闭时，按 workspaceKey 回收 side pane terminal 的常驻 PTY/xterm。
 // 对称下侧 Terminal.tsx 的 openWorkspaceKeys 回收。
 import { sidePaneTerminalSessionRegistry } from "@/terminal/sidePaneTerminalSessionRegistry.js";
-import { V4ChatPane } from "@/v4/V4ChatPane.js";
+
 import { V4WorkspaceChatArea } from "@/v4/V4WorkspaceChatArea.js";
 import {
   V4SplitPaneEntryProvider,
@@ -64,7 +64,7 @@ import { AutomationsMainBreadcrumbFrame } from "@/settings/AutomationsMainBreadc
 import { PluginStorePage } from "@/settings/PluginStorePage.js";
 import { ZaicodeWorkspace } from "@/zaicode/ZaicodeWorkspace.js";
 import { useZaicodeActions } from "@/zaicode/zaicodeActions.js";
-import { useZaicodeUsage } from "@/zaicode/zaicodeUsage.js";
+import { useZaicodeUsage, zaicodeUsageSurface } from "@/zaicode/zaicodeUsage.js";
 import { ZaicodeUsageView } from "@/zaicode/ZaicodeUsageView.js";
 import { ZaicodeResizableInspector } from "@/zaicode/ZaicodeResizableInspector.js";
 import { useZaicodeUsagePanelWidth } from "@/zaicode/zaicodeUsagePanelWidth.js";
@@ -90,7 +90,7 @@ import {
   resolveWorkspaceShellWindowChromeClass,
 } from "@/app-shell/workspaceShellWindowChrome.js";
 import { cn } from "@/components/lib/utils.js";
-import { Button } from "@/components/ui/button.js";
+
 import { ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable.js";
 import { toast } from "@/components/ui/toast.js";
 import { getGitDirtyFileCount } from "@/git-branch-switcher/display.js";
@@ -830,7 +830,9 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
   );
   const sidebarsSwappedPreference = useZaicodeSidebarPrefs((s) => s.sidebarsSwapped);
   const sidebarsSwapped = isZaicodeProductMode() && sidebarsSwappedPreference;
-  const globalSaipenVisible = useZaicodeActions((state) => state.saipenSidebar !== null && state.openSaipen === null);
+  const globalSaipenVisible = useZaicodeActions(
+    (state) => !isWorkspaceVisible && state.saipenSidebar !== null && state.openSaipen === null,
+  );
   const [globalInspectorWidth] = useZaicodeUsagePanelWidth();
   const workspaceShellSplitStyle = useMemo(
     () =>
@@ -909,8 +911,13 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
     onWorkspaceMainViewChange("chat");
   }, [onWorkspaceMainViewChange]);
   const usageMode = useZaicodeUsage((state) => state.mode);
+  // T-319: the workspace owns the Usage surfaces only while it owns its panes
+  // (the same flag that suppresses the global portal); otherwise the portal
+  // draws them, so exactly one of the two hosts is ever mounted.
+  const workspaceOwnsPanes = useZaicodeActions((state) => state.openSaipen !== null);
+  const usageSurface = zaicodeUsageSurface(usageMode, isWorkspaceVisible && workspaceOwnsPanes);
   useEffect(() => {
-    if (!isZaicodeProductMode() || !isWorkspaceVisible || !activeTaskId || !handleToggleSaipenTab) return;
+    if (!isZaicodeProductMode() || !isWorkspaceVisible || !handleToggleSaipenTab) return;
     const open = (target?: { workspacePath: string; workspaceIdentity?: string | undefined }) => {
       if (target && buildTaskWorkspaceKey(target.workspacePath, target.workspaceIdentity) !== workspaceKey) return false;
       handleToggleSaipenTab();
@@ -920,6 +927,7 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
     const draftBoard = actions.saipenSidebar;
     actions.setOpenSaipen(open);
     if (draftBoard && buildTaskWorkspaceKey(draftBoard.workspacePath, draftBoard.workspaceIdentity) === workspaceKey) {
+      actions.setSaipenSidebar(null);
       handleOpenSaipenTab?.();
     }
     return () => {
@@ -927,7 +935,7 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
         useZaicodeActions.getState().setOpenSaipen(null);
       }
     };
-  }, [activeTaskId, handleOpenSaipenTab, handleToggleSaipenTab, isWorkspaceVisible, workspaceKey]);
+  }, [handleOpenSaipenTab, handleToggleSaipenTab, isWorkspaceVisible, workspaceKey]);
   // ZAICODE (SRC-038): the home-screen SCHEDULER card and other surfaces open the ZAICODE view.
   useEffect(() => {
     if (!isZaicodeProductMode()) return;
@@ -936,9 +944,13 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
     // T-56: SAIHOME opens as a view of its own; opening it creates nothing.
     const setOpenHome = useZaicodeActions.getState().setOpenZaicodeHome;
     setOpenHome(() => onWorkspaceMainViewChange("saihome"));
+    const setOpenChat = useZaicodeActions.getState().setOpenChat;
+    const openChat = () => onWorkspaceMainViewChange("chat");
+    setOpenChat(openChat);
     return () => {
       setOpen(null);
       setOpenHome(null);
+      if (useZaicodeActions.getState().openChat === openChat) setOpenChat(null);
     };
   }, [onWorkspaceMainViewChange]);
   useEffect(() => {
@@ -1811,7 +1823,18 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
             {isWorkspaceVisible && isZaicodeProductMode() ? <ZaicodeArchiveNotice /> : null}
             {isWorkspaceVisible && isZaicodeProductMode() ? <ZaicodeRouterStatus compact /> : null}
             <div className="min-h-0 flex-1 overflow-hidden">
-              {workspaceMainView === "automations" ? (
+              {usageSurface === "page" ? (
+                <main className="flex h-full min-h-0 min-w-0 flex-1 flex-col">
+                  <ScopedErrorBoundary
+                    scope="zaicode-usage"
+                    resetKeys={workspaceOnlyResetKeys}
+                    variant="panel"
+                    className="h-full"
+                  >
+                    <ZaicodeUsageView />
+                  </ScopedErrorBoundary>
+                </main>
+              ) : workspaceMainView === "automations" ? (
                 <main
                   id={AUTOMATIONS_TOAST_ANCHOR_ID}
                   className="flex h-full min-h-0 flex-1 flex-col bg-background"
@@ -1879,17 +1902,6 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
                       </div>
                     </div>
                   </AutomationsMainBreadcrumbFrame>
-                </main>
-              ) : isWorkspaceVisible && usageMode === "page" ? (
-                <main className="flex h-full min-h-0 min-w-0 flex-1 flex-col">
-                  <ScopedErrorBoundary
-                    scope="zaicode-usage"
-                    resetKeys={workspaceOnlyResetKeys}
-                    variant="panel"
-                    className="h-full"
-                  >
-                    <ZaicodeUsageView />
-                  </ScopedErrorBoundary>
                 </main>
               ) : workspaceMainView === "saihome" ? (
                 <main
@@ -2084,7 +2096,12 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
         >
           <aside
             ref={sidebarContainerRef}
-            className="h-full overflow-hidden select-none"
+            className={cn(
+              "h-full overflow-hidden select-none",
+              // 紧凑轨道绕过完整侧栏的标题占位，caption 浮层因此盖住 SAIHOME。
+              // 整个轨道统一预留同一条 56px 标题带，滚动区仅使用剩余高度。
+              projectRail && "pt-14",
+            )}
             aria-hidden={!isSidebarPanelVisible}
           >
             {projectRail ? (
@@ -2221,7 +2238,7 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
                 {/* Browser Guest Host 必须与主视图路由解耦，避免 automations/plugin
                     切换时卸载 Guest；截图请求期间由上层临时展开真实面板承载可合成的 WebContents。 */}
               </ResizablePanelGroup>
-              {isWorkspaceVisible && usageMode === "sidebar" ? (
+              {usageSurface === "sidebar" ? (
                 <ZaicodeResizableInspector label="9router Usage sidebar">
                   <ScopedErrorBoundary
                     scope="zaicode-usage-sidebar"

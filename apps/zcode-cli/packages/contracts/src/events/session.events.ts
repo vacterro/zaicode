@@ -1126,6 +1126,20 @@ export interface ErrorAttribution {
   statusCode?: number;
   providerErrorCode?: string;
   retryable?: boolean;
+  requestId?: string;
+  routerRequestId?: string;
+  comboId?: string;
+  comboName?: string;
+  upstreamModelId?: string;
+  upstreamProviderId?: string;
+  upstreamConnectionId?: string;
+  attempt?: number;
+  retryAfterMs?: number;
+  providerErrorMessage?: string;
+  timeoutStage?: string;
+  streamedContent?: boolean;
+  candidateTried?: boolean;
+  fallbackReason?: string;
 }
 
 // CollaborationMode and RiskLevel are re-exported from ports

@@ -16,6 +16,7 @@ import {
   type TurnId,
 } from "@zcode/contracts";
 import { mapAttachmentRefsToTurnAttachments } from "../attachment-refs.js";
+import { admitRecognizedContinue, isRecognizedContinueCommand } from "../continue-command.js";
 import { inputIntentMetadataFromCanonical } from "../input-intent.js";
 import { startPromptTurn } from "../prompt-turn.js";
 import { commandAdmissionOf } from "../executor.js";
@@ -413,6 +414,19 @@ async function startCanonicalIntent(
     },
     text,
   );
+  // T-284: retrying or editing into a bare `cc` re-admits the mechanical
+  // continuation (or refuses with a receipt), never a model turn on the text.
+  if (
+    editTarget.intent.kind === "sendText" &&
+    isRecognizedContinueCommand(text, attachments)
+  ) {
+    await admitRecognizedContinue(host, record, {
+      inputId: envelope.commandId,
+      intent,
+      operatorText: text,
+    });
+    return;
+  }
   if (editTarget.intent.kind === "sendGoalCommand") {
     await applyGoalCommand(host, record, {
       inputId: envelope.commandId,

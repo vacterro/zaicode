@@ -379,7 +379,7 @@ export function ZaicodeSidebarSettings() {
 
       <Block
         title="Project freshness"
-        hint="How long since anything last happened in a project: nothing, a small dot before the name, or the name itself tinted (green fresh, yellow this week, grey stale)."
+        hint="What a project row says about its own state: how long since anything last happened (nothing, a dot before the name, or the name itself tinted - green fresh, yellow this week, grey stale) and whether the A3 audit marks show."
         testId="freshness"
       >
         <SegmentRow
@@ -392,6 +392,7 @@ export function ZaicodeSidebarSettings() {
           ]}
           onChange={(projectFreshness) => prefs.update({ projectFreshness })}
         />
+        <ZaicodePrefCheck checked={prefs.showAuditMarks} onChange={(showAuditMarks) => prefs.update({ showAuditMarks })} label="Show A3 audit marks on project rows" hint="Off hides only the row marks." />
       </Block>
 
       <Block

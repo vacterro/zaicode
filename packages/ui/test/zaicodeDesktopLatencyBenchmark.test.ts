@@ -1,7 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { SessionDataLayer } from "../src/v4/sessionDataLayer.js";
-import { ConversationProjectionStore } from "../src/v4/conversationProjectionStore.js";
 import {
   recordSessionClick,
   getSessionClickStartedAt,
@@ -177,7 +176,7 @@ test("PERF-04 [Synthetic Microbenchmark]: Routine interaction click timestamp re
   assert.ok(stats.p95 <= 50, `Routine interaction P95 (${stats.p95.toFixed(2)}ms) exceeded target 50ms`);
 });
 
-test("PERF-05 [End-to-End Responsive Lifecycle]: Cold session open with simulated Host subscription latency meets P95 <= 200ms", async () => {
+test("PERF-05 [Synthetic Microbenchmark - Mock Host Subscription Lifecycle]: Cold session open with simulated Host subscription latency meets P95 <= 200ms", async () => {
   // Simulates real Host subscription overhead (15ms transport delay)
   const transport = createBenchmarkTransport(15);
   const layer = new SessionDataLayer({ transport, maxWarmCapacity: 10 });
@@ -198,13 +197,13 @@ test("PERF-05 [End-to-End Responsive Lifecycle]: Cold session open with simulate
   }
 
   const stats = calculateStats(durations);
-  console.log(`[PERF E2E Cold Subscription] P50=${stats.p50.toFixed(2)}ms, P95=${stats.p95.toFixed(2)}ms, P99=${stats.p99.toFixed(2)}ms, Worst=${stats.worst.toFixed(2)}ms (Target P95 <= 200ms)`);
+  console.log(`[PERF Synthetic Cold Subscription Microbench] P50=${stats.p50.toFixed(2)}ms, P95=${stats.p95.toFixed(2)}ms, P99=${stats.p99.toFixed(2)}ms, Worst=${stats.worst.toFixed(2)}ms (Target P95 <= 200ms)`);
 
   assert.ok(stats.p95 <= 200, `Cold subscription P95 (${stats.p95.toFixed(2)}ms) exceeded target 200ms`);
   layer.dispose();
 });
 
-test("PERF-06 [Fairness & Concurrency]: 10 active concurrent sessions maintain bounded event loop latency and responsive scheduling", async () => {
+test("PERF-06 [Synthetic Microbenchmark - Concurrency Simulation]: 10 active concurrent sessions maintain bounded event loop latency and responsive scheduling", async () => {
   const transport = createBenchmarkTransport(5);
   const layer = new SessionDataLayer({ transport, maxWarmCapacity: 15 });
 

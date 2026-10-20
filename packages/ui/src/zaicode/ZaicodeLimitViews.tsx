@@ -5,13 +5,18 @@ import {
   formatZaicodeDuration,
   formatZaicodeWindowReset,
   zaicodeNextRefillAt,
+  zaicodeBottleneck,
+  zaicodeWindowStartPhase,
+  windowStartFor,
   type ZaicodeEngineAccount,
   type ZaicodeLimitSnapshot,
+  type ZaicodeWindowStartPhase,
 } from "@zcode/shared";
 import { cn } from "@/components/lib/utils.js";
 import {
   ZAICODE_TONE_COLORS,
   readZaicodeEngine,
+  readZaicodeEnginesState,
   zaicodeRemainingColor,
   zaicodeRemainingTextColor,
   type ZaicodeEngineReading,
@@ -22,6 +27,17 @@ import { useZaicodeUiPrefs } from "./zaicodeUiPrefs.js";
 import { zaicodeSchedulerEligible, zaicodeSchedulerEligibilityPatch } from "./zaicodeSchedulerEligibility.js";
 import { ZaicodeResetCreditButton, expiryLabel } from "./ZaicodeResetCreditsSection.js";
 import { zaicodeResetCreditRows } from "./zaicodeResetCredits.js";
+
+/** The short and long windows for one quota group, with 5h above weekly. */
+export function zaicodeStackedLimitPair(snapshot: ZaicodeLimitSnapshot | undefined, now: number): [number | null, number | null] {
+  if (!snapshot) return [null, null];
+  const effective = effectiveZaicodeWindows(snapshot.windows, now).filter((window) => !window.key.startsWith("weekly_"));
+  const group = zaicodeBottleneck(snapshot.windows, now)?.group ?? "";
+  const sorted = effective.filter((window) => window.group === group)
+    .sort((left, right) => (left.durationMinutes ?? 0) - (right.durationMinutes ?? 0));
+  const short = sorted[0]?.remainingPercent ?? null;
+  return [short, sorted.length > 1 ? sorted[sorted.length - 1]?.remainingPercent ?? null : short];
+}
 
 /** Re-render every `intervalMs` so countdowns and elapsed resets stay true. */
 export function useZaicodeClock(intervalMs = 30_000): number {
@@ -88,6 +104,18 @@ export function describeZaicodeReading(
 }
 
 /** Account section: vendor-colored title, then one row per window. */
+/**
+ * REQ-004: display order only (quota arithmetic untouched). Antigravity's 5h
+ * window reads first, weekly next, everything else keeps source order.
+ */
+export function orderZaicodeLimitWindows<T extends { key: string }>(windows: readonly T[]): T[] {
+  const rank = (key: string) => (key === "five_hour" ? 0 : key === "weekly" || key.startsWith("weekly_") ? 1 : 2);
+  return windows
+    .map((window, index) => ({ window, index }))
+    .sort((left, right) => rank(left.window.key) - rank(right.window.key) || left.index - right.index)
+    .map((entry) => entry.window);
+}
+
 export function ZaicodeAccountLimits({
   account,
   snapshot,
@@ -107,7 +135,10 @@ export function ZaicodeAccountLimits({
   // this account usable?". The quota rows below stay exactly as they are.
   const answers = useZaicodeUiPrefs((state) => state.schedulerIneligible);
   const eligible = zaicodeSchedulerEligible({ schedulerIneligible: answers }, account.id);
-  const windows = snapshot ? effectiveZaicodeWindows(snapshot.windows, now) : [];
+  const windows = snapshot ? orderZaicodeLimitWindows(effectiveZaicodeWindows(snapshot.windows, now)) : [];
+  // The panel only renders from the meter, which subscribes to this store, so the
+  // rolling-window setting read here is the same one the main process started with.
+  const rollingConfig = readZaicodeEnginesState().config;
   const updated = snapshot?.fetchedAt ? `${formatZaicodeDuration(now - snapshot.fetchedAt)} ago` : null;
   // T-130: a Codex account with reset credits says so here, with the button, right under the windows they would refill.
   const credits = zaicodeResetCreditRows([account], { [account.id]: snapshot }, now)[0] ?? null;
@@ -146,16 +177,23 @@ export function ZaicodeAccountLimits({
         <div className="pl-2 text-foreground-subtlest">{snapshot?.error ?? "not read yet"}</div>
       ) : null}
       {windows.map((window) => {
-        const remaining = window.remainingPercent;
+        // 另一个窗口的阻塞或时钟推断不是供应商报告的此窗口用量。
+        const remaining = window.gatedBy || window.assumedFull ? null : window.remainingPercent;
         const fresh = readZaicodeFresh(`window:${account.id}|${window.key}`);
         const reset = fresh
           ? fresh.label
           : formatZaicodeWindowReset(window, now);
+        const startPhase = zaicodeWindowStartPhase({ account, snapshot, window, config: rollingConfig, now });
+        const startRecord = windowStartFor(window.key, snapshot?.windowStart, snapshot?.windowStarts);
+        // Only ZAICODE's own start lifecycle is shown. A window nobody has asked
+        // ZAICODE to start has no record and needs no line here.
+        const startLine = startRecord ? describeZaicodeWindowStartPhase(startPhase, startRecord, now) : null;
         return (
           <div
             key={window.key}
             className={cn("grid items-center pl-2", compact ? "grid-cols-[124px_52px_34px_1fr] gap-x-1.5" : "grid-cols-[120px_80px_40px_1fr] gap-2")}
-            style={fresh ? zaicodeGlowStyle(fresh, now, glow) : undefined}
+            // 紧凑额度行彼此相邻，外扩描边会重叠；仅此处将边框画在行内。
+            style={fresh ? { ...zaicodeGlowStyle(fresh, now, glow), outlineOffset: "-1px" } : undefined}
             data-zaicode-fresh={fresh ? "true" : undefined}
             title={fresh ? `${fresh.label}: click to mark it seen` : undefined}
             {...zaicodeGlowHandlers([`window:${account.id}|${window.key}`], Boolean(fresh))}
@@ -170,6 +208,14 @@ export function ZaicodeAccountLimits({
             >
               — {reset}
             </span>
+            {startLine ? (
+              <span
+                className="col-span-full truncate text-foreground-subtlest"
+                data-zaicode-window-start-phase={startPhase}
+              >
+                {startLine}
+              </span>
+            ) : null}
           </div>
         );
       })}
@@ -205,6 +251,34 @@ export function describeZaicodeWindowStart(
   const ago = `${formatZaicodeDuration(Math.max(0, now - record.at))} ago`;
   // CLI 完成只证明请求被接受；是否真的运行由供应商 quota/reset 决定。
   return record.ok ? `window start request accepted ${ago}` : `window start failed ${ago}: ${record.detail}`;
+}
+
+/**
+ * T-397: one line for where an automatic start stands. "Request accepted" is not
+ * "window running" -- only a later quota read showing the vendor's own reset is.
+ */
+export function describeZaicodeWindowStartPhase(
+  phase: ZaicodeWindowStartPhase,
+  record: { at: number; ok: boolean; detail: string } | null,
+  now: number,
+): string | null {
+  const ago = record ? ` ${formatZaicodeDuration(Math.max(0, now - record.at))} ago` : "";
+  switch (phase) {
+    case "NOT_STARTED":
+      return "window not started yet";
+    case "START_REQUESTED":
+      return `start requested${ago}`;
+    case "START_CONFIRMED":
+      return record ? `window started${ago}` : "window running";
+    case "START_UNVERIFIED":
+      return `start request accepted${ago} but no quota read has confirmed it yet`;
+    case "START_FAILED":
+      return `start failed${ago}: ${record?.detail ?? "no detail"}`;
+    case "COOLDOWN":
+      return `start requested${ago} — not asking again until the window's own cooldown ends`;
+    case "UNSUPPORTED":
+      return "automatic start unavailable for this account";
+  }
 }
 
 /** FastPrompter "AI Usage Limits" panel: every visible account, grouped. */

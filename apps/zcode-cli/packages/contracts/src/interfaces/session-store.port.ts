@@ -26,7 +26,11 @@ import type {
   ModelToolSideEffectScope,
 } from "../model/index.js";
 import type { TodoItem } from "../tools/todo.js";
-import type { SessionGoal, GoalStatus } from "../tools/target.js";
+import type {
+  GoalCompletionVerificationOutput,
+  SessionGoal,
+  GoalStatus,
+} from "../tools/target.js";
 import type { PermissionRuleset } from "./permission.port.js";
 import type { CollaborationMode } from "./session.port.js";
 import type { EnvInfo } from "./context-source.port.js";
@@ -608,11 +612,11 @@ export interface GoalVerificationTimelinePart extends TimelinePartBase {
   targetId: string;
   verificationId: string;
   goalIteration?: number;
-  verification?: {
-    passed: boolean;
-    reason: string;
-    nextAction?: string | null;
-  };
+  // T-304: same record the producer writes (`TargetCompletionVerificationPayload.
+  // verification`, i.e. `GoalCompletionVerificationOutput`: three legacy fields
+  // plus the SAIHANDOFF disposition and evidence receipt). Widened here so the
+  // port agrees with both the writer and the hydrating reader.
+  verification?: GoalCompletionVerificationOutput;
 }
 
 export interface SessionForkTimelinePart extends TimelinePartBase {

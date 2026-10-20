@@ -104,6 +104,17 @@ test("U7 Clear all done runs on the first click; a plan reset and the Session te
   const runStart = clear.indexOf("const run = async () => {");
   assert.ok(runStart > 0 && clear.indexOf("archiveZaicodeSessions(byProject)") > runStart, "the tidy-up runs inside the click handler itself");
   assert.ok(clear.includes("CLEAR ALL DONE") && clear.includes("${describe(plan)}"), "what it will do stays on the button's own tooltip");
+  // T-299: the number is what CAN run, never what ran; what remains after a run
+  // is read back from the reconciled session list, and a second click while the
+  // first run is working is refused by the busy guard.
+  assert.ok(clear.includes("splitZaicodeClearDonePlan("), "the plan is split by handler availability first");
+  assert.ok(clear.includes("hasZaicodeArchiveSomeHandler(") && clear.includes("zaicodeProjectContinueHandle("), "availability is read from the real registries");
+  assert.equal(clear.includes("plan.runnable.archive.length + plan.runnable.resume.length"), true, "the counter counts runnable work only");
+  assert.equal(clear.includes("setBusy(true)"), true);
+  assert.match(clear, /disabled=\{busy \|\| count === 0\}/, "a running cleanup blocks a duplicate click");
+  assert.match(clear, /if \(busy \|\| count === 0\) return;/, "the handler itself refuses re-entry");
+  assert.match(clear, /remaining: \(\) =>/, "the remaining count is recomputed from the session list, not assumed zero");
+  assert.match(clear, /formatZaicodeClearDoneRun\(result\)/, "the result summary names archived / accepted / skipped / failed apart");
   const resets = source("zaicode/ZaicodeCodingPlanResets.tsx");
   const resetAsk = resets.indexOf("requestConfirmation({");
   assert.ok(resetAsk > 0 && resets.indexOf("await resets.reset(kind)") > resetAsk, "a reset is asked for before it is spent");

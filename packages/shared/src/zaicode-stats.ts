@@ -18,6 +18,48 @@
 
 export const ZAICODE_STATS_BUCKET_MS = 15 * 60_000;
 
+export interface ZaicodeRouterUsageScopeRequest {
+  providerIds: readonly string[];
+  project: string;
+  sessionId?: string | null;
+  since: number;
+}
+export interface ZaicodeRouterUsageCount {
+  requests: number;
+  promptTokens: number;
+  completionTokens: number;
+  cachedTokens: number;
+}
+/** Recorded ZAICODE router traffic; prices and unrelated clients are not attributable here. */
+export interface ZaicodeRouterScopedUsage {
+  stats: {
+    totalRequests: number; totalPromptTokens: number; totalCompletionTokens: number; totalCachedTokens: number;
+    byModel: Record<string, ZaicodeRouterUsageCount>;
+    byProvider: Record<string, ZaicodeRouterUsageCount>;
+    byAccount: Record<string, ZaicodeRouterUsageCount>;
+    recentRequests: (ZaicodeRouterUsageCount & {
+      model: string;
+      provider: string;
+      timestamp: string;
+      status: string;
+      id?: string;
+      sessionId?: string | null;
+      startedAt?: string | null;
+      completedAt?: string | null;
+      durationMs?: number | null;
+      failure?: string | null;
+      fallbackReason?: string | null;
+      comboId?: string;
+      upstreamModel?: string;
+      upstreamProvider?: string;
+      routerRequestId?: string;
+      attributionStatus?: "attributed" | "unattributed" | "missing_upstream";
+    })[];
+  };
+  chart: { label: string; tokens: number }[];
+  costMeasured: false;
+}
+
 export type ZaicodeStatsKind = "model.request" | "turn" | "job.finished" | "worker.session";
 
 /** Events the renderer may record itself (it owns the CLI worker terminals). */
@@ -240,6 +282,26 @@ function addBucket(totals: ZaicodeStatsTotals, bucket: ZaicodeStatsBucket): void
 
 function addTotals(target: ZaicodeStatsTotals, source: ZaicodeStatsTotals): void {
   for (const key of Object.keys(target) as (keyof ZaicodeStatsTotals)[]) target[key] += source[key];
+}
+
+/** REQ-012: fold quarter-hour buckets into one scope total (display sums only). */
+export function sumZaicodeStatsBuckets(buckets: readonly ZaicodeStatsBucket[]): ZaicodeStatsTotals {
+  const totals = emptyZaicodeStatsTotals();
+  for (const bucket of buckets) addBucket(totals, bucket);
+  return totals;
+}
+
+/** REQ-012: which locally recorded slice a usage scope shows. Both null = everything stored. */
+export interface ZaicodeStatsScopeRequest {
+  project?: string | null;
+  sessionId?: string | null;
+}
+
+export interface ZaicodeStatsScopeTotals {
+  totals: ZaicodeStatsTotals;
+  eventCount: number;
+  firstEventAt: number | null;
+  lastEventAt: number | null;
 }
 
 // ---------------------------------------------------------------------------

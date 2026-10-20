@@ -43,6 +43,34 @@
 /* 云端模板常用样式的构建保障，不是运行时 class 白名单。 */
 @source inline("text-center text-ui-base/relaxed text-foreground-subtle font-semibold font-normal text-foreground whitespace-nowrap underline decoration-foreground-subtle decoration-dashed underline-offset-4");
 
+/* ZAICODE 工具栏按控件宽度紧排，自动右对齐曾把 OUTBOX 和发送簇推成孤立空行。 */
+.zaicode-product [data-zaicode-composer-toolbar] {
+  align-items: center;
+  gap: 4px;
+}
+
+/*
+ * T-303: this rule used to also neutralize the cluster's `margin-left: auto` and
+ * `justify-content: flex-end` (the TSX in ChatPromptEditor.tsx already claims both,
+ * and the primary Stop/Send wrapper claims the right edge a third time). Two owners
+ * deciding one alignment is what let the send button slide as adjacent controls
+ * changed width: whichever rule won depended on specificity, not on intent.
+ * Alignment now has exactly one owner — the component. This file keeps only the
+ * tight ZAICODE packing (gap 4px) it was written for.
+ */
+.zaicode-product [data-zaicode-composer-toolbar] [data-composer-trailing-actions] {
+  gap: 4px;
+}
+
+.zaicode-product [data-zaicode-submit-controls] {
+  flex: 0 1 auto;
+  max-width: 100%;
+}
+
+.zaicode-product [data-zaicode-model-controls] {
+  overflow: visible;
+}
+
 /* 磨砂玻璃效果：html/body 需要透明背景，让 Electron vibrancy 透出来 */
 html,
 body,
@@ -89,6 +117,10 @@ body {
 }
 
 /* 真正 Full 按内容高度显示工具输出；正文保留外层会话滚动与高度测量。 */
+[data-transcript-scroll-tools="off"] [data-transcript-tool-details] [class*="max-h-"],
+[data-transcript-scroll-tools="off"] [data-transcript-tool-details] [style*="max-height"],
+[data-transcript-scroll-tools="off"] [data-transcript-tool-details] [class*="overflow-auto"],
+[data-transcript-scroll-tools="off"] [data-transcript-tool-details] [class*="overflow-y-"],
 [data-transcript-view="full-unbounded"] [data-transcript-tool-details] [class*="max-h-"],
 [data-transcript-view="full-unbounded"] [data-transcript-tool-details] [style*="max-height"],
 [data-transcript-view="full-unbounded"] [data-transcript-tool-details] [class*="overflow-auto"],
@@ -99,12 +131,15 @@ body {
 }
 
 [data-transcript-view="full-unbounded"] [data-transcript-tool-details] pre,
+[data-transcript-scroll-tools="off"] [data-transcript-tool-details] pre,
+[data-transcript-scroll-tools="off"] [data-transcript-tool-details] pre code,
 [data-transcript-view="full-unbounded"] [data-transcript-tool-details] pre code {
   white-space: pre-wrap !important;
   overflow-wrap: anywhere;
 }
 
-[data-transcript-view="full-unbounded"] [data-transcript-tool-details] .truncate {
+[data-transcript-view="full-unbounded"] [data-transcript-tool-details] .truncate,
+[data-transcript-scroll-tools="off"] [data-transcript-tool-details] .truncate {
   white-space: normal;
   overflow: visible;
   text-overflow: clip;
@@ -161,23 +196,35 @@ body {
 }
 
 /*
- *  部分浏览器 / Electron 运行环境会在 focus-visible 时叠加系统级高亮边框，
- * 表现为和产品主题无关的黄色描边，看起来像“随机冒出来的无障碍样式”。
- * 这里在全局层同时清掉 outline 和 focus ring 对应的 box-shadow，避免系统高亮和组件局部 ring 混用。
+ * Focus affordances & native control theming:
+ * Suppress browser default mouse-click outlines, but preserve keyboard
+ * focus-visible and forced-colors / high-contrast accessibility (T-314).
  */
-*:focus,
-*:focus-visible {
-  outline: none !important;
-  box-shadow: none !important;
-  -webkit-box-shadow: none !important;
+*:focus:not(:focus-visible) {
+  outline: none;
+}
+
+:focus-visible {
+  outline: 1px solid var(--zaicode-highlight, var(--color-input-border-focused, currentColor));
+  outline-offset: 1px;
 }
 
 @media (forced-colors: active) {
-  *:focus,
   *:focus-visible {
-    outline: none !important;
-    box-shadow: none !important;
+    outline: 2px solid Highlight !important;
+    outline-offset: 2px !important;
   }
+}
+
+/* Ensure native form controls adopt the ZAICODE theme palette instead of host OS accents */
+input[type="checkbox"],
+input[type="radio"],
+input[type="range"] {
+  accent-color: var(--zaicode-highlight, var(--color-accent, var(--color-primary)));
+}
+
+select {
+  color-scheme: inherit;
 }
 
 /* === 主题变量 === */
@@ -1093,32 +1140,6 @@ body {
   }
 }
 
-/* 点赞/点踩选中时的反馈动画：参考微信/X 的做法，只做图标回弹 + 细小粒子飞散两段，
-   粒子用 box-shadow 画在 ::after 上且跟随 currentColor，零额外 DOM、不引入新颜色。 */
-.zcode-reaction-burst {
-  position: relative;
-  display: inline-flex;
-}
-
-.zcode-reaction-burst > svg {
-  animation: zcode-reaction-pop 450ms cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.zcode-reaction-burst::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 3px;
-  height: 3px;
-  margin: -1.5px 0 0 -1.5px;
-  border-radius: 50%;
-  background: transparent;
-  opacity: 0;
-  pointer-events: none;
-  animation: zcode-reaction-particles 560ms cubic-bezier(0.16, 1, 0.3, 1) 60ms forwards;
-}
-
 .animate-zcode-alarm-ring {
   animation: zcode-alarm-ring 600ms ease-in-out infinite;
 }
@@ -1131,59 +1152,6 @@ body {
 
   50% {
     transform: rotate(10deg);
-  }
-}
-
-@keyframes zcode-reaction-pop {
-  0% {
-    transform: scale(0);
-  }
-
-  45% {
-    transform: scale(1.3);
-  }
-
-  70% {
-    transform: scale(0.95);
-  }
-
-  100% {
-    transform: scale(1);
-  }
-}
-
-@keyframes zcode-reaction-particles {
-  0% {
-    opacity: 0;
-    box-shadow:
-      7.7px 2.1px 0 0,
-      2.1px 7.7px 0 0,
-      -5.7px 5.7px 0 0,
-      -7.7px -2.1px 0 0,
-      -2.1px -7.7px 0 0,
-      5.7px -5.7px 0 0;
-  }
-
-  20% {
-    opacity: 0.7;
-  }
-
-  100% {
-    opacity: 0;
-    box-shadow:
-      15.5px 4.1px 0 -1px,
-      4.1px 15.5px 0 -1px,
-      -11.3px 11.3px 0 -1px,
-      -15.5px -4.1px 0 -1px,
-      -4.1px -15.5px 0 -1px,
-      11.3px -11.3px 0 -1px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .zcode-reaction-burst > svg,
-  .zcode-reaction-burst::after {
-    animation: none;
   }
 }
 

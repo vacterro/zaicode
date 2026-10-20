@@ -225,7 +225,7 @@ test("U4 Settings -> ZAICODE opens with the Updates card", () => {
 
 test("F1 a first install nags about nothing: a Claude / Codex login never set up here is an offer, not 'needs you'", async () => {
   const { zaicodeHomeActionItems, zaicodeHomeLimitRows, zaicodeHomeRouting } = await import("../src/zaicode/home/zaicodeHomeModel.js");
-  const { ZAICODE_METER_DEFAULT_PREFS } = await import("../src/zaicode/zaicodeEngines.js");
+  const { ZAICODE_METER_DEFAULT_PREFS } = await import("../src/zaicode/zaicodeMeterPrefs.js");
   const base = { vendor: "claude" as const, source: "~\\.claude", home: null, isDefaultHome: true, cli: "claude.exe", fixCommand: null };
   const fresh = { ...base, id: "A1", short: "A1", label: "Claude 1", status: "login-required" as const, statusDetail: "Optional: sign in any time", optional: true };
   const broken = { ...base, id: "A2", short: "A2", label: "Claude 2", status: "login-required" as const, statusDetail: "Not signed in (~\\.claude-account2)." };

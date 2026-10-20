@@ -41,12 +41,13 @@ test("a second STATE click closes the exact draft inspector while a different pr
   assert.equal(useZaicodeActions.getState().saipenSidebar?.workspaceIdentity, "remote-b");
 });
 
-test("STATE closes the visible draft inspector after the workspace opener registers", () => {
+test("STATE uses the workspace owner after its draft inspector is replaced (SRC-191)", () => {
   useZaicodeActions.setState({ openSaipen: null, saipenSidebar: null });
   openZaicodeSaipenView("C:/state-fixture");
   let opened = 0;
   useZaicodeActions.getState().setOpenSaipen(() => { opened += 1; return true; });
+  assert.equal(useZaicodeActions.getState().saipenSidebar, null, "registration removes the global draft inspector");
   openZaicodeSaipenView("C:/state-fixture");
   assert.equal(useZaicodeActions.getState().saipenSidebar, null);
-  assert.equal(opened, 0);
+  assert.equal(opened, 1, "the next click belongs to the native workspace pane");
 });

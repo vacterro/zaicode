@@ -46,7 +46,18 @@ export function createTopicWireDecoder<F extends { topic: string; subscriptionId
       failedInBatch.add(key);
       faultedRoutes.add(key);
       assembler.abort(fault.topic, fault.subscriptionId);
-      logger.warn("[v4-topic-wire] physical assembly rejected", fault);
+      // 生产渲染器压制 logger.warn，而物理组装拒绝正是「首个失败边界」最可能的落点：
+      // 只有 lifecycle 通道能在打包构建里把这条事实落盘。字段是白名单，不含载荷值。
+      logger.lifecycle.warn("v4 topic wire physical assembly rejected", {
+        event: "v4.topic_wire.assembly_rejected",
+        deliveryKind: fault.deliveryKind ?? "unknown",
+        logicalFrameOrdinal: fault.logicalFrameOrdinal,
+        reasonCode: fault.reasonCode,
+        schemaIssue: fault.schemaIssue ?? null,
+        status: "rejected",
+        subscriptionId: fault.subscriptionId,
+        topic: fault.topic,
+      });
       onFault?.(fault);
     }
     for (const event of events) {

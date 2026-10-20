@@ -1,8 +1,10 @@
 import { cn } from "@/components/lib/utils.js";
+import { Checkbox } from "@/components/ui/checkbox.js";
 import { readZaicodeEngine, useZaicodeEngines, visibleZaicodeAccounts, zaicodeRemainingColor } from "./zaicodeEngines.js";
 import {
   ZAICODE_METER_TINT_MAX,
   isZaicodeEngineShown,
+  orderZaicodeAccounts,
   setZaicodeLimitMeterStyle,
   useZaicodeLimitMeterStyle,
   useZaicodeMeterPrefs,
@@ -22,7 +24,16 @@ export function ZaicodeMeterSettingsPanel() {
   const style = useZaicodeLimitMeterStyle();
   const engines = useZaicodeEngines();
   const now = Date.now();
-  const accounts = visibleZaicodeAccounts(engines);
+  const accounts = orderZaicodeAccounts(visibleZaicodeAccounts(engines), prefs.accountOrder ?? []);
+  const moveAccount = (accountId: string, delta: -1 | 1) => {
+    const ids = accounts.map((account) => account.id);
+    const at = ids.indexOf(accountId);
+    const to = at + delta;
+    if (at < 0 || to < 0 || to >= ids.length) return;
+    const next = [...ids];
+    [next[at], next[to]] = [next[to]!, next[at]!];
+    prefs.update({ accountOrder: next });
+  };
   const shownOnMeter = accounts.filter((account) =>
     isZaicodeEngineShown(account, engines.limits[account.id], prefs, "meter", now),
   ).length;
@@ -63,12 +74,12 @@ export function ZaicodeMeterSettingsPanel() {
       />
       <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 pl-5 text-foreground-subtle">
         <span>These two rules apply to:</span>
-        <label className="flex items-center gap-1">
-          <input type="checkbox" checked={prefs.filterMeter} onChange={(event) => prefs.update({ filterMeter: event.target.checked })} />
+        <label className="flex items-center gap-1 cursor-pointer select-none">
+          <Checkbox checked={prefs.filterMeter} onCheckedChange={(val) => prefs.update({ filterMeter: Boolean(val) })} />
           title bar meter
         </label>
-        <label className="flex items-center gap-1">
-          <input type="checkbox" checked={prefs.filterTiles} onChange={(event) => prefs.update({ filterTiles: event.target.checked })} />
+        <label className="flex items-center gap-1 cursor-pointer select-none">
+          <Checkbox checked={prefs.filterTiles} onCheckedChange={(val) => prefs.update({ filterTiles: Boolean(val) })} />
           sidebar engine tiles
         </label>
       </div>
@@ -78,14 +89,14 @@ export function ZaicodeMeterSettingsPanel() {
             On the meter ({shownOnMeter}/{accounts.length} shown) — click to hide / show one engine there only
           </span>
           <div className="flex flex-wrap gap-px">
-            {accounts.map((account) => {
+            {accounts.map((account, index) => {
               const hidden = prefs.meterHidden.includes(account.id);
               const filteredOut =
                 !hidden && !isZaicodeEngineShown(account, engines.limits[account.id], prefs, "meter", now);
               return (
-                <button
-                  key={account.id}
-                  type="button"
+                <span key={account.id} className="flex items-start">
+                  <button
+                    type="button"
                   aria-pressed={!hidden}
                   title={
                     hidden
@@ -104,6 +115,29 @@ export function ZaicodeMeterSettingsPanel() {
                 >
                   {account.short}
                 </button>
+                <span className="flex flex-col" role="group" aria-label={`Order ${account.label}`}>
+                  <button
+                    type="button"
+                    className="border border-border px-0.5 leading-none hover:bg-hover disabled:opacity-30"
+                    disabled={index === 0}
+                    title={`Move ${account.label} up`}
+                    aria-label={`Move ${account.label} up`}
+                    onClick={() => moveAccount(account.id, -1)}
+                  >
+                    ↑
+                  </button>
+                  <button
+                    type="button"
+                    className="border border-border px-0.5 leading-none hover:bg-hover disabled:opacity-30"
+                    disabled={index === accounts.length - 1}
+                    title={`Move ${account.label} down`}
+                    aria-label={`Move ${account.label} down`}
+                    onClick={() => moveAccount(account.id, 1)}
+                  >
+                    ↓
+                  </button>
+                  </span>
+                </span>
               );
             })}
           </div>

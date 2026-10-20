@@ -1,4 +1,4 @@
-import { PROVIDER_MODEL_SELECTION_MIGRATION_SQL } from "./migrations/0020-provider-model-selection.js";
+import { SESSION_USAGE_MIGRATIONS } from "./migrations/usage-migrations.js";
 
 interface SqliteMigration {
   appVersion: string;
@@ -910,21 +910,5 @@ export const SQLITE_MIGRATIONS: readonly SqliteMigration[] = [
         on dwf_event(run_id, json_extract(payload_json, '$.artifactId'), sequence);
     `,
   },
-  {
-    appVersion: "0.16.5",
-    id: "0020_provider_model_selection",
-    sql: PROVIDER_MODEL_SELECTION_MIGRATION_SQL,
-  },
-  {
-    appVersion: "0.16.5",
-    id: "0021_official_glm_selection",
-    sql: OFFICIAL_GLM_SELECTION_MIGRATION_SQL,
-  },
-  {
-    appVersion: "0.16.5",
-    id: "0022_backfilled_session_reasoning",
-    sql: BACKFILLED_SESSION_REASONING_MIGRATION_SQL,
-  },
+  ...SESSION_USAGE_MIGRATIONS,
 ];
-import { OFFICIAL_GLM_SELECTION_MIGRATION_SQL } from "./migrations/0021-official-glm-selection.js";
-import { BACKFILLED_SESSION_REASONING_MIGRATION_SQL } from "./migrations/0022-backfilled-session-reasoning.js";

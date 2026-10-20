@@ -1,14 +1,143 @@
-import { Component } from "react";
+/* oxlint-disable eslint(max-lines) -- ErrorBoundary combines root and scoped error boundaries, diagnostic report building, and crash copy handlers. */
+import { Component, useCallback, useState } from "react";
 import type { ErrorInfo, ReactNode } from "react";
 import type { Locale } from "@zcode/shared";
-import { isLocale, resolveSupportedLocale, DEFAULT_LOCALE } from "@zcode/shared";
+import {
+  isLocale,
+  resolveSupportedLocale,
+  DEFAULT_LOCALE,
+  ZCODE_VERSION,
+  ZCODE_COMMIT,
+  ZCODE_BUILD_TIME,
+} from "@zcode/shared";
 import { DesktopWindowFrame } from "@/DesktopWindowFrame.js";
 import { MESSAGES } from "@/i18n/messages.js";
 import { logger } from "@/logger.js";
 import { reportReactErrorToArms } from "@/lib/reactErrorArmsTelemetry.js";
 import { cn } from "@/components/lib/utils.js";
 import { Button } from "@/components/ui/button.js";
-import { AlertTriangleIcon, RefreshCw } from "lucide-react";
+import { AlertTriangleIcon, Check, Copy, RefreshCw } from "lucide-react";
+
+export interface SanitizedCrashReport {
+  errorName: string;
+  errorMessage: string;
+  errorStack?: string;
+  componentStack?: string;
+  scope?: string;
+  build: {
+    version: string;
+    commit: string;
+    buildTime: string;
+  };
+  timestamp: string;
+  href?: string;
+}
+
+export function sanitizeCrashDiagnosticsText(text?: string | null): string {
+  if (!text) return "";
+  return text
+    .replace(/\b(Bearer|Basic)\s+[A-Za-z0-9._~+/=-]+/gi, "$1 <redacted>")
+    .replace(/^(\s*(?:Authorization|Proxy-Authorization)\s*:\s*)\S.*$/gim, "$1<redacted>")
+    .replace(/\b(sk-[a-zA-Z0-9_-]{20,})\b/g, "<redacted_key>")
+    .replace(/\b(gh[pousr]-[a-zA-Z0-9]{36,})\b/g, "<redacted_key>")
+    .replace(/\b(xox[baprs]-[a-zA-Z0-9_-]{10,})\b/g, "<redacted_key>")
+    .replace(
+      /([?&"']?(?:[a-zA-Z0-9_-]*token|[a-zA-Z0-9_-]*secret|api[_-]?key|password|passwd|private[_-]?key)["']?\s*[:=]\s*["']?)([^"'\s&,;]{4,})(["']?)/gi,
+      "$1<redacted>$3",
+    )
+    .replace(/(https?:\/\/)([^:\s/]+):([^@\s/]+)@/g, "$1$2:<redacted>@");
+}
+
+export function buildSanitizedCrashReport({
+  error,
+  componentStack,
+  scope,
+}: {
+  error: Error;
+  componentStack?: string;
+  scope?: string;
+}): SanitizedCrashReport {
+  return {
+    errorName: error.name || "Error",
+    errorMessage: sanitizeCrashDiagnosticsText(error.message || "Unknown error"),
+    ...(error.stack ? { errorStack: sanitizeCrashDiagnosticsText(error.stack) } : {}),
+    ...(componentStack ? { componentStack: sanitizeCrashDiagnosticsText(componentStack.trim()) } : {}),
+    ...(scope ? { scope } : {}),
+    build: {
+      version: ZCODE_VERSION,
+      commit: ZCODE_COMMIT,
+      buildTime: ZCODE_BUILD_TIME,
+    },
+    timestamp: new Date().toISOString(),
+    ...(typeof window !== "undefined" && window.location
+      ? { href: sanitizeCrashDiagnosticsText(window.location.href) }
+      : {}),
+  };
+}
+
+export function formatSanitizedCrashReportText(report: SanitizedCrashReport): string {
+  const lines: string[] = [
+    `=== ZAICODE CRASH REPORT ===`,
+    `Timestamp: ${report.timestamp}`,
+    `Version: ${report.build.version} (${report.build.commit})`,
+    `Build Time: ${report.build.buildTime}`,
+    ...(report.scope ? [`Scope: ${report.scope}`] : []),
+    `Error: ${report.errorName}: ${report.errorMessage}`,
+  ];
+  if (report.errorStack) {
+    lines.push(``, `--- Error Stack ---`, report.errorStack);
+  }
+  if (report.componentStack) {
+    lines.push(``, `--- Component Stack ---`, report.componentStack);
+  }
+  lines.push(`============================`);
+  return lines.join("\n");
+}
+
+function CopyCrashReportButton({
+  reportText,
+  size = "default",
+}: {
+  reportText: string;
+  size?: "default" | "sm";
+}) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = useCallback(async () => {
+    try {
+      if (
+        typeof window !== "undefined" &&
+        (
+          window as unknown as {
+            zcode?: { writeClipboardText?: (t: string) => Promise<void> };
+          }
+        ).zcode?.writeClipboardText
+      ) {
+        await (
+          window as unknown as { zcode: { writeClipboardText: (t: string) => Promise<void> } }
+        ).zcode.writeClipboardText(reportText);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+        return;
+      }
+      if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(reportText);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+        return;
+      }
+    } catch {
+      // 剪贴板异常不影响界面
+    }
+  }, [reportText]);
+
+  return (
+    <Button type="button" variant="outline" size={size} onClick={handleCopy}>
+      {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
+      {copied ? "Copied Report" : "Copy Diagnostic Report"}
+    </Button>
+  );
+}
 
 interface AppErrorBoundaryProps {
   children: ReactNode;
@@ -117,6 +246,8 @@ function ErrorFallback({
   isWindowsDesktop?: boolean;
 }) {
   const errorSummary = error.message.trim() || formatBoundaryMessage("appError.unknown");
+  const report = buildSanitizedCrashReport({ error, componentStack });
+  const reportText = formatSanitizedCrashReportText(report);
 
   return (
     <DesktopWindowFrame
@@ -144,8 +275,13 @@ function ErrorFallback({
             {formatBoundaryMessage("appError.description")}
           </p>
 
-          <div className="mt-4 rounded-2xl border border-border bg-background px-3 py-2 font-mono text-ui-base leading-5 text-on-surface-muted">
-            {errorSummary}
+          <div className="mt-4 rounded-2xl border border-border bg-background p-3 font-mono text-ui-base leading-5 text-on-surface-muted">
+            <div className="font-semibold text-destructive">
+              {error.name ? `${error.name}: ` : ""}{errorSummary}
+            </div>
+            <div className="mt-2 text-xs text-on-surface-muted">
+              Version: {ZCODE_VERSION} ({ZCODE_COMMIT}) · {ZCODE_BUILD_TIME}
+            </div>
           </div>
 
           <div className="mt-5 flex flex-wrap gap-2">
@@ -156,22 +292,36 @@ function ErrorFallback({
               <RefreshCw />
               {formatBoundaryMessage("appError.reload")}
             </Button>
+            <CopyCrashReportButton reportText={reportText} />
           </div>
 
           <p className="mt-4 text-ui-base leading-5 text-on-surface-muted">
             {formatBoundaryMessage("appError.hint")}
           </p>
 
-          {componentStack ? (
+          {componentStack || error.stack ? (
             <details className="mt-4 rounded-2xl border border-border bg-background px-3 py-2">
               <summary className="cursor-pointer text-ui-base font-medium text-on-surface-muted">
                 {formatBoundaryMessage("appError.details")}
               </summary>
-              <pre className="mt-2 max-h-[40vh] overflow-auto whitespace-pre-wrap break-words text-ui-base leading-5 text-on-surface-muted">
-                {/* 组件堆栈展开后会瞬间增高，限制 pre 高度并独立滚动，
-                    避免 details 撑满全屏导致主操作区被挤出可视区域。 */}
-                {componentStack.trim()}
-              </pre>
+              <div className="mt-2 space-y-3">
+                {error.stack ? (
+                  <div>
+                    <div className="text-xs font-semibold text-foreground-subtle">Error Stack:</div>
+                    <pre className="mt-1 max-h-[30vh] overflow-auto whitespace-pre-wrap break-words font-mono text-xs text-on-surface-muted">
+                      {error.stack.trim()}
+                    </pre>
+                  </div>
+                ) : null}
+                {componentStack ? (
+                  <div>
+                    <div className="text-xs font-semibold text-foreground-subtle">Component Stack:</div>
+                    <pre className="mt-1 max-h-[30vh] overflow-auto whitespace-pre-wrap break-words font-mono text-xs text-on-surface-muted">
+                      {componentStack.trim()}
+                    </pre>
+                  </div>
+                ) : null}
+              </div>
             </details>
           ) : null}
         </div>
@@ -187,6 +337,7 @@ function ScopedErrorFallback({
   onReload,
   variant = "panel",
   className,
+  scope,
 }: {
   error: Error;
   componentStack: string;
@@ -194,6 +345,7 @@ function ScopedErrorFallback({
   onReload: () => void;
   variant?: ScopedErrorBoundaryVariant;
   className?: string;
+  scope?: string;
 }) {
   if (variant === "silent") {
     return null;
@@ -202,6 +354,8 @@ function ScopedErrorFallback({
   const errorSummary = error.message.trim() || formatBoundaryMessage("appError.unknown");
   const isCompact = variant === "compact";
   const showDetails = variant !== "compact";
+  const report = buildSanitizedCrashReport({ error, componentStack, scope });
+  const reportText = formatSanitizedCrashReportText(report);
 
   if (isCompact) {
     return (
@@ -217,8 +371,11 @@ function ScopedErrorFallback({
           <p className="truncate text-ui-base font-medium text-foreground">
             {formatBoundaryMessage("appError.sectionTitle")}
           </p>
-          <p className="truncate font-mono text-ui-base text-foreground-subtle">{errorSummary}</p>
+          <p className="truncate font-mono text-ui-base text-foreground-subtle">
+            {error.name ? `${error.name}: ` : ""}{errorSummary}
+          </p>
         </div>
+        <CopyCrashReportButton reportText={reportText} size="sm" />
         <Button type="button" size="sm" variant="outline" onClick={onReset}>
           {formatBoundaryMessage("appError.sectionRetry")}
         </Button>
@@ -233,12 +390,18 @@ function ScopedErrorFallback({
       </div>
       <h2 className="mt-3 text-ui-base font-medium text-foreground">
         {formatBoundaryMessage("appError.sectionTitle")}
+        {scope ? <span className="ml-2 font-mono text-xs text-foreground-subtle">({scope})</span> : null}
       </h2>
       <p className="mt-1 text-ui-base leading-5 text-foreground-subtle">
         {formatBoundaryMessage("appError.sectionDescription")}
       </p>
-      <div className="mt-3 rounded-lg border border-border bg-background px-3 py-2 font-mono text-ui-base leading-5 text-foreground-subtle">
-        {errorSummary}
+      <div className="mt-3 rounded-lg border border-border bg-background p-3 font-mono text-ui-base leading-5 text-foreground-subtle">
+        <div className="font-semibold text-destructive">
+          {error.name ? `${error.name}: ` : ""}{errorSummary}
+        </div>
+        <div className="mt-1 text-xs text-foreground-subtle">
+          Version: {ZCODE_VERSION} ({ZCODE_COMMIT}) · {ZCODE_BUILD_TIME}
+        </div>
       </div>
       <div className="mt-4 flex flex-wrap gap-2">
         <Button type="button" size="sm" onClick={onReset}>
@@ -248,18 +411,34 @@ function ScopedErrorFallback({
           <RefreshCw />
           {formatBoundaryMessage("appError.reload")}
         </Button>
+        <CopyCrashReportButton reportText={reportText} size="sm" />
       </div>
       <p className="mt-3 text-ui-base leading-5 text-foreground-subtle">
         {formatBoundaryMessage("appError.sectionHint")}
       </p>
-      {showDetails && componentStack ? (
+      {showDetails && (componentStack || error.stack) ? (
         <details className="mt-3 rounded-lg border border-border bg-background px-3 py-2">
           <summary className="cursor-pointer text-ui-base font-medium text-foreground-subtle">
             {formatBoundaryMessage("appError.details")}
           </summary>
-          <pre className="mt-2 max-h-[32vh] overflow-auto whitespace-pre-wrap break-words text-ui-base leading-5 text-foreground-subtle">
-            {componentStack.trim()}
-          </pre>
+          <div className="mt-2 space-y-3">
+            {error.stack ? (
+              <div>
+                <div className="text-xs font-semibold text-foreground-subtle">Error Stack:</div>
+                <pre className="mt-1 max-h-[25vh] overflow-auto whitespace-pre-wrap break-words font-mono text-xs text-foreground-subtle">
+                  {error.stack.trim()}
+                </pre>
+              </div>
+            ) : null}
+            {componentStack ? (
+              <div>
+                <div className="text-xs font-semibold text-foreground-subtle">Component Stack:</div>
+                <pre className="mt-1 max-h-[25vh] overflow-auto whitespace-pre-wrap break-words font-mono text-xs text-foreground-subtle">
+                  {componentStack.trim()}
+                </pre>
+              </div>
+            ) : null}
+          </div>
         </details>
       ) : null}
     </>
@@ -314,11 +493,17 @@ export class AppErrorBoundary extends Component<AppErrorBoundaryProps, AppErrorB
 
   override componentDidCatch(error: unknown, errorInfo: ErrorInfo) {
     const normalizedError = normalizeError(error);
+    const serialized = serializeErrorForLog(normalizedError);
     logger.error(
       "[AppErrorBoundary] React subtree crashed:",
       // Error 对象跨 preload 日志 bridge 序列化后会变成 {}，
       // 导致 Maximum update depth 等关键 message 丢失。这里显式展开可诊断字段。
-      serializeErrorForLog(normalizedError),
+      serialized,
+      errorInfo.componentStack,
+    );
+    logger.lifecycle.error(
+      "[AppErrorBoundary] React subtree crashed:",
+      serialized,
       errorInfo.componentStack,
     );
     this.props.onCaughtReactError?.(normalizedError, errorInfo);
@@ -388,11 +573,17 @@ export class ScopedErrorBoundary extends Component<
 
   override componentDidCatch(error: unknown, errorInfo: ErrorInfo) {
     const normalizedError = normalizeError(error);
+    const serialized = serializeErrorForLog(normalizedError);
     logger.error(
       `[ScopedErrorBoundary:${this.props.scope}] React subtree crashed:`,
       // Error 对象跨 preload 日志 bridge 序列化后会变成 {}，
       // 局部边界需要保留 message/stack 才能定位 UI 更新循环。
-      serializeErrorForLog(normalizedError),
+      serialized,
+      errorInfo.componentStack,
+    );
+    logger.lifecycle.error(
+      `[ScopedErrorBoundary:${this.props.scope}] React subtree crashed:`,
+      serialized,
       errorInfo.componentStack,
     );
     this.props.onCaughtReactError?.(normalizedError, errorInfo, this.props.scope);
@@ -445,6 +636,7 @@ export class ScopedErrorBoundary extends Component<
         onReload={this.handleReload}
         variant={this.props.variant}
         className={this.props.className}
+        scope={this.props.scope}
       />
     );
   }

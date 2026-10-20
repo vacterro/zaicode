@@ -183,6 +183,7 @@ export function useWorkspaceSessionsIndexItems(
       for (const summary of store.getSessions()) {
         metas.push(
           mapSessionSummaryToTaskMeta(summary, {
+            livenessReceivedAt: store.getLivenessReceivedAt(summary.sessionId),
             workspacePath: scope.workspacePath,
             ...(scope.workspaceIdentity ? { workspaceIdentity: scope.workspaceIdentity } : {}),
             previous: previousByKey.get(buildSummaryIdentityKey(scope, summary.sessionId)),

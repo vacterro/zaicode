@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { PlanState } from "@zcode/shared/zcode-protocol-v4";
-import { zaicodeLayerClass, type ZaicodeJob } from "@zcode/shared";
+import { zaicodeLayerClass, zaicodeTooltipPreferredSide, type ZaicodeJob } from "@zcode/shared";
 import { cn } from "@/components/lib/utils.js";
 import { toggleZaicodeTodoDock } from "./ZaicodeTodoDock.js";
 import { useZaicodeSaipen } from "@/zaicode/zaicodeSaipen.js";
@@ -21,6 +21,8 @@ interface HoverState {
   /** SRC-161:REQ-003: the cell itself, so the card re-reads it and closes on detach. */
   el: HTMLElement;
   rect: DOMRect;
+  /** REQ-001: opening side with the most room, so the card hugs this cell. */
+  side: "top" | "bottom";
 }
 
 /**
@@ -46,13 +48,15 @@ export function ZaicodeTodoCells({
         {items.map((item, index) => (
           <li
             key={index}
-            onMouseEnter={(event) =>
+            onMouseEnter={(event) => {
+              const rect = event.currentTarget.getBoundingClientRect();
               setHover({
                 index,
                 el: event.currentTarget,
-                rect: event.currentTarget.getBoundingClientRect(),
-              })
-            }
+                rect,
+                side: zaicodeTooltipPreferredSide(rect.top, rect.bottom, window.innerHeight),
+              });
+            }}
             className={cn(
               "min-w-0 flex-1 border",
               ZAICODE_TODO_CELL_CLASS[item.status],
@@ -69,7 +73,7 @@ export function ZaicodeTodoCells({
             anchor={hover.rect}
             anchorEl={hover.el}
             width={Math.min(320, Math.max(160, hover.rect.width))}
-            side="top"
+            side={hover.side}
             ariaLabel={`Todo ${hover.index + 1} of ${items.length}`}
             className="px-2 py-1.5"
           >

@@ -8,6 +8,7 @@ import {
   type ZaicodeRouterCall,
   type ZaicodeRouterResponse,
 } from "@zcode/shared";
+import { callZaicodeRouterWithRecovery } from "./zaicodeRouterRecovery.js";
 
 /**
  * ZAICODE Router transport (no Electron): the 9router CLI credential and one
@@ -87,6 +88,11 @@ export async function callZaicodeRouterInternal(call: ZaicodeRouterCall): Promis
 
 /** Explicit target for isolated fallback provisioning; never changes preferred management state. */
 export async function callZaicodeRouterAt(call: ZaicodeRouterCall, route: { url: string; dataDir: string }): Promise<ZaicodeRouterResponse> {
+  const admittedTarget = { ...route };
+  return callZaicodeRouterWithRecovery(call, admittedTarget, (request) => requestZaicodeRouterAt(request, admittedTarget));
+}
+
+async function requestZaicodeRouterAt(call: ZaicodeRouterCall, route: { url: string; dataDir: string }): Promise<ZaicodeRouterResponse> {
   let token: string | null = null;
   try {
     const { readFile } = await import("node:fs/promises");

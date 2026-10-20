@@ -56,18 +56,24 @@ test("stage and steps say where the audit is, with each wave's time", () => {
   assert.equal(zaicodeAuditStage(campaign({ status: "planned", startedAt: null })).label, "Planned, not started");
   assert.equal(zaicodeAuditStage(campaign({ status: "blocked" })).label, "Stopped at wave 2 of 3 · AUDIT SECOND WAVE");
   // T-133: a wave whose job waits in the queue (a switched-off project, a full queue) is not "Running".
-  const live = { jobId: "j2", sessionId: null, startedAt: null, heartbeatAt: null, attempt: 0, agentName: "Auditor", model: null };
+  const live = { jobId: "j2", sessionId: null, startedAt: null, heartbeatAt: null, lastActivityAt: null, attempt: 0, agentName: "Auditor", model: null };
   assert.equal(zaicodeAuditStage(campaign({ live: { ...live, status: "queued" } })).label, "Queued wave 2 of 3 · AUDIT SECOND WAVE");
   assert.equal(zaicodeAuditStage(campaign({ live: { ...live, status: "running", startedAt: T0 } })).label, "Running wave 2 of 3 · AUDIT SECOND WAVE");
   // A stopped audit's clock stops at its last finished wave.
   assert.equal(zaicodeAuditTotalMs(campaign({ status: "blocked" }), now + 3_600_000), 6 * 60_000);
 });
 
-test("the idle watchdog reads the running job's last sign of life", () => {
-  const live = { jobId: "j2", status: "running", sessionId: "s", startedAt: T0, heartbeatAt: T0, attempt: 1, agentName: "Auditor", model: "zai / glm-4.6" };
+test("the idle watchdog reads the running wave's own last sign of life", () => {
+  // T-398: `lastActivityAt`, not `heartbeatAt` -- the latter is the host lease.
+  const live = { jobId: "j2", status: "running", sessionId: "s", startedAt: T0, heartbeatAt: T0, lastActivityAt: T0, attempt: 1, agentName: "Auditor", model: "zai / glm-4.6" };
   assert.deepEqual(zaicodeAuditIdle(campaign({ live }), T0 + 30_000), { idleMs: 30_000, level: "ok" });
   assert.equal(zaicodeAuditIdle(campaign({ live }), T0 + 4 * 60_000)!.level, "quiet");
   assert.equal(zaicodeAuditIdle(campaign({ live }), T0 + 11 * 60_000)!.level, "stalled");
+  assert.deepEqual(
+    zaicodeAuditIdle(campaign({ live: { ...live, lastActivityAt: null } }), T0 + 30_000),
+    { idleMs: null, level: "unknown" },
+    "no wave activity is reported as unknown, not as a fresh host lease",
+  );
   assert.equal(zaicodeAuditIdle(campaign({ live: null }), T0), null);
   assert.equal(zaicodeAuditIdle(campaign({ status: "blocked", live }), T0), null);
 });

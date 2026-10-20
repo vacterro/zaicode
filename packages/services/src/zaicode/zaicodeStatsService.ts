@@ -1,20 +1,24 @@
 import {
   assembleZaicodeHomeStats,
+  sumZaicodeStatsBuckets,
   type ZaicodeHomeStats,
   type ZaicodeHomeStatsRequest,
   type ZaicodeStatsActivity,
   type ZaicodeStatsSourceState,
+  type ZaicodeStatsTotals,
   type ZaicodeStatsWorkerSession,
+  type ZaicodeRouterUsageScopeRequest,
+  type ZaicodeRouterScopedUsage,
 } from "@zcode/shared";
 import type { IZaicodeStatsService } from "./zaicodeStats.js";
 import { ZAICODE_STATS_CLEARED_CURSOR, type ZaicodeStatsRepo } from "./zaicodeStatsRepo.js";
 import {
-  ZAICODE_STATS_OVERLAP_MS,
   readZaicodeAgentDb,
   resolveZaicodeAgentDbPath,
   zaicodeJobStatsEvent,
   zaicodeWorkerStatsEvent,
 } from "./zaicodeStatsSources.js";
+import { ZAICODE_STATS_PAGE_SIZE } from "./zaicodeStatsScan.js";
 
 /** Sources are read at most this often (SAIHOME asks on open and every minute). */
 const INGEST_EVERY_MS = 20_000;
@@ -45,6 +49,12 @@ export class ZaicodeStatsService implements IZaicodeStatsService {
   private lastIngestAt = 0;
   private ingesting: Promise<void> | null = null;
   private readonly memory = new Map<"agent-db" | "queue" | "workers", SourceMemory>();
+  private cachedStats: {
+    eventCount: number;
+    lastRecordedAt: number | null;
+    buckets: ReturnType<ZaicodeStatsRepo["buckets"]>;
+    breakdown: ReturnType<ZaicodeStatsRepo["breakdown"]>;
+  } | null = null;
 
   constructor(private readonly deps: ZaicodeStatsServiceDeps) {}
 
@@ -63,11 +73,6 @@ export class ZaicodeStatsService implements IZaicodeStatsService {
     });
   }
 
-  private floor(source: string): number {
-    const { repo } = this.deps;
-    return Math.max(repo.getCursor(source), repo.getCursor(ZAICODE_STATS_CLEARED_CURSOR));
-  }
-
   /** Reads every source once (serialised; concurrent callers share the same pass). */
   async ingest(force = false): Promise<void> {
     if (this.ingesting) return this.ingesting;
@@ -84,25 +89,30 @@ export class ZaicodeStatsService implements IZaicodeStatsService {
     const now = this.now();
     this.lastIngestAt = now;
 
-    const agentFloor = this.floor("agent-db");
     const agentPath = this.deps.agentDbPath?.() ?? resolveZaicodeAgentDbPath();
-    const agent = readZaicodeAgentDb(agentPath, Math.max(0, agentFloor - ZAICODE_STATS_OVERLAP_MS));
-    if (agent.state === "fresh") {
-      const cleared = repo.getCursor(ZAICODE_STATS_CLEARED_CURSOR);
-      repo.insertEvents(agent.rows.filter((row) => row.at >= cleared), now);
-      repo.setCursor("agent-db", Math.max(agentFloor, agent.cursor), now);
+    try {
+      const agent = readZaicodeAgentDb(agentPath, { model: repo.scan("agent-model"), turn: repo.scan("agent-turn") });
+      let accepted = agent.state === "fresh";
+      if (accepted) {
+        for (const page of agent.pages) accepted = repo.commitScan(page, now) && accepted;
+      }
+      this.remember("agent-db", accepted, accepted ? agent.detail : agent.state === "fresh" ? "scan changed during read; retry pending" : agent.detail);
+    } catch (error) {
+      this.deps.logger?.warn("ZAICODE stats: agent ingestion failed", error);
+      this.remember("agent-db", false, error instanceof Error ? error.message : String(error));
     }
-    this.remember("agent-db", agent.state === "fresh", agent.detail);
 
     try {
-      const jobFloor = this.floor("queue");
-      const jobs = repo.finishedJobsSince(Math.max(0, jobFloor - ZAICODE_STATS_OVERLAP_MS));
+      const scan = repo.scan("queue");
+      const { rows: jobs, until } = repo.finishedJobsPage(scan);
       const rows = jobs.map(zaicodeJobStatsEvent).filter((row) => row !== null);
-      const cleared = repo.getCursor(ZAICODE_STATS_CLEARED_CURSOR);
-      repo.insertEvents(rows.filter((row) => row.at >= cleared), now);
-      const last = rows.reduce((max, row) => Math.max(max, row.at), jobFloor);
-      repo.setCursor("queue", last, now);
-      this.remember("queue", true, `${rows.length} finished run(s) read`);
+      const last = jobs.at(-1);
+      // 事件与下一页凭据在同一写事务提交；失败或 Clear 不能花掉尚未落库的页。
+      const complete = jobs.length < ZAICODE_STATS_PAGE_SIZE;
+      const accepted = repo.commitScan({ scan, until, rows, complete,
+        at: last ? Number(last.finished_at) : scan.at,
+        id: last ? String(last.job_id) : scan.id, key: "" }, now);
+      this.remember("queue", accepted, accepted ? `${rows.length} finished run(s) read${complete ? "" : "; scan in progress"}` : "scan changed during read; retry pending");
     } catch (error) {
       this.deps.logger?.warn("ZAICODE stats: queue read failed", error);
       this.remember("queue", false, error instanceof Error ? error.message : String(error));
@@ -133,9 +143,21 @@ export class ZaicodeStatsService implements IZaicodeStatsService {
     const { repo } = this.deps;
     await repo.ensureReady();
     const meta = repo.meta();
+    if (
+      !this.cachedStats ||
+      this.cachedStats.eventCount !== meta.eventCount ||
+      this.cachedStats.lastRecordedAt !== meta.lastRecordedAt
+    ) {
+      this.cachedStats = {
+        eventCount: meta.eventCount,
+        lastRecordedAt: meta.lastRecordedAt,
+        buckets: repo.buckets(),
+        breakdown: repo.breakdown(),
+      };
+    }
     return assembleZaicodeHomeStats({
-      buckets: repo.buckets(),
-      breakdown: repo.breakdown(),
+      buckets: this.cachedStats.buckets,
+      breakdown: this.cachedStats.breakdown,
       request,
       eventCount: meta.eventCount,
       firstEventAt: meta.firstEventAt,
@@ -143,6 +165,39 @@ export class ZaicodeStatsService implements IZaicodeStatsService {
       sources: this.sourceStates(),
       now: request.now ?? this.now(),
     });
+  }
+
+  /**
+   * REQ-012: totals for one recorded slice. Empty slices return a zero row,
+   * never null, so the UI can always render; a zero row means "no recorded
+   * events for this scope", not "usage is zero everywhere".
+   */
+  async getScopeTotals(project?: string | null, sessionId?: string | null): Promise<ZaicodeStatsTotals> {
+    await this.ingest().catch((error: unknown) => this.deps.logger?.warn("ZAICODE stats ingest failed", error));
+    const { repo } = this.deps;
+    await repo.ensureReady();
+    return sumZaicodeStatsBuckets(repo.scopeBuckets(project ?? null, sessionId ?? null));
+  }
+
+  async getRouterUsage(request: ZaicodeRouterUsageScopeRequest): Promise<ZaicodeRouterScopedUsage> {
+    const repo = this.deps.repo;
+    await repo.ensureReady();
+    await this.ingest();
+    return repo.routerUsage(request, this.now());
+  }
+
+  /** REQ-012: recorded scope keys for the usage scope picker. */
+  async getScopeProjects(): Promise<{ project: string; events: number; lastAt: number }[]> {
+    const { repo } = this.deps;
+    await repo.ensureReady();
+    return repo.scopeProjects();
+  }
+
+  /** REQ-012: recorded session keys, optionally inside one project. */
+  async getScopeSessions(project?: string | null): Promise<{ sessionId: string; project: string | null; events: number; lastAt: number }[]> {
+    const { repo } = this.deps;
+    await repo.ensureReady();
+    return repo.scopeSessions(project ?? null);
   }
 
   async getRecentActivity(limit = 12): Promise<ZaicodeStatsActivity[]> {
@@ -180,6 +235,7 @@ export class ZaicodeStatsService implements IZaicodeStatsService {
     const clearedAt = this.now();
     repo.clear(clearedAt);
     this.lastIngestAt = 0;
+    this.cachedStats = null;
     return { clearedAt };
   }
 

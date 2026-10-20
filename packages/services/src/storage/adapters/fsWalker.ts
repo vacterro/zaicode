@@ -99,6 +99,7 @@ export async function walkStorageRoot(
             relativePath: toRelative(rootPath, entryPath),
             bytes: stats.size,
             mtimeMs: stats.mtimeMs,
+            fileIdentity: `${stats.dev}:${stats.ino}:${stats.birthtimeMs}`,
           });
         } catch (error) {
           // 扫描期间文件可能被日志轮转或 Agent 删除；ENOENT 属于正常竞态，不计为错误。

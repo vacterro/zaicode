@@ -20,6 +20,7 @@ import {
   createSessionId,
   createToolCallId,
   createTurnId,
+  isGoalCompletionComplete,
   selectActiveConversationBranch,
   traceContextToLogContext,
 } from "../deps.js";
@@ -99,9 +100,7 @@ function resolveForkModelSelection(
     providerId: identity.providerId,
     ...(reasoningLevel !== undefined
       ? {
-          options: {
-            ...(reasoningLevel !== undefined ? { reasoningLevel } : {}),
-          },
+          options: (reasoningLevel !== undefined ? { reasoningLevel } : {}),
         }
       : {}),
   };
@@ -1359,9 +1358,9 @@ function deriveForkedGoalStatusFromCopiedVerifications(
   const latestCompleted = [...copiedVerificationPayloads]
     .reverse()
     .find((payload) => payload.status === "completed" && payload.verification);
-  if (latestCompleted?.verification?.passed === true) {
-    return "complete";
-  }
+  const verdict = latestCompleted?.verification;
+  // SAIHANDOFF F-01 (Q1): only a COMPLETE verdict closes a fork, not `passed` alone.
+  if (verdict && isGoalCompletionComplete(verdict)) return "complete";
   if (parentStatus === "complete") {
     return "active";
   }

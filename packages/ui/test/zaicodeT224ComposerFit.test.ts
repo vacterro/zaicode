@@ -25,6 +25,7 @@ import { test } from "node:test";
 
 import {
   COMPOSER_FIT_HYSTERESIS_PX,
+  composerRowOverflowPx,
   quantizeFitPx,
   resolveComposerCompactCount,
 } from "@/prompt-editor/composerFitDecision.js";
@@ -265,4 +266,41 @@ test("R002: the hook decides through the hysteresis module and never repaints a 
   assert.match(hookSrc, /quantizeFitPx\(/, "measurements quantize before they decide");
   assert.match(hookSrc, /requestAnimationFrame/, "observer bursts batch per frame");
   assert.match(hookSrc, /cancelAnimationFrame/, "the batch is disposed with the row");
+});
+
+/**
+ * T-303 — the ladder must come back out of compact, not only go in.
+ *
+ * Reported: the composer stayed compact after a wide project was reopened, so the
+ * same session state showed a different toolbar in each project. The release side
+ * of `resolveComposerCompactCount` asks whether the FULL layout fits with
+ * `COMPOSER_FIT_HYSTERESIS_PX` to spare; a measurement clamped at 0 can never
+ * answer that (0 is not <= -8), so the first collapse of a session was permanent.
+ * These cases measure through the real `composerRowOverflowPx`, which is where the
+ * clamp lived — the pure decision below it was already correct.
+ */
+test("T-303: a collapsed rung comes back when the full layout has real slack", () => {
+  // 532px of content: 664px is 132px of room to spare, 536px is 4px (inside the band).
+  const measure = (width: number) =>
+    composerRowOverflowPx({ leadingExtent: 280, trailingExtent: 240, width, gap: 12, sameRow: true });
+  assert.equal(measure(664), -132, "room to spare is reported as negative overflow");
+  const roomy = [measure(664), measure(600)];
+  assert.equal(resolveComposerCompactCount({ rungOverflowsPx: roomy, liveCount: 1 }), 0, "the rung releases");
+  const tight = [measure(536), measure(600)];
+  assert.equal(resolveComposerCompactCount({ rungOverflowsPx: tight, liveCount: 1 }), 1, "inside the band the compact side holds");
+});
+
+test("T-303: the composer toolbar has exactly one alignment owner", () => {
+  const css = readFileSync(join(import.meta.dirname, "../src/styles.css"), "utf8");
+  const rules = [...css.matchAll(/\.zaicode-product \[data-zaicode-composer-toolbar\][^{]*\{([^}]*)\}/g)].map(
+    (match) => match[1],
+  );
+  assert.ok(rules.length >= 2, "the ZAICODE toolbar packing rules exist");
+  for (const body of rules) {
+    assert.ok(!/margin-left\s*:\s*auto/.test(body), `no packing rule re-claims the auto margin: "${body.trim()}"`);
+    assert.ok(!/justify-content\s*:\s*flex-end/.test(body), `no packing rule re-claims flex-end: "${body.trim()}"`);
+  }
+  const editor = readFileSync(join(import.meta.dirname, "../src/prompt-editor/ChatPromptEditor.tsx"), "utf8");
+  assert.match(editor, /data-composer-trailing-actions/, "the component still owns the trailing cluster");
+  assert.match(editor, /ml-auto/, "the component claims the right edge");
 });

@@ -382,6 +382,10 @@ export function handleDesktopWindowCloseRequest(options: {
   requestQuit: () => void;
   hideWindow?: () => void;
 }) {
+  if (options.forceQuit) {
+    return false;
+  }
+
   if (options.platform === "win32" && options.shiftCloseRequested) {
     options.logger.info(`[createWindow] Shift+close requested app quit (${options.label})`);
     options.requestQuit();
@@ -391,7 +395,6 @@ export function handleDesktopWindowCloseRequest(options: {
   if (
     options.platform === "win32" &&
     options.closeToTrayOnWindows &&
-    !options.forceQuit &&
     !options.explicitQuitRequested
   ) {
     options.logger.info(`[createWindow] window close hidden to tray (${options.label})`);
@@ -399,7 +402,7 @@ export function handleDesktopWindowCloseRequest(options: {
     return true;
   }
 
-  if (options.platform === "darwin" || options.forceQuit || !options.isLastWindow) {
+  if (options.platform === "darwin" || !options.isLastWindow) {
     return false;
   }
 

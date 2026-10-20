@@ -352,7 +352,7 @@ test("T-254: v8 upgrade preserves released checksums and existing rows; reopenin
     assert.equal((await repo.getHomeOverview(params)).jobs[0]?.id, "existing");
     repo.close();
     await repo.ensureReady();
-    assert.equal(db.prepare("SELECT COUNT(*) AS n FROM tasks_schema_migration").get()?.n, 9);
+    assert.equal(db.prepare("SELECT COUNT(*) AS n FROM tasks_schema_migration WHERE id<='0009_zaicode_home_query'").get()?.n, 9);
     assert.equal((await repo.get("existing"))?.id, "existing");
   });
 });

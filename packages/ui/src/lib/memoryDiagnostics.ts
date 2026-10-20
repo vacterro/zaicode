@@ -80,9 +80,7 @@ let lastLoopLagMs: number | undefined;
  * 1-2 FPS the operator actually sees. It is kept out of `sampleNow`'s synchronous path
  * because a blocking measurement must not become part of the sample it measures.
  */
-uiMemoryDiagnosticsRegistry.register("eventLoop", () => ({
-  ...(lastLoopLagMs === undefined ? {} : { lagMs: Math.round(lastLoopLagMs * 100) / 100 }),
-}));
+uiMemoryDiagnosticsRegistry.register("eventLoop", (): Record<string, number> => (lastLoopLagMs === undefined ? {} : { lagMs: Math.round(lastLoopLagMs * 100) / 100 }));
 
 /** Latest measured event-loop lag in ms, or undefined before the first probe resolves. */
 export function readEventLoopLagMs(): number | undefined {

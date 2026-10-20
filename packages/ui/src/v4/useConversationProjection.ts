@@ -7,6 +7,7 @@ const CLOSED_STATE: ConversationStoreState = {
   snapshot: null,
   subscriptionId: null,
   lastError: null,
+  projectionVerified: false,
   optimisticCommands: [],
   loadingOlder: false,
   sessionPlans: [],

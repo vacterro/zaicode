@@ -99,6 +99,7 @@ export function TerminalSession({
   workspaceKey,
   initialInput,
   externalizable = false,
+  suppressDynamicColorQueries = false,
   fontFamilyOverride,
   fontSizeOverride,
 }: {
@@ -131,6 +132,8 @@ export function TerminalSession({
    */
   initialInput?: string;
   externalizable?: boolean;
+  /** Windows Codex workers use the CLI's unsupported default-color probe fallback. */
+  suppressDynamicColorQueries?: boolean;
   /** ZAICODE workers: their own font (Terminus by default) instead of the terminal profile font. */
   fontFamilyOverride?: string;
   fontSizeOverride?: number;
@@ -460,6 +463,15 @@ export function TerminalSession({
           },
         } satisfies ILinkHandler,
       });
+      if (suppressDynamicColorQueries) {
+        // Windows Codex 的颜色探测有截止时间；渲染/RPC 迟到的 OSC 答复会被当作 Escape，取消首轮任务。
+        // 仅声明默认色查询不受支持，使用 CLI 自带回退；键盘输入、颜色设置及其他 OSC 仍走原路径。
+        for (const id of [10, 11]) {
+          registryDisposers.push(
+            term.parser.registerOscHandler(id, (data) => data.split(";").every((part) => part === "?")),
+          );
+        }
+      }
       termRef.current = term;
 
       const fitAddon = new FitAddon();

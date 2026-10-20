@@ -140,6 +140,8 @@ import type {
 import type { ConversationRowTargetAction } from "./product-projection.js";
 import { SessionsIndexPublisher } from "./sessions-index-publisher.js";
 import { SessionsIndexPublisherRegistry } from "./sessions-index-publisher-registry.js";
+import { EXECUTION_LIVENESS_INTERVAL_MS } from "@zcode/shared";
+import { createExecutionLivenessIndexOwner, type ExecutionLivenessIndexOwner } from "./execution-liveness-index.js";
 import { WorkspaceConfigPublisher } from "./workspace-config-publisher.js";
 import type { TopicFrameReservation } from "./topic-frame-reservation.js";
 import { ConversationTelemetryFactNormalizer } from "./conversation-telemetry-facts.js";
@@ -205,6 +207,8 @@ interface BinaryReadCacheEntry {
 }
 
 export interface V4GatewayHost {
+  /** Current runtime-owned evidence; never activates a missing or cold runtime. */
+  getSessionExecutionLiveness?(sessionId: string, workIds: readonly string[]): Promise<import("@zcode/shared").ExecutionLivenessSnapshot | null>;
   cliVersion?: string;
   /** 会话是否在宿主注册表中活跃（inbox 的 sessionNotFound 裁决依据）。 */
   sessionExists(sessionId: string): boolean;
@@ -619,6 +623,7 @@ export class ConversationV4Gateway {
   private readonly cuaPermissionNormalizer = new CuaPermissionObservationNormalizer();
   private readonly telemetryEventIds = new Set<string>();
   private disposed = false;
+  private readonly executionLiveness: ExecutionLivenessIndexOwner;
 
   /** session entry 状态变更后的轻量 metadata 更新，不重放 conversation event。 */
   updateSharedContextImport(
@@ -638,6 +643,7 @@ export class ConversationV4Gateway {
     options: ConversationV4GatewayOptions = {},
   ) {
     this.now = options.now ?? Date.now;
+    this.executionLiveness = createExecutionLivenessIndexOwner(this.host, this.publishers, (id) => this.publishCurrentSummaryToIndex(id), this.now);
     this.createLogEpoch = options.createLogEpoch ?? defaultLogEpoch;
     this.coldResume = new ColdSessionResumeCoordinator(host);
     this.inbox = new CommandInbox({
@@ -677,8 +683,11 @@ export class ConversationV4Gateway {
       },
     });
     this.attachmentPruneTimer = setInterval(
-      () => this.attachmentUploads.pruneExpired(),
-      Math.min(30_000, PROTOCOL_V4_LIMITS.attachmentUploadTtlMs),
+      () => {
+        this.attachmentUploads.pruneExpired();
+        void this.executionLiveness.refreshActive();
+      },
+      Math.min(EXECUTION_LIVENESS_INTERVAL_MS, PROTOCOL_V4_LIMITS.attachmentUploadTtlMs),
     );
     (
       this.attachmentPruneTimer as ReturnType<typeof setInterval> & { unref?: () => void }
@@ -1075,6 +1084,7 @@ export class ConversationV4Gateway {
   private fanOutToIndex(sessionId: string, event: SessionEvent): void {
     if (event.type === SessionEventType.ModelStreaming) return;
     this.publishCurrentSummaryToIndex(sessionId);
+    void this.executionLiveness.refresh(sessionId);
   }
 
   /**
@@ -1098,26 +1108,12 @@ export class ConversationV4Gateway {
       if (!conversationPublisher) return;
       const changed = indexPublisher.ingestConversation(
         conversationPublisher.getSnapshot(),
-        this.resolveIndexMeta(sessionId),
+        this.executionLiveness.resolveMeta(sessionId),
       );
       if (changed) this.flushIndex(workspaceId);
     } catch (error) {
       this.host.onError?.("v4.sessionsIndex.ingest", error);
     }
-  }
-
-  /** 会话列表元信息（宿主 hook 缺省时的兜底：createdAt=0，lastActivityAt=now）。 */
-  private resolveIndexMeta(sessionId: string): {
-    createdAt: number;
-    lastActivityAt: number;
-    parentSessionId?: string;
-  } {
-    const meta = this.host.getSessionIndexMeta?.(sessionId);
-    return {
-      createdAt: meta?.createdAt ?? 0,
-      lastActivityAt: meta?.lastActivityAt ?? this.now(),
-      ...(meta?.parentSessionId ? { parentSessionId: meta.parentSessionId } : {}),
-    };
   }
 
   /** 把某 workspace index publisher 的未发增量帧推给所有列表订阅者。 */
@@ -1233,9 +1229,10 @@ export class ConversationV4Gateway {
       if (!conversationPublisher) continue;
       // draft（deferred 未发首条）不进冷启动种子，与 fanOutToIndex 的过滤一致。
       if (this.host.isDraftSession?.(sessionId)) continue;
+      await this.executionLiveness.refresh(sessionId);
       publisher.ingestConversation(
         conversationPublisher.getSnapshot(),
-        this.resolveIndexMeta(sessionId),
+        this.executionLiveness.resolveMeta(sessionId),
       );
     }
     this.indexPublishers.set(workspaceId, publisher);
@@ -1621,9 +1618,7 @@ export class ConversationV4Gateway {
       throw new V4CapabilityUnsupportedError("listDynamicWorkflowRuns", params.sessionId);
     }
     await this.ensureHostRecordForJournalRead(params.sessionId);
-    const runs = await this.host.listDynamicWorkflowRuns(params.sessionId, {
-      ...(params.limit === undefined ? {} : { limit: params.limit }),
-    });
+    const runs = await this.host.listDynamicWorkflowRuns(params.sessionId, (params.limit === undefined ? {} : { limit: params.limit }));
     return v4ConversationWorkflowRunsResultSchema.parse({ runs });
   }
 
@@ -2788,6 +2783,7 @@ export class ConversationV4Gateway {
 
   dispose(): void {
     this.disposed = true;
+    this.executionLiveness.dispose();
     this.localTtft.clear();
     for (const sessionId of this.projectionEventCommitWaiters.keys()) {
       this.rejectProjectionEventWaiters(

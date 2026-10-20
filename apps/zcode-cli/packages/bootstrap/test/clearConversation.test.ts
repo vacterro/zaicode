@@ -7,12 +7,13 @@ import { V4CommandExecutor } from "../src/zcode-protocol-v4/commands/executor.js
  * ZAICODE CLEAR (v4 clearConversation) against a fake host: the order of
  * effects is the contract (stop -> goal -> queue -> branch cut -> broadcast).
  */
-function fakeSession(options: { running?: boolean; goal?: boolean; queued?: number; rewind?: "cut" | "empty" | "unavailable" }) {
+function fakeSession(options: { running?: boolean; goal?: boolean; queued?: number; rewind?: "cut" | "empty" | "unavailable"; activeAbortController?: AbortController }) {
   const calls: string[] = [];
   let foreground: string | undefined = options.running ? "exec-1" : undefined;
   let goal = options.goal ? { status: "active" as const } : null;
+  const abortCtrl = options.activeAbortController;
   const record = {
-    activeAbortController: undefined as AbortController | undefined,
+    activeAbortController: abortCtrl,
     traceContext: { traceId: "t", spanId: "s" },
     app: {
       sessionId: "s1",
@@ -48,6 +49,12 @@ function fakeSession(options: { running?: boolean; goal?: boolean; queued?: numb
       },
     },
   };
+  if (abortCtrl) {
+    abortCtrl.signal.addEventListener("abort", () => {
+      calls.push("abort_controller_aborted");
+      record.activeAbortController = undefined;
+    });
+  }
   const host = {
     getRecord: (id: string) => (id === "s1" ? record : undefined),
     afterLegacyStateMutation: async (_record: unknown, reason: string) => {
@@ -64,7 +71,7 @@ function fakeSession(options: { running?: boolean; goal?: boolean; queued?: numb
     issuedAt: 0,
   };
   const executor = new V4CommandExecutor(host as never);
-  return { calls, run: () => executor.execute(envelope as never) };
+  return { calls, record, run: () => executor.execute(envelope as never) };
 }
 
 test("CLEAR on a running goal session: stop, pause, drop goal and queue, cut, broadcast", async () => {
@@ -80,6 +87,15 @@ test("CLEAR on a running goal session: stop, pause, drop goal and queue, cut, br
     "rewind",
     "broadcast:session_rewound",
   ]);
+});
+
+test("CLEAR with activeAbortController aborts controller immediately even when runtime stopped", async () => {
+  const controller = new AbortController();
+  const { calls, run } = fakeSession({ running: true, goal: true, activeAbortController: controller });
+  const result = await run();
+  assert.equal(result, undefined);
+  assert.equal(controller.signal.aborted, true);
+  assert.ok(calls.includes("abort_controller_aborted"));
 });
 
 test("CLEAR on an idle, already empty session is a quiet noop", async () => {
@@ -101,3 +117,4 @@ test("clearConversation is a native v4 command and is refused in selection side 
     /selection_side_chat/,
   );
 });
+

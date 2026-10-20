@@ -15,6 +15,7 @@ import {
   type RuntimeTaskType,
 } from "../../runtime-task/registry.js";
 import type { ExecutableToolCall } from "../types.js";
+import { isSubagentDispatchToolName } from "../compat.js";
 import type { ToolExecutorDeps } from "./types.js";
 import { isRecord } from "./utils.js";
 import { backgroundTaskOutputMetadata } from "./background-task-output.js";
@@ -91,7 +92,8 @@ export function registerRuntimeBackgroundTask(
     outputFile: outputFile ?? existing?.outputFile,
     parentToolCallId: existing?.parentToolCallId ?? toolCall.id,
     startedAt: existing?.startedAt ?? new Date(),
-    status: "running",
+    // 同一 Bash/Agent 生命周期的迟到 tracker 不能复活已经完成的任务。
+    status: existing && !newLife && isTerminalRuntimeTask(existing) ? existing.status : "running",
     taskId,
     taskType,
     type: taskType,
@@ -121,14 +123,19 @@ export function updateRuntimeBackgroundTask(
   taskId: string,
   status: string,
   snapshot?: BackgroundTaskSnapshot,
-): void {
-  const taskType = runtimeTaskTypeForToolCall(toolCall);
-  if (!taskType || !deps.runtimeTaskRegistry) return;
-  deps.runtimeTaskRegistry.update(taskId, (current) => ({
-    ...(isTerminalRuntimeTask(current)
-      ? current
-      : {
+  trackingId?: string,
+): boolean {
+  // Agent 的登记和通知归 subagent owner；tracker 只补真实观察，不另抢通知所有权。
+  const taskType = runtimeTaskTypeForToolCall(toolCall) ??
+    (isSubagentDispatchToolName(toolCall.name) ? "local_agent" : undefined);
+  if (!taskType || !deps.runtimeTaskRegistry) return true;
+  let accepted = false;
+  deps.runtimeTaskRegistry.update(taskId, (current) => {
+    if (isTerminalRuntimeTask(current) || (trackingId !== undefined && current.livenessTrackingId !== trackingId)) return current;
+    accepted = true;
+    return {
           ...current,
+          lastConfirmedAt: Date.now(),
           completedAt: runtimeTaskCompletedAt(status, snapshot) ?? current.completedAt,
           description:
             runtimeTaskDescription(toolCall, undefined, snapshot) ?? current.description,
@@ -143,8 +150,9 @@ export function updateRuntimeBackgroundTask(
           status: normalizeRuntimeTaskStatus(status),
           taskType,
           type: taskType,
-        }),
-  }));
+    };
+  });
+  return accepted;
 }
 
 /**

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { MessageCirclePlus, RefreshCw, Settings2 } from "lucide-react";
 import { cn } from "@/components/lib/utils.js";
+import { Checkbox } from "@/components/ui/checkbox.js";
 import { openZaicodeSettings } from "../zaicodeActions.js";
 import { decideZaicodeAutostartJob, useZaicodeAutostartJobs } from "../zaicodeAutostart.js";
 import { useZaicodeEngines } from "../zaicodeEngines.js";
@@ -104,11 +105,10 @@ function LayoutEditor({ entries, onChange, onDone }: { entries: ZaicodeHomeWidge
           const def = ZAICODE_HOME_WIDGETS.find((widget) => widget.id === entry.id)!;
           return (
             <div key={entry.id} className="flex items-center gap-1 border border-border/70 bg-background px-1 py-0.5" title={def.hint}>
-              <input
-                type="checkbox"
+              <Checkbox
                 aria-label={`Show ${def.label}`}
                 checked={entry.visible}
-                onChange={(event) => onChange(entries.map((current) => (current.id === entry.id ? { ...current, visible: event.target.checked } : current)))}
+                onCheckedChange={(val) => onChange(entries.map((current) => (current.id === entry.id ? { ...current, visible: Boolean(val) } : current)))}
               />
               <span className={cn("min-w-0 flex-1 truncate", entry.visible ? "text-foreground" : "text-foreground-subtlest")}>{def.label}</span>
               <select

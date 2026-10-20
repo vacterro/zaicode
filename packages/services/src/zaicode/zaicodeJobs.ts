@@ -69,6 +69,11 @@ export interface IZaicodeJobService {
   reconcileStaleRuns(): Promise<number>;
   getMaxConcurrency(): Promise<number>;
   setMaxConcurrency(value: number): Promise<number>;
+  /** Global worker capacity across all workspaces (default 4, max 16). */
+  getGlobalConcurrency(): Promise<number>;
+  setGlobalConcurrency(limit: number): Promise<number>;
+  /** Fairly dispatch eligible jobs across workspaces up to global capacity. */
+  pumpAll(): Promise<ZaicodeJob[]>;
   /** 自动驾驶：开启时入队/完成/恢复后自动派发（默认开启）。 */
   getAutoRun(): Promise<boolean>;
   setAutoRun(enabled: boolean): Promise<boolean>;
@@ -88,6 +93,12 @@ export interface IZaicodeJobService {
   /** Projects switched off by the operator (Shift+Click): automatic dispatch skips them. */
   getDisabledWorkspaces(): Promise<string[]>;
   setWorkspaceDisabled(workspaceKey: string, disabled: boolean): Promise<string[]>;
+  /** Register a custom dispatch filter/fence (e.g. batch pause/capacity fence). */
+  setDispatchFilter?(filter: ((job: ZaicodeJob) => boolean | Promise<boolean>) | null): void;
+  /** Register a batch capacity resolver to enforce batch worker capacity during atomic dispatch claim. */
+  setBatchCapacityResolver?(
+    resolver: ((batchId: string) => Promise<number | null | undefined> | number | null | undefined) | null,
+  ): void;
 }
 
 export const IZaicodeJobService = createServiceDescriptor<IZaicodeJobService>(

@@ -13,7 +13,7 @@ import {
   type ZaicodeArchiveBatch,
 } from "@/zaicode/zaicodeArchiveUndo.js";
 import { ZaicodeWorkingIcon } from "@/zaicode/ZaicodeWorkingIcon.js";
-import { useZaicodePresenceProject, zaicodePresenceOverridesWorking } from "@/zaicode/zaicodeConnectionPresence.js";
+import { useZaicodePresenceProject, zaicodePresenceIndicator, zaicodePresenceOverridesWorking, type ZaicodePresence } from "@/zaicode/zaicodeConnectionPresence.js";
 import { ZaicodeTestsIndicator } from "@/zaicode/ZaicodeTestsIndicator.js";
 import { ZaicodeProjectMainGlyph } from "@/zaicode/ZaicodeProjectMainGlyph.js";
 import { ZaicodeTodoMiniGauge } from "@/v4/ZaicodeTodoGauge.js";
@@ -26,6 +26,8 @@ import { decideZaicodeMainToggle, decideZaicodeProjectClick } from "@/zaicode/za
 import { zaicodeProjectDoneMark } from "@/zaicode/zaicodeProjectDone.js";
 import { zaicodeSessionIsEmptyChat } from "@/zaicode/zaicodeSessionState.js";
 import { ZaicodeProjectDoneBadge } from "@/zaicode/ZaicodeProjectDoneBadge.js";
+import { ZaicodeDriftProjectTotals } from "@/zaicode/ZaicodeDriftMarker.js";
+import { useDriftCaptureStore } from "@/zaicode/zaicodeDriftCaptureStore.js";
 import { openZaicodeWorkspaceView } from "@/zaicode/zaicodeActions.js";
 import { useZaicodeWorkspaceTab } from "@/zaicode/zaicodeScheduler.js";
 import { buildTaskWorkspaceKey } from "@/lib/taskQueryCache.js";
@@ -64,7 +66,6 @@ import {
 import { ChevronRight, FolderInput, Pin } from "lucide-react";
 import { ZaicodeProjectMoveMenu, ZaicodeProjectPinButton } from "@/zaicode/ZaicodeProjectFolderParts.js";
 import {
-  ZAICODE_UNFILED,
   folderOfProject,
   isPinned as isProjectPinned,
   resolveProjectId,
@@ -84,6 +85,7 @@ import {
   Archive,
   CheckIcon,
   CircleAlert,
+  Clock,
   Cloud,
   CopyIcon,
   Ellipsis,
@@ -141,6 +143,9 @@ import {
   formatRemoteWorkspaceDisplayLabel,
 } from "@/lib/remoteWorkspaceHistory.js";
 import { TaskList } from "@/TaskList.js";
+import { recordSessionClick } from "@/lib/sessionOpenArmsTelemetry.js";
+import { adaptivePrefetchCoordinator } from "@/v4/adaptivePrefetchCoordinator.js";
+import { useOptionalV4Conversation } from "@/v4/V4ConversationContext.js";
 import { selectWorkspaceZCodeState, useZCodeSessionStore } from "@/store/zcodeSessionStore.js";
 import type { WorkspaceTabState } from "@/store/tabStore.js";
 import type { RemoteConnectionLogEntry } from "@/hooks/useRemoteConnectionLogs.js";
@@ -199,6 +204,7 @@ import {
   zaicodeSessionBriefOf,
 } from "@/zaicode/zaicodeContinue.js";
 import { createZaicodeContinueHandle } from "@/zaicode/zaicodeContinueHost.js";
+import { ZaicodeAuditProgressChip } from "@/zaicode/ZaicodeAuditProgressChip.js";
 import { useZaicodeAuditStore, zaicodeAuditProgressFor } from "@/zaicode/zaicodeAuditStore.js";
 
 export type SortableBindings = Pick<ReturnType<typeof useSortable>, "attributes" | "listeners">;
@@ -210,6 +216,41 @@ const EMPTY_PINNED_TASKS: ZCodeTaskMeta[] = [];
 function isHomeWorkspacePath(path: string): boolean {
   const normalizedPath = path.replace(/\\/g, "/").replace(/\/+$/, "");
   return /^(\/Users\/[^/]+|\/home\/[^/]+|[A-Za-z]:\/Users\/[^/]+)$/.test(normalizedPath);
+}
+
+/**
+ * T-298: the project-row zone is fixed-width and the project name is the
+ * highest-priority text in the row. An exceptional presence (Retries stopped,
+ * reconnecting, ...) therefore draws its compact glyph plus at most a very
+ * short readout here; the full label and detail stay on the row's title and on
+ * this element's accessible name, so nothing about the state is lost.
+ */
+function ZaicodeRowPresenceIndicator({ presence }: { presence: ZaicodePresence }) {
+  const indicator = zaicodePresenceIndicator(presence);
+  const glyph =
+    indicator.glyph === "refresh" ? (
+      <RefreshCwIcon className="size-3" aria-hidden="true" />
+    ) : indicator.glyph === "cloud" ? (
+      <Cloud className="size-3" aria-hidden="true" />
+    ) : indicator.glyph === "halt" ? (
+      <Power className="size-3" aria-hidden="true" />
+    ) : indicator.glyph === "clock" ? (
+      <Clock className="size-3" aria-hidden="true" />
+    ) : indicator.glyph === "alert" ? (
+      <CircleAlert className="size-3" aria-hidden="true" />
+    ) : null;
+  if (!glyph) return null;
+  return (
+    <span
+      role="img"
+      aria-label={presence.label ?? "Connection state"}
+      className="flex items-center gap-0.5"
+      data-zaicode-presence-indicator={presence.kind}
+    >
+      {glyph}
+      {indicator.short ? <span className="text-[10px] leading-3">{indicator.short}</span> : null}
+    </span>
+  );
 }
 
 type SshRemoteTarget = Extract<NonNullable<WorkspaceTabState["remoteTarget"]>, { kind: "ssh" }>;
@@ -371,6 +412,7 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
   const [remoteSkillSyncOpen, setRemoteSkillSyncOpen] = useState(false);
   const [remoteMcpSyncOpen, setRemoteMcpSyncOpen] = useState(false);
   const [remotePluginSyncOpen, setRemotePluginSyncOpen] = useState(false);
+  const v4Conversation = useOptionalV4Conversation();
   const [workspaceRowHovered, setWorkspaceRowHovered] = useState(false);
   const [workspaceRowFocusWithin, setWorkspaceRowFocusWithin] = useState(false);
   const [workspaceActionMenuOpen, setWorkspaceActionMenuOpen] = useState(false);
@@ -439,6 +481,7 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
 
   const handleSelectTask = useCallback(
     (taskId: string) => {
+      recordSessionClick(taskId);
       // 性能优化：上层 handleSelectTask 已经会按 workspacePath 激活 tab。
       // 这里重复 activate 会额外触发一轮 tab store 更新，把整列 workspace 行都带着重渲染一次。
       onSelectTask(tab.workspacePath, taskId, tab.workspaceIdentity);
@@ -478,7 +521,7 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
   const startFreshSaipen = useCallback(() => {
     // START 的新会话就是本项目的 MAIN（铁槽位）。
     armZaicodeMain(zaicodeMainKey);
-    queueZaicodeCommand(tab.workspacePath, ZAICODE_SAIPEN_START_COMMAND);
+    queueZaicodeCommand(tab.workspacePath, ZAICODE_SAIPEN_START_COMMAND, { workspaceIdentity: tab.workspaceIdentity });
     onStartDraftInWorkspace(tab.workspacePath, tab.workspaceIdentity);
   }, [
     armZaicodeMain,
@@ -532,12 +575,14 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
       return;
     }
     if (decision.action === "open") {
+      recordSessionClick(decision.sessionId);
       onSelectTask(tab.workspacePath, decision.sessionId, tab.workspaceIdentity);
       toast(`START: ${decision.why}.`);
       startSaipenPending.current = false;
       return;
     }
     playZaicodeSound("ui.toggle");
+    recordSessionClick(decision.sessionId);
     onSelectTask(tab.workspacePath, decision.sessionId, tab.workspaceIdentity);
     const handle = createZaicodeContinueHandle({
       workspacePath: tab.workspacePath,
@@ -889,6 +934,8 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
   // Settings -> Sidebar (SRC-049): when session rows are listed at all - every
   // helper, only the ones working, or working + waiting for the operator.
   const zaicodeSessionsCondition = useZaicodeSidebarPrefs((state) => state.sessionsCondition);
+  // T-288 (SRC-201): the A3 audit marks on the row are the operator's to show or hide.
+  const zaicodeShowAuditMarks = useZaicodeSidebarPrefs((state) => state.showAuditMarks);
   const zaicodeListedTasks = useMemo(() => {
     if (!isZaicodeProductMode() || zaicodeSessionsCondition === "always") return zaicodeChildTasks;
     return zaicodeChildTasks.filter((task) => {
@@ -898,6 +945,16 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
       return active || getTaskListAttention(task) !== null;
     });
   }, [zaicodeChildTasks, zaicodeSessionsCondition, zaicodeMainSessionId]);
+  useEffect(() => {
+    if (!v4Conversation?.layer || !isActiveWorkspace || !activeTaskId || zaicodeListedTasks.length === 0) {
+      return;
+    }
+    adaptivePrefetchCoordinator.scheduleAdjacentAndDonePrefetch({
+      layer: v4Conversation.layer,
+      activeSessionId: activeTaskId,
+      sessionIds: zaicodeListedTasks.map((t) => t.taskId),
+    });
+  }, [activeTaskId, isActiveWorkspace, v4Conversation?.layer, zaicodeListedTasks]);
   zaicodeOpenMainRef.current = () => {
     // 项目标题始终导航，独立箭头才折叠；避免重复点击看似无动作。
     if (!isZaicodeProductMode()) return false;
@@ -914,6 +971,7 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
       // The row's own voice: the orchestra would call this click "expand" (the trigger's
       // aria-expanded), though nothing unfolds. A direct sound also claims the navigation echo.
       playZaicodeSound("sidebar.project");
+      recordSessionClick(decision.sessionId);
       onSelectTask(tab.workspacePath, decision.sessionId, tab.workspaceIdentity);
     }
     else if (decision.action === "draft") {
@@ -1122,6 +1180,11 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
         if (tab.workspaceIdentity) {
           useRemoteTimelineTaskStore.getState().upsertTask(meta);
         }
+        // The session is active again, so its live marker comes back. The
+        // archive was never touched by the retirement.
+        useDriftCaptureStore
+          .getState()
+          .restoreMarker(task.taskId, tab.workspacePath, tab.workspaceIdentity);
       }
     },
     [tab.workspaceIdentity, tab.workspacePath, upsertOptimisticTaskListItem, zcodeTaskService],
@@ -1149,6 +1212,11 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
         previousState: { pinned: false, archived: false },
         nextState: { pinned: false, archived: true },
       });
+      // The session left the active list, so its live marker retires with it.
+      // The captured evidence on disk is untouched: the archive stays.
+      useDriftCaptureStore
+        .getState()
+        .retireMarker(taskId, tab.workspacePath, tab.workspaceIdentity);
       return meta;
     },
     [
@@ -1206,6 +1274,9 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
     pushZaicodeArchiveBatch(await archiveAllIdleTasks());
   }, [archiveAllIdleTasks]);
   // SRC-044 CLEAR ALL DONE: archives exactly the sessions it names (the finished helpers).
+  // T-299: every named task is accounted for in the batch -- archived, skipped (running
+  // under us), failed with its reason -- because CLEAR ALL DONE now reports per-item
+  // results and a silently dropped request looks exactly like a finished one.
   const archiveSomeTasks = useCallback(
     async (taskIds: readonly string[]): Promise<ZaicodeArchiveBatch | null> => {
       if (readOnlyReason) return null;
@@ -1213,31 +1284,45 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
         taskItemsRef.current.filter(isTaskListRowActive).map((task) => task.taskId),
       );
       const archived: ZCodeTaskMeta[] = [];
+      const archivedIds: string[] = [];
+      const skippedIds: string[] = [];
+      const failedIds: { sessionId: string; reason: string }[] = [];
       for (const taskId of taskIds) {
-        if (running.has(taskId)) continue;
+        if (running.has(taskId)) {
+          skippedIds.push(taskId);
+          continue;
+        }
         try {
           archived.push(await archiveTaskNow(taskId));
+          archivedIds.push(taskId);
         } catch (error) {
           logger.error("[WorkspaceSidebarItem] clear done: archive failed", { taskId, error });
+          failedIds.push({ sessionId: taskId, reason: error instanceof Error ? error.message : String(error) });
         }
       }
-      if (archived.length === 0) return null;
+      // null only when the row did nothing at all (read-only, or everything still
+      // running); the caller reports that as skipped. A count-0 batch still reports
+      // per-item failures, so a failed archive is never dressed up as a skip.
+      if (archived.length === 0 && failedIds.length === 0) return null;
       return {
         count: archived.length,
         label: `${archived.length} session${archived.length === 1 ? "" : "s"} in ${workspaceSidebarLabel}`,
         restore: () => restoreArchivedTasks(archived),
+        archivedIds,
+        skippedIds,
+        failedIds,
       };
     },
     [archiveTaskNow, readOnlyReason, restoreArchivedTasks, workspaceSidebarLabel],
   );
   useEffect(() => {
-    if (!isZaicodeProductMode()) return;
+    if (!isZaicodeProductMode() || readOnlyReason) return;
     return registerZaicodeArchiveSome(zaicodeSlotKey, archiveSomeTasks);
-  }, [archiveSomeTasks, zaicodeSlotKey]);
+  }, [archiveSomeTasks, readOnlyReason, zaicodeSlotKey]);
   useEffect(() => {
-    if (!isZaicodeProductMode()) return;
+    if (!isZaicodeProductMode() || readOnlyReason) return;
     return registerZaicodeArchiveAll(zaicodeSlotKey, archiveAllIdleTasks);
-  }, [archiveAllIdleTasks, zaicodeSlotKey]);
+  }, [archiveAllIdleTasks, readOnlyReason, zaicodeSlotKey]);
   const handleArchiveTask = useCallback(
     async (taskId: string) => {
       if (readOnlyReason) {
@@ -1278,6 +1363,10 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
         previousState: { pinned: false, archived: false },
         nextState: { pinned: false, archived: true },
       });
+      // Retirement removes the live marker only; the evidence archive stays.
+      useDriftCaptureStore
+        .getState()
+        .retireMarker(taskId, tab.workspacePath, tab.workspaceIdentity);
       return meta;
     },
     [
@@ -1400,9 +1489,10 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
             parked: zaicodeRuntime?.snapshot.protocol?.parkedWork.length ?? 0,
             campaigns: zaicodeAuditCampaigns.filter((campaign) => campaign.workspacePath === tab.workspacePath),
             stateUpdatedAt: Number.isFinite(boardUpdatedAt) ? boardUpdatedAt : 0,
+            showA3Offer: zaicodeShowAuditMarks,
           })
         : null,
-    [boardUpdatedAt, tab.workspacePath, zaicodeAuditCampaigns, zaicodeRuntime, zaicodeSaipen],
+    [boardUpdatedAt, tab.workspacePath, zaicodeAuditCampaigns, zaicodeRuntime, zaicodeSaipen, zaicodeShowAuditMarks],
   );
   const openZaicodeAuditsHere = () => {
     // The audit centre preselects the active project; make this one active first (no new session).
@@ -1500,6 +1590,7 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
   const zaicodeRowStatus = (
     <span className="flex shrink-0 items-center gap-1 text-ui-xs tabular-nums text-foreground-subtle">
       <ZaicodeTestsIndicator project count={zaicodeTestsCount} commands={zaicodeTestActivities.flatMap((activity) => activity.commands).slice(0, 3)} />
+      <ZaicodeDriftProjectTotals workspacePath={tab.workspacePath} workspaceIdentity={tab.workspaceIdentity} />
       {zaicodeProjectOff ? (
         <span
           className="border border-border px-0.5 text-[10px] leading-3 text-foreground-subtlest"
@@ -1509,22 +1600,12 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
           OFF
         </span>
       ) : null}
-      {zaicodeAuditProgress && (zaicodeAuditRunning || !zaicodeProjectOff) ? (
-        // SRC-062: a running audit is bright; a merely planned one is quiet (nothing runs until
-        // Start), and on a switched-off project it is not shown at all.
-        <span
-          className={
-            zaicodeAuditRunning
-              ? "border border-[#a06a20] bg-[#2b2111] px-0.5 text-[10px] leading-3 text-[#f0c040]"
-              : "border border-border px-0.5 text-[10px] leading-3 text-foreground-subtlest"
-          }
-          title={`${zaicodeAuditProgress.campaigns} A3 campaign(s): ${zaicodeAuditProgress.complete}/${zaicodeAuditProgress.total} audit waves complete or reviewed${zaicodeAuditRunning ? " · running now" : " · planned: nothing runs until you press Start in the audit centre"}`}
-          data-zaicode-a3-progress={`${zaicodeAuditProgress.complete}/${zaicodeAuditProgress.total}`}
-          data-zaicode-a3-running={zaicodeAuditRunning ? "1" : "0"}
-        >
-          A3 {zaicodeAuditProgress.complete}/{zaicodeAuditProgress.total}
-        </span>
-      ) : null}
+            <ZaicodeAuditProgressChip
+        progress={zaicodeAuditProgress}
+        running={zaicodeAuditRunning}
+        projectOff={zaicodeProjectOff}
+        showMarks={zaicodeShowAuditMarks}
+      />
       {zaicodeLiveIndicator && zaicodeRunningCount > 0 ? (
         <span
           className="flex items-center gap-0.5"
@@ -1534,7 +1615,11 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
         >
           {!zaicodeMainGlyphWorking ? <ZaicodeWorkingIcon model={zaicodeWorkingModel} className="size-3.5" /> : null}
           {zaicodeRunningCount > 1 ? zaicodeRunningCount : null}
-          {zaicodePresenceOverridesWorking(zaicodePresence) && zaicodePresence.label ? zaicodePresence.label : zaicodeWorkingSince > 0 ? formatZaicodeDuration(Date.now() - zaicodeWorkingSince) : null}
+          {zaicodePresenceOverridesWorking(zaicodePresence) && zaicodePresence.label ? (
+            <ZaicodeRowPresenceIndicator presence={zaicodePresence} />
+          ) : zaicodeWorkingSince > 0 ? (
+            formatZaicodeDuration(Date.now() - zaicodeWorkingSince)
+          ) : null}
         </span>
       ) : null}
       {zaicodeLiveIndicator && zaicodeStalledTasks.length > 0 ? (

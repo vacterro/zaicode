@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/tooltip.js";
 import { ToolSummaryRow, type ToolSummaryAction } from "@/ToolCallBlocks/ToolSummaryRow.js";
 import { uiMemoryDiagnosticsRegistry } from "@/lib/memoryDiagnostics.js";
-import { useExpandedTranscript } from "@/lib/transcriptView.js";
+import { useExpandedTranscript, useTranscriptSectionsView } from "@/lib/transcriptView.js";
 
 const toolLayoutOpenState = new Map<string, boolean>();
 // 内存诊断计数器：该表按 toolId 只增不减，先落日志。
@@ -106,6 +106,8 @@ function ToolLayoutComponent({
 }: ToolLayoutProps) {
   const { intl } = useZCodeIntl();
   const transcriptExpanded = useExpandedTranscript();
+  const sections = useTranscriptSectionsView();
+  const scrollDetails = sections?.sections.tools.scroll === true;
   const resolvedPersistOpenKey = persistOpenKey ?? toolId;
   const [isOpen, setIsOpen] = useState(
     () => toolLayoutOpenState.get(resolvedPersistOpenKey) ?? false,
@@ -319,6 +321,7 @@ function ToolLayoutComponent({
       }}
       className="w-full flex flex-col"
       data-transcript-tool-details="true"
+      data-transcript-section="tools"
     >
       <ToolSummaryRow
         action={summaryAction}
@@ -352,10 +355,12 @@ function ToolLayoutComponent({
           {/* padding 直接挂在高度动画节点上时，主体归零后仍会停在 8px，
               直到延迟卸载切换 display:none 才瞬间消失。放入内部后会被外层 overflow
               随动画高度连续裁切到 0，保留原间距且不改变 300ms 的测量保护。 */}
-          <div className={TOOL_CONTENT_SPACING_CLASSNAME}>{resolvedContent}</div>
+          <div data-transcript-tool-viewport data-transcript-scroll={scrollDetails ? "on" : "off"}
+            className={cn(TOOL_CONTENT_SPACING_CLASSNAME, scrollDetails && "max-h-80 overflow-y-auto")}>{resolvedContent}</div>
         </CollapsibleContent>
       ) : !hasSummaryAction && forceOpen ? (
-        <div className={cn(TOOL_CONTENT_SHELL_CLASSNAME, TOOL_CONTENT_SPACING_CLASSNAME)}>
+        <div data-transcript-tool-viewport data-transcript-scroll={scrollDetails ? "on" : "off"}
+          className={cn(TOOL_CONTENT_SHELL_CLASSNAME, TOOL_CONTENT_SPACING_CLASSNAME, scrollDetails && "max-h-80 overflow-y-auto")}>
           {resolvedContent}
         </div>
       ) : null}

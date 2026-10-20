@@ -78,7 +78,7 @@ const FLOATING = [
 ].map((selector) => `html.zaicode-bevels ${selector}`);
 
 /**
- * Sidebar rows (sub-option "list rows"): raised like FastPrompter's list; the
+ * Sidebar rows (independent "list rows" option): raised like FastPrompter's list; the
  * open one sunken. The generic raised/pressed rules above exclude the same row
  * prefix, so this sub-toggle owns the rows in every presentation: OFF is flat
  * (under Classic the generic role=button bevel used to keep them raised, which
@@ -87,10 +87,10 @@ const FLOATING = [
 const ROWS = [
   '[data-testid^="workspace-item-"]',
   'li[data-testid^="task-item-"]',
-].map((selector) => `html.zaicode-bevels.zaicode-bevel-rows[data-zaicode-style] ${selector}`);
+].map((selector) => `html.zaicode-product.zaicode-bevel-rows[data-zaicode-style] ${selector}`);
 const ROWS_OPEN = [
   'li[data-testid^="task-item-"].bg-selected',
-].map((selector) => `html.zaicode-bevels.zaicode-bevel-rows[data-zaicode-style] ${selector}`);
+].map((selector) => `html.zaicode-product.zaicode-bevel-rows[data-zaicode-style] ${selector}`);
 
 export const ZAICODE_BEVEL_CSS = `
 /* 项目选择必须独立于会话标题的亮色和 raised bevel，整行保持可见的内框。 */
@@ -108,7 +108,7 @@ ${PRESSED.join(",\n")},
 ${ROWS_OPEN.join(",\n")} {
   box-shadow: ${ZAICODE_BEVEL_SUNKEN} !important;
 }
-html.zaicode-bevels.zaicode-bevel-rows[data-zaicode-style] [data-testid^="workspace-item-"][data-zaicode-project-selected] {
+html.zaicode-product.zaicode-bevel-rows[data-zaicode-style] [data-testid^="workspace-item-"][data-zaicode-project-selected] {
   box-shadow: ${ZAICODE_BEVEL_SUNKEN} !important;
 }
 /* The one sanctioned movement: a pressed button's label shifts 1 px (saipen UI). */

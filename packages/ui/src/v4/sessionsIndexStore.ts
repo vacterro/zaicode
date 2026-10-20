@@ -11,6 +11,7 @@ import {
 import { isZCodeFileLockTimeoutError } from "@zcode/shared";
 import { ZCODE_AGENT_RUNTIME_UNAVAILABLE_CODE } from "@zcode/services";
 import { logger } from "@/logger.js";
+import { isSessionRetired } from "@/zaicode/zaicodeCleanupFence.js";
 import type { SessionsIndexTransport } from "@/v4/agentSessionsIndexTransport.js";
 
 interface SessionsIndexState {
@@ -97,7 +98,9 @@ export function applySessionsIndexFrame(
     const snapshot = frame.payload.snapshot;
     const sessions = new Map<string, SessionSummary>();
     for (const session of snapshot.sessions) {
-      sessions.set(session.sessionId, session);
+      if (!isSessionRetired(session.sessionId)) {
+        sessions.set(session.sessionId, session);
+      }
     }
     return {
       gap: false,
@@ -119,7 +122,11 @@ export function applySessionsIndexFrame(
   const sessions = new Map(current.sessions);
   for (const delta of frame.payload.deltas) {
     if (delta.op === "session.upserted") {
-      sessions.set(delta.session.sessionId, delta.session);
+      if (!isSessionRetired(delta.session.sessionId)) {
+        sessions.set(delta.session.sessionId, delta.session);
+      } else {
+        sessions.delete(delta.session.sessionId);
+      }
     } else {
       sessions.delete(delta.sessionId);
     }
@@ -161,6 +168,10 @@ export class SessionsIndexStore {
     frameDeadline: ReturnType<typeof setTimeout> | null;
   } | null = null;
   private status: SessionsIndexStoreStatus = "idle";
+  private readonly livenessReceipts = new Map<
+    string,
+    { ownerId: string; observedAt: number; receivedAt: number }
+  >();
   private generation = 0;
   private closed = false;
   private runtimeRestartReconnectTimer: ReturnType<typeof setTimeout> | null = null;
@@ -169,6 +180,7 @@ export class SessionsIndexStore {
   private subscribeRetryTimer: ReturnType<typeof setTimeout> | null = null;
   private errorRecoveryRetryTimer: ReturnType<typeof setTimeout> | null = null;
   private errorRecoveryRetryAttempt = 0;
+  private recoveryReconnectAttempts = 0;
 
   subscribe = (listener: () => void): (() => void) => {
     this.listeners.add(listener);
@@ -181,6 +193,10 @@ export class SessionsIndexStore {
 
   getStatus(): SessionsIndexStoreStatus {
     return this.status;
+  }
+
+  getLivenessReceivedAt(sessionId: string): number | undefined {
+    return this.livenessReceipts.get(sessionId)?.receivedAt;
   }
 
   /**
@@ -247,6 +263,10 @@ export class SessionsIndexStore {
       this.status = "live";
       this.clearErrorRecoveryRetry();
       this.errorRecoveryRetryAttempt = 0;
+      // T-294 (SRC-207)：subscribe ACK 不等于恢复成功——新的订阅可以 ACK 成功却永远
+      // 送不来（或送不来合法）initial 帧。在这里归还预算会让每次换代都补满重试额度，
+      // 有界重连退化成无限重连。预算只在权威帧真正应用时归还（subscriptionHasAppliedBase
+      // 置真的两处）。
       this.subscriptionHasAppliedBase = Boolean(
         base && result.ack.mode === "resume" && result.ack.logEpoch === base.logEpoch,
       );
@@ -355,7 +375,10 @@ export class SessionsIndexStore {
     }
     if (deliveryKind === "online" && this.recovery && frame.payload.kind === "snapshot") {
       const gap = this.applyFrame(frame);
-      if (!gap) this.subscriptionHasAppliedBase = true;
+      if (!gap) {
+        this.subscriptionHasAppliedBase = true;
+        this.recoveryReconnectAttempts = 0;
+      }
       return;
     }
     if (deliveryKind === "online" && this.recovery) {
@@ -378,6 +401,8 @@ export class SessionsIndexStore {
       return;
     }
     this.subscriptionHasAppliedBase = true;
+    // 权威帧真正应用 = 唯一归还 recovery 预算的健康边界（见 connect 的 T-294 说明）。
+    this.recoveryReconnectAttempts = 0;
     if (deliveryKind === "recovery") this.markRecoveryFrameSeen();
   }
 
@@ -406,7 +431,7 @@ export class SessionsIndexStore {
     if (existing) {
       if (!recoveryEvent) return;
       if (existing.forceSnapshot) {
-        this.failRecovery("fault.subscription.recoveryFailed");
+        this.reconnectAfterFailedRecovery("fault.subscription.recoveryFailed");
         return;
       }
       if (existing.requestInFlight || !existing.ackReceived) {
@@ -414,7 +439,7 @@ export class SessionsIndexStore {
         return;
       }
       if (existing.ackMode === "resume") this.issueRecovery(existing, true);
-      else this.failRecovery("fault.subscription.recoveryFailed");
+      else this.reconnectAfterFailedRecovery("fault.subscription.recoveryFailed");
       return;
     }
     const recovery = {
@@ -502,7 +527,7 @@ export class SessionsIndexStore {
       if (!recovery.forceSnapshot && recovery.ackMode === "resume") {
         this.issueRecovery(recovery, true);
       } else {
-        this.failRecovery("fault.subscription.recoveryFailed");
+        this.reconnectAfterFailedRecovery("fault.subscription.recoveryFailed");
       }
       return;
     }
@@ -517,7 +542,7 @@ export class SessionsIndexStore {
       recovery.frameDeadline = null;
       if (this.closed || this.recovery !== recovery || recovery.validFrameSeen) return;
       if (!recovery.forceSnapshot) this.issueRecovery(recovery, true);
-      else this.failRecovery("fault.subscription.recoveryFrameTimedOut");
+      else this.reconnectAfterFailedRecovery("fault.subscription.recoveryFrameTimedOut");
     }, PROTOCOL_V4_LIMITS.logicalFrameAssemblyTimeoutMs);
   }
 
@@ -530,6 +555,22 @@ export class SessionsIndexStore {
   private discardRecovery(): void {
     if (this.recovery) this.clearRecoveryDeadline(this.recovery);
     this.recovery = null;
+  }
+
+  private reconnectAfterFailedRecovery(reasonCode: string): void {
+    if (this.closed || !this.transport) return;
+    this.discardRecovery();
+    if (this.recoveryReconnectAttempts < 3) {
+      this.recoveryReconnectAttempts += 1;
+      logger.lifecycle.warn("v4 sessions index store recovery fallback to fresh connect", {
+        event: "v4.sessions_index.store.recovery.reconnect_fallback",
+        reasonCode,
+        attempt: this.recoveryReconnectAttempts,
+      });
+      void this.connect(this.transport);
+      return;
+    }
+    this.failRecovery(reasonCode);
   }
 
   private clearSubscribeRetry(): void {
@@ -707,6 +748,27 @@ export class SessionsIndexStore {
     const { state, gap } = applySessionsIndexFrame(this.state, frame);
     if (gap) return true;
     if (state !== this.state) {
+      for (const id of this.livenessReceipts.keys())
+        if (!state.sessions.has(id)) this.livenessReceipts.delete(id);
+      for (const summary of state.sessions.values()) {
+        const proof = summary.executionLiveness;
+        if (!proof) {
+          this.livenessReceipts.delete(summary.sessionId);
+          continue;
+        }
+        const previous = this.livenessReceipts.get(summary.sessionId);
+        if (
+          !previous ||
+          previous.ownerId !== proof.ownerId ||
+          proof.observedAt > previous.observedAt
+        ) {
+          this.livenessReceipts.set(summary.sessionId, {
+            ownerId: proof.ownerId,
+            observedAt: proof.observedAt,
+            receivedAt: Date.now(),
+          });
+        }
+      }
       this.state = state;
       this.cachedList = null;
       this.emit();
@@ -731,6 +793,25 @@ export class SessionsIndexStore {
       );
     }
     return this.cachedList;
+  }
+
+  hasSession(sessionId: string): boolean {
+    return this.state.sessions.has(sessionId);
+  }
+
+  removeSession(sessionId: string): boolean {
+    if (!this.state.sessions.has(sessionId)) {
+      return false;
+    }
+    const nextSessions = new Map(this.state.sessions);
+    nextSessions.delete(sessionId);
+    this.state = {
+      ...this.state,
+      sessions: nextSessions,
+    };
+    this.cachedList = null;
+    this.emit();
+    return true;
   }
 
   private emit(): void {

@@ -1,6 +1,10 @@
 import taskNotificationPopUrl from "@/assets/notification-sounds/task-notification-pop.mp3";
 import { isTaskNotificationSoundEnabled } from "@/lib/taskNotificationPreferences.js";
 import { isZaicodeProductMode } from "@zcode/shared";
+import {
+  readBundledZaicodeCueAudio,
+  readZaicodeSetting,
+} from "@/zaicode/zaicodeSettingsSnapshot.js";
 
 declare global {
   interface ImportMeta {
@@ -18,10 +22,11 @@ const DEFAULT_ID = "default";
 const DB_NAME = "zaicode-notification-audio";
 const STORE_NAME = "sounds";
 
-const fastPrompterFiles = import.meta.glob(
-  "../assets/fastprompter-sounds/**/*.{wav,mp3,ogg}",
-  { eager: true, query: "?url", import: "default" },
-) as Record<string, string>;
+const fastPrompterFiles = import.meta.glob("../assets/fastprompter-sounds/**/*.{wav,mp3,ogg}", {
+  eager: true,
+  query: "?url",
+  import: "default",
+}) as Record<string, string>;
 
 const fastPrompterSounds = Object.entries(fastPrompterFiles)
   .map(([path, url]) => ({
@@ -47,7 +52,7 @@ export function getTaskNotificationSoundUrl(id: string): string | null {
 
 export function getTaskNotificationSoundSelection(): string {
   try {
-    return localStorage.getItem(SELECTION_KEY) || DEFAULT_ID;
+    return readZaicodeSetting(SELECTION_KEY) || DEFAULT_ID;
   } catch {
     return DEFAULT_ID;
   }
@@ -55,7 +60,7 @@ export function getTaskNotificationSoundSelection(): string {
 
 export function getCustomTaskNotificationSoundName(): string | null {
   try {
-    return localStorage.getItem(CUSTOM_NAME_KEY);
+    return readZaicodeSetting(CUSTOM_NAME_KEY);
   } catch {
     return null;
   }
@@ -123,7 +128,7 @@ async function selectedSoundUrl(): Promise<string | null> {
   if (selection === CUSTOM_ID) {
     if (!customObjectUrl) {
       const blob = await readCustomSound();
-      if (!blob) return null;
+      if (!blob) return readBundledZaicodeCueAudio("notification.custom");
       customObjectUrl = URL.createObjectURL(blob);
     }
     return customObjectUrl;

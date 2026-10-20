@@ -4,6 +4,7 @@ import type { ZaicodeEngineAccount, ZaicodeLimitSnapshot, ZaicodeLimitWindow } f
 import {
   isZaicodeEngineShown,
   normalizeZaicodeMeterPrefs,
+  orderZaicodeAccounts,
   zaicodeAvailabilityTint,
   zaicodeEngineHasUsage,
   zaicodeEngineUsableNow,
@@ -256,4 +257,16 @@ test("worker hotkeys exist and the defaults stay conflict-free", () => {
     assert.ok(ids.includes(id), id);
   }
   assert.deepEqual(findZaicodeHotkeyConflicts(defaultZaicodeHotkeySettings()), []);
+});
+
+test("operator account order: listed first, rest stable, unknown ignored; prefs heal it", () => {
+  const ids = (list: readonly { id: string }[]) => list.map((entry) => entry.id);
+  const rows = [{ id: "a" }, { id: "b" }, { id: "c" }];
+  assert.deepEqual(ids(orderZaicodeAccounts(rows, [])), ["a", "b", "c"]);
+  assert.deepEqual(ids(orderZaicodeAccounts(rows, ["c", "a"])), ["c", "a", "b"]);
+  assert.deepEqual(ids(orderZaicodeAccounts(rows, ["ghost", "b"])), ["b", "a", "c"]);
+  assert.deepEqual(ids(orderZaicodeAccounts(rows, ["b", "b", "a"])), ["b", "a", "c"], "dupes collapse by first rank");
+  const prefs = normalizeZaicodeMeterPrefs({ accountOrder: ["c", "c", 7, "", "a"] });
+  assert.deepEqual(prefs.accountOrder, ["c", "a"]);
+  assert.deepEqual(normalizeZaicodeMeterPrefs(null).accountOrder, []);
 });

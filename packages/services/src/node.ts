@@ -265,8 +265,16 @@ export { ZaicodeAgentService } from "./zaicode/zaicodeAgentService.js";
 export { ZaicodeJobService } from "./zaicode/zaicodeJobService.js";
 export { IZaicodeStatsService } from "./zaicode/zaicodeStats.js";
 export { ZaicodeStatsService } from "./zaicode/zaicodeStatsService.js";
+export { IZaicodeOptimizationService } from "./zaicode/zaicodeOptimization.js";
+export { ZaicodeOptimizationService } from "./zaicode/zaicodeOptimizationService.js";
+export { adaptStatsEventsToOptimizationDataset } from "./zaicode/zaicodeOptimizationAdapter.js";
 export { IZaicodeAuditService } from "./zaicode/zaicodeAudits.js";
 export { ZaicodeAuditService } from "./zaicode/zaicodeAuditService.js";
+export { AUDIT_LOOP_JOB_PREFIX, ZaicodeAuditLoopService } from "./zaicode/zaicodeAuditLoopService.js";
+export { createZaicodeAuditGateRunner } from "./zaicode/zaicodeAuditGates.js";
+export { createZaicodeSaipenOwnershipQuery } from "./zaicode/zaicodeSaipenOwnership.js";
+export { ZaicodeSessionHealthService } from "./zaicode/zaicodeSessionHealthService.js";
+export { ZaicodeRouteHealthStorage } from "./zaicode/zaicodeRouteHealthStorage.js";
 export { createOffPeakServerClient, OffPeakServerError } from "./session/offPeakServerClient.js";
 export { isOffPeakMockEnabled, startOffPeakMockGateway } from "./session/offPeakMockGateway.js";
 export {
@@ -457,8 +465,14 @@ import { ZaicodeJobService } from "./zaicode/zaicodeJobService.js";
 import { IZaicodeStatsService } from "./zaicode/zaicodeStats.js";
 import { ZaicodeStatsRepo } from "./zaicode/zaicodeStatsRepo.js";
 import { ZaicodeStatsService } from "./zaicode/zaicodeStatsService.js";
+import { IZaicodeOptimizationService } from "./zaicode/zaicodeOptimization.js";
+import { ZaicodeOptimizationService } from "./zaicode/zaicodeOptimizationService.js";
 import { IZaicodeAuditService } from "./zaicode/zaicodeAudits.js";
 import { ZaicodeAuditService } from "./zaicode/zaicodeAuditService.js";
+import { IZaicodeAuditLoopService } from "./zaicode/zaicodeAuditLoops.js";
+import { ZaicodeAuditLoopService } from "./zaicode/zaicodeAuditLoopService.js";
+import { createZaicodeAuditGateRunner } from "./zaicode/zaicodeAuditGates.js";
+import { createZaicodeSaipenOwnershipQuery } from "./zaicode/zaicodeSaipenOwnership.js";
 import {
   buildOffPeakRequestAuth,
   createOffPeakOriginResolver,
@@ -543,7 +557,6 @@ import {
   zcodeAccountAccessSchema,
   zcodeProviderAccountAccessSchema,
   ZCODE_VERSION,
-  ZCODE_ENV,
   buildRuntimeZCodeApiUrl,
 } from "@zcode/shared";
 
@@ -2491,10 +2504,49 @@ export function createLocalServices(options: {
     repo: zaicodeStatsRepo,
     logger: { warn: (message, error) => zaicodeLogger.warn(message, error) },
   });
+  const zaicodeOptimizationService = new ZaicodeOptimizationService({
+    repo: zaicodeStatsRepo,
+    logger: {
+      warn: (message, error) => zaicodeLogger.warn(message, error),
+      info: (message) => zaicodeLogger.info(message),
+    },
+  });
   // A3 audit campaigns (T-66): AUDAPACK's machine on the ZAICODE queue.
   const zaicodeAuditService = new ZaicodeAuditService({
     jobService: zaicodeJobService,
     agentService: zaicodeAgentService,
+    // T-398: the wave's own sign of life comes from the sessions-index
+    // projection, never from the queue's host lease (`heartbeat_at`).
+    sessionActivityAt: ({ workspacePath, workspaceIdentity, sessionId }) =>
+      zcodeTaskIndexSyncer.getSessionActivityAt({
+        workspacePath,
+        ...(workspaceIdentity ? { workspaceIdentity } : {}),
+        sessionId,
+      }),
+    logger: {
+      warn: (message, error) => zaicodeLogger.warn(message, error),
+      info: (message) => zaicodeLogger.info(message),
+    },
+  });
+  // Audit Loop (T-289 / SRC-202): the durable review/fix chain around that machine.
+  // It reuses the same queue and the same auditor/implementer agents; it owns no
+  // audit engine of its own.
+  const zaicodeAuditLoopService = new ZaicodeAuditLoopService({
+    jobService: zaicodeJobService,
+    agentService: zaicodeAgentService,
+    // T-289/SRC-202 Phase 2: the deterministic acceptance gates come from the
+    // workspace's OWN trusted configuration (.zcode/audit-gates.json), never from a
+    // reviewer's text. An unresolvable gate set fails the cycle instead of passing it.
+    runGates: createZaicodeAuditGateRunner({ logWarn: (message, error) => zaicodeLogger.warn(message, error) }),
+    // T-291/SRC-204 Workstream 1: canonical SAIPEN ownership and admission adapter.
+    // Governed workspaces fail closed when authority is unprovable, refuse foreign
+    // owners, and proceed when unowned and authorized.
+    queryOwnership: createZaicodeSaipenOwnershipQuery({
+      logger: {
+        warn: (message, error) => zaicodeLogger.warn(message, error),
+        info: (message) => zaicodeLogger.info(message),
+      },
+    }),
     logger: {
       warn: (message, error) => zaicodeLogger.warn(message, error),
       info: (message) => zaicodeLogger.info(message),
@@ -2636,7 +2688,9 @@ export function createLocalServices(options: {
     .register(IZaicodeAgentService, zaicodeAgentService)
     .register(IZaicodeJobService, zaicodeJobService)
     .register(IZaicodeStatsService, zaicodeStatsService)
+    .register(IZaicodeOptimizationService, zaicodeOptimizationService)
     .register(IZaicodeAuditService, zaicodeAuditService)
+    .register(IZaicodeAuditLoopService, zaicodeAuditLoopService)
     .register(ICommandsService, createCommandsService({ isDesktopRuntime: true }))
     .register(
       IHooksService,

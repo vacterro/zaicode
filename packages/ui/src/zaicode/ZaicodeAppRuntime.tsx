@@ -77,6 +77,7 @@ import { ensureZaicodeMotionStyles } from "./zaicodeMotionCss.js";
 import { useZaicodeCrashResume } from "./zaicodeCrashResume.js";
 import { useZaicodeGoalContinuation } from "./zaicodeGoalContinuation.js";
 import { useZaicodeTurnRetryWatch } from "./zaicodeTurnRetryWatch.js";
+import { useZaicodeQueueRetryWatch } from "./zaicodeQueueRetryWatch.js";
 import { useZaicodeUnseenDoneWatch } from "./zaicodeUnseenDone.js";
 import { startZaicodeWorkerRecording } from "./zaicodeWorkerRecovery.js";
 import { useZaicodeWorkerWatch } from "./zaicodeWorkerWatch.js";
@@ -385,6 +386,8 @@ function useZaicodeCrashSafety(): void {
   useZaicodeCrashResume();
   // SRC-051: failed turns retry in the background too — no walk into the project needed.
   useZaicodeTurnRetryWatch();
+  // T-361: error-paused queues resume in the background too — independent of visible pane.
+  useZaicodeQueueRetryWatch();
   // SRC-131: a run that finished while the operator was elsewhere gets marked unseen.
   useZaicodeUnseenDoneWatch();
   // T-234: an open Auto Goal that ended its turn is continued by ONE owner, here.

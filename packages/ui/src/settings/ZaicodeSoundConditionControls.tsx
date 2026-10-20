@@ -1,4 +1,5 @@
 import { cn } from "@/components/lib/utils.js";
+import { Checkbox } from "@/components/ui/checkbox.js";
 import {
   ZAICODE_SOUND_COOLDOWN_MAX,
   ZAICODE_SOUND_WHENS,
@@ -92,11 +93,10 @@ export function ZaicodeSoundConditionRow({ event, row }: { event: ZaicodeSoundEv
           </button>
         ))}
       </div>
-      <label className="flex items-center gap-1" title="Quiet hours (Notifications) keep every sound silent; this one still plays">
-        <input
-          type="checkbox"
+      <label className="flex items-center gap-1.5 cursor-pointer select-none" title="Quiet hours (Notifications) keep every sound silent; this one still plays">
+        <Checkbox
           checked={row.throughQuiet === true}
-          onChange={(change) => setZaicodeSoundEvent(event.id, { throughQuiet: change.target.checked })}
+          onCheckedChange={(val) => setZaicodeSoundEvent(event.id, { throughQuiet: Boolean(val) })}
         />
         also in quiet hours
       </label>

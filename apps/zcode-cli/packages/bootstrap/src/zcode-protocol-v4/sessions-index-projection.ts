@@ -12,6 +12,7 @@ import {
   type SessionsIndexDelta,
   type SessionsIndexSnapshot,
 } from "@zcode/shared/zcode-protocol-v4";
+import { executionWorkLeaseRunning, type ExecutionLivenessSnapshot } from "@zcode/shared";
 
 /** 派生一条 summary 需要的、快照之外的会话级元信息（来自 session-store record / 事件时刻）。 */
 export interface SessionSummaryDeriveExtra {
@@ -19,6 +20,7 @@ export interface SessionSummaryDeriveExtra {
   createdAt: number;
   lastActivityAt: number;
   parentSessionId?: string;
+  executionLiveness?: ExecutionLivenessSnapshot;
 }
 
 const MAX_PREVIEW_CHARS = 120;
@@ -43,7 +45,13 @@ function deriveSessionSummary(
     }
     if (lastAssistantPreview) break;
   }
-  const hasBackgroundWork = snapshot.backgroundWorks.some((work) => work.status === "running");
+  const proof = extra.executionLiveness;
+  const expectedForeground = snapshot.control.phase === "running" || snapshot.control.phase === "prewarming";
+  const executionLiveness = proof ? {
+    ...proof, orphaned: proof.orphaned || (expectedForeground && !proof.foregroundExecutionId),
+  } : undefined;
+  const hasBackgroundWork = snapshot.backgroundWorks.some((work) => work.status === "running" &&
+    (!proof || proof.background.some((lease) => lease.workId === work.workId && executionWorkLeaseRunning(lease, proof.observedAt))));
   const testActivity = deriveSessionTestActivity(snapshot);
   // 侧栏 Todo 镜像：与会话内 Todo 条同源（snapshot.plan），不另立事实。
   const todos = (snapshot.plan?.items ?? []).slice(0, SESSION_TODO_SUMMARY_MAX_ITEMS).map((item) => ({
@@ -88,10 +96,11 @@ function deriveSessionSummary(
     ...(extra.parentSessionId ? { parentSessionId: extra.parentSessionId } : {}),
     title: snapshot.meta.title,
     titleSource: snapshot.meta.titleSource,
-    phase: snapshot.control.phase,
+    phase: proof && expectedForeground && !proof.foregroundExecutionId ? "completedInterrupted" : snapshot.control.phase,
     // 忠实透传 control.sessionEnded（语义：成功轮收口后即 true，不代表已删除）。
     sessionEnded: snapshot.control.sessionEnded,
     hasBackgroundWork,
+    ...(executionLiveness ? { executionLiveness } : {}),
     ...(snapshot.control.activeWorks?.find((work) => work.foregroundExecutionId) ? {
       foregroundExecutionId: snapshot.control.activeWorks.find((work) => work.foregroundExecutionId)!.foregroundExecutionId,
       foregroundStartedAt: snapshot.control.activeWorks.find((work) => work.foregroundExecutionId)!.startedAt,
@@ -126,6 +135,7 @@ function summariesEqual(a: SessionSummary, b: SessionSummary): boolean {
     a.phase === b.phase &&
     a.sessionEnded === b.sessionEnded &&
     a.hasBackgroundWork === b.hasBackgroundWork &&
+    JSON.stringify(a.executionLiveness ?? null) === JSON.stringify(b.executionLiveness ?? null) &&
     a.foregroundExecutionId === b.foregroundExecutionId &&
     a.foregroundStartedAt === b.foregroundStartedAt &&
     JSON.stringify(a.testActivity ?? null) === JSON.stringify(b.testActivity ?? null) &&

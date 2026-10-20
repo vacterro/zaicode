@@ -66,6 +66,10 @@ import { createTaskWorkbenchDragPreview } from "@/lib/taskWorkbenchDragPreview.j
 import { runUserAction } from "@/lib/userActionTelemetry.js";
 import { TaskRowActionButton } from "@/workspace-grouped-tasks/task-row-action-button.js";
 import { TaskWorkflowRunLines } from "@/components/workflow-run-line/TaskWorkflowRunLines.js";
+import { recordSessionClick } from "@/lib/sessionOpenArmsTelemetry.js";
+import { adaptivePrefetchCoordinator } from "@/v4/adaptivePrefetchCoordinator.js";
+import { useOptionalV4Conversation } from "@/v4/V4ConversationContext.js";
+import { ZaicodeDriftMarker } from "@/zaicode/ZaicodeDriftMarker.js";
 
 type TaskListItemIntl = {
   formatMessage: (desc: { id: string }, values?: Record<string, string>) => string;
@@ -257,6 +261,7 @@ export const MemoTaskItem = memo(function TaskListItem({
     };
   }, [isArchiveConfirming, onCancelArchiveConfirm]);
 
+  const v4Conversation = useOptionalV4Conversation();
   const splitPaneEntryEnabled = useV4SplitPaneEntry().enabled;
   const taskWorkspaceScope = useMemo(
     () => ({
@@ -299,6 +304,7 @@ export const MemoTaskItem = memo(function TaskListItem({
       id: task.forkedFromTaskId ? "taskList.forkedUntitled" : "taskList.untitled",
     });
   const handleSelect = useCallback(() => {
+    recordSessionClick(task.taskId);
     runUserAction({
       input: { featureId: "task.lifecycle", action: "open", trigger: "button" },
       operation: () => onSelectTask(task.taskId),
@@ -435,9 +441,13 @@ export const MemoTaskItem = memo(function TaskListItem({
   );
   const handleMouseEnter = useCallback(() => {
     setHoverActionsVisible(true);
-  }, []);
+    if (v4Conversation?.layer) {
+      adaptivePrefetchCoordinator.onCandidateHover(v4Conversation.layer, task.taskId);
+    }
+  }, [task.taskId, v4Conversation?.layer]);
   const handleMouseLeave = useCallback(() => {
     setHoverActionsVisible(false);
+    adaptivePrefetchCoordinator.cancelHover();
     // 归档二次确认依赖用户第二次点击确认；鼠标离开 row 时清理 hover 展示即可。
     // 如果同步取消确认，用户移动鼠标稍微离开任务行后确认按钮会消失，导致二次确认无法稳定完成。
   }, []);
@@ -869,6 +879,14 @@ export const MemoTaskItem = memo(function TaskListItem({
                       : undefined,
                   )}
                 >
+                  {zaicodeMode ? (
+                    <ZaicodeDriftMarker
+                      sessionId={task.taskId}
+                      workspacePath={task.workspacePath}
+                      workspaceIdentity={task.workspaceIdentity}
+                      sessionUpdatedAt={task.updatedAt}
+                    />
+                  ) : null}
                   {changeSummaryNode}
                   {changeSummaryNode ? (
                     <span aria-hidden="true" className="shrink-0 text-foreground-subtlest">

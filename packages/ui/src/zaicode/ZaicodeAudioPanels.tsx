@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Play, Square } from "lucide-react";
 import { cn } from "@/components/lib/utils.js";
+import { Checkbox } from "@/components/ui/checkbox.js";
 import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from "@/components/ui/popover.js";
 import { useZaicodeRunningSessions } from "./zaicodeSidebarPrefs.js";
 import {
@@ -153,17 +154,17 @@ export function ZaicodeProblipPanel({ className }: { className?: string }) {
           {PROBLIP_SOUNDS.map((sound) => {
             const checked = problip.sounds.includes(sound.id);
             return (
-              <label key={sound.id} className="flex items-center gap-1">
-                <input
-                  type="checkbox"
+              <label key={sound.id} className="flex items-center gap-1 cursor-pointer select-none">
+                <Checkbox
                   checked={checked}
-                  onChange={() =>
+                  onCheckedChange={() =>
                     setZaicodeProblip({
                       sounds: checked
                         ? problip.sounds.filter((id) => id !== sound.id)
                         : [...problip.sounds, sound.id],
                     })
                   }
+                  aria-label={sound.label}
                 />
                 <span className="truncate">{sound.label}</span>
               </label>
@@ -183,16 +184,16 @@ export function ZaicodeProblipPanel({ className }: { className?: string }) {
         />
         <span className="w-8 text-right tabular-nums">{problip.volume}%</span>
       </label>
-      <label className="flex items-center gap-1.5" title="A scheduled cue stands down instead of talking over another sound.">
-        <input type="checkbox" checked={problip.skipWhileBusy} onChange={(event) => setZaicodeProblip({ skipWhileBusy: event.target.checked })} />
+      <label className="flex items-center gap-1.5 cursor-pointer select-none" title="A scheduled cue stands down instead of talking over another sound.">
+        <Checkbox checked={problip.skipWhileBusy} onCheckedChange={(val) => setZaicodeProblip({ skipWhileBusy: Boolean(val) })} />
         Skip while another sound plays
       </label>
-      <label className="flex items-center gap-1.5">
-        <input type="checkbox" checked={problip.runOnLaunch} onChange={(event) => setZaicodeProblip({ runOnLaunch: event.target.checked })} />
+      <label className="flex items-center gap-1.5 cursor-pointer select-none">
+        <Checkbox checked={problip.runOnLaunch} onCheckedChange={(val) => setZaicodeProblip({ runOnLaunch: Boolean(val) })} />
         Keep running across restarts
       </label>
-      <label className="flex items-center gap-1.5">
-        <input type="checkbox" checked={problip.showCounter} onChange={(event) => setZaicodeProblip({ showCounter: event.target.checked })} />
+      <label className="flex items-center gap-1.5 cursor-pointer select-none">
+        <Checkbox checked={problip.showCounter} onCheckedChange={(val) => setZaicodeProblip({ showCounter: Boolean(val) })} />
         Show counter
       </label>
       <div className="flex flex-col gap-1 border border-border p-1.5 bg-background">
@@ -305,8 +306,8 @@ export function ZaicodeAmbiencePanel() {
             : AMBIENCE_STATE_TEXT[status.state]}
         </span>
       </div>
-      <label className="flex items-center gap-1.5">
-        <input type="checkbox" checked={ambience.enabled} onChange={(event) => setZaicodeAmbience({ enabled: event.target.checked })} />
+      <label className="flex items-center gap-1.5 cursor-pointer select-none">
+        <Checkbox checked={ambience.enabled} onCheckedChange={(val) => setZaicodeAmbience({ enabled: Boolean(val) })} />
         Play while agents work (fades in when work starts, out when everything is idle)
       </label>
       <div className="flex flex-col gap-1">
@@ -425,8 +426,8 @@ export function ZaicodeAmbienceCompact() {
   const volumeMilli = Math.round(ambience.volume * 1000);
   return (
     <div className="flex flex-col gap-2 text-ui-xs text-foreground" data-zaicode-ambience-compact>
-      <label className="flex items-center gap-1.5">
-        <input type="checkbox" checked={ambience.enabled} onChange={(event) => setZaicodeAmbience({ enabled: event.target.checked })} />
+      <label className="flex items-center gap-1.5 cursor-pointer select-none">
+        <Checkbox checked={ambience.enabled} onCheckedChange={(val) => setZaicodeAmbience({ enabled: Boolean(val) })} />
         Play a quiet loop while agents work
       </label>
       <div className="flex items-center gap-2">
@@ -482,11 +483,10 @@ export function ZaicodeSoundsShortcut() {
   const enabledCount = Object.values(settings.events).filter((row) => row.enabled).length;
   return (
     <div className="flex flex-wrap items-center gap-3 text-ui-xs text-foreground" data-zaicode-cue-panel>
-      <label className="flex items-center gap-1.5">
-        <input
-          type="checkbox"
+      <label className="flex items-center gap-1.5 cursor-pointer select-none">
+        <Checkbox
           checked={!settings.muted}
-          onChange={(event) => setZaicodeSoundSettings({ muted: !event.target.checked })}
+          onCheckedChange={(val) => setZaicodeSoundSettings({ muted: !val })}
         />
         ZAICODE sounds on
       </label>

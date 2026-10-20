@@ -47,6 +47,7 @@ import type {
   ToolExecutionResult,
   ToolRuntimeScope,
 } from "../types.js";
+import type { RepeatedToolFailureDetector } from "../repeated-failure.js";
 
 export interface BackgroundTaskNotificationCommand {
   originMeta?: BackgroundResultOriginMeta;
@@ -133,6 +134,8 @@ export interface ToolExecutorOptions {
   traceContext?: TraceContext;
   mode?: CollaborationMode;
   getMode?: () => CollaborationMode;
+  /** T-305: injectable repeated-failure detector; default is the in-process one. */
+  repeatedToolFailureDetector?: RepeatedToolFailureDetector;
   maxConcurrency?: number;
   hookRunner?: HookRunner;
 }
@@ -236,4 +239,6 @@ export interface ToolExecutorDeps {
   getMode: () => CollaborationMode;
   maxConcurrency: number;
   hookRunner?: HookRunner;
+  /** T-305: bounded repeated-failure detector; one instance per executor. */
+  repeatedToolFailureDetector?: RepeatedToolFailureDetector;
 }

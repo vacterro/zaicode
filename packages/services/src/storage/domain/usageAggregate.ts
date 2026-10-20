@@ -15,6 +15,7 @@ import {
 } from "@zcode/shared";
 
 export interface StorageScanEntry {
+  fileIdentity?: string;
   relativePath: string;
   bytes: number;
   mtimeMs: number;

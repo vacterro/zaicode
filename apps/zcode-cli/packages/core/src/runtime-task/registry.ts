@@ -41,6 +41,10 @@ export interface RuntimeTaskMessageSink {
 }
 
 export interface RuntimeTaskSnapshot extends SubagentTaskSnapshot {
+  /** Positive observation from the actual worker owner, not transcript activity. */
+  lastConfirmedAt?: number;
+  livenessTrackingId?: string;
+  livenessSource?: "poll" | "waiter";
   /** task 注册时所属 active conversation branch；用于迟到 completion fencing。 */
   branchGeneration?: number;
   exitCode?: number;

@@ -19,7 +19,7 @@ export const ZAICODE_CLICKABLE = "button, [role='button'], summary";
  * itself flips it). Form fields (tick boxes, radios, selects, sliders) answer
  * on "change" instead, and a control with data-zaicode-sound plays its own.
  */
-export function zaicodeClickSoundFor(target: ZaicodeSoundTarget, expandedBefore: string | null): string | null {
+export function zaicodeClickSoundFor(target: ZaicodeSoundTarget, expandedBefore: string | null, trusted = true): string | null {
   if (target.closest("[data-zaicode-sound], [aria-disabled='true'], :disabled")) return null;
   if (target.closest("[role='switch']")) return "ui.toggle";
   if (target.closest("[role='tab']")) return "ui.tab";
@@ -33,7 +33,8 @@ export function zaicodeClickSoundFor(target: ZaicodeSoundTarget, expandedBefore:
     if (expandedBefore === "false") return "ui.expand";
     return "ui.button";
   }
-  if (target.closest("a[href]")) return "ui.link";
+  // 程序创建的下载链接也会冒泡 click；只有真实用户跟随链接才播放 Link。
+  if (target.closest("a[href]")) return trusted ? "ui.link" : null;
   return null;
 }
 

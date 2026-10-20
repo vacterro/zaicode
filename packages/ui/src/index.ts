@@ -1,6 +1,12 @@
 export { App } from "./App.js";
-export { AppErrorBoundary, ScopedErrorBoundary } from "./ErrorBoundary.js";
-export type { ScopedErrorBoundaryVariant } from "./ErrorBoundary.js";
+export {
+  AppErrorBoundary,
+  ScopedErrorBoundary,
+  buildSanitizedCrashReport,
+  formatSanitizedCrashReportText,
+  sanitizeCrashDiagnosticsText,
+} from "./ErrorBoundary.js";
+export type { ScopedErrorBoundaryVariant, SanitizedCrashReport } from "./ErrorBoundary.js";
 export { Button, buttonVariants } from "./components/ui/button.js";
 export { DesktopWindowFrame } from "./DesktopWindowFrame.js";
 export {

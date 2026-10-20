@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { ZAICODE_WAITING_COLOR, isZaicodeHumanBlocker } from "@zcode/shared";
 import { cn } from "@/components/lib/utils.js";
+import { Checkbox } from "@/components/ui/checkbox.js";
 import { useZaicodeSaipen, useZaicodeSaipenRefresh } from "./zaicodeSaipen.js";
 import { useZaicodeProjectRuntime, zaicodeSaipenHeadline } from "./zaicodeProjectRuntime.js";
 import {
@@ -35,7 +36,7 @@ const DEFAULT_OPEN: Record<PaneSection, boolean> = { state: true, board: true, l
 
 function readOpen(): Record<PaneSection, boolean> {
   try {
-    return { ...DEFAULT_OPEN, ...(JSON.parse(localStorage.getItem(OPEN_KEY) ?? "{}") as object) };
+    return { ...DEFAULT_OPEN, ...(JSON.parse(readZaicodeSetting(OPEN_KEY) ?? "{}") as object) };
   } catch {
     return { ...DEFAULT_OPEN };
   }
@@ -583,8 +584,8 @@ if (!saipen || saipen.readError) {
                 >
                   {logOrder === "newest-first" ? "newest first" : "oldest first"}
                 </button>
-                <label className="flex shrink-0 items-center gap-1 text-foreground-subtlest" title="Keep the newest event in view">
-                  <input type="checkbox" checked={follow} onChange={(event) => setFollow(event.target.checked)} />
+                <label className="flex shrink-0 items-center gap-1 text-foreground-subtlest cursor-pointer select-none" title="Keep the newest event in view">
+                  <Checkbox checked={follow} onCheckedChange={(val) => setFollow(Boolean(val))} />
                   follow
                 </label>
               </span>

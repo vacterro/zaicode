@@ -8,6 +8,7 @@ import {
   getTaskListRowActivity,
   isTaskListRowActive,
 } from "../v4/taskListRowActivity.js";
+import { buildTaskWorkspaceKey } from "@/lib/taskQueryCache.js";
 import { todoReadinessRatio, type ZaicodeTodoItem } from "./zaicodeTodoProgress.js";
 import { zaicodeRunClock, type ZaicodeRunClock } from "./zaicodeRunClock.js";
 import { zaicodeSessionWorking } from "./zaicodeStall.js";
@@ -130,6 +131,13 @@ export interface ZaicodeSidebarPrefs {
   liveRemainInPosition: boolean;
   /** Freshness read-out on the project row from its last activity (SRC-051). */
   projectFreshness: ZaicodeProjectFreshness;
+  /**
+   * T-288 (SRC-201): the A3 audit marks a project row carries -- the "A3 x/y"
+   * wave chip and the audit offer inside the DONE mark. The operator asked to be
+   * able to decide whether they need them at all. Display only: the audit centre,
+   * the Audits bar entry and the row menu keep opening audits either way.
+   */
+  showAuditMarks: boolean;
   /** Where project names sit in their row (SRC-038). */
   projectTitleAlign: ZaicodeSlotLabelAlign;
   /** Project row state styling (SRC-055): ON and OFF stay distinguishable and operator-controlled. */
@@ -201,6 +209,7 @@ export const ZAICODE_SIDEBAR_DEFAULT_PREFS: ZaicodeSidebarPrefs = {
   liveHoldMs: 120_000,
   liveRemainInPosition: false,
   projectFreshness: "dot",
+  showAuditMarks: true,
   projectTitleAlign: "left",
   projectTitleFont: "ui",
   projectTitleSize: 12,
@@ -268,6 +277,7 @@ export function normalizeZaicodeSidebarPrefs(raw: unknown): ZaicodeSidebarPrefs 
       : d.liveHoldMs,
     liveRemainInPosition: flag(r.liveRemainInPosition, d.liveRemainInPosition),
     projectFreshness: pick(r.projectFreshness, ZAICODE_PROJECT_FRESHNESS, d.projectFreshness),
+    showAuditMarks: flag(r.showAuditMarks, d.showAuditMarks),
     projectTitleAlign: pick(
       r.projectTitleAlign,
       ["left", "center", "right"] as const,
@@ -441,7 +451,7 @@ export function projectLiveOf(
   let lastActivityAt = 0;
   let since = 0;
   for (const task of tasks) {
-    const active = isTaskListRowActive(task);
+    const active = isTaskListRowActive(task, now);
     const asking = getTaskListAttention(task) !== null || Boolean(task.pendingInteraction);
     // Every session is observed, working or not, so an idle one closes its streak.
     const streakSince = clock.observe(
@@ -583,6 +593,107 @@ export interface ZaicodeSessionLocation {
   workspacePath: string;
   workspaceIdentity?: string;
 }
+
+function liveRowEvidenceAt(row: ZCodeTaskMeta): number {
+  return getTaskListRowActivity(row)?.lastActivityAt ?? 0;
+}
+
+/**
+ * T-294: running inputs for one project = committed group rows UNION live
+ * sessions-index rows for that workspace.
+ *
+ * The committed task-list cache can lag the live index for a background
+ * project: a refresh flight is discarded wholesale whenever a pending scope
+ * ticks mid-flight, membership rows are cached per membership version, and
+ * rows are sliced to the visible limit. A project that resumed (or started)
+ * after its last commit then reads as idle the moment its mounted-view hint
+ * expires, and only reopening it republishes running evidence.
+ *
+ * The live sessions-index items are the authoritative runtime observation
+ * (the same feed the mounted conversation reads), so they join the running
+ * derivation only:
+ * - live-only rows are added (a resumed background session appears without
+ *   opening the project);
+ * - a row present on both sides takes the side with the newer activity
+ *   evidence, so a genuine terminal event always wins over a stale running
+ *   row and a stale terminal row never overrides a resumed run;
+ * - committed-only rows pass through untouched (a silent index keeps the
+ *   current behavior; no activity is ever invented).
+ *
+ * Stall/terminal semantics are unchanged: every downstream predicate
+ * (runningSessionsOf, projectLiveOf, zaicodeSessionWorking) still decides.
+ */
+export function unionCommittedAndLiveSessionRows(
+  groupItems: readonly ZCodeTaskMeta[],
+  liveItems: readonly ZCodeTaskMeta[],
+  workspaceKey: string,
+  now: number = Date.now(),
+  includeInactive = false,
+  excludedIds?: ReadonlySet<string> | ((taskId: string) => boolean),
+): ZCodeTaskMeta[] {
+  const isExcluded = (taskId: string): boolean => {
+    if (!excludedIds) return false;
+    if (typeof excludedIds === "function") return excludedIds(taskId);
+    return excludedIds.has(taskId);
+  };
+  const scopedLive = liveItems.filter(
+    (item) => buildTaskWorkspaceKey(item.workspacePath, item.workspaceIdentity) === workspaceKey,
+  );
+  const includedGroupItems = groupItems.filter((item) => !isExcluded(item.taskId));
+  if (scopedLive.length === 0) return includedGroupItems;
+  const liveById = new Map(scopedLive.map((item) => [item.taskId, item]));
+  const union = includedGroupItems.map((committed) => {
+    const live = liveById.get(committed.taskId);
+    if (!live) return committed;
+    liveById.delete(committed.taskId);
+    // T-295A: ties go to the live row. Both rows stamp the same frontier
+    // moment, but the live row arrived through the live subscription after
+    // the commit, so it is the channel-fresher observation. A terminal
+    // transition often carries the last progress timestamp (phase flip
+    // without a newer event), so strict > lets a stale committed running row
+    // override it; conversely a resumed run at the same stamp must displace
+    // a stale committed terminal row. Genuine novelty still advances the
+    // clock and wins strictly.
+    return liveRowEvidenceAt(live) >= liveRowEvidenceAt(committed) ? live : committed;
+  });
+  for (const live of liveById.values()) {
+    // T-295C / HUNT-007: a live-only row joins only with live liveness evidence,
+    // and must never re-add a session the membership authority excluded (tombstoned
+    // delete, archived, or pinned). Terminal or stalled live-only rows must not extend
+    // project recency or run clocks, and excluded sessions must not feed the automation brief.
+    if (isExcluded(live.taskId)) continue;
+    if (includeInactive || zaicodeSessionWorking(live, now)) union.push(live);
+  }
+  return union;
+}
+
+/**
+ * T-295B: authoritative reconcile inputs for all workspace groups. The
+ * sidebar passes these (not committed groups alone) to
+ * reconcileZaicodeLiveRuns, so a terminal event the live index already
+ * reports clears a stale hint even when the committed cache still shows the
+ * old running row. Mounted-view hints, the bounded grace window, runtime
+ * invalidation and stall detection all live inside reconcile itself and are
+ * unchanged.
+ */
+export function selectReconcileRows(
+  groups: readonly {
+    workspacePath: string;
+    workspaceIdentity?: string;
+    items: readonly ZCodeTaskMeta[];
+  }[],
+  liveItems: readonly ZCodeTaskMeta[],
+  now: number = Date.now(),
+): ZCodeTaskMeta[] {
+  return groups.flatMap((group) =>
+    unionCommittedAndLiveSessionRows(
+      group.items,
+      liveItems,
+      buildTaskWorkspaceKey(group.workspacePath, group.workspaceIdentity),
+      now,
+    ),
+  );
+};
 
 /** Running sessions of one project's task list, read from the live sessions-index activity. */
 export function runningSessionsOf(

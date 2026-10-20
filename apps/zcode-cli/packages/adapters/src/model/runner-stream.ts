@@ -21,6 +21,7 @@ import {
   getResponseHeaders,
   unwrapRetryError,
 } from "./failure-inspection.js";
+import { recordRouteSuccess } from "@zcode/shared";
 import { offPeakTicketExpiredMessage, resolveOffPeakFailureDecision } from "./offpeak-retry.js";
 import { isRetrySafePreludeStreamEvent } from "./stream-retry-boundary.js";
 import {
@@ -614,6 +615,21 @@ export async function* runStreamText(input: {
           },
           statusPublishOptions(input, admission),
         );
+        recordRouteSuccess({
+          comboId: (responseHeaders["x-combo-id"] ?? responseHeaders["X-Combo-Id"]) || resolved.providerId,
+          modelId:
+            (responseHeaders["x-router-upstream-model"] ??
+              responseHeaders["X-Router-Upstream-Model"] ??
+              responseHeaders["x-upstream-model"] ??
+              responseHeaders["X-Upstream-Model"] ??
+              responseHeaders["x-upstream-model-id"]) ||
+            resolved.modelId,
+          connectionId:
+            responseHeaders["x-router-upstream-provider"] ??
+            responseHeaders["X-Router-Upstream-Provider"] ??
+            responseHeaders["x-upstream-connection-id"] ??
+            responseHeaders["X-Upstream-Connection-Id"],
+        });
         terminalStatusPublished = true;
       }
       if (recordModelIO && options) {

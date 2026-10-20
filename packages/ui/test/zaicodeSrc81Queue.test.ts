@@ -55,31 +55,31 @@ test("audit: the queue asks the same effective retry projection as every other a
   // The pre-fix second gate (zaicodeMayAutoSend, deleted) let an explicit session On win even
   // with the retry preference off; the one effective projection does not.
   assert.equal(
-    zaicodeEffectiveAutoRetry({ ...prefs, autoRetry: true }, "p", "s", { masterOn: true, sessionMode: "on", halted: false }).enabled,
+    zaicodeEffectiveAutoRetry({ ...prefs, autoRetry: true }, "p", "s", { sessionMode: "on", halted: false }).enabled,
     true,
     "the projection is what the queue asks, and it says yes here...",
   );
   assert.equal(
-    zaicodeEffectiveAutoRetry(prefs, "p", "s", { masterOn: true, sessionMode: "on", halted: false }).enabled,
+    zaicodeEffectiveAutoRetry(prefs, "p", "s", { sessionMode: "on", halted: false }).enabled,
     false,
     "...unless the operator turned the retry preference off for this project/session/globally",
   );
   assert.equal(
-    zaicodeQueueAutoSendAllowed({ enabled: true, halted: false, projectKey: "p", sessionId: "s", prefs, masterOn: true, sessionMode: "on" }),
+    zaicodeQueueAutoSendAllowed({ enabled: true, halted: false, projectKey: "p", sessionId: "s", prefs, sessionMode: "on" }),
     false,
     "the effective projection: an explicit retry OFF is honoured, session On included",
   );
   // An explicit per-project ON was invisible to the old global-only gate.
   assert.equal(
-    zaicodeQueueAutoSendAllowed({ enabled: true, halted: false, projectKey: "p", sessionId: "s", prefs: { ...prefs, autoRetryProjects: { p: true } }, masterOn: true, sessionMode: undefined }),
+    zaicodeQueueAutoSendAllowed({ enabled: true, halted: false, projectKey: "p", sessionId: "s", prefs: { ...prefs, autoRetryProjects: { p: true } }, sessionMode: undefined }),
     true,
   );
   // The leash is otherwise unchanged.
-  assert.equal(zaicodeQueueAutoSendAllowed({ enabled: false, halted: false, projectKey: "p", sessionId: "s", prefs: { ...prefs, autoRetry: true }, masterOn: true, sessionMode: "on" }), false, "not the target surface");
-  assert.equal(zaicodeQueueAutoSendAllowed({ enabled: true, halted: true, projectKey: "p", sessionId: "s", prefs: { ...prefs, autoRetry: true }, masterOn: true, sessionMode: "on" }), false, "one halt stops every automatic send");
-  assert.equal(zaicodeQueueAutoSendAllowed({ enabled: true, halted: false, projectKey: "p", sessionId: "s", prefs: { ...prefs, autoRetry: true }, masterOn: true, sessionMode: "off" }), false, "an explicit session Off always wins");
-  assert.equal(zaicodeQueueAutoSendAllowed({ enabled: true, halted: false, projectKey: "p", sessionId: "s", prefs: { ...prefs, autoRetry: true }, masterOn: false, sessionMode: undefined }), false, "Auto OFF");
-  assert.equal(zaicodeQueueAutoSendAllowed({ enabled: true, halted: false, projectKey: "p", sessionId: "s", prefs: { ...prefs, autoRetry: true }, masterOn: false, sessionMode: "on" }), true, "a session set to On still continues itself");
+  assert.equal(zaicodeQueueAutoSendAllowed({ enabled: false, halted: false, projectKey: "p", sessionId: "s", prefs: { ...prefs, autoRetry: true }, sessionMode: "on" }), false, "not the target surface");
+  assert.equal(zaicodeQueueAutoSendAllowed({ enabled: true, halted: true, projectKey: "p", sessionId: "s", prefs: { ...prefs, autoRetry: true }, sessionMode: "on" }), false, "one halt stops every automatic send");
+  assert.equal(zaicodeQueueAutoSendAllowed({ enabled: true, halted: false, projectKey: "p", sessionId: "s", prefs: { ...prefs, autoRetry: true }, sessionMode: "off" }), false, "an explicit session Off always wins");
+  assert.equal(zaicodeQueueAutoSendAllowed({ enabled: true, halted: false, projectKey: "p", sessionId: "s", prefs: { ...prefs, autoRetry: true }, sessionMode: undefined }), true, "SRC-183: inherited retry ON is independent of Audits");
+  assert.equal(zaicodeQueueAutoSendAllowed({ enabled: true, halted: false, projectKey: "p", sessionId: "s", prefs: { ...prefs, autoRetry: true }, sessionMode: "on" }), true, "a session set to On still continues itself");
 });
 
 test("audit wiring: the hook gates on the projector and the pane names the project", () => {

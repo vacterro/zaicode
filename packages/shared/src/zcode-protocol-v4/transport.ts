@@ -888,11 +888,12 @@ export const v4AttachmentChunkParamsSchema = z
       context.addIssue({
         code: "too_big",
         maximum: PROTOCOL_V4_LIMITS.attachmentChunkMaxBytes,
+        type: "string",
         origin: "string",
         inclusive: true,
         message: "attachment chunk exceeds decoded byte limit",
         path: ["dataBase64"],
-      });
+      } as any);
     }
   });
 export type V4AttachmentChunkParams = z.infer<typeof v4AttachmentChunkParamsSchema>;
@@ -1000,11 +1001,12 @@ export const v4AttachmentReadResultSchema = z
       context.addIssue({
         code: "too_big",
         maximum: PROTOCOL_V4_LIMITS.attachmentMaxBytes,
+        type: "number",
         origin: "number",
         inclusive: true,
         message: "image preview exceeds total byte limit",
         path: ["totalBytes"],
-      });
+      } as any);
     }
     const decodedBytes = decodedBase64ByteLength(value.dataBase64);
     if (decodedBytes === null) {
@@ -1015,11 +1017,12 @@ export const v4AttachmentReadResultSchema = z
       context.addIssue({
         code: "too_big",
         maximum: PROTOCOL_V4_LIMITS.attachmentChunkMaxBytes,
+        type: "string",
         origin: "string",
         inclusive: true,
         message: "attachment read chunk exceeds decoded byte limit",
         path: ["dataBase64"],
-      });
+      } as any);
     }
     if (value.nextOffset !== null && value.nextOffset > value.totalBytes) {
       context.addIssue({
@@ -1064,11 +1067,12 @@ export const v4ConversationAttachmentReadResultSchema = z
       context.addIssue({
         code: "too_big",
         maximum: PROTOCOL_V4_LIMITS.attachmentChunkMaxBytes,
+        type: "string",
         origin: "string",
         inclusive: true,
         message: "attachment read chunk exceeds decoded byte limit",
         path: ["dataBase64"],
-      });
+      } as any);
     }
     if (value.nextOffset !== null && value.nextOffset > value.totalBytes) {
       context.addIssue({

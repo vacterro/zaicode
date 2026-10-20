@@ -41,6 +41,7 @@ import type { IConversationShareService } from "./conversation-share/conversatio
 import type { IZaicodeAgentService } from "./zaicode/zaicodeAgents.js";
 import type { IZaicodeJobService } from "./zaicode/zaicodeJobs.js";
 import type { IZaicodeStatsService } from "./zaicode/zaicodeStats.js";
+import type { IZaicodeOptimizationService } from "./zaicode/zaicodeOptimization.js";
 import type { IZaicodeAuditService } from "./zaicode/zaicodeAudits.js";
 
 /** UI 层消费的统一服务接口 */
@@ -96,6 +97,8 @@ export interface IServiceAccessor {
   readonly zaicodeJobService?: IZaicodeJobService;
   /** ZAICODE SAIHOME local statistics (local host only). */
   readonly zaicodeStatsService?: IZaicodeStatsService;
+  /** ZAICODE token optimization & efficiency recommendations (local host only). */
+  readonly zaicodeOptimizationService?: IZaicodeOptimizationService;
   /** ZAICODE A3 audit campaigns (local host only). */
   readonly zaicodeAuditService?: IZaicodeAuditService;
 }

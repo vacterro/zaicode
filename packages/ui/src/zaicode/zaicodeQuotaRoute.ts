@@ -16,12 +16,16 @@ import {
   openProviderQuotaCircuit,
   resolveProviderQuotaRoute,
   zaicodeNextRefillAt,
+  getRouteHealth,
   type ModelSelection,
 } from "@zcode/shared";
 import type { ModelSelectionView } from "@zcode/services";
 import type { SessionErrorInfo } from "@zcode/shared/zcode-protocol-v4";
 import type { ZaicodeEngineAccount, ZaicodeLimitSnapshot } from "@zcode/shared";
-import { ZAICODE_FALLBACK_QUOTA_KINDS, pickZaicodeFallbackModel } from "./zaicodeModelFallback.js";
+import {
+  ZAICODE_FALLBACK_QUOTA_KINDS,
+  pickZaicodeFallbackModel,
+} from "./zaicodeModelFallback.js";
 import { zaicodeRetryClassOf } from "./zaicodeRetryPolicy.js";
 
 /** Quota facts from any provider; tool/network errors never exhaust a model route. */
@@ -113,37 +117,170 @@ function carryReasoningLevel(
   return supported ? { ...fallback, options: { reasoningLevel: level } } : fallback;
 }
 
+export type RouteClassification =
+  | "operator_selected"
+  | "quota_fallback"
+  | "health_fallback"
+  | "session_execution"
+  | "router_upstream";
+
+export interface FallbackReasonReceipt {
+  receiptId: string;
+  kind: "quota" | "health" | "router_upstream";
+  timestamp: string;
+  requested: ModelSelection;
+  selected: ModelSelection;
+  actualSessionExecutionModel?: ModelSelection | null;
+  detail: string;
+  holdUntil: string | null;
+}
+
+export interface RouteComposerSelectionOptions {
+  pinned?: boolean;
+  actualSessionModel?: ModelSelection | null;
+  routerUpstreamModel?: string | null;
+}
+
 export interface ComposerQuotaRoute {
   selection: ModelSelection;
   /** The hold's end as a local time, for the UI to state. Null when the route ran as requested. */
   holdUntil: string | null;
   /** True when `selection` is the fallback pool rather than what the operator picked. */
   fallback: boolean;
+  /** Specific fallback classification: quota vs health vs router_upstream */
+  fallbackKind: "quota" | "health" | "router_upstream" | null;
+  /** Route classification: operator_selected, quota_fallback, health_fallback, session_execution, router_upstream */
+  routeClassification: RouteClassification;
+  /** Reason receipt for attribution */
+  receipt: FallbackReasonReceipt | null;
+  /** True if execution model was explicitly pinned and cannot be silently overridden */
+  isPinned?: boolean;
+}
+
+/**
+ * Classifies the operational origin of a model route decision to prevent confusion
+ * between operator pick, quota fallback, health fallback, and router-internal upstream.
+ */
+export function classifyRouteOrigin(params: {
+  operatorSelected: ModelSelection;
+  activeModel?: ModelSelection | null;
+  quotaFallback?: boolean;
+  healthFallback?: boolean;
+  routerUpstreamModel?: string | null;
+}): RouteClassification {
+  if (params.quotaFallback) return "quota_fallback";
+  if (params.healthFallback) return "health_fallback";
+  if (params.routerUpstreamModel) return "router_upstream";
+  if (
+    params.activeModel &&
+    (params.activeModel.providerId !== params.operatorSelected.providerId ||
+      params.activeModel.modelId !== params.operatorSelected.modelId)
+  ) {
+    return "session_execution";
+  }
+  return "operator_selected";
 }
 
 /**
  * The single routing decision a hand-sent turn makes, taken through the same resolver the
  * dispatcher uses. Exactly-once: the turn either goes where the operator asked, or it goes to the
  * fallback once and says so -- never silently to a substitute, never retried onto a dead route.
+ * Explicitly pinned models are never silently overridden.
  */
 export function routeComposerSelection(
   requested: ModelSelection,
   view: ModelSelectionView | null,
   now: number,
+  options?: RouteComposerSelectionOptions,
 ): ComposerQuotaRoute {
+  if (options?.pinned) {
+    return {
+      selection: requested,
+      holdUntil: null,
+      fallback: false,
+      fallbackKind: null,
+      routeClassification: "operator_selected",
+      receipt: null,
+      isPinned: true,
+    };
+  }
+
+  const health = getRouteHealth(
+    {
+      comboId: requested.providerId,
+      modelId: requested.modelId,
+    },
+    now,
+  );
+  const routeIsUnhealthy =
+    health.state === "COOLDOWN" ||
+    health.state === "QUARANTINED" ||
+    health.state === "PERMANENTLY_INVALID";
+
   const fallback = pickZaicodeFallbackModel(view, requested.providerId, now);
   const route = resolveProviderQuotaRoute({ requested, fallback, now });
+
+  if (routeIsUnhealthy && !route.fallback && fallback) {
+    const until = health.cooldownUntil ?? now + 60_000;
+    const holdLabel = holdUntilLabel(until);
+    const selected = carryReasoningLevel(requested, fallback, view);
+    return {
+      selection: selected,
+      holdUntil: holdLabel,
+      fallback: true,
+      fallbackKind: "health",
+      routeClassification: "health_fallback",
+      receipt: {
+        receiptId: `rcpt-health-${now}-${Math.random().toString(36).slice(2, 8)}`,
+        kind: "health",
+        timestamp: new Date(now).toISOString(),
+        requested,
+        selected,
+        actualSessionExecutionModel: options?.actualSessionModel ?? null,
+        detail: health.quarantineReason || `Route in health cooldown (${health.state})`,
+        holdUntil: holdLabel,
+      },
+    };
+  }
+
   if (!route.fallback) {
     return {
       selection: route.selection,
-      holdUntil: route.circuit ? holdUntilLabel(route.circuit.until) : null,
+      holdUntil: route.circuit
+        ? holdUntilLabel(route.circuit.until)
+        : routeIsUnhealthy
+          ? holdUntilLabel(health.cooldownUntil ?? now + 60_000)
+          : null,
       fallback: false,
+      fallbackKind: null,
+      routeClassification:
+        options?.actualSessionModel &&
+        (options.actualSessionModel.providerId !== requested.providerId ||
+          options.actualSessionModel.modelId !== requested.modelId)
+          ? "session_execution"
+          : "operator_selected",
+      receipt: null,
     };
   }
+
+  const holdLabel = holdUntilLabel(route.circuit!.until);
+  const selected = carryReasoningLevel(requested, route.selection, view);
   return {
-    selection: carryReasoningLevel(requested, route.selection, view),
-    holdUntil: holdUntilLabel(route.circuit!.until),
+    selection: selected,
+    holdUntil: holdLabel,
     fallback: true,
+    fallbackKind: "quota",
+    routeClassification: "quota_fallback",
+    receipt: {
+      receiptId: `rcpt-quota-${now}-${Math.random().toString(36).slice(2, 8)}`,
+      kind: "quota",
+      timestamp: new Date(now).toISOString(),
+      requested,
+      selected,
+      actualSessionExecutionModel: options?.actualSessionModel ?? null,
+      detail: route.circuit?.reason || "Provider quota circuit open",
+      holdUntil: holdLabel,
+    },
   };
 }
 

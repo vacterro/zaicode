@@ -577,6 +577,14 @@ html.zaicode-fonts body {
 html.zaicode-fonts input[type="range"] {
   accent-color: var(--zaicode-highlight, var(--color-accent));
 }
+/* Checkboxes and radios also adopt the palette highlight instead of OS accents (T-314). */
+html.zaicode-fonts input[type="checkbox"],
+html.zaicode-fonts input[type="radio"] {
+  accent-color: var(--zaicode-highlight, var(--color-accent));
+}
+html.zaicode-fonts select {
+  color-scheme: inherit;
+}
 html.zaicode-fonts pre, html.zaicode-fonts code, html.zaicode-fonts .font-mono, html.zaicode-fonts [data-diffs] {
   font-family: var(--font-mono) !important;
   font-variant-ligatures: var(--zaicode-code-ligatures);

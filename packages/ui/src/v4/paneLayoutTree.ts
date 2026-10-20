@@ -434,3 +434,19 @@ export function openSessionInNewPane(
     sessionId,
   });
 }
+
+/**
+ * 当 session 被废弃/删除时，安全协调布局中所有绑定该 session 的分屏叶子，关闭它们并平滑塌缩。
+ */
+export function reconcileRetiredSessionInLayout(
+  state: PaneLayoutSnapshot,
+  retiredSessionId: string,
+): PaneLayoutSnapshot {
+  let nextState = state;
+  for (const [paneId, binding] of Object.entries(state.panes)) {
+    if (binding.sessionId === retiredSessionId) {
+      nextState = closePane(nextState, paneId);
+    }
+  }
+  return nextState;
+}

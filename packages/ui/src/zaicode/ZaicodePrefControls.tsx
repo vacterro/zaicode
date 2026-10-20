@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from "react";
 import { cn } from "@/components/lib/utils.js";
+import { Checkbox } from "@/components/ui/checkbox.js";
 import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover.js";
 import { isZaicodeComboClick, nextZaicodeCombo } from "./zaicodeCombo.js";
 import { type ZaicodeRightClickPrefKey } from "./zaicodeUiPrefs.js";
@@ -93,15 +94,14 @@ export function ZaicodePrefCheck({
 }) {
   return (
     <label
-      className={cn("flex items-start gap-1.5 text-foreground", disabled && "opacity-50")}
+      className={cn("flex items-start gap-1.5 text-foreground cursor-pointer select-none", disabled && "opacity-50 cursor-not-allowed")}
       title={hint}
     >
-      <input
-        type="checkbox"
+      <Checkbox
         className="mt-0.5 shrink-0"
         checked={checked}
         disabled={disabled}
-        onChange={(event) => onChange(event.target.checked)}
+        onCheckedChange={(val) => onChange(Boolean(val))}
       />
       <span className="min-w-0">
         {label}

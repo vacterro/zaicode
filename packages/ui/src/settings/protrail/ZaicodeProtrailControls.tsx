@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Checkbox } from "@/components/ui/checkbox.js";
 import {
   PROTRAIL_PALETTE,
   protrailHexToRgb,
@@ -129,8 +130,8 @@ export function ProtrailColor({ label, value, onChange, disabled }: { label: str
 
 export function ProtrailCheck({ label, checked, onChange, hint, disabled }: { label: ReactNode; checked: boolean; onChange: (checked: boolean) => void; hint?: string; disabled?: boolean }) {
   return (
-    <label className={`flex items-center gap-2 ${disabled ? "opacity-50" : ""}`} title={hint}>
-      <input type="checkbox" checked={checked} disabled={disabled} onChange={(event) => onChange(event.target.checked)} />
+    <label className={`flex items-center gap-2 cursor-pointer select-none ${disabled ? "opacity-50 cursor-not-allowed" : ""}`} title={hint}>
+      <Checkbox checked={checked} disabled={disabled} onCheckedChange={(val) => onChange(Boolean(val))} />
       <span className="text-foreground">{label}</span>
     </label>
   );

@@ -421,7 +421,7 @@ function writeOfficialMarketplace(storageRoot: string, source: OfficialPluginSee
           name: plugin.definition.name,
           source: source.kind,
           version: plugin.definition.version,
-          ...(plugin.definition.listing ?? {}),
+          ...plugin.definition.listing,
         };
       }),
       version: 1,
@@ -676,7 +676,7 @@ function modeForSeedFile(filePath: string, sourceMode?: number): number {
   // 直接执行 hook 脚本，若落盘成 0644 会 permission denied。这里保留源码执行位，
   // 并对 SEA/旧 manifest 缺少 mode 的 hook 脚本兜底。
   if (/(?:^|\/)dist\/mcp\/server\.js$/i.test(normalizedPath)) return 0o755;
-  if (/^hooks\//u.test(normalizedPath) && !/\.(json|md|txt)$/iu.test(normalizedPath)) {
+  if (normalizedPath.startsWith('hooks/') && !/\.(json|md|txt)$/iu.test(normalizedPath)) {
     return 0o755;
   }
 

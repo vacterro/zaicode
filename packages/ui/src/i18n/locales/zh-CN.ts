@@ -6462,6 +6462,22 @@ const zhCN: Record<string, string> = {
   "settings.modelProvider.enableAllModels": "全部启用",
   "settings.modelProvider.disableAllModels": "全部停用",
   "settings.modelProvider.enableOnlyModel": "仅启用…",
+  "chat.queue.actionBlocked": "{action} was not applied: {reason}",
+  "chat.queue.sessionPausedNote": "The session is paused. Continuing the queue does not resume the session — the paused continuation still needs its authorization.",
+  "chat.transcript.title": "会话记录",
+  "chat.transcript.user": "用户",
+  "chat.transcript.assistant": "助手",
+  "chat.transcript.thoughts": "思考",
+  "chat.transcript.tools": "工具",
+  "chat.transcript.showSection": "显示{section}",
+  "chat.transcript.scrollSection": "滚动{section}",
+  "chat.transcript.scroll": "滚动",
+  "chat.transcript.scrollHint": "限制此部分的高度并滚动内容。关闭时显示全部已加载内容。",
+  "chat.transcript.scrollDisabled": "先显示此部分才能调整滚动。",
+  "chat.transcript.expand": "展开详情",
+  "chat.transcript.expandHint": "保持思考和工具详情展开。",
+  "chat.transcript.filters": "会话筛选",
+  "chat.transcript.filter": "筛选",
 };
 
 export default zhCN;

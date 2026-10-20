@@ -16,7 +16,6 @@ import { conversationRowSchema } from "./rows.js";
 import { toolCallDisplaySchema } from "./toolDisplay.js";
 
 import {
-  workspaceHookReviewRequestPayloadSchema,
   workspaceHookReviewRequestPayloadObjectSchema,
 } from "./workspace-hook-review.js";
 import { workflowRunsStateSchema } from "./workflow-runs.js";
@@ -102,6 +101,20 @@ export const errorAttributionSchema = z
     statusCode: z.number().int().min(100).max(599).optional(),
     providerErrorCode: z.string().min(1).max(160).optional(),
     retryable: z.boolean().optional(),
+    requestId: z.string().optional(),
+    routerRequestId: z.string().optional(),
+    comboId: z.string().optional(),
+    comboName: z.string().optional(),
+    upstreamModelId: z.string().optional(),
+    upstreamProviderId: z.string().optional(),
+    upstreamConnectionId: z.string().optional(),
+    attempt: z.number().int().optional(),
+    retryAfterMs: z.number().optional(),
+    providerErrorMessage: z.string().optional(),
+    timeoutStage: z.string().optional(),
+    streamedContent: z.boolean().optional(),
+    candidateTried: z.boolean().optional(),
+    fallbackReason: z.string().optional(),
   })
   .strict();
 export type ErrorAttribution = z.infer<typeof errorAttributionSchema>;

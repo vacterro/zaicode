@@ -3,7 +3,10 @@ import type {
   ZaicodeHomeStats,
   ZaicodeHomeStatsRequest,
   ZaicodeStatsActivity,
+  ZaicodeStatsTotals,
   ZaicodeStatsWorkerSession,
+  ZaicodeRouterUsageScopeRequest,
+  ZaicodeRouterScopedUsage,
 } from "@zcode/shared";
 import { createServiceDescriptor } from "../descriptors.js";
 
@@ -16,6 +19,17 @@ import { createServiceDescriptor } from "../descriptors.js";
 export interface IZaicodeStatsService {
   /** Reads new events from the sources (throttled) and returns the home statistics. */
   getHomeStats(request: ZaicodeHomeStatsRequest): Promise<ZaicodeHomeStats>;
+  /**
+   * REQ-012: totals for one recorded slice (project and/or session). Both
+   * empty = everything stored. Empty slices return a zero row, never null.
+   */
+  getScopeTotals(project?: string | null, sessionId?: string | null): Promise<ZaicodeStatsTotals>;
+  /** Recorded router requests for the active project/session, including the requested time period. */
+  getRouterUsage(request: ZaicodeRouterUsageScopeRequest): Promise<ZaicodeRouterScopedUsage>;
+  /** REQ-012: recorded project keys for the usage scope picker. */
+  getScopeProjects(): Promise<{ project: string; events: number; lastAt: number }[]>;
+  /** REQ-012: recorded session keys, optionally inside one project. */
+  getScopeSessions(project?: string | null): Promise<{ sessionId: string; project: string | null; events: number; lastAt: number }[]>;
   /** Newest queue runs and worker sessions. */
   getRecentActivity(limit?: number): Promise<ZaicodeStatsActivity[]>;
   /** CLI worker sessions that ended (the renderer owns the worker terminals). */

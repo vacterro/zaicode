@@ -14,6 +14,7 @@ import { zaicodeContinueHandleFor } from "./zaicodeContinueHost.js";
 import { zaicodeAutoRetryAllowedFor } from "./zaicodeRetryPolicy.js";
 import { useZaicodeUiPrefs } from "./zaicodeUiPrefs.js";
 import { relaunchZaicodeWorkersAfterCrash } from "./zaicodeWorkerRecovery.js";
+import { useZaicodeAutoGoal, zaicodeAutoGoalEnabled } from "./zaicodeAutoGoal.js";
 
 /**
  * Auto-continue after a crash (SRC-044): "between crashes the state must be
@@ -45,26 +46,20 @@ export interface ZaicodeCrashResumeStep {
 }
 
 /** Pure: what to continue after a crash, oldest cut first. */
+import { isZaicodeCleanupInProgress, isSessionRetired } from "./zaicodeCleanupFence.js";
+
 export function planZaicodeCrashResume(
   sessions: readonly ZaicodeSessionBrief[],
   project: (projectKey: string) => { hasSaipen: boolean; disabled: boolean } | null,
   now: number,
   maxAgeHours: number,
-  /**
-   * The per-session decision (Wave 2). Given the global switch and this
-   * session's own Default / On / Off, may this session continue itself? A
-   * session that says no is not a candidate at all, whatever the global
-   * switch says; a session that says yes still has to pass every rule above.
-   *
-   * The second argument is the session's own brief, so the caller can scope the
-   * decision to the project the session belongs to (the retry preference is
-   * per-project): a pre-Wave-2 caller that only needs the id may ignore it.
-   */
   allowed: (sessionId: string, session: ZaicodeSessionBrief) => boolean = () => true,
 ): ZaicodeCrashResumeStep[] {
+  if (isZaicodeCleanupInProgress()) return [];
   const oldest = now - maxAgeHours * 3_600_000;
   return sessions
     .filter((session) => session.crashCut && !session.running && !session.waiting && session.updatedAt >= oldest)
+    .filter((session) => !isSessionRetired(session.sessionId))
     .filter((session) => !project(session.projectKey)?.disabled)
     .filter((session) => allowed(session.sessionId, session))
     .sort((left, right) => left.updatedAt - right.updatedAt)
@@ -114,6 +109,12 @@ function projectFacts(projectKey: string): { hasSaipen: boolean; disabled: boole
   return row ? { hasSaipen: row.hasSaipen, disabled: row.disabled } : null;
 }
 
+/** Active Auto Goal restoration belongs to its continuation owner, including renderer reloads. */
+export function zaicodeGoalOwnsCrashResume(session: Pick<ZaicodeSessionBrief, "projectKey" | "goalStatus" | "goalObjective">): boolean {
+  return session.goalStatus === "active" && Boolean(session.goalObjective?.trim()) &&
+    zaicodeAutoGoalEnabled(useZaicodeAutoGoal.getState(), session.projectKey);
+}
+
 async function runSteps(steps: readonly ZaicodeCrashResumeStep[]): Promise<{ sent: string[]; failed: string[] }> {
   const sent: string[] = [];
   const failed: string[] = [];
@@ -130,7 +131,11 @@ async function runSteps(steps: readonly ZaicodeCrashResumeStep[]): Promise<{ sen
       continue;
     }
     try {
-      await handle.send(step.sessionId, step.command);
+      await handle.send(step.sessionId, step.command, { idleOnly: true, canDispatch: () => {
+        const current = useZaicodeSessionBriefs.getState().sessions.find((item) => item.sessionId === step.sessionId);
+        return Boolean(current?.crashCut && !zaicodeGoalOwnsCrashResume(current) && !current.running && !current.waiting && !current.manuallyStopped &&
+          zaicodeAutoRetryAllowedFor(step.projectKey, step.sessionId, useZaicodeUiPrefs.getState().resumeAfterCrash));
+      } });
       sent.push(line);
     } catch (error) {
       failed.push(`${line}: ${error instanceof Error ? error.message : String(error)}`);
@@ -152,11 +157,11 @@ export function useZaicodeCrashResume(): void {
         Date.now(),
         prefs.resumeAfterCrashHours,
         // SRC-082 / T-231: the crash resume is an autonomous send like any other, so it asks
-        // the ONE effective retry projection -- the sidebar's Auto master, this session's own
-        // mode and the project/session/global retry preference -- instead of its own second
+        // the ONE effective retry projection -- this session's own mode, stop-all and
+        // the project/session/global retry preference -- instead of its own second
         // gate. An operator's explicit retry OFF for this project, or the sidebar's stop-all,
         // now stops a crash resume too; before, only the session's own On could not be stopped.
-        (sessionId, session) => zaicodeAutoRetryAllowedFor(session.projectKey, sessionId, prefs.resumeAfterCrash),
+        (sessionId, session) => !zaicodeGoalOwnsCrashResume(session) && zaicodeAutoRetryAllowedFor(session.projectKey, sessionId, prefs.resumeAfterCrash),
       );
     };
     const first = window.setTimeout(() => {

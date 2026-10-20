@@ -33,7 +33,6 @@ import type {
   OfficialMcpAuthFailureReason,
   OfficialMcpAuthHeadersPort,
   OfficialMcpTrustedOriginRegistry,
-  TraceContext,
 } from "@zcode/contracts";
 import { ZCODE_MCP_SERVER_REQUEST_ID_META_KEY } from "@zcode/contracts";
 import { normalizeMcpToolDescriptor } from "./descriptor.js";
@@ -1131,7 +1130,7 @@ class NodeMcpAdapter implements McpPort {
           event: "mcp.server.connection_lost",
           mcpServerName: name,
           ...(mcpTransportPid != null ? { mcpTransportPid } : {}),
-          ...(mcpProcessIdentity ?? {}),
+          ...mcpProcessIdentity,
           ...(processExit
             ? { exitCode: processExit.exitCode, signal: processExit.signal ?? undefined }
             : {}),
@@ -1166,7 +1165,7 @@ class NodeMcpAdapter implements McpPort {
         mcpProtocolEra: negotiatedProtocolEra ?? "unknown",
         mcpProtocolVersion: negotiatedProtocolVersion ?? "unknown",
         mcpServerName: name,
-        ...(mcpProcessIdentity ?? {}),
+        ...mcpProcessIdentity,
         ...(mcpTransportPid != null ? { mcpTransportPid } : {}),
         mcpVersionNegotiationMode: formatVersionNegotiationMode(config),
         status: "completed",

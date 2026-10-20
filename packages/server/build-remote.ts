@@ -1,10 +1,11 @@
 import { readFileSync } from "node:fs";
+import path from "node:path";
 import { build, type Plugin } from "esbuild";
 import { validateRemoteServerBundle } from "./buildRemoteValidation.js";
 import { loadBuiltinProviderConfig } from "../../scripts/builtin-provider-config.mjs";
 import { stageThirdPartyNotices } from "../../scripts/third-party-notices.mjs";
 
-const { version } = JSON.parse(readFileSync("../../package.json", "utf-8"));
+const { version } = JSON.parse(readFileSync(path.resolve(import.meta.dirname, "../../package.json"), "utf-8"));
 const { content: zcodeBuiltinProviderConfigJson } = await loadBuiltinProviderConfig();
 
 /**
@@ -28,9 +29,9 @@ const nativeAddonPlugin: Plugin = {
 };
 
 const buildResult = await build({
-  entryPoints: ["src/entry-stdio.ts"],
+  entryPoints: [path.resolve(import.meta.dirname, "src/entry-stdio.ts")],
   bundle: true,
-  outfile: "dist/remote/zcode-server.cjs",
+  outfile: path.resolve(import.meta.dirname, "dist/remote/zcode-server.cjs"),
   platform: "node",
   format: "cjs",
   target: "node22",
@@ -49,10 +50,11 @@ const buildResult = await build({
   metafile: true,
 });
 
-const remoteBundleSource = readFileSync("dist/remote/zcode-server.cjs", "utf-8");
+const remoteBundlePath = path.resolve(import.meta.dirname, "dist/remote/zcode-server.cjs");
+const remoteBundleSource = readFileSync(remoteBundlePath, "utf-8");
 const bundledInputs = Object.keys(buildResult.metafile.inputs);
 validateRemoteServerBundle({ bundledInputs, source: remoteBundleSource });
 // 修复：remote 单文件 bundle 内联第三方代码，dist/remote 也必须附完整声明。
-await stageThirdPartyNotices("dist/remote");
+await stageThirdPartyNotices(path.resolve(import.meta.dirname, "dist/remote"));
 
 console.log("Built dist/remote/zcode-server.cjs");

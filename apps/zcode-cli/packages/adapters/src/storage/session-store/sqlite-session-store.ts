@@ -563,7 +563,7 @@ export class SqliteSessionStore
         await messageRepository.saveMessage(this.db, {
           ...contextMessage.info,
           metadata: {
-            ...(contextMessage.info.metadata ?? {}),
+            ...contextMessage.info.metadata,
             sharedContextStatus: input.status,
           },
         });

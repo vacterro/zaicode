@@ -167,8 +167,9 @@ test("Antigravity keeps a bucket that has a reset time but no fraction yet", () 
     },
   });
   const five = windows.find((window) => window.key.startsWith("five_hour"));
-  assert.ok(five, "no fraction means not consumed yet, not unknown");
-  assert.equal(five.remainingPercent, 100);
+  assert.ok(five, "a reset retains the supported bucket even without a measured fraction");
+  // SRC-198:R006 禁止把缺少比例伪装成 100%；旧 T143 的推断应服从此用户修正。
+  assert.equal(five.remainingPercent, null);
   assert.ok(five.resetsAt !== null);
 });
 

@@ -51,7 +51,7 @@ export function ZaicodeAgentRoster({
           className="text-ui-xs font-medium uppercase tracking-wide text-foreground-subtle"
           title={intl.formatMessage({ id: "zaicode.flow.agentsHelp" })}
         >
-          {intl.formatMessage({ id: "zaicode.roster.title" })}
+          Agent Definitions ({agents.length})
         </span>
         <Button
           size="icon-sm"
@@ -70,8 +70,8 @@ export function ZaicodeAgentRoster({
       ) : null}
       <div className="shrink-0 border-b border-border px-2 py-2">
         <div className="mb-1 flex items-center justify-between text-ui-xs text-foreground-subtle">
-          <span>{intl.formatMessage({ id: "zaicode.roster.modes" })}</span>
-          <span className="text-[10px] text-foreground-subtlest">Sub-agents</span>
+          <span className="font-medium">Agent Templates (Roles)</span>
+          <span className="text-[10px] text-foreground-subtlest">Templates</span>
         </div>
         <div className="flex flex-wrap gap-1">
           {templates.map((template) => {
@@ -120,12 +120,13 @@ export function ZaicodeAgentRoster({
           <div className="flex flex-col gap-1">
             {agents.map((agent) => {
               const status = deriveAgentDisplayStatus(agent, jobs);
-              const depth = jobs.filter(
+              const runningCount = jobs.filter(
+                (job) => job.agentId === agent.id && job.status === "running",
+              ).length;
+              const queuedCount = jobs.filter(
                 (job) =>
                   job.agentId === agent.id &&
-                  job.status !== "completed" &&
-                  job.status !== "failed" &&
-                  job.status !== "cancelled",
+                  (job.status === "queued" || job.status === "ready" || job.status === "waiting"),
               ).length;
               const selected = selectedAgentId === agent.id;
               return (
@@ -144,17 +145,35 @@ export function ZaicodeAgentRoster({
                 >
                   <div className="flex min-w-0 items-center gap-2">
                     <ZaicodeIcon slot="roster.agent" className="size-3.5 text-foreground-subtle" />
-                    <span className="min-w-0 flex-1 truncate text-ui-base text-foreground">
+                    <span className="min-w-0 flex-1 truncate text-ui-base text-foreground font-medium">
                       {agent.name}
                     </span>
-                    <span className="shrink-0 text-ui-xs text-foreground-subtle">
+                    <span
+                      className={cn(
+                        "shrink-0 text-ui-xs px-1 rounded",
+                        status === "running" && "bg-blue-950/40 text-blue-300 border border-blue-600/60",
+                        status === "blocked" && "bg-red-950/40 text-red-300 border border-red-600/60",
+                        status === "idle" && "text-foreground-subtle",
+                        status === "offline" && "text-foreground-subtlest opacity-60",
+                      )}
+                    >
                       {intl.formatMessage({ id: agentDisplayStatusLabelId(status) })}
                     </span>
                   </div>
-                  <div className="flex min-w-0 items-center gap-2 text-ui-xs text-foreground-subtlest">
-                    <span className="truncate">{modelLabel(agent)}</span>
-                    <span className="shrink-0">
-                      {intl.formatMessage({ id: "zaicode.roster.queueDepth" }, { count: depth })}
+                  <div className="flex min-w-0 items-center justify-between text-ui-xs text-foreground-subtlest">
+                    <span className="truncate max-w-[120px]">{modelLabel(agent)}</span>
+                    <span className="shrink-0 flex items-center gap-1 font-mono text-[10px]">
+                      {runningCount > 0 ? (
+                        <span className="text-blue-400 font-medium">
+                          {runningCount} worker{runningCount === 1 ? "" : "s"} active
+                        </span>
+                      ) : null}
+                      {queuedCount > 0 ? (
+                        <span className="text-yellow-400/90">{queuedCount} queued</span>
+                      ) : null}
+                      {runningCount === 0 && queuedCount === 0 ? (
+                        <span>0 active</span>
+                      ) : null}
                     </span>
                   </div>
                   <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">

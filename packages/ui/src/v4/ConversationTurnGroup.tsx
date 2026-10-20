@@ -43,6 +43,7 @@ import {
 } from "@/ToolCallBlocks/renderers/offpeak-create.js";
 import { useZCodeIntl } from "@/i18n/IntlProvider.js";
 import type { AssistantPreviewCard } from "@/lib/assistantPreviewCards.js";
+import { isExpandedTranscriptView, transcriptShowsWorkStatus, transcriptShowsToolExtras } from "@/lib/transcriptView.js";
 import { useAssistantCodeCommentFeatureEnabled } from "@/AssistantCodeCommentFeatureProvider.js";
 import {
   buildAssistantCodeCommentCards,
@@ -68,11 +69,7 @@ import { ConversationWorkflowCompletion } from "@/v4/ConversationWorkflowComplet
 import { resolveWorkflowTurnDigests } from "@/v4/workflowTurnDigests.js";
 import { resolveWorkflowTurnCompletion } from "@/v4/workflowTurnCompletion.js";
 import { ConversationAssistantTextActions } from "@/v4/ConversationRowView.js";
-import { readAssistantFeedback } from "@/v4/ConversationRowView.js";
-import type {
-  AssistantFeedbackHandler,
-  EditWorkspaceRewindAvailability,
-} from "@/v4/ConversationRowView.js";
+import type { EditWorkspaceRewindAvailability } from "@/v4/ConversationRowView.js";
 import {
   isConversationReasoningRowVisible,
   type ConversationRowRenderContext,
@@ -98,7 +95,6 @@ interface ConversationTurnGroupProps {
   context: ConversationRowRenderContext;
   onFork?: (target: ConversationRowTarget) => void;
   onRetry?: (target: ConversationRowTarget) => void;
-  onFeedbackChange?: AssistantFeedbackHandler;
   onEdit?: (
     target: ConversationRowTarget,
     newText: string,
@@ -676,13 +672,12 @@ function ConversationWorkSegmentFlow({
     setHistoryOpen(segment.assistantHistoryDefaultOpen);
   }, [segment.assistantHistoryDefaultOpen, segment.key]);
 
-  const onlyText = context.transcriptView === "only-text";
-  const shouldShowHistoryStatus = !onlyText && segment.workStatus !== undefined;
+  const shouldShowHistoryStatus = transcriptShowsWorkStatus(context.transcriptView) && segment.workStatus !== undefined;
   const firstAssistantFlowItemIndex = segment.flowItems.findIndex(
     (item) => item.kind !== "userInput",
   );
   let historyChunkIndex = 0;
-  const expandedView = context.transcriptView === "full" || context.transcriptView === "full-unbounded" || onlyText;
+  const expandedView = isExpandedTranscriptView(context.transcriptView);
   const open = expandedView || segment.assistantHistoryDefaultOpen || historyOpen;
 
   return (
@@ -1157,7 +1152,6 @@ function ConversationTurnGroupImpl({
   context,
   onFork,
   onRetry,
-  onFeedbackChange,
   onEdit,
   shareSelection,
 }: ConversationTurnGroupProps) {
@@ -1435,7 +1429,7 @@ function ConversationTurnGroupImpl({
             />
           )}
           {/* 完成卡：这一轮消化的那条 run 做了什么、花了多少，紧跟最后一段正文。 */}
-          {context.transcriptView === "only-text" || workflowTurnCompletion === undefined ? null : (
+          {!transcriptShowsToolExtras(context.transcriptView) || workflowTurnCompletion === undefined ? null : (
             <ConversationWorkflowCompletion
               completion={workflowTurnCompletion}
               context={context}
@@ -1443,7 +1437,7 @@ function ConversationTurnGroupImpl({
             />
           )}
           {/* 轮尾摘要：这一轮留下在跑的 run，排在完成卡之后、其余轮尾块之前。 */}
-          {context.transcriptView !== "only-text" ? (
+          {transcriptShowsToolExtras(context.transcriptView) ? (
             <ConversationWorkflowDigests
               context={context}
               digests={workflowTurnDigests}
@@ -1452,9 +1446,9 @@ function ConversationTurnGroupImpl({
           ) : null}
           {/* CronCreate/CronUpdate 工具本身仍按普通工具行展示；成功卡片属于整轮
               完成后的结果摘要，必须等回复结束再跟随最终 assistant 正文收尾。 */}
-          <CronAutomationTurnCards cards={cronAutomationTurnCards} context={context} />
-          <OffPeakTurnCards cards={offPeakTurnCards} context={context} />
-          {context.transcriptView !== "only-text" && !isOfficeMode && unit.header?.fileChanges ? (
+          {transcriptShowsToolExtras(context.transcriptView) ? <CronAutomationTurnCards cards={cronAutomationTurnCards} context={context} /> : null}
+          {transcriptShowsToolExtras(context.transcriptView) ? <OffPeakTurnCards cards={offPeakTurnCards} context={context} /> : null}
+          {transcriptShowsToolExtras(context.transcriptView) && !isOfficeMode && unit.header?.fileChanges ? (
             <ConversationFileSummaryPanel header={unit.header} context={context} />
           ) : null}
           {unit.browserTurnEndRows.length > 0 ? (
@@ -1474,11 +1468,7 @@ function ConversationTurnGroupImpl({
               entityId={latestAssistantTextRow.entityId}
               text={assistantCopyText}
               createdAt={latestAssistantTextRow.createdAt}
-              feedback={readAssistantFeedback(latestAssistantTextRow)}
-              sessionId={context.sessionId}
               onFork={canForkLatestAssistant ? onFork : undefined}
-              onRetry={canRetryLatestAssistant ? onRetry : undefined}
-              onFeedbackChange={onFeedbackChange}
               hookInvocations={unit.hookInvocations}
               turnId={unit.turnId}
               className="opacity-0 transition-opacity group-hover/assistant-turn:opacity-100 focus-within:opacity-100"

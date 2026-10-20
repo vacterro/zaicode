@@ -91,7 +91,7 @@ test("T-225: every bevel-row rule outranks the presentation shadow kill-rule", (
   const kill = killSelector();
   const killSpec = specificity(kill);
   const selected =
-    /(html\.zaicode-bevels[^\n`]*data-zaicode-project-selected[^\n`]*)/.exec(bevels);
+    /(html\.zaicode-product[^\n`]*data-zaicode-project-selected[^\n`]*)/.exec(bevels);
   assert.ok(selected, "selected-row sunken rule must exist");
   const full = [...rowParts("ROWS"), ...rowParts("ROWS_OPEN")].map((part) => `${scope} ${part}`);
   full.push(selected[1]);

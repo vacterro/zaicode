@@ -190,6 +190,10 @@ async function renderConversationSharePage(): Promise<void> {
 
 function createWebPlatform(): IPlatformService {
   return {
+    writeClipboardText: async (text) => {
+      if (!navigator.clipboard?.writeText) throw new Error("Clipboard unavailable in this browser");
+      await navigator.clipboard.writeText(text);
+    },
     canSelectFilePath: false,
     // Web 端无法打开系统目录选择框
     selectDirectory: () => Promise.resolve(null),

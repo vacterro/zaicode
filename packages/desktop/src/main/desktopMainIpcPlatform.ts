@@ -1,5 +1,5 @@
 /* eslint-disable max-lines -- 桌面平台 IPC 集中装配，拆散会让权限边界更难审计；行数随平台能力增长。 */
-import { BrowserWindow, dialog, ipcMain, nativeTheme, screen } from "electron";
+import { BrowserWindow, clipboard, dialog, ipcMain, nativeTheme, screen } from "electron";
 import { readZCodeStdioTapDevState } from "@zcode/services/node";
 import {
   DesktopCommandIds,
@@ -11,6 +11,7 @@ import {
   rendererLogPayloadSchema,
   stringArraySchema,
   type DesktopCommandId,
+  type DesktopCommandOptions,
   type ApplicationIconRequest,
   type Locale,
   type LoadCliMcpFromUserDirectoryRequest,
@@ -127,6 +128,7 @@ export function registerPlatformIpcHandlers(options: {
   executeDesktopCommand: (
     command: DesktopCommandId,
     senderWindow?: BrowserWindow | null,
+    commandOptions?: DesktopCommandOptions,
   ) => Promise<unknown>;
   acknowledgePostUpdateReleaseNotes: (version: string) => Promise<void>;
   syncActiveTaskSession: (windowId: number, sessionId: string | null) => void;
@@ -190,6 +192,13 @@ export function registerPlatformIpcHandlers(options: {
   });
 
   registerDesktopSaveFileIpcHandler(options.logger);
+  ipcMain.handle(PlatformChannels.WriteClipboardText, (event, text: unknown) => {
+    if (!BrowserWindow.fromWebContents(event.sender) || typeof text !== "string") {
+      throw new Error("Invalid clipboard text request");
+    }
+    // 完整 session 读取是异步操作，浏览器的瞬时 user activation 可能已失效；原生写入由 Main 收口。
+    clipboard.writeText(text);
+  });
   registerDesktopPrintToPdfIpcHandler(options.logger);
 
   ipcMain.handle(
@@ -696,15 +705,27 @@ export function registerPlatformIpcHandlers(options: {
       openInEditor(payload.editorId, payload.path, payload.options),
   );
 
-  ipcMain.handle(PlatformChannels.ExecuteDesktopCommand, async (event, command: string) => {
-    const senderWindow = BrowserWindow.fromWebContents(event.sender);
-    const isKnownCommand = (Object.values(DesktopCommandIds) as string[]).includes(command);
-    if (!isKnownCommand) {
-      options.logger.warn("[desktop-command] invalid command:", command);
-      return;
-    }
+  ipcMain.handle(
+    PlatformChannels.ExecuteDesktopCommand,
+    async (
+      event,
+      request: string | { command: string; options?: DesktopCommandOptions },
+    ) => {
+      const senderWindow = BrowserWindow.fromWebContents(event.sender);
+      const command = typeof request === "string" ? request : request?.command;
+      const commandOptions = typeof request === "object" ? request?.options : undefined;
+      const isKnownCommand = (Object.values(DesktopCommandIds) as string[]).includes(command);
+      if (!isKnownCommand) {
+        options.logger.warn("[desktop-command] invalid command:", command);
+        return;
+      }
 
-    // 返回值直通 renderer 的 executeDesktopCommand promise（GetCuaOsSupport 依赖此行为）。
-    return await options.executeDesktopCommand(command as DesktopCommandId, senderWindow);
-  });
+      // 返回值直通 renderer 的 executeDesktopCommand promise（GetCuaOsSupport 依赖此行为）。
+      return await options.executeDesktopCommand(
+        command as DesktopCommandId,
+        senderWindow,
+        commandOptions,
+      );
+    },
+  );
 }

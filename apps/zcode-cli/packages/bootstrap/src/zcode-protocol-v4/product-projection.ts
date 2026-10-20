@@ -3748,8 +3748,11 @@ export class ProductProjection {
       (payload.pauseReason === "error" || payload.pauseReason === "system_error" ? "system" : "user");
     const incomingReason: "stopped" | "manual" | "error" | "system_error" =
       payload.pauseReason ?? (incomingOrigin === "system" ? "error" : "manual");
+    const rawReasonCode = payload.pauseReasonCode ?? payload.reasonCode;
     const incomingReasonCode: string | undefined =
-      payload.pauseReasonCode ?? payload.reasonCode ?? undefined;
+      typeof rawReasonCode === "string" && rawReasonCode.trim().length > 0
+        ? rawReasonCode.trim()
+        : undefined;
 
     if (this.snapshot.queue.autoDrain === false) {
       const currentOrigin = this.snapshot.queue.pauseOrigin ?? "user";

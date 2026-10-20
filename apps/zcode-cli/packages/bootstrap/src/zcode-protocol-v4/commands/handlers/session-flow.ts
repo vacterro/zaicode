@@ -13,6 +13,7 @@ import type { SteerTurnOptions } from "../../../app/types.js";
 import { parseProviderQualifiedModelSelection } from "../../../app/provider-registry-selection.js";
 import type { TurnAttachment } from "@zcode/core";
 import { mapAttachmentRefsToTurnAttachments } from "../attachment-refs.js";
+import { admitRecognizedContinueFromSendText, isRecognizedContinueCommand, isSessionBusyForContinue } from "../continue-command.js";
 import { inputIntentMetadata } from "../input-intent.js";
 import { startPromptTurn, turnBackgroundAttributionOf } from "../prompt-turn.js";
 import { requireRecord } from "../record-access.js";
@@ -187,6 +188,7 @@ async function sendText(
 ): Promise<CommandResult | undefined> {
   const payload = envelope.payload as CommandPayloadMap["sendText"];
   const record = requireRecord(host, envelope.sessionId);
+  requireAutomaticRetryIdle(host, record, payload.idleOnly);
   // 旧校验只看正文，UI 已允许的 attachment-only query 会在 CLI 被误判为空。
   if (!hasPromptInput(payload.text, payload.attachments)) {
     throw new V4InputAdmissionRejectedError("proto.invalidPayload", "input must not be empty");
@@ -194,7 +196,12 @@ async function sendText(
   const attachments = await mapAttachmentRefsToTurnAttachments(record.app, payload.attachments);
   const submittedExecutionState = resolveSubmittedExecutionState(record, payload);
   const submissionIntent = (options: Parameters<typeof inputIntentMetadata>[1]) =>
-    inputIntentMetadata(envelope, { ...options, ...submittedExecutionState });
+    inputIntentMetadata(envelope, {
+      ...options,
+      ...submittedExecutionState,
+      // T-283: a producer may DECLARE its provenance; admission classifies it.
+      ...(payload.inputProvenance ? { inputProvenance: payload.inputProvenance } : {}),
+    });
   const routingMode = host.getInputRoutingMode?.(envelope.sessionId ?? "") ?? null;
   const forceStartNow = payload.requestedDelivery === "startNow";
   const foregroundPromotionLeaseId = forceStartNow ? `send-now:${envelope.commandId}` : undefined;
@@ -248,6 +255,18 @@ async function sendText(
       payload.expectedHeldQueueItemIds,
     );
   }
+  // T-284 (SAIHANDOFF F-04): a recognized mechanical continuation is never a
+  // model prompt; the shared helper admits it or refuses with a receipt.
+  if (
+    isRecognizedContinueCommand(payload.text, payload.attachments) &&
+    !isSessionBusyForContinue(record)
+  ) {
+    try {
+      return (await admitRecognizedContinueFromSendText(host, record, envelope, payload, routingMode)) ?? undefined;
+    } finally {
+      releaseForegroundPromotionLease();
+    }
+  }
   let started;
   // 附件命令面：AttachmentRef → TurnAttachment 在闸门后映射（active turn 已排除）。
   try {
@@ -281,7 +300,7 @@ async function sendText(
       ...(attachments ? { attachments } : {}),
       // promotion lease 本身属于 Core busy authority；若不声明 requireIdle，
       // 抢占完成后的 startNow 会先落 deferred queue，待 lease 释放后再被自动 drain。
-      ...(forceStartNow ? { requireIdle: true } : {}),
+      ...(forceStartNow || payload.idleOnly ? { requireIdle: true } : {}),
     });
   } finally {
     releaseForegroundPromotionLease();
@@ -298,6 +317,16 @@ async function sendText(
     delivery: "startNow",
     inputId: envelope.commandId,
   };
+}
+
+/** 自动重试复用 Core admission；已有工作或队列时，绝不能又塞一条 cc。 */
+export function requireAutomaticRetryIdle(host: V4CommandCoreHost, record: V4SessionRecordView, idleOnly?: boolean): void {
+  if (!idleOnly) return;
+  const routing = host.getInputRoutingMode?.(record.app.sessionId);
+  if (record.activeAbortController || record.app.runtime.hasActiveOrQueuedTurnWork() ||
+      (host.getQueueLength?.(record.app.sessionId) ?? 0) > 0 || (routing != null && routing !== "startNow")) {
+    throw new V4InputAdmissionRejectedError("guard.automaticRetryRequiresIdle", "Automatic retry requires an idle session with no queued input");
+  }
 }
 
 /** stop：精确取消投影中看到的 runtime 前台执行，并把 active goal 收口为 paused。 */
@@ -425,9 +454,7 @@ export async function preemptActiveTurnAndWait(
   });
   if (bootstrapAbortController || runtimeStop?.kind === "stopped") {
     const pausedGoal = await pauseActiveGoal(host, record);
-    if (runtimeStop?.kind !== "stopped") {
-      bootstrapAbortController?.abort(new Error(options.abortMessage));
-    }
+    bootstrapAbortController?.abort(new Error(options.abortMessage));
     if (pausedGoal) {
       await host.afterLegacyStateMutation?.(record, options.goalPausedMutationReason);
     }

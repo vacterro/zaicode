@@ -1,3 +1,4 @@
+/* eslint-disable max-lines -- Scheduler autostart engine entry point coordinates admission, dispatch and continuations. */
 import { useEffect, useSyncExternalStore } from "react";
 import { logger } from "../logger.js";
 import { completeNewModelSelection } from "@zcode/provider";
@@ -24,9 +25,9 @@ import {
   type ZaicodeKnownProject,
 } from "./zaicodeScheduler.js";
 import { useZaicodeSidebarPrefs } from "./zaicodeSidebarPrefs.js";
-import { beginZaicodeContinuation, recordZaicodeContinuationWorkerLimit, tickZaicodeContinuations, type ZaicodeContinuationStore } from "./zaicodeAutostartContinuation.js";
+import { beginZaicodeContinuation, recordZaicodeContinuationWorkerCapacity, recordZaicodeContinuationWorkerLimit, tickZaicodeContinuations, type ZaicodeContinuationStore } from "./zaicodeAutostartContinuation.js";
 import type { ZaicodeWorker } from "./zaicodeWorkers.js";
-import type { ZaicodeWorkerLimitSignal } from "./zaicodeWorkerSignals.js";
+import type { ZaicodeWorkerCapacitySignal, ZaicodeWorkerLimitSignal } from "./zaicodeWorkerSignals.js";
 import { readZaicodeDefaultModel } from "./zaicodeDefaultModel.js";
 import { useZaicodeStore } from "./zaicodeStore.js";
 import type { ZaicodeServices } from "./zaicodeServices.js";
@@ -71,14 +72,27 @@ export function readZaicodeAutostartJobs(): ZaicodeAutostartJob[] {
   return cached;
 }
 
-function write(next: ZaicodeAutostartJob[]): void {
+export function writeZaicodeAutostartJobs(next: ZaicodeAutostartJob[]): boolean {
   cached = next;
+  let persisted = false;
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-  } catch {
-    // lasts for this run
+    if (typeof localStorage !== "undefined") {
+      const serialized = JSON.stringify(next);
+      localStorage.setItem(STORAGE_KEY, serialized);
+      persisted = localStorage.getItem(STORAGE_KEY) === serialized;
+    } else {
+      persisted = true;
+    }
+  } catch (err) {
+    logger.error("[zaicode-autostart] write failed to persist to storage", { error: err });
+    persisted = false;
   }
   if (typeof window !== "undefined") window.dispatchEvent(new Event(CHANGE_EVENT));
+  return persisted;
+}
+
+function write(next: ZaicodeAutostartJob[]): boolean {
+  return writeZaicodeAutostartJobs(next);
 }
 
 export function useZaicodeAutostartJobs(): ZaicodeAutostartJob[] {
@@ -102,8 +116,8 @@ export function addZaicodeAutostartJob(
   return job;
 }
 
-export function updateZaicodeAutostartJob(id: string, patch: Partial<ZaicodeAutostartJob>): void {
-  write(
+export function updateZaicodeAutostartJob(id: string, patch: Partial<ZaicodeAutostartJob>): boolean {
+  return write(
     normalizeZaicodeContinuingJobs(
       readZaicodeAutostartJobs().map((job) =>
         job.id === id ? { ...job, ...patch, id: job.id } : job,
@@ -144,6 +158,26 @@ function scheduleAdmission(job: import("@zcode/shared").ZaicodeAutostartJob) {
   return { resolved, targets };
 }
 
+/**
+ * The disabled-project key a single-project schedule is blocked on, resolved
+ * exactly the way admission resolves it (the known project's identity when the
+ * project is known, its path otherwise). A section schedule answers null: it
+ * can name several switched-off projects, and none of them may be switched on
+ * behind the operator's back.
+ */
+export function zaicodeScheduleEnableKey(
+  job: Pick<ZaicodeAutostartJob, "targetKind" | "projectPath">,
+): string | null {
+  if (job.targetKind !== "project") return null;
+  const known = readZaicodeKnownProjects().find(
+    (project) => project.path.toLowerCase() === job.projectPath.toLowerCase(),
+  );
+  return resolveWorkspaceKey({
+    workspacePath: job.projectPath,
+    workspaceIdentity: known?.identity,
+  });
+}
+
 /** Engine id of the in-app agent: START (`/goal cc all`) in the project's MAIN session (a fresh one only without MAIN). */
 export const ZAICODE_AUTOSTART_INAPP_ENGINE = "pool:start";
 /** Runner prefix of a ZAICODE agent (work goes through the queue). */
@@ -155,6 +189,15 @@ let queueServices: ZaicodeServices | null = null;
 const continuationStore: ZaicodeContinuationStore = { read: readZaicodeAutostartJobs, update: updateZaicodeAutostartJob, services: () => queueServices, canDispatch: () => useZaicodeStore.getState().autoRun };
 export function recordZaicodeScheduledWorkerLimit(worker: ZaicodeWorker, signal: ZaicodeWorkerLimitSignal): boolean {
   return recordZaicodeContinuationWorkerLimit(continuationStore, worker, signal);
+}
+
+export function recordZaicodeScheduledWorkerCapacity(
+  worker: ZaicodeWorker,
+  signal: ZaicodeWorkerCapacitySignal,
+  delayMs: number,
+  now = Date.now(),
+): boolean {
+  return recordZaicodeContinuationWorkerCapacity(continuationStore, worker, signal, delayMs, now);
 }
 
 export function publishZaicodeQueueServices(services: ZaicodeServices | null): void {
@@ -222,11 +265,6 @@ async function fire(
   manual: boolean,
 ): Promise<void> {
   const now = Date.now();
-  // Record the occurrence BEFORE anything runs: a crash mid-launch must not double-fire.
-  const firedEvents =
-    decision.eventId && !manual
-      ? [...job.firedEvents, decision.eventId].slice(-40)
-      : job.firedEvents;
   const onceDone = job.trigger === "at" && !manual && !job.continuation.enabled ? { enabled: false } : {};
   const { resolved, targets } = scheduleAdmission(job);
   const where =
@@ -241,12 +279,24 @@ async function fire(
     logger.lifecycle.info("[ZAICODE scheduler] blocked", { scheduleId: job.id, eventId: decision.eventId, reason, manual });
     return;
   }
-  updateZaicodeAutostartJob(job.id, {
-    firedEvents,
+
+  // Pre-dispatch persistence check (C2): refuse unsafe dispatch if durable storage cannot be confirmed
+  const persisted = updateZaicodeAutostartJob(job.id, {
     lastRunAt: now,
     lastResult: "starting…",
-    ...onceDone,
   });
+  if (!persisted && typeof localStorage !== "undefined") {
+    const reason = "REFUSED: durable storage persistence failed";
+    logger.lifecycle.error("[ZAICODE scheduler] durable storage write failed, refusing unsafe dispatch", {
+      scheduleId: job.id,
+      eventId: decision.eventId,
+    });
+    updateZaicodeAutostartJob(job.id, {
+      lastResult: `${new Date(now).toLocaleString()} · ${reason}`,
+    });
+    return;
+  }
+
   logger.lifecycle.info("[ZAICODE scheduler] dispatch", { scheduleId: job.id, eventId: decision.eventId, engineId: job.engineId, targetCount: targets.length, manual });
   const announce = (title: string, body: string) => {
     playZaicodeSound("autostart.fire");
@@ -257,13 +307,24 @@ async function fire(
       key: `autostart:${job.id}`,
     });
   };
-  const finish = (lastResult: string, runs: ZaicodeScheduledRun[] = []) => {
+  const finish = (lastResult: string, runs: ZaicodeScheduledRun[] = [], success: boolean = true) => {
     const current = readZaicodeAutostartJobs().find((candidate) => candidate.id === job.id);
+    const updatedFiredEvents =
+      success && decision.eventId && !manual
+        ? [...(current?.firedEvents ?? job.firedEvents), decision.eventId].slice(-40)
+        : current?.firedEvents ?? job.firedEvents;
     updateZaicodeAutostartJob(job.id, {
+      firedEvents: updatedFiredEvents,
       lastResult: `${new Date(now).toLocaleString()} · ${lastResult}`,
       ...(runs.length > 0 ? { runs: [...(current?.runs ?? []), ...runs].slice(-20) } : {}),
+      ...(success ? onceDone : {}),
     });
-    logger.lifecycle.info("[ZAICODE scheduler] result", { scheduleId: job.id, eventId: decision.eventId, runCount: runs.length });
+    logger.lifecycle.info("[ZAICODE scheduler] result", {
+      scheduleId: job.id,
+      eventId: decision.eventId,
+      runCount: runs.length,
+      success,
+    });
   };
 
   const isAgent = job.engineId.startsWith(ZAICODE_AUTOSTART_AGENT_PREFIX);
@@ -273,7 +334,7 @@ async function fire(
       ? undefined
       : readZaicodeEnginesState().accounts.find((candidate) => candidate.id === job.engineId);
   if (!isAgent && !isPool && !account && !job.continuation.enabled) {
-    finish("engine not found");
+    finish("engine not found", [], false);
     return;
   }
 
@@ -289,7 +350,7 @@ async function fire(
   const ready = job.onlyWhenIdle ? ordered.filter(zaicodeTargetIdle) : ordered;
   const clearedText = cleared.length > 0 ? ` · before: ${cleared.join(", ")}` : "";
   if (ready.length === 0) {
-    finish(`nothing idle to start in${clearedText}`);
+    finish(`nothing idle to start in${clearedText}`, [], false);
     return;
   }
 
@@ -297,7 +358,13 @@ async function fire(
     const current = readZaicodeAutostartJobs().find((value) => value.id === job.id);
     if (!current) return;
     // 持久化每个项目的 lease 后才能派发；重启复用同一个记录。
-    updateZaicodeAutostartJob(job.id, { continuationRuns: beginZaicodeContinuation(current, ready, manual ? `manual:${now}` : decision.eventId, now) });
+    updateZaicodeAutostartJob(job.id, {
+      ...(decision.eventId && !manual
+        ? { firedEvents: [...job.firedEvents, decision.eventId].slice(-40) }
+        : {}),
+      continuationRuns: beginZaicodeContinuation(current, ready, manual ? `manual:${now}` : decision.eventId, now),
+      ...onceDone,
+    });
     await tickZaicodeContinuations(manual ? { ...continuationStore, canDispatch: () => true } : continuationStore, manual || useZaicodeStore.getState().autoRun, now);
     return;
   }
@@ -307,12 +374,12 @@ async function fire(
     const separator = job.engineId.indexOf("/", "pool:".length);
     const view = await queueServices?.modelSelection.getView().catch(() => undefined);
     const selection = view && separator > 0 ? completeNewModelSelection(view, { providerId: job.engineId.slice(5, separator), modelId: job.engineId.slice(separator + 1) }) : null;
-    if (!selection) { finish("Selected in-app model is unavailable"); return; }
+    if (!selection) { finish("Selected in-app model is unavailable", [], false); return; }
     options = { modelSelection: selection };
   }
   if ((isPool || isAgent) && job.onlyMarked) {
     const outcome = await continueZaicodeMarked(job, ready, now, options);
-    finish(`${outcome.runs.length} marked session(s) continued${clearedText}`, outcome.runs);
+    finish(`${outcome.runs.length} marked session(s) continued${clearedText}`, outcome.runs, outcome.runs.length > 0);
     if (outcome.runs.length > 0)
       announce(`Marked sessions continued in ${where}`, outcome.lines.join("\n"));
     return;
@@ -321,14 +388,14 @@ async function fire(
   if (isPool) {
     // 指定模型必须进入真实 v4 payload；不能只把名字列在调度器中。
     const outcome = await startZaicodeInMain(job, ready, now, options);
-    finish(`${outcome.runs.length}/${ready.length} START in MAIN${clearedText}`, outcome.runs);
+    finish(`${outcome.runs.length}/${ready.length} START in MAIN${clearedText}`, outcome.runs, outcome.runs.length > 0);
     if (outcome.runs.length > 0) announce(`START in ${where}`, outcome.lines.join("\n"));
     return;
   }
   if (isAgent) {
     const services = queueServices;
     if (!services) {
-      finish("the agent queue is not available here");
+      finish("the agent queue is not available here", [], false);
       return;
     }
     try {
@@ -338,10 +405,10 @@ async function fire(
       const runs: ZaicodeScheduledRun[] = [];
       for (const target of ready)
         runs.push({ ...(await queueRun(services, agentId, target, job)), at: now });
-      finish(`queued in ${runs.length} project(s)${clearedText}`, runs);
+      finish(`queued in ${runs.length} project(s)${clearedText}`, runs, runs.length > 0);
       announce(`Queued in ${where}`, zaicodeJobTaskText(job.prompt));
     } catch (error) {
-      finish(`queue failed: ${error instanceof Error ? error.message : String(error)}`);
+      finish(`queue failed: ${error instanceof Error ? error.message : String(error)}`, [], false);
     }
     return;
   }
@@ -359,6 +426,8 @@ async function fire(
   const ok = results.filter((result) => result.ok).length;
   finish(
     `${results.length === 1 ? results[0]!.message : `${ok}/${results.length} workers started`}${clearedText}`,
+    [],
+    ok > 0,
   );
   if (ok > 0)
     announce(

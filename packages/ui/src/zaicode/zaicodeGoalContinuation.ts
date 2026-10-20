@@ -3,6 +3,7 @@ import { logger } from "@/logger.js";
 import {
   decideZaicodeSessionContinue,
   useZaicodeSessionBriefs,
+  useZaicodeContinueHandlesVersion,
   type ZaicodeSessionBrief,
 } from "./zaicodeContinue.js";
 import { zaicodeContinueHandleFor } from "./zaicodeContinueHost.js";
@@ -12,16 +13,22 @@ import {
   failZaicodeGoalContinuation,
   isZaicodeGoalTerminal,
   noteZaicodeGoalSawRunning,
+  noteZaicodeGoalHandback,
   observeZaicodeGoalFromBrief,
   settleZaicodeGoalContinuation,
   spendZaicodeGoalSawRunning,
   useZaicodeGoalVersion,
   zaicodeGoalAllIntents,
   zaicodeGoalContinuationAllowed,
+  zaicodeGoalHandbackKind,
+  zaicodeGoalHandbackStands,
+  zaicodeGoalIntentById,
+  zaicodeGoalRestoredOpportunity,
   zaicodeGoalSawRunning,
 } from "./zaicodeGoalSupervisor.js";
 import { useZaicodeHomeProjects } from "./home/ZaicodeHomeFleet.js";
 import { useZaicodeRetryLedger } from "./zaicodeRetryPolicy.js";
+import { isZaicodeCleanupInProgress, isSessionRetired } from "./zaicodeCleanupFence.js";
 
 /**
  * T-234: the production continuation OWNER for Auto Goal.
@@ -41,28 +48,28 @@ import { useZaicodeRetryLedger } from "./zaicodeRetryPolicy.js";
  * then one v4 envelope with heldQueueDisposition "keepQueueAndSend", so a held queue
  * is kept, exactly like the composer.
  *
- * What it will not do, stated so it cannot drift:
- *   - it invents no evidence. A brief that was never seen running here arms nothing,
- *     and a goal SAIPEN reports as paused, budget-limited or complete is exposed (the
- *     Auto-Goal tooltip), never continued.
- *   - it does not retry on a timer: a rejected send releases its claim and waits for
- *     the next real turn end, so nothing polls a host that keeps saying no.
- *   - it does not fight the other automatic owners: a running or waiting session is
- *     left alone, an error-failed turn belongs to the retry watch, an error-paused
- *     queue belongs to the queue resume, a crash-cut session belongs to the crash
- *     resume, and the sidebar's stop-all stops this too.
- *   - it does not double-send: the claim is synchronous, and the evidence it spends
- *     is re-armed only by a new observed turn (or a window reload, which also drops
- *     the claim -- so a restart cannot replay a continuation).
+ * Restored idle active goals receive one opportunity from the persisted brief.
+ * New submissions wait for their observed turn to end. The synchronous claim,
+ * stable command id and final idle admission prevent duplicate sends; STOP,
+ * waiting, terminal/budget states and disabled projects remain authoritative.
+ * Error recovery stays with the retry watch; non-goal crashes with crash resume.
  */
+
+/**
+ * T-283 (SAIHANDOFF F-03): the producer identity stamped on every automatic
+ * continuation. The persisted classification then names WHO sent the input, not
+ * only what it was, so a capture can attribute it without text sniffing.
+ */
+export const AUTO_GOAL_CONTINUATION_PRODUCER_ID = "zaicode-goal-continuation";
 
 function briefFor(
   intentProjectKey: string,
   sessionId: string | null,
+  objective: string,
   sessions: readonly ZaicodeSessionBrief[],
 ): ZaicodeSessionBrief | null {
-  if (sessionId) return sessions.find((session) => session.sessionId === sessionId) ?? null;
-  return sessions.find((session) => session.projectKey === intentProjectKey) ?? null;
+  return sessions.find((session) => session.projectKey === intentProjectKey &&
+    (!sessionId || session.sessionId === sessionId) && session.goalObjective?.trim() === objective) ?? null;
 }
 
 /**
@@ -75,13 +82,22 @@ export function useZaicodeGoalContinuation(): void {
   const autoGoalOff = useZaicodeAutoGoal((state) => state.off);
   const halted = useZaicodeRetryLedger((state) => state.halted);
   const goalVersion = useZaicodeGoalVersion();
+  const projectRows = useZaicodeHomeProjects((state) => state.rows);
+  const handlesVersion = useZaicodeContinueHandlesVersion();
 
   useEffect(() => {
     void goalVersion;
+    if (isZaicodeCleanupInProgress()) return;
     const autoGoalState = useZaicodeAutoGoal.getState();
+    // 全局监督器必须恢复隐藏项目；只遍历 composer 已注册的 intent 会让重开项目永远停住。
+    for (const brief of sessions) {
+      if (isSessionRetired(brief.sessionId)) continue;
+      observeZaicodeGoalFromBrief(brief, zaicodeAutoGoalEnabled(autoGoalState, brief.projectKey));
+    }
     for (const intent of zaicodeGoalAllIntents()) {
+      if (isSessionRetired(intent.sessionId)) continue;
       if (isZaicodeGoalTerminal(intent.outcome)) continue;
-      const brief = briefFor(intent.projectKey, intent.sessionId, sessions);
+      const brief = briefFor(intent.projectKey, intent.sessionId, intent.objective, sessions);
       if (!brief) continue;
       const autoGoalOn = zaicodeAutoGoalEnabled(autoGoalState, intent.projectKey);
       // Fold the authoritative SAIPEN facts first: the outcome (active / waiting /
@@ -106,7 +122,12 @@ export function useZaicodeGoalContinuation(): void {
         noteZaicodeGoalSawRunning(current.intentId);
         continue;
       }
-      const projectRow = useZaicodeHomeProjects.getState().rows[intent.projectKey] ?? null;
+      const projectRow = projectRows[intent.projectKey] ?? null;
+      // T-282 (SAIHANDOFF F-02): the authoritative state this decision is taken at.
+      // A handback already delivered at this exact state (objective + revision) is a
+      // wall: the audit's blocked goal row stayed active while SAIPEN had already
+      // answered RESTATE_AND_STOP, and every reload re-armed the same goal.
+      const handbackState = { objective: current.objective, revision: String(brief.updatedAt) };
       const decision = zaicodeGoalContinuationAllowed({
         autoGoalOn,
         halted,
@@ -117,10 +138,31 @@ export function useZaicodeGoalContinuation(): void {
         // SAIPEN's own goal, still open. A session whose goal is missing from
         // tasks-index is not continued: "nothing proved it open" is not "it is open".
         goalOpen: brief.goalStatus === "active",
+        handbackStands: zaicodeGoalHandbackStands(current.intentId, handbackState),
         sawRunning: zaicodeGoalSawRunning(current.intentId),
+        restored: zaicodeGoalRestoredOpportunity(current.intentId),
         pending: current.pending === true,
       });
-      if (!decision.allowed) continue;
+      if (!decision.allowed) {
+        // One blocker handback, then silence: remember the state it was delivered
+        // at. Recorded only when the GOAL's own disposition is what stopped the
+        // send -- an operator switch (Auto Goal off, stop-all, disabled project) is
+        // their own decision and must not pretend a handback was handed back.
+        const handback = zaicodeGoalHandbackKind({ goalStatus: brief.goalStatus, outcome: current.outcome });
+        const goalStoppedTheSend = autoGoalOn && !halted && projectRow?.disabled !== true &&
+          !brief.running && !brief.waiting && !brief.failed;
+        if (handback && goalStoppedTheSend) {
+          noteZaicodeGoalHandback(current.intentId, { kind: handback, ...handbackState });
+        }
+        continue;
+      }
+      const handle = zaicodeContinueHandleFor({
+        key: intent.projectKey,
+        path: brief.workspacePath,
+        ...(brief.workspaceIdentity ? { identity: brief.workspaceIdentity } : {}),
+      });
+      // 启动时连接可能晚于 brief；等待连接通知，不能先消耗恢复机会和预算。
+      if (!handle) continue;
       const claim = claimZaicodeGoalContinuation(current.intentId);
       if (!claim.claimed) continue;
       // One turn end = one continuation: spend the evidence here.
@@ -140,19 +182,6 @@ export function useZaicodeGoalContinuation(): void {
         failZaicodeGoalContinuation(current.intentId);
         continue;
       }
-      const handle = zaicodeContinueHandleFor({
-        key: intent.projectKey,
-        path: brief.workspacePath,
-        ...(brief.workspaceIdentity ? { identity: brief.workspaceIdentity } : {}),
-      });
-      if (!handle) {
-        failZaicodeGoalContinuation(current.intentId);
-        logger.warn("[zaicode] Auto Goal continuation: project not connected", {
-          sessionId: brief.sessionId,
-          projectKey: intent.projectKey,
-        });
-        continue;
-      }
       const intentId = current.intentId;
       logger.info("[zaicode] Auto Goal continuation", {
         sessionId: brief.sessionId,
@@ -161,7 +190,45 @@ export function useZaicodeGoalContinuation(): void {
         why: decision.reason,
       });
       void handle
-        .send(brief.sessionId, send.command)
+        .send(brief.sessionId, send.command, {
+          idleOnly: true,
+          commandId: `auto-goal:${current.intentId}:${brief.updatedAt}`,
+          // T-283 (SAIHANDOFF F-03): the audit saw this same send arrive as
+          // `semantics.origin: real_user` / `kind: user_prompt`, i.e. an
+          // automatic continuation indistinguishable from a fresh human
+          // decision. The transport stays model-compatible; the origin is now
+          // declared, and `originalUserIntentId` keeps the human goal this
+          // continuation belongs to traceable. This is not a new human intent.
+          inputProvenance: {
+            origin: "agent_runtime",
+            source: "goal_autocontinuation",
+            originalUserIntentId: current.intentId,
+            goalIntentId: current.intentId,
+            producerId: AUTO_GOAL_CONTINUATION_PRODUCER_ID,
+          },
+          canDispatch: () => {
+            const liveIntent = zaicodeGoalIntentById(intentId);
+            const liveBrief = useZaicodeSessionBriefs.getState().sessions.find((row) => row.sessionId === brief.sessionId && row.projectKey === intent.projectKey);
+            if (!liveIntent?.pending || liveIntent.stopped || isZaicodeGoalTerminal(liveIntent.outcome) ||
+              liveIntent.lastContinuationAt !== claim.intent.lastContinuationAt || !liveBrief ||
+              liveBrief.goalObjective?.trim() !== current.objective || liveBrief.manuallyStopped) return false;
+            return zaicodeGoalContinuationAllowed({
+              autoGoalOn: zaicodeAutoGoalEnabled(useZaicodeAutoGoal.getState(), intent.projectKey),
+              halted: useZaicodeRetryLedger.getState().halted,
+              projectDisabled: useZaicodeHomeProjects.getState().rows[intent.projectKey]?.disabled === true,
+              running: liveBrief.running,
+              waiting: liveBrief.waiting,
+              failed: liveBrief.failed,
+              goalOpen: liveBrief.goalStatus === "active",
+              handbackStands: zaicodeGoalHandbackStands(intentId, {
+                objective: current.objective,
+                revision: String(liveBrief.updatedAt),
+              }),
+              sawRunning: true,
+              pending: false,
+            }).allowed;
+          },
+        })
         .then(() => {
           settleZaicodeGoalContinuation(intentId);
         })
@@ -173,5 +240,5 @@ export function useZaicodeGoalContinuation(): void {
           });
         });
     }
-  }, [sessions, autoGoalOff, halted, goalVersion]);
+  }, [sessions, autoGoalOff, halted, goalVersion, projectRows, handlesVersion]);
 }

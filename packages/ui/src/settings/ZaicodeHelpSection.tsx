@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { cn } from "@/components/lib/utils.js";
+import { Checkbox } from "@/components/ui/checkbox.js";
 import {
   onZaicodeHelpTopicRequest,
   openZaicodeSettings,
@@ -100,14 +101,14 @@ export function ZaicodeHelpSection() {
           anything in the app and press Shift+F1 to land on its explanation. Almost anything can also
           be right-clicked for its own settings.
         </span>
-        <label className="flex items-center gap-1 text-foreground-subtle" title="Show every card's full explanation, not only its one-line summary">
-          <input
-            type="checkbox"
+        <label className="flex items-center gap-1.5 text-foreground-subtle cursor-pointer select-none" title="Show every card's full explanation, not only its one-line summary">
+          <Checkbox
             checked={beginner}
-            onChange={(event) => {
-              setBeginner(event.target.checked);
+            onCheckedChange={(val) => {
+              const checked = Boolean(val);
+              setBeginner(checked);
               try {
-                localStorage.setItem(BEGINNER_KEY, event.target.checked ? "1" : "0");
+                localStorage.setItem(BEGINNER_KEY, checked ? "1" : "0");
               } catch {
                 // a view preference only
               }

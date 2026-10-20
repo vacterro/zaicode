@@ -329,10 +329,9 @@ export function ZaicodePaletteMenuContent() {
       </DropdownMenuCheckboxItem>
       <DropdownMenuCheckboxItem
         checked={bevelRows}
-        disabled={!bevels}
         onCheckedChange={(checked) => setZaicodeBevelRows(checked === true)}
         onSelect={(event) => event.preventDefault()}
-        title="Raised sidebar rows like FastPrompter's list; the open one sunken"
+        title="Raised sidebar rows; the open row is sunken. Independent of interface style."
       >
         Bevels on list rows
       </DropdownMenuCheckboxItem>

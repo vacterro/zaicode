@@ -47,7 +47,7 @@ import type { UtilityProcess as ElectronUtilityProcess } from "electron";
 import { spawn } from "node:child_process";
 import { join, resolve } from "node:path";
 import { existsSync } from "node:fs";
-import { homedir, hostname } from "node:os";
+import { homedir } from "node:os";
 import {
   createCredentialService,
   createSettingService,
@@ -75,11 +75,11 @@ import {
   ZCODE_VERSION,
   ZCODE_TELEMETRY_ENABLED,
   ZCODE_ARMS_RUM_ENDPOINT,
-  buildZCodeEndpointUrls,
   resolveZCodeEndpointOrigin,
   shouldEnableE2ETestBridge,
   type UpdateStatePayload,
   type TelemetryEventPayload,
+  type DesktopCommandOptions,
   HostMessageTypes,
   isZaicodeProductMode,
 } from "@zcode/shared";
@@ -114,7 +114,7 @@ import {
   type AppShutdownKind,
 } from "./appShutdownPolicy.js";
 import { createPrimaryWindowCoordinator } from "./primaryWindowCoordinator.js";
-import { createTempTextAttachment } from "./tempTextAttachment.js";
+
 import { flushMainE2ECoverage } from "./e2eCoverage.js";
 import { resolveStartupWindowBootstrap, type StartupWindowBootstrap } from "./startupWorkspace.js";
 import {
@@ -201,11 +201,7 @@ import {
 } from "./resourceManagerWindow.js";
 import { createDesktopHelpConfigReader } from "./desktopHelpConfig.js";
 import { registerPlatformIpcHandlers } from "./desktopMainIpcPlatform.js";
-import {
-  loadCliMcpFromUserDirectory,
-  migrateLegacyCommonMcp,
-  saveCliMcpToUserDirectory,
-} from "./mcpUserDirectory/index.js";
+
 import { registerRemoteIpcHandlers } from "./desktopMainIpcRemote.js";
 import {
   configureDesktopStabilityTelemetry,
@@ -1384,13 +1380,20 @@ function confirmAppQuit(originWindow?: BrowserWindow | null) {
   return result === 0;
 }
 
+const windowExplicitShiftCloseMap = new Set<number>();
+
 async function executeDesktopCommandForApp(
   command: Parameters<typeof executeDesktopCommand>[0]["command"],
   senderWindow?: BrowserWindow | null,
+  commandOptions?: DesktopCommandOptions,
 ) {
   return executeDesktopCommand({
     fetchHelpConfig: readHelpConfig,
     command,
+    commandOptions,
+    onShiftClose: (targetWindow) => {
+      windowExplicitShiftCloseMap.add(targetWindow.id);
+    },
     senderWindow,
     logger,
     updateZCodeStdioTapDevMenuState,
@@ -1722,12 +1725,16 @@ function createWindowInstance(startupBootstrap: StartupWindowBootstrap = {}) {
     preloadPath,
     logger,
     forceQuitRef,
-    handleBeforeClose: (win, label) =>
-      handleDesktopWindowCloseRequest({
+    handleBeforeClose: (win, label) => {
+      const explicitShiftClose = windowExplicitShiftCloseMap.has(win.id);
+      windowExplicitShiftCloseMap.delete(win.id);
+      return handleDesktopWindowCloseRequest({
         platform: process.platform,
         forceQuit: forceQuitRef.current,
         explicitQuitRequested: explicitQuitRef.current,
-        shiftCloseRequested: ZCODE_PRODUCT_FLAVOR === "zaicode" && shiftPressed,
+        shiftCloseRequested:
+          (ZCODE_PRODUCT_FLAVOR === "zaicode" || isZaicodeProductMode()) &&
+          (explicitShiftClose || shiftPressed),
         closeToTrayOnWindows,
         isLastWindow: getMainApplicationWindows().length === 1,
         label,
@@ -1735,11 +1742,13 @@ function createWindowInstance(startupBootstrap: StartupWindowBootstrap = {}) {
         shouldConfirmQuit: shouldConfirmAppQuit(),
         confirmQuit: () => confirmAppQuit(win),
         requestQuit: () => {
+          markExplicitQuit(`last-window-close:${label}`);
           markForceQuit(`last-window-close:${label}`);
           app.quit();
         },
         hideWindow: () => win.hide(),
-      }),
+      });
+    },
     windowHostProcessMap,
     onHostProcessReady: (windowKey) => cuaPipFocusRouter.refreshWindow(windowKey),
     awaitFirstHostSpawnDecision,
@@ -1833,7 +1842,13 @@ function createWindowInstance(startupBootstrap: StartupWindowBootstrap = {}) {
       await mainSettingService.update({ desktopWindowSize: state });
     },
   });
-  if (ZCODE_PRODUCT_FLAVOR === "zaicode" && process.platform === "win32") {
+  win.once("closed", () => {
+    windowExplicitShiftCloseMap.delete(win.id);
+  });
+  if (
+    (ZCODE_PRODUCT_FLAVOR === "zaicode" || isZaicodeProductMode()) &&
+    process.platform === "win32"
+  ) {
     win.webContents.on("before-input-event", (_event, input) => {
       if (input.key === "Shift") {
         shiftPressed = input.type === "keyDown";
@@ -2395,17 +2410,57 @@ app.on("before-quit", (event) => {
       }
 
       let exitRequested = false;
-      const exitAfterLastWindowClosed = () => {
-        if (exitRequested || getApplicationWindowsExcludingCuaIndicator().length > 0) {
+      const exitAfterLastWindowClosed = (reason: string) => {
+        if (exitRequested) {
+          return;
+        }
+        if (
+          reason !== "timeout-after-preparation" &&
+          getApplicationWindowsExcludingCuaIndicator().length > 0
+        ) {
           return;
         }
         exitRequested = true;
-        logger.info("[app-quit] all windows closed after preparation, exiting app");
-        exitPreparedApp("all-windows-closed-after-preparation");
+        clearTimeout(safetyTimeout);
+        logger.info(`[app-quit] ${reason}, exiting app`);
+        exitPreparedApp(reason);
       };
+
+      const safetyTimeout = setTimeout(() => {
+        logger.warn(
+          "[app-quit] windows did not close within timeout after preparation, forcing exit",
+        );
+        for (const win of getApplicationWindowsExcludingCuaIndicator()) {
+          try {
+            if (!win.isDestroyed()) {
+              win.destroy();
+            }
+          } catch (error) {
+            logger.warn("[app-quit] error destroying window during timeout exit", error);
+          }
+        }
+        exitAfterLastWindowClosed("timeout-after-preparation");
+      }, 3000);
+      safetyTimeout.unref();
+
       for (const win of remainingWindows) {
-        win.once("closed", exitAfterLastWindowClosed);
+        win.once("closed", () =>
+          exitAfterLastWindowClosed("all-windows-closed-after-preparation"),
+        );
       }
+
+      // Explicitly trigger close on remaining windows because Electron does not synthesize
+      // new close events for windows that previously called event.preventDefault().
+      for (const win of remainingWindows) {
+        try {
+          if (!win.isDestroyed()) {
+            win.close();
+          }
+        } catch (error) {
+          logger.warn("[app-quit] error requesting window close after preparation", error);
+        }
+      }
+
       app.quit();
     });
   }

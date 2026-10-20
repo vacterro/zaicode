@@ -13,6 +13,7 @@ import {
   type TaskListCacheDescriptor,
   type TaskEntityKey,
   type TaskListCacheKey,
+  type TaskListMembershipSnapshot,
 } from "@/lib/taskQueryCache.js";
 import { notifyTaskLifecycle } from "@/lib/taskLifecycleEvents.js";
 import { uiMemoryDiagnosticsRegistry } from "@/lib/memoryDiagnostics.js";
@@ -38,6 +39,7 @@ interface TaskQueryCacheState {
     total: number;
     hasMore: boolean;
     unreadTaskKeys?: TaskEntityKey[];
+    membership?: TaskListMembershipSnapshot;
     partial?: boolean;
     loadingShardKeys?: string[];
     failedShardKeys?: string[];
@@ -50,6 +52,7 @@ interface TaskQueryCacheState {
       total: number;
       hasMore: boolean;
       unreadTaskKeys?: TaskEntityKey[];
+      membership?: TaskListMembershipSnapshot;
       partial?: boolean;
       loadingShardKeys?: string[];
       failedShardKeys?: string[];
@@ -88,6 +91,7 @@ interface TaskQueryCacheState {
 type CachedTaskListItem = ZCodeTaskListItem & { searchSnippets?: string[] };
 
 function buildCachedTaskListResult(params: {
+  membership?: TaskListMembershipSnapshot;
   descriptor: TaskListCacheDescriptor;
   taskKeys: TaskEntityKey[];
   unreadTaskKeys?: TaskEntityKey[];
@@ -101,6 +105,7 @@ function buildCachedTaskListResult(params: {
   invalidationVersion?: number;
 }): CachedTaskListResult {
   return {
+    ...(params.membership ? { membership: params.membership } : {}),
     taskKeys: params.taskKeys,
     unreadTaskKeys: params.unreadTaskKeys,
     searchSnippetsByTaskKey: params.searchSnippetsByTaskKey,
@@ -265,6 +270,7 @@ function mergeIncomingTaskListItem(params: {
 // 避免 resultsByQueryKey/taskMetaByEntityKey 换新引用引发全列表无效重渲染。
 // fetchedAt/stale 不参与比较（保留旧值不影响正确性，preserve 窗口只会更保守）。
 function isQueryResultEquivalent(params: {
+  membership?: TaskListMembershipSnapshot;
   previousResult: CachedTaskListResult | undefined;
   taskKeys: TaskEntityKey[];
   unreadTaskKeys?: TaskEntityKey[];
@@ -278,6 +284,9 @@ function isQueryResultEquivalent(params: {
 }): boolean {
   const previous = params.previousResult;
   if (!previous || previous.stale) {
+    return false;
+  }
+  if (JSON.stringify(previous.membership) !== JSON.stringify(params.membership)) {
     return false;
   }
   if (
@@ -311,32 +320,44 @@ function isQueryResultEquivalent(params: {
 }
 
 function preserveFreshLocalTaskKeys(params: {
+  membership?: TaskListMembershipSnapshot;
   incomingTaskKeys: TaskEntityKey[];
   previousResult: CachedTaskListResult | undefined;
   taskMetaByEntityKey: Record<TaskEntityKey, CachedTaskListItem>;
   descriptor: TaskListCacheDescriptor;
 }): { taskKeys: TaskEntityKey[]; preservedCount: number } {
+  const membership = params.membership;
+  const deletedIds = new Set(membership?.deletedIds);
+  const pinnedIds = new Set(membership?.pinnedIds);
+  const archivedIds = new Set(membership?.archivedIds);
+  const allowed = (taskKey: string) => {
+    const task = params.taskMetaByEntityKey[taskKey];
+    return !task || !membership || (!deletedIds.has(task.taskId) && matchesTaskMembership(
+      params.descriptor, { pinned: pinnedIds.has(task.taskId), archived: archivedIds.has(task.taskId) },
+    ));
+  };
+  const incomingTaskKeys = params.incomingTaskKeys.filter(allowed);
   if (!params.previousResult || params.descriptor.search) {
-    return { taskKeys: params.incomingTaskKeys, preservedCount: 0 };
+    return { taskKeys: incomingTaskKeys, preservedCount: 0 };
   }
 
   const previousResult = params.previousResult;
-  const incomingTaskKeySet = new Set(params.incomingTaskKeys);
+  const incomingTaskKeySet = new Set(incomingTaskKeys);
   const preservedTaskKeys = previousResult.taskKeys.filter((taskKey) => {
-    if (incomingTaskKeySet.has(taskKey)) {
+    if (incomingTaskKeySet.has(taskKey) || !allowed(taskKey)) {
       return false;
     }
     const task = params.taskMetaByEntityKey[taskKey];
     return Boolean(task && task.updatedAt > previousResult.fetchedAt);
   });
   if (preservedTaskKeys.length === 0) {
-    return { taskKeys: params.incomingTaskKeys, preservedCount: 0 };
+    return { taskKeys: incomingTaskKeys, preservedCount: 0 };
   }
 
   const sortedTaskKeys = sortTaskKeysByDescriptor({
     // sqlite 列表刷新可能晚于首发 optimistic 插入。
     // 只有本地更新时间新于上一轮列表快照的 key 才临时保留，避免旧刷新把新 task 从侧栏抹掉。
-    taskKeys: [...params.incomingTaskKeys, ...preservedTaskKeys],
+    taskKeys: [...incomingTaskKeys, ...preservedTaskKeys],
     taskMetaByEntityKey: params.taskMetaByEntityKey,
     descriptor: params.descriptor,
   });
@@ -355,6 +376,7 @@ export const useTaskQueryCacheStore = create<TaskQueryCacheState>()((set) => ({
   taskMetaByEntityKey: {},
   taskUnreadOverlayByEntityKey: {},
   setQueryResult: ({
+    membership,
     queryKey,
     descriptor,
     items,
@@ -413,6 +435,7 @@ export const useTaskQueryCacheStore = create<TaskQueryCacheState>()((set) => ({
         return entityKey;
       });
       const { taskKeys, preservedCount } = preserveFreshLocalTaskKeys({
+        membership: membership ?? state.resultsByQueryKey[queryKey]?.membership,
         incomingTaskKeys,
         previousResult: state.resultsByQueryKey[queryKey],
         taskMetaByEntityKey: nextTaskMetaByEntityKey,
@@ -420,6 +443,7 @@ export const useTaskQueryCacheStore = create<TaskQueryCacheState>()((set) => ({
       });
 
       const resultParams = {
+        membership: membership ?? state.resultsByQueryKey[queryKey]?.membership,
         descriptor,
         taskKeys,
         unreadTaskKeys,
@@ -448,6 +472,7 @@ export const useTaskQueryCacheStore = create<TaskQueryCacheState>()((set) => ({
         !taskMetaChanged &&
         !taskUnreadOverlayChanged &&
         isQueryResultEquivalent({
+          membership: resultParams.membership,
           previousResult: state.resultsByQueryKey[queryKey],
           taskKeys,
           unreadTaskKeys: resultParams.unreadTaskKeys,
@@ -546,6 +571,7 @@ export const useTaskQueryCacheStore = create<TaskQueryCacheState>()((set) => ({
           return entityKey;
         });
         const { taskKeys, preservedCount } = preserveFreshLocalTaskKeys({
+          membership: entry.membership ?? previousResult?.membership,
           incomingTaskKeys,
           previousResult,
           taskMetaByEntityKey: nextTaskMetaByEntityKey,
@@ -553,6 +579,7 @@ export const useTaskQueryCacheStore = create<TaskQueryCacheState>()((set) => ({
         });
 
         const resultParams = {
+          membership: entry.membership ?? previousResult?.membership,
           descriptor: entry.descriptor,
           taskKeys,
           unreadTaskKeys: entry.unreadTaskKeys,
@@ -578,6 +605,7 @@ export const useTaskQueryCacheStore = create<TaskQueryCacheState>()((set) => ({
         // 与单条 setQueryResult 同一等价短路——内容没变的条目保留旧结果引用。
         if (
           isQueryResultEquivalent({
+            membership: resultParams.membership,
             previousResult,
             taskKeys,
             unreadTaskKeys: resultParams.unreadTaskKeys,

@@ -4,26 +4,18 @@ import {
   planZaicodeClearAllSessions,
   collectAuthoritativeClearAllSessionsPlan,
   runZaicodeClearAllSessions,
-  type ZaicodeClearAllSessionsPlan,
 } from "../src/zaicode/zaicodeClearAllSessions.js";
 import {
   type ZaicodeSessionBrief,
-  useZaicodeSessionBriefs,
 } from "../src/zaicode/zaicodeContinue.js";
 import { useZaicodeMainSessions } from "../src/zaicode/zaicodeMainSession.js";
 import {
   useZaicodeFreshSession,
-  useZaicodePendingCommand,
 } from "../src/zaicode/zaicodeSaipen.js";
 import { useZaicodeActionIntents } from "../src/zaicode/zaicodeActionIntent.js";
-import {
-  acquireWorkspaceConnection,
-  invalidateSessionAcrossWorkspaceConnections,
-  clearWarmPoolAcrossWorkspaceConnections,
-} from "../src/v4/workspaceConnectionRegistry.js";
 import { SessionDataLayer } from "../src/v4/sessionDataLayer.js";
 import { adaptivePrefetchCoordinator } from "../src/v4/adaptivePrefetchCoordinator.js";
-import { isSessionRetired, retireSessions } from "../src/zaicode/zaicodeCleanupFence.js";
+import { retireSessions } from "../src/zaicode/zaicodeCleanupFence.js";
 import type {
   ConversationTransport,
   ConversationFrame,

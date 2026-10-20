@@ -11,7 +11,14 @@ import {
 test("release snapshot keeps durable preferences and drops runtime audio state", async () => {
   const values = new Map<string, string>([
     ["zaicode-ui-prefs-v1", JSON.stringify({ showGreeting: false })],
-    ["zaicode-audio-v1", JSON.stringify({ ambience: { volume: 0.2 }, problip: { running: true, runOnLaunch: true }, problipDays: { yesterday: 5 } })],
+    [
+      "zaicode-audio-v1",
+      JSON.stringify({
+        ambience: { volume: 0.2 },
+        problip: { running: true, runOnLaunch: true },
+        problipDays: { yesterday: 5 },
+      }),
+    ],
     ["zaicode-main-sessions-v1", "session-id"],
   ]);
   const previous = Object.getOwnPropertyDescriptor(globalThis, "localStorage");
@@ -27,7 +34,9 @@ test("release snapshot keeps durable preferences and drops runtime audio state",
       cueAudio: Record<string, string>;
     };
     assert.equal(snapshot.version, 1);
-    assert.deepEqual(JSON.parse(snapshot.settings["zaicode-ui-prefs-v1"]!), { showGreeting: false });
+    assert.deepEqual(JSON.parse(snapshot.settings["zaicode-ui-prefs-v1"]!), {
+      showGreeting: false,
+    });
     assert.deepEqual(JSON.parse(snapshot.settings["zaicode-audio-v1"]!), {
       ambience: { volume: 0.2 },
       problip: { running: false, runOnLaunch: true },
@@ -54,7 +63,10 @@ function withLocalStorage<T>(values: Map<string, string>, run: () => Promise<T>)
 
 test("release snapshot refuses a Sounds-table own file it cannot carry", async () => {
   const values = new Map<string, string>([
-    ["zaicode-sound-events-v1", JSON.stringify({ events: { "agent.done": { sound: "custom:agent.done" } } })],
+    [
+      "zaicode-sound-events-v1",
+      JSON.stringify({ events: { "agent.done": { sound: "custom:agent.done" } } }),
+    ],
     ["zaicode-sound-custom-names", JSON.stringify({ "agent.done": "gong.wav" })],
   ]);
   await withLocalStorage(values, async () => {
@@ -83,14 +95,60 @@ test("release snapshot keeps Sounds-table rows and own-file names", async () => 
   });
 });
 
+test("release snapshot carries notification and panel preferences", async () => {
+  const values = new Map<string, string>([
+    ["zaicode-notification-sound", "fastprompter:click_soft.wav"],
+    ["zaicode-notification-custom-sound-name", "my notification.wav"],
+    [
+      "zaicode-saipen-pane-open-v1",
+      JSON.stringify({ state: false, board: true, log: false, done: true }),
+    ],
+    ["zaicode-todo-window", JSON.stringify({ open: false, docked: false, x: 123, y: 456 })],
+  ]);
+  await withLocalStorage(values, async () => {
+    const snapshot = JSON.parse(await captureZaicodeSettingsSnapshot()) as Snapshot;
+    for (const [key, value] of values) assert.equal(snapshot.settings[key], value, key);
+  });
+});
+
+test("release snapshot refuses a selected notification file that is missing", async () => {
+  await withLocalStorage(new Map([["zaicode-notification-sound", "custom"]]), async () => {
+    await assert.rejects(captureZaicodeSettingsSnapshot(), /Custom notification sound is missing/);
+  });
+});
+
+test("release snapshot preserves bundled notification audio across another Save All", async () => {
+  const audio = "data:audio/wav;base64,UklGRg==";
+  const cues = bundledDefaults.cueAudio as Record<string, string>;
+  const previous = cues["notification.custom"];
+  cues["notification.custom"] = audio;
+  try {
+    await withLocalStorage(new Map([["zaicode-notification-sound", "custom"]]), async () => {
+      const snapshot = JSON.parse(await captureZaicodeSettingsSnapshot()) as Snapshot;
+      assert.equal(snapshot.settings["zaicode-notification-sound"], "custom");
+      assert.equal(snapshot.cueAudio["notification.custom"], audio);
+    });
+  } finally {
+    if (previous === undefined) delete cues["notification.custom"];
+    else cues["notification.custom"] = previous;
+  }
+});
+
 // T-245 / SRC-160:R005: the snapshot becomes the NEXT install's factory default, so state
 // about one session or one run must never travel inside an allowlisted family. Each such
 // family declares its volatile fields and they are stripped; a family that still carries
 // session state is refused instead of shipped.
-type Snapshot = { version: number; settings: Record<string, string>; cueAudio: Record<string, string> };
+type Snapshot = {
+  version: number;
+  settings: Record<string, string>;
+  cueAudio: Record<string, string>;
+};
 
 function snapshotOf(values: Map<string, string>): Promise<Snapshot> {
-  return withLocalStorage(values, async () => JSON.parse(await captureZaicodeSettingsSnapshot()) as Snapshot);
+  return withLocalStorage(
+    values,
+    async () => JSON.parse(await captureZaicodeSettingsSnapshot()) as Snapshot,
+  );
 }
 
 test("T-245: a per-session override in an allowlisted family never reaches the snapshot", async () => {
@@ -128,7 +186,7 @@ test("T-245: an undeclared family carrying session state is refused, not shipped
   }
 });
 
-test("T-245: autostart rows keep the schedule and drop fired-event and run history", async () => {
+test("T-326: autostart schedules and their history stay out of release settings", async () => {
   const row = {
     id: "job-1",
     name: "SAIPEN",
@@ -142,25 +200,30 @@ test("T-245: autostart rows keep the schedule and drop fired-event and run histo
     runs: [{ jobId: "session:s1" }],
   };
   const snapshot = await snapshotOf(new Map([["zaicode-autostart-v1", JSON.stringify([row])]]));
-  assert.deepEqual(JSON.parse(snapshot.settings["zaicode-autostart-v1"]!), [
-    { id: "job-1", name: "SAIPEN", enabled: true, prompt: "cc all", stopAt: "07:00", trigger: "everyReset" },
-  ]);
+  assert.equal(snapshot.settings["zaicode-autostart-v1"], undefined);
 });
 
-test("T-245: timer rules keep the schedule and drop the last-fired marks", async () => {
+test("T-326: timer appearance survives while custom schedules stay local", async () => {
   const values = new Map([
     [
       "zaicode-timer-prefs-v1",
       JSON.stringify({
+        clock: { showSeconds: true },
         intervalRules: [
-          { id: "r1", minutes: 60, enabled: true, lastFired: 1791190800277, lastFiredMinute: "2026-10-05 12:00" },
+          {
+            id: "r1",
+            minutes: 60,
+            enabled: true,
+            lastFired: 1791190800277,
+            lastFiredMinute: "2026-10-05 12:00",
+          },
         ],
       }),
     ],
   ]);
   const snapshot = await snapshotOf(values);
   assert.deepEqual(JSON.parse(snapshot.settings["zaicode-timer-prefs-v1"]!), {
-    intervalRules: [{ id: "r1", minutes: 60, enabled: true }],
+    clock: { showSeconds: true },
   });
 });
 

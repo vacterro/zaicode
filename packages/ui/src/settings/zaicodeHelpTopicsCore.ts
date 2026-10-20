@@ -1,4 +1,3 @@
-import type { SettingsSectionId } from "@/lib/settingsNavigation.js";
 import { openZaicodeWorkersPanel } from "@/zaicode/zaicodeWorkers.js";
 import { useZaicodeTimers } from "@/zaicode/zaicodeTimerStore.js";
 import { openZaicodeSaipeggle } from "@/zaicode/saipeggle/ZaicodeSaipeggleView.js";

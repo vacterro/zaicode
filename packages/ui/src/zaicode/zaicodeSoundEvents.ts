@@ -15,27 +15,17 @@ import { isZaicodeSoundQuietNow } from "./zaicodeNotifications.js";
 import { zaicodeSoundConditionsAllow } from "./zaicodeSoundConditions.js";
 import { cachedZaicodeCustomSoundUrl, onZaicodeCustomSoundUrlRevoked, resolveZaicodeCustomSoundUrl } from "./zaicodeCustomSounds.js";
 import { ZAICODE_CLICKABLE, zaicodeChangeSoundFor, zaicodeClickSoundFor } from "./zaicodeSoundVoices.js";
-import { decideZaicodeSound, type ZaicodeSoundOverlap, type ZaicodeSoundRequest } from "./zaicodeSoundPolicy.js";
+import { decideZaicodeSound, type ZaicodeSoundRequest } from "./zaicodeSoundPolicy.js";
 import {
   CHANGE_EVENT,
   LEGACY_CUES_KEY,
-  STORAGE_KEY,
   ZAICODE_SOUND_EVENTS,
-  ZAICODE_SOUND_GAIN_MAX,
-  ZAICODE_SOUND_GAIN_MIN,
-  resetZaicodeSoundSettings,
-  setAllZaicodeSoundEvents,
   setZaicodeSoundEvent,
-  setZaicodeSoundSettings,
-  zaicodePoolSharesForEvent,
   isZaicodeInterfaceSound,
-  migrateProjectSwitchCue,
-  normalizeZaicodeSoundSettings,
   readZaicodeSoundSettings,
   zaicodeEffectiveGainDb,
   zaicodeSoundsForEvent,
   zaicodeSoundForEvent,
-  zaicodeSetPoolWeight,
   ZAICODE_SOUND_SELECTION_MODES,
 } from "./zaicodeSoundSettingsModel.js";
 
@@ -476,7 +466,7 @@ export function installZaicodeDeclarativeSounds(): void {
   document.addEventListener("click", (event) => {
     const target = event.target instanceof Element ? event.target : null;
     if (!target || zaicodeDirectSoundPlayedSince(Date.now() - 80)) return;
-    const id = zaicodeClickSoundFor(target, expandedBefore);
+    const id = zaicodeClickSoundFor(target, expandedBefore, event.isTrusted);
     if (id) playZaicodeSound(id);
   });
   document.addEventListener("change", (event) => {

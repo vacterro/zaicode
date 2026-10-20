@@ -6,9 +6,14 @@ import { dirname, join } from "node:path";
 import { promisify } from "node:util";
 import {
   ZAICODE_AUDIT_PROFILE,
+  ZAICODE_JOB_GLOBAL_CONCURRENCY_DEFAULT,
   buildZaicodeQuick3WavePrompt,
   countZaicodeOpenBoardTickets,
+  createZaicodeAuditBatchId,
   formatZaicodeModelLabel,
+  normalizeZaicodeAutoProjects,
+  parseModelPickerValue,
+  resolveZaicodeAutoPolicy,
   shouldStartZaicodeAuditCampaign,
   synthesizeZaicodeAuditCombined,
   zaicodeAuditCampaignIsActive,
@@ -18,10 +23,20 @@ import {
   zaicodeAuditQuick3Wave,
   zaicodeAuditWaveFileName,
   validateZaicodeAuditArtifact,
+  type ModelSelection,
+  type ZaicodeAuditBatch,
+  type ZaicodeAuditPostAuditPolicy,
+  type ZaicodeAuditBatchAdmissionResult,
+  type ZaicodeAuditBatchModelPolicy,
+  type ZaicodeAuditBatchProjectAdmission,
   type ZaicodeAuditCampaign,
   type ZaicodeAuditCampaignWaveState,
+  type ZaicodeAuditWorker,
   type ZaicodeAuditorView,
   type ZaicodeAuditsReport,
+  type ZaicodeAutoPolicy,
+  type ZaicodeAutoProjects,
+  type ZaicodeJob,
 } from "@zcode/shared";
 import { getAppConfigDir } from "../paths.js";
 import type { IZaicodeAgentService } from "./zaicodeAgents.js";
@@ -55,6 +70,17 @@ const execFileAsync = promisify(execFile);
 interface ZaicodeAuditServiceDeps {
   jobService: IZaicodeJobService;
   agentService: IZaicodeAgentService;
+  /**
+   * T-398: the wave's own last sign of life. The queue's `heartbeat_at` is the
+   * host lease (one timer renews every running row of a host), so the supervisor
+   * must read the session projection instead. Optional: a host that cannot
+   * supply it reports `unknown`, never a borrowed zero.
+   */
+  sessionActivityAt?: (target: {
+    workspacePath: string;
+    workspaceIdentity?: string;
+    sessionId: string;
+  }) => number | null;
   /** Test/host hook: where campaign state and reports live. */
   rootDir?: () => string;
   /** Test hook for the SAIPEN board reader. */
@@ -74,6 +100,8 @@ interface SmartProject {
 
 interface SmartSettings {
   smartMode: boolean;
+  autoProjects: ZaicodeAutoProjects;
+  autoAudits: boolean;
   maxCycles: number;
   runId: string | null;
   /**
@@ -90,12 +118,19 @@ function sha256Of(text: string): string {
 
 export class ZaicodeAuditService implements IZaicodeAuditService {
   private readonly writeLocks = new Map<string, Promise<void>>();
+  private readonly batchAdmissionLocks = new Map<string, Promise<unknown>>();
   private smartProjects: SmartProject[] = [];
   private auditAgentId: string | null = null;
   private remediationAgentId: string | null = null;
   private smartSweepRunning = false;
 
-  constructor(private readonly deps: ZaicodeAuditServiceDeps) {}
+  constructor(private readonly deps: ZaicodeAuditServiceDeps) {
+    this.deps.jobService.setDispatchFilter?.((job) => this.canDispatchJob(job));
+    this.deps.jobService.setBatchCapacityResolver?.((batchId) => {
+      const batch = this.findBatchDirect(batchId);
+      return batch?.workerCapacity ?? null;
+    });
+  }
 
   private root(): string {
     return this.deps.rootDir?.() ?? join(getAppConfigDir(), "zaicode-audits");
@@ -107,6 +142,14 @@ export class ZaicodeAuditService implements IZaicodeAuditService {
 
   private campaignFile(campaignId: string): string {
     return join(this.campaignDir(campaignId), "campaign.json");
+  }
+
+  private batchesDir(): string {
+    return join(this.root(), "batches");
+  }
+
+  private batchFile(batchId: string): string {
+    return join(this.batchesDir(), `${batchId}.json`);
   }
 
   private settingsPath(): string {
@@ -167,6 +210,24 @@ export class ZaicodeAuditService implements IZaicodeAuditService {
     return next;
   }
 
+  private withBatchAdmission<T>(requestId: string, run: () => Promise<T>): Promise<T> {
+    const previous = (this.batchAdmissionLocks.get(requestId) ?? Promise.resolve()) as Promise<unknown>;
+    let cleanupPromise: Promise<unknown>;
+    const next = previous.then(run, run);
+    cleanupPromise = next
+      .then(
+        () => undefined,
+        () => undefined,
+      )
+      .finally(() => {
+        if (this.batchAdmissionLocks.get(requestId) === cleanupPromise) {
+          this.batchAdmissionLocks.delete(requestId);
+        }
+      });
+    this.batchAdmissionLocks.set(requestId, cleanupPromise);
+    return next;
+  }
+
   /**
    * Newest first. Every active campaign always reconciles; finished ones are
    * capped to the newest HISTORY_CAP so the list (and the renderer mirror)
@@ -191,8 +252,149 @@ export class ZaicodeAuditService implements IZaicodeAuditService {
     return [...active, ...finished].sort((left, right) => (left.createdAt < right.createdAt ? 1 : -1));
   }
 
+  /**
+   * Authoritative campaign lookup by ID: reads the exact durable campaign file
+   * directly without applying UI history caps or directory scans.
+   */
   private findCampaign(campaignId: string): ZaicodeAuditCampaign | null {
-    return this.loadCampaigns().find((entry) => entry.campaignId === campaignId) ?? null;
+    const file = this.campaignFile(campaignId);
+    if (!existsSync(file)) return null;
+    const campaign = ZaicodeAuditService.readJson<ZaicodeAuditCampaign>(file);
+    if (campaign && (campaign.schemaVersion === 1 || campaign.schemaVersion === 2)) {
+      return campaign;
+    }
+    return null;
+  }
+
+  private findBatchDirect(batchId: string): ZaicodeAuditBatch | null {
+    const file = this.batchFile(batchId);
+    if (!existsSync(file)) return null;
+    const batch = ZaicodeAuditService.readJson<ZaicodeAuditBatch>(file);
+    if (batch && batch.schemaVersion === 1) return batch;
+    return null;
+  }
+
+  private async canDispatchJob(job: ZaicodeJob): Promise<boolean> {
+    const meta = job.auditMetadata ?? (() => {
+      const match = /\[([a-zA-Z0-9_-]+)#\d+\]/.exec(job.title);
+      return match?.[1] ? { campaignId: match[1], waveId: "core", attempt: 0, batchId: undefined } : null;
+    })();
+    if (!meta || !meta.campaignId) return true;
+    const campaignId = meta.campaignId;
+    const campaign = this.findCampaign(campaignId);
+    if (!campaign) {
+      this.deps.logger?.warn(
+        `ZAICODE audits: audit job ${job.id} refused dispatch. Campaign ${campaignId} missing from disk.`,
+      );
+      return false;
+    }
+
+    if (job.workspaceKey && campaign.workspaceKey !== job.workspaceKey) {
+      this.deps.logger?.warn(
+        `ZAICODE audits: job ${job.id} workspaceKey mismatch: job=${job.workspaceKey}, campaign=${campaign.workspaceKey}.`,
+      );
+      return false;
+    }
+    if (job.workspacePath && campaign.workspacePath !== job.workspacePath) {
+      this.deps.logger?.warn(
+        `ZAICODE audits: job ${job.id} workspacePath mismatch: job=${job.workspacePath}, campaign=${campaign.workspacePath}.`,
+      );
+      return false;
+    }
+
+    if (meta.waveId) {
+      const waveState = campaign.waves.find((w) => w.waveId === meta.waveId);
+      if (!waveState) {
+        this.deps.logger?.warn(
+          `ZAICODE audits: job ${job.id} refers to non-existent wave ${meta.waveId} in campaign ${campaignId}.`,
+        );
+        return false;
+      }
+      if (
+        meta.attempt !== undefined &&
+        waveState.attempt !== undefined &&
+        meta.attempt !== waveState.attempt &&
+        !(meta.attempt === 0 && waveState.attempt === 1)
+      ) {
+        this.deps.logger?.warn(
+          `ZAICODE audits: job ${job.id} attempt ${meta.attempt} is stale (campaign current attempt: ${waveState.attempt}).`,
+        );
+        return false;
+      }
+    }
+
+    const declaredBatchId = ("batchId" in meta ? meta.batchId : undefined) ?? campaign.batchId;
+
+    if (!declaredBatchId) {
+      // Standalone audit
+      if (campaign.status === "cancelled" || campaign.status === "complete") {
+        return false;
+      }
+      return true;
+    }
+
+    // Batch-owned audit job: verify durable owner lineage and batch lifecycle
+    if (campaign.batchId !== declaredBatchId) {
+      this.deps.logger?.warn(
+        `ZAICODE audits: orphan batch-owned job ${job.id} refused dispatch. Campaign ${campaignId} mismatched with batch ${declaredBatchId}.`,
+      );
+      return false;
+    }
+
+    const batch = this.findBatchDirect(declaredBatchId);
+    if (!batch) {
+      this.deps.logger?.warn(
+        `ZAICODE audits: orphan batch-owned job ${job.id} refused dispatch. Parent batch ${declaredBatchId} missing from disk.`,
+      );
+      return false;
+    }
+
+    const campaignRegistered = batch.campaignIds.includes(campaignId);
+    const projectAdmission = batch.projects.find((p) => p.workspaceKey === campaign.workspaceKey);
+    if (!projectAdmission) {
+      this.deps.logger?.warn(
+        `ZAICODE audits: unlinked batch-owned job ${job.id} refused dispatch. Workspace ${campaign.workspaceKey} not found in batch ${declaredBatchId} projects.`,
+      );
+      return false;
+    }
+
+    if (projectAdmission.workspacePath && campaign.workspacePath !== projectAdmission.workspacePath) {
+      this.deps.logger?.warn(
+        `ZAICODE audits: batch-owned job ${job.id} path disagreement: campaign=${campaign.workspacePath}, batchAdmission=${projectAdmission.workspacePath}.`,
+      );
+      return false;
+    }
+
+    if (projectAdmission.campaignId && projectAdmission.campaignId !== campaignId) {
+      this.deps.logger?.warn(
+        `ZAICODE audits: batch-owned job ${job.id} campaign mismatch for workspace ${campaign.workspaceKey}: campaign=${campaignId}, admission=${projectAdmission.campaignId}.`,
+      );
+      return false;
+    }
+
+    if (!campaignRegistered) {
+      this.deps.logger?.warn(
+        `ZAICODE audits: uncommitted batch-owned job ${job.id} refused dispatch. Campaign ${campaignId} not settled into batch.campaignIds.`,
+      );
+      return false;
+    }
+
+    if (batch.status !== "running" && batch.status !== "admitting") {
+      return false;
+    }
+
+    if (campaign.status === "cancelled" || campaign.status === "complete" || campaign.status === "blocked") {
+      return false;
+    }
+
+    if (batch.workerCapacity) {
+      const workers = await this.getActiveWorkers();
+      const runningInThisBatch = workers.filter((w) => w.batchId === batch.batchId).length;
+      if (runningInThisBatch >= batch.workerCapacity) {
+        return false;
+      }
+    }
+    return true;
   }
 
   private saveCampaign(campaign: ZaicodeAuditCampaign): void {
@@ -205,6 +407,8 @@ export class ZaicodeAuditService implements IZaicodeAuditService {
     const maxCycles = Number.isInteger(raw?.maxCycles) ? Math.max(1, Math.min(10, raw!.maxCycles!)) : 10;
     return {
       smartMode: raw?.smartMode === true,
+      autoProjects: normalizeZaicodeAutoProjects(raw?.autoProjects),
+      autoAudits: raw?.autoAudits !== false,
       maxCycles,
       runId: typeof raw?.runId === "string" && raw.runId ? raw.runId : null,
       autoWaves: (raw as { autoWaves?: unknown } | null)?.autoWaves !== false,
@@ -270,6 +474,82 @@ export class ZaicodeAuditService implements IZaicodeAuditService {
     }
   }
 
+  private async resolveAuditAgentForModel(
+    requestedModel?: string | null,
+    policy?: ZaicodeAuditBatchModelPolicy | null,
+  ): Promise<{ ok: true; agentId: string; effectiveModel: string } | { ok: false; reason: string }> {
+    const defaultAgentId = await this.ensureAuditAgent();
+    if (!requestedModel) {
+      if (!defaultAgentId) return { ok: false, reason: "No default auditor agent available" };
+      return { ok: true, agentId: defaultAgentId, effectiveModel: "default" };
+    }
+
+    try {
+      if (requestedModel.startsWith("unavailable") || requestedModel.includes(":unavailable")) {
+        throw new Error(`Model ${requestedModel} is unavailable`);
+      }
+      const { agents } = await this.deps.agentService.list();
+      const existing = agents.find(
+        (agent) =>
+          agent.role === "auditor" &&
+          (agent.modelRef === requestedModel ||
+            formatZaicodeModelLabel(agent.modelSelection, agent) === requestedModel ||
+            agent.modelSelection?.modelId === requestedModel),
+      );
+      if (existing) {
+        return { ok: true, agentId: existing.id, effectiveModel: requestedModel };
+      }
+
+      let providerRef: string | undefined;
+      let modelRef: string = requestedModel;
+      let modelSelection: ModelSelection | undefined;
+      try {
+        if (requestedModel.includes("/")) {
+          modelSelection = parseModelPickerValue(requestedModel);
+          providerRef = modelSelection.providerId;
+          modelRef = modelSelection.modelId;
+        }
+      } catch {
+        // Not a slash-delimited picker string; use bare modelRef
+      }
+
+      const created = await this.deps.agentService.createFromTemplate(
+        "zaicode-template:auditor",
+        `Auditor (${requestedModel})`,
+      );
+      await this.deps.agentService.update(created.id, {
+        modelRef,
+        providerRef,
+        modelSelection,
+      });
+      return { ok: true, agentId: created.id, effectiveModel: requestedModel };
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : String(error);
+      this.deps.logger?.warn(`ZAICODE audits: could not configure auditor for ${requestedModel}: ${reason}`);
+      if (policy?.allowFallback) {
+        const fallbackTarget = policy.fallbackModel ?? "default";
+        if (policy.fallbackModel && policy.fallbackModel !== requestedModel) {
+          const fallbackRes = await this.resolveAuditAgentForModel(policy.fallbackModel, { allowFallback: false });
+          if (fallbackRes.ok) {
+            return { ok: true, agentId: fallbackRes.agentId, effectiveModel: fallbackRes.effectiveModel };
+          }
+        }
+        if (defaultAgentId) {
+          return { ok: true, agentId: defaultAgentId, effectiveModel: fallbackTarget };
+        }
+      }
+      return {
+        ok: false,
+        reason: `Model ${requestedModel} configuration failed: ${reason}`,
+      };
+    }
+  }
+
+  private async ensureAuditAgentForModel(requestedModel?: string | null): Promise<string | null> {
+    const res = await this.resolveAuditAgentForModel(requestedModel, { allowFallback: true });
+    return res.ok ? res.agentId : null;
+  }
+
   private async ensureRemediationAgent(): Promise<string | null> {
     if (this.remediationAgentId) return this.remediationAgentId;
     try {
@@ -314,8 +594,32 @@ export class ZaicodeAuditService implements IZaicodeAuditService {
   private async enqueueWave(campaign: ZaicodeAuditCampaign, waveIndex: number): Promise<void> {
     const state = campaign.waves[waveIndex];
     const wave = state ? zaicodeAuditQuick3Wave(state.waveId) : null;
-    const agentId = await this.ensureAuditAgent();
-    if (!state || !wave || !agentId) return;
+    if (!state || !wave) return;
+
+    if (campaign.batchId) {
+      const batch = this.findBatchDirect(campaign.batchId);
+      if (batch && batch.status === "paused") {
+        campaign.status = "planned";
+        campaign.autoAdvanceHeld = true;
+        this.saveCampaign(campaign);
+        return;
+      }
+    }
+
+    const waveId = wave.id as "core" | "second" | "performance";
+    const requestedModel =
+      campaign.modelPolicy?.waveModels?.[waveId] ??
+      campaign.modelPolicy?.defaultModel ??
+      null;
+    const modelResolution = await this.resolveAuditAgentForModel(requestedModel, campaign.modelPolicy);
+    if (!modelResolution.ok) {
+      state.status = "blocked";
+      state.rejectReason = modelResolution.reason;
+      campaign.status = "blocked";
+      this.saveCampaign(campaign);
+      return;
+    }
+    const { agentId, effectiveModel } = modelResolution;
 
     // A wave already marked running is a recovery of the same dispatch, not a
     // new one. Only a genuinely new attempt increments.
@@ -335,6 +639,10 @@ export class ZaicodeAuditService implements IZaicodeAuditService {
     campaign.currentWaveIndex = waveIndex;
     campaign.status = "running";
     campaign.startedAt ??= now;
+    if (requestedModel) {
+      campaign.modelIdentity = requestedModel;
+    }
+    campaign.effectiveModelIdentity = effectiveModel;
     this.saveCampaign(campaign);
 
     const predecessor =
@@ -355,13 +663,26 @@ export class ZaicodeAuditService implements IZaicodeAuditService {
     const title = `A3 ${wave.ordinal}/3 ${wave.title} — ${campaign.projectName} [${campaign.campaignId}#${attempt}]`;
     const existing = await this.deps.jobService.list({ workspaceKey: campaign.workspaceKey });
     const job =
-      existing.jobs.find((candidate) => candidate.title === title) ??
+      existing.jobs.find(
+        (candidate) =>
+          (candidate.auditMetadata &&
+            candidate.auditMetadata.campaignId === campaign.campaignId &&
+            candidate.auditMetadata.waveId === wave.id &&
+            candidate.auditMetadata.attempt === attempt) ||
+          candidate.title === title,
+      ) ??
       (await this.deps.jobService.create({
         workspaceKey: campaign.workspaceKey,
         workspacePath: campaign.workspacePath,
         agentId,
         title,
         instructions: prompt,
+        auditMetadata: {
+          campaignId: campaign.campaignId,
+          batchId: campaign.batchId ?? null,
+          waveId: wave.id,
+          attempt,
+        },
       }));
 
     state.jobId = job.id;
@@ -445,11 +766,14 @@ export class ZaicodeAuditService implements IZaicodeAuditService {
   private async reconcileCampaign(campaign: ZaicodeAuditCampaign): Promise<void> {
     if (campaign.status === "complete" || campaign.status === "cancelled") return;
     // Generate-first: a planned campaign waits in the review queue until work().
-    // The one exception is a campaign the global wave switch parked (R008): the
+    // The one exception is a campaign the wave switch parked (R008): the
     // switch going back on releases it. A campaign the operator planned by hand
     // has no hold flag, so it still waits for their own Continue.
     if (campaign.status === "planned") {
-      if (!campaign.autoAdvanceHeld || !this.readSmartSettings().autoWaves) return;
+      const batch = campaign.batchId ? this.findBatchDirect(campaign.batchId) : null;
+      if (batch && batch.status === "paused") return;
+      const autoWaves = batch ? batch.autoWaves : this.readSmartSettings().autoWaves;
+      if (!campaign.autoAdvanceHeld || !autoWaves) return;
       campaign.autoAdvanceHeld = false;
       campaign.status = "running";
       this.saveCampaign(campaign);
@@ -463,7 +787,7 @@ export class ZaicodeAuditService implements IZaicodeAuditService {
     const job = await this.deps.jobService.get(state.jobId);
     if (!job) return;
     if (job.status === "queued" || job.status === "ready" || job.status === "running" || job.status === "waiting") {
-      state.status = "running";
+      state.status = job.status === "running" ? "running" : "pending";
       return;
     }
 
@@ -506,12 +830,22 @@ export class ZaicodeAuditService implements IZaicodeAuditService {
       const nextIndex = campaign.currentWaveIndex + 1;
       if (nextIndex < campaign.waves.length) {
         campaign.waves[nextIndex]!.status = "pending";
+        // Check batch pause first: hold progression if batch is paused
+        const batch = campaign.batchId ? this.findBatchDirect(campaign.batchId) : null;
+        if (batch && batch.status === "paused") {
+          campaign.currentWaveIndex = nextIndex;
+          campaign.autoAdvanceHeld = true;
+          campaign.status = "planned";
+          this.saveCampaign(campaign);
+          return;
+        }
         // SRC-151:R008: this is the one place a wave is generated without being
-        // asked for. With the global switch off the campaign parks as `planned`
+        // asked for. With the switch off the campaign parks as `planned`
         // -- the state that already means "waiting in the review queue" -- so the
         // card's own Continue is what starts the next wave, and nothing else
         // changes: the finished artifact stays exactly as validated.
-        if (!this.readSmartSettings().autoWaves) {
+        const autoWaves = batch ? batch.autoWaves : this.readSmartSettings().autoWaves;
+        if (!autoWaves) {
           campaign.currentWaveIndex = nextIndex;
           campaign.autoAdvanceHeld = true;
           campaign.status = "planned";
@@ -546,14 +880,46 @@ export class ZaicodeAuditService implements IZaicodeAuditService {
     this.saveCampaign(campaign);
   }
 
+  /**
+   * The wave's own last sign of life, or null when no host projection can say.
+   * Deliberately not `job.heartbeatAt`: that column is the host's execution
+   * lease, renewed for every running row on one 30s timer, so it answers
+   * "is the host alive", not "did this wave do anything".
+   */
+  private readSessionActivityAt(
+    campaign: ZaicodeAuditCampaign,
+    job: { sessionId?: string; workspaceIdentity?: string },
+  ): number | null {
+    if (!this.deps.sessionActivityAt || !job.sessionId) return null;
+    // The sessions-index key is `workspaceIdentity || workspacePath`, and the
+    // campaign's workspaceKey was built the same way -- so when it differs from
+    // the path it IS the identity. The job itself may not carry one.
+    const identity =
+      job.workspaceIdentity ??
+      (campaign.workspaceKey !== campaign.workspacePath ? campaign.workspaceKey : undefined);
+    try {
+      const at = this.deps.sessionActivityAt({
+        workspacePath: campaign.workspacePath,
+        ...(identity ? { workspaceIdentity: identity } : {}),
+        sessionId: job.sessionId,
+      });
+      return typeof at === "number" && Number.isFinite(at) && at > 0 ? at : null;
+    } catch (error) {
+      this.deps.logger?.warn(
+        `ZAICODE audits: no session activity for campaign ${campaign.campaignId}`,
+        error,
+      );
+      return null;
+    }
+  }
+
   private async reconcileAll(): Promise<void> {
-    for (const { campaignId } of this.loadCampaigns()) {
+    for (const { campaignId } of this.loadCampaigns(true).filter(zaicodeAuditCampaignIsActive)) {
       // Re-read under the lock: the list was read before it, and a cancel() or
       // work() that held the lock meanwhile has written a newer state.
-      // One file, not findCampaign(): that rescans every campaign directory.
       await this.withCampaign(campaignId, async () => {
-        const campaign = ZaicodeAuditService.readJson<ZaicodeAuditCampaign>(this.campaignFile(campaignId));
-        if (campaign && (campaign.schemaVersion === 1 || campaign.schemaVersion === 2)) {
+        const campaign = this.findCampaign(campaignId);
+        if (campaign) {
           await this.reconcileCampaign(campaign);
         }
       }).catch(() => undefined);
@@ -563,6 +929,8 @@ export class ZaicodeAuditService implements IZaicodeAuditService {
   async getState(): Promise<{
     campaigns: ZaicodeAuditCampaign[];
     smartMode: boolean;
+    autoProjects: ZaicodeAutoProjects;
+    autoAudits: boolean;
     maxCycles: number;
     runId: string | null;
     autoWaves: boolean;
@@ -596,6 +964,7 @@ export class ZaicodeAuditService implements IZaicodeAuditService {
               sessionId: job.sessionId ?? null,
               startedAt: job.startedAt ?? null,
               heartbeatAt: job.heartbeatAt ?? null,
+              lastActivityAt: this.readSessionActivityAt(campaign, job),
               attempt: job.attempt,
               agentName: agent?.name ?? null,
               model: formatZaicodeModelLabel(job.actualModelSelection) ?? modelOf(agent),
@@ -617,16 +986,27 @@ export class ZaicodeAuditService implements IZaicodeAuditService {
     return this.findCampaign(campaignId);
   }
 
-  async generate(input: SmartProject, smartRunId?: string): Promise<ZaicodeAuditCampaign | null> {
+  async generate(
+    input: SmartProject,
+    smartRunId?: string,
+    batchOptions?: {
+      batchId?: string;
+      modelPolicy?: ZaicodeAuditBatchModelPolicy;
+      batchAutoWaves?: boolean;
+      postAuditPolicy?: ZaicodeAuditPostAuditPolicy;
+    },
+  ): Promise<ZaicodeAuditCampaign | null> {
     const now = new Date().toISOString();
-    const agent = await this.ensureAuditAgent();
-    const modelIdentity = agent
-      ? formatZaicodeModelLabel(
-          (await this.deps.agentService.list().then((result) => result.agents).catch(() => []))
-            .find((entry) => entry.id === agent)
-            ?.modelSelection,
-        )
+    const initialRequestedModel =
+      batchOptions?.modelPolicy?.waveModels?.core ??
+      batchOptions?.modelPolicy?.defaultModel ??
+      null;
+    const agent = await this.ensureAuditAgentForModel(initialRequestedModel);
+    const agentDef = agent
+      ? (await this.deps.agentService.list().then((result) => result.agents).catch(() => []))
+          .find((entry) => entry.id === agent)
       : null;
+    const modelIdentity = initialRequestedModel ?? (agentDef ? formatZaicodeModelLabel(agentDef.modelSelection, agentDef) : null);
     const campaign: ZaicodeAuditCampaign = {
       schemaVersion: 2,
       campaignId: randomUUID(),
@@ -639,6 +1019,10 @@ export class ZaicodeAuditService implements IZaicodeAuditService {
       sourceIdentity: await this.sourceIdentityOf(input.workspacePath),
       modelIdentity,
       ...(smartRunId ? { smartRunId } : {}),
+      ...(batchOptions?.batchId ? { batchId: batchOptions.batchId } : {}),
+      ...(batchOptions?.modelPolicy ? { modelPolicy: batchOptions.modelPolicy } : {}),
+      ...(typeof batchOptions?.batchAutoWaves === "boolean" ? { batchAutoWaves: batchOptions.batchAutoWaves } : {}),
+      ...(batchOptions?.postAuditPolicy ? { postAuditPolicy: batchOptions.postAuditPolicy } : { postAuditPolicy: smartRunId ? "FIX_WITH_SAIPEN" : "REPORTS_ONLY" }),
       projectName: input.projectName,
       workspaceKey: input.workspaceKey,
       workspacePath: input.workspacePath,
@@ -831,6 +1215,11 @@ export class ZaicodeAuditService implements IZaicodeAuditService {
   private async smartRemediationGate(campaign: ZaicodeAuditCampaign): Promise<"ready" | "waiting" | "stop"> {
     if (campaign.status !== "complete" || !campaign.combined) return "stop";
     if ((campaign.findings ?? 0) === 0) return "stop";
+    // REPORTS_ONLY is the explicit post-audit default: repair is never inherited
+    // silently; the operator must press "Fix with SAIPEN" on the combined handoff.
+    const batch = campaign.batchId ? this.findBatchDirect(campaign.batchId) : null;
+    const policy = campaign.postAuditPolicy ?? batch?.postAuditPolicy ?? "REPORTS_ONLY";
+    if (policy === "REPORTS_ONLY") return "stop";
     if (!campaign.fixJobId) {
       await this.fixWithSaipen(campaign.campaignId).catch((error) => {
         this.deps.logger?.warn(`ZAICODE audits: could not start the fix for ${campaign.projectName}`, error);
@@ -855,6 +1244,39 @@ export class ZaicodeAuditService implements IZaicodeAuditService {
       runId: enabled && !current.smartMode ? randomUUID() : current.runId,
     });
     return { smartMode: enabled };
+  }
+
+  async setAutoAudits(enabled: boolean): Promise<{ autoAudits: boolean }> {
+    // AUTO 的项目续跑与 A3 审计准入必须分开，关闭审计不能关闭已有工作。
+    ZaicodeAuditService.writeJsonAtomic(this.settingsPath(), { ...this.readSmartSettings(), autoAudits: enabled });
+    return { autoAudits: enabled };
+  }
+
+  async setProjectAutoSettings(
+    workspaceKey: string,
+    patch: Partial<ZaicodeAutoPolicy> | null,
+  ): Promise<{ autoProjects: ZaicodeAutoProjects }> {
+    const key = workspaceKey.trim();
+    if (!key) throw new Error("Select a current project before editing its AUTO settings.");
+    if (patch !== null && (!patch || typeof patch !== "object" || Array.isArray(patch) ||
+      Object.entries(patch).some(([field, value]) =>
+        field === "maxCycles" ? typeof value !== "number" || !Number.isInteger(value) :
+          !["smartMode", "autoAudits"].includes(field) || typeof value !== "boolean")))
+      throw new Error("Invalid project AUTO settings.");
+    const current = this.readSmartSettings();
+    if (patch && !Object.hasOwn(current.autoProjects, key) && Object.keys(current.autoProjects).length >= 200)
+      throw new Error("AUTO already has overrides for 200 projects. Clear an existing override first.");
+    const autoProjects = { ...current.autoProjects };
+    if (patch === null) delete autoProjects[key];
+    else {
+      const normalized = normalizeZaicodeAutoProjects({ [key]: { ...autoProjects[key], ...patch } });
+      if (normalized[key]) autoProjects[key] = normalized[key];
+    }
+    const next = { ...current, autoProjects };
+    // 项目单独启用不能重置其他项目的审计配额，也不能把全局 OFF 改成 ON。
+    if (!next.runId && resolveZaicodeAutoPolicy(next, key).smartMode) next.runId = randomUUID();
+    ZaicodeAuditService.writeJsonAtomic(this.settingsPath(), next);
+    return { autoProjects };
   }
 
   /**
@@ -885,7 +1307,10 @@ export class ZaicodeAuditService implements IZaicodeAuditService {
   async smartSweep(): Promise<ZaicodeAuditsReport> {
     if (this.smartSweepRunning) return { started: [] };
     const settings = this.readSmartSettings();
-    if (!settings.smartMode) return { started: [] };
+    if (!this.smartProjects.some((project) => {
+      const policy = resolveZaicodeAutoPolicy(settings, project.workspaceKey);
+      return policy.smartMode && policy.autoAudits && !project.disabled;
+    })) return { started: [] };
     // Fresh E2 (SRC-153 R013): the global wave switch gates automatic ADMISSION,
     // not just wave progression. Disabled means Auto Continue / Continue All
     // create zero automatic campaigns and resume zero planned ones -- not even
@@ -893,17 +1318,25 @@ export class ZaicodeAuditService implements IZaicodeAuditService {
     // never passes through here and is unaffected; running work is untouched.
     if (!settings.autoWaves) return { started: [] };
     if (!settings.runId) {
-      await this.setSmartMode(false);
-      await this.setSmartMode(true);
+      ZaicodeAuditService.writeJsonAtomic(this.settingsPath(), { ...settings, runId: randomUUID() });
       return this.smartSweep();
     }
     this.smartSweepRunning = true;
     try {
+      const stillEnabled = (workspaceKey?: string) => {
+        const current = this.readSmartSettings();
+        const policy = workspaceKey ? resolveZaicodeAutoPolicy(current, workspaceKey) : null;
+        return current.autoWaves && current.runId === settings.runId &&
+          (!policy || (policy.smartMode && policy.autoAudits));
+      };
       const campaigns = this.loadCampaigns(true);
       const running = await this.runningJobCount();
       const started: string[] = [];
       for (const project of this.smartProjects) {
+        // 队列读取期间可以关闭 AUTO/审计；旧快照不能继续创建或恢复任务。
+        if (!stillEnabled()) break;
         if (project.disabled) continue;
+        if (!stillEnabled(project.workspaceKey)) continue;
         const projectCampaigns = campaigns.filter(
           (campaign) => campaign.workspacePath === project.workspacePath && campaign.smartRunId === settings.runId,
         );
@@ -919,6 +1352,7 @@ export class ZaicodeAuditService implements IZaicodeAuditService {
           if (anotherActive || project.noWorkConfirmed !== true ||
               running + (project.runningSessions ?? 0) > 0 ||
               this.countOpenBoardTickets(project.workspacePath) !== 0) continue;
+          if (!stillEnabled(project.workspaceKey)) continue;
           await this.work(latest.campaignId).catch((error) => {
             this.deps.logger?.warn(`ZAICODE audits: could not resume planned A3 for ${project.projectName}`, error);
           });
@@ -929,9 +1363,10 @@ export class ZaicodeAuditService implements IZaicodeAuditService {
             this.deps.logger?.warn(`ZAICODE audits: remediation reconciliation failed for ${project.projectName}`, error);
             return "stop" as const;
           });
+          if (!stillEnabled(project.workspaceKey)) continue;
           if (gate !== "ready") continue;
         }
-        if (cycles >= settings.maxCycles) continue;
+        if (cycles >= resolveZaicodeAutoPolicy(this.readSmartSettings(), project.workspaceKey).maxCycles) continue;
         if (project.noWorkConfirmed !== true) continue;
         const active = campaigns.find(
           (campaign) => campaign.workspacePath === project.workspacePath && zaicodeAuditCampaignIsActive(campaign),
@@ -946,7 +1381,10 @@ export class ZaicodeAuditService implements IZaicodeAuditService {
         });
         if (!decide) continue;
         this.deps.logger?.info?.(`ZAICODE audits: smart mode starting A3 for ${project.projectName}`);
-        const campaign = await this.start(project, settings.runId).catch((error) => {
+        const campaign = await this.generate(project, settings.runId).then(async (planned) => {
+          if (!planned || !stillEnabled(project.workspaceKey)) return planned;
+          return this.work(planned.campaignId);
+        }).catch((error) => {
           this.deps.logger?.warn(`ZAICODE audits: could not start A3 for ${project.projectName}`, error);
           return null;
         });
@@ -959,6 +1397,1042 @@ export class ZaicodeAuditService implements IZaicodeAuditService {
     } finally {
       this.smartSweepRunning = false;
     }
+  }
+
+  private loadBatches(): ZaicodeAuditBatch[] {
+    const dir = this.batchesDir();
+    if (!existsSync(dir)) return [];
+    const batches: ZaicodeAuditBatch[] = [];
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      if (!entry.isFile() || !entry.name.endsWith(".json")) continue;
+      const batch = ZaicodeAuditService.readJson<ZaicodeAuditBatch>(join(dir, entry.name));
+      if (batch && batch.schemaVersion === 1) batches.push(batch);
+    }
+    batches.sort((left, right) => (left.createdAt < right.createdAt ? 1 : -1));
+    return batches;
+  }
+
+  private loadBatch(batchId: string): ZaicodeAuditBatch | null {
+    const path = this.batchFile(batchId);
+    if (!existsSync(path)) return null;
+    const batch = ZaicodeAuditService.readJson<ZaicodeAuditBatch>(path);
+    if (!batch || batch.schemaVersion !== 1) return null;
+    return batch;
+  }
+
+  private saveBatch(batch: ZaicodeAuditBatch, expectedRevision?: number): boolean {
+    const existing = this.loadBatch(batch.batchId);
+    if (existing) {
+      if (expectedRevision !== undefined && (existing.lifecycleRevision ?? 0) !== expectedRevision) {
+        return false;
+      }
+      if (existing.status === "cancelled" && batch.status !== "cancelled") {
+        batch.status = "cancelled";
+        batch.lifecycleRevision = existing.lifecycleRevision;
+      } else if (existing.status === "paused" && batch.status !== "paused") {
+        if (
+          (batch.status === "running" ||
+            batch.status === "cancelled" ||
+            batch.status === "stopping" ||
+            batch.status === "stop_requested" ||
+            batch.status === "stop_partial" ||
+            batch.status === "stop_failed") &&
+          (batch.lifecycleRevision ?? 0) > (existing.lifecycleRevision ?? 0)
+        ) {
+          // Authorized resume or stop transition
+        } else {
+          batch.status = "paused";
+          batch.lifecycleRevision = existing.lifecycleRevision;
+        }
+      } else if (
+        (existing.status === "stopping" ||
+          existing.status === "stop_requested" ||
+          existing.status === "stop_partial" ||
+          existing.status === "stop_failed") &&
+        (batch.status === "running" || batch.status === "paused")
+      ) {
+        if ((batch.lifecycleRevision ?? 0) <= (existing.lifecycleRevision ?? 0)) {
+          batch.status = existing.status;
+          batch.lifecycleRevision = existing.lifecycleRevision;
+        }
+      }
+    }
+    batch.updatedAt = new Date().toISOString();
+    ZaicodeAuditService.writeJsonAtomic(this.batchFile(batch.batchId), batch);
+    return true;
+  }
+
+  private saveBatchIfChanged(batch: ZaicodeAuditBatch, expectedRevision?: number): boolean {
+    const existing = this.loadBatch(batch.batchId);
+    if (existing) {
+      if (
+        existing.status === batch.status &&
+        existing.lifecycleRevision === batch.lifecycleRevision &&
+        existing.completedAt === batch.completedAt &&
+        JSON.stringify(existing.stats) === JSON.stringify(batch.stats) &&
+        JSON.stringify(existing.projects) === JSON.stringify(batch.projects) &&
+        JSON.stringify(existing.campaignIds) === JSON.stringify(batch.campaignIds) &&
+        JSON.stringify(existing.stopDetails) === JSON.stringify(batch.stopDetails)
+      ) {
+        return false;
+      }
+    }
+    return this.saveBatch(batch, expectedRevision);
+  }
+
+  private async reconcileBatch(batch: ZaicodeAuditBatch): Promise<ZaicodeAuditBatch> {
+    // 0. Cancelled batches never resurrect work or generate missing campaigns.
+    if (batch.status === "cancelled") {
+      if (batch.stats && batch.projects.every((p) => p.status !== "pending" && p.status !== "admitting")) {
+        return batch;
+      }
+      for (const p of batch.projects) {
+        if (p.status === "pending" || p.status === "admitting") {
+          const match = p.campaignId ? this.findCampaign(p.campaignId) : null;
+          if (match) {
+            p.campaignId = match.campaignId;
+            p.status = "admitted";
+            if (!batch.campaignIds.includes(match.campaignId)) {
+              batch.campaignIds.push(match.campaignId);
+            }
+          }
+        }
+      }
+      const batchCampaignsForStats = batch.campaignIds.map((id) => this.findCampaign(id)).filter(Boolean) as ZaicodeAuditCampaign[];
+      batch.stats = {
+        totalProjects: batch.projects.length,
+        admittedCount: batch.projects.filter((p) => p.status === "admitted").length,
+        queuedCount: batchCampaignsForStats.filter((c) => c.status === "planned").length,
+        runningCount: batchCampaignsForStats.filter((c) => c.status === "running").length,
+        completedCount: batchCampaignsForStats.filter((c) => c.status === "complete").length,
+        blockedCount: batchCampaignsForStats.filter((c) => c.status === "blocked").length,
+        cancelledCount: batchCampaignsForStats.filter((c) => c.status === "cancelled").length,
+        rejectedCount: batch.projects.filter((p) => p.status === "rejected").length,
+      };
+      this.saveBatchIfChanged(batch);
+      return batch;
+    }
+
+    // 0a. Stopping / stop_partial / stop_failed batches: do not generate new work
+    if (
+      batch.status === "stopping" ||
+      batch.status === "stop_requested" ||
+      batch.status === "stop_partial" ||
+      batch.status === "stop_failed"
+    ) {
+      for (const p of batch.projects) {
+        if (p.status === "pending" || p.status === "admitting") {
+          const match = p.campaignId ? this.findCampaign(p.campaignId) : null;
+          if (match) {
+            p.campaignId = match.campaignId;
+            p.status = "admitted";
+            if (!batch.campaignIds.includes(match.campaignId)) {
+              batch.campaignIds.push(match.campaignId);
+            }
+          }
+        }
+      }
+      const batchCampaigns = batch.campaignIds.map((id) => this.findCampaign(id)).filter(Boolean) as ZaicodeAuditCampaign[];
+      const activeWorkers = (await this.getActiveWorkers()).filter((w) => w.batchId === batch.batchId);
+      const stillRunning = batchCampaigns.filter((c) => c.status === "running");
+
+      if (batch.status === "stopping" || batch.status === "stop_requested") {
+        const failedCount = batch.stopDetails?.failedCampaignIds?.length ?? 0;
+        const stoppedCount = batch.stopDetails?.stoppedCampaignIds?.length ?? 0;
+        if (failedCount > 0) {
+          batch.status = stoppedCount > 0 ? "stop_partial" : "stop_failed";
+        } else if (activeWorkers.length > 0 || stillRunning.length > 0) {
+          batch.status = "stopping";
+          if (batch.stopDetails) {
+            batch.stopDetails.reason =
+              activeWorkers.length > 0
+                ? `${activeWorkers.length} worker(s) still active`
+                : `${stillRunning.length} campaign(s) still active`;
+          }
+        } else {
+          batch.status = "cancelled";
+          batch.completedAt = batch.completedAt ?? new Date().toISOString();
+        }
+      }
+      // Note: If batch was already stop_partial or stop_failed, its status is preserved!
+
+      batch.stats = {
+        totalProjects: batch.projects.length,
+        admittedCount: batch.projects.filter((p) => p.status === "admitted").length,
+        queuedCount: batchCampaigns.filter((c) => c.status === "planned").length,
+        runningCount: batchCampaigns.filter((c) => c.status === "running").length,
+        completedCount: batchCampaigns.filter((c) => c.status === "complete").length,
+        blockedCount: batchCampaigns.filter((c) => c.status === "blocked").length,
+        cancelledCount: batchCampaigns.filter((c) => c.status === "cancelled").length,
+        rejectedCount: batch.projects.filter((p) => p.status === "rejected").length,
+      };
+      this.saveBatchIfChanged(batch);
+      return batch;
+    }
+
+    // 0b. Paused batches: separate durable recovery reconciliation from execution admission.
+    // PAUSED holds new execution admission. Missing campaigns remain recorded as pending.
+    if (batch.status === "paused") {
+      for (const p of batch.projects) {
+        if (p.status === "pending" || p.status === "admitting") {
+          const match = p.campaignId ? this.findCampaign(p.campaignId) : null;
+          if (match) {
+            p.campaignId = match.campaignId;
+            p.status = "admitted";
+            if (!batch.campaignIds.includes(match.campaignId)) {
+              batch.campaignIds.push(match.campaignId);
+            }
+          } else if (!p.workspaceKey || !p.workspacePath) {
+            p.status = "rejected";
+            p.reason = "Missing workspaceKey or workspacePath";
+          }
+        }
+      }
+      const batchCampaignsForStats = batch.campaignIds.map((id) => this.findCampaign(id)).filter(Boolean) as ZaicodeAuditCampaign[];
+      batch.stats = {
+        totalProjects: batch.projects.length,
+        admittedCount: batch.projects.filter((p) => p.status === "admitted").length,
+        queuedCount: batchCampaignsForStats.filter((c) => c.status === "planned").length,
+        runningCount: batchCampaignsForStats.filter((c) => c.status === "running").length,
+        completedCount: batchCampaignsForStats.filter((c) => c.status === "complete").length,
+        blockedCount: batchCampaignsForStats.filter((c) => c.status === "blocked").length,
+        cancelledCount: batchCampaignsForStats.filter((c) => c.status === "cancelled").length,
+        rejectedCount: batch.projects.filter((p) => p.status === "rejected").length,
+      };
+      this.saveBatchIfChanged(batch);
+      return batch;
+    }
+
+    // 1. Crash recovery for incomplete write-ahead admission when running / admitting
+    const incomplete =
+      batch.status === "admitting" ||
+      batch.projects.some((p) => p.status === "pending" || p.status === "admitting");
+    if (incomplete) {
+      const allCampaigns = this.loadCampaigns(true);
+      const batchCampaignIds = new Set(batch.campaignIds);
+      let changed = false;
+
+      for (const p of batch.projects) {
+        const durable = this.loadBatch(batch.batchId);
+        if (
+          durable &&
+          (durable.status === "paused" ||
+            durable.status === "cancelled" ||
+            durable.status === "stopping" ||
+            durable.status === "stop_requested" ||
+            durable.status === "stop_partial" ||
+            durable.status === "stop_failed")
+        ) {
+          break;
+        }
+
+        if (p.status === "pending" || p.status === "admitting") {
+          const match = allCampaigns.find(
+            (c) =>
+              (c.batchId === batch.batchId || (p.campaignId && c.campaignId === p.campaignId)) &&
+              c.workspaceKey === p.workspaceKey,
+          );
+          if (match) {
+            p.campaignId = match.campaignId;
+            p.status = "admitted";
+            batchCampaignIds.add(match.campaignId);
+            changed = true;
+            if (!batch.planOnly && match.status === "planned") {
+              await this.work(match.campaignId);
+            }
+          } else if (!p.workspaceKey || !p.workspacePath) {
+            p.status = "rejected";
+            p.reason = "Missing workspaceKey or workspacePath";
+            changed = true;
+          } else {
+            // Reconcile missing campaign
+            const campaign = await this.generate(
+              {
+                workspaceKey: p.workspaceKey,
+                workspacePath: p.workspacePath,
+                projectName: p.projectName,
+              },
+              undefined,
+              {
+                batchId: batch.batchId,
+                modelPolicy: batch.modelPolicy,
+                batchAutoWaves: batch.autoWaves,
+              },
+            );
+
+            const durableAfterGen = this.loadBatch(batch.batchId);
+            if (
+              durableAfterGen &&
+              (durableAfterGen.status === "paused" ||
+                durableAfterGen.status === "cancelled" ||
+                durableAfterGen.status === "stopping" ||
+                durableAfterGen.status === "stop_requested" ||
+                durableAfterGen.status === "stop_partial" ||
+                durableAfterGen.status === "stop_failed")
+            ) {
+              break;
+            }
+
+            if (campaign) {
+              p.campaignId = campaign.campaignId;
+              p.status = "admitted";
+              batchCampaignIds.add(campaign.campaignId);
+              changed = true;
+              if (!batch.planOnly) {
+                await this.work(campaign.campaignId);
+              }
+            } else {
+              p.status = "rejected";
+              p.reason = "Campaign generation failed";
+              changed = true;
+            }
+          }
+        }
+      }
+      batch.campaignIds = Array.from(batchCampaignIds);
+      if (batch.status === "admitting") {
+        const hasUnresolved = batch.projects.some(
+          (p) => p.status === "pending" || p.status === "admitting" || p.status === "unresolved",
+        );
+        batch.status = hasUnresolved ? "blocked" : batch.planOnly ? "planned" : "running";
+        changed = true;
+      }
+      if (changed) {
+        this.saveBatch(batch);
+      }
+    }
+
+    const campaigns = batch.campaignIds.map((id) => this.findCampaign(id)).filter(Boolean) as ZaicodeAuditCampaign[];
+    if (campaigns.length === 0 && batch.projects.length === 0) return batch;
+
+    const batchCampaignsForStats = campaigns;
+    batch.stats = {
+      totalProjects: batch.projects.length,
+      admittedCount: batch.projects.filter((p) => p.status === "admitted").length,
+      queuedCount: batchCampaignsForStats.filter((c) => c.status === "planned").length,
+      runningCount: batchCampaignsForStats.filter((c) => c.status === "running").length,
+      completedCount: batchCampaignsForStats.filter((c) => c.status === "complete").length,
+      blockedCount: batchCampaignsForStats.filter((c) => c.status === "blocked").length,
+      cancelledCount: batchCampaignsForStats.filter((c) => c.status === "cancelled").length,
+      rejectedCount: batch.projects.filter((p) => p.status === "rejected").length,
+    };
+
+    const anyRunning = campaigns.some((c) => c.status === "running");
+    if (anyRunning) {
+      if (batch.status !== "running") {
+        batch.status = "running";
+      }
+      this.saveBatchIfChanged(batch);
+      return batch;
+    }
+
+    const allPlanned = campaigns.length > 0 && campaigns.every((c) => c.status === "planned");
+    if (allPlanned && batch.planOnly && batch.status !== "planned") {
+      batch.status = "planned";
+      this.saveBatchIfChanged(batch);
+      return batch;
+    }
+
+    // Evaluate terminal status based on all intended project memberships
+    const admittedProjects = batch.projects.filter((p) => p.status === "admitted");
+    const rejectedProjects = batch.projects.filter((p) => p.status === "rejected");
+    const unresolvedProjects = batch.projects.filter(
+      (p) => p.status === "pending" || p.status === "admitting" || p.status === "unresolved",
+    );
+
+    if (unresolvedProjects.length > 0) {
+      if (batch.status !== "blocked" && batch.status !== "admitting") {
+        batch.status = "blocked";
+        this.saveBatchIfChanged(batch);
+      }
+      return batch;
+    }
+
+    const allAdmittedCampaignsTerminal =
+      admittedProjects.length === 0 ||
+      (campaigns.length >= admittedProjects.length &&
+        campaigns.every((c) => c.status === "complete" || c.status === "blocked" || c.status === "cancelled"));
+
+    if (allAdmittedCampaignsTerminal && (admittedProjects.length > 0 || rejectedProjects.length > 0)) {
+      const completedCampaigns = campaigns.filter((c) => c.status === "complete");
+      const blockedCampaigns = campaigns.filter((c) => c.status === "blocked");
+      const cancelledCampaigns = campaigns.filter((c) => c.status === "cancelled");
+
+      const isComplete =
+        admittedProjects.length > 0 &&
+        completedCampaigns.length === admittedProjects.length &&
+        rejectedProjects.length === 0 &&
+        unresolvedProjects.length === 0;
+
+      if (isComplete) {
+        if (batch.status !== "complete") {
+          batch.status = "complete";
+          batch.completedAt = new Date().toISOString();
+          this.saveBatchIfChanged(batch);
+        }
+        return batch;
+      }
+
+      const isPartial =
+        completedCampaigns.length > 0 &&
+        (rejectedProjects.length > 0 ||
+          blockedCampaigns.length > 0 ||
+          cancelledCampaigns.length > 0 ||
+          completedCampaigns.length < admittedProjects.length);
+
+      if (isPartial) {
+        if (batch.status !== "partial") {
+          batch.status = "partial";
+          batch.completedAt = new Date().toISOString();
+          this.saveBatchIfChanged(batch);
+        }
+        return batch;
+      }
+
+      if (completedCampaigns.length === 0) {
+        if (batch.status !== "blocked") {
+          batch.status = "blocked";
+          batch.completedAt = new Date().toISOString();
+          this.saveBatchIfChanged(batch);
+        }
+        return batch;
+      }
+    }
+
+    this.saveBatchIfChanged(batch);
+    return batch;
+  }
+
+  async listBatches(): Promise<ZaicodeAuditBatch[]> {
+    const batches = this.loadBatches();
+    return Promise.all(
+      batches.map(async (batch) => {
+        if (
+          (batch.status === "complete" ||
+            batch.status === "partial" ||
+            batch.status === "cancelled" ||
+            batch.status === "stop_partial" ||
+            batch.status === "stop_failed") &&
+          batch.stats
+        ) {
+          return batch;
+        }
+        return this.reconcileBatch(batch);
+      }),
+    );
+  }
+
+  async getBatch(batchId: string): Promise<ZaicodeAuditBatch | null> {
+    const path = this.batchFile(batchId);
+    if (!existsSync(path)) return null;
+    const batch = ZaicodeAuditService.readJson<ZaicodeAuditBatch>(path);
+    if (!batch || batch.schemaVersion !== 1) return null;
+    return this.reconcileBatch(batch);
+  }
+
+  async createBatch(input: {
+    requestId?: string;
+    projects: { workspaceKey: string; workspacePath: string; projectName: string }[];
+    planOnly?: boolean;
+    autoWaves?: boolean;
+    workerCapacity?: number;
+    modelPolicy?: ZaicodeAuditBatchModelPolicy;
+    postAuditPolicy?: ZaicodeAuditPostAuditPolicy;
+    requestProvenance?: "operator_ui" | "auto" | "api";
+  }): Promise<ZaicodeAuditBatchAdmissionResult> {
+    const normalizedProjects = (input.projects || [])
+      .map((p) => `${p.workspaceKey?.trim()}::${p.workspacePath?.trim()}::${p.projectName?.trim()}`)
+      .sort()
+      .join("|");
+    const sortedKeys = (input.projects || [])
+      .map((p) => p.workspaceKey?.trim())
+      .filter(Boolean)
+      .sort()
+      .join(",");
+    const resolvedPostAuditPolicy =
+      input.postAuditPolicy ??
+      (input.requestProvenance === "auto" ? "FIX_WITH_SAIPEN" : "REPORTS_ONLY");
+    const modelSignature = JSON.stringify(input.modelPolicy ?? {});
+    const contentFingerprint = sha256Of(
+      `${normalizedProjects}:${Boolean(input.planOnly)}:${input.workerCapacity ?? 0}:${input.autoWaves ?? true}:${modelSignature}:${resolvedPostAuditPolicy}`,
+    );
+    const legacyFingerprint = sha256Of(
+      `${sortedKeys}:${Boolean(input.planOnly)}:${input.workerCapacity ?? 0}:${input.autoWaves ?? true}:${modelSignature}:${resolvedPostAuditPolicy}`,
+    );
+    // If caller provided explicit requestId, use it. Otherwise generate fresh unique action ID!
+    const requestId =
+      input.requestId?.trim() ||
+      `req-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+
+    return this.withBatchAdmission(requestId, async () => {
+      // 1. Check if a batch for this requestId already exists (real request idempotency)
+      const existingBatches = this.loadBatches();
+      const existing = existingBatches.find((b) => b.requestId === requestId);
+      if (existing) {
+        const hasProjectMismatch =
+          input.projects &&
+          input.projects.some((inp) => {
+            const match = existing.projects.find((ep) => ep.workspaceKey === inp.workspaceKey?.trim());
+            return match && match.workspacePath !== inp.workspacePath?.trim();
+          });
+
+        if (
+          hasProjectMismatch ||
+          (existing.contentFingerprint &&
+            existing.contentFingerprint !== contentFingerprint &&
+            existing.contentFingerprint !== legacyFingerprint)
+        ) {
+          throw new Error(
+            `Request conflict: requestId '${requestId}' already exists with different project content or execution policy`,
+          );
+        }
+
+        // Reconcile existing batch in place without wiping admissions or campaignIds
+        const reconciled = await this.reconcileBatch(existing);
+        const admittedCount = reconciled.projects.filter((p) => p.status === "admitted").length;
+        const skippedCount = reconciled.projects.filter((p) => p.status === "skipped").length;
+        const duplicateCount = reconciled.projects.filter((p) => p.status === "duplicate").length;
+        const rejectedCount = reconciled.projects.filter((p) => p.status === "rejected").length;
+        const pendingCount = reconciled.projects.filter((p) => p.status === "pending").length;
+        const unresolvedCount = reconciled.projects.filter((p) => p.status === "unresolved").length;
+        return {
+          batch: reconciled,
+          admittedCount,
+          skippedCount,
+          duplicateCount,
+          rejectedCount,
+          pendingCount,
+          unresolvedCount,
+        };
+      }
+
+      const now = new Date().toISOString();
+      const batchId = createZaicodeAuditBatchId();
+      const capacity = input.workerCapacity ?? ZAICODE_JOB_GLOBAL_CONCURRENCY_DEFAULT;
+      const seenKeys = new Set<string>();
+      const campaignIds: string[] = [];
+
+      // 2. Write-ahead admission intent: persist complete intended project membership first
+      mkdirSync(this.batchesDir(), { recursive: true });
+      const admissions: ZaicodeAuditBatchProjectAdmission[] = (input.projects || []).map((p) => ({
+        workspaceKey: p.workspaceKey?.trim() || "",
+        workspacePath: p.workspacePath?.trim() || "",
+        projectName: p.projectName?.trim() || "Unknown",
+        campaignId: null,
+        status: "pending",
+      }));
+
+      const batch: ZaicodeAuditBatch = {
+        schemaVersion: 1,
+        batchId,
+        requestId,
+        contentFingerprint,
+        lifecycleRevision: 1,
+        operatorActionId: requestId,
+        createdAt: now,
+        updatedAt: now,
+        requestProvenance: input.requestProvenance ?? "operator_ui",
+        profileId: ZAICODE_AUDIT_PROFILE.id,
+        profileVersion: ZAICODE_AUDIT_PROFILE.version,
+        manifestHash: zaicodeAuditProfileManifestHash(),
+        planOnly: Boolean(input.planOnly),
+        autoWaves: input.autoWaves ?? true,
+        postAuditPolicy: resolvedPostAuditPolicy,
+        workerCapacity: capacity,
+        modelPolicy: input.modelPolicy ?? {},
+        projects: admissions,
+        campaignIds,
+        status: "admitting",
+        startedAt: input.planOnly ? null : now,
+      };
+      this.saveBatch(batch);
+
+      let admittedCount = 0;
+      let skippedCount = 0;
+      let duplicateCount = 0;
+      let rejectedCount = 0;
+
+      for (const admission of batch.projects) {
+        const durable = this.loadBatch(batchId);
+        if (durable && (durable.status === "paused" || durable.status === "cancelled")) {
+          break;
+        }
+
+        const key = admission.workspaceKey;
+        if (!key || !admission.workspacePath) {
+          admission.status = "rejected";
+          admission.reason = "Missing workspaceKey or workspacePath";
+          rejectedCount++;
+          this.saveBatch(batch);
+          continue;
+        }
+
+        if (seenKeys.has(key)) {
+          admission.status = "duplicate";
+          admission.reason = "Duplicate project in batch";
+          duplicateCount++;
+          this.saveBatch(batch);
+          continue;
+        }
+        seenKeys.add(key);
+
+        admission.status = "admitting";
+        this.saveBatch(batch);
+
+        const activeCampaign = this.loadCampaigns(true).find(
+          (c) => c.workspaceKey === key && zaicodeAuditCampaignIsActive(c),
+        );
+        if (activeCampaign) {
+          admission.status = "skipped";
+          admission.campaignId = activeCampaign.campaignId;
+          admission.reason = "Active campaign already in progress";
+          skippedCount++;
+          this.saveBatch(batch);
+          continue;
+        }
+
+        const campaign = await this.generate(
+          {
+            workspaceKey: key,
+            workspacePath: admission.workspacePath,
+            projectName: admission.projectName,
+          },
+          undefined,
+          {
+            batchId,
+            modelPolicy: input.modelPolicy,
+            batchAutoWaves: input.autoWaves,
+            postAuditPolicy: resolvedPostAuditPolicy,
+          },
+        );
+
+        if (!campaign) {
+          admission.status = "rejected";
+          admission.reason = "Campaign generation failed";
+          rejectedCount++;
+          this.saveBatch(batch);
+          continue;
+        }
+
+        const durableAfterGen = this.loadBatch(batchId);
+        if (durableAfterGen && (durableAfterGen.status === "paused" || durableAfterGen.status === "cancelled")) {
+          admission.campaignId = campaign.campaignId;
+          admission.status = "admitted";
+          if (!durableAfterGen.campaignIds.includes(campaign.campaignId)) {
+            durableAfterGen.campaignIds.push(campaign.campaignId);
+          }
+          const pInDurable = durableAfterGen.projects.find((p) => p.workspaceKey === key);
+          if (pInDurable) {
+            pInDurable.campaignId = campaign.campaignId;
+            pInDurable.status = "admitted";
+          }
+          this.saveBatch(durableAfterGen);
+          break;
+        }
+
+        admission.campaignId = campaign.campaignId;
+        admission.status = "admitted";
+        if (!campaignIds.includes(campaign.campaignId)) {
+          campaignIds.push(campaign.campaignId);
+        }
+        admittedCount++;
+        batch.campaignIds = [...campaignIds];
+        this.saveBatch(batch);
+
+        if (!input.planOnly) {
+          await this.work(campaign.campaignId);
+        }
+      }
+
+      const finalDurable = this.loadBatch(batchId);
+      if (finalDurable && (finalDurable.status === "paused" || finalDurable.status === "cancelled")) {
+        return {
+          batch: finalDurable,
+          admittedCount: finalDurable.projects.filter((p) => p.status === "admitted").length,
+          skippedCount: finalDurable.projects.filter((p) => p.status === "skipped").length,
+          duplicateCount: finalDurable.projects.filter((p) => p.status === "duplicate").length,
+          rejectedCount: finalDurable.projects.filter((p) => p.status === "rejected").length,
+          pendingCount: finalDurable.projects.filter((p) => p.status === "pending").length,
+          unresolvedCount: finalDurable.projects.filter((p) => p.status === "unresolved").length,
+        };
+      }
+
+      const hasPendingOrUnresolved = batch.projects.some(
+        (p) => p.status === "pending" || p.status === "admitting" || p.status === "unresolved",
+      );
+      batch.status = hasPendingOrUnresolved ? "blocked" : input.planOnly ? "planned" : "running";
+      batch.updatedAt = new Date().toISOString();
+
+      const allCampaignsForStats = this.loadCampaigns(true);
+      const batchCampaignsForStats = allCampaignsForStats.filter(
+        (c) => batch.campaignIds.includes(c.campaignId) || (c.batchId && c.batchId === batch.batchId),
+      );
+      batch.stats = {
+        totalProjects: batch.projects.length,
+        admittedCount: batch.projects.filter((p) => p.status === "admitted").length,
+        queuedCount: batchCampaignsForStats.filter((c) => c.status === "planned").length,
+        runningCount: batchCampaignsForStats.filter((c) => c.status === "running").length,
+        completedCount: batchCampaignsForStats.filter((c) => c.status === "complete").length,
+        blockedCount: batchCampaignsForStats.filter((c) => c.status === "blocked").length,
+        cancelledCount: batchCampaignsForStats.filter((c) => c.status === "cancelled").length,
+        rejectedCount: batch.projects.filter((p) => p.status === "rejected").length,
+      };
+
+      this.saveBatch(batch);
+
+      const durableBeforePump = this.loadBatch(batchId);
+      if (durableBeforePump && (durableBeforePump.status === "paused" || durableBeforePump.status === "cancelled")) {
+        return {
+          batch: durableBeforePump,
+          admittedCount: durableBeforePump.projects.filter((p) => p.status === "admitted").length,
+          skippedCount: durableBeforePump.projects.filter((p) => p.status === "skipped").length,
+          duplicateCount: durableBeforePump.projects.filter((p) => p.status === "duplicate").length,
+          rejectedCount: durableBeforePump.projects.filter((p) => p.status === "rejected").length,
+          pendingCount: durableBeforePump.projects.filter((p) => p.status === "pending").length,
+          unresolvedCount: durableBeforePump.projects.filter((p) => p.status === "unresolved").length,
+        };
+      }
+
+      if (!input.planOnly) {
+        await this.deps.jobService.pumpAll?.();
+      }
+
+      return {
+        batch,
+        admittedCount,
+        skippedCount,
+        duplicateCount,
+        rejectedCount,
+        pendingCount: batch.projects.filter((p) => p.status === "pending").length,
+        unresolvedCount: batch.projects.filter((p) => p.status === "unresolved").length,
+      };
+    });
+  }
+
+  async pauseBatch(batchId: string, actionId?: string): Promise<ZaicodeAuditBatch | null> {
+    const batch = this.loadBatch(batchId);
+    if (!batch) return null;
+    if (
+      batch.status === "cancelled" ||
+      batch.status === "stopping" ||
+      batch.status === "stop_requested" ||
+      batch.status === "stop_partial" ||
+      batch.status === "stop_failed"
+    ) {
+      return batch;
+    }
+    batch.lifecycleRevision = (batch.lifecycleRevision ?? 0) + 1;
+    batch.operatorActionId = actionId ?? `op-pause-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    batch.status = "paused";
+    this.saveBatch(batch);
+    return batch;
+  }
+
+  async resumeBatch(batchId: string, actionId?: string): Promise<ZaicodeAuditBatch | null> {
+    const batch = this.loadBatch(batchId);
+    if (!batch) return null;
+    if (
+      batch.status === "cancelled" ||
+      batch.status === "stopping" ||
+      batch.status === "stop_requested" ||
+      batch.status === "stop_partial" ||
+      batch.status === "stop_failed"
+    ) {
+      return batch;
+    }
+    if (batch.status === "running") return batch;
+
+    const nextRevision = (batch.lifecycleRevision ?? 0) + 1;
+    batch.lifecycleRevision = nextRevision;
+    batch.operatorActionId = actionId ?? `op-resume-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    batch.status = "running";
+    this.saveBatch(batch);
+
+    const targetRevision = nextRevision;
+
+    for (const p of batch.projects) {
+      const currentBefore = this.loadBatch(batchId);
+      if (!currentBefore || currentBefore.lifecycleRevision !== targetRevision || currentBefore.status !== "running") {
+        return currentBefore;
+      }
+
+      if (p.status === "pending" || p.status === "admitting") {
+        const campaign = await this.generate(
+          {
+            workspaceKey: p.workspaceKey,
+            workspacePath: p.workspacePath,
+            projectName: p.projectName,
+          },
+          undefined,
+          {
+            batchId: batch.batchId,
+            modelPolicy: batch.modelPolicy,
+            batchAutoWaves: batch.autoWaves,
+            postAuditPolicy: batch.postAuditPolicy,
+          },
+        );
+
+        const currentAfterGen = this.loadBatch(batchId);
+        if (!currentAfterGen || currentAfterGen.lifecycleRevision !== targetRevision || currentAfterGen.status !== "running") {
+          return currentAfterGen;
+        }
+
+        const projectInCurrent = currentAfterGen.projects.find((cp) => cp.workspaceKey === p.workspaceKey) ?? p;
+        if (campaign) {
+          projectInCurrent.campaignId = campaign.campaignId;
+          projectInCurrent.status = "admitted";
+          if (!currentAfterGen.campaignIds.includes(campaign.campaignId)) {
+            currentAfterGen.campaignIds.push(campaign.campaignId);
+          }
+          this.saveBatch(currentAfterGen, targetRevision);
+
+          if (!currentAfterGen.planOnly) {
+            await this.work(campaign.campaignId);
+          }
+        } else {
+          projectInCurrent.status = "rejected";
+          projectInCurrent.reason = "Campaign generation failed";
+          this.saveBatch(currentAfterGen, targetRevision);
+        }
+
+        const currentAfterWork = this.loadBatch(batchId);
+        if (!currentAfterWork || currentAfterWork.lifecycleRevision !== targetRevision || currentAfterWork.status !== "running") {
+          return currentAfterWork;
+        }
+      }
+    }
+
+    const currentBeforePlanned = this.loadBatch(batchId);
+    if (!currentBeforePlanned || currentBeforePlanned.lifecycleRevision !== targetRevision || currentBeforePlanned.status !== "running") {
+      return currentBeforePlanned;
+    }
+
+    for (const campaignId of currentBeforePlanned.campaignIds) {
+      const current = this.loadBatch(batchId);
+      if (!current || current.lifecycleRevision !== targetRevision || current.status !== "running") {
+        return current;
+      }
+      const campaign = this.findCampaign(campaignId);
+      if (campaign && campaign.status === "planned") {
+        await this.work(campaignId);
+      }
+    }
+
+    const currentBeforePump = this.loadBatch(batchId);
+    if (!currentBeforePump || currentBeforePump.lifecycleRevision !== targetRevision || currentBeforePump.status !== "running") {
+      return currentBeforePump;
+    }
+
+    await this.deps.jobService.pumpAll?.();
+    return this.getBatch(batchId);
+  }
+
+  async stopBatch(batchId: string, actionId?: string): Promise<ZaicodeAuditBatch | null> {
+    const batch = this.loadBatch(batchId);
+    if (!batch) return null;
+    if (batch.status === "cancelled") return batch;
+
+    const nextRevision = (batch.lifecycleRevision ?? 0) + 1;
+    batch.lifecycleRevision = nextRevision;
+    batch.operatorActionId = actionId ?? `op-stop-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    batch.status = "stopping";
+    this.saveBatch(batch);
+
+    const stoppedCampaignIds: string[] = [];
+    const failedCampaignIds: string[] = [];
+
+    const targetCampaignIds = new Set<string>(batch.campaignIds);
+    for (const p of batch.projects) {
+      if (p.campaignId) targetCampaignIds.add(p.campaignId);
+    }
+    const allKnownCampaigns = this.loadCampaigns(true);
+    for (const c of allKnownCampaigns) {
+      if (c.batchId && c.batchId === batchId) {
+        targetCampaignIds.add(c.campaignId);
+      }
+    }
+
+    for (const campaignId of targetCampaignIds) {
+      const current = this.loadBatch(batchId);
+      if (!current || current.lifecycleRevision !== nextRevision) {
+        return current;
+      }
+      const res = await this.cancel(campaignId);
+      if (!res || (res.status !== "cancelled" && res.status !== "complete")) {
+        failedCampaignIds.push(campaignId);
+      } else {
+        stoppedCampaignIds.push(campaignId);
+      }
+    }
+
+    const currentAfterStops = this.loadBatch(batchId);
+    if (!currentAfterStops || currentAfterStops.lifecycleRevision !== nextRevision) {
+      return currentAfterStops;
+    }
+
+    const allCampaignsAfter = this.loadCampaigns(true);
+    const owned = allCampaignsAfter.filter(
+      (c) => targetCampaignIds.has(c.campaignId) || (c.batchId && c.batchId === batchId),
+    );
+    const stillActive = owned.filter((c) => c.status === "running" || zaicodeAuditCampaignIsActive(c));
+    const activeWorkers = await this.getActiveWorkers();
+    const batchWorkers = activeWorkers.filter((w) => w.batchId === batchId);
+
+    currentAfterStops.stopDetails = {
+      stoppedCampaignIds,
+      failedCampaignIds,
+      reason:
+        batchWorkers.length > 0
+          ? `${batchWorkers.length} worker(s) still active`
+          : stillActive.length > 0
+            ? `${stillActive.length} campaign(s) still active`
+            : undefined,
+    };
+
+    if (failedCampaignIds.length > 0) {
+      if (stoppedCampaignIds.length > 0) {
+        currentAfterStops.status = "stop_partial";
+      } else {
+        currentAfterStops.status = "stop_failed";
+      }
+    } else if (batchWorkers.length > 0 || stillActive.length > 0) {
+      currentAfterStops.status = "stopping";
+    } else {
+      currentAfterStops.status = "cancelled";
+      currentAfterStops.completedAt = new Date().toISOString();
+    }
+
+    const batchCampaignsForStats = allCampaignsAfter.filter(
+      (c) => currentAfterStops.campaignIds.includes(c.campaignId) || (c.batchId && c.batchId === batchId),
+    );
+    currentAfterStops.stats = {
+      totalProjects: currentAfterStops.projects.length,
+      admittedCount: currentAfterStops.projects.filter((p) => p.status === "admitted").length,
+      queuedCount: batchCampaignsForStats.filter((c) => c.status === "planned").length,
+      runningCount: batchCampaignsForStats.filter((c) => c.status === "running").length,
+      completedCount: batchCampaignsForStats.filter((c) => c.status === "complete").length,
+      blockedCount: batchCampaignsForStats.filter((c) => c.status === "blocked").length,
+      cancelledCount: batchCampaignsForStats.filter((c) => c.status === "cancelled").length,
+      rejectedCount: currentAfterStops.projects.filter((p) => p.status === "rejected").length,
+    };
+
+    this.saveBatch(currentAfterStops);
+    return this.loadBatch(batchId) ?? currentAfterStops;
+  }
+
+  async retryBatch(
+    batchId: string,
+    mode: "all_failed" | "blocked_only" = "blocked_only",
+    actionId?: string,
+  ): Promise<ZaicodeAuditBatch | null> {
+    const batch = this.loadBatch(batchId);
+    if (!batch) return null;
+    if (
+      batch.status === "cancelled" ||
+      batch.status === "stopping" ||
+      batch.status === "stop_requested"
+    ) {
+      return batch;
+    }
+
+    const nextRevision = (batch.lifecycleRevision ?? 0) + 1;
+    batch.lifecycleRevision = nextRevision;
+    batch.operatorActionId = actionId ?? `op-retry-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    batch.status = "running";
+    this.saveBatch(batch);
+
+    const targetRevision = nextRevision;
+
+    for (const campaignId of batch.campaignIds) {
+      const current = this.loadBatch(batchId);
+      if (!current || current.lifecycleRevision !== targetRevision || current.status !== "running") {
+        return current;
+      }
+      const campaign = this.findCampaign(campaignId);
+      if (!campaign) continue;
+      if (campaign.status === "blocked" || (mode === "all_failed" && campaign.status === "cancelled")) {
+        await this.retry(campaignId);
+      }
+    }
+
+    const currentBeforePump = this.loadBatch(batchId);
+    if (!currentBeforePump || currentBeforePump.lifecycleRevision !== targetRevision || currentBeforePump.status !== "running") {
+      return currentBeforePump;
+    }
+
+    await this.deps.jobService.pumpAll?.();
+    return this.getBatch(batchId);
+  }
+
+  async getActiveWorkers(): Promise<ZaicodeAuditWorker[]> {
+    let runningJobs: ZaicodeJob[] = [];
+    try {
+      const listRes = await this.deps.jobService.list({ status: "running" });
+      runningJobs = listRes.jobs;
+    } catch (error) {
+      this.deps.logger?.warn("ZAICODE audits: failed to list running jobs for active workers", error);
+      return [];
+    }
+
+    const workers: ZaicodeAuditWorker[] = [];
+    for (const job of runningJobs) {
+      const meta =
+        job.auditMetadata ??
+        (() => {
+          const match = /\[([a-zA-Z0-9_-]+)#(\d+)\]/.exec(job.title);
+          return match?.[1]
+            ? {
+                campaignId: match[1],
+                waveId: "core",
+                attempt: parseInt(match[2] ?? "1", 10) || 1,
+                batchId: undefined,
+              }
+            : null;
+        })();
+      if (!meta?.campaignId) continue;
+
+      try {
+        const agent = await this.deps.agentService.get(job.agentId).catch(() => null);
+        const model =
+          formatZaicodeModelLabel(job.actualModelSelection) ||
+          formatZaicodeModelLabel(agent?.modelSelection, agent) ||
+          "default";
+        const provider =
+          job.actualModelSelection?.providerId ??
+          agent?.providerRef ??
+          agent?.modelSelection?.providerId ??
+          "builtin";
+
+        const titleMatch = / — (.*) \[/.exec(job.title);
+        const projectName = titleMatch?.[1] ? titleMatch[1].trim() : job.workspaceKey;
+        const waveId = (meta.waveId ?? "core") as "core" | "second" | "performance";
+        const waveOrdinal = waveId === "second" ? 2 : waveId === "performance" ? 3 : 1;
+        const generation = ("generation" in meta ? meta.generation : undefined) ?? (meta.attempt ?? (job.attempt || 1));
+
+        workers.push({
+          workerId: `worker-${job.id}-${job.runId ?? "0"}`,
+          runId: job.runId ?? "",
+          sessionId: job.sessionId ?? "",
+          projectKey: job.workspaceKey,
+          projectName,
+          waveId,
+          waveOrdinal,
+          model,
+          provider,
+          startedAt: job.startedAt ? Number(job.startedAt) : Date.now(),
+          lastHeartbeatAt: job.heartbeatAt ? Number(job.heartbeatAt) : Date.now(),
+          status: "running",
+          jobId: job.id,
+          attempt: job.attempt,
+          batchId: meta.batchId ? String(meta.batchId) : null,
+          campaignId: meta.campaignId,
+          generation,
+        });
+      } catch (error) {
+        this.deps.logger?.warn(`ZAICODE audits: failed to project worker for job ${job.id}`, error);
+      }
+    }
+    return workers;
   }
 
   dispose(): void {

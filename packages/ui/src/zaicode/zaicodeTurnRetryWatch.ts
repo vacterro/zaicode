@@ -12,7 +12,9 @@ import {
 import { zaicodeContinueHandleFor } from "./zaicodeContinueHost.js";
 import {
   bumpZaicodeAutoRetryAttempt,
+  clearZaicodeAutoRetryStoppedForSession,
   isZaicodeAutoRetryLocal,
+  isZaicodeAutoRetryStoppedForSession,
   resetZaicodeAutoRetryAttempt,
   zaicodeAutoRetryAttempts,
 } from "./zaicodeAutoRetry.js";
@@ -24,12 +26,12 @@ import {
 } from "./zaicodeRetryPolicy.js";
 import { useZaicodeUiPrefs } from "./zaicodeUiPrefs.js";
 import { zaicodeEffectiveAutoRetryFor } from "./zaicodeRetryPolicy.js";
-import { useZaicodeAuditStore } from "./zaicodeAuditStore.js";
 import { useZaicodeAutoContinue } from "./zaicodeAutoContinue.js";
+import { useZaicodeLiveRuns } from "./zaicodeLiveRuns.js";
 
 /**
  * Background auto-retry (SRC-051; SRC-082 gave it a leash): it only works while the
- * sidebar's Auto is ON (or the session's own auto-continue is On), never on a session a
+ * effective retry preference is ON and session/stop-all controls allow it, never on a session a
  * pane saw hit a quota wall, waits longer after every attempt, gives up after at most
  * ZAICODE_AUTO_RETRY_HARD_CAP attempts, and every scheduled knock is in the ledger the
  * sidebar shows, with one button that stops them all.
@@ -61,15 +63,18 @@ export function pickZaicodeBackgroundRetrySessions(
     isProjectDisabled: (projectKey: string) => boolean;
     attemptsOf: (sessionId: string) => number;
     maxAttempts: number;
-    /** The switches (sidebar Auto, the session's own mode, the retry switch) allow this session. */
+    /** The session's own mode, stop-all and retry preference allow this session. */
     mayAutoSend?: (sessionId: string) => boolean;
     /** A pane saw this session hit a quota wall: asking again does not lift it. */
     isQuotaWall?: (sessionId: string) => boolean;
+    /** The operator stopped this failed episode, including before a renderer reload. */
+    isStopped?: (sessionId: string) => boolean;
   },
 ): ZaicodeSessionBrief[] {
   return briefs.filter(
     (brief) =>
       brief.failed &&
+      !(options.isStopped?.(brief.sessionId) ?? false) &&
       !brief.running &&
       !brief.waiting &&
       !options.isLocal(brief.sessionId) &&
@@ -85,6 +90,7 @@ export function useZaicodeTurnRetryWatch(): void {
   useEffect(() => {
     const watches = new Map<string, Watch>();
     const inFlight = new Set<string>();
+    const acceptedFailures = new Map<string, number>();
 
     const clearWatch = (sessionId: string) => {
       const watch = watches.get(sessionId);
@@ -100,9 +106,10 @@ export function useZaicodeTurnRetryWatch(): void {
       useZaicodeRetryLedger.getState().clear(brief.sessionId);
       const prefs = useZaicodeUiPrefs.getState();
       // The gate is asked again at the moment of sending, not only when the timer was set.
-      if (!zaicodeEffectiveAutoRetryFor(brief.projectKey, brief.sessionId).enabled || isZaicodeQuotaWall(brief.sessionId)) return;
+      if (!zaicodeEffectiveAutoRetryFor(brief.projectKey, brief.sessionId).enabled || isZaicodeQuotaWall(brief.sessionId) || isZaicodeAutoRetryStoppedForSession(brief.sessionId)) return;
       const current = useZaicodeSessionBriefs.getState().sessions.find((item) => item.sessionId === brief.sessionId);
-      if (!current?.failed || current.running || current.waiting || isZaicodeAutoRetryLocal(current.sessionId)) return;
+      if (!current?.failed || current.running || current.waiting || current.manuallyStopped || useZaicodeLiveRuns.getState().runs[current.sessionId] || isZaicodeAutoRetryLocal(current.sessionId)) return;
+      if (acceptedFailures.get(current.sessionId) === current.updatedAt) return;
       if (inFlight.has(current.sessionId)) return;
       const project = useZaicodeHomeProjects.getState().rows[current.projectKey];
       if (project?.disabled || zaicodeAutoRetryAttempts(current.sessionId) >= zaicodeRetryLimit(prefs.autoRetryMaxAttempts)) return;
@@ -131,7 +138,18 @@ export function useZaicodeTurnRetryWatch(): void {
       logger.info("[zaicode] background auto-retry", { sessionId: current.sessionId, attempt });
       toast(`Auto-retry (attempt ${attempt}): ${line}`, { durationMs: 6000 });
       void handle
-        .send(current.sessionId, command)
+        .send(current.sessionId, command, {
+          idleOnly: true,
+          commandId: `auto-retry-${current.sessionId}-${current.updatedAt}`,
+          canDispatch: () => {
+            const latest = useZaicodeSessionBriefs.getState().sessions.find((item) => item.sessionId === current.sessionId);
+            return Boolean(latest?.failed && latest.updatedAt === current.updatedAt && !latest.running && !latest.waiting && !latest.manuallyStopped &&
+              !useZaicodeLiveRuns.getState().runs[current.sessionId] && !isZaicodeAutoRetryLocal(current.sessionId) &&
+              !isZaicodeAutoRetryStoppedForSession(current.sessionId) &&
+              zaicodeEffectiveAutoRetryFor(current.projectKey, current.sessionId).enabled && !isZaicodeQuotaWall(current.sessionId));
+          },
+        })
+        .then(() => { acceptedFailures.set(current.sessionId, current.updatedAt); })
         .catch((error: unknown) => {
           logger.warn("[zaicode] background auto-retry failed to submit", {
             sessionId: current.sessionId,
@@ -145,8 +163,12 @@ export function useZaicodeTurnRetryWatch(): void {
       const prefs = useZaicodeUiPrefs.getState();
       const briefs = useZaicodeSessionBriefs.getState().sessions;
       // SRC-135: the switch answers per project, so the gate needs each session's project.
-      const projectOf = new Map(briefs.map((brief) => [brief.sessionId, brief.projectKey]));
+      const briefsById = new Map(briefs.map((brief) => [brief.sessionId, brief]));
+      for (const id of acceptedFailures.keys()) if (!briefsById.has(id)) acceptedFailures.delete(id);
       for (const brief of briefs) {
+        // 新的运行事实才能撤掉旧错误的停止；刷新同一个失败摘要不能重新授权发送。
+        if (brief.running && !brief.failed) clearZaicodeAutoRetryStoppedForSession(brief.sessionId);
+        if (!brief.failed || acceptedFailures.get(brief.sessionId) !== brief.updatedAt) acceptedFailures.delete(brief.sessionId);
         if (!brief.failed && !brief.running && !brief.waiting && !brief.interrupted && !brief.crashCut) {
           resetZaicodeAutoRetryAttempt(brief.sessionId);
         }
@@ -156,9 +178,14 @@ export function useZaicodeTurnRetryWatch(): void {
         isProjectDisabled: (projectKey) => Boolean(useZaicodeHomeProjects.getState().rows[projectKey]?.disabled),
         attemptsOf: zaicodeAutoRetryAttempts,
         maxAttempts: zaicodeRetryLimit(prefs.autoRetryMaxAttempts),
-        mayAutoSend: (sessionId) =>
-          zaicodeEffectiveAutoRetryFor(projectOf.get(sessionId) ?? "", sessionId).enabled,
+        mayAutoSend: (sessionId) => {
+          const brief = briefsById.get(sessionId);
+          return Boolean(brief && !brief.manuallyStopped && !useZaicodeLiveRuns.getState().runs[sessionId] &&
+            acceptedFailures.get(sessionId) !== brief.updatedAt &&
+            zaicodeEffectiveAutoRetryFor(brief.projectKey, sessionId).enabled);
+        },
         isQuotaWall: isZaicodeQuotaWall,
+        isStopped: isZaicodeAutoRetryStoppedForSession,
       });
       const failedIds = new Set(failedNow.map((brief) => brief.sessionId));
       // Retired watches: the session recovered, vanished, or its pane took over.
@@ -168,7 +195,8 @@ export function useZaicodeTurnRetryWatch(): void {
       for (const brief of failedNow) {
         if (watches.has(brief.sessionId) || inFlight.has(brief.sessionId)) continue;
         const attempts = zaicodeAutoRetryAttempts(brief.sessionId);
-        const delay = zaicodeRetryDelayMs(prefs.autoRetryIntervalSec, attempts);
+        // T-302: one nominal interval per attempt; attempts still governs the budget, not the wait.
+        const delay = zaicodeRetryDelayMs(prefs.autoRetryIntervalSec);
         const timer = window.setTimeout(() => fire(brief), delay);
         watches.set(brief.sessionId, { timer });
         useZaicodeRetryLedger.getState().set({
@@ -183,16 +211,16 @@ export function useZaicodeTurnRetryWatch(): void {
 
     const unsubscribe = useZaicodeSessionBriefs.subscribe(sweep);
     const unsubscribePrefs = useZaicodeUiPrefs.subscribe(sweep);
-    const unsubscribeAuto = useZaicodeAuditStore.subscribe(sweep);
     const unsubscribeSession = useZaicodeAutoContinue.subscribe(sweep);
+    const unsubscribeLive = useZaicodeLiveRuns.subscribe(sweep);
     const unsubscribeHalt = useZaicodeRetryLedger.subscribe((state, previous) => { if (state.halted !== previous.halted) sweep(); });
     const interval = window.setInterval(sweep, SWEEP_MS);
     sweep();
     return () => {
       unsubscribe();
       unsubscribePrefs();
-      unsubscribeAuto();
       unsubscribeSession();
+      unsubscribeLive();
       unsubscribeHalt();
       window.clearInterval(interval);
       for (const sessionId of [...watches.keys()]) clearWatch(sessionId);

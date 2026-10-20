@@ -1,6 +1,5 @@
 import {
   ZAICODE_FREE_POOL,
-  ZAICODE_FREE_PROVIDERS,
   ZAICODE_KEYLESS_API_KEY,
   ZAICODE_OWN_POOL,
   findZaicodeFreeProvider,
@@ -11,7 +10,6 @@ import {
   type ZaicodeFreeProvider,
 } from "@zcode/shared";
 import {
-  list,
   readZaicodeRouterState,
   setPoolModels,
   type ZaicodeRouterCaller,
@@ -181,22 +179,8 @@ export async function ensureZaicodeFreePool(
   return { steps, added };
 }
 
-/** ZAICODE's own key for 9router's OpenAI endpoint: the stored one while 9router still has it, else a new one. */
-export async function ensureZaicodeRouterKey(
-  call: ZaicodeRouterCaller,
-  stored: string | null,
-): Promise<{ key: string; created: boolean }> {
-  const keys = await call({ method: "GET", path: "/api/keys" });
-  if (!keys.ok) throw new Error(`9router keys: ${keys.message}`);
-  const existing = list<{ key?: string; isActive?: boolean }>(keys.data, "keys");
-  if (stored && existing.some((entry) => entry.key === stored && entry.isActive !== false))
-    return { key: stored, created: false };
-  const created = await call({ method: "POST", path: "/api/keys", body: { name: "ZAICODE" } });
-  const key = (created.data as { key?: string } | null)?.key;
-  if (!created.ok || typeof key !== "string")
-    throw new Error(`9router key: ${created.message || "no key returned"}`);
-  return { key, created: true };
-}
+export { ensureZaicodeRouterKey, findZaicodeRouterKey, proposeZaicodeRouterKeyCleanup } from "./zaicodeRouterCredentials.js";
+export type { ZaicodeRouterKeyEntry, ZaicodeRouterKeyCleanupCandidate } from "./zaicodeRouterCredentials.js";
 
 /** One tiny request through a pool (or a single `<prefix>/<model>`): the first-token check. */
 export async function probeZaicodeRouterModel(

@@ -117,6 +117,8 @@ export * from "./zaicode-audit-view.js";
 export * from "./zaicode-audit-quick3.js";
 export * from "./zaicode-audit-validate.js";
 export * from "./zaicode-audit-campaign.js";
+export * from "./zaicode-audit-loop.js";
+export * from "./zaicode-audit-evidence.js";
 export * from "./zaicode-delegation.js";
 export * from "./zaicode-saimail-post.js";
 export * from "./zaicode-saimail-read.js";
@@ -226,6 +228,8 @@ export type {
   SaveFileResult,
   PrintPageToPdfResult,
   DesktopCommandId,
+  DesktopCommandOptions,
+  DesktopCommandRequest,
   CuaOsSupport,
   DesktopWindowChromeState,
   DesktopTitleBarTheme,
@@ -342,3 +346,8 @@ export { redactFeedbackText } from "./feedbackPrivacy.js";
 
 export { SUPPORTED_LOCALES, LOCALE_NATIVE_NAMES, isLocale, resolveSupportedLocale, localeDirection } from "./locales.js";
 export { getLocalizedAuxiliaryMessage } from "./auxiliaryLocaleMessages.js";
+export * from "./zaicode-optimization.js";
+export * from "./execution-liveness.js";
+export * from "./zaicode-router-circuit-breaker.js";
+export * from "./zaicodeSessionHealth.js";
+

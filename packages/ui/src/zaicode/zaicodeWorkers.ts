@@ -1,3 +1,4 @@
+/* eslint-disable max-lines -- one owner module: worker records, launch preflight, placement and recovery share one store so a launch guard and its result type never drift apart. */
 import { useSyncExternalStore } from "react";
 import { createUuid, isZaicodeMetricsOnlyAccount, type ZaicodeEngineAccount } from "@zcode/shared";
 import {
@@ -6,6 +7,7 @@ import {
   projectNameOf,
   readZaicodeEnginesState,
   resolveZaicodeWorkerLinePrompt,
+  zaicodeWorkerYoloArgs,
 } from "./zaicodeEngines.js";
 import { cascadeZaicodeWindowRect, type ZaicodeRect } from "./zaicodeWorkerLayout.js";
 import {
@@ -374,6 +376,18 @@ export async function launchZaicodeWorker(params: {
   }
   if (account.status === "cli-missing") return { ok: false, message: account.statusDetail };
   const config = readZaicodeEnginesState().config;
+  // REQ-003 preflight: YOLO on but no supported unattended flag for this CLI.
+  // Refuse with the reason instead of starting a worker that hangs on an
+  // interactive prompt; the caller (scheduler, tile, dispatch) keeps going
+  // with the other accounts. Permission bypass (this flag), missing login
+  // (status), and daemon/feature conflicts (a live CLI prompt ZAICODE cannot
+  // see from here) stay three separate answers.
+  if (config.workerYolo && !zaicodeWorkerYoloArgs(account.vendor)) {
+    return {
+      ok: false,
+      message: `${account.label}: the ${account.vendor} CLI has no supported unattended flag, so a YOLO worker would stop at a prompt. Turn off YOLO for workers or start it in a terminal first.`,
+    };
+  }
   const prompt = params.prompt ?? config.workerPrompt;
   const linePrompt = await resolveZaicodeWorkerLinePrompt(prompt);
   // 长提示写文件期间关闭/暂停任务，不得继续生成新终端。
@@ -493,4 +507,9 @@ export function openZaicodeShellWorker(
   );
   if (launcher) playZaicodeSound("worker.launch");
   return worker;
+}
+
+export function setZaicodeWorkersForTest(state: ZaicodeWorkersState): void {
+  workersState = state;
+  for (const listener of listeners) listener();
 }

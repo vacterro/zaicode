@@ -1,11 +1,13 @@
 import { create } from "zustand";
-import type { ZCodeTaskGoalStatus, ZCodeTaskMeta, ZaicodeProjectRuntimeState } from "@zcode/shared";
-import {
-  getTaskListAttention,
-  getTaskListRowActivity,
-  isTaskListRowActive,
-} from "@/v4/taskListRowActivity.js";
-import { zaicodeWasCutOff } from "./zaicodeSessionState.js";
+import type { ZaicodeProjectRuntimeState } from "@zcode/shared";
+import type { ZaicodeSessionBrief } from "./zaicodeSessionBrief.js";
+export { zaicodeSessionBriefOf, type ZaicodeSessionBrief } from "./zaicodeSessionBrief.js";
+import { zaicodeProjectContinueHandle } from "./zaicodeContinueRegistry.js";
+export {
+  registerZaicodeProjectContinue,
+  useZaicodeContinueHandlesVersion,
+  zaicodeProjectContinueHandle,
+} from "./zaicodeContinueRegistry.js";
 
 /**
  * Continue without opening (SRC-043): one decision for a single session
@@ -19,79 +21,38 @@ import { zaicodeWasCutOff } from "./zaicodeSessionState.js";
 
 // ---------------------------------------------------------------- facts
 
-/** What the sidebar knows about one session: enough to decide, never the transcript. */
-export interface ZaicodeSessionBrief {
-  sessionId: string;
-  title: string;
-  projectKey: string;
-  workspacePath: string;
-  workspaceIdentity?: string;
-  running: boolean;
-  foregroundExecutionId?: string;
-  foregroundStartedAt?: number;
-  /** A question or permission waits for the operator. */
-  waiting: boolean;
-  /** The last turn ended on an error (limit, network, provider). */
-  failed: boolean;
-  /** Cut off mid-turn: crash, restart or Stop (SRC-044) -- never counted as DONE. */
-  interrupted: boolean;
-  /** The renderer observed completedInterrupted: the operator deliberately pressed Stop. */
-  manuallyStopped: boolean;
-  /**
-   * Cut off by the process dying, not by the operator: tasks-index still says
-   * "running" with nothing live, or a goal is still active with nothing running.
-   * Only these continue by themselves after a crash (a Stop is deliberate).
-   */
-  crashCut: boolean;
-  /** Last activity (tasks-index `updatedAt`). */
-  updatedAt: number;
-  /** The session's model (tasks-index), to tell stopgap work from the real thing. */
-  model: string | null;
-  /** When it finished while the operator looked elsewhere; null = seen. */
-  unreadAt: number | null;
-  goalStatus: ZCodeTaskGoalStatus | null;
-  goalObjective: string | null;
+
+export function briefEqual(a: ZaicodeSessionBrief, b: ZaicodeSessionBrief): boolean {
+  return (
+    a.sessionId === b.sessionId &&
+    a.title === b.title &&
+    a.projectKey === b.projectKey &&
+    a.running === b.running &&
+    a.foregroundExecutionId === b.foregroundExecutionId &&
+    a.foregroundStartedAt === b.foregroundStartedAt &&
+    a.waiting === b.waiting &&
+    a.failed === b.failed &&
+    a.interrupted === b.interrupted &&
+    a.manuallyStopped === b.manuallyStopped &&
+    a.crashCut === b.crashCut &&
+    a.updatedAt === b.updatedAt &&
+    a.model === b.model &&
+    a.unreadAt === b.unreadAt &&
+    a.goalStatus === b.goalStatus &&
+    a.goalObjective === b.goalObjective
+  );
 }
 
-export function zaicodeSessionBriefOf(
-  task: ZCodeTaskMeta,
-  projectKey: string,
-  location: { workspacePath: string; workspaceIdentity?: string },
-): ZaicodeSessionBrief {
-  const activity = getTaskListRowActivity(task);
-  const goal = task.target ?? null;
-  const running = isTaskListRowActive(task);
-  const waiting = getTaskListAttention(task) !== null || Boolean(task.pendingInteraction);
-  // Same authority order as the row's leading dot: live phase first, persisted status without one.
-  const failed = activity ? activity.phase === "error" : task.status === "error";
-  // A real Stop is persisted as completed. After a process crash the CLI can replay the dead
-  // turn as completedInterrupted while tasks-index still says running; that is crash recovery.
-  const manuallyStopped = activity?.phase === "completedInterrupted" && task.status !== "running";
-  return {
-    sessionId: task.taskId,
-    title: task.title || task.taskId,
-    projectKey,
-    workspacePath: location.workspacePath,
-    ...(location.workspaceIdentity ? { workspaceIdentity: location.workspaceIdentity } : {}),
-    running,
-    foregroundExecutionId: activity?.foregroundExecutionId,
-    foregroundStartedAt: activity?.foregroundStartedAt,
-    waiting,
-    failed,
-    interrupted: !running && !waiting && !failed && zaicodeWasCutOff(task),
-    manuallyStopped,
-    // The process died: tasks-index never got the turn's end (a Stop ends as "completed"), or a goal was still active.
-    crashCut:
-      !manuallyStopped &&
-      !running &&
-      !waiting &&
-      (task.status === "running" || goal?.status === "active"),
-    updatedAt: typeof task.updatedAt === "number" ? task.updatedAt : 0,
-    model: task.model?.trim() || null,
-    unreadAt: typeof task.unreadAt === "number" ? task.unreadAt : null,
-    goalStatus: goal?.status ?? null,
-    goalObjective: goal?.objective?.trim() || null,
-  };
+export function areZaicodeSessionBriefsEqual(
+  prev: readonly ZaicodeSessionBrief[],
+  next: readonly ZaicodeSessionBrief[],
+): boolean {
+  if (prev === next) return true;
+  if (prev.length !== next.length) return false;
+  for (let i = 0; i < prev.length; i++) {
+    if (!briefEqual(prev[i]!, next[i]!)) return false;
+  }
+  return true;
 }
 
 function briefSignature(brief: ZaicodeSessionBrief): string {
@@ -126,8 +87,10 @@ export const useZaicodeSessionBriefs = create<ZaicodeSessionBriefState>((set, ge
   sessions: [],
   signature: "",
   publish: (sessions) => {
-    const signature = sessions.map(briefSignature).join("\u0002");
-    if (signature !== get().signature) set({ sessions, signature });
+    const current = get().sessions;
+    if (areZaicodeSessionBriefsEqual(current, sessions)) return;
+    const signature = sessions.length <= 100 ? sessions.map(briefSignature).join("\u0002") : `count:${sessions.length}:${sessions[0]?.sessionId ?? ""}`;
+    set({ sessions, signature });
   },
 }));
 
@@ -436,7 +399,11 @@ export function describeZaicodeContinueStep(step: ZaicodeContinueStep): string {
 
 /** How a project row sends to its own host (local or remote workspace). */
 export interface ZaicodeProjectContinueHandle {
-  send: (sessionId: string, command: ZaicodeContinueCommand, options?: ZaicodeContinueOptions) => Promise<void>;
+  send: (
+    sessionId: string,
+    command: ZaicodeContinueCommand,
+    options?: ZaicodeContinueOptions,
+  ) => Promise<void>;
   /** Creates a fresh session, sends the command, returns its id. */
   start: (command: ZaicodeContinueCommand, options?: ZaicodeContinueOptions) => Promise<string>;
   /** Stops the running turn of a session (SCHEDULER conditions and stop times, SRC-046). */
@@ -448,33 +415,31 @@ export interface ZaicodeProjectContinueHandle {
    * (SRC-131); opening it clears the stamp again through the same field.
    */
   markUnread: (sessionId: string) => Promise<void>;
+  /** Authoritative background queue resume for unmounted sessions (T-361). */
+  resumeQueue?: (sessionId: string) => Promise<void>;
 }
 
 export interface ZaicodeContinueOptions {
   modelSelection?: import("@zcode/shared/model-selection").ModelSelection;
   commandId?: string;
+  /** Automatic recovery must not append another input to a busy or held session. */
+  idleOnly?: boolean;
+  /**
+   * T-283 (SAIHANDOFF F-03): the provenance this send DECLARES for itself.
+   *
+   * An automatic continuation names its own route here so host admission records
+   * `agent_runtime` / `goal_autocontinuation` instead of letting the
+   * model-compatible user transport claim a fresh human decision. The field can
+   * only ever REMOVE authority: admission derives `humanAuthored` from the
+   * ingress and ignores any producer claim of it, so nothing here can grant one.
+   * Absent = the ordinary operator ingress (a human submit, a retry, a queue
+   * promotion), which keeps every existing sender's behaviour unchanged.
+   */
+  inputProvenance?: import("@zcode/shared/zcode-protocol-v4").InputProvenanceClaim;
   /** Persist the owned session before first input dispatch; allows replay of the same command. */
   onCreated?: (sessionId: string) => void;
   /** Recheck scheduler ownership after asynchronous hydration/creation. */
   canDispatch?: () => boolean;
-}
-
-const handles = new Map<string, ZaicodeProjectContinueHandle>();
-
-export function registerZaicodeProjectContinue(
-  projectKey: string,
-  handle: ZaicodeProjectContinueHandle,
-): () => void {
-  handles.set(projectKey, handle);
-  return () => {
-    if (handles.get(projectKey) === handle) handles.delete(projectKey);
-  };
-}
-
-export function zaicodeProjectContinueHandle(
-  projectKey: string,
-): ZaicodeProjectContinueHandle | null {
-  return handles.get(projectKey) ?? null;
 }
 
 export interface ZaicodeContinueOutcome {
@@ -494,7 +459,8 @@ export async function runZaicodeContinuePlan(
   const outcome: ZaicodeContinueOutcome = { sent: [], failed: [], failedSteps: [], started: [] };
   for (const step of plan.steps) {
     if (maySend && !maySend(step)) continue;
-    const handle = handles.get(step.projectKey) ?? resolveHandle?.(step.projectKey);
+    const handle =
+      zaicodeProjectContinueHandle(step.projectKey) ?? resolveHandle?.(step.projectKey);
     const line = describeZaicodeContinueStep(step);
     if (!handle) {
       outcome.failed.push(`${line}: project not connected`);

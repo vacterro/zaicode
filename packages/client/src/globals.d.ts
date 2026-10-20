@@ -1,5 +1,6 @@
 import type {
   DesktopCommandId,
+  DesktopCommandOptions,
   DesktopZoomState,
   DesktopWindowChromeState,
   DesktopTitleBarTheme,
@@ -331,7 +332,10 @@ declare global {
         options?: OpenInEditorOptions,
       ): Promise<{ success: boolean; error?: string }>;
       /** 执行桌面窗口级命令 */
-      executeDesktopCommand(command: DesktopCommandId): Promise<void>;
+      executeDesktopCommand(
+        command: DesktopCommandId,
+        options?: DesktopCommandOptions,
+      ): Promise<void>;
       /** 同步应用菜单语言 */
       setApplicationLocale(locale: Locale): Promise<void>;
       /** 读取宿主系统语言 */

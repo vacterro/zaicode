@@ -6,6 +6,8 @@
 // 旧协议死亡（zcode-protocol/index.ts 删除）后，这是该协议面的唯一幸存面。
 
 import { z } from "zod";
+import { GoalCompletionDispositionSchema } from "./goal-completion-disposition.js";
+import { GoalCompletionEvidenceReceiptSchema } from "./goal-completion-evidence.js";
 import { modelSelectionSchema } from "./model-selection.js";
 
 const nonEmptyString = z.string().trim().min(1);
@@ -302,6 +304,34 @@ export const zcodeToolStateSchema = z.discriminatedUnion("status", [
 const zcodeTimelineModelSelectionSchema = modelSelectionSchema.extend({
   label: z.string().optional(),
 });
+/**
+ * T-304: the goal verifier's verdict, as it is persisted inside the
+ * `goal_verification` timeline part.
+ *
+ * The producer (`saipenGoalVerdict` -> TargetCompletionVerification payload ->
+ * core/runtime/methods/events.ts) writes this object verbatim, so the reader that
+ * hydrates a session -- and that a CLEAR MAIN runs before it may empty the
+ * session -- must accept exactly what it can produce. It used to allow only the
+ * three legacy fields, so every record the SAIHANDOFF producer had written was
+ * refused by the snapshot schema while the live transcript, which reads the part
+ * opaquely, rendered the same session fine.
+ *
+ * `disposition` and `evidence` are the ones `GoalCompletionVerificationOutputSchema`
+ * declares. That schema lives in @zcode/contracts on its own zod (contracts is on
+ * zod 3, shared on zod 4), so the two field schemas are defined here in the form the
+ * persisting reader needs and kept honest by the conformance test in
+ * apps/zcode-cli/packages/core/test/zaicodeGoalVerificationPersistence.test.ts,
+ * which compares the declared key sets of both sides and replays a full receipt.
+ */
+export const zcodeTimelineVerificationSchema = z
+  .object({
+    passed: z.boolean(),
+    reason: z.string(),
+    nextAction: z.string().nullable().optional(),
+    disposition: GoalCompletionDispositionSchema.optional(),
+    evidence: GoalCompletionEvidenceReceiptSchema.optional(),
+  })
+  .strict();
 const zcodeTimelinePartTimeSchema = z
   .object({
     start: timestampMsSchema.optional(),
@@ -337,14 +367,7 @@ export const zcodeTimelinePartSchema = partBaseSchema
     targetId: z.string().optional(),
     verificationId: z.string().optional(),
     goalIteration: z.number().int().nonnegative().optional(),
-    verification: z
-      .object({
-        passed: z.boolean(),
-        reason: z.string(),
-        nextAction: z.string().nullable().optional(),
-      })
-      .strict()
-      .optional(),
+    verification: zcodeTimelineVerificationSchema.optional(),
     parentSessionId: nonEmptyString.optional(),
     targetMessageId: nonEmptyString.optional(),
     targetCheckpointId: z.string().optional(),

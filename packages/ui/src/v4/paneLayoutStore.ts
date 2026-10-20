@@ -11,6 +11,7 @@ import {
   focusPane,
   INITIAL_PANE_LAYOUT,
   openSessionInNewPane,
+  reconcileRetiredSessionInLayout,
   replacePaneBinding,
   setSplitNodeRatio,
   splitPaneAt,
@@ -21,6 +22,7 @@ import {
   type PaneWorkspaceScope,
   type SplitDirection,
 } from "@/v4/paneLayoutTree.js";
+import { subscribeSessionRetirement } from "@/zaicode/zaicodeCleanupFence.js";
 
 const persistedPaneLayoutAtModuleLoad = readPersistedPaneLayout();
 const restoredPaneLayoutAtModuleLoad = isRendererReloadNavigation()
@@ -49,6 +51,8 @@ interface PaneLayoutStore extends PaneLayoutSnapshot {
   bindPaneSession: (paneId: string, sessionId: string) => void;
   setSplitRatio: (splitId: string, ratio: number) => void;
   confirmRestoredPaneSession: (paneId: string) => void;
+  /** 发生会话废弃时，原子清理所有绑定该会话的 split pane。 */
+  reconcileRetiredSession: (sessionId: string) => void;
   /** 新建任务/草稿时退出分屏显示，回到单 primary panel。 */
   resetToPrimaryPane: () => void;
 }
@@ -99,6 +103,10 @@ export const usePaneLayoutStore = create<PaneLayoutStore>()((set) => ({
     set((state) => confirmRestoredPaneSession(state, paneId));
   },
 
+  reconcileRetiredSession: (sessionId) => {
+    set((state) => reconcileRetiredSessionInLayout(state, sessionId));
+  },
+
   resetToPrimaryPane: () => {
     set(INITIAL_PANE_LAYOUT);
   },
@@ -107,4 +115,11 @@ export const usePaneLayoutStore = create<PaneLayoutStore>()((set) => ({
 // 布局变化即持久化（转移函数 no-op 保原引用时 zustand 不通知，无冗余写入）。
 usePaneLayoutStore.subscribe((state) => {
   persistPaneLayout(state);
+});
+
+subscribeSessionRetirement((retiredIds) => {
+  const store = usePaneLayoutStore.getState();
+  for (const id of retiredIds) {
+    store.reconcileRetiredSession(id);
+  }
 });

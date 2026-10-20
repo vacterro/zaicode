@@ -1,6 +1,5 @@
 import { databaseStartupControlSchema, databaseStartupStateSchema } from "./database-startup.js";
 import {
-  sessionCreateTelemetrySchema,
   automationSessionCreateTelemetrySchema,
 } from "./sessionCreateTelemetry.js";
 /* eslint-disable max-lines -- 运行时 schema 当前集中在共享包入口，外部 relay payload 校验加入后先保持单一导出面。 */
@@ -22,9 +21,9 @@ import {
   zcodeProcessResourceSampleSchema,
 } from "./zcode-protocol/index.js";
 import { zcodeTaskModeSchema } from "./zcode-task-mode-schema.js";
-import { PROTOCOL_V4_LIMITS } from "./zcode-protocol-v4/core.js";
+
 import { errorAttributionSchema } from "./zcode-protocol-v4/snapshot.js";
-import { sessionWorkflowActivitySchema } from "./zcode-protocol-v4/sessions-index-workflow-activity.js";
+
 import {
   taskOwnerCommandDeliverySchema,
   taskOwnerCommandRequestSchema,
@@ -282,25 +281,15 @@ export const hostBroadcastEnvelopeSchema = z.object({
   message: broadcastMessageSchema,
 });
 
-export const hostBroadcastClaimResultMessageSchema = z.discriminatedUnion("status", [
-  z.object({
-    type: z.literal("broadcast-claim-result"),
-    requestId: nonEmptyStringSchema,
-    status: z.literal("acquired"),
-    claimToken: nonEmptyStringSchema,
-  }),
-  z.object({
-    type: z.literal("broadcast-claim-result"),
-    requestId: nonEmptyStringSchema,
-    status: z.literal("busy"),
-    retryAfterMs: z.number().int().nonnegative(),
-  }),
-  z.object({
-    type: z.literal("broadcast-claim-result"),
-    requestId: nonEmptyStringSchema,
-    status: z.literal("committed"),
-  }),
-]);
+export const hostBroadcastClaimResultMessageObjectSchema = z.object({
+  type: z.literal("broadcast-claim-result"),
+  requestId: nonEmptyStringSchema,
+  status: z.enum(["acquired", "busy", "committed"]),
+  claimToken: nonEmptyStringSchema.optional(),
+  retryAfterMs: z.number().int().nonnegative().optional(),
+});
+
+export const hostBroadcastClaimResultMessageSchema = hostBroadcastClaimResultMessageObjectSchema;
 
 export const hostTaskRealtimeDeliverMessageSchema = z.object({
   type: z.literal("task-realtime-deliver"),

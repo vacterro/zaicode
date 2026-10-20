@@ -62,6 +62,9 @@ test("the table hands its name column to a drag handle and to the row cells", ()
 });
 
 test("a finished request no longer prints a status word under the model name", () => {
-  assert.match(view, /const status =\s*tab === "recent" && data/);
-  assert.match(view, /\{status \? \(/);
+  // T-386: only actionable failures get a row word (needsWarning); healthy
+  // finished requests stay silent. Unknown attribution is metadata, not warning.
+  assert.match(view, /const needsWarning = recentItem \? zaicodeUsageRowNeedsWarning\(recentItem\)/);
+  assert.match(view, /\{needsWarning \? \(/);
+  assert.match(view, /zaicodeUsageRowNeedsWarning/);
 });

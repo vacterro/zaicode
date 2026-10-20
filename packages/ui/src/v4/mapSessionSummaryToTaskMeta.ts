@@ -26,6 +26,7 @@ function phaseToStatus(phase: SessionSummary["phase"]): ZCodeTaskMeta["status"] 
 }
 
 interface MapSessionSummaryOptions {
+  livenessReceivedAt?: number;
   workspacePath: string;
   workspaceIdentity?: string;
   /** 本地已有 meta（保留手动标题/provider 等旧值，避免被列表刷新冲掉）。 */
@@ -87,6 +88,12 @@ export function mapSessionSummaryToTaskMeta(
       phase: summary.phase,
       lastActivityAt: summary.lastActivityAt,
       hasBackgroundWork: summary.hasBackgroundWork,
+      ...(summary.executionLiveness
+        ? {
+            executionLiveness: summary.executionLiveness,
+            livenessReceivedAt: options.livenessReceivedAt,
+          }
+        : {}),
       sessionEnded: summary.sessionEnded,
       foregroundExecutionId: summary.foregroundExecutionId,
       foregroundStartedAt: summary.foregroundStartedAt,

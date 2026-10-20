@@ -1,6 +1,7 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useId, useMemo } from "react";
 import { create } from "zustand";
 import type { ZCodeTaskMeta } from "@zcode/shared";
+import { executionLivenessFresh } from "@zcode/shared";
 import { getTaskListRowActivity, isTaskListRowActive } from "../v4/taskListRowActivity.js";
 
 /**
@@ -20,6 +21,10 @@ interface ZaicodeLiveRun {
   /** Folder key (see zaicodeLiveRunFolderKey). */
   folder: string;
   since: number;
+  /** Last live observation or view release; start time remains stable. */
+  observedAt?: number;
+  /** Mounted snapshot publishers; runtime invalidation clears their reports. */
+  views?: readonly string[];
 }
 
 interface ZaicodeLiveRunsState {
@@ -37,12 +42,25 @@ export function setZaicodeLiveRun(
   sessionId: string,
   workspacePath: string,
   running: boolean,
+  viewId?: string,
 ): void {
   const { runs } = useZaicodeLiveRuns.getState();
   if (running) {
     const folder = zaicodeLiveRunFolderKey(workspacePath);
-    if (runs[sessionId]?.folder === folder) return;
-    useZaicodeLiveRuns.setState({ runs: { ...runs, [sessionId]: { folder, since: Date.now() } } });
+    const current = runs[sessionId]?.folder === folder ? runs[sessionId] : undefined;
+    if (current && (!viewId || current.views?.includes(viewId))) return;
+    const now = Date.now();
+    useZaicodeLiveRuns.setState({
+      runs: {
+        ...runs,
+        [sessionId]: {
+          folder,
+          since: current?.since ?? now,
+          observedAt: now,
+          views: viewId ? [...(current?.views ?? []), viewId] : [],
+        },
+      },
+    });
     return;
   }
   if (!runs[sessionId]) return;
@@ -51,12 +69,30 @@ export function setZaicodeLiveRun(
   useZaicodeLiveRuns.setState({ runs: next });
 }
 
+/** A view disappearing releases evidence without claiming the execution stopped. */
+export function releaseZaicodeLiveRunView(sessionId: string, viewId: string): void {
+  const { runs } = useZaicodeLiveRuns.getState();
+  const run = runs[sessionId];
+  if (!run?.views?.includes(viewId)) return;
+  useZaicodeLiveRuns.setState({
+    runs: {
+      ...runs,
+      [sessionId]: {
+        ...run,
+        views: run.views.filter((id) => id !== viewId),
+        observedAt: Date.now(),
+      },
+    },
+  });
+}
+
 /** Runtime death/replacement invalidates view reports; view unmount does not. */
 export function clearZaicodeLiveRunsIn(workspacePath: string): void {
   const { runs } = useZaicodeLiveRuns.getState();
   const folder = zaicodeLiveRunFolderKey(workspacePath);
   const next = Object.fromEntries(Object.entries(runs).filter(([, run]) => run.folder !== folder));
-  if (Object.keys(next).length !== Object.keys(runs).length) useZaicodeLiveRuns.setState({ runs: next });
+  if (Object.keys(next).length !== Object.keys(runs).length)
+    useZaicodeLiveRuns.setState({ runs: next });
 }
 
 /**
@@ -86,15 +122,29 @@ export function reconcileZaicodeLiveRuns(
   for (const [sessionId, run] of Object.entries(runs)) {
     const task = byId.get(sessionId);
     const activity = task ? getTaskListRowActivity(task) : null;
-    // Once the index has been heard from for this session (lastActivityAt at or after the
-    // claim) it decides alone — agreement keeps the row working on the index's own evidence,
-    // disagreement clears the hint at once. Requiring `lastActivityAt < run.since` to *keep*
-    // the hint, as this did before, made "the runtime died right after the chat claimed a
-    // run" an unbounded exemption: nothing ever moved that timestamp again.
-    const keep =
-      activity && activity.lastActivityAt >= run.since
-        ? task !== undefined && isTaskListRowActive(task)
-        : now - run.since <= ZAICODE_LIVE_RUN_INDEX_GRACE_MS;
+    const observedAt = run.observedAt ?? run.since;
+    const proof = activity?.executionLiveness;
+    const receipt = activity?.livenessReceivedAt;
+    if (
+      proof &&
+      receipt !== undefined &&
+      receipt >= observedAt &&
+      (proof.released ||
+        !executionLivenessFresh(proof, receipt, now) ||
+        (activity.phase !== "running" && activity.phase !== "prewarming") ||
+        !proof.foregroundExecutionId)
+    ) {
+      next ??= { ...runs };
+      delete next[sessionId];
+      continue;
+    }
+    // SRC-184：已挂载视图仍持有运行快照时，低频列表和60秒计时器不能把项目改成 idle。
+    // 视图释放后才恢复列表判定和有限宽限期；运行时退出会直接清空视图证据。
+    const keep = run.views?.length
+      ? true
+      : activity && activity.lastActivityAt >= observedAt
+        ? task !== undefined && isTaskListRowActive(task, now)
+        : now - observedAt <= ZAICODE_LIVE_RUN_INDEX_GRACE_MS;
     if (keep) continue;
     next ??= { ...runs };
     delete next[sessionId];
@@ -107,11 +157,14 @@ export function useZaicodePublishLiveRun(
   sessionId: string | null | undefined,
   workspacePath: string,
   running: boolean,
+  snapshotRevision?: number,
 ): void {
+  const viewId = useId();
   useEffect(() => {
     if (!sessionId) return undefined;
-    setZaicodeLiveRun(sessionId, workspacePath, running);
-  }, [sessionId, workspacePath, running]);
+    setZaicodeLiveRun(sessionId, workspacePath, running, viewId);
+    return running ? () => releaseZaicodeLiveRunView(sessionId, viewId) : undefined;
+  }, [sessionId, workspacePath, running, viewId, snapshotRevision]);
 }
 
 /** True while the open chat says this session runs. */

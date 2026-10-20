@@ -1,4 +1,5 @@
 import {
+  copyFileSync,
   existsSync,
   mkdirSync,
   mkdtempSync,
@@ -10,7 +11,7 @@ import {
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { extname, resolve } from "node:path";
+import { dirname, extname, relative, resolve } from "node:path";
 
 const SOURCEMAP_REFERENCE_EXTENSIONS = new Set([".js", ".cjs", ".mjs", ".css"]);
 // 只清理位于行首的 sourceMappingURL 注释。压缩后的 bundle 可能在模板字符串里内嵌
@@ -63,11 +64,23 @@ export function stripSourceMappingUrlCommentsInDirectory(rootDir) {
   return summary;
 }
 
-export function removeSourceMapFilesInDirectory(rootDir) {
-  const summary = { filesRemoved: 0 };
+export function archiveAndRemoveSourceMapFilesInDirectory(rootDir, archiveDir) {
+  const summary = { filesRemoved: 0, filesArchived: 0 };
   walkFiles(rootDir, (filePath) => {
     if (extname(filePath) !== ".map") {
       return;
+    }
+
+    if (archiveDir) {
+      try {
+        const relativePath = relative(rootDir, filePath);
+        const destinationPath = resolve(archiveDir, relativePath);
+        mkdirSync(dirname(destinationPath), { recursive: true });
+        copyFileSync(filePath, destinationPath);
+        summary.filesArchived += 1;
+      } catch {
+        // 归档复制异常不打断清理流程
+      }
     }
 
     unlinkSync(filePath);
@@ -76,15 +89,26 @@ export function removeSourceMapFilesInDirectory(rootDir) {
   return summary;
 }
 
+export function removeSourceMapFilesInDirectory(rootDir) {
+  return archiveAndRemoveSourceMapFilesInDirectory(rootDir);
+}
+
 export async function cleanupPackagedSourcemaps({
   appAsarPath,
   resourcesDir,
+  archiveDir,
   runAsarCommand,
   runTimedSync,
   runTimedAsync,
   replaceAppAsarFromStaging,
   logger = console,
 }) {
+  const resolvedArchiveDir =
+    archiveDir ||
+    (process.env.ZCODE_SOURCEMAP_ARCHIVE_DIR
+      ? resolve(process.env.ZCODE_SOURCEMAP_ARCHIVE_DIR)
+      : resolve(resourcesDir, "..", "dist", "private-sourcemaps"));
+
   if (existsSync(appAsarPath)) {
     mkdirSync(tmpdir(), { recursive: true });
     const stagingDir = mkdtempSync(resolve(tmpdir(), "zcode-app-asar-sourcemap-"));
@@ -93,10 +117,10 @@ export async function cleanupPackagedSourcemaps({
         runAsarCommand(["extract", appAsarPath, stagingDir]),
       );
       const stripSummary = stripSourceMappingUrlCommentsInDirectory(stagingDir);
-      const mapSummary = removeSourceMapFilesInDirectory(stagingDir);
+      const mapSummary = archiveAndRemoveSourceMapFilesInDirectory(stagingDir, resolvedArchiveDir);
       if (stripSummary.referencesRemoved > 0 || mapSummary.filesRemoved > 0) {
         logger.log(
-          `[afterPack] stripped sourceMappingURL references=${stripSummary.referencesRemoved} files=${stripSummary.filesChanged} maps=${mapSummary.filesRemoved}`,
+          `[afterPack] stripped sourceMappingURL references=${stripSummary.referencesRemoved} files=${stripSummary.filesChanged} maps=${mapSummary.filesRemoved} archived=${mapSummary.filesArchived}`,
         );
         await runTimedAsync("afterPack:sourcemap-cleanup:asar-pack", () =>
           replaceAppAsarFromStaging({ sourceDir: stagingDir, appAsarPath }),
@@ -110,8 +134,8 @@ export async function cleanupPackagedSourcemaps({
   }
 
   const stripSummary = stripSourceMappingUrlCommentsInDirectory(resourcesDir);
-  const mapSummary = removeSourceMapFilesInDirectory(resourcesDir);
+  const mapSummary = archiveAndRemoveSourceMapFilesInDirectory(resourcesDir, resolvedArchiveDir);
   logger.log(
-    `[afterPack] resources sourcemap cleanup references=${stripSummary.referencesRemoved} files=${stripSummary.filesChanged} maps=${mapSummary.filesRemoved}`,
+    `[afterPack] resources sourcemap cleanup references=${stripSummary.referencesRemoved} files=${stripSummary.filesChanged} maps=${mapSummary.filesRemoved} archived=${mapSummary.filesArchived}`,
   );
 }

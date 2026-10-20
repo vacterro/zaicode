@@ -37,13 +37,23 @@ export function createZaicodeContinueHandle(target: {
               text: command.objective,
               displayText: `/goal ${command.objective}`,
               heldQueueDisposition: "keepQueueAndSend",
+              ...(options?.idleOnly ? { idleOnly: true } : {}),
               ...selection,
+              // T-283: a declared provenance rides the unchanged transport envelope.
+              ...(options?.inputProvenance ? { inputProvenance: options.inputProvenance } : {}),
             },
           })
         : createCommandEnvelope({
             type: "sendText",
             sessionId,
-            payload: { text: command.text, heldQueueDisposition: "keepQueueAndSend", ...selection },
+            payload: {
+              text: command.text,
+              heldQueueDisposition: "keepQueueAndSend",
+              ...(options?.idleOnly ? { idleOnly: true } : {}),
+              ...selection,
+              // T-283: a declared provenance rides the unchanged transport envelope.
+              ...(options?.inputProvenance ? { inputProvenance: options.inputProvenance } : {}),
+            },
           });
     if (options?.commandId) envelope.commandId = options.commandId;
     pendingCommandRegistry.record(envelope);
@@ -116,6 +126,16 @@ export function createZaicodeContinueHandle(target: {
       options?.onCreated?.(task.taskId);
       await sendCommand(task.taskId, command, options);
       return task.taskId;
+    },
+    resumeQueue: async (sessionId: string) => {
+      await target.taskService.resumeTask({ ...scope, taskId: sessionId });
+      await sendControl(
+        createCommandEnvelope({
+          type: "setAutoDrain",
+          sessionId,
+          payload: { autoDrain: true },
+        }),
+      );
     },
   };
 }

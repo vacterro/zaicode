@@ -1,7 +1,11 @@
 import { execFile } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { GoalCompletionDisposition, goalCompletionEvidenceGap } from "../deps.js";
 import type { GoalCompletionVerificationOutput } from "../deps.js";
+import { readSaipenGoalEvidence, withGoalCompletionEvidence } from "./saipen-goal-evidence.js";
+import { parseSaipenAutomation, projectionText, saipenContinuationAuthority } from "./saipen-goal-authority.js";
+import type { SaipenAutomation } from "./saipen-goal-authority.js";
 
 /**
  * ZAICODE: deterministic /goal verdict for SAIPEN workspaces.
@@ -21,6 +25,10 @@ import type { GoalCompletionVerificationOutput } from "../deps.js";
  * Returns null when the workspace has no SAIPEN memory, or when the board is
  * clear but the objective is not a SAIPEN continuation (the model verifier
  * then judges that objective).
+ *
+ * SAIHANDOFF F-05 (Q5): the COMPLETE answer carries a receipt of the records the
+ * decision read, and a completion claim whose receipt cannot be produced is
+ * reported UNVERIFIED instead of complete -- see saipen-goal-evidence.ts.
  */
 
 interface SaipenTicket {
@@ -137,10 +145,18 @@ export interface SaipenGoalProjection {
   topWorkableTicket: string | null;
   closureComplete: boolean | null;
   blocker: string | null;
-}
-
-function projectionText(value: unknown): string | null {
-  return typeof value === "string" && value.trim() && value.trim().toLowerCase() !== "none" ? value.trim() : null;
+  /** Revision and rule version the receipt cites; absent when the answer did not carry them. */
+  projectIdentity?: string;
+  protocolVersion?: string;
+  head?: string;
+  /**
+   * T-309: SAIPEN's own continuation authority, from the `automation` block of the
+   * SAME `saipen status --json` answer (SRC-021 R2/R3). Absent when that answer
+   * predates the block, carries another schema version, or names a disposition
+   * outside the closed set: authority ZAICODE does not have, so nothing is
+   * inferred from it.
+   */
+  automation?: SaipenAutomation;
 }
 
 export function parseSaipenGoalProjection(output: string): SaipenGoalProjection | null {
@@ -155,12 +171,21 @@ export function parseSaipenGoalProjection(output: string): SaipenGoalProjection 
   }
   if (!raw || typeof raw !== "object" || raw.ok === false || typeof raw.phase !== "string") return null;
   const automation = (raw.automation ?? {}) as Record<string, unknown>;
+  const projectIdentity = projectionText(raw.project_identity);
+  const protocolVersion = projectionText(raw.protocol_version);
+  const head = projectionText(raw.head);
+  const authority = parseSaipenAutomation(raw.automation);
   return {
     phase: raw.phase,
     claimedTicket: projectionText(raw.claimed_ticket),
     topWorkableTicket: projectionText(raw.top_workable_ticket),
     closureComplete: typeof automation.closure_complete === "boolean" ? automation.closure_complete : null,
     blocker: projectionText(raw.blocker),
+    // Omitted rather than nulled: an older answer keeps the shape a caller already reads.
+    ...(projectIdentity ? { projectIdentity } : {}),
+    ...(protocolVersion ? { protocolVersion } : {}),
+    ...(head ? { head } : {}),
+    ...(authority ? { automation: authority } : {}),
   };
 }
 
@@ -201,16 +226,33 @@ export function readSaipenGoalProjection(workspaceRoot: string, stateContent: st
 const DECIDE_YOURSELF =
   "Decide yourself: take the conventional engineering default, record it as a DEC line in LOG, implement it, close the ticket. Do not ask the operator; only credentials, payments, physical actions, destructive or legal steps need a human.";
 
+/**
+ * SAIHANDOFF F-05 (Q5): the verdict a SAIPEN workspace gets when its own evidence
+ * cannot back a completion claim. It carries no next action, so the runtime neither
+ * continues the goal nor files it as done: the goal stays open and the receipt says
+ * what was missing.
+ */
+function unverifiedGoalCompletion(gap: string): GoalCompletionVerificationOutput {
+  return {
+    disposition: GoalCompletionDisposition.InvalidOrUnverified,
+    passed: false,
+    reason: `UNVERIFIED: ${gap}. The goal is not marked complete.`,
+  };
+}
+
 export async function saipenGoalVerdict(input: {
   workspaceRoot: string;
   objective: string;
+  /** The goal the verdict is about: the receipt binds the decision to it. */
+  goalId?: string;
   /** Test seam: SAIPEN's projection (null = unavailable). Omitted = ask SAIPEN. */
   projection?: SaipenGoalProjection | null;
 }): Promise<GoalCompletionVerificationOutput | null> {
   const memory = join(input.workspaceRoot, ".saipen");
   const boardPath = join(memory, "BOARD.md");
   const statePath = join(memory, "STATE.md");
-  if (!existsSync(boardPath) || !existsSync(statePath)) return null;
+  if (!existsSync(memory)) return null;
+  const continuation = isSaipenContinuationObjective(input.objective);
   let board: SaipenBoard;
   let phase = "";
   let nextAction = "";
@@ -221,19 +263,57 @@ export async function saipenGoalVerdict(input: {
     phase = frontMatterValue(state, "phase");
     nextAction = frontMatterValue(state, "next_action");
   } catch {
-    return null;
+    // The memory is here but unreadable, so nothing about this workspace can be
+    // checked. A continuation becomes UNVERIFIED -- never complete, and never handed
+    // to a model that would have no board of its own to read either.
+    return continuation
+      ? unverifiedGoalCompletion("the SAIPEN board or state record could not be read")
+      : null;
   }
+  // Counted from the bytes just parsed, before SAIPEN's projection can clear the
+  // board, so a reader recomputing them from the hashed bytes gets the same numbers.
+  const boardCounts = {
+    done: board.done,
+    actionable: board.doing.length + board.todo.length,
+    blockedIds: board.blocked.map((ticket) => ticket.id),
+  };
 
   const projection = input.projection === undefined ? await readSaipenGoalProjection(input.workspaceRoot, state) : input.projection;
+  const evidence = readSaipenGoalEvidence({
+    workspaceRoot: input.workspaceRoot,
+    goalId: input.goalId ?? null,
+    objective: input.objective,
+    projection: projection ?? null,
+    board: boardCounts,
+  });
+  // T-309: SAIPEN's own authority answers FIRST. A projection that names claimed or
+  // top-workable tickets while reporting an operator-required wait must not be read as
+  // "open work": that reading is what turned one blocked decision into an unbounded
+  // continuation loop. The suspension hands back no next action, so no turn is sent.
+  const authority = saipenContinuationAuthority(projection ?? null, nextAction);
+  if (authority.kind === "suspend") {
+    return withGoalCompletionEvidence(
+      {
+        passed: false,
+        reason: authority.reason,
+        disposition: authority.disposition,
+      },
+      evidence,
+    );
+  }
   if (projection) {
     const open = projection.claimedTicket ?? projection.topWorkableTicket;
     if (open && projection.closureComplete !== true) {
       const title = [...board.doing, ...board.todo, ...board.blocked].find((ticket) => ticket.id === open)?.title ?? "";
-      return {
-        passed: false,
-        reason: `SAIPEN reports open work: ${open} (phase ${projection.phase}).`,
-        nextAction: `cc — continue SAIPEN: ${open} ${title}`.trim().slice(0, 200),
-      };
+      return withGoalCompletionEvidence(
+        {
+          passed: false,
+          reason: `SAIPEN reports open work: ${open} (phase ${projection.phase}).`,
+          nextAction: `cc — continue SAIPEN: ${open} ${title}`.trim().slice(0, 200),
+          disposition: GoalCompletionDisposition.Continue,
+        },
+        evidence,
+      );
     }
     // SAIPEN says nothing workable is left; the blocked-ticket handling below still applies.
     board = { ...board, doing: [], todo: [] };
@@ -244,46 +324,124 @@ export async function saipenGoalVerdict(input: {
   const stateBusy = !IDLE_PHASES.has(phase.toLowerCase()) && !/^WAIT:/i.test(nextAction);
   if (actionable.length > 0 || stateBusy) {
     const next = actionable[0];
-    return {
-      passed: false,
-      reason: next
-        ? `SAIPEN board still has ${actionable.length} actionable ticket(s) (${board.doing.length} doing, ${board.todo.length} todo).`
-        : `SAIPEN STATE is in phase ${phase} (${nextAction || "work in progress"}).`,
-      nextAction: next ? `cc — continue SAIPEN: ${next.id} ${next.title}`.slice(0, 200) : "cc — continue SAIPEN",
-    };
+    // T-309: with no projection this is the only reading of SAIPEN there is, and it
+    // cannot tell a long ticket from a wall. The bound is the identity of the STATE
+    // itself -- board, phase, next action and SAIPEN's own event counter -- never
+    // elapsed time and never a retry count: two full turns that moved no SAIPEN byte
+    // and wrote no event are the same attempt repeated. A denied push suspends
+    // (parks) instead of falling through to a completion claim the board contradicts.
+    const identity = [
+      input.workspaceRoot,
+      next?.id ?? phase,
+      next?.blocker ?? "",
+      actionable.length,
+      phase,
+      nextAction,
+      frontMatterValue(state, "last_event"),
+    ].join("|");
+    if (!takeAutonomousPush(identity)) {
+      return withGoalCompletionEvidence(
+        {
+          passed: false,
+          reason:
+            `SAIPEN still reports ${actionable.length} actionable ticket(s) (${next?.id ?? `phase ${phase}`}) and its STATE has not changed across repeated identical continuation attempts. ` +
+            "The goal is not complete and this session cannot move it: further identical attempts are suspended.",
+          disposition: GoalCompletionDisposition.BlockedExternal,
+        },
+        evidence,
+      );
+    }
+    return withGoalCompletionEvidence(
+      {
+        passed: false,
+        reason: next
+          ? `SAIPEN board still has ${actionable.length} actionable ticket(s) (${board.doing.length} doing, ${board.todo.length} todo).`
+          : `SAIPEN STATE is in phase ${phase} (${nextAction || "work in progress"}).`,
+        nextAction: next ? `cc — continue SAIPEN: ${next.id} ${next.title}`.slice(0, 200) : "cc — continue SAIPEN",
+        disposition: GoalCompletionDisposition.Continue,
+      },
+      evidence,
+    );
   }
 
-  if (!isSaipenContinuationObjective(input.objective)) return null;
+  if (!continuation) return null;
 
   // Blocked tickets whose blocker is an engineering choice go back to the agent.
   const autonomousBlockers = board.blocked.filter((ticket) => !isHumanBlockedTicket(ticket, nextAction));
   for (const next of autonomousBlockers) {
     if (!takeAutonomousPush(`${input.workspaceRoot}|${next.id}|${next.blocker ?? ""}`)) continue;
-    return {
-      passed: false,
-      reason: `Ticket ${next.id} is BLOCKED on something the agent can resolve ("${(next.blocker || next.title).slice(0, 120)}"). ${DECIDE_YOURSELF}`,
-      nextAction: `cc — unblock ${next.id} and resolve autonomously: make the standard engineering choice, implement missing files, and complete.`.slice(0, 200),
-    };
+    return withGoalCompletionEvidence(
+      {
+        passed: false,
+        reason: `Ticket ${next.id} is BLOCKED on something the agent can resolve ("${(next.blocker || next.title).slice(0, 120)}"). ${DECIDE_YOURSELF}`,
+        nextAction: `cc — unblock ${next.id} and resolve autonomously: make the standard engineering choice, implement missing files, and complete.`.slice(0, 200),
+        disposition: GoalCompletionDisposition.Continue,
+      },
+      evidence,
+    );
   }
 
   // A WAIT that is not a human-only need is also the agent's to resolve.
   if (/^WAIT:/i.test(nextAction) && !isHumanOnlyBlocker(nextAction)) {
     if (takeAutonomousPush(`${input.workspaceRoot}|WAIT|${nextAction}`)) {
-      return {
-        passed: false,
-        reason: `SAIPEN is waiting on "${nextAction.slice(0, 140)}", which needs no human. ${DECIDE_YOURSELF}`,
-        nextAction: "cc — resolve the WAIT autonomously: decide, record the decision, continue the board.",
-      };
+      return withGoalCompletionEvidence(
+        {
+          passed: false,
+          reason: `SAIPEN is waiting on "${nextAction.slice(0, 140)}", which needs no human. ${DECIDE_YOURSELF}`,
+          nextAction: "cc — resolve the WAIT autonomously: decide, record the decision, continue the board.",
+          disposition: GoalCompletionDisposition.Continue,
+        },
+        evidence,
+      );
     }
   }
 
   const blocked = board.blocked.map((ticket) => ticket.id).join(", ");
-  return {
-    passed: true,
-    reason:
+  const humanBlocked = board.blocked.filter((ticket) => isHumanBlockedTicket(ticket, nextAction));
+  // A WAIT that names a human need is the same remaining human dependency as a
+  // BLOCKED ticket; a non-human WAIT was already handed back to the agent above.
+  const humanWait = /^WAIT:/i.test(nextAction) && isHumanOnlyBlocker(nextAction);
+  if (board.blocked.length > 0 || humanWait) {
+    // SAIHANDOFF F-01 (Q1): autonomous exhaustion is NOT objective completion.
+    // A board clear of human-free work whose only remainder is blocked on a human
+    // used to answer passed: true, and the host then set the goal COMPLETE while the
+    // blocker stood. Report the disposition, claim nothing, and hand no next action
+    // back, so the goal stays open and resumable instead of being finished.
+    const humanOnly = humanBlocked.length > 0 || humanWait;
+    const remainder =
       board.blocked.length > 0
-        ? `SAIPEN board clear of human-free work: ${board.done} done; ${board.blocked.length} blocked on a human (${blocked}).`
-        : `SAIPEN board clear: ${board.done} done, nothing left.`,
-    nextAction: "",
-  };
+        ? `${board.blocked.length} ticket(s) (${blocked})`
+        : `the operator decision SAIPEN is waiting on`;
+    return withGoalCompletionEvidence(
+      {
+        disposition: humanOnly
+          ? GoalCompletionDisposition.BlockedHuman
+          : GoalCompletionDisposition.BlockedExternal,
+        passed: false,
+        reason: humanOnly
+          ? `SAIPEN still needs a human for ${remainder} after ${board.done} done; the goal is not complete.`
+          : `SAIPEN still has ${remainder} this session cannot resolve after ${board.done} done; the goal is not complete and its remainder is outside the session.`,
+      },
+      evidence,
+    );
+  }
+
+  // SAIHANDOFF F-05 (Q5): the completion claim is the one answer that has to be
+  // checkable, so it is the one answer that needs the receipt. Without the records
+  // behind it the verdict is UNVERIFIED: the goal stays open and nothing is filed
+  // as done, instead of a sentence asserting a state no reader can reconstruct.
+  const gap = evidence
+    ? goalCompletionEvidenceGap(evidence)
+    : "the SAIPEN board or log record could not be read";
+  if (gap) return withGoalCompletionEvidence(unverifiedGoalCompletion(gap), evidence);
+
+  return withGoalCompletionEvidence(
+    {
+      disposition: GoalCompletionDisposition.Complete,
+      passed: true,
+      reason: `SAIPEN board clear: ${board.done} done, nothing left.`,
+      nextAction: "",
+    },
+    evidence,
+  );
 }

@@ -19,6 +19,8 @@ import {
   ZaicodeHomeSettingsLink,
   useZaicodeHomeGreeting,
 } from "@/zaicode/ZaicodeHomeScreen.js";
+import { ZaicodeEmptySessionActions } from "@/zaicode/ZaicodeEmptySessionActions.js";
+import { useZaicodeUiPrefs } from "@/zaicode/zaicodeUiPrefs.js";
 
 const GREETING_BOUNDARY_HOURS = [5, 9, 12, 14, 18, 23] as const;
 const GREETING_MIN_FONT_SIZE_PX = 20;
@@ -86,9 +88,20 @@ function resolveGreetingFontSizePx({
   );
 }
 
-export function ConversationDraftEmptyState({ className }: { className?: string }) {
+export function ConversationDraftEmptyState({
+  className,
+  workspacePath,
+  workspaceIdentity,
+  paneId,
+}: {
+  className?: string;
+  workspacePath?: string;
+  workspaceIdentity?: string;
+  paneId?: string;
+}) {
   const { intl } = useZCodeIntl();
   const isOfficeMode = useIsOfficeMode();
+  const uiPrefs = useZaicodeUiPrefs();
   const [greetingDate, setGreetingDate] = useState(() => new Date());
   const [greetingFontSizePx, setGreetingFontSizePx] = useState(GREETING_MAX_FONT_SIZE_PX);
   const greetingContainerRef = useRef<HTMLParagraphElement | null>(null);
@@ -97,7 +110,8 @@ export function ConversationDraftEmptyState({ className }: { className?: string 
     id: isOfficeMode ? "chat.empty.greeting.office" : getChatEmptyGreetingMessageId(greetingDate),
   });
   const zaicodeGreeting = useZaicodeHomeGreeting(timeGreeting, greetingDate);
-  const greeting = isZaicodeProductMode() ? zaicodeGreeting : timeGreeting;
+  const showGreetingText = uiPrefs.showGreeting && uiPrefs.showNewTaskGreeting;
+  const greeting = (isZaicodeProductMode() ? zaicodeGreeting : timeGreeting) && showGreetingText ? (isZaicodeProductMode() ? zaicodeGreeting : timeGreeting) : null;
 
   useEffect(() => {
     const timeout = window.setTimeout(() => {
@@ -229,6 +243,11 @@ export function ConversationDraftEmptyState({ className }: { className?: string 
           <ZaicodeHomeSaimailLine />
           {/* T-56: the SCHEDULER's readiness moved to SAIHOME; this is the composer (NEW TASK). */}
           <ZaicodeHomeSettingsLink />
+          <ZaicodeEmptySessionActions
+            workspacePath={workspacePath}
+            workspaceIdentity={workspaceIdentity}
+            paneId={paneId}
+          />
         </ZaicodeRightClickSettings>
       )}
     </div>

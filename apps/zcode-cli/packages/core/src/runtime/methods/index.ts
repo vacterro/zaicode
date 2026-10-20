@@ -1,4 +1,5 @@
 import { grantPermissionFullAccess } from "../permission-full-access.js";
+import { getExecutionLiveness } from "./execution-liveness.js";
 import {
   getSessionShellSelection,
   initializeSessionShellEnvironmentIfNeeded,
@@ -364,6 +365,7 @@ export function installAgentRuntimeMethods(ctor: AgentRuntimeConstructor): void 
   proto.stopBackgroundTask = stopBackgroundTask;
   proto.cancelRunningRuntimeBackgroundTasks = cancelRunningRuntimeBackgroundTasks;
   proto.hasRunningBackgroundTasks = hasRunningBackgroundTasks;
+  proto.getExecutionLiveness = getExecutionLiveness;
   proto.buildBackgroundTaskPayload = buildBackgroundTaskPayload;
   proto.createEvent = createEvent;
   proto.appendEvent = appendEvent;

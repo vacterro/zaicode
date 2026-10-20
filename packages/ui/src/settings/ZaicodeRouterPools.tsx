@@ -11,6 +11,7 @@ import {
 } from "@zcode/shared";
 import { useZaicodeRouter, zaicodeRouterChange } from "@/zaicode/zaicodeRouter.js";
 import { SortableProviderModelList } from "./model-provider-section/SortableProviderModelList.js";
+import { ZaicodeRouterRecovery } from "./ZaicodeRouterRecovery.js";
 
 /**
  * Router -> Pools: 9router combos, the pools ZAICODE runs on. Order is the
@@ -194,6 +195,7 @@ export function ZaicodeRouterPools() {
     });
   };
   return (
+    <div className="flex flex-col gap-2">
     <section className="flex flex-col gap-2 border border-border bg-card p-3 text-ui-base" data-zaicode-router-pools>
       <div>
         <h2 className="text-ui-lg text-foreground">Pools</h2>
@@ -211,5 +213,7 @@ export function ZaicodeRouterPools() {
         </Button>
       </div>
     </section>
+    <ZaicodeRouterRecovery />
+    </div>
   );
 }

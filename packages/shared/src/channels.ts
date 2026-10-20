@@ -62,6 +62,7 @@ import type {
   BrowserViewViewportChangedPayload,
   ConnectRemoteRequest,
   DesktopCommandId,
+  DesktopCommandRequest,
   DesktopTitleBarTheme,
   DockerContainerInfo,
   EmbeddedBrowserOpenUrlRequest,
@@ -179,6 +180,10 @@ export const ServiceChannels = {
   ZaicodeStats: "zaicode-stats",
   /** ZAICODE A3 audit campaigns (T-66): generate ahead, work on demand. */
   ZaicodeAudits: "zaicode-audits",
+  /** ZAICODE Audit Loop (T-289): one durable review/fix cycle chain per finished job. */
+  ZaicodeAuditLoops: "zaicode-audit-loops",
+  /** ZAICODE Optimization subsystem (SRC-206): local-first efficiency & analytics. */
+  ZaicodeOptimization: "zaicode-optimization",
 } as const;
 
 export type ServiceChannelName = (typeof ServiceChannels)[keyof typeof ServiceChannels];
@@ -199,6 +204,7 @@ export const PlatformChannels = {
   CreateTempTextAttachment: "zcode:create-temp-text-attachment",
   /** Renderer → Main：通过原生另存为对话框保存文件 */
   SaveFile: "zcode:save-file",
+  WriteClipboardText: "zcode:write-clipboard-text",
   /** Renderer → Main：用 Chromium 打印引擎把当前页面 print 媒体版面导出为 PDF */
   PrintToPdf: "zcode:print-to-pdf",
   /** Main → Renderer：转发远程连接过程日志 */
@@ -809,6 +815,10 @@ export interface PlatformChannelMap {
     request: SaveFileRequest;
     response: SaveFileResult;
   };
+  [PlatformChannels.WriteClipboardText]: {
+    request: string;
+    response: void;
+  };
   [PlatformChannels.PrintToPdf]: {
     request: void;
     response: PrintPageToPdfResult;
@@ -1412,7 +1422,7 @@ export interface PlatformChannelMap {
     response: void;
   };
   [PlatformChannels.ExecuteDesktopCommand]: {
-    request: DesktopCommandId;
+    request: DesktopCommandId | DesktopCommandRequest;
     // 返回值直通 main 进程 handler 的 return（GetCuaOsSupport 返回 CuaOsSupport），
     // 与 renderer 侧 IPlatformService.executeDesktopCommand 的 Promise<unknown> 对齐。
     response: unknown;

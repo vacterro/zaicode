@@ -58,7 +58,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import type { Locale, RemoteTarget, UserInfo, ZCodeTaskMeta } from "@zcode/shared";
-import { isLocale, BUILTIN_MODEL_PROVIDER_IDS, isZaicodeProductMode } from "@zcode/shared";
+import { isLocale, isZaicodeProductMode, resolveWorkspaceKey } from "@zcode/shared";
 import {
   TID_CONVERSATION_NEW_TASK,
   TID_CONVERSATION_SECTION,
@@ -96,6 +96,8 @@ import {
   orderZaicodeProjectSections,
   projectLiveOf,
   runningSessionsOf,
+  selectReconcileRows,
+  unionCommittedAndLiveSessionRows,
   waitingSessionsOf,
   slotGroupOf,
   useZaicodeRunningSessions,
@@ -107,6 +109,7 @@ import {
 import { useZaicodeSessionNav, type ZaicodeSessionRef } from "@/zaicode/zaicodeSessionNav.js";
 import { ZaicodeSidebarNavBlock } from "@/zaicode/ZaicodeSidebarNavBlock.js";
 import { useZaicodeGatedNow } from "@/zaicode/zaicodeNowGate.js";
+import { ZaicodeMainBulkAssignMenu } from "@/zaicode/ZaicodeMainBulkAssignMenu.js";
 import { ZaicodeSidebarWorkers } from "@/zaicode/ZaicodeSidebarWorkers.js";
 import { ZaicodeSessionActionStrip } from "@/zaicode/ZaicodeSessionActionStrip.js";
 import {
@@ -125,7 +128,7 @@ import {
   ZaicodeSlotGroupHeader,
   ZaicodeSlotsToggle,
 } from "@/zaicode/ZaicodeSidebarSectionSettings.js";
-import { ZaicodeClearAllDoneButton } from "@/zaicode/ZaicodeClearAllDone.js";
+import { ZaicodeClearAllSessionsButton } from "@/zaicode/ZaicodeClearAllSessionsButton.js";
 import { ZaicodeOverflowRow, type ZaicodeOverflowItem } from "@/zaicode/ZaicodeOverflowRow.js";
 import { useZaicodeTodoProgress } from "@/zaicode/zaicodeTodoProgress.js";
 import { logger } from "@/logger.js";
@@ -147,7 +150,7 @@ import {
   reorderSidebarPurposeSections,
 } from "@/lib/sidebarPurposeSectionPreferences.js";
 import { useShortcutCommandLabel } from "@/shortcuts/useShortcutBindings.js";
-import { setPendingSettingsSectionIntent } from "@/lib/settingsNavigation.js";
+
 import { buildTaskWorkspaceKey } from "@/lib/taskQueryCache.js";
 import {
   increaseWorkspaceTaskVisibleLimit,
@@ -475,6 +478,9 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
   const [activeWorkspaceDragId, setActiveWorkspaceDragId] = useState<string | null>(null);
   // ZAICODE: Shift held when a project drag starts (and still held 2 s later) arms slot drop.
   const [zaicodeDragShift, setZaicodeDragShift] = useState(false);
+  // Project = MAIN: right-click bulk assignment. Left-click on the tab itself stays
+  // a plain view switch; this only carries the menu state and the keyboard path.
+  const [zaicodeMainBulkMenuOpen, setZaicodeMainBulkMenuOpen] = useState(false);
   const [activeWorkspaceDragWidth, setActiveWorkspaceDragWidth] = useState<number | null>(null);
   const [groupedTaskGroupIds, setGroupedTaskGroupIds] = useState<string[]>([]);
   const [groupedTaskGroupIdsHydrated, setGroupedTaskGroupIdsHydrated] = useState(false);
@@ -720,18 +726,35 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
   const zaicodeHasLiveRunHints = Object.keys(zaicodeLiveRuns).length > 0;
   useEffect(() => {
     if (!zaicodeMode) return undefined;
-    const tasks = workspaceTaskLists.groups.flatMap((group) => group.items);
+    // T-295B: reconcile the union rows, so an authoritative live terminal
+    // clears a stale hint even while the committed cache still shows the old
+    // running row. Grace, mounted views and invalidation stay inside reconcile.
+    const tasks = selectReconcileRows(
+      workspaceTaskLists.groups,
+      workspaceTaskLists.sessionsIndexItems,
+    );
     reconcileZaicodeLiveRuns(tasks);
     if (!zaicodeHasLiveRunHints) return undefined;
     // SRC-162: the hint's grace window has to expire on the clock, not only when the index of
     // that project happens to push again. A project nobody had open kept "working" for as long
     // as its index stayed quiet, and only opening it revealed the run had ended long ago.
     const timer = window.setInterval(
-      () => reconcileZaicodeLiveRuns(tasks),
+      () =>
+        reconcileZaicodeLiveRuns(
+          selectReconcileRows(
+            workspaceTaskLists.groups,
+            workspaceTaskLists.sessionsIndexItems,
+          ),
+        ),
       ZAICODE_LIVE_RUN_RECONCILE_MS,
     );
     return () => window.clearInterval(timer);
-  }, [workspaceTaskLists.groups, zaicodeMode, zaicodeHasLiveRunHints]);
+  }, [
+    workspaceTaskLists.groups,
+    workspaceTaskLists.sessionsIndexItems,
+    zaicodeMode,
+    zaicodeHasLiveRunHints,
+  ]);
   const zaicodeStoredTodos = useZaicodeTodoProgress((state) => state.bySession);
   const publishZaicodeRunningSessions = useZaicodeRunningSessions((state) => state.publish);
   // SRC-081: a minute tick, so a session that went quiet leaves the "working" list by itself.
@@ -741,11 +764,31 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
     const byKey = new Map<string, ZaicodeProjectLive>();
     const all: ZaicodeRunningSession[] = [];
     if (!zaicodeMode) return { byKey, all };
+    // T-294: index live items by workspace so each project's running inputs
+    // union its committed group rows with the authoritative live observation.
+    // Committed rows can lag for background projects (discarded refresh
+    // flights, cached membership, visible slicing); without this the project
+    // reads as idle once its mounted-view hint expires.
+    const liveItemsByWorkspaceKey = new Map<string, ZCodeTaskMeta[]>();
+    for (const item of workspaceTaskLists.sessionsIndexItems) {
+      const itemKey = buildTaskWorkspaceKey(item.workspacePath, item.workspaceIdentity);
+      const list = liveItemsByWorkspaceKey.get(itemKey);
+      if (list) list.push(item);
+      else liveItemsByWorkspaceKey.set(itemKey, [item]);
+    }
     for (const group of workspaceTaskLists.groups) {
       const key = buildTaskWorkspaceKey(group.workspacePath, group.workspaceIdentity);
+      const runningInputs = unionCommittedAndLiveSessionRows(
+        group.items,
+        liveItemsByWorkspaceKey.get(key) ?? EMPTY_WORKSPACE_TASK_ITEMS,
+        key,
+        zaicodeStallNow,
+        false,
+        workspaceTaskLists.membershipByWorkspaceKey.get(key)?.deletedIds,
+      );
       const running = runningSessionsOf(
         key,
-        group.items,
+        runningInputs,
         zaicodeStoredTodos,
         {
           workspacePath: group.workspacePath,
@@ -755,6 +798,7 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
       );
       all.push(...running);
       for (const sessionId of zaicodeLiveRunIdsIn(zaicodeLiveRuns, group.workspacePath)) {
+        if (workspaceTaskLists.membershipByWorkspaceKey.get(key)?.deletedIds.has(sessionId)) continue;
         if (running.some((session) => session.sessionId === sessionId)) continue;
         const task = group.items.find((item) => item.taskId === sessionId);
         const session = {
@@ -770,7 +814,7 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
       }
       byKey.set(key, {
         ...projectLiveOf(
-          group.items,
+          runningInputs,
           running.map((session) => session.ratio),
         ),
         running: running.length,
@@ -779,6 +823,7 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
     return { byKey, all };
   }, [
     workspaceTaskLists.groups,
+    workspaceTaskLists.sessionsIndexItems,
     zaicodeMode,
     zaicodeStoredTodos,
     zaicodeStallNow,
@@ -1071,8 +1116,19 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
         ...(group.workspaceIdentity ? { workspaceIdentity: group.workspaceIdentity } : {}),
       };
       const key = buildTaskWorkspaceKey(group.workspacePath, group.workspaceIdentity);
-      waiting.push(...waitingSessionsOf(key, group.items, location));
-      for (const task of group.items) briefs.push(zaicodeSessionBriefOf(task, key, location));
+      // 与运行状态读取同一 live index；分页缓存旧完成态不能阻断后台错误重试和目标续跑。
+      // HUNT-007: 排除负向成员（tombstone 删除、归档、置顶），防止已被移除的会话被 live-only 重新复活进入自动重试。
+      const membership = workspaceTaskLists.membershipByWorkspaceKey.get(key);
+      const currentItems = membership?.ready ? unionCommittedAndLiveSessionRows(
+        group.items,
+        workspaceTaskLists.sessionsIndexItems,
+        key,
+        Date.now(),
+        true,
+        membership.excludedIds,
+      ) : [];
+      waiting.push(...waitingSessionsOf(key, currentItems, location));
+      for (const task of currentItems) briefs.push(zaicodeSessionBriefOf(task, key, location));
       if (group.workspacePath === workspacePath) {
         recent = [...group.items]
           .sort((left, right) => (right.updatedAt ?? 0) - (left.updatedAt ?? 0))
@@ -1105,6 +1161,8 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
     publishZaicodeSessionNav,
     workspacePath,
     workspaceTaskLists.groups,
+    workspaceTaskLists.sessionsIndexItems,
+    workspaceTaskLists.excludedIds,
     zaicodeMode,
     zaicodeOrderedProjectTabs,
     zaicodeProjectSections,
@@ -1542,7 +1600,7 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
         { key: "slots", keep: 3, node: <span className="flex text-ui-xs"><ZaicodeSlotsToggle /></span> },
         { key: "live", keep: 2, node: <span className="flex text-ui-xs"><ZaicodeLiveToggle /></span> },
       );
-      if (activePrimaryTaskMode === "main") zaicodeItems.push({ key: "clear-done", keep: 1, node: <ZaicodeClearAllDoneButton /> });
+      if (activePrimaryTaskMode === "main") zaicodeItems.push({ key: "clear-sessions", keep: 1, node: <ZaicodeClearAllSessionsButton /> });
       zaicodeItems.push({ key: "add-project", keep: 9, node: projectAddMenu });
     }
     if (newGroupButton) zaicodeItems.push({ key: "new-group", keep: 9, node: newGroupButton });
@@ -1625,9 +1683,19 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
                       primaryTaskTabTriggerRefs.current.main = node;
                     }}
                     value="main"
-                    title="Project = MAIN: the project row is its MAIN session, the sessions under it are helpers"
+                    title="Project = MAIN: the project row is its MAIN session, the sessions under it are helpers. Right-click assigns MAIN in every project."
                     className="relative z-10 h-6 flex-none gap-1 rounded-full border-transparent bg-transparent py-0 pl-1.5 pr-2 text-ui-sm font-medium text-foreground-subtle transition-colors data-active:border-transparent data-active:bg-transparent data-active:text-foreground data-active:shadow-none dark:data-active:border-transparent dark:data-active:bg-transparent"
                     data-zaicode-view-main=""
+                    onContextMenu={(event) => {
+                      // The tab's own left-click stays a view switch; the menu is a second path.
+                      event.preventDefault();
+                      setZaicodeMainBulkMenuOpen(true);
+                    }}
+                    onKeyDown={(event) => {
+                      if (event.key !== "ContextMenu" && !(event.shiftKey && event.key === "F10")) return;
+                      event.preventDefault();
+                      setZaicodeMainBulkMenuOpen(true);
+                    }}
                   >
                     <span aria-hidden="true" className="text-[10px] leading-none text-[var(--zaicode-highlight,var(--color-warning))]">◆</span>
                     <span className="hidden @min-[440px]/zsbtools:inline">MAIN</span>
@@ -1635,6 +1703,12 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
                 ) : null}
               </TabsList>
             </Tabs>
+            <ZaicodeMainBulkAssignMenu
+              open={zaicodeMainBulkMenuOpen}
+              onOpenChange={setZaicodeMainBulkMenuOpen}
+              tabs={projectWorkspaceTabs}
+              sessionGroups={workspaceTaskGroupByKey}
+            />
             {toggleAllTaskGroupsPresentation ? (
               <ControlHintTooltip
                 title={intl.formatMessage({
@@ -1985,7 +2059,7 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
             </Button>
           </div>
           )}
-          {zaicodeMode ? <ZaicodeSessionActionStrip /> : null}
+          {zaicodeMode ? <ZaicodeSessionActionStrip workspaceKey={workspacePath ? resolveWorkspaceKey({ workspacePath, workspaceIdentity }) : ""} /> : null}
           {zaicodeMode ? <ZaicodeEngineBar /> : null}
           {zaicodeMode ? <ZaicodeSidebarWorkers /> : null}
 

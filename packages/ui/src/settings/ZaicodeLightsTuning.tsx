@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from "react";
 import { cn } from "@/components/lib/utils.js";
+import { Checkbox } from "@/components/ui/checkbox.js";
 import { ZaicodePrefSegment } from "@/zaicode/ZaicodePrefControls.js";
 import {
   ZAICODE_EFFECT_DEPTH,
@@ -311,11 +312,10 @@ export function ZaicodeHighlightMixTuning({
       )}
       <MixTabs items={rule.shapes} active={activeShape} onPick={setPickedShape} labelOf={shapeLabel} tuned={(shape) => Boolean(rule.shapeTuning[shape])} />
       <div className="flex flex-wrap items-center gap-3">
-        <label className="flex items-center gap-1.5 text-foreground-subtle">
-          <input
-            type="checkbox"
+        <label className="flex items-center gap-1.5 text-foreground-subtle cursor-pointer select-none">
+          <Checkbox
             checked={ownShape.color !== null}
-            onChange={(event) => setShape({ color: event.target.checked ? rule.custom : null })}
+            onCheckedChange={(val) => setShape({ color: val ? rule.custom : null })}
           />
           Own colour
         </label>

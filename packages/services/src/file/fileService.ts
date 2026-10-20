@@ -1,8 +1,22 @@
 /* eslint-disable max-lines */
 import type { Dirent } from "node:fs";
-import { mkdir, open, readFile, readdir, realpath, stat } from "node:fs/promises";
+import { createReadStream, createWriteStream } from "node:fs";
+import {
+  copyFile as copyFileFs,
+  mkdir,
+  open,
+  readFile,
+  readdir,
+  realpath,
+  rename,
+  rm,
+  stat,
+  writeFile,
+} from "node:fs/promises";
+import { createHash, randomBytes } from "node:crypto";
+import { ZipFile } from "yazl";
 import { homedir } from "node:os";
-import { extname, join, relative, sep } from "node:path";
+import { dirname, extname, isAbsolute, join, relative, sep } from "node:path";
 import type {
   FileBinaryPreview,
   FileEntry,
@@ -637,6 +651,131 @@ export function createFileService(options: CreateFileServiceOptions = {}): IFile
       content: string;
     }): Promise<void> {
       await writeWorkspaceFileSearchIgnore(params.rootPath, params.content);
+    },
+    async writeTextFile(params: { path: string; content: string }): Promise<void> {
+      const target = params.path;
+      await mkdir(dirname(target), { recursive: true });
+      await writeFile(target, params.content, "utf8");
+    },
+    async sha256File(params: { path: string }): Promise<{ sha256: string; size: number }> {
+      const fileStat = await stat(params.path);
+      if (!fileStat.isFile()) {
+        throw new Error(`Path is not a file: ${params.path}`);
+      }
+      const hash = createHash("sha256");
+      let size = 0;
+      for await (const chunk of createReadStream(params.path, { highWaterMark: 1024 * 1024 })) {
+        hash.update(chunk);
+        size += chunk.length;
+      }
+      return { sha256: hash.digest("hex"), size };
+    },
+    async writeTextFileAtomic(params: {
+      path: string;
+      content: string;
+      overwrite?: boolean;
+    }): Promise<{ path: string; size: number }> {
+      const target = params.path;
+      await mkdir(dirname(target), { recursive: true });
+      if (params.overwrite === false) {
+        try {
+          await stat(target);
+          throw new Error(`File already exists: ${target}`);
+        } catch (error) {
+          if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+        }
+      }
+      const temp = `${target}.tmp-${process.pid}-${randomBytes(4).toString("hex")}`;
+      await writeFile(temp, params.content, "utf8");
+      try {
+        await rename(temp, target);
+      } catch (error) {
+        await rm(temp, { force: true });
+        throw error;
+      }
+      return { path: target, size: Buffer.byteLength(params.content, "utf8") };
+    },
+    async copyFile(params: {
+      from: string;
+      to: string;
+      overwrite?: boolean;
+    }): Promise<{ path: string; size: number }> {
+      await mkdir(dirname(params.to), { recursive: true });
+      if (params.overwrite === false) {
+        try {
+          await stat(params.to);
+          throw new Error(`File already exists: ${params.to}`);
+        } catch (error) {
+          if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+        }
+      }
+      await copyFileFs(params.from, params.to);
+      const fileStat = await stat(params.to);
+      return { path: params.to, size: fileStat.size };
+    },
+    async createZipArchive(params: {
+      outPath: string;
+      entries: ReadonlyArray<{ name: string; path: string }>;
+    }): Promise<{ path: string; size: number; entries: number }> {
+      await mkdir(dirname(params.outPath), { recursive: true });
+      const temp = `${params.outPath}.tmp-${process.pid}-${randomBytes(4).toString("hex")}`;
+      const zip = new ZipFile();
+      for (const entry of params.entries) {
+        zip.addFile(entry.path, entry.name);
+      }
+      const output = createWriteStream(temp);
+      const closed = new Promise<void>((resolve, reject) => {
+        output.on("close", resolve);
+        output.on("error", reject);
+        zip.outputStream.on("error", reject);
+      });
+      zip.outputStream.pipe(output);
+      zip.end();
+      try {
+        await closed;
+        await rename(temp, params.outPath);
+      } catch (error) {
+        await rm(temp, { force: true });
+        throw error;
+      }
+      const fileStat = await stat(params.outPath);
+      return { path: params.outPath, size: fileStat.size, entries: params.entries.length };
+    },
+    async deleteFiles(params: {
+      paths: string[];
+    }): Promise<{
+      deleted: string[];
+      missing: string[];
+      failed: { path: string; error: string }[];
+    }> {
+      const deleted: string[] = [];
+      const missing: string[] = [];
+      const failed: { path: string; error: string }[] = [];
+      for (const target of params.paths) {
+        // 相对路径会落在 Host 的工作目录上，拒绝；目录也不删，只删普通文件。
+        if (!isAbsolute(target)) {
+          failed.push({ path: target, error: "Refusing to delete a non-absolute path" });
+          continue;
+        }
+        try {
+          const fileStat = await stat(target);
+          if (!fileStat.isFile()) {
+            failed.push({ path: target, error: "Refusing to delete a non-regular file" });
+            continue;
+          }
+          await rm(target, { force: true });
+          deleted.push(target);
+        } catch (error) {
+          const code = (error as NodeJS.ErrnoException).code;
+          if (code === "ENOENT") missing.push(target);
+          else
+            failed.push({
+              path: target,
+              error: error instanceof Error ? error.message : String(error),
+            });
+        }
+      }
+      return { deleted, missing, failed };
     },
   };
 }

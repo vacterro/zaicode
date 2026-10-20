@@ -701,6 +701,23 @@ export function InlineEditableProviderCard({
     [onSetPersonalModelEnabled, provider.providerId, runSaveOperation],
   );
 
+  // REQ-007: one bulk pass under a single save operation (one pending/success
+  // notification, one revision). The service contract has no batch endpoint,
+  // so the writes stay sequential inside the existing serialized provider
+  // queue -- bounded, never concurrent revision writes. A rejection aborts
+  // the rest and surfaces through the same failure path as a single save.
+  const handleBulkModelEnabledChange = useCallback(
+    async (changes: { modelId: string; enabled: boolean }[]) => {
+      if (!onSetPersonalModelEnabled) throw new Error("当前设置入口未装配 Model 启停能力");
+      if (changes.length === 0) return;
+      await runSaveOperation(async () => {
+        for (const change of changes)
+          await onSetPersonalModelEnabled(provider.providerId, change.modelId, change.enabled);
+      });
+    },
+    [onSetPersonalModelEnabled, provider.providerId, runSaveOperation],
+  );
+
   const handleAddModel = useCallback(
     async (model: ProviderSettingsFormModel) => {
       if (!onAddPersonalModel) throw new Error("当前设置入口未装配 Personal Model 添加能力");
@@ -846,6 +863,7 @@ export function InlineEditableProviderCard({
           onTestModel={onTestModel ? handleTestModel : undefined}
           onModelCommit={handleModelCommit}
           onModelEnabledChange={handleModelEnabledChange}
+          onBulkModelEnabledChange={handleBulkModelEnabledChange}
           onDeleteModel={handleDeleteModel}
           onAddModel={handleAddModel}
           onReorderModelIds={onReorderModelIds ? handleReorderModelIds : undefined}

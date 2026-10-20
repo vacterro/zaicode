@@ -18,6 +18,7 @@ import {
   LexicalChatInput,
   type ChatComposerPasteEvent,
   type LexicalChatInputHandle,
+  type LexicalSendReadiness,
 } from "@/LexicalChatInput.js";
 import { useZCodeIntl } from "@/i18n/IntlProvider.js";
 import type { AppSlashCommand } from "@/slashCommandHelpers.js";
@@ -55,6 +56,7 @@ export function ChatPromptEditor({
   disabledReason,
   submitting = false,
   submitDisabled = false,
+  sendReadiness,
   allowSubmitWhenEmpty = false,
   enterSubmits = true,
   submitLabel,
@@ -70,6 +72,7 @@ export function ChatPromptEditor({
   attachmentAction,
   betweenCancelAndSubmitAction,
   submitControl,
+  primaryAction,
   inputTestId,
   submitTestId,
   cancelTestId,
@@ -77,6 +80,8 @@ export function ChatPromptEditor({
   onModeSwitchContainerChange,
   triggerPanelContainer,
   promptHistory,
+  onEmptyArrowUp,
+  onSubmitBlocked,
   className,
   shellClassName,
   compactPlaceholder = false,
@@ -94,6 +99,8 @@ export function ChatPromptEditor({
   appSlashCommands,
   enableMentionPanel,
   showSaipenControls = false,
+  onDirectCommand,
+  queueCount,
 }: {
   workspacePath: string;
   workspaceIdentity?: string;
@@ -107,6 +114,7 @@ export function ChatPromptEditor({
   disabledReason?: string;
   submitting?: boolean;
   submitDisabled?: boolean;
+  sendReadiness?: LexicalSendReadiness;
   allowSubmitWhenEmpty?: boolean;
   enterSubmits?: boolean;
   submitLabel: string;
@@ -128,6 +136,13 @@ export function ChatPromptEditor({
   /** 行内编辑专用：固定插在取消与主提交之间的第二动作。 */
   betweenCancelAndSubmitAction?: ReactNode;
   submitControl?: ReactNode;
+  /**
+   * T-298: the primary Stop/Send action. Rendered as the trailing cluster's
+   * last child with an auto left margin, so it stays pinned to the rightmost
+   * stable composer position while the controls before it appear, disappear,
+   * grow or shrink (and wrap first when the row runs out of room).
+   */
+  primaryAction?: ReactNode;
   inputTestId?: string;
   submitTestId?: string;
   cancelTestId?: string;
@@ -135,6 +150,10 @@ export function ChatPromptEditor({
   onModeSwitchContainerChange?: (container: HTMLSpanElement | null) => void;
   triggerPanelContainer?: HTMLElement | null;
   promptHistory?: readonly string[];
+  /** Empty-composer ArrowUp: pull the newest editable queued message back; true = handled. */
+  onEmptyArrowUp?: () => boolean;
+  /** Enter means Send but submission is blocked: report the exact blocker. */
+  onSubmitBlocked?: (reason: string) => void;
   className?: string;
   shellClassName?: string;
   compactPlaceholder?: boolean;
@@ -155,6 +174,8 @@ export function ChatPromptEditor({
   /** mention 面板开关（透传 LexicalChatInput）。 */
   enableMentionPanel?: boolean;
   showSaipenControls?: boolean;
+  onDirectCommand?: (command: string) => Promise<boolean | void> | boolean | void;
+  queueCount?: number;
 }) {
   const { intl } = useZCodeIntl();
   const toolbarRef = useComposerToolbarFit();
@@ -263,6 +284,21 @@ export function ChatPromptEditor({
       return true;
     },
     [onSubmit, resolvedInputApiRef],
+  );
+
+  const handleProjectCommand = useCallback(
+    (command: string): boolean | void => {
+      if (onDirectCommand) {
+        const res = onDirectCommand(command);
+        if (res instanceof Promise) {
+          void res;
+          return true;
+        }
+        return res;
+      }
+      return sendProjectCommand(command);
+    },
+    [onDirectCommand, sendProjectCommand],
   );
 
   const handleKeyDown: KeyboardEventHandler<HTMLFormElement> = useCallback(
@@ -415,6 +451,7 @@ export function ChatPromptEditor({
           placeholder={placeholder}
           disabled={disabled}
           submitDisabled={submitDisabled}
+          sendReadiness={sendReadiness}
           allowSubmitWhenEmpty={allowSubmitWhenEmpty}
           enterSubmits={enterSubmits}
           onSubmit={handleEditorSubmit}
@@ -429,6 +466,8 @@ export function ChatPromptEditor({
           inputTestId={inputTestId}
           editorApiRef={resolvedInputApiRef}
           promptHistory={promptHistory}
+          onEmptyArrowUp={onEmptyArrowUp}
+          onSubmitBlocked={onSubmitBlocked}
           compactPlaceholder={compactPlaceholder}
           onWhiteboardMentionSelected={onWhiteboardMentionSelected}
           onPaste={onPaste}
@@ -443,14 +482,26 @@ export function ChatPromptEditor({
               workspacePath={workspacePath}
               workspaceIdentity={workspaceIdentity}
               sessionId={taskId}
-              disabled={disabled || submitDisabled || submitting || hasEditorText}
-              onCommand={sendProjectCommand}
+              disabled={disabled || (onDirectCommand ? false : submitDisabled || submitting || hasEditorText)}
+              onCommand={handleProjectCommand}
+              onDirectCommand={onDirectCommand}
+              queueCount={queueCount}
+              // OUTBOX 跟随 SAIPEN 动作排列，不能在发送工具栏中独占一条空白行。
+              endActions={
+                <ZaicodeSubOutboxChip
+                  workspacePath={workspacePath}
+                  workspaceIdentity={workspaceIdentity}
+                  disabled={disabled || (onDirectCommand ? false : submitDisabled || submitting || hasEditorText)}
+                  onCommand={handleProjectCommand}
+                />
+              }
             />
           </>
         ) : null}
         <div
           ref={toolbarRef}
           className={cn("group/toolbar flex flex-wrap items-end gap-3", zaicodeTightShell && "gap-2")}
+          data-zaicode-composer-toolbar={showSaipenControls || undefined}
         >
           {/* SRC-161:REQ-008 (T-240): no flex-1 here. The leading cluster is the
               first wrap candidate, and when everything inside it has collapsed the
@@ -492,9 +543,6 @@ export function ChatPromptEditor({
             className="ml-auto flex min-w-0 flex-1 flex-wrap items-center justify-end gap-1.5"
             data-composer-trailing-actions
           >
-            {showSaipenControls && workspacePath.trim() ? (
-              <ZaicodeSubOutboxChip workspacePath={workspacePath} workspaceIdentity={workspaceIdentity} disabled={disabled || submitDisabled || submitting || hasEditorText} onCommand={sendProjectCommand} />
-            ) : null}
             {onCancel && cancelLabel ? (
               <ControlHintTooltip title={cancelLabel} shortcut="Esc">
                 <Button
@@ -527,6 +575,11 @@ export function ChatPromptEditor({
                 </Button>
               </ControlHintTooltip>
             )}
+            {primaryAction ? (
+              // ml-auto: the fixed-footprint primary action claims the right edge of
+              // the row; every control left of it yields space before it can move.
+              <div className="ml-auto flex shrink-0 items-center">{primaryAction}</div>
+            ) : null}
           </div>
         </div>
       </div>

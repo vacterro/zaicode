@@ -13,6 +13,8 @@ import { ReplaceableConversationTransport } from "@/v4/replaceableConversationTr
 import { SessionDataLayer } from "@/v4/sessionDataLayer.js";
 import type { ConversationTransport } from "@/v4/transport.js";
 import { logger } from "@/logger.js";
+import { subscribeSessionRetirement } from "@/zaicode/zaicodeCleanupFence.js";
+import { adaptivePrefetchCoordinator } from "@/v4/adaptivePrefetchCoordinator.js";
 
 /** 注册表需要的 agentService 窄面（= conversation transport 的依赖面，便于测试注入）。 */
 export type WorkspaceConnectionAgentService = Pick<
@@ -281,4 +283,11 @@ export function clearWarmPoolAcrossWorkspaceConnections(): void {
     entry.layer.clearWarmPool();
   }
 }
+
+subscribeSessionRetirement((retiredIds) => {
+  for (const id of retiredIds) {
+    invalidateSessionAcrossWorkspaceConnections(id);
+    adaptivePrefetchCoordinator.clearCooldown(id);
+  }
+});
 

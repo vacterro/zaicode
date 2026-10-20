@@ -23,6 +23,9 @@ interface ZaicodeActionsState {
   /** Opens SAIHOME (registered by the shell layout). */
   openZaicodeHome: (() => void) | null;
   setOpenZaicodeHome: (open: (() => void) | null) => void;
+  /** Reveals the chat after a validated root-level new-task action. */
+  openChat: (() => void) | null;
+  setOpenChat: (open: (() => void) | null) => void;
   openSaipen: ((target?: ZaicodeSaipenTarget) => boolean) | null;
   setOpenSaipen: (open: ((target?: ZaicodeSaipenTarget) => boolean) | null) => void;
   saipenSidebar: ZaicodeSaipenTarget | null;
@@ -39,6 +42,8 @@ export const useZaicodeActions = create<ZaicodeActionsState>((set) => ({
   setOpenZaicodeView: (openZaicodeView) => set({ openZaicodeView }),
   openZaicodeHome: null,
   setOpenZaicodeHome: (openZaicodeHome) => set({ openZaicodeHome }),
+  openChat: null,
+  setOpenChat: (openChat) => set({ openChat }),
   openSaipen: null,
   // 聊天接管 Board 后必须移除草稿 portal，否则旧项目与当前项目会同时显示。
   setOpenSaipen: (openSaipen) => set(openSaipen ? { openSaipen, saipenSidebar: null } : { openSaipen }),

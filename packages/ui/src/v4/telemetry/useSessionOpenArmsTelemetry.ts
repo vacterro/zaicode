@@ -4,6 +4,8 @@ import type { ConversationOpenTiming, ConversationSnapshot } from "@zcode/shared
 import {
   reportSessionOpenResult,
   reportSessionOpenStart,
+  getSessionClickStartedAt,
+  clearSessionClick,
   type SessionOpenIdentity,
   type SessionOpenKind,
   type SessionOpenArmsReporter,
@@ -18,7 +20,10 @@ interface SessionOpenRuntime {
   startedAt: number;
   finished: boolean;
   commitAt?: number;
-  timeoutId?: ReturnType<typeof setTimeout>;
+  thresholdExceeded: boolean;
+  slowWarned: boolean;
+  slowTimerId?: ReturnType<typeof setTimeout>;
+  thresholdTimerId?: ReturnType<typeof setTimeout>;
 }
 
 function now(): number {
@@ -50,7 +55,15 @@ function errorCodeFromMessage(message: string | null): string | undefined {
 
 function finishSessionOpen(
   runtime: SessionOpenRuntime,
-  status: "success" | "failed" | "timeout",
+  status:
+    | "success"
+    | "failed"
+    | "timeout"
+    | "SLOW_OPEN_WARNING"
+    | "OPEN_TIMEOUT_THRESHOLD_EXCEEDED"
+    | "EVENTUAL_SUCCESS"
+    | "FINAL_FAILURE"
+    | "USER_CANCELLED",
   options: {
     snapshot?: ConversationSnapshot | null;
     openTiming?: ConversationOpenTiming;
@@ -62,19 +75,39 @@ function finishSessionOpen(
 ): void {
   if (runtime.finished) return;
   runtime.finished = true;
-  if (runtime.timeoutId !== undefined) clearTimeout(runtime.timeoutId);
+  if (runtime.slowTimerId !== undefined) clearTimeout(runtime.slowTimerId);
+  if (runtime.thresholdTimerId !== undefined) clearTimeout(runtime.thresholdTimerId);
   // Bug 原因：warm/keep-warm 都复用已有 projection store，state 中的 timing 属于上一次
   // cold subscribe；只有本次真正创建 store 并订阅的 cold 打开才能携带这些阶段耗时。
   const hasCurrentSubscribeTiming = runtime.identity.openKind === "cold";
   const openTiming = hasCurrentSubscribeTiming ? options.openTiming : undefined;
   const rendererTiming = hasCurrentSubscribeTiming ? options.rendererTiming : undefined;
   const snapshot = options.snapshot;
+  const clickStartedAt = getSessionClickStartedAt(runtime.identity.sessionId);
+  if (clickStartedAt !== undefined) {
+    clearSessionClick(runtime.identity.sessionId);
+  }
+  const currentNow = now();
+  const clickToInteractiveMs =
+    clickStartedAt !== undefined ? Math.max(0, currentNow - clickStartedAt) : undefined;
+  const clickToShellMs =
+    clickStartedAt !== undefined ? Math.max(0, runtime.startedAt - clickStartedAt) : undefined;
+  const clickToFirstMessageMs =
+    clickStartedAt !== undefined && (snapshot?.rows.window.length ?? 0) > 0
+      ? rendererTiming?.snapshotAppliedAt !== undefined
+        ? Math.max(0, rendererTiming.snapshotAppliedAt - clickStartedAt)
+        : Math.max(0, currentNow - clickStartedAt)
+      : undefined;
+
   reportSessionOpenResult(
     {
       ...runtime.identity,
       status,
-      totalMs: Math.max(0, now() - runtime.startedAt),
-      errorPhase: status === "success" ? undefined : "conversation_subscribe",
+      totalMs: Math.max(0, currentNow - runtime.startedAt),
+      clickToShellMs,
+      clickToFirstMessageMs,
+      clickToInteractiveMs,
+      errorPhase: status === "EVENTUAL_SUCCESS" ? undefined : "conversation_subscribe",
       errorCode: errorCodeFromMessage(options.errorMessage ?? null),
       rendererPrepareMs: rendererTiming?.rendererPrepareMs,
       hostPrepareMs: openTiming?.hostPrepareMs,
@@ -156,19 +189,52 @@ export function useSessionOpenArmsTelemetry({
       },
       startedAt: startedAt ?? now(),
       finished: false,
+      thresholdExceeded: false,
+      slowWarned: false,
     };
     runtimeRef.current = runtime;
     reportSessionOpenStart(runtime.identity, reporter);
-    runtime.timeoutId = setTimeout(() => {
+    // 慢打开先告警，但不把仍在进行中的会话标成最终失败；30s 只是诊断阈值。
+    runtime.slowTimerId = setTimeout(() => {
+      if (runtime.finished) return;
       const latestTiming = latestTimingRef.current;
-      finishSessionOpen(runtime, "timeout", {
-        openTiming: latestTiming.openTiming,
-        rendererTiming: latestTiming.rendererTiming,
+      reportSessionOpenResult(
+        {
+          ...runtime.identity,
+          status: "SLOW_OPEN_WARNING",
+          totalMs: Math.max(0, now() - runtime.startedAt),
+          openTiming: latestTiming.openTiming,
+          rendererTiming: latestTiming.rendererTiming,
+        } as any,
         reporter,
-      });
+      );
+      runtime.slowWarned = true;
+    }, 10_000);
+    runtime.thresholdTimerId = setTimeout(() => {
+      if (runtime.finished) return;
+      const latestTiming = latestTimingRef.current;
+      reportSessionOpenResult(
+        {
+          ...runtime.identity,
+          status: "OPEN_TIMEOUT_THRESHOLD_EXCEEDED",
+          totalMs: Math.max(0, now() - runtime.startedAt),
+          openTiming: latestTiming.openTiming,
+          rendererTiming: latestTiming.rendererTiming,
+        } as any,
+        reporter,
+      );
+      runtime.thresholdExceeded = true;
     }, SESSION_OPEN_TIMEOUT_MS);
     return () => {
-      if (runtime.timeoutId !== undefined) clearTimeout(runtime.timeoutId);
+      if (runtime.slowTimerId !== undefined) clearTimeout(runtime.slowTimerId);
+      if (runtime.thresholdTimerId !== undefined) clearTimeout(runtime.thresholdTimerId);
+      if (!runtime.finished && runtimeRef.current === runtime) {
+        finishSessionOpen(runtime, "USER_CANCELLED", {
+          openTiming: latestTimingRef.current.openTiming,
+          rendererTiming: latestTimingRef.current.rendererTiming,
+          reporter,
+        });
+      }
       if (runtimeRef.current === runtime) runtimeRef.current = null;
     };
   }, [enabled, openKind, openTrigger, readOnly, reporter, sessionId, startedAt]);
@@ -188,7 +254,7 @@ export function useSessionOpenArmsTelemetry({
     }
     runtime.commitAt = now();
     const cancelPaint = scheduleAfterPaint(() => {
-      finishSessionOpen(runtime, "success", {
+      finishSessionOpen(runtime, "EVENTUAL_SUCCESS", {
         snapshot,
         openTiming,
         rendererTiming,
@@ -202,7 +268,7 @@ export function useSessionOpenArmsTelemetry({
   useLayoutEffect(() => {
     const runtime = runtimeRef.current;
     if (!runtime || runtime.finished || status !== "error") return;
-    finishSessionOpen(runtime, "failed", {
+    finishSessionOpen(runtime, "FINAL_FAILURE", {
       openTiming,
       rendererTiming,
       errorMessage: lastError,

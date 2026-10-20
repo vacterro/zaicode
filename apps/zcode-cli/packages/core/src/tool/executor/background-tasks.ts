@@ -1,17 +1,14 @@
+import { backgroundTaskLifecycleProvider, type BackgroundTaskSnapshot } from "./background-task-lifecycle.js";
 import {
   SessionEventType,
   traceContextToLogContext,
   type BackgroundResultOriginMeta,
   type DynamicWorkflowRunError,
   type DynamicWorkflowRunStopReason,
-  type ExecutionPort,
   type SessionEvent,
-  type DynamicWorkflowRunSnapshot,
-  type SubagentTaskSnapshot,
   type TraceContext,
   type TurnId,
   type WorkflowNotificationMeta,
-  type WorkflowTaskSnapshot,
 } from "@zcode/contracts";
 import { isSubagentDispatchToolName } from "../compat.js";
 import type { ExecutableToolCall } from "../types.js";
@@ -43,46 +40,6 @@ import {
   WORKFLOW_ARTIFACTS_NOTIFICATION_MAX_LINES,
 } from "./workflow-published-artifacts.js";
 
-type BackgroundTaskSnapshot =
-  | NonNullable<Awaited<ReturnType<NonNullable<ExecutionPort["getBackgroundTask"]>>>>
-  | SubagentTaskSnapshot
-  | WorkflowTaskSnapshot
-  // workflow run 的快照沿用 WorkflowTaskSnapshot 的形状但把 output 放宽成 unknown（产物由脚本
-  // 的顶层返回值决定），所以它不是 WorkflowTaskSnapshot 的子类型，必须单列一支。
-  | DynamicWorkflowRunSnapshot;
-
-type BackgroundTaskWaiter = {
-  waitForBackgroundTask(
-    taskId: string,
-    options?: { signal?: AbortSignal },
-  ): Promise<BackgroundTaskSnapshot | undefined>;
-};
-
-type WorkflowTaskWaiter = {
-  waitForTask(
-    taskId: string,
-    options?: { signal?: AbortSignal },
-  ): Promise<BackgroundTaskSnapshot | undefined>;
-};
-
-/**
- * 一个工具的后台生命周期提供者。这五件事若按工具名散在五处 `if (toolCall.name === …)`，
- * 每接一个后台工具就要记得同时改齐五处——`canCancelBackgroundTask` 对 legacy `Workflow`
- * 硬返回 false 就会是漏改的现场：它让 started payload 的 cancellable 恒假，取消入口直接死掉。
- * 按工具名查一次表拿到这个结构，五处分派退化成读它的字段。
- *
- * 缺省语义（字段缺席）与泛化前逐字一致：无 getSnapshot → 无快照提供者（不起 1s 轮询）；
- * 无 waitForTerminal → 无直接等待者；cancellable 缺省 false。
- */
-interface BackgroundTaskLifecycleProvider {
-  /** 1s 轮询的快照源。 */
-  getSnapshot?: (taskId: string) => Promise<BackgroundTaskSnapshot | undefined>;
-  /** 终态直接等待者（比轮询更及时，且轮询源缺席时是唯一终态来源）。 */
-  waitForTerminal?: (taskId: string) => Promise<BackgroundTaskSnapshot | undefined>;
-  /** 运行中的任务是否可被用户取消；决定 started/updated payload 的 `cancellable`。 */
-  cancellable?: boolean;
-}
-
 export class BackgroundTaskTracker {
   private readonly backgroundPollers = new Set<string>();
 
@@ -106,6 +63,8 @@ export class BackgroundTaskTracker {
 
     this.backgroundPollers.add(taskId);
     registerRuntimeBackgroundTask(this.deps, toolCall, taskId, output, turnId);
+    const trackingId = crypto.randomUUID();
+    this.deps.runtimeTaskRegistry?.update(taskId, (task) => ({ ...task, livenessTrackingId: trackingId, lastConfirmedAt: Date.now() }));
     try {
       await this.emitBackgroundTaskEvent(
         SessionEventType.BackgroundTaskStarted,
@@ -121,6 +80,9 @@ export class BackgroundTaskTracker {
 
     const hasSnapshotProvider = this.hasBackgroundTaskSnapshotProvider(toolCall);
     const hasDirectWaiter = this.hasDirectBackgroundTaskWaiter(toolCall);
+    this.deps.runtimeTaskRegistry?.update(taskId, (task) => ({
+      ...task, livenessSource: hasSnapshotProvider ? "poll" : hasDirectWaiter ? "waiter" : undefined,
+    }));
     this.deps.logger?.info?.("Background task tracking started", {
       ...traceContextToLogContext(traceContext),
       event: "background_task.tracking.started",
@@ -140,7 +102,7 @@ export class BackgroundTaskTracker {
         taskId,
         toolName: toolCall.name,
       });
-      updateRuntimeBackgroundTask(this.deps, toolCall, taskId, "lost");
+      updateRuntimeBackgroundTask(this.deps, toolCall, taskId, "lost", undefined, trackingId);
       this.maybeEnqueueBackgroundTaskNotification(
         toolCall,
         taskId,
@@ -172,6 +134,9 @@ export class BackgroundTaskTracker {
       if (maxRuntimeTimer) clearTimeout(maxRuntimeTimer);
       maxRuntimeTimer = undefined;
       this.backgroundPollers.delete(taskId);
+      this.deps.runtimeTaskRegistry?.update(taskId, (task) => task.livenessTrackingId === trackingId
+        ? { ...task, livenessSource: undefined }
+        : task);
     };
 
     if (
@@ -204,10 +169,11 @@ export class BackgroundTaskTracker {
     }
 
     const emitRunningUpdate = async (snapshot: BackgroundTaskSnapshot) => {
+      // T-240：安静但真实存活的 worker 也更新租约；不能靠输出变化或挂载 UI 来证明活性。
+      if (!updateRuntimeBackgroundTask(this.deps, toolCall, taskId, "running", snapshot, trackingId)) return;
       const signature = this.backgroundSnapshotSignature(snapshot);
       if (signature === lastSnapshotSignature) return;
       lastSnapshotSignature = signature;
-      updateRuntimeBackgroundTask(this.deps, toolCall, taskId, "running", snapshot);
       await this.emitBackgroundTaskEvent(
         SessionEventType.BackgroundTaskUpdated,
         this.backgroundTaskPayload(toolCall, taskId, "running", snapshot, output),
@@ -220,6 +186,12 @@ export class BackgroundTaskTracker {
       snapshot: BackgroundTaskSnapshot | undefined,
     ): Promise<void> => {
       if (stopped || completing) return;
+      const owner = this.deps.runtimeTaskRegistry?.get(taskId);
+      if (owner && owner.livenessTrackingId !== trackingId) {
+        stopped = true;
+        stopTracking();
+        return;
+      }
       completing = true;
       try {
         if (!snapshot) {
@@ -231,7 +203,7 @@ export class BackgroundTaskTracker {
             taskId,
             toolName: toolCall.name,
           });
-          updateRuntimeBackgroundTask(this.deps, toolCall, taskId, "lost");
+          updateRuntimeBackgroundTask(this.deps, toolCall, taskId, "lost", undefined, trackingId);
           this.maybeEnqueueBackgroundTaskNotification(
             toolCall,
             taskId,
@@ -252,7 +224,6 @@ export class BackgroundTaskTracker {
         }
 
         if (snapshot.status === "running") {
-          updateRuntimeBackgroundTask(this.deps, toolCall, taskId, "running", snapshot);
           await emitRunningUpdate(snapshot);
           if (!hasSnapshotProvider) {
             stopped = true;
@@ -282,7 +253,7 @@ export class BackgroundTaskTracker {
           taskStatus: snapshot.status,
           toolName: toolCall.name,
         });
-        updateRuntimeBackgroundTask(this.deps, toolCall, taskId, snapshot.status, snapshot);
+        updateRuntimeBackgroundTask(this.deps, toolCall, taskId, snapshot.status, snapshot, trackingId);
         this.maybeEnqueueBackgroundTaskNotification(
           toolCall,
           taskId,
@@ -445,7 +416,7 @@ export class BackgroundTaskTracker {
   }
 
   private canCancelBackgroundTask(toolCall: ExecutableToolCall): boolean {
-    return this.lifecycleProvider(toolCall).cancellable === true;
+    return backgroundTaskLifecycleProvider(this.deps, toolCall).cancellable === true;
   }
 
   private isNotifiedLocalAgentSnapshot(
@@ -711,95 +682,32 @@ export class BackgroundTaskTracker {
   }
 
   private hasBackgroundTaskSnapshotProvider(toolCall: ExecutableToolCall): boolean {
-    return this.lifecycleProvider(toolCall).getSnapshot !== undefined;
+    return backgroundTaskLifecycleProvider(this.deps, toolCall).getSnapshot !== undefined;
   }
 
   private hasDirectBackgroundTaskWaiter(toolCall: ExecutableToolCall): boolean {
-    return this.lifecycleProvider(toolCall).waitForTerminal !== undefined;
+    return backgroundTaskLifecycleProvider(this.deps, toolCall).waitForTerminal !== undefined;
   }
 
   private async waitForBackgroundTaskSnapshot(
     toolCall: ExecutableToolCall,
     taskId: string,
   ): Promise<BackgroundTaskSnapshot | undefined> {
-    return this.lifecycleProvider(toolCall).waitForTerminal?.(taskId);
+    return backgroundTaskLifecycleProvider(this.deps, toolCall).waitForTerminal?.(taskId);
   }
 
   private async getBackgroundTaskSnapshot(
     toolCall: ExecutableToolCall,
     taskId: string,
   ): Promise<BackgroundTaskSnapshot | undefined> {
-    return this.lifecycleProvider(toolCall).getSnapshot?.(taskId);
+    return backgroundTaskLifecycleProvider(this.deps, toolCall).getSnapshot?.(taskId);
   }
 
   /**
    * 按工具名解析后台生命周期提供者。每个分支只描述"这个工具的四件事分别由哪个端口承担"，
    * 与泛化前的五处 if 一一对应，语义逐字保持。
    */
-  private lifecycleProvider(toolCall: ExecutableToolCall): BackgroundTaskLifecycleProvider {
-    const deps = this.deps;
 
-    if (isSubagentDispatchToolName(toolCall.name)) {
-      const getTask = deps.subagentPort?.getTask;
-      return {
-        ...(getTask ? { getSnapshot: (taskId: string) => getTask.call(deps.subagentPort, taskId) } : {}),
-        // background Agent 的停止入口在 subagentPort.stopTask；
-        // started payload 不能沿用 Bash 的 executionPort 能力判断。
-        cancellable: Boolean(deps.subagentPort?.stopTask),
-      };
-    }
-
-    if (isDynamicWorkflowRunDispatchToolName(toolCall.name)) {
-      // workflow run：快照/等待/取消全部来自窄端口 DynamicWorkflowRunPort（runId ≡ taskId ≡ workId）。
-      // 取消能力以 cancel 方法存在为准，而不是硬编码——端口在场即可取消，这正是详情页
-      // Cancel 按钮与后台面板停止共用的那条唯一路径的前提。CreateWorkflow（新启动）与
-      // ResumeWorkflowRun（恢复）共用同一 provider：registry 条目重臂时经 existing 合并
-      // 语义沿用原始工具行的 parentToolCallId，两条入口对 tracker 完全同构。
-      const port = deps.dynamicWorkflowRunPort;
-      if (port === undefined) return {};
-      return {
-        getSnapshot: (taskId: string) => port.getTask(taskId),
-        ...(typeof port.waitForTask === "function"
-          ? { waitForTerminal: (taskId: string) => port.waitForTask(taskId) }
-          : {}),
-        cancellable: typeof port.cancel === "function",
-      };
-    }
-
-    if (toolCall.name === "Workflow") {
-      // legacy Workflow：只有快照与等待，没有取消——停止入口从未接过（保持泛化前的 false）。
-      const getTask = deps.workflowPort?.getTask;
-      const waiter = getWorkflowTaskWaiter(deps.workflowPort);
-      return {
-        ...(getTask ? { getSnapshot: (taskId: string) => getTask.call(deps.workflowPort, taskId) } : {}),
-        ...(waiter ? { waitForTerminal: (taskId: string) => waiter.waitForTask(taskId) } : {}),
-        cancellable: false,
-      };
-    }
-
-    if (toolCall.name === "Bash") {
-      const waiter = getBackgroundTaskWaiter(deps.executionPort);
-      const getBackgroundTask = deps.executionPort?.getBackgroundTask;
-      return {
-        ...(getBackgroundTask
-          ? { getSnapshot: (taskId: string) => getBackgroundTask.call(deps.executionPort, taskId) }
-          : {}),
-        ...(waiter
-          ? { waitForTerminal: (taskId: string) => waiter.waitForBackgroundTask(taskId) }
-          : {}),
-        cancellable: Boolean(deps.executionPort?.cancelBackgroundTask),
-      };
-    }
-
-    // 其余工具沿用 executionPort 的通用后台面（无直接等待者），与泛化前一致。
-    const getBackgroundTask = deps.executionPort?.getBackgroundTask;
-    return {
-      ...(getBackgroundTask
-        ? { getSnapshot: (taskId: string) => getBackgroundTask.call(deps.executionPort, taskId) }
-        : {}),
-      cancellable: Boolean(deps.executionPort?.cancelBackgroundTask),
-    };
-  }
 }
 
 function isBackgroundTaskLaunch(
@@ -1129,22 +1037,6 @@ function workflowSnapshotArtifacts(
 function stringField(record: Record<string, unknown> | undefined, key: string): string | undefined {
   const value = record?.[key];
   return typeof value === "string" ? value : undefined;
-}
-
-function getBackgroundTaskWaiter(
-  executionPort: ExecutionPort | undefined,
-): BackgroundTaskWaiter | undefined {
-  const candidate = executionPort as Partial<BackgroundTaskWaiter> | undefined;
-  return typeof candidate?.waitForBackgroundTask === "function"
-    ? (candidate as BackgroundTaskWaiter)
-    : undefined;
-}
-
-function getWorkflowTaskWaiter(workflowPort: unknown): WorkflowTaskWaiter | undefined {
-  const candidate = workflowPort as Partial<WorkflowTaskWaiter> | undefined;
-  return typeof candidate?.waitForTask === "function"
-    ? (candidate as WorkflowTaskWaiter)
-    : undefined;
 }
 
 /**

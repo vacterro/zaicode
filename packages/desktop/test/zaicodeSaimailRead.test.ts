@@ -11,7 +11,7 @@ import {
   zaicodeSaimailOpenCommand,
 } from "@zcode/shared";
 import { listZaicodeSaimailReadLetters, openZaicodeSaimailLetter } from "../src/main/zaicodeSaimailRead.js";
-import { pairZaicodeSaimail, runSaimailCli, sendZaicodeSaimailTestLetter, type SaimailCliRunner } from "../src/main/zaicodeSaimailPost.js";
+import { pairZaicodeSaimail, runSaimailCli, type SaimailCliRunner } from "../src/main/zaicodeSaimailPost.js";
 
 /**
  * Direct operator letter reading (SRC-079), end to end with the real

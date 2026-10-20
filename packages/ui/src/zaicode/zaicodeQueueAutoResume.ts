@@ -59,21 +59,32 @@ export function zaicodeQueueResumeAttempts(sessionId: string): number {
 export function recordZaicodeQueueResumeAttempt(
   sessionId: string,
   params: {
+    workspaceIdentity?: string;
     projectKey?: string;
     queueHeadId?: string;
+    episodeId?: string;
     attempts?: number;
     pauseReasonCode?: string | null;
+    lastOutcome?: "pending" | "accepted" | "rejected" | "refused";
+    retryEligible?: boolean;
+    operatorStopped?: boolean;
   } = {},
 ): number {
   const currentAttempts = zaicodeQueueResumeAttempts(sessionId);
   const nextAttempts = params.attempts ?? currentAttempts + 1;
+  const existingEpisode = episodesBySession.get(sessionId);
   const episode: ZaicodeQueueRetryEpisode = {
     sessionId,
-    projectKey: params.projectKey,
-    queueHeadId: params.queueHeadId ?? "unknown",
+    workspaceIdentity: params.workspaceIdentity ?? existingEpisode?.workspaceIdentity,
+    projectKey: params.projectKey ?? existingEpisode?.projectKey,
+    queueHeadId: params.queueHeadId ?? existingEpisode?.queueHeadId ?? "unknown",
+    episodeId: params.episodeId ?? existingEpisode?.episodeId ?? `ep-${sessionId}-${Date.now()}`,
     attempts: nextAttempts,
-    lastReasonCode: params.pauseReasonCode ?? null,
+    lastReasonCode: params.pauseReasonCode !== undefined ? params.pauseReasonCode : (existingEpisode?.lastReasonCode ?? null),
     lastAttemptAt: Date.now(),
+    lastOutcome: params.lastOutcome ?? existingEpisode?.lastOutcome ?? "pending",
+    retryEligible: params.retryEligible ?? existingEpisode?.retryEligible ?? true,
+    operatorStopped: params.operatorStopped ?? existingEpisode?.operatorStopped ?? false,
   };
   episodesBySession.set(sessionId, episode);
   resumesBySession.set(sessionId, nextAttempts);
@@ -91,6 +102,52 @@ export function resetZaicodeQueueResume(sessionId: string): void {
     queueResumes: Object.fromEntries(resumesBySession),
     queueEpisodes: Object.fromEntries(episodesBySession),
   });
+}
+
+/**
+ * Automatic recovery requests queue recovery WITHOUT resetting retry budget.
+ */
+export async function executeZaicodeQueueAutoResume(params: {
+  sessionId: string;
+  revision?: number;
+  dispatchCommand: (
+    type: "setAutoDrain",
+    payload: { autoDrain: boolean },
+    sessionId: string,
+    revision?: number,
+  ) => Promise<{ status: string; reasonCode?: string }>;
+}): Promise<{ status: string; reasonCode?: string }> {
+  return params.dispatchCommand(
+    "setAutoDrain",
+    { autoDrain: true },
+    params.sessionId,
+    params.revision,
+  );
+}
+
+/**
+ * Manual operator resume: reset retry budget only when Host accepts/confirms the manual command.
+ */
+export async function executeZaicodeQueueManualResume(params: {
+  sessionId: string;
+  revision?: number;
+  dispatchCommand: (
+    type: "setAutoDrain",
+    payload: { autoDrain: boolean },
+    sessionId: string,
+    revision?: number,
+  ) => Promise<{ status: string; reasonCode?: string }>;
+}): Promise<{ status: string; reasonCode?: string }> {
+  const ack = await params.dispatchCommand(
+    "setAutoDrain",
+    { autoDrain: true },
+    params.sessionId,
+    params.revision,
+  );
+  if (ack.status === "accepted" || ack.status === "noop" || ack.status === "duplicate") {
+    resetZaicodeQueueResume(params.sessionId);
+  }
+  return ack;
 }
 
 export interface ZaicodeQueueResumeFacts {
@@ -192,9 +249,8 @@ export function classifyQueuePause(facts: {
   if (code.startsWith("guard.")) {
     return "permanent";
   }
-
-  if (facts.pauseReason === "error" || facts.pauseReason === "system_error" || facts.pauseOrigin === "system") {
-    return "transient";
+  if (code.startsWith("ownership.") || code === "ownership_conflict") {
+    return "permanent";
   }
 
   return "unknown";

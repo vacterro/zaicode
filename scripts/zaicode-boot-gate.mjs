@@ -1,5 +1,5 @@
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, readdirSync, renameSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readdirSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 
 /**
@@ -28,12 +28,18 @@ export function runBootGate({
 }) {
   if (!isWin) return { ok: true, action: "skipped" };
   if (env.ZAICODE_SKIP_BOOT_SMOKE === "1") {
-    log.warn("[bundle:zaicode] ZAICODE_SKIP_BOOT_SMOKE=1: the boot gate did NOT run for this build.");
+    log.warn(
+      "[bundle:zaicode] ZAICODE_SKIP_BOOT_SMOKE=1: the boot gate did NOT run for this build.",
+    );
     return { ok: true, action: "skipped" };
   }
   const builtDir = resolve(repoRoot, "packages/desktop", distName, "win-unpacked");
   const builtExe = resolve(builtDir, "ZAICODE.exe");
   const parent = dirname(builtDir);
+  // 安装器的 app 检查只看 exe 是否存在；门禁失败的构建留下标记，直到某次构建通过启动门禁。
+  // staged 目录的标记还兼作「启动器不得换上」的否决票：失败的分级构建被移走后，
+  // 目录里什么都不剩，只有这个标记能证明「上一次重建没有到达运行中的进程」。
+  const failedMarker = resolve(parent, "boot-failed.json");
   // A crashed earlier gate can leave its hiding place behind; it is never applied, only in the way.
   rmSync(`${builtDir}.verifying`, { recursive: true, force: true, maxRetries: 3 });
   if (!existsSync(builtExe)) return { ok: true, action: "no-build" };
@@ -42,6 +48,15 @@ export function runBootGate({
   // newer than the package, and the bundle has just written that blockmap. While the smoke runs the
   // build is hidden under another name, so a restart in this minute cannot pick up an untested build.
   const staged = distName !== "dist";
+  // 标记只描述「最近一次分级构建的裁决」：新一次尝试开始时先失效旧的，
+  // 否则一次通过的分级构建会永远被上一次的失败标记挡住。
+  if (staged) {
+    try {
+      rmSync(failedMarker, { force: true });
+    } catch (error) {
+      log.warn(`[bundle:zaicode] could not clear the previous boot marker (${error.message}).`);
+    }
+  }
   const verifying = `${builtDir}.verifying`;
   let hidden = false;
   if (staged) {
@@ -49,12 +64,12 @@ export function runBootGate({
       renameSync(builtDir, verifying);
       hidden = true;
     } catch (error) {
-      log.warn(`[bundle:zaicode] could not hide the staged build while it is tested (${error.message}); testing it in place.`);
+      log.warn(
+        `[bundle:zaicode] could not hide the staged build while it is tested (${error.message}); testing it in place.`,
+      );
     }
   }
   const executable = hidden ? resolve(verifying, "ZAICODE.exe") : builtExe;
-  // 安装器的 app 检查只看 exe 是否存在；启动失败的现役构建留下标记，直到某次构建通过启动门禁。
-  const failedMarker = resolve(parent, "boot-failed.json");
   // Windows still holds the folder for a moment after Electron quits (scanners, handles): retry the move.
   const move = (from, to) => {
     for (let attempt = 1; ; attempt++) {
@@ -68,7 +83,9 @@ export function runBootGate({
     }
   };
 
-  const outDir = resolve(repoRoot, "..", ".zaicode", "smoke", "boot");
+  const outDir = env.ZAICODE_BOOT_OUT_DIR
+    ? resolve(env.ZAICODE_BOOT_OUT_DIR)
+    : resolve(repoRoot, "..", ".zaicode", "smoke", "boot");
   mkdirSync(outDir, { recursive: true });
   log.log(`[bundle:zaicode] boot gate: starting ${executable} on a throw-away profile`);
   let result;
@@ -94,7 +111,14 @@ export function runBootGate({
 
   if (!staged) {
     try {
-      writeFileSync(failedMarker, JSON.stringify({ executable: builtExe, failedAt: now().toISOString(), screenshots: outDir }, null, 2));
+      writeFileSync(
+        failedMarker,
+        JSON.stringify(
+          { executable: builtExe, failedAt: now().toISOString(), screenshots: outDir },
+          null,
+          2,
+        ),
+      );
     } catch (error) {
       log.warn(`[bundle:zaicode] could not record the failed boot (${error.message}).`);
     }
@@ -109,6 +133,19 @@ export function runBootGate({
     }
   }
   const rejectedTo = `${builtDir}.rejected-${now().toISOString().replace(/\D/g, "").slice(0, 14)}`;
+  // 先写否决票再搬家：即使搬家失败（目录还在原地），启动器也不会把它换上。
+  try {
+    writeFileSync(
+      failedMarker,
+      JSON.stringify(
+        { staged: true, failedAt: now().toISOString(), screenshots: outDir, rejectedTo },
+        null,
+        2,
+      ),
+    );
+  } catch (error) {
+    log.warn(`[bundle:zaicode] could not record the failed staged boot (${error.message}).`);
+  }
   try {
     move(hidden ? verifying : builtDir, rejectedTo);
     log.error(
@@ -117,16 +154,45 @@ export function runBootGate({
     return { ok: false, action: "rejected", rejectedTo };
   } catch (error) {
     log.error(
-      `[bundle:zaicode] boot gate FAILED and the staged build could not be moved aside (${error.message}): delete ${hidden ? verifying : builtDir} before the next start.`,
+      `[bundle:zaicode] boot gate FAILED and the staged build could not be moved aside (${error.message}): the launcher refuses to apply it until a later build passes the gate.`,
     );
     return { ok: false, action: "rejected" };
   }
 }
 
 function defaultSmoke({ repoRoot, executable, outDir, env }) {
-  return spawnSync(
-    process.execPath,
-    [resolve(repoRoot, "packages/desktop/scripts/verify-zaicode-boot.cjs"), executable, "--out", outDir],
-    { cwd: repoRoot, stdio: "inherit", timeout: 420_000, env },
-  );
+  const needsStaging = executable.toLowerCase().includes("___vac");
+  let targetExe = executable;
+  let tempDir = null;
+  const originalDir = dirname(executable);
+  const receiptPath = resolve(dirname(originalDir), "boot-receipt.json");
+
+  if (needsStaging) {
+    const tempBase = resolve(env?.LOCALAPPDATA ?? process.env.TEMP ?? "C:\\temp", "zaicode-boot-smoke");
+    mkdirSync(tempBase, { recursive: true });
+    tempDir = resolve(tempBase, `smoke-${Date.now()}`);
+    cpSync(originalDir, tempDir, { recursive: true });
+    targetExe = resolve(tempDir, "ZAICODE.exe");
+  }
+
+  try {
+    return spawnSync(
+      process.execPath,
+      [
+        resolve(repoRoot, "packages/desktop/scripts/verify-zaicode-boot.cjs"),
+        targetExe,
+        "--out",
+        outDir,
+        "--receipt",
+        receiptPath,
+      ],
+      { cwd: tempDir ?? repoRoot, stdio: "inherit", timeout: 420_000, env },
+    );
+  } finally {
+    if (tempDir) {
+      try {
+        rmSync(tempDir, { recursive: true, force: true, maxRetries: 3 });
+      } catch {}
+    }
+  }
 }

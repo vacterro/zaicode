@@ -72,6 +72,8 @@ function num(value: unknown): number | null {
   return typeof value === "number" && Number.isFinite(value) ? value : null;
 }
 
+let refreshGeneration = 0;
+
 /** 9router usage stats -> the three numbers the overview shows (field names vary by version). */
 export function readZaicodeRouterUsage(raw: unknown): ZaicodeRouterUsage | null {
   if (!raw || typeof raw !== "object") return null;
@@ -115,6 +117,9 @@ export const useZaicodeRouter = create<ZaicodeRouterState>((set, get) => ({
   requestTab: (requestedTab) => set({ requestedTab }),
   setBusy: (busy) => set({ busy }),
   refresh: async () => {
+    const generation = ++refreshGeneration;
+    const current = () => generation === refreshGeneration;
+    try {
     const bridge = getZaicodeRouterBridge();
     if (!bridge?.callZaicodeRouter) {
       set({ status: "unavailable", message: "The Router page needs the desktop app." });
@@ -122,7 +127,9 @@ export const useZaicodeRouter = create<ZaicodeRouterState>((set, get) => ({
     }
     set({ status: get().status === "up" ? "up" : "loading" });
     const info = (await bridge.getZaicodeRouterInfo?.()) ?? null;
+    if (!current()) return;
     const version = await zaicodeRouterCall<{ currentVersion?: string; latestVersion?: string }>({ method: "GET", path: "/api/version" });
+    if (!current()) return;
     if (!version.ok) {
       set({ status: "down", message: version.message, info });
       return;
@@ -135,29 +142,49 @@ export const useZaicodeRouter = create<ZaicodeRouterState>((set, get) => ({
       zaicodeRouterCall<Record<string, unknown>>({ method: "GET", path: "/api/settings" }),
       zaicodeRouterCall({ method: "GET", path: "/api/usage/stats?period=today" }),
     ]);
+    // 较旧刷新不能覆盖更新的外部编辑；UI 只发布最新请求的完整投影。
+    if (!current()) return;
     const failed = [connections, nodes, combos, models].find((response) => !response.ok);
+    // A failed list fetch is a read failure, never an empty router: keep the
+    // last trustworthy rows so a blip cannot present itself as "no
+    // connections". The message names the failure instead.
+    const prev = get();
     set({
       status: "up",
-      message: failed ? failed.message : "",
+      message: failed ? failed.message : combos.message,
       info,
       version: version.data?.currentVersion ?? null,
       latestVersion: version.data?.latestVersion ?? null,
-      connections: normalizeZaicodeRouterConnections(connections.data),
-      nodes: normalizeZaicodeRouterNodes(nodes.data),
-      combos: normalizeZaicodeRouterCombos(combos.data, settings.data),
-      models: normalizeZaicodeRouterModels(models.data),
-      settings: settings.ok ? settings.data : null,
-      usage: usage.ok ? readZaicodeRouterUsage(usage.data) : null,
+      connections: connections.ok ? normalizeZaicodeRouterConnections(connections.data) : prev.connections,
+      nodes: nodes.ok ? normalizeZaicodeRouterNodes(nodes.data) : prev.nodes,
+      combos: combos.ok ? normalizeZaicodeRouterCombos(combos.data, settings.data) : prev.combos,
+      models: models.ok ? normalizeZaicodeRouterModels(models.data) : prev.models,
+      settings: settings.ok ? settings.data : prev.settings,
+      usage: usage.ok ? readZaicodeRouterUsage(usage.data) : prev.usage,
     });
+    } catch (error) {
+      if (current()) set({ status: "down", message: error instanceof Error ? error.message : String(error) });
+    }
   },
 }));
+
+/** Catalogue page of the router that actually serves us: the host's effective endpoint first, never a stale preferred one. */
+export function zaicodeRouterCatalogueUrl(effectiveUrl: string | null | undefined, infoUrl: string | null | undefined): string | null {
+  const endpoint = (effectiveUrl || infoUrl || "").trim();
+  if (!endpoint) return null;
+  return `${endpoint.replace(/\/+$/, "")}/dashboard/providers`;
+}
 
 /** Runs a change, then re-reads 9router. Returns the change's own answer. */
 export async function zaicodeRouterChange(label: string, call: ZaicodeRouterCall): Promise<ZaicodeRouterResponse> {
   const store = useZaicodeRouter.getState();
+  const models = (call.body as { models?: unknown } | null)?.models;
+  const observed = call.method === "PUT" && Array.isArray(models) && /^\/api\/combos\/[^/]+$/.test(call.path)
+    ? store.combos.find((combo) => call.path === `/api/combos/${combo.id}`)?.models ?? [] : undefined;
+  const admitted = observed && call.baselineModels === undefined ? { ...call, baselineModels: [...observed] } : call;
   store.setBusy(label);
   try {
-    const result = await zaicodeRouterCall(call);
+    const result = await zaicodeRouterCall(admitted);
     await store.refresh();
     return result;
   } finally {

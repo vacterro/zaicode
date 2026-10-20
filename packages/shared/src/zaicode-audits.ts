@@ -60,8 +60,18 @@ export interface ZaicodeAuditLiveJob {
   sessionId: string | null;
   /** Epoch ms. */
   startedAt: number | null;
-  /** Last sign of life from the running job (epoch ms). */
+  /**
+   * The execution lease's heartbeat (epoch ms). `zaicodeJobRepo.heartbeat` renews
+   * every running row of a host on one timer, so this says the HOST is alive --
+   * never that this wave did anything. Read `lastActivityAt` for the wave itself.
+   */
   heartbeatAt: number | null;
+  /**
+   * T-398: the wave's own last sign of life (epoch ms), read from the
+   * sessions-index projection for its session. Null = no such evidence; the
+   * watchdog must report that as unknown instead of borrowing the host lease.
+   */
+  lastActivityAt: number | null;
   attempt: number;
   agentName: string | null;
   /** The model actually used, else the one the agent is configured with. */
@@ -140,6 +150,8 @@ export interface ZaicodeAuditCampaign {
   sourceIdentity?: string;
   /** The model that actually runs the audit waves, as `provider / model`. */
   modelIdentity?: string | null;
+  /** Effective model identity when fallback was used or resolved. */
+  effectiveModelIdentity?: string | null;
   /**
    * The synthesized handoff. It exists ONLY after all three wave artifacts are
    * durable and hash-verified, which is why a campaign is `complete` only when
@@ -157,6 +169,14 @@ export interface ZaicodeAuditCampaign {
   fixJobId?: string | null;
   /** How far the source moved between the audited snapshot and the fix. */
   sourceDrift?: { audited: string; atFix: string; changed: boolean; recordedAt: string } | null;
+  /** Quick3 Factory Batch association. */
+  batchId?: string | null;
+  /** Quick3 Factory Batch model policy for this campaign. */
+  modelPolicy?: ZaicodeAuditBatchModelPolicy | null;
+  /** Per-batch auto-advance policy override. */
+  batchAutoWaves?: boolean | null;
+  /** Explicit post-audit behavior. REPORTS_ONLY keeps repair as an explicit operator action. */
+  postAuditPolicy?: ZaicodeAuditPostAuditPolicy;
 }
 
 /**
@@ -241,6 +261,46 @@ export function zaicodeAuditCurrentWave(campaign: ZaicodeAuditCampaign) {
  * running, the project improves itself - generate the next A3 campaign, then
  * work it. Pure decision: the caller owns the timers and the write.
  */
+export interface ZaicodeAutoPolicy {
+  smartMode: boolean;
+  autoAudits: boolean;
+  maxCycles: number;
+}
+
+export type ZaicodeAutoProjects = Record<string, Partial<ZaicodeAutoPolicy>>;
+
+/** 项目只覆盖明确设置的字段；旧全局配置与其他项目的选择不被改写。 */
+export function normalizeZaicodeAutoProjects(value: unknown): ZaicodeAutoProjects {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+  const entries: [string, Partial<ZaicodeAutoPolicy>][] = [];
+  for (const [key, raw] of Object.entries(value)) {
+    if (!key.trim() || !raw || typeof raw !== "object" || Array.isArray(raw)) continue;
+    const fields = raw as Record<string, unknown>;
+    const policy: Partial<ZaicodeAutoPolicy> = {};
+    if (typeof fields.smartMode === "boolean") policy.smartMode = fields.smartMode;
+    if (typeof fields.autoAudits === "boolean") policy.autoAudits = fields.autoAudits;
+    if (typeof fields.maxCycles === "number" && Number.isInteger(fields.maxCycles))
+      policy.maxCycles = Math.max(1, Math.min(10, fields.maxCycles));
+    if (Object.keys(policy).length) entries.push([key, policy]);
+    if (entries.length === 200) break;
+  }
+  return Object.fromEntries(entries);
+}
+
+export function resolveZaicodeAutoPolicy(
+  settings: ZaicodeAutoPolicy & { autoProjects?: ZaicodeAutoProjects },
+  workspaceKey: string,
+): ZaicodeAutoPolicy {
+  const key = workspaceKey.trim();
+  const project = key && settings.autoProjects && Object.hasOwn(settings.autoProjects, key)
+    ? settings.autoProjects[key] : undefined;
+  return {
+    smartMode: project?.smartMode ?? settings.smartMode,
+    autoAudits: project?.autoAudits ?? settings.autoAudits,
+    maxCycles: project?.maxCycles ?? settings.maxCycles,
+  };
+}
+
 export function shouldStartZaicodeAuditCampaign(input: {
   smartMode: boolean;
   hasSaipenBoard: boolean;
@@ -277,3 +337,129 @@ export function countZaicodeOpenBoardTickets(boardMarkdown: string): number {
   }
   return open;
 }
+
+/**
+ * Quick3 Batch models and contracts (Factory Orchestration).
+ */
+export interface ZaicodeAuditBatchProjectAdmission {
+  workspaceKey: string;
+  workspacePath: string;
+  projectName: string;
+  sourceIdentity?: string;
+  campaignId: string | null;
+  status: "pending" | "admitting" | "admitted" | "skipped" | "duplicate" | "rejected" | "unresolved";
+  reason?: string;
+}
+
+export interface ZaicodeAuditBatchModelPolicy {
+  defaultModel?: string | null;
+  waveModels?: Partial<Record<"core" | "second" | "performance", string | null>>;
+  allowFallback?: boolean;
+  fallbackModel?: string | null;
+}
+
+export type ZaicodeAuditBatchStatus =
+  | "preparing"
+  | "admitting"
+  | "planned"
+  | "running"
+  | "paused"
+  | "stop_requested"
+  | "stopping"
+  | "complete"
+  | "partial"
+  | "blocked"
+  | "cancelled"
+  | "stop_partial"
+  | "stop_failed";
+
+export interface ZaicodeAuditBatchStats {
+  totalProjects: number;
+  admittedCount: number;
+  queuedCount: number;
+  runningCount: number;
+  completedCount: number;
+  blockedCount: number;
+  cancelledCount: number;
+  rejectedCount: number;
+}
+
+export type ZaicodeAuditPostAuditPolicy = "REPORTS_ONLY" | "FIX_WITH_SAIPEN";
+
+export interface ZaicodeAuditBatch {
+  schemaVersion: 1;
+  batchId: string;
+  requestId?: string | null;
+  contentFingerprint?: string | null;
+  lifecycleRevision?: number;
+  operatorActionId?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  requestProvenance: "operator_ui" | "auto" | "api";
+  profileId: string;
+  profileVersion: string;
+  manifestHash: string;
+  planOnly: boolean;
+  autoWaves: boolean;
+  /** Explicit post-audit behavior. REPORTS_ONLY keeps repair as an explicit operator action. */
+  postAuditPolicy?: ZaicodeAuditPostAuditPolicy;
+  workerCapacity: number;
+  modelPolicy: ZaicodeAuditBatchModelPolicy;
+  projects: ZaicodeAuditBatchProjectAdmission[];
+  campaignIds: string[];
+  status: ZaicodeAuditBatchStatus;
+  startedAt?: string | null;
+  completedAt?: string | null;
+  stats?: ZaicodeAuditBatchStats;
+  stopDetails?: {
+    stoppedCampaignIds: string[];
+    failedCampaignIds: string[];
+    reason?: string;
+  } | null;
+}
+
+export interface ZaicodeAuditBatchAdmissionResult {
+  batch: ZaicodeAuditBatch;
+  admittedCount: number;
+  skippedCount: number;
+  duplicateCount: number;
+  rejectedCount: number;
+  pendingCount?: number;
+  unresolvedCount?: number;
+}
+
+export interface ZaicodeAuditWorker {
+  workerId: string;
+  runId: string;
+  sessionId: string;
+  projectKey: string;
+  projectName: string;
+  waveId: "core" | "second" | "performance";
+  waveOrdinal: number;
+  model: string;
+  provider: string;
+  startedAt: number;
+  lastHeartbeatAt: number;
+  status: "running" | "waiting" | "blocked" | "completed" | "failed";
+  jobId: string;
+  attempt: number;
+  batchId?: string | null;
+  campaignId?: string | null;
+  generation?: number;
+}
+
+export function zaicodeAuditBatchIsActive(batch: ZaicodeAuditBatch): boolean {
+  return (
+    batch.status === "admitting" ||
+    batch.status === "planned" ||
+    batch.status === "running" ||
+    batch.status === "paused" ||
+    batch.status === "stop_requested" ||
+    batch.status === "stopping"
+  );
+}
+
+export function createZaicodeAuditBatchId(now = Date.now()): string {
+  return `batch-${now}-${Math.random().toString(36).slice(2, 8)}`;
+}
+

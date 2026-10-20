@@ -2,15 +2,42 @@ import { create } from "zustand";
 
 /**
  * Which kind of worker a session is: MAIN (the project's iron slot, tracked in
- * zaicodeMainSession), a subSaipen helper (WIKI, TRANSL, TEST, AUDIT, HUNT,
- * CLEAN, CREW) or a plain side session. The role is recorded when the helper
- * is launched — arm on click, claim when the fresh session gets its id — so
+ * zaicodeMainSession), a supported subSaipen helper (WIKI, TRANSL, TEST, HUNT),
+ * a previously saved AUDIT/CLEAN/CREW role, or a plain side session. The role
+ * is recorded on helper submission and claimed when the fresh session gets its id, so
  * the icon survives the session being renamed to "PHASE SCOUT T-…". Sessions
  * started before this existed fall back to a strict title match (the title a
  * session is born with is its first prompt, e.g. "saiwiki").
  */
-export const ZAICODE_SESSION_ROLES = ["WIKI", "TRANSL", "TEST", "AUDIT", "HUNT", "CLEAN", "CREW"] as const;
+export const ZAICODE_SESSION_ROLES = [
+  "WIKI",
+  "TRANSL",
+  "TEST",
+  "AUDIT",
+  "HUNT",
+  "CLEAN",
+  "CREW",
+] as const;
 export type ZaicodeSessionRole = (typeof ZAICODE_SESSION_ROLES)[number];
+export type ZaicodePersistentRole = Extract<
+  ZaicodeSessionRole,
+  "WIKI" | "TRANSL" | "TEST" | "HUNT"
+>;
+/** The persistent subSaipen roles: helper sessions, never MAIN by recency. */
+export const ZAICODE_HELPER_ROLES: readonly ZaicodePersistentRole[] = [
+  "WIKI",
+  "TRANSL",
+  "TEST",
+  "HUNT",
+];
+/** True only for the persistent subSaipen roles; core modes (AUDIT/CLEAN/CREW) run in MAIN. */
+export function isZaicodeHelperRole(
+  role: ZaicodeSessionRole | null | undefined,
+): role is ZaicodePersistentRole {
+  return (
+    role === "WIKI" || role === "TRANSL" || role === "TEST" || role === "HUNT"
+  );
+}
 
 export const ZAICODE_ROLE_META: Record<ZaicodeSessionRole, { title: string; color: string }> = {
   WIKI: { title: "Wikier (saiwiki)", color: "#6aa5e8" },
@@ -44,6 +71,7 @@ interface ZaicodeSessionRoleState {
   bySession: Record<string, ZaicodeSessionRole>;
   armed: Record<string, ZaicodeSessionRole>;
   arm: (workspaceKey: string, role: ZaicodeSessionRole) => void;
+  disarm: (workspaceKey: string, expectedRole: ZaicodeSessionRole) => void;
   claimIfArmed: (workspaceKey: string, sessionId: string) => void;
   setRole: (sessionId: string, role: ZaicodeSessionRole | null) => void;
 }
@@ -52,6 +80,12 @@ export const useZaicodeSessionRoles = create<ZaicodeSessionRoleState>((set, get)
   bySession: typeof localStorage === "undefined" ? {} : load(),
   armed: {},
   arm: (workspaceKey, role) => set({ armed: { ...get().armed, [workspaceKey]: role } }),
+  disarm: (workspaceKey, expectedRole) => {
+    if (get().armed[workspaceKey] !== expectedRole) return;
+    const armed = { ...get().armed };
+    delete armed[workspaceKey];
+    set({ armed });
+  },
   claimIfArmed: (workspaceKey, sessionId) => {
     const role = get().armed[workspaceKey];
     if (!role) return;
@@ -79,10 +113,7 @@ const TITLE_PATTERNS: readonly [RegExp, ZaicodeSessionRole][] = [
   [/^\s*\/?(?:saipen\s+)?saiwiki\b/i, "WIKI"],
   [/^\s*\/?(?:saipen\s+)?saitranslate\b/i, "TRANSL"],
   [/^\s*\/?(?:saipen\s+)?saitest\b/i, "TEST"],
-  [/^\s*\/?(?:saipen\s+)?(?:saihunt|hunt)\b/i, "HUNT"],
-  [/^\s*\/?(?:aa|saipen\s+markhunt|markhunt)\b/i, "AUDIT"],
-  [/^\s*\/?saipen\s+clean\b/i, "CLEAN"],
-  [/^\s*\/?(?:saipen\s+crew|sc)\b/i, "CREW"],
+  [/^\s*\/?(?:saipen\s+)?saihunt\b/i, "HUNT"],
 ];
 
 /** Role from the title a session was born with (its first prompt), strictly at the start. */
@@ -92,7 +123,27 @@ export function zaicodeRoleFromTitle(title: string): ZaicodeSessionRole | null {
 }
 
 export function zaicodeRoleForCommand(command: string): ZaicodeSessionRole | null {
+  // Core 命令与持久子角色不是一回事；旧的显式角色记录仍由 bySession 保留。
   return zaicodeRoleFromTitle(command);
+}
+
+/** A rejected helper launch must not lend its provisional role to the next session. */
+export function submitWithZaicodeRole(
+  workspaceKey: string,
+  role: ZaicodeSessionRole | null,
+  submit: () => boolean | void,
+): boolean | void {
+  if (!role) return submit();
+  useZaicodeSessionRoles.getState().arm(workspaceKey, role);
+  let accepted = false;
+  try {
+    const result = submit();
+    accepted = result !== false;
+    return result;
+  } finally {
+    // 拒绝或异常不能留下角色预约，否则下一个 Core 会话会被误标成子角色。
+    if (!accepted) useZaicodeSessionRoles.getState().disarm(workspaceKey, role);
+  }
 }
 
 export function useZaicodeSessionRole(sessionId: string, title: string): ZaicodeSessionRole | null {

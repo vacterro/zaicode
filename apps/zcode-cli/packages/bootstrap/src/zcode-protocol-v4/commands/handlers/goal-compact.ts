@@ -6,15 +6,18 @@
 // - compactSession（server-operations.ts:1805）→ compact
 // - goalSession action:"set"（:1919，含重复 set 收敛 replace）→ sendGoalCommand
 // - goalSession action:"resume"（:1980）→ resumeGoal
-// - continueGoalAfterChange / runGoalContinuationInBackground（:2204-2269）→ 组内私有共用函数
+// - continueGoalAfterChange / runGoalContinuationInBackground（:2204-2269）→ ../continue-command 共用
 import type {
   CommandEnvelope,
   CommandPayloadMap,
   CommandResult,
 } from "@zcode/shared/zcode-protocol-v4";
-import type { SteerTurnOptions, SubmitPromptOptions } from "../../../app/types.js";
+import type { SteerTurnOptions } from "../../../app/types.js";
 import { runWithSessionResidencyFinalization } from "../../../zcode-protocol/session-residency.js";
 import { inputIntentMetadata } from "../input-intent.js";
+import { continueGoalAfterChange } from "../continue-command.js";
+import { goalCommandQueueText } from "../goal-command-text.js";
+export { parseGoalObjectiveFromCommandText } from "../goal-command-text.js";
 import { requireRecord } from "../record-access.js";
 import type { V4CommandCoreHost, V4SessionRecordView } from "../types.js";
 import {
@@ -22,6 +25,7 @@ import {
   enqueueDeferredInputForBusyWork,
   resolveSubmittedExecutionState,
   V4InputAdmissionRejectedError,
+  requireAutomaticRetryIdle,
 } from "./session-flow.js";
 
 /** goal/compact 组的裁决拒绝（gateway 捕获后进 ACK failed，message 透传给客户端）。 */
@@ -245,6 +249,7 @@ async function sendGoalCommand(
   const payload = envelope.payload as CommandPayloadMap["sendGoalCommand"];
   const record = requireRecord(host, envelope.sessionId);
   const objective = payload.text.trim();
+  requireAutomaticRetryIdle(host, record, payload.idleOnly);
   if (objective.length === 0) {
     throw new V4GoalCompactRejectedError("emptyObjective", "Usage: /goal <objective>");
   }
@@ -256,7 +261,12 @@ async function sendGoalCommand(
     );
   }
   const submissionIntent = (options: Parameters<typeof inputIntentMetadata>[1]) =>
-    inputIntentMetadata(envelope, { ...options, ...submittedExecutionState });
+    inputIntentMetadata(envelope, {
+      ...options,
+      ...submittedExecutionState,
+      // T-283: a producer may DECLARE its provenance; admission classifies it.
+      ...(payload.inputProvenance ? { inputProvenance: payload.inputProvenance } : {}),
+    });
   const routingMode = host.getInputRoutingMode?.(record.app.sessionId) ?? null;
   if (record.activeAbortController || routingMode === "enqueue" || routingMode === "guide") {
     // /goal 是目标控制命令，active turn 中不能直接写 target；
@@ -298,6 +308,7 @@ async function sendGoalCommand(
     expectedHeldQueueItemIds: payload.expectedHeldQueueItemIds,
     inputId: envelope.commandId,
     objective,
+    idleOnly: payload.idleOnly,
     intent: submissionIntent({ requestedDelivery: "startNow", text: objective }),
   });
   return undefined;
@@ -312,6 +323,7 @@ export async function applyGoalCommand(
     expectedHeldQueueItemIds?: readonly string[];
     inputId: string;
     objective: string;
+    idleOnly?: boolean;
     foregroundPromotionLeaseId?: string;
     intent?: SteerTurnOptions["intent"];
   },
@@ -336,6 +348,7 @@ export async function applyGoalCommand(
       record.traceContext,
     );
   }
+  requireAutomaticRetryIdle(host, record, params.idleOnly);
   await record.app.setTarget({
     ...(params.displayText ? { displayText: params.displayText } : {}),
     objective: params.objective,
@@ -348,19 +361,6 @@ export async function applyGoalCommand(
     intent: params.intent,
     reason: replacesExistingGoal ? "goal_replaced" : "goal_set",
   });
-}
-
-export function parseGoalObjectiveFromCommandText(text: string): string {
-  const trimmed = text.trim();
-  const match = /^\/(?:goal|target)(?:\s+([\s\S]*))?$/i.exec(trimmed);
-  if (!match) return trimmed;
-  const args = match[1]?.trim() ?? "";
-  return args.replace(/^replace\s+/i, "").trim();
-}
-
-function goalCommandQueueText(displayText: string | undefined, objective: string): string {
-  const trimmed = displayText?.trim();
-  return trimmed ? trimmed : `/goal ${objective}`;
 }
 
 /**
@@ -425,76 +425,4 @@ async function resumeGoal(
   });
   return undefined;
 }
-
-/**
- * goal 变更后的续跑（旧 continueGoalAfterChange 搬运，set/resume 两处共用）：
- * plan 模式或已有 active turn 时不续跑（只落库目标，用户后续显式推进）；
- * 否则模型就绪检查 → 上锁 → 后台 continueActiveTarget。
- */
-async function continueGoalAfterChange(
-  host: V4CommandCoreHost,
-  record: V4SessionRecordView,
-  params: {
-    foregroundPromotionLeaseId?: string;
-    inputId: string;
-    intent?: SteerTurnOptions["intent"];
-    reason: string;
-  },
-): Promise<void> {
-  const isPlanMode = record.app.runtime?.getPlanEnabled?.() ?? record.app.getMode?.() === "plan";
-  // continueActiveTarget 是 App 的必选能力；能否继续只取决于当前模式和是否已有活跃 turn。
-  const canContinue = !isPlanMode && !record.activeAbortController;
-  if (canContinue) {
-    await host.ensureModelReady?.(record);
-    const abortController = new AbortController();
-    record.activeAbortController = abortController;
-    void runWithSessionResidencyFinalization(record, () =>
-      runGoalContinuationInBackground(host, record, {
-        abortController,
-        foregroundPromotionLeaseId: params.foregroundPromotionLeaseId,
-        inputId: params.inputId,
-        intent: params.intent,
-      }),
-    ).catch(() => {
-      // 后台 goal continuation 的失败经事件流降级上报；兜底防 unhandled rejection。
-    });
-  }
-  // 旧协议路径在续跑起跑后立即 afterStateMutation(goal_set/goal_replaced/goal_resumed)
-  // → 钩子等价替代；v4 投影经 TargetChanged 事件自然收口。
-  await host.afterLegacyStateMutation?.(record, params.reason);
-}
-
-async function runGoalContinuationInBackground(
-  host: V4CommandCoreHost,
-  record: V4SessionRecordView,
-  params: {
-    abortController: AbortController;
-    foregroundPromotionLeaseId?: string;
-    inputId: string;
-    intent?: SteerTurnOptions["intent"];
-  },
-): Promise<void> {
-  let mutationReason = "goal_continuation_completed";
-  try {
-    await record.app.continueActiveTarget?.({
-      abortSignal: params.abortController.signal,
-      inputId: params.inputId,
-      intent: params.intent,
-      queryId: params.inputId as SubmitPromptOptions["queryId"],
-    });
-  } catch {
-    mutationReason = "goal_continuation_failed";
-  } finally {
-    if (params.foregroundPromotionLeaseId) {
-      record.app.runtime.releaseForegroundPromotionLease(params.foregroundPromotionLeaseId);
-    }
-    if (record.activeAbortController === params.abortController) {
-      // 续跑结束后应立刻释放活跃锁；广播只是后续动作，
-      // 如果继续占锁，连续 /goal 会被误判为已有活跃 turn。
-      record.activeAbortController = undefined;
-    }
-  }
-  await host.afterLegacyStateMutation?.(record, mutationReason);
-}
-
 export const goalCompactHandlers = { compact, pauseGoal, resumeGoal, sendGoalCommand };

@@ -7,16 +7,14 @@ import {
   zaicodeQueueResumeAttempts,
   resetZaicodeQueueResume,
   recordZaicodeQueueResumeAttempt,
+  executeZaicodeQueueAutoResume,
+  executeZaicodeQueueManualResume,
   type ZaicodeQueueResumeFacts,
 } from "../src/zaicode/zaicodeQueueAutoResume.js";
-import {
-  writeZaicodeRetrySafety,
-  readZaicodeRetrySafety,
-} from "../src/zaicode/zaicodeRetrySafety.js";
+import { pickZaicodeBackgroundQueueRetrySessions } from "../src/zaicode/zaicodeQueueRetryWatch.js";
 import {
   applyConversationDeltas,
   type ConversationSnapshot,
-  type ConversationDelta,
 } from "@zcode/shared/zcode-protocol-v4";
 
 function createInitialSnapshot(sessionId: string): ConversationSnapshot {
@@ -265,4 +263,235 @@ test("T-360-05: System error cannot silently override operator Stop or SAIPEN re
   ]);
   assert.equal(isQueuePauseRecoverable(snapshot.queue), false);
   assert.equal(classifyQueuePause(snapshot.queue), "operator_required");
+});
+
+test("T-361-01: End-to-end integration test reproducing callback retry budget reset failure", async () => {
+  const sessionId = "sess-integration-callback-1";
+  resetZaicodeQueueResume(sessionId);
+
+  // Simulated host gateway state
+  let hostAutoDrain = false;
+  let promotionFailures = 0;
+  const dispatchCommand = async (
+    type: "setAutoDrain",
+    payload: { autoDrain: boolean },
+  ): Promise<{ status: string }> => {
+    hostAutoDrain = payload.autoDrain;
+    return { status: "accepted" };
+  };
+
+  // 1. Buggy legacy callback reproduction:
+  // Proves that resetting attempt before dispatching causes budget leaks
+  const buggyResumeQueue = async (sessId: string) => {
+    resetZaicodeQueueResume(sessId); // THE ORIGINAL DEFECT
+    await dispatchCommand("setAutoDrain", { autoDrain: true });
+  };
+
+  // Attempt 1 with buggy callback
+  recordZaicodeQueueResumeAttempt(sessionId, {
+    projectKey: "proj-buggy",
+    queueHeadId: "item-1",
+    attempts: 1,
+    pauseReasonCode: "promotion_failed",
+  });
+  assert.equal(zaicodeQueueResumeAttempts(sessionId), 1);
+  await buggyResumeQueue(sessionId);
+  assert.equal(
+    zaicodeQueueResumeAttempts(sessionId),
+    0,
+    "DEFECT CONFIRMED: legacy buggy callback wiped attempt count back to 0",
+  );
+
+  // 2. Corrected production executeZaicodeQueueAutoResume
+  resetZaicodeQueueResume(sessionId);
+  assert.equal(zaicodeQueueResumeAttempts(sessionId), 0);
+  const maxAttempts = 2;
+
+  // Attempt 1:
+  // - Record attempt 1
+  // - Invoke executeZaicodeQueueAutoResume
+  // - Host accepts setAutoDrain(true)
+  // - Attempt count remains preserved
+  recordZaicodeQueueResumeAttempt(sessionId, {
+    projectKey: "proj-corrected",
+    queueHeadId: "item-1",
+    attempts: 1,
+    pauseReasonCode: "promotion_failed",
+  });
+  const ack1 = await executeZaicodeQueueAutoResume({
+    sessionId,
+    revision: 1,
+    dispatchCommand,
+  });
+  assert.equal(ack1.status, "accepted");
+  assert.equal(hostAutoDrain, true);
+  assert.equal(
+    zaicodeQueueResumeAttempts(sessionId),
+    1,
+    "Attempt count must remain 1 after automatic resume dispatch",
+  );
+
+  // Simulated failure in host: autoDrain becomes false again
+  hostAutoDrain = false;
+  promotionFailures++;
+
+  // Eligibility check for attempt 2: 1 < 2 -> allowed
+  const factsAttempt2 = baseFacts({ attempts: 1, maxAttempts, queueItemId: "item-1" });
+  assert.equal(zaicodeQueueMayAutoResume(factsAttempt2), true, "second attempt is allowed");
+
+  // Attempt 2:
+  recordZaicodeQueueResumeAttempt(sessionId, {
+    projectKey: "proj-corrected",
+    queueHeadId: "item-1",
+    attempts: 2,
+    pauseReasonCode: "promotion_failed",
+  });
+  const ack2 = await executeZaicodeQueueAutoResume({
+    sessionId,
+    revision: 2,
+    dispatchCommand,
+  });
+  assert.equal(ack2.status, "accepted");
+  assert.equal(
+    zaicodeQueueResumeAttempts(sessionId),
+    2,
+    "Attempt count must remain 2 after second automatic resume dispatch",
+  );
+
+  // Simulated second promotion failure in host
+  hostAutoDrain = false;
+  promotionFailures++;
+
+  // Attempt 3:
+  // Must be refused automatically: 2 >= 2
+  const factsAttempt3 = baseFacts({
+    attempts: zaicodeQueueResumeAttempts(sessionId),
+    maxAttempts,
+    queueItemId: "item-1",
+  });
+  assert.equal(
+    zaicodeQueueMayAutoResume(factsAttempt3),
+    false,
+    "Attempt 3 must be strictly refused because the retry budget is exhausted",
+  );
+  assert.equal(promotionFailures, 2);
+});
+
+test("T-361-02: Manual operator resume resets budget ONLY when Host accepts", async () => {
+  const sessionId = "sess-manual-resume-policy";
+  resetZaicodeQueueResume(sessionId);
+
+  // Exhaust the retry budget
+  recordZaicodeQueueResumeAttempt(sessionId, {
+    projectKey: "proj-1",
+    queueHeadId: "item-x",
+    attempts: 3,
+    pauseReasonCode: "promotion_failed",
+  });
+  assert.equal(zaicodeQueueResumeAttempts(sessionId), 3);
+
+  // 1. Rejected manual resume: e.g. host refused or CAS stale
+  const ackRejected = await executeZaicodeQueueManualResume({
+    sessionId,
+    revision: 1,
+    dispatchCommand: async () => ({ status: "rejected", reasonCode: "cas_stale" }),
+  });
+  assert.equal(ackRejected.status, "rejected");
+  assert.equal(
+    zaicodeQueueResumeAttempts(sessionId),
+    3,
+    "Rejected manual resume MUST NOT erase the safety accounting budget",
+  );
+
+  // 2. Accepted manual resume: genuine operator action accepted by Host
+  const ackAccepted = await executeZaicodeQueueManualResume({
+    sessionId,
+    revision: 2,
+    dispatchCommand: async () => ({ status: "accepted" }),
+  });
+  assert.equal(ackAccepted.status, "accepted");
+  assert.equal(
+    zaicodeQueueResumeAttempts(sessionId),
+    0,
+    "Accepted manual resume resets the budget under operator authority",
+  );
+});
+
+test("T-361-03: Background queue recovery ownership and lifecycle independence", () => {
+  const episodes: Record<string, any> = {
+    "sess-open-in-pane": {
+      sessionId: "sess-open-in-pane",
+      projectKey: "proj-1",
+      queueHeadId: "item-1",
+      attempts: 0,
+      lastReasonCode: "promotion_failed",
+    },
+    "sess-unmounted-background": {
+      sessionId: "sess-unmounted-background",
+      projectKey: "proj-1",
+      queueHeadId: "item-2",
+      attempts: 1,
+      lastReasonCode: "promotion_failed",
+    },
+    "sess-operator-stopped": {
+      sessionId: "sess-operator-stopped",
+      projectKey: "proj-1",
+      queueHeadId: "item-3",
+      attempts: 0,
+      lastReasonCode: "promotion_failed",
+    },
+    "sess-exhausted": {
+      sessionId: "sess-exhausted",
+      projectKey: "proj-1",
+      queueHeadId: "item-4",
+      attempts: 3,
+      lastReasonCode: "promotion_failed",
+    },
+    "sess-quota-wall": {
+      sessionId: "sess-quota-wall",
+      projectKey: "proj-1",
+      queueHeadId: "item-5",
+      attempts: 0,
+      lastReasonCode: "promotion_failed",
+    },
+  };
+
+  const briefs: any[] = [
+    { sessionId: "sess-open-in-pane", projectKey: "proj-1", workspacePath: "/p1" },
+    { sessionId: "sess-unmounted-background", projectKey: "proj-1", workspacePath: "/p1" },
+    { sessionId: "sess-operator-stopped", projectKey: "proj-1", workspacePath: "/p1" },
+    { sessionId: "sess-exhausted", projectKey: "proj-1", workspacePath: "/p1" },
+    { sessionId: "sess-quota-wall", projectKey: "proj-1", workspacePath: "/p1" },
+  ];
+
+  const candidates = pickZaicodeBackgroundQueueRetrySessions(episodes, briefs, {
+    // sess-open-in-pane is open in a visible pane -> background watch stands down
+    isLocal: (id) => id === "sess-open-in-pane",
+    isStopped: (id) => id === "sess-operator-stopped",
+    isProjectDisabled: () => false,
+    maxAttempts: 3,
+    mayAutoSend: () => true,
+    isQuotaWall: (id) => id === "sess-quota-wall",
+  });
+
+  // Only the unmounted background session should be picked!
+  assert.equal(candidates.length, 1);
+  assert.equal(candidates[0]?.sessionId, "sess-unmounted-background");
+  assert.equal(candidates[0]?.attempts, 1);
+});
+
+test("T-361-04: Refusal classification taxonomy audit for unknown exceptions and ownership", () => {
+  // Unknown exceptions must NOT default to transient (prevent retry storms)
+  assert.equal(classifyQueuePause({ pauseReason: "error", pauseOrigin: "system", pauseReasonCode: "UnknownError" }), "unknown");
+  assert.equal(classifyQueuePause({ pauseReason: "error", pauseOrigin: "system", pauseReasonCode: "unrecognized_third_party_code" }), "unknown");
+  assert.equal(isQueuePauseRecoverable({ pauseReason: "error", pauseOrigin: "system", pauseReasonCode: "UnknownError" }), false);
+
+  // Ownership errors are permanent
+  assert.equal(classifyQueuePause({ pauseReason: "error", pauseOrigin: "system", pauseReasonCode: "ownership_conflict" }), "permanent");
+  assert.equal(classifyQueuePause({ pauseReason: "error", pauseOrigin: "system", pauseReasonCode: "ownership.lease_busy" }), "permanent");
+  assert.equal(isQueuePauseRecoverable({ pauseReason: "error", pauseOrigin: "system", pauseReasonCode: "ownership_conflict" }), false);
+
+  // Validation errors are permanent
+  assert.equal(classifyQueuePause({ pauseReason: "error", pauseOrigin: "system", pauseReasonCode: "validation.failed" }), "permanent");
+  assert.equal(isQueuePauseRecoverable({ pauseReason: "error", pauseOrigin: "system", pauseReasonCode: "validation.failed" }), false);
 });

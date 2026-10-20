@@ -93,6 +93,21 @@ function projectErrorAttribution(
   const retryable = selectContextBoolean(contexts, "retryable") ?? selectFrameRetryable(frames);
   const source = selectSource(contexts);
 
+  const requestId = selectContextText(contexts, ["requestId"]);
+  const routerRequestId = selectContextText(contexts, ["routerRequestId", "providerRequestId"]);
+  const comboId = selectContextText(contexts, ["comboId"]);
+  const comboName = selectContextText(contexts, ["comboName"]);
+  const upstreamModelId = selectContextText(contexts, ["upstreamModelId"]);
+  const upstreamProviderId = selectContextText(contexts, ["upstreamProviderId"]);
+  const upstreamConnectionId = selectContextText(contexts, ["upstreamConnectionId"]);
+  const attempt = selectContextNumber(contexts, ["attempt"]);
+  const retryAfterMs = selectContextNumber(contexts, ["retryAfterMs"]);
+  const providerErrorMessage = selectContextText(contexts, ["providerErrorMessage", "providerMessage"]);
+  const timeoutStage = selectContextText(contexts, ["timeoutStage"]);
+  const streamedContent = selectContextBoolean(contexts, "streamedContent");
+  const candidateTried = selectContextBoolean(contexts, "candidateTried");
+  const fallbackReason = selectContextText(contexts, ["fallbackReason"]);
+
   const attribution: ErrorAttribution = {
     ...(source ? { source } : {}),
     ...(reason ? { reason } : {}),
@@ -105,6 +120,20 @@ function projectErrorAttribution(
     ...(statusCode !== undefined ? { statusCode } : {}),
     ...(providerErrorCode ? { providerErrorCode } : {}),
     ...(retryable !== undefined ? { retryable } : {}),
+    ...(requestId ? { requestId } : {}),
+    ...(routerRequestId ? { routerRequestId } : {}),
+    ...(comboId ? { comboId } : {}),
+    ...(comboName ? { comboName } : {}),
+    ...(upstreamModelId ? { upstreamModelId } : {}),
+    ...(upstreamProviderId ? { upstreamProviderId } : {}),
+    ...(upstreamConnectionId ? { upstreamConnectionId } : {}),
+    ...(attempt !== undefined ? { attempt } : {}),
+    ...(retryAfterMs !== undefined ? { retryAfterMs } : {}),
+    ...(providerErrorMessage ? { providerErrorMessage } : {}),
+    ...(timeoutStage ? { timeoutStage } : {}),
+    ...(streamedContent !== undefined ? { streamedContent } : {}),
+    ...(candidateTried !== undefined ? { candidateTried } : {}),
+    ...(fallbackReason ? { fallbackReason } : {}),
   };
 
   return Object.keys(attribution).length > 0 ? attribution : undefined;
@@ -173,6 +202,21 @@ function selectContextBoolean(
 ): boolean | undefined {
   for (const context of contexts) {
     if (typeof context[key] === "boolean") return context[key];
+  }
+  return undefined;
+}
+
+function selectContextNumber(
+  contexts: readonly Record<string, unknown>[],
+  keys: readonly string[],
+): number | undefined {
+  for (const context of contexts) {
+    for (const key of keys) {
+      const value = context[key];
+      if (typeof value === "number" && Number.isFinite(value)) {
+        return value;
+      }
+    }
   }
   return undefined;
 }

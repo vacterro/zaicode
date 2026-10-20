@@ -20,7 +20,7 @@ import {
   resolveDesktopArtifactSuffix,
   resolveDesktopProductIdentity,
 } from "./scripts/desktop-product-identity.mjs";
-import { verifyStagedKoffi } from "./scripts/koffi-package-assets.mjs";
+
 const ELECTRON_BUILDER_ARCH = {
   1: "x64",
   3: "arm64",
@@ -428,9 +428,16 @@ async function stripPackagedSourcemapReferences(context) {
   // electron-builder 的 files 规则能排除 .map 文件，但无法删除 JS/CSS 末尾
   // 指向 sourcemap 的注释；afterPack 注入运行时依赖后也可能重新带入第三方 sourceMappingURL。
   // 这里统一清理 app.asar 与 unpacked/extraResources，保证最终发布包不暴露 sourcemap 路径入口。
+  // 同时将私有 sourcemap 保存在 dist/private-sourcemaps 作为版本匹配的追查物料。
+  const privateSourceMapsDir = resolve(
+    context.outDir,
+    "private-sourcemaps",
+    `${targetPlatform.key}-${buildMetadata.gitCommit ?? "release"}`,
+  );
   await cleanupPackagedSourcemaps({
     appAsarPath: resolveAppAsarPath(context),
     resourcesDir: resolvePackagedResourcesDir(context),
+    archiveDir: privateSourceMapsDir,
     runAsarCommand,
     runTimedSync,
     runTimedAsync,
@@ -810,14 +817,12 @@ export default {
     installerIcon: "build/icon_installer.ico",
     uninstallerIcon: "build/icon_installer.ico",
     installerHeaderIcon: "build/icon_installer.ico",
-    // T-275 (SRC-178): installer background image — the user's beautiful
-    // Gemini-generated picture, Win95-style. Shown behind the NSIS wizard
-    // controls while a background install task runs (non-blocking UX).
-    installBackground: {
-      target: "build/zaicode-splash/installer-bg.jpg",
-      width: 512,
-      height: 384,
-    },
+    // T-275 (SRC-178) 的安装背景图曾以 `nsis.installBackground` 声明。electron-builder
+    // 没有这个选项（26.8.1 的 nsis schema 直接拒绝未知键），因此从 T-275 落地起
+    // REBUILD 在 electron-builder 校验阶段就失败：整个 Windows 安装包无法产出，
+    // 而应用继续跑旧包。图片素材保留在 build/zaicode-splash/installer-bg.jpg。
+    // 上限：NSIS 只吃 BMP，且只支持 installerHeader/installerSidebar 两处位图；
+    // 要恢复整窗背景，需要 build/installer.nsh 里自绘对话框（BMP 侧栏是最小可行近似）。
   },
   detectUpdateChannel: false,
   publish: {

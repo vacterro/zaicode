@@ -1,6 +1,7 @@
 /* eslint-disable max-lines -- 模型供应商卡片仍在迁移期集中维护多个紧耦合区块，后续拆分时再移除。 */
 import {
   useCallback,
+  useLayoutEffect,
   useRef,
   useState,
   type KeyboardEvent as ReactKeyboardEvent,
@@ -36,6 +37,8 @@ import { useZCodeIntl } from "@/i18n/IntlProvider.js";
 import { useServices } from "@/hooks/useServices.js";
 import { TECHNICAL_INPUT_ATTRIBUTES } from "@/lib/technicalInputAttributes.js";
 import { ApiKeyInput } from "./ApiKeyInput.js";
+import { zaicodeBulkEnabledChanges } from "./zaicodeBulkEnabledChanges.js";
+import { useOptimisticModelEnabled } from "./useOptimisticModelEnabled.js";
 import { ModelRowInput } from "./ProviderFormControls.js";
 import { PresetProviderApiKeyBanner } from "./PresetProviderApiKeyBanner.js";
 import { type ProviderModelDraftValues } from "@/settings/model-provider-section/ProviderModelMetadata.js";
@@ -355,6 +358,7 @@ export function ProviderModelsSection({
   onTestModel,
   onModelCommit,
   onModelEnabledChange,
+  onBulkModelEnabledChange,
   onDeleteModel,
   onAddModel,
   onReorderModelIds,
@@ -373,6 +377,7 @@ export function ProviderModelsSection({
   ) => void | Promise<void>;
   onDeleteModel: (modelId: string) => void;
   onModelEnabledChange?: (modelId: string, enabled: boolean) => void | Promise<void>;
+  onBulkModelEnabledChange?: (changes: { modelId: string; enabled: boolean }[]) => void | Promise<void>;
   onAddModel: (model: ProviderSettingsFormModel) => void | Promise<void>;
   onReorderModelIds?: (modelIds: string[]) => void;
   settingsRevision?: number;
@@ -381,20 +386,46 @@ export function ProviderModelsSection({
   const { providerSettingsService } = useServices();
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [bulkSaving, setBulkSaving] = useState(false);
-  const bulkSavingRef = useRef(false);
+  const bulkSavingRef = useRef(0);
   const [bulkError, setBulkError] = useState<string | null>(null);
+  const enabledScope = useRef({ providerId, providerSettingsService });
+  useLayoutEffect(() => {
+    if (enabledScope.current.providerId === providerId && enabledScope.current.providerSettingsService === providerSettingsService) return;
+    enabledScope.current = { providerId, providerSettingsService };
+    bulkSavingRef.current = 0;
+    setBulkSaving(false);
+    setBulkError(null);
+  }, [providerId, providerSettingsService]);
+  const persistEnabled = useCallback(async (changes: { modelId: string; enabled: boolean }[]) => {
+    if (onBulkModelEnabledChange) await onBulkModelEnabledChange(changes);
+    else if (onModelEnabledChange) {
+      for (const change of changes) await onModelEnabledChange(change.modelId, change.enabled);
+    }
+  }, [onBulkModelEnabledChange, onModelEnabledChange]);
+  const enabledIntent = useOptimisticModelEnabled({ scopeKey: providerId, scopeOwner: providerSettingsService, models, persist: persistEnabled });
   const setEnabledModels = async (enabled: boolean, onlyModelId?: string) => {
-    if (!onModelEnabledChange || bulkSavingRef.current) return;
-    bulkSavingRef.current = true;
+    if (!onModelEnabledChange && !onBulkModelEnabledChange) return;
+    const scope = enabledScope.current;
+    bulkSavingRef.current += 1;
     setBulkSaving(true);
     setBulkError(null);
     try {
-      for (const model of models) {
-        const next = onlyModelId ? model.modelId === onlyModelId : enabled;
-        if ((model.config.enabled !== false) !== next) await onModelEnabledChange(model.modelId, next);
+      // One coherent change set from the snapshot the operator saw; a single
+      // bulk call means one saving state and one notification. Without a bulk
+      // owner this falls back to the legacy sequential path. A mid-loop
+      // failure keeps already-persisted models and reports loudly (bulkError
+      // plus the save notification); the parent view re-reads actual state,
+      // so recovery is re-try or reload, never silent partial success.
+      const changes = zaicodeBulkEnabledChanges(enabledIntent.renderedModels, enabled, onlyModelId);
+      if (changes.length > 0) await enabledIntent.commit(changes);
+    } catch (error) {
+      if (enabledScope.current === scope) setBulkError(error instanceof Error ? error.message : String(error));
+    } finally {
+      if (enabledScope.current === scope) {
+        bulkSavingRef.current -= 1;
+        setBulkSaving(bulkSavingRef.current > 0);
       }
-    } catch (error) { setBulkError(error instanceof Error ? error.message : String(error)); }
-    finally { bulkSavingRef.current = false; setBulkSaving(false); }
+    }
   };
   const [addSaving, setAddSaving] = useState(false);
   const addSavingRef = useRef(false);
@@ -489,10 +520,10 @@ export function ProviderModelsSection({
         <span className="text-ui-base text-foreground-subtle">
           {intl.formatMessage({ id: "settings.modelProvider.models" })}
         </span>
-        {onModelEnabledChange && models.length ? <div className="flex flex-wrap items-center gap-1" aria-busy={bulkSaving}>
-          <Button type="button" size="sm" variant="secondary" disabled={bulkSaving} onClick={() => void setEnabledModels(true)}>{intl.formatMessage({ id: "settings.modelProvider.enableAllModels" })}</Button>
-          <Button type="button" size="sm" variant="secondary" disabled={bulkSaving} onClick={() => void setEnabledModels(false)}>{intl.formatMessage({ id: "settings.modelProvider.disableAllModels" })}</Button>
-          <select aria-label={intl.formatMessage({ id: "settings.modelProvider.enableOnlyModel" })} value="" disabled={bulkSaving} className="max-w-48 border border-border bg-background text-ui-base"
+        {(onModelEnabledChange || onBulkModelEnabledChange) && models.length ? <div className="flex flex-wrap items-center gap-1" aria-busy={bulkSaving}>
+          <Button type="button" size="sm" variant="secondary" onClick={() => void setEnabledModels(true)}>{intl.formatMessage({ id: "settings.modelProvider.enableAllModels" })}</Button>
+          <Button type="button" size="sm" variant="secondary" onClick={() => void setEnabledModels(false)}>{intl.formatMessage({ id: "settings.modelProvider.disableAllModels" })}</Button>
+          <select aria-label={intl.formatMessage({ id: "settings.modelProvider.enableOnlyModel" })} value="" className="max-w-48 border border-border bg-background text-ui-base"
             onChange={(event) => { if (event.target.value) void setEnabledModels(true, event.target.value); }}>
             <option value="">{intl.formatMessage({ id: "settings.modelProvider.enableOnlyModel" })}</option>
             {models.map((model) => <option key={model.modelId} value={model.modelId}>{model.config.displayName || model.modelId}</option>)}
@@ -510,6 +541,11 @@ export function ProviderModelsSection({
           {intl.formatMessage({ id: "settings.modelProvider.addModel" })}
         </Button>
       </div>
+      <div className="mb-2 rounded border border-border/70 bg-surface/30 p-2 text-ui-caption text-foreground-subtle">
+        <p>
+          <strong className="text-foreground">Personal Selection Scope:</strong> Disabling a model here removes it from future ZAICODE composer options. It does not alter upstream 9router combo membership or affect external clients.
+        </p>
+      </div>
       {bulkError ? <p role="alert" className="mb-2 text-ui-sm text-destructive">{bulkError}</p> : null}
       {models.length > 0 ? (
         <div className="overflow-hidden rounded-lg border border-input-border bg-input">
@@ -518,7 +554,7 @@ export function ProviderModelsSection({
             sortableModelIds={models.map((model) => model.modelId)}
             onReorder={onReorderModelIds}
             renderModel={(_modelId, index) => {
-              const model = models[index]!;
+              const model = enabledIntent.renderedModels[index]!;
               const inputFormat = model.config.properties?.inputFormat;
               const outputFormat = model.config.properties?.outputFormat;
               const completeProperties =
@@ -554,8 +590,12 @@ export function ProviderModelsSection({
                     settingsRevision={settingsRevision}
                     onDelete={!model.builtin ? () => onDeleteModel(model.modelId) : undefined}
                     onEnabledChange={(enabled) => {
-                      void Promise.resolve(onModelEnabledChange?.(model.modelId, enabled)).catch(
-                        () => undefined,
+                      const scope = enabledScope.current;
+                      setBulkError(null);
+                      void enabledIntent.commit([{ modelId: model.modelId, enabled }]).catch(
+                        (error: unknown) => {
+                          if (enabledScope.current === scope) setBulkError(error instanceof Error ? error.message : String(error));
+                        },
                       );
                     }}
                     onTest={onTestModel}

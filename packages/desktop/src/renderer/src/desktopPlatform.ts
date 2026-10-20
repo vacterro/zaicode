@@ -11,6 +11,7 @@ export function createDesktopPlatform(options: {
     createLocalMediaPreviewUrl: buildLocalMediaPreviewUrl,
     isLocalDevelopmentRuntime: options.isLocalDevelopmentRuntime,
     selectDirectory: () => window.zcode.selectDirectory(),
+    writeClipboardText: (text) => window.zcode.writeClipboardText(text),
     selectFile: () => window.zcode.selectFile(),
     selectFiles: () => window.zcode.selectFiles?.() ?? Promise.resolve([]),
     createTempTextAttachment: (payload) => window.zcode.createTempTextAttachment(payload),
@@ -187,6 +188,10 @@ export function createDesktopPlatform(options: {
     saveZaicodeSettingsSnapshot: window.zcode.saveZaicodeSettingsSnapshot
       ? (json) => window.zcode.saveZaicodeSettingsSnapshot!(json)
       : undefined,
+    // T-278：preload 已有字体 IPC；共享 UI 通过平台契约访问，避免绕过 provider。
+    listZaicodeSystemFonts: window.zcode.listZaicodeSystemFonts
+      ? () => window.zcode.listZaicodeSystemFonts!()
+      : undefined,
     moveWindowBy: window.zcode.moveWindowBy
       ? (delta) => window.zcode.moveWindowBy!(delta)
       : undefined,
@@ -212,7 +217,8 @@ export function createDesktopPlatform(options: {
       window.zcode.getApplicationIcon?.(bundleId) ?? Promise.resolve(null),
     openInEditor: (editorId, path, editorOptions) =>
       window.zcode.openInEditor(editorId, path, editorOptions),
-    executeDesktopCommand: (command) => window.zcode.executeDesktopCommand(command),
+    executeDesktopCommand: (command, options) =>
+      window.zcode.executeDesktopCommand(command, options),
     setApplicationLocale: (locale) => window.zcode.setApplicationLocale(locale),
     getSystemLocale: () =>
       window.zcode.getSystemLocale?.() ??

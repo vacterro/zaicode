@@ -507,6 +507,15 @@ export const DesktopCommandIds = {
 
 export type DesktopCommandId = (typeof DesktopCommandIds)[keyof typeof DesktopCommandIds];
 
+export interface DesktopCommandOptions {
+  shiftKey?: boolean;
+}
+
+export interface DesktopCommandRequest {
+  command: DesktopCommandId;
+  options?: DesktopCommandOptions;
+}
+
 /**
  * CUA Helper 的操作系统支持态（macOS 版本门槛判定结果，主进程经
  * GetCuaOsSupport 下发给 renderer）。
@@ -531,6 +540,9 @@ export type CuaOsSupport =
  * 业务服务（文件、终端、凭据等）走 IServiceAccessor 的 RPC 通道。
  */
 export interface IPlatformService {
+  /** Copy user-requested text to the viewer's clipboard; rejection must remain observable. */
+  writeClipboardText?(text: string): Promise<void>;
+
   /** 当前平台的文件选择框是否能返回 agent 可访问的本地绝对路径 */
   canSelectFilePath?: boolean;
 
@@ -1060,7 +1072,10 @@ export interface IPlatformService {
   /** 执行桌面窗口级命令（标题栏菜单、缩放、窗口控制等）。
    *  返回值直通 main 进程 handler 的 return（大多数命令无返回值；
    *  GetCuaOsSupport 返回 CuaOsSupport），因此放宽为 unknown。 */
-  executeDesktopCommand(command: DesktopCommandId): Promise<unknown>;
+  executeDesktopCommand(
+    command: DesktopCommandId,
+    options?: DesktopCommandOptions,
+  ): Promise<unknown>;
 
   /** 同步应用菜单语言，驱动 main 进程重建原生菜单 */
   setApplicationLocale(locale: Locale): Promise<void>;
