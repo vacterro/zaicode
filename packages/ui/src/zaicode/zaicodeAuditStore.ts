@@ -55,7 +55,11 @@ interface ZaicodeAuditStoreState {
   syncState: ZaicodeAuditSyncState;
   generation: number;
   error: string | null;
-  refresh: (audits: IZaicodeAuditService, jobs?: IZaicodeJobService) => Promise<void>;
+  refresh: (
+    audits: IZaicodeAuditService,
+    jobs?: IZaicodeJobService,
+    options?: { force?: boolean },
+  ) => Promise<void>;
   createBatch: (
     audits: IZaicodeAuditService,
     input: {
@@ -183,7 +187,7 @@ export const useZaicodeAuditStore = create<ZaicodeAuditStoreState>((set, get) =>
   ): Promise<T> => {
     try {
       const result = await action();
-      await get().refresh(audits);
+      await get().refresh(audits, undefined, { force: true });
       return result;
     } catch (error) {
       logger.error("[zaicode-audits] action failed", { error: describeError(error) });
@@ -209,10 +213,21 @@ export const useZaicodeAuditStore = create<ZaicodeAuditStoreState>((set, get) =>
     autoWaves: boolean;
   } | null = null;
 
+  // A policy write is best-effort: the panel fires it from a toggle handler with
+  // `void`, so a rethrow would surface as an unhandled rejection and leave the
+  // operator with a switch that silently snapped back. `after` already records
+  // the failure in `error` and skips the refresh, so the last trusted policy
+  // survives and the panel can show the actual reason.
   const policyAfter = async <T>(audits: IZaicodeAuditService, action: () => Promise<T>): Promise<T | undefined> => {
     if (get().policySaving) return undefined;
-    set({ policySaving: true });
-    try { return await after(audits, action); } finally { set({ policySaving: false }); }
+    set({ policySaving: true, error: null });
+    try {
+      return await after(audits, action);
+    } catch {
+      return undefined;
+    } finally {
+      set({ policySaving: false });
+    }
   };
   return {
     campaigns: [],
@@ -232,20 +247,33 @@ export const useZaicodeAuditStore = create<ZaicodeAuditStoreState>((set, get) =>
     generation: 0,
     error: null,
 
-    refresh: async (audits, jobs) => {
+    refresh: async (audits, jobs, options) => {
       if (inFlightRefresh) {
-        return inFlightRefresh;
+        if (!options?.force) return inFlightRefresh;
+        // A policy write just landed. The read already in flight may have
+        // collected the pre-write snapshot, and shipping it would show the
+        // operator the old switch position as if the save had been undone.
+        try {
+          await inFlightRefresh;
+        } catch {
+          // The failed read already reported itself; this read is the repair.
+        }
       }
       const thisGen = ++currentGeneration;
       const executeRefresh = async () => {
         set({ loading: true });
         try {
+          // A host that lacks one of these probes throws synchronously, which
+          // would abort the whole refresh and keep the last mirrored policy
+          // hidden. Each read is settled on its own so the state part survives.
+          const settle = <T,>(read: () => Promise<T>): Promise<T> =>
+            Promise.resolve().then(read);
           const [stateRes, batchesRes, workersRes, jobsRes] = await Promise.allSettled([
-            audits.getState(),
-            audits.listBatches(),
-            audits.getActiveWorkers(),
+            settle(() => audits.getState()),
+            settle(() => audits.listBatches()),
+            settle(() => audits.getActiveWorkers()),
             jobs
-              ? jobs.getGlobalConcurrency()
+              ? settle(() => jobs.getGlobalConcurrency())
               : Promise.resolve(get().globalConcurrency),
           ]);
 

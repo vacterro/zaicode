@@ -24,9 +24,17 @@ test("the sidebar panel declares the container the action strip queries", () => 
   const panel = shell.slice(at, shell.indexOf(">", at));
   assert.match(panel, /@container\/workspace-sidebar\b/, "the queried ancestor must declare the name");
 
+  // The exact breakpoint is a layout tuning value the strip may retune; what
+  // must not drift apart is the two classes switching at DIFFERENT widths, or
+  // the strip querying a name the panel never declares.
   const strip = read("zaicode/ZaicodeSessionActionStrip.tsx");
-  assert.match(strip, /@min-\[360px\]\/workspace-sidebar:grid-cols-\[minmax\(0,1fr\)_auto_auto\]/);
-  assert.match(strip, /@min-\[360px\]\/workspace-sidebar:col-span-1/);
+  const columns = strip.match(
+    /@min-\[(\d+)px\]\/workspace-sidebar:grid-cols-\[minmax\(0,1fr\)_auto_auto\]/,
+  );
+  assert.ok(columns, "the strip asks for the wide three-column layout at a named breakpoint");
+  const span = strip.match(/@min-\[(\d+)px\]\/workspace-sidebar:col-span-1/);
+  assert.ok(span, "the leading cell collapses to one column in the wide layout");
+  assert.equal(span[1], columns[1], "both cells must switch layout at the same sidebar width");
 });
 
 test("the project row owns its sound cue, so the generic click cannot bury it", () => {

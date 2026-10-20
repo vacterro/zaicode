@@ -121,7 +121,12 @@ test("FIX 7.06-7.10: Rapid Shift clicks sequence distinct helper sessions in FIF
   assert.equal(pendingCmd1.command, "saiwiki");
   submitWithZaicodeRole("V:/project", pendingCmd1.action?.role ?? "WIKI", () => true);
   useZaicodeSessionRoles.getState().claimIfArmed("V:/project", "helper-sess-1");
-  useZaicodeFreshSession.getState().confirmSession("helper-sess-1");
+  // The shell confirms with the authoritative creation ACK (session + request id),
+  // exactly as WorkspaceShellLayout.handleV4SessionCreated does.
+  assert.equal(
+    useZaicodeFreshSession.getState().confirmSession({ sessionId: "helper-sess-1", requestId: 1 }),
+    true,
+  );
 
   // Now currentId is 2, request is huntShift
   const fresh2 = useZaicodeFreshSession.getState();
@@ -135,7 +140,10 @@ test("FIX 7.06-7.10: Rapid Shift clicks sequence distinct helper sessions in FIF
   assert.equal(pendingCmd2.command, "saihunt");
   submitWithZaicodeRole("V:/project", pendingCmd2.action?.role ?? "HUNT", () => true);
   useZaicodeSessionRoles.getState().claimIfArmed("V:/project", "helper-sess-2");
-  useZaicodeFreshSession.getState().confirmSession("helper-sess-2");
+  assert.equal(
+    useZaicodeFreshSession.getState().confirmSession({ sessionId: "helper-sess-2", requestId: 2 }),
+    true,
+  );
 
   // Now currentId is 3, request is testShift
   const fresh3 = useZaicodeFreshSession.getState();
@@ -149,7 +157,10 @@ test("FIX 7.06-7.10: Rapid Shift clicks sequence distinct helper sessions in FIF
   assert.equal(pendingCmd3.command, "saitest");
   submitWithZaicodeRole("V:/project", pendingCmd3.action?.role ?? "TEST", () => true);
   useZaicodeSessionRoles.getState().claimIfArmed("V:/project", "helper-sess-3");
-  useZaicodeFreshSession.getState().confirmSession("helper-sess-3");
+  assert.equal(
+    useZaicodeFreshSession.getState().confirmSession({ sessionId: "helper-sess-3", requestId: 3 }),
+    true,
+  );
 
   // Verify all 3 sessions have distinct durable roles
   const roles = useZaicodeSessionRoles.getState().bySession;
@@ -171,12 +182,32 @@ test("FIX 7.11-7.14: Origin session cannot confirm its own helper request", () =
 
   assert.equal(useZaicodeFreshSession.getState().currentId, 1);
 
+  // A helper request carries an intent, so a bare session id is not an ACK at all.
+  assert.equal(useZaicodeFreshSession.getState().confirmSession("origin-main-session"), false);
+  assert.equal(useZaicodeFreshSession.getState().currentId, 1);
+
   // Calling confirmSession with the origin session ID should be ignored!
-  useZaicodeFreshSession.getState().confirmSession("origin-main-session");
+  assert.equal(
+    useZaicodeFreshSession.getState().confirmSession({
+      sessionId: "origin-main-session",
+      requestId: 1,
+    }),
+    false,
+  );
+  assert.equal(useZaicodeFreshSession.getState().currentId, 1);
+
+  // A delayed ACK for another request cannot confirm this one either.
+  assert.equal(
+    useZaicodeFreshSession.getState().confirmSession({ sessionId: "new-helper-session", requestId: 2 }),
+    false,
+  );
   assert.equal(useZaicodeFreshSession.getState().currentId, 1);
 
   // Calling with the newly created helper session confirms it
-  useZaicodeFreshSession.getState().confirmSession("new-helper-session");
+  assert.equal(
+    useZaicodeFreshSession.getState().confirmSession({ sessionId: "new-helper-session", requestId: 1 }),
+    true,
+  );
   assert.equal(useZaicodeFreshSession.getState().currentId, null);
 });
 

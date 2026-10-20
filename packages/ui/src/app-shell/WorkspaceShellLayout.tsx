@@ -1266,11 +1266,25 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
     [handleCreateProjectDraft],
   );
   // ZAICODE: START / CLEAR ask for a brand-new session in a project; draft creation lives here.
+  // The request this shell turned into a draft is remembered until its real
+  // session appears, so the ACK can name the exact request it belongs to.
+  const pendingFreshSessionAck = useRef<{
+    id: number;
+    workspacePath: string;
+    workspaceIdentity?: string;
+  } | null>(null);
   const zaicodeFreshSession = useZaicodeFreshSession((state) => state.request);
   const consumeZaicodeFreshSession = useZaicodeFreshSession((state) => state.consume);
   useEffect(() => {
     if (!zaicodeFreshSession) return;
     consumeZaicodeFreshSession(zaicodeFreshSession.id);
+    pendingFreshSessionAck.current = {
+      id: zaicodeFreshSession.id,
+      workspacePath: zaicodeFreshSession.workspacePath,
+      ...(zaicodeFreshSession.workspaceIdentity
+        ? { workspaceIdentity: zaicodeFreshSession.workspaceIdentity }
+        : {}),
+    };
     handleCreateProjectDraft(
       zaicodeFreshSession.workspacePath,
       zaicodeFreshSession.workspaceIdentity,
@@ -1353,6 +1367,30 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
   // createSession/fork 后接入既有选择路径；删除会话后回 draft。
   const handleV4SessionCreated = useCallback(
     (sessionId: string) => {
+      // The shell owns the fresh-session draft, so it owns the creation ACK that
+      // advances the queue. Without it the 10 s safety valve fired on EVERY
+      // helper/START request, rejecting the intent and warning "Helper session
+      // creation timed out" although the draft had been created and its command
+      // already delivered -- and rapid Shift clicks one per 10 s instead of FIFO.
+      const pending = pendingFreshSessionAck.current;
+      const fresh = useZaicodeFreshSession.getState();
+      const awaiting = fresh.queue.find((request) => request.id === fresh.currentId);
+      // Only the request this shell drafted, still awaiting, in the same project:
+      // a stale ref from an abandoned draft must never confirm a different one.
+      if (
+        pending &&
+        awaiting &&
+        awaiting.id === pending.id &&
+        awaiting.workspacePath === pending.workspacePath
+      ) {
+        const confirmed = useZaicodeFreshSession.getState().confirmSession({
+          sessionId,
+          requestId: pending.id,
+          workspacePath: pending.workspacePath,
+          ...(pending.workspaceIdentity ? { workspaceIdentity: pending.workspaceIdentity } : {}),
+        });
+        if (confirmed) pendingFreshSessionAck.current = null;
+      }
       handleSelectTask(workspaceAbsPath, sessionId, workspaceIdentity);
     },
     [handleSelectTask, workspaceAbsPath, workspaceIdentity],
@@ -2083,8 +2121,8 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
           data-workspace-sidebar-panel="true"
           id="sidebar"
           className={cn(
-            // SRC-058: the action strip lays itself out with
-            // `@min-[360px]/workspace-sidebar`. A named container query only ever
+            // SRC-058: the action strip lays itself out with a named container
+            // query on `workspace-sidebar`. A named container query only ever
             // matches an ancestor that declares that name, and nothing declared
             // it, so the wide three-column layout was dead and the strip stayed
             // on the stacked fallback at every sidebar width.
