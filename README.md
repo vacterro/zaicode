@@ -161,7 +161,6 @@ not affiliated with or endorsed by Z.ai. The original ZCode README is kept as
 
 <img width="1440" height="860" alt="2026-09-25_182240" src="https://github.com/user-attachments/assets/9eed5305-6168-4b3c-a875-ffec2598b71f" />
 <img width="1920" height="1080" alt="2026-09-25_182433" src="https://github.com/user-attachments/assets/4a20927b-577d-4c77-a078-163e932096d2" />
-<img width="1920" height="1080" alt="2026-09-25_184548" src="https://github.com/user-attachments/assets/fe01f639-7ef7-4a45-94b9-ddf735d9e93a" />
 
 <!-- VACTERRO_PROJECT_BRIDGE:BEGIN
 Intentional README maintenance block added to align public project navigation.
