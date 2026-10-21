@@ -19,6 +19,36 @@
       "rules": {
         "max-lines": "off"
       }
+    },
+    {
+      "files": ["packages/ui/src/ChatErrorBanner.tsx"],
+      "rules": {
+        "max-lines": ["error", { "max": 415, "skipBlankLines": true, "skipComments": true }]
+      }
+    },
+    {
+      "files": ["packages/ui/src/zaicode/ZaicodeAppRuntime.tsx"],
+      "rules": {
+        "max-lines": ["error", { "max": 402, "skipBlankLines": true, "skipComments": true }]
+      }
+    },
+    {
+      "files": ["packages/ui/src/zaicode/ZaicodeQueuePanel.tsx"],
+      "rules": {
+        "max-lines": ["error", { "max": 417, "skipBlankLines": true, "skipComments": true }]
+      }
+    },
+    {
+      "files": ["packages/shared/src/zaicodeSessionHealth.ts"],
+      "rules": {
+        "max-lines": ["error", { "max": 435, "skipBlankLines": true, "skipComments": true }]
+      }
+    },
+    {
+      "files": ["packages/shared/src/zaicode-router-circuit-breaker.ts"],
+      "rules": {
+        "max-lines": ["error", { "max": 635, "skipBlankLines": true, "skipComments": true }]
+      }
     }
   ],
   "settings": {

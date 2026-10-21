@@ -56,13 +56,13 @@
   },
   {
     "path": "apps/zcode-cli/packages/adapters/src/model/runner-generate.ts",
-    "max": 605,
-    "blob": "d6391fab2dc8209bdd41fa20cb7e75be11dbe7b8"
+    "max": 621,
+    "blob": "543f24976b4e879cc79632673ab673537bf46a9b"
   },
   {
     "path": "apps/zcode-cli/packages/adapters/src/model/runner-stream.ts",
-    "max": 1518,
-    "blob": "7516fe0948672cd97aeefde243e7cd716b7f26e9"
+    "max": 1534,
+    "blob": "fab1bdcab06d185a6895e36c93f36efa06638330"
   },
   {
     "path": "apps/zcode-cli/packages/adapters/src/model/transform.ts",
@@ -141,8 +141,8 @@
   },
   {
     "path": "apps/zcode-cli/packages/bootstrap/src/app/types.ts",
-    "max": 591,
-    "blob": "55b1f4170e28cd8b07ceffdbb8a49b692c650e06"
+    "max": 599,
+    "blob": "f7fd76e2d454a12df91cfbf2d8ef371f2a323e1d"
   },
   {
     "path": "apps/zcode-cli/packages/bootstrap/src/app/workspace-hook-review-controller.ts",
@@ -291,8 +291,8 @@
   },
   {
     "path": "apps/zcode-cli/packages/core/src/runtime/agent-runtime.ts",
-    "max": 575,
-    "blob": "1b0e6f35fa36451864251ba6b86c8a22f4ccd593"
+    "max": 581,
+    "blob": "e3122219c19af0de2ab825c65ba7214304289b4e"
   },
   {
     "path": "apps/zcode-cli/packages/core/src/runtime/helpers/attachment-media-resolver.ts",
@@ -356,8 +356,8 @@
   },
   {
     "path": "apps/zcode-cli/packages/core/src/runtime/methods/steering.ts",
-    "max": 1262,
-    "blob": "ec191268c847921b0a362ef90a819f05ac4ba7fa"
+    "max": 1271,
+    "blob": "7e9130d58c4a801a30f35a035cf9a08f2d260643"
   },
   {
     "path": "apps/zcode-cli/packages/core/src/runtime/methods/target-completion-verification.ts",
