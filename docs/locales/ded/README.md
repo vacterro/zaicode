@@ -22,7 +22,7 @@ ZAICODE — рабочий пульт оператора: гонять мног�
 
 ## Установка в один клик
 
-1. Скачай **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)**.
+1. Скачай **[ZAICODE-Setup.exe](https://gitlab.com/vacuum34/zaicode/-/raw/master/install/ZAICODE-Setup.exe)**.
 2. Двойной клик по нему и жми **INSTALL**.
 
 И всё. Установщик дотянет то, чего машине не хватает (Git, Node.js, Python — приватными копиями: права админа не нужны), заберёт ZAICODE, SAIPEN и SAIMAIL с GitHub, соберёт приложение на месте и кинет ярлык ZAICODE на рабочий стол. Первый запуск — 15-30 минут; окно показывает каждый шаг.

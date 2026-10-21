@@ -29,7 +29,7 @@ używana codziennie.
 
 ## Instalacja jednym kliknięciem
 
-1. Pobierz **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)**.
+1. Pobierz **[ZAICODE-Setup.exe](https://gitlab.com/vacuum34/zaicode/-/raw/master/install/ZAICODE-Setup.exe)**.
 2. Kliknij dwukrotnie i naciśnij **INSTALL**.
 
 To wszystko. Instalator doinstaluje to, czego brakuje (Git, Node.js, Python, jako kopie

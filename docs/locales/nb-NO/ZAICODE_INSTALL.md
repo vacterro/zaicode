@@ -5,7 +5,7 @@ kjør det, vent, og en ZAICODE-hurtigvei ligger på skrivebordet.
 
 ## Ett klikk
 
-- **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)**:
+- **[ZAICODE-Setup.exe](https://gitlab.com/vacuum34/zaicode/-/raw/master/install/ZAICODE-Setup.exe)**:
   last ned, dobbeltklikk, trykk **INSTALL**. Vinduet (gull på mørk bakgrunn, SAIPEN-banneret) viser hvert trinn mens det kjører, tiden så langt og loggen ved behov; til slutt **START ZAICODE**, eller **TRY AGAIN** / **Autotroubleshoot**
   / **Open log** når et trinn ikke ble fullført. Peker du på en eksisterende ZAICODE-mappe heter knappen **UPDATE**: samme kjøring oppdaterer og reparerer. Eksen
   filen inneholder installasjonsskriptene og trenger ingenting ved siden av seg; den bygges av
@@ -14,7 +14,7 @@ kjør det, vent, og en ZAICODE-hurtigvei ligger på skrivebordet.
 - Fra bunnen av, i PowerShell:
 
   ```powershell
-  & ([scriptblock]::Create((irm https://raw.githubusercontent.com/vacterro/zaicode/master/install/Install-ZAICODE.ps1)))
+  & ([scriptblock]::Create((irm https://gitlab.com/vacuum34/zaicode/-/raw/master/install/Install-ZAICODE.ps1)))
   ```
 
 Oppsettsvalg: `ZAICODE-Setup.exe -InstallDir D:\ZAICODE` (forhåndsmalt mappe),

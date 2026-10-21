@@ -8,7 +8,7 @@ Tracks agent work でilteri Titre愚痴の復旧）そして SAIMAIL（エージ
 
 ## ワンクリック
 
-- **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)**:
+- **[ZAICODE-Setup.exe](https://gitlab.com/vacuum34/zaicode/-/raw/master/install/ZAICODE-Setup.exe)**:
   ダウンロードしてダブルクリックし、**INSTALL** を押します。ウィンドウ（ダーク地に金の配色、
   SAIPEN のバナー）が各ステップの進行、経過時間、ログ（必要な時）を表示し、最後に
   **START ZAICODE**、あるいはステップが未完了だった場合は **TRY AGAIN** /
@@ -20,7 +20,7 @@ Tracks agent work でilteri Titre愚痴の復旧）そして SAIMAIL（エージ
 - ゼロから、PowerShell で: 
 
   ```powershell
-  & ([scriptblock]::Create((irm https://raw.githubusercontent.com/vacterro/zaicode/master/install/Install-ZAICODE.ps1)))
+  & ([scriptblock]::Create((irm https://gitlab.com/vacuum34/zaicode/-/raw/master/install/Install-ZAICODE.ps1)))
   ```
 
 セットアップオプション: `ZAICODE-Setup.exe -InstallDir D:\ZAICODE`（プリセットフォルダ）、`/auto`（一度に起動）、`/quiet`（ウィンドウなし: コンソールインストーラー。終了コード = 結果）。初回実行はこのマシン上でアプリをビルドするため時間がかかる。以降の実行は更新と修復のみ。

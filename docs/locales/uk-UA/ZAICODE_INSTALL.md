@@ -8,7 +8,7 @@ ZAICODE — це три проєкти, що працюють як одне: з�
 
 ## Одне клацання
 
-- **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)**:
+- **[ZAICODE-Setup.exe](https://gitlab.com/vacuum34/zaicode/-/raw/master/install/ZAICODE-Setup.exe)**:
   завантажте, двічі клацніть, натисніть **INSTALL**. Вікно (золоте на темному,
   з банером SAIPEN) показує кожен крок під час виконання, час, що минув, і журнал
   за потреби; наприкінці — **START ZAICODE** або **TRY AGAIN** / **Autotroubleshoot**
@@ -20,7 +20,7 @@ ZAICODE — це три проєкти, що працюють як одне: з�
 - З нуля, у PowerShell:
 
   ```powershell
-  & ([scriptblock]::Create((irm https://raw.githubusercontent.com/vacterro/zaicode/master/install/Install-ZAICODE.ps1)))
+  & ([scriptblock]::Create((irm https://gitlab.com/vacuum34/zaicode/-/raw/master/install/Install-ZAICODE.ps1)))
   ```
 
 Параметри налаштування: `ZAICODE-Setup.exe -InstallDir D:\ZAICODE` (тека-пресет),

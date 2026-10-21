@@ -30,7 +30,7 @@ CLI) مع طبقة منتج فوقه: كل مشروع يُدار عبر
 
 ## التثبيت بنقرة واحدة
 
-1. نزّل **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)**.
+1. نزّل **[ZAICODE-Setup.exe](https://gitlab.com/vacuum34/zaicode/-/raw/master/install/ZAICODE-Setup.exe)**.
 2. انقر عليه مرتين واضغط **INSTALL**.
 
 هذا كل شيء. يوفّر المثبّت ما ينقص الجهاز (Git، Node.js، Python، كنسخ

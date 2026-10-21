@@ -96,7 +96,7 @@ try {
   }
   $wsFiles['.gitignore'] = "/zcode/`n/saipen/`n/saimail/`n/install/logs/`n/install/install-state.json`n/install/update-state.json`n/launcher-built.txt`n"
   $ws = New-Remote 'workspace' 'master' $wsFiles
-  $app = New-Remote 'app' 'zaicode' @{ 'package.json' = "{ `"name`": `"zcode`", `"version`": `"3.14.0`" }`n"; 'pnpm-lock.yaml' = "lockfileVersion: '9.0'`n"; 'src\feature.txt' = "one`n" }
+  $app = New-Remote 'app' 'zaicode' @{ 'package.json' = "{ `"name`": `"zcode`", `"version`": `"3.14.0`" }`n"; 'pnpm-lock.yaml' = "lockfileVersion: '9.0'`n"; 'scripts\bundle-zaicode.mjs' = "// build entry`n"; 'src\feature.txt' = "one`n" }
   # SAIPEN ships its maintainer's launcher; the installer rewrites it for this clone (a tracked file changed by us).
   $saipen = New-Remote 'saipen' 'main' @{ 'VERSION' = "8.0.1`n"; 'tools\saipen.py' = "print('saipen')`n"; 'bin\saipen.cmd' = "@echo off`r`nrem the maintainer's launcher`r`n" }
 
@@ -109,7 +109,7 @@ try {
   $layout = Get-ZaicodeLayout $install
   New-Item -ItemType Directory -Force -Path (Join-Path $install 'zcode\node_modules') | Out-Null
   Set-Content -LiteralPath (Get-ZaicodeLockMarker $layout) -Value (Get-ZaicodeLockHash $layout) -Encoding ASCII
-  Write-ZaicodeInstallState $layout ([pscustomobject]@{ ZaicodeRepo = $ws.Bare; SaipenRepo = $saipen.Bare; SaimailRepo = 'missing' })
+  Write-ZaicodeInstallState $layout ([pscustomobject]@{ WorkspaceRepo = $ws.Bare; AppRepo = $app.Bare; SaipenRepo = $saipen.Bare; SaimailRepo = 'missing' })
 
   Write-Host 'check: every part reported, nothing changed' -ForegroundColor White
   $before = @{ ws = Head $install; app = Head (Join-Path $install 'zcode'); saipen = Head (Join-Path $install 'saipen') }
@@ -215,6 +215,42 @@ try {
   $bad = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $install 'install\Update-ZAICODE.ps1') -Component 'saipen,nonsense' -Check 2>&1 | Out-String
   $ErrorActionPreference = 'Stop'
   Assert-That ($bad -match "Unknown component 'nonsense'") 'an unknown part name is refused, not ignored'
+
+  Write-Host 'the wrong repository is refused by name, never accepted' -ForegroundColor White
+  # The T-409 failure: one URL served both trees, so the app path held the workspace. Such
+  # an install must say so and leave the tree alone, not fast-forward or build from it.
+  $second = Join-Path $WorkDir 'install-wrong'
+  Clone $ws $second
+  Clone $ws (Join-Path $second 'zcode')
+  Clone $saipen (Join-Path $second 'saipen')
+  $secondLayout = Get-ZaicodeLayout $second
+  Write-ZaicodeInstallState $secondLayout ([pscustomobject]@{ WorkspaceRepo = $ws.Bare; AppRepo = $app.Bare; SaipenRepo = $saipen.Bare; SaimailRepo = 'missing' })
+  $wrongHead = Head (Join-Path $second 'zcode')
+  $previousInstall = $script:install
+  $script:install = $second
+  try {
+    $r = Run-Update @('-Check')
+    Assert-That ($r['workspace'].status -eq 'current') "the real workspace reads current ($($r['workspace'].status))"
+    Assert-That ($r['app'].status -eq 'wrong-repo') "the workspace tree at the app path -> wrong-repo ($($r['app'].status))"
+    Assert-That ($r['app'].detail -match 'app branch was expected but the workspace tree was downloaded') "the detail names which tree arrived ($($r['app'].detail))"
+    Publish $app 'src\feature.txt' "three`n" 'feat(app): feature three'
+    $r = Run-Update @('-Component', 'app', '-NoBuild')
+    Assert-That ($r['app'].status -eq 'wrong-repo') "an update of that part is refused too ($($r['app'].status))"
+    Assert-That ((Head (Join-Path $second 'zcode')) -eq $wrongHead) 'the wrong tree was not moved'
+    # A caller that wants the refusal as an exception still gets one, with the path and the source in it.
+    $threw = ''
+    try { Assert-ZaicodeRepoIdentity 'git' (Join-Path $second 'zcode') 'app' $app.Bare } catch { $threw = $_.Exception.Message }
+    Assert-That ($threw -match 'Wrong repository at' -and $threw -match [regex]::Escape($app.Bare)) "the refusal names the path and the expected source ($threw)"
+  } finally { $script:install = $previousInstall }
+
+  Write-Host 'an unreachable source fails gracefully, and says which one' -ForegroundColor White
+  Invoke-Git -C (Join-Path $second 'saipen') remote set-url origin (Join-Path $WorkDir 'remotes\offline.git') | Out-Null
+  $script:install = $second
+  try {
+    $r = Run-Update @('-Component', 'saipen', '-Check')
+    Assert-That ($r['saipen'].status -eq 'offline') "an unreachable host -> offline, not a failure ($($r['saipen'].status))"
+    Assert-That ($r['saipen'].detail -match 'did not answer') "the detail names the unreachable source ($($r['saipen'].detail))"
+  } finally { $script:install = $previousInstall }
 } finally {
   Remove-Item -LiteralPath $WorkDir -Recurse -Force -ErrorAction SilentlyContinue
 }

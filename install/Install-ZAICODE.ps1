@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-  ZAICODE one-click install: ZAICODE + SAIPEN + SAIMAIL, fresh from GitHub, with everything they need.
+  ZAICODE one-click install: ZAICODE + SAIPEN + SAIMAIL from their published branches, with everything they need.
 
 .DESCRIPTION
   Run it and wait. It takes what the machine already has (Git, Node.js 24,
@@ -11,8 +11,22 @@
   everything and repairs what broke. Problems later: install\ZAICODE-Doctor.ps1
   (Autotroubleshoot) runs the same checks and repairs.
 
+  The workspace (launcher, installer, docs) and the app are two branches in two
+  repositories: the workspace comes from -WorkspaceRepo branch master, the app
+  from -AppRepo branch zaicode. Each clone is checked for its expected files
+  before anything builds from it; a repository of the wrong shape is refused by
+  name instead of failing later in a build.
+
   From nothing (PowerShell):
-    & ([scriptblock]::Create((irm https://raw.githubusercontent.com/vacterro/zaicode/master/install/Install-ZAICODE.ps1)))
+    & ([scriptblock]::Create((irm https://gitlab.com/vacuum34/zaicode/-/raw/master/install/Install-ZAICODE.ps1)))
+
+.PARAMETER WorkspaceRepo
+  The repository that carries the workspace branch (install\, tools\launcher).
+.PARAMETER AppRepo
+  The repository that carries the app branch (packages\, scripts\).
+.PARAMETER ZaicodeRepo
+  Older name for "both repositories at this URL"; it sets -WorkspaceRepo and
+  -AppRepo together. Leave it empty to use the published defaults.
 
 .PARAMETER AddClaudeAccounts
   Prepare N extra Claude Code login homes (~/.claude-accountN); ZAICODE lists
@@ -35,10 +49,12 @@ param(
   [int]$AddClaudeAccounts = 0,
   [int]$AddCodexAccounts = 0,
   [switch]$Launch,
-  [string]$ZaicodeRepo = 'https://github.com/vacterro/zaicode.git',
+  [string]$WorkspaceRepo = 'https://gitlab.com/vacuum34/zaicode.git',
+  [string]$AppRepo = 'https://github.com/vacterro/zaicode.git',
+  [string]$ZaicodeRepo = '',
   [string]$SaipenRepo = 'https://github.com/vacterro/saipen.git',
   [string]$SaimailRepo = 'https://github.com/vacterro/saimail.git',
-  [string]$LibraryBaseUrl = 'https://raw.githubusercontent.com/vacterro/zaicode/master/install'
+  [string]$LibraryBaseUrl = 'https://gitlab.com/vacuum34/zaicode/-/raw/master/install'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -60,6 +76,8 @@ if (-not $here) {
 $layout = Get-ZaicodeLayout $InstallDir
 $options = [pscustomobject]@{
   ShortcutDir = $ShortcutDir; NoStartMenu = [bool]$NoStartMenu; NoShortcut = [bool]$NoShortcut; NoRegistration = [bool]$NoRegistration; PortableTools = [bool]$PortableTools
+  WorkspaceRepo = $(if ($ZaicodeRepo) { $ZaicodeRepo } else { $WorkspaceRepo })
+  AppRepo = $(if ($ZaicodeRepo) { $ZaicodeRepo } else { $AppRepo })
   ZaicodeRepo = $ZaicodeRepo; SaipenRepo = $SaipenRepo; SaimailRepo = $SaimailRepo
 }
 $null = Assert-ZaicodeSuiteRoot $layout.Root
@@ -80,8 +98,8 @@ Write-ZaicodeLog '============================================================' 
 $changed = @{}
 $git = Find-ZaicodeGit $layout
 if (-not $bundled -and $git -and (Test-ZaicodeRepo $git $layout.Root)) {
-  Write-ZaicodeLog 'Updating the existing install from GitHub' 'White'
-  Write-ZaicodeProgress @{ type = 'phase'; id = 'update'; title = 'Updating from GitHub' }
+  Write-ZaicodeLog 'Updating the existing install from its published branches' 'White'
+  Write-ZaicodeProgress @{ type = 'phase'; id = 'update'; title = 'Updating the installed parts' }
   try { $changed = Update-ZaicodeClones $layout $options $git } catch { Write-ZaicodeLog "update skipped: $($_.Exception.Message)" 'Yellow' }
 }
 

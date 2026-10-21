@@ -8,7 +8,7 @@ Node.js، وبيئة Python، وخطوة بناء. المُثبِّت يتولى
 
 ## بنقرة واحدة
 
-- **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)**:
+- **[ZAICODE-Setup.exe](https://gitlab.com/vacuum34/zaicode/-/raw/master/install/ZAICODE-Setup.exe)**:
   نزّله، انقر نقراً مزدوجاً، اضغط **INSTALL**. النافذة (ذهبية على خلفية داكنة،
   مع شعار SAIPEN) تعرض كل خطوة أثناء تنفيذها، والمدة المنقضية، والسجل عند
   الطلب؛ في النهاية **START ZAICODE**، أو **TRY AGAIN** / **Autotroubleshoot**
@@ -20,7 +20,7 @@ Node.js، وبيئة Python، وخطوة بناء. المُثبِّت يتولى
 - من الصفر، في PowerShell:
 
   ```powershell
-  & ([scriptblock]::Create((irm https://raw.githubusercontent.com/vacterro/zaicode/master/install/Install-ZAICODE.ps1)))
+  & ([scriptblock]::Create((irm https://gitlab.com/vacuum34/zaicode/-/raw/master/install/Install-ZAICODE.ps1)))
   ```
 
 خيارات التثبيت: `ZAICODE-Setup.exe -InstallDir D:\ZAICODE` (مجلد مُعد مسبقاً)،

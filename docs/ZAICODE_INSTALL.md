@@ -10,18 +10,19 @@ run it, wait, and a ZAICODE shortcut is on the desktop.
 
 Supported: Windows 10 and 11, x64. No administrator rights.
 
-- **ZAICODE-Setup-0.0.3.exe** (the release asset on
-  [GitHub Releases](https://github.com/vacterro/zaicode/releases)): the whole
-  suite in one file. It carries the built app, SAIPEN, SAIMAIL and private
-  copies of Git, Node.js and Python, so nothing is downloaded or built: it
-  unpacks into an empty folder (default `%USERPROFILE%\ZAICODE`), installs
+- **[ZAICODE-Setup.exe](https://gitlab.com/vacuum34/zaicode/-/raw/master/install/ZAICODE-Setup.exe)**:
+  the same window without the bundled suite. It fetches ZAICODE, SAIPEN and
+  SAIMAIL from the published branches and builds the app on the machine, which
+  takes 15-30 minutes the first time.
+- **ZAICODE-Setup-<version>.exe** (a full-suite build: nothing downloaded,
+  nothing built): not published as a release asset yet.
+  `install\setup\build.cmd` makes one from a suite payload
+  (`node install\build-suite.mjs`, see "Building the release"). It carries the
+  built app, SAIPEN, SAIMAIL and private copies of Git, Node.js and Python, so
+  it unpacks into an empty folder (default `%USERPROFILE%\ZAICODE`), installs
   SAIMAIL from bundled wheels and is done in a few minutes. Windows may show
   "Windows protected your PC" for an unsigned download: **More info -> Run
   anyway**.
-- **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)**
-  (small, the fallback): the same window without the bundled suite. It fetches
-  ZAICODE, SAIPEN and SAIMAIL from GitHub and builds the app on the machine,
-  which takes 15-30 minutes the first time.
 
 Double-click, press **INSTALL**. Setup shows its picture for two seconds, then
 the installer window: an ordinary window you can move and minimize while you
@@ -38,7 +39,7 @@ Framework compiler every Windows 10/11 has), and the full suite payload by
 - From nothing, in PowerShell:
 
   ```powershell
-  & ([scriptblock]::Create((irm https://raw.githubusercontent.com/vacterro/zaicode/master/install/Install-ZAICODE.ps1)))
+  & ([scriptblock]::Create((irm https://gitlab.com/vacuum34/zaicode/-/raw/master/install/Install-ZAICODE.ps1)))
   ```
 
 Setup options: `ZAICODE-Setup.exe -InstallDir D:\ZAICODE` (preset folder),
@@ -163,7 +164,8 @@ machine by leaving them unticked.
 | `-NoStartMenu`, `-NoShortcut` | | skip those shortcuts |
 | `-PortableTools` | | private Git / Node.js / Python even when the machine has them |
 | `-Launch` | | start ZAICODE when done |
-| `-ZaicodeRepo`, `-SaipenRepo`, `-SaimailRepo` | the GitHub repos | another source (a fork, a local clone path) |
+| `-WorkspaceRepo`, `-AppRepo`, `-SaipenRepo`, `-SaimailRepo` | the published sources (GitLab for the workspace, GitHub for the app, SAIPEN and SAIMAIL) | another source (a fork, a local clone path) |
+| `-ZaicodeRepo` | | one URL for both the workspace and the app (a self-hosted mirror with both branches) |
 
 ## Proof
 
@@ -189,7 +191,7 @@ unknown part name is refused. No network.
 ## Building the release
 
 The payload is made only from published commits, so every installed clone is
-clean and updates from GitHub like a source install.
+clean and updates from its published branch like a source install.
 
 1. Push the app (`zaicode`) and the workspace release commit. The workspace
    installs track `master`; until `master` carries the release commit,
@@ -205,7 +207,7 @@ clean and updates from GitHub like a source install.
 4. `node install/build-suite.mjs --bootstrap-root D:\zc-boot` writes
    `.zaicodeelease\<version>\ZAICODE-Suite-<version>-win-x64.zip` and its
    `.sha256`. It refuses a clone with content edits, an app or companion commit
-   that is not on GitHub, an app built from another commit, and any install
+   that is not on its remote yet, an app built from another commit, and any install
    record or protocol memory.
 5. `set ZAICODE_SUITE_PAYLOAD=<that zip>` and
    `set ZAICODE_SETUP_OUTPUT=<...>\ZAICODE-Setup-<version>.exe`, then

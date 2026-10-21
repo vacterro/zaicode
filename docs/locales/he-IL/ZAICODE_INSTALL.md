@@ -4,7 +4,7 @@ ZAICODE הוא שלושה פרויקטים שעובדים כשלם אחד: אפ�
 
 ## קליק אחד
 
-- **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)**:
+- **[ZAICODE-Setup.exe](https://gitlab.com/vacuum34/zaicode/-/raw/master/install/ZAICODE-Setup.exe)**:
   הורידו, לחלוץ פעמיים, לחצו **INSTALL**. החלון (זהב על רקע כהה, דגלן SAIPEN)
   מציג כל שלב בזמן הריצה, את הזמן שחלף ואת היומן לפי הצורך; בסיום
   **START ZAICODE**, או **TRY AGAIN** / **Autotroubleshoot**
@@ -16,7 +16,7 @@ ZAICODE הוא שלושה פרויקטים שעובדים כשלם אחד: אפ�
 - מאפס, ב-PowerShell:
 
   ```powershell
-  & ([scriptblock]::Create((irm https://raw.githubusercontent.com/vacterro/zaicode/master/install/Install-ZAICODE.ps1)))
+  & ([scriptblock]::Create((irm https://gitlab.com/vacuum34/zaicode/-/raw/master/install/Install-ZAICODE.ps1)))
   ```
 
 אפשרויות התקנה: `ZAICODE-Setup.exe -InstallDir D:\ZAICODE` (תיקיית preset),

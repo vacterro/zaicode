@@ -20,7 +20,9 @@ param(
   [switch]$NoStartMenu,
   [switch]$NoShortcut,
   [switch]$PortableTools,
-  [string]$ZaicodeRepo = 'https://github.com/vacterro/zaicode.git',
+  [string]$WorkspaceRepo = 'https://gitlab.com/vacuum34/zaicode.git',
+  [string]$AppRepo = 'https://github.com/vacterro/zaicode.git',
+  [string]$ZaicodeRepo = '',
   [string]$SaipenRepo = 'https://github.com/vacterro/saipen.git',
   [string]$SaimailRepo = 'https://github.com/vacterro/saimail.git'
 )
@@ -37,12 +39,23 @@ $ownership = Read-ZaicodeSuiteOwnership $layout.Root
 $ownershipBefore = if ($Repair -and $ownership) { Get-ZaicodeSuiteBaseline $layout } else { $null }
 $options = [pscustomobject]@{
   ShortcutDir = $ShortcutDir; NoStartMenu = [bool]$NoStartMenu; NoShortcut = [bool]$NoShortcut; PortableTools = [bool]$PortableTools
+  WorkspaceRepo = $(if ($ZaicodeRepo) { $ZaicodeRepo } else { $WorkspaceRepo })
+  AppRepo = $(if ($ZaicodeRepo) { $ZaicodeRepo } else { $AppRepo })
   ZaicodeRepo = $ZaicodeRepo; SaipenRepo = $SaipenRepo; SaimailRepo = $SaimailRepo
 }
 # Without explicit choices, check the shortcuts this install made, not the defaults.
 if ($ownership) {
   $recorded = Get-ZaicodeSuiteOwnershipOptions $ownership
   foreach ($name in @('ShortcutDir', 'NoStartMenu', 'NoShortcut')) { if (-not $PSBoundParameters.ContainsKey($name)) { $options.$name = $recorded.$name } }
+}
+# An install records the repositories it came from; the doctor repairs from those, not from today's defaults.
+$state = Read-ZaicodeInstallState $layout
+if ($state) {
+  $recordedRepos = Get-ZaicodeStateRepoSources $state
+  if (-not ($PSBoundParameters.ContainsKey('WorkspaceRepo') -or $PSBoundParameters.ContainsKey('ZaicodeRepo'))) { $options.WorkspaceRepo = $recordedRepos.Workspace }
+  if (-not ($PSBoundParameters.ContainsKey('AppRepo') -or $PSBoundParameters.ContainsKey('ZaicodeRepo'))) { $options.AppRepo = $recordedRepos.App }
+  if (-not $PSBoundParameters.ContainsKey('SaipenRepo') -and $state.repos.saipen) { $options.SaipenRepo = $state.repos.saipen }
+  if (-not $PSBoundParameters.ContainsKey('SaimailRepo') -and $state.repos.saimail) { $options.SaimailRepo = $state.repos.saimail }
 }
 $log = Start-ZaicodeLog $layout.Logs 'doctor'
 $mode = 'check only'

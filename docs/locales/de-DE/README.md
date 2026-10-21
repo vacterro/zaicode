@@ -30,7 +30,7 @@ Agenten.
 
 ## Installation mit einem Klick
 
-1. **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)** herunterladen.
+1. **[ZAICODE-Setup.exe](https://gitlab.com/vacuum34/zaicode/-/raw/master/install/ZAICODE-Setup.exe)** herunterladen.
 2. Doppelklick, dann **INSTALL** drücken.
 
 Das ist alles. Das Setup bringt mit, was dem Rechner fehlt (Git, Node.js, Python, als private

@@ -8,7 +8,7 @@ tudo isso: execute, espere e um atalho do ZAICODE aparece na área de trabalho.
 
 ## Um clique
 
-- **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)**:
+- **[ZAICODE-Setup.exe](https://gitlab.com/vacuum34/zaicode/-/raw/master/install/ZAICODE-Setup.exe)**:
   baixe, dê dois cliques, pressione **INSTALAR**. A janela (dourado sobre
   escuro, a faixa SAIPEN) mostra cada etapa em execução, o tempo decorrido e
   o log sob demanda; no fim, **INICIAR ZAICODE**, ou **TENTAR NOVAMENTE** /
@@ -21,7 +21,7 @@ tudo isso: execute, espere e um atalho do ZAICODE aparece na área de trabalho.
 - Do zero, no PowerShell:
 
   ```powershell
-  & ([scriptblock]::Create((irm https://raw.githubusercontent.com/vacterro/zaicode/master/install/Install-ZAICODE.ps1)))
+  & ([scriptblock]::Create((irm https://gitlab.com/vacuum34/zaicode/-/raw/master/install/Install-ZAICODE.ps1)))
   ```
 
 Opções de instalação: `ZAICODE-Setup.exe -InstallDir D:\ZAICODE` (pasta predefinida),

@@ -8,7 +8,7 @@ starten, warten, und eine ZAICODE-Verknüpfung liegt auf dem Desktop.
 
 ## Ein Klick
 
-- **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)**:
+- **[ZAICODE-Setup.exe](https://gitlab.com/vacuum34/zaicode/-/raw/master/install/ZAICODE-Setup.exe)**:
   herunterladen, doppelklicken, **INSTALL** drücken. Das Fenster (Gold auf Dunkel,
   das SAIPEN-Banner) zeigt jeden Schritt beim Ausführen, die bisherige Zeit und
   das Protokoll auf Abruf; am Ende **START ZAICODE**, oder **TRY AGAIN** /
@@ -21,7 +21,7 @@ starten, warten, und eine ZAICODE-Verknüpfung liegt auf dem Desktop.
 - Aus dem Nichts, in PowerShell:
 
   ```powershell
-  & ([scriptblock]::Create((irm https://raw.githubusercontent.com/vacterro/zaicode/master/install/Install-ZAICODE.ps1)))
+  & ([scriptblock]::Create((irm https://gitlab.com/vacuum34/zaicode/-/raw/master/install/Install-ZAICODE.ps1)))
   ```
 
 Setup-Optionen: `ZAICODE-Setup.exe -InstallDir D:\ZAICODE` (voreingestellter Ordner),

@@ -28,7 +28,7 @@ e pianificato da una sola finestra, e le CLI a abbonamento che già paghi
 
 ## Installazione in un clic
 
-1. Scarica **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)**.
+1. Scarica **[ZAICODE-Setup.exe](https://gitlab.com/vacuum34/zaicode/-/raw/master/install/ZAICODE-Setup.exe)**.
 2. Fai doppio clic e premi **INSTALL**.
 
 Tutto qui. Il setup porta ciò che manca alla macchina (Git, Node.js, Python, come copie private: nessun diritto di amministratore), recupera ZAICODE, SAIPEN e SAIMAIL da GitHub, compila l'app sulla macchina e mette un collegamento ZAICODE sul desktop. Il primo avvio richiede 15-30 minuti; la finestra mostra ogni passaggio.

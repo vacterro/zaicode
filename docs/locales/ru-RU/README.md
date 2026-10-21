@@ -30,7 +30,7 @@ CLI агента) с продуктовым слоем поверх: кажды�
 
 ## Установка в один клик
 
-1. Скачайте **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)**.
+1. Скачайте **[ZAICODE-Setup.exe](https://gitlab.com/vacuum34/zaicode/-/raw/master/install/ZAICODE-Setup.exe)**.
 2. Дважды щелкните по нему и нажмите **INSTALL**.
 
 Все. Установщик ставит то, чего машине не хватает (Git, Node.js, Python — приватными

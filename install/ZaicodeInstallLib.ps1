@@ -14,13 +14,18 @@ try {
 } catch { }
 
 $script:ZaicodeDefaults = @{
-  ZaicodeRepo  = 'https://github.com/vacterro/zaicode.git'
-  SaipenRepo   = 'https://github.com/vacterro/saipen.git'
-  SaimailRepo  = 'https://github.com/vacterro/saimail.git'
-  AppBranch    = 'zaicode'
+  # The workspace (launcher, installer, docs) and the app are two different branches in
+  # two different repositories: only the GitLab workspace carries install/ and tools/launcher
+  # on `master`, while `zaicode` on GitHub carries the app. One URL for both cloned the
+  # product tree as the workspace and failed late (T-409).
+  WorkspaceRepo = 'https://gitlab.com/vacuum34/zaicode.git'
+  AppRepo       = 'https://github.com/vacterro/zaicode.git'
+  SaipenRepo    = 'https://github.com/vacterro/saipen.git'
+  SaimailRepo   = 'https://github.com/vacterro/saimail.git'
+  AppBranch     = 'zaicode'
   # The published workspace branch. It was `workspace` until 2026-09-27 (T-98), when
   # `master` became canonical and `workspace` left GitHub; a clone of it now fails.
-  RootBranch   = 'master'
+  RootBranch    = 'master'
   NodeVersion  = '24.14.0'
   PnpmVersion  = '10.33.2'
   PythonSeries = '3.13.'
@@ -63,23 +68,58 @@ function Get-ZaicodeLayout([string]$Root) {
 # Components: the four clones that make one ZAICODE. Each one updates on its own.
 # ---------------------------------------------------------------------------
 
+function Get-ZaicodeOptionValue($Options, [string]$Name) {
+  if (-not $Options) { return $null }
+  if ($Options -is [System.Collections.IDictionary]) { return $Options[$Name] }
+  if ($Options.PSObject.Properties[$Name]) { return $Options.$Name }
+  return $null
+}
+
+# The workspace and the app may share one repository (the same URL, two branches) or,
+# as published today, live on two hosts. An explicit -ZaicodeRepo still means "both",
+# for a self-hosted mirror.
+function Get-ZaicodeRepoSources($Options) {
+  $legacy = Get-ZaicodeOptionValue $Options 'ZaicodeRepo'
+  $workspace = Get-ZaicodeOptionValue $Options 'WorkspaceRepo'
+  $app = Get-ZaicodeOptionValue $Options 'AppRepo'
+  if (-not $workspace) { $workspace = if ($legacy) { $legacy } else { $script:ZaicodeDefaults.WorkspaceRepo } }
+  if (-not $app) { $app = if ($legacy) { $legacy } else { $script:ZaicodeDefaults.AppRepo } }
+  return [pscustomobject]@{ Workspace = $workspace; App = $app }
+}
+
+# An install-state.json written before schema 2 holds one repos.zaicode URL for both
+# parts, the exact ambiguity this ticket fixed; such a state resolves to the defaults.
+function Get-ZaicodeStateRepoSources($State) {
+  if ($State -and $State.PSObject.Properties['schema'] -and [int]$State.schema -ge 2 -and
+      $State.repos -and $State.repos.PSObject.Properties['workspace'] -and $State.repos.workspace) {
+    return [pscustomobject]@{ Workspace = $State.repos.workspace; App = $State.repos.app }
+  }
+  return [pscustomobject]@{ Workspace = $script:ZaicodeDefaults.WorkspaceRepo; App = $script:ZaicodeDefaults.AppRepo }
+}
+
 function Get-ZaicodeComponents($Layout, $Options) {
+  $sources = Get-ZaicodeRepoSources $Options
   return @(
-    [pscustomobject]@{ Id = 'workspace'; Title = 'ZAICODE workspace (launcher, installer)'; Dir = $Layout.Root; Url = $Options.ZaicodeRepo; Branch = $script:ZaicodeDefaults.RootBranch },
-    [pscustomobject]@{ Id = 'app'; Title = 'ZAICODE app'; Dir = $Layout.Zcode; Url = $Options.ZaicodeRepo; Branch = $script:ZaicodeDefaults.AppBranch },
-    [pscustomobject]@{ Id = 'saipen'; Title = 'SAIPEN'; Dir = $Layout.Saipen; Url = $Options.SaipenRepo; Branch = 'main' },
-    [pscustomobject]@{ Id = 'saimail'; Title = 'SAIMAIL'; Dir = $Layout.Saimail; Url = $Options.SaimailRepo; Branch = 'main' }
+    [pscustomobject]@{ Id = 'workspace'; Kind = 'workspace'; Title = 'ZAICODE workspace (launcher, installer)'; Dir = $Layout.Root; Url = $sources.Workspace; Branch = $script:ZaicodeDefaults.RootBranch },
+    [pscustomobject]@{ Id = 'app'; Kind = 'app'; Title = 'ZAICODE app'; Dir = $Layout.Zcode; Url = $sources.App; Branch = $script:ZaicodeDefaults.AppBranch },
+    [pscustomobject]@{ Id = 'saipen'; Kind = 'saipen'; Title = 'SAIPEN'; Dir = $Layout.Saipen; Url = $Options.SaipenRepo; Branch = 'main' },
+    [pscustomobject]@{ Id = 'saimail'; Kind = 'saimail'; Title = 'SAIMAIL'; Dir = $Layout.Saimail; Url = $Options.SaimailRepo; Branch = 'main' }
   )
 }
 
 # What the installer used, so a later update (from the app, or Update-ZAICODE.ps1 alone) needs no arguments.
 function Write-ZaicodeInstallState($Layout, $Options) {
   $previous = Read-ZaicodeInstallState $Layout
+  $sources = Get-ZaicodeRepoSources $Options
+  $saipen = Get-ZaicodeOptionValue $Options 'SaipenRepo'
+  $saimail = Get-ZaicodeOptionValue $Options 'SaimailRepo'
+  if (-not $saipen) { $saipen = $script:ZaicodeDefaults.SaipenRepo }
+  if (-not $saimail) { $saimail = $script:ZaicodeDefaults.SaimailRepo }
   $state = [ordered]@{
-    schema = 1
+    schema = 2
     installedAt = if ($previous -and $previous.installedAt) { $previous.installedAt } else { (Get-Date).ToString('o') }
     updatedAt = (Get-Date).ToString('o')
-    repos = [ordered]@{ zaicode = $Options.ZaicodeRepo; saipen = $Options.SaipenRepo; saimail = $Options.SaimailRepo }
+    repos = [ordered]@{ workspace = $sources.Workspace; app = $sources.App; saipen = $saipen; saimail = $saimail }
     branches = [ordered]@{ workspace = $script:ZaicodeDefaults.RootBranch; app = $script:ZaicodeDefaults.AppBranch; saipen = 'main'; saimail = 'main' }
   }
   New-Item -ItemType Directory -Force -Path (Split-Path $Layout.State) | Out-Null
@@ -301,10 +341,56 @@ function Test-ZaicodeRepo([string]$Git, [string]$Dir) {
   return ($result.Code -eq 0)
 }
 
+# What each published branch must contain before anything trusts it. The workspace is
+# the root launcher's source and the installer itself; the app is the ZCode tree.
+# A branch that is the other one (the exact T-409 failure: the GitHub product tree
+# served as `master`) is named here, before a build or a launcher run.
+$script:ZaicodeRepoStructures = @{
+  workspace = @('install\Install-ZAICODE.ps1', 'install\ZaicodeInstallLib.ps1', 'tools\launcher\build.cmd', 'VERSION')
+  app       = @('package.json', 'pnpm-lock.yaml', 'scripts\bundle-zaicode.mjs')
+}
+
+function Get-ZaicodeRepoStructureProblem([string]$Dir, [string]$Kind) {
+  $required = $script:ZaicodeRepoStructures[$Kind]
+  # SAIPEN and SAIMAIL are other projects with their own layouts: only the two ZAICODE
+  # trees that can be confused with each other (workspace, app) are told apart here.
+  if (-not $required) { return $null }
+  $missing = @($required | Where-Object { -not (Test-Path -LiteralPath (Join-Path $Dir $_)) })
+  if ($missing.Count -eq 0) { return $null }
+  return ("this is not the ZAICODE {0} repository: {1} missing" -f $Kind, ($missing -join ', '))
+}
+
+# The other of the two trees under this project's name, so a mismatch says which one arrived.
+function Get-ZaicodeRepoIdentityProblem([string]$Git, [string]$Dir, [string]$Kind) {
+  $structure = Get-ZaicodeRepoStructureProblem $Dir $Kind
+  if (-not $structure) { return $null }
+  $other = if ($Kind -eq 'workspace') { 'app' } elseif ($Kind -eq 'app') { 'workspace' } else { $null }
+  if ($other -and -not (Get-ZaicodeRepoStructureProblem $Dir $other)) {
+    return ("the {0} branch was expected but the {1} tree was downloaded: {2}" -f $Kind, $other, $structure)
+  }
+  return $structure
+}
+
+# Refuses a clone that is not the expected repository, before a fetch, a build or a launcher run.
+function Assert-ZaicodeRepoIdentity([string]$Git, [string]$Dir, [string]$Kind, [string]$Url) {
+  if (-not (Test-ZaicodeRepo $Git $Dir)) { throw "$Dir is not a git clone (expected $Kind from $Url)" }
+  $problem = Get-ZaicodeRepoIdentityProblem $Git $Dir $Kind
+  if ($problem) { throw ("Wrong repository at {0} (from {1}): {2}. Move it away or pass the matching repository option." -f $Dir, $Url, $problem) }
+}
+
 # Clones `$Url` at `$Branch` into `$Dir`, or fast-forwards an existing clone. Local edits are kept (warned).
 function Sync-ZaicodeRepo {
-  param([string]$Git, [string]$Url, [string]$Branch, [string]$Dir, [string[]]$Exclude = @(), [string[]]$Owned = @('install'))
+  param([string]$Git, [string]$Url, [string]$Branch, [string]$Dir, [string]$Kind = '', [string[]]$Exclude = @(), [string[]]$Owned = @('install'))
   if (Test-ZaicodeRepo $Git $Dir) {
+    # An existing clone is whatever it is, but it must be the right tree before an update is attempted.
+    if ($Kind) { Assert-ZaicodeRepoIdentity $Git $Dir $Kind $Url }
+    # An install made before the workspace/app split has both clones on one host. Point this
+    # clone at the source the install is configured for; the clones under InstallDir are ours.
+    $current = Invoke-ZaicodeGitText $Git $Dir @('remote', 'get-url', 'origin')
+    if ($current -and $current -ne $Url) {
+      Invoke-ZaicodeCommand -File $Git -Arguments @('-C', $Dir, 'remote', 'set-url', 'origin', $Url) | Out-Null
+      Write-ZaicodeLog ("{0}: origin {1} -> {2}" -f (Split-Path $Dir -Leaf), $current, $Url) 'Cyan'
+    }
     Invoke-ZaicodeCommand -File $Git -Arguments @('-C', $Dir, 'fetch', '--quiet', 'origin', $Branch) | Out-Null
     $pull = Invoke-ZaicodeCommand -File $Git -Arguments @('-C', $Dir, 'merge', '--ff-only', '--quiet', "origin/$Branch") -AllowFailure
     if ($pull.Code -ne 0) { Write-ZaicodeLog "$Dir has local changes; kept them (not updated)" 'Yellow' }
@@ -323,6 +409,14 @@ function Sync-ZaicodeRepo {
   }
   Invoke-ZaicodeCommand -File $Git -Arguments @('-C', $Dir, 'fetch', '--quiet', '--depth', '1', 'origin', $Branch) | Out-Null
   Invoke-ZaicodeCommand -File $Git -Arguments @('-C', $Dir, 'checkout', '--quiet', '-f', '-B', $Branch, "origin/$Branch") | Out-Null
+  # The downloaded tree is checked before anything builds from it; a wrong repository is left as it is.
+  if ($Kind) {
+    try { Assert-ZaicodeRepoIdentity $Git $Dir $Kind $Url }
+    catch {
+      Write-ZaicodeLog $_.Exception.Message 'Red'
+      throw
+    }
+  }
   Invoke-ZaicodeCommand -File $Git -Arguments @('-C', $Dir, 'branch', '--quiet', "--set-upstream-to=origin/$Branch", $Branch) -AllowFailure | Out-Null
 }
 
@@ -337,7 +431,7 @@ function Update-ZaicodeClones($Layout, $Options, [string]$Git) {
   foreach ($clone in (Get-ZaicodeComponents $Layout $Options)) {
     $before = Get-ZaicodeHead $Git $clone.Dir
     if (-not $before) { continue }
-    Sync-ZaicodeRepo -Git $Git -Url $clone.Url -Branch $clone.Branch -Dir $clone.Dir
+    Sync-ZaicodeRepo -Git $Git -Url $clone.Url -Branch $clone.Branch -Dir $clone.Dir -Kind $clone.Kind
     $after = Get-ZaicodeHead $Git $clone.Dir
     $changed[$clone.Id] = ($before -ne $after)
     if ($changed[$clone.Id]) { Write-ZaicodeLog ("updated {0}: {1} -> {2}" -f $clone.Id, $before.Substring(0, 8), $after.Substring(0, 8)) 'Cyan' }
@@ -370,8 +464,8 @@ function Invoke-ZaicodeGitText([string]$Git, [string]$Dir, [string[]]$Arguments)
   return $result.Output.Trim()
 }
 
-# Where one clone stands against its published branch. -Fetch asks GitHub first.
-# status: current | available | ahead | diverged | local-changes | missing | offline
+# Where one clone stands against its published branch. -Fetch asks its host first.
+# status: current | available | ahead | diverged | local-changes | wrong-repo | missing | offline
 function Get-ZaicodeComponentStatus($Layout, $Component, [string]$Git, [switch]$Fetch) {
   $record = [ordered]@{
     id = $Component.Id; title = $Component.Title; dir = $Component.Dir; branch = $Component.Branch
@@ -382,6 +476,16 @@ function Get-ZaicodeComponentStatus($Layout, $Component, [string]$Git, [switch]$
     $record.detail = 'not installed here'
     return [pscustomobject]$record
   }
+  # The tree is judged before its version or its commits: a wrong repository must never read as current.
+  if ($Component.Kind) {
+    $identity = Get-ZaicodeRepoIdentityProblem $Git $Component.Dir $Component.Kind
+    if ($identity) {
+      $record.head = Invoke-ZaicodeGitText $Git $Component.Dir @('rev-parse', 'HEAD')
+      $record.status = 'wrong-repo'
+      $record.detail = "$identity (origin $($Component.Url), expected branch $($Component.Branch)): left alone"
+      return [pscustomobject]$record
+    }
+  }
   $record.version = Get-ZaicodeComponentVersion $Layout $Component.Id
   $record.head = Invoke-ZaicodeGitText $Git $Component.Dir @('rev-parse', 'HEAD')
   $current = Invoke-ZaicodeGitText $Git $Component.Dir @('rev-parse', '--abbrev-ref', 'HEAD')
@@ -389,7 +493,7 @@ function Get-ZaicodeComponentStatus($Layout, $Component, [string]$Git, [switch]$
     $fetched = Invoke-ZaicodeCommand -File $Git -Arguments @('-C', $Component.Dir, 'fetch', '--quiet', 'origin', $Component.Branch) -AllowFailure
     if ($fetched.Code -ne 0) {
       $record.status = 'offline'
-      $record.detail = 'GitHub did not answer; try again later'
+      $record.detail = "$($Component.Url) did not answer; try again later"
       return [pscustomobject]$record
     }
   }
@@ -414,13 +518,13 @@ function Get-ZaicodeComponentStatus($Layout, $Component, [string]$Git, [switch]$
     $record.detail = "on branch $current, not $($Component.Branch): left alone"
   } elseif ($record.behind -gt 0 -and $record.ahead -gt 0) {
     $record.status = 'diverged'
-    $record.detail = "$($record.ahead) local commit(s) not on GitHub: left alone"
+    $record.detail = "$($record.ahead) local commit(s) not on the published branch: left alone"
   } elseif ($record.behind -gt 0) {
     $record.status = 'available'
     $record.detail = "$($record.behind) new commit(s)"
   } elseif ($record.ahead -gt 0) {
     $record.status = 'ahead'
-    $record.detail = "$($record.ahead) local commit(s) newer than GitHub"
+    $record.detail = "$($record.ahead) local commit(s) newer than the published branch"
   } else {
     $record.status = 'current'
     $record.detail = 'up to date'

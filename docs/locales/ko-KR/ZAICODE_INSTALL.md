@@ -8,7 +8,7 @@ ZAICODE는 하나로 작동하는 세 프로젝트입니다: ZAICODE 앱, 에이
 
 ## 원클릭
 
-- **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)**:
+- **[ZAICODE-Setup.exe](https://gitlab.com/vacuum34/zaicode/-/raw/master/install/ZAICODE-Setup.exe)**:
   다운로드, 더블클릭, **INSTALL** 누르기. 창(어두운 배경에 금색, SAIPEN
   배너)이 실행되는 모든 단계, 지금까지 걸린 시간, 필요할 때 로그를
   표시합니다. 마지막에 **START ZAICODE**, 단계가 끝나지 않았을 때는
@@ -21,7 +21,7 @@ ZAICODE는 하나로 작동하는 세 프로젝트입니다: ZAICODE 앱, 에이
 - 아무것도 없는 상태에서 PowerShell로:
 
   ```powershell
-  & ([scriptblock]::Create((irm https://raw.githubusercontent.com/vacterro/zaicode/master/install/Install-ZAICODE.ps1)))
+  & ([scriptblock]::Create((irm https://gitlab.com/vacuum34/zaicode/-/raw/master/install/Install-ZAICODE.ps1)))
   ```
 
 설정 옵션: `ZAICODE-Setup.exe -InstallDir D:\ZAICODE`(프리셋 폴더),

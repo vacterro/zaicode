@@ -4,7 +4,7 @@ ZAICODE — три проекта, работающих как одно: при�
 
 ## Один клик
 
-- **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)**:
+- **[ZAICODE-Setup.exe](https://gitlab.com/vacuum34/zaicode/-/raw/master/install/ZAICODE-Setup.exe)**:
   скачал, открыл двойным щелчком, жмёшь **INSTALL**. Окно (золото на тёмном,
   баннер SAIPEN) показывает каждый шаг по ходу дела, сколько времени прошло и
   по требованию — лог; в конце **START ZAICODE**, а если шаг не прошёл —
@@ -16,7 +16,7 @@ ZAICODE — три проекта, работающих как одно: при�
 - С нуля, через PowerShell:
 
   ```powershell
-  & ([scriptblock]::Create((irm https://raw.githubusercontent.com/vacterro/zaicode/master/install/Install-ZAICODE.ps1)))
+  & ([scriptblock]::Create((irm https://gitlab.com/vacuum34/zaicode/-/raw/master/install/Install-ZAICODE.ps1)))
   ```
 
 Параметры установки: `ZAICODE-Setup.exe -InstallDir D:\ZAICODE` (папка из пресета),

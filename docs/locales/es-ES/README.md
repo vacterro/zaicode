@@ -30,7 +30,7 @@ usada a diario.
 
 ## Instalar con un clic
 
-1. Descarga **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)**.
+1. Descarga **[ZAICODE-Setup.exe](https://gitlab.com/vacuum34/zaicode/-/raw/master/install/ZAICODE-Setup.exe)**.
 2. Haz doble clic y pulsa **INSTALAR**.
 
 Eso es todo. El instalador aporta lo que falte en el equipo (Git, Node.js, Python, como copias privadas: sin permisos de administrador), descarga ZAICODE, SAIPEN y SAIMAIL de GitHub, compila la app en el equipo y crea un acceso directo a ZAICODE en el escritorio. La primera

@@ -30,7 +30,7 @@ se používá denně.
 
 ## Instalace jedním kliknutím
 
-1. Stáhněte **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)**.
+1. Stáhněte **[ZAICODE-Setup.exe](https://gitlab.com/vacuum34/zaicode/-/raw/master/install/ZAICODE-Setup.exe)**.
 2. Na něj dvakrát klikněte a stiskněte **INSTALL**.
 
 To je vše. Instalace doplní to, co stroj postrádá (Git, Node.js, Python jako soukromé

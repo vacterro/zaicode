@@ -28,7 +28,7 @@ và lên lịch ngay trong một cửa sổ, còn các CLI theo gói bạn đang
 
 ## Cài đặt một cú nhấp
 
-1. Tải **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)**.
+1. Tải **[ZAICODE-Setup.exe](https://gitlab.com/vacuum34/zaicode/-/raw/master/install/ZAICODE-Setup.exe)**.
 2. Nhấp đúp và bấm **INSTALL**.
 
 Xong. Trình cài đặt bổ sung những gì máy còn thiếu (Git, Node.js, Python, dạng bản sao

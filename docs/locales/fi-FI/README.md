@@ -31,7 +31,7 @@ versio, jota käytetään päivittäin.
 
 ## Asennus yhdellä klikkauksella
 
-1. Lataa **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)**.
+1. Lataa **[ZAICODE-Setup.exe](https://gitlab.com/vacuum34/zaicode/-/raw/master/install/ZAICODE-Setup.exe)**.
 2. Kaksoisnapsauta ja paina **ASENNA**.
 
 Siinä se. Asennus hakee puuttuvat osat (Git, Node.js, Python) omina yksityiskopioina:

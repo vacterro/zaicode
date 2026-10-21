@@ -5,7 +5,7 @@ ZAICODE 由三个协同工作的项目组成：ZAICODE 应用、SAIPEN（让 age
 
 ## 一键安装
 
-- **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)**：
+- **[ZAICODE-Setup.exe](https://gitlab.com/vacuum34/zaicode/-/raw/master/install/ZAICODE-Setup.exe)**：
   下载、双击、按 **INSTALL**。窗口（深色底金色，SAIPEN 横幅）会实时显示每个步骤、已用时间，并可按需查看日志；结束时按 **START ZAICODE**，若某步未完成则按 **TRY AGAIN** / **Autotroubleshoot**
   / **Open log**。指向已有的 ZAICODE 文件夹时按钮显示 **UPDATE**：同样的流程完成更新与修复。该
   exe 自带安装脚本，旁无其他文件即可运行；由 `install\setup\build.cmd` 构建（Windows 10/11
@@ -14,7 +14,7 @@ ZAICODE 由三个协同工作的项目组成：ZAICODE 应用、SAIPEN（让 age
 - 从零开始，用 PowerShell：
 
   ```powershell
-  & ([scriptblock]::Create((irm https://raw.githubusercontent.com/vacterro/zaicode/master/install/Install-ZAICODE.ps1)))
+  & ([scriptblock]::Create((irm https://gitlab.com/vacuum34/zaicode/-/raw/master/install/Install-ZAICODE.ps1)))
   ```
 
 安装选项：`ZAICODE-Setup.exe -InstallDir D:\ZAICODE`（预置文件夹）、

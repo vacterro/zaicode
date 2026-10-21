@@ -8,7 +8,7 @@ pokrenite ga, pričekajte i na radnoj površini pojavi se prečac ZAICODE.
 
 ## Jednim klikom
 
-- **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)**:
+- **[ZAICODE-Setup.exe](https://gitlab.com/vacuum34/zaicode/-/raw/master/install/ZAICODE-Setup.exe)**:
   preuzmite, dvaput kliknite, pritisnite **INSTALL**. Prozor (zlatne boje na tamnoj pozadini,
   SAIPEN baner) prikazuje svaki korak dok se izvršava, proteklo vrijeme i po potrebi
   zapisnik; na kraju **START ZAICODE**, odnosno **TRY AGAIN** / **Autotroubleshoot**
@@ -20,7 +20,7 @@ pokrenite ga, pričekajte i na radnoj površini pojavi se prečac ZAICODE.
 - Iz ničega, u PowerShellu:
 
   ```powershell
-  & ([scriptblock]::Create((irm https://raw.githubusercontent.com/vacterro/zaicode/master/install/Install-ZAICODE.ps1)))
+  & ([scriptblock]::Create((irm https://gitlab.com/vacuum34/zaicode/-/raw/master/install/Install-ZAICODE.ps1)))
   ```
 
 Opcije postavljanja: `ZAICODE-Setup.exe -InstallDir D:\ZAICODE` (zadana mapa),

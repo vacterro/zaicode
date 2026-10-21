@@ -4,7 +4,7 @@ ZAICODE is drie projecten die als één werken: de ZAICODE-app, SAIPEN (het prot
 
 ## Eén klik
 
-- **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)**:
+- **[ZAICODE-Setup.exe](https://gitlab.com/vacuum34/zaicode/-/raw/master/install/ZAICODE-Setup.exe)**:
   download, dubbelklik, druk op **INSTALL**. Het venster (goud op donker, de
   SAIPEN-banner) toont elke stap terwijl die draait, de tijd tot nu toe en het log
   op aanvraag; aan het einde **START ZAICODE**, of **TRY AGAIN** / **Autotroubleshoot**
@@ -16,7 +16,7 @@ ZAICODE is drie projecten die als één werken: de ZAICODE-app, SAIPEN (het prot
 - Vanaf niets, in PowerShell:
 
   ```powershell
-  & ([scriptblock]::Create((irm https://raw.githubusercontent.com/vacterro/zaicode/master/install/Install-ZAICODE.ps1)))
+  & ([scriptblock]::Create((irm https://gitlab.com/vacuum34/zaicode/-/raw/master/install/Install-ZAICODE.ps1)))
   ```
 
 Installatie-opties: `ZAICODE-Setup.exe -InstallDir D:\ZAICODE` (voorgezette map),

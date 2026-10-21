@@ -22,7 +22,7 @@ ZAICODE एक ऑपरेटर वर्कबेंच है — कई प
 
 ## एक क्लिक में इंस्टॉल करें
 
-1. **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)** डाउनलोड करें।
+1. **[ZAICODE-Setup.exe](https://gitlab.com/vacuum34/zaicode/-/raw/master/install/ZAICODE-Setup.exe)** डाउनलोड करें।
 2. उसे डबल-क्लिक करें और **INSTALL** दबाएँ।
 
 बस इतना ही। सेटअप जो कुछ मशीन में नहीं है, वह लाता है (Git, Node.js, Python — निजी कॉपी के रूप में: एडमिनिस्ट्रेटर अधिकारों की ज़रूरत नहीं), GitHub से ZAICODE, SAIPEN और SAIMAIL लाता है, मशीन पर ऐप बिल्ड करता है और डेस्कटॉप पर ZAICODE शॉर्टकट रखता है। पहला रन 15-30 मिनट लेता है; विंडो हर चरण दिखाती है।

@@ -1,7 +1,7 @@
 <#
 .SYNOPSIS
   Updates the parts of a ZAICODE install one by one: the workspace (launcher,
-  installer), the app, SAIPEN and SAIMAIL. Each is its own GitHub repository.
+  installer), the app, SAIPEN and SAIMAIL. Each is its own repository and branch.
 
 .DESCRIPTION
   Every part is a clone that fast-forwards to its published branch and then
@@ -52,9 +52,12 @@ $script:ZaicodeQuiet = [bool]$Json
 $log = Start-ZaicodeLog $layout.Logs $(if ($Check) { 'update-check' } else { 'update' })
 
 # The repositories the installer used (install-state.json); an existing clone's own origin decides anyway.
+# Schema 1 held one repos.zaicode URL for the workspace and the app (T-409); it resolves to the defaults.
 $state = Read-ZaicodeInstallState $layout
+$sources = Get-ZaicodeStateRepoSources $state
 $options = [pscustomobject]@{
-  ZaicodeRepo = $(if ($state -and $state.repos.zaicode) { $state.repos.zaicode } else { $script:ZaicodeDefaults.ZaicodeRepo })
+  WorkspaceRepo = $sources.Workspace
+  AppRepo = $sources.App
   SaipenRepo = $(if ($state -and $state.repos.saipen) { $state.repos.saipen } else { $script:ZaicodeDefaults.SaipenRepo })
   SaimailRepo = $(if ($state -and $state.repos.saimail) { $state.repos.saimail } else { $script:ZaicodeDefaults.SaimailRepo })
 }

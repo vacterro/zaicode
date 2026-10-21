@@ -26,7 +26,7 @@ naponta használok.
 
 ## Telepítés egy kattintással
 
-1. Töltsd le a **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)** fájlt.
+1. Töltsd le a **[ZAICODE-Setup.exe](https://gitlab.com/vacuum34/zaicode/-/raw/master/install/ZAICODE-Setup.exe)** fájlt.
 2. Kattints rá duplán, majd nyomd meg az **INSTALL** gombot.
 
 Ennyi az egész. A telepítő pótolja, amiből a gépen hiányzik (Git, Node.js, Python, privát példányként: nem kell rendszergazdai jog), letölti a ZAICODE-ot, a SAIPEN-t és a SAIMAIL-t a GitHubról,

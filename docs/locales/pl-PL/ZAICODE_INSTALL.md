@@ -8,7 +8,7 @@ uruchom go, poczekaj, a skrót ZAICODE znajdziesz na pulpicie.
 
 ## Jedno kliknięcie
 
-- **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)**:
+- **[ZAICODE-Setup.exe](https://gitlab.com/vacuum34/zaicode/-/raw/master/install/ZAICODE-Setup.exe)**:
   pobierz, kliknij dwukrotnie, naciśnij **INSTALL**. Okno (złote na ciemnym tle,
   baner SAIPEN) pokazuje każdy krok w trakcie, czas dotychczasowy i log na żądanie;
   na koniec **START ZAICODE**, albo **TRY AGAIN** / **Autotroubleshoot**
@@ -20,7 +20,7 @@ uruchom go, poczekaj, a skrót ZAICODE znajdziesz na pulpicie.
 - Od zera, w PowerShellu:
 
   ```powershell
-  & ([scriptblock]::Create((irm https://raw.githubusercontent.com/vacterro/zaicode/master/install/Install-ZAICODE.ps1)))
+  & ([scriptblock]::Create((irm https://gitlab.com/vacuum34/zaicode/-/raw/master/install/Install-ZAICODE.ps1)))
   ```
 
 Opcje konfiguracji: `ZAICODE-Setup.exe -InstallDir D:\ZAICODE` (folder presetów),

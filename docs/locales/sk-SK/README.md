@@ -30,7 +30,7 @@ používa denne.
 
 ## Inštalácia jedným kliknutím
 
-1. Stiahnite **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)**.
+1. Stiahnite **[ZAICODE-Setup.exe](https://gitlab.com/vacuum34/zaicode/-/raw/master/install/ZAICODE-Setup.exe)**.
 2. Dvakrát naň kliknite a stlačte **INŠTALOVAŤ**.
 
 To je všetko. Inštalátor doplní to, čo stroju chýba (Git, Node.js, Python ako

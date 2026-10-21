@@ -5,7 +5,7 @@
 
 ## Με ένα κλικ
 
-- **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)**:
+- **[ZAICODE-Setup.exe](https://gitlab.com/vacuum34/zaicode/-/raw/master/install/ZAICODE-Setup.exe)**:
   κατεβάστε, κάντε διπλό κλικ, πατήστε **INSTALL**. Το παράθυρο (χρυσό σε σκούρο, το banner του SAIPEN) δείχνει κάθε βήμα καθώς εκτελείται, τον χρόνο που πέρασε και το log κατά παραγγελία· στο τέλος **START ZAICODE**, ή **TRY AGAIN** / **Autotroubleshoot**
   / **Open log** όταν κάποιο βήμα δεν ολοκληρώθηκε. Όταν δείχνει σε υπάρχον φάκελο ZAICODE, το κουμπί γράφει **UPDATE**: η ίδια εκτέλεση ενημερώνει και επισκευάζει. Το
   exe περιέχει τα scripts εγκατάστασης και δεν χρειάζεται τίποτα δίπλα του· κατασκευάζεται από
@@ -14,7 +14,7 @@
 - Από την αρχή, σε PowerShell:
 
   ```powershell
-  & ([scriptblock]::Create((irm https://raw.githubusercontent.com/vacterro/zaicode/master/install/Install-ZAICODE.ps1)))
+  & ([scriptblock]::Create((irm https://gitlab.com/vacuum34/zaicode/-/raw/master/install/Install-ZAICODE.ps1)))
   ```
 
 Επιλογές εγκατάστασης: `ZAICODE-Setup.exe -InstallDir D:\ZAICODE` (preset φάκελος),

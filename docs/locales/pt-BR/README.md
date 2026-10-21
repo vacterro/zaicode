@@ -29,7 +29,7 @@ no dia a dia.
 
 ## Instalação em um clique
 
-1. Baixe **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)**.
+1. Baixe **[ZAICODE-Setup.exe](https://gitlab.com/vacuum34/zaicode/-/raw/master/install/ZAICODE-Setup.exe)**.
 2. Dê dois cliques nele e pressione **INSTALAR**.
 
 Só isso. O instalador traz o que a máquina não tem (Git, Node.js, Python, como cópias

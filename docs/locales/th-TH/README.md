@@ -28,7 +28,7 @@ protocol [SAIPEN](https://github.com/vacterro/saipen) เริ่ม ต่อ 
 
 ## ติดตั้งคลิกเดียว
 
-1. ดาวน์โหลด **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)**
+1. ดาวน์โหลด **[ZAICODE-Setup.exe](https://gitlab.com/vacuum34/zaicode/-/raw/master/install/ZAICODE-Setup.exe)**
 2. ดับเบิลคลิก แล้วกด **INSTALL**
 
 จบแค่นี้ Setup จะเติมสิ่งที่เครื่องขาด (Git, Node.js, Python เป็น

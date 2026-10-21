@@ -4,7 +4,7 @@ ZAICODE koosneb kolmest ühtse tervikuna töötavast projektist: ZAICODE rakendu
 
 ## Ühe klõpsuga
 
-- **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)**:
+- **[ZAICODE-Setup.exe](https://gitlab.com/vacuum34/zaicode/-/raw/master/install/ZAICODE-Setup.exe)**:
   laadi alla, topeltklõpsa, vajuta **INSTALL**. Aken (kuldne tume taustal,
   SAIPENi bänner) näitab iga sammu käivitamisel, kulunud aega ja logi
   nõudmisel; lõpus **START ZAICODE** või **TRY AGAIN** / **Autotroubleshoot**
@@ -17,7 +17,7 @@ ZAICODE koosneb kolmest ühtse tervikuna töötavast projektist: ZAICODE rakendu
 - Nullist, PowerShellis:
 
   ```powershell
-  & ([scriptblock]::Create((irm https://raw.githubusercontent.com/vacterro/zaicode/master/install/Install-ZAICODE.ps1)))
+  & ([scriptblock]::Create((irm https://gitlab.com/vacuum34/zaicode/-/raw/master/install/Install-ZAICODE.ps1)))
   ```
 
 Paigaldusvalikud: `ZAICODE-Setup.exe -InstallDir D:\ZAICODE` (kausta eelseadistus), `/auto` (alusta kohe), `/quiet` (aknaga liidese asemel konsoolipaigaldaja; väljumiskood näitab tulemust). Esimene käivitus kompileerib rakenduse sellel masinal ja võtab aega; järgnevad käivitused ainult uuendavad ning parandavad.

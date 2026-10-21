@@ -29,7 +29,7 @@ coristi svakodnevno.
 
 ## Instalacija jednim klikom
 
-1. Preuzmi **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)**.
+1. Preuzmi **[ZAICODE-Setup.exe](https://gitlab.com/vacuum34/zaicode/-/raw/master/install/ZAICODE-Setup.exe)**.
 2. Dvaput klikni i pritisni **INSTALL**.
 
 To je sve. Setup donosi ono što stroju nedostaje (Git, Node.js, Python, kao privatne

@@ -30,7 +30,7 @@ dipakai harian.
 
 ## Instal sekali klik
 
-1. Unduh **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)**.
+1. Unduh **[ZAICODE-Setup.exe](https://gitlab.com/vacuum34/zaicode/-/raw/master/install/ZAICODE-Setup.exe)**.
 2. Klik ganda lalu tekan **INSTALL**.
 
 Selesai. Setup memasang apa yang kurang dari mesin (Git, Node.js, Python, sebagai

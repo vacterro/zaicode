@@ -4,7 +4,7 @@ ZAICODE gồm ba dự án hoạt động như một: ứng dụng ZAICODE, SAIPE
 
 ## Một cú nhấp chuột
 
-- **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)**:
+- **[ZAICODE-Setup.exe](https://gitlab.com/vacuum34/zaicode/-/raw/master/install/ZAICODE-Setup.exe)**:
   tải về, nhấp đúp, nhấn **INSTALL**. Cửa sổ (màu vàng trên nền tối, biểu ngữ SAIPEN) hiển thị từng bước khi chạy, thời gian đã trôi qua và log khi cần; kết thúc là **START ZAICODE**, hoặc **TRY AGAIN** / **Autotroubleshoot**
   / **Open log** khi một bước chưa hoàn tất. Khi trỏ vào thư mục ZAICODE
   đã có, nút sẽ ghi **UPDATE**: cùng một lần chạy đó vừa cập nhật vừa sửa chữa. Tệp
@@ -14,7 +14,7 @@ ZAICODE gồm ba dự án hoạt động như một: ứng dụng ZAICODE, SAIPE
 - Từ số 0, trong PowerShell:
 
   ```powershell
-  & ([scriptblock]::Create((irm https://raw.githubusercontent.com/vacterro/zaicode/master/install/Install-ZAICODE.ps1)))
+  & ([scriptblock]::Create((irm https://gitlab.com/vacuum34/zaicode/-/raw/master/install/Install-ZAICODE.ps1)))
   ```
 
 Tùy chọn cài đặt: `ZAICODE-Setup.exe -InstallDir D:\ZAICODE` (thư mục định sẵn),

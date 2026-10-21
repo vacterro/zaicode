@@ -8,7 +8,7 @@ mind megcsinálja: futtasd, várj, és a ZAICODE parancsikon már az asztalon va
 
 ## Egy kattintás
 
-- **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)**:
+- **[ZAICODE-Setup.exe](https://gitlab.com/vacuum34/zaicode/-/raw/master/install/ZAICODE-Setup.exe)**:
   töltsd le, kattints rá duplán, nyomd meg az **INSTALL** gombot. Az ablak (arany
   sötét háttéren, SAIPEN bannerrel) lépésenként mutatja a futást, az eltelt időt,
   és a naplót igény szerint; a végén **START ZAICODE**, vagy **TRY AGAIN** /
@@ -20,7 +20,7 @@ mind megcsinálja: futtasd, várj, és a ZAICODE parancsikon már az asztalon va
 - Semmiből, PowerShellben:
 
   ```powershell
-  & ([scriptblock]::Create((irm https://raw.githubusercontent.com/vacterro/zaicode/master/install/Install-ZAICODE.ps1)))
+  & ([scriptblock]::Create((irm https://gitlab.com/vacuum34/zaicode/-/raw/master/install/Install-ZAICODE.ps1)))
   ```
 
 Beállítási lehetőségek: `ZAICODE-Setup.exe -InstallDir D:\ZAICODE` (előre beállított mappa),

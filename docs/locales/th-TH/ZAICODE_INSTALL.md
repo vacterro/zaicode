@@ -4,7 +4,7 @@ ZAICODE คือสามโครงการที่ทำงานร่ว
 
 ## คลิกเดียวจบ
 
-- **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)**:
+- **[ZAICODE-Setup.exe](https://gitlab.com/vacuum34/zaicode/-/raw/master/install/ZAICODE-Setup.exe)**:
   ดาวน์โหลด ดับเบิลคลิก กด **INSTALL** หน้าต่าง (สีทองบนพื้นเข้ม พร้อมแบนเนอร์
   SAIPEN) แสดงทุกขั้นตอนขณะทำงาน เวลาที่ใช้ไป และดู log ได้ตามต้องการ
   เมื่อจบ **START ZAICODE** หรือ **TRY AGAIN** / **Autotroubleshoot**
@@ -16,7 +16,7 @@ ZAICODE คือสามโครงการที่ทำงานร่ว
 - เริ่มจากศูนย์ ใน PowerShell:
 
   ```powershell
-  & ([scriptblock]::Create((irm https://raw.githubusercontent.com/vacterro/zaicode/master/install/Install-ZAICODE.ps1)))
+  & ([scriptblock]::Create((irm https://gitlab.com/vacuum34/zaicode/-/raw/master/install/Install-ZAICODE.ps1)))
   ```
 
 ตัวเลือกการติดตั้ง: `ZAICODE-Setup.exe -InstallDir D:\ZAICODE` (โฟลเดอร์ที่กำหนด),

@@ -97,10 +97,14 @@ function Test-ZaicodeCheck([string]$Id, $Ctx) {
     }
     'workspace' {
       if (-not (Test-ZaicodeRepo (Resolve-ZaicodeGit $Ctx) $layout.Root)) { return 'not a clone of the ZAICODE workspace' }
+      $wrong = Get-ZaicodeRepoIdentityProblem (Resolve-ZaicodeGit $Ctx) $layout.Root 'workspace'
+      if ($wrong) { return $wrong }
       if (-not (Test-Path -LiteralPath $layout.LauncherSrc)) { return 'tools\launcher is missing' }
     }
     'app-source' {
       if (-not (Test-ZaicodeRepo (Resolve-ZaicodeGit $Ctx) $layout.Zcode)) { return 'zcode\ is not a clone of the ZAICODE app' }
+      $wrong = Get-ZaicodeRepoIdentityProblem (Resolve-ZaicodeGit $Ctx) $layout.Zcode 'app'
+      if ($wrong) { return $wrong }
     }
     'saipen' {
       if (-not (Test-ZaicodeRepo (Resolve-ZaicodeGit $Ctx) $layout.Saipen)) { return 'saipen\ is not a clone of SAIPEN' }
@@ -173,26 +177,29 @@ function Test-ZaicodeCheck([string]$Id, $Ctx) {
 function Repair-ZaicodeCheck([string]$Id, $Ctx) {
   $layout = $Ctx.Layout
   $options = $Ctx.Options
+  $sources = Get-ZaicodeRepoSources $options
+  $saipenRepo = Get-ZaicodeOptionValue $options 'SaipenRepo'
+  $saimailRepo = Get-ZaicodeOptionValue $options 'SaimailRepo'
   switch ($Id) {
     'git' { $Ctx.Git = Install-ZaicodeGit $layout }
     'node' { $Ctx.Node = Install-ZaicodeNode $layout }
     'python' { $Ctx.Python = Install-ZaicodePython $layout }
     'pnpm' { Install-ZaicodePnpm $layout (Resolve-ZaicodeNode $Ctx) | Out-Null }
     'workspace' {
-      Sync-ZaicodeRepo -Git (Resolve-ZaicodeGit $Ctx) -Url $options.ZaicodeRepo -Branch $script:ZaicodeDefaults.RootBranch -Dir $layout.Root -Exclude $script:ZaicodeWorkspaceExclude `
+      Sync-ZaicodeRepo -Git (Resolve-ZaicodeGit $Ctx) -Url $sources.Workspace -Branch $script:ZaicodeDefaults.RootBranch -Dir $layout.Root -Kind workspace -Exclude $script:ZaicodeWorkspaceExclude `
         -Owned @('install', '.tools', '.venv', 'zcode', 'saipen', 'saimail')
     }
     'app-source' {
-      Sync-ZaicodeRepo -Git (Resolve-ZaicodeGit $Ctx) -Url $options.ZaicodeRepo -Branch $script:ZaicodeDefaults.AppBranch -Dir $layout.Zcode
+      Sync-ZaicodeRepo -Git (Resolve-ZaicodeGit $Ctx) -Url $sources.App -Branch $script:ZaicodeDefaults.AppBranch -Dir $layout.Zcode -Kind app
     }
-    'saipen' { Sync-ZaicodeRepo -Git (Resolve-ZaicodeGit $Ctx) -Url $options.SaipenRepo -Branch 'main' -Dir $layout.Saipen }
+    'saipen' { Sync-ZaicodeRepo -Git (Resolve-ZaicodeGit $Ctx) -Url $saipenRepo -Branch 'main' -Dir $layout.Saipen }
     'saipen-launcher' { Set-ZaicodeSaipenLauncher $layout (Resolve-ZaicodePython $Ctx) }
     'saimail' {
-      if (-not (Test-ZaicodeRepo (Resolve-ZaicodeGit $Ctx) $layout.Saimail)) { Sync-ZaicodeRepo -Git (Resolve-ZaicodeGit $Ctx) -Url $options.SaimailRepo -Branch 'main' -Dir $layout.Saimail }
+      if (-not (Test-ZaicodeRepo (Resolve-ZaicodeGit $Ctx) $layout.Saimail)) { Sync-ZaicodeRepo -Git (Resolve-ZaicodeGit $Ctx) -Url $saimailRepo -Branch 'main' -Dir $layout.Saimail }
       Install-ZaicodeSaimail $layout (Resolve-ZaicodePython $Ctx)
     }
     'saimail-cli' {
-      if (-not (Test-ZaicodeRepo (Resolve-ZaicodeGit $Ctx) $layout.Saimail)) { Sync-ZaicodeRepo -Git (Resolve-ZaicodeGit $Ctx) -Url $options.SaimailRepo -Branch 'main' -Dir $layout.Saimail }
+      if (-not (Test-ZaicodeRepo (Resolve-ZaicodeGit $Ctx) $layout.Saimail)) { Sync-ZaicodeRepo -Git (Resolve-ZaicodeGit $Ctx) -Url $saimailRepo -Branch 'main' -Dir $layout.Saimail }
       if (-not (Test-ZaicodeSaimailShipsCli $layout)) { throw 'the published SAIMAIL has no saimail-local to install' }
       Install-ZaicodeSaimail $layout (Resolve-ZaicodePython $Ctx)
     }

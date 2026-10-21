@@ -8,7 +8,7 @@ jalankan, tunggu, dan pintasan ZAICODE sudah ada di desktop.
 
 ## Sekali klik
 
-- **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)**:
+- **[ZAICODE-Setup.exe](https://gitlab.com/vacuum34/zaicode/-/raw/master/install/ZAICODE-Setup.exe)**:
   unduh, klik dua kali, tekan **INSTALL**. Jendela (emas di atas gelap, banner
   SAIPEN) menampilkan setiap langkah saat berjalan, waktu yang sudah lewat, dan log
   bila diminta; di akhir **START ZAICODE**, atau **TRY AGAIN** / **Autotroubleshoot**
@@ -20,7 +20,7 @@ jalankan, tunggu, dan pintasan ZAICODE sudah ada di desktop.
 - Dari nol, di PowerShell:
 
   ```powershell
-  & ([scriptblock]::Create((irm https://raw.githubusercontent.com/vacterro/zaicode/master/install/Install-ZAICODE.ps1)))
+  & ([scriptblock]::Create((irm https://gitlab.com/vacuum34/zaicode/-/raw/master/install/Install-ZAICODE.ps1)))
   ```
 
 Opsi setup: `ZAICODE-Setup.exe -InstallDir D:\ZAICODE` (folder preset),

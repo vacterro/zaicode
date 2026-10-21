@@ -29,7 +29,7 @@ används dagligen.
 
 ## Installera med ett klick
 
-1. Ladda ner **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)**.
+1. Ladda ner **[ZAICODE-Setup.exe](https://gitlab.com/vacuum34/zaicode/-/raw/master/install/ZAICODE-Setup.exe)**.
 2. Dubbelklicka och tryck **INSTALL**.
 
 Klart. Installationen tillför det maskinen saknar (Git, Node.js, Python, som privata

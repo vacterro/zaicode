@@ -30,7 +30,7 @@ zi de zi.
 
 ## Instalare cu un singur clic
 
-1. Descarcă **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)**.
+1. Descarcă **[ZAICODE-Setup.exe](https://gitlab.com/vacuum34/zaicode/-/raw/master/install/ZAICODE-Setup.exe)**.
 2. Dublu-clic pe el și apasă **INSTALARE**.
 
 Atât. Instalarea aduce ce îi lipsește calculatorului (Git, Node.js, Python, ca

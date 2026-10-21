@@ -29,7 +29,7 @@ CLI לסוכנים) עם שכבת מוצר מעליה: כל פרויקט מונ�
 
 ## התקנה בקליק אחד
 
-1. הורד את **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)**.
+1. הורד את **[ZAICODE-Setup.exe](https://gitlab.com/vacuum34/zaicode/-/raw/master/install/ZAICODE-Setup.exe)**.
 2. לחיצה כפולה עליו ולחיצה על **INSTALL**.
 
 זהו הכל. ההתקנה מביאה למכונה את מה שחסר לה (Git, Node.js, Python, כעות פרטיות:

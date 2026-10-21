@@ -29,7 +29,7 @@ CLI) с продуктови слой отгоре: всеки проект се
 
 ## Инсталиране с едно кликване
 
-1. Изтеглете **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)**.
+1. Изтеглете **[ZAICODE-Setup.exe](https://gitlab.com/vacuum34/zaicode/-/raw/master/install/ZAICODE-Setup.exe)**.
 2. Кликнете двукратно върху него и натиснете **INSTALL**.
 
 Толкова. Инсталаторът добавя това, което машината няма (Git, Node.js, Python — като

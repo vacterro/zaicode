@@ -22,7 +22,7 @@
 
 ## Εγκατάσταση με ένα κλικ
 
-1. Κατεβάστε το **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)**.
+1. Κατεβάστε το **[ZAICODE-Setup.exe](https://gitlab.com/vacuum34/zaicode/-/raw/master/install/ZAICODE-Setup.exe)**.
 2. Κάντε διπλό κλικ σε αυτό και πατήστε **INSTALL**.
 
 Αυτό είναι όλο. Το πρόγραμμα εγκατάστασης φέρνει ό,τι λείπει από τον υπολογιστή (Git, Node.js, Python, ως ιδιωτικά αντίγραφα: χωρίς δικαιώματα διαχειριστή), κατεβάζει τα ZAICODE, SAIPEN και SAIMAIL από το GitHub, χτίζει την εφαρμογή στον υπολογιστή και δημιουργεί συντομομέρωση ZAICODE στην επιφάνεια εργασίας. Η πρώτη εκτέλεση κρατά 15-30 λεπτά· το παράθυρο δείχνει κάθε βήμα.

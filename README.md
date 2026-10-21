@@ -30,19 +30,21 @@ used daily.
 
 ## Install in one click
 
-1. Download **ZAICODE-Setup-0.0.3.exe** from [Releases](https://github.com/vacterro/zaicode/releases)
+1. Download **[ZAICODE-Setup.exe](https://gitlab.com/vacuum34/zaicode/-/raw/master/install/ZAICODE-Setup.exe)**
    (Windows 10/11 x64).
 2. Double-click it and press **INSTALL**.
 
-That is all. The release Setup carries the whole suite: the built app, SAIPEN, SAIMAIL
-and private copies of Git, Node.js and Python. Nothing is downloaded or built and no
-administrator rights are needed; a few minutes later a ZAICODE shortcut is on the
-desktop. The installer is an ordinary window you can move or minimize while it works.
-Windows may warn about an unsigned download: **More info -> Run anyway**.
+That is all. Setup fetches ZAICODE, SAIPEN and SAIMAIL and, the first time, builds
+the app on the machine (15-30 minutes). No administrator rights are needed; a few
+minutes later a ZAICODE shortcut is on the desktop. The installer is an ordinary
+window you can move or minimize while it works. Windows may warn about an unsigned
+download: **More info -> Run anyway**.
 
-The small [ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)
-is the fallback: it fetches everything from GitHub and builds the app on the machine
-(15-30 minutes the first time).
+A full-suite build (the app, SAIPEN, SAIMAIL and private copies of Git, Node.js and
+Python in one file that downloads and builds nothing) is produced by
+`install\setup\build.cmd` with a suite payload from `node install\build-suite.mjs`
+(see [docs/ZAICODE_INSTALL.md](https://gitlab.com/vacuum34/zaicode/-/blob/master/docs/ZAICODE_INSTALL.md)).
+No release carrying it is published yet.
 
 **Uninstall** with `Uninstall-ZAICODE.cmd` in the install folder or from Windows
 *Installed apps*: remove ZAICODE alone, SAIPEN or SAIMAIL, or the whole suite. Your

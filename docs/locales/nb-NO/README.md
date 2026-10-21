@@ -30,7 +30,7 @@ brukes daglig.
 
 ## Installering med ett klikk
 
-1. Last ned **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)**.
+1. Last ned **[ZAICODE-Setup.exe](https://gitlab.com/vacuum34/zaicode/-/raw/master/install/ZAICODE-Setup.exe)**.
 2. Dobbeltklikk på den og trykk **INSTALL**.
 
 Det er alt. Oppsettet henter det maskinen mangler (Git, Node.js, Python, som

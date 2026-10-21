@@ -4,14 +4,14 @@ ZAICODE on kolme projektia, jotka toimivat yhtenä: ZAICODE-sovellus, SAIPEN (pr
 
 ## Yksi klikkaus
 
-- **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)**:
+- **[ZAICODE-Setup.exe](https://gitlab.com/vacuum34/zaicode/-/raw/master/install/ZAICODE-Setup.exe)**:
   lataa, kaksoisnapsauta, paina **INSTALL**. Ikkuna (kultaa tummalla, SAIPEN-banneri) näyttää jokaisen vaiheen sen kestäessä, kuluneen ajan ja pyydettäessä lokin; lopuksi **START ZAICODE**, tai **TRY AGAIN** / **Autotroubleshoot**
   / **Open log**, jos jokin vaihe ei valmistunut. Kun kohde on olemassa oleva ZAICODE-kansio, painikkeen teksti on **UPDATE**: sama ajo päivittää ja korjaa. Exe sisältää asennusskriptit eikä tarvitse mitään rinnalleen; sen kääntää `install\setup\build.cmd` (.NET Framework -kääntäjä, joka löytyy jokaisesta Windows 10/11:stä).
 - `install\Setup-ZAICODE.cmd` (kaksoisnapsauta): sama asennus konsolissa.
 - Tyhjästä, PowerShellissa:
 
   ```powershell
-  & ([scriptblock]::Create((irm https://raw.githubusercontent.com/vacterro/zaicode/master/install/Install-ZAICODE.ps1)))
+  & ([scriptblock]::Create((irm https://gitlab.com/vacuum34/zaicode/-/raw/master/install/Install-ZAICODE.ps1)))
   ```
 
 Asetusvalinnat: `ZAICODE-Setup.exe -InstallDir D:\ZAICODE` (esipakattu kansio),

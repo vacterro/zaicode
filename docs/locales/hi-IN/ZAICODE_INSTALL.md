@@ -5,7 +5,7 @@ ZAICODE तीन प्रोजेक्ट हैं जो एक साथ 
 
 ## एक क्लिक
 
-- **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)**:
+- **[ZAICODE-Setup.exe](https://gitlab.com/vacuum34/zaicode/-/raw/master/install/ZAICODE-Setup.exe)**:
   डाउनलोड करें, डबल-क्लिक करें, **INSTALL** दबाएँ। विंडो (गहरे रंग पर सुनहरा, SAIPEN बैनर) हर चरण चलते हुए दिखाता है, अब तक का समय और माँग पर लॉग; अंत में **START ZAICODE**, या जब कोई चरण पूरा न हुआ हो तो **TRY AGAIN** / **Autotroubleshoot**
   / **Open log**। किसी मौजूदा ZAICODE फ़ोल्डर पर इसे लक्षित करने पर बटन **UPDATE** दिखता है: वही रन अपडेट और मरम्मत करता है। यह
   exe इंस्टॉल स्क्रिप्ट रखता है और साथ में कुछ नहीं चाहिए; इसे `install\setup\build.cmd` से बनाया
@@ -14,7 +14,7 @@ ZAICODE तीन प्रोजेक्ट हैं जो एक साथ 
 - कुछ भी न हो, PowerShell में:
 
   ```powershell
-  & ([scriptblock]::Create((irm https://raw.githubusercontent.com/vacterro/zaicode/master/install/Install-ZAICODE.ps1)))
+  & ([scriptblock]::Create((irm https://gitlab.com/vacuum34/zaicode/-/raw/master/install/Install-ZAICODE.ps1)))
   ```
 
 सेटअप विकल्प: `ZAICODE-Setup.exe -InstallDir D:\ZAICODE` (प्रीसेट फ़ोल्डर),

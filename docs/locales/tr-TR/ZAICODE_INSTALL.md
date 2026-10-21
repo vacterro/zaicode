@@ -8,7 +8,7 @@ ortamı ve bir derleme demektir. Kurulum sihirbazı hepsini yapar:
 
 ## Tek tıkla
 
-- **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)**:
+- **[ZAICODE-Setup.exe](https://gitlab.com/vacuum34/zaicode/-/raw/master/install/ZAICODE-Setup.exe)**:
   indirin, çift tıklayın, **KUR**'a basın. Pencere (koyu zeminde altın renkli, SAIPEN
   banner'ı) her adımı çalışırken, geçen süreyi ve isteğe bağlı olarak günlüğü
   gösterir; sonunda **ZAICODE'U BAŞLAT**, ya da bir adım tamamlanmadıysa
@@ -21,7 +21,7 @@ ortamı ve bir derleme demektir. Kurulum sihirbazı hepsini yapar:
 - Sıfırdan, PowerShell'de:
 
   ```powershell
-  & ([scriptblock]::Create((irm https://raw.githubusercontent.com/vacterro/zaicode/master/install/Install-ZAICODE.ps1)))
+  & ([scriptblock]::Create((irm https://gitlab.com/vacuum34/zaicode/-/raw/master/install/Install-ZAICODE.ps1)))
   ```
 
 Kurulum seçenekleri: `ZAICODE-Setup.exe -InstallDir D:\ZAICODE` (ön ayar klasörü),

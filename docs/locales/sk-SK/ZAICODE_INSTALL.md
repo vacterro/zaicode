@@ -8,7 +8,7 @@ spustite ho, počkajte a na ploche je zástupca ZAICODE.
 
 ## Jedno kliknutie
 
-- **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)**:
+- **[ZAICODE-Setup.exe](https://gitlab.com/vacuum34/zaicode/-/raw/master/install/ZAICODE-Setup.exe)**:
   stiahnite, dvakrát kliknite, stlačte **INSTALL**. Okno (zlaté na tmavom,
   banner SAIPEN) zobrazuje každý krok priebežne, doterajší čas a log na
   vyžiadanie; na konci **START ZAICODE**, prípadne **TRY AGAIN** / **Autotroubleshoot**
@@ -20,7 +20,7 @@ spustite ho, počkajte a na ploche je zástupca ZAICODE.
 - Úplne od nuly, v PowerShell:
 
   ```powershell
-  & ([scriptblock]::Create((irm https://raw.githubusercontent.com/vacterro/zaicode/master/install/Install-ZAICODE.ps1)))
+  & ([scriptblock]::Create((irm https://gitlab.com/vacuum34/zaicode/-/raw/master/install/Install-ZAICODE.ps1)))
   ```
 
 Možnosti inštalácie: `ZAICODE-Setup.exe -InstallDir D:\ZAICODE` (pripravený priečinok),

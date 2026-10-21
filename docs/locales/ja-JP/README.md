@@ -30,7 +30,7 @@ CLI）を改造したビルドの上に製品レイヤーを載せたもの。�
 
 ## ワンクリックでインストール
 
-1. **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)** をダウンロードします。
+1. **[ZAICODE-Setup.exe](https://gitlab.com/vacuum34/zaicode/-/raw/master/install/ZAICODE-Setup.exe)** をダウンロードします。
 2. ダブルクリックし、**INSTALL** を押します。
 
 これだけです。セットアップがマシンに無いもの（Git、Node.js、Python。プライベート

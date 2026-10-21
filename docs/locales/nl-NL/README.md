@@ -30,7 +30,7 @@ dagelijks gebruikt wordt.
 
 ## Installatie in één klik
 
-1. Download **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)**.
+1. Download **[ZAICODE-Setup.exe](https://gitlab.com/vacuum34/zaicode/-/raw/master/install/ZAICODE-Setup.exe)**.
 2. Dubbelklik erop en druk op **INSTALL**.
 
 Dat is alles. Setup haalt op wat de machine mist (Git, Node.js, Python, als privékopieën: geen beheerdersrechten), haalt ZAICODE, SAIPEN en SAIMAIL op van GitHub, bouwt de app op de machine en zet een ZAICODE-snelkoppeling op het bureaublad. De eerste

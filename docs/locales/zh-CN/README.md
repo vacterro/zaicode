@@ -28,7 +28,7 @@ CLI）的改造版，在其上叠加了一层产品能力：每个项目都由
 
 ## 一键安装
 
-1. 下载 **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)**。
+1. 下载 **[ZAICODE-Setup.exe](https://gitlab.com/vacuum34/zaicode/-/raw/master/install/ZAICODE-Setup.exe)**。
 2. 双击它并按 **INSTALL**。
 
 仅此而已。安装程序会补齐本机缺少的部分（Git、Node.js、Python，以私有副本形式安装：不需要管理员权限），从 GitHub 拉取 ZAICODE、SAIPEN 和 SAIMAIL，在本机构建应用，并在桌面放置 ZAICODE 快捷方式。首次

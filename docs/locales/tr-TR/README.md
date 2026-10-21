@@ -30,7 +30,7 @@ kullanılan bir derleme.
 
 ## Tek tıkla kurulum
 
-1. **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)** dosyasını indirin.
+1. **[ZAICODE-Setup.exe](https://gitlab.com/vacuum34/zaicode/-/raw/master/install/ZAICODE-Setup.exe)** dosyasını indirin.
 2. Çift tıklayın ve **INSTALL** tuşuna basın.
 
 Hepsi bu. Kurulum, makinede eksik olan her şeyi özel kopyalar olarak getirir

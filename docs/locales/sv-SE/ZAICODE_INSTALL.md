@@ -8,7 +8,7 @@ gör allt det: kör det, vänta, så ligger en ZAICODE-genväg på skrivbordet.
 
 ## Ett klick
 
-- **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)**:
+- **[ZAICODE-Setup.exe](https://gitlab.com/vacuum34/zaicode/-/raw/master/install/ZAICODE-Setup.exe)**:
   ladda ner, dubbelklicka, tryck **INSTALLERA**. Fönstret (guld på mörkt,
   SAIPEN-bannern) visar varje steg medan det körs, tiden hittills och loggen
   vid förfrågan; till sist **STARTA ZAICODE**, eller **FÖRSÖK IGEN** /
@@ -21,7 +21,7 @@ gör allt det: kör det, vänta, så ligger en ZAICODE-genväg på skrivbordet.
 - Från noll, i PowerShell:
 
   ```powershell
-  & ([scriptblock]::Create((irm https://raw.githubusercontent.com/vacterro/zaicode/master/install/Install-ZAICODE.ps1)))
+  & ([scriptblock]::Create((irm https://gitlab.com/vacuum34/zaicode/-/raw/master/install/Install-ZAICODE.ps1)))
   ```
 
  installationsval: `ZAICODE-Setup.exe -InstallDir D:\ZAICODE` (preset-mapp),

@@ -9,7 +9,7 @@ tout cela : lancez-le, attendez, et un raccourci ZAICODE apparaît sur le bureau
 
 ## En un clic
 
-- **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)** :
+- **[ZAICODE-Setup.exe](https://gitlab.com/vacuum34/zaicode/-/raw/master/install/ZAICODE-Setup.exe)** :
   téléchargez, double-cliquez, appuyez sur **INSTALL**. La fenêtre (or sur fond
   sombre, bannière SAIPEN) affiche chaque étape au fil de son exécution, le temps
   écoulé et le journal à la demande ; à la fin **START ZAICODE**, ou **TRY AGAIN**
@@ -22,7 +22,7 @@ tout cela : lancez-le, attendez, et un raccourci ZAICODE apparaît sur le bureau
 - À partir de zéro, dans PowerShell :
 
   ```powershell
-  & ([scriptblock]::Create((irm https://raw.githubusercontent.com/vacterro/zaicode/master/install/Install-ZAICODE.ps1)))
+  & ([scriptblock]::Create((irm https://gitlab.com/vacuum34/zaicode/-/raw/master/install/Install-ZAICODE.ps1)))
   ```
 
 Options d'installation : `ZAICODE-Setup.exe -InstallDir D:\ZAICODE` (dossier prédéfini),
