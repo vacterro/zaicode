@@ -27,7 +27,7 @@ used daily.
 
 ## Install in one click
 
-1. Download **[ZAICODE-Setup.exe](https://github.com/vacterro/zaicode/raw/master/install/ZAICODE-Setup.exe)**.
+1. Download **[ZAICODE-Setup.exe](https://gitlab.com/vacuum34/zaicode/-/raw/master/install/ZAICODE-Setup.exe)**.
 2. Double-click it and press **INSTALL**.
 
 That is all. Setup brings what the machine lacks (Git, Node.js, Python, as private
@@ -46,7 +46,7 @@ Updates* shows every part, updates it by hand or by itself (checked a few minute
 after the start and every six hours). A new app build is prepared while ZAICODE runs
 and starts with the next start; your own edits in a clone are never overwritten.
 From a terminal: `install\Update-ZAICODE.ps1 [-Component saipen] [-Check]`.
-Autotroubleshoot: `install\Doctor.cmd`. Details: [docs/ZAICODE_INSTALL.md](https://github.com/vacterro/zaicode/blob/master/docs/ZAICODE_INSTALL.md).
+Autotroubleshoot: `install\Doctor.cmd`. Details: [docs/ZAICODE_INSTALL.md](https://gitlab.com/vacuum34/zaicode/-/blob/master/docs/ZAICODE_INSTALL.md).
 
 ## What it adds to ZCode
 
@@ -133,7 +133,7 @@ Checks: `pnpm typecheck`, `pnpm lint`, and the ZAICODE tests, for example
 
 | Branch      | Contents                                                                 |
 | ----------- | ------------------------------------------------------------------------ |
-| `master`    | the root workspace: launcher, installer (`install/`), product docs (`UI.md`, `docs/`), SAIPEN memory, CHANGELOG |
+| `master`    | the root workspace on the [GitLab mirror](https://gitlab.com/vacuum34/zaicode): launcher, installer (`install/`), product docs (`UI.md`, `docs/`), SAIPEN memory, CHANGELOG |
 | `zaicode`   | the app: upstream ZCode history plus the ZAICODE layer (what the installer and the updates follow) |
 | `main`      | the same app history as `zaicode`, kept in step |
 
