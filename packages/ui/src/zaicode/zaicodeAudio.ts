@@ -11,7 +11,7 @@ import { requestZaicodeCustomSoundUrl, subscribeZaicodeCustomSounds } from "./za
  *
  * AMBIENCE — one looping background layer that fades in when work starts
  * (at least one session running) and fades out when everything is idle.
- * Default: computalk1.wav at volume 0.03. Sound, volume and fades are settings.
+ * Default: panel_open.wav at volume 0.03. Sound, volume and fades are settings.
  *
  * PROBLIP — a courtesy metronome: one short blip at the chosen interval
  * (random 4-7 s, fixed 5/10/15/20/30 s, pulse 5 s / 10-20 s, or a manual
@@ -126,7 +126,7 @@ const CHANGE_EVENT = "zaicode-audio-changed";
 const DEFAULT_SETTINGS: ZaicodeAudioSettings = {
   ambience: {
     enabled: true,
-    sound: "fastprompter:computalk1.wav",
+    sound: "fastprompter:panel_open.wav",
     volume: 0.03,
     fadeInMs: 1500,
     fadeOutMs: 2500,

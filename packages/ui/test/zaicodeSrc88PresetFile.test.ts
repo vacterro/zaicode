@@ -45,7 +45,7 @@ function storage(initial: Record<string, string> = {}) {
 const eventsJson = JSON.stringify({
   masterVolume: 40,
   events: {
-    "sidebar.project": { enabled: true, sound: "custom:sidebar.project", soundMode: "pool", pool: [{ id: "custom:sidebar.project", weight: 1 }, { id: "fastprompter:HORSE00.wav", weight: 2 }] },
+    "sidebar.project": { enabled: true, sound: "custom:sidebar.project", soundMode: "pool", pool: [{ id: "custom:sidebar.project", weight: 1 }, { id: "fastprompter:menu1.wav", weight: 2 }] },
     "agent.done": { enabled: true, sound: "default", soundMode: "single", pool: [] },
   },
 });
@@ -107,7 +107,7 @@ test("P5 what a preset would change is counted by value, not by whitespace", () 
 test("P6 the own sounds a preset needs are found in single choices and in pools, bundled ones are not", () => {
   const settings = { "zaicode-sound-events-v1": encodeSettingValue(eventsJson), "zaicode-audio-v1": encodeSettingValue('{"ambience":{"sound":"customization:rain/loop.ogg"}}') };
   assert.deepEqual(presetSoundIds(settings).sort(), ["custom:sidebar.project", "customization:rain/loop.ogg"]);
-  assert.deepEqual(presetSoundIds({ a: "default", b: "fastprompter:HORSE00.wav" }), []);
+  assert.deepEqual(presetSoundIds({ a: "default", b: "fastprompter:menu1.wav" }), []);
 });
 
 test("P7 an own-sound id is a bare event id or a relative path inside the customization folder, never a way out of it", () => {

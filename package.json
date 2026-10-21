@@ -49,7 +49,9 @@
     "architecture:check": "node scripts/architecture/architecture-check.mjs check",
     "architecture:report": "node scripts/architecture/architecture-check.mjs report",
     "architecture:baseline:update": "node scripts/architecture/architecture-check.mjs baseline:update",
-    "architecture:context": "node scripts/architecture/architecture-check.mjs context"
+    "architecture:context": "node scripts/architecture/architecture-check.mjs context",
+    "sounds:manifest": "node scripts/zaicode-sound-manifest.mjs",
+    "sounds:verify": "node scripts/audio/verify-fallback-sounds.mjs"
   },
   "dependencies": {
     "border-beam": "^1.0.1",

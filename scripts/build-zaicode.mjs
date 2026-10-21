@@ -30,5 +30,9 @@ async function run(cmd, cmdArgs, env2) {
   });
 }
 
+// A build must never carry audio the manifest does not name: the bundled
+// game/GoldSrc library was removed once already and must not creep back.
+await run(pnpmExec, ["run", "sounds:verify"], zaicodeEnv);
+
 await run(pnpmExec, ["--filter", "@zcode/desktop", "build:no-runtime-assets", ...args], zaicodeEnv);
 console.log("[build:zaicode] renderer+host build ok, flavor=zaicode identity=dev.zaicode.app");

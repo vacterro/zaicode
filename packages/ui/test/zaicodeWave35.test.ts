@@ -317,9 +317,11 @@ test("sound kinds split by length and folder; the vault duplicate is hidden", ()
   assert.equal(formatZaicodeSoundLength(0.42), "0.4s");
   assert.equal(formatZaicodeSoundLength(72.7), "1:13");
   const catalog = listZaicodeSoundCatalog();
-  assert.ok(catalog.length > 1200);
-  assert.ok(!catalog.some((entry) => entry.folder === "_vault/cs_style"));
-  assert.ok(catalog.some((entry) => entry.kind === "ambience" && entry.seconds > 15));
+  // The bundled library is the redistributable fallback only: the bulk game
+  // and GoldSrc material was removed from the repository.  A larger personal
+  // library lives in customization\sounds and is merged separately.
+  assert.ok(catalog.length >= 30, `expected the fallback pack, got ${catalog.length}`);
+  assert.ok(!catalog.some((entry) => entry.folder.startsWith("_vault")));
 });
 
 // --- notifications --------------------------------------------------------
