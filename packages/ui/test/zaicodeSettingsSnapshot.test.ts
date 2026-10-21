@@ -66,7 +66,7 @@ test("release snapshot refuses a Sounds-table own file it cannot carry", async (
 });
 
 test("release snapshot keeps Sounds-table rows and own-file names", async () => {
-  const rows = JSON.stringify({ events: { "agent.done": { sound: "fastprompter:blip1.wav" } } });
+  const rows = JSON.stringify({ events: { "agent.done": { sound: "fastprompter:blip_b.wav" } } });
   const names = JSON.stringify({ "agent.done": "gong.wav" });
   const values = new Map<string, string>([
     ["zaicode-sound-events-v1", rows],

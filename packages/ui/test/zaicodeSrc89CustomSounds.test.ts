@@ -228,7 +228,7 @@ test("C6 a file that was removed stops playing and reads as missing, not as its 
 
 test("C7 the Mine tab shows the folder's files whatever their kind, and only those", () => {
   const mine = { id: "customization:b.wav", kind: "long" as const };
-  const library = { id: "fastprompter:QUEST.wav", kind: "long" as const };
+  const library = { id: "fastprompter:timer_tick_pack.wav", kind: "long" as const };
   assert.equal(tabs.zaicodeSoundInTabs(mine, ["mine"], new Set()), true);
   assert.equal(tabs.zaicodeSoundInTabs(library, ["mine"], new Set()), false);
   assert.equal(tabs.zaicodeSoundInTabs(mine, ["click"], new Set()), false, "a long file is not a click");

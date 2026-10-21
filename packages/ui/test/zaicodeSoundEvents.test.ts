@@ -11,11 +11,36 @@ import {
 const root = join(import.meta.dirname, "..", "src");
 const source = readFileSync(join(root, "zaicode", "zaicodeSoundSettingsModel.ts"), "utf8");
 
-test("every default event sound ships in the FastPrompter library", () => {
+test("every default event sound ships in the bundled fallback library", () => {
   const files = [...source.matchAll(/fp\("([^"]+)"\)/g)].map((match) => match[1]!);
   assert.ok(files.length >= 35, `expected many defaults, got ${files.length}`);
   const missing = files.filter((file) => !existsSync(join(root, "assets", "fastprompter-sounds", file)));
   assert.deepEqual(missing, []);
+});
+
+test("the bundled library carries nothing the manifest does not name", () => {
+  // The repository shipped 1311 game and GoldSrc files under this folder once.
+  // The manifest is the allowlist; a file outside it stops the build.
+  const manifest = readFileSync(
+    join(import.meta.dirname, "..", "..", "..", "scripts", "audio", "fallback-sounds.manifest"),
+    "utf8",
+  )
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line && !line.startsWith("#"))
+    .map((line) => line.replaceAll("\\", "/").toLowerCase());
+  const allowed = new Set(manifest);
+  const shipped = [];
+  const walk = (dir: string, prefix: string): void => {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const rel = prefix ? `${prefix}/${entry.name}` : entry.name;
+      if (entry.isDirectory()) walk(join(dir, entry.name), rel);
+      else if (/\.(wav|mp3|ogg)$/i.test(entry.name)) shipped.push(rel.toLowerCase());
+    }
+  };
+  walk(join(root, "assets", "fastprompter-sounds"), "");
+  const unlisted = shipped.filter((file) => !allowed.has(file)).sort();
+  assert.deepEqual(unlisted, [], `unlisted audio in the bundled library: ${unlisted.join(", ")}`);
 });
 
 test("sound event ids are unique and every group is known", () => {
