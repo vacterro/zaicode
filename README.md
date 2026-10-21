@@ -12,8 +12,6 @@
   ZAICODE · <a href="README.zcode.md">ZCode (简体中文)</a> · <a href="README.en.md">ZCode (English)</a>
 </p>
 
-<img width="1440" height="860" alt="2026-09-25_184446" src="https://github.com/user-attachments/assets/981106cd-8671-4c39-9329-c66d6621bb73" />
-
 
 ZAICODE is an operator workbench for running many AI coding agents at once over
 many projects, without babysitting them. It is a modified build of
@@ -37,10 +35,10 @@ copies: no administrator rights), fetches ZAICODE, SAIPEN and SAIMAIL from GitHu
 builds the app on the machine and puts a ZAICODE shortcut on the desktop. The first
 run takes 15-30 minutes; the window shows every step.
 
-Free models work at once: ZAICODE starts its own router and fills the **SAIFREN**
-pool from keyless free tiers, so a task typed into New task gets an answer with no
-key, no account and no setting. Claude Code, Codex and Antigravity subscriptions are
-optional and can be signed in any time.
+Model routing is handled by the bundled 9router integration, which can use
+available free-tier sources and optionally configured subscription CLIs.
+Authentication and availability depend on each provider and its usage policies;
+the integration does not alter provider-side limits.
 
 **One whole, four parts.** The workspace (launcher, installer), the app, SAIPEN and
 SAIMAIL are four repositories. Each updates on its own: *Settings -> ZAICODE ->
@@ -64,21 +62,18 @@ Autotroubleshoot: `install\Doctor.cmd`. Details: [docs/ZAICODE_INSTALL.md](https
   window (or in their own snapping windows). First-run "Trust this folder?"
   questions are answered; a worker that hits its usage limit is reported and,
   by setting, closed or restarted after the reset.
-- **Limits and resets.** Quota meters per account and pool, a title-bar timer
-  for the nearest reset with the full list of coming resets on hover.
-- **SCHEDULER.** Prompts that start by themselves: at a time, daily, every N
-  minutes or when a quota window refills; in one project or a whole sidebar
-  section, worst projects (most blocked / open SAIPEN tickets) first. Conditions
-  can stop stopgap work (free-pool sessions, weaker workers) first, run only on
-  idle projects, or continue only marked sessions. Prompts have no practical
-  length limit.
+- **Usage status.** Optional informational meters for configured providers,
+  accounts and pools, including usage status and provider-reported availability.
+- **SCHEDULER.** Operator-configured prompts can run on a schedule or when
+  specified availability conditions are met. Work can be limited to selected
+  sessions, idle projects or ordered project groups. Scheduling respects the
+  existing project execution controls; it does not change provider-side quotas.
 - **Routing.** A bundled 9router (MIT) gives zero-setup pools: SAIFREN
   (keyless free tiers) and SAIOPP (your subscriptions).
 - **SAIHOME, timers, sounds, highlights.** An operator home with statistics,
   FastPrompter-style timers and alarms, per-action sounds and a Win95 dark
   golden, pixel-crisp interface.
 
-<img width="1440" height="860" alt="2026-09-25_182339" src="https://github.com/user-attachments/assets/7c9b723e-9610-4f5e-9463-7cc412621348" />
 
 ### SAI Accounts is optional
 
@@ -114,7 +109,6 @@ ZAICODE's own providers, so the honest answer is an empty list — and the code
 that adds them the day it does is already there and already tested.
 
 
-
 ## Build
 
 Requirements: Windows 10/11, Git, Node.js **24.14.0**, pnpm **10.33.2**
@@ -133,8 +127,6 @@ without it the interface falls back to the system Verdana.
 
 Checks: `pnpm typecheck`, `pnpm lint`, and the ZAICODE tests, for example
 `node --import tsx --test test/zaicode*.test.ts` from `packages/ui`.
-
-<img width="1920" height="1080" alt="2026-09-25_182355" src="https://github.com/user-attachments/assets/12b19b5a-9ba5-4546-8f87-2012f22458ca" />
 
 
 ## Repository layout
@@ -159,8 +151,6 @@ Files were modified by the ZAICODE author. ZAICODE is an independent project,
 not affiliated with or endorsed by Z.ai. The original ZCode README is kept as
 [README.zcode.md](README.zcode.md) and [README.en.md](README.en.md).
 
-<img width="1440" height="860" alt="2026-09-25_182240" src="https://github.com/user-attachments/assets/9eed5305-6168-4b3c-a875-ffec2598b71f" />
-<img width="1920" height="1080" alt="2026-09-25_182433" src="https://github.com/user-attachments/assets/4a20927b-577d-4c77-a078-163e932096d2" />
 
 <!-- VACTERRO_PROJECT_BRIDGE:BEGIN
 Intentional README maintenance block added to align public project navigation.
