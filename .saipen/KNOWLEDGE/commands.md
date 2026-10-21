@@ -176,14 +176,17 @@ touched package's neighbours; the full UI+services+bootstrap trio runs once per
 integrated checkpoint; `pnpm typecheck` is warm-cheap (15 s) and belongs to every
 checkpoint. Reuse a suite result only while the tree and the command are unchanged.
 
-Lint caveat: `pnpm lint` is NOT green on a clean a71be526. Nine `eslint(max-lines)`
-errors exist in files untouched by T-401 (packages/ui/src/ChatErrorBanner.tsx 415,
-packages/ui/src/zaicode/ZaicodeQueuePanel.tsx 417,
-packages/ui/src/zaicode/ZaicodeAppRuntime.tsx 402,
-packages/shared/src/zaicode-router-circuit-breaker.ts 635,
-packages/shared/src/zaicodeSessionHealth.ts 435,
-apps/zcode-cli/packages/bootstrap/src/app/types.ts 599,
-apps/zcode-cli/packages/core/src/runtime/agent-runtime.ts 581,
-apps/zcode-cli/packages/adapters/src/model/runner-stream.ts 1534).
-That blocks `pnpm verify:pre-push` independently of any ticket; `oxlint <changed
-files>` stays the honest per-wave gate until it is repaired.
+Lint budget law (repaired by T-402, commit 145f8f9e): `pnpm lint` is green
+(91 warnings, 0 errors) and each `max-lines` cap equals the measured
+non-blank/non-comment count of its file. A cap is therefore a frozen ceiling:
+one added line fails. To grow a file legitimately, bump its cap in the same
+commit AND update `scripts/fixtures/cli-lint-legacy-lengths.json` (`max` plus
+the current `git hash-object` blob), because `scripts/cli-lint-budgets.test.mjs`
+runs the real oxlint against every fixture entry and fails when `max+1` no
+longer trips. Caps below the 400 global live as per-file overrides in
+`zcode/.oxlintrc.json`; app packages keep theirs in `packages/<p>/.oxlintrc.json`.
+Measured 2026-10-21: ui ChatErrorBanner 415, ZaicodeAppRuntime 402,
+ZaicodeQueuePanel 417; shared zaicodeSessionHealth 435,
+zaicode-router-circuit-breaker 635; bootstrap app/types 599; core
+agent-runtime 581; adapters runner-stream 1534, runner-generate 621; core
+steering 1271.
