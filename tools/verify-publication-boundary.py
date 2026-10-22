@@ -27,19 +27,16 @@ from __future__ import annotations
 import argparse
 import hashlib
 import os
+import re
 import subprocess
 import sys
 import tempfile
 
 MEMORY_DIR = ".saipen"
-IDENTITY_PATTERNS = (
-    "file:///V:/",
-    "V:\\___VAC",
-    "C:/Users/vac34",
-    "C:\\Users\\vac34",
-    "AppData\\Roaming\\ZAICODE",
-    "_SAIMAILBOX_",
-)
+# The host-path rules are derived at run time from this machine's own
+# environment, so the check itself never carries the operator's identity into
+# a published tree.
+FILE_URL_RE = re.compile(r"file:///[A-Za-z]:/")
 INSTALLER_SURFACE = (
     "install/Install-ZAICODE.ps1",
     "install/ZaicodeChecks.ps1",
@@ -118,13 +115,50 @@ def check_tip(tip: str) -> list[str]:
 
 
 def identity_path_files(tip: str) -> list[str]:
-    """Files in the tree that carry an operator host path (one grep, not one per file)."""
-    args = ["grep", "-l", "-I", "-F"]
-    for pattern in IDENTITY_PATTERNS:
-        args += ["-e", pattern]
-    args += [tip, "--", "."]
-    proc = subprocess.run(["git", *args], capture_output=True, text=True, errors="replace")
+    """Files in the tree that carry a host path of THIS machine's operator.
+
+    Three rules, none of them naming the operator: a file URL to a local
+    drive, the operator's own profile directory, and the operator's login
+    name as a word. The rules are derived from the environment, so the check
+    stays publishable.
+    """
+    found: set[str] = set()
+    found.update(_grep_files(tip, ["-E", FILE_URL_RE.pattern]))
+    for value in _profile_paths():
+        found.update(_grep_files(tip, ["-F", "-e", value]))
+        found.update(_grep_files(tip, ["-F", "-e", value.replace("\\", "/")]))
+    for name in _login_names():
+        found.update(_grep_files(tip, ["-E", rf"\b{re.escape(name)}\b"]))
+    return sorted(found)
+
+
+def _grep_files(tip: str, args: list[str]) -> list[str]:
+    proc = subprocess.run(
+        ["git", "grep", "-l", "-I", *args, tip, "--", "."],
+        capture_output=True,
+        text=True,
+        errors="replace",
+    )
     return [line for line in proc.stdout.splitlines() if line.strip()]
+
+
+def _profile_paths() -> list[str]:
+    """The operator's own profile directory, both separator spellings."""
+    paths = []
+    for name in ("USERPROFILE", "HOME"):
+        value = os.environ.get(name, "")
+        if len(value) > 3:
+            paths.append(value)
+    return paths
+
+
+def _login_names() -> list[str]:
+    names = []
+    for name in ("USERNAME", "LOGNAME", "USER"):
+        value = os.environ.get(name, "")
+        if len(value) >= 4 and value.lower() != "user":
+            names.append(value)
+    return names
 
 
 def check_local() -> list[str]:
