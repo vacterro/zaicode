@@ -425,6 +425,15 @@ failed verification and `transition REVIEW` answers `INCOMPLETE_TICKET ... requi
 verification evidence`, however green the rest is. Say "red" for the control and keep FAIL/failed
 out of the PASS event.
 
+The zero, not the word, is what exempts (2026-10-10, T-278). Only a zero IN FRONT of the token is
+forgiven -- `0 FAIL`, `no failures`, `zero failed` (`_ZERO_FAIL_RE`). A verbatim gate summary whose
+zero follows the token is a counted failure claim: `1484 pass, fail 0 skipped 4` matches
+`_FAIL_COUNTED_RE` as `1484 fail` and vetoes the very PASS that reports it, and the refusal echoes
+the whole line back as `got:`, which reads like a missing-evidence demand rather than a grammar bug.
+Paste gate output into the detail AFTER the ` -- ` separator, or phrase it `none failed`. To confirm
+before transitioning, run `L.verification_evidence(<T-###>, L.read_history_events('.'))` from
+tools/ and check the boolean, instead of rewriting the verdict by guess.
+
 ## A ProTrail overlay that is "ready" can still draw nothing (2026-09-29, T-129)
 
 The desktop-wide ProTrail called an overlay up once its window existed and its document had loaded. The
@@ -501,3 +510,145 @@ Bar: `saipen outbox check <role>` must exit 0 before collect is attempted.
 A sub's own `next_action` must start with `WAIT:`/`saipen `/`PHASE `/`RUN:`/
 `RESUME:`, and a `phase: DONE` sub state needs `task: none`, or `saipen sub
 list` reports `health: INVALID` and nobody says why in the STATUS line.
+
+## A `DONE` ticket can leave REBUILD unable to build anything (2026-10-10, T-296)
+
+T-275 (SRC-178) added `nsis.installBackground` to
+`zcode/packages/desktop/electron-builder.config.js`. electron-builder 26.8.1's
+`nsis` schema has no such property and rejects the whole configuration, so
+`pnpm bundle:zaicode` -- and therefore REBUILD.cmd -- failed in the validation
+phase before packaging anything: no installer, no `dist-next`, and the running
+app silently kept the build it already had. The image was the entire feature
+(nothing else implemented it), so removing the invalid key restores the build; a
+real installer background needs a dialog in `build/installer.nsh`, because NSIS
+takes BMP only, and only at `installerHeader`/`installerSidebar`.
+
+Same run, second trap: the background bundle reported exit 0 while its log ended
+in `Error: pnpm.cmd exit 1` (a piped command's status is its last stage's). A
+build's exit code is only evidence when it is read from a log that shows the
+build's own last line -- "do not assume a successful build command proves
+running-process parity" cuts both ways.
+
+## A renderer-reachable `@zcode/services` import whites the whole packaged app (2026-10-10, T-296)
+
+The staged build of the fixed tree booted into a blank window:
+`TypeError: (0 , <minified>.homedir) is not a function` at
+`out/renderer/assets/styles-*.js`, and the boot gate quarantined it. The shape
+in the bundle gives the whole story away:
+
+```js
+var lEt = i(((e, t) => { t.exports = {}; }))();   // node:os, node:util, node:child_process
+({}).ZCODE_DATA_BASE_DIR?.trim(),                 // process.env, also stubbed
+{}.HOME?.trim() || (0, lEt.homedir)(),            // packages/services/src/paths.ts:14-15
+(0, lEt.promisify)(lEt.execFile);
+```
+
+Every node builtin the renderer bundle touches is replaced by **one shared empty
+namespace object**, so `paths.ts`'s module-level `process.env.HOME?.trim() ||
+homedir()` throws while the chunk is evaluated and the app never mounts.
+`paths.ts` has read like that since long before the incident: the defect is
+*reachability*, and it arrives silently. A value import from the
+`@zcode/services` barrel in a renderer module
+(`zcode/packages/client/src/remoteServiceAccess.ts`) drags the whole node-only
+service graph in with no build error and no warning.
+
+Bar: a node builtin in the renderer bundle must fail the BUILD, not the boot. An
+import only a type needs has to be `import type`. Before believing a "blank
+window" report, read the boot gate's `boot-failed.json` and the uncaught
+exception at `out/renderer/assets/styles-*.js`; and never conclude "old package"
+before reading the running build's `resources/build-meta.json`.
+
+## A command and a prompt must not share one admission gate (2026-10-22, T-412)
+
+The operator launched a SAIPEN `cc` continuation, the agent started executing
+tools, and the composer answered `The current message cannot be submitted yet.`
+Both were true at the same time, because the host and the renderer had two
+different admission models for the same text:
+
+- the host admits a recognized continuation (`cc`/`сс`, no attachments) as a
+  COMMAND, with no model turn at all
+  (`apps/zcode-cli/packages/bootstrap/src/zcode-protocol-v4/commands/continue-command.ts`);
+- the pane mirrored that (it skips `ensureDraftModelReadyForSend` and
+  synthesizes a Submission when the model config is missing), but the composer
+  applied a MODEL-shaped gate to the same text and turned every model-shaped
+  reason into one generic sentence.
+
+`ComposerSendReadiness` was a boolean in disguise: a session that is not live,
+a model list still loading, no model selected and a model that disappeared all
+produced `not_submittable` and one sentence. A boolean cannot carry the
+operator's next step, so the renderer had to invent one.
+
+Bar: a control command is admitted by the host's own predicate
+(`isRecognizedContinueCommand`), never by a model gate; a model-shaped block
+may not refuse a command, and a session/mode block still may. The pane and the
+composer must read ONE admission truth that keeps the reason
+(`ComposerSubmissionBlock`), not a boolean each computes on its own.
+
+Same run, second trap: a direct command reported success before the host
+answered. `handleProjectCommand` saw a `Promise` and returned `true` at once,
+the OUTBOX collect guard then marked the generation as delivered, and the
+operator saw "Collecting ..." for a command the host later refused. A promise
+IS the acknowledgement: success may only be reported after it settles, a
+refusal has to put the generation back, and a second dispatch inside the same
+acknowledgement window is a duplicate (refused locally, with its own reason --
+not as a host refusal).
+
+Third trap of the same run: a refusal that loses its reason on the way out.
+The direct-command path caught the host's rejection and answered `false`, so
+every caller above it could only say "the host refused this command" while the
+host had already written the sentence the operator can act on. A verdict is
+worth as much as its reason: re-throw the refusal, let the banner AND the
+intent feedback carry the host's own words, and refuse a duplicate with its
+own sentence (it never reached the host, so it must not borrow the host's
+voice).
+
+## A tracked protocol tree is published by the branch that carries it (2026-10-22, T-410)
+
+The workspace repository tracks `.saipen/` -- the protocol's own memory -- so
+the protocol can commit STATE, BOARD and LOG. A public branch that points at
+that repository therefore PUBLISHES the memory tree: 17,296 files, 486 of
+them with the operator's host paths, reachable by anyone who can clone the
+mirror. The installer's sparse checkout hid it from installs, not from the
+branch.
+
+The trap: the fix cannot be "untrack `.saipen/` and ignore it". The closure
+staging runs `git add -- .saipen/BOARD.md`, and `git add` refuses an ignored
+path -- untracking the memory breaks the protocol's own commit. And keeping
+it tracked means every `git push` of that branch republishes it.
+
+Bar: the local checkout keeps its memory tracked, and the PUBLISHED tree is a
+separate line that carries the same commits without it. One forward commit
+per published tip (no history rewrite), a publisher that writes only trees
+without the memory, and a pre-push guard that refuses any other push -- a
+guard that names the publisher, so the refusal is an instruction and not a
+mystery. The tree at the tip is not the tree in the history: a forward commit
+leaves the old blobs reachable, and purging them is an operator decision.
+
+## A settings migration marker binds to the file, not to the version (2026-10-22, T-406)
+
+The ZAICODE settings schema carries `messageStreamShowReasoningMigrationInitialized`
+next to the flag it guards. Old builds persisted the default `false` and the
+user's explicit `false` as the same value, so the migration sets the flag to
+`true` once and writes the marker; afterwards the user's own choice is
+honoured. The upstream TODO says to delete the marker, the migration and the
+persisted check once every supported upgrade path is proven to run it.
+
+The proof looks complete: the marker is in the schema and in the write path of
+the fork base (upstream's first public commit `872ad960`) and in every ZAICODE
+release from `v0.0.1`, so every written `setting.json` carries it, and the
+operator's live profile carries it too. No supported upgrade path reaches the
+migration any more.
+
+The trap: the marker is not a version gate, it is an ORIGIN gate. The settings
+file is user-owned and replaced as a whole, so a restored backup, a copied
+profile, a synced file or a pre-marker build puts a marker-less file back at
+ANY version. A "unified settings schema version" stored in the same file has
+exactly the same origin property, so it cannot retire the marker: the stamp
+lives in the file and dies with the file. The TODO asks for the wrong proof.
+
+Bar: before retiring a migration marker, enumerate who can put an OLD file
+back -- backup restore, profile copy, sync, another product sharing the
+profile -- and check that the version stamp survives those. If it does not,
+keep the marker, pin the behaviour with a test (a restored pre-marker file
+must migrate again) and correct the TODO in place instead of deleting code.
+
