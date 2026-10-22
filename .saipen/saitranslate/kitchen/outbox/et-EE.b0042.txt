@@ -1,3 +1,0 @@
-1|"Ei saa kasutada"
-2|"Mõjutab kasutamist"
-3|"Väike probleem/soovitus"

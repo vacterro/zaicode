@@ -43,3 +43,6 @@ stats
 /stats/
 /.saipen/locks/
 /.zcode/
+
+# The internal SAIPEN memory tree is never published (T-410).
+/.saipen/
