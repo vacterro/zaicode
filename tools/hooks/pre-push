@@ -1,0 +1,28 @@
+#!/bin/sh
+# Refuse to publish the internal SAIPEN memory tree.
+#
+# The workspace repository tracks `.saipen/` (the protocol's own memory). That
+# tree is internal by design: it carries the operator's host paths, the
+# protocol's ticket history and machine-local handles. A public branch tip must
+# never carry it.
+#
+# The published workspace branch is written by
+#   python tools/publish-workspace-mirror.py --remote <remote> --branch <branch>
+# which strips `.saipen/` from every published tree. This hook is the guard for
+# every OTHER push, human or tool.
+#
+# Enable it once per clone:
+#   git config core.hooksPath tools/hooks
+
+status=0
+while read -r local_ref local_sha remote_ref remote_sha; do
+	[ "$local_sha" = "(delete)" ] && continue
+	git cat-file -e "$local_sha^{commit}" 2>/dev/null || continue
+	if git ls-tree -r --name-only "$local_sha" -- .saipen 2>/dev/null | grep -q .; then
+		echo "pre-push: REFUSED: $local_ref still carries the internal .saipen/ memory tree." >&2
+		echo "pre-push: publish it with:" >&2
+		echo "pre-push:   python tools/publish-workspace-mirror.py --remote <remote> --branch <branch>" >&2
+		status=1
+	fi
+done
+exit $status
