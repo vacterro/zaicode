@@ -16,7 +16,7 @@ one Git branch (`docs/ZAICODE_SAIPEN_CLOUD.md`).
 
 The same `.saipen/` bytes got two different verdicts:
 
-- Windows, `V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE`, head `72095ed`:
+- Windows, the operator workspace root (host path redacted), head `72095ed`:
   core conformance receipt `receipt-e5b4f9583188`, `verdict: PASS`,
   `problem_count: 0`, 2026-09-27T05:44:08Z. The receipt is committed in
   `35054b3`.
@@ -103,7 +103,7 @@ value is wrong on every other machine, every time.
 - Kernel `3088eff` repairs the pointer automatically: the continue router
   converges it to the executing engine (`operations.py:8747`; ZAICODE E-1410,
   `saipen_home automatically converged ... previous pointer:
-  C:/Users/vac34/.config/opencode/skills/saipen`). This recovers, but every
+  C:/Users/<user>/.config/opencode/skills/saipen`). This recovers, but every
   switch of executor writes one DEC and one STATE diff. The history fills with
   back-and-forth rebinds. If two executors checkpoint at the same time, the
   `saipen_home:` line in `STATE.md` is a guaranteed merge conflict.
@@ -158,8 +158,8 @@ Fix:
 `bin/saipen:2` and `bin/saipen.cmd:2` both hardcode
 
 ```
-C:\Users\vac34\AppData\Local\Programs\Python\Python311\python.EXE
-V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_SAIPEN\tools\saipen.py
+C:\Users\<user>\AppData\Local\Programs\Python\Python311\python.EXE
+<saipen-home>\tools\saipen.py
 ```
 
 `bin/saipen` is also a POSIX `sh` script that executes a Windows path, so it
