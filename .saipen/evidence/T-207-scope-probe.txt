@@ -1,3 +1,0 @@
-?? .saipen/evidence/T-207-board-map.txt
-?? .saipen/evidence/T-207-zcode-status.txt
-?? audit/
