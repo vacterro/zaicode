@@ -128,7 +128,16 @@ def identity_path_files(tip: str) -> list[str]:
         found.update(_grep_files(tip, ["-F", "-e", value]))
         found.update(_grep_files(tip, ["-F", "-e", value.replace("\\", "/")]))
     for name in _login_names():
-        found.update(_grep_files(tip, ["-E", rf"\b{re.escape(name)}\b"]))
+        # Only in a path context, so a common word in a document is not a hit.
+        found.update(
+            _grep_files(
+                tip,
+                [
+                "-E",
+                rf"([\\/]Users[\\/]|[\\/]home[\\/]){re.escape(name)}\b|{re.escape(name)}@",
+                ],
+            )
+        )
     return sorted(found)
 
 

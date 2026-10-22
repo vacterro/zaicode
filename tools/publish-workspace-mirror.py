@@ -29,6 +29,10 @@ carry `.saipen/`.
 
 The old blobs stay reachable in the published branch's history. Purging them
 is a history rewrite and needs the operator's explicit approval.
+
+ponytail: a merge commit is published with one parent, so the published
+history is linear even when the local history is not. The content is the
+same; add a real parent mapping when a merge must keep its shape.
 """
 
 from __future__ import annotations
@@ -222,8 +226,10 @@ def main() -> int:
 def _matching_source_commit(source: str, tip: str) -> str:
     """The local commit whose tree matches the published tip (the mirror's anchor)."""
     tip_tree = git("rev-parse", f"{tip}^{{tree}}")
-    for commit in git("rev-list", source).split():
-        if git("rev-parse", f"{commit}^{{tree}}") == tip_tree:
+    listing = git("log", "--format=%H %T", source)
+    for line in listing.splitlines():
+        commit, tree = line.split()
+        if tree == tip_tree:
             return commit
     raise SystemExit(
         "the published branch is clean but has no local counterpart; "
