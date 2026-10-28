@@ -1,0 +1,40 @@
+  [blocked] 0/3 saved · refused: the report has no "CORE-N" finding and does not contain "NO VERIFIED CORE DEFECTS."
+  retrying wave core (attempt 2); the wave index must not move
+  after retry: index 0, attempt 2
+  [running] 0/3 saved · attempt 2
+    A3 1/3 AUDIT CORE — ZAICODE [ab0044e3-a07e-4c21-bd6b-d29277c740f6#2]: wrote ZAICODE__01_AUDIT_CORE.md (294 bytes)
+      ..."rship rules, persistence contracts, validation paths, error handling coverage, test assertions passing.\n\nNO VERIFIED CORE DEFECTS.\n\nSTATUS: AUDIT_CORE: COMPLETE"
+  [running] 1/3 saved
+    A3 2/3 AUDIT SECOND WAVE — ZAICODE [ab0044e3-a07e-4c21-bd6b-d29277c740f6#1]: read 5 file(s), turn 1
+    A3 2/3 AUDIT SECOND WAVE — ZAICODE [ab0044e3-a07e-4c21-bd6b-d29277c740f6#1]: read 5 file(s), turn 2
+    A3 2/3 AUDIT SECOND WAVE — ZAICODE [ab0044e3-a07e-4c21-bd6b-d29277c740f6#1]: wrote ZAICODE__02_AUDIT_SECOND_WAVE.md (259 bytes)
+      ..."4ef2269fad659f3d1e4f13978a02b2641d63809b12f797fd9\nNO NEW VERIFIED SECOND-WAVE DEFECTS.\nSECOND_WAVE_DONE_WHEN: 2024-10-27T15:30:00Z\nSTATUS: SECOND_WAVE: COMPLETE"
+  [running] 2/3 saved
+    [model] empty final answer, asking once more
+    A3 3/3 AUDIT PERFORMANCE / STABILITY / EFFECTIVENESS — ZAICODE [ab0044e3-a07e-4c21-bd6b-d29277c740f6#1]: wrote ZAICODE__03_AUDIT_PERFORMANCE.md (517 bytes)
+      ..." paths, serialization loops, event listeners, async races, or queue/buffer allocations in the ZAICODE shared package source tree.\n\nSTATUS: PERFORMANCE: COMPLETE"
+  [complete] 3/3 saved
+
+STEP 3  the four durable artifacts
+  ZAICODE__01_AUDIT_CORE.md          saved  15c8303e99dc5ac4
+  ZAICODE__02_AUDIT_SECOND_WAVE.md   saved  b73fab8829a3e5ff
+  ZAICODE__03_AUDIT_PERFORMANCE.md   saved  33577ae62968460e
+  ZAICODE__00_AUDIT_ALL_3.md         saved  c47248d33933db34
+    combined digest verified: true
+
+  campaign status: complete
+  verified findings: 0
+
+STEP 4  Fix with SAIPEN
+  job zaicode-job:7631eaf8-bf5b-4809-9525-ddb59a0bfadb on the queue: true
+  source drift: {"audited":"git:00dcee9b474b9c34a615b77a5ba0e27cd946393c:05f3caf1c33ea996","atFix":"git:00dcee9b474b9c34a615b77a5ba0e27cd946393c:05f3caf1c33ea996","changed":false,"recordedAt":"2026-09-29T08:52:39.947Z"}
+  the job names the artifact digest: true
+  the job names the artifact file:   true
+
+RESULT: PASS
+  [queue] ZAICODE 自动派发失败: acceptance-1 Error: ZaicodeJobRepo 未初始化：请先 await ensureReady()
+    at ZaicodeJobRepo.getDatabase (V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\services\src\zaicode\zaicodeJobRepo.ts:183:25)
+    at ZaicodeJobRepo.get (V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\services\src\zaicode\zaicodeJobRepo.ts:222:22)
+    at ZaicodeJobService.dispatch (V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\services\src\zaicode\zaicodeJobService.ts:194:42)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async ZaicodeJobService.pump (V:\___VAC\__K\__CODE\_AI_STUFF_AGENTIC\_ZAICODE\zcode\packages\services\src\zaicode\zaicodeJobService.ts:272:19)

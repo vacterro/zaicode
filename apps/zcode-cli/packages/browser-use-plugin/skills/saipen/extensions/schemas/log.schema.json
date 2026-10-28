@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SAIPEN LOG Schema",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "timestamp": {
+        "type": "string"
+      },
+      "event_id": {
+        "type": "string",
+        "pattern": "^E-\\d{3,4}$",
+        "description": "RFC 1.2: [E-###] is MUST on every line, always -- phase names are not a substitute. This schema left it out of `required` until v7.101.0, which contradicted the RFC in the one file held up as the machine-readable description of a LOG line."
+      },
+      "parent_id": {
+        "type": "string",
+        "pattern": "^E-\\d{3,4}$"
+      },
+      "task_id": {
+        "type": "string"
+      },
+      "type": {
+        "type": "string",
+        "enum": [
+          "DEC",
+          "RUN",
+          "H"
+        ]
+      },
+      "content": {
+        "type": "string",
+        "description": "TAXONOMY text. No length cap: STYLE.md's commentary voice wraps around the skeleton and routinely runs long. A maxLength of 120 stood here until v7.101.0 and declared 54 of this repo's own 72 live LOG lines invalid, the longest being 501 characters."
+      }
+    },
+    "required": [
+      "timestamp",
+      "event_id",
+      "type",
+      "content"
+    ]
+  }
+}

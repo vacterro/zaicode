@@ -1,0 +1,22 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "ignorePatterns": [
+    "THIRD-PARTY-NOTICES.md",
+    "third-party/inventory.json",
+    "third-party/upstream/**",
+    "third-party/native-search/licenses/**",
+    "third-party/runtime/*.txt"
+  ],
+  "overrides": [
+    {
+      "files": [
+        "packages/ui/src/zaicode/ZaicodePebbleGame.tsx",
+        "packages/ui/src/zaicode/zaicodeHighlights.ts",
+        "packages/ui/src/zaicode/subchat/ZaicodeSubchatView.tsx",
+        "packages/ui/src/settings/ZaicodeLightsSettings.tsx",
+        "packages/ui/test/e2e/zaicodeFaults.e2e.ts"
+      ],
+      "options": { "printWidth": 180 }
+    }
+  ]
+}

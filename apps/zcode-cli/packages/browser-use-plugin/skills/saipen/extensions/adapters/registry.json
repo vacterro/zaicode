@@ -1,0 +1,303 @@
+{
+  "schema_version": 1,
+  "description": "Single declarative host adapter registry (SRC-028:R008). Every consumer -- tools/saipen_engine/admission.py, bootstrap/inject.ps1, bootstrap/inject.sh, tools/autoinject.py, status/freshness reporting and the parity tests -- reads host identity, install surfaces and enforcement capability from THIS file. No consumer may keep a second handwritten host inventory. declared_strength is what the adapter CLAIMS for an installed, current, healthy install; effective enforcement is computed at runtime by admission.effective_strength and is never stronger than the installed state proves.",
+  "activation_template": "saipen/ACTIVATION_BLOCK.md",
+  "adapters": [
+    {
+      "id": "opencode",
+      "name": "OpenCode",
+      "instruction_surfaces": [
+        "~/.config/opencode/AGENTS.md"
+      ],
+      "skill_surfaces": [
+        "~/.config/opencode/skills/saipen"
+      ],
+      "blocking_capability": true,
+      "hook_install_surface": "~/.config/opencode/plugins/saipen-guard.js",
+      "hook_artifact": "extensions/adapters/opencode/saipen-guard.js",
+      "legacy_hook_surfaces": [
+        "~/.config/opencode/plugin/saipen-guard.js"
+      ],
+      "hook_surface_note": "The supported runtime's global local plugin directory is the PLURAL `plugins/` (OpenCode 1.18.x `opencode debug config` reports a plugin origin for it and instantiates the factory). The singular `plugin/` directory is ALSO discovered by the same runtime, so a stale copy there would load this hook a second time: the injectors remove the legacy surface on install and uninstall removes both.",
+      "launch_command": "python ~/.config/opencode/skills/saipen/tools/saipen.py --agent <seat> launch opencode -- [arguments]",
+      "launch_requirement": "optional_explicit_actor",
+      "routine_launch": "generic OpenCode launch; no SAIPEN seat required",
+      "launch_implementation": "tools/saipen_engine/host_launch.py",
+      "freshness_surfaces": [
+        "skill",
+        "instruction",
+        "hook"
+      ],
+      "declared_strength": "BLOCKING",
+      "artifact_version": 1,
+      "install": {
+        "home": "~/.config/opencode",
+        "skill": "~/.config/opencode/skills/saipen",
+        "instruction": "~/.config/opencode/AGENTS.md",
+        "hook": "~/.config/opencode/plugins/saipen-guard.js"
+      },
+      "prelaunch_command": "saipen runtime --prelaunch --adapter opencode --json",
+      "prelaunch_contract": "ok+RUNTIME_CURRENT|RUNTIME_RESYNCED admits a host start; every other code refuses it. The supported launch invokes this before the host process exists (saipen/RUNTIME.md)."
+    },
+    {
+      "id": "claude",
+      "name": "Claude Code",
+      "instruction_surfaces": [
+        "~/.claude/CLAUDE.md"
+      ],
+      "skill_surfaces": [
+        "~/.claude/skills/saipen"
+      ],
+      "blocking_capability": true,
+      "hook_install_surface": null,
+      "hook_artifact": null,
+      "freshness_surfaces": [
+        "skill",
+        "instruction"
+      ],
+      "declared_strength": "ADVISORY",
+      "artifact_version": null,
+      "install": {
+        "home": "~/.claude",
+        "skill": "~/.claude/skills/saipen",
+        "instruction": "~/.claude/CLAUDE.md"
+      }
+    },
+    {
+      "id": "codex",
+      "name": "Codex CLI",
+      "instruction_surfaces": [
+        "~/.codex/AGENTS.md"
+      ],
+      "skill_surfaces": [
+        "~/.codex/skills/saipen"
+      ],
+      "blocking_capability": false,
+      "hook_install_surface": null,
+      "hook_artifact": null,
+      "freshness_surfaces": [
+        "skill",
+        "instruction"
+      ],
+      "declared_strength": "ADVISORY",
+      "artifact_version": null,
+      "install": {
+        "home": "~/.codex",
+        "skill": "~/.codex/skills/saipen",
+        "instruction": "~/.codex/AGENTS.md"
+      }
+    },
+    {
+      "id": "gemini",
+      "name": "Gemini CLI / Antigravity",
+      "instruction_surfaces": [
+        "~/.gemini/GEMINI.md"
+      ],
+      "skill_surfaces": [
+        "~/.gemini/skills/saipen"
+      ],
+      "blocking_capability": true,
+      "hook_install_surface": "~/.gemini/hooks/saipen-guard.py",
+      "hook_artifact": "tools/host_guard.py",
+      "hook_surface_note": "Executable native transport; install_host_guard.py merges hook configuration idempotently. Real host refused-effect proof is still required; candidate is not verified BLOCKING.",
+      "freshness_surfaces": [
+        "skill",
+        "instruction",
+        "hook"
+      ],
+      "declared_strength": "ADVISORY",
+      "artifact_version": 1,
+      "install": {
+        "home": "~/.gemini",
+        "skill": "~/.gemini/skills/saipen",
+        "instruction": "~/.gemini/GEMINI.md",
+        "hook": "~/.gemini/hooks/saipen-guard.py"
+      },
+      "hook_config_surface": "~/.gemini/settings.json",
+      "hook_installer": "tools/install_host_guard.py"
+    },
+    {
+      "id": "codebuddy",
+      "name": "CodeBuddy Code",
+      "instruction_surfaces": [],
+      "skill_surfaces": [
+        "~/.codebuddy/skills/saipen"
+      ],
+      "blocking_capability": false,
+      "hook_install_surface": null,
+      "hook_artifact": null,
+      "freshness_surfaces": [
+        "skill"
+      ],
+      "declared_strength": "ADVISORY",
+      "artifact_version": null,
+      "install": {
+        "home": "~/.codebuddy",
+        "skill": "~/.codebuddy/skills/saipen"
+      }
+    },
+    {
+      "id": "freebuff",
+      "name": "FreeBuff / generic ~/.agents skills",
+      "instruction_surfaces": [
+        "~/.knowledge.md",
+        "~/.AGENTS.md"
+      ],
+      "instruction_loaders": [
+        {
+          "name": "freebuff CLI",
+          "surfaces": [
+            "~/.knowledge.md",
+            "~/.AGENTS.md",
+            "~/.claude.md"
+          ]
+        },
+        {
+          "name": "FreeBuff Desktop",
+          "surfaces": [
+            "~/.AGENTS.md",
+            "~/.CLAUDE.md"
+          ]
+        }
+      ],
+      "skill_surfaces": [
+        "~/.agents/skills/saipen"
+      ],
+      "blocking_capability": false,
+      "hook_install_surface": null,
+      "hook_artifact": null,
+      "freshness_surfaces": [
+        "skill",
+        "instruction"
+      ],
+      "declared_strength": "ADVISORY",
+      "artifact_version": null,
+      "install": {
+        "home": "~/.agents",
+        "skill": "~/.agents/skills/saipen",
+        "bespoke": "freebuff-backstop"
+      }
+    },
+    {
+      "id": "aider",
+      "name": "Aider",
+      "instruction_surfaces": [
+        "~/.aider.conf.yml"
+      ],
+      "skill_surfaces": [],
+      "blocking_capability": false,
+      "hook_install_surface": null,
+      "hook_artifact": null,
+      "freshness_surfaces": [
+        "instruction"
+      ],
+      "declared_strength": "ADVISORY",
+      "artifact_version": null,
+      "install": {
+        "home": null,
+        "bespoke": "aider-conf"
+      }
+    },
+    {
+      "id": "antigravity",
+      "name": "Antigravity plugins",
+      "instruction_surfaces": [],
+      "skill_surfaces": [
+        "~/.gemini/config/plugins/*/skills/saipen"
+      ],
+      "blocking_capability": false,
+      "hook_install_surface": null,
+      "hook_artifact": null,
+      "freshness_surfaces": [
+        "skill"
+      ],
+      "declared_strength": "ADVISORY",
+      "artifact_version": null,
+      "install": {
+        "home": "~/.gemini/config/plugins",
+        "bespoke": "antigravity-plugins"
+      }
+    },
+    {
+      "id": "kiro",
+      "name": "Kiro",
+      "runtime_commands": [
+        "kiro"
+      ],
+      "instruction_surfaces": [],
+      "skill_surfaces": [
+        "~/.kiro/skills/saipen"
+      ],
+      "blocking_capability": true,
+      "hook_install_surface": "~/.kiro/hooks/saipen-guard.py",
+      "hook_artifact": "tools/host_guard.py",
+      "freshness_surfaces": [
+        "skill",
+        "hook"
+      ],
+      "declared_strength": "ENFORCEMENT_GAP",
+      "artifact_version": 1,
+      "install": {
+        "home": "~/.kiro",
+        "skill": "~/.kiro/skills/saipen",
+        "hook": "~/.kiro/hooks/saipen-guard.py"
+      },
+      "gap_reason": "Executable transport exists; no real Kiro runtime blocked-effect evidence. Effective enforcement requires installed current configuration and host health proof.",
+      "hook_config_surface": "~/.kiro/hooks/saipen-guard.json",
+      "hook_installer": "tools/install_host_guard.py",
+      "hook_surface_note": "Executable native transport; install_host_guard.py merges hook configuration idempotently. Real host refused-effect proof is still required; candidate is not verified BLOCKING."
+    },
+    {
+      "id": "deepseek",
+      "name": "DeepSeek",
+      "instruction_surfaces": [],
+      "skill_surfaces": [],
+      "blocking_capability": false,
+      "hook_install_surface": null,
+      "hook_artifact": null,
+      "freshness_surfaces": [],
+      "declared_strength": "ADVISORY",
+      "artifact_version": null,
+      "install": null
+    },
+    {
+      "id": "openai",
+      "name": "OpenAI",
+      "instruction_surfaces": [],
+      "skill_surfaces": [],
+      "blocking_capability": false,
+      "hook_install_surface": null,
+      "hook_artifact": null,
+      "freshness_surfaces": [],
+      "declared_strength": "ADVISORY",
+      "artifact_version": null,
+      "install": null
+    },
+    {
+      "id": "qwen",
+      "name": "Qwen",
+      "instruction_surfaces": [],
+      "skill_surfaces": [],
+      "blocking_capability": false,
+      "hook_install_surface": null,
+      "hook_artifact": null,
+      "freshness_surfaces": [],
+      "declared_strength": "ADVISORY",
+      "artifact_version": null,
+      "install": null
+    },
+    {
+      "id": "generic",
+      "name": "Generic (no interception)",
+      "instruction_surfaces": [],
+      "skill_surfaces": [],
+      "blocking_capability": false,
+      "hook_install_surface": null,
+      "hook_artifact": null,
+      "freshness_surfaces": [],
+      "declared_strength": "ENFORCEMENT_GAP",
+      "artifact_version": null,
+      "install": null
+    }
+  ]
+}

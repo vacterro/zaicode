@@ -1,0 +1,97 @@
+{
+  "extends": [
+    "../../.oxlintrc.json"
+  ],
+  "overrides": [
+    {
+      "files": [
+        "src/events/event-reducer.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 517,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/interfaces/browser-control.port.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 480,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/interfaces/dynamic-workflow-run.port.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 408,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/interfaces/session-store.port.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 1077,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/model/index.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 874,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/workflow/index.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 768,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    }
+  ]
+}

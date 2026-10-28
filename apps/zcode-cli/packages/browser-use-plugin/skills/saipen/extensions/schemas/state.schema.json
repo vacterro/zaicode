@@ -1,0 +1,203 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SAIPEN STATE Schema",
+  "x-current-schema-version": 3,
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "phase": {
+      "type": "string",
+      "enum": [
+        "INIT",
+        "PLAN",
+        "SCOUT",
+        "BUILD",
+        "VERIFY",
+        "REVIEW",
+        "SHIP",
+        "DONE",
+        "BLOCKED",
+        "VALIDATE",
+        "HUNT",
+        "MARKHUNT",
+        "ADD",
+        "CLEAN",
+        "TRANSLATE",
+        "PREPARE"
+      ]
+    },
+    "task": {
+      "type": "string"
+    },
+    "attempt": {
+      "type": "string",
+      "description": "Optional pointer to the OPEN Attempt (A-###) executing the claimed Work in `task`. Present only while an attempt episode is live; written and cleared by the engine's attempt open/close operations, never by hand. An Attempt is one bounded execution episode of one agent on one ticket: it may fail, be interrupted, or yield WITHOUT touching the ticket's identity, description, or history. Legal only when task names a real T-### and the named attempt has an unclosed `attempt A-### open` DEC event in the LOG whose ticket matches task; any other combination is torn state that tools/validate.py FAILs. The A-### shape is enforced in tools/validate.py's STATE contract (this file does not use `pattern`, which the gate does not interpret)."
+    },
+    "next_action": {
+      "type": "string"
+    },
+    "blocker": {
+      "type": "string"
+    },
+    "agent": {
+      "type": "string",
+      "description": "The SEAT this state is worked under, not the model build (RFC 1.4). Inherited by a returning agent; changed only for a genuinely different actor, with a DEC line naming both values. tools/validate.py rejects placeholders, `none` among them: 1.4 compares this field against itself to decide whether another agent is live, so an undefined identity makes the comparison meaningless in both directions. Where the FIRST seat name comes from at INIT is not specified by this schema and is open on the board -- this field records an identity, it does not derive one."
+    },
+    "saipen_version": {
+      "type": "integer",
+      "description": "Protocol major version that wrote this state. Read from VERSION at checkpoint time."
+    },
+    "schema_version": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "STATE file-format revision, integer. The current revision comes from this schema's x-current-schema-version metadata; revision 2 introduced the Core last_event checkpoint marker, revision 3 the style_contract voice marker. Any revision below the current one, or absence, remains readable legacy and WARNs, then MUST upgrade at the next checkpoint. Deliberately NOT in `required`: listing it there would hard-fail exactly the legacy states tools/validate.py must still open. Distinct from `saipen_version`, which is the protocol MAJOR that wrote the state."
+    },
+    "saipen_home": {
+      "type": "string",
+      "description": "RFC § 1.7's bootloader pointer: absolute path to SAIPEN home on the machine that last checkpointed."
+    },
+    "requires": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "mode": {
+      "type": "string",
+      "enum": [
+        "full",
+        "read-only",
+        "no-publish",
+        "manual-verify"
+      ]
+    },
+    "execution_intent": {
+      "type": "string",
+      "enum": [
+        "normal",
+        "goal",
+        "converge"
+      ],
+      "default": "normal",
+      "description": "The ONE canonical persisted execution-intent enum (RFC § 1.2, § 2.4). `normal` = ordinary one-step continuation; `goal` = an explicit user objective is running (the former `goal_mode: true`, safety-valve counters `goal_waves`/`goal_tickets` REQUIRED and bound to this value); `converge` = bare `cc` continuation to closure with no new objective. The legacy `goal_mode` boolean remains READ-compatible only during migration: `true` maps to `goal`, `false` to `normal`. A state carrying BOTH this field and `goal_mode` is corrupt -- tools/validate.py FAILs it, because after the first canonical checkpoint there is exactly one source of truth."
+    },
+    "converge_target": {
+      "type": "string",
+      "enum": ["done", "ship", "crew"],
+      "description": "Optional only with execution_intent: converge. Absent or done is plain cc (A-M). ship is ccc: converge through I, SHIP, then run J-M against the shipped HEAD. crew is sc/saipen crew: the serial full-platoon convergence circuit (SC-0..SC-13, extensions/subs/crew.md) whose fixed point is the whole built-in crew; `cc` while crew is active resumes the crew. Cleared with execution_intent at closure."
+    },
+    "goal_mode": {
+      "type": "boolean",
+      "default": false,
+      "description": "LEGACY field. Read-compatible during migration only: `goal_mode: true` maps deterministically to `execution_intent: goal`, `false` to `normal`. The next checkpoint MUST drop this field and write `execution_intent`. A state carrying both is corrupt (tools/validate.py FAILs it)."
+    },
+    "goal_waves": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Safety-valve counter, RFC § 2.4. MUST be present when execution_intent is `goal`, MUST be absent otherwise."
+    },
+    "goal_tickets": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Safety-valve counter, RFC § 2.4. MUST be present when execution_intent is `goal`, MUST be absent otherwise."
+    },
+    "goal_ingress": {
+      "type": "string",
+      "description": "T-1446 duplicate-goal idempotence: the deterministic ingress identity (goal-<16hex> over project identity + normalized objective) of the objective the current `goal` execution_intent was entered with. A repeated identical ingress resolves to GOAL_ALREADY_CAPTURED with zero canonical writes instead of minting a second goal. Written by goal_entry; absent otherwise."
+    },
+    "last_event": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Numeric N from the highest E-N event in the Core LOG at the checkpoint that produced this STATE. REQUIRED by tools/validate.py when schema_version is 2 and LOG contains an event; omitted only for a fresh empty LOG or readable legacy v1 state. Kept out of the JSON Schema `required` array because that array cannot express either condition."
+    },
+    "style_contract": {
+      "type": "string",
+      "description": "RFC § 1.2's voice marker: the `ded-XXXXXXXX` token declared at the top of saipen/STYLE.md, derived from that file's own text. REQUIRED by tools/validate.py when schema_version is 3, omitted only in readable legacy state below that revision. Kept out of the JSON Schema `required` array for the same reason as last_event: the array cannot express the condition. It is last_event's shape applied to the one contract nothing could witness -- a value whose truth lives in a file outside STATE, so a checkpoint that never opened STYLE.md cannot write it correctly and cannot stay silent about that."
+    },
+    "updated": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "human_note": {
+      "type": "string",
+      "description": "Optional one-line human->agent nudge, read on continue (RFC § 1.2) and cleared once applied. Not a ticket, not a goal."
+    },
+    "first_publish_confirmation": {
+      "type": "string",
+      "description": "T-994 first-publish authorization evidence: '<sanitized remote identity> <public|private>', recorded canonically via `saipen first-publish-confirm`. Present ONLY after a human confirmed the one-way door; a release may publish a brand-new remote only when this field matches the current push endpoint."
+    },
+    "role_revision": {
+      "type": "string",
+      "description": "SubSaipen only (T-542): the deterministic revision of the effective built-in charter this instance spawned/adopted against (PROTOCOL.md section 3.1 metadata block). Recorded at spawn and adopt; every ready OUTBOX package records the same value; collect compares against the current project-local charter after `saipen sub sync`. Absent on instances predating the recording."
+    },
+    "paused_from_phase": {
+      "type": "string",
+      "description": "SubSaipen-only pause receipt: exact phase restored by sub resume. Empty after resume."
+    },
+    "paused_from_na": {
+      "type": "string",
+      "description": "SubSaipen-only pause receipt: exact next_action restored by sub resume. Empty after resume."
+    },
+    "transition_from": {
+      "type": "string",
+      "enum": [
+        "INIT",
+        "PLAN",
+        "SCOUT",
+        "BUILD",
+        "VERIFY",
+        "REVIEW",
+        "SHIP",
+        "DONE",
+        "BLOCKED",
+        "VALIDATE",
+        "HUNT",
+        "MARKHUNT",
+        "ADD",
+        "CLEAN",
+        "TRANSLATE",
+        "PREPARE"
+      ],
+      "description": "The phase this state transitioned FROM. REQUIRED on every state except a fresh INIT -- part of RFC § 1.2's required set, which is the normative list; this file is its machine-readable mirror, never a second opinion about it. Deliberately NOT in `required`: that array cannot express 'except fresh INIT', and listing it there would hard-fail exactly the bootstrap state RFC § 1.2 exempts -- the same reason schema_version is kept out. The conditional is enforced in tools/validate.py instead (FAIL when phase is not INIT, WARN when it is), so absence from `required` here means 'checked elsewhere', never 'optional'. Combined with `phase` to validate transitions against RFC § 1.6. A fresh INIT bootstrap may set transition_from: INIT (self-referential, logically 'came from nothing')."
+    },
+    "stop_reason": {
+      "type": "string",
+      "enum": [
+        "EXPLICIT_USER_STOP",
+        "VALVE_REACHED",
+        "GOAL_DONE",
+        "GOAL_BLOCKED",
+        "FATAL_PROTOCOL_INVALID",
+        "NO_WORK_AND_IMPROVE_DISABLED"
+      ],
+      "description": "Orchestration repair (T-1302): explicit stop reason. Present ONLY when the autonomous loop stopped; absence means the loop is still workable. GOAL_BLOCKED is legal only while no workable ticket exists -- tools/validate.py FAILs a false global block."
+    },
+    "improve_gate": {
+      "type": "string",
+      "description": "T-1415: the named parked gate that holds AUTOMATIC improvement discovery. Written only by `saipen improve hold <T-###>` and removed by `saipen improve unhold` or deterministically when the named ticket resolves (DONE or gone from BOARD). While it names an unresolved ticket, `continue` must route to that gate / WAIT instead of starting an Improve cycle. It never blocks an explicit operator `saipen improve` invocation."
+    }
+  },
+  "required": [
+    "phase",
+    "task",
+    "next_action",
+    "blocker",
+    "agent",
+    "saipen_version",
+    "mode",
+    "updated"
+  ],
+  "if": {
+    "properties": {
+      "execution_intent": {
+        "const": "goal"
+      }
+    }
+  },
+  "then": {
+    "required": [
+      "goal_waves",
+      "goal_tickets"
+    ]
+  }
+}

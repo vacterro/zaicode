@@ -1,0 +1,13 @@
+{
+  "note": "ZAICODE pixel-exact fonts. Installed per user (no admin) by the ZAICODE launcher and the ZAICODE main process when missing. Both carry embedded bitmap strikes (EBLC), which Chromium/DirectWrite draws aliased: crisp pixels without anti-aliasing on any machine. Web fonts (@font-face) lose these strikes (Chromium's font sanitizer drops EBLC/EBDT), so they must be installed fonts.",
+  "fonts": [
+    { "file": "Verdana_m1.ttf", "registryName": "Verdana_m1 (TrueType)" },
+    { "file": "Verdana_m1-Bold.ttf", "registryName": "Verdana_m1 Bold (TrueType)" },
+    { "file": "Verdana_m1-Italic.ttf", "registryName": "Verdana_m1 Italic (TrueType)" },
+    { "file": "Verdana_m1-BoldItalic.ttf", "registryName": "Verdana_m1 Bold Italic (TrueType)" },
+    { "file": "TerminusTTFWindows-4.49.3.ttf", "registryName": "Terminus (TTF) for Windows (TrueType)" },
+    { "file": "TerminusTTFWindows-Bold-4.49.3.ttf", "registryName": "Terminus (TTF) for Windows Bold (TrueType)" },
+    { "file": "TerminusTTFWindows-Italic-4.49.3.ttf", "registryName": "Terminus (TTF) for Windows Italic (TrueType)" },
+    { "file": "TerminusTTFWindows-Bold-Italic-4.49.3.ttf", "registryName": "Terminus (TTF) for Windows Bold-Italic (TrueType)" }
+  ]
+}

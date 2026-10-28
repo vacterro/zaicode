@@ -1,0 +1,64 @@
+import type { ZCodeTaskMeta } from "@zcode/shared";
+import type { TaskListRowActivity } from "@/v4/taskListRowActivity.js";
+import { zaicodeActivityStalled, zaicodeSessionLastHeard } from "@/zaicode/zaicodeStall.js";
+
+export function deriveTaskLeadingIndicator(
+  task: ZCodeTaskMeta,
+  activity: TaskListRowActivity | null,
+  now: number = Date.now(),
+): "error" | "unread" | "loading" | "none" {
+  if (activity?.phase === "error") {
+    return "error";
+  }
+
+  // 搜索结果或 sessions-index 尚未水合时可能没有 activity sidecar。
+  // 这种情况仅回退持久化 error；一旦有 sessions-index，phase 就是实时权威。
+  if (!activity && task.status === "error") {
+    return "error";
+  }
+
+  // unread 是 tasks-index membership 字段，蓝点必须直接读取当前
+  // query-cache row；不再回退旧 Zustand map，避免两个未读权威互相打架。
+  if (typeof task.unreadAt === "number") {
+    return "unread";
+  }
+
+  // ZAICODE (SRC-081): 转圈是「此刻在干活」的断言，只有最近有真实事件推进
+  // lastActivityAt 才成立。后台工作记录写着自己 running、但两小时没有任何事件，
+  // 与前台流挂死是同一件事——圆点不能永远转下去。
+  const claimsRunning =
+    (activity?.sessionEnded !== true && (activity?.phase === "prewarming" || activity?.phase === "running")) ||
+    activity?.hasBackgroundWork === true;
+  if (
+    claimsRunning &&
+    !zaicodeActivityStalled(activity, activity?.lastActivityAt ?? zaicodeSessionLastHeard(task), now)
+  ) {
+    return "loading";
+  }
+
+  // persisted status=running 只说明上次落盘时还没收到终态，不代表新进 app 后仍在实时运行。
+  // loading 必须由当前 runtime 明确证明，否则历史列表会把上次未完成的 task 一直显示成转圈。
+  return "none";
+}
+
+export function formatTaskRelativeTime(
+  timestamp: number,
+  intl: {
+    formatMessage: (desc: { id: string }, values?: Record<string, string>) => string;
+  },
+): string {
+  const diff = Date.now() - timestamp;
+  const minutes = Math.floor(diff / 60000);
+  if (minutes < 1) return intl.formatMessage({ id: "taskList.justNow" });
+  if (minutes < 60) {
+    return intl.formatMessage({ id: "taskList.minutesAgo" }, { minutes: String(minutes) });
+  }
+
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) {
+    return intl.formatMessage({ id: "taskList.hoursAgo" }, { hours: String(hours) });
+  }
+
+  const days = Math.floor(hours / 24);
+  return intl.formatMessage({ id: "taskList.daysAgo" }, { days: String(days) });
+}

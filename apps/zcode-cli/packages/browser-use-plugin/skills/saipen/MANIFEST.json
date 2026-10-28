@@ -1,0 +1,251 @@
+{
+  "description": "SAIPEN runtime manifest — canonical list of files the protocol references at boot or during normal operation. inject.sh, inject.ps1, autoinject.py, and validate.py MUST consume or verify this single source. No independent handwritten file lists.",
+  "managed_dirs": [
+    "phases",
+    "tools",
+    "tests",
+    "bootstrap",
+    "extensions/schemas",
+    "extensions/templates",
+    "extensions/subs",
+    "extensions/adapters"
+  ],
+  "copy_trees": [
+    {
+      "src": "saipen/phases",
+      "dst": "phases"
+    },
+    {
+      "src": "tools",
+      "dst": "tools"
+    },
+    {
+      "src": "bootstrap",
+      "dst": "bootstrap"
+    },
+    {
+      "src": "extensions/schemas",
+      "dst": "extensions/schemas"
+    },
+    {
+      "src": "extensions/templates",
+      "dst": "extensions/templates"
+    },
+    {
+      "src": "extensions/subs",
+      "dst": "extensions/subs"
+    },
+    {
+      "src": "extensions/adapters",
+      "dst": "extensions/adapters"
+    }
+  ],
+  "files": [
+    {
+      "src": "saipen/BOOT.md",
+      "required": true
+    },
+    {
+      "src": "saipen/STYLE.md",
+      "required": true
+    },
+    {
+      "src": "saipen/INDEX.md",
+      "required": true
+    },
+    {
+      "src": "saipen/CONVERGE.md",
+      "required": true
+    },
+    {
+      "src": "saipen/CORE.md",
+      "required": true
+    },
+    {
+      "src": "saipen/COMMANDS.md",
+      "required": true
+    },
+    {
+      "src": "saipen/EXECUTION.md",
+      "required": true
+    },
+    {
+      "src": "saipen/REGISTRY.json",
+      "required": true
+    },
+    {
+      "src": "saipen/COMMAND_EFFECTS.json",
+      "required": true
+    },
+    {
+      "src": "saipen/MAINTENANCE.md",
+      "required": true
+    },
+    {
+      "src": "saipen/IMPROVE.md",
+      "required": true
+    },
+    {
+      "src": "saipen/SAICRITIC.md",
+      "required": true
+    },
+    {
+      "src": "saipen/OPS.md",
+      "required": true
+    },
+    {
+      "src": "saipen/RUNTIME.md",
+      "required": true
+    },
+    {
+      "src": "saipen/SOURCES.md",
+      "required": true
+    },
+    {
+      "src": "saipen/RFC.md",
+      "required": true
+    },
+    {
+      "src": "saipen/SKILL.md",
+      "required": true
+    },
+    {
+      "src": "saipen/UI.md",
+      "required": true
+    },
+    {
+      "src": "saipen/CONTROLS.md",
+      "required": true
+    },
+    {
+      "src": "saipen/HABITS.md",
+      "required": true
+    },
+    {
+      "src": "saipen/CONFORMANCE.md",
+      "required": true
+    },
+    {
+      "src": "saipen/MANIFEST.json",
+      "required": true
+    },
+    {
+      "src": "VERSION",
+      "required": true
+    },
+    {
+      "src": "tools/validate.py",
+      "required": true
+    },
+    {
+      "src": "tools/freshness.py",
+      "required": true
+    },
+    {
+      "src": "tools/sub_clean.py",
+      "required": true
+    },
+    {
+      "src": "tools/hardening_controls.json",
+      "required": true
+    },
+    {
+      "src": "tools/userperson.py",
+      "required": true
+    },
+    {
+      "src": "tools/improve.py",
+      "required": true
+    },
+    {
+      "src": "tools/install_hook.py",
+      "required": true
+    },
+    {
+      "src": "tools/uninstall_hook.py",
+      "required": true
+    },
+    {
+      "src": "tools/run_scenarios.py",
+      "required": true
+    },
+    {
+      "src": "tools/perf_wave_regressions.py",
+      "required": true
+    },
+    {
+      "src": "tools/audit_floor.py",
+      "required": true
+    },
+    {
+      "src": "tools/ci_status.py",
+      "required": true
+    },
+    {
+      "src": "tools/release_ledger_baseline.json",
+      "required": true
+    },
+    {
+      "src": "tests/validate.sh",
+      "required": true
+    },
+    {
+      "src": "tests/validate.ps1",
+      "required": true
+    },
+    {
+      "src": "bootstrap/inject.sh",
+      "required": true
+    },
+    {
+      "src": "bootstrap/inject.ps1",
+      "required": true
+    },
+    {
+      "src": "extensions/schemas/state.schema.json",
+      "required": true
+    },
+    {
+      "src": "extensions/templates/STATE.md",
+      "required": true
+    },
+    {
+      "src": "extensions/templates/BOARD.md",
+      "required": true
+    },
+    {
+      "src": "extensions/templates/LOG.md",
+      "required": true
+    },
+    {
+      "src": "saipen/ACTIVATION_BLOCK.md",
+      "required": true
+    },
+    {
+      "src": "extensions/adapters/registry.json",
+      "required": true
+    }
+  ],
+  "phase_docs": {
+    "src_dir": "saipen/phases",
+    "required": true,
+    "files": [
+      "init.md",
+      "plan.md",
+      "scout.md",
+      "build.md",
+      "verify.md",
+      "review.md",
+      "ship.md",
+      "done.md",
+      "add.md",
+      "hunt.md",
+      "markhunt.md",
+      "clean.md",
+      "blocked.md",
+      "translate.md",
+      "prepare.md",
+      "validate.md"
+    ]
+  }
+}

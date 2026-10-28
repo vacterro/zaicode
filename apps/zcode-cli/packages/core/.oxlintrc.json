@@ -1,0 +1,457 @@
+{
+  "extends": [
+    "../../.oxlintrc.json"
+  ],
+  "overrides": [
+    {
+      "files": [
+        "src/agent/message-history.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 426,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/agent/session-history-hydrator.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 510,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/hooks/runner.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 424,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/mcp/index.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 408,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/permission/service.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 590,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/runtime/agent-runtime.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 575,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/runtime/helpers/attachment-media-resolver.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 496,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/runtime/internal-turn-methods.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 446,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/runtime/methods/background.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 442,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/runtime/methods/compact-active.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 679,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/runtime/methods/compact-persistence.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 466,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/runtime/methods/compact.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 434,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/runtime/methods/events.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 590,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/runtime/methods/file-rewind.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 657,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/runtime/methods/model.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 473,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/runtime/methods/resume.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 412,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/runtime/methods/runtime-command-queue.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 442,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/runtime/methods/session-fork.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 1386,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/runtime/methods/steering.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 1262,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/runtime/methods/target-completion-verification.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 415,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/runtime/methods/turn-model-step.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 751,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/runtime/methods/turn-tools.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 501,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/runtime/methods/turn.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 808,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/runtime/methods/usage-observability.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 404,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/tool/executor/background-tasks.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 950,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/tool/executor/call-runner.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 634,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/tool/handlers/bash.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 528,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/tool/handlers/read-session-context.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 412,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/tool/handlers/read.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 467,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/workflow/lifecycle.ts"
+      ],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 540,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,152 @@
+/**
+ * T-167 / SRC-116 TRACK B, composer side: the chat send path had no circuit.
+ *
+ * The autonomous dispatcher asks `resolveProviderQuotaRoute` before every job; the composer did
+ * not, so a proven-exhausted route was fenced for queue work only while a hand-sent turn kept
+ * walking into the same wall. This is the renderer's half of that ONE circuit: the same
+ * `provider-quota-circuit` state the dispatcher reads, fed from the facts the renderer can prove,
+ * and read once per submit through the same resolver.
+ *
+ * The renderer cannot see the CLI's adapter-level classification, so it opens the circuit only
+ * from a quota banner kind that already means "this plan is spent". That is B2 in the UI's own
+ * vocabulary: a network error, a 5xx, an auth failure or a missing model never produces one of
+ * these kinds, so they never close a route.
+ */
+import {
+  openProviderQuotaCircuit,
+  resolveProviderQuotaRoute,
+  zaicodeNextRefillAt,
+  type ModelSelection,
+} from "@zcode/shared";
+import type { ModelSelectionView } from "@zcode/services";
+import type { SessionErrorInfo } from "@zcode/shared/zcode-protocol-v4";
+import type { ZaicodeEngineAccount, ZaicodeLimitSnapshot } from "@zcode/shared";
+import { ZAICODE_FALLBACK_QUOTA_KINDS, pickZaicodeFallbackModel } from "./zaicodeModelFallback.js";
+import { zaicodeRetryClassOf } from "./zaicodeRetryPolicy.js";
+
+/** Quota facts from any provider; tool/network errors never exhaust a model route. */
+export function composerQuotaFailureKind(
+  error: SessionErrorInfo | null,
+  bannerKind: string | null | undefined,
+): string | null {
+  if (bannerKind && ZAICODE_FALLBACK_QUOTA_KINDS.has(bannerKind)) return bannerKind;
+  return error && error.source !== "tool" && error.source !== "network" &&
+    zaicodeRetryClassOf(error) === "quota" ? "provider-limited" : null;
+}
+
+/**
+ * The vendor's OWN next reset for `providerId`, read from the quota snapshot the
+ * operator's own reading already produced (T-190).
+ *
+ * Before this, every path that opened the circuit passed no `resetAt`, so the
+ * hold was always a local estimate that doubled and capped at six hours. A
+ * five-hour window was resumed on a guess; a weekly plan was hammered every six
+ * hours instead of at its real reset. The vendor states the reset itself in
+ * `resetsAt` and ZAICODE already reads it for the meters -- this is that same
+ * reading, used where it is actually needed.
+ *
+ * Only a reset the vendor reported is returned. A stale or absent reading is
+ * null, and the caller falls back to the estimate: an unproven reset must never
+ * be presented as one (`resetSource` exists for exactly that).
+ */
+export function vendorResetAtForProvider(input: {
+  providerId: string;
+  accounts: readonly Pick<ZaicodeEngineAccount, "id" | "vendor">[];
+  limits: Record<string, ZaicodeLimitSnapshot | undefined>;
+  now: number;
+}): number | null {
+  const vendor = input.providerId.toLowerCase();
+  let latest: number | null = null;
+  for (const account of input.accounts) {
+    if (account.vendor.toLowerCase() !== vendor) continue;
+    const at = zaicodeNextRefillAt(input.limits[account.id], input.now);
+    if (at !== null && (latest === null || at > latest)) latest = at;
+  }
+  return latest;
+}
+
+/**
+ * Record a proven exhaustion for `providerId`. Returns false when the fact is not one this
+ * circuit is allowed to act on, so the caller can tell "nothing proven" from "proven and closed".
+ *
+ * `resetAt` is the vendor's own reset when the renderer can see it; without it the circuit
+ * holds for a local estimate and says so (`resetSource: "estimated"`), which is honest but
+ * resumes on a guess rather than on the vendor's clock (T-190).
+ */
+export function noteComposerQuotaExhaustion(input: {
+  providerId: string | null | undefined;
+  kind: string | null | undefined;
+  now: number;
+  failedAt?: number;
+  failureId?: string;
+  resetAt?: number | null;
+}): boolean {
+  if (!input.providerId || !input.kind) return false;
+  if (!ZAICODE_FALLBACK_QUOTA_KINDS.has(input.kind)) return false;
+  openProviderQuotaCircuit({
+    providerId: input.providerId,
+    now: input.failedAt !== undefined && Number.isFinite(input.failedAt)
+      ? Math.min(input.now, input.failedAt) : input.now,
+    ...(input.resetAt !== undefined ? { resetAt: input.resetAt } : {}),
+    failureId: input.failureId,
+    reason: input.kind,
+  });
+  return true;
+}
+
+/**
+ * The reasoning level travels with the operator's intent, but only when the model we move to
+ * actually offers it. A level the target model does not know would be rejected downstream as a
+ * malformed selection, which is a worse failure than the quota wall we are escaping.
+ */
+function carryReasoningLevel(
+  requested: ModelSelection,
+  fallback: { providerId: string; modelId: string },
+  view: ModelSelectionView | null,
+): ModelSelection {
+  const level = requested.options?.reasoningLevel;
+  if (!level) return fallback;
+  const supported = view?.providers
+    .find((provider) => provider.providerId === fallback.providerId)
+    ?.models.find((candidate) => candidate.modelId === fallback.modelId)
+    ?.config?.optionSpecs.reasoningLevel.values.includes(level);
+  return supported ? { ...fallback, options: { reasoningLevel: level } } : fallback;
+}
+
+export interface ComposerQuotaRoute {
+  selection: ModelSelection;
+  /** The hold's end as a local time, for the UI to state. Null when the route ran as requested. */
+  holdUntil: string | null;
+  /** True when `selection` is the fallback pool rather than what the operator picked. */
+  fallback: boolean;
+}
+
+/**
+ * The single routing decision a hand-sent turn makes, taken through the same resolver the
+ * dispatcher uses. Exactly-once: the turn either goes where the operator asked, or it goes to the
+ * fallback once and says so -- never silently to a substitute, never retried onto a dead route.
+ */
+export function routeComposerSelection(
+  requested: ModelSelection,
+  view: ModelSelectionView | null,
+  now: number,
+): ComposerQuotaRoute {
+  const fallback = pickZaicodeFallbackModel(view, requested.providerId, now);
+  const route = resolveProviderQuotaRoute({ requested, fallback, now });
+  if (!route.fallback) {
+    return {
+      selection: route.selection,
+      holdUntil: route.circuit ? holdUntilLabel(route.circuit.until) : null,
+      fallback: false,
+    };
+  }
+  return {
+    selection: carryReasoningLevel(requested, route.selection, view),
+    holdUntil: holdUntilLabel(route.circuit!.until),
+    fallback: true,
+  };
+}
+
+function holdUntilLabel(until: number): string {
+  return new Date(until).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+}

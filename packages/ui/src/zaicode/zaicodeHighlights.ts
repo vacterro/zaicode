@@ -1,0 +1,489 @@
+import { create } from "zustand";
+import { readZaicodeSetting } from "./zaicodeSettingsSnapshot.js";
+import { ensureZaicodeMotionStyles } from "./zaicodeMotionCss.js";
+import { zaicodeHighlightAttrs, type ZaicodeLightAttrs } from "./zaicodeHighlightStyle.js";
+import {
+  ZAICODE_DEFAULT_CURVE,
+  ZAICODE_EASING_IDS,
+  normalizeZaicodeBezier,
+  normalizeZaicodeEffectTunings,
+  normalizeZaicodeLayerTuning,
+  normalizeZaicodeMotionTunings,
+  normalizeZaicodeShapeTunings,
+  type ZaicodeBezier,
+  type ZaicodeEffectTuning,
+  type ZaicodeLayerTuning,
+  type ZaicodeMotionDirection,
+  type ZaicodeMotionEasing,
+  type ZaicodeMotionTuning,
+  type ZaicodeShapeTuning,
+} from "./zaicodeMotionTuning.js";
+
+export type { ZaicodeBezier, ZaicodeMotionDirection, ZaicodeMotionEasing } from "./zaicodeMotionTuning.js";
+
+/**
+ * Light and motion (SRC-038): every highlight the operator can see -- the
+ * title of a session while it works, a project with work running, a session
+ * waiting for an answer, the title bar -- and the Working icon itself, each
+ * with its own effect (steady, slow pulse, breathe, blink, strobe, heartbeat,
+ * flicker), shape (text colour, glow, underline, box, fill, side bar, dot),
+ * colour (theme, state, own, rainbow), strength, speed and whether it keeps
+ * moving while the calm interface / reduced motion is on.
+ *
+ * Rendering is CSS only: an element gets `data-zh-*` attributes plus a few
+ * custom properties (zaicodeMotionCss.ts owns the rules), so a hundred
+ * highlighted rows cost no JavaScript per frame.
+ */
+
+// ---------------------------------------------------------------- highlights
+
+export const ZAICODE_HIGHLIGHT_TARGETS = [
+  { id: "sessionTests", label: "Session tests running", hint: "A live test command in this session; separate from its agent" },
+  { id: "projectTests", label: "Project tests running", hint: "Live tests in any session of this project" },
+  {
+    id: "sessionWorking",
+    label: "Session title while it works",
+    hint: "Sidebar row of a session whose agent is working right now",
+  },
+  {
+    id: "sessionWaiting",
+    label: "Session waiting for you",
+    hint: "A question or a permission is waiting in that session",
+  },
+  {
+    id: "sessionOpen",
+    label: "The session you have open",
+    hint: "The selected row in the sidebar",
+  },
+  {
+    id: "projectWorking",
+    label: "Project title while work runs",
+    hint: "A project with at least one working session",
+  },
+  {
+    id: "projectWaiting",
+    label: "Project waiting for you",
+    hint: "A project with a session that waits for your answer",
+  },
+  {
+    id: "headerWorking",
+    label: "Title bar while the open session works",
+    hint: "The session name at the top of the chat",
+  },
+  {
+    id: "meterPrepared",
+    label: "Limit meter with a prompt ready",
+    hint: "An AI limit meter whose scheduled prompt fires right after its reset (Scheduler)",
+  },
+] as const;
+
+export type ZaicodeHighlightTarget = (typeof ZAICODE_HIGHLIGHT_TARGETS)[number]["id"];
+
+export const ZAICODE_HIGHLIGHT_EFFECTS = [
+  { id: "steady", label: "Steady", hint: "Always on, no movement" },
+  { id: "pulse", label: "Slow pulse", hint: "Fades down and back up" },
+  { id: "breathe", label: "Breathe", hint: "Rises from almost nothing and sinks again" },
+  { id: "heartbeat", label: "Heartbeat", hint: "Two quick beats, then rest" },
+  { id: "blink", label: "Blink", hint: "On / off, half and half" },
+  { id: "strobe", label: "Strobe", hint: "A short flash, then dark" },
+  { id: "flicker", label: "Flicker", hint: "An old neon sign" },
+] as const;
+export type ZaicodeHighlightEffect = (typeof ZAICODE_HIGHLIGHT_EFFECTS)[number]["id"];
+
+export const ZAICODE_HIGHLIGHT_SHAPES = [
+  { id: "text", label: "Text colour", hint: "The words themselves take the colour" },
+  { id: "glow", label: "Glow", hint: "A halo around the letters" },
+  { id: "underline", label: "Underline", hint: "A line under the title" },
+  { id: "box", label: "Box", hint: "A frame around the title" },
+  { id: "fill", label: "Fill", hint: "A tinted background" },
+  { id: "bar", label: "Side bar", hint: "A bar on the left edge" },
+  { id: "dot", label: "Dot", hint: "A small square before the title" },
+] as const;
+export type ZaicodeHighlightShape = (typeof ZAICODE_HIGHLIGHT_SHAPES)[number]["id"];
+
+export const ZAICODE_HIGHLIGHT_COLORS = [
+  { id: "accent", label: "Theme", hint: "The theme's highlight colour" },
+  { id: "state", label: "State", hint: "Gold while working, amber while waiting, green when done" },
+  { id: "custom", label: "Own", hint: "Pick any colour" },
+  { id: "rainbow", label: "Rainbow", hint: "Walks through every colour" },
+] as const;
+export type ZaicodeHighlightColor = (typeof ZAICODE_HIGHLIGHT_COLORS)[number]["id"];
+
+export interface ZaicodeHighlightRule {
+  enabled: boolean;
+  /**
+   * One effect, or several running together (Shift+Click combines, SRC-043).
+   * `["steady"]` = no movement; steady never shares the list with another.
+   */
+  effects: ZaicodeHighlightEffect[];
+  /** One shape or several drawn at once (glow + box + dot, ...); never empty. */
+  shapes: ZaicodeHighlightShape[];
+  color: ZaicodeHighlightColor;
+  /** #rrggbb for `color: "custom"`. */
+  custom: string;
+  /** 10..100 %. */
+  strength: number;
+  /** One effect cycle, 0.1..10 s. */
+  seconds: number;
+  /** Keeps moving while the calm interface (no animations) or the OS reduced-motion setting is on. */
+  keepMoving: boolean;
+  /** Own speed / easing / depth / phase per combined effect (SRC-048); absent = the common one. */
+  tuning: Partial<Record<ZaicodeHighlightEffect, ZaicodeEffectTuning>>;
+  /** Own colour / strength per combined shape (SRC-048); absent = the common one. */
+  shapeTuning: Partial<Record<ZaicodeHighlightShape, ZaicodeShapeTuning>>;
+}
+
+const rule = (
+  patch: Partial<Omit<ZaicodeHighlightRule, "effects" | "shapes">> & {
+    effect?: ZaicodeHighlightEffect;
+    shape?: ZaicodeHighlightShape;
+  },
+): ZaicodeHighlightRule => {
+  const { effect = "pulse", shape = "text", ...rest } = patch;
+  return {
+    enabled: false,
+    effects: [effect],
+    shapes: [shape],
+    color: "accent",
+    custom: "#f0c040",
+    strength: 70,
+    seconds: 2.4,
+    keepMoving: true,
+    tuning: {},
+    shapeTuning: {},
+    ...rest,
+  };
+};
+
+export const ZAICODE_HIGHLIGHT_DEFAULTS: Record<ZaicodeHighlightTarget, ZaicodeHighlightRule> = {
+  sessionTests: rule({ enabled: true, effect: "pulse", shape: "text", color: "state", seconds: 1.4 }),
+  projectTests: rule({ enabled: true, effect: "pulse", shape: "text", color: "state", seconds: 1.4 }),
+  sessionWorking: rule({
+    enabled: true,
+    effect: "breathe",
+    shape: "text",
+    color: "state",
+    seconds: 3,
+  }),
+  sessionWaiting: rule({
+    enabled: true,
+    effect: "pulse",
+    shape: "box",
+    color: "state",
+    seconds: 1.6,
+  }),
+  sessionOpen: rule({ enabled: false, effect: "steady", shape: "bar" }),
+  projectWorking: rule({
+    enabled: false,
+    effect: "breathe",
+    shape: "text",
+    color: "state",
+    seconds: 3,
+  }),
+  projectWaiting: rule({
+    enabled: false,
+    effect: "pulse",
+    shape: "underline",
+    color: "state",
+    seconds: 1.6,
+  }),
+  headerWorking: rule({
+    enabled: false,
+    effect: "breathe",
+    shape: "glow",
+    color: "state",
+    seconds: 3,
+  }),
+  meterPrepared: rule({
+    enabled: true,
+    effect: "breathe",
+    shape: "box",
+    color: "state",
+    seconds: 2.2,
+    strength: 90,
+  }),
+};
+
+/** Combining rules per list (zaicodeCombo.ts): steady / still are the neutral values. */
+export const ZAICODE_EFFECT_COMBO = { neutral: "steady" } as const;
+export const ZAICODE_SHAPE_COMBO = {} as const;
+export const ZAICODE_MOTION_COMBO = { neutral: "none" } as const;
+/** At most three pictures stacked on top of each other. */
+export const ZAICODE_IMAGE_COMBO = { max: 3 } as const;
+
+// ---------------------------------------------------------------- working icon
+
+export const ZAICODE_WORKING_IMAGES = [
+  { id: "saipen", label: "SAIPEN mark" },
+  { id: "loader", label: "Spinner" },
+  { id: "cog", label: "Cog" },
+  { id: "orbit", label: "Orbit" },
+  { id: "atom", label: "Atom" },
+  { id: "sparkle", label: "Sparkle" },
+  { id: "asterisk", label: "Asterisk" },
+  { id: "fan", label: "Fan" },
+  { id: "hourglass", label: "Hourglass" },
+  { id: "square", label: "Pixel square" },
+  { id: "custom", label: "Own picture" },
+] as const;
+export type ZaicodeWorkingImage = (typeof ZAICODE_WORKING_IMAGES)[number]["id"];
+
+export const ZAICODE_WORKING_MOTIONS = [
+  { id: "spin", label: "Spin", hint: "Turns round and round" },
+  { id: "swing", label: "Swing", hint: "Rocks left and right" },
+  { id: "wobble", label: "Wobble", hint: "A nervous shake, then still" },
+  { id: "pulse", label: "Pulse", hint: "Grows and shrinks" },
+  { id: "breathe", label: "Breathe", hint: "Fades out and in" },
+  { id: "bounce", label: "Bounce", hint: "Hops up and down" },
+  { id: "flip", label: "Flip", hint: "Turns over like a coin" },
+  { id: "blink", label: "Blink", hint: "On / off" },
+  { id: "none", label: "Still", hint: "Does not move" },
+] as const;
+export type ZaicodeWorkingMotion = (typeof ZAICODE_WORKING_MOTIONS)[number]["id"];
+
+export interface ZaicodeWorkingIconPrefs {
+  /** One picture, or up to three stacked on top of each other (Shift+Click, SRC-043). */
+  images: ZaicodeWorkingImage[];
+  /** data: URL of the operator's own picture or short looping video (≤ 1 MiB). */
+  customImage: string | null;
+  /** One motion or several at once (spin + pulse + blink ...); `["none"]` = still. */
+  motions: ZaicodeWorkingMotion[];
+  /** One cycle, 0.2..20 s. */
+  seconds: number;
+  direction: ZaicodeMotionDirection;
+  easing: ZaicodeMotionEasing;
+  /** Ticks per turn for `steps` easing, 2..24 (a clock hand). */
+  steps: number;
+  /** How far a swing / wobble / pulse / bounce / breathe / blink goes, 5..100 %. */
+  amplitude: number;
+  /** Size, 60..200 % of the place it sits in. */
+  size: number;
+  /** 20..100 %. */
+  opacity: number;
+  /** Colour for the drawn icons (the picture ones keep their own). */
+  color: "text" | "accent" | "custom";
+  custom: string;
+  /** A soft glow around it. */
+  glow: boolean;
+  /** Keeps moving while the calm interface or the OS reduced-motion setting is on. */
+  keepMoving: boolean;
+  /** The own curve for `easing: "custom"`. */
+  curve: ZaicodeBezier;
+  /** Own speed / easing / direction / reach / phase per combined motion (SRC-048). */
+  tuning: Partial<Record<ZaicodeWorkingMotion, ZaicodeMotionTuning>>;
+  /** Stacked pictures as layers: own opacity, size, blend, offset and extra motion (SRC-048). */
+  layers: Partial<Record<ZaicodeWorkingImage, ZaicodeLayerTuning>>;
+}
+
+export const ZAICODE_WORKING_ICON_DEFAULTS: ZaicodeWorkingIconPrefs = {
+  images: ["saipen"],
+  customImage: null,
+  motions: ["spin"],
+  seconds: 2.4,
+  direction: "cw",
+  easing: "linear",
+  steps: 8,
+  amplitude: 50,
+  size: 100,
+  opacity: 100,
+  color: "text",
+  custom: "#f0c040",
+  glow: false,
+  keepMoving: true,
+  curve: [...ZAICODE_DEFAULT_CURVE],
+  tuning: {},
+  layers: {},
+};
+
+export const ZAICODE_WORKING_CUSTOM_IMAGE_MAX = 1024 * 1024;
+
+// ---------------------------------------------------------------- normalize
+
+function num(value: unknown, min: number, max: number, fallback: number, decimals = 0): number {
+  if (typeof value !== "number" || !Number.isFinite(value)) return fallback;
+  const factor = 10 ** decimals;
+  return Math.min(max, Math.max(min, Math.round(value * factor) / factor));
+}
+
+function pick<T extends string>(value: unknown, allowed: readonly { id: T }[] | readonly T[], fallback: T): T {
+  const ids = (allowed as readonly (T | { id: T })[]).map((entry) => (typeof entry === "string" ? entry : entry.id));
+  return typeof value === "string" && (ids as string[]).includes(value) ? (value as T) : fallback;
+}
+
+function hex(value: unknown, fallback: string): string {
+  return typeof value === "string" && /^#[0-9a-f]{6}$/i.test(value) ? value.toLowerCase() : fallback;
+}
+
+function flag(value: unknown, fallback: boolean): boolean {
+  return typeof value === "boolean" ? value : fallback;
+}
+
+/**
+ * A combined choice: the stored list (known values, no repeats), else the
+ * pre-SRC-043 single value, else the fallback. The neutral value never shares
+ * the list; `max` keeps the newest.
+ */
+function pickList<T extends string>(list: unknown, single: unknown, allowed: readonly { id: T }[], fallback: readonly T[], combo: { neutral?: T; max?: number } = {}): T[] {
+  const ids = allowed.map((entry) => entry.id as string);
+  const source = Array.isArray(list) ? list : typeof single === "string" ? [single] : [];
+  let values = [...new Set(source.filter((value): value is T => typeof value === "string" && ids.includes(value)))];
+  if (combo.neutral !== undefined && values.length > 1) values = values.filter((value) => value !== combo.neutral);
+  if (combo.max !== undefined && values.length > combo.max) values = values.slice(values.length - combo.max);
+  return values.length > 0 ? values : [...fallback];
+}
+
+export function normalizeZaicodeHighlightRule(raw: unknown, fallback: ZaicodeHighlightRule): ZaicodeHighlightRule {
+  const r = (raw && typeof raw === "object" ? raw : {}) as Partial<Record<keyof ZaicodeHighlightRule | "effect" | "shape", unknown>>;
+
+  return {
+    enabled: flag(r.enabled, fallback.enabled),
+    effects: pickList(r.effects, r.effect, ZAICODE_HIGHLIGHT_EFFECTS, fallback.effects, ZAICODE_EFFECT_COMBO),
+    shapes: pickList(r.shapes, r.shape, ZAICODE_HIGHLIGHT_SHAPES, fallback.shapes, ZAICODE_SHAPE_COMBO),
+    color: pick(r.color, ZAICODE_HIGHLIGHT_COLORS, fallback.color),
+    custom: hex(r.custom, fallback.custom),
+    strength: num(r.strength, 10, 100, fallback.strength),
+    seconds: num(r.seconds, 0.1, 10, fallback.seconds, 1),
+    keepMoving: flag(r.keepMoving, fallback.keepMoving),
+    tuning: normalizeZaicodeEffectTunings(r.tuning, EFFECT_IDS),
+    shapeTuning: normalizeZaicodeShapeTunings(r.shapeTuning, SHAPE_IDS),
+  };
+}
+
+export function normalizeZaicodeWorkingIcon(raw: unknown): ZaicodeWorkingIconPrefs {
+  const d = ZAICODE_WORKING_ICON_DEFAULTS;
+  const r = (raw && typeof raw === "object" ? raw : {}) as Partial<Record<keyof ZaicodeWorkingIconPrefs | "image" | "motion", unknown>>;
+  const customImage =
+    typeof r.customImage === "string" && /^(data:image\/|data:video\/|https?:\/\/|\.{0,2}\/)/i.test(r.customImage) && r.customImage.length <= ZAICODE_WORKING_CUSTOM_IMAGE_MAX * 1.4
+      ? r.customImage
+      : null;
+  // An own picture that is gone drops out of the stack; an empty stack is the mark again.
+  const images = pickList(r.images, r.image, ZAICODE_WORKING_IMAGES, d.images, ZAICODE_IMAGE_COMBO).filter((image) => image !== "custom" || customImage);
+  return {
+    images: images.length > 0 ? images : [...d.images],
+    customImage,
+    motions: pickList(r.motions, r.motion, ZAICODE_WORKING_MOTIONS, d.motions, ZAICODE_MOTION_COMBO),
+    seconds: num(r.seconds, 0.2, 20, d.seconds, 1),
+    direction: pick(r.direction, ["cw", "ccw", "alternate"] as const, d.direction),
+    easing: pick(r.easing, ZAICODE_EASING_IDS, d.easing),
+    steps: num(r.steps, 2, 24, d.steps),
+    amplitude: num(r.amplitude, 5, 100, d.amplitude),
+    size: num(r.size, 60, 200, d.size),
+    opacity: num(r.opacity, 20, 100, d.opacity),
+    color: pick(r.color, ["text", "accent", "custom"] as const, d.color),
+    custom: hex(r.custom, d.custom),
+    glow: flag(r.glow, d.glow),
+    keepMoving: flag(r.keepMoving, d.keepMoving),
+    curve: normalizeZaicodeBezier(r.curve),
+    tuning: normalizeZaicodeMotionTunings(r.tuning, MOTION_IDS),
+    layers: normalizeLayers(r.layers),
+  };
+}
+
+const EFFECT_IDS = ZAICODE_HIGHLIGHT_EFFECTS.map((effect) => effect.id);
+const SHAPE_IDS = ZAICODE_HIGHLIGHT_SHAPES.map((shape) => shape.id);
+const MOTION_IDS = ZAICODE_WORKING_MOTIONS.map((motion) => motion.id);
+const IMAGE_IDS = ZAICODE_WORKING_IMAGES.map((image) => image.id);
+
+function normalizeLayers(raw: unknown): Partial<Record<ZaicodeWorkingImage, ZaicodeLayerTuning>> {
+  const source = raw && typeof raw === "object" ? (raw as Record<string, unknown>) : {};
+  const out: Partial<Record<ZaicodeWorkingImage, ZaicodeLayerTuning>> = {};
+  for (const image of IMAGE_IDS) {
+    const layer = normalizeZaicodeLayerTuning(source[image], MOTION_IDS);
+    if (layer) out[image] = layer;
+  }
+  return out;
+}
+
+export interface ZaicodeLightsPrefs {
+  highlights: Record<ZaicodeHighlightTarget, ZaicodeHighlightRule>;
+  working: ZaicodeWorkingIconPrefs;
+}
+
+export function normalizeZaicodeLights(raw: unknown): ZaicodeLightsPrefs {
+  const r = (raw && typeof raw === "object" ? raw : {}) as {
+    highlights?: Record<string, unknown>;
+    working?: unknown;
+  };
+  const highlights = {} as Record<ZaicodeHighlightTarget, ZaicodeHighlightRule>;
+  for (const target of ZAICODE_HIGHLIGHT_TARGETS) {
+    highlights[target.id] = normalizeZaicodeHighlightRule(r.highlights?.[target.id], ZAICODE_HIGHLIGHT_DEFAULTS[target.id]);
+  }
+  return { highlights, working: normalizeZaicodeWorkingIcon(r.working) };
+}
+
+// ---------------------------------------------------------------- pure styling
+
+// Highlight attributes: zaicodeHighlightStyle.ts (kept apart for the 400-line limit).
+export { ZAICODE_EFFECT_DEPTH, ZAICODE_HIGHLIGHT_STATE_COLORS, zaicodeEffectAnimation, zaicodeHighlightAttrs, withZaicodeHighlight, type ZaicodeLightAttrs, type ZaicodeLightTarget } from "./zaicodeHighlightStyle.js";
+
+// Working icon style: zaicodeWorkingIconStyle.ts (kept apart for the 400-line limit).
+export { ZAICODE_WORKING_COMBO_TRANSFORM, zaicodeWorkingIconStyle, zaicodeWorkingMotionsReach } from "./zaicodeWorkingIconStyle.js";
+
+// ---------------------------------------------------------------- store
+
+const STORAGE_KEY = "zaicode-lights-v1";
+
+function load(): ZaicodeLightsPrefs {
+  try {
+    return normalizeZaicodeLights(JSON.parse(readZaicodeSetting(STORAGE_KEY) ?? "null"));
+  } catch {
+    return normalizeZaicodeLights(null);
+  }
+}
+
+interface ZaicodeLightsState extends ZaicodeLightsPrefs {
+  setHighlight: (target: ZaicodeHighlightTarget, patch: Partial<ZaicodeHighlightRule>) => void;
+  resetHighlight: (target: ZaicodeHighlightTarget) => void;
+  setWorking: (patch: Partial<ZaicodeWorkingIconPrefs>) => void;
+  resetWorking: () => void;
+  /** Puts a whole set in place (a preset, an imported file); it is normalized first. */
+  replaceLights: (next: unknown) => void;
+}
+
+export const useZaicodeLights = create<ZaicodeLightsState>((set, get) => {
+  const persist = (next: ZaicodeLightsPrefs) => {
+    const normalized = normalizeZaicodeLights(next);
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(normalized));
+    } catch {
+      // preference only
+    }
+    set(normalized);
+  };
+  if (typeof document !== "undefined") ensureZaicodeMotionStyles();
+  return {
+    ...load(),
+    setHighlight: (target, patch) => {
+      const { highlights, working } = get();
+      persist({
+        working,
+        highlights: { ...highlights, [target]: { ...highlights[target], ...patch } },
+      });
+    },
+    resetHighlight: (target) => {
+      const { highlights, working } = get();
+      persist({
+        working,
+        highlights: { ...highlights, [target]: ZAICODE_HIGHLIGHT_DEFAULTS[target] },
+      });
+    },
+    setWorking: (patch) => {
+      const { highlights, working } = get();
+      persist({ highlights, working: { ...working, ...patch } });
+    },
+    resetWorking: () => persist({ highlights: get().highlights, working: ZAICODE_WORKING_ICON_DEFAULTS }),
+    replaceLights: (next) => persist(normalizeZaicodeLights(next)),
+  };
+});
+
+/** The current set without the store's functions (what a preset saves). */
+export function readZaicodeLights(): ZaicodeLightsPrefs {
+  const { highlights, working } = useZaicodeLights.getState();
+  return { highlights, working };
+}
+
+/** Attributes for `target` while `active`, from the live preferences; spread onto the element. */
+export function useZaicodeHighlight(target: ZaicodeHighlightTarget, active: boolean, stateColor?: string | null): ZaicodeLightAttrs | null {
+  const prefs = useZaicodeLights((state) => state.highlights[target]);
+  return active ? zaicodeHighlightAttrs(target, prefs, stateColor) : null;
+}

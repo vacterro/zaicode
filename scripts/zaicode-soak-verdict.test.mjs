@@ -1,0 +1,146 @@
+// The soak's own PASS rules, exercised without spending a day on a run.
+//
+// Run: node --test scripts/zaicode-soak-verdict.test.mjs
+// Not wired into verify:pre-push; cite it as ticket evidence instead.
+import assert from "node:assert/strict";
+import test from "node:test";
+
+import { buildVerdict } from "./zaicode-soak-verdict.mjs";
+
+/** One healthy sample of a rendered ZAICODE surface. */
+function sample(elapsedSeconds, overrides = {}) {
+  return {
+    at: new Date().toISOString(),
+    elapsedSeconds,
+    phase: "churn",
+    rssBytes: 300 * 1048576,
+    fps: 60,
+    longFrames: 0,
+    nodes: 1800,
+    heapUsedBytes: 40 * 1048576,
+    heapTotalBytes: 60 * 1048576,
+    blank: false,
+    visibleTextLength: 400,
+    health: null,
+    ...overrides,
+  };
+}
+
+const CHURNED = { churnMinutes: 2, soakHours: 0, churnActions: { "project-row": 40 }, churnErrors: 0 };
+
+test("a rendered surface that churned and held its frame rate passes", () => {
+  const timeline = [0, 15, 30, 45, 60].map((second) => sample(second));
+  const verdict = buildVerdict(timeline, CHURNED);
+  assert.equal(verdict.verdict, "PASS");
+  assert.equal(verdict.medianNodes, 1800);
+  assert.equal(verdict.churnTotal, 40);
+});
+
+test("a run that never painted the product is not a pass", () => {
+  // The recorded failure: a packaged shell answering CDP with ~11 nodes while fps and heap
+  // look perfect. This used to report PASS with blankSurfaceSamples 0.
+  const timeline = [0, 15, 30].map((second) => sample(second, { nodes: 11, visibleTextLength: 0, blank: true }));
+  assert.equal(buildVerdict(timeline, CHURNED).verdict, "FAIL_SURFACE_NOT_RENDERED");
+});
+
+test("a run whose probes all failed has nothing to judge", () => {
+  const verdict = buildVerdict([{ at: "x", elapsedSeconds: 15, probeError: "detached" }], CHURNED);
+  assert.equal(verdict.verdict, "FAIL_NO_SAMPLES");
+  assert.equal(verdict.samples, 0);
+});
+
+test("a requested churn that clicked nothing is not a pass", () => {
+  const timeline = [0, 15, 30, 45, 60].map((second) => sample(second));
+  const verdict = buildVerdict(timeline, { ...CHURNED, churnActions: {}, churnTotal: 0 });
+  assert.equal(verdict.verdict, "FAIL_NO_CHURN");
+});
+
+test("a surface that painted a tree but stayed empty fails as blank", () => {
+  // The node count is healthy, so the render floor is satisfied; what SRC-116 names is the
+  // surface converging to nothing readable. Only the text check can catch that.
+  const timeline = [0, 15, 30, 45, 60].map((second) => sample(second, { blank: true, visibleTextLength: 0 }));
+  assert.equal(buildVerdict(timeline, CHURNED).verdict, "FAIL_BLANK_SURFACE");
+});
+
+test("SRC-116's symptom, half the baseline frame rate, still fails as degraded", () => {
+  const timeline = [
+    sample(0),
+    sample(900),
+    sample(1800),
+    sample(2700, { fps: 2, longFrames: 60 }),
+    sample(3600, { fps: 1, longFrames: 90 }),
+  ];
+  assert.equal(buildVerdict(timeline, { ...CHURNED, soakHours: 1 }).verdict, "FAIL_DEGRADED");
+});
+
+test("a replayed run recovers the churn it recorded, not zero", () => {
+  // `--replay` is handed the timeline and nothing else. It used to report 0 interactions
+  // for a run that had been clicking all along, because the samples never carried the
+  // counts: the churn evidence existed in the log and the verdict could not see it.
+  const timeline = [
+    sample(0, { churnActions: { "project-row": 2 } }),
+    sample(15, { churnActions: { "project-row": 2, composer: 1 } }),
+    sample(30, { churnError: "detached" }),
+  ];
+  const verdict = buildVerdict(timeline, { churnMinutes: 2, soakHours: 12 });
+  assert.equal(verdict.churnTotal, 5);
+  assert.deepEqual(verdict.churnActions, { "project-row": 4, composer: 1 });
+  assert.equal(verdict.churnErrors, 1);
+  // Churn rides on a sample, so it never inflates the sample count.
+  assert.equal(verdict.samples, 3);
+});
+
+test("a replayed run that recorded no churn fails as no-churn", () => {
+  // The same fix must not turn the rule off for replays: a timeline with no churn on it
+  // is a run that churned nothing, and says so.
+  const timeline = [0, 15, 30, 45, 60].map((second) => sample(second));
+  assert.equal(buildVerdict(timeline, { churnMinutes: 90, soakHours: 12 }).verdict, "FAIL_NO_CHURN");
+});
+
+test("steady jank at a flat frame rate is not degradation", () => {
+  // The real 11.2-hour run: fps held 88-96, heap flat, RSS fell, 1171 clicks -- and it was
+  // called FAIL_DEGRADED because one frame in a two-second window was slower than 50ms in
+  // 85% of samples. Constant noise is not decay, and fps did not move.
+  const timeline = Array.from({ length: 60 }, (_, i) =>
+    sample(i * 15, { fps: 90, longFrames: i === 0 ? 0 : 1 }),
+  );
+  const verdict = buildVerdict(timeline, CHURNED);
+  assert.equal(verdict.verdict, "PASS");
+  assert.ok(verdict.jankDensity.late > 0.75, `expected high late density, got ${verdict.jankDensity.late}`);
+});
+
+test("jank that appears late is degradation", () => {
+  // The rule must still bite: a surface that is clean through its first tenth and mostly
+  // janky by its last is the shape SRC-116 describes, even while fps survives.
+  const timeline = Array.from({ length: 60 }, (_, i) =>
+    sample(i * 15, { fps: 55, longFrames: i < 6 ? 0 : 3 }),
+  );
+  assert.equal(buildVerdict(timeline, CHURNED).verdict, "FAIL_DEGRADED");
+});
+test("a window that never covered the horizon is not a pass", () => {
+  // 25 healthy samples lifted from the middle of the 11.2-hour run replayed as PASS,
+  // identical to the full 2341-sample verdict: durationSeconds was reported and never
+  // compared with the window the run was asked to cover.
+  const timeline = Array.from({ length: 25 }, (_, i) => sample(4_200 + i * 15));
+  const verdict = buildVerdict(timeline, { ...CHURNED, soakHours: 12 });
+  assert.equal(verdict.verdict, "FAIL_INCOMPLETE_WINDOW");
+  assert.equal(verdict.requestedSeconds, 12 * 3600);
+  assert.ok(verdict.durationSeconds < 12 * 3600);
+});
+
+test("a run that covered the horizon still passes", () => {
+  // The gate must not eat the real verdict: 12 hours at 15-second samples.
+  const timeline = Array.from({ length: 2881 }, (_, i) => sample(i * 15));
+  assert.equal(buildVerdict(timeline, { ...CHURNED, soakHours: 12 }).verdict, "PASS");
+});
+
+test("churn performed on a round whose probe failed is still churn", () => {
+  // The harness writes churn onto whichever sample a round produced. A round that churned
+  // and then lost its fps to a probe error used to vanish from the tally entirely.
+  const timeline = [0, 15, 30, 45].map((second) => sample(second, { churnActions: { click: 3 } }));
+  const broken = sample(60, { churnActions: { click: 3 }, probeError: "boom" });
+  delete broken.fps;
+  const verdict = buildVerdict([...timeline, broken], { churnMinutes: 90, soakHours: 0 });
+  assert.equal(verdict.churnTotal, 15);
+  assert.equal(verdict.verdict, "PASS");
+});

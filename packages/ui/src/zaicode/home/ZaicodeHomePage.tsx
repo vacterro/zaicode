@@ -1,0 +1,422 @@
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { MessageCirclePlus, RefreshCw, Settings2 } from "lucide-react";
+import { cn } from "@/components/lib/utils.js";
+import { openZaicodeSettings } from "../zaicodeActions.js";
+import { decideZaicodeAutostartJob, useZaicodeAutostartJobs } from "../zaicodeAutostart.js";
+import { useZaicodeEngines } from "../zaicodeEngines.js";
+import { useZaicodeClock } from "../ZaicodeLimitViews.js";
+import { useZaicodeMeterPrefs } from "../zaicodeMeterPrefs.js";
+import { useZaicodeRouter } from "../zaicodeRouter.js";
+import { useZaicodeRouterSetup } from "../zaicodeRouterSetup.js";
+import { useZaicodeUpcomingSchedules } from "../ZaicodeSchedulerBits.js";
+import { useZaicodeSessionNav } from "../zaicodeSessionNav.js";
+import { useZaicodeRunningSessions } from "../zaicodeSidebarPrefs.js";
+import { useZaicodeWorkers } from "../zaicodeWorkers.js";
+import { useZaicodeSaimailDesk } from "../zaicodeSaimail.js";
+import { ZaicodeAnalogClock } from "./ZaicodeAnalogClock.js";
+import {
+  ZaicodeHomeActions,
+  ZaicodeHomeCard,
+  ZaicodeHomeLimits,
+  ZaicodeHomeNow,
+  ZaicodeHomeRouting,
+  ZaicodeHomeSaimail,
+  ZaicodeHomeScheduler,
+} from "./ZaicodeHomeCards.js";
+import {
+  ZaicodeHomeAgents,
+  ZaicodeHomeFleet,
+  ZaicodeHomeProjectProbes,
+  ZaicodeHomeSaipen,
+  useZaicodeHomeProjectInputs,
+  useZaicodeHomeProjects,
+  type ZaicodeHomeProjectRow,
+} from "./ZaicodeHomeFleet.js";
+import {
+  ZaicodeHomeActivity,
+  ZaicodeHomeNerdStats,
+  ZaicodeHomeStats,
+  ZaicodeHomeStreak,
+  ZaicodeHomeTokenRibbon,
+  zaicodeHomeTimeline,
+} from "./ZaicodeHomeStatsCards.js";
+import { useZaicodeHomeJournal } from "./zaicodeHomeJournal.js";
+import { refreshZaicodeHome, useZaicodeHomeFeed, useZaicodeHomeFeedRefresh } from "./zaicodeHomeFeed.js";
+import {
+  zaicodeHomeActionItems,
+  zaicodeHomeLimitRows,
+  zaicodeHomeRouting,
+  zaicodeStartOfToday,
+  type ZaicodeHomeTruth,
+} from "./zaicodeHomeModel.js";
+import {
+  ZAICODE_HOME_PRESETS,
+  ZAICODE_HOME_WIDGETS,
+  useZaicodeHomePrefs,
+  zaicodeHomeLayout,
+  type ZaicodeHomePreset,
+  type ZaicodeHomeWidgetEntry,
+  type ZaicodeHomeWidgetId,
+  moveZaicodeHomeWidget,
+  zaicodeHomeCustomFromScreen,
+} from "./zaicodeHomePrefs.js";
+import { playZaicodeSound } from "../zaicodeSoundBus.js";
+
+/**
+ * SAIHOME (T-56): "what is happening?". NEW TASK stays the composer
+ * ("what do I want to start?"); nothing on this page starts work by being
+ * opened. One snapshot is assembled here from the owners' stores and the
+ * one SAIHOME feed; the widgets only render slices of it.
+ */
+
+
+/** Columns from the grid's own width: whole pixels, no transform scaling, no overlap. */
+function useGridColumns(minColumn: number): { ref: (element: HTMLDivElement | null) => void; columns: number } {
+  const [columns, setColumns] = useState(2);
+  const observer = useRef<ResizeObserver | null>(null);
+  const ref = (element: HTMLDivElement | null) => {
+    observer.current?.disconnect();
+    if (!element || typeof ResizeObserver === "undefined") return;
+    const measure = () => {
+      const width = Math.floor(element.clientWidth);
+      setColumns(Math.max(1, Math.min(4, Math.floor((width + 8) / (minColumn + 8)))));
+    };
+    observer.current = new ResizeObserver(measure);
+    observer.current.observe(element);
+    measure();
+  };
+  useEffect(() => () => observer.current?.disconnect(), []);
+  return { ref, columns };
+}
+
+function LayoutEditor({ entries, onChange, onDone }: { entries: ZaicodeHomeWidgetEntry[]; onChange: (entries: ZaicodeHomeWidgetEntry[]) => void; onDone: () => void }) {
+  const move = (index: number, delta: number) => {
+    const next = [...entries];
+    const target = index + delta;
+    if (target < 0 || target >= next.length) return;
+    [next[index], next[target]] = [next[target]!, next[index]!];
+    onChange(next);
+  };
+  return (
+    <ZaicodeHomeCard title="Edit layout" widget="editor" right="order · show · size — saved on this profile">
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(230px,1fr))] gap-1">
+        {entries.map((entry, index) => {
+          const def = ZAICODE_HOME_WIDGETS.find((widget) => widget.id === entry.id)!;
+          return (
+            <div key={entry.id} className="flex items-center gap-1 border border-border/70 bg-background px-1 py-0.5" title={def.hint}>
+              <input
+                type="checkbox"
+                aria-label={`Show ${def.label}`}
+                checked={entry.visible}
+                onChange={(event) => onChange(entries.map((current) => (current.id === entry.id ? { ...current, visible: event.target.checked } : current)))}
+              />
+              <span className={cn("min-w-0 flex-1 truncate", entry.visible ? "text-foreground" : "text-foreground-subtlest")}>{def.label}</span>
+              <select
+                aria-label={`${def.label} size`}
+                className="border border-border bg-background text-foreground"
+                value={entry.size}
+                onChange={(event) => onChange(entries.map((current) => (current.id === entry.id ? { ...current, size: event.target.value as ZaicodeHomeWidgetEntry["size"] } : current)))}
+              >
+                <option value="compact">compact</option>
+                <option value="normal">normal</option>
+                <option value="large">large</option>
+              </select>
+              <button type="button" aria-label={`Move ${def.label} up`} className="border border-border px-1 hover:bg-hover" onClick={() => move(index, -1)}>
+                ↑
+              </button>
+              <button type="button" aria-label={`Move ${def.label} down`} className="border border-border px-1 hover:bg-hover" onClick={() => move(index, 1)}>
+                ↓
+              </button>
+            </div>
+          );
+        })}
+      </div>
+      <div className="flex justify-end">
+        <button type="button" className="border border-border bg-card px-2 hover:bg-hover" onClick={onDone}>
+          Done
+        </button>
+      </div>
+    </ZaicodeHomeCard>
+  );
+}
+
+export function ZaicodeHomePage({
+  onOpenSession,
+  onOpenProject,
+  onNewTask,
+}: {
+  onOpenSession: (workspacePath: string, sessionId: string, workspaceIdentity?: string) => void;
+  /** Leaves SAIHOME for the project's chat view (activating the tab alone kept SAIHOME on screen, SRC-049). */
+  onOpenProject: (workspacePath: string, workspaceIdentity?: string) => void;
+  onNewTask: () => void;
+}) {
+  const prefs = useZaicodeHomePrefs();
+  const [editing, setEditing] = useState(false);
+  // SRC-061: drag a card by its title onto another card to move it.
+  const [armed, setArmed] = useState<string | null>(null);
+  const [dragging, setDragging] = useState<string | null>(null);
+  const [drop, setDrop] = useState<{ id: string; where: "before" | "after" } | null>(null);
+  const [showAllLimits, setShowAllLimits] = useState(false);
+  const now = useZaicodeClock(30_000);
+  useZaicodeHomeFeedRefresh(zaicodeStartOfToday(now));
+  const projects = useZaicodeHomeProjectInputs();
+  const projectRows = Object.values(useZaicodeHomeProjects((state) => state.rows)).filter((row) => projects.some((project) => project.key === row.key));
+  const engines = useZaicodeEngines();
+  const meterPrefs = useZaicodeMeterPrefs();
+  const autostartJobs = useZaicodeAutostartJobs();
+  const router = useZaicodeRouter();
+  const routerSetup = useZaicodeRouterSetup();
+  const sessions = useZaicodeRunningSessions((state) => state.sessions);
+  const waiting = useZaicodeSessionNav((state) => state.waiting);
+  const workers = useZaicodeWorkers().workers;
+  const feed = useZaicodeHomeFeed();
+  const saimail = useZaicodeSaimailDesk(null);
+  const journal = useZaicodeHomeJournal((state) => state.events);
+
+  const limits = zaicodeHomeLimitRows({
+    accounts: engines.accounts,
+    hiddenAccounts: engines.config.hiddenAccounts,
+    limits: engines.limits,
+    meterPrefs,
+    showAll: showAllLimits,
+    now,
+  });
+  const upcoming = useZaicodeUpcomingSchedules(autostartJobs, now);
+  const routing = zaicodeHomeRouting({
+    status: router.status,
+    message: router.message,
+    host: routerSetup.host,
+    combos: router.combos,
+    connections: router.connections,
+    lastScanAt: routerSetup.lastScanAt,
+    now,
+  });
+  const stats = feed.stats.value;
+  const actions = zaicodeHomeActionItems({
+    routing,
+    limitRows: limits.rows,
+    projects: projectRows.map((row) => ({ path: row.path, name: row.name, state: row.state, reason: row.blocker ?? row.reason, disabled: row.disabled })),
+    waitingSessions: waiting.length,
+    schedules: autostartJobs
+      .filter((job) => job.enabled)
+      .map((job) => {
+        const decision = decideZaicodeAutostartJob(job, now);
+        const problem = decision.state === "invalid" ? "cannot run as set up" : job.lastResult?.startsWith("missed") ? job.lastResult : null;
+        return { id: job.id, name: job.name || "schedule", problem };
+      }),
+    statsSources: stats?.sources ?? [],
+    statsError: feed.stats.error,
+    statsEventCount: stats?.eventCount ?? null,
+  });
+  const overview = feed.jobs.value;
+  const queue = overview?.dayStart === zaicodeStartOfToday(now) ? overview.counts : null;
+  const nextResetRow = limits.rows
+    .filter((row) => row.nextResetAt !== null)
+    .sort((left, right) => left.nextResetAt! - right.nextResetAt!)[0];
+  const nextSchedule = upcoming[0];
+  const statsTruth: ZaicodeHomeTruth = !stats ? "unavailable" : feed.stats.error ? "stale" : "authoritative";
+
+  // The project's MAIN session when it has one, else its chat view (composer / last session).
+  const goToProject = (row: ZaicodeHomeProjectRow) => {
+    if (row.mainSessionId) onOpenSession(row.path, row.mainSessionId, row.identity);
+    else onOpenProject(row.path, row.identity);
+  };
+  const openProjectByPath = (path: string) => {
+    const row = projectRows.find((candidate) => candidate.path === path);
+    if (row) goToProject(row);
+    else onOpenProject(path);
+  };
+
+  const render = (id: ZaicodeHomeWidgetId): ReactNode => {
+    switch (id) {
+      case "clock":
+        return (
+          <ZaicodeHomeCard title="Clock" widget="clock">
+            <ZaicodeAnalogClock prefs={prefs.clock} />
+          </ZaicodeHomeCard>
+        );
+      case "now":
+        return (
+          <ZaicodeHomeNow
+            facts={{
+              sessionsRunning: sessions.length,
+              sessionsWaiting: waiting.length,
+              workersRunning: workers.filter((worker) => worker.exitCode === null && worker.kind === "worker").length,
+              projectsWorking: projectRows.filter((row) => row.state === "working").length,
+              queue,
+              today: {
+                tokens: stats ? stats.periods.today.tokens : null,
+                jobsDone: queue?.doneToday ?? null,
+                jobsFailed: queue?.failedToday ?? null,
+                agentMs: stats ? stats.periods.today.agentMs : null,
+                truth: statsTruth,
+              },
+              nextReset: nextResetRow ? { label: nextResetRow.account.short, at: nextResetRow.nextResetAt! } : null,
+              nextSchedule: nextSchedule ? { label: nextSchedule.autopilotRequired ? "Autopilot OFF" : nextSchedule.job.name || "schedule", at: nextSchedule.autopilotRequired ? null : nextSchedule.decision.dueAt ?? null } : null,
+              problems: actions.length,
+              now,
+            }}
+          />
+        );
+      case "actions":
+        // Healthy is the default: no problem, no card.
+        return actions.length > 0 ? <ZaicodeHomeActions items={actions} onOpenProject={openProjectByPath} /> : null;
+      case "stats":
+        return <ZaicodeHomeStats stats={stats} error={feed.stats.error} />;
+      case "limits":
+        return <ZaicodeHomeLimits rows={limits.rows} filtered={limits.filtered} showAll={showAllLimits} onShowAll={setShowAllLimits} probing={engines.probing} />;
+      case "scheduler":
+        return <ZaicodeHomeScheduler upcoming={upcoming} now={now} />;
+      case "fleet":
+        return (
+          <ZaicodeHomeFleet
+            rows={projectRows}
+            onGoToProject={goToProject}
+            onOpenSession={(row, sessionId) => onOpenSession(row.path, sessionId, row.identity)}
+          />
+        );
+      case "agents":
+        return <ZaicodeHomeAgents sessions={sessions} waiting={waiting} workers={workers} overview={overview} now={now} />;
+      case "streak":
+        return stats && stats.eventCount > 0 ? <ZaicodeHomeStreak stats={stats} /> : null;
+      case "routing":
+        return <ZaicodeHomeRouting routing={routing} />;
+      case "saipen":
+        return projectRows.some((row) => row.hasSaipen && !row.disabled) ? <ZaicodeHomeSaipen rows={projectRows} /> : null;
+      case "saimail":
+        return saimail.mailbox && saimail.desk && saimail.desk.unread.length > 0 ? <ZaicodeHomeSaimail /> : null;
+      case "nerd":
+        return stats && stats.eventCount > 0 ? <ZaicodeHomeNerdStats stats={stats} /> : null;
+      case "activity": {
+        const lines = zaicodeHomeTimeline(feed.activity.value, journal);
+        return lines.length > 0 ? <ZaicodeHomeActivity lines={lines} now={now} /> : null;
+      }
+    }
+  };
+
+  const layout = zaicodeHomeLayout(prefs);
+  const grid = useGridColumns(prefs.density === "compact" ? 250 : 300);
+  const presets = [...(Object.keys(ZAICODE_HOME_PRESETS) as Exclude<ZaicodeHomePreset, "custom">[]), "custom" as const];
+  return (
+    <div className="flex h-full min-h-0 flex-col" data-zaicode-saihome data-zaicode-help="saihome">
+      <ZaicodeHomeProjectProbes projects={projects} />
+      <div className="flex shrink-0 flex-wrap items-center gap-2 border-b border-border px-3 py-1.5 text-ui-xs">
+        <h1 className="text-ui-sm tracking-wide text-foreground">SAIHOME</h1>
+        {prefs.tokenRibbon && stats ? (
+          <ZaicodeHomeTokenRibbon stats={stats} error={feed.stats.error} />
+        ) : (
+          <span className="text-foreground-subtlest">what is happening</span>
+        )}
+        <span className="flex-1" />
+        <span role="group" aria-label="Layout preset" className="flex gap-px">
+          {presets.map((preset) => (
+            <button
+              key={preset}
+              type="button"
+              aria-pressed={prefs.preset === preset}
+              className={cn("border px-1.5", prefs.preset === preset ? "border-[var(--zaicode-highlight,var(--color-border-hover))] bg-selected text-foreground" : "border-border text-foreground-subtle hover:text-foreground")}
+              onClick={() => prefs.update({ preset })}
+            >
+              {preset === "custom" ? "CUSTOM" : ZAICODE_HOME_PRESETS[preset].label}
+            </button>
+          ))}
+        </span>
+        <button
+          type="button"
+          aria-pressed={editing}
+          className={cn("border px-1.5", editing ? "border-[var(--zaicode-highlight,var(--color-border-hover))] text-foreground" : "border-border text-foreground-subtle hover:text-foreground")}
+          onClick={() => {
+            // Editing starts from what is on screen, so nothing jumps.
+            if (!editing && prefs.preset !== "custom") prefs.editLayout(zaicodeHomeCustomFromScreen(prefs));
+            setEditing(!editing);
+          }}
+        >
+          Edit layout
+        </button>
+        <button
+          type="button"
+          className="flex items-center gap-1 border border-border px-1.5 text-foreground-subtle hover:text-foreground"
+          title={feed.lastRefreshAt ? `Last refresh ${new Date(feed.lastRefreshAt).toLocaleTimeString()}` : "Refresh"}
+          onClick={() => void refreshZaicodeHome()}
+        >
+          <RefreshCw className="size-3" />
+          {feed.refreshing ? "…" : "Refresh"}
+        </button>
+        <button type="button" className="flex items-center gap-1 border border-border px-1.5 text-foreground-subtle hover:text-foreground" title="SAIHOME settings" onClick={() => void openZaicodeSettings("zaicodeLayout")}>
+          <Settings2 className="size-3" />
+        </button>
+        <button type="button" className="flex items-center gap-1 border border-border bg-card px-1.5 text-foreground hover:bg-hover" title="NEW TASK: the composer (SAIHOME itself starts nothing)" onClick={onNewTask}>
+          <MessageCirclePlus className="size-3" />
+          New task
+        </button>
+      </div>
+      <div className="min-h-0 flex-1 overflow-y-auto [scrollbar-gutter:stable]">
+        {/* SRC-049: a masonry (CSS columns) flow, not a grid: every card keeps
+            its own height and columns fill tightly, so no empty holes appear
+            whatever mix of widgets and window widths is on screen. */}
+        <div
+          ref={grid.ref}
+          className={cn("clear-both", prefs.density === "compact" ? "p-2" : "p-3")}
+          style={{ columnCount: grid.columns, columnGap: prefs.density === "compact" ? "0.5rem" : "0.75rem" }}
+        >
+          {editing ? (
+            <div style={{ columnSpan: "all" }} className="mb-2">
+              <LayoutEditor entries={prefs.custom} onChange={prefs.editLayout} onDone={() => setEditing(false)} />
+            </div>
+          ) : null}
+          {layout.map((entry) => {
+            const node = render(entry.id);
+            if (!node) return null;
+            const target = drop?.id === entry.id ? drop.where : null;
+            return (
+              <div
+                key={entry.id}
+                className={cn(
+                  "mb-2 break-inside-avoid min-w-0",
+                  dragging === entry.id && "opacity-40",
+                  target === "before" && "shadow-[0_-3px_0_0_var(--zaicode-highlight,var(--color-border-hover))]",
+                  target === "after" && "shadow-[0_3px_0_0_var(--zaicode-highlight,var(--color-border-hover))]",
+                )}
+                draggable={armed === entry.id}
+                data-zaicode-home-slot={entry.id}
+                onPointerDown={(event) => {
+                  const handle = (event.target as Element).closest?.("[data-zaicode-home-drag]");
+                  setArmed(handle ? entry.id : null);
+                }}
+                onDragStart={(event) => {
+                  event.dataTransfer.effectAllowed = "move";
+                  event.dataTransfer.setData("text/zaicode-home-widget", entry.id);
+                  setDragging(entry.id);
+                }}
+                onDragOver={(event) => {
+                  if (!dragging || dragging === entry.id) return;
+                  event.preventDefault();
+                  const rect = event.currentTarget.getBoundingClientRect();
+                  const where = event.clientY < rect.top + rect.height / 2 ? "before" : "after";
+                  if (drop?.id !== entry.id || drop.where !== where) setDrop({ id: entry.id, where });
+                }}
+                onDrop={(event) => {
+                  event.preventDefault();
+                  if (dragging && drop) {
+                    prefs.editLayout(moveZaicodeHomeWidget(zaicodeHomeCustomFromScreen(prefs), dragging, drop.id, drop.where));
+                    playZaicodeSound("sidebar.drop");
+                  }
+                  setDragging(null);
+                  setDrop(null);
+                  setArmed(null);
+                }}
+                onDragEnd={() => {
+                  setDragging(null);
+                  setDrop(null);
+                  setArmed(null);
+                }}
+              >
+                {node}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}

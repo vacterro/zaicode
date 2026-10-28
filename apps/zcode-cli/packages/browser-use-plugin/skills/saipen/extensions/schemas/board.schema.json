@@ -1,0 +1,413 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SAIPEN BOARD Schema",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "TODO",
+          "DOING",
+          "DONE",
+          "BLOCKED"
+        ],
+        "description": "BLOCKED = ticket-level block (RFC § 1.2/VERIFY debug cap), distinct from session-level STATE.phase: BLOCKED"
+      },
+      "id": {
+        "type": "string"
+      },
+      "description": {
+        "type": "string"
+      },
+      "verify": {
+        "type": "string"
+      },
+      "detail_ref": {
+        "type": "string",
+        "description": "Canonical lossless external detail artifact for a compact BOARD projection."
+      },
+      "blocker": {
+        "type": "string",
+        "description": "Active facts + dead ends. Present and non-empty exactly when status is BLOCKED; absent for every other status."
+      },
+      "needs": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "owner": {
+        "type": "string",
+        "description": "Agent ID claiming this ticket"
+      },
+      "claim_time": {
+        "type": "string",
+        "format": "date-time"
+      },
+      "claim_session": {
+        "type": "string",
+        "pattern": "^[0-9a-f]{32}$",
+        "description": "T-1384: which HOST SESSION holds this claim, as a lineage-salted sha256 prefix of the host session id. `owner` is a name, and a name is not a process: an arriving window reads the same name and inherits it, which let an unseated agent mutate product bytes while the ledger stayed clean. A consequential mutation must present the same session or be refused UNSEATED_MUTATION. Never the session id itself, so BOARD and the audit archives built from it carry no reusable bearer value. Absent means the claim predates the binding and is judged as before."
+      },
+      "review_passes": {
+        "type": "integer",
+        "description": "RFC 1.2 recognized optional ticket field; phases/review.md uses it to enforce its two-pass cap mechanically rather than from memory. Absent from this schema until v7.101.0."
+      },
+      "verify_attempts": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "RFC 1.2 recognized optional ticket field; absent reads as zero. Counts the current failed-fix-cycle budget phases/verify.md spends on this ticket. Canonical unblock clears the current budget while journaled events retain history. The cap number itself lives in phases/verify.md and is read from there, never copied."
+      },
+      "source_reports": {
+        "type": "string",
+        "description": "RFC 1.2 recognized optional ticket field (T-556): sweep provenance, the composite IMP-### identities a canonical ticket was generated from. Resolved by the [sweep-ticket-link] validator check against SWEEP.md; a reference that resolves to no disposition, or a ticket produced by an unverified or INVALID/ALREADY_FIXED finding, FAILs."
+      },
+      "source_receipts": {
+        "type": "string",
+        "description": "Comma-separated immutable SRC-NNN authority links. Full source bodies stay under .saipen/intake and are never copied onto BOARD."
+      },
+      "recurrence": {
+        "type": "string",
+        "description": "RFC 1.2 recognized optional ticket field (T-558): the META-IMPROVEMENT reasoning a protocol-level improve ticket MUST record -- the cross-project recurrence analysis (a protocol-level fix records whether the defect recurs across projects; a local bug stays local). Required by the [sweep-ticket-link] check for a PROTOCOL_VIOLATION finding that produced a ticket."
+      },
+      "weak_model": {
+        "type": "string",
+        "description": "RFC 1.2 recognized optional ticket field (T-558): the WEAK-MODEL PRECEDENT answer -- could a weak but compliant model still choose wrong while honestly believing it followed SAIPEN? Required by the [sweep-ticket-link] check for a PROTOCOL_VIOLATION finding that produced a ticket."
+      },
+      "regression": {
+        "type": "string",
+        "description": "CORE-001: `required` declares that this ticket owes a regression PAIR -- a FAIL against the pre-fix subject and a PASS against the post-fix one under the SAME verifier -- and arms the extra gate in VERIFY -> REVIEW and finish. A machine-owned field, never inferred from prose."
+      },
+      "blocker_scope": {
+        "type": "string",
+        "enum": [
+          "ticket",
+          "goal"
+        ],
+        "description": "Orchestration repair (T-1302): scope of a BLOCKED ticket. 'ticket' = this task cannot progress but independent work may continue; 'goal' = no safe useful work remains without an external/operator dependency. Absent reads as 'ticket'."
+      },
+      "closure_mode": {
+        "type": "string",
+        "enum": [
+          "own_patch",
+          "inherited_verified",
+          "cohort",
+          "superseded_verified",
+          "external_implementation"
+        ],
+        "description": "Orchestration repair (T-1302): closure provenance on DONE tickets. own_patch = attributable implementation diff; inherited_verified = no new implementation added, verification-only closeout against a durable publication authority; cohort = evidence complete but publication deferred to a C-### cohort; superseded_verified (T-1418) = legitimate old Work implemented and verified through an explicit DONE successor, written only by `saipen ticket supersede`; external_implementation (T-1434 M2 / SRC-088) = the defect was implemented by an EXTERNAL authority and verified locally against the installed implementation, written only by `saipen ticket resolve-external`, carrying the EXTERNAL_IMPLEMENTATION_LOCAL_VERIFICATION provenance class. Both new modes assert LOCAL lifecycle terminality, not publication. Absent reads as 'own_patch'."
+      },
+      "external_authority": {
+        "type": "string",
+        "pattern": "^lineage-[0-9a-f]{32}$",
+        "description": "T-1434 M2: the portable lineage identity of the project that implemented the fix. Valid only with closure_mode external_implementation; a URL or prose name is not an authority."
+      },
+      "external_implementation": {
+        "type": "string",
+        "pattern": "^T-\\d+@[0-9a-f]{7,40}$",
+        "description": "T-1434 M2: the upstream Work and exact commit that carries the externally implemented fix. Valid only with closure_mode external_implementation."
+      },
+      "external_evidence": {
+        "type": "string",
+        "pattern": "^EX-\\d{6}$",
+        "description": "T-1434 M2: the append-only external-resolution receipt under .saipen/recovery/conformance/external/ that records the local verification contract, its executed result, and the installed engine generation it was verified against. Valid only with closure_mode external_implementation."
+      },
+      "resolution_reason": {
+        "type": "string",
+        "enum": [
+          "PROTOCOL_HOME_FIX_VERIFIED",
+          "DEPENDENCY_UPGRADE_VERIFIED",
+          "UPSTREAM_FIX_VERIFIED"
+        ],
+        "description": "T-1434 M2: the registered reason class for an external-implementation resolution. Valid only with closure_mode external_implementation."
+      },
+      "superseded_by": {
+        "type": "string",
+        "pattern": "^T-\\d+$",
+        "description": "T-1418: the explicit DONE successor that terminally settles superseded_verified Work. Valid only with closure_mode superseded_verified."
+      },
+      "supersession_evidence": {
+        "type": "string",
+        "pattern": "^E-\\d+$",
+        "description": "T-1418: the canonical successor-owned PASS event explicitly targeted at the superseded Work ([target: T-OLD]). Valid only with closure_mode superseded_verified."
+      },
+      "supersession_authority": {
+        "type": "string",
+        "pattern": "^SRC-\\d+$",
+        "description": "T-1418: the ACTIVE operator-ingress Source receipt whose own text grants the exact OLD - NEW supersession pair. Valid only with closure_mode superseded_verified."
+      },
+      "closure_cohort": {
+        "type": "string",
+        "pattern": "^C-\\d+$",
+        "description": "Orchestration repair (T-1302): C-### cohort id, valid only with closure_mode cohort."
+      },
+      "user_explicit": {
+        "type": "string",
+        "enum": [
+          "true"
+        ],
+        "description": "Orchestration repair (T-1302): marks a ticket created from an explicit user request (USER_INTERRUPT). Only 'true' arms the scheduler signal."
+      },
+      "implementation_delta": {
+        "type": "string",
+        "enum": [
+          "none",
+          "patch"
+        ],
+        "description": "Orchestration repair (T-1302): records whether BUILD produced a code delta. 'none' = implementation already existed/verified, no new source touched."
+      },
+      "implementation_source": {
+        "type": "string",
+        "description": "Orchestration repair (T-1302): the DURABLE publication authority an inherited_verified closure resolves against -- release:<id>, T-###, or SRC-###. Resolved by one strict resolver shared by the closure operation and the validator; an unresolvable or unpublished authority REFUSES the closure."
+      },
+      "closure_paths": {
+        "type": "string",
+        "description": "Orchestration repair (T-1302 FINDING 4): comma-separated worktree paths this COHORT-mode member attributes to its C-### batch; publication belongs to the cohort authority, never to an imaginary per-ticket diff."
+      },
+      "retry_not_before": {
+        "type": "string",
+        "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+        "description": "T-1429: the ONE canonical machine-readable deferred-operator due instant for a ## BLOCKED ticket, strict UTC YYYY-MM-DDTHH:MM:SS[.fff]Z. Never naive, never local-time. Malformed timestamps fail closed at the parser. Timestamps in blocker/description/evidence PROSE never activate a gate; only this field plus an OPERATOR-OWNED deferred blocker class (WAIT_USER_CONFIRMATION, WAIT_USER_DECISION, BLOCKED_EXTERNAL) projects DEFERRED_OPERATOR (before the instant) or DUE_OPERATOR_ACTION (at or after it). Recognized-but-ineligible classes -- HELD, FUTURE_GATE, ACTIVE, PERMANENT_WARNING_OWNER, WAIT_ROLE:<role>, ACTIVE_DEPENDENCY:<T-###> -- are protocol or crew holds, not a human with a clock."
+      },
+      "blocked_on": {
+        "type": "string",
+        "pattern": "^T-\\d+$",
+        "description": "Child Work whose DONE transition atomically resumes this BLOCKED parent."
+      },
+      "resume_phase": {
+        "type": "string",
+        "enum": ["SCOUT", "BUILD", "VERIFY", "REVIEW", "SHIP"],
+        "description": "Ticket-bearing phase restored when blocked_on reaches DONE."
+      },
+      "resume_transition_from": {
+        "type": "string",
+        "description": "The parent's prior transition_from value, restored with resume_phase."
+      }
+    },
+    "allOf": [
+      {
+        "description": "blocker is active blocked-state data: present and non-empty exactly under BLOCKED (T-631)",
+        "if": {
+          "properties": {
+            "status": {
+              "const": "BLOCKED"
+            }
+          },
+          "required": [
+            "status"
+          ]
+        },
+        "then": {
+          "required": [
+            "blocker"
+          ],
+          "properties": {
+            "blocker": {
+              "minLength": 1,
+              "pattern": "\\S"
+            }
+          }
+        },
+        "else": {
+          "not": {
+            "required": [
+              "blocker"
+            ]
+          }
+        }
+      },
+      {
+        "description": "orchestration repair (T-1302): blocker_scope is ACTIVE blocked-state data -- it may appear only on a BLOCKED ticket",
+        "if": {
+          "properties": {
+            "status": {
+              "const": "BLOCKED"
+            }
+          },
+          "required": [
+            "status"
+          ]
+        },
+        "then": {
+          "properties": {
+            "blocker_scope": {
+              "type": "string",
+              "enum": [
+                "ticket",
+                "goal"
+              ]
+            }
+          }
+        },
+        "else": {
+          "not": {
+            "required": [
+              "blocker_scope"
+            ]
+          }
+        }
+      },
+      {
+        "description": "T-1429: retry_not_before is ACTIVE blocked-state data -- it may appear only on a BLOCKED ticket",
+        "if": {
+          "properties": {
+            "status": {
+              "const": "BLOCKED"
+            }
+          },
+          "required": [
+            "status"
+          ]
+        },
+        "then": {
+          "properties": {
+            "retry_not_before": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+            }
+          }
+        },
+        "else": {
+          "not": {
+            "required": [
+              "retry_not_before"
+            ]
+          }
+        }
+      },
+      {
+        "description": "T-1429: a machine operator due instant may exist ONLY on an operator-eligible BLOCKED ticket -- the blocker must open with WAIT_USER_CONFIRMATION, WAIT_USER_DECISION or BLOCKED_EXTERNAL. A due instant on HELD, FUTURE_GATE, ACTIVE, PERMANENT_WARNING_OWNER, WAIT_ROLE:<role> or ACTIVE_DEPENDENCY:<T-###> is dead metadata: no surface will ever report it operator-actionable.",
+        "if": {
+          "required": [
+            "retry_not_before"
+          ]
+        },
+        "then": {
+          "required": [
+            "blocker"
+          ],
+          "properties": {
+            "blocker": {
+              "pattern": "^(WAIT_USER_CONFIRMATION|WAIT_USER_DECISION|BLOCKED_EXTERNAL)\\s*($| -- )"
+            }
+          }
+        }
+      },
+      {
+        "description": "A dependency continuation reservation is complete and exists only on a BLOCKED parent.",
+        "if": {
+          "required": ["blocked_on"]
+        },
+        "then": {
+          "properties": {"status": {"const": "BLOCKED"}},
+          "required": ["resume_phase", "resume_transition_from"]
+        },
+        "else": {
+          "not": {
+            "anyOf": [
+              {"required": ["resume_phase"]},
+              {"required": ["resume_transition_from"]}
+            ]
+          }
+        }
+      },
+      {
+        "description": "orchestration repair (T-1302): closure provenance describes a COMPLETED ticket, so it may appear only under DONE",
+        "if": {
+          "properties": {
+            "status": {
+              "const": "DONE"
+            }
+          },
+          "required": [
+            "status"
+          ]
+        },
+        "then": {
+          "properties": {
+            "closure_mode": {
+              "type": "string",
+              "enum": [
+                "own_patch",
+                "inherited_verified",
+                "cohort",
+                "superseded_verified"
+              ]
+            },
+            "closure_cohort": {
+              "type": "string",
+              "pattern": "^C-\\d+$"
+            },
+            "superseded_by": {
+              "type": "string",
+              "pattern": "^T-\\d+$"
+            },
+            "supersession_evidence": {
+              "type": "string",
+              "pattern": "^E-\\d+$"
+            },
+            "supersession_authority": {
+              "type": "string",
+              "pattern": "^SRC-\\d+$"
+            },
+            "implementation_delta": {
+              "type": "string",
+              "enum": [
+                "none",
+                "patch"
+              ]
+            }
+          }
+        },
+        "else": {
+          "not": {
+            "anyOf": [
+              {
+                "required": [
+                  "closure_mode"
+                ]
+              },
+              {
+                "required": [
+                  "closure_cohort"
+                ]
+              },
+              {
+                "required": [
+                  "implementation_delta"
+                ]
+              },
+              {
+                "required": [
+                  "closure_paths"
+                ]
+              },
+              {
+                "required": [
+                  "superseded_by"
+                ]
+              },
+              {
+                "required": [
+                  "supersession_evidence"
+                ]
+              },
+              {
+                "required": [
+                  "supersession_authority"
+                ]
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "required": [
+      "status",
+      "id",
+      "description"
+    ]
+  }
+}

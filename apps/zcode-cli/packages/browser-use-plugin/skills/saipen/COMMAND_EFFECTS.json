@@ -1,0 +1,206 @@
+{
+  "kind": "saipen-command-effects",
+  "schema_version": 1,
+  "rule_id": "CMD-EFFECT-01",
+  "owner": "tools/saipen_engine/command_effects.py",
+  "classes": [
+    "DIAGNOSTIC",
+    "INGRESS",
+    "RECOVERY",
+    "EXECUTION"
+  ],
+  "unknown_class": "EXECUTION",
+  "fleet_exempt_classes": [
+    "DIAGNOSTIC",
+    "INGRESS",
+    "RECOVERY"
+  ],
+  "help_tokens": [
+    "help",
+    "--help",
+    "-h"
+  ],
+  "ingress_payload_verbs": [
+    "start",
+    "user-request"
+  ],
+  "not_shell_canonical": [
+    "init",
+    "clean",
+    "translate",
+    "first-publish-confirm",
+    "launch"
+  ],
+  "verbs": {
+    "help": "DIAGNOSTIC",
+    "status": "DIAGNOSTIC",
+    "next": "DIAGNOSTIC",
+    "validate": "DIAGNOSTIC",
+    "search": "DIAGNOSTIC",
+    "context": "DIAGNOSTIC",
+    "acceptance": "DIAGNOSTIC",
+    "brief": "DIAGNOSTIC",
+    "focus": "DIAGNOSTIC",
+    "permissions": "DIAGNOSTIC",
+    "explain-next": "DIAGNOSTIC",
+    "guard": "DIAGNOSTIC",
+    "test": "DIAGNOSTIC",
+    "runtime": "DIAGNOSTIC",
+    "host": {
+      "default": "DIAGNOSTIC",
+      "subcommands": {
+        "bootstrap": "DIAGNOSTIC",
+        "activation": "DIAGNOSTIC"
+      }
+    },
+    "fleet": {
+      "default": "DIAGNOSTIC",
+      "subcommands": {
+        "prepare": "RECOVERY"
+      }
+    },
+    "user-request": "INGRESS",
+    "start": "INGRESS",
+    "recover": {
+      "default": "RECOVERY",
+      "subcommands": {
+        "inspect": "DIAGNOSTIC"
+      }
+    },
+    "rebind-home": "RECOVERY",
+    "ticket": {
+      "default": "EXECUTION",
+      "subcommands": {
+        "compact": {
+          "class": "RECOVERY",
+          "operands": "one_ticket_id"
+        },
+        "retire": {
+          "class": "RECOVERY",
+          "operands": "one_ticket_id"
+        },
+        "resolve-external": "EXECUTION",
+        "reasoning": "EXECUTION",
+        "repair-metadata": "RECOVERY"
+      }
+    },
+    "work": {
+      "default": "EXECUTION",
+      "subcommands": {
+        "reverify": "RECOVERY"
+      }
+    },
+    "source": {
+      "default": "DIAGNOSTIC",
+      "subcommands": {
+        "capture": "INGRESS",
+        "recover": "DIAGNOSTIC",
+        "req": "EXECUTION",
+        "disp": "EXECUTION",
+        "close": "EXECUTION",
+        "archive": "EXECUTION",
+        "purge": "EXECUTION",
+        "retire": "EXECUTION",
+        "quarantine": "EXECUTION",
+        "link": "EXECUTION",
+        "append": "INGRESS",
+        "apply-append": "EXECUTION",
+        "appends": "DIAGNOSTIC"
+      }
+    },
+    "authority": {
+      "default": "DIAGNOSTIC",
+      "subcommands": {
+        "capture": "INGRESS"
+      }
+    },
+    "audit": {
+      "default": "DIAGNOSTIC",
+      "subcommands": {
+        "ingest": "EXECUTION",
+        "enqueue": "EXECUTION",
+        "manifest": "EXECUTION"
+      }
+    },
+    "knowledge": {
+      "default": "DIAGNOSTIC",
+      "subcommands": {
+        "index": "EXECUTION"
+      }
+    },
+    "userperson": {
+      "default": "DIAGNOSTIC",
+      "subcommands": {
+        "add": "EXECUTION",
+        "remove": "EXECUTION",
+        "reset": "EXECUTION"
+      }
+    },
+    "sub": {
+      "default": "DIAGNOSTIC",
+      "subcommands": {
+        "sync": "EXECUTION",
+        "spawn": "EXECUTION",
+        "adopt": "EXECUTION",
+        "pause": "EXECUTION",
+        "resume": "EXECUTION",
+        "clean": "EXECUTION",
+        "collect": "EXECUTION",
+        "dispose": "EXECUTION",
+        "reconcile": "RECOVERY"
+      }
+    },
+    "improve": {
+      "default": "EXECUTION",
+      "subcommands": {
+        "status": "DIAGNOSTIC",
+        "sweep-queue": "DIAGNOSTIC",
+        "verify": "DIAGNOSTIC",
+        "reconcile": "EXECUTION"
+      }
+    },
+    "cohort": {
+      "default": "EXECUTION",
+      "subcommands": {
+        "status": "DIAGNOSTIC"
+      }
+    },
+    "cut": {
+      "default": "DIAGNOSTIC",
+      "subcommands": {
+        "confirm": "EXECUTION"
+      }
+    },
+    "undo": {
+      "default": "DIAGNOSTIC",
+      "subcommands": {
+        "confirm": "EXECUTION"
+      }
+    },
+    "continue": "EXECUTION",
+    "claim": "EXECUTION",
+    "transition": "EXECUTION",
+    "checkpoint": "EXECUTION",
+    "attempt": "EXECUTION",
+    "goal": "EXECUTION",
+    "build": "EXECUTION",
+    "plan": "EXECUTION",
+    "set": "EXECUTION",
+    "init": "EXECUTION",
+    "clean": "EXECUTION",
+    "hunt": "EXECUTION",
+    "markhunt": "EXECUTION",
+    "translate": "EXECUTION",
+    "prepare": "EXECUTION",
+    "collect": "EXECUTION",
+    "ship": "EXECUTION",
+    "push": "EXECUTION",
+    "scope": "EXECUTION",
+    "first-publish-confirm": "EXECUTION",
+    "crew": "EXECUTION",
+    "stop": "EXECUTION",
+    "launch": "EXECUTION",
+    "autonomy": "DIAGNOSTIC",
+    "gpu": "DIAGNOSTIC"
+  }
+}
