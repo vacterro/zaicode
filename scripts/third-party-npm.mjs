@@ -82,29 +82,40 @@ export function assertProductionGraphs(lockedProjects, installedProjects) {
 
 export async function readWorkspaceProductionGraph(root) {
   root = await realpath(root);
-  // 修复：pnpm ls 默认读取安装快照，不能把旧图与当前锁文件哈希拼成有效声明。
-  const [locked, actual] = await Promise.all(
-    [true, false].map(async (lockfileOnly) => {
-      const { stdout } = await exec(
-        "pnpm",
-        [
-          "-r",
+  // Whole-workspace Infinity traversal exhausts file handles on Windows.
+  // Discover every workspace first, then inspect one complete project at a
+  // time. Both locked and installed graphs remain mandatory and compared.
+  const execute = async (args) => {
+    const { stdout } = await exec("pnpm", args, {
+      cwd: root, maxBuffer: 256 * 1024 * 1024, ...resolveSpawnRuntimeOptions("pnpm"),
+    });
+    return JSON.parse(stdout);
+  };
+  const projects = await execute(["-r", "ls", "--depth", "-1", "--json"]);
+  if (!Array.isArray(projects) || !projects.length ||
+      projects.some(p => !/^(?:@[a-z0-9_.-]+\/)?[a-z0-9_.-]+$/i.test(p.name)) ||
+      new Set(projects.map(p => p.name)).size !== projects.length) {
+    throw new Error("Invalid or ambiguous workspace production inventory");
+  }
+  const locked = [], actual = [];
+  for (const project of projects) {
+    const pair = await Promise.all([true, false].map(async (lockfileOnly) => {
+      const rows = await execute([
+          `--filter=${project.name}`,
           "ls",
           "--prod",
           "--json",
           "--depth",
           "Infinity",
           ...(lockfileOnly ? ["--lockfile-only"] : []),
-        ],
-        {
-          cwd: root,
-          maxBuffer: 256 * 1024 * 1024,
-          ...resolveSpawnRuntimeOptions("pnpm"),
-        },
-      );
-      return JSON.parse(stdout);
-    }),
-  );
+        ]);
+      if (!Array.isArray(rows) || rows.length !== 1 || rows[0].name !== project.name) {
+        throw new Error(`Incomplete workspace production graph: ${project.name}`);
+      }
+      return rows[0];
+    }));
+    locked.push(pair[0]); actual.push(pair[1]);
+  }
   const required = assertProductionGraphs(locked, actual);
   return { required, projects: actual };
 }

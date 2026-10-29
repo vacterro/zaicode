@@ -25,9 +25,20 @@ export async function readVerifiedNotices(root = repositoryRoot, { requireComple
   }
   if (requireComplete && !Array.isArray(manifest.reviewRequired))
     throw new Error("Missing material review inventory; regenerate third-party notices");
-  if (requireComplete && manifest.reviewRequired.length) {
+  // A stale empty summary must not conceal obligations still recorded in
+  // copied-source, embedded-component or publisher-material evidence.
+  const obligations = [
+    ...(manifest.reviewRequired ?? []),
+    ...[...(manifest.copied ?? []), ...(manifest.embedded ?? [])]
+      .filter(item => item.reviewRequired)
+      .map(item => ({id: item.id, reason: item.reviewRequired})),
+    ...(manifest.exceptions ?? [])
+      .filter(item => item.acceptedMissingNotice || item.evidenceKind)
+      .map(item => ({id: item.package, reason: "Original version-specific publisher copyright/license material remains incomplete."})),
+  ];
+  if (requireComplete && obligations.length) {
     throw new Error(
-      `Unresolved third-party material obligations:\n${manifest.reviewRequired.map((item) => `${item.id}: ${item.reason}`).join("\n")}`,
+      `Unresolved third-party material obligations:\n${[...new Set(obligations.map((item) => `${item.id}: ${item.reason}`))].join("\n")}`,
     );
   }
   return bytes;

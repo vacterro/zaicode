@@ -1,7 +1,7 @@
 # Redistributable fallback sound names shipped with ZAICODE.
 # Every file is synthesized by scripts/audio/generate_fallback_sounds.py from
-# original code (sine partials, shaped noise, envelopes) or is an original
-# operator asset (the six Problip cues copied from vacterro/problip).  No
+# original code (sine partials, shaped noise, envelopes), including the six
+# Problip cues. SHA256 identities are in fallback-sounds.sha256.json. No
 # recording, game asset or third-party waveform is read.  Anything else the
 # app can play comes from the operator's customization\sounds folder.
 blip_b.wav
@@ -21,7 +21,7 @@ menu_launch_select1.wav
 menu_launch_upmenu1.wav
 menu_mnu_click.wav
 menu_mnu_next.wav
-newday.wav
+NEWDAY.wav
 notify.wav
 panel_open.wav
 pop.wav

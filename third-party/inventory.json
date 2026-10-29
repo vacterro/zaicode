@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "inputHashEncoding": "UTF-8 with CRLF normalized to LF; notice and source snapshot hashes remain byte-exact",
   "scope": "Production dependency union across current workspace projects, copied source/assets and native tools; not a per-installer SBOM or a certification of all licensing obligations.",
-  "noticesSha256": "05d366f61fe430c5a0c7ed6b27ac9bb6626591151331f2817cb9120649e4c67f",
+  "noticesSha256": "192914a6875bc6c3a39d2b47a2cf9e5666d738fbed1c72ae0d55f0e44d93154a",
   "inputs": {
     ".agents/skills/agent-browser/references/authentication.md": "e2c3b0f4a1dc1368dee821f03c000d818a48421d09f3872525dddffe73f2112b",
     ".agents/skills/agent-browser/references/commands.md": "17522fc56d742663f47231ff06c4811abc87e12c7f78e11f94d253ddd540a909",
@@ -148,82 +148,6 @@
     ".agents/skills/dogfood/SKILL.md": "984bd5aa263aa91c818394459f90d46477ddfad07c49cc2f61db2ece3f626564",
     ".agents/skills/dogfood/templates/dogfood-report-template.md": "8b5c1672e32354c10c045f68f59f1103891fdf6e1410ed7d3c8220a00d8f9465",
     ".agents/skills/electron/SKILL.md": "989a15a88409e079d3dff3f9b7d41bf653e565a4f1e46854dac6669c116aecb4",
-    ".agents/skills/react-best-practices/AGENTS.md": "9d0d1c4f1922a65ddead8b869b4f2653bf3c10c84b1c8c9dd2507e0a4a4c82cb",
-    ".agents/skills/react-best-practices/metadata.json": "c4e18bac3290fbe1b471a605867d4df68b03144ea26b8befdbe8f9d8fd124354",
-    ".agents/skills/react-best-practices/README.md": "e49f5e0088d47dab6687a7d501e9f3b23ce8ce7e8a8e428a2fd590e582f966da",
-    ".agents/skills/react-best-practices/rules/_sections.md": "01c59969e4e867f0708c8f8ef9c6d87fab9a07d0586244f429ff84013db8a115",
-    ".agents/skills/react-best-practices/rules/_template.md": "fee4f1bc27a105bd82662c259018e6a2d115b01d355ca04b8ee72ccaf6c7e434",
-    ".agents/skills/react-best-practices/rules/advanced-effect-event-deps.md": "b5d8d13942539c7545cf881d4faab8e868dcf0cc8e75fa3e6fb33ff4844f271f",
-    ".agents/skills/react-best-practices/rules/advanced-event-handler-refs.md": "775e3c2edc803270fb91b5e5b0b111c38d4d1146a7ae0201ccc22c22c3c4c68d",
-    ".agents/skills/react-best-practices/rules/advanced-init-once.md": "9e41179610d597081728d4f8102506e7ccee06a9c027caf1552d4ab5b3ed042f",
-    ".agents/skills/react-best-practices/rules/advanced-use-latest.md": "5cd66168e6bec629ee882e969b0d53d52610f7cb4e065846ed1d0793a1dec1bf",
-    ".agents/skills/react-best-practices/rules/async-api-routes.md": "242c9d7a00ba5083c12c233a64108755f7c6ef59925a7c50dcb436f0b1edd3f8",
-    ".agents/skills/react-best-practices/rules/async-cheap-condition-before-await.md": "bced8ccf27a344e78f1334c8ce3e6a8ce9ffbffe26a9d65f65fd280c6d8dabdb",
-    ".agents/skills/react-best-practices/rules/async-defer-await.md": "ce8a6727ed3f20e29d2a9272943a7d4f10ea6001a094e88909d881724270c8ea",
-    ".agents/skills/react-best-practices/rules/async-dependencies.md": "3f03ca575c1d9be6e1d9dbe7caf3c1e7d8546133a47783d94293ddde213f03f8",
-    ".agents/skills/react-best-practices/rules/async-parallel.md": "7faedef899d93d30cb03c0508bfa15190edbed7855c6bf88c1b1400e236a728c",
-    ".agents/skills/react-best-practices/rules/async-suspense-boundaries.md": "6fae5c16cc3f84e96ed7a20c063d7561ad5368feebca758f2b70600dbd9076d4",
-    ".agents/skills/react-best-practices/rules/bundle-analyzable-paths.md": "5d8d29ba3f68f8da57bdf0ee50ef84b4556eba95a207c9eb4959520a9d342bf5",
-    ".agents/skills/react-best-practices/rules/bundle-barrel-imports.md": "512aa4277d3f29ce6d7612cb0744d8c049ccafdeb3a72fd2843ae8ce0be2f64d",
-    ".agents/skills/react-best-practices/rules/bundle-conditional.md": "f8e927725c448703fa3f1fb31bd45218e9259d544000f83eb95444fee7def7f6",
-    ".agents/skills/react-best-practices/rules/bundle-defer-third-party.md": "0c3575198a55115cd278e64bc328ec348a06d6ae9e3076d9eb14a15d050b46cb",
-    ".agents/skills/react-best-practices/rules/bundle-dynamic-imports.md": "3d13ee1e2ed4596c7ddd034607719b70ebc9346c65eeaff79cf2c2417d8f4104",
-    ".agents/skills/react-best-practices/rules/bundle-preload.md": "7e632ae1cb8b914243ff6f5103e30009514e292c3321c265911661d5e458b356",
-    ".agents/skills/react-best-practices/rules/client-event-listeners.md": "dcdfd4e5f57c36b8a206a31e321f7227b6427b430ee1182cee1e1abd77764635",
-    ".agents/skills/react-best-practices/rules/client-localstorage-schema.md": "6e21253d070ebe50b6c222186ed756814dfae674d458b475727c9d4ef6c23c9a",
-    ".agents/skills/react-best-practices/rules/client-passive-event-listeners.md": "72894ea2eef53bf8efe0c597ca4e4ef2b47d48e1c9d3f2e5ea7cf50feeb0bac8",
-    ".agents/skills/react-best-practices/rules/client-swr-dedup.md": "6be13ae14595b48908310672ca8b1bb6720e9dd906f68566fc48778da2dc8cd3",
-    ".agents/skills/react-best-practices/rules/js-batch-dom-css.md": "d00ff06d829a4a367dcf3d3919812733b6542c4dde8a40722b044823e66cd402",
-    ".agents/skills/react-best-practices/rules/js-cache-function-results.md": "3005995cfe8eba0538279f73b3423400bc1f0d410130b7f09c4c6fc938c9c2d7",
-    ".agents/skills/react-best-practices/rules/js-cache-property-access.md": "7bdf71639e95132223ebf4309580a4a8979e2a9c6d0551409843d0eea81f8117",
-    ".agents/skills/react-best-practices/rules/js-cache-storage.md": "b428b53c40e8e45edd72d3f5de600cc07009c1d7dd68991b04ae141c4b07d441",
-    ".agents/skills/react-best-practices/rules/js-combine-iterations.md": "8f054989560a25f72d53f202443d5fc2ff79375aaff881f7966fd4d9fa223ecb",
-    ".agents/skills/react-best-practices/rules/js-early-exit.md": "8a31c105d95c20d774e69f0dc4f14ac869276745dc97f4b3f604dba2c5b04603",
-    ".agents/skills/react-best-practices/rules/js-flatmap-filter.md": "046a287a88aeeadb002fbc590d459c8f12920ccc0c2d335228ea469bd9cc4b5f",
-    ".agents/skills/react-best-practices/rules/js-hoist-regexp.md": "3381777595af13ab14d9d7c2c6f30c8fbde0a7dba69d12aa4c2f32947ec4e99e",
-    ".agents/skills/react-best-practices/rules/js-index-maps.md": "a0bdf99ff9d954b63eea790fd81768d8ce141f6df1e87c25840e9c88fdcc4d45",
-    ".agents/skills/react-best-practices/rules/js-length-check-first.md": "e5efeb8ff1ddad9286e4ae842ef42a517925ee03edb46e9c2a5a794d9e077ea9",
-    ".agents/skills/react-best-practices/rules/js-min-max-loop.md": "beb6df30fab6d299169d27693da43201d1999010b778fe743679860ae8a03af5",
-    ".agents/skills/react-best-practices/rules/js-request-idle-callback.md": "219c5bdbb779a44c63262a5ca4e747aa484a0c6b81938a888d80f0c238a69e9e",
-    ".agents/skills/react-best-practices/rules/js-set-map-lookups.md": "a7fd781a6ba9ad49065961b6f9a90ef486bf6b648390e1a08704025f98e1642b",
-    ".agents/skills/react-best-practices/rules/js-tosorted-immutable.md": "62dc2921621cfe50b377979b0cf0118d9284fc73f92d88e89baccf8fecd76692",
-    ".agents/skills/react-best-practices/rules/rendering-activity.md": "535312cadf0312834e749a14897123f7eb98ec6daadae35f7cbb9d2e36f6d545",
-    ".agents/skills/react-best-practices/rules/rendering-animate-svg-wrapper.md": "369976cd613a7d5aee5350eb55ceb62184ace4d75a9a57c2e4cd579157a2f54a",
-    ".agents/skills/react-best-practices/rules/rendering-conditional-render.md": "81ef33223568f03038a2189a9d97db05e447168430a2ad7c7258208b14c82684",
-    ".agents/skills/react-best-practices/rules/rendering-content-visibility.md": "473ba911f62559ab463a7b01d4167010548a15e92d08a3e2e0306d6709999d16",
-    ".agents/skills/react-best-practices/rules/rendering-hoist-jsx.md": "4cede4559302c8577ec0e1a9b761804090783b8d9da8134ca9af551b54cd5157",
-    ".agents/skills/react-best-practices/rules/rendering-hydration-no-flicker.md": "79ffe8f33ec4c4b0838e1dfd91d679b19c429847b58259baa6968485ed3a5005",
-    ".agents/skills/react-best-practices/rules/rendering-hydration-suppress-warning.md": "f2ca794aa650534f31f4c94ef75ff0002edaee56207950297743300a568072f9",
-    ".agents/skills/react-best-practices/rules/rendering-resource-hints.md": "424aa829393482e7784e2296eb5026512bff426405f97e63ee1e85a0cd1d19f7",
-    ".agents/skills/react-best-practices/rules/rendering-script-defer-async.md": "1d7754ca787a16517b1e8de16ae203789c0ceadf9f76d564e16a4f8c6fa31359",
-    ".agents/skills/react-best-practices/rules/rendering-svg-precision.md": "ed468533f6e95f622859c884b122cf21f9f593ed6bb3d500a54de4b9f9bcb9fb",
-    ".agents/skills/react-best-practices/rules/rendering-usetransition-loading.md": "e14f4eb969c7c86c8fd057ce83d8146279e45cac5ccc4c50c8aca32212b07d14",
-    ".agents/skills/react-best-practices/rules/rerender-defer-reads.md": "2faba85e83c16aebf48168f9b1b261e2c9922a69d0e1f36f767250eeefb746bd",
-    ".agents/skills/react-best-practices/rules/rerender-dependencies.md": "25aa43d6aaf40cb1edb97d36eb8684678c929560934c9731d50ac602284fe93a",
-    ".agents/skills/react-best-practices/rules/rerender-derived-state-no-effect.md": "3f5b04e50ed1be24e203f1f5bd645df422e720f784e9604676652f161ac43635",
-    ".agents/skills/react-best-practices/rules/rerender-derived-state.md": "8f1d225c76d11ed7705110898ba21ecb7a9d9b81eb688b678b6ca152e5d7851d",
-    ".agents/skills/react-best-practices/rules/rerender-functional-setstate.md": "87fd1a19792955f50bac69ed46e3576d55f35138928a660867a9e99cd71f68af",
-    ".agents/skills/react-best-practices/rules/rerender-lazy-state-init.md": "f0c25cbab4981d113663fea1508ce0b07e59e992121743bed5e7a107dc669d03",
-    ".agents/skills/react-best-practices/rules/rerender-memo-with-default-value.md": "97044a6c30973672df6be20cbcd7e1e3582ca7550a46b661021c3ade93759354",
-    ".agents/skills/react-best-practices/rules/rerender-memo.md": "bd1f0d21b55e68685468d883d8e6d385a6f8feb8fcd9628066ac4144d7087ba6",
-    ".agents/skills/react-best-practices/rules/rerender-move-effect-to-event.md": "05e13a75e5237d8491a49dcd7d724e93522b65126f11d5782b6f0408b60afbfe",
-    ".agents/skills/react-best-practices/rules/rerender-no-inline-components.md": "ce5cf1319267e3184b7e79d08d555cc51dc6a664ddff24d4557b01d16e954a94",
-    ".agents/skills/react-best-practices/rules/rerender-simple-expression-in-memo.md": "147dfd4acab2c64f20ab9f0476e966d9445abebbcc400eb51dd407037e1bc998",
-    ".agents/skills/react-best-practices/rules/rerender-split-combined-hooks.md": "4124d594029220f6cedbdff5dc2bbacc5c16289d5aeb53fff6ef6d7341a2d2ea",
-    ".agents/skills/react-best-practices/rules/rerender-transitions.md": "698267bd65c8a0bf3350b7386d7b619da02fd1fac97930d9a3098346c6853761",
-    ".agents/skills/react-best-practices/rules/rerender-use-deferred-value.md": "84c8bec6c8d525e8e712376c4d37d1133fe74d2550a0943232dd139147b87c24",
-    ".agents/skills/react-best-practices/rules/rerender-use-ref-transient-values.md": "adc30b14f13ea2b020bf8eaa2b3fd8410050421c5753de0c8ff03bd10b9e5576",
-    ".agents/skills/react-best-practices/rules/server-after-nonblocking.md": "13d34ead58d626015c300d9d737808ae23a0a53976b8497247cd9323ff90aeda",
-    ".agents/skills/react-best-practices/rules/server-auth-actions.md": "7961af203b51ef5c2a975e0e5d05e91955a4b214a15d1970a4b8ea7150722d40",
-    ".agents/skills/react-best-practices/rules/server-cache-lru.md": "bb33aab8bb6f81bbaa441cf6e254cf79f73a8a15b610f81fd2de6567440f232f",
-    ".agents/skills/react-best-practices/rules/server-cache-react.md": "6a67163afb9b98bae45b129d48cc26b00d13e2b5a38b36d19b05f1444537aefa",
-    ".agents/skills/react-best-practices/rules/server-dedup-props.md": "833b59dc0d9a6f5473bc57fef70f4c9e928513bb0bdd9e3361f0520ecb529626",
-    ".agents/skills/react-best-practices/rules/server-hoist-static-io.md": "2a4d6f78430661ec065a6649c1859655039d3ec2d23e35797d95ac730cf017eb",
-    ".agents/skills/react-best-practices/rules/server-no-shared-module-state.md": "74f529c7e2bf6f5ed0552580c1ccc6d35f9ce48c3de008f3a98c7d876a26fd1f",
-    ".agents/skills/react-best-practices/rules/server-parallel-fetching.md": "cd68caf2eb3946f12bd236c5a4e668e03dd3e7a54acf8d84bd54a199126d6018",
-    ".agents/skills/react-best-practices/rules/server-parallel-nested-fetching.md": "4d9c44e579e1286013acf5cb5f65b04297d2b68909f44f8163804656514a78ff",
-    ".agents/skills/react-best-practices/rules/server-serialization.md": "4d025c42043c56e6355196a2e885d168cdb15248d0797146c9db838a57b34946",
-    ".agents/skills/react-best-practices/SKILL.md": "b7d246acb440bee224ab33614979a5b8debe5fdb13d0304967aa19358eb69d9f",
     "apps/zcode-cli/package.json": "6c48017b05d8a7215c5bf7dea12f50edd1487bf5b8b22e11c21703d32e8f7742",
     "apps/zcode-cli/packages/adapters/package.json": "da99aebdd4d463b7705a2a0febc12adb9ad7e792f74f4ba7c4e258b8bb6a13dc",
     "apps/zcode-cli/packages/bootstrap/package.json": "03466459735416bd4f6aced619f1d1963a485894de8ee3f9524740f822aa121f",
@@ -244,7 +168,7 @@
     "apps/zcode-cli/packages/tui/package.json": "097d5896b0b37a455eafaf015f21113dfbea7b05bb3f92666f423f7753720eb1",
     "apps/zcode-cli/tools/prompt-trajectory/package.json": "7f161fc87f36691f01eb8c2034bd89cf28107da36db02bc20e76f059edd36af6",
     "apps/zcode-cli/tools/typescript/package.json": "23d7e50d2089d205ce3022c5bafbb6b3e31d000e41ac678a5934e0b72627cf3a",
-    "package.json": "86da5833464993705d44bb6ee8ee0fbeecfe9d93a1ebba3f5bf7e776999f4b3f",
+    "package.json": "57439970a7371a2e6fc998267c937913c7d9da58398b3a1683713b9655114b30",
     "packages/client/package.json": "e76f441549130dc3e5e68072a36b6cb9044e19a6625f1e813f19a4def2b1b689",
     "packages/desktop/package.json": "1a7da93549be6591eb298a7b315bb659c7701093fe3bea2ecf22694685918be1",
     "packages/desktop/src/renderer/public/material-icons/3d.svg": "9527b849f0fba57ca7640e2717b3a19cb5f5e046712cbbd8b75d73af338c68fb",
@@ -1420,16 +1344,16 @@
     "packages/rpc/src/serialization.ts": "e949418e1cd17cc863c147fc8d1ff15237e1b5f0cb8e3344fd2a9ccfae9d54e7",
     "packages/server/package.json": "0a6119239c88af79bc766e3c023eb4437105a0d35b03ecca1137d1e688e60a90",
     "packages/services/package.json": "8d7757a8d8328ef827925cb730c28ce21fed20e27ddd83f2aae7b447229bd17a",
-    "packages/shared/package.json": "6394da63b39d6bf4cabadf803a4f26cf9758de944ac6e0cc5c4f0dc303f66b77",
+    "packages/shared/package.json": "3601157b3850dcefc601f75926c57070d5674c4546ae843c8e293c80f63d642c",
     "packages/shared/src/zcode-protocol-v4/wire-codec.ts": "ac2494a3acc795c809c94ee9393f50271a9c2a0fd33813459e5ab93842ceef75",
-    "packages/ui/package.json": "220e916077604008bb6ffea19d6bdf7148c4b09472bea251248a230ba3c69bf5",
+    "packages/ui/package.json": "904d22007b38261ef44f01a019d4b54d68128aae559e007a3ede401b174b8de4",
     "packages/ui/src/components/ai-elements/agent.tsx": "830e7ea9e927de1524851337f1d35bda0e5690e3e4fa307fff854b60006b16c7",
     "packages/ui/src/components/ai-elements/artifact.tsx": "7d73f08864d6280ac86c77d32e56d0e702f8aa6208e5910820139d0fb08ce64c",
     "packages/ui/src/components/ai-elements/attachments.tsx": "7a847ce6c8ac9dc630481a82dd20a5e9e00949bf710a41fea1d32a18123011d8",
     "packages/ui/src/components/ai-elements/canvas.tsx": "7bc92905e97c182c9a2f52b421a4d70414c8700a66039af9a4466587f74d2687",
-    "packages/ui/src/components/ai-elements/chat-loading.tsx": "b75d4398d778179f78209debde63547410d76e01cdaf3887f60b13ef9a35331f",
+    "packages/ui/src/components/ai-elements/chat-loading.tsx": "fd803767df6d3713c2a31e8172395a049cff89600be0d8e7192121a4d3f10f66",
     "packages/ui/src/components/ai-elements/checkpoint.tsx": "72459f6fb8668e9245ec32542f92c7de809cc9b5a366bb44ab08f91ea4e1255b",
-    "packages/ui/src/components/ai-elements/code-block.tsx": "ae4f975537ebb9c8ef905b7b9de39bc37180f81511bffc027dc4da1929037f18",
+    "packages/ui/src/components/ai-elements/code-block.tsx": "0a5077636948574e0ee850b4cc30a17a27c2856b93681036b03790f2981f0c84",
     "packages/ui/src/components/ai-elements/commit.tsx": "e9f5dcffac4ec7702b6d77b41cfc28fab54f0595375dd2c992dc972c0a9e74d2",
     "packages/ui/src/components/ai-elements/confirmation.tsx": "bb39ae89d5550f4ffcbb36e73dc8b75d1c9930f0fdba28cc8ff135d753b65a9b",
     "packages/ui/src/components/ai-elements/connection.tsx": "6e6cf65efcef612a3d14f5fda69e27009bc06046d1f7aa842a1a93b9142a7f81",
@@ -1446,7 +1370,7 @@
     "packages/ui/src/components/ai-elements/markdown-list.tsx": "ecf50ad4f48cd460ddcf90db7b463671f915d8c22c7cb8e7760ff3b02282c7f1",
     "packages/ui/src/components/ai-elements/markdown-table.tsx": "612d78092eaeb950931070fff2a194a244e84c5c2d63c6df645e6b91391953da",
     "packages/ui/src/components/ai-elements/mermaid-block.tsx": "4cc6783097a6ecbb1896ee1f3dd1d89115ca81f3efb15d9fbabcf448063818ae",
-    "packages/ui/src/components/ai-elements/message.tsx": "6c35829ed11321e850cd59e20c1c88fdd452e8e2d9b5da45f808371021aabf99",
+    "packages/ui/src/components/ai-elements/message.tsx": "f1e8fb535465f95ff21aac658043690d8515c972ee637c718d5d4ce5b63f6ae1",
     "packages/ui/src/components/ai-elements/node.tsx": "d7b68c41717a509bd9063f0a9fc0c4525ceb2b23bae4028bcd49ec949fc6268f",
     "packages/ui/src/components/ai-elements/panel.tsx": "9c345ecb217fbb6a3a2b49b93ca81b746f249d18b9223470fbf511c0a9a37bb7",
     "packages/ui/src/components/ai-elements/persona.tsx": "c796e1aa0f85395138eda5e4c7ffc7dac5321690b3f6949f73c7b3ebe8d52808",
@@ -1457,7 +1381,7 @@
     "packages/ui/src/components/ai-elements/prompt-input-textarea.tsx": "4798574a8f2fc8584a1c5585d9dd878dd19d76bd05603e77948ec12180649def",
     "packages/ui/src/components/ai-elements/prompt-input.tsx": "68a92e07c27774e9c1d63bccd12ec3ff38b4f89dd245b20bfffbbd052e6101c4",
     "packages/ui/src/components/ai-elements/queue.tsx": "9d84f6e15708519ec65e258d9843dc5f4d76f106fc85155f7dcf51f89474b695",
-    "packages/ui/src/components/ai-elements/reasoning.tsx": "a10a38c7b3ca633e9b5480ad94f9c7a1fdd52bc5526ae0801e3e6ed141f2b604",
+    "packages/ui/src/components/ai-elements/reasoning.tsx": "7b613dbfb07a272e310d871fac8aac11fa1656fda8cc8a31726a301d8dbb23be",
     "packages/ui/src/components/ai-elements/sandbox.tsx": "f521400dbaebe4c2a2fbcdcb8c18f98980c566169233beb137b22a093b44bbf0",
     "packages/ui/src/components/ai-elements/shimmer.tsx": "5d06ffdff80a13453a0b61b67f588c48d838a20d9be2cd319ca2a97d441b3127",
     "packages/ui/src/components/ai-elements/snippet.tsx": "6f369f0bb3308166ccd55f39dd542f7315873c5bd6de2491ffccc26b0700edfe",
@@ -1479,11 +1403,11 @@
     "packages/ui/src/components/ui/card.tsx": "cdfb5121c2647a4b496a377609acb05d14513f7975858482b911a3873c3695b3",
     "packages/ui/src/components/ui/chart.tsx": "272efec5aa60d34665104b45341d9f2b8cad4480070bca91e9d5409713b6fecd",
     "packages/ui/src/components/ui/checkbox.tsx": "5b3cb5612ed7654218e1cdd86fc41c7b490475721948d50a603996133245bace",
-    "packages/ui/src/components/ui/code-viewer.tsx": "dfccd2feaccc62af84f3e92dc5b8e25e7025b6c64cbd16f177586b1dc763affe",
+    "packages/ui/src/components/ui/code-viewer.tsx": "d3e08baab602198c1cf4259d4fa549d13d3fa302b77ba106a7f522fa169edf0c",
     "packages/ui/src/components/ui/collapsible.tsx": "e00f7ad26cc4c168f8c6b20e6078512807ddca05e375e47b6c9dbbd50fcbef52",
     "packages/ui/src/components/ui/command.tsx": "7c754bc80704163ce505d08d961a5a4b3e57107e7d53ea319483a896d448cbdb",
     "packages/ui/src/components/ui/context-menu.tsx": "3820461fd68ca7a345fc919ab356bdefbbead23abb3ac0f4e8d46898f7522a6f",
-    "packages/ui/src/components/ui/dialog.tsx": "53dc10761bd894a5e86278d9354aac47920c81b4aab8b414b840af095f7c0b31",
+    "packages/ui/src/components/ui/dialog.tsx": "3477b21fcec269b7ab1898855dd87ef9e309f8a9709c8f157f028e5a5a478b7f",
     "packages/ui/src/components/ui/diff-viewer.tsx": "f02208b316e6dc4043ed1794455422bc74cdd521285fcac5a2c0d589c2eb9af2",
     "packages/ui/src/components/ui/dropdown-menu.tsx": "34c5b79489756aa3467ec26d2b44587f3d47eafcb2cb16402686aac15e4debdb",
     "packages/ui/src/components/ui/flip-metric-value.tsx": "ce2d6cf063003e1023191b0fa4e3eb9b365e04a14eb0d498b897326600bf4071",
@@ -1501,7 +1425,7 @@
     "packages/ui/src/components/ui/pptx-selection-action-bar.tsx": "6e7187b7f527e4a97df117cc0df85d2dd8f4408d7415aec2e4907db39a331efd",
     "packages/ui/src/components/ui/progress.tsx": "ba88ffa75ad78eaa23519c7af84e11679ca2b8e4508c57759d769462811c0ec5",
     "packages/ui/src/components/ui/README.md": "75b3a7d95cb683c0e97d4212af3a984359031f9b1f0c5d373b2c9ed38e4bda40",
-    "packages/ui/src/components/ui/resizable.tsx": "83425c34fb76c35276e6dbf8d7ad0ee860b4536ba9d4cfd8e8a60aec3b7cabc4",
+    "packages/ui/src/components/ui/resizable.tsx": "2044789ed20bfbe3147a37cee6f63696c69e95e2ff3ec01f3c3c658171db5931",
     "packages/ui/src/components/ui/scroll-area.tsx": "83999d597a4a417aea402e833884826539b9aa1bd1ec966aa2f6dab9a97afb3c",
     "packages/ui/src/components/ui/scroll-fade-viewport.tsx": "50e5984232b6a7d59e872aab4ebb36ae837e2865e3a770adbc234b61c2531da1",
     "packages/ui/src/components/ui/select.tsx": "e6d73ae0bf6916256fd86005d8a94e3dfb004c8107f51882cfd2d52e7751ca09",
@@ -1510,12 +1434,12 @@
     "packages/ui/src/components/ui/switch.tsx": "1a6490eb3c47b3a86b76c8469e5702608ea57da7853df5de00fffa9a4a472adf",
     "packages/ui/src/components/ui/tabs.tsx": "adc59a0469c80118e9d60c08bf0222d55664ef95e6c522496b5c201011b347f0",
     "packages/ui/src/components/ui/textarea.tsx": "a839574ce1301fbaa9ba917fdb980900eb9118bffa7c6c4e469f3293b122ed30",
-    "packages/ui/src/components/ui/toast.tsx": "0f8894c6fc30e4cec44caa4cffe70e111f9c41ff9bf3699ec8e91696ea631671",
+    "packages/ui/src/components/ui/toast.tsx": "cda16399695b7cc1986961758e7e6d0baaccf3f450c95193807acb2e183b607f",
     "packages/ui/src/components/ui/tooltip.tsx": "301dbf3a6f8b1bc496f9bdc6fbc5fe6202ed373182897f39cd1ecd19b00fdfbe",
     "packages/ui/src/components/ui/usePdfZoomOverlay.ts": "c8c91b003ce2fded32c7a2369dc6eac43aa4b9dc9c830a0f5ceccb21d366b610",
     "packages/ui/src/components/ui/ZCodeAboutLogo.tsx": "1e5b7c2e8a9dc98a3c597cbe34122521319eaeb89825e4c41641e77715d1407a",
-    "packages/ui/src/lib/builtinSkillI18n.ts": "5ad4f2ba2c56b7364f38e80628b958a2e5f38d7c01066425df738c28610bc259",
-    "packages/ui/src/styles.css": "22d5b58e44cdebdbe7154c418ee05fef6dde689e384f0dd590d4057739487be7",
+    "packages/ui/src/lib/builtinSkillI18n.ts": "5ec476f06284c283e3526a9a02366a4f567ab3819d958d822ae826d6a4300278",
+    "packages/ui/src/styles.css": "d860653c40f7f2356569669973111ab4f150accc46ccfd42deab3706e0f163df",
     "packages/web/package.json": "0810e762bf1d6641d5f73ab642b81953e183e53fd963a1d405ffc65b206e5ce6",
     "packages/web/public/material-icons/3d.svg": "9527b849f0fba57ca7640e2717b3a19cb5f5e046712cbbd8b75d73af338c68fb",
     "packages/web/public/material-icons/abap.svg": "1335bd7eb9a0ed49deb622330d680c2e97731726a7a5eee8e4f46dc1e5db4de4",
@@ -2673,7 +2597,7 @@
     "scripts/license-texts/Apache-2.0.txt": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
     "scripts/native-search-tools-config.mjs": "281d368464f61363fa2d8ab74f416962fe730dd0a0572db5564475f876bb65aa",
     "scripts/remote-native-search-tools-config.mjs": "472322a66f84c7452f96aa9e16e9c4e0600f7c2588a03dc6bc869229161b1cb2",
-    "third-party/copied-components.json": "a411ef6ee22a25e910d2ccfb5dde572a116174645abbda9e99f86946deeb2072",
+    "third-party/copied-components.json": "b1e64acea8e925298ef6f5a8197f438f080393eca78f2989d997195416a9f66d",
     "third-party/embedded-components.json": "9586ccca15897f56d4ca1d703dffe9e02880fedd766c1dff93f7ac1f52ea891a",
     "third-party/native-search/licenses/00373c9bf56a894b2ed67586596bc1e8b0630cabbaf1ab46c75fc754b6bcd1ce.txt": "00373c9bf56a894b2ed67586596bc1e8b0630cabbaf1ab46c75fc754b6bcd1ce",
     "third-party/native-search/licenses/01c266bced4a434da0051174d6bee16a4c82cf634e2679b6155d40d75012390f.txt": "01c266bced4a434da0051174d6bee16a4c82cf634e2679b6155d40d75012390f",
@@ -10240,10 +10164,6 @@
       "license": "MIT",
       "repository": "https://github.com/electron/electron",
       "notices": [
-        {
-          "member": "dist/LICENSE",
-          "sha256": "5154e165bd6c2cc0cfbcd8916498c7abab0497923bafcd5cb07673fe8480087d"
-        },
         {
           "member": "LICENSE",
           "sha256": "5154e165bd6c2cc0cfbcd8916498c7abab0497923bafcd5cb07673fe8480087d"
@@ -19379,7 +19299,7 @@
         },
         {
           "file": "packages/ui/src/components/ui/code-viewer.tsx",
-          "sha256": "dfccd2feaccc62af84f3e92dc5b8e25e7025b6c64cbd16f177586b1dc763affe"
+          "sha256": "d3e08baab602198c1cf4259d4fa549d13d3fa302b77ba106a7f522fa169edf0c"
         },
         {
           "file": "packages/ui/src/components/ui/collapsible.tsx",
@@ -19395,7 +19315,7 @@
         },
         {
           "file": "packages/ui/src/components/ui/dialog.tsx",
-          "sha256": "53dc10761bd894a5e86278d9354aac47920c81b4aab8b414b840af095f7c0b31"
+          "sha256": "3477b21fcec269b7ab1898855dd87ef9e309f8a9709c8f157f028e5a5a478b7f"
         },
         {
           "file": "packages/ui/src/components/ui/diff-viewer.tsx",
@@ -19459,7 +19379,7 @@
         },
         {
           "file": "packages/ui/src/components/ui/resizable.tsx",
-          "sha256": "83425c34fb76c35276e6dbf8d7ad0ee860b4536ba9d4cfd8e8a60aec3b7cabc4"
+          "sha256": "2044789ed20bfbe3147a37cee6f63696c69e95e2ff3ec01f3c3c658171db5931"
         },
         {
           "file": "packages/ui/src/components/ui/scroll-area.tsx",
@@ -19495,7 +19415,7 @@
         },
         {
           "file": "packages/ui/src/components/ui/toast.tsx",
-          "sha256": "0f8894c6fc30e4cec44caa4cffe70e111f9c41ff9bf3699ec8e91696ea631671"
+          "sha256": "cda16399695b7cc1986961758e7e6d0baaccf3f450c95193807acb2e183b607f"
         },
         {
           "file": "packages/ui/src/components/ui/tooltip.tsx",
@@ -19507,7 +19427,7 @@
         },
         {
           "file": "packages/ui/src/styles.css",
-          "sha256": "22d5b58e44cdebdbe7154c418ee05fef6dde689e384f0dd590d4057739487be7"
+          "sha256": "d860653c40f7f2356569669973111ab4f150accc46ccfd42deab3706e0f163df"
         }
       ]
     },
@@ -19685,7 +19605,7 @@
         },
         {
           "file": "packages/ui/src/components/ai-elements/chat-loading.tsx",
-          "sha256": "b75d4398d778179f78209debde63547410d76e01cdaf3887f60b13ef9a35331f"
+          "sha256": "fd803767df6d3713c2a31e8172395a049cff89600be0d8e7192121a4d3f10f66"
         },
         {
           "file": "packages/ui/src/components/ai-elements/checkpoint.tsx",
@@ -19693,7 +19613,7 @@
         },
         {
           "file": "packages/ui/src/components/ai-elements/code-block.tsx",
-          "sha256": "ae4f975537ebb9c8ef905b7b9de39bc37180f81511bffc027dc4da1929037f18"
+          "sha256": "0a5077636948574e0ee850b4cc30a17a27c2856b93681036b03790f2981f0c84"
         },
         {
           "file": "packages/ui/src/components/ai-elements/commit.tsx",
@@ -19761,7 +19681,7 @@
         },
         {
           "file": "packages/ui/src/components/ai-elements/message.tsx",
-          "sha256": "6c35829ed11321e850cd59e20c1c88fdd452e8e2d9b5da45f808371021aabf99"
+          "sha256": "f1e8fb535465f95ff21aac658043690d8515c972ee637c718d5d4ce5b63f6ae1"
         },
         {
           "file": "packages/ui/src/components/ai-elements/node.tsx",
@@ -19805,7 +19725,7 @@
         },
         {
           "file": "packages/ui/src/components/ai-elements/reasoning.tsx",
-          "sha256": "a10a38c7b3ca633e9b5480ad94f9c7a1fdd52bc5526ae0801e3e6ed141f2b604"
+          "sha256": "7b613dbfb07a272e310d871fac8aac11fa1656fda8cc8a31726a301d8dbb23be"
         },
         {
           "file": "packages/ui/src/components/ai-elements/sandbox.tsx",
@@ -29778,329 +29698,11 @@
       "files": [
         {
           "file": "packages/ui/src/lib/builtinSkillI18n.ts",
-          "sha256": "5ad4f2ba2c56b7364f38e80628b958a2e5f38d7c01066425df738c28610bc259"
+          "sha256": "5ec476f06284c283e3526a9a02366a4f567ab3819d958d822ae826d6a4300278"
         },
         {
           "file": "apps/zcode-cli/packages/superpowers-plugin/LICENSE",
           "sha256": "a37e0e9697144819e1d965176ac4ae5bc3fa02d11e7812036bbcadf6dafe2400"
-        }
-      ]
-    },
-    {
-      "id": "React Best Practices skill",
-      "referenceRevision": "063bee94c3f4df8453406c830b0a7df0f2860278",
-      "source": "https://github.com/vercel-labs/agent-skills/tree/063bee94c3f4df8453406c830b0a7df0f2860278",
-      "importRevision": null,
-      "roots": [
-        ".agents/skills/react-best-practices"
-      ],
-      "license": "MIT",
-      "scope": "Vendored React/Next.js guidance and local adaptations; local README preserves Shu Ding / Vercel attribution.",
-      "reviewRequired": "Pinned upstream README and skill declare MIT, but a complete original copyright/license notice has not been obtained.",
-      "files": [
-        {
-          "file": ".agents/skills/react-best-practices/AGENTS.md",
-          "sha256": "9d0d1c4f1922a65ddead8b869b4f2653bf3c10c84b1c8c9dd2507e0a4a4c82cb"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/README.md",
-          "sha256": "e49f5e0088d47dab6687a7d501e9f3b23ce8ce7e8a8e428a2fd590e582f966da"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/SKILL.md",
-          "sha256": "b7d246acb440bee224ab33614979a5b8debe5fdb13d0304967aa19358eb69d9f"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/metadata.json",
-          "sha256": "c4e18bac3290fbe1b471a605867d4df68b03144ea26b8befdbe8f9d8fd124354"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/_sections.md",
-          "sha256": "01c59969e4e867f0708c8f8ef9c6d87fab9a07d0586244f429ff84013db8a115"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/_template.md",
-          "sha256": "fee4f1bc27a105bd82662c259018e6a2d115b01d355ca04b8ee72ccaf6c7e434"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/advanced-effect-event-deps.md",
-          "sha256": "b5d8d13942539c7545cf881d4faab8e868dcf0cc8e75fa3e6fb33ff4844f271f"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/advanced-event-handler-refs.md",
-          "sha256": "775e3c2edc803270fb91b5e5b0b111c38d4d1146a7ae0201ccc22c22c3c4c68d"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/advanced-init-once.md",
-          "sha256": "9e41179610d597081728d4f8102506e7ccee06a9c027caf1552d4ab5b3ed042f"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/advanced-use-latest.md",
-          "sha256": "5cd66168e6bec629ee882e969b0d53d52610f7cb4e065846ed1d0793a1dec1bf"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/async-api-routes.md",
-          "sha256": "242c9d7a00ba5083c12c233a64108755f7c6ef59925a7c50dcb436f0b1edd3f8"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/async-cheap-condition-before-await.md",
-          "sha256": "bced8ccf27a344e78f1334c8ce3e6a8ce9ffbffe26a9d65f65fd280c6d8dabdb"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/async-defer-await.md",
-          "sha256": "ce8a6727ed3f20e29d2a9272943a7d4f10ea6001a094e88909d881724270c8ea"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/async-dependencies.md",
-          "sha256": "3f03ca575c1d9be6e1d9dbe7caf3c1e7d8546133a47783d94293ddde213f03f8"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/async-parallel.md",
-          "sha256": "7faedef899d93d30cb03c0508bfa15190edbed7855c6bf88c1b1400e236a728c"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/async-suspense-boundaries.md",
-          "sha256": "6fae5c16cc3f84e96ed7a20c063d7561ad5368feebca758f2b70600dbd9076d4"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/bundle-analyzable-paths.md",
-          "sha256": "5d8d29ba3f68f8da57bdf0ee50ef84b4556eba95a207c9eb4959520a9d342bf5"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/bundle-barrel-imports.md",
-          "sha256": "512aa4277d3f29ce6d7612cb0744d8c049ccafdeb3a72fd2843ae8ce0be2f64d"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/bundle-conditional.md",
-          "sha256": "f8e927725c448703fa3f1fb31bd45218e9259d544000f83eb95444fee7def7f6"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/bundle-defer-third-party.md",
-          "sha256": "0c3575198a55115cd278e64bc328ec348a06d6ae9e3076d9eb14a15d050b46cb"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/bundle-dynamic-imports.md",
-          "sha256": "3d13ee1e2ed4596c7ddd034607719b70ebc9346c65eeaff79cf2c2417d8f4104"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/bundle-preload.md",
-          "sha256": "7e632ae1cb8b914243ff6f5103e30009514e292c3321c265911661d5e458b356"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/client-event-listeners.md",
-          "sha256": "dcdfd4e5f57c36b8a206a31e321f7227b6427b430ee1182cee1e1abd77764635"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/client-localstorage-schema.md",
-          "sha256": "6e21253d070ebe50b6c222186ed756814dfae674d458b475727c9d4ef6c23c9a"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/client-passive-event-listeners.md",
-          "sha256": "72894ea2eef53bf8efe0c597ca4e4ef2b47d48e1c9d3f2e5ea7cf50feeb0bac8"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/client-swr-dedup.md",
-          "sha256": "6be13ae14595b48908310672ca8b1bb6720e9dd906f68566fc48778da2dc8cd3"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/js-batch-dom-css.md",
-          "sha256": "d00ff06d829a4a367dcf3d3919812733b6542c4dde8a40722b044823e66cd402"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/js-cache-function-results.md",
-          "sha256": "3005995cfe8eba0538279f73b3423400bc1f0d410130b7f09c4c6fc938c9c2d7"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/js-cache-property-access.md",
-          "sha256": "7bdf71639e95132223ebf4309580a4a8979e2a9c6d0551409843d0eea81f8117"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/js-cache-storage.md",
-          "sha256": "b428b53c40e8e45edd72d3f5de600cc07009c1d7dd68991b04ae141c4b07d441"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/js-combine-iterations.md",
-          "sha256": "8f054989560a25f72d53f202443d5fc2ff79375aaff881f7966fd4d9fa223ecb"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/js-early-exit.md",
-          "sha256": "8a31c105d95c20d774e69f0dc4f14ac869276745dc97f4b3f604dba2c5b04603"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/js-flatmap-filter.md",
-          "sha256": "046a287a88aeeadb002fbc590d459c8f12920ccc0c2d335228ea469bd9cc4b5f"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/js-hoist-regexp.md",
-          "sha256": "3381777595af13ab14d9d7c2c6f30c8fbde0a7dba69d12aa4c2f32947ec4e99e"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/js-index-maps.md",
-          "sha256": "a0bdf99ff9d954b63eea790fd81768d8ce141f6df1e87c25840e9c88fdcc4d45"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/js-length-check-first.md",
-          "sha256": "e5efeb8ff1ddad9286e4ae842ef42a517925ee03edb46e9c2a5a794d9e077ea9"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/js-min-max-loop.md",
-          "sha256": "beb6df30fab6d299169d27693da43201d1999010b778fe743679860ae8a03af5"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/js-request-idle-callback.md",
-          "sha256": "219c5bdbb779a44c63262a5ca4e747aa484a0c6b81938a888d80f0c238a69e9e"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/js-set-map-lookups.md",
-          "sha256": "a7fd781a6ba9ad49065961b6f9a90ef486bf6b648390e1a08704025f98e1642b"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/js-tosorted-immutable.md",
-          "sha256": "62dc2921621cfe50b377979b0cf0118d9284fc73f92d88e89baccf8fecd76692"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/rendering-activity.md",
-          "sha256": "535312cadf0312834e749a14897123f7eb98ec6daadae35f7cbb9d2e36f6d545"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/rendering-animate-svg-wrapper.md",
-          "sha256": "369976cd613a7d5aee5350eb55ceb62184ace4d75a9a57c2e4cd579157a2f54a"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/rendering-conditional-render.md",
-          "sha256": "81ef33223568f03038a2189a9d97db05e447168430a2ad7c7258208b14c82684"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/rendering-content-visibility.md",
-          "sha256": "473ba911f62559ab463a7b01d4167010548a15e92d08a3e2e0306d6709999d16"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/rendering-hoist-jsx.md",
-          "sha256": "4cede4559302c8577ec0e1a9b761804090783b8d9da8134ca9af551b54cd5157"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/rendering-hydration-no-flicker.md",
-          "sha256": "79ffe8f33ec4c4b0838e1dfd91d679b19c429847b58259baa6968485ed3a5005"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/rendering-hydration-suppress-warning.md",
-          "sha256": "f2ca794aa650534f31f4c94ef75ff0002edaee56207950297743300a568072f9"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/rendering-resource-hints.md",
-          "sha256": "424aa829393482e7784e2296eb5026512bff426405f97e63ee1e85a0cd1d19f7"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/rendering-script-defer-async.md",
-          "sha256": "1d7754ca787a16517b1e8de16ae203789c0ceadf9f76d564e16a4f8c6fa31359"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/rendering-svg-precision.md",
-          "sha256": "ed468533f6e95f622859c884b122cf21f9f593ed6bb3d500a54de4b9f9bcb9fb"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/rendering-usetransition-loading.md",
-          "sha256": "e14f4eb969c7c86c8fd057ce83d8146279e45cac5ccc4c50c8aca32212b07d14"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/rerender-defer-reads.md",
-          "sha256": "2faba85e83c16aebf48168f9b1b261e2c9922a69d0e1f36f767250eeefb746bd"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/rerender-dependencies.md",
-          "sha256": "25aa43d6aaf40cb1edb97d36eb8684678c929560934c9731d50ac602284fe93a"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/rerender-derived-state-no-effect.md",
-          "sha256": "3f5b04e50ed1be24e203f1f5bd645df422e720f784e9604676652f161ac43635"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/rerender-derived-state.md",
-          "sha256": "8f1d225c76d11ed7705110898ba21ecb7a9d9b81eb688b678b6ca152e5d7851d"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/rerender-functional-setstate.md",
-          "sha256": "87fd1a19792955f50bac69ed46e3576d55f35138928a660867a9e99cd71f68af"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/rerender-lazy-state-init.md",
-          "sha256": "f0c25cbab4981d113663fea1508ce0b07e59e992121743bed5e7a107dc669d03"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/rerender-memo-with-default-value.md",
-          "sha256": "97044a6c30973672df6be20cbcd7e1e3582ca7550a46b661021c3ade93759354"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/rerender-memo.md",
-          "sha256": "bd1f0d21b55e68685468d883d8e6d385a6f8feb8fcd9628066ac4144d7087ba6"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/rerender-move-effect-to-event.md",
-          "sha256": "05e13a75e5237d8491a49dcd7d724e93522b65126f11d5782b6f0408b60afbfe"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/rerender-no-inline-components.md",
-          "sha256": "ce5cf1319267e3184b7e79d08d555cc51dc6a664ddff24d4557b01d16e954a94"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/rerender-simple-expression-in-memo.md",
-          "sha256": "147dfd4acab2c64f20ab9f0476e966d9445abebbcc400eb51dd407037e1bc998"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/rerender-split-combined-hooks.md",
-          "sha256": "4124d594029220f6cedbdff5dc2bbacc5c16289d5aeb53fff6ef6d7341a2d2ea"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/rerender-transitions.md",
-          "sha256": "698267bd65c8a0bf3350b7386d7b619da02fd1fac97930d9a3098346c6853761"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/rerender-use-deferred-value.md",
-          "sha256": "84c8bec6c8d525e8e712376c4d37d1133fe74d2550a0943232dd139147b87c24"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/rerender-use-ref-transient-values.md",
-          "sha256": "adc30b14f13ea2b020bf8eaa2b3fd8410050421c5753de0c8ff03bd10b9e5576"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/server-after-nonblocking.md",
-          "sha256": "13d34ead58d626015c300d9d737808ae23a0a53976b8497247cd9323ff90aeda"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/server-auth-actions.md",
-          "sha256": "7961af203b51ef5c2a975e0e5d05e91955a4b214a15d1970a4b8ea7150722d40"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/server-cache-lru.md",
-          "sha256": "bb33aab8bb6f81bbaa441cf6e254cf79f73a8a15b610f81fd2de6567440f232f"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/server-cache-react.md",
-          "sha256": "6a67163afb9b98bae45b129d48cc26b00d13e2b5a38b36d19b05f1444537aefa"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/server-dedup-props.md",
-          "sha256": "833b59dc0d9a6f5473bc57fef70f4c9e928513bb0bdd9e3361f0520ecb529626"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/server-hoist-static-io.md",
-          "sha256": "2a4d6f78430661ec065a6649c1859655039d3ec2d23e35797d95ac730cf017eb"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/server-no-shared-module-state.md",
-          "sha256": "74f529c7e2bf6f5ed0552580c1ccc6d35f9ce48c3de008f3a98c7d876a26fd1f"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/server-parallel-fetching.md",
-          "sha256": "cd68caf2eb3946f12bd236c5a4e668e03dd3e7a54acf8d84bd54a199126d6018"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/server-parallel-nested-fetching.md",
-          "sha256": "4d9c44e579e1286013acf5cb5f65b04297d2b68909f44f8163804656514a78ff"
-        },
-        {
-          "file": ".agents/skills/react-best-practices/rules/server-serialization.md",
-          "sha256": "4d025c42043c56e6355196a2e885d168cdb15248d0797146c9db838a57b34946"
         }
       ]
     }
@@ -30643,5 +30245,77 @@
     ]
   },
   "reviewRequired": [
+    {
+      "id": "unsafe-pointer@0.2.0",
+      "reason": "Original version-specific publisher copyright/license material remains incomplete."
+    },
+    {
+      "id": "react-remove-scroll-bar@2.3.8",
+      "reason": "Original version-specific publisher copyright/license material remains incomplete."
+    },
+    {
+      "id": "quickjs-wasi@2.2.0",
+      "reason": "Original version-specific publisher copyright/license material remains incomplete."
+    },
+    {
+      "id": "@hono/node-ws@1.3.0",
+      "reason": "Original version-specific publisher copyright/license material remains incomplete."
+    },
+    {
+      "id": "strict-event-emitter@0.5.1",
+      "reason": "Original version-specific publisher copyright/license material remains incomplete."
+    },
+    {
+      "id": "lazy-val@1.0.5",
+      "reason": "Original version-specific publisher copyright/license material remains incomplete."
+    },
+    {
+      "id": "semaphore@1.1.0",
+      "reason": "Original version-specific publisher copyright/license material remains incomplete."
+    },
+    {
+      "id": "boolbase@1.0.0",
+      "reason": "Original version-specific publisher copyright/license material remains incomplete."
+    },
+    {
+      "id": "@open-draft/deferred-promise@2.2.0",
+      "reason": "Original version-specific publisher copyright/license material remains incomplete."
+    },
+    {
+      "id": "is-node-process@1.2.0",
+      "reason": "Original version-specific publisher copyright/license material remains incomplete."
+    },
+    {
+      "id": "ansi-to-react@6.2.6",
+      "reason": "Original version-specific publisher copyright/license material remains incomplete."
+    },
+    {
+      "id": "keyv@4.5.4",
+      "reason": "Original version-specific publisher copyright/license material remains incomplete."
+    },
+    {
+      "id": "@arms/rum-browser@0.1.8",
+      "reason": "Original version-specific publisher copyright/license material remains incomplete."
+    },
+    {
+      "id": "@arms/rum-core@0.1.4",
+      "reason": "Original version-specific publisher copyright/license material remains incomplete."
+    },
+    {
+      "id": "@arms/rum-electron@0.0.3",
+      "reason": "Original version-specific publisher copyright/license material remains incomplete."
+    },
+    {
+      "id": "Skia",
+      "reason": "Skia core notice retained. Per-platform linked third-party libraries and their exact build provenance still require a complete audit."
+    },
+    {
+      "id": "QuickJS-NG",
+      "reason": "Engine notice retained. WASI libc and extension link provenance is not fully established by the npm package."
+    },
+    {
+      "id": "rust-standard-library@6a6eaca656978778f7c1c750ee0c3db87f8bffb2",
+      "reason": "No original notice snapshot for this recorded native component."
+    }
   ]
 }

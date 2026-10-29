@@ -1,7 +1,7 @@
 /* eslint-disable max-lines -- the playback engine: AudioContext, decoding, the mixer and the URL/IndexedDB side of a sound. The table it plays from is in zaicodeSoundSettingsModel. */
 import { isZaicodeProductMode } from "@zcode/shared";
 import { getTaskNotificationSoundUrl, listTaskNotificationSounds } from "@/lib/taskNotificationSound.js";
-import taskNotificationPopUrl from "@/assets/notification-sounds/task-notification-pop.mp3";
+import taskNotificationPopUrl from "@/assets/notification-sounds/task-notification-pop.wav";
 import {
   readBundledZaicodeCustomSound,
   readZaicodeCustomSoundBlob,

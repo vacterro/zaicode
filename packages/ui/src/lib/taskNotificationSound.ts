@@ -1,4 +1,4 @@
-import taskNotificationPopUrl from "@/assets/notification-sounds/task-notification-pop.mp3";
+import taskNotificationPopUrl from "@/assets/notification-sounds/task-notification-pop.wav";
 import { isTaskNotificationSoundEnabled } from "@/lib/taskNotificationPreferences.js";
 import { isZaicodeProductMode } from "@zcode/shared";
 

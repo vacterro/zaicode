@@ -2460,8 +2460,6 @@ The original import revisions of copied components are not recorded in the curre
 
 - Superpowers skill description adaptations (MIT): packages/ui/src/lib/builtinSkillI18n.ts, apps/zcode-cli/packages/superpowers-plugin/LICENSE. License reference: https://raw.githubusercontent.com/obra/superpowers/f2cbfbefebbfef77321e4c9abc9e949826bea9d7/LICENSE. Original import revision: not recorded.
 
-- React Best Practices skill (MIT): .agents/skills/react-best-practices. License reference: https://github.com/vercel-labs/agent-skills/tree/063bee94c3f4df8453406c830b0a7df0f2860278. Original import revision: not recorded. Review required: Pinned upstream README and skill declare MIT, but a complete original copyright/license notice has not been obtained.
-
 Fig autocomplete source carries the repository's MIT license; the generated registry records npm @withfig/autocomplete@2.692.3 metadata as ISC. The original source MIT notice is retained below.
 
 ## Embedded native and WASM components
@@ -14672,8 +14670,6 @@ THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH RE
 ````
 
 ### Notice 5154e165bd6c2cc0cfbcd8916498c7abab0497923bafcd5cb07673fe8480087d
-
-- electron@41.0.3: dist/LICENSE
 
 - electron@41.0.3: LICENSE
 

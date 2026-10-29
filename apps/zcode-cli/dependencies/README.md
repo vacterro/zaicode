@@ -69,3 +69,38 @@ archives and build inputs for bfs and ugrep are recorded in that configuration;
 the producer entry points remain `pnpm build:native-search` and
 `pnpm pack:native-search`. Recheck every affected target and SEA packaging before
 replacing an active release.
+
+## Recovering archives in a source-only mirror
+
+The cleaned source mirror intentionally omits executable archives. Before a
+Desktop, SEA, server-cli or remote packaging build, restore its dependencies
+explicitly from the immutable GitHub source revision:
+
+```sh
+# Restore the current host target; no build step performs this download implicitly.
+node scripts/restore-native-search-archives.mjs
+
+# Restore another Desktop/SEA target or the legacy macOS remote target.
+node scripts/restore-native-search-archives.mjs --platform linux --arch arm64
+node scripts/restore-native-search-archives.mjs --remote --platform darwin --arch x64
+
+# Restore all 18 current and legacy archives.
+node scripts/restore-native-search-archives.mjs --all
+
+# Offline recovery and unchanged packaging-refusal controls.
+node --test scripts/restore-native-search-archives.test.mjs
+```
+
+Recovery uses only `raw.githubusercontent.com/vacterro/zaicode` at revision
+`a7b8af79d6819f356275488aa2d40c4416cc8613`. It checks each complete archive
+against both the committed source inventory and target configuration pins.
+Downloads are all checked before missing archives are written; existing modified
+files are preserved and refused. Symlink destinations are refused, and each
+verified archive is installed atomically without replacing a concurrent file.
+Recovery does not extract or run an executable. Normal preparation still verifies
+archive hashes, binary target architecture and the companion third-party notices.
+
+These pins establish the identity of the existing dependency bytes, not an
+independent reproducible-build attestation. The original archives contain bare
+executables; distribute their companion license/source notices with any derived
+binary package. Historical installer and tag exposure is a separate review.
