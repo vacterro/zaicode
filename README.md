@@ -14,7 +14,7 @@
   ZAICODE · <a href="https://github.com/vacterro/zaicode/blob/zaicode/README.zcode.md">ZCode (简体中文)</a> · <a href="https://github.com/vacterro/zaicode/blob/zaicode/README.en.md">ZCode (English)</a>
 </p>
 
-<img width="1440" height="860" alt="ZAICODE hero — Do your best." src="docs/screenshots/01-do-your-best.png" />
+<a href="docs/screenshots/10-new-task-2026-11-09.png"><img width="1597" height="966" alt="ZAICODE: new task composer, SAIPEN session and live project navigation" src="docs/screenshots/10-new-task-2026-11-09.png" /></a>
 
 ZAICODE is an operator workbench for running many AI coding agents at once over
 many projects, without babysitting them. It is a modified build of
@@ -65,39 +65,33 @@ Autotroubleshoot: `install\Doctor.cmd`. Details: [docs/ZAICODE_INSTALL.md](docs/
 
 ## Interface tour
 
+These are **real ZAICODE Windows desktop screenshots**, captured on **9 November 2026**. Click an image to open it at full resolution. Usage numbers and running tasks reflect that specific session, not benchmark results.
+
+The opening screenshot shows the **new task composer**, project sidebar and SAIPEN-aware session controls.
+
 <table>
   <tr>
     <td width="50%" valign="top">
-      <strong>SAIHOME</strong><br />
-      The operator dashboard: quotas, health, projects, streaks, activity, and the live clock in one place.<br /><br />
-      <img src="docs/screenshots/02-saihome-dashboard.png" alt="SAIHOME dashboard" />
+      <strong>SAIHOME: operator dashboard</strong><br />
+      Projects, quotas, routing health, token usage, live activity, AI limits and the next scheduled runs in one workspace.<br /><br />
+      <a href="docs/screenshots/07-saihome-dashboard-2026-11-09.png"><img src="docs/screenshots/07-saihome-dashboard-2026-11-09.png" alt="ZAICODE SAIHOME overview with projects, limits, usage and schedules" /></a>
     </td>
     <td width="50%" valign="top">
-      <strong>Agents &amp; tasks</strong><br />
-      Create roles, inspect queues, and see what is idle, running, finished, or waiting for you.<br /><br />
-      <img src="docs/screenshots/03-agents-and-tasks.png" alt="Agents and tasks" />
-    </td>
-  </tr>
-  <tr>
-    <td width="50%" valign="top">
-      <strong>Scheduler</strong><br />
-      Arm quota-aware autonomous runs and recurring prompts across one project or a whole sidebar section.<br /><br />
-      <img src="docs/screenshots/04-scheduler.png" alt="Scheduler" />
-    </td>
-    <td width="50%" valign="top">
-      <strong>Audits</strong><br />
-      Run Quick 3 Waves audits, watch progress live, and jump straight to reports when something stops.<br /><br />
-      <img src="docs/screenshots/05-audits.png" alt="Audits" />
+      <strong>Agents, teams &amp; scheduler</strong><br />
+      Role-based agent teams, task queues and recurring jobs with project, timing and quota-aware scheduling options.<br /><br />
+      <a href="docs/screenshots/08-agents-scheduler-2026-11-09.png"><img src="docs/screenshots/08-agents-scheduler-2026-11-09.png" alt="ZAICODE agents and task teams alongside the scheduler configuration" /></a>
     </td>
   </tr>
   <tr>
     <td colspan="2" valign="top">
-      <strong>Active session</strong><br />
-      The full working view: transcript, branch, prompt composer, state inspector, board, and backlog at the same time.<br /><br />
-      <img src="docs/screenshots/06-active-session.png" alt="Active session" />
+      <strong>Live coding session: SAIPEN + routing</strong><br />
+      Follow edits, tool calls and execution progress while inspecting the SAIPEN ticket board and live 9router provider usage in docked panels.<br /><br />
+      <a href="docs/screenshots/09-active-session-2026-11-09.png"><img src="docs/screenshots/09-active-session-2026-11-09.png" alt="ZAICODE active coding session, SAIPEN state and 9router usage" /></a>
     </td>
   </tr>
 </table>
+
+Additional views: [Audits](docs/screenshots/05-audits.png) · [Original session layout](docs/screenshots/06-active-session.png).
 
 ## What it adds to ZCode
 
